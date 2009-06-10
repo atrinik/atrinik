@@ -177,6 +177,7 @@ CommArray_s WizCommands [] = {
 	 * player, no goto to maps.
 	 * This will allow to give honest players some power but they will still
 	 * not be able to cheat. Means, they will self be able to play on. */
+	{"/dmsay",			command_dmsay,					0.0},
 	{"/summon", 		command_summon,					0.0},
 	{"/kick", 			command_kick,					0.0},
 	{"/inventory", 		command_inventory,				0.0},

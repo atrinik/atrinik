@@ -96,6 +96,7 @@ int checkbanned(char *login, char *host);
 
 /* c_chat.c */
 int command_say(object *op, char *params);
+int command_dmsay(object *op, char *params);
 int command_shout(object *op, char *params);
 int command_tell(object *op, char *params);
 int command_t_tell(object *op, char *params);
