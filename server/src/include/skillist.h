@@ -73,7 +73,7 @@ skill skills[NROFSKILLS] = {
     {"singing",            	NULL, EXP_NONE, 5, 1, 	2.0f,	CHA,     		INTELLIGENCE, 	NO_STAT_VAL},
     {"sense curse",        	NULL, EXP_NONE, 10, 10, 1.0f,	WIS,     		POW, 			NO_STAT_VAL},
 	/* 15 */
-    {"find traps",         	NULL, EXP_NONE, 0, 0, 	0.0f,  	DEX, 			NO_STAT_VAL, 	NO_STAT_VAL},
+    {"find traps",         	NULL, 0, 		0, 1, 	0.0f,  	DEX, 			NO_STAT_VAL, 	NO_STAT_VAL},
     {"meditation",         	NULL, EXP_NONE, 10, 0, 	0.0f, 	WIS,      		POW,     		INTELLIGENCE},
     {"punching",           	NULL, EXP_NONE, 0, 0, 	1.0f, 	STR,      		DEX, 			NO_STAT_VAL},
     {"flame touch", 	    NULL, EXP_NONE, 0, 0, 	1.0f,  	STR,      		DEX,     		INTELLIGENCE},

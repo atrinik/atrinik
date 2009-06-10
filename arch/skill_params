@@ -23,7 +23,7 @@ remove traps
 set traps
 0 5   0 0.0   5 1 0
 find traps
-5 0   100 1.5   1 99 99
+3 0 0 1.5 1 99 99
 hide in shadows
 5 0   1 1.0   1 5 99
 singing

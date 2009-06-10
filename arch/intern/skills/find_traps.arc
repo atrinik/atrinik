@@ -4,7 +4,7 @@ type 43
 sub_type 1
 face skill.101
 sys_object 1
-last_eat 2
+last_eat 1
 no_drop 1
 sp 15
 level 1
