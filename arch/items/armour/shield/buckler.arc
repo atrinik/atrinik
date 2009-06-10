@@ -1,0 +1,20 @@
+Object buckler
+name buckler
+type 33
+layer 3
+face buckler.101
+ac 1
+wc 1
+protect_impact 5
+protect_cleave 5
+protect_pierce 5
+protect_slash 5
+is_vul_physical 1
+is_vul_elemental 1
+is_vul_magic 1
+is_vul_sphere 1
+material_real 258
+material 16
+weight 1500
+value 20
+end

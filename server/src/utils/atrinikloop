@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# This is the Atrinik loop & log script
+
+CMDNAME="./daimonin_server"
+maxrestart=500
+logdir="data/log"
+
+
+logcount=0
+
+rm -rf $logdir
+mkdir $logdir
+
+while [ ! "$logcount"x = "$maxrestart"x ]; do
+  echo "Starting Atrinik `date` for the $logcount time..." 1>$logdir/$logcount 2>&1
+  $CMDNAME -d 2>>$logdir/$logcount 1>&2
+  if [ -f core ] ; then
+        mv core core.$logcount
+        /bin/gzip core.$logcount
+  fi
+  logcount=`expr $logcount + 1`
+  sleep 50
+done

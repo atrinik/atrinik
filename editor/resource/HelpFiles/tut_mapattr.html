@@ -1,0 +1,144 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
+  <TITLE>Map Properties</TITLE>
+</HEAD>
+<BODY>
+
+<P><A HREF="start.html"><IMG SRC="back.gif" WIDTH="42" HEIGHT="22" ALIGN="BOTTOM" NATURALSIZEFLAG="3" BORDER="0">Back</A>
+
+<H1 align=center>Modifying the Map Properties</H1>
+
+<P>
+Every map has "global properties": Reset time settings, map text etc.
+These can be viewed and modified by selecting menu "Map->Map Properties".
+</P>
+
+<P><B>Map Text</B>:
+This textfield is meant to contain the map creator's name (, evtl. email),
+and the date when the map was created or last modified. If you are planning
+to publish your maps on the net or get them into the official Daimonin
+distribution then <B>please write your name into that textfield for
+every map you create</B>.
+</P>
+
+<P><B>Unique</B>:
+If set, this entire map is unique. Exactly unique to what will depend on how
+it is used (It could be a per player unique map, or maybe a common map that is
+just permanent for all the players).
+</P>
+
+<P><B>Fixed Reset</B>:
+If enabled, the map reset countdown will not start over when someone
+enters/exits the map. Thus, once the map has been loaded, it will reset in
+'Reset Timeout' seconds, no matter what access happen. This is very useful for
+shops and towns which are constantly accessed, but should be reset periodically.
+</P>
+
+<P><B>Outdoor Map</B>:
+This is a very important attribute. It must be set for all outdoor maps.
+An outdoor map is a map which is not meant to have a "ceiling" of any kind.
+If your map contains grass and trees or rocks and hills, it is most likely
+an outdoor map and you should set this flag.
+</P>
+
+<P><B>Enter X, Y</B>:
+These values represent the location where players get inserted if entering
+through an exit that has no destination coordinates set.
+These coordinates are also used to re-insert players after map reset
+when "Fixed Login" is enabled.
+</P>
+
+<P><B>Reset Timeout</B>:
+Stores the number of seconds that need to elapse before this map will be reset.
+For instance, if set to 1800, the map expires after 30 minutes. If set to zero,
+a default value is applied.
+</P>
+
+<P><B>Swap Time</B>:
+This controls how many ticks must elapse after the map has not been used before
+it gets swapped out. swapping out is different than reset, as a swapped out map
+will get loaded back into memory if someone re-visits it before it is reset.
+Zero means the server takes a certain default value. <br>
+Don't modify this value unless you know exactly what you're doing.
+</P>
+
+<P><B>Difficulty</B>:
+This value stores the map difficulty. If set to zero, the server code will try
+to come up with a reasonable difficulty value.
+</P>
+
+<P><B>Darkness</B>:
+Light/darnkess of the map (overall). A value of -1 is default and the server will
+set this map to daylight (will be overruled by outdoor flag). A value of 0 means
+"no light" - absolute darkness. 1 means a bit light, 2 a bit more. Good values
+for dark caves are 2 or 3. 4 is a good "ambient" value.
+</P>
+
+<P><B>Paths for Map-Tiling</B>:
+These entries determine what map is tiled in that direction.
+Map tiling is a feature that lets multiple maps be connected, effectively
+forming a much larger single map. This is most useful for the outdoor
+world maps, where it is not practical to have one massive map, but
+the old style tiling method.
+</P>
+
+<P><B>No Magic</B>:
+Special flag for unique maps. Map will not be saved for player but reloaded from
+original source. Example is the tutorial map.
+</P>
+
+<P><B>No Magic</B>:
+Players cannot cast magic spells anywhere on the map. This works like
+the entire map was tiled with "no magic" arches.
+</P>
+
+<P><B>No Prayers</B>:
+Players cannot cast prayers anywhere on the map. This works like
+the entire map was tiled with "unholy floor" arches.
+</P>
+
+<P><B>No Harmful Spells</B>:
+If enabled, players can cast only self spells (both magic and prayers),
+and spells which have no damaging, negative or global effects.
+This means all kinds of attack spells are disabled, as well as
+stuff like recall and dimension door.<br>
+This flag should always be set for cities or taverns which are
+meant to be safe and don't have monsters wandering around.
+</P>
+
+<P><B>No Summon</B>:
+Players cannot use summoning spells or skills.
+</P>
+
+<P><B>Fixed Login</B>:
+This flag is very special and important: Normally, when a player
+logs in to the game, he gets inserted at the place where he left.
+However, in many cases this is troublesome. Players can get
+stuck and starve, or they could keep sitting in big treasurerooms.
+Therefore, on maps with "Fixed Login", players always get inserted to
+the "Enter X/Y" coordinates if they log in AND the map has been
+reset since they last left.
+</P>
+
+<P><B>PvP Enabled</B>:
+If set, players are able to harm and kill each other on this map.
+</P>
+
+<P>
+There are three flags for special death modes.
+(These flags are exclusive, you should never set more than one):
+<UL>
+<LI><B>Permanent Death</B>: When a player dies he stays dead. An indestructible
+   corpse of his body remains on the ground though. When another character
+   manages to reach this corpse and revive it, the dead player comes back to life.</LI>
+<LI><B>Ultra Death</B>: This is like Permanent Death, with the small difference
+  that corpses decay and dissapear after a certain amount of time. That means the
+  time to revive a player is limited. If it doesn't happen in time, this unlucky
+  player is deleted and there is no way to get him back to life EVER.</LI>
+<LI><B>Instant Death</B>: The ultimate challenge - When a player dies on this
+  map, he is instantly deleted. There is no chance whatsoever to be revived.</LI>
+</UL>
+</P>
+</BODY>
+</HTML>

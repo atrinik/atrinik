@@ -1,0 +1,163 @@
+<?xml version="1.0" standalone="yes" ?>
+<!--
+  #################################################################
+  #   This file contains the typenumbers with their associated    #
+  #   names, from the file "define.h" in the Daimonin package.    #
+  # This file should be updated when new types have been defined. #
+  #################################################################
+-->
+<!DOCTYPE typenumbers [
+  <!ELEMENT typenumbers (type*)>
+  
+  <!ELEMENT type EMPTY>
+  <!ATTLIST type number CDATA #REQUIRED
+                 name   CDATA #REQUIRED>
+]>
+
+<typenumbers>
+  <type number="0" name="*NONE*" />
+  <type number="1" name="PLAYER" />
+  <type number="2" name="BULLET" />
+  <type number="3" name="ROD" />
+  <type number="4" name="TREASURE" />
+  <type number="5" name="POTION" />
+  <type number="6" name="FOOD" />
+  <type number="7" name="POISON" />
+  <type number="8" name="BOOK" />
+  <type number="9" name="CLOCK" />
+  <type number="10" name="FBULLET" />
+  <type number="11" name="FBALL" />
+  <type number="12" name="LIGHTNING" />
+  <type number="13" name="ARROW" />
+  <type number="14" name="BOW" />
+  <type number="15" name="WEAPON" />
+  <type number="16" name="ARMOUR" />
+  <type number="17" name="PEDESTAL" />
+  <type number="18" name="ALTAR" />
+  <type number="19" name="CONFUSION" />
+  <type number="20" name="LOCKED_DOOR" />
+  <type number="21" name="SPECIAL_KEY" />
+  <type number="22" name="MAP" />
+  <type number="23" name="DOOR" />
+  <type number="24" name="KEY" />
+  <type number="25" name="MMISSILE" />
+  <type number="26" name="TIMED_GATE" />
+  <type number="27" name="TRIGGER" />
+  <type number="28" name="GRIMREAPER" />
+  <type number="29" name="MAGIC_EAR" />
+  <type number="30" name="TRIGGER_BUTTON" />
+  <type number="31" name="TRIGGER_ALTAR" />
+  <type number="32" name="TRIGGER_PEDESTAL" />
+  <type number="33" name="SHIELD" />
+  <type number="34" name="HELMET" />
+  <type number="35" name="HORN" />
+  <type number="36" name="MONEY" />
+  <type number="37" name="CLASS" />
+  <type number="38" name="GRAVESTONE" />
+  <type number="39" name="AMULET" />
+  <type number="40" name="PLAYERMOVER" />
+  <type number="41" name="TELEPORTER" />
+  <type number="42" name="CREATOR" />
+  <type number="43" name="SKILL" />
+  <type number="44" name="EXPERIENCE" />
+  <type number="45" name="EARTHWALL" />
+  <type number="46" name="GOLEM" />
+  <type number="47" name="BOMB" />
+  <type number="48" name="THROWN_OBJ" />
+  <type number="49" name="BLINDNESS" />
+  <type number="50" name="GOD" />
+  <type number="51" name="DETECTOR" />
+  <type number="52" name="SPEEDBALL" />
+  <type number="53" name="DEAD_OBJECT" />
+  <type number="54" name="DRINK" />
+  <type number="55" name="MARKER" />
+  <type number="56" name="HOLY_ALTAR" />
+  <type number="57" name="PLAYER_CHANGER" />
+  <type number="58" name="BATTLEGROUND" />
+  <type number="59" name="PEACEMAKER" />
+  <type number="60" name="GEM" />
+  <type number="61" name="FIRECHEST" />
+  <type number="62" name="FIREWALL" />
+  <type number="63" name="ANVIL" />
+  <type number="64" name="CHECK_INV" />
+  <type number="65" name="MOOD_FLOOR" />
+  <type number="66" name="EXIT" />
+  <type number="67" name="TYPE_AGE_FORCE" />
+  <type number="68" name="SHOP_FLOOR" />
+  <type number="69" name="SHOP_MAT" />
+  <type number="70" name="RING" />
+  <type number="71" name="FLOOR" />
+  <type number="72" name="FLESH" />
+  <type number="73" name="INORGANIC" /> 
+  <type number="74" name="TYPE_LIGHT_APPLY" />
+  <type number="75" name="LIGHTER" />
+  <type number="76" name="TRAP_PART" />
+  <type number="77" name="WALL" />
+  <type number="78" name="LIGHT_SOURCE" />
+  <type number="79" name="MISC_OBJECT" />
+  <type number="80" name="MONSTER" />
+  <type number="81" name="SPAWN_POINT" />
+  <type number="82" name="TYPE_LIGHT_REFILL" />
+  <type number="83" name="TYPE_SPAWN_MOB" />
+  <type number="84" name="TYPE_SPAWN_INFO" />
+  <type number="85" name="SPELLBOOK" />
+  <type number="86" name="ORGANIC" />
+  <type number="87" name="CLOAK" />
+  <type number="88" name="CONE" />
+  <type number="89" name="AURA" />
+  <type number="90" name="SPINNER" />
+  <type number="91" name="GATE" />
+  <type number="92" name="BUTTON" />
+  <type number="93" name="CF_HANDLE" />
+  <type number="94" name="HOLE" />
+  <type number="95" name="TRAPDOOR" />
+  <type number="96" name="WORD_OF_RECALL" />
+  <type number="97" name="PARAIMAGE" />
+  <type number="98" name="SIGN" />
+  <type number="99" name="BOOTS" />
+  <type number="100" name="GLOVES" />
+  <type number="101" name="BASE_INFO (internal)" />
+  <type number="102" name="RANDOM_DROP" />
+  <type number="103" name="CONVERTER" />
+  <type number="104" name="BRACERS" />
+  <type number="105" name="POISONING" />
+  <type number="106" name="SAVEBED" />
+  <type number="107" name="POISONCLOUD" />
+  <type number="108" name="FIREHOLES" />
+  <type number="109" name="WAND" />
+  <type number="110" name="ABILITY" />
+  <type number="111" name="SCROLL" />
+  <type number="112" name="DIRECTOR" />
+  <type number="113" name="GIRDLE" />
+  <type number="114" name="FORCE" />
+  <type number="115" name="POTION_EFFECT" />
+  <type number="116" name="TYPE_JEWEL" />
+  <type number="117" name="TYPE_NUGGET" />
+  <type number="118" name="TYPE_EVENT_OBJECT" />
+  <type number="119" name="TYPE_WAYPOINT_OBJECT" />
+  <type number="120" name="TYPE_QUEST_CONTAINER" />
+  <type number="121" name="CLOSE_CON" />
+  <type number="122" name="CONTAINER" />
+  <type number="123" name="ARMOUR_IMPROVER" />
+  <type number="124" name="WEAPON_IMPROVER" />
+  <type number="125" name="TYPE_WEALTH" />
+  <type number="126" name="TYPE_MOB_AI" />
+
+  <type number="130" name="SKILLSCROLL" />
+  
+  <type number="138" name="DEEP_SWAMP" />
+  <type number="139" name="IDENTIFY_ALTAR" />
+  
+  <type number="141" name="CANCELLATION" />
+  
+  <type number="150" name="MENU" />
+  <type number="151" name="BALL_LIGHTNING" />
+  
+  <type number="153" name="SWARM_SPELL" />
+  <type number="154" name="RUNE" />
+
+  <type number="156" name="POWER_CRYSTAL" />
+  <type number="157" name="CORPSE" />
+  <type number="158" name="DISEASE" />
+  <type number="159" name="SYMPTOM" />
+</typenumbers>

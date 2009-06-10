@@ -1,0 +1,83 @@
+# *****************************************************************************
+# Configuration part. Edit those variables to fit your own system setup.
+# *****************************************************************************
+
+# This is the base crossfire data directory.
+CROSSFIRE_PATH = /home/Daimonin/server/plugin_python
+
+# Default libraries required. Edit those to match $(blddir)/Modules/Makefile
+# if needed.
+LIBS		= -lnsl -ldl -lpthread -lutil
+
+# Supply the Python version used. In most cases, this will be something like 2.x
+# If python is installed in very unusal positions, this must be changed by hand
+PYTHONVER      	= @PYTHON_VER@
+
+# Supply the python /include and /lib positions
+LIBROOT 	= @PYTHON_LIB@
+INCLUDEROOT 	= @PYTHON_INC@
+
+EXTRA_CFLAGS    = @EXTRA_CFLAGS@
+
+# When configure fails set these to the required pathes
+#LIBROOT        = /usr/lib
+#INCLUDEROOT    = /usr/include
+
+# *****************************************************************************
+# End of user configuration part. Don't change anything after this line,
+# unless things really go wrong with the default setup.
+# *****************************************************************************
+
+RM        = @RM@
+CC        = @CC@
+
+MAKEDOC = doc_utils/make_documentation.pl
+
+SRCS = plugin_python.c atrinik_map.c atrinik_object.c
+
+OBJECTS   = $(SRCS:.c=.o)
+INCLUDE   = -I./include -I../include -I$(INCLUDEROOT)/python$(PYTHONVER)
+
+CFLAGS    = -g -O2 -fPIC $(EXTRA_CFLAGS)
+DEPEND = @DEPEND@
+
+LIBPYTHON = $(LIBROOT)/python$(PYTHONVER)/config/libpython$(PYTHONVER).a
+
+LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic 
+SYSLIBS=	-lm
+ALLLIBS=	$(LIBPYTHON) $(LIBS) $(SYSLIBS)
+
+all : plugin_python.so.0.1 doc
+
+clean :
+	$(RM) -f *.o core plugin_python.so.0.1
+
+distclean : clean
+	$(RM) -f *.o core plugin_python.so.0.1 Makefile
+
+install : plugin_python.so.0.1
+	cp plugin_python.so.0.1 $(CROSSFIRE_PATH)/plugins
+
+plugin_python.so.0.1 : $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../common/libcross.a $(ALLLIBS) -o plugin_python.so.0.1
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+doc:	
+#doc/Map_Methods.txt doc/Object_Methods.txt doc/DaimoninFunctions.txt
+#doc/Map_Methods.txt: DaimoninMap.c
+#	$(MAKEDOC) $< > $@
+
+#doc/Object_Methods.txt: DaimoninObject.c
+#	$(MAKEDOC) $< > $@
+
+#doc/DaimoninFunctions.txt: plugin_python.c
+#	$(MAKEDOC) $< > $@
+
+depend:
+	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDE) --
+
+proto:
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

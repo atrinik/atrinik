@@ -1,0 +1,48 @@
+Atrinik Media License
+----------------------
+
+Disclaimer
+
+The Atrinik Media License is the Artistic License, which can be found
+in the Atrinik main directory.
+
+Because the Atrinik/client/media directory can be user extended, the Atrinik
+Artistic License is ONLY VALID FOR MEDIA FILES WHICH ARE PART OF THE ATRINIK
+OPEN SOURCE PROJECT.
+
+This includes ONLY files which are part of the Atrinik SVN tree.
+
+If a file in this directory is NOT part of the Atrinik SVN tree, it is NOT an official
+Atrinik media file. In this case a 3rd party (user) has altered the content
+of the media directory and/or the whole Atrinik package.
+
+The common alteration of the media directory comes with "media extension packages" 
+for the Atrinik project. This kind of packages are not official project parts
+and/or submited by users or a different 3rd party.
+
+It IS allowed to change, delete or extend the media directory for personal use.
+
+It is NOT allowed to make this altered package public as part of the Atrinik 
+project - it is only allowed to make it puplic as an "user media extension package
+for Atrinik".
+
+This kind of package must be declared as Atrinik media extension. It is not allowed
+to trade any original Atrinik project file inside this package, except license or
+documentation files.
+
+A copyright note inside that package must explain this explicit to avoid any confusion.
+
+A file inside the media directory will NEVER be sent or even altered to or from the
+server - a server or 3rd party has no direct access to the media directory. The only way
+to change files inside the media directory is for user to install them.
+
+Remember that you have to control the right use of copyrights when you use 3rd
+party files for this directory.
+
+You can control the official Atrinik files by browsing the Atrinik SVN file
+list which can be found on the Atrinik project page.
+
+Personal note: 
+I had written this file to avoid any copyright problems with 3rd partys who think they 
+can/should trade unofficial files in the media directory as part of Atrinik. It is not
+to harm any 3rd party extension.

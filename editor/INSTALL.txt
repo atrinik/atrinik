@@ -1,0 +1,85 @@
+How to run the AtrinikEditor:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Simply run the jar file "AtrinikEditor.jar" in the main directory.
+In Windows this is done by a doubleclick on "AtrinikEditor.jar".
+In Linux/Unix you type in the console: "java -jar AtrinikEditor.jar".
+
+The java runtime will be enough to run the client. Download it automatically
+from sun. This will install the latest runtime using your browser.
+
+** There is no neeed to install anything else (SDK, ...) except you want   **
+** compile the editor                                                      **
+
+You can download the java RUNTIME here:
+http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80
+or this
+http://java.com
+
+If you have enough memory, it is recommended to run the editor
+with a higher maximum memory size, like 128 Mb:
+"java -jar -Xmx128m AtrinikEditor.jar"
+(Note that in this way, the editor won't *always* use 128 Mb.
+It will only use that much when it is required.)
+
+
+In case there is no jar file available, that means you will need
+to compile the editor from the sources first. Read next paragraph.
+
+
+How to build the AtrinikEditor from sources:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you have checked out the AtrinikEditor sources from CVS, or
+downloaded a "developer version", then you've got the java sources.
+Now you can modify the java code, you can add classes, but please
+don't move or rename any directories.
+
+When you find yourself in the position that you want to compile
+the java sources for the editor, you have mainly these options:
+
+1. Compile & Debug using JBuilder.
+2. Compile using Apache Ant.
+3. Compile using one of the OS-specific build scripts.
+   (There is no guarantee any of these works correctly.)
+4. Compile "by hand" via commandline.
+
+I strongly recommed using Ant for compile and JBuilder for coding & compile.
+It works on any reasonable platform and comes even pre-installed on most 
+Linux/Unix systems today. JBuilder is free avaible for personal use from
+Borland.
+
+Visit <http://ant.apache.org/> for more information about Ant.
+Visit <http://www.borland.com/products/downloads/download_jbuilder.html> 
+for more information about Borland JBuilder.
+
+Using Borland JBuilder
+^^^^^^^^^^^^^^^^^^^^^^
+Read the README.TXT in Atrinik/editor/make/jbuilder9/ for more
+info. On the Borland site is also a big doc file (>70mb). If 
+JBUilder is installed, just start the AtrinikEditor.jpx inside
+the folder.
+
+Compiling the sources with Apache Ant:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Install Ant on your system. Make sure both the JAVA_HOME
+and ANT_HOME environment variables are set correctly.
+
+Change into the AtrinikEditor "make" directory. (Your
+directory structure has to be exactly as taken from CVS,
+especially the "arch" directory must be present.)
+
+On the console type "ant" - that's all.
+
+(Note that, if you want, you can also run the editor with
+ant by typing "ant run". This does exactly the same as
+"java -jar -Xmx128m AtrinikEditor.jar".)
+
+System requirements & Supported Java Versions:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You need at least 128 MB of system RAM and 400 MHz CPU speed
+in order to run the AtrinikEditor. It has been reported to work
+on systems with lesser specs, but the speed was very slow.
+
+The editor has been developed and tested for Java SDK 1.3, 1.4 and
+1.5 from SUN. It will not run on Java versions 1.2 and lower.
+It has been successfully tested on multiple platforms
+including windows (98/2k/XP), linux and unix (solaris). 

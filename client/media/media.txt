@@ -1,0 +1,23 @@
+Beside the official Atrinik media packages,
+user can change the media files or create new packages.
+
+Please note:
+User defined media packages are NOT part of the Atrinik system
+and/or the license. They are NOT available from the official Atrinik
+host.
+
+If an user changes the content of the media directory, all copyright or law
+issues are part of HIS action.
+
+All references to the files inside the media directory are neutral tags.
+Nor the system or a server has any knowledge about the content of the media
+directory.
+
+User has to change by hand the file names and install and copy then to the 
+media directory. Please be sure you don't hurt any copyright law in this action.
+
+** It is forbidden to copy, trade or offer Atrinik client packages with user
+   modified media directory. This action will be against the GNU Open Source licence
+   and any other copyright issue **
+
+Selfmade media packages must come without ANY official Atrinik file.

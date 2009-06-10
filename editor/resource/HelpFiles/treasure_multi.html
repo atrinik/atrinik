@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+  <TITLE>Treasurelists Multi</TITLE>
+</HEAD>
+<BODY>
+
+<P><A HREF="treasurelists.html"><IMG SRC="back.gif" WIDTH="42" HEIGHT="22" ALIGN="BOTTOM" NATURALSIZEFLAG="3" BORDER="0">Back</A>
+
+<H1 align=center>Treasurelists producing multiple items</H1>
+
+<P>You can recognize this type of treasurelist by the icon: <IMG SRC="treasure_list.png" WIDTH="32" HEIGHT="20" ALIGN="BOTTOM">.
+Such a treasurelist can produce muliple items from the list. Objects with no chance set
+are always generated - Others are only generated when they succeed a random-roll
+at the given chance.</P>
+<P>
+Look at the example below, the "giant" treasurelist:<br>
+Club, throwing skill and boulders will always be generated.
+Goldcoins have a chance of 65% to be generated, and there
+is only a 10% chance that one item out of the giant_parts list
+is generated.
+Numbers like in "<b>80</b> goldcoin" indicate that if chance succeeds,
+a stack of 1-80 goldcoins can appear.<br>
+</P>
+<IMG SRC="treasure3.jpg" WIDTH="242" HEIGHT="202" ALIGN="CENTER">
+<P>
+Note that chances of different items do not influence each other in any way.
+However, the YES/NO option allows to set dependencies between items.
+Look at the example below, the "goblin" treasurelist:<br>
+There is a 10% chance for the bow to be generated. Now <b>if</b> the bow
+is generated, automatically arrows are generated too.<br>
+There is a 5% chance for the sword to be generated. If that fails, the
+shortsword has a 10% chance to be generated. If that fails again, there
+is a 15% chance for the dagger.
+<br></P>
+<IMG SRC="treasure4.jpg" WIDTH="277" HEIGHT="366" ALIGN="CENTER">
+<br>
+</BODY>
+</HTML>

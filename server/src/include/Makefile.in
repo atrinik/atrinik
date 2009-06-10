@@ -1,0 +1,36 @@
+VPATH = @srcdir@
+RM = @RM@
+
+ALL_FILES = \
+commands.h     libproto.h     sounds.h	     attack.h \
+Makefile.in    config.h       living.h       player.h       spellist.h \
+define.h       loader.h       race.h         material.h     spells.h \
+arch.h         face.h         logger.h       re-cmp.h       sproto.h \
+artifact.h     funcpoint.h    map.h          recipe.h       treasure.h \
+global.h       newclient.h    shstr.h        version.h      tod.h\
+autoconf.h.in  god.h          newserver.h    skillist.h     xdir.h \
+book.h         includes.h     object.h       skills.h	    sockproto.h \
+plugin.h       plugproto.h    timers.h       pathfinder.h
+
+all::
+
+depend::
+
+clean::
+
+proto::
+
+distclean:: clean
+	$(RM) -f autoconf.h
+	$(RM) -f Makefile
+
+archive::
+	@if [ -d $(ARCHIVE)/include ]; then set +x; \
+	else (set -x; $(MKDIR) $(ARCHIVE)/include); fi
+	$(CP) $(ALL_FILES) $(ARCHIVE)/include
+
+patchlist::
+	@echo $(ALL_FILES) > .patchlist	
+
+
+install::

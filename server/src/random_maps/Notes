@@ -1,0 +1,28 @@
+
+test.c is a file for testing new layouts.
+Compile it:
+cc test.c <new_layout>.c -I../include -lm -L. -lrandom_map -o test
+
+
+#  	wall
+>  	stairs down (may be omitted)
+< 	stairs up   (may be omitted)
+C  	map center  (may be omitted)
+D  	door        (may be omitted)
+'\0'	nothing	    (should occupy every space not defined above)
+
+
+Layout ideas:
+snake layouts (done)
+square spirals (like Mwizard maps)  (done)
+nethack (actually called "rogue" implemented Jan 16, 2001)
+progressive rooms
+room and corridor
+temple maps
+monster placement
+decor placement
+
+Other ideas:
+riddle-maps with artifact rewards as specials, with reward keyed to difficulty
+special-maps with word-activated teleporters and magic mouths as the only
+   hint of presense

@@ -1,0 +1,90 @@
+#!/usr/local/bin/perl
+# mktable - generate:
+#   1. struct     <def-file>_type
+#   2. table      <def-file>_table
+#   3. table size <def-file>_size
+#   3. enum-list  <def-file>_enum, enumerator from given names
+#   from one definition file
+#
+# definition file:
+#   ^# hashes are allowed as comments in begining of line
+#   ^# first line declares type-member pairs separated by slash
+#   ^# typenames have to be in one part eg. "struct type" don't
+#   ^# work, typedef these instead. 
+#   ^      type1/member1 type2/memeber2
+#   ^
+#   ^# in data lines, exist first name of row and then members
+#   ^# of struct in order. The name may not enclose in "'s althought
+#   ^# its type is char *.
+#   ^ name member1       member2  
+#   ^ name ...           ...
+#   ^ ...
+#
+
+if( ! $ARGV[0] ) {
+    print "Usage: mktable definition-file\n";
+    exit(2);
+} else {
+    $def = $ARGV[0];
+}
+
+open(DEF,$def) || die("Can't open ".$def);
+$line = 0;
+$elems = 0;
+%table;
+
+print "/* should not be modified */\n\n";
+&loop;
+
+sub loop {
+    while(<DEF>) {
+	chop;
+	next if /^$/;
+	next if /^[\t ]*#/;
+	$line++;
+	@tuple = split;
+	shift @tuple if $tuple[0] eq "";
+	if($line == 1) {
+	    print "typedef struct {\n";
+	    print "\tchar\t*key;\n";
+	    foreach $field (@tuple) {
+		# print "\"$field\"\n";
+		last if $field eq "empty";
+		($type,$mem) = split(/\//,$field);
+		print "\t$type\t$mem;\n";
+	    }
+	    print "} ".$def."_type;\n\n";
+	} else {
+	    $elems++;
+	    $key = shift(@tuple);
+	    $val = join(":",@tuple);
+	    $table{$key} = $val;
+	}
+    }
+    # size
+    print "#define\t".$def."_size\t$elems\n\n";
+    # table
+    print "/* sorted */\n";
+    print $def."_type ".$def."_table[] = {\n";
+    foreach $key (sort(keys(%table))) {
+	print "\t\"$key\",\t";
+	foreach $mem (split(/:/,$table{$key})) {
+	    print "$mem,\t";
+	}
+	print "\n";
+    }
+    print "}; /* ".$def."_table */\n\n";
+    # enum
+    print "typedef enum {\n";
+    foreach $key (sort(keys(%table))) {
+	print "\tinput_".$key.",\n";
+    }
+    print "} "."$def"."_enum;\n\n";
+}
+
+
+
+
+
+
+

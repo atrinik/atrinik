@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
+  <TITLE>Script Events</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></HEAD>
+<BODY>
+
+<P><A HREF="start.html"><IMG SRC="back.gif" WIDTH="42" HEIGHT="22" ALIGN="BOTTOM" NATURALSIZEFLAG="3" BORDER="0">Back</A> 
+<H1 align=center>Script Events</H1>
+<H1 align=center>(This is a quick-and-dirty documentation for the plugin interface 
+  - expect a better one soon).</H1>
+<p>List of supported events.<br>
+  =========================</p>
+<p>Local events<br>
+  ------------<br>
+  Those can be attached to a specific object in the game.</p>
+<p>APPLY<br>
+  Tag: event_apply<br>
+  This event is generated whenever the object is applied or unapplied.</p>
+<p>ATTACK<br>
+  Tag: event_attack<br>
+  This event is used in two cases:<br>
+  - bound to a weapon, it is triggered each time the weapon is used to slay<br>
+  something; this can typically be used to generate special effects when<br>
+  you hit a monster;<br>
+  - bound to a monster, it is triggered when the monster is attacked.</p>
+<p>CLOSE<br>
+  Tag: event_close<br>
+  Generated when a container is closed.</p>
+<p>DEATH<br>
+  Tag: event_death<br>
+  Generated when the object dies.</p>
+<p>DROP<br>
+  Tag: event_drop<br>
+  Generated when the object is dropped, either on the floor or in a container.</p>
+<p>PICKUP<br>
+  Tag: event_pickup<br>
+  Generated when the object is picked up.</p>
+<p>SAY<br>
+  Tag: event_say<br>
+  Generated when someone says something around the object.</p>
+<p>STOP<br>
+  Tag: event_stop<br>
+  Generated for a thrown object, when the object is stopped for some reason.</p>
+<p>TIME<br>
+  Tag: event_time<br>
+  Generated each time the object gets an opportunity to move.</p>
+<p>THROW<br>
+  Tag: event_throw<br>
+  Generated when the object is thrown.</p>
+<p>TRIGGER<br>
+  Tag: event_trigger<br>
+  Used for various objects, like traps, teleporters or triggers. Generated when<br>
+  those objects are used (for example, when a player passes through a teleporter)</p>
+<p>Global events<br>
+  -------------<br>
+  Those concern the game as a whole or can't be bound to a specific object.<br>
+  Those events may be &quot;registered&quot; by a plugin (it means that the plugin 
+  requests<br>
+  to get a message each time one of those events happens).</p>
+<p>BORN<br>
+  Generated when a new character is created.</p>
+<p>CLOCK<br>
+  Generated at each game loop.<br>
+  Warning: When no player is logged, the loop &quot;stops&quot;, meaning that 
+  clock events<br>
+  are not generated anymore !</p>
+<p>CRASH<br>
+  Generated when a server crash does occur. It is not a recursive event, so if 
+  a<br>
+  crash occur from *inside* the crash event handling, it is not called a second<br>
+  time, preventing infinite loops to occur.<br>
+  Note: This event is not implemented for now.</p>
+<p>GDEATH<br>
+  Generated whenever someone dies.</p>
+<p>GKILL<br>
+  Generated whenever something/someone is killed.</p>
+<p>LOGIN<br>
+  Generated whenever a player logs into the game.</p>
+<p>LOGOUT<br>
+  Generated whenever a player logs out the game.</p>
+<p>MAPENTER<br>
+  Generated whenever someone enters a map.</p>
+<p>MAPLEAVE<br>
+  Generated whenever someone leaves a map.</p>
+<p>MAPRESET<br>
+  Generated each time a map is reset.</p>
+<p>REMOVE<br>
+  Generated when a player character is removed from the game (&quot;quit&quot; 
+  command).</p>
+<p>SHOUT<br>
+  Generated whenever someone shouts something.</p>
+<p>The case of Python<br>
+  ==================</p>
+<p>Here is how CFPython handles events:<br>
+  - local events are managed using the event_... tags. The event_..._plugin tag<br>
+  should be Python. the event_... specifies the name of the Python script to<br>
+  run. This path is relative to the crossfire map subdirectory.</p>
+<p>- global events are all registered by CFPython. If you want to react to one 
+  of<br>
+  them, you need to create script files in a python/ subdirectory of your<br>
+  crossfire map directory. Those files should be called:<br>
+  python_shout.py : for the shout global event;<br>
+  python_mapenter.py : for the mapenter global event;<br>
+  python_remove.py : for the remove global event;<br>
+  and so on.<br>
+  Some special values are also passed to CFPython for each global event. Those<br>
+  are:<br>
+  BORN : WhoIsActivator = The object representing the new character.<br>
+  LOGIN: WhoAmI and WhoIsActivator = the object representing the character.<br>
+  WhatIsMessage = The IP address of the player.<br>
+  LOGOUT: Same as for LOGIN.<br>
+  REMOVE: WhoIsActivator = The object representing the deleted char.<br>
+  SHOUT: WhoIsActivator = The object that shouted something.<br>
+  WhatIsMessage = The message shout.<br>
+  MAPENTER: WhoIsActivator = The object that entered the new map.<br>
+  MAPLEAVE: WhoIsActivator = The object that is leaving the map.<br>
+  MAPRESET: WhatIsMessage = The path name of the map reset.<br>
+</p>
+<P>&nbsp;</P>
+
+</BODY>
+</HTML>

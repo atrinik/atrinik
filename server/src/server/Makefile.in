@@ -1,0 +1,144 @@
+#************************************************************************
+#            Atrinik, a Multiplayer Online Role Playing Game            *
+#                                                                       *
+#                     Copyright (C) 2009 Alex Tokar                     *
+#                                                                       * 
+# Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+# and Crossfire (Multiplayer game for X-windows).                       *
+#                                                                       *
+# This program is free software; you can redistribute it and/or modify  *
+# it under the terms of the GNU General Public License as published by  *
+# the Free Software Foundation; either version 3 of the License, or     *
+# (at your option) any later version.                                   *
+#                                                                       *
+# This program is distributed in the hope that it will be useful,       *
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# GNU General Public License for more details.                          *
+#                                                                       *
+# You should have received a copy of the GNU General Public License     *
+# along with this program; if not, write to the Free Software           *
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+#                                                                       *
+# The author can be reached at admin@atrinik.org                        *
+#***********************************************************************/
+
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+
+LOCAL_LIBRARIES = ../common/libcross.a ../random_maps/random_map.a ../socket/socket.a
+
+
+SRCS = \
+	alchemy.c\
+	apply.c\
+	attack.c\
+	ban.c\
+	c_chat.c\
+	c_misc.c\
+	c_move.c\
+	c_new.c\
+	c_object.c\
+	c_party.c\
+	c_range.c\
+	c_wiz.c\
+	commands.c\
+	daemon.c\
+	disease.c\
+	egoitem.c \
+	hiscore.c\
+	gods.c\
+	init.c\
+	login.c\
+	main.c\
+	monster.c\
+	move.c\
+	pets.c\
+	player.c\
+	plugins.c\
+	resurrection.c\
+	rune.c\
+	shop.c\
+	skills.c\
+	skill_util.c\
+	spell_effect.c\
+	spell_util.c\
+	swamp.c\
+	swap.c\
+	time.c\
+	timers.c\
+	pathfinder.c\
+	weather.c
+
+ALLFILES = $(SRCS) Makefile.in
+
+DEPEND = @DEPEND@
+
+SED = @SED@
+
+OBJS = $(SRCS:.c=.o)
+
+CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
+
+INCLUDES= $(EXTRA_INCLUDES) -I../include -I$(srcdir)/../include
+
+LDFLAGS = @LDFLAGS@
+
+LIBS = @LIBS@ $(EXTRA_LIBS)
+
+SHELL = @BOURNE_SHELL@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+
+INSTALL = @INSTALL@
+
+MKDIR = @MKDIR@
+CC = @CC@
+RM = @RM@
+
+atrinik_server: $(OBJS) $(LOCAL_LIBRARIES)
+	$(RM) -f $@
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LIBS)
+
+
+../common/libcross.a:
+	(cd ../common; $(MAKE) $(MFLAGS) all)
+
+../random_maps/random_map.a:
+	(cd ../random_maps; $(MAKE) $(MFLAGS) all)
+
+../socket/socket.a:
+	(cd ../socket; $(MAKE) $(MFLAGS) all)
+
+depend:
+	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -I../include -- $(SRCS)
+
+proto:
+	cproto -D__CEXTRACT__ $(INCLUDES) $(SRCS) >../include/sproto.h.bak
+	$(SED) -e "s/ = {0}//g" -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" < ../include/sproto.h.bak >../include/sproto.h
+	chmod 644 ../include/sproto.h
+	$(RM) -f ../include/sproto.h.bak
+
+archive:
+	@if [ ! -d $(ARCHIVE)/server ]; then $(MKDIR) $(ARCHIVE)/server; fi
+	$(CP) $(ALLFILES) $(ARCHIVE)/server
+
+clean::
+	$(RM) -f atrinik_server $(OBJS) Makefile.bak
+
+distclean:: clean
+	$(RM) -f Makefile
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+all: atrinik_server
+
+patchlist::
+	@echo $(SRCS) > .patchlist
+
+install:: atrinik_server
+	$(INSTALL) atrinik_server ${bindir}

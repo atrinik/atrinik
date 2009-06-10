@@ -1,0 +1,29 @@
+# "$Id: image_info,v 1.1.1.1 2003/10/15 23:49:52 michtoen Exp $";
+#
+# This file describes the various image files installed.
+# For more information on how all this works and about adding new
+# image sets, see the doc/Developer/images file.
+#
+# The format of each line:
+# num:extension:long name:fallback:geometry:extension:description
+# num is the set number.
+# extension is the extension that image set uses (eg, base, clsc)
+# long name is just that - a longer (more english) name, eg, classic instead
+#   of clsc.  This is really just used by the client for it to map the
+#   image names.  Its not really intuitive for users to say -image clsc
+# fallback is what set to fallback to if the image does not exist in
+#   that set.  In the end, all sets must fall back to set 0.
+# geometry is in width x height form.  This is used by the client so it
+#   knows the spacing to use.  Images in the set could be of different
+#   sizes (eg, a 4 spaces image would be larger), but this is the normal
+#   spacing that the client should use.
+# extension is for future use - it is passed to the client.  This is mostly
+#   here so that the client can know specific information about certain
+#   image sets.
+# description is just a longer description that the client can display to the
+#   user.
+#
+# NOTE: lines can not be continued with \ - everything must be on one line
+#  for things to work.
+# Lines that start with # are obviously ignored.
+0:base:standard:0:32x32:none:The standard image set.

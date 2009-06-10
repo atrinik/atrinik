@@ -1,0 +1,41 @@
+arch map
+name pickmap
+msg
+Creator: Daimonin Map Editor
+Date:    12/16/2004
+endmsg
+width 7
+height 7
+end
+arch grassd_2
+x 1
+y 3
+end
+arch grassd_1
+x 2
+y 2
+end
+arch grassd_3
+x 2
+y 3
+end
+arch grassd_5
+x 3
+y 2
+end
+arch grassd_4
+x 3
+y 3
+end
+arch grassd_7
+x 3
+y 4
+end
+arch grassd_8
+x 4
+y 3
+end
+arch grassd_6
+x 4
+y 4
+end

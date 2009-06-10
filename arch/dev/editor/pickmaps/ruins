@@ -1,0 +1,164 @@
+arch map
+name Some Traps
+msg
+Creator: Daimonin Map Editor
+Date:    6/26/2003
+endmsg
+width 14
+height 14
+end
+arch fmask_ruin1_s4.101
+y 2
+end
+arch pillar_ruin1b.101
+x 1
+y 1
+end
+arch pillar_ruin1c.101
+x 1
+y 2
+end
+arch fmask_ruin1_s3.101
+x 1
+y 3
+end
+arch pillar_ruin1e.101
+x 2
+y 1
+end
+arch fmask_ruin1a.111
+x 2
+y 2
+end
+arch wmask_ruin1a.111
+x 2
+y 4
+end
+arch fmask_ruin1_s1.101
+x 3
+y 4
+end
+arch fmask_ruin1_s2.101
+x 3
+y 5
+end
+arch wall_ruin_c3b
+x 4
+y 3
+end
+arch wall_ruin1b_131
+x 4
+y 6
+end
+arch wall_ruin1a_131
+x 5
+y 6
+end
+arch wall_ruin1e_111
+x 6
+y 2
+end
+arch wall_ruin1d_111
+x 6
+y 3
+end
+arch wall_ruin1c_111
+x 6
+y 4
+end
+arch wall_ruin1b_111
+x 6
+y 5
+end
+arch wall_ruin1b_111
+x 6
+y 6
+end
+arch wall_ruin1b_141
+x 6
+y 8
+end
+arch wall_ruin1a_181
+x 7
+y 5
+end
+arch wall_ruin1a_141
+x 7
+y 7
+end
+arch wall_ruin1c_131
+x 7
+y 9
+end
+arch wall_ruin_c1b
+x 8
+y 3
+end
+arch wall_ruin_c1a
+x 8
+y 4
+end
+arch wall_ruin1d_131
+x 8
+y 10
+end
+arch fwall_ruin1a
+x 9
+y 9
+end
+arch fwall_ruin1c
+x 10
+y 10
+end
+arch wall_ruin_c3a
+x 10
+y 12
+end
+arch fwall_ruin1c
+x 11
+y 11
+end
+arch wall_ruin_c2b
+x 12
+y 7
+end
+arch pillar_ruin1d.101
+x 12
+y 9
+end
+arch floor_ruin6
+x 12
+y 11
+end
+arch floor_ruin5
+x 12
+y 12
+end
+arch floor_ruin3
+x 12
+y 13
+end
+arch wall_ruin_c3a
+x 13
+y 9
+end
+arch floor_ruin4
+x 13
+y 11
+end
+arch floor_ruin2
+x 13
+y 12
+end
+arch floor_ruin1
+x 13
+y 13
+end
+arch pillar_ruin1a_a1
+x 10
+y 8
+end
+arch pillar_ruin1a_a
+x 11
+y 5
+end

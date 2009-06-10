@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use File::Find;
+
+find(\&wanted, "$ARGV[0]");
+
+sub wanted {
+    if ($_ eq "Repository") {
+        $file=$_;
+        open(IN,"<$file");
+        $contents  = <IN>;
+        close(IN);
+        $contents =~ s#/home/cvs/CVS/##;
+        open(IN,">$file");
+        print IN $contents;
+        close(IN);
+    }
+}

@@ -1,0 +1,25 @@
+arch map
+name pickmap
+msg
+Creator: Daimonin Map Editor
+Date:    5/11/2009
+endmsg
+width 20
+height 20
+end
+arch tree_big
+x 7
+y 9
+end
+arch tree_big4b
+x 7
+y 10
+end
+arch tree_big2
+x 8
+y 9
+end
+arch tree_big3
+x 8
+y 10
+end

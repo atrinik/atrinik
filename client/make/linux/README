@@ -1,0 +1,37 @@
+Before you can compile the client, you need 3 SDL libraries.
+
+The libs are called SDL, SDL_mixer, SDL_image.
+
+They can be found at http://www.libsdl.org/index.php
+
+Install and compile the SDL libs. 
+After you have installed all SDL libs, you can compile the source.
+
+Follow this steps:
+
+1.) make distclean
+	Type 'make distclean' to be sure you have a clean source.
+	This will uninstall old installations too!
+
+2.) configure
+	Type './configure' to generate your makefiles. This will
+	set the installation folder to 'client_VERSION'. To force
+	a different folder type './configure --prefix="<path>/<folder>".
+
+3.) make all
+	Type 'make all'. The source will be compiled and linked.
+
+4.) make install
+	Type 'make install'. This will install 
+	
+Thats all.
+
+You can compile the client without SDL_mixer (wave and ogg support). Follow the 
+comments in the Makefile to remove the libs from linking.
+
+Note, that even with linked SDL_mixer the client will run fine on systems without sound
+card. The client will disable the sound automatically. Compiling it native without
+sound on a system without sound is just a clean option.
+
+You ALWAYS have to install the SDL and SDL_image libs on your system. 
+The client won't run without them!

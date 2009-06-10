@@ -1,0 +1,91 @@
+arch map
+name pickmap
+msg
+Creator: Daimonin Map Editor
+Date:    12/17/2004
+endmsg
+width 7
+height 7
+end
+arch director
+direction 2
+y 3
+end
+arch torch_wall_1
+direction 5
+x 1
+y 2
+end
+arch director
+direction 2
+x 1
+y 4
+end
+arch torch_wall_1
+x 2
+y 1
+end
+arch torch_wall_1
+direction 5
+glow_radius 0
+animation torch_wall_1_unlit
+x 2
+y 3
+end
+arch director
+direction 6
+x 3
+end
+arch torch_wall_1
+glow_radius 0
+animation torch_wall_1_unlit
+x 3
+y 2
+end
+arch director
+direction 3
+x 3
+y 5
+end
+arch director
+direction 6
+x 4
+y 1
+end
+arch lamp_wall
+direction 5
+x 4
+y 5
+end
+arch director
+direction 3
+x 4
+y 6
+end
+arch director
+direction 5
+x 5
+y 3
+end
+arch lamp_wall
+x 5
+y 4
+end
+arch lamp_wall
+direction 5
+glow_radius 0
+animation lamp_wall_1_unlit
+x 5
+y 6
+end
+arch director
+direction 5
+x 6
+y 4
+end
+arch lamp_wall
+glow_radius 0
+animation lamp_wall_1_unlit
+x 6
+y 5
+end

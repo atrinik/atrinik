@@ -1,0 +1,103 @@
+#************************************************************************
+#            Atrinik, a Multiplayer Online Role Playing Game            *
+#                                                                       *
+#                     Copyright (C) 2009 Alex Tokar                     *
+#                                                                       * 
+# Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+# and Crossfire (Multiplayer game for X-windows).                       *
+#                                                                       *
+# This program is free software; you can redistribute it and/or modify  *
+# it under the terms of the GNU General Public License as published by  *
+# the Free Software Foundation; either version 3 of the License, or     *
+# (at your option) any later version.                                   *
+#                                                                       *
+# This program is distributed in the hope that it will be useful,       *
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# GNU General Public License for more details.                          *
+#                                                                       *
+# You should have received a copy of the GNU General Public License     *
+# along with this program; if not, write to the Free Software           *
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+#                                                                       *
+# The author can be reached at admin@atrinik.org                        *
+#***********************************************************************/
+
+VPATH = @srcdir@
+srcdir = @srcdir@
+
+SRCS = \
+	book.c\
+	client.c\
+	commands.c\
+	event.c\
+	inventory.c\
+	item.c\
+	main.c\
+	map.c\
+	menu.c\
+	misc.c\
+	player.c\
+	socket.c\
+	sound.c\
+	sprite.c\
+	textwin.c\
+	wrapper.c\
+	dialog.c\
+	adler32.c \
+	crc32.c \
+	inflate.c\
+	inffast.c\
+	inftrees.c\
+	uncompr.c\
+	zutil.c
+
+ALLFILES = $(SRCS) Makefile.in
+
+DEPEND = @DEPEND@
+
+SED = @SED@
+
+OBJS = $(SRCS:.c=.o)
+
+SDL_CFLAGS = @SDL_CFLAGS@
+SDL_CONFIG = @SDL_CONFIG@
+SDL_LIBS = @SDL_LIBS@ -lSDL_image -lSDL_mixer
+
+CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS) $(SDL_CFLAGS)
+
+INCLUDES= $(EXTRA_INCLUDES) -I$(srcdir)/include
+
+LDFLAGS = @LDFLAGS@
+
+LIBS = @LIBS@ $(EXTRA_LIBS) $(SDL_LIBS)
+
+SHELL = @SHELL@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+
+INSTALL = @INSTALL@
+
+MKDIR = @MKDIR@
+CC = @CC@
+RM = @RM@
+
+atrinik: $(OBJS) $(LOCAL_LIBRARIES)
+	$(RM) -f $@
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LIBS)
+
+depend:
+	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
+
+clean::
+	$(RM) -f atrinik $(OBJS) Makefile.bak
+
+distclean:: clean
+	$(RM) -f Makefile ./include/define.h
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c $*.c
+
+all: atrinik
