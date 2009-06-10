@@ -1,0 +1,25 @@
+arch map
+name pickmap
+msg
+Creator: Daimonin Map Editor
+Date:    6/1/2009
+endmsg
+width 20
+height 20
+end
+arch floor_flagm1
+x 8
+y 9
+end
+arch floor_flagm2
+x 8
+y 10
+end
+arch floor_flagm4
+x 9
+y 9
+end
+arch floor_flagm3
+x 9
+y 10
+end
