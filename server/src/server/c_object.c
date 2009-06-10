@@ -1354,7 +1354,7 @@ void examine(object *op, object *tmp)
     new_draw_info(NDI_UNIQUE, 0, op, buf);
     buf[0] = '\0';
 
-    if (QUERY_FLAG(tmp, FLAG_MONSTER))
+    if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
 		examine_monster(op, tmp);
