@@ -15,6 +15,7 @@
 277 1 "insert" "?M_PAGEUP_TOP"
 127 1 "delete" "?M_PAGEDOWN_TOP"
 271 1 "enter" "?M_CONSOLE"
+013 1 "return" "?M_CONSOLE"
 
 +"Inventory"
 097 0 "a" "?M_APPLY"

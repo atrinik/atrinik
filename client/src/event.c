@@ -803,6 +803,7 @@ int key_meta_menu(SDL_KeyboardEvent *key )
 				}
 				break;
 			case SDLK_RETURN:
+			case SDLK_KP_ENTER:
 				get_meta_server_data(metaserver_sel, ServerName, &ServerPort);
 				GameStatus = GAME_STATUS_STARTCONNECT;
 			break;
@@ -1167,6 +1168,7 @@ int key_event(SDL_KeyboardEvent *key )
 						switch((int)key->keysym.sym)
 						{
 							case SDLK_RETURN:
+							case SDLK_KP_ENTER:
 								if(esc_menu_index == ESC_MENU_KEYS)
 								{
 									keybind_status = KEYBIND_STATUS_NO;
@@ -2256,6 +2258,7 @@ void check_menu_keys(int menu, int key)
       case MENU_SKILL:
          switch(key){
             case SDLK_RETURN:
+			case SDLK_KP_ENTER:
                if(skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag==LIST_ENTRY_KNOWN)
                {
                   fire_mode_tab[FIRE_MODE_SKILL].skill =
@@ -2327,6 +2330,7 @@ void check_menu_keys(int menu, int key)
 			  break;
 
             case SDLK_RETURN:
+			case SDLK_KP_ENTER:
                if(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag==LIST_ENTRY_KNOWN){
                   fire_mode_tab[FIRE_MODE_SPELL].spell =
                     &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr];
@@ -2415,6 +2419,7 @@ void check_menu_keys(int menu, int key)
                sound_play_effect(SOUND_SCROLL,0,0,MENU_SOUND_VOL);
                break;
             case SDLK_RETURN:
+			case SDLK_KP_ENTER:
                sound_play_effect(SOUND_SCROLL,0,0,MENU_SOUND_VOL);
                keybind_status = KEYBIND_STATUS_EDIT;
                reset_keys();
