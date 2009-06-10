@@ -1,0 +1,1668 @@
+arch map
+name Testmaps - Special Objects
+msg
+Creator: Daimonin Map Editor
+Date:    4/13/2003
+endmsg
+width 17
+height 17
+enter_x 1
+enter_y 1
+difficulty 1
+tile_path_2 testmap_special2
+end
+arch floor_ostone1
+end
+arch wall_stone_8
+end
+arch floor_ostone1
+y 1
+end
+arch wall_stone_3
+y 1
+end
+arch floor_ostone1
+y 2
+end
+arch wall_stone_3
+y 2
+end
+arch floor_ostone1
+y 3
+end
+arch wall_stone_3
+y 3
+end
+arch floor_ostone1
+y 4
+end
+arch wall_stone_3
+y 4
+end
+arch floor_ostone1
+y 5
+end
+arch wall_stone_3
+y 5
+end
+arch floor_ostone1
+y 6
+end
+arch wall_stone_3
+y 6
+end
+arch floor_ostone1
+y 7
+end
+arch wall_stone_3
+y 7
+end
+arch wmask_fire_on_1
+direction 5
+y 7
+end
+arch floor_ostone1
+y 8
+end
+arch wall_stone_3
+y 8
+end
+arch floor_ostone1
+y 9
+end
+arch wall_stone_3
+y 9
+end
+arch floor_ostone1
+y 10
+end
+arch wall_stone_3
+y 10
+end
+arch wmask_fire_on_1
+direction 5
+y 10
+end
+arch floor_ostone1
+y 11
+end
+arch wall_stone_3
+y 11
+end
+arch floor_ostone1
+y 12
+end
+arch wall_stone_3
+y 12
+end
+arch floor_ostone1
+y 13
+end
+arch wall_stone_3
+y 13
+end
+arch floor_ostone1
+y 14
+end
+arch wall_stone_3
+y 14
+end
+arch floor_ostone1
+y 15
+end
+arch wall_stone_3
+y 15
+end
+arch floor_ostone1
+y 16
+end
+arch wall_stone_3
+y 16
+end
+arch floor_ostone1
+x 1
+end
+arch wall_stone_1
+x 1
+end
+arch floor_ostone1
+x 1
+y 1
+end
+arch stairw_up_1
+slaying testmap_main
+hp 11
+sp 1
+x 1
+y 1
+end
+arch floor_ostone1
+x 1
+y 2
+end
+arch floor_ostone1
+x 1
+y 3
+end
+arch floor_ostone1
+x 1
+y 4
+end
+arch sign
+name magic mouth object
+msg
+If a player moves over a magic mouth,
+a message is given to him or the whole map.
+This is a very useful object to serve the player
+with useful information or ambient info.
+( "you feel a cold wind on this spot".. "
+"you see some blinking in the shadows")
+endmsg
+x 1
+y 4
+end
+arch floor_ostone1
+x 1
+y 5
+end
+arch floor_ostone1
+x 1
+y 6
+end
+arch floor_ostone1
+x 1
+y 7
+end
+arch floor_ostone1
+x 1
+y 8
+end
+arch floor_ostone1
+x 1
+y 9
+end
+arch floor_ostone1
+x 1
+y 10
+end
+arch floor_ostone1
+x 1
+y 11
+end
+arch floor_ostone1
+x 1
+y 12
+end
+arch detector
+name convert gold to mithril
+msg
+Convert mithril to gold
+endmsg
+type 103
+slaying goldcoin
+food 1000
+other_arch mitcoin
+walk_on 1
+fly_on 1
+x 1
+y 12
+end
+arch floor_ostone1
+x 1
+y 13
+end
+arch detector
+name convert mithril to gold
+msg
+Convert mithril to gold
+endmsg
+type 103
+slaying mitcoin
+food 1
+other_arch goldcoin
+sp 1000
+walk_on 1
+fly_on 1
+x 1
+y 13
+end
+arch floor_ostone1
+x 1
+y 14
+end
+arch floor_ostone1
+x 1
+y 15
+end
+arch floor_ostone1
+x 1
+y 16
+end
+arch wall_stone_1
+x 1
+y 16
+end
+arch floor_ostone1
+x 2
+end
+arch wall_stone_1
+x 2
+end
+arch floor_ostone1
+x 2
+y 1
+end
+arch sign
+msg
+Test of Directors, Movers, Spinner and
+Magic Walls (automated spell casting objects)
+and other special objects.
+endmsg
+x 2
+y 1
+end
+arch floor_ostone1
+x 2
+y 2
+end
+arch floor_ostone1
+x 2
+y 3
+end
+arch floor_ostone1
+x 2
+y 4
+end
+arch magic_mouth
+name magic mouth
+msg
+I am the talking object...
+a magic mouth! Nice, isn't it?
+endmsg
+sys_object 0
+layer 4
+x 2
+y 4
+end
+arch floor_ostone1
+x 2
+y 5
+end
+arch floor_ostone1
+x 2
+y 6
+end
+arch floor_ostone1
+x 2
+y 7
+end
+arch mover
+layer 3
+direction 3
+sys_object 0
+x 2
+y 7
+end
+arch floor_ostone1
+x 2
+y 8
+end
+arch mover
+sys_object 0
+layer 3
+direction 5
+sp 4
+x 2
+y 8
+end
+arch floor_ostone1
+x 2
+y 9
+end
+arch mover
+layer 4
+sys_object 0
+direction 2
+x 2
+y 9
+end
+arch floor_ostone1
+x 2
+y 10
+end
+arch sign
+name player mover objects
+msg
+MOVERS can push players and mobs
+in a specific direction. They can used to
+block entries or push monster in a specific
+direction.
+endmsg
+x 2
+y 10
+end
+arch floor_ostone1
+x 2
+y 11
+end
+arch floor_ostone1
+x 2
+y 12
+end
+arch floor_ostone1
+x 2
+y 13
+end
+arch floor_ostone1
+x 2
+y 14
+end
+arch floor_ostone1
+x 2
+y 15
+end
+arch floor_ostone1
+x 2
+y 16
+end
+arch wall_stone_1
+x 2
+y 16
+end
+arch floor_ostone1
+x 3
+end
+arch wall_stone_1
+x 3
+end
+arch floor_ostone1
+x 3
+y 1
+end
+arch floor_ostone1
+x 3
+y 2
+end
+arch floor_ostone1
+x 3
+y 3
+end
+arch floor_ostone1
+x 3
+y 4
+end
+arch floor_ostone1
+x 3
+y 5
+end
+arch floor_ostone1
+x 3
+y 6
+end
+arch floor_ostone1
+x 3
+y 7
+end
+arch floor_ostone1
+x 3
+y 8
+end
+arch floor_ostone1
+x 3
+y 9
+end
+arch floor_ostone1
+x 3
+y 10
+end
+arch floor_ostone1
+x 3
+y 11
+end
+arch floor_ostone1
+x 3
+y 12
+end
+arch floor_ostone1
+x 3
+y 13
+end
+arch floor_ostone1
+x 3
+y 14
+end
+arch floor_ostone1
+x 3
+y 15
+end
+arch floor_ostone1
+x 3
+y 16
+end
+arch wall_stone_1
+x 3
+y 16
+end
+arch floor_ostone1
+x 4
+end
+arch wall_stone_1
+x 4
+end
+arch wmask_fire_off_1
+x 4
+end
+arch floor_ostone1
+x 4
+y 1
+end
+arch floor_ostone1
+x 4
+y 2
+end
+arch floor_ostone1
+x 4
+y 3
+end
+arch handle_lever
+direction 3
+connected 200
+x 4
+y 3
+end
+arch floor_ostone1
+x 4
+y 4
+end
+arch floor_ostone1
+x 4
+y 5
+end
+arch floor_ostone1
+x 4
+y 6
+end
+arch floor_ostone1
+x 4
+y 7
+end
+arch floor_ostone1
+x 4
+y 8
+end
+arch floor_ostone1
+x 4
+y 9
+end
+arch floor_ostone1
+x 4
+y 10
+end
+arch floor_ostone1
+x 4
+y 11
+end
+arch floor_ostone1
+x 4
+y 12
+end
+arch floor_ostone1
+x 4
+y 13
+end
+arch floor_ostone1
+x 4
+y 14
+end
+arch floor_ostone1
+x 4
+y 15
+end
+arch floor_ostone1
+x 4
+y 16
+end
+arch wall_stone_1
+x 4
+y 16
+end
+arch floor_ostone1
+x 5
+end
+arch wall_stone_1
+x 5
+end
+arch floor_ostone1
+x 5
+y 1
+end
+arch floor_ostone1
+x 5
+y 2
+end
+arch floor_ostone1
+x 5
+y 3
+end
+arch sign
+name CREATOR objects
+msg
+A CREATOR creates objects every time
+it is triggered. This CREATOR creates
+food.
+CREATORs are very useful objects. Look
+at the different object features.
+endmsg
+x 5
+y 3
+end
+arch floor_ostone1
+x 5
+y 4
+end
+arch creator
+layer 4
+sys_object 0
+other_arch food
+connected 200
+lifesave 1
+x 5
+y 4
+end
+arch floor_ostone1
+x 5
+y 5
+end
+arch floor_ostone1
+x 5
+y 6
+end
+arch floor_ostone1
+x 5
+y 7
+end
+arch floor_ostone1
+x 5
+y 8
+end
+arch floor_ostone1
+x 5
+y 9
+end
+arch floor_ostone1
+x 5
+y 10
+end
+arch floor_ostone1
+x 5
+y 11
+end
+arch floor_ostone1
+x 5
+y 12
+end
+arch sign
+name director objects
+msg
+Director Test.
+A director reflects incoming missiles
+in a new direction. Several directors in
+a line can change direction for a single
+missile several times.
+Directors can be build from players - they
+can be used to fire from save areas "around
+a corner" into dangerous spots.
+Also, 2 Directors point of each other can be
+used as a "spell cannon". Cast several missile
+spells in the director. Because its get reflected
+from the other director back, you have a infinitive
+loop. Now cast many spells in it. Then cast
+in the middle a director pointing in the direction
+the enemy is...
+endmsg
+x 5
+y 12
+end
+arch floor_ostone1
+x 5
+y 13
+end
+arch floor_ostone1
+x 5
+y 14
+end
+arch floor_ostone1
+x 5
+y 15
+end
+arch floor_ostone1
+x 5
+y 16
+end
+arch wall_stone_1
+x 5
+y 16
+end
+arch floor_ostone1
+x 6
+end
+arch wall_stone_1
+x 6
+end
+arch wmask_fire_off_1
+x 6
+end
+arch floor_ostone1
+x 6
+y 1
+end
+arch floor_ostone1
+x 6
+y 2
+end
+arch floor_ostone1
+x 6
+y 3
+end
+arch floor_ostone1
+x 6
+y 4
+end
+arch floor_ostone1
+x 6
+y 5
+end
+arch floor_ostone1
+x 6
+y 6
+end
+arch floor_ostone1
+x 6
+y 7
+end
+arch director
+face director.131
+direction 3
+x 6
+y 7
+end
+arch floor_ostone2
+x 6
+y 8
+end
+arch floor_ostone2
+x 6
+y 9
+end
+arch floor_ostone2
+x 6
+y 10
+end
+arch floor_ostone2
+x 6
+y 11
+end
+arch floor_wood1
+x 6
+y 12
+end
+arch t_dagger
+nrof 50
+x 6
+y 12
+end
+arch floor_ostone1
+x 6
+y 13
+end
+arch floor_ostone1
+x 6
+y 14
+end
+arch floor_ostone1
+x 6
+y 15
+end
+arch floor_ostone1
+x 6
+y 16
+end
+arch wall_stone_1
+x 6
+y 16
+end
+arch floor_ostone1
+x 7
+end
+arch wall_stone_1
+x 7
+end
+arch floor_ostone1
+x 7
+y 1
+end
+arch floor_ostone1
+x 7
+y 2
+end
+arch floor_ostone1
+x 7
+y 3
+end
+arch floor_ostone1
+x 7
+y 4
+end
+arch floor_ostone1
+x 7
+y 5
+end
+arch floor_ostone1
+x 7
+y 6
+end
+arch floor_ostone2
+x 7
+y 7
+end
+arch floor_ostone1
+x 7
+y 8
+end
+arch floor_ostone1
+x 7
+y 9
+end
+arch floor_ostone1
+x 7
+y 10
+end
+arch floor_ostone1
+x 7
+y 11
+end
+arch floor_ostone1
+x 7
+y 12
+end
+arch handle_lever
+face lever.131
+direction 3
+connected 101
+x 7
+y 12
+end
+arch floor_ostone1
+x 7
+y 13
+end
+arch floor_ostone1
+x 7
+y 14
+end
+arch floor_ostone1
+x 7
+y 15
+end
+arch floor_ostone1
+x 7
+y 16
+end
+arch wall_stone_1
+x 7
+y 16
+end
+arch floor_ostone1
+x 8
+end
+arch wall_stone_1
+x 8
+end
+arch floor_ostone1
+x 8
+y 1
+end
+arch floor_ostone1
+x 8
+y 2
+end
+arch floor_ostone1
+x 8
+y 3
+end
+arch floor_ostone1
+x 8
+y 4
+end
+arch floor_ostone1
+x 8
+y 5
+end
+arch floor_ostone1
+x 8
+y 6
+end
+arch floor_ostone2
+x 8
+y 7
+end
+arch floor_ostone1
+x 8
+y 8
+end
+arch floor_ostone1
+x 8
+y 9
+end
+arch floor_ostone1
+x 8
+y 10
+end
+arch floor_ostone1
+x 8
+y 11
+end
+arch floor_ostone1
+x 8
+y 12
+end
+arch sign
+msg
+DIRECTOR und FIREWALL objects can
+be turned with a connected signal object
+like a handle or a button. Depending on the
+turn value, the objects turn clock wise.
+endmsg
+x 8
+y 12
+end
+arch floor_ostone1
+x 8
+y 13
+end
+arch floor_ostone1
+x 8
+y 14
+end
+arch floor_ostone1
+x 8
+y 15
+end
+arch floor_ostone1
+x 8
+y 16
+end
+arch wall_stone_1
+x 8
+y 16
+end
+arch floor_ostone1
+x 9
+end
+arch wall_stone_1
+x 9
+end
+arch floor_ostone1
+x 9
+y 1
+end
+arch floor_ostone1
+x 9
+y 2
+end
+arch floor_ostone1
+x 9
+y 3
+end
+arch floor_ostone1
+x 9
+y 4
+end
+arch floor_ostone1
+x 9
+y 5
+end
+arch floor_ostone1
+x 9
+y 6
+end
+arch floor_ostone1
+x 9
+y 7
+end
+arch director
+connected 101
+is_animated 0
+x 9
+y 7
+end
+arch floor_ostone1
+x 9
+y 8
+end
+arch floor_ostone1
+x 9
+y 9
+end
+arch floor_ostone1
+x 9
+y 10
+end
+arch floor_ostone1
+x 9
+y 11
+end
+arch floor_ostone1
+x 9
+y 12
+end
+arch floor_ostone1
+x 9
+y 13
+end
+arch floor_ostone1
+x 9
+y 14
+end
+arch floor_ostone1
+x 9
+y 15
+end
+arch floor_ostone1
+x 9
+y 16
+end
+arch wall_stone_1
+x 9
+y 16
+end
+arch floor_ostone1
+x 10
+end
+arch wall_stone_1
+x 10
+end
+arch floor_ostone1
+x 10
+y 1
+end
+arch floor_ostone1
+x 10
+y 2
+end
+arch sign
+name spinner objects
+msg
+SPINNER works like DIRECTORS but
+not in a fixed direction. They don't reflect,
+they change the direction. This depends on
+the incoming direction and the adjusted
+angel.
+Like DIRECTORS they will only affect missiles
+and some spells - no mobs, player or other
+living objects.
+They are used to confuse player on a map -
+they are really evil inside a maze or bigger
+maps where the map maker want hide
+secret areas.
+endmsg
+x 10
+y 2
+end
+arch floor_wood1
+x 10
+y 3
+end
+arch t_dagger
+nrof 50
+x 10
+y 3
+end
+arch floor_ostone1
+x 10
+y 4
+end
+arch floor_ostone1
+x 10
+y 5
+end
+arch floor_ostone1
+x 10
+y 6
+end
+arch floor_ostone1
+x 10
+y 7
+end
+arch floor_ostone1
+x 10
+y 8
+end
+arch floor_ostone1
+x 10
+y 9
+end
+arch floor_ostone1
+x 10
+y 10
+end
+arch grate1_8
+x 10
+y 10
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch grate1_3
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 12
+end
+arch grate1_3
+x 10
+y 12
+end
+arch floor_ostone1
+x 10
+y 13
+end
+arch grate1_3
+x 10
+y 13
+end
+arch floor_ostone1
+x 10
+y 14
+end
+arch grate1_3
+x 10
+y 14
+end
+arch floor_ostone1
+x 10
+y 15
+end
+arch grate1_3
+x 10
+y 15
+end
+arch floor_ostone1
+x 10
+y 16
+end
+arch wall_stone_1
+x 10
+y 16
+end
+arch floor_ostone1
+x 11
+end
+arch wall_stone_1
+x 11
+end
+arch floor_ostone1
+x 11
+y 1
+end
+arch floor_ostone1
+x 11
+y 2
+end
+arch spinner
+direction 4
+sys_object 0
+layer 4
+x 11
+y 2
+end
+arch floor_ostone1
+x 11
+y 3
+end
+arch floor_ostone1
+x 11
+y 4
+end
+arch floor_ostone1
+x 11
+y 5
+end
+arch floor_ostone1
+x 11
+y 6
+end
+arch floor_ostone1
+x 11
+y 7
+end
+arch floor_ostone1
+x 11
+y 8
+end
+arch floor_ostone1
+x 11
+y 9
+end
+arch floor_ostone1
+x 11
+y 10
+end
+arch grate1_1
+x 11
+y 10
+end
+arch floor_ostone1
+x 11
+y 11
+end
+arch floor_ostone1
+x 11
+y 12
+end
+arch floor_ostone1
+x 11
+y 13
+end
+arch floor_ostone1
+x 11
+y 14
+end
+arch floor_ostone1
+x 11
+y 15
+end
+arch floor_ostone1
+x 11
+y 16
+end
+arch wall_stone_1
+x 11
+y 16
+end
+arch floor_ostone1
+x 12
+end
+arch wall_stone_1
+x 12
+end
+arch floor_ostone1
+x 12
+y 1
+end
+arch floor_ostone1
+x 12
+y 2
+end
+arch floor_ostone1
+x 12
+y 3
+end
+arch floor_ostone1
+x 12
+y 4
+end
+arch floor_ostone1
+x 12
+y 5
+end
+arch floor_ostone1
+x 12
+y 6
+end
+arch floor_ostone1
+x 12
+y 7
+end
+arch handle_lever
+name handle: turn wall
+face lever.131
+direction 3
+connected 102
+x 12
+y 7
+end
+arch floor_ostone1
+x 12
+y 8
+end
+arch floor_ostone1
+x 12
+y 9
+end
+arch floor_ostone1
+x 12
+y 10
+end
+arch grate1_1
+x 12
+y 10
+end
+arch floor_ostone1
+x 12
+y 11
+end
+arch floor_ostone1
+x 12
+y 12
+end
+arch floor_ostone1
+x 12
+y 13
+end
+arch floor_ostone1
+x 12
+y 14
+end
+arch floor_ostone1
+x 12
+y 15
+end
+arch floor_ostone1
+x 12
+y 16
+end
+arch wall_stone_1
+x 12
+y 16
+end
+arch floor_ostone1
+x 13
+end
+arch wall_stone_1
+x 13
+end
+arch floor_ostone1
+x 13
+y 1
+end
+arch floor_ostone1
+x 13
+y 2
+end
+arch spinner
+direction 3
+sys_object 0
+layer 4
+x 13
+y 2
+end
+arch floor_ostone1
+x 13
+y 3
+end
+arch floor_ostone1
+x 13
+y 4
+end
+arch floor_ostone1
+x 13
+y 5
+end
+arch floor_ostone1
+x 13
+y 6
+end
+arch floor_ostone1
+x 13
+y 7
+end
+arch sign
+name magic wall objects
+msg
+MAGIC WALLs are kind of automized
+spell casting devices. They can be marked
+as destroyable or as indestructable.
+Normally, they can only harmed by physical
+attacks. They fire a spell in a direction.
+This 2 handles will control the magic wall.
+There are 2 ways of control:
+Setting the fire direction or using
+connection flag1 and turning the magi
+wall on and off.
+endmsg
+x 13
+y 7
+end
+arch floor_ostone2
+x 13
+y 8
+end
+arch floor_ostone2
+x 13
+y 9
+end
+arch floor_ostone2
+x 13
+y 10
+end
+arch grate1_1
+x 13
+y 10
+end
+arch floor_ostone2
+x 13
+y 11
+end
+arch floor_ostone2
+x 13
+y 12
+end
+arch floor_ostone1
+x 13
+y 13
+end
+arch magic_wall
+dam 0
+connected 102
+speed 1
+x 13
+y 13
+end
+arch floor_ostone1
+x 13
+y 14
+end
+arch floor_ostone1
+x 13
+y 15
+end
+arch floor_ostone1
+x 13
+y 16
+end
+arch wall_stone_1
+x 13
+y 16
+end
+arch floor_ostone1
+x 14
+end
+arch wall_stone_1
+x 14
+end
+arch floor_ostone1
+x 14
+y 1
+end
+arch floor_ostone1
+x 14
+y 2
+end
+arch spinner
+direction 6
+sys_object 0
+layer 4
+x 14
+y 2
+end
+arch floor_ostone1
+x 14
+y 3
+end
+arch spinner
+direction 5
+sys_object 0
+layer 4
+x 14
+y 3
+end
+arch floor_ostone1
+x 14
+y 4
+end
+arch spinner
+direction 2
+sys_object 0
+layer 4
+x 14
+y 4
+end
+arch floor_ostone1
+x 14
+y 5
+end
+arch floor_ostone1
+x 14
+y 6
+end
+arch floor_ostone1
+x 14
+y 7
+end
+arch handle_lever
+name handle: wall on/off
+face lever.131
+direction 3
+connected 102
+last_eat 1
+x 14
+y 7
+end
+arch floor_ostone1
+x 14
+y 8
+end
+arch floor_ostone1
+x 14
+y 9
+end
+arch floor_ostone1
+x 14
+y 10
+end
+arch grate1_1
+x 14
+y 10
+end
+arch floor_ostone1
+x 14
+y 11
+end
+arch floor_ostone1
+x 14
+y 12
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 14
+end
+arch floor_ostone1
+x 14
+y 15
+end
+arch floor_ostone1
+x 14
+y 16
+end
+arch wall_stone_1
+x 14
+y 16
+end
+arch floor_ostone1
+x 15
+end
+arch wall_stone_1
+x 15
+end
+arch floor_ostone1
+x 15
+y 1
+end
+arch floor_ostone1
+x 15
+y 2
+end
+arch floor_ostone1
+x 15
+y 3
+end
+arch floor_ostone1
+x 15
+y 4
+end
+arch floor_ostone1
+x 15
+y 5
+end
+arch floor_ostone1
+x 15
+y 6
+end
+arch floor_ostone1
+x 15
+y 7
+end
+arch floor_ostone1
+x 15
+y 8
+end
+arch floor_ostone1
+x 15
+y 9
+end
+arch floor_ostone1
+x 15
+y 10
+end
+arch grate1_1
+x 15
+y 10
+end
+arch floor_ostone1
+x 15
+y 11
+end
+arch floor_ostone1
+x 15
+y 12
+end
+arch floor_ostone1
+x 15
+y 13
+end
+arch floor_ostone1
+x 15
+y 14
+end
+arch floor_ostone1
+x 15
+y 15
+end
+arch floor_ostone1
+x 15
+y 16
+end
+arch wall_stone_1
+x 15
+y 16
+end
+arch floor_ostone1
+x 16
+end
+arch wall_stone_1
+x 16
+end
+arch floor_ostone1
+x 16
+y 1
+end
+arch floor_ostone1
+x 16
+y 2
+end
+arch floor_ostone1
+x 16
+y 3
+end
+arch floor_ostone1
+x 16
+y 4
+end
+arch floor_ostone1
+x 16
+y 5
+end
+arch floor_ostone1
+x 16
+y 6
+end
+arch floor_ostone1
+x 16
+y 7
+end
+arch floor_ostone1
+x 16
+y 8
+end
+arch floor_ostone1
+x 16
+y 9
+end
+arch floor_ostone1
+x 16
+y 10
+end
+arch wall_stone_1
+x 16
+y 10
+end
+arch floor_ostone1
+x 16
+y 11
+end
+arch wall_stone_3
+x 16
+y 11
+end
+arch floor_ostone1
+x 16
+y 12
+end
+arch wall_stone_3
+x 16
+y 12
+end
+arch floor_ostone1
+x 16
+y 13
+end
+arch wall_stone_3
+x 16
+y 13
+end
+arch floor_ostone1
+x 16
+y 14
+end
+arch wall_stone_3
+x 16
+y 14
+end
+arch floor_ostone1
+x 16
+y 15
+end
+arch wall_stone_3
+x 16
+y 15
+end
+arch floor_ostone1
+x 16
+y 16
+end
+arch wall_stone_4
+x 16
+y 16
+end

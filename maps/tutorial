@@ -1,0 +1,4121 @@
+arch map
+name The starting tutorial
+msg
+Creator: Daimonin Map Editor
+Date:    10/2/2003
+endmsg
+width 24
+height 24
+difficulty 1
+no_save 1
+end
+arch floor_stone_b4
+end
+arch wall_stone_8
+end
+arch floor_stone_b4
+y 1
+end
+arch wall_stone_3
+y 1
+end
+arch floor_stone_b4
+y 2
+end
+arch wall_stone_3
+y 2
+end
+arch floor_stone_b4
+y 3
+end
+arch wall_stone_3
+y 3
+end
+arch floor_stone_b4
+y 4
+end
+arch wall_stone_3
+y 4
+end
+arch floor_stone_b4
+y 5
+end
+arch wall_stone_3
+y 5
+end
+arch floor_stone_b4
+y 6
+end
+arch wall_stone_3
+y 6
+end
+arch floor_stone_b4
+y 7
+end
+arch wall_stone_3
+y 7
+end
+arch floor_stone_b4
+y 8
+end
+arch wall_stone_3
+y 8
+end
+arch floor_stone_b4
+y 9
+end
+arch wall_stone_3
+y 9
+end
+arch floor_stone_b4
+y 10
+end
+arch wall_stone_3
+y 10
+end
+arch floor_stone_b4
+y 11
+end
+arch wall_stone_3
+y 11
+end
+arch floor_stone_b4
+y 12
+end
+arch wall_stone_3
+y 12
+end
+arch floor_stone_b4
+y 13
+end
+arch wall_stone_3
+y 13
+end
+arch floor_stone_b4
+y 14
+end
+arch wall_stone_3
+y 14
+end
+arch floor_stone_b4
+y 15
+end
+arch wall_stone_3
+y 15
+end
+arch floor_stone_b4
+y 16
+end
+arch wall_stone_3
+y 16
+end
+arch floor_stone_b4
+y 17
+end
+arch wall_stone_3
+y 17
+end
+arch floor_stone_b4
+y 18
+end
+arch wall_stone_3
+y 18
+end
+arch floor_stone_b4
+y 19
+end
+arch wall_stone_3
+y 19
+end
+arch floor_stone_b4
+y 20
+end
+arch wall_stone_3
+y 20
+end
+arch floor_stone_b4
+y 21
+end
+arch wall_stone_3
+y 21
+end
+arch floor_stone_b4
+y 22
+end
+arch wall_stone_3
+y 22
+end
+arch floor_stone_b4
+y 23
+end
+arch wall_stone_3
+y 23
+end
+arch floor_stone_b4
+x 1
+end
+arch wall_stone_1
+x 1
+end
+arch floor_stone_b4
+x 1
+y 1
+end
+arch magic_mouth
+msg
+Welcome to Atrinik!
+Move with the numpad keys. Press 1 now to move down.
+Press F12 for help.
+endmsg
+x 1
+y 1
+end
+arch floor_stone_b4
+x 1
+y 2
+end
+arch floor_stone_b4
+x 1
+y 3
+end
+arch floor_stone_b4
+x 1
+y 4
+end
+arch doorway_wood1_1
+x 1
+y 4
+end
+arch floor_stone_b4
+x 1
+y 5
+end
+arch floor_stone_b4
+x 1
+y 6
+end
+arch floor_stone_b4
+x 1
+y 7
+end
+arch sign
+name Press the 'a' key to read me!
+msg
+THE BELOW WINDOW
+You will find the below window beneath the map.
+It shows you all the objects under your feet. Select an object in the below window by using the ^CURSOR^ keys. The blue box indicates the selected object.
+You "use" an object by pressing the 'a' key for 'a'pply.
+Now, go to the nearby lever, use the cursor keys to move the blue box over the lever and press 'a' for apply - this will open the gate to the next room.
+endmsg
+x 1
+y 7
+end
+arch floor_stone_b4
+x 1
+y 8
+end
+arch floor_stone_b4
+x 1
+y 9
+end
+arch wall_stone_1
+x 1
+y 9
+end
+arch floor_stone_b4
+x 1
+y 10
+end
+arch floor_stone_b4
+x 1
+y 11
+end
+arch sign
+name The Inventory (read with 'a' key)
+msg
+THE INVENTORY
+You can access your INVENTORY by pressing the SHIFT key. SHIFT toggles between inventory and the below window.
+Press SHIFT and hold it pressed. You can move around in your inventory with the cursor keys like in the below window.
+With the mouse, you can click in the bag symbol on the left side of the screen - that will also open the inventory.
+endmsg
+x 1
+y 11
+end
+arch floor_stone_b4
+x 1
+y 12
+end
+arch floor_stone_b4
+x 1
+y 13
+end
+arch wall_stone_1
+x 1
+y 13
+end
+arch floor_stone_b4
+x 1
+y 14
+end
+arch sign
+name Using Objects
+msg
+USING OBJECTS
+The 'a' key will apply (use) an object. If you apply a
+weapon, you will wield it. If you apply food you will eat it.
+You can also GET items.
+Go to the nearby food and press 'g' to get it.
+Then press SHIFT and look in your inventory. There it is.
+Move the blue box over the food and press 'a'. Now
+you have eaten the food.
+endmsg
+x 1
+y 14
+end
+arch floor_stone_b4
+x 1
+y 15
+end
+arch floor_stone_b4
+x 1
+y 16
+end
+arch sign
+name Using Exits
+msg
+USING EXISTS
+There are two kinds of "EXITS". Some exits like magic
+portals or invisible map exits will transfer you to a
+different location (map) when you step in them.
+The other class of  EXITS are objects like stairs,
+ladders and holes.
+To enter this kind of exits you have to 'a'pply them
+like other usable objects. Step over the ladder there
+and APPLY it!
+You will be transfered to the next room.
+endmsg
+x 1
+y 16
+end
+arch floor_stone_b4
+x 1
+y 17
+end
+arch floor_stone_b4
+x 1
+y 18
+end
+arch wall_stone_1
+x 1
+y 18
+end
+arch floor_stone_b4
+x 1
+y 19
+end
+arch sign
+name The Apply Command
+msg
+THE APPLY COMMAND
+As shown before, the apply command will 'use' an
+object. Food is eaten, levers are pulled and weapons
+wielded.
+Remember that some items can't be applied. You
+will get a message normally but sometimes not.
+Some items must be picked up first - they can't be
+applied when they are on the floor. Other items
+will act differently when applied on the floor. You will
+get a message then explaining what's going on.
+endmsg
+x 1
+y 19
+end
+arch floor_stone_b4
+x 1
+y 20
+end
+arch sign
+name The Examine Command
+msg
+THE EXAMINE COMMAND
+By selecting an object in the below or inventory windows (cursor keys) you can get a full description of it by pressing the 'e' key for EXAMINE! You will get all information about the item - if it's identified!
+Try it on the 2 red boulders over there.
+One is identified, the other not. Most items you will find are unidentified. The 'identify' spell, a 'scroll of identify' or a helpful NPC can be used to identify the items.
+endmsg
+x 1
+y 20
+end
+arch floor_stone_b4
+x 1
+y 21
+end
+arch sign
+name The Get & Drop Command
+msg
+THE DROP & GET COMMANDS
+As described before the 'g' key will get items from
+below and put them in your inventory. Remember
+to open the inventory holding SHIFT pressed.
+To DROP items from your inventory to below you
+have to use the 'd' key for drop. It works like the
+get command but in the other direction.
+Remember that you can't get/drop all items!
+One-drop items will VANISH forever when dropped, so be careful!
+endmsg
+x 1
+y 21
+end
+arch floor_stone_b4
+x 1
+y 22
+end
+arch sign
+name Object Stacks
+msg
+OBJECT STACKS
+If there are mutiple objects of the same kind, they can build STACKS. Not all objects can build stacks.
+Coins for example can build stacks. There is a stack of 4 copper coins in front of this sign. Get them with the 'g'et command. You will then be asked in a small window how many of the 4 coins you want to get. Pressing return or 'g' again will get all. You can also enter a number getting only a part of the stack. Items not picked up will stay on the floor.
+endmsg
+x 1
+y 22
+end
+arch floor_stone_b4
+x 1
+y 23
+end
+arch wall_stone_1
+x 1
+y 23
+end
+arch floor_stone_b4
+x 2
+end
+arch wall_stone_1
+x 2
+end
+arch floor_stone_b4
+x 2
+y 1
+end
+arch wall_stone_3
+x 2
+y 1
+end
+arch floor_stone_b4
+x 2
+y 2
+end
+arch wall_stone_3
+x 2
+y 2
+end
+arch floor_stone_b4
+x 2
+y 3
+end
+arch wall_stone_3
+x 2
+y 3
+end
+arch floor_stone_b4
+x 2
+y 4
+end
+arch wall_stone_4
+x 2
+y 4
+end
+arch floor_stone_b4
+x 2
+y 5
+end
+arch floor_stone_b4
+x 2
+y 6
+end
+arch floor_stone_b4
+x 2
+y 7
+end
+arch handle_lever
+name lever ( apply me to open the grate)
+connected 101
+x 2
+y 7
+end
+arch floor_stone_b4
+x 2
+y 8
+end
+arch floor_stone_b4
+x 2
+y 9
+end
+arch grate_closed
+connected 101
+x 2
+y 9
+end
+arch floor_stone_b4
+x 2
+y 10
+end
+arch floor_stone_b4
+x 2
+y 11
+end
+arch handle_lever
+name lever ( apply me to open the next grate)
+connected 102
+x 2
+y 11
+end
+arch floor_stone_b4
+x 2
+y 12
+end
+arch floor_stone_b4
+x 2
+y 13
+end
+arch grate_closed
+connected 102
+x 2
+y 13
+end
+arch floor_stone_b4
+x 2
+y 14
+end
+arch food_generic
+value 0
+identified 1
+x 2
+y 14
+end
+arch floor_stone_b4
+x 2
+y 15
+end
+arch floor_stone_b4
+x 2
+y 16
+end
+arch floor_stone_b4
+x 2
+y 17
+end
+arch ladder_down
+slaying /tutorial
+hp 2
+sp 19
+last_eat 1
+x 2
+y 17
+end
+arch floor_stone_b4
+x 2
+y 18
+end
+arch grate1_1
+x 2
+y 18
+end
+arch floor_stone_b4
+x 2
+y 19
+end
+arch ladder_down
+slaying /tutorial
+hp 2
+sp 17
+last_eat 1
+x 2
+y 19
+end
+arch floor_stone_b4
+x 2
+y 20
+end
+arch t_boulder
+name boulder ( too heavy to pick up )
+no_pick 1
+x 2
+y 20
+end
+arch t_boulder
+name boulder ( too heavy to pick up )
+no_pick 1
+identified 1
+x 2
+y 20
+end
+arch floor_stone_b4
+x 2
+y 21
+end
+arch floor_stone_b4
+x 2
+y 22
+end
+arch coppercoin
+nrof 4
+x 2
+y 22
+end
+arch floor_stone_b4
+x 2
+y 23
+end
+arch wall_stone_1
+x 2
+y 23
+end
+arch floor_stone_b4
+x 3
+end
+arch wall_stone_1
+x 3
+end
+arch floor_stone_b4
+x 3
+y 1
+end
+arch mace_battle
+name battle mace (impact weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 3
+y 1
+end
+arch floor_stone_b4
+x 3
+y 2
+end
+arch sign
+msg
+WEAPONS
+You can't take the weapons there on the floor, they
+are only examples. But you will find this and *a lot* more
+weapons of every imaginable kind later in the game.
+Note: Impact & slash weapons are most common
+in the game. Pierce weapons are more exotic and
+you will not find that many in the game but because
+most protection focus more on impact, slash and cleave,
+they will become more dangerous at higher levels.
+Cleave weapons (for example axes) are also dangerous.
+endmsg
+x 3
+y 2
+end
+arch floor_stone_b4
+x 3
+y 3
+end
+arch floor_stone_b4
+x 3
+y 4
+end
+arch wall_stone_1
+x 3
+y 4
+end
+arch floor_stone_b4
+x 3
+y 5
+end
+arch sign
+name This Tutorial is not RPGish
+msg
+THIS TUTORIAL IS NOT RPGish
+What does that mean?
+It means that in this tutorial we speak to the person
+behind the screen. To you, the computer user and
+not to the character you have created.
+Why? Atrinik is a complex system and we have
+players very new to this kind of game.
+We need to help them as much as possible.
+Note: This tutorial is the one and only place in the
+game communicating with the player only.
+endmsg
+x 3
+y 5
+end
+arch floor_stone_b4
+x 3
+y 6
+end
+arch floor_stone_b4
+x 3
+y 7
+end
+arch floor_stone_b4
+x 3
+y 8
+end
+arch floor_stone_b4
+x 3
+y 9
+end
+arch wall_stone_1
+x 3
+y 9
+end
+arch floor_stone_b4
+x 3
+y 10
+end
+arch sign
+name Scrolling Messages
+msg
+SCROLLING IN THE MESSAGE WINDOW
+Sometimes messages are too long to fit the window, or maybe you just want to look back and see what was said five minutes ago.
+You can use the PAGE UP and PAGE DOWN keys to view older messages. You can also control the scroll bar with your mouse.
+Note that it is easy to miss new messages if you aren't at the bottom of the message window!
+endmsg
+x 3
+y 10
+end
+arch floor_stone_b4
+x 3
+y 11
+end
+arch floor_stone_b4
+x 3
+y 12
+end
+arch floor_stone_b4
+x 3
+y 13
+end
+arch wall_stone_1
+x 3
+y 13
+end
+arch floor_stone_b4
+x 3
+y 14
+end
+arch floor_stone_b4
+x 3
+y 15
+end
+arch floor_stone_b4
+x 3
+y 16
+end
+arch floor_stone_b4
+x 3
+y 17
+end
+arch floor_stone_b4
+x 3
+y 18
+end
+arch wall_stone_1
+x 3
+y 18
+end
+arch floor_stone_b4
+x 3
+y 19
+end
+arch sign
+name Other Inventory Commands
+msg
+OTHER INVENTORY COMMANDS
+There are some more commands for objects.
+With 'm' for MARK, you can mark an object. Some
+NPCs might want a marked object when
+they do an action. They will tell you about it then.
+With 'l' for LOCK you can lock a item in your
+inventory. You cannot drop a locked item unless you
+first unlock it by pressing the 'l' key again.
+endmsg
+x 3
+y 19
+end
+arch floor_stone_b4
+x 3
+y 20
+end
+arch floor_stone_b4
+x 3
+y 21
+end
+arch floor_stone_b4
+x 3
+y 22
+end
+arch floor_stone_b4
+x 3
+y 23
+end
+arch wall_stone_1
+x 3
+y 23
+end
+arch floor_stone_b4
+x 4
+end
+arch wall_stone_1
+x 4
+end
+arch floor_stone_b4
+x 4
+y 1
+end
+arch degen
+name degen (pierce weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 4
+y 1
+end
+arch floor_stone_b4
+x 4
+y 2
+end
+arch floor_stone_b4
+x 4
+y 3
+end
+arch floor_stone_b4
+x 4
+y 4
+end
+arch wall_stone_1
+x 4
+y 4
+end
+arch floor_stone_b4
+x 4
+y 5
+end
+arch wall_stone_3
+x 4
+y 5
+end
+arch floor_stone_b4
+x 4
+y 6
+end
+arch wall_stone_3
+x 4
+y 6
+end
+arch floor_stone_b4
+x 4
+y 7
+end
+arch wall_stone_3
+x 4
+y 7
+end
+arch floor_stone_b4
+x 4
+y 8
+end
+arch wall_stone_3
+x 4
+y 8
+end
+arch floor_stone_b4
+x 4
+y 9
+end
+arch wall_stone_4
+x 4
+y 9
+end
+arch floor_stone_b4
+x 4
+y 10
+end
+arch wall_stone_3
+x 4
+y 10
+end
+arch floor_stone_b4
+x 4
+y 11
+end
+arch wall_stone_3
+x 4
+y 11
+end
+arch floor_stone_b4
+x 4
+y 12
+end
+arch wall_stone_3
+x 4
+y 12
+end
+arch floor_stone_b4
+x 4
+y 13
+end
+arch wall_stone_4
+x 4
+y 13
+end
+arch floor_stone_b4
+x 4
+y 14
+end
+arch wall_stone_3
+x 4
+y 14
+end
+arch floor_stone_b4
+x 4
+y 15
+end
+arch wall_stone_3
+x 4
+y 15
+end
+arch floor_stone_b4
+x 4
+y 16
+end
+arch wall_stone_3
+x 4
+y 16
+end
+arch floor_stone_b4
+x 4
+y 17
+end
+arch wall_stone_3
+x 4
+y 17
+end
+arch floor_stone_b4
+x 4
+y 18
+end
+arch wall_stone_4
+x 4
+y 18
+end
+arch floor_stone_b4
+x 4
+y 19
+end
+arch wall_stone_3
+x 4
+y 19
+end
+arch picture5.151
+direction 5
+x 4
+y 19
+end
+arch floor_stone_b4
+x 4
+y 20
+end
+arch wall_stone_3
+x 4
+y 20
+end
+arch wall_stone_3
+x 4
+y 20
+end
+arch floor_stone_b4
+x 4
+y 21
+end
+arch floor_stone_b4
+x 4
+y 22
+end
+arch wall_stone_3
+x 4
+y 22
+end
+arch floor_stone_b4
+x 4
+y 23
+end
+arch wall_stone_4
+x 4
+y 23
+end
+arch floor_stone_b4
+x 5
+end
+arch wall_stone_1
+x 5
+end
+arch floor_stone_b4
+x 5
+y 1
+end
+arch priest_church
+name The friendly gatekeeper
+face priest_church.151
+friendly 1
+invulnerable 1
+x 5
+y 1
+arch event_obj
+name Python
+race gatekeeper.py
+sub_type 6
+end
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 2
+end
+arch floor_stone_b4
+x 5
+y 3
+end
+arch floor_stone_b4
+x 5
+y 4
+end
+arch wall_stone_1
+x 5
+y 4
+end
+arch floor_stone_b4
+x 5
+y 5
+end
+arch sign
+msg
+MORE TALKING
+There are some chat commands in the game:
+/shout <message> sends a message to all players.
+/tell <player name> <message> only one player
+/say <message> only in the visible area
+/say is default chat command - if you type
+something in the console it will be handled
+as "said" when it doesn't start with a '/',
+The '/' is reserved for marking commands.
+Try "/help" as an example!
+endmsg
+x 5
+y 5
+end
+arch floor_stone_b4
+x 5
+y 6
+end
+arch monk
+msg
+@match roger
+You have said "roger" to me.
+Many people in the game have hidden keywords
+which you must find out. Sometimes you have
+to listen carefully, other times you have to read
+a hint somewhere else. Well, read the last signs
+now and then talk to the gatekeeper in the next
+room. Good luck.
+@match *
+Hello Stranger!
+You can talk to me by pressing the RETURN key
+again. Type ^roger^ and I will give you some hints
+releated to chatting. I will repeat this text every time
+you ask me something different. So type ^roger^ now.
+You can also click on the blue roger text using
+your mouse. Read the sign in the edge there
+to learn more about mouse & chatting.
+endmsg
+invulnerable 1
+no_attack 1
+friendly 1
+x 5
+y 6
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 7
+end
+arch floor_stone_b4
+x 5
+y 8
+end
+arch floor_stone_b4
+x 5
+y 9
+end
+arch floor_stone_b4
+x 5
+y 10
+end
+arch wall_stone_1
+x 5
+y 10
+end
+arch floor_stone_b4
+x 5
+y 11
+end
+arch floor_stone_b4
+x 5
+y 12
+end
+arch jelly_blue
+name blue jelly ( Purple. Can instantly kill you!!. RUN... )
+invulnerable 1
+no_attack 1
+stand_still 1
+level 4
+x 5
+y 12
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 13
+end
+arch blob_acid
+name acid blob ( Red. VERY dangerous. Kills you in 3 hits! )
+invulnerable 1
+no_attack 1
+stand_still 1
+level 3
+x 5
+y 13
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 14
+end
+arch pudding_red
+name red pudding ( Orange. Stronger than you! Dangerous! )
+invulnerable 1
+no_attack 1
+stand_still 1
+level 2
+x 5
+y 14
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 15
+end
+arch floor_stone_b4
+x 5
+y 16
+end
+arch ogre
+name ogre ( Yellow. Same level as you. Best target. )
+invulnerable 1
+no_attack 1
+stand_still 1
+direction 2
+x 5
+y 16
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 5
+y 17
+end
+arch wall_stone_1
+x 5
+y 17
+end
+arch floor_stone_b4
+x 5
+y 18
+end
+arch candlelight2.101
+x 5
+y 18
+end
+arch floor_stone_b4
+x 5
+y 19
+end
+arch floor_stone_b4
+x 5
+y 20
+end
+arch floor_stone_b4
+x 5
+y 21
+end
+arch floor_stone_b4
+x 5
+y 22
+end
+arch floor_stone_b4
+x 5
+y 23
+end
+arch wall_stone_1
+x 5
+y 23
+end
+arch floor_stone_b4
+x 6
+end
+arch wall_stone_1
+x 6
+end
+arch floor_stone_b4
+x 6
+y 1
+end
+arch longsword
+name longsword (slash weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 6
+y 1
+end
+arch floor_stone_b4
+x 6
+y 2
+end
+arch floor_stone_b1
+x 6
+y 3
+end
+arch floor_stone_b4
+x 6
+y 4
+end
+arch magic_mouth
+msg
+The gatekeepers smiles to you.
+Seems he wants to talk to you?!
+Say "hello" to him - but first move two steps on or
+he will not listen to you.
+endmsg
+x 6
+y 4
+end
+arch door_wood1
+x 6
+y 4
+end
+arch floor_stone_b1
+x 6
+y 5
+end
+arch floor_stone_b1
+x 6
+y 6
+end
+arch floor_stone_b4
+x 6
+y 7
+end
+arch floor_stone_b4
+x 6
+y 8
+end
+arch sign
+name Talk to NPC's
+msg
+TALK TO NPC's
+To talk with NPCs (Non Player Characters) you have to open the INPUT CONSOLE. Press RETURN on the numpad. Now a small flashing cursor appears under this text in the text window.
+Now type "hello" or "hi", and press RETURN again.
+You will see that the NPC here will answer you, unless you stand too far away! You must be inside a range of two tiles of him. Do what he is telling you!
+endmsg
+x 6
+y 8
+end
+arch floor_stone_b4
+x 6
+y 9
+end
+arch floor_stone_b4
+x 6
+y 10
+end
+arch wall_stone_1
+x 6
+y 10
+end
+arch floor_stone_b4
+x 6
+y 11
+end
+arch floor_stone_b4
+x 6
+y 12
+end
+arch floor_stone_b4
+x 6
+y 13
+end
+arch floor_stone_b4
+x 6
+y 14
+end
+arch floor_stone_b4
+x 6
+y 15
+end
+arch floor_stone_b1
+x 6
+y 16
+end
+arch floor_stone_b4
+x 6
+y 17
+end
+arch wall_stone_1
+x 6
+y 17
+end
+arch floor_stone_b4
+x 6
+y 18
+end
+arch floor_stone_b1
+x 6
+y 19
+end
+arch floor_stone_b4
+x 6
+y 20
+end
+arch floor_stone_b4
+x 6
+y 21
+end
+arch floor_stone_b4
+x 6
+y 22
+end
+arch floor_stone_b4
+x 6
+y 23
+end
+arch wall_stone_1
+x 6
+y 23
+end
+arch floor_stone_b4
+x 7
+end
+arch wall_stone_1
+x 7
+end
+arch floor_stone_b4
+x 7
+y 1
+end
+arch axe_double
+name double axe (cleave weapon)
+no_pick 1
+identified 1
+item_level 0
+item_skill 0
+x 7
+y 1
+end
+arch floor_stone_b4
+x 7
+y 2
+end
+arch floor_stone_b4
+x 7
+y 3
+end
+arch floor_stone_b4
+x 7
+y 4
+end
+arch wall_stone_1
+x 7
+y 4
+end
+arch floor_stone_b4
+x 7
+y 5
+end
+arch sign
+name Talking using the Mouse
+msg
+TALKING USING THE MOUSE
+You can talk to NPCs using the mouse only: Click on an NPC with the right mouse button to target him.
+A bit right of the target name you will see a "hello" button. Click on it with the left mouse button.
+This will make you say "hello" to the NPC. You can then click with the left mouse button on any blue keywords in the text window to say it out loud.
+This doesn't work when chatting with players - only with NPCs.
+endmsg
+x 7
+y 5
+end
+arch floor_stone_b4
+x 7
+y 6
+end
+arch floor_stone_b4
+x 7
+y 7
+end
+arch floor_stone_b4
+x 7
+y 8
+end
+arch floor_stone_b4
+x 7
+y 9
+end
+arch floor_stone_b4
+x 7
+y 10
+end
+arch door_wood1
+x 7
+y 10
+end
+arch floor_stone_b4
+x 7
+y 11
+end
+arch floor_stone_b4
+x 7
+y 12
+end
+arch sign
+name Corpses
+msg
+CORPSES
+Corpses appear when you have killed an enemy.
+They are used like CONTAINERS and will hold the
+"loot" - all the items your enemy carried when killed.
+Open this corpse like a container and 'g'et these items.
+Note the "(bounty of YOU)" in the name of the corpse.
+If there is your name, ONLY you can access the
+container - no one else. People will not be able to
+steal your loot from your kills.
+endmsg
+x 7
+y 12
+end
+arch floor_stone_b4
+x 7
+y 13
+end
+arch floor_stone_b4
+x 7
+y 14
+end
+arch floor_stone_b4
+x 7
+y 15
+end
+arch floor_stone_b4
+x 7
+y 16
+end
+arch slime
+name slime ( Blue. 1 or 2 levels lower. Easy target. )
+invulnerable 1
+no_attack 1
+stand_still 1
+level 0
+x 7
+y 16
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 7
+y 17
+end
+arch wall_stone_1
+x 7
+y 17
+end
+arch picture3.151
+x 7
+y 17
+end
+arch floor_stone_b4
+x 7
+y 18
+end
+arch floor_stone_b4
+x 7
+y 19
+end
+arch sign
+name Fog of War
+msg
+FOG OF WAR
+Some objects like walls and solid doors will block
+your "line of sight" (LOS). You can't see what's
+behind them. But for some time you will remember
+the structure of an area where you have recently been.
+That area is shown in a dark blue color.
+Note that your memory will vanish for areas you
+haven't visited for a while or if you visit other areas.
+endmsg
+x 7
+y 19
+end
+arch floor_stone_b4
+x 7
+y 20
+end
+arch floor_stone_b4
+x 7
+y 21
+end
+arch sign
+name Doors
+msg
+DOORS
+You open doors by moving into them. They will
+open if they are not locked by a key. After
+some time, they will close automatically.
+If the door needs a key, you will get a message.
+endmsg
+x 7
+y 21
+end
+arch floor_stone_b4
+x 7
+y 22
+end
+arch floor_stone_b4
+x 7
+y 23
+end
+arch wall_stone_1
+x 7
+y 23
+end
+arch floor_stone_b4
+x 8
+end
+arch wall_stone_1
+x 8
+end
+arch floor_stone_b4
+x 8
+y 1
+end
+arch wall_stone_3
+x 8
+y 1
+end
+arch floor_stone_b4
+x 8
+y 2
+end
+arch wall_stone_3
+x 8
+y 2
+end
+arch wmask_bflag_fire1_1
+direction 5
+x 8
+y 2
+end
+arch floor_stone_b4
+x 8
+y 3
+end
+arch wall_stone_3
+x 8
+y 3
+end
+arch wmask_bflag_fire1_1
+direction 5
+x 8
+y 3
+end
+arch floor_stone_b4
+x 8
+y 4
+end
+arch wall_stone_4
+x 8
+y 4
+end
+arch floor_stone_b4
+x 8
+y 5
+end
+arch wall_stone_3
+x 8
+y 5
+end
+arch floor_stone_b4
+x 8
+y 6
+end
+arch wall_stone_3
+x 8
+y 6
+end
+arch floor_stone_b4
+x 8
+y 7
+end
+arch wall_stone_3
+x 8
+y 7
+end
+arch floor_stone_b4
+x 8
+y 8
+end
+arch wall_stone_3
+x 8
+y 8
+end
+arch floor_stone_b4
+x 8
+y 9
+end
+arch wall_stone_3
+x 8
+y 9
+end
+arch floor_stone_b4
+x 8
+y 10
+end
+arch wall_stone_4
+x 8
+y 10
+end
+arch floor_stone_b1
+x 8
+y 11
+end
+arch floor_stone_b4
+x 8
+y 12
+end
+arch corpse_human
+name decaying  corpse ( bounty of YOU )
+food 0
+speed 0.00
+is_used_up 0
+x 8
+y 12
+arch coppercoin
+nrof 5
+end
+end
+arch floor_stone_b4
+x 8
+y 13
+end
+arch floor_stone_b4
+x 8
+y 14
+end
+arch sign
+name Hit Points ( HP ) and Levels
+msg
+HIT POINTS AND LEVELS
+Every creature has an amount of hit points (short: HP).
+If the hit points drop to zero, the creature or
+player will die. The green line inside the target marker
+shows the current hit points of that creature in %.
+A full line means 100% hp, half a line 50%. If you target
+the 2 ants you will see that the black one is nearly dead
+and the red has only 70% left. Same mobs can have
+different level and hp! Always look for the target color,
+or the level 75 ant with 10000 hp will ruin your day.
+endmsg
+x 8
+y 14
+end
+arch floor_stone_b4
+x 8
+y 15
+end
+arch floor_stone_b4
+x 8
+y 16
+end
+arch ant_red
+name red ant ( Green. Very low. Low exp too. )
+invulnerable 1
+no_attack 1
+stand_still 1
+level -1
+hp 7
+direction 1
+x 8
+y 16
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 8
+y 17
+end
+arch wall_stone_1
+x 8
+y 17
+end
+arch floor_stone_b4
+x 8
+y 18
+end
+arch floor_stone_b4
+x 8
+y 19
+end
+arch floor_stone_b4
+x 8
+y 20
+end
+arch floor_stone_b4
+x 8
+y 21
+end
+arch floor_stone_b4
+x 8
+y 22
+end
+arch floor_stone_b4
+x 8
+y 23
+end
+arch wall_stone_1
+x 8
+y 23
+end
+arch floor_stone_b4
+x 9
+end
+arch wall_stone_1
+x 9
+end
+arch floor_stone_b4
+x 9
+y 1
+end
+arch floor_stone_b4
+x 9
+y 2
+end
+arch floor_stone_b4
+x 9
+y 3
+end
+arch floor_stone_b4
+x 9
+y 4
+end
+arch wall_stone_1
+x 9
+y 4
+end
+arch floor_stone_b4
+x 9
+y 5
+end
+arch splint_mail
+name splint mail ( example - it's only a dummy )
+no_pick 1
+identified 1
+x 9
+y 5
+end
+arch floor_stone_b4
+x 9
+y 6
+end
+arch floor_stone_b4
+x 9
+y 7
+end
+arch wall_stone_1
+x 9
+y 7
+end
+arch floor_stone_b4
+x 9
+y 8
+end
+arch sign
+msg
+RANGE SYSTEM & THROWING
+Atrinik has a complex range system allowing you to throw items, fire bows or spells but also using skills!
+By using the TAB key you can cycle through the range actions. You can have different range actions prepared but you only can use *one* at time.
+To throw/fire/control something you press and hold the CONTROL (CTRL) key and choose a direction with your movement keys. The object or spell will be fired in that direction!
+If you have a target and you press CONTROL (CTRL) key and 5 on numpad, your character will attempt to fire in the direction of the target.
+endmsg
+x 9
+y 8
+end
+arch floor_stone_b4
+x 9
+y 9
+end
+arch target.111
+direction 5
+x 9
+y 9
+end
+arch floor_stone_b4
+x 9
+y 10
+end
+arch wall_stone_1
+x 9
+y 10
+end
+arch floor_stone_b4
+x 9
+y 11
+end
+arch floor_stone_b4
+x 9
+y 12
+end
+arch floor_stone_b4
+x 9
+y 13
+end
+arch floor_stone_b4
+x 9
+y 14
+end
+arch floor_stone_b4
+x 9
+y 15
+end
+arch floor_stone_b4
+x 9
+y 16
+end
+arch ant_soldier
+name ant ( Grey. Too low for you. No exp or loot! )
+invulnerable 1
+no_attack 1
+stand_still 1
+level -2
+hp 6
+direction 1
+x 9
+y 16
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 9
+y 17
+end
+arch wall_stone_1
+x 9
+y 17
+end
+arch floor_stone_b4
+x 9
+y 18
+end
+arch floor_stone_b4
+x 9
+y 19
+end
+arch wall_stone_3
+x 9
+y 19
+end
+arch floor_stone_b4
+x 9
+y 20
+end
+arch door1_locked
+face door_lock1.131
+direction 3
+x 9
+y 20
+end
+arch floor_stone_b4
+x 9
+y 21
+end
+arch wall_stone_3
+x 9
+y 21
+end
+arch floor_stone_b4
+x 9
+y 22
+end
+arch floor_stone_b4
+x 9
+y 23
+end
+arch wall_stone_1
+x 9
+y 23
+end
+arch floor_stone_b4
+x 10
+end
+arch wall_stone_1
+x 10
+end
+arch floor_stone_b4
+x 10
+y 1
+end
+arch rack.111
+x 10
+y 1
+end
+arch floor_stone_b4
+x 10
+y 2
+end
+arch floor_stone_b4
+x 10
+y 3
+end
+arch floor_stone_b4
+x 10
+y 4
+end
+arch wall_stone_1
+x 10
+y 4
+end
+arch floor_stone_b4
+x 10
+y 5
+end
+arch helm_war
+name war helm ( example - it's only a dummy )
+no_pick 1
+identified 1
+x 10
+y 5
+end
+arch floor_stone_b4
+x 10
+y 6
+end
+arch floor_stone_b4
+x 10
+y 7
+end
+arch door_wood1
+x 10
+y 7
+end
+arch floor_stone_b4
+x 10
+y 8
+end
+arch floor_stone_b4
+x 10
+y 9
+end
+arch floor_stone_b4
+x 10
+y 10
+end
+arch wall_stone_1
+x 10
+y 10
+end
+arch floor_stone_b4
+x 10
+y 11
+end
+arch floor_stone_b4
+x 10
+y 12
+end
+arch floor_stone_b4
+x 10
+y 13
+end
+arch floor_stone_b4
+x 10
+y 14
+end
+arch sign
+name Monster & Targets
+msg
+MONSTERS & TARGETING
+Here you see some of your enemies. They are called monsters or mobs. Don't fear, they are frozen.
+You can target the mobs by pressing the '^X^' key!
+Pressing the 'x' key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press '^x^' now!
+After you target something it's name is shown on the left side of the screen. The color of the name has a special meaning - read about it on the next sign.
+endmsg
+x 10
+y 14
+end
+arch floor_stone_b4
+x 10
+y 15
+end
+arch sign
+name The Con Color System
+msg
+THE CON COLOR SYSTEM
+Con'ing (short: 'con') means considering wether you are
+able to be victorious over your target when you fight it.
+The color of your target's name in the target area will
+show you the general chances of it.
+There are 7 colors starting from "too low to get xp"
+to "too strong to kill even in your dreams!".
+Remember: its only a CONSIDER. Some monsters
+have special powers and that is NOT considered.
+You'll find an overview on the next sign.
+endmsg
+x 10
+y 15
+end
+arch floor_stone_b4
+x 10
+y 16
+end
+arch sign
+name Con Color Overview
+msg
+CON COLOR OVERVIEW
+grey:       very easy - *no* loot, *no* xp!
+green:     easy and little xp
+blue:         normal kill - average xp
+yellow:     equal to your lvl - optimal xp
+orange:   hard to kill, but possible and good xp
+red:           very hard to kill, not very likely, great xp
+purple:     too hard to kill, but awesome xp
+Use 'x' to target the monsters again to see what
+the con color system really looks like.
+endmsg
+x 10
+y 16
+end
+arch floor_stone_b4
+x 10
+y 17
+end
+arch wall_stone_1
+x 10
+y 17
+end
+arch floor_stone_b4
+x 10
+y 18
+end
+arch floor_stone_b4
+x 10
+y 19
+end
+arch floor_stone_b4
+x 10
+y 20
+end
+arch floor_stone_b4
+x 10
+y 21
+end
+arch floor_stone_b4
+x 10
+y 22
+end
+arch floor_stone_b4
+x 10
+y 23
+end
+arch wall_stone_1
+x 10
+y 23
+end
+arch floor_stone_b4
+x 11
+end
+arch wall_stone_1
+x 11
+end
+arch floor_stone_b4
+x 11
+y 1
+end
+arch floor_stone_b4
+x 11
+y 2
+end
+arch sign
+name How to Fight
+msg
+HOW TO FIGHT
+As you can see, you have now a weapon in your hand. To fight with it you need 2 things: 1) a target and 2)  to be in combat mode.
+Target with the 'x' key as before, and change from SAFE to COMBAT mode with the 'c' key.
+When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to SAFE. You don't have to press 'c' before every attack.
+endmsg
+x 11
+y 2
+end
+arch floor_stone_b4
+x 11
+y 3
+end
+arch floor_stone_b4
+x 11
+y 4
+end
+arch wall_stone_1
+x 11
+y 4
+end
+arch floor_stone_b4
+x 11
+y 5
+end
+arch sign
+name Armour & Protection
+msg
+ARMOUR & PROTECTION
+If you open your inventory you will see the armour you got from the start. There are various kinds of armour: body armours, helmets and more. Most of them give you PROTECTION against one or more ATTACK TYPE - for example slash or cleave.
+If you apply the armour a message will say how much it protects - you can also see your current protection status in the armour protection table. The values tell how many percent of a hit your armour will absorb.
+endmsg
+x 11
+y 5
+end
+arch floor_stone_b4
+x 11
+y 6
+end
+arch floor_stone_b1
+x 11
+y 7
+end
+arch wall_stone_1
+x 11
+y 7
+end
+arch floor_stone_b4
+x 11
+y 8
+end
+arch floor_stone_b4
+x 11
+y 9
+end
+arch floor_stone_b4
+x 11
+y 10
+end
+arch wall_stone_1
+x 11
+y 10
+end
+arch floor_stone_b4
+x 11
+y 11
+end
+arch floor_stone_b4
+x 11
+y 12
+end
+arch floor_stone_b4
+x 11
+y 13
+end
+arch floor_stone_b4
+x 11
+y 14
+end
+arch floor_stone_b4
+x 11
+y 15
+end
+arch floor_stone_b4
+x 11
+y 16
+end
+arch floor_stone_b4
+x 11
+y 17
+end
+arch wall_stone_1
+x 11
+y 17
+end
+arch floor_stone_b4
+x 11
+y 18
+end
+arch floor_stone_b4
+x 11
+y 19
+end
+arch floor_stone_b4
+x 11
+y 20
+end
+arch floor_stone_b4
+x 11
+y 21
+end
+arch floor_stone_b4
+x 11
+y 22
+end
+arch floor_stone_b4
+x 11
+y 23
+end
+arch wall_stone_1
+x 11
+y 23
+end
+arch floor_stone_b4
+x 12
+end
+arch wall_stone_1
+x 12
+end
+arch floor_stone_b4
+x 12
+y 1
+end
+arch rack.111
+x 12
+y 1
+end
+arch floor_stone_b4
+x 12
+y 2
+end
+arch floor_stone_b4
+x 12
+y 3
+end
+arch floor_stone_b4
+x 12
+y 4
+end
+arch door_wood1
+x 12
+y 4
+end
+arch floor_stone_b4
+x 12
+y 5
+end
+arch floor_stone_b4
+x 12
+y 6
+end
+arch floor_stone_b4
+x 12
+y 7
+end
+arch wall_stone_1
+x 12
+y 7
+end
+arch floor_stone_b4
+x 12
+y 8
+end
+arch floor_stone_b4
+x 12
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 10
+end
+arch wall_stone_1
+x 12
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 11
+end
+arch wall_stone_3
+x 12
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 12
+end
+arch wall_stone_3
+x 12
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 13
+end
+arch wall_stone_3
+x 12
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 14
+end
+arch door_wood1
+face door_wood1.131
+direction 3
+x 12
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 15
+end
+arch wall_stone_3
+x 12
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 12
+y 16
+end
+arch wall_stone_3
+x 12
+y 16
+end
+arch floor_stone_b4
+x 12
+y 17
+end
+arch wall_stone_4
+x 12
+y 17
+end
+arch floor_stone_b4
+x 12
+y 18
+end
+arch floor_stone_b4
+x 12
+y 19
+end
+arch wall_stone_3
+x 12
+y 19
+end
+arch floor_stone_b4
+x 12
+y 20
+end
+arch curtain1
+face curtain1.131
+direction 3
+x 12
+y 20
+end
+arch floor_stone_b4
+x 12
+y 21
+end
+arch wall_stone_3
+x 12
+y 21
+end
+arch floor_stone_b4
+x 12
+y 22
+end
+arch floor_stone_b4
+x 12
+y 23
+end
+arch wall_stone_1
+x 12
+y 23
+end
+arch floor_stone_b4
+x 13
+end
+arch wall_stone_1
+x 13
+end
+arch floor_stone_b4
+x 13
+y 1
+end
+arch floor_stone_b4
+x 13
+y 2
+end
+arch sign
+name Skills & Experience
+msg
+SKILLS AND EXPERIENCE
+With your weapon you also got your WEAPON SKILL! Press F10 or click the skill button for the skill list.
+When you kill an enemy you will *only* gain experience in the skill you do the final hit with! The xp and skill system is complex and better explained on the web site online player guide.
+Under the armor protection table you will see the currently used skill. It is automatically updated depending on your actions.
+endmsg
+x 13
+y 2
+end
+arch floor_stone_b4
+x 13
+y 3
+end
+arch floor_stone_b4
+x 13
+y 4
+end
+arch wall_stone_1
+x 13
+y 4
+end
+arch floor_stone_b4
+x 13
+y 5
+end
+arch wall_stone_3
+x 13
+y 5
+end
+arch floor_stone_b4
+x 13
+y 6
+end
+arch wall_stone_3
+x 13
+y 6
+end
+arch floor_stone_b4
+x 13
+y 7
+end
+arch wall_stone_4
+x 13
+y 7
+end
+arch floor_stone_b4
+x 13
+y 8
+end
+arch t_dagger
+nrof 3
+identified 1
+x 13
+y 8
+end
+arch floor_stone_b4
+x 13
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 10
+end
+arch wall_stone_1
+x 13
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 11
+end
+arch amphora1.101
+x 13
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 13
+y 16
+end
+arch floor_stone_b4
+x 13
+y 17
+end
+arch wall_stone_1
+x 13
+y 17
+end
+arch floor_stone_b4
+x 13
+y 18
+end
+arch floor_stone_b4
+x 13
+y 19
+end
+arch floor_stone_b4
+x 13
+y 20
+end
+arch floor_stone_b4
+x 13
+y 21
+end
+arch floor_stone_b4
+x 13
+y 22
+end
+arch floor_stone_b4
+x 13
+y 23
+end
+arch wall_stone_1
+x 13
+y 23
+end
+arch floor_stone_b4
+x 14
+end
+arch wall_stone_1
+x 14
+end
+arch floor_stone_b4
+x 14
+y 1
+end
+arch rack.111
+x 14
+y 1
+end
+arch floor_stone_b4
+x 14
+y 2
+end
+arch floor_stone_b4
+x 14
+y 3
+end
+arch floor_stone_b4
+x 14
+y 4
+end
+arch wall_stone_1
+x 14
+y 4
+end
+arch floor_stone_b4
+x 14
+y 5
+end
+arch candlelight4.101
+x 14
+y 5
+end
+arch floor_stone_b4
+x 14
+y 6
+end
+arch sign
+name Praying
+msg
+PRAYING
+Every prayer needs grace for casting.
+Every time you cast a prayer, you will lose some of that grace.
+Without enough grace you can't cast a prayer.
+To recover grace you have to PRAY.
+Hit the 'p' key for 'p'raying.  You will pray until you
+reach your maximum grace. Be warned: You will
+stop fighting when you start praying - and moving,
+damage or other action will break praying!
+endmsg
+x 14
+y 6
+end
+arch floor_stone_b4
+x 14
+y 7
+end
+arch wall_stone_1
+x 14
+y 7
+end
+arch floor_stone_b4
+x 14
+y 8
+end
+arch sign
+name Throwing
+msg
+THROWING
+Let's test the range system and throw these daggers.
+Start by picking them up, then press SHIFT to open your inventory and move the blue selection box over them.
+Now press 'f' for 'f'ire on the daggers! That will put them in the range selection under throwing. Now press TAB until you can see them in the range selection.
+You are ready! Hold control pressed and use your movement keys to fire them around! They will fall down if they hit a wall - go and get them again.
+endmsg
+x 14
+y 8
+end
+arch floor_stone_b4
+x 14
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 10
+end
+arch wall_stone_1
+x 14
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 14
+y 16
+end
+arch floor_stone_b4
+x 14
+y 17
+end
+arch wall_stone_1
+x 14
+y 17
+end
+arch floor_stone_b4
+x 14
+y 18
+end
+arch floor_stone_b4
+x 14
+y 19
+end
+arch floor_stone_b4
+x 14
+y 20
+end
+arch floor_stone_b4
+x 14
+y 21
+end
+arch floor_stone_b4
+x 14
+y 22
+end
+arch floor_stone_b4
+x 14
+y 23
+end
+arch wall_stone_1
+x 14
+y 23
+end
+arch floor_stone_b4
+x 15
+end
+arch wall_stone_1
+x 15
+end
+arch floor_stone_b4
+x 15
+y 1
+end
+arch floor_stone_b4
+x 15
+y 2
+end
+arch sign
+name Attack the Combat Dummy
+msg
+ATTACK THE COMBAT DUMMY
+Now attack this combat dummy. Do not fear, it's only a training golem. It will not fight back or die.
+Press the 'x' key to target the golem and 'c' to get into combat mode. Move next to the golem and watch the hit messages and the hit numbers over your target's head.
+Try to play around with 'x' and 'c' key - this is an easy fight but most times you have *a lot* more action.
+Exit through the door when you are done testing.
+endmsg
+x 15
+y 2
+end
+arch floor_stone_b4
+x 15
+y 3
+end
+arch floor_stone_b4
+x 15
+y 4
+end
+arch wall_stone_1
+x 15
+y 4
+end
+arch floor_stone_b4
+x 15
+y 5
+end
+arch altar_tabernacle
+x 15
+y 5
+end
+arch floor_stone_b4
+x 15
+y 6
+end
+arch floor_stone_b4
+x 15
+y 7
+end
+arch wall_stone_1
+x 15
+y 7
+end
+arch floor_stone_b4
+x 15
+y 8
+end
+arch floor_stone_b4
+x 15
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 10
+end
+arch wall_stone_1
+x 15
+y 10
+end
+arch wmask_fire_off_1
+x 15
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 15
+y 16
+end
+arch floor_stone_b4
+x 15
+y 17
+end
+arch wall_stone_1
+x 15
+y 17
+end
+arch floor_stone_b4
+x 15
+y 18
+end
+arch floor_stone_b4
+x 15
+y 19
+end
+arch wall_stone_3
+x 15
+y 19
+end
+arch floor_stone_b4
+x 15
+y 20
+end
+arch door_wood2
+face door_wood2.131
+direction 3
+x 15
+y 20
+end
+arch floor_stone_b4
+x 15
+y 21
+end
+arch wall_stone_3
+x 15
+y 21
+end
+arch floor_stone_b4
+x 15
+y 22
+end
+arch floor_stone_b4
+x 15
+y 23
+end
+arch wall_stone_1
+x 15
+y 23
+end
+arch floor_stone_b4
+x 16
+end
+arch wall_stone_1
+x 16
+end
+arch floor_grey1b1
+x 16
+y 1
+end
+arch golem
+name combat dummy
+dam 0
+no_attack 1
+maxhp 5000
+ac 5
+Con 1000
+random_move 0
+stand_still 1
+x 16
+y 1
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 16
+y 2
+end
+arch floor_stone_b4
+x 16
+y 3
+end
+arch floor_stone_b4
+x 16
+y 4
+end
+arch wall_stone_1
+x 16
+y 4
+end
+arch floor_stone_b4
+x 16
+y 5
+end
+arch candlelight4.101
+x 16
+y 5
+end
+arch floor_stone_b4
+x 16
+y 6
+end
+arch floor_stone_b4
+x 16
+y 7
+end
+arch wall_stone_1
+x 16
+y 7
+end
+arch floor_stone_b4
+x 16
+y 8
+end
+arch wall_stone_3
+x 16
+y 8
+end
+arch floor_stone_b4
+x 16
+y 9
+end
+arch door_wood1
+face door_wood1.131
+direction 3
+x 16
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 10
+end
+arch wall_stone_4
+x 16
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 14
+end
+arch sign
+name Light & Dark
+msg
+It is not very dark here. Dark caves and dark
+nights are much darker! Never go out without
+a light source. A lamp or a magic lamp will give
+more light than a torch. Also, magic powers like
+x-rays or infravision will enhance your vision.
+endmsg
+x 16
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 16
+y 16
+end
+arch floor_stone_b4
+x 16
+y 17
+end
+arch wall_stone_1
+x 16
+y 17
+end
+arch floor_stone_b4
+x 16
+y 18
+end
+arch floor_stone_b4
+x 16
+y 19
+end
+arch floor_stone_b4
+x 16
+y 20
+end
+arch floor_stone_b4
+x 16
+y 21
+end
+arch floor_stone_b4
+x 16
+y 22
+end
+arch floor_stone_b4
+x 16
+y 23
+end
+arch wall_stone_1
+x 16
+y 23
+end
+arch floor_stone_b4
+x 17
+end
+arch wall_stone_1
+x 17
+end
+arch floor_stone_b4
+x 17
+y 1
+end
+arch floor_stone_b4
+x 17
+y 2
+end
+arch floor_stone_b4
+x 17
+y 3
+end
+arch floor_stone_b4
+x 17
+y 4
+end
+arch wall_stone_1
+x 17
+y 4
+end
+arch floor_stone_b4
+x 17
+y 5
+end
+arch priest_church
+face priest_church.151
+invulnerable 1
+no_attack 1
+friendly 1
+x 17
+y 5
+arch event_obj
+name Python
+race gatepriest.py
+sub_type 6
+end
+arch empty_ai
+end
+end
+arch floor_stone_b4
+x 17
+y 6
+end
+arch floor_stone_b4
+x 17
+y 7
+end
+arch floor_stone_b4
+x 17
+y 8
+end
+arch sign
+name Prayer & Deities
+msg
+PRAYER & DEITIES
+To cast heal spells and other prayers you need contact with a holy force - a higher being called a 'deity' or a powerful artifact like the Tabernacle.
+Prayers are spells using GRACE. That's a special power needed to cast prayers. You get grace by praying to your deity - in the case of the Tabernacle praying is a special form of meditation.
+Talk to the priest over there. He will answer when you say "hello". He will also teach you your first prayer!
+endmsg
+x 17
+y 8
+end
+arch floor_stone_b4
+x 17
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 10
+end
+arch wall_stone_1
+x 17
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 17
+y 16
+end
+arch floor_stone_b4
+x 17
+y 17
+end
+arch wall_stone_1
+x 17
+y 17
+end
+arch floor_stone_b4
+x 17
+y 18
+end
+arch candlelight2.101
+x 17
+y 18
+end
+arch floor_stone_b4
+x 17
+y 19
+end
+arch floor_stone_b4
+x 17
+y 20
+end
+arch floor_stone_b4
+x 17
+y 21
+end
+arch floor_stone_b4
+x 17
+y 22
+end
+arch floor_stone_b4
+x 17
+y 23
+end
+arch wall_stone_1
+x 17
+y 23
+end
+arch floor_stone_b4
+x 18
+end
+arch wall_stone_1
+x 18
+end
+arch floor_stone_b4
+x 18
+y 1
+end
+arch wall_stone_3
+x 18
+y 1
+end
+arch floor_stone_b4
+x 18
+y 2
+end
+arch wall_stone_3
+x 18
+y 2
+end
+arch floor_stone_b4
+x 18
+y 3
+end
+arch wall_stone_3
+x 18
+y 3
+end
+arch floor_stone_b4
+x 18
+y 4
+end
+arch wall_stone_4
+x 18
+y 4
+end
+arch floor_stone_b4
+x 18
+y 5
+end
+arch floor_stone_b4
+x 18
+y 6
+end
+arch floor_stone_b4
+x 18
+y 7
+end
+arch floor_stone_b4
+x 18
+y 8
+end
+arch floor_stone_b4
+x 18
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 10
+end
+arch wall_stone_1
+x 18
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 18
+y 16
+end
+arch floor_stone_b4
+x 18
+y 17
+end
+arch wall_stone_1
+x 18
+y 17
+end
+arch floor_stone_b4
+x 18
+y 18
+end
+arch wall_stone_3
+x 18
+y 18
+end
+arch floor_stone_b4
+x 18
+y 19
+end
+arch wall_stone_3
+x 18
+y 19
+end
+arch floor_stone_b4
+x 18
+y 20
+end
+arch floor_stone_b4
+x 18
+y 21
+end
+arch wall_stone_3
+x 18
+y 21
+end
+arch floor_stone_b4
+x 18
+y 22
+end
+arch wall_stone_3
+x 18
+y 22
+end
+arch floor_stone_b4
+x 18
+y 23
+end
+arch wall_stone_4
+x 18
+y 23
+end
+arch floor_stone_b4
+x 19
+end
+arch wall_stone_1
+x 19
+end
+arch floor_stone_b4
+x 19
+y 4
+end
+arch wall_stone_1
+x 19
+y 4
+end
+arch floor_stone_b4
+x 19
+y 5
+end
+arch door_wood1
+face door_wood1.131
+direction 3
+x 19
+y 5
+end
+arch floor_stone_b4
+x 19
+y 6
+end
+arch wall_stone_3
+x 19
+y 6
+end
+arch floor_stone_b4
+x 19
+y 7
+end
+arch wall_stone_3
+x 19
+y 7
+end
+arch floor_stone_b4
+x 19
+y 8
+end
+arch wall_stone_3
+x 19
+y 8
+end
+arch floor_stone_b4
+x 19
+y 9
+end
+arch wall_stone_3
+x 19
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 10
+end
+arch wall_stone_4
+x 19
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 19
+y 16
+end
+arch floor_stone_b4
+x 19
+y 17
+end
+arch wall_stone_1
+x 19
+y 17
+end
+arch floor_stone_b4
+x 19
+y 18
+end
+arch locker2.111
+direction 5
+x 19
+y 18
+arch coppercoin
+end
+end
+arch floor_stone_b4
+x 19
+y 19
+end
+arch shelf1_wall.111
+direction 5
+x 19
+y 19
+arch coppercoin
+end
+end
+arch floor_stone_b4
+x 19
+y 20
+end
+arch floor_stone_b4
+x 19
+y 21
+end
+arch chest_sw_1
+direction 5
+x 19
+y 21
+arch food_generic
+end
+arch coppercoin
+end
+end
+arch floor_stone_b4
+x 19
+y 22
+end
+arch sign
+name Containers
+msg
+CONTAINERS
+Containers can be used to store other objects inside.
+You can only have *one* open container at any time - if you open another, the first one will close automatically.
+To open a container like this chest, move to it and 'a'pply it! It will open and you will see all items inside. Select the item you want and 'g'et it with 'g' key. To put an item inside, just 'd'rop it.
+The shelf and locker on the wall are also containers, and you will find many more in the game.
+endmsg
+x 19
+y 22
+end
+arch floor_stone_b4
+x 19
+y 23
+end
+arch wall_stone_1
+x 19
+y 23
+end
+arch floor_stone_b4
+x 20
+end
+arch wall_stone_1
+x 20
+end
+arch floor_stone_b4
+x 20
+y 1
+end
+arch wall_stone_3
+x 20
+y 1
+end
+arch floor_stone_b4
+x 20
+y 2
+end
+arch wall_stone_3
+x 20
+y 2
+end
+arch floor_stone_b4
+x 20
+y 3
+end
+arch wall_stone_3
+x 20
+y 3
+end
+arch floor_stone_b1
+x 20
+y 4
+end
+arch wall_stone_4
+x 20
+y 4
+end
+arch floor_stone_b4
+x 20
+y 5
+end
+arch floor_stone_b4
+x 20
+y 6
+end
+arch wall_stone_1
+x 20
+y 6
+end
+arch floor_stone_b4
+x 20
+y 7
+end
+arch floor_stone_b4
+x 20
+y 8
+end
+arch floor_stone_b4
+x 20
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 20
+y 10
+end
+arch wall_stone_1
+x 20
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 20
+y 11
+end
+arch earth_brown2
+last_sp -1120
+x 20
+y 12
+end
+arch earth_brown2
+last_sp -1120
+x 20
+y 13
+end
+arch tree_big
+x 20
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 20
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 20
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 20
+y 16
+end
+arch floor_stone_b4
+x 20
+y 17
+end
+arch wall_stone_1
+x 20
+y 17
+end
+arch floor_stone_b4
+x 20
+y 18
+end
+arch sign
+name Light Sources and Darkness
+msg
+LIGHT SOURCES AND DARKNESS
+Some areas are darker than others. Outdoors you might be surprised by nightfall, and some caves can be completely dark.
+To have a light, get this torch. Apply the torch TWO (2) times! The first apply will light the torch. The light is hidden until the second apply which will put the torch in your hand. You will see it appear on your player doll.
+Open the door if your torch is ready - it's dark on the other side.
+endmsg
+x 20
+y 18
+end
+arch floor_stone_b4
+x 20
+y 19
+end
+arch floor_stone_b4
+x 20
+y 20
+end
+arch floor_stone_b4
+x 20
+y 21
+end
+arch floor_stone_b4
+x 20
+y 22
+end
+arch floor_stone_b4
+x 20
+y 23
+end
+arch wall_stone_1
+x 20
+y 23
+end
+arch floor_stone_b4
+x 21
+end
+arch wall_stone_1
+x 21
+end
+arch floor_stone_b4
+x 21
+y 1
+end
+arch floor_stone_b4
+x 21
+y 2
+end
+arch floor_stone_b4
+x 21
+y 3
+end
+arch floor_stone_b4
+x 21
+y 4
+end
+arch wall_stone_1
+x 21
+y 4
+end
+arch floor_stone_b4
+x 21
+y 5
+end
+arch sign
+name Saving
+msg
+SAVING
+Your character is automatically saved if you log out. You can also use the /save command or apply a bed to reality.
+But you will ONLY be saved if you have proven yourself worthy and collected some experience points, so don't log out too soon!
+endmsg
+x 21
+y 5
+end
+arch floor_stone_b4
+x 21
+y 6
+end
+arch wall_stone_1
+no_pass 0
+x 21
+y 6
+end
+arch floor_stone_b4
+x 21
+y 7
+end
+arch floor_stone_b4
+x 21
+y 8
+end
+arch floor_stone_b4
+x 21
+y 9
+end
+arch floor_stone_b1
+last_sp -1120
+x 21
+y 10
+end
+arch wall_stone_1
+x 21
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 11
+end
+arch bank1.111
+x 21
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 21
+y 16
+end
+arch floor_stone_b4
+x 21
+y 17
+end
+arch door_wood1
+x 21
+y 17
+end
+arch floor_stone_b4
+x 21
+y 18
+end
+arch floor_stone_b4
+x 21
+y 19
+end
+arch torch
+x 21
+y 19
+end
+arch floor_stone_b4
+x 21
+y 20
+end
+arch floor_stone_b4
+x 21
+y 21
+end
+arch sack
+value 1
+identified 1
+x 21
+y 21
+end
+arch floor_stone_b4
+x 21
+y 22
+end
+arch sign
+name Containers for your inventory
+msg
+CONTAINER FOR YOUR INVENTORY
+Some containers like this sack can be picked up and carried in your inventory, but their usage is different: To open the container, you must apply it two(!) times!
+The first apply will READY it. If you now pick up an item, the item will be automatically stored in your readied container!
+That's very useful to collect arrows in a quiver, for example. A 2nd apply will open the container and let you move things in and out of it with the 'g' key.
+endmsg
+x 21
+y 22
+end
+arch floor_stone_b4
+x 21
+y 23
+end
+arch wall_stone_1
+x 21
+y 23
+end
+arch floor_stone_b4
+x 22
+end
+arch wall_stone_1
+x 22
+end
+arch floor_stone_b4
+x 22
+y 1
+end
+arch exit
+slaying stoneglow/stoneglow_0000
+hp 4
+sp 10
+x 22
+y 1
+arch event_obj
+name Python
+race TutorialStairs.py
+sub_type 10
+end
+end
+arch floor_stone_b4
+x 22
+y 2
+end
+arch floor_stone_b4
+x 22
+y 3
+end
+arch floor_stone_b4
+x 22
+y 4
+end
+arch gate1_locked
+x 22
+y 4
+end
+arch floor_stone_b4
+x 22
+y 5
+end
+arch sign
+name End of Tutorial
+msg
+END OF TUTORIAL
+Now it is time to enter the world of Atrinik!
+There is A LOT more to learn: casting spells, fighting, using bows, two-handed weapons, scrolls, potions... well, you have to encounter a whole world!
+The purple portal behind this gate there will teleport you to the mercenary guild in Stoneglow. Just step into the portal and you are on the way.
+When you have reached the other side, speak to the guild master. Bye.
+endmsg
+x 22
+y 5
+end
+arch floor_stone_b4
+x 22
+y 6
+end
+arch wall_stone_1
+x 22
+y 6
+end
+arch floor_stone_b4
+x 22
+y 7
+end
+arch floor_stone_b4
+x 22
+y 8
+end
+arch floor_stone_b4
+x 22
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 10
+end
+arch wall_stone_1
+x 22
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 22
+y 16
+end
+arch floor_stone_b4
+x 22
+y 17
+end
+arch wall_stone_1
+x 22
+y 17
+end
+arch floor_stone_b4
+x 22
+y 18
+end
+arch floor_stone_b4
+x 22
+y 19
+end
+arch floor_stone_b4
+x 22
+y 20
+end
+arch floor_stone_b4
+x 22
+y 21
+end
+arch floor_stone_b4
+x 22
+y 22
+end
+arch floor_stone_b4
+x 22
+y 23
+end
+arch wall_stone_1
+x 22
+y 23
+end
+arch floor_stone_b4
+x 23
+end
+arch wall_stone_1
+x 23
+end
+arch floor_stone_b4
+x 23
+y 1
+end
+arch wall_stone_3
+x 23
+y 1
+end
+arch floor_stone_b4
+x 23
+y 2
+end
+arch wall_stone_3
+x 23
+y 2
+end
+arch floor_stone_b4
+x 23
+y 3
+end
+arch wall_stone_3
+x 23
+y 3
+end
+arch floor_stone_b4
+x 23
+y 4
+end
+arch wall_stone_4
+x 23
+y 4
+end
+arch floor_stone_b4
+x 23
+y 5
+end
+arch wall_stone_3
+x 23
+y 5
+end
+arch floor_stone_b4
+x 23
+y 6
+end
+arch wall_stone_4
+x 23
+y 6
+end
+arch floor_stone_b4
+x 23
+y 7
+end
+arch wall_stone_3
+x 23
+y 7
+end
+arch floor_stone_b4
+x 23
+y 8
+end
+arch wall_stone_3
+x 23
+y 8
+end
+arch floor_stone_b4
+x 23
+y 9
+end
+arch wall_stone_3
+x 23
+y 9
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 10
+end
+arch wall_stone_4
+x 23
+y 10
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 11
+end
+arch wall_stone_3
+x 23
+y 11
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 12
+end
+arch wall_stone_3
+x 23
+y 12
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 13
+end
+arch wall_stone_3
+x 23
+y 13
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 14
+end
+arch wall_stone_3
+x 23
+y 14
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 15
+end
+arch wall_stone_3
+x 23
+y 15
+end
+arch floor_stone_b4
+last_sp -1120
+x 23
+y 16
+end
+arch wall_stone_3
+x 23
+y 16
+end
+arch floor_stone_b4
+x 23
+y 17
+end
+arch wall_stone_4
+x 23
+y 17
+end
+arch floor_stone_b4
+x 23
+y 18
+end
+arch wall_stone_3
+x 23
+y 18
+end
+arch floor_stone_b4
+x 23
+y 19
+end
+arch wall_stone_3
+x 23
+y 19
+end
+arch floor_stone_b4
+x 23
+y 20
+end
+arch wall_stone_3
+x 23
+y 20
+end
+arch floor_stone_b4
+x 23
+y 21
+end
+arch wall_stone_3
+x 23
+y 21
+end
+arch floor_stone_b4
+x 23
+y 22
+end
+arch wall_stone_3
+x 23
+y 22
+end
+arch floor_stone_b4
+x 23
+y 23
+end
+arch wall_stone_4
+x 23
+y 23
+end

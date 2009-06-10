@@ -1,0 +1,722 @@
+arch map
+name Stoneglow - Expensive Apartment
+msg
+Creator: Daimonin Map Editor
+Date:    10/30/2003
+endmsg
+width 9
+height 9
+difficulty 1
+no_summon 1
+no_harm 1
+end
+arch floor_inv
+unique 1
+end
+arch wall_pattern1.181
+end
+arch floor_inv
+unique 1
+y 1
+end
+arch wall_pattern1.131
+y 1
+end
+arch floor_inv
+unique 1
+y 2
+end
+arch wall_pattern1.131
+y 2
+end
+arch wmask_bflag_fire1_1
+direction 5
+y 2
+end
+arch floor_inv
+unique 1
+y 3
+end
+arch wall_pattern1.131
+y 3
+end
+arch floor_inv
+unique 1
+y 4
+end
+arch wall_pattern1.131
+y 4
+end
+arch floor_inv
+unique 1
+y 5
+end
+arch wall_pattern1.131
+y 5
+end
+arch floor_inv
+unique 1
+y 6
+end
+arch wall_pattern1.131
+y 6
+end
+arch floor_inv
+unique 1
+y 7
+end
+arch wall_pattern1.131
+y 7
+end
+arch floor_inv
+unique 1
+y 8
+end
+arch wall_pattern1.131
+y 8
+end
+arch floor_inv
+unique 1
+x 1
+end
+arch wall_pattern1.111
+x 1
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 1
+end
+arch exit
+slaying stoneglow/stoneglow_0101
+hp 7
+sp 19
+x 1
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 3
+end
+arch door_wood2
+x 1
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 4
+end
+arch rack.111
+direction 5
+x 1
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 5
+end
+arch wall_pattern1.111
+x 1
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 6
+end
+arch bed_2a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 1
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 7
+end
+arch carpet1.131
+x 1
+y 7
+end
+arch mirror_big.111
+direction 5
+x 1
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 1
+y 8
+end
+arch wall_pattern1.111
+x 1
+y 8
+end
+arch floor_inv
+unique 1
+x 2
+end
+arch wall_pattern1.111
+x 2
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 1
+end
+arch wall_pattern1.131
+x 2
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 2
+end
+arch wall_pattern1.131
+x 2
+y 2
+end
+arch wmask_bflag_fire1_1
+direction 5
+x 2
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 3
+end
+arch wall_pattern1.141
+x 2
+y 3
+end
+arch wmask_bflag_fire1_1
+x 2
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 4
+end
+arch letter
+name letter - a'pply to read
+msg
+<tt="Welcome to your new apartment!">
+You have several containers here
+you can use to store your valuable
+items. Notice that even the weapon
+rack there is a container.
+All items here will be PERMANENTLY
+saved - even after a server restart.
+To ensure that nothing bad can happen,
+type "/save" when you leave here to force
+the saving of this apartment.
+endmsg
+x 2
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 5
+end
+arch wall_pattern1.111
+x 2
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 6
+end
+arch carpet1.151
+x 2
+y 6
+end
+arch bed_2b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 2
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 7
+end
+arch carpet1
+x 2
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 2
+y 8
+end
+arch wall_pattern1.111
+x 2
+y 8
+end
+arch floor_inv
+unique 1
+x 3
+end
+arch wall_pattern1.111
+x 3
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 1
+end
+arch chest_4.111
+x 3
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 3
+end
+arch door_wood2
+x 3
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 5
+end
+arch wall_pattern1.111
+x 3
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 6
+end
+arch carpet1.151
+x 3
+y 6
+end
+arch locker1.111
+x 3
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 7
+end
+arch carpet1
+x 3
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 3
+y 8
+end
+arch wall_pattern1.111
+x 3
+y 8
+end
+arch floor_inv
+unique 1
+x 4
+end
+arch wall_pattern1.111
+x 4
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 1
+end
+arch chest_4.111
+x 4
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 3
+end
+arch wall_pattern1.111
+x 4
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 4
+end
+arch door_wood2
+face door_wood2.131
+direction 3
+x 4
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 5
+end
+arch wall_pattern1.141
+x 4
+y 5
+end
+arch wmask_fire_on_1
+direction 5
+x 4
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 6
+end
+arch wall_pattern1.131
+x 4
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 7
+end
+arch carpet1.171
+x 4
+y 7
+end
+arch curtain1
+face curtain1.131
+direction 3
+x 4
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 4
+y 8
+end
+arch wall_pattern1.141
+x 4
+y 8
+end
+arch floor_inv
+unique 1
+x 5
+end
+arch wall_pattern1.111
+x 5
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 1
+end
+arch chest_4.111
+x 5
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 3
+end
+arch wall_pattern1.111
+x 5
+y 3
+end
+arch picture3.151
+x 5
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 6
+end
+arch shelf3b.111
+direction 5
+x 5
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 5
+y 8
+end
+arch wall_pattern1.111
+x 5
+y 8
+end
+arch floor_inv
+unique 1
+x 6
+end
+arch wall_pattern1.111
+x 6
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 1
+end
+arch chest_4.111
+x 6
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 3
+end
+arch wall_pattern1.111
+x 6
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 6
+end
+arch chair2_111
+x 6
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 6
+y 8
+end
+arch wall_pattern1.111
+x 6
+y 8
+end
+arch floor_inv
+unique 1
+x 7
+end
+arch wall_pattern1.111
+x 7
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 1
+end
+arch chest_4.111
+x 7
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 3
+end
+arch wall_pattern1.111
+x 7
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 4
+end
+arch desk1.111
+x 7
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 5
+end
+arch chair_small2
+x 7
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 6
+end
+arch chair2_111
+x 7
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 7
+end
+arch table_wood1.111
+x 7
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 7
+y 8
+end
+arch wall_pattern1.111
+x 7
+y 8
+end
+arch floor_inv
+unique 1
+x 8
+end
+arch wall_pattern1.111
+x 8
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 1
+end
+arch wall_pattern1.131
+x 8
+y 1
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 2
+end
+arch wall_pattern1.131
+x 8
+y 2
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 3
+end
+arch wall_pattern1.141
+x 8
+y 3
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 4
+end
+arch wall_pattern1.131
+x 8
+y 4
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 5
+end
+arch wall_pattern1.131
+x 8
+y 5
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 6
+end
+arch wall_pattern1.131
+x 8
+y 6
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 7
+end
+arch wall_pattern1.131
+x 8
+y 7
+end
+arch floor_grey1a1
+unique 1
+x 8
+y 8
+end
+arch wall_pattern1.141
+x 8
+y 8
+end

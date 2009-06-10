@@ -1,0 +1,1605 @@
+arch map
+name Stoneglow - abandoned cellar
+msg
+Creator: Daimonin Map Editor
+Date:    3/22/2004
+endmsg
+width 16
+height 16
+difficulty 1
+darkness 3
+end
+arch fstone1b
+end
+arch fwall_wood1a
+end
+arch fstone1b
+y 1
+end
+arch fwall_wood1a
+y 1
+end
+arch fstone1b
+y 2
+end
+arch fwall_wood1a
+y 2
+end
+arch fstone1b
+y 3
+end
+arch fwall_wood1a
+y 3
+end
+arch fstone1b
+y 4
+end
+arch fwall_wood1a
+y 4
+end
+arch fstone1b
+y 5
+end
+arch fwall_wood1a
+y 5
+end
+arch fstone1b
+y 6
+end
+arch fwall_wood1a
+y 6
+end
+arch fstone1b
+y 7
+end
+arch fwall_wood1a
+y 7
+end
+arch fstone1b
+y 8
+end
+arch fwall_wood1a
+y 8
+end
+arch fstone1b
+y 9
+end
+arch fwall_wood1a
+y 9
+end
+arch fstone1b
+y 10
+end
+arch fwall_wood1a
+y 10
+end
+arch fstone1b
+y 11
+end
+arch fwall_wood1a
+y 11
+end
+arch fstone1b
+y 12
+end
+arch fwall_wood1a
+y 12
+end
+arch fstone1b
+y 13
+end
+arch fwall_wood1a
+y 13
+end
+arch fstone1b
+y 14
+end
+arch fwall_wood1a
+y 14
+end
+arch fstone1b
+y 15
+end
+arch fwall_wood1a
+y 15
+end
+arch fstone1b
+x 1
+end
+arch fwall_wood1a
+x 1
+end
+arch fstone1b
+x 1
+y 1
+end
+arch grain2.101
+x 1
+y 1
+end
+arch fstone1b
+x 1
+y 2
+end
+arch spawn_point
+last_grace 2
+x 1
+y 2
+arch ant_red
+name ant scout leader
+type 83
+Wis 3
+randomitems mob_fighter_l9
+wc_range 12
+unaggressive 0
+random_move 0
+ac 8
+dam 40
+arch helm_leather
+name Cashin's leather cap
+material_real 0
+sys_object 1
+quest_item 1
+item_quality 85
+item_condition 85
+end
+end
+end
+arch fstone1b
+x 1
+y 3
+end
+arch straw2.111
+x 1
+y 3
+end
+arch fstone1b
+x 1
+y 4
+end
+arch straw2.111
+x 1
+y 4
+end
+arch fstone1b
+x 1
+y 5
+end
+arch straw2.111
+x 1
+y 5
+end
+arch fstone1b
+x 1
+y 6
+end
+arch fwall_wood1a
+x 1
+y 6
+end
+arch fstone1b
+x 1
+y 7
+end
+arch amphora1.101
+x 1
+y 7
+end
+arch fstone1b
+x 1
+y 8
+end
+arch spawn_point
+x 1
+y 8
+arch cube_gel
+name small gelantinous cube
+type 83
+Wis 2
+wc_range 12
+randomitems mob_fighter_l9
+ac 6
+dam 30
+exp 75
+end
+end
+arch fstone1b
+x 1
+y 9
+end
+arch box1.101
+x 1
+y 9
+end
+arch fstone1b
+x 1
+y 10
+end
+arch box2.101
+x 1
+y 10
+end
+arch fstone1b
+x 1
+y 11
+end
+arch broom.111
+direction 5
+x 1
+y 11
+end
+arch fstone1b
+x 1
+y 12
+end
+arch chair1_drop_111
+x 1
+y 12
+end
+arch fstone1b
+x 1
+y 13
+end
+arch chair1_drop_111
+x 1
+y 13
+end
+arch fstone1b
+x 1
+y 14
+end
+arch fstone1b
+x 1
+y 15
+end
+arch fwall_wood1a
+x 1
+y 15
+end
+arch fstone1b
+x 2
+end
+arch fwall_wood1a
+x 2
+end
+arch fstone1b
+x 2
+y 1
+end
+arch fstone1b
+x 2
+y 2
+end
+arch fstone1b
+x 2
+y 3
+end
+arch fstone1b
+x 2
+y 4
+end
+arch fstone1b
+x 2
+y 5
+end
+arch fstone1b
+x 2
+y 6
+end
+arch fwall_wood1a
+x 2
+y 6
+end
+arch fstone1b
+x 2
+y 7
+end
+arch fstone1b
+x 2
+y 8
+end
+arch fstone1b
+x 2
+y 9
+end
+arch fstone1b
+x 2
+y 10
+end
+arch fstone1b
+x 2
+y 11
+end
+arch fstone1b
+x 2
+y 12
+end
+arch chair1_drop_171
+x 2
+y 12
+end
+arch fstone1b
+x 2
+y 13
+end
+arch plant_mushroom1
+name glowing mushroom
+x 2
+y 13
+end
+arch light2
+x 2
+y 13
+end
+arch fstone1b
+x 2
+y 14
+end
+arch fstone1b
+x 2
+y 15
+end
+arch fwall_wood1a
+x 2
+y 15
+end
+arch fstone1b
+x 3
+end
+arch fwall_wood1a
+x 3
+end
+arch fstone1b
+x 3
+y 1
+end
+arch broom.111
+x 3
+y 1
+end
+arch fstone1b
+x 3
+y 2
+end
+arch fstone1b
+x 3
+y 3
+end
+arch fstone1b
+x 3
+y 4
+end
+arch fstone1b
+x 3
+y 5
+end
+arch fstone1b
+x 3
+y 6
+end
+arch fwall_wood1a
+x 3
+y 6
+end
+arch fstone1b
+x 3
+y 7
+end
+arch fstone1b
+x 3
+y 8
+end
+arch fstone1b
+x 3
+y 9
+end
+arch trash_wood1.101
+x 3
+y 9
+end
+arch fstone1b
+x 3
+y 10
+end
+arch fstone1b
+x 3
+y 11
+end
+arch fstone1b
+x 3
+y 12
+end
+arch light1
+x 3
+y 12
+end
+arch fstone1b
+x 3
+y 13
+end
+arch spawn_point
+x 3
+y 13
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+wc_range 12
+ac 6
+randomitems mob_fighter_l9
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 3
+y 14
+end
+arch fstone1b
+x 3
+y 15
+end
+arch fwall_wood1a
+x 3
+y 15
+end
+arch fstone1b
+x 4
+end
+arch fwall_wood1a
+x 4
+end
+arch fstone1b
+x 4
+y 1
+end
+arch straw1.101
+x 4
+y 1
+end
+arch fstone1b
+x 4
+y 2
+end
+arch fstone1b
+x 4
+y 3
+end
+arch fstone1b
+x 4
+y 4
+end
+arch fstone1b
+x 4
+y 5
+end
+arch fstone1b
+x 4
+y 6
+end
+arch fwall_wood1a
+x 4
+y 6
+end
+arch fstone1b
+x 4
+y 7
+end
+arch fstone1b
+x 4
+y 8
+end
+arch fstone1b
+x 4
+y 9
+end
+arch fstone1b
+x 4
+y 10
+end
+arch fstone1b
+x 4
+y 11
+end
+arch fstone1b
+x 4
+y 12
+end
+arch fstone1b
+x 4
+y 13
+end
+arch fstone1b
+x 4
+y 14
+end
+arch fstone1b
+x 4
+y 15
+end
+arch fwall_wood1a
+x 4
+y 15
+end
+arch fstone1b
+x 5
+end
+arch fwall_wood1a
+x 5
+end
+arch fstone1b
+x 5
+y 1
+end
+arch fwall_wood1a
+x 5
+y 1
+end
+arch fstone1b
+x 5
+y 2
+end
+arch fstone1b
+x 5
+y 3
+end
+arch fstone1b
+x 5
+y 4
+end
+arch fwall_wood1a
+x 5
+y 4
+end
+arch fstone1b
+x 5
+y 5
+end
+arch fwall_wood1a
+x 5
+y 5
+end
+arch fstone1b
+x 5
+y 6
+end
+arch fwall_wood1a
+x 5
+y 6
+end
+arch fstone1b
+x 5
+y 7
+end
+arch fstone1b
+x 5
+y 8
+end
+arch fstone1b
+x 5
+y 9
+end
+arch fstone1b
+x 5
+y 10
+end
+arch spawn_point
+x 5
+y 10
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+randomitems mob_fighter_l9
+wc_range 12
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 5
+y 11
+end
+arch fstone1b
+x 5
+y 12
+end
+arch trash_wood1.101
+x 5
+y 12
+end
+arch fstone1b
+x 5
+y 13
+end
+arch fstone1b
+x 5
+y 14
+end
+arch fstone1b
+x 5
+y 15
+end
+arch fwall_wood1a
+x 5
+y 15
+end
+arch fstone1b
+x 6
+end
+arch fwall_wood1a
+x 6
+end
+arch fstone1b
+x 6
+y 1
+end
+arch pottery6.101
+x 6
+y 1
+end
+arch fstone1b
+x 6
+y 2
+end
+arch fstone1b
+x 6
+y 3
+end
+arch fstone1b
+x 6
+y 4
+end
+arch pottery5.101
+x 6
+y 4
+end
+arch fstone1b
+x 6
+y 5
+end
+arch fstone1b
+x 6
+y 6
+end
+arch fwall_wood1a
+x 6
+y 6
+end
+arch fstone1b
+player_only 1
+x 6
+y 7
+end
+arch ladder_up
+slaying stoneglow_0000
+hp 4
+sp 18
+x 6
+y 7
+end
+arch fstone1b
+x 6
+y 8
+end
+arch fstone1b
+x 6
+y 9
+end
+arch fstone1b
+x 6
+y 10
+end
+arch fstone1b
+x 6
+y 11
+end
+arch fstone1b
+x 6
+y 12
+end
+arch fstone1b
+x 6
+y 13
+end
+arch spawn_point
+x 6
+y 13
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+randomitems mob_fighter_l9
+wc_range 12
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 6
+y 14
+end
+arch fstone1b
+x 6
+y 15
+end
+arch fwall_wood1a
+x 6
+y 15
+end
+arch fstone1b
+x 7
+end
+arch fwall_wood1a
+x 7
+end
+arch fstone1b
+x 7
+y 1
+end
+arch fstone1b
+x 7
+y 2
+end
+arch fstone1b
+x 7
+y 3
+end
+arch fstone1b
+x 7
+y 4
+end
+arch fstone1b
+x 7
+y 5
+end
+arch fstone1b
+x 7
+y 6
+end
+arch fwall_wood1a
+x 7
+y 6
+end
+arch fstone1b
+x 7
+y 7
+end
+arch fstone1b
+x 7
+y 8
+end
+arch fstone1b
+x 7
+y 9
+end
+arch fstone1b
+x 7
+y 10
+end
+arch trash_wood2.101
+x 7
+y 10
+end
+arch fstone1b
+x 7
+y 11
+end
+arch fstone1b
+x 7
+y 12
+end
+arch fstone1b
+x 7
+y 13
+end
+arch fstone1b
+x 7
+y 14
+end
+arch fstone1b
+x 7
+y 15
+end
+arch fwall_wood1a
+x 7
+y 15
+end
+arch fstone1b
+x 8
+end
+arch fwall_wood1a
+x 8
+end
+arch fstone1b
+x 8
+y 1
+end
+arch spawn_point
+x 8
+y 1
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+randomitems mob_fighter_l9
+wc_range 12
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 8
+y 2
+end
+arch fstone1b
+x 8
+y 3
+end
+arch grain2.101
+x 8
+y 3
+end
+arch fstone1b
+x 8
+y 4
+end
+arch fstone1b
+x 8
+y 5
+end
+arch fstone1b
+x 8
+y 6
+end
+arch fwall_wood1a
+x 8
+y 6
+end
+arch fstone1b
+x 8
+y 7
+end
+arch straw1.101
+x 8
+y 7
+end
+arch fstone1b
+x 8
+y 8
+end
+arch fstone1b
+x 8
+y 9
+end
+arch fstone1b
+x 8
+y 10
+end
+arch fstone1b
+x 8
+y 11
+end
+arch fstone1b
+x 8
+y 12
+end
+arch fstone1b
+x 8
+y 13
+end
+arch fstone1b
+x 8
+y 14
+end
+arch fstone1b
+x 8
+y 15
+end
+arch fwall_wood1a
+x 8
+y 15
+end
+arch fstone1b
+x 9
+end
+arch fwall_wood1a
+x 9
+end
+arch fstone1b
+x 9
+y 1
+end
+arch fstone1b
+x 9
+y 2
+end
+arch fstone1b
+x 9
+y 3
+end
+arch fstone1b
+x 9
+y 4
+end
+arch fstone1b
+x 9
+y 5
+end
+arch fstone1b
+x 9
+y 6
+end
+arch fwall_wood1a
+x 9
+y 6
+end
+arch fstone1b
+x 9
+y 7
+end
+arch fwall_wood1a
+x 9
+y 7
+end
+arch fstone1b
+x 9
+y 8
+end
+arch fwall_wood1a
+x 9
+y 8
+end
+arch fstone1b
+x 9
+y 9
+end
+arch fwall_wood1a
+x 9
+y 9
+end
+arch fstone1b
+x 9
+y 10
+end
+arch fwall_wood1a
+x 9
+y 10
+end
+arch fstone1b
+x 9
+y 11
+end
+arch fstone1b
+x 9
+y 12
+end
+arch fstone1b
+x 9
+y 13
+end
+arch fwall_wood1a
+x 9
+y 13
+end
+arch fstone1b
+x 9
+y 14
+end
+arch fwall_wood1a
+x 9
+y 14
+end
+arch fstone1b
+x 9
+y 15
+end
+arch fwall_wood1a
+x 9
+y 15
+end
+arch fstone1b
+x 10
+end
+arch fwall_wood1a
+x 10
+end
+arch fstone1b
+x 10
+y 1
+end
+arch fstone1b
+x 10
+y 2
+end
+arch trash_wood2.101
+x 10
+y 2
+end
+arch fstone1b
+x 10
+y 3
+end
+arch fstone1b
+x 10
+y 4
+end
+arch fstone1b
+x 10
+y 5
+end
+arch fstone1b
+x 10
+y 6
+end
+arch fwall_wood1a
+x 10
+y 6
+end
+arch fstone1b
+x 10
+y 7
+end
+arch pottery4.101
+x 10
+y 7
+end
+arch fstone1b
+x 10
+y 8
+end
+arch fstone1b
+x 10
+y 9
+end
+arch straw2.111
+x 10
+y 9
+end
+arch fstone1b
+x 10
+y 10
+end
+arch fstone1b
+x 10
+y 11
+end
+arch fstone1b
+x 10
+y 12
+end
+arch fstone1b
+x 10
+y 13
+end
+arch fstone1b
+x 10
+y 14
+end
+arch plant_mushroom2
+name glowing mushroom
+x 10
+y 14
+end
+arch light2
+x 10
+y 14
+end
+arch fstone1b
+x 10
+y 15
+end
+arch fwall_wood1a
+x 10
+y 15
+end
+arch fstone1b
+x 11
+end
+arch fwall_wood1a
+x 11
+end
+arch fstone1b
+x 11
+y 1
+end
+arch fstone1b
+x 11
+y 2
+end
+arch fstone1b
+x 11
+y 3
+end
+arch trash_wood1.101
+x 11
+y 3
+end
+arch fstone1b
+x 11
+y 4
+end
+arch fstone1b
+x 11
+y 5
+end
+arch fstone1b
+x 11
+y 6
+end
+arch fstone1b
+x 11
+y 7
+end
+arch fstone1b
+x 11
+y 8
+end
+arch fstone1b
+x 11
+y 9
+end
+arch fstone1b
+x 11
+y 10
+end
+arch fstone1b
+x 11
+y 11
+end
+arch fstone1b
+x 11
+y 12
+end
+arch fstone1b
+x 11
+y 13
+end
+arch light1
+x 11
+y 13
+end
+arch fstone1b
+x 11
+y 14
+end
+arch fstone1b
+x 11
+y 15
+end
+arch fwall_wood1a
+x 11
+y 15
+end
+arch fstone1b
+x 12
+end
+arch fwall_wood1a
+x 12
+end
+arch fstone1b
+x 12
+y 1
+end
+arch fstone1b
+x 12
+y 2
+end
+arch light1
+x 12
+y 2
+end
+arch fstone1b
+x 12
+y 3
+end
+arch fstone1b
+x 12
+y 4
+end
+arch fstone1b
+x 12
+y 5
+end
+arch fstone1b
+x 12
+y 6
+end
+arch fstone1b
+x 12
+y 7
+end
+arch fstone1b
+x 12
+y 8
+end
+arch trash_wood2.101
+x 12
+y 8
+end
+arch fstone1b
+x 12
+y 9
+end
+arch fstone1b
+x 12
+y 10
+end
+arch fstone1b
+x 12
+y 11
+end
+arch table_small1b
+x 12
+y 11
+end
+arch fstone1b
+x 12
+y 12
+end
+arch trash_wood1.101
+x 12
+y 12
+end
+arch fstone1b
+x 12
+y 13
+end
+arch fstone1b
+x 12
+y 14
+end
+arch fstone1b
+x 12
+y 15
+end
+arch fwall_wood1a
+x 12
+y 15
+end
+arch fstone1b
+x 13
+end
+arch fwall_wood1a
+x 13
+end
+arch fstone1b
+x 13
+y 1
+end
+arch spawn_point
+x 13
+y 1
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+wc_range 12
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch plant_mushroom1
+name glowing mushroom
+x 13
+y 1
+end
+arch light2
+x 13
+y 1
+end
+arch fstone1b
+x 13
+y 2
+end
+arch fstone1b
+x 13
+y 3
+end
+arch fstone1b
+x 13
+y 4
+end
+arch fstone1b
+x 13
+y 5
+end
+arch fstone1b
+x 13
+y 6
+end
+arch fwall_wood1a
+x 13
+y 6
+end
+arch fstone1b
+x 13
+y 7
+end
+arch wood_pile.101
+x 13
+y 7
+end
+arch fstone1b
+x 13
+y 8
+end
+arch fstone1b
+x 13
+y 9
+end
+arch spawn_point
+x 13
+y 9
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+wc_range 12
+randomitems mob_fighter_l9
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 13
+y 10
+end
+arch fstone1b
+x 13
+y 11
+end
+arch fstone1b
+x 13
+y 12
+end
+arch fstone1b
+x 13
+y 13
+end
+arch spawn_point
+x 13
+y 13
+arch ant_red
+name minor ant scout
+type 83
+Wis 3
+randomitems mob_fighter_l9
+wc_range 12
+ac 6
+dam 30
+maxhp 40
+exp 75
+end
+end
+arch fstone1b
+x 13
+y 14
+end
+arch fstone1b
+x 13
+y 15
+end
+arch fwall_wood1a
+x 13
+y 15
+end
+arch fstone1b
+x 14
+end
+arch fwall_wood1a
+x 14
+end
+arch fstone1b
+x 14
+y 1
+end
+arch grain1.101
+x 14
+y 1
+end
+arch fstone1b
+x 14
+y 2
+end
+arch fstone1b
+x 14
+y 3
+end
+arch fstone1b
+x 14
+y 4
+end
+arch fstone1b
+x 14
+y 5
+end
+arch fstone1b
+x 14
+y 6
+end
+arch fwall_wood1a
+x 14
+y 6
+end
+arch fstone1b
+x 14
+y 7
+end
+arch wood_pile.101
+x 14
+y 7
+end
+arch fstone1b
+x 14
+y 8
+end
+arch fstone1b
+x 14
+y 9
+end
+arch fstone1b
+x 14
+y 10
+end
+arch fstone1b
+x 14
+y 11
+end
+arch fstone1b
+x 14
+y 12
+end
+arch fstone1b
+x 14
+y 13
+end
+arch fstone1b
+x 14
+y 14
+end
+arch fstone1b
+x 14
+y 15
+end
+arch fwall_wood1a
+x 14
+y 15
+end
+arch fstone1b
+x 15
+end
+arch fwall_wood1a
+x 15
+end
+arch fstone1b
+x 15
+y 1
+end
+arch fwall_wood1a
+x 15
+y 1
+end
+arch fstone1b
+x 15
+y 2
+end
+arch fwall_wood1a
+x 15
+y 2
+end
+arch fstone1b
+x 15
+y 3
+end
+arch fwall_wood1a
+x 15
+y 3
+end
+arch fstone1b
+x 15
+y 4
+end
+arch fwall_wood1a
+x 15
+y 4
+end
+arch fstone1b
+x 15
+y 5
+end
+arch fwall_wood1a
+x 15
+y 5
+end
+arch fstone1b
+x 15
+y 6
+end
+arch fwall_wood1a
+x 15
+y 6
+end
+arch fstone1b
+x 15
+y 7
+end
+arch fwall_wood1a
+x 15
+y 7
+end
+arch fstone1b
+x 15
+y 8
+end
+arch fwall_wood1a
+x 15
+y 8
+end
+arch fstone1b
+x 15
+y 9
+end
+arch fwall_wood1a
+x 15
+y 9
+end
+arch fstone1b
+x 15
+y 10
+end
+arch fwall_wood1a
+x 15
+y 10
+end
+arch fstone1b
+x 15
+y 11
+end
+arch fwall_wood1a
+x 15
+y 11
+end
+arch fstone1b
+x 15
+y 12
+end
+arch fwall_wood1a
+x 15
+y 12
+end
+arch fstone1b
+x 15
+y 13
+end
+arch fwall_wood1a
+x 15
+y 13
+end
+arch fstone1b
+x 15
+y 14
+end
+arch fwall_wood1a
+x 15
+y 14
+end
+arch fstone1b
+x 15
+y 15
+end
+arch fwall_wood1a
+x 15
+y 15
+end

@@ -1,0 +1,1786 @@
+arch map
+name Testmaps - Main
+msg
+Creator: Daimonin Map Editor
+Date:    4/13/2003
+endmsg
+width 17
+height 17
+enter_x 1
+enter_y 1
+difficulty 1
+end
+arch floor_ostone1
+end
+arch wall_stone_8
+end
+arch floor_ostone1
+y 1
+end
+arch wall_stone_3
+y 1
+end
+arch floor_ostone1
+y 2
+end
+arch wall_stone_3
+y 2
+end
+arch floor_ostone1
+y 3
+end
+arch wall_stone_3
+y 3
+end
+arch floor_ostone1
+y 4
+end
+arch wall_stone_3
+y 4
+end
+arch floor_ostone1
+y 5
+end
+arch wall_stone_3
+y 5
+end
+arch floor_ostone1
+y 6
+end
+arch wall_stone_3
+y 6
+end
+arch floor_ostone1
+y 7
+end
+arch wall_stone_3
+y 7
+end
+arch wmask_fire_on_1
+direction 5
+y 7
+end
+arch floor_ostone1
+y 8
+end
+arch wall_stone_3
+y 8
+end
+arch floor_ostone1
+y 9
+end
+arch wall_stone_3
+y 9
+end
+arch floor_ostone1
+y 10
+end
+arch wall_stone_3
+y 10
+end
+arch wmask_fire_on_1
+direction 5
+y 10
+end
+arch floor_ostone1
+y 11
+end
+arch wall_stone_3
+y 11
+end
+arch floor_ostone1
+y 12
+end
+arch wall_stone_3
+y 12
+end
+arch floor_ostone1
+y 13
+end
+arch wall_stone_3
+y 13
+end
+arch floor_ostone1
+y 14
+end
+arch wall_stone_3
+y 14
+end
+arch floor_ostone1
+y 15
+end
+arch wall_stone_3
+y 15
+end
+arch floor_ostone1
+y 16
+end
+arch wall_stone_3
+y 16
+end
+arch floor_ostone1
+x 1
+end
+arch wall_stone_1
+x 1
+end
+arch floor_ostone1
+x 1
+y 1
+end
+arch exit
+slaying ../../stoneglow/stoneglow_0000
+hp 8
+sp 10
+x 1
+y 1
+end
+arch floor_ostone1
+x 1
+y 2
+end
+arch floor_ostone1
+x 1
+y 3
+end
+arch stair_down
+direction 5
+name Spawn Point Testing
+slaying testmap_mobs
+hp 1
+sp 1
+x 1
+y 3
+end
+arch floor_ostone1
+x 1
+y 4
+end
+arch floor_ostone1
+x 1
+y 5
+end
+arch stair_down
+direction 5
+name Fight System Test
+slaying testmap_fight
+hp 1
+sp 1
+x 1
+y 5
+end
+arch floor_ostone1
+x 1
+y 6
+end
+arch floor_ostone1
+x 1
+y 7
+end
+arch stair_down
+direction 5
+name Test Misc. Objects
+slaying testmap_misc
+hp 1
+sp 1
+x 1
+y 7
+end
+arch floor_ostone1
+x 1
+y 8
+end
+arch floor_ostone1
+x 1
+y 9
+end
+arch stair_down
+direction 5
+name Test Effects (Invisibility, Infravision,...)
+slaying testmap_effects
+hp 1
+sp 1
+x 1
+y 9
+end
+arch floor_ostone1
+x 1
+y 10
+end
+arch floor_ostone1
+x 1
+y 11
+end
+arch stair_down
+direction 5
+slaying testmap_spells
+hp 1
+sp 1
+x 1
+y 11
+end
+arch floor_ostone1
+x 1
+y 12
+end
+arch floor_ostone1
+x 1
+y 13
+end
+arch floor_ostone1
+x 1
+y 14
+end
+arch floor_ostone1
+x 1
+y 15
+end
+arch stair_up
+direction 5
+slaying /unofficial/lobby
+hp 1
+sp 15
+x 1
+y 15
+end
+arch floor_ostone1
+x 1
+y 16
+end
+arch wall_stone_1
+x 1
+y 16
+end
+arch floor_ostone1
+x 2
+end
+arch wall_stone_1
+x 2
+end
+arch floor_ostone1
+x 2
+y 1
+end
+arch floor_ostone1
+x 2
+y 2
+end
+arch floor_ostone1
+x 2
+y 3
+end
+arch sign
+msg
+mob and spawn point testing.
+Map is outdoor type (day and
+night).
+endmsg
+x 2
+y 3
+end
+arch floor_ostone1
+x 2
+y 4
+end
+arch floor_ostone1
+x 2
+y 5
+end
+arch sign
+msg
+fight tests
+endmsg
+x 2
+y 5
+end
+arch floor_ostone1
+x 2
+y 6
+end
+arch floor_ostone1
+x 2
+y 7
+end
+arch sign
+name Misc. Objects
+msg
+Some unsorted interesting objects
+endmsg
+x 2
+y 7
+end
+arch floor_ostone1
+x 2
+y 8
+end
+arch floor_ostone1
+x 2
+y 9
+end
+arch sign
+msg
+Effects - lightning, infravision,
+invisibility, xray, ethereality...
+endmsg
+x 2
+y 9
+end
+arch floor_ostone1
+x 2
+y 10
+end
+arch floor_ostone1
+x 2
+y 11
+end
+arch sign
+msg
+test spell using items.
+endmsg
+x 2
+y 11
+end
+arch floor_ostone1
+x 2
+y 12
+end
+arch floor_ostone1
+x 2
+y 13
+end
+arch floor_ostone1
+x 2
+y 14
+end
+arch floor_ostone1
+x 2
+y 15
+end
+arch sign
+name unofficial maps
+msg
+To the unofficial map lobby.
+Requires an extra download!
+endmsg
+x 2
+y 15
+end
+arch floor_ostone1
+x 2
+y 16
+end
+arch wall_stone_1
+x 2
+y 16
+end
+arch floor_ostone1
+x 3
+end
+arch wall_stone_1
+x 3
+end
+arch floor_ostone1
+x 3
+y 1
+end
+arch stair_down
+name Test Connected Objects
+slaying testmap_connect
+hp 1
+sp 1
+x 3
+y 1
+end
+arch floor_ostone1
+x 3
+y 2
+end
+arch sign
+msg
+Connected Objects Testmap
+endmsg
+x 3
+y 2
+end
+arch floor_ostone1
+x 3
+y 3
+end
+arch floor_ostone1
+x 3
+y 4
+end
+arch floor_ostone1
+x 3
+y 5
+end
+arch floor_ostone1
+x 3
+y 6
+end
+arch floor_ostone1
+x 3
+y 7
+end
+arch floor_ostone1
+x 3
+y 8
+end
+arch floor_ostone1
+x 3
+y 9
+end
+arch stair_down
+slaying testmap_buttons
+hp 1
+sp 1
+x 3
+y 9
+end
+arch floor_ostone1
+x 3
+y 10
+end
+arch floor_ostone1
+x 3
+y 11
+end
+arch floor_ostone1
+x 3
+y 12
+end
+arch floor_ostone1
+x 3
+y 13
+end
+arch floor_ostone1
+x 3
+y 14
+end
+arch floor_ostone1
+x 3
+y 15
+end
+arch floor_ostone1
+x 3
+y 16
+end
+arch wall_stone_1
+x 3
+y 16
+end
+arch floor_ostone1
+x 4
+end
+arch wall_stone_1
+x 4
+end
+arch wmask_fire_off_1
+x 4
+end
+arch floor_ostone1
+x 4
+y 1
+end
+arch floor_ostone1
+x 4
+y 2
+end
+arch floor_ostone1
+x 4
+y 3
+end
+arch floor_ostone1
+x 4
+y 4
+end
+arch floor_ostone1
+x 4
+y 5
+end
+arch floor_ostone1
+x 4
+y 6
+end
+arch floor_ostone1
+x 4
+y 7
+end
+arch floor_ostone1
+x 4
+y 8
+end
+arch floor_ostone1
+x 4
+y 9
+end
+arch floor_ostone1
+x 4
+y 10
+end
+arch floor_ostone1
+x 4
+y 11
+end
+arch floor_ostone1
+x 4
+y 12
+end
+arch floor_ostone1
+x 4
+y 13
+end
+arch floor_ostone1
+x 4
+y 14
+end
+arch floor_ostone1
+x 4
+y 15
+end
+arch floor_ostone1
+x 4
+y 16
+end
+arch wall_stone_1
+x 4
+y 16
+end
+arch floor_ostone1
+x 5
+end
+arch wall_stone_1
+x 5
+end
+arch floor_ostone1
+x 5
+y 1
+end
+arch stair_down
+name Test Gods, Altars and Avatars
+slaying testmap_gods
+hp 1
+sp 1
+x 5
+y 1
+end
+arch floor_ostone1
+x 5
+y 2
+end
+arch sign
+msg
+Gods & Avatars Testmap
+endmsg
+x 5
+y 2
+end
+arch floor_ostone1
+x 5
+y 3
+end
+arch floor_ostone1
+x 5
+y 4
+end
+arch stair_down
+slaying testmap_waypoints
+hp 1
+sp 1
+x 5
+y 4
+end
+arch floor_ostone1
+x 5
+y 5
+end
+arch floor_ostone1
+x 5
+y 6
+end
+arch floor_ostone1
+x 5
+y 7
+end
+arch floor_ostone1
+x 5
+y 8
+end
+arch floor_ostone1
+x 5
+y 9
+end
+arch floor_ostone1
+x 5
+y 10
+end
+arch floor_ostone1
+x 5
+y 11
+end
+arch dress
+protect_impact 120
+protect_slash 120
+protect_cleave 120
+protect_pierce 120
+x 5
+y 11
+end
+arch floor_ostone1
+x 5
+y 12
+end
+arch floor_ostone1
+x 5
+y 13
+end
+arch floor_ostone1
+x 5
+y 14
+end
+arch sign
+x 5
+y 14
+end
+arch floor_ostone1
+x 5
+y 15
+end
+arch stair_down
+slaying testmap_multiarch
+hp 1
+sp 1
+x 5
+y 15
+end
+arch floor_ostone1
+x 5
+y 16
+end
+arch wall_stone_1
+x 5
+y 16
+end
+arch floor_ostone1
+x 6
+end
+arch wall_stone_1
+x 6
+end
+arch wmask_fire_off_1
+x 6
+end
+arch floor_ostone1
+x 6
+y 1
+end
+arch floor_ostone1
+x 6
+y 2
+end
+arch floor_ostone1
+x 6
+y 3
+end
+arch floor_ostone1
+x 6
+y 4
+end
+arch sign
+msg
+Waypoint testmap
+endmsg
+x 6
+y 4
+end
+arch floor_ostone1
+x 6
+y 5
+end
+arch floor_ostone1
+x 6
+y 6
+end
+arch floor_ostone1
+x 6
+y 7
+end
+arch floor_ostone1
+x 6
+y 8
+end
+arch ant_soldier
+name Skillgiver
+friendly 1
+stand_still 1
+x 6
+y 8
+arch event_obj
+name Python
+race /dev/testmaps/skills.py
+sub_type 6
+end
+end
+arch floor_ostone1
+x 6
+y 9
+end
+arch floor_ostone1
+x 6
+y 10
+end
+arch floor_ostone1
+x 6
+y 11
+end
+arch floor_ostone1
+x 6
+y 12
+end
+arch floor_ostone1
+x 6
+y 13
+end
+arch floor_ostone1
+x 6
+y 14
+end
+arch floor_ostone1
+x 6
+y 15
+end
+arch floor_ostone1
+x 6
+y 16
+end
+arch wall_stone_1
+x 6
+y 16
+end
+arch floor_ostone1
+x 7
+end
+arch wall_stone_1
+x 7
+end
+arch floor_ostone1
+x 7
+y 1
+end
+arch stair_down
+name Test Traps
+slaying testmap_traps
+hp 1
+sp 1
+x 7
+y 1
+end
+arch floor_ostone1
+x 7
+y 2
+end
+arch sign
+msg
+Traps and Special Objects
+endmsg
+x 7
+y 2
+end
+arch floor_ostone1
+x 7
+y 3
+end
+arch floor_ostone1
+x 7
+y 4
+end
+arch floor_ostone1
+x 7
+y 5
+end
+arch floor_ostone1
+x 7
+y 6
+end
+arch floor_ostone1
+x 7
+y 7
+end
+arch golem
+name Scripter
+friendly 1
+stand_still 1
+x 7
+y 7
+arch event_obj
+name Python
+race /dev/testmaps/ScriptTest.py
+sub_type 6
+end
+end
+arch floor_ostone1
+x 7
+y 8
+end
+arch cave_pillar1
+x 7
+y 8
+end
+arch floor_ostone1
+x 7
+y 9
+end
+arch guard
+name TestGuild master
+friendly 1
+x 7
+y 9
+arch event_obj
+name Python
+race /dev/testmaps/TestGuild.py
+sub_type 6
+end
+end
+arch floor_ostone1
+x 7
+y 10
+end
+arch floor_ostone1
+x 7
+y 11
+end
+arch floor_ostone1
+x 7
+y 12
+end
+arch dagger
+dam 400
+wc 40
+x 7
+y 12
+end
+arch floor_ostone1
+x 7
+y 13
+end
+arch floor_ostone1
+x 7
+y 14
+end
+arch sign
+x 7
+y 14
+end
+arch floor_ostone1
+x 7
+y 15
+end
+arch stair_down
+slaying testmap_random
+hp 1
+sp 1
+x 7
+y 15
+end
+arch floor_ostone1
+x 7
+y 16
+end
+arch wall_stone_1
+x 7
+y 16
+end
+arch floor_ostone1
+x 8
+end
+arch wall_stone_1
+x 8
+end
+arch floor_ostone1
+x 8
+y 1
+end
+arch floor_ostone1
+x 8
+y 2
+end
+arch floor_ostone1
+x 8
+y 3
+end
+arch floor_ostone1
+x 8
+y 4
+end
+arch floor_ostone1
+x 8
+y 5
+end
+arch floor_ostone1
+x 8
+y 6
+end
+arch floor_ostone1
+x 8
+y 7
+end
+arch floor_ostone1
+x 8
+y 8
+end
+arch ant_red
+name Spellgiver
+stand_still 1
+friendly 1
+x 8
+y 8
+arch event_obj
+name Python
+race /dev/testmaps/spells.py
+sub_type 6
+end
+end
+arch floor_ostone1
+x 8
+y 9
+end
+arch floor_ostone1
+x 8
+y 10
+end
+arch floor_ostone1
+x 8
+y 11
+end
+arch floor_ostone1
+x 8
+y 12
+end
+arch shortsword
+dam 400
+wc 40
+x 8
+y 12
+end
+arch floor_ostone1
+x 8
+y 13
+end
+arch floor_ostone1
+x 8
+y 14
+end
+arch floor_ostone1
+x 8
+y 15
+end
+arch floor_ostone1
+x 8
+y 16
+end
+arch wall_stone_1
+x 8
+y 16
+end
+arch floor_ostone1
+x 9
+end
+arch wall_stone_1
+x 9
+end
+arch floor_ostone1
+x 9
+y 1
+end
+arch stair_down
+name Test Shop System
+slaying testmap_shop
+hp 1
+sp 1
+x 9
+y 1
+end
+arch floor_ostone1
+x 9
+y 2
+end
+arch sign
+msg
+Testmap for Daimonin
+Shop System.
+endmsg
+x 9
+y 2
+end
+arch floor_ostone1
+x 9
+y 3
+end
+arch floor_ostone1
+x 9
+y 4
+end
+arch stair_down
+slaying testmap_artifacts1
+hp 1
+sp 1
+x 9
+y 4
+end
+arch floor_ostone1
+x 9
+y 5
+end
+arch floor_ostone1
+x 9
+y 6
+end
+arch floor_ostone1
+x 9
+y 7
+end
+arch floor_ostone1
+x 9
+y 8
+end
+arch floor_ostone1
+x 9
+y 9
+end
+arch floor_ostone1
+x 9
+y 10
+end
+arch floor_ostone1
+x 9
+y 11
+end
+arch floor_ostone1
+x 9
+y 12
+end
+arch axe_small
+dam 400
+wc 40
+x 9
+y 12
+end
+arch floor_ostone1
+x 9
+y 13
+end
+arch floor_ostone1
+x 9
+y 14
+end
+arch floor_ostone1
+x 9
+y 15
+end
+arch floor_ostone1
+x 9
+y 16
+end
+arch wall_stone_1
+x 9
+y 16
+end
+arch floor_ostone1
+x 10
+end
+arch wall_stone_1
+x 10
+end
+arch floor_ostone1
+x 10
+y 1
+end
+arch floor_ostone1
+x 10
+y 2
+end
+arch floor_ostone1
+x 10
+y 3
+end
+arch floor_ostone1
+x 10
+y 4
+end
+arch sign
+msg
+Items
+Left entry artifacts, right normal arch items.
+endmsg
+x 10
+y 4
+end
+arch floor_ostone1
+x 10
+y 5
+end
+arch floor_ostone1
+x 10
+y 6
+end
+arch floor_ostone1
+x 10
+y 7
+end
+arch floor_ostone1
+x 10
+y 8
+end
+arch floor_ostone1
+x 10
+y 9
+end
+arch floor_ostone1
+x 10
+y 10
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 12
+end
+arch hammer_small
+dam 400
+wc 40
+x 10
+y 12
+end
+arch floor_ostone1
+x 10
+y 13
+end
+arch floor_ostone1
+x 10
+y 14
+end
+arch floor_ostone1
+x 10
+y 15
+end
+arch floor_ostone1
+x 10
+y 16
+end
+arch wall_stone_1
+x 10
+y 16
+end
+arch floor_ostone1
+x 11
+end
+arch wall_stone_1
+x 11
+end
+arch floor_ostone1
+x 11
+y 1
+end
+arch stair_down
+name Directors and Firewalls
+slaying testmap_special
+hp 1
+sp 1
+x 11
+y 1
+end
+arch floor_ostone1
+x 11
+y 2
+end
+arch sign
+msg
+Testmap Directors
+endmsg
+x 11
+y 2
+end
+arch floor_ostone1
+x 11
+y 3
+end
+arch floor_ostone1
+x 11
+y 4
+end
+arch stair_down
+name Test Items1
+slaying testmap_items1
+hp 1
+sp 1
+x 11
+y 4
+end
+arch floor_ostone1
+x 11
+y 5
+end
+arch floor_ostone1
+x 11
+y 6
+end
+arch floor_ostone1
+x 11
+y 7
+end
+arch floor_ostone1
+x 11
+y 8
+end
+arch floor_ostone1
+x 11
+y 9
+end
+arch floor_ostone1
+x 11
+y 10
+end
+arch floor_ostone1
+x 11
+y 11
+end
+arch floor_ostone1
+x 11
+y 12
+end
+arch monk
+name PythonTester
+invulnerable 1
+no_attack 1
+unaggressive 0
+friendly 1
+x 11
+y 12
+arch event_obj
+name Python
+race /dev/testmaps/PythonTest.py
+sub_type 6
+end
+end
+arch floor_ostone1
+x 11
+y 13
+end
+arch floor_ostone1
+x 11
+y 14
+end
+arch floor_ostone1
+x 11
+y 15
+end
+arch floor_ostone1
+x 11
+y 16
+end
+arch wall_stone_1
+x 11
+y 16
+end
+arch floor_ostone1
+x 12
+end
+arch wall_stone_1
+x 12
+end
+arch floor_ostone1
+x 12
+y 1
+end
+arch floor_ostone1
+x 12
+y 2
+end
+arch floor_ostone1
+x 12
+y 3
+end
+arch floor_ostone1
+x 12
+y 4
+end
+arch floor_ostone1
+x 12
+y 5
+end
+arch floor_ostone1
+x 12
+y 6
+end
+arch floor_ostone1
+x 12
+y 7
+end
+arch floor_ostone1
+x 12
+y 8
+end
+arch floor_ostone1
+x 12
+y 9
+end
+arch floor_ostone1
+x 12
+y 10
+end
+arch floor_ostone1
+x 12
+y 11
+end
+arch floor_ostone1
+x 12
+y 12
+end
+arch floor_ostone1
+x 12
+y 13
+end
+arch floor_ostone1
+x 12
+y 14
+end
+arch floor_ostone1
+x 12
+y 15
+end
+arch floor_ostone1
+x 12
+y 16
+end
+arch wall_stone_1
+x 12
+y 16
+end
+arch floor_ostone1
+x 13
+end
+arch wall_stone_1
+x 13
+end
+arch floor_ostone1
+x 13
+y 1
+end
+arch stair_down
+name food, flesh and poison
+slaying testmap_food
+hp 1
+sp 1
+x 13
+y 1
+end
+arch floor_ostone1
+x 13
+y 2
+end
+arch sign
+name food, flesh and poison
+msg
+Test of food, flesh and poison.
+This includes poison DOT force and
+food buff/debuff force.
+endmsg
+x 13
+y 2
+end
+arch floor_ostone1
+x 13
+y 3
+end
+arch floor_ostone1
+x 13
+y 4
+end
+arch floor_ostone1
+x 13
+y 5
+end
+arch floor_ostone1
+x 13
+y 6
+end
+arch floor_ostone1
+x 13
+y 7
+end
+arch floor_ostone1
+x 13
+y 8
+end
+arch floor_ostone1
+x 13
+y 9
+end
+arch floor_ostone1
+x 13
+y 10
+end
+arch floor_ostone1
+x 13
+y 11
+end
+arch floor_ostone1
+x 13
+y 12
+end
+arch floor_ostone1
+x 13
+y 13
+end
+arch floor_ostone1
+x 13
+y 14
+end
+arch floor_ostone1
+x 13
+y 15
+end
+arch floor_ostone1
+x 13
+y 16
+end
+arch wall_stone_1
+x 13
+y 16
+end
+arch floor_ostone1
+x 14
+end
+arch wall_stone_1
+x 14
+end
+arch floor_ostone1
+x 14
+y 1
+end
+arch floor_ostone1
+x 14
+y 2
+end
+arch floor_ostone1
+x 14
+y 3
+end
+arch sign
+msg
+Weapon Testmap
+endmsg
+x 14
+y 3
+end
+arch floor_ostone1
+x 14
+y 4
+end
+arch floor_ostone1
+x 14
+y 5
+end
+arch sign
+name tiled maps testmap (multi arch)
+x 14
+y 5
+end
+arch floor_ostone1
+x 14
+y 6
+end
+arch floor_ostone1
+x 14
+y 7
+end
+arch floor_ostone1
+x 14
+y 8
+end
+arch floor_ostone1
+x 14
+y 9
+end
+arch floor_ostone1
+x 14
+y 10
+end
+arch floor_ostone1
+x 14
+y 11
+end
+arch floor_ostone1
+x 14
+y 12
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 14
+end
+arch floor_ostone1
+x 14
+y 15
+end
+arch floor_ostone1
+x 14
+y 16
+end
+arch wall_stone_1
+x 14
+y 16
+end
+arch floor_ostone1
+x 15
+end
+arch wall_stone_1
+x 15
+end
+arch floor_ostone1
+x 15
+y 1
+end
+arch stair_down
+name Connected Maps Test1 (spawns)
+slaying testmap_maps1
+hp 1
+sp 1
+x 15
+y 1
+end
+arch floor_ostone1
+x 15
+y 2
+end
+arch sign
+msg
+Some tests for connected maps.
+Includes a multi arch spawn on
+map borders with possible
+swapout.
+endmsg
+x 15
+y 2
+end
+arch floor_ostone1
+x 15
+y 3
+end
+arch stair_down
+slaying testmap_weapon
+hp 1
+sp 1
+x 15
+y 3
+end
+arch floor_ostone1
+x 15
+y 4
+end
+arch floor_ostone1
+x 15
+y 5
+end
+arch stair_down
+slaying testmap_tiled1
+hp 1
+sp 1
+x 15
+y 5
+end
+arch floor_ostone1
+x 15
+y 6
+end
+arch floor_ostone1
+x 15
+y 7
+end
+arch floor_ostone1
+x 15
+y 8
+end
+arch floor_ostone1
+x 15
+y 9
+end
+arch floor_ostone1
+x 15
+y 10
+end
+arch floor_ostone1
+x 15
+y 11
+end
+arch floor_ostone1
+x 15
+y 12
+end
+arch floor_ostone1
+x 15
+y 13
+end
+arch floor_ostone1
+x 15
+y 14
+end
+arch floor_ostone1
+x 15
+y 15
+end
+arch floor_ostone1
+x 15
+y 16
+end
+arch wall_stone_1
+x 15
+y 16
+end
+arch floor_ostone1
+x 16
+end
+arch wall_stone_1
+x 16
+end
+arch floor_ostone1
+x 16
+y 1
+end
+arch wall_stone_3
+x 16
+y 1
+end
+arch floor_ostone1
+x 16
+y 2
+end
+arch wall_stone_3
+x 16
+y 2
+end
+arch floor_ostone1
+x 16
+y 3
+end
+arch wall_stone_3
+x 16
+y 3
+end
+arch floor_ostone1
+x 16
+y 4
+end
+arch wall_stone_3
+x 16
+y 4
+end
+arch floor_ostone1
+x 16
+y 5
+end
+arch wall_stone_3
+x 16
+y 5
+end
+arch floor_ostone1
+x 16
+y 6
+end
+arch wall_stone_3
+x 16
+y 6
+end
+arch floor_ostone1
+x 16
+y 7
+end
+arch wall_stone_3
+x 16
+y 7
+end
+arch floor_ostone1
+x 16
+y 8
+end
+arch wall_stone_3
+x 16
+y 8
+end
+arch floor_ostone1
+x 16
+y 9
+end
+arch wall_stone_3
+x 16
+y 9
+end
+arch floor_ostone1
+x 16
+y 10
+end
+arch wall_stone_3
+x 16
+y 10
+end
+arch floor_ostone1
+x 16
+y 11
+end
+arch wall_stone_3
+x 16
+y 11
+end
+arch floor_ostone1
+x 16
+y 12
+end
+arch wall_stone_3
+x 16
+y 12
+end
+arch floor_ostone1
+x 16
+y 13
+end
+arch wall_stone_3
+x 16
+y 13
+end
+arch floor_ostone1
+x 16
+y 14
+end
+arch wall_stone_3
+x 16
+y 14
+end
+arch floor_ostone1
+x 16
+y 15
+end
+arch wall_stone_3
+x 16
+y 15
+end
+arch floor_ostone1
+x 16
+y 16
+end
+arch wall_stone_4
+x 16
+y 16
+end

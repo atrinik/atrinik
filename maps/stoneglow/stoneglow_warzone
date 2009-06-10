@@ -1,0 +1,1738 @@
+arch map
+name Stoneglow - southern warzone
+msg
+Creator: Daimonin Map Editor
+Date:    9/23/2003
+endmsg
+width 16
+height 16
+difficulty 1
+outdoor 1
+end
+arch floor_grit2
+end
+arch fwall_rock1
+end
+arch floor_grit2
+y 1
+end
+arch fwall_rock1
+y 1
+end
+arch floor_grit2
+y 2
+end
+arch fwall_rock1
+y 2
+end
+arch floor_grit2
+y 3
+end
+arch fwall_rock1
+y 3
+end
+arch floor_grit2
+y 4
+end
+arch fwall_rock1
+y 4
+end
+arch floor_grit2
+y 5
+end
+arch fwall_rock1
+y 5
+end
+arch floor_grit2
+y 6
+end
+arch fwall_rock1
+y 6
+end
+arch floor_grit2
+y 7
+end
+arch tree_big
+y 7
+end
+arch floor_grit2
+y 8
+end
+arch tree_big2
+y 8
+end
+arch floor_grit2
+y 9
+end
+arch tree_big4
+y 9
+end
+arch floor_grit2
+y 10
+end
+arch tree_big
+y 10
+end
+arch floor_grit2
+y 11
+end
+arch tree_big5b
+y 11
+end
+arch tree_big2
+y 11
+end
+arch floor_grit2
+y 12
+end
+arch tree_big4b
+y 12
+end
+arch floor_grit2
+y 13
+end
+arch tree_big4
+y 13
+end
+arch floor_grit2
+y 14
+end
+arch tree_big2
+y 14
+end
+arch floor_grit2
+y 15
+end
+arch tree_big3
+y 15
+end
+arch floor_grit1
+x 1
+end
+arch fwall_rock1
+x 1
+end
+arch floor_grit2
+x 1
+y 1
+end
+arch plant4
+x 1
+y 1
+end
+arch spawn_point
+speed -0.011
+last_grace 0
+x 1
+y 1
+arch jelly_green
+type 83
+randomitems none
+corpse_forced 1
+end
+end
+arch floor_grit2
+x 1
+y 2
+end
+arch plant6
+x 1
+y 2
+end
+arch floor_grit2
+x 1
+y 3
+end
+arch floor_grit2
+x 1
+y 4
+end
+arch floor_grit2
+x 1
+y 5
+end
+arch floor_grit2
+x 1
+y 6
+end
+arch plant12
+x 1
+y 6
+end
+arch spawn_point
+speed -0.0075
+last_grace 0
+x 1
+y 6
+arch blob_acid
+type 83
+randomitems none
+corpse_forced 1
+end
+end
+arch floor_grit2
+x 1
+y 7
+end
+arch plant10
+x 1
+y 7
+end
+arch floor_grit2
+x 1
+y 8
+end
+arch plant5
+x 1
+y 8
+end
+arch floor_grit2
+x 1
+y 9
+end
+arch spawn_point
+speed -0.0131
+last_grace 0
+x 1
+y 9
+arch pudding_brown
+type 83
+randomitems none
+corpse_forced 1
+end
+end
+arch floor_grit2
+x 1
+y 10
+end
+arch plant11
+x 1
+y 10
+end
+arch floor_grit2
+x 1
+y 11
+end
+arch plant11
+x 1
+y 11
+end
+arch spawn_point
+speed -0.01
+last_grace 0
+x 1
+y 11
+arch cube_gel
+type 83
+randomitems none
+unaggressive 0
+corpse_forced 1
+Wis 6
+end
+end
+arch floor_grit2
+x 1
+y 12
+end
+arch plant8
+x 1
+y 12
+end
+arch light3
+x 1
+y 12
+end
+arch floor_grit2
+x 1
+y 13
+end
+arch tree_big5
+x 1
+y 13
+end
+arch floor_grit2
+x 1
+y 14
+end
+arch tree_big
+x 1
+y 14
+end
+arch floor_grit2
+x 1
+y 15
+end
+arch tree_big2
+x 1
+y 15
+end
+arch floor_grit2
+x 2
+end
+arch fwall_rock1
+x 2
+end
+arch floor_grit2
+x 2
+y 1
+end
+arch plant6
+x 2
+y 1
+end
+arch floor_grit2
+x 2
+y 2
+end
+arch floor_grit2
+x 2
+y 3
+end
+arch floor_grit2
+x 2
+y 4
+end
+arch floor_grit2
+x 2
+y 5
+end
+arch floor_grit2
+x 2
+y 6
+end
+arch floor_grit2
+x 2
+y 7
+end
+arch plant12
+x 2
+y 7
+end
+arch floor_grit2
+x 2
+y 8
+end
+arch floor_grit2
+x 2
+y 9
+end
+arch plant5
+x 2
+y 9
+end
+arch floor_grit2
+x 2
+y 10
+end
+arch plant9
+x 2
+y 10
+end
+arch floor_grit2
+x 2
+y 11
+end
+arch plant7
+x 2
+y 11
+end
+arch floor_grit2
+x 2
+y 12
+end
+arch plant6
+x 2
+y 12
+end
+arch floor_grit2
+x 2
+y 13
+end
+arch plant11
+x 2
+y 13
+end
+arch floor_grit2
+x 2
+y 14
+end
+arch tree_big4
+x 2
+y 14
+end
+arch floor_grit2
+x 2
+y 15
+end
+arch tree_big
+x 2
+y 15
+end
+arch floor_grit2
+x 3
+end
+arch fwall_rock1
+x 3
+end
+arch floor_grit2
+x 3
+y 1
+end
+arch fwall_rock1
+x 3
+y 1
+end
+arch floor_grit2
+x 3
+y 2
+end
+arch fwall_rock1
+x 3
+y 2
+end
+arch floor_grit2
+x 3
+y 3
+end
+arch fwall_rock1
+x 3
+y 3
+end
+arch floor_grit2
+x 3
+y 4
+end
+arch floor_grit2
+x 3
+y 5
+end
+arch floor_grit2
+x 3
+y 6
+end
+arch floor_grit2
+x 3
+y 7
+end
+arch floor_grit2
+x 3
+y 8
+end
+arch floor_grit2
+x 3
+y 9
+end
+arch floor_grit2
+x 3
+y 10
+end
+arch floor_grit2
+x 3
+y 11
+end
+arch floor_grit2
+x 3
+y 12
+end
+arch floor_grit2
+x 3
+y 13
+end
+arch plant11
+x 3
+y 13
+end
+arch spawn_point
+speed -0.01
+last_grace 0
+x 3
+y 13
+arch blob_quivering
+type 83
+randomitems none
+unaggressive 0
+corpse_forced 1
+end
+end
+arch floor_grit2
+x 3
+y 14
+end
+arch plant9
+x 3
+y 14
+end
+arch floor_grit2
+x 3
+y 15
+end
+arch fwall_rock1
+x 3
+y 15
+end
+arch floor_grit2
+x 4
+end
+arch fwall_rock1
+x 4
+end
+arch floor_grit2
+x 4
+y 1
+end
+arch floor_grit2
+x 4
+y 2
+end
+arch floor_grit2
+x 4
+y 3
+end
+arch fwall_rock1
+x 4
+y 3
+end
+arch floor_grit2
+x 4
+y 4
+end
+arch floor_grit2
+x 4
+y 5
+end
+arch floor_grit2
+x 4
+y 6
+end
+arch floor_grit2
+x 4
+y 7
+end
+arch floor_grit2
+x 4
+y 8
+end
+arch floor_grit2
+x 4
+y 9
+end
+arch floor_grit2
+x 4
+y 10
+end
+arch plant5
+x 4
+y 10
+end
+arch floor_grit2
+x 4
+y 11
+end
+arch floor_grit2
+x 4
+y 12
+end
+arch plant9
+x 4
+y 12
+end
+arch floor_grit2
+x 4
+y 13
+end
+arch floor_grit2
+x 4
+y 14
+end
+arch plant9
+x 4
+y 14
+end
+arch floor_grit2
+x 4
+y 15
+end
+arch fwall_rock1
+x 4
+y 15
+end
+arch floor_grit2
+x 5
+end
+arch fwall_rock1
+x 5
+end
+arch floor_grit2
+x 5
+y 1
+end
+arch fwall_rock1
+x 5
+y 1
+end
+arch floor_grit2
+x 5
+y 2
+end
+arch fwall_rock1
+x 5
+y 2
+end
+arch floor_grit2
+x 5
+y 3
+end
+arch fwall_rock1
+x 5
+y 3
+end
+arch floor_grit2
+x 5
+y 4
+end
+arch fwall_rock1
+x 5
+y 4
+end
+arch floor_grit2
+x 5
+y 5
+end
+arch earth_m8
+x 5
+y 5
+end
+arch light2
+x 5
+y 5
+end
+arch guard
+direction 7
+friendly 1
+level 2
+unaggressive 0
+x 5
+y 5
+end
+arch floor_grit2
+x 5
+y 6
+end
+arch floor_grit2
+x 5
+y 7
+end
+arch floor_grit2
+x 5
+y 8
+end
+arch floor_grit2
+x 5
+y 9
+end
+arch floor_grit2
+x 5
+y 10
+end
+arch floor_grit2
+x 5
+y 11
+end
+arch floor_grit2
+x 5
+y 12
+end
+arch floor_grit2
+x 5
+y 13
+end
+arch woods_tree
+x 5
+y 13
+end
+arch floor_grit2
+x 5
+y 14
+end
+arch floor_grit2
+x 5
+y 15
+end
+arch fwall_rock1
+x 5
+y 15
+end
+arch floor_grit2
+x 6
+end
+arch fwall_rock1
+x 6
+end
+arch floor_grit2
+x 6
+y 1
+end
+arch light3
+x 6
+y 1
+end
+arch target.111
+direction 5
+x 6
+y 1
+end
+arch floor_grit2
+x 6
+y 2
+end
+arch metal_bucket.101
+x 6
+y 2
+end
+arch floor_grit2
+x 6
+y 3
+end
+arch earth_m11
+x 6
+y 3
+end
+arch earth_brown1
+player_only 1
+x 6
+y 4
+end
+arch fmask_ruin1a.111
+x 6
+y 4
+end
+arch floor_grit2
+x 6
+y 5
+end
+arch earth_m14
+x 6
+y 5
+end
+arch floor_grit2
+x 6
+y 6
+end
+arch floor_grit2
+x 6
+y 7
+end
+arch light2
+x 6
+y 7
+end
+arch guard
+friendly 1
+level 3
+unaggressive 0
+x 6
+y 7
+end
+arch floor_grit2
+x 6
+y 8
+end
+arch floor_grit2
+x 6
+y 9
+end
+arch floor_grit2
+x 6
+y 10
+end
+arch floor_grit2
+x 6
+y 11
+end
+arch floor_grit2
+x 6
+y 12
+end
+arch woods_tree
+x 6
+y 12
+end
+arch floor_grit2
+x 6
+y 13
+end
+arch spawn_point
+speed -0.01
+last_grace 0
+x 6
+y 13
+arch ant_red
+type 83
+unaggressive 0
+corpse_forced 1
+randomitems none
+end
+end
+arch floor_grit2
+x 6
+y 14
+end
+arch floor_grit2
+x 6
+y 15
+end
+arch fwall_rock1
+x 6
+y 15
+end
+arch floor_grit2
+x 7
+end
+arch fwall_rock1
+x 7
+end
+arch floor_grit2
+x 7
+y 1
+end
+arch floor_grit2
+x 7
+y 2
+end
+arch floor_grit2
+x 7
+y 3
+end
+arch earth_m11
+x 7
+y 3
+end
+arch earth_brown1
+player_only 1
+x 7
+y 4
+end
+arch fmask_ruin1a.111
+x 7
+y 4
+end
+arch light3
+x 7
+y 4
+end
+arch guard
+name Captain Regulus
+direction 7
+friendly 1
+level 12
+unaggressive 0
+x 7
+y 4
+arch event_obj
+name Python
+race /stoneglow/captain_regulus.py
+sub_type 6
+end
+end
+arch floor_grit2
+x 7
+y 5
+end
+arch earth_m14
+x 7
+y 5
+end
+arch floor_grit2
+x 7
+y 6
+end
+arch floor_grit2
+x 7
+y 7
+end
+arch floor_grit2
+x 7
+y 8
+end
+arch floor_grit2
+x 7
+y 9
+end
+arch floor_grit2
+x 7
+y 10
+end
+arch floor_grit2
+x 7
+y 11
+end
+arch floor_grit2
+x 7
+y 12
+end
+arch tree_big4
+x 7
+y 12
+end
+arch floor_grit2
+x 7
+y 13
+end
+arch floor_grit2
+x 7
+y 14
+end
+arch floor_grit2
+x 7
+y 15
+end
+arch fwall_rock1
+x 7
+y 15
+end
+arch floor_grit2
+player_only 1
+x 8
+end
+arch invis_exit
+slaying stoneglow_0100
+hp 6
+sp 22
+x 8
+end
+arch floor_grit2
+player_only 1
+x 8
+y 1
+end
+arch floor_grit2
+x 8
+y 2
+end
+arch floor_grit2
+x 8
+y 3
+end
+arch earth_m11
+x 8
+y 3
+end
+arch earth_brown1
+player_only 1
+x 8
+y 4
+end
+arch fmask_ruin1a.111
+x 8
+y 4
+end
+arch floor_grit2
+x 8
+y 5
+end
+arch earth_m14
+x 8
+y 5
+end
+arch floor_grit2
+x 8
+y 6
+end
+arch floor_grit2
+x 8
+y 7
+end
+arch floor_grit2
+x 8
+y 8
+end
+arch light2
+x 8
+y 8
+end
+arch guard
+face guard1.151
+direction 7
+friendly 1
+level 2
+unaggressive 0
+x 8
+y 8
+end
+arch floor_grit2
+x 8
+y 9
+end
+arch floor_grit2
+x 8
+y 10
+end
+arch floor_grit2
+x 8
+y 11
+end
+arch floor_grit2
+x 8
+y 12
+end
+arch floor_grit2
+x 8
+y 13
+end
+arch floor_grit2
+x 8
+y 14
+end
+arch floor_grit2
+x 8
+y 15
+end
+arch fwall_rock1
+x 8
+y 15
+end
+arch floor_grit2
+x 9
+end
+arch fwall_rock1
+x 9
+end
+arch floor_grit2
+x 9
+y 1
+end
+arch floor_grit2
+x 9
+y 2
+end
+arch floor_grit2
+x 9
+y 3
+end
+arch floor_grit2
+x 9
+y 4
+end
+arch fwall_rock1
+x 9
+y 4
+end
+arch floor_grit2
+x 9
+y 5
+end
+arch floor_grit2
+x 9
+y 6
+end
+arch floor_grit2
+x 9
+y 7
+end
+arch floor_grit2
+x 9
+y 8
+end
+arch floor_grit2
+x 9
+y 9
+end
+arch floor_grit2
+x 9
+y 10
+end
+arch floor_grit2
+x 9
+y 11
+end
+arch floor_grit2
+x 9
+y 12
+end
+arch floor_grit2
+x 9
+y 13
+end
+arch tree_big4
+x 9
+y 13
+end
+arch floor_grit2
+x 9
+y 14
+end
+arch spawn_point
+speed -0.02
+last_grace 0
+x 9
+y 14
+arch slime
+type 83
+randomitems none
+wc 5
+corpse_forced 1
+end
+end
+arch floor_grit2
+x 9
+y 15
+end
+arch fwall_rock1
+x 9
+y 15
+end
+arch floor_grit2
+x 10
+end
+arch fwall_rock1
+x 10
+end
+arch floor_grit2
+x 10
+y 1
+end
+arch light3
+x 10
+y 1
+end
+arch glower.101
+x 10
+y 1
+end
+arch floor_grit2
+x 10
+y 2
+end
+arch floor_grit2
+x 10
+y 3
+end
+arch floor_grit2
+x 10
+y 4
+end
+arch fwall_rock1
+x 10
+y 4
+end
+arch floor_grit2
+x 10
+y 5
+end
+arch floor_grit2
+x 10
+y 6
+end
+arch floor_grit2
+x 10
+y 7
+end
+arch light3
+x 10
+y 7
+end
+arch glower.101
+x 10
+y 7
+end
+arch floor_grit2
+x 10
+y 8
+end
+arch floor_grit2
+x 10
+y 9
+end
+arch floor_grit2
+x 10
+y 10
+end
+arch floor_grit2
+x 10
+y 11
+end
+arch floor_grit2
+x 10
+y 12
+end
+arch floor_grit2
+x 10
+y 13
+end
+arch floor_grit2
+x 10
+y 14
+end
+arch tree_big5
+x 10
+y 14
+end
+arch floor_grit2
+x 10
+y 15
+end
+arch fwall_rock2
+x 10
+y 15
+end
+arch floor_grit2
+x 11
+end
+arch fwall_rock1
+x 11
+end
+arch floor_grit2
+x 11
+y 1
+end
+arch floor_grit2
+x 11
+y 2
+end
+arch floor_grit2
+x 11
+y 3
+end
+arch box2.101
+x 11
+y 3
+end
+arch floor_grit2
+x 11
+y 4
+end
+arch fwall_rock1
+x 11
+y 4
+end
+arch floor_grit2
+x 11
+y 5
+end
+arch fwall_rock1
+x 11
+y 5
+end
+arch floor_grit2
+x 11
+y 6
+end
+arch fwall_rock1
+x 11
+y 6
+end
+arch floor_grit2
+x 11
+y 7
+end
+arch fwall_rock1
+x 11
+y 7
+end
+arch floor_grit2
+x 11
+y 8
+end
+arch floor_grit2
+x 11
+y 9
+end
+arch floor_grit2
+x 11
+y 9
+end
+arch floor_grit2
+x 11
+y 10
+end
+arch fwall_rock2
+x 11
+y 10
+end
+arch floor_grit2
+x 11
+y 11
+end
+arch fwall_rock2
+x 11
+y 11
+end
+arch floor_grit2
+x 11
+y 12
+end
+arch fwall_rock2
+x 11
+y 12
+end
+arch floor_grit2
+x 11
+y 13
+end
+arch fwall_rock2
+x 11
+y 13
+end
+arch floor_grit2
+x 11
+y 14
+end
+arch fwall_rock2
+x 11
+y 14
+end
+arch floor_grit2
+x 11
+y 15
+end
+arch fwall_rock1
+x 11
+y 15
+end
+arch floor_grit2
+x 12
+end
+arch fwall_rock1
+x 12
+end
+arch floor_grit2
+x 12
+y 1
+end
+arch grain2.101
+x 12
+y 1
+end
+arch floor_grit2
+x 12
+y 2
+end
+arch floor_grit2
+x 12
+y 3
+end
+arch floor_grit2
+x 12
+y 4
+end
+arch tree_big5
+x 12
+y 4
+end
+arch floor_grit2
+x 12
+y 5
+end
+arch tree_big5b
+x 12
+y 5
+end
+arch floor_grit2
+x 12
+y 6
+end
+arch plant3
+x 12
+y 6
+end
+arch tree_big4b
+x 12
+y 6
+end
+arch floor_grit2
+x 12
+y 7
+end
+arch plant3
+x 12
+y 7
+end
+arch floor_grit2
+x 12
+y 8
+end
+arch plant6
+x 12
+y 8
+end
+arch floor_grit2
+x 12
+y 9
+end
+arch floor_grit2
+x 12
+y 10
+end
+arch fwall_rock1
+x 12
+y 10
+end
+arch floor_grit2
+x 12
+y 11
+end
+arch floor_grit2
+x 12
+y 12
+end
+arch floor_grit2
+x 12
+y 13
+end
+arch floor_grit2
+x 12
+y 14
+end
+arch floor_grit2
+x 12
+y 15
+end
+arch fwall_rock1
+x 12
+y 15
+end
+arch floor_grit2
+x 13
+end
+arch fwall_rock1
+x 13
+end
+arch floor_grit2
+x 13
+y 1
+end
+arch straw1.101
+x 13
+y 1
+end
+arch floor_grit2
+x 13
+y 2
+end
+arch floor_grit2
+x 13
+y 3
+end
+arch fmask_ruin1_s1.101
+x 13
+y 3
+end
+arch light3
+x 13
+y 3
+end
+arch glower.101
+x 13
+y 3
+end
+arch floor_grit2
+x 13
+y 4
+end
+arch floor_grit2
+x 13
+y 5
+end
+arch tree_big5
+x 13
+y 5
+end
+arch floor_grit2
+x 13
+y 6
+end
+arch plant3
+x 13
+y 6
+end
+arch tree_big3
+x 13
+y 6
+end
+arch floor_grit2
+x 13
+y 7
+end
+arch plant3
+x 13
+y 7
+end
+arch tree_big5
+x 13
+y 7
+end
+arch floor_grit2
+x 13
+y 8
+end
+arch plant9
+x 13
+y 8
+end
+arch floor_grit2
+x 13
+y 9
+end
+arch fwall_rock1
+x 13
+y 9
+end
+arch floor_grit2
+x 13
+y 10
+end
+arch fwall_rock1
+x 13
+y 10
+end
+arch floor_grit2
+x 13
+y 11
+end
+arch floor_grit2
+x 13
+y 12
+end
+arch fwall_rock1
+x 13
+y 12
+end
+arch floor_sand_d1
+x 13
+y 13
+end
+arch floor_grit2
+x 13
+y 14
+end
+arch floor_grit2
+x 13
+y 15
+end
+arch fwall_rock1
+x 13
+y 15
+end
+arch floor_grit2
+x 14
+end
+arch fwall_rock1
+x 14
+end
+arch floor_grit2
+x 14
+y 1
+end
+arch straw1.101
+x 14
+y 1
+end
+arch floor_grit2
+x 14
+y 2
+end
+arch floor_grit2
+x 14
+y 3
+end
+arch floor_grit2
+x 14
+y 4
+end
+arch floor_grit2
+x 14
+y 5
+end
+arch floor_grit2
+x 14
+y 6
+end
+arch tree_big3
+x 14
+y 6
+end
+arch floor_grit2
+x 14
+y 7
+end
+arch tree_big4b
+x 14
+y 7
+end
+arch floor_grit2
+x 14
+y 8
+end
+arch floor_grit2
+player_only 1
+x 14
+y 9
+end
+arch floor_grit2
+x 14
+y 10
+end
+arch floor_grit2
+x 14
+y 11
+end
+arch floor_grit2
+x 14
+y 12
+end
+arch fwall_rock1
+x 14
+y 12
+end
+arch floor_sand_d1
+player_only 1
+x 14
+y 13
+end
+arch floor_grit2
+player_only 1
+x 14
+y 14
+end
+arch floor_grit2
+x 14
+y 15
+end
+arch fwall_rock1
+x 14
+y 15
+end
+arch floor_grit2
+x 15
+end
+arch fwall_rock1
+x 15
+end
+arch floor_grit2
+x 15
+y 1
+end
+arch fwall_rock1
+x 15
+y 1
+end
+arch floor_grit2
+x 15
+y 2
+end
+arch fwall_rock1
+x 15
+y 2
+end
+arch floor_grit2
+x 15
+y 3
+end
+arch fwall_rock1
+x 15
+y 3
+end
+arch floor_grit2
+x 15
+y 4
+end
+arch fwall_rock1
+x 15
+y 4
+end
+arch floor_grit2
+x 15
+y 5
+end
+arch fwall_rock1
+x 15
+y 5
+end
+arch floor_grit2
+x 15
+y 6
+end
+arch fwall_rock1
+x 15
+y 6
+end
+arch floor_grit2
+x 15
+y 7
+end
+arch fwall_rock1
+x 15
+y 7
+end
+arch floor_grit2
+x 15
+y 8
+end
+arch fwall_rock1
+x 15
+y 8
+end
+arch floor_grit2
+x 15
+y 9
+end
+arch fwall_rock1
+x 15
+y 9
+end
+arch floor_grit2
+x 15
+y 10
+end
+arch fwall_rock1
+x 15
+y 10
+end
+arch floor_grit2
+x 15
+y 11
+end
+arch fwall_rock1
+x 15
+y 11
+end
+arch floor_grit2
+x 15
+y 12
+end
+arch fwall_rock1
+x 15
+y 12
+end
+arch floor_dark1a
+player_only 1
+x 15
+y 13
+end
+arch invis_exit
+slaying slime_lords
+hp 1
+sp 1
+x 15
+y 13
+end
+arch floor_dark1a
+player_only 1
+x 15
+y 14
+end
+arch invis_exit
+slaying slime_lords
+hp 1
+sp 1
+x 15
+y 14
+end
+arch floor_grit2
+x 15
+y 15
+end
+arch fwall_rock1
+x 15
+y 15
+end

@@ -1,0 +1,3757 @@
+arch map
+name Testmap - Items One
+msg
+Creator: Daimonin Map Editor
+Date:    6/4/2003
+endmsg
+width 24
+height 24
+difficulty 1
+end
+arch floor_ostone1
+end
+arch wall_stone1_8
+end
+arch floor_ostone1
+y 1
+end
+arch wall_stone1_3
+y 1
+end
+arch floor_ostone1
+y 2
+end
+arch wall_stone1_3
+y 2
+end
+arch floor_ostone1
+y 3
+end
+arch wall_stone1_3
+y 3
+end
+arch floor_ostone1
+y 4
+end
+arch wall_stone1_3
+y 4
+end
+arch floor_ostone1
+y 5
+end
+arch wall_stone1_3
+y 5
+end
+arch floor_ostone1
+y 6
+end
+arch wall_stone1_3
+y 6
+end
+arch floor_ostone1
+y 7
+end
+arch wall_stone1_3
+y 7
+end
+arch floor_ostone1
+y 8
+end
+arch wall_stone1_3
+y 8
+end
+arch floor_ostone1
+y 9
+end
+arch wall_stone1_3
+y 9
+end
+arch floor_ostone1
+y 10
+end
+arch wall_stone1_3
+y 10
+end
+arch floor_ostone1
+y 11
+end
+arch wall_stone1_3
+y 11
+end
+arch floor_ostone1
+y 12
+end
+arch wall_stone1_3
+y 12
+end
+arch floor_ostone1
+y 13
+end
+arch wall_stone1_3
+y 13
+end
+arch floor_ostone1
+y 14
+end
+arch wall_stone1_3
+y 14
+end
+arch floor_ostone1
+y 15
+end
+arch wall_stone1_3
+y 15
+end
+arch floor_ostone1
+y 16
+end
+arch wall_stone1_3
+y 16
+end
+arch floor_ostone1
+y 17
+end
+arch wall_stone1_3
+y 17
+end
+arch floor_ostone1
+y 18
+end
+arch wall_stone1_3
+y 18
+end
+arch floor_ostone1
+y 19
+end
+arch wall_stone1_3
+y 19
+end
+arch floor_ostone1
+y 20
+end
+arch wall_stone1_3
+y 20
+end
+arch floor_ostone1
+y 21
+end
+arch wall_stone1_3
+y 21
+end
+arch floor_ostone1
+y 22
+end
+arch wall_stone1_3
+y 22
+end
+arch floor_ostone1
+y 23
+end
+arch wall_stone1_3
+y 23
+end
+arch floor_ostone1
+x 1
+end
+arch wall_stone1_1
+x 1
+end
+arch floor_ostone1
+x 1
+y 1
+end
+arch stairw_up_1
+slaying testmap_main
+hp 11
+sp 4
+x 1
+y 1
+end
+arch floor_ostone1
+x 1
+y 2
+end
+arch floor_ostone1
+x 1
+y 3
+end
+arch chest_sw_1
+direction 5
+x 1
+y 3
+end
+arch floor_ostone1
+x 1
+y 4
+end
+arch chest_sw_1
+x 1
+y 4
+end
+arch floor_ostone1
+x 1
+y 5
+end
+arch chest_sm_1
+direction 5
+x 1
+y 5
+end
+arch floor_ostone1
+x 1
+y 6
+end
+arch chest_sm_1
+x 1
+y 6
+end
+arch floor_ostone1
+x 1
+y 7
+end
+arch chest_4.111
+direction 5
+x 1
+y 7
+end
+arch floor_ostone1
+x 1
+y 8
+end
+arch chest_4.111
+x 1
+y 8
+end
+arch floor_ostone1
+x 1
+y 9
+end
+arch chest_w1
+direction 5
+x 1
+y 9
+end
+arch floor_ostone1
+x 1
+y 10
+end
+arch chest_w1
+x 1
+y 10
+end
+arch floor_ostone1
+x 1
+y 11
+end
+arch chest_m
+direction 5
+x 1
+y 11
+end
+arch floor_ostone1
+x 1
+y 12
+end
+arch chest_m
+x 1
+y 12
+end
+arch floor_ostone1
+x 1
+y 13
+end
+arch chest
+direction 5
+x 1
+y 13
+end
+arch floor_ostone1
+x 1
+y 14
+end
+arch chest
+x 1
+y 14
+end
+arch floor_ostone1
+x 1
+y 15
+end
+arch chest7_111
+direction 5
+x 1
+y 15
+end
+arch floor_ostone1
+x 1
+y 16
+end
+arch chest7_111
+x 1
+y 16
+end
+arch floor_ostone1
+x 1
+y 17
+end
+arch sstone
+x 1
+y 17
+end
+arch floor_ostone1
+x 1
+y 18
+end
+arch bolt
+x 1
+y 18
+end
+arch floor_ostone1
+x 1
+y 19
+end
+arch arrow
+x 1
+y 19
+end
+arch floor_ostone1
+x 1
+y 20
+end
+arch floor_ostone1
+x 1
+y 21
+end
+arch floor_ostone1
+x 1
+y 22
+end
+arch mailbox
+x 1
+y 22
+end
+arch floor_ostone1
+x 1
+y 23
+end
+arch wall_stone1_1
+x 1
+y 23
+end
+arch floor_ostone1
+x 2
+end
+arch wall_stone1_1
+x 2
+end
+arch floor_ostone1
+x 2
+y 1
+end
+arch floor_ostone1
+x 2
+y 2
+end
+arch floor_ostone1
+x 2
+y 3
+end
+arch floor_ostone1
+x 2
+y 4
+end
+arch floor_ostone1
+x 2
+y 5
+end
+arch floor_ostone1
+x 2
+y 6
+end
+arch floor_ostone1
+x 2
+y 7
+end
+arch floor_ostone1
+x 2
+y 8
+end
+arch floor_ostone1
+x 2
+y 9
+end
+arch floor_ostone1
+x 2
+y 10
+end
+arch floor_ostone1
+x 2
+y 11
+end
+arch floor_ostone1
+x 2
+y 12
+end
+arch floor_ostone1
+x 2
+y 13
+end
+arch floor_ostone1
+x 2
+y 14
+end
+arch floor_ostone1
+x 2
+y 15
+end
+arch floor_ostone1
+x 2
+y 16
+end
+arch floor_ostone1
+x 2
+y 17
+end
+arch floor_ostone1
+x 2
+y 18
+end
+arch floor_ostone1
+x 2
+y 19
+end
+arch floor_ostone1
+x 2
+y 20
+end
+arch floor_ostone1
+x 2
+y 21
+end
+arch floor_ostone1
+x 2
+y 22
+end
+arch cauldron
+identified 1
+x 2
+y 22
+end
+arch floor_ostone1
+x 2
+y 23
+end
+arch wall_stone1_1
+x 2
+y 23
+end
+arch floor_ostone1
+x 3
+end
+arch wall_stone1_1
+x 3
+end
+arch wall_stone1_1
+x 3
+end
+arch floor_ostone1
+x 3
+y 1
+end
+arch sandals
+identified 1
+x 3
+y 1
+end
+arch floor_ostone1
+x 3
+y 2
+end
+arch bracers_ac
+identified 1
+x 3
+y 2
+end
+arch floor_ostone1
+x 3
+y 3
+end
+arch cloak
+identified 1
+x 3
+y 3
+end
+arch floor_ostone1
+x 3
+y 4
+end
+arch gloves
+identified 1
+x 3
+y 4
+end
+arch floor_ostone1
+x 3
+y 5
+end
+arch girdle
+identified 1
+x 3
+y 5
+end
+arch floor_ostone1
+x 3
+y 6
+end
+arch crown_generic
+x 3
+y 6
+end
+arch floor_ostone1
+x 3
+y 7
+end
+arch buckler
+identified 1
+x 3
+y 7
+end
+arch floor_ostone1
+x 3
+y 8
+end
+arch coat
+identified 1
+x 3
+y 8
+end
+arch floor_ostone1
+x 3
+y 9
+end
+arch scale_armour
+identified 1
+x 3
+y 9
+end
+arch floor_ostone1
+x 3
+y 10
+end
+arch floor_ostone1
+x 3
+y 11
+end
+arch axe_great
+identified 1
+x 3
+y 11
+end
+arch floor_ostone1
+x 3
+y 12
+end
+arch axe_2h
+identified 1
+x 3
+y 12
+end
+arch floor_ostone1
+x 3
+y 13
+end
+arch club
+identified 1
+x 3
+y 13
+end
+arch floor_ostone1
+x 3
+y 14
+end
+arch club_giant
+identified 1
+x 3
+y 14
+end
+arch floor_ostone1
+x 3
+y 15
+end
+arch dagger_small
+identified 1
+x 3
+y 15
+end
+arch floor_ostone1
+x 3
+y 16
+end
+arch trident
+identified 1
+x 3
+y 16
+end
+arch floor_ostone1
+x 3
+y 17
+end
+arch sword
+identified 1
+x 3
+y 17
+end
+arch floor_ostone1
+x 3
+y 18
+end
+arch sword2h
+identified 1
+x 3
+y 18
+end
+arch floor_ostone1
+x 3
+y 19
+end
+arch floor_ostone1
+x 3
+y 20
+end
+arch bow
+x 3
+y 20
+end
+arch floor_ostone1
+x 3
+y 21
+end
+arch t_axe
+x 3
+y 21
+end
+arch floor_ostone1
+x 3
+y 22
+end
+arch floor_ostone1
+x 3
+y 23
+end
+arch wall_stone1_1
+x 3
+y 23
+end
+arch floor_ostone1
+x 4
+end
+arch wall_stone1_1
+x 4
+end
+arch floor_ostone1
+x 4
+y 1
+end
+arch low_boots
+identified 1
+material_real 194
+x 4
+y 1
+end
+arch floor_ostone1
+x 4
+y 2
+end
+arch floor_ostone1
+x 4
+y 3
+end
+arch cape
+identified 1
+x 4
+y 3
+end
+arch floor_ostone1
+x 4
+y 4
+end
+arch gauntlets
+identified 1
+x 4
+y 4
+end
+arch floor_ostone1
+x 4
+y 5
+end
+arch belt
+identified 1
+x 4
+y 5
+end
+arch floor_ostone1
+x 4
+y 6
+end
+arch helm_leather
+x 4
+y 6
+end
+arch floor_ostone1
+x 4
+y 7
+end
+arch small_shield
+identified 1
+x 4
+y 7
+end
+arch floor_ostone1
+x 4
+y 8
+end
+arch dress
+identified 1
+x 4
+y 8
+end
+arch floor_ostone1
+x 4
+y 9
+end
+arch chitin_mail
+identified 1
+x 4
+y 9
+end
+arch floor_ostone1
+x 4
+y 10
+end
+arch floor_ostone1
+x 4
+y 11
+end
+arch axe
+identified 1
+x 4
+y 11
+end
+arch floor_ostone1
+x 4
+y 12
+end
+arch axe_2h_battle
+identified 1
+x 4
+y 12
+end
+arch floor_ostone1
+x 4
+y 13
+end
+arch mstar_small
+identified 1
+x 4
+y 13
+end
+arch floor_ostone1
+x 4
+y 14
+end
+arch club_giant_spiked
+identified 1
+x 4
+y 14
+end
+arch floor_ostone1
+x 4
+y 15
+end
+arch dagger
+identified 1
+x 4
+y 15
+end
+arch floor_ostone1
+x 4
+y 16
+end
+arch forc
+identified 1
+x 4
+y 16
+end
+arch floor_ostone1
+x 4
+y 17
+end
+arch scythe_military
+identified 1
+x 4
+y 17
+end
+arch floor_ostone1
+x 4
+y 18
+end
+arch claymore
+identified 1
+x 4
+y 18
+end
+arch floor_ostone1
+x 4
+y 19
+end
+arch floor_ostone1
+x 4
+y 20
+end
+arch bow_long
+x 4
+y 20
+end
+arch floor_ostone1
+x 4
+y 21
+end
+arch t_hammer
+x 4
+y 21
+end
+arch floor_ostone1
+x 4
+y 22
+end
+arch floor_ostone1
+x 4
+y 23
+end
+arch wall_stone1_1
+x 4
+y 23
+end
+arch floor_ostone1
+x 5
+end
+arch wall_stone1_1
+x 5
+end
+arch floor_ostone1
+x 5
+y 1
+end
+arch high_boots
+identified 1
+x 5
+y 1
+end
+arch floor_ostone1
+x 5
+y 2
+end
+arch floor_ostone1
+x 5
+y 3
+end
+arch robe
+identified 1
+x 5
+y 3
+end
+arch floor_ostone1
+x 5
+y 4
+end
+arch gauntlets_plate
+identified 1
+x 5
+y 4
+end
+arch floor_ostone1
+x 5
+y 5
+end
+arch floor_ostone1
+x 5
+y 6
+end
+arch hat_feather
+x 5
+y 6
+end
+arch floor_ostone1
+x 5
+y 7
+end
+arch shield
+identified 1
+x 5
+y 7
+end
+arch floor_ostone1
+x 5
+y 8
+end
+arch padded_armour
+identified 1
+x 5
+y 8
+end
+arch floor_ostone1
+x 5
+y 9
+end
+arch bplate_mail
+identified 1
+x 5
+y 9
+end
+arch floor_ostone1
+x 5
+y 10
+end
+arch floor_ostone1
+x 5
+y 11
+end
+arch axe_hand
+identified 1
+x 5
+y 11
+end
+arch floor_ostone1
+x 5
+y 12
+end
+arch mattock
+identified 1
+x 5
+y 12
+end
+arch floor_ostone1
+x 5
+y 13
+end
+arch hammer_military
+identified 1
+x 5
+y 13
+end
+arch floor_ostone1
+x 5
+y 14
+end
+arch bo
+identified 1
+x 5
+y 14
+end
+arch floor_ostone1
+x 5
+y 15
+end
+arch dagger_large
+identified 1
+x 5
+y 15
+end
+arch floor_ostone1
+x 5
+y 16
+end
+arch forc_military
+identified 1
+x 5
+y 16
+end
+arch floor_ostone1
+x 5
+y 17
+end
+arch bastardsword
+identified 1
+x 5
+y 17
+end
+arch floor_ostone1
+x 5
+y 18
+end
+arch no_dachi
+identified 1
+x 5
+y 18
+end
+arch floor_ostone1
+x 5
+y 19
+end
+arch floor_ostone1
+x 5
+y 20
+end
+arch bow_short
+x 5
+y 20
+end
+arch floor_ostone1
+x 5
+y 21
+end
+arch t_dagger
+x 5
+y 21
+end
+arch floor_ostone1
+x 5
+y 22
+end
+arch floor_ostone1
+x 5
+y 23
+end
+arch wall_stone1_1
+x 5
+y 23
+end
+arch floor_ostone1
+x 6
+end
+arch wall_stone1_1
+x 6
+end
+arch floor_ostone1
+x 6
+y 1
+end
+arch fighting_boots
+identified 1
+x 6
+y 1
+end
+arch floor_ostone1
+x 6
+y 2
+end
+arch floor_ostone1
+x 6
+y 3
+end
+arch floor_ostone1
+x 6
+y 4
+end
+arch gauntlets_leather
+identified 1
+x 6
+y 4
+end
+arch floor_ostone1
+x 6
+y 5
+end
+arch floor_ostone1
+x 6
+y 6
+end
+arch crown_generic
+identified 1
+x 6
+y 6
+end
+arch floor_ostone1
+x 6
+y 7
+end
+arch blade_stopper
+identified 1
+x 6
+y 7
+end
+arch floor_ostone1
+x 6
+y 8
+end
+arch leather_armour
+identified 1
+x 6
+y 8
+end
+arch floor_ostone1
+x 6
+y 9
+end
+arch crystal_mail
+identified 1
+x 6
+y 9
+end
+arch floor_ostone1
+x 6
+y 10
+end
+arch floor_ostone1
+x 6
+y 11
+end
+arch cleaver_war
+identified 1
+x 6
+y 11
+end
+arch floor_ostone1
+x 6
+y 12
+end
+arch axe_2h_great
+identified 1
+x 6
+y 12
+end
+arch floor_ostone1
+x 6
+y 13
+end
+arch ancus
+identified 1
+x 6
+y 13
+end
+arch floor_ostone1
+x 6
+y 14
+end
+arch quaterstaff
+identified 1
+x 6
+y 14
+end
+arch floor_ostone1
+x 6
+y 15
+end
+arch athame
+identified 1
+x 6
+y 15
+end
+arch floor_ostone1
+x 6
+y 16
+end
+arch spear
+identified 1
+x 6
+y 16
+end
+arch floor_ostone1
+x 6
+y 17
+end
+arch falchion
+identified 1
+x 6
+y 17
+end
+arch floor_ostone1
+x 6
+y 18
+end
+arch panzerstecher
+identified 1
+x 6
+y 18
+end
+arch floor_ostone1
+x 6
+y 19
+end
+arch floor_ostone1
+x 6
+y 20
+end
+arch crossbow
+x 6
+y 20
+end
+arch floor_ostone1
+x 6
+y 21
+end
+arch t_star
+x 6
+y 21
+end
+arch floor_ostone1
+x 6
+y 22
+end
+arch bag
+identified 1
+x 6
+y 22
+end
+arch floor_ostone1
+x 6
+y 23
+end
+arch wall_stone1_1
+x 6
+y 23
+end
+arch floor_ostone1
+x 7
+end
+arch wall_stone1_1
+x 7
+end
+arch floor_ostone1
+x 7
+y 1
+end
+arch combat_boots
+identified 1
+x 7
+y 1
+end
+arch floor_ostone1
+x 7
+y 2
+end
+arch floor_ostone1
+x 7
+y 3
+end
+arch floor_ostone1
+x 7
+y 4
+end
+arch floor_ostone1
+x 7
+y 5
+end
+arch floor_ostone1
+x 7
+y 6
+end
+arch hat_blue
+x 7
+y 6
+end
+arch floor_ostone1
+x 7
+y 7
+end
+arch shield_eye
+identified 1
+x 7
+y 7
+end
+arch floor_ostone1
+x 7
+y 8
+end
+arch leather_spiked
+identified 1
+x 7
+y 8
+end
+arch floor_ostone1
+x 7
+y 9
+end
+arch mithril_ring
+identified 1
+x 7
+y 9
+end
+arch floor_ostone1
+x 7
+y 10
+end
+arch floor_ostone1
+x 7
+y 11
+end
+arch cleaver_battle
+identified 1
+x 7
+y 11
+end
+arch floor_ostone1
+x 7
+y 12
+end
+arch axe_2h_war
+identified 1
+x 7
+y 12
+end
+arch floor_ostone1
+x 7
+y 13
+end
+arch club_big
+identified 1
+x 7
+y 13
+end
+arch floor_ostone1
+x 7
+y 14
+end
+arch mstar_2h
+identified 1
+x 7
+y 14
+end
+arch floor_ostone1
+x 7
+y 15
+end
+arch tanto
+identified 1
+x 7
+y 15
+end
+arch floor_ostone1
+x 7
+y 16
+end
+arch pike
+identified 1
+x 7
+y 16
+end
+arch floor_ostone1
+x 7
+y 17
+end
+arch katana
+identified 1
+x 7
+y 17
+end
+arch floor_ostone1
+x 7
+y 18
+end
+arch sword_great
+identified 1
+x 7
+y 18
+end
+arch floor_ostone1
+x 7
+y 19
+end
+arch floor_ostone1
+x 7
+y 20
+end
+arch crossbow_large
+x 7
+y 20
+end
+arch floor_ostone1
+x 7
+y 21
+end
+arch t_boulder
+x 7
+y 21
+end
+arch floor_ostone1
+x 7
+y 22
+end
+arch floor_ostone1
+x 7
+y 23
+end
+arch wall_stone1_1
+x 7
+y 23
+end
+arch floor_ostone1
+x 8
+end
+arch wall_stone1_1
+x 8
+end
+arch floor_ostone1
+x 8
+y 1
+end
+arch fencing_boots
+identified 1
+x 8
+y 1
+end
+arch floor_ostone1
+x 8
+y 2
+end
+arch floor_ostone1
+x 8
+y 3
+end
+arch floor_ostone1
+x 8
+y 4
+end
+arch floor_ostone1
+x 8
+y 5
+end
+arch floor_ostone1
+x 8
+y 6
+end
+arch coif_chain
+x 8
+y 6
+end
+arch floor_ostone1
+x 8
+y 7
+end
+arch shield_battle
+identified 1
+x 8
+y 7
+end
+arch floor_ostone1
+x 8
+y 8
+end
+arch leather_studded
+identified 1
+x 8
+y 8
+end
+arch floor_ostone1
+x 8
+y 9
+end
+arch mithril_armour
+identified 1
+x 8
+y 9
+end
+arch floor_ostone1
+x 8
+y 10
+end
+arch floor_ostone1
+x 8
+y 11
+end
+arch axe_battle
+identified 1
+x 8
+y 11
+end
+arch floor_ostone1
+x 8
+y 12
+end
+arch halberd
+identified 1
+x 8
+y 12
+end
+arch floor_ostone1
+x 8
+y 13
+end
+arch club_rough
+identified 1
+x 8
+y 13
+end
+arch floor_ostone1
+x 8
+y 14
+end
+arch hammer_war_giant
+identified 1
+x 8
+y 14
+end
+arch floor_ostone1
+x 8
+y 15
+end
+arch cutlass
+identified 1
+x 8
+y 15
+end
+arch floor_ostone1
+x 8
+y 16
+end
+arch ranseur
+identified 1
+x 8
+y 16
+end
+arch floor_ostone1
+x 8
+y 17
+end
+arch broadsword
+identified 1
+x 8
+y 17
+end
+arch floor_ostone1
+x 8
+y 18
+end
+arch scythe_war
+identified 1
+x 8
+y 18
+end
+arch floor_ostone1
+x 8
+y 19
+end
+arch floor_ostone1
+x 8
+y 20
+end
+arch crossbow_small
+x 8
+y 20
+end
+arch floor_ostone1
+x 8
+y 21
+end
+arch t_lboulder
+x 8
+y 21
+end
+arch floor_ostone1
+x 8
+y 22
+end
+arch floor_ostone1
+x 8
+y 23
+end
+arch wall_stone1_1
+x 8
+y 23
+end
+arch floor_ostone1
+x 9
+end
+arch wall_stone1_1
+x 9
+end
+arch floor_ostone1
+x 9
+y 1
+end
+arch kicking_boots
+identified 1
+x 9
+y 1
+end
+arch floor_ostone1
+x 9
+y 2
+end
+arch floor_ostone1
+x 9
+y 3
+end
+arch floor_ostone1
+x 9
+y 4
+end
+arch floor_ostone1
+x 9
+y 5
+end
+arch floor_ostone1
+x 9
+y 6
+end
+arch coif_scale
+x 9
+y 6
+end
+arch floor_ostone1
+x 9
+y 7
+end
+arch shield_defender
+identified 1
+x 9
+y 7
+end
+arch floor_ostone1
+x 9
+y 8
+end
+arch ring_mail
+identified 1
+x 9
+y 8
+end
+arch floor_ostone1
+x 9
+y 9
+end
+arch mithril_coat
+identified 1
+x 9
+y 9
+end
+arch floor_ostone1
+x 9
+y 10
+end
+arch floor_ostone1
+x 9
+y 11
+end
+arch axe_broad
+identified 1
+x 9
+y 11
+end
+arch floor_ostone1
+x 9
+y 12
+end
+arch bardiche
+identified 1
+x 9
+y 12
+end
+arch floor_ostone1
+x 9
+y 13
+end
+arch club_spiked
+identified 1
+x 9
+y 13
+end
+arch floor_ostone1
+x 9
+y 14
+end
+arch hammer_swar_giant
+identified 1
+x 9
+y 14
+end
+arch floor_ostone1
+x 9
+y 15
+end
+arch rapier
+identified 1
+x 9
+y 15
+end
+arch floor_ostone1
+x 9
+y 16
+end
+arch partisan
+identified 1
+x 9
+y 16
+end
+arch floor_ostone1
+x 9
+y 17
+end
+arch longsword
+identified 1
+x 9
+y 17
+end
+arch floor_ostone1
+x 9
+y 18
+end
+arch sword_double
+identified 1
+x 9
+y 18
+end
+arch floor_ostone1
+x 9
+y 19
+end
+arch floor_ostone1
+x 9
+y 20
+end
+arch sling
+x 9
+y 20
+end
+arch floor_ostone1
+x 9
+y 21
+end
+arch t_rock
+x 9
+y 21
+end
+arch floor_ostone1
+x 9
+y 22
+end
+arch floor_ostone1
+x 9
+y 23
+end
+arch wall_stone1_1
+x 9
+y 23
+end
+arch floor_ostone1
+x 10
+end
+arch wall_stone1_1
+x 10
+end
+arch floor_ostone1
+x 10
+y 1
+end
+arch leggings_chain
+identified 1
+x 10
+y 1
+end
+arch floor_ostone1
+x 10
+y 2
+end
+arch floor_ostone1
+x 10
+y 3
+end
+arch floor_ostone1
+x 10
+y 4
+end
+arch floor_ostone1
+x 10
+y 5
+end
+arch floor_ostone1
+x 10
+y 6
+end
+arch full_helmet
+x 10
+y 6
+end
+arch floor_ostone1
+x 10
+y 7
+end
+arch shield_demon
+identified 1
+x 10
+y 7
+end
+arch floor_ostone1
+x 10
+y 8
+end
+arch leather_cuirass
+identified 1
+x 10
+y 8
+end
+arch floor_ostone1
+x 10
+y 9
+end
+arch bone_armour
+identified 1
+x 10
+y 9
+end
+arch floor_ostone1
+x 10
+y 10
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch axe_double
+identified 1
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 12
+end
+arch spetum
+identified 1
+x 10
+y 12
+end
+arch floor_ostone1
+x 10
+y 13
+end
+arch flail_war
+identified 1
+x 10
+y 13
+end
+arch floor_ostone1
+x 10
+y 14
+end
+arch hammer_giant
+identified 1
+x 10
+y 14
+end
+arch floor_ostone1
+x 10
+y 15
+end
+arch degen
+identified 1
+x 10
+y 15
+end
+arch floor_ostone1
+x 10
+y 16
+end
+arch guisarme
+identified 1
+x 10
+y 16
+end
+arch floor_ostone1
+x 10
+y 17
+end
+arch ninjato
+identified 1
+x 10
+y 17
+end
+arch floor_ostone1
+x 10
+y 18
+end
+arch naginata
+identified 1
+x 10
+y 18
+end
+arch floor_ostone1
+x 10
+y 19
+end
+arch floor_ostone1
+x 10
+y 20
+end
+arch sling_heavy
+x 10
+y 20
+end
+arch floor_ostone1
+x 10
+y 21
+end
+arch floor_ostone1
+x 10
+y 22
+end
+arch depositbox
+identified 1
+x 10
+y 22
+end
+arch floor_ostone1
+x 10
+y 23
+end
+arch wall_stone1_1
+x 10
+y 23
+end
+arch floor_ostone1
+x 11
+end
+arch wall_stone1_1
+x 11
+end
+arch floor_ostone1
+x 11
+y 1
+end
+arch leggings_leather
+identified 1
+x 11
+y 1
+end
+arch floor_ostone1
+x 11
+y 2
+end
+arch floor_ostone1
+x 11
+y 3
+end
+arch floor_ostone1
+x 11
+y 4
+end
+arch floor_ostone1
+x 11
+y 5
+end
+arch floor_ostone1
+x 11
+y 6
+end
+arch helm_iron
+x 11
+y 6
+end
+arch floor_ostone1
+x 11
+y 7
+end
+arch shield_heater
+identified 1
+x 11
+y 7
+end
+arch floor_ostone1
+x 11
+y 8
+end
+arch lamellar_mail
+identified 1
+x 11
+y 8
+end
+arch floor_ostone1
+x 11
+y 9
+end
+arch floor_ostone1
+x 11
+y 10
+end
+arch floor_ostone1
+x 11
+y 11
+end
+arch axe_small
+identified 1
+x 11
+y 11
+end
+arch floor_ostone1
+x 11
+y 12
+end
+arch voulge
+identified 1
+x 11
+y 12
+end
+arch floor_ostone1
+x 11
+y 13
+end
+arch mace
+identified 1
+x 11
+y 13
+end
+arch floor_ostone1
+x 11
+y 14
+end
+arch lucern_hammer
+identified 1
+x 11
+y 14
+end
+arch floor_ostone1
+x 11
+y 15
+end
+arch pallasch
+identified 1
+x 11
+y 15
+end
+arch floor_ostone1
+x 11
+y 16
+end
+arch bill_guisarme
+identified 1
+x 11
+y 16
+end
+arch floor_ostone1
+x 11
+y 17
+end
+arch scimitar
+identified 1
+x 11
+y 17
+end
+arch floor_ostone1
+x 11
+y 18
+end
+arch fauchard
+identified 1
+x 11
+y 18
+end
+arch floor_ostone1
+x 11
+y 19
+end
+arch floor_ostone1
+x 11
+y 20
+end
+arch sling_small
+x 11
+y 20
+end
+arch floor_ostone1
+x 11
+y 21
+end
+arch floor_ostone1
+x 11
+y 22
+end
+arch key_ring
+identified 1
+x 11
+y 22
+end
+arch floor_ostone1
+x 11
+y 23
+end
+arch wall_stone1_1
+x 11
+y 23
+end
+arch floor_ostone1
+x 12
+end
+arch wall_stone1_1
+x 12
+end
+arch floor_ostone1
+x 12
+y 1
+end
+arch leggings_plate
+identified 1
+x 12
+y 1
+end
+arch floor_ostone1
+x 12
+y 2
+end
+arch floor_ostone1
+x 12
+y 3
+end
+arch floor_ostone1
+x 12
+y 4
+end
+arch floor_ostone1
+x 12
+y 5
+end
+arch floor_ostone1
+x 12
+y 6
+end
+arch helm_horn
+x 12
+y 6
+end
+arch floor_ostone1
+x 12
+y 7
+end
+arch shield_kite
+identified 1
+x 12
+y 7
+end
+arch floor_ostone1
+x 12
+y 8
+end
+arch chain_mail
+identified 1
+x 12
+y 8
+end
+arch floor_ostone1
+x 12
+y 9
+end
+arch floor_ostone1
+x 12
+y 10
+end
+arch floor_ostone1
+x 12
+y 11
+end
+arch axe_war
+identified 1
+x 12
+y 11
+end
+arch floor_ostone1
+x 12
+y 12
+end
+arch floor_ostone1
+x 12
+y 13
+end
+arch hammer_war
+identified 1
+x 12
+y 13
+end
+arch floor_ostone1
+x 12
+y 14
+end
+arch bec_de_corbin
+identified 1
+x 12
+y 14
+end
+arch floor_ostone1
+x 12
+y 15
+end
+arch saber
+identified 1
+x 12
+y 15
+end
+arch floor_ostone1
+x 12
+y 16
+end
+arch floor_ostone1
+x 12
+y 17
+end
+arch tsurugi
+identified 1
+x 12
+y 17
+end
+arch floor_ostone1
+x 12
+y 18
+end
+arch glaive
+identified 1
+x 12
+y 18
+end
+arch floor_ostone1
+x 12
+y 19
+end
+arch floor_ostone1
+x 12
+y 20
+end
+arch floor_ostone1
+x 12
+y 21
+end
+arch floor_ostone1
+x 12
+y 22
+end
+arch luggage
+identified 1
+x 12
+y 22
+end
+arch floor_ostone1
+x 12
+y 23
+end
+arch wall_stone1_1
+x 12
+y 23
+end
+arch floor_ostone1
+x 13
+end
+arch wall_stone1_1
+x 13
+end
+arch floor_ostone1
+x 13
+y 1
+end
+arch floor_ostone1
+x 13
+y 2
+end
+arch floor_ostone1
+x 13
+y 3
+end
+arch floor_ostone1
+x 13
+y 4
+end
+arch floor_ostone1
+x 13
+y 5
+end
+arch floor_ostone1
+x 13
+y 6
+end
+arch helm_field
+x 13
+y 6
+end
+arch floor_ostone1
+x 13
+y 7
+end
+arch shield_high
+identified 1
+x 13
+y 7
+end
+arch floor_ostone1
+x 13
+y 8
+end
+arch brigandine
+identified 1
+x 13
+y 8
+end
+arch floor_ostone1
+x 13
+y 9
+end
+arch floor_ostone1
+x 13
+y 10
+end
+arch floor_ostone1
+x 13
+y 11
+end
+arch pick_axe
+identified 1
+x 13
+y 11
+end
+arch floor_ostone1
+x 13
+y 12
+end
+arch floor_ostone1
+x 13
+y 13
+end
+arch hammer_battle
+identified 1
+x 13
+y 13
+end
+arch floor_ostone1
+x 13
+y 14
+end
+arch floor_ostone1
+x 13
+y 15
+end
+arch flamberge
+identified 1
+x 13
+y 15
+end
+arch floor_ostone1
+x 13
+y 16
+end
+arch floor_ostone1
+x 13
+y 17
+end
+arch gladius
+identified 1
+x 13
+y 17
+end
+arch floor_ostone1
+x 13
+y 18
+end
+arch floor_ostone1
+x 13
+y 19
+end
+arch floor_ostone1
+x 13
+y 20
+end
+arch floor_ostone1
+x 13
+y 21
+end
+arch floor_ostone1
+x 13
+y 22
+end
+arch pouch
+identified 1
+x 13
+y 22
+end
+arch floor_ostone1
+x 13
+y 23
+end
+arch wall_stone1_1
+x 13
+y 23
+end
+arch floor_ostone1
+x 14
+end
+arch wall_stone1_1
+x 14
+end
+arch floor_ostone1
+x 14
+y 1
+end
+arch floor_ostone1
+x 14
+y 2
+end
+arch floor_ostone1
+x 14
+y 3
+end
+arch floor_ostone1
+x 14
+y 4
+end
+arch floor_ostone1
+x 14
+y 5
+end
+arch floor_ostone1
+x 14
+y 6
+end
+arch helm_plate
+x 14
+y 6
+end
+arch floor_ostone1
+x 14
+y 7
+end
+arch shield_protector
+identified 1
+x 14
+y 7
+end
+arch floor_ostone1
+x 14
+y 8
+end
+arch banded_mail
+identified 1
+x 14
+y 8
+end
+arch floor_ostone1
+x 14
+y 9
+end
+arch floor_ostone1
+x 14
+y 10
+end
+arch floor_ostone1
+x 14
+y 11
+end
+arch whip
+identified 1
+x 14
+y 11
+end
+arch floor_ostone1
+x 14
+y 12
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch mace_war
+identified 1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 14
+end
+arch floor_ostone1
+x 14
+y 15
+end
+arch shiavona
+identified 1
+x 14
+y 15
+end
+arch floor_ostone1
+x 14
+y 16
+end
+arch floor_ostone1
+x 14
+y 17
+end
+arch shortsword
+identified 1
+x 14
+y 17
+end
+arch floor_ostone1
+x 14
+y 18
+end
+arch floor_ostone1
+x 14
+y 19
+end
+arch floor_ostone1
+x 14
+y 20
+end
+arch floor_ostone1
+x 14
+y 21
+end
+arch floor_ostone1
+x 14
+y 22
+end
+arch quiver
+identified 1
+x 14
+y 22
+end
+arch floor_ostone1
+x 14
+y 23
+end
+arch wall_stone1_1
+x 14
+y 23
+end
+arch floor_ostone1
+x 15
+end
+arch wall_stone1_1
+x 15
+end
+arch floor_ostone1
+x 15
+y 1
+end
+arch floor_ostone1
+x 15
+y 2
+end
+arch floor_ostone1
+x 15
+y 3
+end
+arch floor_ostone1
+x 15
+y 4
+end
+arch floor_ostone1
+x 15
+y 5
+end
+arch floor_ostone1
+x 15
+y 6
+end
+arch helm_war
+x 15
+y 6
+end
+arch floor_ostone1
+x 15
+y 7
+end
+arch shield_round
+identified 1
+x 15
+y 7
+end
+arch floor_ostone1
+x 15
+y 8
+end
+arch scale_mail
+identified 1
+x 15
+y 8
+end
+arch floor_ostone1
+x 15
+y 9
+end
+arch floor_ostone1
+x 15
+y 10
+end
+arch floor_ostone1
+x 15
+y 11
+end
+arch whip_war
+identified 1
+x 15
+y 11
+end
+arch floor_ostone1
+x 15
+y 12
+end
+arch floor_ostone1
+x 15
+y 13
+end
+arch mace_battle
+identified 1
+x 15
+y 13
+end
+arch floor_ostone1
+x 15
+y 14
+end
+arch floor_ostone1
+x 15
+y 15
+end
+arch floor_ostone1
+x 15
+y 16
+end
+arch floor_ostone1
+x 15
+y 17
+end
+arch sword_curved
+identified 1
+x 15
+y 17
+end
+arch floor_ostone1
+x 15
+y 18
+end
+arch floor_ostone1
+x 15
+y 19
+end
+arch floor_ostone1
+x 15
+y 20
+end
+arch floor_ostone1
+x 15
+y 21
+end
+arch floor_ostone1
+x 15
+y 22
+end
+arch quiver_b
+identified 1
+x 15
+y 22
+end
+arch floor_ostone1
+x 15
+y 23
+end
+arch wall_stone1_1
+x 15
+y 23
+end
+arch floor_ostone1
+x 16
+end
+arch wall_stone1_1
+x 16
+end
+arch floor_ostone1
+x 16
+y 1
+end
+arch floor_ostone1
+x 16
+y 2
+end
+arch floor_ostone1
+x 16
+y 3
+end
+arch floor_ostone1
+x 16
+y 4
+end
+arch floor_ostone1
+x 16
+y 5
+end
+arch floor_ostone1
+x 16
+y 6
+end
+arch helm_guard
+x 16
+y 6
+end
+arch floor_ostone1
+x 16
+y 7
+end
+arch shield_scale
+identified 1
+x 16
+y 7
+end
+arch floor_ostone1
+x 16
+y 8
+end
+arch splint_mail
+identified 1
+x 16
+y 8
+end
+arch floor_ostone1
+x 16
+y 9
+end
+arch floor_ostone1
+x 16
+y 10
+end
+arch floor_ostone1
+x 16
+y 11
+end
+arch floor_ostone1
+x 16
+y 12
+end
+arch floor_ostone1
+x 16
+y 13
+end
+arch mace_spiked
+identified 1
+x 16
+y 13
+end
+arch floor_ostone1
+x 16
+y 14
+end
+arch floor_ostone1
+x 16
+y 15
+end
+arch floor_ostone1
+x 16
+y 16
+end
+arch tulwar
+identified 1
+x 16
+y 16
+end
+arch floor_ostone1
+x 16
+y 17
+end
+arch wakizashi
+identified 1
+x 16
+y 17
+end
+arch floor_ostone1
+x 16
+y 18
+end
+arch floor_ostone1
+x 16
+y 19
+end
+arch floor_ostone1
+x 16
+y 20
+end
+arch floor_ostone1
+x 16
+y 21
+end
+arch floor_ostone1
+x 16
+y 22
+end
+arch quiver_s
+identified 1
+x 16
+y 22
+end
+arch floor_ostone1
+x 16
+y 23
+end
+arch wall_stone1_1
+x 16
+y 23
+end
+arch floor_ostone1
+x 17
+end
+arch wall_stone1_1
+x 17
+end
+arch floor_ostone1
+x 17
+y 1
+end
+arch floor_ostone1
+x 17
+y 2
+end
+arch floor_ostone1
+x 17
+y 3
+end
+arch floor_ostone1
+x 17
+y 4
+end
+arch floor_ostone1
+x 17
+y 5
+end
+arch floor_ostone1
+x 17
+y 6
+end
+arch floor_ostone1
+x 17
+y 7
+end
+arch shield_war
+identified 1
+x 17
+y 7
+end
+arch floor_ostone1
+x 17
+y 8
+end
+arch chain_hauberk
+identified 1
+x 17
+y 8
+end
+arch floor_ostone1
+x 17
+y 9
+end
+arch floor_ostone1
+x 17
+y 10
+end
+arch floor_ostone1
+x 17
+y 11
+end
+arch floor_ostone1
+x 17
+y 12
+end
+arch floor_ostone1
+x 17
+y 13
+end
+arch mstar
+identified 1
+x 17
+y 13
+end
+arch floor_ostone1
+x 17
+y 14
+end
+arch floor_ostone1
+x 17
+y 15
+end
+arch floor_ostone1
+x 17
+y 16
+end
+arch floor_ostone1
+x 17
+y 17
+end
+arch baselard
+identified 1
+x 17
+y 17
+end
+arch floor_ostone1
+x 17
+y 18
+end
+arch floor_ostone1
+x 17
+y 19
+end
+arch floor_ostone1
+x 17
+y 20
+end
+arch floor_ostone1
+x 17
+y 21
+end
+arch floor_ostone1
+x 17
+y 22
+end
+arch r_sack
+identified 1
+x 17
+y 22
+end
+arch floor_ostone1
+x 17
+y 23
+end
+arch wall_stone1_1
+x 17
+y 23
+end
+arch floor_ostone1
+x 18
+end
+arch wall_stone1_1
+x 18
+end
+arch floor_ostone1
+x 18
+y 1
+end
+arch floor_ostone1
+x 18
+y 2
+end
+arch floor_ostone1
+x 18
+y 3
+end
+arch floor_ostone1
+x 18
+y 4
+end
+arch floor_ostone1
+x 18
+y 5
+end
+arch floor_ostone1
+x 18
+y 6
+end
+arch floor_ostone1
+x 18
+y 7
+end
+arch shield_chitin
+identified 1
+x 18
+y 7
+end
+arch floor_ostone1
+x 18
+y 8
+end
+arch plate_mail
+identified 1
+x 18
+y 8
+end
+arch floor_ostone1
+x 18
+y 9
+end
+arch floor_ostone1
+x 18
+y 10
+end
+arch floor_ostone1
+x 18
+y 11
+end
+arch floor_ostone1
+x 18
+y 12
+end
+arch floor_ostone1
+x 18
+y 13
+end
+arch nunchacu
+identified 1
+x 18
+y 13
+end
+arch floor_ostone1
+x 18
+y 14
+end
+arch floor_ostone1
+x 18
+y 15
+end
+arch floor_ostone1
+x 18
+y 16
+end
+arch floor_ostone1
+x 18
+y 17
+end
+arch key_brown
+x 18
+y 17
+end
+arch floor_ostone1
+x 18
+y 18
+end
+arch key_blue
+x 18
+y 18
+end
+arch floor_ostone1
+x 18
+y 19
+end
+arch key2
+x 18
+y 19
+end
+arch floor_ostone1
+x 18
+y 20
+end
+arch gravestone
+x 18
+y 20
+end
+arch floor_ostone1
+x 18
+y 21
+end
+arch ring_generic
+x 18
+y 21
+end
+arch floor_ostone1
+x 18
+y 22
+end
+arch sack
+identified 1
+x 18
+y 22
+end
+arch floor_ostone1
+x 18
+y 23
+end
+arch wall_stone1_1
+x 18
+y 23
+end
+arch floor_ostone1
+x 19
+end
+arch wall_stone1_1
+x 19
+end
+arch floor_ostone1
+x 19
+y 1
+end
+arch floor_ostone1
+x 19
+y 2
+end
+arch floor_ostone1
+x 19
+y 3
+end
+arch floor_ostone1
+x 19
+y 4
+end
+arch floor_ostone1
+x 19
+y 5
+end
+arch floor_ostone1
+x 19
+y 6
+end
+arch floor_ostone1
+x 19
+y 7
+end
+arch shield_bone
+identified 1
+x 19
+y 7
+end
+arch floor_ostone1
+x 19
+y 8
+end
+arch plate_field
+identified 1
+x 19
+y 8
+end
+arch floor_ostone1
+x 19
+y 9
+end
+arch floor_ostone1
+x 19
+y 10
+end
+arch floor_ostone1
+x 19
+y 11
+end
+arch floor_ostone1
+x 19
+y 12
+end
+arch floor_ostone1
+x 19
+y 13
+end
+arch mace_spiked_war
+identified 1
+x 19
+y 13
+end
+arch floor_ostone1
+x 19
+y 14
+end
+arch floor_ostone1
+x 19
+y 15
+end
+arch floor_ostone1
+x 19
+y 16
+end
+arch nugget_generic
+identified 1
+x 19
+y 16
+end
+arch floor_ostone1
+x 19
+y 17
+end
+arch jewel_generic
+identified 1
+x 19
+y 17
+end
+arch floor_ostone1
+x 19
+y 18
+end
+arch gem_generic
+identified 1
+x 19
+y 18
+end
+arch floor_ostone1
+x 19
+y 19
+end
+arch floor_ostone1
+x 19
+y 20
+end
+arch gravedirt
+identified 1
+x 19
+y 20
+end
+arch floor_ostone1
+x 19
+y 21
+end
+arch amulet_generic
+x 19
+y 21
+end
+arch floor_ostone1
+x 19
+y 22
+end
+arch floor_ostone1
+x 19
+y 23
+end
+arch wall_stone1_1
+x 19
+y 23
+end
+arch floor_ostone1
+x 20
+end
+arch wall_stone1_1
+x 20
+end
+arch floor_ostone1
+x 20
+y 1
+end
+arch floor_ostone1
+x 20
+y 2
+end
+arch floor_ostone1
+x 20
+y 3
+end
+arch floor_ostone1
+x 20
+y 4
+end
+arch floor_ostone1
+x 20
+y 5
+end
+arch floor_ostone1
+x 20
+y 6
+end
+arch floor_ostone1
+x 20
+y 7
+end
+arch floor_ostone1
+x 20
+y 8
+end
+arch breastplate
+identified 1
+x 20
+y 8
+end
+arch floor_ostone1
+x 20
+y 9
+end
+arch floor_ostone1
+x 20
+y 10
+end
+arch floor_ostone1
+x 20
+y 11
+end
+arch floor_ostone1
+x 20
+y 12
+end
+arch floor_ostone1
+x 20
+y 13
+end
+arch mstar_large
+identified 1
+x 20
+y 13
+end
+arch floor_ostone1
+x 20
+y 14
+end
+arch floor_ostone1
+x 20
+y 15
+end
+arch floor_ostone1
+x 20
+y 16
+end
+arch nugget_generic
+x 20
+y 16
+end
+arch floor_ostone1
+x 20
+y 17
+end
+arch jewel_generic
+x 20
+y 17
+end
+arch floor_ostone1
+x 20
+y 18
+end
+arch gem_generic
+x 20
+y 18
+end
+arch floor_ostone1
+x 20
+y 19
+end
+arch floor_ostone1
+x 20
+y 20
+end
+arch floor_ostone1
+x 20
+y 21
+end
+arch floor_ostone1
+x 20
+y 22
+end
+arch floor_ostone1
+x 20
+y 23
+end
+arch wall_stone1_1
+x 20
+y 23
+end
+arch floor_ostone1
+x 21
+end
+arch wall_stone1_1
+x 21
+end
+arch floor_ostone1
+x 21
+y 1
+end
+arch floor_ostone1
+x 21
+y 2
+end
+arch floor_ostone1
+x 21
+y 3
+end
+arch floor_ostone1
+x 21
+y 4
+end
+arch floor_ostone1
+x 21
+y 5
+end
+arch floor_ostone1
+x 21
+y 6
+end
+arch floor_ostone1
+x 21
+y 7
+end
+arch floor_ostone1
+x 21
+y 8
+end
+arch plate_full
+identified 1
+x 21
+y 8
+end
+arch floor_ostone1
+x 21
+y 9
+end
+arch floor_ostone1
+x 21
+y 10
+end
+arch floor_ostone1
+x 21
+y 11
+end
+arch floor_ostone1
+x 21
+y 12
+end
+arch hammer_small
+identified 1
+x 21
+y 12
+end
+arch floor_ostone1
+x 21
+y 13
+end
+arch nunchacu_war
+identified 1
+x 21
+y 13
+end
+arch floor_ostone1
+x 21
+y 14
+end
+arch floor_ostone1
+x 21
+y 15
+end
+arch tome
+x 21
+y 15
+end
+arch floor_ostone1
+x 21
+y 16
+end
+arch floor_ostone1
+x 21
+y 17
+end
+arch letter
+x 21
+y 17
+end
+arch floor_ostone1
+x 21
+y 18
+end
+arch diploma
+x 21
+y 18
+end
+arch floor_ostone1
+x 21
+y 19
+end
+arch card
+x 21
+y 19
+end
+arch floor_ostone1
+x 21
+y 20
+end
+arch book
+x 21
+y 20
+end
+arch floor_ostone1
+x 21
+y 21
+end
+arch note
+x 21
+y 21
+end
+arch floor_ostone1
+x 21
+y 22
+end
+arch floor_ostone1
+x 21
+y 23
+end
+arch wall_stone1_1
+x 21
+y 23
+end
+arch floor_ostone1
+x 22
+end
+arch wall_stone1_1
+x 22
+end
+arch floor_ostone1
+x 22
+y 1
+end
+arch floor_ostone1
+x 22
+y 2
+end
+arch floor_ostone1
+x 22
+y 3
+end
+arch floor_ostone1
+x 22
+y 4
+end
+arch floor_ostone1
+x 22
+y 5
+end
+arch floor_ostone1
+x 22
+y 6
+end
+arch floor_ostone1
+x 22
+y 7
+end
+arch floor_ostone1
+x 22
+y 8
+end
+arch floor_ostone1
+x 22
+y 9
+end
+arch floor_ostone1
+x 22
+y 10
+end
+arch floor_ostone1
+x 22
+y 11
+end
+arch floor_ostone1
+x 22
+y 12
+end
+arch shootingstar
+identified 1
+x 22
+y 12
+end
+arch floor_ostone1
+x 22
+y 13
+end
+arch hammer
+identified 1
+x 22
+y 13
+end
+arch floor_ostone1
+x 22
+y 14
+end
+arch floor_ostone1
+x 22
+y 15
+end
+arch floor_ostone1
+x 22
+y 16
+end
+arch floor_ostone1
+x 22
+y 17
+end
+arch floor_ostone1
+x 22
+y 18
+end
+arch floor_ostone1
+x 22
+y 19
+end
+arch floor_ostone1
+x 22
+y 20
+end
+arch floor_ostone1
+x 22
+y 21
+end
+arch floor_ostone1
+x 22
+y 22
+end
+arch floor_ostone1
+x 22
+y 23
+end
+arch wall_stone1_1
+x 22
+y 23
+end
+arch floor_ostone1
+x 23
+end
+arch wall_stone1_1
+x 23
+end
+arch floor_ostone1
+x 23
+y 1
+end
+arch wall_stone1_3
+x 23
+y 1
+end
+arch floor_ostone1
+x 23
+y 2
+end
+arch wall_stone1_3
+x 23
+y 2
+end
+arch floor_ostone1
+x 23
+y 3
+end
+arch wall_stone1_3
+x 23
+y 3
+end
+arch floor_ostone1
+x 23
+y 4
+end
+arch wall_stone1_3
+x 23
+y 4
+end
+arch floor_ostone1
+x 23
+y 5
+end
+arch wall_stone1_3
+x 23
+y 5
+end
+arch floor_ostone1
+x 23
+y 6
+end
+arch wall_stone1_3
+x 23
+y 6
+end
+arch floor_ostone1
+x 23
+y 7
+end
+arch wall_stone1_3
+x 23
+y 7
+end
+arch floor_ostone1
+x 23
+y 8
+end
+arch wall_stone1_3
+x 23
+y 8
+end
+arch floor_ostone1
+x 23
+y 9
+end
+arch wall_stone1_3
+x 23
+y 9
+end
+arch floor_ostone1
+x 23
+y 10
+end
+arch wall_stone1_3
+x 23
+y 10
+end
+arch floor_ostone1
+x 23
+y 11
+end
+arch wall_stone1_3
+x 23
+y 11
+end
+arch floor_ostone1
+x 23
+y 12
+end
+arch wall_stone1_3
+x 23
+y 12
+end
+arch floor_ostone1
+x 23
+y 13
+end
+arch wall_stone1_3
+x 23
+y 13
+end
+arch floor_ostone1
+x 23
+y 14
+end
+arch wall_stone1_3
+x 23
+y 14
+end
+arch floor_ostone1
+x 23
+y 15
+end
+arch wall_stone1_3
+x 23
+y 15
+end
+arch floor_ostone1
+x 23
+y 16
+end
+arch wall_stone1_3
+x 23
+y 16
+end
+arch floor_ostone1
+x 23
+y 17
+end
+arch wall_stone1_3
+x 23
+y 17
+end
+arch floor_ostone1
+x 23
+y 18
+end
+arch wall_stone1_3
+x 23
+y 18
+end
+arch floor_ostone1
+x 23
+y 19
+end
+arch wall_stone1_3
+x 23
+y 19
+end
+arch floor_ostone1
+x 23
+y 20
+end
+arch wall_stone1_3
+x 23
+y 20
+end
+arch floor_ostone1
+x 23
+y 21
+end
+arch wall_stone1_3
+x 23
+y 21
+end
+arch floor_ostone1
+x 23
+y 22
+end
+arch wall_stone1_3
+x 23
+y 22
+end
+arch floor_ostone1
+x 23
+y 23
+end
+arch wall_stone1_4
+x 23
+y 23
+end

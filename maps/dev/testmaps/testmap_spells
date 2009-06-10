@@ -1,0 +1,2126 @@
+arch map
+name Testmaps - Spells
+msg
+Creator: Daimonin Map Editor
+Date:    4/13/2003
+endmsg
+width 17
+height 17
+enter_x 1
+enter_y 1
+difficulty 1
+end
+arch floor_ostone1
+end
+arch fwall_brown1
+end
+arch floor_ostone1
+y 1
+end
+arch fwall_brown1
+y 1
+end
+arch floor_ostone1
+y 2
+end
+arch fwall_brown1
+y 2
+end
+arch floor_ostone1
+y 3
+end
+arch fwall_brown1
+y 3
+end
+arch floor_ostone1
+y 4
+end
+arch fwall_brown1
+y 4
+end
+arch floor_ostone1
+y 5
+end
+arch fwall_brown1
+y 5
+end
+arch floor_ostone1
+y 6
+end
+arch fwall_brown1
+y 6
+end
+arch floor_ostone1
+y 7
+end
+arch fwall_brown1
+y 7
+end
+arch floor_ostone1
+y 8
+end
+arch fwall_brown1
+y 8
+end
+arch floor_ostone1
+y 9
+end
+arch fwall_brown1
+y 9
+end
+arch floor_ostone1
+y 10
+end
+arch fwall_brown1
+y 10
+end
+arch floor_ostone1
+y 11
+end
+arch fwall_brown1
+y 11
+end
+arch floor_ostone1
+y 12
+end
+arch fwall_brown1
+y 12
+end
+arch floor_ostone1
+y 13
+end
+arch fwall_brown1
+y 13
+end
+arch floor_ostone1
+y 14
+end
+arch fwall_brown1
+y 14
+end
+arch floor_ostone1
+y 15
+end
+arch fwall_brown1
+y 15
+end
+arch floor_ostone1
+y 16
+end
+arch fwall_brown1
+y 16
+end
+arch floor_ostone1
+x 1
+end
+arch fwall_brown1
+x 1
+end
+arch floor_ostone1
+x 1
+y 1
+end
+arch stairw_up_1
+slaying testmap_main
+hp 1
+sp 11
+x 1
+y 1
+end
+arch floor_ostone1
+x 1
+y 2
+end
+arch floor_ostone1
+x 1
+y 3
+end
+arch floor_ostone1
+x 1
+y 4
+end
+arch floor_ostone1
+x 1
+y 5
+end
+arch floor_ostone1
+x 1
+y 6
+end
+arch floor_ostone1
+x 1
+y 7
+end
+arch rod_heavy
+identified 1
+level 1
+sp 0
+x 1
+y 7
+end
+arch balm_generic
+identified 1
+sp 0
+nrof 100
+level 1
+x 1
+y 7
+end
+arch dust_generic
+identified 1
+sp 0
+nrof 100
+level 1
+x 1
+y 7
+end
+arch potion_generic
+identified 1
+sp 0
+nrof 100
+level 1
+x 1
+y 7
+end
+arch scroll_generic
+identified 1
+sp 0
+nrof 100
+level 1
+x 1
+y 7
+end
+arch floor_ostone1
+x 1
+y 8
+end
+arch rod_heavy
+identified 1
+sp 1
+level 1
+x 1
+y 8
+end
+arch dust_generic
+identified 1
+sp 1
+level 1
+nrof 100
+x 1
+y 8
+end
+arch scroll_generic
+identified 1
+sp 1
+nrof 100
+level 1
+x 1
+y 8
+end
+arch potion_generic
+identified 1
+sp 1
+nrof 100
+level 1
+x 1
+y 8
+end
+arch balm_generic
+identified 1
+sp 1
+level 1
+nrof 100
+x 1
+y 8
+end
+arch floor_ostone1
+x 1
+y 9
+end
+arch rod_heavy
+identified 1
+sp 2
+level 1
+x 1
+y 9
+end
+arch dust_generic
+identified 1
+sp 2
+level 1
+nrof 100
+x 1
+y 9
+end
+arch scroll_generic
+identified 1
+level 1
+sp 2
+nrof 100
+x 1
+y 9
+end
+arch potion_generic
+identified 1
+sp 2
+nrof 100
+level 1
+x 1
+y 9
+end
+arch balm_generic
+identified 1
+sp 2
+level 1
+nrof 100
+x 1
+y 9
+end
+arch floor_ostone1
+x 1
+y 10
+end
+arch rod_heavy
+identified 1
+level 1
+sp 3
+x 1
+y 10
+end
+arch dust_generic
+identified 1
+level 1
+sp 3
+nrof 100
+x 1
+y 10
+end
+arch scroll_generic
+identified 1
+level 1
+sp 3
+nrof 100
+x 1
+y 10
+end
+arch potion_generic
+identified 1
+sp 3
+level 1
+nrof 100
+x 1
+y 10
+end
+arch balm_generic
+identified 1
+sp 3
+nrof 100
+level 1
+x 1
+y 10
+end
+arch floor_ostone1
+x 1
+y 11
+end
+arch rod_heavy
+identified 1
+level 1
+sp 4
+x 1
+y 11
+end
+arch dust_generic
+identified 1
+sp 4
+level 1
+nrof 100
+x 1
+y 11
+end
+arch scroll_generic
+identified 1
+level 1
+sp 4
+nrof 100
+x 1
+y 11
+end
+arch potion_generic
+identified 1
+level 1
+sp 4
+nrof 100
+x 1
+y 11
+end
+arch balm_generic
+identified 1
+sp 4
+level 1
+nrof 100
+x 1
+y 11
+end
+arch floor_ostone1
+x 1
+y 12
+end
+arch rod_heavy
+identified 1
+sp 5
+level 1
+x 1
+y 12
+end
+arch dust_generic
+identified 1
+sp 5
+level 1
+nrof 100
+x 1
+y 12
+end
+arch scroll_generic
+identified 1
+sp 5
+level 1
+nrof 100
+x 1
+y 12
+end
+arch potion_generic
+identified 1
+sp 5
+level 1
+nrof 100
+x 1
+y 12
+end
+arch balm_generic
+identified 1
+sp 5
+level 1
+nrof 100
+x 1
+y 12
+end
+arch floor_ostone1
+x 1
+y 13
+end
+arch rod_heavy
+identified 1
+sp 6
+level 1
+x 1
+y 13
+end
+arch dust_generic
+identified 1
+sp 6
+level 1
+nrof 100
+x 1
+y 13
+end
+arch scroll_generic
+identified 1
+sp 6
+level 1
+nrof 100
+x 1
+y 13
+end
+arch potion_generic
+identified 1
+sp 6
+level 1
+nrof 100
+x 1
+y 13
+end
+arch balm_generic
+identified 1
+sp 6
+level 1
+nrof 100
+x 1
+y 13
+end
+arch floor_ostone1
+x 1
+y 14
+end
+arch rod_heavy
+identified 1
+sp 7
+level 1
+x 1
+y 14
+end
+arch dust_generic
+identified 1
+sp 7
+level 1
+nrof 100
+x 1
+y 14
+end
+arch scroll_generic
+identified 1
+sp 7
+level 1
+nrof 100
+x 1
+y 14
+end
+arch potion_generic
+identified 1
+sp 7
+level 1
+nrof 100
+x 1
+y 14
+end
+arch balm_generic
+identified 1
+sp 7
+level 1
+nrof 100
+x 1
+y 14
+end
+arch floor_ostone1
+x 1
+y 15
+end
+arch rod_heavy
+identified 1
+sp 8
+nrof 100
+level 1
+x 1
+y 15
+end
+arch dust_generic
+identified 1
+sp 8
+nrof 100
+level 1
+x 1
+y 15
+end
+arch scroll_generic
+identified 1
+sp 8
+nrof 100
+level 1
+x 1
+y 15
+end
+arch potion_generic
+identified 1
+sp 8
+nrof 100
+level 1
+x 1
+y 15
+end
+arch balm_generic
+identified 1
+sp 8
+nrof 100
+level 1
+x 1
+y 15
+end
+arch floor_ostone1
+x 1
+y 16
+end
+arch fwall_brown1
+x 1
+y 16
+end
+arch floor_ostone1
+x 2
+end
+arch fwall_brown1
+x 2
+end
+arch floor_ostone1
+x 2
+y 1
+end
+arch floor_ostone1
+x 2
+y 2
+end
+arch sign
+msg
+In this map there is for very spell a rod,
+potion, balm, dust and scroll of it.
+NOTE: Not all combinations are valid or useful.
+endmsg
+x 2
+y 2
+end
+arch floor_ostone1
+x 2
+y 3
+end
+arch floor_ostone1
+x 2
+y 4
+end
+arch floor_ostone1
+x 2
+y 5
+end
+arch floor_ostone1
+x 2
+y 6
+end
+arch floor_ostone1
+x 2
+y 7
+end
+arch rod_heavy
+identified 1
+sp 9
+level 1
+x 2
+y 7
+end
+arch dust_generic
+identified 1
+sp 9
+nrof 100
+level 1
+x 2
+y 7
+end
+arch scroll_generic
+identified 1
+sp 9
+nrof 100
+level 1
+x 2
+y 7
+end
+arch potion_generic
+identified 1
+sp 9
+nrof 100
+level 1
+x 2
+y 7
+end
+arch balm_generic
+identified 1
+sp 9
+nrof 100
+level 1
+x 2
+y 7
+end
+arch floor_ostone1
+x 2
+y 8
+end
+arch rod_heavy
+identified 1
+sp 10
+level 1
+x 2
+y 8
+end
+arch dust_generic
+identified 1
+sp 10
+nrof 100
+level 1
+x 2
+y 8
+end
+arch scroll_generic
+identified 1
+sp 10
+nrof 100
+level 1
+x 2
+y 8
+end
+arch potion_generic
+identified 1
+sp 10
+nrof 100
+level 1
+x 2
+y 8
+end
+arch balm_generic
+identified 1
+sp 10
+nrof 100
+level 1
+x 2
+y 8
+end
+arch floor_ostone1
+x 2
+y 9
+end
+arch rod_heavy
+identified 1
+sp 11
+level 1
+x 2
+y 9
+end
+arch dust_generic
+identified 1
+sp 11
+nrof 100
+level 1
+x 2
+y 9
+end
+arch scroll_generic
+identified 1
+sp 11
+nrof 100
+level 1
+x 2
+y 9
+end
+arch potion_generic
+identified 1
+sp 11
+nrof 100
+level 1
+x 2
+y 9
+end
+arch balm_generic
+identified 1
+sp 11
+nrof 100
+level 1
+x 2
+y 9
+end
+arch floor_ostone1
+x 2
+y 10
+end
+arch rod_heavy
+identified 1
+sp 12
+level 1
+x 2
+y 10
+end
+arch dust_generic
+identified 1
+sp 12
+nrof 100
+level 1
+x 2
+y 10
+end
+arch scroll_generic
+identified 1
+sp 12
+nrof 100
+level 1
+x 2
+y 10
+end
+arch potion_generic
+identified 1
+sp 12
+nrof 100
+level 1
+x 2
+y 10
+end
+arch balm_generic
+identified 1
+sp 12
+nrof 100
+level 1
+x 2
+y 10
+end
+arch floor_ostone1
+x 2
+y 11
+end
+arch rod_heavy
+identified 1
+sp 13
+level 1
+x 2
+y 11
+end
+arch dust_generic
+identified 1
+sp 13
+nrof 100
+level 1
+x 2
+y 11
+end
+arch scroll_generic
+identified 1
+sp 13
+nrof 100
+level 1
+x 2
+y 11
+end
+arch potion_generic
+identified 1
+sp 13
+nrof 100
+level 1
+x 2
+y 11
+end
+arch balm_generic
+identified 1
+sp 13
+nrof 100
+level 1
+x 2
+y 11
+end
+arch floor_ostone1
+x 2
+y 12
+end
+arch rod_heavy
+identified 1
+sp 14
+level 1
+x 2
+y 12
+end
+arch dust_generic
+identified 1
+sp 14
+nrof 100
+level 1
+x 2
+y 12
+end
+arch scroll_generic
+identified 1
+sp 14
+nrof 100
+level 1
+x 2
+y 12
+end
+arch potion_generic
+identified 1
+sp 14
+nrof 100
+level 1
+x 2
+y 12
+end
+arch balm_generic
+identified 1
+sp 14
+nrof 100
+level 1
+x 2
+y 12
+end
+arch floor_ostone1
+x 2
+y 13
+end
+arch rod_heavy
+identified 1
+sp 15
+level 1
+x 2
+y 13
+end
+arch dust_generic
+identified 1
+sp 15
+nrof 100
+level 1
+x 2
+y 13
+end
+arch scroll_generic
+identified 1
+sp 15
+nrof 100
+level 1
+x 2
+y 13
+end
+arch potion_generic
+identified 1
+sp 15
+nrof 100
+level 1
+x 2
+y 13
+end
+arch balm_generic
+identified 1
+sp 15
+nrof 100
+level 1
+x 2
+y 13
+end
+arch floor_ostone1
+x 2
+y 14
+end
+arch rod_heavy
+identified 1
+sp 16
+nrof 10
+level 1
+x 2
+y 14
+end
+arch dust_generic
+identified 1
+sp 16
+nrof 100
+level 1
+x 2
+y 14
+end
+arch scroll_generic
+identified 1
+sp 16
+nrof 100
+level 1
+x 2
+y 14
+end
+arch potion_generic
+identified 1
+sp 16
+nrof 100
+level 1
+x 2
+y 14
+end
+arch balm_generic
+identified 1
+sp 16
+nrof 100
+level 1
+x 2
+y 14
+end
+arch floor_ostone1
+x 2
+y 15
+end
+arch floor_ostone1
+x 2
+y 16
+end
+arch fwall_brown1
+x 2
+y 16
+end
+arch floor_ostone1
+x 3
+end
+arch fwall_brown1
+x 3
+end
+arch floor_ostone1
+x 3
+y 1
+end
+arch sign
+msg
+Items for spell testing.
+All are unidentified. Tiles are (from left to right):
+damned, magical, cursed.
+endmsg
+x 3
+y 1
+end
+arch floor_ostone1
+x 3
+y 2
+end
+arch floor_ostone1
+x 3
+y 3
+end
+arch floor_ostone1
+x 3
+y 4
+end
+arch floor_ostone1
+x 3
+y 5
+end
+arch floor_ostone1
+x 3
+y 6
+end
+arch floor_ostone1
+x 3
+y 7
+end
+arch floor_ostone1
+x 3
+y 8
+end
+arch floor_ostone1
+x 3
+y 9
+end
+arch floor_ostone1
+x 3
+y 10
+end
+arch floor_ostone1
+x 3
+y 11
+end
+arch floor_ostone1
+x 3
+y 12
+end
+arch floor_ostone1
+x 3
+y 13
+end
+arch floor_ostone1
+x 3
+y 14
+end
+arch floor_ostone1
+x 3
+y 15
+end
+arch floor_ostone1
+x 3
+y 16
+end
+arch fwall_brown1
+x 3
+y 16
+end
+arch floor_ostone1
+x 4
+end
+arch fwall_brown1
+x 4
+end
+arch floor_ostone1
+x 4
+y 1
+end
+arch low_boots
+damned 1
+x 4
+y 1
+end
+arch high_boots
+damned 1
+x 4
+y 1
+end
+arch bracers_ac
+damned 1
+x 4
+y 1
+end
+arch floor_ostone1
+x 4
+y 2
+end
+arch floor_ostone1
+x 4
+y 3
+end
+arch floor_ostone1
+x 4
+y 4
+end
+arch floor_ostone1
+x 4
+y 5
+end
+arch floor_ostone1
+x 4
+y 6
+end
+arch floor_ostone1
+x 4
+y 7
+end
+arch floor_ostone1
+x 4
+y 8
+end
+arch floor_ostone1
+x 4
+y 9
+end
+arch floor_ostone1
+x 4
+y 10
+end
+arch floor_ostone1
+x 4
+y 11
+end
+arch floor_ostone1
+x 4
+y 12
+end
+arch floor_ostone1
+x 4
+y 13
+end
+arch floor_ostone1
+x 4
+y 14
+end
+arch floor_ostone1
+x 4
+y 15
+end
+arch floor_ostone1
+x 4
+y 16
+end
+arch fwall_brown1
+x 4
+y 16
+end
+arch floor_ostone1
+x 5
+end
+arch fwall_brown1
+x 5
+end
+arch floor_ostone1
+x 5
+y 1
+end
+arch low_boots
+is_magical 1
+x 5
+y 1
+end
+arch high_boots
+is_magical 1
+x 5
+y 1
+end
+arch bracers_ac
+is_magical 1
+x 5
+y 1
+end
+arch floor_ostone1
+x 5
+y 2
+end
+arch floor_ostone1
+x 5
+y 3
+end
+arch floor_ostone1
+x 5
+y 4
+end
+arch floor_ostone1
+x 5
+y 5
+end
+arch floor_ostone1
+x 5
+y 6
+end
+arch floor_ostone1
+x 5
+y 7
+end
+arch floor_ostone1
+x 5
+y 8
+end
+arch floor_ostone1
+x 5
+y 9
+end
+arch floor_ostone1
+x 5
+y 10
+end
+arch floor_ostone1
+x 5
+y 11
+end
+arch floor_ostone1
+x 5
+y 12
+end
+arch floor_ostone1
+x 5
+y 13
+end
+arch floor_ostone1
+x 5
+y 14
+end
+arch floor_ostone1
+x 5
+y 15
+end
+arch floor_ostone1
+x 5
+y 16
+end
+arch fwall_brown1
+x 5
+y 16
+end
+arch floor_ostone1
+x 6
+end
+arch fwall_brown1
+x 6
+end
+arch floor_ostone1
+x 6
+y 1
+end
+arch low_boots
+cursed 1
+x 6
+y 1
+end
+arch high_boots
+cursed 1
+x 6
+y 1
+end
+arch bracers_ac
+cursed 1
+x 6
+y 1
+end
+arch floor_ostone1
+x 6
+y 2
+end
+arch floor_ostone1
+x 6
+y 3
+end
+arch floor_ostone1
+x 6
+y 4
+end
+arch floor_ostone1
+x 6
+y 5
+end
+arch floor_ostone1
+x 6
+y 6
+end
+arch floor_ostone1
+x 6
+y 7
+end
+arch floor_ostone1
+x 6
+y 8
+end
+arch floor_ostone1
+x 6
+y 9
+end
+arch floor_ostone1
+x 6
+y 10
+end
+arch floor_ostone1
+x 6
+y 11
+end
+arch floor_ostone1
+x 6
+y 12
+end
+arch floor_ostone1
+x 6
+y 13
+end
+arch floor_ostone1
+x 6
+y 14
+end
+arch floor_ostone1
+x 6
+y 15
+end
+arch floor_ostone1
+x 6
+y 16
+end
+arch fwall_brown1
+x 6
+y 16
+end
+arch floor_ostone1
+x 7
+end
+arch fwall_brown1
+x 7
+end
+arch floor_ostone1
+x 7
+y 1
+end
+arch floor_ostone1
+x 7
+y 2
+end
+arch floor_ostone1
+x 7
+y 3
+end
+arch floor_ostone1
+x 7
+y 4
+end
+arch floor_ostone1
+x 7
+y 5
+end
+arch floor_ostone1
+x 7
+y 6
+end
+arch floor_ostone1
+x 7
+y 7
+end
+arch floor_ostone1
+x 7
+y 8
+end
+arch floor_ostone1
+x 7
+y 9
+end
+arch floor_ostone1
+x 7
+y 10
+end
+arch floor_ostone1
+x 7
+y 11
+end
+arch floor_ostone1
+x 7
+y 12
+end
+arch floor_ostone1
+x 7
+y 13
+end
+arch floor_ostone1
+x 7
+y 14
+end
+arch floor_ostone1
+x 7
+y 15
+end
+arch floor_ostone1
+x 7
+y 16
+end
+arch fwall_brown1
+x 7
+y 16
+end
+arch floor_ostone1
+x 8
+end
+arch fwall_brown1
+x 8
+end
+arch floor_ostone1
+x 8
+y 1
+end
+arch spawn_point
+layer 3
+last_grace 0
+speed -1
+x 8
+y 1
+arch ant_soldier
+type 83
+dam 1
+hp 1
+maxhp 1
+stand_still 1
+end
+end
+arch floor_ostone1
+x 8
+y 2
+end
+arch floor_ostone1
+x 8
+y 3
+end
+arch floor_ostone1
+x 8
+y 4
+end
+arch floor_ostone1
+x 8
+y 5
+end
+arch floor_ostone1
+x 8
+y 6
+end
+arch floor_ostone1
+x 8
+y 7
+end
+arch floor_ostone1
+x 8
+y 8
+end
+arch floor_ostone1
+x 8
+y 9
+end
+arch floor_ostone1
+x 8
+y 10
+end
+arch floor_ostone1
+x 8
+y 11
+end
+arch floor_ostone1
+x 8
+y 12
+end
+arch floor_ostone1
+x 8
+y 13
+end
+arch floor_ostone1
+x 8
+y 14
+end
+arch floor_ostone1
+x 8
+y 15
+end
+arch floor_ostone1
+x 8
+y 16
+end
+arch fwall_brown1
+x 8
+y 16
+end
+arch floor_ostone1
+x 9
+end
+arch fwall_brown1
+x 9
+end
+arch floor_ostone1
+x 9
+y 1
+end
+arch floor_ostone1
+x 9
+y 2
+end
+arch floor_ostone1
+x 9
+y 3
+end
+arch floor_ostone1
+x 9
+y 4
+end
+arch floor_ostone1
+x 9
+y 5
+end
+arch floor_ostone1
+x 9
+y 6
+end
+arch floor_ostone1
+x 9
+y 7
+end
+arch floor_ostone1
+x 9
+y 8
+end
+arch floor_ostone1
+x 9
+y 9
+end
+arch floor_ostone1
+x 9
+y 10
+end
+arch floor_ostone1
+x 9
+y 11
+end
+arch floor_ostone1
+x 9
+y 12
+end
+arch floor_ostone1
+x 9
+y 13
+end
+arch floor_ostone1
+x 9
+y 14
+end
+arch floor_ostone1
+x 9
+y 15
+end
+arch floor_ostone1
+x 9
+y 16
+end
+arch fwall_brown1
+x 9
+y 16
+end
+arch floor_ostone1
+x 10
+end
+arch fwall_brown1
+x 10
+end
+arch floor_ostone1
+x 10
+y 1
+end
+arch floor_ostone1
+x 10
+y 2
+end
+arch floor_ostone1
+x 10
+y 3
+end
+arch floor_ostone1
+x 10
+y 4
+end
+arch floor_ostone1
+x 10
+y 5
+end
+arch floor_ostone1
+x 10
+y 6
+end
+arch floor_ostone1
+x 10
+y 7
+end
+arch floor_ostone1
+x 10
+y 8
+end
+arch floor_ostone1
+x 10
+y 9
+end
+arch floor_ostone1
+x 10
+y 10
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 12
+end
+arch floor_ostone1
+x 10
+y 13
+end
+arch floor_ostone1
+x 10
+y 14
+end
+arch floor_ostone1
+x 10
+y 15
+end
+arch floor_ostone1
+x 10
+y 16
+end
+arch fwall_brown1
+x 10
+y 16
+end
+arch floor_ostone1
+x 11
+end
+arch fwall_brown1
+x 11
+end
+arch floor_ostone1
+x 11
+y 1
+end
+arch floor_ostone1
+x 11
+y 2
+end
+arch floor_ostone1
+x 11
+y 3
+end
+arch floor_ostone1
+x 11
+y 4
+end
+arch floor_ostone1
+x 11
+y 5
+end
+arch floor_ostone1
+x 11
+y 6
+end
+arch floor_ostone1
+x 11
+y 7
+end
+arch floor_ostone1
+x 11
+y 8
+end
+arch floor_ostone1
+x 11
+y 9
+end
+arch floor_ostone1
+x 11
+y 10
+end
+arch floor_ostone1
+x 11
+y 11
+end
+arch floor_ostone1
+x 11
+y 12
+end
+arch floor_ostone1
+x 11
+y 13
+end
+arch floor_ostone1
+x 11
+y 14
+end
+arch floor_ostone1
+x 11
+y 15
+end
+arch floor_ostone1
+x 11
+y 16
+end
+arch fwall_brown1
+x 11
+y 16
+end
+arch floor_ostone1
+x 12
+end
+arch fwall_brown1
+x 12
+end
+arch floor_ostone1
+x 12
+y 1
+end
+arch floor_ostone1
+x 12
+y 2
+end
+arch floor_ostone1
+x 12
+y 3
+end
+arch floor_ostone1
+x 12
+y 4
+end
+arch floor_ostone1
+x 12
+y 5
+end
+arch floor_ostone1
+x 12
+y 6
+end
+arch floor_ostone1
+x 12
+y 7
+end
+arch floor_ostone1
+x 12
+y 8
+end
+arch floor_ostone1
+x 12
+y 9
+end
+arch floor_ostone1
+x 12
+y 10
+end
+arch floor_ostone1
+x 12
+y 11
+end
+arch floor_ostone1
+x 12
+y 12
+end
+arch floor_ostone1
+x 12
+y 13
+end
+arch floor_ostone1
+x 12
+y 14
+end
+arch floor_ostone1
+x 12
+y 15
+end
+arch floor_ostone1
+x 12
+y 16
+end
+arch fwall_brown1
+x 12
+y 16
+end
+arch floor_ostone1
+x 13
+end
+arch fwall_brown1
+x 13
+end
+arch floor_ostone1
+x 13
+y 1
+end
+arch floor_ostone1
+x 13
+y 2
+end
+arch floor_ostone1
+x 13
+y 3
+end
+arch floor_ostone1
+x 13
+y 4
+end
+arch floor_ostone1
+x 13
+y 5
+end
+arch floor_ostone1
+x 13
+y 6
+end
+arch floor_ostone1
+x 13
+y 7
+end
+arch floor_ostone1
+x 13
+y 8
+end
+arch golem
+stand_still 1
+hp 50000
+maxhp 100000
+x 13
+y 8
+end
+arch floor_ostone1
+x 13
+y 9
+end
+arch floor_ostone1
+x 13
+y 10
+end
+arch floor_ostone1
+x 13
+y 11
+end
+arch floor_ostone1
+x 13
+y 12
+end
+arch floor_ostone1
+x 13
+y 13
+end
+arch guard
+friendly 1
+hp 50000
+maxhp 100000
+x 13
+y 13
+end
+arch floor_ostone1
+x 13
+y 14
+end
+arch floor_ostone1
+x 13
+y 15
+end
+arch floor_ostone1
+x 13
+y 16
+end
+arch fwall_brown1
+x 13
+y 16
+end
+arch floor_ostone1
+x 14
+end
+arch fwall_brown1
+x 14
+end
+arch floor_ostone1
+x 14
+y 1
+end
+arch floor_ostone1
+x 14
+y 2
+end
+arch floor_ostone1
+x 14
+y 3
+end
+arch floor_ostone1
+x 14
+y 4
+end
+arch floor_ostone1
+x 14
+y 5
+end
+arch floor_ostone1
+x 14
+y 6
+end
+arch floor_ostone1
+x 14
+y 7
+end
+arch floor_ostone1
+x 14
+y 8
+end
+arch floor_ostone1
+x 14
+y 9
+end
+arch floor_ostone1
+x 14
+y 10
+end
+arch floor_ostone1
+x 14
+y 11
+end
+arch floor_ostone1
+x 14
+y 12
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 14
+end
+arch floor_ostone1
+x 14
+y 15
+end
+arch floor_ostone1
+x 14
+y 16
+end
+arch fwall_brown1
+x 14
+y 16
+end
+arch floor_ostone1
+x 15
+end
+arch fwall_brown1
+x 15
+end
+arch floor_ostone1
+x 15
+y 1
+end
+arch floor_ostone1
+x 15
+y 2
+end
+arch floor_ostone1
+x 15
+y 3
+end
+arch floor_ostone1
+x 15
+y 4
+end
+arch floor_ostone1
+x 15
+y 5
+end
+arch floor_ostone1
+x 15
+y 6
+end
+arch floor_ostone1
+x 15
+y 7
+end
+arch floor_ostone1
+x 15
+y 8
+end
+arch floor_ostone1
+x 15
+y 9
+end
+arch floor_ostone1
+x 15
+y 10
+end
+arch floor_ostone1
+x 15
+y 11
+end
+arch floor_ostone1
+x 15
+y 12
+end
+arch floor_ostone1
+x 15
+y 13
+end
+arch floor_ostone1
+x 15
+y 14
+end
+arch floor_ostone1
+x 15
+y 15
+end
+arch floor_ostone1
+x 15
+y 16
+end
+arch fwall_brown1
+x 15
+y 16
+end
+arch floor_ostone1
+x 16
+end
+arch fwall_brown1
+x 16
+end
+arch floor_ostone1
+x 16
+y 1
+end
+arch fwall_brown1
+x 16
+y 1
+end
+arch floor_ostone1
+x 16
+y 2
+end
+arch fwall_brown1
+x 16
+y 2
+end
+arch floor_ostone1
+x 16
+y 3
+end
+arch fwall_brown1
+x 16
+y 3
+end
+arch floor_ostone1
+x 16
+y 4
+end
+arch fwall_brown1
+x 16
+y 4
+end
+arch floor_ostone1
+x 16
+y 5
+end
+arch fwall_brown1
+x 16
+y 5
+end
+arch floor_ostone1
+x 16
+y 6
+end
+arch fwall_brown1
+x 16
+y 6
+end
+arch floor_ostone1
+x 16
+y 7
+end
+arch fwall_brown1
+x 16
+y 7
+end
+arch floor_ostone1
+x 16
+y 8
+end
+arch fwall_brown1
+x 16
+y 8
+end
+arch floor_ostone1
+x 16
+y 9
+end
+arch fwall_brown1
+x 16
+y 9
+end
+arch floor_ostone1
+x 16
+y 10
+end
+arch fwall_brown1
+x 16
+y 10
+end
+arch floor_ostone1
+x 16
+y 11
+end
+arch fwall_brown1
+x 16
+y 11
+end
+arch floor_ostone1
+x 16
+y 12
+end
+arch fwall_brown1
+x 16
+y 12
+end
+arch floor_ostone1
+x 16
+y 13
+end
+arch fwall_brown1
+x 16
+y 13
+end
+arch floor_ostone1
+x 16
+y 14
+end
+arch fwall_brown1
+x 16
+y 14
+end
+arch floor_ostone1
+x 16
+y 15
+end
+arch fwall_brown1
+x 16
+y 15
+end
+arch floor_ostone1
+x 16
+y 16
+end
+arch fwall_brown1
+x 16
+y 16
+end
+arch wyvern
+stand_still 1
+hp 50000
+maxhp 100000
+x 12
+y 3
+end
