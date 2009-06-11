@@ -93,6 +93,7 @@ CFParm GCFP2;
 static PyObject* Atrinik_MatchString(PyObject* self, PyObject* args);
 static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args);
 static PyObject* Atrinik_FindPlayer(PyObject* self, PyObject* args);
+static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args);
 static PyObject* Atrinik_WhoAmI(PyObject* self, PyObject* args);
 static PyObject* Atrinik_WhoIsActivator(PyObject* self, PyObject* args);
 static PyObject* Atrinik_WhatIsMessage(PyObject* self, PyObject* args);
@@ -133,6 +134,7 @@ static PyMethodDef AtrinikMethods[] =
     {"CheckMap",		Atrinik_CheckMap,			METH_VARARGS},
     {"MatchString", 	Atrinik_MatchString, 		METH_VARARGS},
     {"FindPlayer", 		Atrinik_FindPlayer, 		METH_VARARGS},
+	{"PlayerExists", 	Atrinik_PlayerExists, 		METH_VARARGS},
     {"GetOptions", 		Atrinik_GetOptions, 		METH_VARARGS},
     {"GetReturnValue",	Atrinik_GetReturnValue,		METH_VARARGS},
     {"SetReturnValue",	Atrinik_SetReturnValue,		METH_VARARGS},
@@ -311,6 +313,28 @@ static PyObject* Atrinik_FindPlayer(PyObject* self, PyObject* args)
         foundob = foundpl->ob;
 
     return wrap_object(foundob);
+}
+
+/*****************************************************************************/
+/* Name   : Atrinik_PlayerExists                                             */
+/* Python : Atrinik.PlayerExists(name)                                       */
+/* Status : Tested                                                           */
+/*****************************************************************************/
+static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args)
+{
+	char *playerName;
+    CFParm *CFR;
+    int value;
+
+    if (!PyArg_ParseTuple(args, "s", &playerName))
+        return NULL;
+
+    GCFP.Value[0] = (void *)(playerName);
+    CFR = (PlugHooks[HOOK_PLAYEREXISTS])(&GCFP);
+    value = *(int *)(CFR->Value[0]);
+	free(CFR);
+
+    return Py_BuildValue("i", value);
 }
 
 /*****************************************************************************/

@@ -571,6 +571,7 @@ CFParm *CFWGetMapObject(CFParm *PParm);
 CFParm *CFWOutOfMap(CFParm *PParm);
 CFParm *CFWESRVSendItem(CFParm *PParm);
 CFParm *CFWFindPlayer(CFParm *PParm);
+CFParm *CFWPlayerExists(CFParm *PParm);
 CFParm *CFWManualApply(CFParm *PParm);
 CFParm *CFWCmdDrop(CFParm *PParm);
 CFParm *CFWCmdTake(CFParm *PParm);

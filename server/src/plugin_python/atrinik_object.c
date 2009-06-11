@@ -2564,7 +2564,7 @@ static PyObject* Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject* args)
 
 /******************************************************************************/
 /* Name   : Atrinik_Object_SwapApartments                                     */
-/* Python : object.SwapAprtments(oldmap, newmap, x, y)                        */
+/* Python : object.SwapApartments(oldmap, newmap, x, y)                       */
 /* Info   : Swaps oldmap apartment with newmap one.                           */
 /*          Copies old items from oldmap to newmap at x, y and saves the map. */
 /* Status : Tested                                                            */

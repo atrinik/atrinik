@@ -102,7 +102,8 @@ f_plugin HookList[NR_OF_HOOKS] =
     CFWShowCost,
     CFWDeposit,
     CFWWithdraw,
-	CFWSwapApartments
+	CFWSwapApartments,
+	CFWPlayerExists
 };
 
 #endif /*PLUGPROTO_H_*/

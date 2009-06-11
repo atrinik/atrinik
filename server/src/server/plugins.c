@@ -1015,6 +1015,15 @@ CFParm* CFWReadyMapName(CFParm* PParm)
     return CFP;
 }
 
+/*****************************************************************************/
+/* swap_apartments wrapper.                                                  */
+/*****************************************************************************/
+/* 0 - old map path;                                                         */
+/* 1 - new map path;                                                         */
+/* 2 - new x;                                                                */
+/* 3 - new y;                                                                */
+/* 4 - activator object.                                                     */
+/*****************************************************************************/
 CFParm* CFWSwapApartments(CFParm *PParm)
 {
 	CFParm* CFP;
@@ -1025,7 +1034,7 @@ CFParm* CFWSwapApartments(CFParm *PParm)
 	sqlite3_stmt *statement;
 	FILE *fp, *fp2;
 	mapstruct *oldmap, *newmap;
-	static int val = 1;
+	int val = 1;
 
 	CFP = (CFParm*)(malloc(sizeof(CFParm)));
 
@@ -1097,7 +1106,7 @@ CFParm* CFWSwapApartments(CFParm *PParm)
 	/* Go through every square on old apartment map, looking for things to transfer. */
 	for (i = 0; i < MAP_WIDTH(oldmap); i++)
 	{
-		for (j = 0; j < MAP_HEIGHT(oldmap); j++) 
+		for (j = 0; j < MAP_HEIGHT(oldmap); j++)
 		{
 			for (op = get_map_ob(oldmap, i, j); op; op = tmp2)
 			{
@@ -1192,6 +1201,43 @@ CFParm* CFWSwapApartments(CFParm *PParm)
 	CFP->Value[0] = (void*) &val;
 	return CFP;
 }
+
+/*****************************************************************************/
+/* player_exists wrapper.                                                    */
+/*****************************************************************************/
+/* 0 - character name to find.                                               */
+/*****************************************************************************/
+CFParm* CFWPlayerExists(CFParm* PParm)
+{
+	sqlite3 *db;
+	sqlite3_stmt *statement;
+	int val = 0;
+    char *playerName = (char *)PParm->Value[0];
+	CFParm* CFP;
+
+    CFP = (CFParm*)(malloc(sizeof(CFParm)));
+
+	db_open(&db);
+
+	if (!db_prepare_format(db, &statement, "SELECT playerName FROM players WHERE playerName = '%s' LIMIT 1;", playerName))
+	{
+		LOG(llevBug, "BUG: CFWPlayerExists(): Failed to prepare SQL query to check if player exists! (%s)\n", db_errmsg(db));
+		db_close(db);
+		CFP->Value[0] = (void *) &val;
+		return CFP;
+	}
+
+	if (db_step(statement) == SQLITE_ROW)
+		val = 1;
+
+	db_finalize(statement);
+
+	db_close(db);
+
+	CFP->Value[0] = (void *) &val;
+	return CFP;
+}
+
 
 /*****************************************************************************/
 /* add_exp wrapper.                                                          */
