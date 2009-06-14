@@ -1509,10 +1509,10 @@ int monster_cast_spell(object *head, object *part, object *pl, int dir, rv_vecto
  *
  * At the moment this is only useful for throwing, perhaps for
  * stealing. TODO: This should be more integrated in the game. -MT, 25.11.01 */
-
 int monster_use_skill(object *head, object *part, object *pl, int dir)
 {
 	object *skill, *owner;
+	rv_vector rv;
 
   	if (!(dir = path_to_player(part, pl, 0)))
     	return 0;
@@ -1520,8 +1520,9 @@ int monster_use_skill(object *head, object *part, object *pl, int dir)
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
 		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
-		/* Might hit owner with skill -thrown rocks for example ?*/
-		if (dirdiff(dir, dir2) < 1)
+
+		/* Might hit owner with skill - thrown rocks for example? */
+		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 1)
 			return 0;
 	}
 
@@ -1558,6 +1559,8 @@ int monster_use_skill(object *head, object *part, object *pl, int dir)
 int monster_use_wand(object *head, object *part, object *pl, int dir)
 {
 	object *wand, *owner;
+	rv_vector rv;
+
 	if (!(dir = path_to_player(part, pl, 0)))
 		return 0;
 
@@ -1566,7 +1569,7 @@ int monster_use_wand(object *head, object *part, object *pl, int dir)
 		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
 
 		/* Might hit owner with spell */
-		if (dirdiff(dir, dir2) < 2)
+		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;
 	}
 
@@ -1610,6 +1613,7 @@ int monster_use_wand(object *head, object *part, object *pl, int dir)
 int monster_use_rod(object *head, object *part, object *pl, int dir)
 {
 	object *rod, *owner;
+	rv_vector rv;
 
 	if (!(dir = path_to_player(part, pl, 0)))
 		return 0;
@@ -1619,7 +1623,7 @@ int monster_use_rod(object *head, object *part, object *pl, int dir)
 		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
 
 		/* Might hit owner with spell */
-		if (dirdiff(dir, dir2) < 2)
+		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;
 	}
 
@@ -1653,6 +1657,7 @@ int monster_use_rod(object *head, object *part, object *pl, int dir)
 int monster_use_horn(object *head, object *part, object *pl, int dir)
 {
 	object *horn, *owner;
+	rv_vector rv;
 
 	if (!(dir = path_to_player(part, pl, 0)))
 		return 0;
@@ -1660,8 +1665,9 @@ int monster_use_horn(object *head, object *part, object *pl, int dir)
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
 		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
+
 		/* Might hit owner with spell */
-		if (dirdiff(dir, dir2) < 2)
+		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;
 	}
 

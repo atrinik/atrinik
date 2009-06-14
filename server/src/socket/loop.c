@@ -27,7 +27,7 @@
  * maintenance (checking for lost connections and if data has arrived.)
  * The reading of data is handled in ericserver.c
  */
- 
+
 
 #include <global.h>
 #ifndef __CEXTRACT__

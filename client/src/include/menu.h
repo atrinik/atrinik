@@ -126,7 +126,6 @@ extern void show_quickslots(int x, int y);
 extern void update_quickslots(int del_item);
 extern void load_quickslots_entrys();
 extern void save_quickslots_entrys();
-extern void show_group(int x, int y);
 
 extern int client_command_check(char *cmd);
 

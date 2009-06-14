@@ -779,8 +779,6 @@ void command_new_char(char *params, int len, player *pl)
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 	/* force send of skill exp data to client */
 	CONTR(op)->last_stats.exp = 1;
-	/* no title - just what we born */
-	strcpy(CONTR(op)->title, op->race);
 	/* THATS our first fix_player() when we create a new char
 	 * add this time, hp and sp will be set */
 	fix_player(op);

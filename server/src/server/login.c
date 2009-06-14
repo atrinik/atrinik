@@ -808,8 +808,6 @@ void check_login(object *op)
     pl->ob = op;
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-    strncpy(pl->title, op->arch->clone.name, MAX_NAME);
-
     /* If the map where the person was last saved does not exist,
      * restart them on their home-savebed. This is good for when
      * maps change between versions.

@@ -197,6 +197,7 @@ void pet_move(object * ob)
     int dir, tag, xt, yt;
     object *ob2, *owner;
 	mapstruct *mt;
+	rv_vector rv;
 
     /* Check to see if player pulled out */
     if ((owner = get_owner(ob)) == NULL)
@@ -216,7 +217,9 @@ void pet_move(object * ob)
 		return;
     }
     /* Calculate Direction */
-    dir = find_dir_2(ob->x - ob->owner->x, ob->y - ob->owner->y);
+	get_rangevector(ob, owner, &rv, 0);
+	dir = rv.direction;
+
     ob->direction = dir;
 
     tag = ob->count;

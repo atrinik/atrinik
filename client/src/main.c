@@ -1441,7 +1441,6 @@ int main(int argc, char *argv[])
 				sprite_blt(Bitmaps[BITMAP_PANEL_P1],686, 408, NULL, NULL);
 				sprite_blt(Bitmaps[BITMAP_TARGET_SPOT],0, 423, NULL, NULL);
 				sprite_blt(Bitmaps[BITMAP_GROUP_SPOT],0, 482, NULL, NULL);
-			    StringBlt(ScreenSurface, &Font6x3Out,"Group",5, 525,COLOR_HGOLD, NULL, NULL);
 				sprite_blt(Bitmaps[BITMAP_FLINE],1, 306, NULL, NULL);
 				sprite_blt(Bitmaps[BITMAP_BELOW],264, 550, NULL, NULL);
 				cpl.container=NULL; /* this will be set right on the fly in get_inventory_data() */
@@ -1462,7 +1461,6 @@ int main(int argc, char *argv[])
 	                                            &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
 					show_target(4,498);
 		            show_below_window(cpl.below, 264, 565);
-				    //show_group(2, 525);
 					StringBlt(ScreenSurface, &Font6x3Out,"(SHIFT for inventory)",28, 478,COLOR_DEFAULT, NULL, NULL);
 					show_inventory_window(6,472);
 					show_media(798,171);

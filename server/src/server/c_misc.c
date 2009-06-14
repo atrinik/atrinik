@@ -336,7 +336,7 @@ int command_who(object *op, char *params)
              	sex = "female";
 
 	    	if (op == NULL || QUERY_FLAG(op, FLAG_WIZ))
-				(void) sprintf(buf, "%s the %s (@%s) [%s]%s%s (%d)", pl->ob->name, pl->title, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
+				(void) sprintf(buf, "%s the %s %s (@%s) [%s]%s%s (%d)", pl->ob->name, sex, pl->ob->race, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
 	    	else
 				sprintf(buf, "%s the %s %s (lvl %d)%s%s", pl->ob->name, sex, pl->ob->race, pl->ob->level, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "");
 

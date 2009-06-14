@@ -1118,3 +1118,27 @@ void make_sure_seen(object *op)
 void make_sure_not_seen(object *op)
 {
 }
+
+int obj_in_line_of_sight(object *op, object *obj, rv_vector *rv)
+{
+    /* Bresenham variables */
+    int fraction, dx2, dy2, stepx, stepy;
+    /* Stepping variables */
+    mapstruct *m = rv->part->map;
+    int x = rv->part->x, y = rv->part->y;
+
+    BRESENHAM_INIT(rv->distance_x, rv->distance_y, fraction, stepx, stepy, dx2, dy2);
+
+    while (1)
+    {
+        if (x == obj->x && y == obj->y && m == obj->map)
+            return 1;
+
+        if (m == NULL || GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW)
+            return 0;
+
+        BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
+
+        m = out_of_map(m, &x, &y);
+    }
+}

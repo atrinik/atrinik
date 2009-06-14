@@ -2108,25 +2108,6 @@ void save_quickslots_entrys()
    fclose (stream);
 }
 
-
-void show_group(int x, int y)
-{
-
-	int s;
-
-	for(s=0;s<MAX_GROUP_MEMBER;s++)
-	{
-		sprite_blt(Bitmaps[BITMAP_GROUP_CLEAR],x+group_pos[s][0]+1, y+group_pos[s][1]+1, NULL, NULL);
-	}
-
-	/*
-    StringBlt(ScreenSurface, &SystemFont,cpl.name,52, 525,COLOR_DEFAULT, NULL, NULL);
-    sprintf(buf, "L %03d",cpl.stats.level);
-    StringBlt(ScreenSurface, &Font6x3Out,buf,24, 522,COLOR_DEFAULT, NULL, NULL);
-	*/
-}
-
-
 void show_target(int x, int y)
 {
 	char *ptr=NULL;

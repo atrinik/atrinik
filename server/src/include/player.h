@@ -465,9 +465,6 @@ typedef struct pl_player
 
 	long last_weight;
 
-	/* we use ext. title now - we should remove this now! */
-  	char title[BIG_NAME];
-
   	unsigned char last_level;
 
 	/* Who killed this player. */

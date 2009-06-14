@@ -17,6 +17,8 @@ tile_path_5 arena_7
 tile_path_6 arena_9
 tile_path_7 arena_3
 tile_path_8 arena_1
+enter_x 0
+enter_y 0
 end
 arch grassd_5
 end

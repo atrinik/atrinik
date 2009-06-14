@@ -1253,34 +1253,35 @@ char *gravestone_text(object *op)
     char buf[MAX_BUF];
     time_t now = time(NULL);
 
-    strcpy(buf2, "                 R.I.P.\n\n");
+    strcpy(buf2, "R.I.P.\n\n");
+
     if (op->type == PLAYER)
-        sprintf(buf, "%s the %s\n", op->name, CONTR(op)->title);
+        sprintf(buf, "Here rests the hero %s the %s\n", op->name, op->race);
     else
         sprintf(buf, "%s\n", op->name);
-    strncat(buf2, "                    ", 20 - strlen(buf) / 2);
-    strcat(buf2, buf);
+
+	strcat(buf2, buf);
+
     if (op->type == PLAYER)
-        sprintf(buf, "who was in level %d when killed\n", op->level);
+        sprintf(buf, "who was killed at level %d\n", op->level);
     else
-        sprintf(buf, "who was in level %d when died.\n\n", op->level);
-    strncat(buf2, "                    ", 20 - strlen(buf) / 2);
+        sprintf(buf, "who died at level %d.\n\n", op->level);
+
     strcat(buf2, buf);
+
     if (op->type == PLAYER)
 	{
-        sprintf(buf, "by %s.\n\n", CONTR(op)->killer);
-        strncat(buf2, "                    ", 21 - strlen(buf) / 2);
+        sprintf(buf, "by %s.\n\n", strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
         strcat(buf2, buf);
     }
-    strftime(buf, MAX_BUF, "%b %d %Y\n", localtime(&now));
-    strncat(buf2, "                    ", 20 - strlen(buf) / 2);
+
+    strftime(buf, MAX_BUF, "%b %d %Y", localtime(&now));
     strcat(buf2, buf);
+
     return buf2;
 }
 
-/*
- * Returns true if sacrifice was accepted.
- */
+/* Returns true if sacrifice was accepted. */
 static int apply_altar(object *altar, object *sacrifice, object *originator)
 {
   	/* Only players can make sacrifices on spell casting altars. */
@@ -1289,19 +1290,17 @@ static int apply_altar(object *altar, object *sacrifice, object *originator)
 
   	if (operate_altar(altar, &sacrifice))
   	{
-    /* Simple check.
-     * with an altar.  We call it a Potion - altars are stationary - it
-     * is up to map designers to use them properly.
-	 * Change: I changed .sp from 0 = no spell to -1. So we can cast first
-	 * spell too... No idea why this was not done in crossfire. ;T-2003
-     */
+		/* Simple check.
+		 * with an altar.  We call it a Potion - altars are stationary - it
+		 * is up to map designers to use them properly.
+		 * Change: I changed .sp from 0 = no spell to -1. So we can cast first
+		 * spell too... No idea why this was not done in crossfire. ;T-2003 */
     	if (altar->stats.sp != -1)
     	{
       		new_draw_info_format(NDI_WHITE, 0, originator, "The altar casts %s.", spells[altar->stats.sp].name);
       		cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, spellPotion, NULL);
 			/* If it is connected, push the button.  Fixes some problems with
-			* old maps.
-			*/
+			 * old maps. */
       		push_button(altar);
     	}
 		else
@@ -1310,6 +1309,7 @@ static int apply_altar(object *altar, object *sacrifice, object *originator)
       		altar->value = 1;
       		push_button (altar);
     	}
+
     	return sacrifice == NULL;
   	}
 	else

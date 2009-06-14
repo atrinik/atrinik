@@ -135,21 +135,22 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
 
     /* Force player to face enemy */
-    if (hitter->type ==PLAYER)
-	{
+    if (hitter->type == PLAYER)
+    {
         rv_vector dir;
-        get_rangevector(hitter, op, &dir, RV_MANHATTAN_DISTANCE);
 
-        if (hitter->direction != dir.direction || hitter->facing != dir.direction)
-		{
+        if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE))
+        {
             if (hitter->head)
-                hitter->head->anim_moving_dir = dir.direction;
+            {
+                hitter->head->anim_enemy_dir = dir.direction;
+                hitter->head->facing = dir.direction;
+            }
             else
-                hitter->anim_moving_dir = dir.direction;
-
-            hitter->direction = dir.direction;
-            hitter->facing = dir.direction;
-            update_object(hitter, UP_OBJ_FACE);
+            {
+                hitter->anim_enemy_dir = dir.direction;
+                hitter->facing = dir.direction;
+            }
         }
     }
 
@@ -1104,9 +1105,6 @@ int kill_object(object *op,int dam, object *hitter, int type)
 	/* Player killed something */
 	if (owner->type == PLAYER)
 	{
-		/* This appears to be doing primitive filtering to only
-		* display the more interesting monsters. */
-		/*if ( owner->level/2<op->level || op->stats.exp>1000) {*/
 		if (owner != hitter)
 		{
 			(void) sprintf(buf, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
@@ -1118,7 +1116,6 @@ int kill_object(object *op,int dam, object *hitter, int type)
 
 		/* message should be displayed */
 		new_draw_info(NDI_WHITE, 0, owner, buf);
-		/*}*/
 	}
 	/* was a player that hit this creature */
 
@@ -1133,8 +1130,8 @@ int kill_object(object *op,int dam, object *hitter, int type)
 	else
 		(void) sprintf(buf, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
 
-	/* If you didn't kill yourself, and your not the wizard */
-	if (hitter != op && !QUERY_FLAG(op, FLAG_WAS_WIZ))
+	/* If you didn't kill yourself, and you're not the wizard */
+	if (hitter != op && !QUERY_FLAG(op, FLAG_WIZ))
 	{
 		/* new exp system in here. Try to insure the right skill is modifying gained exp */
 		/* only calc exp for a player who has not killed a player */
@@ -1295,7 +1292,6 @@ int kill_object(object *op,int dam, object *hitter, int type)
 			}
 		}
 	}
-
 
     return maxdam;
 }

@@ -240,6 +240,7 @@ extern void make_sure_not_seen(object *op);
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
 extern void check_light_source_list(mapstruct *map);
 extern void remove_light_source_list(mapstruct *map);
+extern int obj_in_line_of_sight(object *op, object *obj, rv_vector *rv);
 
 /* map.c */
 extern mapstruct *has_been_loaded_sh(const char *name);

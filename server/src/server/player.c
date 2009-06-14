@@ -183,7 +183,6 @@ static player *get_player(player *p)
     p->explore = 0;
 #endif
 
-    strncpy(p->title, op->arch->clone.name, MAX_NAME);
 	FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 
     /* Would be better of '0' was not a defined spell */
@@ -374,7 +373,7 @@ object *get_nearest_player(object *mon)
 				return op;
 		}
 
-		if (!can_detect_target(mon, ol->ob, aggro_range, aggro_stealth, &rv))
+		if (!can_detect_target(mon, ol->ob, aggro_range, aggro_stealth, &rv) || !obj_in_line_of_sight(mon, ol->ob, &rv))
 			continue;
 
 		if (lastdist > rv.distance)
@@ -955,6 +954,7 @@ void fire(object *op, int dir)
         		CONTR(op)->action_timer *= -1;
 			/*op->speed_left -= get_skill_time(op,op->chosen_skill->stats.sp);*/
 			return;
+
 		case range_rod:
 		case range_horn:
 			trick_jump:
@@ -992,6 +992,7 @@ void fire(object *op, int dir)
 
 				return;
 			}
+
 			/*new_draw_info_format(NDI_ALL | NDI_UNIQUE, 5, NULL, "Use %s - cast spell %d\n", weap->name, weap->stats.sp);*/
 			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CONTR(op)->shoottype == range_rod ? spellRod : spellHorn, NULL))
 			{
@@ -1047,13 +1048,13 @@ int move_player(object *op, int dir)
 		return 0;
 
 	if (dir)
-		op->facing = dir;
+        op->facing = dir;
 
     if (QUERY_FLAG(op, FLAG_CONFUSED) && dir)
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+        dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
 
     op->anim_moving_dir = -1;
-	op->anim_enemy_dir = -1;
+    op->anim_enemy_dir = -1;
     op->anim_last_facing = -1;
 
 	/* puh, we should move hide to FLAG_ ASAP */
@@ -1406,21 +1407,21 @@ void kill_player(object *op)
         if (op->stats.food <= 0)
 			op->stats.food = 999;
 
-        /* create a bodypart-trophy to make the winner happy */
+        /* Create a bodypart-trophy to make the winner happy */
         tmp = arch_to_object(find_archetype("finger"));
         if (tmp != NULL)
         {
 	        sprintf(buf, "%s's finger", op->name);
 	        FREE_AND_COPY_HASH(tmp->name, buf);
-	        sprintf(buf, "This finger has been cut off %s\nthe %s, when he was defeated at\nlevel %d by %s.\n", op->name, op->race, (int)(op->level), CONTR(op)->killer);
+	        sprintf(buf, "This finger has been cut off %s the %s, when he was defeated at level %d by %s.", op->name, op->race, (int)(op->level), strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
 	        FREE_AND_COPY_HASH(tmp->msg, buf);
 	        tmp->value = 0, tmp->material = 0, tmp->type = 0;
 	        tmp->x = op->x, tmp->y = op->y;
 	        insert_ob_in_map(tmp, op->map, op, 0);
         }
 
-        /* teleport defeated player to new destination*/
-        transfer_ob(op, op->map->enter_x, op->map->enter_y, 0, NULL, NULL);
+        /* teleport defeated player to new destination */
+        transfer_ob(op, MAP_ENTER_X(op->map), MAP_ENTER_Y(op->map), 0, NULL, NULL);
         return;
     }
 
@@ -1618,8 +1619,7 @@ void kill_player(object *op)
     tmp = arch_to_object(find_archetype("gravestone"));
     sprintf(buf, "%s's gravestone", op->name);
     FREE_AND_COPY_HASH(tmp->name, buf);
-    sprintf(buf, "RIP\nHere rests the hero %s the %s,\nwho was killed\nat level %d by %s.\n", op->name, op->race, op->level, strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
-    FREE_AND_COPY_HASH(tmp->msg, buf);
+    FREE_AND_COPY_HASH(tmp->msg, gravestone_text(op));
     tmp->x = op->x, tmp->y = op->y;
     insert_ob_in_map(tmp, op->map, NULL, 0);
 
@@ -1982,25 +1982,25 @@ int pvp_area(object *attacker, object* victim)
 {
 	/* No attacking of party members. */
 	if (attacker && victim && CONTR(attacker)->party_number != -1 && CONTR(victim)->party_number != -1 && CONTR(attacker)->party_number == CONTR(victim)->party_number)
-		return FALSE;
+		return 0;
 
 	/* If both are the same, this is probably a firestorm from attacker or something. Don't want to kill ourselves! */
 	if (attacker && victim && attacker == victim)
-		return FALSE;
+		return 0;
 
 	if (attacker)
 	{
 		if (!(attacker->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_IS_PVP))
-			return FALSE;
+			return 0;
 	}
 
 	if (victim)
 	{
 		if (!(victim->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_IS_PVP))
-			return FALSE;
+			return 0;
 	}
 
-	return TRUE;
+	return 1;
 }
 
 /* op_on_battleground - checks if the given object op (usually
