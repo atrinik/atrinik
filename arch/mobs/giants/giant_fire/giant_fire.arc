@@ -2,6 +2,7 @@ Object giant_fire
 name fire giant
 face giant_fire.151
 race giant
+randomitems mob_fire
 is_male 1
 corpse 1
 will_apply 8

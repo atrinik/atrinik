@@ -2,6 +2,7 @@ Object giant_ice
 name ice giant
 face giant_ice.151
 race giant
+randomitems mob_ice
 is_male 1
 corpse 1
 will_apply 8

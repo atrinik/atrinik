@@ -2,6 +2,7 @@ Object dragon_fire
 name fire dragon
 face dragon_fire.151
 race dragon
+randomitems mob_dragon_fire
 is_female 1
 corpse 1
 will_apply 8

@@ -1,7 +1,7 @@
 Object steak2
 name steak
 face steak2.101
-food 200
+food 300
 item_quality 100
 item_condition 100
 nrof 1

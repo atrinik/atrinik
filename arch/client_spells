@@ -38,13 +38,13 @@ p p 9 si_080.png
 p f 17 si_082.png
 "This prayer removes all curses from *wielded* or *worn*"
 "items of your character."
-"Unapplied items in your inventory are NOT effected."
+"Unapplied items in your inventory are NOT affected."
 " "
 "remove damnation"
 p g 17 si_083.png
 "This prayer removes all damnations from *wielded* or *worn*"
 "items of your character."
-"Unapplied items in your inventory are NOT effected."
+"Unapplied items in your inventory are NOT affected."
 " "
 "strength self"
 w b 6 si_063.png
@@ -56,7 +56,7 @@ w b 6 si_063.png
 w f 14 si_097.png
 "Probe will invoke a magic ball which will give you information about the mob"
 "it hits. Probe tells you about the level, the base values and some more."
-"A probe will be invisible for the mob and invokes no aggro or something."
+"A probe will be invisible for the mob and invoke no aggro or something."
 "This spell is the base information source for the player. Don't miss it."
 "identify"
 w k 14 si_098.png

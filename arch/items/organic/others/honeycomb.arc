@@ -1,7 +1,7 @@
 Object honeycomb
 name honeycomb
 face honeycomb.101
-food 200
+food 95
 item_quality 100
 item_condition 100
 nrof 1

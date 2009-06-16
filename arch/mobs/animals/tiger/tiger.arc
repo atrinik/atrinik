@@ -2,6 +2,7 @@ Object tiger
 name tiger
 face tiger.131
 race cat
+randomitems mob_tiger
 is_female 1
 corpse 1
 will_apply 8

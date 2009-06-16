@@ -1250,8 +1250,9 @@ end
 arch teleporter
 layer 0
 sys_object 1
-hp 14
-sp 12
+slaying moroch_temple/moroch_temple1
+hp 8
+sp 7
 connected 101
 x 9
 y 16

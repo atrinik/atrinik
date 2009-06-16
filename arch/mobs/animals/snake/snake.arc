@@ -2,6 +2,7 @@ Object snake
 name snake
 face snake.151
 race reptile
+randomitems mob_snake
 is_female 1
 corpse 1
 will_apply 8

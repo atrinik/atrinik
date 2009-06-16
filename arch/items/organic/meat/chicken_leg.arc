@@ -1,7 +1,7 @@
 Object chicken_leg
-name chicken_leg
+name chicken leg
 face chicken_leg.101
-food 200
+food 400
 item_quality 100
 item_condition 100
 nrof 1

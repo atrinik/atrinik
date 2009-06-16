@@ -1,7 +1,7 @@
 Object rambutan
 name rambutan
 face rambutan.101
-food 200
+food 60
 item_quality 100
 item_condition 100
 nrof 1

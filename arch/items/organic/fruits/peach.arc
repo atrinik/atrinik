@@ -1,7 +1,6 @@
 Object peach
 name peach
-face peach.101
-food 200
+face peach.120200
 item_quality 100
 item_condition 100
 nrof 1

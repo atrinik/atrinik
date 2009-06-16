@@ -2,6 +2,7 @@ Object deer
 name deer
 face deer.121
 race deer
+randomitems mob_deer
 is_female 1
 corpse 1
 will_apply 8

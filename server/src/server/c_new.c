@@ -333,51 +333,50 @@ int command_target(object *op, char *params)
 	if (!op || !op->map || op->type != PLAYER || !CONTR(op) || !params || params[0] == 0)
 		return 1;
 
-	/* !x y = mouse map target */
-	if (params[0] == '!')
-	{
-		int xstart, ystart;
-		char *ctmp;
+ 	/* !x y = mouse map target */
+    if (params[0] == '!')
+    {
+        int xstart, ystart;
+        char *ctmp;
 
-		xstart = atoi(params + 1);
-		ctmp = strchr(params + 1, ' ');
+        xstart = atoi(params + 1);
+        ctmp = strchr(params + 1, ' ');
+        if (!ctmp) /* bad format.. skip */
+            return 0;
+        ystart = atoi(ctmp + 1);
 
-		/* bad format.. skip */
-		if (!ctmp)
-			return 0;
+        for (n = 0; n < SIZEOFFREE; n++)
+        {
+            int xx, yy;
 
-		ystart = atoi(ctmp + 1);
+            /* thats the trick: we get  op map pos, but we have 2 offsets:
+             * the offset from the client mouse click - can be
+             * +- CONTR(op)->socket.mapx/2 - and the freearr_x/y offset for
+             * the search.
+             */
+            xt = op->x + (xx = freearr_x[n] + xstart);
+            yt = op->y + (yy = freearr_y[n] + ystart);
 
-		for(n = 0; n < SIZEOFFREE; n++)
-		{
-			int xx, yy;
+            if (xx <-(int) (CONTR(op)->socket.mapx_2) || xx>(int)(CONTR(op)->socket.mapx_2) || yy <-(int) (CONTR(op)->socket.mapy_2) || yy>(int)(CONTR(op)->socket.mapy_2))
+                continue;
 
-			/* thats the trick: we get  op map pos, but we have 2 offsets:
-			 * the offset from the client mouse click - can be
-			 * +- CONTR(op)->socket.mapx/2 - and the freearr_x/y offset for
-			 * the search. */
-			xt = op->x + (xx = freearr_x[n] + xstart);
-			yt = op->y + (yy = freearr_y[n] + ystart);
+            block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
+            if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = out_of_map(op->map, &xt, &yt)))
+                continue;
 
-			if (xx <-(int)(CONTR(op)->socket.mapx_2) || xx > (int)(CONTR(op)->socket.mapx_2) || yy < -(int)(CONTR(op)->socket.mapy_2) || yy>(int)(CONTR(op)->socket.mapy_2))
-				continue;
-
-			block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
-			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = out_of_map(op->map, &xt, &yt)))
-				continue;
-
-			/* we can have more as one possible target
-			 * on a square - but i try this first without
-			 * handle it. */
-			for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
-			{
-				/* this is a possible target */
+            /* we can have more as one possible target
+             * on a square - but i try this first without
+             * handle it.
+             */
+            for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
+            {
+                /* this is a possible target */
 				/* ensure we have head */
 				tmp->head != NULL ? (head = tmp->head) : (head = tmp);
-				if (QUERY_FLAG(head, FLAG_MONSTER) || QUERY_FLAG(head, FLAG_FRIENDLY) || head->type == PLAYER)
+				if ((QUERY_FLAG(head, FLAG_MONSTER) && !QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && pvp_area(op, head)))
 				{
 					/* this can happen when our old target has moved to next position */
-					if (QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
+					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)))
 						continue;
 
 					CONTR(op)->target_object = head;
@@ -385,9 +384,9 @@ int command_target(object *op, char *params)
 					CONTR(op)->target_map_pos = n;
 					goto found_target;
 				}
-			}
-		}
-	}
+            }
+        }
+    }
 	else if (params[0] == '0')
 	{
 		/* if our target before was a non enemy, start new search
@@ -396,12 +395,12 @@ int command_target(object *op, char *params)
 		nt = -1;
 
 		/* lets search for enemy object! */
-		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !QUERY_FLAG(CONTR(op)->target_object, FLAG_FRIENDLY ))
+		if (CONTR(op)->target_object && OBJECT_ACTIVE(CONTR(op)->target_object) && CONTR(op)->target_object_count == CONTR(op)->target_object->count && !QUERY_FLAG(CONTR(op)->target_object, FLAG_FRIENDLY))
 			n = CONTR(op)->target_map_pos;
 		else
 			CONTR(op)->target_object = NULL;
 
-		for (; n < NROF_MAP_NODE && n != nt; n++)
+  		for (; n < NROF_MAP_NODE && n != nt; n++)
 		{
 			int xx, yy;
 

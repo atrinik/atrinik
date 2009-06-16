@@ -1,7 +1,7 @@
 Object bread
 name bread
 face bread.101
-food 200
+food 100
 item_quality 100
 item_condition 100
 nrof 1

@@ -93,7 +93,8 @@ void load_treasures()
 
   	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
-      	if (*buf == '#')
+		/* Ignore comments and blank lines */
+      	if (*buf == '#' || *buf == '\n')
       		continue;
 
     	if (sscanf(buf, "treasureone %s\n", name) || sscanf(buf, "treasure %s\n", name))
@@ -102,7 +103,7 @@ void load_treasures()
       		FREE_AND_COPY_HASH(tl->name, name);
 
       		if (previous == NULL)
-        		first_treasurelist=tl;
+        		first_treasurelist = tl;
       		else
         		previous->next = tl;
 
@@ -737,7 +738,7 @@ void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int
 				{
 					/* if t->magic is != 0, thats our value - if not use default setting */
 					int i, value = t->magic ? t->magic : t->item->clone.value;
-	
+
 					value *= (difficulty / 2) + 1;
 					/* so we have 80% to 120% of the fixed value */
 					value = (int) ((float) value * 0.8f + (float) value * ((float)(RANDOM() % 40) / 100.0f));
@@ -1168,7 +1169,7 @@ int set_ring_bonus(object *op, int bonus, int level)
 				op->stats.food++;
 			}
 			break;
-	
+
 		case 10:
 			op->stats.ac += bonus;
 			if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
@@ -1177,7 +1178,7 @@ int set_ring_bonus(object *op, int bonus, int level)
 				op->stats.ac++;
 			}
 			break;
-	
+
 		case 11:
 			if (!RANDOM() % 3)
 				goto make_prot_items;
@@ -1239,7 +1240,7 @@ int set_ring_bonus(object *op, int bonus, int level)
 
 			op->stats.maxsp = tmp;
 			break;
-	
+
 		case 12:
 			if (!RANDOM() % 3)
 				goto make_prot_items;
@@ -1380,7 +1381,7 @@ int set_ring_bonus(object *op, int bonus, int level)
 				op->value = (int)((float)op->value * 1.3f);
 			}
 			break;
-	
+
 		case 21:
 			if (op->type == AMULET)
 			{
@@ -1394,7 +1395,7 @@ int set_ring_bonus(object *op, int bonus, int level)
 				op->value = (int)((float)op->value * 1.35f);
 			}
 		break;
-	
+
 		/* case 22: */
 		default:
 			if (!bonus)
@@ -1679,7 +1680,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					}
 					else
 						op->level = RANDOM() % creator->level;
-	
+
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					/* books with info are worth more! */
 					op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
@@ -1687,7 +1688,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					/* creator related stuff */
 
 					/* for library, chained books! */
-					if (QUERY_FLAG(creator, FLAG_NO_PICK))
+					if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK))
 						SET_FLAG(op, FLAG_NO_PICK);
 
 					/* for check_inv floors */

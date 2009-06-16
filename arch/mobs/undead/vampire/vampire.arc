@@ -2,6 +2,7 @@ Object vampire
 name vampire
 face vampire.151
 race undead
+randomitems mob_vampire
 is_female 1
 corpse 1
 will_apply 8

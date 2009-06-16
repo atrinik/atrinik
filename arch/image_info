@@ -1,5 +1,3 @@
-# "$Id: image_info,v 1.1.1.1 2003/10/15 23:49:52 michtoen Exp $";
-#
 # This file describes the various image files installed.
 # For more information on how all this works and about adding new
 # image sets, see the doc/Developer/images file.

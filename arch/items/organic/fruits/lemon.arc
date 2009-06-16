@@ -1,7 +1,7 @@
 Object lemon
 name lemon
 face lemon.101
-food 200
+food 50
 item_quality 100
 item_condition 100
 nrof 1

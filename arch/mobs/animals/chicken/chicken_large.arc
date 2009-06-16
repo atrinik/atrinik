@@ -2,6 +2,7 @@ Object chicken_large
 name large chicken
 face chicken_large.151
 race chicken
+randomitems mob_chicken_large
 is_female 1
 corpse 1
 will_apply 8

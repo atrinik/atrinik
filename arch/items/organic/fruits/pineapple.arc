@@ -1,7 +1,7 @@
 Object pineapple
 name pineapple
 face pineapple.101
-food 200
+food 275
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,4 +1,4 @@
-# Artifactitem_level_arts file for Daimonin
+# Artifactitem_level_arts file for Atrinik
 #
 # The Artifacts file looks very similiar to CF
 # list file but its used in an advanced way.
@@ -14,7 +14,7 @@
 # the command list. When a name command is given, the name
 # will overrule the base item name.
 #
-# The Artifacts file has 2 uses in Daimonin:
+# The Artifacts file has 2 uses in Atrinik:
 # 
 # A.) Using the <name> of a artifact definition, the single
 # artifacts are used as a kind generic arches. They
@@ -46,7 +46,7 @@
 # items. This would be not possible when we define Stormbringer as 
 # a normal arch.
 #
-# In Daimonin, only the def arch is pre parsed - for a "normal" artifactr
+# In Atrinik, only the def arch is pre parsed - for a "normal" artifactr
 # we parse the used object with the commands on the fly at creation time.
 # With the map flag MAP_ARTIFACT in the loader.c module, we use some
 # values special. In some cases a positive value will overwrite the old

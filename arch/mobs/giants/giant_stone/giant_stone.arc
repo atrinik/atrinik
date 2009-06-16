@@ -1,6 +1,6 @@
 Object giant_stone
 name stone giant
-race giants
+race giant
 randomitems mob_giant_stone
 will_apply 8
 is_evil 1

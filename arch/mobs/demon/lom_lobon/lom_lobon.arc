@@ -2,7 +2,7 @@ Object lom_lobon
 name lom lobon
 face lom_lobon.131
 race demon
-randomitems mob_mage_l9
+randomitems mob_lom_lobon
 type 80
 layer 6
 direction 5

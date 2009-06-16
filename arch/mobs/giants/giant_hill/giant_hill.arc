@@ -1,6 +1,6 @@
 Object giant_hill
 name hill giant
-race giants
+race giant
 randomitems mob_giant_hill
 will_apply 8
 is_evil 1

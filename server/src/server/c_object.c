@@ -1570,6 +1570,48 @@ void examine(object *op, object *tmp)
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 				sprintf(buf, "It has %d charges left.", tmp->stats.food);
 			break;
+
+		case POWER_CRYSTAL:
+			/* Avoid division by zero... */
+			if (tmp->stats.maxsp == 0)
+			{
+				sprintf(buf, "It has capacity of %d.", tmp->stats.maxsp);
+			}
+			else
+			{
+				int i;
+
+				/* higher capacity crystals */
+				if (tmp->stats.maxsp > 1000)
+				{
+					i = (tmp->stats.maxsp % 1000) / 100;
+					if (i)
+						sprintf(tmp_buf, "It has capacity of %d.%dk and is ", tmp->stats.maxsp / 1000, i);
+					else
+						sprintf(tmp_buf, "It has capacity of %dk and is ", tmp->stats.maxsp / 1000);
+				}
+				else
+					sprintf(tmp_buf, "It has capacity of %d and is ", tmp->stats.maxsp);
+
+				strcat(buf, tmp_buf);
+				i = (tmp->stats.sp * 10) / tmp->stats.maxsp;
+
+				if (tmp->stats.sp == 0)
+					strcat(buf, "empty.");
+				else if (i == 0)
+					strcat(buf, "almost empty.");
+				else if (i < 3)
+					strcat(buf, "partially filled.");
+				else if (i < 6)
+					strcat(buf, "half full.");
+				else if (i < 9)
+					strcat(buf, "well charged.");
+				else if (tmp->stats.sp == tmp->stats.maxsp)
+					strcat(buf, "fully charged.");
+				else
+					strcat(buf, "almost full.");
+			}
+			break;
 	}
 
     if (buf[0] != '\0')

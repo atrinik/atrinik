@@ -8,22 +8,24 @@
   #        to generate a new version of this file.         #
   ##########################################################
 -->
-  <spell id="12"  name="cause light wounds" />
-  <spell id="13"  name="confuse" />
-  <spell id="5"   name="cure disease" />
-  <spell id="4"   name="cure poison" />
-  <spell id="9"   name="detect curse" />
-  <spell id="8"   name="detect magic" />
+  <spell id="11"  name="cause light wounds" />
+  <spell id="12"  name="confuse" />
+  <spell id="18"  name="create food" />
+  <spell id="4"   name="cure disease" />
+  <spell id="3"   name="cure poison" />
+  <spell id="8"   name="detect curse" />
+  <spell id="7"   name="detect magic" />
   <spell id="0"   name="firestorm" />
   <spell id="1"   name="icestorm" />
-  <spell id="7"   name="identify" />
-  <spell id="14"  name="magic bullet" />
-  <spell id="3"   name="minor healing" />
-  <spell id="17"  name="probe" />
-  <spell id="10"  name="remove curse" />
-  <spell id="11"  name="remove damnation" />
-  <spell id="16"  name="remove depletion" />
-  <spell id="6"   name="strength self" />
-  <spell id="15"  name="summon golem" />
-  <spell id="2"   name="town portal" />
+  <spell id="6"   name="identify" />
+  <spell id="13"  name="magic bullet" />
+  <spell id="2"   name="minor healing" />
+  <spell id="16"  name="probe" />
+  <spell id="9"   name="remove curse" />
+  <spell id="10"  name="remove damnation" />
+  <spell id="15"  name="remove depletion" />
+  <spell id="5"   name="strength self" />
+  <spell id="14"  name="summon golem" />
+  <spell id="17"  name="town portal" />
+  <spell id="19"  name="word of recall" />
 </spells>

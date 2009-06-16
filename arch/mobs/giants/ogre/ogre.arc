@@ -1,6 +1,6 @@
 Object ogre
 name ogre
-race giants
+race giant
 randomitems mob_ogre
 is_evil 1
 is_male 1

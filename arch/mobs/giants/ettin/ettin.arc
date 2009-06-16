@@ -1,7 +1,7 @@
 Object ettin
 name ettin
 face ettin.131
-race giants
+race giant
 is_male 1
 wc_range 20
 will_apply 8

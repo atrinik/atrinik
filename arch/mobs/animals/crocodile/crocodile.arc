@@ -2,6 +2,7 @@ Object crocodile
 name crocodile
 face crocodile.151
 race reptile
+randomitems mob_crocodile
 is_female 1
 corpse 1
 will_apply 8

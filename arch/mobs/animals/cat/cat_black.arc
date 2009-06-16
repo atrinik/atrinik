@@ -2,6 +2,7 @@ Object cat_black
 name black cat
 face cat_black.151
 race cat
+randomitems mob_cat_black
 is_female 1
 corpse 1
 will_apply 8

@@ -2,6 +2,7 @@ Object lich_lord
 name lich lord
 face lich_lord.151
 race undead
+randomitems mob_lich_lord
 is_female 1
 corpse 1
 will_apply 8

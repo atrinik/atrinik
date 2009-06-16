@@ -2,6 +2,7 @@ Object wolf
 name wolf
 face wolf.151
 race dog
+randomitems mob_wolf
 is_male 1
 corpse 1
 will_apply 8

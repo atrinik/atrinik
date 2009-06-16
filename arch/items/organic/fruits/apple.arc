@@ -1,7 +1,7 @@
 Object apple
 name apple
 face apple.101
-food 200
+food 100
 item_quality 100
 item_condition 100
 nrof 1

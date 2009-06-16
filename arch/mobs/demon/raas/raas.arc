@@ -2,7 +2,7 @@ Object raas
 name raas
 face raas.131
 race demon
-randomitems mob_mage_l9
+randomitems mob_raas
 type 80
 layer 6
 direction 5

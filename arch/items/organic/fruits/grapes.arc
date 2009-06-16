@@ -1,7 +1,7 @@
 Object grapes
 name grapes
 face grapes.101
-food 200
+food 80
 item_quality 100
 item_condition 100
 nrof 1

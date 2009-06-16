@@ -2,6 +2,7 @@ Object horse_white
 name white horse
 face horse_white.151
 race horse
+randomitems mob_horse_white
 is_female 1
 corpse 1
 will_apply 8

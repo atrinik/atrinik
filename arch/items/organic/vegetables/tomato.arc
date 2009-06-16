@@ -1,12 +1,12 @@
 Object tomato
 name tomato
 face tomato.101
-food 175
+food 35
 item_quality 100
 item_condition 100
 nrof 1
 layer 3
-type 54
+type 6
 speed_left 0.002
 material 32
 value 8

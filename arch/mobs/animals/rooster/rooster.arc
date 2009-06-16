@@ -2,6 +2,7 @@ Object rooster
 name rooster
 face rooster.121
 race chicken
+randomitems mob_rooster
 is_male 1
 corpse 1
 will_apply 8

@@ -1,7 +1,7 @@
 Object drumstick
 name drumstick
 face drumstick.101
-food 200
+food 280
 item_quality 100
 item_condition 100
 nrof 1

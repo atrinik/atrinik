@@ -2,6 +2,7 @@ Object demon_fire
 name fire demon
 face demon_fire.151
 race demon
+randomitems mob_demon_fire
 is_female 1
 corpse 1
 will_apply 8
