@@ -108,6 +108,7 @@ static struct PlCmdMapping plcommands[] = {
 	{"/fire",		command_fire},
 	{"fr",			command_face_request},
 	{"nc",			command_new_char},
+	{"pt",			PartyCmd},
     {NULL, NULL}
 };
 

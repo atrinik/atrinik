@@ -23,63 +23,54 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INCLUDE_H)
-#define __INCLUDE_H
+#if !defined(__PARTY_H)
+#define __PARTY_H
 
-#ifdef __LINUX
-#include "define.h"
-#endif
+/* Party tabs */
+enum {
+	PARTY_TAB_LIST,
+	PARTY_TAB_WHO,
+	PARTY_TAB_LEAVE,
+	PARTY_TAB_PASSWORD,
+	PARTY_TABS
+};
 
-#include "config.h"
+/* The main party GUI structure */
+typedef struct gui_party_struct
+{
+	/* Command to run. Something like "list", "who", etc. */
+	char command[MAX_BUF + 1];
 
-/* Just some handy ones I like to use */
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE 1
-#endif
+	/* Linked list of lines */
+	struct gui_party_line *start;
 
-/* This is for the DevCpp IDE */
-#ifndef __WIN_32
- #ifdef WIN32
-  #define __WIN_32
- #endif
-#endif
+	/* Number of lines */
+	int lines;
 
-typedef unsigned int    uint32;
-typedef signed int      sint32;
-typedef unsigned short  uint16;
-typedef signed short    sint16;
-typedef unsigned char   uint8;
-typedef signed char     sint8;
+	/* Scroll bar position */
+	int yoff;
 
-/* ok, here we define for what we want compile */
-/* later this should be insert a makefile */
+	/* Selected row */
+	int selected;
 
-#include <wrapper.h>
-#ifdef INSTALL_SOUND
-#include <SDL_mixer.h>
-#endif
+	/* Selected tab */
+	int tab;
+} _gui_party_struct;
 
+/* Structure for the party GUI lines */
+typedef struct gui_party_line
+{
+	/* The next line */
+	struct gui_party_line *next;
 
-#include <zlib.h>
-#include <item.h>
+	/* Line contents */
+	char line[MAX_BUF + 1];
+} _gui_party_line;
 
-#include <book.h>
-#include <client.h>
-#include <sdlsocket.h>
-#include <commands.h>
-#include <main.h>
-#include <player.h>
-#include <party.h>
-#include <misc.h>
-#include <event.h>
-#include <sound.h>
-#include <map.h>
-#include <sprite.h>
-#include <textwin.h>
-#include <inventory.h>
-#include <menu.h>
-#include <dialog.h>
+extern void switch_tabs();
+extern _gui_party_struct *load_party_interface(char *data, int len);
+extern void show_party(void);
+extern void gui_party_interface_mouse(SDL_Event *e);
+extern int console_party(void);
+
 #endif

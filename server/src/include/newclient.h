@@ -347,6 +347,7 @@ enum {
 	BINARY_CMD_NEW_CHAR,
 	BINARY_CMD_ITEMY,
 	BINARY_CMD_BOOK,
+	BINARY_CMD_PARTY,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

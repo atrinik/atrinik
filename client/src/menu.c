@@ -70,47 +70,52 @@ int quickslots_pos[MAX_QUICK_SLOTS][2] = {
 
 void do_console(int x, int y)
 {
-    if(InputStringEscFlag==TRUE)
+	/* If ESC was pressed or console_party() returned 1, close console. */
+    if (InputStringEscFlag || console_party())
     {
-        sound_play_effect(SOUND_CONSOLE,0,0,100);
-            reset_keys();
-        cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag=2;
-    }
-    /* if set, we got a finished input!*/
-    if(InputStringFlag==FALSE
-        &&InputStringEndFlag==TRUE)
-    {
-        sound_play_effect(SOUND_CONSOLE,0,0,100);
-        if(InputString[0])
-        {
-			char buf[MAX_INPUT_STRING+32];
-			/*
-			sprintf(buf,":%s",InputString);
-			draw_info(buf,COLOR_DGOLD);*/
+		if (gui_interface_party)
+			clear_party_interface();
 
-			if(*InputString != '/') /* if not a command ... its chat */
+        sound_play_effect(SOUND_CONSOLE, 0, 0, 100);
+        reset_keys();
+        cpl.input_mode = INPUT_MODE_NO;
+        map_udate_flag = 2;
+    }
+
+    /* If set, we've got a finished input */
+    if (InputStringFlag == 0 && InputStringEndFlag)
+    {
+        sound_play_effect(SOUND_CONSOLE, 0, 0, 100);
+
+        if (InputString[0])
+        {
+			char buf[MAX_INPUT_STRING + 32];
+
+#if 0
+			sprintf(buf, ":%s", InputString);
+			draw_info(buf, COLOR_DGOLD);
+#endif
+
+			/* If it's not command, it's say */
+			if (*InputString != '/')
 			{
-				sprintf(buf,"/say %s",InputString);
+				sprintf(buf, "/say %s", InputString);
 			}
 			else
 			{
-				if(client_command_check(InputString) )
-					goto no_send_cmd;
-
-				strcpy(buf,InputString);
+				strcpy(buf, InputString);
 			}
-            send_command(buf, -1, SC_NORMAL);
 
-
+			if (!client_command_check(InputString))
+            	send_command(buf, -1, SC_NORMAL);
         }
-		no_send_cmd:
+
         reset_keys();
         cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag=2;
+        map_udate_flag = 2;
     }
     else
-        show_console(x,y);
+        show_console(x, y);
 }
 
 /* client_command_check()
@@ -120,28 +125,6 @@ void do_console(int x, int y)
  * Return: TRUE=don't send command to server
  * FALSE: send command to server
  */
-/*
-    Daimonin SDL client, a client program for the Daimonin MMORPG.
-
-
-  Copyright (C) 2003 Michael Toennies
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    The author can be reached via e-mail to daimonin@nord-com.net
-*/
 
 int client_command_check(char *cmd)
 {
@@ -319,8 +302,56 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
+	else if (!strncmp(cmd, "/party ", 7))
+	{
+		cmd += 7;
 
-	return FALSE;
+		if (!strncmp(cmd, "join ", 5))
+		{
+			cmd += 5;
+
+			sprintf(tmp, "pt join %s", cmd);
+			cs_write_string(csocket.fd, tmp, strlen(tmp));
+
+			return 1;
+		}
+		else if (!strncmp(cmd, "leave", 5))
+		{
+			strcpy(cpl.partyname, "");
+		}
+		else if (!strncmp(cmd, "form ", 5))
+		{
+			cmd += 5;
+
+			sprintf(tmp, "pt form %s", cmd);
+			cs_write_string(csocket.fd, tmp, strlen(tmp));
+
+			return 1;
+		}
+		else if (!strncmp(cmd, "password ", 9))
+		{
+			cmd += 9;
+
+			sprintf(tmp, "pt password %s", cmd);
+			cs_write_string(csocket.fd, tmp, strlen(tmp));
+
+			return 1;
+		}
+		else if (!strncmp(cmd, "who", 3))
+		{
+			cs_write_string(csocket.fd, "pt who", 6);
+
+			return 1;
+		}
+		else if (!strncmp(cmd, "list", 4))
+		{
+			cs_write_string(csocket.fd, "pt list", 7);
+
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 void show_help(char *helpfile)
@@ -815,6 +846,8 @@ void show_menu(void)
 		show_status();
 	else if (cpl.menustatus == MENU_BOOK)
 		show_book(400-Bitmaps[BITMAP_JOURNAL]->bitmap->w/2,300-Bitmaps[BITMAP_JOURNAL]->bitmap->h/2);
+	else if (cpl.menustatus == MENU_PARTY)
+		show_party();
 	else if(cpl.menustatus == MENU_SPELL)
 	{
 		show_spelllist();

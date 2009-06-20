@@ -437,15 +437,34 @@ draw_info(tz, COLOR_BLUE);
       				break;
       			}
 
-				/* schow-menu buttons*/
-				if(x >=748 && x<=790)
+				/* Show menu buttons */
+				if (x >= 748 && x <= 790)
 				{
-					if(y>=1 && y<= 24) /* spell list */
+					/* Spell list */
+					if (y >= 1 && y <= 24)
 						check_menu_macros("?M_SPELL_LIST");
-					else if(y>=26 && y<= 49) /* skill list */
+					/* Skill list */
+					else if (y >= 26 && y <= 49)
 						check_menu_macros("?M_SKILL_LIST");
-					else if(y>=51 && y<= 74) /* online help */
+					/* Party GUI */
+					else if (y >= 51 && y <= 74)
+					{
+						char buf[HUGE_BUF];
+						sprintf(buf, "pt list");
+    					cs_write_string(csocket.fd, buf, strlen(buf));
+					}
+					/* Help system */
+					else if (y >= 76 && y <= 99)
 						show_help("main");
+				}
+
+				if (cpl.menustatus == MENU_PARTY)
+				{
+					if (event.button.button == 4 || event.button.button == 5 || event.button.button == SDL_BUTTON_LEFT)
+					{
+						gui_party_interface_mouse(&event);
+						break;
+					}
 				}
 
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
@@ -2254,6 +2273,183 @@ void check_menu_keys(int menu, int key)
                break;
            }
            break;
+
+		/* The party GUI menu */
+		case MENU_PARTY:
+			if (!gui_interface_party)
+				return;
+
+			switch (key)
+			{
+				/* Arrow up */
+				case SDLK_UP:
+					/* If shift is pressed too */
+					if (shiftPressed)
+					{
+						/* If the current tab is not 0, go to the above tab and switch tab. */
+						if (gui_interface_party->tab > 0)
+						{
+							gui_interface_party->tab--;
+							gui_interface_party->selected = 0;
+							switch_tabs();
+						}
+					}
+					/* Otherwise, we're scrolling in the GUI, and adjusting the selected row too */
+					else
+					{
+						gui_interface_party->selected--;
+
+						if (gui_interface_party->yoff > gui_interface_party->selected)
+							gui_interface_party->yoff--;
+					}
+
+					menuRepeatKey = SDLK_UP;
+					break;
+
+				/* Arrow down */
+				case SDLK_DOWN:
+					/* If shift is pressed too */
+					if (shiftPressed)
+					{
+						/* If the next time won't be over maximum, go to the below tab and switch tab. */
+						if (gui_interface_party->tab + 1 < (strcmp(cpl.partyname, "") == 0 ? PARTY_TAB_LIST + 1 : PARTY_TABS))
+						{
+							gui_interface_party->tab++;
+							gui_interface_party->selected = 0;
+							switch_tabs();
+						}
+					}
+					/* Otherwise, we're scrolling in the GUI, and adjusting the selected row too */
+					else
+					{
+						gui_interface_party->selected++;
+
+						if (gui_interface_party->selected >= DIALOG_LIST_ENTRY + gui_interface_party->yoff)
+							gui_interface_party->yoff++;
+					}
+
+					menuRepeatKey = SDLK_DOWN;
+					break;
+
+				/* Enter or return key */
+				case SDLK_KP_ENTER:
+				case SDLK_RETURN:
+				{
+					/* Was pressed when we were in the parties list */
+					if (strcmp(gui_interface_party->command, "list") == 0)
+					{
+						_gui_party_line *party_line = gui_interface_party->start;
+						int i = 0;
+						char partyname[HUGE_BUF], buf[HUGE_BUF];
+
+						partyname[0] = '\0';
+
+						/* Go through the lines, looking for our selected party */
+						while (party_line)
+						{
+							/* Got it! */
+							if (i == gui_interface_party->selected)
+							{
+								sscanf(party_line->line, "Name: %32[^\t]", partyname);
+								break;
+							}
+
+							i++;
+							party_line = party_line->next;
+						}
+
+						/* If we found it... */
+						if (partyname[0] != '\0')
+						{
+							/* ... and it's not party we're member of, send command to server and close the GUI. */
+							if (strcmp(partyname, cpl.partyname))
+							{
+								sprintf(buf, "pt join %s", partyname);
+								cs_write_string(csocket.fd, buf, strlen(buf));
+
+								map_udate_flag = 2;
+								cpl.menustatus = MENU_NO;
+								reset_keys();
+							}
+						}
+					}
+				}
+
+				/* y key */
+				case SDLK_y:
+					/* Coming from the GUI that asks you if you're sure you want to leave... */
+					if (strcmp(gui_interface_party->command, "askleave") == 0)
+					{
+						/* Check the command */
+						if (!client_command_check("/party leave"))
+							send_command("/party leave", -1, SC_NORMAL);
+
+						/* Close the menu */
+						cpl.menustatus = MENU_NO;
+					}
+					/* Otherwise it's GUI that asks us if we really want to change the password. :-) */
+					else if (strcmp(gui_interface_party->command, "askpassword") == 0)
+					{
+						/* Load the party interface - mostly we need it to set the command. */
+						gui_interface_party = load_party_interface("passwordset", 11);
+						cpl.input_mode = INPUT_MODE_CONSOLE;
+
+						/* Open the console, with a maximum of 8 chars. */
+						open_input_mode(8);
+
+						/* Output some info as to why the console magically opened. */
+						draw_info("Type the new party password, or press ESC to cancel.", 10);
+
+						/* Close the menu */
+						cpl.menustatus = MENU_NO;
+					}
+
+					break;
+
+				/* n key*/
+				case SDLK_n:
+					/* If used from the GUI to change party password, or leave party, just close the menu */
+					if (strcmp(gui_interface_party->command, "askleave") == 0 || strcmp(gui_interface_party->command, "askpassword") == 0)
+						cpl.menustatus = MENU_NO;
+
+					break;
+
+				/* f key */
+				case SDLK_f:
+					/* From the list... */
+					if (strcmp(gui_interface_party->command, "list") == 0)
+					{
+						/* Load the party interface */
+						gui_interface_party = load_party_interface("form", 4);
+
+						cpl.input_mode = INPUT_MODE_CONSOLE;
+
+						/* Open the console with a 60 chars limit */
+						open_input_mode(60);
+
+						/* Output some info as to why the console magically opened */
+						draw_info("Type the party name to form, or press ESC to cancel.", 10);
+
+						/* Close the menu */
+						cpl.menustatus = MENU_NO;
+					}
+
+					break;
+			}
+
+			/* Some sanity checks to make sure yoff doesn't go off-limits. */
+			if (gui_interface_party->yoff < 0 || gui_interface_party->lines < DIALOG_LIST_ENTRY)
+            	gui_interface_party->yoff = 0;
+			else if (gui_interface_party->yoff >= gui_interface_party->lines - DIALOG_LIST_ENTRY)
+				gui_interface_party->yoff = gui_interface_party->lines - DIALOG_LIST_ENTRY;
+
+			/* Checks for the selected row too. */
+			if (gui_interface_party->selected < 0 || gui_interface_party->lines == 0)
+				gui_interface_party->selected = 0;
+			else if (gui_interface_party->selected >= gui_interface_party->lines)
+				gui_interface_party->selected = gui_interface_party->lines - 1;
+
+			break;
 
       case MENU_SKILL:
          switch(key){

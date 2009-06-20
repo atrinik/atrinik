@@ -84,7 +84,7 @@ enum {
 typedef struct party_struct {
   	sint16 partyid;
   	const char *partyleader;
-  	char passwd[9];
+  	char passwd[7];
   	struct party_struct *next;
   	char *partyname;
 #ifdef PARTY_KILL_LOG

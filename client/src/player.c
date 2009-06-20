@@ -288,6 +288,8 @@ void init_player_data(void)
         strcpy(cpl.pname , "");
         strcpy(cpl.title , "");
 
+		strcpy(cpl.partyname, "");
+
         cpl.menustatus =MENU_NO;
         cpl.menustatus =MENU_NO;
         cpl.count_left = 0;

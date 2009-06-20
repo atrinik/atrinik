@@ -85,6 +85,7 @@ enum {
 	BINARY_CMD_NEW_CHAR,
 	BINARY_CMD_ITEMY,
 	BINARY_CMD_BOOK,
+	BINARY_CMD_PARTY,
 	/* last entry */
 	BINAR_CMD
 };
@@ -123,6 +124,7 @@ struct CmdMapping commands[] =
     {"new_char", (CmdProc)NewCharCmd},
     {"itemy", ItemYCmd},
 	{"book", BookCmd},
+	{"pt", PartyCmd},
 	/* unused! */
     {"magicmap", MagicMapCmd},
     {"delinv", DeleteInventory},

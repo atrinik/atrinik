@@ -38,6 +38,7 @@ SRCS = \
 	menu.c\
 	misc.c\
 	player.c\
+	party.c\
 	socket.c\
 	sound.c\
 	sprite.c\

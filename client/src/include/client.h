@@ -248,8 +248,7 @@ typedef struct Player_Struct {
     char	alignment[MAX_BUF];	/* alignment */
     char	gender[MAX_BUF];	/* Gender */
     char	range[MAX_BUF];	/* Range attack chosen */
-
-
+	char    partyname[MAX_BUF];
 } Client_Player;
 
 extern Client_Player cpl;		/* Player object. */

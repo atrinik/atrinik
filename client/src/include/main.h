@@ -503,6 +503,7 @@ typedef enum _bitmap_index {
   BITMAP_DIALOG_TITLE_CREATION,
   BITMAP_DIALOG_TITLE_LOGIN,
 	BITMAP_DIALOG_TITLE_SERVER,
+	BITMAP_DIALOG_TITLE_PARTY,
   BITMAP_DIALOG_BUTTON_UP,
 	BITMAP_DIALOG_BUTTON_DOWN,
 	BITMAP_DIALOG_TAB_START,
@@ -540,6 +541,7 @@ typedef enum _bitmap_index {
     BITMAP_PRAY,
     BITMAP_WAND,
 	BITMAP_JOURNAL,
+	BITMAP_SLIDER_LONG,
 	BITMAP_INIT
 
 }_bitmap_index;
@@ -549,7 +551,8 @@ enum {
     MSCURSOR_MOVE = 1,
 };
 
-extern struct gui_book_struct    *gui_interface_book;
+extern struct gui_book_struct *gui_interface_book;
+extern struct gui_party_struct *gui_interface_party;
 
 extern struct _Font         MediumFont;
 extern char InputString[MAX_INPUT_STRING];			/* our text char string*/

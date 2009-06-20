@@ -43,6 +43,7 @@ enum {
 #define SPLIST_MODE_UPDATE 2
 
 extern void BookCmd(unsigned char *data, int len);
+extern void PartyCmd(unsigned char *data, int len);
 extern void SoundCmd ( unsigned char *data, int len );
 extern void SetupCmd ( char *buf, int len );
 extern void FaceCmd(unsigned char *data,  int len);

@@ -110,7 +110,8 @@ Boolean InputStringFlag;
 /* if true, we had entered some in text mode and its ready */
 Boolean InputStringEndFlag;
 Boolean InputStringEscFlag;
-struct gui_book_struct    *gui_interface_book;
+struct gui_book_struct *gui_interface_book;
+struct gui_party_struct *gui_interface_party;
 
 /* the global status identifier */
 _game_status GameStatus;
@@ -247,6 +248,7 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
     {"dialog_title_creation.png", PIC_TYPE_DEFAULT},
     {"dialog_title_login.png", PIC_TYPE_DEFAULT},
 	{"dialog_title_server.png", PIC_TYPE_DEFAULT},
+	{"dialog_title_party.png", PIC_TYPE_DEFAULT},
     {"dialog_button_up.png", PIC_TYPE_DEFAULT},
     {"dialog_button_down.png", PIC_TYPE_DEFAULT},
     {"dialog_tab_start.png", PIC_TYPE_DEFAULT},
@@ -284,6 +286,7 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
     {"pray.png", PIC_TYPE_TRANS},
     {"wand.png", PIC_TYPE_TRANS},
 	{"journal.png", PIC_TYPE_TRANS},
+	{"slider_long.png", PIC_TYPE_DEFAULT},
 };
 
 #define BITMAP_MAX (sizeof(bitmap_name) / sizeof(struct _bitmap_name))
@@ -386,6 +389,7 @@ void init_game_data(void)
         csocket.fd=SOCKET_NO;
         RangeFireMode=0;
 		gui_interface_book = NULL;
+		gui_interface_party = NULL;
 
         memset(media_file,0,sizeof(_media_file )*MEDIA_MAX);
         media_count=0;	/* buffered media files*/
@@ -407,9 +411,9 @@ void save_options_dat(void)
 
    if(!(stream = fopen( OPTION_FILE, "w" )))
       return;
-   fputs("###############################################\n",stream);
-   fputs("# This is the Daimonin SDL client option file #\n",stream);
-   fputs("###############################################\n",stream);
+   fputs("##########################################\n",stream);
+   fputs("# This is the Atrinik client option file #\n", stream);
+   fputs("##########################################\n",stream);
    while (opt_tab[++i])
    {
       fputs("\n# ",stream);
@@ -1486,7 +1490,7 @@ int main(int argc, char *argv[])
 			{
 				SDL_Rect tmp_rect;
 				tmp_rect.w=275;
-				StringBlt(ScreenSurface, &BigFont,MapData.name,229, 109,COLOR_HGOLD, &tmp_rect, NULL);
+				StringBlt(ScreenSurface, &SystemFont,MapData.name,228, 111,COLOR_WHITE, &tmp_rect, NULL);
 				if(cpl.input_mode == INPUT_MODE_CONSOLE)
 					do_console(546,586);
 				else if(cpl.input_mode == INPUT_MODE_NUMBER)

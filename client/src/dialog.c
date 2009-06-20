@@ -1608,9 +1608,17 @@ void show_login_server(void)
 	sprite_blt(Bitmaps[BITMAP_LOGIN_INP], x - 2, y + 15, NULL, NULL);
 
 	if (GameStatus == GAME_STATUS_NAME)
-		StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 16), x + 2, y + 17, COLOR_WHITE, NULL, NULL);
+	{
+		strcpy(buf, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 16));
+		buf[0] = toupper(buf[0]);
+
+		StringBlt(ScreenSurface, &SystemFont, buf, x + 2, y + 17, COLOR_WHITE, NULL, NULL);
+	}
 	else
+	{
+		cpl.name[0] = toupper(cpl.name[0]);
 		StringBlt(ScreenSurface, &SystemFont, cpl.name, x + 2, y + 17, COLOR_WHITE, NULL, NULL);
+	}
 
 	StringBlt(ScreenSurface, &SystemFont, "Enter your password", x + 2, y + 40, COLOR_HGOLD, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGIN_INP], x - 2, y + 55, NULL, NULL);

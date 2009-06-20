@@ -276,9 +276,10 @@ void obsolete_parties(void);
 #ifdef PARTY_KILL_LOG
 void add_kill_to_party(int numb, char *killer, char *dead, long exp);
 #endif
-void send_party_message(object *op, char *msg);
+void send_party_message(object *op, char *msg, int flag);
 int command_gsay(object *op, char *params);
 int command_party(object *op, char *params);
+void PartyCmd(char *buf, int len, player *pl);
 
 /* c_range.c */
 int command_cast_spell(object *op, char *params);

@@ -79,6 +79,13 @@ void BookCmd(unsigned char *data, int len)
 	gui_interface_book = load_book_interface(mode, data, len - 4);
 }
 
+void PartyCmd(unsigned char *data, int len)
+{
+	cpl.menustatus = MENU_PARTY;
+
+	gui_interface_party = load_party_interface(data, len);
+}
+
 void SoundCmd(unsigned char *data,  int len)
 {
     int x, y, num, type;
