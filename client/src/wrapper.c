@@ -372,14 +372,15 @@ uint32 get_video_flags(void)
  */
 void parse_metaserver_data(char *info)
 {
-    char server_ip[1024], server[1024], version[1024], desc[1025], desc_line[4][47], num_players[1024];
+    char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
 
 	if (strcmp(info, "\n") == 0)
 		return;
 
-	sscanf(info, "%64[^:]:%128[^:]:%64[^:]:%64[^:]:%1024[^\n]", server_ip, server, num_players, version, desc);
+	if (!sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
+		return;
 
-	add_metaserver_data(server, 13327, atoi(num_players), version, desc, "", "", "");
+	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc, "", "", "");
 }
 
 /* This seems to be lacking on some system */

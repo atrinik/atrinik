@@ -26,26 +26,31 @@
 #include <global.h>
 #include <curl/curl.h>
 
+/* Init metaserver. */
 void metaserver_init()
 {
 	if (!settings.meta_on)
 		return;
 
+	/* Init global cURL */
 	curl_global_init(CURL_GLOBAL_ALL);
 
+	/* First update... */
 	metaserver_update();
 }
 
+/* Function to call when receiving data from the metaserver */
 static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
 
-    LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char*)ptr);
+    LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char *)ptr);
     LOG(llevDebug, "DEBUG: metaserver_writer(): End of text.\n");
 
     return realsize;
 }
 
+/* Update the metaserver info about this server. */
 void metaserver_update()
 {
     char buf[MAX_BUF], num_players = 0;
@@ -54,7 +59,9 @@ void metaserver_update()
     struct curl_httppost *lastptr = NULL;
 	CURL *curl;
 	CURLcode res;
+	time_t now = time(NULL);
 
+	/* If the setting is off, just return */
 	if (!settings.meta_on)
 		return;
 
@@ -65,19 +72,28 @@ void metaserver_update()
     for (pl = first_player; pl != NULL; pl = pl->next)
 		num_players++;
 
+	/* Hostname */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.meta_host, CURLFORM_END);
 
+	/* Server version */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, VERSION, CURLFORM_END);
 
+	/* Server comment */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);
 
+	/* Number of players */
 	snprintf(buf, MAX_BUF - 1, "%d", num_players);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
 
+	/* Port number */
+	snprintf(buf, MAX_BUF - 1, "%d", settings.csport);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
+
+	/* Init "easy" cURL */
 	curl = curl_easy_init();
 	if (curl)
 	{
-		/* what URL that receives this POST */
+		/* What URL that receives this POST */
 		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
@@ -90,12 +106,13 @@ void metaserver_update()
 		if (res)
 			LOG(llevDebug, "DEBUG: metaserver_update(): easy_perform got error %d\n", res);
 
-		/* always cleanup */
+		/* Always cleanup */
 		curl_easy_cleanup(curl);
 	}
 
+	/* Free the form */
 	curl_formfree(formpost);
 
-	LOG(llevInfo, "INFO: metaserver_update(): Sent data.\n");
+	/* Output info that the data was updated. */
+	LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.16s.\n", ctime(&now));
 }
-
