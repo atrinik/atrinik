@@ -1,4 +1,4 @@
-AC_INIT([Atrinik Client], [0.1], [admin@atrinik.org]) 
+AC_INIT([Atrinik Client], [0.1], [admin@atrinik.org])
 
 AC_CONFIG_AUX_DIR(make_utils)
 AC_CANONICAL_SYSTEM
@@ -56,6 +56,10 @@ AC_SUBST(SDL_LIBS, `${SDL_CONFIG} --libs`)
 AC_CHECK_FUNCS(stricmp strnicmp strcasecmp strncasecmp)
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([fcntl.h])
+
+AC_CHECK_HEADERS(curl/curl.h)
+AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"]) 
+AC_PATH_PROGS(CURL, curl, no)
 
 if test "x$prefix" != xNONE; then
    AC_DEFINE_UNQUOTED(PREFIX, "${prefix}", [Installation prefix])

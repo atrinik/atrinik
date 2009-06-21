@@ -36,6 +36,7 @@ SRCS = \
 	main.c\
 	map.c\
 	menu.c\
+	metaserver.c\
 	misc.c\
 	player.c\
 	party.c\

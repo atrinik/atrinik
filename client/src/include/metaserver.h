@@ -23,64 +23,27 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INCLUDE_H)
-#define __INCLUDE_H
+#include <curl/curl.h>
 
-#ifdef __LINUX
-#include "define.h"
-#endif
+struct fcurl_data
+{
+	union {
+		CURL *curl;
+		FILE *file;
+	} handle;
 
-#include "config.h"
+	char *buffer;
+	int buffer_len;
+	int buffer_pos;
+	int still_running;
+};
 
-/* Just some handy ones I like to use */
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE 1
-#endif
+typedef struct fcurl_data CURL_FILE;
 
-/* This is for the DevCpp IDE */
-#ifndef __WIN_32
- #ifdef WIN32
-  #define __WIN_32
- #endif
-#endif
+CURL_FILE *curl_fopen(const char *url, const char *operation);
+int curl_fclose(CURL_FILE *file);
+char *curl_fgets(char *ptr, int size, CURL_FILE *file);
 
-typedef unsigned int    uint32;
-typedef signed int      sint32;
-typedef unsigned short  uint16;
-typedef signed short    sint16;
-typedef unsigned char   uint8;
-typedef signed char     sint8;
+CURLM *multi_handle;
 
-/* ok, here we define for what we want compile */
-/* later this should be insert a makefile */
-
-#include <wrapper.h>
-#ifdef INSTALL_SOUND
-#include <SDL_mixer.h>
-#endif
-
-
-#include <zlib.h>
-#include <item.h>
-
-#include <book.h>
-#include <client.h>
-#include <sdlsocket.h>
-#include <commands.h>
-#include <main.h>
-#include <metaserver.h>
-#include <player.h>
-#include <party.h>
-#include <misc.h>
-#include <event.h>
-#include <sound.h>
-#include <map.h>
-#include <sprite.h>
-#include <textwin.h>
-#include <inventory.h>
-#include <menu.h>
-#include <dialog.h>
-#endif
+void metaserver_connect(void);

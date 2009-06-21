@@ -372,70 +372,14 @@ uint32 get_video_flags(void)
  */
 void parse_metaserver_data(char *info)
 {
-    char server[1024], version[1024],desc[1025], desc_line[4][47], *tmp;
-    int port, player, count,s,ss,sss;
-	void *tmp_free;
+    char server_ip[1024], server[1024], version[1024], desc[1025], desc_line[4][47], num_players[1024];
 
-    tmp = (char*)malloc(MAX_METASTRING_BUFFER);
-    for(count=0;;)
-    {
-        if((s=read_substr_char(info, tmp, &count, '|'))==-1)
-        {
-            break;
-        }
-        if((s=read_substr_char(info, tmp, &count, '|'))==-1)
-            break;
-        if((s=read_substr_char(info, tmp, &count, '|'))==-1)
-            break;
-        strncpy(server, tmp, s);
-        if(s>=1023)
-            s=1023;
-        server[s]=0;
-        /* player */
-        if((s=read_substr_char(info, tmp, &count, '|'))==-1)
-            break;
-        player = atoi(tmp);
-        /* version; */
-        if((s=read_substr_char(info, tmp, &count, '|'))==-1)
-            break;
-        strncpy(version, tmp, s);
-        if(s>=1023)
-            s=1023;
-        version[s]=0;
-        /* desc */
-        desc_line[0][0]=0;
-        desc_line[1][0]=0;
-        desc_line[2][0]=0;
-        desc_line[3][0]=0;
-        if((s=read_substr_char(info, tmp, &count, '|'))!=-1)
-        {
-            if(s>=1023)
-                s=1023;
-            strncpy(desc, tmp, s);
-            desc[s]=0;
+	if (strcmp(info, "\n") == 0)
+		return;
 
-            sss=0;
-            for(ss=0;ss<45 && sss<s;ss++,sss++)
-                desc_line[0][ss] = desc[sss];
-            desc_line[0][ss]=0;
-            for(ss=0;ss<45 && sss<s;ss++,sss++)
-                desc_line[1][ss] = desc[sss];
-            desc_line[1][ss]=0;
-            for(ss=0;ss<45 && sss<s;ss++,sss++)
-                desc_line[2][ss] = desc[sss];
-            desc_line[2][ss]=0;
-            for(ss=0;ss<45 && sss<s;ss++,sss++)
-                desc_line[3][ss] = desc[sss];
-            desc_line[3][ss]=0;
-        }
-        read_substr_char(info, tmp, &count, 0x0a);
-        port = 13327;
-        /*if(version[0] == 'D')*/ /* Daimonin marker */
-		add_metaserver_data(server, port, player, version, &desc_line[0][0],&desc_line[1][0],&desc_line[2][0],&desc_line[3][0]);
+	sscanf(info, "%64[^:]:%128[^:]:%64[^:]:%64[^:]:%1024[^\n]", server_ip, server, num_players, version, desc);
 
-    }
-	tmp_free = &tmp;
-    FreeMemory(tmp_free);
+	add_metaserver_data(server, 13327, atoi(num_players), version, desc, "", "", "");
 }
 
 /* This seems to be lacking on some system */

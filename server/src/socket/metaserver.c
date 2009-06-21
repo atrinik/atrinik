@@ -24,137 +24,78 @@
 ************************************************************************/
 
 #include <global.h>
+#include <curl/curl.h>
 
-#ifndef WIN32 /* ---win32 exclude unix header files */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-
-#include <version.h>
-#endif /* end win32 */
-
-static int metafd = -1;
-static struct sockaddr_in sock;
-
-/* metaserver_init sets up the connection.  Its only called once.  If we are not
- * trying to contact the metaserver of the connection attempt fails, metafd will be
- * set to -1.  We use this instead of messing with the settings.meta_on so that
- * that can be examined to at least see what the user was trying to do. */
 void metaserver_init()
 {
-#ifdef WIN32
-	struct hostent *hostbn;
-	int temp = 1;
-#endif
-
-    if (!settings.meta_on)
-	{
-		metafd = -1;
+	if (!settings.meta_on)
 		return;
-    }
 
-    if (isdigit(settings.meta_server[0]))
-		sock.sin_addr.s_addr = inet_addr(settings.meta_server);
-    else
-	{
-        struct hostent *hostbn = gethostbyname(settings.meta_server);
-		if (hostbn == NULL)
-		{
-	    	LOG(llevDebug, "metaserver_init: Unable to resolve hostname %s\n", settings.meta_server);
-	    	return;
-		}
-
-		memcpy(&sock.sin_addr, hostbn->h_addr, hostbn->h_length);
-    }
-
-#ifdef WIN32
-	ioctlsocket(metafd, FIONBIO, &temp);
-#else
-    fcntl(metafd, F_SETFL, O_NONBLOCK);
-#endif
-
-    if ((metafd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-	{
-		LOG(llevDebug, "metaserver_init: Unable to create socket, err %d\n", errno);
-		return;
-    }
-
-    sock.sin_family = AF_INET;
-    sock.sin_port = htons(settings.meta_port);
-#if 0
-    /* Freebsd seems to have a problem in that the sendto in metaserver_update will
-     * fail on a connected socket.  So don't connect the socket.
-     * Solaris has the same problem, so for now just disable this. */
-    if (connect(metafd, &sock, sizeof(sock)) < 0)
-	{
-		LOG(llevDebug, "metaserver_init: Unable to connect to metaserver, err %d\n", errno);
-    }
-#endif
-
-    /* No hostname specified, so lets try to figure one out */
-    if (settings.meta_host[0] == 0)
-	{
-		char hostname[MAX_BUF], domain[MAX_BUF];
-		if (gethostname(hostname, MAX_BUF - 1))
-		{
-	    	LOG(llevDebug, "metaserver_init: gethostname failed - will not report hostname\n");
-	    	return;
-		}
-
-#ifdef WIN32
-		hostbn = gethostbyname(hostname);
-
-		/* quick hack */
-		if (hostbn != (struct hostent *) NULL)
-			memcpy(domain, hostbn->h_addr, hostbn->h_length);
-
-		if (hostbn == (struct hostent *) NULL)
-		{
-#else
-		if (getdomainname(domain, MAX_BUF - 1))
-		{
-#endif
-	    	LOG(llevDebug, "metaserver_init: getdomainname failed - will not report hostname\n");
-	    	return;
-		}
-
-		/* Potential overrun here but unlikely to occur */
-		sprintf(settings.meta_host, "%s.%s", hostname, domain);
-    }
-
-    if (metafd != -1)
-		LOG(llevInfo, "metaserver_init: Connected to %s. Done.\n", settings.meta_server);
+	curl_global_init(CURL_GLOBAL_ALL);
 
 	metaserver_update();
 }
 
+static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    size_t realsize = size * nmemb;
+
+    LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char*)ptr);
+    LOG(llevDebug, "DEBUG: metaserver_writer(): End of text.\n");
+
+    return realsize;
+}
+
 void metaserver_update()
 {
-    char data[MAX_BUF], num_players = 0;
+    char buf[MAX_BUF], num_players = 0;
     player *pl;
+	struct curl_httppost *formpost = NULL;
+    struct curl_httppost *lastptr = NULL;
+	CURL *curl;
+	CURLcode res;
 
-	/* No valid connection */
-    if (metafd == -1)
+	if (!settings.meta_on)
 		return;
 
-    /* We could use socket_info.nconns, but that is not quite as accurate,
+	/* We could use socket_info.nconns, but that is not quite as accurate,
      * as connections in the progress of being established, are listening
      * but don't have a player, etc.  This operation below should not be that
      * costly. */
     for (pl = first_player; pl != NULL; pl = pl->next)
 		num_players++;
 
-#ifdef CS_LOG_STATS
-    sprintf(data, "%s|%d|%s|%s|%d|%d|%ld", settings.meta_host, num_players, VERSION, settings.meta_comment, cst_tot.ibytes, cst_tot.obytes, (long)time(NULL) - cst_tot.time_start);
-#else
-	sprintf(data, "%s|%d|%s|%s", settings.meta_host, num_players, VERSION, settings.meta_comment);
-#endif
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.meta_host, CURLFORM_END);
 
-    if (sendto(metafd, data, strlen(data), 0, (struct sockaddr *)&sock, sizeof(sock)) < 0)
-		LOG(llevDebug, "metaserver_update: sendto failed, err = %d\n", errno);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, VERSION, CURLFORM_END);
 
-	LOG(llevInfo, "metaserver_update: Send data.\n");
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);
+
+	snprintf(buf, MAX_BUF - 1, "%d", num_players);
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
+
+	curl = curl_easy_init();
+	if (curl)
+	{
+		/* what URL that receives this POST */
+		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+
+		/* Almost always, we will get HTTP data returned
+		 * to us - instead of it going to stderr,
+		 * we want to take care of it ourselves. */
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, metaserver_writer);
+		res = curl_easy_perform(curl);
+
+		if (res)
+			LOG(llevDebug, "DEBUG: metaserver_update(): easy_perform got error %d\n", res);
+
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+
+	curl_formfree(formpost);
+
+	LOG(llevInfo, "INFO: metaserver_update(): Sent data.\n");
 }
 

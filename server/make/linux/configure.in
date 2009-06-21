@@ -204,6 +204,9 @@ AC_CHECK_HEADERS(sqlite3.h)
 AC_CHECK_LIB(sqlite3, sqlite3_open, [LIBS="$LIBS -lsqlite3"]) 
 AC_PATH_PROGS(SQLITE, sqlite3, no)
 
+AC_CHECK_HEADERS(curl/curl.h)
+AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"]) 
+AC_PATH_PROGS(CURL, curl, no)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

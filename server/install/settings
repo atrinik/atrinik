@@ -16,9 +16,9 @@
 # host is the name of this host as we should report it to the metaserver
 
 metaserver_notification off
-metaserver_server atokar.is-a-geek.net
+metaserver_server meta.atrinik.org
 metaserver_host put.your.hostname.here
-metaserver_port 13326
+metaserver_port 80
 metaserver_comment Put a comment here.
 # values for the new big worldmap, and weather. Only use if you are using the
 # new bigmap.

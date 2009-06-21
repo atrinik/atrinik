@@ -569,14 +569,7 @@ Boolean game_status_chain(void)
 					draw_info("query metaserver...", COLOR_GREEN);
 					sprintf(buf,"trying %s:%d", options.metaserver, options.metaserver_port);
 					draw_info(buf, COLOR_GREEN);
-					if(SOCKET_OpenSocket(&csocket.fd,&csocket, options.metaserver,options.metaserver_port))
-					{
-						read_metaserver_data();
-						SOCKET_CloseSocket(csocket.fd);
-		                draw_info("done.", COLOR_GREEN);
-					}
-					else
-		                draw_info("metaserver failed! using default list.", COLOR_GREEN);
+					metaserver_connect();
 				}
 
 				add_metaserver_data("127.0.0.1", 13327, -1,"local",
