@@ -1039,7 +1039,7 @@ CFParm* CFWSwapApartments(CFParm *PParm)
 	CFP = (CFParm*)(malloc(sizeof(CFParm)));
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL to select unique map */
 	if (!db_prepare_format(db, &statement, "SELECT data FROM unique_maps WHERE mapPath = '%s%s';", activator->name, clean_path(oldmappath)))
@@ -1217,7 +1217,7 @@ CFParm* CFWPlayerExists(CFParm* PParm)
 
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
 
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	if (!db_prepare_format(db, &statement, "SELECT playerName FROM players WHERE playerName = '%s' LIMIT 1;", playerName))
 	{

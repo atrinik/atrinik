@@ -1109,7 +1109,7 @@ static int checkdm(object *op, const char *pl_name, char *pl_passwd, char *pl_ho
 #endif
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL */
 	if (!db_prepare(db, "SELECT name, passwd, host FROM dms;", &statement))
@@ -1372,7 +1372,7 @@ int command_motd_set(object *op, char *params)
 	}
 
 	/* Open database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL query to first delete the old custom MotD (if there is any) */
 	if (!db_prepare(db, "DELETE FROM settings WHERE name = 'motd_custom';", &statement))

@@ -506,7 +506,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	sprintf(apartment, "%s/%s%s", settings.tmpdir, op->name, clean_path(EXIT_PATH(exit_ob)));
 
 	/* Open database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL. */
 	if (!db_prepare_format(db, &statement, "SELECT data FROM unique_maps WHERE mapPath = '%s%s'", op->name, clean_path(EXIT_PATH(exit_ob))))
@@ -578,7 +578,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 		fclose(fp);
 
 		/* Open the database */
-		db_open(&db);
+		db_open(DB_DEFAULT, &db);
 
 		/* Prepare the SQL query to insert the map */
 		if (!db_prepare_format(db, &statement, "INSERT INTO unique_maps (mapPath, data) VALUES ('%s%s', '%s');", op->name, clean_path(EXIT_PATH(exit_ob)), db_sanitize_input(sqlbuf)))
@@ -1163,7 +1163,7 @@ void leave(player *pl, int draw_exit)
 #endif
 
 		/* Open database */
-		db_open(&db);
+		db_open(DB_DEFAULT, &db);
 
 		/* If we fail to prepare, don't return.
 		 * Log an error message, however. */

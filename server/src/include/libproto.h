@@ -76,7 +76,7 @@ extern void check_inv(object *op, object *trig);
 extern void verify_button_links(mapstruct *map);
 
 /* database.c */
-extern int db_open(sqlite3 **db);
+extern int db_open(char *file, sqlite3 **db);
 extern int db_prepare(sqlite3 *db, const char *sql, sqlite3_stmt **statement);
 extern int db_prepare_format(sqlite3 *db, sqlite3_stmt **statement, const char *format, ...);
 extern int db_step(sqlite3_stmt *statement);

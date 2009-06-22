@@ -119,7 +119,7 @@ static score *add_score(score *new_score)
     old_score.position = -1;
 
 	/* Open the database */
-    db_open(&db);
+    db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL */
 	if (!db_prepare(db, "SELECT * FROM highscore;", &statement))
@@ -330,7 +330,7 @@ void display_high_score(object *op, int max, const char *match)
 	sqlite3_stmt *statement;
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL to grab scores and order them by exp */
 	if (!db_prepare(db, "SELECT * FROM highscore ORDER BY exp DESC;", &statement))

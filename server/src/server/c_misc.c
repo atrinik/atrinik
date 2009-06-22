@@ -97,7 +97,7 @@ int command_bug(object *op, char *params)
     }
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare_format(db, &statement, "INSERT INTO bugs (reporter, bug) VALUES ('%s', '%s');", op->name, db_sanitize_input(params)))

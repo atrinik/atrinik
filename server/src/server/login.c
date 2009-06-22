@@ -311,7 +311,7 @@ int save_player(object *op, int flag)
 	checksum = calculate_checksum_new(sqlbuf, 0);
 
 	/* Open database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL query.
 	 * this way we check which to do:
@@ -510,7 +510,7 @@ void check_login(object *op)
     sprintf(filename, "%s/%s.player", settings.tmpdir, op->name);
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL query */
 	if (!db_prepare_format(db, &statement, "SELECT data FROM players WHERE playerName = '%s';", op->name))
@@ -844,7 +844,7 @@ void check_login(object *op)
     pl->name_changed = 1;
 
 	/* Open database once again. */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL query to update status of player.
 	 * If this fails, do not return, because it's not trivial. */

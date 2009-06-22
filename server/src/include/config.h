@@ -191,10 +191,10 @@
  * which contains usage stats for the last X amount of time.
  * CS_LOGTIME is how often it will print out stats. */
 #ifndef WIN32
-/*#define CS_LOGSTATS*/
+#define CS_LOGSTATS
 #endif
 #ifdef CS_LOGSTATS
-/*#define CS_LOGTIME  600*/
+#define CS_LOGTIME  600
 #endif
 
 /* DEBUG generates copious amounts of output.  I tend to change the CC options
@@ -749,3 +749,10 @@
  * location. */
 
 #define RESET_LOCATION_TIME	0
+
+/* Default database where settings, player data, unique maps, highscore etc
+ * is stored. Default is "atrinik.db". */
+#define DB_DEFAULT "atrinik.db"
+
+/* Database where the help files are stored. Default is "helpfiles.db". */
+#define DB_HELP "helpfiles.db"

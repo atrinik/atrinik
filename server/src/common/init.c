@@ -210,7 +210,7 @@ void write_todclock()
 	sqlite3_stmt *statement;
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query to delete old clockdata */
 	if (!db_prepare(db, "DELETE FROM settings WHERE name = 'clockdata';", &statement))
@@ -260,7 +260,7 @@ void init_clocks()
 	LOG(llevDebug, "Reading clockdata from database...");
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the SQL query to grab clockdata from database */
 	if (!db_prepare(db, "SELECT data FROM settings WHERE name = 'clockdata';", &statement))

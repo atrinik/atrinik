@@ -1376,7 +1376,7 @@ void save_objects(mapstruct *m, FILE *fp, FILE *fp2, int flag)
 				}
 
 				if (QUERY_FLAG(op, FLAG_UNIQUE))
-				    save_map_object(fp2 , op, 3);
+				    save_map_object(fp2, op, 3);
 				else
 					save_map_object(fp, op, 3);
 
@@ -2200,10 +2200,13 @@ int new_save_map(mapstruct *m, int flag)
 	else
 		save_objects(m, fp, fp, 0);
 
-    if (m->compressed && !flag)
-		pclose(fp);
-    else
-		fclose(fp);
+	if (fp)
+	{
+    	if (m->compressed && !flag)
+			pclose(fp);
+    	else
+			fclose(fp);
+	}
 
 	/* We save unique maps in the database. */
 	if (MAP_UNIQUE(m))
@@ -2230,7 +2233,7 @@ int new_save_map(mapstruct *m, int flag)
 		}
 
 		/* Open the database */
-		db_open(&db);
+		db_open(DB_DEFAULT, &db);
 
 		if (!db_prepare_format(db, &statement, "SELECT mapPath FROM unique_maps WHERE mapPath = '%s';", path))
 		{
@@ -2533,7 +2536,7 @@ mapstruct *ready_map_name(const char *name, int flags)
 			FILE *fp;
 
 			/* Open the database */
-			db_open(&db);
+			db_open(DB_DEFAULT, &db);
 
 			sprintf(mapPath, "%s", name);
 

@@ -56,7 +56,7 @@ int checkbanned(char *login, char *host)
   	int Hits = 0;
 
 	/* Open the database */
-  	db_open(&db);
+  	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))

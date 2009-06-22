@@ -62,7 +62,7 @@ void display_motd(object *op)
 	buf[0] = '\0';
 
 	/* Open the database */
-	db_open(&db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query to select either 'motd' or 'motd_custom' */
 	if (!db_prepare(db, "SELECT name, data FROM settings WHERE name = 'motd' OR name = 'motd_custom';", &statement))

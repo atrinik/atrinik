@@ -164,8 +164,8 @@ int look_up_spell_name(const char * spname)
  * terminating null character) will be written to result. */
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
-    size_t resultlen;
-    size_t keylen;
+    size_t resultlen, keylen, replacementlen;
+	char *p;
 
     /* special case to prevent infinite loop if key == replacement == "" */
     if (strcmp(key, replacement) == 0)
@@ -175,13 +175,31 @@ void replace(const char *src, const char *key, const char *replacement, char *re
     }
 
     keylen = strlen(key);
+	replacementlen = strlen(replacement);
 
     resultlen = 0;
     while (*src != '\0' && resultlen + 1 < resultsize)
 	{
         if (strncmp(src, key, keylen) == 0)
 		{
-            snprintf(result+resultlen, resultsize-resultlen, "%s", replacement);
+			/* If the replacement length is more than keylen, we will need
+			 * to increase the resultsize and realloc the result pointer. */
+			if (replacementlen > keylen)
+			{
+				resultsize += replacementlen - keylen;
+
+				if ((p = realloc(result, resultsize)) == NULL)
+				{
+					free(result);
+					return;
+				}
+				else
+				{
+					result = p;
+				}
+			}
+
+            snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
             resultlen += strlen(result + resultlen);
             src += keylen;
         }
