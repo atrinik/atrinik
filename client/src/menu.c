@@ -45,17 +45,6 @@ int media_show_update;
 int keybind_startoff=0;
 static char *get_range_item_name(int id);
 
-static int group_pos[MAX_GROUP_MEMBER][2] ={
-	{34,1},
-	{34,19},
-	{34,37},
-	{34,55},
-	{143,1},
-	{143,19},
-	{143,37},
-	{143,55}
-};
-
 _quickslot quick_slots[MAX_QUICK_SLOTS];
 int quickslots_pos[MAX_QUICK_SLOTS][2] = {
 	{17,1},

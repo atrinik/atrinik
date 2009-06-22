@@ -1519,8 +1519,6 @@ int monster_use_skill(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
-		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
-
 		/* Might hit owner with skill - thrown rocks for example? */
 		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 1)
 			return 0;
@@ -1566,8 +1564,6 @@ int monster_use_wand(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
-		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
-
 		/* Might hit owner with spell */
 		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;
@@ -1620,8 +1616,6 @@ int monster_use_rod(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
-		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
-
 		/* Might hit owner with spell */
 		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;
@@ -1664,8 +1658,6 @@ int monster_use_horn(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
 	{
-		int dir2 = find_dir_2(head->x-owner->x, head->y-owner->y);
-
 		/* Might hit owner with spell */
 		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
 			return 0;

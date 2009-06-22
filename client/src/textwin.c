@@ -145,8 +145,7 @@ void draw_info (char *str, int flags )
 {
     static int key_start=0;
     static int key_count=0;
-    int i, len,a, media=0, color, mode;
-    Boolean gflag;
+    int i, len,a, color, mode;
     int winlen = 239;
     char buf[4096];
     char *text;

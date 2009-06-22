@@ -31,7 +31,7 @@
  * tab to draw. */
 char *party_tab_text(int i)
 {
-	char *text;
+	char *text = "";
 
 	switch (i)
 	{
@@ -301,7 +301,7 @@ void show_party(void)
 			i -= gui_interface_party->yoff;
 
 		/* Print out those empty rows */
-		for (i; i < DIALOG_LIST_ENTRY; i++)
+		for (i = i; i < DIALOG_LIST_ENTRY; i++)
 		{
 			y += 12;
 			box.y += 12;
@@ -446,7 +446,7 @@ void show_party(void)
 			i -= gui_interface_party->yoff;
 
 		/* Print out those empty rows */
-		for (i; i < DIALOG_LIST_ENTRY; i++)
+		for (i = i; i < DIALOG_LIST_ENTRY; i++)
 		{
 			y += 12;
 			box.y += 12;
@@ -468,7 +468,7 @@ void show_party(void)
 	/* Party join command */
 	else if (strcmp(gui_interface_party->command, "join") == 0)
 	{
-		char subcommand[MAX_BUF], status[HUGE_BUF], password[MAX_BUF], tmpbuf[MAX_BUF];
+		char subcommand[MAX_BUF], status[HUGE_BUF];
 
 		subcommand[0] = '\0';
 		status[0] = '\0';
@@ -580,8 +580,6 @@ void gui_party_interface_mouse(SDL_Event *e)
 /* Free and clear the party GUI */
 void clear_party_interface(void)
 {
-	_gui_party_line *line;
-
 	if (!gui_interface_party)
 		return;
 

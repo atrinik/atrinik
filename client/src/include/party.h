@@ -72,5 +72,6 @@ extern _gui_party_struct *load_party_interface(char *data, int len);
 extern void show_party(void);
 extern void gui_party_interface_mouse(SDL_Event *e);
 extern int console_party(void);
+extern void clear_party_interface(void);
 
 #endif

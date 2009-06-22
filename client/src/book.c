@@ -232,7 +232,7 @@ static void book_link_page(_gui_book_page *page)
 }
 
 /* post formating & initializing of a loaded book */
-static void format_book(_gui_book_struct *book, char *name)
+static void format_book(char *name)
 {
 	int pc = 0;
 	_gui_book_page *page;
@@ -505,7 +505,7 @@ _gui_book_struct *load_book_interface(int mode, char *data, int len)
 		book_link_page(page);
 	}
 
-	format_book(gui_interface_book, name);
+	format_book(name);
 	return gui_interface_book;
 }
 

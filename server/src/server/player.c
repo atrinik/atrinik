@@ -90,7 +90,7 @@ void display_motd(object *op)
 	db_close(db);
 
 	/* Output the buf */
-	if (buf && strcmp(buf, ""))
+	if (strcmp(buf, ""))
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
 #endif
 }

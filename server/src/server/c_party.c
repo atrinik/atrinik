@@ -252,8 +252,6 @@ int command_party(object *op, char *params)
   	partylist *tmpparty, *party;
 	/* For iterating over linked list */
   	char *currentparty;
-	int player_count = 0;
-	player *pl;
 
   	if (params == NULL)
 	{

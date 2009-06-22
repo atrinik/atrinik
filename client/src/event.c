@@ -469,7 +469,7 @@ draw_info(tz, COLOR_BLUE);
 
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
 				{
-					int l_len = 0, w_len, i, ii, yoff, book_w = 400 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2, book_h = 300 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
+					int l_len = 0, w_len, i, ii, yoff;
 					_gui_book_page *page1, *page2;
 					char *p, *p2, line[MAX_BUF], *helpBuf = NULL, word[MAX_BUF];
 
