@@ -301,7 +301,7 @@ void show_party(void)
 			i -= gui_interface_party->yoff;
 
 		/* Print out those empty rows */
-		for (i = i; i < DIALOG_LIST_ENTRY; i++)
+		while (i < DIALOG_LIST_ENTRY)
 		{
 			y += 12;
 			box.y += 12;
@@ -318,6 +318,8 @@ void show_party(void)
 			/* Selected row */
 			else
 				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+
+			i++;
 		}
 	}
 	/* Party who command */
@@ -446,7 +448,7 @@ void show_party(void)
 			i -= gui_interface_party->yoff;
 
 		/* Print out those empty rows */
-		for (i = i; i < DIALOG_LIST_ENTRY; i++)
+		while (i < DIALOG_LIST_ENTRY)
 		{
 			y += 12;
 			box.y += 12;
@@ -463,6 +465,8 @@ void show_party(void)
 			/* Selected row */
 			else
 				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+
+			i++;
 		}
 	}
 	/* Party join command */
