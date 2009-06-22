@@ -675,7 +675,7 @@ int console_party(void)
 			/* Found selected line */
 			if (i == gui_interface_party->selected)
 			{
-				sprintf(partyname, "%s", party_line->line);
+				snprintf(partyname, sizeof(partyname), "%s", party_line->line);
 				join_party = 1;
 				break;
 			}
@@ -690,7 +690,7 @@ int console_party(void)
 			char buf[HUGE_BUF];
 
 			/* ... send the command to join this party, along with password. */
-			sprintf(buf, "pt join Name: %s\nPassword: %s\n", partyname, InputString);
+			snprintf(buf, sizeof(buf), "pt join Name: %s\nPassword: %s\n", partyname, InputString);
     		cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 
@@ -706,7 +706,7 @@ int console_party(void)
 			char buf[HUGE_BUF];
 
 			/* ... send the command to form this party. */
-			sprintf(buf, "pt form %s", InputString);
+			snprintf(buf, sizeof(buf), "pt form %s", InputString);
     		cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 
@@ -722,7 +722,7 @@ int console_party(void)
 			char buf[HUGE_BUF];
 
 			/* ... send the command to form this party. */
-			sprintf(buf, "pt password %s", InputString);
+			snprintf(buf, sizeof(buf), "pt password %s", InputString);
     		cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 

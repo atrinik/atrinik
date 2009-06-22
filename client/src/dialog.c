@@ -1588,7 +1588,7 @@ void show_login_server(void)
 	if (request_file_chain > 9)
 		StringBlt(ScreenSurface, &SystemFont, "Updating help files from server...", x + 2, y + 80, COLOR_WHITE, NULL, NULL);
 	if (request_file_chain > 11)
-		StringBlt(ScreenSurface, &SystemFont,"Sync files..." , x+2, y+92, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 92, COLOR_WHITE, NULL, NULL);
 
 	/* if set, we have requested something and the stuff in the socket buffer is our file! */
 	if (request_file_chain == 1 || request_file_chain == 3 ||request_file_chain ==  5 || request_file_chain == 7 || request_file_chain == 9 || request_file_chain == 11)
@@ -1743,14 +1743,14 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 
 	  		sprintf(buf, "version %s", node->version);
 
-			StringBlt(ScreenSurface,&SystemFont, buf, x + 160, y + 418 + o, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface,&SystemFont, buf, x + 159, y + 417 + o, COLOR_WHITE, NULL, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc1, x + 160, y + 431 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc1, x + 159, y + 430 + o, COLOR_HGOLD, &rec_desc, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc2, x + 160, y + 442 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc2, x + 159, y + 441 + o, COLOR_HGOLD, &rec_desc, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc3, x + 160, y + 453 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface,&SystemFont, node->desc3, x + 159, y + 452 + o, COLOR_HGOLD, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 418 + o, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 417 + o, COLOR_WHITE, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc1, x + 160, y + 431 + o, COLOR_BLACK, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc1, x + 159, y + 430 + o, COLOR_HGOLD, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc2, x + 160, y + 442 + o, COLOR_BLACK, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc2, x + 159, y + 441 + o, COLOR_HGOLD, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc3, x + 160, y + 453 + o, COLOR_BLACK, &rec_desc, NULL);
+			StringBlt(ScreenSurface, &SystemFont, node->desc3, x + 159, y + 452 + o, COLOR_HGOLD, &rec_desc, NULL);
 
 			box.y = y + TXT_Y_START + 13 + i * 12;
 	  		SDL_FillRect(ScreenSurface, &box, sdl_blue1);

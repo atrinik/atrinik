@@ -353,8 +353,6 @@ void show_help(char *helpfile)
 	if ((fp = fopen(FILE_CLIENT_HFILES, "rb")) == NULL)
 		return;
 
-	message[0] = '\0';
-
 	sprintf(name, "Name: %s\n", helpfile);
 
 	while (fgets(buf, HUGE_BUF * 4, fp))
@@ -381,8 +379,6 @@ void show_help(char *helpfile)
 	}
 
 	fclose(fp);
-
-	message_buf[0] = '\0';
 
 	if (got_match)
 		snprintf(message_buf, sizeof(message_buf), "<b t=\"%s\"><t t=\"%s\">\n%s", helpfile, title, message);
