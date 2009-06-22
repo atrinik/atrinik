@@ -594,7 +594,7 @@ void clear_party_interface(void)
 /* Initialize the party interface */
 _gui_party_struct *load_party_interface(char *data, int len)
 {
-	char command[MAX_BUF], *p, partyCommand[4096 * 16];
+	char command[MAX_BUF], *p, *partyCommand;
 	_gui_party_line *party_line;
 	int i = 0, tab = gui_interface_party ? gui_interface_party->tab : 0;
 
@@ -607,6 +607,12 @@ _gui_party_struct *load_party_interface(char *data, int len)
 
 	/* Command to run (list, who...) */
 	sscanf(data, "%32[^\n]\n", command);
+
+	if ((partyCommand = (char *)malloc(strlen(data) + 1)) == NULL)
+	{
+		LOG(LOG_ERROR, "ERROR: Out of memory.\n");
+		return;
+	}
 
 	sprintf(partyCommand, "%s", data);
 	p = strtok(partyCommand, "\n");
@@ -640,6 +646,8 @@ _gui_party_struct *load_party_interface(char *data, int len)
 	gui_interface_party->selected = 0;
 	gui_interface_party->tab = tab;
 	strncpy(gui_interface_party->command, command, sizeof(gui_interface_party->command));
+
+	free(partyCommand);
 
 	return gui_interface_party;
 }
