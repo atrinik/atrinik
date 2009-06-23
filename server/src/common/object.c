@@ -3453,7 +3453,7 @@ object *decrease_ob_nr(object *op, int i)
 
 		/* TODO: this is another nasty "search all players"...
 		 * i skip this to rework as i do the container patch -
-		 * but we can do this now much smarter ! 
+		 * but we can do this now much smarter !
 		 * MT -08.02.04  */
 		if (!tmp)
 		{

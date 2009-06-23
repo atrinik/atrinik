@@ -4,7 +4,7 @@
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
 *                     Copyright (C) 2009 Alex Tokar                     *
-*                                                                       * 
+*                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
 *                                                                       *
@@ -51,7 +51,7 @@
 	"see_invisible","can_roll",		"is_turnable",	"is_used_up",	"identified",
 	"reflecting",	"changing",		"splitting",	"hitback",		"startequip",
 	"blocksview",	"undead",		"scared",		"unaggressive",	"reflect_missile",
-	"reflect_spell","no_magic",		"wiz",			"was_wiz",		"no_fix_player",	
+	"reflect_spell","no_magic",		"wiz",			"was_wiz",		"no_fix_player",
 	"tear_down",	"luck",			"run_away",		"pass_thru",	"can_pass_thru",
 	"pick_up",		"anim_speed",	"container",	"no_drop",		"will_apply",
 	"can_cast_spell","can_use_scroll","can_use_range","can_use_bow","can_use_armour",
@@ -66,7 +66,7 @@
 	"berserk",		"sub_type",		"terrain_flag",	"terrain_type", "item_quality",
 	"item_condition","item_race",	"item_skill",	"item_level",	"material_real",
 	 "mpart_id",	"mpart_nr",		"weapon_speed",	"editor_folder","is_magical",
-	"is_vul_elemental","is_proof_elemental","is_vul_magic","is_proof_magic","is_vul_physical", 
+	"is_vul_elemental","is_proof_elemental","is_vul_magic","is_proof_magic","is_vul_physical",
 	"is_proof_physical","is_vul_sphere","is_proof_sphere","is_indestructible","is_male",
 	"is_female","is_evil", "is_good","is_neutral","is_invisible",
 	"layer","is_aged","make_invisible", "make_ethereal","is_player",
@@ -76,9 +76,9 @@
 	"object_int3" <-- thats ownercount
 	"no_teleport", "corpse", "corpse_forced"
     "player_only" <-- only player can enter flag
-	"no_cleric" 
+	"no_cleric"
 	"one_drop"
-	"cursed_perm" 
+	"cursed_perm"
 	"damned_perm"
 	"wc_range"
 	"door_closed"
@@ -194,7 +194,7 @@ WS	[ \t]*{NL}
 						/* if we have now a negative speed - use default arch
 						* speed left for new random set
 						*/
-						if(tmp->speed<0.0f) 
+						if(tmp->speed<0.0f)
 							tmp->speed_left=tmp->arch->clone.speed_left+(float)(RANDOM()%90)/100.0f;
 					}
 					if(tmp->speed)
@@ -226,7 +226,7 @@ WS	[ \t]*{NL}
 			/* This is the actual archetype definition then */
 			else {
 			    op->arch=find_archetype(yval());
-			    if (op->arch!=NULL) 
+			    if (op->arch!=NULL)
 					copy_object_data(&op->arch->clone,op);
 					/* note: speed will handled in load_object() for this */
 			}
@@ -238,7 +238,7 @@ WS	[ \t]*{NL}
 			    LOG(llevError,"Object lacks name.\n");
 			    return LL_IGNORED;
 			}
-			if (op->arch!=NULL) 
+			if (op->arch!=NULL)
 				FREE_AND_COPY_HASH(op->arch->name, yv);
 			FREE_AND_COPY_HASH(op->name, yv);
 			object_load_flag = 1; /* ok - now we know the pre speed values are valid */
@@ -297,7 +297,7 @@ WS	[ \t]*{NL}
 ^slow_move{S}	    {	SET_SLOW_PENALTY(op,FVAL);
 			SET_FLAG(op, FLAG_SLOW_MOVE);
 		    }
-^face{S}		{	
+^face{S}		{
 					register int _face_ = FindFace(yval(), 0);
 					op->face = &new_faces[_face_ ];
 
@@ -337,15 +337,15 @@ WS	[ \t]*{NL}
 ^wc_range_add{S}	op->stats.wc_range += IVAL;
 ^ac{S}			op->stats.ac = IVAL;
 ^ac_add{S}		op->stats.ac += IVAL;
-^x{S}		{op->x = IVAL; 
-#ifdef POSITION_DEBUG 
+^x{S}		{op->x = IVAL;
+#ifdef POSITION_DEBUG
 op->ox= op->x;
 #endif
 }
 ^y{S}		{op->y = IVAL;
 #ifdef POSITION_DEBUG
 op->oy= op->y;
-#endif 
+#endif
 }
 ^nrof{S}					op->nrof= atol(yval());
 ^level{S}					op->level = IVAL;
@@ -412,13 +412,13 @@ op->oy= op->y;
 ^monster{S}					SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
 ^no_attack{S}				SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
 ^invulnerable{S}			SET_OR_CLEAR_FLAG(op, FLAG_INVULNERABLE, IVAL);
-^friendly{S}			{				
-							if (IVAL) 
+^friendly{S}			{
+							if (IVAL)
 							{
 								SET_FLAG(op, FLAG_FRIENDLY);
 								add_friendly_object(op);
 							}
-							else 
+							else
 								CLEAR_FLAG(op, FLAG_FRIENDLY);
 						}
 ^identified{S}	    {	if (IVAL) {
@@ -491,7 +491,7 @@ op->oy= op->y;
 ^stand_still{S}	    SET_OR_CLEAR_FLAG(op, FLAG_STAND_STILL, IVAL);
 ^random_move{S}	    SET_OR_CLEAR_FLAG(op, FLAG_RANDOM_MOVE, IVAL);
 ^only_attack{S}	    SET_OR_CLEAR_FLAG(op, FLAG_ONLY_ATTACK, IVAL);
-^berserk{S}	    SET_OR_CLEAR_FLAG(op, FLAG_BERSERK, IVAL); 
+^berserk{S}	    SET_OR_CLEAR_FLAG(op, FLAG_BERSERK, IVAL);
 ^is_magical{S}	    SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
 
     /* Start of various attacktypes */
@@ -647,7 +647,7 @@ op->oy= op->y;
 					 */
 					if(ival_tmp <=0 ) /* this is forcing the value! */
 						op->item_level = -ival_tmp;
-					else if(ival_tmp >op->item_level) 
+					else if(ival_tmp >op->item_level)
 						op->item_level = ival_tmp;
 					}
 ^material_real{S}	op->material_real = IVAL;
@@ -806,7 +806,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			retval=lex_load(op, map_flags);
 			yy_delete_buffer(yybufstate);
 			if (retval==LL_NORMAL)
-			{ 
+			{
 				if(cur_buffer) /* be sure we work on the right buffer */
 					yy_switch_to_buffer(cur_buffer);
 				return retval;
@@ -817,7 +817,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			yy_switch_to_buffer(cur_buffer);
 		return LL_EOF;
     }
-	
+
 	if(QUERY_FLAG(op,FLAG_IDENTIFIED))
 	{
 		SET_FLAG(op,FLAG_KNOWN_MAGICAL);
@@ -851,14 +851,14 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 				/* if we have now a negative speed - use default arch
 				 * speed left for new random set
 				 */
-				if(op->speed<0.0f) 
+				if(op->speed<0.0f)
 					op->speed_left=op->speed_left+(float)(RANDOM()%90)/100.0f;
 			}
 	  }
 	  else /* arch load... perhaps a map */
 	  {
 	    /* only do this when we have not loaded a fix speed_left and speed is <0 */
-		if(op->speed<0.0f && op->speed_left==op->arch->clone.speed_left) 
+		if(op->speed<0.0f && op->speed_left==op->arch->clone.speed_left)
 			op->speed_left=op->speed_left+(float)(RANDOM()%90)/100.0f;
 	  }
 	  update_ob_speed(op); /* now we have build a new object - and its not arch loading
@@ -910,7 +910,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"blocksview", 			"undead", 				NULL, 				"unaggressive",		"reflect_missile",
 	"reflect_spell",		"no_magic", 			"no_fix_player", 	"is_evil", 			"tear_down",
 	"run_away",				"pass_thru", 			"can_pass_thru", 	"pick_up", 			"unique",
-	"no_drop",				"is_indestructible", 	"can_cast_spell", 	"can_use_scroll", 	"can_use_range", 
+	"no_drop",				"is_indestructible", 	"can_cast_spell", 	"can_use_scroll", 	"can_use_range",
 	"can_use_bow",  		"can_use_armour", 		"can_use_weapon",	"can_use_ring", 	"has_ready_range",
 	"has_ready_bow",		"xrays", 				NULL, 				"is_floor", 		"lifesave",
 	"is_magical", 			"alive",				"stand_still", 		"random_move", 		"only_attack",
@@ -918,7 +918,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"damned",				"see_anywhere", 		"known_magical", 	"known_cursed",		"can_use_skill",
 	"is_thrown",			"is_vul_sphere", 		"is_proof_sphere", 	"is_male",			"is_female",
 	"applied",  			"inv_locked", 			"is_wooded",		"is_hilly", 		"has_ready_skill",
-	"has_ready_weapon",		"no_skill_ident",		"was_wiz", 			"can_see_in_dark", 	"is_cauldron", 
+	"has_ready_weapon",		"no_skill_ident",		"was_wiz", 			"can_see_in_dark", 	"is_cauldron",
 	"is_dust", 				"no_steal", 			"one_hit", 			NULL, 				"berserk",
 	"no_attack",			"invulnerable", 		"quest_item", 		"is_traped", 		"is_vul_elemental",
 	"is_proof_elemental",	"is_vul_magic", 		"is_proof_magic", 	"is_vul_physical", 	"is_proof_physical",
@@ -955,7 +955,7 @@ char *get_ob_diff(object *op, object *op2)
   	static char buf2[HUGE_BUF];
   	static char buf[HUGE_BUF];
   	int tmp;
-  
+
   	buf[0] = '\0';
 	if (op->name && op->name != op2->name)
 	{
@@ -1205,7 +1205,7 @@ char *get_ob_diff(object *op, object *op2)
 
 	if (op->attacktype != op2->attacktype)
 		save_long(buf, "attacktype", op->attacktype);
- 
+
   	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
    		if (op->resist[tmp] != op2->resist[tmp])
@@ -1301,7 +1301,7 @@ char *get_ob_diff(object *op, object *op2)
 		save_long(buf, "container", op->weight_limit);
 
 	if (op->will_apply != op2->will_apply)
-		save_long(buf, "will_apply", op->will_apply); 
+		save_long(buf, "will_apply", op->will_apply);
 
   	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{
@@ -1327,7 +1327,7 @@ char *get_ob_diff(object *op, object *op2)
 			strcat(buf, buf2);
     	}
   	}
- 
+
   	if (buf[0] == '\0')
     	return NULL;
 
@@ -1383,11 +1383,11 @@ void save_map_object(FILE *fp, object *op, int flag)
 	    		LOG(llevError, "Recursive loop in inventory\n");
 	    		break;
 			}
-			save_map_object(fp, tmp, flag); 
+			save_map_object(fp, tmp, flag);
 			old = tmp;
     	}
-   
-    if (!(flag & 2)) 
+
+    if (!(flag & 2))
 		remove_ob(op);
 
     fprintf(fp, "end\n");
@@ -1434,11 +1434,11 @@ void save_player_object(char *buf, object *op, int flag)
 	    		LOG(llevError, "Recursive loop in inventory\n");
 	    		break;
 			}
-			save_player_object(buf, tmp, flag); 
+			save_player_object(buf, tmp, flag);
 			old = tmp;
     	}
-   
-    if (!(flag & 2)) 
+
+    if (!(flag & 2))
 		remove_ob(op);
 
     sprintf(buf, "%send\n", buf);
