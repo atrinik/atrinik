@@ -40,9 +40,9 @@ echo '
 
 // Query to select servers
 $query = '
-	SELECT ip_address, port, hostname, num_players, version, text_comment, last_update
+	SELECT ip_address, port, hostname, num_players, version, text_comment
 	FROM servers
-	WHERE last_update > (NOW() - ' . $last_update_timeout . ')';
+	WHERE last_update > (' . (time() - $last_update_timeout) . ')';
 
 // Send the query
 $request = db_query($query);
@@ -59,7 +59,6 @@ echo '
 					<td><b># of players</b></td>
 					<td><b>Version</b></td>
 					<td><b>Comment</b></td>
-					<td><b>Last update</b></td>
 				</tr>';
 
 // If no servers...
@@ -80,7 +79,6 @@ while ($row = db_fetch_assoc($request))
 					<td>', $row['num_players'], '</td>
 					<td>', $row['version'], '</td>
 					<td>', $row['text_comment'], '</td>
-					<td>', $row['last_update'], '</td>
 				</tr>';
 }
 

@@ -104,7 +104,7 @@ $query = '
 		num_players = ' . (is_numeric($_POST['num_players']) ? (int) $_POST['num_players'] : 0) . ',
 		version = \'' . db_sanitize($_POST['version']) . '\',
 		text_comment = \'' . db_sanitize($_POST['text_comment']) . '\',
-		last_update = NOW()
+		last_update = ' . time() . '
 	WHERE
 		hostname = \'' . db_sanitize($_POST['hostname']) . '\'';
 
@@ -119,7 +119,7 @@ if (db_affected_rows() < 1)
 	INSERT INTO servers
 	(ip_address, port, hostname, num_players, version, text_comment, last_update)
 	VALUES
-	(\'' . db_sanitize($_SERVER['REMOTE_ADDR']) . '\', ' . (is_numeric($_POST['port']) ? (int) $_POST['port'] : 13327) . ', \'' . db_sanitize($_POST['hostname']) . '\', ' . (is_numeric($_POST['num_players']) ? (int) $_POST['num_players'] : 0) . ', \'' . db_sanitize($_POST['version']) . '\', \'' . db_sanitize($_POST['text_comment']) . '\', NOW())';
+	(\'' . db_sanitize($_SERVER['REMOTE_ADDR']) . '\', ' . (is_numeric($_POST['port']) ? (int) $_POST['port'] : 13327) . ', \'' . db_sanitize($_POST['hostname']) . '\', ' . (is_numeric($_POST['num_players']) ? (int) $_POST['num_players'] : 0) . ', \'' . db_sanitize($_POST['version']) . '\', \'' . db_sanitize($_POST['text_comment']) . '\', ' . time() . ')';
 
 	// Run the query
 	db_query($query);

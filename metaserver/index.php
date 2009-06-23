@@ -35,7 +35,7 @@ require_once('common.php');
 $query = '
 	SELECT ip_address, port, hostname, num_players, version, text_comment
 	FROM servers
-	WHERE last_update > (NOW() - ' . $last_update_timeout . ')';
+	WHERE last_update > (' . (time() - $last_update_timeout) . ')';
 
 // Send the query
 $request = db_query($query);

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
   `num_players` int(11) default NULL,
   `version` varchar(20) default NULL,
   `text_comment` varchar(256) default NULL,
-  `last_update` datetime NOT NULL,
+  `last_update` int(21) default NULL,
   PRIMARY KEY  (`id_server`),
   UNIQUE KEY `hostname` (`hostname`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
