@@ -104,6 +104,7 @@ int gen = 0;
 char *opt_tab[] = {
 	"General",
 	"Client",
+	"Map",
 	"Sound",
 	"Fullscreen flags",
 	"Windowed flags",
@@ -113,34 +114,37 @@ char *opt_tab[] = {
 
 _option opt[] = {
 	/* General */
-	{"Player Names:", "Show names of players above their heads.", "", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
+	{"Playerdoll:", "Whether to always show the playerdoll.", "If unchecked, the playerdoll is only shown while the inventory is open.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.playerdoll, VAL_BOOL},
 	{"Show yourself targeted:", "Show your name in the target area instead of blank.","", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_target_self, VAL_BOOL},
-	{"Low health warning:", "Shows a low health warning above your head", "Activatetd if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
-	{"Low food warning:", "Shows a low food warning above your head.", "Activatetd if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
-	{"Graphic Statusbars:", "Show for HP, Mana and others a graphical layout.", "Instead of horizontal lines.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.gfx_statusbars, VAL_BOOL},
 	{"Show Tooltips:", "Show tooltips when hovering with the mouse over items.", "", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_tooltips, VAL_BOOL},
 	{"Key-info in Dialog menus:", "","", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_d_key_infos, VAL_BOOL},
 	{"Collect All Items:", "Don't ask for number of items to get, just get all of them.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.collectAll, VAL_BOOL},
-	{"#"},
+	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;", "~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
+	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */
 	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.fullscreen, VAL_BOOL},
+	{"Resolution:", "The resolution of the screen/window.", "If you change to lower resolutions your GUI-windows may be hidden.", "800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.", "NOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
-	{"Textwindow splitted:", "Split your text windows in chat & action messages.", "", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinSplit, VAL_BOOL},
 	{"Textwindows use alpha:", "Make the text window transparent.", "WARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
 	{"Textwindows alpha value:", "Transparent value. Higher = darker", "", "", SEL_RANGE, 0, 255, 5, 110, &options.textwin_alpha, VAL_INT},
-	{"Textwindow Default Size:", "Size of text window.", "", "", SEL_RANGE, 10, 38, 1, 10, &txtwin[TW_MIX].size, VAL_INT},
-	{"Textwindow Body Size:", "Size of body part of text window.", "", "", SEL_RANGE, 2, 38, 1, 10, &txtwin[TW_MSG].size, VAL_INT},
-	{"Textwindow Top Size:", "Size of upper part of text window.", "", "", SEL_RANGE, 2, 38, 1, 10, &txtwin[TW_CHAT].size, VAL_INT},
 	{"Save CPU time with sleep():", "Client eats less cput time when set.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
 	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
-	{"#"},
+	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+
+	/* Map */
+	{"Player Names:", "Show names of players above their heads.", "", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
+	{"Playfield start X:", "The X-position of the playfield.", "", "", SEL_RANGE, -20, 1000, 10, -10, &options.mapstart_x, VAL_INT},
+	{"Playfield start Y:", "The Y-position of the playfield.", "", "", SEL_RANGE, 0, 700, 10, 60, &options.mapstart_y, VAL_INT},
+	{"Low health warning:", "Shows a low health warning above your head", "Activatetd if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
+	{"Low food warning:", "Shows a low food warning above your head.", "Activatetd if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
+	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Sound */
    	{"Sound volume:", "Set sound volume for effects.", "", "", SEL_RANGE, 0, 100, 5, 100, &options.sound_volume, VAL_INT},
    	{"Music volume:", "Set music volume for background.", "", "", SEL_RANGE, 0, 100, 5, 80, &options.music_volume, VAL_INT},
-   	{"#"},
+   	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
    /* Fullscreen Flags */
    	{"Hardware Surface:", "Don't change unless you know what you're doing", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_HWSURFACE, VAL_BOOL},
@@ -153,7 +157,7 @@ _option opt[] = {
    	{"Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
    	{"No frame:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_NOFRAME, VAL_BOOL},
    	{"RLE accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_RLEACCEL, VAL_BOOL},
-   	{"#"},
+   	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
    /* Windowed flags */
 	{"Window Hardware Surface:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWSURFACE, VAL_BOOL},
@@ -166,15 +170,15 @@ _option opt[] = {
 	{"Window Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_RESIZABLE, VAL_BOOL},
 	{"Window No frame:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
 	{"Window RLE accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
-   	{"#"},
+   	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
    	/* Debug */
 	{"Show Framerate:", "", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
 	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
 	{"Use Update Rect:", "", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
-	{"#"},
+	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
-	{0}
+	{0, "", "", "", 0, 0, 0, 0, 0, 0, 0},
 };
 
 /* Skill Menu */
@@ -316,6 +320,7 @@ static int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h)
  * text_h:
  *  info for keyboard user. You can give them here a highlighted char
  *  to identify the key for this button. if not needed set it to NULL. */
+#if 0
 static int add_gfx_button(int x, int y, int id, int gfxNr, int gfx_inner, char *text, char *text_h)
 {
 	char *text_sel;
@@ -353,6 +358,7 @@ static int add_gfx_button(int x, int y, int id, int gfxNr, int gfx_inner, char *
 	StringBlt(ScreenSurface, &SystemFont, text_sel, x, y, color, NULL, NULL);
 	return ret;
 }
+#endif
 
 /* add a group-button and handle mouse events on it.
  * text_h:
@@ -757,8 +763,8 @@ void show_skilllist(void)
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x= SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y= SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x= Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y= Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SKILL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SKILL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SKILL);
@@ -914,8 +920,8 @@ void show_spelllist(void)
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
 	/* background */
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SPELL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SPELL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SPELL);
@@ -1055,8 +1061,8 @@ void show_optwin()
 	int numButton = 0;
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_OPTION);
@@ -1090,8 +1096,8 @@ void show_keybind()
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_KEYBIND], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_KEYBIND]->bitmap->w / 2, y + 17, NULL, NULL);
 	add_close_button(x, y, MENU_KEYBIND);
@@ -1264,8 +1270,8 @@ void show_newplayer_server(void)
 	_server_char *tmpc;
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = 25;
+	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_CREATION], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_CREATION]->bitmap->w / 2, y + 15, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_PENTAGRAM], x + 25, y + 430, NULL, NULL);
@@ -1537,8 +1543,8 @@ void show_login_server(void)
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = 25;
+	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_LOGIN], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_LOGIN]->bitmap->w / 2, y + 17, NULL, NULL);
@@ -1680,8 +1686,8 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x = SCREEN_XLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = SCREEN_YLEN / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = 25;
+    y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
@@ -1725,32 +1731,35 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 
 	for (i = 0; node && i < MAXMETAWINDOW;i++)
 	{
-		if (i== metaserver_sel-metaserver_start)
+		if (i == metaserver_sel-metaserver_start)
 		{
-			int o = 0;
+			int max_comments = 3, j = 0, len = 0, width = 0, desclen = strlen(node->desc);
+			char tmpbuf[MAX_BUF];
 
-			if (!node->desc4[0])
-				o += 5;
+	  		snprintf(buf, sizeof(buf), "version %s", node->version);
 
-			if (!node->desc3[0])
-				o += 5;
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
 
-			if (!node->desc2[0])
-				o += 5;
+			/* Get the description width */
+			StringWidthOffset(&SystemFont, node->desc, &width, 298);
 
-			if (!node->desc1[0])
-				o += 5;
+			/* Loop through the maximum lines of comments */
+			while (max_comments)
+			{
+				/* Last line was hit. */
+				if (len > desclen)
+					break;
 
-	  		sprintf(buf, "version %s", node->version);
+				snprintf(tmpbuf, width + 1, "%s", node->desc + len);
 
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 418 + o, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 417 + o, COLOR_WHITE, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc1, x + 160, y + 431 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc1, x + 159, y + 430 + o, COLOR_HGOLD, &rec_desc, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc2, x + 160, y + 442 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc2, x + 159, y + 441 + o, COLOR_HGOLD, &rec_desc, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc3, x + 160, y + 453 + o, COLOR_BLACK, &rec_desc, NULL);
-			StringBlt(ScreenSurface, &SystemFont, node->desc3, x + 159, y + 452 + o, COLOR_HGOLD, &rec_desc, NULL);
+				len += width;
+
+				StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 160, y + 446 + j, COLOR_BLACK, &rec_desc, NULL);
+				StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 159, y + 445 + j, COLOR_HGOLD, &rec_desc, NULL);
+				max_comments--;
+				j += 12;
+			}
 
 			box.y = y + TXT_Y_START + 13 + i * 12;
 	  		SDL_FillRect(ScreenSurface, &box, sdl_blue1);

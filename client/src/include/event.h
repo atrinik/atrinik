@@ -52,7 +52,6 @@ enum {
 	KEYFUNC_LOCK,KEYFUNC_MARK, KEYFUNC_EXAMINE,
 	KEYFUNC_PAGEUP, KEYFUNC_PAGEDOWN, KEYFUNC_HELP,
 	KEYFUNC_PAGEUP_TOP, KEYFUNC_PAGEDOWN_TOP,
-	KEYFUNC_STATUS,
 	KEYFUNC_OPTION,  KEYFUNC_SPELL,
 	KEYFUNC_KEYBIND, KEYFUNC_SKILL,
 	KEYFUNC_LAYER0,	KEYFUNC_LAYER1,	KEYFUNC_LAYER2,	KEYFUNC_LAYER3,
@@ -67,6 +66,11 @@ typedef struct _keybind_key {
 	int key;
 	int repeat_flag;
 }_keybind_key;
+
+extern int  old_mouse_y;
+extern uint32 MouseState; /* state of the buttons */
+extern int MouseEvent; /* whether there is an event (removed at end of main loop) */
+extern int itemExamined;
 
 enum {DRAG_GET_STATUS =-1, DRAG_NONE, DRAG_IWIN_BELOW, DRAG_IWIN_INV,
       DRAG_QUICKSLOT, DRAG_QUICKSLOT_SPELL, DRAG_PDOLL};
@@ -84,6 +88,8 @@ extern void reset_keys(void);
 extern void read_keybind_file(char *fname);
 extern void save_keybind_file(char *fname);
 extern void check_menu_keys(int menu, int value);
+extern Boolean check_menu_macros(char *text);
+extern void check_keys(int key);
 
 Boolean process_macro_keys(int id, int value);
 

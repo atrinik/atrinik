@@ -1,0 +1,183 @@
+#############################################
+# This is the Atrinik client interface file #
+#############################################
+
+Widget: STATS
+moveable: 1
+active: 1
+x: 227
+y: 0
+width: 172
+height: 102
+end
+
+Widget: RESIST
+moveable: 1
+active: 1
+x: 497
+y: 0
+width: 198
+height: 79
+end
+
+Widget: MAIN_LVL
+moveable: 1
+active: 1
+x: 399
+y: 39
+width: 98
+height: 62
+end
+
+Widget: SKILL_EXP
+moveable: 1
+active: 1
+x: 497
+y: 79
+width: 198
+height: 22
+end
+
+Widget: REGEN
+moveable: 1
+active: 1
+x: 399
+y: 0
+width: 98
+height: 39
+end
+
+Widget: SKILL_LVL
+moveable: 1
+active: 1
+x: 695
+y: 0
+width: 52
+height: 101
+end
+
+Widget: MENUBUTTONS
+moveable: 1
+active: 1
+x: 747
+y: 0
+width: 47
+height: 101
+end
+
+Widget: QUICKSLOTS
+moveable: 1
+active: 1
+x: 513
+y: 107
+width: 282
+height: 34
+end
+
+Widget: CHATWIN
+moveable: 1
+active: 1
+x: 0
+y: 366
+width: 261
+height: 233
+end
+
+Widget: MSGWIN
+moveable: 1
+active: 1
+x: 537
+y: 366
+width: 261
+height: 233
+end
+
+Widget: MIXWIN
+moveable: 1
+active: 0
+x: 539
+y: 420
+width: 261
+height: 233
+end
+
+Widget: PLAYERDOLL
+moveable: 1
+active: 0
+x: 0
+y: 41
+width: 221
+height: 224
+end
+
+Widget: BELOWINV
+moveable: 1
+active: 1
+x: 262
+y: 545
+width: 274
+height: 55
+end
+
+Widget: PLAYERINFO
+moveable: 1
+active: 1
+x: 0
+y: 0
+width: 219
+height: 41
+end
+
+Widget: RANGEBOX
+moveable: 1
+active: 1
+x: 6
+y: 100
+width: 94
+height: 60
+end
+
+Widget: TARGET
+moveable: 1
+active: 1
+x: 267
+y: 514
+width: 264
+height: 31
+end
+
+Widget: MAININV
+moveable: 1
+active: 1
+x: 539
+y: 147
+width: 239
+height: 32
+end
+
+Widget: MAPNAME
+moveable: 1
+active: 1
+x: 228
+y: 106
+width: 36
+height: 12
+end
+
+Widget: CONSOLE
+moveable: 1
+active: 0
+x: 271
+y: 489
+width: 256
+height: 25
+end
+
+Widget: NUMBER
+moveable: 1
+active: 0
+x: 271
+y: 465
+width: 256
+height: 43
+end

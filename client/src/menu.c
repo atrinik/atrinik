@@ -57,24 +57,26 @@ int quickslots_pos[MAX_QUICK_SLOTS][2] = {
 	{248,1}
 };
 
-void do_console(int x, int y)
+void do_console()
 {
+	map_udate_flag = 2;
+
 	/* If ESC was pressed or console_party() returned 1, close console. */
     if (InputStringEscFlag || console_party())
     {
 		if (gui_interface_party)
 			clear_party_interface();
 
-        sound_play_effect(SOUND_CONSOLE, 0, 0, 100);
+        sound_play_effect(SOUND_CONSOLE, 0, 100);
         reset_keys();
         cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag = 2;
+		cur_widget[IN_CONSOLE_ID].show = 0;
     }
 
     /* If set, we've got a finished input */
     if (InputStringFlag == 0 && InputStringEndFlag)
     {
-        sound_play_effect(SOUND_CONSOLE, 0, 0, 100);
+        sound_play_effect(SOUND_CONSOLE, 0, 100);
 
         if (InputString[0])
         {
@@ -101,160 +103,121 @@ void do_console(int x, int y)
 
         reset_keys();
         cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag = 2;
+		cur_widget[IN_CONSOLE_ID].show = 0;
     }
     else
-        show_console(x, y);
+        cur_widget[IN_CONSOLE_ID].show = 1;
 }
 
 /* client_command_check()
  * Analyze /<cmd> type commands the player has typed in the console
  * or bound to a key. Sort out the "client intern" commands and
  * expand or pre process them for the server.
- * Return: TRUE=don't send command to server
- * FALSE: send command to server
- */
-
+ * Return: 1 = don't send command to server
+ * 0: send command to server */
 int client_command_check(char *cmd)
 {
 	char tmp[256];
 	char cpar1[256];
-	int par1, par2;
+	int par2;
 
-	if(!strnicmp(cmd,"/ready_spell",strlen("/ready_spell")) )
+	if (!strnicmp(cmd, "/ready_spell", 12))
 	{
         cmd = strchr(cmd, ' ');
-		if(!cmd || *++cmd == 0)
+
+		if (!cmd || *++cmd == 0)
 		{
-			draw_info("usage: /ready_spell <spell name>" ,COLOR_GREEN);
+			draw_info("Usage: /ready_spell <spell name>", COLOR_GREEN);
 		}
 		else
 		{
-			int i,ii;
+			int i, ii;
 
-			for(i=0;i<SPELL_LIST_MAX;i++)
+			for (i = 0; i < SPELL_LIST_MAX; i++)
 			{
-				for(ii=0;ii<DIALOG_LIST_ENTRY;ii++)
+				for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
 				{
-					if(spell_list[i].entry[0][ii].flag >= LIST_ENTRY_USED)
+					if (spell_list[i].entry[0][ii].flag >= LIST_ENTRY_USED)
 					{
-						if(!strcmp(spell_list[i].entry[0][ii].name, cmd))
+						if (!strcmp(spell_list[i].entry[0][ii].name, cmd))
 						{
-							if(spell_list[i].entry[0][ii].flag==LIST_ENTRY_KNOWN)
+							if (spell_list[i].entry[0][ii].flag == LIST_ENTRY_KNOWN)
 							{
 								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[0][ii];
 								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect(SOUND_SCROLL,0,0,MENU_SOUND_VOL);
-								draw_info("spell ready." ,COLOR_GREEN);
-								return TRUE;
+								sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+								draw_info("Spell ready.", COLOR_GREEN);
+								return 1;
 							}
 						}
 					}
-					if(spell_list[i].entry[1][ii].flag >= LIST_ENTRY_USED)
+
+					if (spell_list[i].entry[1][ii].flag >= LIST_ENTRY_USED)
 					{
-						if(!strcmp(spell_list[i].entry[1][ii].name, cmd))
+						if (!strcmp(spell_list[i].entry[1][ii].name, cmd))
 						{
-							if(spell_list[i].entry[1][ii].flag==LIST_ENTRY_KNOWN)
+							if (spell_list[i].entry[1][ii].flag==LIST_ENTRY_KNOWN)
 							{
 								fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[i].entry[1][ii];
 								RangeFireMode = FIRE_MODE_SPELL;
-								sound_play_effect(SOUND_SCROLL,0,0,MENU_SOUND_VOL);
-								draw_info("spell ready." ,COLOR_GREEN);
-								return TRUE;
+								sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+								draw_info("Spell ready.", COLOR_GREEN);
+								return 1;
 							}
 						}
 					}
 				}
 			}
 		}
-		draw_info("unknown spell." ,COLOR_GREEN);
-		return TRUE;
+
+		draw_info("Unknown spell.", COLOR_GREEN);
+		return 1;
 	}
-	else if(!strnicmp(cmd,"/pray",strlen("/pray")) )
+	else if (!strnicmp(cmd, "/pray", 5))
 	{
-		/* give out "you are at full grace." when needed -
-		 * server will not send us anything when this happens
-		 */
-		if(cpl.stats.grace == cpl.stats.maxgrace)
-			draw_info("You are at full grace. You stop praying." ,COLOR_WHITE);
+		/* Give out "You are at full grace." when needed -
+		 * server will not send us anything when this happens */
+		if (cpl.stats.grace == cpl.stats.maxgrace)
+			draw_info("You are at full grace. You stop praying.", COLOR_WHITE);
 	}
-	else if(!strnicmp(cmd,"/setwinalpha",strlen("/setwinalpha")) )
+	else if (!strnicmp(cmd, "/setwinalpha", 12))
 	{
-		int wrong=0;
-		par2=-1;
+		int wrong = 0;
+		par2 = -1;
 		sscanf(cmd, "%s %s %d", tmp, cpar1, &par2);
 
-		if(!strnicmp(cpar1,"ON",strlen("ON")) )
+		if (!strnicmp(cpar1, "ON", 2))
 		{
-			if(par2 != -1)
+			if (par2 != -1)
 			{
-				if(par2 <0 ||par2>255)
-					par2=128;
-				options.textwin_alpha= par2;
+				if (par2 < 0 || par2 > 255)
+					par2 = 128;
+
+				options.textwin_alpha = par2;
 			}
-			options.use_TextwinAlpha	=1;
-			sprintf(tmp, ">>set textwin alpha ON (alpha=%d).",options.textwin_alpha);
-			draw_info(tmp ,COLOR_GREEN);
+
+			options.use_TextwinAlpha = 1;
+			sprintf(tmp, ">>set textwin alpha ON (alpha=%d).", options.textwin_alpha);
+			draw_info(tmp, COLOR_GREEN);
 		}
-		else if(!strnicmp(cpar1,"OFF",strlen("OFF")) )
+		else if (!strnicmp(cpar1, "OFF", 3))
 		{
-			draw_info(">>set textwin alpha mode OFF." ,COLOR_GREEN);
-			options.use_TextwinAlpha=0;
+			draw_info(">>set textwin alpha mode OFF.", COLOR_GREEN);
+			options.use_TextwinAlpha = 0;
 		}
 		else
 			wrong = 1;
 
+		if (wrong)
+			draw_info("Usage: '/setwinalpha on|off |<alpha>|'\nExample:\n/setwinalpha ON 172\n/setwinalpha OFF",COLOR_WHITE);
 
-		if(wrong)
-			draw_info("Usage: '/setwinalpha on|off |<alpha>|'\nExample:\n/setwinalpha ON 172\n/setwinalpha OFF" ,COLOR_WHITE);
-		return TRUE;
+		return 1;
 	}
-	else if(!strnicmp(cmd,"/setwin",strlen("/setwin")) )
+	else if (!strnicmp(cmd, "/keybind", 8))
 	{
-		int wrong = 0;
-		par1=9, par2=-1;
-		sscanf(cmd, "%s %d %d", tmp, &par1, &par2);
-		if(par2 != -1) /* split mode */
-		{
-			if(par1<2 || par1>38 || par2<2 || par2>38 || (par1+par2)<10 || (par1+par2)>38)
-			{
-				wrong = 1;
-				draw_info("/setwin: parameters out of bounds." ,COLOR_RED);
-			}
-			else
-			{
-				sprintf(tmp, ">>set textwin to split mode %d+%d rows.",par1,par2);
-				draw_info(tmp ,COLOR_GREEN);
+		map_udate_flag = 2;
 
-				options.use_TextwinSplit=1;
-				txtwin[TW_MSG ].size =par1-1;
-				txtwin[TW_CHAT].size =par2-1;
-			}
-		}
-		else
-		{
-			if(par1<2 || par1>38)
-			{
-				wrong = 1;
-				draw_info("/setwin: parameters out of bounds." ,COLOR_RED);
-			}
-			else
-			{
-				sprintf(tmp, ">>set textwin to %d rows.",par1);
-				draw_info(tmp ,COLOR_GREEN);
-				options.use_TextwinSplit =0;
-				txtwin[TW_MIX].size = par1-1;
-			}
-		}
-
-		if(wrong)
-			draw_info("Usage: '/setwin <body> |<top>|'\nExample:\n/setwin 9 5\n/setwin 12" ,COLOR_WHITE);
-		return TRUE;
-	}
-	else if(!strnicmp(cmd,"/keybind",strlen("/keybind")) )
-	{
-		map_udate_flag=2;
-		if(cpl.menustatus != MENU_KEYBIND)
+		if (cpl.menustatus != MENU_KEYBIND)
 		{
 			keybind_status = KEYBIND_STATUS_NO;
 			cpl.menustatus = MENU_KEYBIND;
@@ -264,21 +227,21 @@ int client_command_check(char *cmd)
 			save_keybind_file(KEYBIND_FILE);
 			cpl.menustatus = MENU_NO;
 		}
-		sound_play_effect(SOUND_SCROLL,0,0,100);
+
+		sound_play_effect(SOUND_SCROLL, 0, 100);
 		reset_keys();
-		return TRUE;
+		return 1;
 	}
-	else if(!strncmp(cmd,"/target",strlen("/target")) )
+	else if (!strncmp(cmd, "/target", 7))
 	{
-		/* logic is: if first parameter char is a digit, is enemy,friend or self.
-		 * if first char a character - then its a name of a living object.
-		 */
-		if(!strncmp(cmd,"/target friend",strlen("/target friend")) )
-			strcpy(cmd,"/target 1");
-		else if(!strncmp(cmd,"/target enemy",strlen("/target enemy")) )
-			strcpy(cmd,"/target 0");
-		else if(!strncmp(cmd,"/target self",strlen("/target self")) )
-			strcpy(cmd,"/target 2");
+		/* Logic is: if first parameter char is a digit, is enemy, friend or self.
+		 * If first char a character - then it's a name of a living object. */
+		if (!strncmp(cmd, "/target friend", 14))
+			strcpy(cmd, "/target 1");
+		else if (!strncmp(cmd,"/target enemy", 13))
+			strcpy(cmd, "/target 0");
+		else if (!strncmp(cmd, "/target self", 12))
+			strcpy(cmd, "/target 2");
 	}
 	else if (!strncmp(cmd, "/help", 5))
 	{
@@ -345,15 +308,17 @@ int client_command_check(char *cmd)
 
 void show_help(char *helpfile)
 {
-	int mode, len, got_match = 0;
+	int len, got_match = 0;
 	unsigned char *data;
-	char title[MAX_BUF], message[HUGE_BUF * 32] = "", buf[HUGE_BUF * 4], name[MAX_BUF], message_buf[HUGE_BUF * 32] = "";
+	char title[MAX_BUF], message[HUGE_BUF * 32], buf[HUGE_BUF * 4], name[MAX_BUF];
 	FILE *fp;
 
 	if ((fp = fopen(FILE_CLIENT_HFILES, "rb")) == NULL)
 		return;
 
-	sprintf(name, "Name: %s\n", helpfile);
+	snprintf(name, sizeof(name), "Name: %s\n", helpfile);
+
+	snprintf(message, sizeof(message), "<b t=\"%s\">", helpfile);
 
 	while (fgets(buf, HUGE_BUF * 4, fp))
 	{
@@ -367,10 +332,12 @@ void show_help(char *helpfile)
 			if (strncmp(buf, "Title: ", 7) == 0)
 			{
 				sscanf(buf, "Title: %32[^\n]\n", title);
+				snprintf(buf, sizeof(buf), "<t t=\"%s\">\n", title);
+				strncat(message, buf, sizeof(message) - strlen(buf) - 1);
 			}
 			else
 			{
-				sprintf(message, "%s%s", message, buf);
+				strncat(message, buf, sizeof(message) - strlen(message) - 1);
 			}
 		}
 
@@ -380,193 +347,181 @@ void show_help(char *helpfile)
 
 	fclose(fp);
 
-	if (got_match)
-		snprintf(message_buf, sizeof(message_buf), "<b t=\"%s\"><t t=\"%s\">\n%s", helpfile, title, message);
-	else
-		sprintf(message_buf, "<b t=\"Help not found\"><t t=\"The specified help file could not be found.\">\n");
+	if (!got_match)
+		snprintf(message, sizeof(message), "<b t=\"Help not found\"><t t=\"The specified help file could not be found.\">\n");
 
-	data = (uint8*)message_buf;
+	data = (uint8*)message;
 
-	len = strlen(data);
+	len = strlen((char *)data);
 
 	cpl.menustatus = MENU_BOOK;
 
-	mode = *((int*) data);
-
-	gui_interface_book = load_book_interface(mode, data, len + 3);
+	gui_interface_book = load_book_interface((char *)data, len + 3);
 }
 
-void show_console(int x, int y)
+void do_number()
 {
-/*        sprite_blt(Bitmaps[BITMAP_CONSOLE],x, y, NULL, NULL);*/
-        StringBlt(ScreenSurface, &SystemFont,
-                show_input_string(InputString,&SystemFont,239)
-                , x, y, COLOR_WHITE, NULL, NULL);
-}
+	map_udate_flag = 2;
 
-void do_number(int x, int y)
-{
-    if(InputStringEscFlag==TRUE)
+    if (InputStringEscFlag)
     {
         reset_keys();
         cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag=2;
+        cur_widget[IN_NUMBER_ID].show = 0;
     }
+
     /* if set, we got a finished input!*/
-    if(InputStringFlag==FALSE
-        &&InputStringEndFlag==TRUE)
+    if (InputStringFlag == 0 && InputStringEndFlag)
     {
-        if(InputString[0])
+        if (InputString[0])
         {
             int tmp;
             char buf[300];
             tmp = atoi(InputString);
-            if(tmp>0 && tmp <= cpl.nrof)
+
+			/* If you enter a number higher than the real nrof, you will pickup all */
+			if (tmp > cpl.nrof)
+				tmp = cpl.nrof;
+
+            if (tmp > 0 && tmp <= cpl.nrof)
             {
-                client_send_move (cpl.loc, cpl.tag, tmp);
-                sprintf(buf,"%s %d from %d %s", cpl.nummode == NUM_MODE_GET?"get":"drop", tmp, cpl.nrof, cpl.num_text);
-				if(cpl.nummode == NUM_MODE_GET)
-					sound_play_effect(SOUND_GET,0,0,100);
-				else
-					sound_play_effect(SOUND_DROP,0,0,100);
+                client_send_move(cpl.loc, cpl.tag, tmp);
+                snprintf(buf, sizeof(buf), "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
 
-                draw_info(buf,COLOR_DGOLD);
+                if (cpl.nummode == NUM_MODE_GET)
+                    sound_play_effect(SOUND_GET, 0, 100);
+                else
+                    sound_play_effect(SOUND_DROP, 0, 100);
 
+                draw_info(buf, COLOR_DGOLD);
             }
         }
+
         reset_keys();
         cpl.input_mode = INPUT_MODE_NO;
-        map_udate_flag=2;
+        cur_widget[IN_NUMBER_ID].show = 0;
     }
     else
-        show_number(x,y);
+        cur_widget[IN_NUMBER_ID].show = 1;
 }
 
 void do_keybind_input(void)
 {
-	if(InputStringEscFlag==TRUE)
+	if (InputStringEscFlag)
 	{
 		reset_keys();
-		sound_play_effect(SOUND_CLICKFAIL,0,0,100);
+		sound_play_effect(SOUND_CLICKFAIL, 0, 100);
 		cpl.input_mode = INPUT_MODE_NO;
 		keybind_status = KEYBIND_STATUS_NO;
-		map_udate_flag=2;
+		map_udate_flag = 2;
 	}
-	/* if set, we got a finished input!*/
-	if(InputStringFlag==FALSE && InputStringEndFlag==TRUE)
+
+	/* If set, we got a finished input */
+	if (InputStringFlag == 0 && InputStringEndFlag)
 	{
-		if(InputString[0]){
+		if (InputString[0])
+		{
 			strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text, InputString);
-			keybind_status = KEYBIND_STATUS_EDITKEY; /* now get the key code */
-		}else{ /* cleared string - delete entry */
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[0]=0;
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[0]=0;
-			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key=0;
+			/* now get the key code */
+			keybind_status = KEYBIND_STATUS_EDITKEY;
+		}
+		/* cleared string - delete entry */
+		else
+		{
+			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[0] = 0;
+			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[0] = 0;
+			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = 0;
 			keybind_status = KEYBIND_STATUS_NO;
 		}
+
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
-		map_udate_flag=2;
+		map_udate_flag = 2;
 	}
 }
 
+/* Few letters representation of a protection ID */
+static char *protections[20] = {
+	"I", 	"S", 	"C", 	"P", 	"W",
+	"F",	"C",	"E",	"P",	"A",
+	"M",	"Mi",	"B",	"P",	"F",
+	"N",	"Ch",	"D",	"Sp",	"Co"
+};
 
-void show_number(int x, int y)
+/* Protection table widget */
+void widget_show_resist(int x, int y)
 {
-	SDL_Rect tmp;
-	char buf[512];
+	char buf[12];
+    SDL_Rect box;
+	_BLTFX bltfx;
+	int protectionID, protection_x = 0, protection_y = 2;
 
-	tmp.w = 238;
+    if (!widgetSF[RESIST_ID])
+        widgetSF[RESIST_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_RESIST_BG]->bitmap, Bitmaps[BITMAP_RESIST_BG]->bitmap->format, Bitmaps[BITMAP_RESIST_BG]->bitmap->flags);
 
-    sprite_blt(Bitmaps[BITMAP_NUMBER],x, y, NULL, NULL);
-    sprintf(buf,"%s how much from %d %s", cpl.nummode == NUM_MODE_GET?"get":"drop", cpl.nrof, cpl.num_text);
-    StringBlt(ScreenSurface, &SystemFont, buf, x+8, y+6, COLOR_HGOLD, &tmp, NULL);
-    StringBlt(ScreenSurface, &SystemFont,
-			show_input_string(InputString,&SystemFont,Bitmaps[BITMAP_NUMBER]->bitmap->w-22),
-			x+8, y+25, COLOR_WHITE, &tmp, NULL);
-}
+    if (cur_widget[RESIST_ID].redraw)
+    {
+        cur_widget[RESIST_ID].redraw = 0;
 
-void show_resist(int x, int y)
-{
-    char buf[62];
+		bltfx.surface = widgetSF[RESIST_ID];
+        bltfx.flags = 0;
+        bltfx.alpha = 0;
 
-    StringBlt(ScreenSurface, &Font6x3Out,"Armour Protection Table",x, y+1, COLOR_HGOLD, NULL, NULL);
+        sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
 
-    StringBlt(ScreenSurface, &Font6x3Out,"Physical",x, y+16, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"I",x+43, y+17, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[0]);
+		StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Protection Table", 5, 1, COLOR_HGOLD, NULL, NULL);
 
-    StringBlt(ScreenSurface, &SystemFont,buf,x+53, y+17, cpl.stats.protection[0]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+		/* This is a dynamic protection table, unlike the old one.
+		 * It reduces the code by a considerable amount. */
+		for (protectionID = 0; protectionID < (int) sizeof(cpl.stats.protection) / 2; protectionID++)
+		{
+			/* We have 4 groups of protections. That means we
+			 * will need 4 lines to output them all. Adjust
+			 * the x and y for it. */
+			if (protectionID == 0 || protectionID == 5 || protectionID == 10 || protectionID == 15)
+			{
+				protection_y += 15;
+				protection_x = 43;
+			}
 
-    StringBlt(ScreenSurface, &SystemFont,"S",x+73, y+17, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[1]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+83, y+17, cpl.stats.protection[1]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+			/* Switch the protection ID, so we can output the groups. */
+			switch (protectionID)
+			{
+				/* Physical */
+				case 0:
+					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Physical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					break;
 
+				/* Elemental */
+				case 5:
+					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Elemental", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					break;
 
-    StringBlt(ScreenSurface, &SystemFont,"C",x+103, y+17, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[2]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+113, y+17, cpl.stats.protection[2]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"P",x+133, y+17, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[3]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+143, y+17, cpl.stats.protection[3]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"W",x+163, y+17, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[4]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+173, y+17, cpl.stats.protection[4]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+				/* Magical */
+				case 10:
+					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Magical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					break;
 
-    StringBlt(ScreenSurface, &Font6x3Out,"Elemental",x, y+31, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"F",x+43, y+32, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[5]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+53, y+32, cpl.stats.protection[5]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"C",x+73, y+32, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[6]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+83, y+32, cpl.stats.protection[6]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+				/* Spherical */
+				case 15:
+					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Spherical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					break;
+			}
 
-    StringBlt(ScreenSurface, &SystemFont,"E",x+103, y+32, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[7]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+113, y+32, cpl.stats.protection[7]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"P",x+133, y+32, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[8]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+143, y+32, cpl.stats.protection[8]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"A",x+163, y+32, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[9]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+173, y+32, cpl.stats.protection[9]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+			/* Output the protection few letters name from the table 'protections'. */
+			StringBlt(widgetSF[RESIST_ID], &SystemFont, protections[protectionID], protection_x + 2 - strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
 
-    StringBlt(ScreenSurface, &Font6x3Out,"Magical",x, y+46, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"M",x+43, y+47, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[10]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+53, y+47, cpl.stats.protection[10]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"Mi",x+70, y+47, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[11]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+83, y+47, cpl.stats.protection[11]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
+			/* Now output the protection value. No protection will be drawn gray,
+			 * some protection will be white, and immunity (100%) will be orange. */
+			snprintf(buf, sizeof(buf), "%02d", cpl.stats.protection[protectionID]);
+			StringBlt(widgetSF[RESIST_ID], &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] == 100 ? COLOR_ORANGE : COLOR_WHITE) : COLOR_GREY, NULL, NULL);
 
-    StringBlt(ScreenSurface, &SystemFont,"B",x+103, y+47, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[12]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+113, y+47, cpl.stats.protection[12]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"P",x+133, y+47, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[13]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+143, y+47, cpl.stats.protection[13]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"F",x+163, y+47, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[14]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+173, y+47, cpl.stats.protection[14]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-
-    StringBlt(ScreenSurface, &Font6x3Out,"Spherical",x, y+61, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"N",x+43, y+62, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[15]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+53, y+62, cpl.stats.protection[15]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"Ch",x+69, y+62, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[16]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+83, y+62, cpl.stats.protection[16]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-
-    StringBlt(ScreenSurface, &SystemFont,"D",x+103, y+62, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[17]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+113, y+62, cpl.stats.protection[17]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"Sp",x+130, y+62, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[18]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+143, y+62, cpl.stats.protection[18]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont,"Co",x+160, y+62, COLOR_HGOLD, NULL, NULL);
-    sprintf(buf,"%02d", cpl.stats.protection[19]);
-    StringBlt(ScreenSurface, &SystemFont,buf,x+173, y+62, cpl.stats.protection[19]?COLOR_WHITE:COLOR_GREY, NULL, NULL);
-
+			protection_x += 30;
+		}
+    }
+    box.x=x;
+    box.y=y;
+    SDL_BlitSurface(widgetSF[RESIST_ID], NULL, ScreenSurface, &box);
 }
 
 #define ICONDEFLEN 32
@@ -575,536 +530,289 @@ Boolean blt_face_centered(int face, int x, int y)
     register int temp;
     SDL_Rect box;
 
-    if(!FaceList[face].sprite)
-        return FALSE;
+    if (!FaceList[face].sprite)
+        return 0;
 
-    if(FaceList[face].sprite->status != SPRITE_STATUS_LOADED)
-        return FALSE;
+    if (FaceList[face].sprite->status != SPRITE_STATUS_LOADED)
+        return 0;
 
     box.x = FaceList[face].sprite->border_left;
     box.w = FaceList[face].sprite->bitmap->w;
-    temp = box.w-FaceList[face].sprite->border_left-FaceList[face].sprite->border_right;
-    if(temp > 32)
+    temp = box.w - FaceList[face].sprite->border_left - FaceList[face].sprite->border_right;
+
+    if (temp > 32)
     {
         box.w = 32;
-        temp-=32;
-        temp>>=1;
-        box.x+=temp;
+        temp -= 32;
+        temp >>= 1;
+        box.x += temp;
     }
-    else if(temp < 32)
+    else if (temp < 32)
     {
         temp = 32-temp;
-        box.x -= (temp>>1);
+        box.x -= (temp >> 1);
     }
 
     box.y = -FaceList[face].sprite->border_up;
     box.h = FaceList[face].sprite->bitmap->h;
-    temp = box.h-FaceList[face].sprite->border_up-FaceList[face].sprite->border_down;
-    if(temp > 32)
+    temp = box.h - FaceList[face].sprite->border_up - FaceList[face].sprite->border_down;
+
+    if (temp > 32)
     {
         box.h = 32;
-        temp-=32;
-        temp>>=1;
-        box.y+=temp;
+        temp -= 32;
+        temp >>= 1;
+        box.y += temp;
     }
-    else if(temp < 32)
+    else if (temp < 32)
     {
-        temp = 32-temp;
-        box.y = -(temp>>1)+FaceList[face].sprite->border_up;
+        temp = 32 - temp;
+        box.y = -(temp >> 1) + FaceList[face].sprite->border_up;
     }
-    sprite_blt(FaceList[face].sprite,x,y, &box, NULL);
 
-    return TRUE;
-}
+    sprite_blt(FaceList[face].sprite, x, y, &box, NULL);
 
-void show_range(int x, int y)
-{
-    char buf[256];
-	SDL_Rect rec_range;
-	SDL_Rect rec_item;
-	item *op;
-    item *tmp;
-
-	rec_range.w=160;
-	rec_item.w=185;
-    examine_range_inv();
-
-        sprite_blt(Bitmaps[BITMAP_RANGE],x-2, y, NULL, NULL);
-
-        switch(RangeFireMode)
-        {
-            case FIRE_MODE_BOW:
-                if(fire_mode_tab[FIRE_MODE_BOW].item != FIRE_ITEM_NO)
-                {
-                    sprintf(buf,"using %s",
-                        get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].item));
-                    blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].item,x+3,y+2);
-
-                    StringBlt(ScreenSurface, &SystemFont,buf,x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-                    if(fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO)
-                    {
-
-                        tmp = locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun);
-                        if(tmp)
-                        {
-                            if(tmp->itype == TYPE_ARROW)
-                                sprintf(buf,"ammo %s (%d)",
-                                    get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun),tmp->nrof);
-                            else
-                                sprintf(buf,"ammo %s",
-                                get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun));
-                        }
-                        else
-                            strcpy(buf,"ammo not selected");
-                        blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].amun,x+43,y+2);
-                    }
-                    else
-                    {
-                        sprintf(buf,"ammo not selected");
-                    }
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                else
-                {
-                    sprintf(buf,"no range weapon applied");
-                    StringBlt(ScreenSurface, &SystemFont,buf,x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-                }
-
-                sprite_blt(Bitmaps[BITMAP_RANGE_MARKER],x+3, y+2, NULL, NULL);
-                break;
-
-            /* wands, staffs, rods and horns */
-            case FIRE_MODE_WAND:
-                if(!locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
-                    fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
-                if(fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO)
-                {
-                    sprintf(buf,"%s",
-                        get_range_item_name(fire_mode_tab[FIRE_MODE_WAND].item));
-                    StringBlt(ScreenSurface, &SystemFont,buf,x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                    sprite_blt(Bitmaps[BITMAP_RANGE_TOOL],x+3, y+2, NULL, NULL);
-                    blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_WAND].item,x+43,y+2);
-                }
-                else
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_TOOL_NO],x+3, y+2, NULL, NULL);
-                    sprintf(buf,"nothing applied");
-                    StringBlt(ScreenSurface, &SystemFont,buf,x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-
-                sprintf(buf,"use range tool");
-                StringBlt(ScreenSurface, &SystemFont,buf,x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-                break;
-
-            /* the summon range ctrl will come from server only after the player casted a summon spell */
-            case FIRE_MODE_SUMMON:
-                if(fire_mode_tab[FIRE_MODE_SUMMON].item != FIRE_ITEM_NO)
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_CTRL],x+3, y+2, NULL, NULL);
-                    StringBlt(ScreenSurface, &SystemFont,fire_mode_tab[FIRE_MODE_SUMMON].name , x+3, y+49, COLOR_WHITE, NULL, NULL);
-					blt_face_centered(fire_mode_tab[FIRE_MODE_SUMMON].item , x+43, y+2);
-                }
-                else
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_CTRL_NO],x+3, y+2, NULL, NULL);
-                    sprintf(buf,"no golem summoned");
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                sprintf(buf,"mind control");
-                StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+38, COLOR_WHITE, &rec_item, NULL);
-                break;
-
-            /* these are client only, no server signal needed */
-            case FIRE_MODE_SKILL:
-                if(fire_mode_tab[FIRE_MODE_SKILL].skill)
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_SKILL],x+3, y+2, NULL, NULL);
-                    if(fire_mode_tab[FIRE_MODE_SKILL].skill->flag != -1)
-                    {
-                        sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon ,x+43, y+2, NULL, NULL);
-                        StringBlt(ScreenSurface, &SystemFont,fire_mode_tab[FIRE_MODE_SKILL].skill->name , x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                    }
-                    else
-                        fire_mode_tab[FIRE_MODE_SKILL].skill=NULL;
-                }
-                else
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_SKILL_NO],x+3, y+2, NULL, NULL);
-                    sprintf(buf,"no skill selected");
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                sprintf(buf,"use skill");
-                StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-
-            break;
-            case FIRE_MODE_SPELL:
-                if(fire_mode_tab[FIRE_MODE_SPELL].spell)
-                {
-                        /* we use wiz spells as default */
-                    sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD],x+3, y+2, NULL, NULL);
-                    if(fire_mode_tab[FIRE_MODE_SPELL].spell->flag != -1)
-                    {
-                        sprite_blt(fire_mode_tab[FIRE_MODE_SPELL].spell->icon ,x+43, y+2, NULL, NULL);
-                        StringBlt(ScreenSurface, &SystemFont,fire_mode_tab[FIRE_MODE_SPELL].spell->name , x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                    }
-                    else
-                        fire_mode_tab[FIRE_MODE_SPELL].spell=NULL;
-                }
-                else
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD_NO],x+3, y+2, NULL, NULL);
-                    sprintf(buf,"no spell selected");
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                sprintf(buf,"cast spell");
-                StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-
-                break;
-            case FIRE_MODE_THROW:
-                if(!(op=locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
-                    fire_mode_tab[FIRE_MODE_THROW].item = FIRE_ITEM_NO;
-                if(fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO)
-                {
-
-                    sprite_blt(Bitmaps[BITMAP_RANGE_THROW],x+3, y+2, NULL, NULL);
-                    blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_THROW].item,x+43,y+2);
-					if(op->nrof>1)
-					{
-						if(op->nrof >9999)
-							strcpy(buf,"many");
-						else
-							sprintf(buf,"%d",op->nrof);
-						StringBlt(ScreenSurface, &Font6x3Out,buf,x+43+(ICONDEFLEN/2)-(get_string_pixel_length(buf,&Font6x3Out)/2),
-							y+22,COLOR_WHITE, NULL, NULL);
-					}
-
-                    sprintf(buf,"%s",
-                        get_range_item_name(fire_mode_tab[FIRE_MODE_THROW].item));
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                else
-                {
-                    sprite_blt(Bitmaps[BITMAP_RANGE_THROW_NO],x+3, y+2, NULL, NULL);
-                    sprintf(buf,"no item ready");
-                    StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+49, COLOR_WHITE, &rec_item, NULL);
-                }
-                sprintf(buf,"throw item");
-                StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+38, COLOR_WHITE, &rec_range, NULL);
-
-                break;
-        };
+    return 1;
 }
 
 static char *get_range_item_name(int tag)
 {
     item *tmp;
 
-    if(tag != FIRE_ITEM_NO)
+    if (tag != FIRE_ITEM_NO)
     {
         tmp = locate_item (tag);
-        if(tmp)
+
+        if (tmp)
             return tmp->s_name;
     }
-    return("Nothing");
+
+    return "Nothing";
 }
 
 void blt_inventory_face_from_tag(int tag, int x, int y)
 {
     item *tmp;
 
-    /* check item is in inventory and faces are loaded, etc */
-    tmp = locate_item (tag);
-    if(!tmp)
+    /* Check item is in inventory and faces are loaded, etc */
+    tmp = locate_item(tag);
+
+    if (!tmp)
         return;
+
     blt_inv_item_centered(tmp, x, y);
 }
 
+/* Show one of the menus (book, party, etc). */
 void show_menu(void)
 {
 	SDL_Rect box;
 
-	if(!cpl.menustatus)
+	if (!cpl.menustatus)
 		return;
-	if(cpl.menustatus == MENU_KEYBIND)
+
+	if (cpl.menustatus == MENU_KEYBIND)
 		show_keybind();
-	else if(cpl.menustatus == MENU_STATUS)
-		show_status();
 	else if (cpl.menustatus == MENU_BOOK)
-		show_book(400-Bitmaps[BITMAP_JOURNAL]->bitmap->w/2,300-Bitmaps[BITMAP_JOURNAL]->bitmap->h/2);
+		show_book();
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
-	else if(cpl.menustatus == MENU_SPELL)
+	else if (cpl.menustatus == MENU_SPELL)
 	{
 		show_spelllist();
-		box.x = SCREEN_XLEN/2-Bitmaps[BITMAP_DIALOG_BG]->bitmap->w/2;
-		box.y = SCREEN_YLEN/2-Bitmaps[BITMAP_DIALOG_BG]->bitmap->h/2-42;
+		box.x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+        box.y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2 - 42;
 		box.h = 42;
 		box.w = Bitmaps[BITMAP_DIALOG_BG]->bitmap->w;
 		SDL_FillRect(ScreenSurface, &box, 0);
-		show_quickslots(box.x+100,box.y+3);
+		show_quickslots(box.x + 100, box.y + 3);
 	}
-	else if(cpl.menustatus == MENU_SKILL)
+	else if (cpl.menustatus == MENU_SKILL)
 		show_skilllist();
-	else if(cpl.menustatus == MENU_OPTION)
+	else if (cpl.menustatus == MENU_OPTION)
 		show_optwin();
-	else if(cpl.menustatus == MENU_CREATE)
+	else if (cpl.menustatus == MENU_CREATE)
 		show_newplayer_server();
 }
 
-void show_media(int x, int y)
-{
-	_Sprite *bmap;
-	int xtemp;
-
-	if(media_show!=MEDIA_SHOW_NO)
-	{
-		/* we show a png*/
-		if(media_file[media_show].type == MEDIA_TYPE_PNG)
-		{
-			bmap = (_Sprite*) media_file[media_show].data;
-			if(bmap)
-			{
-				xtemp = x-bmap->bitmap->w;
-				sprite_blt(bmap ,xtemp, y, NULL, NULL);
-			}
-		}
-	}
-}
-
-void show_status(void)
-{
-/*
-        int y, x;
-        x= SCREEN_XLEN/2-Bitmaps[BITMAP_STATUS]->bitmap->w/2;
-        y= SCREEN_YLEN/2-Bitmaps[BITMAP_STATUS]->bitmap->h/2;
-        sprite_blt(Bitmaps[BITMAP_STATUS],x, y, NULL, NULL);
-*/
-}
-
-
-
 int init_media_tag(char *tag)
 {
-        char *p1, *p2, buf[256];
-        int temp;
-		int ret=0;
+	char *p1, *p2;
+	int ret = 0;
 
-        if(tag == NULL)
-        {
-                LOG(LOG_MSG, "MediaTagError: Tag == NULL\n");
-                return ret;
-        }
-        p1 = strchr(tag, '|');
-        p2 = strrchr(tag, '|');
-        if(p1 == NULL || p2==NULL)
-        {
-                LOG(LOG_MSG, "MediaTagError: Parameter == NULL (%x %x)\n", p1,
-                        p2);
-                return ret;
-        }
-        *p1++=0;
-        *p2++=0;
-
-        if(strstr(tag,".ogg"))
-        {
-            sound_play_music(tag, options.music_volume,2000,atoi(p2),atoi(p1),MUSIC_MODE_NORMAL);
-			ret = 1; /* because we have called sound_play_music, we don't must fade out extern */
-        }
-        else if(strstr(tag,".png"))
-        {
-            media_show_update = 2;
-            /* because we chain this to map_scroll, but map_scroll can
-            * come behind the draw_info cmd... sigh*/
-
-            /* first, we look in our media buffers.. perhaps this is still buffered
-            * is so, just update the paramter and fire it up */
-            if(!strcmp(media_file[media_count].name, tag))
-            {
-                media_show = media_count;
-                media_file[media_count].p1=atoi(p1);
-                media_file[media_count].p2=atoi(p2);
-                return ret;
-            }
-            /* if not loaded, we overwrite our oldest buffered media file */
-
-            media_show = MEDIA_SHOW_NO;
-            temp = (media_count+1)%MEDIA_MAX;
-            if(media_file[temp].data) /* if some here, kick it*/
-            {
-                media_file[temp].type = MEDIA_TYPE_NO;
-                FreeMemory(&media_file[temp].data);
-            }
-            sprintf(buf,"%s%s",GetMediaDirectory(), tag);
-            if(!(media_file[temp].data = sprite_load_file(buf,0)))
-                return ret;
-
-            media_file[temp].type = MEDIA_TYPE_PNG;
-            strcpy(media_file[temp].name, tag);
-            media_count = temp;
-            media_show = media_count;
-        }
+	if (tag == NULL)
+	{
+		LOG(LOG_MSG, "MediaTagError: Tag == NULL\n");
 		return ret;
+	}
+
+	p1 = strchr(tag, '|');
+	p2 = strrchr(tag, '|');
+
+	if (p1 == NULL || p2 == NULL)
+	{
+		LOG(LOG_MSG, "MediaTagError: Parameter == NULL (%x %x)\n", p1, p2);
+		return ret;
+	}
+
+	*p1++ = 0;
+	*p2++ = 0;
+
+	if (strstr(tag,".ogg"))
+	{
+		sound_play_music(tag, options.music_volume, atoi(p2), atoi(p1), MUSIC_MODE_NORMAL);
+		/* Because we have called sound_play_music, we don't have to fade out extern */
+		ret = 1;
+	}
+
+	return ret;
 }
 
-/*
-int blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len_h, int x, int y)
-{
-	SDL_Rect box;
-	int startpos;
-
-	if (len_h < 0)
-		len_h = slider->bitmap->h;
-
-	if(maxlen < winlen)
-		maxlen=winlen;
-	if(startoff+winlen >maxlen)
-		maxlen=startoff+winlen;
-
-	box.x=0;
-	box.y=0;
-	box.w=slider->bitmap->w;
-
-	box.h = (len_h*winlen)/maxlen;
-	startpos = (startoff *len_h)/maxlen;
-	if(box.h < 1)
-		box.h=1;
-
-	if(startoff+winlen >=maxlen && startpos+box.h<len_h)
-		startpos ++;
-
-	sprite_blt(slider,x,y+startpos, &box, NULL);
-}
-*/
 int blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y)
 {
     SDL_Rect box;
     double temp;
     int startpos, len_h;
 
-	if(len != -1)
+	if (len != -1)
 		len_h = len;
 	else
 		len_h = slider->bitmap->h;
 
-    if(maxlen < winlen)
-        maxlen=winlen;
-    if(startoff+winlen >maxlen)
-        maxlen=startoff+winlen;
+    if (maxlen < winlen)
+        maxlen = winlen;
 
-    box.x=0;
-    box.y=0;
-    box.w=slider->bitmap->w;
+    if (startoff + winlen > maxlen)
+        maxlen = startoff + winlen;
+
+    box.x = 0;
+    box.y = 0;
+    box.w = slider->bitmap->w;
 
     /* now we have 100% = 1.0 to 0% = 0.0 of the length */
-    temp = (double)winlen/(double)maxlen; /* between 0.0 <-> 1.0 */
-    startpos = (int)((double)startoff *((double)len_h/(double )maxlen)); /* startpixel */
-    temp = (double)len_h*temp;
-    box.h = (Uint16) temp;
-	if(!box.h)
-		box.h=1;
 
-    if(startoff+winlen >=maxlen && startpos+box.h<len_h)
+	/* between 0.0 <-> 1.0 */
+    temp = (double)winlen / (double)maxlen;
+
+	/* startpixel */
+    startpos = (int)((double)startoff * ((double)len_h / (double )maxlen));
+
+    temp = (double)len_h * temp;
+    box.h = (Uint16) temp;
+
+	if (!box.h)
+		box.h = 1;
+
+    if (startoff + winlen >= maxlen && startpos + box.h < len_h)
 		startpos ++;
 
-   sprite_blt(slider,x,y+startpos, &box, NULL);
+   sprite_blt(slider, x, y + startpos, &box, NULL);
    return 0;
-
 }
 
 static int load_anim_tmp(void)
 {
-	int i, anim_len=0,new_anim = TRUE;
-	uint8 faces=0;
-	uint16 count=0, face_id;
+	int i, anim_len = 0, new_anim = 1;
+	uint8 faces = 0;
+	uint16 count = 0, face_id;
 	FILE *stream;
 	char buf[HUGE_BUF];
 	unsigned char anim_cmd[2048];
 
-
-	/* clear both animation tables
-	 * this *must* be reloaded every time we connect
+	/* Clear both animation tables
+	 * This *must* be reloaded every time we connect
 	 * - remember that different servers can have different
-	 * animations!
-	 */
-	for(i=0;i<MAXANIM;i++)
+	 * animations! */
+	for (i = 0; i < MAXANIM; i++)
 	{
-		if(animations[i].faces)
+		if (animations[i].faces)
 			free(animations[i].faces);
-		if(anim_table[i].anim_cmd)
+
+		if (anim_table[i].anim_cmd)
 			free(anim_table[i].anim_cmd);
 	}
+
 	memset(animations, 0, sizeof(animations));
 
-	/* animation #0 is like face id #0 a bug catch - if ever
+	/* Animation #0 is like face id #0 a bug catch - if ever
 	 * appear in game flow its a sign of a uninit of simply
-	 * buggy operation.
-	 */
-	anim_cmd[0]= (unsigned char) ((count>>8)&0xff);
-	anim_cmd[1] =(unsigned char)( count & 0xff);
-	anim_cmd[2]=0; /* flags ... */
-	anim_cmd[3]=1;
-	anim_cmd[4]=0; /* face id o */
-	anim_cmd[5]=0;
+	 * buggy operation. */
+	anim_cmd[0] = (unsigned char)((count >> 8) & 0xff);
+	anim_cmd[1] = (unsigned char)(count & 0xff);
+
+	/* flags ... */
+	anim_cmd[2] = 0;
+	anim_cmd[3] = 1;
+	/* face id o */
+	anim_cmd[4] = 0;
+	anim_cmd[5] = 0;
+
 	anim_table[count].anim_cmd = malloc(6);
 	memcpy(anim_table[count].anim_cmd, anim_cmd, 6);
 	anim_table[count].len = 6;
-	/* end of dummy animation #0 */
 
 	count++;
-    if( (stream = fopen(FILE_ANIMS_TMP, "rt" )) == NULL )
+
+    if ((stream = fopen(FILE_ANIMS_TMP, "rt")) == NULL)
 	{
-		LOG(LOG_ERROR,"load_anim_tmp: Error reading anim.tmp!");
-		SYSTEM_End(); /* fatal */
+		LOG(LOG_ERROR, "load_anim_tmp: Error reading anim.tmp!");
+		/* Fatal */
+		SYSTEM_End();
 		exit(0);
 	}
 
-	while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
+	while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
 	{
-		if(new_anim == TRUE) /* we are outside a anim body ? */
+		/* Are we outside an anim body? */
+		if (new_anim == 1)
 		{
-			if(!strncmp(buf, "anim ",5))
+			if (!strncmp(buf, "anim ", 5))
 			{
-				new_anim = FALSE;
+				new_anim = 0;
 				faces = 0;
-				anim_cmd[0]= (unsigned char) ((count>>8)&0xff);
-				anim_cmd[1] =(unsigned char)( count & 0xff);
+				anim_cmd[0] = (unsigned char)((count >> 8) & 0xff);
+				anim_cmd[1] = (unsigned char)(count & 0xff);
 				faces = 1;
 				anim_len = 4;
-
 			}
-			else /* we should never hit this point */
+			/* we should never hit this point */
+			else
 			{
-				LOG(LOG_ERROR,"load_anim_tmp:Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
+				LOG(LOG_ERROR, "ERROR: load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
 			}
 		}
-		else /* no, we are inside! */
+		/* No, we are inside! */
+		else
 		{
-			if(!strncmp(buf, "facings ",8))
+			if (!strncmp(buf, "facings ", 8))
 			{
-				faces = atoi(buf+8);
+				faces = atoi(buf + 8);
 			}
-			else if(!strncmp(buf, "mina",4))
+			else if (!strncmp(buf, "mina", 4))
 			{
-				/*LOG(LOG_DEBUG,"LOAD ANIM: #%d - len: %d (%d)\n", count, anim_len, faces);*/
-				anim_cmd[2]=0; /* flags ... */
-				anim_cmd[3]=faces; /* facings */
+#if 0
+				LOG(LOG_DEBUG, "LOAD ANIM: #%d - len: %d (%d)\n", count, anim_len, faces);
+#endif
+				/* flags ... */
+				anim_cmd[2] = 0;
+				/* facings */
+				anim_cmd[3] = faces;
 				anim_table[count].len = anim_len;
 				anim_table[count].anim_cmd = malloc(anim_len);
 				memcpy(anim_table[count].anim_cmd, anim_cmd, anim_len);
 				count++;
-				new_anim = TRUE;
+				new_anim = 1;
 			}
 			else
 			{
 				face_id = (uint16) atoi(buf);
-				anim_cmd[anim_len++]= (unsigned char) ((face_id>>8)&0xff);
-				anim_cmd[anim_len++] = (unsigned char) (face_id & 0xff);
+				anim_cmd[anim_len++] = (unsigned char)((face_id >> 8) & 0xff);
+				anim_cmd[anim_len++] = (unsigned char)(face_id & 0xff);
 			}
 		}
 	}
 
-
-    fclose( stream );
+    fclose(stream);
 	return 1;
 }
 
@@ -1241,7 +949,7 @@ void read_anims(void)
 		srv_client_files[SRV_CLIENT_ANIMS].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_ANIMS].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_ANIMS].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
         fclose( stream );
 		LOG(LOG_DEBUG," found file!(%d/%x)",srv_client_files[SRV_CLIENT_ANIMS].len,srv_client_files[SRV_CLIENT_ANIMS].crc );
@@ -1375,7 +1083,7 @@ void read_bmaps_p0(void)
 
 		if (!fread(temp_buf, 1, len, fpic))
 			return;
-		crc = crc32(1L,temp_buf,len);
+		crc = crc32(1L,(const unsigned char FAR*)temp_buf,len);
 
 		/* now we got all we needed! */
 		sprintf(temp_buf, "%d %d %x %s",num, pos,crc,buf );
@@ -1536,7 +1244,7 @@ void read_bmaps(void)
 		srv_client_files[SRV_CLIENT_BMAPS].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_BMAPS].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_BMAPS].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
         fclose( stream );
 		LOG(LOG_DEBUG," found file!(%d/%x)",srv_client_files[SRV_CLIENT_BMAPS].len,srv_client_files[SRV_CLIENT_BMAPS].crc );
@@ -1780,7 +1488,7 @@ void read_settings(void)
 		srv_client_files[SRV_CLIENT_SETTINGS].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_SETTINGS].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_SETTINGS].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
 	    fclose( stream );
 		LOG(LOG_DEBUG," found file!(%d/%x)",srv_client_files[SRV_CLIENT_SETTINGS].len,srv_client_files[SRV_CLIENT_SETTINGS].crc );
@@ -1822,7 +1530,7 @@ void read_spells(void)
 		srv_client_files[SRV_CLIENT_SPELLS].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_SPELLS].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_SPELLS].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
 		rewind(stream);
 
@@ -1902,7 +1610,7 @@ void read_help_files(void)
 		srv_client_files[SRV_CLIENT_HFILES].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
 	    fclose( stream );
 		LOG(LOG_DEBUG," found file!(%d/%x)",srv_client_files[SRV_CLIENT_HFILES].len,srv_client_files[SRV_CLIENT_HFILES].crc );
@@ -1944,7 +1652,7 @@ void read_skills(void)
 		srv_client_files[SRV_CLIENT_SKILLS].len = i;
 		temp_buf=malloc(i);
 		if (fread(temp_buf, sizeof(char), i, stream))
-			srv_client_files[SRV_CLIENT_SKILLS].crc = crc32(1L,temp_buf,i);
+			srv_client_files[SRV_CLIENT_SKILLS].crc = crc32(1L,(const unsigned char FAR*)temp_buf,i);
 		free(temp_buf);
 		rewind(stream);
 
@@ -2009,86 +1717,648 @@ void read_skills(void)
 	LOG(LOG_DEBUG,"done.\n");
 }
 
+void widget_range_event(int x, int y, SDL_Event event, int MEvent)
+{
+    if (x > cur_widget[RANGE_ID].x1 + 5 && x < cur_widget[RANGE_ID].x1 + 38 && y >= cur_widget[RANGE_ID].y1 + 3 && y <= cur_widget[RANGE_ID].y1 + 33)
+    {
+        if (MEvent == MOUSE_DOWN)
+        {
+            if (event.button.button == SDL_BUTTON_LEFT)
+                process_macro_keys(KEYFUNC_RANGE, 0);
+			/* mousewheel up */
+            else if (event.button.button == 4)
+                process_macro_keys(KEYFUNC_RANGE, 0);
+        }
+        else if (MEvent == MOUSE_UP)
+        {
+            if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
+            {
+                /* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
+				 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
+                int old_inv_win = cpl.inventory_win;
+                int old_inv_tag = cpl.win_inv_tag;
+                cpl.inventory_win = IWIN_INV;
+
+                /* range field */
+                if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x >= cur_widget[RANGE_ID].x1 && x <= cur_widget[RANGE_ID].x1 + 78 && y >= cur_widget[RANGE_ID].y1 && y <= cur_widget[RANGE_ID].y1 + 35)
+                {
+                    RangeFireMode = 4;
+					/* drop to player doll */
+                    process_macro_keys(KEYFUNC_APPLY, 0);
+                }
+
+                cpl.inventory_win = old_inv_win;
+                cpl.win_inv_tag = old_inv_tag;
+            }
+        }
+    }
+}
+
+void widget_number_event(int x, int y)
+{
+    int mx = 0, my = 0;
+    mx = x - cur_widget[IN_NUMBER_ID].x1;
+    my = y - cur_widget[IN_NUMBER_ID].y1;
+
+    /* close number input */
+    if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
+    {
+        if (mx > 239 && mx < 249 && my > 5 && my < 17)
+        {
+            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+            InputStringFlag = 0;
+            InputStringEndFlag = 1;
+        }
+    }
+}
+
+void widget_show_console(int x, int y)
+{
+    sprite_blt(Bitmaps[BITMAP_TEXTINPUT], x, y, NULL, NULL);
+    StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, 239), x + 9, y + 7, COLOR_WHITE, NULL, NULL);
+}
+
+void widget_show_number(int x, int y)
+{
+    SDL_Rect tmp;
+    char buf[512];
+
+    tmp.w = 238;
+
+    sprite_blt(Bitmaps[BITMAP_NUMBER], x, y, NULL, NULL);
+    snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
+
+    StringBlt(ScreenSurface, &SystemFont, buf, x + 8, y + 6, COLOR_HGOLD, &tmp, NULL);
+    StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_NUMBER]->bitmap->w - 22), x + 8, y + 25, COLOR_WHITE, &tmp, NULL);
+}
+
+void widget_show_mapname(int x, int y)
+{
+    StringBlt(ScreenSurface, &SystemFont, MapData.name, x, y, COLOR_DEFAULT, NULL, NULL);
+}
+
+void widget_show_range(int x, int y)
+{
+    char buf[256];
+	SDL_Rect rec_range;
+	SDL_Rect rec_item;
+	item *op;
+    item *tmp;
+
+ 	rec_range.w = 160;
+    rec_item.w = 185;
+    examine_range_inv();
+
+	sprite_blt(Bitmaps[BITMAP_RANGE], x - 2, y, NULL, NULL);
+
+	switch (RangeFireMode)
+	{
+		case FIRE_MODE_BOW:
+			if (fire_mode_tab[FIRE_MODE_BOW].item != FIRE_ITEM_NO)
+			{
+				snprintf(buf, sizeof(buf), "using %s", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].item));
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].item, x + 3, y + 2);
+
+				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+
+				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO)
+				{
+					tmp = locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun);
+
+					if (tmp)
+					{
+						if (tmp->itype == TYPE_ARROW)
+							snprintf(buf, sizeof(buf), "ammo %s (%d)", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun), tmp->nrof);
+						else
+							snprintf(buf, sizeof(buf), "ammo %s", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].amun));
+					}
+					else
+						snprintf(buf, sizeof(buf), "ammo not selected");
+
+					blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].amun,x+43,y+2);
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf), "ammo not selected");
+				}
+
+				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+			else
+			{
+				StringBlt(ScreenSurface, &SystemFont, "no range weapon applied", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			}
+
+			sprite_blt(Bitmaps[BITMAP_RANGE_MARKER], x + 3, y + 2, NULL, NULL);
+			break;
+
+		/* Wands, staves, rods and horns */
+		case FIRE_MODE_WAND:
+			if (!locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
+				fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
+
+			if (fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO)
+			{
+				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_WAND].item));
+				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL], x + 3, y + 2, NULL, NULL);
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_WAND].item, x + 43, y + 2);
+			}
+			else
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL_NO],x+3, y+2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "nothing applied", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, "use range tool", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			break;
+
+		/* The summon range ctrl will come from server only after the player cast a summon spell */
+		case FIRE_MODE_SUMMON:
+			if (fire_mode_tab[FIRE_MODE_SUMMON].item != FIRE_ITEM_NO)
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL], x + 3, y + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SUMMON].name, x + 3, y + 46, COLOR_WHITE, NULL, NULL);
+				blt_face_centered(fire_mode_tab[FIRE_MODE_SUMMON].item, x + 43, y + 2);
+			}
+			else
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL_NO], x + 3, y + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no golem summoned", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, "mind control", x + 3, y + 35, COLOR_WHITE, &rec_item, NULL);
+			break;
+
+		/* These are client only, no server signal needed */
+		case FIRE_MODE_SKILL:
+			if (fire_mode_tab[FIRE_MODE_SKILL].skill)
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL], x + 3, y + 2, NULL, NULL);
+
+				if (fire_mode_tab[FIRE_MODE_SKILL].skill->flag != -1)
+				{
+					sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, x + 43, y + 2, NULL, NULL);
+					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SKILL].skill->name, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				}
+				else
+					fire_mode_tab[FIRE_MODE_SKILL].skill = NULL;
+			}
+			else
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL_NO], x + 3, y + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no skill selected", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, "use skill", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+
+            break;
+
+		case FIRE_MODE_SPELL:
+			if (fire_mode_tab[FIRE_MODE_SPELL].spell)
+			{
+				/* We use wizard spells as default */
+				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD], x + 3, y + 2, NULL, NULL);
+
+				if (fire_mode_tab[FIRE_MODE_SPELL].spell->flag != -1)
+				{
+					sprite_blt(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, x + 43, y + 2, NULL, NULL);
+					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SPELL].spell->name, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				}
+				else
+					fire_mode_tab[FIRE_MODE_SPELL].spell = NULL;
+			}
+			else
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD_NO], x + 3, y + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no spell selected", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, "cast spell", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+
+			break;
+
+		case FIRE_MODE_THROW:
+			if (!(op = locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
+				fire_mode_tab[FIRE_MODE_THROW].item = FIRE_ITEM_NO;
+
+			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO)
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_THROW],x+3, y+2, NULL, NULL);
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_THROW].item,x+43,y+2);
+
+				if (op->nrof > 1)
+				{
+					if (op->nrof > 9999)
+						snprintf(buf, sizeof(buf), "many");
+					else
+						snprintf(buf, sizeof(buf), "%d",op->nrof);
+
+					StringBlt(ScreenSurface, &Font6x3Out, buf, x + 43 + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 22, COLOR_WHITE, NULL, NULL);
+				}
+
+				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_THROW].item));
+				StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+46, COLOR_WHITE, &rec_item, NULL);
+			}
+			else
+			{
+				sprite_blt(Bitmaps[BITMAP_RANGE_THROW_NO], x + 3, y + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no item ready", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+			}
+
+			snprintf(buf, sizeof(buf), "throw item");
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+
+			break;
+	}
+}
+
+void widget_event_target(int x, int y)
+{
+    /* Combat modes */
+    if (y > cur_widget[TARGET_ID].y1 + 3 && y < cur_widget[TARGET_ID].y1 + 38 && x > cur_widget[TARGET_ID].x1 + 3 && x < cur_widget[TARGET_ID].x1 + 30)
+        check_keys(SDLK_c);
+
+    /* Talk button */
+    if (y > cur_widget[TARGET_ID].y1 + 7 && y < cur_widget[TARGET_ID].y1 + 25 && x > cur_widget[TARGET_ID].x1 + 223 && x < cur_widget[TARGET_ID].x1 + 259)
+    {
+        if (cpl.target_code)
+            send_command("/t_tell hello", -1, SC_NORMAL);
+    }
+}
+
+void widget_show_target(int x, int y)
+{
+    char *ptr = NULL;
+    SDL_Rect box;
+    double temp;
+    int hp_tmp;
+
+    sprite_blt(Bitmaps[BITMAP_TARGET_BG], x, y, NULL, NULL);
+
+    sprite_blt(Bitmaps[cpl.target_mode ? BITMAP_TARGET_ATTACK : BITMAP_TARGET_NORMAL], x + 5, y + 4, NULL, NULL);
+
+    sprite_blt(Bitmaps[BITMAP_TARGET_HP_B], x + 4, y + 24, NULL, NULL);
+
+    /* Redirect target_hp to our hp - server doesn't send it
+     * because we should know our hp exactly */
+    hp_tmp = (int) cpl.target_hp;
+
+    if (cpl.target_code == 0)
+        hp_tmp = (int)(((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100.0f);
+
+    if (cpl.target_code == 0)
+    {
+        if (cpl.target_mode)
+            ptr = "target self (hold attack)";
+        else
+            ptr = "target self";
+    }
+    else if (cpl.target_code == 1)
+    {
+        if (cpl.target_mode)
+            ptr = "target and attack enemy";
+        else
+            ptr = "target enemy";
+    }
+    else if (cpl.target_code == 2)
+    {
+        if (cpl.target_mode)
+            ptr = "target friend (hold attack)";
+        else
+            ptr = "target friend";
+    }
+
+    if (cpl.target_code)
+        sprite_blt(Bitmaps[BITMAP_TARGET_TALK], x + 223, y + 7, NULL, NULL);
+
+    if (options.show_target_self || cpl.target_code != 0)
+    {
+        if (hp_tmp)
+        {
+            temp = (double) hp_tmp * 0.01;
+            box.x = 0;
+            box.y = 0;
+            box.h = Bitmaps[BITMAP_TARGET_HP]->bitmap->h;
+            box.w = (int) (Bitmaps[BITMAP_TARGET_HP]->bitmap->w * temp);
+
+            if (!box.w)
+                box.w = 1;
+
+            if (box.w > Bitmaps[BITMAP_TARGET_HP]->bitmap->w)
+                box.w = Bitmaps[BITMAP_TARGET_HP]->bitmap->w;
+
+            sprite_blt(Bitmaps[BITMAP_TARGET_HP], x + 5, y + 25, &box, NULL);
+        }
+
+        if (ptr)
+        {
+            /* Draw the name of the target */
+			StringBlt(ScreenSurface, &SystemFont, cpl.target_name, x + 35, y + 3, cpl.target_color, NULL, NULL);
+
+            /* Either draw HP remaining percent and description... */
+            if (hp_tmp)
+            {
+                char hp_text[9];
+                int hp_color;
+                int xhpoffset = 0;
+
+                sprintf((char *)hp_text, "HP: %d%%", hp_tmp);
+
+				if (hp_tmp > 90)
+					hp_color = COLOR_GREEN;
+                else if (hp_tmp > 75)
+                	hp_color = COLOR_DGOLD;
+                else if (hp_tmp > 50)
+                	hp_color = COLOR_HGOLD;
+                else if (hp_tmp > 25)
+                	hp_color = COLOR_ORANGE;
+                else if (hp_tmp > 10)
+                	hp_color = COLOR_YELLOW;
+                else
+                	hp_color = COLOR_RED;
+
+				StringBlt(ScreenSurface, &SystemFont, hp_text, x + 35, y + 14, hp_color, NULL, NULL);
+				xhpoffset = 50;
+
+				StringBlt(ScreenSurface, &SystemFont, ptr, x + 35 + xhpoffset, y + 14, cpl.target_color, NULL, NULL);
+			}
+            /* Or draw just the description */
+            else
+                StringBlt(ScreenSurface, &SystemFont, ptr, x + 35, y + 14, cpl.target_color, NULL, NULL);
+        }
+    }
+}
+
 
 int get_quickslot(int x, int y)
 {
-	int i;
+    int i;
+    int qsx, qsy, xoff;
 
-	for(i=0;i<MAX_QUICK_SLOTS;i++)
-	{
-		if(x>=SKIN_POS_QUICKSLOT_X+quickslots_pos[i][0] &&
-					x<=SKIN_POS_QUICKSLOT_X+quickslots_pos[i][0]+32 &&
-					y>=SKIN_POS_QUICKSLOT_Y+quickslots_pos[i][1] &&
-					y<=SKIN_POS_QUICKSLOT_Y+quickslots_pos[i][1]+32)
-			return i;
+    if (cur_widget[QUICKSLOT_ID].ht > 34)
+    {
+        qsx = 1;
+        qsy = 0;
+        xoff = 0;
+    }
+    else
+    {
+        qsx = 0;
+        qsy = 1;
+        xoff = -17;
+    }
 
-	}
-	return -1;
+    for (i = 0; i < MAX_QUICK_SLOTS; i++)
+    {
+        if (x >= cur_widget[QUICKSLOT_ID].x1 + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID].x1 + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID].y1 + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID].y1 + quickslots_pos[i][qsy] + 32)
+            return i;
+    }
+
+    return -1;
+}
+
+void widget_quickslots(int x, int y)
+{
+    int i, mx, my;
+    char buf[512];
+    int qsx, qsy, xoff;
+
+    if (cur_widget[QUICKSLOT_ID].ht > 34)
+    {
+        qsx = 1;
+        qsy = 0;
+        xoff = 0;
+        sprite_blt(Bitmaps[BITMAP_QUICKSLOTSV], x, y, NULL, NULL);
+    }
+    else
+    {
+        qsx = 0;
+        qsy = 1;
+        xoff = -17;
+        sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
+    }
+
+    SDL_GetMouseState(&mx, &my);
+    update_quickslots(-1);
+
+    for (i = MAX_QUICK_SLOTS - 1; i >= 0; i--)
+    {
+        if (quick_slots[i].tag != -1)
+        {
+            /* Spell in quickslot */
+            if (quick_slots[i].spell)
+            {
+                sprite_blt(spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].icon, x + quickslots_pos[i][qsx]+xoff, y + quickslots_pos[i][qsy], NULL, NULL);
+
+                if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
+                    show_tooltip(mx, my, spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].name);
+            }
+            /* Item in quickslot */
+            else
+            {
+                item *tmp = locate_item_from_item(cpl.ob, quick_slots[i].tag);
+
+                if (tmp)
+                {
+                    blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+
+                    /* Show tooltip */
+                    if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
+                    {
+                        snprintf(buf, sizeof(buf), "%s (QC: %d/%d)", tmp->s_name, tmp->item_qua, tmp->item_con);
+                        show_tooltip(mx, my, buf);
+                    }
+                }
+            }
+        }
+
+        snprintf(buf, sizeof(buf), "F%d", i + 1);
+        StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
+    }
+}
+
+void widget_quickslots_mouse_event(int x, int y, int MEvent)
+{
+	/* Mouseup Event */
+    if (MEvent == 1)
+    {
+        if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
+        {
+            int ind = get_quickslot(x, y);
+
+			/* Valid slot */
+            if (ind != -1)
+            {
+                if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT_SPELL)
+                {
+                    quick_slots[ind].spell = 1;
+                    quick_slots[ind].groupNr = quick_slots[cpl.win_quick_tag].groupNr;
+                    quick_slots[ind].classNr = quick_slots[cpl.win_quick_tag].classNr;
+                    quick_slots[ind].tag = quick_slots[cpl.win_quick_tag].spellNr;
+                    cpl.win_quick_tag = -1;
+                }
+                else
+                {
+                    if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
+                        cpl.win_quick_tag = cpl.win_inv_tag;
+                    else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
+                        cpl.win_quick_tag = cpl.win_pdoll_tag;
+
+                    quick_slots[ind].tag = cpl.win_quick_tag;
+                    quick_slots[ind].invSlot = ind;
+                    quick_slots[ind].spell = 0;
+                    /* Now we do some tests... First, ensure this item can fit */
+                    update_quickslots(-1);
+
+                    /* Now: if this is null, item is *not* in the main inventory
+					 * of the player - then we can't put it in quickbar!
+					 * Server will not allow apply of items in containers! */
+                    if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
+                    {
+                        sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+                        draw_info("Only items from main inventory allowed in quickbar!", COLOR_WHITE);
+                    }
+                    else
+                    {
+                        char buf[256];
+
+						/* We 'get' it in quickslots */
+                        sound_play_effect(SOUND_GET, 0, 100);
+                        snprintf(buf, sizeof(buf), "set F%d to %s", ind + 1, locate_item(cpl.win_quick_tag)->s_name);
+                        draw_info(buf, COLOR_DGOLD);
+                    }
+                }
+            }
+
+            draggingInvItem(DRAG_NONE);
+			/* ready for next item */
+            itemExamined = 0;
+        }
+    }
+	/* Mousedown Event */
+    else
+    {
+        /* Drag from quickslots */
+        int ind = get_quickslot(x, y);
+
+		/* valid slot */
+        if (ind != -1 && quick_slots[ind].tag != -1)
+        {
+            cpl.win_quick_tag = quick_slots[ind].tag;
+
+            if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+            {
+                if (quick_slots[ind].spell)
+                {
+                    draggingInvItem(DRAG_QUICKSLOT_SPELL);
+                    quick_slots[ind].spellNr = quick_slots[ind].tag;
+                    cpl.win_quick_tag = ind;
+                }
+                else
+                {
+                    draggingInvItem(DRAG_QUICKSLOT);
+                }
+
+                quick_slots[ind].tag = -1;
+            }
+            else
+            {
+                int stemp = cpl.inventory_win, itemp = cpl.win_inv_tag;
+
+                cpl.inventory_win = IWIN_INV;
+                cpl.win_inv_tag = quick_slots[ind].tag;
+                process_macro_keys(KEYFUNC_APPLY, 0);
+                cpl.inventory_win = stemp;
+                cpl.win_inv_tag = itemp;
+            }
+        }
+        else if (x >= cur_widget[QUICKSLOT_ID].x1 + 266 && x <= cur_widget[QUICKSLOT_ID].x1 + 282 && y >= cur_widget[QUICKSLOT_ID].y1 && y <= cur_widget[QUICKSLOT_ID].y1 + 34 && (cur_widget[QUICKSLOT_ID].ht <= 34))
+        {
+            cur_widget[QUICKSLOT_ID].wd = 34;
+            cur_widget[QUICKSLOT_ID].ht = 282;
+            cur_widget[QUICKSLOT_ID].x1 += 266;
+        }
+        else if (x >= cur_widget[QUICKSLOT_ID].x1 && x <= cur_widget[QUICKSLOT_ID].x1 + 34 && y >= cur_widget[QUICKSLOT_ID].y1 && y <= cur_widget[QUICKSLOT_ID].y1 + 15 && (cur_widget[QUICKSLOT_ID].ht > 34))
+        {
+            cur_widget[QUICKSLOT_ID].wd = 282;
+            cur_widget[QUICKSLOT_ID].ht = 34;
+            cur_widget[QUICKSLOT_ID].x1 -= 266;
+        }
+    }
+
+    return;
 }
 
 void show_quickslots(int x, int y)
 {
-   int i, mx, my;
-   char buf[16];
+	int i, mx, my;
+	char buf[16];
+	return;
 
-   SDL_GetMouseState(&mx, &my);
-   update_quickslots(-1);
-   sprite_blt(Bitmaps[BITMAP_QUICKSLOTS],x, y, NULL, NULL);
+	SDL_GetMouseState(&mx, &my);
+	update_quickslots(-1);
+	sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
 
-   for(i=MAX_QUICK_SLOTS-1;i>=0;i--)
-   {
-      if(quick_slots[i].tag != -1)
-      {
-         /* spell in quickslot */
-         if (quick_slots[i].spell == TRUE)
-         {
-			 sprite_blt(spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].icon ,x+quickslots_pos[i][0],y+quickslots_pos[i][1], NULL, NULL);
-            if (mx >= x+quickslots_pos[i][0] && mx < x+quickslots_pos[i][0]+33
-               && my >= y+quickslots_pos[i][1] && my < y+quickslots_pos[i][1]+33)
-            show_tooltip(mx, my, spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].name);
-         }
-         /* item in quickslot */
-         else
-         {
-            item *tmp;
-            tmp = locate_item_from_item(cpl.ob , quick_slots[i].tag);
-            if(tmp)
-            {
-               blt_inv_item(tmp , x+quickslots_pos[i][0],y+quickslots_pos[i][1]);
-               /* show tooltip */
-               if (mx >= x+quickslots_pos[i][0] && mx < x+quickslots_pos[i][0]+33
-                  && my >= y+quickslots_pos[i][1] && my < y+quickslots_pos[i][1]+33)
-               show_tooltip(mx, my, tmp->s_name);
-            }
-         }
-       }
-       sprintf(buf,"F%d", i+1);
-       StringBlt(ScreenSurface, &Font6x3Out,buf,x+quickslots_pos[i][0]+12, y+quickslots_pos[i][1]-6,COLOR_DEFAULT, NULL, NULL);
-   }
+	for (i = MAX_QUICK_SLOTS - 1; i >= 0; i--)
+	{
+		if (quick_slots[i].tag != -1)
+		{
+			/* Spell in quickslot */
+			if (quick_slots[i].spell)
+			{
+				sprite_blt(spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].icon ,x+quickslots_pos[i][0],y+quickslots_pos[i][1], NULL, NULL);
+
+				if (mx >= x + quickslots_pos[i][0] && mx < x + quickslots_pos[i][0] + 33 && my >= y + quickslots_pos[i][1] && my < y + quickslots_pos[i][1] + 33)
+					show_tooltip(mx, my, spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].name);
+			}
+			/* Item in quickslot */
+			else
+			{
+				item *tmp = locate_item_from_item(cpl.ob, quick_slots[i].tag);
+
+				if (tmp)
+				{
+					blt_inv_item(tmp, x + quickslots_pos[i][0], y + quickslots_pos[i][1]);
+
+					/* Show tooltip */
+					if (mx >= x + quickslots_pos[i][0] && mx < x + quickslots_pos[i][0] + 33 && my >= y + quickslots_pos[i][1] && my < y + quickslots_pos[i][1] + 33)
+						show_tooltip(mx, my, tmp->s_name);
+				}
+			}
+		}
+
+		snprintf(buf, sizeof(buf), "F%d", i + 1);
+		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][0] + 12, y + quickslots_pos[i][1] - 6, COLOR_DEFAULT, NULL, NULL);
+	}
 }
 
 void update_quickslots(int del_item)
 {
-   int i;
+    int i;
 
-   for(i=0;i<MAX_QUICK_SLOTS;i++)
-   {
-       if(quick_slots[i].tag == del_item)
-          quick_slots[i].tag =-1;
-       if(quick_slots[i].tag == -1)
-          continue;
-       /* only items in the *main* inventory can used with quickslot! */
-       if(quick_slots[i].spell == FALSE && !locate_item_from_inv(cpl.ob->inv , quick_slots[i].tag))
-       quick_slots[i].tag=-1;
-       if(quick_slots[i].tag != -1)
-		   quick_slots[i].nr = locate_item_nr_from_tag (cpl.ob->inv, quick_slots[i].tag);
-   }
+    for (i = 0; i < MAX_QUICK_SLOTS; i++)
+    {
+        if (quick_slots[i].tag == del_item)
+            quick_slots[i].tag = -1;
+
+        if (quick_slots[i].tag == -1)
+            continue;
+
+        /* Only items in the *main* inventory can used with quickslots */
+        if (quick_slots[i].spell == 0)
+        {
+            if (!locate_item_from_inv(cpl.ob->inv, quick_slots[i].tag))
+                quick_slots[i].tag = -1;
+
+            if (quick_slots[i].tag != -1)
+                quick_slots[i].nr = locate_item_nr_from_tag(cpl.ob->inv, quick_slots[i].tag);
+        }
+    }
 }
 
 
-/******************************************************************
- Restore quickslots from last game.
-******************************************************************/
+/* Restore quickslots from last game. */
 #define QUICKSLOT_FILE "quick.dat"
 void load_quickslots_entrys()
 {
@@ -2124,70 +2394,4 @@ void save_quickslots_entrys()
 
    fwrite(&quick_slots,sizeof(_quickslot),MAX_QUICK_SLOTS,stream);
    fclose (stream);
-}
-
-void show_target(int x, int y)
-{
-	char *ptr=NULL;
-    SDL_Rect box;
-	double temp;
-	int hp_tmp;
-
-	sprite_blt(Bitmaps[cpl.target_mode?BITMAP_TARGET_ATTACK:BITMAP_TARGET_NORMAL],x, y, NULL, NULL);
-
-	sprite_blt(Bitmaps[BITMAP_TARGET_HP_B],x-1, y+20, NULL, NULL);
-
-	/* redirect target_hp to our hp - server don't send it
-	 * because we should now our hp exactly
-	 */
-	hp_tmp = (int) cpl.target_hp ;
-	if(cpl.target_code==0)
-		hp_tmp = (int)(((float)cpl.stats.hp / (float)cpl.stats.maxhp)*100.0f);
-
-	if(cpl.target_code==0)
-	{
-		if(cpl.target_mode)
-			ptr = "target self (hold attack)";
-		else
-			ptr = "target self";
-	}
-	else if(cpl.target_code==1)
-	{
-		if(cpl.target_mode)
-			ptr = "target and attack enemy";
-		else
-			ptr = "target enemy";
-	}
-	else if(cpl.target_code==2)
-	{
-		if(cpl.target_mode)
-			ptr = "target friend (hold attack)";
-		else
-			ptr = "target friend";
-	}
-	if(cpl.target_code)
-		sprite_blt(Bitmaps[BITMAP_TARGET_TALK],x+270, y+27, NULL, NULL);
-
-	if(options.show_target_self || cpl.target_code!=0)
-	{
-		if(hp_tmp)
-		{
-			temp = (double)hp_tmp*0.01;
-			box.x =0;
-		    box.y = 0;
-		    box.h = Bitmaps[BITMAP_TARGET_HP]->bitmap->h;
-		    box.w = (int) (Bitmaps[BITMAP_TARGET_HP]->bitmap->w*temp);
-		    if(!box.w)
-				box.w =1;
-		     if(box.w > Bitmaps[BITMAP_TARGET_HP]->bitmap->w)
-				box.w=Bitmaps[BITMAP_TARGET_HP]->bitmap->w;
-			sprite_blt(Bitmaps[BITMAP_TARGET_HP],x, y+21, &box, NULL);
-		}
-
-		if(ptr)
-		{
-			StringBlt(ScreenSurface, &SystemFont,cpl.target_name ,x+30, y, cpl.target_color, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont,ptr ,x+30, y+11, cpl.target_color, NULL, NULL);
-		}
-	}
 }

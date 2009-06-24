@@ -62,8 +62,8 @@ typedef struct gui_book_page
 
 extern _global_book_data global_book_data;
 
-extern _gui_book_struct *load_book_interface(int mode, char *data, int len);
-extern void show_book(int x, int y);
+extern _gui_book_struct *load_book_interface(char *data, int len);
+extern void show_book();
 extern void book_clear();
 
 #endif

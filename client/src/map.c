@@ -153,7 +153,7 @@ void map_draw_map_clear(void)
         {
             xpos = MAP_START_XOFF+x*MAP_TILE_YOFF-y*MAP_TILE_YOFF;
             ypos = MAP_START_YOFF+x*MAP_TILE_XOFF+y*MAP_TILE_XOFF;
-            sprite_blt(Bitmaps[BITMAP_BLACKTILE],xpos, ypos, NULL, NULL);
+            sprite_blt_map(Bitmaps[BITMAP_BLACKTILE],xpos, ypos, NULL, NULL);
         }
     }
 }
@@ -384,7 +384,7 @@ void map_draw_map(void)
                 xpos = MAP_START_XOFF+x*MAP_TILE_YOFF-y*MAP_TILE_YOFF;
                 ypos = MAP_START_YOFF+x*MAP_TILE_XOFF+y*MAP_TILE_XOFF;
                 if(!k)
-                    sprite_blt(Bitmaps[BITMAP_BLACKTILE],xpos, ypos, NULL, NULL);
+                    sprite_blt_map(Bitmaps[BITMAP_BLACKTILE],xpos, ypos, NULL, NULL);
 				if(!debug_layer[k])
 					continue;
 
@@ -494,16 +494,16 @@ void map_draw_map(void)
 							if(FaceList[index].flags & FACE_FLAG_D1)
 							{
 								if(y<(MAP_MAX_SIZE-1)/2)
-									sprite_blt(face_sprite,xl, yl, NULL, &bltfx);
+									sprite_blt_map(face_sprite,xl, yl, NULL, &bltfx);
 							}
 							if(FaceList[index].flags & FACE_FLAG_D3)
 							{
 								if(x<(MAP_MAX_SIZE-1)/2 || y<(MAP_MAX_SIZE-1)/2)
-									sprite_blt(face_sprite,xl, yl, NULL, &bltfx);
+									sprite_blt_map(face_sprite,xl, yl, NULL, &bltfx);
 							}
 						}
 						else
-	                        sprite_blt(face_sprite,xl, yl, NULL, &bltfx);
+	                        sprite_blt_map(face_sprite,xl, yl, NULL, &bltfx);
 
 						/* here we handle high & low walls - for example when
 						 * you enter a house or something. The wall will be drawn
@@ -517,12 +517,12 @@ void map_draw_map(void)
 								if(FaceList[index].flags & FACE_FLAG_D1)
 								{
 									if(y<(MAP_MAX_SIZE-1)/2)
-				                        sprite_blt(face_sprite,xl, yl-22, NULL, &bltfx);
+				                        sprite_blt_map(face_sprite,xl, yl-22, NULL, &bltfx);
 								}
 								if(FaceList[index].flags & FACE_FLAG_D3)
 								{
 									if(x<(MAP_MAX_SIZE-1)/2 || y<(MAP_MAX_SIZE-1)/2)
-				                        sprite_blt(face_sprite,xl, yl-22, NULL, &bltfx);
+				                        sprite_blt_map(face_sprite,xl, yl-22, NULL, &bltfx);
 								}
 
 							}
@@ -531,31 +531,27 @@ void map_draw_map(void)
 						/* have we a playername? then print it! */
 						if(options.player_names && map->pname[k][0])
 						{
-							/* we must take care here later for rank! -
-							 * then we must trick a bit here! (use rank + name
-							 * and strncmp()
-							*/
-							if(options.player_names == 1 || /* all names */
+       						if(options.player_names == 1 || /* all names */
 								(options.player_names == 2 && strnicmp(map->pname[k],cpl.rankandname, strlen(map->pname[k]))) || /* names from other players only */
 								(options.player_names == 3 && !strnicmp(map->pname[k],cpl.rankandname, strlen(map->pname[k]))) ) /* only you */
-							StringBlt(ScreenSurface, &Font6x3Out,map->pname[k],xpos-(strlen(map->pname[k])*2)+22, ypos-48,COLOR_DEFAULT, NULL, NULL);
+							StringBlt(ScreenSurfaceMap, &Font6x3Out,map->pname[k],xpos-(strlen(map->pname[k])*2)+22, ypos-48,COLOR_DEFAULT, NULL, NULL);
 						}
 
                         /* perhaps the objects has a marked effect, blt it now */
                         if(map->ext[k])
                         {
                             if(map->ext[k] &FFLAG_SLEEP)
-                                sprite_blt(Bitmaps[BITMAP_SLEEP],xl+face_sprite->bitmap->w/2, yl-5, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_SLEEP],xl+face_sprite->bitmap->w/2, yl-5, NULL, NULL);
                             if(map->ext[k] &FFLAG_CONFUSED)
-                                sprite_blt(Bitmaps[BITMAP_CONFUSE],xl+face_sprite->bitmap->w/2-1, yl-4, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_CONFUSE],xl+face_sprite->bitmap->w/2-1, yl-4, NULL, NULL);
                             if(map->ext[k] &FFLAG_SCARED)
-                                sprite_blt(Bitmaps[BITMAP_SCARED],xl+face_sprite->bitmap->w/2+10, yl-4, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_SCARED],xl+face_sprite->bitmap->w/2+10, yl-4, NULL, NULL);
                             if(map->ext[k] &FFLAG_BLINDED)
-                                sprite_blt(Bitmaps[BITMAP_BLIND],xl+face_sprite->bitmap->w/2+3, yl-6, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_BLIND],xl+face_sprite->bitmap->w/2+3, yl-6, NULL, NULL);
                             if(map->ext[k] &FFLAG_PARALYZED)
                             {
-                                sprite_blt(Bitmaps[BITMAP_PARALYZE],xl+face_sprite->bitmap->w/2+2, yl+3, NULL, NULL);
-                                sprite_blt(Bitmaps[BITMAP_PARALYZE],xl+face_sprite->bitmap->w/2+9, yl+3, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_PARALYZE],xl+face_sprite->bitmap->w/2+2, yl+3, NULL, NULL);
+                                sprite_blt_map(Bitmaps[BITMAP_PARALYZE],xl+face_sprite->bitmap->w/2+9, yl+3, NULL, NULL);
                             }
                             if(map->ext[k] &FFLAG_PROBE)
                             {
@@ -565,8 +561,8 @@ void map_draw_map(void)
 	                                    xtemp = (int) (((double)xml/100.0)*25.0);
 									else
 	                                    xtemp = (int) (((double)xml/100.0)*20.0);
-                                    sprite_blt(Bitmaps[BITMAP_ENEMY2],xmpos+xtemp-3, yl-11, NULL, NULL);
-                                    sprite_blt(Bitmaps[BITMAP_ENEMY1],xmpos+xtemp+(xml-xtemp*2)-3, yl-11, NULL, NULL);
+                                    sprite_blt_map(Bitmaps[BITMAP_ENEMY2],xmpos+xtemp-3, yl-11, NULL, NULL);
+                                    sprite_blt_map(Bitmaps[BITMAP_ENEMY1],xmpos+xtemp+(xml-xtemp*2)-3, yl-11, NULL, NULL);
 
                                     temp = (xml-xtemp*2)-1;
                                     if (temp <=0)
@@ -583,7 +579,7 @@ void map_draw_map(void)
                                     rect.w=temp ;
                                     rect.x = 0;
                                     rect.y = 0;
-                                    sprite_blt(Bitmaps[BITMAP_PROBE],xmpos+xtemp-1, yl-9, &rect, NULL);
+                                    sprite_blt_map(Bitmaps[BITMAP_PROBE],xmpos+xtemp-1, yl-9, &rect, NULL);
                                 }
                             }
 						}
@@ -662,4 +658,3 @@ int get_tile_position( int x, int y, int *tx, int *ty )
 	if (*tx <0 || *tx >16 || *ty <0 || *ty >16) return -1;
  return 0;
 }
-

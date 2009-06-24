@@ -28,7 +28,7 @@
 static size_t write_callback(char *buffer, size_t size, size_t nitems, void *userp)
 {
 	char *newbuff;
-	int rembuff;
+	size_t rembuff;
 
 	CURL_FILE *url = (CURL_FILE *)userp;
 	size *= nitems;
@@ -57,7 +57,7 @@ static size_t write_callback(char *buffer, size_t size, size_t nitems, void *use
 	return size;
 }
 
-static int fill_buffer(CURL_FILE *file, int want, int waittime)
+static int fill_buffer(CURL_FILE *file, int want)
 {
 	fd_set fdread;
 	fd_set fdwrite;
@@ -120,7 +120,7 @@ static int use_buffer(CURL_FILE *file, int want)
 	return 0;
 }
 
-CURL_FILE *curl_fopen(const char *url, const char *operation)
+CURL_FILE *curl_fopen(const char *url)
 {
 	CURL_FILE *file;
 
@@ -180,7 +180,7 @@ char *curl_fgets(char *ptr, int size, CURL_FILE *file)
 	int want = size - 1;
 	int loop;
 
-	fill_buffer(file, want, 1);
+	fill_buffer(file, want);
 
 	if (!file->buffer_pos)
 		return NULL;
@@ -210,7 +210,7 @@ void metaserver_connect(void)
 	char buf[HUGE_BUF];
 	CURL_FILE *handle;
 
-	handle = curl_fopen("http://meta.atrinik.org/", "r");
+	handle = curl_fopen("http://meta.atrinik.org/");
 
 	while (curl_fgets(buf, HUGE_BUF, handle) != NULL)
 	{

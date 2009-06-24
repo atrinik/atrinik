@@ -34,7 +34,7 @@
 #define BOOK_LINE_PAGE		16
 _global_book_data global_book_data;
 
-static _gui_book_line *get_page_tag(char *data, int len, int *pos)
+static _gui_book_line *get_page_tag(char *data, int *pos)
 {
 	char *buf,c;
 	static _gui_book_line book_line;
@@ -73,7 +73,7 @@ static _gui_book_line *get_page_tag(char *data, int len, int *pos)
 	return NULL;
 }
 
-static _gui_book_line *get_title_tag(char *data, int len, int *pos)
+static _gui_book_line *get_title_tag(char *data, int *pos)
 {
 	char *buf, c;
 	static _gui_book_line book_line;
@@ -111,7 +111,7 @@ static _gui_book_line *get_title_tag(char *data, int len, int *pos)
 	return NULL;
 }
 
-static _gui_book_line *get_name_tag(char *data, int len, int *pos)
+static _gui_book_line *get_name_tag(char *data, int *pos)
 {
 	char *buf, c;
 	static _gui_book_line book_line;
@@ -149,10 +149,12 @@ static _gui_book_line *get_name_tag(char *data, int len, int *pos)
 	return NULL;
 }
 
+#if 0
 static _gui_book_line *get_icon_tag(char *data, int len, int *pos)
 {
 	return NULL;
 }
+#endif
 
 static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 {
@@ -169,7 +171,7 @@ static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 		/* title tag */
 		if (c == 't')
 		{
-			book_line = get_title_tag(data, len, pos);
+			book_line = get_title_tag(data, pos);
 
 			if (!book_line)
 				return NULL;
@@ -184,7 +186,7 @@ static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 		/* new page */
 		else if (c == 'p')
 		{
-			book_line = get_page_tag(data, len, pos);
+			book_line = get_page_tag(data, pos);
 
 			if (!book_line)
 				return NULL;
@@ -194,7 +196,7 @@ static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 		/* book name */
 		else if (c == 'b')
 		{
-			book_line = get_name_tag(data, len, pos);
+			book_line = get_name_tag(data, pos);
 
 			if (!book_line)
 				return NULL;
@@ -279,7 +281,7 @@ void book_clear(void)
 	gui_interface_book = NULL;
 }
 
-_gui_book_struct *load_book_interface(int mode, char *data, int len)
+_gui_book_struct *load_book_interface(char *data, int len)
 {
 	_gui_book_line current_book_line, *book_line;
 	int pos = 0, lc = 0, force_line;
@@ -474,7 +476,6 @@ _gui_book_struct *load_book_interface(int mode, char *data, int len)
 				lc = strlen(current_book_line.line);
 				if (force_line)
 				{
-					//if(StringWidthOffset((tmp_line->mode == BOOK_LINE_TITLE) ?&BigFont:&MediumFont, tmp_line->line, &l_len, 186))
 					if (StringWidth((tmp_line->mode == BOOK_LINE_TITLE) ? &BigFont : &MediumFont, current_book_line.line) < 186)
 					{
 						goto force_line_jump_out;
@@ -509,12 +510,15 @@ _gui_book_struct *load_book_interface(int mode, char *data, int len)
 	return gui_interface_book;
 }
 
-void show_book(int x, int y)
+void show_book()
 {
 	char buf[128];
     SDL_Rect box;
-	int i, ii, yoff;
+	int i, ii, yoff, x, y;
 	_gui_book_page *page1, *page2;
+
+	x = Screensize.x / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2;
+    y = Screensize.y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
 
     sprite_blt(Bitmaps[BITMAP_JOURNAL], x, y, NULL, NULL);
 	global_book_data.x = x;
@@ -527,7 +531,7 @@ void show_book(int x, int y)
 
     /*add_close_button(x + 27, y + 2, MENU_BOOK);*/
 	if (gui_interface_book->name)
-		StringBlt(ScreenSurface, &BigFont, gui_interface_book->name, x + global_book_data.xlen / 2- get_string_pixel_length(gui_interface_book->name, &BigFont) / 2, y + 9, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &BigFont, gui_interface_book->name, x + global_book_data.xlen / 2 - get_string_pixel_length(gui_interface_book->name, &BigFont) / 2, y + 9, COLOR_WHITE, NULL, NULL);
 
 	StringBlt(ScreenSurface, &Font6x3Out, "PRESS ESC", x + global_book_data.xlen - 50, y + 25, COLOR_WHITE, NULL, NULL);
 	box.x = x + 47;

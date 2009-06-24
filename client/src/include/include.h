@@ -83,4 +83,5 @@ typedef signed char     sint8;
 #include <inventory.h>
 #include <menu.h>
 #include <dialog.h>
+#include <widget.h>
 #endif

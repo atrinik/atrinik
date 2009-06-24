@@ -51,16 +51,25 @@ extern void fire_dir ( int dir );
 extern void stop_run ( void );
 extern void run_dir ( int dir );
 extern int send_command ( const char *command, int repeat, int must_send );
-extern void extended_command ( const char *ocommand );
 extern char * complete_command ( char *command );
 
-void init_player_data(void);
+extern void init_player_data(void);
 
-void show_player_doll(int x, int y);
-void show_player_stats(int x, int y);
-void show_player_data(int x, int y);
+extern void widget_show_player_doll(int x, int y);
 
-void set_weight_limit (uint32 wlim);
-void clear_player(void);
+extern void widget_player_stats(int x, int y);
+extern void widget_show_main_lvl(int x, int y);
+extern void widget_show_skill_exp(int x, int y);
+extern void widget_show_regeneration(int x, int y);
+extern void widget_skillgroups(int x, int y);
+extern void widget_menubuttons(int x, int y);
+extern void widget_menubuttons_event(int x, int y);
+extern void widget_skill_exp_event();
+extern void widget_player_data_event(int x, int y);
+extern void widget_show_player_doll_event();
+extern void widget_show_player_data(int x, int y);
+
+extern void set_weight_limit (uint32 wlim);
+extern void clear_player(void);
 
 #endif

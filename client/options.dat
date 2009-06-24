@@ -1,29 +1,31 @@
-###############################################
-# This is the Daimonin SDL client option file #
-###############################################
+##########################################
+# This is the Atrinik client option file #
+##########################################
 
 # General
-Player Names: 2
+Playerdoll: 0
 Show yourself targeted: 0
-Low health warning: 0
-Low food warning: 5
-Graphic Statusbars: 0
 Show Tooltips: 1
 Key-info in Dialog menus: 1
 Collect All Items: 0
+Exp display: 0
 
 # Client
 Fullscreen: 0
+Resolution: 0
 Automatic bpp: 1
-Colordeep: 1
-Textwindow splitted: 1
+Colordeep: 2
 Textwindows use alpha: 1
 Textwindows alpha value: 165
-Textwindow Default Size: 10
-Textwindow Body Size: 10
-Textwindow Top Size: 10
 Save CPU time with sleep(): 1
 Sleep time in ms: 25
+
+# Map
+Player Names: 2
+Playfield start X: 0
+Playfield start Y: 0
+Low health warning: 0
+Low food warning: 5
 
 # Sound
 Sound volume: 0
@@ -33,7 +35,7 @@ Music volume: 0
 Hardware Surface: 0
 Software Surface: 1
 Hardware Accel: 1
-Doublebuffer: 0
+Doublebuffer: 1
 Any format: 1
 Async blit: 0
 Hardware Palette: 1
@@ -42,16 +44,16 @@ No frame: 0
 RLE accel: 1
 
 # Windowed flags
-Win Hardware Surface: 0
-Win Software Surface: 1
-Win Hardware Accel: 0
-Win Doublebuffer: 0
-Win Any format: 1
-Win Async blit: 0
-Win Hardware Palette: 1
-Win Resizeable: 0
-Win No frame: 0
-Win RLE accel: 1
+Window Hardware Surface: 0
+Window Software Surface: 1
+Window Hardware Accel: 0
+Window Doublebuffer: 0
+Window Any format: 1
+Window Async blit: 0
+Window Hardware Palette: 1
+Window Resizeable: 0
+Window No frame: 0
+Window RLE accel: 0
 
 # Debug
 Show Framerate: 0

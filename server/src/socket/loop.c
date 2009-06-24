@@ -308,12 +308,6 @@ static void block_until_new_connection()
 		if (cycles % 2 == 0)
 	    	tick_the_clock();
 
-		if (cycles == 7)
-		{
-	    	metaserver_update();
-	    	cycles = 1;
-		}
-
 		FD_ZERO(&readfs);
 		FD_SET((uint32)init_sockets[0].fd, &readfs);
 		Timeout.tv_sec = 60;

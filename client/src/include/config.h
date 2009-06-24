@@ -31,7 +31,7 @@
 #define KEYBIND_FILE "./keys.dat"
 #define OPTION_FILE  "./options.dat"
 #define ARCHDEF_FILE "./archdef.dat"
-#define INTERFACE_FILE "settings/interface.gui"
+#define INTERFACE_FILE "./interface.gui"
 
 #define LOG_FILE     "./client.log"
 
@@ -39,6 +39,10 @@
 
 /* socket timeout value */
 #define MAX_TIME 0
+
+#define MAX_LEVEL 110
+
+/*#define WIDGET_SNAP*/
 
 /* Default Screen
  * TODO: allowing different screen sizes.

@@ -29,6 +29,8 @@
 #define TEXT_WIN_MAX 250
 #define MAX_KEYWORD_LEN 256
 
+extern int txtwin_start_size;  /* we need a backup of the TW_MIX.size */
+
 enum {TW_MIX, TW_MSG, TW_CHAT, TW_SUM}; /* windows */
 enum {TW_CHECK_BUT_DOWN, TW_CHECK_BUT_UP, TW_CHECK_MOVE}; /* events */
 enum {TW_HL_NONE, TW_HL_UP, TW_ABOVE, TW_HL_SLIDER, TW_UNDER, TW_HL_DOWN};
@@ -58,12 +60,14 @@ typedef struct _textwin_set {
 
 extern _textwin_set txtwin[TW_SUM];
 extern int  textwin_flags;
-extern void textwin_event(int e, SDL_Event *event);
+extern void textwin_event(int e, SDL_Event *event, int WidgetID);
 extern void textwin_show(int x, int y);
 extern void textwin_init();
 extern void draw_info( char *str, int color );
+extern void draw_info_format(int flags,char *format,...);
 extern void textwin_addhistory(char* text);
 extern void textwin_clearhistory();
 extern void textwin_putstring(char* text);
+extern void widget_textwin_show(int x, int y, int actWin);
 #endif
 

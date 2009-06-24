@@ -53,6 +53,8 @@ void LOG (int logLevel, char *format, ...)
 			vfprintf(stdout, format, ap);
 			vfprintf(logstream, format, ap);
 		}
+		else
+			vfprintf(stdout, format, ap);
         va_end(ap);
         fflush(logstream);
 
@@ -293,61 +295,61 @@ int attempt_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
 /* when settings are changed at runtime, this MUST called again */
 uint32 get_video_flags(void)
 {
-    uint32 videoflags_full,videoflags_win;
+    uint32  videoflags_full, videoflags_win;
 
-        videoflags_full = SDL_FULLSCREEN;
+    videoflags_full = SDL_FULLSCREEN;
 
-        if(options.Full_DOUBLEBUF)
-            videoflags_full |= SDL_DOUBLEBUF;
-        if(options.Full_HWSURFACE)
-            videoflags_full |= SDL_HWSURFACE;
-        if(options.Full_SWSURFACE)
-            videoflags_full |= SDL_SWSURFACE;
-        if(options.Full_HWACCEL)
-            videoflags_full |= SDL_HWACCEL;
-        if(options.Full_ANYFORMAT)
-            videoflags_full |= SDL_ANYFORMAT;
-        if(options.Full_ASYNCBLIT)
-            videoflags_full |= SDL_ASYNCBLIT;
-        if(options.Full_HWPALETTE)
-            videoflags_full |= SDL_HWPALETTE;
-        if(options.Full_RESIZABLE)
-            videoflags_full |= SDL_RESIZABLE;
-        if(options.Full_NOFRAME)
-            videoflags_full |= SDL_NOFRAME;
+    if (options.Full_DOUBLEBUF)
+        videoflags_full |= SDL_DOUBLEBUF;
+    if (options.Full_HWSURFACE)
+        videoflags_full |= SDL_HWSURFACE;
+    if (options.Full_SWSURFACE)
+        videoflags_full |= SDL_SWSURFACE;
+    if (options.Full_HWACCEL)
+        videoflags_full |= SDL_HWACCEL;
+    if (options.Full_ANYFORMAT)
+        videoflags_full |= SDL_ANYFORMAT;
+    if (options.Full_ASYNCBLIT)
+        videoflags_full |= SDL_ASYNCBLIT;
+    if (options.Full_HWPALETTE)
+        videoflags_full |= SDL_HWPALETTE;
+    if (options.Full_RESIZABLE)
+        videoflags_full |= SDL_RESIZABLE;
+    if (options.Full_NOFRAME)
+        videoflags_full |= SDL_NOFRAME;
 
-        videoflags_win = 0;
-        if(options.Win_DOUBLEBUF)
-            videoflags_win |= SDL_DOUBLEBUF;
-        if(options.Win_HWSURFACE)
-            videoflags_win |= SDL_HWSURFACE;
-        if(options.Win_SWSURFACE)
-            videoflags_win |= SDL_SWSURFACE;
-        if(options.Win_HWACCEL)
-            videoflags_win |= SDL_HWACCEL;
-        if(options.Win_ANYFORMAT)
-            videoflags_win |= SDL_ANYFORMAT;
-        if(options.Win_ASYNCBLIT)
-            videoflags_win |= SDL_ASYNCBLIT;
-        if(options.Win_HWPALETTE)
-            videoflags_win |= SDL_HWPALETTE;
-        if(options.Win_RESIZABLE)
-            videoflags_win |= SDL_RESIZABLE;
-        if(options.Win_NOFRAME)
-            videoflags_win |= SDL_NOFRAME;
+    videoflags_win = 0;
+    if (options.Win_DOUBLEBUF)
+        videoflags_win |= SDL_DOUBLEBUF;
+    if (options.Win_HWSURFACE)
+        videoflags_win |= SDL_HWSURFACE;
+    if (options.Win_SWSURFACE)
+        videoflags_win |= SDL_SWSURFACE;
+    if (options.Win_HWACCEL)
+        videoflags_win |= SDL_HWACCEL;
+    if (options.Win_ANYFORMAT)
+        videoflags_win |= SDL_ANYFORMAT;
+    if (options.Win_ASYNCBLIT)
+        videoflags_win |= SDL_ASYNCBLIT;
+    if (options.Win_HWPALETTE)
+        videoflags_win |= SDL_HWPALETTE;
+    if (options.Win_RESIZABLE)
+        videoflags_win |= SDL_RESIZABLE;
+    if (options.Win_NOFRAME)
+        videoflags_win |= SDL_NOFRAME;
 
-        options.videoflags_win=videoflags_win;
-        options.videoflags_full=videoflags_full;
+    options.videoflags_win = videoflags_win;
+    options.videoflags_full = videoflags_full;
 
 
-    if(options.fullscreen)
+    if (options.fullscreen)
     {
         options.fullscreen_flag = TRUE;
         options.doublebuf_flag = FALSE;
         options.rleaccel_flag = FALSE;
-        if(options.Full_RLEACCEL)
+        if (options.Full_RLEACCEL)
             options.rleaccel_flag = TRUE;
-        if(options.videoflags_full&SDL_DOUBLEBUF)
+        if (options.videoflags_full & SDL_DOUBLEBUF)
             options.doublebuf_flag = TRUE;
 
         return videoflags_full;
@@ -357,14 +359,13 @@ uint32 get_video_flags(void)
         options.fullscreen_flag = FALSE;
         options.doublebuf_flag = FALSE;
         options.rleaccel_flag = FALSE;
-        if(options.Win_RLEACCEL)
+        if (options.Win_RLEACCEL)
             options.rleaccel_flag = TRUE;
-        if(options.videoflags_win&SDL_DOUBLEBUF)
+        if (options.videoflags_win & SDL_DOUBLEBUF)
             options.doublebuf_flag = TRUE;
 
         return videoflags_win;
     }
-
 }
 
 /* This is really, really a bad implementation.
@@ -380,7 +381,7 @@ void parse_metaserver_data(char *info)
 	if (!sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
 		return;
 
-	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc, "", "", "");
+	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc);
 }
 
 /* This seems to be lacking on some system */

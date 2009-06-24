@@ -40,7 +40,7 @@ struct fcurl_data
 
 typedef struct fcurl_data CURL_FILE;
 
-CURL_FILE *curl_fopen(const char *url, const char *operation);
+CURL_FILE *curl_fopen(const char *url);
 int curl_fclose(CURL_FILE *file);
 char *curl_fgets(char *ptr, int size, CURL_FILE *file);
 

@@ -29,6 +29,7 @@ extern char d_ServerName[2048];
 extern int  d_ServerPort;
 static int get_action_keycode,drop_action_keycode; /* thats the key for G'et command from keybind */
 static int menuRepeatKey =-1;
+int  old_mouse_y = 0;
 
 typedef struct _keys
 {
@@ -61,7 +62,6 @@ _key_macro defkey_macro[] =
 	{"?M_GET",		      	"get <tag>",        KEYFUNC_GET,			0, SC_NORMAL, MENU_NO},
 	{"?M_LOCK",		      	"lock <tag>",       KEYFUNC_LOCK,			0, SC_NORMAL, MENU_NO},
 	{"?M_MARK",		      	"mark<tag>",        KEYFUNC_MARK,			0, SC_NORMAL, MENU_NO},
-	{"?M_STATUS",		    "status",           KEYFUNC_STATUS,       	0, SC_NORMAL, MENU_ALL},
 	{"?M_OPTION",		    "option",           KEYFUNC_OPTION,       	0, SC_NORMAL, MENU_ALL},
 	{"?M_KEYBIND",	    	"key bind",         KEYFUNC_KEYBIND,      	0, SC_NORMAL, MENU_ALL},
 	{"?M_SKILL_LIST",   	"skill list",       KEYFUNC_SKILL,        	0, SC_NORMAL, MENU_ALL},
@@ -97,6 +97,10 @@ int cursor_type = 0;
 
 static Uint32 menuRepeatTicks = 0, menuRepeatTime = KEY_REPEAT_TIME_INIT;
 
+uint32 MouseState = IDLE;
+int MouseEvent = 0; /* do not set to IDLE, EVER */
+int itemExamined = 0;
+
 /* cmds for fire/move/run - used from move_keys()*/
 static char *directions[10] = {
 	"null", 	"/sw", 	"/s", 	"/se", 	"/w",
@@ -120,7 +124,6 @@ static char *directionsfire[10] = {
 
 static int key_event(SDL_KeyboardEvent *key);
 static void key_string_event(SDL_KeyboardEvent *key);
-static void check_keys(int key);
 static Boolean check_macro_keys(char *text);
 static void move_keys(int num);
 static void key_repeat(void);
@@ -128,7 +131,6 @@ static void cursor_keys(int num);
 int key_meta_menu(SDL_KeyboardEvent *key);
 void key_connection_event(SDL_KeyboardEvent *key);
 void check_menu_keys(int menu, int key);
-static Boolean check_menu_macros(char *text);
 static void quickslot_key(SDL_KeyboardEvent *key, int slot);
 
 void init_keys(void)
@@ -157,12 +159,12 @@ void reset_keys(void)
  * ret:
  * 	0  if mousepointer is in the game-field.
  * 	-1 if mousepointer is in a menu-field. */
-int mouseInPlayfield(x, y)
+int mouseInPlayfield(int x, int y)
 {
-	x += 45;
-	y -= 127;
+	x = x - options.mapstart_x - 6;
+    y = y - options.mapstart_y - 55;
 
-	if (x < 445)
+	if (x < 408)
 	{
 		/* upper left */
 		if ((y <  200) && (y + y + x > 400))
@@ -174,7 +176,7 @@ int mouseInPlayfield(x, y)
 	}
 	else
 	{
-  		x -= 445;
+  		x -= 408;
 
 		/* upper right */
 		if ((y <  200) && (y + y > x))
@@ -244,12 +246,18 @@ static void mouse_InputNumber()
 static void mouse_moveHero()
 {
 #define MY_POS 8
-	int x,y, tx, ty;
+	int x, y, tx, ty;
 	static int delta = 0;
 
 	/* Don't move too fast */
 	if (delta++ & 7)
 		return;
+
+	SDL_GetMouseState(&x, &y);
+
+	/* Don't move when clickign inside widgets. */
+	if (get_widget_owner(x, y) != -1)
+        return;
 
 	/* Still dragging an item */
 	if (draggingInvItem(DRAG_GET_STATUS))
@@ -261,6 +269,10 @@ static void mouse_moveHero()
 	if (cpl.menustatus != MENU_NO)
 		return;
 
+	/* In options menu */
+	if (esc_menu_flag)
+		return;
+
 	/* textwin events */
 	if (textwin_flags & (TW_RESIZE + TW_SCROLL))
 		return;
@@ -270,10 +282,6 @@ static void mouse_moveHero()
 		delta = 0;
 		return;
 	}
-
-	/* textwin has high priority, so don't move if playfield is overlapping */
- 	if ((options.use_TextwinSplit) && x > 538 &&  y > 560 - (txtwin[TW_MSG].size + txtwin[TW_CHAT].size) * 10)
-		return;
 
 	if (get_tile_position(x, y, &tx, &ty))
 		return;
@@ -341,112 +349,56 @@ int Event_PollInputDevice(void)
 		switch (event.type)
 		{
 			case SDL_MOUSEBUTTONUP:
+				/* Get the mouse state and set an event (event removed at end of main loop) */
+				if(event.button.button == SDL_BUTTON_LEFT)
+					MouseEvent = LB_UP;
+				else if(event.button.button == SDL_BUTTON_MIDDLE)
+					MouseEvent = MB_UP;
+				else if(event.button.button == SDL_BUTTON_RIGHT)
+					MouseEvent = RB_UP;
+				else
+					MouseEvent = IDLE;
+
+				/* No button is down */
+            	MouseState = IDLE;
+
+				cursor_type = 0;
+
 				if (GameStatus < GAME_STATUS_PLAY)
 					break;
 
-				if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
-					break;
-
 				mb_clicked = 0;
-				cursor_type = 0;
 				active_scrollbar = 0;
 
-				/* Drag and drop events */
+				/* Widget has higher priority than anything below, exept menus
+				 * so break if we had a widget event */
+				if (widget_event_mouseup(x,y, &event))
+				{
+					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
+
+					/* Sanity handling */
+					draggingInvItem(DRAG_NONE);
+
+					/* Ready for next item */
+					itemExamined = 0;
+
+					break;
+				}
+
+				if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
+                	break;
+
+            	/* Only drop to ground has to be handled, the rest do the widget handlers */
 				if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
 				{
 					/* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
 					 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
 					int old_inv_win = cpl.inventory_win;
-     				int old_inv_tag = cpl.win_inv_tag;
+					int old_inv_tag = cpl.win_inv_tag;
 					cpl.inventory_win = IWIN_INV;
 
-					if (draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
-					{
-						cpl.win_inv_tag = cpl.win_pdoll_tag;
-
-						/* Drop to inventory */
-						if (x < 223 && y > 450)
-							process_macro_keys(KEYFUNC_APPLY, 0);
-					}
-
-					if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
-					{
-						cpl.win_inv_tag = cpl.win_quick_tag;
-
-						/* Drop to player doll */
-     					if (x < 223 && y < 300 && !(locate_item(cpl.win_inv_tag))->applied)
-							process_macro_keys(KEYFUNC_APPLY, 0);
-					}
-
-					/* range field */
-					if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x < 90 && y > 400 && y <440)
-					{
-						RangeFireMode = 4;
-						/* Drop to player doll */
-						process_macro_keys(KEYFUNC_FIREREADY, 0);
-					}
-
-					if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x < 223 && y < 300)
-					{
-						if ((locate_item(cpl.win_inv_tag))->applied)
-							draw_info("This is applied already!", COLOR_WHITE);
-						/* Drop to player doll */
-						else
-							process_macro_keys(KEYFUNC_APPLY, 0);
-
-                    }
-
-					/* Drop to quickslots */
-					if (x >= SKIN_POS_QUICKSLOT_X && x < SKIN_POS_QUICKSLOT_X + 282 && y >= SKIN_POS_QUICKSLOT_Y && y < SKIN_POS_QUICKSLOT_Y + 42)
-					{
-						int ind = get_quickslot(x, y);
-
-						/* valid slot */
-						if (ind != -1)
-						{
-							if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT_SPELL)
-							{
-								quick_slots[ind].spell = 1;
-								quick_slots[ind].groupNr = quick_slots[cpl.win_quick_tag].groupNr;
-								quick_slots[ind].classNr = quick_slots[cpl.win_quick_tag].classNr;
-								quick_slots[ind].tag = quick_slots[cpl.win_quick_tag].spellNr;
-								cpl.win_quick_tag = -1;
-  					        }
-  					        else
-  					        {
-								if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV || draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
-									cpl.win_quick_tag = cpl.win_inv_tag;
-
-								quick_slots[ind].tag = cpl.win_quick_tag;
-								quick_slots[ind].invSlot = ind;
-								quick_slots[ind].spell = 0;
-
-								/* Now we do some tests... First, ensure this item can fit */
-								update_quickslots(-1);
-
-								/* Now: if this is null, item is *not* in the main inventory
-							 	 * of the player - then we can't put it in quickbar!
-							 	 * Server will not allow apply of items in containers! */
-								if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
-								{
-									sound_play_effect(SOUND_CLICKFAIL, 0, 0, 100);
-									draw_info("Only items from main inventory are allowed in quickslot!", COLOR_WHITE);
-								}
-								else
-								{
-    								char buf[256];
-
-									/* We 'get' it in quickslots */
-									sound_play_effect(SOUND_GET, 0, 0, 100);
-                                	snprintf(buf, sizeof(buf), "Set F%d to %s", ind + 1, locate_item(cpl.win_quick_tag)->s_name);
-                                	draw_info(buf, COLOR_DGOLD);
-								}
-							}
-						}
-					}
-
 					/* Drop to ground */
-					if (mouseInPlayfield(x, y) || (y > 565 && x >265 && x < 529))
+					if (mouseInPlayfield(x, y))
 					{
 						if (draggingInvItem(DRAG_GET_STATUS) != DRAG_QUICKSLOT_SPELL)
 							process_macro_keys(KEYFUNC_DROP, 0);
@@ -454,15 +406,6 @@ int Event_PollInputDevice(void)
 
 					cpl.inventory_win = old_inv_win;
 					cpl.win_inv_tag = old_inv_tag;
-				}
-
-    			else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_BELOW)
-				{
-					if (!mouseInPlayfield(x, y) && y < 550)
-					{
-			            sound_play_effect(SOUND_GET, 0, 0, 100);
-						process_macro_keys(KEYFUNC_GET, 0);
-					}
 				}
 
 				draggingInvItem(DRAG_NONE);
@@ -477,91 +420,39 @@ int Event_PollInputDevice(void)
 				if (GameStatus < GAME_STATUS_PLAY)
 					break;
 
-				/* textWindow: slider/resize event */
-				textwin_event(TW_CHECK_MOVE, &event);
+				x_custom_cursor = x;
+            	y_custom_cursor = y;
 
-				/* Scrollbar sliders */
-				if (event.button.button == SDL_BUTTON_LEFT && !draggingInvItem(DRAG_GET_STATUS))
+				/* We have to break now when menu is active - menu is higher priority than any widget! */
+            	if (cpl.menustatus != MENU_NO)
+                	break;
+
+				if (widget_event_mousemv(x,y, &event))
 				{
-					/* IWIN_INV Slider */
-					if (active_scrollbar == 1 || (cpl.inventory_win == IWIN_INV && y > 506 && y < 583 && x > 230 && x < 238))
-					{
-						active_scrollbar = 1;
+					/* NOTE: place here special handlings that have to be done, even if a widget owns it */
 
-						if (old_mouse_y - y > 0)
-      						cpl.win_inv_slot-= INVITEMXLEN;
-						else if (old_mouse_y - y < 0)
-      						cpl.win_inv_slot += INVITEMXLEN;
-						if  (cpl.win_inv_slot > cpl.win_inv_count)
-      						cpl.win_inv_slot = cpl.win_inv_count;
-
-    					break;
-        			}
-				}
-
-#if 0
-				/* Examine an item */
-				if ((cpl.inventory_win == IWIN_INV) && y > 85 && y < 120 && x < 140)
-				{
-					if (!itemExamined)
-					{
-						check_keys(SDLK_e);
-						itemExamined = 1;
-			      	}
 					break;
-    			}
-#endif
+				}
 
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
+				/* get the mouse state and set an event (event removed at end of main loop) */
+				if (event.button.button == SDL_BUTTON_LEFT)
+					MouseEvent = MouseState = LB_DN;
+				else if (event.button.button == SDL_BUTTON_MIDDLE)
+					MouseEvent = MouseState = MB_DN;
+				else if (event.button.button == SDL_BUTTON_RIGHT)
+					MouseEvent = MouseState = RB_DN;
+				else
+					MouseEvent = MouseState = IDLE;
+
 				mb_clicked = 1;
 
 				if (GameStatus < GAME_STATUS_PLAY)
 					break;
 
-				textwin_event(TW_CHECK_BUT_DOWN, &event);
-
-				/* Close number input */
-				if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
-				{
-					if (x > 339 && x < 349 && y > 510 && y < 522)
-					{
-						SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
-						InputStringFlag = 0;
-						InputStringEndFlag = 1;
-					}
-					break;
-				}
-
-				/* Toggle range */
-				if (x > 3 && x < 37 && y > 403 && y < 437)
-				{
-      				process_macro_keys(KEYFUNC_RANGE, 0);
-      				break;
-      			}
-
-				/* Show menu buttons */
-				if (x >= 748 && x <= 790)
-				{
-					/* Spell list */
-					if (y >= 1 && y <= 24)
-						check_menu_macros("?M_SPELL_LIST");
-					/* Skill list */
-					else if (y >= 26 && y <= 49)
-						check_menu_macros("?M_SKILL_LIST");
-					/* Party GUI */
-					else if (y >= 51 && y <= 74)
-					{
-						char buf[HUGE_BUF];
-						sprintf(buf, "pt list");
-    					cs_write_string(csocket.fd, buf, strlen(buf));
-					}
-					/* Help system */
-					else if (y >= 76 && y <= 99)
-						show_help("main");
-				}
-
+				/* For party GUI, we call the mouse event function that handles scrolling, selecting, etc. */
 				if (cpl.menustatus == MENU_PARTY)
 				{
 					if (event.button.button == 4 || event.button.button == 5 || event.button.button == SDL_BUTTON_LEFT)
@@ -571,6 +462,8 @@ int Event_PollInputDevice(void)
 					}
 				}
 
+				/* If this is book GUI, go through all the lines and look for links to click on.
+				 * TODO: Move this to separate function in book.c */
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
 				{
 					int l_len = 0, w_len, i, ii, yoff;
@@ -672,33 +565,20 @@ int Event_PollInputDevice(void)
 					}
 				}
 
-				/* Toggle textwin */
-				if (x >= 488 && x < 528 && y < 536 && y > 521)
-				{
-					if (options.use_TextwinSplit)
-     					options.use_TextwinSplit = 0;
-					else
-     					options.use_TextwinSplit = 1;
-
-					sound_play_effect(SOUND_SCROLL, 0, 0, 100);
-					break;
-				}
-
-				/* Prayer button */
-				if (x > 85 && x < 115 && y < 435 && y > 410)
-				{
-				   if (!client_command_check("/pray"))
-                      send_command("/pray", -1, SC_NORMAL);
-
-                   break;
-                }
-
 				/* Beyond here only when no menu is active. */
 				if (cpl.menustatus != MENU_NO)
 					break;
 
+				/* Widget System */
+				if (widget_event_mousedn(x,y, &event))
+				{
+					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
+
+					break;
+				}
+
 				/* Mouse in play field */
-				if (mouseInPlayfield(event.motion.x, event.motion.y))
+    			if (mouseInPlayfield(event.motion.x, event.motion.y))
 				{
 					/* Targetting */
 					if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)))
@@ -715,139 +595,6 @@ int Event_PollInputDevice(void)
 					break;
 				}
 
-				/* Mouse in Menu field */
-
-				/* Combat mode */
-				if ((cpl.inventory_win == IWIN_BELOW) && y > 498 && y < 521 && x < 27)
-				{
-					check_keys(SDLK_c);
-					break;
-    			}
-
-				/* Talk button */
-				if ((cpl.inventory_win == IWIN_BELOW) && y > 498 + 27 && y < 521 + 27 && x > 200 + 70 && x < 240 + 70)
-				{
-					if (cpl.target_code)
-						send_command("/t_tell hello", -1, SC_NORMAL);
-
-					break;
-    			}
-
-				/* Inventory (open / close) */
-				if (x < 112 && y > 466 && y < 496)
-				{
-					if (cpl.inventory_win == IWIN_INV)
-						cpl.inventory_win = IWIN_BELOW;
-					else
-						cpl.inventory_win = IWIN_INV;
-
-					break;
-				}
-
-
-				/* Drag from quickslots */
-				else if (x >= SKIN_POS_QUICKSLOT_X && x < SKIN_POS_QUICKSLOT_X + 282 && y >= SKIN_POS_QUICKSLOT_Y && y < SKIN_POS_QUICKSLOT_Y + 42)
-				{
-					int ind = get_quickslot(x, y);
-
-					/* Valid slot */
-					if (ind != -1 && quick_slots[ind].tag !=-1)
-					{
-						cpl.win_quick_tag = quick_slots[ind].tag;
-
-						if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-						{
-							if (quick_slots[ind].spell)
-							{
-							    draggingInvItem(DRAG_QUICKSLOT_SPELL);
-							    quick_slots[ind].spellNr = quick_slots[ind].tag;
-							    cpl.win_quick_tag = ind;
-							}
-							else
-							{
-								draggingInvItem(DRAG_QUICKSLOT);
-					        }
-							quick_slots[ind].tag = -1;
-						}
-						else
-						{
-							int stemp = cpl.inventory_win, itemp = cpl.win_inv_tag;
-
-							cpl.inventory_win = IWIN_INV;
-							cpl.win_inv_tag= quick_slots[ind].tag;
-							process_macro_keys(KEYFUNC_APPLY, 0);
-							cpl.inventory_win = stemp;
-							cpl.win_inv_tag= itemp;
-						}
-					}
-
-					break;
-				}
-
-				/* Inventory ( IWIN_INV ) */
-				if (y > 497 && y < 593 && x > 8 && x < 238)
-				{
-					/* Scrollbar */
-					if (x > 230)
-					{
-						if (y < 506 && cpl.win_inv_slot >= INVITEMXLEN)
-       						cpl.win_inv_slot -= INVITEMXLEN;
-						else if (y > 583)
-       					{
-							cpl.win_inv_slot += INVITEMXLEN;
-
-							if (cpl.win_inv_slot > cpl.win_inv_count)
-        						cpl.win_inv_slot = cpl.win_inv_count;
-						}
-					}
-					/* Stuff */
-					else
-					{
-						if (event.button.button == 4 && cpl.win_inv_slot >= INVITEMXLEN)
-							cpl.win_inv_slot -= INVITEMXLEN;
-						else if (event.button.button == 5)
-						{
-							cpl.win_inv_slot += INVITEMXLEN;
-
-							if  (cpl.win_inv_slot > cpl.win_inv_count)
-        						cpl.win_inv_slot = cpl.win_inv_count;
-						}
-						else if (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT)
-       					{
-							cpl.win_inv_slot = (y - 497) / 32 * INVITEMXLEN + (x - 8) / 32 + cpl.win_inv_start;
-							cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-
-							if (event.button.button == SDL_BUTTON_RIGHT)
-								process_macro_keys(KEYFUNC_MARK, 0);
-							else
-							{
-								if (cpl.inventory_win == IWIN_INV)
-									draggingInvItem(DRAG_IWIN_INV);
-							}
-   						}
-					}
-					break;
-     			}
-
-				/* Ground ( IWIN_BELOW )  */
-				if (y > 565 && x > 265 && x < 529)
-				{
-					item *Item;
-
-					if (cpl.inventory_win == IWIN_INV)
-						cpl.inventory_win = IWIN_BELOW;
-
-					cpl.win_below_slot = (x - 265) / 32;
-					cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count,	INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-					Item = locate_item(cpl.win_below_tag);
-
-					if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-						draggingInvItem(DRAG_IWIN_BELOW);
-					else
-						process_macro_keys(KEYFUNC_APPLY, 0);
-
-					break;
-				}
 	    		break;
 
 			case SDL_KEYUP:
@@ -1157,7 +904,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 			default:
 				/* If we are in number console mode, use GET as quick enter
 				 * mode - this is a very handy shortcut */
-				if (cpl.input_mode == INPUT_MODE_NUMBER && (key->keysym.sym == get_action_keycode || key->keysym.sym == drop_action_keycode))
+				if (cpl.input_mode == INPUT_MODE_NUMBER && ((int) key->keysym.sym == get_action_keycode || (int) key->keysym.sym == drop_action_keycode))
 				{
 					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 					InputStringFlag = 0;
@@ -1298,7 +1045,7 @@ int key_event(SDL_KeyboardEvent *key)
 			{
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
-						cpl.inventory_win = IWIN_BELOW;
+					cpl.inventory_win = IWIN_BELOW;
 					break;
 
 				case SDLK_LALT:
@@ -1331,7 +1078,7 @@ int key_event(SDL_KeyboardEvent *key)
 				{
 					if (key->keysym.sym != SDLK_ESCAPE)
      				{
-						sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+						sound_play_effect(SOUND_SCROLL, 0, 100);
 						strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
 						bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
 					}
@@ -1391,7 +1138,10 @@ int key_event(SDL_KeyboardEvent *key)
 
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
-					cpl.inventory_win = IWIN_INV;
+					SetPriorityWidget(MAIN_INV_ID);
+                	if (!options.playerdoll)
+                    	SetPriorityWidget(PDOLL_ID);
+                	cpl.inventory_win = IWIN_INV;
 					break;
 
 				case SDLK_RALT:
@@ -1414,7 +1164,7 @@ int key_event(SDL_KeyboardEvent *key)
 					else
 						esc_menu_flag = 0;
 
-		        	sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+		        	sound_play_effect(SOUND_SCROLL, 0, 100);
 					break;
 
 		   		default:
@@ -1447,7 +1197,7 @@ int key_event(SDL_KeyboardEvent *key)
 									GameStatus = GAME_STATUS_INIT;
 								}
 
-				        		sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+				        		sound_play_effect(SOUND_SCROLL, 0, 100);
 								esc_menu_flag = 0;
 
 								break;
@@ -1479,7 +1229,7 @@ int key_event(SDL_KeyboardEvent *key)
 
 
 /* Here we look in the user defined keymap and try to get same useful macros */
-static Boolean check_menu_macros(char *text)
+Boolean check_menu_macros(char *text)
 {
     if (!strcmp("?M_SPELL_LIST", text))
     {
@@ -1493,7 +1243,7 @@ static Boolean check_menu_macros(char *text)
         else
             cpl.menustatus = MENU_NO;
 
-        sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+        sound_play_effect(SOUND_SCROLL, 0, 100);
         reset_keys();
         return 1;
     }
@@ -1509,7 +1259,7 @@ static Boolean check_menu_macros(char *text)
         else
             cpl.menustatus = MENU_NO;
 
-        sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+        sound_play_effect(SOUND_SCROLL, 0, 100);
         reset_keys();
         return 1;
     }
@@ -1528,26 +1278,10 @@ static Boolean check_menu_macros(char *text)
             cpl.menustatus = MENU_NO;
         }
 
-        sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+        sound_play_effect(SOUND_SCROLL, 0, 100);
         reset_keys();
         return 1;
     }
-    else if (!strcmp("?M_STATUS", text))
-    {
-        if (cpl.menustatus == MENU_KEYBIND)
-            save_keybind_file(KEYBIND_FILE);
-
-        map_udate_flag = 2;
-
-        if (cpl.menustatus != MENU_STATUS)
-            cpl.menustatus = MENU_STATUS;
-		else
-			cpl.menustatus = MENU_NO;
-
-		sound_play_effect(SOUND_SCROLL, 0, 0, 100);
-		reset_keys();
-		return 1;
-	}
 
 	return 0;
 }
@@ -1577,7 +1311,7 @@ static int check_keys_menu_status(int key)
 }
 
 
-static void check_keys(int key)
+void check_keys(int key)
 {
 	int i, j;
 	char buf[512];
@@ -1608,7 +1342,7 @@ static void check_keys(int key)
 
 static Boolean check_macro_keys(char *text)
 {
-	register int i;
+	int i;
 	int magic_len;
 
 	magic_len = strlen(macro_magic_console);
@@ -1620,7 +1354,7 @@ static Boolean check_macro_keys(char *text)
 		return 0;
 	}
 
-	for (i = 0; i < DEFAULT_KEYMAP_MACROS; i++)
+	for (i = 0; i < (int) DEFAULT_KEYMAP_MACROS; i++)
 	{
 		if (!strcmp(defkey_macro[i].macro, text))
 		{
@@ -1694,7 +1428,7 @@ Boolean process_macro_keys(int id, int value)
 
         case KEYFUNC_SPELL:
             map_udate_flag = 2;
-            sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+            sound_play_effect(SOUND_SCROLL, 0, 100);
 
 			if (cpl.menustatus == MENU_KEYBIND)
 				save_keybind_file(KEYBIND_FILE);
@@ -1713,28 +1447,13 @@ Boolean process_macro_keys(int id, int value)
 			if (cpl.menustatus == MENU_KEYBIND)
 				save_keybind_file(KEYBIND_FILE);
 
-            sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+            sound_play_effect(SOUND_SCROLL, 0, 100);
 
             if (cpl.menustatus != MENU_SKILL)
                 cpl.menustatus = MENU_SKILL;
             else
                 cpl.menustatus = MENU_NO;
 
-            reset_keys();
-            break;
-
-        case KEYFUNC_STATUS:
-            map_udate_flag = 2;
-
-			if (cpl.menustatus == MENU_KEYBIND)
-				save_keybind_file(KEYBIND_FILE);
-
-            if (cpl.menustatus != MENU_STATUS)
-                cpl.menustatus = MENU_STATUS;
-            else
-                cpl.menustatus = MENU_NO;
-
-            sound_play_effect(SOUND_SCROLL, 0, 0, 0);
             reset_keys();
             break;
 
@@ -1752,12 +1471,12 @@ Boolean process_macro_keys(int id, int value)
                 cpl.menustatus = MENU_NO;
             }
 
-            sound_play_effect(SOUND_SCROLL, 0, 0, 100);
+            sound_play_effect(SOUND_SCROLL, 0, 100);
             reset_keys();
             break;
 
       case KEYFUNC_CONSOLE:
-            sound_play_effect(SOUND_CONSOLE, 0, 0, 100);
+            sound_play_effect(SOUND_CONSOLE, 0, 100);
             reset_keys();
 
             if (cpl.input_mode == INPUT_MODE_NO)
@@ -1956,7 +1675,7 @@ Boolean process_macro_keys(int id, int value)
             }
 
 			collectAll:
-			sound_play_effect(SOUND_GET, 0, 0, 100);
+			sound_play_effect(SOUND_GET, 0, 100);
             snprintf(buf, sizeof(buf), "get %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
@@ -2045,7 +1764,7 @@ Boolean process_macro_keys(int id, int value)
 
 			if (it->locked)
 	   		{
-      			sound_play_effect(SOUND_CLICKFAIL, 0, 0, 100);
+      			sound_play_effect(SOUND_CLICKFAIL, 0, 100);
 	   			draw_info("Unlock item first!", COLOR_DGOLD);
 				return 0;
 	   		}
@@ -2068,7 +1787,7 @@ Boolean process_macro_keys(int id, int value)
 				return 0;
 			}
 
-			sound_play_effect(SOUND_DROP, 0, 0, 100);
+			sound_play_effect(SOUND_DROP, 0, 100);
 			snprintf(buf, sizeof(buf), "drop %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
@@ -2564,11 +2283,11 @@ void check_menu_keys(int menu, int key)
 			   		if (gui_interface_book->page_show < 0)
 		   			{
 			   			gui_interface_book->page_show = 0;
-			   			sound_play_effect(SOUND_CLICKFAIL, 0, 0, MENU_SOUND_VOL);
+			   			sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
 		   			}
 		   			else
 		   			{
-			   			sound_play_effect(SOUND_PAGE, 0, 0, MENU_SOUND_VOL);
+			   			sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
 		   			}
 
 		   			break;
@@ -2579,11 +2298,11 @@ void check_menu_keys(int menu, int key)
 		   			if (gui_interface_book->page_show > (gui_interface_book->pages - 1))
 		   			{
 			   			gui_interface_book->page_show = (gui_interface_book->pages - 1) &~ 1;
-			   			sound_play_effect(SOUND_CLICKFAIL, 0, 0, MENU_SOUND_VOL);
+			   			sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
 		   			}
 		   			else
 		   			{
-			   			sound_play_effect(SOUND_PAGE, 0, 0, MENU_SOUND_VOL);
+			   			sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
 		   			}
 
 		   			break;
@@ -2596,13 +2315,13 @@ void check_menu_keys(int menu, int key)
 			{
             	case SDLK_LEFT:
                		option_list_set.key_change =-1;
-               		/*sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);*/
+               		/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
                		menuRepeatKey = SDLK_LEFT;
                		break;
 
             	case SDLK_RIGHT:
                		option_list_set.key_change = 1;
-               		/*sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);*/
+               		/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
                		menuRepeatKey = SDLK_RIGHT;
                		break;
 
@@ -2612,7 +2331,7 @@ void check_menu_keys(int menu, int key)
                   		if (option_list_set.entry_nr > 0)
                      		option_list_set.entry_nr--;
                   		else
-                     		sound_play_effect(SOUND_CLICKFAIL, 0, 0, MENU_SOUND_VOL);
+                     		sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
                		}
 					else
 					{
@@ -2644,14 +2363,77 @@ void check_menu_keys(int menu, int key)
                 	break;
 
             	case SDLK_d:
-                	sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+                	sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
                 	map_udate_flag = 2;
 
                 	if (cpl.menustatus == MENU_KEYBIND)
                    		save_keybind_file(KEYBIND_FILE);
 
                  	if (cpl.menustatus == MENU_OPTION)
+					{
+						int res_change = 0;
+
                    		save_options_dat();
+
+						if (options.playerdoll)
+                    		cur_widget[PDOLL_ID].show = TRUE;
+
+						if (Screensize.x!=Screendefs[options.resolution].x || Screensize.y!=Screendefs[options.resolution].y)
+                {
+					Uint32 videoflags = get_video_flags();
+                    _screensize sz_tmp = Screensize;
+                    Screensize=Screendefs[options.resolution];
+
+                    if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
+                    {
+                        int i;
+						draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                        LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                        Screensize=sz_tmp;
+                        for (i=0;i<16;i++)
+                            if (Screensize.x==Screendefs[i].x && Screensize.y == Screendefs[i].y)
+                            {
+                                options.resolution = i;
+                                break;
+                            }
+                        draw_info_format(COLOR_RED, "Try to switch back to old setting...");
+                        LOG(LOG_ERROR, "Try to switch back to old setting...\n");
+
+                        if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
+                        {
+                            draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                            LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                            Screensize=Screendefs[0];
+                            options.resolution = 0;
+                            draw_info_format(COLOR_RED, "Try to switch back to 800x600...");
+                            LOG(LOG_ERROR, "Try to switch back to 800x600...\n");
+                            if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
+                            {
+                                /* now we have a problem */
+                                draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\nFATAL ERROR - exit", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                                LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\nFATAL ERROR - exit", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                                Screensize=sz_tmp;
+                                exit(2);
+                            }
+                            else
+                                res_change = TRUE;
+                        }
+                        else
+                            res_change = TRUE;
+                    }
+                    else
+                        res_change = TRUE;
+                }
+                if (res_change)
+                {
+                    const SDL_VideoInfo    *info    = NULL;
+                    info = SDL_GetVideoInfo();
+                    options.real_video_bpp = info->vfmt->BitsPerPixel;
+//                    SDL_FreeSurface(ScreenSurfaceMap);
+//                    ScreenSurfaceMap=SDL_CreateRGBSurface(ScreenSurface->flags, Screensize.x, Screensize.y, options.used_video_bpp, 0,0,0,0);
+
+                }
+					}
 
                  	cpl.menustatus = MENU_NO;
                		reset_keys();
@@ -2845,10 +2627,10 @@ void check_menu_keys(int menu, int key)
                		{
                   		fire_mode_tab[FIRE_MODE_SKILL].skill = &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr];
                   		RangeFireMode = FIRE_MODE_SKILL;
-                  		sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+                  		sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
                		}
 					else
-                   		sound_play_effect(SOUND_CLICKFAIL, 0, 0, MENU_SOUND_VOL);
+                   		sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
 
                		map_udate_flag = 2;
                		cpl.menustatus = MENU_NO;
@@ -2935,10 +2717,10 @@ void check_menu_keys(int menu, int key)
 					{
 						fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr];
 						RangeFireMode = FIRE_MODE_SPELL;
-						sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					}
 					else
-						sound_play_effect(SOUND_CLICKFAIL, 0, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
 
 					map_udate_flag = 2;
 					cpl.menustatus = MENU_NO;
@@ -2949,14 +2731,14 @@ void check_menu_keys(int menu, int key)
 					if (spell_list_set.class_nr > 0)
 						spell_list_set.class_nr--;
 
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_RIGHT:
 					if (spell_list_set.class_nr < SPELL_LIST_CLASS - 1)
 						spell_list_set.class_nr++;
 
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_UP:
@@ -3039,28 +2821,28 @@ void check_menu_keys(int menu, int key)
 
 				case SDLK_d:
 					save_keybind_file(KEYBIND_FILE);
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					map_udate_flag = 2;
 					cpl.menustatus = MENU_NO;
 					reset_keys();
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_RETURN:
 				case SDLK_KP_ENTER:
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					keybind_status = KEYBIND_STATUS_EDIT;
 					reset_keys();
 					open_input_mode(240);
 					textwin_putstring(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text);
 					cpl.input_mode = INPUT_MODE_GETKEY;
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					break;
 
 				case SDLK_r:
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag = bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].repeatflag ? 0 : 1;
-					sound_play_effect(SOUND_SCROLL, 0, 0, MENU_SOUND_VOL);
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
 					break;
 			}
 
@@ -3076,7 +2858,7 @@ void check_menu_keys(int menu, int key)
                  	if (new_character.stat_points)
                  	{
                     	dialog_new_char_warn = 1;
-                    	sound_play_effect(SOUND_CLICKFAIL, 0, 0, 100);
+                    	sound_play_effect(SOUND_CLICKFAIL, 0, 100);
                     	break;
                  	}
 

@@ -34,7 +34,7 @@ unsigned long hashbmap(char *str, int tablesize)
     for (p = str; i < MAXHASHSTRING && *p; p++, i++) {
         hash ^= (unsigned long) *p << rot;
         rot += 2;
-        if (rot >= (sizeof(long) - sizeof(char)) * 8)
+        if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
             rot = 0;
     }
     return (hash % tablesize);
@@ -90,45 +90,45 @@ void FreeMemory(void **p)
         *p=NULL;
 }
 
-char *show_input_string(char *text, struct _Font *font, int wlen)
+char * show_input_string(char *text, struct _Font *font, int wlen)
 {
-        register int i, j,len;
+    register int i, j,len;
 
-        static char buf[MAX_INPUT_STR];
-        strcpy(buf, text);
+    static char buf[MAX_INPUT_STR];
+    strcpy(buf, text);
 
-		len = strlen(buf);
-		while(len >= CurrentCursorPos)
-		{
-			buf[len+1] = buf[len];
-			len--;
-		}
-		buf[CurrentCursorPos]='_';
+    len = strlen(buf);
+    while (len >= CurrentCursorPos)
+    {
+        buf[len + 1] = buf[len];
+        len--;
+    }
+    buf[CurrentCursorPos] = '_';
 
-		for(len = 25,i=CurrentCursorPos;i>=0;i--)
+    for (len = 25,i = CurrentCursorPos; i >= 0; i--)
+    {
+        if (!buf[i])
+            continue;
+        if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
         {
-                if(!buf[i])
-                        continue;
-                if(len+font->c[(int)(buf[i])].w+font->char_offset >=wlen )
-                {
-                        i--;
-                        break;
-                }
-                len += font->c[(int)(buf[i])].w+font->char_offset;
+            i--;
+            break;
         }
+        len += font->c[(int) (buf[i])].w + font->char_offset;
+    }
 
-		len -= 25;
-		for(j=CurrentCursorPos;j<=(int)strlen(buf);j++)
-		{
-			if(len+font->c[(int)(buf[j])].w+font->char_offset >=wlen )
-			{
-				break;
-			}
-			len += font->c[(int)(buf[j])].w+font->char_offset;
-		}
-		buf[j] = 0;
+    len -= 25;
+    for (j = CurrentCursorPos; j <= (int) strlen(buf); j++)
+    {
+        if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
+        {
+            break;
+        }
+        len += font->c[(int) (buf[j])].w + font->char_offset;
+    }
+    buf[j] = 0;
 
-        return(&buf[++i]);
+    return(&buf[++i]);
 }
 
 int read_substr_char(char *srcstr, char *desstr, int *sz, char ct)

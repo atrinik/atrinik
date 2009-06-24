@@ -204,13 +204,13 @@ void sound_deinit(void);
 void sound_loadall(void);
 void sound_freeall(void);
 
-void calculate_map_sound(int soundnr, int xoff, int yoff, int flags);
-int sound_play_effect(int soundid,uint32 flag, int pan, int vol);
+void calculate_map_sound(int soundnr, int xoff, int yoff);
+int sound_play_effect(int soundid, int pan, int vol);
 void sound_play_one_repeat(int soundid, int special_id);
 
 int sound_test_playing(int channel);
 
-void sound_play_music(char *fname, int vol, int fade, int loop, int flags, int mode);
+void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
 void sound_fadeout_music(int value);
 
 #endif

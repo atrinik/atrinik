@@ -108,9 +108,9 @@ typedef struct _anim {
 
 extern struct _anim *start_anim; /* anim queue of current active map */
 
-extern struct _anim *add_anim(int type, int x, int y, int mapx, int mapy, int value);
+extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
 extern void remove_anim(struct _anim *anim);
-extern void play_anims(int mx, int my);
+extern void play_anims();
 extern void delete_anim_que(void);
 extern void show_tooltip(int mx, int my, char* text);
 extern Boolean sprite_init_system(void);
@@ -123,6 +123,7 @@ extern _Sprite *sprite_tryload_file(char *fname, UINT32 flags,SDL_RWops *rwob);
 extern void sprite_free_sprite(_Sprite *sprite);
 extern int get_string_pixel_length(char *text, struct _Font *font);
 extern void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
+extern void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
 
 extern Uint32 GetSurfacePixel(SDL_Surface *Surface, Sint32 X, Sint32 Y);
 extern void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);

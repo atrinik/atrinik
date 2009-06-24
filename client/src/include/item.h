@@ -260,7 +260,6 @@ extern int locate_item_nr_from_tag (item *op, int tag);
 extern int locate_item_tag_from_nr (item *op, int nr);
 extern item *locate_item_from_inv (item *op, sint32 tag);
 extern item *locate_item_from_item (item *op, sint32 tag);
-extern uint8 get_type_from_name ( const char *name );
 extern void update_item_sort ( item *it );
 extern char *get_number ( int i );
 extern void free_all_items ( item *op );

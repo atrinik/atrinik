@@ -110,14 +110,14 @@ struct CmdMapping commands[] =
     {"anim", AnimCmd},
     {"skill_rdy", (CmdProc) SkillRdyCmd},
     {"player", PlayerCmd},
-    {"mapstats", MapstatsCmd},
-    {"splist", SpelllistCmd},
-    {"sklist", SkilllistCmd},
-    {"gc", GolemCmd},
-    {"addme_success", (CmdProc)AddMeSuccess},
-    {"addme_failed", (CmdProc)AddMeFail},
+    {"mapstats", (CmdProc)MapstatsCmd},
+    {"splist", (CmdProc)SpelllistCmd},
+    {"sklist", (CmdProc)SkilllistCmd},
+    {"gc", (CmdProc)GolemCmd},
+    {"addme_success", AddMeSuccess},
+    {"addme_failed", AddMeFail},
     {"version", (CmdProc)VersionCmd},
-    {"goodbye", (CmdProc)GoodbyeCmd},
+    {"goodbye", GoodbyeCmd},
     {"setup", (CmdProc)SetupCmd},
     {"query", (CmdProc)handle_query},
     {"data", (CmdProc)DataCmd},
@@ -127,7 +127,7 @@ struct CmdMapping commands[] =
 	{"pt", PartyCmd},
 	/* unused! */
     {"magicmap", MagicMapCmd},
-    {"delinv", DeleteInventory},
+    {"delinv", (CmdProc)DeleteInventory},
 };
 
 #define NCOMMANDS (sizeof(commands) / sizeof(struct CmdMapping))
@@ -531,7 +531,7 @@ void check_animation_status(int anum)
 	/* mark this anim as "we have loaded it" */
 	animations[anum].loaded = 1;
 	/* same as server sends it! */
-	AnimCmd(anim_table[anum].anim_cmd, anim_table[anum].len);
+	AnimCmd((unsigned char *)anim_table[anum].anim_cmd, anim_table[anum].len);
 }
 
 /* removes whitespace from right side */

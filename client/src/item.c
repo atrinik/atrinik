@@ -40,22 +40,12 @@ void init_item_types()
 {
 }
 
-/* This uses the item_types table above.  We try to figure out if
- * name has a match above.  Matching is done pretty loosely - however
- * we try to match the start of the name because that is more reliable.
- * We return the 'type' (matching array element above), 255 if no match
- * (so unknown objects put at the end) */
-uint8 get_type_from_name(const char *name)
-{
-    return 255;
-}
-
 /* Item it has gotten an item type, so we need to resort its location */
 void update_item_sort(item *it)
 {
 	item *itmp, *last = NULL;
 
-	/* If not in some environment or the map, return. /*
+	/* If not in some environment or the map, return. */
 	/* Sorting on the map doesn't work.  In theory, it would be nice,
 	 * but the server really must know the map order for things to
 	 * work. */
@@ -511,7 +501,7 @@ static sint32 get_nrof(char *name)
 		nrof = 1;
     else
 	{
-		for (i = 1; i < sizeof(numbers) / sizeof(numbers[0]); i++)
+		for (i = 1; i < (int) sizeof(numbers) / (int) sizeof(numbers[0]); i++)
 		{
 	    	if (strncmp(name, numbers[i], strlen(numbers[i])) == 0)
 			{
@@ -522,7 +512,7 @@ static sint32 get_nrof(char *name)
 
 		if (!nrof)
 		{
-	    	for (i = 1; i < sizeof(numbers_10) / sizeof(numbers_10[0]); i++)
+	    	for (i = 1; i < (int) sizeof(numbers_10) / (int) sizeof(numbers_10[0]); i++)
 			{
 				if (strncmp(name, numbers_10[i], strlen(numbers_10[i])) == 0)
 				{
@@ -595,7 +585,7 @@ void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags
 
     /* We don't sort the map, so lets not do this either */
     if (op->env != cpl.below)
-		op->type = get_type_from_name(op->s_name);
+		op->type = 255;
 
     update_item_sort(op);
 }

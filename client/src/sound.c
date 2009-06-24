@@ -250,7 +250,7 @@ void sound_freeall(void)
 }
 
 
-void calculate_map_sound(int soundnr, int xoff, int yoff, int flags)
+void calculate_map_sound(int soundnr, int xoff, int yoff)
 {
     /* we got xoff/yoff relative to 0, when this will change, exchange 0
      * with the right default position */
@@ -279,7 +279,7 @@ void calculate_map_sound(int soundnr, int xoff, int yoff, int flags)
     if(xoff<0) /* now mark this is left or right pane. left is *(-1) */
         pane *=-1;
 
-    sound_play_effect(soundnr,0, pane, distance);
+    sound_play_effect(soundnr, pane, distance);
 #endif
 }
 
@@ -287,7 +287,7 @@ void calculate_map_sound(int soundnr, int xoff, int yoff, int flags)
    we define panning as -255 (total left) or +255 (total right)
    Return: Channel (id) of the sound. -1 = error
    */
-int sound_play_effect(int soundid,uint32 flag, int pan, int vol)
+int sound_play_effect(int soundid, int pan, int vol)
 {
 #ifdef INSTALL_SOUND
     int tmp;
@@ -370,7 +370,7 @@ void sound_play_one_repeat(int soundid, int special_id)
 #endif
 }
 
-void sound_play_music(char *fname, int vol, int fade, int loop, int flags, int mode)
+void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 {
 #ifdef INSTALL_SOUND
 	int vol2=vol;

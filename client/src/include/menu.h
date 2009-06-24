@@ -28,15 +28,14 @@
 
 #define MENU_NO       1
 #define MENU_KEYBIND  2
-#define MENU_STATUS   4
-#define MENU_SPELL    8
-#define MENU_SKILL   16
-#define MENU_OPTION  32
-#define MENU_CREATE  64
-#define MENU_BOOK    128
-#define MENU_PARTY   256
+#define MENU_SPELL    4
+#define MENU_SKILL    8
+#define MENU_OPTION   16
+#define MENU_CREATE   32
+#define MENU_BOOK     64
+#define MENU_PARTY    128
 
-#define MENU_ALL (MENU_NO & MENU_KEYBIND & MENU_SPELL & MENU_STATUS & MENU_OPTION)
+#define MENU_ALL (MENU_NO & MENU_KEYBIND & MENU_SPELL & MENU_OPTION & MENU_BOOK & MENU_PARTY)
 
 #define MENU_SOUND_VOL 40
 struct _skill_list skill_list[SKILL_LIST_MAX];
@@ -90,13 +89,12 @@ extern int media_count;	/* buffered media files */
 extern int media_show;
 extern int media_show_update ;
 
-extern void do_console(int x, int y);
-extern void do_number(int x, int y);
+extern void do_console();
+extern void do_number();
 extern void show_number(int x, int y);
 extern void show_console(int x, int y);
-extern void show_resist(int x, int y);
+extern void widget_show_resist(int x, int y);
 extern void show_keybind(void);
-extern void show_status(void);
 extern void show_spelllist(void);
 extern void show_skilllist(void);
 extern void show_help(char *helpfile);
@@ -128,8 +126,17 @@ extern void update_quickslots(int del_item);
 extern void load_quickslots_entrys();
 extern void save_quickslots_entrys();
 
-extern int client_command_check(char *cmd);
+extern void widget_quickslots_mouse_event(int x, int y, int MEvent);
+extern void widget_range_event(int x, int y, SDL_Event event, int MEvent);
+extern void widget_event_target(int x, int y);
+extern void widget_number_event(int x, int y);
+extern void widget_quickslots(int x, int y);
+extern void widget_show_range(int x, int y);
+extern void widget_show_target(int x, int y);
+extern void widget_show_mapname(int x, int y);
+extern void widget_show_console(int x, int y);
+extern void widget_show_number(int x, int y);
 
-extern void show_target(int x, int y);
+extern int client_command_check(char *cmd);
 
 #endif

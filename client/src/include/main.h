@@ -85,10 +85,7 @@ typedef struct _server
         struct _server *next;	/* go on in list. NULL: no following this node*/
         char *nameip;
         char *version;
-        char *desc1;
-        char *desc2;
-        char *desc3;
-        char *desc4;
+        char *desc;
         int player;
         int port;
 } _server;
@@ -172,12 +169,19 @@ typedef struct _options {
    /* Visual */
    int video_bpp;
    int fullscreen;
+	int resolution;
    Boolean use_TextwinSplit;
    Boolean use_TextwinAlpha;
    int textwin_alpha;
+#ifdef WIDGET_SNAP
+	int widget_snap;
+#endif
+	int mapstart_x;
+	int mapstart_y;
 
    /* Look & Feel */
    int player_names;
+	Boolean playerdoll;
    int show_target_self;
    int warning_hp;
    int warning_food;
@@ -185,6 +189,8 @@ typedef struct _options {
    Boolean show_tooltips;
    Boolean show_d_key_infos; /* key-infos in dialog-wins. */
    Boolean collectAll;
+	/* exp display */
+	int expDisplay;
 
    /* Debug */
    Boolean force_redraw;
@@ -371,7 +377,7 @@ extern uint32 LastTick;			/* system time counter in ms since prg start */
 extern char ServerName[];	/* name of the server we want connect */
 extern int ServerPort;			/* port addr */
 
-extern int map_udate_flag, map_transfer_flag;
+extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 extern uint32 GameTicksSec;		/* ticks since this second frame in ms */
 extern int metaserver_start, metaserver_sel,metaserver_count;
 
@@ -399,112 +405,106 @@ enum {
 #define SURFACE_FLAG_COLKEY_16M 2   /* use this when you want a colkey in a true color picture - color should be 0 */
 
 typedef enum _bitmap_index {
-  BITMAP_PALETTE,
-  BITMAP_FONT1,
-  BITMAP_FONT6x3OUT,
-  BITMAP_BIGFONT,
-  BITMAP_FONT1OUT,
-  BITMAP_FONTMEDIUM,
-  BITMAP_INTRO,
-  BITMAP_DOLL,
-  BITMAP_BLACKTILE, /* blacktile for map*/
-  BITMAP_TEXTWIN,
-  BITMAP_LOGIN_INP,
-  BITMAP_INVSLOT,
+	BITMAP_PALETTE,
+	BITMAP_FONT1,
+	BITMAP_FONT6x3OUT,
+	BITMAP_BIGFONT,
+	BITMAP_FONT1OUT,
+	BITMAP_FONTMEDIUM,
+	BITMAP_INTRO,
+	BITMAP_DOLL,
+	BITMAP_BLACKTILE, /* blacktile for map*/
+	BITMAP_TEXTWIN,
+	BITMAP_LOGIN_INP,
+	BITMAP_INVSLOT,
 
    /* Status bars */
-   BITMAP_TESTTUBES,
-   BITMAP_HP,
-   BITMAP_SP,
-   BITMAP_GRACE,
-   BITMAP_FOOD,
-   BITMAP_HP_BACK,
-   BITMAP_SP_BACK,
-   BITMAP_GRACE_BACK,
-   BITMAP_FOOD_BACK,
-   BITMAP_HP_BACK2,
-   BITMAP_SP_BACK2,
-   BITMAP_GRACE_BACK2,
-   BITMAP_FOOD_BACK2,
+	BITMAP_HP,
+	BITMAP_SP,
+	BITMAP_GRACE,
+	BITMAP_FOOD,
+	BITMAP_HP_BACK,
+	BITMAP_SP_BACK,
+	BITMAP_GRACE_BACK,
+	BITMAP_FOOD_BACK,
 
-  BITMAP_APPLY,
-  BITMAP_UNPAID,
-  BITMAP_CURSED,
-  BITMAP_DAMNED,
-  BITMAP_LOCK,
-  BITMAP_MAGIC,
-  BITMAP_RANGE,
-  BITMAP_RANGE_MARKER,
-  BITMAP_RANGE_CTRL,
-  BITMAP_RANGE_CTRL_NO,
-  BITMAP_RANGE_SKILL,
-  BITMAP_RANGE_SKILL_NO,
-  BITMAP_RANGE_THROW,
-  BITMAP_RANGE_THROW_NO,
-  BITMAP_RANGE_TOOL,
-  BITMAP_RANGE_TOOL_NO,
-  BITMAP_RANGE_WIZARD,
-  BITMAP_RANGE_WIZARD_NO,
-  BITMAP_RANGE_PRIEST,
-  BITMAP_RANGE_PRIEST_NO,
-  BITMAP_CMARK_START,
-  BITMAP_CMARK_END,
-  BITMAP_CMARK_MIDDLE,
-  BITMAP_TWIN_SCROLL,
-  BITMAP_INV_SCROLL,
-  BITMAP_BELOW_SCROLL,
-  BITMAP_NUMBER,
-  BITMAP_INVSLOT_U,
-  BITMAP_DEATH,
-  BITMAP_SLEEP,
-  BITMAP_CONFUSE,
-  BITMAP_PARALYZE,
-  BITMAP_SCARED,
-  BITMAP_BLIND,
-  BITMAP_ENEMY1,
-  BITMAP_ENEMY2,
-  BITMAP_PROBE,
-  BITMAP_QUICKSLOTS,
-  BITMAP_INVENTORY,
-  BITMAP_GROUP,
-  BITMAP_EXP_BORDER,
-  BITMAP_EXP_SLIDER,
-  BITMAP_EXP_BUBBLE1,
-  BITMAP_EXP_BUBBLE2,
-  BITMAP_STATS,
-  BITMAP_BUFFSPOT,
-  BITMAP_TEXTSPOT,
-  BITMAP_PDOLL2,
-  BITMAP_PDOLL2_SPOT,
-  BITMAP_CLEAR_SPOT,
-  BITMAP_BORDER1,
-  BITMAP_BORDER2,
-  BITMAP_BORDER3,
-  BITMAP_BORDER4,
-  BITMAP_BORDER5,
-  BITMAP_BORDER6,
-  BITMAP_PANEL_P1,
-  BITMAP_GROUP_SPOT,
-  BITMAP_TARGET_SPOT,
-  BITMAP_BELOW,
-  BITMAP_FLINE,
-  BITMAP_TARGET_ATTACK,
-  BITMAP_TARGET_TALK,
-  BITMAP_TARGET_NORMAL,
-  BITMAP_LOADING,
-  BITMAP_WARN_HP,
-  BITMAP_WARN_FOOD,
-  BITMAP_LOGO270,
-  BITMAP_DIALOG_BG,
-  BITMAP_DIALOG_TITLE_OPTIONS,
-  BITMAP_DIALOG_TITLE_KEYBIND,
-  BITMAP_DIALOG_TITLE_SKILL,
-  BITMAP_DIALOG_TITLE_SPELL,
-  BITMAP_DIALOG_TITLE_CREATION,
-  BITMAP_DIALOG_TITLE_LOGIN,
+	BITMAP_APPLY,
+	BITMAP_UNPAID,
+	BITMAP_CURSED,
+	BITMAP_DAMNED,
+	BITMAP_LOCK,
+	BITMAP_MAGIC,
+
+	BITMAP_RANGE,
+	BITMAP_RANGE_MARKER,
+	BITMAP_RANGE_CTRL,
+	BITMAP_RANGE_CTRL_NO,
+	BITMAP_RANGE_SKILL,
+	BITMAP_RANGE_SKILL_NO,
+	BITMAP_RANGE_THROW,
+	BITMAP_RANGE_THROW_NO,
+	BITMAP_RANGE_TOOL,
+	BITMAP_RANGE_TOOL_NO,
+	BITMAP_RANGE_WIZARD,
+	BITMAP_RANGE_WIZARD_NO,
+	BITMAP_RANGE_PRIEST,
+	BITMAP_RANGE_PRIEST_NO,
+
+	BITMAP_CMARK_START,
+	BITMAP_CMARK_END,
+	BITMAP_CMARK_MIDDLE,
+
+	BITMAP_TWIN_SCROLL,
+	BITMAP_INV_SCROLL,
+	BITMAP_BELOW_SCROLL,
+
+	BITMAP_NUMBER,
+	BITMAP_INVSLOT_U,
+
+	BITMAP_DEATH,
+	BITMAP_SLEEP,
+	BITMAP_CONFUSE,
+	BITMAP_PARALYZE,
+	BITMAP_SCARED,
+	BITMAP_BLIND,
+
+	BITMAP_ENEMY1,
+	BITMAP_ENEMY2,
+	BITMAP_PROBE,
+
+	BITMAP_QUICKSLOTS,
+	BITMAP_QUICKSLOTSV,
+	BITMAP_INVENTORY,
+	BITMAP_INV_BG,
+
+	BITMAP_EXP_BORDER,
+	BITMAP_EXP_SLIDER,
+	BITMAP_EXP_BUBBLE1,
+	BITMAP_EXP_BUBBLE2,
+
+	BITMAP_STATS_BG,
+	BITMAP_BELOW,
+	BITMAP_FLINE,
+
+	BITMAP_TARGET_ATTACK,
+	BITMAP_TARGET_TALK,
+	BITMAP_TARGET_NORMAL,
+
+	BITMAP_LOADING,
+	BITMAP_WARN_HP,
+	BITMAP_WARN_FOOD,
+	BITMAP_LOGO270,
+
+	BITMAP_DIALOG_BG,
+	BITMAP_DIALOG_TITLE_OPTIONS,
+	BITMAP_DIALOG_TITLE_KEYBIND,
+	BITMAP_DIALOG_TITLE_SKILL,
+	BITMAP_DIALOG_TITLE_SPELL,
+	BITMAP_DIALOG_TITLE_CREATION,
+	BITMAP_DIALOG_TITLE_LOGIN,
 	BITMAP_DIALOG_TITLE_SERVER,
 	BITMAP_DIALOG_TITLE_PARTY,
-  BITMAP_DIALOG_BUTTON_UP,
+	BITMAP_DIALOG_BUTTON_UP,
 	BITMAP_DIALOG_BUTTON_DOWN,
 	BITMAP_DIALOG_TAB_START,
 	BITMAP_DIALOG_TAB,
@@ -514,17 +514,19 @@ typedef enum _bitmap_index {
 	BITMAP_DIALOG_RANGE_OFF,
 	BITMAP_DIALOG_RANGE_L,
 	BITMAP_DIALOG_RANGE_R,
-  BITMAP_TARGET_HP,
-  BITMAP_TARGET_HP_B,
-  BITMAP_TEXTWIN_MASK,
-  BITMAP_TEXTWIN_BLANK,
-  BITMAP_SLIDER_UP,
+
+	BITMAP_TARGET_HP,
+	BITMAP_TARGET_HP_B,
+
+	BITMAP_TEXTWIN_MASK,
+	BITMAP_SLIDER_UP,
 	BITMAP_SLIDER_DOWN,
 	BITMAP_SLIDER,
-	BITMAP_GROUP_CLEAR,
+
 	BITMAP_EXP_SKILL_BORDER,
-  BITMAP_EXP_SKILL_LINE,
-  BITMAP_EXP_SKILL_BUBBLE,
+	BITMAP_EXP_SKILL_LINE,
+	BITMAP_EXP_SKILL_BUBBLE,
+
 	BITMAP_OPTIONS_HEAD,
 	BITMAP_OPTIONS_KEYS,
 	BITMAP_OPTIONS_SETTINGS,
@@ -533,17 +535,30 @@ typedef enum _bitmap_index {
 	BITMAP_OPTIONS_MARK_LEFT,
 	BITMAP_OPTIONS_MARK_RIGHT,
 	BITMAP_OPTIONS_ALPHA,
+
 	BITMAP_PENTAGRAM,
 	BITMAP_BUTTONQ_UP,
 	BITMAP_BUTTONQ_DOWN,
 	BITMAP_NCHAR_MARKER,
+
 	BITMAP_TRAPED,
     BITMAP_PRAY,
     BITMAP_WAND,
 	BITMAP_JOURNAL,
 	BITMAP_SLIDER_LONG,
-	BITMAP_INIT
+	BITMAP_INVSLOT_MARKED,
+    BITMAP_MSCURSOR_MOVE,
+    BITMAP_RESIST_BG,
+    BITMAP_MAIN_LVL_BG,
+    BITMAP_SKILL_EXP_BG,
+    BITMAP_REGEN_BG,
+    BITMAP_SKILL_LVL_BG,
+    BITMAP_MENU_BUTTONS,
+    BITMAP_PLAYER_INFO,
+    BITMAP_TARGET_BG,
+	BITMAP_TEXTINPUT,
 
+	BITMAP_INIT
 }_bitmap_index;
 
 /* for custom cursors */
@@ -578,12 +593,13 @@ extern struct _Font SystemFont;			/* our main font*/
 extern struct _Font SystemFontOut;			/* our main font*/
 extern struct _Font Font6x3Out;			/* 6x3 mini font */
 extern SDL_Surface *ScreenSurface;      /* our main bla and so on surface */
+extern SDL_Surface *ScreenSurfaceMap;
 extern struct sockaddr_in insock;       /* Server's attributes*/
 extern int SocketStatusErrorNr; /* if an socket error, this is it */
 
 extern int main ( int argc, char *argv[] );
 extern void open_input_mode(int maxchar);
-extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc1, char *desc2, char *desc3, char *desc4);
+extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc);
 extern void clear_metaserver_data(void);
 extern void get_meta_server_data(int num, char *server, int *port);
 extern void free_faces(void);

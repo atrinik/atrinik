@@ -58,6 +58,18 @@
 #define SC_FIRERUN 1
 #define SC_ALWAYS 2
 
+typedef struct _screensize
+{
+    int x;
+    int y;
+    int xoff;
+    int yoff;
+} _screensize;
+
+extern _screensize Screensize;
+
+extern _screensize Screendefs[16];
+
 typedef struct Animations {
 	int loaded;			/* 0= all fields are invalid, 1= anim is loaded */
 	int frame;			/* length of one a animation frame (num_anim/facings) */

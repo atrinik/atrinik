@@ -68,22 +68,19 @@ static int scrolldx = 0, scrolldy = 0;
 
 void BookCmd(unsigned char *data, int len)
 {
-	int mode;
-
-	sound_play_effect(SOUND_BOOK, 0, 0, 100);
+	sound_play_effect(SOUND_BOOK, 0, 100);
 	cpl.menustatus = MENU_BOOK;
 
-	mode = *((int*) data);
 	data += 4;
 
-	gui_interface_book = load_book_interface(mode, data, len - 4);
+	gui_interface_book = load_book_interface((char *)data, len - 4);
 }
 
 void PartyCmd(unsigned char *data, int len)
 {
 	cpl.menustatus = MENU_PARTY;
 
-	gui_interface_party = load_party_interface(data, len);
+	gui_interface_party = load_party_interface((char *)data, len);
 }
 
 void SoundCmd(unsigned char *data,  int len)
@@ -120,7 +117,7 @@ void SoundCmd(unsigned char *data,  int len)
 		}
 	}
 
-    calculate_map_sound(num, x, y, 0);
+    calculate_map_sound(num, x, y);
 }
 
 void SetupCmd(char *buf, int len)
@@ -344,7 +341,7 @@ void Face1Cmd(unsigned char *data,  int len)
 /* Handles when the server says we can't be added.  In reality, we need to
  * close the connection and quit out, because the client is going to close
  * us down anyways. */
-void AddMeFail(char *data, int len)
+void AddMeFail()
 {
     LOG(LOG_MSG, "addme_failed received.\n");
     GameStatus = GAME_STATUS_START;
@@ -355,13 +352,13 @@ void AddMeFail(char *data, int len)
 
 /* This is really a throwaway command - there really isn't any reason to
  * send addme_success commands. */
-void AddMeSuccess(char *data, int len)
+void AddMeSuccess()
 {
     LOG(LOG_MSG, "addme_success received.\n");
     return;
 }
 
-void GoodbyeCmd(char *data, int len)
+void GoodbyeCmd()
 {
 	/* This could probably be greatly improved - I am not sure if anything
      * needs to be saved here, but certainly it should be possible to
@@ -445,13 +442,15 @@ void ImageCmd(unsigned char *data, int len)
 
     FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
     map_udate_flag = 2;
+	map_redraw_flag = 1;
 }
 
 void SkillRdyCmd(char *data, int len)
 {
     int i, ii;
 
-    strcpy(cpl.skill_name, data);
+    strncpy(cpl.skill_name, data, len);
+	WIDGET_REDRAW(SKILL_EXP_ID);
 
     /* lets find the skill... and setup the shortcuts to the exp values*/
     for (ii = 0; ii < SKILL_LIST_MAX; ii++)
@@ -473,12 +472,12 @@ void SkillRdyCmd(char *data, int len)
     }
 }
 
-void DrawInfoCmd(char *data, int len)
+void DrawInfoCmd(unsigned char *data)
 {
-    int color = atoi(data);
+    int color = atoi((char *)data);
     char *buf;
 
-    buf = strchr(data, ' ');
+    buf = strchr((char *)data, ' ');
 
     if (!buf)
     {
@@ -492,7 +491,7 @@ void DrawInfoCmd(char *data, int len)
 }
 
 /* new draw command */
-void DrawInfoCmd2(char *data, int len)
+void DrawInfoCmd2(unsigned char *data, int len)
 {
     int flags;
     char buf[2048];
@@ -507,7 +506,7 @@ void DrawInfoCmd2(char *data, int len)
 		if (len > 2000)
 			len = 2000;
 
-		strncpy(buf, data, len);
+		strncpy(buf, (char *)data, len);
 		buf[len] = 0;
 	}
 	else
@@ -521,14 +520,15 @@ void TargetObject(unsigned char *data, int len)
 	cpl.target_mode = *data++;
 
 	if (cpl.target_mode)
-		sound_play_effect(SOUND_WEAPON_ATTACK, 0, 0, 100);
+		sound_play_effect(SOUND_WEAPON_ATTACK, 0, 100);
 	else
-		sound_play_effect(SOUND_WEAPON_HOLD, 0, 0, 100);
+		sound_play_effect(SOUND_WEAPON_HOLD, 0, 100);
 
 	cpl.target_color = *data++;
 	cpl.target_code = *data++;
-	strcpy(cpl.target_name, data);
+	strncpy(cpl.target_name, (char *)data, len);
     map_udate_flag = 2;
+	map_redraw_flag = 1;
 
 #if 0
 	char buf[MAX_BUF];
@@ -551,6 +551,7 @@ void StatsCmd(unsigned char *data, int len)
         {
             cpl.stats.protection[c - CS_STAT_PROT_START] = (sint16)*(data + i++);
             cpl.stats.protection_change = 1;
+            WIDGET_REDRAW(RESIST_ID);
         }
         else
         {
@@ -563,16 +564,19 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_REG_HP:
 					cpl.gen_hp = ((float)GetShort_String(data + i)) / 10.0f;
             	    i += 2;
+					WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_MANA:
 					cpl.gen_sp = ((float)GetShort_String(data + i)) / 10.0f;
 	                i += 2;
+	                WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_GRACE:
 					cpl.gen_grace = ((float)GetShort_String(data + i)) / 10.0f;
 	                i += 2;
+	                WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_HP:
@@ -586,31 +590,37 @@ void StatsCmd(unsigned char *data, int len)
                     }
                     cpl.stats.hp = temp;
                     i += 4;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_MAXHP:
                     cpl.stats.maxhp = GetInt_String(data + i);
                     i += 4;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_SP:
                     cpl.stats.sp = GetShort_String(data + i);
                     i += 2;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_MAXSP:
                     cpl.stats.maxsp = GetShort_String(data + i);
                     i += 2;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_GRACE:
                     cpl.stats.grace = GetShort_String(data + i);
                     i += 2;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_MAXGRACE:
                     cpl.stats.maxgrace = GetShort_String(data + i);
                     i += 2;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_STR:
@@ -622,6 +632,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Str = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_INT:
@@ -633,6 +644,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Int = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_POW:
@@ -644,6 +656,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Pow = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_WIS:
@@ -655,6 +668,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Wis = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_DEX:
@@ -666,6 +680,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Dex = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_CON:
@@ -677,6 +692,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Con = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_CHA:
@@ -688,6 +704,7 @@ void StatsCmd(unsigned char *data, int len)
                     	cpl.warn_statdown = TRUE;
 
                     cpl.stats.Cha = temp;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_EXP:
@@ -698,10 +715,12 @@ void StatsCmd(unsigned char *data, int len)
 
                     cpl.stats.exp = temp;
                     i += 4;
+                    WIDGET_REDRAW(MAIN_LVL_ID);
                     break;
 
                 case CS_STAT_LEVEL:
                     cpl.stats.level = (char)*(data + i++);
+                    WIDGET_REDRAW(MAIN_LVL_ID);
                     break;
 
                 case CS_STAT_WC:
@@ -727,6 +746,7 @@ void StatsCmd(unsigned char *data, int len)
                 case CS_STAT_FOOD:
                     cpl.stats.food = GetShort_String(data + i);
                     i += 2;
+                    WIDGET_REDRAW(STATS_ID);
                     break;
 
                 case CS_STAT_WEAP_SP:
@@ -746,6 +766,7 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_ACTION_TIME:
 					cpl.action_timer = ((float)abs(GetInt_String(data + i))) / 1000.0f;
 					i += 4;
+					WIDGET_REDRAW(SKILL_EXP_ID);
 					break;
 
                 case CS_STAT_SKILLEXP_AGILITY:
@@ -756,6 +777,7 @@ void StatsCmd(unsigned char *data, int len)
                 case CS_STAT_SKILLEXP_WISDOM:
                     cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt_String(data + i);
                     i += 4;
+                    WIDGET_REDRAW(SKILL_LVL_ID);
                     break;
 
                 case CS_STAT_SKILLEXP_AGLEVEL:
@@ -765,6 +787,7 @@ void StatsCmd(unsigned char *data, int len)
                 case CS_STAT_SKILLEXP_MALEVEL:
                 case CS_STAT_SKILLEXP_WILEVEL:
                     cpl.stats.skill_level[(c - CS_STAT_SKILLEXP_START - 1) / 2] = (sint16)*(data + i++);
+                    WIDGET_REDRAW(SKILL_LVL_ID);
                     break;
 
                 case CS_STAT_RANGE:
@@ -780,9 +803,9 @@ void StatsCmd(unsigned char *data, int len)
                 {
                     int rlen = data[i++];
 
-                    tmp = strchr(data + i,'\n');
+                    tmp = strchr((char *)data + i,'\n');
                     *tmp = 0;
-                    strcpy(cpl.rank, data + i);
+                    strcpy(cpl.rank, (char *)data + i);
                     tmp2 = strchr(tmp + 1, '\n');
                     *tmp2 = 0;
                     strcpy(cpl.pname, tmp + 1);
@@ -873,7 +896,7 @@ void PreParseInfoStat(char *cmd)
         open_input_mode(12);
 }
 
-void handle_query(char *data, int len)
+void handle_query(char *data)
 {
     char *buf, *cp;
     /*uint8 flags = atoi(data);*/
@@ -915,6 +938,7 @@ void PlayerCmd(unsigned char *data, int len)
     int tag, weight, face, i = 0, nlen;
 
     GameStatus = GAME_STATUS_PLAY;
+	txtwin[TW_MIX].size = txtwin_start_size;
     InputStringEndFlag = FALSE;
     tag = GetInt_String(data);
     i += 4;
@@ -936,6 +960,7 @@ void PlayerCmd(unsigned char *data, int len)
 	map_draw_map_clear();
 	map_transfer_flag = 1;
     map_udate_flag = 2;
+	map_redraw_flag = 1;
    	load_quickslots_entrys();
 }
 
@@ -1256,7 +1281,7 @@ void DeleteItem(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
-void DeleteInventory(unsigned char *data, int len)
+void DeleteInventory(unsigned char *data)
 {
     int tag;
 
@@ -1397,28 +1422,28 @@ void Map2Cmd(unsigned char *data, int len)
 				{
 					ff0 = GetShort_String(data + pos);
 					pos+=2;
-					add_anim(ANIM_KILL, 0, 0, xpos + x, ypos + y, ff0);
+					add_anim(ANIM_KILL, xpos + x, ypos + y, ff0);
 				}
 
-				if (ff_flag & 0x4)
+    			if (ff_flag & 0x4)
 				{
 					ff1 = GetShort_String(data + pos);
 					pos += 2;
-					add_anim(ANIM_DAMAGE, 0, 0, xpos + x, ypos + y, ff1);
+					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff1);
 				}
 
 				if (ff_flag & 0x2)
 				{
 					ff2 = GetShort_String(data + pos);
 					pos += 2;
-					add_anim(ANIM_DAMAGE, 0, 0, xpos + x, ypos + y, ff2);
+					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff2);
 				}
 
 				if (ff_flag & 0x1)
 				{
 					ff3 = GetShort_String(data + pos);
 					pos += 2;
-					add_anim(ANIM_DAMAGE, 0, 0, xpos + x, ypos + y, ff3);
+					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff3);
 				}
 			}
 
@@ -1523,9 +1548,10 @@ void Map2Cmd(unsigned char *data, int len)
     }
 
     map_udate_flag = 2;
+	map_redraw_flag = 1;
 }
 
-void map_scrollCmd(char *data, int len)
+void map_scrollCmd(char *data)
 {
     static int step = 0;
     char *buf;
@@ -1543,9 +1569,9 @@ void map_scrollCmd(char *data, int len)
     scrolldy += atoi(buf);
 
     if (++step % 2)
-        sound_play_effect(SOUND_STEP1, 0, 0, 100);
+        sound_play_effect(SOUND_STEP1, 0, 100);
     else
-        sound_play_effect(SOUND_STEP2, 0, 0, 100);
+        sound_play_effect(SOUND_STEP2, 0, 100);
 
     if (media_show != MEDIA_SHOW_NO)
     {
@@ -1555,11 +1581,11 @@ void map_scrollCmd(char *data, int len)
     }
 }
 
-void MagicMapCmd(unsigned char *data, int len)
+void MagicMapCmd()
 {
 }
 
-void VersionCmd(char *data, int len)
+void VersionCmd(char *data)
 {
     char *cp;
     char buf[1024];
@@ -1646,14 +1672,14 @@ void SendSetFaceMode(ClientSocket csock,int mode)
     cs_write_string(csock.fd, buf, strlen(buf));
 }
 
-void MapstatsCmd(unsigned char *data, int len)
+void MapstatsCmd(unsigned char *data)
 {
     char name[256], bg_music[256];
     char *tmp;
     int w, h, x, y;
 
-    sscanf(data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
-    tmp = strchr(data, ' ');
+    sscanf((char *)data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
+    tmp = strchr((char *)data, ' ');
     tmp = strchr(tmp + 1, ' ');
     tmp = strchr(tmp + 1, ' ');
     tmp = strchr(tmp + 1, ' ');
@@ -1663,7 +1689,7 @@ void MapstatsCmd(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
-void SkilllistCmd(unsigned char *data, int len)
+void SkilllistCmd(char *data)
 {
     char *tmp, *tmp2, *tmp3, *tmp4;
     int l, e, i, ii, mode;
@@ -1671,7 +1697,7 @@ void SkilllistCmd(unsigned char *data, int len)
 
     /*LOG(-1,"sklist: %s\n", data);*/
 
-    /* we grap our mode */
+    /* we grab our mode */
     mode = atoi(data);
 
     /* now look for the members fo the list we have */
@@ -1724,6 +1750,7 @@ void SkilllistCmd(unsigned char *data, int len)
 							skill_list[ii].entry[i].flag = LIST_ENTRY_KNOWN;
 							skill_list[ii].entry[i].exp = e;
 							skill_list[ii].entry[i].exp_level = l;
+							WIDGET_REDRAW(SKILL_EXP_ID);
 						}
 					}
 				}
@@ -1732,7 +1759,7 @@ void SkilllistCmd(unsigned char *data, int len)
     }
 }
 
-void SpelllistCmd(unsigned char *data, int len)
+void SpelllistCmd(char *data)
 {
     int i, ii, mode;
     char *tmp, *tmp2;
@@ -1799,18 +1826,18 @@ void SpelllistCmd(unsigned char *data, int len)
     }
 }
 
-void GolemCmd(unsigned char *data, int len)
+void GolemCmd(unsigned char *data)
 {
     int mode, face;
     char *tmp, buf[256];
 
     /*LOG(LOG_DEBUG, "golem: <%s>\n", data);*/
     /* we grab our mode */
-    mode = atoi(data);
+    mode = atoi((char *)data);
 	if (mode == GOLEM_CTR_RELEASE)
 	{
 		/* find start of a name */
-		tmp = strchr(data, ' ');
+		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
 		request_face(face, 0);
 		/* find start of a name */
@@ -1823,7 +1850,7 @@ void GolemCmd(unsigned char *data, int len)
 	else
 	{
 		/* find start of a name */
-		tmp = strchr(data, ' ');
+		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
 		request_face(face, 0);
 		/* find start of a name */
@@ -1852,7 +1879,7 @@ static void save_data_cmd_file(char *path, char *data, int len)
 }
 
 /* server tells us to go to the new char creation */
-void NewCharCmd(char *data, int len)
+void NewCharCmd()
 {
 	dialog_new_char_warn = FALSE;
 	GameStatus = GAME_STATUS_NEW_CHAR;
@@ -1884,7 +1911,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed skill list(len:%d)\n", len);
-				uncompress(dest, (void *)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1898,7 +1925,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed spell list(len:%d)\n", len);
-				uncompress(dest, (void*)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1911,7 +1938,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed settings file(len:%d)\n", len);
-				uncompress(dest, (void*)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1924,7 +1951,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed bmaps file(len:%d)\n", len);
-				uncompress(dest, (void*)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1936,7 +1963,7 @@ void DataCmd(char *data, int len)
 		case DATA_CMD_ANIM_LIST:
 			if (data_comp)
 			{
-				uncompress(dest, (void*)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				LOG(LOG_DEBUG, "data cmd: compressed anims file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;
@@ -1949,7 +1976,7 @@ void DataCmd(char *data, int len)
 		case DATA_CMD_HFILES_LIST:
 			if (data_comp)
 			{
-				uncompress(dest, (void*)&dest_len, data, len);
+				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
 				LOG(LOG_DEBUG, "data cmd: compressed hfiles file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;

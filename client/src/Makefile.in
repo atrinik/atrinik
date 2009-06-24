@@ -45,6 +45,7 @@ SRCS = \
 	sprite.c\
 	textwin.c\
 	wrapper.c\
+	widget.c\
 	dialog.c\
 	adler32.c \
 	crc32.c \
