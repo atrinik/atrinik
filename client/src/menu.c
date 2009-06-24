@@ -620,12 +620,12 @@ void show_menu(void)
 	else if (cpl.menustatus == MENU_SPELL)
 	{
 		show_spelllist();
-		box.x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+  		box.x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
         box.y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2 - 42;
 		box.h = 42;
 		box.w = Bitmaps[BITMAP_DIALOG_BG]->bitmap->w;
 		SDL_FillRect(ScreenSurface, &box, 0);
-		show_quickslots(box.x + 100, box.y + 3);
+		show_quickslots(box.x + 120, box.y + 3);
 	}
 	else if (cpl.menustatus == MENU_SKILL)
 		show_skilllist();
@@ -2294,11 +2294,15 @@ void show_quickslots(int x, int y)
 {
 	int i, mx, my;
 	char buf[16];
-	return;
+	int qsx, qsy, xoff;
+
+	qsx = 0;
+	qsy = 1;
+	xoff = -17;
+	sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
 
 	SDL_GetMouseState(&mx, &my);
 	update_quickslots(-1);
-	sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
 
 	for (i = MAX_QUICK_SLOTS - 1; i >= 0; i--)
 	{
@@ -2307,9 +2311,9 @@ void show_quickslots(int x, int y)
 			/* Spell in quickslot */
 			if (quick_slots[i].spell)
 			{
-				sprite_blt(spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].icon ,x+quickslots_pos[i][0],y+quickslots_pos[i][1], NULL, NULL);
+				sprite_blt(spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], NULL, NULL);
 
-				if (mx >= x + quickslots_pos[i][0] && mx < x + quickslots_pos[i][0] + 33 && my >= y + quickslots_pos[i][1] && my < y + quickslots_pos[i][1] + 33)
+                if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
 					show_tooltip(mx, my, spell_list[quick_slots[i].groupNr].entry[quick_slots[i].classNr][quick_slots[i].tag].name);
 			}
 			/* Item in quickslot */
@@ -2319,17 +2323,17 @@ void show_quickslots(int x, int y)
 
 				if (tmp)
 				{
-					blt_inv_item(tmp, x + quickslots_pos[i][0], y + quickslots_pos[i][1]);
+					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 
-					/* Show tooltip */
-					if (mx >= x + quickslots_pos[i][0] && mx < x + quickslots_pos[i][0] + 33 && my >= y + quickslots_pos[i][1] && my < y + quickslots_pos[i][1] + 33)
+                    /* Show tooltip */
+                    if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
 						show_tooltip(mx, my, tmp->s_name);
 				}
 			}
 		}
 
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][0] + 12, y + quickslots_pos[i][1] - 6, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
 	}
 }
 
