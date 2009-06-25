@@ -978,10 +978,36 @@ Boolean load_bitmap(int index)
 /* Free the skin and standard gfx */
 void free_bitmaps(void)
 {
-	int i;
+	int i, ii;
 
 	for (i = 0; i < (int) BITMAP_MAX; i++)
 		sprite_free_sprite(Bitmaps[i]);
+
+    for (i = 0; i < SPELL_LIST_MAX; i++)
+    {
+        for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+        {
+            if ((spell_list[i].entry[0][ii].flag != LIST_ENTRY_UNUSED) && spell_list[i].entry[0][ii].icon)
+            {
+				sprite_free_sprite(spell_list[i].entry[0][ii].icon);
+            }
+            if ((spell_list[i].entry[1][ii].flag != LIST_ENTRY_UNUSED) && spell_list[i].entry[1][ii].icon)
+            {
+				sprite_free_sprite(spell_list[i].entry[1][ii].icon);
+            }
+        }
+    }
+
+    for (i = 0; i < SKILL_LIST_MAX; i++)
+    {
+        for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+        {
+            if ((skill_list[i].entry[ii].flag != LIST_ENTRY_UNUSED) && skill_list[i].entry[ii].icon)
+            {
+				sprite_free_sprite(skill_list[i].entry[ii].icon);
+            }
+        }
+    }
 }
 
 void free_faces(void)

@@ -128,30 +128,42 @@ void SetupCmd(char *buf, int len)
     scrolldy = scrolldx = 0;
     LOG(LOG_MSG, "Get SetupCmd:: %s\n", buf);
 
-    for (s = 0; ;)
+	for (s = 0; ;)
     {
-        while (buf[s] == ' ')
-			s++;
+        while (s < len && buf[s] == ' ')
+            s++;
 
         if (s >= len)
             break;
 
         cmd = &buf[s];
-        for (; buf[s] && buf[s] != ' '; s++);
-			buf[s++] = 0;
 
-        while (buf[s] == ' ')
-			s++;
+        while (s < len && buf[s] != ' ')
+            s++;
+
+        if (s >= len)
+             break;
+
+        buf[s++] = 0;
+
+        if (s >= len)
+             break;
+
+        while (s < len && buf[s] == ' ')
+            s++;
 
         if (s >= len)
             break;
 
         param = &buf[s];
-        for (; buf[s] && buf[s] != ' '; s++);
-            buf[s++] = 0;
 
-        while (buf[s] == ' ')
-			s++;
+        while (s < len && buf[s] != ' ')
+            s++;
+
+        buf[s++] = 0;
+
+        while (s < len && buf[s] == ' ')
+            s++;
 
         if (!strcmp(cmd, "sound"))
         {
