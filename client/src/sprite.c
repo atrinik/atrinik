@@ -323,18 +323,12 @@ static void grey_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int r
 
 void sprite_free_sprite(_Sprite *sprite)
 {
-    int i;
     void *tmp_free;
 
     if (!sprite)
         return;
     if (sprite->bitmap)
         SDL_FreeSurface(sprite->bitmap);
-    for (i=0;i<DARK_LEVELS;i++)
-    {
-        if (sprite->dark_level[i])
-            SDL_FreeSurface(sprite->dark_level[i]);
-    }
     if (sprite->grey)
         SDL_FreeSurface(sprite->grey);
     if (sprite->red)
