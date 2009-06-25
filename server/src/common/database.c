@@ -151,17 +151,35 @@ int db_close(sqlite3 *db)
 /* Sanitize database input. Run for ANY value you don't control, like /bug command. */
 char *db_sanitize_input(char *sql_input)
 {
-	char *p;
-	int size = strlen(sql_input) + 1;
+	char *p, *np;
+	int size = strlen(sql_input), n;
 
-	if ((p = malloc(size)) == NULL)
+	if ((p = (char *)malloc(size)) == NULL)
 	{
 		LOG(llevError, "ERROR: Out of memory.\n");
 		return sql_input;
 	}
 
 	// Replace any 's with ''s
-	replace(sql_input, "'", "''", p, size);
+	while (1)
+	{
+		n = replace(sql_input, "'", "''", p, size);
+
+		/* Just as needed */
+		if (n == -1)
+			break;
+		else
+			size += n + 1;
+
+		/* We need more... */
+		if ((np = (char *)realloc(p, size)) == NULL)
+		{
+			LOG(llevError, "ERROR: Out of memory.\n");
+			break;
+		}
+		else
+			p = np;
+	}
 
 	// Copy it to the original pointer
 	strcpy(sql_input, p);

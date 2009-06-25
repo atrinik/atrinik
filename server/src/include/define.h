@@ -75,7 +75,7 @@ error - Your ANSI C compiler should be defining __STDC__;
 #define HUGE_BUF			4096
 /* Database buf - this must be quite big,
  * because we store all kind of stuff in database. */
-#define DB_BUF				2097152
+#define DB_BUF				1097152
 /* Max length a packet could be */
 #define SOCKET_BUFLEN		4096
 

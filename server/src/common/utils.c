@@ -162,9 +162,9 @@ int look_up_spell_name(const char * spname)
 /* Replace in string src all occurrences of key by replacement. The resulting
  * string is put into result; at most resultsize characters (including the
  * terminating null character) will be written to result. */
-void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
+int replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
-    size_t resultlen, keylen, replacementlen;
+    size_t resultlen, keylen, replacementlen, replaced = 0;
 	char *p;
 
     /* special case to prevent infinite loop if key == replacement == "" */
@@ -185,19 +185,7 @@ void replace(const char *src, const char *key, const char *replacement, char *re
 			/* If the replacement length is more than keylen, we will need
 			 * to increase the resultsize and realloc the result pointer. */
 			if (replacementlen > keylen)
-			{
-				resultsize += replacementlen - keylen;
-
-				if ((p = realloc(result, resultsize)) == NULL)
-				{
-					free(result);
-					return;
-				}
-				else
-				{
-					result = p;
-				}
-			}
+				replaced += replacementlen - keylen;
 
             snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
             resultlen += strlen(result + resultlen);
@@ -210,6 +198,11 @@ void replace(const char *src, const char *key, const char *replacement, char *re
     }
 
     result[resultlen] = '\0';
+
+	if (replaced > resultsize - resultlen)
+		return replaced;
+
+	return -1;
 }
 
 racelink * find_racelink(const char *name)

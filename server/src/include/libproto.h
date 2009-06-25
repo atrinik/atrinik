@@ -462,4 +462,4 @@ extern int look_up_spell_name(const char *spname);
 extern racelink *find_racelink(const char *name);
 extern char *cleanup_string(char *ustring);
 extern char *get_word_from_string(char *str, int *pos);
-extern void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
+extern int replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
