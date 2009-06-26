@@ -40,10 +40,6 @@ static char *cleanup_chat_string(char *ustring)
 	if (!ustring)
 		return NULL;
 
-	/* kill all whitespace */
-	while (*ustring != '\0' && isspace(*ustring))
-		ustring++;
-
 	/* this happens when whitespace only string was submited */
     if (!ustring || *ustring == '\0')
 		return NULL;
@@ -51,9 +47,14 @@ static char *cleanup_chat_string(char *ustring)
 	/* now clear all control chars */
 	for (i = 0; *(ustring + i) != '\0'; i++)
 	{
-		if (*(ustring + i) == '~' || *(ustring + i) == '^')
+		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|')
 			*(ustring + i) = ' ';
 	}
+
+	/* kill all whitespace */
+	while (*ustring != '\0' && isspace(*ustring))
+		ustring++;
+
 	return ustring;
 }
 
