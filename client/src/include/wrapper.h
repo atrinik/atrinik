@@ -63,7 +63,6 @@ extern char * GetIconDirectory(void);
 
 extern Boolean SYSTEM_Start(void);
 extern Boolean SYSTEM_End(void);
-int attempt_fullscreen_toggle(SDL_Surface **surface, uint32 *flags);
 uint32 get_video_flags(void);
 void parse_metaserver_data(char *info);
 
