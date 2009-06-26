@@ -26,6 +26,9 @@
 #include <global.h>
 #include <curl/curl.h>
 
+/* The time in seconds for timeout upon connecting */
+#define METASERVER_TIMEOUT 3
+
 /* Init metaserver. */
 void metaserver_init()
 {
@@ -91,8 +94,12 @@ void metaserver_update()
 
 	/* Init "easy" cURL */
 	curl = curl_easy_init();
+
 	if (curl)
 	{
+		/* Set connection timeout value in case metaserver is down or something */
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
+
 		/* What URL that receives this POST */
 		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
@@ -104,7 +111,7 @@ void metaserver_update()
 		res = curl_easy_perform(curl);
 
 		if (res)
-			LOG(llevDebug, "DEBUG: metaserver_update(): easy_perform got error %d\n", res);
+			LOG(llevDebug, "DEBUG: metaserver_update(): easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
 
 		/* Always cleanup */
 		curl_easy_cleanup(curl);
@@ -114,5 +121,6 @@ void metaserver_update()
 	curl_formfree(formpost);
 
 	/* Output info that the data was updated. */
-	LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.16s.\n", ctime(&now));
+	if (!res)
+		LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.16s.\n", ctime(&now));
 }

@@ -236,20 +236,6 @@ uint32 get_video_flags(void)
     }
 }
 
-/* Parse data returned from HTTP metaserver. */
-void parse_metaserver_data(char *info)
-{
-    char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
-
-	if (strcmp(info, "\n") == 0)
-		return;
-
-	if (!sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
-		return;
-
-	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc);
-}
-
 /* This seems to be lacking on some systems */
 #if defined(HAVE_STRNICMP)
 #else

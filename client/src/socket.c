@@ -283,54 +283,6 @@ Boolean SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char 
     return(TRUE);
 }
 
-/* we used our core connect routine to connect to metaserver, this is the special
-   read one.*/
-
-void read_metaserver_data(void)
-{
-    int     stat, temp;
-    char   *ptr, *buf;
-    void   *tmp_free;
-
-    ptr = (char *) malloc(MAX_METASTRING_BUFFER);
-    buf = (char *) malloc(MAX_METASTRING_BUFFER);
-    temp = 0;
-    for (; ;)
-    {
-        /* win32 style input */
-
-        stat = recv(csocket.fd, ptr, MAX_METASTRING_BUFFER, 0);
-        if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
-        {
-            LOG(LOG_ERROR, "Error reading metaserver data!: %d\n", WSAGetLastError());
-            break;
-        }
-        else if (stat > 0)
-        {
-            if (temp + stat >= MAX_METASTRING_BUFFER)
-            {
-                memcpy(buf + temp, ptr, temp + stat - MAX_METASTRING_BUFFER - 1);
-                temp += stat;
-                break;
-            }
-            memcpy(buf + temp, ptr, stat);
-            temp += stat;
-        }
-        else if (stat == 0)
-        {
-            /* connect closed by meta */
-            break;
-        }
-    }
-    buf[temp] = 0;
-    LOG(0, "GET: %s\n", buf);
-    parse_metaserver_data(buf);
-    tmp_free = &buf;
-    FreeMemory(tmp_free);
-    tmp_free = &ptr;
-    FreeMemory(tmp_free);
-}
-
 Boolean SOCKET_CloseSocket(SOCKET socket_temp)
 {
     void   *tmp_free;
@@ -441,55 +393,6 @@ Boolean SOCKET_CloseSocket(SOCKET socket_temp)
     csocket.fd = SOCKET_NO;
     return(TRUE);
 }
-
-void read_metaserver_data(void)
-{
-    int     stat, temp;
-    char   *ptr, *buf;
-    void   *tmp_free;
-
-    ptr = (char *) _malloc(MAX_METASTRING_BUFFER, "read_metaserver_data(): metastring buffer1");
-    buf = (char *) _malloc(MAX_METASTRING_BUFFER, "read_metaserver_data(): metastring buffer2");
-    temp = 0;
-    for (; ;)
-    {
-        do
-        {
-            stat = recv(csocket.fd, ptr, MAX_METASTRING_BUFFER, 0);
-        }
-        while (stat == -1);
-
-        /*if ((stat==-1) && WSAGetLastError() !=WSAEWOULDBLOCK)*/
-        if (stat == -1)
-        {
-            LOG(LOG_ERROR, "Error reading metaserver data!\n");
-            break;
-        }
-        else if (stat > 0)
-        {
-            if (temp + stat >= MAX_METASTRING_BUFFER)
-            {
-                memcpy(buf + temp, ptr, temp + stat - MAX_METASTRING_BUFFER - 1);
-                temp += stat;
-                break;
-            }
-            memcpy(buf + temp, ptr, stat);
-            temp += stat;
-        }
-        else if (stat == 0)
-        {
-            /* connect closed by meta */
-            break;
-        }
-    }
-    buf[temp] = 0;
-    parse_metaserver_data(buf);
-    tmp_free = &buf;
-    FreeMemory(tmp_free);
-    tmp_free = &ptr;
-    FreeMemory(tmp_free);
-}
-
 
 int read_socket(int fd, SockList *sl, int len)
 {

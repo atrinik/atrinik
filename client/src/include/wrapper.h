@@ -64,7 +64,6 @@ extern char * GetIconDirectory(void);
 extern Boolean SYSTEM_Start(void);
 extern Boolean SYSTEM_End(void);
 uint32 get_video_flags(void);
-void parse_metaserver_data(char *info);
 
 #if defined(HAVE_STRNICMP)
 #else

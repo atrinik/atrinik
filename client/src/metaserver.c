@@ -24,199 +24,75 @@
 ************************************************************************/
 
 #include <include.h>
+#include <curl/curl.h>
 
-static size_t write_callback(char *buffer, size_t size, size_t nitems, void *userp)
+/* Parse data returned from HTTP metaserver. */
+static void parse_metaserver_data(char *info)
 {
-	char *newbuff;
-	size_t rembuff;
+    char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
 
-	CURL_FILE *url = (CURL_FILE *)userp;
-	size *= nitems;
+	server[0] = server_ip[0] = port[0] = num_players[0] = version[0] = desc[0] = '\0';
 
-	rembuff = url->buffer_len - url->buffer_pos;
+	if (info == NULL || !sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
+		return;
 
-	if (size > rembuff)
+	if (server[0] == '\0' || server_ip[0] == '\0' || port[0] == '\0' || num_players[0] == '\0' || version[0] == '\0' || desc[0] == '\0')
+		return;
+
+	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc);
+}
+
+/* Function to call when receiving data from the metaserver */
+static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    size_t realsize = size * nmemb;
+	char *p, buf[HUGE_BUF];
+
+	/* So that we don't get unused parameter warning */
+	(void) data;
+
+	p = strtok((char *)ptr, "\n");
+
+	/* Loop through all the lines returned */
+	while (p)
 	{
-		newbuff = realloc(url->buffer, url->buffer_len + (size - rembuff));
+		/* Store it in a temporary buf, and parse it */
+		snprintf(buf, sizeof(buf), "%s", p);
+    	parse_metaserver_data(buf);
 
-		if (newbuff == NULL)
-		{
-			LOG(LOG_ERROR, "ERROR: Callback buffer grow failed\n");
-			size = rembuff;
-		}
-		else
-		{
-			url->buffer_len += size - rembuff;
-			url->buffer = newbuff;
-		}
+		p = strtok(NULL, "\n");
 	}
 
-	memcpy(&url->buffer[url->buffer_pos], buffer, size);
-	url->buffer_pos += size;
-
-	return size;
+    return realsize;
 }
 
-static int fill_buffer(CURL_FILE *file, int want)
-{
-	fd_set fdread;
-	fd_set fdwrite;
-	fd_set fdexcep;
-	int maxfd;
-	struct timeval timeout;
-	int rc;
-
-	if ((!file->still_running) || (file->buffer_pos > want))
-		return 0;
-
-	do
-	{
-		FD_ZERO(&fdread);
-		FD_ZERO(&fdwrite);
-		FD_ZERO(&fdexcep);
-
-		timeout.tv_sec = 60;
-		timeout.tv_usec = 0;
-
-		curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
-
-		rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
-
-		switch (rc)
-		{
-			case -1:
-				break;
-
-			case 0:
-				break;
-
-			default:
-				while (curl_multi_perform(multi_handle, &file->still_running) == CURLM_CALL_MULTI_PERFORM);
-
-			break;
-		}
-	} while (file->still_running && (file->buffer_pos < want));
-
-	return 1;
-}
-
-static int use_buffer(CURL_FILE *file, int want)
-{
-	if ((file->buffer_pos - want) <= 0)
-	{
-		if (file->buffer)
-			free(file->buffer);
-
-		file->buffer = NULL;
-		file->buffer_pos = 0;
-		file->buffer_len = 0;
-	}
-	else
-	{
-		memmove(file->buffer, &file->buffer[want], (file->buffer_pos - want));
-
-		file->buffer_pos -= want;
-	}
-	return 0;
-}
-
-CURL_FILE *curl_fopen(const char *url)
-{
-	CURL_FILE *file;
-
-	file = malloc(sizeof(CURL_FILE));
-
-	if (!file)
-		return NULL;
-
-	memset(file, 0, sizeof(CURL_FILE));
-
-	file->handle.curl = curl_easy_init();
-
-	curl_easy_setopt(file->handle.curl, CURLOPT_URL, url);
-	curl_easy_setopt(file->handle.curl, CURLOPT_WRITEDATA, file);
-	curl_easy_setopt(file->handle.curl, CURLOPT_VERBOSE, 0L);
-	curl_easy_setopt(file->handle.curl, CURLOPT_WRITEFUNCTION, write_callback);
-
-	if (!multi_handle)
-		multi_handle = curl_multi_init();
-
-	curl_multi_add_handle(multi_handle, file->handle.curl);
-
-	while (curl_multi_perform(multi_handle, &file->still_running) == CURLM_CALL_MULTI_PERFORM);
-
-	if ((file->buffer_pos == 0) && (!file->still_running))
-	{
-		curl_multi_remove_handle(multi_handle, file->handle.curl);
-
-		curl_easy_cleanup(file->handle.curl);
-
-		free(file);
-
-		file = NULL;
-	}
-
-	return file;
-}
-
-int curl_fclose(CURL_FILE *file)
-{
-	int ret = 0;
-
-	curl_multi_remove_handle(multi_handle, file->handle.curl);
-
-	curl_easy_cleanup(file->handle.curl);
-
-	if (file->buffer)
-		free(file->buffer);
-
-	free(file);
-
-	return ret;
-}
-
-char *curl_fgets(char *ptr, int size, CURL_FILE *file)
-{
-	int want = size - 1;
-	int loop;
-
-	fill_buffer(file, want);
-
-	if (!file->buffer_pos)
-		return NULL;
-
-	if (file->buffer_pos < want)
-		want = file->buffer_pos;
-
-	for (loop = 0; loop < want; loop++)
-	{
-		if (file->buffer[loop] == '\n')
-		{
-			want = loop + 1;
-			break;
-		}
-	}
-
-	memcpy(ptr, file->buffer, want);
-	ptr[want] = 0;
-
-	use_buffer(file, want);
-
-	return ptr;
-}
-
+/* Connect to a metaserver. */
 void metaserver_connect(void)
 {
-	char buf[HUGE_BUF];
-	CURL_FILE *handle;
+	CURL *handle;
+	CURLcode res;
 
-	handle = curl_fopen("http://meta.atrinik.org/");
-
-	while (curl_fgets(buf, HUGE_BUF, handle) != NULL)
-	{
-		parse_metaserver_data(buf);
-	}
+	/* Init "easy" cURL */
+	handle = curl_easy_init();
 
 	if (handle)
-		curl_fclose(handle);
+	{
+		/* Set connection timeout value in case metaserver is down or something */
+		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 1);
+
+		/* URL */
+		curl_easy_setopt(handle, CURLOPT_URL, "http://meta.atrinik.org/");
+
+		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, metaserver_reader);
+		res = curl_easy_perform(handle);
+
+		if (res)
+		{
+			LOG(LOG_DEBUG, "DEBUG: metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
+			draw_info("Metaserver failed!", COLOR_RED);
+		}
+
+		/* Always cleanup */
+		curl_easy_cleanup(handle);
+	}
 }

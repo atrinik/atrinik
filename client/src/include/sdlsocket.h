@@ -37,6 +37,4 @@ extern int SOCKET_GetError(void);	/* returns socket error */
 extern int write_socket(int fd, unsigned char *buf, int len);
 extern int read_socket ( int fd, struct SockList *sl, int len );
 
-void read_metaserver_data(void);
-
 #endif

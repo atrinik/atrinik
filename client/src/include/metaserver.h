@@ -23,27 +23,4 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <curl/curl.h>
-
-struct fcurl_data
-{
-	union {
-		CURL *curl;
-		FILE *file;
-	} handle;
-
-	char *buffer;
-	int buffer_len;
-	int buffer_pos;
-	int still_running;
-};
-
-typedef struct fcurl_data CURL_FILE;
-
-CURL_FILE *curl_fopen(const char *url);
-int curl_fclose(CURL_FILE *file);
-char *curl_fgets(char *ptr, int size, CURL_FILE *file);
-
-CURLM *multi_handle;
-
 void metaserver_connect(void);
