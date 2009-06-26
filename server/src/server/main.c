@@ -495,7 +495,7 @@ static void enter_random_map(object *pl, object *exit_ob)
 /* Code to enter/detect a character entering a unique map. */
 static void enter_unique_map(object *op, object *exit_ob)
 {
-    char apartment[HUGE_BUF], linebuf[MAX_BUF] = "", sqlbuf[DB_BUF] = "";
+    char apartment[HUGE_BUF], linebuf[MAX_BUF] = "", *sqlbuf;
 	int is_new = 1;
     mapstruct *newmap;
 	sqlite3 *db;
@@ -571,10 +571,43 @@ static void enter_unique_map(object *op, object *exit_ob)
 	/* If this is new unique map, insert it in the database. */
 	if (is_new && !MAP_NOSAVE(newmap))
 	{
+		int size = HUGE_BUF;
+		char *p;
+
+		/* Allocate the memory */
+		if ((sqlbuf = (char *)malloc(size)) == NULL)
+		{
+			unlink(apartment);
+			LOG(llevError, "ERROR: Out of memory.\n");
+			return;
+		}
+
 		/* Open the map and read it to large buf */
 		fp = fopen(newmap->path, "r");
+
+		sqlbuf[0] = '\0';
+
+		/* Go through the lines */
 		while (fgets(linebuf, MAX_BUF, fp))
-			snprintf(sqlbuf, sizeof(sqlbuf), "%s%s", sqlbuf, linebuf);
+		{
+			/* If this would overflow, reallocate the buffer with more bytes */
+			if (strlen(linebuf) + strlen(sqlbuf) > size)
+			{
+				size += strlen(linebuf) + strlen(sqlbuf) + 1;
+
+				if ((p = (char *)realloc(sqlbuf, size)) == NULL)
+				{
+					unlink(apartment);
+					LOG(llevError, "ERROR: Out of memory.\n");
+					return;
+				}
+				else
+					sqlbuf = p;
+			}
+
+			strcat(sqlbuf, linebuf);
+		}
+
 		fclose(fp);
 
 		/* Open the database */
@@ -598,6 +631,9 @@ static void enter_unique_map(object *op, object *exit_ob)
 
 		/* Close it */
 		db_close(db);
+
+		/* Free the buf */
+		free(sqlbuf);
 	}
 
     if (newmap)

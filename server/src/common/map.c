@@ -2213,13 +2213,38 @@ int new_save_map(mapstruct *m, int flag)
 	{
 		sqlite3 *db;
 		sqlite3_stmt *statement;
-		char sqlbuf[DB_BUF] = "", linebuf[MAX_BUF] = "", mapPath[MAX_BUF], *p = NULL, path[MAX_BUF];
-		int update = 0, sqlresult;
+		char *sqlbuf, linebuf[MAX_BUF] = "", mapPath[MAX_BUF], *p = NULL, path[MAX_BUF];
+		int update = 0, sqlresult, size = HUGE_BUF;
 
 		/* Open the filename where we temporarily saved this map and grab all the lines. */
 		fp = fopen(filename, "r");
+
+		sqlbuf = (char *)malloc(size);
+
+		sqlbuf[0] = '\0';
+
+		/* Go through the lines */
 		while (fgets(linebuf, MAX_BUF, fp))
-			sprintf(sqlbuf, "%s%s", sqlbuf, linebuf);
+		{
+			/* If this would overflow, reallocate the buffer with more bytes */
+			if (strlen(linebuf) + strlen(sqlbuf) > size)
+			{
+				size += strlen(linebuf) + strlen(sqlbuf) + 1;
+
+				if ((p = (char *)realloc(sqlbuf, size)) == NULL)
+				{
+					fclose(fp);
+					unlink(filename);
+					LOG(llevError, "ERROR: Out of memory.\n");
+					return 0;
+				}
+				else
+					sqlbuf = p;
+			}
+
+			strcat(sqlbuf, linebuf);
+		}
+
 		fclose(fp);
 
 		sprintf(mapPath, "%s", m->path);
@@ -2274,6 +2299,10 @@ int new_save_map(mapstruct *m, int flag)
 
 		/* Remove the temporary file. */
 		unlink(filename);
+
+		/* Free the buf */
+		free(sqlbuf);
+
 		return 0;
 	}
 

@@ -315,6 +315,13 @@ static void block_until_new_connection()
 #ifdef WATCHDOG
 		watchdog();
 #endif
+
+		if (cycles == 7)
+		{
+			metaserver_update();
+			cycles = 1;
+		}
+
 		flush_old_maps();
 	} while (select(socket_info.max_filedescriptor, &readfs, NULL, NULL, &Timeout) == 0);
 

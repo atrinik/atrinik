@@ -222,7 +222,7 @@ extern void save_double(char *buf, char *name, double v);
 extern void init_vars(void);
 extern char *get_ob_diff(object *op, object *op2);
 extern void save_map_object(FILE *fp, object *op, int flag);
-extern void save_player_object(char *buf, object *op, int flag);
+extern int save_player_object(char *buf, object *op, int flag, size_t len);
 
 /* logger.c */
 extern void LOG(LogLevel logLevel, const char *format, ...);

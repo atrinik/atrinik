@@ -196,9 +196,9 @@ long calculate_checksum_new(char *buf, int checkdouble)
  * Player is now all deleted in free_player(). */
 int save_player(object *op, int flag)
 {
-	char sqlbuf[DB_BUF] = "";
+	char *sqlbuf, *p, *invbuf;
 	player *pl = CONTR(op);
-	int i, wiz = QUERY_FLAG(op, FLAG_WIZ), do_update = 0, sqlresult;
+	int i, wiz = QUERY_FLAG(op, FLAG_WIZ), do_update = 0, sqlresult, size = HUGE_BUF * 4, n;
 	long checksum;
 	sqlite3 *db;
 	sqlite3_stmt *statement;
@@ -224,9 +224,9 @@ int save_player(object *op, int flag)
 	/* perhaps we don't need it here ?*/
   	/*container_unlink(pl, NULL);*/
 
-	sqlbuf[0] = '\0';
+	sqlbuf = (char *)malloc(size);
 
-	sprintf(sqlbuf, "%spassword %s\n", sqlbuf, pl->password);
+	sprintf(sqlbuf, "password %s\n", pl->password);
 
 #ifdef EXPLORE_MODE
   	sprintf(sqlbuf, "%sexplore %d\n", sqlbuf, pl->explore);
@@ -287,25 +287,59 @@ int save_player(object *op, int flag)
 
   	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
   	CLEAR_FLAG(op, FLAG_WIZ);
-#ifdef BACKUP_SAVE_AT_HOME
-	if (flag)
+
+	invbuf = (char *)malloc(size);
+	int old_size = size;
+
+	while (1)
 	{
-		backup_x = op->x;
-		backup_y = op->y;
-		op->x = -1;
-		op->y = -1;
+		sprintf(invbuf, "");
+
+#ifdef BACKUP_SAVE_AT_HOME
+		/* Save objects, but not unpaid objects.  Don't remove objects from
+	 	 * inventory. */
+		n = save_player_object(invbuf, op, 2, size - strlen(invbuf) - 1);
+#else
+		/* Don't check and don't remove */
+  		n = save_player_object(invbuf, op, 3, size - strlen(invbuf) - 1);
+#endif
+
+		if (n == 0)
+			break;
+		else
+			size += n + 1;
+
+		/* We need more... */
+		if ((p = realloc(invbuf, size)) == NULL)
+		{
+			LOG(llevError, "ERROR: Out of memory.\n");
+			break;
+		}
+		else
+			invbuf = p;
 	}
-	/* Save objects, but not unpaid objects.  Don't remove objects from
-	 * inventory. */
-  	save_player_object(sqlbuf, op, 2);
+
+	if (old_size != size)
+	{
+		if ((p = (char *)realloc(sqlbuf, size + 1)) == NULL)
+		{
+			LOG(llevError, "ERROR: Out of memory.\n");
+			return;
+		}
+		else
+			sqlbuf = p;
+	}
+
+	strcat(sqlbuf, invbuf);
+
+	free(invbuf);
+
+#ifdef BACKUP_SAVE_AT_HOME
 	if (flag)
 	{
 		op->x = backup_x;
 		op->y = backup_y;
 	}
-#else
-	/* don't check and don't remove */
-  	save_player_object(sqlbuf, op, 3);
 #endif
 
 	checksum = calculate_checksum_new(sqlbuf, 0);
@@ -359,6 +393,9 @@ int save_player(object *op, int flag)
 
 	/* And close the database. */
 	db_close(db);
+
+	/* Free the buf */
+	free(sqlbuf);
 
 #if 0
   	/* Eneq(@csd.uu.se): Reveal the container if we have one. */

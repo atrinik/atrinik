@@ -160,7 +160,7 @@ char *db_sanitize_input(char *sql_input)
 		return sql_input;
 	}
 
-	// Replace any 's with ''s
+	/* Replace any 's with ''s */
 	while (1)
 	{
 		n = replace(sql_input, "'", "''", p, size);
@@ -181,11 +181,14 @@ char *db_sanitize_input(char *sql_input)
 			p = np;
 	}
 
-	// Copy it to the original pointer
-	strcpy(sql_input, p);
+	if (p)
+	{
+		/* Copy it to the original pointer */
+		strcpy(sql_input, p);
 
-	// Free the temporary pointer
-	free(p);
+		/* Free the temporary pointer */
+		free(p);
+	}
 
 	return sql_input;
 }

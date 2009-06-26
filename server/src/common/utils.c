@@ -199,7 +199,7 @@ int replace(const char *src, const char *key, const char *replacement, char *res
 
     result[resultlen] = '\0';
 
-	if (replaced > resultsize - resultlen)
+	if (replaced >= resultsize - resultlen)
 		return replaced;
 
 	return -1;
