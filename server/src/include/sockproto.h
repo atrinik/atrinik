@@ -88,8 +88,7 @@ void metaserver_update(void);
 /* request.c */
 void SetUp(char *buf, int len, NewSocket *ns);
 void AddMeCmd(char *buf, int len, NewSocket *ns);
-void PlayerCmd(char *buf, int len, player *pl);
-void NewPlayerCmd(uint8 *buf, int len, player *pl);
+void PlayerCmd(uint8 *buf, int len, player *pl);
 void ReplyCmd(char *buf, int len, player *pl);
 void RequestFileCmd(char *buf, int len, NewSocket *ns);
 void VersionCmd(char *buf, int len, NewSocket *ns);

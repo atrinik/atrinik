@@ -424,54 +424,8 @@ void AddMeCmd(char *buf, int len, NewSocket *ns)
 }
 
 /* This handles the general commands from the client (ie, north, fire, cast,
- * etc.) */
-void PlayerCmd(char *buf, int len, player *pl)
-{
-    /* The following should never happen with a proper or honest client.
-     * Therefore, the error message doesn't have to be too clear - if
-     * someone is playing with a hacked/non working client, this gives them
-     * an idea of the problem, but they deserve what they get */
-    if (pl->state != ST_PLAYING)
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
-		return;
-    }
-
-    /* Check if there is a count.  In theory, a zero count could also be
-     * sent, so check for that also. */
-    if (atoi(buf) || buf[0] == '0')
-	{
-		pl->count = atoi((char*)buf);
-		/* advance beyond the numbers */
-		buf = strchr(buf,' ');
-		if (!buf)
-		{
-#ifdef ESRV_DEBUG
-	    	LOG(llevDebug, "PlayerCmd: Got count but no command.");
-#endif
-	    	return;
-		}
-
-		buf++;
-    }
-    pl->idle = 0;
-
-    /* In c_new.c */
-    execute_newserver_command(pl->ob, (char*)buf);
-    /* Perhaps something better should be done with a left over count.
-     * Cleaning up the input should probably be done first - all actions
-     * for the command that issued the count should be done before any other
-     * commands. */
-
-    pl->count = 0;
-}
-
-
-/* This handles the general commands from the client (ie, north, fire, cast,
- * etc.)  It is a lot like PlayerCmd above, but is called with the
- * 'ncom' method which gives more information back to the client so it
- * can throttle. */
-void NewPlayerCmd(uint8 *buf, int len, player *pl)
+ * etc.). */
+void PlayerCmd(uint8 *buf, int len, player *pl)
 {
     uint16 packet;
 	int time, repeat;

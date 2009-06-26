@@ -376,7 +376,6 @@ Boolean load_interface_file(char *filename)
 		/* If we find a "Widget " (beginning of block) read until "end" (end of block) */
 
 		/* Beginning */
-		//LOG(-1, "DEBUG: %s\n", keyword);
 		if (strncmp(keyword, "Widget:", 7) == 0)
 		{
 #ifdef DEBUG_WIDGET

@@ -69,7 +69,7 @@ enum _MEvent
     MOUSE_MOVE,
 };
 
-//#define DEBUG_WIDGET
+/*#define DEBUG_WIDGET*/
 
 /* add the widget id here */
 typedef enum _WidgetID

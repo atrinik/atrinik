@@ -2429,9 +2429,6 @@ void check_menu_keys(int menu, int key)
                     const SDL_VideoInfo    *info    = NULL;
                     info = SDL_GetVideoInfo();
                     options.real_video_bpp = info->vfmt->BitsPerPixel;
-//                    SDL_FreeSurface(ScreenSurfaceMap);
-//                    ScreenSurfaceMap=SDL_CreateRGBSurface(ScreenSurface->flags, Screensize.x, Screensize.y, options.used_video_bpp, 0,0,0,0);
-
                 }
 					}
 

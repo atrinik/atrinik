@@ -94,68 +94,71 @@ _player_doll_pos player_doll[PDOLL_INIT] = {
     {43,	10},
     {4,		10}
 };
-static float weapon_speed_table[19]={	20.0f, 18.0f, 10.0f, 8.0f, 5.5f, 4.25f, 3.50f, 3.05f, 2.70f, 2.35f, 2.15f,
-										1.95f ,1.80f, 1.60f, 1.52f, 1.44f, 1.32f, 1.25f, 1.20f};
+static float weapon_speed_table[19] = {
+	20.0f, 	18.0f, 	10.0f, 	8.0f, 	5.5f,
+	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
+	2.15f,	1.95f,	1.80f, 	1.60f, 	1.52f,
+	1.44f, 	1.32f, 	1.25f, 	1.20f
+};
 
 void clear_player(void)
 {
-        memset(quick_slots,-1,sizeof(quick_slots ));
-        free_all_items (cpl.sack);
-        free_all_items (cpl.below);
-        free_all_items (cpl.ob);
-        cpl.ob = player_item();
-        init_player_data();
+	memset(quick_slots, -1, sizeof(quick_slots));
+
+	free_all_items(cpl.sack);
+	free_all_items(cpl.below);
+	free_all_items(cpl.ob);
+	cpl.ob = player_item();
+	init_player_data();
 }
 
-void new_player (long tag, char *name, long weight, short face)
+void new_player(long tag, char *name, long weight, short face)
 {
-        cpl.ob->tag    = tag;
-        cpl.ob->weight = (float) weight / 1000;
-        cpl.ob->face   = face;
-        copy_name (cpl.ob->d_name, name);
+	cpl.ob->tag = tag;
+	cpl.ob->weight = (float) weight / 1000;
+	cpl.ob->face = face;
+	copy_name(cpl.ob->d_name, name);
 }
-
 
 void new_char(_server_char *nc)
 {
 	char buf[MAX_BUF];
 
-	sprintf(buf,"nc %s %d %d %d %d %d %d %d", nc->char_arch[nc->gender_selected],
-		nc->stats[0],nc->stats[1],nc->stats[2],nc->stats[3],nc->stats[4],nc->stats[5],nc->stats[6]);
+	snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", nc->char_arch[nc->gender_selected], nc->stats[0], nc->stats[1], nc->stats[2], nc->stats[3], nc->stats[4], nc->stats[5], nc->stats[6]);
     cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
 void look_at(int x, int y)
 {
-        char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-        sprintf(buf,"lt %d %d", x, y);
-        cs_write_string(csocket.fd, buf, strlen(buf));
+	snprintf(buf, sizeof(buf), "lt %d %d", x, y);
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-void client_send_apply (int tag)
+void client_send_apply(int tag)
 {
-        char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-        sprintf(buf,"ap %d", tag);
-        cs_write_string(csocket.fd, buf, strlen(buf));
+	snprintf(buf, sizeof(buf), "ap %d", tag);
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-void client_send_examine (int tag)
+void client_send_examine(int tag)
 {
-        char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-        sprintf(buf,"ex %d", tag);
-        cs_write_string(csocket.fd, buf, strlen(buf));
+	snprintf(buf, sizeof(buf), "ex %d", tag);
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
 /* Requests nrof objects of tag get moved to loc. */
-void client_send_move (int loc, int tag, int nrof)
+void client_send_move(int loc, int tag, int nrof)
 {
-        char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-        sprintf(buf,"mv %d %d %d", loc, tag, nrof);
-        cs_write_string(csocket.fd, buf, strlen(buf));
+	snprintf(buf, sizeof(buf), "mv %d %d %d", loc, tag, nrof);
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
 
@@ -165,66 +168,51 @@ void client_send_move (int loc, int tag, int nrof)
  * is desired and we don't want to reset the current count.
  * must_send means we must send this command no matter what (ie, it is
  * an administrative type of command like fire_stop, and failure to send
- * it will cause definate problems
- * return 1 if command was sent, 0 if not sent.
- */
-
+ * it will cause definate problems.
+ * return 1 if command was sent, 0 if not sent. */
 int send_command(const char *command, int repeat, int must_send)
 {
-        char buf[MAX_BUF];
-        static char last_command[MAX_BUF]="";
-        SockList sl;
+	char buf[MAX_BUF];
+	static char last_command[MAX_BUF] = "";
+	SockList sl;
+	int commdiff = csocket.command_sent - csocket.command_received;
 
-        /*
-        if (cpl.input_state==Reply_One)
-        {
-                fprintf(stderr,"Wont send command '%s' - since in reply mode!\n ",
-                        command);
-                cpl.count=0;
-                return 0;
-        }
-        */
+	if (commdiff < 0)
+		commdiff += 256;
 
-        /* Does the server understand 'ncom'? If so, special code */
-        if (csocket.cs_version >= 1021)
-        {
-                int commdiff=csocket.command_sent - csocket.command_received;
-                if (commdiff<0) commdiff +=256;
+	/* Don't want to copy in administrative commands */
+	if (!must_send)
+		strcpy(last_command, command);
 
-                /* Don't want to copy in administrative commands */
-                 if (!must_send) strcpy(last_command, command);
-                 csocket.command_sent++;
-                csocket.command_sent &= 0xff;   /* max out at 255 */
+	csocket.command_sent++;
+	/* max out at 255 */
+	csocket.command_sent &= 0xff;
 
-                sl.buf = (unsigned char*)buf;
-                strcpy((char*)sl.buf,"ncom ");
-                sl.len=5;
-                SockList_AddShort(&sl, (uint16)csocket.command_sent);
-                SockList_AddInt(&sl, repeat);
-                strncpy((char*)sl.buf + sl.len, command, MAX_BUF - sl.len);
-                sl.buf[MAX_BUF-1]=0;
-                sl.len += strlen(command);
-                send_socklist(csocket.fd, sl);
-        }
-        else
-        {
-                sprintf(buf,"cm %d %s", repeat,command);
-                cs_write_string(csocket.fd, buf, strlen(buf));
-        }
-        if (repeat!=-1) cpl.count=0;
-        return 1;
+	sl.buf = (unsigned char *)buf;
+	strcpy((char *)sl.buf, "cm ");
+	sl.len = 3;
+	SockList_AddShort(&sl, (uint16)csocket.command_sent);
+	SockList_AddInt(&sl, repeat);
+	strncpy((char *)sl.buf + sl.len, command, MAX_BUF - sl.len);
+	sl.buf[MAX_BUF - 1]=0;
+	sl.len += strlen(command);
+	send_socklist(csocket.fd, sl);
+
+	if (repeat != -1)
+		cpl.count = 0;
+
+	return 1;
 }
 
 void CompleteCmd(unsigned char *data, int len)
 {
+	if (len != 6)
+	{
+		fprintf(stderr, "comc - invalid length %d - ignoring\n", len);
+	}
 
-        if (len !=6)
-        {
-                fprintf(stderr,"comc - invalid length %d - ignoring\n", len);
-        }
-        csocket.command_received = GetShort_String(data);
-        csocket.command_time = GetInt_String(data+2);
-
+	csocket.command_received = GetShort_String(data);
+	csocket.command_time = GetInt_String(data + 2);
 }
 
 /* This is an extended command (ie, 'who, 'whatever, etc).  In general,
@@ -233,9 +221,7 @@ void CompleteCmd(unsigned char *data, int len)
  *
  * The command past to us can not be modified - if it is a keybinding,
  * we get passed the string that is that binding - modifying it effectively
- * changes the binding.
- */
-
+ * changes the binding. */
 void set_weight_limit (uint32 wlim)
 {
     cpl.weight_limit = wlim;
@@ -243,91 +229,93 @@ void set_weight_limit (uint32 wlim)
 
 void init_player_data(void)
 {
-        int i;
+	int i;
 
-        new_player (0, "", 0,0);
+	new_player (0, "", 0,0);
 
-        cpl.fire_on=cpl.firekey_on=0;
-        cpl.resize_twin = 0;
-        cpl.resize_twin_marker = 0;
-        cpl.run_on=cpl.runkey_on=0;
-        cpl.inventory_win =IWIN_BELOW;
+	cpl.fire_on = cpl.firekey_on = 0;
+	cpl.resize_twin = 0;
+	cpl.resize_twin_marker = 0;
+	cpl.run_on = cpl.runkey_on = 0;
+	cpl.inventory_win = IWIN_BELOW;
 
-        cpl.count_left = 0;
-		cpl.container_tag = -996;
-        cpl.container = NULL;
-        memset(&cpl.stats,0, sizeof(Stats));
-        cpl.stats.maxsp=1;
-        cpl.stats.maxhp=1;
-		cpl.gen_hp = 0.0f;
-		cpl.gen_sp = 0.0f;
-		cpl.gen_grace = 0.0f;
-		cpl.target_hp = 0;
+	cpl.count_left = 0;
+	cpl.container_tag = -996;
+	cpl.container = NULL;
 
-        cpl.stats.maxgrace=1;
-        cpl.stats.speed=1;
-        cpl.input_text[0]='\0';
+	memset(&cpl.stats, 0, sizeof(Stats));
 
-        cpl.title[0] = '\0';
-        cpl.alignment[0] = '\0';
-        cpl.gender[0] = '\0';
-        cpl.range[0] = '\0';
+	cpl.stats.maxsp = 1;
+	cpl.stats.maxhp = 1;
+	cpl.gen_hp = 0.0f;
+	cpl.gen_sp = 0.0f;
+	cpl.gen_grace = 0.0f;
+	cpl.target_hp = 0;
 
-        for (i=0; i<range_size; i++)
-                cpl.ranges[i]=NULL;
+	cpl.stats.maxgrace = 1;
+	cpl.stats.speed = 1;
+	cpl.input_text[0] = '\0';
 
-        cpl.map_x=0;
-        cpl.map_y=0;
+	cpl.title[0] = '\0';
+	cpl.alignment[0] = '\0';
+	cpl.gender[0] = '\0';
+	cpl.range[0] = '\0';
 
-        cpl.ob->nrof   = 1;
+	for (i = 0; i < range_size; i++)
+		cpl.ranges[i] = NULL;
 
-        /* this is set from title in stat cmd */
-        strcpy(cpl.pname , "");
-        strcpy(cpl.title , "");
+	cpl.map_x = 0;
+	cpl.map_y = 0;
 
-		strcpy(cpl.partyname, "");
+	cpl.ob->nrof = 1;
 
-        cpl.menustatus =MENU_NO;
-        cpl.menustatus =MENU_NO;
-        cpl.count_left = 0;
-        cpl.stats.maxsp=1;	/* avoid div by 0 errors */
-        cpl.stats.maxhp=1;	/* ditto */
-        cpl.stats.maxgrace=1;	/* ditto */
-        /* ditto - displayed weapon speed is weapon speed/speed */
-        cpl.stats.speed=0;
-        cpl.stats.weapon_sp=0;
-		cpl.action_timer = 0.0f;
-        cpl.input_text[0]='\0';
-        cpl.range[0] = '\0';
-        cpl.last_command[0] = '\0';
+	/* This is set from title in stat cmd */
+	strcpy(cpl.pname, "");
+	strcpy(cpl.title, "");
 
-        for (i=0; i<range_size; i++)
-            cpl.ranges[i]=NULL;
-        cpl.map_x=0;
-        cpl.map_y=0;
-		cpl.container_tag = -997;
-        cpl.container = NULL;
-        cpl.magicmap=NULL;
+	strcpy(cpl.partyname, "");
 
-        RangeFireMode = 0;
+	cpl.menustatus = MENU_NO;
+	cpl.menustatus = MENU_NO;
+	cpl.count_left = 0;
 
+	/* Avoid division by 0 errors */
+	cpl.stats.maxsp = 1;
+	cpl.stats.maxhp = 1;
+	cpl.stats.maxgrace = 1;
+
+	/* Displayed weapon speed is weapon speed/speed */
+	cpl.stats.speed = 0;
+	cpl.stats.weapon_sp = 0;
+	cpl.action_timer = 0.0f;
+	cpl.input_text[0] = '\0';
+	cpl.range[0] = '\0';
+	cpl.last_command[0] = '\0';
+
+	for (i = 0; i < range_size; i++)
+		cpl.ranges[i] = NULL;
+
+	cpl.map_x = 0;
+	cpl.map_y = 0;
+	cpl.container_tag = -997;
+	cpl.container = NULL;
+	cpl.magicmap = NULL;
+
+	RangeFireMode = 0;
 }
 
-/* temp handler for prayerbutton in player data */
 void widget_player_data_event(int x, int y)
 {
-    int mx=0, my=0;
+    int mx = 0, my = 0;
     mx = x - cur_widget[PLAYER_INFO_ID].x1;
     my = y - cur_widget[PLAYER_INFO_ID].y1;
 
-    if (mx>=184 && mx <= 210 && my >=5 && my<=35)
+    if (mx >= 184 && mx <= 210 && my >=5 && my <= 35)
     {
-        if (!client_command_check("/pray"))
-            send_command("/pray", -1, SC_NORMAL);
-
+		if (!client_command_check("/pray"))
+			send_command("/pray", -1, SC_NORMAL);
     }
 }
-
 
 /* Player name, exp, level, title */
 void widget_show_player_data(int x, int y)
@@ -357,152 +345,193 @@ void widget_show_player_data(int x, int y)
     sprite_blt(Bitmaps[BITMAP_PRAY], x + 184, y + 5, NULL, NULL);
 }
 
-/* hp, grace.... */
+/* Hp, SP, Grace */
 void widget_player_stats(int x, int y)
 {
-    char        buf[256];
-    double      temp;
-    SDL_Rect    box;
-    int         mx, my;
+    char buf[256];
+    double temp;
+    SDL_Rect box;
+    int mx, my;
 	_BLTFX bltfx;
 
     SDL_GetMouseState(&mx, &my);
 
-    /* lets look if we have a backbuffer SF, if not create one from the background */
+    /* Let's look if we have a backbuffer SF, if not create one from the background */
     if (!widgetSF[STATS_ID])
-        widgetSF[STATS_ID]=SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap,Bitmaps[BITMAP_STATS_BG]->bitmap->format,Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
+        widgetSF[STATS_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap, Bitmaps[BITMAP_STATS_BG]->bitmap->format, Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
 
-    /* we have a backbuffer SF, test for the redrawing flag and do the redrawing */
+    /* We have a backbuffer SF, test for the redrawing flag and do the redrawing */
     if (cur_widget[STATS_ID].redraw)
     {
-        cur_widget[STATS_ID].redraw=FALSE;
+        cur_widget[STATS_ID].redraw = 0;
 
-		/* we redraw here only all halfway static stuff */
-        /* we simply don't need to redraw that stuff every frame, how often the stats change? */
+		/* We redraw here only all halfway static stuff
+         * We simply don't need to redraw that stuff every frame, how often the stats change? */
 
-        bltfx.surface=widgetSF[STATS_ID];
+        bltfx.surface = widgetSF[STATS_ID];
         bltfx.flags = 0;
         bltfx.dark_level = 0;
-        bltfx.alpha=0;
+        bltfx.alpha = 0;
 
         sprite_blt(Bitmaps[BITMAP_STATS_BG], 0, 0, NULL, &bltfx);
 
         StringBlt(widgetSF[STATS_ID], &Font6x3Out, "Stats", 8, 1, COLOR_HGOLD, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Str);
+
+		/* Strength */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Str);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Str", 8, 17, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 17, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Dex);
+
+		/* Dexterity */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Dex);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Dex", 8, 28, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 28, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Con);
+
+		/* Constitution */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Con);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Con", 8, 39, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 39, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Int);
+
+		/* Intelligence */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Int);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Int", 8, 50, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 50, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Wis);
+
+		/* Wisdom */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Wis);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Wis", 8, 61, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 61, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Pow);
+
+		/* Power */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Pow);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Pow", 8, 72, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 72, COLOR_GREEN, NULL, NULL);
-        sprintf(buf, "%02d", cpl.stats.Cha);
+
+		/* Charisma */
+        snprintf(buf, sizeof(buf), "%02d", cpl.stats.Cha);
         StringBlt(widgetSF[STATS_ID], &SystemFont, "Cha", 8, 83, COLOR_WHITE, NULL, NULL);
         StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 83, COLOR_GREEN, NULL, NULL);
 
-		StringBlt(widgetSF[STATS_ID], &SystemFont,"Health",58, 10,COLOR_WHITE, NULL, NULL);
-		sprintf(buf,"%d (%d)",cpl.stats.hp ,cpl.stats.maxhp);
-		StringBlt(widgetSF[STATS_ID], &SystemFont,buf,160-get_string_pixel_length(buf,&SystemFont), 10,COLOR_GREEN, NULL, NULL);
+		/* Health */
+		StringBlt(widgetSF[STATS_ID], &SystemFont, "Health", 58, 10, COLOR_WHITE, NULL, NULL);
+		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.hp, cpl.stats.maxhp);
+		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 10, COLOR_GREEN, NULL, NULL);
 
-		StringBlt(widgetSF[STATS_ID], &SystemFont,"Mana",58, 34,COLOR_WHITE, NULL, NULL);
-		sprintf(buf,"%d (%d)",cpl.stats.sp ,cpl.stats.maxsp);
-		StringBlt(widgetSF[STATS_ID], &SystemFont,buf,160-get_string_pixel_length(buf,&SystemFont), 34,COLOR_GREEN, NULL, NULL);
+		/* Mana */
+		StringBlt(widgetSF[STATS_ID], &SystemFont, "Mana", 58, 34, COLOR_WHITE, NULL, NULL);
+		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.sp, cpl.stats.maxsp);
+		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 34, COLOR_GREEN, NULL, NULL);
 
-		StringBlt(widgetSF[STATS_ID], &SystemFont,"Grace",58, 58,COLOR_WHITE, NULL, NULL);
-		sprintf(buf,"%d (%d)",cpl.stats.grace ,cpl.stats.maxgrace);
-		StringBlt(widgetSF[STATS_ID], &SystemFont,buf,160-get_string_pixel_length(buf,&SystemFont), 58,COLOR_GREEN, NULL, NULL);
+		/* Grace */
+		StringBlt(widgetSF[STATS_ID], &SystemFont, "Grace", 58, 58, COLOR_WHITE, NULL, NULL);
+		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.grace, cpl.stats.maxgrace);
+		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 58, COLOR_GREEN, NULL, NULL);
 
-		StringBlt(widgetSF[STATS_ID], &SystemFont,"Food",58, 84,COLOR_WHITE, NULL, NULL);
+		/* Food */
+		StringBlt(widgetSF[STATS_ID], &SystemFont, "Food", 58, 84, COLOR_WHITE, NULL, NULL);
     }
 
-    /* now we blit our backbuffer SF */
-    box.x=x;
-    box.y=y;
+    /* Now we blit our backbuffer SF */
+    box.x = x;
+    box.y = y;
     SDL_BlitSurface(widgetSF[STATS_ID], NULL, ScreenSurface, &box);
 
-	if(cpl.stats.maxhp)
-	   {
-		   int tmp = cpl.stats.hp;
-		   if(tmp <0)
-			   tmp = 0;
-		   temp = (double)tmp /(double)cpl.stats.maxhp;
-		   box.x =0;
-		   box.y = 0;
-		   box.h = Bitmaps[BITMAP_HP]->bitmap->h;
-		   box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w*temp);
-		   if(tmp && !box.w)
-			   box.w =1;
-		   if(box.w > Bitmaps[BITMAP_HP]->bitmap->w)
-			   box.w=Bitmaps[BITMAP_HP]->bitmap->w;
-		   sprite_blt(Bitmaps[BITMAP_HP_BACK],x+57, y+23, NULL, NULL);
-		   sprite_blt(Bitmaps[BITMAP_HP],x+57, y+23, &box, NULL);
-	   }
+	/* Health bar */
+	if (cpl.stats.maxhp)
+	{
+		int tmp = cpl.stats.hp;
 
-	   if(cpl.stats.maxsp)
-	   {
-		   int tmp = cpl.stats.sp;
-		   if(tmp <0)
-			   tmp = 0;
-		   temp = (double)tmp /(double)cpl.stats.maxsp;
-		   box.x =0;
-		   box.y = 0;
-		   box.h = Bitmaps[BITMAP_SP]->bitmap->h;
-		   box.w = (int) (Bitmaps[BITMAP_SP]->bitmap->w*temp);
-		   if(tmp && !box.w)
-			   box.w =1;
-		   if(box.w > Bitmaps[BITMAP_SP]->bitmap->w)
-			   box.w=Bitmaps[BITMAP_SP]->bitmap->w;
-		   sprite_blt(Bitmaps[BITMAP_SP_BACK],x+57, y+47, NULL, NULL);
-		   sprite_blt(Bitmaps[BITMAP_SP],x+57, y+47, &box, NULL);
-	   }
+		if (tmp < 0)
+			tmp = 0;
 
-	   if(cpl.stats.maxgrace)
-	   {
-		   int tmp = cpl.stats.grace;
-		   if(tmp <0)
-			   tmp = 0;
-		   temp = (double)tmp /(double)cpl.stats.maxgrace;
+		temp = (double) tmp / (double) cpl.stats.maxhp;
+		box.x = 0;
+		box.y = 0;
+		box.h = Bitmaps[BITMAP_HP]->bitmap->h;
+		box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w*temp);
 
-		   box.x =0;
-		   box.y = 0;
-		   box.h = Bitmaps[BITMAP_GRACE]->bitmap->h;
-		   box.w = (int) (Bitmaps[BITMAP_GRACE]->bitmap->w*temp);
-		   if(tmp && !box.w)
-			   box.w =1;
-		   if(box.w > Bitmaps[BITMAP_GRACE]->bitmap->w)
-			   box.w=Bitmaps[BITMAP_GRACE]->bitmap->w;
-		   sprite_blt(Bitmaps[BITMAP_GRACE_BACK],x+57, y+71, NULL, NULL);
-		   sprite_blt(Bitmaps[BITMAP_GRACE],x+57, y+71, &box, NULL);
-	   }
+		if (tmp && !box.w)
+			box.w = 1;
 
-	   if(cpl.stats.food)
-	   {
-		   int tmp = cpl.stats.food;
-		   if(tmp <0)
-			   tmp = 0;
-		   temp = (double)tmp /1000;
-		   box.x =0;
-		   box.y = 0;
-		   box.h = Bitmaps[BITMAP_FOOD]->bitmap->h;
-		   box.w = (int) (Bitmaps[BITMAP_FOOD]->bitmap->w*temp);
-		   if(tmp && !box.w)
-			   box.w =1;
-		   if(box.w > Bitmaps[BITMAP_FOOD]->bitmap->w)
-			   box.w=Bitmaps[BITMAP_FOOD]->bitmap->w;
+		if (box.w > Bitmaps[BITMAP_HP]->bitmap->w)
+			box.w=Bitmaps[BITMAP_HP]->bitmap->w;
 
-			sprite_blt(Bitmaps[BITMAP_FOOD_BACK],x+87, y+88, NULL, NULL);
-		   sprite_blt(Bitmaps[BITMAP_FOOD],x+87, y+88, &box, NULL);
-	   }
+		sprite_blt(Bitmaps[BITMAP_HP_BACK], x + 57, y + 23, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_HP], x + 57, y + 23, &box, NULL);
+	}
+
+	/* Mana bar */
+	if (cpl.stats.maxsp)
+	{
+		int tmp = cpl.stats.sp;
+
+		if (tmp < 0)
+			tmp = 0;
+
+		temp = (double) tmp / (double) cpl.stats.maxsp;
+		box.x = 0;
+		box.y = 0;
+		box.h = Bitmaps[BITMAP_SP]->bitmap->h;
+		box.w = (int) (Bitmaps[BITMAP_SP]->bitmap->w * temp);
+
+		if (tmp && !box.w)
+			box.w = 1;
+
+		if (box.w > Bitmaps[BITMAP_SP]->bitmap->w)
+			box.w = Bitmaps[BITMAP_SP]->bitmap->w;
+
+		sprite_blt(Bitmaps[BITMAP_SP_BACK], x + 57, y + 47, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_SP], x + 57, y + 47, &box, NULL);
+	}
+
+	/* Grace bar */
+	if (cpl.stats.maxgrace)
+	{
+		int tmp = cpl.stats.grace;
+
+		if (tmp < 0)
+			tmp = 0;
+
+		temp = (double) tmp / (double) cpl.stats.maxgrace;
+
+		box.x = 0;
+		box.y = 0;
+		box.h = Bitmaps[BITMAP_GRACE]->bitmap->h;
+		box.w = (int) (Bitmaps[BITMAP_GRACE]->bitmap->w * temp);
+
+		if (tmp && !box.w)
+			box.w = 1;
+
+		if (box.w > Bitmaps[BITMAP_GRACE]->bitmap->w)
+			box.w = Bitmaps[BITMAP_GRACE]->bitmap->w;
+
+		sprite_blt(Bitmaps[BITMAP_GRACE_BACK], x + 57, y + 71, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_GRACE], x + 57, y + 71, &box, NULL);
+	}
+
+	/* Food bar */
+	if (cpl.stats.food)
+	{
+		int tmp = cpl.stats.food;
+
+		if (tmp < 0)
+			tmp = 0;
+
+		temp = (double) tmp / 1000;
+		box.x = 0;
+		box.y = 0;
+		box.h = Bitmaps[BITMAP_FOOD]->bitmap->h;
+		box.w = (int) (Bitmaps[BITMAP_FOOD]->bitmap->w * temp);
+
+		if (tmp && !box.w)
+			box.w = 1;
+
+		if (box.w > Bitmaps[BITMAP_FOOD]->bitmap->w)
+			box.w = Bitmaps[BITMAP_FOOD]->bitmap->w;
+
+		sprite_blt(Bitmaps[BITMAP_FOOD_BACK], x + 87, y + 88, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_FOOD], x + 87, y + 88, &box, NULL);
+	}
 }
 
 void widget_menubuttons(int x, int y)
@@ -533,52 +562,58 @@ void widget_menubuttons_event(int x, int y)
 
 void widget_skillgroups(int x, int y)
 {
-    char        buf[256];
+    char buf[256];
     SDL_Rect box;
 	_BLTFX bltfx;
 
     if (!widgetSF[SKILL_LVL_ID])
-        widgetSF[SKILL_LVL_ID]=SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap,
-                Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format,Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
+        widgetSF[SKILL_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
 
     if (cur_widget[SKILL_LVL_ID].redraw)
     {
-        cur_widget[SKILL_LVL_ID].redraw=FALSE;
+        cur_widget[SKILL_LVL_ID].redraw = 0;
 
-		bltfx.surface=widgetSF[SKILL_LVL_ID];
+		bltfx.surface = widgetSF[SKILL_LVL_ID];
         bltfx.flags = 0;
-        bltfx.alpha=0;
+        bltfx.alpha = 0;
         sprite_blt(Bitmaps[BITMAP_SKILL_LVL_BG], 0, 0, NULL, &bltfx);
 
         StringBlt(widgetSF[SKILL_LVL_ID], &Font6x3Out, "Skill Groups", 3, 1, COLOR_HGOLD, NULL, NULL);
         StringBlt(widgetSF[SKILL_LVL_ID], &Font6x3Out, "name / level", 3, 13, COLOR_HGOLD, NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[0]);
+
+		/* Agility */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[0]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ag:", 6, 26, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 26, COLOR_WHITE,
-                  NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[2]);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 26, COLOR_WHITE, NULL, NULL);
+
+		/* Mental */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[2]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Me:", 6, 38, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 38, COLOR_WHITE,
-                  NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[4]);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 38, COLOR_WHITE, NULL, NULL);
+
+		/* Magic */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[4]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ma:", 6, 49, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 49, COLOR_WHITE,
-                  NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[1]);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 49, COLOR_WHITE, NULL, NULL);
+
+		/* Personality */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[1]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Pe:", 6, 62, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 62, COLOR_WHITE,
-                  NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[3]);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 62, COLOR_WHITE, NULL, NULL);
+
+		/* Physique */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[3]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ph:", 6, 74, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 74, COLOR_WHITE,
-                  NULL, NULL);
-        sprintf(buf, " %d", cpl.stats.skill_level[5]);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 74, COLOR_WHITE, NULL, NULL);
+
+		/* Wisdom */
+        snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[5]);
         StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Wi:", 6, 86, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 86, COLOR_WHITE,
-                  NULL, NULL);
+        StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 86, COLOR_WHITE, NULL, NULL);
     }
-    box.x=x;
-    box.y=y;
+
+    box.x = x;
+    box.y = y;
     SDL_BlitSurface(widgetSF[SKILL_LVL_ID], NULL, ScreenSurface, &box);
 }
 
@@ -613,7 +648,7 @@ void widget_show_player_doll_event()
     itemExamined = 0;
 }
 
-/* player doll with inventory */
+/* Player doll with inventory */
 void widget_show_player_doll(int x, int y)
 {
     item *tmp;
@@ -622,8 +657,8 @@ void widget_show_player_doll(int x, int y)
     int index, tooltip_index = -1, ring_flag = 0;
 	int mx, my;
 
-	/* this is ugly to calculate because its a curve which increase heavily
-	 * with lower weapon_speed... so, we use a table*/
+	/* This is ugly to calculate because it's a curve which increases heavily
+	 * with lower weapon_speed... So, we use a table */
 	int ws_temp = cpl.stats.weapon_sp;
 
 	if (ws_temp < 0)
@@ -636,28 +671,32 @@ void widget_show_player_doll(int x, int y)
     if (!cpl.ob)
         return;
 
+	/* Armour class */
     StringBlt(ScreenSurface, &SystemFont, "AC", x + 8, y + 50, COLOR_HGOLD, NULL, NULL);
     snprintf(buf, sizeof(buf), "%02d", cpl.stats.ac);
     StringBlt(ScreenSurface, &SystemFont, buf, x + 25, y + 50, COLOR_WHITE, NULL, NULL);
 
+	/* Weapon class */
     StringBlt(ScreenSurface, &SystemFont, "WC", x + 150, y + 50, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont, "DMG", x + 150, y + 60, COLOR_HGOLD, NULL, NULL);
-    StringBlt(ScreenSurface, &SystemFont, "WS", x + 150, y + 70, COLOR_HGOLD, NULL, NULL);
-
-    snprintf(buf, sizeof(buf), "%02d", cpl.stats.wc);
+	snprintf(buf, sizeof(buf), "%02d", cpl.stats.wc);
     StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 50, COLOR_WHITE, NULL, NULL);
 
-    snprintf(buf, sizeof(buf), "%02d", cpl.stats.dam);
+	/* Damage */
+    StringBlt(ScreenSurface, &SystemFont, "DMG", x + 150, y + 60, COLOR_HGOLD, NULL, NULL);
+	snprintf(buf, sizeof(buf), "%02d", cpl.stats.dam);
     StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 60, COLOR_WHITE, NULL, NULL);
 
-    snprintf(buf, sizeof(buf), "%3.2f sec", weapon_speed_table[ws_temp]);
+	/* Weapon speed */
+    StringBlt(ScreenSurface, &SystemFont, "WS", x + 150, y + 70, COLOR_HGOLD, NULL, NULL);
+	snprintf(buf, sizeof(buf), "%3.2f sec", weapon_speed_table[ws_temp]);
     StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 70, COLOR_WHITE, NULL, NULL);
 
+	/* Moving speed */
     StringBlt(ScreenSurface, &SystemFont, "Speed ", x + 47, y + 190, COLOR_HGOLD, NULL, NULL);
-
     snprintf(buf, sizeof(buf), "%3.2f", (float)cpl.stats.speed / FLOAT_MULTF);
     StringBlt(ScreenSurface, &SystemFont, buf, x + 75, y + 190, COLOR_WHITE, NULL, NULL);
 
+	/* Show items applied */
 	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 	{
 		if (tmp->applied)
@@ -704,7 +743,7 @@ void widget_show_player_doll(int x, int y)
 				blt_inv_item_centered(tmp, player_doll[index].xpos + x, player_doll[index].ypos + y);
 				mb = SDL_GetMouseState(&mx, &my);
 
-				/* prepare item_name tooltip */
+				/* Prepare item name tooltip */
 				if (mx >= x + player_doll[index].xpos && mx < x + player_doll[index].xpos + 33 && my >= y + player_doll[index].ypos && my < y + player_doll[index].ypos + 33)
 				{
 					tooltip_index = index;
@@ -720,78 +759,84 @@ void widget_show_player_doll(int x, int y)
 		}
 	}
 
-	/* draw a item_name tooltip */
-	if (tooltip_index!= -1)
+	/* Draw item name tooltip */
+	if (tooltip_index != -1)
 		show_tooltip(mx, my, tooltip_text);
 }
 
 void widget_show_main_lvl(int x, int y)
 {
-    char        buf[256];
-    double      multi, line;
-    SDL_Rect    box;
-    int         s, level_exp;
+    char buf[256];
+    double multi, line;
+    SDL_Rect box;
+    int s, level_exp;
 	_BLTFX bltfx;
 
     if (!widgetSF[MAIN_LVL_ID])
-        widgetSF[MAIN_LVL_ID]=SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap,
-                Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format,Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
+        widgetSF[MAIN_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
 
     if (cur_widget[MAIN_LVL_ID].redraw)
     {
-        cur_widget[MAIN_LVL_ID].redraw=FALSE;
+        cur_widget[MAIN_LVL_ID].redraw = 0;
 
-		bltfx.surface=widgetSF[MAIN_LVL_ID];
+		bltfx.surface = widgetSF[MAIN_LVL_ID];
         bltfx.flags = 0;
-        bltfx.alpha=0;
+        bltfx.alpha = 0;
 
         sprite_blt(Bitmaps[BITMAP_MAIN_LVL_BG], 0, 0, NULL, &bltfx);
 
         StringBlt(widgetSF[MAIN_LVL_ID], &Font6x3Out, "Level / Exp", 4, 1, COLOR_HGOLD, NULL, NULL);
-        sprintf(buf, "%d", cpl.stats.level);
+        snprintf(buf, sizeof(buf), "%d", cpl.stats.level);
+
         if (cpl.stats.level == MAX_LEVEL)
             StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_HGOLD, NULL, NULL);
         else
             StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
-        sprintf(buf, "%d", cpl.stats.exp);
+
+        snprintf(buf, sizeof(buf), "%d", cpl.stats.exp);
         StringBlt(widgetSF[MAIN_LVL_ID], &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
-        /* calc the exp bubbles */
+        /* Calc the exp bubbles */
         level_exp = cpl.stats.exp - server_level.exp[cpl.stats.level];
-		multi = modf(((double)level_exp/(double)
-			(server_level.exp[cpl.stats.level+1]-server_level.exp[cpl.stats.level])*10.0), &line);
+		multi = modf(((double) level_exp / (double) (server_level.exp[cpl.stats.level + 1] - server_level.exp[cpl.stats.level]) * 10.0), &line);
 
         sprite_blt(Bitmaps[BITMAP_EXP_BORDER], 9, 49, NULL, &bltfx);
+
         if (multi)
         {
             box.x = 0;
             box.y = 0;
             box.h = Bitmaps[BITMAP_EXP_SLIDER]->bitmap->h;
             box.w = (int) (Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w * multi);
+
             if (!box.w)
                 box.w = 1;
+
             if (box.w > Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w)
                 box.w = Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w;
+
             sprite_blt(Bitmaps[BITMAP_EXP_SLIDER], 9, 49, &box, &bltfx);
         }
 
         for (s = 0; s < 10; s++)
             sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE2], 10 + s * 8, 40, NULL, &bltfx);
+
         for (s = 0; s < (int) line; s++)
             sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE1], 10 + s * 8, 40, NULL, &bltfx);
     }
-    box.x=x;
-    box.y=y;
+
+    box.x = x;
+    box.y = y;
     SDL_BlitSurface(widgetSF[MAIN_LVL_ID], NULL, ScreenSurface, &box);
 }
 
 void widget_show_skill_exp(int x, int y)
 {
 	_BLTFX bltfx;
-	char        buf[256];
-    double      multi, line;
-    SDL_Rect    box;
-    int         s, level_exp;
+	char buf[256];
+    double multi, line;
+    SDL_Rect box;
+    int s, level_exp;
     long int liLExp = 0;
     long int liLExpTNL = 0;
     long int liTExp = 0;
@@ -800,14 +845,16 @@ void widget_show_skill_exp(int x, int y)
 	multi = line = 0;
 	static int action_tick = 0;
 
-	/* pre-emptively tick down the skill delay timer */
+	/* Pre-emptively tick down the skill delay timer */
     if (cpl.action_timer > 0)
     {
         if (LastTick - action_tick > 125)
         {
             cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
+
             if (cpl.action_timer < 0)
                 cpl.action_timer = 0;
+
             action_tick = LastTick;
 			WIDGET_REDRAW(SKILL_EXP_ID);
         }
@@ -817,16 +864,15 @@ void widget_show_skill_exp(int x, int y)
 
 
     if (!widgetSF[SKILL_EXP_ID])
-        widgetSF[SKILL_EXP_ID]=SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap,
-                Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format,Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
+        widgetSF[SKILL_EXP_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
 
     if (cur_widget[SKILL_EXP_ID].redraw)
     {
-        cur_widget[SKILL_EXP_ID].redraw=FALSE;
+        cur_widget[SKILL_EXP_ID].redraw = 0;
 
-		bltfx.surface=widgetSF[SKILL_EXP_ID];
+		bltfx.surface = widgetSF[SKILL_EXP_ID];
         bltfx.flags = 0;
-        bltfx.alpha=0;
+        bltfx.alpha = 0;
 
         sprite_blt(Bitmaps[BITMAP_SKILL_EXP_BG], 0, 0, NULL, &bltfx);
 
@@ -835,35 +881,37 @@ void widget_show_skill_exp(int x, int y)
 
         if (cpl.skill_name[0] != 0)
         {
-            /* BEGIN robed's exp-Display Patch */
             switch (options.expDisplay)
             {
                 /* Default */
-                default:
-                case 0:
-                    sprintf(buf, "%s", cpl.skill_name);
-                break;
+				default:
+				case 0:
+                    snprintf(buf, sizeof(buf), "%s", cpl.skill_name);
+					break;
 
                 /* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
-                case 1: case 2: case 3: case 4:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
                     if ((skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0) || (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2))
-                        sprintf(buf, "%s - level: %d", cpl.skill_name, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+                        snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
                     else
-                        sprintf(buf, "%s - level: **", cpl.skill_name);
-                break;
+                        snprintf(buf, sizeof(buf), "%s - level: **", cpl.skill_name);
+					break;
             }
+
             StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 28, 0, COLOR_WHITE, NULL, NULL);
 
             if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
             {
                 level_exp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
-                multi = modf(((double)level_exp/(double)
-                           (server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level+1]-server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level])*10.0), &line);
+                multi = modf(((double) level_exp / (double) (server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1] - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level]) * 10.0), &line);
 
-                liTExp    = skill_list[cpl.skill_g].entry[cpl.skill_e].exp;
+                liTExp = skill_list[cpl.skill_g].entry[cpl.skill_e].exp;
                 liTExpTNL = server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level + 1];
 
-                liLExp    = liTExp    - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
+                liLExp = liTExp - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
                 liLExpTNL = liTExpTNL - server_level.exp[skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level];
 
                 fLExpPercent = ((float) liLExp / (float) (liLExpTNL)) * 100.0f;
@@ -875,52 +923,55 @@ void widget_show_skill_exp(int x, int y)
                 default:
                 case 0:
                     if(skill_list[cpl.skill_g].entry[cpl.skill_e].exp >=0)
-                        sprintf(buf, "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp );
+                        snprintf(buf, sizeof(buf), "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
                     else if(skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
-                        sprintf(buf, "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level );
+                        snprintf(buf, sizeof(buf), "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
                     else
-                        sprintf(buf, "** / **");
-                break;
+                        snprintf(buf, sizeof(buf), "** / **");
+					break;
 
                 /* LExp% */
                 case 1:
                     if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
-                        sprintf(buf, "%#05.2f%%", fLExpPercent);
+                        snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
                     else
-                        sprintf(buf, "**.**%%");
-                break;
+                        snprintf(buf, sizeof(buf), "**.**%%");
+					break;
 
                 /* LExp/LExp tnl */
                 case 2:
                     if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
-                        sprintf(buf, "%ld / %ld", liLExp, liLExpTNL);
+                        snprintf(buf, sizeof(buf), "%ld / %ld", liLExp, liLExpTNL);
                     else
-                        sprintf(buf, "** / **");
-                break;
+                        snprintf(buf, sizeof(buf), "** / **");
+					break;
 
                 /* TExp/TExp tnl */
                 case 3:
                     if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
-                        sprintf(buf, "%ld / %ld", liTExp, liTExpTNL);
+                        snprintf(buf, sizeof(buf), "%ld / %ld", liTExp, liTExpTNL);
                     else
-                        sprintf(buf, "** / **");
-                break;
+                        snprintf(buf, sizeof(buf), "** / **");
+					break;
 
                 /* (LExp%) LExp/LExp tnl */
                 case 4:
                     if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
-                        sprintf(buf, "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);
+                        snprintf(buf, sizeof(buf), "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);
                     else
-                        sprintf(buf, "(**.**%%) **");
-                break;
+                        snprintf(buf, sizeof(buf), "(**.**%%) **");
+					break;
             }
-            if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level==MAX_LEVEL)
-                sprintf(buf, "more levels in 2 weeks (tm)");
+
+            if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == MAX_LEVEL)
+                snprintf(buf, sizeof(buf), "Maximum level reached");
+
             StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 28, 9, COLOR_WHITE, NULL, NULL);
 
-            sprintf(buf, "%1.2f sec", cpl.action_timer);
+            snprintf(buf, sizeof(buf), "%1.2f sec", cpl.action_timer);
             StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 160, 0, COLOR_WHITE, NULL, NULL);
         }
+
         sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 143, 11, NULL, &bltfx);
 
         if (multi)
@@ -929,30 +980,33 @@ void widget_show_skill_exp(int x, int y)
             box.y = 0;
             box.h = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->h;
             box.w = (int) (Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w * multi);
+
             if (!box.w)
                 box.w = 1;
+
             if (box.w > Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w)
                 box.w = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w;
+
             sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 146, 18, &box, &bltfx);
         }
 
         if (line > 0)
         {
             for (s = 0; s < (int) line; s++)
-                sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 146 + s * 5, 13, NULL, &bltfx);
+				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 146 + s * 5, 13, NULL, &bltfx);
         }
     }
-    box.x=x;
-    box.y=y;
+
+    box.x = x;
+    box.y = y;
     SDL_BlitSurface(widgetSF[SKILL_EXP_ID], NULL, ScreenSurface, &box);
 }
 
 void widget_skill_exp_event()
 {
-   /* make a button for robed's exp-patch */
     int i, ii, j, jj, bFound = 0;
 
-    /* lets find the skill... and setup the shortcuts to the exp values */
+    /* Let's find the skill... and setup the shortcuts to the exp values */
     for (ii = 0; ii <= SKILL_LIST_MAX && (!bFound); ii++)
     {
         jj = cpl.skill_g + ii;
@@ -961,25 +1015,25 @@ void widget_skill_exp_event()
 
         for (i = 0; i < DIALOG_LIST_ENTRY && (!bFound); i++)
         {
-            // First page, we have to be offset (and break before looping)
+            /* First page, we have to be offset (and break before looping) */
             if (ii == 0)
             {
                 j = cpl.skill_e + i + 1;
                 if (j >= DIALOG_LIST_ENTRY)
                     break;
             }
-            // Other pages we look through MUST NOT BE OFFSET
+            /* Other pages we look through MUST NOT BE OFFSET */
             else
                 j = i;
 
             if (j >= DIALOG_LIST_ENTRY)
                 j -= DIALOG_LIST_ENTRY;
 
-            /* we have a list entry */
+            /* We have a list entry */
             if (skill_list[jj].entry[j].flag == LIST_ENTRY_KNOWN)
             {
                 /* First one we find is the one we want */
-                sprintf(cpl.skill_name, "%s", skill_list[jj].entry[j].name);
+                snprintf(cpl.skill_name, sizeof(cpl.skill_name), "%s", skill_list[jj].entry[j].name);
                 cpl.skill_g = jj;
                 cpl.skill_e = j;
                 bFound = 1;
@@ -987,45 +1041,50 @@ void widget_skill_exp_event()
             }
         }
     }
+
     WIDGET_REDRAW(SKILL_EXP_ID);
 }
 
-
 void widget_show_regeneration(int x, int y)
 {
-    char        buf[256];
-    SDL_Rect    box;
+    char buf[256];
+    SDL_Rect box;
 	_BLTFX bltfx;
 
     if (!widgetSF[REGEN_ID])
-        widgetSF[REGEN_ID]=SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap,
-                Bitmaps[BITMAP_REGEN_BG]->bitmap->format,Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
+        widgetSF[REGEN_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap, Bitmaps[BITMAP_REGEN_BG]->bitmap->format, Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
 
     if (cur_widget[REGEN_ID].redraw)
     {
-        cur_widget[REGEN_ID].redraw=FALSE;
+        cur_widget[REGEN_ID].redraw = 0;
 
-		bltfx.surface=widgetSF[REGEN_ID];
+		bltfx.surface = widgetSF[REGEN_ID];
         bltfx.flags = 0;
-        bltfx.alpha=0;
+        bltfx.alpha = 0;
 
         sprite_blt(Bitmaps[BITMAP_REGEN_BG], 0, 0, NULL, &bltfx);
 
-        x-=173;
+        x -= 173;
 
         StringBlt(widgetSF[REGEN_ID], &Font6x3Out, "Regeneration", 4, 1, COLOR_HGOLD, NULL, NULL);
+
+		/* Health */
         StringBlt(widgetSF[REGEN_ID], &SystemFont, "HP", 61, 13, COLOR_HGOLD, NULL, NULL);
-        sprintf(buf, "%2.1f", cpl.gen_hp);
+        snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_hp);
         StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 75, 13, COLOR_WHITE, NULL, NULL);
 
+		/* Mana */
         StringBlt(widgetSF[REGEN_ID], &SystemFont, "Mana", 5, 13, COLOR_HGOLD, NULL, NULL);
-        StringBlt(widgetSF[REGEN_ID], &SystemFont, "Grace", 5, 24, COLOR_HGOLD, NULL, NULL);
-        sprintf(buf, "%2.1f", cpl.gen_sp);
+		snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_sp);
         StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 35, 13, COLOR_WHITE, NULL, NULL);
-        sprintf(buf, "%2.1f", cpl.gen_grace);
+
+		/* Grace */
+        StringBlt(widgetSF[REGEN_ID], &SystemFont, "Grace", 5, 24, COLOR_HGOLD, NULL, NULL);
+        snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_grace);
         StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 35, 24, COLOR_WHITE, NULL, NULL);
     }
-    box.x=x;
-    box.y=y;
+
+    box.x = x;
+    box.y = y;
     SDL_BlitSurface(widgetSF[REGEN_ID], NULL, ScreenSurface, &box);
 }

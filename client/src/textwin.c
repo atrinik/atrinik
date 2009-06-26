@@ -123,7 +123,6 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY){
 
     clicked_row = (mouseY - cur_widget[wID].y1) / 10;
 
-	//LOG(-1, "DEBUG: %d, %d, %d\n", clicked_row, cur_widget[wID].x1, cur_widget[wID].y1);
     text = get_keyword_start(actWin, mouseX, &clicked_row, wID);
     if (text == NULL)
         return;
@@ -338,10 +337,7 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
         box.x = box.y = 0;
         box.w = Bitmaps[BITMAP_SLIDER]->bitmap->w;
         box.h = txtwin[actWin].size * 10 + 1;
-       //if (actWin == TW_CHAT)
             temp = -9; /* no textinput-line */
-       //else
-        //   temp = 0;
         sprite_blt(Bitmaps[BITMAP_SLIDER_UP], x + 250, y + 2, NULL, bltfx);
         sprite_blt(Bitmaps[BITMAP_SLIDER_DOWN], x + 250, y + 13 + temp + txtwin[actWin].size * 10, NULL, bltfx);
         sprite_blt(Bitmaps[BITMAP_SLIDER], x + 250, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + temp, &box, bltfx);
