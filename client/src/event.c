@@ -486,7 +486,7 @@ int Event_PollInputDevice(void)
 							{
 								l_len = 0;
 
-								sprintf(line, "%s", page1->line[i]->line);
+								snprintf(line, sizeof(line), "%s", page1->line[i]->line);
 
 								p = strtok(line, " ");
 								while (p)
@@ -506,7 +506,7 @@ int Event_PollInputDevice(void)
 
 								if (helpBuf)
 								{
-									sprintf(word, "%s", helpBuf);
+									snprintf(word, sizeof(word), "%s", helpBuf);
 									p2 = strtok(word, "^");
 									book_clear();
 									show_help(p2);
@@ -531,7 +531,7 @@ int Event_PollInputDevice(void)
 								{
 									l_len = 0;
 
-									sprintf(line, "%s", page2->line[i]->line);
+									snprintf(line, sizeof(line), "%s", page2->line[i]->line);
 
 									p = strtok(line, " ");
 									while (p)
@@ -551,7 +551,7 @@ int Event_PollInputDevice(void)
 
 									if (helpBuf)
 									{
-										sprintf(word, "%s", helpBuf);
+										snprintf(word, sizeof(word), "%s", helpBuf);
 										p2 = strtok(word, "^");
 										book_clear();
 										show_help(p2);
@@ -2531,7 +2531,7 @@ void check_menu_keys(int menu, int key)
 							/* ... and it's not party we're member of, send command to server and close the GUI. */
 							if (strcmp(partyname, cpl.partyname))
 							{
-								sprintf(buf, "pt join %s", partyname);
+								snprintf(buf, sizeof(buf), "pt join %s", partyname);
 								cs_write_string(csocket.fd, buf, strlen(buf));
 
 								map_udate_flag = 2;

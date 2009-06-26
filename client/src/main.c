@@ -1588,7 +1588,7 @@ int main(int argc, char *argv[])
 		/* wait for keypress */
 	}
 
-	sprintf(buf, "Welcome to Atrinik version %s", PACKAGE_VERSION);
+	snprintf(buf, sizeof(buf), "Welcome to Atrinik version %s", PACKAGE_VERSION);
 	draw_info(buf, COLOR_HGOLD);
 
 	draw_info("Init network...", COLOR_GREEN);
@@ -1797,7 +1797,7 @@ int main(int argc, char *argv[])
   		/* Print frame rate */
 		if (options.show_frame && GameStatus == GAME_STATUS_PLAY && cpl.menustatus == MENU_NO)
 		{
-            sprintf(buf, "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
+            snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
 
 
 			StringBlt(ScreenSurface, &SystemFont, buf, cur_widget[MAPNAME_ID].x1, cur_widget[MAPNAME_ID].y1 + 12, COLOR_DEFAULT, NULL, NULL);
