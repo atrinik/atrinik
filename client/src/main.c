@@ -637,7 +637,7 @@ Boolean game_status_chain(void)
 
 #ifdef INSTALL_SOUND
 		if (!music.flag || strcmp(music.name, "orchestral.ogg"))
-			sound_play_music("orchestral.ogg", options.music_volume, -1, 0, MUSIC_MODE_DIRECT);
+  			sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
 #endif
 
 		clear_map();
@@ -1559,7 +1559,7 @@ int main(int argc, char *argv[])
 	read_help_files();
 	show_intro("Load help files");
 
-	sound_play_music("orchestral.ogg", options.music_volume, -1, 0, MUSIC_MODE_DIRECT);
+	sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
 	show_intro(NULL);
 
 	while (1)

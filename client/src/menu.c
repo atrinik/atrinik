@@ -660,7 +660,7 @@ int init_media_tag(char *tag)
 
 	if (strstr(tag,".ogg"))
 	{
-		sound_play_music(tag, options.music_volume, atoi(p2), atoi(p1), MUSIC_MODE_NORMAL);
+		sound_play_music(tag, options.music_volume, atoi(p1), atoi(p2), MUSIC_MODE_NORMAL);
 		/* Because we have called sound_play_music, we don't have to fade out extern */
 		ret = 1;
 	}
