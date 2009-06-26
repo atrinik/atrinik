@@ -842,8 +842,8 @@ void widget_show_skill_exp(int x, int y)
     long int liTExp = 0;
     long int liTExpTNL = 0;
     float fLExpPercent = 0;
-	multi = line = 0;
 	static int action_tick = 0;
+	multi = line = 0;
 
 	/* Pre-emptively tick down the skill delay timer */
     if (cpl.action_timer > 0)

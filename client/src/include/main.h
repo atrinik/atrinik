@@ -127,7 +127,7 @@ enum {
 
 enum {
 	SRV_CLIENT_STATUS_OK,
-	SRV_CLIENT_STATUS_UPDATE,
+	SRV_CLIENT_STATUS_UPDATE
 };
 
 #define	SRV_CLIENT_FLAG_BMAP 1
@@ -357,7 +357,7 @@ typedef enum _game_status
 	GAME_STATUS_WAITFORPLAY,	/* we simply wait for game start */
         /* means, this is not a serial stepping here*/
 	GAME_STATUS_QUIT,   /* we are in quit menu*/
-	GAME_STATUS_PLAY,   /* we play now!!*/
+	GAME_STATUS_PLAY   /* we play now!!*/
 } _game_status;
 
 extern int f_custom_cursor;
@@ -563,7 +563,7 @@ typedef enum _bitmap_index {
 
 /* for custom cursors */
 enum {
-    MSCURSOR_MOVE = 1,
+    MSCURSOR_MOVE = 1
 };
 
 extern struct gui_book_struct *gui_interface_book;

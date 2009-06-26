@@ -61,15 +61,15 @@ typedef struct item_struct {
     uint16 anim_speed;		/* how often to animate */
     uint16 anim_state;		/* last face in sequence drawn */
     uint16 last_anim;		/* how many ticks have passed since we last animated */
-    uint16 magical:1;		/* item is magical */
-    uint16 cursed:1;		/* item is cursed */
-    uint16 damned:1;		/* item is damned */
-    uint16 unpaid:1;		/* item is unpaid */
-    uint16 locked:1;		/* item is locked */
-    uint16 traped:1;		/* item is traped */
-    uint16 applied:1;		/* item is applied */
-    uint16 open:1;		/* container is open */
-    uint16 inv_updated:1;	/* item's inventory is updated, this is set
+    uint16 magical;		/* item is magical */
+    uint16 cursed;		/* item is cursed */
+    uint16 damned;		/* item is damned */
+    uint16 unpaid;		/* item is unpaid */
+    uint16 locked;		/* item is locked */
+    uint16 traped;		/* item is traped */
+    uint16 applied;		/* item is applied */
+    uint16 open;		/* container is open */
+    uint16 inv_updated;	/* item's inventory is updated, this is set
 				   when item's inventory is modified, draw
 				   routines can use this to redraw things */
     uint8 apply_type;		/* how item is applied (worn/wield/etc) */

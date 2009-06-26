@@ -1200,7 +1200,7 @@ int read_bmap_tmp(void)
 			 */
 			while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
 			{
-				sscanf(buf,"%x %x %s", &len, &crc, name);
+				sscanf(buf,"%d %x %s", &len, &crc, name);
 				at=find_bmap(name);
 
 				/* now we can check, our local file package has

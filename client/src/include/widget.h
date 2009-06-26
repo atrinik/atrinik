@@ -59,14 +59,14 @@ typedef enum _proc_type
 {
     PROCESS,
     EVENT,
-    KILL,
+    KILL
 } _proc_type;
 
 enum _MEvent
 {
     MOUSE_UP = 1,
     MOUSE_DOWN,
-    MOUSE_MOVE,
+    MOUSE_MOVE
 };
 
 /*#define DEBUG_WIDGET*/
@@ -95,7 +95,7 @@ typedef enum _WidgetID
     IN_CONSOLE_ID,
     IN_NUMBER_ID,
 
-	TOTAL_WIDGETS, /* Must be last element */
+	TOTAL_WIDGETS /* Must be last element */
 }_WidgetID;
 
 /* used for mouse button/move events */

@@ -78,7 +78,7 @@ void metaserver_connect(void)
 	if (handle)
 	{
 		/* Set connection timeout value in case metaserver is down or something */
-		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 1);
+		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
 
 		/* URL */
 		curl_easy_setopt(handle, CURLOPT_URL, "http://meta.atrinik.org/");

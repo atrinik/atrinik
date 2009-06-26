@@ -31,7 +31,7 @@
 /* status of this bitmap/sprite */
 typedef enum _sprite_status {
 	SPRITE_STATUS_UNLOADED,
-	SPRITE_STATUS_LOADED,
+	SPRITE_STATUS_LOADED
 } _sprite_status;
 
 /* some other infos */

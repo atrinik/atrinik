@@ -23,4 +23,7 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/* The time in seconds for timeout upon connecting */
+#define METASERVER_TIMEOUT 3
+
 void metaserver_connect(void);
