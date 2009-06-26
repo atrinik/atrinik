@@ -27,33 +27,11 @@
 
 #include <include.h>
 
-/* Takes an integer, and returns pointer to text for
- * tab to draw. */
-char *party_tab_text(int i)
-{
-	char *text = "";
-
-	switch (i)
-	{
-		case PARTY_TAB_LIST:
-			text = "List";
-			break;
-
-		case PARTY_TAB_WHO:
-			text = "Who";
-			break;
-
-		case PARTY_TAB_LEAVE:
-			text = "Leave";
-			break;
-
-		case PARTY_TAB_PASSWORD:
-			text = "Password";
-			break;
-	}
-
-	return text;
-}
+/* Party GUI tabs */
+static char *party_tabs[] = {
+	"List", 	"Who",
+	"Leave",	"Password"
+};
 
 /* Switch a tab. Called on switching tabs, to call the required function. */
 void switch_tabs()
@@ -122,7 +100,7 @@ void draw_party_tabs(int x, int y)
 		/* Mouse over it? */
 		if (mx > x && mx < x + 100 && my > y && my < y + 17)
 		{
-			StringBlt(ScreenSurface, &SystemFont, party_tab_text(i), x + 24, y + 3, COLOR_HGOLD, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, party_tabs[i], x + 24, y + 3, COLOR_HGOLD, NULL, NULL);
 
 			if (mb && mb_clicked)
 				active = 1;
@@ -135,7 +113,7 @@ void draw_party_tabs(int x, int y)
 			}
 		}
 		else
-			StringBlt(ScreenSurface, &SystemFont, party_tab_text(i), x + 24, y + 3, COLOR_WHITE, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, party_tabs[i], x + 24, y + 3, COLOR_WHITE, NULL, NULL);
 
 		y += 17;
 		i++;
