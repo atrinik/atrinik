@@ -33,18 +33,33 @@
 typedef struct _option
 {
 	char *name;
-	char *info1;	/* info text row 1 */
-	char *info2;	/* info text row 2 */
-	char *val_text; /* text-replacement for number values */
+
+	/* Info text row 1 */
+	char *info1;
+
+	/* Info text row 2 */
+	char *info2;
+
+	/* Text replacement for number values */
+	char *val_text;
+
 	int  sel_type;
 	int  minRange, maxRange, deltaRange;
 	int default_val;
 	void *value;
 	int value_type;
 }_option;
+
 extern _option opt[];
 
-extern enum {VAL_BOOL,  VAL_TEXT, VAL_CHAR, VAL_INT, VAL_U32} value_type;
+extern enum {
+	VAL_BOOL,
+	VAL_TEXT,
+	VAL_CHAR,
+	VAL_INT,
+	VAL_U32
+} value_type;
+
 extern char *opt_tab[];
 extern int dialog_new_char_warn;
 
@@ -56,4 +71,3 @@ extern void accept_char();
 extern void add_close_button(int x, int y, int menu);
 extern void draw_frame(int x, int y, int w, int h);
 #endif
-

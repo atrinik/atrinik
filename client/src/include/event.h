@@ -26,16 +26,26 @@
 #if !defined(__EVENT_H)
 #define __EVENT_H
 
-#define MAX_KEYS 512
-#define MAX_KEYMAP 512
+#define MAX_KEYS 	512
+#define MAX_KEYMAP 	512
 
 typedef struct _key_macro
 {
-	char macro[64]; /* the macro*/
-	char cmd[64]; /* our cmd string*/
-	int internal;/*intern: Use this function to generate the cmd*/
-	int value;/* a default value for cmds*/
-	int mode;/* the default send mode*/
+	/* The macro */
+	char macro[64];
+
+	/* Our command string */
+	char cmd[64];
+
+	/* Internal: Use this function to generate the command */
+	int internal;
+
+	/* A default value for commands */
+	int value;
+
+	/* The default send mode */
+	int mode;
+
 	int menu_mode;
 } _key_macro;
 
@@ -46,39 +56,73 @@ enum {
 };
 
 enum {
-	KEYFUNC_NO, KEYFUNC_RUN, KEYFUNC_MOVE,
-	KEYFUNC_CONSOLE, KEYFUNC_CURSOR, KEYFUNC_RANGE,
-	KEYFUNC_APPLY, KEYFUNC_DROP, KEYFUNC_GET,
-	KEYFUNC_LOCK,KEYFUNC_MARK, KEYFUNC_EXAMINE,
-	KEYFUNC_PAGEUP, KEYFUNC_PAGEDOWN, KEYFUNC_HELP,
-	KEYFUNC_PAGEUP_TOP, KEYFUNC_PAGEDOWN_TOP,
-	KEYFUNC_OPTION,  KEYFUNC_SPELL,
-	KEYFUNC_KEYBIND, KEYFUNC_SKILL,
-	KEYFUNC_LAYER0,	KEYFUNC_LAYER1,	KEYFUNC_LAYER2,	KEYFUNC_LAYER3,
-	KEYFUNC_TARGET_ENEMY, KEYFUNC_TARGET_FRIEND, KEYFUNC_TARGET_SELF,
-	KEYFUNC_FIREREADY, KEYFUNC_COMBAT
+	KEYFUNC_NO,
+	KEYFUNC_RUN,
+	KEYFUNC_MOVE,
+	KEYFUNC_CONSOLE,
+	KEYFUNC_CURSOR,
+	KEYFUNC_RANGE,
+	KEYFUNC_APPLY,
+	KEYFUNC_DROP,
+	KEYFUNC_GET,
+	KEYFUNC_LOCK,
+	KEYFUNC_MARK,
+	KEYFUNC_EXAMINE,
+	KEYFUNC_PAGEUP,
+	KEYFUNC_PAGEDOWN,
+	KEYFUNC_HELP,
+	KEYFUNC_PAGEUP_TOP,
+	KEYFUNC_PAGEDOWN_TOP,
+	KEYFUNC_OPTION,
+	KEYFUNC_SPELL,
+	KEYFUNC_KEYBIND,
+	KEYFUNC_SKILL,
+	KEYFUNC_LAYER0,
+	KEYFUNC_LAYER1,
+	KEYFUNC_LAYER2,
+	KEYFUNC_LAYER3,
+	KEYFUNC_TARGET_ENEMY,
+	KEYFUNC_TARGET_FRIEND,
+	KEYFUNC_TARGET_SELF,
+	KEYFUNC_FIREREADY,
+	KEYFUNC_COMBAT
 };
 
 typedef struct _keybind_key {
-	char macro[256];            /* the text */
-	char keyname[256];            /* the text */
-	int entry;                  /* -1: new macro - 0-xx edit entry */
+	/* The text */
+	char macro[256];
+
+	/* The text */
+	char keyname[256];
+
+	/* -1: new macro - 0-xx edit entry */
+	int entry;
+
 	int key;
 	int repeat_flag;
 }_keybind_key;
 
-extern int  old_mouse_y;
-extern uint32 MouseState; /* state of the buttons */
-extern int MouseEvent; /* whether there is an event (removed at end of main loop) */
+extern int old_mouse_y;
+
+enum {
+	DRAG_GET_STATUS = -1,
+	DRAG_NONE,
+	DRAG_IWIN_BELOW,
+	DRAG_IWIN_INV,
+	DRAG_QUICKSLOT,
+	DRAG_QUICKSLOT_SPELL,
+	DRAG_PDOLL};
+
+/* Dor debug/alpha, remove later */
+extern int KeyScanFlag;
+extern int cursor_type;
+
+/* Whether there is an event (removed at end of main loop) */
+extern int MouseEvent;
 extern int itemExamined;
 
-enum {DRAG_GET_STATUS =-1, DRAG_NONE, DRAG_IWIN_BELOW, DRAG_IWIN_INV,
-      DRAG_QUICKSLOT, DRAG_QUICKSLOT_SPELL, DRAG_PDOLL};
-
-extern int KeyScanFlag; /* for debug/alpha , remove later */
-extern int cursor_type;
-extern int MouseEvent; /* whether there is an event (removed at end of main loop) */
-extern uint32 MouseState; /* state of the buttons */
+/* State of the buttons */
+extern uint32 MouseState;
 extern _key_macro defkey_macro[];
 extern const int DEFAULT_KEYMAP_MACROS;
 extern int draggingInvItem(int src);
@@ -90,12 +134,12 @@ extern void save_keybind_file(char *fname);
 extern void check_menu_keys(int menu, int value);
 extern int check_menu_macros(char *text);
 extern void check_keys(int key);
+extern int process_macro_keys(int id, int value);
 
-int process_macro_keys(int id, int value);
-
-/* use these constants to determine the state of mouse and its events */
+/* Use these constants to determine the state of mouse and its events */
 enum {
-	IDLE=1, /* don't change this to 0 (enum default is 0, so leave this as is) */
+	/* Don't change this to 0 (enum default is 0, so leave this as is) */
+	IDLE = 1,
 	LB_DN,
 	LB_UP,
 	RB_DN,
@@ -105,4 +149,3 @@ enum {
 };
 
 #endif
-

@@ -29,6 +29,8 @@
 * It displays the data in an easy-to-grab way for the client.           *
 ************************************************************************/
 
+header('Content-type: text/plain');
+
 require_once('common.php');
 
 // Query to select servers

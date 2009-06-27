@@ -22,56 +22,50 @@
 *                                                                       *
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
-/* This is a config file for the client.
- */
+
+/* This is a config file for the client. */
 
 #define VERSION_CS 991017
 #define VERSION_SC 991017
 
-#define KEYBIND_FILE "./keys.dat"
-#define OPTION_FILE  "./options.dat"
-#define ARCHDEF_FILE "./archdef.dat"
-#define INTERFACE_FILE "./interface.gui"
+#define KEYBIND_FILE 	"./keys.dat"
+#define OPTION_FILE  	"./options.dat"
+#define ARCHDEF_FILE 	"./archdef.dat"
+#define INTERFACE_FILE 	"./interface.gui"
 
-#define LOG_FILE     "./client.log"
+#define LOG_FILE     	"./client.log"
 
 #define CLIENT_ICON_NAME "icon.png"
 
-/* socket timeout value */
+/* Socket timeout value */
 #define MAX_TIME 0
 
+/* Maximum level you can reach */
 #define MAX_LEVEL 110
 
+/* Experimental feature of widget snapping */
 /*#define WIDGET_SNAP*/
 
-/* Default Screen
- * TODO: allowing different screen sizes.
- * Because i want a fixed map size (gaming issue), bigger screens will give
- * only more space for menus. Some work to do - i used some fixed positions.
- */
-#define SCREEN_XLEN 800
-#define SCREEN_YLEN 600
-
-/* Increase when we got MANY new face... Hopefully,we need to increase this
- * in the future...
- */
+/* Increase when we got MANY new face... Hopefully, we need to increase this
+ * in the future... */
 #define MAX_FACE_TILES 30000
 
 #define MAXANIM 10000
 
-#define MAP_MAX_SIZE	17
+#define MAP_MAX_SIZE 17
 
 /* Careful when changing this, should be no need */
-#define MAX_INPUT_STRING 256				/* max. string len in input string*/
-#define MAX_HISTORY_LINES 20                           /* max input history lines */
 
+/* Max string len in input string */
+#define MAX_INPUT_STRING 256
+/* Max input history lines */
+#define MAX_HISTORY_LINES 20
 
 /* Maximum size of any packet we expect.  Using this makes it so we don't need to
- * allocated and deallocated teh same buffer over and over again and the price
- * of using a bit of extra memory.  IT also makes the code simpler.
- */
+ * allocated and deallocated the same buffer over and over again and the price
+ * of using a bit of extra memory. IT also makes the code simpler. */
 #define MAXSOCKBUF (256 * 4096)
 
-/* The numbers of our dark levels */
-/* for each level-1 we store a own bitmap copy, so be careful */
+/* The numbers of our dark levels.
+ * For each level - 1 we store an own bitmap copy, so be careful */
 #define DARK_LEVELS 7

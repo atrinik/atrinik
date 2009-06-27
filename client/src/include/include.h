@@ -47,21 +47,17 @@
  #endif
 #endif
 
-typedef unsigned int    uint32;
-typedef signed int      sint32;
-typedef unsigned short  uint16;
-typedef signed short    sint16;
-typedef unsigned char   uint8;
-typedef signed char     sint8;
-
-/* ok, here we define for what we want compile */
-/* later this should be insert a makefile */
+typedef unsigned int uint32;
+typedef signed int sint32;
+typedef unsigned short uint16;
+typedef signed short sint16;
+typedef unsigned char uint8;
+typedef signed char sint8;
 
 #include <wrapper.h>
 #ifdef INSTALL_SOUND
 #include <SDL_mixer.h>
 #endif
-
 
 #include <zlib.h>
 #include <item.h>
