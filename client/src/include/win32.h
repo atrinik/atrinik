@@ -85,8 +85,8 @@
    computer */
 #define INSTALL_SOUND
 
-#ifndef Boolean
-#define Boolean int
+#ifndef int
+#define int int
 #endif
 
 #define SOCKET_TIMEOUT_SEC 8

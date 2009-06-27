@@ -88,10 +88,10 @@ extern void reset_keys(void);
 extern void read_keybind_file(char *fname);
 extern void save_keybind_file(char *fname);
 extern void check_menu_keys(int menu, int value);
-extern Boolean check_menu_macros(char *text);
+extern int check_menu_macros(char *text);
 extern void check_keys(int key);
 
-Boolean process_macro_keys(int id, int value);
+int process_macro_keys(int id, int value);
 
 /* use these constants to determine the state of mouse and its events */
 enum {

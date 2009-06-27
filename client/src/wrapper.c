@@ -27,7 +27,7 @@
 
 #if defined( __WIN_32)  || defined(__LINUX)
 FILE *logstream;
-Boolean logFlush;
+int logFlush;
 #endif
 
 void LOG (int logLevel, char *format, ...)
@@ -71,7 +71,7 @@ void LOG (int logLevel, char *format, ...)
 #endif
 }
 
-Boolean SYSTEM_Start(void)
+int SYSTEM_Start(void)
 {
     SDL_Surface *icon;
     char buf[256];
@@ -89,7 +89,7 @@ Boolean SYSTEM_Start(void)
 #endif
 }
 
-Boolean SYSTEM_End(void)
+int SYSTEM_End(void)
 {
 #if defined( __WIN_32)  || defined(__LINUX)
 	return 1;

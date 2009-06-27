@@ -225,9 +225,9 @@ typedef struct Player_Struct {
     uint16	pmapx, pmapy;	/* Where the player is on the magic map */
     uint16	mapxres,mapyres;/* resolution to draw on the magic map */
 
-    Boolean warn_statdown;
-    Boolean warn_statup;
-    Boolean warn_drain;
+    int warn_statdown;
+    int warn_statup;
+    int warn_drain;
     Stats	stats;		/* Player stats */
     Input_State input_state;	/* What the input state is */
     rangetype	shoottype;	/* What type of range attack player has */

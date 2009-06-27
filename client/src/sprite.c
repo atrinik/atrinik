@@ -38,18 +38,18 @@ static double dark_value[DARK_LEVELS] = {
 /* Anim queue of current active map */
 struct _anim *start_anim;
 
-static Boolean GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right,UINT32 ckey);
+static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right,UINT32 ckey);
 static void grey_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int num_col, int r, int g, int b);
 static void red_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 static void fow_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 
 /* Not much special inside atm */
-Boolean sprite_init_system(void)
+int sprite_init_system(void)
 {
 	return 1;
 }
 
-Boolean sprite_deinit_system(void)
+int sprite_deinit_system(void)
 {
 	return 1;
 }
@@ -393,7 +393,7 @@ void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len)
 void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
 {
 	register int i, tmp, line_clip = -1, line_count = 0;
-	register Boolean gflag;
+	register int gflag;
 	int colorToggle = 0;
 	SDL_Rect src, dst;
 	SDL_Color color, color_g;
@@ -552,7 +552,7 @@ void show_tooltip(int mx, int my, char *text)
 	StringBlt(ScreenSurface, &SystemFont, tooltip, rec.x + 2, rec.y - 1, COLOR_BLACK, NULL, NULL);
 }
 
-static Boolean GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, UINT32 ckey)
+static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, UINT32 ckey)
 {
     register int x, y;
 

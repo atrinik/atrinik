@@ -28,7 +28,7 @@
 int textwin_flags;
 
 _textwin_set txtwin[TW_SUM];
-static int old_slider_pos= 0;
+static int old_slider_pos = 0;
 
 int txtwin_start_size = 0;
 

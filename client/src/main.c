@@ -111,10 +111,10 @@ int CurrentCursorPos;
 
 int InputCount, InputMax;
 /* if true keyboard and game is in input str mode */
-Boolean InputStringFlag;
+int InputStringFlag;
 /* if true, we had entered some in text mode and its ready */
-Boolean InputStringEndFlag;
-Boolean InputStringEscFlag;
+int InputStringEndFlag;
+int InputStringEscFlag;
 struct gui_book_struct *gui_interface_book;
 struct gui_party_struct *gui_interface_party;
 
@@ -152,8 +152,8 @@ _screensize Screendefs[16] =
 _face_struct FaceList[MAX_FACE_TILES];
 
 void init_game_data(void);
-Boolean game_status_chain(void);
-Boolean load_bitmap(int index);
+int game_status_chain(void);
+int load_bitmap(int index);
 
 #define NCOMMANDS (sizeof(commands) / sizeof(struct CmdMapping))
 
@@ -622,7 +622,7 @@ void load_options_dat(void)
 
 
 /* asynchron connection chain */
-Boolean game_status_chain(void)
+int game_status_chain(void)
 {
 	char buf[1024];
 
@@ -951,7 +951,7 @@ void load_bitmaps(void)
 	CreateNewFont(Bitmaps[BITMAP_BIGFONT], &BigFont, 11, 16, 3);
 }
 
-Boolean load_bitmap(int index)
+int load_bitmap(int index)
 {
 	char buf[2048];
 	uint32 flags = 0;

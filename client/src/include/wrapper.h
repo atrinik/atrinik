@@ -61,8 +61,8 @@ extern char * GetSfxDirectory(void);
 extern char * GetMediaDirectory(void);
 extern char * GetIconDirectory(void);
 
-extern Boolean SYSTEM_Start(void);
-extern Boolean SYSTEM_End(void);
+extern int SYSTEM_Start(void);
+extern int SYSTEM_End(void);
 uint32 get_video_flags(void);
 
 #if defined(HAVE_STRNICMP)

@@ -113,8 +113,8 @@ extern void remove_anim(struct _anim *anim);
 extern void play_anims();
 extern void delete_anim_que(void);
 extern void show_tooltip(int mx, int my, char* text);
-extern Boolean sprite_init_system(void);
-extern Boolean sprite_deinit_system(void);
+extern int sprite_init_system(void);
+extern int sprite_deinit_system(void);
 extern int StringWidth(_Font *font, char *text);
 extern int StringWidthOffset(_Font *font, char *text, int *line, int len);
 

@@ -55,7 +55,7 @@ extern int keybind_status;
 #define MAX_QUICK_SLOTS 8
 typedef struct _quickslot
 {
-   Boolean spell; /* do we have an item or a spell in quickslot */
+   int spell; /* do we have an item or a spell in quickslot */
    int invSlot;
    int nr;
    int tag;     /* what item/spellNr in quickslot */
@@ -119,7 +119,7 @@ extern void read_settings(void);
 extern void read_spells(void);
 extern void read_skills(void);
 extern void read_help_files(void);
-extern Boolean blt_face_centered(int face, int x, int y);
+extern int blt_face_centered(int face, int x, int y);
 extern int get_quickslot(int x, int y);
 extern void show_quickslots(int x, int y);
 extern void update_quickslots(int del_item);

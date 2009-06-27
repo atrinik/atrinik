@@ -549,7 +549,7 @@ inline void optwin_draw_options(int x, int y)
 
 				sprite_blt(Bitmaps[BITMAP_DIALOG_CHECKER], x + LEN_NAME, y, NULL, NULL);
 
-				if (*((Boolean*)opt[i].value) == TRUE)
+				if (*((int*)opt[i].value) == TRUE)
 				{
 					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 8, y + 2, COLOR_BLACK, NULL, NULL);
 					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 7, y + 1, COLOR_WHITE, NULL, NULL);
@@ -560,10 +560,10 @@ inline void optwin_draw_options(int x, int y)
 					mb_clicked =0;
 					option_list_set.key_change =0;
 
-					if (*((Boolean*)opt[i].value) == TRUE)
-						*((Boolean*)opt[i].value) = FALSE;
+					if (*((int*)opt[i].value) == TRUE)
+						*((int*)opt[i].value) = FALSE;
 					else
-						*((Boolean*)opt[i].value) = TRUE;
+						*((int*)opt[i].value) = TRUE;
 				}
 				break;
 

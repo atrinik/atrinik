@@ -28,10 +28,10 @@
 
 #define SOCKET_NO -1
 
-extern Boolean SOCKET_InitSocket(void);
-extern Boolean SOCKET_DeinitSocket(void);
-extern Boolean SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
-extern Boolean SOCKET_CloseSocket(SOCKET socket);
+extern int SOCKET_InitSocket(void);
+extern int SOCKET_DeinitSocket(void);
+extern int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
+extern int SOCKET_CloseSocket(SOCKET socket);
 extern int SOCKET_GetError(void);	/* returns socket error */
 
 extern int write_socket(int fd, unsigned char *buf, int len);

@@ -99,7 +99,7 @@ SDL_Surface* widgetSF[TOTAL_WIDGETS] = {NULL};
 
 /* A way to steal the mouse, and to prevent widgets from using mouse events
  * Example: Prevents widgets from using mouse events during dragging procedure */
-Boolean IsMouseExclusive = 0;
+int IsMouseExclusive = 0;
 
 /* Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
@@ -327,7 +327,7 @@ void kill_widgets()
 
 /* Load the widgets/interface from a file.
  * Do not perform any dynamic allocation! */
-Boolean load_interface_file(char *filename)
+int load_interface_file(char *filename)
 {
 	int i = -1, pos;
 	FILE *stream;
@@ -793,7 +793,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
                 for (node = priority_list_head; node; node = node->next)
                 {
                     int nID = node->WidgetID;
-                    Boolean done = 0;
+                    int done = 0;
 
                     if (nID == mID || !cur_widget[nID].show)
                         continue;

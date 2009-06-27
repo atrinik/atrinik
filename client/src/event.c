@@ -33,7 +33,7 @@ int  old_mouse_y = 0;
 
 typedef struct _keys
 {
-	Boolean pressed; /*true: key is pressed*/
+	int pressed; /*true: key is pressed*/
 	uint32 time; /*tick time last repeat is initiated*/
 } _keys;
 static _keys keys[MAX_KEYS];
@@ -124,7 +124,7 @@ static char *directionsfire[10] = {
 
 static int key_event(SDL_KeyboardEvent *key);
 static void key_string_event(SDL_KeyboardEvent *key);
-static Boolean check_macro_keys(char *text);
+static int check_macro_keys(char *text);
 static void move_keys(int num);
 static void key_repeat(void);
 static void cursor_keys(int num);
@@ -1229,7 +1229,7 @@ int key_event(SDL_KeyboardEvent *key)
 
 
 /* Here we look in the user defined keymap and try to get same useful macros */
-Boolean check_menu_macros(char *text)
+int check_menu_macros(char *text)
 {
     if (!strcmp("?M_SPELL_LIST", text))
     {
@@ -1340,7 +1340,7 @@ void check_keys(int key)
 }
 
 
-static Boolean check_macro_keys(char *text)
+static int check_macro_keys(char *text)
 {
 	int i;
 	int magic_len;
@@ -1369,7 +1369,7 @@ static Boolean check_macro_keys(char *text)
 }
 
 
-Boolean process_macro_keys(int id, int value)
+int process_macro_keys(int id, int value)
 {
 	int nrof, tag = 0, loc = 0;
 	char buf[256];

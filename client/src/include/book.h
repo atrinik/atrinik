@@ -41,7 +41,7 @@ typedef struct gui_book_line
 {
 	int mode;
 	int color;
-	char line[BOOK_LINES_CHAR+1];
+	char line[BOOK_LINES_CHAR + 1];
 } _gui_book_line;
 
 typedef struct gui_book_struct

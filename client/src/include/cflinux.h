@@ -73,7 +73,6 @@
 #define O_BINARY 0x0
 #endif
 
-#define Boolean int
 #define UINT32 uint32
 #endif
 

@@ -48,9 +48,9 @@ typedef struct _widgetdata
 	int wd;
 	int ht;
 
-	Boolean moveable;		/* can you drag it? */
-	Boolean show;           /* hidden and inactive or shown */
-	Boolean redraw;         /* widget must be redrawn */
+	int moveable;		/* can you drag it? */
+	int show;           /* hidden and inactive or shown */
+	int redraw;         /* widget must be redrawn */
 
 }_widgetdata;
 
@@ -109,7 +109,7 @@ typedef struct _widgetevent
 /* this is used when moving a widget with the mouse */
 typedef struct _widgetmove
 {
-	Boolean active;
+	int active;
 	int id;
 	int xOffset;
 	int yOffset;
@@ -119,12 +119,12 @@ extern SDL_Surface* widgetSF[TOTAL_WIDGETS];
 
 extern _widgetdata  cur_widget[TOTAL_WIDGETS];
 extern _widgetevent widget_mouse_event;
-extern Boolean      IsMouseExclusive;
+extern int      IsMouseExclusive;
 
 /* init and kill */
 extern void	    init_widgets_fromDefault();
 extern void	    init_widgets_fromCurrent();
-extern Boolean  init_widgets_fromFile(char *filename);
+extern int  init_widgets_fromFile(char *filename);
 extern void     kill_widgets();
 
 /* file */
@@ -138,7 +138,7 @@ extern int      widget_event_mousemv(int x,int y, SDL_Event *event);
 /* misc */
 extern void     process_widgets();
 extern uint32   GetMouseState(int *mx, int *my,int nWidgetID);
-extern Boolean  IsWidgetDragging();
+extern int  IsWidgetDragging();
 extern void     SetPriorityWidget(int nWidgetID);
 
 extern int      get_widget_owner(int x,int y);

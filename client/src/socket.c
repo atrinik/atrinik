@@ -151,7 +151,7 @@ int write_socket(int fd, unsigned char *buf, int len)
 }
 
 
-Boolean SOCKET_InitSocket(void)
+int SOCKET_InitSocket(void)
 {
     WSADATA w;
     int     error;
@@ -177,13 +177,13 @@ Boolean SOCKET_InitSocket(void)
 }
 
 
-Boolean SOCKET_DeinitSocket(void)
+int SOCKET_DeinitSocket(void)
 {
     WSACleanup();               /* drop socket */
     return(TRUE);
 }
 
-Boolean SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port)
+int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port)
 {
     int             error;
     long            temp;
@@ -283,7 +283,7 @@ Boolean SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char 
     return(TRUE);
 }
 
-Boolean SOCKET_CloseSocket(SOCKET socket_temp)
+int SOCKET_CloseSocket(SOCKET socket_temp)
 {
     void   *tmp_free;
     /* seems differents sockets have different way to shutdown connects??
@@ -302,7 +302,7 @@ Boolean SOCKET_CloseSocket(SOCKET socket_temp)
 }
 
 #elif __LINUX
-Boolean SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
+int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 port)
 {
     struct protoent    *protox;
@@ -370,17 +370,17 @@ port)
     return TRUE;
 }
 
-Boolean SOCKET_InitSocket(void)
+int SOCKET_InitSocket(void)
 {
     return TRUE;
 }
 
-Boolean SOCKET_DeinitSocket(void)
+int SOCKET_DeinitSocket(void)
 {
     return TRUE;
 }
 
-Boolean SOCKET_CloseSocket(SOCKET socket_temp)
+int SOCKET_CloseSocket(SOCKET socket_temp)
 {
     void   *tmp_free;
 

@@ -46,22 +46,27 @@ static void parse_metaserver_data(char *info)
 static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
-	char *p, buf[HUGE_BUF];
+	char *p, *buf;
 
 	/* So that we don't get unused parameter warning */
 	(void) data;
 
-	p = strtok((char *)ptr, "\n");
+	buf = (char *)malloc(realsize);
+
+	snprintf(buf, realsize, "%s", (char *) ptr);
+
+	p = strtok(buf, "\n");
 
 	/* Loop through all the lines returned */
 	while (p)
 	{
 		/* Store it in a temporary buf, and parse it */
-		snprintf(buf, sizeof(buf), "%s", p);
-    	parse_metaserver_data(buf);
+    	parse_metaserver_data(p);
 
 		p = strtok(NULL, "\n");
 	}
+
+	free(buf);
 
     return realsize;
 }

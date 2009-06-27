@@ -525,7 +525,7 @@ void widget_show_resist(int x, int y)
 }
 
 #define ICONDEFLEN 32
-Boolean blt_face_centered(int face, int x, int y)
+int blt_face_centered(int face, int x, int y)
 {
     register int temp;
     SDL_Rect box;

@@ -560,7 +560,7 @@ void widget_show_below_window(item *op, int x, int y)
 }
 
 #define ICONDEFLEN 32
-Boolean blt_inv_item_centered(item *tmp, int x, int y)
+int blt_inv_item_centered(item *tmp, int x, int y)
 {
     register int temp;
 	int xstart, xlen, ystart, ylen;

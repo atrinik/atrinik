@@ -170,8 +170,8 @@ typedef struct _options {
    int video_bpp;
    int fullscreen;
 	int resolution;
-   Boolean use_TextwinSplit;
-   Boolean use_TextwinAlpha;
+   int use_TextwinSplit;
+   int use_TextwinAlpha;
    int textwin_alpha;
 #ifdef WIDGET_SNAP
 	int widget_snap;
@@ -181,55 +181,55 @@ typedef struct _options {
 
    /* Look & Feel */
    int player_names;
-	Boolean playerdoll;
+	int playerdoll;
    int show_target_self;
    int warning_hp;
    int warning_food;
-   Boolean gfx_statusbars;
-   Boolean show_tooltips;
-   Boolean show_d_key_infos; /* key-infos in dialog-wins. */
-   Boolean collectAll;
+   int gfx_statusbars;
+   int show_tooltips;
+   int show_d_key_infos; /* key-infos in dialog-wins. */
+   int collectAll;
 	/* exp display */
 	int expDisplay;
 
    /* Debug */
-   Boolean force_redraw;
-   Boolean show_frame;         /* true: show frame rate */
-   Boolean use_gl;
+   int force_redraw;
+   int show_frame;         /* true: show frame rate */
+   int use_gl;
    int sleep;
 	int speedup;
-   Boolean max_speed;
-   Boolean auto_bpp_flag;
-   Boolean use_rect;
+   int max_speed;
+   int auto_bpp_flag;
+   int use_rect;
 
    /* Fullscreen Flags */
-   Boolean Full_HWSURFACE;
-   Boolean Full_SWSURFACE;
-   Boolean Full_HWACCEL;
-   Boolean Full_DOUBLEBUF;
-   Boolean Full_ANYFORMAT;
-   Boolean Full_ASYNCBLIT;
-   Boolean Full_HWPALETTE;
-   Boolean Full_RESIZABLE;
-   Boolean Full_NOFRAME;
-   Boolean Full_RLEACCEL;
+   int Full_HWSURFACE;
+   int Full_SWSURFACE;
+   int Full_HWACCEL;
+   int Full_DOUBLEBUF;
+   int Full_ANYFORMAT;
+   int Full_ASYNCBLIT;
+   int Full_HWPALETTE;
+   int Full_RESIZABLE;
+   int Full_NOFRAME;
+   int Full_RLEACCEL;
 
    /* Windowed flags */
-   Boolean Win_HWSURFACE;
-   Boolean Win_SWSURFACE;
-   Boolean Win_HWACCEL;
-   Boolean Win_DOUBLEBUF;
-   Boolean Win_ANYFORMAT;
-   Boolean Win_ASYNCBLIT;
-   Boolean Win_HWPALETTE;
-   Boolean Win_RESIZABLE;
-   Boolean Win_NOFRAME;
-   Boolean Win_RLEACCEL;
+   int Win_HWSURFACE;
+   int Win_SWSURFACE;
+   int Win_HWACCEL;
+   int Win_DOUBLEBUF;
+   int Win_ANYFORMAT;
+   int Win_ASYNCBLIT;
+   int Win_HWPALETTE;
+   int Win_RESIZABLE;
+   int Win_NOFRAME;
+   int Win_RLEACCEL;
 
     /* INTERN FLAGS - Setup depends on option settings and selected mode */
-   Boolean fullscreen_flag;      /* we are in fullscreen mode */
-   Boolean doublebuf_flag;       /* we doublebuf */
-   Boolean rleaccel_flag;
+   int fullscreen_flag;      /* we are in fullscreen mode */
+   int doublebuf_flag;       /* we doublebuf */
+   int rleaccel_flag;
    int no_meta;
    Uint8 used_video_bpp;
    Uint8 real_video_bpp;
@@ -575,9 +575,9 @@ extern char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];  /* input lines h
 extern int HistoryPos;
 extern int CurrentCursorPos;
 extern int InputCount, InputMax;					/* nr. of char in string and max chars. */
-extern Boolean InputStringFlag;	/* if true keyboard and game is in input str mode*/
-extern Boolean InputStringEndFlag;	/* if true, we had entered some in text mode and its ready*/
-extern Boolean InputStringEscFlag;
+extern int InputStringFlag;	/* if true keyboard and game is in input str mode*/
+extern int InputStringEndFlag;	/* if true, we had entered some in text mode and its ready*/
+extern int InputStringEscFlag;
 
 extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT]; /* range table */
 extern int RangeFireMode;

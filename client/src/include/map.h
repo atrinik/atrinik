@@ -70,7 +70,7 @@ typedef struct _mapdata
 struct MapCell {
     short faces[MAXFACES];
     short pos[MAXFACES];
-    Boolean fog_of_war;
+    int fog_of_war;
     uint8 ext[MAXFACES];
     char pname[MAXFACES][32];
     uint8 probe[MAXFACES];
