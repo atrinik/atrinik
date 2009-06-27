@@ -37,30 +37,40 @@
 #define MAP_TILE_XOFF 12
 #define MAP_TILE_YOFF 24
 
-/* table of pre definded multi arch objects.
+/* Table of pre definded multi arch objects.
  * mpart_id and mpart_nr in the arches are commited from server
- * to analyze the exaclty tile position inside a mpart object.
+ * to analyze the exact tile position inside a mpart object.
  *
  * The way of determinate the starting and shift points is explained
  * in the dev/multi_arch folder of the arches, where the multi arch templates &
- * masks are.
- */
+ * masks are. */
 
 typedef struct _multi_part_tile {
-    int xoff;       /* X-offset */
-    int yoff;       /* Y-offset */
+	/* X-offset */
+    int xoff;
+
+	/* Y-offset */
+    int yoff;
 }_multi_part_tile;
 
 typedef struct _multi_part_obj {
-    int xlen;                   /* natural xlen of the whole multi arch */
-    int ylen;                   /* same for ylen */
+	/* Natural xlen of the whole multi arch */
+    int xlen;
+
+	/* Same for ylen */
+    int ylen;
+
     _multi_part_tile part[16];
 }_multi_part_obj;
 
 typedef struct _mapdata
 {
+	/* Map name */
     char name[256];
+
+	/* Map background music */
     char music[256];
+
     int xlen;
     int ylen;
     int posx;
@@ -75,11 +85,11 @@ struct MapCell {
     char pname[MAXFACES][32];
     uint8 probe[MAXFACES];
     uint8 darkness;
-}MapCell;
+} MapCell;
 
 struct Map {
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
-}Map;
+} Map;
 
 typedef struct {
 	int x;

@@ -26,40 +26,53 @@
 #if !defined(__MAIN_H)
 #define __MAIN_H
 
-
 typedef struct _server_char {
 	struct _server_char *next;
+
 	struct _server_char *prev;
+
 	int pic_id;
-	char *name; /* race name: human, elf */
-	char *desc[4]; /* 4 description strings */
+
+	/* Race name: human, elf */
+	char *name;
+
+	/* 4 description strings */
+	char *desc[4];
 	int bar[3];
 	int bar_add[3];
-	int gender[4]; /* male, female, neutrum, herm. */
+
+	/* Male, female, neuter, hermaphrodite */
+	int gender[4];
 	int gender_selected;
-	char *char_arch[4]; /* 4 description strings */
+
+	/* 4 description strings */
+	char *char_arch[4];
 	int face_id[4];
-	int stat_points; /* points which can be added to char stats */
+
+	/* Points which can be added to char stats */
+	int stat_points;
 	int stats[7];
 	int stats_min[7];
 	int stats_max[7];
 }_server_char;
 
 extern _server_char *first_server_char;
-extern _server_char new_character; /* if we login as new char, thats the values of it we set */
 
-#define SKIN_POS_QUICKSLOT_X 518
-#define SKIN_POS_QUICKSLOT_Y 109
+/* If we login as new char, thats the values of it we set */
+extern _server_char new_character;
 
 #define HUGE_BUF 1024
 
 #define SDL_DEFAULT_REPEAT_DELAY        500
 #define SDL_DEFAULT_REPEAT_INTERVAL     30
 
-#define MAXHASHSTRING 20 /* for hash table (bmap, ...) */
+/* For hash table (bmap, ...) */
+#define MAXHASHSTRING 20
 
-#define BMAPTABLE 5003 /* prime nubmer for hash table */
-/* struct for out bmap data */
+/* Prime nubmer for hash table */
+#define BMAPTABLE 5003
+
+/* Structure for out bmap data */
 typedef struct _bmaptype {
 	char *name;
 	int num;
@@ -72,27 +85,48 @@ extern _bmaptype *bmap_table[BMAPTABLE];
 
 typedef struct _keymap
 {
-	char text[256];/*the command text, submited to server when key pressed*/
+	/* The command text, submitted to server when key pressed */
+	char text[256];
+
 	char keyname[256];
-	int key;/*scancode of key*/
-	int repeatflag;/*if true, key will be repeated when pressed*/
-	int mode;/*the send mode OR the menu id*/
+
+	/* Scancode of key */
+	int key;
+
+	/* If true, key will be repeated when pressed */
+	int repeatflag;
+
+	/* The send mode OR the menu id */
+	int mode;
+
 	int menu_mode;
 }_keymap;
 
+/* Structure for the servers list*/
 typedef struct _server
 {
-        struct _server *next;	/* go on in list. NULL: no following this node*/
-        char *nameip;
-        char *version;
-        char *desc;
-        int player;
-        int port;
+	/* Go on in list. NULL: no following this node */
+	struct _server *next;
+
+	/* IP or hostname of the server */
+	char *nameip;
+
+	/* Server version */
+	char *version;
+
+	/* Server description (will be split to 3 lines if needed) */
+	char *desc;
+
+	/* Number of players online */
+	int player;
+
+	/* Server port */
+	int port;
 } _server;
 
 #define MAX_BMAPTYPE_TABLE 10000
 
-typedef struct	_bmaptype_table {
+typedef struct _bmaptype_table {
 	char *name;
 	int pos;
 	int len;
@@ -122,7 +156,8 @@ enum {
 	SRV_CLIENT_ANIMS,
 	SRV_CLIENT_BMAPS,
 	SRV_CLIENT_HFILES,
-	SRV_CLIENT_FILES /* last index */
+	/* last index */
+	SRV_CLIENT_FILES
 };
 
 enum {
@@ -130,160 +165,190 @@ enum {
 	SRV_CLIENT_STATUS_UPDATE
 };
 
-#define	SRV_CLIENT_FLAG_BMAP 1
-#define SRV_CLIENT_FLAG_ANIM 2
+#define	SRV_CLIENT_FLAG_BMAP 	1
+#define SRV_CLIENT_FLAG_ANIM 	2
 #define SRV_CLIENT_FLAG_SETTING 4
-#define	SRV_CLIENT_FLAG_SKILL 8
-#define	SRV_CLIENT_FLAG_SPELL 16
-#define SRV_CLIENT_FLAG_HFILES 32
+#define	SRV_CLIENT_FLAG_SKILL 	8
+#define	SRV_CLIENT_FLAG_SPELL 	16
+#define SRV_CLIENT_FLAG_HFILES 	32
 
 typedef struct _srv_client_files {
-	int status;						/* is set from setup exchange */
+	/* Set from setup exchange */
+	int status;
+
 	int len;
 	uint32 crc;
 	int server_len;
 	uint32 server_crc;
-
 }_srv_client_files;
 
 extern _srv_client_files srv_client_files[SRV_CLIENT_FILES];
-extern 	Uint32 sdl_dgreen,sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
+extern 	Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;
 
-#define MAXMETAWINDOW 14		/* count max. shown server in meta window*/
+/* Count max shown server in meta window */
+#define MAXMETAWINDOW 14
 
 #define MAXFACES 4
 
-#define MAX_GROUP_MEMBER 8      /* max members in a daimonin group (shown in client) */
-
-/* IMPORTANT: datatype it must also be changed in dialog.c */
+/* IMPORTANT: datatype must also be changed in dialog.c */
 typedef struct _options {
-   /* Sound */
-   int sound_volume;
-   int music_volume;
+	/* Sound */
+	int sound_volume;
+	int music_volume;
 
-   /* Server */
-   char metaserver[256];
-   int metaserver_port;
-
-   /* Visual */
-   int video_bpp;
-   int fullscreen;
+	/* Visual */
+	int video_bpp;
+	int fullscreen;
 	int resolution;
-   int use_TextwinSplit;
-   int use_TextwinAlpha;
-   int textwin_alpha;
+	int use_TextwinAlpha;
+	int textwin_alpha;
 #ifdef WIDGET_SNAP
 	int widget_snap;
 #endif
 	int mapstart_x;
 	int mapstart_y;
 
-   /* Look & Feel */
-   int player_names;
+	/* Look & Feel */
+	int player_names;
 	int playerdoll;
-   int show_target_self;
-   int warning_hp;
-   int warning_food;
-   int gfx_statusbars;
-   int show_tooltips;
-   int show_d_key_infos; /* key-infos in dialog-wins. */
-   int collectAll;
-	/* exp display */
+	int show_target_self;
+	int warning_hp;
+	int warning_food;
+	int show_tooltips;
+
+	/* key-infos in dialog-wins. */
+	int show_d_key_infos;
+	int collectAll;
+
+	/* Exp display */
 	int expDisplay;
 
-   /* Debug */
-   int force_redraw;
-   int show_frame;         /* true: show frame rate */
-   int use_gl;
-   int sleep;
+	/* Debug */
+	int force_redraw;
+
+	/* True: show frame rate */
+	int show_frame;
+	int use_gl;
+	int sleep;
 	int speedup;
-   int max_speed;
-   int auto_bpp_flag;
-   int use_rect;
+	int max_speed;
+	int auto_bpp_flag;
+	int use_rect;
 
-   /* Fullscreen Flags */
-   int Full_HWSURFACE;
-   int Full_SWSURFACE;
-   int Full_HWACCEL;
-   int Full_DOUBLEBUF;
-   int Full_ANYFORMAT;
-   int Full_ASYNCBLIT;
-   int Full_HWPALETTE;
-   int Full_RESIZABLE;
-   int Full_NOFRAME;
-   int Full_RLEACCEL;
+	/* Fullscreen Flags */
+	int Full_HWSURFACE;
+	int Full_SWSURFACE;
+	int Full_HWACCEL;
+	int Full_DOUBLEBUF;
+	int Full_ANYFORMAT;
+	int Full_ASYNCBLIT;
+	int Full_HWPALETTE;
+	int Full_RESIZABLE;
+	int Full_NOFRAME;
+	int Full_RLEACCEL;
 
-   /* Windowed flags */
-   int Win_HWSURFACE;
-   int Win_SWSURFACE;
-   int Win_HWACCEL;
-   int Win_DOUBLEBUF;
-   int Win_ANYFORMAT;
-   int Win_ASYNCBLIT;
-   int Win_HWPALETTE;
-   int Win_RESIZABLE;
-   int Win_NOFRAME;
-   int Win_RLEACCEL;
+	/* Windowed flags */
+	int Win_HWSURFACE;
+	int Win_SWSURFACE;
+	int Win_HWACCEL;
+	int Win_DOUBLEBUF;
+	int Win_ANYFORMAT;
+	int Win_ASYNCBLIT;
+	int Win_HWPALETTE;
+	int Win_RESIZABLE;
+	int Win_NOFRAME;
+	int Win_RLEACCEL;
 
-    /* INTERN FLAGS - Setup depends on option settings and selected mode */
-   int fullscreen_flag;      /* we are in fullscreen mode */
-   int doublebuf_flag;       /* we doublebuf */
-   int rleaccel_flag;
-   int no_meta;
-   Uint8 used_video_bpp;
-   Uint8 real_video_bpp;
-   uint32 videoflags_full;
-   uint32 videoflags_win;
+	/* INTERNAL FLAGS - Setup depends on option settings and selected mode */
+
+	/* We are in fullscreen mode */
+	int fullscreen_flag;
+
+	/* We doublebuf */
+	int doublebuf_flag;
+	int rleaccel_flag;
+	int no_meta;
+	Uint8 used_video_bpp;
+	Uint8 real_video_bpp;
+	uint32 videoflags_full;
+	uint32 videoflags_win;
 }_options;
 
 extern struct _options options;
 
 #define FACE_FLAG_NO		0
-#define FACE_FLAG_DOUBLE	1		/* this is a double wall type */
-#define FACE_FLAG_UP		2		/* this is a upper part of something */
-#define FACE_FLAG_D1		4		/* this is a x1x object (animation or direction) */
-#define FACE_FLAG_D3		8		/* this is a x3x object (animation or direction) */
-#define FACE_REQUESTED		16		/* face requested from server - do it only one time */
+/* This is a double wall type */
+#define FACE_FLAG_DOUBLE	1
+/* This is a upper part of something */
+#define FACE_FLAG_UP		2
+/* This is a x1x object (animation or direction) */
+#define FACE_FLAG_D1		4
+/* This is a x3x object (animation or direction) */
+#define FACE_FLAG_D3		8
+/* Face requested from server - do it only one time */
+#define FACE_REQUESTED		16
 
 typedef struct _face_struct
 {
-	struct _Sprite *sprite; /* our face data. if != null, face is loaded*/
-	char *name;				/* our face name. if != null, face is requested*/
-	uint32 checksum;		/* checksum of face */
+	/* Our face data. if != null, face is loaded */
+	struct _Sprite *sprite;
+
+	/* Our face name. if != null, face is requested */
+	char *name;
+
+	/* Checksum of face */
+	uint32 checksum;
+
 	int flags;
 }_face_struct;
 
-#define GOLEM_CTR_RELEASE  0
-#define GOLEM_CTR_ADD	   1
+#define GOLEM_CTR_RELEASE  	0
+#define GOLEM_CTR_ADD	   	1
 
+/* This entry is unused */
+#define LIST_ENTRY_UNUSED 	-1
+/* Entry is used but player doesn't have it */
+#define LIST_ENTRY_USED    	1
+/* Player knows this used entry */
+#define LIST_ENTRY_KNOWN   	2
+#define LIST_NAME_MAX 		64
+#define DIALOG_LIST_ENTRY 	26
+#define OPTWIN_MAX_TABLEN 	14
 
-#define LIST_ENTRY_UNUSED -1 /* this entry is unused */
-#define LIST_ENTRY_USED    1 /* entry is used but player don't have it */
-#define LIST_ENTRY_KNOWN   2 /* player know this used entry */
-#define LIST_NAME_MAX 64
-#define DIALOG_LIST_ENTRY 26
-#define OPTWIN_MAX_TABLEN 14
+/* Skill list defines */
 
-/* skill list defines */
-#define SKILL_LIST_MAX 7        /* groups of skills */
+/* Groups of skills */
+#define SKILL_LIST_MAX 7
 
 typedef struct _skill_list_entry {
-    int flag;                   /* -1: entry is unused */
-    char name[LIST_NAME_MAX];   /* name of entry */
+	/* -1: entry is unused */
+    int flag;
+
+	/* Name of entry */
+    char name[LIST_NAME_MAX];
+
     char icon_name[32];
     struct _Sprite *icon;
-    char desc[4][96];               /* description (in 4 rows) */
-    int exp_level;              /* -1: skill has no level or exp */
-    int exp;                    /* exp of this skill */
+
+	/* Description (in 4 rows) */
+    char desc[4][96];
+
+	/* -1: skill has no level or exp */
+    int exp_level;
+
+	/* exp of this skill */
+    int exp;
 }_skill_list_entry;
 
 typedef struct _skill_list {
     _skill_list_entry entry[DIALOG_LIST_ENTRY];
 }_skill_list;
 
-/* bind key list defines */
-#define BINDKEY_LIST_MAX 10        /* groups of keys */
+/* Bind key list defines */
+
+/* Groups of keys */
+#define BINDKEY_LIST_MAX 10
 
 typedef struct _bindkey_list {
 	_keymap entry[DIALOG_LIST_ENTRY];
@@ -294,26 +359,35 @@ typedef struct _bindkey_list {
 typedef struct _dialog_list_set {
 	int group_nr;
 	int entry_nr;
-	int class_nr;   /* for spell-list => spell, prayer, ... */
+
+	/* For spell-list => spell, prayer, ... */
+	int class_nr;
 	int key_change;
 }_dialog_list_set;
 
-/* spell list defines */
-#define SPELL_LIST_MAX 20        /* groups of spells */
+/* Spell list defines */
+
+/* Groups of spells */
+#define SPELL_LIST_MAX 20
 #define SPELL_LIST_CLASS 2
 
 typedef struct _spell_list_entry {
-	int flag;           /* -1: entry is unused */
-	char name[LIST_NAME_MAX];      /* name of entry */
+	/* -1: entry is unused */
+	int flag;
+
+	/* name of entry */
+	char name[LIST_NAME_MAX];
+
 	char icon_name[32];
 	struct _Sprite *icon;
-	char desc[4][96];               /* description (in 4 rows) */
+
+	/* description (in 4 rows) */
+	char desc[4][96];
 }_spell_list_entry;
 
 typedef struct _spell_list {
 	_spell_list_entry entry[SPELL_LIST_CLASS][DIALOG_LIST_ENTRY];
 }_spell_list;
-
 
 typedef struct _fire_mode {
     int item;
@@ -337,27 +411,66 @@ typedef enum _fire_mode_id {
 
 typedef enum _game_status
 {
-	GAME_STATUS_INIT, /* cal this add start to autoinit */
-	GAME_STATUS_META,/* to to connect to meta server */
-	GAME_STATUS_START,/* start all up without full reset or meta calling*/
-	GAME_STATUS_WAITLOOP,/* we are NOT connected to anything*/
-	GAME_STATUS_STARTCONNECT,/* we have a server+port, init and start*/
-	GAME_STATUS_CONNECT,/* if this is set, we start connecting*/
-	GAME_STATUS_VERSION, /* now the steps: Connect, we send version*/
-	GAME_STATUS_WAITVERSION, /* wait for response... add up in version cmd*/
-	GAME_STATUS_SETUP, /* we ready to send setup commands*/
-	GAME_STATUS_WAITSETUP,/* we wait for server response*/
-	GAME_STATUS_REQUEST_FILES, /* after we get response from setup, we request files if needed */
-	GAME_STATUS_ADDME,   /* all setup is done, now try to enter game!*/
-	GAME_STATUS_LOGIN,       /* now we wait for LOGIN request of the server*/
-	GAME_STATUS_NAME,          /* all this here is tricky*/
-	GAME_STATUS_PSWD,          /* server will trigger this when asking for*/
-	GAME_STATUS_VERIFYPSWD,    /* client will then show input panel or so*/
-	GAME_STATUS_NEW_CHAR,	   /* show new char creation screen and send /nc command when finished */
-	GAME_STATUS_WAITFORPLAY,	/* we simply wait for game start */
-        /* means, this is not a serial stepping here*/
-	GAME_STATUS_QUIT,   /* we are in quit menu*/
-	GAME_STATUS_PLAY   /* we play now!!*/
+	/* Call this add start to autoinit */
+	GAME_STATUS_INIT,
+
+	/* To to connect to meta server */
+	GAME_STATUS_META,
+
+	/* Start all up without full reset or meta calling */
+	GAME_STATUS_START,
+
+	/* We are NOT connected to anything */
+	GAME_STATUS_WAITLOOP,
+
+	/* We have a server + port, init and start */
+	GAME_STATUS_STARTCONNECT,
+
+	/* If this is set, we start connecting */
+	GAME_STATUS_CONNECT,
+
+	/* Now the steps: Connect, we send version */
+	GAME_STATUS_VERSION,
+
+	/* Wait for response... add up in version command */
+	GAME_STATUS_WAITVERSION,
+
+	/* We ready to send setup commands */
+	GAME_STATUS_SETUP,
+
+	/* We wait for server response */
+	GAME_STATUS_WAITSETUP,
+
+	/* After we get response from setup, we request files if needed */
+	GAME_STATUS_REQUEST_FILES,
+
+	/* All setup is done, now try to enter game */
+	GAME_STATUS_ADDME,
+
+	/* Now we wait for LOGIN request of the server */
+	GAME_STATUS_LOGIN,
+
+	/* All this here is tricky */
+	GAME_STATUS_NAME,
+
+	/* Server will trigger this when asking for password */
+	GAME_STATUS_PSWD,
+
+	/* Client will then show input panel or so */
+	GAME_STATUS_VERIFYPSWD,
+
+	/* Show new char creation screen and send /nc command when finished */
+	GAME_STATUS_NEW_CHAR,
+
+	/* We simply wait for game start.
+	 * Means, this is not a serial stepping here */
+	GAME_STATUS_WAITFORPLAY,
+
+	/* We are in quit menu */
+	GAME_STATUS_QUIT,
+
+	/* We play now. */
+	GAME_STATUS_PLAY
 } _game_status;
 
 extern int f_custom_cursor;
@@ -366,20 +479,30 @@ extern int y_custom_cursor;
 
 extern int debug_layer[MAXFACES];
 
-extern int music_global_fade; /* global flag for polling music fade out */
+/* Global flag for polling music fade out */
+extern int music_global_fade;
 
-extern _game_status GameStatus;		/* THE game status 2*/
-extern int MapStatusX;				/* map x,y len */
+/* THE game status 2 */
+extern _game_status GameStatus;
+
+/* Map x, y len */
+extern int MapStatusX;
 extern int MapStatusY;
 
-extern uint32 LastTick;			/* system time counter in ms since prg start */
+/* System time counter in ms since client start */
+extern uint32 LastTick;
 
-extern char ServerName[];	/* name of the server we want connect */
-extern int ServerPort;			/* port addr */
+/* Name of the server we want to connect to */
+extern char ServerName[];
+
+/* Server port */
+extern int ServerPort;
 
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-extern uint32 GameTicksSec;		/* ticks since this second frame in ms */
-extern int metaserver_start, metaserver_sel,metaserver_count;
+
+/* Ticks since this second frame in ms */
+extern uint32 GameTicksSec;
+extern int metaserver_start, metaserver_sel, metaserver_count;
 
 extern int GameStatusVersionFlag;
 extern int GameStatusVersionOKFlag;
@@ -396,13 +519,17 @@ enum {
 	ESC_MENU_LOGOUT,
 	ESC_MENU_BACK,
 
-	ESC_MENU_INDEX /* last index */
+	/* Last index */
+	ESC_MENU_INDEX
 };
 
-/* with this, we overrule bitmap loading params*/
-/* for example, we need for fonts a attached palette, and not the native vid mode*/
-#define SURFACE_FLAG_PALETTE 1		/* surface must stay in palette mode, not in vid mode*/
-#define SURFACE_FLAG_COLKEY_16M 2   /* use this when you want a colkey in a true color picture - color should be 0 */
+/* With this, we overrule bitmap loading params.
+ * For example, we need for fonts an attached palette, and not the native vid mode */
+
+/* Furface must stay in palette mode, not in vid mode */
+#define SURFACE_FLAG_PALETTE 	1
+/* Use this when you want a colkey in a true color picture - color should be 0 */
+#define SURFACE_FLAG_COLKEY_16M 2
 
 typedef enum _bitmap_index {
 	BITMAP_PALETTE,
@@ -413,12 +540,14 @@ typedef enum _bitmap_index {
 	BITMAP_FONTMEDIUM,
 	BITMAP_INTRO,
 	BITMAP_DOLL,
-	BITMAP_BLACKTILE, /* blacktile for map*/
+
+	/* blacktile for map */
+	BITMAP_BLACKTILE,
 	BITMAP_TEXTWIN,
 	BITMAP_LOGIN_INP,
 	BITMAP_INVSLOT,
 
-   /* Status bars */
+	/* Status bars */
 	BITMAP_HP,
 	BITMAP_SP,
 	BITMAP_GRACE,
@@ -561,7 +690,7 @@ typedef enum _bitmap_index {
 	BITMAP_INIT
 }_bitmap_index;
 
-/* for custom cursors */
+/* For custom cursors */
 enum {
     MSCURSOR_MOVE = 1
 };
@@ -569,35 +698,56 @@ enum {
 extern struct gui_book_struct *gui_interface_book;
 extern struct gui_party_struct *gui_interface_party;
 
-extern struct _Font         MediumFont;
-extern char InputString[MAX_INPUT_STRING];			/* our text char string*/
-extern char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];  /* input lines history buffer */
+extern struct _Font MediumFont;
+
+/* Our text char string */
+extern char InputString[MAX_INPUT_STRING];
+
+/* Input lines history buffer */
+extern char InputHistory[MAX_HISTORY_LINES][MAX_INPUT_STRING];
 extern int HistoryPos;
 extern int CurrentCursorPos;
-extern int InputCount, InputMax;					/* nr. of char in string and max chars. */
-extern int InputStringFlag;	/* if true keyboard and game is in input str mode*/
-extern int InputStringEndFlag;	/* if true, we had entered some in text mode and its ready*/
+
+/* Nr. of char in string and max chars. */
+extern int InputCount, InputMax;
+
+/* If true keyboard and game is in input string mode */
+extern int InputStringFlag;
+
+/* If true, we had entered some in text mode and it's ready */
+extern int InputStringEndFlag;
 extern int InputStringEscFlag;
 
-extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT]; /* range table */
+/* Range table */
+extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 extern int RangeFireMode;
 
 extern int ToggleScreenFlag;
 
 extern struct _Sprite *Bitmaps[];
 
-extern _face_struct FaceList[MAX_FACE_TILES];	/* face data */
+/* Face data */
+extern _face_struct FaceList[MAX_FACE_TILES];
 
-extern struct _Font BigFont;			/* bigger font */
-extern struct _Font SystemFont;			/* our main font*/
-extern struct _Font SystemFontOut;			/* our main font*/
-extern struct _Font Font6x3Out;			/* 6x3 mini font */
-extern SDL_Surface *ScreenSurface;      /* our main bla and so on surface */
+/* Bigger font */
+extern struct _Font BigFont;
+/* Our main font */
+extern struct _Font SystemFont;
+extern struct _Font SystemFontOut;
+/* 6x3 mini font */
+extern struct _Font Font6x3Out;
+
+/* Our main bla and so on surface */
+extern SDL_Surface *ScreenSurface;
 extern SDL_Surface *ScreenSurfaceMap;
-extern struct sockaddr_in insock;       /* Server's attributes*/
-extern int SocketStatusErrorNr; /* if an socket error, this is it */
 
-extern int main ( int argc, char *argv[] );
+/* Server's attributes */
+extern struct sockaddr_in insock;
+
+/* If socket error, this is it */
+extern int SocketStatusErrorNr;
+
+extern int main(int argc, char *argv[]);
 extern void open_input_mode(int maxchar);
 extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc);
 extern void clear_metaserver_data(void);
@@ -606,4 +756,3 @@ extern void free_faces(void);
 extern void load_options_dat(void);
 extern void save_options_dat(void);
 #endif
-

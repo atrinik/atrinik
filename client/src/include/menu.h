@@ -41,7 +41,8 @@
 struct _skill_list skill_list[SKILL_LIST_MAX];
 extern _dialog_list_set skill_list_set;
 
-struct _spell_list spell_list[SPELL_LIST_MAX]; /* skill list entries */
+/* Skill list entries */
+struct _spell_list spell_list[SPELL_LIST_MAX];
 extern _dialog_list_set spell_list_set;
 
 extern _dialog_list_set option_list_set;
@@ -55,29 +56,45 @@ extern int keybind_status;
 #define MAX_QUICK_SLOTS 8
 typedef struct _quickslot
 {
-   int spell; /* do we have an item or a spell in quickslot */
-   int invSlot;
-   int nr;
-   int tag;     /* what item/spellNr in quickslot */
-   int spellNr;     /* */
-   int groupNr; /* spellgroup */
-   int classNr; /* spellclass */
+	/* Do we have an item or a spell in quickslot */
+	int spell;
+
+	int invSlot;
+	int nr;
+
+	/* What item/spellNr in quickslot */
+	int tag;
+
+	int spellNr;
+	int groupNr;
+	int classNr;
 }_quickslot;
+
 extern _quickslot quick_slots[MAX_QUICK_SLOTS];
 
 typedef struct _media_file
 {
-        char name[256];		/* file name */
-        void *data;			/* data buffer */
-        int type;			/* what is this? (what loaded in buffer) */
-        int p1;				/* parameter 1 */
-        int p2;
+	/* File name */
+	char name[256];
+
+	/* Data buffer */
+	void *data;
+
+	/* What is this? (What is loaded in buffer) */
+	int type;
+
+	/* Parameter 1 */
+	int p1;
+
+	/* Parameter 2 */
+	int p2;
 }_media_file;
 
 
 typedef enum _media_type
 {
-	MEDIA_TYPE_NO, MEDIA_TYPE_PNG
+	MEDIA_TYPE_NO,
+	MEDIA_TYPE_PNG
 }_media_type;
 
 #define MEDIA_MAX 10
@@ -85,9 +102,10 @@ typedef enum _media_type
 
 extern _media_file media_file[MEDIA_MAX];
 
-extern int media_count;	/* buffered media files */
+/* Buffered media files */
+extern int media_count;
 extern int media_show;
-extern int media_show_update ;
+extern int media_show_update;
 
 extern void do_console();
 extern void do_number();

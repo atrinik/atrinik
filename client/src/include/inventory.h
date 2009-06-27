@@ -26,7 +26,6 @@
 #if !defined(__INVENTORY_H)
 #define __INVENTORY_H
 
-
 #define INVITEMBELOWXLEN 8
 #define INVITEMBELOWYLEN 1
 

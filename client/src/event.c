@@ -1387,27 +1387,25 @@ int process_macro_keys(int id, int value)
  			break;
 
  		case KEYFUNC_PAGEUP:
-			if (options.use_TextwinSplit)
-				txtwin[TW_MSG].scroll++;
-			else
-				txtwin[TW_MIX].scroll++;
+			txtwin[TW_CHAT].scroll++;
+			WIDGET_REDRAW(CHATWIN_ID);
 
 			break;
 
 		case KEYFUNC_PAGEDOWN:
-			if (options.use_TextwinSplit)
-				txtwin[TW_MSG].scroll--;
-			else
-				txtwin[TW_MIX].scroll--;
+			txtwin[TW_CHAT].scroll--;
+			WIDGET_REDRAW(CHATWIN_ID);
 
 			break;
 
 		case KEYFUNC_PAGEUP_TOP:
-			txtwin[TW_CHAT].scroll++;
+			txtwin[TW_MSG].scroll++;
+			WIDGET_REDRAW(MSGWIN_ID);
 			break;
 
 		case KEYFUNC_PAGEDOWN_TOP:
-			txtwin[TW_CHAT].scroll--;
+			txtwin[TW_MSG].scroll--;
+			WIDGET_REDRAW(MSGWIN_ID);
 			break;
 
         case KEYFUNC_TARGET_ENEMY:
