@@ -47,19 +47,21 @@
 
 typedef enum _LOGLEVEL
 {
-        LOG_MSG,
-        LOG_ERROR,
-        LOG_DEBUG
+	LOG_MSG,
+	LOG_ERROR,
+	LOG_DEBUG
 } _LOGLEVEL;
-#define LOGLEVEL LOG_DEBUG
-extern void LOG (int logLevel, char *format, ...);
 
-extern char * GetCacheDirectory(void);
-extern char * GetGfxUserDirectory(void);
-extern char * GetBitmapDirectory(void);
-extern char * GetSfxDirectory(void);
-extern char * GetMediaDirectory(void);
-extern char * GetIconDirectory(void);
+#define LOGLEVEL LOG_DEBUG
+
+extern void LOG(int logLevel, char *format, ...);
+
+extern char *GetCacheDirectory(void);
+extern char *GetGfxUserDirectory(void);
+extern char *GetBitmapDirectory(void);
+extern char *GetSfxDirectory(void);
+extern char *GetMediaDirectory(void);
+extern char *GetIconDirectory(void);
 
 extern int SYSTEM_Start(void);
 extern int SYSTEM_End(void);

@@ -34,7 +34,7 @@ int read_substr_char(char *srcstr, char *desstr, int *sz, char ct);
 char *get_parameter_string(char *data, int *pos);
 int isqrt(int n);
 
-void * _my_malloc(size_t blen, char *info);
+void *_my_malloc(size_t blen, char *info);
 extern unsigned long hasharch(char *str, int tablesize);
 extern _bmaptype *find_bmap(char *name);
 extern void add_bmap(_bmaptype *at);

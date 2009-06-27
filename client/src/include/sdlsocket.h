@@ -32,9 +32,10 @@ extern int SOCKET_InitSocket(void);
 extern int SOCKET_DeinitSocket(void);
 extern int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
 extern int SOCKET_CloseSocket(SOCKET socket);
-extern int SOCKET_GetError(void);	/* returns socket error */
+/* Returns socket error */
+extern int SOCKET_GetError(void);
 
 extern int write_socket(int fd, unsigned char *buf, int len);
-extern int read_socket ( int fd, struct SockList *sl, int len );
+extern int read_socket(int fd, struct SockList *sl, int len);
 
 #endif

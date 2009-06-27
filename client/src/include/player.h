@@ -33,25 +33,24 @@ typedef struct _server_level {
 
 extern _server_level server_level;
 
+extern void CompleteCmd(unsigned char *data, int len);
 
-extern void CompleteCmd ( unsigned char *data, int len );
-
-extern void new_player ( long tag, char *name, long weight, short face );
+extern void new_player(long tag, char *name, long weight, short face);
 extern void new_char(struct _server_char *nc);
-extern void look_at ( int x, int y );
-extern void client_send_apply ( int tag );
-extern void client_send_examine ( int tag );
-extern void client_send_move ( int loc, int tag, int nrof );
-extern void move_player ( int dir );
-extern void stop_fire ( void );
-extern void clear_fire_run ( void );
-extern void clear_fire ( void );
-extern void clear_run ( void );
-extern void fire_dir ( int dir );
-extern void stop_run ( void );
-extern void run_dir ( int dir );
-extern int send_command ( const char *command, int repeat, int must_send );
-extern char * complete_command ( char *command );
+extern void look_at(int x, int y);
+extern void client_send_apply(int tag);
+extern void client_send_examine(int tag);
+extern void client_send_move(int loc, int tag, int nrof);
+extern void move_player(int dir);
+extern void stop_fire(void);
+extern void clear_fire_run(void);
+extern void clear_fire(void);
+extern void clear_run(void);
+extern void fire_dir(int dir);
+extern void stop_run(void);
+extern void run_dir(int dir);
+extern int send_command(const char *command, int repeat, int must_send);
+extern char *complete_command(char *command);
 
 extern void init_player_data(void);
 
@@ -69,7 +68,7 @@ extern void widget_player_data_event(int x, int y);
 extern void widget_show_player_doll_event();
 extern void widget_show_player_data(int x, int y);
 
-extern void set_weight_limit (uint32 wlim);
+extern void set_weight_limit(uint32 wlim);
 extern void clear_player(void);
 
 #endif

@@ -26,79 +26,125 @@
 #if !defined(__SPRITE_H)
 #define __SPRITE_H
 
-/* our blt & sprite structure */
+/* Our blt and sprite structure */
 
-/* status of this bitmap/sprite */
+/* Status of this bitmap/sprite */
 typedef enum _sprite_status {
 	SPRITE_STATUS_UNLOADED,
 	SPRITE_STATUS_LOADED
 } _sprite_status;
 
-/* some other infos */
+/* Some other informations */
 typedef enum _sprite_type {
 	SPRITE_TYPE_NORMAL
 } _sprite_type;
 
-/* use special values from BLTFX structures */
-#define BLTFX_FLAG_NORMAL 0
-#define BLTFX_FLAG_DARK 1
+/* Use special values from BLTFX structures */
+#define BLTFX_FLAG_NORMAL 	0
+#define BLTFX_FLAG_DARK 	1
 #define BLTFX_FLAG_SRCALPHA 2
-#define BLTFX_FLAG_FOW 4
-#define BLTFX_FLAG_RED 8
-#define BLTFX_FLAG_GREY 16
+#define BLTFX_FLAG_FOW 		4
+#define BLTFX_FLAG_RED 		8
+#define BLTFX_FLAG_GREY 	16
 
-/* here we can change default blt options or set special options */
+/* Here we can change default blt options or set special options */
 typedef struct _BLTFX {
-    UINT32 flags;           /* used from BLTFX_FLAG_xxxx */
-	SDL_Surface *surface;	/* if != null, overrule default screen */
-    int dark_level;         /* use dark_level[i] surface */
+	/* Used from BLTFX_FLAG_xxxx */
+    UINT32 flags;
+
+	/* If != null, overrule default screen */
+	SDL_Surface *surface;
+
+	/* Use dark_level[i] surface */
+    int dark_level;
+
     uint8 alpha;
 }_BLTFX;
 
-/* the structure */
+/* The structure */
 typedef struct _Sprite {
 	_sprite_status status;
 	_sprite_type type;
-    int border_up;                          /* rows of blank pixels before first color information */
-    int border_down;                        /* a blank sprite has borders = 0 */
+
+	/* Rows of blank pixels before first color information */
+    int border_up;
+
+	/* a blank sprite has borders = 0 */
+    int border_down;
     int border_left;
     int border_right;
-    /* we stored our faces 7 times...
+
+    /* We store our faces 7 times...
      * Perhaps we will run in memory problems when we boost the arch set.
-     * atm, we have around 15-25mb when we loaded ALL arches (what perhaps
+     * ATM, we have around 15-25mb when we loaded ALL arches (what perhaps
      * never will happens in a single game
-     *Later perhaps a smarter system, using the palettes and switch...
-     */
-    SDL_Surface *bitmap;	                /* thats our native, unchanged bitmap*/
-    SDL_Surface *red;   	                /* red (infravision) */
-    SDL_Surface *grey;	                    /* grey (xray) */
-    SDL_Surface *fog_of_war;	            /* thats the fog of war palette */
-    SDL_Surface *dark_level[DARK_LEVELS];	/* dark levels.
-                                             * Note: 0= default sprite - its only mapped */
+     * Later perhaps a smarter system, using the palettes and switch... */
+
+	/* That's our native, unchanged bitmap */
+    SDL_Surface *bitmap;
+
+	/* Red (infravision) */
+    SDL_Surface *red;
+
+	/* Grey (xray) */
+    SDL_Surface *grey;
+
+	/* That's the fog of war palette */
+    SDL_Surface *fog_of_war;
+
+	/* Dark levels.
+	 * Note: 0 = default sprite - it's only mapped */
+    SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
 
 typedef struct _Font {
-	_Sprite *sprite;	/* don't free this, we link here a Bitmaps[x] ptr*/
-	int char_offset;    /* space in pixel between 2 chars in a word */
+	/* Don't free this, we link here a Bitmaps[x] pointer */
+	_Sprite *sprite;
+
+	/* Space in pixel between 2 chars in a word */
+	int char_offset;
+
 	SDL_Rect c[256];
 }_Font;
 
-#define ANIM_DAMAGE 1
-#define ANIM_KILL   2
+#define ANIM_DAMAGE 	1
+#define ANIM_KILL   	2
 
 typedef struct _anim {
-    struct _anim *next;         /* pointer to next anim in que */
-    struct _anim *before;       /* pointer to anim before */
+	/* Pointer to next anim in que */
+    struct _anim *next;
+
+	/* Pointer to anim before */
+    struct _anim *before;
+
     int type;
-    uint32 start_tick;          /* The time we started this anim */
-    uint32 last_tick;           /* This is the end-tick */
-    int value;                  /* this is the number to display */
-    int x;                      /* where we are X */
-    int y;                      /* where we are Y */
-    int xoff;                   /* movement in X per tick */
-    float yoff;                   /* movement in y per tick */
-    int mapx;                   /* map position X */
-    int mapy;                   /* map position Y */
+
+	/* The time we started this anim */
+    uint32 start_tick;
+
+	/* This is the end-tick */
+    uint32 last_tick;
+
+	/* This is the number to display */
+    int value;
+
+	/* Where we are X */
+    int x;
+
+	/* Where we are Y */
+    int y;
+
+	/* Movement in X per tick */
+    int xoff;
+
+	/* Movement in y per tick */
+    float yoff;
+
+	/* Map position X */
+    int mapx;
+
+	/* Map position Y */
+    int mapy;
 }_anim;
 
 #define ASCII_UP 28
@@ -106,7 +152,8 @@ typedef struct _anim {
 #define ASCII_LEFT 30
 #define ASCII_RIGHT 31
 
-extern struct _anim *start_anim; /* anim queue of current active map */
+/* anim queue of current active map */
+extern struct _anim *start_anim;
 
 extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
 extern void remove_anim(struct _anim *anim);

@@ -26,48 +26,103 @@
 #if !defined(__TEXTWIN_H)
 #define __TEXTWIN_H
 
-#define TEXT_WIN_MAX 250
-#define MAX_KEYWORD_LEN 256
+#define TEXT_WIN_MAX 		250
+#define MAX_KEYWORD_LEN 	256
 
-extern int txtwin_start_size;  /* we need a backup of the TW_MIX.size */
+/* we need a backup of the TW_MIX.size */
+extern int txtwin_start_size;
 
-enum {TW_MIX, TW_MSG, TW_CHAT, TW_SUM}; /* windows */
-enum {TW_CHECK_BUT_DOWN, TW_CHECK_BUT_UP, TW_CHECK_MOVE}; /* events */
-enum {TW_HL_NONE, TW_HL_UP, TW_ABOVE, TW_HL_SLIDER, TW_UNDER, TW_HL_DOWN};
-enum {TW_ACTWIN=0x0f, TW_SCROLL=0x10, TW_RESIZE=0x20}; /* flags */
+/* windows */
+enum {
+	TW_MIX,
+	TW_MSG,
+	TW_CHAT,
+	TW_SUM
+};
+
+/* Events */
+enum {
+	TW_CHECK_BUT_DOWN,
+	TW_CHECK_BUT_UP,
+	TW_CHECK_MOVE
+};
+
+/* Highlights */
+enum {
+	TW_HL_NONE,
+	TW_HL_UP,
+	TW_ABOVE,
+	TW_HL_SLIDER,
+	TW_UNDER,
+	TW_HL_DOWN
+};
+
+/* Flags */
+enum {
+	TW_ACTWIN = 0x0f,
+	TW_SCROLL = 0x10,
+	TW_RESIZE = 0x20
+};
 
 
 typedef struct _text_buf {
-	char buf[128];	 /* text */
-	int channel;		 /* which channel */
-	int flags;			 /* some flags */
-	int color;			 /* color of text */
-	int key_clipped; /* 1= key begin in row before 2= no key end */
+	/* Text */
+	char buf[128];
+
+	/* Which channel */
+	int channel;
+
+	/* Some flags */
+	int flags;
+
+	/* Color of text */
+	int color;
+
+	/* 1 = key begin in row before 2 = no key end */
+	int key_clipped;
 }_text_buf;
 
 typedef struct _textwin_set {
-  int x,y;            /* startpos of the window */
-  int size;           /* number or printed textlines */
-  int scroll;         /* scroll offset */
-  int top_drawLine;   /* first printed textline */
-  int bot_drawLine;   /* last printed textline */
-  int act_bufsize;    /* 0 ... TEXTWIN_MAX */
-  int slider_h;       /* height of the scrollbar-slider  */
-  int slider_y;       /* start pos of the scrollbar-slider */
-  int highlight;      /* which part to highlight */
-  _text_buf text[TEXT_WIN_MAX];
+	/* startpos of the window */
+	int x, y;
+
+	/* Number or printed textlines */
+	int size;
+
+	/* Scroll offset */
+	int scroll;
+
+	/* First printed textline */
+	int top_drawLine;
+
+	/* Last printed textline */
+	int bot_drawLine;
+
+	/* 0 ... TEXTWIN_MAX */
+	int act_bufsize;
+
+	/* Height of the scrollbar-slider  */
+	int slider_h;
+
+	/* Start pos of the scrollbar-slider */
+	int slider_y;
+
+	/* Which part to highlight */
+	int highlight;
+
+	_text_buf text[TEXT_WIN_MAX];
 }_textwin_set;
 
 extern _textwin_set txtwin[TW_SUM];
-extern int  textwin_flags;
+extern int textwin_flags;
 extern void textwin_event(int e, SDL_Event *event, int WidgetID);
 extern void textwin_show(int x, int y);
 extern void textwin_init();
-extern void draw_info( char *str, int color );
-extern void draw_info_format(int flags,char *format,...);
-extern void textwin_addhistory(char* text);
+extern void draw_info(char *str, int color );
+extern void draw_info_format(int flags, char *format, ...);
+extern void textwin_addhistory(char *text);
 extern void textwin_clearhistory();
-extern void textwin_putstring(char* text);
+extern void textwin_putstring(char *text);
 extern void widget_textwin_show(int x, int y, int actWin);
-#endif
 
+#endif

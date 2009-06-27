@@ -26,26 +26,26 @@
 #if !defined(__SOUND_H)
 #define __SOUND_H
 
-/* possible status of the sound system*/
+/* Possible status of the sound system */
 typedef enum _sound_system {
 	SOUND_SYSTEM_NONE,
 	SOUND_SYSTEM_OFF,
 	SOUND_SYSTEM_ON
 }_sound_system;
 
-/* the sound system status*/
+/* The sound system status */
 extern _sound_system SoundSystem;
-
 
 #define SOUND_NORMAL	0
 #define SOUND_SPELL		1
 
-/* music mode - controls how the music is played and started */
+/* Music mode - controls how the music is played and started */
 #define MUSIC_MODE_NORMAL 1
 #define MUSIC_MODE_DIRECT 2
-#define MUSIC_MODE_FORCED 4 /* thats needed for some map event sounds */
+/* That's needed for some map event sounds */
+#define MUSIC_MODE_FORCED 4
 
-/* sound ids. */
+/* Sound ids. */
 typedef enum _sound_id {
 	SOUND_EVENT01,
 	SOUND_BOW01,
@@ -54,8 +54,7 @@ typedef enum _sound_id {
 	SOUND_FAILROD,
 	SOUND_DOOR,
 	SOUND_PUSHPLAYER,
-
-	SOUND_HIT_IMPACT, /* 8 */
+	SOUND_HIT_IMPACT,
 	SOUND_HIT_CLEAVE,
 	SOUND_HIT_SLASH,
 	SOUND_HIT_PIERCE,
@@ -63,8 +62,7 @@ typedef enum _sound_id {
     SOUND_HIT_HAND,
     SOUND_MISS_MOB1,
     SOUND_MISS_MOB2,
-
-	SOUND_PETDEAD, /* 16 */
+	SOUND_PETDEAD,
 	SOUND_PLAYERDEAD,
 	SOUND_EXPLOSION00,
 	SOUND_EXPLOSION01,
@@ -72,8 +70,7 @@ typedef enum _sound_id {
 	SOUND_PULLLEVER,
 	SOUND_FALLHOLE,
 	SOUND_POISON,
-
-	SOUND_DROP, /* 24 */
+	SOUND_DROP,
 	SOUND_LOSE_SOME,
 	SOUND_THROW,
 	SOUND_GATE_OPEN,
@@ -85,9 +82,8 @@ typedef enum _sound_id {
 	SOUND_TELEPORT,
 	SOUND_SCROLL,
 
-	/* here we have client side sounds - add server
-	 * sounds BEFORE this.
-	 */
+	/* Here we have client side sounds - add server
+	 * sounds BEFORE this. */
 	SOUND_STEP1,
 	SOUND_STEP2,
 	SOUND_PRAY,
@@ -108,10 +104,10 @@ typedef enum _sound_id {
 	SOUND_MAX
 }_sound_id1;
 
-/* to call a spell sound here, do
- * SOUND_MAX + SOUND_MAGIC_xxx
- */
-/* this enum should be same as in server */
+/* To call a spell sound here, do
+ * SOUND_MAX + SOUND_MAGIC_xxx */
+
+/* This enum should be same as in server */
 typedef enum _spell_sound_id {
 	SOUND_MAGIC_DEFAULT,
 	SOUND_MAGIC_ACID,
@@ -168,32 +164,45 @@ typedef enum _spell_sound_id {
 #ifdef INSTALL_SOUND
 typedef struct _wave {
 	Mix_Chunk *sound;
-	Uint32   soundlen;		/* Length of wave data */
-	int      soundpos;		/* Current play position */
+
+	/* Length of wave data */
+	Uint32 soundlen;
+
+	/* Current play position */
+	int soundpos;
 } _wave;
 
 typedef struct music_data {
-	int flag;				/* if 1, struct is loaded */
-	Mix_Music *data;		/* data != 0 , buffer is allocated */
-	char name[256];			/* if flag = 1, this is a valid music name */
-	int loop;				/* loop data for init music_play() */
+	/* If 1, struct is loaded */
+	int flag;
+
+	/* Data != 0, buffer is allocated */
+	Mix_Music *data;
+
+	/* If flag = 1, this is a valid music name */
+	char name[256];
+
+	/* Loop data for init music_play() */
+	int loop;
+
 	int fade;
 	int vol;
 }music_data;
 
 extern _wave Sounds[];
 
-extern music_data music;	  		 /* thats the music we just play - if NULL, no music */
+/* That's the music we just play - if NULL, no music */
+extern music_data music;
 extern music_data music_new;
 #endif
 
 enum {
-	    SPECIAL_SOUND_FOOD,
-        SPECIAL_SOUND_STATDOWN,
-        SPECIAL_SOUND_STATUP,
-        SPECIAL_SOUND_DRAIN,
+	SPECIAL_SOUND_FOOD,
+	SPECIAL_SOUND_STATDOWN,
+	SPECIAL_SOUND_STATUP,
+	SPECIAL_SOUND_DRAIN,
 
-        SPECIAL_SOUND_INIT
+	SPECIAL_SOUND_INIT
 };
 
 void sound_fillerup(void *unused, Uint8 *stream, int len);
