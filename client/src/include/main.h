@@ -83,22 +83,25 @@ typedef struct _bmaptype {
 
 extern _bmaptype *bmap_table[BMAPTABLE];
 
+/** Keymap structure */
 typedef struct _keymap
 {
-	/* The command text, submitted to server when key pressed */
+	/** The command text, submitted to server when key pressed */
 	char text[256];
 
+	/** Key name */
 	char keyname[256];
 
-	/* Scancode of key */
+	/** Scancode of key */
 	int key;
 
-	/* If true, key will be repeated when pressed */
+	/** If true, key will be repeated when pressed */
 	int repeatflag;
 
-	/* The send mode OR the menu id */
+	/** The send mode OR the menu id */
 	int mode;
 
+	/** Menu mode */
 	int menu_mode;
 }_keymap;
 
@@ -347,53 +350,81 @@ typedef struct _skill_list {
 
 /* Bind key list defines */
 
-/* Groups of keys */
+/** Bindkey list max */
 #define BINDKEY_LIST_MAX 10
 
+/** Bindkey list structure */
 typedef struct _bindkey_list {
+	/** Entry */
 	_keymap entry[DIALOG_LIST_ENTRY];
+
+	/** Name */
 	char name[OPTWIN_MAX_TABLEN];
+
+	/** Size */
 	int size;
 }_bindkey_list;
 
+/** Dialog list structure */
 typedef struct _dialog_list_set {
+	/** Group number */
 	int group_nr;
+
+	/** Entry number */
 	int entry_nr;
 
-	/* For spell-list => spell, prayer, ... */
+	/** For spell-list => spell, prayer, ... */
 	int class_nr;
+
+	/** Key change */
 	int key_change;
 }_dialog_list_set;
 
 /* Spell list defines */
 
-/* Groups of spells */
+/** Spell list max */
 #define SPELL_LIST_MAX 20
+/** Spell list classes */
 #define SPELL_LIST_CLASS 2
 
+/** Spell list entry structure */
 typedef struct _spell_list_entry {
-	/* -1: entry is unused */
+	/** -1 - entry is unused */
 	int flag;
 
-	/* name of entry */
+	/** name of entry */
 	char name[LIST_NAME_MAX];
 
+	/** Icon name */
 	char icon_name[32];
+
+	/** Sprite */
 	struct _Sprite *icon;
 
-	/* description (in 4 rows) */
+	/** Description (in 4 rows) */
 	char desc[4][96];
 }_spell_list_entry;
 
+/** Spell list structure */
 typedef struct _spell_list {
 	_spell_list_entry entry[SPELL_LIST_CLASS][DIALOG_LIST_ENTRY];
 }_spell_list;
 
+/** Fire mode structure */
 typedef struct _fire_mode {
+	/** Item */
     int item;
+
+	/** Amunnition */
     int amun;
+
+	/** Spell */
     _spell_list_entry *spell;
+
+	/** Skill */
     _skill_list_entry *skill;
+
+	/** Name */
 	char name[128];
 }_fire_mode;
 
@@ -407,69 +438,70 @@ typedef enum _fire_mode_id {
 	FIRE_MODE_INIT
 }_fire_mode_id;
 
-#define FIRE_ITEM_NO (-1)
+/** If no fire item */
+#define FIRE_ITEM_NO -1
 
 typedef enum _game_status
 {
-	/* Call this add start to autoinit */
+	/** Call this add start to autoinit */
 	GAME_STATUS_INIT,
 
-	/* To to connect to meta server */
+	/** To to connect to meta server */
 	GAME_STATUS_META,
 
-	/* Start all up without full reset or meta calling */
+	/** Start all up without full reset or meta calling */
 	GAME_STATUS_START,
 
-	/* We are NOT connected to anything */
+	/** We are NOT connected to anything */
 	GAME_STATUS_WAITLOOP,
 
-	/* We have a server + port, init and start */
+	/** We have a server + port, init and start */
 	GAME_STATUS_STARTCONNECT,
 
-	/* If this is set, we start connecting */
+	/** If this is set, we start connecting */
 	GAME_STATUS_CONNECT,
 
-	/* Now the steps: Connect, we send version */
+	/** Now the steps: Connect, we send version */
 	GAME_STATUS_VERSION,
 
-	/* Wait for response... add up in version command */
+	/** Wait for response... add up in version command */
 	GAME_STATUS_WAITVERSION,
 
-	/* We ready to send setup commands */
+	/** We ready to send setup commands */
 	GAME_STATUS_SETUP,
 
-	/* We wait for server response */
+	/** We wait for server response */
 	GAME_STATUS_WAITSETUP,
 
-	/* After we get response from setup, we request files if needed */
+	/** After we get response from setup, we request files if needed */
 	GAME_STATUS_REQUEST_FILES,
 
-	/* All setup is done, now try to enter game */
+	/** All setup is done, now try to enter game */
 	GAME_STATUS_ADDME,
 
-	/* Now we wait for LOGIN request of the server */
+	/** Now we wait for LOGIN request of the server */
 	GAME_STATUS_LOGIN,
 
-	/* All this here is tricky */
+	/** All this here is tricky */
 	GAME_STATUS_NAME,
 
-	/* Server will trigger this when asking for password */
+	/** Server will trigger this when asking for password */
 	GAME_STATUS_PSWD,
 
-	/* Client will then show input panel or so */
+	/** Client will then show input panel or so */
 	GAME_STATUS_VERIFYPSWD,
 
-	/* Show new char creation screen and send /nc command when finished */
+	/** Show new char creation screen and send /nc command when finished */
 	GAME_STATUS_NEW_CHAR,
 
-	/* We simply wait for game start.
+	/** We simply wait for game start.
 	 * Means, this is not a serial stepping here */
 	GAME_STATUS_WAITFORPLAY,
 
-	/* We are in quit menu */
+	/** We are in quit menu */
 	GAME_STATUS_QUIT,
 
-	/* We play now. */
+	/** We play now. */
 	GAME_STATUS_PLAY
 } _game_status;
 
@@ -526,9 +558,9 @@ enum {
 /* With this, we overrule bitmap loading params.
  * For example, we need for fonts an attached palette, and not the native vid mode */
 
-/* Furface must stay in palette mode, not in vid mode */
+/** Surface must stay in palette mode, not in vid mode */
 #define SURFACE_FLAG_PALETTE 	1
-/* Use this when you want a colkey in a true color picture - color should be 0 */
+/** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 
 typedef enum _bitmap_index {

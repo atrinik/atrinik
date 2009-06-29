@@ -47,31 +47,39 @@ typedef enum _sprite_type {
 #define BLTFX_FLAG_RED 		8
 #define BLTFX_FLAG_GREY 	16
 
-/* Here we can change default blt options or set special options */
+/** Here we can change default blt options or set special options */
 typedef struct _BLTFX {
-	/* Used from BLTFX_FLAG_xxxx */
+	/** Used from BLTFX_FLAG_xxxx */
     UINT32 flags;
 
-	/* If != null, overrule default screen */
+	/** If != null, overrule default screen */
 	SDL_Surface *surface;
 
-	/* Use dark_level[i] surface */
+	/** Use dark_level[i] surface */
     int dark_level;
 
+	/** Alpha value */
     uint8 alpha;
 }_BLTFX;
 
-/* The structure */
+/** Sprite structure */
 typedef struct _Sprite {
+	/** Sprite status */
 	_sprite_status status;
+
+	/** Sprite type */
 	_sprite_type type;
 
-	/* Rows of blank pixels before first color information */
+	/** Rows of blank pixels before first color information */
     int border_up;
 
-	/* a blank sprite has borders = 0 */
+	/** Border down */
     int border_down;
+
+	/** Border left */
     int border_left;
+
+	/** Border right */
     int border_right;
 
     /* We store our faces 7 times...
@@ -80,30 +88,31 @@ typedef struct _Sprite {
      * never will happens in a single game
      * Later perhaps a smarter system, using the palettes and switch... */
 
-	/* That's our native, unchanged bitmap */
+	/** That's our native, unchanged bitmap */
     SDL_Surface *bitmap;
 
-	/* Red (infravision) */
+	/** Red (infravision) */
     SDL_Surface *red;
 
-	/* Grey (xray) */
+	/** Grey (xray) */
     SDL_Surface *grey;
 
-	/* That's the fog of war palette */
+	/** That's the fog of war palette */
     SDL_Surface *fog_of_war;
 
-	/* Dark levels.
+	/** Dark levels.
 	 * Note: 0 = default sprite - it's only mapped */
     SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
 
 typedef struct _Font {
-	/* Don't free this, we link here a Bitmaps[x] pointer */
+	/** Don't free this, we link here a Bitmaps[x] pointer */
 	_Sprite *sprite;
 
-	/* Space in pixel between 2 chars in a word */
+	/** Space in pixel between 2 chars in a word */
 	int char_offset;
 
+	/** Character */
 	SDL_Rect c[256];
 }_Font;
 
@@ -147,12 +156,16 @@ typedef struct _anim {
     int mapy;
 }_anim;
 
+/** ASCII code for UP character */
 #define ASCII_UP 28
+/** ASCII code for DOWN character */
 #define ASCII_DOWN 29
+/** ASCII code for LEFT character */
 #define ASCII_LEFT 30
+/** ASCII code for RIGHT character*/
 #define ASCII_RIGHT 31
 
-/* anim queue of current active map */
+/* Anim queue of current active map */
 extern struct _anim *start_anim;
 
 extern struct _anim *add_anim(int type, int mapx, int mapy, int value);

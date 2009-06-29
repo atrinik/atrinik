@@ -88,6 +88,7 @@ enum {
 	KEYFUNC_COMBAT
 };
 
+/** Keybind structure */
 typedef struct _keybind_key {
 	/* The text */
 	char macro[256];

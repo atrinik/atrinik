@@ -30,17 +30,17 @@ _server_char *first_server_char = NULL;
 /* if we login as new char, thats the values of it we set */
 _server_char new_character;
 
-/* THE main surface (backbuffer)*/
+/* THE main surface (backbuffer) */
 SDL_Surface *ScreenSurface;
 SDL_Surface *ScreenSurfaceMap;
 _Font MediumFont;
-/* our main font*/
+/* our main font */
 _Font SystemFont;
-/* our main font - black outlined*/
+/* our main font - black outlined */
 _Font SystemFontOut;
-/* bigger special font*/
+/* bigger special font */
 _Font BigFont;
-/* our main font with shadow*/
+/* our main font with shadow */
 _Font Font6x3Out;
 /* Server's attributes */
 struct sockaddr_in insock;
@@ -155,8 +155,6 @@ void init_game_data(void);
 int game_status_chain(void);
 int load_bitmap(int index);
 
-#define NCOMMANDS (sizeof(commands) / sizeof(struct CmdMapping))
-
 _server *start_server, *end_server;
 int metaserver_start, metaserver_sel, metaserver_count;
 
@@ -165,11 +163,15 @@ typedef enum _pic_type
 	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS
 } _pic_type;
 
+/** Bitmap name structure */
 typedef struct _bitmap_name
 {
+	/** Name */
 	char *name;
+
+	/** Type */
 	_pic_type type;
-} _bitmap_name ;
+} _bitmap_name;
 
 /* for loading, use BITMAP_xx in the other modules*/
 static _bitmap_name  bitmap_name[BITMAP_INIT] =
@@ -446,12 +448,6 @@ void init_game_data(void)
     txtwin[TW_CHAT].size = 22;
  	options.mapstart_x = -10;
     options.mapstart_y = 100;
-
-	memset(media_file, 0, sizeof(_media_file ) * MEDIA_MAX);
-	/* buffered media files */
-	media_count = 0;
-	/* show this media file */
-	media_show = MEDIA_SHOW_NO;
 
 	/* now load options, allowing the user to override the presetings */
 	load_options_dat();

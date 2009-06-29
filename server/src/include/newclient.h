@@ -348,6 +348,7 @@ enum {
 	BINARY_CMD_ITEMY,
 	BINARY_CMD_BOOK,
 	BINARY_CMD_PARTY,
+	BINARY_CMD_QUICKSLOT,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

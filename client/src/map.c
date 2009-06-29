@@ -31,10 +31,10 @@ static struct Map the_map;
 
 static struct MapCell *TheMapCache=NULL;
 
-/* Current shown map: mapname, length, etc */
+/** Current shown map: mapname, length, etc */
 _mapdata MapData;
 
-/* we need this to parse the map and sort the multi tile monsters */
+/** We need this to parse the map and sort the multi tile monsters */
 typedef struct _map_object_parse {
     int face;
     int x;
@@ -171,9 +171,6 @@ void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 
         if (init_media_tag(bg_music))
 			music_fade = 1;
-
-		/* Perhaps we have a png - simulate a step = map_scroll */
-        media_show_update--;
     }
 
 	/* There was no music tag or playon tag in this map - fade out */
@@ -650,11 +647,11 @@ void map_draw_map(void)
  * ret: 0 ok;  < 0 not a valid position. */
 int get_tile_position(int x, int y, int *tx, int *ty)
 {
-	if (x < MAP_START_XOFF)
+	if (x < options.mapstart_x + MAP_START_XOFF)
 		x -= MAP_TILE_POS_XOFF;
 
-	x -= MAP_START_XOFF;
-	y -= MAP_START_YOFF;
+	x -= options.mapstart_x + MAP_START_XOFF;
+	y -= options.mapstart_x + MAP_START_YOFF;
 
 	*tx = x / MAP_TILE_POS_XOFF + y / MAP_TILE_YOFF;
 	*ty = y / MAP_TILE_YOFF - x / MAP_TILE_POS_XOFF;

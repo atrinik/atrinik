@@ -35,43 +35,43 @@ enum {
 	PARTY_TABS
 };
 
-/* The main party GUI structure */
+/** The main party GUI structure */
 typedef struct gui_party_struct
 {
-	/* Command to run. Something like "list", "who", etc. */
+	/** Command to run. Something like "list", "who", etc. */
 	char command[MAX_BUF + 1];
 
-	/* Linked list of lines */
+	/** Linked list of lines */
 	struct gui_party_line *start;
 
-	/* Number of lines */
+	/** Number of lines */
 	int lines;
 
-	/* Scroll bar position */
+	/** Scroll bar position */
 	int yoff;
 
-	/* Selected row */
+	/** Selected row */
 	int selected;
 
-	/* Selected tab */
+	/** Selected tab */
 	int tab;
 } _gui_party_struct;
 
-/* Structure for the party GUI lines */
+/** Structure for the party GUI lines */
 typedef struct gui_party_line
 {
-	/* The next line */
+	/** The next line */
 	struct gui_party_line *next;
 
-	/* Line contents */
+	/** Line contents */
 	char line[MAX_BUF + 1];
 } _gui_party_line;
 
 extern void switch_tabs();
 extern _gui_party_struct *load_party_interface(char *data, int len);
-extern void show_party(void);
+extern void show_party();
 extern void gui_party_interface_mouse(SDL_Event *e);
-extern int console_party(void);
-extern void clear_party_interface(void);
+extern int console_party();
+extern void clear_party_interface();
 
 #endif

@@ -383,7 +383,7 @@ typedef struct obj
 	living stats;
 
 	/* REMOVE IS IN PROCESS */
-	uint32	attacktype;
+	uint32 attacktype;
 
 
 #ifdef POSITION_DEBUG
@@ -393,6 +393,9 @@ typedef struct obj
 
 	/* Type-dependant extra data. */
     void *custom_attrset;
+
+	/* Quickslot ID this object goes in */
+	uint8 quickslot;
 } object;
 
 #ifdef WIN32

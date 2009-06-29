@@ -108,6 +108,7 @@ static struct PlCmdMapping plcommands[] = {
 	{"fr",			command_face_request},
 	{"nc",			command_new_char},
 	{"pt",			PartyCmd},
+	{"qs",			QuickSlotCmd},
     {NULL, NULL}
 };
 

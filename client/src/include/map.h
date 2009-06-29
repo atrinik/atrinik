@@ -26,73 +26,109 @@
 #if !defined(__MAP_H)
 #define __MAP_H
 
+/** Map start X offset */
 #define MAP_START_XOFF 376
 
+/** Map start Y offset */
 #define MAP_START_YOFF 143
+
+/** Map tile position Y offset */
 #define MAP_TILE_POS_YOFF 23
+
+/** Map tile position Y offset 2 */
 #define MAP_TILE_POS_YOFF2 12
+
+/** Map tile position X offset */
 #define MAP_TILE_POS_XOFF 48
+
+/** Map tile position X offset 2 */
 #define MAP_TILE_POS_XOFF2 24
 
+/** Map tile X offset */
 #define MAP_TILE_XOFF 12
+
+/** Map tile Y offset */
 #define MAP_TILE_YOFF 24
 
-/* Table of pre definded multi arch objects.
+/** Multi part object tile structure */
+typedef struct _multi_part_tile {
+	/** X-offset */
+    int xoff;
+
+	/** Y-offset */
+    int yoff;
+}_multi_part_tile;
+
+/** Table of predefined multi arch objects.
  * mpart_id and mpart_nr in the arches are commited from server
  * to analyze the exact tile position inside a mpart object.
  *
  * The way of determinate the starting and shift points is explained
  * in the dev/multi_arch folder of the arches, where the multi arch templates &
  * masks are. */
-
-typedef struct _multi_part_tile {
-	/* X-offset */
-    int xoff;
-
-	/* Y-offset */
-    int yoff;
-}_multi_part_tile;
-
 typedef struct _multi_part_obj {
-	/* Natural xlen of the whole multi arch */
+	/** Natural xlen of the whole multi arch */
     int xlen;
 
-	/* Same for ylen */
+	/** Same for ylen */
     int ylen;
 
+	/** Tile */
     _multi_part_tile part[16];
 }_multi_part_obj;
 
+/** Map data structure */
 typedef struct _mapdata
 {
-	/* Map name */
+	/** Map name */
     char name[256];
 
-	/* Map background music */
+	/** Map background music */
     char music[256];
 
+	/** X length */
     int xlen;
+
+	/** Y length */
     int ylen;
+
+	/** Position X */
     int posx;
+
+	/** Position Y */
     int posy;
 }_mapdata;
 
+/** Map cell structure */
 struct MapCell {
+	/** Faces */
     short faces[MAXFACES];
+	/** Position */
     short pos[MAXFACES];
+	/** Fog of war */
     int fog_of_war;
+	/** Flags */
     uint8 ext[MAXFACES];
+	/** Name of player on this cell*/
     char pname[MAXFACES][32];
+	/** If this is where our enemy is */
     uint8 probe[MAXFACES];
+	/** Cell darkness */
     uint8 darkness;
 } MapCell;
 
+/** Map structure */
 struct Map {
+	/** Map cells */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
 
+/** Map position */
 typedef struct {
+	/** X position */
 	int x;
+
+	/** Y position */
 	int y;
 } MapPos;
 

@@ -26,27 +26,43 @@
 #if !defined(__DIALOG_H)
 #define __DIALOG_H
 
+/** Option window max tabs */
 #define OPTWIN_MAX_TAB 20
+
+/** Option windows max options */
 #define OPTWIN_MAX_OPT 26
+
+/** Option window max keys */
 #define OPTWIN_MAX_KEYS 100
 
+/** Option structure */
 typedef struct _option
 {
+	/** Option name */
 	char *name;
 
-	/* Info text row 1 */
+	/** Info text row 1 */
 	char *info1;
 
-	/* Info text row 2 */
+	/** Info text row 2 */
 	char *info2;
 
-	/* Text replacement for number values */
+	/** Text replacement for number values */
 	char *val_text;
 
-	int  sel_type;
-	int  minRange, maxRange, deltaRange;
+	/** Select type */
+	int sel_type;
+
+	/** Ranges */
+	int minRange, maxRange, deltaRange;
+
+	/** Default value */
 	int default_val;
+
+	/** Value */
 	void *value;
+
+	/** Value type */
 	int value_type;
 }_option;
 

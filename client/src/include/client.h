@@ -65,11 +65,19 @@
 #define SC_FIRERUN 1
 #define SC_ALWAYS 2
 
+/** Screensize structure */
 typedef struct _screensize
 {
+	/** Screen X */
     int x;
+
+	/** Screen Y */
     int y;
+
+	/** Screen X offset */
     int xoff;
+
+	/** Screen Y offset */
     int yoff;
 } _screensize;
 

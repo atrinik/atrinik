@@ -23,17 +23,20 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file controls the party Graphical User Interface. */
+/**
+ * @file
+ * This file controls the party Graphical User Interface. */
 
 #include <include.h>
 
-/* Party GUI tabs */
+/** Party GUI tabs */
 static char *party_tabs[] = {
 	"List", 	"Who",
 	"Leave",	"Password"
 };
 
-/* Switch a tab. Called on switching tabs, to call the required function. */
+/**
+ * Switch a tab. Called on switching tabs, to call the required function. */
 void switch_tabs()
 {
 	char buf[MAX_BUF];
@@ -64,7 +67,10 @@ void switch_tabs()
 	}
 }
 
-/* Draw party tabs. */
+/**
+ * Draw party tabs.
+ * @param x X position where to draw tabs
+ * @param y Y position where to draw tabs */
 void draw_party_tabs(int x, int y)
 {
 	int i = 0, max = PARTY_TABS;
@@ -125,8 +131,9 @@ void draw_party_tabs(int x, int y)
 		active = 0;
 }
 
-/* Show the party interface */
-void show_party(void)
+/**
+ * Show the party interface. */
+void show_party()
 {
 	char partyname[MAX_BUF], partyleader[MAX_BUF];
 	_gui_party_line *party_line;
@@ -533,7 +540,9 @@ void show_party(void)
 	}
 }
 
-/* That's called on mouse event in party GUI */
+/**
+ * Called on mouse event in party GUI
+ * @param e SDL event */
 void gui_party_interface_mouse(SDL_Event *e)
 {
 	if (!gui_interface_party)
@@ -559,8 +568,10 @@ void gui_party_interface_mouse(SDL_Event *e)
     }
 }
 
-/* Free and clear the party GUI */
-void clear_party_interface(void)
+
+/**
+ * Free and clear the party GUI */
+void clear_party_interface()
 {
 	if (!gui_interface_party)
 		return;
@@ -570,6 +581,11 @@ void clear_party_interface(void)
 }
 
 /* Initialize the party interface */
+/**
+ * Initialize the party interface.
+ * @param data Data to initialize the interface from
+ * @param len Length of the data
+ * @return Party structure */
 _gui_party_struct *load_party_interface(char *data, int len)
 {
 	char command[MAX_BUF], *p, *partyCommand;
@@ -631,10 +647,12 @@ _gui_party_struct *load_party_interface(char *data, int len)
 	return gui_interface_party;
 }
 
-/* Called from do_console() in menu.c, this function is used when
+/**
+ * Called from do_console() in menu.c, this function is used when
  * we open console in order to type party password when joining,
- * or setting a new password. */
-int console_party(void)
+ * or setting a new password.
+ * @return 1 if we want to close the console, 0 otherwise */
+int console_party()
 {
 	char partyname[HUGE_BUF];
 

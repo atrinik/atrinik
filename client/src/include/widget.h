@@ -29,41 +29,52 @@
 /* If you want (a LOT) of debug info about widgets, uncomment this */
 /*#define DEBUG_WIDGET*/
 
-/* Used in the priority list (to order widgets) */
+/** Used in the priority list (to order widgets) */
 struct _widget_node {
+	/** Next */
     struct _widget_node *next;
+
+	/** Previous */
     struct _widget_node *prev;
+
+	/** Widget ID */
 	int WidgetID;
 };
 
 typedef struct _widget_node widget_node;
 
-/* information about a widget - used for current/default list */
+/** Information about a widget - used for current/default list */
 typedef struct _widgetdata
 {
-	/* What is its name? */
+	/** Widget name */
 	char *name;
 
-	/* Internal use only */
+	/** Widget priority */
 	widget_node *priority_index;
 
-	/* Position values */
+	/** Position X */
 	int x1;
+
+	/** Position Y */
 	int y1;
+
+	/** Width */
 	int wd;
+
+	/** Height */
 	int ht;
 
-	/* Can you drag it? */
+	/** Moveable */
 	int moveable;
 
-	/* Hidden and inactive or shown */
+	/** Hidden and inactive or shown */
 	int show;
 
-	/* Widget must be redrawn */
+	/** Widget must be redrawn */
 	int redraw;
 }_widgetdata;
 
-/* Events that are passed to the widget handler */
+/** Events that are passed to the widget handler */
 typedef enum _proc_type
 {
     PROCESS,
@@ -101,25 +112,36 @@ typedef enum _WidgetID
     MAPNAME_ID,
     IN_CONSOLE_ID,
     IN_NUMBER_ID,
-
 	/* Must be last element */
 	TOTAL_WIDGETS
 }_WidgetID;
 
-/* Used for mouse button/move events */
+/** Used for mouse button/move events */
 typedef struct _widgetevent
 {
+	/** Widget owner */
 	int owner;
+
+	/** Widget X */
 	int x;
+
+	/** Widget Y */
 	int y;
 }_widgetevent;
 
-/* This is used when moving a widget with the mouse */
+/** This is used when moving a widget with the mouse */
 typedef struct _widgetmove
 {
+	/** Is the widget active? */
 	int active;
+
+	/** Widget ID */
 	int id;
+
+	/** X offset */
 	int xOffset;
+
+	/** Y offset */
 	int yOffset;
 }_widgetmove;
 
@@ -150,13 +172,20 @@ extern void SetPriorityWidget(int nWidgetID);
 
 extern int get_widget_owner(int x,int y);
 
-/* Helper macros */
+/** Macro to redraw widget */
 #define WIDGET_REDRAW(__a) cur_widget[__a].redraw = 1;
 
 #ifdef WIDGET_SNAP
+/** Left position */
 #define LEFT(ID) (cur_widget[(ID)].x1)
+
+/** Right position*/
 #define RIGHT(ID) (cur_widget[(ID)].x1 + cur_widget[(ID)].wd)
+
+/** Top position */
 #define TOP(ID) (cur_widget[(ID)].y1)
+
+/** Bottom position */
 #define BOTTOM(ID) (cur_widget[(ID)].y1 + cur_widget[(ID)].ht)
 #endif
 

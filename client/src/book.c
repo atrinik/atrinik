@@ -30,7 +30,7 @@
 #define BOOK_LINE_ICON		2
 #define BOOK_LINE_NAME		4
 
-/* internal used */
+/* Internal use */
 #define BOOK_LINE_PAGE		16
 _global_book_data global_book_data;
 

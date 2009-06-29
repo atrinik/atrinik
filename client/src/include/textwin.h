@@ -64,50 +64,51 @@ enum {
 	TW_RESIZE = 0x20
 };
 
-
+/** Text buf structure */
 typedef struct _text_buf {
-	/* Text */
+	/** Text */
 	char buf[128];
 
-	/* Which channel */
+	/** Which channel */
 	int channel;
 
-	/* Some flags */
+	/** Some flags */
 	int flags;
 
-	/* Color of text */
+	/** Color of text */
 	int color;
 
-	/* 1 = key begin in row before 2 = no key end */
+	/** 1 = key begin in row before 2 = no key end */
 	int key_clipped;
 }_text_buf;
 
+/** Text win structure */
 typedef struct _textwin_set {
-	/* startpos of the window */
+	/** startpos of the window */
 	int x, y;
 
-	/* Number or printed textlines */
+	/** Number or printed textlines */
 	int size;
 
-	/* Scroll offset */
+	/** Scroll offset */
 	int scroll;
 
-	/* First printed textline */
+	/** First printed textline */
 	int top_drawLine;
 
-	/* Last printed textline */
+	/** Last printed textline */
 	int bot_drawLine;
 
-	/* 0 ... TEXTWIN_MAX */
+	/** 0 ... TEXTWIN_MAX */
 	int act_bufsize;
 
-	/* Height of the scrollbar-slider  */
+	/** Height of the scrollbar-slider  */
 	int slider_h;
 
-	/* Start pos of the scrollbar-slider */
+	/** Start pos of the scrollbar-slider */
 	int slider_y;
 
-	/* Which part to highlight */
+	/** Which part to highlight */
 	int highlight;
 
 	_text_buf text[TEXT_WIN_MAX];

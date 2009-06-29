@@ -44,6 +44,7 @@ enum {
 
 extern void BookCmd(unsigned char *data, int len);
 extern void PartyCmd(unsigned char *data, int len);
+extern void QuickSlotCmd(char *data);
 extern void SoundCmd(unsigned char *data, int len);
 extern void SetupCmd(char *buf, int len);
 extern void FaceCmd(unsigned char *data, int len);

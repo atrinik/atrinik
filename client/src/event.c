@@ -1136,6 +1136,22 @@ int key_event(SDL_KeyboardEvent *key)
 					quickslot_key(key, 7);
 					break;
 
+				case SDLK_END:
+					quickslot_group++;
+
+					if (quickslot_group > MAX_QUICKSLOT_GROUPS)
+						quickslot_group = MAX_QUICKSLOT_GROUPS;
+
+					break;
+
+				case SDLK_HOME:
+					quickslot_group--;
+
+					if (quickslot_group < 1)
+						quickslot_group = 1;
+
+					break;
+
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					SetPriorityWidget(MAIN_INV_ID);
@@ -1192,7 +1208,6 @@ int key_event(SDL_KeyboardEvent *key)
 								}
 								else if (esc_menu_index == ESC_MENU_LOGOUT)
 								{
-									save_quickslots_entrys();
 									SOCKET_CloseSocket(csocket.fd);
 									GameStatus = GAME_STATUS_INIT;
 								}
@@ -1872,8 +1887,10 @@ static void cursor_keys(int num)
 /* Handle quickslot key event. */
 static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 {
-   	int tag;
+   	int tag, real_slot = slot;
    	char buf[256];
+
+	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
 
    	/* Put spell into quickslot */
    	if (!key && cpl.menustatus == MENU_SPELL)
@@ -1885,7 +1902,10 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			  	quick_slots[slot].spell = 0;
 			  	quick_slots[slot].tag = -1;
 
-			  	snprintf(buf, sizeof(buf), "unset F%d.", slot + 1);
+				snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
+    			cs_write_string(csocket.fd, buf, strlen(buf));
+
+			  	snprintf(buf, sizeof(buf), "Unset F%d of group %d.", real_slot + 1, quickslot_group);
 			  	draw_info(buf, COLOR_DGOLD);
 		  	}
 		  	else
@@ -1895,7 +1915,10 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			  	quick_slots[slot].classNr = spell_list_set.class_nr;
 			  	quick_slots[slot].tag = spell_list_set.entry_nr;
 
-			  	snprintf(buf, sizeof(buf), "set F%d to %s", slot + 1, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
+				snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", slot + 1, spell_list_set.group_nr, spell_list_set.class_nr, spell_list_set.entry_nr);
+    			cs_write_string(csocket.fd, buf, strlen(buf));
+
+			  	snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
 			  	draw_info(buf, COLOR_DGOLD);
 		  	}
       	}
@@ -1914,13 +1937,22 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
       	quick_slots[slot].spell = 0;
 
 	  	if (quick_slots[slot].tag == tag)
+		{
 		  	quick_slots[slot].tag = -1;
+			snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
+    		cs_write_string(csocket.fd, buf, strlen(buf));
+		}
 	  	else
 	  	{
+			update_quickslots(tag);
+
 		  	quick_slots[slot].tag = tag;
 		  	quick_slots[slot].invSlot = cpl.win_inv_slot;
 
-		  	snprintf(buf, sizeof(buf), "set F%d to %s", slot + 1, locate_item(tag)->s_name);
+			snprintf(buf, sizeof(buf), "qs set %d %d", slot + 1, tag);
+    		cs_write_string(csocket.fd, buf, strlen(buf));
+
+		  	snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
 		  	draw_info(buf, COLOR_DGOLD);
 	  	}
    	}
@@ -1941,14 +1973,14 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 
           	if (locate_item(quick_slots[slot].tag))
           	{
-             	snprintf(buf, sizeof(buf), "F%d quick apply %s", slot + 1, locate_item(quick_slots[slot].tag)->s_name);
+             	snprintf(buf, sizeof(buf), "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, locate_item(quick_slots[slot].tag)->s_name);
              	draw_info(buf, COLOR_DGOLD);
              	client_send_apply(quick_slots[slot].tag);
              	return;
           	}
       	}
 
-      	snprintf(buf, sizeof(buf), "F%d quick slot is empty", slot + 1);
+      	snprintf(buf, sizeof(buf), "F%d of group %d quick slot is empty", real_slot + 1, quickslot_group);
       	draw_info(buf, COLOR_DGOLD);
    	}
 }

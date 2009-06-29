@@ -210,7 +210,6 @@ int stream_size;
 local void fixedtables(state)
 struct inflate_state FAR *state;
 {
-#ifdef BUILDFIXED
     static int virgin = 1;
     static code *lenfix, *distfix;
     static code fixed[544];
@@ -241,9 +240,6 @@ struct inflate_state FAR *state;
         /* do this just once */
         virgin = 0;
     }
-#else /* !BUILDFIXED */
-#   include "inffixed.h"
-#endif /* BUILDFIXED */
     state->lencode = lenfix;
     state->lenbits = 9;
     state->distcode = distfix;

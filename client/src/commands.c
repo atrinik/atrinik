@@ -24,8 +24,10 @@
 ************************************************************************/
 
 
-/* Handles commands received by the server.  This does not necessarily
- * handle all commands - some might be in other files (like init.c)
+/**
+ * @file
+ * Handles commands received by the server.  This does not necessarily
+ * handle all commands - some might be in other files (like main.c)
  *
  * This file handles commans from the server->client.  See player.c
  * for client->server commands.
@@ -66,6 +68,10 @@
 #include <include.h>
 static int scrolldx = 0, scrolldy = 0;
 
+/**
+ * Book command, used to initialize the book interface.
+ * @param data Data of the book
+ * @param len Length of the data */
 void BookCmd(unsigned char *data, int len)
 {
 	sound_play_effect(SOUND_BOOK, 0, 100);
@@ -76,6 +82,10 @@ void BookCmd(unsigned char *data, int len)
 	gui_interface_book = load_book_interface((char *)data, len - 4);
 }
 
+/**
+ * Party command, used to initialize the party GUI.
+ * @param data Data for the party interface
+ * @param len Length of the data */
 void PartyCmd(unsigned char *data, int len)
 {
 	cpl.menustatus = MENU_PARTY;
@@ -83,6 +93,10 @@ void PartyCmd(unsigned char *data, int len)
 	gui_interface_party = load_party_interface((char *)data, len);
 }
 
+/**
+ * Sound command, used to play a sound.
+ * @param data Data to initialize the music data from, like x, y, type, etc
+ * @param len Length of the data */
 void SoundCmd(unsigned char *data,  int len)
 {
     int x, y, num, type;
@@ -105,7 +119,8 @@ void SoundCmd(unsigned char *data,  int len)
         	LOG(LOG_ERROR, "Got invalid spell sound id: %d\n", num);
         	return;
 		}
-		/* this maps us to the spell sound table part */
+
+		/* This maps us to the spell sound table part */
         num += SOUND_MAX;
 	}
 	else
@@ -120,6 +135,10 @@ void SoundCmd(unsigned char *data,  int len)
     calculate_map_sound(num, x, y);
 }
 
+/**
+ * Setup command. Used to set up a new server connection, initialize necessary data, etc.
+ * @param buf The incoming data.
+ * @param len Length of the data */
 void SetupCmd(char *buf, int len)
 {
     int s;
@@ -332,10 +351,13 @@ void SetupCmd(char *buf, int len)
     GameStatus = GAME_STATUS_REQUEST_FILES;
 }
 
-/* We only get here if the server believes we are caching images. */
-/* We rely on the fact that the server will only send a face command for
+/**
+ * Only used if the server believes we are caching images.
+ * We rely on the fact that the server will only send a face command for
  * a particular number once - at current time, we have no way of knowing
- * if we have already received a face for a particular number. */
+ * if we have already received a face for a particular number.
+ * @param data Incoming data.
+ * @param len Length of the data */
 void Face1Cmd(unsigned char *data,  int len)
 {
     int pnum;
@@ -350,7 +372,8 @@ void Face1Cmd(unsigned char *data,  int len)
     finish_face_cmd(pnum, checksum, face);
 }
 
-/* Handles when the server says we can't be added.  In reality, we need to
+/**
+ * Handles when the server says we can't be added.  In reality, we need to
  * close the connection and quit out, because the client is going to close
  * us down anyways. */
 void AddMeFail()
@@ -358,11 +381,12 @@ void AddMeFail()
     LOG(LOG_MSG, "addme_failed received.\n");
     GameStatus = GAME_STATUS_START;
 
-    /* add here error handling */
+    /* Add here error handling */
     return;
 }
 
-/* This is really a throwaway command - there really isn't any reason to
+/**
+ * This is really a throwaway command - there really isn't any reason to
  * send addme_success commands. */
 void AddMeSuccess()
 {
@@ -370,21 +394,18 @@ void AddMeSuccess()
     return;
 }
 
+
+/**
+ * Goodbye command. Currently doesn't do anything. */
 void GoodbyeCmd()
 {
-	/* This could probably be greatly improved - I am not sure if anything
-     * needs to be saved here, but certainly it should be possible to
-     * reconnect to the server or a different server without having to
-     * rerun the client. */
-
-	/* Damn, this should not be here - if the version not matches, the server
-	 * drops the connnect - so we get a client shutdown here?
-	 * NEVER do this again. */
-
-	/* fprintf(stderr,"Received goodbye command from server - exiting\n");
-    exit(0);*/
 }
 
+/**
+ * Animation command.
+ * @param data The incoming data
+ * @param len Length of the data
+ */
 void AnimCmd(unsigned char *data, int len)
 {
     short anum;
@@ -420,16 +441,22 @@ void AnimCmd(unsigned char *data, int len)
 	}
 
     if (j != animations[anum].num_animations)
-        LOG(LOG_DEBUG, "Calculated animations does not equal stored animations?(%d!=%d)\n",j, animations[anum].num_animations);
+        LOG(LOG_DEBUG, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
 
-	/*LOG(LOG_MSG, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);*/
+#if 0
+	LOG(LOG_MSG, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);
+#endif
 }
 
+/**
+ * Image command.
+ * @param data The incoming data
+ * @param len Length of the data
+ */
 void ImageCmd(unsigned char *data, int len)
 {
     int pnum, plen;
     char buf[2048];
-    /*int fd,l; */
     FILE *stream;
 
     pnum = GetInt_String(data);
@@ -437,18 +464,17 @@ void ImageCmd(unsigned char *data, int len)
 
     if (len < 8 || (len - 8) != plen)
     {
-        LOG(LOG_ERROR, "PixMapCmd: Lengths don't compare (%d,%d)\n", (len - 8), plen);
+        LOG(LOG_ERROR, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
         return;
     }
 
-    /* save picture to cache*/
-    /* and load it to FaceList*/
+    /* Save picture to cache and load it to FaceList */
     sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
 	LOG(LOG_DEBUG, "ImageFromServer: %s\n", FaceList[pnum].name);
 
     if ((stream = fopen(buf, "wb+")) != NULL)
     {
-        fwrite((char*)data + 8, 1, plen, stream);
+        fwrite((char *) data + 8, 1, plen, stream);
         fclose(stream);
     }
 
@@ -457,6 +483,10 @@ void ImageCmd(unsigned char *data, int len)
 	map_redraw_flag = 1;
 }
 
+/**
+ * Ready command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void SkillRdyCmd(char *data, int len)
 {
     int i, ii;
@@ -484,6 +514,9 @@ void SkillRdyCmd(char *data, int len)
     }
 }
 
+/**
+ * Draw info command. Used to draw text from the server.
+ * @param data The text to output. */
 void DrawInfoCmd(unsigned char *data)
 {
     int color = atoi((char *)data);
@@ -502,7 +535,11 @@ void DrawInfoCmd(unsigned char *data)
     draw_info(buf, color);
 }
 
-/* new draw command */
+/* New draw command */
+/**
+ * New draw info command. Used to draw text from the server with various flags, like color.
+ * @param data The incoming data
+ * @param len Length of the data */
 void DrawInfoCmd2(unsigned char *data, int len)
 {
     int flags;
@@ -527,6 +564,10 @@ void DrawInfoCmd2(unsigned char *data, int len)
     draw_info(buf, flags);
 }
 
+/**
+ * Target object command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void TargetObject(unsigned char *data, int len)
 {
 	cpl.target_mode = *data++;
@@ -549,6 +590,10 @@ void TargetObject(unsigned char *data, int len)
 #endif
 }
 
+/**
+ * Stats command. Used to update various things, like target's HP, mana regen, protections, etc
+ * @param data The incoming data
+ * @param len Length of the data */
 void StatsCmd(unsigned char *data, int len)
 {
     int i = 0;
@@ -826,7 +871,7 @@ void StatsCmd(unsigned char *data, int len)
                     strcpy(cpl.race, tmp2 + 1);
                     tmp2 = strchr(tmp + 1, '\n');
                     *tmp2 = 0;
-					/* profession title */
+					/* Profession title */
                     strcpy(cpl.title, tmp + 1);
                     tmp = strchr(tmp2 + 1, '\n');
                     *tmp = 0;
@@ -876,11 +921,12 @@ void StatsCmd(unsigned char *data, int len)
     }
 
     if (i > len)
-    {
-        fprintf(stderr, "got stats overflow, processed %d bytes out of %d\n", i, len);
-    }
+        fprintf(stderr, "Got stats overflow, processed %d bytes out of %d\n", i, len);
 }
 
+/**
+ * Used by handle_query to open console for questions like name, password, etc.
+ * @param cmd The question command. */
 void PreParseInfoStat(char *cmd)
 {
     /* Find input name */
@@ -908,10 +954,12 @@ void PreParseInfoStat(char *cmd)
         open_input_mode(12);
 }
 
+/**
+ * Handle server query question.
+ * @param data The incoming data */
 void handle_query(char *data)
 {
     char *buf, *cp;
-    /*uint8 flags = atoi(data);*/
 
     buf = strchr(data, ' ');
     if (buf)
@@ -930,9 +978,9 @@ void handle_query(char *data)
     }
 }
 
-/* Sends a reply to the server.  text contains the null terminated
- * string of text to send.  This function basically just packs
- * the stuff up. */
+/**
+ * Sends a reply to the server.
+ * @param text Null terminated string of text to send. */
 void send_reply(char *text)
 {
     char buf[MAXSOCKBUF];
@@ -941,9 +989,12 @@ void send_reply(char *text)
     cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-/* This function copies relevant data from the archetype to the
- * object.  Only copies data that was not set in the object
- * structure. */
+/**
+ * This function copies relevant data from the archetype to the object.
+ * Only copies data that was not set in the object structure.
+ * @param data The incoming data
+ * @param len Length of the data
+ */
 void PlayerCmd(unsigned char *data, int len)
 {
     char name[MAX_BUF];
@@ -973,12 +1024,15 @@ void PlayerCmd(unsigned char *data, int len)
 	map_transfer_flag = 1;
     map_udate_flag = 2;
 	map_redraw_flag = 1;
-   	load_quickslots_entrys();
+
+	/* Request to load quickslots */
+	cs_write_string(csocket.fd, "qs load", 7);
 }
 
-/* no item command, including the delinv... */
-/* this is a bit hacked now - perhaps we should consider
- * in the future a new designed item command. */
+/**
+ * ItemX command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void ItemXCmd(unsigned char *data, int len)
 {
     int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
@@ -992,7 +1046,9 @@ void ItemXCmd(unsigned char *data, int len)
     dmode = GetInt_String(data);
     pos += 4;
 
-	/*LOG(-1, "ITEMX:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");*/
+#if 0
+	LOG(-1, "ITEMX:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
+#endif
 
 	loc = GetInt_String(data+pos);
 
@@ -1074,9 +1130,10 @@ void ItemXCmd(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
-/* no item command, including the delinv... */
-/* this is a bit hacked now - perhaps we should consider
- * in the future a new designed item command. */
+/**
+ * ItemY command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void ItemYCmd(unsigned char *data, int len)
 {
     int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
@@ -1090,9 +1147,11 @@ void ItemYCmd(unsigned char *data, int len)
     dmode = GetInt_String(data);
     pos += 4;
 
-	/*LOG(-1, "ITEMX:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");*/
+#if 0
+	LOG(-1, "ITEMY:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
+#endif
 
-	loc = GetInt_String(data+pos);
+	loc = GetInt_String(data + pos);
 
 	if (dmode >= 0)
 	    remove_item_inventory(locate_item(loc));
@@ -1174,7 +1233,10 @@ void ItemYCmd(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
-/* UpdateItemCmd updates some attributes of an item */
+/**
+ * Update item command. Updates some attributes of an item.
+ * @param data The incoming data
+ * @param len Length of the data */
 void UpdateItemCmd(unsigned char *data, int len)
 {
     int weight, loc, tag, face, sendflags, flags, pos = 0, nlen, anim, nrof;
@@ -1276,6 +1338,10 @@ void UpdateItemCmd(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
+/**
+ * Delete item command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void DeleteItem(unsigned char *data, int len)
 {
     int pos = 0,tag;
@@ -1293,11 +1359,14 @@ void DeleteItem(unsigned char *data, int len)
     map_udate_flag = 2;
 }
 
+/**
+ * Delete inventory command.
+ * @param data The incoming data */
 void DeleteInventory(unsigned char *data)
 {
     int tag;
 
-    tag = atoi((const char*)data);
+    tag = atoi((const char *) data);
 
     if (tag < 0)
     {
@@ -1309,11 +1378,66 @@ void DeleteInventory(unsigned char *data)
     map_udate_flag = 2;
 }
 
+/**
+ * Parses data returned by the server for quickslots.
+ * First, it assigns all quickslots default values,
+ * then it goes through the data, line-by-line and
+ * assigns values from the server.
+ * @param data The data to parse */
+void QuickSlotCmd(char *data)
+{
+	char *p, *buf;
+	int tag, slot, i, group_nr, class_nr;
+
+	buf = (char *)malloc(strlen(data) + 1);
+
+	sprintf(buf, "%s", data);
+
+	p = strtok(buf, "\n");
+
+	for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
+	{
+		quick_slots[i].spell = 0;
+		quick_slots[i].tag = -1;
+		quick_slots[i].nr = -1;
+		quick_slots[i].classNr = 0;
+		quick_slots[i].spellNr = 0;
+		quick_slots[i].groupNr = 0;
+		quick_slots[i].invSlot = 0;
+	}
+
+	while (p)
+	{
+		/* Item */
+		if (p[0] == 'i' && sscanf(p, "i %d %d", &tag, &slot))
+		{
+			quick_slots[slot - 1].tag = tag;
+		}
+		/* Spell */
+		else if (p[0] == 's' && sscanf(p, "s %d %d %d %d", &slot, &group_nr, &class_nr, &tag))
+		{
+			quick_slots[slot - 1].spell = 1;
+			quick_slots[slot - 1].groupNr = group_nr;
+			quick_slots[slot - 1].classNr = class_nr;
+			quick_slots[slot - 1].spellNr = tag;
+			quick_slots[slot - 1].tag = tag;
+		}
+
+		p = strtok(NULL, "\n");
+	}
+
+	free(buf);
+}
+
+/**
+ * Map2 command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void Map2Cmd(unsigned char *data, int len)
 {
     int mask, x, y, pos = 0, ext_flag, xdata;
     int ext1, ext2, ext3, probe;
-    int map_new_flag = FALSE;
+    int map_new_flag = 0;
     int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos;
     char pname1[64], pname2[64], pname3[64], pname4[64];
     uint16 face;
@@ -1321,7 +1445,7 @@ void Map2Cmd(unsigned char *data, int len)
     if (scrolldx || scrolldy)
     	display_mapscroll(scrolldx, scrolldy);
 
-    scrolldy=scrolldx = 0;
+    scrolldy = scrolldx = 0;
 	map_transfer_flag = 0;
     xpos = (uint8)(data[pos++]);
 
@@ -1340,7 +1464,10 @@ void Map2Cmd(unsigned char *data, int len)
     MapData.posx = xpos;
     MapData.posy = ypos;
 
-	/*LOG(-1, "MAPPOS: x:%d y:%d (nflag:%x)\n", xpos, ypos, map_new_flag);*/
+#if 0
+	LOG(-1, "MAPPOS: x:%d y:%d (nflag:%x)\n", xpos, ypos, map_new_flag);
+#endif
+
     while (pos < len)
     {
 		ext_flag = 0;
@@ -1563,6 +1690,9 @@ void Map2Cmd(unsigned char *data, int len)
 	map_redraw_flag = 1;
 }
 
+/**
+ * Map scroll command.
+ * @param data The incoming data */
 void map_scrollCmd(char *data)
 {
     static int step = 0;
@@ -1584,26 +1714,24 @@ void map_scrollCmd(char *data)
         sound_play_effect(SOUND_STEP1, 0, 100);
     else
         sound_play_effect(SOUND_STEP2, 0, 100);
-
-    if (media_show != MEDIA_SHOW_NO)
-    {
-		/* kick media file depending on map position */
-        if (!--media_show_update)
-       		media_show = MEDIA_SHOW_NO;
-    }
 }
 
+/**
+ * Magic map command. Currently unused. */
 void MagicMapCmd()
 {
 }
 
+/**
+ * Version command. Used to validate that the server version and client matches.
+ * @param data The incoming data. */
 void VersionCmd(char *data)
 {
     char *cp;
     char buf[1024];
 
-    GameStatusVersionOKFlag = FALSE;
-    GameStatusVersionFlag = TRUE;
+    GameStatusVersionOKFlag = 0;
+    GameStatusVersionFlag = 1;
     csocket.cs_version = atoi(data);
 
     /* The first version is the client to server version the server wants
@@ -1655,6 +1783,9 @@ void VersionCmd(char *data)
     GameStatusVersionOKFlag = TRUE;
 }
 
+/**
+ * Sends version and client name.
+ * @param csock Socket to send this information to */
 void SendVersion(ClientSocket csock)
 {
     char buf[MAX_BUF];
@@ -1663,6 +1794,12 @@ void SendVersion(ClientSocket csock)
     cs_write_string(csock.fd, buf, strlen(buf));
 }
 
+
+/**
+ * Request srv file.
+ * @param csock Socket to request from
+ * @param index SRV file ID
+ */
 void RequestFile(ClientSocket csock, int index)
 {
     char buf[MAX_BUF];
@@ -1671,12 +1808,21 @@ void RequestFile(ClientSocket csock, int index)
     cs_write_string(csock.fd, buf, strlen(buf));
 }
 
+
+/**
+ * Send an addme command to the server.
+ * @param csock Socket to send the command to.
+ */
 void SendAddMe(ClientSocket csock)
 {
     cs_write_string(csock.fd, "addme", 5);
 }
 
-void SendSetFaceMode(ClientSocket csock,int mode)
+/**
+ * Send set face mode command to the server.
+ * @param csock Socket to send the command to
+ * @param mode Face mode */
+void SendSetFaceMode(ClientSocket csock, int mode)
 {
     char buf[MAX_BUF];
 
@@ -1684,14 +1830,17 @@ void SendSetFaceMode(ClientSocket csock,int mode)
     cs_write_string(csock.fd, buf, strlen(buf));
 }
 
+/**
+ * Map stats command. Server sent us map data like map name, background music, etc.
+ * @param data The incoming data */
 void MapstatsCmd(unsigned char *data)
 {
     char name[256], bg_music[256];
     char *tmp;
     int w, h, x, y;
 
-    sscanf((char *)data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
-    tmp = strchr((char *)data, ' ');
+    sscanf((char *) data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
+    tmp = strchr((char *) data, ' ');
     tmp = strchr(tmp + 1, ' ');
     tmp = strchr(tmp + 1, ' ');
     tmp = strchr(tmp + 1, ' ');
@@ -1701,21 +1850,26 @@ void MapstatsCmd(unsigned char *data)
     map_udate_flag = 2;
 }
 
+/**
+ * Skill list command. Used to update player's skill list.
+ * @param data The incoming data */
 void SkilllistCmd(char *data)
 {
     char *tmp, *tmp2, *tmp3, *tmp4;
     int l, e, i, ii, mode;
     char name[256];
 
-    /*LOG(-1,"sklist: %s\n", data);*/
+#if 0
+    LOG(-1,"sklist: %s\n", data);
+#endif
 
-    /* we grab our mode */
+    /* We grab our mode */
     mode = atoi(data);
 
-    /* now look for the members fo the list we have */
+    /* Now look for the members fo the list we have */
     for (; ;)
     {
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr(data, '/');
 
 		if (!tmp)
@@ -1734,7 +1888,10 @@ void SkilllistCmd(char *data)
 		else
 			strcpy(name, data);
 
-		/*LOG(-1,"sname (%d): >%s<\n", mode, name);*/
+#if 0
+		LOG(-1, "sname (%d): >%s<\n", mode, name);
+#endif
+
 		tmp3 = strchr(name, '|');
 		*tmp3 = 0;
 		tmp4 = strchr(tmp3 + 1, '|');
@@ -1742,19 +1899,21 @@ void SkilllistCmd(char *data)
 		l = atoi(tmp3 + 1);
 		e = atoi(tmp4 + 1);
 
-		/* we have a name, the level and exp - now setup the list */
+		/* We have a name, the level and exp - now setup the list */
 		for (ii = 0; ii < SKILL_LIST_MAX; ii++)
 		{
 			for (i = 0; i < DIALOG_LIST_ENTRY; i++)
 			{
-				/* we have a list entry */
+				/* We have a list entry */
 				if (skill_list[ii].entry[i].flag != LIST_ENTRY_UNUSED)
 				{
-					/* and it is the one we searched for? */
+					/* And it is the one we searched for? */
 					if (!strcmp(skill_list[ii].entry[i].name, name))
 					{
-						/*LOG(-1, "skill found (%d): >%s< %d | %d\n", mode, name, l, e);*/
-						/* remove? */
+#if 0
+						LOG(-1, "skill found (%d): >%s< %d | %d\n", mode, name, l, e);
+#endif
+						/* Remove? */
 						if (mode == SPLIST_MODE_REMOVE)
 							skill_list[ii].entry[i].flag = LIST_ENTRY_USED;
 						else
@@ -1771,19 +1930,25 @@ void SkilllistCmd(char *data)
     }
 }
 
+/**
+ * Spell list command. Used to update the player's spell list.
+ * @param data The incoming data */
 void SpelllistCmd(char *data)
 {
     int i, ii, mode;
     char *tmp, *tmp2;
     char name[256];
 
-    /*LOG(LOG_DEBUG, "slist: <%s>\n", data);*/
-    /* we grab our mode */
+#if 0
+    LOG(LOG_DEBUG, "slist: <%s>\n", data);
+#endif
+
+    /* We grab our mode */
     mode = atoi(data);
 
     for (; ;)
     {
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr(data, '/');
 		if (!tmp)
 			return;
@@ -1791,6 +1956,7 @@ void SpelllistCmd(char *data)
 		data = tmp + 1;
 
 		tmp2 = strchr(data, '/');
+
 		if (tmp2)
 		{
 			strncpy(name, data, (uint32)tmp2 - (uint32)data);
@@ -1800,8 +1966,8 @@ void SpelllistCmd(char *data)
 		else
 			strcpy(name, data);
 
-		/* we have a name - now check the spelllist file and set the entry
-		 * to _KNOWN */
+		/* We have a name - now check the spelllist file and set the entry
+		 * to KNOWN */
 		for (i = 0; i < SPELL_LIST_MAX; i++)
 		{
 			for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
@@ -1838,21 +2004,28 @@ void SpelllistCmd(char *data)
     }
 }
 
+/**
+ * Golem command. Used when casting golem like spells to grab the control of the golem.
+ * @param data The incoming data. */
 void GolemCmd(unsigned char *data)
 {
     int mode, face;
     char *tmp, buf[256];
 
-    /*LOG(LOG_DEBUG, "golem: <%s>\n", data);*/
-    /* we grab our mode */
+#if 0
+    LOG(LOG_DEBUG, "golem: <%s>\n", data);
+#endif
+
+    /* We grab our mode */
     mode = atoi((char *)data);
+
 	if (mode == GOLEM_CTR_RELEASE)
 	{
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
 		request_face(face, 0);
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr(tmp + 1, ' ');
 		sprintf(buf, "You lose control of %s.", tmp + 1);
 		draw_info(buf, COLOR_WHITE);
@@ -1861,11 +2034,11 @@ void GolemCmd(unsigned char *data)
 	}
 	else
 	{
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr((char *)data, ' ');
 		face = atoi(tmp + 1);
 		request_face(face, 0);
-		/* find start of a name */
+		/* Find start of a name */
 		tmp = strchr(tmp + 1, ' ');
 		sprintf(buf, "You get control of %s.", tmp + 1);
 		draw_info(buf, COLOR_WHITE);
@@ -1875,36 +2048,46 @@ void GolemCmd(unsigned char *data)
 	}
 }
 
+/**
+ * Save srv file.
+ * @param path Path of the file
+ * @param data Data to save
+ * @param len Length of the data */
 static void save_data_cmd_file(char *path, char *data, int len)
 {
 	FILE *stream;
 
     if ((stream = fopen(path, "wb")) != NULL)
     {
-		if (fwrite(data, sizeof(char), len, stream) != (size_t) len)
-			LOG(LOG_ERROR, "save data cmd file : write() of %s failed. (len:%d)\n", path);
+		if (fwrite(data, 1, len, stream) != (size_t) len)
+			LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
 
 		fclose(stream);
 	}
 	else
-		LOG(LOG_ERROR, "save data cmd file : Can't open %s for write. (len:%d)\n", path, len);
+		LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
 }
 
-/* server tells us to go to the new char creation */
+/**
+ * New char command.
+ * Used when server tells us to go to the new character creation. */
 void NewCharCmd()
 {
-	dialog_new_char_warn = FALSE;
+	dialog_new_char_warn = 0;
 	GameStatus = GAME_STATUS_NEW_CHAR;
 }
 
-/* server has send us a block of data...
- * lets check what we got */
+/**
+ * Data command.
+ * Used when server sends us block of data, like new srv file.
+ * @param data Incoming data
+ * @param len Length of the data */
 void DataCmd(char *data, int len)
 {
 	uint8 data_type = (uint8) (*data);
 	uint8 data_comp;
 	/* warning! if the uncompressed size of a incoming compressed(!) file is larger
-	 * as this dest_len default setting, the file is cut and
+	 * than this dest_len default setting, the file is cut and
 	 * the rest skiped. Look at the zlib docu for more info. */
 	uint32 dest_len = 512 * 1024;
 	char *dest;
@@ -1923,7 +2106,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed skill list(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1937,7 +2120,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed spell list(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1950,7 +2133,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed settings file(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1963,7 +2146,7 @@ void DataCmd(char *data, int len)
 			if (data_comp)
 			{
 				LOG(LOG_DEBUG, "data cmd: compressed bmaps file(len:%d)\n", len);
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
 			}
@@ -1975,7 +2158,7 @@ void DataCmd(char *data, int len)
 		case DATA_CMD_ANIM_LIST:
 			if (data_comp)
 			{
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				LOG(LOG_DEBUG, "data cmd: compressed anims file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;
@@ -1988,7 +2171,7 @@ void DataCmd(char *data, int len)
 		case DATA_CMD_HFILES_LIST:
 			if (data_comp)
 			{
-				uncompress((Bytef *) dest, (uLongf *)&dest_len, (const Bytef *)data, (uLong) len);
+				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				LOG(LOG_DEBUG, "data cmd: compressed hfiles file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;
@@ -2001,5 +2184,6 @@ void DataCmd(char *data, int len)
 		default:
 			LOG(LOG_ERROR, "data cmd: unknown type %d (len:%d)\n", data_type, len);
 	}
+
 	free(dest);
 }

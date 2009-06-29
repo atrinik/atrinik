@@ -53,7 +53,8 @@ extern _dialog_list_set bindkey_list_set;
 extern _dialog_list_set create_list_set;
 extern int keybind_status;
 
-#define MAX_QUICK_SLOTS 8
+#define MAX_QUICK_SLOTS 		8
+#define MAX_QUICKSLOT_GROUPS	4
 typedef struct _quickslot
 {
 	/* Do we have an item or a spell in quickslot */
@@ -70,42 +71,9 @@ typedef struct _quickslot
 	int classNr;
 }_quickslot;
 
-extern _quickslot quick_slots[MAX_QUICK_SLOTS];
+int quickslot_group;
 
-typedef struct _media_file
-{
-	/* File name */
-	char name[256];
-
-	/* Data buffer */
-	void *data;
-
-	/* What is this? (What is loaded in buffer) */
-	int type;
-
-	/* Parameter 1 */
-	int p1;
-
-	/* Parameter 2 */
-	int p2;
-}_media_file;
-
-
-typedef enum _media_type
-{
-	MEDIA_TYPE_NO,
-	MEDIA_TYPE_PNG
-}_media_type;
-
-#define MEDIA_MAX 10
-#define MEDIA_SHOW_NO -1
-
-extern _media_file media_file[MEDIA_MAX];
-
-/* Buffered media files */
-extern int media_count;
-extern int media_show;
-extern int media_show_update;
+extern _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 
 extern void do_console();
 extern void do_number();
@@ -117,32 +85,30 @@ extern void show_spelllist(void);
 extern void show_skilllist(void);
 extern void show_help(char *helpfile);
 
-extern void show_menu(void);
+extern void show_menu();
 extern void show_media(int x, int y);
 extern void show_range(int x, int y);
 extern int init_media_tag(char *tag);
 extern void blt_inventory_face_from_tag(int tag, int x, int y);
-extern int blt_window_slider(_Sprite *slider, int max_win, int winlen, int off, int len, int x, int y);
-extern void do_keybind_input(void);
+extern void blt_window_slider(_Sprite *slider, int max_win, int winlen, int off, int len, int x, int y);
+extern void do_keybind_input();
 
-extern int read_anim_tmp(void);
-extern int read_bmap_tmp(void);
-extern void read_anims(void);
-extern void read_bmaps_p0(void);
-extern void delete_bmap_tmp(void);
-extern void read_bmaps(void);
-extern void delete_server_chars(void);
-extern void load_settings(void);
-extern void read_settings(void);
-extern void read_spells(void);
-extern void read_skills(void);
-extern void read_help_files(void);
+extern void read_anim_tmp();
+extern void read_bmap_tmp();
+extern void read_anims();
+extern void read_bmaps_p0();
+extern void delete_bmap_tmp();
+extern void read_bmaps();
+extern void delete_server_chars();
+extern void load_settings();
+extern void read_settings();
+extern void read_spells();
+extern void read_skills();
+extern void read_help_files();
 extern int blt_face_centered(int face, int x, int y);
 extern int get_quickslot(int x, int y);
 extern void show_quickslots(int x, int y);
 extern void update_quickslots(int del_item);
-extern void load_quickslots_entrys();
-extern void save_quickslots_entrys();
 
 extern void widget_quickslots_mouse_event(int x, int y, int MEvent);
 extern void widget_range_event(int x, int y, SDL_Event event, int MEvent);

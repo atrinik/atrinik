@@ -23,7 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Client interface main routine.
+/**
+ * @file
+ * Client interface main routine.
  * this file sets up a few global variables, connects to the server,
  * tells it what kind of pictures it wants, adds the client and enters
  * the main dispatch loop
@@ -39,13 +41,14 @@
 
 
 #include <include.h>
-#include <stdio.h>
 
-#define ROTATE_RIGHT(c) if ((c) & 01) (c) = ((c) >>1) + 0x80000000; else (c) >>= 1;
-
+/** Client player structure with things like stats, damage, etc */
 Client_Player cpl;
+
+/** Client socket */
 ClientSocket csocket;
 
+/** Used for socket commands */
 typedef void (*CmdProc)(unsigned char *, int len);
 
 struct CmdMapping
@@ -86,10 +89,12 @@ enum {
 	BINARY_CMD_ITEMY,
 	BINARY_CMD_BOOK,
 	BINARY_CMD_PARTY,
+	BINARY_CMD_QUICKSLOT,
 	/* last entry */
 	BINAR_CMD
 };
 
+/** Structure of all the socket commands */
 struct CmdMapping commands[] =
 {
     /* Order of this table doesn't make a difference.  I tried to sort
@@ -125,15 +130,18 @@ struct CmdMapping commands[] =
     {"itemy", ItemYCmd},
 	{"book", BookCmd},
 	{"pt", PartyCmd},
-	/* unused! */
+	{"qs", (CmdProc)QuickSlotCmd},
+	/* Unused! */
     {"magicmap", MagicMapCmd},
     {"delinv", (CmdProc)DeleteInventory},
 };
 
-#define NCOMMANDS (sizeof(commands) / sizeof(struct CmdMapping))
-
 static void face_flag_extension(int pnum, char *buf);
 
+/**
+ * Do client. The main loop for commands. From this, the data and commands from server are received.
+ * @param csocket
+ */
 void DoClient(ClientSocket *csocket)
 {
     int i, len;
@@ -170,12 +178,17 @@ void DoClient(ClientSocket *csocket)
 			len = csocket->inbuf.len - 3; /* 2 byte package len + 1 byte binary cmd */
 		}
 
-	    /*LOG(LOG_MSG,"Command #%d (LT:%d)(len:%d) ",cmd_id, LastTick, len);*/
+#if 0
+	    LOG(LOG_MSG, "Command #%d (LT:%d)(len:%d) ", cmd_id, LastTick, len);
+#endif
+
 		if (!cmd_id || cmd_id >= BINAR_CMD)
 			LOG(LOG_ERROR, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
 		else
 		{
-	        /*LOG(LOG_MSG,"(%s) >%s<\n",commands[cmd_id-1].cmdname,data);*/
+#if 0
+	        LOG(LOG_MSG, "(%s) >%s<\n", commands[cmd_id - 1].cmdname, data);
+#endif
 			commands[cmd_id - 1].cmdproc(data, len);
 		}
 
@@ -183,24 +196,39 @@ void DoClient(ClientSocket *csocket)
     }
 }
 
+/**
+ * Init socket list.
+ * @param sl Socket list */
 void SockList_Init(SockList *sl)
 {
     sl->len = 0;
     sl->buf = NULL;
 }
 
+/**
+ * Add character to socket list.
+ * @param sl Socket list
+ * @param c Character */
 void SockList_AddChar(SockList *sl, char c)
 {
     sl->buf[sl->len] = c;
     sl->len++;
 }
 
+/**
+ * Add short integer to socket list.
+ * @param sl Socket list
+ * @param data Short integer data */
 void SockList_AddShort(SockList *sl, uint16 data)
 {
     sl->buf[sl->len++] = (data >> 8) & 0xff;
     sl->buf[sl->len++] = data & 0xff;
 }
 
+/**
+ * Add integer to socket list.
+ * @param sl Socket list
+ * @param data Integer data */
 void SockList_AddInt(SockList *sl, uint32 data)
 {
     sl->buf[sl->len++] = (data >> 24) & 0xff;
@@ -209,20 +237,29 @@ void SockList_AddInt(SockList *sl, uint32 data)
     sl->buf[sl->len++] = data & 0xff;
 }
 
-/* Basically does the reverse of SockList_AddInt, but on
- * strings instead.  Same for the GetShort, but for 16 bits. */
+/**
+ * Does the reverse of SockList_AddInt, but on strings instead.
+ * @param data The string
+ * @return Integer from the string */
 int GetInt_String(unsigned char *data)
 {
     return ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
 }
 
+/**
+ * Does the reverse of SockList_AddShort, but on strings instead.
+ * @param data The string
+ * @return Short integer from the string */
 short GetShort_String(unsigned char *data)
 {
     return ((data[0] << 8) + data[1]);
 }
 
-/* Send With Handling - cnum is the client number, msg is what we want
- * to send. */
+/**
+ * Send With Handling.
+ * @param fd Client number
+ * @param msg Message to send
+ * @return 0 on success, -1 on failure. */
 int send_socklist(int fd, SockList  msg)
 {
     unsigned char sbuf[2];
@@ -234,17 +271,27 @@ int send_socklist(int fd, SockList  msg)
     return write_socket(fd, msg.buf, msg.len);
 }
 
-/* Takes a string of data, and writes it out to the socket. A very handy
- * shortcut function. */
+
+/**
+ * Takes a string of data, and writes it out to the socket.
+ * @param fd Client number
+ * @param buf The string
+ * @param len Length of the string
+ * @return 0 on success, -1 on failure */
 int cs_write_string(int fd, char *buf, int len)
 {
     SockList sl;
 
     sl.len = len;
-    sl.buf = (unsigned char*)buf;
+    sl.buf = (unsigned char *) buf;
     return send_socklist(fd, sl);
 }
 
+/**
+ * Finish face command.
+ * @param pnum ID of the face
+ * @param checksum Face checksum
+ * @param face Face name */
 void finish_face_cmd(int pnum, uint32 checksum, char *face)
 {
     char buf[2048];
@@ -398,14 +445,14 @@ static int load_picture_from_pack(int num)
 	return 0;
 }
 
-/* we got a face - test we have it loaded.
- * if not, say server "send us face cmd "
- * Return: 0 - face not there, requested.
- * 1: face requested or loaded
- * this command collect all new faces and then flush
- * it at once. I insert the flush command after the
- * socket call. */
+/** Maximum face request */
 #define REQUEST_FACE_MAX 250
+
+/**
+ * We got a face - test if we have it loaded. If not, ask the server to send us face command.
+ * @param pnum Face ID
+ * @param mode Mode
+ * @return 0 if face is not there, 1 if face was requested or loaded. */
 int request_face(int pnum, int mode)
 {
 	char buf[256 * 2];
@@ -509,11 +556,9 @@ int request_face(int pnum, int mode)
 	return 1;
 }
 
-
-/* we don't give a error message here in return - no need!
- * IF the server has messed up the anims file he send us - then
- * we simply core here. There is nothing we can do - in the badest
- * case the bad server harm us even more. */
+/**
+ * Check animation status.
+ * @param anum Animation ID */
 void check_animation_status(int anum)
 {
 	/* i really do it simple here - because we had stored our default
@@ -531,10 +576,13 @@ void check_animation_status(int anum)
 	/* mark this anim as "we have loaded it" */
 	animations[anum].loaded = 1;
 	/* same as server sends it! */
-	AnimCmd((unsigned char *)anim_table[anum].anim_cmd, anim_table[anum].len);
+	AnimCmd((unsigned char *) anim_table[anum].anim_cmd, anim_table[anum].len);
 }
 
-/* removes whitespace from right side */
+/**
+ * Remove whitespace from right side.
+ * @param buf The string to adjust
+ * @return The adjusted string */
 char *adjust_string(char *buf)
 {
 	int i, len = strlen(buf);

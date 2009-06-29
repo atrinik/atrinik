@@ -263,6 +263,8 @@ WS	[ \t]*{NL}
 ^race{S}	    FREE_AND_COPY_HASH(op->race,yval());
 ^slaying{S}	    FREE_AND_COPY_HASH(op->slaying, yval());
 
+^quickslot{S}		op->quickslot = IVAL;
+
 ^other_arch{S}        op->other_arch=find_archetype(yval());
 ^animation{S}	    {
 			if (strcmp (yval(), "NONE") == 0)
@@ -1302,6 +1304,12 @@ char *get_ob_diff(object *op, object *op2)
 
 	if (op->will_apply != op2->will_apply)
 		save_long(buf, "will_apply", op->will_apply);
+
+	if (op->quickslot != op2->quickslot)
+	{
+		sprintf(buf2, "quickslot %d\n", op->quickslot);
+		strcat(buf, buf2);
+	}
 
   	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{

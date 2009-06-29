@@ -168,6 +168,7 @@ static player *get_player(player *p)
 	/* i let it in but there is no use atm for run_away and player */
 	/* Then we panick... */
     op->run_away = 0;
+	op->quickslot = 0;
 
     p->state = ST_ROLL_STAT;
 

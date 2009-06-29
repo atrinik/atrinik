@@ -29,34 +29,61 @@
 #define BOOK_PAGE_LINES 16
 #define BOOK_LINES_CHAR 256
 
+/** Book data structure */
 typedef struct __global_book_data
 {
+	/** X position */
 	int x;
+
+	/** Y position */
 	int y;
+
+	/** X length */
 	int xlen;
+
+	/** Y length */
 	int ylen;
 }_global_book_data;
 
+/** Book GUI */
 typedef struct gui_book_line
 {
+	/** Line mode */
 	int mode;
+
+	/** Line color */
 	int color;
+
+	/** Line */
 	char line[BOOK_LINES_CHAR + 1];
 } _gui_book_line;
 
+/** Book GUI structure */
 typedef struct gui_book_struct
 {
+	/** Mode */
 	int mode;
+
+	/** Number of pages */
 	int pages;
+
+	/** Current page */
 	int page_show;
+
+	/** First page structure */
 	struct gui_book_page *start;
+
+	/** Name of the book */
 	char name[256];
 } _gui_book_struct;
 
-
+/** Book GUI page structure */
 typedef struct gui_book_page
 {
+	/** Next page in the structure */
 	struct gui_book_page *next;
+
+	/** Line in this page */
 	_gui_book_line *line[BOOK_PAGE_LINES];
 } _gui_book_page;
 

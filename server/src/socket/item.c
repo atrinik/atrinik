@@ -769,7 +769,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 		{
 			int len;
 			char *item_p, item_n[MAX_BUF];
-	
+
 			strncpy(item_n, query_base_name(op, pl), 127);
 			item_n[127] = 0;
 			len = strlen(item_n);
@@ -1125,6 +1125,138 @@ void ExamineCmd(char *buf, int len, player *pl)
     examine(pl->ob, op);
 }
 
+/* Go through ob's inventory, and find any quickslot match with slot.
+ * If match is found, if the object is a force, remove it, if not,
+ * just set the quickslot to 0. Not recursive, because players should
+ * not have items in containers inside quickslots. */
+static void remove_quickslot(int slot, object *ob)
+{
+	object *op;
+
+	for (op = ob->inv; op; op = op->below)
+	{
+		if (op->quickslot && op->quickslot == slot)
+		{
+			if (op->arch->name && op->name && strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
+			{
+				remove_ob(op);
+				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+			}
+			else
+				op->quickslot = 0;
+		}
+	}
+}
+
+#define MAX_QUICKSLOT 32
+/* Quick slot command. The new quickslot system works like this:
+ *  - For spells:
+ *    - Player adds the spell to his quick slot, client sends
+ *      data to store that information. The information is
+ *      stored in a force inside player's inventory.
+ *  - For items:
+ *    - Same as spells, except the information is instead
+ *      stored inside the object's "quickslot" field. */
+void QuickSlotCmd(char *buf, int len, player *pl)
+{
+    long tag;
+	object *op;
+	char *cp, tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
+	int quickslot;
+
+	/* Set command. We want to set an object's  */
+	if (strncmp(buf, "set ", 4) == 0)
+	{
+		buf += 4;
+
+		/* Get the slot ID */
+		quickslot = atoi(buf);
+
+		if (!(cp = strchr(buf, ' ')))
+			return;
+
+		/* Now get the count */
+		tag = atoi(cp);
+
+		/* And find the object */
+		op = esrv_get_ob_from_count(pl->ob, tag);
+
+		/* Sanity checks */
+		if (!op || quickslot < 1 || quickslot > MAX_QUICKSLOT)
+			return;
+
+		/* First, find any old items/spells for this quickslot */
+		remove_quickslot(quickslot, pl->ob);
+
+		/* Then set this item a new quickslot ID */
+		op->quickslot = quickslot;
+	}
+	/* Bit different logic for spell quickslots */
+	else if (strncmp(buf, "setspell ", 9) == 0)
+	{
+		buf += 9;
+
+		/* Get the slot ID */
+		quickslot = atoi(buf);
+		snprintf(tmpbuf, sizeof(tmpbuf), "%d", quickslot);
+		buf += strlen(tmpbuf);
+
+		if (!(cp = strchr(buf, ' ')))
+			return;
+
+		/* Sanity checks */
+		if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
+			return;
+
+		/* First, find any old items/spells for this quickslot, and remove old force */
+		remove_quickslot(quickslot, pl->ob);
+
+		/* Create a new force */
+		op = get_archetype("force");
+		op->x = pl->ob->x, op->y = pl->ob->y;
+		FREE_AND_COPY_HASH(op->name, "spell_quickslot");
+		FREE_AND_COPY_HASH(op->slaying, cp);
+		op->quickslot = quickslot;
+		op->speed = 0.0;
+		update_ob_speed(op);
+		insert_ob_in_ob(op, pl->ob);
+	}
+	/* Unset command. */
+	else if (strncmp(buf, "unset ", 6) == 0)
+	{
+		buf += 6;
+
+		/* Just look for the item/spell to remove from the quickslot, nothing else */
+		remove_quickslot(atoi(buf), pl->ob);
+	}
+	/* Load quick slots */
+	else if (strncmp(buf, "load", 4) == 0)
+	{
+		snprintf(tmp, sizeof(tmp), "X");
+
+		/* Go through the inventory */
+		for (op = pl->ob->inv; op; op = op->below)
+		{
+			/* If this has quickslot set */
+			if (op->quickslot)
+			{
+				/* It's a force, so a spell! */
+				if (strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
+					snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
+				/* Otherwise an item */
+				else
+					snprintf(tmpbuf, sizeof(tmpbuf), "\ni %d %d", op->count, op->quickslot);
+
+				strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmpbuf) - 1);
+			}
+		}
+
+		/* Write it to the client if we found any quickslot entries */
+		if (strlen(tmp) != 1)
+			Write_String_To_Socket(&pl->socket, BINARY_CMD_QUICKSLOT, tmp, strlen(tmp));
+	}
+}
+
 /* Client wants to apply some object.  Lets do so. */
 void ApplyCmd(char *buf, int len,player *pl)
 {
@@ -1278,7 +1410,7 @@ void LookAt(char *buf, int len, player *pl)
     look_at(pl->ob, dx, dy);
 }
 
-/* Move an object to a new lcoation */
+/* Move an object to a new location */
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 {
     object *op, *env;
@@ -1290,6 +1422,9 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 	/* latency effect - we have moved before we applied this (or below from player changed) */
     if (!op)
 		return;
+
+	if (op->quickslot)
+		op->quickslot = 0;
 
 	/* drop it to the ground */
     if (!to)
