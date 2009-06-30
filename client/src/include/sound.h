@@ -217,9 +217,7 @@ void calculate_map_sound(int soundnr, int xoff, int yoff);
 int sound_play_effect(int soundid, int pan, int vol);
 void sound_play_one_repeat(int soundid, int special_id);
 
-int sound_test_playing(int channel);
-
 void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
-void sound_fadeout_music(int value);
+void sound_fadeout_music(int i);
 
 #endif

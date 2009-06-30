@@ -25,72 +25,106 @@
 
 #include <include.h>
 
-unsigned long hashbmap(char *str, int tablesize)
-{
-    unsigned long hash = 0;
-    int i = 0, rot = 0;
-    char *p;
+/**
+ * @file misc.c
+ * Miscellaneous functions */
 
-    for (p = str; i < MAXHASHSTRING && *p; p++, i++) {
-        hash ^= (unsigned long) *p << rot;
-        rot += 2;
-        if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
-            rot = 0;
+/**
+ * Hash bmap string
+ * @param str The string
+ * @param tablesize Table size
+ * @return Hashed long */
+static unsigned long hashbmap(char *str, int tablesize)
+{
+	unsigned long hash = 0;
+	int i = 0, rot = 0;
+	char *p;
+
+	for (p = str; i < MAXHASHSTRING && *p; p++, i++)
+	{
+		hash ^= (unsigned long) *p << rot;
+		rot += 2;
+
+		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
+			rot = 0;
     }
+
     return (hash % tablesize);
 }
 
+/**
+ * Find a bmap by name.
+ * @param name The bmap name to find
+ * @return Null if not found, pointer to the bmap otherwise */
 _bmaptype *find_bmap(char *name)
 {
-  _bmaptype *at;
-  unsigned long index;
+	_bmaptype *at;
+	unsigned long index;
 
-  if (name == NULL)
-    return (_bmaptype *) NULL;
+	if (name == NULL)
+		return (_bmaptype *) NULL;
 
-  index=hashbmap(name, BMAPTABLE);
-  for(;;) {
-    at = bmap_table[index];
-    if (at==NULL) /* not in our bmap list */
-		return NULL;
-    if (!strcmp(at->name,name))
-      return at;
-    if(++index>=BMAPTABLE)
-      index=0;
-  }
+	index = hashbmap(name, BMAPTABLE);
+
+	for (; ;)
+	{
+		at = bmap_table[index];
+
+		/* Not in our bmap list */
+		if (at == NULL)
+			return NULL;
+
+		if (!strcmp(at->name, name))
+			return at;
+
+		if (++index >= BMAPTABLE)
+			index = 0;
+	}
 }
 
+/**
+ * Add a bmap to the bmap table.
+ * @param at The bmap */
 void add_bmap(_bmaptype *at)
  {
-  int index=hashbmap(at->name, BMAPTABLE),org_index=index;
+	int index = hashbmap(at->name, BMAPTABLE), org_index = index;
 
-  for(;;) {
+	for (; ;)
+	{
+		if (bmap_table[index] && !strcmp(bmap_table[index]->name, at->name))
+		{
+			LOG(LOG_ERROR, "ERROR: add_bmap(): Double use of bmap name %s\n", at->name);
+		}
 
-  if(bmap_table[index] && !strcmp(bmap_table[index]->name,at->name))
-  {
-	  LOG(LOG_ERROR,"ERROR: add_bmap(): double use of bmap name %s\n",at->name);
-  }
-  if(bmap_table[index]==NULL) {
-      bmap_table[index]=at;
-      return;
-    }
-    if(++index==BMAPTABLE)
-      index=0;
-    if(index==org_index)
-	  LOG(LOG_ERROR,"ERROR: add_bmap(): bmaptable to small\n");
-  }
+		if (bmap_table[index] == NULL)
+		{
+			bmap_table[index] = at;
+			return;
+		}
+
+		if (++index == BMAPTABLE)
+			index = 0;
+
+		if (index == org_index)
+			LOG(LOG_ERROR, "ERROR: add_bmap(): bmaptable too small\n");
+	}
 }
 
+/**
+ * Free memory pointed to by p.
+ * @param p The memory to free */
 void FreeMemory(void **p)
 {
-        if(p==NULL)
-                return;
-        if(*p != NULL)
-                free(*p);
-        *p=NULL;
+	if (p == NULL)
+		return;
+
+	if (*p != NULL)
+		free(*p);
+
+	*p = NULL;
 }
 
-char * show_input_string(char *text, struct _Font *font, int wlen)
+char *show_input_string(char *text, struct _Font *font, int wlen)
 {
     register int i, j,len;
 
@@ -154,12 +188,6 @@ int read_substr_char(char *srcstr, char *desstr, int *sz, char ct)
         return s;
 }
 
-void * _my_malloc(size_t blen, char *info)
-{
-    LOG(LOG_DEBUG, "Malloc(): size %d info: %s\n", blen, info);
-    return malloc(blen);
-}
-
 /*
  * Based on (n+1)^2 = n^2 + 2n + 1
  * given that	1^2 = 1, then
@@ -183,28 +211,35 @@ int isqrt(int n)
 	return result;
 }
 
-/* this function gets a ="xxxxxxx" string from a
- * line. It removes the =" and the last " and returns
- * the string in a static buffer. */
+/**
+ * This function gets a ="xxxxxx" string from a line.
+ * It removes the =" and the last " and returns the
+ * string in a static buffer.
+ * @param data The data to parse
+ * @param pos Position
+ * @return The static string buffer */
 char *get_parameter_string(char *data, int *pos)
 {
 	char *start_ptr, *end_ptr;
 	static char buf[4024];
 
-	/* we assume a " after the =... don't be to shy, we search for a '"' */
-	start_ptr = strchr(data+*pos,'"');
-	if(!start_ptr)
-		return NULL; /* error */
+	/* We assume a " after the =... Don't be shy, we search for a '"' */
+	start_ptr = strchr(data + *pos, '"');
 
-	end_ptr = strchr(++start_ptr,'"');
-	if(!end_ptr)
-		return NULL; /* error */
+	/* Error */
+	if (!start_ptr)
+		return NULL;
 
-	strncpy(buf, start_ptr, end_ptr-start_ptr);
-	buf[end_ptr-start_ptr]=0;
+	end_ptr = strchr(++start_ptr, '"');
 
-	/* ahh... ptr arithmetic... eat that, high level language fans ;) */
-	*pos += ++end_ptr-(data+*pos);
+	/* Error */
+	if (!end_ptr)
+		return NULL;
+
+	strncpy(buf, start_ptr, end_ptr - start_ptr);
+	buf[end_ptr - start_ptr] = 0;
+
+	*pos += ++end_ptr - (data + *pos);
 
 	return buf;
 }

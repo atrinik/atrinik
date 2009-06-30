@@ -25,6 +25,10 @@
 
 #include <include.h>
 
+/**
+ * @file
+ * This file handles all text window related functions */
+
 int textwin_flags;
 
 _textwin_set txtwin[TW_SUM];
@@ -38,7 +42,13 @@ int txtwin_start_size = 0;
  *  The max length of a keyword is 1 row (inclusive '^') because only
  *  one LF within is allowed. */
 
-/* Returns the startpos of a keyword(-part). */
+/**
+ * Figure out the start position of a keyword.
+ * @param actWin The text window
+ * @param mouseX Mouse X
+ * @param row Row to check
+ * @param wID Widget ID
+ * @return NULL if no keyword, otherwise the keyword is returned */
 static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 {
     int pos, pos2 = cur_widget[wID].x1, key_start;
@@ -65,7 +75,7 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 
     while (text[pos] && pos2 <= mouseX)
 	{
-        if (text[pos++]=='^')
+        if (text[pos++] == '^')
 		{
 			/* Start of a keyword */
             if (key_start < 0)
@@ -90,6 +100,11 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 }
 
 /* Check for keyword and send it to server. */
+/**
+ * Check for keyword and send it to server.
+ * @param actWin The text window
+ * @param mouseX Mouse X
+ * @param mouseY Mouse Y */
 void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 {
 	char cmdBuf[MAX_KEYWORD_LEN + 1] = {"/say "};
@@ -144,7 +159,8 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
         send_command(cmdBuf, -1, SC_NORMAL);
 }
 
-/* Clear the screen of a text-window. */
+/**
+ * Clear the screen of a text window. */
 void textwin_init()
 {
     int i;
@@ -158,22 +174,29 @@ void textwin_init()
     }
 }
 
-void draw_info_format(int flags,char *format,...)
+/**
+ * Draw info with format arguments.
+ * @param flags Various flags, like color
+ * @param format Format arguments */
+void draw_info_format(int flags, char *format, ...)
 {
-    char    buf[HUGE_BUF];
+    char buf[4096];
     va_list ap;
 
     va_start(ap, format);
 
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, sizeof(buf), format, ap);
 
     va_end(ap);
 
     draw_info(buf, flags);
 }
 
-/* Add string to the text-window (perform auto-clipping). */
-void draw_info (char *str, int flags )
+/**
+ * Add string to the text window (perform auto clipping).
+ * @param str The string
+ * @param flags Various flags, like color */
+void draw_info(char *str, int flags)
 {
     static int key_start = 0;
     static int key_count = 0;
@@ -286,6 +309,12 @@ void draw_info (char *str, int flags )
 }
 
 /* Draw a text window. */
+/**
+ * Draw a text window.
+ * @param actWin The text window
+ * @param x X position of the text window
+ * @param y Y position of the text window
+ * @param bltfx The surface */
 static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 {
     int i, temp;
@@ -422,12 +451,16 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
         txtwin[actWin].slider_h = 0;
 }
 
-/* Display all text-windows - used now only at startup. */
+/**
+ * Display one text window with text from both.
+ * Used now only at startup.
+ * @param x X position of the text window
+ * @param y Y position of the text window */
 void textwin_show(int x, int y)
 {
-    int         len;
-    SDL_Rect    box;
-    _BLTFX      bltfx;
+    int len;
+    SDL_Rect box;
+    _BLTFX bltfx;
     bltfx.alpha = options.textwin_alpha;
     bltfx.flags = BLTFX_FLAG_SRCALPHA;
     bltfx.surface = NULL;
@@ -437,20 +470,23 @@ void textwin_show(int x, int y)
 
     box.h = len = txtwin[TW_MIX].size * 10 + 23;
     y -= len;
+
     if (options.use_TextwinAlpha)
-    {
         sprite_blt(Bitmaps[BITMAP_TEXTWIN_MASK], x, y, &box, &bltfx);
-    }
     else
         sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
 
-    bltfx.alpha=255;
+    bltfx.alpha = 255;
     bltfx.surface = ScreenSurface;
-    bltfx.flags=0;
+    bltfx.flags = 0;
     show_window(TW_MIX, x, y - 1, &bltfx);
 }
 
-/* Display widget text windows */
+/**
+ * Display widget text windows.
+ * @param x X position of the text window
+ * @param y Y position of the text window
+ * @param actWin The text window */
 void widget_textwin_show(int x, int y, int actWin)
 {
     int len, wID = 0;
@@ -461,7 +497,6 @@ void widget_textwin_show(int x, int y, int actWin)
         wID = CHATWIN_ID;
     else if (actWin == TW_MSG)
         wID = MSGWIN_ID;
-
 
     /* Backbuffering is a bit trickier.
 	 * We always blit the background extra because of the alpha.
@@ -537,7 +572,11 @@ void widget_textwin_show(int x, int y, int actWin)
     SDL_BlitSurface(widgetSF[wID], NULL, ScreenSurface, &box);
 }
 
-/* Mouse button event in the text window. */
+
+/**
+ * Handle mouse button events inside the text window.
+ * @param actWin The text window
+ * @param event SDL event type */
 void textwin_button_event(int actWin, SDL_Event event)
 {
     int wID = 0;
@@ -590,9 +629,11 @@ void textwin_button_event(int actWin, SDL_Event event)
     }
 }
 
-/******************************************************************
- mouse-move event in the textwindow.
-*****************************************************************/
+/**
+ * Mouse move event inside the text window.
+ * @param actWin The text window
+ * @param event SDL event type
+ * @return 1 if mouse if out of window, 0 otherwise */
 int textwin_move_event(int actWin, SDL_Event event)
 {
     int wID = 0;
@@ -704,7 +745,11 @@ int textwin_move_event(int actWin, SDL_Event event)
     return 0;
 }
 
-/* Text window events. */
+/**
+ * Handle text window mouse events.
+ * @param e Event
+ * @param event SDL event type
+ * @param WidgetID Widget ID */
 void textwin_event(int e, SDL_Event *event, int WidgetID)
 {
     if (e == TW_CHECK_BUT_DOWN)
@@ -743,6 +788,9 @@ void textwin_event(int e, SDL_Event *event, int WidgetID)
     }
 }
 
+/**
+ * Add history to the text window.
+ * @param text The text to add to the history */
 void textwin_addhistory(char* text)
 {
     register int i;
@@ -764,6 +812,8 @@ void textwin_addhistory(char* text)
     HistoryPos = 0;
 }
 
+/**
+ * Clear all the text window history. */
 void textwin_clearhistory()
 {
     register int i;
@@ -777,7 +827,10 @@ void textwin_clearhistory()
     HistoryPos = 0;
 }
 
-void textwin_putstring(char* text)
+/**
+ * Put string to the text window.
+ * @param text The string */
+void textwin_putstring(char *text)
 {
 	int len = strlen(text);
 

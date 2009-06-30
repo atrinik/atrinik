@@ -25,6 +25,7 @@
 
 #include <include.h>
 
+/** Darkness values */
 static double dark_value[DARK_LEVELS] = {
     1.0,
 	0.828,
@@ -35,7 +36,7 @@ static double dark_value[DARK_LEVELS] = {
     0.113
 };
 
-/* Anim queue of current active map */
+/** Anim queue of current active map */
 struct _anim *start_anim;
 
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right,UINT32 ckey);
@@ -43,22 +44,16 @@ static void grey_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int num_col, int
 static void red_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 static void fow_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 
-/* Not much special inside atm */
-int sprite_init_system()
-{
-	return 1;
-}
-
-int sprite_deinit_system()
-{
-	return 1;
-}
-
+/**
+ * Load sprite file.
+ * @param fname Sprite filename
+ * @param flags Flags for the sprite
+ * @return NULL if failed, the sprite otherwise */
 _Sprite *sprite_load_file(char *fname, uint32 flags)
 {
 	_Sprite *sprite;
 
-	sprite = sprite_tryload_file(fname,flags,NULL);
+	sprite = sprite_tryload_file(fname, flags, NULL);
 
 	if (sprite == NULL)
 	{
@@ -69,7 +64,11 @@ _Sprite *sprite_load_file(char *fname, uint32 flags)
 	return sprite;
 }
 
-/* Calculate the displayed width of the text */
+/**
+ * Calculate the displayed width of the text.
+ * @param font Font used to display the text
+ * @param text The text to calculate width
+ * @return The width in integer value */
 int StringWidth(_Font *font, char *text)
 {
 	int w = 0, i;
@@ -92,7 +91,13 @@ int StringWidth(_Font *font, char *text)
 	return w;
 }
 
-/* Calculate the displayed characters for a given width */
+/**
+ * Calculate the displayed characters for a given width
+ * @param font The font used for text
+ * @param text The text
+ * @param line Line
+ * @param len Length
+ * @return 1 if width will be more than length, 0 otherwise */
 int StringWidthOffset(_Font *font, char *text, int *line, int len)
 {
 	int w = 0, i, c, flag = 0;
@@ -128,6 +133,12 @@ int StringWidthOffset(_Font *font, char *text, int *line, int len)
 	return flag;
 }
 
+/**
+ * Try to load a sprite image file.
+ * @param fname Sprite filename
+ * @param flag Flags
+ * @param rwop Pointer to memory for the image
+ * @return The sprite if success, NULL otherwise */
 _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 {
 	_Sprite *sprite;
@@ -528,6 +539,11 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 	}
 }
 
+/**
+ * Show tooltip.
+ * @param mx Mouse X position
+ * @param my Mouse Y position
+ * @param text Text for the tooltip */
 void show_tooltip(int mx, int my, char *text)
 {
 	SDL_Rect rec;
@@ -869,7 +885,8 @@ void delete_anim_que()
 	start_anim = NULL;
 }
 
-/* Walk through the map anim list */
+/**
+ * Walk through the map anim list, and display the anims. */
 void play_anims()
 {
     struct _anim *anim, *tmp;

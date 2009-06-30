@@ -154,7 +154,6 @@ extern int IsMouseExclusive;
 /* Init and kill */
 extern void	init_widgets_fromDefault();
 extern void	init_widgets_fromCurrent();
-extern int init_widgets_fromFile(char *filename);
 extern void kill_widgets();
 
 /* File */

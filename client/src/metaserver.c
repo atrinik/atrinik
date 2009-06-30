@@ -28,10 +28,7 @@
 
 /**
  * @file
- * This file handles connection to the metaserver and receiving data from it.
- * @todo There seems to be some kind of a bug, which rarely happens when
- * receiving data from the metaserver. The data gets split to several lines,
- * while it should be only one line. */
+ * This file handles connection to the metaserver and receiving data from it. */
 
 /**
  * Parse data returned from HTTP metaserver.
@@ -58,7 +55,10 @@ static void parse_metaserver_data(char *info)
  * @param size Size of the data
  * @param nmemb Number of items
  * @param data Data
- * @return Returns the realsize of the data returned (size * nmemb). */
+ * @return Returns the realsize of the data returned (size * nmemb).
+ * @todo There seems to be some kind of a bug, which rarely happens when
+ * receiving data from the metaserver. The data gets split to several lines,
+ * while it should be only one line, making it impossible to parse correctly. */
 static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;

@@ -23,6 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * This file controls all the widget related functions,
+ * movement of the widgets, initialization, etc.
+*/
+
 /* TO add a new widget:
  *  1) Add an entry (same index in both cases) to "_widgetdata con_widget[]" (widget.c), and "enum _WidgetID" (widget.h)
  *  2) If applicable, add handler code for widget movement in widget_event_mousedn()
@@ -37,14 +43,13 @@ static int load_interface_file(char *filename);
 static void init_priority_list();
 static void kill_priority_list();
 
-/* Current (working) data list of all widgets */
+/** Current (working) data list of all widgets */
 _widgetdata cur_widget[TOTAL_WIDGETS];
 
-/* Current (default) data list of all widgets */
+/** Current (default) data list of all widgets */
 _widgetdata def_widget[TOTAL_WIDGETS];
 
-/* Default data list of all widgets */
-/* {name, priority_index, x1, y1, width, height, moveable?, active?, redraw?} */
+/** Default data list of all widgets */
 static const _widgetdata con_widget[TOTAL_WIDGETS] =
 {
 	{"STATS",		NULL,	227,	0,		172,	102,	TRUE, 	TRUE, 	TRUE},
@@ -69,14 +74,13 @@ static const _widgetdata con_widget[TOTAL_WIDGETS] =
     {"NUMBER",		NULL,	271,	465,	256,	43,		TRUE, 	FALSE, 	TRUE},
 };
 
-/* Default overall priority list.. Will change during runtime.
+/** Default overall priority list.. Will change during runtime.
  * Widget at the head has highest priority.
  * Events go to the head first
  * Displaying goes to the foot first */
-static widget_node *priority_list_head;
-static widget_node *priority_list_foot;
+static widget_node *priority_list_head, *priority_list_foot;
 
-/* Determines which widget has mouse focus
+/** Determines which widget has mouse focus
  * This value is determined in the mouse routines for the widgets */
 _widgetevent widget_mouse_event =
 {
@@ -85,23 +89,24 @@ _widgetevent widget_mouse_event =
 	0
 };
 
-/* This is used when moving a widget with the mouse. */
+/** This is used when moving a widget with the mouse. */
 static _widgetmove widget_event_move =
 {
-	FALSE,
+	0,
 	0,
 	0,
 	0
 };
 
+/** SDL surface for the widgets */
+SDL_Surface *widgetSF[TOTAL_WIDGETS] = {NULL};
 
-SDL_Surface* widgetSF[TOTAL_WIDGETS] = {NULL};
-
-/* A way to steal the mouse, and to prevent widgets from using mouse events
+/** A way to steal the mouse, and to prevent widgets from using mouse events
  * Example: Prevents widgets from using mouse events during dragging procedure */
 int IsMouseExclusive = 0;
 
-/* Load the defaults and initialize the priority list.
+/**
+ * Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
 void init_widgets_fromDefault()
 {
@@ -130,7 +135,8 @@ void init_widgets_fromDefault()
 #endif
 }
 
-/* Try to load the main interface file and initialize the priority list
+/**
+ * Try to load the main interface file and initialize the priority list
  * On failure, initialize the widgets with init_widgets_fromDefault() */
 void init_widgets_fromCurrent()
 {
@@ -173,37 +179,9 @@ void init_widgets_fromCurrent()
 #endif
 }
 
-/* Try to load an interface file and initialize the priority list.
- * On failure, exit without changing anything */
-int init_widgets_fromFile(char *filename)
-{
-#ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "Entering init_widgets_fromFile()\n");
-#endif
-
-	/* Exit, if there are no widgets */
-	if (!TOTAL_WIDGETS)
-		return 0;
-
-	/* Exit, if we can't open/find file */
-	if (!load_interface_file(filename))
-		return 0;
-
-	/* Clear the priority list if it already exists */
-	if (priority_list_head)
-		kill_priority_list();
-
-	/* Allocate the priority list now */
-	init_priority_list();
-
-#ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "init_widgets_fromFile(): Done.\n");
-#endif
-
-	return 1;
-}
-
-/* Used in two places at the moment, so it's in a static scope function */
+/**
+ * Initializes the widget priority list.
+ * Used in two places at the moment, so it's in a static scope function */
 void init_priority_list()
 {
     widget_node *node;
@@ -268,7 +246,8 @@ void init_priority_list()
 #endif
 }
 
-/* Had to make this for the circumstances */
+/**
+ * Kill widget priority list. */
 void kill_priority_list()
 {
     widget_node *tmp_node;
@@ -308,7 +287,8 @@ void kill_priority_list()
 #endif
 }
 
-/* Perform de-initialization (system-scope) of the widgets */
+/**
+ * Perform deinitialization of the widgets */
 void kill_widgets()
 {
     int pos;
@@ -325,8 +305,11 @@ void kill_widgets()
     kill_priority_list();
 }
 
-/* Load the widgets/interface from a file.
- * Do not perform any dynamic allocation! */
+/**
+ * Load the widgets interface from a file.
+ * Do not perform any dynamic allocation.
+ * @param filename The interface filename
+ * @return 1 on success, 0 on failure */
 int load_interface_file(char *filename)
 {
 	int i = -1, pos;
@@ -508,7 +491,8 @@ int load_interface_file(char *filename)
 	return 1;
 }
 
-/* save the widgets/interface to a file */
+/**
+ * Save the widgets interface to a file */
 void save_interface_file()
 {
 	char txtBuffer[20];
@@ -567,11 +551,15 @@ void save_interface_file()
 	fclose(stream);
 }
 
-/* Mouse is down.
- * Check for owner of mouse focus
+/**
+ * Mouse is down. Check for owner of the mouse focus.
  * Setup widget dragging, if enabled
- * TODO: Right click.. Select 'move' to move a widget */
-int widget_event_mousedn(int x,int y, SDL_Event *event)
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @param event SDL event type
+ * @return 1 if this is a widget and we're handling the mouse, 0 otherwise
+ * @todo Right click, select 'move' to move a widget */
+int widget_event_mousedn(int x, int y, SDL_Event *event)
 {
 	int nID = get_widget_owner(x, y);
 
@@ -687,6 +675,13 @@ int widget_event_mousedn(int x,int y, SDL_Event *event)
 /* Mouse is up.
  * Check for owner of mouse focus
  * Stop dragging the widget, if active */
+/**
+ * Mouse is up. Check for owner of mouse focus.
+ * Stop dragging the widget, if active.
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @param event SDL event type
+ * @return 1 if this is a widget and we're handling the mouse, 0 otherwise */
 int widget_event_mouseup(int x, int y, SDL_Event *event)
 {
 	/* Widget moving condition */
@@ -767,9 +762,13 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 	}
 }
 
-/* Mouse was moved.
- * Check for owner of mouse focus
- * Drag the widget, if active */
+/**
+ * Mouse was moved. Check for owner of mouse focus.
+ * Drag the widget, if active.
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @param event SDL event type
+ * @return 1 if this is a widget and we're handling the mouse, 0 otherwise */
 int widget_event_mousemv(int x, int y, SDL_Event *event)
 {
 	/* With widgets we have to clear every loop the txtwin cursor */
@@ -919,8 +918,12 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 	}
 }
 
-/* Find the widget with mouse focus on a mouse-hit-test basis */
-int get_widget_owner(int x, int y )
+/**
+ * Find the widget with mouse focus on a mouse-hit-test basis.
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @return -1 if no widget, otherwise the widget's ID */
+int get_widget_owner(int x, int y)
 {
 	widget_node *node;
 	int nID;
@@ -980,7 +983,9 @@ int get_widget_owner(int x, int y )
 	return -1;
 }
 
-/* Function list for each widget - calls the widget with the process type */
+/**
+ * Function list for each widget. Calls the widget with the process type.
+ * @param nID The widget ID */
 void process_widget(int nID)
 {
 	/* Doesn't matter which order the case statements follow */
@@ -1068,8 +1073,9 @@ void process_widget(int nID)
 	}
 }
 
-/* Loop through all the widgets and call the corresponding handlers
- * This is called everytime in main.c.. in the main loop */
+/**
+ * Loop through all the widgets and call the corresponding handlers.
+ * This is called everytime in main.c, in the main loop. */
 void process_widgets()
 {
 	widget_node *node;
@@ -1088,11 +1094,12 @@ void process_widgets()
 	}
 }
 
-/* This is used by widgets when they use the mouse
- * If it returns 0, don't use the mouse.
- * If it doesn't return 0, expect values such as..
- * IDLE, LB_DN, LB_UP, RB_DN, RB_UP, MB_UP, MB_DN,
- * use the variable 'MouseEvent' to determine unique mouse events */
+/**
+ * This is used by the widgets when they use the mouse.
+ * @param mx Mouse X position
+ * @param my Mouse Y position
+ * @param widget_id Widget ID
+ * @return 0 to not use the mouse, otherwise values such as IDLE, LB_DN, LB_UP, RB_DN, RB_UP, MB_UP, MB_DN */
 uint32 GetMouseState(int *mx, int *my, int widget_id)
 {
 	if (widget_mouse_event.owner == widget_id && !IsMouseExclusive)
@@ -1110,10 +1117,12 @@ uint32 GetMouseState(int *mx, int *my, int widget_id)
 	return 0;
 }
 
-/* Sets this widget to have highest priority
+/**
+ * Sets this widget to have the highest priority.
  * 1) Transfer head to a new node below head
  * 2) Transfer this widget to the head
- * 3) Remove this widget from its previous priority */
+ * 3) Remove this widget from its previous priority
+ * @param nWidgetID The widget ID */
 void SetPriorityWidget(int nWidgetID)
 {
 	widget_node *node;

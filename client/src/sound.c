@@ -1,58 +1,59 @@
-/*
-    Daimonin SDL client, a client program for the Daimonin MMORPG.
-
-
-  Copyright (C) 2003 Michael Toennies
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    The author can be reached via e-mail to daimonin@nord-com.net
-*/
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*                     Copyright (C) 2009 Alex Tokar                     *
+*                                                                       *
+* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+* and Crossfire (Multiplayer game for X-windows).                       *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
 
 #include "include.h"
 
-/* THE SoundSystem status */
+/**
+ * @file sound.c
+ * Sound related functions. */
+
+/** The SoundSystem status */
 _sound_system SoundSystem;
 
 #ifdef INSTALL_SOUND
 
-/* That's the music we're playing - if NULL, no music */
+/** The music we're playing - if NULL, no music */
 music_data music;
 
-/* When we get a new piece of music, we store it here and
+/** When we get a new piece of music, we store it here and
  * give the current music the command to fade out or
  * to break (if new music parameter force it).
  * Then we copy new_music to music and start it. */
 music_data music_new;
 
-/* When we got a "special" music like a map position
- * music command (for example a NPC shout or something
- * like this) then we need to play it ASAP - and when
- * we are finished with it, we need to restore the
- * old music we perhaps had interrupted. The old music
- * is stored here */
-static music_data music_buffer;
-
+/** Special sounds */
 static int special_sounds[SPECIAL_SOUND_INIT];
 #endif
 
 #define POW2(x) ((x) * (x))
 
 #ifdef INSTALL_SOUND
+/** Sounds */
 _wave Sounds[SOUND_MAX + SPELL_SOUND_MAX];
 
+/** The sound files */
 static char *sound_files[SOUND_MAX] = {
 	"event01.wav",
 	"bow1.wav",
@@ -112,6 +113,7 @@ static char *sound_files[SOUND_MAX] = {
 	"page.wav"
 };
 
+/** Spell sound files */
 static char *spell_sound_files[SPELL_SOUND_MAX] = {
 	"magic_default.wav",
 	"magic_acid.wav",
@@ -163,17 +165,18 @@ static char *spell_sound_files[SPELL_SOUND_MAX] = {
 };
 #endif
 
-/* This value is defined in server too - change only both at once */
+/** This value is defined in server too - change only both at once */
 #define MAX_SOUND_DISTANCE 12
 
-/* Callback function for background music */
 static void musicDone();
 static void sound_start_music(char *fname, int vol, int fade, int loop);
 
+/**
+ * Initialize the sound system */
 void sound_init()
 {
 #ifdef INSTALL_SOUND
-	/* We want no sound*/
+	/* We want no sound */
 	if (SoundSystem == SOUND_SYSTEM_NONE)
 		return;
 
@@ -181,8 +184,6 @@ void sound_init()
 	music.data = NULL;
 	music_new.flag = 0;
 	music_new.data = NULL;
-	music_buffer.flag = 0;
-	music_buffer.data = NULL;
 
 	SoundSystem = SOUND_SYSTEM_OFF;
 
@@ -197,6 +198,8 @@ void sound_init()
 	SoundSystem = SOUND_SYSTEM_ON;
 }
 
+/**
+ * Deinitialize the sound system  */
 void sound_deinit()
 {
 #ifdef INSTALL_SOUND
@@ -205,7 +208,8 @@ void sound_deinit()
 #endif
 }
 
-/* we are loading here all different sound groups in one array. */
+/**
+ * Load all different sound groups to one array. */
 void sound_loadall()
 {
 #ifdef INSTALL_SOUND
@@ -228,15 +232,17 @@ void sound_loadall()
 	for (ii = 0; ii < SPELL_SOUND_MAX; ii++)
 	{
 		snprintf(buf, sizeof(buf), "%s%s", GetSfxDirectory(), spell_sound_files[ii]);
-		Sounds[i+ii].sound = NULL;
-		Sounds[i+ii].sound = Mix_LoadWAV(buf);
+		Sounds[i + ii].sound = NULL;
+		Sounds[i + ii].sound = Mix_LoadWAV(buf);
 
-		if (!Sounds[i+ii].sound)
+		if (!Sounds[i + ii].sound)
 			LOG(LOG_ERROR, "sound_loadall: missing sound file %s\n", buf);
 	}
 #endif
 }
 
+/**
+ * Free all loaded sounds */
 void sound_freeall()
 {
 #ifdef INSTALL_SOUND
@@ -252,6 +258,11 @@ void sound_freeall()
 #endif
 }
 
+/**
+ * Calculate map sound effect and play it
+ * @param soundnr Sound ID
+ * @param xoff X offset
+ * @param yoff Y offset */
 void calculate_map_sound(int soundnr, int xoff, int yoff)
 {
     /* We got xoff/yoff relative to 0, when this will change, exchange 0
@@ -294,6 +305,12 @@ void calculate_map_sound(int soundnr, int xoff, int yoff)
 /* Play a sound.
  * We define panning as -255 (total left) or +255 (total right)
  * Return: Channel (id) of the sound. -1 = error */
+/**
+ * Play a sound.
+ * @param soundid Sound ID
+ * @param pan Panning value, -255 (total left) to +255 (total right)
+ * @param vol Volume
+ * @return Channel ID of the sound, or -1 if error */
 int sound_play_effect(int soundid, int pan, int vol)
 {
 #ifdef INSTALL_SOUND
@@ -330,20 +347,10 @@ int sound_play_effect(int soundid, int pan, int vol)
 #endif
 }
 
-/* Test for playing.
- * 0: Sound is not playing, 1: sound is still playing */
-int sound_test_playing(int channel)
-{
-#ifdef INSTALL_SOUND
-    if (SoundSystem != SOUND_SYSTEM_ON)
-        return 0;
-
-    return Mix_Playing(channel);
-#else
-	return 0;
-#endif
-}
-
+/**
+ * Play a repeat sound.
+ * @param soundid Sound ID
+ * @param special_id Special sound ID */
 void sound_play_one_repeat(int soundid, int special_id)
 {
 #ifdef INSTALL_SOUND
@@ -380,6 +387,13 @@ void sound_play_one_repeat(int soundid, int special_id)
 #endif
 }
 
+/**
+ * Play music.
+ * @param fname File name in the media directory
+ * @param vol Volume
+ * @param fade Should the music fade?
+ * @param loop Should the music loop?
+ * @param mode Mode */
 void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 {
 #ifdef INSTALL_SOUND
@@ -431,6 +445,12 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 #endif
 }
 
+/**
+ * Start music.
+ * @param fname File name in the media directory
+ * @param vol Volume
+ * @param fade Should the music fade?
+ * @param loop Should the music loop? */
 static void sound_start_music(char *fname, int vol, int fade, int loop)
 {
 #ifdef INSTALL_SOUND
@@ -476,6 +496,9 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
  #endif
 }
 
+/**
+ * Fade out music.
+ * @param i Value */
 void sound_fadeout_music(int i)
 {
 #ifdef INSTALL_SOUND
@@ -504,7 +527,8 @@ void sound_fadeout_music(int i)
 #endif
 }
 
-/* Callback function from current played music sound */
+/**
+ * Callback function from current played music sound */
 static void musicDone()
 {
 #ifdef INSTALL_SOUND
