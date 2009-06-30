@@ -56,16 +56,16 @@ typedef enum _LOGLEVEL
 
 extern void LOG(int logLevel, char *format, ...);
 
-extern char *GetCacheDirectory(void);
-extern char *GetGfxUserDirectory(void);
-extern char *GetBitmapDirectory(void);
-extern char *GetSfxDirectory(void);
-extern char *GetMediaDirectory(void);
-extern char *GetIconDirectory(void);
+extern char *GetCacheDirectory();
+extern char *GetGfxUserDirectory();
+extern char *GetBitmapDirectory();
+extern char *GetSfxDirectory();
+extern char *GetMediaDirectory();
+extern char *GetIconDirectory();
 
-extern int SYSTEM_Start(void);
-extern int SYSTEM_End(void);
-uint32 get_video_flags(void);
+extern int SYSTEM_Start();
+extern int SYSTEM_End();
+uint32 get_video_flags();
 
 #if defined(HAVE_STRNICMP)
 #else
@@ -77,7 +77,7 @@ int strncasecmp(char *s1, char *s2, int n);
 #if defined(HAVE_STRICMP)
 #else
 #if !defined(HAVE_STRCASECMP)
-int strcasecmp(char *s1, char*s2);
+int strcasecmp(char *s1, char *s2);
 #endif
 #endif
 

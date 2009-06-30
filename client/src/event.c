@@ -25,6 +25,11 @@
 
 #include "include.h"
 
+/**
+ * @file
+ * This file controls various event functions, like character mouse movement,
+ * parsing macro keys etc. */
+
 extern char d_ServerName[2048];
 extern int  d_ServerPort;
 static int get_action_keycode,drop_action_keycode; /* thats the key for G'et command from keybind */
@@ -126,14 +131,14 @@ static int key_event(SDL_KeyboardEvent *key);
 static void key_string_event(SDL_KeyboardEvent *key);
 static int check_macro_keys(char *text);
 static void move_keys(int num);
-static void key_repeat(void);
+static void key_repeat();
 static void cursor_keys(int num);
 int key_meta_menu(SDL_KeyboardEvent *key);
 void key_connection_event(SDL_KeyboardEvent *key);
 void check_menu_keys(int menu, int key);
 static void quickslot_key(SDL_KeyboardEvent *key, int slot);
 
-void init_keys(void)
+void init_keys()
 {
 	register int i;
 
@@ -143,7 +148,7 @@ void init_keys(void)
 	reset_keys();
 }
 
-void reset_keys(void)
+void reset_keys()
 {
 	register int i;
 
@@ -319,7 +324,13 @@ static void mouse_moveHero()
 #undef MY_POS
 }
 
-int Event_PollInputDevice(void)
+/**
+ * Poll input device like mouse, keys, etc.
+ * @return 1 if the the quit key was pressed, 0 otherwise
+ * @todo The part of code that handles clicking links in
+ * book/help GUI should be moved to separate function in
+ * book.c */
+int Event_PollInputDevice()
 {
 	SDL_Event event;
 	int x, y, done = 0;
@@ -462,8 +473,7 @@ int Event_PollInputDevice(void)
 					}
 				}
 
-				/* If this is book GUI, go through all the lines and look for links to click on.
-				 * TODO: Move this to separate function in book.c */
+				/* If this is book GUI, go through all the lines and look for links to click on. */
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
 				{
 					int l_len = 0, w_len, i, ii, yoff;
@@ -2089,7 +2099,7 @@ static void move_keys(int num)
 }
 
 /* Handle key repeating. */
-static void key_repeat(void)
+static void key_repeat()
 {
 	register int i, j;
 	char buf[512];

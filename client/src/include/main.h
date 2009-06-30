@@ -782,9 +782,9 @@ extern int SocketStatusErrorNr;
 extern int main(int argc, char *argv[]);
 extern void open_input_mode(int maxchar);
 extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc);
-extern void clear_metaserver_data(void);
+extern void clear_metaserver_data();
 extern void get_meta_server_data(int num, char *server, int *port);
-extern void free_faces(void);
-extern void load_options_dat(void);
-extern void save_options_dat(void);
+extern void free_faces();
+extern void load_options_dat();
+extern void save_options_dat();
 #endif

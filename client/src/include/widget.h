@@ -158,7 +158,7 @@ extern int init_widgets_fromFile(char *filename);
 extern void kill_widgets();
 
 /* File */
-extern void save_interface_file(void);
+extern void save_interface_file();
 
 /* Events */
 extern int widget_event_mousedn(int x,int y, SDL_Event *event);

@@ -751,7 +751,7 @@ static void draw_tabs(char *tabs[], int *act_tab, char *head_text, int x, int y)
 }
 
 /* show the skill-window and handle mouse actions. */
-void show_skilllist(void)
+void show_skilllist()
 {
 	SDL_Rect box;
 	char buf[256];
@@ -908,7 +908,7 @@ void show_skilllist(void)
 }
 
 /* show the spell-window and handle mouse actions. */
-void show_spelllist(void)
+void show_spelllist()
 {
 	SDL_Rect box;
 	char buf[256];
@@ -1260,7 +1260,7 @@ static void blit_face(int id, int x, int y)
  * explaining why it is bad - if this application becomes more complex
  * we need to migrate some stuff in own functions.
  * MT-2004 */
-void show_newplayer_server(void)
+void show_newplayer_server()
 {
 	int id = 0;
 	int x, y, i;
@@ -1533,7 +1533,7 @@ void show_newplayer_server(void)
 }
 
 /* show login: status & identify part. */
-void show_login_server(void)
+void show_login_server()
 {
 	SDL_Rect box;
 	char buf[256];

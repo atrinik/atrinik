@@ -23,7 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file handles various player related functions.  This includes
+/**
+ * @file player.c
+ * This file handles various player related functions.  This includes
  * both things that operate on the player item, cpl structure, or
  * various commands that the player issues.
  *
@@ -36,19 +38,12 @@
  *   was done by Mark to remove the old keypress stupidity I used.
  */
 
-/* This translates the numeric direction id's into the actual direction
- * commands.  This lets us send the actual command (ie, 'north'), which
- * makes handling on the server side easier.
- */
-
 #include <include.h>
 #include <math.h>
-/*
- *  Initialiazes player item, information is received from server
- */
 
 _server_level server_level;
 
+/** ID's of the player doll items */
 typedef enum _player_doll_enum {
 	PDOLL_ARMOUR,
 	PDOLL_HELM,
@@ -67,15 +62,20 @@ typedef enum _player_doll_enum {
 	PDOLL_ROBE,
 	PDOLL_LIGHT,
 
-	/* must be last element */
+	/* Must be last element */
 	PDOLL_INIT
 }_player_doll_enum;
 
+/** Player doll item position structure */
 typedef struct _player_doll_pos {
+	/** X position */
     int xpos;
+
+	/** Y position */
     int ypos;
 }_player_doll_pos;
 
+/** Player doll item positions */
 _player_doll_pos player_doll[PDOLL_INIT] = {
     {93,	55},
     {93,	8},
@@ -94,6 +94,8 @@ _player_doll_pos player_doll[PDOLL_INIT] = {
     {43,	10},
     {4,		10}
 };
+
+/** Weapon speed table */
 static float weapon_speed_table[19] = {
 	20.0f, 	18.0f, 	10.0f, 	8.0f, 	5.5f,
 	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
@@ -101,7 +103,9 @@ static float weapon_speed_table[19] = {
 	1.44f, 	1.32f, 	1.25f, 	1.20f
 };
 
-void clear_player(void)
+/**
+ * Clear the player data like quickslots, inventory items, etc. */
+void clear_player()
 {
 	memset(quick_slots, -1, sizeof(quick_slots));
 
@@ -112,6 +116,12 @@ void clear_player(void)
 	init_player_data();
 }
 
+/**
+ * Initialize new player
+ * @param tag Tag of the player
+ * @param name Name of the player
+ * @param weight Weight of the player
+ * @param face Face ID */
 void new_player(long tag, char *name, long weight, short face)
 {
 	cpl.ob->tag = tag;
@@ -120,6 +130,9 @@ void new_player(long tag, char *name, long weight, short face)
 	copy_name(cpl.ob->d_name, name);
 }
 
+/**
+ * Request to set up a new character with the selected statistics.
+ * @param nc The server char */
 void new_char(_server_char *nc)
 {
 	char buf[MAX_BUF];
@@ -128,6 +141,13 @@ void new_char(_server_char *nc)
     cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
+
+/**
+ * Look at command. In Crossfire clients, this command
+ * was used to write out information about items on
+ * square at x y. Currently unused.
+ * @param x The X position of map
+ * @param y The Y position of map */
 void look_at(int x, int y)
 {
 	char buf[MAX_BUF];
@@ -136,6 +156,9 @@ void look_at(int x, int y)
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
+/**
+ * Send apply command to server.
+ * @param tag Item tag */
 void client_send_apply(int tag)
 {
 	char buf[MAX_BUF];
@@ -144,6 +167,9 @@ void client_send_apply(int tag)
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
+/**
+ * Send examine command to server.
+ * @param tag Item tag */
 void client_send_examine(int tag)
 {
 	char buf[MAX_BUF];
@@ -152,7 +178,11 @@ void client_send_examine(int tag)
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-/* Requests nrof objects of tag get moved to loc. */
+/**
+ * Request nrof of objects of tag get moved to loc.
+ * @param loc Location where to move the object
+ * @param tag Item tag
+ * @param nrof Number of objects from tag */
 void client_send_move(int loc, int tag, int nrof)
 {
 	char buf[MAX_BUF];
@@ -162,14 +192,16 @@ void client_send_move(int loc, int tag, int nrof)
 }
 
 
-/* This should be used for all 'command' processing.  Other functions should
+/**
+ * This should be used for all 'command' processing.  Other functions should
  * call this so that proper windowing will be done.
- * command is the text command, repeat is a count value, or -1 if none
- * is desired and we don't want to reset the current count.
- * must_send means we must send this command no matter what (ie, it is
+ * @param command Text command
+ * @param repeat Count value or -1 if none desired and we don't want
+ * to reset the current count
+ * @param must_send Means we must send this command no matter what (ie, it is
  * an administrative type of command like fire_stop, and failure to send
  * it will cause definate problems.
- * return 1 if command was sent, 0 if not sent. */
+ * @return 1 if command was sent, 0 if not */
 int send_command(const char *command, int repeat, int must_send)
 {
 	char buf[MAX_BUF];
@@ -204,6 +236,10 @@ int send_command(const char *command, int repeat, int must_send)
 	return 1;
 }
 
+/**
+ * Receive complete command.
+ * @param data The incoming data
+ * @param len Length of the data */
 void CompleteCmd(unsigned char *data, int len)
 {
 	if (len != 6)
@@ -215,23 +251,22 @@ void CompleteCmd(unsigned char *data, int len)
 	csocket.command_time = GetInt_String(data + 2);
 }
 
-/* This is an extended command (ie, 'who, 'whatever, etc).  In general,
- * we just send the command to the server, but there are a few that
- * we care about (bind, unbind)
- *
- * The command past to us can not be modified - if it is a keybinding,
- * we get passed the string that is that binding - modifying it effectively
- * changes the binding. */
+
+/**
+ * Set the player's weight limit.
+ * @param wlim The weight limit */
 void set_weight_limit (uint32 wlim)
 {
     cpl.weight_limit = wlim;
 }
 
-void init_player_data(void)
+/**
+ * Initialize player data */
+void init_player_data()
 {
 	int i;
 
-	new_player (0, "", 0,0);
+	new_player(0, "", 0,0);
 
 	cpl.fire_on = cpl.firekey_on = 0;
 	cpl.resize_twin = 0;
@@ -304,20 +339,25 @@ void init_player_data(void)
 	RangeFireMode = 0;
 }
 
+/**
+ * Mouse event on player data widget
+ * @param x Mouse X
+ * @param y Mouse Y */
 void widget_player_data_event(int x, int y)
 {
-    int mx = 0, my = 0;
-    mx = x - cur_widget[PLAYER_INFO_ID].x1;
-    my = y - cur_widget[PLAYER_INFO_ID].y1;
+    int mx = x - cur_widget[PLAYER_INFO_ID].x1, my = y - cur_widget[PLAYER_INFO_ID].y1;
 
-    if (mx >= 184 && mx <= 210 && my >=5 && my <= 35)
+    if (mx >= 184 && mx <= 210 && my >= 5 && my <= 35)
     {
 		if (!client_command_check("/pray"))
 			send_command("/pray", -1, SC_NORMAL);
     }
 }
 
-/* Player name, exp, level, title */
+/**
+ * Show player data widget with name, gender, title, etc
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_show_player_data(int x, int y)
 {
 	char buf[256];
@@ -345,7 +385,10 @@ void widget_show_player_data(int x, int y)
     sprite_blt(Bitmaps[BITMAP_PRAY], x + 184, y + 5, NULL, NULL);
 }
 
-/* Hp, SP, Grace */
+/**
+ * Show player stats widget with stats, health, mana, grace, etc.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_player_stats(int x, int y)
 {
     char buf[256];
@@ -534,11 +577,19 @@ void widget_player_stats(int x, int y)
 	}
 }
 
+/**
+ * Show menu buttons widget.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_menubuttons(int x, int y)
 {
     sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], x, y, NULL, NULL);
 }
 
+/**
+ * Handle mouse events over the menu buttons widget
+ * @param x X position of the mouse
+ * @param y Y position of the mouse */
 void widget_menubuttons_event(int x, int y)
 {
     int dx = x - cur_widget[MENU_B_ID].x1, dy = y - cur_widget[MENU_B_ID].y1;
@@ -560,6 +611,10 @@ void widget_menubuttons_event(int x, int y)
     }
 }
 
+/**
+ * Show skill groups widget.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_skillgroups(int x, int y)
 {
     char buf[256];
@@ -617,6 +672,8 @@ void widget_skillgroups(int x, int y)
     SDL_BlitSurface(widgetSF[SKILL_LVL_ID], NULL, ScreenSurface, &box);
 }
 
+/**
+ * Handle mouse events over player doll widget (dragging items) */
 void widget_show_player_doll_event()
 {
     int old_inv_win = cpl.inventory_win;
@@ -648,7 +705,10 @@ void widget_show_player_doll_event()
     itemExamined = 0;
 }
 
-/* Player doll with inventory */
+/**
+ * Show player doll widget with applied items from inventory.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_show_player_doll(int x, int y)
 {
     item *tmp;
@@ -764,6 +824,10 @@ void widget_show_player_doll(int x, int y)
 		show_tooltip(mx, my, tooltip_text);
 }
 
+/**
+ * Show main level widget.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_show_main_lvl(int x, int y)
 {
     char buf[256];
@@ -830,6 +894,10 @@ void widget_show_main_lvl(int x, int y)
     SDL_BlitSurface(widgetSF[MAIN_LVL_ID], NULL, ScreenSurface, &box);
 }
 
+/**
+ * Show skill experience widget. This also includes the action timer.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_show_skill_exp(int x, int y)
 {
 	_BLTFX bltfx;
@@ -1002,6 +1070,8 @@ void widget_show_skill_exp(int x, int y)
     SDL_BlitSurface(widgetSF[SKILL_EXP_ID], NULL, ScreenSurface, &box);
 }
 
+/**
+ * Handle mouse events over skill experience widget */
 void widget_skill_exp_event()
 {
     int i, ii, j, jj, bFound = 0;
@@ -1045,6 +1115,10 @@ void widget_skill_exp_event()
     WIDGET_REDRAW(SKILL_EXP_ID);
 }
 
+/**
+ * Show regeneration widget.
+ * @param x X position of the widget
+ * @param y Y position of the widget */
 void widget_show_regeneration(int x, int y)
 {
     char buf[256];

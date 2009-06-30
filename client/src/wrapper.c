@@ -25,11 +25,20 @@
 
 #include <include.h>
 
+/**
+ * @file wrapper.c
+ * General convenience functions for the client. */
+
 #if defined( __WIN_32)  || defined(__LINUX)
 FILE *logstream;
 int logFlush;
 #endif
 
+/**
+ * Logs an error, debug output, etc.
+ * @param logLevel Level of the log message (LOG_MSG, LOG_DEBUG, ...)
+ * @param format Formatting of the message, like sprintf
+ * @param ... Additional arguments for format */
 void LOG (int logLevel, char *format, ...)
 {
 #if defined( __WIN_32)  || defined(__LINUX)
@@ -41,37 +50,41 @@ void LOG (int logLevel, char *format, ...)
 	{
 		if (LOGLEVEL * (-1) == logLevel)
 			flag = 1;
-        }
-		/* We log all logLevel < LOGLEVEL*/
-        else
-        {
-			if (logLevel <= LOGLEVEL)
-				flag = 1;
-        }
+	}
+	/* We log all logLevel < LOGLEVEL*/
+	else
+	{
+		if (logLevel <= LOGLEVEL)
+			flag = 1;
+	}
 
-		/* Secure: we have no open stream */
-        if (!logstream)
-			flag = 0;
+	/* Secure: we have no open stream */
+	if (!logstream)
+		flag = 0;
 
-        va_start(ap, format);
+	va_start(ap, format);
 
-        if (flag)
-		{
-			vfprintf(stdout, format, ap);
-			vfprintf(logstream, format, ap);
-		}
-		/* No logstream, use stdout */
-		else
-			vfprintf(stdout, format, ap);
+	if (flag)
+	{
+		vfprintf(stdout, format, ap);
+		vfprintf(logstream, format, ap);
+	}
+	/* No logstream, use stdout */
+	else
+		vfprintf(stdout, format, ap);
 
-        va_end(ap);
+	va_end(ap);
 
-		if (logstream)
-        	fflush(logstream);
+	if (logstream)
+		fflush(logstream);
 #endif
 }
 
-int SYSTEM_Start(void)
+
+/**
+ * Start the base system, setting caption name and window icon.
+ * @return Always returns 1. */
+int SYSTEM_Start()
 {
     SDL_Surface *icon;
     char buf[256];
@@ -85,63 +98,84 @@ int SYSTEM_Start(void)
 
 #if defined( __WIN_32)  || defined(__LINUX)
 	logstream  = fopen(LOG_FILE, "w");
-	return 1;
 #endif
+
+	return 1;
 }
 
-int SYSTEM_End(void)
+/**
+ * End the system. Currently does nothing, but could be used in the future.
+ * @return Always returns 1. */
+int SYSTEM_End()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
 	return 1;
-#endif
 }
 
-char *GetBitmapDirectory(void)
+/**
+ * Get bitmap directory.
+ * @return The bitmap directory */
+char *GetBitmapDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
 	return "./bitmaps/";
 #endif
 }
 
-char *GetIconDirectory(void)
+/**
+ * Get the icon directory.
+ * @return The icon directory */
+char *GetIconDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
     return "./icons/";
 #endif
 }
 
-char *GetSfxDirectory(void)
+/**
+ * Get the sfx directory.
+ * @return The sfx directory */
+char *GetSfxDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
 	return "./sfx/";
 #endif
 }
 
-char *GetCacheDirectory(void)
+/**
+ * Get the cache directory.
+ * @return The cache directory */
+char *GetCacheDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
 	return "./cache/";
 #endif
 }
 
-char *GetGfxUserDirectory(void)
+/**
+ * Get the user defined GFX directory.
+ * @return The user defined GFX directory */
+char *GetGfxUserDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
 	return "./gfx_user/";
 #endif
 }
 
-
-char *GetMediaDirectory(void)
+/**
+ * Get the media directory
+ * @return The media directory */
+char *GetMediaDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
     return "./media/";
 #endif
 }
 
-/* Calculate the video flags from the settings.
- * When settings are changed at runtime, this MUST called again */
-uint32 get_video_flags(void)
+/**
+ * Calculate the video flags from the settings.
+ * When settings are changed at runtime, this MUST be called again.
+ * @return The flags */
+uint32 get_video_flags()
 {
     uint32 videoflags_full, videoflags_win;
 

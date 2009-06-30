@@ -151,7 +151,7 @@ int write_socket(int fd, unsigned char *buf, int len)
 }
 
 
-int SOCKET_InitSocket(void)
+int SOCKET_InitSocket()
 {
     WSADATA w;
     int     error;
@@ -177,7 +177,7 @@ int SOCKET_InitSocket(void)
 }
 
 
-int SOCKET_DeinitSocket(void)
+int SOCKET_DeinitSocket()
 {
     WSACleanup();               /* drop socket */
     return(TRUE);
@@ -370,12 +370,12 @@ port)
     return TRUE;
 }
 
-int SOCKET_InitSocket(void)
+int SOCKET_InitSocket()
 {
     return TRUE;
 }
 
-int SOCKET_DeinitSocket(void)
+int SOCKET_DeinitSocket()
 {
     return TRUE;
 }

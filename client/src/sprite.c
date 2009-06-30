@@ -44,12 +44,12 @@ static void red_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rc
 static void fow_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 
 /* Not much special inside atm */
-int sprite_init_system(void)
+int sprite_init_system()
 {
 	return 1;
 }
 
-int sprite_deinit_system(void)
+int sprite_deinit_system()
 {
 	return 1;
 }
@@ -852,7 +852,7 @@ void remove_anim(struct _anim *anim)
         tmp_next->before = tmp;
 }
 
-void delete_anim_que(void)
+void delete_anim_que()
 {
     struct _anim *tmp, *tmp_next;
     void *tmp_free;

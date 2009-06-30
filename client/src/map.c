@@ -84,7 +84,7 @@ void adjust_map_cache(int xpos, int ypos)
 
 
 /* Load the multi arch offsets */
-void load_mapdef_dat(void)
+void load_mapdef_dat()
 {
 	FILE *stream;
 	int i, ii, x, y, d[32];
@@ -116,7 +116,7 @@ void load_mapdef_dat(void)
 }
 
 
-void clear_map(void)
+void clear_map()
 {
     memset(&the_map, 0, sizeof(Map));
 }
@@ -144,7 +144,7 @@ void display_mapscroll(int dx, int dy)
 	memcpy((char *) & the_map, (char *) & newmap, sizeof(struct Map));
 }
 
-void map_draw_map_clear(void)
+void map_draw_map_clear()
 {
     register int ypos, xpos, x, y;
 
@@ -340,7 +340,7 @@ void set_map_darkness(int x, int y, uint8 darkness)
         map->darkness = darkness;
 }
 
-void map_draw_map(void)
+void map_draw_map()
 {
     register struct MapCell *map;
 	_Sprite *face_sprite;

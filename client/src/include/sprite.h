@@ -171,10 +171,10 @@ extern struct _anim *start_anim;
 extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
 extern void remove_anim(struct _anim *anim);
 extern void play_anims();
-extern void delete_anim_que(void);
+extern void delete_anim_que();
 extern void show_tooltip(int mx, int my, char* text);
-extern int sprite_init_system(void);
-extern int sprite_deinit_system(void);
+extern int sprite_init_system();
+extern int sprite_deinit_system();
 extern int StringWidth(_Font *font, char *text);
 extern int StringWidthOffset(_Font *font, char *text, int *line, int len);
 

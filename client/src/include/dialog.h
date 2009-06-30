@@ -79,9 +79,9 @@ extern enum {
 extern char *opt_tab[];
 extern int dialog_new_char_warn;
 
-extern void show_optwin(void);
-extern void show_newplayer_server(void);
-extern void show_login_server(void);
+extern void show_optwin();
+extern void show_newplayer_server();
+extern void show_login_server();
 extern void show_meta_server(_server *node, int metaserver_start, int metaserver_sel);
 extern void accept_char();
 extern void add_close_button(int x, int y, int menu);

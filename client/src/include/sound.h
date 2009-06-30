@@ -207,11 +207,11 @@ enum {
 
 void sound_fillerup(void *unused, Uint8 *stream, int len);
 
-void sound_init(void);
-void sound_deinit(void);
+void sound_init();
+void sound_deinit();
 
-void sound_loadall(void);
-void sound_freeall(void);
+void sound_loadall();
+void sound_freeall();
 
 void calculate_map_sound(int soundnr, int xoff, int yoff);
 int sound_play_effect(int soundid, int pan, int vol);

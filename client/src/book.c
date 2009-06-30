@@ -255,7 +255,7 @@ static void format_book(char *name)
 }
 
 /* free & clear the book gui */
-void book_clear(void)
+void book_clear()
 {
 	int i;
 	_gui_book_page *page_tmp, *page;

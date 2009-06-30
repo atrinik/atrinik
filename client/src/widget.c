@@ -509,7 +509,7 @@ int load_interface_file(char *filename)
 }
 
 /* save the widgets/interface to a file */
-void save_interface_file(void)
+void save_interface_file()
 {
 	char txtBuffer[20];
 	int i = -1;

@@ -167,10 +167,10 @@ static char *spell_sound_files[SPELL_SOUND_MAX] = {
 #define MAX_SOUND_DISTANCE 12
 
 /* Callback function for background music */
-static void musicDone(void);
+static void musicDone();
 static void sound_start_music(char *fname, int vol, int fade, int loop);
 
-void sound_init(void)
+void sound_init()
 {
 #ifdef INSTALL_SOUND
 	/* We want no sound*/
@@ -197,7 +197,7 @@ void sound_init(void)
 	SoundSystem = SOUND_SYSTEM_ON;
 }
 
-void sound_deinit(void)
+void sound_deinit()
 {
 #ifdef INSTALL_SOUND
     if (SoundSystem == SOUND_SYSTEM_ON)
@@ -206,7 +206,7 @@ void sound_deinit(void)
 }
 
 /* we are loading here all different sound groups in one array. */
-void sound_loadall(void)
+void sound_loadall()
 {
 #ifdef INSTALL_SOUND
     register int i, ii;
@@ -237,7 +237,7 @@ void sound_loadall(void)
 #endif
 }
 
-void sound_freeall(void)
+void sound_freeall()
 {
 #ifdef INSTALL_SOUND
 	register int i;
@@ -505,7 +505,7 @@ void sound_fadeout_music(int i)
 }
 
 /* Callback function from current played music sound */
-static void musicDone(void)
+static void musicDone()
 {
 #ifdef INSTALL_SOUND
 	if (music.data)

@@ -151,8 +151,8 @@ _screensize Screendefs[16] =
 /* face data */
 _face_struct FaceList[MAX_FACE_TILES];
 
-void init_game_data(void);
-int game_status_chain(void);
+void init_game_data();
+int game_status_chain();
 int load_bitmap(int index);
 
 _server *start_server, *end_server;
@@ -332,13 +332,13 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
 #define BITMAP_MAX (sizeof(bitmap_name) / sizeof(struct _bitmap_name))
 _Sprite *Bitmaps[BITMAP_MAX];
 
-static void count_meta_server(void);
-static void flip_screen(void);
+static void count_meta_server();
+static void flip_screen();
 static void show_intro(char *text);
-static void delete_player_lists(void);
-void reset_input_mode(void);
+static void delete_player_lists();
+void reset_input_mode();
 
-static void delete_player_lists(void)
+static void delete_player_lists()
 {
 	int i, ii;
 
@@ -374,7 +374,7 @@ static void delete_player_lists(void)
 }
 
 /* pre init, overrule in hardware module if needed */
-void init_game_data(void)
+void init_game_data()
 {
 	int i;
 	textwin_init();
@@ -460,7 +460,7 @@ void init_game_data(void)
 }
 
 /* Save the option file. */
-void save_options_dat(void)
+void save_options_dat()
 {
    	char txtBuffer[20];
    	int i = -1, j = -1;
@@ -514,7 +514,7 @@ void save_options_dat(void)
 }
 
 /* Load the option file. */
-void load_options_dat(void)
+void load_options_dat()
 {
 	int i = -1, pos;
 	FILE *stream;
@@ -618,7 +618,7 @@ void load_options_dat(void)
 
 
 /* asynchron connection chain */
-int game_status_chain(void)
+int game_status_chain()
 {
 	char buf[1024];
 
@@ -932,7 +932,7 @@ int game_status_chain(void)
 
 
 /* Load the skin and standard gfx */
-void load_bitmaps(void)
+void load_bitmaps()
 {
 	int i;
 
@@ -972,7 +972,7 @@ int load_bitmap(int index)
 }
 
 /* Free the skin and standard gfx */
-void free_bitmaps(void)
+void free_bitmaps()
 {
 	int i, ii;
 
@@ -1006,7 +1006,7 @@ void free_bitmaps(void)
     }
 }
 
-void free_faces(void)
+void free_faces()
 {
 	int i;
 
@@ -1029,7 +1029,7 @@ void free_faces(void)
 }
 
 
-void clear_metaserver_data(void)
+void clear_metaserver_data()
 {
 	_server *node, *tmp;
 	void *tmp_free;
@@ -1087,7 +1087,7 @@ void add_metaserver_data(char *server, int port, int player, char *ver, char *de
 	strcpy(node->desc, desc);
 }
 
-static void count_meta_server(void)
+static void count_meta_server()
 {
 	_server *node = start_server;
 
@@ -1113,7 +1113,7 @@ void get_meta_server_data(int num, char *server, int *port)
 	}
 }
 
-void reset_input_mode(void)
+void reset_input_mode()
 {
 	InputString[0] = 0;
 	InputCount = 0;
@@ -1139,7 +1139,7 @@ void open_input_mode(int maxchar)
 }
 
 
-static void play_action_sounds(void)
+static void play_action_sounds()
 {
     if (!cpl.stats.food)
     {
@@ -1176,7 +1176,7 @@ static void play_action_sounds(void)
     }
 }
 
-void list_vid_modes(void)
+void list_vid_modes()
 {
     const SDL_VideoInfo* vinfo = NULL;
     SDL_Rect **modes;
@@ -1266,7 +1266,7 @@ static void show_option(int x, int y)
 }
 
 /* map & player & anims */
-static void display_layer1(void)
+static void display_layer1()
 {
 	static int gfx_toggle = 0;
     SDL_Rect    rect;
@@ -1310,7 +1310,7 @@ static void display_layer1(void)
     }
 }
 
-static void display_layer2(void)
+static void display_layer2()
 {
     cpl.container = NULL; /* this will be set right on the fly in get_inventory_data() */
 
@@ -1329,7 +1329,7 @@ static void display_layer2(void)
 }
 
 /* display the widgets (graphical user interface) */
-static void display_layer3(void)
+static void display_layer3()
 {
     /* process the widgets */
     if(GameStatus  == GAME_STATUS_PLAY)
@@ -1338,7 +1338,7 @@ static void display_layer3(void)
     }
 }
 
-static void DisplayCustomCursor(void)
+static void DisplayCustomCursor()
 {
     if(f_custom_cursor == MSCURSOR_MOVE)
     {
@@ -1352,7 +1352,7 @@ static void DisplayCustomCursor(void)
 }
 
 /* dialogs, highest-priority layer */
-static void display_layer4(void)
+static void display_layer4()
 {
     if (GameStatus == GAME_STATUS_PLAY)
     {
@@ -1841,7 +1841,7 @@ static void show_intro(char *text)
 }
 
 
-static void flip_screen(void)
+static void flip_screen()
 {
 #ifdef INSTALL_OPENGL
 	if (options.use_gl)

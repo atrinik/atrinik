@@ -80,9 +80,9 @@ extern void do_number();
 extern void show_number(int x, int y);
 extern void show_console(int x, int y);
 extern void widget_show_resist(int x, int y);
-extern void show_keybind(void);
-extern void show_spelllist(void);
-extern void show_skilllist(void);
+extern void show_keybind();
+extern void show_spelllist();
+extern void show_skilllist();
 extern void show_help(char *helpfile);
 
 extern void show_menu();

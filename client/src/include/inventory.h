@@ -34,7 +34,7 @@
 
 extern void blt_inv_item(item *tmp, int x, int y);
 extern int get_inventory_data(item *op, int *cflag, int *slot, int *start, int *count, int wxlen, int wylen);
-extern void examine_range_inv(void);
+extern void examine_range_inv();
 extern void examine_range_marks(int tag);
 extern int blt_inv_item_centered(item *tmp, int x, int y);
 extern void widget_below_window_event(int x, int y, int MEvent);

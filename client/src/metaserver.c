@@ -26,7 +26,16 @@
 #include <include.h>
 #include <curl/curl.h>
 
-/* Parse data returned from HTTP metaserver. */
+/**
+ * @file
+ * This file handles connection to the metaserver and receiving data from it.
+ * @todo There seems to be some kind of a bug, which rarely happens when
+ * receiving data from the metaserver. The data gets split to several lines,
+ * while it should be only one line. */
+
+/**
+ * Parse data returned from HTTP metaserver.
+ * @param info The data */
 static void parse_metaserver_data(char *info)
 {
     char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
@@ -42,7 +51,14 @@ static void parse_metaserver_data(char *info)
 	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc);
 }
 
-/* Function to call when receiving data from the metaserver */
+
+/**
+ * Function to call when receiving data from the metaserver.
+ * @param ptr Pointer to the data
+ * @param size Size of the data
+ * @param nmemb Number of items
+ * @param data Data
+ * @return Returns the realsize of the data returned (size * nmemb). */
 static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
@@ -71,8 +87,11 @@ static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data
     return realsize;
 }
 
-/* Connect to a metaserver. */
-void metaserver_connect(void)
+
+/**
+ * Connect to a metaserver.
+ * If we fail, log the error and show information that metaserver failed. */
+void metaserver_connect()
 {
 	CURL *handle;
 	CURLcode res;

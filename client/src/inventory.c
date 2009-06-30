@@ -739,7 +739,7 @@ void blt_inv_item(item *tmp, int x, int y)
 		sprite_blt(Bitmaps[BITMAP_TRAPED], x + 8, y + 7, NULL, NULL);
 }
 
-void examine_range_inv(void)
+void examine_range_inv()
 {
 	register item *op, *tmp;
 
