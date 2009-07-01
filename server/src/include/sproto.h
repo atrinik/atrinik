@@ -75,7 +75,7 @@ void scroll_failure(object *op, int failure, int power);
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
 int hit_map(object *op, int dir, int type);
-int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum, int magic);
+int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum);
 int kill_object(object *op, int dam, object *hitter, int type);
 object *hit_with_arrow(object *op, object *victim);
 void tear_down_wall(object *op);
@@ -88,8 +88,8 @@ void deathstrike_player(object *op, object *hitter, int *dam);
 int adj_attackroll(object *hitter, object *target);
 int is_aimed_missile(object *op);
 int is_melee_range(object *hitter, object *enemy);
-int did_make_save_item(object *op, int type, object *originator);
-void save_throw_object(object *op, int type, object *originator);
+int did_make_save_item(object *op, object *originator);
+void save_throw_object(object *op, object *originator);
 
 /* ban.c */
 int checkbanned(char *login, char *host);
@@ -159,7 +159,6 @@ int command_me(object *op, char *params);
 
 /* c_misc.c */
 void map_info(object *op);
-int command_spell_reset(object *op, char *params);
 int command_motd(object *op, char *params);
 int command_bug(object *op, char *params);
 int command_roll(object *op, char *params);
@@ -438,7 +437,7 @@ char *clean_path(const char *file);
 char *unclean_path(const char *src);
 void enter_exit(object *op, object *exit_ob);
 void process_players1(mapstruct *map);
-void process_players2(mapstruct *map);
+void process_players2();
 void process_events(mapstruct *map);
 void clean_tmp_files(void);
 void cleanup(void);

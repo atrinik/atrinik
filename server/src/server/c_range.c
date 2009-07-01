@@ -71,7 +71,7 @@ static int find_spell_byname(object *op, char *params, int options)
         if (!options)
           	paramlen = strlen(params);
 
-		if (!strncmp(params, spells[spnum].name, options ? strlen(spells[spnum].name) : paramlen))
+		if (!strncmp(params, spells[spnum].name, options ? (int) strlen(spells[spnum].name) : paramlen))
 		{
 			/* We already found a match previously - thus params is not
 			* not unique, so return -2 stating this. */

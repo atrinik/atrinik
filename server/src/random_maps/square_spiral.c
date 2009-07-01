@@ -70,7 +70,7 @@ void find_top_left_corner(char **maze,int *cx, int *cy) {
 }
 
 
-char **make_square_spiral_layout(int xsize, int ysize,int options) {
+char **make_square_spiral_layout(int xsize, int ysize) {
   int i,j;
   int cx=0,cy=0;
   int tx,ty;

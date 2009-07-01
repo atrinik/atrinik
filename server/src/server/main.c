@@ -59,7 +59,9 @@ void free_racelist();
 /* object for proccess_obejct(); */
 static object marker;
 
+#if 0
 static char days[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+#endif
 
 void version(object *op)
 {
@@ -591,7 +593,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 		while (fgets(linebuf, MAX_BUF, fp))
 		{
 			/* If this would overflow, reallocate the buffer with more bytes */
-			if (strlen(linebuf) + strlen(sqlbuf) > size)
+			if (strlen(linebuf) + strlen(sqlbuf) > (unsigned int) size)
 			{
 				size += strlen(linebuf) + strlen(sqlbuf) + 1;
 
@@ -949,7 +951,7 @@ void process_players1(mapstruct *map)
     }
 }
 
-void process_players2(mapstruct *map)
+void process_players2()
 {
     player *pl;
 
@@ -1113,7 +1115,7 @@ void process_events(mapstruct *map)
 	else
 		active_objects = NULL;
 
-  	process_players2(map);
+  	process_players2();
 }
 
 void clean_tmp_files()

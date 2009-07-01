@@ -32,8 +32,8 @@
    included here for convenience only.  */
 char **map_gen_spiral(int,int,int);
 char **roguelike_layout_gen(int xsize, int ysize, int options);
-char **make_snake_layout(int xsize, int ysize, int options );
-char **make_square_spiral_layout(int xsize, int ysize, int options );
+char **make_snake_layout(int xsize, int ysize);
+char **make_square_spiral_layout(int xsize, int ysize);
 char **gen_corridor_rooms(int, int, int);
 
 void dump_layout(char **layout, int Xsize, int Ysize) {
@@ -58,9 +58,9 @@ main() {
 
 
   /* put your layout here */
-  layout = roguelike_layout_gen(Xsize,Ysize,0);
+  layout = roguelike_layout_gen(Xsize,Ysize);
   /*layout = make_snake_layout(Xsize,Ysize,0); */
-  /*layout = make_square_spiral_layout(Xsize,Ysize,0); */
+  /*layout = make_square_spiral_layout(Xsize,Ysize); */
   /*layout = gen_corridor_rooms(Xsize, Ysize, 1); */
   /*layout = maze_gen(Xsize,Ysize,0); */
   /*layout = map_gen_onion(Xsize,Ysize,0,0);*/

@@ -1924,6 +1924,9 @@ void set_dragon_name(object *pl, object *abil, object *skin)
 
 	level = (int)(level / 5.);
 
+	(void) pl;
+	(void) skin;
+
 #if 0
 	/* now set the new title */
 	if (CONTR(pl) != NULL)

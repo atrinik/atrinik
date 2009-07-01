@@ -338,6 +338,8 @@ int pay_from_container(object *op, object *pouch, int to_pay)
     archetype *at;
     object *who;
 
+	(void) op;
+
     if (pouch->type != PLAYER && pouch->type != CONTAINER)
 		return to_pay;
 
@@ -653,6 +655,7 @@ typedef struct shopinv
  * With 10 players, this will not count... with 100+, this need to be reworked. */
 void shop_listing(object *op)
 {
+	(void) op;
 	/* i removed this code - there was to much artifacts in i don't want */
 }
 

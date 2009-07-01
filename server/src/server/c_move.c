@@ -102,6 +102,8 @@ int command_turn_right(object *op, char *params)
 {
     sint8 dir = absdir(op->facing + 1);
 
+	(void) params;
+
     op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
 
     return 1;
@@ -111,6 +113,8 @@ int command_turn_left(object *op, char *params)
 {
     sint8 dir = absdir(op->facing - 1);
 
+	(void) params;
+
     op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
 
     return 1;
@@ -118,6 +122,8 @@ int command_turn_left(object *op, char *params)
 
 int command_push_object(object *op, char *params)
 {
+	(void) params;
+
 	push_roll_object(op, op->facing, TRUE);
 	return 0;
 }

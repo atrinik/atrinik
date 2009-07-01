@@ -107,7 +107,7 @@ static int hashstr(const char *str)
 		hash ^= (unsigned long) *p << rot;
 		rot += 2;
 
-		if (rot >= (sizeof(long) - sizeof(char)) * CHAR_BIT)
+		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * CHAR_BIT)
 	    	rot = 0;
     }
 

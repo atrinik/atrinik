@@ -107,7 +107,9 @@ void prayer_failure(object *op, int failure, int power)
     if (failure <= -20 && failure > -40)
     {
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s gives a sign to renew your faith.", godname);
+#if 0
 		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+#endif
     }
 	/* confusion */
     else if (failure <= -40 && failure > -60)
@@ -164,6 +166,8 @@ void cast_magic_storm(object *op, object *tmp, int lvl)
  * comment it out until we write a better aggravation system. MT */
 void aggravate_monsters(object *op)
 {
+	(void) op;
+
 #if 0
 	int i, j;
 	object *tmp;
@@ -475,6 +479,9 @@ void polymorph(object *op, object *who)
 
 int cast_polymorph(object *op, int dir)
 {
+	(void) op;
+	(void) dir;
+
 #if 0
 	/* Polymorph is disabled. */
     object *tmp, *next;
@@ -635,6 +642,8 @@ int cast_invisible(object *op, object *caster, int spell_type)
 {
   	object *tmp;
 
+	(void) caster;
+
 #if 0
 	if (op->invisible > 1000)
 	{
@@ -683,6 +692,9 @@ int cast_invisible(object *op, object *caster, int spell_type)
 
 int cast_earth2dust(object *op, object *caster)
 {
+	(void) op;
+	(void) caster;
+#if 0
 	object *tmp, *next;
 	int strength, i, j, xt, yt;
 	mapstruct *m;
@@ -711,6 +723,7 @@ int cast_earth2dust(object *op, object *caster)
 			}
 		}
 	}
+#endif
 	return 1;
 }
 
@@ -764,6 +777,10 @@ int cast_wor(object *op, object *caster)
 
 int cast_wow(object *op, int dir, int ability, SpellTypeFrom item)
 {
+	(void) op;
+	(void) dir;
+	(void) ability;
+	(void) item;
 #if 0
 	int sp;
 	if (!rndm(0, 3))
@@ -851,6 +868,8 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	sint16 exitx = 15, exity = 15;
 	mapstruct *exitmap = NULL;
 	int op_level;
+
+	(void) dir;
 
    	/* The first thing to do is to check if we have a marked destination
      * dummy is used to make a check inventory for the force */
@@ -1153,6 +1172,11 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 /* check all 3 blocked() here - they are not right set! */
 int magic_wall(object *op, object *caster, int dir, int spell_type)
 {
+	(void) op;
+	(void) caster;
+	(void) dir;
+	(void) spell_type;
+#if 0
     object *tmp, *tmp2;
     int i, posblocked = 0, negblocked = 0;
 /*
@@ -1314,6 +1338,7 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 	/* We don't want them to walk through the wall! */
     if (!op->type == PLAYER)
 		SET_FLAG(op, FLAG_SCARED);
+#endif
 
     return 1;
 }
@@ -1323,6 +1348,10 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 /* badly outdated of course - MT 2004*/
 int cast_light(object *op, object *caster, int dir)
 {
+	(void) op;
+	(void) caster;
+	(void) dir;
+#if 0
 	object *target = NULL, *tmp = NULL;
 	mapstruct *m;
 	int x, y, dam = spells[SP_LIGHT].bdam + SP_level_dam_adjust(op, caster, SP_LIGHT);
@@ -1378,6 +1407,8 @@ int cast_light(object *op, object *caster, int dir)
 #if 0
 	if (op->type == PLAYER)
 		draw_client_map(op);
+#endif
+
 #endif
 
 	return 1;
@@ -2425,7 +2456,7 @@ void cancellation(object *op)
 	{
 		/* Recur through the inventory */
 		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-			if (!did_make_save_item(tmp, AT_CANCELLATION, op))
+			if (!did_make_save_item(tmp, op))
 				cancellation(tmp);
 	}
 	/* Nullify this object. */
@@ -2454,6 +2485,11 @@ void cancellation(object *op)
  * Written by Ben Fennema (huma@netcom.com) - bugs fixed by Raphael Quinet */
 int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 {
+	(void) op;
+	(void) caster;
+	(void) dir;
+	(void) stringarg;
+#if 0
   	int missile_plus = 0;
   	char *missile_name;
   	object *tmp, *missile;
@@ -2511,6 +2547,7 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 		else
 			pick_up(tmp, missile);
   	}
+#endif
   	return 1;
 }
 
@@ -2625,6 +2662,7 @@ static void update_map(object *op, int small_nuggets, int large_nuggets, int x, 
  /* weight_max = 100000 + 50000*op->level; */
 int alchemy(object *op)
 {
+	(void) op;
 #if 0
 	int x, y, weight = 0, weight_max, large_nuggets, small_nuggets, did_alc = 0;
 	object *next, *tmp;
@@ -3071,6 +3109,9 @@ int cast_pacify(object *op, object *weap, archetype *arch, int spellnum)
 	mapstruct *m;
 	object *god = find_god(determine_god(op));
 
+	(void) arch;
+	(void) spellnum;
+
 	r = 1 + SP_level_strength_adjust(op ,weap, SP_PACIFY);
 
 	for (i = -r; i < r; i++)
@@ -3163,6 +3204,11 @@ int summon_fog(object *op, object *caster, int dir, int spellnum)
 /* WARNING - do a blocked() check for the spell object - not for the op or caster */
 int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 {
+	(void) op;
+	(void) caster;
+	(void) dir;
+	(void) spell_effect;
+#if 0
     object *tmp = NULL;
 	mapstruct *m;
     char buf1[20];
@@ -3251,6 +3297,7 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 	/* We don't want them to walk through the wall! */
     if (!op->type == PLAYER)
 		SET_FLAG(op, FLAG_SCARED);
+#endif
 
     return 1;
 }
@@ -3262,6 +3309,9 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
  * head explode if they supercharge too much, though. */
 int cast_transfer(object *op, int dir)
 {
+	(void) op;
+	(void) dir;
+#if 0
     object *plyr = NULL;
 	mapstruct *m;
 	int xt, yt;
@@ -3315,6 +3365,7 @@ int cast_transfer(object *op, int dir)
 		return 1;
     }
     else
+#endif
     	return 0;
 }
 
@@ -3322,6 +3373,9 @@ int cast_transfer(object *op, int dir)
 /* drains all the magic out of the victim. */
 int drain_magic(object *op, int dir)
 {
+	(void) op;
+	(void) dir;
+#if 0
 	object *tmp = NULL;
 	mapstruct *m;
 	int xt, yt;
@@ -3370,6 +3424,7 @@ int drain_magic(object *op, int dir)
 		return 1;
 	}
 	else
+#endif
 		return 0;
 }
 
@@ -3480,6 +3535,8 @@ int cast_charm(object *op, object *caster, archetype *arch, int spellnum)
 	object *tmp, *effect;
 	mapstruct *m;
 
+	(void) arch;
+
 	if (op->type != PLAYER)
 		return 0;
 
@@ -3535,6 +3592,8 @@ int cast_charm_undead(object *op, object *caster, archetype *arch, int spellnum)
 	int i,bonus,xt,yt;
 	mapstruct *m;
 	object *tmp, *effect, *god = find_god(determine_god(op));
+
+	(void) arch;
 
 	if (op->type != PLAYER)
 		return 0;
@@ -4087,6 +4146,8 @@ int finger_of_death(object *op, object *caster, int dir)
 	object *hitter, *target = get_pointed_target(op, dir);
 	int success = 1;
 
+	(void) caster;
+
 	if (!target || QUERY_FLAG(target, FLAG_CAN_REFL_SPELL))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Nothing happens.");
@@ -4095,7 +4156,9 @@ int finger_of_death(object *op, object *caster, int dir)
 
 	/* we create a hitter object -- the spell */
 	hitter=get_archetype("face_of_death");
+#if 0
 	hitter->level = path_level_mod(caster, spells[SP_FINGER_DEATH].bdam + 3 * SP_level_dam_adjust(op, caster, SP_FINGER_DEATH), SP_FINGER_DEATH);
+#endif
 	set_owner(hitter, op);
 	hitter->x = target->x;
 	hitter->y = target->y;
@@ -4387,11 +4450,15 @@ int animate_weapon(object *op, object *caster, int dir, archetype *at, int spell
 
 int cast_daylight(object *op)
 {
+	(void) op;
+
   	return 0;
 }
 
 int cast_nightfall(object *op)
 {
+	(void) op;
+
   	return 0;
 }
 
@@ -4461,6 +4528,8 @@ int cast_faery_fire(object *op, object *caster)
 int make_object_glow(object *op, int radius, int time)
 {
 	object *tmp;
+
+	(void) radius;
 
 	/* some things are unaffected... */
 	if (op->path_denied & PATH_LIGHT)
@@ -4718,6 +4787,8 @@ int cast_cause_conflict(object *op, object *caster, archetype *spellarch, int ty
 	int level;
 	object *tmp;
 	mapstruct *m;
+
+	(void) spellarch;
 
 	if (op->type != PLAYER)
 		return 0;

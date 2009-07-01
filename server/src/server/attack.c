@@ -389,7 +389,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 #ifdef ATTACK_DEBUG
 		{
 			int tmp;
-			tmp = hit_player_attacktype(op, hitter, dam, attacknum, 0);
+			tmp = hit_player_attacktype(op, hitter, dam, attacknum);
 			/*new_draw_info_format(NDI_ALL|NDI_UNIQUE,5,NULL,"%s hits %s with attack #%d with %d damage\n",hitter->name, op->name, attacknum,tmp);*/
 			maxdam += tmp;
 		}
@@ -399,7 +399,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 				hitter->name,hitter->stats.dam,op->stats.dam, hitter->stats.wc,op->stats.wc,hitter->stats.wc_range,op->stats.wc_range,
 				hitter->stats.ac,op->stats.ac,hitter->attack[attacknum]);
 */
-			maxdam += hit_player_attacktype(op, hitter, dam, attacknum, 0);
+			maxdam += hit_player_attacktype(op, hitter, dam, attacknum);
 		}
 #endif
     }
@@ -640,7 +640,7 @@ int hit_map(object *op, int dir, int type)
 		}
 		else if (tmp->material && op->stats.dam > 0)
 		{
-			save_throw_object(tmp, tmp->type, op);
+			save_throw_object(tmp, op);
 			if (was_destroyed(op, op_tag))
 				break;
 		}
@@ -655,7 +655,7 @@ int hit_map(object *op, int dir, int type)
  * take.  However, it will do other effects (paralyzation, slow, etc.)
  * Note - changed for PR code - we now pass the attack number and not
  * the attacktype.  Makes it easier for the PR code.  */
-int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum, int magic)
+int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
 {
     double dam = (double) damage;
     int doesnt_slay = 1;
@@ -908,7 +908,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 	    if(op->type == GOLEM)
 		dam = 999;
 	    else
-		dam = hit_player_attacktype(op, hitter, (int)dam, ATNR_PHYSICAL, magic);
+		dam = hit_player_attacktype(op, hitter, (int)dam, ATNR_PHYSICAL);
 	} else {
 	    if(hitter->stats.hp<hitter->stats.maxhp &&
 	       (op->level > hitter->level) &&
@@ -1003,6 +1003,8 @@ int kill_object(object *op,int dam, object *hitter, int type)
 #ifdef PLUGINS
     CFParm CFP;
 #endif
+
+	(void) dam;
 
 	if (op->stats.hp >= 0)
         return -1;
@@ -1341,6 +1343,7 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
  *
  * Returns 1 if op was inserted into tmp's inventory, 0 otherwise.
  */
+#if 0
 static int stick_arrow (object *op, object *tmp)
 {
     /* If the missile hit a player, we insert it in their inventory.
@@ -1391,6 +1394,7 @@ static int stick_arrow (object *op, object *tmp)
 	else
 		return 0;
 }
+#endif
 
 /* hit_with_arrow() disassembles the missile, attacks the victim and
  * reassembles the missile.
@@ -1785,6 +1789,10 @@ void slow_player(object *op, object *hitter, int dam)
 {
 	archetype *at = find_archetype("slowness");
     object *tmp;
+
+	(void) hitter;
+	(void) dam;
+
     if (at == NULL)
       	LOG(llevBug, "BUG: Can't find slowness archetype.\n");
 
@@ -1806,6 +1814,9 @@ void confuse_player(object *op, object *hitter, int dam)
 {
     object *tmp;
     int maxduration;
+
+	(void) hitter;
+	(void) dam;
 
     tmp = present_in_ob(CONFUSION, op);
     if (!tmp)
@@ -1868,6 +1879,8 @@ void paralyze_player(object *op, object *hitter, int dam)
 {
     float effect, max;
     /* object *tmp; */
+
+	(void) hitter;
 
     /* Do this as a float - otherwise, rounding might very well reduce this to 0 */
     effect = (float)dam * (float)3.0 * ((float)100.0 - (float)op->resist[ATNR_PARALYZE]) / (float)100;
@@ -2099,7 +2112,7 @@ int is_melee_range(object *hitter, object *enemy)
 /* did_make_save_item just checks to make sure the item actually
  * made its saving throw based on the tables.  It does not take
  * any further action (like destroying the item). */
-int did_make_save_item(object *op, int type, object *originator)
+int did_make_save_item(object *op, object *originator)
 {
     int i, saves = 0, materials = 0, number;
 
@@ -2141,7 +2154,7 @@ int did_make_save_item(object *op, int type, object *originator)
 /* This function calls did_make_save_item.  It then performs the
  * appropriate actions to the item (such as burning the item up,
  * calling cancellation, etc.) */
-void save_throw_object(object *op, int type, object *originator)
+void save_throw_object(object *op, object *originator)
 {
 	/* If the object is magical AND identified */
 	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
@@ -2161,7 +2174,7 @@ void save_throw_object(object *op, int type, object *originator)
 
     if (originator->attack[ATNR_COLD] > 0)
 	{
-		if (!did_make_save_item(op, type, originator))
+		if (!did_make_save_item(op, originator))
 		{
 			object *tmp;
 			archetype *at = find_archetype("icecube");
@@ -2191,7 +2204,7 @@ void save_throw_object(object *op, int type, object *originator)
         return;
     }
 
-    if (!did_make_save_item(op, type, originator))
+    if (!did_make_save_item(op, originator))
     {
 		object *env = op->env;
 		mapstruct *m = op->map;

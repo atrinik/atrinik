@@ -46,6 +46,8 @@ extern object *objects;
 
 void dead_player(object *op)
 {
+	(void) op;
+
 	/* As we now use SQLite database, this won't work. */
 #if 0
 	char filename[MAX_BUF];
@@ -183,6 +185,10 @@ int resurrection_fails(int levelcaster, int leveldead)
  * to resurrect  */
 int resurrect_player(object *op, char *playername, int rspell)
 {
+	(void) op;
+	(void) playername;
+	(void) rspell;
+
 	/* Again, because of SQLite this won't work. */
 #if 0
 	FILE *deadplayer, *liveplayer;
@@ -288,6 +294,8 @@ int resurrect_player(object *op, char *playername, int rspell)
 
 void dead_character(char *name)
 {
+	(void) name;
+
 #if 0
 	char buf[MAX_BUF];
 	char buf2[MAX_BUF];
@@ -303,6 +311,8 @@ void dead_character(char *name)
 
 int dead_player_exists(char *name)
 {
+	(void) name;
+
 #if 0
 	char buf[MAX_BUF];
 

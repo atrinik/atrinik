@@ -244,7 +244,7 @@ object * place_chest(int treasureoptions,int x, int y,mapstruct *map, mapstruct 
 
 /* finds the closest monster and returns him, regardless of doors
 	or walls */
-object *find_closest_monster(mapstruct *map,int x,int y,RMParms *RP)
+object *find_closest_monster(mapstruct *map,int x,int y)
 {
 	int i, lx,ly;
 	mapstruct *mt;
@@ -301,7 +301,7 @@ int keyplace(mapstruct *map,int x,int y,char *keycode,int door_flag,int n_keys,R
       i = (RANDOM()%(RP->Xsize-2))+1;
       j = (RANDOM()%(RP->Ysize-2))+1;
       tries++;
-      the_keymaster=find_closest_monster(map,i,j,RP);
+      the_keymaster=find_closest_monster(map,i,j);
     }
     /* if we don't find a good keymaster, drop the key on the ground. */
     if(the_keymaster==NULL) {

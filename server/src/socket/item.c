@@ -260,14 +260,14 @@ void esrv_draw_look(object *pl)
 			/* 127 chars + 0 marker */
 			len = 128;
 			SockList_AddChar(&sl, (char ) len);
-			strncpy(sl.buf + sl.len, tmp_sp, 127);
+			strncpy((char *) sl.buf + sl.len, tmp_sp, 127);
 			sl.len += len;
 			*(sl.buf + sl.len) = 0;
 		}
 		else
 		{
 			SockList_AddChar(&sl, (char )len);
-    		strcpy(sl.buf + sl.len, tmp_sp);
+    		strcpy((char *) sl.buf + sl.len, tmp_sp);
 			sl.len += len;
 		}
 
@@ -380,14 +380,14 @@ int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
 			/* 127 chars + 0 marker */
 			len = 128;
 			SockList_AddChar(sl, (char ) len);
-			strncpy(sl->buf + sl->len, tmp_sp, 127);
+			strncpy((char *) sl->buf + sl->len, tmp_sp, 127);
 			sl->len += len;
 			*(sl->buf + sl->len) = 0;
 		}
 		else
 		{
 			SockList_AddChar(sl, (char ) len);
-    		strcpy(sl->buf + sl->len, tmp_sp);
+    		strcpy((char *) sl->buf + sl->len, tmp_sp);
 			sl->len += len;
 		}
 
@@ -1116,6 +1116,8 @@ void ExamineCmd(char *buf, int len, player *pl)
     long tag = atoi(buf);
     object *op = esrv_get_ob_from_count(pl->ob, tag);
 
+	(void) len;
+
     if (!op)
 	{
 		/*LOG(llevDebug, "Player '%s' tried examine the unknown object (%d)\n",pl->ob->name, tag);*/
@@ -1163,6 +1165,8 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 	object *op;
 	char *cp, tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
 	int quickslot;
+
+	(void) len;
 
 	/* Set command. We want to set an object's  */
 	if (strncmp(buf, "set ", 4) == 0)
@@ -1258,10 +1262,12 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 }
 
 /* Client wants to apply some object.  Lets do so. */
-void ApplyCmd(char *buf, int len,player *pl)
+void ApplyCmd(char *buf, int len, player *pl)
 {
     uint32 tag = atoi(buf);
     object *op = esrv_get_ob_from_count(pl->ob, tag);
+
+	(void) len;
 
     /* sort of a hack, but if the player saves and the player then manually
      * applies a savebed (or otherwise tries to do stuff), we run into trouble. */
@@ -1286,10 +1292,12 @@ void ApplyCmd(char *buf, int len,player *pl)
 }
 
 /* Client wants to lock some object.  Lets do so. */
-void LockItem(uint8 *data, int len,player *pl)
+void LockItem(uint8 *data, int len, player *pl)
 {
     int flag, tag;
     object *op;
+
+	(void) len;
 
     flag = data[0];
     tag = GetInt_String(data + 1);
@@ -1319,6 +1327,8 @@ void MarkItem(uint8 *data, int len, player *pl)
 {
     int tag;
     object *op;
+
+	(void) len;
 
     tag = GetInt_String(data);
     op = esrv_get_ob_from_count(pl->ob, tag);
@@ -1394,6 +1404,8 @@ void LookAt(char *buf, int len, player *pl)
 {
     int dx, dy;
     char *cp;
+
+	(void) len;
 
     dx = atoi(buf);
     if (!(cp = strchr(buf, ' ')))

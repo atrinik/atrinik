@@ -374,7 +374,7 @@ object *get_nearest_player(object *mon)
 				return op;
 		}
 
-		if (!can_detect_target(mon, ol->ob, aggro_range, aggro_stealth, &rv) || !obj_in_line_of_sight(mon, ol->ob, &rv))
+		if (!can_detect_target(mon, ol->ob, aggro_range, aggro_stealth, &rv) || !obj_in_line_of_sight(ol->ob, &rv))
 			continue;
 
 		if (lastdist > rv.distance)
@@ -1770,6 +1770,8 @@ void cast_dust (object *op, object *throw_ob, int dir)
 
 void make_visible (object *op)
 {
+	(void) op;
+
 #if 0
     if (op->type == PLAYER)
     	if (QUERY_FLAG(op, FLAG_UNDEAD) && !is_true_undead(op))
@@ -1780,6 +1782,8 @@ void make_visible (object *op)
 
 int is_true_undead(object *op)
 {
+	(void) op;
+
 #if 0
   	object *tmp = NULL;
 
@@ -1800,6 +1804,7 @@ int is_true_undead(object *op)
  * indicate greater hideability. */
 int hideability(object *ob)
 {
+	(void) ob;
 #if 0
   	int i, x, y, level = 0;
 
@@ -1952,6 +1957,8 @@ int player_can_view(object *pl, object *op)
  * return 0.  */
 int action_makes_visible (object *op)
 {
+	(void) op;
+
 #if 0
   	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE) && QUERY_FLAG(op, FLAG_ALIVE))
 	{

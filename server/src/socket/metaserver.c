@@ -47,6 +47,8 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 {
     size_t realsize = size * nmemb;
 
+	(void) data;
+
     LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char *)ptr);
     LOG(llevDebug, "DEBUG: metaserver_writer(): End of text.\n");
 
@@ -61,7 +63,7 @@ void metaserver_update()
 	struct curl_httppost *formpost = NULL;
     struct curl_httppost *lastptr = NULL;
 	CURL *curl;
-	CURLcode res;
+	CURLcode res = 0;
 	time_t now = time(NULL);
 
 	/* If the setting is off, just return */

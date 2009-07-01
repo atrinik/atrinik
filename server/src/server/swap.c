@@ -94,7 +94,7 @@ void read_map_log()
 		/* Lock is left over from the lock items - we just toss it now.
 		 * We use it twice - second one is from encounter, but as we
 		 * don't care about the value, this works fine */
-		sscanf(cp1, "%d:%d:%d:%d:%d:%d\n", &map->reset_time, &lock, &lock, &map->difficulty, &do_los, &darkness);
+		sscanf(cp1, "%ud:%d:%d:%d:%d:%d\n", &map->reset_time, &lock, &lock, &map->difficulty, &do_los, &darkness);
 
 		map->in_memory = MAP_SWAPPED;
 		map->darkness = darkness;

@@ -68,7 +68,7 @@ void InitConnection(NewSocket *ns, uint32 from)
     unsigned char buf[256];
     int	bufsize = SOCKETBUFSIZE;
     int oldbufsize;
-    int buflen = sizeof(int);
+    socklen_t buflen = sizeof(int);
 
 #ifdef WIN32
 	int temp = 1;
@@ -318,7 +318,7 @@ void free_newsocket(NewSocket *ns)
 	if (ns->host)
 	    free(ns->host);
 
-    if (ns->inbuf.buf);
+    if (ns->inbuf.buf)
 	    free(ns->inbuf.buf);
 
 	memset(ns, 0, sizeof(ns));
@@ -345,11 +345,11 @@ static void load_srv_files(char *fname, int id, int cmd)
 	numread = (unsigned long) fread(file_tmp, sizeof( char ), flen, fp );
 
 	/* get a crc from the unpacked file */
-	SrvClientFiles[id].crc = crc32(1L, file_tmp, numread);
+	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) file_tmp, numread);
 	SrvClientFiles[id].len_ucomp = numread;
 	numread = flen * 2;
 	comp_tmp = (char*)malloc(numread);
-	compress2(comp_tmp, &numread, file_tmp, flen, Z_BEST_COMPRESSION);
+	compress2((Bytef *) comp_tmp, &numread, (const unsigned char FAR *) file_tmp, flen, Z_BEST_COMPRESSION);
 
 	/* we prepare the files with the right commands - so we can flush
 	 * then direct from this buffer to the client. */
@@ -498,7 +498,7 @@ void send_srv_file(NewSocket *ns, int id)
 {
 	SockList sl;
 
-	sl.buf = SrvClientFiles[id].file;
+	sl.buf = (unsigned char *) SrvClientFiles[id].file;
 
 	if (SrvClientFiles[id].len != -1)
 	    sl.len = SrvClientFiles[id].len + 2;

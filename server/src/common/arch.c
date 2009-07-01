@@ -688,7 +688,7 @@ unsigned long hasharch(const char *str, int tablesize)
 	{
         hash ^= (unsigned long) *p << rot;
         rot += 2;
-        if (rot >= (sizeof(long) - sizeof(char)) * 8)
+        if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
             rot = 0;
     }
 

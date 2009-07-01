@@ -89,6 +89,8 @@ int Pipe[2];
 
 void SignalHandler(int Unused)
 {
+	(void) Unused;
+
 	if (write(Pipe[1], "", 1) != 1)
 	{
 		perror("Pipe");

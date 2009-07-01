@@ -29,7 +29,7 @@
 
 /*  make a map and layout the floor.  */
 
-mapstruct *make_map_floor(char **layout, char *floorstyle,RMParms *RP) {
+mapstruct *make_map_floor(char *floorstyle,RMParms *RP) {
   char styledirname[256];
   char stylefilepath[256];
   mapstruct *style_map=0;

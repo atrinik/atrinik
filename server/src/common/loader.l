@@ -116,6 +116,7 @@ static char msgbuf[HUGE_BUF];
 #define IVAL	atoi(yval())
 #define FVAL	(float) atof(yval())
 
+#define YY_NO_INPUT
 %}
 
 LF	\x0A
@@ -130,6 +131,12 @@ WS	[ \t]*{NL}
 /* Don't have to link with -lfl with this */
 %option noyywrap
 
+/* Disable unput */
+%option nounput
+
+/* Disable tt_top_state */
+%option noyy_top_state
+
 /* need yy_push_state, yy_pop_state */
 %option stack
 
@@ -140,7 +147,6 @@ WS	[ \t]*{NL}
     int ismore=0;
 
     lex_error=0;
-
 %}
 
 ^arch{S}         {	/* If op->arch has been set, then this new object
@@ -1413,7 +1419,7 @@ int save_player_object(char *buf, object *op, int flag, size_t len)
 
     /* If it is unpaid and we don't want to save those, just return. */
     if (!(flag & 1) && (QUERY_FLAG(op, FLAG_UNPAID)))
-		return;
+		return 0;
 
     if ((at = op->arch) == NULL)
 		at = empty_archetype;

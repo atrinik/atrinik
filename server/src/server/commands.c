@@ -234,7 +234,6 @@ CommArray_s WizCommands [] = {
   {"/strings", command_strings,	0.0},
   {"/set_god", command_setgod, 0.0},
   {"/speed", command_speed,0.0},
-  {"/spellreset", command_spell_reset,0.0},
   {"/stats", command_stats,0.0},
   {"/style_info", command_style_map_info, 0.0},
 #ifdef DEBUG_MALLOC_LEVEL

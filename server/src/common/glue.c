@@ -212,18 +212,26 @@ void fatal(int err)
  * time I want to jump to it. */
 void dummy_function_int(int i)
 {
+	(void) i;
 }
 
 void dummy_function_int_int(int i, int j)
 {
+	(void) i;
+	(void) j;
 }
 
 void dummy_function_player_int(player *p, int j)
 {
+	(void) p;
+	(void) j;
 }
 
 void dummy_function_player_int_ob(player *p, int c, object *ob)
 {
+	(void) p;
+	(void) c;
+	(void) ob;
 }
 
 void dummy_function()
@@ -232,52 +240,84 @@ void dummy_function()
 
 void dummy_function_map(mapstruct *m)
 {
+	(void) m;
 }
 
 void dummy_function_ob(object *ob)
 {
+	(void) ob;
 }
 
 void dummy_function_ob2(object *ob, object *ob2)
 {
+	(void) ob;
+	(void) ob2;
 }
 
 int dummy_function_ob2int(object *ob, object *ob2)
 {
+	(void) ob;
+	(void) ob2;
   	return 0;
 }
 
 void dummy_function_ob_int(object *ob, int i)
 {
+	(void) ob;
+	(void) i;
 }
 
 void dummy_function_txtnr(char *txt, int nr)
 {
+	(void) txt;
+	(void) nr;
 }
 
 void dummy_draw_info(int a, int b, object *ob, const char *txt)
 {
+	(void) a;
+	(void) b;
+	(void) ob;
+	(void) txt;
 }
 
 void dummy_function_mapstr(int a, mapstruct *map, int x, int y, int dist, const char *str)
 {
+	(void) a;
+	(void) map;
+	(void) x;
+	(void) y;
+	(void) dist;
+	(void) str;
 }
 
 void dummy_function_int_ob_ob (int n, object *ob, object *ob2)
 {
+	(void) n;
+	(void) ob;
+	(void) ob2;
 }
 
 int dummy_container_unlink_func (player *ob, object *ob2)
 {
+	(void) ob;
+	(void) ob2;
 	return 0;
 }
 
 void dummy_move_apply_func (object *ob, object *ob2, object *ob3, int flags)
 {
+	(void) ob;
+	(void) ob2;
+	(void) ob3;
+	(void) flags;
 }
 
 void dummy_function_dragongain (object *ob, int a1, int a2)
 {
+	(void) ob;
+	(void) a1;
+	(void) a2;
 }
 
 #endif

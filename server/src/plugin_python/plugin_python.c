@@ -129,23 +129,23 @@ char* StackOptions[MAX_RECURSIVE_CALL];
 /* an interface with the C code                                              */
 static PyMethodDef AtrinikMethods[] =
 {
-    {"LoadObject", 		Atrinik_LoadObject,			METH_VARARGS},
-    {"ReadyMap", 		Atrinik_ReadyMap, 			METH_VARARGS},
-    {"CheckMap",		Atrinik_CheckMap,			METH_VARARGS},
-    {"MatchString", 	Atrinik_MatchString, 		METH_VARARGS},
-    {"FindPlayer", 		Atrinik_FindPlayer, 		METH_VARARGS},
-	{"PlayerExists", 	Atrinik_PlayerExists, 		METH_VARARGS},
-    {"GetOptions", 		Atrinik_GetOptions, 		METH_VARARGS},
-    {"GetReturnValue",	Atrinik_GetReturnValue,		METH_VARARGS},
-    {"SetReturnValue",	Atrinik_SetReturnValue,		METH_VARARGS},
-    {"GetSpellNr",		Atrinik_GetSpellNr,			METH_VARARGS},
-    {"GetSkillNr",		Atrinik_GetSkillNr,			METH_VARARGS},
-    {"WhoAmI", 			Atrinik_WhoAmI, 			METH_VARARGS},
-    {"WhoIsActivator", 	Atrinik_WhoIsActivator, 	METH_VARARGS},
-    {"WhoIsOther",		Atrinik_WhoIsOther,			METH_VARARGS},
-    {"WhatIsMessage", 	Atrinik_WhatIsMessage, 		METH_VARARGS},
-    {"RegisterCommand",	Atrinik_RegisterCommand,	METH_VARARGS},
-    {NULL, NULL}
+    {"LoadObject", 		Atrinik_LoadObject,			METH_VARARGS, 0},
+    {"ReadyMap", 		Atrinik_ReadyMap, 			METH_VARARGS, 0},
+    {"CheckMap",		Atrinik_CheckMap,			METH_VARARGS, 0},
+    {"MatchString", 	Atrinik_MatchString, 		METH_VARARGS, 0},
+    {"FindPlayer", 		Atrinik_FindPlayer, 		METH_VARARGS, 0},
+	{"PlayerExists", 	Atrinik_PlayerExists, 		METH_VARARGS, 0},
+    {"GetOptions", 		Atrinik_GetOptions, 		METH_VARARGS, 0},
+    {"GetReturnValue",	Atrinik_GetReturnValue,		METH_VARARGS, 0},
+    {"SetReturnValue",	Atrinik_SetReturnValue,		METH_VARARGS, 0},
+    {"GetSpellNr",		Atrinik_GetSpellNr,			METH_VARARGS, 0},
+    {"GetSkillNr",		Atrinik_GetSkillNr,			METH_VARARGS, 0},
+    {"WhoAmI", 			Atrinik_WhoAmI, 			METH_VARARGS, 0},
+    {"WhoIsActivator", 	Atrinik_WhoIsActivator, 	METH_VARARGS, 0},
+    {"WhoIsOther",		Atrinik_WhoIsOther,			METH_VARARGS, 0},
+    {"WhatIsMessage", 	Atrinik_WhatIsMessage, 		METH_VARARGS, 0},
+    {"RegisterCommand",	Atrinik_RegisterCommand,	METH_VARARGS, 0},
+    {NULL, NULL, 0, 0}
 };
 
 /* Useful constants */
@@ -197,6 +197,8 @@ static PyObject* Atrinik_LoadObject(PyObject *self, PyObject* args)
     char *dumpob;
     CFParm* CFR;
 
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "s", &dumpob))
         return NULL;
 
@@ -222,6 +224,8 @@ static PyObject* Atrinik_MatchString(PyObject* self, PyObject* args)
     char *premiere;
     char *seconde;
 
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "ss", &premiere, &seconde))
         return NULL;
 
@@ -243,6 +247,8 @@ static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args)
     mapstruct *mymap;
     int flags = 0, unique = 0;
     CFParm *CFR;
+
+	(void) self;
 
     if (!PyArg_ParseTuple(args, "s|i", &mapname, &unique))
         return NULL;
@@ -278,6 +284,8 @@ static PyObject* Atrinik_CheckMap(PyObject* self, PyObject* args)
     int x, y;
 /*  object* foundob; */
 
+	(void) self;
+
     /* Gecko: replaced coordinate tuple with separate x and y coordinates */
     if (!PyArg_ParseTuple(args, "ssii", &what, &mapstr, &x, &y))
         return NULL;
@@ -300,6 +308,8 @@ static PyObject* Atrinik_FindPlayer(PyObject* self, PyObject* args)
     object *foundob = NULL;
     CFParm *CFR;
     char* txt;
+
+	(void) self;
 
     if (!PyArg_ParseTuple(args, "s", &txt))
         return NULL;
@@ -326,6 +336,8 @@ static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args)
     CFParm *CFR;
     int value;
 
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "s", &playerName))
         return NULL;
 
@@ -346,6 +358,8 @@ static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_WhoAmI(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -360,6 +374,8 @@ static PyObject* Atrinik_WhoAmI(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_WhoIsActivator(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -373,6 +389,8 @@ static PyObject* Atrinik_WhoIsActivator(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_WhoIsOther(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -387,6 +405,8 @@ static PyObject* Atrinik_WhoIsOther(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_WhatIsMessage(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -401,6 +421,8 @@ static PyObject* Atrinik_WhatIsMessage(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_GetOptions(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -414,6 +436,8 @@ static PyObject* Atrinik_GetOptions(PyObject* self, PyObject* args)
 /*****************************************************************************/
 static PyObject* Atrinik_GetReturnValue(PyObject* self, PyObject* args)
 {
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "", NULL))
         return NULL;
 
@@ -428,6 +452,8 @@ static PyObject* Atrinik_GetReturnValue(PyObject* self, PyObject* args)
 static PyObject* Atrinik_SetReturnValue(PyObject* self, PyObject* args)
 {
     int value;
+
+	(void) self;
 
     if (!PyArg_ParseTuple(args, "i", &value))
         return NULL;
@@ -448,6 +474,8 @@ static PyObject* Atrinik_GetSpellNr(PyObject* self, PyObject* args)
     char *spell;
     CFParm *CFR;
     int value;
+
+	(void) self;
 
     if (!PyArg_ParseTuple(args, "s", &spell))
         return NULL;
@@ -470,6 +498,8 @@ static PyObject* Atrinik_GetSkillNr(PyObject* self, PyObject* args)
 	CFParm *CFR;
     int value;
 
+	(void) self;
+
     if (!PyArg_ParseTuple(args, "s", &skill))
         return NULL;
 
@@ -491,6 +521,8 @@ static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args)
     char *scriptname;
     double cmdspeed;
     int i;
+
+	(void) self;
 
     if (!PyArg_ParseTuple(args, "ssd", &cmdname, &scriptname, &cmdspeed))
         return NULL;
@@ -945,6 +977,8 @@ MODULEAPI int HandleEvent(CFParm* PParm)
 /*****************************************************************************/
 MODULEAPI CFParm* initPlugin(CFParm* PParm)
 {
+	(void) PParm;
+
     LOG(llevDebug, "Atrinik Plugin loading.....\n");
     Py_Initialize();
     init_Atrinik_Python();
@@ -960,6 +994,8 @@ MODULEAPI CFParm* initPlugin(CFParm* PParm)
 /*****************************************************************************/
 MODULEAPI CFParm* removePlugin(CFParm* PParm)
 {
+	(void) PParm;
+
 	return NULL;
 }
 
@@ -1039,6 +1075,8 @@ MODULEAPI int cmd_aboutPython(object *op, char *params)
     int color = NDI_BLUE | NDI_UNIQUE;
     char message[1024];
 
+	(void) params;
+
     sprintf(message, "%s (Kharkov)\n(C) 2001 by Gros. The Plugin code is under GPL.", PLUGIN_VERSION);
     GCFP.Value[0] = (void *)(&color);
     GCFP.Value[1] = (void *)(op->map);
@@ -1075,6 +1113,7 @@ MODULEAPI CFParm* postinitPlugin(CFParm* PParm)
 	 * or pragma. */
 	struct timeval new_time;
 	(void) GETTIMEOFDAY(&new_time);
+	(void) PParm;
 
     LOG(llevDebug, "PYTHON - Start postinitPlugin.\n");
 

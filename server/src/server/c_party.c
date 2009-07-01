@@ -416,6 +416,8 @@ void PartyCmd(char *buf, int len, player *pl)
 	char tmp[HUGE_BUF * 16], tmpbuf[MAX_BUF];
 	partylist *party;
 
+	(void) len;
+
 	tmp[0] = '\0';
 
 	/* List command */

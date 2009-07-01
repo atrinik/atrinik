@@ -32,75 +32,75 @@
 /* Available python methods for the AtrinikObject object */
 static PyMethodDef ObjectMethods[] =
 {
-    {"SetSaveBed",  				(PyCFunction)Atrinik_Object_SetSaveBed, 			METH_VARARGS},
-	{"SwapApartments",  			(PyCFunction)Atrinik_Object_SwapApartments, 		METH_VARARGS},
-    {"GetSkill",  					(PyCFunction)Atrinik_Object_GetSkill, 				METH_VARARGS},
-    {"SetSkill",  					(PyCFunction)Atrinik_Object_SetSkill, 				METH_VARARGS},
-    {"ActivateRune",  				(PyCFunction)Atrinik_Object_ActivateRune, 			METH_VARARGS},
-    {"CastAbility",  				(PyCFunction)Atrinik_Object_CastAbility, 			METH_VARARGS},
-    {"InsertInside",  				(PyCFunction)Atrinik_Object_InsertInside, 			METH_VARARGS},
-    {"GetGod",  					(PyCFunction)Atrinik_Object_GetGod, 				METH_VARARGS},
-    {"SetGod",  					(PyCFunction)Atrinik_Object_SetGod, 				METH_VARARGS},
-    {"TeleportTo",  				(PyCFunction)Atrinik_Object_TeleportTo, 			METH_VARARGS},
-    {"Apply",  						(PyCFunction)Atrinik_Object_Apply, 					METH_VARARGS},
-    {"PickUp",  					(PyCFunction)Atrinik_Object_PickUp, 				METH_VARARGS},
-    {"Drop",  						(PyCFunction)Atrinik_Object_Drop, 					METH_VARARGS},
-    {"Take",  						(PyCFunction)Atrinik_Object_Take, 					METH_VARARGS},
-    {"Fix", 						(PyCFunction)Atrinik_Object_Fix,					METH_VARARGS},
-    {"Kill", 						(PyCFunction)Atrinik_Object_Kill,					METH_VARARGS},
-    {"CastSpell", 					(PyCFunction)Atrinik_Object_CastSpell,				METH_VARARGS},
-    {"DoKnowSpell", 				(PyCFunction)Atrinik_Object_DoKnowSpell,			METH_VARARGS},
-    {"AcquireSpell", 				(PyCFunction)Atrinik_Object_AcquireSpell,			METH_VARARGS},
-    {"DoKnowSkill", 				(PyCFunction)Atrinik_Object_DoKnowSkill,			METH_VARARGS},
-    {"AcquireSkill", 				(PyCFunction)Atrinik_Object_AcquireSkill,			METH_VARARGS},
-    {"FindMarkedObject", 			(PyCFunction)Atrinik_Object_FindMarkedObject,		METH_VARARGS},
-    {"CheckQuestObject", 			(PyCFunction)Atrinik_Object_CheckQuestObject,		METH_VARARGS},
-    {"AddQuestObject", 				(PyCFunction)Atrinik_Object_AddQuestObject,			METH_VARARGS},
-    {"CreatePlayerForce", 			(PyCFunction)Atrinik_Object_CreatePlayerForce,		METH_VARARGS},
-    {"CreatePlayerInfo", 			(PyCFunction)Atrinik_Object_CreatePlayerInfo,		METH_VARARGS},
-    {"GetPlayerInfo", 				(PyCFunction)Atrinik_Object_GetPlayerInfo,			METH_VARARGS},
-    {"GetNextPlayerInfo", 			(PyCFunction)Atrinik_Object_GetNextPlayerInfo,		METH_VARARGS},
-    {"CheckInvisibleObjectInside", 	(PyCFunction)Atrinik_Object_CheckInvisibleInside,	METH_VARARGS},
-    {"CreateInvisibleObjectInside", (PyCFunction)Atrinik_Object_CreateInvisibleInside,	METH_VARARGS},
-    {"CreateObjectInside", 			(PyCFunction)Atrinik_Object_CreateObjectInside,		METH_VARARGS},
-    {"CheckInventory", 				(PyCFunction)Atrinik_Object_CheckInventory,			METH_VARARGS},
-    {"Remove", 						(PyCFunction)Atrinik_Object_Remove,					METH_VARARGS},
-    {"SetPosition", 				(PyCFunction)Atrinik_Object_SetPosition,			METH_VARARGS},
-    {"IdentifyItem", 				(PyCFunction)Atrinik_Object_IdentifyItem,			METH_VARARGS},
+    {"SetSaveBed",  				(PyCFunction)Atrinik_Object_SetSaveBed, 			METH_VARARGS, 0},
+	{"SwapApartments",  			(PyCFunction)Atrinik_Object_SwapApartments, 		METH_VARARGS, 0},
+    {"GetSkill",  					(PyCFunction)Atrinik_Object_GetSkill, 				METH_VARARGS, 0},
+    {"SetSkill",  					(PyCFunction)Atrinik_Object_SetSkill, 				METH_VARARGS, 0},
+    {"ActivateRune",  				(PyCFunction)Atrinik_Object_ActivateRune, 			METH_VARARGS, 0},
+    {"CastAbility",  				(PyCFunction)Atrinik_Object_CastAbility, 			METH_VARARGS, 0},
+    {"InsertInside",  				(PyCFunction)Atrinik_Object_InsertInside, 			METH_VARARGS, 0},
+    {"GetGod",  					(PyCFunction)Atrinik_Object_GetGod, 				METH_VARARGS, 0},
+    {"SetGod",  					(PyCFunction)Atrinik_Object_SetGod, 				METH_VARARGS, 0},
+    {"TeleportTo",  				(PyCFunction)Atrinik_Object_TeleportTo, 			METH_VARARGS, 0},
+    {"Apply",  						(PyCFunction)Atrinik_Object_Apply, 					METH_VARARGS, 0},
+    {"PickUp",  					(PyCFunction)Atrinik_Object_PickUp, 				METH_VARARGS, 0},
+    {"Drop",  						(PyCFunction)Atrinik_Object_Drop, 					METH_VARARGS, 0},
+    {"Take",  						(PyCFunction)Atrinik_Object_Take, 					METH_VARARGS, 0},
+    {"Fix", 						(PyCFunction)Atrinik_Object_Fix,					METH_VARARGS, 0},
+    {"Kill", 						(PyCFunction)Atrinik_Object_Kill,					METH_VARARGS, 0},
+    {"CastSpell", 					(PyCFunction)Atrinik_Object_CastSpell,				METH_VARARGS, 0},
+    {"DoKnowSpell", 				(PyCFunction)Atrinik_Object_DoKnowSpell,			METH_VARARGS, 0},
+    {"AcquireSpell", 				(PyCFunction)Atrinik_Object_AcquireSpell,			METH_VARARGS, 0},
+    {"DoKnowSkill", 				(PyCFunction)Atrinik_Object_DoKnowSkill,			METH_VARARGS, 0},
+    {"AcquireSkill", 				(PyCFunction)Atrinik_Object_AcquireSkill,			METH_VARARGS, 0},
+    {"FindMarkedObject", 			(PyCFunction)Atrinik_Object_FindMarkedObject,		METH_VARARGS, 0},
+    {"CheckQuestObject", 			(PyCFunction)Atrinik_Object_CheckQuestObject,		METH_VARARGS, 0},
+    {"AddQuestObject", 				(PyCFunction)Atrinik_Object_AddQuestObject,			METH_VARARGS, 0},
+    {"CreatePlayerForce", 			(PyCFunction)Atrinik_Object_CreatePlayerForce,		METH_VARARGS, 0},
+    {"CreatePlayerInfo", 			(PyCFunction)Atrinik_Object_CreatePlayerInfo,		METH_VARARGS, 0},
+    {"GetPlayerInfo", 				(PyCFunction)Atrinik_Object_GetPlayerInfo,			METH_VARARGS, 0},
+    {"GetNextPlayerInfo", 			(PyCFunction)Atrinik_Object_GetNextPlayerInfo,		METH_VARARGS, 0},
+    {"CheckInvisibleObjectInside", 	(PyCFunction)Atrinik_Object_CheckInvisibleInside,	METH_VARARGS, 0},
+    {"CreateInvisibleObjectInside", (PyCFunction)Atrinik_Object_CreateInvisibleInside,	METH_VARARGS, 0},
+    {"CreateObjectInside", 			(PyCFunction)Atrinik_Object_CreateObjectInside,		METH_VARARGS, 0},
+    {"CheckInventory", 				(PyCFunction)Atrinik_Object_CheckInventory,			METH_VARARGS, 0},
+    {"Remove", 						(PyCFunction)Atrinik_Object_Remove,					METH_VARARGS, 0},
+    {"SetPosition", 				(PyCFunction)Atrinik_Object_SetPosition,			METH_VARARGS, 0},
+    {"IdentifyItem", 				(PyCFunction)Atrinik_Object_IdentifyItem,			METH_VARARGS, 0},
 #if 0
-    {"GetEventHandler", 			(PyCFunction)Atrinik_Object_GetEventHandler,		METH_VARARGS},
-    {"SetEventHandler", 			(PyCFunction)Atrinik_Object_SetEventHandler,		METH_VARARGS},
-    {"GetEventPlugin", 				(PyCFunction)Atrinik_Object_GetEventPlugin,			METH_VARARGS},
-    {"SetEventPlugin", 				(PyCFunction)Atrinik_Object_SetEventPlugin,			METH_VARARGS},
-    {"GetEventOptions", 			(PyCFunction)Atrinik_Object_GetEventOptions,		METH_VARARGS},
-    {"SetEventOptions", 			(PyCFunction)Atrinik_Object_SetEventOptions,		METH_VARARGS},
+    {"GetEventHandler", 			(PyCFunction)Atrinik_Object_GetEventHandler,		METH_VARARGS, 0},
+    {"SetEventHandler", 			(PyCFunction)Atrinik_Object_SetEventHandler,		METH_VARARGS, 0},
+    {"GetEventPlugin", 				(PyCFunction)Atrinik_Object_GetEventPlugin,			METH_VARARGS, 0},
+    {"SetEventPlugin", 				(PyCFunction)Atrinik_Object_SetEventPlugin,			METH_VARARGS, 0},
+    {"GetEventOptions", 			(PyCFunction)Atrinik_Object_GetEventOptions,		METH_VARARGS, 0},
+    {"SetEventOptions", 			(PyCFunction)Atrinik_Object_SetEventOptions,		METH_VARARGS, 0},
 #endif
-    {"Deposit",  					(PyCFunction)Atrinik_Object_Deposit, 				METH_VARARGS},
-    {"Withdraw",  					(PyCFunction)Atrinik_Object_Withdraw, 				METH_VARARGS},
-    {"Communicate",  				(PyCFunction)Atrinik_Object_Communicate, 			METH_VARARGS},
-    {"Say",  						(PyCFunction)Atrinik_Object_Say, 					METH_VARARGS},
-    {"SayTo",  						(PyCFunction)Atrinik_Object_SayTo, 					METH_VARARGS},
-    {"Write", 						(PyCFunction)Atrinik_Object_Write,					METH_VARARGS},
-    {"SetGender",  					(PyCFunction)Atrinik_Object_SetGender, 				METH_VARARGS},
-    {"SetRank",  					(PyCFunction)Atrinik_Object_SetRank, 				METH_VARARGS},
-    {"SetAlignment",  				(PyCFunction)Atrinik_Object_SetAlignment, 			METH_VARARGS},
-    {"GetAlignmentForce",  			(PyCFunction)Atrinik_Object_GetAlignmentForce, 		METH_VARARGS},
-    {"SetGuildForce",  				(PyCFunction)Atrinik_Object_SetGuildForce, 			METH_VARARGS},
-    {"GetGuildForce",  				(PyCFunction)Atrinik_Object_GetGuildForce, 			METH_VARARGS},
-    {"IsOfType", 					(PyCFunction)Atrinik_Object_IsOfType,				METH_VARARGS},
-    {"Save", 						(PyCFunction)Atrinik_Object_Save,					METH_VARARGS},
-    {"GetIP", 						(PyCFunction)Atrinik_Object_GetIP,					METH_VARARGS},
-    {"GetArchName", 				(PyCFunction)Atrinik_Object_GetArchName,			METH_VARARGS},
-    {"ShowCost",  					(PyCFunction)Atrinik_Object_ShowCost,				METH_VARARGS},
-    {"GetItemCost",  				(PyCFunction)Atrinik_Object_GetItemCost,			METH_VARARGS},
-    {"GetMoney",  					(PyCFunction)Atrinik_Object_GetMoney,				METH_VARARGS},
-    {"PayForItem", 					(PyCFunction)Atrinik_Object_PayForItem,				METH_VARARGS},
-    {"PayAmount", 					(PyCFunction)Atrinik_Object_PayAmount,				METH_VARARGS},
-    {"GetUnmodifiedAttribute", 		(PyCFunction)Atrinik_Object_GetUnmodifiedAttribute,	METH_VARARGS},
-    {"SendCustomCommand",			(PyCFunction)Atrinik_Object_SendCustomCommand,		METH_VARARGS},
-    {"CheckTrigger", 				(PyCFunction)Atrinik_Object_CheckTrigger, 			METH_VARARGS},
-    {"Clone", 						(PyCFunction)Atrinik_Object_Clone, 					METH_VARARGS},
-    {NULL, NULL}
+    {"Deposit",  					(PyCFunction)Atrinik_Object_Deposit, 				METH_VARARGS, 0},
+    {"Withdraw",  					(PyCFunction)Atrinik_Object_Withdraw, 				METH_VARARGS, 0},
+    {"Communicate",  				(PyCFunction)Atrinik_Object_Communicate, 			METH_VARARGS, 0},
+    {"Say",  						(PyCFunction)Atrinik_Object_Say, 					METH_VARARGS, 0},
+    {"SayTo",  						(PyCFunction)Atrinik_Object_SayTo, 					METH_VARARGS, 0},
+    {"Write", 						(PyCFunction)Atrinik_Object_Write,					METH_VARARGS, 0},
+    {"SetGender",  					(PyCFunction)Atrinik_Object_SetGender, 				METH_VARARGS, 0},
+    {"SetRank",  					(PyCFunction)Atrinik_Object_SetRank, 				METH_VARARGS, 0},
+    {"SetAlignment",  				(PyCFunction)Atrinik_Object_SetAlignment, 			METH_VARARGS, 0},
+    {"GetAlignmentForce",  			(PyCFunction)Atrinik_Object_GetAlignmentForce, 		METH_VARARGS, 0},
+    {"SetGuildForce",  				(PyCFunction)Atrinik_Object_SetGuildForce, 			METH_VARARGS, 0},
+    {"GetGuildForce",  				(PyCFunction)Atrinik_Object_GetGuildForce, 			METH_VARARGS, 0},
+    {"IsOfType", 					(PyCFunction)Atrinik_Object_IsOfType,				METH_VARARGS, 0},
+    {"Save", 						(PyCFunction)Atrinik_Object_Save,					METH_VARARGS, 0},
+    {"GetIP", 						(PyCFunction)Atrinik_Object_GetIP,					METH_VARARGS, 0},
+    {"GetArchName", 				(PyCFunction)Atrinik_Object_GetArchName,			METH_VARARGS, 0},
+    {"ShowCost",  					(PyCFunction)Atrinik_Object_ShowCost,				METH_VARARGS, 0},
+    {"GetItemCost",  				(PyCFunction)Atrinik_Object_GetItemCost,			METH_VARARGS, 0},
+    {"GetMoney",  					(PyCFunction)Atrinik_Object_GetMoney,				METH_VARARGS, 0},
+    {"PayForItem", 					(PyCFunction)Atrinik_Object_PayForItem,				METH_VARARGS, 0},
+    {"PayAmount", 					(PyCFunction)Atrinik_Object_PayAmount,				METH_VARARGS, 0},
+    {"GetUnmodifiedAttribute", 		(PyCFunction)Atrinik_Object_GetUnmodifiedAttribute,	METH_VARARGS, 0},
+    {"SendCustomCommand",			(PyCFunction)Atrinik_Object_SendCustomCommand,		METH_VARARGS, 0},
+    {"CheckTrigger", 				(PyCFunction)Atrinik_Object_CheckTrigger, 			METH_VARARGS, 0},
+    {"Clone", 						(PyCFunction)Atrinik_Object_Clone, 					METH_VARARGS, 0},
+    {NULL, NULL, 0, 0}
 };
 
 /* AtrinikObject attributes */
@@ -120,138 +120,138 @@ static struct {
     uint32 extra_data;
 } obj_fields[] = {
     /* All entries MUST be in same order as field_id enum above */
-    {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY},
-    {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY},
-    {"inventory", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY},
-    {"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY},
+    {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0},
+    {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0},
+    {"inventory", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0},
+    {"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0},
 
-    {"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY},
-    {"title", FIELDTYPE_SHSTR, offsetof(object, title), 0},
-    {"race", FIELDTYPE_SHSTR, offsetof(object, race), 0},
-    {"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0},
+    {"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY, 0},
+    {"title", FIELDTYPE_SHSTR, offsetof(object, title), 0, 0},
+    {"race", FIELDTYPE_SHSTR, offsetof(object, race), 0, 0},
+    {"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0, 0},
     /* TODO: need special handling (check for endmsg, limit to 4096 chars?) ?*/
 
-    {"message", FIELDTYPE_SHSTR, offsetof(object, msg), 0},
+    {"message", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0},
     /* TODO: limited to >=0 */
 
-    {"weight",       FIELDTYPE_SINT32, offsetof(object, weight), 0},
-    {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0},
-    {"carrying",     FIELDTYPE_SINT32, offsetof(object, carrying), 0},
-    {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0},
-    {"path_repelled",FIELDTYPE_UINT32, offsetof(object, path_repelled), 0},
-    {"path_denied",  FIELDTYPE_UINT32, offsetof(object, path_denied), 0},
-    {"value",        FIELDTYPE_SINT32, offsetof(object, value), 0},
+    {"weight",       FIELDTYPE_SINT32, offsetof(object, weight), 0, 0},
+    {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0},
+    {"carrying",     FIELDTYPE_SINT32, offsetof(object, carrying), 0, 0},
+    {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0},
+    {"path_repelled",FIELDTYPE_UINT32, offsetof(object, path_repelled), 0, 0},
+    {"path_denied",  FIELDTYPE_UINT32, offsetof(object, path_denied), 0, 0},
+    {"value",        FIELDTYPE_SINT32, offsetof(object, value), 0, 0},
     /* TODO: Max 100000 */
 
-    {"quantity",         FIELDTYPE_UINT32, offsetof(object, nrof), 0},
+    {"quantity",         FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0},
 
     /* TODO: I don't know what these do, or if they should be accessible... */
-    {"damage_round_tag", FIELDTYPE_UINT32, offsetof(object, damage_round_tag), 0},
-    {"update_tag",   FIELDTYPE_UINT32, offsetof(object, update_tag), 0},
+    {"damage_round_tag", FIELDTYPE_UINT32, offsetof(object, damage_round_tag), 0, 0},
+    {"update_tag",   FIELDTYPE_UINT32, offsetof(object, update_tag), 0, 0},
 
     /* TODO: make enemy & owner settable (requires HOOKS for set_npc_enemy() and set_owner()) */
     {"enemy",        FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_READONLY, offsetof(object, enemy_count)},
     {"attacked_by",  FIELDTYPE_OBJECTREF, offsetof(object, attacked_by), FIELDFLAG_READONLY, offsetof(object, attacked_by_count)},
     {"owner",        FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY, offsetof(object, ownercount)},
 
-    {"x",            FIELDTYPE_SINT16, offsetof(object, x), FIELDFLAG_READONLY},
-    {"y",            FIELDTYPE_SINT16, offsetof(object, y), FIELDFLAG_READONLY},
-    {"attacked_by_distance", FIELDTYPE_SINT16, offsetof(object, attacked_by_distance), 0},
-    {"last_damage",  FIELDTYPE_UINT16, offsetof(object, last_damage), 0},
-    {"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0},
-    {"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0},
-    {"material",     FIELDTYPE_UINT16, offsetof(object, material), 0},
-    {"material_real",FIELDTYPE_SINT16, offsetof(object, material_real), 0},
-    {"last_heal",    FIELDTYPE_SINT16, offsetof(object, last_heal), 0},
+    {"x",            FIELDTYPE_SINT16, offsetof(object, x), FIELDFLAG_READONLY, 0},
+    {"y",            FIELDTYPE_SINT16, offsetof(object, y), FIELDFLAG_READONLY, 0},
+    {"attacked_by_distance", FIELDTYPE_SINT16, offsetof(object, attacked_by_distance), 0, 0},
+    {"last_damage",  FIELDTYPE_UINT16, offsetof(object, last_damage), 0, 0},
+    {"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0, 0},
+    {"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0},
+    {"material",     FIELDTYPE_UINT16, offsetof(object, material), 0, 0},
+    {"material_real",FIELDTYPE_SINT16, offsetof(object, material_real), 0, 0},
+    {"last_heal",    FIELDTYPE_SINT16, offsetof(object, last_heal), 0, 0},
 
     /* TODO: Limit to max 16000 ? */
-    {"last_sp",      FIELDTYPE_SINT16, offsetof(object, last_sp), 0},
+    {"last_sp",      FIELDTYPE_SINT16, offsetof(object, last_sp), 0, 0},
 
     /* TODO: Limit to max 16000 ? */
-    {"last_grace",   FIELDTYPE_SINT16, offsetof(object, last_grace), 0},
+    {"last_grace",   FIELDTYPE_SINT16, offsetof(object, last_grace), 0, 0},
 
-    {"last_eat",     FIELDTYPE_SINT16, offsetof(object, last_eat), 0},
+    {"last_eat",     FIELDTYPE_SINT16, offsetof(object, last_eat), 0, 0},
 
     /* TODO: will require animation lookup function. How about face, is that a special anim? */
-    {"animation_id", FIELDTYPE_UINT16, offsetof(object, animation_id), 0},
-    {"inv_animation_id", FIELDTYPE_UINT16, offsetof(object, inv_animation_id), 0},
-    {"magic",        FIELDTYPE_SINT8 , offsetof(object, magic), 0},
-    {"state",        FIELDTYPE_UINT8 , offsetof(object, state), 0},
+    {"animation_id", FIELDTYPE_UINT16, offsetof(object, animation_id), 0, 0},
+    {"inv_animation_id", FIELDTYPE_UINT16, offsetof(object, inv_animation_id), 0, 0},
+    {"magic",        FIELDTYPE_SINT8 , offsetof(object, magic), 0, 0},
+    {"state",        FIELDTYPE_UINT8 , offsetof(object, state), 0, 0},
 
-    {"level",        FIELDTYPE_SINT8 , offsetof(object, level), FIELDFLAG_PLAYER_READONLY},
-    {"direction",    FIELDTYPE_SINT8 , offsetof(object, direction), 0},
-    {"facing",       FIELDTYPE_SINT8 , offsetof(object, facing), 0},
-    {"quick_pos",    FIELDTYPE_UINT8 , offsetof(object, quick_pos), 0},
-    {"type",         FIELDTYPE_UINT8 , offsetof(object, type), FIELDFLAG_READONLY},
-    {"sub_type_1",   FIELDTYPE_UINT8 , offsetof(object, sub_type1), 0},
-    {"item_quality", FIELDTYPE_UINT8 , offsetof(object, item_quality), 0},
-    {"item_condition", FIELDTYPE_UINT8 , offsetof(object, item_condition), 0},
-    {"item_race",    FIELDTYPE_UINT8 , offsetof(object, item_race), 0},
-    {"item_level",   FIELDTYPE_UINT8 , offsetof(object, item_level), 0},
-    {"item_skill",   FIELDTYPE_UINT8 , offsetof(object, item_skill), 0},
-    {"glow_radius",  FIELDTYPE_SINT8 , offsetof(object, glow_radius), 0},
-    {"move_status",  FIELDTYPE_SINT8 , offsetof(object, move_status), 0},
-    {"move_type",    FIELDTYPE_UINT8 , offsetof(object, move_type), 0},
-    {"anim_enemy_dir", FIELDTYPE_SINT8 , offsetof(object, anim_enemy_dir), 0},
-    {"anim_moving_dir", FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0},
-    {"anim_enemy_dir_last", FIELDTYPE_SINT8 , offsetof(object, anim_enemy_dir_last), 0},
-    {"anim_moving_dir_last", FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir_last), 0},
-    {"anim_last_facing", FIELDTYPE_SINT8 , offsetof(object, anim_last_facing), 0},
-    {"anim_last_facing_last", FIELDTYPE_SINT8 , offsetof(object, anim_last_facing_last), 0},
-    {"anim_speed",   FIELDTYPE_UINT8 , offsetof(object, anim_speed), 0},
-    {"last_anim",    FIELDTYPE_UINT8 , offsetof(object, last_anim), 0},
-    {"will_apply",   FIELDTYPE_UINT8 , offsetof(object, will_apply), 0},
-    {"run_away",     FIELDTYPE_UINT8 , offsetof(object, run_away), 0},
-    {"pick_up",      FIELDTYPE_UINT8 , offsetof(object, pick_up), 0},
-    {"hide",         FIELDTYPE_UINT8 , offsetof(object, hide), 0},
-    {"layer",        FIELDTYPE_UINT8 , offsetof(object, layer), 0},
+    {"level",        FIELDTYPE_SINT8 , offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
+    {"direction",    FIELDTYPE_SINT8 , offsetof(object, direction), 0, 0},
+    {"facing",       FIELDTYPE_SINT8 , offsetof(object, facing), 0, 0},
+    {"quick_pos",    FIELDTYPE_UINT8 , offsetof(object, quick_pos), 0, 0},
+    {"type",         FIELDTYPE_UINT8 , offsetof(object, type), FIELDFLAG_READONLY, 0},
+    {"sub_type_1",   FIELDTYPE_UINT8 , offsetof(object, sub_type1), 0, 0},
+    {"item_quality", FIELDTYPE_UINT8 , offsetof(object, item_quality), 0, 0},
+    {"item_condition", FIELDTYPE_UINT8 , offsetof(object, item_condition), 0, 0},
+    {"item_race",    FIELDTYPE_UINT8 , offsetof(object, item_race), 0, 0},
+    {"item_level",   FIELDTYPE_UINT8 , offsetof(object, item_level), 0, 0},
+    {"item_skill",   FIELDTYPE_UINT8 , offsetof(object, item_skill), 0, 0},
+    {"glow_radius",  FIELDTYPE_SINT8 , offsetof(object, glow_radius), 0, 0},
+    {"move_status",  FIELDTYPE_SINT8 , offsetof(object, move_status), 0, 0},
+    {"move_type",    FIELDTYPE_UINT8 , offsetof(object, move_type), 0, 0},
+    {"anim_enemy_dir", FIELDTYPE_SINT8 , offsetof(object, anim_enemy_dir), 0, 0},
+    {"anim_moving_dir", FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0, 0},
+    {"anim_enemy_dir_last", FIELDTYPE_SINT8 , offsetof(object, anim_enemy_dir_last), 0, 0},
+    {"anim_moving_dir_last", FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir_last), 0, 0},
+    {"anim_last_facing", FIELDTYPE_SINT8 , offsetof(object, anim_last_facing), 0, 0},
+    {"anim_last_facing_last", FIELDTYPE_SINT8 , offsetof(object, anim_last_facing_last), 0, 0},
+    {"anim_speed",   FIELDTYPE_UINT8 , offsetof(object, anim_speed), 0, 0},
+    {"last_anim",    FIELDTYPE_UINT8 , offsetof(object, last_anim), 0, 0},
+    {"will_apply",   FIELDTYPE_UINT8 , offsetof(object, will_apply), 0, 0},
+    {"run_away",     FIELDTYPE_UINT8 , offsetof(object, run_away), 0, 0},
+    {"pick_up",      FIELDTYPE_UINT8 , offsetof(object, pick_up), 0, 0},
+    {"hide",         FIELDTYPE_UINT8 , offsetof(object, hide), 0, 0},
+    {"layer",        FIELDTYPE_UINT8 , offsetof(object, layer), 0, 0},
 
     /*
-    "RESIST,       FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0},
-    "ATTACK,       FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0},
-    "PROTECTION,   FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0},
+    "RESIST,       FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0, 0},
+    "ATTACK,       FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0, 0},
+    "PROTECTION,   FIELDTYPE_SINT8 , offsetof(object, anim_moving_dir), 0, 0},
     */
 
     /* TODO: -10.0 < speed < 10.0, also might want to call update_object_speed() */
-    {"speed",        FIELDTYPE_FLOAT, offsetof(object, speed), FIELDFLAG_PLAYER_READONLY},
-    {"speed_left",   FIELDTYPE_FLOAT, offsetof(object, speed_left), 0},
-    {"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0},
-    {"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0},
-    {"weapon_speed_add", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_add), 0},
+    {"speed",        FIELDTYPE_FLOAT, offsetof(object, speed), FIELDFLAG_PLAYER_READONLY, 0},
+    {"speed_left",   FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
+    {"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
+    {"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0, 0},
+    {"weapon_speed_add", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_add), 0, 0},
 
     /* Stats */
-    {"experience",     FIELDTYPE_SINT32, offsetof(object, stats.exp), 0},
-    {"hitpoints",      FIELDTYPE_SINT32, offsetof(object, stats.hp), 0},
-    {"max_hitpoints",   FIELDTYPE_SINT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY},
-    {"spellpoints",      FIELDTYPE_SINT16, offsetof(object, stats.sp), 0},
-    {"max_spellpoints",   FIELDTYPE_SINT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY},
+    {"experience",     FIELDTYPE_SINT32, offsetof(object, stats.exp), 0, 0},
+    {"hitpoints",      FIELDTYPE_SINT32, offsetof(object, stats.hp), 0, 0},
+    {"max_hitpoints",   FIELDTYPE_SINT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
+    {"spellpoints",      FIELDTYPE_SINT16, offsetof(object, stats.sp), 0, 0},
+    {"max_spellpoints",   FIELDTYPE_SINT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
 
     /* TODO: Limit to +- 16000 ? */
-    {"grace",   FIELDTYPE_SINT16, offsetof(object, stats.grace), 0},
-    {"max_grace",FIELDTYPE_SINT16, offsetof(object, stats.maxgrace), FIELDFLAG_PLAYER_READONLY},
+    {"grace",   FIELDTYPE_SINT16, offsetof(object, stats.grace), 0, 0},
+    {"max_grace",FIELDTYPE_SINT16, offsetof(object, stats.maxgrace), FIELDFLAG_PLAYER_READONLY, 0},
 
     /* TODO: Limit to max 999 (at least for players) ? */
-    {"food",    FIELDTYPE_SINT16, offsetof(object, stats.food), 0},
+    {"food",    FIELDTYPE_SINT16, offsetof(object, stats.food), 0, 0},
 
     /* TODO: Limit to 0 <= dam <= 120 ? */
-    {"damage",     FIELDTYPE_SINT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY},
+    {"damage",     FIELDTYPE_SINT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
 
     /* TODO: Limit to +-120 */
-    {"weapon_class",      FIELDTYPE_SINT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY},
+    {"weapon_class",      FIELDTYPE_SINT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY, 0},
 
     /* TODO: Limit to +-120 */
-    {"armour_class",       FIELDTYPE_SINT16, offsetof(object, stats.ac),FIELDFLAG_PLAYER_READONLY},
-    {"weapon_class_range", FIELDTYPE_UINT8,  offsetof(object, stats.wc_range), 0},
+    {"armour_class",       FIELDTYPE_SINT16, offsetof(object, stats.ac),FIELDFLAG_PLAYER_READONLY, 0},
+    {"weapon_class_range", FIELDTYPE_UINT8,  offsetof(object, stats.wc_range), 0, 0},
 
     /* TODO: Limit to +-30 (all)  */
-    {"strength",     FIELDTYPE_SINT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX},
-    {"dexterity",     FIELDTYPE_SINT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX},
-    {"constitution",     FIELDTYPE_SINT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX},
-    {"wisdom",     FIELDTYPE_SINT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX},
-    {"charisma",     FIELDTYPE_SINT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX},
-    {"intelligence",     FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX},
-    {"power",     FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX},
-    {"luck",    FIELDTYPE_SINT8, offsetof(object, stats.luck), FIELDFLAG_PLAYER_READONLY}
+    {"strength",     FIELDTYPE_SINT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
+    {"dexterity",     FIELDTYPE_SINT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
+    {"constitution",     FIELDTYPE_SINT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
+    {"wisdom",     FIELDTYPE_SINT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
+    {"charisma",     FIELDTYPE_SINT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
+    {"intelligence",     FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
+    {"power",     FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
+    {"luck",    FIELDTYPE_SINT8, offsetof(object, stats.luck), FIELDFLAG_PLAYER_READONLY, 0}
 };
 
 #define NUM_OBJFIELDS (sizeof(obj_fields) / sizeof(obj_fields[0]))
@@ -337,6 +337,14 @@ PyTypeObject Atrinik_ObjectType = {
     0,                         /* tp_init */
     0,                         /* tp_alloc */
     Atrinik_Object_new,       /* tp_new */
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
 };
 
 
@@ -662,6 +670,8 @@ static PyObject* Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject* a
 static PyObject* Atrinik_Object_CheckTrigger(Atrinik_Object *whoptr, PyObject* args)
 {
     Atrinik_Object *whatptr;
+
+	(void) whoptr;
 
     if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
         return NULL;
@@ -1232,7 +1242,7 @@ static PyObject* Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject* a
         if (walk->name && !strcmp(walk->name, "ALIGNMENT_FORCE")  && !strcmp(walk->arch->name, "alignment_force"))
         {
             /* we find the alignment of the player, now change it to new one */
-			if (walk->title);
+			if (walk->title)
 				FREE_STRING_HOOK(walk->title);
 
 			walk->title = add_string_hook(align);
@@ -1710,7 +1720,7 @@ static PyObject* Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
     }
 
     /* setup the force and put it in activator */
- 	if (myob->name);
+ 	if (myob->name)
 		FREE_STRING_HOOK(myob->name);
 
 	myob->name = add_string_hook(txt);
@@ -1821,12 +1831,12 @@ static PyObject* Atrinik_Object_AddQuestObject(Atrinik_Object *whoptr, PyObject*
     }
 
 	/* store name & arch name of the quest obj. so we can id it later */
-   	if (myob->name);
+   	if (myob->name)
 		FREE_STRING_HOOK(myob->name);
 
 	myob->name = add_string_hook(name);
 
-   	if (myob->race);
+   	if (myob->race)
 		FREE_STRING_HOOK(myob->race);
 
 	myob->race = add_string_hook(arch_name);
@@ -1926,6 +1936,8 @@ static PyObject* Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
     char name[128];
     object *walk;
 
+	(void) whoptr;
+
     if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &myob))
         return NULL;
 
@@ -1982,7 +1994,7 @@ static PyObject* Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, 
     (PlugHooks[HOOK_UPDATESPEED])(&GCFP);
 
     /*update_ob_speed(myob); */
-   	if (myob->slaying);
+   	if (myob->slaying)
 		FREE_STRING_HOOK(myob->slaying);
 
 	myob->slaying = add_string_hook(txt);
@@ -2404,8 +2416,9 @@ static PyObject* Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject* args)
 {
     int value;
 	char *cost_string;
-
     CFParm* CFR;
+
+	(void) whoptr;
 
     if (!PyArg_ParseTuple(args, "i", &value))
         return NULL;
@@ -2602,7 +2615,7 @@ static PyObject* Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object* whoptr, P
     if (!PyArg_ParseTuple(args, "i", &fieldno))
         return NULL;
 
-    if (fieldno < 0 || fieldno >= NUM_OBJFIELDS)
+    if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
         RAISE("Illegal field ID");
 
     if (WHO->type != PLAYER)
@@ -2641,7 +2654,7 @@ static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
     object *obj;
     char *str;
 
-    if (fieldno < 0 || fieldno >= NUM_OBJFIELDS)
+    if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
         RAISE("Illegal field ID");
 
     field_ptr = (void *)((char *)WHO + obj_fields[fieldno].offset);
@@ -2699,7 +2712,7 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
     object *tmp;
     uint32 flags, offset;
 
-    if (fieldno < 0 || fieldno >= NUM_OBJFIELDS)
+    if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
         INTRAISE("Illegal field ID");
 
     flags = obj_fields[fieldno].flags;
@@ -2903,7 +2916,7 @@ int Atrinik_Object_init(PyObject *module)
     int i, flagno;
 
     /* field getseters */
-    for (i = 0; i < NUM_OBJFIELDS; i++)
+    for (i = 0; i < (int) NUM_OBJFIELDS; i++)
 	{
         PyGetSetDef *def = &Object_getseters[i];
         def->name = obj_fields[i].name;
@@ -2948,6 +2961,9 @@ int Atrinik_Object_init(PyObject *module)
 static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Atrinik_Object *self;
+
+	(void) args;
+	(void) kwds;
 
     self = (Atrinik_Object *)type->tp_alloc(type, 0);
 

@@ -187,6 +187,8 @@ int command_run(object *op, char *params)
 
 int command_run_stop(object *op, char *params)
 {
+	(void) params;
+
     CONTR(op)->run_on = 0;
     return 1;
 }
@@ -299,6 +301,8 @@ void send_target_command(player *pl)
 
 int command_combat(object *op, char *params)
 {
+	(void) params;
+
 	if (!op || !op->map || op->type != PLAYER || !CONTR(op))
 		return 1;
 
@@ -404,7 +408,7 @@ int command_target(object *op, char *params)
 		else
 			CONTR(op)->target_object = NULL;
 
-  		for (; n < NROF_MAP_NODE && n != nt; n++)
+  		for (; n < (int) NROF_MAP_NODE && n != nt; n++)
 		{
 			int xx, yy;
 
@@ -488,7 +492,7 @@ int command_target(object *op, char *params)
 				get_ob_flag = 1;
 			}
 
-			for (; n < NROF_MAP_NODE && n != nt; n++)
+			for (; n < (int) NROF_MAP_NODE && n != nt; n++)
 			{
 				int xx, yy;
 				if (nt == -1)
@@ -805,6 +809,8 @@ void command_face_request(char *params, int len, player *pl)
 {
 	int i, count;
 
+	(void) len;
+
 	if (!params)
 		return;
 
@@ -828,6 +834,8 @@ void command_fire(char *params, int len, player *pl)
 {
     int dir = 0, type, tag1, tag2;
 	object *op = pl->ob;
+
+	(void) len;
 
     if (!params)
 		return;

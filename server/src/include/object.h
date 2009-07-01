@@ -527,9 +527,8 @@ struct mempool {
 
 	/* Spacial handling flags. See definitions below */
     uint32 flags;
-#ifdef MEMPOOL_TRACKING
+
     struct puddle_info *first_puddle_info;
-#endif
 };
 
 #ifdef MEMPOOL_TRACKING

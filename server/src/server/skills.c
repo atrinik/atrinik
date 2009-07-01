@@ -477,6 +477,8 @@ int attempt_hide(object *op)
  * of jumping. */
 static int stop_jump(object *pl, int dist, int spaces)
 {
+	(void) dist;
+	(void) spaces;
 #if 0
     int load = dist / (pl->speed * spaces);
 #endif
@@ -1502,6 +1504,9 @@ int remove_trap(object *op, int dir, int level)
 	object *tmp, *tmp2;
 	mapstruct *m;
 	int i, x, y, success = 0;
+
+	(void) dir;
+	(void) level;
 
 	for (i = 0; i < 9; i++)
 	{

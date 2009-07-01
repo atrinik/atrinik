@@ -88,10 +88,10 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
     if (pri >= CONTR(pl)->listening)
 		return;
 
-    sl.buf = info_string;
+    sl.buf = (unsigned char *) info_string;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
 	SockList_AddShort(&sl, flags & NDI_FLAG_MASK);
-	strcpy(sl.buf + sl.len, buf);
+	strcpy((char *) sl.buf + sl.len, buf);
     sl.len += strlen(buf);
     Send_With_Handling(&CONTR(pl)->socket, &sl);
 

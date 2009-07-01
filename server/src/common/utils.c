@@ -165,13 +165,12 @@ int look_up_spell_name(const char * spname)
 int replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
     size_t resultlen, keylen, replacementlen, replaced = 0;
-	char *p;
 
     /* special case to prevent infinite loop if key == replacement == "" */
     if (strcmp(key, replacement) == 0)
 	{
         snprintf(result, resultsize, "%s", src);
-        return;
+        return -1;
     }
 
     keylen = strlen(key);

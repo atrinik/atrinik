@@ -226,7 +226,7 @@ void read_client_images()
 			continue;
 
 		facesets[fileno].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
-	
+
 		sprintf(filename, "%s/atrinik.%d", settings.datadir, fileno);
 		LOG(llevDebug, "Loading image file %s\n", filename);
 		/* we don't use more than one face set here!! */
@@ -279,8 +279,9 @@ void read_client_images()
 void SetFaceMode(char *buf, int len, NewSocket *ns)
 {
     char tmp[256];
-
     int mask = (atoi(buf) & CF_FACE_CACHE), mode = (atoi(buf) & ~CF_FACE_CACHE);
+
+	(void) len;
 
     if (mode == CF_FACE_NONE)
 	{
@@ -306,6 +307,8 @@ void SendFaceCmd(char *buff, int len, NewSocket *ns)
 {
     long tmpnum = atoi(buff);
     short facenum = tmpnum & 0xffff;
+
+	(void) len;
 
     if (facenum != 0)
 		esrv_send_face(ns, facenum, 1);
@@ -408,17 +411,19 @@ void send_image_info(NewSocket *ns, char *params)
     SockList sl;
     int i;
 
+	(void) params;
+
     sl.buf = malloc(MAXSOCKBUF);
 
-    sprintf(sl.buf, "replyinfo image_info\n%d\n%d\n", nrofpixmaps - 1, bmaps_checksum);
+    sprintf((char *)sl.buf, "replyinfo image_info\n%d\n%d\n", nrofpixmaps - 1, bmaps_checksum);
     for (i = 0; i < MAX_FACE_SETS; i++)
 	{
 		if (facesets[i].prefix)
 		{
-			sprintf(sl.buf + strlen(sl.buf), "%d:%s:%s:%d:%s:%s:%s", i, facesets[i].prefix, facesets[i].fullname, facesets[i].fallback, facesets[i].size, facesets[i].extension, facesets[i].comment);
+			sprintf((char *)sl.buf + strlen((char *)sl.buf), "%d:%s:%s:%d:%s:%s:%s", i, facesets[i].prefix, facesets[i].fullname, facesets[i].fallback, facesets[i].size, facesets[i].extension, facesets[i].comment);
 		}
     }
-    sl.len = strlen(sl.buf);
+    sl.len = strlen((char *)sl.buf);
     Send_With_Handling(ns, &sl);
     free(sl.buf);
 }
@@ -446,10 +451,10 @@ void send_image_sums(NewSocket *ns, char *params)
 		return;
     }
 
-    sprintf(sl.buf, "Ximage_sums %d %d ", start, stop);
+    sprintf((char *)sl.buf, "Ximage_sums %d %d ", start, stop);
 	*sl.buf = BINARY_CMD_REPLYINFO;
 
-    sl.len = strlen(sl.buf);
+    sl.len = strlen((char *)sl.buf);
 
     for (i = start; i <= stop; i++)
 	{
@@ -459,7 +464,7 @@ void send_image_sums(NewSocket *ns, char *params)
 		SockList_AddChar(&sl, (char) qq);
 		qq = strlen(new_faces[i].name);
 		SockList_AddChar(&sl, (char)(qq + 1));
-		strcpy(sl.buf + sl.len, new_faces[i].name);
+		strcpy((char *)sl.buf + sl.len, new_faces[i].name);
 		sl.len += qq;
 		SockList_AddChar(&sl, 0);
     }

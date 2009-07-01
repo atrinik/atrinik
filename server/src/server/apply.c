@@ -1596,7 +1596,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			if (IS_LIVE(victim) && !(flags&MOVE_APPLY_VANISHED))
 				hit_player(victim, trap->stats.dam, trap, trap->attacktype);
 			else if (victim->material && !(flags&MOVE_APPLY_VANISHED))
-				save_throw_object(victim, trap->attacktype, trap);
+				save_throw_object(victim, trap);
 			goto leave;
 
 		case CONE:
@@ -1796,7 +1796,7 @@ static void apply_book(object *op, object *tmp)
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
 		SockList_AddInt(&sl, tmp->weight_limit);
-		strcpy(sl.buf + sl.len, tmp->msg);
+		strcpy((char *)sl.buf + sl.len, tmp->msg);
 		sl.len += strlen(tmp->msg) + 1;
 		Send_With_Handling(&CONTR(op)->socket, &sl);
 #ifdef PLUGINS
@@ -3902,7 +3902,7 @@ void apply_lighter(object *who, object *lighter)
 		if (who == is_player_inv(item))
 			is_player_env = 1;
 
-		save_throw_object(item, AT_FIRE, who);
+		save_throw_object(item, who);
 		/* Change to check count and not freed, since the object pointer
 		* may have gotten recycled
 		*/
@@ -3932,7 +3932,9 @@ void scroll_failure(object *op, int failure, int power)
   	if (failure<= -1 && failure > -15)
     {
      	new_draw_info(NDI_UNIQUE, 0, op, "Your spell warps!");
+#if 0
      	cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+#endif
     }
   	else if (failure <= -15&&failure > -35) /* drain mana */
     {

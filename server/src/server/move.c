@@ -488,6 +488,8 @@ int push_roll_object(object *op, int dir, const int flag)
     int xt, yt, ret;
     ret = 0;
 
+	(void) flag;
+
 	/* we check for all conditions where op can't push anything */
     if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
         return 0;

@@ -503,6 +503,8 @@ int find_neighbours(path_node *node, path_node **open_list, path_node **closed_l
     mapstruct *map;
     int block;
 
+	(void) closed_list;
+
     for (i = 1; i < 9; i++)
 	{
         x2 = node->x + freearr_x[i];

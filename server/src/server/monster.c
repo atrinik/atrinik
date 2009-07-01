@@ -1391,6 +1391,8 @@ int move_randomly(object *op)
 
 int can_hit(object *ob1, object *ob2, rv_vector *rv)
 {
+	(void) ob2;
+
     if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !(RANDOM() % 3))
 		return 0;
 
@@ -1400,6 +1402,9 @@ int can_hit(object *ob1, object *ob2, rv_vector *rv)
 /* Someday we may need this check */
 int can_apply(object *who, object *item)
 {
+	(void) who;
+	(void) item;
+
   	return 1;
 }
 
@@ -1443,6 +1448,8 @@ int monster_cast_spell(object *head, object *part, object *pl, int dir, rv_vecto
     object *spell_item;
     spell *sp;
     int sp_typ, ability;
+
+	(void) pl;
 
     if (QUERY_FLAG(head, FLAG_CONFUSED))
 		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
@@ -1694,6 +1701,8 @@ int monster_use_bow(object *head, object *part, object *pl, int dir)
 {
   	object *bow, *arrow;
   	int tag;
+
+	(void) pl;
 
 	if (QUERY_FLAG(head, FLAG_CONFUSED))
 		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
@@ -2159,6 +2168,8 @@ void npc_call_help(object *op)
 
 int dist_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv)
 {
+	(void) ob;
+
     if (can_hit(part, enemy, rv))
     	return dir;
 
@@ -2185,6 +2196,8 @@ int run_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv)
 
 int hitrun_att (int dir, object *ob, object *enemy)
 {
+	(void) enemy;
+
     if (ob->move_status++ < 25)
 		return dir;
     else if (ob->move_status < 50)
@@ -2229,6 +2242,10 @@ int disthit_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv)
 
 int wait_att2(int dir, object *ob, object *enemy, object *part, rv_vector *rv)
 {
+	(void) ob;
+	(void) enemy;
+	(void) part;
+
     if (rv->distance < 9)
 		return absdir(dir + 4);
 
@@ -2906,6 +2923,8 @@ int monster_use_scroll(object *head, object *part, object *pl, int dir, rv_vecto
     object *scroll = NULL;
     object *owner;
     rv_vector rv1;
+
+	(void) rv;
 
     /* If you want monsters to cast spells over friends, this spell should
      * be removed.  It probably should be in most cases, since monsters still

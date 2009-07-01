@@ -71,15 +71,9 @@ void map_info(object *op)
   	}
 }
 
-/* Now redundant function. */
-int command_spell_reset(object *op, char *params)
-{
-	/*init_spell_param(); */
-	return 1;
-}
-
 int command_motd(object *op, char *params)
 {
+	(void) params;
 	display_motd(op);
 	return 1;
 }
@@ -312,6 +306,8 @@ int command_who(object *op, char *params)
 	int ip = 0, il = 0;
     char buf[MAX_BUF];
 
+	(void) params;
+
 	if (first_player)
 		new_draw_info(NDI_UNIQUE, 0, op, " ");
 
@@ -377,18 +373,21 @@ int command_malloc(object *op, char *params)
 
 int command_mapinfo(object *op, char *params)
 {
+	(void) params;
     current_map_info(op);
     return 1;
 }
 
 int command_maps(object *op, char *params)
 {
+	(void) params;
     map_info(op);
     return 1;
 }
 
 int command_strings(object *op, char *params)
 {
+	(void) params;
     ss_dump_statistics();
     new_draw_info(NDI_UNIQUE, 0, op, errmsg);
     new_draw_info(NDI_UNIQUE, 0, op, ss_dump_table(2));
@@ -398,6 +397,8 @@ int command_strings(object *op, char *params)
 #ifdef DEBUG
 int command_sstable(object *op, char *params)
 {
+	(void) params;
+	(void) op;
     ss_dump_table(1);
     return 1;
 }
@@ -405,12 +406,14 @@ int command_sstable(object *op, char *params)
 
 int command_time(object *op, char *params)
 {
+	(void) params;
     time_info(op);
     return 1;
 }
 
 int command_archs(object *op, char *params)
 {
+	(void) params;
     arch_info(op);
     return 1;
 }
@@ -450,6 +453,7 @@ int command_dumpbelowfull(object *op, char *params)
 {
 	object *tmp;
 
+	(void) params;
 	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
@@ -475,6 +479,7 @@ int command_dumpbelow(object *op, char *params)
 	char buf[5 * 1024];
 	int i = 0;
 
+	(void) params;
 	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
@@ -519,6 +524,8 @@ int command_wizpass(object *op, char *params)
 
 int command_dumpallobjects(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 	/* Gecko: this is no longer possible */
  	/* dump_all_objects(); */
 
@@ -527,12 +534,16 @@ int command_dumpallobjects(object *op, char *params)
 
 int command_dumpfriendlyobjects(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 	dump_friendly_objects();
   	return 0;
 }
 
 int command_dumpallarchetypes(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 	dump_all_archetypes();
   	return 0;
 }
@@ -541,6 +552,8 @@ int command_dumpallarchetypes(object *op, char *params)
  * when the player leave dm mode! */
 int command_dm_stealth (object *op, char *params)
 {
+	(void) params;
+
 	if (op->type == PLAYER && CONTR(op))
 	{
 		if (CONTR(op)->dm_stealth)
@@ -559,6 +572,8 @@ int command_dm_stealth (object *op, char *params)
 
 int command_dm_light(object *op, char *params)
 {
+	(void) params;
+
 	if (op->type == PLAYER && CONTR(op))
 	{
 		if (CONTR(op)->dm_light)
@@ -578,6 +593,8 @@ int command_dumpactivelist(object *op, char *params)
 	int count = 0;
 	object *tmp;
 
+	(void) params;
+
 	for (tmp = active_objects; tmp; tmp = tmp->active_next)
 	{
 		count++;
@@ -595,6 +612,8 @@ int command_dumpactivelist(object *op, char *params)
 
 int command_ssdumptable(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 	(void) ss_dump_table(1);
   	return 0;
 }
@@ -659,6 +678,8 @@ int command_setmaplight(object *op, char *params)
 
 int command_dumpmap(object *op, char *params)
 {
+	(void) params;
+
   	if (op)
     	dump_map(op->map);
 
@@ -667,6 +688,9 @@ int command_dumpmap(object *op, char *params)
 
 int command_dumpallmaps(object *op, char *params)
 {
+	(void) params;
+	(void) op;
+
 	dump_all_maps();
 
   	return 0;
@@ -674,6 +698,8 @@ int command_dumpallmaps(object *op, char *params)
 
 int command_printlos(object *op, char *params)
 {
+	(void) params;
+
   	if (op)
 		print_los(op);
 
@@ -682,6 +708,8 @@ int command_printlos(object *op, char *params)
 
 int command_version(object *op, char *params)
 {
+	(void) params;
+
     version(op);
 
     return 0;
@@ -689,6 +717,8 @@ int command_version(object *op, char *params)
 
 int command_output_sync(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 /*
     int val;
 
@@ -712,6 +742,8 @@ int command_output_sync(object *op, char *params)
 
 int command_output_count(object *op, char *params)
 {
+	(void) params;
+	(void) op;
 /*
     int val;
 
@@ -754,6 +786,8 @@ int command_listen(object *op, char *params)
  * no meaning here. */
 int command_statistics(object *pl, char *params)
 {
+	(void) params;
+	(void) pl;
 #if 0
     if (pl->type != PLAYER || !CONTR(pl))
 		return 1;
@@ -779,12 +813,16 @@ int command_statistics(object *pl, char *params)
 
 int command_fix_me(object *op, char *params)
 {
+	(void) params;
     fix_player(op);
     return 1;
 }
 
 int command_players(object *op, char *paramss)
 {
+	(void) paramss;
+	(void) op;
+
 	/* Nope, because of SQLite this won't work. */
 	return 0;
 #if 0
@@ -830,6 +868,8 @@ int command_logs(object *op, char *params)
 {
     int first;
 
+	(void) params;
+
     first = 1;
 
     if (first)
@@ -873,6 +913,9 @@ int command_usekeys(object *op, char *params)
 int command_resistances(object *op, char *params)
 {
     int i;
+
+	(void) params;
+
     if (!op)
 		return 0;
 
@@ -889,6 +932,8 @@ int command_resistances(object *op, char *params)
 
 int command_praying(object *op, char *params)
 {
+	(void) params;
+
 	CONTR(op)->praying = 1;
 	return 0;
 }
@@ -932,6 +977,8 @@ int onoff_value(char *line)
 /* Command currently deactivated - we don't want players to quit! - A.T. 2009 */
 int command_quit(object *op, char *params)
 {
+	(void) params;
+	(void) op;
     return 1;
 }
 
@@ -957,6 +1004,8 @@ int command_explore (object *op, char *params)
 
 int command_sound(object *op, char *params)
 {
+	(void) params;
+
     if (CONTR(op)->socket.sound)
 	{
         CONTR(op)->socket.sound = 0;
@@ -973,9 +1022,11 @@ int command_sound(object *op, char *params)
 
 /* Perhaps these should be in player.c, but that file is
  * already a bit big. */
-void receive_player_name(object *op,char k)
+void receive_player_name(object *op ,char k)
 {
- 	 unsigned int name_len=strlen(CONTR(op)->write_buf+1);
+ 	unsigned int name_len=strlen(CONTR(op)->write_buf+1);
+
+	(void) k;
 
 	/* force a "Xxxxxxx" name */
 	if (name_len > 1)
@@ -1017,6 +1068,9 @@ void receive_player_name(object *op,char k)
 void receive_player_password(object *op, char k)
 {
 	unsigned int pwd_len = strlen(CONTR(op)->write_buf);
+
+	(void) k;
+
 	if (pwd_len <= 1 || pwd_len > 17)
 	{
 		get_name(op);
@@ -1062,6 +1116,8 @@ int explore_mode()
 
 int command_save(object *op, char *params)
 {
+	(void) params;
+
     if (blocks_cleric(op->map, op->x, op->y))
 		new_draw_info(NDI_UNIQUE, 0, op, "You can not save on unholy ground.");
     else if (!op->stats.exp)
@@ -1094,6 +1150,8 @@ int command_style_map_info(object *op, char *params)
     mapstruct *mp;
     int maps_used = 0, mapmem = 0, objects_used = 0, x,y;
     object *tmp;
+
+	(void) params;
 
     for (mp = styles; mp != NULL; mp = mp->next)
 	{
@@ -1397,6 +1455,8 @@ int command_apartment(object *op, char *params)
 
 int command_afk(object *op, char *params)
 {
+	(void) params;
+
 	if (CONTR(op)->afk)
 	{
 		CONTR(op)->afk = 0;

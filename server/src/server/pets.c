@@ -121,6 +121,8 @@ void remove_all_pets(mapstruct *map)
 	objectlink *obl, *next;
 	object *owner;
 
+	(void) map;
+
 	for (obl = first_friendly_object; obl != NULL; obl = next)
 	{
 		next = obl->next;

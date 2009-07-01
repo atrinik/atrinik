@@ -30,7 +30,7 @@
 
 
 
-char **make_snake_layout(int xsize, int ysize,int options) {
+char **make_snake_layout(int xsize, int ysize) {
   int i,j;
 
   /* allocate that array, set it up */

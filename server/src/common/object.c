@@ -981,12 +981,12 @@ int freedir[SIZEOFFREE]= {
 
 struct mempool mempools[NROF_MEMPOOLS] = {
     #ifdef MEMPOOL_TRACKING
-    {NULL, 10, sizeof(struct puddle_info), 0, 0, NULL, NULL, "puddles", MEMPOOL_ALLOW_FREEING},
+    {NULL, 10, sizeof(struct puddle_info), 0, 0, NULL, NULL, "puddles", MEMPOOL_ALLOW_FREEING, NULL},
     #endif
 
-    {NULL, OBJECT_EXPAND, sizeof(object), 0, 0, (chunk_constructor)initialize_object, (chunk_destructor)destroy_object, "objects"},
+    {NULL, OBJECT_EXPAND, sizeof(object), 0, 0, (chunk_constructor)initialize_object, (chunk_destructor)destroy_object, "objects", 0, NULL},
 
-    {NULL, 5, sizeof(player), 0, 0, NULL, NULL, "players", MEMPOOL_BYPASS_POOLS},
+    {NULL, 5, sizeof(player), 0, 0, NULL, NULL, "players", MEMPOOL_BYPASS_POOLS, NULL},
     /* Actually, we will later set up the destructor to point towards free_player() */
 };
 
@@ -1042,12 +1042,17 @@ static void expand_mempool(mempool_id pool)
 #ifdef MEMPOOL_OBJECT_TRACKING
 	static uint32 real_id = 1;
 #endif
+#ifdef MEMPOOL_TRACKING
+	struct puddle_info *p;
+#endif
 
     if (pool >= NROF_MEMPOOLS)
         LOG(llevBug, "BUG: expand_mempool for illegal memory pool %d\n", pool);
 
+#if 0
     if (mempools[pool].nrof_free > 0)
         LOG(llevBug, "BUG: expand_mempool called with chunks still available in pool\n");
+#endif
 
     chunksize_real = sizeof(struct mempool_chunk) + mempools[pool].chunksize;
     first = (struct mempool_chunk *)calloc(mempools[pool].expand_size,chunksize_real);
@@ -1078,7 +1083,7 @@ static void expand_mempool(mempool_id pool)
 
 #ifdef MEMPOOL_TRACKING
     /* Track the allocation of puddles? */
-    struct puddle_info *p = get_poolchunk(POOL_PUDDLE);
+	p = get_poolchunk(POOL_PUDDLE);
     p->first_chunk = first;
     p->next = mempools[pool].first_puddle_info;
     mempools[pool].first_puddle_info = p;
@@ -1381,6 +1386,8 @@ void *sort_singly_linked_list(void *p, unsigned index, int (*compare)(void *, vo
 /* Comparision function for sort_singly_linked_list */
 static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
 {
+	(void) args;
+
     if (((struct puddle_info *)a)->nrof_free < ((struct puddle_info *)b)->nrof_free)
         return -1;
     else if (((struct puddle_info *)a)->nrof_free > ((struct puddle_info *)b)->nrof_free)
@@ -1686,7 +1693,7 @@ signed long sum_weight(object *op)
 		if (inv->inv)
 			sum_weight(inv);
 
-		sum += inv->carrying + (inv->nrof ? inv->weight * inv->nrof : inv->weight);
+		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
 	}
 
 	/* because we avoid calculating for EVERY item in the loop above
@@ -1840,6 +1847,8 @@ void dump_me(object *op, char *outstr)
 /* Returns the object which has the count-variable equal to the argument. */
 object *find_object(int i)
 {
+	(void) i;
+
   	return NULL;
 
 #if 0
@@ -1858,6 +1867,8 @@ object *find_object(int i)
  * Enables features like "patch <name-of-other-player> food 999" */
 object *find_object_name(char *str)
 {
+	(void) str;
+
     return NULL;
 
 	/* if find_string() can't find the string -

@@ -75,7 +75,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP) {
   dump_layout(layout,RP);
 #endif
   /* allocate the map and set the floor */
-  theMap = make_map_floor(layout,RP->floorstyle,RP);
+  theMap = make_map_floor(RP->floorstyle,RP);
 
   /* set the name of the map. */
   FREE_AND_COPY_HASH(theMap->path,OutFileName);
@@ -167,14 +167,14 @@ char **layoutgen(RMParms *RP) {
   }
 
   if(strstr(RP->layoutstyle,"snake")) {
-    maze = make_snake_layout(RP->Xsize,RP->Ysize,RP->layoutoptions1);
+    maze = make_snake_layout(RP->Xsize,RP->Ysize);
     RP->map_layout_style = SNAKE_LAYOUT;
     if(RANDOM()%2) roomify_layout(maze,RP);
 
   }
 
   if(strstr(RP->layoutstyle,"squarespiral")) {
-    maze = make_square_spiral_layout(RP->Xsize,RP->Ysize,RP->layoutoptions1);
+    maze = make_square_spiral_layout(RP->Xsize,RP->Ysize);
     RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
     if(RANDOM()%2) roomify_layout(maze,RP);
 
@@ -203,12 +203,12 @@ char **layoutgen(RMParms *RP) {
       /* no doorifying...  done already */
       break;
     case 4:
-      maze = make_snake_layout(RP->Xsize,RP->Ysize,RP->layoutoptions1);
+      maze = make_snake_layout(RP->Xsize,RP->Ysize);
       RP->map_layout_style = SNAKE_LAYOUT;
       if(RANDOM()%2) roomify_layout(maze,RP);
       break;
     case 5:
-      maze = make_square_spiral_layout(RP->Xsize,RP->Ysize,RP->layoutoptions1);
+      maze = make_square_spiral_layout(RP->Xsize,RP->Ysize);
       RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
       if(RANDOM()%2) roomify_layout(maze,RP);
       break;

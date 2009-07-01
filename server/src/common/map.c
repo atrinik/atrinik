@@ -1087,7 +1087,7 @@ void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * in order to do map tiling properly.
  * The function/engine is now multi arch/tiled map save - put on the
  * map what you like. MT-07.02.04 */
-void save_objects(mapstruct *m, FILE *fp, FILE *fp2, int flag)
+void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
     int i, j = 0;
     object *head, *op, *otmp, *tmp, *last_valid;
@@ -2180,7 +2180,7 @@ int new_save_map(mapstruct *m, int flag)
 		if ((fp2 = fopen(buf, "w")) == NULL)
 			LOG(llevBug, "BUG: Can't open unique items file %s\n", buf);
 
-		save_objects(m, fp, fp2, 0);
+		save_objects(m, fp, fp2);
 		if (fp2 != NULL)
 		{
 			if (ftell(fp2) == 0)
@@ -2198,7 +2198,7 @@ int new_save_map(mapstruct *m, int flag)
     }
 	/* save same file when not playing, like in editor */
 	else
-		save_objects(m, fp, fp, 0);
+		save_objects(m, fp, fp);
 
 	if (fp)
 	{
@@ -2227,7 +2227,7 @@ int new_save_map(mapstruct *m, int flag)
 		while (fgets(linebuf, MAX_BUF, fp))
 		{
 			/* If this would overflow, reallocate the buffer with more bytes */
-			if (strlen(linebuf) + strlen(sqlbuf) > size)
+			if (strlen(linebuf) + strlen(sqlbuf) > (unsigned int) size)
 			{
 				size += strlen(linebuf) + strlen(sqlbuf) + 1;
 

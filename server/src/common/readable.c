@@ -1086,7 +1086,7 @@ void change_book(object *book, int msgtype)
 				/* some pre-generated books have title already set (from
 				 * maps), also don't bother looking for unique title if
 				 * we already used up all the available names! */
-	
+
 				if (!tl)
 				{
 					LOG(llevBug, "BUG: change_book_name(): can't find title list\n");
@@ -1123,7 +1123,7 @@ void change_book(object *book, int msgtype)
 				 * have called this routine in the first place!
 				 * 2) If we got a unique title, we need to add it to
 				 * the list. */
-	
+
 				/* got to check maxnames again */
 				if (tries == MAX_TITLE_CHECK || numb == maxnames)
 				{
@@ -1166,7 +1166,7 @@ void change_book(object *book, int msgtype)
 			else
 			{
 				int level;
-	
+
 				level = spells[book->stats.sp].level / 2;
 				nbr = sizeof(mage_book_name) / sizeof(char *);
 
@@ -1667,9 +1667,8 @@ void make_formula_book(object *book, int level)
 #endif
 
 /* msgfile_msg() - generate a message drawn randomly from a
- * file in lib/. Level currently has no effect on the message
- * which is returned. */
-char *msgfile_msg(int level, int booksize)
+ * file in lib/. */
+char *msgfile_msg(int booksize)
 {
     static char retbuf[BOOK_BUF];
     int i, msgnum;
@@ -1772,9 +1771,9 @@ char *god_info_msg(int level, int booksize)
 		if (level == 4 && RANDOM () % 2)
 		{
 			char tmpbuf[MAX_BUF], *cp;
-	
+
 			cp = describe_resistance(god, 1);
-	
+
 			/* This god does have protections */
 			if (*cp)
 			{
@@ -1835,7 +1834,7 @@ char *god_info_msg(int level, int booksize)
 			char tmpbuf[MAX_BUF];
 			sprintf(tmpbuf, "\n");
 			sprintf(tmpbuf, "The priests of %s are known to make cast a mighty prayer of possession which gives the recipient\n", name);
-	
+
 			for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 			{
 				if (god->resist[tmpvar] == 100)
@@ -1888,7 +1887,7 @@ char *god_info_msg(int level, int booksize)
 			else
 				sprintf(buf, " ");
 		}
-	
+
 		/* check to be sure new buffer size dont exceed either
 		 * the maximum buffer size, or the 'natural' size of the
 		 * book... */
@@ -1976,7 +1975,7 @@ void tailor_readable_ob(object *book, int msg_type)
 	    	/* make_formula_book already gives title */
 	    	return;
 #else
-	    	strcpy(msgbuf, msgfile_msg(level, book_buf_size));
+	    	strcpy(msgbuf, msgfile_msg(book_buf_size));
 	    	msg_type = 0;
 #endif
 	    	break;
@@ -1989,7 +1988,7 @@ void tailor_readable_ob(object *book, int msg_type)
 		/* use info list in lib/ */
       	case 0:
       	default:
-	  		strcpy(msgbuf, msgfile_msg(level, book_buf_size));
+	  		strcpy(msgbuf, msgfile_msg(book_buf_size));
 	  		break;
     }
 

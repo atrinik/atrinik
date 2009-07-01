@@ -40,7 +40,9 @@
 #define MORE_PRIEST_GIFTS
 
 static int god_gives_present(object *op, object *god, treasure *tr);
+#if 0
 static void follower_remove_similar_item(object *op, object *item);
+#endif
 
 int lookup_god_by_name(const char *name)
 {
@@ -655,6 +657,7 @@ static int follower_has_similar_item(object *op, object *item)
  * the given 'item' in the inventory of 'op' (recursively).
  * Any matching items in the inventory are deleted, and a
  * message is displayed to the player. */
+#if 0
 static void follower_remove_similar_item(object *op, object *item)
 {
     object *tmp, *next;
@@ -686,6 +689,7 @@ static void follower_remove_similar_item(object *op, object *item)
 		}
     }
 }
+#endif
 
 static int god_gives_present(object *op, object *god, treasure *tr)
 {
@@ -1065,6 +1069,8 @@ int tailor_god_spell(object *spellop, object *caster)
 /* we need a skill for this, not the skill group! */
 void lose_priest_exp(object *pl, int loss)
 {
+	(void) pl;
+	(void) loss;
 #if 0
   	if (!pl || pl->type != PLAYER || !pl->chosen_skill || !pl->chosen_skill->exp_obj)
   	{

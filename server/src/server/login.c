@@ -76,6 +76,7 @@ void emergency_save(int flag)
 	}
 	LOG(llevSystem,"\n");
 #else
+	(void) flag;
   	LOG(llevSystem, "Emergency saves disabled, no save attempted\n");
 #endif
 }
@@ -85,6 +86,8 @@ void emergency_save(int flag)
  * (needed for transition) */
 void delete_character(const char *name, int new)
 {
+	(void) name;
+	(void) new;
 	/* This is commented out because:
  	 * 1.) We don't really want to delete players.
  	 * 2.) With the players now being in SQLite database,
@@ -167,6 +170,8 @@ long calculate_checksum_new(char *buf, int checkdouble)
 	int offset = 0;
 	char *cp;
 
+	(void) checkdouble;
+
 #if 0
 	if (checkdouble && !strncmp(buf, "checksum", 8))
 		continue;
@@ -198,7 +203,7 @@ int save_player(object *op, int flag)
 {
 	char *sqlbuf, *p, *invbuf;
 	player *pl = CONTR(op);
-	int i, wiz = QUERY_FLAG(op, FLAG_WIZ), do_update = 0, sqlresult, size = HUGE_BUF * 4, n;
+	int i, wiz = QUERY_FLAG(op, FLAG_WIZ), do_update = 0, sqlresult, size = HUGE_BUF * 4, n, old_size;
 	long checksum;
 	sqlite3 *db;
 	sqlite3_stmt *statement;
@@ -289,11 +294,11 @@ int save_player(object *op, int flag)
   	CLEAR_FLAG(op, FLAG_WIZ);
 
 	invbuf = (char *)malloc(size);
-	int old_size = size;
+	old_size = size;
 
 	while (1)
 	{
-		sprintf(invbuf, "");
+		invbuf[0] = '\0';
 
 #ifdef BACKUP_SAVE_AT_HOME
 		/* Save objects, but not unpaid objects.  Don't remove objects from
@@ -324,7 +329,7 @@ int save_player(object *op, int flag)
 		if ((p = (char *)realloc(sqlbuf, size + 1)) == NULL)
 		{
 			LOG(llevError, "ERROR: Out of memory.\n");
-			return;
+			return 0;
 		}
 		else
 			sqlbuf = p;
@@ -994,7 +999,7 @@ void check_login(object *op)
 
     /* This seems to compile without warnings now.  Don't know if it works
      * on SGI's or not, however. */
-    qsort((void *)pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (void*)(int (*)())spell_sort);
+    qsort((void *)pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)())spell_sort);
 
 	/* hm, this is for secure - be SURE our player is on
 	 * friendly list. If friendly is set, this was be done

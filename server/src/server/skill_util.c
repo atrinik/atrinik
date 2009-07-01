@@ -121,6 +121,8 @@ int find_skill_exp_level(object *pl, int item_skill)
 /* find and return player skill exp level name of given index item_skill */
 char *find_skill_exp_skillname(object *pl, int item_skill)
 {
+	(void) pl;
+
 	/* funny double use of last entry marker :) */
     if (!item_skill || item_skill > 6)
         return skill_name_table[6].name;

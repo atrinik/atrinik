@@ -29,8 +29,7 @@
 
 /* PROTOTYPES */
 
-static void expand_misc(char **newlayout, int i, int j, char **layout,
-                        int xsize, int ysize);
+static void expand_misc(char **newlayout, int i, int j, char **layout);
 static void expand_wall(char **newlayout, int i, int j, char **layout,
                         int xsize, int ysize);
 static void expand_door(char **newlayout, int i, int j, char **layout,
@@ -60,7 +59,7 @@ char **expand2x(char **layout, int xsize, int ysize) {
         expand_door(newlayout, i,j, layout, xsize, ysize);
         break;
       default:
-        expand_misc(newlayout, i,j, layout, xsize, ysize);
+        expand_misc(newlayout, i,j, layout);
       }
     }
   }
@@ -79,8 +78,7 @@ char **expand2x(char **layout, int xsize, int ysize) {
  *	X  --->	X  \0
  *		\0 \0
  */
-static void expand_misc(char **newlayout, int i, int j, char **layout,
-                        int xsize, int ysize) {
+static void expand_misc(char **newlayout, int i, int j, char **layout) {
   newlayout[i*2][j*2] = layout[i][j];
   /* (Note: no need to reset rest of 2x2 area to \0 because calloc does that
    * for us.) */

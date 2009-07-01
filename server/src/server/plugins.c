@@ -696,6 +696,8 @@ CFParm* CFWCmdTake(CFParm* PParm)
 {
     CFParm *CFP;
     static int val;
+
+	(void) PParm;
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
     /*val = command_take((object *)(PParm->Value[0]),(char *)(PParm->Value[1]));*/
     CFP->Value[0] = &val;
@@ -731,6 +733,9 @@ CFParm* CFWCmdTitle(CFParm* PParm)
 {
     CFParm *CFP;
     static int val;
+
+	(void) PParm;
+
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
     CFP->Value[0] = &val;
     return CFP;
@@ -1359,6 +1364,8 @@ CFParm* CFWFreeString(CFParm* PParm)
 CFParm* CFWGetFirstMap(CFParm* PParm)
 {
     CFParm* CFP;
+
+	(void) PParm;
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
     CFP->Value[0] = (void*)(first_map) ;
     return CFP;
@@ -1367,6 +1374,8 @@ CFParm* CFWGetFirstMap(CFParm* PParm)
 CFParm* CFWGetFirstPlayer(CFParm* PParm)
 {
     CFParm* CFP;
+
+	(void) PParm;
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
     CFP->Value[0] = (void*)(first_player) ;
     return CFP;
@@ -1375,6 +1384,8 @@ CFParm* CFWGetFirstPlayer(CFParm* PParm)
 CFParm* CFWGetFirstArchetype(CFParm* PParm)
 {
     CFParm* CFP;
+
+	(void) PParm;
     CFP = (CFParm*)(malloc(sizeof(CFParm)));
     CFP->Value[0] = (void*)(first_archetype) ;
     return CFP;
@@ -1760,6 +1771,8 @@ CFParm* CFWApplyBelow(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWFreeObject(CFParm* PParm)
 {
+	(void) PParm;
+
 #if 0
     object* op = (object*)PParm->Value[0];
    	if (op)

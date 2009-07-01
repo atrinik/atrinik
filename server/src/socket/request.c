@@ -402,6 +402,9 @@ void AddMeCmd(char *buf, int len, NewSocket *ns)
 	char cmd_buf[2] = "X";
     oldsettings = settings;
 
+	(void) buf;
+	(void) len;
+
     if (ns->status != Ns_Add || add_player(ns))
 	{
 		Write_String_To_Socket(ns, BINARY_CMD_ADDME_FAIL, cmd_buf, 1);
@@ -498,6 +501,8 @@ void ReplyCmd(char *buf, int len, player *pl)
      * think it was the carriage return that was entered, and the
      * function then does not try to do additional input. */
 
+	(void) len;
+
 	if (pl->socket.status == Ns_Dead)
 		return;
 
@@ -590,6 +595,8 @@ static void version_mismatch_msg(NewSocket *ns)
 void RequestFileCmd(char *buf, int len, NewSocket *ns)
 {
 	int id;
+
+	(void) len;
 
 	/* *only* allow this command between the first login and the "addme" command! */
     if (ns->status != Ns_Add || !buf)
@@ -691,9 +698,11 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
  * something older than the server.  If we assume the client will be
  * backwards compatible, having it be a later version should not be a
  * problem. */
-void VersionCmd(char *buf, int len,NewSocket *ns)
+void VersionCmd(char *buf, int len, NewSocket *ns)
 {
     char *cp;
+
+	(void) len;
 
     if (!buf || ns->version)
     {
@@ -750,12 +759,17 @@ void VersionCmd(char *buf, int len,NewSocket *ns)
 /* sound related functions. */
 void SetSound(char *buf, int len, NewSocket *ns)
 {
+	(void) len;
+
     ns->sound = atoi(buf);
 }
 
 /* client wants the map resent */
 void MapRedrawCmd(char *buff, int len, player *pl)
 {
+	(void) buff;
+	(void) len;
+
     /* Okay, this is MAJOR UGLY. but the only way I know how to
      * clear the "cache" */
     memset(&pl->socket.lastmap, 0, sizeof(struct Map));
@@ -771,9 +785,11 @@ void MapNewmapCmd(player *pl)
 
 /* Moves and object (typically, container to inventory
  * move <to> <tag> <nrof> */
-void MoveCmd(char *buf, int len,player *pl)
+void MoveCmd(char *buf, int len, player *pl)
 {
     int vals[3], i;
+
+	(void) len;
 
     /* A little funky here.  We only cycle for 2 records, because
      * we obviously am not going to find a space after the third
@@ -891,7 +907,7 @@ void esrv_update_stats(player *pl)
     int i;
     uint16 flags;
 
-    sl.buf = sock_buf;
+    sl.buf = (unsigned char *) sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_STATS);
 
 	/* small trick: we want send the hp bar of our target to the player.
@@ -1868,5 +1884,7 @@ void esrv_map_scroll(NewSocket *ns, int dx, int dy)
 void send_plugin_custom_message(object *pl, char *buf)
 {
 	/* we must add here binary_cmd! */
+	(void) pl;
+	(void) buf;
     /*Write_String_To_Socket(&CONTR(pl)->socket, buf, strlen(buf));*/
 }

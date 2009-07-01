@@ -158,6 +158,7 @@ void set_tmpdir(char *path)
 
 void showscoresparm(char *data)
 {
+	(void) data;
 /*    display_high_score(NULL,9999,data); */
     exit(0);
 }
@@ -289,7 +290,7 @@ static void parse_args(int argc, char *argv[], int pass)
 
     while (on_arg < argc)
 	{
-		for (i = 0; i < sizeof(options) / sizeof(struct Command_Line_Options); i++)
+		for (i = 0; i < (int) sizeof(options) / (int) sizeof(struct Command_Line_Options); i++)
 		{
 			if (!strcmp(options[i].cmd_option, argv[on_arg]))
 			{
@@ -790,18 +791,24 @@ void compile_info()
 
 void rec_sigsegv(int i)
 {
+	(void) i;
+
   	LOG(llevSystem, "\nSIGSEGV received.\n");
   	fatal_signal(1, 1);
 }
 
 void rec_sigint(int i)
 {
+	(void) i;
+
   	LOG(llevSystem, "\nSIGINT received.\n");
   	fatal_signal(0, 1);
 }
 
 void rec_sighup(int i)
 {
+	(void) i;
+
   	LOG(llevSystem, "\nSIGHUP received\n");
   	if (init_done)
 	{
@@ -813,12 +820,16 @@ void rec_sighup(int i)
 
 void rec_sigquit(int i)
 {
+	(void) i;
+
   	LOG(llevSystem, "\nSIGQUIT received\n");
   	fatal_signal(1, 1);
 }
 
 void rec_sigpipe(int i)
 {
+	(void) i;
+
 	/* Keep running if we receive a sigpipe.  Crossfire should really be able
 	 * to handle this signal (at least at some point in the future if not
 	 * right now).  By causing a dump right when it is received, it is not
@@ -838,6 +849,8 @@ void rec_sigpipe(int i)
 
 void rec_sigbus(int i)
 {
+	(void) i;
+
 #ifdef SIGBUS
   	LOG(llevSystem, "\nSIGBUS received\n");
   	fatal_signal(1, 1);
@@ -846,12 +859,16 @@ void rec_sigbus(int i)
 
 void rec_sigterm(int i)
 {
+	(void) i;
+
   	LOG(llevSystem,"\nSIGTERM received\n");
   	fatal_signal(0, 1);
 }
 
 void fatal_signal(int make_core, int close_sockets)
 {
+	(void) close_sockets;
+
 	if (init_done)
 	{
 		emergency_save(0);

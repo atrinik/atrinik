@@ -23,9 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file contains database related stuff. */
+/**
+ * @file
+ * This file contains database related functions. */
 
-/* This overrides default SQLite behaviour of writing data. Basically,
+/** This overrides default SQLite behaviour of writing data. Basically,
  * by default SQLite checks that each transaction write was successful.
  * As you can imagine, this can be slow. On reliable hardware, backup
  * power, and backups, checks like this are not really needed. */
@@ -34,6 +36,11 @@
 #include <global.h>
 
 /* Opens SQLite database. */
+/**
+ * Opens SQLite database.
+ * @param file Database file
+ * @param db Database pointer where to open the database
+ * @return SQLITE_OK on success, otherwise an error code is returned */
 int db_open(char *file, sqlite3 **db)
 {
 	int success = sqlite3_open(file, db);
@@ -54,7 +61,12 @@ int db_open(char *file, sqlite3 **db)
 	return success;
 }
 
-/* Prepare SQL query. Return values: 1 (everything ok), 0 (something went wrong) */
+/**
+ * Prepare SQL query for db_step().
+ * @param db Database handle
+ * @param sql The SQL query
+ * @param statement SQLite statement handle
+ * @return 1 on success, 0 otherwise */
 int db_prepare(sqlite3 *db, const char *sql, sqlite3_stmt **statement)
 {
 	if (sqlite3_prepare(db, sql, strlen(sql), statement, 0) == SQLITE_OK)
@@ -63,7 +75,13 @@ int db_prepare(sqlite3 *db, const char *sql, sqlite3_stmt **statement)
 		return 0;
 }
 
-/* Prepare SQL query with format arguments, like sprintf, and call db_prepare(). */
+/**
+ * Prepare SQL query with format arguments, line sprintg, and call db_prepare().
+ * Takes care of any dynamic buffer allocation.
+ * @param db Database handle
+ * @param statement SQLite statement handle
+ * @param format Format arguments
+ * @return 1 on success, 0 otherwise */
 int db_prepare_format(sqlite3 *db, sqlite3_stmt **statement, const char *format, ...)
 {
 	/* Guess we need no more than 100 bytes. */
@@ -118,37 +136,51 @@ int db_prepare_format(sqlite3 *db, sqlite3_stmt **statement, const char *format,
 	}
 }
 
-/* Run the SQL query prepared by db_prepare() */
+/**
+ * Run the SQL query prepared by db_prepare().
+ * @param statement SQLite statement handle */
 int db_step(sqlite3_stmt *statement)
 {
 	return sqlite3_step(statement);
 }
 
-/* Grab the text in database after running db_step() */
+/**
+ * Grabs the text in database after running db_step().
+ * @param statement SQLite statement handle
+ * @param col Column ID
+ * @return The data from the database */
 const unsigned char *db_column_text(sqlite3_stmt *statement, int col)
 {
 	return sqlite3_column_text(statement, col);
 }
 
-/* Grab the value in database after running db_step() */
-sqlite3_value *db_column_value(sqlite3_stmt *statement, int col)
-{
-	return sqlite3_column_value(statement, col);
-}
-
 /* Finalize SQL query previously prepared by db_prepare() */
+/**
+ * Finalizes SQL query previously prepared by db_prepare().
+ * @param statement SQLite statement handle
+ * @return SQLITE_OK on success, otherwise an error code is returned. */
 int db_finalize(sqlite3_stmt *statement)
 {
 	return sqlite3_finalize(statement);
 }
 
-/* Close database. */
+/**
+ * Close a previously opened database.
+ * @param db The database handle */
 int db_close(sqlite3 *db)
 {
 	return sqlite3_close(db);
 }
 
 /* Sanitize database input. Run for ANY value you don't control, like /bug command. */
+/**
+ * Sanitize database input. <b>Must</b> be run on any player data, like when saving
+ * unique maps, player data, entering info to /bug command, etc. Otherwise it could
+ * be possible to inject the SQL query.
+ *
+ * Takes care of any needed dynamic buffer allocation.
+ * @param sql_input Pointer to the SQL input
+ * @return The new SQL input */
 char *db_sanitize_input(char *sql_input)
 {
 	char *p, *np;
@@ -193,7 +225,10 @@ char *db_sanitize_input(char *sql_input)
 	return sql_input;
 }
 
-/* Return the last error message returned by doing anything with database. */
+/**
+ * Returns the last error message returned by SQLite.
+ * @param db Database handle
+ * @return The error message */
 const char *db_errmsg(sqlite3* db)
 {
 	return sqlite3_errmsg(db);

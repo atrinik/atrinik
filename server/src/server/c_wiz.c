@@ -150,6 +150,8 @@ int command_kick(object *ob, char *params)
 
 int command_shutdown(object *op, char *params)
 {
+	(void) params;
+
     if (op != NULL && !QUERY_FLAG(op, FLAG_WIZ))
 		return 1;
 
@@ -650,6 +652,8 @@ int command_inventory(object *op, char *params)
  * already see skills w/ inventory command - b.t. */
 int command_skills(object *op, char *params)
 {
+	(void) params;
+
  	show_skills(op);
  	return 0;
 }
@@ -1079,6 +1083,8 @@ void remove_active_DM(active_DMs **list, object *op)
 /* 'noadm' is alias */
 int command_nowiz(object *op, char *params)
 {
+	(void) params;
+
     CLEAR_FLAG(op, FLAG_WIZ);
 	/* clear this dm from global dm list. */
 	remove_active_DM(&dm_list, op);
@@ -1190,6 +1196,8 @@ int command_dm(object *op, char *params)
 
 int command_invisible(object *op, char *params)
 {
+	(void) params;
+
   	if (!op)
     	return 0;
 
@@ -1256,6 +1264,8 @@ int command_forget_spell(object *op, char *params)
  * Lists all plugins currently loaded with their IDs and full names. */
 int command_listplugins(object *op, char *params)
 {
+	(void) params;
+
     displayPluginsList(op);
     return 1;
 }
@@ -1267,6 +1277,8 @@ int command_listplugins(object *op, char *params)
 int command_loadplugin(object *op, char *params)
 {
     char buf[MAX_BUF];
+
+	(void) op;
 
     strcpy(buf, DATADIR);
     strcat(buf, "/../plugins/");
@@ -1282,6 +1294,8 @@ int command_loadplugin(object *op, char *params)
  * are not loaded. */
 int command_unloadplugin(object *op, char *params)
 {
+	(void) op;
+
     removeOnePlugin(params);
     return 1;
 }

@@ -1004,6 +1004,8 @@ int cast_create_obj(object *op, object *caster, object *new_op, int dir)
 	mapstruct *mt;
 	int xt, yt;
 
+	(void) caster;
+
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
 	if (!(mt = out_of_map(op->map, &xt, &yt)))
@@ -1143,6 +1145,8 @@ static inline int ok_to_put_more(mapstruct *m, int x, int y, object *op, int imm
 {
     object *tmp;
 
+	(void) immune_stop;
+
 	/* we must check map here or we will go in trouble some line down */
 	if (!(m = out_of_map(m, &x, &y)))
 		return 0;
@@ -1174,6 +1178,8 @@ static inline int ok_to_put_more(mapstruct *m, int x, int y, object *op, int imm
 int fire_bolt(object *op, object *caster, int dir, int type, int magic)
 {
 	object *tmp = NULL;
+
+	(void) magic;
 
 	if (!spellarch[type])
 		return 0;
@@ -1291,7 +1297,9 @@ int fire_arch_from_position (object *op, object *caster, sint16 x, sint16 y, int
 		case SP_POISON_FOG:
 		case SP_DIVINE_SHOCK:
 		case SP_BALL_LIGHTNING:
+#if 0
 			tmp->stats.food = spells[type].bdur + 4 * SP_level_strength_adjust(op, caster, type);
+#endif
 			move_ball_lightning(tmp);
 			break;
 
@@ -1307,6 +1315,8 @@ int cast_cone(object *op, object *caster,int dir, int strength, int spell_type, 
 	object *tmp;
 	int i, success = 0, range_min = -1, range_max = 1;
 	uint32 count_ref;
+
+	(void) magic;
 
 	if (!dir)
 		range_min = -3, range_max = 4, strength /= 2;
@@ -2292,6 +2302,9 @@ int find_target_for_spell(object *op,object *item, object **target, int dir, uin
 {
 	object *tmp;
 
+	(void) item;
+	(void) dir;
+
 	/*LOG(llevInfo, "FIND_TARGET_for_spell: op: %s used: %s dir %d flags: %x\n", op->name, item ? item->name : "<none>", dir, flags);*/
 
 	/* default target is - nothing! */
@@ -2792,6 +2805,8 @@ int SP_level_dam_adjust(object *op, object *caster, int spell_type)
     int level = casting_level(caster, spell_type);
     int adj = (level - spells[spell_type].level);
 
+	(void) op;
+
     if (adj < 0)
 		adj = 0;
 
@@ -2811,6 +2826,8 @@ int SP_level_strength_adjust(object *op, object *caster, int spell_type)
 {
     int level = casting_level(caster, spell_type);
     int adj = (level - spells[spell_type].level);
+
+	(void) op;
 
     if (adj < 0)
 		adj = 0;
@@ -2834,10 +2851,13 @@ int SP_level_spellpoint_cost(object *op, object *caster, int spell_type)
 {
 	spell *s = find_spell(spell_type);
 	int level = casting_level(caster, spell_type);
-
 #ifdef SPELLPOINT_LEVEL_DEPEND
 	int sp;
+#endif
 
+	(void) op;
+
+#ifdef SPELLPOINT_LEVEL_DEPEND
 	if (spells[spell_type].spl)
 		sp = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float)(level - spells[spell_type].level) / (float)spells[spell_type].spl))));
 	else
@@ -2857,7 +2877,11 @@ static int SP_level_gracepoint_cost(object *op, object *caster, int spell_type)
 	int level = casting_level(caster, spell_type);
 #ifdef SPELLPOINT_LEVEL_DEPEND
 	int grace;
+#endif
 
+	(void) op;
+
+#ifdef SPELLPOINT_LEVEL_DEPEND
 	if (spells[spell_type].spl)
 		grace = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float)(level-spells[spell_type].level) / (float)spells[spell_type].spl))));
 	else
@@ -3161,6 +3185,9 @@ void shuffle_attack(object *op, int change_face)
 /* TODO - remove this check stuff from the for next */
 object *get_pointed_target(object *op, int dir)
 {
+	(void) op;
+	(void) dir;
+
 #if 0
 	object *target;
 	int x,y;

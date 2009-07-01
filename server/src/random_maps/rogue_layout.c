@@ -41,7 +41,7 @@ typedef struct {
 
 static int roguelike_place_room(Room *Rooms,int xsize, int ysize,int nrooms);
 static void roguelike_make_rooms(Room *Rooms,char **maze, int options);
-static void roguelike_link_rooms(Room *Rooms,char **maze,int xsize,int ysize);
+static void roguelike_link_rooms(Room *Rooms,char **maze);
 
 
 int surround_check(char **layout,int i,int j,int Xsize, int Ysize){
@@ -114,7 +114,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options) {
   /* erase the areas occupied by the rooms */
   roguelike_make_rooms(Rooms,maze,options);
 
-  roguelike_link_rooms(Rooms,maze,xsize,ysize);
+  roguelike_link_rooms(Rooms,maze);
 
   /* put in the stairs */
 
@@ -244,7 +244,7 @@ static void roguelike_make_rooms(Room *Rooms,char **maze, int options) {
 
 
 
-static void roguelike_link_rooms(Room *Rooms,char **maze,int xsize,int ysize){
+static void roguelike_link_rooms(Room *Rooms,char **maze){
   Room *walk;
   int i,j;
   /* link each room to the previous room */

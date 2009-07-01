@@ -30,12 +30,12 @@
 
 static PyMethodDef MapMethods[] =
 {
-    {"GetFirstObjectOnSquare", 	(PyCFunction)Atrinik_Map_GetFirstObjectOnSquare, 	METH_VARARGS},
-    {"PlaySound",				(PyCFunction)Atrinik_Map_PlaySound,					METH_VARARGS},
-    {"Message", 				(PyCFunction)Atrinik_Map_Message,					METH_VARARGS},
-    {"MapTileAt",  				(PyCFunction)Atrinik_Map_MapTileAt, 				METH_VARARGS},
-    {"CreateObject", 			(PyCFunction)Atrinik_Map_CreateObject,				METH_VARARGS},
-    {NULL, NULL}
+    {"GetFirstObjectOnSquare", 	(PyCFunction)Atrinik_Map_GetFirstObjectOnSquare, 	METH_VARARGS, 0},
+    {"PlaySound",				(PyCFunction)Atrinik_Map_PlaySound,					METH_VARARGS, 0},
+    {"Message", 				(PyCFunction)Atrinik_Map_Message,					METH_VARARGS, 0},
+    {"MapTileAt",  				(PyCFunction)Atrinik_Map_MapTileAt, 				METH_VARARGS, 0},
+    {"CreateObject", 			(PyCFunction)Atrinik_Map_CreateObject,				METH_VARARGS, 0},
+    {NULL, NULL, 0, 0}
 };
 
 static struct {
@@ -184,6 +184,15 @@ PyTypeObject Atrinik_MapType = {
 
 	/* tp_new */
     Atrinik_Map_new,
+
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
 };
 
 /* Map related constants */
@@ -338,7 +347,7 @@ static PyObject* Map_GetAttribute(Atrinik_Map* map, int fieldno)
 {
     void *field_ptr;
 
-    if (fieldno < 0 || fieldno >= NUM_MAPFIELDS)
+    if (fieldno < 0 || fieldno >= (int) NUM_MAPFIELDS)
         RAISE("Illegal field ID");
 
     field_ptr = (void *)((char *)(map->map) + map_fields[fieldno].offset);
@@ -390,7 +399,7 @@ static PyObject* Map_GetAttribute(Atrinik_Map* map, int fieldno)
 /*****************************************************************************/
 static PyObject* Map_GetFlag(Atrinik_Map* map, int flagno)
 {
-    if (flagno < 0 || flagno >= NUM_MAPFLAGS)
+    if (flagno < 0 || flagno >= (int) NUM_MAPFLAGS)
         RAISE("Unknown flag");
 
     return Py_BuildValue("i", (map->map->map_flags & (1 << flagno)) ? 1 : 0);
@@ -407,7 +416,7 @@ int Atrinik_Map_init(PyObject *module)
     int i;
 
     /* field getters */
-    for (i = 0; i < NUM_MAPFIELDS; i++)
+    for (i = 0; i < (int) NUM_MAPFIELDS; i++)
 	{
         PyGetSetDef *def = &Map_getseters[i];
         def->name = map_fields[i].name;
@@ -418,7 +427,7 @@ int Atrinik_Map_init(PyObject *module)
     }
 
     /* flag getters */
-    for (i = 0; i < NUM_MAPFLAGS; i++)
+    for (i = 0; i < (int) NUM_MAPFLAGS; i++)
 	{
         PyGetSetDef *def = &Map_getseters[i + NUM_MAPFIELDS];
         def->name = mapflag_names[i];
@@ -450,6 +459,9 @@ int Atrinik_Map_init(PyObject *module)
 static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Atrinik_Map *self;
+
+	(void) args;
+	(void) kwds;
 
     self = (Atrinik_Map *)type->tp_alloc(type, 0);
 

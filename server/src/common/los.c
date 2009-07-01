@@ -208,7 +208,7 @@ static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] =
 
 };
 
-void inline clear_los(object *op);
+inline void clear_los(object *op);
 
 /* initialises the array used by the LOS routines.
  * This is NOT called for every LOS - only at server start to
@@ -484,7 +484,7 @@ void update_los(object *op)
 
 /* Clears/initialises the los-array associated to the player
  * controlling the object. */
-void inline clear_los(object *op)
+inline void clear_los(object *op)
 {
     (void)memset((void *) CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
 }
@@ -1106,20 +1106,7 @@ void remove_light_source_list(mapstruct *map)
 	map->first_light = NULL;
 }
 
-/* make_sure_seen: The object is supposed to be visible through walls, thus
- * check if any players are nearby, and edit their LOS array. */
-void make_sure_seen(object *op)
-{
-}
-
-/* make_sure_not_seen: The object which is supposed to be visible through
- * walls has just been removed from the map, so update the los of any
- * players within its range */
-void make_sure_not_seen(object *op)
-{
-}
-
-int obj_in_line_of_sight(object *op, object *obj, rv_vector *rv)
+int obj_in_line_of_sight(object *obj, rv_vector *rv)
 {
     /* Bresenham variables */
     int fraction, dx2, dy2, stepx, stepy;

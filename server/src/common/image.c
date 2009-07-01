@@ -165,7 +165,7 @@ int ReadBmapNames()
 
     nrofpixmaps++;
 
-    qsort(xbm, nrofbmaps, sizeof(struct bmappair), (void*)(int (*)())compar);
+    qsort(xbm, nrofbmaps, sizeof(struct bmappair), (int (*)())compar);
 
     blank_face = &new_faces[FindFace(BLANK_FACE_NAME, 0)];
     blank_look.face = blank_face;
@@ -209,9 +209,9 @@ int FindFace (char *name, int error)
 		*p = '\0';
 
     tmp.name = name;
-    bp = (struct bmappair *)bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void*)(int (*)())compar);
+    bp = (struct bmappair *)bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)())compar);
 
-    return bp ? bp->number : error;
+    return bp ? bp->number : (unsigned int) error;
 }
 
 void free_all_images()

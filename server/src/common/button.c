@@ -177,7 +177,7 @@ void update_button(object *op)
 
 			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2), tot = 0; ab != NULL; ab = ab->above)
 			{
-				if (ab != tmp && (fly ? QUERY_FLAG(ab, FLAG_FLYING) : move))
+				if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
 					tot += ab->weight * (ab->nrof ? ab->nrof : 1) + ab->carrying;
 			}
 
@@ -196,7 +196,7 @@ void update_button(object *op)
 			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
 			{
 				head = ab->head ? ab->head : ab;
-				if (ab != tmp && (fly ? QUERY_FLAG(ab, FLAG_FLYING) : move) && (head->race == tmp->slaying || (!strcmp(tmp->slaying, "player") && head->type == PLAYER)))
+				if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move) && (head->race == tmp->slaying || (!strcmp(tmp->slaying, "player") && head->type == PLAYER)))
 					tmp->value = 1;
 			}
 
@@ -247,7 +247,7 @@ void update_buttons(mapstruct *m)
 
 				for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
 				{
-					if (ab != tmp && (fly ? QUERY_FLAG(ab, FLAG_FLYING) : move))
+					if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
 						check_inv(ab, tmp);
 				}
 			}

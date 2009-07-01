@@ -42,7 +42,7 @@ void play_sound_player_only(player *pl, int soundnum, int soundtype, int x, int 
     if (!pl->socket.sound)
 		return;
 
-    sl.buf = buf;
+    sl.buf = (unsigned char *) buf;
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
 
