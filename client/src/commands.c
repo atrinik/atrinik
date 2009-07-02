@@ -1881,8 +1881,8 @@ void SkilllistCmd(char *data)
 
 		if (tmp2)
 		{
-			strncpy(name, data, (uint32)tmp2 - (uint32)data);
-			name[(uint32)tmp2 - (uint32)data] = 0;
+			strncpy(name, data, tmp2 - data);
+			name[tmp2 - data] = 0;
 			data = tmp2;
 		}
 		else
@@ -1959,8 +1959,8 @@ void SpelllistCmd(char *data)
 
 		if (tmp2)
 		{
-			strncpy(name, data, (uint32)tmp2 - (uint32)data);
-			name[(uint32)tmp2-(uint32)data] = 0;
+			strncpy(name, data, tmp2 - data);
+			name[tmp2-data] = 0;
 			data = tmp2;
 		}
 		else
@@ -2053,7 +2053,7 @@ void GolemCmd(unsigned char *data)
  * @param path Path of the file
  * @param data Data to save
  * @param len Length of the data */
-static void save_data_cmd_file(char *path, char *data, int len)
+static void save_data_cmd_file(char *path, unsigned char *data, int len)
 {
 	FILE *stream;
 
@@ -2082,15 +2082,15 @@ void NewCharCmd()
  * Used when server sends us block of data, like new srv file.
  * @param data Incoming data
  * @param len Length of the data */
-void DataCmd(char *data, int len)
+void DataCmd(unsigned char *data, int len)
 {
 	uint8 data_type = (uint8) (*data);
 	uint8 data_comp;
 	/* warning! if the uncompressed size of a incoming compressed(!) file is larger
 	 * than this dest_len default setting, the file is cut and
 	 * the rest skiped. Look at the zlib docu for more info. */
-	uint32 dest_len = 512 * 1024;
-	char *dest;
+	unsigned long dest_len = 512 * 1024;
+	unsigned char *dest;
 
 	dest = malloc(dest_len);
 	data_comp = (data_type & DATA_PACKED_CMD);

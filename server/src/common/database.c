@@ -154,7 +154,6 @@ const unsigned char *db_column_text(sqlite3_stmt *statement, int col)
 	return sqlite3_column_text(statement, col);
 }
 
-/* Finalize SQL query previously prepared by db_prepare() */
 /**
  * Finalizes SQL query previously prepared by db_prepare().
  * @param statement SQLite statement handle
@@ -172,7 +171,6 @@ int db_close(sqlite3 *db)
 	return sqlite3_close(db);
 }
 
-/* Sanitize database input. Run for ANY value you don't control, like /bug command. */
 /**
  * Sanitize database input. <b>Must</b> be run on any player data, like when saving
  * unique maps, player data, entering info to /bug command, etc. Otherwise it could

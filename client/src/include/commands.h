@@ -84,6 +84,6 @@ extern void GolemCmd(unsigned char *data);
 extern void ItemXCmd(unsigned char *data, int len);
 extern void ItemYCmd(unsigned char *data, int len);
 extern void TargetObject(unsigned char *data, int len);
-extern void DataCmd(char *data, int len);
+extern void DataCmd(unsigned char *data, int len);
 extern void NewCharCmd();
 #endif

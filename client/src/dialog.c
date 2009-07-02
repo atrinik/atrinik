@@ -501,7 +501,7 @@ void add_value(void* value, int type, int offset, int min, int max)
 }
 
 /* draws all options for the actual page. */
-inline void optwin_draw_options(int x, int y)
+void optwin_draw_options(int x, int y)
 {
 #define LEN_NAME 111
 	int i = -1, pos = 0, max = 0;
