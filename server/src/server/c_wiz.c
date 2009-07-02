@@ -1179,6 +1179,8 @@ int command_dm(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, 0, op, "DM mode activated for %s!", op->name);
 			SET_MULTI_FLAG(op, FLAG_FLYING);
 			esrv_send_inventory(op, op);
+			/* Send all the spells for this DM */
+			send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 			clear_los(op);
 			/* force a draw_look() */
 			CONTR(op)->socket.update_tile = 0;

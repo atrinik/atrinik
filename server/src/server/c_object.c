@@ -29,9 +29,9 @@
 #include <sproto.h>
 #endif
 
-/*
- * Object id parsing functions
- */
+/**
+ * @file c_object.c
+ * Object ID parsing functions */
 
 #define OBLINKMALLOC(p) if(!((p)=(objectlink *)malloc(sizeof(objectlink))))\
                           fatal(OUT_OF_MEMORY);
@@ -48,9 +48,13 @@
 	  last->ob=(NEW);\
           last->id=(COUNT);
 
-/* Search the inventory of 'pl' for what matches best with params.
- * we use item_matched_string above - this gives us consistent behaviour
- * between many commands.  Return the best match, or NULL if no match. */
+/**
+ * Search the inventory of 'pl' for what matches best with params.
+ * We use item_matched_string above - this gives us consistent behaviour
+ * between many commands.
+ * @param pl Player object
+ * @param params Parameters string
+ * @return Best match, or NULL if no match. */
 object *find_best_object_match(object *pl, char *params)
 {
     object *tmp, *best = NULL;
@@ -67,15 +71,21 @@ object *find_best_object_match(object *pl, char *params)
 			best = tmp;
 		}
     }
+
     return best;
 }
 
 
+/**
+ * Use skill command.
+ * @param pl Player object
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure */
 int command_uskill(object *pl, char *params)
 {
    	if (!params)
 	{
-        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: use_skill <skill name>");
+        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /use_skill <skill name>");
         return 0;
    	}
 
@@ -85,20 +95,25 @@ int command_uskill(object *pl, char *params)
    	return use_skill(pl, params);
 }
 
+/**
+ * Ready skill command.
+ * @param pl Player object
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure */
 int command_rskill(object *pl, char *params)
 {
    	int skillno;
 
    	if (!params)
 	{
-        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: ready_skill <skill name>");
+        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /ready_skill <skill name>");
         return 0;
    	}
 
    	if (pl->type == PLAYER)
        	CONTR(pl)->praying = 0;
 
-   	skillno=lookup_skill_by_name(params);
+   	skillno = lookup_skill_by_name(params);
 
    	if (skillno == -1)
 	{
@@ -109,6 +124,12 @@ int command_rskill(object *pl, char *params)
    	return change_skill(pl, skillno);
 }
 
+/**
+ * Apply an item. Accepts parameters like -a to always apply,
+ * and -u to always unapply.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 0 */
 int command_apply(object *op, char *params)
 {
     if (op->type == PLAYER)
@@ -160,6 +181,14 @@ int command_apply(object *op, char *params)
  * using op->nrof because often times, a player may have specified a
  * certain number of objects to drop, so we can pass that number, and
  * not need to use split_ob and stuff. */
+/**
+ * Check if an item op can be put into a sack. If pl exists then tell
+ * a player the reason of failure.
+ * @param pl Player object
+ * @param sack The sack
+ * @param op The object to check
+ * @param nrof Number of objects we want to put in.
+ * @return 1 if the object will fit, 0 if it will not. */
 int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 {
     char buf[MAX_BUF];
@@ -171,7 +200,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
     if (sack == op)
 		sprintf(buf, "You can't put the %s into itself.", query_name(sack, NULL));
 
-    if ((sack->race && (sack->sub_type1&1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
+    if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
 		sprintf(buf, "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 
     if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
@@ -191,11 +220,12 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
     return 1;
 }
 
-/* Pick up commands follow */
-/* pl = player (not always - monsters can use this now)
- * op is the object to put tmp into,
- * tmp is the object to pick up, nrof is the number to
- * pick up (0 means all of them) */
+/**
+ * Pick up object.
+ * @param pl Object that is picking up the object
+ * @param op Object to put tmp into
+ * @param tmp Object to pick up
+ * @param nrof Number to pick up (0 means all of them) */
 static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 {
     /* buf needs to be big (more than 256 chars) because you can get
@@ -499,10 +529,13 @@ void pick_up(object *op, object *alt)
         fix_stopped_item(tmp, tmp_map, op);
 }
 
-
-/*  This function was part of drop, now is own function.
- *  Player 'op' tries to put object 'tmp' into sack 'sack',
- *  if nrof is non zero, then nrof objects is tried to put into sack. */
+/**
+ * Player tries to put object into sack, if nrof is non zero, then
+ * nrof objects is tried to put into sack.
+ * @param op Player object
+ * @param sack The sack
+ * @param tmp The object to put into sack
+ * @param nrof Number of items to put into sack (0 for all) */
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 {
     tag_t tmp_tag, tmp2_tag;
@@ -647,10 +680,11 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
     esrv_update_item(UPD_WEIGHT, op, op);
 }
 
-/*  This function was part of drop, now is own function.
- *  Player 'op' tries to drop object 'tmp', if tmp is non zero, then
- *  nrof objects is tried to dropped.
- * This is used when dropping objects onto the floor. */
+/**
+ * Drop an object onto the floor.
+ * @param op Player object
+ * @param tmp The object to drop
+ * @param nrof Number of items to drop (0 for all) */
 void drop_object(object *op, object *tmp, long nrof)
 {
     char buf[MAX_BUF];

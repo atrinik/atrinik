@@ -27,10 +27,12 @@
  * The only reason is that they are simple to debug.
  * We have at, 2 command system - this one and the stuff in commands.c.
  * I plan to rework the command system - in 2 steps (new protocol and then later UDP socket)
- * or one step - new protocol, based on UDP.
- */
+ * or one step - new protocol, based on UDP. */
 
-/* This file deals with administrative commands from the client. */
+/**
+ * @file c_new.c
+ * This file deals with administrative commands from the client. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
@@ -163,6 +165,10 @@ int execute_newserver_command(object *pl, char *command)
     return csp->func(pl, cp);
 }
 
+/**
+ * Run command. Used to make your character run in specified direction.
+ * @param op Object requesting this.
+ * @param params Command parameters */
 int command_run(object *op, char *params)
 {
 	int dir = 0;
@@ -185,6 +191,11 @@ int command_run(object *op, char *params)
     return (move_player(op, dir));
 }
 
+/**
+ * Command to stop running.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_run_stop(object *op, char *params)
 {
 	(void) params;
@@ -193,6 +204,9 @@ int command_run_stop(object *op, char *params)
     return 1;
 }
 
+/**
+ * Send target command, calculate the target's color level, etc.
+ * @param pl Player requesting this */
 void send_target_command(player *pl)
 {
 	int aim_self_flag = FALSE;
@@ -299,6 +313,11 @@ void send_target_command(player *pl)
     Write_String_To_Socket(&pl->socket, BINARY_CMD_TARGET, tmp, strlen(tmp + 4) + 4);
 }
 
+/**
+ * Turn combat mode on/off.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_combat(object *op, char *params)
 {
 	(void) params;
@@ -318,15 +337,11 @@ int command_combat(object *op, char *params)
 	return 1;
 }
 
-/* enter combat mode and attack the object in front of us - IF we are in combat
- * and have a enemy/target, skip it and stop attacking.
- */
-
-/* TODO: at some time, we should move the target stuff to the client. but for this,
- * we need a better and smarter client information strategy - MT2003
- */
-
-/* this function needs a rework... its a bit bulky after adding all this exceptions MT-2004 */
+/**
+ * Look for a target.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_target(object *op, char *params)
 {
 	mapstruct *m;
@@ -574,7 +589,9 @@ int command_target(object *op, char *params)
 	return 1;
 }
 
-/* This loads the first map an puts the player on it. */
+/**
+ * This loads the first map an puts the player on it.
+ * @param op The player object */
 static void set_first_map(object *op)
 {
     object* current;
@@ -596,11 +613,6 @@ static void set_first_map(object *op)
 	    enter_exit(op, NULL);
 }
 
-
-/* we *SHOULD* grap this info from server/client setting file
- * but i have no time and code it hard here!
- */
-/* min_ is also the "start" value */
  typedef struct _new_char_template {
 	char *name;
 	int max_p;
@@ -626,17 +638,20 @@ static _new_char_template new_char_template[] = {
 	{"half_elf_male", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
 	{"half_elf_female", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
 	{NULL, 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14}
-
 };
 
-/* client send us a new char creation.
- * at this point we know for *pl the name and
+/**
+ * Client sent us a new char creation.
+ * At this point we know the player's name and
  * the password but nothing about his (player char)
  * base arch.
  * This command tells us which the player has selected
  * and how he has setup the stats.
  * We need to control the stats *CAREFUL*.
- * If *whatever* is not correct here - kill this socket! */
+ * If *whatever* is not correct here - kill this socket!
+ * @param params Parameters
+ * @param len Length
+ * @param pl Player structure */
 void command_new_char(char *params, int len, player *pl)
 {
 	archetype *p_arch = NULL;
@@ -713,7 +728,6 @@ void command_new_char(char *params, int len, player *pl)
 		return;
 	}
 
-	/* all is ok - now lets create this sucker */
 	/* the stats of a player are saved in pl struct and copied to the object */
 
 	/* need to copy the name to new arch */
@@ -805,6 +819,11 @@ void command_new_char(char *params, int len, player *pl)
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 }
 
+/**
+ * Request a face command.
+ * @param params Parameters
+ * @param len Length
+ * @param pl Player */
 void command_face_request(char *params, int len, player *pl)
 {
 	int i, count;
@@ -820,9 +839,10 @@ void command_face_request(char *params, int len, player *pl)
 	{
 		if (esrv_send_face(&pl->socket, *((short*)(params + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, pl->ob, "CLIENT ERROR: Your client requests bad face (#%d). Connection closed!", *((short*)(params + 1) + i));
+			new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, pl->ob, "CLIENT ERROR: Your client request bad face (#%d). Connection closed!", *((short*)(params + 1) + i));
 
-			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. player: %s. close connection.\n", *((short*)(params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
+			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. player: %s. Close connection.\n", *((short*)(params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
+
 			/* killl socket */
 			pl->socket.status = Ns_Dead;
 			return;
@@ -842,8 +862,6 @@ void command_fire(char *params, int len, player *pl)
 
     CONTR(op)->fire_on = 1;
 
-    /* i submit all this as string for testing. if stable, we change this to a short
-	 * and fancy binary format. MT-11-2002 */
     sscanf(params, "%d %d %d %d", &dir, &type, &tag1, &tag2);
 
     if (type == FIRE_MODE_SPELL)
@@ -897,12 +915,14 @@ void command_fire(char *params, int len, player *pl)
     CONTR(op)->firemode_type = -1;
 }
 
-/* STILL IN TEST */
-/* sends a mapstats cmd to the players client, after the player had entered the map.
- * Cmd sends map width / map height + mapinfo string. */
+/**
+ * Sends mapstats command to the client, after the player has entered the map.
+ * Command sends map width, map height, map name, mp music, etc
+ * @param op Player object
+ * @param map Map structure */
 void send_mapstats_cmd(object *op, struct mapdef *map)
 {
-    char tmp[2024];
+    char tmp[HUGE_BUF];
 
 	/* player: remember this is the map the client knows */
     CONTR(op)->last_update = map;
@@ -910,17 +930,24 @@ void send_mapstats_cmd(object *op, struct mapdef *map)
     Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
 }
 
+/**
+ * Send spell list command to the client.
+ * @param op Player object
+ * @param spellname If specified, send only this spell name.
+ * Otherwise send all spells the player knows.
+ * @param mode Mode */
 void send_spelllist_cmd(object *op, char *spellname, int mode)
 {
 	/* we should careful set a big enough buffer here */
-    char tmp[1024 * 10];
+    char tmp[HUGE_BUF * 4];
 
-    sprintf(tmp, "X%d ", mode);
-	/* send single name */
+    snprintf(tmp, sizeof(tmp), "X%d ", mode);
+
+	/* Send single name */
     if (spellname)
     {
-        strcat(tmp, "/");
-        strcat(tmp, spellname);
+        strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
+        strncat(tmp, spellname, sizeof(tmp) - strlen(tmp) - 1);
     }
     else
     {
@@ -933,81 +960,94 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
             else
                 spnum = CONTR(op)->known_spells[i];
 
-            strcat(tmp, "/");
-            strcat(tmp, spells[spnum].name);
+            strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
+            strncat(tmp, spells[spnum].name, sizeof(tmp) - strlen(tmp) - 1);
         }
     }
 
     Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, tmp, strlen(tmp));
 }
 
+/**
+ * Send skill list to the client.
+ * @param op Player object
+ * @param skillp Skill object
+ * @param mode Mode */
 void send_skilllist_cmd(object *op, object *skillp, int mode)
 {
     object *tmp2;
     char buf[256];
 	/* we should careful set a big enough buffer here */
-    char tmp[1024 * 5];
+    char tmp[HUGE_BUF * 4];
 
     if (skillp)
     {
-		/* normal skills */
+		/* Normal skills */
         if (skillp->last_eat == 1)
-            sprintf(tmp, "X%d /%s|%d|%d", mode, skillp->name, skillp->level, skillp->stats.exp);
+            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|%d", mode, skillp->name, skillp->level, skillp->stats.exp);
 		/* "buy level" skills */
         else if (skillp->last_eat == 2)
-            sprintf(tmp, "X%d /%s|%d|-2", mode, skillp->name, skillp->level);
-		/* no level skills */
+            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-2", mode, skillp->name, skillp->level);
+		/* No level skills */
         else
-            sprintf(tmp, "X%d /%s|%d|-1", mode, skillp->name, skillp->level);
+            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-1", mode, skillp->name, skillp->level);
     }
     else
     {
-        sprintf(tmp, "X%d ", mode);
+        snprintf(tmp, sizeof(tmp), "X%d ", mode);
+
         for (tmp2 = op->inv; tmp2; tmp2 = tmp2->below)
         {
-            if (tmp2->type == SKILL&&IS_SYS_INVISIBLE(tmp2))
+            if (tmp2->type == SKILL && IS_SYS_INVISIBLE(tmp2))
             {
                 if (tmp2->last_eat == 1)
-                    sprintf(buf, "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
+                    snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
                 else if (tmp2->last_eat == 2)
-                    sprintf(buf, "/%s|%d|-2", tmp2->name, tmp2->level);
+                    snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
                 else
-                    sprintf(buf, "/%s|%d|-1", tmp2->name,tmp2->level);
+                    snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
 
-                strcat(tmp, buf);
+                strncat(tmp, buf, sizeof(tmp) - strlen(tmp) - 1);
             }
         }
     }
+
     Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
 }
 
-/* all this functions are not really bulletproof. filling tmp[] can be easily produce
- * a stack overflow. Doing here some more intelligent is needed. I do this here
- * with sprintf() only for fast beta implementation */
+/**
+ * Send skill ready command.
+ * @param op Player object
+ * @param skillname Name of skill to ready */
 void send_ready_skill(object *op, char *skillname)
 {
 	/* we should careful set a big enough buffer here */
     char tmp[256];
 
-    sprintf(tmp, "X%s", skillname);
+    snprintf(tmp, sizeof(tmp), "X%s", skillname);
     Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
 }
 
-/* send to the client the golem face & name. Note, that this is only cosmetical
- * information to fill the range menu in the client. */
+/**
+ * Send to client the golem face and name.
+ * @param golem Golem object (will grab golem owner from this)
+ * @param mode Mode (release or new golem) */
 void send_golem_control(object *golem, int mode)
 {
 	/* we should careful set a big enough buffer here */
     char tmp[256];
 
 	if (mode == GOLEM_CTR_RELEASE)
-	   sprintf(tmp, "X%d %d %s", mode, 0, golem->name);
+		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, 0, golem->name);
 	else
-		sprintf(tmp, "X%d %d %s", mode, golem->face->number, golem->name);
+		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, golem->face->number, golem->name);
+
     Write_String_To_Socket(&CONTR(golem->owner)->socket, BINARY_CMD_GOLEMCMD, tmp, strlen(tmp));
 }
 
-/* generate_ext_title() - get name and grab race/gender/profession from force objects */
+/**
+ * Generate player's extended name from race, gender, guild, etc.
+ * @param pl The player */
 void generate_ext_title(player *pl)
 {
     object *walk;

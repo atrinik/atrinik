@@ -200,7 +200,7 @@ void HandleClient(NewSocket *ns, player *pl)
 			ns->login_count=0;
 
 		/* First, break out beginning word.  There are at least
-		 * a few commands that do not have any paremeters.  If
+		 * a few commands that do not have any parameters.  If
 		 * we get such a command, don't worry about trying
 		 * to break it up. */
 		data = (unsigned char *)strchr((char*)ns->inbuf.buf + 2, ' ');

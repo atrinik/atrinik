@@ -98,8 +98,6 @@ CommArray_s Commands[] = {
   {"drop", command_drop,	1.0},
   {"get", command_take,		1.0},
   {"skills", command_skills,	0.0},	well, the player has now a perm list
-  {"output-sync", command_output_sync,	0.0},
-  {"output-count", command_output_count,0.0},
   {"examine", command_examine,	0.5}, should work in direction
 */
 

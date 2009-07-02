@@ -24,14 +24,15 @@
 ************************************************************************/
 
 #include <global.h>
-#include <loader.h>
-#include <funcpoint.h>
 #include <sproto.h>
 
-
-/* Handles misc. input request - things like hash table, malloc, maps,
+/** @file c_misc.c
+ * Handles misc. input request - things like hash table, malloc, maps,
  * who, etc. */
 
+/**
+ * Show maps information.
+ * @param op The object to show the information to. */
 void map_info(object *op)
 {
   	mapstruct *m;
@@ -71,14 +72,25 @@ void map_info(object *op)
   	}
 }
 
+/**
+ * Show message of the day.
+ * @param op The object calling this
+ * @param params Parameters
+ * @return Always returns 1 */
 int command_motd(object *op, char *params)
 {
 	(void) params;
+
 	display_motd(op);
 	return 1;
 }
 
 /* Command to report a bug. */
+/**
+ * Report a bug and store it in database.
+ * @param op Object reporting this bug
+ * @param params The bug message
+ * @return 1 on success, 0 on failure */
 int command_bug(object *op, char *params)
 {
 	sqlite3 *db;
@@ -99,7 +111,7 @@ int command_bug(object *op, char *params)
 		LOG(llevBug, "BUG: command_bug(): Failed to prepare SQL query for %s! (%s)", op->name, db_errmsg(db));
 		new_draw_info(NDI_UNIQUE, 0, op, "Something strange happened.\nYou forgot what you wanted to report?!");
 		db_close(db);
-		return 1;
+		return 0;
 	}
 
 	/* Run the query */
@@ -111,11 +123,18 @@ int command_bug(object *op, char *params)
 	/* Close the database */
 	db_close(db);
 
-    new_draw_info(NDI_UNIQUE, 0, op, "OK, thank you for your time to report this bug!");
+    new_draw_info(NDI_UNIQUE, 0, op, "OK, thank you for reporting this bug!");
     return 1;
 }
 
-/* Command to roll a magical dice. 8) */
+/**
+ * Command to roll a magical die.
+ * Parameters should be XdY where X is
+ * how many times to roll the die and
+ * Y how many sides should the die have.
+ * @param op Object rolling the die
+ * @param params Parameters
+ * @return Always returns 1 */
 int command_roll(object *op, char *params)
 {
 	int times, sides, i;
@@ -140,7 +159,7 @@ int command_roll(object *op, char *params)
 	else if (sides <= 0)
 		sides = 1;
 
-	sprintf(buf, "%s rolls a magical dice (%dd%d) and gets: ", op->name, times, sides);
+	sprintf(buf, "%s rolls a magical die (%dd%d) and gets: ", op->name, times, sides);
 
 	for (i = 1; i <= times; i++)
 		sprintf(buf, "%s%d%s", buf, rndm(1, sides), i < times ? ", " : ".");
@@ -150,7 +169,9 @@ int command_roll(object *op, char *params)
 	return 1;
 }
 
-/* count_active() returns the number of objects on the list of active objects. */
+/**
+ * Returns the number of objects on the list of active objects.
+ * @return The number of active objects */
 static int count_active()
 {
   	int i = 0;
@@ -163,6 +184,9 @@ static int count_active()
 }
 
 
+/**
+ * Give out of info about memory usage.
+ * @param op The object requesting this */
 void malloc_info(object *op)
 {
  	int players,nrofmaps;
@@ -268,6 +292,9 @@ void malloc_info(object *op)
 	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
 }
 
+/**
+ * Give out some info about the map op is located at.
+ * @param op The object requesting this information */
 void current_map_info(object *op)
 {
     mapstruct *m = op->map;
@@ -300,6 +327,14 @@ int command_malloc_verify(object *op, char *parms)
 }
 #endif
 
+/**
+ * Print out a list of all logged in players in the game.
+ * @param op The object requesting this
+ * @param params Command parameters
+ * @return Always returns 1.
+ * @todo Perhaps make a GUI from this like the party GUI
+ * and you would be able to press enter on player name
+ * and that would bring up the /tell console? */
 int command_who(object *op, char *params)
 {
     player *pl;
@@ -339,12 +374,18 @@ int command_who(object *op, char *params)
 	    	new_draw_info(NDI_UNIQUE, 0, op, buf);
 		}
 	}
+
 	sprintf(buf, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
 	new_draw_info(NDI_UNIQUE, 0, op, buf);
 
     return 1;
 }
 
+/**
+ * Malloc info command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_malloc(object *op, char *params)
 {
 #ifdef MEMPOOL_TRACKING
@@ -371,23 +412,41 @@ int command_malloc(object *op, char *params)
     return 1;
 }
 
+/**
+ * Map info command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_mapinfo(object *op, char *params)
 {
 	(void) params;
+
     current_map_info(op);
     return 1;
 }
 
+/**
+ * Maps command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_maps(object *op, char *params)
 {
 	(void) params;
+
     map_info(op);
     return 1;
 }
 
+/**
+ * Strings command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_strings(object *op, char *params)
 {
 	(void) params;
+
     ss_dump_statistics();
     new_draw_info(NDI_UNIQUE, 0, op, errmsg);
     new_draw_info(NDI_UNIQUE, 0, op, ss_dump_table(2));
@@ -404,26 +463,48 @@ int command_sstable(object *op, char *params)
 }
 #endif
 
+/**
+ * Time command. Print out game time information.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_time(object *op, char *params)
 {
 	(void) params;
+
     time_info(op);
     return 1;
 }
 
+/**
+ * Arches command. Print out information about the arches.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_archs(object *op, char *params)
 {
 	(void) params;
+
     arch_info(op);
     return 1;
 }
 
+/**
+ * Highscore command, shows the highscore.
+ * @param op Object requesting this
+ * @param params Parameters
+ * @return Always returns 1 */
 int command_hiscore(object *op, char *params)
 {
     display_high_score(op, op == NULL ? 9999 : 50, params);
     return 1;
 }
 
+/**
+ * Set debug level command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_debug(object *op, char *params)
 {
     int i;
@@ -448,7 +529,11 @@ int command_debug(object *op, char *params)
     return 1;
 }
 
-/* Those dumps should be just one dump with good parser */
+/**
+ * Full dump of objects below the DM.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpbelowfull(object *op, char *params)
 {
 	object *tmp;
@@ -470,9 +555,14 @@ int command_dumpbelowfull(object *op, char *params)
     }
 	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump of objects below the DM.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpbelow(object *op, char *params)
 {
 	object *tmp;
@@ -493,9 +583,14 @@ int command_dumpbelow(object *op, char *params)
     }
 	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Wizpass command. Used by DMs to toggle walking through walls on/off.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure */
 int command_wizpass(object *op, char *params)
 {
   	int i;
@@ -519,9 +614,14 @@ int command_wizpass(object *op, char *params)
     	CLEAR_FLAG(op, FLAG_WIZPASS);
   	}
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump all objects.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpallobjects(object *op, char *params)
 {
 	(void) params;
@@ -529,28 +629,43 @@ int command_dumpallobjects(object *op, char *params)
 	/* Gecko: this is no longer possible */
  	/* dump_all_objects(); */
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump all friendly objects.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpfriendlyobjects(object *op, char *params)
 {
 	(void) params;
 	(void) op;
 	dump_friendly_objects();
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump all archetypes.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpallarchetypes(object *op, char *params)
 {
 	(void) params;
 	(void) op;
 	dump_all_archetypes();
-  	return 0;
+  	return 1;
 }
 
-/* NOTE: dm_stealth works also when a dm logs in WITHOUT dm set or
- * when the player leave dm mode! */
-int command_dm_stealth (object *op, char *params)
+/**
+ * DM stealth command. Used by DMs to make the DM hidden
+ * from all other players. It also works when DM logs in
+ * without DM flag set or leaves the DM mode.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
+int command_dm_stealth(object *op, char *params)
 {
 	(void) params;
 
@@ -567,9 +682,15 @@ int command_dm_stealth (object *op, char *params)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
 	}
 
-	return 0;
+	return 1;
 }
 
+/**
+ * Toggle DM light on/off. DM light will light up
+ * all maps for the DM.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dm_light(object *op, char *params)
 {
 	(void) params;
@@ -584,9 +705,14 @@ int command_dm_light(object *op, char *params)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "toggle dm_light to %d", CONTR(op)->dm_light);
 	}
 
-	return 0;
+	return 1;
 }
 
+/**
+ * Dump active list.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpactivelist(object *op, char *params)
 {
 	char buf[1024];
@@ -598,26 +724,34 @@ int command_dumpactivelist(object *op, char *params)
 	for (tmp = active_objects; tmp; tmp = tmp->active_next)
 	{
 		count++;
-		sprintf(buf, "%08d %03d %f %s (%s)", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
+		snprintf(buf, sizeof(buf), "%08d %03d %f %s (%s)", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
 		/* It will overflow the send buffer with many players online. */
 		/* new_draw_info(NDI_UNIQUE, 0, op, buf); */
 		LOG(llevSystem, "%s\n", buf);
 	}
-	sprintf(buf, "active objects: %d (dumped to log)", count);
+
+	snprintf(buf, sizeof(buf), "active objects: %d (dumped to log)", count);
 	new_draw_info(NDI_UNIQUE, 0, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
-	return 0;
+	return 1;
 }
 
 int command_ssdumptable(object *op, char *params)
 {
 	(void) params;
 	(void) op;
+
 	(void) ss_dump_table(1);
   	return 0;
 }
 
+/**
+ * Start server shutdown command. Used by DM to shutdown the
+ * server in order to rebuild it to update maps.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_start_shutdown(object *op, char *params)
 {
 	char *bp = NULL;
@@ -626,7 +760,7 @@ int command_start_shutdown(object *op, char *params)
 	if (params == NULL)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "DM usage: /start_shutdown <-1 ... x>");
-		return 0;
+		return 1;
 	}
 
 	sscanf(params, "%d ", &i);
@@ -639,16 +773,21 @@ int command_start_shutdown(object *op, char *params)
 	if (i < -1)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "DM usage: /start_shutdown <-1 ... x>");
-		return 0;
+		return 1;
 	}
 
-	LOG(llevSystem, "Shutdown Agent started!\n");
+	LOG(llevSystem, "Shutdown agent started!\n");
 	shutdown_agent(i, bp);
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Shutdown agent started! Timer set to %d seconds.", i);
 
-	return 0;
+	return 1;
 }
 
+/**
+ * Set map light by DM.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure */
 int command_setmaplight(object *op, char *params)
 {
   	int i;
@@ -673,9 +812,14 @@ int command_setmaplight(object *op, char *params)
 	sprintf(buf, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
 	new_draw_info(NDI_UNIQUE, 0, op, buf);
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump map information.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpmap(object *op, char *params)
 {
 	(void) params;
@@ -683,9 +827,14 @@ int command_dumpmap(object *op, char *params)
   	if (op)
     	dump_map(op->map);
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Dump information about all maps.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_dumpallmaps(object *op, char *params)
 {
 	(void) params;
@@ -693,9 +842,14 @@ int command_dumpallmaps(object *op, char *params)
 
 	dump_all_maps();
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Print Line of Sight.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_printlos(object *op, char *params)
 {
 	(void) params;
@@ -703,68 +857,28 @@ int command_printlos(object *op, char *params)
   	if (op)
 		print_los(op);
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Output version information.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_version(object *op, char *params)
 {
 	(void) params;
 
     version(op);
 
-    return 0;
-}
-
-int command_output_sync(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-/*
-    int val;
-
-    if (!params)
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Output sync time is presently %d", CONTR(op)->outputs_sync);
-		return 1;
-    }
-
-    val = atoi(params);
-    if (val > 0)
-	{
-		CONTR(op)->outputs_sync = val;
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Output sync time now set to %d", CONTR(op)->outputs_sync);
-    }
-    else
-		new_draw_info(NDI_UNIQUE, 0, op, "Invalid value for output_sync.");
-*/
     return 1;
 }
 
-int command_output_count(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-/*
-    int val;
-
-    if (!params)
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Output count is presently %d", CONTR(op)->outputs_count);
-		return 1;
-    }
-
-    val = atoi(params);
-    if (val > 0)
-	{
-		CONTR(op)->outputs_count = val;
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Output count now set to %d", CONTR(op)->outputs_count);
-    }
-    else
-		new_draw_info(NDI_UNIQUE, 0, op, "Invalid value for output_count.");
-*/
-    return 1;
-}
-
+/**
+ * Set player's listen level.
+ * @param op Object requesting this
+ * @param params The listen level to set
+ * @return Always returns 1 */
 int command_listen(object *op, char *params)
 {
   	int i;
@@ -780,10 +894,14 @@ int command_listen(object *op, char *params)
     return 1;
 }
 
-/* Prints out some useful information for the character.  Everything we print
+/**
+ * Prints out some useful information for the character.  Everything we print
  * out can be determined by the docs, so we aren't revealing anything extra -
  * rather, we are making it convenient to find the values.  params have
- * no meaning here. */
+ * no meaning here.
+ * @param pl Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_statistics(object *pl, char *params)
 {
 	(void) params;
@@ -808,9 +926,14 @@ int command_statistics(object *pl, char *params)
 #endif
 
    	/* Can't think of anything else to print right now */
-   	return 0;
+   	return 1;
 }
 
+/**
+ * Fix me command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_fix_me(object *op, char *params)
 {
 	(void) params;
@@ -818,13 +941,22 @@ int command_fix_me(object *op, char *params)
     return 1;
 }
 
+/**
+ * Print out information about players. Currently unused,
+ * because the old code will not work with SQLite.
+ * @param op Object requesting this
+ * @param paramss Command parameters
+ * @return Always returns 1
+ * @todo Make this work once again, perhaps for DMs only,
+ * and allow searching for players by the parameters? */
 int command_players(object *op, char *paramss)
 {
 	(void) paramss;
 	(void) op;
 
 	/* Nope, because of SQLite this won't work. */
-	return 0;
+	return 1;
+
 #if 0
     char buf[MAX_BUF];
     char *t;
@@ -860,10 +992,15 @@ int command_players(object *op, char *paramss)
 		}
     }
     closedir(Dir);
-    return 0;
+    return 1;
 #endif
 }
 
+/**
+ * Logs command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_logs(object *op, char *params)
 {
     int first;
@@ -910,6 +1047,11 @@ int command_usekeys(object *op, char *params)
     return 1;
 }
 
+/**
+ * Print out object's resistances.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure */
 int command_resistances(object *op, char *params)
 {
     int i;
@@ -927,17 +1069,26 @@ int command_resistances(object *op, char *params)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%-20s %+5d", attacktype_desc[i], op->resist[i]);
     }
 
-  	return 0;
+  	return 1;
 }
 
+/**
+ * Pray command, used to start praying to your god.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_praying(object *op, char *params)
 {
 	(void) params;
 
 	CONTR(op)->praying = 1;
-	return 0;
+	return 1;
 }
 
+/**
+ * Scans input and returns if this is ON value (1) or OFF (0).
+ * @param line The input string
+ * @return 1 for ON, 0 for OFF. */
 int onoff_value(char *line)
 {
 	int i;
@@ -953,10 +1104,12 @@ int onoff_value(char *line)
 				/* on */
 				case 'n':
 					return 1;
+
 				/* o[ff] */
 				default:
 					return 0;
 			}
+
 		/* y[es] */
 		case 'y':
 		/* k[ylla] */
@@ -964,6 +1117,7 @@ int onoff_value(char *line)
 		case 's':
 		case 'd':
 			return 1;
+
 		/* n[o] */
 		case 'n':
 		/* e[i] */
@@ -974,7 +1128,11 @@ int onoff_value(char *line)
 	}
 }
 
-/* Command currently deactivated - we don't want players to quit! - A.T. 2009 */
+/**
+ * Quit command. Currently unused.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_quit(object *op, char *params)
 {
 	(void) params;
@@ -1002,6 +1160,11 @@ int command_explore (object *op, char *params)
 }
 #endif
 
+/**
+ * Print out to player if he has sounds enabled.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_sound(object *op, char *params)
 {
 	(void) params;
@@ -1020,11 +1183,13 @@ int command_sound(object *op, char *params)
     return 1;
 }
 
-/* Perhaps these should be in player.c, but that file is
- * already a bit big. */
-void receive_player_name(object *op ,char k)
+/**
+ * Receive a player name, and force the first letter to be uppercase.
+ * @param op Object
+ * @param k Unused */
+void receive_player_name(object *op, char k)
 {
- 	unsigned int name_len=strlen(CONTR(op)->write_buf+1);
+ 	unsigned int name_len = strlen(CONTR(op)->write_buf + 1);
 
 	(void) k;
 
@@ -1032,7 +1197,8 @@ void receive_player_name(object *op ,char k)
 	if (name_len > 1)
 	{
 		int i;
-		for(i = 1; *(CONTR(op)->write_buf + i) != 0; i++)
+
+		for (i = 1; *(CONTR(op)->write_buf + i) != 0; i++)
 			*(CONTR(op)->write_buf + i) = tolower(*(CONTR(op)->write_buf + i));
 
 		*(CONTR(op)->write_buf + 1) = toupper(*(CONTR(op)->write_buf + 1));
@@ -1050,7 +1216,7 @@ void receive_player_name(object *op ,char k)
 		return;
 	}
 
-  	FREE_AND_COPY_HASH(op->name, CONTR(op)->write_buf+1);
+  	FREE_AND_COPY_HASH(op->name, CONTR(op)->write_buf + 1);
 #if 0
 	new_draw_info(NDI_UNIQUE, 0, op,CONTR(op)->write_buf);
 	/* Flag: redraw all stats */
@@ -1061,10 +1227,10 @@ void receive_player_name(object *op ,char k)
   	get_password(op);
 }
 
-/* a client send player name + password.
- * check password. Login char OR very password
- * for new char creation.
- * For beta 2 we have moved the char creation to client */
+/**
+ * Receive player password.
+ * @param op Object
+ * @param k Unused */
 void receive_player_password(object *op, char k)
 {
 	unsigned int pwd_len = strlen(CONTR(op)->write_buf);
@@ -1076,6 +1242,7 @@ void receive_player_password(object *op, char k)
 		get_name(op);
 		return;
 	}
+
 	/* To hide the password better */
 	new_draw_info(NDI_UNIQUE, 0, op, "          ");
 
@@ -1089,6 +1256,7 @@ void receive_player_password(object *op, char k)
 			get_name(op);
 			return;
 		}
+
 	    esrv_new_player(CONTR(op), 0);
 		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_NEW_CHAR, cmd_buf, 1);
 		LOG(llevInfo, "NewChar send for %s\n", op->name);
@@ -1096,12 +1264,16 @@ void receive_player_password(object *op, char k)
 
 		return;
 	}
+
 	strcpy(CONTR(op)->password, crypt_string(CONTR(op)->write_buf + 1, NULL));
 	CONTR(op)->state = ST_ROLL_STAT;
 	check_login(op);
 	return;
 }
 
+/**
+ * Check if there are any players in explode mode.
+ * @return 0 if not or EXPLORE_MODE is disabled, 1 otherwise */
 int explore_mode()
 {
 #ifdef EXPLORE_MODE
@@ -1114,6 +1286,12 @@ int explore_mode()
 }
 
 
+/**
+ * Save command.
+ * Cannot be used on unholy ground or if you have 0 exp.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_save(object *op, char *params)
 {
 	(void) params;
@@ -1144,6 +1322,11 @@ int command_save(object *op, char *params)
     return 1;
 }
 
+/**
+ * Style maps info command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_style_map_info(object *op, char *params)
 {
     extern mapstruct *styles;
@@ -1173,13 +1356,19 @@ int command_style_map_info(object *op, char *params)
     new_draw_info_format(NDI_UNIQUE, 0, op, "Style objects:        %d", objects_used);
     new_draw_info_format(NDI_UNIQUE, 0, op, "Mem for objects:      %d", objects_used * sizeof(object));
 
-    return 0;
+    return 1;
 }
 
-/* /apartment command.
+/**
+ * Apartment command.
  * This command is used to invite other players
  * to your apartment, as well as turn on/off
- * apartment invites. */
+ * apartment invites, or cancel invitation.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return 1 on success, 0 on failure
+ * @todo Make the turn on/off inviting use the
+ * onoff_value() function to check for on/off. */
 int command_apartment(object *op, char *params)
 {
 	player *pl;
@@ -1453,6 +1642,11 @@ int command_apartment(object *op, char *params)
 	return 0;
 }
 
+/**
+ * Away from keyboard command.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_afk(object *op, char *params)
 {
 	(void) params;

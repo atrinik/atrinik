@@ -28,26 +28,39 @@
 #include <sproto.h>
 #endif
 
-/* The score structure is used when treating new high-scores */
+/**
+ * @file hiscore.c
+ * Includes high score related functions */
+
+/** The score structure is used when treating new high-scores */
 typedef struct scr {
-	/* Name. */
+	/** Name. */
     char name[BIG_NAME];
-	/* Title. */
+
+	/** Title. */
     char title[BIG_NAME];
-	/* Name (+ title) or "left". */
+
+	/** Name (+ title) or "left". */
     char killer[BIG_NAME];
-	/* Experience. */
+
+	/** Experience. */
     long exp;
-	/* Killed on what level. */
+
+	/** Killed on what level. */
     char maplevel[BIG_NAME];
-	/* Max hp, sp, grace when killed. */
+
+	/** Max hp, sp, grace when killed. */
     int maxhp, maxsp, maxgrace;
-	/* Position in the highscore list. */
+
+	/** Position in the highscore list. */
     int position;
 } score;
 
-/* Does what it says, copies the contents of the first score structure
- * to the second one. */
+/**
+ * Does what it says, copies the contents of the first score structure
+ * to the second one.
+ * @param sc1 First score structure
+ * @param sc2 Second score structure */
 static void copy_score(const score *sc1, score *sc2)
 {
     strncpy(sc2->name, sc1->name, BIG_NAME);
@@ -68,6 +81,11 @@ static void copy_score(const score *sc1, score *sc2)
 
 /* The oposite of put_score, get_score reads from the given buffer into
  * a static score structure, and returns a pointer to it. */
+/**
+ * The opposite of put_score, this reads from the given buffer into
+ * a static score structure, and returns a pointer to it.
+ * @param statement SQLite statement handle
+ * @return The score structure */
 static score *get_score(sqlite3_stmt *statement)
 {
     static score sc;
@@ -95,6 +113,12 @@ static score *get_score(sqlite3_stmt *statement)
     return &sc;
 }
 
+/**
+ * Draw one high score.
+ * @param sc Score structure
+ * @param buf Buffer
+ * @param size Buffer size
+ * @return Return the buffer */
 static char *draw_one_high_score(const score *sc, char *buf, int size)
 {
     if (!strncmp(sc->killer, "left", MAX_NAME))
@@ -107,6 +131,11 @@ static char *draw_one_high_score(const score *sc, char *buf, int size)
 
 /* add_score() adds the given score-structure to the high-score list, but
  * only if it was good enough to deserve a place. */
+/**
+ * Adds the given score structure to the high score list, but
+ * only if it was good enough to deserve a place.
+ * @param new_score The new score structure
+ * @return NULL if an error, or the old score. */
 static score *add_score(score *new_score)
 {
     static score old_score;
@@ -320,7 +349,11 @@ void check_score(object *op, int quiet)
 	new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
-/* Displays the high score file. */
+/**
+ * Displays the high score file.
+ * @param op Object calling this
+ * @param max Maximum scores to show
+ * @param match Only match scores with match. */
 void display_high_score(object *op, int max, const char *match)
 {
     char scorebuf[MAX_BUF];

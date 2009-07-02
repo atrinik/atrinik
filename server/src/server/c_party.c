@@ -28,6 +28,10 @@
 #include <sproto.h>
 #endif
 
+/**
+ * @file c_party.c
+ * This file handles party related command. */
+
 /* Status is used for party messages like password change, join/leave, etc */
 #define PARTY_MESSAGE_STATUS 	1
 /* Chat is used for party chat messages from party members */
@@ -38,6 +42,13 @@ static partylist *firstparty = NULL;
 /* Keeps track of last party in list */
 static partylist *lastparty = NULL;
 
+/**
+ * Form a party.
+ * @param op Object forming this party
+ * @param params Parameters
+ * @param firstparty First party
+ * @param lastparty Last party
+ * @return The new party structure. */
 partylist *form_party(object *op, char *params, partylist *firstparty, partylist *lastparty)
 {
     partylist *newparty;
@@ -74,6 +85,11 @@ partylist *form_party(object *op, char *params, partylist *firstparty, partylist
     return newparty;
 }
 
+/**
+ * Find a party name.
+ * @param partynumber Party ID to find
+ * @param party The party list
+ * @return Party name if found, or NULL */
 char *find_party(int partynumber, partylist *party)
 {
     while (party != NULL)
@@ -87,6 +103,10 @@ char *find_party(int partynumber, partylist *party)
     return NULL;
 }
 
+/**
+ * Find a party structure by party number.
+ * @param partynumber The party ID to find
+ * @return The party structure if found, NULL otherwise */
 partylist *find_party_struct(int partynumber)
 {
   	partylist *party;
@@ -104,6 +124,9 @@ partylist *find_party_struct(int partynumber)
   	return NULL;
 }
 
+/**
+ * Remove a party.
+ * @param target_party The party to remove */
 void remove_party(partylist *target_party)
 {
     partylist *tmpparty;
@@ -160,8 +183,9 @@ void remove_party(partylist *target_party)
         }
 }
 
-/* Remove unused parties (no players), this could be made to scale a lot better. */
-void obsolete_parties(void)
+/**
+ * Remove unused parties (no players), this could be made to scale a lot better. */
+void obsolete_parties()
 {
     int player_count;
     player *pl;
@@ -215,6 +239,11 @@ void add_kill_to_party(int numb, char *killer, char *dead, long exp)
 }
 #endif
 
+/**
+ * Send party message to all members of the party..
+ * @param op Object sending this message
+ * @param msg The message
+ * @param flag Message type (PARTY_MESSAGE_STATUS or PARTY_MESSAGE_CHAT) */
 void send_party_message(object *op, char *msg, int flag)
 {
  	player *pl;
@@ -232,11 +261,18 @@ void send_party_message(object *op, char *msg, int flag)
 	}
 }
 
+/**
+ * Command shortcut to /party say.
+ * @param op Object requesting this
+ * @param params Command paramaters (the message)
+ * @return 1 on success, 0 on failure. */
 int command_gsay(object *op, char *params)
 {
   	char party_params[MAX_BUF];
 
-  	if (!params)
+	params = cleanup_chat_string(params);
+
+  	if (!params || *params == '\0')
 		return 0;
 
   	strcpy(party_params, "say ");
@@ -245,6 +281,11 @@ int command_gsay(object *op, char *params)
   	return 0;
 }
 
+/**
+ * Party command, handling things like /party help, /party say, /party leave, etc.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
 int command_party(object *op, char *params)
 {
   	char buf[MAX_BUF];
@@ -357,7 +398,14 @@ int command_party(object *op, char *params)
 			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
 			return 1;
 		}
+
       	params += 4;
+
+		params = cleanup_chat_string(params);
+
+		if (!params || *params == '\0')
+			return 1;
+
 		tmpparty = find_party_struct(CONTR(op)->party_number);
       	sprintf(buf, "[%s] %s says: %s", tmpparty->partyname, op->name, params);
         send_party_message(op, buf, PARTY_MESSAGE_CHAT);
@@ -410,7 +458,11 @@ int command_party(object *op, char *params)
 	return 1;
 }
 
-/* Party command used from client party GUI */
+/**
+ * Party command used from client party GUI.
+ * @param buf The incoming data
+ * @param len Length of the data
+ * @param pl Player */
 void PartyCmd(char *buf, int len, player *pl)
 {
 	char tmp[HUGE_BUF * 16], tmpbuf[MAX_BUF];

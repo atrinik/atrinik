@@ -24,23 +24,27 @@
 ************************************************************************/
 
 #include <global.h>
-#include <loader.h>
 #include <sproto.h>
 
-/* this function does 3 things: controlling we have
- * a legal string - if not, return NULL  - if return string*
- * - remove all whitespace in front (if all are whitespace
- *   we return NULL)
- * - change and/or process all our control chars like '^'
- */
-static char *cleanup_chat_string(char *ustring)
+/**
+ * @file c_chat.c
+ * This file handles communication related functions, like /dmsay, /say, /shout, etc.*/
+
+/**
+ * This function does 3 things:
+ *  1. Controls that we have a legal string; if not, return NULL
+ *  2. Removes all left whitespace (if all whitespace return NULL)
+ *  3. Change and/or process all control characters like '^', '~', etc.
+ * @param ustring The string to cleanup
+ * @return Cleaned up string, or NULL */
+char *cleanup_chat_string(char *ustring)
 {
 	int i;
 
 	if (!ustring)
 		return NULL;
 
-	/* this happens when whitespace only string was submited */
+	/* this happens when whitespace only string was submitted */
     if (!ustring || *ustring == '\0')
 		return NULL;
 
@@ -58,6 +62,11 @@ static char *cleanup_chat_string(char *ustring)
 	return ustring;
 }
 
+/**
+ * Say command, used to say a message for the whole map to hear.
+ * @param op The object saying this
+ * @param params The message
+ * @return 1 on success, 0 on failure */
 int command_say(object *op, char *params)
 {
     if (!params)
@@ -66,18 +75,26 @@ int command_say(object *op, char *params)
 	LOG(llevInfo, "CLOG SAY:%s >%s<\n", query_name(op, NULL), params);
 
 	params = cleanup_chat_string(params);
-	/* this happens when whitespace only string was submited */
+	/* this happens when whitespace only string was submitted */
     if (!params || *params == '\0')
 		return 0;
 
     communicate(op, params);
 
-    return 0;
+    return 1;
 }
 
 /* This command is only available to DMs.
  * It is similar to /shout, however, it will display
  * the message in red to other logged in DMs. */
+/**
+ * This command is only available to DMs.
+ * It is similar to /shout, however, it will display
+ * the message in red only to other logged in DMs
+ * using global DMs active linked list.
+ * @param op The object saying this
+ * @param params The message
+ * @return 1 on success, 0 on failure */
 int command_dmsay(object *op, char *params)
 {
 	active_DMs *tmp_dm_list;
@@ -98,6 +115,11 @@ int command_dmsay(object *op, char *params)
 	return 1;
 }
 
+/**
+ * Shout command, used to shout a message for everyone to hear.
+ * @param op The object saying this
+ * @param params The message
+ * @return 1 on success, 0 on failure */
 int command_shout(object *op, char *params)
 {
     char buf[MAX_BUF];
@@ -132,6 +154,11 @@ int command_shout(object *op, char *params)
     return 1;
 }
 
+/**
+ * Tell message to a single player.
+ * @param op The object saying it
+ * @param params The player name to send message to, and the message
+ * @return 1 on success, 0 on failure */
 int command_tell(object *op, char *params)
 {
     char buf[MAX_BUF], *name = NULL, *msg = NULL;
@@ -144,7 +171,7 @@ int command_tell(object *op, char *params)
 	LOG(llevInfo, "CLOG TELL:%s >%s<\n", query_name(op, NULL), params);
 
 	params = cleanup_chat_string(params);
-	/* this happens when whitespace only string was submited */
+	/* this happens when whitespace only string was submitted */
     if (!params || *params == '\0')
 		return 0;
 
@@ -169,7 +196,7 @@ int command_tell(object *op, char *params)
 		return 1;
     }
 
-	/* send to yourself? intelligent... */
+	/* Send to yourself? Intelligent... */
 	if (strncasecmp(op->name, name, MAX_NAME) == 0)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You tell yourself the news. Very smart.");
@@ -209,9 +236,15 @@ int command_tell(object *op, char *params)
 
     new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
     return 1;
-  }
+}
 
 
+/**
+ * Command to tell something to a target.
+ * Usually used by the talk button in the client.
+ * @param op The object saying this
+ * @param params The message
+ * @return 1 on success, 0 on failure */
 int command_t_tell(object *op, char *params)
 {
 	char buf[256 * 2];
@@ -245,7 +278,7 @@ int command_t_tell(object *op, char *params)
 				if (m == t_obj->map && xt == t_obj->x && yt == t_obj->y)
 				{
 					LOG(llevInfo, "CLOG T_TELL:%s >%s<\n", query_name(op, NULL), params);
-					sprintf(buf, "you say to %s: ", query_name(t_obj, NULL));
+					sprintf(buf, "You say to %s: ", query_name(t_obj, NULL));
 					strncat(buf, params, MAX_BUF - strlen(buf) - 1);
 					buf[MAX_BUF - 1] = 0;
 					new_draw_info(NDI_WHITE, 0, op, buf);
@@ -262,7 +295,11 @@ int command_t_tell(object *op, char *params)
 }
 
 
-/* Reply to last person who told you something [mids 01/14/2002] */
+/**
+ * Reply to last person who told you something.
+ * @param op Object saying this
+ * @param params The message
+ * @return 1 on success, 0 on failure */
 int command_reply(object *op, char *params)
 {
     char buf[MAX_BUF];
@@ -276,13 +313,13 @@ int command_reply(object *op, char *params)
     if (!params || *params == '\0')
 	{
         new_draw_info(NDI_UNIQUE, 0, op, "Reply what?");
-        return 1;
+        return 0;
     }
 
     if (CONTR(op)->last_tell[0] == '\0')
 	{
         new_draw_info(NDI_UNIQUE, 0, op, "You can't reply to nobody.");
-        return 1;
+        return 0;
     }
 
     /* Find player object of player to reply to and check if player still exists */
@@ -291,7 +328,7 @@ int command_reply(object *op, char *params)
     if (pl == NULL || pl->dm_stealth)
 	{
         new_draw_info(NDI_UNIQUE, 0, op, "You can't reply, this player left.");
-        return 1;
+        return 0;
     }
 
     sprintf(buf, "%s replies you: ", op->name);

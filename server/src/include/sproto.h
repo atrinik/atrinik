@@ -95,6 +95,7 @@ void save_throw_object(object *op, object *originator);
 int checkbanned(char *login, char *host);
 
 /* c_chat.c */
+char *cleanup_chat_string(char *ustring);
 int command_say(object *op, char *params);
 int command_dmsay(object *op, char *params);
 int command_shout(object *op, char *params);
@@ -190,8 +191,6 @@ int command_dumpmap(object *op, char *params);
 int command_dumpallmaps(object *op, char *params);
 int command_printlos(object *op, char *params);
 int command_version(object *op, char *params);
-int command_output_sync(object *op, char *params);
-int command_output_count(object *op, char *params);
 int command_listen(object *op, char *params);
 int command_statistics(object *pl, char *params);
 int command_fix_me(object *op, char *params);
@@ -271,7 +270,7 @@ partylist *form_party(object *op, char *params, partylist *firstparty, partylist
 char *find_party(int partynumber, partylist *party);
 partylist *find_party_struct(int partynumber);
 void remove_party(partylist *target_party);
-void obsolete_parties(void);
+void obsolete_parties();
 #ifdef PARTY_KILL_LOG
 void add_kill_to_party(int numb, char *killer, char *dead, long exp);
 #endif
