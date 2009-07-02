@@ -30,53 +30,48 @@
  * General convenience functions for the client. */
 
 #if defined( __WIN_32)  || defined(__LINUX)
-FILE *logstream;
+FILE   *logstream;
+
 int logFlush;
 #endif
-
 /**
  * Logs an error, debug output, etc.
  * @param logLevel Level of the log message (LOG_MSG, LOG_DEBUG, ...)
  * @param format Formatting of the message, like sprintf
  * @param ... Additional arguments for format */
-void LOG (int logLevel, char *format, ...)
+void LOG(int logLevel, char *format, ...)
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	int flag = 0;
-	va_list ap;
+    int flag    = FALSE;
+    va_list ap;
 
-	/* We want log exactly ONE logLevel*/
-	if (LOGLEVEL < 0)
-	{
-		if (LOGLEVEL * (-1) == logLevel)
-			flag = 1;
-	}
-	/* We log all logLevel < LOGLEVEL*/
-	else
-	{
-		if (logLevel <= LOGLEVEL)
-			flag = 1;
-	}
+    if (LOGLEVEL < 0)   /* we want log exactly ONE logLevel*/
+    {
+        if (LOGLEVEL * (-1) == logLevel)
+            flag = TRUE;
+    }
+    else    /* we log all logLevel < LOGLEVEL*/
+    {
+        if (logLevel <= LOGLEVEL)
+            flag = TRUE;
+    }
+    if (!logstream)     /* secure: we have no open stream*/
+    {
+        logstream = fopen(LOG_FILE, "w");
+        if (!logstream)
+            flag = FALSE;
+    }
+    if (flag)
+    {
+        va_start(ap, format);
+        vfprintf(stdout, format, ap);
+        va_end(ap);
+        va_start(ap, format);
+        vfprintf(logstream, format, ap);
+        va_end(ap);
+    }
+    fflush(logstream);
 
-	/* Secure: we have no open stream */
-	if (!logstream)
-		flag = 0;
-
-	va_start(ap, format);
-
-	if (flag)
-	{
-		vfprintf(stdout, format, ap);
-		vfprintf(logstream, format, ap);
-	}
-	/* No logstream, use stdout */
-	else
-		vfprintf(stdout, format, ap);
-
-	va_end(ap);
-
-	if (logstream)
-		fflush(logstream);
 #endif
 }
 
