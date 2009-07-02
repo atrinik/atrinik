@@ -93,8 +93,8 @@ extern void blt_inventory_face_from_tag(int tag, int x, int y);
 extern void blt_window_slider(_Sprite *slider, int max_win, int winlen, int off, int len, int x, int y);
 extern void do_keybind_input();
 
-extern void read_anim_tmp();
-extern void read_bmap_tmp();
+extern int read_anim_tmp();
+extern int read_bmap_tmp();
 extern void read_anims();
 extern void read_bmaps_p0();
 extern void delete_bmap_tmp();

@@ -725,7 +725,7 @@ void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, in
 
 /**
  * Load temporary animations. */
-static void load_anim_tmp()
+static int load_anim_tmp()
 {
 	int i, anim_len = 0, new_anim = 1;
 	uint8 faces = 0;
@@ -828,144 +828,124 @@ static void load_anim_tmp()
 	}
 
     fclose(stream);
+	return 1;
 }
 
 
 /**
  * Read temporary animations. */
-void read_anim_tmp()
+int read_anim_tmp()
 {
     FILE *stream, *ftmp;
-	int i, new_anim = 1, count = 1;
+	int i,new_anim=TRUE,count=1;
 	char buf[HUGE_BUF],cmd[HUGE_BUF];
     struct stat	stat_bmap, stat_anim, stat_tmp;
 
-	/* If this fails, we have an urgent problem somewhere before */
-    if ((stream = fopen(FILE_BMAPS_TMP, "rb")) == NULL)
+	/* if this fails, we have a urgent problem somewhere before */
+    if( (stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL )
 	{
-		LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Error reading bmap.tmp for anim.tmp!");
-		/* fatal */
-		SYSTEM_End();
+		LOG(LOG_ERROR,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
+		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
-
 	fstat(fileno(stream), &stat_bmap);
-    fclose(stream);
+    fclose( stream );
 
-    if ((stream = fopen(FILE_CLIENT_ANIMS, "rb")) == NULL)
+    if( (stream = fopen(FILE_CLIENT_ANIMS, "rb" )) == NULL )
 	{
-		LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Error reading bmap.tmp for anim.tmp!");
-		/* Fatal */
-		SYSTEM_End();
+		LOG(LOG_ERROR,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
+		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
-
 	fstat(fileno(stream), &stat_anim);
-    fclose(stream);
+    fclose( stream );
 
-    if ((stream = fopen(FILE_ANIMS_TMP, "rb" )) != NULL)
+    if( (stream = fopen(FILE_ANIMS_TMP, "rb" )) != NULL )
 	{
 		fstat(fileno(stream), &stat_tmp);
-		fclose(stream);
+		fclose( stream );
 
-		/* Our animations file must be newer than our default anim file */
-		if (difftime(stat_tmp.st_mtime, stat_anim.st_mtime) > 0.0f)
+		/* our anim file must be newer as our default anim file */
+		if(difftime(stat_tmp.st_mtime, stat_anim.st_mtime) > 0.0f)
 		{
-			/* Our animations file must be newer than our bmaps.tmp */
-			if (difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
-			{
-				/* All fine - load file */
-				load_anim_tmp();
-				return;
-			}
+
+			/* our anim file must be newer as our bmaps.tmp */
+			if(difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
+				return load_anim_tmp(); /* all fine - load file */
 		}
 	}
 
-	/* For some reason - recreate this file */
-	unlink(FILE_ANIMS_TMP);
-
-    if ((ftmp = fopen(FILE_ANIMS_TMP, "wt")) == NULL)
+	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
+    if( (ftmp = fopen(FILE_ANIMS_TMP, "wt" )) == NULL )
 	{
-		LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Error opening anims.tmp!");
-		/* Fatal */
-		SYSTEM_End();
+		LOG(LOG_ERROR,"read_anim_tmp:Error opening anims.tmp!");
+		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
-    if ((stream = fopen(FILE_CLIENT_ANIMS, "rt")) == NULL)
+    if( (stream = fopen(FILE_CLIENT_ANIMS, "rt" )) == NULL )
 	{
-		LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Error reading client_anims for anims.tmp!");
-		/* fatal */
-		SYSTEM_End();
+		LOG(LOG_ERROR,"read_anim_tmp:Error reading client_anims for anims.tmp!");
+		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
-
-	while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
+	while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
 	{
-		sscanf(buf, "%s", cmd);
-
-		/* We are outside an animation body? */
-		if (new_anim)
+		sscanf(buf,"%s",cmd);
+		if(new_anim == TRUE) /* we are outside a anim body ? */
 		{
-			if (!strncmp(buf, "anim ", 5))
+			if(!strncmp(buf, "anim ",5))
 			{
-				sprintf(cmd, "anim %d -> %s", count++, buf);
-				/* Save this key string */
-				fputs(cmd, ftmp);
-				new_anim = 0;
+				sprintf(cmd, "anim %d -> %s",count++, buf);
+				fputs(cmd,ftmp); /* safe this key string! */
+				new_anim = FALSE;
 			}
-			/* We should never hit this point */
-			else
+			else /* we should never hit this point */
 			{
-				LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
+				LOG(LOG_ERROR,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
 			}
 		}
-		/* We are inside */
-		else
+		else /* no, we are inside! */
 		{
-			if (!strncmp(buf, "facings ", 8))
+			if(!strncmp(buf, "facings ",8))
 			{
-				/* Save this key word */
-				fputs(buf, ftmp);
+				fputs(buf, ftmp); /* safe this key word! */
 			}
-			else if (!strncmp(cmd, "mina", 4))
+			else if(!strncmp(cmd, "mina",4))
 			{
-				/* Save this key word */
-				fputs(buf, ftmp);
-				new_anim = 1;
+				fputs(buf, ftmp); /* safe this key word! */
+				new_anim = TRUE;
 			}
 			else
 			{
-				/* This is really slow when we have more pictures - we
-				 * are browsing #anim * #bmaps times the same table -
-				 * pretty bad - when we stay too long here, we must create
-				 * for bmaps.tmp entries a hash table too. */
-				for (i = 0; i < bmaptype_table_size; i++)
+				/* this is really slow when we have more pictures - we
+				 * browsing #anim * #bmaps times the same table -
+				 * pretty bad - when we stay to long here, we must create
+				 * for bmaps.tmp entries a hash table too.
+				 */
+				for(i=0;i<bmaptype_table_size;i++)
 				{
-					if (!strcmp(bmaptype_table[i].name, cmd))
+					if(!strcmp(bmaptype_table[i].name,cmd))
 						break;
 				}
-
-				if (i>= bmaptype_table_size)
+				if(i>=bmaptype_table_size)
 				{
-					/* If we are here then we have a picture name in the anims file
+					/* if we are here then we have a picture name in the anims file
 					 * which we don't have in our bmaps file! Pretty bad. But because
 					 * face #0 is ALWAYS bug.101 - we simply use it here! */
-					i = 0;
-					LOG(LOG_ERROR, "ERROR: read_anim_tmp(): Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
+					i=0;
+					LOG(LOG_ERROR,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
 				}
-
-				sprintf(cmd, "%d\n", i);
+				sprintf(cmd, "%d\n",i);
 				fputs(cmd, ftmp);
 			}
 		}
+
 	}
 
-    fclose(stream);
-    fclose(ftmp);
-
-	/* All fine - load file */
-	load_anim_tmp();
+    fclose( stream );
+    fclose( ftmp );
+	return load_anim_tmp(); /* all fine - load file */
 }
 
 /**
@@ -1179,134 +1159,119 @@ void delete_bmap_tmp()
 
 /**
  * Load temporary bitmaps. */
-static void load_bmap_tmp()
+static int load_bmap_tmp()
 {
 	FILE *stream;
-	char buf[HUGE_BUF], name[HUGE_BUF];
-	int i = 0, len, pos;
+	char buf[HUGE_BUF],name[HUGE_BUF];
+	int i=0,len, pos;
 	unsigned int crc;
 
 	delete_bmap_tmp();
-
-    if ((stream = fopen(FILE_BMAPS_TMP, "rt")) == NULL)
+    if( (stream = fopen(FILE_BMAPS_TMP, "rt" )) == NULL )
 	{
-		LOG(LOG_ERROR, "ERROR: load_bmap_tmp(): Error opening file <bmap.tmp>\n");
-		/* Fatal */
-		SYSTEM_End();
+		LOG(LOG_ERROR,"bmaptype_table(): error open file <bmap.tmp>");
+		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
-
-	while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
+	while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
 	{
-		sscanf(buf, "%d %d %x %s\n", &pos, &len, &crc, name);
+		sscanf(buf,"%d %d %x %s\n", &pos, &len, &crc, name);
 		bmaptype_table[i].crc = crc;
 		bmaptype_table[i].len = len;
 		bmaptype_table[i].pos = pos;
-		bmaptype_table[i].name = (char *) malloc(strlen(name) + 1);
-		strcpy(bmaptype_table[i].name, name);
+		bmaptype_table[i].name =(char*) malloc(strlen(name)+1);
+		strcpy(bmaptype_table[i].name,name);
 		i++;
 	}
-
-	bmaptype_table_size = i;
-    fclose(stream);
+	bmaptype_table_size=i;
+    fclose( stream );
+	return 0;
 }
 
 
 /**
  * Read temporary bitmaps file. */
-void read_bmap_tmp()
+int read_bmap_tmp()
 {
     FILE *stream, *fbmap0;
-	char buf[HUGE_BUF], name[HUGE_BUF];
+	char buf[HUGE_BUF],name[HUGE_BUF];
     struct stat	stat_bmap, stat_tmp, stat_bp0;
 	int len;
 	unsigned int crc;
 	_bmaptype *at;
 
-    if ((stream = fopen(FILE_CLIENT_BMAPS, "rb")) == NULL)
+    if( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) == NULL )
 	{
-		/* We can't make bmaps.tmp without this file */
+		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
-		return;
+		return 1;
 	}
-
 	fstat(fileno(stream), &stat_bmap);
-    fclose(stream);
+    fclose( stream );
 
-    if ((stream = fopen(FILE_BMAPS_P0, "rb")) == NULL)
+    if( (stream = fopen(FILE_BMAPS_P0, "rb" )) == NULL )
 	{
-		/* We can't make bmaps.tmp without this file */
+		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
-		return;
+		return 1;
 	}
-
 	fstat(fileno(stream), &stat_bp0);
-    fclose(stream);
+    fclose( stream );
 
-    if ((stream = fopen(FILE_BMAPS_TMP, "rb")) == NULL)
+    if( (stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL )
 		goto create_bmap_tmp;
-
 	fstat(fileno(stream), &stat_tmp);
-    fclose(stream);
+    fclose( stream );
 
-	/* Ok, client_bmap and bmaps.p0 are there - now check
-	 * our bmap_tmp is newer - if not newer than both, we
-	 * create it new - then it is newer. */
-	if (difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
+	/* ok - client_bmap & bmaps.p0 are there - now check
+	 * our bmap_tmp is newer - is not newer as both, we
+	 * create it new - then it is newer.
+	 */
+
+	if(difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
 	{
-		if (difftime(stat_tmp.st_mtime, stat_bp0.st_mtime) > 0.0f)
-		{
-			/* All fine */
-			load_bmap_tmp();
-			return;
-		}
+		if(difftime(stat_tmp.st_mtime, stat_bp0.st_mtime) > 0.0f)
+			return load_bmap_tmp(); /* all fine */
 	}
 
 	create_bmap_tmp:
 	unlink(FILE_BMAPS_TMP);
 
-	/* NOW we are sure... We must create us a new bmaps.tmp */
-    if ((stream = fopen(FILE_CLIENT_BMAPS, "rb")) != NULL)
+	/* NOW we are sure... we must create us a new bmaps.tmp */
+    if( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) != NULL )
     {
-		/* We can use text mode here, it's local */
-	    if ((fbmap0 = fopen(FILE_BMAPS_TMP, "wt")) != NULL)
+		/* we can use text mode here, its local */
+	    if( (fbmap0 = fopen(FILE_BMAPS_TMP, "wt" )) != NULL )
 		{
-			/* Read in the bmaps from the server, check with the
+			/* read in the bmaps from the server, check with the
 			 * loaded bmap table (from bmaps.p0) and create with
-			 * this information the bmaps.tmp file. */
-			while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
+			 * this information the bmaps.tmp file.
+			 */
+			while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
 			{
-				sscanf(buf, "%d %x %s", &len, &crc, name);
-				at = find_bmap(name);
+				sscanf(buf,"%x %x %s", (unsigned int *)&len, &crc, name);
+				at=find_bmap(name);
 
-				/* Now we can check, our local file package has
-				 * the right png - if not, we mark this picture
+				/* now we can check, our local file package has
+				 * the right png - if not, we mark this pictures
 				 * as "in cache". We don't check it here now -
-				 * that will happen at runtime.
+				 * that will happens at runtime.
 				 * That can change when we include later a forbidden
 				 * flag in the server (no face send) - then we need
-				 * to break and upddate the picture and/or check the cache. */
-
-				/* Position -1 marks "not in the atrinik.p0 file */
-
-				/* Is different or not there */
-				if (!at || at->len != len || at->crc != crc)
-					snprintf(buf, sizeof(buf), "-1 %d %x %s\n", len, crc, name);
-				/* we have it */
-				else
-					snprintf(buf, sizeof(buf), "%d %d %x %s\n", at->pos, len, crc, name);
-
+				 * to break and upddate the picture and/or check the cache.
+				 */
+				/* position -1 mark "not i the atrinik.p0 file */
+				if(!at || at->len != len || at->crc != crc) /* is different or not there! */
+					sprintf(buf,"-1 %d %x %s\n", len, crc, name);
+				else /* we have it */
+					sprintf(buf,"%d %d %x %s\n", at->pos, len, crc, name);
 				fputs(buf, fbmap0);
 			}
-
-		    fclose(fbmap0);
+		    fclose( fbmap0 );
 		}
-
-	    fclose(stream);
+	    fclose( stream );
 	}
-
-	/* All fine */
-	load_bmap_tmp();
+	return load_bmap_tmp(); /* all fine */
 }
 
 
