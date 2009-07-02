@@ -2301,7 +2301,8 @@ int new_save_map(mapstruct *m, int flag)
 		unlink(filename);
 
 		/* Free the buf */
-		free(sqlbuf);
+		if (sqlbuf)
+			free(sqlbuf);
 
 		return 0;
 	}
