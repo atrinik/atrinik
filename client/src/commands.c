@@ -451,8 +451,7 @@ void AnimCmd(unsigned char *data, int len)
 /**
  * Image command.
  * @param data The incoming data
- * @param len Length of the data
- */
+ * @param len Length of the data */
 void ImageCmd(unsigned char *data, int len)
 {
     int pnum, plen;
@@ -491,7 +490,9 @@ void SkillRdyCmd(char *data, int len)
 {
     int i, ii;
 
-    strncpy(cpl.skill_name, data, len);
+	(void) len;
+
+    strcpy(cpl.skill_name, data);
 	WIDGET_REDRAW(SKILL_EXP_ID);
 
     /* lets find the skill... and setup the shortcuts to the exp values*/

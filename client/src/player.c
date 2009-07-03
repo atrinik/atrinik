@@ -930,7 +930,6 @@ void widget_show_skill_exp(int x, int y)
     else
         action_tick = LastTick;
 
-
     if (!widgetSF[SKILL_EXP_ID])
         widgetSF[SKILL_EXP_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
 
