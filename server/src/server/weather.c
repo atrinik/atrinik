@@ -28,6 +28,11 @@
 #include <sproto.h>
 #endif
 
+/**
+ * @file weather.c
+ * This file controls weather functions, like ticking the clock
+ * and initializes the world darkness. */
+
 const int season_timechange[5][HOURS_PER_DAY] = {
 	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
 		0, 0,  0,  0,  0,  0,  2,  1, 1, 1, 0, 0},
@@ -45,7 +50,9 @@ const int season_timechange[5][HOURS_PER_DAY] = {
 		0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0}
 };
 
-void init_word_darkness(void)
+/**
+ * Initializes the world darkness value. */
+void init_word_darkness()
 {
     int i;
     timeofday_t tod;
@@ -61,7 +68,8 @@ void init_word_darkness(void)
         world_darkness -= season_timechange[tod.season][i];
 }
 
-/* This performs the basic function of advancing the clock one tick
+/**
+ * This performs the basic function of advancing the clock one tick
  * forward.  Every 20 ticks, the clock is saved to disk.  It is also
  * saved on shutdown.  Any time dependant functions should be called
  * from this function, and probably be passed tod as an argument.

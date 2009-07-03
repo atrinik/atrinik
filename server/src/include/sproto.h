@@ -546,7 +546,6 @@ int stand_near_hostile(object *who);
 int player_can_view(object *pl, object *op);
 int action_makes_visible(object *op);
 int pvp_area(object *attacker, object *victim);
-int op_on_battleground(object *op, int *x, int *y);
 void dragon_ability_gain(object *who, int atnr, int level);
 
 /* plugins.c */
@@ -896,10 +895,10 @@ void move_marker(object *op);
 int process_object(object *op);
 
 /* timers.c */
-void cftimer_process_timers(void);
+void cftimer_process_timers();
 int cftimer_create(int id, long delay, object *ob, int mode);
 int cftimer_destroy(int id);
-int cftimer_find_free_id(void);
+int cftimer_find_free_id();
 
 /* pathfinder.c */
 int pathfinder_queue_enqueue(object *waypoint);
@@ -914,5 +913,5 @@ int find_neighbours(path_node *node, path_node **open_list, path_node **closed_l
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
 /* weather.c */
-void init_word_darkness(void);
-void tick_the_clock(void);
+void init_word_darkness();
+void tick_the_clock();

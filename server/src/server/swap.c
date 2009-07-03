@@ -28,9 +28,13 @@
 #include <sproto.h>
 #endif
 
+/**
+ * @file swap.c
+ * Controls map swap functions. */
+
 #ifdef RECYCLE_TMP_MAPS
-/* This writes out information on all the temporary maps.  It is called by
- * swap_map below. */
+/**
+ * Write maps log. */
 static void write_map_log()
 {
     FILE *fp;
@@ -46,11 +50,11 @@ static void write_map_log()
 		return;
     }
 
-    for (map=first_map; map!=NULL; map=map->next)
+    for (map = first_map; map != NULL; map = map->next)
 	{
 		/* If tmpname is null, it is probably a unique player map,
 		 * so don't save information on it. */
-		if (map->in_memory != MAP_IN_MEMORY && (map->tmpname !=NULL) && (strncmp(map->path, "/random", 7)))
+		if (map->in_memory != MAP_IN_MEMORY && (map->tmpname != NULL) && (strncmp(map->path, "/random", 7)))
 		{
 			/* the 0 written out is a leftover from the lock number for
 			 * unique items and second one is from encounter maps.
@@ -59,10 +63,13 @@ static void write_map_log()
 			fprintf(fp, "%s:%s:%ld:0:0:%d:0:%d\n", map->path, map->tmpname, (map->reset_time == -1 ? -1: map->reset_time - current_time), map->difficulty, map->darkness);
 		}
     }
+
     fclose(fp);
 }
 #endif
 
+/**
+ * Read map log. */
 void read_map_log()
 {
     FILE *fp;
@@ -81,6 +88,7 @@ void read_map_log()
     while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
 		map = get_linked_map();
+
 		/* scanf doesn't work all that great on strings, so we break
 		 * out that manually.  strdup is used for tmpname, since other
 		 * routines will try to free that pointer. */
@@ -98,16 +106,20 @@ void read_map_log()
 
 		map->in_memory = MAP_SWAPPED;
 		map->darkness = darkness;
+
 		if (darkness == -1)
 			darkness = MAX_DARKNESS;
+
 		map->light_value = global_darkness_table[MAX_DARKNESS];
     }
+
     fclose(fp);
 }
 
-/* if on the map and the direct attached maps no player and no perm_load
- * flag set, we can safely swap them out!
- * thats rewritten for beta 2. */
+/**
+ * Swap out a map.
+ * @param map The map structure to swap
+ * @param force_flag Force flag */
 void swap_map(mapstruct *map, int force_flag)
 {
 	int i;
@@ -118,7 +130,7 @@ void swap_map(mapstruct *map, int force_flag)
 #endif
 #endif
 
-   /*LOG(llevDebug, "Check map for swapping: %s. (players:%d) (%d)\n", map->path, players_on_map(map) , force_flag);*/
+	/*LOG(llevDebug, "Check map for swapping: %s. (players:%d) (%d)\n", map->path, players_on_map(map) , force_flag);*/
 
 	/* lets check some legal things... */
     if (map->in_memory != MAP_IN_MEMORY)
@@ -180,7 +192,7 @@ void swap_map(mapstruct *map, int force_flag)
 		return;
     }
 
-    if (new_save_map (map, 0) == -1)
+    if (new_save_map(map, 0) == -1)
 	{
 		LOG(llevBug, "BUG: Failed to swap map %s.\n", map->path);
 		/* need to reset the in_memory flag so that delete map will also
@@ -196,6 +208,8 @@ void swap_map(mapstruct *map, int force_flag)
 #endif
 }
 
+/**
+ * Check active maps and swap them out. */
 void check_active_maps()
 {
     mapstruct *map, *next;
@@ -264,7 +278,10 @@ void swap_below_max(const char *except_level)
     }
 }
 
-/* count the player on a map, using the local map player list */
+/**
+ * Count the players on a map, using the local map player list.
+ * @param m The map
+ * @return Number of players on this map */
 int players_on_map(mapstruct *m)
 {
 	object *tmp;
@@ -276,10 +293,10 @@ int players_on_map(mapstruct *m)
 	return count;
 }
 
-/* flush_old_maps():
- * Removes tmp-files of maps which are going to be reset next time
+/**
+ * Removes temporary files of maps which are going to be reset next time
  * they are visited.
- * This is very useful if the tmp-disk is very full. */
+ * This is very useful i the tmp-disk is very full. */
 void flush_old_maps()
 {
     mapstruct *m, *oldmap;

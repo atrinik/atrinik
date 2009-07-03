@@ -28,6 +28,14 @@
 #include <sproto.h>
 #endif
 
+/**
+ * @file swamp.c
+ * Swamp related functions. */
+
+/**
+ * Walk on deep swamp.
+ * @param op The swamp object
+ * @param victim Object walking on this swamp */
 void walk_on_deep_swamp(object *op, object *victim)
 {
   	if (victim->type == PLAYER && !QUERY_FLAG(victim, FLAG_FLYING) && victim->stats.hp >= 0)
@@ -38,6 +46,9 @@ void walk_on_deep_swamp(object *op, object *victim)
   	}
 }
 
+/**
+ * Process player on swamp.
+ * @param op The player object */
 void move_deep_swamp(object *op)
 {
 	object *above = op->above;

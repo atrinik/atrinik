@@ -23,10 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Ban.c
- * Code was grabbed from the netrek source and modified to work with
- * crossfire. This function checks database table for any banned players.
- * If it finds one it returns a 1. Wildcards can be used. */
+/**
+ * @file ban.c
+ * Ban related functions.
+ * @todo
+ * Make it possible to ban players/hosts from the game by Wizards. */
 
 #include <global.h>
 #include <sproto.h>
@@ -47,6 +48,11 @@
 #include <sys/file.h>
 #endif /* win32 */
 
+/**
+ * Check if this login or host is banned in the database.
+ * @param login Login name to check
+ * @param host Host name to check
+ * @return 1 if banned, 0 if not */
 int checkbanned(char *login, char *host)
 {
   	sqlite3 *db;

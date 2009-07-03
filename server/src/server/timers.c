@@ -28,10 +28,13 @@
 #include <sproto.h>
 #endif
 
-/*****************************************************************************/
-/* Processes all timers.                                                     */
-/*****************************************************************************/
-void cftimer_process_timers(void)
+/**
+ * @file timers.c
+ * Timer related functions. */
+
+/**
+ * Processes all timers. */
+void cftimer_process_timers()
 {
     int i;
 
@@ -58,19 +61,17 @@ void cftimer_process_timers(void)
     }
 }
 
-/*****************************************************************************/
-/* Creates a new timer.                                                      */
-/* - id    : Desired timer identifier.                                       */
-/* - delay : Desired timer delay.                                            */
-/* - ob    : Object that will be linked to this timer.                       */
-/* - mode  : Count mode (seconds or cycles). See timers.h.                   */
-/*****************************************************************************/
-/* Return value:                                                             */
-/*  TIMER_ERR_NONE : Timer was successfully created.                         */
-/*  TIMER_ERR_ID   : Invalid ID.                                             */
-/*  TIMER_ERR_MODE : Invalid mode.                                           */
-/*  TIMER_ERR_OBJ  : Invalid object.                                         */
-/*****************************************************************************/
+/**
+ * Creates a new timer.
+ * @param id Desired timer identifier
+ * @param delay Desired timer delay
+ * @param ob Object that will be linked to this timer
+ * @param mode Count mode (seconds or cycles). See timers.h
+ * @return
+ * TIMER_ERR_NONE - Timer was successfully created.\n
+ * TIMER_ERR_ID - Invalid ID.\n
+ * TIMER_ERR_MODE - Invalid mode.\n
+ * TIMER_ERR_OBJ - Invalid object. */
 int cftimer_create(int id, long delay, object* ob, int mode)
 {
     if (id >= MAX_TIMERS)
@@ -105,14 +106,12 @@ int cftimer_create(int id, long delay, object* ob, int mode)
     return TIMER_ERR_NONE;
 }
 
-/*****************************************************************************/
-/* Destroys an existing timer.                                               */
-/* - id : Identifier of the timer to destroy.                                */
-/*****************************************************************************/
-/* Return value:                                                             */
-/*  TIMER_ERR_NONE : No problem encountered.                                 */
-/*  TIMER_ERR_ID   : Unknown ID - timer not found.                           */
-/*****************************************************************************/
+/**
+ * Destroys an existing timer.
+ * @param id Identifier of the timer to destroy.
+ * @return
+ * TIMER_ERR_NONE - No problem encountered.\n
+ * TIMER_ERR_ID - Unknown ID: timer not found. */
 int cftimer_destroy(int id)
 {
     if (id >= MAX_TIMERS)
@@ -125,14 +124,12 @@ int cftimer_destroy(int id)
     return TIMER_ERR_NONE;
 }
 
-/*****************************************************************************/
-/* Finds a free ID for a new timer.                                          */
-/*****************************************************************************/
-/* Return value:                                                             */
-/*  TIMER_ERR_ID   : No free ID available.                                   */
-/*  >0             : an available ID.                                        */
-/*****************************************************************************/
-int cftimer_find_free_id(void)
+/**
+ * Finds a free ID for a new timer.
+ * @return
+ * TIMER_ERR_ID - No free ID available.\n
+ * > 0 - An available ID. */
+int cftimer_find_free_id()
 {
     int i;
 

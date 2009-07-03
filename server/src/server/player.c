@@ -33,11 +33,19 @@
 #include <sounds.h>
 #include <newclient.h>
 
+/**
+ * @file player.c
+ * Player related functions. */
+
 
 /* i left find_arrow - find_arrow() and find_arrow()_ext should merge
  * when the server sided range mode is removed at last from source */
 static object *find_arrow_ext(object *op, const char *type, int tag);
 
+/**
+ * Loop through the player list and find player specified by plname.
+ * @param plname The player name to find
+ * @return Player structure if found, NULL if not */
 player *find_player(char *plname)
 {
 	player *pl;
@@ -52,6 +60,11 @@ player *find_player(char *plname)
 
 /* Grab the MotD from the database. MotD row is called 'motd',
  * however, if custom 'motd_custom' is set, prefer that one. */
+/**
+ * Grab the Message of the Day from the database. Message of the Day
+ * row is called 'motd', however, if custom 'motd_custom' is set,
+ * prefer that one, and print it to the player.
+ * @param op Player object to print the message to */
 void display_motd(object *op)
 {
 #ifdef MOTD
@@ -76,7 +89,7 @@ void display_motd(object *op)
 	while (db_step(statement) == SQLITE_ROW)
 	{
 		/* We store the database text in buf */
-		sprintf(buf, "%s", (char *)db_column_text(statement, 1));
+		snprintf(buf, sizeof(buf), "%s", (char *)db_column_text(statement, 1));
 
 		/* If this is custom MotD, break out now. */
 		if (strcmp((char *)db_column_text(statement, 0), "motd_custom") == 0)
@@ -95,6 +108,10 @@ void display_motd(object *op)
 #endif
 }
 
+/**
+ * Return is player name is ok, or not.
+ * @param cp The player name
+ * @return 1 if it is ok, 0 if not */
 int playername_ok(char *cp)
 {
   	for (; *cp != '\0'; cp++)
@@ -310,25 +327,11 @@ archetype *get_player_archetype(archetype* at)
     }
 }
 
-/* ARGH. this friendly list is a GLOBAL list. assuming 100 players on 75 map ... and every
- * mob on every map (perhaps some hundreds) will move through ALL of object of the
- * friendly list every time they try to target...
- * this must be changed. Look at friendly.c for more comments about it.
- * note, that only here and in pets.c this list is used. In pets.c it is only used to
- * remove or collect players pets, */
-
-/* this is another example of the more or less broken friendly list use... this function seems not to trust
- * his own list - whats very bad because this is a core function - speed & elegance should used here
- * not crazy while loops to find invalid list entries. */
-
-/* btw, this is not a "get nearest player" - its a "get nearest friendly object" */
-
-/* i added now aggro range.
- * aggro range is the distance to target a mob will attack. Is the target out of this range,
- * the mob will not attack and/or not target it.
- * If a target moves out of aggro range for xx ticks, a mob will change
- * or leave target. Stealth will aggro range - 2. That sounds not much but is quite useful for normal
- * mobs. */
+/**
+ * Get nearest friendly object to object mon. This function will also
+ * check if the object is in line of sight.
+ * @param mon Monster object
+ * @return Object if in range to monster, NULL if no object in range. */
 object *get_nearest_player(object *mon)
 {
     object *op = NULL;
@@ -410,14 +413,14 @@ object *get_nearest_player(object *mon)
  * is probably not a good thing. */
 #define MAX_SPACES	50
 
-/* Returns the direction to the player, if valid.  Returns 0 otherwise.
- * modified to verify there is a path to the player.  Does this by stepping towards
+/**
+ * Returns the direction to the player, if valid.  Returns 0 otherwise.
+ * Modified to verify there is a path to the player.  Does this by stepping towards
  * player and if path is blocked then see if blockage is close enough to player that
  * direction to player is changed (ie zig or zag).  Continue zig zag until either
  * reach player or path is blocked.  Thus, will only return true if there is a free
  * path to player.  Though path may not be a straight line. Note that it will find
- * player hiding along a corridor at right angles to the corridor with the monster.
- *
+ * player hiding along a corridor at right angles to the corridor with the monster.\n
  * Modified by MSW 2001-08-06 to handle tiled maps. Various notes:
  * 1) With DETOUR_AMOUNT being 2, it should still go and find players hiding
  * down corriders.
@@ -429,9 +432,11 @@ object *get_nearest_player(object *mon)
  * 3) I'm not sure how good this code will be for moving multipart monsters,
  * since only simple checks to blocked are being called, which could mean the monster
  * is blocking itself.
- */
-
-/* TODO: this should really use pathfinding instead. /Gecko */
+ * @param mon The monsters object
+ * @param pl Player object
+ * @param mindiff Min distance
+ * @return The direction towards the player, 0 if no direction.
+ * @todo This should really use pathfinding instead. */
 int path_to_player(object *mon, object *pl, int mindiff)
 {
     rv_vector rv;
@@ -552,6 +557,11 @@ int path_to_player(object *mon, object *pl, int mindiff)
     return firstdir;
 }
 
+/**
+ * Give initial items to object pl. This is used when player creates
+ * a new character.
+ * @param pl The player object
+ * @param items Treasure list of items */
 void give_initial_items(object *pl, treasurelist *items)
 {
     object *op, *next = NULL;
@@ -598,6 +608,9 @@ void give_initial_items(object *pl, treasurelist *items)
     }
 }
 
+/**
+ * Send query to op's socket to get player name.
+ * @param op Object to send the query to */
 void get_name(object *op)
 {
     CONTR(op)->write_buf[0] = '\0';
@@ -605,13 +618,19 @@ void get_name(object *op)
     send_query(&CONTR(op)->socket, 0, "What is your name?\n:");
 }
 
+/**
+ * Send query to op's socket to get player's password.
+ * @param op Object to send the query to */
 void get_password(object *op)
 {
-    CONTR(op)->write_buf[0]='\0';
-    CONTR(op)->state=ST_GET_PASSWORD;
-    send_query(&CONTR(op)->socket,CS_QUERY_HIDEINPUT, "What is your password?\n:");
+    CONTR(op)->write_buf[0] = '\0';
+    CONTR(op)->state = ST_GET_PASSWORD;
+    send_query(&CONTR(op)->socket, CS_QUERY_HIDEINPUT, "What is your password?\n:");
 }
 
+/**
+ * If this is a new character, we will need to confirm the password.
+ * @param op Object to send the query to */
 void confirm_password(object *op)
 {
     CONTR(op)->write_buf[0] = '\0';
@@ -677,14 +696,18 @@ object *find_arrow(object *op, const char *type)
 	return tmp;
 }
 
-/*  Player fires a bow. */
+/**
+ * Player fires a bow.
+ * @param op Object firing
+ * @param dir Direction to fire */
 static void fire_bow(object *op, int dir)
 {
 	object *left_cont, *bow, *arrow = NULL, *left, *tmp_op;
 	tag_t left_tag;
 	rv_vector target_vec;
 
-	/* Experimental targetting throw code */
+	/* If no dir is specified, attempt to find get the direction
+	 * from player's target. */
     if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
         object *target = CONTR(op)->target_object;
@@ -800,6 +823,10 @@ static void fire_bow(object *op, int dir)
 }
 
 
+/**
+ * Fire command for spells, range, throwing, etc.
+ * @param op Object firing this
+ * @param dir Direction to fire to */
 void fire(object *op, int dir)
 {
 	object *weap = NULL;
@@ -902,10 +929,16 @@ void fire(object *op, int dir)
 			else
 				op->stats.sp -= spellcost;
 
-			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float)(CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-			if (CONTR(op)->last_action_timer > 0)
-        		CONTR(op)->action_timer *= -1;
+			/* Only change the action timer if the spell required mana/grace cost (ie, was successful). */
+			if (spellcost)
+			{
+				get_skill_time(op, op->chosen_skill->stats.sp);
+				CONTR(op)->action_timer = (float)(CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+
+				if (CONTR(op)->last_action_timer > 0)
+        			CONTR(op)->action_timer *= -1;
+			}
+
 			return;
 
 		case range_wand:
@@ -1039,6 +1072,11 @@ void fire(object *op, int dir)
   	}
 }
 
+/**
+ * Move a player.
+ * @param op Player object
+ * @param dir Direction to move to
+ * @return Always returns 0. */
 int move_player(object *op, int dir)
 {
 	/*int face = dir ? (dir - 1) / 2 : -1;*/
@@ -1134,6 +1172,12 @@ int handle_newcs_player(player *pl)
     return 0;
 }
 
+/**
+ * Checks if object op has FLAG_LIFESAVE set. If he does, check
+ * his inventory for applied object that saves life. If found,
+ * bring the object player to his save bed.
+ * @param op Object to check
+ * @return 1 if the player has life saving object, 0 if not */
 int save_life(object *op)
 {
 	object *tmp;
@@ -1150,7 +1194,7 @@ int save_life(object *op)
 			new_draw_info(NDI_UNIQUE, 0, op, buf);
 
 			if (CONTR(op))
-				esrv_del_item(CONTR(op), tmp->count,tmp->env);
+				esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
 			remove_ob(tmp);
 			CLEAR_FLAG(op, FLAG_LIFESAVE);
@@ -1174,10 +1218,12 @@ int save_life(object *op)
 	return 0;
 }
 
-/* This goes throws the inventory and removes unpaid objects, and puts them
+/**
+ * This goes through the inventory and removes unpaid objects, and puts them
  * back in the map (location and map determined by values of env).  This
- * function will descend into containers.  op is the object to start the search
- * from. */
+ * function will descend into containers.
+ * @param op Object to start the search from
+ * @param env Map location determined by this object */
 void remove_unpaid_objects(object *op, object *env)
 {
     object *next;
@@ -1200,6 +1246,10 @@ void remove_unpaid_objects(object *op, object *env)
     }
 }
 
+/**
+ * Do some living for player object, like generating grace,
+ * hp, mana, starting to pray, etc.
+ * @param op Object to do some living */
 void do_some_living(object *op)
 {
 	if (CONTR(op)->state == ST_PLAYING)
@@ -1283,7 +1333,7 @@ void do_some_living(object *op)
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You stop praying.");
 			CONTR(op)->was_praying = 0;
-			op->last_grace=CONTR(op)->base_grace_reg;
+			op->last_grace = CONTR(op)->base_grace_reg;
 		}
 
 		/* grace reg */
@@ -1356,7 +1406,7 @@ void do_some_living(object *op)
 				if (!op->stats.hp)
 					op->stats.hp = 1;
 			}
-		};
+		}
 
 		/* we can't die by no food but perhaps by poisoned food? */
 		if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
@@ -1364,11 +1414,9 @@ void do_some_living(object *op)
 	}
 }
 
-
-/* If the player should die (lack of hp, food, etc), we call this.
- * op is the player in jeopardy.  If the player can not be saved (not
- * permadeath, no lifesave), this will take care of removing the player
- * file. */
+/**
+ * If the player should die (lack of hp, food, etc), we call this.
+ * @param op The player in jeopardy. */
 void kill_player(object *op)
 {
     char buf[HUGE_BUF];
@@ -1864,7 +1912,10 @@ void do_hidden_move (object *op)
     }
 }
 
-/* determine if who is standing near a hostile creature. */
+/**
+ * Determine if object is standing near a hostile creature.
+ * @param who The object to check
+ * @return 1 if the object is standing near hostile creature, 0 if not. */
 int stand_near_hostile(object *who)
 {
 	object *tmp = NULL;
@@ -1911,7 +1962,6 @@ int stand_near_hostile(object *who)
  * for them to differ. Sigh, this fctn could get a bit more complex.
  * -b.t.
  * This function is now map tiling safe. */
-
 int player_can_view(object *pl, object *op)
 {
     rv_vector rv;
@@ -1979,13 +2029,16 @@ int action_makes_visible (object *op)
   	return 0;
 }
 
-/* test for pvp area.
+/**
+ * Test for PVP area.
  * if only one opject is given, it test for it.
  * if 2 objects given, both player must be in pvp or
  * the function fails.
  * this function use map and x/y from the player object -
  * be sure player are valid and on map.
- * RETURN: FALSE = no pvp, TRUE= pvp possible */
+ * @param attacker
+ * @param victim
+ * @return 1 if PVP is possible, 0 if not */
 int pvp_area(object *attacker, object* victim)
 {
 	/* No attacking of party members. */
@@ -2009,39 +2062,6 @@ int pvp_area(object *attacker, object* victim)
 	}
 
 	return 1;
-}
-
-/* op_on_battleground - checks if the given object op (usually
- * a player) is standing on a valid battleground-tile,
- * function returns TRUE/FALSE. If true x, y returns the battleground
- * -exit-coord. (and if x, y not NULL) */
-/* TODO: sigh, this must be changed! we don't want loop tile objects in move/attack
- * or other action without any need. */
-int op_on_battleground(object *op, int *x, int *y)
-{
-  	object *tmp;
-
-	/* A battleground-tile needs the following attributes to be valid:
-	 * is_floor 1 (has to be the FIRST floor beneath the player's feet),
-	 * name="battleground", no_pick 1, type=58 (type BATTLEGROUND)
-	 * and the exit-coordinates sp/hp must both be > 0.
-	 * => The intention here is to prevent abuse of the battleground-
-	 * feature (like pickable or hidden battleground tiles). */
-	for (tmp = op->below; tmp != NULL; tmp = tmp->below)
-	{
-		if (QUERY_FLAG(tmp, FLAG_IS_FLOOR))
-		{
-			if (QUERY_FLAG(tmp, FLAG_NO_PICK) && strcmp(tmp->name, "battleground") == 0 && tmp->type == BATTLEGROUND && EXIT_X(tmp) && EXIT_Y(tmp))
-			{
-				if (x != NULL && y != NULL)
-					*x = EXIT_X(tmp), *y = EXIT_Y(tmp);
-				return 1;
-			}
-		}
-	}
-
-	/* If we got here, did not find a battleground */
-	return 0;
 }
 
 /* When a dragon-player gains a new stage of evolution,

@@ -23,11 +23,13 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
+
+/**
+ * @file egoitem.c */
 
 /* GROS: I put this here, because no other file seemed quite good. */
 object *create_artifact(object *op, char *artifactname)
@@ -49,12 +51,14 @@ object *create_artifact(object *op, char *artifactname)
 }
 
 
-/* peterm: do_power_crystal
- * object *op, object *crystal
+/**
  * This function handles the application of power crystals.
  * Power crystals, when applied, either suck power from the applier,
  * if he's at full spellpoints, or gives him power, if it's got
- * spellpoins stored. */
+ * spellpoins stored.
+ * @param op Object applying the power crystal
+ * @param crystal The crystal object
+ * @return Always returns 1. */
 int apply_power_crystal(object *op, object *crystal)
 {
   	int available_power;
