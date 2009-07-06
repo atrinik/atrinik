@@ -35,7 +35,6 @@
 
 #include <global.h>
 
-/* Opens SQLite database. */
 /**
  * Opens SQLite database.
  * @param file Database file

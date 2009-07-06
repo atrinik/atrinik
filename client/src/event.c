@@ -460,6 +460,12 @@ int Event_PollInputDevice()
 
 				mb_clicked = 1;
 
+				if (GameStatus == GAME_STATUS_WAITLOOP)
+				{
+					metaserver_mouse(&event);
+					break;
+				}
+
 				if (GameStatus < GAME_STATUS_PLAY)
 					break;
 
@@ -701,8 +707,8 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 				{
 					metaserver_sel--;
 
-					if (metaserver_start > metaserver_sel)
-						metaserver_start = metaserver_sel;
+					if (dialog_yoff > metaserver_sel)
+						dialog_yoff--;
 				}
 
 				break;
@@ -712,8 +718,8 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 				{
 					metaserver_sel++;
 
-					if (metaserver_sel >= MAXMETAWINDOW)
-						metaserver_start = (metaserver_sel + 1) - MAXMETAWINDOW;
+					if (metaserver_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
+						dialog_yoff++;
 				}
 
 				break;
@@ -727,9 +733,36 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 			case SDLK_ESCAPE:
 				return 1;
 
+			case SDLK_PAGEUP:
+				if (metaserver_sel)
+					metaserver_sel -= DIALOG_LIST_ENTRY;
+
+				dialog_yoff -= DIALOG_LIST_ENTRY;
+
+				break;
+
+			case SDLK_PAGEDOWN:
+				if (metaserver_sel < metaserver_count - DIALOG_LIST_ENTRY)
+					metaserver_sel += DIALOG_LIST_ENTRY;
+
+				dialog_yoff += DIALOG_LIST_ENTRY;
+
+				break;
+
 			default:
 				break;
 		}
+
+		/* Sanity checks for going out of bounds */
+        if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+            dialog_yoff = 0;
+		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
+			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
+
+		if (metaserver_sel < 0)
+			metaserver_sel = 0;
+		else if (metaserver_sel >= metaserver_count)
+			metaserver_sel = metaserver_count;
 	}
 
 	return 0;

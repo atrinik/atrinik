@@ -76,6 +76,8 @@ extern enum {
 	VAL_U32
 } value_type;
 
+extern int dialog_yoff;
+
 extern char *opt_tab[];
 extern int dialog_new_char_warn;
 
@@ -86,4 +88,5 @@ extern void show_meta_server(_server *node, int metaserver_start, int metaserver
 extern void accept_char();
 extern void add_close_button(int x, int y, int menu);
 extern void draw_frame(int x, int y, int w, int h);
+extern void metaserver_mouse(SDL_Event *e);
 #endif

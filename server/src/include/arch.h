@@ -26,26 +26,28 @@
 #ifndef ARCH_H
 #define ARCH_H
 
-/* The archetype structure is a set of rules on how to generate and manipulate
+/**
+ * @file arch.h
+ * Arch related structures */
+
+/** The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.
- * This probably belongs in arch.h, but there really doesn't appear to
- * be much left in the archetype - all it really is is a holder for the
- * object and pointers.  This structure should get removed, and just replaced
+ * This structure should get removed, and just replaced
  * by the object structure */
 typedef struct archt {
-	/* More definite name, like "generate_kobold" */
+	/** More definite name, like "generate_kobold" */
     const char *name;
 
-	/* Next archetype in a linked list */
+	/** Next archetype in a linked list */
     struct archt *next;
 
-	/* The main part of a linked object */
+	/** The main part of a linked object */
     struct archt *head;
 
-	/* Next part of a linked object */
+	/** Next part of a linked object */
     struct archt *more;
 
-	/* used by artifacts list: if != NULL,
+	/** used by artifacts list: if != NULL,
 	 * this object is the base object and clone is
 	 * the modified artifacts object.
 	 * we use base_clone for unidentified objects
@@ -54,8 +56,8 @@ typedef struct archt {
 	 * remove the artifacts changes (cancellation, dispel...) */
 	object *base_clone;
 
-	/* An object from which to do copy_object() */
-    object		 clone;
+	/** An object from which to do copy_object() */
+    object clone;
 } archetype;
 
 EXTERN archetype *first_archetype;

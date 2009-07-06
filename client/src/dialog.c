@@ -98,6 +98,8 @@ char *gender[] = {
 
 int gen = 0;
 
+int dialog_yoff = 0;
+
 /******************************************************************
  Option Menue
 ******************************************************************/
@@ -1672,7 +1674,6 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "You will be asked to ~verify~ the password for new characters.", x - 11, y, COLOR_WHITE, NULL, NULL);
 }
 
-
 /* show login: select-server part. */
 void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 {
@@ -1707,6 +1708,12 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	/* frame for selection field */
 	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
 
+	/* Frame for scrollbar */
+	draw_frame(box.x + box.w + 4, box.y + 11, 10, 313);
+
+	/* Show scrollbar, and adjust its position by yoff */
+	blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], metaserver_count - 18, 8, dialog_yoff, -1, box.x + box.w + 5, box.y + 12);
+
 	/* we should prepare for this the SystemFontOut */
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME + 1, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
@@ -1729,50 +1736,98 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	for (i = 0; node && i < metaserver_start; i++)
 		node = node->next;
 
-	for (i = 0; node && i < MAXMETAWINDOW;i++)
+	for (i = 0; node && i < metaserver_count; i++)
 	{
-		if (i == metaserver_sel-metaserver_start)
+		if (dialog_yoff <= i)
 		{
-			int max_comments = 3, j = 0, len = 0, width = 0, desclen = strlen(node->desc);
-			char tmpbuf[MAX_BUF];
-
-	  		snprintf(buf, sizeof(buf), "version %s", node->version);
-
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
-
-			/* Get the description width */
-			StringWidthOffset(&SystemFont, node->desc, &width, 298);
-
-			/* Loop through the maximum lines of comments */
-			while (max_comments)
+			if (i == metaserver_sel - metaserver_start)
 			{
-				/* Last line was hit. */
-				if (len > desclen)
-					break;
+				int max_comments = 3, j = 0, len = 0, width = 0, desclen = strlen(node->desc);
+				char tmpbuf[MAX_BUF];
 
-				snprintf(tmpbuf, width + 1, "%s", node->desc + len);
+				snprintf(buf, sizeof(buf), "version %s", node->version);
 
-				len += width;
+				StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
 
-				StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 160, y + 446 + j, COLOR_BLACK, &rec_desc, NULL);
-				StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 159, y + 445 + j, COLOR_HGOLD, &rec_desc, NULL);
-				max_comments--;
-				j += 12;
+				/* Get the description width */
+				StringWidthOffset(&SystemFont, node->desc, &width, 298);
+
+				/* Loop through the maximum lines of comments */
+				while (max_comments)
+				{
+					/* Last line was hit. */
+					if (len > desclen)
+						break;
+
+					snprintf(tmpbuf, width + 1, "%s", node->desc + len);
+
+					len += width;
+
+					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 160, y + 446 + j, COLOR_BLACK, &rec_desc, NULL);
+					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 159, y + 445 + j, COLOR_HGOLD, &rec_desc, NULL);
+					max_comments--;
+					j += 12;
+				}
+
+				box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
+				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
 			}
 
-			box.y = y + TXT_Y_START + 13 + i * 12;
-	  		SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+			StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
+
+			if (node->player >= 0)
+				sprintf(buf, "%d", node->player);
+			else
+				sprintf(buf, "-");
+
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
 		}
 
-		StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + i * 12, COLOR_WHITE, &rec_name, NULL);
-
-		if (node->player >= 0)
-			sprintf(buf, "%d", node->player);
-		else
-			sprintf(buf, "-");
-
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + i * 12, COLOR_WHITE, NULL, NULL);
 		node = node->next;
+
+		/* Never more than maximum */
+		if (i + 1 - dialog_yoff >= DIALOG_LIST_ENTRY)
+			break;
 	}
+}
+
+/**
+ * Called on mouse event in metaserver dialog
+ * @param e SDL event */
+void metaserver_mouse(SDL_Event *e)
+{
+	/* Mousewheel up/down */
+	if (e->button.button == 4 || e->button.button == 5)
+    {
+		/* Scroll down... */
+        if (e->button.button == 5)
+		{
+			if (metaserver_sel < metaserver_count - 1)
+				metaserver_sel++;
+
+			if (metaserver_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
+				dialog_yoff++;
+		}
+		/* .. or up */
+        else
+		{
+			if (metaserver_sel)
+				metaserver_sel--;
+
+			if (dialog_yoff > metaserver_sel)
+				dialog_yoff--;
+		}
+
+		/* Sanity checks for going out of bounds */
+        if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+            dialog_yoff = 0;
+		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
+			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
+
+		if (metaserver_sel < 0)
+			metaserver_sel = 0;
+		else if (metaserver_sel >= metaserver_count)
+			metaserver_sel = metaserver_count;
+    }
 }
