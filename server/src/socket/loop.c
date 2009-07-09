@@ -291,44 +291,6 @@ void watchdog(void)
 }
 #endif
 
-static void block_until_new_connection()
-{
-    struct timeval Timeout;
-    fd_set readfs;
-    int cycles;
-
-    LOG(llevInfo, "Waiting for connections...\n");
-
-    cycles = 1;
-    do
-	{
-		/* Every minutes is a bit often for updates - especially if nothing is going
-		 * on.  This slows it down to every 6 minutes. */
-		cycles++;
-		if (cycles % 2 == 0)
-	    	tick_the_clock();
-
-		FD_ZERO(&readfs);
-		FD_SET((uint32)init_sockets[0].fd, &readfs);
-		Timeout.tv_sec = 60;
-		Timeout.tv_usec = 0;
-#ifdef WATCHDOG
-		watchdog();
-#endif
-
-		if (cycles == 7)
-		{
-			metaserver_update();
-			cycles = 1;
-		}
-
-		flush_old_maps();
-	} while (select(socket_info.max_filedescriptor, &readfs, NULL, NULL, &Timeout) == 0);
-
-	/* Or the game would go too fast */
-    reset_sleep();
-}
-
 static void remove_ns_dead_player(player *pl)
 {
 	active_DMs *tmp_dm_list;
@@ -439,18 +401,10 @@ void doeric_server()
 		}
     }
 
-    if (socket_info.nconns == 1 && first_player == NULL)
-		block_until_new_connection();
-
-    /* Reset timeout each time, since some OS's will change the values on
-     * the return from select. */
-    socket_info.timeout.tv_sec = 0;
-    socket_info.timeout.tv_usec = 0;
-
 	/* our one and only select() - after this call, every player socket has signaled us
 	 * in the tmp_xxxx objects the signal status: FD_ISSET will check socket for socket
 	 * for thats signal and trigger read, write or exception (error on socket). */
-    pollret= select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
+    pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
 
     if (pollret == -1)
 	{
@@ -583,41 +537,6 @@ void doeric_server()
 				else
 					pl->socket.can_write = 0;
 			}
-		}
-    }
-}
-
-void doeric_server_write(void)
-{
-    player *pl, *next;
-
-   	/* This does roughly the same thing, but for the players now */
-    for (pl = first_player; pl != NULL; pl = next)
-	{
-		next = pl->next;
-
-		/* we don't care about problems here... let remove player at start of next loop! */
-		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
-		{
-			remove_ns_dead_player(pl);
-			continue;
-		}
-
-		/* and *now* write back to player */
-		if (FD_ISSET(pl->socket.fd, &tmp_write))
-		{
-			/* i see no really sense here... can_write is REALLY
-			 * only set if socket() marks the write channel as free.
-			 * and can_write is in loop flow only set here.
-			 * i think this was added as a "there is something in a buffer"
-			 * and then changed in context. */
-			if (!pl->socket.can_write)
-			{
-				pl->socket.can_write = 1;
-				write_socket_buffer(&pl->socket);
-			}
-			else
-				pl->socket.can_write = 0;
 		}
     }
 }

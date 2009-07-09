@@ -37,9 +37,6 @@ void metaserver_init()
 
 	/* Init global cURL */
 	curl_global_init(CURL_GLOBAL_ALL);
-
-	/* First update... */
-	metaserver_update();
 }
 
 /* Function to call when receiving data from the metaserver */

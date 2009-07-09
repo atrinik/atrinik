@@ -1223,7 +1223,9 @@ void leave(player *pl, int draw_exit)
   		container_unlink(pl, NULL);
 
 		/* all player should be on friendly list - remove then */
-		remove_friendly_object(pl->ob);
+		if (pl->ob->type == PLAYER)
+			remove_friendly_object(pl->ob);
+
 		pl->socket.status = Ns_Dead;
 		LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
 
@@ -1317,8 +1319,8 @@ void do_specials()
 		fix_weight();
 #endif
 
-	/* 2500 ticks is about 5 minutes */
-    if (!(pticks % 2521))
+	/* 5000 ticks is about 10 minutes */
+    if (!(pticks % 4999))
 		metaserver_update();
 
     if (!(pticks % 5003))
@@ -1328,14 +1330,97 @@ void do_specials()
         obsolete_parties();
 }
 
+static int keyboard_press()
+{
+	struct timeval tv = {0L, 0L};
+	fd_set fds;
+
+	FD_SET(0, &fds);
+
+	return select(1, &fds, NULL, NULL, &tv);
+}
+
+static void interactive_mode_help()
+{
+	LOG(llevInfo, "\nAtrinik Interactive Server Interface Help\n");
+	LOG(llevInfo, "The Atrinik Interface Server Interface is used to allow server administrators\nto easily maintain their servers if ran from terminal.\nThe following commands are available:\n\n");
+	LOG(llevInfo, "help: Display this help.\n");
+	LOG(llevInfo, "list: Display logged in players and their IPs.\n");
+	LOG(llevInfo, "kill <player name or IP>: Kill player's socket or all players on specified IP.\n");
+}
+
+static void process_keyboard_input(const char *input)
+{
+	player *pl;
+
+	if (strncmp(input, "help", 4) == 0)
+	{
+		interactive_mode_help();
+	}
+	else if (strncmp(input, "list", 4) == 0)
+	{
+		int count = 0;
+
+		for (pl = first_player; pl != NULL; pl = pl->next)
+		{
+			if (pl->state == ST_PLAYING)
+				LOG(llevInfo, "%s (%s)\n", pl->ob->name, pl->socket.host);
+			else
+				LOG(llevInfo, "(not playing) %s\n", pl->socket.host);
+
+			count++;
+		}
+
+		if (count)
+			LOG(llevInfo, "\nTotal of %d players online.\n", count);
+		else
+			LOG(llevInfo, "Currently, there are no players online.\n");
+	}
+	else if (strncmp(input, "kill ", 5) == 0)
+	{
+		int success = 0;
+
+		input += 5;
+
+		for (pl = first_player; pl != NULL; pl = pl->next)
+		{
+			if (strcasecmp(pl->ob->name, input) == 0)
+			{
+				success = 1;
+
+				pl->socket.status = Ns_Dead;
+				LOG(llevInfo, "Killed player %s successfully.\n", pl->ob->name);
+
+				break;
+			}
+			else if (strcmp(pl->socket.host, input) == 0)
+			{
+				success = 1;
+
+    			pl->socket.status = Ns_Dead;
+				LOG(llevInfo, "Killed IP %s (%s) successfully.\n", pl->socket.host, pl->ob->name);
+			}
+		}
+
+		if (!success)
+			LOG(llevInfo, "Failed to find player/IP: '%s'\n", input);
+	}
+	else
+	{
+		interactive_mode_help();
+	}
+}
+
 int main(int argc, char **argv)
 {
 #ifdef PLUGINS_X
 	int evtid;
 	CFParm CFP;
 #endif
+	char input[HUGE_BUF];
+
 #ifdef WIN32 /* ---win32 this sets the win32 from 0d0a to 0a handling */
-	_fmode = _O_BINARY ;
+	_fmode = _O_BINARY;
 #endif
 
 #ifdef DEBUG_MALLOC_LEVEL
@@ -1354,45 +1439,58 @@ int main(int argc, char **argv)
 	/* used from proccess_events() */
   	memset(&marker, 0, sizeof(struct obj));
 
+	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");
 
-
-	for(; ;)
+	/* The main server loop */
+	for (; ;)
 	{
-		/* every llevBug will increase this - avoid LOG loops */
-		nroferrors = 0;
+		/* Do all the necessary functions as long as keyboard input was not entered */
+		do
+		{
+			/* Every llevBug will increase this - avoid LOG loops */
+			nroferrors = 0;
 
-		/* check & run a shutdown count (with messages & shutdown ) */
-		shutdown_agent(-1, NULL);
+			/* Check and run a shutdown count (with messages and shutdown) */
+			shutdown_agent(-1, NULL);
 
-    	doeric_server();
+			doeric_server();
 
-		/* Clean up the object pool */
-    	object_gc();
+			/* Clean up the object pool */
+			object_gc();
+
 #ifdef MEMPOOL_OBJECT_TRACKING
-		check_use_object_list();
+			check_use_object_list();
 #endif
 
-		/* global round ticker ! this is real a global */
-    	global_round_tag++;
-		/* "do" something with objects with speed */
-    	process_events(NULL);
-		/* Process the crossfire Timers */
-    	cftimer_process_timers();
+			/* Global round ticker. */
+			global_round_tag++;
+
+			/* "do" something with objects with speed */
+			process_events(NULL);
+
+			/* Process the crossfire Timers */
+			cftimer_process_timers();
 
 #ifdef PLUGINS_X
-		/* GROS : Here we handle the CLOCK global event */
-    	evtid = EVENT_CLOCK;
-    	CFP.Value[0] = (void *)(&evtid);
-    	GlobalEvent(&CFP);
+			/* GROS : Here we handle the CLOCK global event */
+			evtid = EVENT_CLOCK;
+			CFP.Value[0] = (void *)(&evtid);
+			GlobalEvent(&CFP);
 #endif
 
-		/* Removes unused maps after a certain timeout */
-    	check_active_maps();
-		/* Routines called from time to time. */
-    	do_specials();
-		doeric_server_write();
-		/* Sleep proper amount of time before next tick */
-    	sleep_delta();
+			/* Removes unused maps after a certain timeout */
+			check_active_maps();
+
+			/* Routines called from time to time. */
+			do_specials();
+
+			/* Sleep proper amount of time before next tick */
+			sleep_delta();
+		} while (!keyboard_press());
+
+		/* Otherwise we've got some keyboard input, parse it! */
+		if (scanf("\n%4096[^\n]", input))
+			process_keyboard_input(input);
   	}
 
   	return 0;
