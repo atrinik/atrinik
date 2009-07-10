@@ -1330,6 +1330,9 @@ void do_specials()
         obsolete_parties();
 }
 
+/**
+ * Check if key was pressed in the interactive mode.
+ * @return 0 if no key was pressed, non zero otherwise */
 static int keyboard_press()
 {
 	struct timeval tv = {0L, 0L};
@@ -1340,27 +1343,30 @@ static int keyboard_press()
 	return select(1, &fds, NULL, NULL, &tv);
 }
 
-static void interactive_mode_help()
-{
-	LOG(llevInfo, "\nAtrinik Interactive Server Interface Help\n");
-	LOG(llevInfo, "The Atrinik Interface Server Interface is used to allow server administrators\nto easily maintain their servers if ran from terminal.\nThe following commands are available:\n\n");
-	LOG(llevInfo, "help: Display this help.\n");
-	LOG(llevInfo, "list: Display logged in players and their IPs.\n");
-	LOG(llevInfo, "kill <player name or IP>: Kill player's socket or all players on specified IP.\n");
-}
-
-static void process_keyboard_input(const char *input)
+/**
+ * Process keyboard input by the interactive mode
+ * @param input The keyboard input */
+static void process_keyboard_input(char *input)
 {
 	player *pl;
 
+	/* Show help */
 	if (strncmp(input, "help", 4) == 0)
 	{
-		interactive_mode_help();
+		LOG(llevInfo, "\nAtrinik Interactive Server Interface Help\n");
+		LOG(llevInfo, "The Atrinik Interface Server Interface is used to allow server administrators\nto easily maintain their servers if ran from terminal.\nThe following commands are available:\n\n");
+		LOG(llevInfo, "help: Display this help.\n");
+		LOG(llevInfo, "list: Display logged in players and their IPs.\n");
+		LOG(llevInfo, "kill <player name or IP>: Kill player's socket or all players on specified IP.\n");
+		LOG(llevInfo, "system <message>: Send system message in green to all players.\n");
 	}
+	/* Show list of players online */
 	else if (strncmp(input, "list", 4) == 0)
 	{
 		int count = 0;
 
+		/* Loop through the players, if the player is playing, show
+		 * their name, otherwise show "(not playing)". */
 		for (pl = first_player; pl != NULL; pl = pl->next)
 		{
 			if (pl->state == ST_PLAYING)
@@ -1371,43 +1377,60 @@ static void process_keyboard_input(const char *input)
 			count++;
 		}
 
+		/* Show count of players online */
 		if (count)
 			LOG(llevInfo, "\nTotal of %d players online.\n", count);
 		else
 			LOG(llevInfo, "Currently, there are no players online.\n");
 	}
+	/* Kill a player's socket. If IP was presented, kill all players on that IP. */
 	else if (strncmp(input, "kill ", 5) == 0)
 	{
 		int success = 0;
 
 		input += 5;
 
+		/* Loop through the players */
 		for (pl = first_player; pl != NULL; pl = pl->next)
 		{
+			/* If name matches, kill this player's socket, and break out */
 			if (strcasecmp(pl->ob->name, input) == 0)
 			{
 				success = 1;
 
 				pl->socket.status = Ns_Dead;
-				LOG(llevInfo, "Killed player %s successfully.\n", pl->ob->name);
+				LOG(llevInfo, "Killed socket for player %s successfully.\n", pl->ob->name);
 
 				break;
 			}
+			/* Otherwise if player's IP matches, kill this player's socket,
+			 * but do not break out, since there may be more players on this IP.*/
 			else if (strcmp(pl->socket.host, input) == 0)
 			{
 				success = 1;
 
     			pl->socket.status = Ns_Dead;
-				LOG(llevInfo, "Killed IP %s (%s) successfully.\n", pl->socket.host, pl->ob->name);
+				LOG(llevInfo, "Killed socket for IP %s (%s) successfully.\n", pl->socket.host, pl->ob->name);
 			}
 		}
 
 		if (!success)
 			LOG(llevInfo, "Failed to find player/IP: '%s'\n", input);
 	}
+	/* Send a system message */
+	else if (strncmp(input, "system ", 7) == 0)
+	{
+		input += 7;
+
+		input = cleanup_chat_string(input);
+
+		LOG(llevInfo, "CLOG SYSTEM: %s\n", input);
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, 0, NULL, "[System]: %s", input);
+	}
+	/* Unknown command */
 	else
 	{
-		interactive_mode_help();
+		LOG(llevInfo, "Unknown interactive server command: %s\nTry 'help' for available commands.\n", input);
 	}
 }
 
