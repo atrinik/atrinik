@@ -540,3 +540,39 @@ void doeric_server()
 		}
     }
 }
+
+void doeric_server_write(void)
+{
+    player *pl, *next;
+
+   	/* This does roughly the same thing, but for the players now */
+    for (pl = first_player; pl != NULL; pl = next)
+	{
+		next = pl->next;
+
+		/* we don't care about problems here... let remove player at start of next loop! */
+		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		{
+			remove_ns_dead_player(pl);
+			continue;
+		}
+
+		/* and *now* write back to player */
+		if (FD_ISSET(pl->socket.fd, &tmp_write))
+		{
+			/* i see no really sense here... can_write is REALLY
+			 * only set if socket() marks the write channel as free.
+			 * and can_write is in loop flow only set here.
+			 * i think this was added as a "there is something in a buffer"
+			 * and then changed in context. */
+			if (!pl->socket.can_write)
+			{
+				pl->socket.can_write = 1;
+
+				write_socket_buffer(&pl->socket);
+			}
+			else
+				pl->socket.can_write = 0;
+		}
+    }
+}

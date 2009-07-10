@@ -1507,6 +1507,8 @@ int main(int argc, char **argv)
 			/* Routines called from time to time. */
 			do_specials();
 
+			doeric_server_write();
+
 			/* Sleep proper amount of time before next tick */
 			sleep_delta();
 		} while (!keyboard_press());
