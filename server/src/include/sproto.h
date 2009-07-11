@@ -868,7 +868,6 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode);
 void remove_door(object *op);
 void remove_door2(object *op, object *opener);
 void remove_door3(object *op);
-void generate_monster(object *gen);
 void regenerate_rod(object *rod);
 void remove_force(object *op);
 void remove_blindness(object *op);

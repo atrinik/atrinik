@@ -312,52 +312,6 @@ void remove_door3(object *op)
 	}
 }
 
-void generate_monster(object *gen)
-{
-	int i;
-	object *op, *head = NULL, *prev = NULL;
-	archetype *at = gen->other_arch;
-
-	if (GENERATE_SPEED(gen) && rndm(0, GENERATE_SPEED(gen) - 1))
-		return;
-
-	if (gen->other_arch == NULL)
-	{
-		LOG(llevBug, "BUG: Generator without other_arch: %s\n", query_name(gen, NULL));
-		return;
-	}
-
-	i = find_free_spot(at, gen->map, gen->x, gen->y, 1, 9);
-
-	if (i == -1)
-		return;
-
-	while (at != NULL)
-	{
-		op = arch_to_object(at);
-		op->x = gen->x + freearr_x[i] + at->clone.x;
-		op->y = gen->y + freearr_y[i] + at->clone.y;
-
-		if (head != NULL)
-			op->head = head, prev->more = op;
-
-		if (rndm(0, 9))
-			generate_artifact(op, gen->map->difficulty, 0, 99);
-
-		if (!insert_ob_in_map(op, gen->map, gen, 0))
-			return;
-
-		if (op->randomitems != NULL)
-			create_treasure(op->randomitems, op, GT_APPLY, (op->level ? op->level : gen->map->difficulty), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-
-		if (head == NULL)
-			head = op;
-
-		prev = op;
-		at = at->more;
-	}
-}
-
 void regenerate_rod(object *rod)
 {
 	if (++rod->stats.food > rod->stats.hp / 10 || rod->type == HORN)
@@ -1720,11 +1674,6 @@ int process_object(object *op)
 		change_object(op);
 		return 1;
 	}
-#if 0
-	/* no generator in ATM */
-	if (QUERY_FLAG(op, FLAG_GENERATOR))
-		generate_monster(op);
-#endif
 
 	if (QUERY_FLAG(op, FLAG_IS_USED_UP) && --op->stats.food <= 0)
 	{

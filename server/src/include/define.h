@@ -27,21 +27,15 @@
  * around, this file should be better split between them - things
  * that deal with objects should be in objects.h, things dealing
  * with players in player.h, etc.  As it is, everything just seems
- * to be dumped in here.
- */
+ * to be dumped in here. */
 
 #ifndef DEFINE_H
 #define DEFINE_H
 
-/*
- * Crossfire requires ANSI-C, but some compilers "forget" to define it.
- * Thus the prototypes made by cextract don't get included correctly.
- */
+/* Crossfire requires ANSI-C, but some compilers "forget" to define it.
+ * Thus the prototypes made by cextract don't get included correctly. */
 #if !defined(__STDC__)
-/* Removed # from start of following line.  makedepend was picking it up.
- * The following should still hopefully result in an error.
- */
-error - Your ANSI C compiler should be defining __STDC__;
+#error "Your ANSI C compiler should be defining __STDC__";
 #endif
 
 #ifndef WIN32 /* ---win32 exclude unix configuration part */
@@ -545,8 +539,8 @@ error - Your ANSI C compiler should be defining __STDC__;
  * flags[0] is 0 to 31
  * flags[1] is 32 to 63
  * flags[2] is 64 to 95
- * flags[3] is 96 to 127
- */
+ * flags[3] is 96 to 127 */
+
 /* Basic routines to do above */
 #define SET_FLAG(xyz, p) \
 	((xyz)->flags[p/32] |= (1U << (p % 32)))
@@ -555,19 +549,17 @@ error - Your ANSI C compiler should be defining __STDC__;
 #define QUERY_FLAG(xyz, p) \
 	((xyz)->flags[p/32] & (1U << (p % 32)))
 
-/* this is rarely used but needed for some flags, which are
+/* This is rarely used but needed for some flags, which are
  * used for intern handling like INVISIBLE or WALK_OFF. Because
  * some core functions like remove_ob() use this, it will be better
  * we set this ONE time outside instead of every time in remove_ob():
- * we skip the call for the head in this way.
- */
+ * we skip the call for the head in this way.*/
 #define SET_MULTI_FLAG(xyz, p) \
 	{object * _tos_;for(_tos_=xyz;_tos_;_tos_=_tos_->more) ((_tos_)->flags[p/32] |= (1U << (p % 32)));}
 #define CLEAR_MULTI_FLAG(xyz, p) \
 	{object * _tos_;for(_tos_=xyz;_tos_;_tos_=_tos_->more) ((_tos_)->flags[p/32] &= ~(1U << (p % 32)));}
 
 /* convenience macros to determine what kind of things we are dealing with */
-
 #define IS_WEAPON(op) \
 	(op->type == ARROW || op->type == BOW || op->type == WEAPON)
 
@@ -580,19 +572,17 @@ error - Your ANSI C compiler should be defining __STDC__;
 						 (QUERY_FLAG((__op__), FLAG_ALIVE) && !QUERY_FLAG((__op__), FLAG_GENERATOR)))
 
 #define IS_ARROW(op) \
-	(op->type==ARROW || op->type==MMISSILE || op->type==BULLET)
+	(op->type == ARROW || op->type == MMISSILE || op->type == BULLET)
+
+/* Used in blocked() when we only want know about blocked by something */
+#define TERRAIN_ALL		0xffff
 
 /* the flags */
 
-/* used in blocked() when we only want know about blocked by something */
-#define TERRAIN_ALL		0xffff
-
-/* NOTE: you MUST set the FLAG_xx to V_xxx array in loader.l too when
- * you change something here! Search for NUM_FLAGS in loader.l for more.
- */
+/* NOTE: You MUST set the FLAG_xx to V_xxx array in loader.l too when
+ * you change something here! Search for NUM_FLAGS in loader.l for more. */
 /* WARNING: The first 8 bit are used from the map2 cmd as direct mapped data.
- * The order must stay as it is here!
- */
+ * The order must stay as it is here! */
 #define FLAG_SLEEP			0 /* NPC is sleeping */
 #define FLAG_CONFUSED		1 /* confused... random dir when moving and problems to do actions */
 #define FLAG_PARALYZED      2 /* Object is paralyzed */
@@ -803,22 +793,19 @@ error - Your ANSI C compiler should be defining __STDC__;
 #define NUM_FLAGS		134 /* Should always be equal to the last defined flag */
 #define NUM_FLAGS_32	5	/* the number of uint32 we need to store all flags */
 
-/* macros for invisible test. the first tests only system objects */
+/* Macros for invisible test. The first tests only system objects */
 #define IS_SYS_INVISIBLE(__ob_)			QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
 #define IS_INVISIBLE(__ob_,__player_)	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)||(QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
 
 
 /* Values can go up to 127 before the size of the flags array in the
- * object structure needs to be enlarged.
- */
-
+ * object structure needs to be enlarged. */
 #define NROFNEWOBJS(xyz)	((xyz)->stats.food)
 
 #define SLOW_PENALTY(xyz)	((xyz)->stats.exp)/1000.0
 #define SET_SLOW_PENALTY(xyz,fl)	(xyz)->stats.exp= (sint32) ((fl)*1000.0)
 #define SET_GENERATE_TYPE(xyz,va)	(xyz)->stats.sp=(va)
 #define GENERATE_TYPE(xyz)	((xyz)->stats.sp)
-#define GENERATE_SPEED(xyz)	((xyz)->stats.maxsp) /* if(!RANDOM()%<speed>) */
 
 /* Note: These values are only a default value, resizing can change them */
 #define INV_SIZE		12	/* How many items can be viewed in inventory */
@@ -914,10 +901,7 @@ error - Your ANSI C compiler should be defining __STDC__;
 #define LO4     15 /* bitmasks for upper and lower 4 bits from 8 bit fields */
 #define HI4    240
 
-/*
- * Use of the state-variable in player objects:
- */
-
+/* Use of the state-variable in player objects: */
 #define ST_PLAYING				0
 #define ST_ROLL_STAT			1
 #define ST_CHANGE_CLASS			2
@@ -929,10 +913,7 @@ error - Your ANSI C compiler should be defining __STDC__;
 #define NEXT_ITEM_FACE_NAME "next_item.101"
 #define PREVIOUS_ITEM_FACE_NAME "prev_item.101"
 
-/*
- * Defines for the luck/random functions to make things more readable
- */
-
+/* Defines for the luck/random functions to make things more readable */
 #define PREFER_HIGH	1
 #define PREFER_LOW	0
 
@@ -947,53 +928,74 @@ error - Your ANSI C compiler should be defining __STDC__;
 										(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
 
 /* Basically does the reverse of SockList_AddInt, but on
- * strings instead.  Same for the GetShort, but for 16 bits.
- */
+ * strings instead.  Same for the GetShort, but for 16 bits. */
 #define GetInt_String(_data_) (((_data_)[0]<<24) + ((_data_)[1]<<16) + ((_data_)[2]<<8) + (_data_)[3])
 #define GetShort_String(_data_) (((_data_)[0]<<8)+(_data_)[1])
 
-/* Simple function we use below to keep adding to the same string
+/**
+ * Simple function we use below to keep adding to the same string
  * but also make sure we don't overwrite that string.
- */
+ * @param dest String to append to.
+ * @param orig String to append.
+ * @param curlen Current length of dest. Will be updated by this function.
+ * @param maxlen Maximum length of dest buffer. */
 static inline void safe_strcat(char *dest, const char *orig, int *curlen, int maxlen)
 {
-    if (*curlen == (maxlen-1)) return;
-    strncpy(dest+*curlen, orig, maxlen-*curlen-1);
-    dest[maxlen-1]=0;
+    if (*curlen == (maxlen - 1))
+    	return;
+
+    strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
+    dest[maxlen - 1] = 0;
     *curlen += strlen(orig);
-    if (*curlen>(maxlen-1)) *curlen=maxlen-1;
+
+    if (*curlen > (maxlen - 1))
+    	*curlen = maxlen - 1;
 }
 
 
-#define DESCRIBE_PATH(retbuf, variable, name) \
-    if(variable) { \
-      int i,j=0; \
-      strcat(retbuf,"(" name ": "); \
-      for(i=0; i<NRSPELLPATHS; i++) \
-        if(variable & (1<<i)) { \
-          if (j) \
-            strcat(retbuf,", "); \
-          else \
-            j = 1; \
-          strcat(retbuf, spellpathnames[i]); \
-        } \
-      strcat(retbuf,")"); \
+#define DESCRIBE_PATH(retbuf, variable, name)                        \
+    if (variable)                                                    \
+	{                                                                \
+        int i, j = 0;                                                \
+        strcat(retbuf, "(" name ": ");                               \
+                                                                     \
+        for (i = 0; i < NRSPELLPATHS; i++)                           \
+		{                                                            \
+            if (variable & (1 << i))                                 \
+			{                                                        \
+                if (j)                                               \
+                    strcat(retbuf, ", ");                            \
+                else                                                 \
+                    j = 1;                                           \
+                                                                     \
+                strcat(retbuf, spellpathnames[i]);                   \
+            }                                                        \
+		}                                                            \
+                                                                     \
+        strcat(retbuf, ")");                                         \
     }
 
 
-#define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen) \
-    if(variable) { \
-      int i,j=0; \
-      safe_strcat(retbuf,"(" name ": ", len, maxlen); \
-      for(i=0; i<NRSPELLPATHS; i++) \
-        if(variable & (1<<i)) { \
-          if (j) \
-            safe_strcat(retbuf,", ", len, maxlen); \
-          else \
-            j = 1; \
-          safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
-        } \
-      safe_strcat(retbuf,")", len, maxlen); \
+#define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen)      \
+    if (variable)                                                    \
+	{                                                                \
+        int i, j = 0;                                                \
+        safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
+                                                                     \
+        for (i = 0; i < NRSPELLPATHS; i++)                           \
+		{                                                            \
+            if (variable & (1 << i))                                 \
+			{                                                        \
+                if (j)                                               \
+                    safe_strcat(retbuf, ", ", len, maxlen);          \
+                else                                                 \
+                    j = 1;                                           \
+                                                                     \
+                safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
+            }                                                        \
+		}                                                            \
+                                                                     \
+        safe_strcat(retbuf, ")", len, maxlen);                       \
     }
 
 /* Flags for apply_special() */
@@ -1002,12 +1004,10 @@ enum apply_flag {
 	AP_NULL			= 0,
 	AP_APPLY		= 1,
 	AP_UNAPPLY		= 2,
-
-        AP_BASIC_FLAGS		= 15,
-
-  /* Optional flags, for bitwise or with a basic flag */
-        AP_NO_MERGE		= 16,
-	AP_IGNORE_CURSE		= 32
+	AP_BASIC_FLAGS	= 15,
+	/* Optional flags, for bitwise or with a basic flag */
+	AP_NO_MERGE		= 16,
+	AP_IGNORE_CURSE	= 32
 };
 
 /* Cut off point of when an object is put on the active list or not */
@@ -1019,41 +1019,68 @@ enum apply_flag {
 /* Bresenham init */
 /* dx & dy are input only and will not be changed.
  * All other parameters are the outputs which will be initialized */
-#define BRESENHAM_INIT(dx, dy, fraction, stepx, stepy, dx2, dy2) \
-    { \
-        (dx2) = (dx) << 1; \
-        (dy2) = (dy) << 1; \
-        if ((dy) < 0) { (dy2) = -(dy2);  (stepy) = -1; } else { (stepy) = 1; } \
-        if ((dx) < 0) { (dx2) = -(dx2);  (stepx) = -1; } else { (stepx) = 1; } \
-        if((dx2) > (dy2)) (fraction) = (dy2) - (dx)*(stepx); else (fraction) = (dx2) - (dy)*(stepy); \
+#define BRESENHAM_INIT(dx, dy, fraction, stepx, stepy, dx2, dy2)      \
+    {                                                                 \
+        (dx2) = (dx) << 1;                                            \
+        (dy2) = (dy) << 1;                                            \
+                                                                      \
+        if ((dy) < 0)                                                 \
+		{                                                             \
+			(dy2) = -(dy2);                                           \
+			(stepy) = -1;                                             \
+		}                                                             \
+		else                                                          \
+		{                                                             \
+			(stepy) = 1;                                              \
+		}                                                             \
+                                                                      \
+        if ((dx) < 0)                                                 \
+		{                                                             \
+			(dx2) = -(dx2);                                           \
+			(stepx) = -1;                                             \
+		}                                                             \
+		else                                                          \
+		{                                                             \
+			(stepx) = 1;                                              \
+		}                                                             \
+                                                                      \
+        if ((dx2) > (dy2))                                            \
+			(fraction) = (dy2) - (dx) * (stepx);                      \
+		else                                                          \
+			(fraction) = (dx2) - (dy) * (stepy);                      \
     }
 
 /* Bresenham line stepping macro */
-/* x,y are input-output and will be always be changed
+/* x, y are input-output and will be always be changed
  * fraction is also input-output, but should be initialized with
  * BRESENHAM_INIT.
  * stepx, stepy, dx2 and dy2 are input only and should also
- * be initialized by BRESENHAM_INIT
- */
-#define BRESENHAM_STEP(x,y,fraction,stepx,stepy,dx2,dy2) \
-    if ((dx2) > (dy2)) { \
-        if ((fraction) >= 0) { \
-            (y) += (stepy); \
-            (fraction) -= (dx2); \
-        } \
-        (x) += (stepx); \
-        (fraction) += (dy2); \
-    } else { \
-        if ((fraction) >= 0) { \
-            (x) += (stepx); \
-            (fraction) -= (dy2); \
-        } \
-        (y) += (stepy); \
-        (fraction) += (dx2); \
+ * be initialized by BRESENHAM_INIT */
+#define BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2)        \
+    if ((dx2) > (dy2))                                                \
+	{                                                                 \
+        if ((fraction) >= 0)                                          \
+		{                                                             \
+            (y) += (stepy);                                           \
+            (fraction) -= (dx2);                                      \
+        }                                                             \
+                                                                      \
+        (x) += (stepx);                                               \
+        (fraction) += (dy2);                                          \
+    }                                                                 \
+	else                                                              \
+	{                                                                 \
+        if ((fraction) >= 0)                                          \
+		{                                                             \
+            (x) += (stepx);                                           \
+            (fraction) -= (dy2);                                      \
+        }                                                             \
+                                                                      \
+        (y) += (stepy);                                               \
+        (fraction) += (dx2);                                          \
     }
 
-/*
- * random() is much better than rand().  If you have random(), use it instead.
+/* random() is much better than rand().  If you have random(), use it instead.
  * You shouldn't need to change any of this
  *
  * 0.93.3: It looks like linux has random (previously, it was set below
@@ -1061,9 +1088,7 @@ enum apply_flag {
  * problems, add || defined(linux) the #if immediately below.
  *
  * 0.94.2 - you probably shouldn't need to change any of the rand stuff
- * here.
- */
-
+ * here. */
 #ifdef HAVE_SRANDOM
 #define RANDOM() random()
 #define SRANDOM(xyz) srandom(xyz)
@@ -1082,4 +1107,5 @@ enum apply_flag {
 #endif
 
 #define PLUGINS
-#endif /* DEFINE_H */
+
+#endif

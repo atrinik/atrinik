@@ -1198,7 +1198,6 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 	/* Bit different logic for spell quickslots */
 	else if (strncmp(buf, "setspell ", 9) == 0)
 	{
-		sprintf(buf, "setspell 5 13 0 5\n\n\ndoh");
 		buf += 9;
 
 		/* Get the slot ID */
