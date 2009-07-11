@@ -257,3 +257,19 @@ char *get_word_from_string(char *str, int *pos)
 	buf[i] = '\0';
 	return buf;
 }
+
+/**
+ * Replaces any unprintable character in the given buffer with a space.
+ * @param buf The buffer to modify */
+void replace_unprintable_chars(char *buf)
+{
+	char *p;
+
+	for (p = buf; *p != '\0'; p++)
+	{
+		if (*p < ' ')
+		{
+			*p = ' ';
+		}
+	}
+}
