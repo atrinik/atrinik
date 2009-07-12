@@ -37,7 +37,6 @@
  * @file
  * Player related functions. */
 
-
 /* i left find_arrow - find_arrow() and find_arrow()_ext should merge
  * when the server sided range mode is removed at last from source */
 static object *find_arrow_ext(object *op, const char *type, int tag);
@@ -58,8 +57,6 @@ player *find_player(char *plname)
 	return NULL;
 }
 
-/* Grab the MotD from the database. MotD row is called 'motd',
- * however, if custom 'motd_custom' is set, prefer that one. */
 /**
  * Grab the Message of the Day from the database. Message of the Day
  * row is called 'motd', however, if custom 'motd_custom' is set,
@@ -121,11 +118,13 @@ int playername_ok(char *cp)
   	return 1;
 }
 
-/* Redo this to do both get_player_ob and get_player.
- * Hopefully this will be less bugfree and simpler.
- * Returns the player structure.  If 'p' is null,
- * we create a new one.  Otherwise, we recycle
- * the one that is passed. */
+/**
+ * Returns the player structure. If 'p' is null,
+ * we create a new one. Otherwise, we recycle
+ * the one that is passed.
+ * @param p Player structure to recycle or NULL
+ * for new structure.
+ * @return The player structure */
 static player *get_player(player *p)
 {
     object *op = arch_to_object(get_player_archetype(NULL));
@@ -229,6 +228,11 @@ static player *get_player(player *p)
     return p;
 }
 
+/**
+ * Free a player structure. Takes care of removing
+ * this player from the list of players, and frees
+ * the socket for this player.
+ * @param pl The player structure to free */
 void free_player(player *pl)
 {
     /* Remove from list of players */
@@ -260,9 +264,12 @@ void free_player(player *pl)
     free_newsocket(&pl->socket);
 }
 
-/* Tries to add player on the connection passwd in ns.
- * All we can really get in this is some settings like host and display
- * mode. */
+/**
+ * Tries to add a player on the connection passwd in ns.
+ * All we can really get in this is some settings like
+ * host and display mode.
+ * @param ns The socket of this player.
+ * @return 1 on failure (banned host?), 0 on success. */
 int add_player(NewSocket *ns)
 {
     player *p;
@@ -303,12 +310,17 @@ int add_player(NewSocket *ns)
     return 0;
 }
 
-/* get_player_archetype() return next player archetype from archetype
- * list. Not very efficient routine, but used only creating new players.
- * Note: there MUST be at least one player archetype! */
-archetype *get_player_archetype(archetype* at)
+/**
+ * Returns the next player archetype from archetype
+ * list. Not very efficient routine, but used only
+ * when creating new players.
+ * @note There MUST be at least one player archetype!
+ * @param at The archetype list
+ * @return The archetype, if not found, fatal error. */
+archetype *get_player_archetype(archetype *at)
 {
     archetype *start = at;
+
     for (; ;)
 	{
 		if (at == NULL || at->next == NULL)
@@ -321,7 +333,7 @@ archetype *get_player_archetype(archetype* at)
 
 		if (at == start)
 		{
-			LOG(llevError, "ERROR: No Player achetypes\n");
+			LOG(llevError, "ERROR: No player achetypes\n");
 			exit(-1);
 		}
     }
@@ -393,14 +405,14 @@ object *get_nearest_player(object *mon)
     return op;
 }
 
-/* I believe this can safely go to 2, 3 is questionable, 4 will likely
+/** I believe this can safely go to 2, 3 is questionable, 4 will likely
  * result in a monster paths backtracking.  It basically determines how large a
  * detour a monster will take from the direction path when looking
  * for a path to the player.  The values are in the amount of direction
  * the deviation is */
 #define DETOUR_AMOUNT	2
 
-/* This is used to prevent infinite loops.  Consider a case where the
+/** This is used to prevent infinite loops.  Consider a case where the
  * player is in a chamber (with gate closed), and monsters are outside.
  * with DETOUR_AMOUNT==2, the function will turn each corner, trying to
  * find a path into the chamber.  This is a good thing, but since there
@@ -421,14 +433,14 @@ object *get_nearest_player(object *mon)
  * reach player or path is blocked.  Thus, will only return true if there is a free
  * path to player.  Though path may not be a straight line. Note that it will find
  * player hiding along a corridor at right angles to the corridor with the monster.\n
- * Modified by MSW 2001-08-06 to handle tiled maps. Various notes:
+ * Modified by MSW 2001-08-06 to handle tiled maps. Various notes:\n \n
  * 1) With DETOUR_AMOUNT being 2, it should still go and find players hiding
- * down corriders.
+ * down corriders.\n
  * 2) I think the old code was broken if the first direction the monster
  * should move was blocked - the code would store the first direction without
  * verifying that the player can actually move in that direction.  The new
  * code does not store anything in firstdir until we have verified that the
- * monster can in fact move one space in that direction.
+ * monster can in fact move one space in that direction.\n
  * 3) I'm not sure how good this code will be for moving multipart monsters,
  * since only simple checks to blocked are being called, which could mean the monster
  * is blocking itself.
@@ -638,49 +650,12 @@ void confirm_password(object *op)
     send_query(&CONTR(op)->socket, CS_QUERY_HIDEINPUT, "Please type your password again.\n:");
 }
 
-void flee_player(object *op)
-{
-	int dir, diff;
-	if (op->stats.hp < 0)
-	{
-		LOG(llevDebug, "DEBUG: flee_player(): Fleeing player is dead.\n");
-		CLEAR_FLAG(op, FLAG_SCARED);
-		return;
-	}
-
-	if (op->enemy == NULL)
-	{
-		LOG(llevDebug, "DEBUG: flee_player(): Fleeing player had no enemy.\n");
-		CLEAR_FLAG(op, FLAG_SCARED);
-		return;
-	}
-
-	if (!(random_roll(0, 4, op, PREFER_LOW)) && random_roll(1, 20, op, PREFER_HIGH) >= savethrow[op->level])
-	{
-		op->enemy = NULL;
-		CLEAR_FLAG(op, FLAG_SCARED);
-		return;
-	}
-
-	dir = absdir(4 + find_dir_2(op->x-op->enemy->x, op->y-op->enemy->y));
-
-	for (diff = 0; diff < 3; diff++)
-	{
-		int m = 1 - (RANDOM() & 2);
-		if (move_ob(op, absdir(dir + diff * m), op) || (diff == 0 && move_ob(op, absdir(dir - diff * m), op)))
-		{
-			/*draw_client_map(op);*/
-			return;
-		}
-	}
-	/* Cornered, get rid of scared */
-	CLEAR_FLAG(op, FLAG_SCARED);
-	op->enemy = NULL;
-}
-
-/*  Find an arrow in the inventory and after that
- *  in the right type container (quiver). Pointer to the
- *  found object is returned. */
+/**
+ * Find an arrow in the inventory and after that
+ * in the right type container (quiver).
+ * @param op Object to check
+ * @param type Ammunition type (bolts, arrows, etc)
+ * @return Pointer to the found object, NULL if not found */
 object *find_arrow(object *op, const char *type)
 {
 	object *tmp = NULL;
@@ -1134,12 +1109,13 @@ int move_player(object *op, int dir)
     return 0;
 }
 
-/* This is similar to handle_player, below, but is only used by the
+/**
+ * This is similar to handle_player(), but is only used by the
  * new client/server stuff.
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
- *
- * Returns true if there are more actions we can do. */
+ * @param pl Player structure
+ * @return 1 if there are more actions we can do, 0 otherwise. */
 int handle_newcs_player(player *pl)
 {
 	object *op;
@@ -1149,6 +1125,7 @@ int handle_newcs_player(player *pl)
      * called, so we recheck it here. */
     HandleClient(&pl->socket, pl);
 	op = pl->ob;
+
     if (op->speed_left < 0.0f)
 		return 0;
 
@@ -1169,6 +1146,7 @@ int handle_newcs_player(player *pl)
 		else
 			return 0;
     }
+
     return 0;
 }
 
@@ -1726,43 +1704,8 @@ void kill_player(object *op)
     return;
 }
 
-/* Grab and destroy some treasure */
-void loot_object(object *op)
-{
-  	object *tmp,*tmp2,*next;
-
-	/* close open sack first */
-	if (op->type == PLAYER && CONTR(op)->container)
-		esrv_apply_container(op, CONTR(op)->container);
-
-	for (tmp = op->inv; tmp != NULL; tmp = next)
-	{
-		next = tmp->below;
-
-		if (tmp->type == EXPERIENCE || IS_SYS_INVISIBLE(tmp))
-			continue;
-
-		remove_ob(tmp);
-		tmp->x = op->x, tmp->y = op->y;
-
-		/* empty container to ground */
-		if (tmp->type == CONTAINER)
-			loot_object(tmp);
-
-		if (!QUERY_FLAG(tmp, FLAG_UNIQUE) && (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_NO_DROP) || !(RANDOM() % 3)))
-		{
-			if (tmp->nrof > 1)
-			{
-				tmp2 = get_split_ob(tmp, 1 + RANDOM() % (tmp->nrof - 1));
-				insert_ob_in_map(tmp, op->map, NULL, 0);
-			}
-		}
-		else
-			insert_ob_in_map(tmp, op->map, NULL, 0);
-	}
-}
-
-/* fix_weight(): Check recursively the weight of all players, and fix
+/**
+ * Check recursively the weight of all players, and fix
  * what needs to be fixed.  Refresh windows and fix speed if anything
  * was changed. */
 void fix_weight()
@@ -1781,8 +1724,13 @@ void fix_weight()
 	}
 }
 
-/* cast_dust() - handles op throwing objects of type 'DUST' */
-/* WARNING: FUNCTION NEED TO BE REWRITTEN. works for ae spells only now! */
+/**
+ * Handles object throwing objects of type "DUST".
+ * @warning This function needs to be rewritten.\n
+ * Works for area effect spells only now.
+ * @param op Object throwing this
+ * @param throw_ob Object being thrown
+ * @param dir Direction to throw */
 void cast_dust (object *op, object *throw_ob, int dir)
 {
 	archetype *arch = NULL;
@@ -1816,6 +1764,9 @@ void cast_dust (object *op, object *throw_ob, int dir)
 		destruct_ob(throw_ob);
 }
 
+/**
+ * Make an object visible. Currently unused.
+ * @param op The object */
 void make_visible (object *op)
 {
 	(void) op;
@@ -1828,6 +1779,10 @@ void make_visible (object *op)
 #endif
 }
 
+/**
+ * Check if object is true undead. Currently unused.
+ * @param op Object to check
+ * @return Always returns 1. */
 int is_true_undead(object *op)
 {
 	(void) op;
@@ -1844,15 +1799,20 @@ int is_true_undead(object *op)
 	  			if (QUERY_FLAG(tmp, FLAG_UNDEAD))
 					return 1;
 #endif
-  return 0;
+
+	return 0;
 }
 
-/* look at the surrounding terrain to determine
+/**
+ * Look at the surrounding terrain to determine
  * the hideability of this object. Positive levels
- * indicate greater hideability. */
+ * indicate greater hideability. Currently unused.
+ * @param ob Object we are checking
+ * @return Always returns 1. */
 int hideability(object *ob)
 {
 	(void) ob;
+
 #if 0
   	int i, x, y, level = 0;
 
@@ -1877,11 +1837,13 @@ int hideability(object *ob)
   	return 0;
 }
 
-/* For Hidden creatures - a chance of becoming 'unhidden'
+/**
+ * For hidden creatures - a chance of becoming 'unhidden'
  * every time they move - as we subtract off 'invisibility'
  * AND, for players, if they move into a ridiculously unhideable
- * spot (surrounded by clear terrain in broad daylight). -b.t. */
-void do_hidden_move (object *op)
+ * spot (surrounded by clear terrain in broad daylight). -b.t.
+ * @param op Object that is doing the hidden move */
+void do_hidden_move(object *op)
 {
     int hide = 0, num = random_roll(0, 19, op, PREFER_LOW);
 
@@ -1950,62 +1912,14 @@ int stand_near_hostile(object *who)
 	return 0;
 }
 
-/* check the player los field for viewability of the
- * object op. This function works fine for monsters,
- * but we dont worry if the object isnt the top one in
- * a pile (say a coin under a table would return "viewable"
- * by this routine). Another question, should we be
- * concerned with the direction the player is looking
- * in? Realistically, most of use cant see stuff behind
- * our backs...on the other hand, does the "facing" direction
- * imply the way your head, or body is facing? Its possible
- * for them to differ. Sigh, this fctn could get a bit more complex.
- * -b.t.
- * This function is now map tiling safe. */
-int player_can_view(object *pl, object *op)
-{
-    rv_vector rv;
-    int dx, dy;
-
-    if (pl->type != PLAYER)
-	{
-		LOG(llevBug,"BUG: player_can_view(): called for non-player object\n");
-		return -1;
-    }
-    if (!pl || !op)
-		return 0;
-
-    if (op->head)
-		op = op->head;
-
-    get_rangevector(pl, op, &rv, 0x1);
-
-    /* starting with the 'head' part, lets loop
-     * through the object and find if it has any
-     * part that is in the los array but isnt on
-     * a blocked los square.
-     * we use the archetype to figure out offsets. */
-    while (op)
-	{
-		dx = rv.distance_x + op->arch->clone.x;
-		dy = rv.distance_y + op->arch->clone.y;
-
-		/* only the viewable area the player sees is updated by LOS
-		 * code, so we need to restrict ourselves to that range of values
-		 * for any meaningful values. */
-		if (FABS(dx) <= (CONTR(pl)->socket.mapx_2) && FABS(dy) <= (CONTR(pl)->socket.mapy_2) && CONTR(pl)->blocked_los[dx + (CONTR(pl)->socket.mapx_2)][dy + (CONTR(pl)->socket.mapy_2)] <= BLOCKED_LOS_BLOCKSVIEW )
-			return 1;
-		op = op->more;
-    }
-    return 0;
-}
-
-/* routine for both players and monsters. We call this when
+/**
+ * Routine for both players and monsters. We call this when
  * there is a possibility for our action distrubing our hiding
- * place or invisiblity spell. Artefact invisiblity is not
- * effected by this. If we arent invisible to begin with, we
- * return 0.  */
-int action_makes_visible (object *op)
+ * place or invisiblity spell. Artifact invisiblity is not
+ * affected by this. Currently unused.
+ * @param op Object to check
+ * @return Always returns 0. */
+int action_makes_visible(object *op)
 {
 	(void) op;
 
@@ -2026,6 +1940,7 @@ int action_makes_visible (object *op)
 		}
   	}
 #endif
+
   	return 0;
 }
 
@@ -2064,13 +1979,12 @@ int pvp_area(object *attacker, object* victim)
 	return 1;
 }
 
-/* When a dragon-player gains a new stage of evolution,
- * he gets some treasure
- *
- * attributes:
- *      object *who        the dragon player
- *      int atnr           the attack-number of the ability focus
- *      int level          ability level */
+/**
+ * When a dragon player gains a new stage of evolution,
+ * he gets some treasure.
+ * @param who The dragon player
+ * @param atnr The attack number of the ability focus
+ * @param level Ability level */
 void dragon_ability_gain(object *who, int atnr, int level)
 {
 	/* treasurelist */
@@ -2206,10 +2120,14 @@ void dragon_ability_gain(object *who, int atnr, int level)
 	}
 }
 
-/* extended find arrow version, using tag and containers.
- * Find an arrow in the inventory and after that
- * in the right type container (quiver). Pointer to the
- * found object is returned. */
+/**
+ * Extended find arrow version, using tag and containers.
+ * Find an arrow in the inventory and after that in the
+ * right type container (quiver).
+ * @param op Object
+ * @param type Type of the ammunition (arrows, bolts, etc)
+ * @param tag Firemode tag
+ * @return Pointer to the arrow, NULL if not found */
 static object *find_arrow_ext(object *op, const char *type, int tag)
 {
 	object *tmp = NULL;
