@@ -592,7 +592,7 @@ void map_draw_map()
 									sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL);
 								}
 
-								if (map->ext[k] & FFLAG_PROBE)
+								if (map->ext[k] & FFLAG_PROBE && cpl.target_code != 0)
 								{
 									if (face_sprite)
 									{
