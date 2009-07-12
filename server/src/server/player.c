@@ -34,7 +34,7 @@
 #include <newclient.h>
 
 /**
- * @file player.c
+ * @file
  * Player related functions. */
 
 
