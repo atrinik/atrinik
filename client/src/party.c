@@ -150,8 +150,8 @@ void show_party()
 	if (strcmp(gui_interface_party->command, "list") == 0)
 	{
 		/* Background */
-		x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-		y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+		x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+		y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 		sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_PARTY], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_PARTY]->bitmap->w / 2, y + 16, NULL, NULL);
 		add_close_button(x, y, MENU_PARTY);
@@ -313,8 +313,8 @@ void show_party()
 		char membername[HUGE_BUF], memberlevel[MAX_BUF], membermap[HUGE_BUF];
 
 		/* Background */
-		x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-		y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+		x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+		y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 		sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_PARTY], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_PARTY]->bitmap->w / 2, y + 16, NULL, NULL);
 		add_close_button(x, y, MENU_PARTY);
@@ -506,8 +506,8 @@ void show_party()
 	else if (strcmp(gui_interface_party->command, "askleave") == 0)
 	{
 		/* Background */
-		x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-		y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+		x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+		y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 		sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_PARTY], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_PARTY]->bitmap->w / 2, y + 16, NULL, NULL);
 		add_close_button(x, y, MENU_PARTY);
@@ -524,8 +524,8 @@ void show_party()
 	else if (strcmp(gui_interface_party->command, "askpassword") == 0)
 	{
 		/* Background */
-		x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-		y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+		x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+		y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 		sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_PARTY], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_PARTY]->bitmap->w / 2, y + 16, NULL, NULL);
 		add_close_button(x, y, MENU_PARTY);
@@ -568,7 +568,6 @@ void gui_party_interface_mouse(SDL_Event *e)
     }
 }
 
-
 /**
  * Free and clear the party GUI */
 void clear_party_interface()
@@ -580,7 +579,6 @@ void clear_party_interface()
 	gui_interface_party = NULL;
 }
 
-/* Initialize the party interface */
 /**
  * Initialize the party interface.
  * @param data Data to initialize the interface from

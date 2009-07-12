@@ -324,6 +324,15 @@ static void mouse_moveHero()
 #undef MY_POS
 }
 
+static void resize_window(int width, int height)
+{
+	options.resolution_x = width;
+	options.resolution_y = height;
+
+	Screensize->x = width;
+	Screensize->y = height;
+}
+
 /**
  * Poll input device like mouse, keys, etc.
  * @return 1 if the the quit key was pressed, 0 otherwise
@@ -338,6 +347,7 @@ int Event_PollInputDevice()
 	/* only print text once per dnd */
 	static int itemExamined  = 0;
 	static Uint32 Ticks= 0;
+	Uint32 videoflags = get_video_flags();
 
 	if ((SDL_GetTicks() - Ticks > 10) || !Ticks)
 	{
@@ -359,6 +369,16 @@ int Event_PollInputDevice()
 
 		switch (event.type)
 		{
+			case SDL_VIDEORESIZE:
+				if ((ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags)) == NULL)
+				{
+					LOG(LOG_ERROR, "Unable to grab surface after resize event: %s\n", SDL_GetError());
+					exit(2);
+				}
+
+				resize_window(event.resize.w, event.resize.h);
+				break;
+
 			case SDL_MOUSEBUTTONUP:
 				/* Get the mouse state and set an event (event removed at end of main loop) */
 				if(event.button.button == SDL_BUTTON_LEFT)
@@ -2444,65 +2464,10 @@ void check_menu_keys(int menu, int key)
 
                  	if (cpl.menustatus == MENU_OPTION)
 					{
-						int res_change = 0;
-
                    		save_options_dat();
 
 						if (options.playerdoll)
                     		cur_widget[PDOLL_ID].show = TRUE;
-
-						if (Screensize.x!=Screendefs[options.resolution].x || Screensize.y!=Screendefs[options.resolution].y)
-                {
-					Uint32 videoflags = get_video_flags();
-                    _screensize sz_tmp = Screensize;
-                    Screensize=Screendefs[options.resolution];
-
-                    if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
-                    {
-                        int i;
-						draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                        LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                        Screensize=sz_tmp;
-                        for (i=0;i<16;i++)
-                            if (Screensize.x==Screendefs[i].x && Screensize.y == Screendefs[i].y)
-                            {
-                                options.resolution = i;
-                                break;
-                            }
-                        draw_info_format(COLOR_RED, "Try to switch back to old setting...");
-                        LOG(LOG_ERROR, "Try to switch back to old setting...\n");
-
-                        if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
-                        {
-                            draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                            LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                            Screensize=Screendefs[0];
-                            options.resolution = 0;
-                            draw_info_format(COLOR_RED, "Try to switch back to 800x600...");
-                            LOG(LOG_ERROR, "Try to switch back to 800x600...\n");
-                            if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
-                            {
-                                /* now we have a problem */
-                                draw_info_format(COLOR_RED, "Couldn't set %dx%dx%d video mode: %s\nFATAL ERROR - exit", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                                LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\nFATAL ERROR - exit", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
-                                Screensize=sz_tmp;
-                                exit(2);
-                            }
-                            else
-                                res_change = TRUE;
-                        }
-                        else
-                            res_change = TRUE;
-                    }
-                    else
-                        res_change = TRUE;
-                }
-                if (res_change)
-                {
-                    const SDL_VideoInfo    *info    = NULL;
-                    info = SDL_GetVideoInfo();
-                    options.real_video_bpp = info->vfmt->BitsPerPixel;
-                }
 					}
 
                  	cpl.menustatus = MENU_NO;

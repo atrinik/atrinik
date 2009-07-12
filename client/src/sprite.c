@@ -561,8 +561,8 @@ void show_tooltip(int mx, int my, char *text)
 	rec.y = my + 17;
 	rec.h = 12;
 
-	if (rec.x + rec.w >= Screensize.x)
-		rec.x -= (rec.x + rec.w + 1) - Screensize.x;
+	if (rec.x + rec.w >= Screensize->x)
+		rec.x -= (rec.x + rec.w + 1) - Screensize->x;
 
 	SDL_FillRect(ScreenSurface, &rec, -1);
 	StringBlt(ScreenSurface, &SystemFont, tooltip, rec.x + 2, rec.y - 1, COLOR_BLACK, NULL, NULL);

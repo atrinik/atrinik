@@ -619,8 +619,8 @@ void show_menu()
 	else if (cpl.menustatus == MENU_SPELL)
 	{
 		show_spelllist();
-  		box.x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-        box.y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2 - 42;
+  		box.x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+        box.y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2 - 42;
 		box.h = 42;
 		box.w = Bitmaps[BITMAP_DIALOG_BG]->bitmap->w;
 		SDL_FillRect(ScreenSurface, &box, 0);

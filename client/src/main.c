@@ -126,27 +126,7 @@ _anim_table anim_table[MAXANIM];
 /* get this from commands.c to this place */
 Animations animations[MAXANIM];
 
-_screensize Screensize;
-
-_screensize Screendefs[16] =
-{
-    {800, 600, 0, 0},
-    {960,  600, 160, 0},
-    {1024, 768, 224, 168},
-    {1100, 700, 210, 100},
-    {1280, 720, 480, 120},
-    {1280, 800, 480, 200},
-    {1280, 960, 480, 360},
-    {1280, 1024,480, 424},
-    {1440, 900, 640, 300},
-    {1400, 1050, 600, 450},
-    {1600, 1200, 800, 600},
-    {1680, 1050, 880, 450},
-    {1920, 1080, 1120, 480},
-    {1920, 1200, 1120, 600},
-    {2048, 1536, 1248, 936},
-    {2560, 1600, 1760, 1000},
-};
+struct screensize *Screensize;
 
 /* face data */
 _face_struct FaceList[MAX_FACE_TILES];
@@ -437,7 +417,8 @@ void init_game_data()
 	RangeFireMode = 0;
 	gui_interface_book = NULL;
 	gui_interface_party = NULL;
-	options.resolution = 2;
+	options.resolution_x = 800;
+	options.resolution_y = 600;
 	options.playerdoll = 0;
 #ifdef WIDGET_SNAP
     options.widget_snap = 0;
@@ -452,7 +433,10 @@ void init_game_data()
 	/* now load options, allowing the user to override the presetings */
 	load_options_dat();
 
-	Screensize = Screendefs[options.resolution];
+	Screensize = (_screensize *)malloc(sizeof(_screensize));
+	Screensize->x = options.resolution_x;
+	Screensize->y = options.resolution_y;
+
 	init_widgets_fromCurrent();
 
 	textwin_clearhistory();
@@ -479,6 +463,12 @@ void save_options_dat()
     snprintf(txtBuffer, sizeof(txtBuffer), "%%22 %d\n", txtwin[TW_CHAT].size);
     fputs(txtBuffer, stream);
 
+	snprintf(txtBuffer, sizeof(txtBuffer), "%%3x %d\n", options.resolution_x);
+    fputs(txtBuffer, stream);
+
+	snprintf(txtBuffer, sizeof(txtBuffer), "%%3y %d\n", options.resolution_y);
+    fputs(txtBuffer, stream);
+
    	while (opt_tab[++i])
    	{
       	fputs("\n# ", stream);
@@ -487,7 +477,7 @@ void save_options_dat()
 
       	while (opt[++j].name && opt[j].name[0] != '#')
       	{
-         	fputs(opt[j].name,stream);
+         	fputs(opt[j].name, stream);
 
          	switch (opt[j].value_type)
          	{
@@ -573,8 +563,24 @@ void load_options_dat()
                             txtwin[TW_CHAT].size = atoi(line + 4);
                             break;
                     }
+
                     break;
+
+				case '3':
+					switch (line[2])
+					{
+						case 'x':
+							options.resolution_x = atoi(line + 4);
+							break;
+
+						case 'y':
+							options.resolution_y = atoi(line + 4);
+							break;
+					}
+
+					break;
             }
+
             continue;
         }
 
@@ -1371,7 +1377,7 @@ static void display_layer4()
     /* show main-option menu */
     if (esc_menu_flag)
     {
-        show_option(Screensize.x / 2, (Screensize.y/2)-(Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h/2));
+        show_option(Screensize->x / 2, (Screensize->y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
     }
 }
 
@@ -1466,20 +1472,18 @@ int main(int argc, char *argv[])
         }
 	}
 
-	if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
+	if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
     {
         /* We have a problem, not supportet screensize */
         /* If we have higher resolution we try the default 800x600 */
-        if (Screensize.x > 800 && Screensize.y > 600)
+        if (Screensize->x > 800 && Screensize->y > 600)
         {
             LOG(LOG_ERROR, "Try to set to default 800x600...\n");
-            Screensize = Screendefs[0];
-            options.resolution = 0;
 
-            if ((ScreenSurface = SDL_SetVideoMode(Screensize.x, Screensize.y, options.used_video_bpp, videoflags)) == NULL)
+            if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
             {
                 /* Now we have a really really big problem */
-                LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize.x, Screensize.y, options.used_video_bpp, SDL_GetError());
+                LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
                 exit(2);
             }
             else
@@ -1732,7 +1736,7 @@ int main(int argc, char *argv[])
 
 		/* Show main option menu */
 		if (esc_menu_flag)
-			show_option(Screensize.x / 2, (Screensize.y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
+			show_option(Screensize->x / 2, (Screensize->y / 2) - (Bitmaps[BITMAP_OPTIONS_ALPHA]->bitmap->h / 2));
 
 		if (map_transfer_flag)
 			StringBlt(ScreenSurface, &SystemFont, "Transfer Character to Map...", 300, 300, COLOR_DEFAULT, NULL, NULL);
@@ -1825,8 +1829,8 @@ static void show_intro(char *text)
 	char buf[256];
 	int x, y;
 
-    x = Screensize.xoff / 2;
-    y = Screensize.yoff / 2;
+	x = Screensize->x / 2 - Bitmaps[BITMAP_INTRO]->bitmap->w / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_INTRO]->bitmap->h / 2;
 
     sprite_blt(Bitmaps[BITMAP_INTRO], x, y, NULL, NULL);
 
@@ -1851,7 +1855,7 @@ static void flip_screen()
 #endif
 
 	if (options.use_rect)
-		SDL_UpdateRect(ScreenSurface, 0, 0, Screensize.x, Screensize.y);
+		SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
     else
 		SDL_Flip(ScreenSurface);
 #ifdef INSTALL_OPENGL

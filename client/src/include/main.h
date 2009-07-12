@@ -200,7 +200,8 @@ typedef struct _options {
 	/* Visual */
 	int video_bpp;
 	int fullscreen;
-	int resolution;
+	int resolution_x;
+	int resolution_y;
 	int use_TextwinAlpha;
 	int textwin_alpha;
 #ifdef WIDGET_SNAP

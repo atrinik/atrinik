@@ -126,7 +126,6 @@ _option opt[] = {
 
 	/* Client */
 	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.fullscreen, VAL_BOOL},
-	{"Resolution:", "The resolution of the screen/window.", "If you change to lower resolutions your GUI-windows may be hidden.", "800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.", "NOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
 	{"Textwindows use alpha:", "Make the text window transparent.", "WARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
@@ -765,8 +764,8 @@ void show_skilllist()
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x= Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y= Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x= Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y= Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SKILL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SKILL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SKILL);
@@ -922,8 +921,8 @@ void show_spelllist()
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
 	/* background */
-	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SPELL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SPELL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SPELL);
@@ -1063,8 +1062,8 @@ void show_optwin()
 	int numButton = 0;
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_OPTION);
@@ -1098,8 +1097,8 @@ void show_keybind()
 	mb = SDL_GetMouseState(&mx, &my);
 
 	/* background */
-	x = Screensize.x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_KEYBIND], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_KEYBIND]->bitmap->w / 2, y + 17, NULL, NULL);
 	add_close_button(x, y, MENU_KEYBIND);
@@ -1273,7 +1272,7 @@ void show_newplayer_server()
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 	x = 25;
-	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_CREATION], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_CREATION]->bitmap->w / 2, y + 15, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_PENTAGRAM], x + 25, y + 430, NULL, NULL);
@@ -1546,7 +1545,7 @@ void show_login_server()
 
 	/* background */
 	x = 25;
-	y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_LOGIN], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_LOGIN]->bitmap->w / 2, y + 17, NULL, NULL);
@@ -1688,7 +1687,7 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 
 	/* background */
 	x = 25;
-    y = Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
+    y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);

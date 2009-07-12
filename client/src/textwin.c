@@ -466,7 +466,7 @@ void textwin_show(int x, int y)
     bltfx.surface = NULL;
     box.x = box.y = 0;
     box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-    y = Screensize.y - (Screensize.y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2) + 25;
+    y = Screensize->y - (Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2) + 25;
 
     box.h = len = txtwin[TW_MIX].size * 10 + 23;
     y -= len;

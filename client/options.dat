@@ -51,7 +51,7 @@ Window Doublebuffer: 0
 Window Any format: 1
 Window Async blit: 0
 Window Hardware Palette: 1
-Window Resizeable: 0
+Window Resizeable: 1
 Window No frame: 0
 Window RLE accel: 0
 

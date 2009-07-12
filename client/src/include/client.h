@@ -66,24 +66,16 @@
 #define SC_ALWAYS 2
 
 /** Screensize structure */
-typedef struct _screensize
+typedef struct screensize
 {
 	/** Screen X */
     int x;
 
 	/** Screen Y */
     int y;
-
-	/** Screen X offset */
-    int xoff;
-
-	/** Screen Y offset */
-    int yoff;
 } _screensize;
 
-extern _screensize Screensize;
-
-extern _screensize Screendefs[16];
+extern struct screensize *Screensize;
 
 typedef struct Animations {
 	/* 0 = all fields are invalid, 1 = anim is loaded */

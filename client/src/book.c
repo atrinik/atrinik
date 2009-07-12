@@ -517,8 +517,8 @@ void show_book()
 	int i, ii, yoff, x, y;
 	_gui_book_page *page1, *page2;
 
-	x = Screensize.x / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2;
-    y = Screensize.y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
+	x = Screensize->x / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2;
+    y = Screensize->y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
 
     sprite_blt(Bitmaps[BITMAP_JOURNAL], x, y, NULL, NULL);
 	global_book_data.x = x;
