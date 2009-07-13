@@ -344,6 +344,7 @@ PyTypeObject Atrinik_ObjectType = {
 	0,
 	0,
 	0,
+	0,
 	0
 };
 
@@ -2953,7 +2954,9 @@ int Atrinik_Object_init(PyObject *module)
     if (PyType_Ready(&Atrinik_ObjectType) < 0)
         return -1;
 
+#if 0
     Py_INCREF(&Atrinik_ObjectType);
+#endif
     return 0;
 }
 

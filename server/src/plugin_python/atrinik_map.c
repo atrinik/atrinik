@@ -192,6 +192,7 @@ PyTypeObject Atrinik_MapType = {
 	0,
 	0,
 	0,
+	0,
 	0
 };
 
@@ -451,7 +452,9 @@ int Atrinik_Map_init(PyObject *module)
     if (PyType_Ready(&Atrinik_MapType) < 0)
         return -1;
 
+#if 0
     Py_INCREF(&Atrinik_MapType);
+#endif
     return 0;
 }
 
