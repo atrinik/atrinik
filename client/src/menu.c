@@ -2132,10 +2132,10 @@ void widget_show_target(int x, int y)
 
     sprite_blt(Bitmaps[BITMAP_TARGET_HP_B], x + 4, y + 24, NULL, NULL);
 
-    /* Redirect target_hp to our hp - server doesn't send it
-     * because we should know our hp exactly */
     hp_tmp = (int) cpl.target_hp;
 
+	/* Redirect target_hp to our hp - server doesn't send it
+     * because we should know our hp exactly */
     if (cpl.target_code == 0)
         hp_tmp = (int)(((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100.0f);
 
@@ -2189,13 +2189,13 @@ void widget_show_target(int x, int y)
 			StringBlt(ScreenSurface, &SystemFont, cpl.target_name, x + 35, y + 3, cpl.target_color, NULL, NULL);
 
             /* Either draw HP remaining percent and description... */
-            if (hp_tmp)
+            if (hp_tmp > 0)
             {
-                char hp_text[9];
+                char hp_text[MAX_BUF];
                 int hp_color;
                 int xhpoffset = 0;
 
-                sprintf((char *)hp_text, "HP: %d%%", hp_tmp);
+                snprintf(hp_text, sizeof(hp_text), "HP: %d%%", hp_tmp);
 
 				if (hp_tmp > 90)
 					hp_color = COLOR_GREEN;
