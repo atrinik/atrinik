@@ -24,21 +24,27 @@
 ************************************************************************/
 
 /**
- * @file ban.c
- * Ban related functions.
- * @todo
- * Make it possible to ban players/hosts from the game by Wizards. */
+ * @file
+ * Banning related functions. \n
+ * It is possible to use the /ban DM command or interactive
+ * server mode ban command to ban specified player or IP
+ * from the game. \n \n
+ * Syntax for banning: \n
+ * IP:player \n \n
+ * Where IP is the IP address and player is the player name.
+ * It is possible to use * for both IP and player, which
+ * means any match. */
 
 #include <global.h>
 #include <sproto.h>
-#ifndef WIN32 /* ---win32 : remove unix headers */
+#ifndef WIN32
 #include <sys/ioctl.h>
-#endif /* win32 */
+#endif
 #ifdef hpux
 #include <sys/ptyio.h>
 #endif
 
-#ifndef WIN32 /* ---win32 : remove unix headers */
+#ifndef WIN32
 #ifdef NO_ERRNO_H
     extern int errno;
 #else
@@ -46,7 +52,7 @@
 #endif
 #include <stdio.h>
 #include <sys/file.h>
-#endif /* win32 */
+#endif
 
 /**
  * Check if this login or host is banned in the database.
@@ -68,6 +74,7 @@ int checkbanned(char *login, char *host)
 	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))
 	{
 		LOG(llevBug, "BUG: checkbanned(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
+		db_close(db);
 		return 0;
 	}
 
@@ -123,4 +130,129 @@ int checkbanned(char *login, char *host)
     	return 1;
   	else
     	return 0;
+}
+
+/**
+ * Add ban to the database. Will take care of getting
+ * the right values from input string.
+ * @param input The input string with both name and IP
+ * @return 1 on success, 0 on failure */
+int add_ban(const char *input)
+{
+	sqlite3 *db;
+	sqlite3_stmt *statement;
+	char *host, *name, buf[MAX_BUF];
+
+	snprintf(buf, sizeof(buf), "%s", input);
+
+	host = strtok(buf, ":");
+	name = strtok(NULL, ":");
+
+	if (!host || !name)
+		return 0;
+
+	/* Open the database */
+  	db_open(DB_DEFAULT, &db);
+
+	/* Prepare the query */
+	if (!db_prepare_format(db, &statement, "INSERT INTO bans (host, name) VALUES ('%s', '%s');", db_sanitize_input(host), db_sanitize_input(name)))
+	{
+		LOG(llevBug, "BUG: add_ban(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
+		db_close(db);
+		return 0;
+	}
+
+	/* Execute the query */
+	db_step(statement);
+
+	/* Finalize it */
+	db_finalize(statement);
+
+	/* Close the database */
+	db_close(db);
+
+	return 1;
+}
+
+/**
+ * Remove a ban from the database. Will take care of getting
+ * the right values from input string.
+ * @param input The input string with both name and IP
+ * @return 1 on success, 0 on failure */
+int remove_ban(const char *input)
+{
+	sqlite3 *db;
+	sqlite3_stmt *statement;
+	char *host, *name, buf[MAX_BUF];
+
+	snprintf(buf, sizeof(buf), "%s", input);
+
+	host = strtok(buf, ":");
+	name = strtok(NULL, ":");
+
+	if (!host || !name)
+		return 0;
+
+	/* Open the database */
+  	db_open(DB_DEFAULT, &db);
+
+	/* Prepare the query */
+	if (!db_prepare_format(db, &statement, "DELETE FROM bans WHERE host = '%s' AND name = '%s';", db_sanitize_input(host), db_sanitize_input(name)))
+	{
+		LOG(llevBug, "BUG: remove_ban(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
+		db_close(db);
+		return 0;
+	}
+
+	/* Execute the query */
+	db_step(statement);
+
+	/* Finalize it */
+	db_finalize(statement);
+
+	/* Close the database */
+	db_close(db);
+
+	return 1;
+}
+
+/**
+ * List all bans.
+ * @param op Player object to print this information
+ * to, NULL to output it to the log. */
+void list_bans(object *op)
+{
+	sqlite3 *db;
+	sqlite3_stmt *statement;
+
+	/* Open the database */
+  	db_open(DB_DEFAULT, &db);
+
+	/* Prepare the query */
+	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))
+	{
+		LOG(llevBug, "BUG: list_bans(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
+		db_close(db);
+		return;
+	}
+
+	if (op)
+		new_draw_info(NDI_UNIQUE, 0, op, "List of bans:");
+	else
+		LOG(llevInfo, "\nList of bans:\n");
+
+	/* Loop through the results */
+	while (db_step(statement) == SQLITE_ROW)
+	{
+		if (op)
+			new_draw_info_format(NDI_UNIQUE, 0, op, "%s:%s", db_column_text(statement, 0), db_column_text(statement, 1));
+		else
+			LOG(llevInfo, "%s:%s\n", db_column_text(statement, 0), db_column_text(statement, 1));
+	}
+
+	/* Finalize it */
+	db_finalize(statement);
+
+	/* Close the database */
+	db_close(db);
 }

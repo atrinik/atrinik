@@ -1,0 +1,12 @@
+/**
+
+@mainpage Atrinik server documentation
+
+@section main_intro Welcome to the Atrinik server documentation.
+
+This documentation only covers the technical aspects of server source code.
+
+More will be added here soon.
+
+- @ref todo
+*/

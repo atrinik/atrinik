@@ -1434,3 +1434,42 @@ int command_motd_set(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * Ban command, used to ban IP or player from the game.
+ * @param op Player object calling this
+ * @param params Command parameters
+ * @return Always returns 1 */
+int command_ban(object *op, char *params)
+{
+	if (params == NULL)
+		return 1;
+
+	/* Add a new ban */
+	if (strncmp(params, "add ", 4) == 0)
+	{
+		params += 4;
+
+		if (add_ban(params))
+			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Added new ban successfully.");
+		else
+			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Failed to add new ban!");
+	}
+	/* Remove ban */
+	else if (strncmp(params, "remove ", 7) == 0)
+	{
+		params += 7;
+
+		if (remove_ban(params))
+			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Removed ban successfully.");
+		else
+			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Failed to remove ban!");
+	}
+	/* List bans */
+	else if (strncmp(params, "list", 4) == 0)
+	{
+		list_bans(op);
+	}
+
+	return 1;
+}

@@ -93,6 +93,9 @@ void save_throw_object(object *op, object *originator);
 
 /* ban.c */
 int checkbanned(char *login, char *host);
+int add_ban(const char *input);
+int remove_ban(const char *input);
+void list_bans(object *op);
 
 /* c_chat.c */
 char *cleanup_chat_string(char *ustring);
@@ -317,6 +320,7 @@ int command_loadplugin(object *op, char *params);
 int command_unloadplugin(object *op, char *params);
 void shutdown_agent(int timer, char *reason);
 int command_motd_set(object *op, char *params);
+int command_ban(object *op, char *params);
 
 /* commands.c */
 void init_commands(void);

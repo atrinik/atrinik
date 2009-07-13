@@ -168,13 +168,6 @@ const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommA
 
 /* Wizard commands (for both) */
 CommArray_s WizCommands [] = {
-	/* OVERSEER [OV] commands */
-	/* OV's should be able to help player, kick player and (temp) ban players.
-	 * Examine some game part (like the inventory of other players),
-	 * but they should NOT control the game flow. No map reset, no teleport to other
-	 * player, no goto to maps.
-	 * This will allow to give honest players some power but they will still
-	 * not be able to cheat. Means, they will self be able to play on. */
 	{"/dmsay",			command_dmsay,					0.0},
 	{"/summon", 		command_summon,					0.0},
 	{"/kick", 			command_kick,					0.0},
@@ -182,8 +175,7 @@ CommArray_s WizCommands [] = {
 	{"/plugin",			command_loadplugin,				0.0},
 	{"/pluglist",		command_listplugins,			0.0},
 	{"/motd_set",		command_motd_set,				0.0},
-
-	/* DM/WIZ commands */
+	{"/ban",			command_ban,					0.0},
 	{"/teleport", 		command_teleport,				0.0},
 	{"/goto", 			command_goto,					0.0},
 	{"/shutdown", 		command_start_shutdown,			0.0},

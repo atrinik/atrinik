@@ -181,7 +181,7 @@ int db_close(sqlite3 *db)
 char *db_sanitize_input(char *sql_input)
 {
 	char *p, *np;
-	int size = strlen(sql_input), n;
+	int size = strlen(sql_input) + 1, n;
 
 	if ((p = (char *)malloc(size)) == NULL)
 	{

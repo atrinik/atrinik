@@ -1427,6 +1427,37 @@ static void process_keyboard_input(char *input)
 		LOG(llevInfo, "CLOG SYSTEM: %s\n", input);
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, 0, NULL, "[System]: %s", input);
 	}
+	/* Ban command */
+	else if (strncmp(input, "ban ", 4) == 0)
+	{
+		input += 4;
+
+		/* Add a new ban */
+		if (strncmp(input, "add ", 4) == 0)
+		{
+			input += 4;
+
+			if (add_ban(input))
+				LOG(llevInfo, "Added new ban successfully.\n");
+			else
+				LOG(llevInfo, "Failed to add new ban!\n");
+		}
+		/* Remove ban */
+		else if (strncmp(input, "remove ", 7) == 0)
+		{
+			input += 7;
+
+			if (remove_ban(input))
+				LOG(llevInfo, "Removed ban successfully.\n");
+			else
+				LOG(llevInfo, "Failed to remove ban!\n");
+		}
+		/* List bans */
+		else if (strncmp(input, "list", 4) == 0)
+		{
+			list_bans(NULL);
+		}
+	}
 	/* Unknown command */
 	else
 	{
