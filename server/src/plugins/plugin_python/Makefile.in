@@ -33,7 +33,7 @@ MAKEDOC = doc_utils/make_documentation.pl
 SRCS = plugin_python.c atrinik_map.c atrinik_object.c
 
 OBJECTS   = $(SRCS:.c=.o)
-INCLUDE   = -I./include -I../include -I$(INCLUDEROOT)/python$(PYTHONVER)
+INCLUDE   = -I./include -I../../include -I$(INCLUDEROOT)/python$(PYTHONVER)
 
 CFLAGS    = -g -O2 -fPIC $(EXTRA_CFLAGS)
 DEPEND = @DEPEND@
@@ -53,7 +53,7 @@ distclean : clean
 	$(RM) -f *.o core plugin_python.so.0.1 Makefile
 
 plugin_python.so.0.1 : $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../common/libcross.a $(ALLLIBS) -o plugin_python.so.0.1
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../../common/libcross.a $(ALLLIBS) -o plugin_python.so.0.1
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
