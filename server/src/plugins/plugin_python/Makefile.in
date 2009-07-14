@@ -2,9 +2,6 @@
 # Configuration part. Edit those variables to fit your own system setup.
 # *****************************************************************************
 
-# This is the base crossfire data directory.
-CROSSFIRE_PATH = /home/Daimonin/server/plugin_python
-
 # Default libraries required. Edit those to match $(blddir)/Modules/Makefile
 # if needed.
 LIBS		= -lnsl -ldl -lpthread -lutil
@@ -54,9 +51,6 @@ clean :
 
 distclean : clean
 	$(RM) -f *.o core plugin_python.so.0.1 Makefile
-
-install : plugin_python.so.0.1
-	cp plugin_python.so.0.1 $(CROSSFIRE_PATH)/plugins
 
 plugin_python.so.0.1 : $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../common/libcross.a $(ALLLIBS) -o plugin_python.so.0.1

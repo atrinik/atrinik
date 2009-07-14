@@ -1338,6 +1338,11 @@ hp 21
 sp 22
 x 9
 y 7
+arch event_obj
+name Arena
+slaying 2
+sub_type 10
+end
 end
 arch light9
 x 9
@@ -1969,7 +1974,7 @@ arch grassd_5
 x 14
 y 7
 end
-arch grassd_5
+arch grassd_6
 x 14
 y 8
 end

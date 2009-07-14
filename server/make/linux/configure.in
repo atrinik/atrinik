@@ -201,11 +201,11 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h sys/file.h sys/ioctl.h sys/time.h time.h unistd.h stddef.h stdlib.h sys/ttycom.h sys/termios.h crypt.h arpa/inet.h des.h)
 
 AC_CHECK_HEADERS(sqlite3.h)
-AC_CHECK_LIB(sqlite3, sqlite3_open, [LIBS="$LIBS -lsqlite3"]) 
+AC_CHECK_LIB(sqlite3, sqlite3_open, [LIBS="$LIBS -lsqlite3"])
 AC_PATH_PROGS(SQLITE, sqlite3, no)
 
 AC_CHECK_HEADERS(curl/curl.h)
-AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"]) 
+AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
 AC_PATH_PROGS(CURL, curl, no)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -216,6 +216,9 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
 AC_TYPE_UID_T
+
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(long long)
 
 dnl Checks for library functions.
 AC_PROG_GCC_TRADITIONAL
@@ -276,7 +279,7 @@ ndatadir=`eval echo ${datadir}`/Daimonin
 nlocaldir=`eval echo ${localstatedir}`/Daimonin
 
 
-dnl Have to do this one twice, since it uses two levels of indirection 
+dnl Have to do this one twice, since it uses two levels of indirection
 
 nlibdir=`eval echo ${libdir}`
 nlibdir=`eval echo ${nlibdir}`
@@ -296,8 +299,8 @@ datadir=${ndatadir}
 localstatedir=${nlocaldir}
 
 AC_OUTPUT(Makefile
-	../../src/random_maps/Makefile ../../src/socket/Makefile 
-	../../src/server/Makefile ../../src/include/Makefile 
+	../../src/random_maps/Makefile ../../src/socket/Makefile
+	../../src/server/Makefile ../../src/include/Makefile
 	../../src/utils/Makefile ../../src/common/Makefile
 	../../src/utils/atrinikloop
 	../../src/plugin_python/Makefile

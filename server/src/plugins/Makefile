@@ -23,109 +23,41 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-# Start of configuration items
-# In theory, you should not need to change any of this - configure
-# will find and figure out the correct values.
-# However, if you want, you can add in extra items, or hardcode (force)
-# programs to use.  it is the @VAL@ things that get substitute by configure.
-
-# EXTRA_INCLUDES
-# Add any -I commands for extra directories to search for include
-# files.  Hopefully should not be needed in most cases.
-#
-#EXTRA_INCLUDES = -I/usr/X11R6/include
-
-# EXTRA_LIBS
-# add any extra libraries or -L options needed.
-#EXTRA_LIBS = -lX11 -lcrypt
-
-# MFLAGS
-# Any special options you want to give to make.
-# MFLAGS=-j2
-
-# EXTRA_CFLAGS
-# Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror
-
-#
-#
-CC=gcc
-
-MKDIR = @MKDIR@
-CP = @CP@
-TAR = @TAR@
-RM = @RM@
-BASENAME = @BASENAME@
-GZIP = @GZIP@
-BZIP = @BZIP@
-
-SHELL = /bin/sh
-
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-
-NO_X = @no_x@
-
-##############################################################################
-# End of configuration options - nothing below here should need to be
-# Changed.
-#
-
-EXTRA_CFLAGS = @EXTRA_CFLAGS@
-
-VERSION = atrinik-0.1
-
-ARCHIVE = /tmp/$(VERSION)
-
-SUBDIRS = ../../src/common ../../src/random_maps ../../src/socket \
-	../../src/server ../../src/include ../../src/utils \
-	../../src/plugins
-
-FILES = configure configure.in
+PLUGINS = \
+	plugin_python \
+	plugin_arena
 
 all::
-	@for dir in $(SUBDIRS); \
+	@for dir in $(PLUGINS); \
 	do \
-	    echo "making all in $$dir..."; \
-	    cd $$dir; \
-		$(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all || exit 5; \
+	    echo "Making all in $$dir..."; \
+		(cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all || exit 5;) \
 	done;
 
 depend::
-	@for dir in $(SUBDIRS); \
+	@for dir in $(PLUGINS); \
 	do \
-	    echo "making depend in $$dir..."; \
+	    echo "Making depend in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' depend;) \
 	done;
 
 clean::
-	@for dir in $(SUBDIRS); \
+	@for dir in $(PLUGINS); \
 	do \
-	    echo "making clean in $$dir..."; \
+	    echo "Making clean in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' clean;) \
 	done;
 
 distclean:: clean
-	@for dir in $(SUBDIRS); \
+	@for dir in $(PLUGINS); \
 	do \
-	    echo "making distclean in $$dir..."; \
+	    echo "Making distclean in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' distclean;) \
 	done;
-	$(RM) -f Makefile
-	$(RM) -f config.cache config.log config.status
-	$(RM) -f  ../../dmonloop
-	$(RM) -f  ../../atrinik_server
-	$(RM) -f  ../../lib/*
-
-install:: all
-	sh ../../install/linux/install.sh
 	
 proto:
-	@for dir in $(SUBDIRS); \
+	@for dir in $(PLUGINS); \
 	do \
-	    echo "making proto in $$dir..."; \
+	    echo "Making proto in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
 	done;
-
-patchlist::
-	@echo $(FILES) > .patchlist

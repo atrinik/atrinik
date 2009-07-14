@@ -56,6 +56,24 @@ typedef signed char sint8;
 typedef unsigned short Fontindex;
 typedef unsigned int tag_t;
 
+#if SIZEOF_LONG == 8
+
+typedef unsigned long			uint64;
+typedef signed long				sint64;
+#define FMT64					"ld"
+#define FMT64U					"lu"
+
+#elif SIZEOF_LONG_LONG == 8
+typedef unsigned long long		uint64;
+typedef signed long long		sint64;
+#define FMT64					"lld"
+#define FMT64U					"llu"
+
+#else
+#error Do not know how to get a 64 bit value on this system.
+#error Correct and send email to the Atrinik Team on how to do this.
+#endif
+
 typedef struct _money_block {
 	/* 0, 1, or -1: see get_money_from_string() */
 	int mode;

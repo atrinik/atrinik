@@ -5,13 +5,15 @@
 
 prgname="atrinik_server"
 pythonplug="plugin_python.so.0.1"
+arenaplug="plugin_arena.so.0.1"
 
 basedir="./../.."
 datadir="/data"
 
 echo "Copy binaries"
 cp ./../../src/server/$prgname ./../../$prgname
-cp ./../../src/plugin_python/$pythonplug ./../../plugins/$pythonplug
+cp ./../../src/plugins/plugin_python/$pythonplug ./../../plugins/$pythonplug
+cp ./../../src/plugins/plugin_arena/$arenaplug ./../../plugins/$arenaplug
 cp $basedir/src/utils/atrinikloop $basedir
 
 echo "Create data directories"

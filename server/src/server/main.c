@@ -821,7 +821,7 @@ void enter_exit(object *op, object *exit_ob)
 		}
 
 		/* -1,-1 marks to use the default ENTER_xx position of the map */
-		if (op->x == -1 && op->y == -1)
+		if ((op->x == -1 && op->y == -1) || MAP_FIXEDLOGIN(newmap))
 		{
 			op->x = MAP_ENTER_X(newmap);
 			op->y = MAP_ENTER_Y(newmap);
@@ -1194,7 +1194,7 @@ void leave(player *pl, int draw_exit)
             /* GROS : Here we handle the LOGOUT global event */
             evtid = EVENT_LOGOUT;
             CFP.Value[0] = (void *)(&evtid);
-            CFP.Value[1] = (void *)(pl);
+            CFP.Value[1] = (void *)(pl->ob);
             CFP.Value[2] = (void *)(pl->socket.host);
             GlobalEvent(&CFP);
         }

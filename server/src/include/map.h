@@ -62,6 +62,7 @@ extern int	global_darkness_table[MAX_DARKNESS+1];
 #define MAP_ULTRADEATH(m)		((m)->map_flags & MAP_FLAG_ULTRADEATH)
 #define MAP_ULTIMATEDEATH(m)	((m)->map_flags & MAP_FLAG_ULTIMATEDEATH)
 #define MAP_PVP(m)				((m)->map_flags & MAP_FLAG_PVP)
+#define MAP_PLUGINS(m)			((m)->map_flags & MAP_FLAG_PLUGINS)
 
 /* mape darkness used to enforce the MAX_DARKNESS value.
  * but IMO, if it is beyond max value, that should be fixed
@@ -295,6 +296,7 @@ typedef struct MapSpace_s {
 #define MAP_FLAG_ULTIMATEDEATH		2048	/* this map is a ultimate death map */
 #define MAP_FLAG_PVP				4096	/* PvP is possible on this map */
 #define MAP_FLAG_NO_SAVE			8192	/* don't save maps - atm only used with unique maps */
+#define MAP_FLAG_PLUGINS			16384   /* Call plugin map events for this map */
 
 
 #define SET_MAP_TILE_VISITED(m, x, y, id) { \

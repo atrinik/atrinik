@@ -123,11 +123,9 @@ void read_map_log()
 void swap_map(mapstruct *map, int force_flag)
 {
 	int i;
-#if 0
 #ifdef PLUGINS
     int evtid;
     CFParm CFP;
-#endif
 #endif
 
 	/*LOG(llevDebug, "Check map for swapping: %s. (players:%d) (%d)\n", map->path, players_on_map(map) , force_flag);*/
@@ -171,20 +169,15 @@ void swap_map(mapstruct *map, int force_flag)
 
 		LOG(llevDebug, "Resetting map %s.\n", map->path);
 
-#if 0
 /* GROS : Here we handle the MAPRESET global event */
-/* I really dislike the idea to call for critical engine part
- * always the plugin system.
- * we should add a map flag - if set, we do a MAPRESET event
- * if we want add something like a logger, we can easily add
- * some internal counters - thats work of 10 minutes and 10 times
- * faster. MT-2004 */
 #ifdef PLUGINS
-		evtid = EVENT_MAPRESET;
-		CFP.Value[0] = (void *)(&evtid);
-		CFP.Value[1] = (void *)(map->path);
-		GlobalEvent(&CFP);
-#endif
+		if (MAP_PLUGINS(map))
+		{
+			evtid = EVENT_MAPRESET;
+			CFP.Value[0] = (void *)(&evtid);
+			CFP.Value[1] = (void *)(map->path);
+			GlobalEvent(&CFP);
+		}
 #endif
 
 		map = map->next;
@@ -301,12 +294,10 @@ void flush_old_maps()
 {
     mapstruct *m, *oldmap;
     long sec;
-/*
 #ifdef PLUGINS
     int evtid;
     CFParm CFP;
 #endif
-*/
     sec = seconds();
 
     m = first_map;
@@ -343,14 +334,15 @@ void flush_old_maps()
 		{
 		    LOG(llevDebug, "Resetting map %s.\n", m->path);
 
-#if 0
 /* GROS : Here we handle the MAPRESET global event */
 #ifdef PLUGINS
-	    	evtid = EVENT_MAPRESET;
-	    	CFP.Value[0] = (void *)(&evtid);
-	    	CFP.Value[1] = (void *)(m->path);
-	    	GlobalEvent(&CFP);
-#endif
+			if (MAP_PLUGINS(m))
+			{
+				evtid = EVENT_MAPRESET;
+				CFP.Value[0] = (void *)(&evtid);
+				CFP.Value[1] = (void *)(m->path);
+				GlobalEvent(&CFP);
+			}
 #endif
 			clean_tmp_map(m);
 			oldmap = m;

@@ -1702,6 +1702,11 @@ static int load_map_header(FILE *fp, mapstruct *m)
 			if (atoi(value))
 				m->map_flags |= MAP_FLAG_FIXED_RTIME;
 		}
+		else if (!strcmp(key, "plugins"))
+		{
+			if (atoi(value))
+				m->map_flags |= MAP_FLAG_PLUGINS;
+		}
 		else if (!strncmp(key, "tile_path_", 10))
 		{
 			int tile = atoi(key + 10);

@@ -111,13 +111,6 @@
 /*****************************************************************************/
 /* Global events. Those are never linked to a specific object.               */
 /*****************************************************************************/
-/* i really dislike this system - scripts/events attached to object is
- * something complete different as attaching a script or event global.
- * The events above are attached to the object - the events below are
- * attached to THE ENGINE. There is no reason to add and bulk the objects
- * with it. */
-/* dont use this events until this line gets removed!! */
-
 #define EVENT_BORN     13 /* A new character has been created.               */
 #define EVENT_CLOCK    14 /* Global time event.                              */
 #define EVENT_CRASH    15 /* Triggered when the server crashes. Not recursive*/
