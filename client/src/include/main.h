@@ -777,6 +777,7 @@ extern struct sockaddr_in insock;
 /* If socket error, this is it */
 extern int SocketStatusErrorNr;
 
+extern void fatal_signal(int make_core);
 extern int main(int argc, char *argv[]);
 extern void open_input_mode(int maxchar);
 extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc);

@@ -58,6 +58,7 @@ typedef signed char sint8;
 #ifdef INSTALL_SOUND
 #include <SDL_mixer.h>
 #endif
+#include <signal.h>
 
 #include <zlib.h>
 #include <item.h>

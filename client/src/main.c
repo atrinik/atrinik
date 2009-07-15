@@ -622,6 +622,67 @@ void load_options_dat()
    	fclose(stream);
 }
 
+/* Signal handlers: */
+
+void rec_sigsegv(int i)
+{
+	(void) i;
+
+  	LOG(LOG_MSG, "\nSIGSEGV received.\n");
+  	fatal_signal(1);
+}
+
+void rec_sigint(int i)
+{
+	(void) i;
+
+  	LOG(LOG_MSG, "\nSIGINT received.\n");
+  	fatal_signal(0);
+}
+
+void rec_sighup(int i)
+{
+	(void) i;
+
+  	LOG(LOG_MSG, "\nSIGHUP received\n");
+
+  	exit(0);
+}
+
+void rec_sigquit(int i)
+{
+	(void) i;
+
+  	LOG(LOG_MSG, "\nSIGQUIT received\n");
+  	fatal_signal(1);
+}
+
+void rec_sigterm(int i)
+{
+	(void) i;
+
+  	LOG(LOG_MSG, "\nSIGTERM received\n");
+  	fatal_signal(0);
+}
+
+void fatal_signal(int make_core)
+{
+	if (make_core)
+		abort();
+
+  	exit(0);
+}
+
+void init_signals()
+{
+#ifndef WIN32
+	signal(SIGHUP, rec_sighup);
+	signal(SIGINT, rec_sigint);
+	signal(SIGQUIT, rec_sigquit);
+	signal(SIGSEGV, rec_sigsegv);
+  	signal(SIGTERM, rec_sigterm);
+#endif
+}
 
 /* asynchron connection chain */
 int game_status_chain()
@@ -1392,6 +1453,9 @@ int main(int argc, char *argv[])
     fd_set tmp_read, tmp_write, tmp_exceptions;
     int pollret, maxfd;
 	struct timeval timeout;
+
+	/* Init all signals */
+	init_signals();
 
 	init_game_data();
 
