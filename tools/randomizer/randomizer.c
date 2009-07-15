@@ -29,6 +29,7 @@
  * Syntax for the "random" file is as follows:
  *  Name: Arch name to match, can be incomplete
  *  Randoms: Random variants to add to the arch name above, if match found.
+ * Comments in the file are allowed and will be ignored by the parser.
  *
  * Compile as:
  *  gcc randomizer.c -O3 -Wall -W -pedantic -Werror -o randomizer
@@ -116,52 +117,62 @@ static void parse_randoms()
 	/* Loop through all the lines in the file */
 	while (fgets(line, MAX_BUF - 1, fh))
 	{
+		/* Ignore comments */
+		if (line[0] == '#')
+			continue;
+
 		/* Scan the line for Name:, and store it */
 		if (sscanf(line, "Name: %s\n", name))
 		{
-			/* If there is nothing after that, just return */
-			if (!fgets(line, MAX_BUF - 1, fh))
-				return;
-
-			/* Scan the next line for Randoms: and store it */
-			if (sscanf(line, "Randoms: %s\n", randoms))
+			/* Loop through the next lines, and break out on Randoms: match. */
+			while (fgets(line, MAX_BUF - 1, fh))
 			{
-				/* Allocate a new random list structure */
-				random_tmp = (random_struct *) malloc(sizeof(random_struct));
+				/* Ignore comments */
+				if (line[0] == '#')
+					continue;
 
-				/* Append the old list structure to it */
-				random_tmp->next = random_list;
-
-				/* Switch the old structure with this new one */
-				random_list = random_tmp;
-
-				/* Number of variations starts at 0 */
-				random_tmp->variations = 0;
-
-				/* Store the arch name to look for in the map file */
-				snprintf(random_tmp->archname, sizeof(random_tmp->archname), "%s", name);
-
-				/* Now loop through the random vriations by "," */
-				p = strtok(randoms, ",");
-
-				while (p)
+				/* Scan the next line for Randoms: and store it */
+				if (sscanf(line, "Randoms: %s\n", randoms))
 				{
-					/* One more variation... */
-					random_tmp->variations++;
-
-					/* Allocate a new list of random variations */
-					random_variations_tmp = (random_variations *) malloc(sizeof(random_variations));
+					/* Allocate a new random list structure */
+					random_tmp = (random_struct *) malloc(sizeof(random_struct));
 
 					/* Append the old list structure to it */
-					random_variations_tmp->next = random_tmp->randoms_start;
+					random_tmp->next = random_list;
 
 					/* Switch the old structure with this new one */
-					random_tmp->randoms_start = random_variations_tmp;
+					random_list = random_tmp;
 
-					/* Store the random variation */
-					snprintf(random_variations_tmp->random_var, sizeof(random_variations_tmp->random_var), "%s", p);
+					/* Number of variations starts at 0 */
+					random_tmp->variations = 0;
 
-					p = strtok(NULL, ",");
+					/* Store the arch name to look for in the map file */
+					snprintf(random_tmp->archname, sizeof(random_tmp->archname), "%s", name);
+
+					/* Now loop through the random vriations by "," */
+					p = strtok(randoms, ",");
+
+					while (p)
+					{
+						/* One more variation... */
+						random_tmp->variations++;
+
+						/* Allocate a new list of random variations */
+						random_variations_tmp = (random_variations *) malloc(sizeof(random_variations));
+
+						/* Append the old list structure to it */
+						random_variations_tmp->next = random_tmp->randoms_start;
+
+						/* Switch the old structure with this new one */
+						random_tmp->randoms_start = random_variations_tmp;
+
+						/* Store the random variation */
+						snprintf(random_variations_tmp->random_var, sizeof(random_variations_tmp->random_var), "%s", p);
+
+						p = strtok(NULL, ",");
+					}
+
+					break;
 				}
 			}
 		}
