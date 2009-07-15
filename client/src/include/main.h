@@ -70,7 +70,7 @@ extern _server_char new_character;
 #define MAXHASHSTRING 20
 
 /* Prime nubmer for hash table */
-#define BMAPTABLE 5003
+#define BMAPTABLE 15823
 
 /* Structure for out bmap data */
 typedef struct _bmaptype {

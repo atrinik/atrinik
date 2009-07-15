@@ -191,9 +191,9 @@ EXTERN char *resist_plus[NROFATTACKS] = {
 	"resist impact", 		"resist magic", 	"resist fire", 		"resist electricity",
 	"resist cold",			"resist confusion", "resist acid", 		"resist drain",
 	"resist weaponmagic", 	"resist ghosthit", 	"resist poison", 	"resist slow",
-	"resist paralyze", 		"resist time", 		"resist fear",		"resist cancellation", 
+	"resist paralyze", 		"resist time", 		"resist fear",		"resist cancellation",
 	"resist depletion", 	"resist death", 	"resist chaos",		"resist counterspell",
-	"resist god power", 	"resist purity",	"resist blind" ,  	"resist internal", 
+	"resist god power", 	"resist purity",	"resist blind" ,  	"resist internal",
 	"resist life steal",	"resist slash", 	"resist cleave", 	"resist pierce",
 	"resist nether", 		"resist sonic", 	"resist demonic", 	"resist psionic"
 };
