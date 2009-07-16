@@ -1508,8 +1508,7 @@ player_only 1
 x 10
 y 18
 end
-arch stair_down
-direction 5
+arch stairs_stone_down
 slaying old_outpost4
 hp 1
 sp 18
@@ -1521,8 +1520,7 @@ player_only 1
 x 10
 y 19
 end
-arch stair_down
-direction 5
+arch stairs_stone_down
 slaying old_outpost4
 hp 1
 sp 19

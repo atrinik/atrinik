@@ -208,7 +208,7 @@ arch floor_ostone6
 x 1
 y 1
 end
-arch stairw_up_1
+arch stairs_wood_up
 slaying testmap_main
 hp 1
 sp 5

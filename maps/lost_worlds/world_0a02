@@ -1168,10 +1168,11 @@ player_only 1
 x 7
 y 9
 end
-arch stair_down
+arch stairs_stone_down
 slaying old_outpost
 hp 1
 sp 1
+direction 5
 x 7
 y 9
 end
@@ -1326,10 +1327,11 @@ player_only 1
 x 8
 y 9
 end
-arch stair_down
+arch stairs_stone_down
 slaying old_outpost
 hp 2
 sp 1
+direction 5
 x 8
 y 9
 end

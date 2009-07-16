@@ -43,21 +43,19 @@ end
 arch floor_sblack2b
 y 16
 end
-arch stair_down
+arch stairs_stone_down
 slaying moroch_temple3_b
 hp 0
 sp 16
-direction 7
 y 16
 end
 arch floor_sblack1b
 y 17
 end
-arch stair_down
+arch stairs_stone_down
 slaying moroch_temple3_b
 hp 0
 sp 17
-direction 7
 y 17
 end
 arch floor_sblack3b

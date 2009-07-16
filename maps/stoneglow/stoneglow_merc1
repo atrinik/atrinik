@@ -133,8 +133,7 @@ arch floor_stone_b3
 x 1
 y 6
 end
-arch stair_up
-direction 5
+arch stairs_stone_up
 slaying stoneglow_0000
 hp 3
 sp 13

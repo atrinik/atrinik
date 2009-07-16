@@ -134,7 +134,7 @@ arch floor_grey1a1
 x 1
 y 1
 end
-arch stair_up
+arch stairs_stone_up
 slaying testmap_main
 hp 15
 sp 5

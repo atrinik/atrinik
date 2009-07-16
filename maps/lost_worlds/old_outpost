@@ -172,10 +172,11 @@ player_only 1
 x 1
 y 1
 end
-arch stair_up
+arch stairs_stone_up
 slaying world_0a02
 hp 7
 sp 9
+direction 5
 x 1
 y 1
 end
@@ -369,10 +370,11 @@ player_only 1
 x 2
 y 1
 end
-arch stair_up
+arch stairs_stone_up
 slaying world_0a02
 hp 8
 sp 9
+direction 5
 x 2
 y 1
 end

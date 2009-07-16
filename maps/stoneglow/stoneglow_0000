@@ -13,6 +13,7 @@ no_harm 1
 tile_path_1 stoneglow_0001
 tile_path_2 stoneglow_0100
 tile_path_5 stoneglow_0101
+tile_path_8 ../lost_worlds/world_000a
 end
 arch grassd_1
 end
@@ -523,8 +524,7 @@ arch floor_stone_b4
 x 3
 y 13
 end
-arch stair_down
-direction 5
+arch stairs_stone_down
 x 3
 y 13
 arch event_obj

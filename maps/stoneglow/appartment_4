@@ -1651,7 +1651,7 @@ unique 1
 x 12
 y 1
 end
-arch bath_tub1.101
+arch bath_tub1
 x 12
 y 1
 end

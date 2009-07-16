@@ -336,14 +336,14 @@ arch floor_ruin1
 x 2
 y 2
 end
-arch stair_down
-direction 5
+arch stairs_stone_down
 msg
 You head down the stairs...
 endmsg
 slaying underground_city/mainmap_0501
 hp 1
 sp 1
+direction 5
 x 2
 y 2
 end

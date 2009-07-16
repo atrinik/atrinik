@@ -1621,7 +1621,7 @@ arch floor_wood2
 x 12
 y 17
 end
-arch bath_tub2.101
+arch bath_tub2
 x 12
 y 17
 end

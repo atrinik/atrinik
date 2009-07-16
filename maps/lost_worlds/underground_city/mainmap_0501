@@ -189,10 +189,11 @@ arch floor_stone_b3
 x 1
 y 1
 end
-arch stair_up
+arch stairs_stone_up
 slaying ../wilderness_0032
 hp 2
 sp 2
+direction 5
 x 1
 y 1
 end

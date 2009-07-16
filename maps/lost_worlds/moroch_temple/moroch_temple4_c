@@ -171,10 +171,11 @@ arch floor_sblack2b
 x 1
 y 1
 end
-arch stair_up
+arch stairs_stone_up
 slaying moroch_temple4_b
 hp 1
 sp 1
+direction 5
 x 1
 y 1
 end

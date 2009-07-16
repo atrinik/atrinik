@@ -10,6 +10,7 @@ height 24
 difficulty 1
 outdoor 1
 tile_path_1 world_0a00
+tile_path_2 world_000a
 tile_path_5 world_0000
 end
 arch water_still
@@ -101,6 +102,10 @@ arch water_still
 x 1
 y 2
 end
+arch grassd_m12
+x 1
+y 2
+end
 arch water_still
 x 1
 y 3
@@ -109,19 +114,15 @@ arch water_still
 x 1
 y 4
 end
-arch grassd_m8
-x 1
-y 4
-end
 arch water_still
 x 1
 y 5
 end
-arch grassd_m8
-x 1
-y 5
-end
 arch water_still
+x 1
+y 6
+end
+arch grassd_m11
 x 1
 y 6
 end
@@ -145,7 +146,15 @@ arch water_still
 x 1
 y 9
 end
+arch grassd_m12
+x 1
+y 9
+end
 arch water_still
+x 1
+y 10
+end
+arch grassd_m11
 x 1
 y 10
 end
@@ -177,11 +186,19 @@ arch water_still
 x 1
 y 14
 end
+arch grassd_m12
+x 1
+y 14
+end
 arch water_still
 x 1
 y 15
 end
 arch water_still
+x 1
+y 16
+end
+arch grassd_m11
 x 1
 y 16
 end
@@ -202,6 +219,10 @@ x 1
 y 18
 end
 arch water_still
+x 1
+y 19
+end
+arch grassd_m12
 x 1
 y 19
 end
@@ -263,23 +284,11 @@ arch water_still
 x 2
 y 3
 end
-arch grassd_m5
-x 2
-y 3
-end
-arch grassd_6
+arch water_still
 x 2
 y 4
 end
-arch reed_sm5
-x 2
-y 4
-end
-arch grassd_8
-x 2
-y 5
-end
-arch reed_sm2
+arch water_still
 x 2
 y 5
 end
@@ -287,11 +296,11 @@ arch water_still
 x 2
 y 6
 end
-arch grassd_m5
+arch grassd_m7
 x 2
 y 6
 end
-arch grassd_2
+arch grassd_3
 x 2
 y 7
 end
@@ -311,7 +320,7 @@ arch water_still
 x 2
 y 9
 end
-arch grassd_m10
+arch grassd_m6
 x 2
 y 9
 end
@@ -430,74 +439,67 @@ end
 arch grassd_4
 x 3
 end
-arch reed_sm9
+arch grassd_4
 x 3
+y 1
+end
+arch reed_sm1
+x 3
+y 1
 end
 arch water_still
 x 3
-y 1
+y 2
 end
 arch grassd_m6
 x 3
-y 1
+y 2
 end
 arch water_still
 x 3
-y 2
+y 3
 end
-arch grassd_m5
-x 3
-y 2
-end
-arch grassd_8
+arch grassd_m12
 x 3
 y 3
 end
-arch reed_sm5
-x 3
-y 3
-end
-arch grassd_1
+arch water_still
 x 3
 y 4
 end
-arch plant6
-x 3
-y 4
-end
-arch grassd_8
+arch water_still
 x 3
 y 5
 end
-arch grassd_1
+arch water_still
 x 3
 y 6
 end
-arch reed_sm9
+arch grassd_m7
 x 3
 y 6
+end
+arch grassd_7
+x 3
+y 7
+end
+arch reed_sm1
+x 3
+y 7
+end
+arch grassd_1
+x 3
+y 8
+end
+arch reed_sm2
+x 3
+y 8
 end
 arch grassd_8
 x 3
-y 7
-end
-arch plant7
-x 3
-y 7
-end
-arch grassd_1
-x 3
-y 8
-end
-arch reed_sm10
-x 3
-y 8
-end
-arch water_still
-x 3
 y 9
 end
-arch grassd_m5
+arch reed_sm1
 x 3
 y 9
 end
@@ -510,6 +512,10 @@ x 3
 y 10
 end
 arch grassd_5
+x 3
+y 11
+end
+arch reed_sm5
 x 3
 y 11
 end
@@ -600,7 +606,7 @@ arch grassd_6
 x 4
 y 1
 end
-arch reed_sm9
+arch reed_sm2
 x 4
 y 1
 end
@@ -612,35 +618,35 @@ arch reed_sm9
 x 4
 y 2
 end
-arch grassd_2
+arch water_still
 x 4
 y 3
 end
-arch grassd_7
+arch grassd_m10
+x 4
+y 3
+end
+arch water_still
 x 4
 y 4
 end
-arch plant7
-x 4
-y 4
-end
-arch grassd_8
+arch water_still
 x 4
 y 5
 end
-arch grassd_5
+arch water_still
 x 4
 y 6
 end
-arch plant7
+arch grassd_m7
 x 4
 y 6
 end
-arch grassd_3
+arch grassd_1
 x 4
 y 7
 end
-arch plant6
+arch plant9
 x 4
 y 7
 end
@@ -649,10 +655,6 @@ x 4
 y 8
 end
 arch grassd_7
-x 4
-y 9
-end
-arch reed_sm9
 x 4
 y 9
 end
@@ -688,7 +690,7 @@ arch grassd_8
 x 4
 y 14
 end
-arch plant6
+arch reed_sm2
 x 4
 y 14
 end
@@ -701,6 +703,10 @@ x 4
 y 15
 end
 arch grassd_2
+x 4
+y 16
+end
+arch reed_sm5
 x 4
 y 16
 end
@@ -759,31 +765,31 @@ arch plant7
 x 5
 y 2
 end
-arch grassd_4
+arch water_still
 x 5
 y 3
 end
-arch grassd_4
+arch grassd_m10
+x 5
+y 3
+end
+arch water_still
 x 5
 y 4
 end
-arch grassd_3
+arch water_still
 x 5
 y 5
 end
-arch plant6
-x 5
-y 5
-end
-arch grassd_1
+arch water_still
 x 5
 y 6
 end
-arch grassd_8
+arch grassd_m7
 x 5
-y 7
+y 6
 end
-arch plant7
+arch grassd_2
 x 5
 y 7
 end
@@ -898,23 +904,31 @@ arch grassd_2
 x 6
 y 2
 end
-arch grassd_5
+arch water_still
 x 6
 y 3
 end
-arch grassd_3
+arch grassd_m10
+x 6
+y 3
+end
+arch water_still
 x 6
 y 4
 end
-arch grassd_7
+arch water_still
 x 6
 y 5
 end
-arch grassd_3
+arch water_still
 x 6
 y 6
 end
-arch grassd_7
+arch grassd_m7
+x 6
+y 6
+end
+arch grassd_4
 x 6
 y 7
 end
@@ -1034,31 +1048,39 @@ arch grassd_4
 x 7
 y 2
 end
-arch plant11
+arch bridge_wood_NS.181
 x 7
 y 2
 end
-arch grassd_7
+arch light1
+x 7
+y 2
+end
+arch bridge_wood_NS.171
 x 7
 y 3
 end
-arch grassd_1
+arch bridge_wood_NS.171
 x 7
 y 4
 end
-arch grassd_1
+arch bridge_wood_NS.171
 x 7
 y 5
 end
-arch plant9
-x 7
-y 5
-end
-arch grassd_4
+arch bridge_wood_NS.171
 x 7
 y 6
 end
-arch grassd_3
+arch grassd_8
+x 7
+y 7
+end
+arch bridge_wood_NS.161
+x 7
+y 7
+end
+arch light1
 x 7
 y 7
 end
@@ -1161,31 +1183,43 @@ arch grassd_5
 x 8
 y 2
 end
-arch grassd_1
+arch bridge_wood_NS.111
+x 8
+y 2
+end
+arch bridge_wood_NS.101
 x 8
 y 3
 end
-arch grassd_3
+arch bridge_wood_NS.101
 x 8
 y 4
 end
-arch grassd_5
+arch light3
+x 8
+y 4
+end
+arch bridge_wood_NS.101
 x 8
 y 5
 end
-arch grassd_2
+arch light3
+x 8
+y 5
+end
+arch bridge_wood_NS.101
 x 8
 y 6
 end
-arch grassd_5
+arch grassd_1
+x 8
+y 7
+end
+arch bridge_wood_NS.151
 x 8
 y 7
 end
 arch grassd_5
-x 8
-y 8
-end
-arch plant15
 x 8
 y 8
 end
@@ -1222,7 +1256,6 @@ x 8
 y 14
 end
 arch pillar_ruin1d.101
-no_pass 1
 x 8
 y 14
 end
@@ -1235,7 +1268,6 @@ x 8
 y 16
 end
 arch pillar_ruin1b.101
-no_pass 1
 x 8
 y 16
 end
@@ -1290,27 +1322,39 @@ arch grassd_5
 x 9
 y 2
 end
-arch grassd_1
+arch bridge_wood_NS.111
+x 9
+y 2
+end
+arch bridge_wood_NS.101
 x 9
 y 3
 end
-arch grassd_4
+arch bridge_wood_NS.101
 x 9
 y 4
 end
-arch grassd_3
+arch light3
+x 9
+y 4
+end
+arch bridge_wood_NS.101
 x 9
 y 5
 end
-arch grassd_8
+arch light3
+x 9
+y 5
+end
+arch bridge_wood_NS.101
 x 9
 y 6
 end
-arch plant11
+arch grassd_7
 x 9
-y 6
+y 7
 end
-arch grassd_6
+arch bridge_wood_NS.151
 x 9
 y 7
 end
@@ -1405,31 +1449,31 @@ arch grassd_8
 x 10
 y 2
 end
-arch grassd_7
+arch bridge_wood_NS.111
+x 10
+y 2
+end
+arch bridge_wood_NS.101
 x 10
 y 3
 end
-arch plant9
-x 10
-y 3
-end
-arch grassd_1
+arch bridge_wood_NS.101
 x 10
 y 4
 end
-arch grassd_1
+arch bridge_wood_NS.101
 x 10
 y 5
 end
-arch plant15
-x 10
-y 5
-end
-arch grassd_5
+arch bridge_wood_NS.101
 x 10
 y 6
 end
-arch grassd_2
+arch grassd_7
+x 10
+y 7
+end
+arch bridge_wood_NS.151
 x 10
 y 7
 end
@@ -1524,23 +1568,65 @@ arch grassd_3
 x 11
 y 2
 end
-arch grassd_2
+arch bridge_wood_NS.121
+x 11
+y 2
+end
+arch light1
+x 11
+y 2
+end
+arch water_still
 x 11
 y 3
 end
-arch grassd_7
+arch grassd_m12
+x 11
+y 3
+end
+arch bridge_wood_NS.131
+layer 3
+x 11
+y 3
+end
+arch water_still
 x 11
 y 4
 end
-arch grassd_2
+arch bridge_wood_NS.131
+x 11
+y 4
+end
+arch water_still
 x 11
 y 5
 end
-arch grassd_1
+arch bridge_wood_NS.131
+x 11
+y 5
+end
+arch water_still
 x 11
 y 6
 end
-arch grassd_8
+arch grassd_m11
+x 11
+y 6
+end
+arch bridge_wood_NS.131
+layer 3
+x 11
+y 6
+end
+arch grassd_7
+x 11
+y 7
+end
+arch bridge_wood_NS.141
+x 11
+y 7
+end
+arch light1
 x 11
 y 7
 end
@@ -1643,23 +1729,31 @@ arch plant13
 x 12
 y 2
 end
-arch grassd_7
+arch water_still
 x 12
 y 3
 end
-arch grassd_6
+arch grassd_m10
+x 12
+y 3
+end
+arch water_still
 x 12
 y 4
 end
-arch grassd_2
+arch water_still
 x 12
 y 5
 end
-arch grassd_5
+arch water_still
 x 12
 y 6
 end
-arch grassd_8
+arch grassd_m7
+x 12
+y 6
+end
+arch grassd_1
 x 12
 y 7
 end
@@ -1762,27 +1856,31 @@ arch grassd_8
 x 13
 y 2
 end
-arch grassd_7
+arch water_still
 x 13
 y 3
 end
-arch grassd_3
+arch grassd_m10
+x 13
+y 3
+end
+arch water_still
 x 13
 y 4
 end
-arch grassd_2
+arch water_still
 x 13
 y 5
 end
-arch grassd_6
+arch water_still
 x 13
 y 6
 end
-arch plant9
+arch grassd_m7
 x 13
 y 6
 end
-arch grassd_2
+arch grassd_5
 x 13
 y 7
 end
@@ -1791,6 +1889,10 @@ x 13
 y 8
 end
 arch plant11
+x 13
+y 8
+end
+arch plant9
 x 13
 y 8
 end
@@ -1885,23 +1987,31 @@ arch grassd_5
 x 14
 y 2
 end
-arch grassd_2
+arch water_still
 x 14
 y 3
 end
-arch grassd_8
+arch grassd_m10
+x 14
+y 3
+end
+arch water_still
 x 14
 y 4
 end
-arch grassd_1
+arch water_still
 x 14
 y 5
 end
-arch grassd_8
+arch water_still
 x 14
 y 6
 end
-arch grassd_8
+arch grassd_m7
+x 14
+y 6
+end
+arch grassd_2
 x 14
 y 7
 end
@@ -2000,31 +2110,31 @@ arch plant1
 x 15
 y 2
 end
-arch grassd_5
+arch water_still
 x 15
 y 3
 end
-arch grassd_8
+arch grassd_m10
+x 15
+y 3
+end
+arch water_still
 x 15
 y 4
 end
-arch grassd_1
+arch water_still
 x 15
 y 5
 end
-arch tree_big2
-x 15
-y 5
-end
-arch grassd_6
+arch water_still
 x 15
 y 6
 end
-arch plant1
+arch grassd_m7
 x 15
 y 6
 end
-arch grassd_1
+arch grassd_7
 x 15
 y 7
 end
@@ -2033,6 +2143,10 @@ x 15
 y 8
 end
 arch grassd_3
+x 15
+y 9
+end
+arch tree_big2
 x 15
 y 9
 end
@@ -2127,27 +2241,31 @@ arch grassd_4
 x 16
 y 2
 end
-arch grassd_5
+arch water_still
 x 16
 y 3
 end
-arch grassd_3
+arch grassd_m10
+x 16
+y 3
+end
+arch water_still
 x 16
 y 4
 end
-arch plant11
-x 16
-y 4
-end
-arch grassd_5
+arch water_still
 x 16
 y 5
 end
-arch grassd_4
+arch water_still
 x 16
 y 6
 end
-arch grassd_8
+arch grassd_m7
+x 16
+y 6
+end
+arch grassd_7
 x 16
 y 7
 end
@@ -2246,51 +2364,55 @@ arch grassd_1
 x 17
 y 2
 end
-arch tree_big2
-x 17
-y 2
-end
-arch grassd_3
+arch water_still
 x 17
 y 3
 end
-arch grassd_3
+arch grassd_m10
+x 17
+y 3
+end
+arch water_still
 x 17
 y 4
 end
-arch grassd_5
+arch water_still
 x 17
 y 5
 end
-arch grassd_2
+arch water_still
 x 17
 y 6
 end
-arch plant2
+arch grassd_m7
 x 17
 y 6
 end
-arch grassd_8
+arch grassd_5
 x 17
 y 7
 end
-arch plant3
-x 17
-y 7
-end
-arch grassd_8
+arch grassd_7
 x 17
 y 8
 end
-arch grassd_6
+arch grassd_2
 x 17
 y 9
 end
-arch grassd_4
+arch plant2
+x 17
+y 9
+end
+arch grassd_8
 x 17
 y 10
 end
-arch grassd_3
+arch plant3
+x 17
+y 10
+end
+arch grassd_8
 x 17
 y 11
 end
@@ -2346,6 +2468,18 @@ arch grassd_7
 x 17
 y 19
 end
+arch spawn_point
+x 17
+y 19
+arch wasp_giant
+type 83
+level 7
+last_eat 5
+unaggressive 1
+item_race 8
+item_level 8
+end
+end
 arch grassd_2
 x 17
 y 20
@@ -2385,15 +2519,19 @@ arch grassd_7
 x 18
 y 2
 end
-arch grassd_1
+arch water_still
 x 18
 y 3
 end
-arch grassd_4
+arch grassd_m10
+x 18
+y 3
+end
+arch water_still
 x 18
 y 4
 end
-arch grassd_4
+arch water_still
 x 18
 y 5
 end
@@ -2401,17 +2539,33 @@ arch water_still
 x 18
 y 6
 end
-arch grassd_m2
+arch grassd_m7
 x 18
 y 6
+end
+arch grassd_2
+x 18
+y 7
+end
+arch grassd_6
+x 18
+y 8
+end
+arch water_still
+x 18
+y 9
+end
+arch grassd_m2
+x 18
+y 9
 end
 arch light4
 x 18
-y 6
+y 9
 end
 arch spawn_point
 x 18
-y 6
+y 9
 arch lost_soul
 type 83
 Wis 4
@@ -2440,7 +2594,7 @@ end
 end
 arch grassd_5
 x 18
-y 7
+y 10
 end
 arch bone_broken
 msg
@@ -2449,29 +2603,13 @@ here. The bones shows marks of
 great violence...
 endmsg
 x 18
-y 7
+y 10
 end
 arch grassd_1
 x 18
-y 8
+y 11
 end
 arch plant3
-x 18
-y 8
-end
-arch grassd_7
-x 18
-y 9
-end
-arch grassd_7
-x 18
-y 10
-end
-arch tree_big2
-x 18
-y 10
-end
-arch grassd_4
 x 18
 y 11
 end
@@ -2480,6 +2618,10 @@ x 18
 y 12
 end
 arch grassd_1
+x 18
+y 13
+end
+arch tree_big2
 x 18
 y 13
 end
@@ -2554,42 +2696,58 @@ arch grassd_1
 x 19
 y 2
 end
-arch grassd_1
+arch water_still
 x 19
 y 3
 end
-arch plant1
+arch grassd_m10
 x 19
 y 3
 end
-arch grassd_8
+arch water_still
 x 19
 y 4
 end
-arch grassd_1
+arch water_still
 x 19
 y 5
 end
-arch grassd_8
+arch water_still
 x 19
 y 6
+end
+arch grassd_m7
+x 19
+y 6
+end
+arch grassd_3
+x 19
+y 7
+end
+arch grassd_3
+x 19
+y 8
+end
+arch grassd_8
+x 19
+y 9
 end
 arch tree_big2
 x 19
-y 6
+y 9
 end
 arch plant3
 x 19
-y 6
+y 9
 end
 arch grassd_6
 x 19
-y 7
+y 10
 end
 arch plant3
 layer 3
 x 19
-y 7
+y 10
 end
 arch bone_skull
 name broken skull
@@ -2599,23 +2757,23 @@ here. The bones shows marks of
 great violence...
 endmsg
 x 19
-y 7
+y 10
 end
 arch water_still
 x 19
-y 8
+y 11
 end
 arch grassd_m1
 x 19
-y 8
+y 11
 end
 arch light4
 x 19
-y 8
+y 11
 end
 arch spawn_point
 x 19
-y 8
+y 11
 arch lost_soul
 type 83
 level 6
@@ -2623,18 +2781,6 @@ last_eat -5
 terrain_flag 3
 Wis 4
 end
-end
-arch grassd_7
-x 19
-y 9
-end
-arch grassd_6
-x 19
-y 10
-end
-arch grassd_3
-x 19
-y 11
 end
 arch grassd_3
 x 19
@@ -2693,29 +2839,17 @@ x 19
 y 18
 arch wasp_giant
 type 83
-item_race 4
-item_level  4
 randomitems mob_fighter_l9
 level 7
-unaggressive 1
 last_eat 5
+unaggressive 1
+item_race 8
+item_level 8
 end
 end
 arch grassd_6
 x 19
 y 19
-end
-arch spawn_point
-x 19
-y 19
-arch wasp_giant
-type 83
-item_race 4
-item_level  4
-level 7
-unaggressive 1
-last_eat 5
-end
 end
 arch grassd_7
 x 19
@@ -2756,19 +2890,27 @@ arch grassd_6
 x 20
 y 2
 end
-arch grassd_8
+arch water_still
 x 20
 y 3
 end
-arch grassd_8
+arch grassd_m10
+x 20
+y 3
+end
+arch water_still
 x 20
 y 4
 end
-arch grassd_5
+arch water_still
 x 20
 y 5
 end
-arch grassd_2
+arch water_still
+x 20
+y 6
+end
+arch grassd_m7
 x 20
 y 6
 end
@@ -2776,27 +2918,27 @@ arch grassd_7
 x 20
 y 7
 end
-arch plant3
-x 20
-y 7
-end
-arch grassd_6
+arch grassd_8
 x 20
 y 8
 end
-arch plant2
-x 20
-y 8
-end
-arch grassd_3
+arch grassd_2
 x 20
 y 9
 end
-arch grassd_8
+arch grassd_7
 x 20
 y 10
 end
-arch grassd_5
+arch plant3
+x 20
+y 10
+end
+arch grassd_6
+x 20
+y 11
+end
+arch plant2
 x 20
 y 11
 end
@@ -2828,34 +2970,9 @@ arch grassd_6
 x 20
 y 18
 end
-arch spawn_point
-x 20
-y 18
-arch wasp_giant
-type 83
-item_race 4
-item_level  4
-unaggressive 1
-level 7
-last_eat 5
-end
-end
 arch grassd_1
 x 20
 y 19
-end
-arch spawn_point
-x 20
-y 19
-arch wasp_giant
-type 83
-item_race 4
-randomitems mob_fighter_l9
-item_level  4
-level 7
-unaggressive 1
-last_eat 5
-end
 end
 arch grassd_4
 x 20
@@ -2896,31 +3013,31 @@ arch grassd_4
 x 21
 y 2
 end
-arch grassd_3
+arch water_still
 x 21
 y 3
 end
-arch grassd_5
+arch grassd_m10
+x 21
+y 3
+end
+arch water_still
 x 21
 y 4
 end
-arch plant14
-x 21
-y 4
-end
-arch grassd_5
+arch water_still
 x 21
 y 5
 end
-arch grassd_8
+arch water_still
 x 21
 y 6
 end
-arch grassd_6
+arch grassd_m7
 x 21
-y 7
+y 6
 end
-arch plant7
+arch grassd_8
 x 21
 y 7
 end
@@ -3023,35 +3140,39 @@ arch grassd_8
 x 22
 y 2
 end
-arch grassd_3
+arch water_still
 x 22
 y 3
 end
-arch plant9
+arch grassd_m10
 x 22
 y 3
 end
-arch grassd_3
+arch water_still
 x 22
 y 4
 end
-arch grassd_4
+arch water_still
 x 22
 y 5
 end
-arch grassd_1
+arch water_still
 x 22
 y 6
 end
-arch plant9
+arch grassd_m7
 x 22
 y 6
 end
-arch grassd_6
+arch grassd_2
 x 22
 y 7
 end
 arch grassd_7
+x 22
+y 8
+end
+arch plant9
 x 22
 y 8
 end
@@ -3095,6 +3216,18 @@ arch grassd_5
 x 22
 y 16
 end
+arch spawn_point
+x 22
+y 16
+arch wasp_giant
+type 83
+level 7
+last_eat 5
+unaggressive 1
+item_race 8
+item_level 8
+end
+end
 arch grassd_8
 x 22
 y 17
@@ -3123,10 +3256,6 @@ arch grassd_6
 x 22
 y 22
 end
-arch tree_big5b
-x 22
-y 22
-end
 arch grassd_3
 x 22
 y 23
@@ -3138,62 +3267,39 @@ end
 arch grassd_4
 x 23
 end
-arch tree_big3
-x 23
-end
 arch grassd_2
 x 23
 y 1
 end
-arch tree_big
-x 23
-y 1
-end
 arch grassd_8
 x 23
 y 2
 end
-arch tree_big2
-x 23
-y 2
-end
-arch grassd_5
+arch water_still
 x 23
 y 3
 end
-arch tree_big4b
+arch grassd_m10
 x 23
 y 3
 end
-arch grassd_8
+arch water_still
 x 23
 y 4
 end
-arch tree_big
-x 23
-y 4
-end
-arch grassd_8
+arch water_still
 x 23
 y 5
 end
-arch tree_big3
-x 23
-y 5
-end
-arch grassd_5
+arch water_still
 x 23
 y 6
 end
-arch tree_big2
+arch grassd_m7
 x 23
 y 6
 end
-arch grassd_7
-x 23
-y 7
-end
-arch tree_big
+arch grassd_2
 x 23
 y 7
 end
@@ -3201,15 +3307,7 @@ arch grassd_6
 x 23
 y 8
 end
-arch tree_big3
-x 23
-y 8
-end
 arch grassd_5
-x 23
-y 9
-end
-arch tree_big5b
 x 23
 y 9
 end
@@ -3217,23 +3315,11 @@ arch grassd_2
 x 23
 y 10
 end
-arch tree_big4b
-x 23
-y 10
-end
 arch grassd_8
 x 23
 y 11
 end
-arch tree_big
-x 23
-y 11
-end
 arch grassd_1
-x 23
-y 12
-end
-arch tree_big3
 x 23
 y 12
 end
@@ -3241,31 +3327,15 @@ arch grassd_3
 x 23
 y 13
 end
-arch tree_big2
-x 23
-y 13
-end
 arch grassd_6
 x 23
 y 14
 end
-arch tree_big5b
-x 23
-y 14
-end
 arch grassd_8
 x 23
 y 15
 end
-arch tree_big4b
-x 23
-y 15
-end
 arch grassd_8
-x 23
-y 16
-end
-arch tree_big3
 x 23
 y 16
 end
@@ -3273,7 +3343,7 @@ arch grassd_7
 x 23
 y 17
 end
-arch tree_big3
+arch plant_flower8
 x 23
 y 17
 end
@@ -3281,7 +3351,7 @@ arch grassd_4
 x 23
 y 18
 end
-arch tree_big2
+arch plant9
 x 23
 y 18
 end
@@ -3289,7 +3359,7 @@ arch grassd_1
 x 23
 y 19
 end
-arch tree_big2
+arch plant_flower3
 x 23
 y 19
 end
@@ -3297,23 +3367,15 @@ arch grassd_7
 x 23
 y 20
 end
-arch tree_big
-x 23
-y 20
-end
 arch grassd_6
 x 23
 y 21
 end
-arch tree_big3
+arch plant_flower4
 x 23
 y 21
 end
 arch grassd_5
-x 23
-y 22
-end
-arch tree_big4b
 x 23
 y 22
 end

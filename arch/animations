@@ -10735,53 +10735,77 @@ sstone.111
 sstone.111
 sstone.111
 mina
-anim stair_down
+anim stairs_red_down
 facings 9
 dummy.111
-stairs_down.101
-stairs_down.101
-stairs_down.101
-stairs_down.101
-stairs_down.107
-stairs_down.107
-stairs_down.107
-stairs_down.107
+stairs_red_down.111
+stairs_red_down.111
+stairs_red_down.131
+stairs_red_down.131
+stairs_red_down.151
+stairs_red_down.151
+stairs_red_down.171
+stairs_red_down.171
 mina
-anim stair_red_up_1
-facings 9
-stairs_red_up.131
-stairs_red_up.131
-stairs_red_up.131
-stairs_red_up.131
-stairs_red_up.131
-stairs_red_up.151
-stairs_red_up.151
-stairs_red_up.151
-stairs_red_up.151
-mina
-anim stair_up
+anim stairs_red_up
 facings 9
 dummy.111
-stairs_up.101
-stairs_up.101
-stairs_up.101
-stairs_up.101
-stairs_up.107
-stairs_up.107
-stairs_up.107
-stairs_up.107
+stairs_red_up.111
+stairs_red_up.111
+stairs_red_up.131
+stairs_red_up.131
+stairs_red_up.151
+stairs_red_up.151
+stairs_red_up.171
+stairs_red_up.171
 mina
-anim stairw_up_1
+anim stairs_stone_down
 facings 9
 dummy.111
-stairs_wood.131
-stairs_wood.131
-stairs_wood.131
-stairs_wood.131
-stairs_wood.151
-stairs_wood.151
-stairs_wood.151
-stairs_wood.151
+stairs_stone_down.111
+stairs_stone_down.111
+stairs_stone_down.131
+stairs_stone_down.131
+stairs_stone_down.151
+stairs_stone_down.151
+stairs_stone_down.171
+stairs_stone_down.171
+mina
+anim stairs_stone_up
+facings 9
+dummy.111
+stairs_stone_up.111
+stairs_stone_up.111
+stairs_stone_up.131
+stairs_stone_up.131
+stairs_stone_up.151
+stairs_stone_up.151
+stairs_stone_up.171
+stairs_stone_up.171
+mina
+anim stairs_wood_down
+facings 9
+dummy.111
+stairs_wood_down.111
+stairs_wood_down.111
+stairs_wood_down.131
+stairs_wood_down.131
+stairs_wood_down.151
+stairs_wood_down.151
+stairs_wood_down.171
+stairs_wood_down.171
+mina
+anim stairs_wood_up
+facings 9
+dummy.111
+stairs_wood_up.111
+stairs_wood_up.111
+stairs_wood_up.131
+stairs_wood_up.131
+stairs_wood_up.151
+stairs_wood_up.151
+stairs_wood_up.171
+stairs_wood_up.171
 mina
 anim starsdavid
 facings 9

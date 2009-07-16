@@ -1178,27 +1178,13 @@ void leave(player *pl, int draw_exit)
 {
 	sqlite3 *db;
 	sqlite3_stmt *statement;
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
+	(void) draw_exit;
 
     if (pl != NULL)
 	{
 		/* We do this so that the socket handling routine can do the final
 		 * cleanup.  We also leave that loop to actually handle the freeing
 		 * of the data. */
-#ifdef PLUGINS
-        if (draw_exit == 0)
-        {
-            /* GROS : Here we handle the LOGOUT global event */
-            evtid = EVENT_LOGOUT;
-            CFP.Value[0] = (void *)(&evtid);
-            CFP.Value[1] = (void *)(pl->ob);
-            CFP.Value[2] = (void *)(pl->socket.host);
-            GlobalEvent(&CFP);
-        }
-#endif
 
 		/* Open database */
 		db_open(DB_DEFAULT, &db);

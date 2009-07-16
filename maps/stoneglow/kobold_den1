@@ -276,8 +276,8 @@ x 1
 y 20
 end
 arch chest7_111
-direction 5
 name rotten chest
+direction 5
 x 1
 y 20
 arch buckler
@@ -306,8 +306,8 @@ x 1
 y 21
 end
 arch chest7_111
-direction 5
 name rotten chest
+direction 5
 x 1
 y 21
 arch dagger_small
@@ -336,8 +336,8 @@ x 1
 y 22
 end
 arch chest7_111
-direction 5
 name rotten chest
+direction 5
 x 1
 y 22
 arch dagger_small
@@ -1579,10 +1579,11 @@ player_only 1
 x 10
 y 10
 end
-arch stairw_up_1
+arch stairs_wood_up
 slaying stoneglow_0100
 hp 2
 sp 13
+direction 5
 x 10
 y 10
 end

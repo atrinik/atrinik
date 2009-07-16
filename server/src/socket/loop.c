@@ -294,10 +294,23 @@ void watchdog(void)
 static void remove_ns_dead_player(player *pl)
 {
 	active_DMs *tmp_dm_list;
+#ifdef PLUGINS
+    int evtid;
+    CFParm CFP;
+#endif
 
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 		remove_active_DM(&dm_list, pl->ob);
+
+#ifdef PLUGINS
+	/* GROS : Here we handle the LOGOUT global event */
+	evtid = EVENT_LOGOUT;
+	CFP.Value[0] = (void *)(&evtid);
+	CFP.Value[1] = (void *)(pl->ob);
+	CFP.Value[2] = (void *)(pl->socket.host);
+	GlobalEvent(&CFP);
+#endif
 
 	if (dm_list)
 	{

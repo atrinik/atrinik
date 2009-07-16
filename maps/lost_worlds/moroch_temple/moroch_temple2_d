@@ -225,11 +225,10 @@ arch floor_sblack1b
 x 3
 y 5
 end
-arch stair_up
+arch stairs_stone_up
 slaying moroch_temple2_c
 hp 3
 sp 5
-direction 7
 x 3
 y 5
 end
@@ -237,11 +236,10 @@ arch floor_sblack1b
 x 3
 y 6
 end
-arch stair_up
+arch stairs_stone_up
 slaying moroch_temple2_c
 hp 3
 sp 6
-direction 7
 x 3
 y 6
 end
@@ -249,11 +247,10 @@ arch floor_sblack2b
 x 3
 y 7
 end
-arch stair_up
+arch stairs_stone_up
 slaying moroch_temple2_c
 hp 3
 sp 7
-direction 7
 x 3
 y 7
 end
