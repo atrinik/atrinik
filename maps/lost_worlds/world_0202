@@ -13,17 +13,17 @@ tile_path_3 world_0201
 tile_path_6 world_0301
 tile_path_7 world_0101
 end
-arch grassd_1
+arch grassd_6
 end
 arch fwall_plant
 end
-arch grassd_1
+arch grassd_5
 y 1
 end
 arch fwall_plant
 y 1
 end
-arch grassd_1
+arch grassd_4
 y 2
 end
 arch fwall_plant
@@ -35,7 +35,7 @@ end
 arch fwall_plant
 y 3
 end
-arch grassd_1
+arch grassd_5
 y 4
 end
 arch fwall_plant
@@ -47,43 +47,43 @@ end
 arch fwall_plant
 y 5
 end
-arch grassd_1
+arch grassd_5
 y 6
 end
 arch fwall_plant
 y 6
 end
-arch grassd_1
+arch grassd_3
 y 7
 end
 arch fwall_plant
 y 7
 end
-arch grassd_1
+arch grassd_6
 y 8
 end
 arch fwall_plant
 y 8
 end
-arch grassd_1
+arch grassd_7
 y 9
 end
 arch fwall_plant
 y 9
 end
-arch grassd_1
+arch grassd_4
 y 10
 end
 arch fwall_plant
 y 10
 end
-arch grassd_1
+arch grassd_2
 y 11
 end
 arch fwall_plant
 y 11
 end
-arch grassd_1
+arch grassd_6
 y 12
 end
 arch fwall_plant
@@ -95,7 +95,7 @@ end
 arch fwall_plant
 y 13
 end
-arch grassd_1
+arch grassd_7
 y 14
 end
 arch fwall_plant
@@ -107,7 +107,7 @@ end
 arch fwall_plant
 y 15
 end
-arch grassd_1
+arch grassd_6
 y 16
 end
 arch fwall_plant
@@ -119,49 +119,49 @@ end
 arch fwall_plant
 y 17
 end
-arch grassd_1
+arch grassd_4
 y 18
 end
 arch fwall_plant
 y 18
 end
-arch grassd_1
+arch grassd_6
 y 19
 end
 arch fwall_plant
 y 19
 end
-arch grassd_1
+arch grassd_8
 y 20
 end
 arch fwall_plant
 y 20
 end
-arch grassd_1
+arch grassd_7
 y 21
 end
 arch fwall_plant
 y 21
 end
-arch grassd_1
+arch grassd_2
 y 22
 end
 arch fwall_plant
 y 22
 end
-arch grassd_1
+arch grassd_7
 y 23
 end
 arch fwall_plant
 y 23
 end
-arch grassd_1
+arch grassd_7
 x 1
 end
 arch fwall_plant
 x 1
 end
-arch grassd_1
+arch grassd_2
 x 1
 y 1
 end
@@ -169,7 +169,7 @@ arch grate1_8
 x 1
 y 1
 end
-arch grassd_1
+arch grassd_4
 x 1
 y 2
 end
@@ -177,7 +177,7 @@ arch grate1_3
 x 1
 y 2
 end
-arch grassd_1
+arch grassd_6
 x 1
 y 3
 end
@@ -185,7 +185,7 @@ arch grate1_3
 x 1
 y 3
 end
-arch grassd_1
+arch grassd_7
 x 1
 y 4
 end
@@ -193,7 +193,7 @@ arch grate1_3
 x 1
 y 4
 end
-arch grassd_1
+arch grassd_8
 x 1
 y 5
 end
@@ -201,15 +201,15 @@ arch grate1_3
 x 1
 y 5
 end
-arch grassd_1
+arch grassd_5
 x 1
 y 6
 end
-arch grassd_1
+arch grassd_5
 x 1
 y 7
 end
-arch grassd_1
+arch grassd_4
 x 1
 y 8
 end
@@ -217,7 +217,7 @@ arch grassd_1
 x 1
 y 9
 end
-arch grassd_1
+arch grassd_6
 x 1
 y 10
 end
@@ -233,7 +233,7 @@ arch grate1_3
 x 1
 y 11
 end
-arch grassd_1
+arch grassd_2
 x 1
 y 12
 end
@@ -241,7 +241,7 @@ arch grate1_3
 x 1
 y 12
 end
-arch grassd_1
+arch grassd_3
 x 1
 y 13
 end
@@ -249,7 +249,7 @@ arch grate1_3
 x 1
 y 13
 end
-arch grassd_1
+arch grassd_4
 x 1
 y 14
 end
@@ -257,7 +257,7 @@ arch grate1_3
 x 1
 y 14
 end
-arch grassd_1
+arch grassd_8
 x 1
 y 15
 end
@@ -265,11 +265,11 @@ arch grate1_3
 x 1
 y 15
 end
-arch grassd_1
+arch grassd_2
 x 1
 y 16
 end
-arch grassd_1
+arch grassd_8
 x 1
 y 17
 end
@@ -281,7 +281,7 @@ arch grate1_3
 x 1
 y 18
 end
-arch grassd_1
+arch grassd_8
 x 1
 y 19
 end
@@ -289,7 +289,7 @@ arch grassd_1
 x 1
 y 20
 end
-arch grassd_1
+arch grassd_8
 x 1
 y 21
 end
@@ -301,7 +301,7 @@ arch grate1_3e
 x 1
 y 22
 end
-arch grassd_1
+arch grassd_7
 x 1
 y 23
 end
@@ -311,7 +311,7 @@ end
 arch fwall_plant
 x 2
 end
-arch grassd_1
+arch grassd_5
 x 2
 y 1
 end
@@ -479,21 +479,21 @@ arch grassd_m3
 x 2
 y 21
 end
-arch grassd_2
+arch grassd_7
 x 2
 y 22
 end
-arch grassd_1
+arch grassd_7
 x 2
 y 23
 end
-arch grassd_1
+arch grassd_3
 x 3
 end
 arch fwall_plant
 x 3
 end
-arch grassd_1
+arch grassd_8
 x 3
 y 1
 end
@@ -661,21 +661,21 @@ arch grassd_m7
 x 3
 y 21
 end
-arch grassd_1
+arch grassd_8
 x 3
 y 22
 end
-arch grassd_1
+arch grassd_8
 x 3
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 4
 end
 arch fwall_plant
 x 4
 end
-arch grassd_1
+arch grassd_8
 x 4
 y 1
 end
@@ -781,7 +781,7 @@ arch grassd_m7
 x 4
 y 21
 end
-arch grassd_1
+arch grassd_8
 x 4
 y 22
 end
@@ -789,13 +789,13 @@ arch grassd_1
 x 4
 y 23
 end
-arch grassd_1
+arch grassd_5
 x 5
 end
 arch fwall_plant
 x 5
 end
-arch grassd_1
+arch grassd_7
 x 5
 y 1
 end
@@ -970,11 +970,11 @@ arch grate1_1
 x 5
 y 22
 end
-arch grassd_1
+arch grassd_4
 x 5
 y 23
 end
-arch grassd_1
+arch grassd_3
 x 6
 end
 arch fwall_plant
@@ -1105,7 +1105,7 @@ arch grassd_m7
 x 6
 y 21
 end
-arch grassd_1
+arch grassd_7
 x 6
 y 22
 end
@@ -1113,17 +1113,17 @@ arch grate1_1
 x 6
 y 22
 end
-arch grassd_1
+arch grassd_2
 x 6
 y 23
 end
-arch grassd_1
+arch grassd_8
 x 7
 end
 arch fwall_plant
 x 7
 end
-arch grassd_1
+arch grassd_6
 x 7
 y 1
 end
@@ -1248,7 +1248,7 @@ arch grassd_m7
 x 7
 y 21
 end
-arch grassd_1
+arch grassd_5
 x 7
 y 22
 end
@@ -1256,17 +1256,17 @@ arch grate1_1
 x 7
 y 22
 end
-arch grassd_1
+arch grassd_6
 x 7
 y 23
 end
-arch grassd_1
+arch grassd_6
 x 8
 end
 arch fwall_plant
 x 8
 end
-arch grassd_1
+arch grassd_5
 x 8
 y 1
 end
@@ -1399,7 +1399,7 @@ arch grassd_m7
 x 8
 y 21
 end
-arch grassd_1
+arch grassd_5
 x 8
 y 22
 end
@@ -1407,17 +1407,17 @@ arch grate1_1
 x 8
 y 22
 end
-arch grassd_1
+arch grassd_5
 x 8
 y 23
 end
-arch grassd_1
+arch grassd_4
 x 9
 end
 arch fwall_plant
 x 9
 end
-arch grassd_1
+arch grassd_5
 x 9
 y 1
 end
@@ -1517,7 +1517,7 @@ arch grassd_m7
 x 9
 y 21
 end
-arch grassd_1
+arch grassd_5
 x 9
 y 22
 end
@@ -1525,17 +1525,17 @@ arch grate1_1
 x 9
 y 22
 end
-arch grassd_1
+arch grassd_3
 x 9
 y 23
 end
-arch grassd_1
+arch grassd_7
 x 10
 end
 arch fwall_plant
 x 10
 end
-arch grassd_1
+arch grassd_3
 x 10
 y 1
 end
@@ -1647,7 +1647,7 @@ arch grassd_m7
 x 10
 y 21
 end
-arch grassd_1
+arch grassd_4
 x 10
 y 22
 end
@@ -1659,17 +1659,17 @@ arch grate1_1e
 x 10
 y 22
 end
-arch grassd_1
+arch grassd_8
 x 10
 y 23
 end
-arch grassd_1
+arch grassd_7
 x 11
 end
 arch fwall_plant
 x 11
 end
-arch grassd_1
+arch grassd_3
 x 11
 y 1
 end
@@ -1804,7 +1804,7 @@ arch sand_dm9
 x 11
 y 21
 end
-arch grassd_1
+arch grassd_8
 x 11
 y 22
 end
@@ -1820,13 +1820,13 @@ arch sand_dm9
 x 11
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 12
 end
 arch fwall_plant
 x 12
 end
-arch grassd_1
+arch grassd_8
 x 12
 y 1
 end
@@ -1944,7 +1944,7 @@ end
 arch fwall_plant
 x 13
 end
-arch grassd_1
+arch grassd_3
 x 13
 y 1
 end
@@ -2080,7 +2080,7 @@ arch sand_dm12
 x 13
 y 21
 end
-arch grassd_1
+arch grassd_7
 x 13
 y 22
 end
@@ -2102,7 +2102,7 @@ end
 arch fwall_plant
 x 14
 end
-arch grassd_1
+arch grassd_4
 x 14
 y 1
 end
@@ -2243,17 +2243,17 @@ arch grate1_8
 x 14
 y 22
 end
-arch grassd_1
+arch grassd_6
 x 14
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 15
 end
 arch fwall_plant
 x 15
 end
-arch grassd_1
+arch grassd_3
 x 15
 y 1
 end
@@ -2385,7 +2385,7 @@ arch grassd_m7
 x 15
 y 21
 end
-arch grassd_1
+arch grassd_6
 x 15
 y 22
 end
@@ -2397,17 +2397,17 @@ arch grate1_1
 x 15
 y 22
 end
-arch grassd_1
+arch grassd_2
 x 15
 y 23
 end
-arch grassd_1
+arch grassd_5
 x 16
 end
 arch fwall_plant
 x 16
 end
-arch grassd_1
+arch grassd_3
 x 16
 y 1
 end
@@ -2525,7 +2525,7 @@ arch grassd_m7
 x 16
 y 21
 end
-arch grassd_1
+arch grassd_3
 x 16
 y 22
 end
@@ -2533,7 +2533,7 @@ arch grate1_1
 x 16
 y 22
 end
-arch grassd_1
+arch grassd_5
 x 16
 y 23
 end
@@ -2543,7 +2543,7 @@ end
 arch fwall_plant
 x 17
 end
-arch grassd_1
+arch grassd_3
 x 17
 y 1
 end
@@ -2668,7 +2668,7 @@ arch grassd_m7
 x 17
 y 21
 end
-arch grassd_1
+arch grassd_5
 x 17
 y 22
 end
@@ -2676,7 +2676,7 @@ arch grate1_1
 x 17
 y 22
 end
-arch grassd_1
+arch grassd_5
 x 17
 y 23
 end
@@ -2686,7 +2686,7 @@ end
 arch fwall_plant
 x 18
 end
-arch grassd_1
+arch grassd_6
 x 18
 y 1
 end
@@ -2790,7 +2790,7 @@ arch grassd_m7
 x 18
 y 21
 end
-arch grassd_1
+arch grassd_5
 x 18
 y 22
 end
@@ -2802,7 +2802,7 @@ arch grassd_1
 x 18
 y 23
 end
-arch grassd_1
+arch grassd_6
 x 19
 end
 arch fwall_plant
@@ -2946,7 +2946,7 @@ arch grassd_m7
 x 19
 y 21
 end
-arch grassd_1
+arch grassd_2
 x 19
 y 22
 end
@@ -2958,13 +2958,13 @@ arch grassd_1
 x 19
 y 23
 end
-arch grassd_1
+arch grassd_6
 x 20
 end
 arch fwall_plant
 x 20
 end
-arch grassd_1
+arch grassd_5
 x 20
 y 1
 end
@@ -3081,7 +3081,7 @@ arch grassd_m7
 x 20
 y 21
 end
-arch grassd_1
+arch grassd_3
 x 20
 y 22
 end
@@ -3089,17 +3089,17 @@ arch grate1_1
 x 20
 y 22
 end
-arch grassd_1
+arch grassd_8
 x 20
 y 23
 end
-arch grassd_1
+arch grassd_6
 x 21
 end
 arch fwall_plant
 x 21
 end
-arch grassd_1
+arch grassd_8
 x 21
 y 1
 end
@@ -3271,17 +3271,17 @@ arch grate1_1
 x 21
 y 22
 end
-arch grassd_1
+arch grassd_4
 x 21
 y 23
 end
-arch grassd_1
+arch grassd_5
 x 22
 end
 arch fwall_plant
 x 22
 end
-arch grassd_1
+arch grassd_6
 x 22
 y 1
 end
@@ -3293,23 +3293,23 @@ arch grassd_1
 x 22
 y 2
 end
-arch grassd_1
+arch grassd_6
 x 22
 y 3
 end
-arch grassd_1
+arch grassd_2
 x 22
 y 4
 end
-arch grassd_1
+arch grassd_4
 x 22
 y 5
 end
-arch grassd_1
+arch grassd_6
 x 22
 y 6
 end
-arch grassd_1
+arch grassd_8
 x 22
 y 7
 end
@@ -3317,7 +3317,7 @@ arch grate1_3
 x 22
 y 7
 end
-arch grassd_1
+arch grassd_4
 x 22
 y 8
 end
@@ -3333,7 +3333,7 @@ arch grate1_3
 x 22
 y 9
 end
-arch grassd_1
+arch grassd_3
 x 22
 y 10
 end
@@ -3341,7 +3341,7 @@ arch grate1_3
 x 22
 y 10
 end
-arch grassd_1
+arch grassd_2
 x 22
 y 11
 end
@@ -3349,7 +3349,7 @@ arch grate1_3
 x 22
 y 11
 end
-arch grassd_1
+arch grassd_7
 x 22
 y 12
 end
@@ -3357,7 +3357,7 @@ arch grate1_3
 x 22
 y 12
 end
-arch grassd_1
+arch grassd_2
 x 22
 y 13
 end
@@ -3373,7 +3373,7 @@ arch grate1_3
 x 22
 y 14
 end
-arch grassd_1
+arch grassd_8
 x 22
 y 15
 end
@@ -3381,7 +3381,7 @@ arch grate1_3
 x 22
 y 15
 end
-arch grassd_1
+arch grassd_6
 x 22
 y 16
 end
@@ -3389,7 +3389,7 @@ arch grate1_3
 x 22
 y 16
 end
-arch grassd_1
+arch grassd_2
 x 22
 y 17
 end
@@ -3397,7 +3397,7 @@ arch grate1_3
 x 22
 y 17
 end
-arch grassd_1
+arch grassd_6
 x 22
 y 18
 end
@@ -3405,7 +3405,7 @@ arch grate1_3
 x 22
 y 18
 end
-arch grassd_1
+arch grassd_7
 x 22
 y 19
 end
@@ -3413,7 +3413,7 @@ arch grate1_3
 x 22
 y 19
 end
-arch grassd_1
+arch grassd_4
 x 22
 y 20
 end
@@ -3421,7 +3421,7 @@ arch grate1_3
 x 22
 y 20
 end
-arch grassd_1
+arch grassd_2
 x 22
 y 21
 end
@@ -3429,7 +3429,7 @@ arch grate1_3
 x 22
 y 21
 end
-arch grassd_1
+arch grassd_7
 x 22
 y 22
 end
@@ -3437,17 +3437,17 @@ arch grate1_4
 x 22
 y 22
 end
-arch grassd_1
+arch grassd_3
 x 22
 y 23
 end
-arch grassd_1
+arch grassd_3
 x 23
 end
 arch fwall_plant
 x 23
 end
-arch grassd_1
+arch grassd_7
 x 23
 y 1
 end
@@ -3455,7 +3455,7 @@ arch fwall_plant
 x 23
 y 1
 end
-arch grassd_1
+arch grassd_8
 x 23
 y 2
 end
@@ -3463,7 +3463,7 @@ arch fwall_plant
 x 23
 y 2
 end
-arch grassd_1
+arch grassd_5
 x 23
 y 3
 end
@@ -3471,7 +3471,7 @@ arch fwall_plant
 x 23
 y 3
 end
-arch grassd_1
+arch grassd_3
 x 23
 y 4
 end
@@ -3479,7 +3479,7 @@ arch fwall_plant
 x 23
 y 4
 end
-arch grassd_1
+arch grassd_8
 x 23
 y 5
 end
@@ -3495,7 +3495,7 @@ arch fwall_plant
 x 23
 y 6
 end
-arch grassd_1
+arch grassd_7
 x 23
 y 7
 end
@@ -3503,7 +3503,7 @@ arch fwall_plant
 x 23
 y 7
 end
-arch grassd_1
+arch grassd_6
 x 23
 y 8
 end
@@ -3511,7 +3511,7 @@ arch fwall_plant
 x 23
 y 8
 end
-arch grassd_1
+arch grassd_2
 x 23
 y 9
 end
@@ -3519,7 +3519,7 @@ arch fwall_plant
 x 23
 y 9
 end
-arch grassd_1
+arch grassd_5
 x 23
 y 10
 end
@@ -3527,7 +3527,7 @@ arch fwall_plant
 x 23
 y 10
 end
-arch grassd_1
+arch grassd_8
 x 23
 y 11
 end
@@ -3535,7 +3535,7 @@ arch fwall_plant
 x 23
 y 11
 end
-arch grassd_1
+arch grassd_6
 x 23
 y 12
 end
@@ -3543,7 +3543,7 @@ arch fwall_plant
 x 23
 y 12
 end
-arch grassd_1
+arch grassd_2
 x 23
 y 13
 end
@@ -3551,7 +3551,7 @@ arch fwall_plant
 x 23
 y 13
 end
-arch grassd_1
+arch grassd_8
 x 23
 y 14
 end
@@ -3567,7 +3567,7 @@ arch fwall_plant
 x 23
 y 15
 end
-arch grassd_1
+arch grassd_3
 x 23
 y 16
 end
@@ -3575,7 +3575,7 @@ arch fwall_plant
 x 23
 y 16
 end
-arch grassd_1
+arch grassd_2
 x 23
 y 17
 end
@@ -3583,7 +3583,7 @@ arch fwall_plant
 x 23
 y 17
 end
-arch grassd_1
+arch grassd_3
 x 23
 y 18
 end
@@ -3599,7 +3599,7 @@ arch fwall_plant
 x 23
 y 19
 end
-arch grassd_1
+arch grassd_4
 x 23
 y 20
 end
@@ -3607,7 +3607,7 @@ arch fwall_plant
 x 23
 y 20
 end
-arch grassd_1
+arch grassd_3
 x 23
 y 21
 end
@@ -3623,7 +3623,7 @@ arch fwall_plant
 x 23
 y 22
 end
-arch grassd_1
+arch grassd_2
 x 23
 y 23
 end

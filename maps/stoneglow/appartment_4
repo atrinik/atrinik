@@ -892,7 +892,7 @@ arch plant2_wall.151
 x 6
 y 2
 end
-arch grassd_3
+arch grassd_1
 unique 1
 x 6
 y 3
@@ -901,7 +901,7 @@ arch wood_pile.101
 x 6
 y 3
 end
-arch grassd_8
+arch grassd_3
 unique 1
 x 6
 y 4
@@ -910,7 +910,7 @@ arch plant_mushroom3
 x 6
 y 4
 end
-arch grassd_3
+arch grassd_8
 unique 1
 x 6
 y 5
@@ -932,12 +932,12 @@ arch grassd_m7
 x 6
 y 6
 end
-arch grassd_1
+arch grassd_3
 unique 1
 x 6
 y 7
 end
-arch grassd_3
+arch grassd_4
 unique 1
 x 6
 y 8
@@ -946,7 +946,7 @@ arch tree_big4
 x 6
 y 8
 end
-arch grassd_6
+arch grassd_5
 unique 1
 x 6
 y 9
@@ -1018,7 +1018,7 @@ arch wall_marble1w.131
 x 7
 y 2
 end
-arch grassd_4
+arch grassd_2
 unique 1
 x 7
 y 3
@@ -1027,7 +1027,7 @@ arch plant13
 x 7
 y 3
 end
-arch grassd_3
+arch grassd_5
 unique 1
 x 7
 y 4
@@ -1058,7 +1058,7 @@ arch grassd_m7
 x 7
 y 6
 end
-arch grassd_7
+arch grassd_1
 unique 1
 x 7
 y 7
@@ -1067,7 +1067,7 @@ arch plant_flower6
 x 7
 y 7
 end
-arch grassd_4
+arch grassd_8
 unique 1
 x 7
 y 8
@@ -1076,7 +1076,7 @@ arch plant1
 x 7
 y 8
 end
-arch grassd_5
+arch grassd_7
 unique 1
 x 7
 y 9
@@ -1168,7 +1168,7 @@ arch wall_marble1.111
 x 8
 y 3
 end
-arch grassd_2
+arch grassd_6
 unique 1
 x 8
 y 4
@@ -1177,7 +1177,7 @@ arch wall_marble1w.111
 x 8
 y 4
 end
-arch grassd_6
+arch grassd_4
 unique 1
 x 8
 y 5
@@ -1204,7 +1204,7 @@ direction 3
 x 8
 y 6
 end
-arch grassd_3
+arch grassd_7
 unique 1
 x 8
 y 7
@@ -1218,7 +1218,7 @@ direction 5
 x 8
 y 7
 end
-arch grassd_8
+arch grassd_4
 unique 1
 x 8
 y 8
@@ -1227,7 +1227,7 @@ arch wall_marble1w.111
 x 8
 y 8
 end
-arch grassd_2
+arch grassd_3
 unique 1
 x 8
 y 9
