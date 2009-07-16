@@ -1682,8 +1682,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 						op->level = RANDOM() % creator->level;
 
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
+
 					/* books with info are worth more! */
-					op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
+					if (op->msg && strlen(op->msg) > 0)
+						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
 
 					/* creator related stuff */
 
