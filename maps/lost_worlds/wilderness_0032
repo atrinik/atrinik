@@ -390,6 +390,10 @@ arch grassd_4
 x 2
 y 8
 end
+arch grassd_4
+x 2
+y 9
+end
 arch wall_ruin1a_181
 x 2
 y 9
@@ -2023,10 +2027,6 @@ arch floor_ruin1
 x 13
 y 15
 end
-arch grassd_6
-x 13
-y 16
-end
 arch floor_ruin1
 x 13
 y 16
@@ -3130,10 +3130,6 @@ arch grassd_4
 x 21
 y 17
 end
-arch grassd_7
-x 21
-y 17
-end
 arch grassd_5
 x 21
 y 18
@@ -3299,10 +3295,6 @@ x 23
 y 1
 end
 arch tree_big4b
-x 23
-y 1
-end
-arch tree_big3
 x 23
 y 1
 end

@@ -887,10 +887,6 @@ arch floor_ostone1
 x 9
 y 8
 end
-arch grate1_1
-x 9
-y 8
-end
 arch floor_ostone1
 x 9
 y 9
@@ -1045,7 +1041,7 @@ arch floor_ostone1
 x 10
 y 16
 end
-arch wall_stone_1
+arch wall_stone_4
 x 10
 y 16
 end
@@ -1386,10 +1382,6 @@ y 13
 end
 arch floor_ostone1
 x 14
-y 13
-end
-arch floor_ostone1
-x 14
 y 14
 end
 arch skel_mage
@@ -1561,11 +1553,7 @@ arch floor_ostone1
 x 16
 y 8
 end
-arch wall_stone_3
-x 16
-y 8
-end
-arch grate1_1
+arch wall_stone_4
 x 16
 y 8
 end

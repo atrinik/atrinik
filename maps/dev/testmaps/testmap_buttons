@@ -2255,19 +2255,7 @@ y 3
 end
 arch floor_ostone1
 x 21
-y 3
-end
-arch floor_ostone1
-x 21
 y 4
-end
-arch floor_ostone1
-x 21
-y 4
-end
-arch floor_ostone1
-x 21
-y 5
 end
 arch floor_ostone1
 x 21
@@ -2279,19 +2267,7 @@ y 6
 end
 arch floor_ostone1
 x 21
-y 6
-end
-arch floor_ostone1
-x 21
 y 7
-end
-arch floor_ostone1
-x 21
-y 7
-end
-arch floor_ostone1
-x 21
-y 8
 end
 arch floor_ostone1
 x 21
@@ -2303,19 +2279,7 @@ y 9
 end
 arch floor_ostone1
 x 21
-y 9
-end
-arch floor_ostone1
-x 21
 y 10
-end
-arch floor_ostone1
-x 21
-y 10
-end
-arch floor_ostone1
-x 21
-y 11
 end
 arch floor_ostone1
 x 21
@@ -2327,19 +2291,7 @@ y 12
 end
 arch floor_ostone1
 x 21
-y 12
-end
-arch floor_ostone1
-x 21
 y 13
-end
-arch floor_ostone1
-x 21
-y 13
-end
-arch floor_ostone1
-x 21
-y 14
 end
 arch floor_ostone1
 x 21
@@ -2351,19 +2303,7 @@ y 15
 end
 arch floor_ostone1
 x 21
-y 15
-end
-arch floor_ostone1
-x 21
 y 16
-end
-arch floor_ostone1
-x 21
-y 16
-end
-arch floor_ostone1
-x 21
-y 17
 end
 arch floor_ostone1
 x 21
@@ -2375,27 +2315,11 @@ y 18
 end
 arch floor_ostone1
 x 21
-y 18
-end
-arch floor_ostone1
-x 21
-y 19
-end
-arch floor_ostone1
-x 21
 y 19
 end
 arch floor_ostone1
 x 21
 y 20
-end
-arch floor_ostone1
-x 21
-y 20
-end
-arch floor_ostone1
-x 21
-y 21
 end
 arch floor_ostone1
 x 21

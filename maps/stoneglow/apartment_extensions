@@ -1494,11 +1494,7 @@ arch floor_flagm1
 x 9
 y 21
 end
-arch grate1_3
-x 9
-y 21
-end
-arch wall_stone_1
+arch wall_stone_4
 x 9
 y 21
 end
@@ -1965,9 +1961,10 @@ endmsg
 x 12
 y 12
 arch event_obj
-sub_type 10
+name Python
 race /python/message_walk.py
 slaying 4,5,6
+sub_type 10
 end
 end
 arch door1_locked
@@ -2599,11 +2596,7 @@ arch floor_flagm1
 x 15
 y 21
 end
-arch grate1_3
-x 15
-y 21
-end
-arch wall_stone_1
+arch wall_stone_4
 x 15
 y 21
 end

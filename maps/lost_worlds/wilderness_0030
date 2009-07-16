@@ -283,10 +283,6 @@ arch tree_big2
 x 1
 y 19
 end
-arch tree_big2
-x 1
-y 19
-end
 arch grassd_1
 x 1
 y 20
@@ -407,10 +403,6 @@ x 2
 y 18
 end
 arch grassd_4
-x 2
-y 19
-end
-arch tree_big2
 x 2
 y 19
 end

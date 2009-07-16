@@ -1628,10 +1628,6 @@ arch grassd_4
 x 12
 y 8
 end
-arch grassd_5
-x 12
-y 8
-end
 arch rock_big2
 x 12
 y 8

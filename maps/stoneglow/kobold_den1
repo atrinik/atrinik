@@ -482,10 +482,6 @@ arch fwall_sand1b
 x 2
 y 15
 end
-arch fwall_sand1b
-x 2
-y 15
-end
 arch floor_grit4a
 x 2
 y 16

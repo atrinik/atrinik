@@ -622,10 +622,6 @@ arch tree_big4b
 x 4
 y 23
 end
-arch tree_big4b
-x 4
-y 23
-end
 arch grassd_2
 x 5
 end

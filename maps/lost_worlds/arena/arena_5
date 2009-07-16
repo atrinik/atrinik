@@ -1404,10 +1404,6 @@ arch grassd_1
 x 12
 y 19
 end
-arch grassd_6
-x 12
-y 19
-end
 arch grassd_3
 x 12
 y 20

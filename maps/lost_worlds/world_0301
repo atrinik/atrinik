@@ -2789,10 +2789,6 @@ arch grassd_2
 x 22
 y 7
 end
-arch tree_big2
-x 22
-y 7
-end
 arch tree_big4b
 x 22
 y 7

@@ -1962,13 +1962,25 @@ arch carpet1.151
 x 14
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 14
 y 11
 end
 arch carpet1
 x 14
+y 11
+end
+arch floor_stone_b4
+x 14
 y 12
+end
+arch carpet1
+x 14
+y 12
+end
+arch floor_stone_b4
+x 14
+y 13
 end
 arch carpet1
 x 14
@@ -2060,13 +2072,25 @@ arch carpet1.151
 x 15
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 15
 y 11
 end
 arch carpet1
 x 15
+y 11
+end
+arch floor_stone_b4
+x 15
 y 12
+end
+arch carpet1
+x 15
+y 12
+end
+arch floor_stone_b4
+x 15
+y 13
 end
 arch carpet1
 x 15
@@ -2165,13 +2189,25 @@ arch carpet1.151
 x 16
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 16
 y 11
 end
 arch carpet1
 x 16
+y 11
+end
+arch floor_stone_b4
+x 16
 y 12
+end
+arch carpet1
+x 16
+y 12
+end
+arch floor_stone_b4
+x 16
+y 13
 end
 arch carpet1
 x 16
@@ -2285,13 +2321,25 @@ arch carpet1.151
 x 17
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 17
 y 11
 end
 arch carpet1
 x 17
+y 11
+end
+arch floor_stone_b4
+x 17
 y 12
+end
+arch carpet1
+x 17
+y 12
+end
+arch floor_stone_b4
+x 17
+y 13
 end
 arch carpet1
 x 17
@@ -2383,13 +2431,25 @@ arch carpet1.151
 x 18
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 18
 y 11
 end
 arch carpet1
 x 18
+y 11
+end
+arch floor_stone_b4
+x 18
 y 12
+end
+arch carpet1
+x 18
+y 12
+end
+arch floor_stone_b4
+x 18
+y 13
 end
 arch carpet1
 x 18
@@ -2537,13 +2597,25 @@ arch carpet1.151
 x 19
 y 10
 end
-arch carpet1
+arch floor_stone_b4
 x 19
 y 11
 end
 arch carpet1
 x 19
+y 11
+end
+arch floor_stone_b4
+x 19
 y 12
+end
+arch carpet1
+x 19
+y 12
+end
+arch floor_stone_b4
+x 19
+y 13
 end
 arch carpet1
 x 19
@@ -2678,9 +2750,17 @@ arch carpet1.151
 x 20
 y 10
 end
+arch floor_stone_b4
+x 20
+y 11
+end
 arch carpet1
 x 20
 y 11
+end
+arch floor_stone_b4
+x 20
+y 12
 end
 arch carpet1
 x 20
@@ -2694,6 +2774,10 @@ type 83
 Wis 3
 level 30
 end
+end
+arch floor_stone_b4
+x 20
+y 13
 end
 arch carpet1
 x 20

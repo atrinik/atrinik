@@ -191,10 +191,6 @@ y 4
 end
 arch floor_sand_d1
 x 1
-y 4
-end
-arch floor_sand_d1
-x 1
 y 5
 end
 arch fmask_ruin1_s3.101

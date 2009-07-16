@@ -1956,10 +1956,6 @@ arch grassd_4
 x 12
 y 21
 end
-arch grassd_8
-x 12
-y 21
-end
 arch grassd_6
 x 12
 y 22

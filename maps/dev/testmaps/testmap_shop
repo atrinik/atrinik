@@ -1653,10 +1653,6 @@ y 13
 end
 arch floor_ostone1
 x 14
-y 13
-end
-arch floor_ostone1
-x 14
 y 14
 end
 arch floor_ostone1

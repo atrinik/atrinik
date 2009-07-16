@@ -1373,10 +1373,6 @@ arch tree_big3
 x 13
 y 1
 end
-arch tree_big
-x 13
-y 1
-end
 arch grassd_6
 x 13
 y 2

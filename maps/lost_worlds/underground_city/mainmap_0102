@@ -1490,21 +1490,41 @@ arch wall_dungeon1.141
 x 11
 y 15
 end
-arch carpet1
+arch floor_stone_b4
 x 11
 y 16
 end
 arch carpet1
 x 11
+y 16
+end
+arch floor_stone_b4
+x 11
 y 17
 end
 arch carpet1
+x 11
+y 17
+end
+arch floor_stone_b4
 x 11
 y 18
 end
 arch carpet1
 x 11
+y 18
+end
+arch floor_stone_b4
+x 11
 y 19
+end
+arch carpet1
+x 11
+y 19
+end
+arch floor_stone_b4
+x 11
+y 20
 end
 arch carpet1
 x 11
@@ -1629,21 +1649,41 @@ arch carpet1.151
 x 12
 y 15
 end
-arch carpet1
+arch floor_stone_b4
 x 12
 y 16
 end
 arch carpet1
 x 12
+y 16
+end
+arch floor_stone_b4
+x 12
 y 17
 end
 arch carpet1
+x 12
+y 17
+end
+arch floor_stone_b4
 x 12
 y 18
 end
 arch carpet1
 x 12
+y 18
+end
+arch floor_stone_b4
+x 12
 y 19
+end
+arch carpet1
+x 12
+y 19
+end
+arch floor_stone_b4
+x 12
+y 20
 end
 arch carpet1
 x 12

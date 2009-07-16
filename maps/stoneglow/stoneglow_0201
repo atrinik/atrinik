@@ -2199,10 +2199,6 @@ arch grassd_1
 x 16
 y 18
 end
-arch grassd_4
-x 16
-y 18
-end
 arch grassd_5
 x 16
 y 19

@@ -2565,10 +2565,6 @@ arch tree_big3
 x 23
 y 23
 end
-arch tree_big4b
-x 23
-y 23
-end
 arch plant_big1
 x 12
 y 16

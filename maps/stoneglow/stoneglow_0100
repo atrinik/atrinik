@@ -1641,10 +1641,6 @@ arch grassd_7
 x 12
 y 8
 end
-arch grassd_1
-x 12
-y 8
-end
 arch grassd_2
 x 12
 y 9
@@ -1716,10 +1712,6 @@ end
 arch grassd_4
 x 12
 y 20
-end
-arch grassd_8
-x 12
-y 21
 end
 arch grassd_6
 x 12
@@ -2289,10 +2281,6 @@ end
 arch door1_locked
 x 17
 y 1
-end
-arch grassd_5
-x 17
-y 2
 end
 arch floor_flagm2
 x 17

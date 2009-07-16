@@ -1214,10 +1214,6 @@ arch fwall_brown1
 x 10
 y 4
 end
-arch fwall_brown1
-x 10
-y 4
-end
 arch floor_ostone2
 x 10
 y 5

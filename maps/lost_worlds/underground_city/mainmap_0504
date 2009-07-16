@@ -889,10 +889,6 @@ arch floor_stone_b1
 x 8
 y 4
 end
-arch barrel.101
-x 8
-y 4
-end
 arch barrel_water.101
 x 8
 y 4

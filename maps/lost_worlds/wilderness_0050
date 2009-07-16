@@ -556,10 +556,6 @@ arch tree_big3
 x 4
 y 12
 end
-arch tree_big4b
-x 4
-y 12
-end
 arch grassd_4
 x 4
 y 13
@@ -1203,10 +1199,6 @@ arch tree_burned1
 x 9
 y 19
 end
-arch grassd_5
-x 9
-y 19
-end
 arch grassd_8
 x 9
 y 20
@@ -1634,10 +1626,6 @@ x 12
 y 18
 end
 arch floor_wood2
-x 12
-y 19
-end
-arch wall_flagstone1.111
 x 12
 y 19
 end
@@ -2374,10 +2362,6 @@ end
 arch carpet1
 x 17
 y 16
-end
-arch floor_wood2
-x 17
-y 17
 end
 arch floor_wood2
 x 17

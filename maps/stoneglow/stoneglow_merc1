@@ -227,10 +227,6 @@ arch floor_stone_b3
 x 2
 y 4
 end
-arch wall_stone_1
-x 2
-y 4
-end
 arch wall_stone_4
 x 2
 y 4
