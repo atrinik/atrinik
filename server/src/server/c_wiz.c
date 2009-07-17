@@ -609,7 +609,7 @@ int command_create(object *op, char *params)
         if (at->clone.randomitems)
             create_treasure(at->clone.randomitems, head, GT_APPLY, head->type == MONSTER ? head->level : get_enviroment_level(head), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 
-        if (IS_LIVE(head))
+        if (IS_LIVE(head) || head->more)
         {
             if (head->type == MONSTER)
                 fix_monster(head);

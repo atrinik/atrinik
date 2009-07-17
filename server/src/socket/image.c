@@ -160,7 +160,7 @@ static void check_faceset_fallback(int faceset, int togo)
  * different set power, he can complete this stuff... note now: have more than
  * one set will break the server atm */
 
-#define MAX_IMAGE_SIZE 20000
+#define MAX_IMAGE_SIZE 50000
 void read_client_images()
 {
     char filename[400];
