@@ -2331,8 +2331,7 @@ material 256
 item_quality 100
 item_condition 100
 material_real 0
-face ring_silver_black.101
-inv_face ring_green_inv.101
+face ring_green_inv.101
 exp 5
 is_magical 1
 Dex 3
@@ -2932,8 +2931,7 @@ t_style 1
 def_arch potion_generic
 Object
 title of minor fire resistance
-face potion_red.101
-inv_face potion_red.101
+face potion_ruby.101
 level 1
 food 2
 type 5
@@ -2969,7 +2967,6 @@ def_arch potion_generic
 Object
 title of minor electricity resistance
 face potion_yellow.101
-inv_face potion_yellow.101
 level 1
 food 2
 type 5
@@ -2988,7 +2985,6 @@ def_arch potion_generic
 Object
 title of minor poison resistance
 face potion_green.101
-inv_face potion_green.101
 level 1
 food 2
 type 5
@@ -3007,7 +3003,6 @@ def_arch potion_generic
 Object
 title of minor acid resistance
 face potion_pink.101
-inv_face potion_pink.101
 level 1
 type 5
 food 2
@@ -3024,8 +3019,7 @@ difficulty 3
 def_arch potion_generic
 Object
 title of minor strentgh
-face potion_red.101
-inv_face potion_red.101
+face potion_ruby.101
 level 1
 type 5
 Str 2
@@ -3042,7 +3036,6 @@ def_arch potion_generic
 Object
 title of minor dexterity
 face potion_yellow.101
-inv_face potion_yellow.101
 level 1
 type 5
 Dex 2
@@ -3073,8 +3066,7 @@ difficulty 3
 def_arch potion_generic
 Object
 title of evil liquid
-face potion_gray.101
-inv_face potion_gray.101
+face potion_silver.101
 level 1
 type 5
 Dex -2
@@ -3095,8 +3087,7 @@ difficulty 3
 def_arch potion_generic
 Object
 title of minor restoration
-face potion_gray.101
-inv_face potion_gray.101
+face potion_silver.101
 level 1
 type 5
 is_magical 1
@@ -3124,8 +3115,7 @@ artifact potion_firestorm
 def_arch potion_generic
 Object
 title of firestorm
-face potion_red_round.101
-inv_face potion_red_round.101
+face potion_puce.101
 level 1
 is_magical 1
 sub_type 138
@@ -3140,8 +3130,7 @@ artifact potion_freezing
 def_arch potion_generic
 Object
 title of freezing
-face potion_blue_round.101
-inv_face potion_blue_round.101
+face potion_white.101
 level 1
 type 5
 is_magical 1
@@ -3157,8 +3146,7 @@ def_arch potion_generic
 Object
 title of cure sickness
 stand_still 1
-face potion_red_round.101
-inv_face potion_red_round.101
+face potion_fizzy.101
 is_magical 1
 level 1
 type 5
@@ -3175,8 +3163,7 @@ title of cure illness
 level 1
 stand_still 1
 type 5
-face potion_orange_round.101
-inv_face potion_orange_round.101
+face potion_effervescent.101
 is_magical 1
 sp 4
 value 170

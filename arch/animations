@@ -1599,6 +1599,18 @@ chair2.171
 chair2.171
 chair2.111
 mina
+anim chair3
+facings 9
+dummy.111
+chair3.111
+chair3.131
+chair3.131
+chair3.151
+chair3.151
+chair3.171
+chair3.171
+chair3.111
+mina
 anim check_inv
 facings 9
 dummy.111

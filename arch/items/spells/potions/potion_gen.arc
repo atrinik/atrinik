@@ -4,7 +4,6 @@ layer 3
 sp -1
 name potion
 face potion_blue.101
-inv_face potion_blue.101
 type 5
 last_grace 13
 last_sp 7
