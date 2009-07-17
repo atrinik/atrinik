@@ -129,3 +129,36 @@ no_pass 1
 blocksview 1
 is_wooded 1
 end
+
+Object tree_huge
+layer 5
+name tree
+face tree_huge.101
+type 79
+no_pick 1
+no_pass 1
+blocksview 1
+is_wooded 1
+end
+
+Object tree_huge2
+layer 5
+name tree
+face tree_huge2.101
+type 79
+no_pick 1
+no_pass 1
+blocksview 1
+is_wooded 1
+end
+
+Object tree_huge3
+layer 5
+name tree
+face tree_huge3.101
+type 79
+no_pick 1
+no_pass 1
+blocksview 1
+is_wooded 1
+end
