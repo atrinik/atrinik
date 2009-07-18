@@ -1,5 +1,30 @@
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*                     Copyright (C) 2009 Alex Tokar                     *
+*                                                                       *
+* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+* and Crossfire (Multiplayer game for X-windows).                       *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 3 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
 /* deflate.h -- internal compression state
- * Copyright (C) 1995-2002 Jean-loup Gailly
+ * Copyright (C) 1995-2004 Jean-loup Gailly
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
@@ -7,8 +32,6 @@
    part of the implementation of the compression library and is
    subject to change. Applications should only use zlib.h.
  */
-
-/* @(#) $Id: deflate.h,v 1.1 2003/11/30 21:59:31 michtoen Exp $ */
 
 #ifndef DEFLATE_H
 #define DEFLATE_H
@@ -49,6 +72,10 @@
 /* All codes must not exceed MAX_BITS bits */
 
 #define INIT_STATE    42
+#define EXTRA_STATE   69
+#define NAME_STATE    73
+#define COMMENT_STATE 91
+#define HCRC_STATE   103
 #define BUSY_STATE   113
 #define FINISH_STATE 666
 /* Stream status */
@@ -93,9 +120,10 @@ typedef struct internal_state {
     Bytef *pending_buf;  /* output still pending */
     ulg   pending_buf_size; /* size of pending_buf */
     Bytef *pending_out;  /* next pending byte to output to the stream */
-    int   pending;       /* nb of bytes in the pending buffer */
+    uInt   pending;      /* nb of bytes in the pending buffer */
     int   wrap;          /* bit 0 true for zlib, bit 1 true for gzip */
-    Byte  data_type;     /* UNKNOWN, BINARY or ASCII */
+    gz_headerp  gzhead;  /* gzip header information to write */
+    uInt   gzindex;      /* where in extra, name, or comment */
     Byte  method;        /* STORED (for zip only) or DEFLATED */
     int   last_flush;    /* value of flush param for previous deflate call */
 
@@ -241,7 +269,7 @@ typedef struct internal_state {
     uInt matches;       /* number of string matches in current block */
     int last_eob_len;   /* bit length of EOB code for last block */
 
-#ifdef DEBUG_ZLIB
+#ifdef DEBUG
     ulg compressed_len; /* total bit length of compressed file mod 2^32 */
     ulg bits_sent;      /* bit length of compressed data sent mod 2^32 */
 #endif
@@ -289,7 +317,7 @@ void _tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
  * used.
  */
 
-#ifndef DEBUG_ZLIB
+#ifndef DEBUG
 /* Inline versions of _tr_tally for speed: */
 
 #if defined(GEN_TREES_H) || !defined(STDC)

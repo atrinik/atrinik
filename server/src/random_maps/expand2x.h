@@ -27,8 +27,6 @@
  * Expands a layout by 2x in each dimension.
  * (Header file)
  * H. S. Teoh
- * --------------------------------------------------------------------------
- * $Id: expand2x.h,v 1.1.1.1 2003/10/16 00:17:06 michtoen Exp $
  */
 
 #ifndef EXPAND2X_H
