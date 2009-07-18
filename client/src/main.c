@@ -1459,6 +1459,9 @@ int main(int argc, char *argv[])
 
 	init_game_data();
 
+	/* Initialize cURL (used for metaserver) */
+	curl_global_init(CURL_GLOBAL_ALL);
+
     while (argc > 1)
     {
 		--argc;
@@ -1874,10 +1877,18 @@ int main(int argc, char *argv[])
 			SDL_Delay(options.sleep);
 	}
 
+	/* Save interface file (widget positions) */
 	save_interface_file();
+
+	/* Deinitialize all widgets */
     kill_widgets();
+
 	/* Save options at exit */
 	save_options_dat();
+
+	/* We are done with cURL library */
+	curl_global_cleanup();
+
 	/* We have left main loop and shut down the client */
 	SOCKET_DeinitSocket();
 	sound_freeall();

@@ -26,4 +26,13 @@
 /* The time in seconds for timeout upon connecting */
 #define METASERVER_TIMEOUT 3
 
+/** Structure for metaserver data returned by metaserver */
+typedef struct metaserver_struct {
+	/** The data */
+ 	char *memory;
+
+	/** Size of the data */
+ 	size_t size;
+} metaserver_struct;
+
 void metaserver_connect();

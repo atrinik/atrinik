@@ -24,11 +24,52 @@
 ************************************************************************/
 
 #include <include.h>
-#include <curl/curl.h>
 
 /**
  * @file
  * This file handles connection to the metaserver and receiving data from it. */
+
+/**
+ * There might be a realloc() out there that doesn't like reallocing
+ * NULL pointers, so we take care of it with this function.
+ * @param ptr Pointer to reallocate
+ * @param size Size to reallocate
+ * @return The pointer to the memory */
+static void *metaserver_realloc(void *ptr, size_t size)
+{
+	if (ptr)
+	{
+		return realloc(ptr, size);
+	}
+	else
+	{
+		return malloc(size);
+	}
+}
+
+/**
+ * Function to call when receiving data from the metaserver.
+ * @param ptr Pointer to the data
+ * @param size Size of the data
+ * @param nmemb Number of items
+ * @param data Data
+ * @return Returns the realsize of the data returned (size * nmemb). */
+static size_t metaserver_callback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	size_t realsize = size * nmemb;
+	metaserver_struct *mem = (metaserver_struct *) data;
+
+	mem->memory = metaserver_realloc(mem->memory, mem->size + realsize + 1);
+
+	if (mem->memory)
+	{
+		memcpy(&(mem->memory[mem->size]), ptr, realsize);
+		mem->size += realsize;
+		mem->memory[mem->size] = 0;
+	}
+
+	return realsize;
+}
 
 /**
  * Parse data returned from HTTP metaserver.
@@ -40,61 +81,46 @@ static void parse_metaserver_data(char *info)
 	server[0] = server_ip[0] = port[0] = num_players[0] = version[0] = desc[0] = '\0';
 
 	if (info == NULL || !sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
+	{
 		return;
+	}
 
 	if (server[0] == '\0' || server_ip[0] == '\0' || port[0] == '\0' || num_players[0] == '\0' || version[0] == '\0' || desc[0] == '\0')
+	{
 		return;
+	}
 
 	add_metaserver_data(server, atoi(port), atoi(num_players), version, desc);
 }
 
-
 /**
- * Function to call when receiving data from the metaserver.
- * @param ptr Pointer to the data
- * @param size Size of the data
- * @param nmemb Number of items
- * @param data Data
- * @return Returns the realsize of the data returned (size * nmemb).
- * @todo There seems to be some kind of a bug, which rarely happens when
- * receiving data from the metaserver. The data gets split to several lines,
- * while it should be only one line, making it impossible to parse correctly. */
-static size_t metaserver_reader(void *ptr, size_t size, size_t nmemb, void *data)
-{
-    size_t realsize = size * nmemb;
-	char *p, *buf;
-
-	/* So that we don't get unused parameter warning */
-	(void) data;
-
-	buf = (char *)malloc(realsize);
-
-	snprintf(buf, realsize, "%s", (char *) ptr);
-
-	p = strtok(buf, "\n");
-
-	/* Loop through all the lines returned */
-	while (p)
-	{
-		/* Store it in a temporary buf, and parse it */
-    	parse_metaserver_data(p);
-
-		p = strtok(NULL, "\n");
-	}
-
-	free(buf);
-
-    return realsize;
-}
-
-
-/**
- * Connect to a metaserver.
+ * Connect to a metaserver. This function takes care of parsing the returned
+ * data. The data is temporarily put into memory so we can parse it.
  * If we fail, log the error and show information that metaserver failed. */
 void metaserver_connect()
 {
 	CURL *handle;
 	CURLcode res;
+	metaserver_struct *chunk = (metaserver_struct *) malloc(sizeof(metaserver_struct));
+	char user_agent[MAX_BUF];
+
+	/* Store user agent for cURL, including if this is Linux build of client
+	 * or Windows one. Could be used for statistics or something. */
+#if defined(__LINUX)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Linux)/%s", PACKAGE_VERSION);
+#else
+#if defined(WIN32)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s", PACKAGE_VERSION);
+#else
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s", PACKAGE_VERSION);
+#endif
+#endif
+
+	/* We expect realloc(NULL, size) to work */
+	chunk->memory = NULL;
+
+	/* No data at this point */
+	chunk->size = 0;
 
 	/* Init "easy" cURL */
 	handle = curl_easy_init();
@@ -107,9 +133,19 @@ void metaserver_connect()
 		/* URL */
 		curl_easy_setopt(handle, CURLOPT_URL, "http://meta.atrinik.org/");
 
-		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, metaserver_reader);
+		/* Send all data to this function */
+		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, metaserver_callback);
+
+		/* We pass our 'chunk' struct to the callback function */
+		curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *) chunk);
+
+		/* Specify user agent for the metaserver. */
+		curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
+
+		/* Get the data */
 		res = curl_easy_perform(handle);
 
+		/* If it failed, log it and show information about to the client */
 		if (res)
 		{
 			LOG(LOG_DEBUG, "DEBUG: metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
@@ -118,5 +154,37 @@ void metaserver_connect()
 
 		/* Always cleanup */
 		curl_easy_cleanup(handle);
+
+		/* If we go the data, might as well do something with it. */
+		if (chunk->memory)
+		{
+			char *buf = (char *) malloc(chunk->size), *p;
+
+			/* Store the data in a temporary buffer */
+			snprintf(buf, chunk->size, "%s", chunk->memory);
+
+			p = strtok(buf, "\n");
+
+			/* Loop through all the lines returned */
+			while (p)
+			{
+				/* Parse it */
+				parse_metaserver_data(p);
+
+				p = strtok(NULL, "\n");
+			}
+
+			/* Free the temporary buffer */
+			free(buf);
+
+			/* Free the memory */
+			free(chunk->memory);
+		}
+
+		/* Free the chunk */
+		if (chunk)
+		{
+			free(chunk);
+		}
 	}
 }
