@@ -28,8 +28,6 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-/* @(#) $Id: zconf.h,v 1.1 2003/11/30 21:59:30 michtoen Exp $ */
-
 #ifndef ZCONF_H
 #define ZCONF_H
 
