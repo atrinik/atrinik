@@ -71,8 +71,6 @@ NO_X = @no_x@
 # Changed.
 #
 
-EXTRA_CFLAGS = @EXTRA_CFLAGS@
-
 VERSION = atrinik-0.1
 
 ARCHIVE = /tmp/$(VERSION)
