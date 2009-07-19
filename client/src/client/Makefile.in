@@ -60,7 +60,7 @@ SDL_LIBS = @SDL_LIBS@ -lSDL_image -lSDL_mixer
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS) $(SDL_CFLAGS)
 
-INCLUDES= $(EXTRA_INCLUDES) -I$(srcdir)/include
+INCLUDES= $(EXTRA_INCLUDES) -I../include
 
 LDFLAGS = @LDFLAGS@
 

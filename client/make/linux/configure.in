@@ -48,6 +48,8 @@ AC_PATH_PROG(CP,cp)
 AC_PATH_PROG(RM,rm)
 AC_PATH_PROG(RMDIR,rmdir)
 AC_PATH_PROG(MKDIR,mkdir)
+AC_PATH_PROG(AR,ar)
+AC_PATH_PROG(RANLIB,ranlib)
 AC_PATH_PROG(SDL_CONFIG, sdl-config, [ AC_MSG_ERROR([sdl-config not found...]) ])
 
 AC_SUBST(SDL_CFLAGS, `${SDL_CONFIG} --cflags`)
@@ -68,4 +70,4 @@ else
 fi
 
 AC_CONFIG_HEADER(../../src/include/define.h)
-AC_OUTPUT(Makefile ../../src/Makefile)
+AC_OUTPUT(Makefile ../../src/client/Makefile ../../src/zlib/Makefile)
