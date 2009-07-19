@@ -45,7 +45,7 @@
 
 # EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror -pedantic
+EXTRA_CFLAGS=-Wall -W -Werror -pedantic -ansi
 
 #
 #
@@ -54,14 +54,9 @@ CC=@CC@
 MKDIR = @MKDIR@
 CP = @CP@
 RM = @RM@
-RMDIR = @RMDIR@
-
-SHELL = /bin/sh
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-
-NO_X = @no_x@
 
 ##############################################################################
 # End of configuration options - nothing below here should need to be
@@ -74,7 +69,9 @@ VERSION = atrinik-0.1
 
 ARCHIVE = /tmp/$(VERSION)
 
-SUBDIRS = ../../src
+SUBDIRS = \
+	../../src/zlib \
+	../../src/client
 
 FILES = configure configure.in
 
@@ -129,7 +126,7 @@ install:: all
 	$(CP) ../../atrinik.p0 $(prefix)
 	$(CP) ../../License $(prefix)
 	$(CP) ../../archdef.dat $(prefix)
-	$(CP) ../../src/atrinik $(prefix)
+	$(CP) ../../src/client/atrinik $(prefix)
 	@echo "*** Atrinik client successfully installed!"
-	@echo "*** Enter your install directory and type atrinik"
+	@echo "*** Enter your install directory and type ./atrinik"
 	@echo "*** to start the game!"

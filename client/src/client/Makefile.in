@@ -26,40 +26,31 @@
 VPATH = @srcdir@
 srcdir = @srcdir@
 
-SRCS = \
-	book.c\
-	client.c\
-	commands.c\
-	event.c\
-	inventory.c\
-	item.c\
-	main.c\
-	map.c\
-	menu.c\
-	metaserver.c\
-	misc.c\
-	player.c\
-	party.c\
-	socket.c\
-	sound.c\
-	sprite.c\
-	textwin.c\
-	wrapper.c\
-	widget.c\
-	dialog.c\
-	adler32.c \
-	crc32.c \
-	inflate.c\
-	inffast.c\
-	inftrees.c\
-	uncompr.c\
-	zutil.c
+LOCAL_LIBRARIES = ../zlib/zlib.a
 
-ALLFILES = $(SRCS) Makefile.in
+SRCS = \
+	book.c \
+	client.c \
+	commands.c \
+	event.c \
+	inventory.c \
+	item.c \
+	main.c \
+	map.c \
+	menu.c \
+	metaserver.c \
+	misc.c \
+	player.c \
+	party.c \
+	socket.c \
+	sound.c \
+	sprite.c \
+	textwin.c \
+	wrapper.c \
+	widget.c \
+	dialog.c
 
 DEPEND = @DEPEND@
-
-SED = @SED@
 
 OBJS = $(SRCS:.c=.o)
 
@@ -75,21 +66,15 @@ LDFLAGS = @LDFLAGS@
 
 LIBS = @LIBS@ $(EXTRA_LIBS) $(SDL_LIBS)
 
-SHELL = @SHELL@
-
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-bindir = @bindir@
-
-INSTALL = @INSTALL@
-
-MKDIR = @MKDIR@
 CC = @CC@
 RM = @RM@
 
 atrinik: $(OBJS) $(LOCAL_LIBRARIES)
 	$(RM) -f $@
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LIBS)
+
+../zlib/zlib.a:
+	(cd ../zlib; $(MAKE) $(MFLAGS) all)
 
 depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
