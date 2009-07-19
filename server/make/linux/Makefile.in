@@ -77,8 +77,14 @@ VERSION = atrinik-0.1
 
 ARCHIVE = /tmp/$(VERSION)
 
-SUBDIRS = ../../src/common ../../src/random_maps ../../src/socket \
-	../../src/server ../../src/include ../../src/utils \
+SUBDIRS = \
+	../../src/common\
+	../../src/random_maps\
+	../../src/zlib\
+	../../src/socket\
+	../../src/include\
+	../../src/server\
+	../../src/utils\
 	../../src/plugins
 
 FILES = configure configure.in

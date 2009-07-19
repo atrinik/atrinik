@@ -23,41 +23,55 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-PLUGINS = \
-	plugin_python \
-	plugin_arena
+SHELL = @BOURNE_SHELL@
 
-all::
-	@for dir in $(PLUGINS); \
-	do \
-	    echo "Making all in $$dir..."; \
-		(cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all || exit 5;) \
-	done;
+VPATH = @srcdir@
+srcdir = @srcdir@
 
-depend::
-	@for dir in $(PLUGINS); \
-	do \
-	    echo "Making depend in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' depend;) \
-	done;
+SRCS = \
+	adler32.c \
+	compress.c \
+	crc32.c \
+	deflate.c \
+	trees.c \
+	zutil.c
 
-clean::
-	@for dir in $(PLUGINS); \
-	do \
-	    echo "Making clean in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' clean;) \
-	done;
+ALLFILES=$(SRCS) README Makefile.in
 
-distclean:: clean
-	@for dir in $(PLUGINS); \
-	do \
-	    echo "Making distclean in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' distclean;) \
-	done;
-	
-proto:
-	@for dir in $(PLUGINS); \
-	do \
-	    echo "Making proto in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
-	done;
+OBJS = $(SRCS:.c=.o)
+
+ARFLAGS = cq
+
+AR = @AR@
+RM = @RM@
+
+RANLIB = @RANLIB@
+
+DEPEND = @DEPEND@
+
+CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
+
+INCLUDES = $(EXTRA_INCLUDES) -I./include
+
+zlib.a: $(OBJS)
+	$(RM) -f $@
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(RANLIB) $@
+
+depend:
+	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
+
+# Nothing to install here
+install::
+
+clean:
+	$(RM) -f $(OBJS) Makefile.bak
+
+distclean: clean
+	$(RM) -f Makefile zlib.a
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES)  -c $*.c
+
+all:: zlib.a
+

@@ -23,33 +23,20 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-SHELL = @BOURNE_SHELL@
-
 VPATH = @srcdir@
-srcdir = @srcdir@
 
-SOCKSRCS = \
+SRCS = \
 	image.c \
 	info.c \
 	init.c \
-	item.c\
+	item.c \
 	loop.c \
-	lowlevel.c\
-	metaserver.c\
-	request.c\
+	lowlevel.c \
+	metaserver.c \
+	request.c \
 	sounds.c
 
-ZLIBSRCS = \
-	adler32.c\
-	crc32.c\
-	compress.c\
-	deflate.c\
-	trees.c\
-	zutil.c
-
-SRCS = $(SOCKSRCS) $(ZLIBSRCS)
-
-ALLFILES=$(SRCS) README Makefile.in
+ALLFILES = $(SRCS) README Makefile.in
 
 OBJS = $(SRCS:.c=.o)
 
@@ -64,9 +51,7 @@ DEPEND = @DEPEND@
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
-INCLUDES= $(EXTRA_INCLUDES) -I. -I../include -I$(srcdir)/../include
-
-SED= @SED@
+INCLUDES = $(EXTRA_INCLUDES) -I../include
 
 socket.a: $(OBJS)
 	$(RM) -f $@
@@ -80,7 +65,7 @@ depend:
 install::
 
 proto:
-	cproto -D__CEXTRACT__ $(INCLUDES) $(SOCKSRCS) > ../include/sockproto.h
+	cproto -D__CEXTRACT__ $(INCLUDES) $(SRCS) > ../include/sockproto.h
 	chmod 644 ../include/sockproto.h
 
 archive:

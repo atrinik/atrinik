@@ -23,52 +23,53 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-
 VPATH = @srcdir@
-srcdir = @srcdir@
 
-LOCAL_LIBRARIES = ../common/libcross.a ../random_maps/random_map.a ../socket/socket.a
-
+LOCAL_LIBRARIES = \
+	../common/libcross.a \
+	../random_maps/random_map.a \
+	../zlib/zlib.a \
+	../socket/socket.a
 
 SRCS = \
-	alchemy.c\
-	apply.c\
-	attack.c\
-	ban.c\
-	c_chat.c\
-	c_misc.c\
-	c_move.c\
-	c_new.c\
-	c_object.c\
-	c_party.c\
-	c_range.c\
-	c_wiz.c\
-	commands.c\
-	daemon.c\
-	disease.c\
+	alchemy.c \
+	apply.c \
+	attack.c \
+	ban.c \
+	c_chat.c \
+	c_misc.c \
+	c_move.c \
+	c_new.c \
+	c_object.c \
+	c_party.c \
+	c_range.c \
+	c_wiz.c \
+	commands.c \
+	daemon.c \
+	disease.c \
 	egoitem.c \
-	hiscore.c\
-	gods.c\
-	init.c\
-	login.c\
-	main.c\
-	monster.c\
-	move.c\
-	pets.c\
-	player.c\
-	plugins.c\
-	resurrection.c\
-	rune.c\
-	shop.c\
-	skills.c\
-	skill_util.c\
-	spell_effect.c\
-	spell_util.c\
-	swamp.c\
-	swap.c\
-	time.c\
-	timers.c\
-	pathfinder.c\
+	hiscore.c \
+	gods.c \
+	init.c \
+	login.c \
+	main.c \
+	monster.c \
+	move.c \
+	pets.c \
+	player.c \
+	plugins.c \
+	resurrection.c \
+	rune.c \
+	shop.c \
+	skills.c \
+	skill_util.c \
+	spell_effect.c \
+	spell_util.c \
+	swamp.c \
+	swap.c \
+	time.c \
+	timers.c \
+	pathfinder.c \
 	weather.c
 
 ALLFILES = $(SRCS) Makefile.in
@@ -81,13 +82,11 @@ OBJS = $(SRCS:.c=.o)
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
-INCLUDES= $(EXTRA_INCLUDES) -I../include -I$(srcdir)/../include
+INCLUDES= $(EXTRA_INCLUDES) -I../include
 
 LDFLAGS = @LDFLAGS@
 
 LIBS = @LIBS@ $(EXTRA_LIBS)
-
-SHELL = @BOURNE_SHELL@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@

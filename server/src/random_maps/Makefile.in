@@ -23,12 +23,10 @@
 # The author can be reached at admin@atrinik.org                        *
 #***********************************************************************/
 
-LOCAL_LIBRARIES = 
-
-
-SRCS =	random_map.c \
+SRCS = \
+	random_map.c \
 	room_gen_onion.c \
-        room_gen_spiral.c \
+	room_gen_spiral.c \
 	maze_gen.c \
 	reader.c \
 	floor.c \
@@ -41,12 +39,20 @@ SRCS =	random_map.c \
 	special.c \
 	style.c  \
 	rogue_layout.c \
-        snake.c \
-        square_spiral.c \
+	snake.c \
+	square_spiral.c \
 	expand2x.c
 
-ALLFILES = $(SRCS) reader.l Makefile.in maze_gen.h random_map.h room_gen.h\
-	standalone.c rproto.h expand2x.h
+ALLFILES = \
+	$(SRCS) \
+	reader.l \
+	Makefile.in \
+	maze_gen.h \
+	random_map.h \
+	room_gen.h \
+	standalone.c \
+	rproto.h \
+	expand2x.h
 
 DEPEND = @DEPEND@
 
@@ -55,7 +61,6 @@ SED = @SED@
 OBJS = $(SRCS:.c=.o)
 
 EXTRA_CFLAGS = -Wall
-
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 

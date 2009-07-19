@@ -30,32 +30,32 @@ srcdir = @srcdir@
 
 SRCS = \
 	anim.c \
-	arch.c\
-	button.c\
-	database.c\
-	exp.c\
-	friend.c\
-	glue.c\
-	holy.c\
-	info.c\
+	arch.c \
+	button.c \
+	database.c \
+	exp.c \
+	friend.c \
+	glue.c \
+	holy.c \
+	info.c \
 	image.c \
-	init.c\
-	item.c\
-	links.c\
-	living.c\
-	loader.c\
-	logger.c\
-	los.c\
-	map.c\
-	object.c\
-	porting.c\
-	player.c\
-	re-cmp.c\
-	readable.c\
-	recipe.c\
-	shstr.c\
-	time.c\
-	treasure.c\
+	init.c \
+	item.c \
+	links.c \
+	living.c \
+	loader.c \
+	logger.c \
+	los.c \
+	map.c \
+	object.c \
+	porting.c \
+	player.c \
+	re-cmp.c \
+	readable.c \
+	recipe.c \
+	shstr.c \
+	time.c \
+	treasure.c \
 	utils.c
 
 ALLFILES=loader.l $(SRCS) README Makefile.in
@@ -74,7 +74,7 @@ FLEX = @LEX@
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
-INCLUDES= $(EXTRA_INCLUDES) -I../include -I$(srcdir)/../include
+INCLUDES= $(EXTRA_INCLUDES) -I../include
 
 SED= @SED@
 
