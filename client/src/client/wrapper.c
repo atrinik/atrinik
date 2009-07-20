@@ -91,6 +91,8 @@ int SYSTEM_Start()
 
     SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
 
+	free(icon);
+
 #if defined( __WIN_32)  || defined(__LINUX)
 	logstream  = fopen(LOG_FILE, "w");
 #endif

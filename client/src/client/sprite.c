@@ -341,6 +341,7 @@ static void grey_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int numcol, int 
 void sprite_free_sprite(_Sprite *sprite)
 {
     void *tmp_free;
+	int i;
 
     if (!sprite)
         return;
@@ -356,6 +357,17 @@ void sprite_free_sprite(_Sprite *sprite)
 
     if (sprite->fog_of_war)
         SDL_FreeSurface(sprite->fog_of_war);
+
+	if (sprite->dark_level)
+	{
+		for (i = 1; i < DARK_LEVELS; i++)
+		{
+			if (sprite->dark_level[i])
+			{
+				SDL_FreeSurface(sprite->dark_level[i]);
+			}
+		}
+	}
 
     tmp_free = sprite;
     FreeMemory(&tmp_free);

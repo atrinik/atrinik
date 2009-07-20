@@ -44,7 +44,6 @@ void InitConnection(NewSocket *ns, uint32 from);
 void init_ericserver(void);
 void free_all_newserver(void);
 void free_newsocket(NewSocket *ns);
-void final_free_player(player *pl);
 void init_srv_files(void);
 void send_srv_file(NewSocket *ns, int id);
 

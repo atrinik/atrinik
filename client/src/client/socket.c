@@ -241,7 +241,7 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
     start_timer = SDL_GetTicks();
     while (connect(*socket_temp, (struct sockaddr *) &insock, sizeof(insock)) == SOCKET_ERROR)
     {
-        Sleep(3);
+		SDL_Delay(3);
 
         /* timeout.... without connect will REALLY hang a long time */
         if (start_timer + SOCKET_TIMEOUT_SEC * 1000 < SDL_GetTicks())
@@ -302,72 +302,87 @@ int SOCKET_CloseSocket(SOCKET socket_temp)
 }
 
 #elif __LINUX
-int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
-port)
+int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port)
 {
-    struct protoent    *protox;
-    unsigned int  oldbufsize, newbufsize = 65535, buflen = sizeof(int), temp;
-    struct sockaddr_in  insock;
+	unsigned int oldbufsize, newbufsize = 65535, buflen = sizeof(int);
+	struct protoent *protox;
+	struct sockaddr_in insock;
 
-    printf("Opening to %s %i\n", host, port);
-    protox = getprotobyname("tcp");
+	printf("Opening to %s %i\n", host, port);
+	protox = getprotobyname("tcp");
 
-    if (protox == (struct protoent *) NULL)
-    {
-        fprintf(stderr, "Error getting prorobyname (tcp)\n");
-        return FALSE;
-    }
-    *socket_temp = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+	if (protox == (struct protoent *) NULL)
+	{
+		fprintf(stderr, "SOCKET_OpenSocket(): Error getting protobyname (tcp)\n");
 
-    if (*socket_temp == -1)
-    {
-        perror("init_connection:  Error on socket command.\n");
-        *socket_temp = SOCKET_NO;
-        return FALSE;
-    }
-    csocket.inbuf.buf = (unsigned char *) _malloc(MAXSOCKBUF, "SOCKET_OpenSocket(): MAXSOCKBUF");
-    csocket.inbuf.len = 0;
-    insock.sin_family = AF_INET;
-    insock.sin_port = htons((unsigned short) port);
-    if (isdigit(*host))
-        insock.sin_addr.s_addr = inet_addr(host);
-    else
-    {
-        struct hostent *hostbn  = gethostbyname(host);
-        if (hostbn == (struct hostent *) NULL)
-        {
-            fprintf(stderr, "Unknown host: %s\n", host);
-            return FALSE;
-        }
-        memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
-    }
-    csock->command_sent = 0;
-    csock->command_received = 0;
-    csock->command_time = 0;
+		return 0;
+	}
 
-    temp = 1;   /* non-block*/
+	*socket_temp = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
-    if (connect(*socket_temp, (struct sockaddr *) &insock, sizeof(insock)) == (-1))
-    {
-        perror("Can't connect to server");
-        return FALSE;
-    }
-    if (fcntl(*socket_temp, F_SETFL, O_NDELAY) == -1)
-    {
-        fprintf(stderr, "InitConnection:  Error on fcntl.\n");
-    }
-    if (getsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
-        oldbufsize = 0;
+	if (*socket_temp == -1)
+	{
+		perror("SOCKET_OpenSocket(): Error on socket command.\n");
+		*socket_temp = SOCKET_NO;
 
-    if (oldbufsize < newbufsize)
-    {
-        if (setsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
-        {
-            LOG(1, "InitConnection: setsockopt unable to set output buf size to %d\n", newbufsize);
-            setsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
-        }
-    }
-    return TRUE;
+		return 0;
+	}
+
+	insock.sin_family = AF_INET;
+	insock.sin_port = htons((unsigned short) port);
+
+	if (isdigit(*host))
+	{
+		insock.sin_addr.s_addr = inet_addr(host);
+	}
+	else
+	{
+		struct hostent *hostbn = gethostbyname(host);
+
+		if (hostbn == (struct hostent *) NULL)
+		{
+			fprintf(stderr, "Unknown host: %s\n", host);
+
+			return 0;
+		}
+
+		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
+	}
+
+	csock->command_sent = 0;
+	csock->command_received = 0;
+	csock->command_time = 0;
+
+	csocket.inbuf.buf = (unsigned char *) _malloc(MAXSOCKBUF, "SOCKET_OpenSocket(): MAXSOCKBUF");
+	csocket.inbuf.len = 0;
+
+	if (connect(*socket_temp, (struct sockaddr *) &insock, sizeof(insock)) == (-1))
+	{
+		perror("Can't connect to server");
+
+		return 0;
+	}
+
+	if (fcntl(*socket_temp, F_SETFL, O_NDELAY) == -1)
+	{
+		fprintf(stderr, "InitConnection:  Error on fcntl.\n");
+	}
+
+	if (getsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
+		oldbufsize = 0;
+	}
+
+	if (oldbufsize < newbufsize)
+	{
+		if (setsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize)))
+		{
+			LOG(1, "InitConnection: setsockopt unable to set output buf size to %d\n", newbufsize);
+			setsockopt(*socket_temp, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
+		}
+	}
+
+	return 1;
 }
 
 int SOCKET_InitSocket()
@@ -494,35 +509,43 @@ int read_socket(int fd, SockList *sl, int len)
  */
 int write_socket(int fd, unsigned char *buf, int len)
 {
-    int amt = 0;
-    unsigned char * pos = buf;
+	int amt = 0;
+	unsigned char * pos = buf;
 
-    /* If we manage to write more than we wanted, take it as a bonus */
-    while (len > 0)
-    {
-        do
-        {
-            amt = write(fd, pos, len);
-        }
-        while ((amt < 0) && (errno == EINTR));
+	/* If we manage to write more than we wanted, take it as a bonus */
+	while (len > 0)
+	{
+		do
+		{
+			amt = write(fd, pos, len);
+		} while ((amt < 0) && (errno == EINTR));
 
-        if (amt < 0)
-        {
-            /* We got an error */
-            LOG(LOG_ERROR, "New socket (fd=%d) write failed.\n", fd);
-            draw_info("SOCKET ERROR: Server write failed.", COLOR_RED);
-            return -1;
-        }
-        if (amt == 0)
-        {
-            LOG(LOG_ERROR, "Write_To_Socket: No data written out.\n");
-            draw_info("SOCKET ERROR: No data written out", COLOR_RED);
-            return -1;
-        }
-        len -= amt;
-        pos += amt;
-    }
-    return 0;
+		if (amt < 0)
+		{
+			/* We got an error */
+			LOG(LOG_ERROR, "New socket (fd=%d) write failed.\n", fd);
+			draw_info("SOCKET ERROR: Server write failed.", COLOR_RED);
+
+			SOCKET_CloseSocket(csocket.fd);
+
+			return -1;
+		}
+
+		if (amt == 0)
+		{
+			LOG(LOG_ERROR, "Write_To_Socket: No data written out.\n");
+			draw_info("SOCKET ERROR: No data written out", COLOR_RED);
+
+			SOCKET_CloseSocket(csocket.fd);
+
+			return -1;
+		}
+
+		len -= amt;
+		pos += amt;
+	}
+
+	return 0;
 }
 
 #endif
