@@ -54,6 +54,14 @@ typedef signed short sint16;
 typedef unsigned char uint8;
 typedef signed char sint8;
 
+#ifndef MIN
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#endif
+
+#ifndef MAX
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+#endif
+
 #include <wrapper.h>
 #ifdef INSTALL_SOUND
 #include <SDL_mixer.h>

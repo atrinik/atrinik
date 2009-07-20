@@ -63,6 +63,8 @@ Uint32 videoflags_full, videoflags_win;
 struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 int RangeFireMode;
 
+int current_intro = 0;
+
 /* cache status... set this in hardware depend */
 int CacheStatus;
 /* SoundStatus 0=no 1= yes */
@@ -153,7 +155,7 @@ typedef struct _bitmap_name
 	_pic_type type;
 } _bitmap_name;
 
-/* for loading, use BITMAP_xx in the other modules*/
+/* for loading, use BITMAP_xx in the other modules */
 static _bitmap_name  bitmap_name[BITMAP_INIT] =
 {
     {"palette.png", PIC_TYPE_PALETTE},
@@ -163,6 +165,10 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
     {"font7x4out.png", PIC_TYPE_PALETTE},
 	{"font11x15.png", PIC_TYPE_PALETTE},
     {"intro.png", PIC_TYPE_DEFAULT},
+
+	{"progress.png", PIC_TYPE_DEFAULT},
+	{"progress_back.png", PIC_TYPE_DEFAULT},
+
     {"player_doll_bg.png", PIC_TYPE_TRANS},
     {"black_tile.png", PIC_TYPE_DEFAULT},
     {"textwin.png", PIC_TYPE_DEFAULT},
@@ -306,7 +312,7 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
 	{"menu_buttons.png",PIC_TYPE_DEFAULT},
 	{"player_info_bg.png",PIC_TYPE_DEFAULT},
 	{"target_bg.png", PIC_TYPE_DEFAULT},
-	{"textinput.png", PIC_TYPE_DEFAULT},
+	{"textinput.png", PIC_TYPE_DEFAULT}
 };
 
 #define BITMAP_MAX (sizeof(bitmap_name) / sizeof(struct _bitmap_name))
@@ -922,7 +928,7 @@ int game_status_chain()
 		if (InputStringEscFlag)
 		{
 			draw_info("Break login.", COLOR_RED);
-			GameStatus = GAME_STATUS_START;
+   GameStatus = GAME_STATUS_START;
 		}
 
 		reset_input_mode();
@@ -1004,7 +1010,7 @@ void load_bitmaps()
 	int i;
 
 	/* add later better error handling here */
-	for (i = 0; i <= BITMAP_INTRO; i++)
+	for (i = 0; i <= BITMAP_PROGRESS_BACK; i++)
 		load_bitmap(i);
 
 	CreateNewFont(Bitmaps[BITMAP_FONT1], &SystemFont, 16, 16, 1);
@@ -1589,8 +1595,8 @@ int main(int argc, char *argv[])
 	load_bitmaps();
 	show_intro("Load bitmaps");
 
-	/* add later better error handling here */
-	for (i = 5; i < (int) BITMAP_MAX; i++)
+	/* TODO: add later better error handling here */
+	for (i = BITMAP_DOLL; i < (int) BITMAP_MAX; i++)
 		load_bitmap(i);
 
 	sound_init();
@@ -1902,20 +1908,36 @@ int main(int argc, char *argv[])
 static void show_intro(char *text)
 {
 	char buf[256];
-	int x, y;
+	int x, y, progress, progress_x, progress_y;
+	SDL_Rect box;
+
+	current_intro++;
 
 	x = Screensize->x / 2 - Bitmaps[BITMAP_INTRO]->bitmap->w / 2;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_INTRO]->bitmap->h / 2;
 
+	progress_x = Screensize->x / 2 - Bitmaps[BITMAP_PROGRESS]->bitmap->w / 2;
+	progress_y = Bitmaps[BITMAP_INTRO]->bitmap->h + y - Bitmaps[BITMAP_PROGRESS]->bitmap->h;
+
     sprite_blt(Bitmaps[BITMAP_INTRO], x, y, NULL, NULL);
 
+	/* Update progress bar */
+	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], progress_x, progress_y, NULL, NULL);
+
+	progress = MIN(100, current_intro * 8);
+	box.x = 0;
+	box.y = 0;
+	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
+	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
+	sprite_blt(Bitmaps[BITMAP_PROGRESS], progress_x, progress_y, &box, NULL);
+
 	if (text)
-		StringBlt(ScreenSurface, &SystemFont, text, x + 370, y + 295, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, text, progress_x + Bitmaps[BITMAP_PROGRESS]->bitmap->w / 3, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
 	else
-		StringBlt(ScreenSurface, &SystemFont, "** Press Key **", x + 375, y + 585, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "** Press Key **", progress_x + Bitmaps[BITMAP_PROGRESS]->bitmap->w / 3, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
 
 	snprintf(buf, sizeof(buf), "v. %s", PACKAGE_VERSION);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 10, y + 585, COLOR_DEFAULT, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, x + 10, progress_y + 5, COLOR_DEFAULT, NULL, NULL);
 	flip_screen();
 }
 

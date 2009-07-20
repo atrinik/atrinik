@@ -1537,9 +1537,9 @@ void show_newplayer_server()
 void show_login_server()
 {
 	SDL_Rect box;
-	char buf[256];
+	char buf[MAX_BUF];
 	int x, y, i;
-	int mx, my, mb, t;
+	int mx, my, mb, t, progress;
 
 	mb = SDL_GetMouseState(&mx, &my);
 
@@ -1585,9 +1585,9 @@ void show_login_server()
     if (request_file_chain >= 0)
 		StringBlt(ScreenSurface, &SystemFont, "Updating settings file from server...", x + 2, y + 20, COLOR_WHITE, NULL, NULL);
 	if (request_file_chain > 1)
-		StringBlt(ScreenSurface, &SystemFont, "Updating skills file from server...", x + 2, y + 32, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Updating spells file from server...", x + 2, y + 32, COLOR_WHITE, NULL, NULL);
 	if (request_file_chain > 3)
-		StringBlt(ScreenSurface, &SystemFont, "Updating spells file from server...", x + 2, y + 44, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Updating skills file from server...", x + 2, y + 44, COLOR_WHITE, NULL, NULL);
 	if (request_file_chain > 5)
 		StringBlt(ScreenSurface, &SystemFont, "Updating bmaps file from server...", x + 2, y + 56, COLOR_WHITE, NULL, NULL);
 	if (request_file_chain > 7)
@@ -1600,9 +1600,19 @@ void show_login_server()
 	/* if set, we have requested something and the stuff in the socket buffer is our file! */
 	if (request_file_chain == 1 || request_file_chain == 3 ||request_file_chain ==  5 || request_file_chain == 7 || request_file_chain == 9 || request_file_chain == 11)
 	{
-		sprintf(buf, "received ~%d~ bytes", csocket.inbuf.len);
+		snprintf(buf, sizeof(buf), "received ~%d~ bytes", csocket.inbuf.len);
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 1, y + 150, COLOR_WHITE, NULL, NULL);
 	}
+
+	/* Update progress bar of requested files */
+	sprite_blt(Bitmaps[BITMAP_PROGRESS_BACK], x, y + (168 - Bitmaps[BITMAP_PROGRESS_BACK]->bitmap->h - 5), NULL, NULL);
+
+	progress = MIN(100, request_file_chain * 9);
+	box.x = 0;
+	box.y = 0;
+	box.h = Bitmaps[BITMAP_PROGRESS]->bitmap->h;
+	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
+	sprite_blt(Bitmaps[BITMAP_PROGRESS], x, y + (168 - Bitmaps[BITMAP_PROGRESS]->bitmap->h - 5), &box, NULL);
 
 	/* login user part */
 	if (GameStatus == GAME_STATUS_REQUEST_FILES)
