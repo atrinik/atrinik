@@ -278,12 +278,8 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			return;
 	}
 
-	/* i don't like this system... First, i want attach leave/enter
-	 * scripts perhaps to a map more often, as to a single object.
-	 * Second, attaching this to single objects can cause some
-	 * usage when we think about tiled maps. */
 #ifdef PLUGINS
-    if (op->map != NULL && op->type == PLAYER && !op->head)
+    if (op->map != NULL && op->type == PLAYER && !op->head && MAP_PLUGINS(op->map))
     {
     	/* GROS : Here we handle the MAPLEAVE global event */
     	evtid = EVENT_MAPLEAVE;
@@ -306,18 +302,14 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		return;
 
 /* GROS : Here we handle the MAPENTER global event */
-/* i disabled this ... Don't like this as "global event"
- * even i can see no use - even less, when i think about
- * the cpu time of this nightmare.
- * Can you think about 100 players, crossing tiled maps
- * over and over? MT-2003 */
-#if 0
 #ifdef PLUGINS
-    evtid = EVENT_MAPENTER;
-    CFP.Value[0] = (void *)(&evtid);
-    CFP.Value[1] = (void *)(op);
-    GlobalEvent(&CFP);
-#endif
+	if (MAP_PLUGINS(newmap))
+	{
+		evtid = EVENT_MAPENTER;
+		CFP.Value[0] = (void *)(&evtid);
+		CFP.Value[1] = (void *)(op);
+		GlobalEvent(&CFP);
+	}
 #endif
 
     newmap->timeout = 0;
