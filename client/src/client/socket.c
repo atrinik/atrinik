@@ -47,9 +47,9 @@ int read_socket(int fd, SockList *sl, int len)
     extern int          errno;
 
     /* We already have a partial packet */
-    if (sl->len < 2)
+    if (sl->len < 3)
     {
-        stat = recv(fd, sl->buf + sl->len, 2 - sl->len, 0);
+        stat = recv(fd, sl->buf + sl->len, 3 - sl->len, 0);
 
         if (stat < 0)
         {
@@ -67,7 +67,7 @@ int read_socket(int fd, SockList *sl, int len)
             return -1;
         }
         sl->len += stat;
-        if (stat < 2)
+        if (sl->len < 3)
             return 0;   /* Still don't have a full packet */
         readsome = 1;
     }
@@ -75,7 +75,18 @@ int read_socket(int fd, SockList *sl, int len)
     /* Figure out how much more data we need to read.  Add 2 from the
      * end of this - size header information is not included.
      */
-    toread = 2 + (sl->buf[0] << 8) + sl->buf[1] - sl->len;
+	if(sl->buf[0] & 0x80) /* high bit set = 3 bytes size header */
+	{
+		toread = 3 + ((sl->buf[0]&0x7f)<< 16) + (sl->buf[1] << 8) + sl->buf[2] - sl->len;
+	}
+	else
+	{
+    	toread = 2 + (sl->buf[0] << 8) + sl->buf[1] - sl->len;
+	}
+
+	if (toread == 0)
+		return 1;
+
     if ((toread + sl->len) > len)
     {
         draw_info("WARNING: Server read package error.", COLOR_RED);
