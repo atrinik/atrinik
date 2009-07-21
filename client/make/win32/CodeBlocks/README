@@ -1,0 +1,6 @@
+To build the Atrinik client with Code::Blocks, you will need to:
+
+1. Install Code::Blocks with MinGW compiler
+2. Run Setup.bat, which will unpack the tar.gz files and place the required dlls in main directory
+3. Double click on the Code::Blocks workspace file
+4. Build workspace
