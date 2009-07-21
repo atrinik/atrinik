@@ -106,14 +106,12 @@ void metaserver_connect()
 
 	/* Store user agent for cURL, including if this is Linux build of client
 	 * or Windows one. Could be used for statistics or something. */
-#if defined(__LINUX)
+#ifdef __LINUX
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Linux)/%s", PACKAGE_VERSION);
-#else
-#if defined(WIN32)
+#elif __WIN_32
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s", PACKAGE_VERSION);
 #else
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s", PACKAGE_VERSION);
-#endif
 #endif
 
 	/* We expect realloc(NULL, size) to work */
