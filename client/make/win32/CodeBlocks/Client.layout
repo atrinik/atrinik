@@ -4,10 +4,4 @@
 	<File name="README" open="1" top="1" tabpos="1">
 		<Cursor position="279" topLine="0" />
 	</File>
-	<File name="..\..\..\src\include\commands.h" open="0" top="0" tabpos="0">
-		<Cursor position="4020" topLine="51" />
-	</File>
-	<File name="..\..\..\src\include\party.h" open="0" top="0" tabpos="0">
-		<Cursor position="2760" topLine="39" />
-	</File>
 </CodeBlocks_layout_file>

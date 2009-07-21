@@ -743,7 +743,7 @@ int game_status_chain()
 	{
 		map_udate_flag = 2;
 
-		if (csocket.fd != SOCKET_NO)
+		if ((int) csocket.fd != SOCKET_NO)
 			SOCKET_CloseSocket(csocket.fd);
 
 		clear_map();
@@ -1699,7 +1699,7 @@ int main(int argc, char *argv[])
 
         if (GameStatus > GAME_STATUS_CONNECT)
         {
-            if (csocket.fd == SOCKET_NO)
+            if ((int) csocket.fd == SOCKET_NO)
             {
                 /* Connection closed, so we go back to INIT here */
                 if (GameStatus == GAME_STATUS_PLAY)
