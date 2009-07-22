@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file egoitem.c */
+ * @file */
 
 /* GROS: I put this here, because no other file seemed quite good. */
 object *create_artifact(object *op, char *artifactname)

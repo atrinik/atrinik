@@ -27,7 +27,7 @@
 #define ARCH_H
 
 /**
- * @file arch.h
+ * @file
  * Arch related structures */
 
 /** The archetype structure is a set of rules on how to generate and manipulate

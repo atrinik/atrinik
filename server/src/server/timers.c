@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file timers.c
+ * @file
  * Timer related functions. */
 
 /**

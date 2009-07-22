@@ -30,7 +30,7 @@
 #endif
 
 /**
- * @file c_object.c
+ * @file
  * Object ID parsing functions */
 
 #define OBLINKMALLOC(p) if(!((p)=(objectlink *)malloc(sizeof(objectlink))))\

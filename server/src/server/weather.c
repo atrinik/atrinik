@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file weather.c
+ * @file
  * This file controls weather functions, like ticking the clock
  * and initializes the world darkness. */
 

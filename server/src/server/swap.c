@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file swap.c
+ * @file
  * Controls map swap functions. */
 
 #ifdef RECYCLE_TMP_MAPS

@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file c_move.c
+ * @file
  * Handles main movement commands. */
 
 /**

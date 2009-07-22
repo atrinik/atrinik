@@ -30,7 +30,7 @@
  * or one step - new protocol, based on UDP. */
 
 /**
- * @file c_new.c
+ * @file
  * This file deals with administrative commands from the client. */
 
 #include <global.h>

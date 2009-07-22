@@ -27,7 +27,7 @@
 #include <sproto.h>
 
 /**
- * @file c_chat.c
+ * @file
  * This file handles communication related functions, like /dmsay, /say, /shout, etc.*/
 
 /**

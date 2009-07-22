@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file c_party.c
+ * @file
  * This file handles party related command. */
 
 /* Status is used for party messages like password change, join/leave, etc */

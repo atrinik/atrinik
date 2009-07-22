@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file swamp.c
+ * @file
  * Swamp related functions. */
 
 /**

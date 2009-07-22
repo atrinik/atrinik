@@ -29,7 +29,7 @@
 #endif
 
 /**
- * @file hiscore.c
+ * @file
  * Includes high score related functions */
 
 /** The score structure is used when treating new high-scores */

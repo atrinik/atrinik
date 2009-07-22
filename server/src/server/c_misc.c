@@ -26,7 +26,7 @@
 #include <global.h>
 #include <sproto.h>
 
-/** @file c_misc.c
+/** @file
  * Handles misc. input request - things like hash table, malloc, maps,
  * who, etc. */
 
