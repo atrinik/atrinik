@@ -53,8 +53,8 @@ typedef void (*CmdProc)(unsigned char *, int len);
 
 struct CmdMapping
 {
-    char *cmdname;
-    void (*cmdproc)(unsigned char *, int);
+	char *cmdname;
+	void (*cmdproc)(unsigned char *, int);
 };
 
 enum {
@@ -97,43 +97,44 @@ enum {
 /** Structure of all the socket commands */
 struct CmdMapping commands[] =
 {
-    /* Order of this table doesn't make a difference.  I tried to sort
-     * of cluster the related stuff together. */
-    {"comc", CompleteCmd},
-    {"map2", Map2Cmd},
-    {"drawinfo", (CmdProc)DrawInfoCmd},
-    {"drawinfo2", (CmdProc)DrawInfoCmd2},
-    {"map_scroll", (CmdProc)map_scrollCmd},
-    {"itemx", ItemXCmd},
-    {"sound", SoundCmd},
-    {"to", TargetObject},
-    {"upditem", UpdateItemCmd},
-    {"delitem", DeleteItem},
-    {"stats", StatsCmd},
-    {"image", ImageCmd},
-    {"face1", Face1Cmd},
-    {"anim", AnimCmd},
-    {"skill_rdy", (CmdProc) SkillRdyCmd},
-    {"player", PlayerCmd},
-    {"mapstats", (CmdProc)MapstatsCmd},
-    {"splist", (CmdProc)SpelllistCmd},
-    {"sklist", (CmdProc)SkilllistCmd},
-    {"gc", (CmdProc)GolemCmd},
-    {"addme_success", AddMeSuccess},
-    {"addme_failed", AddMeFail},
-    {"version", (CmdProc)VersionCmd},
-    {"goodbye", GoodbyeCmd},
-    {"setup", (CmdProc)SetupCmd},
-    {"query", (CmdProc)handle_query},
-    {"data", (CmdProc)DataCmd},
-    {"new_char", (CmdProc)NewCharCmd},
-    {"itemy", ItemYCmd},
+	/* Order of this table doesn't make a difference.  I tried to sort
+	 * of cluster the related stuff together. */
+	{"comc", CompleteCmd},
+	{"map2", Map2Cmd},
+	{"drawinfo", (CmdProc)DrawInfoCmd},
+	{"drawinfo2", (CmdProc)DrawInfoCmd2},
+	{"map_scroll", (CmdProc)map_scrollCmd},
+	{"itemx", ItemXCmd},
+	{"sound", SoundCmd},
+	{"to", TargetObject},
+	{"upditem", UpdateItemCmd},
+	{"delitem", DeleteItem},
+	{"stats", StatsCmd},
+	{"image", ImageCmd},
+	{"face1", Face1Cmd},
+	{"anim", AnimCmd},
+	{"skill_rdy", (CmdProc) SkillRdyCmd},
+	{"player", PlayerCmd},
+	{"mapstats", (CmdProc)MapstatsCmd},
+	{"splist", (CmdProc)SpelllistCmd},
+	{"sklist", (CmdProc)SkilllistCmd},
+	{"gc", (CmdProc)GolemCmd},
+	{"addme_success", AddMeSuccess},
+	{"addme_failed", AddMeFail},
+	{"version", (CmdProc)VersionCmd},
+	{"goodbye", GoodbyeCmd},
+	{"setup", (CmdProc)SetupCmd},
+	{"query", (CmdProc)handle_query},
+	{"data", (CmdProc)DataCmd},
+	{"new_char", (CmdProc)NewCharCmd},
+	{"itemy", ItemYCmd},
 	{"book", BookCmd},
 	{"pt", PartyCmd},
 	{"qs", (CmdProc)QuickSlotCmd},
+
 	/* Unused! */
-    {"magicmap", MagicMapCmd},
-    {"delinv", (CmdProc)DeleteInventory},
+	{"magicmap", MagicMapCmd},
+	{"delinv", (CmdProc)DeleteInventory},
 };
 
 static void face_flag_extension(int pnum, char *buf);
@@ -144,28 +145,30 @@ static void face_flag_extension(int pnum, char *buf);
  */
 void DoClient(ClientSocket *csocket)
 {
-    int i, len;
+	int i, len;
 	uint8 cmd_id;
-    unsigned char *data;
+	unsigned char *data;
 
-    while (1)
-    {
-    	i = read_socket(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
-    	if (i == -1)
-    	{
+	while (1)
+	{
+		i = read_socket(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
+
+		if (i == -1)
+		{
 			/* Need to add some better logic here */
 			LOG(LOG_MSG, "Got error on read (error %d)\n", SOCKET_GetError());
 			SOCKET_CloseSocket(csocket->fd);
+
 			return;
-    	}
+		}
 
 		/* Don't have a full packet */
-        if (i == 0)
+		if (i == 0)
 			return;
 
-        csocket->inbuf.buf[csocket->inbuf.len] = '\0';
+		csocket->inbuf.buf[csocket->inbuf.len] = '\0';
 
-		if(csocket->inbuf.buf[0] & 0x80) /* 3 byte header */
+		if (csocket->inbuf.buf[0] & 0x80) /* 3 byte header */
 		{
 			cmd_id = (uint8) csocket->inbuf.buf[3];
 			data = csocket->inbuf.buf + 4;
@@ -179,7 +182,7 @@ void DoClient(ClientSocket *csocket)
 		}
 
 #if 0
-	    LOG(LOG_MSG, "Command #%d (LT:%d)(len:%d) ", cmd_id, LastTick, len);
+		LOG(LOG_MSG, "Command #%d (LT:%d)(len:%d) ", cmd_id, LastTick, len);
 #endif
 
 		if (!cmd_id || cmd_id >= BINAR_CMD)
@@ -187,13 +190,13 @@ void DoClient(ClientSocket *csocket)
 		else
 		{
 #if 0
-	        LOG(LOG_MSG, "(%s) >%s<\n", commands[cmd_id - 1].cmdname, data);
+			LOG(LOG_MSG, "(%s) >%s<\n", commands[cmd_id - 1].cmdname, data);
 #endif
 			commands[cmd_id - 1].cmdproc(data, len);
 		}
 
-    	csocket->inbuf.len = 0;
-    }
+		csocket->inbuf.len = 0;
+	}
 }
 
 /**
@@ -201,8 +204,8 @@ void DoClient(ClientSocket *csocket)
  * @param sl Socket list */
 void SockList_Init(SockList *sl)
 {
-    sl->len = 0;
-    sl->buf = NULL;
+	sl->len = 0;
+	sl->buf = NULL;
 }
 
 /**
@@ -211,8 +214,8 @@ void SockList_Init(SockList *sl)
  * @param c Character */
 void SockList_AddChar(SockList *sl, char c)
 {
-    sl->buf[sl->len] = c;
-    sl->len++;
+	sl->buf[sl->len] = c;
+	sl->len++;
 }
 
 /**
@@ -221,8 +224,8 @@ void SockList_AddChar(SockList *sl, char c)
  * @param data Short integer data */
 void SockList_AddShort(SockList *sl, uint16 data)
 {
-    sl->buf[sl->len++] = (data >> 8) & 0xff;
-    sl->buf[sl->len++] = data & 0xff;
+	sl->buf[sl->len++] = (data >> 8) & 0xff;
+	sl->buf[sl->len++] = data & 0xff;
 }
 
 /**
@@ -231,10 +234,10 @@ void SockList_AddShort(SockList *sl, uint16 data)
  * @param data Integer data */
 void SockList_AddInt(SockList *sl, uint32 data)
 {
-    sl->buf[sl->len++] = (data >> 24) & 0xff;
-    sl->buf[sl->len++] = (data >> 16) & 0xff;
-    sl->buf[sl->len++] = (data >> 8) & 0xff;
-    sl->buf[sl->len++] = data & 0xff;
+	sl->buf[sl->len++] = (data >> 24) & 0xff;
+	sl->buf[sl->len++] = (data >> 16) & 0xff;
+	sl->buf[sl->len++] = (data >> 8) & 0xff;
+	sl->buf[sl->len++] = data & 0xff;
 }
 
 /**
@@ -243,7 +246,7 @@ void SockList_AddInt(SockList *sl, uint32 data)
  * @return Integer from the string */
 int GetInt_String(unsigned char *data)
 {
-    return ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
+	return ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
 }
 
 /**
@@ -252,7 +255,7 @@ int GetInt_String(unsigned char *data)
  * @return Short integer from the string */
 short GetShort_String(unsigned char *data)
 {
-    return ((data[0] << 8) + data[1]);
+	return ((data[0] << 8) + data[1]);
 }
 
 /**
@@ -262,13 +265,13 @@ short GetShort_String(unsigned char *data)
  * @return 0 on success, -1 on failure. */
 int send_socklist(int fd, SockList  msg)
 {
-    unsigned char sbuf[2];
+	unsigned char sbuf[2];
 
-    sbuf[0] = ((uint32)(msg.len) >> 8) & 0xFF;
-    sbuf[1] = ((uint32)(msg.len)) & 0xFF;
+	sbuf[0] = ((uint32)(msg.len) >> 8) & 0xFF;
+	sbuf[1] = ((uint32)(msg.len)) & 0xFF;
 
-    write_socket(fd, sbuf, 2);
-    return write_socket(fd, msg.buf, msg.len);
+	write_socket(fd, sbuf, 2);
+	return write_socket(fd, msg.buf, msg.len);
 }
 
 
@@ -280,11 +283,11 @@ int send_socklist(int fd, SockList  msg)
  * @return 0 on success, -1 on failure */
 int cs_write_string(int fd, char *buf, int len)
 {
-    SockList sl;
+	SockList sl;
 
-    sl.len = len;
-    sl.buf = (unsigned char *) buf;
-    return send_socklist(fd, sl);
+	sl.len = len;
+	sl.buf = (unsigned char *) buf;
+	return send_socklist(fd, sl);
 }
 
 /**
@@ -294,53 +297,54 @@ int cs_write_string(int fd, char *buf, int len)
  * @param face Face name */
 void finish_face_cmd(int pnum, uint32 checksum, char *face)
 {
-    char buf[2048];
+	char buf[2048];
 	FILE *stream;
 	struct stat statbuf;
-    int len;
-    static uint32 newsum = 0;
-    unsigned char *data;
+	int len;
+	static uint32 newsum = 0;
+	unsigned char *data;
 	void *tmp_free;
 
-    /* first, check our memory... perhaps we have it loaded */
+	/* first, check our memory... perhaps we have it loaded */
 
-    /*LOG(LOG_MSG,"FACE: %s (->%s)\n", face,FaceList[pnum].name);*/
+	/*LOG(LOG_MSG,"FACE: %s (->%s)\n", face,FaceList[pnum].name);*/
 
 	/* loaded OR requested...hm, no double request check yet */
-    if (FaceList[pnum].name)
-    {
-        /* lets check the name and checksum and sprite. ONLY if all is
-         * ok, we stay with it */
-        if (!strcmp(face, FaceList[pnum].name) && checksum == FaceList[pnum].checksum && FaceList[pnum].sprite)
+	if (FaceList[pnum].name)
+	{
+		/* lets check the name and checksum and sprite. ONLY if all is
+		 * ok, we stay with it */
+		if (!strcmp(face, FaceList[pnum].name) && checksum == FaceList[pnum].checksum && FaceList[pnum].sprite)
 		{
 			face_flag_extension(pnum, FaceList[pnum].name);
 			return;
 		}
 
-        /* ok, some is different.
-         * no big work, clear face data and lets go on
-         * all this check for invalid ptr, so fire it up */
+		/* ok, some is different.
+		 * no big work, clear face data and lets go on
+		 * all this check for invalid ptr, so fire it up */
 		tmp_free = &FaceList[pnum].name;
-        FreeMemory(tmp_free);
-        sprite_free_sprite(FaceList[pnum].sprite);
-    }
+		FreeMemory(tmp_free);
+		sprite_free_sprite(FaceList[pnum].sprite);
+	}
 
-    /* first, safe face data: name & checksum */
-    sprintf(buf, "%s.png", face);
-    FaceList[pnum].name = (char *) _malloc(strlen(buf) + 1, "finish_face_cmd(): FaceList name");
-    strcpy(FaceList[pnum].name, buf);
+	/* first, safe face data: name & checksum */
+	sprintf(buf, "%s.png", face);
+	FaceList[pnum].name = (char *) _malloc(strlen(buf) + 1, "finish_face_cmd(): FaceList name");
+	strcpy(FaceList[pnum].name, buf);
 
-    FaceList[pnum].checksum = checksum;
+	FaceList[pnum].checksum = checksum;
 
-    /* Check private cache first */
-    sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
-    if ((stream = fopen(buf, "rb" )) != NULL)
-    {
+	/* Check private cache first */
+	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
+
+	if ((stream = fopen(buf, "rb" )) != NULL)
+	{
 		fstat(fileno (stream), &statbuf);
 		len = (int) statbuf.st_size;
 		data = malloc(len);
-        len = fread(data, 1, len, stream);
-        fclose(stream);
+		len = fread(data, 1, len, stream);
+		fclose(stream);
 		newsum = 0;
 
 		/* something is wrong... now unlink the file and
@@ -357,24 +361,25 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 
 		free(data);
 
-        if (newsum == checksum)
-        {
+		if (newsum == checksum)
+		{
 			FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
-        	/* perhaps we fail, try insanity new load */
-        	if (FaceList[pnum].sprite)
+
+			/* perhaps we fail, try insanity new load */
+			if (FaceList[pnum].sprite)
 			{
 				face_flag_extension(pnum, buf);
 				/* found and loaded! */
 				return;
 			}
 		}
-    }
+	}
 
-    /* LOG(LOG_MSG,"FACE: call server for %s\n", face); */
+	/* LOG(LOG_MSG,"FACE: call server for %s\n", face); */
 	face_flag_extension(pnum, buf);
-    sprintf(buf, "askface %d", pnum);
+	sprintf(buf, "askface %d", pnum);
 	/* face command los */
-    cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
 static void face_flag_extension(int pnum, char *buf)
@@ -460,8 +465,8 @@ int request_face(int pnum, int mode)
 	char buf[256 * 2];
 	FILE *stream;
 	struct stat statbuf;
-    int len;
-    unsigned char *data;
+	int len;
+	unsigned char *data;
 	static int count = 0;
 	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
 	uint16 num = (uint16)(pnum &~ 0x8000);
@@ -474,9 +479,10 @@ int request_face(int pnum, int mode)
 			fr_buf[0] = 'f';
 			fr_buf[1] = 'r';
 			fr_buf[2] = ' ';
-		    cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
+			cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
 			count = 0;
 		}
+
 		return 1;
 	}
 
@@ -493,7 +499,7 @@ int request_face(int pnum, int mode)
 	/* now lets check BEFORE we do any other test for this name in /gfx_user.
 	 * Perhaps we have a customized picture here. */
 	sprintf(buf, "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
-    if ((stream = fopen(buf, "rb")) != NULL)
+	if ((stream = fopen(buf, "rb")) != NULL)
 	{
 		/* yes we have a picture with this name in /gfx_user!
 		 * lets try to load. */
@@ -540,7 +546,7 @@ int request_face(int pnum, int mode)
 	else
 	{
 		FaceList[num].flags|= FACE_REQUESTED;
-    	finish_face_cmd(num, bmaptype_table[num].crc, bmaptype_table[num].name);
+		finish_face_cmd(num, bmaptype_table[num].crc, bmaptype_table[num].name);
 	}
 
 #if 0

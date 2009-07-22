@@ -140,49 +140,49 @@ char *get_number(int i)
  *  is allocated and initialized correctly */
 static item *new_item()
 {
-    item *op = _malloc(sizeof(item), "new_item (): new item");
+	item *op = _malloc(sizeof(item), "new_item (): new item");
 
-    if (!op)
+	if (!op)
 		exit(0);
 
-    op->next = op->prev = NULL;
-    copy_name(op->d_name, "");
-    copy_name(op->s_name, "");
-    copy_name(op->p_name, "");
-    op->inv = NULL;
-    op->env = NULL;
-    op->tag = 0;
-    op->face = 0;
-    op->weight = 0;
-    op->magical = op->cursed = op->damned = 0;
-    op->traped = op->unpaid = op->locked = op->applied = 0;
-    op->flagsval = 0;
-    op->animation_id = 0;
-    op->last_anim = 0;
-    op->anim_state = 0;
-    op->nrof = 0;
-    op->open = 0;
-    op->type = 255;
+	op->next = op->prev = NULL;
+	copy_name(op->d_name, "");
+	copy_name(op->s_name, "");
+	copy_name(op->p_name, "");
+	op->inv = NULL;
+	op->env = NULL;
+	op->tag = 0;
+	op->face = 0;
+	op->weight = 0;
+	op->magical = op->cursed = op->damned = 0;
+	op->traped = op->unpaid = op->locked = op->applied = 0;
+	op->flagsval = 0;
+	op->animation_id = 0;
+	op->last_anim = 0;
+	op->anim_state = 0;
+	op->nrof = 0;
+	op->open = 0;
+	op->type = 255;
 
-    return op;
+	return op;
 }
 
 /* alloc_items() returns pointer to list of allocated objects */
 static item *alloc_items(int nrof)
 {
-    item *op, *list;
-    int i;
+	item *op, *list;
+	int i;
 
-    list = op = new_item();
+	list = op = new_item();
 
-    for (i = 1; i < nrof; i++)
+	for (i = 1; i < nrof; i++)
 	{
 		op->next = new_item();
 		op->next->prev = op;
 		op = op->next;
-    }
+	}
 
-    return list;
+	return list;
 }
 
 /* free_items() frees all allocated items from list */
@@ -207,58 +207,58 @@ int locate_item_nr_from_tag(item *op, int tag)
 {
 	int count = 0;
 
-    for (; op != NULL; count++, op = op->next)
-    {
-        if (op->tag == tag)
-            return count;
-    }
+	for (; op != NULL; count++, op = op->next)
+	{
+		if (op->tag == tag)
+			return count;
+	}
 
-    return -1;
+	return -1;
 }
 
 int locate_item_tag_from_nr(item *op, int nr)
 {
 	int count = 0;
 
-    for (; op != NULL; op = op->next, count++)
-    {
-        if (count == nr)
-            return op->tag;
-    }
+	for (; op != NULL; op = op->next, count++)
+	{
+		if (count == nr)
+			return op->tag;
+	}
 
-    return -1;
+	return -1;
 }
 
 /* Recursive function, only check inventory of op
  * *not* items inside other containers. */
 item *locate_item_from_inv(item *op, sint32 tag)
 {
-    for (; op != NULL; op = op->next)
-    {
-        if (op->tag == tag)
-            return op;
-    }
+	for (; op != NULL; op = op->next)
+	{
+		if (op->tag == tag)
+			return op;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 /* Recursive function, used by locate_item() */
 item *locate_item_from_item (item *op, sint32 tag)
 {
-    item *tmp;
+	item *tmp;
 
-    for (; op != NULL; op = op->next)
-    {
-        if (op->tag == tag)
-            return op;
-        else if (op->inv)
-        {
-            if ((tmp = locate_item_from_item(op->inv, tag)))
-                return tmp;
-        }
-    }
+	for (; op != NULL; op = op->next)
+	{
+		if (op->tag == tag)
+			return op;
+		else if (op->inv)
+		{
+			if ((tmp = locate_item_from_item(op->inv, tag)))
+				return tmp;
+		}
+	}
 
-    return NULL;
+	return NULL;
 }
 
 /* locate_item() returns pointer to the item which tag is given
@@ -289,59 +289,59 @@ item *locate_item(sint32 tag)
  * Note that it don't clear all fields in item */
 void remove_item(item *op)
 {
-    /* IF no op, or it is the player */
-    if (!op || op == player || op == cpl.below || op == cpl.sack)
-    	return;
+	/* IF no op, or it is the player */
+	if (!op || op == player || op == cpl.below || op == cpl.sack)
+		return;
 
-    op->env->inv_updated = 1;
+	op->env->inv_updated = 1;
 
-    /* Do we really want to do this? */
-    if (op->inv)
+	/* Do we really want to do this? */
+	if (op->inv)
 		remove_item_inventory (op);
 
-    if (op->prev)
+	if (op->prev)
 	{
 		op->prev->next = op->next;
-    }
+	}
 	else
 	{
 		op->env->inv = op->next;
-    }
+	}
 
-    if (op->next)
+	if (op->next)
 	{
 		op->next->prev = op->prev;
-    }
+	}
 
-    /* Add object to a list of free objects */
-    op->next = free_items;
+	/* Add object to a list of free objects */
+	op->next = free_items;
 
-    if (op->next != NULL)
+	if (op->next != NULL)
 		op->next->prev = op;
 
-    free_items = op;
+	free_items = op;
 
-    /* Clear all these values, since this item will get re-used */
-    op->prev = NULL;
-    op->env = NULL;
-    op->tag = 0;
-    copy_name(op->d_name, "");
-    copy_name(op->s_name, "");
-    copy_name(op->p_name, "");
-    op->inv = NULL;
-    op->env = NULL;
-    op->tag = 0;
-    op->face = 0;
-    op->weight = 0;
-    op->magical = op->cursed = op->damned = 0;
-    op->unpaid = op->locked = op->applied = 0;
-    op->flagsval = 0;
-    op->animation_id = 0;
-    op->last_anim = 0;
-    op->anim_state = 0;
-    op->nrof = 0;
-    op->open = 0;
-    op->type = 255;
+	/* Clear all these values, since this item will get re-used */
+	op->prev = NULL;
+	op->env = NULL;
+	op->tag = 0;
+	copy_name(op->d_name, "");
+	copy_name(op->s_name, "");
+	copy_name(op->p_name, "");
+	op->inv = NULL;
+	op->env = NULL;
+	op->tag = 0;
+	op->face = 0;
+	op->weight = 0;
+	op->magical = op->cursed = op->damned = 0;
+	op->unpaid = op->locked = op->applied = 0;
+	op->flagsval = 0;
+	op->animation_id = 0;
+	op->last_anim = 0;
+	op->anim_state = 0;
+	op->nrof = 0;
+	op->open = 0;
+	op->type = 255;
 }
 
 /* remove_item_inventory() recursive frees items inventory */
@@ -350,9 +350,9 @@ void remove_item_inventory(item *op)
 	if (!op)
 		return;
 
-    op->inv_updated = 1;
+	op->inv_updated = 1;
 
-    while (op->inv)
+	while (op->inv)
 		remove_item(op->inv);
 }
 
@@ -360,7 +360,7 @@ void remove_item_inventory(item *op)
  *  OLD: add_item() adds item op to end of the inventory of item env */
 static void add_item(item *env, item *op, int bflag)
 {
-    item *tmp;
+	item *tmp;
 
 	if (!op)
 		return;
@@ -379,7 +379,7 @@ static void add_item(item *env, item *op, int bflag)
 	/* Sort reverse - for inventory lists */
 	else
 	{
-	    for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next);
+		for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next);
 
 		op->next = NULL;
 		op->prev = tmp;
@@ -404,141 +404,140 @@ static void add_item(item *env, item *op, int bflag)
  * are unitialized and may contain random values) */
 item *create_new_item(item *env, sint32 tag, int bflag)
 {
-    item *op;
+	item *op;
 
-    if (!free_items)
-		free_items = alloc_items (NROF_ITEMS);
+	if (!free_items)
+		free_items = alloc_items(NROF_ITEMS);
 
-    op = free_items;
-    free_items = free_items->next;
+	op = free_items;
+	free_items = free_items->next;
 
-    if (free_items)
+	if (free_items)
 		free_items->prev = NULL;
 
-    op->tag = tag;
-    op->locked = 0;
+	op->tag = tag;
+	op->locked = 0;
 
-    if (env)
+	if (env)
 		add_item(env, op, bflag);
 
-    return op;
+	return op;
 }
 
 /*  Hardcoded now, server could send these at initiation phase. */
 static char *apply_string[] = {
-    "", " (readied)", " (wielded)", " (worn)", " (active)", " (applied)"
+	"", " (readied)", " (wielded)", " (worn)", " (active)", " (applied)"
 };
 
 static void set_flag_string(item *op)
 {
-    op->flags[0] = 0;
+	op->flags[0] = 0;
 
-    if (op->locked)
+	if (op->locked)
 		strcat(op->flags, " *");
 
-    if (op->apply_type)
+	if (op->apply_type)
 	{
 		if (op->apply_type < sizeof (apply_string) / sizeof(apply_string[0]))
-	    	strcat(op->flags, apply_string[op->apply_type]);
+			strcat(op->flags, apply_string[op->apply_type]);
 		else
-	    	strcat(op->flags, " (undefined)");
-    }
+			strcat(op->flags, " (undefined)");
+	}
 
-    if (op->open)
+	if (op->open)
 		strcat(op->flags, " (open)");
 
-    if (op->damned)
+	if (op->damned)
 		strcat(op->flags, " (damned)");
 
-    if (op->cursed)
+	if (op->cursed)
 		strcat(op->flags, " (cursed)");
 
-    if (op->magical)
+	if (op->magical)
 		strcat(op->flags, " (magic)");
 
-    if (op->unpaid)
+	if (op->unpaid)
 		strcat(op->flags, " (unpaid)");
 }
 
 static void get_flags(item *op, int flags)
 {
-    op->open = flags & F_OPEN ? 1 : 0;
-    op->damned = flags & F_DAMNED ? 1 : 0;
-    op->cursed = flags & F_CURSED ? 1 : 0;
-    op->magical = flags & F_MAGIC ? 1 : 0;
-    op->unpaid = flags & F_UNPAID ? 1 : 0;
-    op->applied = flags & F_APPLIED ? 1 : 0;
-    op->locked = flags & F_LOCKED ? 1 : 0;
-    op->traped = flags & F_TRAPED ? 1 : 0;
-    op->flagsval = flags;
-    op->apply_type = flags & F_APPLIED;
-    set_flag_string(op);
+	op->open = flags & F_OPEN ? 1 : 0;
+	op->damned = flags & F_DAMNED ? 1 : 0;
+	op->cursed = flags & F_CURSED ? 1 : 0;
+	op->magical = flags & F_MAGIC ? 1 : 0;
+	op->unpaid = flags & F_UNPAID ? 1 : 0;
+	op->applied = flags & F_APPLIED ? 1 : 0;
+	op->locked = flags & F_LOCKED ? 1 : 0;
+	op->traped = flags & F_TRAPED ? 1 : 0;
+	op->flagsval = flags;
+	op->apply_type = flags & F_APPLIED;
+	set_flag_string(op);
 }
-
 
 /*  get_nrof() functions tries to get number of items from the item name */
 static sint32 get_nrof(char *name)
 {
-    static char *numbers[21] = {
+	static char *numbers[21] = {
 		"no ",		"a ",		"two ",			"three ",		"four ",
 		"five ",	"six ",		"seven ",		"eight ",		"nine ",
 		"ten ",		"eleven ",	"twelve ",		"thirteen ",	"fourteen ",
 		"fifteen ",	"sixteen ",	"seventeen ",	"eighteen ",	"nineteen ",
 		"twenty "
-    };
+	};
 
-    static char *numbers_10[10] = {
+	static char *numbers_10[10] = {
 		"zero ",	"ten ",		"twenty ",		"thirty ",	"fourty ",
 		"fifty ",	"sixty ",	"seventy ",		"eighty ",	"ninety "
-    };
+	};
 
-    sint32 nrof = 0;
-    int i;
+	sint32 nrof = 0;
+	int i;
 
-    if (isdigit(*name))
+	if (isdigit(*name))
 		nrof = atol(name);
-    else if (strncmp(name, "a ", 2) == 0 || strncmp(name, "an ", 3) == 0)
+	else if (strncmp(name, "a ", 2) == 0 || strncmp(name, "an ", 3) == 0)
 		nrof = 1;
-    else
+	else
 	{
 		for (i = 1; i < (int) sizeof(numbers) / (int) sizeof(numbers[0]); i++)
 		{
-	    	if (strncmp(name, numbers[i], strlen(numbers[i])) == 0)
+			if (strncmp(name, numbers[i], strlen(numbers[i])) == 0)
 			{
 				nrof = i;
 				break;
-	    	}
+			}
 		}
 
 		if (!nrof)
 		{
-	    	for (i = 1; i < (int) sizeof(numbers_10) / (int) sizeof(numbers_10[0]); i++)
+			for (i = 1; i < (int) sizeof(numbers_10) / (int) sizeof(numbers_10[0]); i++)
 			{
 				if (strncmp(name, numbers_10[i], strlen(numbers_10[i])) == 0)
 				{
-		    		nrof = i * 10;
-		    		break;
+					nrof = i * 10;
+					break;
 				}
 			}
 		}
-    }
+	}
 
-    return nrof ? nrof : 1;
+	return nrof ? nrof : 1;
 }
 
 void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir)
 {
-    if (!op)
+	if (!op)
 	{
 		LOG (-1, "Error in set_item_values(): item pointer is NULL.\n");
 		return;
-    }
+	}
 
-    if (nrof < 0)
+	if (nrof < 0)
 	{
-        op->nrof = 1;
-        copy_name(op->s_name, "Warning: Old name cmd! This is a bug.");
-    }
+		op->nrof = 1;
+		copy_name(op->s_name, "Warning: Old name cmd! This is a bug.");
+	}
 	/* we have a nrof - item1 command */
 	else
 	{
@@ -550,194 +549,193 @@ void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags
 
 		if (*name != '\0')
 		{
-	    	copy_name(op->s_name, name);
+			copy_name(op->s_name, name);
 		}
-    }
+	}
 
-    if (op->env)
-    	op->env->inv_updated = 1;
+	if (op->env)
+		op->env->inv_updated = 1;
 
-    op->weight = (float) weight / 1000;
+	op->weight = (float) weight / 1000;
 
-    if (itype != 254)
-        op->itype = itype;
+	if (itype != 254)
+		op->itype = itype;
 
-    if (stype != 254)
-        op->stype = stype;
+	if (stype != 254)
+		op->stype = stype;
 
-    if (qual != 254)
-        op->item_qua = qual;
+	if (qual != 254)
+		op->item_qua = qual;
 
-    if (cond != 254)
-        op->item_con = cond;
+	if (cond != 254)
+		op->item_con = cond;
 
-    if (skill != 254)
-        op->item_skill = skill;
+	if (skill != 254)
+		op->item_skill = skill;
 
-    if (level != 254)
-        op->item_level = level;
+	if (level != 254)
+		op->item_level = level;
 
-    op->face = face;
-    op->animation_id = anim;
-    op->anim_speed = animspeed;
+	op->face = face;
+	op->animation_id = anim;
+	op->anim_speed = animspeed;
 	op->direction = dir;
-    get_flags(op, flags);
+	get_flags(op, flags);
 
-    /* We don't sort the map, so lets not do this either */
-    if (op->env != cpl.below)
+	/* We don't sort the map, so lets not do this either */
+	if (op->env != cpl.below)
 		op->type = 255;
 
-    update_item_sort(op);
+	update_item_sort(op);
 }
 
 void fire_command(char *buf)
 {
-    SockList sl;
+	SockList sl;
 
-    sl.buf = (unsigned char *)buf;
-    sl.len = strlen(buf);
-    send_socklist(csocket.fd, sl);
+	sl.buf = (unsigned char *) buf;
+	sl.len = strlen(buf);
+	send_socklist(csocket.fd, sl);
 }
 
 void combat_command(char *buf)
 {
-    SockList sl;
+	SockList sl;
 
-    sl.buf = (unsigned char *)buf;
-    sl.len = strlen(buf);
-    send_socklist(csocket.fd, sl);
+	sl.buf = (unsigned char *) buf;
+	sl.len = strlen(buf);
+	send_socklist(csocket.fd, sl);
 }
 
 void toggle_locked(item *op)
 {
-    SockList sl;
-    char buf[MAX_BUF];
+	SockList sl;
+	char buf[MAX_BUF];
 
 	/* if item is on the ground, don't lock it */
-    if (!op || !op->env || op->env->tag == 0)
+	if (!op || !op->env || op->env->tag == 0)
 		return;
 
-    sl.buf = (unsigned char *)buf;
-    strcpy((char *)sl.buf, "lock ");
-    sl.len = 5;
+	sl.buf = (unsigned char *) buf;
+	strcpy((char *) sl.buf, "lock ");
+	sl.len = 5;
 
-    if (op->locked)
-    	sl.buf[sl.len++] = 0;
-    else
-    	sl.buf[sl.len++] = 1;
+	if (op->locked)
+		sl.buf[sl.len++] = 0;
+	else
+		sl.buf[sl.len++] = 1;
 
-    SockList_AddInt(&sl, op->tag);
-    send_socklist(csocket.fd, sl);
+	SockList_AddInt(&sl, op->tag);
+	send_socklist(csocket.fd, sl);
 }
 
 void send_mark_obj(item *op)
 {
-    SockList sl;
-    char buf[MAX_BUF];
+	SockList sl;
+	char buf[MAX_BUF];
 
 	/* if item is on the ground, don't mark it */
-    if (!op || !op->env || op->env->tag == 0)
+	if (!op || !op->env || op->env->tag == 0)
 		return;
 
-    sl.buf = (unsigned char *)buf;
-    strcpy((char *)sl.buf, "mark ");
-    sl.len = 5;
-    SockList_AddInt(&sl, op->tag);
-    send_socklist(csocket.fd, sl);
+	sl.buf = (unsigned char *) buf;
+	strcpy((char *) sl.buf, "mark ");
+	sl.len = 5;
+	SockList_AddInt(&sl, op->tag);
+	send_socklist(csocket.fd, sl);
 }
 
 item *player_item()
 {
-    player = new_item();
-    cpl.below = new_item();
-    cpl.sack = new_item();
-    cpl.below->weight = -111;
-    cpl.sack->weight = -111;
+	player = new_item();
+	cpl.below = new_item();
+	cpl.sack = new_item();
+	cpl.below->weight = -111;
+	cpl.sack->weight = -111;
 
-    return player;
+	return player;
 }
 
 /* Upates an item with new attributes. */
 void update_item(int tag, int loc, char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag)
 {
-    item *ip, *env;
+	item *ip, *env;
 
-    ip = locate_item(tag);
-    env = locate_item(loc);
+	ip = locate_item(tag);
+	env = locate_item(loc);
 
-    /* Need to do some special handling if this is the player that is
-     * being updated. */
-    if (player->tag == tag)
+	/* Need to do some special handling if this is the player that is
+	 * being updated. */
+	if (player->tag == tag)
 	{
 		copy_name(player->d_name, name);
 
 		/* I don't think this makes sense, as you can have
-	 	 * two players merged together, so nrof should always be one */
-    	player->nrof = get_nrof(name);
+		 * two players merged together, so nrof should always be one */
+		player->nrof = get_nrof(name);
 		player->weight = (float) weight / 1000;
 		player->face = face;
 		get_flags(player, flags);
 
-    	if (player->inv)
-    		player->inv->inv_updated = 1;
+		if (player->inv)
+			player->inv->inv_updated = 1;
 
 		player->animation_id = anim;
-    	player->anim_speed = animspeed;
+		player->anim_speed = animspeed;
 		player->nrof = nrof;
 		player->direction = direction;
-    }
-    else
+	}
+	else
 	{
-        if (ip && ip->env != env)
+		if (ip && ip->env != env)
 		{
-	    	remove_item(ip);
-	    	ip = NULL;
+			remove_item(ip);
+			ip = NULL;
 		}
 
-        set_item_values(ip ? ip : create_new_item(env, tag, bflag), name, weight, (uint16) face, flags, (uint16)anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
-    }
+		set_item_values(ip ? ip : create_new_item(env, tag, bflag), name, weight, (uint16) face, flags, (uint16)anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
+	}
 }
-
 
 /* Prints players inventory, contain extra information for debugging purposes
  * This isn't pretty, but is only used for debugging, so it doesn't need to be. */
 void print_inventory(item *op)
 {
-    char buf[MAX_BUF];
-    char buf2[MAX_BUF];
-    item *tmp;
-    static int l = 0;
-    /*int info_width = 20;*/
+	char buf[MAX_BUF];
+	char buf2[MAX_BUF];
+	item *tmp;
+	static int l = 0;
+	/*int info_width = 20;*/
 
-    if (l == 0)
+	if (l == 0)
 	{
 		snprintf(buf, sizeof(buf), "AA %s's inventory (%d):", op->d_name, op->tag);
 		snprintf(buf2, sizeof(buf2), "BB %s%6.1f kg", buf, op->weight);
-		draw_info(buf2,COLOR_DEFAULT);
-    }
+		draw_info(buf2, COLOR_DEFAULT);
+	}
 
-    l += 2;
-    for (tmp = op->inv; tmp; tmp = tmp->next)
+	l += 2;
+	for (tmp = op->inv; tmp; tmp = tmp->next)
 	{
 		snprintf(buf, sizeof(buf), "CC %*s- %d %s%s (%d)", l - 2, "", tmp->nrof, tmp->d_name, tmp->flags, tmp->tag);
 		draw_info(buf, COLOR_DEFAULT);
 
 		if (tmp->inv)
-	    	print_inventory(tmp);
-    }
+			print_inventory(tmp);
+	}
 
-    l -= 2;
+	l -= 2;
 }
 
 /* Check the objects, animate the ones as necessary */
 void animate_objects()
 {
-    item *ip;
-    int got_one = 0;
+	item *ip;
+	int got_one = 0;
 
 	if (player)
 	{
-	    /* For now, only the players inventory needs to be animated */
+		/* For now, only the players inventory needs to be animated */
 		for (ip = player->inv; ip; ip = ip->next)
 		{
 			if (ip->animation_id > 0)
