@@ -33,7 +33,7 @@
 #define ARCHDEF_FILE 	"./archdef.dat"
 #define INTERFACE_FILE 	"./interface.gui"
 
-#define LOG_FILE     	"./client.log"
+#define LOG_FILE		"./client.log"
 
 #define CLIENT_ICON_NAME "icon.png"
 

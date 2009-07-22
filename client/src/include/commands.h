@@ -38,9 +38,9 @@ enum {
 };
 
 /* Spell list commands for client spell list */
-#define SPLIST_MODE_ADD    0
-#define SPLIST_MODE_REMOVE 1
-#define SPLIST_MODE_UPDATE 2
+#define SPLIST_MODE_ADD		0
+#define SPLIST_MODE_REMOVE	1
+#define SPLIST_MODE_UPDATE	2
 
 extern void BookCmd(unsigned char *data, int len);
 extern void PartyCmd(unsigned char *data, int len);

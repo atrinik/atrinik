@@ -26,14 +26,14 @@
 #if !defined(__MENU_H)
 #define __MENU_H
 
-#define MENU_NO       1
-#define MENU_KEYBIND  2
-#define MENU_SPELL    4
-#define MENU_SKILL    8
-#define MENU_OPTION   16
-#define MENU_CREATE   32
-#define MENU_BOOK     64
-#define MENU_PARTY    128
+#define MENU_NO			1
+#define MENU_KEYBIND	2
+#define MENU_SPELL		4
+#define MENU_SKILL		8
+#define MENU_OPTION		16
+#define MENU_CREATE		32
+#define MENU_BOOK		64
+#define MENU_PARTY		128
 
 #define MENU_ALL (MENU_NO & MENU_KEYBIND & MENU_SPELL & MENU_OPTION & MENU_BOOK & MENU_PARTY)
 

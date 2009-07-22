@@ -53,10 +53,10 @@
 /** Multi part object tile structure */
 typedef struct _multi_part_tile {
 	/** X-offset */
-    int xoff;
+	int xoff;
 
 	/** Y-offset */
-    int yoff;
+	int yoff;
 }_multi_part_tile;
 
 /** Table of predefined multi arch objects.
@@ -68,53 +68,59 @@ typedef struct _multi_part_tile {
  * masks are. */
 typedef struct _multi_part_obj {
 	/** Natural xlen of the whole multi arch */
-    int xlen;
+	int xlen;
 
 	/** Same for ylen */
-    int ylen;
+	int ylen;
 
 	/** Tile */
-    _multi_part_tile part[16];
+	_multi_part_tile part[16];
 }_multi_part_obj;
 
 /** Map data structure */
 typedef struct _mapdata
 {
 	/** Map name */
-    char name[256];
+	char name[256];
 
 	/** Map background music */
-    char music[256];
+	char music[256];
 
 	/** X length */
-    int xlen;
+	int xlen;
 
 	/** Y length */
-    int ylen;
+	int ylen;
 
 	/** Position X */
-    int posx;
+	int posx;
 
 	/** Position Y */
-    int posy;
+	int posy;
 }_mapdata;
 
 /** Map cell structure */
 struct MapCell {
 	/** Faces */
-    short faces[MAXFACES];
+	short faces[MAXFACES];
+
 	/** Position */
-    short pos[MAXFACES];
+	short pos[MAXFACES];
+
 	/** Fog of war */
-    int fog_of_war;
+	int fog_of_war;
+
 	/** Flags */
-    uint8 ext[MAXFACES];
+	uint8 ext[MAXFACES];
+
 	/** Name of player on this cell*/
-    char pname[MAXFACES][32];
+	char pname[MAXFACES][32];
+
 	/** If this is where our enemy is */
-    uint8 probe[MAXFACES];
+	uint8 probe[MAXFACES];
+
 	/** Cell darkness */
-    uint8 darkness;
+	uint8 darkness;
 } MapCell;
 
 /** Map structure */

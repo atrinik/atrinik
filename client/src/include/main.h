@@ -63,8 +63,8 @@ extern _server_char new_character;
 
 #define HUGE_BUF 1024
 
-#define SDL_DEFAULT_REPEAT_DELAY        500
-#define SDL_DEFAULT_REPEAT_INTERVAL     30
+#define SDL_DEFAULT_REPEAT_DELAY		500
+#define SDL_DEFAULT_REPEAT_INTERVAL		30
 
 /* For hash table (bmap, ...) */
 #define MAXHASHSTRING 20
@@ -310,12 +310,12 @@ typedef struct _face_struct
 /* This entry is unused */
 #define LIST_ENTRY_UNUSED 	-1
 /* Entry is used but player doesn't have it */
-#define LIST_ENTRY_USED    	1
+#define LIST_ENTRY_USED		1
 /* Player knows this used entry */
-#define LIST_ENTRY_KNOWN   	2
-#define LIST_NAME_MAX 		64
-#define DIALOG_LIST_ENTRY 	26
-#define OPTWIN_MAX_TABLEN 	14
+#define LIST_ENTRY_KNOWN	2
+#define LIST_NAME_MAX		64
+#define DIALOG_LIST_ENTRY	26
+#define OPTWIN_MAX_TABLEN	14
 
 /* Skill list defines */
 
@@ -324,26 +324,26 @@ typedef struct _face_struct
 
 typedef struct _skill_list_entry {
 	/* -1: entry is unused */
-    int flag;
+	int flag;
 
 	/* Name of entry */
-    char name[LIST_NAME_MAX];
+	char name[LIST_NAME_MAX];
 
-    char icon_name[32];
-    struct _Sprite *icon;
+	char icon_name[32];
+	struct _Sprite *icon;
 
 	/* Description (in 4 rows) */
-    char desc[4][96];
+	char desc[4][96];
 
 	/* -1: skill has no level or exp */
-    int exp_level;
+	int exp_level;
 
 	/* exp of this skill */
-    int exp;
+	int exp;
 }_skill_list_entry;
 
 typedef struct _skill_list {
-    _skill_list_entry entry[DIALOG_LIST_ENTRY];
+	_skill_list_entry entry[DIALOG_LIST_ENTRY];
 }_skill_list;
 
 /* Bind key list defines */
@@ -411,16 +411,16 @@ typedef struct _spell_list {
 /** Fire mode structure */
 typedef struct _fire_mode {
 	/** Item */
-    int item;
+	int item;
 
 	/** Amunnition */
-    int amun;
+	int amun;
 
 	/** Spell */
-    _spell_list_entry *spell;
+	_spell_list_entry *spell;
 
 	/** Skill */
-    _skill_list_entry *skill;
+	_skill_list_entry *skill;
 
 	/** Name */
 	char name[128];
@@ -706,20 +706,20 @@ typedef enum _bitmap_index {
 	BITMAP_NCHAR_MARKER,
 
 	BITMAP_TRAPED,
-    BITMAP_PRAY,
-    BITMAP_WAND,
+	BITMAP_PRAY,
+	BITMAP_WAND,
 	BITMAP_JOURNAL,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
-    BITMAP_MSCURSOR_MOVE,
-    BITMAP_RESIST_BG,
-    BITMAP_MAIN_LVL_BG,
-    BITMAP_SKILL_EXP_BG,
-    BITMAP_REGEN_BG,
-    BITMAP_SKILL_LVL_BG,
-    BITMAP_MENU_BUTTONS,
-    BITMAP_PLAYER_INFO,
-    BITMAP_TARGET_BG,
+	BITMAP_MSCURSOR_MOVE,
+	BITMAP_RESIST_BG,
+	BITMAP_MAIN_LVL_BG,
+	BITMAP_SKILL_EXP_BG,
+	BITMAP_REGEN_BG,
+	BITMAP_SKILL_LVL_BG,
+	BITMAP_MENU_BUTTONS,
+	BITMAP_PLAYER_INFO,
+	BITMAP_TARGET_BG,
 	BITMAP_TEXTINPUT,
 
 	BITMAP_INIT
@@ -727,7 +727,7 @@ typedef enum _bitmap_index {
 
 /* For custom cursors */
 enum {
-    MSCURSOR_MOVE = 1
+	MSCURSOR_MOVE = 1
 };
 
 extern struct gui_book_struct *gui_interface_book;

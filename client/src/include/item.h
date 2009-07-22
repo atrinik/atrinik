@@ -40,96 +40,96 @@
  * (= client) knows about items in its inventory */
 typedef struct item_struct {
 	/* Next item in inventory */
-    struct item_struct *next;
+	struct item_struct *next;
 
 	/* Previous item in inventory */
-    struct item_struct *prev;
+	struct item_struct *prev;
 
 	/* Which items inventory is this item */
-    struct item_struct *env;
+	struct item_struct *env;
 
 	/* Items inventory */
-    struct item_struct *inv;
+	struct item_struct *inv;
 
 	/* Item's full name without status information */
-    char d_name[NAME_LEN];
+	char d_name[NAME_LEN];
 
 	/* Item's singular name as sent to us */
-    char s_name[NAME_LEN];
+	char s_name[NAME_LEN];
 
 	/* Item's plural name as sent to us */
-    char p_name[NAME_LEN];
+	char p_name[NAME_LEN];
 
 	/* Item's status information */
-    char flags[NAME_LEN];
+	char flags[NAME_LEN];
 
 	/* Item identifier (0 = free) */
-    sint32 tag;
+	sint32 tag;
 
 	/* Number of items */
-    sint32 nrof;
+	sint32 nrof;
 
 	/* How much item weights */
-    float weight;
+	float weight;
 
 	/* Index for face array */
-    sint16 face;
+	sint16 face;
 
 	/* Index into animation array */
-    uint16 animation_id;
+	uint16 animation_id;
 
 	/* How often to animate */
-    uint16 anim_speed;
+	uint16 anim_speed;
 
-	/* Kast face in sequence drawn */
-    uint16 anim_state;
+	/* Last face in sequence drawn */
+	uint16 anim_state;
 
 	/* How many ticks have passed since we last animated */
-    uint16 last_anim;
+	uint16 last_anim;
 
 	/* Item is magical */
-    uint16 magical;
+	uint16 magical;
 
 	/* Item is cursed */
-    uint16 cursed;
+	uint16 cursed;
 
 	/* Item is damned */
-    uint16 damned;
+	uint16 damned;
 
 	/* Item is unpaid */
-    uint16 unpaid;
+	uint16 unpaid;
 
 	/* Item is locked */
-    uint16 locked;
+	uint16 locked;
 
 	/* Item is trapped */
-    uint16 traped;
+	uint16 traped;
 
 	/* Item is applied */
-    uint16 applied;
+	uint16 applied;
 
 	/* Container is open */
-    uint16 open;
+	uint16 open;
 
 	/* Item's inventory is updated, this is set
 	 * when item's inventory is modified, draw
 	 * routines can use this to redraw things */
-    uint16 inv_updated;
+	uint16 inv_updated;
 
 	/* How item is applied (worn/wield/etc) */
-    uint8 apply_type;
+	uint8 apply_type;
 
 	/* Unmodified flags value as sent from the server */
-    uint32 flagsval;
+	uint32 flagsval;
 
 	/* Item type for ordering */
-    uint8 type;
-    uint8 itype;
-    uint8 stype;
-    uint8 item_qua;
-    uint8 item_con;
-    uint8 item_skill;
-    uint8 item_level;
+	uint8 type;
+	uint8 itype;
+	uint8 stype;
+	uint8 item_qua;
+	uint8 item_con;
+	uint8 item_skill;
+	uint8 item_level;
 	uint8 direction;
 } item;
 

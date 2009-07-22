@@ -32,10 +32,10 @@
 /** Used in the priority list (to order widgets) */
 struct _widget_node {
 	/** Next */
-    struct _widget_node *next;
+	struct _widget_node *next;
 
 	/** Previous */
-    struct _widget_node *prev;
+	struct _widget_node *prev;
 
 	/** Widget ID */
 	int WidgetID;
@@ -77,41 +77,42 @@ typedef struct _widgetdata
 /** Events that are passed to the widget handler */
 typedef enum _proc_type
 {
-    PROCESS,
-    EVENT,
-    KILL
+	PROCESS,
+	EVENT,
+	KILL
 } _proc_type;
 
 enum _MEvent
 {
-    MOUSE_UP = 1,
-    MOUSE_DOWN,
-    MOUSE_MOVE
+	MOUSE_UP = 1,
+	MOUSE_DOWN,
+	MOUSE_MOVE
 };
 
 /* add the widget id here */
 typedef enum _WidgetID
 {
-    STATS_ID,
-    RESIST_ID,
-    MAIN_LVL_ID,
-    SKILL_EXP_ID,
-    REGEN_ID,
-    SKILL_LVL_ID,
-    MENU_B_ID,
-    QUICKSLOT_ID,
-    CHATWIN_ID,
-    MSGWIN_ID,
-    MIXWIN_ID,
-    PDOLL_ID,
-    BELOW_INV_ID,
-    PLAYER_INFO_ID,
-    RANGE_ID,
-    TARGET_ID,
-    MAIN_INV_ID,
-    MAPNAME_ID,
-    IN_CONSOLE_ID,
-    IN_NUMBER_ID,
+	STATS_ID,
+	RESIST_ID,
+	MAIN_LVL_ID,
+	SKILL_EXP_ID,
+	REGEN_ID,
+	SKILL_LVL_ID,
+	MENU_B_ID,
+	QUICKSLOT_ID,
+	CHATWIN_ID,
+	MSGWIN_ID,
+	MIXWIN_ID,
+	PDOLL_ID,
+	BELOW_INV_ID,
+	PLAYER_INFO_ID,
+	RANGE_ID,
+	TARGET_ID,
+	MAIN_INV_ID,
+	MAPNAME_ID,
+	IN_CONSOLE_ID,
+	IN_NUMBER_ID,
+
 	/* Must be last element */
 	TOTAL_WIDGETS
 }_WidgetID;

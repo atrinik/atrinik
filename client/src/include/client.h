@@ -36,26 +36,26 @@
 /* Defines for the ext map command */
 
 /* Object is sleeping */
-#define FFLAG_SLEEP     0x01
+#define FFLAG_SLEEP		0x01
 /* Object is confused */
-#define FFLAG_CONFUSED  0x02
+#define FFLAG_CONFUSED	0x02
 /* Object is paralyzed */
-#define FFLAG_PARALYZED 0x04
+#define FFLAG_PARALYZED	0x04
 /* Object is scared */
-#define FFLAG_SCARED    0x08
+#define FFLAG_SCARED	0x08
 /* Object is blinded */
-#define FFLAG_BLINDED   0x10
+#define FFLAG_BLINDED	0x10
 /* Object is invisible (but when sent, player can see it) */
-#define FFLAG_INVISIBLE 0x20
+#define FFLAG_INVISIBLE	0x20
 /* Object is ethereal - but when sent, object can be seen */
-#define FFLAG_ETHEREAL  0x40
+#define FFLAG_ETHEREAL	0x40
 /* Object is target of player */
 #define FFLAG_PROBE		0x80
 
-#define INPUT_MODE_NO      0
-#define INPUT_MODE_CONSOLE 1
-#define INPUT_MODE_NUMBER  4
-#define INPUT_MODE_GETKEY  8
+#define INPUT_MODE_NO		0
+#define INPUT_MODE_CONSOLE	1
+#define INPUT_MODE_NUMBER	4
+#define INPUT_MODE_GETKEY	8
 
 #define NUM_MODE_GET  1
 #define NUM_MODE_DROP 2
@@ -69,10 +69,10 @@
 typedef struct screensize
 {
 	/** Screen X */
-    int x;
+	int x;
 
 	/** Screen Y */
-    int y;
+	int y;
 } _screensize;
 
 extern struct screensize *Screensize;
@@ -83,15 +83,15 @@ typedef struct Animations {
 
 	/* Length of one a animation frame (num_anim / facings) */
 	int frame;
-    uint16 *faces;
+	uint16 *faces;
 
 	/* Number of frames */
 	uint8 facings;
 
 	/* Number of animations. Value of 2 means
 	 * only faces[0], [1] have meaningful values. */
-    uint8 num_animations;
-    uint8 flags;
+	uint8 num_animations;
+	uint8 flags;
 } Animations;
 
 typedef struct _anim_table {
@@ -108,8 +108,8 @@ extern Animations animations[MAXANIM];
 
 /* Contains the base information we use to make up a packet we want to send. */
 typedef struct SockList {
-    int len;
-    unsigned char *buf;
+	int len;
+	unsigned char *buf;
 } SockList;
 
 /* ClientSocket could probably hold more of the global values - it could
@@ -117,18 +117,18 @@ typedef struct SockList {
  * of globals. */
 typedef struct ClientSocket {
 	/* Typedef your socket type to SOCKET */
-    SOCKET fd;
-    SockList inbuf;
+	SOCKET fd;
+	SockList inbuf;
 
 	/* Server versions of these */
-    int	cs_version, sc_version;
+	int	cs_version, sc_version;
 
-    /* These are used for the newer 'windowing' method of commands -
-     * number of last command sent, number of received confirmation */
-    int command_sent, command_received;
+	/* These are used for the newer 'windowing' method of commands -
+	 * number of last command sent, number of received confirmation */
+	int command_sent, command_received;
 
-    /* Time (in ms) players commands currently take to execute */
-    int command_time;
+	/* Time (in ms) players commands currently take to execute */
+	int command_time;
 } ClientSocket;
 
 extern ClientSocket csocket;
@@ -156,59 +156,59 @@ typedef enum rangetype {
 } rangetype;
 
 typedef struct Stat_struct {
-    sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
+	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
 
 	/* Weapon Class and Armour Class */
 	sint16 wc, ac;
-    sint8 level;
+	sint8 level;
 
 	/* Hit Points. */
-    sint16 hp;
+	sint16 hp;
 
 	/* Max hit points*/
-    sint16 maxhp;
+	sint16 maxhp;
 
 	/* Spell points.  Used to cast spells. */
-    sint16 sp;
+	sint16 sp;
 
 	/* Max spell points. */
-    sint16 maxsp;
+	sint16 maxsp;
 
 	/* Grace.  Used to cast prayers. */
-    sint16 grace;
+	sint16 grace;
 
 	/* Max grace */
-    sint16 maxgrace;
+	sint16 maxgrace;
 
 	/* Experience.  Killers gain 1/10. */
-    sint32 exp;
+	sint32 exp;
 
 	/* How much food in stomach.  0 = starved. */
-    sint16 food;
+	sint16 food;
 
 	/* How much damage this object does when hitting */
-    sint16 dam;
+	sint16 dam;
 
 	/* Gets converted to a float for display */
-    sint32 speed;
+	sint32 speed;
 
 	/* Gets converted to a float for display */
-    int weapon_sp;
+	int weapon_sp;
 
 	/* Contains fire on/run on flags */
-    uint16 flags;
+	uint16 flags;
 
 	/* Resistant values */
-    sint16 protection[20];
+	sint16 protection[20];
 
 	/* Resistant value has changed */
-    uint32 protection_change:1;
+	uint32 protection_change:1;
 
 	/* Level and experience totals for */
-    sint16 skill_level[MAX_SKILL];
+	sint16 skill_level[MAX_SKILL];
 
 	/* Skills */
-    sint32 skill_exp[MAX_SKILL];
+	sint32 skill_exp[MAX_SKILL];
 } Stats;
 
 typedef enum _inventory_win {
@@ -218,27 +218,27 @@ typedef enum _inventory_win {
 
 typedef struct Player_Struct {
 	/* Player object */
-    item *ob;
+	item *ob;
 
 	/* Items below the player (pl.below->inv) */
-    item *below;
+	item *below;
 
 	/* inventory of a open container */
 	item *sack;
 
 	/* Pointer to open container */
-    item *container;
+	item *container;
 
 	/* Tag of the container */
 	sint32 container_tag;
 
 	/* Object that is used for that */
-    item *ranges[range_size];
+	item *ranges[range_size];
 
-    uint32 weight_limit;
+	uint32 weight_limit;
 
 	/* Repeat count on command */
-    uint32	count;
+	uint32 count;
 
 	/* Target mode */
 	int	target_mode;
@@ -255,15 +255,15 @@ typedef struct Player_Struct {
 	/* Menu that is opened */
 	int menustatus;
 
-    int loc;
-    int tag;
-    int nrof;
+	int loc;
+	int tag;
+	int nrof;
 
 	/* Skill group and entry of ready skill */
-    int skill_g;
-    int skill_e;
+	int skill_g;
+	int skill_e;
 
-    int warn_hp;
+	int warn_hp;
 
 	int win_inv_slot;
 	int win_inv_tag;
@@ -271,13 +271,13 @@ typedef struct Player_Struct {
 	int win_pdoll_tag;
 	int win_inv_start;
 	int win_inv_count;
-    int win_inv_ctag;
+	int win_inv_ctag;
 
-    int win_below_slot;
-    int win_below_tag;
-    int win_below_start;
-    int win_below_count;
-    int win_below_ctag;
+	int win_below_slot;
+	int win_below_tag;
+	int win_below_start;
+	int win_below_count;
+	int win_below_ctag;
 
 	/* Input mode: no, console (textstring), numinput */
 	int input_mode;
@@ -292,16 +292,16 @@ typedef struct Player_Struct {
 	float action_timer;
 
 	/* If true, don't echo keystrokes */
-    uint32 no_echo:1;
+	uint32 no_echo:1;
 
 	/* True if fire key is pressed = action key (ALT;CTRL) */
-    uint32 fire_on:1;
+	uint32 fire_on:1;
 
 	/* True if run key is on = action key (ALT;CTRL) */
-    uint32 run_on:1;
+	uint32 run_on:1;
 
-    uint32 resize_twin:1;
-    uint32 resize_twin_marker:1;
+	uint32 resize_twin:1;
+	uint32 resize_twin_marker:1;
 
 	/* True if fire key is pressed = permanent mode */
 	uint32 firekey_on:1;
@@ -310,95 +310,95 @@ typedef struct Player_Struct {
 	uint32 runkey_on:1;
 
 	/* If true, echo the command that the key */
-    uint32 echo_bindings:1;
+	uint32 echo_bindings:1;
 
 	float window_weight;
 	float real_weight;
 
 	/* Count for commands */
-    uint16 count_left;
+	uint16 count_left;
 
 	/* size of magic map */
-    uint16 mmapx, mmapy;
+	uint16 mmapx, mmapy;
 
 	/* Where the player is on the magic map */
-    uint16 pmapx, pmapy;
+	uint16 pmapx, pmapy;
 
 	/* Resolution to draw on the magic map */
-    uint16 mapxres, mapyres;
+	uint16 mapxres, mapyres;
 
-    int warn_statdown;
-    int warn_statup;
-    int warn_drain;
+	int warn_statdown;
+	int warn_statup;
+	int warn_drain;
 
 	/* Player stats */
-    Stats stats;
+	Stats stats;
 
 	/* What the input state is */
-    Input_State input_state;
+	Input_State input_state;
 
 	/* What type of range attack player has */
-    rangetype shoottype;
+	rangetype shoottype;
 
 	/* Magic map data */
-    uint8 *magicmap;
+	uint8 *magicmap;
 
 	/* If 0, show normal map, otherwise, show
 	 * magic map. */
-    uint8 showmagic;
+	uint8 showmagic;
 
 	/* How many outstanding commands to allow */
-    uint8 command_window;
+	uint8 command_window;
 
 	/* Index to spell that is readied
 	 * player knows */
-    uint8 ready_spell;
+	uint8 ready_spell;
 
 	/* These are offset values. See object.c */
-    uint8 map_x, map_y;
+	uint8 map_x, map_y;
 
 	/* HP of our target in % */
 	char target_hp;
 
 	/* Last command entered */
-    char last_command[MAX_BUF];
+	char last_command[MAX_BUF];
 
 	/* Keys typed (for long commands) */
-    char input_text[MAX_BUF];
+	char input_text[MAX_BUF];
 
 	/* Name and password.  Only used while logging in. */
-    char name[40];
-    char password[40];
+	char name[40];
+	char password[40];
 
 	/* Target name */
-    char target_name[MAX_BUF];
-    char num_text[300];
-    char skill_name[128];
+	char target_name[MAX_BUF];
+	char num_text[300];
+	char skill_name[128];
 
 	/* Rank and name of char */
 	char rankandname[MAX_BUF];
 
 	/* Name of char */
-    char pname[MAX_BUF];
+	char pname[MAX_BUF];
 
 	/* Race and profession of character */
 	char race[MAX_BUF];
-    char title[MAX_BUF];
+	char title[MAX_BUF];
 
 	/* Rank */
-    char rank[MAX_BUF];
+	char rank[MAX_BUF];
 
 	/* God */
-    char godname[MAX_BUF];
+	char godname[MAX_BUF];
 
 	/* Alignment */
-    char alignment[MAX_BUF];
+	char alignment[MAX_BUF];
 
 	/* Gender */
-    char gender[MAX_BUF];
+	char gender[MAX_BUF];
 
 	/* Range attack chosen */
-    char range[MAX_BUF];
+	char range[MAX_BUF];
 
 	/* Party name this player is member of */
 	char partyname[MAX_BUF];
@@ -514,11 +514,11 @@ extern Client_Player cpl;
 
 /* These are used with CS_STAT_FLAGS above to communicate S->C what the
  * server thinks the fireon & runon states are. */
-#define SF_FIREON           1
-#define SF_RUNON            2
-#define SF_BLIND            4
-#define SF_XRAYS            8
-#define SF_INFRAVISION      16
+#define SF_FIREON			1
+#define SF_RUNON			2
+#define SF_BLIND			4
+#define SF_XRAYS			8
+#define SF_INFRAVISION		16
 
 /* It's a say command */
 #define NDI_SAY		0x0100
@@ -530,16 +530,16 @@ extern Client_Player cpl;
 #define NDI_SYSTEM	0x01000
 
 /* Flags for the item command */
-#define F_APPLIED       0x000F
-#define F_LOCATION      0x00F0
-#define F_UNPAID        0x0200
-#define F_MAGIC         0x0400
-#define F_CURSED        0x0800
-#define F_DAMNED        0x1000
-#define F_OPEN          0x2000
-#define F_NOPICK        0x4000
-#define F_LOCKED        0x8000
-#define F_TRAPED        0x10000
+#define F_APPLIED		0x000F
+#define F_LOCATION		0x00F0
+#define F_UNPAID		0x0200
+#define F_MAGIC			0x0400
+#define F_CURSED		0x0800
+#define F_DAMNED		0x1000
+#define F_OPEN			0x2000
+#define F_NOPICK		0x4000
+#define F_LOCKED		0x8000
+#define F_TRAPED		0x10000
 
 #define CF_FACE_NONE	0
 #define CF_FACE_BITMAP	1
