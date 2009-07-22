@@ -47,9 +47,9 @@ static unsigned long hashbmap(char *str, int tablesize)
 
 		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
 			rot = 0;
-    }
+	}
 
-    return (hash % tablesize);
+	return (hash % tablesize);
 }
 
 /**
@@ -129,88 +129,117 @@ void FreeMemory(void **p)
 
 char *show_input_string(char *text, struct _Font *font, int wlen)
 {
-    register int i, j,len;
+	register int i, j,len;
+	static char buf[MAX_INPUT_STR];
 
-    static char buf[MAX_INPUT_STR];
-    strcpy(buf, text);
+	strcpy(buf, text);
 
-    len = strlen(buf);
-    while (len >= CurrentCursorPos)
-    {
-        buf[len + 1] = buf[len];
-        len--;
-    }
-    buf[CurrentCursorPos] = '_';
+	len = strlen(buf);
 
-    for (len = 25,i = CurrentCursorPos; i >= 0; i--)
-    {
-        if (!buf[i])
-            continue;
-        if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
-        {
-            i--;
-            break;
-        }
-        len += font->c[(int) (buf[i])].w + font->char_offset;
-    }
+	while (len >= CurrentCursorPos)
+	{
+		buf[len + 1] = buf[len];
+		len--;
+	}
 
-    len -= 25;
-    for (j = CurrentCursorPos; j <= (int) strlen(buf); j++)
-    {
-        if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
-        {
-            break;
-        }
-        len += font->c[(int) (buf[j])].w + font->char_offset;
-    }
-    buf[j] = 0;
+	buf[CurrentCursorPos] = '_';
 
-    return(&buf[++i]);
+	for (len = 25,i = CurrentCursorPos; i >= 0; i--)
+	{
+		if (!buf[i])
+			continue;
+
+		if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
+		{
+			i--;
+
+			break;
+		}
+
+		len += font->c[(int) (buf[i])].w + font->char_offset;
+	}
+
+	len -= 25;
+
+	for (j = CurrentCursorPos; j <= (int) strlen(buf); j++)
+	{
+		if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
+		{
+			break;
+		}
+
+		len += font->c[(int) (buf[j])].w + font->char_offset;
+	}
+
+	buf[j] = 0;
+
+	return &buf[++i];
 }
 
 int read_substr_char(char *srcstr, char *desstr, int *sz, char ct)
 {
-        register unsigned char c;
-        register int s=0;
+	register unsigned char c;
+	register int s = 0;
 
-        desstr[0]=0;
-        for(;s<1023;)
-        {
-                c = *(desstr+s++) =*(srcstr+*sz); /* get character*/
-                if(c==0x0d)
-                        continue;
-                if(c==0)
-                        return(-1);
-                if (c == 0x0a || c == ct)  /* if it END or WHITESPACE..*/
-                        break; /* have a single word! (or not...)*/
-                        (*sz)++; /* point to next source char */
-        }
-        *(desstr+(--s)) = 0; /* terminate all times with 0, */
-                                        /* s: string length*/
-        (*sz)++; /*point to next source charakter return(s);*/
-        return s;
+	desstr[0] = 0;
+
+	for (; s < 1023 ;)
+	{
+		/* Get character */
+		c = *(desstr + s++) = *(srcstr + *sz);
+
+		if (c == 0x0d)
+		{
+			continue;
+		}
+
+		if (c == 0)
+		{
+			return -1;
+		}
+
+		/* if it END or WHITESPACE..*/
+		if (c == 0x0a || c == ct)
+		{
+			/* have a single word! (or not...)*/
+			break;
+		}
+
+		/* point to next source char */
+		(*sz)++;
+	}
+
+	/* terminate all times with 0, */
+	*(desstr+(--s)) = 0;
+
+	/*point to next source charakter return(s);*/
+	(*sz)++;
+
+	return s;
 }
 
-/*
- * Based on (n+1)^2 = n^2 + 2n + 1
+/* Based on (n+1)^2 = n^2 + 2n + 1
  * given that	1^2 = 1, then
  *		2^2 = 1 + (2 + 1) = 1 + 3 = 4
  * 		3^2 = 4 + (4 + 1) = 4 + 5 = 1 + 3 + 5 = 9
  * 		4^2 = 9 + (6 + 1) = 9 + 7 = 1 + 3 + 5 + 7 = 16
  *		...
  * In other words, a square number can be express as the sum of the
- * series n^2 = 1 + 3 + ... + (2n-1)
- */
+ * series n^2 = 1 + 3 + ... + (2n-1) */
 int isqrt(int n)
 {
 	int result, sum, prev;
+
 	result = 0;
 	prev = sum = 1;
-	while (sum <= n) {
+
+	while (sum <= n)
+	{
 		prev += 2;
 		sum += prev;
 		++result;
 	}
+
 	return result;
 }
 

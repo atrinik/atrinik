@@ -513,14 +513,14 @@ _gui_book_struct *load_book_interface(char *data, int len)
 void show_book()
 {
 	char buf[128];
-    SDL_Rect box;
+	SDL_Rect box;
 	int i, ii, yoff, x, y;
 	_gui_book_page *page1, *page2;
 
 	x = Screensize->x / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2;
-    y = Screensize->y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
+	y = Screensize->y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
 
-    sprite_blt(Bitmaps[BITMAP_JOURNAL], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_JOURNAL], x, y, NULL, NULL);
 	global_book_data.x = x;
 	global_book_data.y = y;
 	global_book_data.xlen = Bitmaps[BITMAP_JOURNAL]->bitmap->w;
@@ -529,7 +529,7 @@ void show_book()
 	if (!gui_interface_book)
 		return;
 
-    /*add_close_button(x + 27, y + 2, MENU_BOOK);*/
+	/*add_close_button(x + 27, y + 2, MENU_BOOK);*/
 	if (gui_interface_book->name)
 		StringBlt(ScreenSurface, &BigFont, gui_interface_book->name, x + global_book_data.xlen / 2 - get_string_pixel_length(gui_interface_book->name, &BigFont) / 2, y + 9, COLOR_WHITE, NULL, NULL);
 

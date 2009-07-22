@@ -68,15 +68,15 @@ static char *sound_files[SOUND_MAX] = {
 	"hit_slash.wav",
 	"hit_pierce.wav",
 	"hit_block.wav",
-    "hit_hand.wav",
-    "miss_mob1.wav",
-    "miss_player1.wav",
+	"hit_hand.wav",
+	"miss_mob1.wav",
+	"miss_player1.wav",
 
 	"petdead.wav",
 	"playerdead.wav",
-    "explosion.wav",
-    "explosion.wav",
-    "kill.wav",
+	"explosion.wav",
+	"explosion.wav",
+	"kill.wav",
 	"pull.wav",
 	"fallhole.wav",
 	"poison.wav",
@@ -188,7 +188,7 @@ void sound_init()
 	SoundSystem = SOUND_SYSTEM_OFF;
 
 	/* Open the audio device */
-    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
+	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
 		LOG(LOG_MSG, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
 		return;
@@ -203,7 +203,7 @@ void sound_init()
 void sound_deinit()
 {
 #ifdef INSTALL_SOUND
-    if (SoundSystem == SOUND_SYSTEM_ON)
+	if (SoundSystem == SOUND_SYSTEM_ON)
 		Mix_CloseAudio();
 #endif
 }
@@ -213,7 +213,7 @@ void sound_deinit()
 void sound_loadall()
 {
 #ifdef INSTALL_SOUND
-    register int i, ii;
+	register int i, ii;
 	char buf[2048];
 
 	if (SoundSystem != SOUND_SYSTEM_ON)
@@ -265,40 +265,40 @@ void sound_freeall()
  * @param yoff Y offset */
 void calculate_map_sound(int soundnr, int xoff, int yoff)
 {
-    /* We got xoff/yoff relative to 0, when this will change, exchange 0
-     * with the right default position */
+	/* We got xoff/yoff relative to 0, when this will change, exchange 0
+	 * with the right default position */
 #ifdef INSTALL_SOUND
-    int pane, distance = isqrt(POW2(0 - xoff) + POW2(0 - yoff)) - 1;
+	int pane, distance = isqrt(POW2(0 - xoff) + POW2(0 - yoff)) - 1;
 
-    if (SoundSystem != SOUND_SYSTEM_ON)
+	if (SoundSystem != SOUND_SYSTEM_ON)
 		return;
 
-    if (distance < 0)
-        distance = 0;
+	if (distance < 0)
+		distance = 0;
 
 	/* That's our real volume in % */
-    distance = 100 - distance * (100 / MAX_SOUND_DISTANCE);
+	distance = 100 - distance * (100 / MAX_SOUND_DISTANCE);
 
-    /* Now we set the panning.
-     * Because reducing volume from one to another reduce volume too,
-     * we used only yoff real volume. */
-    pane = isqrt(POW2(0 - xoff)) - 1;
+	/* Now we set the panning.
+	 * Because reducing volume from one to another reduce volume too,
+	 * we used only yoff real volume. */
+	pane = isqrt(POW2(0 - xoff)) - 1;
 
-    if (pane < 0)
-        pane = 0;
+	if (pane < 0)
+		pane = 0;
 
 	/* That's "% use of left or right speaker" */
-    /* Note that as higher is the xoff distance, so more we use one direction
+	/* Note that as higher is the xoff distance, so more we use one direction
 	 * only */
-    pane = pane * (100 / MAX_SOUND_DISTANCE);
+	pane = pane * (100 / MAX_SOUND_DISTANCE);
 
-    pane = (int) ((double) pane * ((double) 255 / (double) 100));
+	pane = (int) ((double) pane * ((double) 255 / (double) 100));
 
 	/* Now mark this is left or right pane. Left is *(-1) */
-    if (xoff < 0)
-        pane *= -1;
+	if (xoff < 0)
+		pane *= -1;
 
-    sound_play_effect(soundnr, pane, distance);
+	sound_play_effect(soundnr, pane, distance);
 #endif
 }
 
@@ -314,7 +314,7 @@ void calculate_map_sound(int soundnr, int xoff, int yoff)
 int sound_play_effect(int soundid, int pan, int vol)
 {
 #ifdef INSTALL_SOUND
-    int tmp;
+	int tmp;
 
 	if (SoundSystem != SOUND_SYSTEM_ON)
 		return -1;
@@ -343,7 +343,7 @@ int sound_play_effect(int soundid, int pan, int vol)
 
 	return tmp;
 #else
-    return -1;
+	return -1;
 #endif
 }
 
@@ -354,36 +354,36 @@ int sound_play_effect(int soundid, int pan, int vol)
 void sound_play_one_repeat(int soundid, int special_id)
 {
 #ifdef INSTALL_SOUND
-    int tmp,s;
+	int tmp,s;
 
-    if (SoundSystem != SOUND_SYSTEM_ON)
-        return;
+	if (SoundSystem != SOUND_SYSTEM_ON)
+		return;
 
-    if (special_sounds[special_id] != -1)
-    {
-        if (Mix_Playing(special_sounds[special_id]))
-            return;
-    }
+	if (special_sounds[special_id] != -1)
+	{
+		if (Mix_Playing(special_sounds[special_id]))
+			return;
+	}
 
-    tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
+	tmp = Mix_PlayChannel(-1, Sounds[soundid].sound, 0);
 
-    if (tmp == -1)
-    {
-        /* We failed... */
-        special_sounds[special_id] = -1;
-        return;
-    }
+	if (tmp == -1)
+	{
+		/* We failed... */
+		special_sounds[special_id] = -1;
+		return;
+	}
 
-    Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * (double) MIX_MAX_VOLUME));
+	Mix_Volume(tmp, (int) (((double) options.sound_volume / (double) 100) * (double) MIX_MAX_VOLUME));
 
-    /* That's the wild part: when we got a channel, we must delete every same old entry */
-    for (s = 0; s < SPECIAL_SOUND_INIT; s++)
-    {
-        if (special_sounds[s] == tmp)
-            special_sounds[s] = -1;
-    }
+	/* That's the wild part: when we got a channel, we must delete every same old entry */
+	for (s = 0; s < SPECIAL_SOUND_INIT; s++)
+	{
+		if (special_sounds[s] == tmp)
+			special_sounds[s] = -1;
+	}
 
-    special_sounds[special_id] = tmp;
+	special_sounds[special_id] = tmp;
 #endif
 }
 
@@ -408,19 +408,19 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 		vol2 = 100;
 
 	/* Same sound? */
-    if (music.data && !strcmp(fname, music.name))
-    {
-        music.fade = fade;
-        music.loop = loop;
+	if (music.data && !strcmp(fname, music.name))
+	{
+		music.fade = fade;
+		music.loop = loop;
 
-        if (vol != music.vol)
-        {
-            music.vol = vol;
-            Mix_VolumeMusic(vol);
-        }
+		if (vol != music.vol)
+		{
+			music.vol = vol;
+			Mix_VolumeMusic(vol);
+		}
 
-        return;
-    }
+		return;
+	}
 
 	/* Only when set, we still play something */
 	if (music.flag && !(mode & MUSIC_MODE_DIRECT))
@@ -454,13 +454,13 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 static void sound_start_music(char *fname, int vol, int fade, int loop)
 {
 #ifdef INSTALL_SOUND
-    char buf[4096];
+	char buf[4096];
 
-    if (SoundSystem != SOUND_SYSTEM_ON)
+	if (SoundSystem != SOUND_SYSTEM_ON)
 		return;
 
-    /* Try to load the ogg */
-    snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
+	/* Try to load the ogg */
+	snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
 
 	if (music.data)
 	{
@@ -502,7 +502,7 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
 void sound_fadeout_music(int i)
 {
 #ifdef INSTALL_SOUND
-    if (SoundSystem != SOUND_SYSTEM_ON)
+	if (SoundSystem != SOUND_SYSTEM_ON)
 		return;
 
 	if (music.flag)

@@ -65,9 +65,9 @@ int read_socket(int fd, SockList *sl, int len)
 			 * data available. */
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
-            {
+			{
 #ifdef __WIN_32
-                LOG(LOG_DEBUG, "ReadPacket got error %d, returning -1\n", WSAGetLastError());
+				LOG(LOG_DEBUG, "ReadPacket got error %d, returning -1\n", WSAGetLastError());
 #elif __LINUX
 				LOG(LOG_DEBUG, "ReadPacket got error %d, returning -1", errno);
 #endif
@@ -112,17 +112,17 @@ int read_socket(int fd, SockList *sl, int len)
 	if (toread == 0)
 		return 1;
 
-    if ((toread + sl->len) > len)
-    {
-        draw_info("WARNING: Server closed connection.", COLOR_RED);
-        LOG(LOG_ERROR, "SockList_ReadPacket: Want to read more bytes than will fit in buffer.\n");
+	if ((toread + sl->len) > len)
+	{
+		draw_info("WARNING: Server closed connection.", COLOR_RED);
+		LOG(LOG_ERROR, "SockList_ReadPacket: Want to read more bytes than will fit in buffer.\n");
 
-        /* Return error so the socket is closed */
-        return -1;
-    }
+		/* Return error so the socket is closed */
+		return -1;
+	}
 
-    do
-    {
+	do
+	{
 #ifdef __WIN_32
 		stat = recv(fd, sl->buf + sl->len, toread, 0);
 #elif __LINUX
@@ -132,16 +132,16 @@ int read_socket(int fd, SockList *sl, int len)
 		} while ((stat < 0) && (errno == EINTR));
 #endif
 
-        if (stat < 0)
-        {
+		if (stat < 0)
+		{
 #ifdef __WIN_32
-            if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
+			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
 #elif __LINUX
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
-            {
+			{
 #ifdef __WIN_32
-                LOG(LOG_DEBUG, "ReadPacket got error %d, returning 0", WSAGetLastError());
+				LOG(LOG_DEBUG, "ReadPacket got error %d, returning 0", WSAGetLastError());
 #elif __LINUX
 				LOG(LOG_DEBUG, "ReadPacket got error %d, returning 0", errno);
 #endif
@@ -176,7 +176,7 @@ int read_socket(int fd, SockList *sl, int len)
 		}
 	} while (toread > 0);
 
-    return 0;
+	return 0;
 }
 
 /* This writes data to the socket.  we precede the len information on the
@@ -275,19 +275,19 @@ int SOCKET_DeinitSocket()
 {
 #ifdef __WIN_32
 	/* Drop socket */
-    WSACleanup();
+	WSACleanup();
 #endif
 
-    return 1;
+	return 1;
 }
 
 int SOCKET_CloseSocket(SOCKET socket_temp)
 {
 	void *tmp_free;
 
-    /* seems differents sockets have different way to shutdown connects??
-     * win32 needs this
-     * hard way, normally you should wait for a read() == 0... */
+	/* seems differents sockets have different way to shutdown connects??
+	 * win32 needs this
+	 * hard way, normally you should wait for a read() == 0... */
 	if ((int) socket_temp == SOCKET_NO)
 		return 1;
 
@@ -379,9 +379,9 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
 	}
 
-    csock->command_sent = 0;
-    csock->command_received = 0;
-    csock->command_time = 0;
+	csock->command_sent = 0;
+	csock->command_received = 0;
+	csock->command_time = 0;
 
 #ifdef __WIN_32
 	/* non-block */

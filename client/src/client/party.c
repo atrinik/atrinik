@@ -46,13 +46,13 @@ void switch_tabs()
 		/* List tab */
 		case PARTY_TAB_LIST:
 			sprintf(buf, "pt list");
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 			break;
 
 		/* Who tab */
 		case PARTY_TAB_WHO:
 			sprintf(buf, "pt who");
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 			break;
 
 		/* Leave tab */
@@ -550,22 +550,20 @@ void gui_party_interface_mouse(SDL_Event *e)
 
 	/* Mousewheel up/down */
 	if (e->button.button == 4 || e->button.button == 5)
-    {
+	{
 		/* Scroll down... */
-        if (e->button.button == 5)
-            gui_interface_party->yoff++;
+		if (e->button.button == 5)
+			gui_interface_party->yoff++;
 		/* .. or up */
-        else
-            gui_interface_party->yoff--;
+		else
+			gui_interface_party->yoff--;
 
 		/* Sanity checks for going out of bounds */
-        if (gui_interface_party->yoff < 0 || gui_interface_party->lines < DIALOG_LIST_ENTRY)
-            gui_interface_party->yoff = 0;
+		if (gui_interface_party->yoff < 0 || gui_interface_party->lines < DIALOG_LIST_ENTRY)
+			gui_interface_party->yoff = 0;
 		else if (gui_interface_party->yoff >= gui_interface_party->lines - DIALOG_LIST_ENTRY)
 			gui_interface_party->yoff = gui_interface_party->lines - DIALOG_LIST_ENTRY;
-
-        return;
-    }
+	}
 }
 
 /**
@@ -686,7 +684,7 @@ int console_party()
 
 			/* ... send the command to join this party, along with password. */
 			snprintf(buf, sizeof(buf), "pt join Name: %s\nPassword: %s\n", partyname, InputString);
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 
 			return 1;
@@ -702,7 +700,7 @@ int console_party()
 
 			/* ... send the command to form this party. */
 			snprintf(buf, sizeof(buf), "pt form %s", InputString);
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 
 			return 1;
@@ -718,7 +716,7 @@ int console_party()
 
 			/* ... send the command to form this party. */
 			snprintf(buf, sizeof(buf), "pt password %s", InputString);
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 			clear_party_interface();
 
 			return 1;

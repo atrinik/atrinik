@@ -76,7 +76,7 @@ static size_t metaserver_callback(void *ptr, size_t size, size_t nmemb, void *da
  * @param info The data */
 static void parse_metaserver_data(char *info)
 {
-    char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
+	char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
 
 	server[0] = server_ip[0] = port[0] = num_players[0] = version[0] = desc[0] = '\0';
 

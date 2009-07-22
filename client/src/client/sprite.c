@@ -27,13 +27,13 @@
 
 /** Darkness values */
 static double dark_value[DARK_LEVELS] = {
-    1.0,
+	1.0,
 	0.828,
-    0.685,
-    0.542,
-    0.399,
-    0.256,
-    0.113
+	0.685,
+	0.542,
+	0.399,
+	0.256,
+	0.113
 };
 
 /** Anim queue of current active map */
@@ -177,12 +177,12 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 		SDL_SetColorKey(bitmap, ckflags, (tmp = bitmap->format->colorkey));
 	/* We force a true color png to colorkey. Default colkey is black (0). */
 	else if (flag & SURFACE_FLAG_COLKEY_16M)
-            SDL_SetColorKey(bitmap, ckflags, 0);
+		SDL_SetColorKey(bitmap, ckflags, 0);
 
 	GetBitmapBorders(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
 
 #if 0
-        LOG(0, "BORDERS %s -> U:%d D:%d L:%d R:%d\n", fname, sprite->border_up, sprite->border_down, sprite->border_left, sprite->border_right);
+	LOG(0, "BORDERS %s -> U:%d D:%d L:%d R:%d\n", fname, sprite->border_up, sprite->border_down, sprite->border_left, sprite->border_right);
 #endif
 
 	/* We store our original bitmap */
@@ -264,99 +264,99 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 			sprite->dark_level[0] = sprite->bitmap;
 	}
 
-    return sprite;
+	return sprite;
 }
 
 static void red_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int numcol, int rcol, int gcol, int bcol)
 {
-    int i;
-    double r, g, b;
+	int i;
+	double r, g, b;
 
-    for (i = 0; i < numcol; i++)
-    {
-        r = (double) col_tab[i].r;
-        g = (double) col_tab[i].g;
-        b = (double) col_tab[i].b;
+	for (i = 0; i < numcol; i++)
+	{
+		r = (double) col_tab[i].r;
+		g = (double) col_tab[i].g;
+		b = (double) col_tab[i].b;
 
-        if (r != rcol || g != gcol || b != bcol )
-        {
-            r = (0.212671 * r + 0.715160 * g + 0.072169 * b) + 32;
-            g = b = 0;
-        }
+		if (r != rcol || g != gcol || b != bcol )
+		{
+			r = (0.212671 * r + 0.715160 * g + 0.072169 * b) + 32;
+			g = b = 0;
+		}
 
-        grey_tab[i].r = (int) r;
-        grey_tab[i].g = (int) g;
-        grey_tab[i].b = (int) b;
-    }
+		grey_tab[i].r = (int) r;
+		grey_tab[i].g = (int) g;
+		grey_tab[i].b = (int) b;
+	}
 }
 
 static void fow_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int numcol, int rcol, int gcol, int bcol)
 {
-    int i;
-    double r, g, b;
+	int i;
+	double r, g, b;
 
-    for (i = 0; i < numcol; i++)
-    {
-        r = (double) col_tab[i].r;
-        g = (double) col_tab[i].g;
-        b = (double) col_tab[i].b;
+	for (i = 0; i < numcol; i++)
+	{
+		r = (double) col_tab[i].r;
+		g = (double) col_tab[i].g;
+		b = (double) col_tab[i].b;
 
-        if (r != rcol || g != gcol || b != bcol)
-        {
-            g = 0.212671 * r + 0.715160 * g + 0.072169 * b;
-            r = (g * 0.34);
+		if (r != rcol || g != gcol || b != bcol)
+		{
+			g = 0.212671 * r + 0.715160 * g + 0.072169 * b;
+			r = (g * 0.34);
 			/* It's a try... */
-            b = (g * 0.34) + 16;
-            g = (g * 0.34);
-        }
+			b = (g * 0.34) + 16;
+			g = (g * 0.34);
+		}
 
-        grey_tab[i].r = (int) r;
-        grey_tab[i].g = (int) g;
-        grey_tab[i].b = (int) b;
-    }
+		grey_tab[i].r = (int) r;
+		grey_tab[i].g = (int) g;
+		grey_tab[i].b = (int) b;
+	}
 }
 
 static void grey_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int numcol, int rcol, int gcol, int bcol)
 {
-    int i;
-    double r, g, b;
+	int i;
+	double r, g, b;
 
-    for (i = 0; i < numcol;i++)
-    {
-        r = (double) col_tab[i].r;
-        g = (double) col_tab[i].g;
-        b = (double) col_tab[i].b;
+	for (i = 0; i < numcol;i++)
+	{
+		r = (double) col_tab[i].r;
+		g = (double) col_tab[i].g;
+		b = (double) col_tab[i].b;
 
-        if (r != rcol || g != gcol || b != bcol)
-        {
-            r = b = g = 0.212671 * r + 0.715160 * g + 0.072169 * b;
-        }
+		if (r != rcol || g != gcol || b != bcol)
+		{
+			r = b = g = 0.212671 * r + 0.715160 * g + 0.072169 * b;
+		}
 
-        grey_tab[i].r = (int) r;
-        grey_tab[i].g = (int) g;
-        grey_tab[i].b = (int) b;
-    }
+		grey_tab[i].r = (int) r;
+		grey_tab[i].g = (int) g;
+		grey_tab[i].b = (int) b;
+	}
 }
 
 void sprite_free_sprite(_Sprite *sprite)
 {
-    void *tmp_free;
+	void *tmp_free;
 	int i;
 
-    if (!sprite)
-        return;
+	if (!sprite)
+		return;
 
-    if (sprite->bitmap)
-        SDL_FreeSurface(sprite->bitmap);
+	if (sprite->bitmap)
+		SDL_FreeSurface(sprite->bitmap);
 
-    if (sprite->grey)
-        SDL_FreeSurface(sprite->grey);
+	if (sprite->grey)
+		SDL_FreeSurface(sprite->grey);
 
-    if (sprite->red)
-        SDL_FreeSurface(sprite->red);
+	if (sprite->red)
+		SDL_FreeSurface(sprite->red);
 
-    if (sprite->fog_of_war)
-        SDL_FreeSurface(sprite->fog_of_war);
+	if (sprite->fog_of_war)
+		SDL_FreeSurface(sprite->fog_of_war);
 
 	if (sprite->dark_level)
 	{
@@ -369,8 +369,8 @@ void sprite_free_sprite(_Sprite *sprite)
 		}
 	}
 
-    tmp_free = sprite;
-    FreeMemory(&tmp_free);
+	tmp_free = sprite;
+	FreeMemory(&tmp_free);
 }
 
 /* Init this font structure with gfx data from sprite bitmap */
@@ -450,9 +450,9 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 	SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
 
 	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA)
-        SDL_SetAlpha(font->sprite->bitmap, SDL_SRCALPHA, bltfx->alpha);
-    else
-       SDL_SetAlpha(font->sprite->bitmap, SDL_RLEACCEL, 255);
+		SDL_SetAlpha(font->sprite->bitmap, SDL_SRCALPHA, bltfx->alpha);
+	else
+		SDL_SetAlpha(font->sprite->bitmap, SDL_RLEACCEL, 255);
 
 	gflag = 0;
 
@@ -517,7 +517,7 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 			if (gflag)
 			{
 				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
-			    gflag = 0;
+				gflag = 0;
 			}
 			else
 			{
@@ -525,8 +525,8 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 				gflag = 1;
 			}
 
-            continue;
-        }
+			continue;
+		}
 
 		tmp = font->c[(int) (text[i])].w + font->char_offset;
 
@@ -537,15 +537,15 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 				return;
 		}
 
-        if (text[i] != 32)
-        {
-			src.x = font->c[(int)(text[i])].x;
-            src.y = font->c[(int)(text[i])].y;
-			src.w = font->c[(int)(text[i])].w;
-			src.h = font->c[(int)(text[i])].h;
+		if (text[i] != 32)
+		{
+			src.x = font->c[(int) (text[i])].x;
+			src.y = font->c[(int) (text[i])].y;
+			src.w = font->c[(int) (text[i])].w;
+			src.h = font->c[(int) (text[i])].h;
 
-            SDL_BlitSurface(font->sprite->bitmap, &src, surf, &dst);
-        }
+			SDL_BlitSurface(font->sprite->bitmap, &src, surf, &dst);
+		}
 
 		dst.x += tmp;
 	}
@@ -582,71 +582,72 @@ void show_tooltip(int mx, int my, char *text)
 
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, UINT32 ckey)
 {
-    register int x, y;
+	register int x, y;
 
-    *up = 0;
-    *down = 0;
-    *left = 0;
-    *right = 0;
+	*up = 0;
+	*down = 0;
+	*left = 0;
+	*right = 0;
 
-    /* Left side border */
-    for (x = 0; x < Surface->w; x++)
-    {
-        for (y = 0; y < Surface->h; y++)
-        {
-            if (GetSurfacePixel(Surface, x, y) != ckey)
-            {
-                *left = x;
-                goto right_border;
-            }
-        }
-    }
+	/* Left side border */
+	for (x = 0; x < Surface->w; x++)
+	{
+		for (y = 0; y < Surface->h; y++)
+		{
+			if (GetSurfacePixel(Surface, x, y) != ckey)
+			{
+				*left = x;
+				goto right_border;
+			}
+		}
+	}
 
-    /* We only need check this one time here - if we are here, the sprite is blank */
-    return 0;
+	/* We only need check this one time here - if we are here, the sprite is blank */
+	return 0;
 
-    right_border:
-    /* Right side border */
-    for (x = Surface->w - 1; x >= 0; x--)
-    {
-        for (y = 0; y < Surface->h; y++)
-        {
-            if (GetSurfacePixel(Surface, x, y) != ckey)
-            {
-                *right = (Surface->w - 1) - x;
-                goto up_border;
-            }
-        }
-    }
+	right_border:
+	/* Right side border */
+	for (x = Surface->w - 1; x >= 0; x--)
+	{
+		for (y = 0; y < Surface->h; y++)
+		{
+			if (GetSurfacePixel(Surface, x, y) != ckey)
+			{
+				*right = (Surface->w - 1) - x;
+				goto up_border;
+			}
+		}
+	}
 
-    up_border:
-    /* Up side border */
-    for (y = 0; y < Surface->h; y++)
-    {
-        for (x = 0; x < Surface->w; x++)
-        {
-            if (GetSurfacePixel(Surface, x, y) != ckey)
-            {
-                *up = y;
-                goto down_border;
-            }
-        }
-    }
+	up_border:
+	/* Up side border */
+	for (y = 0; y < Surface->h; y++)
+	{
+		for (x = 0; x < Surface->w; x++)
+		{
+			if (GetSurfacePixel(Surface, x, y) != ckey)
+			{
+				*up = y;
+				goto down_border;
+			}
+		}
+	}
 
-    down_border:
-    /* Down side border */
-    for (y = Surface->h - 1; y >= 0; y--)
-    {
-        for (x = 0; x < Surface->w; x++)
-        {
-            if (GetSurfacePixel(Surface, x, y) != ckey)
-            {
-                *down = (Surface->h - 1) - y;
-                return 1;
-            }
-        }
-    }
-    return 1;
+	down_border:
+	/* Down side border */
+	for (y = Surface->h - 1; y >= 0; y--)
+	{
+		for (x = 0; x < Surface->w; x++)
+		{
+			if (GetSurfacePixel(Surface, x, y) != ckey)
+			{
+				*down = (Surface->h - 1) - y;
+				return 1;
+			}
+		}
+	}
+
+	return 1;
 }
 
 /* Grabs a pixel from a SDL_Surface on the position x, y in the right format and colors */
@@ -697,42 +698,42 @@ int get_string_pixel_length(char *text, struct _Font *font)
 
 void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
 {
-    SDL_Rect dst;
-    SDL_Surface *surface, *blt_sprite;
+	SDL_Rect dst;
+	SDL_Surface *surface, *blt_sprite;
 
-    if (!sprite)
-        return;
+	if (!sprite)
+		return;
 
-    blt_sprite = sprite->bitmap;
+	blt_sprite = sprite->bitmap;
 
-    if (bltfx && (bltfx->surface))
-        surface = bltfx->surface;
-    else
-        surface = ScreenSurface;
+	if (bltfx && (bltfx->surface))
+		surface = bltfx->surface;
+	else
+		surface = ScreenSurface;
 
-    dst.x = x;
-    dst.y = y;
+	dst.x = x;
+	dst.y = y;
 
-    if (bltfx)
-    {
-        if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-        {
-            SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
-        }
-    }
+	if (bltfx)
+	{
+		if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+		{
+			SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
+		}
+	}
 
-    if (!blt_sprite)
-        return;
+	if (!blt_sprite)
+		return;
 
-    if (box)
-        SDL_BlitSurface(blt_sprite, box, surface, &dst);
-    else
-        SDL_BlitSurface(blt_sprite, NULL, surface, &dst);
+	if (box)
+		SDL_BlitSurface(blt_sprite, box, surface, &dst);
+	else
+		SDL_BlitSurface(blt_sprite, NULL, surface, &dst);
 
-    if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-    {
-        SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-    }
+	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+	{
+		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+	}
 }
 
 /* This function supports the whole BLTFX flags, and is only used to blit the map! */
@@ -791,51 +792,49 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
 
 struct _anim *add_anim(int type, int mapx, int mapy, int value)
 {
-    struct _anim *tmp, *anim;
+	struct _anim *tmp, *anim;
+	int num_ticks;
 
-    int num_ticks;
+	for (tmp = start_anim; tmp; tmp = tmp->next)
+	{
+		if (!tmp->next)
+			break;
+	}
 
-    for (tmp = start_anim; tmp; tmp = tmp->next)
-    {
-        if (!tmp->next)
-            break;
-    }
+	/* tmp == null - no anim in que, else tmp = last anim */
+	anim = (struct _anim *)malloc(sizeof(struct _anim));
 
-    /* tmp == null - no anim in que, else tmp = last anim */
-    anim = (struct _anim *)malloc(sizeof(struct _anim));
+	if (!tmp)
+		start_anim = anim;
+	else
+		tmp->next = anim;
 
-    if (!tmp)
-        start_anim = anim;
-    else
-        tmp->next = anim;
+	anim->before = tmp;
+	anim->next = NULL;
 
-    anim->before = tmp;
-    anim->next = NULL;
-
-    anim->type = type;
+	anim->type = type;
 
 	/* Starting X position */
-    anim->x = 0;
+	anim->x = 0;
 
 	/* Starting Y position */
-
-    anim->y = -5;
-    anim->xoff = 0;
+	anim->y = -5;
+	anim->xoff = 0;
 
 	/* This looks like it makes it move up the screen -- was 0 */
-    anim->yoff = 1;
+	anim->yoff = 1;
 
 	/* Map cordinates */
-    anim->mapx = mapx;
-    anim->mapy = mapy;
+	anim->mapx = mapx;
+	anim->mapy = mapy;
 
 	/* Amount of damage */
-    anim->value = value;
+	anim->value = value;
 
 	/* Current time in MilliSeconds */
-    anim->start_tick = LastTick;
+	anim->start_tick = LastTick;
 
-    switch (type)
+	switch (type)
 	{
 		case ANIM_DAMAGE:
 			/* How many ticks to display */
@@ -854,45 +853,45 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
 			break;
 	}
 
-    return anim;
+	return anim;
 }
 
 void remove_anim(struct _anim *anim)
 {
-    struct _anim *tmp, *tmp_next;
-    void *tmp_free;
+	struct _anim *tmp, *tmp_next;
+	void *tmp_free;
 
-    if (!anim)
-        return;
+	if (!anim)
+		return;
 
-    tmp = anim->before;
-    tmp_next = anim->next;
-    tmp_free = &anim;
+	tmp = anim->before;
+	tmp_next = anim->next;
+	tmp_free = &anim;
 	/* free node memory */
-    FreeMemory(tmp_free);
+	FreeMemory(tmp_free);
 
-    if (tmp)
-        tmp->next = tmp_next;
-    else
-        start_anim = tmp_next;
+	if (tmp)
+		tmp->next = tmp_next;
+	else
+		start_anim = tmp_next;
 
-    if (tmp_next)
-        tmp_next->before = tmp;
+	if (tmp_next)
+		tmp_next->before = tmp;
 }
 
 void delete_anim_que()
 {
-    struct _anim *tmp, *tmp_next;
-    void *tmp_free;
+	struct _anim *tmp, *tmp_next;
+	void *tmp_free;
 
-    for (tmp = start_anim; tmp; )
-    {
-        tmp_next = tmp->next;
+	for (tmp = start_anim; tmp; )
+	{
+		tmp_next = tmp->next;
 		tmp_free = &tmp;
 		/* free node memory */
-        FreeMemory(tmp_free);
-        tmp = tmp_next;
-    }
+		FreeMemory(tmp_free);
+		tmp = tmp_next;
+	}
 
 	start_anim = NULL;
 }
@@ -901,15 +900,15 @@ void delete_anim_que()
  * Walk through the map anim list, and display the anims. */
 void play_anims()
 {
-    struct _anim *anim, *tmp;
-    int xpos, ypos, tmp_off;
-    int num_ticks;
-    char buf[32];
-    int tmp_y;
+	struct _anim *anim, *tmp;
+	int xpos, ypos, tmp_off;
+	int num_ticks;
+	char buf[32];
+	int tmp_y;
 
-    for (anim = start_anim; anim; anim = tmp)
-    {
-        tmp = anim->next;
+	for (anim = start_anim; anim; anim = tmp)
+	{
+		tmp = anim->next;
 
 		/* Have we passed the last tick */
 		if (LastTick > anim->last_tick)
@@ -978,8 +977,8 @@ void play_anims()
 				default:
 					LOG(LOG_ERROR, "WARNING: Unknown animation type\n");
 					break;
-        	}
-    	}
+			}
+		}
 	}
 }
 
@@ -987,31 +986,34 @@ void play_anims()
  * used to make the player overlapping objects transparent */
 int sprite_collision(int x1, int y1, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2)
 {
-    int left1, left2;
-    int right1, right2;
-    int top1, top2;
-    int bottom1, bottom2;
+	int left1, left2;
+	int right1, right2;
+	int top1, top2;
+	int bottom1, bottom2;
 
-    left1 = x1 + sprite1->border_left;
-    left2 = x2 + sprite2->border_left;
-    right1 = x1 + sprite1->bitmap->w - sprite1->border_right;
-    right2 = x2 + sprite2->bitmap->w - sprite2->border_right;
-    top1 = y1 + sprite1->border_up;
-    top2 = y2 + sprite2->border_down;
-    bottom1 = y1 + sprite1->bitmap->h - sprite1->border_down;
-    bottom2 = y2 + sprite2->bitmap->h - sprite2->border_down;
+	left1 = x1 + sprite1->border_left;
+	left2 = x2 + sprite2->border_left;
 
-    if (bottom1 < top2)
+	right1 = x1 + sprite1->bitmap->w - sprite1->border_right;
+	right2 = x2 + sprite2->bitmap->w - sprite2->border_right;
+
+	top1 = y1 + sprite1->border_up;
+	top2 = y2 + sprite2->border_down;
+
+	bottom1 = y1 + sprite1->bitmap->h - sprite1->border_down;
+	bottom2 = y2 + sprite2->bitmap->h - sprite2->border_down;
+
+	if (bottom1 < top2)
 		return 0;
 
-    if (top1 > bottom2)
-    	return 0;
+	if (top1 > bottom2)
+		return 0;
 
-    if (right1 < left2)
-    	return 0;
+	if (right1 < left2)
+		return 0;
 
-    if (left1 > right2)
-    	return 0;
+	if (left1 > right2)
+		return 0;
 
-    return 1;
+	return 1;
 }
