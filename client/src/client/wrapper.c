@@ -26,7 +26,7 @@
 #include <include.h>
 
 /**
- * @file wrapper.c
+ * @file
  * General convenience functions for the client. */
 
 #if defined( __WIN_32)  || defined(__LINUX)

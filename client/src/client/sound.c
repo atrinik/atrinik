@@ -26,7 +26,7 @@
 #include "include.h"
 
 /**
- * @file sound.c
+ * @file
  * Sound related functions. */
 
 /** The SoundSystem status */

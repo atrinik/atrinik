@@ -26,7 +26,7 @@
 #include <include.h>
 
 /**
- * @file misc.c
+ * @file
  * Miscellaneous functions */
 
 /**

@@ -24,7 +24,7 @@
 ************************************************************************/
 
 /**
- * @file player.c
+ * @file
  * This file handles various player related functions.  This includes
  * both things that operate on the player item, cpl structure, or
  * various commands that the player issues.
