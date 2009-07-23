@@ -15,116 +15,60 @@ tile_path_3 world_0a00
 tile_path_5 world_0002
 tile_path_6 world_0000
 end
-arch grassd_6
+arch water_still
 end
-arch plant_flower4
-end
-arch grassd_5
+arch water_still
 y 1
 end
-arch reed_sm11
-y 1
-end
-arch grassd_4
+arch water_still
 y 2
 end
-arch reed_sm11
-y 2
-end
-arch grassd_1
+arch water_still
 y 3
 end
-arch reed_sm11
-y 3
-end
-arch grassd_5
+arch water_still
 y 4
 end
-arch reed_sm11
-y 4
-end
-arch grassd_1
+arch water_still
 y 5
 end
-arch reed_sm11
-y 5
-end
-arch grassd_5
+arch water_still
 y 6
 end
-arch reed_sm11
-y 6
-end
-arch grassd_3
+arch water_still
 y 7
 end
-arch reed_sm11
-y 7
-end
-arch grassd_6
+arch water_still
 y 8
 end
-arch reed_sm11
-y 8
-end
-arch grassd_7
+arch water_still
 y 9
 end
-arch reed_sm11
-y 9
-end
-arch grassd_4
+arch water_still
 y 10
 end
-arch reed_sm11
-y 10
-end
-arch floor_sand_d1
+arch water_still
 y 11
 end
-arch bridge_wood_EW.181
-y 11
-end
-arch floor_sand_d1
+arch water_still
 y 12
 end
-arch bridge_wood_EW.161
-y 12
-end
-arch grassd_2
+arch water_still
 y 13
 end
-arch reed_sm11
-y 13
-end
-arch grassd_6
+arch water_still
 y 14
 end
-arch reed_sm11
-y 14
-end
-arch grassd_1
+arch water_still
 y 15
 end
-arch reed_sm11
-y 15
-end
-arch grassd_7
+arch water_still
 y 16
 end
-arch reed_sm11
-y 16
-end
-arch grassd_1
-y 17
-end
-arch reed_sm3
+arch water_still
 y 17
 end
 arch water_still
-y 18
-end
-arch grassd_m10
 y 18
 end
 arch water_still
@@ -142,17 +86,10 @@ end
 arch water_still
 y 23
 end
-arch grassd_1
-x 1
-end
-arch reed_sm3
+arch water_still
 x 1
 end
 arch water_still
-x 1
-y 1
-end
-arch grassd_m4
 x 1
 y 1
 end
@@ -160,15 +97,7 @@ arch water_still
 x 1
 y 2
 end
-arch grassd_m9
-x 1
-y 2
-end
 arch water_still
-x 1
-y 3
-end
-arch grassd_m9
 x 1
 y 3
 end
@@ -176,15 +105,7 @@ arch water_still
 x 1
 y 4
 end
-arch grassd_m9
-x 1
-y 4
-end
 arch water_still
-x 1
-y 5
-end
-arch grassd_m9
 x 1
 y 5
 end
@@ -192,15 +113,7 @@ arch water_still
 x 1
 y 6
 end
-arch grassd_m9
-x 1
-y 6
-end
 arch water_still
-x 1
-y 7
-end
-arch grassd_m9
 x 1
 y 7
 end
@@ -208,15 +121,7 @@ arch water_still
 x 1
 y 8
 end
-arch grassd_m9
-x 1
-y 8
-end
 arch water_still
-x 1
-y 9
-end
-arch grassd_m9
 x 1
 y 9
 end
@@ -224,11 +129,7 @@ arch water_still
 x 1
 y 10
 end
-arch grassd_m9
-x 1
-y 10
-end
-arch bridge_wood_EW.111
+arch water_still
 x 1
 y 11
 end
@@ -236,15 +137,7 @@ arch water_still
 x 1
 y 12
 end
-arch bridge_wood_EW.151
-x 1
-y 12
-end
 arch water_still
-x 1
-y 13
-end
-arch grassd_m9
 x 1
 y 13
 end
@@ -252,15 +145,7 @@ arch water_still
 x 1
 y 14
 end
-arch grassd_m9
-x 1
-y 14
-end
 arch water_still
-x 1
-y 15
-end
-arch grassd_m9
 x 1
 y 15
 end
@@ -268,23 +153,11 @@ arch water_still
 x 1
 y 16
 end
-arch grassd_m9
-x 1
-y 16
-end
 arch water_still
 x 1
 y 17
 end
-arch grassd_m9
-x 1
-y 17
-end
 arch water_still
-x 1
-y 18
-end
-arch grassd_m13
 x 1
 y 18
 end
@@ -311,18 +184,22 @@ end
 arch water_still
 x 2
 end
-arch grassd_m9
+arch grassd_m8
 x 2
 end
 arch water_still
 x 2
 y 1
 end
-arch grassd_m13
+arch grassd_m8
 x 2
 y 1
 end
 arch water_still
+x 2
+y 2
+end
+arch grassd_m8
 x 2
 y 2
 end
@@ -394,7 +271,15 @@ arch water_still
 x 2
 y 11
 end
+arch grassd_m8
+x 2
+y 11
+end
 arch water_still
+x 2
+y 12
+end
+arch grassd_m8
 x 2
 y 12
 end
@@ -485,34 +370,34 @@ end
 arch grassd_m8
 x 2
 y 23
-end
-arch water_still
-x 3
-end
-arch grassd_m8
-x 3
-end
-arch water_still
-x 3
-y 1
-end
-arch grassd_m8
-x 3
-y 1
-end
-arch water_still
-x 3
-y 2
-end
-arch grassd_m5
-x 3
-y 2
 end
 arch grassd_8
 x 3
+end
+arch reed_sm9
+x 3
+end
+arch grassd_2
+x 3
+y 1
+end
+arch reed_sm9
+x 3
+y 1
+end
+arch grassd_8
+x 3
+y 2
+end
+arch reed_sm9
+x 3
+y 2
+end
+arch grassd_5
+x 3
 y 3
 end
-arch reed_sm5
+arch reed_sm9
 x 3
 y 3
 end
@@ -564,39 +449,35 @@ arch reed_sm9
 x 3
 y 9
 end
-arch grassd_2
+arch grassd_8
 x 3
 y 10
 end
-arch reed_sm6
+arch reed_sm9
 x 3
 y 10
 end
-arch floor_sand_d1
+arch grassd_5
 x 3
 y 11
 end
-arch bridge_wood_EW.121
+arch reed_sm9
 x 3
 y 11
 end
-arch floor_sand_d1
+arch grassd_3
 x 3
 y 12
 end
-arch bridge_wood_EW.141
+arch reed_sm9
 x 3
 y 12
 end
-arch grassd_7
+arch grassd_3
 x 3
 y 13
 end
-arch reed_sm7
-x 3
-y 13
-end
-arch sand_dm10
+arch reed_sm9
 x 3
 y 13
 end
@@ -683,14 +564,11 @@ end
 arch grassd_8
 x 4
 end
-arch reed_sm9
-x 4
-end
 arch grassd_2
 x 4
 y 1
 end
-arch reed_sm9
+arch plant7
 x 4
 y 1
 end
@@ -698,7 +576,7 @@ arch grassd_8
 x 4
 y 2
 end
-arch reed_sm9
+arch plant7
 x 4
 y 2
 end
@@ -706,7 +584,7 @@ arch grassd_5
 x 4
 y 3
 end
-arch reed_sm6
+arch plant7
 x 4
 y 3
 end
@@ -750,51 +628,63 @@ arch plant8
 x 4
 y 8
 end
-arch grassd_4
+arch grassd_7
 x 4
 y 9
 end
+arch plant11
+x 4
+y 9
+end
+arch grassd_2
+x 4
+y 10
+end
+arch plant7
+x 4
+y 10
+end
 arch grassd_5
-x 4
-y 10
-end
-arch sand_dm11
-x 4
-y 10
-end
-arch floor_sand_d1
 x 4
 y 11
 end
-arch floor_sand_d1
+arch plant8
 x 4
-y 12
+y 11
 end
 arch grassd_1
 x 4
-y 13
+y 12
 end
-arch sand_dm10
+arch plant7
+x 4
+y 12
+end
+arch grassd_3
 x 4
 y 13
-end
-arch grassd_4
-x 4
-y 14
-end
-arch plant6
-x 4
-y 14
-end
-arch grassd_4
-x 4
-y 15
 end
 arch plant8
 x 4
+y 13
+end
+arch grassd_7
+x 4
+y 14
+end
+arch plant8
+x 4
+y 14
+end
+arch grassd_8
+x 4
 y 15
 end
-arch grassd_3
+arch plant7
+x 4
+y 15
+end
+arch grassd_2
 x 4
 y 16
 end
@@ -905,11 +795,11 @@ arch grassd_5
 x 5
 y 8
 end
-arch grassd_5
+arch grassd_4
 x 5
 y 9
 end
-arch plant7
+arch plant6
 x 5
 y 9
 end
@@ -917,162 +807,150 @@ arch grassd_4
 x 5
 y 10
 end
-arch sand_dm11
-x 5
-y 10
-end
-arch floor_sand_d1
+arch grassd_7
 x 5
 y 11
 end
-arch floor_sand_d1
+arch grassd_5
 x 5
 y 12
 end
-arch grassd_5
+arch grassd_7
 x 5
 y 13
-end
-arch sand_dm10
-x 5
-y 13
-end
-arch grassd_2
-x 5
-y 14
-end
-arch grassd_2
-x 5
-y 15
-end
-arch plant7
-x 5
-y 15
-end
-arch grassd_5
-x 5
-y 16
-end
-arch grassd_3
-x 5
-y 17
-end
-arch grassd_7
-x 5
-y 18
-end
-arch plant6
-x 5
-y 18
-end
-arch grassd_3
-x 5
-y 19
-end
-arch grassd_7
-x 5
-y 20
-end
-arch grassd_4
-x 5
-y 21
-end
-arch plant7
-x 5
-y 21
-end
-arch grassd_4
-x 5
-y 22
-end
-arch grassd_2
-x 5
-y 23
-end
-arch plant6
-x 5
-y 23
-end
-arch grassd_8
-x 6
-end
-arch grassd_7
-x 6
-y 1
-end
-arch grassd_3
-x 6
-y 2
-end
-arch grassd_8
-x 6
-y 3
-end
-arch plant6
-x 6
-y 3
-end
-arch grassd_8
-x 6
-y 4
-end
-arch grassd_1
-x 6
-y 5
-end
-arch grassd_2
-x 6
-y 6
-end
-arch grassd_8
-x 6
-y 7
-end
-arch grassd_7
-x 6
-y 8
-end
-arch grassd_1
-x 6
-y 9
-end
-arch grassd_3
-x 6
-y 10
-end
-arch sand_dm11
-x 6
-y 10
-end
-arch floor_sand_d1
-x 6
-y 11
-end
-arch floor_sand_d1
-x 6
-y 12
-end
-arch grassd_4
-x 6
-y 13
-end
-arch sand_dm10
-x 6
-y 13
-end
-arch grassd_7
-x 6
-y 14
-end
-arch grassd_1
-x 6
-y 15
 end
 arch plant9
+x 5
+y 13
+end
+arch grassd_7
+x 5
+y 14
+end
+arch grassd_2
+x 5
+y 15
+end
+arch grassd_8
+x 5
+y 16
+end
+arch grassd_3
+x 5
+y 17
+end
+arch plant6
+x 5
+y 17
+end
+arch grassd_7
+x 5
+y 18
+end
+arch plant6
+x 5
+y 18
+end
+arch grassd_3
+x 5
+y 19
+end
+arch grassd_7
+x 5
+y 20
+end
+arch grassd_4
+x 5
+y 21
+end
+arch plant7
+x 5
+y 21
+end
+arch grassd_4
+x 5
+y 22
+end
+arch grassd_2
+x 5
+y 23
+end
+arch plant6
+x 5
+y 23
+end
+arch grassd_8
+x 6
+end
+arch grassd_7
+x 6
+y 1
+end
+arch grassd_3
+x 6
+y 2
+end
+arch grassd_8
+x 6
+y 3
+end
+arch plant6
+x 6
+y 3
+end
+arch grassd_8
+x 6
+y 4
+end
+arch grassd_1
+x 6
+y 5
+end
+arch grassd_2
+x 6
+y 6
+end
+arch grassd_8
+x 6
+y 7
+end
+arch grassd_7
+x 6
+y 8
+end
+arch grassd_4
+x 6
+y 9
+end
+arch grassd_1
+x 6
+y 10
+end
+arch grassd_2
+x 6
+y 11
+end
+arch grassd_3
+x 6
+y 12
+end
+arch grassd_5
+x 6
+y 13
+end
+arch grassd_6
+x 6
+y 14
+end
+arch grassd_3
 x 6
 y 15
 end
-arch grassd_1
+arch grassd_4
+x 6
+y 16
+end
+arch tree_big
 x 6
 y 16
 end
@@ -1151,7 +1029,7 @@ arch grassd_7
 x 7
 y 8
 end
-arch grassd_3
+arch grassd_1
 x 7
 y 9
 end
@@ -1159,35 +1037,35 @@ arch grassd_5
 x 7
 y 10
 end
-arch sand_dm11
-x 7
-y 10
-end
-arch floor_sand_d1
+arch grassd_5
 x 7
 y 11
 end
-arch floor_sand_d1
+arch plant_flower7
+x 7
+y 11
+end
+arch grassd_7
 x 7
 y 12
 end
-arch grassd_1
+arch grassd_6
 x 7
 y 13
 end
-arch sand_dm10
+arch plant_flower7
 x 7
 y 13
 end
-arch grassd_3
+arch grassd_2
 x 7
 y 14
 end
-arch grassd_5
+arch grassd_2
 x 7
 y 15
 end
-arch grassd_2
+arch grassd_4
 x 7
 y 16
 end
@@ -1262,43 +1140,43 @@ arch grassd_5
 x 8
 y 8
 end
-arch grassd_1
+arch grassd_6
 x 8
 y 9
 end
-arch grassd_4
+arch grassd_7
 x 8
 y 10
-end
-arch sand_dm11
-x 8
-y 10
-end
-arch floor_sand_d1
-x 8
-y 11
-end
-arch floor_sand_d1
-x 8
-y 12
-end
-arch grassd_3
-x 8
-y 13
-end
-arch sand_dm10
-x 8
-y 13
-end
-arch grassd_8
-x 8
-y 14
 end
 arch grassd_6
 x 8
-y 15
+y 11
+end
+arch tree_big7
+x 8
+y 11
+end
+arch grassd_1
+x 8
+y 12
 end
 arch grassd_8
+x 8
+y 13
+end
+arch grassd_4
+x 8
+y 14
+end
+arch grassd_2
+x 8
+y 15
+end
+arch plant16
+x 8
+y 15
+end
+arch grassd_4
 x 8
 y 16
 end
@@ -1392,39 +1270,35 @@ arch grassd_1
 x 9
 y 8
 end
-arch grassd_1
+arch grassd_5
 x 9
 y 9
 end
-arch grassd_5
+arch grassd_6
 x 9
 y 10
 end
-arch sand_dm11
-x 9
-y 10
-end
-arch floor_sand_d2
+arch grassd_3
 x 9
 y 11
 end
-arch floor_sand_d1
+arch grassd_3
 x 9
 y 12
 end
-arch grassd_2
+arch grassd_6
 x 9
 y 13
 end
-arch sand_dm10
+arch plant12
 x 9
 y 13
 end
-arch grassd_4
+arch grassd_1
 x 9
 y 14
 end
-arch plant5
+arch plant_mushroom1
 x 9
 y 14
 end
@@ -1432,7 +1306,7 @@ arch grassd_1
 x 9
 y 15
 end
-arch grassd_4
+arch grassd_3
 x 9
 y 16
 end
@@ -1515,43 +1389,35 @@ arch plant5
 x 10
 y 8
 end
-arch grassd_6
+arch grassd_2
 x 10
 y 9
 end
-arch grassd_2
+arch grassd_3
 x 10
 y 10
 end
-arch sand_dm11
-x 10
-y 10
-end
-arch floor_sand_d2
+arch grassd_5
 x 10
 y 11
 end
-arch floor_sand_d2
+arch grassd_2
 x 10
 y 12
 end
-arch grassd_6
-x 10
-y 13
-end
-arch sand_dm15
-x 10
-y 13
-end
 arch grassd_7
+x 10
+y 13
+end
+arch grassd_8
 x 10
 y 14
 end
-arch grassd_4
+arch grassd_7
 x 10
 y 15
 end
-arch grassd_2
+arch grassd_1
 x 10
 y 16
 end
@@ -1629,47 +1495,39 @@ arch grassd_2
 x 11
 y 8
 end
-arch grassd_8
+arch grassd_4
 x 11
 y 9
 end
-arch grassd_1
+arch tree_big4b
 x 11
-y 10
-end
-arch sand_dm11
-x 11
-y 10
-end
-arch floor_sand_d2
-x 11
-y 11
-end
-arch floor_sand_d2
-x 11
-y 12
-end
-arch floor_sand_d2
-x 11
-y 13
-end
-arch grassd_3
-x 11
-y 14
-end
-arch sand_dm15
-x 11
-y 14
+y 9
 end
 arch grassd_2
 x 11
-y 15
+y 10
+end
+arch grassd_4
+x 11
+y 11
 end
 arch grassd_3
 x 11
-y 16
+y 12
 end
-arch tree_big2
+arch grassd_2
+x 11
+y 13
+end
+arch grassd_1
+x 11
+y 14
+end
+arch grassd_3
+x 11
+y 15
+end
+arch grassd_2
 x 11
 y 16
 end
@@ -1755,43 +1613,35 @@ arch grassd_7
 x 12
 y 8
 end
-arch grassd_1
+arch grassd_3
 x 12
 y 9
 end
-arch grassd_2
+arch grassd_4
 x 12
 y 10
 end
-arch grassd_7
+arch grassd_3
 x 12
 y 11
 end
-arch sand_dm22
-x 12
-y 11
-end
-arch floor_sand_d2
+arch grassd_8
 x 12
 y 12
 end
-arch floor_sand_d2
+arch grassd_2
 x 12
 y 13
 end
-arch floor_sand_d2
+arch grassd_7
 x 12
 y 14
 end
-arch grassd_8
+arch grassd_7
 x 12
 y 15
 end
-arch sand_dm10
-x 12
-y 15
-end
-arch grassd_8
+arch grassd_5
 x 12
 y 16
 end
@@ -1800,6 +1650,10 @@ x 12
 y 17
 end
 arch grassd_4
+x 12
+y 18
+end
+arch tree_big7b
 x 12
 y 18
 end
@@ -1870,35 +1724,27 @@ arch plant5
 x 13
 y 8
 end
-arch grassd_8
+arch grassd_1
 x 13
 y 9
 end
-arch grassd_8
-x 13
-y 10
-end
-arch plant1
-x 13
-y 10
-end
 arch grassd_1
+x 13
+y 10
+end
+arch grassd_2
 x 13
 y 11
 end
-arch grassd_8
+arch grassd_2
 x 13
 y 12
 end
-arch sand_dm22
-x 13
-y 12
-end
-arch floor_sand_d2
+arch grassd_2
 x 13
 y 13
 end
-arch floor_sand_d2
+arch grassd_5
 x 13
 y 14
 end
@@ -1906,11 +1752,7 @@ arch grassd_7
 x 13
 y 15
 end
-arch sand_dm15
-x 13
-y 15
-end
-arch grassd_4
+arch grassd_5
 x 13
 y 16
 end
@@ -1973,10 +1815,6 @@ arch grassd_8
 x 14
 y 4
 end
-arch tree_big4b
-x 14
-y 4
-end
 arch grassd_6
 x 14
 y 5
@@ -1997,47 +1835,43 @@ arch grassd_5
 x 14
 y 8
 end
-arch grassd_8
+arch grassd_3
 x 14
 y 9
 end
-arch grassd_1
+arch grassd_7
 x 14
 y 10
 end
-arch grassd_6
+arch grassd_7
 x 14
 y 11
 end
-arch grassd_1
+arch grassd_7
 x 14
 y 12
 end
-arch light5
-x 14
-y 12
-end
-arch glower.101
-x 14
-y 12
-end
-arch floor_sand_d2
+arch grassd_7
 x 14
 y 13
 end
-arch floor_sand_d2
+arch tree_big
+x 14
+y 13
+end
+arch grassd_3
 x 14
 y 14
 end
-arch floor_sand_d2
+arch tree_big4b
+x 14
+y 14
+end
+arch grassd_1
 x 14
 y 15
 end
-arch grassd_6
-x 14
-y 16
-end
-arch sand_dm10
+arch grassd_2
 x 14
 y 16
 end
@@ -2108,27 +1942,23 @@ arch grassd_7
 x 15
 y 7
 end
+arch tree_big7b
+x 15
+y 7
+end
 arch grassd_5
 x 15
 y 8
 end
-arch grassd_3
+arch grassd_2
 x 15
 y 9
 end
-arch plant9
-x 15
-y 9
-end
-arch grassd_4
+arch grassd_1
 x 15
 y 10
 end
-arch grassd_5
-x 15
-y 11
-end
-arch tree_big4b
+arch grassd_2
 x 15
 y 11
 end
@@ -2136,27 +1966,19 @@ arch grassd_3
 x 15
 y 12
 end
-arch grassd_5
+arch grassd_1
 x 15
 y 13
 end
-arch sand_dm16
-x 15
-y 13
-end
-arch floor_sand_d2
+arch grassd_3
 x 15
 y 14
 end
-arch floor_sand_d2
+arch grassd_3
 x 15
 y 15
 end
-arch grassd_4
-x 15
-y 16
-end
-arch sand_dm6
+arch grassd_5
 x 15
 y 16
 end
@@ -2247,7 +2069,7 @@ arch plant1
 x 16
 y 8
 end
-arch grassd_5
+arch grassd_3
 x 16
 y 9
 end
@@ -2255,35 +2077,31 @@ arch grassd_1
 x 16
 y 10
 end
-arch grassd_5
+arch grassd_8
 x 16
 y 11
 end
-arch grassd_1
+arch grassd_7
 x 16
 y 12
 end
-arch sand_dm16
-x 16
-y 12
-end
-arch floor_sand_d2
+arch grassd_8
 x 16
 y 13
 end
-arch floor_sand_d2
+arch tree_big2
+x 16
+y 13
+end
+arch grassd_4
 x 16
 y 14
 end
-arch floor_sand_d2
+arch grassd_5
 x 16
 y 15
 end
-arch grassd_3
-x 16
-y 16
-end
-arch sand_dm10
+arch grassd_7
 x 16
 y 16
 end
@@ -2358,43 +2176,39 @@ arch grassd_7
 x 17
 y 8
 end
-arch grassd_2
+arch grassd_7
 x 17
 y 9
 end
-arch grassd_7
+arch grassd_8
 x 17
 y 10
 end
-arch grassd_8
+arch grassd_2
 x 17
 y 11
 end
-arch sand_dm16
+arch plant12
 x 17
 y 11
 end
-arch floor_sand_d2
+arch grassd_4
 x 17
 y 12
 end
-arch floor_sand_d2
+arch grassd_5
 x 17
 y 13
 end
-arch floor_sand_d2
+arch grassd_2
 x 17
 y 14
 end
-arch grassd_7
+arch grassd_3
 x 17
 y 15
 end
-arch sand_dm21
-x 17
-y 15
-end
-arch grassd_6
+arch grassd_2
 x 17
 y 16
 end
@@ -2484,39 +2298,43 @@ arch grassd_6
 x 18
 y 8
 end
-arch grassd_7
+arch plant8
+x 18
+y 8
+end
+arch grassd_8
 x 18
 y 9
 end
-arch grassd_6
+arch grassd_1
 x 18
 y 10
 end
-arch sand_dm16
-x 18
-y 10
-end
-arch floor_sand_d2
+arch grassd_5
 x 18
 y 11
 end
-arch floor_sand_d2
+arch grassd_6
 x 18
 y 12
 end
-arch floor_sand_d2
+arch grassd_7
 x 18
 y 13
 end
-arch floor_sand_d2
+arch grassd_7
 x 18
 y 14
 end
-arch grassd_1
+arch stone1
+x 18
+y 14
+end
+arch grassd_3
 x 18
 y 15
 end
-arch grassd_7
+arch grassd_2
 x 18
 y 16
 end
@@ -2555,7 +2373,14 @@ end
 arch grassd_8
 x 19
 end
+arch sand_dm5
+x 19
+end
 arch grassd_1
+x 19
+y 1
+end
+arch sand_dm5
 x 19
 y 1
 end
@@ -2563,11 +2388,15 @@ arch grassd_8
 x 19
 y 2
 end
+arch sand_dm5
+x 19
+y 2
+end
 arch grassd_6
 x 19
 y 3
 end
-arch plant1
+arch sand_dm5
 x 19
 y 3
 end
@@ -2575,11 +2404,15 @@ arch grassd_8
 x 19
 y 4
 end
+arch sand_dm5
+x 19
+y 4
+end
 arch grassd_7
 x 19
 y 5
 end
-arch plant15
+arch sand_dm5
 x 19
 y 5
 end
@@ -2587,7 +2420,7 @@ arch grassd_6
 x 19
 y 6
 end
-arch tree_big2
+arch sand_dm5
 x 19
 y 6
 end
@@ -2595,47 +2428,79 @@ arch grassd_3
 x 19
 y 7
 end
+arch sand_dm5
+x 19
+y 7
+end
 arch grassd_3
 x 19
 y 8
 end
-arch grassd_4
+arch sand_dm5
+x 19
+y 8
+end
+arch grassd_3
 x 19
 y 9
 end
-arch sand_dm7
+arch sand_dm5
 x 19
 y 9
 end
-arch floor_sand_d2
+arch grassd_5
 x 19
 y 10
 end
-arch floor_sand_d2
+arch sand_dm2
+x 19
+y 10
+end
+arch grassd_7
 x 19
 y 11
 end
-arch floor_sand_d2
+arch glower.101
 x 19
-y 12
+y 11
 end
-arch floor_sand_d2
+arch light5
 x 19
-y 13
+y 11
 end
 arch grassd_8
 x 19
-y 14
+y 12
 end
-arch sand_dm21
+arch plant_flower11
+x 19
+y 12
+end
+arch tree_big2
+x 19
+y 12
+end
+arch grassd_8
+x 19
+y 13
+end
+arch tree_big4b
+x 19
+y 13
+end
+arch grassd_2
 x 19
 y 14
 end
-arch grassd_4
+arch grassd_7
 x 19
 y 15
 end
-arch grassd_2
+arch plant12
+x 19
+y 15
+end
+arch grassd_4
 x 19
 y 16
 end
@@ -2671,82 +2536,82 @@ arch grassd_5
 x 19
 y 23
 end
-arch grassd_1
+arch floor_sand_d4
 x 20
 end
-arch grassd_7
+arch floor_sand_d2
 x 20
 y 1
 end
-arch grassd_6
+arch floor_sand_d4
 x 20
 y 2
 end
-arch tree_big3
-x 20
-y 2
-end
-arch grassd_8
+arch floor_sand_d3
 x 20
 y 3
 end
-arch grassd_8
+arch floor_sand_d4
 x 20
 y 4
 end
-arch grassd_5
+arch floor_sand_d3
 x 20
 y 5
 end
-arch grassd_2
+arch floor_sand_d3
 x 20
 y 6
 end
-arch grassd_7
+arch floor_sand_d4
 x 20
 y 7
 end
-arch grassd_6
+arch floor_sand_d1
 x 20
 y 8
 end
-arch grassd_3
+arch floor_sand_d3
 x 20
 y 9
 end
-arch sand_dm11
-x 20
-y 9
-end
-arch floor_sand_d2
+arch grassd_7
 x 20
 y 10
 end
-arch floor_sand_d2
+arch sand_dm15
 x 20
-y 11
-end
-arch floor_sand_d2
-x 20
-y 12
-end
-arch grassd_8
-x 20
-y 13
-end
-arch sand_dm21
-x 20
-y 13
-end
-arch grassd_5
-x 20
-y 14
+y 10
 end
 arch grassd_3
 x 20
+y 11
+end
+arch sand_dm5
+x 20
+y 11
+end
+arch grassd_4
+x 20
+y 12
+end
+arch sand_dm2
+x 20
+y 12
+end
+arch grassd_4
+x 20
+y 13
+end
+arch grassd_6
+x 20
+y 14
+end
+arch grassd_1
+x 20
 y 15
 end
-arch grassd_8
+arch grassd_1
 x 20
 y 16
 end
@@ -2786,90 +2651,78 @@ arch grassd_4
 x 20
 y 23
 end
-arch grassd_5
+arch floor_sand_d3
 x 21
 end
-arch grassd_4
-x 21
-y 1
-end
-arch plant5
+arch floor_sand_d2
 x 21
 y 1
 end
-arch grassd_6
+arch floor_sand_d3
 x 21
 y 2
 end
-arch grassd_4
+arch floor_sand_d1
 x 21
 y 3
 end
-arch grassd_3
+arch floor_sand_d2
 x 21
 y 4
 end
-arch plant11
-x 21
-y 4
-end
-arch grassd_4
+arch floor_sand_d3
 x 21
 y 5
 end
-arch grassd_3
+arch floor_sand_d2
 x 21
 y 6
 end
-arch grassd_5
+arch floor_sand_d2
 x 21
 y 7
 end
-arch plant5
-x 21
-y 7
-end
-arch grassd_5
+arch floor_sand_d2
 x 21
 y 8
 end
-arch grassd_8
+arch floor_sand_d1
 x 21
 y 9
 end
-arch sand_dm7
-x 21
-y 9
-end
-arch floor_sand_d2
+arch floor_sand_d1
 x 21
 y 10
 end
-arch floor_sand_d1
+arch floor_sand_d3
 x 21
 y 11
 end
-arch floor_sand_d1
+arch grassd_1
 x 21
 y 12
 end
-arch floor_sand_d2
+arch sand_dm15
+x 21
+y 12
+end
+arch grassd_1
 x 21
 y 13
 end
-arch grassd_6
+arch sand_dm2
+x 21
+y 13
+end
+arch grassd_7
 x 21
 y 14
 end
-arch sand_dm10
-x 21
-y 14
-end
-arch grassd_4
+arch grassd_5
 x 21
 y 15
 end
-arch grassd_5
+arch grassd_6
 x 21
 y 16
 end
@@ -2912,10 +2765,14 @@ end
 arch grassd_2
 x 22
 end
-arch plant9
+arch sand_dm8
 x 22
 end
 arch grassd_4
+x 22
+y 1
+end
+arch sand_dm8
 x 22
 y 1
 end
@@ -2923,11 +2780,15 @@ arch grassd_6
 x 22
 y 2
 end
+arch sand_dm8
+x 22
+y 2
+end
 arch grassd_2
 x 22
 y 3
 end
-arch plant_flower10
+arch sand_dm8
 x 22
 y 3
 end
@@ -2935,7 +2796,15 @@ arch grassd_7
 x 22
 y 4
 end
+arch sand_dm8
+x 22
+y 4
+end
 arch grassd_8
+x 22
+y 5
+end
+arch sand_dm8
 x 22
 y 5
 end
@@ -2943,7 +2812,7 @@ arch grassd_8
 x 22
 y 6
 end
-arch plant9
+arch sand_dm8
 x 22
 y 6
 end
@@ -2951,47 +2820,51 @@ arch grassd_7
 x 22
 y 7
 end
+arch sand_dm8
+x 22
+y 7
+end
 arch grassd_6
 x 22
 y 8
 end
-arch grassd_8
+arch sand_dm13
 x 22
-y 9
-end
-arch grassd_3
-x 22
-y 10
-end
-arch sand_dm22
-x 22
-y 10
-end
-arch floor_sand_d1
-x 22
-y 11
-end
-arch floor_sand_d1
-x 22
-y 12
+y 8
 end
 arch floor_sand_d2
 x 22
-y 13
+y 9
+end
+arch floor_sand_d3
+x 22
+y 10
+end
+arch floor_sand_d4
+x 22
+y 11
+end
+arch floor_sand_d3
+x 22
+y 12
 end
 arch grassd_3
 x 22
-y 14
+y 13
 end
 arch sand_dm6
 x 22
+y 13
+end
+arch grassd_1
+x 22
 y 14
 end
-arch grassd_4
+arch grassd_8
 x 22
 y 15
 end
-arch grassd_1
+arch grassd_4
 x 22
 y 16
 end
@@ -3070,27 +2943,31 @@ arch grassd_6
 x 23
 y 8
 end
+arch sand_dm4
+x 23
+y 8
+end
+arch grassd_6
+x 23
+y 9
+end
+arch sand_dm8
+x 23
+y 9
+end
 arch grassd_3
 x 23
-y 9
+y 10
 end
-arch tree_big4b
-x 23
-y 9
-end
-arch grassd_4
+arch sand_dm13
 x 23
 y 10
 end
-arch sand_dm7
-x 23
-y 10
-end
-arch floor_sand_d1
+arch floor_sand_d4
 x 23
 y 11
 end
-arch floor_sand_d1
+arch floor_sand_d2
 x 23
 y 12
 end
@@ -3098,11 +2975,11 @@ arch grassd_2
 x 23
 y 13
 end
-arch sand_dm21
+arch sand_dm6
 x 23
 y 13
 end
-arch grassd_8
+arch grassd_2
 x 23
 y 14
 end
@@ -3110,7 +2987,7 @@ arch grassd_5
 x 23
 y 15
 end
-arch grassd_8
+arch grassd_4
 x 23
 y 16
 end
@@ -3149,4 +3026,8 @@ end
 arch plant5
 x 23
 y 23
+end
+arch rock_big10
+x 18
+y 9
 end

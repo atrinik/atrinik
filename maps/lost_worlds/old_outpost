@@ -174,8 +174,8 @@ y 1
 end
 arch stairs_stone_up
 slaying world_0a02
-hp 7
-sp 9
+hp 1
+sp 1
 direction 5
 x 1
 y 1
@@ -372,8 +372,8 @@ y 1
 end
 arch stairs_stone_up
 slaying world_0a02
-hp 8
-sp 9
+hp 2
+sp 1
 direction 5
 x 2
 y 1
