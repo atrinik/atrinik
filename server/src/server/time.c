@@ -179,8 +179,8 @@ void remove_door2(object *op, object *opener)
 #endif
 
 	/* mow 2 ways to handle open doors.
-	* a.) if other_arch is set, we insert that object and remove the old door.
-	* b.) if not set, we toggle from close to open when needed. */
+	 * a.) if other_arch is set, we insert that object and remove the old door.
+	 * b.) if not set, we toggle from close to open when needed. */
 
 	/* if set, just exchange and delete old door */
 	if (op->other_arch)

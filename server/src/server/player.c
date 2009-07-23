@@ -373,15 +373,15 @@ object *get_nearest_player(object *mon)
     for (ol = first_friendly_object, lastdist = 1000; ol != NULL; ol = ol->next)
 	{
 		/* We should not find free objects on this friendly list, but it
-		* does periodically happen.  Given that, lets deal with it.
-		* While unlikely, it is possible the next object on the friendly
-		* list is also free, so encapsulate this in a while loop. */
+		 * does periodically happen.  Given that, lets deal with it.
+		 * While unlikely, it is possible the next object on the friendly
+		 * list is also free, so encapsulate this in a while loop. */
 		while (!OBJECT_VALID(ol->ob, ol->id) || (!QUERY_FLAG(ol->ob, FLAG_FRIENDLY) && ol->ob->type != PLAYER))
 		{
 			object *tmp = ol->ob;
 
 			/* Can't do much more other than log the fact, because the object
-			* itself will have been cleared. */
+			 * itself will have been cleared. */
 			LOG(llevDebug, "DEBUG: get_nearest_player: Found free/non friendly object on friendly list (%s)\n", STRING_OBJ_NAME(tmp));
 			ol = ol->next;
 			remove_friendly_object(tmp);
@@ -529,7 +529,7 @@ int path_to_player(object *mon, object *pl, int mindiff)
 						break;
 				}
 				/* go through entire loop without finding a valid
-				* sidestep to take - thus, no valid path. */
+				 * sidestep to take - thus, no valid path. */
 				if (i == (DETOUR_AMOUNT + 1))
 					return 0;
 
@@ -554,7 +554,7 @@ int path_to_player(object *mon, object *pl, int mindiff)
 		if (diff <= 1)
 		{
 			/* Recalculate diff (distance) because we may not have actually
-			* headed toward player for entire distance. */
+			 * headed toward player for entire distance. */
 			get_rangevector_from_mapcoords(m, x, y, pl->map, pl->x, pl->y, &rv, 0);
 			diff = FABS(rv.distance_x) > FABS(rv.distance_y) ? FABS(rv.distance_x) : FABS(rv.distance_y);
 		}

@@ -643,10 +643,9 @@ int improve_weapon(object *op, object *improver, object *weapon)
 		return 0;
   	}
 	/* This just increases damage by 5 points, no matter what.  No sacrifice
-	* is needed.  Since stats.dam is now a 16 bit value and not 8 bit,
-	* don't put any maximum value on damage - the limit is how much the
-	* weapon  can be improved.
-	*/
+	 * is needed.  Since stats.dam is now a 16 bit value and not 8 bit,
+	 * don't put any maximum value on damage - the limit is how much the
+	 * weapon  can be improved. */
   	if (improver->stats.sp == IMPROVE_DAMAGE)
 	{
 		weapon->stats.dam += 5;
@@ -806,9 +805,8 @@ int convert_item(object *item, object *converter)
   	object *tmp;
 
 	/* We make some assumptions - we assume if it takes money as it type,
-	* it wants some amount.  We don't make change (ie, if something costs
-	* 3 gp and player drops a platinum, tough luck)
-	*/
+	 * it wants some amount.  We don't make change (ie, if something costs
+	 * 3 gp and player drops a platinum, tough luck) */
  	if (!strcmp(CONV_FROM(converter), "money"))
 	{
     	int cost;
@@ -1351,18 +1349,16 @@ static int apply_shop_mat (object *shop_mat, object *op)
 		if (shop_mat->msg)
 			new_draw_info(NDI_UNIQUE, 0, op, shop_mat->msg);
 		/* This check below is a bit simplistic - generally it should be correct,
-		* but there is never a guarantee that the bottom space on the map is
-		* actually the shop floor.
-		*/
+		 * but there is never a guarantee that the bottom space on the map is
+		 * actually the shop floor. */
 		else if (!rv && (tmp = get_map_ob(op->map, op->x, op->y)) != NULL && tmp->type != SHOP_FLOOR)
 			new_draw_info(NDI_UNIQUE, 0, op, "Thank you for visiting our shop.");
     }
     else
 	{
 		/* if we get here, a player tried to leave a shop but was not able
-		* to afford the items he has.  We try to move the player so that
-		* they are not on the mat anymore
-		*/
+		 * to afford the items he has.  We try to move the player so that
+		 * they are not on the mat anymore */
 
 		int i = find_free_spot(op->arch, op->map, op->x, op->y, 1, 9);
 		if (i == -1)
@@ -1495,9 +1491,8 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
   	switch (trap->type)
   	{
 		/* these objects can trigger other objects connected to them.
-		* We need to check them at map loading time and other special
-		* events to be sure to have a 100% working map state.
-		*/
+		 * We need to check them at map loading time and other special
+		 * events to be sure to have a 100% working map state. */
 		case BUTTON:
 		case PEDESTAL:
 			update_button(trap);
@@ -1514,8 +1509,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			goto leave;
 
 		/* these objects trigger to but they are "instant".
-		* We don't need to check them when loading.
-		*/
+		 * We don't need to check them when loading. */
 		case ALTAR:
 			/* sacrifice victim on trap */
 			apply_altar(trap, victim, originator);
@@ -1583,10 +1577,10 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		/* fallthrough */
 		case ARROW:
 			/* bad bug: monster throw a object, make a step forwards, step on object ,
-			* trigger this here and get hit by own missile - and will be own enemy.
-			* Victim then is his own enemy and will start to kill herself (this is
-			* removed) but we have not synced victim and his missile. To avoid senseless
-			* action, we avoid hits here */
+			 * trigger this here and get hit by own missile - and will be own enemy.
+			 * Victim then is his own enemy and will start to kill herself (this is
+			 * removed) but we have not synced victim and his missile. To avoid senseless
+			 * action, we avoid hits here */
 			if ((IS_LIVE(victim) && trap->speed) && trap->owner != victim)
 				hit_with_arrow(trap, victim);
 			goto leave;
@@ -2202,8 +2196,7 @@ static void apply_food(object *op, object *tmp)
 		else
 		{
 			/* i don't want power eating - this disallow stacking effects
-			* for food or flesh.
-			*/
+			 * for food or flesh. */
 			if (op->stats.food + tmp->stats.food > 999)
 			{
 				/*if((op->stats.food+tmp->stats.food)-999>tmp->stats.food/5)
@@ -3889,23 +3882,20 @@ void apply_lighter(object *who, object *lighter)
 			return;
 		}
 		/* Perhaps we should split what we are trying to light on fire?
-		* I can't see many times when you would want to light multiple
-		* objects at once.
-		*/
+		 * I can't see many times when you would want to light multiple
+		 * objects at once. */
 		nrof = item->nrof;
 		count = item->count;
 		/* If the item is destroyed, we don't have a valid pointer to the
-		* name object, so make a copy so the message we print out makes
-		* some sense.
-		*/
+		 * name object, so make a copy so the message we print out makes
+		 * some sense. */
 		strcpy(item_name, item->name);
 		if (who == is_player_inv(item))
 			is_player_env = 1;
 
 		save_throw_object(item, who);
 		/* Change to check count and not freed, since the object pointer
-		* may have gotten recycled
-		*/
+		 * may have gotten recycled */
 		if ((nrof != item->nrof ) || (count != item->count))
 		{
 			new_draw_info_format(NDI_UNIQUE, 0, who, "You light the %s with the %s.", item_name, lighter->name);

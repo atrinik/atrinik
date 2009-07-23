@@ -208,8 +208,7 @@ extern int	global_darkness_table[MAX_DARKNESS+1];
 #define P_FLAGS_UPDATE	0x10000000	/* if set, update the flags by looping the map objects */
 #define P_NEED_UPDATE	0x20000000	/* resort the layer when updating */
 #define P_NO_ERROR      0x40000000	/* Purely temporary - if set, update_position
-									* does not complain if the flags are different.
-									*/
+									 * does not complain if the flags are different. */
 
 #define P_NO_TERRAIN    0x80000000 /* DON'T USE THIS WITH SET_MAP_FLAGS... this is just to mark for return
 								 * values of blocked...

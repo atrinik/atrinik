@@ -206,8 +206,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		}
 
 		/* Need to do at least 1 damage, otherwise there is no point
-		* to go further and it will cause FPE's below.
-		*/
+		 * to go further and it will cause FPE's below. */
 		if (hitdam <= 0)
 			hitdam = 1;
 
@@ -225,8 +224,8 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		}
 
 		/* In the new attack code, it should handle multiple attack
-		* types in its area, so remove it from here.
-		* i increased dmg output ... from 1 to max to 50% to max. */
+		 * types in its area, so remove it from here.
+		 * i increased dmg output ... from 1 to max to 50% to max. */
 		dam = hit_player(op, random_roll(hitdam / 2 + 1, hitdam, hitter, PREFER_HIGH), hitter, type);
 		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 			goto leave;
@@ -574,15 +573,15 @@ int hit_map(object *op, int dir, int type)
     	if (was_destroyed(next, next_tag))
 		{
 			/* There may still be objects that were above 'next', but there is no
-			* simple way to find out short of copying all object references and
-			* tags into a temporary array before we start processing the first
-			* object.  That's why we just abort.
-			*
-			* This happens whenever attack spells (like fire) hit a pile
-			* of objects. This is not a bug - nor an error.
-			*
-			* Gecko: this may be a little different now, since we don't really destroy object until
-			* end of timestep. */
+			 * simple way to find out short of copying all object references and
+			 * tags into a temporary array before we start processing the first
+			 * object.  That's why we just abort.
+			 *
+			 * This happens whenever attack spells (like fire) hit a pile
+			 * of objects. This is not a bug - nor an error.
+			 *
+			 * Gecko: this may be a little different now, since we don't really destroy object until
+			 * end of timestep. */
       		break;
     	}
     	tmp = next;
@@ -597,8 +596,8 @@ int hit_map(object *op, int dir, int type)
 		}
 
 		/* Something could have happened to 'tmp' while 'tmp->below' was processed.
-		* For example, 'tmp' was put in an icecube.
-		* This is one of the few cases where on_same_map should not be used. */
+		 * For example, 'tmp' was put in an icecube.
+		 * This is one of the few cases where on_same_map should not be used. */
     	if (tmp->map != map || tmp->x != x || tmp->y != y)
       		continue;
 
@@ -1154,9 +1153,9 @@ int kill_object(object *op,int dam, object *hitter, int type)
 		}
 
 		/* here is the skill fix:
-		* We REALLY want assign to our owner (who is the hitter or owner of hitter)
-		* the right skill. This is set from set_owner() for spells and all objects
-		* which does indirect (not from owner object) damage. */
+		 * We REALLY want assign to our owner (who is the hitter or owner of hitter)
+		 * the right skill. This is set from set_owner() for spells and all objects
+		 * which does indirect (not from owner object) damage. */
 
 		/* when != NULL, it is our non owner object (spell, arrow) */
 		if (!old_hitter)
@@ -1259,12 +1258,12 @@ int kill_object(object *op,int dam, object *hitter, int type)
 			update_ob_speed(op);
 
 			/* rules:
-			* a.) mob will drop corpse for his target, not for kill hit giving player.
-			* b.) npc kill hit WILL overwrite player target = on drop
-			* c.) we are nice: kill hit will count if target was a npc (of mob).
-			* will allow a bit "cheating" by serving only one hit and let kill the mob
-			* by the npc to 99% - but this needs brain, tactic and a good timing and
-			* so we will give him a present for it. */
+			 * a.) mob will drop corpse for his target, not for kill hit giving player.
+			 * b.) npc kill hit WILL overwrite player target = on drop
+			 * c.) we are nice: kill hit will count if target was a npc (of mob).
+			 * will allow a bit "cheating" by serving only one hit and let kill the mob
+			 * by the npc to 99% - but this needs brain, tactic and a good timing and
+			 * so we will give him a present for it. */
 			if (owner->type != PLAYER || !op->enemy || op->enemy->type != PLAYER)
 			{
 				/* no set_npc_enemy since we are killing it... */
@@ -1326,7 +1325,7 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 static int abort_attack(object *target, object *hitter, int simple_attack)
 {
 	/* Check if target and hitter are still in a relation similar to the one
-	* determined by get_attack_mode().  Returns true if the relation has changed. */
+	 * determined by get_attack_mode().  Returns true if the relation has changed. */
     int new_mode;
 
     if (hitter->env == target || target->env == hitter)
@@ -1853,7 +1852,7 @@ void blind_player(object *op, object *hitter, int dam)
       	SET_FLAG(tmp, FLAG_BLIND);
       	SET_FLAG(tmp, FLAG_APPLIED);
 		/* use floats so we don't lose too much precision due to rounding errors.
-		* speed is a float anyways. */
+		 * speed is a float anyways. */
       	tmp->speed = tmp->speed * ((float)100.0 - (float)op->resist[ATNR_BLIND]) / (float)100;
 
       	tmp = insert_ob_in_ob(tmp, op);
@@ -1943,8 +1942,8 @@ void deathstrike_player(object *op, object *hitter, int *dam)
 	    	*dam = op->stats.hp + 10;
 			/* take all hp. they can still save for 1/2 */
 			/* I think this doesn't really do much.  Because of
-			* integer rounding, this only makes any difference if the
-			* attack level is double the defender level. */
+			 * integer rounding, this only makes any difference if the
+			 * attack level is double the defender level. */
 	    	*dam *= kill_lev / def_lev;
 		}
     }
@@ -1961,9 +1960,9 @@ static void thrown_item_effect(object *hitter, object *victim)
     if (!IS_LIVE(hitter))
 	{
 		/* May not need a switch for just 2 types, but this makes it
-		* easier for expansion. */
+		 * easier for expansion. */
 		/* i removed a resist check here - we handle resist checks BEFORE this (skill "avoid get hit" or whatever)
-		* OR after this (resist against the damage this here perhaps does) */
+		 * OR after this (resist against the damage this here perhaps does) */
 		switch (hitter->type)
 		{
 	    	case POTION:
@@ -1972,12 +1971,12 @@ static void thrown_item_effect(object *hitter, object *victim)
 					apply_potion(victim,hitter);
 				*/
 				/* ok, we do something new here:
-				* a potion has hit a object.
-				* at this stage, we only explode area effects.
-				* ALL other potion will take here no effect.
-				* later we should take care about confusion & paralyze.
-				* we should NEVER allow cure/heal stuff here - it will
-				* allow too many possible exploits. */
+				 * a potion has hit a object.
+				 * at this stage, we only explode area effects.
+				 * ALL other potion will take here no effect.
+				 * later we should take care about confusion & paralyze.
+				 * we should NEVER allow cure/heal stuff here - it will
+				 * allow too many possible exploits. */
 		 		if (hitter->stats.sp != SP_NO_SPELL && spells[hitter->stats.sp].flags&SPELL_DESC_DIRECTION)
 					/* apply potion ALWAYS fire on the spot the applier stands - good for healing - bad for firestorm */
 					cast_spell(hitter, hitter, hitter->direction, hitter->stats.sp, 1, spellPotion, NULL);
@@ -1993,9 +1992,9 @@ static void thrown_item_effect(object *hitter, object *victim)
 				break;
 
 			/* Removed case statements that did nothing.
-			* food may be poisonous, but monster must be willing to eat it,
-			* so we don't handle it here.
-			* Containers should perhaps break open, but that code was disabled. */
+			 * food may be poisonous, but monster must be willing to eat it,
+			 * so we don't handle it here.
+			 * Containers should perhaps break open, but that code was disabled. */
 		}
     }
 }

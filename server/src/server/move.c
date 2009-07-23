@@ -79,13 +79,13 @@ int move_ob(object *op, int dir, object *originator)
 		return 0;
 
 	/* totally new logic here... blocked() handles now ALL map flags... blocked_two()
-	* is called implicit from blocked() - really only called for nodes where a checker
-	* is inside. blocked_link() is used for multi arch blocked_test().
-	* Inside here we use a extended version of blocked_link(). Reason is, that even when
-	* we can't move the multi arch on the new spot, we have perhaps a legal earthwall
-	* in the step - we need to hit it here too. That a 3x3 multi arch monster can't
-	* enter a corridor of 2 tiles is right - but when the entry is closed by a wall
-	* then there is no reason why we can't hit the wall - even when we can't enter in. */
+	 * is called implicit from blocked() - really only called for nodes where a checker
+	 * is inside. blocked_link() is used for multi arch blocked_test().
+	 * Inside here we use a extended version of blocked_link(). Reason is, that even when
+	 * we can't move the multi arch on the new spot, we have perhaps a legal earthwall
+	 * in the step - we need to hit it here too. That a 3x3 multi arch monster can't
+	 * enter a corridor of 2 tiles is right - but when the entry is closed by a wall
+	 * then there is no reason why we can't hit the wall - even when we can't enter in. */
 
 	/* multi arch objects... */
     if (op->more)
@@ -433,8 +433,8 @@ int push_ob(object *who, int dir, object *pusher)
 		pusher->y = who->y;
 		who->y = temp;
 		/* we presume that if the player is pushing his put, he moved in
-		* direction 'dir'.  I can' think of any case where this would not be
-		* the case.  Putting the map_scroll should also improve performance some. */
+		 * direction 'dir'.  I can' think of any case where this would not be
+		 * the case.  Putting the map_scroll should also improve performance some. */
 		if (pusher->type == PLAYER )
 		{
 			esrv_map_scroll(&CONTR(pusher)->socket, freearr_x[dir], freearr_y[dir]);

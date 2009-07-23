@@ -350,8 +350,8 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	else
 	{
 		/* If the object is in a container, send a delete to the client.
-		* - we are moving all the items from the container to elsewhere,
-		* so it needs to be deleted. */
+		 * - we are moving all the items from the container to elsewhere,
+		 * so it needs to be deleted. */
 		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
 		{
 			if (tmp->env && pl->type == PLAYER)
@@ -496,7 +496,7 @@ void pick_up(object *op, object *alt)
     if (tmp->env == alt)
 	{
 		/* here it could be possible to check rent,
-		* if someone wants to implement it */
+		 * if someone wants to implement it */
 		alt = op;
     }
 
@@ -725,7 +725,7 @@ void drop_object(object *op, object *tmp, long nrof)
 			return;
 		}
 		/* Tell a client what happened rest of objects.  tmp2 is now the
-		* original object */
+		 * original object */
 		if (op->type == PLAYER)
 		{
 			if (was_destroyed(tmp2, tmp2_tag))
@@ -1340,7 +1340,7 @@ char *long_desc(object *tmp, object *caller)
 				if (len < VERY_BIG_BUF - 5 && ((tmp->type != AMULET && tmp->type != RING) || tmp->title))
 				{
 					/* Since we know the length, we save a few cpu cycles by using
-					* it instead of calling strcat */
+					 * it instead of calling strcat */
 					strcpy(buf + len, " ");
 					len++;
 					strncpy(buf + len, cp, VERY_BIG_BUF - len - 1);

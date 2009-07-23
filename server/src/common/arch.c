@@ -377,8 +377,8 @@ void first_arch_pass(FILE *fp)
 			at->clone.speed_left = 0.0f;
 #endif
 		/* ok... now we have the right speed_left value for out object.
-		* copy_object() now will track down negative speed values, to
-		* alter speed_left to garantie a random & senseful start value. */
+		 * copy_object() now will track down negative speed values, to
+		 * alter speed_left to garantie a random & senseful start value. */
 		if (!op->layer && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 			LOG(llevDebug," WARNING: Archetype %s has layer 0 without be sys_object!\n", STRING_OBJ_ARCH_NAME(op));
 		if (op->layer && QUERY_FLAG(op,FLAG_SYS_OBJECT))

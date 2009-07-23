@@ -262,8 +262,8 @@ void spring_trap(object *trap, object *victim)
 		trap->stats.sp = spell_in_rune;
 
 	/* Only living objects can trigger runes that don't cast spells, as
-	* doing direct damage to a non-living object doesn't work anyway.
-	* Typical example is an arrow attacking a door. */
+	 * doing direct damage to a non-living object doesn't work anyway.
+	 * Typical example is an arrow attacking a door. */
 	if (!IS_LIVE(victim) && ! trap->stats.sp)
 		return;
 

@@ -371,7 +371,7 @@ static void load_settings()
 			continue;
 
 		/* Skip all the spaces and set them to nulls.  If not space,
-		* set cp to "" to make strcpy's and the like easier down below. */
+		 * set cp to "" to make strcpy's and the like easier down below. */
 		if ((cp = strchr(buf, ' ')) != NULL)
 		{
 			while (*cp == ' ')

@@ -193,27 +193,24 @@ WS	[ \t]*{NL}
 					/* first adjust speed */
 					/* ok - ONLY change something when we
 					 * a.) don't have fix set speed_left in the loading
-					* b.) we have negative speed
-					*/
+					 * b.) we have negative speed */
 					if(old_sleft==tmp->speed_left && tmp->speed<0.0f)
 					{
 						/* if we have now a negative speed - use default arch
-						* speed left for new random set
-						*/
+						 * speed left for new random set */
 						if(tmp->speed<0.0f)
 							tmp->speed_left=tmp->arch->clone.speed_left+(float)(RANDOM()%90)/100.0f;
 					}
 					if(tmp->speed)
 						update_ob_speed(tmp); /* kick it now on active list*/
 
-				/* we must do this after the insert_ob_in_ob().
-				 * now we look we have a treasure or something else.
-				 * If so, we transform it now to real items.
-				 * also we adjust here auto_apply.
-				 * This was moved from fix_auto_apply.
-				 * This here only handles inventory items, the "base"
-				 * items are handled in load_objects() .
-				 */
+					/* we must do this after the insert_ob_in_ob().
+					 * now we look we have a treasure or something else.
+					 * If so, we transform it now to real items.
+					 * also we adjust here auto_apply.
+					 * This was moved from fix_auto_apply.
+					 * This here only handles inventory items, the "base"
+					 * items are handled in load_objects(). */
 					if(QUERY_FLAG(tmp,FLAG_AUTO_APPLY)) /* remember: auto_apply will remove FLAG_AUTO_APPLY */
 						auto_apply(tmp);
 					/* here we can have a interesting problem when we have kind of

@@ -68,7 +68,7 @@ void version(object *op)
   	new_draw_info_format(NDI_UNIQUE, 0, op, "This is Daimonin v%s",VERSION);
 
 	/* If in a socket, don't print out the list of authors.  It confuses the
-	* crossclient program. */
+	 * crossclient program. */
   	if (op == NULL)
 		return;
 
@@ -1043,11 +1043,11 @@ void process_events(mapstruct *map)
 			continue;
 
 		/* as we can see here, the swing speed not effected by
-		* object speed BUT the swing hit itself!
-		* This will invoke a kind of delay of the ready swing
-		* until the monster can move again. Note, that a higher
-		* move speed as swing speed will not invoke a faster swing
-		* speed! */
+		 * object speed BUT the swing hit itself!
+		 * This will invoke a kind of delay of the ready swing
+		 * until the monster can move again. Note, that a higher
+		 * move speed as swing speed will not invoke a faster swing
+		 * speed! */
 		/* as long we are >0, we are not ready to swing */
 		if (op->weapon_speed_left > 0)
 			op->weapon_speed_left -= op->weapon_speed_add;

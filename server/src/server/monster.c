@@ -1912,7 +1912,7 @@ void monster_check_pickup(object *monster)
 			(void) monster_check_apply(monster, tmp);
 		}
 		/* We could try to re-establish the cycling, of the space, but probably
-		* not a big deal to just bail out. */
+		 * not a big deal to just bail out. */
 		if (next && was_destroyed(next, next_tag))
 			return;
 	}

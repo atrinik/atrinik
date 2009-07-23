@@ -1364,7 +1364,7 @@ void draw_client_map2(object *pl)
 						if ((tmph = tmp->head))
 						{
 							/* if update_tag = map2_count, we have send a part of this
-							* in this map update some steps ago - skip it then */
+							 * in this map update some steps ago - skip it then */
 							if (tmp->head->update_tag == map2_count)
 								face = 0;
 							else
@@ -1390,7 +1390,7 @@ void draw_client_map2(object *pl)
 					}
 				}
 				/* ok, its NULL object - but we need to update perhaps to clear something we had
-				* submited to the client before */
+				 * submited to the client before */
 				else
 				{
 					face = NULL;
@@ -1416,7 +1416,7 @@ void draw_client_map2(object *pl)
 							probe_tmp = (int) ((double)tmph->stats.hp / ((double)tmph->stats.maxhp / 100.0));
 
 						/* we don't carew about 0. If the client gots probe flag and value 0, he change it
-						* to one... if some is here, it is alive, so what? */
+						 * to one... if some is here, it is alive, so what? */
 					}
 
 					/* face_num1 is original, face_num1m is a copy */
@@ -1476,10 +1476,10 @@ void draw_client_map2(object *pl)
 				if (tmp)
 				{
 					/* Well, i have no idea how to send for each player his own face without this.
-					* The way we can avoid this is to lets draw the player by the client
-					* only and just to tell the client what direction and animation the player now
-					* has... but Daimonin/CF can't handle client map animation atm... Even it should
-					* not hard to be done. MT */
+					 * The way we can avoid this is to lets draw the player by the client
+					 * only and just to tell the client what direction and animation the player now
+					 * has... but Daimonin/CF can't handle client map animation atm... Even it should
+					 * not hard to be done. MT */
 					if (pl->x == nx && pl->y ==ny && tmp->layer == 6)
 						tmp = pl;
 
@@ -1541,7 +1541,7 @@ void draw_client_map2(object *pl)
 							probe_tmp = (int) ((double)tmph->stats.hp / ((double)tmph->stats.maxhp / 100.0));
 
 						/* we don't carew about 0. If the client gots probe flag and value 0, he change it
-						* to one... if some is here, it is alive, so what? */
+						 * to one... if some is here, it is alive, so what? */
 					}
 
 					face_num2m = face_num2 = face->number;
@@ -1657,7 +1657,7 @@ void draw_client_map2(object *pl)
 							probe_tmp = (int) ((double)tmph->stats.hp / ((double)tmph->stats.maxhp / (double)100.0));
 
 						/* we don't carew about 0. If the client gots probe flag and value 0, he change it
-						* to one... if some is here, it is alive, so what? */
+						 * to one... if some is here, it is alive, so what? */
 					}
 
 					face_num3m = face_num3 = face->number;
@@ -1764,8 +1764,8 @@ void draw_client_map2(object *pl)
 					SockList_AddChar(&sl, (char)dmg_flag);
 					/*thats the special one - the red kill spot the client shows */
 					/* remember we put the damage value in the map because at the time
-					* we are here at run time, the object is dead since some ticks and
-					* perhaps some else is moved on this spot and/or the old object deleted */
+					 * we are here at run time, the object is dead since some ticks and
+					 * perhaps some else is moved on this spot and/or the old object deleted */
 					if (dmg_flag & 0x08)
 					{
 						SockList_AddShort(&sl, (sint16)GET_MAP_DAMAGE(m, nx,ny));

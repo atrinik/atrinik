@@ -675,7 +675,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 		/* and here is our CHECK_INV ...
 		 * blocked_tile() is now only and exclusive called from here.
 		 * lets skip it, when op is NULL - so we can turn the check from outside
-		* on/off (for example if we only want test size stuff) */
+		 * on/off (for example if we only want test size stuff) */
 		if (flags & P_CHECK_INV)
 		{
 			/* we fake a NO_PASS when the checker kick us out - in fact thats

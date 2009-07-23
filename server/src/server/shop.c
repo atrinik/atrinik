@@ -557,8 +557,7 @@ void sell_item(object *op, object *pl, int value)
 	    	new_draw_info_format(NDI_UNIQUE, 0, pl, "We're not interested in %s.", query_name(op, NULL));
 
 		/* Even if the character doesn't get anything for it, it may still be
-		* worth something.  If so, make it unpaid
-		*/
+		 * worth something.  If so, make it unpaid */
 
 		/* don't id or mark it unpaid - so we can get it back in clone shops
 		if (op->value)
@@ -567,9 +566,8 @@ void sell_item(object *op, object *pl, int value)
 		*/
 
 		/* if this return is enabled, items with value 0 will don't be put
-		* in store backroom (aka destroyed) and will stay inside the shop.
-		* if disabeld, the shop will remove it but you don't get any money.
-		*/
+		 * in store backroom (aka destroyed) and will stay inside the shop.
+		 * if disabeld, the shop will remove it but you don't get any money. */
 		/* return; */
   	}
 

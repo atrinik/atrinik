@@ -338,7 +338,7 @@ int infect_object(object *victim, object *disease, int force)
       		object *player = disease->env;
 
 			/* hm, we should for hit use the weapon? or the skill attached to this
-			* specific disease? hmmm */
+			 * specific disease? hmmm */
 			new_disease->chosen_skill = find_skill(player, SK_PRAYING);
 
 			if (new_disease->chosen_skill)
