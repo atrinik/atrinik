@@ -1439,7 +1439,7 @@ void Map2Cmd(unsigned char *data, int len)
     int mask, x, y, pos = 0, ext_flag, xdata;
     int ext1, ext2, ext3, probe;
     int map_new_flag = 0;
-    int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos;
+    int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
     char pname1[64], pname2[64], pname3[64], pname4[64];
     uint16 face;
 
@@ -1492,6 +1492,7 @@ void Map2Cmd(unsigned char *data, int len)
 		pname2[0] = 0;
 		pname3[0] = 0;
 		pname4[0] = 0;
+		pcolor = 0;
 		/* the ext flag defines special layer object assigned infos.
 		 * Like the Zzz for sleep, paralyze msg, etc. */
 
@@ -1550,6 +1551,9 @@ void Map2Cmd(unsigned char *data, int len)
 					}
 					pname4[i] = 0;
 				}
+
+				pcolor = GetShort_String(data + pos);
+				pos += 2;
 			}
 
 			/* damage add on the map */
@@ -1628,16 +1632,16 @@ void Map2Cmd(unsigned char *data, int len)
 		}
 
 		/* at last, we get the layer faces.
-		* a set ext_flag here marks this entry as face from a multi tile arch.
-		* we got another byte then which all information we need to display
-		* this face in the right way (position and shift offsets) */
+		 * a set ext_flag here marks this entry as face from a multi tile arch.
+		 * we got another byte then which all information we need to display
+		 * this face in the right way (position and shift offsets) */
 		if (mask & 0x8)
 		{
 			face = GetShort_String(data + pos);
 			pos += 2;
 			request_face(face, 0);
 			xdata = 0;
-			set_map_face(x, y, 0, face, xdata, -1, pname1);
+			set_map_face(x, y, 0, face, xdata, -1, pname1, pcolor);
 		}
 
 		if (mask & 0x4)
@@ -1652,7 +1656,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 1, face, xdata, ext1, pname2);
+			set_map_face(x, y, 1, face, xdata, ext1, pname2, pcolor);
 		}
 
 		if (mask & 0x2)
@@ -1667,7 +1671,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 2, face, xdata, ext2, pname3);
+			set_map_face(x, y, 2, face, xdata, ext2, pname3, pcolor);
 		}
 
 		if (mask & 0x1)
@@ -1683,7 +1687,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 3, face, xdata, ext3, pname4);
+			set_map_face(x, y, 3, face, xdata, ext3, pname4, pcolor);
 		}
     }
 

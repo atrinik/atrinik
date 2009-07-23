@@ -242,7 +242,7 @@ void set_map_ext(int x, int y, int layer,int ext, int probe)
 		map->probe[layer] = probe;
 }
 
-void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name)
+void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color)
 {
 	register struct MapCell *map;
 	int xreal, yreal, i;
@@ -256,6 +256,7 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 		the_map.cells[x][y].ext[layer] = ext;
 
 	the_map.cells[x][y].pos[layer] = pos;
+	the_map.cells[x][y].pcolor[layer] = name_color;
 	strcpy(the_map.cells[x][y].pname[layer],name);
 
 	xreal = MapData.posx + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
@@ -277,6 +278,7 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 		map->pos[i] = the_map.cells[x][y].pos[i];
 		map->probe[i] = the_map.cells[x][y].probe[i];
 		strcpy(map->pname[i], the_map.cells[x][y].pname[i]);
+		map->pcolor[i] = the_map.cells[x][y].pcolor[i];
 	}
 }
 
@@ -315,6 +317,7 @@ void display_map_clearcell(long x, long y)
 		map->ext[i] = 0;
 		map->pname[i][0] = 0;
 		map->probe[i] = 0;
+		map->pcolor[i] = COLOR_DEFAULT;
 	}
 }
 
@@ -566,7 +569,7 @@ void map_draw_map()
 							if (options.player_names && map->pname[k][0])
 							{
 								if (options.player_names == 1 || (options.player_names == 2 && strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
-									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, ypos - 48,COLOR_DEFAULT, NULL, NULL);
+									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, ypos - 48, map->pcolor[k], NULL, NULL);
 							}
 
 							/* Perhaps the object has a marked effect, blt it now */

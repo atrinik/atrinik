@@ -1066,6 +1066,27 @@ void draw_client_map(object *pl)
 	draw_client_map2(pl);
 }
 
+/**
+ * Figure out player name color for the client to show.\n \n
+ * As you can see in this function, it is easy to add
+ * new player name colors, just check for the match
+ * and make it return the correct color.
+ * @param pl Player object that will get the map drawn
+ * @param op Player object on the map, to get the name from
+ * @return NDI_WHITE if no custom color, otherwise other NDI color */
+static int get_playername_color(object *pl, object *op)
+{
+	if (CONTR(pl)->party_number != -1 && CONTR(op)->party_number != -1 && CONTR(pl)->party_number == CONTR(op)->party_number)
+	{
+		return NDI_GREEN;
+	}
+	else if (pl != op && pvp_area(pl, op))
+	{
+		return NDI_RED;
+	}
+
+	return NDI_WHITE;
+}
 
 /* The problem to "personalize" a map view is that we have to access here the objects
  * we want to draw. This means alot of memory access in different areas. Iam not
@@ -1709,19 +1730,31 @@ void draw_client_map2(object *pl)
 
 				if (pname_flag)
 				{
-					SockList_AddChar(&sl, (char)pname_flag);
+					SockList_AddChar(&sl, (char) pname_flag);
 
 					if (pname_flag & 0x08)
+					{
 						SockList_AddString(&sl, CONTR(pname1)->quick_name);
+						SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname1));
+					}
 
 					if (pname_flag & 0x04)
+					{
 						SockList_AddString(&sl, CONTR(pname2)->quick_name);
+						SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname2));
+					}
 
 					if (pname_flag & 0x02)
+					{
 						SockList_AddString(&sl, CONTR(pname3)->quick_name);
+						SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname3));
+					}
 
 					if (pname_flag & 0x01)
+					{
 						SockList_AddString(&sl, CONTR(pname4)->quick_name);
+						SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname4));
+					}
 				}
 
 				/* fire & forget layer animation tags */

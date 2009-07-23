@@ -113,8 +113,11 @@ struct MapCell {
 	/** Flags */
 	uint8 ext[MAXFACES];
 
-	/** Name of player on this cell*/
+	/** Name of player on this cell */
 	char pname[MAXFACES][32];
+
+	/** Player name color on this cell */
+	int pcolor[MAXFACES];
 
 	/** If this is where our enemy is */
 	uint8 probe[MAXFACES];
@@ -144,7 +147,7 @@ extern _multi_part_obj MultiArchs[16];
 extern void clear_map();
 extern void display_map_clearcell(long x, long y);
 extern void set_map_darkness(int x, int y, uint8 darkness);
-extern void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name);
+extern void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color);
 extern void map_draw_map();
 extern void display_mapscroll ( int dx, int dy );
 extern void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music);
