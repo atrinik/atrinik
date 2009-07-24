@@ -35,6 +35,7 @@
  *  - Two or more objects with no_pass 1 on same tile
  *  - Two or more objects with layer 1 (floor) on same tile
  *  - Tile with objects but no object with layer 1 (floor)
+ *  - Two or more objects with layer 2 (floor mask) on same tile
  *
  * @todo Instead of checking for layer 1, check perhaps for type FLOOR? */
 
@@ -429,6 +430,10 @@ void check_map()
 		/* Layer 1 is reserved for floor and doesn't have to be on every single tile, but should be on tiles with other objects. */
 		if (map_tile_tmp->layer1_count < 1 && objects_count)
 			map_error(map_tile_tmp, "Missing layer 1 object on tile with some objects -- missing floor?");
+
+		/* Layer 2 is reserved for floor masks, and double floor masks on same tile will not show correctly for client. */
+		if (map_tile_tmp->layer2_count > 1)
+			map_error(map_tile_tmp, "More than 1 object with layer 2 on same tile -- multiple floor masks?");
 	}
 }
 
