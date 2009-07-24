@@ -1517,6 +1517,9 @@ void Map2Cmd(unsigned char *data, int len)
 					}
 
 					pname1[i] = 0;
+
+					pcolor = GetShort_String(data + pos);
+					pos += 2;
 				}
 
 				/* fm.... */
@@ -1528,6 +1531,9 @@ void Map2Cmd(unsigned char *data, int len)
 						pname2[i++] = c;
 					}
 					pname2[i] = 0;
+
+					pcolor = GetShort_String(data + pos);
+					pos += 2;
 				}
 
 				/* l1 .... */
@@ -1539,6 +1545,9 @@ void Map2Cmd(unsigned char *data, int len)
 						pname3[i++] = c;
 					}
 					pname3[i] = 0;
+
+					pcolor = GetShort_String(data + pos);
+					pos += 2;
 				}
 
 				/* l2 .... */
@@ -1550,10 +1559,10 @@ void Map2Cmd(unsigned char *data, int len)
 						pname4[i++] = c;
 					}
 					pname4[i] = 0;
-				}
 
-				pcolor = GetShort_String(data + pos);
-				pos += 2;
+					pcolor = GetShort_String(data + pos);
+					pos += 2;
+				}
 			}
 
 			/* damage add on the map */
