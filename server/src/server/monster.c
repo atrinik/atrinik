@@ -3238,3 +3238,33 @@ void spawn_point(object *op)
 	if (QUERY_FLAG(mob, FLAG_FRIENDLY))
         add_friendly_object(mob);
 }
+
+/**
+ * Check if object op is friend of obj.
+ * @param op The first object
+ * @param obj The second object to check against the first one
+ * @return 1 if both objects are friends, 0 otherwise */
+int is_friend_of(object *op, object *obj)
+{
+	/* TODO: Add a few other odd types here, such as god and golem */
+	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
+		return 0;
+
+	/* TODO: This needs to be sorted out better */
+	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
+	{
+		if (!QUERY_FLAG(obj, FLAG_MONSTER) || QUERY_FLAG(obj, FLAG_FRIENDLY) || obj->type == PLAYER)
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		if (!QUERY_FLAG(obj, FLAG_FRIENDLY) && obj->type != PLAYER)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}

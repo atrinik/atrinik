@@ -23,7 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Routines that is executed from objects based on their speed have been
+/**
+ * @file
+ * Routines that are executed from objects based on their speed have been
  * collected in this file. */
 
 #include <global.h>
@@ -31,102 +33,111 @@
 #include <sproto.h>
 #endif
 
-/* search op for the needed key to open door.
- * This function does really not more give back a useable key ptr
- * or NULL - it don't open, delete or doing any other action. */
+/**
+ * Search object for the needed key to open a door.
+ * @param op Object to search
+ * @param door The door to find the key for
+ * @return The key pointer if found, NULL otherwise */
 object *find_key(object *op, object *door)
 {
 	object *tmp, *key;
 
-    /* First, lets try to find a key in the top level inventory */
-    for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+	/* First, let's try to find a key in the top level inventory */
+	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
 		if (tmp->type == SPECIAL_KEY && tmp->slaying == door->slaying)
+		{
 			return tmp;
+		}
 
-		/* we brute force us through every CONTAINER inventory.*/
+		/* We brute force us through every CONTAINER inventory. */
 		if (tmp->type == CONTAINER && tmp->inv)
 		{
 			if ((key = find_key(tmp, door)) != NULL)
+			{
 				return key;
+			}
 		}
+	}
 
-    }
 	return NULL;
 }
 
-/* this is our main open_door() function. It is used for doors
+/**
+ * This is out main open_door() function. It is used for doors
  * which will auto open/close and/or need a special key. It is
- * used from npc, mobs and players and use the remove_doorX()
- * functions below.
- * 0:door is NOT opened and not possible to open from op. 1: door was opened.
- * op: object which will open a door on map m, position x,y
- * mode: 0 - check but don't open the door. 1: check and open the door when possible */
+ * used from NPCs, monsters and players and uses the
+ * remove_doorX() functions below.
+ * @param op Object which will open the door
+ * @param m Map structure where the door is
+ * @param x X position of the door
+ * @param y Y position of the door
+ * @param mode
+ *  0: Check but don't open the door \n
+ *  1: Check and open the door if possible
+ * @return 1 if door was opened, 0 if not and is not possible */
 int open_door(object *op, mapstruct *m, int x, int y, int mode)
 {
 	object *tmp, *key = NULL;
 
-    /* Make sure a monster/npc actually can open doors */
-    if (op->type != PLAYER && !(op->will_apply & 8))
-        return 0;
+	/* Make sure a monster/NPC can actually open doors */
+	if (op->type != PLAYER && !(op->will_apply & 8))
+		return 0;
 
 	/* Ok, this trick will save us *some* search time - because we
 	 * assume that a door is always on layer 5. But *careful* -
 	 * if we assign in a map a different layer to a door this will
 	 * fail badly! */
-    for (tmp = GET_MAP_OB_LAYER(m, x, y, 4); tmp != NULL && tmp->layer == 5; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, 4); tmp != NULL && tmp->layer == 5; tmp = tmp->above)
 	{
 		if (tmp->type == LOCKED_DOOR)
 		{
-			/* door needs a key? */
+			/* Door needs a key? */
 			if (tmp->slaying)
 			{
 				if (!(key = find_key(op, tmp)))
 				{
 					if (op->type == PLAYER && mode)
 						new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, tmp->msg);
-					/* we can't open it! */
+
+					/* We can't open it! */
 					return 0;
 				}
 			}
 
-			/* are we here, the door can be opened 100% */
+			/* If we are here, the door can be opened 100% */
 			if (mode)
 			{
-				/* really opening the door? */
-			    remove_door2(tmp, op);
+				/* Really opening the door? */
+				open_locked_door(tmp, op);
+
 				if (op->type == PLAYER && key)
-				    new_draw_info_format(NDI_UNIQUE, NDI_BROWN, op, "You open the door with the %s.", query_short_name(key, NULL));
+					new_draw_info_format(NDI_UNIQUE, NDI_BROWN, op, "You open the door with the %s.", query_short_name(key, NULL));
 			}
 
 			return 1;
 		}
 	}
 
-	/* we should not be here... We have a misplaced door_closed flag
+	/* We should not be here... We have a misplaced door_closed flag
 	 * or a door on a wrong layer... both is not good, so drop a bug msg. */
-	LOG(llevSystem, "BUG: open_door() - door on wrong layer or misplaced P_DOOR_CLOSED flag - map:%s (%d,%d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
+	LOG(llevSystem, "BUG: open_door() - door on wrong layer or misplaced P_DOOR_CLOSED flag - map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
+
 	return 0;
 }
 
-/* The following removes doors.  The functions check to see if similar
+/**
+ * The following removes doors. The function checks to see if similar
  * doors are next to the one that is being removed, and if so, set it
- * so those will be removed shortly (in a cascade like fashion.) */
-/* this is OLD door - atm i have NOT any of them in the arches of daimonin.
- * but this doors can be tricky used like cascading openings and so on.
- * So i let them in. */
-/* the "cascading trick" works very simple - if we are here, we search for similiar
- * attached doors. if we find them, we give them speed. That means they will in some
- * ticks processed by active object process function. This funcion will come back here
- * and we go on and on - this will give the effect thats around a whole map a doorwall
- * will open one after one. */
-/* i think i will add a "LOCKED_DOOR_CHAINED" type or something. for normal doors,
- * i don't want this cascading - but its a nice tricky map manipulation trick which
- * opens some fine fun or map makers. */
+ * so those will be removed shortly (in a cascade like fashion).
+ *
+ * Currently, Atrinik doesn't really make use of this function.
+ * @param op The door object being removed */
 void remove_door(object *op)
 {
 	int i;
 	object *tmp;
+
 	for (i = 1; i < 9; i += 2)
 	{
 		if ((tmp = present(DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i])) != NULL)
@@ -159,24 +170,15 @@ void remove_door(object *op)
   	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
-void remove_door2(object *op, object *opener)
+/**
+ * Open a locked door. This function checks to see if there are similar
+ * locked doors nearby, if the door to open has FLAG_CURSED (cursed 1)
+ * set. The nearby doors must also have FLAG_CURSED set.
+ * @param op Door object to open
+ * @param opener Object opening the door */
+void open_locked_door(object *op, object *opener)
 {
   	object *tmp, *tmp2;
-
-#if 0
-	/* NO cascading for locked doors! */
-	int i;
-	for (i = 1; i < 9; i += 2)
-	{
-		tmp = present(LOCKED_DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i]);
-		if (tmp && tmp->slaying == op->slaying)
-		{
-			tmp->speed = 0.1f;
-			update_ob_speed(tmp);
-			tmp->speed_left= -0.2f;
-		}
-	}
-#endif
 
 	/* mow 2 ways to handle open doors.
 	 * a.) if other_arch is set, we insert that object and remove the old door.
@@ -206,7 +208,7 @@ void remove_door2(object *op, object *opener)
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 	}
 	/* if set, we are have opened a closed door - now handle autoclose */
-	else if(!op->last_eat)
+	else if (!op->last_eat)
 	{
 		/* to trigger all the updates/changes on map and for player, we
 		 * remove and reinsert it. a bit overhead but its secure and simple */
@@ -243,59 +245,84 @@ void remove_door2(object *op, object *opener)
 
 		insert_ob_in_map(op, op->map, op, 0);
 	}
+
+	/* Door has FLAG_CURSED set? */
+	if (QUERY_FLAG(op, FLAG_CURSED))
+	{
+		int i;
+
+		/* Let's search for a locked door on nearby tiles */
+		for (i = 1; i < 9; i += 2)
+		{
+			tmp = present(LOCKED_DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i]);
+
+			/* Found it, slaying matches, it has FLAG_CURSED and not opened? */
+			if (tmp && tmp->slaying == op->slaying && QUERY_FLAG(tmp, FLAG_CURSED) && tmp->state == 0)
+			{
+				/* Open this door then! */
+				open_locked_door(tmp, opener);
+			}
+		}
+	}
 }
 
-/* thats called from time.c - here we handle autoclosing doors */
-void remove_door3(object *op)
+/**
+ * Close a locked door that has been opened.
+ * @param op Door object to open */
+void close_locked_door(object *op)
 {
-	/* thats a bug - active speed but not marked as active */
+	/* This is a bug - active speed but not marked as active */
 	if (!op->last_eat)
 	{
-		LOG(llevBug, "BUG: door has speed but is not marked as active. (%s - map:%s (%d,%d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
-		/* thats not a real fix ... */
+		LOG(llevBug, "BUG: door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
+
+		/* Not a real fix... */
 		op->last_eat = 0;
+
 		return;
 	}
 
-	/* ouch */
 	if (!op->map)
 	{
-		LOG(llevBug, "BUG: door with speed but no map?! killing object...done. (%s - (%d,%d))\n", query_name(op, NULL), op->x, op->y);
+		LOG(llevBug, "BUG: door with speed but no map?! Killing object... done. (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+
 		return;
 	}
 
-  	/* now check or counter - if not <=0 we still be open */
+  	/* Now check the door counter - if not <= 0 we're still open */
   	if (op->last_sp-- > 0)
 	 	 return;
 
-	/* now we try to close the door. The rule is:
-	 * is the tile of the door not blocked by a no_pass object OR a player OR a mob -
+	/* Now we try to close the door. The rule is:
+	 * If the tile of the door is not blocked by a no_pass object OR a player OR a mob -
 	 * then close the door.
-	 * IF it is blocked - then restart a new "is open" phase. */
+	 * If it is blocked - then restart a new "is open" phase. */
 
-  	/* here we can use or new & shiny blocked() - we simply check the given flags */
-  	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE|P_IS_PLAYER))
+  	/* Here we can use our blocked() function - we simply check the given flags */
+  	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
   	{
-	  	/* let it open one more round */
-		/* reinit "open" counter */
+	  	/* Let it open one more round. Reinit "open" counter. */
 	  	op->last_sp = op->stats.sp;
   	}
-	/* ok - NOW we close it */
+	/* Ok - now we close it */
 	else
 	{
-		/* to trigger all the updates/changes on map and for player, we
-		 * remove and reinsert it. a bit overhead but its secure and simple */
+		/* To trigger all the updates/changes on map and for player, we
+		 * remove and reinsert it. A bit overhead but it's secure and simple */
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		/* mark this door as "its closed" */
+
+		/* Mark this door as "it's closed" */
 		op->last_eat = 0;
-		/* remove from active list */
+
+		/* Remove from active list */
 		op->speed = 0.0f;
 		op->speed_left= 0.0f;
 		update_ob_speed(op);
-		/* change to "close door" faces */
+
+		/* Change to "close door" faces */
 		op->state = 0;
 		op->stats.grace = 1 ? SET_FLAG(op, FLAG_BLOCKSVIEW) : CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
 		op->last_grace = 1 ? SET_FLAG(op, FLAG_DOOR_CLOSED) : CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
@@ -312,11 +339,15 @@ void remove_door3(object *op)
 	}
 }
 
+/**
+ * Regenerate rod speed needed to fire the rod again.
+ * @param rod The rod object to regenerate */
 void regenerate_rod(object *rod)
 {
 	if (++rod->stats.food > rod->stats.hp / 10 || rod->type == HORN)
 	{
 		rod->stats.food = 0;
+
 		if (rod->stats.hp < rod->stats.maxhp)
 		{
 			rod->stats.hp += 1 + rod->stats.maxhp / 10;
@@ -329,17 +360,21 @@ void regenerate_rod(object *rod)
 	}
 }
 
+/**
+ * Remove a force object from player, like potion effect.
+ * @param op Force object to remove */
 void remove_force(object *op)
 {
 	if (op->env == NULL)
 	{
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+
 		return;
 	}
 
 	CLEAR_FLAG(op, FLAG_APPLIED);
-	change_abil(op->env,op);
+	change_abil(op->env, op);
 	fix_player(op->env);
 	remove_ob(op);
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
@@ -370,7 +405,7 @@ void remove_confusion(object *op)
 	if (op->env != NULL)
 	{
 		CLEAR_FLAG(op->env, FLAG_CONFUSED);
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You regain your senses.\n");
+		new_draw_info(NDI_UNIQUE, 0, op->env, "You regain your senses.");
 	}
 
 	remove_ob(op);
@@ -390,6 +425,7 @@ void execute_wor(object *op)
 		else
 			enter_exit(op, wor);
 	}
+
 	remove_ob(wor);
 	check_walk_off(wor, NULL, MOVE_APPLY_VANISHED);
 }
@@ -413,6 +449,7 @@ void poison_more(object *op)
 			fix_player(op->env);
 			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
 		}
+
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
@@ -424,36 +461,41 @@ void poison_more(object *op)
 		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
 	}
 
-	(void)hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+	(void) hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
 }
 
-/* TODO: i have not included damage to mobs/player on reverse up going gates!
- * Look in the code!
- * also, i included sounds for open & close gates! we need to add a tracker the
- * get is going up or down. */
-/* 1 = going down, 0 = goind up */
+/**
+ * Move a gate up/down.
+ *
+ * 1 = going down, 0 = going up
+ * @param op Gate object
+ * @todo I have not included damage to mobs/player on reverse up going gates!
+ * Look in the code! */
 void move_gate(object *op)
 {
-    object *tmp;
+	object *tmp;
 	/* default update is only face */
 	int update = UP_OBJ_FACE;
 
-    if (op->stats.wc < 0 || (int)op->stats.wc  >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)))
+	if (op->stats.wc < 0 || (int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)))
 	{
 		dump_object(op);
 		LOG(llevBug, "BUG: move_gate(): Gate animation was %d, max=%d\n:%s\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)), errmsg);
 		op->stats.wc = 0;
-    }
+	}
 
-    /* We're going down (or reverse up) */
-    if (op->value)
+	/* We're going down (or reverse up) */
+	if (op->value)
 	{
 		/* Reached bottom, let's stop */
 		if (--op->stats.wc <= 0)
 		{
-		    op->stats.wc = 0;
-		    if (op->arch->clone.speed)
+			op->stats.wc = 0;
+
+			if (op->arch->clone.speed)
+			{
 				op->value = 0;
+			}
 			else
 			{
 				op->speed = 0;
@@ -461,12 +503,12 @@ void move_gate(object *op)
 			}
 		}
 
-		if ((int)op->stats.wc < ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2 + 1))
+		if ((int) op->stats.wc < ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2 + 1))
 		{
-			/* we do the QUERY_FLAG() here to check we must rebuild the tile flags or not,
+			/* We do the QUERY_FLAG() here to check we must rebuild the tile flags or not,
 			 * if we don't change the object settings here, just change the face but
-			 * don't rebuild the flag tiles. */
-			/* if != 0, we have a reversed timed gate, which starts open */
+			 * don't rebuild the flag tiles.
+			 * If != 0, we have a reversed timed gate, which starts open */
 			if (op->last_heal)
 			{
 				if (!QUERY_FLAG(op, FLAG_NO_PASS))
@@ -474,10 +516,12 @@ void move_gate(object *op)
 
 				/* The coast is clear, block the way */
 				SET_FLAG(op, FLAG_NO_PASS);
+
 				if (!op->arch->clone.stats.ac)
 				{
 					if (!QUERY_FLAG(op, FLAG_BLOCKSVIEW))
 						update = UP_OBJ_FLAGFACE;
+
 					SET_FLAG(op, FLAG_BLOCKSVIEW);
 				}
 			}
@@ -498,14 +542,15 @@ void move_gate(object *op)
 		op->state = (uint8) op->stats.wc;
 		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		update_object(op, update);
-		return;
-    }
 
-    /* First, lets see if we are already at the top */
-    if ((unsigned char) op->stats.wc == ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1))
+		return;
+	}
+
+	/* First, lets see if we are already at the top */
+	if ((unsigned char) op->stats.wc == ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1))
 	{
 		/* Check to make sure that only non pickable and non rollable
-		 * objects are above the gate.  If so, we finish closing the gate,
+		 * objects are above the gate. If so, we finish closing the gate,
 		 * otherwise, we fall through to the code below which should lower
 		 * the gate slightly. */
 		for (tmp = op->above; tmp != NULL; tmp = tmp->above)
@@ -517,42 +562,46 @@ void move_gate(object *op)
 		if (tmp == NULL)
 		{
 			if (op->arch->clone.speed)
+			{
 				op->value = 1;
+			}
 			else
 			{
 				op->speed = 0;
+
 				/* Reached top, let's stop */
 				update_ob_speed(op);
 			}
+
 			return;
 		}
-    }
+	}
 
 	/* The gate is going temporarily down */
-    if (op->stats.food)
+	if (op->stats.food)
 	{
 		/* Gone all the way down? */
 		if (--op->stats.wc <= 0)
 		{
 			/* Then let's try again */
-	    	op->stats.food = 0;
-	    	op->stats.wc = 0;
+			op->stats.food = 0;
+			op->stats.wc = 0;
 		}
-    }
+	}
 	/* The gate is still going up */
 	else
 	{
 		op->stats.wc++;
 
-		if ((int)op->stats.wc >= ((NUM_ANIMATIONS(op) / NUM_FACINGS(op))))
-			op->stats.wc = (signed char)(NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1;
+		if ((int) op->stats.wc >= ((NUM_ANIMATIONS(op) / NUM_FACINGS(op))))
+			op->stats.wc = (signed char) (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1;
 
 		/* If there is something on top of the gate, we try to roll it off.
 		 * If a player/monster, we don't roll, we just hit them with damage */
-		if ((int)op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2)
+		if ((int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2)
 		{
-			/* Halfway or further, check blocks */
-			/* First, get the top object on the square. */
+			/* Halfway or further, check blocks
+			 * First, get the top object on the square. */
 			for (tmp = op->above; tmp != NULL && tmp->above != NULL; tmp = tmp->above);
 
 			if (tmp != NULL)
@@ -560,8 +609,11 @@ void move_gate(object *op)
 				if (IS_LIVE(tmp))
 				{
 					hit_player(tmp, 4, op, AT_PHYSICAL);
+
 					if (tmp->type == PLAYER)
-						new_draw_info_format(NDI_UNIQUE, 0, tmp, "You are crushed by the %s!",op->name);
+					{
+						new_draw_info_format(NDI_UNIQUE, 0, tmp, "You are crushed by the %s!", op->name);
+					}
 				}
 
 				/* If the object is not alive, and the object either can
@@ -585,17 +637,21 @@ void move_gate(object *op)
 
 			/* See if there is still anything blocking the gate */
 			for (tmp = op->above; tmp != NULL; tmp = tmp->above)
+			{
 				if (!QUERY_FLAG(tmp, FLAG_NO_PICK) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
+				{
 					break;
+				}
+			}
 
-			/* IF there is, start putting the gate down */
+			/* If there is, start putting the gate down */
 			if (tmp)
 			{
 				op->stats.food = 1;
 			}
 			else
 			{
-				/* if != 0, we have a reversed timed gate, which starts open */
+				/* If != 0, we have a reversed timed gate, which starts open */
 				if (op->last_heal)
 				{
 					if (QUERY_FLAG(op, FLAG_NO_PASS))
@@ -620,6 +676,7 @@ void move_gate(object *op)
 					{
 						if (!QUERY_FLAG(op, FLAG_BLOCKSVIEW))
 							update = UP_OBJ_FLAGFACE;
+
 						SET_FLAG(op, FLAG_BLOCKSVIEW);
 					}
 				}
@@ -628,14 +685,19 @@ void move_gate(object *op)
 
 		op->state = (uint8) op->stats.wc;
 		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		/* takes care about map tile and player los update! */
+
+		/* Takes care about map tile and player los update! */
 		update_object(op, update);
-    }
+	}
 }
 
-/*  hp      : how long door is open/closed
- *  maxhp   : initial value for hp
- *  sp      : 1 = open, 0 = close */
+/**
+ * Move a timed gate.
+ *
+ * hp: How long gate is open/closed \n
+ * maxhp: Initial value for hp \n
+ * sp: 1 = open, 0 = close
+ * @param op Timed gate object */
 void move_timed_gate(object *op)
 {
 	int v = op->value;
@@ -643,18 +705,20 @@ void move_timed_gate(object *op)
 	if (op->stats.sp)
 	{
 		move_gate(op);
-		/* change direction? */
+
+		/* Change direction? */
 		if (op->value != v)
 			op->stats.sp = 0;
 
 		return;
 	}
 
-	/* keep gate down */
+	/* Keep gate down */
 	if (--op->stats.hp <= 0)
 	{
 		move_gate(op);
-		/* ready? */
+
+		/* Ready? */
 		if (op->value != v)
 		{
 			op->speed = 0;
@@ -663,19 +727,19 @@ void move_timed_gate(object *op)
 	}
 }
 
-/*  slaying:    name of the thing the detector is to look for
- *	 speed:      frequency of 'glances'
+/*  slaying:	name of the thing the detector is to look for
+ *	 speed:	  frequency of 'glances'
  *	 connected:  connected value of detector
- *  sp:         1 if detection sets buttons
- *              -1 if detection unsets buttons */
+ *  sp:		 1 if detection sets buttons
+ *			  -1 if detection unsets buttons */
 void move_detector(object *op)
 {
-    object *tmp;
-    int last = op->value;
-    int detected;
-    detected = 0;
+	object *tmp;
+	int last = op->value;
+	int detected;
+	detected = 0;
 
-    for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL && !detected; tmp = tmp->above)
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL && !detected; tmp = tmp->above)
 	{
 		object *tmp2;
 		if (op->stats.hp)
@@ -696,10 +760,10 @@ void move_detector(object *op)
 		}
 		else if (tmp->type == SPECIAL_KEY && tmp->slaying == op->slaying)
 			detected = 1;
-    }
+	}
 
-    /* the detector sets the button if detection is found */
-    if (op->stats.sp == 1)
+	/* the detector sets the button if detection is found */
+	if (op->stats.sp == 1)
 	{
 		if (detected && last == 0)
 		{
@@ -712,9 +776,9 @@ void move_detector(object *op)
 			op->value = 0;
 			push_button(op);
 		}
-    }
+	}
 	/* in this case, we unset buttons */
-    else
+	else
 	{
 		if (detected && last == 1)
 		{
@@ -727,12 +791,12 @@ void move_detector(object *op)
 			op->value = 1;
 			push_button(op);
 		}
-    }
+	}
 }
 
-void animate_trigger (object *op)
+void animate_trigger(object *op)
 {
-	if ((unsigned char)++op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
+	if ((unsigned char) ++op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
 	{
 		op->stats.wc = 0;
 		check_trigger(op, NULL);
@@ -745,14 +809,16 @@ void animate_trigger (object *op)
 	}
 }
 
-/* close or open pit. op->value is set when something connected to the pit
- * is triggered. */
+/**
+ * Close or open a pit. op->value is set when something connected to
+ * the pit is triggered.
+ * @param op The pit object */
 void move_pit(object *op)
 {
-    object *next,*tmp;
+	object *next,*tmp;
 
 	/* We're opening */
-    if (op->value)
+	if (op->value)
 	{
 		/* Opened, let's stop */
 		if (--op->stats.wc <= 0)
@@ -761,6 +827,7 @@ void move_pit(object *op)
 			op->speed = 0;
 			update_ob_speed(op);
 			SET_FLAG(op, FLAG_WALK_ON);
+
 			for (tmp = op->above; tmp != NULL; tmp = next)
 			{
 				next = tmp->above;
@@ -772,26 +839,27 @@ void move_pit(object *op)
 		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		update_object(op, UP_OBJ_FACE);
 		return;
-    }
+	}
 
-    /* We're closing */
-    CLEAR_FLAG(op, FLAG_WALK_ON);
-    op->stats.wc++;
+	/* We're closing */
+	CLEAR_FLAG(op, FLAG_WALK_ON);
+	op->stats.wc++;
 
-    if ((int)op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
+	if ((int) op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
 		op->stats.wc=NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1;
 
 	op->state = (uint8) op->stats.wc;
-    SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-    update_object(op, UP_OBJ_FACE);
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+	update_object(op, UP_OBJ_FACE);
 
-    if ((unsigned char) op->stats.wc == (NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1))
+	if ((unsigned char) op->stats.wc == (NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1))
 	{
 		op->speed = 0;
-		/* closed, let's stop */
+
+		/* Closed, let's stop */
 		update_ob_speed(op);
 		return;
-    }
+	}
 }
 
 
@@ -808,11 +876,11 @@ void move_pit(object *op)
  * the map. */
 object *stop_item(object *op)
 {
-    if (op->map == NULL)
-        return op;
+	if (op->map == NULL)
+		return op;
 
-    switch (op->type)
-    {
+	switch (op->type)
+	{
 		case THROWN_OBJ:
 		{
 			object *payload = op->inv;
@@ -840,7 +908,7 @@ object *stop_item(object *op)
 
 		default:
 			return op;
-    }
+	}
 }
 
 /* fix_stopped_item() - put stopped item where stop_item() had found it.
@@ -849,14 +917,14 @@ object *stop_item(object *op)
  * 'map' must be the value of op->map before stop_item() was called. */
 void fix_stopped_item(object *op, mapstruct *map, object *originator)
 {
-    if (map == NULL)
-        return;
+	if (map == NULL)
+		return;
 
-    if (QUERY_FLAG(op, FLAG_REMOVED))
-        insert_ob_in_map (op, map, originator, 0);
+	if (QUERY_FLAG(op, FLAG_REMOVED))
+		insert_ob_in_map (op, map, originator, 0);
 	/* only some arrows actually need this */
-    else if (op->type == ARROW)
-        merge_ob(op, NULL);
+	else if (op->type == ARROW)
+		merge_ob(op, NULL);
 }
 
 object *fix_stopped_arrow(object *op)
@@ -868,28 +936,29 @@ object *fix_stopped_arrow(object *op)
 
 #if 0
 	/* Small chance of breaking */
-    if (rndm(0, 99) < op->stats.food)
+	if (rndm(0, 99) < op->stats.food)
 	{
-        remove_ob(op);
+		remove_ob(op);
 		return NULL;
-    }
+	}
 #endif
 
-	/* used as temp. vars to control reflection/move speed */
+	/* Used as temp. vars to control reflection/move speed */
 	op->stats.grace = 0;
 	op->stats.maxgrace = 0;
 
-    op->direction = 0;
-    CLEAR_FLAG(op, FLAG_WALK_ON);
-    CLEAR_FLAG(op, FLAG_FLY_ON);
-    CLEAR_MULTI_FLAG(op, FLAG_FLYING);
+	op->direction = 0;
+	CLEAR_FLAG(op, FLAG_WALK_ON);
+	CLEAR_FLAG(op, FLAG_FLY_ON);
+	CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 
-	/* food is a self destruct marker - that long the item will need to be destruct! */
+	/* Food is a self destruct marker - that long the item will need to be destruct! */
 	if ((!(tmp = get_owner(op)) || tmp->type != PLAYER) && op->stats.food && op->type == ARROW)
 	{
 		SET_FLAG(op, FLAG_IS_USED_UP);
 		SET_FLAG(op, FLAG_NO_PICK);
-		/* important to neutralize the arrow! */
+
+		/* Important to neutralize the arrow! */
 		op->type = MISC_OBJECT;
 		op->speed = 0.1f;
 		op->speed_left = 0.0f;
@@ -903,17 +972,20 @@ object *fix_stopped_arrow(object *op)
 		op->speed = 0;
 	}
 
-    update_ob_speed(op);
-    op->stats.wc = op->last_heal;
-    op->stats.dam= op->stats.hp;
-    /* Reset these to zero, so that CAN_MERGE will work properly */
-    op->last_heal = 0;
-    op->stats.hp = 0;
-    op->face = op->arch->clone.face;
+	update_ob_speed(op);
+	op->stats.wc = op->last_heal;
+	op->stats.dam = op->stats.hp;
+
+	/* Reset these to zero, so that CAN_MERGE will work properly */
+	op->last_heal = 0;
+	op->stats.hp = 0;
+	op->face = op->arch->clone.face;
+
 	/* So that stopped arrows will be saved */
-    op->owner = NULL;
-    update_object(op, UP_OBJ_FACE);
-    return op;
+	op->owner = NULL;
+	update_object(op, UP_OBJ_FACE);
+
+	return op;
 }
 
 /* stop_arrow() - what to do when a non-living flying object
@@ -924,7 +996,7 @@ void stop_arrow(object *op)
 	play_sound_map(op->map, op->x, op->y, SOUND_DROP_THROW, SOUND_NORMAL);
 	CLEAR_FLAG(op, FLAG_IS_MISSILE);
 
-    if (op->inv)
+	if (op->inv)
 	{
 		object *payload = op->inv;
 
@@ -935,9 +1007,9 @@ void stop_arrow(object *op)
 		/* GROS: Handle for plugin stop event */
 		if (payload->event_flags & EVENT_FLAG_STOP)
 		{
-		    CFParm CFP;
-		    int k, l, m;
-		    object *event_obj = get_event_object(payload, EVENT_STOP);
+			CFParm CFP;
+			int k, l, m;
+			object *event_obj = get_event_object(payload, EVENT_STOP);
 			k = EVENT_STOP;
 			l = SCRIPT_FIX_NOTHING;
 			m = 0;
@@ -952,8 +1024,11 @@ void stop_arrow(object *op)
 			CFP.Value[8] = &l;
 			CFP.Value[9] = (char *)event_obj->race;
 			CFP.Value[10] = (char *)event_obj->slaying;
+
 			if (findPlugin(event_obj->name) >= 0)
-			    ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
+			{
+				((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
+			}
 		}
 #endif
 		/* we have a thrown potion here.
@@ -969,97 +1044,101 @@ void stop_arrow(object *op)
 		else
 		{
 			clear_owner(payload);
-            /* Gecko: if the script didn't put the payload somewhere else */
-            if (!payload->env && !OBJECT_FREE(payload))
-                insert_ob_in_map(payload, op->map, payload, 0);
+			/* Gecko: if the script didn't put the payload somewhere else */
+			if (!payload->env && !OBJECT_FREE(payload))
+				insert_ob_in_map(payload, op->map, payload, 0);
 		}
 
-        remove_ob(op);
+		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-    }
+	}
 	else
 	{
-        op = fix_stopped_arrow (op);
-        if (op)
-            merge_ob(op, NULL);
-    }
+		op = fix_stopped_arrow(op);
+
+		if (op)
+			merge_ob(op, NULL);
+	}
 }
 
-/* Move an arrow along its course.  op is the arrow or thrown object. */
+/**
+ * Move an arrow along its course.
+ * @param op The arrow or thrown object */
 void move_arrow(object *op)
 {
-    object *tmp=NULL, *hitter;
-    int new_x, new_y;
+	object *tmp = NULL, *hitter;
+	int new_x, new_y;
 	int flag_tmp;
-    int was_reflected;
-    mapstruct *m = op->map;
+	int was_reflected;
+	mapstruct *m = op->map;
 
-    if (op->map == NULL)
+	if (op->map == NULL)
 	{
 		LOG(llevBug, "BUG: move_arrow(): Arrow %s had no map.\n", query_name(op, NULL));
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
-    }
+	}
 
-    /* we need to stop thrown objects and arrows at some point. Like here. */
-    if (op->type == THROWN_OBJ)
+	/* we need to stop thrown objects and arrows at some point. Like here. */
+	if (op->type == THROWN_OBJ)
 	{
-        if (op->inv == NULL)
-            return;
-    }
+		if (op->inv == NULL)
+			return;
+	}
 
 	if (op->last_sp-- < 0)
 	{
-	    stop_arrow(op);
-	    return;
+		stop_arrow(op);
+		return;
 	}
 
-    /* Calculate target map square */
-    if (op->stats.grace == 666)
+	/* Calculate target map square */
+	if (op->stats.grace == 666)
 	{
-        /* Experimental target throwing hack. Using bresenham line algo */
-        int dx = op->stats.hp;
-        int dy = op->stats.sp;
+		/* Experimental target throwing hack. Using bresenham line algo */
+		int dx = op->stats.hp;
+		int dy = op->stats.sp;
 
-        if (dx > dy)
+		if (dx > dy)
 		{
-            if (op->stats.exp >= 0)
+			if (op->stats.exp >= 0)
 			{
-                new_y = op->y + op->stats.maxsp;
+				new_y = op->y + op->stats.maxsp;
 				/* same as fraction -= 2*dx */
-                op->stats.exp -= dx;
-            }
+				op->stats.exp -= dx;
+			}
 			else
-                new_y = op->y;
+				new_y = op->y;
 
-            new_x = op->x + op->stats.maxhp;
+			new_x = op->x + op->stats.maxhp;
 			/* same as fraction -= 2*dy */
-            op->stats.exp += dy;
-        }
+			op->stats.exp += dy;
+		}
 		else
 		{
-            if (op->stats.exp >= 0)
+			if (op->stats.exp >= 0)
 			{
-                new_x = op->x + op->stats.maxhp;
-                op->stats.exp -= dy;
-            }
+				new_x = op->x + op->stats.maxhp;
+				op->stats.exp -= dy;
+			}
 			else
-                new_x = op->x;
+				new_x = op->x;
 
-            new_y = op->y + op->stats.maxsp;
-            op->stats.exp += dx;
-        }
-    }
+			new_y = op->y + op->stats.maxsp;
+			op->stats.exp += dx;
+		}
+	}
 	else
 	{
-        new_x = op->x + DIRX(op);
-        new_y = op->y + DIRY(op);
-    }
-    was_reflected = 0;
+		new_x = op->x + DIRX(op);
+		new_y = op->y + DIRY(op);
+	}
+
+	was_reflected = 0;
 
 	/* check we are legal */
-    if (!(m = out_of_map(op->map, &new_x, &new_y)))
+	if (!(m = out_of_map(op->map, &new_x, &new_y)))
 	{
 		/* out of map... here is the end */
 		stop_arrow(op);
@@ -1075,14 +1154,19 @@ void move_arrow(object *op)
 		/* search for a vulnerable object */
 		for (tmp = GET_MAP_OB_LAYER(m, new_x, new_y, 5); tmp != NULL; tmp = tmp->above)
 		{
-			/* lets fire mobs through mobs! */
-			if (tmp->type != PLAYER && hitter->type != PLAYER)
+			/* Now, let friends fire through friends */
+			/* TODO: Shouldn't do this if on pvp map, but that
+			 * also requires smarter mob/npc archers */
+			if (is_friend_of(hitter, tmp) || tmp == hitter)
+			{
 				continue;
+			}
 
 			if (IS_LIVE(tmp) && (!QUERY_FLAG(tmp, FLAG_CAN_REFL_MISSILE) || (rndm(0, 99)) < 90 - op->level / 10))
 			{
 				/* Attack the object. */
 				op = hit_with_arrow(op, tmp);
+
 				/* the arrow has hit and is destroyed! */
 				if (op == NULL)
 					return;
@@ -1097,31 +1181,31 @@ void move_arrow(object *op)
 		missile_reflection_adjust(op, QUERY_FLAG(op, FLAG_WAS_REFLECTED));
 
 		op->direction = absdir (op->direction + 4);
-        op->state = 0;
+		op->state = 0;
 
-        if (GET_ANIM_ID(op))
+		if (GET_ANIM_ID(op))
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 
 		if (wall(m, new_x, new_y))
 		{
 			/* Target is standing on a wall.  Let arrow turn around before
-             * the wall. */
-             new_x = op->x;
-             new_y = op->y;
+			 * the wall. */
+			 new_x = op->x;
+			 new_y = op->y;
 		}
 
 		SET_FLAG(op, FLAG_WAS_REFLECTED);
 		/* skip normal movement calculations */
-        was_reflected = 1;
+		was_reflected = 1;
 	}
 
-    if (!was_reflected && wall(m, new_x, new_y))
-    {
+	if (!was_reflected && wall(m, new_x, new_y))
+	{
 		/* if the object doesn't reflect, stop the arrow from moving */
 		if (!QUERY_FLAG(op, FLAG_REFLECTING) || !(rndm(0, 19)))
 		{
-	    	stop_arrow (op);
-	    	return;
+			stop_arrow (op);
+			return;
 		}
 		/* object is reflected */
 		else
@@ -1167,10 +1251,11 @@ void move_arrow(object *op)
 			if (GET_ANIM_ID(op))
 				SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 		}
-    }
+	}
 
-    /* Move the arrow. */
-    remove_ob(op);
+	/* Move the arrow. */
+	remove_ob(op);
+
 	if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
 	{
 		op->x = new_x;
@@ -1202,18 +1287,18 @@ void change_object(object *op)
 
 				/* thats special lights like lamp which can be refilled */
 				if (op->other_arch == NULL)
-	            {
+				{
 					op->stats.food = 0;
-			        if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
-                    {
-                        op->animation_id = op->other_arch->clone.animation_id;
-                        SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-                    }
-                    else
-                    {
-                        CLEAR_FLAG(op, FLAG_ANIMATE);
-                        op->face = op->arch->clone.face;
-                    }
+					if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
+					{
+						op->animation_id = op->other_arch->clone.animation_id;
+						SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
+					}
+					else
+					{
+						CLEAR_FLAG(op, FLAG_ANIMATE);
+						op->face = op->arch->clone.face;
+					}
 
 					/* not on map? */
 					if (op->env)
@@ -1318,10 +1403,10 @@ void change_object(object *op)
  * teleporter, i removed multi arch teleporters. */
 void move_teleporter(object *op)
 {
-    object *tmp, *next;
+	object *tmp, *next;
 
 	/* get first object of this map node */
-    for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = next)
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = next)
 	{
 		next = tmp->above;
 		if (QUERY_FLAG(tmp, FLAG_NO_TELEPORT))
@@ -1355,11 +1440,13 @@ void move_teleporter(object *op)
 				CFP.Value[8] = &l;
 				CFP.Value[9] = (char *)event_obj->race;
 				CFP.Value[10]= (char *)event_obj->slaying;
+
 				if (findPlugin(event_obj->name) >= 0)
 				{
 					CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
 					rtn_script = *(int *)(CFR->Value[0]);
 				}
+
 				if (rtn_script != 0)
 					return;
 			}
@@ -1438,11 +1525,13 @@ void move_teleporter(object *op)
 				CFP.Value[8] = &l;
 				CFP.Value[9] = (char *)event_obj->race;
 				CFP.Value[10] = (char *)event_obj->slaying;
+
 				if (findPlugin(event_obj->name) >= 0)
 				{
 					CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
 					rtn_script = *(int *)(CFR->Value[0]);
 				}
+
 				if (rtn_script != 0)
 					return;
 			}
@@ -1465,7 +1554,7 @@ void move_firewall(object *op)
 	/* last_eat 0 = off */
 	/* dm has created a firewall in his inventory or no legal spell selected */
   	if (!op->map || !op->last_eat || op->stats.dam == -1)
-    	return;
+		return;
 
   	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
 }
@@ -1474,7 +1563,7 @@ void move_firechest(object *op)
 {
 	/* dm has created a firechest in his inventory */
   	if (!op->map)
-    	return;
+		return;
 
   	fire_a_ball(op, rndm(1, 8), 7);
 }
@@ -1488,18 +1577,18 @@ void move_firechest(object *op)
  * it'll paralyze the victim for hp*his speed/op->speed */
 void move_player_mover(object *op)
 {
-    object *victim, *nextmover;
+	object *victim, *nextmover;
 	mapstruct *mt;
-    int xt, yt, dir = op->direction;
+	int xt, yt, dir = op->direction;
 
 	if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_ALIVE | P_IS_PLAYER)))
 		return;
 
-    /* Determine direction now for random movers so we do the right thing */
-    if (!dir)
+	/* Determine direction now for random movers so we do the right thing */
+	if (!dir)
 		dir = rndm(1, 8);
 
-    for (victim = get_map_ob(op->map, op->x, op->y); victim != NULL; victim = victim->above)
+	for (victim = get_map_ob(op->map, op->x, op->y); victim != NULL; victim = victim->above)
 	{
 		if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp))
 		{
@@ -1552,7 +1641,7 @@ void move_player_mover(object *op)
 			if (op->attacktype)
 				victim->speed_left = -FABS(op->stats.maxsp * victim->speed / op->speed);
 		}
-    }
+	}
 }
 
 
@@ -1666,8 +1755,8 @@ void move_marker(object *op)
 int process_object(object *op)
 {
    	if (QUERY_FLAG(op, FLAG_MONSTER))
-    	if (move_monster(op) || OBJECT_FREE(op))
-      		return 1;
+		if (move_monster(op) || OBJECT_FREE(op))
+	  		return 1;
 
 	if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state)
 	{
@@ -1850,7 +1939,7 @@ int process_object(object *op)
 
 		/* handle autoclosing */
 		case LOCKED_DOOR:
-			remove_door3(op);
+			close_locked_door(op);
 			return 0;
 
 		case TELEPORTER:

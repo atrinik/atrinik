@@ -3277,9 +3277,13 @@ int apply_special(object *who, object *op, int aflags)
       			sprintf(buf, "You unapply %s.", query_name(op, NULL));
       			break;
     	}
-    	if (buf[0] != '\0')
+    	if (buf[0] != '\0' && who->type == PLAYER)
       		new_draw_info(NDI_UNIQUE, 0, who, buf);
-    	fix_player(who);
+
+		if (who->type == PLAYER)
+    		fix_player(who);
+		else if (who->type == MONSTER)
+			fix_monster(who);
 
     	if (!(aflags & AP_NO_MERGE))
 		{

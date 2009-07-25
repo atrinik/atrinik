@@ -499,6 +499,7 @@ int talk_to_wall(object *npc, char *txt);
 object *find_mon_throw_ob(object *op);
 int monster_use_scroll(object *head, object *part, object *pl, int dir, rv_vector *rv);
 void spawn_point(object *op);
+int is_friend_of(object *op, object *obj);
 
 /* move.c */
 int move_ob(object *op, int dir, object *originator);
@@ -867,8 +868,8 @@ void flush_old_maps(void);
 object *find_key(object *op, object *door);
 int open_door(object *op, mapstruct *m, int x, int y, int mode);
 void remove_door(object *op);
-void remove_door2(object *op, object *opener);
-void remove_door3(object *op);
+void open_locked_door(object *op, object *opener);
+void close_locked_door(object *op);
 void regenerate_rod(object *rod);
 void remove_force(object *op);
 void remove_blindness(object *op);
