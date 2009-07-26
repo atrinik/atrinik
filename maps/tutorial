@@ -2837,12 +2837,12 @@ y 1
 end
 arch golem
 name combat dummy
-dam 0
+speed -2.0
 no_attack 1
+dam 0
 maxhp 5000
 ac 5
-Con 1000
-random_move 0
+Con 100
 stand_still 1
 x 16
 y 1
