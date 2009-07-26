@@ -166,7 +166,7 @@ void follow_owner(object *ob, object *owner)
 		return;
 	}
 
-	dir = find_free_spot(ob->arch, owner->map, owner->x, owner->y, 1, SIZEOFFREE + 1);
+	dir = find_free_spot(ob->arch, NULL, owner->map, owner->x, owner->y, 1, SIZEOFFREE + 1);
 
 	if (dir == -1)
 	{

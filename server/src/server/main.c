@@ -256,12 +256,12 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		 * if other spaces around are available.
 		 * Note that for the second and third calls, we could start at a position other
 		 * than one, but then we could end up on the other side of walls and so forth. */
-		i = find_free_spot(op->arch, newmap, x, y, 1, SIZEOFFREE1 + 1);
+		i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE1 + 1);
 		if (i == -1)
 		{
-			i = find_free_spot(op->arch, newmap, x, y, 1, SIZEOFFREE2 + 1);
+			i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE2 + 1);
 			if (i == -1)
-				i = find_free_spot(op->arch, newmap, x, y, 1, SIZEOFFREE + 1);
+				i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE + 1);
 		}
 
 		/* thats +0,+0 == same spot */
@@ -326,7 +326,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		/* Update any golems */
 		if (CONTR(op)->golem != NULL)
 		{
-			int i = find_free_spot(CONTR(op)->golem->arch, newmap, x, y, 1, SIZEOFFREE + 1);
+			int i = find_free_spot(CONTR(op)->golem->arch, NULL, newmap, x, y, 1, SIZEOFFREE + 1);
 
 			remove_ob(CONTR(op)->golem);
 			if (check_walk_off(CONTR(op)->golem, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)

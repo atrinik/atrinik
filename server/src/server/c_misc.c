@@ -1474,7 +1474,7 @@ int command_apartment(object *op, char *params)
 		}
 
 		/* Find a free spot to invite this player */
-		dir = find_free_spot(op->arch, op->map, op->x, op->y, 1, SIZEOFFREE);
+		dir = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, SIZEOFFREE);
 
 		/* No free space?
 		 * FIXME: In theory, players *could* be teleported on closed door.

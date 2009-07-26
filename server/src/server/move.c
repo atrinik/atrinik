@@ -184,7 +184,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 		return 1;
     }
 	else if (randomly)
-		i = find_free_spot(op->arch, op->map, x, y, 0, SIZEOFFREE);
+		i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
 	else
 		i = find_first_free_spot(op->arch, op->map, x, y);
 
@@ -275,7 +275,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
     }
 
     other_teleporter = altern[RANDOM() % nrofalt];
-    k = find_free_spot(user->arch, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
+    k = find_free_spot(user->arch, user, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
 
     if (k == -1)
 		return 0;

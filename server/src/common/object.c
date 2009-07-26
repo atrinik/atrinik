@@ -3934,14 +3934,14 @@ void set_cheat(object *op)
  * Note - this only checks to see if there is space for the head of the
  * object - if it is a multispace object, this should be called for all
  * pieces. */
-int find_free_spot(archetype *at, mapstruct *m, int x, int y, int start, int stop)
+int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
   	int i, index = 0;
 	static int altern[SIZEOFFREE];
 
 	for (i = start; i < stop; i++)
 	{
-		if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i]))
+		if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i]))
 			altern[index++] = i;
 		else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop)
 			stop = maxfree[i];

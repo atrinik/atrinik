@@ -1204,7 +1204,7 @@ void free_container_monster(object *monster, object *op)
     remove_ob(monster);
     monster->x = container->x;
     monster->y = container->y;
-    i = find_free_spot(monster->arch, op->map, monster->x, monster->y, 0, 9);
+    i = find_free_spot(monster->arch, NULL, op->map, monster->x, monster->y, 0, 9);
     if (i != -1)
 	{
         monster->x += freearr_x[i];
@@ -1335,7 +1335,7 @@ static int apply_shop_mat (object *shop_mat, object *op)
 		{
 
 			/* Somebody dropped an unpaid item, just move to an adjacent place. */
-			int i = find_free_spot(op->arch, op->map, op->x, op->y, 1, 9);
+			int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
 			if (i != -1)
 				rv = transfer_ob(op, op->x + freearr_x[i], op->y + freearr_y[i], 0, shop_mat, NULL);
 		}
@@ -1360,7 +1360,7 @@ static int apply_shop_mat (object *shop_mat, object *op)
 		 * to afford the items he has.  We try to move the player so that
 		 * they are not on the mat anymore */
 
-		int i = find_free_spot(op->arch, op->map, op->x, op->y, 1, 9);
+		int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
 		if (i == -1)
 			LOG(llevBug, "BUG: Internal shop-mat problem (map:%s object:%s pos: %d,%d).\n", op->map->name, op->name, op->x, op->y);
 		else
@@ -2143,7 +2143,7 @@ static void apply_treasure (object *op, object *tmp)
 		/* Monsters can be trapped in treasure chests */
       	if (treas->type == MONSTER)
 		{
-          	int i = find_free_spot(treas->arch, op->map, treas->x, treas->y, 0, 9);
+          	int i = find_free_spot(treas->arch, NULL, op->map, treas->x, treas->y, 0, 9);
           	if (i != -1)
 			{
               	treas->x += freearr_x[i];

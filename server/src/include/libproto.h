@@ -327,7 +327,7 @@ extern object *present(unsigned char type, mapstruct *m, int x, int y);
 extern object *present_in_ob(unsigned char type, object *op);
 extern object *present_arch_in_ob(archetype *at, object *op);
 extern void set_cheat(object *op);
-extern int find_free_spot(archetype *at, mapstruct *m, int x, int y, int start, int stop);
+extern int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
 extern int find_first_free_spot(archetype *at, mapstruct *m, int x, int y);
 extern int find_first_free_spot2(archetype *at, mapstruct *m,int x,int y, int start, int range);
 extern int find_dir(mapstruct *m, int x, int y, object *exclude);

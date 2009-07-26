@@ -253,7 +253,7 @@ int command_summon(object *op, char *params)
         return 1;
     }
 
-    i = find_free_spot(op->arch, op->map, op->x, op->y, 1, 8);
+    i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 8);
 
     if (i == -1)
 	{
@@ -311,7 +311,7 @@ int command_teleport(object *op, char *params)
       	return 1;
    	}
 
-   	i = find_free_spot(pl->ob->arch, pl->ob->map, pl->ob->x, pl->ob->y, 1, 8);
+   	i = find_free_spot(pl->ob->arch, NULL, pl->ob->map, pl->ob->x, pl->ob->y, 1, 8);
 
    	if (i == -1)
 	{
