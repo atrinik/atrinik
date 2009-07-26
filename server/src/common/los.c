@@ -23,17 +23,19 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Line of sight related functions. */
+
 #include <global.h>
 #include <funcpoint.h>
 #include <math.h>
 
-
-/* Distance must be less than this for the object to be blocked.
+/** Distance must be less than this for the object to be blocked.
  * An object is 1.0 wide, so if set to 0.5, it means the object
  * that blocks half the view (0.0 is complete block) will
  * block view in our tables.
  * .4 or less lets you see through walls.  .5 is about right. */
-
 #define SPACE_BLOCK	0.5
 
 typedef struct blstr
@@ -169,7 +171,6 @@ static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] =
 		0, 0, 0, 0, 0, 0, 0, 0,
 	},
 	{320,
-
 		160, 160, 160, 160, 160, 160, 160, 160,
 		80, 80, 80, 80, 80, 80, 80, 80,
 		80, 80, 80, 80, 80, 80, 80, 80,
@@ -210,20 +211,21 @@ static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] =
 
 inline void clear_los(object *op);
 
-/* initialises the array used by the LOS routines.
+/**
+ * Initializes the array used by the LOS routines.
  * This is NOT called for every LOS - only at server start to
- * init the base block struct. */
-
-/* since we are only doing the upper left quadrant, only
+ * init the base block structure.
+ *
+ * Since we are only doing the upper left quadrant, only
  * these spaces could possibly get blocked, since these
  * are the only ones further out that are still possibly in the
  * sightline. */
 void init_block()
 {
-    int x, y, dx, dy, i;
-    static int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
+	int x, y, dx, dy, i;
+	static int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
 
-    for (x = 0; x < MAP_CLIENT_X; x++)
+	for (x = 0; x < MAP_CLIENT_X; x++)
 	{
 		for (y = 0; y < MAP_CLIENT_Y; y++)
 		{
@@ -231,9 +233,9 @@ void init_block()
 		}
 	}
 
-    /* The table should be symmetric, so only do the upper left
-     * quadrant - makes the processing easier. */
-    for (x = 1; x <= MAP_CLIENT_X / 2; x++)
+	/* The table should be symmetric, so only do the upper left
+	 * quadrant - makes the processing easier. */
+	for (x = 1; x <= MAP_CLIENT_X / 2; x++)
 	{
 		for (y = 1; y <= MAP_CLIENT_Y / 2; y++)
 		{
@@ -246,7 +248,7 @@ void init_block()
 				if (x == MAP_CLIENT_X / 2 && y == MAP_CLIENT_Y / 2)
 					continue;
 
-				/* If its a straight line, its blocked */
+				/* If its a straight line, it's blocked */
 				if ((dx == x && x == MAP_CLIENT_X / 2) || (dy == y && y == MAP_CLIENT_Y / 2))
 				{
 					/* For simplicity, we mirror the coordinates to block the other
@@ -263,14 +265,13 @@ void init_block()
 					float d1, r, s, l;
 
 					/* We use the algorihm that found out how close the point
-					 * (x,y) is to the line from dx,dy to the center of the viewable
-					 * area.  l is the distance from x,y to the line.
+					 * (x, y) is to the line from dx, dy to the center of the viewable
+					 * area.  l is the distance from x, y to the line.
 					 * r is more a curiosity - it lets us know what direction (left/right)
 					 * the line is off */
-
 					d1 = (float) (pow(MAP_CLIENT_X / 2 - dx, 2) + pow(MAP_CLIENT_Y / 2 - dy, 2));
-					r = (float)((dy - y) * (dy - MAP_CLIENT_Y / 2) - (dx - x) * (MAP_CLIENT_X / 2 - dx)) / d1;
-					s = (float)((dy - y) * (MAP_CLIENT_X / 2 - dx) - (dx - x) * (MAP_CLIENT_Y / 2 - dy)) / d1;
+					r = (float) ((dy - y) * (dy - MAP_CLIENT_Y / 2) - (dx - x) * (MAP_CLIENT_X / 2 - dx)) / d1;
+					s = (float) ((dy - y) * (MAP_CLIENT_X / 2 - dx) - (dx - x) * (MAP_CLIENT_Y / 2 - dy)) / d1;
 					l = (float) FABS(sqrt(d1) * s);
 
 					if (l <= SPACE_BLOCK)
@@ -285,52 +286,61 @@ void init_block()
 				}
 			}
 		}
-    }
+	}
 }
 
-/* Used to initialise the array used by the LOS routines.
- * What this sets if that x,y blocks the view of bx,by
+/**
+ * Used to initialize the array used by the LOS routines.
+ * What this sets if that x, y blocks the view of bx, by
  * This then sets up a relation - for example, something
- * at 5,4 blocks view at 5,3 which blocks view at 5,2
- * etc.  So when we check 5,4 and find it block, we have
- * the data to know that 5,3 and 5,2 and 5,1 should also
- * be blocked. */
+ * at 5, 4 blocks view at 5, 3 which blocks view at 5, 2
+ * etc. So when we check 5, 4 and find it block, we have
+ * the data to know that 5, 3 and 5, 2 and 5, 1 should
+ * also be blocked.
+ * @param x X position
+ * @param y Y position
+ * @param bx Blocked X position
+ * @param by Blocked Y position */
 void set_block(int x, int y, int bx, int by)
 {
-    int index = block[x][y].index, i;
+	int index = block[x][y].index, i;
 
-    /* Due to flipping, we may get duplicates - better safe than sorry. */
-    for (i = 0; i < index; i++)
+	/* Due to flipping, we may get duplicates - better safe than sorry. */
+	for (i = 0; i < index; i++)
 	{
 		if (block[x][y].x[i] == bx && block[x][y].y[i] == by)
 			return;
-    }
+	}
 
-    block[x][y].x[index] = bx;
-    block[x][y].y[index] = by;
-    block[x][y].index++;
+	block[x][y].x[index] = bx;
+	block[x][y].y[index] = by;
+	block[x][y].index++;
 
 #ifdef LOS_DEBUG
-    LOG(llevInfo, "DEBUG: setblock: added %d %d -> %d %d (%d)\n", x, y, bx, by, block[x][y].index);
+	LOG(llevInfo, "DEBUG: setblock: added %d %d -> %d %d (%d)\n", x, y, bx, by, block[x][y].index);
 #endif
 }
 
-/* Used to initialise the array used by the LOS routines.
- * x,y are indexes into the blocked[][] array.
+/**
+ * Used to initialize the array used by the LOS routines.
+ * x, y are indexes into the blocked[][] array.
  * This recursively sets the blocked line of sight view.
  * From the blocked[][] array, we know for example
  * that if some particular space is blocked, it blocks
  * the view of the spaces 'behind' it, and those blocked
  * spaces behind it may block other spaces, etc.
- * In this way, the chain of visibility is set. */
+ * In this way, the chain of visibility is set.
+ * @param op Player object
+ * @param x X position
+ * @param y Y position */
 static void set_wall(object *op, int x, int y)
 {
-    int i, xt, yt;
+	int i, xt, yt;
 
 	xt = (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2;
 	yt = (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2;
 
-    for (i = 0; i < block[x][y].index; i++)
+	for (i = 0; i < block[x][y].index; i++)
 	{
 		int dx = block[x][y].x[i], dy = block[x][y].y[i], ax, ay;
 
@@ -345,35 +355,38 @@ static void set_wall(object *op, int x, int y)
 		LOG(llevInfo, "DEBUG: blocked %d %d -> %d %d\n", dx, dy, ax, ay);
 #endif
 
-		/* we need to adjust to the fact that the socket
+		/* We need to adjust to the fact that the socket
 		 * code wants the los to start from the 0, 0
 		 * and not be relative to middle of los array. */
+
 		/* this tile can't be seen */
 		if (!(CONTR(op)->blocked_los[ax][ay] & BLOCKED_LOS_OUT_OF_MAP))
 			CONTR(op)->blocked_los[ax][ay] |= BLOCKED_LOS_BLOCKED;
 
 		set_wall(op, dx, dy);
-    }
+	}
 }
 
-/* Used to initialise the array used by the LOS routines.
- * op is the object, x and y values based on MAP_CLIENT_X and Y.
- * this is because they index the blocked[][] arrays. */
-/* instead light values, blocked_los[][] now tells the client
- * update function what kind of tile we have: visible, sight blocked, blocksview trigger
- * or out of map. */
+/**
+ * Used to initialise the array used by the LOS routines.
+ * Instead of light values, blocked_los[][] now tells the client
+ * update function what kind of tile we have: visible, sight
+ * blocked, blocksview trigger or out of map.
+ * @param op The player object
+ * @param x X position based on MAP_CLIENT_X
+ * @param y Y position based on MAP_CLIENT_Y */
 static void check_wall(object *op, int x, int y)
 {
-    int ax, ay, flags;
+	int ax, ay, flags;
 
-    /* ax, ay are coordinates as indexed into the look window */
-    ax = x - (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2;
-    ay = y - (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2;
+	/* ax, ay are coordinates as indexed into the look window */
+	ax = x - (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2;
+	ay = y - (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2;
 
 	/* this skips the "edges" of view area, the border tiles.
 	 * Naturally, this tiles can't block any view - there is
 	 * nothing behind them. */
-    if (!block[x][y].index)
+	if (!block[x][y].index)
 	{
 		/* to handle the "blocksview update" right, we give this special
 		 * tiles a "never use it to trigger a los_update()" flag.
@@ -390,18 +403,18 @@ static void check_wall(object *op, int x, int y)
 	}
 
 
-    /* If the converted coordinates are outside the viewable
-     * area for the client, return now. */
-    if (ax < 0 || ay < 0 || ax >= CONTR(op)->socket.mapx || ay >= CONTR(op)->socket.mapy)
+	/* If the converted coordinates are outside the viewable
+	 * area for the client, return now. */
+	if (ax < 0 || ay < 0 || ax >= CONTR(op)->socket.mapx || ay >= CONTR(op)->socket.mapy)
 		return;
 
 	/*LOG(-1, "SET_LOS: %d, %d\n", ax, ay);*/
 
-    /* If this space is already blocked, prune the processing - presumably
-     * whatever has set this space to be blocked has done the work and already
-     * done the dependency chain.
+	/* If this space is already blocked, prune the processing - presumably
+	 * whatever has set this space to be blocked has done the work and already
+	 * done the dependency chain.
 	 * but check for out_of_map to speedup our client map draw function. */
-    if (CONTR(op)->blocked_los[ax][ay] & (BLOCKED_LOS_BLOCKED | BLOCKED_LOS_OUT_OF_MAP))
+	if (CONTR(op)->blocked_los[ax][ay] & (BLOCKED_LOS_BLOCKED | BLOCKED_LOS_OUT_OF_MAP))
 	{
 		if (CONTR(op)->blocked_los[ax][ay] & BLOCKED_LOS_BLOCKED)
 		{
@@ -418,10 +431,10 @@ static void check_wall(object *op, int x, int y)
 	}
 
 #if 0
-    LOG(llevInfo, "DEBUG: check_wall, ax,ay=%d, %d  x,y = %d, %d  blocksview = %d, %d\n", ax, ay, x, y, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2);
+	LOG(llevInfo, "DEBUG: check_wall, ax,ay=%d, %d  x,y = %d, %d  blocksview = %d, %d\n", ax, ay, x, y, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2);
 #endif
 
-    if ((flags = blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2)))
+	if ((flags = blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2)))
 	{
 		set_wall(op, x, y);
 
@@ -437,29 +450,31 @@ static void check_wall(object *op, int x, int y)
 
 }
 
-/* update_los() recalculates the array which specifies what is
- * visible for the given player-object. */
+/**
+ * Recalculates the array which specifies what is visible
+ * for the given player object.
+ * @param op The player object */
 void update_los(object *op)
 {
-    int dx = CONTR(op)->socket.mapx_2, dy = CONTR(op)->socket.mapy_2, x, y;
+	int dx = CONTR(op)->socket.mapx_2, dy = CONTR(op)->socket.mapy_2, x, y;
 
-    if (QUERY_FLAG(op, FLAG_REMOVED))
+	if (QUERY_FLAG(op, FLAG_REMOVED))
 		return;
 
 #ifdef DEBUG_CORE
 	LOG(llevDebug, "LOS - %s\n", query_name(op));
 #endif
 
-    clear_los(op);
+	clear_los(op);
 
-    if (QUERY_FLAG(op, FLAG_WIZ))
-    	return;
+	if (QUERY_FLAG(op, FLAG_WIZ))
+		return;
 
-    /* For larger maps, this is more efficient than the old way which
-     * used the chaining of the block array.  Since many space views could
-     * be blocked by different spaces in front, this mean that a lot of spaces
-     * could be examined multile times, as each path would be looked at. */
-    for (x=(MAP_CLIENT_X - CONTR(op)->socket.mapx)/2; x<(MAP_CLIENT_X + CONTR(op)->socket.mapx)/2; x++)
+	/* For larger maps, this is more efficient than the old way which
+	 * used the chaining of the block array.  Since many space views could
+	 * be blocked by different spaces in front, this mean that a lot of spaces
+	 * could be examined multile times, as each path would be looked at. */
+	for (x=(MAP_CLIENT_X - CONTR(op)->socket.mapx)/2; x<(MAP_CLIENT_X + CONTR(op)->socket.mapx)/2; x++)
 		for (y=(MAP_CLIENT_Y - CONTR(op)->socket.mapy)/2; y<(MAP_CLIENT_Y + CONTR(op)->socket.mapy)/2; y++)
 			check_wall(op, x, y);
 
@@ -467,7 +482,7 @@ void update_los(object *op)
 
 	/* give us a area we can look through when we have xray - this
 	 * stacks to normal LOS. */
-    if (QUERY_FLAG(op, FLAG_XRAYS))
+	if (QUERY_FLAG(op, FLAG_XRAYS))
 	{
 		int x, y;
 
@@ -482,36 +497,38 @@ void update_los(object *op)
 	}
 }
 
-/* Clears/initialises the los-array associated to the player
- * controlling the object. */
+/**
+ * Clears/initializes the LOS array associated to the player
+ * controlling the object.
+ * @param op The player object */
 inline void clear_los(object *op)
 {
-    (void)memset((void *) CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
+	(void) memset((void *) CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
 }
 
-/* expand_sight goes through the array of what the given player is
- * able to see, and expands the visible area a bit, so the player will,
- * to a certain degree, be able to see into corners.
- * This is somewhat suboptimal, would be better to improve the formula. */
-
-/* thats true: we should migrate this function asap in the los - a bit better
- * "pre calculated" LOS function.
- * It should be easy to do a better, optimized precalculation. MT-2004 */
 #define BLOCKED_LOS_EXPAND 0x20
 
+/**
+ * This goes through the array of what the given player is able to
+ * see, and expands the visible area a bit, so the player will, to
+ * a certain degree, be able to see into corners.
+ * This is somewhat suboptimal, would be better to improve the
+ * formula.
+ * @param op The player object
+ * @todo Improve the formula */
 void expand_sight(object *op)
 {
-    int i, x, y, dx, dy;
+	int i, x, y, dx, dy;
 
 	/* loop over inner squares */
-    for (x = 1; x < CONTR(op)->socket.mapx - 1; x++)
+	for (x = 1; x < CONTR(op)->socket.mapx - 1; x++)
 	{
 		for (y = 1; y < CONTR(op)->socket.mapy - 1; y++)
 		{
 #if 0
-	    	LOG(llevInfo, "DEBUG: expand_sight x,y = %d, %d  blocksview = %d, %d\n", x, y, op->x-CONTR(op)->socket.mapx_2 + x, op->y-CONTR(op)->socket.mapy_2 + y);
+			LOG(llevInfo, "DEBUG: expand_sight x,y = %d, %d  blocksview = %d, %d\n", x, y, op->x-CONTR(op)->socket.mapx_2 + x, op->y-CONTR(op)->socket.mapy_2 + y);
 #endif
-			/* if visible and not blocksview*/
+			/* if visible and not blocksview */
 			if (CONTR(op)->blocked_los[x][y] <= BLOCKED_LOS_BLOCKSVIEW && !(CONTR(op)->blocked_los[x][y] & BLOCKED_LOS_BLOCKSVIEW))
 			{
 				/* mark all directions */
@@ -528,9 +545,9 @@ void expand_sight(object *op)
 				}
 			}
 		}
-    }
+	}
 
-    for (x = 0; x < CONTR(op)->socket.mapx; x++)
+	for (x = 0; x < CONTR(op)->socket.mapx; x++)
 	{
 		for (y = 0; y < CONTR(op)->socket.mapy; y++)
 		{
@@ -540,39 +557,25 @@ void expand_sight(object *op)
 	}
 }
 
-
-
-
-/* returns true if op carries one or more lights
- * This is a trivial function now days, but it used to
- * be a bit longer.  Probably better for callers to just
- * check the op->glow_radius instead of calling this. */
-int has_carried_lights(object *op)
-{
-   	/* op is a light source or glowing */
-    if (op->glow_radius > 0)
-		return 1;
-
-    return 0;
-}
-
-/* Debug-routine which dumps the array which specifies the visible
- * area of a player. */
+/**
+ * Debug routine which dumps the array which specifies the visible
+ * area of a player object.
+ * @param op The player object */
 void print_los(object *op)
 {
-    int x, y;
-    char buf[50], buf2[10];
+	int x, y;
+	char buf[50], buf2[10];
 
-    strcpy(buf, "   ");
-    for (x = 0; x < CONTR(op)->socket.mapx; x++)
+	strcpy(buf, "   ");
+	for (x = 0; x < CONTR(op)->socket.mapx; x++)
 	{
 		sprintf(buf2, "%2d", x);
 		strcat(buf, buf2);
-    }
+	}
 
-    (*draw_info_func)(NDI_UNIQUE, 0, op, buf);
+	(*draw_info_func)(NDI_UNIQUE, 0, op, buf);
 
-    for (y = 0; y < CONTR(op)->socket.mapy; y++)
+	for (y = 0; y < CONTR(op)->socket.mapy; y++)
 	{
 		sprintf(buf, "%2d:", y);
 		for (x = 0; x < CONTR(op)->socket.mapx; x++)
@@ -582,7 +585,7 @@ void print_los(object *op)
 		}
 
 		(*draw_info_func)(NDI_UNIQUE, 0, op, buf);
-    }
+	}
 }
 
 static inline int get_real_light_source_value(int l)
@@ -704,14 +707,18 @@ static inline int add_light_mask(mapstruct *map, int x, int y, int mid)
 	return map_flag;
 }
 
-/* we add or remove a light source to a map space.
- * we adjust the light source map counter
- * and apply the area of light it invokes around it. */
+/**
+ * Add or remove a light source to a map space.
+ * Adjust the light source map counter and apply
+ * the area of light it invokes around it.
+ * @param map The map of this light
+ * @param x X position of light
+ * @param y Y position of light
+ * @param light Glow radius of the light */
 void adjust_light_source(mapstruct *map, int x, int y, int light)
 {
 	int nlm, olm;
 	MapSpace *msp1 = GET_MAP_SPACE_PTR(map,x,y);
-
 
 	/* this happens, we don't change the intense of the old light mask */
 	/* old mask */
@@ -774,9 +781,15 @@ void adjust_light_source(mapstruct *map, int x, int y, int light)
 	}
 }
 
-/* after loading a map, we check here all possible connected
+/**
+ * After loading a map, we check here all possible connected
  * maps for overlapping light sources. When we find one, we
- * adding the overlapping area to our new loaded map. */
+ * add the overlapping area to our new loaded map.
+ * @param restore_map Map to restore from
+ * @param map Map
+ * @param x X position
+ * @param y Y position
+ * @param mid Light value */
 static inline void restore_light_mask(mapstruct *restore_map, mapstruct *map, int x, int y, int mid)
 {
 	MapSpace *msp;
@@ -822,6 +835,11 @@ static inline void restore_light_mask(mapstruct *restore_map, mapstruct *map, in
 	}
 }
 
+/**
+ * Check light source list of specified map.
+ * This will also check all tiled maps attached
+ * to the map.
+ * @param map The map to check */
 void check_light_source_list(mapstruct *map)
 {
 	mapstruct *t_map;
@@ -1086,6 +1104,9 @@ static inline void remove_light_mask_other(mapstruct *map, int x, int y, int mid
 
 }
 
+/**
+ * Remove light sources list from a map.
+ * @param map The map to remove from */
 void remove_light_source_list(mapstruct *map)
 {
 	MapSpace *tmp;
@@ -1106,26 +1127,35 @@ void remove_light_source_list(mapstruct *map)
 	map->first_light = NULL;
 }
 
+/**
+ * Check if object is in line of sight, based on rv_vector.
+ * This will check also check for blocksview 1 objects.
+ *
+ * Uses the Bresenham line algorithm.
+ * @param obj The object to check
+ * @param rv rv_vector to get distances, map, etc from
+ * @return 1 if in line of sight, 0 otherwise
+ */
 int obj_in_line_of_sight(object *obj, rv_vector *rv)
 {
-    /* Bresenham variables */
-    int fraction, dx2, dy2, stepx, stepy;
-    /* Stepping variables */
-    mapstruct *m = rv->part->map;
-    int x = rv->part->x, y = rv->part->y;
+	/* Bresenham variables */
+	int fraction, dx2, dy2, stepx, stepy;
+	/* Stepping variables */
+	mapstruct *m = rv->part->map;
+	int x = rv->part->x, y = rv->part->y;
 
-    BRESENHAM_INIT(rv->distance_x, rv->distance_y, fraction, stepx, stepy, dx2, dy2);
+	BRESENHAM_INIT(rv->distance_x, rv->distance_y, fraction, stepx, stepy, dx2, dy2);
 
-    while (1)
-    {
-        if (x == obj->x && y == obj->y && m == obj->map)
-            return 1;
+	while (1)
+	{
+		if (x == obj->x && y == obj->y && m == obj->map)
+			return 1;
 
-        if (m == NULL || GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW)
-            return 0;
+		if (m == NULL || GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW)
+			return 0;
 
-        BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
+		BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
 
-        m = out_of_map(m, &x, &y);
-    }
+		m = out_of_map(m, &x, &y);
+	}
 }
