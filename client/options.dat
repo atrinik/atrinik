@@ -28,8 +28,8 @@ Low health warning: 0
 Low food warning: 5
 
 # Sound
-Sound volume: 0
-Music volume: 0
+Sound volume: 100
+Music volume: 80
 
 # Fullscreen flags
 Hardware Surface: 0
