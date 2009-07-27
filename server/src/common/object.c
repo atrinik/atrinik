@@ -4199,8 +4199,8 @@ int auto_apply(object *op)
 	/* because auto_apply will be done only *one* time
 	 * when a new, base map is loaded, we always clear
 	 * the flag now. */
-
 	CLEAR_FLAG(op, FLAG_AUTO_APPLY);
+
 	switch (op->type)
 	{
 		case SHOP_FLOOR:
@@ -4222,10 +4222,16 @@ int auto_apply(object *op)
 
 			tmp->x = op->x, tmp->y = op->y;
 			SET_FLAG(tmp, FLAG_UNPAID);
-			/* our new shop code: applying a nopick/unpaid object generate a new object of this in the players inventory */
-			SET_FLAG(tmp, FLAG_NO_PICK);
+
+			/* If this shop floor doesn't have FLAG_CURSED, generate shop-clone items */
+			if (!QUERY_FLAG(op, FLAG_CURSED))
+			{
+				SET_FLAG(tmp, FLAG_NO_PICK);
+			}
+
 			insert_ob_in_map(tmp, op->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 			identify(tmp);
+
 			break;
 
 		case TREASURE:
