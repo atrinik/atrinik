@@ -119,6 +119,7 @@ int InputStringEndFlag;
 int InputStringEscFlag;
 struct gui_book_struct *gui_interface_book;
 struct gui_party_struct *gui_interface_party;
+help_files_struct *help_files;
 
 /* the global status identifier */
 _game_status GameStatus;
@@ -423,6 +424,7 @@ void init_game_data()
 	RangeFireMode = 0;
 	gui_interface_book = NULL;
 	gui_interface_party = NULL;
+	help_files = NULL;
 	options.resolution_x = 800;
 	options.resolution_y = 600;
 	options.playerdoll = 0;

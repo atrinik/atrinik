@@ -426,6 +426,23 @@ typedef struct _fire_mode {
 	char name[128];
 }_fire_mode;
 
+/** Help files structure */
+typedef struct help_files_struct {
+	/** Help name, like "main", or "apply". */
+	char helpname[MAX_BUF];
+
+	/** Help title (shown at the start of the book) */
+	char title[MAX_BUF];
+
+	/** The help message */
+	char message[HUGE_BUF * 12];
+
+	/** Next help entry */
+	struct help_files_struct *next;
+} help_files_struct;
+
+extern help_files_struct *help_files;
+
 typedef enum _fire_mode_id {
 	FIRE_MODE_BOW,
 	FIRE_MODE_SPELL,

@@ -83,7 +83,7 @@ extern void widget_show_resist(int x, int y);
 extern void show_keybind();
 extern void show_spelllist();
 extern void show_skilllist();
-extern void show_help(char *helpfile);
+extern void show_help(char *helpname);
 
 extern void show_menu();
 extern void show_media(int x, int y);

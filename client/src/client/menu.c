@@ -325,64 +325,44 @@ int client_command_check(char *cmd)
 	return 0;
 }
 
-
 /**
  * Show a help GUI.
  * Uses book GUI to show the help.
- * @param helpfile Help to be shown. */
-void show_help(char *helpfile)
+ * @param helpname Help to be shown. */
+void show_help(char *helpname)
 {
-	int len, got_match = 0;
+	int len;
 	unsigned char *data;
-	char title[MAX_BUF], message[HUGE_BUF * 32], buf[HUGE_BUF * 4], name[MAX_BUF];
-	FILE *fp;
+	char message[HUGE_BUF * 16];
+	help_files_struct *help_files_tmp;
 
-	if ((fp = fopen(FILE_CLIENT_HFILES, "rb")) == NULL)
-		return;
+	/* This will be the default message if we don't find the help we want */
+	snprintf(message, sizeof(message), "<b t=\"Help not found\"><t t=\"The specified help file could not be found.\">\n");
 
-	snprintf(name, sizeof(name), "Name: %s\n", helpfile);
-
-	snprintf(message, sizeof(message), "<b t=\"%s\">", helpfile);
-
-	while (fgets(buf, HUGE_BUF * 4, fp))
+	/* Loop through the linked list of help files */
+	for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
 	{
-		/* We got a match */
-		if (got_match)
+		/* If title or message are empty or helpname doesn't match, just continue to the next item */
+		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname))
 		{
-			/* That's a stop */
-			if (strcmp(buf, "==========\n") == 0)
-				break;
-
-			if (strncmp(buf, "Title: ", 7) == 0)
-			{
-				sscanf(buf, "Title: %32[^\n]\n", title);
-				snprintf(buf, sizeof(buf), "<t t=\"%s\">\n", title);
-				strncat(message, buf, sizeof(message) - strlen(buf) - 1);
-			}
-			else
-			{
-				strncat(message, buf, sizeof(message) - strlen(message) - 1);
-			}
+			continue;
 		}
 
-		if (strcmp(buf, name) == 0)
-			got_match = 1;
+		/* Got what we wanted, replace it with the default message */
+		snprintf(message, sizeof(message), "<b t=\"%s\"><t t=\"%s\">%s\n", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
+
+		/* Break out */
+		break;
 	}
 
-	fclose(fp);
+	data = (uint8 *) message;
 
-	if (!got_match)
-		snprintf(message, sizeof(message), "<b t=\"Help not found\"><t t=\"The specified help file could not be found.\">\n");
-
-	data = (uint8*)message;
-
-	len = strlen((char *)data);
+	len = strlen((char *) data);
 
 	cpl.menustatus = MENU_BOOK;
 
-	gui_interface_book = load_book_interface((char *)data, len + 3);
+	gui_interface_book = load_book_interface((char *) data, len + 3);
 }
-
 
 /**
  * Wait for number input.
@@ -432,7 +412,6 @@ void do_number()
 	else
 		cur_widget[IN_NUMBER_ID].show = 1;
 }
-
 
 /**
  * Wait for input in the keybind menu.
@@ -1670,16 +1649,23 @@ void read_spells()
 }
 
 /**
- * Read help files from file. */
+ * Read help files from file.
+ *
+ * This will also initialize and fill the linked list of help
+ * files. The {@link #show_help} function then only needs to
+ * loop through that list. */
 void read_help_files()
 {
 	FILE *stream;
-	char *temp_buf;
+	char *temp_buf, buf[HUGE_BUF];
 	struct stat statbuf;
 	int i;
 
+	help_files = (help_files_struct *) malloc(sizeof(help_files_struct));
+
 	srv_client_files[SRV_CLIENT_HFILES].len = 0;
 	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
+
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_HFILES);
 
 	if ((stream = fopen(FILE_CLIENT_HFILES, "rb")) != NULL)
@@ -1691,9 +1677,70 @@ void read_help_files()
 		temp_buf = malloc(i);
 
 		if (fread(temp_buf, 1, i, stream))
-			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L, (const unsigned char FAR *) temp_buf,i);
+			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
 
 		free(temp_buf);
+
+		rewind(stream);
+
+		/* Loop through the lines */
+		while (fgets(buf, sizeof(buf), stream))
+		{
+			char helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
+			help_files_struct *help_files_tmp;
+
+			/* Null initialize the character arrays */
+			title[0] = message[0] = helpname[0] = '\0';
+
+			/* If this first line has "Name: " as first 6 characters (legal help file should) */
+			if (strncmp(buf, "Name: ", 6) == 0)
+			{
+				/* Store it */
+				snprintf(helpname, sizeof(helpname), "%s", buf + 6);
+
+				/* Null terminate the new line of it */
+				helpname[strlen(helpname) - 1] = '\0';
+			}
+
+			/* Loop trough the next lines, after the stop marker */
+			while (fgets(buf, sizeof(buf), stream) && strcmp(buf, "==========\n"))
+			{
+				/* If this has "Title: " as first 7 characters */
+				if (strncmp(buf, "Title: ", 7) == 0)
+				{
+					/* Store the title */
+					snprintf(title, sizeof(title), "%s", buf + 7);
+
+					/* Null terminate the new line of the title */
+					title[strlen(title) - 1] = '\0';
+				}
+				/* Otherwise, it's a message */
+				else
+				{
+					/* Put it at the end of our buffer with the message */
+					strncat(message, buf, sizeof(message) - strlen(message) - 1);
+				}
+			}
+
+			/* Allocate a new help files list */
+			help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
+
+			/* Append the old help files list to it */
+			help_files_tmp->next = help_files;
+
+			/* Switch the old help files list with this one */
+			help_files = help_files_tmp;
+
+			/* Store help name */
+			snprintf(help_files_tmp->helpname, sizeof(help_files_tmp->helpname), "%s", helpname);
+
+			/* Store help title */
+			snprintf(help_files_tmp->title, sizeof(help_files_tmp->title), "%s", title);
+
+			/* Store help message (the important bit) */
+			snprintf(help_files_tmp->message, sizeof(help_files_tmp->message), "%s", message);
+		}
+
 		fclose(stream);
 		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc);
 	}
