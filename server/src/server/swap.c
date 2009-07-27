@@ -167,7 +167,7 @@ void swap_map(mapstruct *map, int force_flag)
 	{
 		mapstruct *oldmap = map;
 
-		LOG(llevDebug, "Resetting map %s.\n", map->path);
+		LOG(llevDebug, "Resetting1 map %s.\n", map->path);
 
 /* GROS : Here we handle the MAPRESET global event */
 #ifdef PLUGINS
@@ -319,7 +319,7 @@ void flush_old_maps()
 		 * underneath them. */
 		if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED)
 		{
-			LOG(llevDebug, "Resetting map %s.\n", m->path);
+			LOG(llevDebug, "Resetting2 map %s.\n", m->path);
 			oldmap = m;
 			m = m->next;
 			delete_map(oldmap);
@@ -332,7 +332,7 @@ void flush_old_maps()
 		}
 		else
 		{
-		    LOG(llevDebug, "Resetting map %s.\n", m->path);
+		    LOG(llevDebug, "Resetting3 map %s.\n", m->path);
 
 /* GROS : Here we handle the MAPRESET global event */
 #ifdef PLUGINS
