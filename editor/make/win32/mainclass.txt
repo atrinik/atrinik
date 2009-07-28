@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: cfeditor.CFJavaEditor
-Class-Path: lib/png.jar lib/jdom.jar lib/crimson.jar lib/visualtek.jar
