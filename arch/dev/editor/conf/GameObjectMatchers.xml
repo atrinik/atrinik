@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE GameObjectMatchers SYSTEM "GameObjectMatchers.dtd">
+<GameObjectMatchers>
+    <GameObjectMatcher id="background">
+        <title xml:lang="en">Background</title>
+        <title xml:lang="de">Hintergrund</title>
+        <And>
+            <Attrib name="is_floor" />
+            <Attrib name="no_pick" />
+        </And>
+    </GameObjectMatcher>
+    <GameObjectMatcher id="monster">
+        <title xml:lang="en">Monster</title>
+        <title xml:lang="de">Monster</title>
+        <Or>
+            <TypeNrs numbers="80 81 83" />
+            <Attrib name="monster" />
+            <Attrib name="generator" />
+        </Or>
+    </GameObjectMatcher>
+    <GameObjectMatcher id="wall">
+        <title xml:lang="en">Wall</title>
+        <title xml:lang="de">Wand</title>
+        <And>
+            <TypeNrs numbers="77 79" />
+            <Attrib name="no_pass" />
+        </And>
+    </GameObjectMatcher>
+    <GameObjectMatcher id="connected">
+        <title xml:lang="en">Connected</title>
+        <title xml:lang="de">Verbunden</title>
+        <Attrib name="connected" op="ne" value="" />
+    </GameObjectMatcher>
+    <GameObjectMatcher id="exit">
+        <title xml:lang="en">Exit</title>
+        <title xml:lang="de">Ausgang</title>
+        <TypeNrs numbers="41 66 69 94 95" />
+    </GameObjectMatcher>
+    <GameObjectMatcher id="treasure">
+        <title xml:lang="en">Treasure</title>
+        <title xml:lang="de">Schatz</title>
+        <And>
+            <TypeNrs numbers="4 5 36 60 85 111 123 124 130" />
+            <Attrib name="no_pick" value="" />
+        </And>
+    </GameObjectMatcher>
+    <GameObjectMatcher id="door">
+        <title xml:lang="en">Doors and Keys</title>
+        <title xml:lang="de">Türen und Schlüssel</title>
+        <TypeNrs numbers="20 21 23 24 26 91" />
+    </GameObjectMatcher>
+    <GameObjectMatcher id="equipment">
+        <title xml:lang="en">Equipment</title>
+        <title xml:lang="de">Ausrüstung</title>
+        <And>
+            <TypeNrs numbers="3 13 14 15 16 33 34 35 39 70 87 99 100 104 109 113 122" />
+            <Attrib name="no_pick" value="" />
+        </And>
+    </GameObjectMatcher>
+    <!-- Objects to be put below the floor in insertion tool -->
+    <GameObjectMatcher id="system_below_floor"> <!-- XXX: should be 'system="true"' to hide from the GUI -->
+        <title xml:lang="en">Below Floor</title>
+        <title xml:lang="de">Unter Boden</title>
+            <TypeNrs numbers="-666" />
+        <!-- <Attrib name="layer" value="0" /> -->
+    </GameObjectMatcher>
+         <!-- Objects to be checked by the "Critical slaying characters" map
+         validator. -->
+    <GameObjectMatcher id="system_environment_sensor"> <!-- XXX: should be 'system="true"' to hide from the GUI -->
+        <title xml:lang="en">Environment Sensor</title>
+        <title xml:lang="de">Umgebungs-Sensor</title>
+        <TypeNrs numbers="133" />
+    </GameObjectMatcher>
+
+    <GameObjectMatcher id="system_monster_only"> <!-- XXX: should be 'system="true"' to hide from the GUI -->
+        <title xml:lang="en">Monster Only</title>
+        <title xml:lang="de">Nur Monster</title>
+        <TypeNrs numbers="80 83" />
+    </GameObjectMatcher>
+
+    <GameObjectMatcher id="system_combat_values_objects"> <!-- XXX: should be 'system="true"' to hide from the GUI -->
+        <title xml:lang="en">Objects using &quot;combat_values&quot;</title>
+        <title xml:lang="de">Objekte mit &quot;combat_values&quot;</title>
+        <TypeNrs numbers="5 6 7 13 39 54 62 72 73 80 83 154 158" />
+    </GameObjectMatcher>
+</GameObjectMatchers>

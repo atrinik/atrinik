@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!ELEMENT lists (list*)>
+
+<!ELEMENT list (entry+)>
+<!ATTLIST list
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT entry (#PCDATA)>
+<!ATTLIST entry
+    name CDATA #REQUIRED
+>
+

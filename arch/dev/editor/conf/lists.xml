@@ -1,0 +1,186 @@
+<!DOCTYPE lists PUBLIC "-//Atrinik//DTD Types 1.0//EN" "types.dtd">
+<lists>
+
+<list name="event">
+  <listentry value="0" name="no event" />
+  <listentry value="1" name="apply" />
+  <listentry value="2" name="attack" />
+  <listentry value="3" name="death" />
+  <listentry value="4" name="drop" />
+  <listentry value="5" name="pickup" />
+  <listentry value="6" name="say" />
+  <listentry value="7" name="stop" />
+  <listentry value="8" name="time" />
+  <listentry value="9" name="throw" />
+  <listentry value="10" name="trigger" />
+  <listentry value="11" name="close" />
+  <listentry value="12" name="timer" />
+</list>
+
+<list name="direction">
+  <listentry value="0" name="&lt;none&gt;" />
+  <listentry value="1" name="north" />
+  <listentry value="2" name="northeast" />
+  <listentry value="3" name="east" />
+  <listentry value="4" name="southeast" />
+  <listentry value="5" name="south" />
+  <listentry value="6" name="southwest" />
+  <listentry value="7" name="west" />
+  <listentry value="8" name="northwest" />
+</list>
+
+<list name="mood">
+  <listentry value="0" name="furious" />
+  <listentry value="1" name="angry" />
+  <listentry value="2" name="calm" />
+  <listentry value="3" name="sleep" />
+  <listentry value="4" name="charm" />
+</list>
+
+<list name="potion_effect">
+  <listentry value="0" name="&lt;none&gt;" />
+  <listentry value="65536" name="life restoration" />
+  <listentry value="1048576" name="improvement" />
+</list>
+
+<list name="item_skill">
+  <listentry value="0" name="&lt;overall level&gt;" />
+  <listentry value="1" name="agility" />
+  <listentry value="2" name="personality" />
+  <listentry value="3" name="mental" />
+  <listentry value="4" name="physical" />
+  <listentry value="5" name="magic" />
+  <listentry value="6" name="wisdom" />
+</list>
+
+<list name="weapon_st">
+  <listentry value="0" name="1 handed impact weapon" />
+  <listentry value="1" name="1 handed slash weapon" />
+  <listentry value="2" name="1 handed pierce weapon" />
+  <listentry value="3" name="1 handed cleave weapon" />
+  <listentry value="4" name="2 handed impact weapon" />
+  <listentry value="5" name="2 handed slash weapon" />
+  <listentry value="6" name="2 handed pierce weapon" />
+  <listentry value="7" name="2 handed cleave weapon" />
+  <listentry value="8" name="impact polearm" />
+  <listentry value="9" name="slash polearm" />
+  <listentry value="10" name="pierce polearm" />
+  <listentry value="11" name="cleave polearm" />
+</list>
+
+<list name="shootweapon_st">
+  <listentry value="0" name="bow" />
+  <listentry value="1" name="crossbow" />
+  <listentry value="2" name="sling" />
+  <listentry value="3" name="firearm" />
+</list>
+
+
+<list name="projectile_st">
+  <listentry value="0"   name="&lt;unknown&gt;" />
+  <listentry value="1"   name="arrow" />
+  <listentry value="2"   name="crossbow bolt" />
+  <listentry value="3"   name="sling stone" />
+  <listentry value="128" name="throwing impact weapons" />
+  <listentry value="129" name="throwing slash weapons" />
+  <listentry value="130" name="throwing pierce weapons" />
+  <listentry value="131" name="throwing cleave weapons" />
+  <listentry value="132" name="throwing boulders" />
+</list>
+
+<list name="item_race">
+  <listentry value="0" name="&lt;none&gt;" />
+  <listentry value="1" name="dwarven" />
+  <listentry value="2" name="elven" />
+  <listentry value="3" name="gnomish" />
+  <listentry value="4" name="drow" />
+  <listentry value="5" name="orcish" />
+  <listentry value="6" name="goblin" />
+  <listentry value="7" name="kobold" />
+  <listentry value="8" name="giant" />
+  <listentry value="9" name="tiny" />
+  <listentry value="10" name="genie" />
+  <listentry value="11" name="demonish" />
+  <listentry value="12" name="dragon" />
+</list>
+
+<list name="material_real">
+  <listentry value="0" name="&lt;undefined&gt;" />
+  <listentry value="1" name="paper: standard paper" />
+  <listentry value="2" name="paper: parchment" />
+  <listentry value="65" name="hard metal: iron" />
+  <listentry value="66" name="hard metal: hard iron" />
+  <listentry value="67" name="hard metal: steel" />
+  <listentry value="68" name="hard metal: forged steel" />
+  <listentry value="69" name="hard metal: dark steel" />
+  <listentry value="70" name="hard metal: forged dark steel" />
+  <listentry value="71" name="hard metal: silksteel" />
+  <listentry value="72" name="hard metal: forged silksteel" />
+  <listentry value="129" name="crystal: glass" />
+  <listentry value="130" name="crystal: zircon" />
+  <listentry value="131" name="crystal: pearl" />
+  <listentry value="132" name="crystal: emerald" />
+  <listentry value="133" name="crystal: sapphire" />
+  <listentry value="134" name="crystal: ruby" />
+  <listentry value="135" name="crystal: diamond" />
+  <listentry value="193" name="leather: soft leather" />
+  <listentry value="194" name="leather: hardened leather" />
+  <listentry value="195" name="leather: ogre leather" />
+  <listentry value="196" name="leather: giant leather" />
+  <listentry value="197" name="leather: dark leather" />
+  <listentry value="198" name="leather: drow leather" />
+  <listentry value="199" name="leather: demon leather" />
+  <listentry value="200" name="leather: dragon leather" />
+  <listentry value="257" name="wood: polished" />
+  <listentry value="258" name="wood: oak wood" />
+  <listentry value="321" name="organic: animal organics" />
+  <listentry value="322" name="organic: dragon organics" />
+  <listentry value="385" name="stone: flint" />
+  <listentry value="449" name="cloth: wool" />
+  <listentry value="450" name="cloth: linen" />
+  <listentry value="451" name="cloth: silk" />
+  <listentry value="452" name="cloth: elven hair" />
+  <listentry value="513" name="adamant: magic silk" />
+  <listentry value="514" name="adamant: mithril" />
+  <listentry value="515" name="adamant: adamant" />
+  <listentry value="577" name="liquid: (default liquid)" />
+  <listentry value="641" name="soft metal: tin" />
+  <listentry value="642" name="soft metal: brass" />
+  <listentry value="643" name="soft metal: copper" />
+  <listentry value="644" name="soft metal: bronze" />
+  <listentry value="645" name="soft metal: silver" />
+  <listentry value="646" name="soft metal: gold" />
+  <listentry value="647" name="soft metal: platinum" />
+  <listentry value="705" name="bone: animal bone" />
+  <listentry value="706" name="bone: human bone" />
+  <listentry value="707" name="bone: elven bone" />
+  <listentry value="708" name="bone: dwarven bone" />
+  <listentry value="769" name="ice: (default ice)" />
+</list>
+
+<list name="attack_type">
+  <listentry value="0" name="&lt;standard&gt;" />
+  <listentry value="1" name="Distance attack" />
+  <listentry value="2" name="Run away" />
+  <listentry value="3" name="Hit and run" />
+  <listentry value="4" name="Wait and hit" />
+  <listentry value="5" name="Always run" />
+  <listentry value="6" name="Wait and hit from distance" />
+  <listentry value="7" name="Keep distance" />
+</list>
+
+<list name="move_type">
+  <listentry value="0" name="&lt;standard&gt;" />
+  <listentry value="16" name="Pet movement" />
+  <listentry value="32" name="Small circle" />
+  <listentry value="48" name="Large circle" />
+  <listentry value="64" name="Short horiz pace" />
+  <listentry value="80" name="Long horiz pace" />
+  <listentry value="96" name="Random direction" />
+  <listentry value="112" name="Random walk" />
+  <listentry value="128" name="Short vert pace" />
+  <listentry value="144" name="Long vert pace" />
+  <listentry value="176" name="Use waypoints" />
+</list>
+
+</lists>

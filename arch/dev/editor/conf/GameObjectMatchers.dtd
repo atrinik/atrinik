@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!ENTITY % Match "(And|Or|Attrib|TypeNrs)">
+<!ENTITY % Matches "%Match;+">
+
+<!ELEMENT GameObjectMatchers (GameObjectMatcher+)>
+<!ELEMENT GameObjectMatcher (title+,%Match;)>
+<!ATTLIST GameObjectMatcher
+    id CDATA #IMPLIED
+>
+
+<!ELEMENT title (#PCDATA)>
+<!ATTLIST title
+    xml:lang CDATA #REQUIRED
+>
+
+<!ELEMENT And (%Matches;)>
+<!ELEMENT Or (%Matches;)>
+
+<!ELEMENT Attrib EMPTY>
+<!ATTLIST Attrib
+    useArchetype (true|false) 'true'
+    name NMTOKEN #REQUIRED
+    value CDATA '1'
+    op (eq|ne|ge|gt|le|lt) 'eq'
+>
+
+<!ELEMENT TypeNrs EMPTY>
+<!ATTLIST TypeNrs
+    numbers CDATA #REQUIRED
+>
