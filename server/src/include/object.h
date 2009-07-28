@@ -304,8 +304,11 @@ typedef struct obj
 	/* What stage in attack mode */
 	sint8 move_status;
 
-	/* What kind of attack movement */
+	/* What kind of movement */
     uint8 move_type;
+
+	/* What kind of attack movement */
+	uint8 attack_move_type;
 
 	/* special shadow variable: show dir to targeted enemy */
 	sint8 anim_enemy_dir;

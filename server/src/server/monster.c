@@ -1165,9 +1165,9 @@ int move_monster(object *op)
 
     if (!QUERY_FLAG(op, FLAG_SCARED))
 	{
-        if (op->move_type & LO4)
+        if (op->attack_move_type & LO4)
         {
-            switch (op->move_type & LO4)
+            switch (op->attack_move_type & LO4)
             {
                 case DISTATT:
                     special_dir = dist_att(dir, op, enemy, part, &rv);

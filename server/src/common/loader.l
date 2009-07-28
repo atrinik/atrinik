@@ -591,7 +591,9 @@ op->oy= op->y;
 ^protect_spiritual{S}		SET_PROTECTION(op, PROTECT_SPIRITUAL, IVAL);
 ^protect_corruption{S}		SET_PROTECTION(op, PROTECT_CORRUPTION, IVAL);
 
-^attack_movement{S} op->move_type = IVAL;
+^movement_type{S} op->move_type = IVAL;
+^attack_move_type{S} op->attack_move_type = IVAL;
+
 ^move_state{S}	    op->move_status = IVAL;
 ^confused{S}	    SET_OR_CLEAR_FLAG(op, FLAG_CONFUSED, IVAL);
 ^stealth{S}			SET_OR_CLEAR_FLAG(op, FLAG_STEALTH, IVAL);
