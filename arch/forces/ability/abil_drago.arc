@@ -8,5 +8,4 @@ last_grace 10
 no_drop 1
 hp 3
 maxsp 5
-editable 0
 end
