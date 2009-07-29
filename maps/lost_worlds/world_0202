@@ -1838,10 +1838,6 @@ arch grassd_m10
 x 12
 y 2
 end
-arch pile_floor1
-x 12
-y 2
-end
 arch floor_earth1e
 x 12
 y 3

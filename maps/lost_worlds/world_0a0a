@@ -11,7 +11,9 @@ difficulty 1
 outdoor 1
 tile_path_1 world_0a00
 tile_path_2 world_000a
+tile_path_4 greyton/greyton_0200
 tile_path_5 world_0000
+tile_path_8 greyton/greyton_0201
 end
 arch water_still
 end
@@ -1378,10 +1380,6 @@ x 9
 y 18
 end
 arch floor_ruin2
-x 9
-y 19
-end
-arch grassd_m3
 x 9
 y 19
 end

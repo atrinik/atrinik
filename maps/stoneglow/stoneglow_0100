@@ -2394,10 +2394,6 @@ arch grass_thickm5
 x 17
 y 20
 end
-arch grass_thickm5
-x 17
-y 20
-end
 arch grassd_1
 x 17
 y 21

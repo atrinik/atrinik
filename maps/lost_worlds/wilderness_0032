@@ -1281,6 +1281,7 @@ x 8
 y 6
 end
 arch fmask_ruin1a.111
+layer 3
 x 8
 y 6
 end

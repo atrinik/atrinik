@@ -2900,10 +2900,6 @@ arch blood_floor2
 x 20
 y 12
 end
-arch blood_floor2
-x 20
-y 12
-end
 arch floor_stone3d
 x 20
 y 13

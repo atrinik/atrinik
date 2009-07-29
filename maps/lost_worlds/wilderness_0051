@@ -1493,10 +1493,6 @@ arch grassd_m7
 x 13
 y 13
 end
-arch grassd_m7
-x 13
-y 13
-end
 arch grassd_1
 x 13
 y 14

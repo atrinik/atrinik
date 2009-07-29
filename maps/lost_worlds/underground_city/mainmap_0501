@@ -2930,10 +2930,6 @@ arch carpet1.171
 x 21
 y 12
 end
-arch dirt_floor1
-x 21
-y 12
-end
 arch floor_stone_b2
 x 21
 y 13
