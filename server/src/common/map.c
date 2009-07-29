@@ -1436,8 +1436,8 @@ mapstruct *get_linked_map()
 	MAP_DARKNESS(map) = -1;
 	map->light_value = global_darkness_table[MAX_DARKNESS];
 
-    MAP_ENTER_X(map) = 1;
-    MAP_ENTER_Y(map) = 1;
+    MAP_ENTER_X(map) = 0;
+    MAP_ENTER_Y(map) = 0;
 
     return map;
 }
