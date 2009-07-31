@@ -23,19 +23,26 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Logger related functions */
+
 #include <stdarg.h>
 #include <global.h>
 #include <funcpoint.h>
 
-/*
+/**
  * Logs a message to stderr, or to file, and/or even to socket.
- * Or discards the message if it is of no importanse, and none have
+ * Or discards the message if it is of no importance, and none have
  * asked to hear messages of that logLevel.
  *
- * See include/logger.h for possible logLevels.  Messages with llevSystem
+ * See include/logger.h for possible logLevels. Messages with llevSystem
  * and llevError are always printed, regardless of debug mode.
- */
-
+ *
+ * Additionally, llevError message will cause the server to exit.
+ * @param logLevel Log level of the message
+ * @param format Format specifiers
+ * @param ... Arguments for the format */
 void LOG(LogLevel logLevel, const char *format, ...)
 {
   	static int fatal_error = FALSE;
@@ -48,6 +55,7 @@ void LOG(LogLevel logLevel, const char *format, ...)
   	va_start(ap, format);
 
 	buf[0] = '\0';
+
 	if (logLevel <= settings.debug)
 	{
 		vsprintf(buf, format, ap);
@@ -85,7 +93,8 @@ void LOG(LogLevel logLevel, const char *format, ...)
 	if (nroferrors > MAX_ERRORS || logLevel == llevError)
 	{
 		exiting = 1;
-		if(fatal_error == FALSE)
+
+		if (fatal_error == FALSE)
 		{
 			fatal_error = TRUE;
 			fatal(logLevel);
