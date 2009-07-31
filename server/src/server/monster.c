@@ -1192,7 +1192,7 @@ int move_monster(object *op)
                     special_dir = wait_att2(dir, op, enemy, part, &rv);
                     break;
                 default:
-                    LOG(llevDebug, "Illegal low mon-move: %d\n", op->move_type & LO4);
+                    LOG(llevDebug, "Illegal low mon-move: %d\n", op->attack_move_type & LO4);
             }
 
             if (!special_dir)
@@ -1201,14 +1201,14 @@ int move_monster(object *op)
     }
 
     /* try to move closer to enemy, or follow whatever special attack behaviour is */
-    if (!QUERY_FLAG(op, FLAG_STAND_STILL) && (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, enemy, &rv) || ((op->move_type & LO4) && special_dir != dir)))
+    if (!QUERY_FLAG(op, FLAG_STAND_STILL) && (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, enemy, &rv) || ((op->attack_move_type & LO4) && special_dir != dir)))
     {
         object *aggro_wp = get_aggro_waypoint(op);
 
         /* TODO: make (intelligent) monsters go to last known position of enemy if out of range/sight */
 
         /* If special attack move -> follow it instead of going towards enemy */
-        if (((op->move_type & LO4) && special_dir != dir))
+        if (((op->attack_move_type & LO4) && special_dir != dir))
 		{
             aggro_wp = NULL;
             dir = special_dir;
