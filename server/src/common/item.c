@@ -23,18 +23,24 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Item related functions */
+
 #include <global.h>
 #include <funcpoint.h>
 #include <living.h>
 #include <spells.h>
 
+/** Weapon speed table, to figure out a text representation of weapon's speed */
 static float weapon_speed_table[19] = {
 	20.0f,	18.0f, 	10.0f, 	8.0f, 	5.5f, 	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
  	2.15f, 	1.95f,	1.80f, 	1.60f, 	1.52f, 	1.44f, 	1.32f, 	1.25f, 	1.20f
 };
 
+/** Word representations of numbers used by {@link #get_number} */
 static char numbers[21][20] = {
-  	"no",
+	"no",
 	"",
 	"two",
 	"three",
@@ -45,20 +51,20 @@ static char numbers[21][20] = {
 	"eight",
 	"nine",
 	"ten",
-  	"eleven",
+	"eleven",
 	"twelve",
 	"thirteen",
 	"fourteen",
 	"fifteen",
 	"sixteen",
 	"seventeen",
-  	"eighteen",
+	"eighteen",
 	"nineteen",
 	"twenty"
 };
 
 static char numbers_10[10][20] = {
-  	"zero",
+	"zero",
 	"ten",
 	"twenty",
 	"thirty",
@@ -66,12 +72,12 @@ static char numbers_10[10][20] = {
 	"fifty",
 	"sixty",
 	"seventy",
-  	"eighty",
+	"eighty",
 	"ninety"
 };
 
 static char levelnumbers[21][20] = {
-  	"zeroth",
+	"zeroth",
 	"first",
 	"second",
 	"third",
@@ -79,39 +85,42 @@ static char levelnumbers[21][20] = {
 	"fifth",
 	"sixth",
 	"seventh",
-  	"eighth",
+	"eighth",
 	"ninth",
 	"tenth",
 	"eleventh",
 	"twelfth",
 	"thirteenth",
-  	"fourteenth",
+	"fourteenth",
 	"fifteenth",
 	"sixteenth",
 	"seventeenth",
 	"eighteen",
-  	"nineteen",
+	"nineteen",
 	"twentieth"
 };
 
 static char levelnumbers_10[11][20] = {
-  	"zeroth",
+	"zeroth",
 	"tenth",
 	"twentieth",
 	"thirtieth",
 	"fortieth",
 	"fiftieth",
 	"sixtieth",
-  	"seventieth",
+	"seventieth",
 	"eightieth",
 	"ninetieth"
 };
 
-/* describe_resistance generates the visible naming for resistances.
- * returns a static array of the description.  This can return
- * a big buffer.
- * if newline is true, we don't put parens around the description
- * but do put a newline at the end.  Useful when dumping to files */
+/**
+ * Generates the visible naming for resistances.
+ * Returns a static array of the description. This can return a
+ * big buffer.
+ * @param op Object to get the resistances for
+ * @param newline If true, don't put parens around the description
+ * but do put a newline at the end. Useful when dumping to files
+ * @return The buffer with the resistances */
 char *describe_resistance(object *op, int newline)
 {
     static char buf[VERY_BIG_BUF];
@@ -151,11 +160,14 @@ char *describe_resistance(object *op, int newline)
     return buf;
 }
 
-/* describe_attacks generates the visible naming for attack forms.
- * returns a static array of the description.  This can return
- * a big buffer.
- * if newline is true, we don't put parens around the description
- * but do put a newline at the end.  Useful when dumping to files */
+/**
+ * Generates the visible naming for attack forms.
+ * Returns a static array of the description. This can return a
+ * big buffer.
+ * @param op Object to get the attack forms for
+ * @param newline If true, don't put parens around the description
+ * but do put a newline at the end. Useful when dumping to files
+ * @return The buffer with the attack forms */
 char *describe_attack(object *op, int newline)
 {
     static char buf[VERY_BIG_BUF];
@@ -195,7 +207,14 @@ char *describe_attack(object *op, int newline)
     return buf;
 }
 
-/* As above, but it list the protections */
+/**
+ * Generates the visible naming for protections.
+ * Returns a static array of the description. This can return a
+ * big buffer.
+ * @param op Object to get the protections for
+ * @param newline If true, don't put parens around the description
+ * but do put a newline at the end. Useful when dumping to files
+ * @return The buffer with the protections */
 char *describe_protections(object *op, int newline)
 {
     static char buf[VERY_BIG_BUF];
@@ -235,9 +254,13 @@ char *describe_protections(object *op, int newline)
     return buf;
 }
 
-/* query_weight(object) returns a character pointer to a static buffer
- * containing the text-representation of the weight of the given object.
- * The buffer will be overwritten by the next call to query_weight(). */
+/**
+ * Returns a character pointer to a static buffer containing
+ * the text representation of the weight of the given object.
+ *
+ * The buffer will be overwritten by the next call to query_weight.
+ * @param op Object to check the weight of
+ * @return The text representation of the object's weight */
 char *query_weight(object *op)
 {
 	static char buf[10];
@@ -247,22 +270,25 @@ char *query_weight(object *op)
 		return "      ";
 
 	if (i % 1000)
-		sprintf(buf, "%6.1f", (float)i / 1000.0f);
+		snprintf(buf, sizeof(buf), "%6.1f", (float) i / 1000.0f);
 	else
-		sprintf(buf, "%4d  ", i / 1000);
+		snprintf(buf, sizeof(buf), "%4d  ", i / 1000);
 
 	return buf;
 }
 
-/* Returns the pointer to a static buffer containing
- * the number requested (of the form first, second, third...) */
+/**
+ * Returns the pointer to a static buffer containing the
+ * number requested of the form "first", "second", etc.
+ * @param i The number
+ * @return Word representation of the number */
 char *get_levelnumber(int i)
 {
 	static char buf[MAX_BUF];
 
 	if (i > 99)
 	{
-		sprintf(buf, "%d.", i);
+		snprintf(buf, sizeof(buf), "%d.", i);
 		return buf;
 	}
 
@@ -274,13 +300,18 @@ char *get_levelnumber(int i)
 
 	strcpy(buf, numbers_10[i / 10]);
 	strcat(buf, levelnumbers[i % 10]);
+
 	return buf;
 }
 
-/* get_number(integer) returns the text-representation of the given number
- * in a static buffer.  The buffer might be overwritten at the next
- * call to get_number().
- * It is currently only used by the query_name() function. */
+/**
+ * Returns the text representation of the given number
+ * in a static buffer. The buffer might be overwritten at the next
+ * call.
+ *
+ * It is currently only used by the {@link #query_name} function.
+ * @param i The number
+ * @return Text representation of the given number */
 char *get_number(int i)
 {
 	if (i <= 20)
@@ -288,13 +319,18 @@ char *get_number(int i)
 	else
 	{
 		static char buf[MAX_BUF];
-		sprintf(buf, "%d", i);
+		snprintf(buf, sizeof(buf), "%d", i);
+
 		return buf;
 	}
 }
 
-/* query_short_name(object) is similar to query_name, but doesn't
- * contain any information about object status (worn/cursed/etc.) */
+/**
+ * This function is similar to {@link #query_name}, but doesn't
+ * contain any information about the object status (worn/cursed/etc).
+ * @param op Object to get the name from
+ * @param caller Object calling this
+ * @return The short name of the object */
 char *query_short_name(object *op, object *caller)
 {
     static char buf[HUGE_BUF];
@@ -515,17 +551,23 @@ char *query_short_name(object *op, object *caller)
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
 			}
     }
+
     return buf;
 }
 
-/* query_name(object) returns a character pointer pointing to a static
- * buffer which contains a verbose textual representation of the name
- * of the given object.
- * cf 0.92.6:  Put in 5 buffers that it will cycle through.  In this way,
+/**
+ * Returns a character pointer pointing to a static buffer which
+ * contains a verbose textual representation of the name of the
+ * given object.
+ *
+ * Uses 5 buffers that it will cycle through. In this way,
  * you can make several calls to query_name before the bufs start getting
- * overwritten.  This may be a bad thing (it may be easier to assume the value
- * returned is good forever.)  However, it makes printing statements that
- * use several names much easier (don't need to store them to temp variables.) */
+ * overwritten. This may be a bad thing (it may be easier to assume the value
+ * returned is good forever). However, it makes printing statements that
+ * use several names much easier (don't need to store them to temp variables).
+ * @param op Object to get the name from
+ * @param caller Object calling this
+ * @return Full name of the object, with things like worn/cursed/etc. */
 char *query_name(object *op, object *caller)
 {
     static char buf[5][HUGE_BUF];
@@ -613,12 +655,18 @@ char *query_name(object *op, object *caller)
     return buf[use_buf];
 }
 
-/* query_base_name(object) returns a character pointer pointing to a static
- * buffer which contains a verbose textual representation of the name
- * of the given object.  The buffer will be overwritten at the next
- * call to query_base_name().   This is a lot like query_name, but we
- * don't include the item count or item status.  Used for inventory sorting
- * and sending to client. */
+/**
+ * Returns a character pointer pointing to a static buffer which contains
+ * a verbose textual representation of the name of the given object.
+ *
+ * The buffer will be overwritten at the next call.
+ *
+ * This is a lot like {@link #query_name}, but we don't include the item
+ * count or item status.  Used for inventory sorting and sending to
+ * client.
+ * @param op Object to get the base name from
+ * @param caller Object calling this
+ * @return The base name of the object */
 char *query_base_name(object *op, object *caller)
 {
     static char buf[MAX_BUF];
@@ -807,9 +855,10 @@ char *query_base_name(object *op, object *caller)
     return buf;
 }
 
-
-/* describe terrain flags
- * we use strcat only - prepare the retbuf before call. */
+/**
+ * Describe terrain flags of a given object.
+ * @param op The object
+ * @param retbuf Character buffer to store the described terrains */
 static void describe_terrain(object *op, char *retbuf)
 {
 	if (op->terrain_flag & TERRAIN_AIRBREATH)
@@ -831,18 +880,23 @@ static void describe_terrain(object *op, char *retbuf)
 		strcat(retbuf, "(fire breathing)");
 }
 
-/* Returns a pointer to a static buffer which contains a
+/**
+ * Returns a pointer to a static buffer which contains a
  * description of the given object.
+ *
  * If it is a monster, lots of information about its abilities
  * will be returned.
+ *
  * If it is an item, lots of information about which abilities
  * will be gained about its user will be returned.
+ *
  * If it is a player, it writes out the current abilities
- * of the player, which is usually gained by the items applied. */
-
-/* i rewrite this to describe *every* object in the game.
- * That includes a description of every flag, etc.
- * MT-2003 */
+ * of the player, which is usually gained by the items applied.
+ *
+ * Used to describe <b>every</b> object in the game, including
+ * description of every flag, etc.
+ * @param op Object that should be described
+ * @return The described information */
 char *describe_item(object *op)
 {
 	int attr,val, more_info = 0, id_true = FALSE;
@@ -1296,9 +1350,12 @@ char *describe_item(object *op)
 	return retbuf;
 }
 
-/* need_identify returns true if the item should be identified.  This
- * function really should not exist - by default, any item not identified
- * should need it. */
+/**
+ * Checks if given object should need identification.
+ * @param op Object to check
+ * @return 1 if this object needs identification, 0 otherwise
+ * @todo This function really should not exist - by default, any item
+ * not identified should need it. */
 int need_identify(object *op)
 {
   	switch (op->type)
@@ -1344,7 +1401,10 @@ int need_identify(object *op)
   	return 0;
 }
 
-/* Supposed to fix face-values as well here, but later. */
+/**
+ * Identify an object. Basically sets FLAG_IDENTIFIED on
+ * the object along with other things.
+ * @param op Object to identify */
 void identify(object *op)
 {
 	object *pl;
@@ -1396,9 +1456,10 @@ void identify(object *op)
 	}
 }
 
-/* check a object marked with
- * FLAG_IS_TRAPED has still a known
- * trap in it! */
+/**
+ * Check if an object marked with FLAG_IS_TRAPED
+ * has still a known trap in it.
+ * @param op The object to check */
 void set_traped_flag(object *op)
 {
 	object *tmp;
