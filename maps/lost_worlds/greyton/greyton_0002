@@ -2235,7 +2235,7 @@ level 110
 friendly 1
 arch event_obj
 sub_type 6
-race /stoneglow/smith.py
+race /python/smith.py
 end
 end
 end

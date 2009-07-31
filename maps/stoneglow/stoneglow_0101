@@ -165,7 +165,7 @@ friendly 1
 y 22
 arch event_obj
 name Python
-race /stoneglow/smith.py
+race /python/smith.py
 sub_type 6
 end
 end

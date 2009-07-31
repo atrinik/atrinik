@@ -2954,7 +2954,7 @@ x 20
 y 6
 arch event_obj
 name Python
-race /stoneglow/church.py
+race /python/church.py
 sub_type 6
 end
 end

@@ -1089,7 +1089,7 @@ level 110
 friendly 1
 arch event_obj
 sub_type 6
-race /stoneglow/church.py
+race /python/church.py
 end
 arch ability_cause_lig_wound
 end
