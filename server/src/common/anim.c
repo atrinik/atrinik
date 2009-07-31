@@ -23,11 +23,15 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file contains animation related code. */
+/**
+ * @file
+ * This file contains animation related code. */
 
 #include <global.h>
 #include <stdio.h>
 
+/**
+ * Free all animations loaded */
 void free_all_anim()
 {
     int i;
@@ -41,6 +45,9 @@ void free_all_anim()
     free(animations);
 }
 
+/**
+ * Initialize animations structure, read the animations
+ * data from a file. */
 void init_anim()
 {
     char buf[MAX_BUF];
@@ -138,18 +145,29 @@ void init_anim()
 				LOG(llevBug, "BUG: Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
 		}
     }
+
     fclose(fp);
 
     LOG(llevDebug, "done. (got %d)\n", num_animations);
 }
 
+/**
+ * Compare two animations.
+ *
+ * Used for bsearch in {@link #find_animation}.
+ * @param a First animation to compare
+ * @param b Second animation to compare
+ * @return Return value of strcmp for the animation names */
 static int anim_compare(Animations *a, Animations *b)
 {
 	return strcmp(a->name, b->name);
 }
 
-/* Tries to find the animation id that matches name.  Returns an integer match
- * 0 if no match found (animation 0 is initialized as the 'bug' face */
+/**
+ * Tries to find the animation ID that matches name.
+ * @param name Animation name to find
+ * @return ID of the animation if found, 0 otherwise (animation 0 is
+ * initialized as the 'bug' face). */
 int find_animation(char *name)
 {
     Animations search, *match;
@@ -158,7 +176,6 @@ int find_animation(char *name)
 
     match = (Animations*)bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)())anim_compare);
 
-
     if (match)
 		return match->num;
 
@@ -166,8 +183,11 @@ int find_animation(char *name)
     return 0;
 }
 
-/* animate_object(object, count) updates the face-variable of an object.
- * If the object is the head of a multi-object, all objects are animated. */
+/**
+ * Updates the face variable of an object.
+ * If the object is the head of a multi object, all objects are animated.
+ * @param op Object to animate
+ * @param count State count of the animation */
 void animate_object(object *op, int count)
 {
 	int numfacing, numanim;
@@ -423,4 +443,3 @@ void animate_object(object *op, int count)
 	 * -- A.T. 2009 */
    	update_object(op, UP_OBJ_FACE);
 }
-
