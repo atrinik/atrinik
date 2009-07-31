@@ -23,15 +23,22 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Buttons, gates, handles, etc related code. */
+
 #include <global.h>
 #include <funcpoint.h>
 
 /* This code is no longer highly inefficient 8) */
 
-/* Push the specified object.  This can affect other buttons/gates/handles
- * altars/pedestals/holes in the whole map.
- * Changed the routine to loop through _all_ objects.
- * Better hurry with that linked list... */
+/**
+ * Push the specified object. This can affect other buttons/gates/handles
+ * altars/pedestals/holes on the whole map.
+ *
+ * The routine loops through _all_ objects on the map.
+ * Better hurry with that linked list...
+ * @param op The object to push */
 void push_button(object *op)
 {
 	object *tmp;
@@ -121,8 +128,8 @@ void push_button(object *op)
 					if (tmp->stats.maxsp)
 					{
 						if ((tmp->direction += tmp->stats.maxsp) > 8)
-							tmp->direction = (tmp->direction % 8) + 1
-;
+							tmp->direction = (tmp->direction % 8) + 1;
+
 						animate_turning(tmp);
 					}
 				}
@@ -150,10 +157,12 @@ void push_button(object *op)
 	}
 }
 
-/* Updates everything connected with the button op.
+/**
+ * Updates everything connected with the button object.
  * After changing the state of a button, this function must be called
  * to make sure that all gates and other buttons connected to the
- * button reacts to the (eventual) change of state. */
+ * button react to the (eventual) change of state.
+ * @param op The button object */
 void update_button(object *op)
 {
     object *ab, *tmp, *head;
@@ -219,7 +228,10 @@ void update_button(object *op)
     }
 }
 
-/* Updates every button on the map (by calling update_button() for them). */
+/**
+ * Updates every button on the map by calling {@link #update_button}
+ * for them.
+ * @param m The map to update buttons for */
 void update_buttons(mapstruct *m)
 {
 	objectlink *ol;
@@ -294,15 +306,19 @@ void animate_turning(object *op)
 #define ARCH_SACRIFICE(xyz) ((xyz)->slaying)
 #define NROF_SACRIFICE(xyz) ((xyz)->stats.food)
 
-/* Returns true if the sacrifice meets the needs of the altar.
+/**
+ * Check if the sacrifice meets the needs of the altar.
  *
- * Function put in (0.92.1) so that identify altars won't grab money
- * unnecessarily - we can see if there is sufficient money, see if something
- * needs to be identified, and then remove money if needed.
+ * Identify altars won't grab money unnecessarily - we can see
+ * if there is sufficient money, see if something needs to be
+ * identified, and then remove money if needed.
  *
- * 0.93.4: Linked objects (ie, objects that are connected) can not be
- * sacrificed.  This fixes a bug of trying to put multiple altars/related
- * objects on the same space that take the same sacrifice. */
+ * Linked objects (ie, objects that are connected) can not be
+ * sacrificed. This fixes a bug of trying to put multiple altars/related
+ * objects on the same space that take the same sacrifice.
+ * @param altar The altar object
+ * @param sacrifice The sacrifice
+ * @return 1 if it meets the needs, 0 otherwise */
 int check_altar_sacrifice(object *altar, object *sacrifice)
 {
 	if (!IS_LIVE(sacrifice) && !QUERY_FLAG(sacrifice, FLAG_IS_LINKED))
@@ -317,15 +333,18 @@ int check_altar_sacrifice(object *altar, object *sacrifice)
 	return 0;
 }
 
-
-/* operate_altar checks if sacrifice was accepted and removes sacrificed
- * objects.  If sacrifice was succeed return 1 else 0.  Might be better to
- * call check_altar_sacrifice (above) than depend on the return value,
- * since operate_altar will remove the sacrifice also.
+/**
+ * Checks if sacrifice was accepted and removes sacrificed objects.
+ * Might be better to call check_altar_sacrifice (above) than
+ * depend on the return value, since operate_altar will remove the
+ * sacrifice also.
  *
  * If this function returns 1, '*sacrifice' is modified to point to the
- * remaining sacrifice, or is set to NULL if the sacrifice was used up. */
-int operate_altar (object *altar, object **sacrifice)
+ * remaining sacrifice, or is set to NULL if the sacrifice was used up.
+ * @param altar The altar object
+ * @param sacrifice The object to be sacrificed
+ * @return 1 if sacrifice was succeed, 0 otherwise */
+int operate_altar(object *altar, object **sacrifice)
 {
 	if (!altar->map)
 	{
@@ -645,13 +664,17 @@ int get_button_value(object *button)
 	return 0;
 }
 
-/* This routine makes monsters who are
- * standing on the 'mood floor' change their
- * disposition if it is different.
- * If floor is to be triggered must have
- * a speed of zero (default is 1 for all
- * but the charm floor type).
- * by b.t. thomas@nomad.astro.psu.edu */
+/**
+ * This routine makes monsters who are standing on the
+ * 'mood floor' change their disposition if it is
+ * different.
+ *
+ * If floor is set to be triggered must have a speed
+ * of zero (default is 1 for all but the charm floor
+ * type).
+ * @author b.t. thomas@nomad.astro.psu.edu
+ * @param op The mood floor object
+ * @param op2 Connected mood floor object */
 void do_mood_floor(object *op, object *op2)
 {
 	object *tmp;
@@ -788,10 +811,13 @@ void check_inv(object *op, object *trig)
 		use_trigger(trig);
 }
 
-
-/* This does a minimal check of the button link consistency for object
- * map.  All it really does it much sure the object id link that is set
- * matches what the object has. */
+/**
+ * This does a minimal check of the button link consistency for object
+ * map. All it really does it much sure the object id link that is set
+ * matches what the object has.
+ *
+ * Currently seems to be unused.
+ * @param map The map */
 void verify_button_links(mapstruct *map)
 {
     oblinkpt *obp;
