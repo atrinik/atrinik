@@ -26,15 +26,26 @@
 #ifndef LIVING_H
 #define LIVING_H
 
-#define STR 0
-#define DEX 1
-#define CON 2
-#define WIS 3
-#define CHA 4
-#define INTELLIGENCE 5
-#define POW 6
-
-#define NUM_STATS 7
+/**
+ * @defgroup STATS Object statistics. */
+/*@{*/
+/** Strength */
+#define STR				0
+/** Dexterity */
+#define DEX				1
+/** Constitution */
+#define CON				2
+/** Wisdom */
+#define WIS				3
+/** Charisma */
+#define CHA				4
+/** Intelligence */
+#define INTELLIGENCE	5
+/** Power */
+#define POW				6
+/** Number of stats */
+#define NUM_STATS		7
+/*@}*/
 
 /* Changed from NO_STAT to NO_STAT_VAL to fix conlfict on
  * AIX systems */
@@ -64,48 +75,71 @@ extern uint32 weight_limit[MAX_STAT + 1];
 #pragma pack(push,1)
 #endif
 
-/* Mostly used by "alive" objects */
+/** Mostly used by "alive" objects, but also by other
+ * objects like gates, buttons, waypoints and a number
+ * of other objects.*/
 typedef struct liv {
-	/* Experience. */
-  	sint32 exp;
+	/** Experience. */
+	sint32 exp;
 
-	/* Real Hit Points. */
-  	sint32 hp;
+	/** Hit points. */
+	sint32 hp;
 
-	/* max hit points */
-  	sint32 maxhp;
+	/** Max hit points */
+	sint32 maxhp;
 
-	/* Spell points.  Used to cast mage spells. */
-  	sint16 sp;
+	/** Spell points. Used to cast mage spells. */
+	sint16 sp;
 
-	/* Max spell points. */
-  	sint16 maxsp;
+	/** Max spell points. */
+	sint16 maxsp;
 
-	/* Grace.  Used to invoke clerical prayers. */
-  	sint16 grace;
+	/** Grace. Used to invoke clerical prayers. */
+	sint16 grace;
 
-	/* Grace.  Used to invoke clerical prayers. */
-  	sint16 maxgrace;
+	/** Max Grace. */
+	sint16 maxgrace;
 
-	/* How much food in stomach.  0 = starved. */
-  	sint16 food;
+	/** How much food in stomach.  0 = starved. */
+	sint16 food;
 
-	/* How much damage this object does when hitting */
-  	sint16 dam;
+	/** How much damage this object does when hitting */
+	sint16 dam;
 
-	/* Weapon Class and Armour Class */
-  	sint16 wc, ac;
+	/** Weapon class */
+	sint16 wc;
 
-	/* thats the random value range we add to wc value of
-	 * attacker: wc+(random()%wc_range). If its higher as
-	 * defender AC we have hit our enemy. */
-  	uint8 wc_range;
+	/** Armour class */
+	sint16 ac;
 
-	/* the stats */
-  	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
+	/** Random value range we add to wc value of attacker:
+	 * wc + (random() % wc_range). If it's higher than
+	 * defender's AC then we can hit our enemy. */
+	uint8 wc_range;
 
-	/* Affects thaco and ac from time to time */
-  	sint8 luck;
+	/** Strength */
+	sint8 Str;
+
+	/** Dexterity */
+	sint8 Dex;
+
+	/** Constitution */
+	sint8 Con;
+
+	/** Wisdom */
+	sint8 Wis;
+
+	/** Charisma */
+	sint8 Cha;
+
+	/** Intelligence */
+	sint8 Int;
+
+	/** Power */
+	sint8 Pow;
+
+	/** Affects thaco and ac from time to time */
+	sint8 luck;
 } living;
 
 extern float lev_damage[MAXLEVEL + 1];
