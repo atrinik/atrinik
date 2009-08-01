@@ -1,0 +1,19 @@
+/**
+@fn FLAG_HITBACK
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Monsters with &lt;hitback&gt; enabled hurt the attacker in proportion
+    to the amount of damage the *attacker* inflicted. This damage
+    is additional to the regular melee damage of the monster.
+    As far as I know, hitback uses acid attacktype, and it only takes
+    effect if the monster actually has acid attacktype at it's disposal.
+    Acid spheres for example use this feature.</td>
+	</tr>
+
+*/

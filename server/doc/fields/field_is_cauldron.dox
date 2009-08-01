@@ -1,0 +1,16 @@
+/**
+@fn FLAG_IS_CAULDRON
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_122
+		</td><td>    If set, the container can be used as alchemy-cauldron.
+    The player can put ingredients inside, close it, cast alchemy
+    and if his formulae is true, he'll get what he longed for.</td>
+	</tr>
+
+*/

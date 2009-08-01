@@ -1,0 +1,14 @@
+/**
+@fn FLAG_USE_BOW
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>(no description)</td>
+	</tr>
+
+*/

@@ -1,0 +1,15 @@
+/**
+@fn FLAG_IS_WOODED
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_71, @ref page_type_88
+		</td><td>    This flag indicates this spot contains wood or high grass.
+    Players with activated woodsman skill can move faster here.</td>
+	</tr>
+
+*/

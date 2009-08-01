@@ -1,0 +1,39 @@
+/**
+@fn FLAG_UNIQUE
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_79, @ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_8, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_13, @ref page_type_70, @ref page_type_14, @ref page_type_33, @ref page_type_15
+		</td><td>    Unique items exist only one time on a server. If the item
+    is taken, lost or destroyed - it's gone for good.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_122
+		</td><td>    Unique items exist only one time on a server. If the item
+    is taken, lost or destroyed - it's gone for good.
+    All contents of a unique container are unique as well.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_71, @ref page_type_88
+		</td><td>    Unique floor means that any items dropped on that spot
+    will be saved byond map reset. For permanent apartments,
+    all floor tiles must be set &lt;unique map&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_21
+		</td><td>    Unique items exist only one time on a server. If the item
+    is taken, lost or destroyed - it's gone for good.
+
+    This can be used if you want to sell apartments on your
+    map: Simply sell a unique passport/key, and place
+    an inventory checker at the entrance of your apartment.</td>
+	</tr>
+
+*/

@@ -1,0 +1,23 @@
+/**
+@fn FLAG_GENERATOR
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80
+		</td><td>    Monsters with &lt;multiply&gt; enabled will create a &lt;breed monster&gt;
+    every once in a while. Mice are a good example for this effect.
+    If enabled, you must also set &lt;breed monster&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_83
+		</td><td>    Monsters with &lt;generator&gt; enabled will create a &lt;breed monster&gt;
+    every once in a while. Mice are a good example for this effect.
+    If enabled, you must also set &lt;breed monster&gt;.</td>
+	</tr>
+
+*/

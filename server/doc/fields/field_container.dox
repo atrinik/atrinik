@@ -1,0 +1,22 @@
+/**
+@fn obj::container
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_122
+		</td><td>    The container can hold a maximum total weight of the given value
+    in gram. Note that this weight limit is calculated *after* the
+    weight reduction (&lt;reduce weight&gt;) has been applied.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_102
+		</td><td>    Set to a range from 0 to x. 0 means droped always.
+    999999 means a chance from 1/999999 to drop.</td>
+	</tr>
+
+*/

@@ -1,0 +1,142 @@
+/**
+@fn obj::level
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_18
+		</td><td>    Set the power level of the spell. This can be from 1 to 110.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_8
+		</td><td>    If this value is set to be greater than zero, the player needs a
+    certain literacy level to succeed reading the book. The book can be
+    read if: mental_level greater &lt;literacy level&gt; - 5. Adding level to a
+    book can be a nice idea, personally I like it when a player needs
+    more than his fighting skills to solve a quest. However, keep the
+    booklevel at least below 15 because it is quite hard to gain high
+    mental levels.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_42
+		</td><td>    The created object will be of that level. If zero/unset,
+    the standard level of the archetype is used.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    The &lt;plaque level&gt; is proportional to the disease's deadliness.
+    This mainly reflects in the &lt;damage&gt;. It has no effect on
+    most other symptoms. Neverthless, it is a very important value for
+    all damage-inflicting diseases.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_72
+		</td><td>    The &lt;flesh level&gt; is not visible to the players and it affects only
+    dragon players. Normally this value reflects the level of the monster
+    from which the flesh item originates.
+    Dragon players always search for flesh of highest level possible,
+    because it bears the best chance to gain high resistances.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_88
+		</td><td>    I guess this value is supposed to work similar to monster levels.
+    But in fact, it does not seem to have an effect. Set any non-zero
+    value to be on the safe side.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_56
+		</td><td>    To re-consecrate an altar, the player's wisdom level must be as
+    high or higher than this value. In that way, some altars can not
+    be re-consecrated, while other altars, like those in dungeons, could be. 
+
+    Altars located in temples should have at least &lt;reconsecrate level&gt; 100.
+    Some characters might need those altars, they would be very unhappy to
+    see them re-consecrated to another cult.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_35
+		</td><td>    The casting level of the &lt;spell&gt; determines it's power.
+    For attack spells, level should not be set too high.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_62
+		</td><td>    The wall will cast it's spells at level &lt;spell level&gt;. "level 1"
+    walls cast spells at minimal strength. "level 100" walls cast deadly
+    spells. Arch default is level 1 - you should always set this value
+    to meet the overall difficulty of your map.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    A monster's &lt;level&gt; is the most important attribute.
+    &lt;level&gt; affects the power of a monster in various ways.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>    If &lt;move players&gt; is enabled, both players and monsters will be
+    moved. In the arches' default it is disabled - thus ONLY monsters
+    get moved. Remember that "monsters" includes NPCs!
+
+    This feature provides you with the possibility to make NPCs
+    literally "come to life". Example: The player is talking with an
+    NPC, speaking a certain keyword. This triggers a magic_ear and
+    activates creators, creating (per default: monster-only) movers
+    under the NPC's feet. The NPC starts "walking" on a predefined
+    route! Note that it's useful to set this NPC immune to everything,
+    preventing the player to push the NPC off his trace.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_7
+		</td><td>    Set the power level of the poison. This can be range from 1 to 110.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_5
+		</td><td>    If the potion contains a spell, the spell is cast at this level.
+    For other potions it should be set at least to 1.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_3
+		</td><td>    The casting level of the &lt;spell&gt; determines it's power.
+    For attack spells, level should be set to something reasonable.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_154
+		</td><td>    This value sets the level the rune will cast the spell it contains at,
+    if applicable. A level 99 rune casts a very, very mean spell of whatever.
+    (&lt;rune level&gt; 0 runes won't detonate at all!) 
+
+    Level Also effects how easily a trap may be found and disarmed, and
+    how much experience the player gets for doing so. Beware: High level
+    runes can be quite a cheap source of experience! So either make them
+    tough, or keep the level low.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_111
+		</td><td>    The spell of the scroll will be casted at this level.
+    This value should always be set, at least to 1.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_109
+		</td><td>    The &lt;casting level&gt; of the wand determines it's power.
+    An average level for wands in shops is about 10.</td>
+	</tr>
+
+*/

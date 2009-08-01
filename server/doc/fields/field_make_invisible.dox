@@ -1,0 +1,15 @@
+/**
+@fn FLAG_MAKE_INVIS
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_35, @ref page_type_70, @ref page_type_3, @ref page_type_14, @ref page_type_33, @ref page_type_15, @ref page_type_109
+		</td><td>   When applied the user gets invisible. He can't be seen from player 
+   or monster except they have "see invisible" power.</td>
+	</tr>
+
+*/

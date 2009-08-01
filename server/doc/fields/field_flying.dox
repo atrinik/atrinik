@@ -1,0 +1,21 @@
+/**
+@fn obj::flying
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
+		</td><td>    As soon as the player applies a piece of equipment with
+    &lt;levitate&gt; set, the player will start to float in the air.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Flying monsters won't get slowed down in rough terrain
+    and they won't be affected by movers.</td>
+	</tr>
+
+*/

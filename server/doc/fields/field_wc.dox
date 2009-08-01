@@ -1,0 +1,75 @@
+/**
+@fn liv::wc
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
+		</td><td>    The &lt;weapon class&gt; value adds to the overall weapon class of the wielder's
+    melee attacks. Weapon class improves the chance of hitting the opponent.
+    Weapon class is the "counterpiece" of &lt;armour class&gt;. It should usually
+    be set only for weapon-like items. Lower values are better.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    The &lt;infectiosness&gt; defines the chance of new creatures getting
+    infected. If you set this too high, the disease is very likely to
+    be too effective.
+
+    &lt;infectiosness&gt;/127 is the chance of someone in range catching it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_91, @ref page_type_94
+		</td><td>    The &lt;position state&gt; defines the position of the gate:
+    Zero means completely open/down, the "number of animation-steps" (usually
+    about 6 or 7) means completely closed/up state. I suggest you don't
+    mess with this value - Leave the default in place.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_88
+		</td><td>    &lt;weapon class&gt; improves the chance of hitting the victim.
+    Lower values are better.
+    Usually, hazard floors like lave are supposed to hit the
+    victim all the time. Therefore, &lt;weaponclass&gt; should be set
+    to something like 200.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Monsters of low &lt;weapon class&gt; are more likely to really hit
+    their opponent. &lt;weapon class&gt; can be considered the "counterpiece"
+    to &lt;armour class&gt;.
+    Note that the monster's level further improves weapon class:
+    "real weapon class" = &lt;weapon class&gt; - &lt;level&gt;</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_13
+		</td><td>    This value is supposed to be the base &lt;weaponclass&gt;,</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_14
+		</td><td>    This value is supposed to be the base &lt;weaponclass&gt;,
+    but it seems to have rather little effect.
+    High values are good here, low values bad.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_15
+		</td><td>    The weapon class value adds to the overall weapon class of the wielder's
+    melee attacks. Weapon class improves the chance of hitting the opponent.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_119
+		</td><td>    Amount of time the mob should wait at this waypoint before proceeding to the next.</td>
+	</tr>
+
+*/

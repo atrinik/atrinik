@@ -1,0 +1,23 @@
+/**
+@fn liv::grace
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
+		</td><td>    Positive &lt;grace regen.&gt; bonus speeds up the
+    player's grace regeneration. Negative values slow it down.
+    Since grace can be regenerated rather easy with praying,
+    additional &lt;grace regen.&gt; bonus should be VERY RARE!!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_119
+		</td><td>    How far away from the exact position will the waypoint be considered to be reached.
+	Set to 0 to require the mob to be standing on top of the specified destination.</td>
+	</tr>
+
+*/

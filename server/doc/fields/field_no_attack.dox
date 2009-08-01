@@ -1,0 +1,14 @@
+/**
+@fn FLAG_NO_ATTACK
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    This mob will NEVER attack or fight back. Its permanent unaggressive.</td>
+	</tr>
+
+*/

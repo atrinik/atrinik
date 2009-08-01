@@ -1,0 +1,16 @@
+/**
+@fn FLAG_RUN_AWAY
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    This is a percentage based value in the range 0-100.
+    The creature will attempt to run from the attacker when it's
+    health points drops below this percentage of max health.</td>
+	</tr>
+
+*/

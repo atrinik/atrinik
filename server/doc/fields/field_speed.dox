@@ -1,0 +1,86 @@
+/**
+@fn obj::speed
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_51
+		</td><td>    This value defines the time between two detector-checks.
+    If you want the detector to behave almost like pedestals/buttons,
+    set speed rather high, like &lt;detection speed&gt; 1.0.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    The &lt;speed&gt; of the disease determines how fast the disease will
+    "move", thus how fast the symptoms strike the host.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_62
+		</td><td>    The &lt;casting speed&gt; defines the spellcasting speed of the wall.
+    You can fine-tune how long the duration between two casts shall be. </td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_55
+		</td><td>    The &lt;marking speed&gt; defines how quickly it will mark something
+    standing on the marker. Set this value rather high to make
+    sure the player really gets his mark. I think &lt;marking speed&gt; 1.0
+    should do fine.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80
+		</td><td>    The &lt;speed&gt; determines how fast a monster will both move
+    and fight. High &lt;speed&gt; makes a monster considerably stronger.
+    If the start value is negative (like -0.1) then the speed is set to
+    0.1 but the speed counter becomes a random start value. This will avoid
+    for generated objects of same type thats they act totally synchron.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_81
+		</td><td>    The &lt;speed&gt; determines how often a spawn point will
+    control himself and/or the mob. If there is no mob, the
+    spawn point will try to spawn a mob.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_83
+		</td><td>    The &lt;speed&gt; determines how fast a monster will both move
+    and fight. High &lt;speed&gt; makes a monster considerably stronger.
+    If the start value is negative but the speed counter becomes a 
+    random start value. This will avoid for generated objects of same 
+    type thats they act totally synchron.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>    The movement speed value determines how fast a chain of
+    these movers will push a player along (default is -0.2).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_138
+		</td><td>    The higher the &lt;drowning speed&gt;, the faster will players and items
+    sink into the swamp. Swamp with very high &lt;drowning speed&gt; can be a nasty
+    and unexpected death-trap. Players should get a warning before such areas.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_41
+		</td><td>    If the &lt;activation speed&gt; is nonzero, the teleporter will
+    automatically be activated in regular time-intervals. Hence, the
+    player can just step on it and gets teleported sooner or later.
+    The duration between two activates depends on the given value.
+    Default in the teleporter arch is &lt;activation speed&gt; 0.1. 
+
+    VERY IMPORTANT: If you want to have your teleporter activated via
+    button/handle/magic_ear/etc, you must set &lt;activation speed&gt; to zero!</td>
+	</tr>
+
+*/

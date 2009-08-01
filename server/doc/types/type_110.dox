@@ -1,0 +1,332 @@
+/**
+@var ABILITY
+See @ref page_type_110
+*/
+
+/**
+@page page_type_110 Ability
+
+
+@section Description
+    Abilities are to be put in a monster's inventory. They grant monsters the
+    knowledge to cast spells. Spells from abilities are usually magical in
+    nature, thus adding magic to the spell-damage they produce. If not marked
+    as magical, the ability as natural effect can't be disenchanted or 
+    blocked by dispel magic.
+    <br><br>
+    A particularly nice feature of abilities is that they can hold two
+    spells: One for short range- and one for long range use.
+    <br><br>
+    You should know that spellcasting monsters receive abilities via
+    &lt;treasurelist&gt;.  
+
+
+
+Type defined by:
+- @ref object::type = 110
+
+
+@section Attributes
+
+<table>
+	<tr>
+		<th>Attribute</th>
+		<th>Field</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>anim speed</td>
+		<td>@ref obj::anim_speed</td>
+		<td>  How fast to play this animation.
+		</td>
+	</tr>
+	<tr>
+		<td>animation</td>
+		<td>@ref obj::animation</td>
+		<td>    The animation-name defines what animation is displayed for this object
+    in-game. Note that a set animation will overrule the face.
+    Changing animation is easy - adding or deleting a animation is more
+    difficult and should be done in the text parse window and not in this
+    dialog.
+		</td>
+	</tr>
+	<tr>
+		<td>block view</td>
+		<td>@ref FLAG_BLOCKSVIEW</td>
+		<td>    If an item is set to block view, players (and monsters) cannot
+    see byond it unless they cross it or manage to stand ontop.
+		</td>
+	</tr>
+	<tr>
+		<td>can reflect missiles</td>
+		<td>@ref obj::can_reflect_missile</td>
+		<td>   object CAN reflect missiles. See reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>can reflect spells</td>
+		<td>@ref obj::can_reflect_spell</td>
+		<td>  object CAN reflect spells. See reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>casting delay</td>
+		<td>@ref obj::last_grace</td>
+		<td>  The casting delay this spell/ability invoke to a monster using it.
+  This is cumulative added to the monster default casting delay.
+		</td>
+	</tr>
+	<tr>
+		<td>glow radius</td>
+		<td>@ref obj::glow_radius</td>
+		<td>    If &lt;glow radius&gt; is set to a value greater zero, the object
+    appears lit up on dark maps. &lt;glow radius&gt; can be a value
+    between 0 and 4, the higher, the more light does the object emmit.
+		</td>
+	</tr>
+	<tr>
+		<td>identified</td>
+		<td>@ref FLAG_IDENTIFIED</td>
+		<td>    If an item is identified, the player has
+    full knowledge about it.
+		</td>
+	</tr>
+	<tr>
+		<td>image</td>
+		<td>@ref obj::face</td>
+		<td>    The image-name defines what image is displayed for this object
+    in-game.
+		</td>
+	</tr>
+	<tr>
+		<td>importance</td>
+		<td>@ref liv::maxsp</td>
+		<td>    Sometimes you'll want a monster to use one ability more than others.
+    To achieve this, set the &lt;importance&gt; to a value greater than
+    one. Abilities with this value zero/unset are counted to be of
+    &lt;importance&gt; one.
+
+    Example: A monster with "small fireball" of &lt;importance&gt; 3 and
+    "paralyze" of &lt;importance&gt; 1 will averagely cast three out of four
+    times the "small fireball".
+		</td>
+	</tr>
+	<tr>
+		<td>inv. system object</td>
+		<td>@ref obj::sys_object</td>
+		<td>    Marks an object as system object. System objects are ALWAYS invisible and
+    hidden from the players. They can't be seen or detected and never will send
+    any information about them to the players client. System objects are put
+    in layer 0 under the floor tiles.
+		</td>
+	</tr>
+	<tr>
+		<td>invisible</td>
+		<td>@ref obj::is_invisible</td>
+		<td>    Generally makes the object invisible. Invisible objects will be shown
+    if the player has "see invisible" (from spell or item). To hide objects
+    totally from detection, use "sys_object".
+		</td>
+	</tr>
+	<tr>
+		<td>is animated</td>
+		<td>@ref FLAG_ANIMATE</td>
+		<td>  If set, the object is animated and animation is used.
+  Note: Some special objects will use a animation NOT as animation but
+  as frame list. Examples are buttons (which frames are changed by the
+  object status of the button). IS_TURNABLE will enable direction turning
+  for some object types. These flags are all "system" related. Be VERY
+  careful to change them.
+		</td>
+	</tr>
+	<tr>
+		<td>is magical</td>
+		<td>@ref obj::is_magical</td>
+		<td>    This flag specifies wether the ability &lt;is magical&gt; in nature.
+    If enabled, all spells produced by this ability will have magic
+    attacktype added to the usual attacktypes.
+
+    This should always be set for spell-like abilities. "Natural"
+    abilities like a dragon's firebreath are an exception.
+    Note that non-magical abilities are more dangerous because
+    magic resistance does not protect from those.
+		</td>
+	</tr>
+	<tr>
+		<td>is turnable</td>
+		<td>@ref FLAG_IS_TURNABLE</td>
+		<td>  System flag. Object can be turned to the directions.
+		</td>
+	</tr>
+	<tr>
+		<td>layer</td>
+		<td>@ref obj::layer</td>
+		<td>    This is the map layer, the object will put in. The selected layer will effect where and
+    how this object is shown on client side. Layer 0 is reserved for sys_object type objects
+    and will NEVER be shown on client side. Layer 1 is for floor objects and Layer 2 for
+    floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer 
+    6 is reversed for players and layer 7 is for spell effects and high flying/visible
+    objects like arrows.
+		</td>
+	</tr>
+	<tr>
+		<td>long range spell</td>
+		<td>@ref liv::hp</td>
+		<td>    The monster will use the specified &lt;long range spell&gt;
+    when the player is at least 6 squares away (from the
+    monster's head).
+
+    Setting a &lt;long range spell&gt; is optional. If unset, the
+    &lt;short range spell&gt; gets used all the time.
+		</td>
+	</tr>
+	<tr>
+		<td>material</td>
+		<td>@ref obj::material_real</td>
+		<td>    The material defines the exact material of which the object
+    consists. It is much more specific than &lt;material class&gt;,
+    however only one material can be selected, not multiple.
+    &lt;material&gt; is not required to be set, it can be left 'undefined'.
+		</td>
+	</tr>
+	<tr>
+		<td>material class</td>
+		<td>@ref obj::material</td>
+		<td>    This bitmask-value informs the player of which basic material(s)
+    the object consists. Material class does also affect how likely the
+    object can be destroyed by hazardous spell-effects.
+		</td>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>@ref obj::name</td>
+		<td>    This is the name of the object, displayed to the player.
+		</td>
+	</tr>
+	<tr>
+		<td>no prayers</td>
+		<td>@ref obj::no_cleric</td>
+		<td>    If enabled, it is impossible for players to use (cleric-)
+    prayers on that spot.
+		</td>
+	</tr>
+	<tr>
+		<td>no spells</td>
+		<td>@ref FLAG_NO_MAGIC</td>
+		<td>    If enabled, it is impossible for players to use (wizard-)
+    spells on that spot.
+		</td>
+	</tr>
+	<tr>
+		<td>no teleport</td>
+		<td>@ref obj::no_teleport</td>
+		<td>    Marks an object as no teleport object. A no teleport object can't be
+    teleported by teleporter except the object is inside the inventory of 
+    another object which can be teleported.
+		</td>
+	</tr>
+	<tr>
+		<td>non-pickable</td>
+		<td>@ref FLAG_NO_PICK</td>
+		<td>    If set, the object cannot be picked up (Neither by players nor monsters).
+		</td>
+	</tr>
+	<tr>
+		<td>number</td>
+		<td>@ref obj::nrof</td>
+		<td>    This value determines the number of objects in one stack (for example:
+    100 goldcoins =&gt; "number = 100"). You should set this at least to one, for
+    any pickable object - otherwise it won't be mergeable into a stack.
+		</td>
+	</tr>
+	<tr>
+		<td>one drop</td>
+		<td>@ref obj::one_drop</td>
+		<td>   In the moment a player gets or apply this items, it will
+   flaged as godgiven and vanish when droped to the ground.
+		</td>
+	</tr>
+	<tr>
+		<td>permanent cursed</td>
+		<td>@ref obj::cursed_perm</td>
+		<td>    The item is permanent cursed. If this flag set, applying 
+    or unapplying will set "cursed 1" again. This flag can't be
+    removed by remove curse.
+		</td>
+	</tr>
+	<tr>
+		<td>permanent damned</td>
+		<td>@ref obj::damned_perm</td>
+		<td>    The item is permanent damned. If this flag set, applying 
+    or unapplying will set "damned 1" again. This flag can't be
+    removed by remove damnation.
+		</td>
+	</tr>
+	<tr>
+		<td>player only</td>
+		<td>@ref obj::player_only</td>
+		<td>    If set, only players can enter the tile the object with this flag is in too.
+		</td>
+	</tr>
+	<tr>
+		<td>quest item</td>
+		<td>@ref obj::quest_item</td>
+		<td>    Item is a quest item. This item will be inserted in the 
+    quest container when a quest is finished and for that player
+    this item will never drop again.
+		</td>
+	</tr>
+	<tr>
+		<td>short range spell</td>
+		<td>@ref liv::sp</td>
+		<td>    The monster will use the specified &lt;short range spell&gt;
+    when the player is within 6-square radius (of the
+    monster's head).
+		</td>
+	</tr>
+	<tr>
+		<td>sub type</td>
+		<td>@ref obj::sub_type</td>
+		<td>    This important value is used to define "sub types" for objects of the same object
+    type. Examples are weapons, which are all from type WEAPON but can be different sub types
+    like slash type, cleave type, 1hand, polearms and so on. This value goes to the client
+    too. WARNING: not all objects have a sub_type and changing it without care can corrupt
+    server AND/OR the clients. Normally this is not a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>title</td>
+		<td>@ref obj::title</td>
+		<td>    This is the object's title. Once an object is identified the title is
+    attached to the name. Typical titels are "of mostrai", "of xray vision" etc.
+		</td>
+	</tr>
+	<tr>
+		<td>unpaid</td>
+		<td>@ref FLAG_UNPAID</td>
+		<td>    An &lt;unpaid&gt; item cannot be used unless a player carried it over
+    a shop mat, paying the demanded price. Setting this flag makes sense
+    only for pickable items inside shops.
+		</td>
+	</tr>
+	<tr>
+		<td>value</td>
+		<td>@ref obj::value</td>
+		<td>    Adds a certain value to the object: It will be worth that many times the
+    default value from it's archetype (E.g. "value = 3" means three times
+    worth the default value). Value for buying/selling will be
+    further modified by various factors. Hence, testing values in-game is
+    usually inevitable.
+		</td>
+	</tr>
+	<tr>
+		<td>weight</td>
+		<td>@ref obj::weight</td>
+		<td>    This value defines the object's weight in gramm (1000g is 1kg). Objects with
+    zero weight are not pickable for players. Still, set the "non-pickable"-flag
+    for explicitly non-pickable objects (hey, this is opensource.. you
+    never know ;) ).
+		</td>
+	</tr>
+</table>
+*/

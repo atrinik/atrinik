@@ -1,0 +1,15 @@
+/**
+@fn FLAG_UNDEAD
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Several spells only affect undead monsters:
+    turn undead, banish undead, holy word, etc.</td>
+	</tr>
+
+*/

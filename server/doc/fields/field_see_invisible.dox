@@ -1,0 +1,22 @@
+/**
+@fn FLAG_SEE_INVISIBLE
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
+		</td><td>   When applied the user can see invisible objects.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    A monster with the ability to &lt;see invisible&gt; cannot be fooled
+    with by invisible or hiding players. This flag is a must-have
+    for high-level monsters. When a monster is unable to detect
+    invisible players, it can be killed without fighting back.</td>
+	</tr>
+
+*/

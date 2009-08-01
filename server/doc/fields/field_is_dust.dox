@@ -1,0 +1,14 @@
+/**
+@fn obj::is_dust
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_73
+		</td><td>(no description)</td>
+	</tr>
+
+*/

@@ -1,0 +1,17 @@
+/**
+@fn FLAG_SLEEP
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Being &lt;asleep&gt;, a monster won't move unless a player enters the
+    &lt;sensing range&gt; of the monster. Usually the sensing range is
+    larger than the players line of sight. Due to that, in most cases
+    the player won't ever notice weither a monster was asleep or not.</td>
+	</tr>
+
+*/

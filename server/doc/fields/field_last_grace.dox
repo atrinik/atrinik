@@ -1,0 +1,58 @@
+/**
+@fn obj::last_grace
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_110
+		</td><td>  The casting delay this spell/ability invoke to a monster using it.
+  This is cumulative added to the monster default casting delay.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    The &lt;attenuation&gt; value reduces the diseases' &lt;infectiosness&gt;
+    everytime it infects someone new. This limits how many generations
+    a disease can propagate.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_35, @ref page_type_3, @ref page_type_109
+		</td><td>  When fired/used, this value in ticks defines how long it needs
+  thats the player can fire it again. The value is in ticks.
+  8 ticks are a second.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
+		</td><td>    If set, only players meeting the match criteria can pass
+    through that space. If unset (default), the inventory
+    checker acts like a trigger/button.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_81
+		</td><td>  Defines the base spawn chance. Value 0 means spawn
+  try every actice phase. -1 means no spawn try.
+  Values >0 means spawn chance is 1/value+1.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_5
+		</td><td>  When throwable, this value in ticks defines how long it needs
+  thats the player can throw something again. The value is in ticks.
+  8 ticks are a second.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_13
+		</td><td>  After shooting the player can't do a 2nd shoot for some time.
+  This value + the bow shooting delay (different bows can have
+  different delay) will terminate the time the player must wait.
+  The value is in ticks. 8 ticks are one second.</td>
+	</tr>
+
+*/

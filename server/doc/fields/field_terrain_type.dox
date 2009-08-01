@@ -1,0 +1,29 @@
+/**
+@fn obj::terrain_type
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
+		</td><td>    The bearer of this item can move in every terrain that
+    is set by &lt;support terrain&gt;. Such abilities like
+    "water walking", "fire walking" etc are almost priceless
+    as they open access to an entire new plane of the Atrinik
+    world.
+
+    Artifacts with &lt;support terrain&gt; attributes are VERY
+    SPECIAL and they must be well-balanced!!!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_71
+		</td><td>    The &lt;terrain type&gt; defines what kind of environment exists on
+    this tile. This can be anything from normal land (= "none")
+    to water, fire etc. Only creatures whith appropriate terrain-
+    abilities can pass over this square.</td>
+	</tr>
+
+*/

@@ -1,0 +1,15 @@
+/**
+@fn obj::will_apply
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    This entry defines which kinds of environment actions the
+    creature is able to perform.</td>
+	</tr>
+
+*/

@@ -1,0 +1,32 @@
+/**
+@fn FLAG_LIFESAVE
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
+		</td><td>    An item with this flag enabled will save the players life
+    for one time: When the player is wearing this item and his
+    healthpoints reach zero, the item dissapears, replenishing
+    half of the player's health.
+
+    An item with &lt;save life&gt; should not have
+    any decent additional bonuses!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_42
+		</td><td>    If &lt;infinit uses&gt; is set, the creator will work
+    infinitly, regardless of the value in &lt;number of uses&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>    If enabled, the mover gets "used up" after a certain number of moves
+    (specified by &lt;number of uses&gt;). If disabled, the mover works infinitly.</td>
+	</tr>
+
+*/

@@ -1,0 +1,25 @@
+/**
+@fn obj::wc_range
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    This value is set to 20 from the server when == 0. Its the
+    The server will add a random value between 0 ad wc_range to the wc.
+    If that is higher as the target ac, the target is hit. As higher
+    wc_range is as 20, as more dangerous and more often a mob will hit.
+    Because the mobile level is added to wc too, a wc_range of 40 will
+    let the monster hit VERY often even against the best armours.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_14
+		</td><td>    The wc_range of a archery weapon is copied to the projectile
+    which is fired with it!</td>
+	</tr>
+
+*/

@@ -1,0 +1,19 @@
+/**
+@fn obj::pick_up
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Click on the &lt;pick up&gt; button and select which types of objects
+    the creature should try to pick up.
+
+    Note also that if &lt;can use armor&gt;, &lt;can use weapon&gt;, &lt;can use ring&gt;...
+    etc are set, then the creature will pick up the matching items even
+    if this is not set here.</td>
+	</tr>
+
+*/

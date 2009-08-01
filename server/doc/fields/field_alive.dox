@@ -1,0 +1,16 @@
+/**
+@fn FLAG_ALIVE
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_62
+		</td><td>    Walls with &lt;is destroyable&gt; enabled can be attacked and (eventually)
+    destroyed by the player. If disabled, all other attributes on
+    this tab, as well as resistances, are meaningless.</td>
+	</tr>
+
+*/

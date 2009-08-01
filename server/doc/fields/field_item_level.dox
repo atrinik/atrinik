@@ -1,0 +1,37 @@
+/**
+@fn obj::item_level
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
+		</td><td>    If &lt;required level&gt; is set to a value greater zero, players cannot
+    wear this item unless they meet this level in the skill cathegory
+    specified by &lt;level required in&gt;.
+
+    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
+    means the player cannot wear the item unless he is equal or greater
+    level 15 in the physical skill cathegory.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>   if random_move is set, this determinates a ABS() value of y position
+   the creatures can move away from the spawn point.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_14, @ref page_type_15
+		</td><td>    If &lt;required level&gt; is set to a value greater zero, players cannot
+    use the weapon unless they meet this level in the skill cathegory
+    specified by &lt;level required in&gt;.
+
+    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
+    means the player cannot use the weapon unless he is equal or greater
+    level 15 in the physical skill cathegory.</td>
+	</tr>
+
+*/

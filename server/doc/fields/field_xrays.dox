@@ -1,0 +1,16 @@
+/**
+@fn FLAG_XRAYS
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
+		</td><td>    Xray vision allows the player to see through obstacles
+    in a two-square-wide radius. This is extremely helpful and
+    desireable, so don't give it away for cheap on equipment.</td>
+	</tr>
+
+*/

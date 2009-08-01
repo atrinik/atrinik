@@ -1,0 +1,78 @@
+/**
+@fn obj::other_arch
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_74
+		</td><td>  If a light source wear out, it checks this value. If it set, the
+  object change to this new object. This happens with torches - after
+  they wear out, they change to burned out torches which can't be
+  relight or refilled.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_122
+		</td><td>    This is used for a certain kind of... "animation" when
+    opening the container. Stick to the default arches here
+    and you won't get into trouble.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_103
+		</td><td>    &lt;receive arch&gt; is the name of the archetype to convert into.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_42
+		</td><td>    This string defines the object that will be created.
+    You can choose any of the existing arches.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    If set, the specified arch is created and dropped every time the
+    symptoms strike.
+
+    This can be various things: farts, body pieces, eggs ...
+    Even monsters can be created that way. You could also make a
+    disease where some exotic stuff like money/gems is created.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_56
+		</td><td>    The altar belongs to the god of the given name. Possible options for
+    &lt;god name&gt; are: Devourers, Lythander, Mostrai, Gaea, Ruggilli, Gnarg,
+    Gorokh, Valriel and Sorig. 
+
+    If you want to have an unconsecrated altar, set
+    &lt;god name&gt; 0 and eventually &lt;reconsecrate level&gt; 0.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_20
+		</td><td>    If set, the door will when opened changed permantly to this object.
+    If not set, the door will be used as "auto-closing" door, using the
+    open counter value.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80
+		</td><td>    This only takes effect if &lt;multiply&gt; or &lt;splits&gt; is enabled. 
+	The monster will create a &lt;breed monster&gt; every once in a while. 
+	&lt;breed monster&gt; can be set to any valid arch-name of a monster. 
+	Multipart monster should not be used.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_83
+		</td><td>    This only takes effect if &lt;multiply&gt; is enabled. The monster will
+    create a &lt;breed monster&gt; every once in a while. &lt;breed monster&gt;
+    can be set to any valid arch-name of a monster. Multipart monster
+    should not be used.</td>
+	</tr>
+
+*/

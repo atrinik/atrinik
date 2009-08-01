@@ -1,0 +1,114 @@
+/**
+@fn obj::magic
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_104
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the bracers.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_16
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the armour.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_99
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the boots.
+
+    Important: &lt;magic bonus&gt; on boots has no effect if there is no
+    &lt;armour class&gt; set. It only works in combination with &lt;armour class&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_87
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the cloak.
+
+    Important: &lt;magic bonus&gt; on cloaks has no effect if there is no
+    &lt;armour class&gt; set. It only works in combination with &lt;armour class&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    &lt;infection range&gt; sets the range at which infection may occur.
+    If positive, the &lt;infection range&gt; is level dependant - If negative,
+    it is not:
+    E.g. "&lt;infection range&gt; -6" means creatures can be infected in
+    six square range, and &lt;plaque level&gt; doesn't modify that. </td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_113
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the helmet.
+
+    Important: &lt;magic bonus&gt; on girdles has no effect if there is no
+    &lt;armour class&gt; set. Girdles shouldn't have &lt;armour class&gt;, thus
+    &lt;magic bonus&gt; is pointless here.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_100
+		</td><td>    If the gloves provide &lt;armour class&gt;, &lt;magic bonus&gt; will increase it.
+    If the gloves have &lt;weapon class&gt; instead, then &lt;magic bonus&gt;
+    will increase that.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_34
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the helmet.
+
+    Important: &lt;magic bonus&gt; on helmets has no effect if there is no
+    &lt;armour class&gt; set. It only works in combination with &lt;armour class&gt;.
+    Crowns for instance typically provide no &lt;amour class&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>  The casting delay this monster invoke every cast.
+  This is cumulative added to the spell default casting delay.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_13
+		</td><td>    Magic bonus increases chance to hit and damage a little bit.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_14
+		</td><td>    &lt;Magic bonus&gt; improves the quality of the shooting weapon.
+    I'm not sure what exactly is increased - maybe weaponclass?
+    However, &lt;magic bonus&gt; seems to have a little bit of positive
+    influence on your chance to hit.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_33
+		</td><td>    &lt;magic bonus&gt; works just like ac, except that it can be improved by
+    "scrolls of Enchant Armour" or reduced by acid. It is less useful
+    than direct armour-class bonus on the shield.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_15
+		</td><td>    For a weapon, magic bonus works just like weapon class, except that
+    magic bonus can be improved by the gods or reduced by acid. Hence, it is
+    less useful than direct weapon class value on a weapon.</td>
+	</tr>
+
+*/

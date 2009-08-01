@@ -1,0 +1,69 @@
+/**
+@fn obj::last_eat
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_74
+		</td><td>  If set this light will wear out. If not set, it is permanent light and
+  'Ticks of Light' counter is ignored.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_18, @ref page_type_31, @ref page_type_92, @ref page_type_30, @ref page_type_51, @ref page_type_93, @ref page_type_27, @ref page_type_64, @ref page_type_17, @ref page_type_32
+		</td><td>    Depending on the target object, setting this flag or not
+    can have different effects. See the object you are connecting
+    to this.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_158
+		</td><td>    Every time the disease "moves", the player's food is
+    reduced by the value of &lt;food depletion&gt;.
+    For negative values, a %-based amount is taken.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_66
+		</td><td>    This flag defines the destined map as "personal unique map". If set,
+    there will be a seperate version of that map for every player out there.
+    This feature is used for the permanent apartments.
+    It should not be used for anything else than apartments, since Atrinik is a 
+    *multi*player game. In such a permanent apartment don't forget to set the 
+    unique-flag for all floor tiles too (see floors).
+    An exit pointing outside of a personal unique map must have the
+    "unique destination"-flag unset.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_62
+		</td><td>	If set the wall is "on" and cast spells - if not set the
+      wall is "off" and don't cast spells (but can be turned).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_83
+		</td><td>    The monster will a.) only spawn when this dark settings are same
+    like the map darkness or world darkness (outdoor flag set) is equal.
+    b.) if the monster is set from the spawn point and the darkness change
+    to a invalid value, the spawn point remove the monster.
+    A positive darkness value means "if higher".
+    A negative darkness value means "if lower" from absolute value.
+    A value of 4 means monster will be shown until darkness drops to 4 or lower.
+    A value of -4 means monster will be shown until darkness is 4 or higher.
+    Note that this is a exclusive notation. 0 means "show always" (default).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_5
+		</td><td>  If this value is 0, the potion will invoke a spell effect
+  when use. If set to -1, the potion will create a force when used
+  and grant the user with the effects set (stats boni/mali, resists,..).
+  Values >0 are used intern for special potions - don't play around with
+  it here!</td>
+	</tr>
+
+*/

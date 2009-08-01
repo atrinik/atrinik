@@ -1,0 +1,29 @@
+/**
+@fn obj::path_attuned
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
+		</td><td>    Click on the &lt;attuned paths&gt; button to select spellpaths.
+    The player will get attuned to the specified spellpaths
+    while wearing this item.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>    Click on the &lt;attuned paths&gt; button to select spellpaths.
+    The creature will get attuned to the specified spellpaths.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_15
+		</td><td>    Click on the &lt;attuned paths&gt; button to select spellpaths.
+    The player will get attuned to the specified spellpaths
+    while wearing this weapon.</td>
+	</tr>
+
+*/
