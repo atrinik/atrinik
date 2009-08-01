@@ -301,7 +301,6 @@ int add_player(NewSocket *ns)
     p->socket.look_position = 0;
     p->socket.inbuf.len = 0;
 
-	start_info(p->ob);
     get_name(p->ob);
 
 	/* Avoid gc of the player */

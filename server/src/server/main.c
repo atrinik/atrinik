@@ -129,14 +129,6 @@ void version(object *op)
 	new_draw_info(NDI_UNIQUE, 0, op, "Iron Works DC art [http://www.tgeweb.com/ironworks/dungeoncraft/index.shtml]");
 	new_draw_info(NDI_UNIQUE, 0, op, "The mighty Dink.");
 	new_draw_info(NDI_UNIQUE, 0, op, "And many more!");
- }
-
-void start_info(object *op)
-{
-  	char buf[MAX_BUF];
-
-  	sprintf(buf, "Welcome to Daimonin, v%s!", VERSION);
-  	new_draw_info(NDI_UNIQUE, 0, op, buf);
 }
 
 char *crypt_string(char *str, char *salt)
