@@ -154,7 +154,7 @@ void init_anim()
 /**
  * Compare two animations.
  *
- * Used for bsearch in {@link #find_animation}.
+ * Used for bsearch in find_animation().
  * @param a First animation to compare
  * @param b Second animation to compare
  * @return Return value of strcmp for the animation names */

@@ -229,7 +229,7 @@ void update_button(object *op)
 }
 
 /**
- * Updates every button on the map by calling {@link #update_button}
+ * Updates every button on the map by calling update_button()
  * for them.
  * @param m The map to update buttons for */
 void update_buttons(mapstruct *m)

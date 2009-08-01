@@ -60,7 +60,7 @@ extern void check_use_object_list(void);
 void free_all_srv_files();
 void free_racelist();
 
-/** Object used in {@link #proccess_events} */
+/** Object used in proccess_events() */
 static object marker;
 
 #if 0
@@ -450,7 +450,7 @@ char *clean_path(const char *file)
 /**
  * Takes a path and replaces all $ with /
  *
- * This basically undoes {@link #clean_path}.
+ * This basically undoes clean_path().
  *
  * We do a strcpy so that we do not change the original string.
  *
@@ -1216,13 +1216,12 @@ void cleanup()
 /**
  * Player leaves the game.
  *
- * Called from {@link #remove_ns_dead_player}.
+ * Called from remove_ns_dead_player().
  * @param pl The player leaving
  * @param draw_exit Unused
- * @todo Perhaps merge this with {@link #remove_ns_dead_player}
- * as there appears to be some duplicated code already, and
- * {@link #remove_ns_dead_player} is always called to logout
- * a player? */
+ * @todo Perhaps merge this with remove_ns_dead_player() as there
+ * appears to be some duplicated code already, and
+ * remove_ns_dead_player() is always called to logout a player? */
 void leave(player *pl, int draw_exit)
 {
 	sqlite3 *db;

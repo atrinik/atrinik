@@ -23,34 +23,47 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Monster memory, NPC interaction, AI, and other related functions
+ * are in this file.
+ * @todo Move spawn point related functions to spawnpoint.c
+ * @todo Move waypoint related functions to waypoint.c */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
-/* When parsing a message-struct, the msglang struct is used
+/** When parsing a message-struct, the msglang struct is used
  * to contain the values.
  * This struct will be expanded as new features are added.
  * When things are stable, it will be parsed only once. */
-
 typedef struct _msglang {
-	/* An array of messages */
+	/** An array of messages */
   	char **messages;
-	/* For each message, an array of strings to match */
+
+	/** For each message, an array of strings to match */
   	char ***keywords;
 } msglang;
 
 
 extern spell spells[NROFREALSPELLS];
 
-/* update (or clear) an npc's enemy. Performs m ost of the housekeeping
- * related to switching enemies.
- * You should always use this method to set (or clear) a npc's enemy.
+/**
+ * Update (or clear) an NPC's enemy. Perform most of the housekeeping
+ * related to switchign enemies
+ *
+ * You should always use this method to set (or clear) an NPC's enemy.
  *
  * If enemy is given an aggro wp may be set up.
  * If rv is given, it will be filled out with the vector to enemy
  *
- * enemy and/or rv may be NULL */
+ * enemy and/or rv may be NULL.
+ * @param npc The NPC object we're setting enemy for
+ * @param enemy The enemy object, NULL if we're clearing the enemy
+ * for this NPC
+ * @param rv Range vector of the enemy */
 void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 {
     object *aggro_wp;
@@ -58,13 +71,16 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 
     /* Do nothing if new enemy == old enemy */
     if (enemy == npc->enemy && (enemy == NULL || enemy->count == npc->enemy_count))
+	{
         return;
+	}
 
     /* Players don't need waypoints, speed updates or aggro counters */
     if (npc->type == PLAYER)
 	{
         npc->enemy = enemy;
         npc->enemy_count = enemy->count;
+
         return;
     }
 
@@ -72,18 +88,23 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     if (enemy)
 	{
         if (rv == NULL)
+		{
             rv = &rv2;
+		}
+
         get_rangevector(npc, enemy, rv, RV_DIAGONAL_DISTANCE);
         npc->enemy_count = enemy->count;
 
-		/* important: thats our "we lose aggro count" - reset to zero here */
+		/* important: that's our "we lose aggro count" - reset to zero here */
         npc->last_eat = 0;
 
-        /* monster has changed status from normal to attack - lets hear it! */
+        /* Monster has changed status from normal to attack - let's hear it! */
         if (npc->enemy == NULL && !QUERY_FLAG(npc, FLAG_FRIENDLY))
+		{
             play_sound_map(npc->map, npc->x, npc->y, SOUND_GROWL, SOUND_NORMAL);
+		}
 
-        if (QUERY_FLAG(npc,FLAG_UNAGGRESSIVE))
+        if (QUERY_FLAG(npc, FLAG_UNAGGRESSIVE))
 		{
             /* The unaggressives look after themselves 8) */
             CLEAR_FLAG(npc, FLAG_UNAGGRESSIVE);
@@ -136,6 +157,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             /* TODO: add a little pause to the active waypoint */
         }
     }
+
     npc->enemy = enemy;
     /* Update speed */
     set_mobile_speed(npc, 0);
@@ -187,14 +209,11 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     }
 }
 
-/* checks npc->enemy and returns that enemy if still valid,
- * NULL otherwise.
- * this is map tile aware. */
-/* i had removed the random target leave, this invokes problems with friendly
- * objects, getting attacked and defending herself - they don't try to attack
- * again then but perhaps get attack on and on
- * If we include a aggravated flag in , we can handle evil vs evil and good vs good
- * too. MT */
+/**
+ * Checks if NPC's enemy is still valid.
+ * @param npc The NPC object
+ * @param rv Range vector of the enemy
+ * @return Enemy object if valid, NULL otherwise. */
 object *check_enemy(object *npc, rv_vector *rv)
 {
     /* if this is pet, let him attack the same enemy as his owner
@@ -206,22 +225,29 @@ object *check_enemy(object *npc, rv_vector *rv)
         {
 			/* if owner enemy != pet enemy, change it! */
 			if (npc->owner->enemy && (npc->enemy != npc->owner->enemy || npc->enemy_count != npc->enemy->count))
+			{
                 set_npc_enemy(npc, npc->owner->enemy, NULL);
+			}
         }
 	    else
 		{
 			if (npc->enemy)
+			{
                 set_npc_enemy(npc, NULL, NULL);
+			}
 		}
     }
 
     /*LOG(-1,"CHECK_START: %s -> %s (%x - %x)\n", query_name(npc),query_name(npc->enemy), npc->enemy?npc->enemy->count:2,npc->enemy_count);*/
     if (npc->enemy == NULL)
+	{
         return NULL;
+	}
 
     if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy)
 	{
         set_npc_enemy(npc, NULL, NULL);
+
 		return NULL;
     }
 
@@ -235,6 +261,7 @@ object *check_enemy(object *npc, rv_vector *rv)
 		if (npc->enemy->type == PLAYER || QUERY_FLAG(npc->enemy, FLAG_FRIENDLY))
 		{
             set_npc_enemy(npc, NULL, NULL);
+
 			return NULL;
         }
 	}
@@ -247,6 +274,7 @@ object *check_enemy(object *npc, rv_vector *rv)
 		if (!QUERY_FLAG(npc->enemy, FLAG_FRIENDLY) && npc->enemy->type != PLAYER)
 		{
             set_npc_enemy(npc, NULL, NULL);
+
 			return NULL;
         }
 	}
@@ -254,12 +282,17 @@ object *check_enemy(object *npc, rv_vector *rv)
     return can_detect_enemy(npc, npc->enemy, rv) ? npc->enemy : NULL;
 }
 
-
-/* Tries to find an enmy for npc.  We pass the range vector since
- * our caller will find the information useful.
- * Currently, only move_monster calls this function.
- * Note: find_enemy() don't find a enemy - it checks only the old one is valid
- * and hitable and change target to a better enemy when possible. */
+/**
+ * Tries to find an enemy for NPC. We pass the range vector since
+ * our called will find the information useful.
+ *
+ * Currently, only move_monster() calls this function.
+ * @param npc The NPC object
+ * @param rv Range vector
+ * @return Enemy object if found, 0 otherwise
+ * @note This doesn't find an enemy - it only checks the old enemy
+ * is still valid and hittable, otherwise changes target to a
+ * better enemy when possible. */
 object *find_enemy(object *npc, rv_vector *rv)
 {
     object *tmp = NULL;
@@ -271,8 +304,12 @@ object *find_enemy(object *npc, rv_vector *rv)
 		/* always clear the attacker entry */
         npc->attacked_by = NULL;
  		tmp = find_nearest_living_creature(npc);
+
  		if (tmp)
+		{
 			get_rangevector(npc, tmp, rv, 0);
+		}
+
  		return tmp;
     }
 
@@ -291,8 +328,11 @@ object *find_enemy(object *npc, rv_vector *rv)
         npc->attacked_by = NULL;
         tmp= get_pet_enemy(npc, rv);
 		npc->last_eat = 0;
+
 	 	if (tmp)
+		{
             get_rangevector(npc, tmp, rv, 0);
+		}
 
         return tmp;
     }
@@ -310,8 +350,10 @@ object *find_enemy(object *npc, rv_vector *rv)
             /* TODO: thats not finished */
             /* we don't want a fight evil vs evil or good against non evil */
             if ((QUERY_FLAG(npc, FLAG_FRIENDLY) && QUERY_FLAG(npc->attacked_by, FLAG_FRIENDLY)) || (!QUERY_FLAG(npc, FLAG_FRIENDLY) && (!QUERY_FLAG(npc->attacked_by, FLAG_FRIENDLY) && npc->attacked_by->type != PLAYER)))
+			{
 				/* skip it, but lets wakeup */
                 CLEAR_FLAG(npc, FLAG_SLEEP);
+			}
 			/* thats the only thing we must know... */
             else if (on_same_map(npc, npc->attacked_by))
             {
@@ -327,6 +369,7 @@ object *find_enemy(object *npc, rv_vector *rv)
                 return npc->enemy;
             }
         }
+
         /* i think to add here a counter to determinate a mob lost a enemy or the enemy
 		 * was x rounds out of range - then perhaps we should search a new one */
         /* we have no legal enemy or attacker, so we try to target a new one */
@@ -352,31 +395,45 @@ object *find_enemy(object *npc, rv_vector *rv)
     return tmp;
 }
 
-/* this is for mobs:
- * check this target - is it a possible valid enemy?
- * this include possible to see, possible to reach...
- * This must be used BEFORE we assign target as op enemy */
+/**
+ * Check if target is a possible valid enemy.
+ * This includes possibility to see, reach, etc.
+ * This must be used BEFORE we assign target as op enemy.
+ * @param op The object
+ * @param target The target to check
+ * @param range Range this object can see
+ * @param srange Stealth range this object can see
+ * @param rv Range vector
+ * @return 1 if valid enemy, 0 otherwise */
 int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
 {
 	/* on_same_map() will check for legal maps too */
     if (!op || !target || !on_same_map(op, target))
+	{
         return 0;
+	}
 
 	/* we check for sys_invisible and normal */
 	if (IS_INVISIBLE(target, op))
+	{
 	    return 0;
+	}
 
     get_rangevector(op, target, rv, 0);
 
 	if (QUERY_FLAG(target, FLAG_STEALTH) && !QUERY_FLAG(op, FLAG_XRAYS))
 	{
 		if (srange < (int) rv->distance)
+		{
 			return 0;
+		}
 	}
 	else
 	{
 		if (range < (int) rv->distance)
+		{
 			return 0;
+		}
 	}
 
 	/* at this point we should handle hide in shadows and light/shadow effects
@@ -387,130 +444,143 @@ int can_detect_target(object *op, object *target, int range, int srange, rv_vect
 	return 1;
 }
 
-/* controls a mob still can see/detect its enemy.
- * includes visibility but also map & area control. */
+/**
+ * Controls if monster still can see/detect its enemy.
+ * Includes visibility but also map and area control.
+ * @param op The monster object
+ * @param enemy Monster object's enemy
+ * @param rv Range vector
+ * @return 1 if can see/detect, 0 otherwise */
 int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 {
-
 	/* on_same_map() will check for legal maps too */
     if (!op || !enemy || !on_same_map(op, enemy))
+	{
         return 0;
+	}
 
 	/* we check for sys_invisible and normal */
 	/* we should include here special parts like wild swings to
 	 * invisible targets - invisibility is not added to fight
 	 * system atm. */
 	if (IS_INVISIBLE(enemy, op))
-	    return 0;
-
-	/* here we have to add special effects like hide in shadows and other.*/
-
-	/* if our enemy is to far away ... */
-    get_rangevector(op, enemy, rv, 0);
-	if ((int)rv->distance >= MAX(MAX_AGGRO_RANGE, op->stats.Wis))
 	{
-		/* then start counting until our mob lose aggro... */
+	    return 0;
+	}
+
+	/* here we have to add special effects like hide in shadows and other. */
+
+	/* If our enemy is too far away ... */
+    get_rangevector(op, enemy, rv, 0);
+
+	if ((int) rv->distance >= MAX(MAX_AGGRO_RANGE, op->stats.Wis))
+	{
+		/* Then start counting until our mob loses aggro... */
 		if (++op->last_eat > MAX_AGGRO_TIME)
 		{
 			set_npc_enemy(op, NULL, NULL);
+
             return 0;
 		}
 	}
-	/* our mob is aggroed again - because target is in range again */
+	/* Our mob is aggroed again - because target is in range again */
 	else
+	{
 		op->last_eat = 0;
+	}
 
     return 1;
 }
 
-/* Waypoint fields:
- * slaying - destination map (for dynamic waypoints: path destination map)     [user]
- * title   - name of next wp in chain                                          [user]
- * msg     - precomputed path                                                  [intern]
- * race    - destination map (for the last used step in the precomputed path)  [intern]
- * owner   - object that carries wp (always same as wp->env?)                  [intern]
- * ownercount - count of owner                                                 [intern]
- * enemy   - target for dynamic/aggro waypoints                                [intern]
- * enemycount - count of enemy                                                 [intern]
- * x,y     - end location for path stored in msg                               [intern]
- * attacked_by_distance - strlen(msg),used for sanity check of msg offsets     [intern]
- * move_type - copy to monster's move_type when target reached (for return wps)[intern]
- * stats:
- *   hp, sp  - destination x and y                                             [user]
- *   ac      - wait timer (<= wc)                                              [intern]
- *   wc      - destination wait time                                           [user]
- *   grace   - acceptable distance                                             [user]
- *   food    - current waypoint index in precomputed path                      [intern]
- *   dam     - closest distance to the (local) target                          [intern]
- *   Str     - number of moves we didn't get closer to (local) target          [intern]
- *   Int     - number of tried paths we didn't get closer to (local) target    [intern]
- *             (used only for best-effort waypoints)
- *
- * flags:
- *   cursed - active (only one active wp per mob!)                             [intern/user]
- *   paralyzed - path computation requested (is not saved)                     [intern]
- *   damned - set for aggro waypoints, clear for "normal"                      [intern]
- *   confused - set when we fail to find a path (npc is already on best tile)  [intern]
- *              cleared whenever a path is found.
- *   no_attack - waypoint is best-effort. It will be considered reached if     [user/intern]
- *               mob gets stuck.
- *   reflecting - set to mark a waypoint as a "return-home" waypoint           [intern]
- *                which contains the mobs stored move_type */
-
-/* Find a monster's currently active waypoint, if any */
+/**
+ * Find a monster's currently active waypoint, if any.
+ * @param op The monster object
+ * @return Active waypoint of this monster, NULL if none found */
 object *get_active_waypoint(object *op)
 {
   	object *wp = NULL;
 
   	for (wp = op->inv; wp != NULL; wp = wp->below)
+	{
     	if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_CURSED))
+		{
       		break;
+		}
+	}
 
   	return wp;
 }
 
-/* Find a monster's current aggro wp, if any */
+/**
+ * Find a monster's current aggro waypoint, if any.
+ * @param op The monster object
+ * @return Aggro waypoint of this monster, NULL if none found */
 object *get_aggro_waypoint(object *op)
 {
   	object *wp = NULL;
 
   	for (wp = op->inv; wp != NULL; wp = wp->below)
+	{
     	if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_DAMNED))
+		{
       		break;
+		}
+	}
 
   	return wp;
 }
 
-/* Find a monster's current return-home wp, if any */
+/**
+ * Find a monster's current return-home waypoint, if any.
+ * @param op The monster object
+ * @return Return-home waypoint of this monster, NULL if none
+ * found */
 object *get_return_waypoint(object *op)
 {
   	object *wp = NULL;
 
   	for (wp = op->inv; wp != NULL; wp = wp->below)
+	{
     	if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_REFLECTING))
+		{
       		break;
+		}
+	}
 
   	return wp;
 }
 
-/* Find a monster's waypoint by name (used for getting the next waypoint) */
+/**
+ * Find a monster's waypoint by name (used for getting the next waypoint)
+ * @param op The monster object
+ * @param name The waypoint name to find
+ * @return The waypoint object if found, NULL otherwise */
 object *find_waypoint(object *op, const char *name)
 {
 	object *wp = NULL;
 
 	if (name == NULL)
+	{
 		return NULL;
+	}
 
 	for (wp = op->inv; wp != NULL; wp = wp->below)
+	{
 		if (wp->type == TYPE_WAYPOINT_OBJECT && strcmp(wp->name, name) == 0)
+		{
 			break;
+		}
+	}
 
 	return wp;
 }
 
-/* Perform a path computation for the waypoint object
- * This function is called whenever our path request is dequeued */
-/* TODO: this function is getting very messy. Clean it up some rainy day. */
+/**
+ * Petform a path computation for the waypoint object.
+ *
+ * This function is called whenever our path request is dequeued.
+ * @param waypoint The waypoint object
+ * @todo This function is getting very messy. Clean it up some rainy day. */
 void waypoint_compute_path(object *waypoint)
 {
 	object *op = waypoint->env;
@@ -603,7 +673,10 @@ void waypoint_compute_path(object *waypoint)
         LOG(llevBug, "BUG: waypoint_compute_path(): no path to destination ('%s' -> '%s')\n", op->name, waypoint->name);
 }
 
-/* Move towards waypoint target */
+/**
+ * Move towards waypoint target.
+ * @param op The monster object to move
+ * @param waypoint The waypoint object */
 void waypoint_move(object *op, object *waypoint)
 {
     mapstruct *destmap = op->map;
@@ -904,8 +977,10 @@ void waypoint_move(object *op, object *waypoint)
     }
 }
 
-/* Move-monster returns 1 if the object has been freed, otherwise 0. */
-
+/**
+ * Move a monster object.
+ * @param op The monster object to be moved
+ * @return 1 if the object has been freed, 0 otherwise */
 int move_monster(object *op)
 {
     int dir, special_dir = 0, diff;
@@ -1285,7 +1360,8 @@ int move_monster(object *op)
     return 0;
 }
 
-/* Returns the nearest living creature (monster or generator).
+/**
+ * Returns the nearest living creature (monster or generator).
  * Modified to deal with tiled maps properly.
  * Also fixed logic so that monsters in the lower directions were more
  * likely to be skipped - instead of just skipping the 'start' number
@@ -1296,10 +1372,10 @@ int move_monster(object *op)
  * chooses one from within a 3 space radius, and since it skips
  * the first few directions, it could very well choose something
  * 3 spaces away even though something directly north is closer.
- *
- * this function is map tile aware.
- * i much more prefer a "monster list" chained to the maps - like the
- * friendly list will in future. */
+ * @param npc The NPC object looking for nearest living creature
+ * @return Nearest living creature, NULL if none nearby
+ * @todo can_see_monsterP() is pathfinding function, it does
+ * not check visibility. Use obj_in_line_of_sight()? */
 object *find_nearest_living_creature(object *npc)
 {
     int i, j = 0, start;
@@ -1310,19 +1386,27 @@ object *find_nearest_living_creature(object *npc)
 	/* must add pet check here too soon */
 	/* friendly non berserk unit only attack mobs - not other friendly or players */
 	if (!QUERY_FLAG(npc, FLAG_BERSERK) && QUERY_FLAG(npc, FLAG_FRIENDLY))
+	{
 		friendly_attack = FALSE;
+	}
 
     start = (RANDOM() % 8) + 1;
+
     for (i = start; j < SIZEOFFREE; j++, i = (i + 1) % SIZEOFFREE)
 	{
 		nx = npc->x + freearr_x[i];
 		ny = npc->y + freearr_y[i];
+
 		if (!(m = out_of_map(npc->map, &nx, &ny)))
+		{
 			continue;
+		}
 
 		/* quick check - if nothing alive or player skip test for targets */
 		if (!(GET_MAP_FLAGS(m, nx, ny) & (P_IS_ALIVE | P_IS_PLAYER)))
+		{
 			continue;
+		}
 
 	    tmp = get_map_ob(m, nx, ny);
 
@@ -1331,25 +1415,34 @@ object *find_nearest_living_creature(object *npc)
 		{
 			/* attack all - monster, player & friendly - loop more is not monster AND not player */
 		    while (tmp != NULL && !QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER)
+			{
                 tmp = tmp->above;
+			}
 		}
 		else
 		{
 			/* loop on when not monster or player or friendly */
 		    while (tmp != NULL && (!QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER || (QUERY_FLAG(tmp, FLAG_FRIENDLY))))
+			{
                 tmp = tmp->above;
+			}
 		}
 
 		/* can see monster is a path finding function! it not checks visibility! */
 		if (tmp && can_see_monsterP(m, nx, ny, i))
+		{
 		    return tmp;
+		}
     }
 
 	/* nothing found */
     return NULL;
 }
 
-
+/**
+ * Randomly move a monster.
+ * @param op The monster object to move
+ * @return 1 if the monster was moved, 0 otherwise */
 int move_randomly(object *op)
 {
     int i, r, xt, yt;
@@ -1364,22 +1457,32 @@ int move_randomly(object *op)
 		if (op->item_race != 255)
 		{
 			if (!op->item_race && freearr_x[r])
+			{
 				continue;
+			}
 
-			xt = op->x+freearr_x[r];
-			if (abs(xt-base->x) >op->item_race)
+			xt = op->x + freearr_x[r];
+
+			if (abs(xt - base->x) >op->item_race)
+			{
 				continue;
+			}
 		}
 
 		/* check x direction of possible move */
 		if (op->item_level != 255)
 		{
 			if (!op->item_level && freearr_y[r])
+			{
 				continue;
+			}
 
-			yt = op->y+freearr_y[r];
-			if (abs(yt-base->y) > op->item_level)
+			yt = op->y + freearr_y[r];
+
+			if (abs(yt - base->y) > op->item_level)
+			{
 				continue;
+			}
 		}
 
 		if (move_object(op, r))
@@ -1389,17 +1492,31 @@ int move_randomly(object *op)
     return 0;
 }
 
+/**
+ * Check if object can hit another object.
+ * @param ob1 Monster object
+ * @param ob2 The object to check if monster can hit
+ * @param rv Range vector
+ * @return 1 if can hit, 0 otherwise */
 int can_hit(object *ob1, object *ob2, rv_vector *rv)
 {
 	(void) ob2;
 
     if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !(RANDOM() % 3))
+	{
 		return 0;
+	}
 
     return abs(rv->distance_x) < 2 && abs(rv->distance_y) < 2;
 }
 
-/* Someday we may need this check */
+/**
+ * Check if monster can apply an item.
+ *
+ * Someday we may need this check.
+ * @param who The monster object
+ * @param item The item to apply
+ * @return Always returns 1 */
 int can_apply(object *who, object *item)
 {
 	(void) who;
@@ -1410,6 +1527,10 @@ int can_apply(object *who, object *item)
 
 #define MAX_KNOWN_SPELLS 20
 
+/**
+ * Choose a random spell this monster could cast.
+ * @param monster The monster object
+ * @return Random spell object, NULL if no spell found */
 object *monster_choose_random_spell(object *monster)
 {
  	object *altern[MAX_KNOWN_SPELLS];
@@ -1425,20 +1546,30 @@ object *monster_choose_random_spell(object *monster)
 			if ((spell = find_spell(tmp->stats.sp)) != NULL && !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)))
 			{
 				if (tmp->stats.maxsp)
+				{
 					for (j = 0; i < MAX_KNOWN_SPELLS && j < tmp->stats.maxsp; j++)
+					{
 						altern[i++] = tmp;
+					}
+				}
 				else
+				{
 					altern[i++] = tmp;
+				}
 
 				if (i == MAX_KNOWN_SPELLS)
+				{
 					break;
+				}
 			}
 
 		}
 	}
 
 	if (!i)
+	{
 		return NULL;
+	}
 
   	return altern[RANDOM() % i];
 }

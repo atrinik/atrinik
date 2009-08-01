@@ -38,7 +38,7 @@ static float weapon_speed_table[19] = {
  	2.15f, 	1.95f,	1.80f, 	1.60f, 	1.52f, 	1.44f, 	1.32f, 	1.25f, 	1.20f
 };
 
-/** Word representations of numbers used by {@link #get_number} */
+/** Word representations of numbers used by get_number() */
 static char numbers[21][20] = {
 	"no",
 	"",
@@ -309,7 +309,7 @@ char *get_levelnumber(int i)
  * in a static buffer. The buffer might be overwritten at the next
  * call.
  *
- * It is currently only used by the {@link #query_name} function.
+ * It is currently only used by the query_name() function.
  * @param i The number
  * @return Text representation of the given number */
 char *get_number(int i)
@@ -326,7 +326,7 @@ char *get_number(int i)
 }
 
 /**
- * This function is similar to {@link #query_name}, but doesn't
+ * This function is similar to query_name(), but doesn't
  * contain any information about the object status (worn/cursed/etc).
  * @param op Object to get the name from
  * @param caller Object calling this
@@ -661,7 +661,7 @@ char *query_name(object *op, object *caller)
  *
  * The buffer will be overwritten at the next call.
  *
- * This is a lot like {@link #query_name}, but we don't include the item
+ * This is a lot like query_name(), but we don't include the item
  * count or item status.  Used for inventory sorting and sending to
  * client.
  * @param op Object to get the base name from
