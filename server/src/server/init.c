@@ -550,7 +550,7 @@ void init(int argc, char **argv)
 
 void usage()
 {
-	LOG(llevInfo, "Usage: daimonin_server [-h] [-<flags>]...\n");
+	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
 }
 
 void help()

@@ -474,7 +474,7 @@
  * -daemon option. */
 
 #ifndef LOGFILE
-#define LOGFILE "./data/log/daimonin.log"
+#define LOGFILE "./data/log/atrinik.log"
 #endif
 
 /* MAP_MAXTIMEOUT tells the maximum of ticks until a map is swapped out

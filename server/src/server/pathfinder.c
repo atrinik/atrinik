@@ -23,7 +23,7 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Daimonin pathfinding.
+/* Atrinik pathfinding.
  * (C) 2003 Bjorn Axelsson, gecko@acc.umu.se */
 
 /* Good pathfinding resources:

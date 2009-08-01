@@ -49,10 +49,10 @@ seems to work fine. Notable features:
  * Configuration options */
 
 /* server executable */
-#define CROSSFIRE_SERVER	"/home/alex/Desktop/daimonin/server/daimonin_server"
+#define CROSSFIRE_SERVER	"./atrinik_server"
 
 /* directory to cd to before starting the server */
-#define CROSSFIRE_TMPDIR	"/home/alex/Desktop/daimonin/server/"
+#define CROSSFIRE_TMPDIR	"../../"
 
 /* if the server crashes more than CRASH_COUNT times, with less than
  * CRASH_INTERVAL seconds between two successive crashes, the loop

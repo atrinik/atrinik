@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Server main related functions. */
+
 #include <global.h>
 
 #ifdef HAVE_DES_H
@@ -56,23 +60,29 @@ extern void check_use_object_list(void);
 void free_all_srv_files();
 void free_racelist();
 
-/* object for proccess_obejct(); */
+/** Object used in {@link #proccess_events} */
 static object marker;
 
 #if 0
 static char days[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 #endif
 
+/**
+ * Shows version information and a list of contributors
+ * to Atrinik, Daimonin and Crossfire.
+ * @param op Object, if NULL, only version is shown
+ * @todo The list of contributors should be in client
+ * help system. */
 void version(object *op)
 {
-  	new_draw_info_format(NDI_UNIQUE, 0, op, "This is Daimonin v%s",VERSION);
+  	new_draw_info_format(NDI_UNIQUE, 0, op, "This is Atrinik v%s", VERSION);
 
 	/* If in a socket, don't print out the list of authors.  It confuses the
 	 * crossclient program. */
   	if (op == NULL)
 		return;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "Authors and contributors to Daimonin & Crossfire:");
+	new_draw_info(NDI_UNIQUE, 0, op, "Authors and contributors to Atrinik, Daimonin and Crossfire:");
 	new_draw_info(NDI_UNIQUE, 0, op, "(incomplete list - mail us if you miss your name):");
 	new_draw_info(NDI_UNIQUE, 0, op, "mark@scruz.net (Mark Wedel)");
 	new_draw_info(NDI_UNIQUE, 0, op, "frankj@ifi.uio.no (Frank Tore Johansen)");
@@ -131,38 +141,56 @@ void version(object *op)
 	new_draw_info(NDI_UNIQUE, 0, op, "And many more!");
 }
 
+/**
+ * Crypt a string. Used for receiving player password
+ * on creation and storing it in database.
+ * @param str The string to crypt
+ * @param salt Salt, if NULL, random will be chosen
+ * @return The crypted string */
 char *crypt_string(char *str, char *salt)
 {
 #ifndef WIN32
-	/* ***win32 crypt_string:: We don't need this anymore since server/client fork */
-  	static char *c= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./" ;
+  	static char *c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 	char s[2];
 
 	if (salt == NULL)
-		s[0]= c[RANDOM() % (int)strlen(c)],
-		s[1]= c[RANDOM() % (int)strlen(c)];
+	{
+		s[0] = c[RANDOM() % (int) strlen(c)];
+		s[1] = c[RANDOM() % (int) strlen(c)];
+	}
 	else
-		s[0]= salt[0],
-		s[1]= salt[1];
+	{
+		s[0] = salt[0];
+		s[1] = salt[1];
+	}
 
-	#ifdef HAVE_LIBDES
-  	return (char*)des_crypt(str, s);
-	#else
-  	return (char*)crypt(str, s);
-	#endif
+#  ifdef HAVE_LIBDES
+	return (char *) des_crypt(str, s);
+#  endif
+
+	return (char *) crypt(str, s);
 #endif
+
   	return str;
 }
 
+/**
+ * Check if typed password and crypted password
+ * in the database are the same.
+ * @param typed The typed password
+ * @param crypted Crypted password from database
+ * @return 0 if no match, non zero if matches */
 int check_password(char *typed, char *crypted)
 {
   	return !strcmp(crypt_string(typed, crypted), crypted);
 }
 
-/* This is a basic little function to put the player back to his
- * savebed.  We do some error checking - its possible that the
+/**
+ * This is a basic little function to put the player back to his
+ * savebed. We do some error checking - it's possible that the
  * savebed map may no longer exist, so we make sure the player
- * goes someplace. */
+ * goes someplace.
+ * @param op The player object entering his savebed */
 void enter_player_savebed(object *op)
 {
     mapstruct *oldmap = op->map;
@@ -191,9 +219,10 @@ void enter_player_savebed(object *op)
     }
 }
 
-
-/* All this really is is a glorified remove_object that also updates
- * the counts on the map if needed. */
+/**
+ * All this really is is a glorified remove_object that also updates
+ * the counts on the map if needed and sets map timeout if needed.
+ * @param op The object leaving the map */
 void leave_map(object *op)
 {
     mapstruct *oldmap = op->map;
@@ -206,11 +235,19 @@ void leave_map(object *op)
 	    set_map_timeout(oldmap);
 }
 
-/*  enter_map():  Moves the player and pets from current map (if any) to
- * new map.  map, x, y must be set.  map is the map we are moving the
- * player to - it could be the map he just came from if the load failed for
- * whatever reason.  If default map coordinates are to be used, then
- * the function that calls this should figure them out. */
+/**
+ * Moves the player and pets from current map (if any) to new map.
+ * map, x, y must be set.
+ *
+ * If default map coordinates are to be used, then the function that
+ * calls this should figure them out.
+ * @param op The object we are moving
+ * @param newmap Map to move the object to - it could be the map he just
+ * came from if the load failed for whatever reason.
+ * @param x X position on the new map
+ * @param y Y position on the new map
+ * @param pos_flag If set, the function will not look for a free space
+ * and move the object, even if the position is blocked. */
 static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 {
 	int i = 0;
@@ -364,6 +401,9 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	}
 }
 
+/**
+ * Sets map timeout value.
+ * @param oldmap The map to set the timeout for */
 void set_map_timeout(mapstruct *oldmap)
 {
 #if MAP_MAXTIMEOUT
@@ -387,9 +427,11 @@ void set_map_timeout(mapstruct *oldmap)
 #endif
 }
 
-
-/* clean_path takes a path and replaces all / with _
- * We do a strcpy so that we do not change the original string. */
+/**
+ * Takes a path and replaces all / with $.
+ * We do a strcpy so that we do not change the original string.
+ * @param file Path to clean
+ * @return Cleaned up path */
 char *clean_path(const char *file)
 {
     static char newpath[MAX_BUF], *cp;
@@ -405,13 +447,18 @@ char *clean_path(const char *file)
     return newpath;
 }
 
-
-/* unclean_path takes a path and replaces all _ with /
- * This basically undoes clean path.
+/**
+ * Takes a path and replaces all $ with /
+ *
+ * This basically undoes {@link #clean_path}.
+ *
  * We do a strcpy so that we do not change the original string.
+ *
  * We are smart enough to start after the last / in case we
  * are getting passed a string that points to a unique map
- * path. */
+ * path.
+ * @param src The path to unclean
+ * @return Uncleaned up path */
 char *unclean_path(const char *src)
 {
     static char newpath[MAX_BUF], *cp2;
@@ -430,12 +477,15 @@ char *unclean_path(const char *src)
 		if (*cp2 == '$')
 			*cp2 = '/';
     }
+
     return newpath;
 }
 
-
-/* The player is trying to enter a randomly generated map.  In this case, generate the
- * random map as needed. */
+/**
+ * The player is trying to enter a randomly generated map.
+ * In this case, generate the random map as needed.
+ * @param pl The player object entering the map
+ * @param exit_ob Exit object the player entered from */
 static void enter_random_map(object *pl, object *exit_ob)
 {
     mapstruct *new_map;
@@ -478,7 +528,10 @@ static void enter_random_map(object *pl, object *exit_ob)
     }
 }
 
-/* Code to enter/detect a character entering a unique map. */
+/**
+ * Code to enter/detect a character entering a unique map.
+ * @param op Player object entering the map
+ * @param exit_ob Exit object the player is entering from */
 static void enter_unique_map(object *op, object *exit_ob)
 {
     char apartment[HUGE_BUF], linebuf[MAX_BUF] = "", *sqlbuf;
@@ -643,16 +696,12 @@ static void enter_unique_map(object *op, object *exit_ob)
 	unlink(apartment);
 }
 
-
-/* Tries to move 'op' to exit_ob.  op is the character or monster that is
- * using the exit, where exit_ob is the exit object (boat, door, teleporter,
- * etc.)  if exit_ob is null, then CONTR(op)->maplevel contains that map to
- * move the object to.  This is used when loading the player.
- *
- * Largely redone by MSW 2001-01-21 - this function was overly complex
- * and had some obscure bugs.
- * Redone this function. Now it works fine for monsters, players and normal items.
- * MT-2003 */
+/**
+ * Tries to move object to exit object.
+ * @param op Player or monster object using the exit
+ * @param exit_ob Exit object (boat, exit, etc). If NULL, then
+ * CONTR(op)->maplevel contains that map to move the object to, which
+ * is used when loading the player object. */
 void enter_exit(object *op, object *exit_ob)
 {
 	object *tmp;
@@ -957,6 +1006,9 @@ void process_players2()
     }
 }
 
+/**
+ * Process objects with speed, like teleporters, players, etc.
+ * @param map If not NULL, only process objects on that map. */
 void process_events(mapstruct *map)
 {
 	object *op;
@@ -1102,6 +1154,8 @@ void process_events(mapstruct *map)
   	process_players2();
 }
 
+/**
+ * Clean temporary map files. */
 void clean_tmp_files()
 {
   	mapstruct *m, *next;
@@ -1133,7 +1187,8 @@ void clean_tmp_files()
   	write_todclock();
 }
 
-/* clean up everything before exiting */
+/**
+ * Clean up everything before exiting. */
 void cleanup()
 {
     LOG(llevDebug, "Cleanup called. Freeing data.\n");
@@ -1158,6 +1213,16 @@ void cleanup()
     exit(0);
 }
 
+/**
+ * Player leaves the game.
+ *
+ * Called from {@link #remove_ns_dead_player}.
+ * @param pl The player leaving
+ * @param draw_exit Unused
+ * @todo Perhaps merge this with {@link #remove_ns_dead_player}
+ * as there appears to be some duplicated code already, and
+ * {@link #remove_ns_dead_player} is always called to logout
+ * a player? */
 void leave(player *pl, int draw_exit)
 {
 	sqlite3 *db;
@@ -1253,7 +1318,9 @@ void dequeue_path_requests()
 #endif
 }
 
-/*  do_specials() is a collection of functions to call from time to time.
+/**
+ * Collection of functions to call from time to time.
+ *
  * Modified 2000-1-14 MSW to use the global pticks count to determine how
  * often to do things.  This will allow us to spred them out more often.
  * I use prime numbers for the factor count - in that way, it is less likely
@@ -1264,10 +1331,6 @@ void dequeue_path_requests()
  *
  * I also think this code makes it easier to see how often we really are
  * doing the various things. */
-
-/* Hm, i really must check this in the feature... here are some ugly
- * hacks and workarounds hidden - MT2003 */
-
 void do_specials()
 {
     if (!(pticks % 2))
