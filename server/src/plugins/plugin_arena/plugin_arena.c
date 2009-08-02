@@ -48,14 +48,10 @@
  *
  * @author Alex Tokar
  *
- * @todo Must test out how GDEATH and MAPLEAVE events work together.
- * GDEATH is called, which decreases the player count on the arena map,
- * but when the player is teleported to the medics by an exit, I think
- * MAPLEAVE is called as well, decreasing the amount of players twice.
- * Also what about LOGOUT decreasing the count, and when player logs
- * back in and is teleported, using MAPLEAVE event?
- * @todo Use a linked list of player names in the arena to validate
- * decreasing the count of players should happen.
+ * @todo Arena information signs. Place a sign on a map, give it event
+ * options as sign|arena_map_path or something like that, and an APPLY
+ * event. Upon applying the sign, it will list that arena map's players
+ * if any and if it is full or not.
  * @{ */
 
 /**
@@ -81,6 +77,15 @@
 #define PLUGIN_NAME "Arena"
 #define PLUGIN_VERSION "Arena plugin 0.1"
 
+/** Player names of players currently in an arena map */
+typedef struct arena_map_players {
+	/** The player name */
+	char name[MAX_BUF];
+
+	/** Next player in this list */
+	struct arena_map_players *next;
+} arena_map_players;
+
 /** Arena maps linked list */
 typedef struct arena_maps_struct {
 	/** The arena map path */
@@ -88,6 +93,8 @@ typedef struct arena_maps_struct {
 
 	/** Current number of players in this arena */
 	int players;
+
+	arena_map_players *player_list;
 
 	/** Maximum number of players for this arena */
 	int max_players;
@@ -163,6 +170,56 @@ MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
     return NULL;
 }
 
+static int check_arena_player(const char *player, arena_map_players *player_list)
+{
+	arena_map_players *player_list_tmp;
+
+	for (player_list_tmp = player_list; player_list_tmp; player_list_tmp = player_list_tmp->next)
+	{
+		if (strcmp(player, player_list_tmp->name) == 0 && strlen(player) == strlen(player_list_tmp->name))
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static void remove_arena_player(const char *player, arena_map_players **player_list)
+{
+	arena_map_players *currP, *prevP;
+
+	/* For 1st node, indicate there is no previous. */
+	prevP = NULL;
+
+	/* Visit each node, maintaining a pointer to
+	 * the previous node we just visited. */
+	for (currP = *player_list; currP != NULL; prevP = currP, currP = currP->next)
+	{
+		/* Found it. */
+		if (strcmp(currP->name, player) == 0)
+		{
+			if (prevP == NULL)
+			{
+				/* Fix beginning pointer. */
+				*player_list = currP->next;
+			}
+			else
+			{
+				/* Fix previous node's next to
+				 * skip over the removed node. */
+				prevP->next = currP->next;
+			}
+
+			/* Deallocate the node. */
+			free(currP);
+
+			/* Done searching. */
+			break;
+		}
+	}
+}
+
 /**
  * Remove arena map, identified by path.
  * @param path The map path to remove from the linked list */
@@ -230,7 +287,14 @@ MODULEAPI int arena_enter(CFParm* PParm)
 			}
 			else
 			{
+				arena_map_players *player_list_tmp = (arena_map_players *) malloc(sizeof(arena_map_players));
+
 				arena_maps_tmp->players++;
+
+				player_list_tmp->next = arena_maps_tmp->player_list;
+				arena_maps_tmp->player_list = player_list_tmp;
+
+				snprintf(player_list_tmp->name, sizeof(player_list_tmp->name), "%s", who->name);
 
 				return 0;
 			}
@@ -245,6 +309,10 @@ MODULEAPI int arena_enter(CFParm* PParm)
 	arena_maps_tmp->max_players = max_players;
 	arena_maps_tmp->players = 1;
 
+	arena_maps_tmp->player_list = (arena_map_players *) malloc(sizeof(arena_map_players));
+	snprintf(arena_maps_tmp->player_list->name, sizeof(arena_maps_tmp->player_list->name), "%s", who->name);
+	arena_maps_tmp->player_list->next = NULL;
+
 	return 0;
 }
 
@@ -253,11 +321,19 @@ MODULEAPI int arena_leave(CFParm* PParm)
 	object *who = (object *)(PParm->Value[1]);
 	arena_maps_struct *arena_maps_tmp;
 
+	/* Sanity checks */
+	if (!who || !who->map || !who->map->path || !who->name)
+	{
+		return 0;
+	}
+
 	for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next)
 	{
-		if (strcmp(arena_maps_tmp->path, who->map->path) == 0)
+		if (strcmp(arena_maps_tmp->path, who->map->path) == 0 && check_arena_player(who->name, arena_maps_tmp->player_list))
 		{
 			arena_maps_tmp->players--;
+
+			remove_arena_player(who->name, &arena_maps_tmp->player_list);
 
 			if (arena_maps_tmp->players < 1)
 				remove_arena_map(arena_maps_tmp->path);
