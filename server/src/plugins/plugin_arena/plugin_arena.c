@@ -30,7 +30,11 @@
  *
  * It stores a linked list of arena maps and number of players inside.
  * If player attempts to enter the arena and the limit is reached, the
- * entrance will not work for that player.
+ * entrance will not work for that player. For validation purposes,
+ * it also stores a linked list of player names on the arena map. When
+ * decreasing the amount of players on the arena map, this list is
+ * checked to see if the player is really on that arena map. If not, no
+ * decreasing of the count is made.
  *
  * Limit is controlled by event's options in the entrance. Event object
  * MUST be put into the entrance, like exit, teleporter, or even a rock
