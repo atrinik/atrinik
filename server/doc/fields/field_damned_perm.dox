@@ -1,5 +1,5 @@
 /**
-@fn obj::damned_perm
+@fn FLAG_PERM_DAMNED
 @section Use
 <table>
 	<tr>

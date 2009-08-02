@@ -1,5 +1,5 @@
 /**
-@fn obj::is_vul_elemental
+@fn FLAG_VUL_ELEMENTAL
 @section Use
 <table>
 	<tr>

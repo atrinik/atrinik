@@ -1,5 +1,5 @@
 /**
-@fn obj::corpse
+@fn FLAG_CORPSE
 @section Use
 <table>
 	<tr>

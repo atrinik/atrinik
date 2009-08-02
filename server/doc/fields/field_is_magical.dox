@@ -1,5 +1,5 @@
 /**
-@fn obj::is_magical
+@fn FLAG_IS_MAGICAL
 @section Use
 <table>
 	<tr>

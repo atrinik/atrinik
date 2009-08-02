@@ -1,5 +1,5 @@
 /**
-@fn obj::flying
+@fn FLAG_FLYING
 @section Use
 <table>
 	<tr>

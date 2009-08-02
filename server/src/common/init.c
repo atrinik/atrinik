@@ -29,7 +29,7 @@
 #include <global.h>
 #include <object.h>
 
-/* You unforunately need to looking in include/structs.h to see what these
+/** You unforunately need to looking in include/global.h to see what these
  * correspond to. */
 struct Settings settings = {
 	/* Logfile */

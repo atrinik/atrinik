@@ -1,5 +1,5 @@
 /**
-@fn obj::quest_item
+@fn FLAG_QUEST_ITEM
 @section Use
 <table>
 	<tr>

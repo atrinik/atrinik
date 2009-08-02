@@ -1,5 +1,5 @@
 /**
-@fn obj::make_ethereal
+@fn FLAG_MAKE_ETHEREAL
 @section Use
 <table>
 	<tr>

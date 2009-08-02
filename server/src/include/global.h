@@ -384,6 +384,7 @@ EXTERN archetype *level_up_arch;
 # define CFREE(x)	free(x)
 #endif
 
+/** Settings structure */
 typedef struct Settings {
 	/* logfile to use */
     char    *logfilename;

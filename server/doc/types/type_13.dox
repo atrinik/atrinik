@@ -91,13 +91,13 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>can reflect missiles</td>
-		<td>@ref obj::can_reflect_missile</td>
+		<td>@ref FLAG_CAN_REFL_MISSILE</td>
 		<td>   object CAN reflect missiles. See reflect missiles.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect spells</td>
-		<td>@ref obj::can_reflect_spell</td>
+		<td>@ref FLAG_CAN_REFL_SPELL</td>
 		<td>  object CAN reflect spells. See reflect spells.
 		</td>
 	</tr>
@@ -257,7 +257,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>inv. system object</td>
-		<td>@ref obj::sys_object</td>
+		<td>@ref FLAG_SYS_OBJECT</td>
 		<td>    Marks an object as system object. System objects are ALWAYS invisible and
     hidden from the players. They can't be seen or detected and never will send
     any information about them to the players client. System objects are put
@@ -266,7 +266,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>invisible</td>
-		<td>@ref obj::is_invisible</td>
+		<td>@ref FLAG_IS_INVISIBLE</td>
 		<td>    Generally makes the object invisible. Invisible objects will be shown
     if the player has "see invisible" (from spell or item). To hide objects
     totally from detection, use "sys_object".
@@ -320,7 +320,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>magical</td>
-		<td>@ref obj::is_magical</td>
+		<td>@ref FLAG_IS_MAGICAL</td>
 		<td>    If set, this object count as "magical". Detect magic or
     identify will show this flag and the player will see a small
     M in the client inventory part.
@@ -357,7 +357,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>no prayers</td>
-		<td>@ref obj::no_cleric</td>
+		<td>@ref FLAG_NO_CLERIC</td>
 		<td>    If enabled, it is impossible for players to use (cleric-)
     prayers on that spot.
 		</td>
@@ -371,7 +371,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>no teleport</td>
-		<td>@ref obj::no_teleport</td>
+		<td>@ref FLAG_NO_TELEPORT</td>
 		<td>    Marks an object as no teleport object. A no teleport object can't be
     teleported by teleporter except the object is inside the inventory of 
     another object which can be teleported.
@@ -393,7 +393,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>one drop</td>
-		<td>@ref obj::one_drop</td>
+		<td>@ref FLAG_ONE_DROP</td>
 		<td>   In the moment a player gets or apply this items, it will
    flaged as godgiven and vanish when droped to the ground.
 		</td>
@@ -406,7 +406,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>permanent cursed</td>
-		<td>@ref obj::cursed_perm</td>
+		<td>@ref FLAG_PERM_CURSED</td>
 		<td>    The item is permanent cursed. If this flag set, applying 
     or unapplying will set "cursed 1" again. This flag can't be
     removed by remove curse.
@@ -414,7 +414,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>permanent damned</td>
-		<td>@ref obj::damned_perm</td>
+		<td>@ref FLAG_PERM_DAMNED</td>
 		<td>    The item is permanent damned. If this flag set, applying 
     or unapplying will set "damned 1" again. This flag can't be
     removed by remove damnation.
@@ -430,7 +430,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>player only</td>
-		<td>@ref obj::player_only</td>
+		<td>@ref FLAG_PLAYER_ONLY</td>
 		<td>    If set, only players can enter the tile the object with this flag is in too.
 		</td>
 	</tr>
@@ -454,7 +454,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>quest item</td>
-		<td>@ref obj::quest_item</td>
+		<td>@ref FLAG_QUEST_ITEM</td>
 		<td>    Item is a quest item. This item will be inserted in the 
     quest container when a quest is finished and for that player
     this item will never drop again.

@@ -1,5 +1,5 @@
 /**
-@fn obj::sys_object
+@fn FLAG_SYS_OBJECT
 @section Use
 <table>
 	<tr>

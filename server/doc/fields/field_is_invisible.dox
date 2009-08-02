@@ -1,5 +1,5 @@
 /**
-@fn obj::is_invisible
+@fn FLAG_IS_INVISIBLE
 @section Use
 <table>
 	<tr>

@@ -1,5 +1,5 @@
 /**
-@fn obj::can_reflect_spell
+@fn FLAG_CAN_REFL_SPELL
 @section Use
 <table>
 	<tr>

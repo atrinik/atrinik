@@ -1,5 +1,5 @@
 /**
-@fn obj::invulnerable
+@fn FLAG_INVULNERABLE
 @section Use
 <table>
 	<tr>

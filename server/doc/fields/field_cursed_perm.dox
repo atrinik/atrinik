@@ -1,5 +1,5 @@
 /**
-@fn obj::cursed_perm
+@fn FLAG_PERM_CURSED
 @section Use
 <table>
 	<tr>

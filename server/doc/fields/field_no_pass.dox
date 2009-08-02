@@ -1,5 +1,5 @@
 /**
-@fn obj::no_pass
+@fn FLAG_NO_PASS
 @section Use
 <table>
 	<tr>

@@ -1,5 +1,5 @@
 /**
-@fn obj::walk_on
+@fn FLAG_WALK_ON
 @section Use
 <table>
 	<tr>

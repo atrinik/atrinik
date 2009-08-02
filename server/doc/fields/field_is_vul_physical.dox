@@ -1,5 +1,5 @@
 /**
-@fn obj::is_vul_physical
+@fn FLAG_VUL_PHYSICAL
 @section Use
 <table>
 	<tr>

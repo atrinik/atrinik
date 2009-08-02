@@ -1,5 +1,5 @@
 /**
-@fn obj::slow_move
+@fn FLAG_SLOW_MOVE
 @section Use
 <table>
 	<tr>

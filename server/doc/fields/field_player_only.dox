@@ -1,5 +1,5 @@
 /**
-@fn obj::player_only
+@fn FLAG_PLAYER_ONLY
 @section Use
 <table>
 	<tr>

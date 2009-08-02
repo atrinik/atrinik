@@ -23,11 +23,47 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <global.h>
+/**
+ * @defgroup plugin_arena Arena plugin
+ * This plugin is used to control arena map exits, teleporters, triggers,
+ * etc.
+ *
+ * It stores a linked list of arena maps and number of players inside.
+ * If player attempts to enter the arena and the limit is reached, the
+ * entrance will not work for that player.
+ *
+ * Limit is controlled by event's options in the entrance. Event object
+ * MUST be put into the entrance, like exit, teleporter, or even a rock
+ * the player has to apply. The plugin event object must have name Arena
+ * and have a script name like "Arena", otherwise Gridarta will complain
+ * about it and remove it. The script name doesn't really do anything.
+ * The event object also must have (obviously) event trigger. This plugin
+ * currently supports APPLY and TRIGGER events.
+ *
+ * To determine when to decrease number of players on the arena, it uses
+ * MAPLEAVE, LOGOUT and GDEATH global events.
+ *
+ * The arena map MUST have plugins 1 map attribute set for MAPLEAVE to
+ * work.
+ *
+ * @author Alex Tokar
+ *
+ * @todo Must test out how GDEATH and MAPLEAVE events work together.
+ * GDEATH is called, which decreases the player count on the arena map,
+ * but when the player is teleported to the medics by an exit, I think
+ * MAPLEAVE is called as well, decreasing the amount of players twice.
+ * Also what about LOGOUT decreasing the count, and when player logs
+ * back in and is teleported, using MAPLEAVE event?
+ * @todo Use a linked list of player names in the arena to validate
+ * decreasing the count of players should happen.
+ * @{ */
 
 /**
  * @file
- * This file handles the Arena plugin functions. */
+ * This file handles the Arena plugin functions.
+ * @see plugin_arena */
+
+#include <global.h>
 
 #undef MODULEAPI
 
@@ -262,3 +298,5 @@ MODULEAPI CFParm *triggerEvent(CFParm* PParm)
     GCFP.Value[0] = (void *)(&result);
     return &GCFP;
 }
+
+/*@}*/

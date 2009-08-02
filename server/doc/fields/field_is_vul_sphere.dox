@@ -1,5 +1,5 @@
 /**
-@fn obj::is_vul_sphere
+@fn FLAG_VUL_SPHERE
 @section Use
 <table>
 	<tr>

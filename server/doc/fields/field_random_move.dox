@@ -1,5 +1,5 @@
 /**
-@fn obj::random_move
+@fn FLAG_RANDOM_MOVE
 @section Use
 <table>
 	<tr>

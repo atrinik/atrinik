@@ -1,5 +1,5 @@
 /**
-@fn obj::no_cleric
+@fn FLAG_NO_CLERIC
 @section Use
 <table>
 	<tr>

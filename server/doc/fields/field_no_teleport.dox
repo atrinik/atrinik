@@ -1,5 +1,5 @@
 /**
-@fn obj::no_teleport
+@fn FLAG_NO_TELEPORT
 @section Use
 <table>
 	<tr>

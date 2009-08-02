@@ -38,6 +38,7 @@
 #define PLUGIN_NAME "Arena"
 #define PLUGIN_VERSION "Arena plugin 0.1"
 
+/** Structure for storing the arena maps */
 typedef struct arena_maps_struct {
 	/** The arena map path */
 	char path[MAX_BUF];

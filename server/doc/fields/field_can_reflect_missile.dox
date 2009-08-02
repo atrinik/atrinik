@@ -1,5 +1,5 @@
 /**
-@fn obj::can_reflect_missile
+@fn FLAG_CAN_REFL_MISSILE
 @section Use
 <table>
 	<tr>

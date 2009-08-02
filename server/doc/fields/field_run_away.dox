@@ -1,5 +1,5 @@
 /**
-@fn FLAG_RUN_AWAY
+@fn obj::run_away
 @section Use
 <table>
 	<tr>
