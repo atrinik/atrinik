@@ -5226,20 +5226,6 @@ treasureone random_test_all
   list random_food
 end
 
-# t_style 1 = fire
-treasureone random_style1
-  t_style 1
-  arch jewel_generic
-    t_style 2
-    artifact_chance 100
-    chance 50
-  more
-  list random_armour_mail
-    t_style 2
-    artifact_chance 100
-    chance 50
-end
-
 # test for /dev test maps
 treasure random_testx
   list traps
