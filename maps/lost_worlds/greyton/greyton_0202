@@ -3,7 +3,7 @@ name The City of Greyton
 msg
 Creator: Daimonin Map Editor
 Date:    5/11/2009
-Modified: 2009-08-02 Alex Tokar
+Modified: 2009-08-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1249,6 +1249,17 @@ end
 arch floor_flagm4
 x 8
 y 9
+end
+arch sign
+name Arena sign
+x 8
+y 9
+arch event_obj
+name Arena
+sub_type 1
+race Arena
+slaying sign|/lost_worlds/greyton/greyton_0101
+end
 end
 arch floor_flagm1
 x 8
