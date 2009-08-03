@@ -30,17 +30,21 @@ CC        = @CC@
 
 MAKEDOC = doc_utils/make_documentation.pl
 
-SRCS = plugin_python.c atrinik_map.c atrinik_object.c
+SRCS = \
+	../common/plugin_common.c \
+	plugin_python.c \
+	atrinik_map.c \
+	atrinik_object.c
 
 OBJECTS   = $(SRCS:.c=.o)
-INCLUDE   = -I./include -I../../include -I$(INCLUDEROOT)/python$(PYTHONVER)
+INCLUDE   = -I./include -I../../include -I../common/include -I$(INCLUDEROOT)/python$(PYTHONVER)
 
 CFLAGS    = -g -O2 -fPIC $(EXTRA_CFLAGS)
 DEPEND = @DEPEND@
 
 LIBPYTHON = $(LIBROOT)/python$(PYTHONVER)/config/libpython$(PYTHONVER).a
 
-LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic 
+LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBPYTHON) $(LIBS) $(SYSLIBS)
 
@@ -58,7 +62,7 @@ plugin_python.so.0.1 : $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-doc:	
+doc:
 #doc/Map_Methods.txt doc/Object_Methods.txt doc/DaimoninFunctions.txt
 #doc/Map_Methods.txt: DaimoninMap.c
 #	$(MAKEDOC) $< > $@

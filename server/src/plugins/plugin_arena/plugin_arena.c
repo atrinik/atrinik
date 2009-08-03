@@ -70,6 +70,7 @@
  * @see plugin_arena */
 
 #include <global.h>
+#include <plugin_common.h>
 
 #undef MODULEAPI
 
@@ -86,8 +87,11 @@
 
 /** Plugin name */
 #define PLUGIN_NAME "Arena"
+
 /** Plugin version */
 #define PLUGIN_VERSION "Arena plugin 0.2"
+
+void plugin_log(LogLevel logLevel, const char *format, ...);
 
 /** Player names of players currently in an arena map */
 typedef struct arena_map_players {
@@ -167,7 +171,7 @@ MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
 
 	(void) PParm;
 
-    LOG(llevDebug, "Start postinitPlugin.\n");
+    plugin_log(llevDebug, "Start postinitPlugin.\n");
 
     GCFP.Value[1] = (void *) PLUGIN_NAME;
 
@@ -506,12 +510,12 @@ MODULEAPI CFParm *triggerEvent(CFParm* PParm)
     static int result = 0;
 
     eventcode = *(int *)(PParm->Value[0]);
-    LOG(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
+    plugin_log(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
 
     switch (eventcode)
     {
         case EVENT_NONE:
-            LOG(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
+            plugin_log(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
             break;
 
         case EVENT_APPLY:

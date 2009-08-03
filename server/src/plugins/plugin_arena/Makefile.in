@@ -6,7 +6,7 @@
 # if needed.
 LIBS		= -lnsl -ldl -lpthread -lutil
 
-EXTRA_CFLAGS    = 
+EXTRA_CFLAGS    =
 
 # *****************************************************************************
 # End of user configuration part. Don't change anything after this line,
@@ -17,15 +17,16 @@ RM        = @RM@
 CC        = @CC@
 
 SRCS = \
+	../common/plugin_common.c \
 	plugin_arena.c
 
 OBJECTS   = $(SRCS:.c=.o)
-INCLUDE   = -I./include -I../../include
+INCLUDE   = -I./include -I../../include -I../common/include
 
 CFLAGS    = -g -O3 -fPIC $(EXTRA_CFLAGS)
 DEPEND = @DEPEND@
 
-LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic 
+LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBS) $(SYSLIBS)
 
@@ -43,7 +44,7 @@ plugin_arena.so.0.1 : $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-doc:	
+doc:
 #doc/Map_Methods.txt doc/Object_Methods.txt doc/DaimoninFunctions.txt
 #doc/Map_Methods.txt: DaimoninMap.c
 #	$(MAKEDOC) $< > $@

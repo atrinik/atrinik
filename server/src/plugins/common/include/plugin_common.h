@@ -23,58 +23,5 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Daemon related code. */
+void plugin_log(LogLevel logLevel, const char *format, ...);
 
-#include <global.h>
-#ifndef __CEXTRACT__
-#include <sproto.h>
-#endif
-
-/**
- * Make the Atrinik server become a daemon.
- * @param filename Log file name to use */
-void become_daemon(char *filename)
-{
-	pid_t pid, sid;
-	time_t now = time(NULL);
-
-	/* Fork off the parent process */
-	pid = fork();
-
-	if (pid < 0)
-	{
-		exit(EXIT_FAILURE);
-	}
-
-	/* If we got a good PID, then
-	 * we can exit the parent process. */
-	if (pid > 0)
-	{
-		exit(EXIT_SUCCESS);
-	}
-
-	/* Change the file mode mask */
-	umask(0);
-
-	logfile = fopen(filename, "a");
-
-	LOG(llevInfo, "\n******************************************************\n");
-	LOG(llevInfo, "* New server session initialized at %.16s *\n", ctime(&now));
-	LOG(llevInfo, "******************************************************\n\n");
-
-	/* Create a new SID for the child process */
-	sid = setsid();
-
-	if (sid < 0)
-	{
-		/* Log the failure */
-		exit(EXIT_FAILURE);
-	}
-
-	/* Close out the standard file descriptors */
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
-}

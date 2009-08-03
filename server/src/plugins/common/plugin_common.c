@@ -23,58 +23,27 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Daemon related code. */
-
 #include <global.h>
-#ifndef __CEXTRACT__
-#include <sproto.h>
-#endif
 
-/**
- * Make the Atrinik server become a daemon.
- * @param filename Log file name to use */
-void become_daemon(char *filename)
+f_plugin PlugHooks[1024];
+
+CFParm GCFP;
+
+void plugin_log(LogLevel logLevel, const char *format, ...)
 {
-	pid_t pid, sid;
-	time_t now = time(NULL);
+    char buf[20480];
+    va_list ap;
 
-	/* Fork off the parent process */
-	pid = fork();
+    va_start(ap, format);
+    buf[0] = '\0';
 
-	if (pid < 0)
-	{
-		exit(EXIT_FAILURE);
-	}
+    vsprintf(buf, format, ap);
 
-	/* If we got a good PID, then
-	 * we can exit the parent process. */
-	if (pid > 0)
-	{
-		exit(EXIT_SUCCESS);
-	}
+    va_end(ap);
 
-	/* Change the file mode mask */
-	umask(0);
+	GCFP.Value[0] = (void *)(&logLevel);
+	GCFP.Value[1] = (void *)(buf);
 
-	logfile = fopen(filename, "a");
-
-	LOG(llevInfo, "\n******************************************************\n");
-	LOG(llevInfo, "* New server session initialized at %.16s *\n", ctime(&now));
-	LOG(llevInfo, "******************************************************\n\n");
-
-	/* Create a new SID for the child process */
-	sid = setsid();
-
-	if (sid < 0)
-	{
-		/* Log the failure */
-		exit(EXIT_FAILURE);
-	}
-
-	/* Close out the standard file descriptors */
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+	(PlugHooks[HOOK_LOG])(&GCFP);
 }
+

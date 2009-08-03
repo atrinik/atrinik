@@ -1577,7 +1577,7 @@ int main(int argc, char **argv)
 		} while (!keyboard_press());
 
 		/* Otherwise we've got some keyboard input, parse it! */
-		if (scanf("\n%4096[^\n]", input))
+		if (!settings.daemonmode && scanf("\n%4096[^\n]", input))
 			process_keyboard_input(input);
   	}
 

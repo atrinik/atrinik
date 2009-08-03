@@ -25,6 +25,7 @@
 
 /* First let's include the header file needed */
 #include <atrinik_object.h>
+#include <plugin_common.h>
 #include <inline.h>
 
 /* Global data */
@@ -611,7 +612,7 @@ static PyObject* Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject* args)
 			 * if we have here a level > 0, we set level but NEVER
 			 * exp ... if we have level == 0, we only set exp - the
 			 * addexp */
-			/*LOG(-1,"LEVEL1 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
+			/*plugin_log(-1,"LEVEL1 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
 			if (level > 0)
 			{
 				tmp->level = level;
@@ -628,7 +629,7 @@ static PyObject* Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject* args)
 				(PlugHooks[HOOK_ADDEXP])(&GCFP);
 	        }
 
-			/*LOG(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
+			/*plugin_log(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
 
 			/* we will sure change skill exp, mark for update */
 			if (WHO->type == PLAYER && CONTR(WHO))
@@ -1213,7 +1214,7 @@ static PyObject* Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject* args)
         }
     }
 
-    LOG(llevDebug, "Python Warning -> SetRank: Object %s has no rank_force!\n", query_name(WHO, NULL));
+    plugin_log(llevDebug, "Python Warning -> SetRank: Object %s has no rank_force!\n", query_name(WHO, NULL));
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1253,7 +1254,7 @@ static PyObject* Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject* a
         }
     }
 
-    LOG(llevDebug, "Python Warning -> SetAlignment: Object %s has no alignment_force!\n", query_name(WHO, NULL));
+    plugin_log(llevDebug, "Python Warning -> SetAlignment: Object %s has no alignment_force!\n", query_name(WHO, NULL));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1283,7 +1284,7 @@ static PyObject* Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObje
             return wrap_object(walk);
     }
 
-    LOG(llevDebug, "Python Warning -> GetAlignmentForce: Object %s has no aligment_force!\n", query_name(WHO, NULL));
+    plugin_log(llevDebug, "Python Warning -> GetAlignmentForce: Object %s has no aligment_force!\n", query_name(WHO, NULL));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1330,7 +1331,7 @@ static PyObject* Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject* 
         }
     }
 
-    LOG(llevDebug, "Python Warning -> SetGuild: Object %s has no guild_force!\n", query_name(WHO, NULL));
+    plugin_log(llevDebug, "Python Warning -> SetGuild: Object %s has no guild_force!\n", query_name(WHO, NULL));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1360,7 +1361,7 @@ static PyObject* Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject* 
             return wrap_object(walk);
     }
 
-    LOG(llevDebug, "Python Warning -> GetGuild: Object %s has no guild_force!\n", query_name(WHO, NULL));
+    plugin_log(llevDebug, "Python Warning -> GetGuild: Object %s has no guild_force!\n", query_name(WHO, NULL));
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1406,7 +1407,7 @@ static PyObject* Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject* args)
 
     if (QUERY_FLAG(WHAT, FLAG_REMOVED))
     {
-        LOG(llevDebug, "Warning (from KillObject): Trying to remove removed object\n");
+        plugin_log(llevDebug, "Warning (from KillObject): Trying to remove removed object\n");
         RAISE("Trying to remove removed object");
     }
     else
@@ -1706,7 +1707,7 @@ static PyObject* Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 
     if (!myob)
     {
-        LOG(llevDebug, "Python WARNING:: CreatePlayerForce: Can't find archtype 'player_force'\n");
+        plugin_log(llevDebug, "Python WARNING:: CreatePlayerForce: Can't find archtype 'player_force'\n");
         RAISE("Can't find archtype 'player_force'");
     }
 
@@ -1811,7 +1812,7 @@ static PyObject* Atrinik_Object_AddQuestObject(Atrinik_Object *whoptr, PyObject*
 
 		if (!walk)
 		{
-			LOG(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'quest_container'\n");
+			plugin_log(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'quest_container'\n");
 			RAISE("Cant't find archtype 'quest_container'");
 		}
 
@@ -1827,7 +1828,7 @@ static PyObject* Atrinik_Object_AddQuestObject(Atrinik_Object *whoptr, PyObject*
 
     if (!myob)
     {
-        LOG(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'player_info'\n");
+        plugin_log(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'player_info'\n");
         RAISE("Cant't find archtype 'player_info'");
     }
 
@@ -1878,7 +1879,7 @@ static PyObject* Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObj
 
     if (!myob)
     {
-        LOG(llevDebug, "Python WARNING:: CreatePlayerInfo: Cant't find archtype 'player_info'\n");
+        plugin_log(llevDebug, "Python WARNING:: CreatePlayerInfo: Cant't find archtype 'player_info'\n");
         RAISE("Cant't find archtype 'player_info'");
     }
 
@@ -1986,7 +1987,7 @@ static PyObject* Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, 
 
     if (!myob)
     {
-        LOG(llevDebug, "Python WARNING:: CFCreateInvisibleInside: Can't find archtype 'force'\n");
+        plugin_log(llevDebug, "Python WARNING:: CFCreateInvisibleInside: Can't find archtype 'force'\n");
         RAISE("Cant't find archtype 'force'");
     }
 
@@ -2044,7 +2045,7 @@ static PyObject* Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 
 	if (!myob)
 	{
-		LOG(llevDebug,"BUG python_CFCreateObjectInside(): ob:>%s< = NULL!\n", query_name(myob, NULL));
+		plugin_log(llevDebug,"BUG python_CFCreateObjectInside(): ob:>%s< = NULL!\n", query_name(myob, NULL));
         RAISE("Failed to create the object. Did you use an existing arch?");
 	}
 
@@ -2385,7 +2386,7 @@ static PyObject* Atrinik_Object_GetIP(Atrinik_Object *whoptr, PyObject* args)
     }
     else
     {
-        LOG(llevDebug, "PYTHON - Error - This object has no controller\n");
+        plugin_log(llevDebug, "PYTHON - Error - This object has no controller\n");
         return Py_BuildValue("s", "");
     }
 }
@@ -2988,14 +2989,14 @@ static void Atrinik_Object_dealloc(Atrinik_Object* self)
 	{
         if (QUERY_FLAG(self->obj, FLAG_REMOVED))
 		{
-            LOG(llevDebug, "PYTHON - Freeing removed object %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+            plugin_log(llevDebug, "PYTHON - Freeing removed object %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
             GCFP.Value[0] = (void *)(self->obj);
             (PlugHooks[HOOK_FREEOBJECT])(&GCFP);
         }
 		else if (self->obj->env == NULL && self->obj->map == NULL)
 		{
             /* This shouldn't really happen, but I added it just for safety */
-            LOG(llevDebug, "PYTHON - Freeing object in limbo %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+            plugin_log(llevDebug, "PYTHON - Freeing object in limbo %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
             GCFP.Value[0] = (void *)(self->obj);
             (PlugHooks[HOOK_REMOVEOBJECT])(&GCFP);
             GCFP.Value[0] = (void *)(self->obj);

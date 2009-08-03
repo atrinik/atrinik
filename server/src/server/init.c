@@ -535,9 +535,11 @@ void init(int argc, char **argv)
     read_map_log();
     parse_args(argc, argv, 3);
 
-#ifndef WIN32 /* ***win32: no BecomeDaemon in windows */
+#ifndef WIN32
     if (settings.daemonmode)
-		logfile = BecomeDaemon(settings.logfilename[0] == '\0' ? "logfile" : settings.logfilename);
+	{
+		become_daemon(settings.logfilename[0] == '\0' ? "logfile" : settings.logfilename);
+	}
 #endif
 
     init_beforeplay();

@@ -326,7 +326,7 @@ int command_ban(object *op, char *params);
 void init_commands(void);
 
 /* daemon.c */
-FILE *BecomeDaemon(char *filename);
+void become_daemon(char *filename);
 
 /* disease.c */
 int move_disease(object *disease);
