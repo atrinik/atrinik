@@ -3,7 +3,7 @@ name The City of Greyton Arena
 msg
 Creator: Alex Tokar
 Date:    5/11/2009
-Modified: 2009-07-29 Alex Tokar
+Modified: 2009-08-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1522,6 +1522,7 @@ x 12
 y 11
 end
 arch floor_flagm3
+no_pass 1
 x 12
 y 12
 end
