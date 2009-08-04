@@ -549,6 +549,7 @@ extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 
 /* Ticks since this second frame in ms */
 extern uint32 GameTicksSec;
+extern _server *start_server;
 extern int metaserver_start, metaserver_sel, metaserver_count;
 
 extern int GameStatusVersionFlag;
@@ -802,9 +803,6 @@ extern int SocketStatusErrorNr;
 extern void fatal_signal(int make_core);
 extern int main(int argc, char *argv[]);
 extern void open_input_mode(int maxchar);
-extern void add_metaserver_data(char *server, int port, int player, char *ver, char *desc);
-extern void clear_metaserver_data();
-extern void get_meta_server_data(int num, char *server, int *port);
 extern void free_faces();
 extern void load_options_dat();
 extern void save_options_dat();

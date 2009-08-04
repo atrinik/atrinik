@@ -746,7 +746,7 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				get_meta_server_data(metaserver_sel, ServerName, &ServerPort);
+				metaserver_get_data(metaserver_sel, ServerName, &ServerPort);
 				GameStatus = GAME_STATUS_STARTCONNECT;
 				break;
 

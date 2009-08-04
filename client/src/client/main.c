@@ -138,8 +138,8 @@ void init_game_data();
 int game_status_chain();
 int load_bitmap(int index);
 
-_server *start_server, *end_server;
-int metaserver_start, metaserver_sel, metaserver_count;
+_server *start_server;
+int metaserver_start, metaserver_sel, metaserver_count = 0;
 
 typedef enum _pic_type
 {
@@ -319,7 +319,6 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
 #define BITMAP_MAX (sizeof(bitmap_name) / sizeof(struct _bitmap_name))
 _Sprite *Bitmaps[BITMAP_MAX];
 
-static void count_meta_server();
 static void flip_screen();
 static void show_intro(char *text);
 static void delete_player_lists();
@@ -395,7 +394,7 @@ void init_game_data()
 
 	init_keys();
 	init_player_data();
-	clear_metaserver_data();
+	metaserver_clear_data();
 	reset_input_mode();
 
 	/* anim queue of current active map */
@@ -713,7 +712,7 @@ int game_status_chain()
 
 		clear_map();
 		LOG(LOG_MSG, "GAMES_STATUS_INIT_3\n");
-		clear_metaserver_data();
+		metaserver_clear_data();
 		LOG(LOG_MSG, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;
 	}
@@ -723,22 +722,21 @@ int game_status_chain()
 		map_udate_flag = 2;
 
 		if (argServerName[0] != 0)
-			add_metaserver_data(argServerName, argServerPort, -1, "user server", "Server from -server '...' command line.");
+			metaserver_add(argServerName, argServerPort, -1, "user server", "Server from -server '...' command line.");
 
 		/* skip of -nometa in command line or no metaserver set in options */
 		if (options.no_meta)
 		{
 			draw_info("Option '-nometa'. Metaserver ignored.", COLOR_GREEN);
+			metaserver_connecting = 0;
 		}
 		else
 		{
-			draw_info("Query metaserver...", COLOR_GREEN);
-			metaserver_connect();
+			metaserver_get_servers();
 		}
 
-		add_metaserver_data("127.0.0.1", 13327, -1, "local", "localhost. Start server before you try to connect.");
-		count_meta_server();
-		draw_info("Select a server.", COLOR_GREEN);
+		metaserver_add("127.0.0.1", 13327, -1, "local", "localhost. Start server before you try to connect.");
+
 		GameStatus = GAME_STATUS_START;
 	}
 	else if (GameStatus == GAME_STATUS_START)
@@ -1100,91 +1098,6 @@ void free_faces()
 		}
 
 		FaceList[i].flags =0;
-	}
-}
-
-
-void clear_metaserver_data()
-{
-	_server *node, *tmp;
-	void *tmp_free;
-
-	node = start_server;
-
-	for (; node ;)
-	{
-		tmp_free = &node->nameip;
-		FreeMemory(tmp_free);
-
-		tmp_free = &node->version;
-		FreeMemory(tmp_free);
-
-		tmp_free = &node->desc;
-		FreeMemory(tmp_free);
-
-		tmp = node->next;
-		tmp_free = &node;
-		FreeMemory(tmp_free);
-		node = tmp;
-	}
-
-	start_server = NULL;
-	end_server = NULL;
-	metaserver_start = 0;
-	metaserver_sel = 0;
-	metaserver_count = 0;
-}
-
-void add_metaserver_data(char *server, int port, int player, char *ver, char *desc)
-{
-	_server *node;
-
-	node = (_server*) _malloc(sizeof(_server), "add_metaserver_data(): add server struct");
-	memset(node, 0, sizeof(_server));
-
-	if (!start_server)
-		start_server = node;
-
-	if (!end_server)
-		end_server = node;
-	else
-		end_server->next = node;
-
-	end_server = node;
-
-	node->player = player;
-	node->port = port;
-	node->nameip = _malloc(strlen(server) + 1, "add_metaserver_data(): nameip string");
-	strcpy(node->nameip, server);
-	node->version = _malloc(strlen(ver) + 1, "add_metaserver_data(): version string");
-	strcpy(node->version, ver);
-	node->desc = _malloc(strlen(desc) + 1, "add_metaserver_data(): desc string");
-	strcpy(node->desc, desc);
-}
-
-static void count_meta_server()
-{
-	_server *node = start_server;
-
-	for (metaserver_count = 0; node; metaserver_count++)
-		node = node->next;
-}
-
-void get_meta_server_data(int num, char *server, int *port)
-{
-	_server *node = start_server;
-	int i;
-
-	for (i = 0; node; i++)
-	{
-		if (i == num)
-		{
-			strcpy(server, node->nameip);
-			*port = node->port;
-			return;
-		}
-
-		node = node->next;
 	}
 }
 

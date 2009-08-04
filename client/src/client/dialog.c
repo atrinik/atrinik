@@ -1723,6 +1723,17 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	/* Show scrollbar, and adjust its position by yoff */
 	blt_window_slider(Bitmaps[BITMAP_SLIDER_LONG], metaserver_count - 18, 8, dialog_yoff, -1, box.x + box.w + 5, box.y + 12);
 
+	if (metaserver_connecting)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 81, y + TXT_Y_START - 13, COLOR_BLACK, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Connecting to metaserver, please wait...", x + TXT_START_NAME + 80, y + TXT_Y_START - 14, COLOR_HGOLD, NULL, NULL);
+	}
+	else
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Select a server.", x + TXT_START_NAME + 126, y + TXT_Y_START - 13, COLOR_BLACK, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Select a server.", x + TXT_START_NAME + 125, y + TXT_Y_START - 14, COLOR_GREEN, NULL, NULL);
+	}
+
 	/* we should prepare for this the SystemFontOut */
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME + 1, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
