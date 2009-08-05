@@ -31,7 +31,7 @@
  * It stores a linked list of arena maps and number of players inside.
  * If player attempts to enter the arena and the limit is reached, the
  * entrance will not work for that player. For validation purposes,
- * it also stores a linked list of player names on the arena map. When
+ * it also stores a linked list of player objects on the arena map. When
  * decreasing the amount of players on the arena map, this list is
  * checked to see if the player is really on that arena map. If not, no
  * decreasing of the count is made.
@@ -91,12 +91,10 @@
 /** Plugin version */
 #define PLUGIN_VERSION "Arena plugin 0.2"
 
-void plugin_log(LogLevel logLevel, const char *format, ...);
-
-/** Player names of players currently in an arena map */
+/** Players currently in an arena map */
 typedef struct arena_map_players {
-	/** The player name */
-	char name[MAX_BUF];
+	/** The player object. */
+	object *op;
 
 	/** Next player in this list */
 	struct arena_map_players *next;
@@ -110,7 +108,7 @@ typedef struct arena_maps_struct {
 	/** Current number of players in this arena */
 	int players;
 
-	/** Linked list of player names in this arena */
+	/** Linked list of players in this arena */
 	arena_map_players *player_list;
 
 	/** Maximum number of players for this arena */
@@ -195,18 +193,18 @@ MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
 
 /**
  * Check a player list to see if player is in it.
- * @param player The player name to check
+ * @param op The player object to check for
  * @param player_list Player list to check
  * @return 1 if the player is in the list, 0 otherwise */
-static int check_arena_player(const char *player, arena_map_players *player_list)
+static int check_arena_player(object *op, arena_map_players *player_list)
 {
 	arena_map_players *player_list_tmp;
 
 	/* Go through the list of players */
 	for (player_list_tmp = player_list; player_list_tmp; player_list_tmp = player_list_tmp->next)
 	{
-		/* If it matches, for secure check lengths too */
-		if (strcmp(player, player_list_tmp->name) == 0 && strlen(player) == strlen(player_list_tmp->name))
+		/* If it matches */
+		if (player_list_tmp->op == op)
 		{
 			return 1;
 		}
@@ -217,9 +215,9 @@ static int check_arena_player(const char *player, arena_map_players *player_list
 
 /**
  * Remove player from arena map's list of players.
- * @param player The player name to find and remove
+ * @param op The player object to find and remove
  * @param player_list The player list from where to remove */
-static void remove_arena_player(const char *player, arena_map_players **player_list)
+static void remove_arena_player(object *op, arena_map_players **player_list)
 {
 	arena_map_players *currP, *prevP;
 
@@ -231,7 +229,7 @@ static void remove_arena_player(const char *player, arena_map_players **player_l
 	for (currP = *player_list; currP != NULL; prevP = currP, currP = currP->next)
 	{
 		/* Found it. */
-		if (strcmp(currP->name, player) == 0)
+		if (currP->op == op)
 		{
 			if (prevP == NULL)
 			{
@@ -342,8 +340,8 @@ int arena_enter(object *who, object *exit, int max_players)
 				player_list_tmp->next = arena_maps_tmp->player_list;
 				arena_maps_tmp->player_list = player_list_tmp;
 
-				/* Store the player's name */
-				snprintf(player_list_tmp->name, sizeof(player_list_tmp->name), "%s", who->name);
+				/* Store the player object */
+				player_list_tmp->op = who;
 
 				return 0;
 			}
@@ -365,11 +363,11 @@ int arena_enter(object *who, object *exit, int max_players)
 	/* Count of players will be 1 now */
 	arena_maps_tmp->players = 1;
 
-	/* Make a list of player names in this arena */
+	/* Make a list of players in this arena */
 	arena_maps_tmp->player_list = (arena_map_players *) malloc(sizeof(arena_map_players));
 
-	/* Store the player's name */
-	snprintf(arena_maps_tmp->player_list->name, sizeof(arena_maps_tmp->player_list->name), "%s", who->name);
+	/* Store the player */
+	arena_maps_tmp->player_list->op = who;
 
 	arena_maps_tmp->player_list->next = NULL;
 
@@ -413,7 +411,7 @@ int arena_sign(object *who, const char *path)
 				char name_buf[MAX_BUF];
 
 				/* Store the name in a temporary buffer, and append it to the end of sign_message */
-				snprintf(name_buf, sizeof(name_buf), "\n%s", player_list_tmp->name);
+				snprintf(name_buf, sizeof(name_buf), "\n%s (level %d)", player_list_tmp->op->name, player_list_tmp->op->level);
 				strncat(sign_message, name_buf, sizeof(sign_message) - strlen(sign_message) - 1);
 			}
 
@@ -482,14 +480,14 @@ MODULEAPI int arena_leave(CFParm *PParm)
 	/* Go through the list of arenas */
 	for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next)
 	{
-		/* If it matches, and the player name really is in the arena */
-		if (strcmp(arena_maps_tmp->path, who->map->path) == 0 && check_arena_player(who->name, arena_maps_tmp->player_list))
+		/* If it matches, and the player really is in the arena */
+		if (strcmp(arena_maps_tmp->path, who->map->path) == 0 && check_arena_player(who, arena_maps_tmp->player_list))
 		{
 			/* Decrease the count of players */
 			arena_maps_tmp->players--;
 
 			/* Remove the player from this the arena's player list */
-			remove_arena_player(who->name, &arena_maps_tmp->player_list);
+			remove_arena_player(who, &arena_maps_tmp->player_list);
 
 			/* If the player count of this arena reaches 0, remove the arena entry */
 			if (arena_maps_tmp->players < 1)
