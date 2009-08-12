@@ -1,9 +1,9 @@
 arch map
 name Stoneglow
-bg_music rainthunder.ogg|0|-1
 msg
 Creator: Daimonin Map Editor
 Date:    10/3/2003
+Modified: 2009-08-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,6 +14,7 @@ tile_path_1 stoneglow_0001
 tile_path_2 stoneglow_0100
 tile_path_5 stoneglow_0101
 tile_path_8 ../lost_worlds/world_000a
+bg_music rainthunder.ogg|0|-1
 end
 arch grassd_1
 end
@@ -528,9 +529,8 @@ arch stairs_stone_down
 x 3
 y 13
 arch event_obj
-name Python
-race /stoneglow/merc_stairs.py
 sub_type 1
+race /stoneglow/merc_stairs.py
 end
 end
 arch floor_stone_b4
@@ -713,9 +713,8 @@ friendly 1
 x 4
 y 17
 arch event_obj
-name Python
-race /stoneglow/guild_merc.py
 sub_type 6
+race /stoneglow/guild_merc.py
 end
 end
 arch floor_stone_b4
@@ -2953,9 +2952,8 @@ level 95
 x 20
 y 6
 arch event_obj
-name Python
-race /python/church.py
 sub_type 6
+race /python/church.py
 end
 end
 arch floor_marble1a
@@ -3012,12 +3010,12 @@ y 17
 end
 arch guard
 name Jail Guard Sahrel
+can_reflect_missile 0
 level 25
 unaggressive 0
 friendly 1
 stand_still 0
-attack_movement 176
-can_reflect_missile 0
+movement_type 176
 x 20
 y 17
 arch waypoint
@@ -3063,9 +3061,8 @@ sp 17
 wc 1
 grace 1
 arch event_obj
-name Python
-race stoneglow/sahrel.py
 sub_type 10
+race stoneglow/sahrel.py
 end
 end
 arch waypoint

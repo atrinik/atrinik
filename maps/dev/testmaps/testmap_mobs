@@ -1728,7 +1728,7 @@ arch giant_hill
 type 83
 Dex 1
 can_use_bow 1
-attack_movement 3
+movement_type 3
 arch ability_stone_throw
 end
 arch t_lboulder

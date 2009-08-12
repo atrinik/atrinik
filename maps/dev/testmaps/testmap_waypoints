@@ -460,7 +460,7 @@ end
 arch slime
 speed -0.2
 unaggressive 1
-attack_movement 177
+movement_type 177
 x 3
 y 15
 arch waypoint
@@ -539,7 +539,7 @@ y 3
 end
 arch ogre
 unaggressive 1
-attack_movement 183
+movement_type 183
 x 4
 y 3
 arch waypoint
@@ -1013,7 +1013,7 @@ y 22
 end
 arch slime
 unaggressive 1
-attack_movement 176
+movement_type 176
 x 7
 y 22
 arch waypoint
@@ -1525,7 +1525,7 @@ arch slime
 speed -0.5
 unaggressive 1
 will_apply 0
-attack_movement 179
+movement_type 179
 x 12
 y 16
 arch waypoint
@@ -1710,7 +1710,7 @@ end
 arch pudding_red
 speed 0.5
 unaggressive 1
-attack_movement 178
+movement_type 178
 x 14
 y 3
 arch waypoint
@@ -2952,7 +2952,7 @@ y 23
 end
 arch wyvern
 unaggressive 1
-attack_movement 176
+movement_type 176
 x 22
 y 5
 arch waypoint

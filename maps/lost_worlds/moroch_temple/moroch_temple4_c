@@ -1257,7 +1257,7 @@ y 3
 arch wraith
 type 83
 level 86
-attack_movement 176
+movement_type 176
 arch waypoint
 name wp1
 cursed 1
@@ -1312,7 +1312,7 @@ y 7
 arch lost_soul
 type 83
 level 86
-attack_movement 176
+movement_type 176
 direction 3
 arch waypoint
 name wp1
@@ -1794,7 +1794,7 @@ y 3
 arch lost_soul
 type 83
 level 86
-attack_movement 176
+movement_type 176
 direction 7
 arch waypoint
 name wp1
@@ -1854,7 +1854,7 @@ y 7
 arch wraith
 type 83
 level 86
-attack_movement 176
+movement_type 176
 direction 1
 arch waypoint
 name wp1
