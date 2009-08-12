@@ -631,6 +631,9 @@ CFParm *CFWTeleportObject(CFParm *PParm);
 CFParm *RegisterGlobalEvent(CFParm *PParm);
 CFParm *UnregisterGlobalEvent(CFParm *PParm);
 void GlobalEvent(CFParm *PParm);
+void handle_event(CFParm *PParm);
+void trigger_global_event(int event_type, void *parm1, void *parm2);
+int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags);
 CFParm *CFWPlaySoundMap(CFParm *PParm);
 CFParm *CFWCreateObject(CFParm *PParm);
 

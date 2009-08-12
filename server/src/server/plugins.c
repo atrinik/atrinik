@@ -1936,6 +1936,125 @@ void GlobalEvent(CFParm *PParm)
     }
 }
 
+/**
+ * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
+ * etc.
+ * @param event_type The event type
+ * @param parm1 First parameter
+ * @param parm2 Second parameter */
+void trigger_global_event(int event_type, void *parm1, void *parm2)
+{
+#ifdef PLUGINS
+    int evtid = event_type;
+    CFParm CFP;
+
+	CFP.Value[0] = (void *)(&evtid);
+	CFP.Value[1] = (void *)(parm1);
+	CFP.Value[2] = (void *)(parm2);
+
+	GlobalEvent(&CFP);
+#endif
+}
+
+/**
+ * Handles triggering normal events like EVENT_ATTACK, EVENT_STOP,
+ * etc.
+ * @param event_type The event type
+ * @param activator Activator object
+ * @param me Object the event object is in
+ * @param other Other object
+ * @param msg Message
+ * @param parm1 First parameter
+ * @param parm2 Second parameter
+ * @param parm3 Third parameter
+ * @param flags Event flags
+ * @return 1 if the event returns an event value, 0 otherwise */
+int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags)
+{
+#ifdef PLUGINS
+	CFParm CFP;
+	object *event_obj;
+	int plugin;
+
+	if (me == NULL || !(me->event_flags & EVENT_FLAG(event_type)))
+	{
+		return 0;
+	}
+
+	if ((event_obj = get_event_object(me, event_type)) == NULL)
+	{
+		LOG(llevBug, "BUG: object with event flag and no event object: %s\n", STRING_OBJ_NAME(me));
+		me->event_flags &= ~(1 << event_type);
+
+		return 0;
+	}
+
+	/* Avoid double triggers and infinite loops */
+	if (event_type == EVENT_SAY || event_type == EVENT_TRIGGER)
+	{
+		if ((long) event_obj->damage_round_tag == pticks)
+		{
+			LOG(llevDebug, "DEBUG: trigger_event(): Event object (type %d) for %s called twice the same round\n", event_type, STRING_OBJ_NAME(me));
+
+			return 0;
+		}
+
+		event_obj->damage_round_tag = pticks;
+	}
+
+	CFP.Value[0] = &event_type;
+	CFP.Value[1] = activator;
+	CFP.Value[2] = me;
+	CFP.Value[3] = other;
+	CFP.Value[4] = (void *) msg;
+	CFP.Value[5] = parm1;
+	CFP.Value[6] = parm2;
+	CFP.Value[7] = parm3;
+	CFP.Value[8] = &flags;
+	CFP.Value[9] = (char *) event_obj->race;
+	CFP.Value[10] = (char *) event_obj->slaying;
+
+	if (event_obj->name && (plugin = findPlugin(event_obj->name)) >= 0)
+	{
+		int returnvalue;
+		CFParm *CFR;
+
+#ifdef TIME_SCRIPTS
+		int count = 0;
+		struct timeval start, stop;
+		long long start_u, stop_u;
+		gettimeofday(&start, NULL);
+
+		for (count = 0; count < 10000; count++)
+		{
+			CFR = PlugList[plugin].eventfunc(&CFP);
+
+			returnvalue = *(int *)(CFR->Value[0]);
+		}
+
+		gettimeofday(&stop, NULL);
+		start_u = start.tv_sec * 1000000 + start.tv_usec;
+		stop_u = stop.tv_sec * 1000000 + stop.tv_usec;
+
+		LOG(llevDebug, "Running time: %2.4f s\n", (stop_u - start_u) / 1000000.0);
+#else
+		CFR = PlugList[plugin].eventfunc(&CFP);
+
+		returnvalue = *(int *)(CFR->Value[0]);
+#endif
+
+		return returnvalue;
+	}
+	else
+	{
+		LOG(llevBug, "BUG: event object with unknown plugin: %s, plugin %s\n", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
+		me->event_flags &= ~(1 << event_type);
+	}
+#endif
+
+	return 0;
+}
+
 /*
  * See sounds.h for sound numbers
  */

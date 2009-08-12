@@ -659,10 +659,6 @@ void command_new_char(char *params, int len, player *pl)
 	object *op = pl->ob;
     int x = pl->ob->x, y = pl->ob->y;
 	int stats[7], i, v;
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
 	char name[HUGE_BUF] = "";
 	active_DMs *tmp_dm_list;
 
@@ -754,22 +750,14 @@ void command_new_char(char *params, int len, player *pl)
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 	/* this must before then initial items are given */
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
-#ifdef PLUGINS
-    /* GROS : Here we handle the BORN global event */
-    evtid = EVENT_BORN;
-    CFP.Value[0] = (void *)(&evtid);
-    CFP.Value[1] = (void *)(op);
-    GlobalEvent(&CFP);
 
-    /* GROS : We then generate a LOGIN event */
-    evtid = EVENT_LOGIN;
-    CFP.Value[0] = (void *)(&evtid);
-    CFP.Value[1] = (void *)(CONTR(op));
-    CFP.Value[2] = (void *)(CONTR(op)->socket.host);
-    GlobalEvent(&CFP);
-#endif
+	/* Trigger the global BORN event */
+	trigger_global_event(EVENT_BORN, op, NULL);
 
-	CONTR(op)->state=ST_PLAYING;
+	/* Trigger the global LOGIN event */
+	trigger_global_event(EVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
+
+	CONTR(op)->state = ST_PLAYING;
 	FREE_AND_CLEAR_HASH2(op->msg);
 
 #ifdef AUTOSAVE

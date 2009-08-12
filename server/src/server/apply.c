@@ -1070,38 +1070,12 @@ int esrv_apply_container (object *op, object *sack)
 	/* close container? */
 	if (cont) /* if cont != sack || cont == sack - in both cases we close cont */
 	{
-#ifdef PLUGINS
-		/* GROS: Handle for plugin close event */
-		if (cont->event_flags & EVENT_FLAG_CLOSE)
+		/* Trigger the CLOSE event */
+		if (trigger_event(EVENT_CLOSE, op, cont, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
 		{
-			CFParm CFP;
-			CFParm* CFR;
-			int k, l, m;
-			int rtn_script = 0;
-			object *event_obj = get_event_object(cont, EVENT_CLOSE);
-			m = 0;
-			k = EVENT_CLOSE;
-			l = SCRIPT_FIX_ALL;
-			CFP.Value[0] = &k;
-			CFP.Value[1] = op;
-			CFP.Value[2] = cont;
-			CFP.Value[3] = NULL;
-			CFP.Value[4] = NULL;
-			CFP.Value[5] = &m;
-			CFP.Value[6] = &m;
-			CFP.Value[7] = &m;
-			CFP.Value[8] = &l;
-			CFP.Value[9] = (char *)event_obj->race;
-			CFP.Value[10]= (char *)event_obj->slaying;
-			if (findPlugin(event_obj->name) >= 0)
-			{
-				CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-				rtn_script = *(int *)(CFR->Value[0]);
-				if (rtn_script != 0)
-					return 1;
-			}
+			return 1;
 		}
-#endif
+
 		if (container_unlink(CONTR(op), cont))
 			new_draw_info_format(NDI_UNIQUE, 0, op, "You close %s.", query_name(cont, op));
 		else
@@ -1455,39 +1429,13 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
   	if (trap->head)
 		trap = trap->head;
-#ifdef PLUGINS
-	/* GROS: Handle for plugin close event */
-	if (trap->event_flags & EVENT_FLAG_TRIGGER)
-	{
-		CFParm CFP;
-		CFParm* CFR;
-		int k, l, m;
-		int rtn_script = 0;
-		object *event_obj = get_event_object(trap, EVENT_TRIGGER);
-		m = 0;
 
-		k = EVENT_TRIGGER;
-		l = SCRIPT_FIX_NOTHING;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = victim;
-		CFP.Value[2] = trap;
-		CFP.Value[3] = originator;
-		CFP.Value[4] = NULL;
-		CFP.Value[5] = &m;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10]= (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-		{
-			CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-			rtn_script = *(int *)(CFR->Value[0]);
-			if (rtn_script != 0)
-				return;
-		}
+	/* Trigger the TRIGGER event */
+	if (trigger_event(EVENT_TRIGGER, victim, trap, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+	{
+		return;
 	}
-#endif
+
   	switch (trap->type)
   	{
 		/* these objects can trigger other objects connected to them.
@@ -1758,33 +1706,13 @@ static void apply_book(object *op, object *tmp)
 
     new_draw_info_format(NDI_UNIQUE, 0, op, "You open the %s and start reading.", tmp->name);
 
-#ifdef PLUGINS
-    /* GROS: Handle for plugin trigger event */
-    if (tmp->event_flags&EVENT_FLAG_APPLY)
+    if (tmp->event_flags & EVENT_FLAG_APPLY)
     {
-        CFParm CFP;
-        int k, l, m;
-		object *event_obj = get_event_object(tmp, EVENT_APPLY);
-        k = EVENT_APPLY;
-        l = SCRIPT_FIX_ALL;
-        m = 0;
-        CFP.Value[0] = &k;
-        CFP.Value[1] = op;
-        CFP.Value[2] = tmp;
-        CFP.Value[3] = NULL;
-        CFP.Value[4] = NULL;
-        CFP.Value[5] = &m;
-        CFP.Value[6] = &m;
-        CFP.Value[7] = &m;
-        CFP.Value[8] = &l;
-        CFP.Value[9] = (char *)event_obj->race;
-        CFP.Value[10]= (char *)event_obj->slaying;
-        if (findPlugin(event_obj->name) >= 0)
-            ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
+		/* Trigger the APPLY event */
+		trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL);
     }
     else
 	{
-#endif
 		SockList sl;
 		unsigned char sock_buf[MAXSOCKBUF];
 		sl.buf = sock_buf;
@@ -1793,9 +1721,7 @@ static void apply_book(object *op, object *tmp)
 		strcpy((char *)sl.buf + sl.len, tmp->msg);
 		sl.len += strlen(tmp->msg) + 1;
 		Send_With_Handling(&CONTR(op)->socket, &sl);
-#ifdef PLUGINS
 	}
-#endif
 
     /* gain xp from reading but only if not read before */
     if (!QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
@@ -2757,7 +2683,6 @@ int is_legal_2ways_exit(object* op, object *exit)
 
 int manual_apply(object *op, object *tmp, int aflag)
 {
-  	int rtn_script;
   	if (tmp->head)
 		tmp = tmp->head;
 
@@ -2788,41 +2713,11 @@ int manual_apply(object *op, object *tmp, int aflag)
   	if (op->type != PLAYER && tmp->type == TREASURE)
     	return 0;
 
-#ifdef PLUGINS
-	/* GROS: Handle for plugin trigger event */
-	if (tmp->event_flags & EVENT_FLAG_APPLY)
+	/* Trigger the APPLY event */
+	if (trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, &aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
-		CFParm CFP;
-		CFParm* CFR;
-		int k, l, m;
-		object *event_obj = get_event_object(tmp, EVENT_APPLY);
-		m = 0;
-		k = EVENT_APPLY;
-		/* change this from FIX_ALL. Perhaps we must
-		 * look which object types we have.
-		 * Applying a exit with FIX_ALL will break
-		 * the exit object */
-		l = SCRIPT_FIX_ACTIVATOR;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = op;
-		CFP.Value[2] = tmp;
-		CFP.Value[3] = NULL;
-		CFP.Value[4] = NULL;
-		CFP.Value[5] = &aflag;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10]= (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-		{
-			CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-			rtn_script = *(int *)(CFR->Value[0]);
-			if (rtn_script != 0)
-				return 1;
-		}
+		return 1;
 	}
-#endif
 
     /* control apply by controling a set exp object level or player exp level */
     if (tmp->item_level)

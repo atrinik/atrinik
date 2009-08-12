@@ -1003,34 +1003,9 @@ void stop_arrow(object *op)
 		remove_ob(payload);
 		check_walk_off(payload, NULL, MOVE_APPLY_VANISHED);
 
-#ifdef PLUGINS
-		/* GROS: Handle for plugin stop event */
-		if (payload->event_flags & EVENT_FLAG_STOP)
-		{
-			CFParm CFP;
-			int k, l, m;
-			object *event_obj = get_event_object(payload, EVENT_STOP);
-			k = EVENT_STOP;
-			l = SCRIPT_FIX_NOTHING;
-			m = 0;
-			CFP.Value[0] = &k;
-			CFP.Value[1] = NULL;
-			CFP.Value[2] = payload;
-			CFP.Value[3] = op;
-			CFP.Value[4] = NULL;
-			CFP.Value[5] = &m;
-			CFP.Value[6] = &m;
-			CFP.Value[7] = &m;
-			CFP.Value[8] = &l;
-			CFP.Value[9] = (char *)event_obj->race;
-			CFP.Value[10] = (char *)event_obj->slaying;
+		/* Trigger the STOP event */
+		trigger_event(EVENT_STOP, NULL, payload, op, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
 
-			if (findPlugin(event_obj->name) >= 0)
-			{
-				((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-			}
-		}
-#endif
 		/* we have a thrown potion here.
 		 * This potion has NOT hit a target.
 		 * it has hitten a wall or just dropped to the ground.
@@ -1415,42 +1390,12 @@ void move_teleporter(object *op)
 		/* teleport to different map */
 		if (EXIT_PATH(op))
 		{
-#ifdef PLUGINS
-			/* GROS: Handle for plugin TRIGGER event */
-			if (op->event_flags & EVENT_FLAG_TRIGGER)
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
 			{
-				CFParm CFP;
-				CFParm* CFR;
-				int k, l, m;
-				int rtn_script = 0;
-				object *event_obj = get_event_object(op, EVENT_TRIGGER);
-				m = 0;
-				k = EVENT_TRIGGER;
-				l = SCRIPT_FIX_NOTHING;
-				CFP.Value[0] = &k;
-				/* activator first */
-				CFP.Value[1] = tmp;
-				/* thats whoisme */
-				CFP.Value[2] = op;
-				CFP.Value[3] = NULL;
-				CFP.Value[4] = NULL;
-				CFP.Value[5] = &m;
-				CFP.Value[6] = &m;
-				CFP.Value[7] = &m;
-				CFP.Value[8] = &l;
-				CFP.Value[9] = (char *)event_obj->race;
-				CFP.Value[10]= (char *)event_obj->slaying;
-
-				if (findPlugin(event_obj->name) >= 0)
-				{
-					CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-					rtn_script = *(int *)(CFR->Value[0]);
-				}
-
-				if (rtn_script != 0)
-					return;
+				return;
 			}
-#endif
+
 			enter_exit(tmp, op);
 		}
 		/* teleport inside this map */
@@ -1465,77 +1410,24 @@ void move_teleporter(object *op)
 				return;
 			}
 
-#ifdef PLUGINS
-			/* GROS: Handle for plugin TRIGGER event */
-			if (op->event_flags & EVENT_FLAG_TRIGGER)
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
 			{
-				CFParm CFP;
-				CFParm* CFR;
-				int k, l,m;
-				int rtn_script = 0;
-				object *event_obj = get_event_object(op, EVENT_TRIGGER);
-				m = 0;
-				k = EVENT_TRIGGER;
-				l = SCRIPT_FIX_NOTHING;
-				CFP.Value[0] = &k;
-				CFP.Value[1] = tmp;
-				CFP.Value[2] = op;
-				CFP.Value[3] = NULL;
-				CFP.Value[4] = NULL;
-				CFP.Value[5] = &m;
-				CFP.Value[6] = &m;
-				CFP.Value[7] = &m;
-				CFP.Value[8] = &l;
-				CFP.Value[9] = (char *)event_obj->race;
-				CFP.Value[10]= (char *)event_obj->slaying;
-				if (findPlugin(event_obj->name) >= 0)
-				{
-					CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-					rtn_script = *(int *)(CFR->Value[0]);
-				}
-				if (rtn_script != 0)
-					return;
+				return;
 			}
-#endif
+
 			transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
 		 }
 		else
 		{
 			/* Random teleporter */
-#ifdef PLUGINS
-			/* GROS: Handle for plugin TRIGGER event */
-			if (op->event_flags & EVENT_FLAG_TRIGGER)
+
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
 			{
-				CFParm CFP;
-				CFParm* CFR;
-				int k, l, m;
-				int rtn_script = 0;
-				object *event_obj = get_event_object(op, EVENT_TRIGGER);
-				m = 0;
-				k = EVENT_TRIGGER;
-				l = SCRIPT_FIX_NOTHING;
-				CFP.Value[0] = &k;
-				CFP.Value[1] = op;
-				CFP.Value[2] = tmp;
-				CFP.Value[3] = NULL;
-				CFP.Value[4] = NULL;
-				CFP.Value[5] = &m;
-				CFP.Value[6] = &m;
-				CFP.Value[7] = &m;
-				CFP.Value[8] = &l;
-				CFP.Value[9] = (char *)event_obj->race;
-				CFP.Value[10] = (char *)event_obj->slaying;
-
-				if (findPlugin(event_obj->name) >= 0)
-				{
-					CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-					rtn_script = *(int *)(CFR->Value[0]);
-				}
-
-				if (rtn_script != 0)
-					return;
+				return;
 			}
-#endif
+
 			teleport(op, TELEPORTER, tmp);
 		}
 	}
@@ -1833,33 +1725,8 @@ int process_object(object *op)
 
 	process_object_dirty_jump:
 
-	/* i don't like this script object here ..
-	 * this is *the* core loop.*/
-#ifdef PLUGINS
-	/* GROS: Handle for plugin time event */
-	if (op->event_flags & EVENT_FLAG_TIME)
-	{
-		CFParm CFP;
-		int k, l, m;
-		object *event_obj = get_event_object(op, EVENT_TIME);
-		k = EVENT_TIME;
-		l = SCRIPT_FIX_NOTHING;
-		m = 0;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = NULL;
-		CFP.Value[2] = op;
-		CFP.Value[3] = NULL;
-		CFP.Value[4] = NULL;
-		CFP.Value[5] = &m;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10] = (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-			((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-	}
-#endif
+	/* Trigger the TIME event */
+	trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
 
 	switch (op->type)
 	{

@@ -304,7 +304,7 @@ EXTERN int num_animations, animations_allocated, bmaps_checksum;
 
 #define STRING_ARCH_NAME(__arch__) ((__arch__)->name?(__arch__)->name:">NULL<")
 
-#define STRING_OBJ_NAME(__ob__) ((__ob__)->name?(__ob__)->name:">NULL<")
+#define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name?(__ob__)->name:">NULL<")
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch?((__ob__)->arch->name?(__ob__)->arch->name:">NULL<"):">NULL<")
 #define STRING_OBJ_TITLE(__ob__) ((__ob__)->title?(__ob__)->title:">NULL<")
 #define STRING_OBJ_RACE(__ob__) ((__ob__)->race?(__ob__)->race:">NULL<")

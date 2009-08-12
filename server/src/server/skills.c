@@ -1199,34 +1199,11 @@ int write_note(object *pl, object *item, char *msg)
 		return 0;
 	}
 
-#ifdef PLUGINS
-	/* GROS: Handle for plugin book writing (trigger) event */
-	if (item->event_flags & EVENT_FLAG_TRIGGER)
+	/* Trigger the TRIGGER event */
+	if (trigger_event(EVENT_TRIGGER, pl, item, NULL, msg, 0, 0, 0, SCRIPT_FIX_NOTHING))
 	{
-		CFParm CFP;
-		int k, l, m;
-		object *event_obj = get_event_object(item, EVENT_TRIGGER);
-		k = EVENT_TRIGGER;
-		l = SCRIPT_FIX_NOTHING;
-		m = 0;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = pl;
-		CFP.Value[2] = item;
-		CFP.Value[3] = NULL;
-		CFP.Value[4] = msg;
-		CFP.Value[5] = &m;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10] = (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-		{
-			((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-			return strlen(msg);
-		}
+		return 0;
 	}
-#endif
 
 	/* add msg string to book */
   	if (!book_overflow(item->msg, msg, BOOK_BUF))
@@ -2112,36 +2089,8 @@ void do_throw(object *op, object *toss_item, int dir)
 
     play_sound_map(op->map, op->x, op->y, SOUND_THROW, SOUND_NORMAL);
 
-#ifdef PLUGINS
-    /* Gecko: Had to make sure the thrown object inherited event objects +
-     * that the event gets called on the correct item (the thrown item).
-     * I added the wrapper object as a the Other() value. */
-	/* GROS - Now we can call the associated script_throw event (if any) */
-    if (throw_ob->event_flags & EVENT_FLAG_THROW)
-    {
-        CFParm CFP;
-        int k, l, m;
-        object *event_obj = get_event_object(throw_ob->inv, EVENT_THROW);
-        k = EVENT_THROW;
-        l = SCRIPT_FIX_ACTIVATOR;
-        m = 0;
-        CFP.Value[0] = &k;
-        CFP.Value[1] = op;
-        /* The actual weapon */
-        CFP.Value[2] = throw_ob->inv;
-        /* The "carrier" wrapper */
-        CFP.Value[3] = throw_ob;
-        CFP.Value[4] = NULL;
-        CFP.Value[5] = &m;
-        CFP.Value[6] = &m;
-        CFP.Value[7] = &m;
-        CFP.Value[8] = &l;
-        CFP.Value[9] = (char *)event_obj->race;
-        CFP.Value[10] = (char *)event_obj->slaying;
-        if (findPlugin(event_obj->name) >= 0)
-            ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-    }
-#endif
+	/* Trigger the THROW event */
+	trigger_event(EVENT_THROW, op, throw_ob->inv, throw_ob, NULL, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 
 #ifdef DEBUG_THROW
     LOG(llevDebug, " pause_f=%d \n", pause_f);

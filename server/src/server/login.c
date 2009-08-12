@@ -518,10 +518,7 @@ void check_login(object *op)
 	object *tmp, *tmp2;
 	sqlite3 *db;
 	sqlite3_stmt *statement;
-#ifdef PLUGINS
-    CFParm CFP;
-    int evtid;
-#endif
+
     strcpy(pl->maplevel, first_map_path);
 
 	/* a good point to add this i to a 10 minute temp ban...
@@ -960,14 +957,8 @@ void check_login(object *op)
 		}
 	}
 
-#ifdef PLUGINS
-    /* GROS : Here we handle the LOGIN global event */
-    evtid = EVENT_LOGIN;
-    CFP.Value[0] = (void *)(&evtid);
-    CFP.Value[1] = (void *)(pl);
-    CFP.Value[2] = (void *)(pl->socket.host);
-    GlobalEvent(&CFP);
-#endif
+	/* Trigger the global LOGIN event */
+	trigger_global_event(EVENT_LOGIN, pl, pl->socket.host);
 
 #ifdef ENABLE_CHECKSUM
     LOG(llevDebug, "Checksums: %x %x\n", checksum, calculate_checksum(filename, 1));

@@ -365,39 +365,11 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
     new_draw_info(NDI_UNIQUE, 0, pl, buf);
     tmp = insert_ob_in_ob(tmp, op);
 
-#ifdef PLUGINS
-      /* Gecko: Copied from drop_object */
-      /* GROS: Handle for plugin drop event */
-	if (tmp->event_flags & EVENT_FLAG_PICKUP)
-    {
-        CFParm CFP;
-        CFParm *CFR;
-        int k, l, m, rtn_script;
-		object *event_obj = get_event_object(tmp, EVENT_PICKUP);
-        m = 0;
-        k = EVENT_PICKUP;
-        l = SCRIPT_FIX_ALL;
-        CFP.Value[0] = &k;
-        CFP.Value[1] = pl; /* Gecko: We want the player/monster not the container (?) */
-        CFP.Value[2] = tmp;
-        CFP.Value[3] = op; /* Gecko: Container id goes here */
-        CFP.Value[4] = NULL;
-        CFP.Value[5] = &tmp_nrof; /* nr of objects */
-        CFP.Value[6] = &m;
-        CFP.Value[7] = &m;
-        CFP.Value[8] = &l;
-        CFP.Value[9] = (char *)event_obj->race;
-        CFP.Value[10]= (char *)event_obj->slaying;
-        if (findPlugin(event_obj->name)>=0)
-        {
-          	CFR = ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-          	rtn_script = *(int *)(CFR->Value[0]);
-          	/* Gecko: don't know why this is here, but it looks like it can mess things up... */
-          	if (rtn_script != 0)
-				return;
-        }
-    }
-#endif
+	/* Trigger the PICKUP event */
+	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, (int *) tmp_nrof, 0, 0, SCRIPT_FIX_ALL))
+	{
+		return;
+	}
 
     /* All the stuff below deals with client/server code, and is only
      * usable by players */
@@ -740,37 +712,13 @@ void drop_object(object *op, object *tmp, long nrof)
 	  	if (check_walk_off(tmp, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
 			return;
 	}
-#ifdef PLUGINS
-    /* GROS: Handle for plugin drop event */
-    if (tmp->event_flags&EVENT_FLAG_DROP)
-    {
-        CFParm CFP;
-        CFParm *CFR;
-        int k, l, m, rtn_script;
-		object *event_obj = get_event_object(tmp, EVENT_DROP);
-        m = 0;
-        k = EVENT_DROP;
-        l = SCRIPT_FIX_ALL;
-        CFP.Value[0] = &k;
-        CFP.Value[1] = op;
-        CFP.Value[2] = tmp;
-        CFP.Value[3] = NULL;
-        CFP.Value[4] = NULL;
-        CFP.Value[5] = &nrof; /* Gecko: Moved nrof to numeric arg to avoid problems */
-        CFP.Value[6] = &m;
-        CFP.Value[7] = &m;
-        CFP.Value[8] = &l;
-        CFP.Value[9] = (char *)event_obj->race;
-        CFP.Value[10]= (char *)event_obj->slaying;
-        if (findPlugin(event_obj->name) >= 0)
-        {
-          	CFR = ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-          	rtn_script = *(int *)(CFR->Value[0]);
-          	if (rtn_script != 0)
-				return;
-        }
-    }
-#endif
+
+	/* Trigger the DROP event */
+	if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, (int *) nrof, 0, 0, SCRIPT_FIX_ALL))
+	{
+		return;
+	}
+
     if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
 	{
       	if (op->type == PLAYER)

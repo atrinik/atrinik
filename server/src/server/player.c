@@ -1406,12 +1406,6 @@ void kill_player(object *op)
     int lost_a_stat;
     int lose_this_stat;
     int this_stat;
-#ifdef PLUGINS
-	/* GROS: For script return value */
-    int killed_script_rtn;
-    CFParm CFP;
-    int evtid;
-#endif
 
     if (save_life(op))
 		return;
@@ -1451,44 +1445,14 @@ void kill_player(object *op)
         return;
     }
 
-#ifdef PLUGINS
-	/* GROS: Handle for plugin death event */
-	if (op->event_flags & EVENT_FLAG_DEATH)
+	/* Trigger the DEATH event */
+	if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
 	{
-		CFParm* CFR;
-		int k, l, m;
-		object *event_obj = get_event_object(op, EVENT_DEATH);
-		k = EVENT_DEATH;
-		l = SCRIPT_FIX_ALL;
-		m = 0;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = NULL;
-		CFP.Value[2] = op;
-		CFP.Value[3] = NULL;
-		CFP.Value[4] = NULL;
-		CFP.Value[5] = &m;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10]= (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-		{
-			CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-			killed_script_rtn = *(int *)(CFR->Value[0]);
-			free(CFR);
-			if (killed_script_rtn)
-				return;
-		}
+		return;
 	}
 
-	/* GROS: Handle for the global death event */
-	evtid = EVENT_GDEATH;
-	CFP.Value[0] = (void *)(&evtid);
-	CFP.Value[1] = NULL;
-	CFP.Value[2] = (void *)(op);
-	GlobalEvent(&CFP);
-#endif
+	/* Trigger the global GDEATH event */
+	trigger_global_event(EVENT_GDEATH, NULL, op);
 
     if (op->stats.food < 0)
     {

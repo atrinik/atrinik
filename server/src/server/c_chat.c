@@ -123,10 +123,7 @@ int command_dmsay(object *op, char *params)
 int command_shout(object *op, char *params)
 {
     char buf[MAX_BUF];
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
+
     if (!params)
 		return 0;
 
@@ -142,14 +139,9 @@ int command_shout(object *op, char *params)
     strncat(buf, params, MAX_BUF - 30);
     buf[MAX_BUF - 30] = '\0';
     new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE, 1, NULL, buf);
-#ifdef PLUGINS
-    /* GROS : Here we handle the SHOUT global event */
-    evtid = EVENT_SHOUT;
-    CFP.Value[0] = (void *)(&evtid);
-    CFP.Value[1] = (void *)(op);
-    CFP.Value[2] = (void *)(params);
-    GlobalEvent(&CFP);
-#endif
+
+	/* Trigger the global SHOUT event */
+	trigger_global_event(EVENT_SHOUT, op, params);
 
     return 1;
 }

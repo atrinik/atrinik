@@ -253,10 +253,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	int i = 0;
 	object *tmp;
     mapstruct *oldmap = op->map;
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
 
 	if (op->head)
 	{
@@ -307,16 +303,11 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			return;
 	}
 
-#ifdef PLUGINS
     if (op->map != NULL && op->type == PLAYER && !op->head && MAP_PLUGINS(op->map))
     {
-    	/* GROS : Here we handle the MAPLEAVE global event */
-    	evtid = EVENT_MAPLEAVE;
-    	CFP.Value[0] = (void *)(&evtid);
-    	CFP.Value[1] = (void *)(op);
-    	GlobalEvent(&CFP);
+		/* Trigger the global MAPLEAVE event */
+		trigger_global_event(EVENT_MAPLEAVE, op, NULL);
     }
-#endif
 
 	/* set single or all part of a multi arch */
 	for(tmp = op; tmp != NULL; tmp = tmp->more)
@@ -330,16 +321,11 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	if (!insert_ob_in_map(op, newmap, NULL, 0))
 		return;
 
-/* GROS : Here we handle the MAPENTER global event */
-#ifdef PLUGINS
 	if (MAP_PLUGINS(newmap))
 	{
-		evtid = EVENT_MAPENTER;
-		CFP.Value[0] = (void *)(&evtid);
-		CFP.Value[1] = (void *)(op);
-		GlobalEvent(&CFP);
+		/* Trigger the global MAPENTER event */
+		trigger_global_event(EVENT_MAPENTER, op, NULL);
 	}
-#endif
 
     newmap->timeout = 0;
 
@@ -1558,10 +1544,8 @@ int main(int argc, char **argv)
 			cftimer_process_timers();
 
 #ifdef PLUGINS_X
-			/* GROS : Here we handle the CLOCK global event */
-			evtid = EVENT_CLOCK;
-			CFP.Value[0] = (void *)(&evtid);
-			GlobalEvent(&CFP);
+			/* Trigger the global CLOCK event */
+			trigger_global_event(EVENT_CLOCK, NULL, NULL);
 #endif
 
 			/* Removes unused maps after a certain timeout */

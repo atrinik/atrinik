@@ -913,7 +913,7 @@ MODULEAPI int HandleEvent(CFParm* PParm)
 {
 #ifdef PYTHON_DEBUG
     plugin_log(llevDebug, "PYTHON - HandleEvent:: start script file >%s<\n",(char *)(PParm->Value[9]));
-    plugin_log(llevDebug, "PYTHON - call data:: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", query_name((object *)(PParm->Value[1]), NULL), query_name((object *)(PParm->Value[2]), NULL), query_name((object *)(PParm->Value[3]), NULL), (char *)(PParm->Value[4]) != NULL ? (char *)(PParm->Value[4]) : "<null>", *(int *)(PParm->Value[5]), *(int *)(PParm->Value[6]), *(int *)(PParm->Value[7]), *(int *)(PParm->Value[8]), StackPosition);
+    plugin_log(llevDebug, "PYTHON - call data:: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", STRING_OBJ_NAME((object *)(PParm->Value[1])), STRING_OBJ_NAME((object *)(PParm->Value[2])), STRING_OBJ_NAME((object *)(PParm->Value[3])), STRING_SAFE((char *)(PParm->Value[4])), PParm->Value[5] ? *(int *)(PParm->Value[5]) : 0, PParm->Value[6] ? *(int *)(PParm->Value[6]) : 0, PParm->Value[7] ? *(int *)(PParm->Value[7]) : 0, PParm->Value[8] ? *(int *)(PParm->Value[8]) : 0, StackPosition);
 #endif
 
     if (StackPosition == MAX_RECURSIVE_CALL)
@@ -926,12 +926,12 @@ MODULEAPI int HandleEvent(CFParm* PParm)
     StackActivator[StackPosition] = (object *)(PParm->Value[1]);
     StackWho[StackPosition] = (object *)(PParm->Value[2]);
     StackOther[StackPosition] = (object *)(PParm->Value[3]);
-    StackText[StackPosition] = (char *)(PParm->Value[4]);
-    StackParm1[StackPosition] = *(int *)(PParm->Value[5]);
-    StackParm2[StackPosition] = *(int *)(PParm->Value[6]);
-    StackParm3[StackPosition] = *(int *)(PParm->Value[7]);
-    StackParm4[StackPosition] = *(int *)(PParm->Value[8]);
-    StackOptions[StackPosition] = (char *)(PParm->Value[10]);
+    StackText[StackPosition] = PParm->Value[4] ? (char *)(PParm->Value[4]) : NULL;
+    StackParm1[StackPosition] = PParm->Value[5] ? *(int *)(PParm->Value[5]) : 0;
+    StackParm2[StackPosition] = PParm->Value[6] ? *(int *)(PParm->Value[6]) : 0;
+    StackParm3[StackPosition] = PParm->Value[7] ? *(int *)(PParm->Value[7]) : 0;
+    StackParm4[StackPosition] = PParm->Value[8] ? *(int *)(PParm->Value[8]) : 0;
+    StackOptions[StackPosition] = PParm->Value[10] ? (char *)(PParm->Value[10]) : NULL;
     StackReturn[StackPosition] = 0;
 
     if (RunPythonScript((char *)(PParm->Value[9])))

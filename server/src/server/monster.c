@@ -764,39 +764,11 @@ void waypoint_move(object *op, object *waypoint)
             LOG(llevDebug, "move_waypoint(): '%s' reached destination '%s'\n", op->name, waypoint->name);
 #endif
 
-#ifdef PLUGINS
-            /* GROS: Handle for plugin trigger event */
-            if (waypoint->event_flags & EVENT_FLAG_TRIGGER)
-            {
-                CFParm CFP;
-                CFParm* CFR;
-                int k, l, m;
-                int rtn_script = 0;
-                object *event_obj = get_event_object(waypoint, EVENT_TRIGGER);
-                m = 0;
-
-                k = EVENT_TRIGGER;
-                l = SCRIPT_FIX_NOTHING;
-                CFP.Value[0] = &k;
-                CFP.Value[1] = op;
-                CFP.Value[2] = waypoint;
-                CFP.Value[3] = NULL;
-                CFP.Value[4] = NULL;
-                CFP.Value[5] = &m;
-                CFP.Value[6] = &m;
-                CFP.Value[7] = &m;
-                CFP.Value[8] = &l;
-                CFP.Value[9] = (char *)event_obj->race;
-                CFP.Value[10]= (char *)event_obj->slaying;
-                if (findPlugin(event_obj->name) >= 0)
-                {
-                    CFR = (PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP);
-                    rtn_script = *(int *)(CFR->Value[0]);
-                    if (rtn_script != 0)
-						return;
-                }
-            }
-#endif
+            /* Trigger the TRIGGER event*/
+			if (trigger_event(EVENT_TRIGGER, op, waypoint, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+			{
+				return;
+			}
         }
 
         /* Waiting at this WP? */
@@ -2004,41 +1976,11 @@ void monster_check_pickup(object *monster)
 
 			tmp = insert_ob_in_ob(tmp, monster);
 
-#ifdef PLUGINS
-			/* Gecko: Copied from drop_object */
-			/* GROS: Handle for plugin drop event */
-			if (tmp->event_flags & EVENT_FLAG_PICKUP)
+			/* Trigger the PICKUP event */
+			if (trigger_event(EVENT_PICKUP, monster, tmp, monster, NULL, (int *) tmp->nrof, 0, 0, SCRIPT_FIX_ALL))
 			{
-				CFParm CFP;
-				CFParm *CFR;
-				int k, l, m, rtn_script;
-				object *event_obj = get_event_object(tmp, EVENT_PICKUP);
-				m = 0;
-				k = EVENT_PICKUP;
-				l = SCRIPT_FIX_ALL;
-				CFP.Value[0] = &k;
-				CFP.Value[1] = monster;
-				CFP.Value[2] = tmp;
-				/* No container...*/
-				CFP.Value[3] = monster;
-				CFP.Value[4] = NULL;
-				/* nr of objects */
-				CFP.Value[5] = &tmp->nrof;
-				CFP.Value[6] = &m;
-				CFP.Value[7] = &m;
-				CFP.Value[8] = &l;
-				CFP.Value[9] = (char *)event_obj->race;
-				CFP.Value[10]= (char *)event_obj->slaying;
-				if (findPlugin(event_obj->name) >= 0)
-				{
-					CFR = ((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-					rtn_script = *(int *)(CFR->Value[0]);
-					/* Gecko: don't know why this is here, but it looks like it can mess things up... */
-					if (rtn_script != 0)
-						return;
-				}
+				return;
 			}
-#endif
 
 			(void) monster_check_apply(monster, tmp);
 		}
@@ -2796,77 +2738,31 @@ void communicate(object *op, char *txt)
 int talk_to_npc(object *op, object *npc, char *txt)
 {
 	msglang *msgs;
-	int i,j;
+	int i, j;
 	object *cobj;
-#ifdef PLUGINS
-	/* GROS: Handle for plugin say event */
+
 	if (npc->event_flags & EVENT_FLAG_SAY)
 	{
-		CFParm CFP;
-		int k, l, m;
-		object *event_obj = get_event_object(npc, EVENT_SAY);
-		k = EVENT_SAY;
-		l = SCRIPT_FIX_ACTIVATOR;
-		m = 0;
-		CFP.Value[0] = &k;
-		CFP.Value[1] = op;
-		CFP.Value[2] = npc;
-		CFP.Value[3] = NULL;
-		CFP.Value[4] = txt;
-		CFP.Value[5] = &m;
-		CFP.Value[6] = &m;
-		CFP.Value[7] = &m;
-		CFP.Value[8] = &l;
-		CFP.Value[9] = (char *)event_obj->race;
-		CFP.Value[10]= (char *)event_obj->slaying;
-		if (findPlugin(event_obj->name) >= 0)
-		{
-			((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-			return 0;
-		}
+		/* Trigger the SAY event */
+		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
+
+		return 0;
 	}
 
-	/* Gecko: FIXME: if the python is not loaded the if() { ...; return 0; } will not
-	 * be executed above and the server will crash on the code below. I'm not really
-	 * sure why, but it should be investigated. I added some verification code below
-	 * to catch the error. */
-
-	/* GROS - Here we let the objects inside inventories hear and answer, too. */
-	/* This allows the existence of "intelligent" weapons you can discuss with */
+	/* Here we let the objects inside inventories hear and answer, too.
+	 * This allows the existence of "intelligent" weapons you can discuss with. */
 	for (cobj = npc->inv; cobj != NULL; )
 	{
 		if (cobj->event_flags & EVENT_FLAG_SAY)
 		{
-			CFParm CFP;
-			int k, l, m;
-			object *event_obj = get_event_object(cobj, EVENT_SAY);
-			k = EVENT_SAY;
-			l = SCRIPT_FIX_ALL;
-			m = 0;
-			CFP.Value[0] = &k;
-			CFP.Value[1] = op;
-			CFP.Value[2] = cobj;
-			CFP.Value[3] = npc;
-			CFP.Value[4] = txt;
-			CFP.Value[5] = &m;
-			CFP.Value[6] = &m;
-			CFP.Value[7] = &m;
-			CFP.Value[8] = &l;
-			CFP.Value[9] = event_obj ? (char *)event_obj->race : "<null>";
-			CFP.Value[10] = event_obj ? (char *)event_obj->slaying : "<null>";
-			if (event_obj && findPlugin(event_obj->name) >= 0)
-			{
-				((PlugList[findPlugin(event_obj->name)].eventfunc) (&CFP));
-				return 0;
-			}
-			else
-			{
-				LOG(llevBug,"BUG: talk_to_npc(): An object (%s) had an event flag but no event object (SAY).\n", cobj->name);
-			}
+			/* Trigger the SAY event */
+			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
+
+			return 0;
 		}
+
 		cobj = cobj->below;
 	}
-#endif
 
 	if (npc->msg == NULL || *npc->msg != '@')
 	{

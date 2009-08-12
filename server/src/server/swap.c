@@ -123,10 +123,6 @@ void read_map_log()
 void swap_map(mapstruct *map, int force_flag)
 {
 	int i;
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
 
 	/*LOG(llevDebug, "Check map for swapping: %s. (players:%d) (%d)\n", map->path, players_on_map(map) , force_flag);*/
 
@@ -169,16 +165,11 @@ void swap_map(mapstruct *map, int force_flag)
 
 		LOG(llevDebug, "Resetting1 map %s.\n", map->path);
 
-/* GROS : Here we handle the MAPRESET global event */
-#ifdef PLUGINS
 		if (MAP_PLUGINS(map))
 		{
-			evtid = EVENT_MAPRESET;
-			CFP.Value[0] = (void *)(&evtid);
-			CFP.Value[1] = (void *)(map->path);
-			GlobalEvent(&CFP);
+			/* Trigger the global MAPRESET event */
+			trigger_global_event(EVENT_MAPRESET, (void *) map->path, NULL);
 		}
-#endif
 
 		map = map->next;
 		delete_map(oldmap);
@@ -294,10 +285,7 @@ void flush_old_maps()
 {
     mapstruct *m, *oldmap;
     long sec;
-#ifdef PLUGINS
-    int evtid;
-    CFParm CFP;
-#endif
+
     sec = seconds();
 
     m = first_map;
@@ -334,16 +322,12 @@ void flush_old_maps()
 		{
 		    LOG(llevDebug, "Resetting3 map %s.\n", m->path);
 
-/* GROS : Here we handle the MAPRESET global event */
-#ifdef PLUGINS
 			if (MAP_PLUGINS(m))
 			{
-				evtid = EVENT_MAPRESET;
-				CFP.Value[0] = (void *)(&evtid);
-				CFP.Value[1] = (void *)(m->path);
-				GlobalEvent(&CFP);
+				/* Trigger the global MAPRESET event */
+				trigger_global_event(EVENT_MAPRESET, (void *) m->path, NULL);
 			}
-#endif
+
 			clean_tmp_map(m);
 			oldmap = m;
 			m = m->next;
