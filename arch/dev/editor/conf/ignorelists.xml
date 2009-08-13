@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE ignorelists PUBLIC "-//Atrinik//DTD Types 1.0//EN" "types.dtd">
 <ignorelists>
+<!-- This ignorelist is for all system objects which are non pickable
+     and invisible. They don't interact with players at all. -->
 <ignore_list name="system_object">
-<attribute arch="value" />
-<attribute arch="nrof" />
-<attribute arch="sub_type" />
-<attribute arch="weight" />
-<attribute arch="material" />
-<attribute arch="material_real" />
-<attribute arch="no_pick" />
-<attribute arch="unpaid" />
-<attribute arch="title" />
-<attribute arch="glow_radius" />
-<attribute arch="identified" />
-<attribute arch="blocksview" />
-<attribute arch="is_invisible" />
+  <attribute arch="value" />
+  <attribute arch="nrof" />
+  <attribute arch="sub_type" />
+  <attribute arch="weight" />
+  <attribute arch="material" />
+  <attribute arch="material_real" />
+  <attribute arch="no_pick" />
+  <attribute arch="unpaid" />
+  <attribute arch="title" />
+  <attribute arch="glow_radius" />
+  <attribute arch="identified" />
+  <attribute arch="blocksview" />
+  <attribute arch="is_invisible" />
 </ignore_list>
 
 <!-- This ignorelist is for non-pickable objects. They can be seen by
-- the player, but don't have values like material or weight.
--->
+     the player, but don't have values like material or weight. -->
 <ignore_list name="non_pickable">
-<attribute arch="value" />
-<attribute arch="nrof" />
-<attribute arch="weight" />
-<attribute arch="material" />
-<attribute arch="material_real" />
-<attribute arch="no_pick" />
-<attribute arch="unpaid" />
-<attribute arch="title" />
-<attribute arch="identified" />
+  <attribute arch="value" />
+  <attribute arch="nrof" />
+  <attribute arch="weight" />
+  <attribute arch="material" />
+  <attribute arch="material_real" />
+  <attribute arch="no_pick" />
+  <attribute arch="unpaid" />
+  <attribute arch="title" />
+  <attribute arch="identified" />
 </ignore_list>
 
 <!-- This ignorelist is for all objects. We handle here some very
-- special stuff. Note: This values has the same meaning for *ALL*
-- object type - they are handled always in the same way.
-- NOTE: "direction" is hard coded excluded from syntax check
-- in the ArchObject.java module
--->
+     special stuff. Note: This values has the same meaning for *ALL*
+     object type - they are handled always in the same way.
+     NOTE: "direction" is hard coded excluded from syntax check
+     in the ArchObject.java module  -->
 <ignore_list name="default_setting">
-<attribute arch="xxxx" />
+  <attribute arch="xxxx" />
 </ignore_list>
 </ignorelists>
