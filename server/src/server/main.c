@@ -1199,69 +1199,6 @@ void cleanup()
     exit(0);
 }
 
-/**
- * Player leaves the game.
- *
- * Called from remove_ns_dead_player().
- * @param pl The player leaving
- * @param draw_exit Unused
- * @todo Perhaps merge this with remove_ns_dead_player() as there
- * appears to be some duplicated code already, and
- * remove_ns_dead_player() is always called to logout a player? */
-void leave(player *pl, int draw_exit)
-{
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	(void) draw_exit;
-
-    if (pl != NULL)
-	{
-		/* We do this so that the socket handling routine can do the final
-		 * cleanup.  We also leave that loop to actually handle the freeing
-		 * of the data. */
-
-		/* Open database */
-		db_open(DB_DEFAULT, &db);
-
-		/* If we fail to prepare, don't return.
-		 * Log an error message, however. */
-		if (db_prepare_format(db, &statement, "UPDATE players SET playing = 0 WHERE playerName = '%s';", pl->ob->name))
-		{
-			/* Run the query */
-			db_step(statement);
-
-			/* Finalize it */
-			db_finalize(statement);
-		}
-		else
-			LOG(llevBug, "BUG: leave(): SQL query failed to make update player status for %s! (%s)\n", pl->ob->name, db_errmsg(db));
-
-		/* Close the database */
-		db_close(db);
-
-  		/* be sure we have closed container when we leave */
-  		container_unlink(pl, NULL);
-
-		/* all player should be on friendly list - remove then */
-		if (pl->ob->type == PLAYER)
-			remove_friendly_object(pl->ob);
-
-		pl->socket.status = Ns_Dead;
-		LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
-
-		if (pl->ob->map)
-		{
-			if (pl->ob->map->in_memory == MAP_IN_MEMORY)
-				pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
-
-			pl->ob->map = NULL;
-		}
-
-		/* To avoid problems with inventory window */
-		pl->ob->type = DEAD_OBJECT;
-    }
-}
-
 void dequeue_path_requests()
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING

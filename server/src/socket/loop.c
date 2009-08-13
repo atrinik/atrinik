@@ -294,10 +294,14 @@ void watchdog(void)
 static void remove_ns_dead_player(player *pl)
 {
 	active_DMs *tmp_dm_list;
+	sqlite3 *db;
+	sqlite3_stmt *statement;
 
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+	{
 		remove_active_DM(&dm_list, pl->ob);
+	}
 
 	/* Trigger the global LOGOUT event */
 	trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
@@ -310,15 +314,21 @@ static void remove_ns_dead_player(player *pl)
 		for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
 
 		for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
+		{
 			new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->op, "%s leaves the game (%d still playing).", query_name(pl->ob, NULL), players - 1);
+		}
 	}
 
+	/* If this player is in a party, leave the party */
 	if (pl->party_number != -1)
+	{
 		command_party(pl->ob, "leave");
+	}
 
 	strncpy(pl->killer, "left", MAX_BUF - 1);
 	check_score(pl->ob, 1);
 
+	/* Be sure we have closed container when we leave */
 	container_unlink(pl, NULL);
 
 	save_player(pl->ob, 0);
@@ -329,8 +339,52 @@ static void remove_ns_dead_player(player *pl)
 		leave_map(pl->ob);
 	}
 
-    LOG(llevDebug, "remove_ns_dead_player(): %s leaving\n", STRING_OBJ_NAME(pl->ob));
-	leave(pl, 1);
+	LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
+
+	if (pl == NULL)
+	{
+		return;
+	}
+
+	/* Open database */
+	db_open(DB_DEFAULT, &db);
+
+	/* If we fail to prepare, don't return.
+	 * Log an error message, however. */
+	if (db_prepare_format(db, &statement, "UPDATE players SET playing = 0 WHERE playerName = '%s';", pl->ob->name))
+	{
+		/* Run the query */
+		db_step(statement);
+
+		/* Finalize it */
+		db_finalize(statement);
+	}
+	else
+	{
+		LOG(llevBug, "BUG: remove_ns_dead_player(): SQL query failed to make update player status for %s! (%s)\n", pl->ob->name, db_errmsg(db));
+	}
+
+	/* Close the database */
+	db_close(db);
+
+	/* All players should be on the friendly list - remove this one */
+	if (pl->ob->type == PLAYER)
+	{
+		remove_friendly_object(pl->ob);
+	}
+
+	if (pl->ob->map)
+	{
+		if (pl->ob->map->in_memory == MAP_IN_MEMORY)
+		{
+			pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
+		}
+
+		pl->ob->map = NULL;
+	}
+
+	/* To avoid problems with inventory window */
+	pl->ob->type = DEAD_OBJECT;
 }
 
 /* This checks the sockets for input and exceptions, does the right thing.  A

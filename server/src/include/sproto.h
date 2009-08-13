@@ -443,7 +443,6 @@ void process_players2();
 void process_events(mapstruct *map);
 void clean_tmp_files(void);
 void cleanup(void);
-void leave(player *pl, int draw_exit);
 void dequeue_path_requests(void);
 void do_specials(void);
 int main(int argc, char **argv);
