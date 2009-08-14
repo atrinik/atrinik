@@ -137,7 +137,6 @@
  * STAT_LOSS_ON_DEATH - toggle between stat loss or stat depletion
  * USE_LIGHTING - enable light/darkness & light sources
  * USE_PERMANENT_EXPERIENCE - allow players to accumulate permanent experience?
- * WATCHDOG - allows use of an external watchdog program
  *
  ***********************************************************************/
 
@@ -390,15 +389,6 @@
 #define PERM_EXP_MINIMUM_RATIO        0.25f
 #define PERM_EXP_GAIN_RATIO           0.10f
 #define PERM_EXP_MAX_LOSS_RATIO       0.50f
-
-/* WATCHDOG lets sends datagrams to port 13325 on localhost
- * in (more-or-less) regular intervals, so an external watchdog
- * program can kill the server if it hangs (for whatever reason).
- * It shouldn't hurt anyone if this is defined but you don't
- * have an watchdog program. */
-#ifndef WIN32
-/*#define WATCHDOG*/
-#endif
 
 /***********************************************************************
  * SECTION 2 - Machine/Compiler specific stuff.

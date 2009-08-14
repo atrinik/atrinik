@@ -481,6 +481,9 @@ typedef struct Settings {
 
 	/* how dynamic is the world? */
     uint16  dynamiclevel;
+
+	/* Use watchdog? */
+	uint8 watchdog;
 } Settings;
 
 extern Settings settings;

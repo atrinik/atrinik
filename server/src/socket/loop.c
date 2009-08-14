@@ -266,30 +266,29 @@ void HandleClient(NewSocket *ns, player *pl)
 /* Low level socket looping - select calls and watchdog udp packet
  * sending. */
 
-#ifdef WATCHDOG
-/* Tell watchdog that we are still alive
- * I put the function here since we should hopefully already be getting
- * all the needed include files for socket support */
-void watchdog(void)
+/**
+ * Tell watchdog that we are still alive. */
+void watchdog()
 {
-  	static int fd = -1;
-  	static struct sockaddr_in insock;
+	static int fd = -1;
+	static struct sockaddr_in insock;
 
-  	if (fd == -1)
-    {
-      	struct protoent *protoent;
+	if (fd == -1)
+	{
+		struct protoent *protoent;
 
-      	if ((protoent = getprotobyname("udp")) == NULL || (fd = socket(PF_INET, SOCK_DGRAM, protoent->p_proto)) == -1)
-        	return;
+		if ((protoent = getprotobyname("udp")) == NULL || (fd = socket(PF_INET, SOCK_DGRAM, protoent->p_proto)) == -1)
+		{
+			return;
+		}
 
-      	insock.sin_family = AF_INET;
-      	insock.sin_port = htons((unsigned short)13325);
-      	insock.sin_addr.s_addr = inet_addr("127.0.0.1");
-    }
+		insock.sin_family = AF_INET;
+		insock.sin_port = htons((unsigned short) 13325);
+		insock.sin_addr.s_addr = inet_addr("127.0.0.1");
+	}
 
-  	sendto(fd, (void *)&fd, 1, 0, (struct sockaddr *)&insock, sizeof(insock));
+	sendto(fd, (void *) &fd, 1, 0, (struct sockaddr *) &insock, sizeof(insock));
 }
-#endif
 
 static void remove_ns_dead_player(player *pl)
 {

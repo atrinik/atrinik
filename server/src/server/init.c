@@ -121,6 +121,11 @@ void set_daemon()
 	settings.daemonmode = 1;
 }
 
+void set_watchdog()
+{
+	settings.watchdog = 1;
+}
+
 void set_datadir(char *path)
 {
 	settings.datadir = path;
@@ -254,6 +259,7 @@ struct Command_Line_Options options[] = {
  * as they don't require much of anything to bet set up. */
 {"-csport", 1, 2, set_csport},
 {"-detach", 0, 2, set_daemon},
+{"-watchdog", 0, 2, set_watchdog},
 
 /* Start of pass 3 information. In theory, by pass 3, all data paths
  * and defaults should have been set up.  */

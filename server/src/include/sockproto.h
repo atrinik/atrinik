@@ -69,6 +69,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 /* loop.c */
 void RequestInfo(char *buf, int len, NewSocket *ns);
 void HandleClient(NewSocket *ns, player *pl);
+void watchdog();
 void doeric_server(void);
 void doeric_server_write(void);
 

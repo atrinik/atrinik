@@ -1258,10 +1258,15 @@ void do_specials()
     if (!(pticks % 2))
         dequeue_path_requests();
 
-#ifdef WATCHDOG
-    if (!(pticks % 503))
-		watchdog();
-#endif
+	/* If watchdog is enabled */
+	if (settings.watchdog)
+	{
+    	if (!(pticks % 503))
+		{
+			watchdog();
+		}
+	}
+
 	if (!(pticks % PTICKS_PER_CLOCK))
 		tick_the_clock();
 
