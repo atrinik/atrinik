@@ -1,12 +1,40 @@
-FILES = Makefile.in update_rp mktable.script \
-	flushlocks atrinik-loop.c atrinikloop.in
+#************************************************************************
+#            Atrinik, a Multiplayer Online Role Playing Game            *
+#                                                                       *
+#                     Copyright (C) 2009 Alex Tokar                     *
+#                                                                       * 
+# Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+# and Crossfire (Multiplayer game for X-windows).                       *
+#                                                                       *
+# This program is free software; you can redistribute it and/or modify  *
+# it under the terms of the GNU General Public License as published by  *
+# the Free Software Foundation; either version 2 of the License, or     *
+# (at your option) any later version.                                   *
+#                                                                       *
+# This program is distributed in the hope that it will be useful,       *
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# GNU General Public License for more details.                          *
+#                                                                       *
+# You should have received a copy of the GNU General Public License     *
+# along with this program; if not, write to the Free Software           *
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+#                                                                       *
+# The author can be reached at admin@atrinik.org                        *
+#***********************************************************************/
+
+FILES = \
+	Makefile.in \
+	update_rp \
+	mktable.script \
+	flushlocks \
+	atrinik_watchdog.c \
+	atrinikloop.in
 
 SRCS = \
-	atrinik-loop.c
+	atrinik_watchdog.c
 
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-bindir = @bindir@
+bindir = ../../
 
 OBJS = $(SRCS:.c=.o)
 
@@ -17,16 +45,15 @@ LIBS = @LIBS@ $(EXTRA_LIBS)
 INSTALL = @INSTALL@
 
 MKDIR = @MKDIR@
-SHELL = @BOURNE_SHELL@
 CC = @CC@
 RM = @RM@
 
-atrinik_loop: $(OBJS)
+atrinik_watchdog: $(OBJS)
 	$(RM) -f $@
 	$(CC) -o $@ $(OBJS) $(LIBS)
-	chmod 755 atrinikloop
+	chmod 755 atrinik_watchdog
 
-all: atrinik_loop
+all: atrinik_watchdog
 
 depend::
 	$(DEPEND) $(DEPENDFLAGS) -- $(ALLDEFINES) $(DEPEND_DEFINES) -- $(SRCS)
@@ -38,10 +65,11 @@ install:
 	rm -f $(bindir)/flushlocks
 	sed s%xxxx%$(libdir)%g <flushlocks > $(bindir)/flushlocks
 	chmod 755 $(bindir)/flushlocks
-	rm -f $(bindir)/dmonloop
-	sed s%BINDIR%$(bindir)%g <dmonloop >$(bindir)/dmonloop
-	chmod 755 $(bindir)/dmonloop
+	rm -f $(bindir)/atrinikloop
+	sed s%BINDIR%$(bindir)%g <atrinikloop >$(bindir)/atrinikloop
+	chmod 755 $(bindir)/atrinikloop
 	$(INSTALL) $(INSTALLFLAGS) mktable.script $(bindir)/mktable
+	cp atrinik_watchdog $(bindir)/atrinik_watchdog
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -59,7 +87,7 @@ patchlist::
 	@echo $(FILES) > .patchlist
 
 clean::
-	$(RM) -f atrinik_loop $(OBJS) Makefile.bak
+	$(RM) -f atrinik_watchdog $(OBJS) Makefile.bak
 
 distclean:: clean
-	$(RM) -f Makefile $(bindir)/dmonloop $(bindir)/flushlocks $(bindir)/mktable
+	$(RM) -f Makefile $(bindir)/atrinikloop $(bindir)/flushlocks $(bindir)/mktable
