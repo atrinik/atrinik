@@ -359,7 +359,7 @@ int roll_ob(object *op, int dir, object *pusher)
     if (op->head)
 		op = op->head;
 
-    if (!QUERY_FLAG(op, FLAG_CAN_ROLL) || (op->weight && random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) > pusher->stats.Str))
+    if (!QUERY_FLAG(op, FLAG_CAN_ROLL) || (op->weight && (op->weight / 50000 - 1 > 0 ? random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) : 0) > pusher->stats.Str))
 		return 0;
 
     x = op->x + freearr_x[dir];
@@ -481,6 +481,14 @@ int push_ob(object *who, int dir, object *pusher)
     return 1;
 }
 
+
+/**
+ * Push an object, using the /push command.
+ * @param op Object pushing
+ * @param dir Direction to push
+ * @param flag Unused.
+ * @return 1 if successfully pushed an alive object, 0 otherwise
+ * @todo Do not push stand_still mobs? */
 int push_roll_object(object *op, int dir, const int flag)
 {
     object *tmp;
