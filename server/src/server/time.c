@@ -1130,8 +1130,6 @@ void move_arrow(object *op)
 		for (tmp = GET_MAP_OB_LAYER(m, new_x, new_y, 5); tmp != NULL; tmp = tmp->above)
 		{
 			/* Now, let friends fire through friends */
-			/* TODO: Shouldn't do this if on pvp map, but that
-			 * also requires smarter mob/npc archers */
 			if (is_friend_of(hitter, tmp) || tmp == hitter)
 			{
 				continue;

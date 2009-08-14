@@ -3277,6 +3277,12 @@ int is_friend_of(object *op, object *obj)
 	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
 		return 0;
 
+	/* If on PVP area, they won't be friendly */
+	if (pvp_area(op, obj))
+	{
+		return 0;
+	}
+
 	/* TODO: This needs to be sorted out better */
 	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
 	{
