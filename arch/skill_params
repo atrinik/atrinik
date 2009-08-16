@@ -1,56 +1,5 @@
-# Categories:
-# 0: physique
-# 1: personality
-# 2: wisdom
-# 3: agility
-# 4: magic
-# 5: mental
-# I KNOW, I KNOW, this is a very strange order. But it works.
 # Format:
 # name
-# exp_category usage_time base_exp level_exp_modifier primary_stat 
-# secondary_stat tertiary stat
-jumping
-5 0   0 0   0 1 99
-clawing
-2 0   0 1.0   0 1 99
-stealing
-5 0   20 0.7  1 5 99
-pick locks
-5 0   10 2.0   1 5 99
-remove traps
-5 0   50 3.5   1 5 0
-set traps
-0 5   0 0.0   5 1 0
-find traps
-3 0 0 1.5 1 99 99
-hide in shadows
-5 0   1 1.0   1 5 99
-singing
-0 1   10 1.5    4 5 99
-oratory
-0 1   10 2.5  4 5 99
-meditation
-0 10   0 0.0   5 3 6
-magic devices
-4 4   0 1.0    6 5 99
-wizardry spells
-4 1   0 1.0    6 5 99
-sense curse
-4 0   1 1.0    6 3 99
-sense magic
-4 0   1 1.0    6 5 99
-alchemy
-0 5   250 2.5    5 1 3
-common literacy
-5 5 10 2.5 5 3 99
-inscription
-0 5   100 2.5    5 1 99
-bow archery
-3 14 0 1.0 1 0 99
-sling archery
-3 14   0 1.0    1 0 99
-crossbow archery
-3 14   0 1.0    1 0 99
-throwing
-3 14   0 1.0    1 1 99
+# exp_category usage_time base_exp level_exp_modifier primary_stat secondary_stat tertiary stat
+#
+# Currently unused, because somehow the category IDs always seem to get randomized...
