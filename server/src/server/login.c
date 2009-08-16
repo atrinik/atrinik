@@ -847,20 +847,6 @@ void check_login(object *op)
 	pl->ob = op;
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-	/* If the map where the person was last saved does not exist,
-	 * restart them on their home-savebed. This is good for when
-	 * maps change between versions.
-	 * First, we check for partial path, then check to see if the full
-	 * path (for unique player maps) */
-	if (check_path(pl->maplevel, 1) == -1)
-	{
-		if (check_path(pl->maplevel, 0) == -1)
-		{
-			strcpy(pl->maplevel, pl->savebed_map);
-			op->x = pl->bed_x, op->y = pl->bed_y;
-		}
-	}
-
 	/* If player saved beyond some time ago, and the feature is
 	 * enabled, put the player back on his savebed map. */
 	if ((settings.reset_loc_time > 0) && (elapsed_save_time > settings.reset_loc_time))
