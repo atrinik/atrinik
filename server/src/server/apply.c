@@ -3173,13 +3173,11 @@ int apply_special(object *who, object *op, int aflags)
 				sprintf(buf, "You unapply %s.", query_name(op, NULL));
 				break;
 		}
+
 		if (buf[0] != '\0' && who->type == PLAYER)
 			new_draw_info(NDI_UNIQUE, 0, who, buf);
 
-		if (who->type == PLAYER)
-			fix_player(who);
-		else if (who->type == MONSTER)
-			fix_monster(who);
+		fix_player(who);
 
 		if (!(aflags & AP_NO_MERGE))
 		{
@@ -3841,19 +3839,19 @@ void scroll_failure(object *op, int failure, int power)
 	else if (failure <= -35 && failure > -60)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "The magic recoils on you!");
-		confuse_player(op, op, power);
+		confuse_living(op, op, power);
 	}
 	/* paralysis */
 	else if (failure <= -60 && failure> -70)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "The magic recoils and paralyzes you!");
-		paralyze_player(op, op, power);
+		paralyze_living(op, op, power);
 	}
 	/* blind */
 	else if (failure <= -70 && failure> -80)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "The magic recoils on you!");
-		blind_player(op, op, power);
+		blind_living(op, op, power);
 	}
 	/* blast the immediate area */
 	else if (failure <= -80)

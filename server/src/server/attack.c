@@ -762,9 +762,6 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 				poison_player(op, hitter, (float)dam);
 			break;
 
-			/* TODO:
-			 * Here comes in all attacks we have not really implemented.
-			 * atm - below this function in old cf code - use it as base. */
 		default:
 			/*LOG(llevBug,"attack(): find unimplemented special attack: #%d obj:%s\n", attacknum, query_name(hitter));*/
 			/* get % of dam from this attack form */
@@ -781,6 +778,108 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 				dam = 1.0;
 			send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 			break;
+
+		case ATNR_CONFUSION:
+		case ATNR_SLOW:
+		case ATNR_PARALYZE:
+		case ATNR_FEAR:
+		case ATNR_DEPLETE:
+		case ATNR_BLIND:
+		{
+			int level_diff = MIN(110, MAX(0, op->level - hitter->level));
+
+			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((random_roll(1, 20, op, PREFER_LOW) + op->resist[attacknum] / 10) < savethrow[level_diff]))
+			{
+				if (attacknum == ATNR_CONFUSION)
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You confuse %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s confused you!", hitter->name);
+					}
+
+					confuse_living(op, hitter, (int) dam);
+				}
+				else if (attacknum == ATNR_SLOW)
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You slow %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s slowed you!", hitter->name);
+					}
+
+					slow_living(op, hitter, (int) dam);
+				}
+				else if (attacknum == ATNR_PARALYZE)
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You paralyze %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s paralyzed you!", hitter->name);
+					}
+
+					paralyze_living(op, hitter, (int) dam);
+				}
+				else if (attacknum == ATNR_FEAR)
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You scare %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s scared you!", hitter->name);
+					}
+
+					SET_FLAG(op, FLAG_SCARED);
+				}
+				else if (attacknum == ATNR_DEPLETE)
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You deplete %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s depleted you!", hitter->name);
+					}
+
+					drain_stat(op);
+				}
+				else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD))
+				{
+					if (hitter->type == PLAYER)
+					{
+						new_draw_info_format(NDI_ORANGE, 0, hitter, "You blind %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						new_draw_info_format(NDI_PURPLE, 0, op, "%s blinded you!", hitter->name);
+					}
+
+					blind_living(op, hitter, (int) dam);
+				}
+			}
+
+			dam = 0;
+		}
+
+		break;
 	}
 
 jump_show_dmg:
@@ -802,32 +901,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 /* OLD CODE FOR ATTACKS!
  * i let it in to show what and where we must browse to reimplement and/or
  * change it
-    case ATNR_CONFUSION:
-    case ATNR_SLOW:
-    case ATNR_PARALYZE:
-    case ATNR_FEAR:
-    case ATNR_CANCELLATION:
-    case ATNR_DEPLETE:
-    case ATNR_BLIND: {
-	int level_diff = MIN(110, MAX(0, op->level - hitter->level));
 
-        if (op->speed &&
-	    (QUERY_FLAG(op, FLAG_MONSTER) || op->type==PLAYER) &&
-	    !(rndm(0, (attacknum == ATNR_SLOW?6:3)-1)) &&
-	    ((random_roll(1, 20, op, PREFER_LOW) +
-	      op->resist[attacknum]/10) < savethrow[level_diff])) {
-
-	  if (attacknum == ATNR_CONFUSION) confuse_player(op,hitter,(int)dam);
-	  else if (attacknum == ATNR_SLOW) slow_player(op,hitter,(int)dam);
-	  else if (attacknum == ATNR_PARALYZE) paralyze_player(op,hitter,(int)dam);
-	  else if (attacknum == ATNR_FEAR) SET_FLAG(op, FLAG_SCARED);
-	  else if (attacknum == ATNR_CANCELLATION) cancellation(op);
-	  else if (attacknum == ATNR_DEPLETE) drain_stat(op);
-	  else if (attacknum == ATNR_BLIND  && !QUERY_FLAG(op,FLAG_UNDEAD) &&
-		   !QUERY_FLAG(op,FLAG_GENERATOR)) blind_player(op,hitter,(int)dam);
-	}
-	dam = 0;
-	} break;
     case ATNR_ACID:
       {
 	int flag=0;
@@ -1683,7 +1757,7 @@ void poison_player(object *op, object *hitter, float dam)
 		tmp->stats.food++;
 }
 
-void slow_player(object *op, object *hitter, int dam)
+void slow_living(object *op, object *hitter, int dam)
 {
 	archetype *at = find_archetype("slowness");
 	object *tmp;
@@ -1708,7 +1782,7 @@ void slow_player(object *op, object *hitter, int dam)
 	fix_player(op);
 }
 
-void confuse_player(object *op, object *hitter, int dam)
+void confuse_living(object *op, object *hitter, int dam)
 {
 	object *tmp;
 	int maxduration;
@@ -1736,7 +1810,7 @@ void confuse_player(object *op, object *hitter, int dam)
 	SET_FLAG(op, FLAG_CONFUSED);
 }
 
-void blind_player(object *op, object *hitter, int dam)
+void blind_living(object *op, object *hitter, int dam)
 {
 	object *tmp, *owner;
 
@@ -1773,7 +1847,7 @@ void blind_player(object *op, object *hitter, int dam)
 		tmp->stats.food = 10;
 }
 
-void paralyze_player(object *op, object *hitter, int dam)
+void paralyze_living(object *op, object *hitter, int dam)
 {
 	float effect, max;
 	/* object *tmp; */

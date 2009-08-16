@@ -665,6 +665,12 @@ static void enter_unique_map(object *op, object *exit_ob)
 	{
 		FREE_AND_COPY_HASH(newmap->path, apartment);
 		newmap->map_flags |= MAP_FLAG_UNIQUE;
+
+		if (!MAP_NOSAVE(newmap))
+		{
+			newmap->owner = strdup_local(create_map_owner(newmap));
+		}
+
 		enter_map(op, newmap, EXIT_X(exit_ob), EXIT_Y(exit_ob), QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
 	}
 	else

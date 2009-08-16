@@ -1353,7 +1353,7 @@ void draw_client_map2(object *pl)
 					tmph = tmp;
 
 					/* these are the red damage numbers, the client shows when we hit something */
-					if ((dmg_layer2 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG)
+					if ((dmg_layer2 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
 						dmg_flag |= 0x4;
 
 					/* thats our multi arch id and number in 8bits */
@@ -1488,7 +1488,7 @@ void draw_client_map2(object *pl)
 					tmph = tmp;
 					face = tmp->face;
 
-					if ((dmg_layer1 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG)
+					if ((dmg_layer1 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
 						dmg_flag |= 0x2;
 
 					quick_pos_2 = tmp->quick_pos;
@@ -1601,7 +1601,7 @@ void draw_client_map2(object *pl)
 					face = tmp->face;
 					tmph = tmp;
 
-					if ((dmg_layer0 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG)
+					if ((dmg_layer0 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
 						dmg_flag |= 0x1;
 
 					quick_pos_3 = tmp->quick_pos;
@@ -1787,7 +1787,6 @@ void draw_client_map2(object *pl)
 						SockList_AddShort(&sl, (sint16)dmg_layer0);
 					}
 				}
-
 
 				/* client additional layer animations */
 				if (ext_flag & 0x38)

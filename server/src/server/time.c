@@ -405,7 +405,11 @@ void remove_confusion(object *op)
 	if (op->env != NULL)
 	{
 		CLEAR_FLAG(op->env, FLAG_CONFUSED);
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You regain your senses.");
+
+		if (op->env->type == PLAYER)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op->env, "You regain your senses.");
+		}
 	}
 
 	remove_ob(op);

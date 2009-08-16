@@ -917,7 +917,6 @@ void fix_player(object *op)
 	 * we redirect mobs to fix_monster() and let only player pass */
 	if (QUERY_FLAG(op, FLAG_MONSTER) && op->type != PLAYER)
 	{
-		LOG(llevDebug, "DEBUG: fix_player(): called for object %s (non player), redirecting to fix_monster()\n", query_name(op, NULL));
 		fix_monster(op);
 		return;
 	}

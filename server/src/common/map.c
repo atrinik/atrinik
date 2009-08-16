@@ -2466,8 +2466,12 @@ void delete_map(mapstruct *m)
 	free(m);
 }
 
-/* Check the map owner. Called from things like pickup,
- * drop, etc. */
+/**
+ * Check the map owner. Called from functions like pickup,
+ * drop, etc.
+ * @param map The map to check
+ * @param op Player object to check
+ * @return 1 if we the player is the map owner, 0 otherwise */
 int check_map_owner(mapstruct *map, object *op)
 {
 	/* Sanity checks */
@@ -2478,28 +2482,39 @@ int check_map_owner(mapstruct *map, object *op)
 	}
 
 	/* Non unique maps or unique maps with no_save 1 are ok for everyone. */
-	if (!MAP_UNIQUE(map) || MAP_NOSAVE(map))
+	if (!map->owner || !MAP_UNIQUE(map) || MAP_NOSAVE(map))
+	{
 		return 1;
+	}
 
 	/* Same for DMs. */
 	if (QUERY_FLAG(op, FLAG_WIZ))
+	{
 		return 1;
+	}
 
 	/* Check the map owner */
-	if (strcmp(create_map_owner(map), op->name) == 0)
+	if (strcmp(MAP_OWNER(map), op->name) == 0)
+	{
 		return 1;
+	}
 	else
+	{
 		return 0;
+	}
 }
 
-/* Create map owner for unique maps with not no_save 1.
- * FIXME: This should NOT be called from check_map_owner(),
- * but rather when entering the map and store it in mapstruct. */
+/* Create map owner for unique maps with not no_save 1. */
+/**
+ * Create map owner for unique maps
+ * @param map
+ * @return
+ */
 char *create_map_owner(mapstruct *map)
 {
 	char buf[MAX_BUF], name[MAX_BUF], *p;
 
-	sprintf(buf, "%s", map->path);
+	snprintf(buf, sizeof(buf), "%s", map->path);
 
 	/* Sanity checks */
 	if (map == NULL || map->path == NULL)
@@ -2509,6 +2524,7 @@ char *create_map_owner(mapstruct *map)
 	}
 
 	p = strtok(buf, "/");
+
 	while (p)
 	{
 		snprintf(name, sizeof(name), "%s", p);
