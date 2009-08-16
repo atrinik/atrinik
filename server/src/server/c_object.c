@@ -57,10 +57,10 @@
  * @return Best match, or NULL if no match. */
 object *find_best_object_match(object *pl, char *params)
 {
-    object *tmp, *best = NULL;
-    int match_val = 0, tmpmatch;
+	object *tmp, *best = NULL;
+	int match_val = 0, tmpmatch;
 
-    for (tmp = pl->inv; tmp; tmp = tmp->below)
+	for (tmp = pl->inv; tmp; tmp = tmp->below)
 	{
 		if (IS_SYS_INVISIBLE(tmp))
 			continue;
@@ -70,9 +70,9 @@ object *find_best_object_match(object *pl, char *params)
 			match_val = tmpmatch;
 			best = tmp;
 		}
-    }
+	}
 
-    return best;
+	return best;
 }
 
 
@@ -83,16 +83,16 @@ object *find_best_object_match(object *pl, char *params)
  * @return 1 on success, 0 on failure */
 int command_uskill(object *pl, char *params)
 {
-   	if (!params)
+	if (!params)
 	{
-        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /use_skill <skill name>");
-        return 0;
-   	}
+		new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /use_skill <skill name>");
+		return 0;
+	}
 
-   	if (pl->type == PLAYER)
-        CONTR(pl)->praying = 0;
+	if (pl->type == PLAYER)
+		CONTR(pl)->praying = 0;
 
-   	return use_skill(pl, params);
+	return use_skill(pl, params);
 }
 
 /**
@@ -102,26 +102,26 @@ int command_uskill(object *pl, char *params)
  * @return 1 on success, 0 on failure */
 int command_rskill(object *pl, char *params)
 {
-   	int skillno;
+	int skillno;
 
-   	if (!params)
+	if (!params)
 	{
-        new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /ready_skill <skill name>");
-        return 0;
-   	}
+		new_draw_info(NDI_UNIQUE, 0, pl, "Usage: /ready_skill <skill name>");
+		return 0;
+	}
 
-   	if (pl->type == PLAYER)
-       	CONTR(pl)->praying = 0;
+	if (pl->type == PLAYER)
+		CONTR(pl)->praying = 0;
 
-   	skillno = lookup_skill_by_name(params);
+	skillno = lookup_skill_by_name(params);
 
-   	if (skillno == -1)
+	if (skillno == -1)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, pl, "Couldn't find the skill %s", params);
 		return 0;
-   	}
+	}
 
-   	return change_skill(pl, skillno);
+	return change_skill(pl, skillno);
 }
 
 /**
@@ -132,46 +132,46 @@ int command_rskill(object *pl, char *params)
  * @return Always returns 0 */
 int command_apply(object *op, char *params)
 {
-    if (op->type == PLAYER)
-    	CONTR(op)->praying = 0;
+	if (op->type == PLAYER)
+		CONTR(op)->praying = 0;
 
-  	if (!params)
+	if (!params)
 	{
-    	player_apply_below(op);
-    	return 0;
-  	}
-  	else
+		player_apply_below(op);
+		return 0;
+	}
+	else
 	{
-    	enum apply_flag aflag = 0;
-    	object *inv;
+		enum apply_flag aflag = 0;
+		object *inv;
 
-    	while (*params == ' ')
+		while (*params == ' ')
 			params++;
 
-    	if (!strncmp(params, "-a ", 3))
+		if (!strncmp(params, "-a ", 3))
 		{
 			aflag = AP_APPLY;
 			params += 3;
-    	}
+		}
 
-    	if (!strncmp(params, "-u ", 3))
+		if (!strncmp(params, "-u ", 3))
 		{
 			aflag = AP_UNAPPLY;
 			params += 3;
-    	}
+		}
 
-    	while (*params == ' ')
+		while (*params == ' ')
 			params++;
 
-    	inv = find_best_object_match(op, params);
+		inv = find_best_object_match(op, params);
 
-    	if (inv)
+		if (inv)
 			player_apply(op, inv, aflag, 0);
-    	else
-	  		new_draw_info_format(NDI_UNIQUE, 0, op, "Could not find any match to the %s.", params);
-  	}
+		else
+			new_draw_info_format(NDI_UNIQUE, 0, op, "Could not find any match to the %s.", params);
+	}
 
-  	return 0;
+	return 0;
 }
 
 /* Check if an item op can be put into a sack. If pl exists then tell
@@ -191,33 +191,33 @@ int command_apply(object *op, char *params)
  * @return 1 if the object will fit, 0 if it will not. */
 int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 {
-    char buf[MAX_BUF];
-    buf[0] = 0;
+	char buf[MAX_BUF];
+	buf[0] = 0;
 
-    if (!QUERY_FLAG(sack, FLAG_APPLIED))
+	if (!QUERY_FLAG(sack, FLAG_APPLIED))
 		sprintf(buf, "The %s is not active.", query_name(sack, NULL));
 
-    if (sack == op)
+	if (sack == op)
 		sprintf(buf, "You can't put the %s into itself.", query_name(sack, NULL));
 
-    if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
+	if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
 		sprintf(buf, "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 
-    if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
+	if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
 		sprintf(buf, "You don't want put the key into %s.", query_name(sack, NULL));
 
-    if (sack->weight_limit && sack->carrying + (sint32)((float)(((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32)sack->weight_limit)
+	if (sack->weight_limit && sack->carrying + (sint32)((float)(((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32)sack->weight_limit)
 		sprintf(buf, "That won't fit in the %s!", query_name(sack, NULL));
 
-    if (buf[0])
+	if (buf[0])
 	{
 		if (pl)
-		    new_draw_info(NDI_UNIQUE, 0, pl, buf);
+			new_draw_info(NDI_UNIQUE, 0, pl, buf);
 
 		return 0;
-    }
+	}
 
-    return 1;
+	return 1;
 }
 
 /**
@@ -228,27 +228,27 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
  * @param nrof Number to pick up (0 means all of them) */
 static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 {
-    /* buf needs to be big (more than 256 chars) because you can get
-     * very long item names. */
-    char buf[HUGE_BUF];
-    object *env = tmp->env;
-    uint32 weight, effective_weight_limit;
-    int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
+	/* buf needs to be big (more than 256 chars) because you can get
+	 * very long item names. */
+	char buf[HUGE_BUF];
+	object *env = tmp->env;
+	uint32 weight, effective_weight_limit;
+	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
-    if (pl->type == PLAYER)
-    	CONTR(pl)->praying = 0;
+	if (pl->type == PLAYER)
+		CONTR(pl)->praying = 0;
 
-    /* IF the player is flying & trying to take the item out of a container
-     * that is in his inventory, let him.  tmp->env points to the container
-     * (sack, luggage, etc), tmp->env->env then points to the player (nested
-     * containers not allowed as of now) */
-    if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
+	/* IF the player is flying & trying to take the item out of a container
+	 * that is in his inventory, let him.  tmp->env points to the container
+	 * (sack, luggage, etc), tmp->env->env then points to the player (nested
+	 * containers not allowed as of now) */
+	if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
 	{
 		new_draw_info(NDI_UNIQUE, 0, pl, "You are levitating, you can't reach the ground!");
 		return;
-    }
+	}
 
-    if (QUERY_FLAG(tmp, FLAG_NO_DROP))
+	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 		return;
 
 	if (!check_map_owner(pl->map, pl))
@@ -257,7 +257,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		return;
 	}
 
-    if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
+	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
 		new_draw_info(NDI_UNIQUE, 0, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
 		if (pl->type == PLAYER)
@@ -270,64 +270,64 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		}
 
 		return;
-    }
+	}
 
-    if (nrof > tmp_nrof || nrof == 0)
+	if (nrof > tmp_nrof || nrof == 0)
 		nrof = tmp_nrof;
 
-    /* Figure out how much weight this object will add to the player */
-    weight = tmp->weight * nrof;
+	/* Figure out how much weight this object will add to the player */
+	weight = tmp->weight * nrof;
 
-    if (tmp->inv)
+	if (tmp->inv)
 		weight += tmp->carrying;
 
-    if (pl->stats.Str <= MAX_STAT)
-        effective_weight_limit = weight_limit[pl->stats.Str];
-    else
-        effective_weight_limit = weight_limit[MAX_STAT];
+	if (pl->stats.Str <= MAX_STAT)
+		effective_weight_limit = weight_limit[pl->stats.Str];
+	else
+		effective_weight_limit = weight_limit[MAX_STAT];
 
-    if ((pl->carrying + weight) > effective_weight_limit)
+	if ((pl->carrying + weight) > effective_weight_limit)
 	{
 		new_draw_info(NDI_UNIQUE, 0, pl, "That item is too heavy for you to pick up.");
 		return;
-    }
+	}
 
 	if (tmp->type == CONTAINER)
 		container_unlink(NULL, tmp);
 
 #ifndef REAL_WIZ
-    if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
+	if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
 		SET_FLAG(tmp, FLAG_WAS_WIZ);
 #endif
 
-    if (QUERY_FLAG(tmp, FLAG_UNPAID))
-    {
+	if (QUERY_FLAG(tmp, FLAG_UNPAID))
+	{
 		/* this is a clone shop - clone a item for inventory */
-        if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-        {
-            tmp = ObjectCreateClone(tmp);
-            CLEAR_FLAG(tmp, FLAG_NO_PICK);
-            SET_FLAG(tmp, FLAG_STARTEQUIP);
-            tmp->nrof = nrof;
-            tmp_nrof = nrof;
-            sprintf(buf, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
-        }
+		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
+		{
+			tmp = ObjectCreateClone(tmp);
+			CLEAR_FLAG(tmp, FLAG_NO_PICK);
+			SET_FLAG(tmp, FLAG_STARTEQUIP);
+			tmp->nrof = nrof;
+			tmp_nrof = nrof;
+			sprintf(buf, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
+		}
 		/* this is an unique shop item */
-        else
+		else
 		{
 			tmp->nrof = nrof;
-            sprintf(buf, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
+			sprintf(buf, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, pl, F_BUY));
 			tmp->nrof = tmp_nrof;
 		}
-    }
-    else
+	}
+	else
 	{
 		tmp->nrof = nrof;
-        sprintf(buf, "You pick up the %s.", query_name(tmp, NULL));
+		sprintf(buf, "You pick up the %s.", query_name(tmp, NULL));
 		tmp->nrof = tmp_nrof;
 	}
 
-    if (nrof != tmp_nrof)
+	if (nrof != tmp_nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		tag_t tmp2_tag = tmp2->count;
@@ -346,7 +346,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 			else
 				esrv_send_item(pl, tmp2);
 		}
-    }
+	}
 	else
 	{
 		/* If the object is in a container, send a delete to the client.
@@ -360,10 +360,10 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 			/* Unlink it - no move off check */
 			remove_ob(tmp);
 		}
-    }
+	}
 
-    new_draw_info(NDI_UNIQUE, 0, pl, buf);
-    tmp = insert_ob_in_ob(tmp, op);
+	new_draw_info(NDI_UNIQUE, 0, pl, buf);
+	tmp = insert_ob_in_ob(tmp, op);
 
 	/* Trigger the PICKUP event */
 	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, (int *) tmp_nrof, 0, 0, SCRIPT_FIX_ALL))
@@ -371,81 +371,81 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		return;
 	}
 
-    /* All the stuff below deals with client/server code, and is only
-     * usable by players */
-    if (pl->type != PLAYER)
+	/* All the stuff below deals with client/server code, and is only
+	 * usable by players */
+	if (pl->type != PLAYER)
 		return;
 
-    esrv_send_item(pl, tmp);
-    /* These are needed to update the weight for the container we
-     * are putting the object in, and the players weight, if different. */
-    esrv_update_item(UPD_WEIGHT, pl, op);
-    if (op != pl)
+	esrv_send_item(pl, tmp);
+	/* These are needed to update the weight for the container we
+	 * are putting the object in, and the players weight, if different. */
+	esrv_update_item(UPD_WEIGHT, pl, op);
+	if (op != pl)
 		esrv_send_item(pl, pl);
 
-    /* Update the container the object was in */
-    if (env && env != pl && env != op)
+	/* Update the container the object was in */
+	if (env && env != pl && env != op)
 		esrv_update_item(UPD_WEIGHT, pl, env);
 }
 
 /* modified slightly to allow monsters use this -b.t. 5-31-95 */
 void pick_up(object *op, object *alt)
 {
-    int need_fix_tmp = 0;
-    object *tmp = NULL;
-    mapstruct *tmp_map = NULL;
-    int count;
-    tag_t tag;
+	int need_fix_tmp = 0;
+	object *tmp = NULL;
+	mapstruct *tmp_map = NULL;
+	int count;
+	tag_t tag;
 
-    /* Decide which object to pick. */
-    if (alt)
-    {
-        if (!can_pick(op, alt))
+	/* Decide which object to pick. */
+	if (alt)
+	{
+		if (!can_pick(op, alt))
 		{
-            new_draw_info_format(NDI_UNIQUE, 0, op, "You can't pick up %s.", alt->name);
-	    	goto leave;
-        }
-        tmp = alt;
-    }
-    else
-    {
-        if (op->below == NULL || !can_pick(op, op->below))
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You can't pick up %s.", alt->name);
+			goto leave;
+		}
+		tmp = alt;
+	}
+	else
+	{
+		if (op->below == NULL || !can_pick(op, op->below))
 		{
-             new_draw_info(NDI_UNIQUE, 0, op, "There is nothing to pick up here.");
-             goto leave;
-        }
-        tmp = op->below;
-    }
+			new_draw_info(NDI_UNIQUE, 0, op, "There is nothing to pick up here.");
+			goto leave;
+		}
+		tmp = op->below;
+	}
 
 	if (tmp->type == CONTAINER)
 		container_unlink(NULL, tmp);
 
-    /* Try to catch it. */
-    tmp_map = tmp->map;
-    tmp = stop_item(tmp);
-    if (tmp == NULL)
-        goto leave;
+	/* Try to catch it. */
+	tmp_map = tmp->map;
+	tmp = stop_item(tmp);
+	if (tmp == NULL)
+		goto leave;
 
-    need_fix_tmp = 1;
-    if (!can_pick(op, tmp))
-        goto leave;
+	need_fix_tmp = 1;
+	if (!can_pick(op, tmp))
+		goto leave;
 
-    if (op->type == PLAYER)
+	if (op->type == PLAYER)
 	{
 		count = CONTR(op)->count;
 		if (count == 0)
 			count = tmp->nrof;
-    }
-    else
+	}
+	else
 		count = tmp->nrof;
 
-    /* container is open, so use it */
-    if (op->type == PLAYER && CONTR(op)->container)
+	/* container is open, so use it */
+	if (op->type == PLAYER && CONTR(op)->container)
 	{
 		alt = CONTR(op)->container;
 		if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count))
-	    	goto leave;
-    }
+			goto leave;
+	}
 	/* non container pickup */
 	else
 	{
@@ -463,42 +463,42 @@ void pick_up(object *op, object *alt)
 		/* No free containers */
 		if (!alt)
 			alt = op;
-    }
+	}
 
-    if (tmp->env == alt)
+	if (tmp->env == alt)
 	{
 		/* here it could be possible to check rent,
 		 * if someone wants to implement it */
 		alt = op;
-    }
+	}
 
 #ifdef PICKUP_DEBUG
-   	if (op->type == PLAYER)
-      	printf("Pick_up(): %s picks %s (%d) and inserts it %s.\n", op->name, tmp->name, CONTR(op)->count, alt->name);
-   	else
-      	printf("Pick_up(): %s picks %s and inserts it %s.\n", op->name, tmp->name, alt->name);
+	if (op->type == PLAYER)
+		printf("Pick_up(): %s picks %s (%d) and inserts it %s.\n", op->name, tmp->name, CONTR(op)->count, alt->name);
+	else
+		printf("Pick_up(): %s picks %s and inserts it %s.\n", op->name, tmp->name, alt->name);
 #endif
 
-    /* startequip items are not allowed to be put into containers: */
-    if (op->type == PLAYER && alt->type == CONTAINER && QUERY_FLAG(tmp, FLAG_STARTEQUIP))
-    {
-        new_draw_info (NDI_UNIQUE, 0, op, "This object cannot be put into containers!");
-        goto leave;
-    }
+	/* startequip items are not allowed to be put into containers: */
+	if (op->type == PLAYER && alt->type == CONTAINER && QUERY_FLAG(tmp, FLAG_STARTEQUIP))
+	{
+		new_draw_info (NDI_UNIQUE, 0, op, "This object cannot be put into containers!");
+		goto leave;
+	}
 
-    tag = tmp->count;
-    pick_up_object(op, alt, tmp, count);
-    if (was_destroyed(tmp, tag) || tmp->env)
-        need_fix_tmp = 0;
+	tag = tmp->count;
+	pick_up_object(op, alt, tmp, count);
+	if (was_destroyed(tmp, tag) || tmp->env)
+		need_fix_tmp = 0;
 
-    if (op->type == PLAYER)
-       	CONTR(op)->count = 0;
+	if (op->type == PLAYER)
+		CONTR(op)->count = 0;
 
-    goto leave;
+	goto leave;
 
-  	leave:
-    if (need_fix_tmp)
-        fix_stopped_item(tmp, tmp_map, op);
+leave:
+	if (need_fix_tmp)
+		fix_stopped_item(tmp, tmp_map, op);
 }
 
 /**
@@ -510,26 +510,26 @@ void pick_up(object *op, object *alt)
  * @param nrof Number of items to put into sack (0 for all) */
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 {
-    tag_t tmp_tag, tmp2_tag;
-    object *tmp2, *tmp_cont;
+	tag_t tmp_tag, tmp2_tag;
+	object *tmp2, *tmp_cont;
 	/*object *sack2;*/
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    if (op->type != PLAYER)
+	if (op->type != PLAYER)
 	{
-        LOG(llevDebug, "DEBUG: put_object_in_sack: op not a player.\n");
-        return;
-    }
+		LOG(llevDebug, "DEBUG: put_object_in_sack: op not a player.\n");
+		return;
+	}
 
 	/* Can't put an object in itself */
-    if (sack == tmp)
+	if (sack == tmp)
 		return;
 
-    if (sack->type != CONTAINER)
+	if (sack->type != CONTAINER)
 	{
-      	new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is not a container.", query_name(sack, NULL));
-      	return;
-    }
+		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is not a container.", query_name(sack, NULL));
+		return;
+	}
 
 	if (!check_map_owner(op->map, op))
 	{
@@ -541,27 +541,27 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		container_unlink(NULL, tmp);
 
 	/*
-    if (QUERY_FLAG(tmp,FLAG_STARTEQUIP)) {
-      new_draw_info_format(NDI_UNIQUE, 0,op,
+	if (QUERY_FLAG(tmp,FLAG_STARTEQUIP)) {
+	  new_draw_info_format(NDI_UNIQUE, 0,op,
 	"You cannot put the %s in the container.", query_name(tmp));
-      return;
-    }
+	  return;
+	}
 	*/
 
-      /* Eneq(@csd.uu.se): If the object to be dropped is a container
-       * we instead move the contents of that container into the active
-       * container, this is only done if the object has something in it.
-       */
+	/* Eneq(@csd.uu.se): If the object to be dropped is a container
+	 * we instead move the contents of that container into the active
+	 * container, this is only done if the object has something in it.
+	 */
 	/* we really don't need this anymore - after i had fixed the "can fit in"
 	 * now we put containers with something in REALLY in other containers.
 	*/
 	/*
-    if (tmp->type == CONTAINER && tmp->inv) {
+	if (tmp->type == CONTAINER && tmp->inv) {
 
-      sack2 = tmp;
-      new_draw_info_format(NDI_UNIQUE, 0,op, "You move the items from %s into %s.",
+	  sack2 = tmp;
+	  new_draw_info_format(NDI_UNIQUE, 0,op, "You move the items from %s into %s.",
 		    query_name(tmp), query_name(op->container));
-      for (tmp2 = tmp->inv; tmp2; tmp2 = tmp) {
+	  for (tmp2 = tmp->inv; tmp2; tmp2 = tmp) {
 	  tmp = tmp2->below;
 	if (sack_can_hold(op, op->container, tmp2,tmp2->nrof))
 	  put_object_in_sack (op, sack, tmp2, 0);
@@ -570,23 +570,23 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	  new_draw_info(NDI_UNIQUE, 0,op, buf);
 	  break;
 	}
-      }
-      esrv_update_item (UPD_WEIGHT, op, sack2);
-      return;
-    }
+	  }
+	  esrv_update_item (UPD_WEIGHT, op, sack2);
+	  return;
+	}
 	*/
 
-    if (!sack_can_hold(op, sack, tmp, (nrof ? nrof : (int) tmp->nrof)))
-      	return;
+	if (!sack_can_hold(op, sack, tmp, (nrof ? nrof : (int) tmp->nrof)))
+		return;
 
-    if (QUERY_FLAG(tmp, FLAG_APPLIED))
+	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
-      	if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
-          	return;
-    }
+		if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
+			return;
+	}
 
-    /* we want to put some portion of the item into the container */
-    if (nrof && tmp->nrof != (uint32) nrof)
+	/* we want to put some portion of the item into the container */
+	if (nrof && tmp->nrof != (uint32) nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		tmp2_tag = tmp2->count;
@@ -604,7 +604,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		/* this can probably be replaced with an update */
 		else
 			esrv_send_item(op, tmp2);
-    }
+	}
 	else if (!QUERY_FLAG(tmp, FLAG_UNPAID) || !QUERY_FLAG(tmp, FLAG_NO_PICK))
 	{
 		remove_ob(tmp);
@@ -615,10 +615,10 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	else
 		tmp = ObjectCreateClone(tmp);
 
-    if (QUERY_FLAG(tmp, FLAG_UNPAID))
+	if (QUERY_FLAG(tmp, FLAG_UNPAID))
 	{
 		/* this is a clone shop - clone a item for inventory */
-	    if (QUERY_FLAG(tmp, FLAG_NO_PICK))
+		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
 		{
 			CLEAR_FLAG(tmp, FLAG_NO_PICK);
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
@@ -628,28 +628,28 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		else
 			sprintf(buf, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
 
-	    new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info(NDI_UNIQUE, 0, op, buf);
 	}
 
-    sprintf(buf, "You put the %s in ", query_name(tmp, NULL));
-    strcat(buf, query_name(sack, NULL));
-    strcat(buf, ".");
-    tmp_tag = tmp->count;
+	sprintf(buf, "You put the %s in ", query_name(tmp, NULL));
+	strcat(buf, query_name(sack, NULL));
+	strcat(buf, ".");
+	tmp_tag = tmp->count;
 	tmp_cont = tmp->env;
-    tmp2 = insert_ob_in_ob(tmp, sack);
-    new_draw_info(NDI_UNIQUE, 0, op, buf);
+	tmp2 = insert_ob_in_ob(tmp, sack);
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
 	/* This is overkill, fix_player() is called somewhere in object.c */
-    fix_player(op);
+	fix_player(op);
 
-    /* If an object merged (and thus, different object), we need to
-     * delete the original. */
-    if (tmp2 != tmp)
+	/* If an object merged (and thus, different object), we need to
+	 * delete the original. */
+	if (tmp2 != tmp)
 		esrv_del_item(CONTR(op), tmp_tag, tmp_cont);
 
-    esrv_send_item(op, tmp2);
-    /* update the sack's and player's weight */
-    esrv_update_item(UPD_WEIGHT, op, sack);
-    esrv_update_item(UPD_WEIGHT, op, op);
+	esrv_send_item(op, tmp2);
+	/* update the sack's and player's weight */
+	esrv_update_item(UPD_WEIGHT, op, sack);
+	esrv_update_item(UPD_WEIGHT, op, op);
 }
 
 /**
@@ -659,37 +659,37 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
  * @param nrof Number of items to drop (0 for all) */
 void drop_object(object *op, object *tmp, long nrof)
 {
-    char buf[MAX_BUF];
-    object *floor;
+	char buf[MAX_BUF];
+	object *floor;
 
-    if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
+	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
 #if 0
-      	/* Eneq(@csd.uu.se): Objects with NO_DROP defined can't be dropped. */
-      	new_draw_info(NDI_UNIQUE, 0, op, "This item can't be dropped.");
+		/* Eneq(@csd.uu.se): Objects with NO_DROP defined can't be dropped. */
+		new_draw_info(NDI_UNIQUE, 0, op, "This item can't be dropped.");
 #endif
-      	return;
-    }
+		return;
+	}
 
-    if (op->type == PLAYER)
-        CONTR(op)->praying = 0;
+	if (op->type == PLAYER)
+		CONTR(op)->praying = 0;
 
-    if (QUERY_FLAG(tmp, FLAG_APPLIED))
+	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
 		/* can't unapply it */
-      	if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
-          	return;
-    }
+		if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
+			return;
+	}
 
 	if (tmp->type == CONTAINER)
 		container_unlink(NULL, tmp);
 
-    /* We are only dropping some of the items.  We split the current objec
-     * off */
-    if (nrof && tmp->nrof != (uint32) nrof)
+	/* We are only dropping some of the items.  We split the current objec
+	 * off */
+	if (nrof && tmp->nrof != (uint32) nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
-        tag_t tmp2_tag = tmp2->count;
+		tag_t tmp2_tag = tmp2->count;
 		tmp = get_split_ob(tmp, nrof);
 		if (!tmp)
 		{
@@ -705,11 +705,11 @@ void drop_object(object *op, object *tmp, long nrof)
 			else
 				esrv_send_item(op, tmp2);
 		}
-    }
+	}
 	else
 	{
-      	remove_ob(tmp);
-	  	if (check_walk_off(tmp, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
+		remove_ob(tmp);
+		if (check_walk_off(tmp, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
 			return;
 	}
 
@@ -719,10 +719,10 @@ void drop_object(object *op, object *tmp, long nrof)
 		return;
 	}
 
-    if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
+	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
 	{
-      	if (op->type == PLAYER)
-	  	{
+		if (op->type == PLAYER)
+		{
 			sprintf(buf, "You drop the %s.", query_name(tmp, NULL));
 			new_draw_info(NDI_UNIQUE, 0, op, buf);
 
@@ -737,27 +737,27 @@ void drop_object(object *op, object *tmp, long nrof)
 				insert_ob_in_map(tmp, op->map, op, 0);
 			else
 				esrv_del_item(CONTR(op), tmp->count, tmp->env);
-	  	}
+		}
 
-      	fix_player(op);
-      	return;
-    }
+		fix_player(op);
+		return;
+	}
 
-/*  If SAVE_INTERVAL is commented out, we never want to save
- *  the player here. */
+	/*  If SAVE_INTERVAL is commented out, we never want to save
+	 *  the player here. */
 #ifdef SAVE_INTERVAL
-    /* I'm not sure why there is a value check - since the save
-     * is done every SAVE_INTERVAL seconds, why care the value
-     * of what he is dropping? */
-    if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_UNPAID) && (tmp->nrof ? tmp->value * tmp->nrof : tmp->value > 2000) && (CONTR(op)->last_save_time + SAVE_INTERVAL) <= time(NULL))
+	/* I'm not sure why there is a value check - since the save
+	 * is done every SAVE_INTERVAL seconds, why care the value
+	 * of what he is dropping? */
+	if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_UNPAID) && (tmp->nrof ? tmp->value * tmp->nrof : tmp->value > 2000) && (CONTR(op)->last_save_time + SAVE_INTERVAL) <= time(NULL))
 	{
-	  	save_player(op, 1);
-	  	CONTR(op)->last_save_time = time(NULL);
-    }
+		save_player(op, 1);
+		CONTR(op)->last_save_time = time(NULL);
+	}
 #endif
 
-    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
-    if (floor && floor->type == SHOP_FLOOR && !QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY)
+	floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
+	if (floor && floor->type == SHOP_FLOOR && !QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY)
 	{
 		sell_item(tmp, op, -1);
 
@@ -777,36 +777,36 @@ void drop_object(object *op, object *tmp, long nrof)
 		}
 	}
 
-    tmp->x = op->x;
-    tmp->y = op->y;
+	tmp->x = op->x;
+	tmp->y = op->y;
 
-    if (op->type == PLAYER)
-        esrv_del_item(CONTR(op), tmp->count, tmp->env);
+	if (op->type == PLAYER)
+		esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+	insert_ob_in_map(tmp, op->map, op, 0);
 
-    SET_FLAG(op, FLAG_NO_APPLY);
-    remove_ob(op);
-    insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
-    CLEAR_FLAG(op, FLAG_NO_APPLY);
+	SET_FLAG(op, FLAG_NO_APPLY);
+	remove_ob(op);
+	insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+	CLEAR_FLAG(op, FLAG_NO_APPLY);
 
 	/* Need to update the weight for the player */
-    if (op->type == PLAYER)
-    {
+	if (op->type == PLAYER)
+	{
 		fix_player(op);
 		esrv_send_item(op, op);
-    }
+	}
 }
 
 void drop(object *op, object *tmp)
 {
-    /* Hopeful fix for disappearing objects when dropping from a container -
-     * somehow, players get an invisible object in the container, and the
-     * old logic would skip over invisible objects - works fine for the
-     * playes inventory, but drop inventory wants to use the next value. */
+	/* Hopeful fix for disappearing objects when dropping from a container -
+	 * somehow, players get an invisible object in the container, and the
+	 * old logic would skip over invisible objects - works fine for the
+	 * playes inventory, but drop inventory wants to use the next value. */
 	/* hmhm... THIS looks strange... for the new invisible system, i removed it MT-11-2002 */
 	/* if somewhat get invisible, the we still can handle it - SYS_INV is now always forbidden
-    if (IS_SYS_INVISIBLE(tmp))
+	if (IS_SYS_INVISIBLE(tmp))
 	{
 		if (tmp->env && tmp->env->type != PLAYER)
 		{
@@ -818,39 +818,39 @@ void drop(object *op, object *tmp)
 	    	while (tmp != NULL && IS_SYS_INVISIBLE(tmp))
 				tmp = tmp->below;
 		}
-    }
-    */
+	}
+	*/
 
-    if (tmp == NULL)
+	if (tmp == NULL)
 	{
-      	new_draw_info(NDI_UNIQUE, 0, op, "You don't have anything to drop.");
-      	return;
-    }
+		new_draw_info(NDI_UNIQUE, 0, op, "You don't have anything to drop.");
+		return;
+	}
 
-    if (QUERY_FLAG(tmp, FLAG_INV_LOCKED))
+	if (QUERY_FLAG(tmp, FLAG_INV_LOCKED))
 	{
-      	new_draw_info(NDI_UNIQUE, 0, op, "This item is locked");
-      	return;
-    }
+		new_draw_info(NDI_UNIQUE, 0, op, "This item is locked");
+		return;
+	}
 
-    if (QUERY_FLAG(tmp, FLAG_NO_DROP))
+	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 	{
 #if 0
-      	/* Eneq(@csd.uu.se): Objects with NO_DROP defined can't be dropped. */
-      	new_draw_info(NDI_UNIQUE, 0, op, "This item can't be dropped.");
+		/* Eneq(@csd.uu.se): Objects with NO_DROP defined can't be dropped. */
+		new_draw_info(NDI_UNIQUE, 0, op, "This item can't be dropped.");
 #endif
-      	return;
-    }
+		return;
+	}
 
-    if (op->type == PLAYER)
-    {
-	    if (CONTR(op)->container)
+	if (op->type == PLAYER)
+	{
+		if (CONTR(op)->container)
 			put_object_in_sack(op, CONTR(op)->container, tmp, CONTR(op)->count);
 		else
 			drop_object(op, tmp, CONTR(op)->count);
 
 		CONTR(op)->count = 0;
-    }
+	}
 	else
 		drop_object(op, tmp, 0);
 }
@@ -858,13 +858,13 @@ void drop(object *op, object *tmp)
 /* Command will drop all items that have not been locked */
 int command_dropall(object *op, char *params)
 {
-  	object *curinv, *nextinv;
+	object *curinv, *nextinv;
 
-  	if (op->inv == NULL)
+	if (op->inv == NULL)
 	{
-    	new_draw_info(NDI_UNIQUE, 0, op, "Nothing to drop!");
-    	return 0;
-  	}
+		new_draw_info(NDI_UNIQUE, 0, op, "Nothing to drop!");
+		return 0;
+	}
 
 	/* TODO: Make this a setting that is off by default in player file */
 	if (op->level < 10)
@@ -873,13 +873,13 @@ int command_dropall(object *op, char *params)
 		return 0;
 	}
 
-  	curinv = op->inv;
+	curinv = op->inv;
 
-  	/* This is the default.  Drops everything not locked or considered
-    not something that should be dropped. */
-  	/* Care must be taken that the next item pointer is not to money as
-    the drop() routine will do unknown things to it when dropping
-    in a shop. --Tero.Pelander@utu.fi */
+	/* This is the default.  Drops everything not locked or considered
+	not something that should be dropped. */
+	/* Care must be taken that the next item pointer is not to money as
+	the drop() routine will do unknown things to it when dropping
+	in a shop. --Tero.Pelander@utu.fi */
 
 	if (params == NULL)
 	{
@@ -929,9 +929,9 @@ int command_dropall(object *op, char *params)
 			curinv = nextinv;
 		}
 	}
-  	else if (strcmp(params, "misc") == 0)
+	else if (strcmp(params, "misc") == 0)
 	{
-		while(curinv != NULL)
+		while (curinv != NULL)
 		{
 			nextinv = curinv->below;
 
@@ -969,23 +969,23 @@ int command_dropall(object *op, char *params)
 			}
 			curinv = nextinv;
 		}
-  	}
+	}
 
-  	return 0;
+	return 0;
 }
 
 /* Object op wants to drop object(s) params.  params can be a
  * comma seperated list. */
 int command_drop(object *op, char *params)
 {
-    object  *tmp, *next;
-    int did_one = 0;
+	object  *tmp, *next;
+	int did_one = 0;
 
-    if (!params)
+	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Drop what?");
 		return 0;
-    }
+	}
 	else
 	{
 		for (tmp = op->inv; tmp; tmp = next)
@@ -999,33 +999,33 @@ int command_drop(object *op, char *params)
 			{
 				drop(op, tmp);
 				did_one = 1;
-	    	}
+			}
 		}
 
 		if (!did_one)
 			new_draw_info(NDI_UNIQUE, 0, op, "Nothing to drop.");
-    }
+	}
 
-    if (op->type == PLAYER)
-        CONTR(op)->count = 0;
+	if (op->type == PLAYER)
+		CONTR(op)->count = 0;
 
-    return 0;
+	return 0;
 }
 
 int command_examine(object *op, char *params)
 {
-  	if (op->type == PLAYER)
-      	CONTR(op)->praying = 0;
+	if (op->type == PLAYER)
+		CONTR(op)->praying = 0;
 
-  	if (!params)
+	if (!params)
 	{
-    	object *tmp = op->below;
-    	while (tmp && !LOOK_OBJ(tmp))
+		object *tmp = op->below;
+		while (tmp && !LOOK_OBJ(tmp))
 			tmp = tmp->below;
 
-    	if (tmp)
+		if (tmp)
 			examine(op, tmp);
-  	}
+	}
 	else
 	{
 		object *tmp = find_best_object_match(op, params);
@@ -1035,20 +1035,20 @@ int command_examine(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, 0, op, "Could not find an object that matches %s", params);
 	}
 
-  	return 0;
+	return 0;
 }
 
 /* Gecko: added a recursive part to search so that we also search in containers */
 static object *find_marked_object_rec(object *op, object **marked, uint32 *marked_count)
 {
-    object *tmp, *tmp2;
+	object *tmp, *tmp2;
 
-    /* This may seem like overkill, but we need to make sure that they
-     * player hasn't dropped the item.  We use count on the off chance that
-     * an item got reincarnated at some point.
-     */
-    for (tmp = op->inv; tmp; tmp = tmp->below)
-    {
+	/* This may seem like overkill, but we need to make sure that they
+	 * player hasn't dropped the item.  We use count on the off chance that
+	 * an item got reincarnated at some point.
+	 */
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
 		if (IS_SYS_INVISIBLE(tmp))
 			continue;
 
@@ -1065,16 +1065,16 @@ static object *find_marked_object_rec(object *op, object **marked, uint32 *marke
 		}
 		else if (tmp->inv)
 		{
-            tmp2 = find_marked_object_rec(tmp, marked, marked_count);
+			tmp2 = find_marked_object_rec(tmp, marked, marked_count);
 
-            if (tmp2)
-                return tmp2;
-            if (*marked == NULL)
-                return NULL;
-        }
-    }
+			if (tmp2)
+				return tmp2;
+			if (*marked == NULL)
+				return NULL;
+		}
+	}
 
-    return NULL;
+	return NULL;
 }
 
 
@@ -1083,12 +1083,12 @@ static object *find_marked_object_rec(object *op, object **marked, uint32 *marke
  * otherwise, try to find a matching object - try best match first. */
 int command_mark(object *op, char *params)
 {
-    if (!CONTR(op))
+	if (!CONTR(op))
 		return 1;
 
 	CONTR(op)->praying = 0;
 
-    if (!params)
+	if (!params)
 	{
 		object *mark = find_marked_object(op);
 
@@ -1096,8 +1096,8 @@ int command_mark(object *op, char *params)
 			new_draw_info(NDI_UNIQUE, 0, op, "You have no marked object.");
 		else
 			new_draw_info_format(NDI_UNIQUE, 0, op, "%s is marked.", query_name(mark, NULL));
-    }
-    else
+	}
+	else
 	{
 		object *mark1 = find_best_object_match(op, params);
 		if (!mark1)
@@ -1112,10 +1112,10 @@ int command_mark(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, 0, op, "Marked item %s", query_name(mark1, NULL));
 			return 0;
 		}
-    }
+	}
 
 	/* shouldn't get here */
-    return 0;
+	return 0;
 }
 
 
@@ -1126,16 +1126,16 @@ int command_mark(object *op, char *params)
  * nothing is found. */
 object *find_marked_object(object *op)
 {
-    if (op->type != PLAYER)
-        return NULL;
-
-    if (!op || !CONTR(op))
+	if (op->type != PLAYER)
 		return NULL;
 
-    if (!CONTR(op)->mark)
+	if (!op || !CONTR(op))
 		return NULL;
 
-    return find_marked_object_rec(op, &CONTR(op)->mark, &CONTR(op)->mark_count);
+	if (!CONTR(op)->mark)
+		return NULL;
+
+	return find_marked_object_rec(op, &CONTR(op)->mark, &CONTR(op)->mark_count);
 }
 
 
@@ -1143,7 +1143,7 @@ object *find_marked_object(object *op)
  * tmp is the monster being examined. */
 void examine_monster(object *op, object *tmp)
 {
-    object *mon = tmp->head ? tmp->head : tmp;
+	object *mon = tmp->head ? tmp->head : tmp;
 	char *gender;
 	char *att;
 	int val, val2, i;
@@ -1153,10 +1153,10 @@ void examine_monster(object *op, object *tmp)
 	if (QUERY_FLAG(mon, FLAG_IS_MALE))
 	{
 		if (QUERY_FLAG(mon, FLAG_IS_FEMALE))
-        {
+		{
 			gender = "hermaphrodite";
 			att = "It";
-        }
+		}
 		else
 		{
 			gender = "male";
@@ -1217,14 +1217,14 @@ void examine_monster(object *op, object *tmp)
 	if (val != -1)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Best armour protection seems to be for %s.", protection_name[val]);
 
-    if (QUERY_FLAG(mon, FLAG_UNDEAD))
+	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s is an undead force.", att);
 
-    /* Anyone know why this used to use the clone value instead of the
-     * maxhp field?  This seems that it should give more accurate results. */
-    switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
+	/* Anyone know why this used to use the clone value instead of the
+	 * maxhp field?  This seems that it should give more accurate results. */
+	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
-		/* From 1-4 */
+			/* From 1-4 */
 		case 1:
 			new_draw_info_format(NDI_UNIQUE, 0, op, "%s is in a bad shape.", att);
 			break;
@@ -1237,14 +1237,14 @@ void examine_monster(object *op, object *tmp)
 		default:
 			new_draw_info_format(NDI_UNIQUE, 0, op, "%s is in excellent shape.", att);
 			break;
-    }
+	}
 
-    if (present_in_ob(POISONING, mon) != NULL)
+	if (present_in_ob(POISONING, mon) != NULL)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s looks very ill.", att);
 }
 
 char *long_desc(object *tmp, object *caller)
- {
+{
 	static char buf[VERY_BIG_BUF];
 	char *cp;
 
@@ -1300,8 +1300,8 @@ char *long_desc(object *tmp, object *caller)
 
 	if (buf[0] == '\0')
 	{
-      	strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
-      	buf[VERY_BIG_BUF - 1] = 0;
+		strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
+		buf[VERY_BIG_BUF - 1] = 0;
 	}
 
 	return buf;
@@ -1309,41 +1309,41 @@ char *long_desc(object *tmp, object *caller)
 
 void examine(object *op, object *tmp)
 {
-    char buf[VERY_BIG_BUF];
+	char buf[VERY_BIG_BUF];
 	char tmp_buf[64];
-    int i;
+	int i;
 
-    if (tmp == NULL || tmp->type == CLOSE_CON)
+	if (tmp == NULL || tmp->type == CLOSE_CON)
 		return;
 
-    /* Only quetzals can see the resistances on flesh. To realize
+	/* Only quetzals can see the resistances on flesh. To realize
 	this, we temporarily flag the flesh with SEE_INVISIBLE */
 	if (op->type == PLAYER && tmp->type == FLESH && is_dragon_pl(op))
-	    SET_FLAG(tmp, FLAG_SEE_INVISIBLE);
+		SET_FLAG(tmp, FLAG_SEE_INVISIBLE);
 
-    strcpy(buf, "That is ");
+	strcpy(buf, "That is ");
 	strncat(buf, long_desc(tmp, op), VERY_BIG_BUF - strlen(buf) - 1);
 	buf[VERY_BIG_BUF - 1] = 0;
 
 	if (op->type == PLAYER && tmp->type == FLESH)
-	    CLEAR_FLAG(tmp, FLAG_SEE_INVISIBLE);
+		CLEAR_FLAG(tmp, FLAG_SEE_INVISIBLE);
 
 	/* only add this for usable items, not for objects like walls or floors for example */
 	if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED) && need_identify(tmp))
 		strncat(buf, " (unidentified)", VERY_BIG_BUF - strlen(buf) - 1);
 	buf[VERY_BIG_BUF - 1] = 0;
 
-    new_draw_info(NDI_UNIQUE, 0, op, buf);
-    buf[0] = '\0';
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	buf[0] = '\0';
 
-    if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
+	if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
 		examine_monster(op, tmp);
 	}
-    /* we don't double use the item_xxx arch commands, so they are always valid */
-    else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-    {
+	/* we don't double use the item_xxx arch commands, so they are always valid */
+	else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+	{
 		/* if one of this is set, we have a ego item */
 		if (QUERY_FLAG(tmp, FLAG_IS_GOOD))
 			new_draw_info_format(NDI_UNIQUE, 0, op, "It is good aligned.");
@@ -1353,21 +1353,21 @@ void examine(object *op, object *tmp)
 			new_draw_info_format(NDI_UNIQUE, 0, op, "It is neutral aligned.");
 
 		if (tmp->item_level)
-        {
-            if (tmp->item_skill)
-            {
-                sprintf(buf, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(op, tmp->item_skill));
-                new_draw_info(NDI_UNIQUE, 0, op, buf);
-            }
-            else
-            {
-                sprintf(buf, "It needs a level of %d to use.", tmp->item_level);
-                new_draw_info(NDI_UNIQUE, 0, op, buf);
-            }
-        }
+		{
+			if (tmp->item_skill)
+			{
+				sprintf(buf, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(op, tmp->item_skill));
+				new_draw_info(NDI_UNIQUE, 0, op, buf);
+			}
+			else
+			{
+				sprintf(buf, "It needs a level of %d to use.", tmp->item_level);
+				new_draw_info(NDI_UNIQUE, 0, op, buf);
+			}
+		}
 
-        if (tmp->item_quality)
-        {
+		if (tmp->item_quality)
+		{
 			if (QUERY_FLAG(tmp, FLAG_INDESTRUCTIBLE))
 			{
 				sprintf(buf,"Qua: %d Con: Indestructible.", tmp->item_quality);
@@ -1484,12 +1484,12 @@ void examine(object *op, object *tmp)
 					new_draw_info(NDI_UNIQUE, 0, op, buf);
 				}
 			}
-        }
+		}
 
-        buf[0] = '\0';
-    }
+		buf[0] = '\0';
+	}
 
-    switch (tmp->type)
+	switch (tmp->type)
 	{
 		case SPELLBOOK:
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) && tmp->stats.sp >= 0 && tmp->stats.sp <= NROFREALSPELLS)
@@ -1596,10 +1596,10 @@ void examine(object *op, object *tmp)
 			break;
 	}
 
-    if (buf[0] != '\0')
+	if (buf[0] != '\0')
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
 
-    if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED)))
+	if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED)))
 	{
 		strcpy(buf, "It is made of: ");
 
@@ -1612,13 +1612,13 @@ void examine(object *op, object *tmp)
 			}
 		}
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
-    }
+	}
 
-    if (tmp->weight)
+	if (tmp->weight)
 	{
 		sprintf(buf, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float)(tmp->nrof ? tmp->weight * (int) tmp->nrof : tmp->weight) / 1000.0f);
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
-    }
+	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_ONE_DROP))
 	{
@@ -1654,7 +1654,7 @@ void examine(object *op, object *tmp)
 		else
 		{
 			object *floor;
-			dirty_little_jump1:
+dirty_little_jump1:
 			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
 			if (floor && floor->type == SHOP_FLOOR && tmp->type != MONEY)
 			{
@@ -1681,11 +1681,11 @@ void examine(object *op, object *tmp)
 			else
 				new_draw_info_format(NDI_UNIQUE, 0, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 		}
-    }
+	}
 
-    /* Does the object have a message?  Don't show message for all object
-     * types - especially if the first entry is a match */
-    if (tmp->msg && tmp->type != EXIT && tmp->type != BOOK && tmp->type != CORPSE && !QUERY_FLAG(tmp, FLAG_WALK_ON) && strncasecmp(tmp->msg, "@match", 7))
+	/* Does the object have a message?  Don't show message for all object
+	 * types - especially if the first entry is a match */
+	if (tmp->msg && tmp->type != EXIT && tmp->type != BOOK && tmp->type != CORPSE && !QUERY_FLAG(tmp, FLAG_WALK_ON) && strncasecmp(tmp->msg, "@match", 7))
 	{
 
 		/* This is just a hack so when identifying the items, we print
@@ -1695,9 +1695,9 @@ void examine(object *op, object *tmp)
 			new_draw_info(NDI_UNIQUE, 0, op, "The object has a story:");
 			new_draw_info(NDI_UNIQUE, 0, op, tmp->msg);
 		}
-    }
+	}
 	/* Blank line */
-    new_draw_info(NDI_UNIQUE, 0, op, " ");
+	new_draw_info(NDI_UNIQUE, 0, op, " ");
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
@@ -1711,28 +1711,28 @@ void examine(object *op, object *tmp)
  * [ Only items which are applied are shown. Tero.Haatanen@lut.fi ] */
 void inventory(object *op, object *inv)
 {
-  	object *tmp;
-  	char *in;
-  	int items = 0, length;
+	object *tmp;
+	char *in;
+	int items = 0, length;
 
-  	if (inv == NULL && op == NULL)
+	if (inv == NULL && op == NULL)
 	{
-    	new_draw_info(NDI_UNIQUE, 0, op, "Inventory of what object?");
-    	return;
-  	}
+		new_draw_info(NDI_UNIQUE, 0, op, "Inventory of what object?");
+		return;
+	}
 
-  	tmp = inv ? inv->inv : op->inv;
+	tmp = inv ? inv->inv : op->inv;
 
-  	while (tmp)
+	while (tmp)
 	{
-    	if ((!IS_SYS_INVISIBLE(tmp) && (inv == NULL || inv->type == CONTAINER || QUERY_FLAG(tmp, FLAG_APPLIED))) || (!op || QUERY_FLAG(op, FLAG_WIZ)))
-      		items++;
+		if ((!IS_SYS_INVISIBLE(tmp) && (inv == NULL || inv->type == CONTAINER || QUERY_FLAG(tmp, FLAG_APPLIED))) || (!op || QUERY_FLAG(op, FLAG_WIZ)))
+			items++;
 
-    	tmp = tmp->below;
- 	}
+		tmp = tmp->below;
+	}
 
 	/* player's inventory */
-  	if (inv == NULL)
+	if (inv == NULL)
 	{
 		if (items == 0)
 		{
@@ -1745,7 +1745,7 @@ void inventory(object *op, object *inv)
 			in = "";
 			new_draw_info(NDI_UNIQUE, 0, op, "Inventory:");
 		}
-  	}
+	}
 	else
 	{
 		if (items == 0)
@@ -1755,7 +1755,7 @@ void inventory(object *op, object *inv)
 			length = 28;
 			in = "  ";
 		}
-  	}
+	}
 
 	for (tmp = inv ? inv->inv : op->inv; tmp; tmp = tmp->below)
 	{
@@ -1768,6 +1768,6 @@ void inventory(object *op, object *inv)
 			new_draw_info_format(NDI_UNIQUE, 0, op, "%s- %-*.*s %-8s", in, length + 8, length + 8, query_name(tmp, NULL), query_weight(tmp));
 	}
 
-  	if (!inv && op)
-    	new_draw_info_format(NDI_UNIQUE, 0, op, "%-*s %-8s", 41, "Total weight :", query_weight(op));
+	if (!inv && op)
+		new_draw_info_format(NDI_UNIQUE, 0, op, "%-*s %-8s", 41, "Total weight :", query_weight(op));
 }

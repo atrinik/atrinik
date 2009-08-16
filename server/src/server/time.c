@@ -163,11 +163,11 @@ void remove_door(object *op)
 		insert_ob_in_map(tmp, op->map, op, 0);
 	}
 
-  	if (op->sub_type1 == ST1_DOOR_NORMAL)
-	  	play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
+	if (op->sub_type1 == ST1_DOOR_NORMAL)
+		play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
 
-  	remove_ob(op);
-  	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+	remove_ob(op);
+	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
 /**
@@ -178,7 +178,7 @@ void remove_door(object *op)
  * @param opener Object opening the door */
 void open_locked_door(object *op, object *opener)
 {
-  	object *tmp, *tmp2;
+	object *tmp, *tmp2;
 
 	/* mow 2 ways to handle open doors.
 	 * a.) if other_arch is set, we insert that object and remove the old door.
@@ -202,7 +202,7 @@ void open_locked_door(object *op, object *opener)
 		insert_ob_in_map(tmp, op->map, op, 0);
 
 		if (op->sub_type1 == ST1_DOOR_NORMAL)
-		  	play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
+			play_sound_map(op->map, op->x, op->y, SOUND_OPEN_DOOR, SOUND_NORMAL);
 
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
@@ -291,21 +291,21 @@ void close_locked_door(object *op)
 		return;
 	}
 
-  	/* Now check the door counter - if not <= 0 we're still open */
-  	if (op->last_sp-- > 0)
-	 	 return;
+	/* Now check the door counter - if not <= 0 we're still open */
+	if (op->last_sp-- > 0)
+		return;
 
 	/* Now we try to close the door. The rule is:
 	 * If the tile of the door is not blocked by a no_pass object OR a player OR a mob -
 	 * then close the door.
 	 * If it is blocked - then restart a new "is open" phase. */
 
-  	/* Here we can use our blocked() function - we simply check the given flags */
-  	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
-  	{
-	  	/* Let it open one more round. Reinit "open" counter. */
-	  	op->last_sp = op->stats.sp;
-  	}
+	/* Here we can use our blocked() function - we simply check the given flags */
+	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
+	{
+		/* Let it open one more round. Reinit "open" counter. */
+		op->last_sp = op->stats.sp;
+	}
 	/* Ok - now we close it */
 	else
 	{
@@ -744,14 +744,14 @@ void move_detector(object *op)
 		object *tmp2;
 		if (op->stats.hp)
 		{
-		  	for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
 			{
-			 	if (op->slaying && !strcmp(op->slaying, tmp->name))
+				if (op->slaying && !strcmp(op->slaying, tmp->name))
 					detected = 1;
 
-			 	if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
+				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
 					detected = 1;
-		  	}
+			}
 		}
 
 		if (op->slaying && !strcmp(op->slaying, tmp->name))
@@ -1163,8 +1163,8 @@ void move_arrow(object *op)
 		{
 			/* Target is standing on a wall.  Let arrow turn around before
 			 * the wall. */
-			 new_x = op->x;
-			 new_y = op->y;
+			new_x = op->x;
+			new_y = op->y;
 		}
 
 		SET_FLAG(op, FLAG_WAS_REFLECTED);
@@ -1415,7 +1415,7 @@ void move_teleporter(object *op)
 			}
 
 			transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
-		 }
+		}
 		else
 		{
 			/* Random teleporter */
@@ -1443,19 +1443,19 @@ void move_firewall(object *op)
 {
 	/* last_eat 0 = off */
 	/* dm has created a firewall in his inventory or no legal spell selected */
-  	if (!op->map || !op->last_eat || op->stats.dam == -1)
+	if (!op->map || !op->last_eat || op->stats.dam == -1)
 		return;
 
-  	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
+	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
 }
 
 void move_firechest(object *op)
 {
 	/* dm has created a firechest in his inventory */
-  	if (!op->map)
+	if (!op->map)
 		return;
 
-  	fire_a_ball(op, rndm(1, 8), 7);
+	fire_a_ball(op, rndm(1, 8), 7);
 }
 
 /* move_player_mover:  this function takes a "player mover" as an
@@ -1644,9 +1644,9 @@ void move_marker(object *op)
 
 int process_object(object *op)
 {
-   	if (QUERY_FLAG(op, FLAG_MONSTER))
+	if (QUERY_FLAG(op, FLAG_MONSTER))
 		if (move_monster(op) || OBJECT_FREE(op))
-	  		return 1;
+			return 1;
 
 	if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state)
 	{
@@ -1721,7 +1721,7 @@ int process_object(object *op)
 		return 1;
 	}
 
-	process_object_dirty_jump:
+process_object_dirty_jump:
 
 	/* Trigger the TIME event */
 	trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
@@ -1789,7 +1789,7 @@ int process_object(object *op)
 			explosion(op);
 			return 0;
 
-		/* It now moves twice as fast */
+			/* It now moves twice as fast */
 		case LIGHTNING:
 			move_bolt(op);
 			return 0;
@@ -1802,7 +1802,7 @@ int process_object(object *op)
 			remove_door(op);
 			return 0;
 
-		/* handle autoclosing */
+			/* handle autoclosing */
 		case LOCKED_DOOR:
 			close_locked_door(op);
 			return 0;
@@ -1895,5 +1895,5 @@ int process_object(object *op)
 			return 0;
 	}
 
-  	return 0;
+	return 0;
 }

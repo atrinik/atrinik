@@ -27,7 +27,8 @@
 #define __PARTY_H
 
 /* Party tabs */
-enum {
+enum
+{
 	PARTY_TAB_LIST,
 	PARTY_TAB_WHO,
 	PARTY_TAB_LEAVE,

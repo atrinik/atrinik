@@ -49,40 +49,40 @@
 static int find_spell_byname(object *op, char *params, int options)
 {
 	/* number of spells known by op */
-    int numknown;
+	int numknown;
 	/* number of spell that is being cast */
-    int spnum;
-    int match = -1, i;
-    int paramlen = 0;
+	int spnum;
+	int match = -1, i;
+	int paramlen = 0;
 
 	/* DMs know all spells */
-    if (QUERY_FLAG(op, FLAG_WIZ))
+	if (QUERY_FLAG(op, FLAG_WIZ))
 		numknown = NROFREALSPELLS;
-    else
+	else
 		numknown = CONTR(op)->nrofknownspells;
 
-    for (i = 0; i < numknown; i++)
+	for (i = 0; i < numknown; i++)
 	{
 		if (QUERY_FLAG(op, FLAG_WIZ))
 			spnum = i;
 		else
 			spnum = CONTR(op)->known_spells[i];
 
-        if (!options)
-          	paramlen = strlen(params);
+		if (!options)
+			paramlen = strlen(params);
 
 		if (!strncmp(params, spells[spnum].name, options ? (int) strlen(spells[spnum].name) : paramlen))
 		{
 			/* We already found a match previously - thus params is not
 			 * not unique, so return -2 stating this. */
-	    	if (match >= 0)
+			if (match >= 0)
 				return -2;
-	    	else
+			else
 				match = spnum;
 		}
-    }
+	}
 
-    return match;
+	return match;
 }
 
 
@@ -138,45 +138,45 @@ int command_cast_spell(object *op, char *params)
 	rangetype orig_rangetype = CONTR(op)->shoottype;
 	int orig_spn = CONTR(op)->chosen_spell;
 	/* number of spell that is being cast */
-    int spnum = -1, spnum2 = -1;
+	int spnum = -1, spnum2 = -1;
 	int value;
 
-    if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
+	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You don't know any spells.");
-        return 0;
-    }
+		return 0;
+	}
 
-    if (params==NULL)
+	if (params==NULL)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Cast which spell?");
-        return 0;
-    }
+		return 0;
+	}
 
-    /* When we control a golem we can't cast again - if we do, it breaks control */
-    if (CONTR(op)->golem != NULL)
+	/* When we control a golem we can't cast again - if we do, it breaks control */
+	if (CONTR(op)->golem != NULL)
 	{
 		send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-        remove_friendly_object(CONTR(op)->golem);
-        destruct_ob(CONTR(op)->golem);
-        CONTR(op)->golem = NULL;
-    }
+		remove_friendly_object(CONTR(op)->golem);
+		destruct_ob(CONTR(op)->golem);
+		CONTR(op)->golem = NULL;
+	}
 
 	/* This assumes simply that if the name of
-     * the spell being cast as input by the player is shorter than or
-     * equal to the length of the spell name, then there is no options
-     * but if it is longer, then everything after the spell name is
-     * an option.  It determines if the spell name is shorter or
-     * longer by first iterating through the actual spell names, checking
-     * to the length of the typed in name.  If that fails, then it checks
-     * to the length of each spell name.  If that passes, it assumes that
-     * anything after the length of the actual spell name is extra options
-     * typed in by the player (ie: marking rune Hello there)  */
+	 * the spell being cast as input by the player is shorter than or
+	 * equal to the length of the spell name, then there is no options
+	 * but if it is longer, then everything after the spell name is
+	 * an option.  It determines if the spell name is shorter or
+	 * longer by first iterating through the actual spell names, checking
+	 * to the length of the typed in name.  If that fails, then it checks
+	 * to the length of each spell name.  If that passes, it assumes that
+	 * anything after the length of the actual spell name is extra options
+	 * typed in by the player (ie: marking rune Hello there)  */
 	if (((spnum2 = spnum = find_spell_byname(op, params, 0)) < 0) && ((spnum = find_spell_byname(op, params, 1)) >= 0))
 	{
 		params[strlen(spells[spnum].name)] = '\0';
 		cp = &params[strlen(spells[spnum].name) + 1];
-        if (strncmp(cp, "of ", 3) == 0)
+		if (strncmp(cp, "of ", 3) == 0)
 			cp += 3;
 	}
 
@@ -184,8 +184,8 @@ int command_cast_spell(object *op, char *params)
 	if (spnum == -1)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You don't know the spell %s.", params);
-        return 0;
-    }
+		return 0;
+	}
 
 	CONTR(op)->shoottype = range_magic;
 	CONTR(op)->chosen_spell = spnum;
@@ -219,7 +219,7 @@ int command_cast_spell(object *op, char *params)
 
 	CONTR(op)->action_timer = (float)(CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 	if (CONTR(op)->last_action_timer > 0)
-    	CONTR(op)->action_timer *= -1;
+		CONTR(op)->action_timer *= -1;
 	return 1;
 }
 
@@ -231,44 +231,44 @@ int fire_cast_spell(object *op, char *params)
 	rangetype orig_rangetype = CONTR(op)->shoottype;
 	int orig_spn = CONTR(op)->chosen_spell;
 	/* number of spell that is being cast */
-    int spnum = -1, spnum2 = -1;
+	int spnum = -1, spnum2 = -1;
 
-    if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
+	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You don't know any spells.");
-        return 0;
-    }
+		return 0;
+	}
 
-    if (params == NULL)
+	if (params == NULL)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Cast which spell?");
-        return 0;
-    }
+		return 0;
+	}
 
-    /* When we control a golem we can't cast again - if we do, it breaks control */
-    if (CONTR(op)->golem != NULL)
+	/* When we control a golem we can't cast again - if we do, it breaks control */
+	if (CONTR(op)->golem != NULL)
 	{
 		send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-        remove_friendly_object(CONTR(op)->golem);
-        destruct_ob(CONTR(op)->golem);
-        CONTR(op)->golem = NULL;
-    }
+		remove_friendly_object(CONTR(op)->golem);
+		destruct_ob(CONTR(op)->golem);
+		CONTR(op)->golem = NULL;
+	}
 
 	/* This assumes simply that if the name of
-     * the spell being cast as input by the player is shorter than or
-     * equal to the length of the spell name, then there is no options
-     * but if it is longer, then everything after the spell name is
-     * an option.  It determines if the spell name is shorter or
-     * longer by first iterating through the actual spell names, checking
-     * to the length of the typed in name.  If that fails, then it checks
-     * to the length of each spell name.  If that passes, it assumes that
-     * anything after the length of the actual spell name is extra options
-     * typed in by the player (ie: marking rune Hello there) */
+	 * the spell being cast as input by the player is shorter than or
+	 * equal to the length of the spell name, then there is no options
+	 * but if it is longer, then everything after the spell name is
+	 * an option.  It determines if the spell name is shorter or
+	 * longer by first iterating through the actual spell names, checking
+	 * to the length of the typed in name.  If that fails, then it checks
+	 * to the length of each spell name.  If that passes, it assumes that
+	 * anything after the length of the actual spell name is extra options
+	 * typed in by the player (ie: marking rune Hello there) */
 	if (((spnum2 = spnum = find_spell_byname(op, params, 0)) < 0) && ((spnum = find_spell_byname(op, params, 1)) >= 0))
 	{
 		params[strlen(spells[spnum].name)] = '\0';
 		cp = &params[strlen(spells[spnum].name) + 1];
-        if (strncmp(cp, "of ", 3) == 0)
+		if (strncmp(cp, "of ", 3) == 0)
 			cp += 3;
 	}
 
@@ -276,8 +276,8 @@ int fire_cast_spell(object *op, char *params)
 	if (spnum == -1)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You don't know the spell %s.", params);
-        return 0;
-    }
+		return 0;
+	}
 
 	CONTR(op)->shoottype = range_magic;
 	CONTR(op)->chosen_spell = spnum;
@@ -288,7 +288,7 @@ int fire_cast_spell(object *op, char *params)
 		{
 			CONTR(op)->chosen_spell = orig_spn;
 			CONTR(op)->shoottype = orig_rangetype;
-		    return 0;
+			return 0;
 		}
 	}
 
@@ -302,16 +302,16 @@ int fire_cast_spell(object *op, char *params)
 
 int legal_range(object *op, int r)
 {
-  	int i;
-  	object *tmp;
+	int i;
+	object *tmp;
 
 	switch (r)
 	{
-		/* "Nothing" is always legal */
+			/* "Nothing" is always legal */
 		case range_none:
 			return 1;
 
-		/* bows */
+			/* bows */
 		case range_bow:
 			for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 				if (tmp->type == BOW && QUERY_FLAG(tmp, FLAG_APPLIED))
@@ -319,7 +319,7 @@ int legal_range(object *op, int r)
 
 			return 0;
 
-		/* cast spells */
+			/* cast spells */
 		case range_magic:
 			if (CONTR(op)->nrofknownspells == 0)
 				return 0;
@@ -331,7 +331,7 @@ int legal_range(object *op, int r)
 			CONTR(op)->chosen_spell = CONTR(op)->known_spells[0];
 			return 1;
 
-		/* use wands */
+			/* use wands */
 		case range_wand:
 			for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 				if (tmp->type == WAND && QUERY_FLAG(tmp, FLAG_APPLIED))
@@ -379,7 +379,7 @@ int legal_range(object *op, int r)
 
 			return 0;
 
-		/* Use scrolls */
+			/* Use scrolls */
 		case range_scroll:
 			return 0;
 
@@ -414,7 +414,8 @@ void change_spell(object *op, char k)
 			CONTR(op)->shoottype = range_none;
 		else if (CONTR(op)->shoottype <= range_bottom)
 			CONTR(op)->shoottype = (rangetype)(range_size - 1);
-	} while (!legal_range(op, CONTR(op)->shoottype));
+	}
+	while (!legal_range(op, CONTR(op)->shoottype));
 
 	switch (CONTR(op)->shoottype)
 	{
@@ -423,15 +424,15 @@ void change_spell(object *op, char k)
 			break;
 
 		case range_bow:
-			{
-				object *tmp;
-				for (tmp = op->inv; tmp; tmp = tmp->below)
-					if (tmp->type == BOW && QUERY_FLAG(tmp, FLAG_APPLIED))
-						break;
+		{
+			object *tmp;
+			for (tmp = op->inv; tmp; tmp = tmp->below)
+				if (tmp->type == BOW && QUERY_FLAG(tmp, FLAG_APPLIED))
+					break;
 
-				sprintf(buf, "Switched to %s and %s.", query_name(tmp, NULL), tmp && tmp->race ? tmp->race : "nothing");
-			}
-			break;
+			sprintf(buf, "Switched to %s and %s.", query_name(tmp, NULL), tmp && tmp->race ? tmp->race : "nothing");
+		}
+		break;
 
 		case range_magic:
 			sprintf(buf,"Switched to spells (%s).", spells[CONTR(op)->chosen_spell].name);

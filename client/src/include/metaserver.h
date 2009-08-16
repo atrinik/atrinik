@@ -27,7 +27,8 @@
 #define METASERVER_TIMEOUT 3
 
 /** Structure for metaserver data returned by metaserver */
-typedef struct metaserver_struct {
+typedef struct metaserver_struct
+{
 	/** The data */
 	char *memory;
 

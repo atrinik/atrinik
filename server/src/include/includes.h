@@ -118,8 +118,8 @@
 #endif
 
 #if defined(vax) || defined(ibm032)
- size_t strftime(char *, size_t, const char *, const struct tm *);
- time_t mktime(struct tm *);
+size_t strftime(char *, size_t, const char *, const struct tm *);
+time_t mktime(struct tm *);
 #endif
 
 #ifndef WIN32 /* ---win32 we define this stuff in win32.h */

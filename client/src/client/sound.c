@@ -54,7 +54,8 @@ static int special_sounds[SPECIAL_SOUND_INIT];
 _wave Sounds[SOUND_MAX + SPELL_SOUND_MAX];
 
 /** The sound files */
-static char *sound_files[SOUND_MAX] = {
+static char *sound_files[SOUND_MAX] =
+{
 	"event01.wav",
 	"bow1.wav",
 	"learnspell.wav",
@@ -114,7 +115,8 @@ static char *sound_files[SOUND_MAX] = {
 };
 
 /** Spell sound files */
-static char *spell_sound_files[SPELL_SOUND_MAX] = {
+static char *spell_sound_files[SPELL_SOUND_MAX] =
+{
 	"magic_default.wav",
 	"magic_acid.wav",
 	"magic_animate.wav",
@@ -493,7 +495,7 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
 		Mix_PlayMusic(music.data, loop);
 
 	Mix_HookMusicFinished(musicDone);
- #endif
+#endif
 }
 
 /**

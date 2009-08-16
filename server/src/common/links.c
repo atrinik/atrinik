@@ -68,11 +68,11 @@ void free_objectlink(objectlink *ol)
  * objectlink malloc/free native. */
 void free_objectlinkpt(oblinkpt *obp)
 {
-  	if (obp->next)
-    	free_objectlinkpt(obp->next);
+	if (obp->next)
+		free_objectlinkpt(obp->next);
 
-  	if (obp->link)
-    	free_objectlink(obp->link);
+	if (obp->link)
+		free_objectlink(obp->link);
 
-  	free(obp);
+	free(obp);
 }

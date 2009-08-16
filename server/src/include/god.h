@@ -24,18 +24,19 @@
 ************************************************************************/
 
 /* Used to link together the gods */
-typedef struct glnk {
+typedef struct glnk
+{
 	/* name of this god */
-  	const char *name;
+	const char *name;
 
 	/* pointer to the archetype of this god */
-  	struct archt *arch;
+	struct archt *arch;
 
 	/* id of the god */
-  	int id;
+	int id;
 
 	/* the name of the group this god belongs to */
-  	char *pantheon;
+	char *pantheon;
 
-  	struct glnk *next;
+	struct glnk *next;
 } godlink;

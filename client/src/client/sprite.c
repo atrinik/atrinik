@@ -26,7 +26,8 @@
 #include <include.h>
 
 /** Darkness values */
-static double dark_value[DARK_LEVELS] = {
+static double dark_value[DARK_LEVELS] =
+{
 	1.0,
 	0.828,
 	0.685,
@@ -425,22 +426,22 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 		line_clip = area->w;
 
 	/* .w/h are not used from BlitSurface to draw */
-  	dst.x = x;
-  	dst.y = y;
+	dst.x = x;
+	dst.y = y;
 
 	/* Dark brown text will have dark blue links */
 	if (col == COLOR_DBROWN)
 	{
 		color_g.r = 72;
-  		color_g.g = 5;
-  		color_g.b = 195;
+		color_g.g = 5;
+		color_g.b = 195;
 	}
 	/* Otherwise light blue is used */
 	else
 	{
 		color_g.r = 96;
-  		color_g.g = 160;
-  		color_g.b = 255;
+		color_g.g = 160;
+		color_g.b = 255;
 	}
 
 	color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].r;
@@ -471,7 +472,7 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 				color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].g;
 				color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].b;
 
- 				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
+				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
 			}
 			else
 			{
@@ -605,7 +606,7 @@ static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left,
 	/* We only need check this one time here - if we are here, the sprite is blank */
 	return 0;
 
-	right_border:
+right_border:
 	/* Right side border */
 	for (x = Surface->w - 1; x >= 0; x--)
 	{
@@ -619,7 +620,7 @@ static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left,
 		}
 	}
 
-	up_border:
+up_border:
 	/* Up side border */
 	for (y = 0; y < Surface->h; y++)
 	{
@@ -633,7 +634,7 @@ static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left,
 		}
 	}
 
-	down_border:
+down_border:
 	/* Down side border */
 	for (y = Surface->h - 1; y >= 0; y--)
 	{
@@ -762,7 +763,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
 		}
 		else if (bltfx->flags & BLTFX_FLAG_FOW)
 			blt_sprite = sprite->fog_of_war;
-		else if(bltfx->flags & BLTFX_FLAG_RED)
+		else if (bltfx->flags & BLTFX_FLAG_RED)
 			blt_sprite = sprite->red;
 		else if (bltfx->flags & BLTFX_FLAG_GREY)
 			blt_sprite = sprite->grey;

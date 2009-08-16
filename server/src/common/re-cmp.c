@@ -76,43 +76,43 @@ static unsigned int	re_token_depth;
  *  pointer to beginning of matching string */
 char *re_cmp(char *str, char *regexp)
 {
-    char *next_regexp;
-    Boolean once = False;
-    Boolean matched = False;
+	char *next_regexp;
+	Boolean once = False;
+	Boolean matched = False;
 
-    if (re_init_done == False)
+	if (re_init_done == False)
 		re_init();
 
 #ifdef SAFE_CHECKS
-    if (regexp == NULL || str == NULL)
+	if (regexp == NULL || str == NULL)
 		return NULL;
 #endif
 
-    if (*regexp == '^')
+	if (*regexp == '^')
 	{
 		once = True;
 		++regexp;
-    }
+	}
 
-    if (*regexp == 0)
+	if (*regexp == 0)
 	{
 		/* // or /^/ matches any string */
 		return str;
-    }
+	}
 
-    next_regexp = re_get_token(re_token[0], regexp);
-    re_token_depth = 0;
-    re_substr[0] = next_regexp;
+	next_regexp = re_get_token(re_token[0], regexp);
+	re_token_depth = 0;
+	re_substr[0] = next_regexp;
 
-    while (*str != '\0' && !(matched = re_match_token(*str, re_token[0])))
+	while (*str != '\0' && !(matched = re_match_token(*str, re_token[0])))
 		str++;
 
-    if (matched && *next_regexp == 0)
+	if (matched && *next_regexp == 0)
 		return str;
 
-    /* Apologies for the nearly duplicated code below, hopefully it
-     * speeds things up. */
-    if (once)
+	/* Apologies for the nearly duplicated code below, hopefully it
+	 * speeds things up. */
+	if (once)
 	{
 		switch (re_token[0]->repeat)
 		{
@@ -124,7 +124,7 @@ char *re_cmp(char *str, char *regexp)
 			case rep_once_or_more:
 				if (matched == False)
 					return NULL;
-	
+
 				if (re_cmp_step(str+1, regexp, 0, 1))
 					return str;
 				break;
@@ -142,12 +142,12 @@ char *re_cmp(char *str, char *regexp)
 				}
 				else
 					return re_cmp_step(str, next_regexp, 1, 0) ? str : NULL;
-			break;
+				break;
 		}
 		return re_cmp_step(str + 1, next_regexp, 1, 0) ? str : NULL;
-    }
+	}
 
-    if (matched)
+	if (matched)
 	{
 		switch (re_token[0]->repeat)
 		{
@@ -155,52 +155,53 @@ char *re_cmp(char *str, char *regexp)
 			case rep_null_or_once:
 				break;
 
-	    	case rep_once_or_more:
-	    	case rep_null_or_more:
+			case rep_once_or_more:
+			case rep_null_or_more:
 				if (re_cmp_step(str + 1, regexp, 0, 1))
-		    		return str;
+					return str;
 				break;
 		}
 
 		if (re_cmp_step(str + 1, next_regexp, 1, 0))
-	    	return str;
-    }
+			return str;
+	}
 
 #if 0
-    do
+	do
 	{
 		++str;
 		if (re_cmp_step(str, regexp, 0, 0))
-	    	return str;
-    } while (*str);
+			return str;
+	}
+	while (*str);
 #endif
-    return NULL;
+	return NULL;
 }
 
 /*   A u x i l l i a r y   f u n c t i o n s */
 
 static Boolean re_cmp_step(char *str, char *regexp, int slot, int matches)
 {
-    /* str	- string to match
-     * regexp	- pattern
-     * slot	- number of the token which under consideration
-     * matches	- how many times the token has matched */
-    char *next_regexp;
-    Boolean matched;
+	/* str	- string to match
+	 * regexp	- pattern
+	 * slot	- number of the token which under consideration
+	 * matches	- how many times the token has matched */
+	char *next_regexp;
+	Boolean matched;
 
 #ifdef DEBUG
-/*    LOG(llevInfo , "['%s', '%s', %d, %d]\n", str, regexp, slot, matches);*/
+	/*    LOG(llevInfo , "['%s', '%s', %d, %d]\n", str, regexp, slot, matches);*/
 #endif
 
-    if (*regexp == 0)
+	if (*regexp == 0)
 	{
 		/* When we reach the end of the regexp, the match is a success */
 		return True;
-    }
+	}
 
-    /* This chunk of code makes sure that the regexp-tokenising happens
-     * only once. We only tokenise as much as we need. */
-    if ((unsigned int) slot > re_token_depth)
+	/* This chunk of code makes sure that the regexp-tokenising happens
+	 * only once. We only tokenise as much as we need. */
+	if ((unsigned int) slot > re_token_depth)
 	{
 		re_token_depth = slot;
 
@@ -214,18 +215,18 @@ static Boolean re_cmp_step(char *str, char *regexp, int slot, int matches)
 			return False;
 		}
 		re_substr[slot] = next_regexp;
-    }
+	}
 	else
 		next_regexp = re_substr[slot];
 
-    matched = re_match_token(*str, re_token[slot]);
-    if (matched)
+	matched = re_match_token(*str, re_token[slot]);
+	if (matched)
 		++matches;
 
-    if (*str == 0)
+	if (*str == 0)
 		return (*next_regexp == 0 || re_token[slot]->type == sel_end);
 
-    switch (re_token[slot]->repeat)
+	switch (re_token[slot]->repeat)
 	{
 		case rep_once:
 			/* (matches == 1) => (matched == True) */
@@ -267,25 +268,25 @@ static Boolean re_cmp_step(char *str, char *regexp, int slot, int matches)
 			}
 
 			return re_cmp_step(str, next_regexp, slot + 1, 0);
-    }
-    return False;
+	}
+	return False;
 }
 
 static void re_init(void)
 {
-    int i;
+	int i;
 
-    re_token[0] = (selection *) malloc(sizeof(selection));
+	re_token[0] = (selection *) malloc(sizeof(selection));
 
-    for (i = 1; i < RE_TOKEN_MAX; i++)
+	for (i = 1; i < RE_TOKEN_MAX; i++)
 		re_token[i] = NULL;
 
-    re_init_done = True;
+	re_init_done = True;
 }
 
 static Boolean re_match_token(uchar c, selection *sel)
 {
-    switch (sel->type)
+	switch (sel->type)
 	{
 		case sel_any:
 			return True;
@@ -307,8 +308,8 @@ static Boolean re_match_token(uchar c, selection *sel)
 
 		case sel_not_range:
 			return (c < sel->u.range.low && c > sel->u.range.high);
-    }
-    return False;
+	}
+	return False;
 }
 
 /* re_get_token - get regular expression token
@@ -324,15 +325,15 @@ static char *re_get_token(selection *sel, char *regexp)
 #   define exit_if_null
 #endif
 
-    Boolean quoted = False;
-    uchar looking_at;
+	Boolean quoted = False;
+	uchar looking_at;
 
 #ifdef SAFE_CHECKS
-    if (sel == NULL || regexp == NULL || *regexp == 0)
+	if (sel == NULL || regexp == NULL || *regexp == 0)
 		return NULL;
 #endif
 
-    do
+	do
 	{
 		looking_at = *regexp++;
 		switch (looking_at)
@@ -360,22 +361,22 @@ static char *re_get_token(selection *sel, char *regexp)
 				break;
 
 			case '[':
-	        	/* The fun stuff... perhaps a little obfuscated since I
-		 		 * don't trust the compiler to analyse liveness. */
+				/* The fun stuff... perhaps a little obfuscated since I
+				  * don't trust the compiler to analyse liveness. */
 				if (quoted)
 				{
-		    		quoted = False;
-		    		sel->type = sel_single;
-		    		sel->u.single = looking_at;
+					quoted = False;
+					sel->type = sel_single;
+					sel->u.single = looking_at;
 				}
 				else
 				{
 					Boolean neg = False;
 					uchar first, last = 0;
-		
+
 					exit_if_null;
 					looking_at = *regexp++;
-		
+
 					if (looking_at == '^')
 					{
 						neg = True;
@@ -425,13 +426,13 @@ static char *re_get_token(selection *sel, char *regexp)
 								break;
 							}
 						}
-		    		}
-		    		{
+					}
+					{
 						/* The datastructure can only represent a RE this
 						 * complex with an array. */
 						int i;
 						uchar previous;
-		
+
 						sel->type = sel_array;
 						memset(sel->u.array, neg, sizeof(sel->u.array));
 						if (last)
@@ -455,7 +456,7 @@ static char *re_get_token(selection *sel, char *regexp)
 						exit_if_null;
 						previous = looking_at;
 						looking_at = *regexp++;
-		
+
 						/* Add more characters to the array until we reach
 						 * ]. Quoting doesn't and shouldn't work in here.
 						 * ("]" should be put first, and "-" last if they
@@ -471,7 +472,7 @@ static char *re_get_token(selection *sel, char *regexp)
 								{
 #ifdef SAFE_CHECK
 									if (previous > looking_at)
-									return NULL;
+										return NULL;
 #endif
 									for (i = previous + 1; i < looking_at; i++)
 									{
@@ -498,44 +499,45 @@ static char *re_get_token(selection *sel, char *regexp)
 
 				break;
 
-	    	case '\\':
-	        	if (quoted)
+			case '\\':
+				if (quoted)
 				{
-		    		quoted = False;
-		    		sel->type = sel_single;
-		    		sel->u.single = looking_at;
+					quoted = False;
+					sel->type = sel_single;
+					sel->u.single = looking_at;
 				}
 				else
-		    		quoted = True;
+					quoted = True;
 				break;
 
-	    	default:
-	        	quoted = False;
+			default:
+				quoted = False;
 				sel->type = sel_single;
 				sel->u.single = looking_at;
 				break;
 		}
-    } while (quoted);
+	}
+	while (quoted);
 
-    if (*regexp == '*')
+	if (*regexp == '*')
 	{
 		sel->repeat = rep_null_or_more;
 		++regexp;
-    }
+	}
 	else if (*regexp == '?')
 	{
 		sel->repeat = rep_null_or_once;
 		++regexp;
-    }
+	}
 	else if (*regexp == '+')
 	{
 		sel->repeat = rep_once_or_more;
 		++regexp;
-    }
+	}
 	else
 		sel->repeat = rep_once;
 
-    return regexp;
+	return regexp;
 }
 
 /*   D e b u g   c o d e
@@ -543,26 +545,26 @@ static char *re_get_token(selection *sel, char *regexp)
 #ifdef DEBUG2 /* compile all with DEBUG also ? hevi@lut.fi */
 static void re_dump_sel(selection *sel)
 {
-    switch (sel->type)
+	switch (sel->type)
 	{
 		case sel_any:
-	    	printf(".");
-	    	break;
+			printf(".");
+			break;
 
 		case sel_end:
-	    	printf("$");
-	    	break;
+			printf("$");
+			break;
 
 		case sel_single:
-	    	printf("<%c>", sel->u.single);
-	    	break;
+			printf("<%c>", sel->u.single);
+			break;
 
 		case sel_range:
-	    	printf("[%c-%c]", sel->u.range.low, sel->u.range.high);
-	    	break;
+			printf("[%c-%c]", sel->u.range.low, sel->u.range.high);
+			break;
 
 		case sel_array:
-	    {
+		{
 			int i;
 			printf("[");
 			for (i = 0; i < UCHAR_MAX; i++)
@@ -574,22 +576,22 @@ static void re_dump_sel(selection *sel)
 			}
 			printf("]");
 			break;
-	    }
+		}
 
 		case sel_not_single:
-	    	printf("[^%c]", sel->u.single);
-	    	break;
+			printf("[^%c]", sel->u.single);
+			break;
 
 		case sel_not_range:
-	    	printf("[^%c-%c]", sel->u.range.low, sel->u.range.high);
-	    	break;
+			printf("[^%c-%c]", sel->u.range.low, sel->u.range.high);
+			break;
 
 		default:
-	    	printf("<UNKNOWN TOKEN!>");
-	    	break;
-    }
+			printf("<UNKNOWN TOKEN!>");
+			break;
+	}
 
-    switch (sel->repeat)
+	switch (sel->repeat)
 	{
 		case rep_once:
 			break;
@@ -609,23 +611,23 @@ static void re_dump_sel(selection *sel)
 		default:
 			printf("<UNKNOWN REP-TOKEN!>");
 			break;
-    }
+	}
 }
 
 int main(int argc, char *argv[])
 {
-    char *re, *m;
-    selection sel;
+	char *re, *m;
+	selection sel;
 
-    re = re_get_token(&sel, argv[1]);
+	re = re_get_token(&sel, argv[1]);
 
-    printf("'%s' -> '%s'\n", argv[1], re);
-    re_dump_sel(&sel);
-    printf("\n");
-    m = re_cmp(argv[2], argv[1]);
+	printf("'%s' -> '%s'\n", argv[1], re);
+	re_dump_sel(&sel);
+	printf("\n");
+	m = re_cmp(argv[2], argv[1]);
 
-    if (m)
+	if (m)
 		printf("MATCH! -> '%s'\n", m);
-    return 0;
+	return 0;
 }
 #endif

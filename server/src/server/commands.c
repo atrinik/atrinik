@@ -41,7 +41,8 @@
 /*
  * Normal game commands
  */
-CommArray_s Commands[] = {
+CommArray_s Commands[] =
+{
 	{"/stay",			command_stay,			1.0f},
 	{"/n",				command_north,			1.0f},
 	{"/e",				command_east,			1.0f},
@@ -83,32 +84,33 @@ CommArray_s Commands[] = {
 #endif
 	{"/drop",         	command_drop,           1.0f},
 	{"/party", 			command_party,			0.0f},
-  	{"/gsay", 			command_gsay,			1.0f},
+	{"/gsay", 			command_gsay,			1.0f},
 	{"/push",			command_push_object, 	1.0f},
 	{"/left",			command_turn_left,		1.0f},
 	{"/right",			command_turn_right,		1.0f},
 	{"/roll",			command_roll,			1.0f},
-/*  {"/sound",		command_sound,			1.0},*/
-/*  {"/delete",		command_quit,			1.0},*/
-/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
+	/*  {"/sound",		command_sound,			1.0},*/
+	/*  {"/delete",		command_quit,			1.0},*/
+	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
 
-/* temporary disabled commands
-  {"party", command_party,	0.0}, need to recode the party system
-  {"gsay", command_gsay,	1.0}, part of party system
-  {"drop", command_drop,	1.0},
-  {"get", command_take,		1.0},
-  {"skills", command_skills,	0.0},	well, the player has now a perm list
-  {"examine", command_examine,	0.5}, should work in direction
-*/
+	/* temporary disabled commands
+	  {"party", command_party,	0.0}, need to recode the party system
+	  {"gsay", command_gsay,	1.0}, part of party system
+	  {"drop", command_drop,	1.0},
+	  {"get", command_take,		1.0},
+	  {"skills", command_skills,	0.0},	well, the player has now a perm list
+	  {"examine", command_examine,	0.5}, should work in direction
+	*/
 
 };
 
 const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
 
-CommArray_s CommunicationCommands [] = {
-  	/* begin emotions */
+CommArray_s CommunicationCommands [] =
+{
+	/* begin emotions */
 	{"/nod", 		command_nod,		1.0},
-  	{"/dance", 		command_dance,		1.0},
+	{"/dance", 		command_dance,		1.0},
 	{"/kiss", 		command_kiss,		1.0},
 	{"/bounce", 	command_bounce,		1.0},
 	{"/smile", 		command_smile,		1.0},
@@ -167,7 +169,8 @@ CommArray_s CommunicationCommands [] = {
 const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommArray_s);
 
 /* Wizard commands (for both) */
-CommArray_s WizCommands [] = {
+CommArray_s WizCommands [] =
+{
 	{"/dmsay",			command_dmsay,					0.0},
 	{"/summon", 		command_summon,					0.0},
 	{"/kick", 			command_kick,					0.0},
@@ -206,41 +209,40 @@ CommArray_s WizCommands [] = {
 #endif
 	{"/ssdumptable", 	command_ssdumptable,			0.0},
 
-  /*
-  {"/archs", command_archs,	0.0},
-  {"/abil", command_abil,0.0},
-  {"/debug", command_debug,0.0},
-  {"/fix_me", command_fix_me,	0.0},
-  {"/forget_spell", command_forget_spell, 0.0},
-  {"/free", command_free,0.0},
-  {"/invisible", command_invisible,0.0},
-  {"/learn_special_prayer", command_learn_special_prayer, 0.0},
-  {"/logs", command_logs,	0.0},
-  {"/players", command_players,	0.0},
-  {"/patch", command_patch,0.0},
-  {"/printlos", command_printlos,0.0},
-  {"/resistances", command_resistances,	0.0},
-  {"/remove", command_remove,0.0},
-  {"/strings", command_strings,	0.0},
-  {"/set_god", command_setgod, 0.0},
-  {"/speed", command_speed,0.0},
-  {"/stats", command_stats,0.0},
-  {"/style_info", command_style_map_info, 0.0},
-#ifdef DEBUG_MALLOC_LEVEL
-  {"/verify", command_malloc_verify,0.0},
-#endif
-  */
+	/*
+	{"/archs", command_archs,	0.0},
+	{"/abil", command_abil,0.0},
+	{"/debug", command_debug,0.0},
+	{"/fix_me", command_fix_me,	0.0},
+	{"/forget_spell", command_forget_spell, 0.0},
+	{"/invisible", command_invisible,0.0},
+	{"/learn_special_prayer", command_learn_special_prayer, 0.0},
+	{"/logs", command_logs,	0.0},
+	{"/players", command_players,	0.0},
+	{"/patch", command_patch,0.0},
+	{"/printlos", command_printlos,0.0},
+	{"/resistances", command_resistances,	0.0},
+	{"/remove", command_remove,0.0},
+	{"/strings", command_strings,	0.0},
+	{"/set_god", command_setgod, 0.0},
+	{"/speed", command_speed,0.0},
+	{"/stats", command_stats,0.0},
+	{"/style_info", command_style_map_info, 0.0},
+	#ifdef DEBUG_MALLOC_LEVEL
+	{"/verify", command_malloc_verify,0.0},
+	#endif
+	*/
 };
 const int WizCommandsSize = sizeof(WizCommands) / sizeof(CommArray_s);
 
 static int compare_A(const void *a, const void *b)
 {
-  	return strcmp(((CommArray_s *)a)->name, ((CommArray_s *)b)->name);
+	return strcmp(((CommArray_s *)a)->name, ((CommArray_s *)b)->name);
 }
 
 void init_commands()
 {
-  	qsort((char *)Commands, CommandsSize, sizeof(CommArray_s), compare_A);
-  	qsort((char *)CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);
-  	qsort((char *)WizCommands, WizCommandsSize, sizeof(CommArray_s), compare_A);
+	qsort((char *)Commands, CommandsSize, sizeof(CommArray_s), compare_A);
+	qsort((char *)CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);
+	qsort((char *)WizCommands, WizCommandsSize, sizeof(CommArray_s), compare_A);
 }

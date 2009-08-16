@@ -34,18 +34,19 @@
  * objects which point to archetypes.
  * This structure should get removed, and just replaced
  * by the object structure */
-typedef struct archt {
+typedef struct archt
+{
 	/** More definite name, like "generate_kobold" */
-    const char *name;
+	const char *name;
 
 	/** Next archetype in a linked list */
-    struct archt *next;
+	struct archt *next;
 
 	/** The main part of a linked object */
-    struct archt *head;
+	struct archt *head;
 
 	/** Next part of a linked object */
-    struct archt *more;
+	struct archt *more;
 
 	/** used by artifacts list: if != NULL,
 	 * this object is the base object and clone is
@@ -57,7 +58,7 @@ typedef struct archt {
 	object *base_clone;
 
 	/** An object from which to do copy_object() */
-    object clone;
+	object clone;
 } archetype;
 
 EXTERN archetype *first_archetype;

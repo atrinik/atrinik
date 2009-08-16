@@ -35,11 +35,11 @@
  * this is now tilemap aware. */
 object *get_pet_enemy(object * pet, rv_vector *rv)
 {
-    object *owner, *tmp;
-    int i, x, y;
-    mapstruct *nm;
+	object *owner, *tmp;
+	int i, x, y;
+	mapstruct *nm;
 
-    if ((owner = get_owner(pet)) != NULL)
+	if ((owner = get_owner(pet)) != NULL)
 	{
 		/* If the owner has turned on the pet, make the pet
 		 * unfriendly. */
@@ -50,7 +50,7 @@ object *get_pet_enemy(object * pet, rv_vector *rv)
 			pet->move_type &=~PETMOVE;
 			return owner;
 		}
-    }
+	}
 	else
 	{
 		/* else the owner is no longer around, so the
@@ -59,24 +59,24 @@ object *get_pet_enemy(object * pet, rv_vector *rv)
 		remove_friendly_object(pet);
 		pet->move_type &=~PETMOVE;
 		return NULL;
-    }
-    /* If they are not on the same map, the pet won't be agressive */
-    if (!on_same_map(pet, owner))
+	}
+	/* If they are not on the same map, the pet won't be agressive */
+	if (!on_same_map(pet, owner))
 		return NULL;
 
-    /* We basically look for anything nasty around the owner that this
-     * pet should go and attack. */
-    for (i = 0; i < SIZEOFFREE; i++)
+	/* We basically look for anything nasty around the owner that this
+	 * pet should go and attack. */
+	for (i = 0; i < SIZEOFFREE; i++)
 	{
 		x = owner->x + freearr_x[i];
 		y = owner->y + freearr_y[i];
 		if (!(nm=out_of_map(owner->map, &x, &y)))
 			continue;
 
-	    /* Only look on the space if there is something alive there. */
+		/* Only look on the space if there is something alive there. */
 		/* here we need to tweak a bit for PvP - pets should attack players/golems then.
 		 * well, this can wait until i include the arena/pvp areas */
-	    if (GET_MAP_FLAGS(nm, x, y) & P_IS_ALIVE)
+		if (GET_MAP_FLAGS(nm, x, y) & P_IS_ALIVE)
 		{
 			for (tmp = get_map_ob(nm, x, y); tmp != NULL; tmp = tmp->above)
 			{
@@ -84,11 +84,11 @@ object *get_pet_enemy(object * pet, rv_vector *rv)
 				if (QUERY_FLAG(tmp2, FLAG_ALIVE) && !QUERY_FLAG(tmp2, FLAG_FRIENDLY) && !QUERY_FLAG(tmp2, FLAG_UNAGGRESSIVE) && tmp2 != owner && tmp2->type != PLAYER)
 					return tmp2;
 			}
-	    }
-    }
+		}
+	}
 
-    /* Didn't find anything - return NULL */
-    return NULL;
+	/* Didn't find anything - return NULL */
+	return NULL;
 }
 
 void terminate_all_pets(object *owner)
@@ -196,13 +196,13 @@ void follow_owner(object *ob, object *owner)
 
 void pet_move(object * ob)
 {
-    int dir, tag, xt, yt;
-    object *ob2, *owner;
+	int dir, tag, xt, yt;
+	object *ob2, *owner;
 	mapstruct *mt;
 	rv_vector rv;
 
-    /* Check to see if player pulled out */
-    if ((owner = get_owner(ob)) == NULL)
+	/* Check to see if player pulled out */
+	if ((owner = get_owner(ob)) == NULL)
 	{
 		/* Will be freed when returning */
 		remove_ob(ob);
@@ -210,22 +210,22 @@ void pet_move(object * ob)
 		check_walk_off(ob, NULL, MOVE_APPLY_VANISHED);
 		LOG(llevMonster, "Pet: no owner, leaving.\n");
 		return;
-    }
+	}
 
-    /* move monster into the owners map if not in the same map */
-    if (ob->map != owner->map)
+	/* move monster into the owners map if not in the same map */
+	if (ob->map != owner->map)
 	{
 		follow_owner(ob, owner);
 		return;
-    }
-    /* Calculate Direction */
+	}
+	/* Calculate Direction */
 	get_rangevector(ob, owner, &rv, 0);
 	dir = rv.direction;
 
-    ob->direction = dir;
+	ob->direction = dir;
 
-    tag = ob->count;
-    if (!(move_ob(ob, dir,ob)))
+	tag = ob->count;
+	if (!(move_ob(ob, dir,ob)))
 	{
 		object *part;
 
@@ -271,6 +271,6 @@ void pet_move(object * ob)
 		}
 		dir = absdir(dir + 4 - (RANDOM() % 5) - (RANDOM() % 5));
 		(void) move_ob(ob, dir, ob);
-    }
-    return;
+	}
+	return;
 }

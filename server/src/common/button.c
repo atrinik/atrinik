@@ -66,7 +66,7 @@ void push_button(object *op)
 		}
 
 		tmp = ol->ob;
-		switch(tmp->type)
+		switch (tmp->type)
 		{
 			case GATE:
 			case PIT:
@@ -120,7 +120,7 @@ void push_button(object *op)
 				/* connection flag1 = on/off */
 				if (op->last_eat)
 					tmp->last_eat != 0 ? (tmp->last_eat = 0) : (tmp->last_eat = 1);
-					/*(*move_firewall_func)(tmp); <- invoke the firewall (removed here)*/
+				/*(*move_firewall_func)(tmp); <- invoke the firewall (removed here)*/
 				/* "normal" connection - turn wall */
 				else
 				{
@@ -139,7 +139,7 @@ void push_button(object *op)
 				/* next direction */
 				if (tmp->stats.maxsp)
 				{
-					if((tmp->direction += tmp->stats.maxsp) > 8)
+					if ((tmp->direction += tmp->stats.maxsp) > 8)
 						tmp->direction = (tmp->direction % 8) + 1;
 
 					animate_turning(tmp);
@@ -165,12 +165,12 @@ void push_button(object *op)
  * @param op The button object */
 void update_button(object *op)
 {
-    object *ab, *tmp, *head;
-    int move, fly, tot, any_down = 0, old_value = op->value;
-    objectlink *ol;
+	object *ab, *tmp, *head;
+	int move, fly, tot, any_down = 0, old_value = op->value;
+	objectlink *ol;
 
-    /* LOG(llevDebug, "update_button: %s (%d)\n", op->name, op->count); */
-    for (ol = get_button_links(op); ol; ol = ol->next)
+	/* LOG(llevDebug, "update_button: %s (%d)\n", op->name, op->count); */
+	for (ol = get_button_links(op); ol; ol = ol->next)
 	{
 		if (!ol->ob || ol->ob->count != ol->id)
 		{
@@ -212,20 +212,20 @@ void update_button(object *op)
 			if (tmp->value)
 				any_down = 1;
 		}
-    }
+	}
 
 	/* If any other buttons were down, force this to remain down */
-    if (any_down)
+	if (any_down)
 		op->value = 1;
 
-    /* If this button hasn't changed, don't do anything */
-    if (op->value != old_value)
+	/* If this button hasn't changed, don't do anything */
+	if (op->value != old_value)
 	{
 		SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 		update_object(op, UP_OBJ_FACE);
 		/* Make all other buttons the same */
 		push_button(op);
-    }
+	}
 }
 
 /**
@@ -275,9 +275,9 @@ void update_buttons(mapstruct *m)
 
 void use_trigger(object *op)
 {
-    /* Toggle value */
-    op->value = !op->value;
-    push_button(op);
+	/* Toggle value */
+	op->value = !op->value;
+	push_button(op);
 }
 
 /* We changed this function to fit in the anim system. This is used from
@@ -300,7 +300,7 @@ void animate_turning(object *op)
 	/* state animation should be done from our animation handler now -
 	 * if is_animated 0 set, we don't want animate here too. */
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
-    update_object(op, UP_OBJ_FACE);
+	update_object(op, UP_OBJ_FACE);
 }
 
 #define ARCH_SACRIFICE(xyz) ((xyz)->slaying)
@@ -382,21 +382,21 @@ int operate_altar(object *altar, object **sacrifice)
 /* 1 down and 0 up */
 void trigger_move(object *op, int state)
 {
-    op->stats.wc = state;
+	op->stats.wc = state;
 
-    if (state)
+	if (state)
 	{
 		use_trigger(op);
 		op->speed = 1.0f / (float)op->arch->clone.stats.exp;
 		update_ob_speed(op);
 		op->speed_left = -1;
-    }
+	}
 	else
 	{
-        use_trigger(op);
+		use_trigger(op);
 		op->speed = 0;
 		update_ob_speed(op);
-    }
+	}
 }
 
 /* cause != NULL: something has moved on top of op
@@ -680,19 +680,19 @@ void do_mood_floor(object *op, object *op2)
 	object *tmp;
 	object *tmp2;
 
-    for (tmp = op->above; tmp; tmp=tmp->above)
+	for (tmp = op->above; tmp; tmp=tmp->above)
 		if (QUERY_FLAG(tmp, FLAG_MONSTER))
 			break;
 
-    /* doesn't effect players, and if there is a player on this space, won't also
-     * be a monster here. */
-    if (!tmp || tmp->type == PLAYER)
+	/* doesn't effect players, and if there is a player on this space, won't also
+	 * be a monster here. */
+	if (!tmp || tmp->type == PLAYER)
 		return;
 
 	switch (op->last_sp)
 	{
-		/* furious -- makes all monsters mad */
-	  	case 0:
+			/* furious -- makes all monsters mad */
+		case 0:
 			if (QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE))
 				CLEAR_FLAG(tmp, FLAG_UNAGGRESSIVE);
 
@@ -713,36 +713,36 @@ void do_mood_floor(object *op, object *op2)
 			}
 			break;
 
-		/* angry -- get neutral monsters mad */
+			/* angry -- get neutral monsters mad */
 		case 1:
 			if (QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE) && !QUERY_FLAG(tmp, FLAG_FRIENDLY))
 				CLEAR_FLAG(tmp, FLAG_UNAGGRESSIVE);
 
 			break;
 
-		/* calm -- pacify unfriendly monsters */
-	  	case 2:
-        	if (!QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE))
+			/* calm -- pacify unfriendly monsters */
+		case 2:
+			if (!QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE))
 				SET_FLAG(tmp, FLAG_UNAGGRESSIVE);
 
 			break;
 
-		/* make all monsters fall asleep */
-	  	case 3:
+			/* make all monsters fall asleep */
+		case 3:
 			if (!QUERY_FLAG(tmp, FLAG_SLEEP))
-		    	SET_FLAG(tmp, FLAG_SLEEP);
+				SET_FLAG(tmp, FLAG_SLEEP);
 
 			break;
 
-		/* charm all monsters */
-	  	case 4:
+			/* charm all monsters */
+		case 4:
 			/* only if 'connected' */
 			if (op == op2)
 				break;
 
 			/* finding an owner */
 			for (tmp2 = get_map_ob(op2->map, op2->x, op2->y); tmp2->type != PLAYER; tmp2 = tmp2->above)
-                if (tmp2->above == NULL)
+				if (tmp2->above == NULL)
 					break;
 
 			if (tmp2->type != PLAYER)
@@ -756,7 +756,7 @@ void do_mood_floor(object *op, object *op2)
 			tmp->move_type = PETMOVE;
 			break;
 
-	  	default:
+		default:
 			break;
 	}
 }
@@ -768,9 +768,9 @@ void do_mood_floor(object *op, object *op2)
  *	if hp != 0, hp = match object type */
 object *check_inv_recursive(object *op, const object *trig)
 {
-    object *tmp, *ret = NULL;
+	object *tmp, *ret = NULL;
 
-    for (tmp = op->inv; tmp; tmp = tmp->below)
+	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->inv)
 		{
@@ -780,9 +780,9 @@ object *check_inv_recursive(object *op, const object *trig)
 		}
 		else if ((trig->stats.hp && tmp->type == trig->stats.hp) || (trig->slaying && trig->stats.sp ? (tmp->slaying && !strcmp(trig->slaying, tmp->slaying)) : (tmp->name && !strcmp(trig->slaying, tmp->name)) ) || (trig->arch->name && !strcmp(tmp->arch->name, trig->arch->name)))
 			return tmp;
-    }
+	}
 
-    return NULL;
+	return NULL;
 }
 
 /* check_inv(), a function to search the inventory,
@@ -796,18 +796,18 @@ void check_inv(object *op, object *trig)
 {
 	object *match;
 
-    if (op->type != PLAYER)
+	if (op->type != PLAYER)
 		return;
 
-    match = check_inv_recursive(op, trig);
-    if (match && trig->last_sp)
+	match = check_inv_recursive(op, trig);
+	if (match && trig->last_sp)
 	{
 		if (trig->last_heal)
-	    	decrease_ob(match);
+			decrease_ob(match);
 
 		use_trigger(trig);
-    }
-    else if (!match && !trig->last_sp)
+	}
+	else if (!match && !trig->last_sp)
 		use_trigger(trig);
 }
 
@@ -820,18 +820,18 @@ void check_inv(object *op, object *trig)
  * @param map The map */
 void verify_button_links(mapstruct *map)
 {
-    oblinkpt *obp;
-    objectlink *ol;
+	oblinkpt *obp;
+	objectlink *ol;
 
-    if (!map)
+	if (!map)
 		return;
 
-    for (obp = map->buttons; obp; obp = obp->next)
+	for (obp = map->buttons; obp; obp = obp->next)
 	{
 		for (ol = obp->link; ol; ol = ol->next)
 		{
-	    	if (ol->id != ol->ob->count)
-	        	LOG(llevError, "verify_button_links: object %s on list is corrupt (%d!=%d)\n", ol->ob->name, ol->id, ol->ob->count);
+			if (ol->id != ol->ob->count)
+				LOG(llevError, "verify_button_links: object %s on list is corrupt (%d!=%d)\n", ol->ob->name, ol->id, ol->ob->count);
 		}
-    }
+	}
 }

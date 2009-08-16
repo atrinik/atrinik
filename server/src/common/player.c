@@ -30,14 +30,14 @@
 
 object *find_skill(object *op, int skillnr)
 {
-    object *tmp, *skill1 = NULL;
+	object *tmp, *skill1 = NULL;
 
-    for (tmp = op->inv; tmp; tmp = tmp->below)
+	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->type == SKILL && tmp->stats.sp == skillnr)
 			skill1 = tmp;
-    }
-    return skill1;
+	}
+	return skill1;
 }
 
 /* Determine if the attacktype represented by the
@@ -46,19 +46,19 @@ object *find_skill(object *op, int skillnr)
  * all enabled attacktypes. */
 int atnr_is_dragon_enabled(int attacknr)
 {
-  	if (attacknr == ATNR_MAGIC || attacknr == ATNR_FIRE || attacknr == ATNR_ELECTRICITY || attacknr == ATNR_COLD || attacknr == ATNR_ACID || attacknr == ATNR_POISON)
-    	return 1;
+	if (attacknr == ATNR_MAGIC || attacknr == ATNR_FIRE || attacknr == ATNR_ELECTRICITY || attacknr == ATNR_COLD || attacknr == ATNR_ACID || attacknr == ATNR_POISON)
+		return 1;
 
-  	return 0;
+	return 0;
 }
 
 /* returns true if the adressed object 'ob' is a player
  * of the dragon race. */
 int is_dragon_pl(object* op)
 {
-  	if (op != NULL && op->type == PLAYER && op->arch != NULL && op->arch->clone.race != NULL && strcmp(op->arch->clone.race, "dragon") == 0)
-    	return 1;
+	if (op != NULL && op->type == PLAYER && op->arch != NULL && op->arch->clone.race != NULL && strcmp(op->arch->clone.race, "dragon") == 0)
+		return 1;
 
-  	return 0;
+	return 0;
 }
 

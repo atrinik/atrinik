@@ -32,23 +32,23 @@
 
 static godlink *init_godslist()
 {
-    godlink *gl = (godlink *) malloc(sizeof(godlink));
+	godlink *gl = (godlink *) malloc(sizeof(godlink));
 
-    if (gl == NULL)
+	if (gl == NULL)
 		LOG(llevError, "ERROR: init_godslist(): OOM.\n");
 
-	 /* how to describe the god to the player */
-    gl->name = NULL;
+	/* how to describe the god to the player */
+	gl->name = NULL;
 	/* pointer to the archetype of this god */
-    gl->arch = NULL;
+	gl->arch = NULL;
 	/* id of the god */
-    gl->id = 0;
+	gl->id = 0;
 	/* the group to which the god belongs (not implemented) */
-    gl->pantheon = NULL;
+	gl->pantheon = NULL;
 	/* next god in this linked list */
-    gl->next = NULL;
+	gl->next = NULL;
 
-    return gl;
+	return gl;
 }
 
 /* init_gods() - this takes a look at all of the archetypes to find
@@ -93,7 +93,7 @@ void add_god_to_list(archetype *god_arch)
 	first_god = god;
 
 #ifdef DEBUG_GODS
-  	LOG(llevDebug, "Adding god %s (%d) to list\n", god->name, god->id);
+	LOG(llevDebug, "Adding god %s (%d) to list\n", god->name, god->id);
 #endif
 }
 
@@ -101,7 +101,7 @@ void add_god_to_list(archetype *god_arch)
  * god in question, then set the title for later use. -b.t. */
 int baptize_altar(object *op)
 {
-   	char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
 	/* if the title field is pre-set, then that altar is
 	 * already dedicated. */
@@ -160,25 +160,25 @@ object *pntr_to_god_obj(godlink *godlnk)
 
 void free_all_god()
 {
-    godlink *god, *godnext;
+	godlink *god, *godnext;
 
-    LOG(llevDebug,"Freeing god information\n");
-    for (god = first_god; god; god = godnext)
+	LOG(llevDebug,"Freeing god information\n");
+	for (god = first_god; god; god = godnext)
 	{
 		godnext = god->next;
 		FREE_AND_CLEAR_HASH(god->name);
 		free(god);
-    }
+	}
 }
 
 void dump_gods()
 {
 #ifdef DUMP_SWITCHES
-    godlink *glist;
+	godlink *glist;
 
-    LOG(llevInfo, "\n");
+	LOG(llevInfo, "\n");
 
-    for (glist = first_god; glist; glist = glist->next)
+	for (glist = first_god; glist; glist = glist->next)
 	{
 		object *god = pntr_to_god_obj(glist);
 		char tmpbuf[HUGE_BUF];
@@ -325,6 +325,6 @@ void dump_gods()
 			LOG(llevInfo, "NONE");
 
 		LOG(llevInfo, "\n\n");
-    }
+	}
 #endif
 }

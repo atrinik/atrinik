@@ -68,7 +68,7 @@ static int move_internal(object *op, char *params, int dir)
  * @return Always returns 0 */
 int command_east(object *op, char *params)
 {
-  	return move_internal(op, params, 3);
+	return move_internal(op, params, 3);
 }
 
 /**
@@ -78,7 +78,7 @@ int command_east(object *op, char *params)
  * @return Always returns 0 */
 int command_north(object *op, char *params)
 {
-  	return move_internal(op, params, 1);
+	return move_internal(op, params, 1);
 }
 
 /**
@@ -88,7 +88,7 @@ int command_north(object *op, char *params)
  * @return Always returns 0 */
 int command_northeast(object *op, char *params)
 {
-  	return move_internal(op, params, 2);
+	return move_internal(op, params, 2);
 }
 
 /**
@@ -98,7 +98,7 @@ int command_northeast(object *op, char *params)
  * @return Always returns 0 */
 int command_northwest(object *op, char *params)
 {
-  	return move_internal(op, params, 8);
+	return move_internal(op, params, 8);
 }
 
 /**
@@ -108,7 +108,7 @@ int command_northwest(object *op, char *params)
  * @return Always returns 0 */
 int command_south(object *op, char *params)
 {
-  	return move_internal(op, params, 5);
+	return move_internal(op, params, 5);
 }
 
 /**
@@ -118,7 +118,7 @@ int command_south(object *op, char *params)
  * @return Always returns 0 */
 int command_southeast(object *op, char *params)
 {
-  	return move_internal(op, params, 4);
+	return move_internal(op, params, 4);
 }
 
 /**
@@ -128,7 +128,7 @@ int command_southeast(object *op, char *params)
  * @return Always returns 0 */
 int command_southwest(object *op, char *params)
 {
-  	return move_internal(op, params, 6);
+	return move_internal(op, params, 6);
 }
 
 /**
@@ -138,7 +138,7 @@ int command_southwest(object *op, char *params)
  * @return Always returns 0 */
 int command_west(object *op, char *params)
 {
-  	return move_internal(op, params, 7);
+	return move_internal(op, params, 7);
 }
 
 /**
@@ -163,13 +163,13 @@ int command_stay(object *op, char *params)
  * @return Always returns 1 */
 int command_turn_right(object *op, char *params)
 {
-    sint8 dir = absdir(op->facing + 1);
+	sint8 dir = absdir(op->facing + 1);
 
 	(void) params;
 
-    op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
+	op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
 
-    return 1;
+	return 1;
 }
 
 /**
@@ -179,13 +179,13 @@ int command_turn_right(object *op, char *params)
  * @return Always returns 1 */
 int command_turn_left(object *op, char *params)
 {
-    sint8 dir = absdir(op->facing - 1);
+	sint8 dir = absdir(op->facing - 1);
 
 	(void) params;
 
-    op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
+	op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
 
-    return 1;
+	return 1;
 }
 
 /**
@@ -197,6 +197,6 @@ int command_push_object(object *op, char *params)
 {
 	(void) params;
 
-	push_roll_object(op, op->facing, 1);
+	push_roll_object(op, op->facing);
 	return 0;
 }

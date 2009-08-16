@@ -40,8 +40,8 @@ extern int cleric_chance[];
 #define SPELL_USE_ROD    0x40
 #define SPELL_USE_POTION 0x80
 #define SPELL_USE_BOOK   0x100 /* well, normally we don't use spellbooks as random stuff
-                                * except some special "quest" spells for quest monster
-								*/
+* except some special "quest" spells for quest monster
+*/
 
 #define SPELL_TYPE_NATURAL 0 /* special case: this is use like a spell but natural ability - effect is non magical */
 #define SPELL_TYPE_WIZARD  1 /* base mage spell: using mana */
@@ -60,82 +60,83 @@ extern int cleric_chance[];
 #define SPELL_DESC_PARALYZED	0x80	/* Spell can be casted even when paralyzed (TODO) */
 
 #define SPELL_DESC_WIS			0x100   /* special flag - if set, this is a "prayer" using WIS
-                                         * when not set it use INT as is a spell
-										 */
+* when not set it use INT as is a spell
+*/
 #define SPELL_ACTIVE 1
 #define SPELL_DEACTIVE 0
 
-typedef struct spell_struct {
+typedef struct spell_struct
+{
 	/* name of this spell */
 	char name[BIG_NAME];
 
-	/* Type of spell: wizard, priest, ... */
-	int type;
+		/* Type of spell: wizard, priest, ... */
+		int type;
 
-	/* Level required to cast this spell */
-	int level;
+		/* Level required to cast this spell */
+		int level;
 
-	/* Spellpoint-cost to cast it */
-	int sp;
+		/* Spellpoint-cost to cast it */
+		int sp;
 
-	/* How many ticks it takes to cast the spell */
-	float time;
+		/* How many ticks it takes to cast the spell */
+		float time;
 
-	/* thats from 1 to <scrolls> nrof we will generate for potions/scrolls... */
-	int scrolls;
+		/* thats from 1 to <scrolls> nrof we will generate for potions/scrolls... */
+		int scrolls;
 
-	/* If it can be used in wands, max # of charges */
-	int charges;
+		/* If it can be used in wands, max # of charges */
+		int charges;
 
-	/* if target spell, this is max range to target */
-	int range;
+		/* if target spell, this is max range to target */
+		int range;
 
-	/* used when we have a item of tihs spell kind.
-	 * a magic potion has vaule x. We do: (x * value_mul)*level */
-	float value_mul;
+		/* used when we have a item of tihs spell kind.
+		 * a magic potion has vaule x. We do: (x * value_mul)*level */
+		float value_mul;
 
-/* bdam: base damage or hp of spell or summoned monster
- * bdur: base duration of spell or base range
- * ldam: levels you need over the min for the spell to gain one dam
- * ldur: levels you need over the min for the spell to gain one dur
- * spl: number of levels beyond minimum for spell point cost to
- *		increase by amount equal to base cost.  i.e. if base cost
- * 		is 10 at level 2 and spl is 5, cost will increase by 2 per
- * 		level.  if base cost is 5 and spl is 10, cost increases by
- *		1 every 2 levels. */
+		/* bdam: base damage or hp of spell or summoned monster
+		 * bdur: base duration of spell or base range
+		 * ldam: levels you need over the min for the spell to gain one dam
+		 * ldur: levels you need over the min for the spell to gain one dur
+		 * spl: number of levels beyond minimum for spell point cost to
+		 *		increase by amount equal to base cost.  i.e. if base cost
+		 * 		is 10 at level 2 and spl is 5, cost will increase by 2 per
+		 * 		level.  if base cost is 5 and spl is 10, cost increases by
+		 *		1 every 2 levels. */
 
-	/*  base damage  */
-  	int bdam;
+		/*  base damage  */
+		int bdam;
 
-	/*  base duration  */
-	int bdur;
+		/*  base duration  */
+		int bdur;
 
-	/*  damage adjustment for level  */
-	int ldam;
+		/*  damage adjustment for level  */
+		int ldam;
 
-	/*  duration adjustment for level  */
-	int ldur;
+		/*  duration adjustment for level  */
+		int ldur;
 
-	int spl;
+		int spl;
 
-	/* number of sound id for this sound */
-	int sound;
+		/* number of sound id for this sound */
+		int sound;
 
-	/* Define to what items this spell can be bound (potion, rod,,, ) */
-	int spell_use;
+		/* Define to what items this spell can be bound (potion, rod,,, ) */
+		int spell_use;
 
-	/* Used for SPELL_DESC_xx flags */
-	uint32 flags;
+		/* Used for SPELL_DESC_xx flags */
+		uint32 flags;
 
-	/* Path this spell belongs to */
-	uint32 path;
+		/* Path this spell belongs to */
+		uint32 path;
 
-	/* Pointer to archetype used by spell */
-	char *archname;
+		/* Pointer to archetype used by spell */
+		char *archname;
 
-	/* if 0 then spell is disabled and can't be cast or used */
-	int is_active;
-} spell;
+		/* if 0 then spell is disabled and can't be cast or used */
+		int is_active;
+	} spell;
 
 extern spell spells[NROFREALSPELLS];
 
@@ -145,8 +146,9 @@ extern spell spells[NROFREALSPELLS];
 
 #define SP_NO_SPELL -1
 
-enum spellnrs {
-  	/* Here starts the Atrinik list */
+enum spellnrs
+{
+	/* Here starts the Atrinik list */
 	SP_FIRESTORM,
 	SP_ICESTORM,
 	SP_MINOR_HEAL,
@@ -168,18 +170,18 @@ enum spellnrs {
 	SP_CREATE_FOOD,
 	SP_WOR,
 
-  	/* All down here are from Crossfire */
-  	SP_S_FIREBALL,
+	/* All down here are from Crossfire */
+	SP_S_FIREBALL,
 	SP_M_FIREBALL,
-  	SP_L_FIREBALL,
-  	SP_S_LIGHTNING,
+	SP_L_FIREBALL,
+	SP_S_LIGHTNING,
 	SP_L_LIGHTNING,
 	SP_M_MISSILE,
-  	SP_BOMB,
-  	SP_FIRE_ELEM,
+	SP_BOMB,
+	SP_FIRE_ELEM,
 	SP_EARTH_ELEM,
 	SP_WATER_ELEM,
-  	SP_AIR_ELEM,
+	SP_AIR_ELEM,
 	SP_D_DOOR,
 	SP_EARTH_WALL,
 	SP_PARALYZE,
@@ -370,8 +372,9 @@ extern archetype *spellarch[NROFREALSPELLS];
 /* i added spellNPC here as special... its used for example to force scripted npc
  * action which is normally ingame not legal - like shopkeepers who casts self only
  * spells like identify over players. */
-typedef enum SpellTypeFrom {
-  	spellNormal,
+typedef enum SpellTypeFrom
+{
+	spellNormal,
 	spellWand,
 	spellRod,
 	spellHorn,

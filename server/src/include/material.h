@@ -62,35 +62,37 @@
 #define M_START_BONE			11*64+1 /* 705 - 768 */
 #define M_START_ICE			    12*64+1 /* 769 - 832 */
 
-typedef struct {
-  	char *name;
+typedef struct
+{
+	char *name;
 
-  	sint8 save[NROFATTACKS];
+	sint8 save[NROFATTACKS];
 } materialtype;
 
-typedef struct _material_real_struct {
+typedef struct _material_real_struct
+{
 	/* name of this material */
-    char *name;
+	char *name;
 
 	/* % value: speed of tearing when used. (used from item_condition) NOT IMPLEMENTED YET */
-    int tearing;
+	int tearing;
 
 	/* material base quality */
-    int quality;
+	int quality;
 
 	/* unused ext. for later use */
-    int ext1;
+	int ext1;
 
-    int ext2;
+	int ext2;
 
-    int ext3;
+	int ext3;
 
 	/* back ref. to material type */
-    int type;
+	int type;
 
 	/* we can assign a default race for this material. */
-    int def_race;
-    /* these race have this material then exclusive */
+	int def_race;
+	/* these race have this material then exclusive */
 } material_real_struct;
 
 extern materialtype material[NROFMATERIALS];

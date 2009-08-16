@@ -74,7 +74,8 @@ typedef signed long long		sint64;
 #error Correct and send email to the Atrinik Team on how to do this.
 #endif
 
-typedef struct _money_block {
+typedef struct _money_block
+{
 	/* 0, 1, or -1: see get_money_from_string() */
 	int mode;
 
@@ -152,10 +153,11 @@ extern uint32 global_map_tag;
 
 /* So far only used when dealing with artifacts.
  * (now used by alchemy and other code too. Nov 95 b.t). */
-typedef struct linked_char {
-  	const char *name;
+typedef struct linked_char
+{
+	const char *name;
 
-  	struct linked_char *next;
+	struct linked_char *next;
 } linked_char;
 
 #include "face.h"
@@ -385,102 +387,104 @@ EXTERN archetype *level_up_arch;
 #endif
 
 /** Settings structure */
-typedef struct Settings {
+typedef struct Settings
+{
 	/* logfile to use */
-    char    *logfilename;
+	char    *logfilename;
 
 	/* port for new client/server */
-    uint16  csport;
+	uint16  csport;
 
 	/* Default debugging level */
-    LogLevel debug;
+	LogLevel debug;
 
 	/* Set to dump various values/tables */
-    uint8 dumpvalues;
+	uint8 dumpvalues;
 
 	/* additional argument for some dump functions */
-    char *dumparg;
+	char *dumparg;
 
 	/* If true, detach and become daemon */
-    uint8 daemonmode;
+	uint8 daemonmode;
 
 	/* parameters that were passed to the program */
-    int argc;
+	int argc;
 
 	/* Only used by xio.c, so will go away at some time */
-    char **argv;
+	char **argv;
 
 	/* read only data files */
-    char *datadir;
+	char *datadir;
 
 	/* read/write data files */
-    char *localdir;
+	char *localdir;
 
 	/* Where the map files are */
-    char *mapdir;
+	char *mapdir;
 
 	/* name of the archetypes file - libdir is prepended */
-    char *archetypes;
+	char *archetypes;
 
 	/* location of the treasures file. */
-    char *treasures;
+	char *treasures;
 
 	/* directory for the unique items */
-    char *uniquedir;
+	char *uniquedir;
 
 	/* Directory to use for temporary files */
-    char *tmpdir;
+	char *tmpdir;
 
 	/* If true, chars lose a random stat when they die */
-    uint8 stat_loss_on_death;
+	uint8 stat_loss_on_death;
 
 	/* If true, players can gain perm exp */
-    uint8 use_permanent_experience;
+	uint8 use_permanent_experience;
 
 	/* If true, Death stat depletion based on level etc */
-    uint8 balanced_stat_loss;
+	uint8 balanced_stat_loss;
 
 	/* Number of seconds to put player back at home */
-    int	reset_loc_time;
+	int	reset_loc_time;
 
-    /* The meta_ is information for the metaserver.  These are set in
-     * the lib/settings file. */
+	/* The meta_ is information for the metaserver.  These are set in
+	 * the lib/settings file. */
 
 	/* True if we should send updates */
-    unsigned int   meta_on:1;
+unsigned int   meta_on:
+	1;
 
 	/* Hostname/ip addr of the metaserver */
-    char    meta_server[MAX_BUF];
+	char    meta_server[MAX_BUF];
 
 	/* Hostname of this host */
-    char    meta_host[MAX_BUF];
+	char    meta_host[MAX_BUF];
 
 	/* Port number to use for updates */
-    uint16  meta_port;
+	uint16  meta_port;
 
 	/* Comment we send to the metaserver */
-    char    meta_comment[MAX_BUF];
+	char    meta_comment[MAX_BUF];
 
 	/* starting x tile for the worldmap */
-    uint32  worldmapstartx;
+	uint32  worldmapstartx;
 
 	/* starting y tile for the worldmap */
-    uint32  worldmapstarty;
+	uint32  worldmapstarty;
 
 	/* number of tiles wide the worldmap is */
-    uint32  worldmaptilesx;
+	uint32  worldmaptilesx;
 
 	/* number of tiles high the worldmap is */
-    uint32  worldmaptilesy;
+	uint32  worldmaptilesy;
 
 	/* number of squares wide in a wm tile */
-    uint32  worldmaptilesizex;
+	uint32  worldmaptilesizex;
 
 	/* number of squares high in a wm tile */
-    uint32  worldmaptilesizey;
+	uint32  worldmaptilesizey;
 
 	/* how dynamic is the world? */
-    uint16  dynamiclevel;
+	uint16  dynamiclevel;
 
 	/* Use watchdog? */
 	uint8 watchdog;

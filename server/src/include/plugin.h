@@ -224,10 +224,10 @@
 typedef struct _CFParm
 {
 	/* Currently unused, but may prove useful later. */
-    int Type[15];
+	int Type[15];
 
 	/* The values contained in the CFParm structure. */
-    const void *Value[15];
+	const void *Value[15];
 } CFParm;
 
 
@@ -250,34 +250,34 @@ typedef CFParm* (*f_plugin) (CFParm* PParm);
 typedef struct _CFPlugin
 {
 	/* Event Handler function */
-    f_plugin eventfunc;
+	f_plugin eventfunc;
 
 	/* Plugin Initialization function. */
-    f_plugin initfunc;
+	f_plugin initfunc;
 
 	/* Plugin Post-Init. function. */
-    f_plugin pinitfunc;
+	f_plugin pinitfunc;
 
 	/* Plugin Closing function. */
-    f_plugin endfunc;
+	f_plugin endfunc;
 
 	/* Plugin CF-funct. hooker function */
-    f_plugin hookfunc;
+	f_plugin hookfunc;
 
 	/* Plugin getProperty function */
-    f_plugin propfunc;
+	f_plugin propfunc;
 
 	/* Pointer to the plugin library */
-    LIBPTRTYPE libptr;
+	LIBPTRTYPE libptr;
 
 	/* Plugin identification string */
-    char id[MAX_BUF];
+	char id[MAX_BUF];
 
 	/* Plugin full name */
-    char fullname[MAX_BUF];
+	char fullname[MAX_BUF];
 
 	/* Global events registered */
-    int gevent[NR_EVENTS];
+	int gevent[NR_EVENTS];
 } CFPlugin;
 
 /*****************************************************************************/

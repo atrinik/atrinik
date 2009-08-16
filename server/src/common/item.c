@@ -33,13 +33,15 @@
 #include <spells.h>
 
 /** Weapon speed table, to figure out a text representation of weapon's speed */
-static float weapon_speed_table[19] = {
+static float weapon_speed_table[19] =
+{
 	20.0f,	18.0f, 	10.0f, 	8.0f, 	5.5f, 	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
- 	2.15f, 	1.95f,	1.80f, 	1.60f, 	1.52f, 	1.44f, 	1.32f, 	1.25f, 	1.20f
+	2.15f, 	1.95f,	1.80f, 	1.60f, 	1.52f, 	1.44f, 	1.32f, 	1.25f, 	1.20f
 };
 
 /** Word representations of numbers used by get_number() */
-static char numbers[21][20] = {
+static char numbers[21][20] =
+{
 	"no",
 	"",
 	"two",
@@ -63,7 +65,8 @@ static char numbers[21][20] = {
 	"twenty"
 };
 
-static char numbers_10[10][20] = {
+static char numbers_10[10][20] =
+{
 	"zero",
 	"ten",
 	"twenty",
@@ -76,7 +79,8 @@ static char numbers_10[10][20] = {
 	"ninety"
 };
 
-static char levelnumbers[21][20] = {
+static char levelnumbers[21][20] =
+{
 	"zeroth",
 	"first",
 	"second",
@@ -100,7 +104,8 @@ static char levelnumbers[21][20] = {
 	"twentieth"
 };
 
-static char levelnumbers_10[11][20] = {
+static char levelnumbers_10[11][20] =
+{
 	"zeroth",
 	"tenth",
 	"twentieth",
@@ -123,13 +128,13 @@ static char levelnumbers_10[11][20] = {
  * @return The buffer with the resistances */
 char *describe_resistance(object *op, int newline)
 {
-    static char buf[VERY_BIG_BUF];
-    char buf1[VERY_BIG_BUF];
-    int tmpvar, flag = 1;
+	static char buf[VERY_BIG_BUF];
+	char buf1[VERY_BIG_BUF];
+	int tmpvar, flag = 1;
 
-    buf[0] = 0;
+	buf[0] = 0;
 
-    for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
+	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 	{
 		if (op->resist[tmpvar] && (op->type != FLESH || atnr_is_dragon_enabled(tmpvar) == 1))
 		{
@@ -152,12 +157,12 @@ char *describe_resistance(object *op, int newline)
 			flag = 0;
 			strcat(buf, buf1);
 		}
-    }
+	}
 
-    if (!newline && !flag)
-        strcat(buf, ") ");
+	if (!newline && !flag)
+		strcat(buf, ") ");
 
-    return buf;
+	return buf;
 }
 
 /**
@@ -170,13 +175,13 @@ char *describe_resistance(object *op, int newline)
  * @return The buffer with the attack forms */
 char *describe_attack(object *op, int newline)
 {
-    static char buf[VERY_BIG_BUF];
-    char buf1[VERY_BIG_BUF];
-    int tmpvar, flag = 1;
+	static char buf[VERY_BIG_BUF];
+	char buf1[VERY_BIG_BUF];
+	int tmpvar, flag = 1;
 
-    buf[0] = 0;
+	buf[0] = 0;
 
-    for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
+	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 	{
 		if (op->attack[tmpvar])
 		{
@@ -199,12 +204,12 @@ char *describe_attack(object *op, int newline)
 			flag = 0;
 			strcat(buf, buf1);
 		}
-    }
+	}
 
-    if (!newline && !flag)
-        strcat(buf, ") ");
+	if (!newline && !flag)
+		strcat(buf, ") ");
 
-    return buf;
+	return buf;
 }
 
 /**
@@ -217,23 +222,23 @@ char *describe_attack(object *op, int newline)
  * @return The buffer with the protections */
 char *describe_protections(object *op, int newline)
 {
-    static char buf[VERY_BIG_BUF];
-    char buf1[VERY_BIG_BUF];
-    int tmpvar, flag = 1;
+	static char buf[VERY_BIG_BUF];
+	char buf1[VERY_BIG_BUF];
+	int tmpvar, flag = 1;
 
-    buf[0] = 0;
+	buf[0] = 0;
 
-    for (tmpvar = 0; tmpvar < NROFPROTECTIONS; tmpvar++)
+	for (tmpvar = 0; tmpvar < NROFPROTECTIONS; tmpvar++)
 	{
-        if (op->protection[tmpvar])
+		if (op->protection[tmpvar])
 		{
-            if(flag)
-            {
-                if (!newline)
-                    strcat(buf, "(Protections: ");
-            }
+			if (flag)
+			{
+				if (!newline)
+					strcat(buf, "(Protections: ");
+			}
 
-            if (!newline)
+			if (!newline)
 			{
 				if (!flag)
 					strcat(buf, ", ");
@@ -245,13 +250,13 @@ char *describe_protections(object *op, int newline)
 
 			flag = 0;
 			strcat(buf, buf1);
-       	}
-    }
+		}
+	}
 
-    if (!newline && !flag)
-        strcat(buf, ") ");
+	if (!newline && !flag)
+		strcat(buf, ") ");
 
-    return buf;
+	return buf;
 }
 
 /**
@@ -333,22 +338,22 @@ char *get_number(int i)
  * @return The short name of the object */
 char *query_short_name(object *op, object *caller)
 {
-    static char buf[HUGE_BUF];
-    char buf2[HUGE_BUF];
-    int len = 0;
+	static char buf[HUGE_BUF];
+	char buf2[HUGE_BUF];
+	int len = 0;
 
 	buf[0] = 0;
 
-    if (!op || !op->name)
+	if (!op || !op->name)
 		return buf;
 
 	/* To speed things up (or make things slower?) */
 #if 0
-    if (!op->nrof && !op->weight && !op->title && !is_magical(op))
+	if (!op->nrof && !op->weight && !op->title && !is_magical(op))
 		return op->name;
 #endif
 
-    if (op->nrof)
+	if (op->nrof)
 	{
 		safe_strcat(buf, get_number(op->nrof), &len, sizeof(buf));
 
@@ -394,7 +399,7 @@ char *query_short_name(object *op, object *caller)
 			safe_strcat(buf, material_real[op->material_real].name, &len, sizeof(buf));
 
 		safe_strcat(buf, op->name, &len, sizeof(buf));
-    }
+	}
 
 	switch (op->type)
 	{
@@ -409,9 +414,9 @@ char *query_short_name(object *op, object *caller)
 			}
 
 			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
-          	{
-              	if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
-              	{
+			{
+				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+				{
 					if (op->stats.maxhp)
 					{
 						if (!caller)
@@ -431,10 +436,10 @@ char *query_short_name(object *op, object *caller)
 							safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
 					}
 					else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED))
-                      	safe_strcat(buf, " (searched)", &len, sizeof(buf));
-              	}
-          	}
-          	else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
+						safe_strcat(buf, " (searched)", &len, sizeof(buf));
+				}
+			}
+			else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
 			{
 				if (op->sub_type1 == ST1_CONTAINER_CORPSE_player)
 				{
@@ -445,12 +450,12 @@ char *query_short_name(object *op, object *caller)
 
 						/* A searched bounty */
 						if ((caller && caller->name == op->slaying) && QUERY_FLAG(op, FLAG_BEEN_APPLIED))
-                          	safe_strcat(buf, ", searched", &len, sizeof(buf));
+							safe_strcat(buf, ", searched", &len, sizeof(buf));
 
 						safe_strcat(buf,")", &len, sizeof(buf));
 					}
 					else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED))
-                      	safe_strcat(buf, " (searched)", &len, sizeof(buf));
+						safe_strcat(buf, " (searched)", &len, sizeof(buf));
 				}
 			}
 			break;
@@ -495,7 +500,7 @@ char *query_short_name(object *op, object *caller)
 					}
 					else
 						safe_strcat(buf, " of nothing", &len, sizeof(buf));
-			    }
+				}
 				else
 				{
 					safe_strcat(buf, " ", &len, sizeof(buf));
@@ -550,9 +555,9 @@ char *query_short_name(object *op, object *caller)
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
 			}
-    }
+	}
 
-    return buf;
+	return buf;
 }
 
 /**
@@ -570,12 +575,12 @@ char *query_short_name(object *op, object *caller)
  * @return Full name of the object, with things like worn/cursed/etc. */
 char *query_name(object *op, object *caller)
 {
-    static char buf[5][HUGE_BUF];
-    static int use_buf = 0;
-    int len = 0;
+	static char buf[5][HUGE_BUF];
+	static int use_buf = 0;
+	int len = 0;
 
-    use_buf++;
-    use_buf %= 5;
+	use_buf++;
+	use_buf %= 5;
 
 	if (!op || !op->name)
 	{
@@ -583,12 +588,12 @@ char *query_name(object *op, object *caller)
 		return buf[use_buf];
 	}
 
-    safe_strcat(buf[use_buf], query_short_name(op, caller), &len, HUGE_BUF);
+	safe_strcat(buf[use_buf], query_short_name(op, caller), &len, HUGE_BUF);
 
-    if (QUERY_FLAG(op, FLAG_INV_LOCKED))
+	if (QUERY_FLAG(op, FLAG_INV_LOCKED))
 		safe_strcat(buf[use_buf], " *", &len, HUGE_BUF);
 
-    if (op->type == CONTAINER && QUERY_FLAG(op, FLAG_APPLIED))
+	if (op->type == CONTAINER && QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (op->attacked_by && op->attacked_by->type == PLAYER)
 			safe_strcat(buf[use_buf], " (open)", &len, HUGE_BUF);
@@ -596,22 +601,22 @@ char *query_name(object *op, object *caller)
 			safe_strcat(buf[use_buf], " (ready)", &len, HUGE_BUF);
 	}
 
-    if (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED))
+	if (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		if (QUERY_FLAG(op, FLAG_PERM_DAMNED))
 			safe_strcat(buf[use_buf], " (perm. damned)", &len, HUGE_BUF);
-		else if(QUERY_FLAG(op, FLAG_DAMNED))
+		else if (QUERY_FLAG(op, FLAG_DAMNED))
 			safe_strcat(buf[use_buf], " (damned)", &len, HUGE_BUF);
-		else if(QUERY_FLAG(op, FLAG_PERM_CURSED))
+		else if (QUERY_FLAG(op, FLAG_PERM_CURSED))
 			safe_strcat(buf[use_buf], " (perm. cursed)", &len, HUGE_BUF);
-		else if(QUERY_FLAG(op, FLAG_CURSED))
+		else if (QUERY_FLAG(op, FLAG_CURSED))
 			safe_strcat(buf[use_buf], " (cursed)", &len, HUGE_BUF);
-    }
+	}
 
-    if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL && QUERY_FLAG(op, FLAG_IS_MAGICAL))) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+	if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL && QUERY_FLAG(op, FLAG_IS_MAGICAL))) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
 		safe_strcat(buf[use_buf], " (magical)", &len, HUGE_BUF);
 
-    if (QUERY_FLAG(op, FLAG_APPLIED))
+	if (QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		switch (op->type)
 		{
@@ -647,12 +652,12 @@ char *query_name(object *op, object *caller)
 			default:
 				safe_strcat(buf[use_buf], " (applied)", &len, HUGE_BUF);
 		}
-    }
+	}
 
-    if (QUERY_FLAG(op, FLAG_UNPAID))
+	if (QUERY_FLAG(op, FLAG_UNPAID))
 		safe_strcat(buf[use_buf], " (unpaid)", &len, HUGE_BUF);
 
-    return buf[use_buf];
+	return buf[use_buf];
 }
 
 /**
@@ -669,31 +674,31 @@ char *query_name(object *op, object *caller)
  * @return The base name of the object */
 char *query_base_name(object *op, object *caller)
 {
-    static char buf[MAX_BUF];
+	static char buf[MAX_BUF];
 	char buf2[32];
-    int len;
+	int len;
 
 	buf[0] = 0;
-    if (op->name == NULL)
+	if (op->name == NULL)
 		return "(null)";
 
-    /* add the item race name */
+	/* add the item race name */
 	if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
 		strcpy(buf, item_race_table[op->item_race].name);
 
 	/* we add the real material name as prefix. Because real_material == 0 is
 	 * "" (clear string) we don't must check item types for adding something here
 	 * or not (artifacts for example has normally no material prefix) */
-    if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
-        strcat(buf, material_real[op->material_real].name);
+	if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
+		strcat(buf, material_real[op->material_real].name);
 
-    strcat(buf, op->name);
+	strcat(buf, op->name);
 
 	/* To speed things up (or make things slower?) */
 	if (!op->weight && !op->title && !is_magical(op))
 		return buf;
 
-    len = strlen(buf);
+	len = strlen(buf);
 
 	switch (op->type)
 	{
@@ -708,8 +713,8 @@ char *query_base_name(object *op, object *caller)
 			}
 
 			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
-          	{
-              	if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+			{
+				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
 				{
 					if (op->stats.maxhp)
 					{
@@ -786,7 +791,7 @@ char *query_base_name(object *op, object *caller)
 		case POTION:
 			if (QUERY_FLAG(op,FLAG_IDENTIFIED))
 			{
-			    if (!op->title)
+				if (!op->title)
 				{
 					if (op->stats.sp != SP_NO_SPELL)
 					{
@@ -795,7 +800,7 @@ char *query_base_name(object *op, object *caller)
 					}
 					else
 						safe_strcat(buf, " of nothing", &len, sizeof(buf));
-			    }
+				}
 				else
 				{
 					safe_strcat(buf, " ", &len, sizeof(buf));
@@ -806,30 +811,30 @@ char *query_base_name(object *op, object *caller)
 			}
 			break;
 
-      case SKILL:
-      case AMULET:
-      case RING:
-		if (QUERY_FLAG(op,FLAG_IDENTIFIED))
-		{
-			if (!op->title)
+		case SKILL:
+		case AMULET:
+		case RING:
+			if (QUERY_FLAG(op,FLAG_IDENTIFIED))
 			{
-				/* If ring has a title, full description isn't so useful */
-				char *s = describe_item(op);
-				if (s[0])
+				if (!op->title)
 				{
-					safe_strcat (buf, " ", &len, sizeof(buf));
-					safe_strcat (buf, s, &len, sizeof(buf));
+					/* If ring has a title, full description isn't so useful */
+					char *s = describe_item(op);
+					if (s[0])
+					{
+						safe_strcat (buf, " ", &len, sizeof(buf));
+						safe_strcat (buf, s, &len, sizeof(buf));
+					}
+				}
+				else
+				{
+					safe_strcat(buf, " ", &len, sizeof(buf));
+					safe_strcat(buf, op->title, &len, sizeof(buf));
 				}
 			}
-			else
-			{
-				safe_strcat(buf, " ", &len, sizeof(buf));
-				safe_strcat(buf, op->title, &len, sizeof(buf));
-			}
-		}
-		break;
+			break;
 
-      	default:
+		default:
 			if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED)))
 			{
 				if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
@@ -839,7 +844,7 @@ char *query_base_name(object *op, object *caller)
 				}
 			}
 
-	    	if (op->title &&(need_identify(op) && QUERY_FLAG(op,FLAG_IDENTIFIED)))
+			if (op->title &&(need_identify(op) && QUERY_FLAG(op,FLAG_IDENTIFIED)))
 			{
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->title, &len, sizeof(buf));
@@ -850,9 +855,9 @@ char *query_base_name(object *op, object *caller)
 				safe_strcat(buf, " ", &len, sizeof(buf));
 				safe_strcat(buf, op->slaying, &len, sizeof(buf));
 			}
-    }
+	}
 
-    return buf;
+	return buf;
 }
 
 /**
@@ -943,7 +948,7 @@ char *describe_item(object *op)
 	{
 		describe_terrain(op, retbuf);
 
-	    if (QUERY_FLAG(op, FLAG_UNDEAD))
+		if (QUERY_FLAG(op, FLAG_UNDEAD))
 			strcat(retbuf, "(undead)");
 
 		if (QUERY_FLAG(op, FLAG_CAN_PASS_THRU))
@@ -1069,7 +1074,7 @@ char *describe_item(object *op)
 				}
 				break;
 
-			/* Armor type objects */
+				/* Armor type objects */
 			case ARMOUR:
 			case HELMET:
 			case SHIELD:
@@ -1205,9 +1210,9 @@ char *describe_item(object *op)
 					}
 				}
 
-			/* no more info for all items we have not handled in the switch */
-		    default:
-			 	return retbuf;
+				/* no more info for all items we have not handled in the switch */
+			default:
+				return retbuf;
 		}
 
 		/* these counts for every "normal" item player deals with - most times equipement */
@@ -1219,7 +1224,7 @@ char *describe_item(object *op)
 				{
 					sprintf(buf, "(%s%+d)", short_stat_name[attr], val);
 					strcat(retbuf, buf);
-      			}
+				}
 			}
 
 			if (op->stats.exp)
@@ -1233,23 +1238,23 @@ char *describe_item(object *op)
 	/* some special info for some kind of identified items */
 	if (id_true && more_info)
 	{
-	    if (op->stats.sp)
+		if (op->stats.sp)
 		{
 			sprintf(buf, "(mana reg.%+d)", op->stats.sp);
 			strcat(retbuf, buf);
-	    }
+		}
 
-	    if (op->stats.grace)
+		if (op->stats.grace)
 		{
 			sprintf(buf, "(grace reg.%+d)", op->stats.grace);
 			strcat(retbuf, buf);
-	    }
+		}
 
-	    if (op->stats.hp)
+		if (op->stats.hp)
 		{
 			sprintf(buf, "(regeneration%+d)", op->stats.hp);
 			strcat(retbuf, buf);
-	    }
+		}
 
 		if (op->stats.food)
 		{
@@ -1259,7 +1264,7 @@ char *describe_item(object *op)
 				sprintf(buf, "(hunger%+d)", -op->stats.food);
 
 			strcat(retbuf, buf);
-	    }
+		}
 	}
 
 	/* here we deal with all the special flags */
@@ -1321,7 +1326,7 @@ char *describe_item(object *op)
 
 		/* resistance on flesh is only visible for quetzals */
 		if (op->type != FLESH || QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
-          	strcat(retbuf, describe_resistance(op, 0));
+			strcat(retbuf, describe_resistance(op, 0));
 
 		strcat(retbuf, describe_protections(op, 0));
 		DESCRIBE_PATH(retbuf, op->path_attuned, "Attuned");
@@ -1358,7 +1363,7 @@ char *describe_item(object *op)
  * not identified should need it. */
 int need_identify(object *op)
 {
-  	switch (op->type)
+	switch (op->type)
 	{
 		case RING:
 		case WAND:
@@ -1395,10 +1400,10 @@ int need_identify(object *op)
 		case BOOK:
 		case TYPE_LIGHT_APPLY:
 		case TYPE_LIGHT_REFILL:
-	  		return 1;
-  	}
+			return 1;
+	}
 
-  	return 0;
+	return 0;
 }
 
 /**
@@ -1490,7 +1495,7 @@ void set_traped_flag(object *op)
 	if (!flag)
 		return;
 
-	set_traped_view:
+set_traped_view:
 	/* env object is on map */
 	if (!op->env)
 		update_object(op, UP_OBJ_FACE);

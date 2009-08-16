@@ -82,7 +82,8 @@
  * This must match with the client spell list too.
  */
 
-typedef enum _spell_sound_id {
+typedef enum _spell_sound_id
+{
 	SOUND_MAGIC_DEFAULT,
 	SOUND_MAGIC_ACID,
 	SOUND_MAGIC_ANIMATE,

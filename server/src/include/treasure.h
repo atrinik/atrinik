@@ -40,16 +40,17 @@ extern archetype *coins_arch[NUM_COINS];
 
 /* i really hate all this value not documented. I wasted some times debugging by
  * see that i have included/copy a wrong flag of this kind somehwere. */
-enum {
-  	GT_ENVIRONMENT = 0x0001,
-  	GT_INVISIBLE = 0x0002,
-  	GT_STARTEQUIP = 0x0004,
+enum
+{
+	GT_ENVIRONMENT = 0x0001,
+	GT_INVISIBLE = 0x0002,
+	GT_STARTEQUIP = 0x0004,
 	/* treasure gets applied when inserted in mob! (food eaten, skill applied...) */
-  	GT_APPLY = 0x0008,
-  	GT_ONLY_GOOD = 0x0010,
-  	GT_UPDATE_INV = 0x0020,
+	GT_APPLY = 0x0008,
+	GT_ONLY_GOOD = 0x0010,
+	GT_UPDATE_INV = 0x0020,
 	/* set value of all created treasures to 0 */
-  	GT_NO_VALUE = 0x0040
+	GT_NO_VALUE = 0x0040
 };
 
 
@@ -60,26 +61,27 @@ enum {
  * here a clone of the arch, store it in the treasure list and then run the original
  * arch parser over this clone, using the treasure list as script until an END comes.
  * This will allow ANY changes which is possible and we use ony one parser. */
-typedef struct _change_arch {
+typedef struct _change_arch
+{
 	/* is != NULL, copy this over the original arch name */
-    const char *name;
+	const char *name;
 
 	/* is != NULL, copy this over the original arch name */
-    const char *title;
+	const char *title;
 
 	/* is != NULL, copy this over the original arch name */
-    const char *slaying;
+	const char *slaying;
 
-    int item_race;
+	int item_race;
 
 	/* the real, fixed material value */
-    int material;
+	int material;
 
 	/* find a material matching this quality */
-    int material_quality;
+	int material_quality;
 
 	/* using material_quality, find quality inside this range */
-    int material_range;
+	int material_range;
 
 	/* quality value. It overwrites the material default value */
 	int quality;
@@ -94,61 +96,63 @@ typedef struct _change_arch {
  * to get generated standard treasure when an archetype of that type
  * is generated (from a generator) */
 
-typedef struct treasurestruct {
+typedef struct treasurestruct
+{
 	/* Which item this link can be */
-  	struct archt *item;
+	struct archt *item;
 
 	/* If non null, name of list to use instead */
-  	const char *name;
+	const char *name;
 
 	/* Next treasure-item in a linked list */
-  	struct treasurestruct *next;
+	struct treasurestruct *next;
 
 	/* If this item was generated, use */
 	/* this link instead of ->next */
-  	struct treasurestruct *next_yes;
+	struct treasurestruct *next_yes;
 
 	/* If this item was not generated, */
 	/* then continue here */
-  	struct treasurestruct *next_no;
+	struct treasurestruct *next_no;
 
 	/* local t_style (will overrule global one) - used from artifacts */
-  	int t_style;
+	int t_style;
 
 	/* value from 0-1000. chance of item is magic. */
-  	int magic_chance;
+	int magic_chance;
 
 	/* if this value is != 0, use this as fixed magic value.
 	 * if it 0, look at magic to generate perhaps a random magic value */
-  	int magic_fix;
+	int magic_fix;
 
 	/* default = -1 = ignore this value. 0=NEVER make a artifact for this treasure.
 	 * 1-100 = % chance of make a artifact from this treasure. */
-  	int artifact_chance;
+	int artifact_chance;
 
 	/* Max magic bonus to item */
-  	int magic;
+	int magic;
 
 	/* If the entry is a list transition,
 	 * it contains the difficulty
 	 * required to go to the new list */
-  	int difficulty;
+	int difficulty;
 
 	/* random 1 to nrof items are generated */
 	uint16 nrof;
 
 	/* will overrule chance: if set (!=-1) it will create 1/chance_single */
-  	sint16 chance_fix;
+	sint16 chance_fix;
 
 	/* Percent chance for this item */
-  	uint8 chance;
+	uint8 chance;
 
 	/* override default arch values if set in treasure list */
-  	struct _change_arch change_arch;
+	struct _change_arch change_arch;
 } treasure;
 
 
-typedef struct treasureliststruct {
+typedef struct treasureliststruct
+{
 	/* Usually monster-name/combination */
 	const char *name;
 

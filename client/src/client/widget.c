@@ -613,54 +613,54 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		/* Place here all the mousedown Handlers */
 		switch (nID)
 		{
-			/* Handle the mouse down on the exp area */
+				/* Handle the mouse down on the exp area */
 			case SKILL_EXP_ID:
 				widget_skill_exp_event();
 				break;
 
-			/* Handle mousedown on the menu buttons */
+				/* Handle mousedown on the menu buttons */
 			case MENU_B_ID:
 				widget_menubuttons_event(x, y);
 				break;
 
-			/* Handle mouse down on quickslots */
+				/* Handle mouse down on quickslots */
 			case QUICKSLOT_ID:
 				widget_quickslots_mouse_event(x, y, MOUSE_DOWN);
 				break;
 
-			/* Handle the mouse down on chat windows */
+				/* Handle the mouse down on chat windows */
 			case CHATWIN_ID:
 			case MSGWIN_ID:
 			case MIXWIN_ID:
 				textwin_event(TW_CHECK_BUT_DOWN, event, nID);
 				break;
 
-			/* Handle the mouse down on range area */
+				/* Handle the mouse down on range area */
 			case RANGE_ID:
 				widget_range_event(x, y, *event, MOUSE_DOWN);
 				break;
 
-			/* Handle the mouse down in below window */
+				/* Handle the mouse down in below window */
 			case BELOW_INV_ID:
 				widget_below_window_event(x, y, MOUSE_DOWN);
 				break;
 
-			/* Handle the mouse down in target widget */
+				/* Handle the mouse down in target widget */
 			case TARGET_ID:
 				widget_event_target(x, y);
 				break;
 
-			/* Handle the mouse down in inventory */
+				/* Handle the mouse down in inventory */
 			case MAIN_INV_ID:
 				widget_inventory_event(x, y, *event);
 				break;
 
-			/* Handle the mouse down in player info */
+				/* Handle the mouse down in player info */
 			case PLAYER_INFO_ID:
 				widget_player_data_event(x, y);
 				break;
 
-			/* Handle the mouse down in input number */
+				/* Handle the mouse down in input number */
 			case IN_NUMBER_ID:
 				widget_number_event(x, y);
 				break;
@@ -729,29 +729,29 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 		/* Handler for the widgets go here */
 		switch (nID)
 		{
-			/* Drop to quickslots */
+				/* Drop to quickslots */
 			case QUICKSLOT_ID:
 				widget_quickslots_mouse_event(x, y, MOUSE_UP);
 				break;
 
-			/* Chat windows */
+				/* Chat windows */
 			case CHATWIN_ID:
 			case MSGWIN_ID:
 			case MIXWIN_ID:
 				textwin_event(TW_CHECK_BUT_UP, event, nID);
 				break;
 
-			/* Player doll */
+				/* Player doll */
 			case PDOLL_ID:
 				widget_show_player_doll_event();
 				break;
 
-			/* Range widget */
+				/* Range widget */
 			case RANGE_ID:
 				widget_range_event(x, y, *event, MOUSE_UP);
 				break;
 
-			/* Inventory window */
+				/* Inventory window */
 			case MAIN_INV_ID:
 				widget_inventory_event(x, y, *event);
 				break;
@@ -899,14 +899,14 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		/* Handlers for the widgets mouse move */
 		switch (nID)
 		{
-			/* Text windows */
+				/* Text windows */
 			case CHATWIN_ID:
 			case MSGWIN_ID:
 			case MIXWIN_ID:
 				textwin_event(TW_CHECK_MOVE, event, nID);
 				break;
 
-			/* Inventory */
+				/* Inventory */
 			case MAIN_INV_ID:
 				widget_inventory_event(x, y, *event);
 				break;
@@ -955,7 +955,7 @@ int get_widget_owner(int x, int y)
 
 		switch (nID)
 		{
-			/* Playerdoll widget is NOT a rectangle, handle special */
+				/* Playerdoll widget is NOT a rectangle, handle special */
 			case PDOLL_ID:
 				if (x > cur_widget[nID].x1 + 111)
 				{

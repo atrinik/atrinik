@@ -30,7 +30,8 @@
 #include <stdio.h>
 #include <global.h>
 
-float lev_exp[MAXLEVEL + 1] = {
+float lev_exp[MAXLEVEL + 1] =
+{
 	0.0f,
 	1.0f, 		1.11f, 		1.75f,		3.2f,
 	5.5f, 		10.0f, 		20.0f, 		35.25f, 	66.1f,
@@ -65,7 +66,8 @@ float lev_exp[MAXLEVEL + 1] = {
  * you have now 1.345.535.545.667 exp."
  * even here we have around 500.000.000 max exp - thats a pretty big
  * number. */
-uint32 new_levels[MAXLEVEL + 2] = {
+uint32 new_levels[MAXLEVEL + 2] =
+{
 	0,
 	0,			1500,		4000, 		8000,
 	/* 9 */
@@ -104,7 +106,8 @@ uint32 new_levels[MAXLEVEL + 2] = {
 	605000000, 	700000000
 };
 
-_level_color level_color[201] = {
+_level_color level_color[201] =
+{
 	/* Level 0 */
 	{-2,	-1,	0,	1,	2,	3},
 	/* Level 1 */
@@ -542,84 +545,84 @@ uint32 level_exp(int level, double expmul)
 sint32 add_exp(object *op, int exp, int skill_nr)
 {
 	/* the exp. object into which experience will go */
-    object *exp_ob = NULL;
+	object *exp_ob = NULL;
 	/* the real skill object */
-    object *exp_skill = NULL;
+	object *exp_skill = NULL;
 	/*int del_exp = 0;*/
-    int limit = 0;
+	int limit = 0;
 
-    /*LOG(llevBug, "ADD: add_exp() called for $d!\n", exp); */
-    /* safety */
-    if (!op)
-    {
-    	LOG(llevBug, "BUG: add_exp() called for null object!\n");
-	    return 0;
-    }
+	/*LOG(llevBug, "ADD: add_exp() called for $d!\n", exp); */
+	/* safety */
+	if (!op)
+	{
+		LOG(llevBug, "BUG: add_exp() called for null object!\n");
+		return 0;
+	}
 
 	/* no exp gain for mobs */
-    if (op->type != PLAYER)
-        return 0;
+	if (op->type != PLAYER)
+		return 0;
 
-    /* ok, we have global exp gain or drain - we must grab a skill for it! */
-    if (skill_nr == CHOSEN_SKILL_NO)
-    {
-        /* TODO: select skill */
-        LOG(llevDebug, "TODO: add_exp(): called for %s with exp %d. CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp);
-        return 0;
-    }
+	/* ok, we have global exp gain or drain - we must grab a skill for it! */
+	if (skill_nr == CHOSEN_SKILL_NO)
+	{
+		/* TODO: select skill */
+		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %d. CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp);
+		return 0;
+	}
 
-    /* now we grab the skill exp. object from the player shortcut ptr array */
-    exp_skill = CONTR(op)->skill_ptr[skill_nr];
+	/* now we grab the skill exp. object from the player shortcut ptr array */
+	exp_skill = CONTR(op)->skill_ptr[skill_nr];
 
 	/* safety check */
-    if (!exp_skill)
-    {
-        /* our player doesn't have this skill?
-         * This can happen when group exp is devided.
-         * We must get a useful sub or we skip the exp. */
-        LOG(llevDebug, "TODO: add_exp(): called for %s with skill nr %d / %d exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
+	if (!exp_skill)
+	{
+		/* our player doesn't have this skill?
+		 * This can happen when group exp is devided.
+		 * We must get a useful sub or we skip the exp. */
+		LOG(llevDebug, "TODO: add_exp(): called for %s with skill nr %d / %d exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
 		/* TODO: groups comes later  - now we skip all times */
-        return 0;
-    }
+		return 0;
+	}
 
-    /* if we are full in this skill, then nothing is to do */
-    if (exp_skill->level >= MAXLEVEL)
-        return 0;
+	/* if we are full in this skill, then nothing is to do */
+	if (exp_skill->level >= MAXLEVEL)
+		return 0;
 
 	/* we will sure change skill exp, mark for update */
-    CONTR(op)->update_skills = 1;
-    exp_ob = exp_skill->exp_obj;
+	CONTR(op)->update_skills = 1;
+	exp_ob = exp_skill->exp_obj;
 
-    if (!exp_ob)
-    {
+	if (!exp_ob)
+	{
 		LOG(llevBug, "BUG: add_exp() skill:%s - no exp_op found!!\n", query_name(exp_skill, NULL));
 		return 0;
-    }
+	}
 
-    /* General adjustments for playbalance */
-    /* I set limit to 1/4 of a level - thats enormous much */
-    limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
+	/* General adjustments for playbalance */
+	/* I set limit to 1/4 of a level - thats enormous much */
+	limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
 
-    if (exp > limit)
-        exp = limit;
+	if (exp > limit)
+		exp = limit;
 
 	/* first we see what we can add to our skill */
-    exp = adjust_exp(op, exp_skill, exp);
+	exp = adjust_exp(op, exp_skill, exp);
 
-    /* adjust_exp has adjust the skill and all exp_obj and player exp */
-    /* now lets check for level up in all categories */
-    player_lvl_adj(op, exp_skill);
-    player_lvl_adj(op, exp_ob);
-    player_lvl_adj(op, NULL);
+	/* adjust_exp has adjust the skill and all exp_obj and player exp */
+	/* now lets check for level up in all categories */
+	player_lvl_adj(op, exp_skill);
+	player_lvl_adj(op, exp_ob);
+	player_lvl_adj(op, NULL);
 
 	/* reset the player exp_obj to NULL */
-    /* I let this in but because we use single skill exp and skill nr now,
-     * this broken exp_obj concept can be removed */
+	/* I let this in but because we use single skill exp and skill nr now,
+	 * this broken exp_obj concept can be removed */
 	if (op->exp_obj)
-        op->exp_obj = NULL;
+		op->exp_obj = NULL;
 
 	/* thats the real exp we have added to our skill */
-    return (sint32) exp;
+	return (sint32) exp;
 }
 
 
@@ -631,7 +634,7 @@ void player_lvl_adj(object *who, object *op)
 	char buf[MAX_BUF];
 
 	/* when rolling stats */
-    if (!op)
+	if (!op)
 		op = who;
 
 	/* no exp gain for indirect skills */
@@ -641,8 +644,8 @@ void player_lvl_adj(object *who, object *op)
 		return;
 	}
 
-    /*LOG(llevDebug, "LEVEL: %s ob:%s l: %d e: %d\n", who == NULL ? "<null>" : who->name, op->name, op->level, op->stats.exp);*/
-    if (op->level < MAXLEVEL && op->stats.exp >= (sint32)level_exp(op->level + 1, 1.0))
+	/*LOG(llevDebug, "LEVEL: %s ob:%s l: %d e: %d\n", who == NULL ? "<null>" : who->name, op->name, op->level, op->stats.exp);*/
+	if (op->level < MAXLEVEL && op->stats.exp >= (sint32)level_exp(op->level + 1, 1.0))
 	{
 		op->level++;
 
@@ -727,7 +730,7 @@ void player_lvl_adj(object *who, object *op)
 
 		/* To increase more levels */
 		player_lvl_adj(who, op);
-    }
+	}
 	else if (op->level > 1 && op->stats.exp < (sint32)level_exp(op->level, 1.0))
 	{
 		op->level--;
@@ -756,44 +759,44 @@ void player_lvl_adj(object *who, object *op)
 
 		/* To decrease more levels */
 		player_lvl_adj(who, op);
-    }
+	}
 }
 
 /* Ensure that the permanent experience requirements in an exp object are met. */
 /* GD */
 void calc_perm_exp(object *op)
 {
-    int p_exp_min;
+	int p_exp_min;
 
-    /* Sanity checks. */
-    if (op->type != EXPERIENCE)
+	/* Sanity checks. */
+	if (op->type != EXPERIENCE)
 	{
-        LOG(llevBug, "BUG: calc_minimum_perm_exp called on a non-experience object!");
-        return;
-    }
+		LOG(llevBug, "BUG: calc_minimum_perm_exp called on a non-experience object!");
+		return;
+	}
 
-    if (!(settings.use_permanent_experience))
+	if (!(settings.use_permanent_experience))
 	{
-        LOG(llevBug, "BUG: calc_minimum_perm_exp called whilst permanent experience disabled!");
-        return;
-    }
+		LOG(llevBug, "BUG: calc_minimum_perm_exp called whilst permanent experience disabled!");
+		return;
+	}
 
-    /* The following fields are used:
-     *   stats.exp: Current exp in experience object.
-     *   last_heal: Permanent experience earnt. */
+	/* The following fields are used:
+	 *   stats.exp: Current exp in experience object.
+	 *   last_heal: Permanent experience earnt. */
 
-    /* Ensure that our permanent experience minimum is met. */
-    p_exp_min = (int)(PERM_EXP_MINIMUM_RATIO * (float)(op->stats.exp));
-    /*LOG(llevBug, "BUG: Experience minimum check: %d p-min %d p-curr %d curr.\n", p_exp_min, op->last_heal, op->stats.exp);*/
+	/* Ensure that our permanent experience minimum is met. */
+	p_exp_min = (int)(PERM_EXP_MINIMUM_RATIO * (float)(op->stats.exp));
+	/*LOG(llevBug, "BUG: Experience minimum check: %d p-min %d p-curr %d curr.\n", p_exp_min, op->last_heal, op->stats.exp);*/
 
-    if (op->last_heal < p_exp_min)
-        op->last_heal = p_exp_min;
+	if (op->last_heal < p_exp_min)
+		op->last_heal = p_exp_min;
 
-    /* Cap permanent experience. */
-    if (op->last_heal < 0)
-        op->last_heal = 0;
-    else if (op->last_heal > (sint32)MAX_EXP_IN_OBJ)
-        op->last_heal = MAX_EXP_IN_OBJ;
+	/* Cap permanent experience. */
+	if (op->last_heal < 0)
+		op->last_heal = 0;
+	else if (op->last_heal > (sint32)MAX_EXP_IN_OBJ)
+		op->last_heal = MAX_EXP_IN_OBJ;
 }
 
 /* adjust_exp() - make sure that we don't exceed max or min set on
@@ -807,83 +810,83 @@ void calc_perm_exp(object *op)
  * use a kind of skill container to speed this up. MT  */
 int adjust_exp(object *pl, object *op, int exp)
 {
-    object *tmp;
-    int i, sk_nr;
-    sint32 sk_exp, pl_exp;
+	object *tmp;
+	int i, sk_nr;
+	sint32 sk_exp, pl_exp;
 
-    /* be sure this is a skill object from a active player */
-    if (op->type != SKILL || !pl || pl->type != PLAYER)
-    {
-        LOG(llevBug, "BUG: adjust_exp() - called for non player or non skill: skill: %s -> player: %s\n", query_name(op, NULL), query_name(pl, NULL));
-        return 0;
-    }
+	/* be sure this is a skill object from a active player */
+	if (op->type != SKILL || !pl || pl->type != PLAYER)
+	{
+		LOG(llevBug, "BUG: adjust_exp() - called for non player or non skill: skill: %s -> player: %s\n", query_name(op, NULL), query_name(pl, NULL));
+		return 0;
+	}
 
-    /* add or sub the exp and cap it. it must be >=0 and <= MAX_EXPERIENCE */
-    op->stats.exp += exp;
-    if (op->stats.exp < 0)
-    {
-        exp -= op->stats.exp;
-        op->stats.exp = 0;
-    }
+	/* add or sub the exp and cap it. it must be >=0 and <= MAX_EXPERIENCE */
+	op->stats.exp += exp;
+	if (op->stats.exp < 0)
+	{
+		exp -= op->stats.exp;
+		op->stats.exp = 0;
+	}
 
-    if (op->stats.exp>(sint32)MAX_EXPERIENCE)
-    {
-        exp = exp - (op->stats.exp - MAX_EXPERIENCE);
-        op->stats.exp = MAX_EXPERIENCE;
-    }
+	if (op->stats.exp>(sint32)MAX_EXPERIENCE)
+	{
+		exp = exp - (op->stats.exp - MAX_EXPERIENCE);
+		op->stats.exp = MAX_EXPERIENCE;
+	}
 
-    /* now we collect the exp of all skills which are in the same exp. object category */
-    sk_nr = skills[op->stats.sp].category;
-    sk_exp = 0;
+	/* now we collect the exp of all skills which are in the same exp. object category */
+	sk_nr = skills[op->stats.sp].category;
+	sk_exp = 0;
 
 #if 0
 	/* this is the old collection system - all skills of a exp group add
 	 * we changed that to "best skill count"*/
-    for (tmp = pl->inv; tmp; tmp = tmp->below)
-    {
-        if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr)
-        {
-            if ((sk_exp += tmp->stats.exp) > (sint32)MAX_EXPERIENCE)
-                sk_exp = MAX_EXPERIENCE;
-        }
-    }
+	for (tmp = pl->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr)
+		{
+			if ((sk_exp += tmp->stats.exp) > (sint32)MAX_EXPERIENCE)
+				sk_exp = MAX_EXPERIENCE;
+		}
+	}
 #endif
 
-    for (tmp = pl->inv; tmp; tmp = tmp->below)
-    {
-        if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr)
-        {
+	for (tmp = pl->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type == SKILL && skills[tmp->stats.sp].category == sk_nr)
+		{
 			if (tmp->stats.exp > sk_exp)
 				sk_exp = tmp->stats.exp;
-        }
-    }
+		}
+	}
 
-    /* set the exp of the exp. object to our best skill of this group */
-    op->exp_obj->stats.exp = sk_exp;
+	/* set the exp of the exp. object to our best skill of this group */
+	op->exp_obj->stats.exp = sk_exp;
 
-    /* now we collect all exp. objects exp */
-    pl_exp = 0;
+	/* now we collect all exp. objects exp */
+	pl_exp = 0;
 
 #if 0
 	/* this is old adding function - we use now the best group */
-    for (i = 0; i < MAX_EXP_CAT - 1; i++)
-    {
-        if ((pl_exp += CONTR(pl)->last_skill_ob[i]->stats.exp) > (sint32)MAX_EXPERIENCE)
-            pl_exp = MAX_EXPERIENCE;
-    }
+	for (i = 0; i < MAX_EXP_CAT - 1; i++)
+	{
+		if ((pl_exp += CONTR(pl)->last_skill_ob[i]->stats.exp) > (sint32)MAX_EXPERIENCE)
+			pl_exp = MAX_EXPERIENCE;
+	}
 #endif
 
-    for (i = 0; i < MAX_EXP_CAT - 1; i++)
-    {
+	for (i = 0; i < MAX_EXP_CAT - 1; i++)
+	{
 		if (CONTR(pl)->last_skill_ob[i]->stats.exp > pl_exp)
 			pl_exp = CONTR(pl)->last_skill_ob[i]->stats.exp;
-    }
+	}
 
-    /* last action: set our player exp to highest group */
-    pl->stats.exp = pl_exp;
+	/* last action: set our player exp to highest group */
+	pl->stats.exp = pl_exp;
 
 	/* return the actual amount changed stats.exp we REALLY have added to our skill */
-    return exp;
+	return exp;
 }
 
 /* we are now VERY friendly - but not because we want. With the
@@ -898,18 +901,18 @@ int adjust_exp(object *pl, object *op, int exp)
  * This is a just a design adjustment. */
 void apply_death_exp_penalty(object *op)
 {
-    object *tmp;
+	object *tmp;
 	float loss_p;
 	long level_exp, loss_exp;
 
 	/* we will sure change skill exp, mark for update */
-    CONTR(op)->update_skills = 1;
+	CONTR(op)->update_skills = 1;
 
-    for (tmp = op->inv; tmp; tmp = tmp->below)
-    {
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
 		/* only adjust skills with level and a positive exp value - negative exp has special meaning */
-        if (tmp->type == SKILL && tmp->level && tmp->last_eat == 1)
-        {
+		if (tmp->type == SKILL && tmp->level && tmp->last_eat == 1)
+		{
 			/* first, lets check there are exp we can drain. */
 			level_exp = tmp->stats.exp - new_levels[tmp->level];
 
@@ -946,18 +949,18 @@ void apply_death_exp_penalty(object *op)
 				adjust_exp(op, tmp, -loss_exp);
 				player_lvl_adj(op, tmp);
 			}
-        }
-    }
+		}
+	}
 
-    for (tmp = op->inv; tmp; tmp = tmp->below)
-    {
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
 		/* adjust exp objects levels */
-        if (tmp->type == EXPERIENCE && tmp->stats.exp)
-            player_lvl_adj(op, tmp);
-    }
+		if (tmp->type == EXPERIENCE && tmp->stats.exp)
+			player_lvl_adj(op, tmp);
+	}
 
 	/* and at last adjust the player level */
-    player_lvl_adj(op, NULL);
+	player_lvl_adj(op, NULL);
 }
 
 /* i reworked this...

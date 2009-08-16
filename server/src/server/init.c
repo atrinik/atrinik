@@ -164,18 +164,18 @@ void set_tmpdir(char *path)
 void showscoresparm(char *data)
 {
 	(void) data;
-/*    display_high_score(NULL,9999,data); */
-    exit(0);
+	/*    display_high_score(NULL,9999,data); */
+	exit(0);
 }
 
 void set_csport(char *val)
 {
-    settings.csport = atoi(val);
+	settings.csport = atoi(val);
 #ifndef WIN32 /* ***win32: set_csport: we remove csport error secure check here, do this later */
-    if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
+	if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
 	{
 		LOG(llevError, "ERROR: %d is an invalid csport number.\n", settings.csport);
-    }
+	}
 #endif /* win32 */
 }
 
@@ -216,15 +216,15 @@ static void server()
 struct Command_Line_Options
 {
 	/* how it is called on the command line */
-    char *cmd_option;
+	char *cmd_option;
 	/* Number or args it takes */
-    uint8 num_args;
+	uint8 num_args;
 	/* What pass this should be processed on. */
-    uint8 pass;
+	uint8 pass;
 	/* function to call when we match this.
 	 * if num_args is true, than that gets passed
 	 * to the function, otherwise nothing is passed */
-    void (*func)();
+	void (*func)();
 };
 
 /* The way this system works is pretty simple - parse_args takes
@@ -232,59 +232,60 @@ struct Command_Line_Options
  * matches both in name and in pass (and we have enough options),
  * we call the associated function.  This makes writing a multi
  * pass system very easy, and it is very easy to add in new options. */
-struct Command_Line_Options options[] = {
+struct Command_Line_Options options[] =
+{
 
-/* Pass 1 functions - Stuff that can/should be called before we actually
- * initialize any data. */
-{"-h", 0, 1, help},
-/* Honor -help also, since it is somewhat common */
-{"-help", 0, 1, help},
-{"-v", 0, 1, call_version},
-{"-d", 0, 1, set_debug},
-{"+d", 0, 1, unset_debug},
-{"-server", 0, 1, server},
-{"-mon", 0, 1, set_mondebug},
+	/* Pass 1 functions - Stuff that can/should be called before we actually
+	 * initialize any data. */
+	{"-h", 0, 1, help},
+	/* Honor -help also, since it is somewhat common */
+	{"-help", 0, 1, help},
+	{"-v", 0, 1, call_version},
+	{"-d", 0, 1, set_debug},
+	{"+d", 0, 1, unset_debug},
+	{"-server", 0, 1, server},
+	{"-mon", 0, 1, set_mondebug},
 #ifndef SECURE
-{"-data",1,1, set_datadir},
-{"-local",1,1, set_localdir},
-{"-maps", 1, 1, set_mapdir},
-{"-arch", 1, 1, set_archetypes},
-{"-treasures", 1, 1, set_treasures},
-{"-uniquedir", 1, 1, set_uniquedir},
-{"-tmpdir", 1, 1, set_tmpdir},
+	{"-data",1,1, set_datadir},
+	{"-local",1,1, set_localdir},
+	{"-maps", 1, 1, set_mapdir},
+	{"-arch", 1, 1, set_archetypes},
+	{"-treasures", 1, 1, set_treasures},
+	{"-uniquedir", 1, 1, set_uniquedir},
+	{"-tmpdir", 1, 1, set_tmpdir},
 #endif
-{"-log", 1, 1, set_logfile},
+	{"-log", 1, 1, set_logfile},
 
-/* Pass 2 functions.  Most of these could probably be in pass 1,
- * as they don't require much of anything to bet set up. */
-{"-csport", 1, 2, set_csport},
-{"-detach", 0, 2, set_daemon},
-{"-watchdog", 0, 2, set_watchdog},
+	/* Pass 2 functions.  Most of these could probably be in pass 1,
+	 * as they don't require much of anything to bet set up. */
+	{"-csport", 1, 2, set_csport},
+	{"-detach", 0, 2, set_daemon},
+	{"-watchdog", 0, 2, set_watchdog},
 
-/* Start of pass 3 information. In theory, by pass 3, all data paths
- * and defaults should have been set up.  */
-{"-o", 0, 3, compile_info},
+	/* Start of pass 3 information. In theory, by pass 3, all data paths
+	 * and defaults should have been set up.  */
+	{"-o", 0, 3, compile_info},
 #ifdef DUMP_SWITCHES
-{"-m1", 0, 3, set_dumpmon1},
-{"-m2", 0, 3, set_dumpmon2},
-{"-m3", 0, 3, set_dumpmon3},
-{"-m4", 0, 3, set_dumpmon4},
-{"-m5", 0, 3, set_dumpmon5},
-{"-m6", 0, 3, set_dumpmon6},
-{"-m7", 0, 3, set_dumpmon7},
-{"-m8", 0, 3, set_dumpmon8},
-{"-m9", 0, 3, set_dumpmon9},
-{"-mA", 0, 3, set_dumpmonA},
-{"-mt", 1, 3, set_dumpmont},
+	{"-m1", 0, 3, set_dumpmon1},
+	{"-m2", 0, 3, set_dumpmon2},
+	{"-m3", 0, 3, set_dumpmon3},
+	{"-m4", 0, 3, set_dumpmon4},
+	{"-m5", 0, 3, set_dumpmon5},
+	{"-m6", 0, 3, set_dumpmon6},
+	{"-m7", 0, 3, set_dumpmon7},
+	{"-m8", 0, 3, set_dumpmon8},
+	{"-m9", 0, 3, set_dumpmon9},
+	{"-mA", 0, 3, set_dumpmonA},
+	{"-mt", 1, 3, set_dumpmont},
 #endif
-{"-s", 0, 3, showscores},
-{"-score", 1, 3, showscoresparm},
-{"-stat_loss_on_death", 0, 3, stat_loss_on_death_true},
-{"+stat_loss_on_death", 0, 3, stat_loss_on_death_false},
-{"-balanced_stat_loss", 0, 3, balanced_stat_loss_true},
-{"+balanced_stat_loss", 0, 3, balanced_stat_loss_false},
-{"-use_permanent_experience", 0, 3, use_permanent_experience_true},
-{"+use_permanent_experience", 0, 3, use_permanent_experience_false}
+	{"-s", 0, 3, showscores},
+	{"-score", 1, 3, showscoresparm},
+	{"-stat_loss_on_death", 0, 3, stat_loss_on_death_true},
+	{"+stat_loss_on_death", 0, 3, stat_loss_on_death_false},
+	{"-balanced_stat_loss", 0, 3, balanced_stat_loss_true},
+	{"+balanced_stat_loss", 0, 3, balanced_stat_loss_false},
+	{"-use_permanent_experience", 0, 3, use_permanent_experience_true},
+	{"+use_permanent_experience", 0, 3, use_permanent_experience_false}
 };
 
 
@@ -292,9 +293,9 @@ struct Command_Line_Options options[] = {
  * we don't use any of crossfires built in logging functions. */
 static void parse_args(int argc, char *argv[], int pass)
 {
-    int i, on_arg = 1;
+	int i, on_arg = 1;
 
-    while (on_arg < argc)
+	while (on_arg < argc)
 	{
 		for (i = 0; i < (int) sizeof(options) / (int) sizeof(struct Command_Line_Options); i++)
 		{
@@ -342,7 +343,7 @@ static void parse_args(int argc, char *argv[], int pass)
 			usage();
 			exit(1);
 		}
-    }
+	}
 }
 
 /* This loads the settings file.  There could be debate whether this should
@@ -350,21 +351,21 @@ static void parse_args(int argc, char *argv[], int pass)
  * information, having it here probably makes more sense. */
 static void load_settings()
 {
-    char buf[MAX_BUF],*cp;
-    int	has_val,comp;
-    FILE *fp;
+	char buf[MAX_BUF],*cp;
+	int	has_val,comp;
+	FILE *fp;
 
-    sprintf(buf, "%s/%s", settings.localdir, SETTINGS);
-    /* We don't require a settings file at current time, but down the road,
-     * there will probably be so many values that not having a settings file
-     * will not be a good thing. */
-    if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
+	sprintf(buf, "%s/%s", settings.localdir, SETTINGS);
+	/* We don't require a settings file at current time, but down the road,
+	 * there will probably be so many values that not having a settings file
+	 * will not be a good thing. */
+	if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
 	{
 		LOG(llevBug, "BUG: No %s file found\n", SETTINGS);
 		return;
-    }
+	}
 
-    while (fgets(buf, MAX_BUF-1, fp) != NULL)
+	while (fgets(buf, MAX_BUF-1, fp) != NULL)
 	{
 		if (buf[0] == '#')
 			continue;
@@ -466,7 +467,7 @@ static void load_settings()
 			if (size < 1)
 				LOG(llevBug, "BUG: load_settings: worldmaptilesy must be greater than 1, %d is invalid\n", size);
 			else
-			settings.worldmaptilesy = size;
+				settings.worldmaptilesy = size;
 		}
 		else if (!strcasecmp(buf, "worldmaptilesizex"))
 		{
@@ -499,8 +500,8 @@ static void load_settings()
 		{
 			LOG(llevBug, "BUG: Unknown value in %s file: %s\n", SETTINGS, buf);
 		}
-    }
-    close_and_delete(fp, comp);
+	}
+	close_and_delete(fp, comp);
 }
 
 
@@ -508,52 +509,52 @@ static void load_settings()
 void init(int argc, char **argv)
 {
 	/* We don't want to be affected by players' umask */
-    (void) umask(0);
+	(void) umask(0);
 
 	/* Must be done before init_signal() */
-    init_done = 0;
-    logfile = stderr;
+	init_done = 0;
+	logfile = stderr;
 
 	/* First arg pass - right now it does
 	 * nothing, but in future specifying the
 	 * LibDir in this pass would be reasonable*/
-    parse_args(argc, argv, 1);
+	parse_args(argc, argv, 1);
 
 	/* Must be called early */
-    init_library();
+	init_library();
 	/* Load the settings file */
-    load_settings();
-    init_word_darkness();
-    parse_args(argc, argv, 2);
+	load_settings();
+	init_word_darkness();
+	parse_args(argc, argv, 2);
 
-    SRANDOM(time(NULL));
+	SRANDOM(time(NULL));
 	global_map_tag = (uint32) RANDOM();
 
 	/* Write (C), check shutdown file */
-    init_startup();
+	init_startup();
 	/* Sets up signal interceptions */
-    init_signals();
+	init_signals();
 	/* Set up callback function pointers */
-    setup_library();
+	setup_library();
 	/* Sort command tables */
-    init_commands();
+	init_commands();
 	/* Load up the old temp map files */
-    read_map_log();
-    parse_args(argc, argv, 3);
+	read_map_log();
+	parse_args(argc, argv, 3);
 
 #ifndef WIN32
-    if (settings.daemonmode)
+	if (settings.daemonmode)
 	{
 		become_daemon(settings.logfilename[0] == '\0' ? "logfile" : settings.logfilename);
 	}
 #endif
 
-    init_beforeplay();
-    init_ericserver();
-    metaserver_init();
-    reset_sleep();
+	init_beforeplay();
+	init_ericserver();
+	metaserver_init();
+	reset_sleep();
 	init_level_color_table();
-    init_done = 1;
+	init_done = 1;
 }
 
 void usage()
@@ -563,61 +564,61 @@ void usage()
 
 void help()
 {
-    LOG(llevInfo, "Flags:\n");
-    LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
-    LOG(llevInfo, " -d          Turns on some debugging.\n");
-    LOG(llevInfo, " +d          Turns off debugging (useful if server compiled with debugging\n");
-    LOG(llevInfo, "             as default).\n");
-    LOG(llevInfo, " -detach     The server will go in the background, closing all\n");
-    LOG(llevInfo, "             connections to the tty.\n");
-    LOG(llevInfo, " -h          Display this information.\n");
-    LOG(llevInfo, " -log <file> Specifies which file to send output to.\n");
-    LOG(llevInfo, "             Only has meaning if -detach is specified.\n");
-    LOG(llevInfo, " -mon        Turns on monster debugging.\n");
-    LOG(llevInfo, " -o          Prints out info on what was defined at compile time.\n");
-    LOG(llevInfo, " -s          Display the high-score list.\n");
-    LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
-    LOG(llevInfo, " -stat_loss_on_death - if set, player loses stat when they die\n");
-    LOG(llevInfo, " +stat_loss_on_death - if set, player does not lose a stat when they die\n");
-    LOG(llevInfo, " -use_permanent_experience - if set, player may gain permanent experience\n");
-    LOG(llevInfo, " +use_permanent_experience - if set, player does not gain permanent experience\n");
-    LOG(llevInfo, " -balanced_stat_loss - if set, death stat depletion is balanced by level etc\n");
-    LOG(llevInfo, " +balanced_stat_loss - if set, ordinary death stat depletion is used\n");
-    LOG(llevInfo, " -v          Print version and contributors.\n");
+	LOG(llevInfo, "Flags:\n");
+	LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
+	LOG(llevInfo, " -d          Turns on some debugging.\n");
+	LOG(llevInfo, " +d          Turns off debugging (useful if server compiled with debugging\n");
+	LOG(llevInfo, "             as default).\n");
+	LOG(llevInfo, " -detach     The server will go in the background, closing all\n");
+	LOG(llevInfo, "             connections to the tty.\n");
+	LOG(llevInfo, " -h          Display this information.\n");
+	LOG(llevInfo, " -log <file> Specifies which file to send output to.\n");
+	LOG(llevInfo, "             Only has meaning if -detach is specified.\n");
+	LOG(llevInfo, " -mon        Turns on monster debugging.\n");
+	LOG(llevInfo, " -o          Prints out info on what was defined at compile time.\n");
+	LOG(llevInfo, " -s          Display the high-score list.\n");
+	LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
+	LOG(llevInfo, " -stat_loss_on_death - if set, player loses stat when they die\n");
+	LOG(llevInfo, " +stat_loss_on_death - if set, player does not lose a stat when they die\n");
+	LOG(llevInfo, " -use_permanent_experience - if set, player may gain permanent experience\n");
+	LOG(llevInfo, " +use_permanent_experience - if set, player does not gain permanent experience\n");
+	LOG(llevInfo, " -balanced_stat_loss - if set, death stat depletion is balanced by level etc\n");
+	LOG(llevInfo, " +balanced_stat_loss - if set, ordinary death stat depletion is used\n");
+	LOG(llevInfo, " -v          Print version and contributors.\n");
 
 #ifndef SECURE
-    LOG(llevInfo, "\nThe following options are only available if a secure server was not compiled.\n");
-    LOG(llevInfo, " -data       Sets the lib dir (archetypes, treasures, etc.)\n");
-    LOG(llevInfo, " -local      Read/write local data (hiscore, unique items, etc.)\n");
-    LOG(llevInfo, " -maps       Sets the directory for maps.\n");
-    LOG(llevInfo, " -arch       Sets the archetype file to use.\n");
-    LOG(llevInfo, " -playerdir  Sets the directory for the player files.\n");
-    LOG(llevInfo, " -treasures	 Sets the treasures file to use.\n");
-    LOG(llevInfo, " -uniquedir  Sets the unique items/maps directory.\n");
-    LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
+	LOG(llevInfo, "\nThe following options are only available if a secure server was not compiled.\n");
+	LOG(llevInfo, " -data       Sets the lib dir (archetypes, treasures, etc.)\n");
+	LOG(llevInfo, " -local      Read/write local data (hiscore, unique items, etc.)\n");
+	LOG(llevInfo, " -maps       Sets the directory for maps.\n");
+	LOG(llevInfo, " -arch       Sets the archetype file to use.\n");
+	LOG(llevInfo, " -playerdir  Sets the directory for the player files.\n");
+	LOG(llevInfo, " -treasures	 Sets the treasures file to use.\n");
+	LOG(llevInfo, " -uniquedir  Sets the unique items/maps directory.\n");
+	LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
 #endif
 
 #ifdef DUMP_SWITCHES
-    LOG(llevInfo, "\nThe following are only available in DUMP_SWITCHES was compiled in.\n");
-    LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
-    LOG(llevInfo, " -m2         Dumps out abilities for all monsters.\n");
-    LOG(llevInfo, " -m3         Dumps out artificat information.\n");
-    LOG(llevInfo, " -m4         Dumps out spell information.\n");
-    LOG(llevInfo, " -m5         Dumps out skill information.\n");
-    LOG(llevInfo, " -m6         Dumps out race information.\n");
-    LOG(llevInfo, " -m7         Dumps out alchemy information.\n");
-    LOG(llevInfo, " -m8         Dumps out gods information.\n");
-    LOG(llevInfo, " -m9         Dumps out more alchemy information (formula checking).\n");
-    LOG(llevInfo, " -mA         Dumps out all arches.\n");
-    LOG(llevInfo, " -mt <arch>  Dumps out list of treasures for a monster.\n");
+	LOG(llevInfo, "\nThe following are only available in DUMP_SWITCHES was compiled in.\n");
+	LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
+	LOG(llevInfo, " -m2         Dumps out abilities for all monsters.\n");
+	LOG(llevInfo, " -m3         Dumps out artificat information.\n");
+	LOG(llevInfo, " -m4         Dumps out spell information.\n");
+	LOG(llevInfo, " -m5         Dumps out skill information.\n");
+	LOG(llevInfo, " -m6         Dumps out race information.\n");
+	LOG(llevInfo, " -m7         Dumps out alchemy information.\n");
+	LOG(llevInfo, " -m8         Dumps out gods information.\n");
+	LOG(llevInfo, " -m9         Dumps out more alchemy information (formula checking).\n");
+	LOG(llevInfo, " -mA         Dumps out all arches.\n");
+	LOG(llevInfo, " -mt <arch>  Dumps out list of treasures for a monster.\n");
 #endif
-    exit(0);
+	exit(0);
 }
 
 void init_beforeplay()
 {
 	/* If not called before, reads all archetypes from file */
-  	init_archetypes();
+	init_archetypes();
 	/* If not called before, links archtypes used by spells */
 	init_spells();
 	/* overwrite race designations using entries in lib/races file */
@@ -630,10 +631,10 @@ void init_beforeplay()
 	init_archetype_pointers();
 #ifdef ALCHEMY
 	/* If not called before, reads formulae from file */
-  	init_formulae();
+	init_formulae();
 #endif
 	/* If not called before, inits experience system */
-  	init_new_exp_system();
+	init_new_exp_system();
 
 #ifdef DUMP_SWITCHES
 	if (settings.dumpvalues)
@@ -705,22 +706,22 @@ void compile_info()
 	LOG(llevInfo, "Setup info:\n");
 	LOG(llevInfo, "Non-standard include files:\n");
 #if !defined (__STRICT_ANSI__) || defined (__sun__)
-	#if !defined (Mips)
+#if !defined (Mips)
 	LOG(llevInfo, "<stdlib.h>\n");
 	i = 1;
-	#endif
+#endif
 
-	#if !defined (MACH) && !defined (sony)
+#if !defined (MACH) && !defined (sony)
 	LOG(llevInfo, "<malloc.h>\n");
 	i = 1;
-	#endif
+#endif
 #endif
 
 #ifndef __STRICT_ANSI__
-	#ifndef MACH
+#ifndef MACH
 	LOG(llevInfo, "<memory.h\n");
 	i = 1;
-	#endif
+#endif
 #endif
 
 #ifndef sgi
@@ -801,37 +802,37 @@ void rec_sigsegv(int i)
 {
 	(void) i;
 
-  	LOG(llevSystem, "\nSIGSEGV received.\n");
-  	fatal_signal(1, 1);
+	LOG(llevSystem, "\nSIGSEGV received.\n");
+	fatal_signal(1, 1);
 }
 
 void rec_sigint(int i)
 {
 	(void) i;
 
-  	LOG(llevSystem, "\nSIGINT received.\n");
-  	fatal_signal(0, 1);
+	LOG(llevSystem, "\nSIGINT received.\n");
+	fatal_signal(0, 1);
 }
 
 void rec_sighup(int i)
 {
 	(void) i;
 
-  	LOG(llevSystem, "\nSIGHUP received\n");
-  	if (init_done)
+	LOG(llevSystem, "\nSIGHUP received\n");
+	if (init_done)
 	{
-    	emergency_save(0);
-    	cleanup();
-  	}
-  	exit(0);
+		emergency_save(0);
+		cleanup();
+	}
+	exit(0);
 }
 
 void rec_sigquit(int i)
 {
 	(void) i;
 
-  	LOG(llevSystem, "\nSIGQUIT received\n");
-  	fatal_signal(1, 1);
+	LOG(llevSystem, "\nSIGQUIT received\n");
+	fatal_signal(1, 1);
 }
 
 void rec_sigpipe(int i)
@@ -845,13 +846,13 @@ void rec_sigpipe(int i)
 	 * be looked at later on, and maybe fix the problem that caused it to
 	 * dump core.  There is no reason that SIGPIPES should be fatal */
 #if 1 && !defined(WIN32) /* ***win32: we don't want send SIGPIPE */
-  	LOG(llevSystem, "\nReceived SIGPIPE, ignoring...\n");
+	LOG(llevSystem, "\nReceived SIGPIPE, ignoring...\n");
 	/* hocky-pux clears signal handlers */
-  	signal(SIGPIPE, rec_sigpipe);
+	signal(SIGPIPE, rec_sigpipe);
 #else
-  	LOG(llevSystem, "\nSIGPIPE received, not ignoring...\n");
+	LOG(llevSystem, "\nSIGPIPE received, not ignoring...\n");
 	/* Might consider to uncomment this line */
-  	fatal_signal(1, 1);
+	fatal_signal(1, 1);
 #endif
 }
 
@@ -860,8 +861,8 @@ void rec_sigbus(int i)
 	(void) i;
 
 #ifdef SIGBUS
-  	LOG(llevSystem, "\nSIGBUS received\n");
-  	fatal_signal(1, 1);
+	LOG(llevSystem, "\nSIGBUS received\n");
+	fatal_signal(1, 1);
 #endif
 }
 
@@ -869,8 +870,8 @@ void rec_sigterm(int i)
 {
 	(void) i;
 
-  	LOG(llevSystem,"\nSIGTERM received\n");
-  	fatal_signal(0, 1);
+	LOG(llevSystem,"\nSIGTERM received\n");
+	fatal_signal(0, 1);
 }
 
 void fatal_signal(int make_core, int close_sockets)
@@ -885,7 +886,7 @@ void fatal_signal(int make_core, int close_sockets)
 
 	if (make_core)
 		abort();
-  	exit(0);
+	exit(0);
 }
 
 void init_signals()
@@ -897,10 +898,10 @@ void init_signals()
 	signal(SIGQUIT, rec_sigquit);
 	signal(SIGSEGV, rec_sigsegv);
 	signal(SIGPIPE, rec_sigpipe);
-	#ifdef SIGBUS
-  	signal(SIGBUS, rec_sigbus);
-	#endif
-  	signal(SIGTERM, rec_sigterm);
+#ifdef SIGBUS
+	signal(SIGBUS, rec_sigbus);
+#endif
+	signal(SIGTERM, rec_sigterm);
 #endif /* win32 */
 }
 
@@ -943,7 +944,7 @@ static void add_corpse_to_racelist(const char *race_name, archetype *op)
 	 * special use (put by hand on map or by script) */
 	if (race)
 		race->corpse = op;
- }
+}
 
 /* init_races() - reworked this function - 2003/MT
  * Because we have now a type MONSTER, we can collect the monster arches
@@ -955,8 +956,8 @@ static void add_corpse_to_racelist(const char *race_name, archetype *op)
 void init_races()
 {
 	archetype *at, *tmp;
-    racelink *list;
- 	static int init_done = 0;
+	racelink *list;
+	static int init_done = 0;
 
 	if (init_done)
 		return;
@@ -985,11 +986,11 @@ void init_races()
 
 	/* last action: for all races without a special defined corpse
 	 * add our corpse_default arch to it. */
-    tmp = find_archetype("corpse_default");
+	tmp = find_archetype("corpse_default");
 	if (!tmp)
-        LOG(llevError, "ERROR: init_races: can't find corpse_default in arches!\n");
+		LOG(llevError, "ERROR: init_races: can't find corpse_default in arches!\n");
 
-    for (list = first_race; list; list = list->next)
+	for (list = first_race; list; list = list->next)
 	{
 		if (!list->corpse)
 			list->corpse = tmp;
@@ -1003,15 +1004,15 @@ void init_races()
 
 void dump_races()
 {
-    racelink *list;
-    objectlink *tmp;
+	racelink *list;
+	objectlink *tmp;
 
-    for (list = first_race; list; list = list->next)
+	for (list = first_race; list; list = list->next)
 	{
 		LOG(llevInfo, "\nRACE %s (%s - %d member): ", list->name, list->corpse->name, list->nrof);
 		for (tmp = list->member; tmp; tmp = tmp->next)
 			LOG(llevInfo, "%s(%d), ", tmp->ob->arch->name, tmp->ob->sub_type1);
-    }
+	}
 }
 
 void add_to_racelist(const char *race_name, object *op)
@@ -1063,12 +1064,12 @@ racelink *get_racelist()
 void free_racelist()
 {
 	racelink *list, *next;
-    for (list = first_race; list;)
+	for (list = first_race; list;)
 	{
-    	next = list->next;
-        free(list);
-        list = next;
-    }
+		next = list->next;
+		free(list);
+		list = next;
+	}
 }
 
 /* this is debug stuff! */

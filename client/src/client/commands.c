@@ -99,40 +99,40 @@ void PartyCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void SoundCmd(unsigned char *data,  int len)
 {
-    int x, y, num, type;
+	int x, y, num, type;
 
-    if (len != 5)
-    {
-        LOG(LOG_ERROR, "Got invalid length on sound command: %d\n", len);
-        return;
-    }
+	if (len != 5)
+	{
+		LOG(LOG_ERROR, "Got invalid length on sound command: %d\n", len);
+		return;
+	}
 
-    x = (signed char) data[0];
-    y = (signed char) data[1];
-    num = GetShort_String(data + 2);
-    type = data[4];
+	x = (signed char) data[0];
+	y = (signed char) data[1];
+	num = GetShort_String(data + 2);
+	type = data[4];
 
-    if (type == SOUND_SPELL)
+	if (type == SOUND_SPELL)
 	{
 		if (num < 0 || num >= SPELL_SOUND_MAX)
 		{
-        	LOG(LOG_ERROR, "Got invalid spell sound id: %d\n", num);
-        	return;
+			LOG(LOG_ERROR, "Got invalid spell sound id: %d\n", num);
+			return;
 		}
 
 		/* This maps us to the spell sound table part */
-        num += SOUND_MAX;
+		num += SOUND_MAX;
 	}
 	else
 	{
 		if (num < 0 || num >= SOUND_MAX)
 		{
-        	LOG(LOG_ERROR, "Got invalid sound id: %d\n", num);
-     	   	return;
+			LOG(LOG_ERROR, "Got invalid sound id: %d\n", num);
+			return;
 		}
 	}
 
-    calculate_map_sound(num, x, y);
+	calculate_map_sound(num, x, y);
 }
 
 /**
@@ -141,63 +141,63 @@ void SoundCmd(unsigned char *data,  int len)
  * @param len Length of the data */
 void SetupCmd(char *buf, int len)
 {
-    int s;
-    char *cmd, *param;
+	int s;
+	char *cmd, *param;
 
-    scrolldy = scrolldx = 0;
-    LOG(LOG_MSG, "Get SetupCmd:: %s\n", buf);
+	scrolldy = scrolldx = 0;
+	LOG(LOG_MSG, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
-    {
-        while (s < len && buf[s] == ' ')
-            s++;
+	{
+		while (s < len && buf[s] == ' ')
+			s++;
 
-        if (s >= len)
-            break;
+		if (s >= len)
+			break;
 
-        cmd = &buf[s];
+		cmd = &buf[s];
 
-        while (s < len && buf[s] != ' ')
-            s++;
+		while (s < len && buf[s] != ' ')
+			s++;
 
-        if (s >= len)
-             break;
+		if (s >= len)
+			break;
 
-        buf[s++] = 0;
+		buf[s++] = 0;
 
-        if (s >= len)
-             break;
+		if (s >= len)
+			break;
 
-        while (s < len && buf[s] == ' ')
-            s++;
+		while (s < len && buf[s] == ' ')
+			s++;
 
-        if (s >= len)
-            break;
+		if (s >= len)
+			break;
 
-        param = &buf[s];
+		param = &buf[s];
 
-        while (s < len && buf[s] != ' ')
-            s++;
+		while (s < len && buf[s] != ' ')
+			s++;
 
-        buf[s++] = 0;
+		buf[s++] = 0;
 
-        while (s < len && buf[s] == ' ')
-            s++;
+		while (s < len && buf[s] == ' ')
+			s++;
 
-        if (!strcmp(cmd, "sound"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
-            }
-        }
-        else if (!strcmp(cmd, "skf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+		if (!strcmp(cmd, "sound"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
+			}
+		}
+		else if (!strcmp(cmd, "skf"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG, "Get skf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_SKILLS].status = SRV_CLIENT_STATUS_UPDATE;
@@ -206,21 +206,21 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_SKILLS].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_SKILLS].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_SKILLS].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
-        }
-        else if (!strcmp(cmd, "spf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+			}
+		}
+		else if (!strcmp(cmd, "spf"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG, "Get spf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_SPELLS].status = SRV_CLIENT_STATUS_UPDATE;
@@ -229,21 +229,21 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_SPELLS].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_SPELLS].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_SPELLS].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
-        }
-        else if (!strcmp(cmd, "stf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+			}
+		}
+		else if (!strcmp(cmd, "stf"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG,"Get stf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_SETTINGS].status = SRV_CLIENT_STATUS_UPDATE;
@@ -252,21 +252,21 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_SETTINGS].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_SETTINGS].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_SETTINGS].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
-        }
-        else if (!strcmp(cmd, "bpf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+			}
+		}
+		else if (!strcmp(cmd, "bpf"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG, "Get bpf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_BMAPS].status = SRV_CLIENT_STATUS_UPDATE;
@@ -275,22 +275,22 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_BMAPS].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_BMAPS].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_BMAPS].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
+			}
 
-        }
-        else if (!strcmp(cmd, "amf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+		}
+		else if (!strcmp(cmd, "amf"))
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG, "Get amf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_ANIMS].status = SRV_CLIENT_STATUS_UPDATE;
@@ -299,22 +299,22 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_ANIMS].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_ANIMS].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_ANIMS].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
+			}
 
-        }
+		}
 		else if (!strcmp(cmd, "hpf"))
-        {
-            if (!strcmp(param, "FALSE"))
-            {
+		{
+			if (!strcmp(param, "FALSE"))
+			{
 				LOG(LOG_MSG, "Get hpf:: %s\n", param);
-            }
+			}
 			else if (strcmp(param, "OK"))
-            {
+			{
 				char *cp;
 
 				srv_client_files[SRV_CLIENT_HFILES].status = SRV_CLIENT_STATUS_UPDATE;
@@ -323,32 +323,32 @@ void SetupCmd(char *buf, int len)
 					if (*cp == '|')
 					{
 						*cp = 0;
-					    srv_client_files[SRV_CLIENT_HFILES].server_len = atoi(param);
+						srv_client_files[SRV_CLIENT_HFILES].server_len = atoi(param);
 						srv_client_files[SRV_CLIENT_HFILES].server_crc = strtoul(cp + 1, NULL, 16);
-					    break;
+						break;
 					}
 				}
-            }
+			}
 
-        }
-        else if (!strcmp(cmd, "mapsize"))
-        {
-        }
-        else if (!strcmp(cmd, "map2cmd"))
-        {
-        }
-        else if (!strcmp(cmd, "darkness"))
-        {
-        }
-        else if (!strcmp(cmd, "facecache"))
-        {
-        }
-        else
-        {
-            LOG(LOG_ERROR, "Got setup for a command we don't understand: %s %s\n", cmd, param);
-        }
-    }
-    GameStatus = GAME_STATUS_REQUEST_FILES;
+		}
+		else if (!strcmp(cmd, "mapsize"))
+		{
+		}
+		else if (!strcmp(cmd, "map2cmd"))
+		{
+		}
+		else if (!strcmp(cmd, "darkness"))
+		{
+		}
+		else if (!strcmp(cmd, "facecache"))
+		{
+		}
+		else
+		{
+			LOG(LOG_ERROR, "Got setup for a command we don't understand: %s %s\n", cmd, param);
+		}
+	}
+	GameStatus = GAME_STATUS_REQUEST_FILES;
 }
 
 /**
@@ -360,16 +360,16 @@ void SetupCmd(char *buf, int len)
  * @param len Length of the data */
 void Face1Cmd(unsigned char *data,  int len)
 {
-    int pnum;
-    uint32  checksum;
-    char *face;
+	int pnum;
+	uint32  checksum;
+	char *face;
 
-    pnum = GetShort_String(data);
-    checksum = GetInt_String(data + 2);
-    face = (char*)data + 6;
-    data[len] = '\0';
+	pnum = GetShort_String(data);
+	checksum = GetInt_String(data + 2);
+	face = (char*)data + 6;
+	data[len] = '\0';
 
-    finish_face_cmd(pnum, checksum, face);
+	finish_face_cmd(pnum, checksum, face);
 }
 
 /**
@@ -378,11 +378,11 @@ void Face1Cmd(unsigned char *data,  int len)
  * us down anyways. */
 void AddMeFail()
 {
-    LOG(LOG_MSG, "addme_failed received.\n");
-    GameStatus = GAME_STATUS_START;
+	LOG(LOG_MSG, "addme_failed received.\n");
+	GameStatus = GAME_STATUS_START;
 
-    /* Add here error handling */
-    return;
+	/* Add here error handling */
+	return;
 }
 
 /**
@@ -390,8 +390,8 @@ void AddMeFail()
  * send addme_success commands. */
 void AddMeSuccess()
 {
-    LOG(LOG_MSG, "addme_success received.\n");
-    return;
+	LOG(LOG_MSG, "addme_success received.\n");
+	return;
 }
 
 
@@ -408,40 +408,40 @@ void GoodbyeCmd()
  */
 void AnimCmd(unsigned char *data, int len)
 {
-    short anum;
-    int i, j;
+	short anum;
+	int i, j;
 
-    anum = GetShort_String(data);
-    if (anum < 0 || anum > MAXANIM)
-    {
-        fprintf(stderr, "AnimCmd: animation number invalid: %d\n", anum);
-        return;
-    }
+	anum = GetShort_String(data);
+	if (anum < 0 || anum > MAXANIM)
+	{
+		fprintf(stderr, "AnimCmd: animation number invalid: %d\n", anum);
+		return;
+	}
 
 	animations[anum].flags = *(data + 2);
 	animations[anum].facings = *(data + 3);
-    animations[anum].num_animations = (len - 4) / 2;
-    if (animations[anum].num_animations < 1)
-    {
+	animations[anum].num_animations = (len - 4) / 2;
+	if (animations[anum].num_animations < 1)
+	{
 		LOG(LOG_DEBUG, "AnimCmd: num animations invalid: %d\n", animations[anum].num_animations);
-        return;
-    }
+		return;
+	}
 
 	if (animations[anum].facings > 1)
 		animations[anum].frame = animations[anum].num_animations / animations[anum].facings;
 	else
 		animations[anum].frame = animations[anum].num_animations;
 
-    animations[anum].faces = _malloc(sizeof(uint16) * animations[anum].num_animations, "AnimCmd(): facenum buf");
+	animations[anum].faces = _malloc(sizeof(uint16) * animations[anum].num_animations, "AnimCmd(): facenum buf");
 
-    for (i = 4, j = 0; i < len; i += 2, j++)
+	for (i = 4, j = 0; i < len; i += 2, j++)
 	{
-        animations[anum].faces[j] = GetShort_String(data + i);
+		animations[anum].faces[j] = GetShort_String(data + i);
 		request_face(animations[anum].faces[j], 0);
 	}
 
-    if (j != animations[anum].num_animations)
-        LOG(LOG_DEBUG, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
+	if (j != animations[anum].num_animations)
+		LOG(LOG_DEBUG, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
 
 #if 0
 	LOG(LOG_MSG, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);
@@ -454,31 +454,31 @@ void AnimCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void ImageCmd(unsigned char *data, int len)
 {
-    int pnum, plen;
-    char buf[2048];
-    FILE *stream;
+	int pnum, plen;
+	char buf[2048];
+	FILE *stream;
 
-    pnum = GetInt_String(data);
-    plen = GetInt_String(data + 4);
+	pnum = GetInt_String(data);
+	plen = GetInt_String(data + 4);
 
-    if (len < 8 || (len - 8) != plen)
-    {
-        LOG(LOG_ERROR, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
-        return;
-    }
+	if (len < 8 || (len - 8) != plen)
+	{
+		LOG(LOG_ERROR, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
+		return;
+	}
 
-    /* Save picture to cache and load it to FaceList */
-    sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
+	/* Save picture to cache and load it to FaceList */
+	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
 	LOG(LOG_DEBUG, "ImageFromServer: %s\n", FaceList[pnum].name);
 
-    if ((stream = fopen(buf, "wb+")) != NULL)
-    {
-        fwrite((char *) data + 8, 1, plen, stream);
-        fclose(stream);
-    }
+	if ((stream = fopen(buf, "wb+")) != NULL)
+	{
+		fwrite((char *) data + 8, 1, plen, stream);
+		fclose(stream);
+	}
 
-    FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
-    map_udate_flag = 2;
+	FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
+	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
 
@@ -488,16 +488,16 @@ void ImageCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void SkillRdyCmd(char *data, int len)
 {
-    int i, ii;
+	int i, ii;
 
 	(void) len;
 
-    strcpy(cpl.skill_name, data);
+	strcpy(cpl.skill_name, data);
 	WIDGET_REDRAW(SKILL_EXP_ID);
 
-    /* lets find the skill... and setup the shortcuts to the exp values*/
-    for (ii = 0; ii < SKILL_LIST_MAX; ii++)
-    {
+	/* lets find the skill... and setup the shortcuts to the exp values*/
+	for (ii = 0; ii < SKILL_LIST_MAX; ii++)
+	{
 		for (i = 0; i < DIALOG_LIST_ENTRY; i++)
 		{
 			/* we have a list entry */
@@ -512,7 +512,7 @@ void SkillRdyCmd(char *data, int len)
 				}
 			}
 		}
-    }
+	}
 }
 
 /**
@@ -520,20 +520,20 @@ void SkillRdyCmd(char *data, int len)
  * @param data The text to output. */
 void DrawInfoCmd(unsigned char *data)
 {
-    int color = atoi((char *)data);
-    char *buf;
+	int color = atoi((char *)data);
+	char *buf;
 
-    buf = strchr((char *)data, ' ');
+	buf = strchr((char *)data, ' ');
 
-    if (!buf)
-    {
-        LOG(LOG_ERROR, "DrawInfoCmd - got no data\n");
-        buf = "";
-    }
-    else
-        buf++;
+	if (!buf)
+	{
+		LOG(LOG_ERROR, "DrawInfoCmd - got no data\n");
+		buf = "";
+	}
+	else
+		buf++;
 
-    draw_info(buf, color);
+	draw_info(buf, color);
 }
 
 /* New draw command */
@@ -543,15 +543,15 @@ void DrawInfoCmd(unsigned char *data)
  * @param len Length of the data */
 void DrawInfoCmd2(unsigned char *data, int len)
 {
-    int flags;
-    char buf[2048];
+	int flags;
+	char buf[2048];
 
 	flags = (int)GetShort_String(data);
 	data += 2;
 
 	len -= 2;
 
-    if (len >= 0)
+	if (len >= 0)
 	{
 		if (len > 2000)
 			len = 2000;
@@ -562,7 +562,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 	else
 		buf[0] = 0;
 
-    draw_info(buf, flags);
+	draw_info(buf, flags);
 }
 
 /**
@@ -581,13 +581,13 @@ void TargetObject(unsigned char *data, int len)
 	cpl.target_color = *data++;
 	cpl.target_code = *data++;
 	strncpy(cpl.target_name, (char *)data, len);
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
 #if 0
 	char buf[MAX_BUF];
 	sprintf(buf, "TO: %d %d >%s< (len: %d)\n", cpl.target_mode, cpl.target_code, cpl.target_name, len);
-    draw_info(buf, COLOR_GREEN);
+	draw_info(buf, COLOR_GREEN);
 #endif
 }
 
@@ -597,229 +597,229 @@ void TargetObject(unsigned char *data, int len)
  * @param len Length of the data */
 void StatsCmd(unsigned char *data, int len)
 {
-    int i = 0;
-    int c, temp;
-    char *tmp, *tmp2;
+	int i = 0;
+	int c, temp;
+	char *tmp, *tmp2;
 
-    while (i < len)
-    {
-        c = data[i++];
+	while (i < len)
+	{
+		c = data[i++];
 
-        if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
-        {
-            cpl.stats.protection[c - CS_STAT_PROT_START] = (sint16)*(data + i++);
-            cpl.stats.protection_change = 1;
-            WIDGET_REDRAW(RESIST_ID);
-        }
-        else
-        {
-            switch (c)
-            {
-            	case CS_STAT_TARGET_HP:
+		if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
+		{
+			cpl.stats.protection[c - CS_STAT_PROT_START] = (sint16)*(data + i++);
+			cpl.stats.protection_change = 1;
+			WIDGET_REDRAW(RESIST_ID);
+		}
+		else
+		{
+			switch (c)
+			{
+				case CS_STAT_TARGET_HP:
 					cpl.target_hp = (int)*(data + i++);
 					break;
 
 				case CS_STAT_REG_HP:
 					cpl.gen_hp = ((float)GetShort_String(data + i)) / 10.0f;
-            	    i += 2;
+					i += 2;
 					WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_MANA:
 					cpl.gen_sp = ((float)GetShort_String(data + i)) / 10.0f;
-	                i += 2;
-	                WIDGET_REDRAW(REGEN_ID);
+					i += 2;
+					WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_GRACE:
 					cpl.gen_grace = ((float)GetShort_String(data + i)) / 10.0f;
-	                i += 2;
-	                WIDGET_REDRAW(REGEN_ID);
+					i += 2;
+					WIDGET_REDRAW(REGEN_ID);
 					break;
 
 				case CS_STAT_HP:
-                   	temp = GetInt_String(data + i);
+					temp = GetInt_String(data + i);
 
-                    if (temp < cpl.stats.hp && cpl.stats.food)
-                    {
-                        cpl.warn_hp = 1;
-                        if (cpl.stats.maxhp / 12 <= cpl.stats.hp-temp)
-                        	cpl.warn_hp = 2;
-                    }
-                    cpl.stats.hp = temp;
-                    i += 4;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					if (temp < cpl.stats.hp && cpl.stats.food)
+					{
+						cpl.warn_hp = 1;
+						if (cpl.stats.maxhp / 12 <= cpl.stats.hp-temp)
+							cpl.warn_hp = 2;
+					}
+					cpl.stats.hp = temp;
+					i += 4;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_MAXHP:
-                    cpl.stats.maxhp = GetInt_String(data + i);
-                    i += 4;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_MAXHP:
+					cpl.stats.maxhp = GetInt_String(data + i);
+					i += 4;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_SP:
-                    cpl.stats.sp = GetShort_String(data + i);
-                    i += 2;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_SP:
+					cpl.stats.sp = GetShort_String(data + i);
+					i += 2;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_MAXSP:
-                    cpl.stats.maxsp = GetShort_String(data + i);
-                    i += 2;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_MAXSP:
+					cpl.stats.maxsp = GetShort_String(data + i);
+					i += 2;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_GRACE:
-                    cpl.stats.grace = GetShort_String(data + i);
-                    i += 2;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_GRACE:
+					cpl.stats.grace = GetShort_String(data + i);
+					i += 2;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_MAXGRACE:
-                    cpl.stats.maxgrace = GetShort_String(data + i);
-                    i += 2;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_MAXGRACE:
+					cpl.stats.maxgrace = GetShort_String(data + i);
+					i += 2;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_STR:
-                    temp = (int)*(data + i++);
+				case CS_STAT_STR:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Str)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Str)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Str = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Str = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_INT:
-                    temp = (int)*(data + i++);
+				case CS_STAT_INT:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Int)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Int)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Int = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Int = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_POW:
-                    temp = (int)*(data + i++);
+				case CS_STAT_POW:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Pow)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Pow)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Pow = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Pow = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_WIS:
-                    temp = (int)*(data + i++);
+				case CS_STAT_WIS:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Wis)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Wis)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Wis = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Wis = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_DEX:
-                    temp = (int)*(data + i++);
+				case CS_STAT_DEX:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Dex)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Dex)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Dex = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Dex = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_CON:
-                    temp = (int)*(data + i++);
+				case CS_STAT_CON:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Con)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Con)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Con = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Con = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_CHA:
-                    temp = (int)*(data + i++);
+				case CS_STAT_CHA:
+					temp = (int)*(data + i++);
 
-                    if (temp > cpl.stats.Cha)
-                    	cpl.warn_statup = TRUE;
-                    else
-                    	cpl.warn_statdown = TRUE;
+					if (temp > cpl.stats.Cha)
+						cpl.warn_statup = TRUE;
+					else
+						cpl.warn_statdown = TRUE;
 
-                    cpl.stats.Cha = temp;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+					cpl.stats.Cha = temp;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_EXP:
-                    temp = GetInt_String(data + i);
+				case CS_STAT_EXP:
+					temp = GetInt_String(data + i);
 
-                    if (temp < cpl.stats.exp)
-                        cpl.warn_drain = TRUE;
+					if (temp < cpl.stats.exp)
+						cpl.warn_drain = TRUE;
 
-                    cpl.stats.exp = temp;
-                    i += 4;
-                    WIDGET_REDRAW(MAIN_LVL_ID);
-                    break;
+					cpl.stats.exp = temp;
+					i += 4;
+					WIDGET_REDRAW(MAIN_LVL_ID);
+					break;
 
-                case CS_STAT_LEVEL:
-                    cpl.stats.level = (char)*(data + i++);
-                    WIDGET_REDRAW(MAIN_LVL_ID);
-                    break;
+				case CS_STAT_LEVEL:
+					cpl.stats.level = (char)*(data + i++);
+					WIDGET_REDRAW(MAIN_LVL_ID);
+					break;
 
-                case CS_STAT_WC:
-                    cpl.stats.wc = (char)GetShort_String(data + i);
-                    i += 2;
-                    break;
+				case CS_STAT_WC:
+					cpl.stats.wc = (char)GetShort_String(data + i);
+					i += 2;
+					break;
 
-                case CS_STAT_AC:
-                    cpl.stats.ac = (char)GetShort_String(data + i);
-                    i += 2;
-                    break;
+				case CS_STAT_AC:
+					cpl.stats.ac = (char)GetShort_String(data + i);
+					i += 2;
+					break;
 
-                case CS_STAT_DAM:
-                    cpl.stats.dam = GetShort_String(data + i);
-                    i += 2;
-                    break;
+				case CS_STAT_DAM:
+					cpl.stats.dam = GetShort_String(data + i);
+					i += 2;
+					break;
 
-                case CS_STAT_SPEED:
-                    cpl.stats.speed = GetInt_String(data + i);
-                    i += 4;
-                    break;
+				case CS_STAT_SPEED:
+					cpl.stats.speed = GetInt_String(data + i);
+					i += 4;
+					break;
 
-                case CS_STAT_FOOD:
-                    cpl.stats.food = GetShort_String(data + i);
-                    i += 2;
-                    WIDGET_REDRAW(STATS_ID);
-                    break;
+				case CS_STAT_FOOD:
+					cpl.stats.food = GetShort_String(data + i);
+					i += 2;
+					WIDGET_REDRAW(STATS_ID);
+					break;
 
-                case CS_STAT_WEAP_SP:
-                    cpl.stats.weapon_sp = (int)*(data + i++);
-                    break;
+				case CS_STAT_WEAP_SP:
+					cpl.stats.weapon_sp = (int)*(data + i++);
+					break;
 
-                case CS_STAT_FLAGS:
-                    cpl.stats.flags = GetShort_String(data + i);
-                    i += 2;
-                    break;
+				case CS_STAT_FLAGS:
+					cpl.stats.flags = GetShort_String(data + i);
+					i += 2;
+					break;
 
-                case CS_STAT_WEIGHT_LIM:
-                    set_weight_limit(GetInt_String(data + i));
-                    i += 4;
-                    break;
+				case CS_STAT_WEIGHT_LIM:
+					set_weight_limit(GetInt_String(data + i));
+					i += 4;
+					break;
 
 				case CS_STAT_ACTION_TIME:
 					cpl.action_timer = ((float)abs(GetInt_String(data + i))) / 1000.0f;
@@ -827,60 +827,60 @@ void StatsCmd(unsigned char *data, int len)
 					WIDGET_REDRAW(SKILL_EXP_ID);
 					break;
 
-                case CS_STAT_SKILLEXP_AGILITY:
-                case CS_STAT_SKILLEXP_PERSONAL:
-                case CS_STAT_SKILLEXP_MENTAL:
-                case CS_STAT_SKILLEXP_PHYSIQUE:
-                case CS_STAT_SKILLEXP_MAGIC:
-                case CS_STAT_SKILLEXP_WISDOM:
-                    cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt_String(data + i);
-                    i += 4;
-                    WIDGET_REDRAW(SKILL_LVL_ID);
-                    break;
+				case CS_STAT_SKILLEXP_AGILITY:
+				case CS_STAT_SKILLEXP_PERSONAL:
+				case CS_STAT_SKILLEXP_MENTAL:
+				case CS_STAT_SKILLEXP_PHYSIQUE:
+				case CS_STAT_SKILLEXP_MAGIC:
+				case CS_STAT_SKILLEXP_WISDOM:
+					cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt_String(data + i);
+					i += 4;
+					WIDGET_REDRAW(SKILL_LVL_ID);
+					break;
 
-                case CS_STAT_SKILLEXP_AGLEVEL:
-                case CS_STAT_SKILLEXP_PELEVEL:
-                case CS_STAT_SKILLEXP_MELEVEL:
-                case CS_STAT_SKILLEXP_PHLEVEL:
-                case CS_STAT_SKILLEXP_MALEVEL:
-                case CS_STAT_SKILLEXP_WILEVEL:
-                    cpl.stats.skill_level[(c - CS_STAT_SKILLEXP_START - 1) / 2] = (sint16)*(data + i++);
-                    WIDGET_REDRAW(SKILL_LVL_ID);
-                    break;
+				case CS_STAT_SKILLEXP_AGLEVEL:
+				case CS_STAT_SKILLEXP_PELEVEL:
+				case CS_STAT_SKILLEXP_MELEVEL:
+				case CS_STAT_SKILLEXP_PHLEVEL:
+				case CS_STAT_SKILLEXP_MALEVEL:
+				case CS_STAT_SKILLEXP_WILEVEL:
+					cpl.stats.skill_level[(c - CS_STAT_SKILLEXP_START - 1) / 2] = (sint16)*(data + i++);
+					WIDGET_REDRAW(SKILL_LVL_ID);
+					break;
 
-                case CS_STAT_RANGE:
-                {
-                    int rlen = data[i++];
-                    strncpy(cpl.range, (const char*)data + i, rlen);
-                    cpl.range[rlen] = '\0';
-                    i += rlen;
-                    break;
-                }
+				case CS_STAT_RANGE:
+				{
+					int rlen = data[i++];
+					strncpy(cpl.range, (const char*)data + i, rlen);
+					cpl.range[rlen] = '\0';
+					i += rlen;
+					break;
+				}
 
-                case CS_STAT_EXT_TITLE:
-                {
-                    int rlen = data[i++];
+				case CS_STAT_EXT_TITLE:
+				{
+					int rlen = data[i++];
 
-                    tmp = strchr((char *)data + i,'\n');
-                    *tmp = 0;
-                    strcpy(cpl.rank, (char *)data + i);
-                    tmp2 = strchr(tmp + 1, '\n');
-                    *tmp2 = 0;
-                    strcpy(cpl.pname, tmp + 1);
-                    tmp = strchr(tmp2 + 1, '\n');
-                    *tmp = 0;
-                    strcpy(cpl.race, tmp2 + 1);
-                    tmp2 = strchr(tmp + 1, '\n');
-                    *tmp2 = 0;
+					tmp = strchr((char *)data + i,'\n');
+					*tmp = 0;
+					strcpy(cpl.rank, (char *)data + i);
+					tmp2 = strchr(tmp + 1, '\n');
+					*tmp2 = 0;
+					strcpy(cpl.pname, tmp + 1);
+					tmp = strchr(tmp2 + 1, '\n');
+					*tmp = 0;
+					strcpy(cpl.race, tmp2 + 1);
+					tmp2 = strchr(tmp + 1, '\n');
+					*tmp2 = 0;
 					/* Profession title */
-                    strcpy(cpl.title, tmp + 1);
-                    tmp = strchr(tmp2 + 1, '\n');
-                    *tmp = 0;
-                    strcpy(cpl.alignment, tmp2 + 1);
-                    tmp2 = strchr(tmp + 1, '\n');
-                    *tmp2 = 0;
-                    strcpy(cpl.godname, tmp + 1);
-                    strcpy(cpl.gender, tmp2 + 1);
+					strcpy(cpl.title, tmp + 1);
+					tmp = strchr(tmp2 + 1, '\n');
+					*tmp = 0;
+					strcpy(cpl.alignment, tmp2 + 1);
+					tmp2 = strchr(tmp + 1, '\n');
+					*tmp2 = 0;
+					strcpy(cpl.godname, tmp + 1);
+					strcpy(cpl.gender, tmp2 + 1);
 
 					if (cpl.gender[0] == 'm')
 						strcpy(cpl.gender, "male");
@@ -891,7 +891,7 @@ void StatsCmd(unsigned char *data, int len)
 					else
 						strcpy(cpl.gender, "neuter");
 
-                    i += rlen;
+					i += rlen;
 
 					/* prepare rank + name for fast access
 					 * the pname is <name> <title>.
@@ -913,16 +913,16 @@ void StatsCmd(unsigned char *data, int len)
 					adjust_string(cpl.gender);
 					adjust_string(cpl.godname);
 					break;
-                }
+				}
 
-                default:
-                    fprintf(stderr, "Unknown stat number %d\n", c);
-            }
-        }
-    }
+				default:
+					fprintf(stderr, "Unknown stat number %d\n", c);
+			}
+		}
+	}
 
-    if (i > len)
-        fprintf(stderr, "Got stats overflow, processed %d bytes out of %d\n", i, len);
+	if (i > len)
+		fprintf(stderr, "Got stats overflow, processed %d bytes out of %d\n", i, len);
 }
 
 /**
@@ -930,29 +930,29 @@ void StatsCmd(unsigned char *data, int len)
  * @param cmd The question command. */
 void PreParseInfoStat(char *cmd)
 {
-    /* Find input name */
-    if (strstr(cmd, "What is your name?"))
-    {
-        LOG(LOG_MSG, "Login: Enter name\n");
-        cpl.name[0] = 0;
-        cpl.password[0] = 0;
-        GameStatus = GAME_STATUS_NAME;
-    }
+	/* Find input name */
+	if (strstr(cmd, "What is your name?"))
+	{
+		LOG(LOG_MSG, "Login: Enter name\n");
+		cpl.name[0] = 0;
+		cpl.password[0] = 0;
+		GameStatus = GAME_STATUS_NAME;
+	}
 
-    if (strstr(cmd, "What is your password?"))
-    {
-        LOG(LOG_MSG, "Login: Enter password\n");
-        GameStatus = GAME_STATUS_PSWD;
-    }
+	if (strstr(cmd, "What is your password?"))
+	{
+		LOG(LOG_MSG, "Login: Enter password\n");
+		GameStatus = GAME_STATUS_PSWD;
+	}
 
-    if (strstr(cmd, "Please type your password again."))
-    {
-        LOG(LOG_MSG, "Login: Enter verify password\n");
-        GameStatus = GAME_STATUS_VERIFYPSWD;
-    }
+	if (strstr(cmd, "Please type your password again."))
+	{
+		LOG(LOG_MSG, "Login: Enter verify password\n");
+		GameStatus = GAME_STATUS_VERIFYPSWD;
+	}
 
-    if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
-        open_input_mode(12);
+	if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
+		open_input_mode(12);
 }
 
 /**
@@ -960,23 +960,23 @@ void PreParseInfoStat(char *cmd)
  * @param data The incoming data */
 void handle_query(char *data)
 {
-    char *buf, *cp;
+	char *buf, *cp;
 
-    buf = strchr(data, ' ');
-    if (buf)
+	buf = strchr(data, ' ');
+	if (buf)
 		buf++;
 
-    if (buf)
-    {
-        cp = buf;
-        while ((buf = strchr(buf, '\n')) != NULL)
-        {
-            *buf++ = '\0';
-            LOG(LOG_MSG, "Received query string: %s\n", cp);
-            PreParseInfoStat(cp);
-            cp = buf;
-        }
-    }
+	if (buf)
+	{
+		cp = buf;
+		while ((buf = strchr(buf, '\n')) != NULL)
+		{
+			*buf++ = '\0';
+			LOG(LOG_MSG, "Received query string: %s\n", cp);
+			PreParseInfoStat(cp);
+			cp = buf;
+		}
+	}
 }
 
 /**
@@ -984,10 +984,10 @@ void handle_query(char *data)
  * @param text Null terminated string of text to send. */
 void send_reply(char *text)
 {
-    char buf[MAXSOCKBUF];
+	char buf[MAXSOCKBUF];
 
-    sprintf(buf, "reply %s", text);
-    cs_write_string(csocket.fd, buf, strlen(buf));
+	sprintf(buf, "reply %s", text);
+	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
 /**
@@ -998,32 +998,32 @@ void send_reply(char *text)
  */
 void PlayerCmd(unsigned char *data, int len)
 {
-    char name[MAX_BUF];
-    int tag, weight, face, i = 0, nlen;
+	char name[MAX_BUF];
+	int tag, weight, face, i = 0, nlen;
 
-    GameStatus = GAME_STATUS_PLAY;
+	GameStatus = GAME_STATUS_PLAY;
 	txtwin[TW_MIX].size = txtwin_start_size;
-    InputStringEndFlag = FALSE;
-    tag = GetInt_String(data);
-    i += 4;
-    weight = GetInt_String(data + i);
-    i += 4;
-    face = GetInt_String(data + i);
+	InputStringEndFlag = FALSE;
+	tag = GetInt_String(data);
+	i += 4;
+	weight = GetInt_String(data + i);
+	i += 4;
+	face = GetInt_String(data + i);
 	request_face(face, 0);
-    i += 4;
-    nlen = data[i++];
-    memcpy(name, (const char*)data + i, nlen);
+	i += 4;
+	nlen = data[i++];
+	memcpy(name, (const char*)data + i, nlen);
 
-    name[nlen] = '\0';
-    i += nlen;
+	name[nlen] = '\0';
+	i += nlen;
 
-    if (i != len)
-        fprintf(stderr, "PlayerCmd: lengths do not match (%d!=%d)\n", len, i);
+	if (i != len)
+		fprintf(stderr, "PlayerCmd: lengths do not match (%d!=%d)\n", len, i);
 
-    new_player(tag, name, weight, (short)face);
+	new_player(tag, name, weight, (short)face);
 	map_draw_map_clear();
 	map_transfer_flag = 1;
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
 	/* Request to load quickslots */
@@ -1036,16 +1036,16 @@ void PlayerCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void ItemXCmd(unsigned char *data, int len)
 {
-    int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
-    uint8 itype, stype, item_qua, item_con, item_skill, item_level;
-    uint8 animspeed, direction = 0;
-    char name[MAX_BUF];
+	int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
+	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
+	uint8 animspeed, direction = 0;
+	char name[MAX_BUF];
 
-    map_udate_flag = 2;
-    itype = stype = item_qua = item_con = item_skill = item_level = 0;
+	map_udate_flag = 2;
+	itype = stype = item_qua = item_con = item_skill = item_level = 0;
 
-    dmode = GetInt_String(data);
-    pos += 4;
+	dmode = GetInt_String(data);
+	pos += 4;
 
 #if 0
 	LOG(-1, "ITEMX:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
@@ -1054,7 +1054,7 @@ void ItemXCmd(unsigned char *data, int len)
 	loc = GetInt_String(data+pos);
 
 	if (dmode >= 0)
-	    remove_item_inventory(locate_item(loc));
+		remove_item_inventory(locate_item(loc));
 
 	/* send item flag */
 	if (dmode == -4)
@@ -1081,54 +1081,54 @@ void ItemXCmd(unsigned char *data, int len)
 		loc = -1;
 	}
 
-    pos += 4;
+	pos += 4;
 
-    if (pos == len && loc != -1)
-    {
-        LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");
-    }
-    else
-    {
-        while (pos < len)
-        {
-            tag = GetInt_String(data + pos);
+	if (pos == len && loc != -1)
+	{
+		LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");
+	}
+	else
+	{
+		while (pos < len)
+		{
+			tag = GetInt_String(data + pos);
 			pos += 4;
-            flags = GetInt_String(data + pos);
+			flags = GetInt_String(data + pos);
 			pos += 4;
-            weight = GetInt_String(data + pos);
+			weight = GetInt_String(data + pos);
 			pos += 4;
-            face = GetInt_String(data + pos);
+			face = GetInt_String(data + pos);
 			pos += 4;
 			request_face(face, 0);
-            direction = data[pos++];
+			direction = data[pos++];
 
-            if (loc)
-            {
-                itype = data[pos++];
-                stype = data[pos++];
-                item_qua = data[pos++];
-                item_con = data[pos++];
-                item_level = data[pos++];
-                item_skill = data[pos++];
-            }
+			if (loc)
+			{
+				itype = data[pos++];
+				stype = data[pos++];
+				item_qua = data[pos++];
+				item_con = data[pos++];
+				item_level = data[pos++];
+				item_skill = data[pos++];
+			}
 
-            nlen = data[pos++];
-            memcpy(name, (char*)data + pos, nlen);
-            pos += nlen;
-            name[nlen] = '\0';
-            anim = GetShort_String(data + pos);
+			nlen = data[pos++];
+			memcpy(name, (char*)data + pos, nlen);
+			pos += nlen;
+			name[nlen] = '\0';
+			anim = GetShort_String(data + pos);
 			pos += 2;
-            animspeed = data[pos++];
-            nrof = GetInt_String(data+pos);
+			animspeed = data[pos++];
+			nrof = GetInt_String(data+pos);
 			pos += 4;
-            update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, FALSE);
-        }
+			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, FALSE);
+		}
 
-        if (pos > len)
-            LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
-    }
+		if (pos > len)
+			LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+	}
 
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 }
 
 /**
@@ -1137,16 +1137,16 @@ void ItemXCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void ItemYCmd(unsigned char *data, int len)
 {
-    int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
-    uint8 itype, stype, item_qua, item_con, item_skill, item_level;
-    uint8 animspeed, direction = 0;
-    char name[MAX_BUF];
+	int weight, loc, tag, face, flags, pos = 0, nlen, anim, nrof, dmode;
+	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
+	uint8 animspeed, direction = 0;
+	char name[MAX_BUF];
 
-    map_udate_flag = 2;
-    itype = stype = item_qua = item_con = item_skill = item_level = 0;
+	map_udate_flag = 2;
+	itype = stype = item_qua = item_con = item_skill = item_level = 0;
 
-    dmode = GetInt_String(data);
-    pos += 4;
+	dmode = GetInt_String(data);
+	pos += 4;
 
 #if 0
 	LOG(-1, "ITEMY:(%d) %s\n", dmode, locate_item(dmode) ? (locate_item(dmode)->d_name ? locate_item(dmode)->s_name : "no name") : "no LOC");
@@ -1155,7 +1155,7 @@ void ItemYCmd(unsigned char *data, int len)
 	loc = GetInt_String(data + pos);
 
 	if (dmode >= 0)
-	    remove_item_inventory(locate_item(loc));
+		remove_item_inventory(locate_item(loc));
 
 	/* send item flag */
 	if (dmode == -4)
@@ -1183,55 +1183,55 @@ void ItemYCmd(unsigned char *data, int len)
 	}
 
 
-    pos += 4;
+	pos += 4;
 
-    if (pos == len && loc != -1)
-    {
+	if (pos == len && loc != -1)
+	{
 		/* server sends no clean command to clear below window */
-        /*LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");*/
-    }
-    else
-    {
-        while (pos < len)
-        {
-            tag = GetInt_String(data + pos);
+		/*LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");*/
+	}
+	else
+	{
+		while (pos < len)
+		{
+			tag = GetInt_String(data + pos);
 			pos += 4;
-            flags = GetInt_String(data + pos);
-            pos += 4;
-            weight = GetInt_String(data + pos);
-            pos += 4;
-            face = GetInt_String(data + pos);
-            pos += 4;
+			flags = GetInt_String(data + pos);
+			pos += 4;
+			weight = GetInt_String(data + pos);
+			pos += 4;
+			face = GetInt_String(data + pos);
+			pos += 4;
 			request_face(face, 0);
-            direction = data[pos++];
+			direction = data[pos++];
 
-            if (loc)
-            {
-                itype = data[pos++];
-                stype = data[pos++];
-                item_qua = data[pos++];
-                item_con = data[pos++];
-                item_level = data[pos++];
-                item_skill = data[pos++];
-            }
+			if (loc)
+			{
+				itype = data[pos++];
+				stype = data[pos++];
+				item_qua = data[pos++];
+				item_con = data[pos++];
+				item_level = data[pos++];
+				item_skill = data[pos++];
+			}
 
-            nlen = data[pos++];
-            memcpy(name, (char*)data + pos, nlen);
-            pos += nlen;
-            name[nlen] = '\0';
-            anim = GetShort_String(data + pos);
-            pos += 2;
-            animspeed = data[pos++];
-            nrof = GetInt_String(data + pos);
-            pos += 4;
-            update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, TRUE);
-        }
+			nlen = data[pos++];
+			memcpy(name, (char*)data + pos, nlen);
+			pos += nlen;
+			name[nlen] = '\0';
+			anim = GetShort_String(data + pos);
+			pos += 2;
+			animspeed = data[pos++];
+			nrof = GetInt_String(data + pos);
+			pos += 4;
+			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, TRUE);
+		}
 
-        if (pos > len)
-            LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
-    }
+		if (pos > len)
+			LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+	}
 
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 }
 
 /**
@@ -1240,103 +1240,103 @@ void ItemYCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void UpdateItemCmd(unsigned char *data, int len)
 {
-    int weight, loc, tag, face, sendflags, flags, pos = 0, nlen, anim, nrof;
+	int weight, loc, tag, face, sendflags, flags, pos = 0, nlen, anim, nrof;
 	uint8 direction;
-    char name[MAX_BUF];
-    item *ip, *env = NULL;
-    uint8 animspeed;
+	char name[MAX_BUF];
+	item *ip, *env = NULL;
+	uint8 animspeed;
 
-    map_udate_flag = 2;
-    sendflags = GetShort_String(data);
-    pos += 2;
-    tag = GetInt_String(data + pos);
-    pos += 4;
-    ip = locate_item(tag);
+	map_udate_flag = 2;
+	sendflags = GetShort_String(data);
+	pos += 2;
+	tag = GetInt_String(data + pos);
+	pos += 4;
+	ip = locate_item(tag);
 
-    if (!ip)
-    {
+	if (!ip)
+	{
 		return;
-    }
+	}
 
-    *name = '\0';
+	*name = '\0';
 	loc = ip->env ? ip->env->tag : 0;
 	/*LOG(-1, "UPDATE: loc:%d tag:%d\n", loc, tag); */
-    weight = (int)(ip->weight * 1000);
-    face = ip->face;
+	weight = (int)(ip->weight * 1000);
+	face = ip->face;
 	request_face(face, 0);
-    flags = ip->flagsval;
-    anim = ip->animation_id;
-    animspeed = (uint8) ip->anim_speed;
-    nrof = ip->nrof;
+	flags = ip->flagsval;
+	anim = ip->animation_id;
+	animspeed = (uint8) ip->anim_speed;
+	nrof = ip->nrof;
 	direction = ip->direction;
 
-    if (sendflags & UPD_LOCATION)
-    {
-        loc = GetInt_String(data + pos);
-        env = locate_item(loc);
+	if (sendflags & UPD_LOCATION)
+	{
+		loc = GetInt_String(data + pos);
+		env = locate_item(loc);
 
-        if (!env)
+		if (!env)
 			fprintf(stderr, "UpdateItemCmd: unknown object tag (%d) for new location\n", loc);
 
-        pos += 4;
-    }
+		pos += 4;
+	}
 
-    if (sendflags & UPD_FLAGS)
-    {
-        flags = GetInt_String(data + pos);
-        pos += 4;
-    }
+	if (sendflags & UPD_FLAGS)
+	{
+		flags = GetInt_String(data + pos);
+		pos += 4;
+	}
 
-    if (sendflags & UPD_WEIGHT)
-    {
-        weight = GetInt_String(data + pos);
-        pos += 4;
-    }
+	if (sendflags & UPD_WEIGHT)
+	{
+		weight = GetInt_String(data + pos);
+		pos += 4;
+	}
 
-    if (sendflags & UPD_FACE)
-    {
-        face = GetInt_String(data + pos);
+	if (sendflags & UPD_FACE)
+	{
+		face = GetInt_String(data + pos);
 		request_face(face, 0);
-        pos += 4;
-    }
+		pos += 4;
+	}
 
-    if (sendflags & UPD_DIRECTION)
+	if (sendflags & UPD_DIRECTION)
 		direction = data[pos++];
 
-    if (sendflags & UPD_NAME)
-    {
+	if (sendflags & UPD_NAME)
+	{
 
-        nlen = data[pos++];
-        memcpy(name, (char*)data + pos, nlen);
-        pos += nlen;
-        name[nlen] = '\0';
-    }
+		nlen = data[pos++];
+		memcpy(name, (char*)data + pos, nlen);
+		pos += nlen;
+		name[nlen] = '\0';
+	}
 
-    if (pos > len)
-    {
-        fprintf(stderr, "UpdateItemCmd: Overread buffer: %d > %d\n", pos, len);
-        return;
-    }
+	if (pos > len)
+	{
+		fprintf(stderr, "UpdateItemCmd: Overread buffer: %d > %d\n", pos, len);
+		return;
+	}
 
-    if (sendflags & UPD_ANIM)
-    {
-        anim = GetShort_String(data + pos);
-        pos += 2;
-    }
+	if (sendflags & UPD_ANIM)
+	{
+		anim = GetShort_String(data + pos);
+		pos += 2;
+	}
 
-    if (sendflags & UPD_ANIMSPEED)
-    {
-        animspeed = data[pos++];
-    }
+	if (sendflags & UPD_ANIMSPEED)
+	{
+		animspeed = data[pos++];
+	}
 
-    if (sendflags & UPD_NROF)
-    {
-        nrof = GetInt_String(data + pos);
-        pos += 4;
-    }
+	if (sendflags & UPD_NROF)
+	{
+		nrof = GetInt_String(data + pos);
+		pos += 4;
+	}
 
-    update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, FALSE);
-    map_udate_flag = 2;
+	update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, FALSE);
+	map_udate_flag = 2;
 }
 
 /**
@@ -1345,19 +1345,19 @@ void UpdateItemCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void DeleteItem(unsigned char *data, int len)
 {
-    int pos = 0,tag;
+	int pos = 0,tag;
 
-    while (pos < len)
-    {
-        tag = GetInt_String(data);
+	while (pos < len)
+	{
+		tag = GetInt_String(data);
 		pos += 4;
-        delete_item(tag);
-    }
+		delete_item(tag);
+	}
 
-    if (pos > len)
-        fprintf(stderr, "ItemCmd: Overread buffer: %d > %d\n", pos, len);
+	if (pos > len)
+		fprintf(stderr, "ItemCmd: Overread buffer: %d > %d\n", pos, len);
 
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 }
 
 /**
@@ -1365,18 +1365,18 @@ void DeleteItem(unsigned char *data, int len)
  * @param data The incoming data */
 void DeleteInventory(unsigned char *data)
 {
-    int tag;
+	int tag;
 
-    tag = atoi((const char *) data);
+	tag = atoi((const char *) data);
 
-    if (tag < 0)
-    {
-        fprintf(stderr, "DeleteInventory: Invalid tag: %d\n", tag);
-        return;
-    }
+	if (tag < 0)
+	{
+		fprintf(stderr, "DeleteInventory: Invalid tag: %d\n", tag);
+		return;
+	}
 
-    remove_item_inventory(locate_item(tag));
-    map_udate_flag = 2;
+	remove_item_inventory(locate_item(tag));
+	map_udate_flag = 2;
 }
 
 /**
@@ -1436,41 +1436,41 @@ void QuickSlotCmd(char *data)
  * @param len Length of the data */
 void Map2Cmd(unsigned char *data, int len)
 {
-    int mask, x, y, pos = 0, ext_flag, xdata;
-    int ext1, ext2, ext3, probe;
-    int map_new_flag = 0;
-    int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
-    char pname1[64], pname2[64], pname3[64], pname4[64];
-    uint16 face;
+	int mask, x, y, pos = 0, ext_flag, xdata;
+	int ext1, ext2, ext3, probe;
+	int map_new_flag = 0;
+	int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
+	char pname1[64], pname2[64], pname3[64], pname4[64];
+	uint16 face;
 
-    if (scrolldx || scrolldy)
-    	display_mapscroll(scrolldx, scrolldy);
+	if (scrolldx || scrolldy)
+		display_mapscroll(scrolldx, scrolldy);
 
-    scrolldy = scrolldx = 0;
+	scrolldy = scrolldx = 0;
 	map_transfer_flag = 0;
-    xpos = (uint8)(data[pos++]);
+	xpos = (uint8)(data[pos++]);
 
 	/* its not xpos, its the changed map marker */
-    if (xpos == 255)
-    {
-    	map_new_flag = TRUE;
-    	xpos = (uint8)(data[pos++]);
-    }
+	if (xpos == 255)
+	{
+		map_new_flag = TRUE;
+		xpos = (uint8)(data[pos++]);
+	}
 
-    ypos = (uint8)(data[pos++]);
-    if (map_new_flag)
-    	adjust_map_cache(xpos, ypos);
+	ypos = (uint8)(data[pos++]);
+	if (map_new_flag)
+		adjust_map_cache(xpos, ypos);
 
 	/* map windows is from range to +MAPWINSIZE_X */
-    MapData.posx = xpos;
-    MapData.posy = ypos;
+	MapData.posx = xpos;
+	MapData.posy = ypos;
 
 #if 0
 	LOG(-1, "MAPPOS: x:%d y:%d (nflag:%x)\n", xpos, ypos, map_new_flag);
 #endif
 
-    while (pos < len)
-    {
+	while (pos < len)
+	{
 		ext_flag = 0;
 		ext1 = ext2 = ext3 = 0;
 		/* first, we get the mask flag - it decribes what we now get */
@@ -1487,7 +1487,7 @@ void Map2Cmd(unsigned char *data, int len)
 		if ((mask & 0x3f) == 0)
 			display_map_clearcell(x, y);
 
-    	ext3 = ext2 = ext1 = -1;
+		ext3 = ext2 = ext1 = -1;
 		pname1[0] = 0;
 		pname2[0] = 0;
 		pname3[0] = 0;
@@ -1540,7 +1540,7 @@ void Map2Cmd(unsigned char *data, int len)
 				if (pname_flag & 0x02)
 				{
 					i = 0;
-					while((c = (char)(data[pos++])))
+					while ((c = (char)(data[pos++])))
 					{
 						pname3[i++] = c;
 					}
@@ -1554,7 +1554,7 @@ void Map2Cmd(unsigned char *data, int len)
 				if (pname_flag & 0x01)
 				{
 					i = 0;
-					while((c = (char)(data[pos++])))
+					while ((c = (char)(data[pos++])))
 					{
 						pname4[i++] = c;
 					}
@@ -1578,7 +1578,7 @@ void Map2Cmd(unsigned char *data, int len)
 					add_anim(ANIM_KILL, xpos + x, ypos + y, ff0);
 				}
 
-    			if (ff_flag & 0x4)
+				if (ff_flag & 0x4)
 				{
 					ff1 = GetShort_String(data + pos);
 					pos += 2;
@@ -1698,9 +1698,9 @@ void Map2Cmd(unsigned char *data, int len)
 			}
 			set_map_face(x, y, 3, face, xdata, ext3, pname4, pcolor);
 		}
-    }
+	}
 
-    map_udate_flag = 2;
+	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
 
@@ -1709,25 +1709,25 @@ void Map2Cmd(unsigned char *data, int len)
  * @param data The incoming data */
 void map_scrollCmd(char *data)
 {
-    static int step = 0;
-    char *buf;
+	static int step = 0;
+	char *buf;
 
-    scrolldx += atoi(data);
-    buf = strchr(data, ' ');
+	scrolldx += atoi(data);
+	buf = strchr(data, ' ');
 
-    if (!buf)
-    {
-        LOG(LOG_ERROR, "ERROR: map_scrollCmd: Got short packet.\n");
-        return;
-    }
+	if (!buf)
+	{
+		LOG(LOG_ERROR, "ERROR: map_scrollCmd: Got short packet.\n");
+		return;
+	}
 
-    buf++;
-    scrolldy += atoi(buf);
+	buf++;
+	scrolldy += atoi(buf);
 
-    if (++step % 2)
-        sound_play_effect(SOUND_STEP1, 0, 100);
-    else
-        sound_play_effect(SOUND_STEP2, 0, 100);
+	if (++step % 2)
+		sound_play_effect(SOUND_STEP1, 0, 100);
+	else
+		sound_play_effect(SOUND_STEP2, 0, 100);
 }
 
 /**
@@ -1741,60 +1741,60 @@ void MagicMapCmd()
  * @param data The incoming data. */
 void VersionCmd(char *data)
 {
-    char *cp;
-    char buf[1024];
+	char *cp;
+	char buf[1024];
 
-    GameStatusVersionOKFlag = 0;
-    GameStatusVersionFlag = 1;
-    csocket.cs_version = atoi(data);
+	GameStatusVersionOKFlag = 0;
+	GameStatusVersionFlag = 1;
+	csocket.cs_version = atoi(data);
 
-    /* The first version is the client to server version the server wants
-     * ATM, we just do for "must match".
-     * Later it will be smarter to define range where the differences are ok */
-    if (VERSION_CS != csocket.cs_version)
-    {
-        sprintf(buf, "Invalid CS version (%d,%d)", VERSION_CS, csocket.cs_version);
-        draw_info(buf, COLOR_RED);
+	/* The first version is the client to server version the server wants
+	 * ATM, we just do for "must match".
+	 * Later it will be smarter to define range where the differences are ok */
+	if (VERSION_CS != csocket.cs_version)
+	{
+		sprintf(buf, "Invalid CS version (%d,%d)", VERSION_CS, csocket.cs_version);
+		draw_info(buf, COLOR_RED);
 
 		if (VERSION_CS > csocket.cs_version)
-	       sprintf(buf, "The server is outdated!\nSelect a different one!");
+			sprintf(buf, "The server is outdated!\nSelect a different one!");
 		else
-	        sprintf(buf, "Your client is outdated!\nUpdate your client!");
+			sprintf(buf, "Your client is outdated!\nUpdate your client!");
 
-        draw_info(buf, COLOR_RED);
-        LOG(LOG_ERROR, "%s\n", buf);
-        return;
-    }
+		draw_info(buf, COLOR_RED);
+		LOG(LOG_ERROR, "%s\n", buf);
+		return;
+	}
 
-    cp = (char *)(strchr(data, ' '));
-    if (!cp)
-    {
-        sprintf(buf, "Invalid version string: %s", data);
-        draw_info(buf, COLOR_RED);
-        LOG(LOG_ERROR, "%s\n", buf);
-        return;
-    }
+	cp = (char *)(strchr(data, ' '));
+	if (!cp)
+	{
+		sprintf(buf, "Invalid version string: %s", data);
+		draw_info(buf, COLOR_RED);
+		LOG(LOG_ERROR, "%s\n", buf);
+		return;
+	}
 
-    csocket.sc_version = atoi(cp);
-    if (csocket.sc_version != VERSION_SC)
-    {
-        sprintf(buf, "Invalid SC version (%d,%d)", VERSION_SC, csocket.sc_version);
-        draw_info(buf, COLOR_RED);
-        LOG(LOG_ERROR, "%s\n", buf);
-        return;
-    }
+	csocket.sc_version = atoi(cp);
+	if (csocket.sc_version != VERSION_SC)
+	{
+		sprintf(buf, "Invalid SC version (%d,%d)", VERSION_SC, csocket.sc_version);
+		draw_info(buf, COLOR_RED);
+		LOG(LOG_ERROR, "%s\n", buf);
+		return;
+	}
 
-    cp = (char *)(strchr(cp + 1, ' '));
-    if (!cp || strncmp(cp + 1, "Atrinik Server", 14))
-    {
-        sprintf(buf, "Invalid server name: %s", cp);
-        draw_info(buf, COLOR_RED);
-        LOG(LOG_ERROR, "%s\n", buf);
-        return;
-    }
+	cp = (char *)(strchr(cp + 1, ' '));
+	if (!cp || strncmp(cp + 1, "Atrinik Server", 14))
+	{
+		sprintf(buf, "Invalid server name: %s", cp);
+		draw_info(buf, COLOR_RED);
+		LOG(LOG_ERROR, "%s\n", buf);
+		return;
+	}
 
-    LOG(LOG_MSG, "Playing on server type %s\n", cp);
-    GameStatusVersionOKFlag = TRUE;
+	LOG(LOG_MSG, "Playing on server type %s\n", cp);
+	GameStatusVersionOKFlag = TRUE;
 }
 
 /**
@@ -1802,10 +1802,10 @@ void VersionCmd(char *data)
  * @param csock Socket to send this information to */
 void SendVersion(ClientSocket csock)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    sprintf(buf, "version %d %d %s", VERSION_CS, VERSION_SC, PACKAGE_NAME);
-    cs_write_string(csock.fd, buf, strlen(buf));
+	sprintf(buf, "version %d %d %s", VERSION_CS, VERSION_SC, PACKAGE_NAME);
+	cs_write_string(csock.fd, buf, strlen(buf));
 }
 
 
@@ -1816,10 +1816,10 @@ void SendVersion(ClientSocket csock)
  */
 void RequestFile(ClientSocket csock, int index)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    sprintf(buf, "rf %d", index);
-    cs_write_string(csock.fd, buf, strlen(buf));
+	sprintf(buf, "rf %d", index);
+	cs_write_string(csock.fd, buf, strlen(buf));
 }
 
 
@@ -1829,7 +1829,7 @@ void RequestFile(ClientSocket csock, int index)
  */
 void SendAddMe(ClientSocket csock)
 {
-    cs_write_string(csock.fd, "addme", 5);
+	cs_write_string(csock.fd, "addme", 5);
 }
 
 /**
@@ -1838,10 +1838,10 @@ void SendAddMe(ClientSocket csock)
  * @param mode Face mode */
 void SendSetFaceMode(ClientSocket csock, int mode)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    sprintf(buf, "setfacemode %d", mode);
-    cs_write_string(csock.fd, buf, strlen(buf));
+	sprintf(buf, "setfacemode %d", mode);
+	cs_write_string(csock.fd, buf, strlen(buf));
 }
 
 /**
@@ -1849,19 +1849,19 @@ void SendSetFaceMode(ClientSocket csock, int mode)
  * @param data The incoming data */
 void MapstatsCmd(unsigned char *data)
 {
-    char name[256], bg_music[256];
-    char *tmp;
-    int w, h, x, y;
+	char name[256], bg_music[256];
+	char *tmp;
+	int w, h, x, y;
 
-    sscanf((char *) data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
-    tmp = strchr((char *) data, ' ');
-    tmp = strchr(tmp + 1, ' ');
-    tmp = strchr(tmp + 1, ' ');
-    tmp = strchr(tmp + 1, ' ');
+	sscanf((char *) data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
+	tmp = strchr((char *) data, ' ');
 	tmp = strchr(tmp + 1, ' ');
-    strcpy(name, tmp + 1);
-    InitMapData(name, w, h, x, y, bg_music);
-    map_udate_flag = 2;
+	tmp = strchr(tmp + 1, ' ');
+	tmp = strchr(tmp + 1, ' ');
+	tmp = strchr(tmp + 1, ' ');
+	strcpy(name, tmp + 1);
+	InitMapData(name, w, h, x, y, bg_music);
+	map_udate_flag = 2;
 }
 
 /**
@@ -1869,20 +1869,20 @@ void MapstatsCmd(unsigned char *data)
  * @param data The incoming data */
 void SkilllistCmd(char *data)
 {
-    char *tmp, *tmp2, *tmp3, *tmp4;
-    int l, e, i, ii, mode;
-    char name[256];
+	char *tmp, *tmp2, *tmp3, *tmp4;
+	int l, e, i, ii, mode;
+	char name[256];
 
 #if 0
-    LOG(-1,"sklist: %s\n", data);
+	LOG(-1,"sklist: %s\n", data);
 #endif
 
-    /* We grab our mode */
-    mode = atoi(data);
+	/* We grab our mode */
+	mode = atoi(data);
 
-    /* Now look for the members fo the list we have */
-    for (; ;)
-    {
+	/* Now look for the members fo the list we have */
+	for (; ;)
+	{
 		/* Find start of a name */
 		tmp = strchr(data, '/');
 
@@ -1941,7 +1941,7 @@ void SkilllistCmd(char *data)
 				}
 			}
 		}
-    }
+	}
 }
 
 /**
@@ -1949,19 +1949,19 @@ void SkilllistCmd(char *data)
  * @param data The incoming data */
 void SpelllistCmd(char *data)
 {
-    int i, ii, mode;
-    char *tmp, *tmp2;
-    char name[256];
+	int i, ii, mode;
+	char *tmp, *tmp2;
+	char name[256];
 
 #if 0
-    LOG(LOG_DEBUG, "slist: <%s>\n", data);
+	LOG(LOG_DEBUG, "slist: <%s>\n", data);
 #endif
 
-    /* We grab our mode */
-    mode = atoi(data);
+	/* We grab our mode */
+	mode = atoi(data);
 
-    for (; ;)
-    {
+	for (; ;)
+	{
 		/* Find start of a name */
 		tmp = strchr(data, '/');
 		if (!tmp)
@@ -2014,8 +2014,9 @@ void SpelllistCmd(char *data)
 			}
 		}
 
-		next_name:;
-    }
+next_name:
+		;
+	}
 }
 
 /**
@@ -2023,15 +2024,15 @@ void SpelllistCmd(char *data)
  * @param data The incoming data. */
 void GolemCmd(unsigned char *data)
 {
-    int mode, face;
-    char *tmp, buf[256];
+	int mode, face;
+	char *tmp, buf[256];
 
 #if 0
-    LOG(LOG_DEBUG, "golem: <%s>\n", data);
+	LOG(LOG_DEBUG, "golem: <%s>\n", data);
 #endif
 
-    /* We grab our mode */
-    mode = atoi((char *)data);
+	/* We grab our mode */
+	mode = atoi((char *)data);
 
 	if (mode == GOLEM_CTR_RELEASE)
 	{
@@ -2071,8 +2072,8 @@ static void save_data_cmd_file(char *path, unsigned char *data, int len)
 {
 	FILE *stream;
 
-    if ((stream = fopen(path, "wb")) != NULL)
-    {
+	if ((stream = fopen(path, "wb")) != NULL)
+	{
 		if (fwrite(data, 1, len, stream) != (size_t) len)
 			LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
 

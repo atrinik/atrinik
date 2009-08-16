@@ -49,13 +49,15 @@ typedef struct _key_macro
 	int menu_mode;
 } _key_macro;
 
-enum {
+enum
+{
 	KEYBIND_STATUS_NO,
 	KEYBIND_STATUS_EDIT,
 	KEYBIND_STATUS_EDITKEY
 };
 
-enum {
+enum
+{
 	KEYFUNC_NO,
 	KEYFUNC_RUN,
 	KEYFUNC_MOVE,
@@ -89,7 +91,8 @@ enum {
 };
 
 /** Keybind structure */
-typedef struct _keybind_key {
+typedef struct _keybind_key
+{
 	/* The text */
 	char macro[256];
 
@@ -105,14 +108,16 @@ typedef struct _keybind_key {
 
 extern int old_mouse_y;
 
-enum {
+enum
+{
 	DRAG_GET_STATUS = -1,
 	DRAG_NONE,
 	DRAG_IWIN_BELOW,
 	DRAG_IWIN_INV,
 	DRAG_QUICKSLOT,
 	DRAG_QUICKSLOT_SPELL,
-	DRAG_PDOLL};
+	DRAG_PDOLL
+};
 
 /* Dor debug/alpha, remove later */
 extern int KeyScanFlag;
@@ -138,7 +143,8 @@ extern void check_keys(int key);
 extern int process_macro_keys(int id, int value);
 
 /* Use these constants to determine the state of mouse and its events */
-enum {
+enum
+{
 	/* Don't change this to 0 (enum default is 0, so leave this as is) */
 	IDLE = 1,
 	LB_DN,

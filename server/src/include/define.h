@@ -159,9 +159,9 @@
 #define TELEPORTER	            41
 #define CREATOR		            42
 #define SKILL		            43	/* Skills are similar to abilites, but
-				                     * not related to spells.  by njw@cs.city.ac.u */
+* not related to spells.  by njw@cs.city.ac.u */
 #define EXPERIENCE	            44	/* An experience 'object'. Needed for multi-exp/skills
-				                     * hack. -b.t. thomas@astro.psu.edu */
+* hack. -b.t. thomas@astro.psu.edu */
 #define EARTHWALL	            45
 #define GOLEM		            46
 #define BOMB		            47
@@ -176,7 +176,7 @@
 #define DEAD_OBJECT	            53
 #define DRINK		            54
 #define MARKER                  55 /* inserts an invisible, weightless
-			                        force into a player with a specified string. */
+force into a player with a specified string. */
 #define HOLY_ALTAR	            56
 #define PLAYER_CHANGER          57
 
@@ -187,19 +187,19 @@
 #define BATTLEGROUND            58      /* battleground, by Andreas Vogl */
 
 #define PEACEMAKER              59  /* Object owned by a player which can convert
-			                           a monster into a peaceful being incapable of attack.  */
+a monster into a peaceful being incapable of attack.  */
 #define GEM		                60
 #define FIRECHEST	            61
 #define FIREWALL	            62
 #define ANVIL                   63
 #define CHECK_INV	            64	/* by b.t. thomas@nomad.astro.psu.edu */
 #define MOOD_FLOOR	            65	/* by b.t. thomas@nomad.astro.psu.edu
-				                     * values of last_sp set how to change:
-				                     * 0 = furious,	all monsters become aggressive
-				                     * 1 = angry, all but friendly become aggressive
-				                     * 2 = calm, all aggressive monsters calm down
-				                     * 3 = sleep, all monsters fall asleep
-				                     * 4 = charm, monsters become pets */
+* values of last_sp set how to change:
+* 0 = furious,	all monsters become aggressive
+	  * 1 = angry, all but friendly become aggressive
+			* 2 = calm, all aggressive monsters calm down
+				  * 3 = sleep, all monsters fall asleep
+						* 4 = charm, monsters become pets */
 #define EXIT		            66
 #define TYPE_AGE_FORCE			67	/* this object is a age force */
 #define SHOP_FLOOR	            68
@@ -220,19 +220,19 @@
 #define LIGHT_SOURCE            78 /* thats now light sources on the map (invisible lights) */
 
 #define MISC_OBJECT             79 /* misc. objects are for objects without a function
-                                      in the engine. Like statues, clocks, chairs,...
-                                      If perhaps we create a function where we can sit
-                                      on chairs, we create a new type and remove all
-                                      chairs from here. */
+							  in the engine. Like statues, clocks, chairs,...
+							  If perhaps we create a function where we can sit
+							  on chairs, we create a new type and remove all
+							  chairs from here. */
 #define MONSTER                 80 /* yes, thats a real, living creature */
 #define SPAWN_POINT             81 /* a spawn point or monster generator object */
 #define TYPE_LIGHT_REFILL       82  /* refilling item for TYPE_LIGHT_APPLY */
 
 #define SPAWN_POINT_MOB			83 /* inactive default mob inside spawn point inv.
-									* This object is somewhat special because its generated
-									* ITS IS ONLY A COPY AND NOT A REAL MONSTER NOR A ACTIVE OBJECT. */
+							  * This object is somewhat special because its generated
+							  * ITS IS ONLY A COPY AND NOT A REAL MONSTER NOR A ACTIVE OBJECT. */
 #define SPAWN_POINT_INFO		84	/* this is put inside a mob, created from a spawn point.
-									 * It is used to track back the mob to the spawn point. */
+							  * It is used to track back the mob to the spawn point. */
 #define SPELLBOOK	            85
 
 #define ORGANIC					86 /* body parts which can't be eaten - dragon scales for example */
@@ -254,15 +254,15 @@
 #define GLOVES		            100
 #define TYPE_BASE_INFO			101	/* This object holds the real base stats of mobs or other active objects */
 #define TYPE_RANDOM_DROP		102	/* only true for spawn points atm: if found, there is a random check against
-									 * carrying. If greater as carrying - all ->inv is droped.
-									 */
+							  * carrying. If greater as carrying - all ->inv is droped.
+							  */
 #define CONVERTER	            103
 #define BRACERS		            104
 #define POISONING	            105 /* thats the poison force... if a player applies for example
-									 * a POISON object (poison food), this force is inserted in
-									 * the player and does the poison effect until it wear out
-									 * or get removed
-									 */
+							  * a POISON object (poison food), this force is inserted in
+							  * the player and does the poison effect until it wear out
+							  * or get removed
+							  */
 #define SAVEBED		            106
 #define POISONCLOUD	            107
 #define FIREHOLES	            108
@@ -284,14 +284,14 @@
 #define WEAPON_IMPROVER         124
 
 #define TYPE_WEALTH				125		/* this is a "raw" (abstract) wealth object. When generated
-									     * its tranformed in real money depending on the enviroment
-										 * where its generated. (most times by treasure list and
-										 * tranformed to money by using level of mob or map to generating
-										 * a fitting amount of money basing on the base setting).
-										 */
-/* unused: 126 - 129
- * type 125 was MONEY_CHANGER
- */
+							  * its tranformed in real money depending on the enviroment
+							  * where its generated. (most times by treasure list and
+													  * tranformed to money by using level of mob or map to generating
+													  * a fitting amount of money basing on the base setting).
+							  */
+							  /* unused: 126 - 129
+							   * type 125 was MONEY_CHANGER
+							   */
 #define SKILLSCROLL	            130	/* can add a skill to player's inventory -bt.*/
 #define DEEP_SWAMP	            138
 #define IDENTIFY_ALTAR	        139
@@ -308,73 +308,73 @@
 #define SYMPTOM                 159
 
 #define TYPE_VOID_CONTAINER		255 /* pure internal system object */
-/* END TYPE DEFINE */
+							  /* END TYPE DEFINE */
 
-/* START SUB TYPE 1 DEFINE */
-/* SPECIAL FLAGS */
-/* because we use now a complexer, client controled fire & throw system,
- * we must mark different types/sub_types items for throwing like potions,
- * dust, weapons, special ammun, etc.
- */
+							  /* START SUB TYPE 1 DEFINE */
+							  /* SPECIAL FLAGS */
+							  /* because we use now a complexer, client controled fire & throw system,
+							   * we must mark different types/sub_types items for throwing like potions,
+							   * dust, weapons, special ammun, etc.
+							   */
 
 #define ST1_MISSILE_THROW 128
-/* These are very special sub_types - used by different types.
- * The reason is, that different items can be missiles - amuns & throw items.
- * First, we have the amun types - arrows for bows, or bolds for xbows.
- * They need a firing weapon and get fired indirekt. Daimonin don't allow
- * to throw amun - its really senseless to try to throw a bolt and hope
- * to do any serious damage with it.
- * For throwing we have some more types.
- * First, we have the 'real' throw weapons - like darts or shurikens.
- * Second, there are weapons which can be used as hand weapons but
- * also as throw weapons. A hammer like mjoellnir or a simple spear, for example.
- * Third, there are special throw items. ATM, we have
- * Potions - like firestorm
- * Dust - like dust of blinding... etc.
- * Dusts are also from ' type POTION' but use a different base arch.
- * These special items will handled different - we allow the player to throws
- * ANY dust or potion. But only when the potion/dust is from sub_type _missile_xx
- * we include the skill id and only these items will do a range effect.
- * Every potion/dust will have a level (like a spell or rod). If this level is
- * 40% higher as our throw skill (and more as 5 level higher), then throwing
- * will fail, like we try to use a to high item device.
- * If we apply a throw potion/dust, the effect will triggered (a firestorm potion
- * will explode) but no skill id will be inserted in the firestorm objects.
- * So, the player and perhaps some mobs will take damage - but it will not give
- * any exp when this will happen. MNT-11-2002
- * have not included this 40% throw thing - perhaps later. MT-2003
- */
+							  /* These are very special sub_types - used by different types.
+							   * The reason is, that different items can be missiles - amuns & throw items.
+							   * First, we have the amun types - arrows for bows, or bolds for xbows.
+							   * They need a firing weapon and get fired indirekt. Daimonin don't allow
+							   * to throw amun - its really senseless to try to throw a bolt and hope
+							   * to do any serious damage with it.
+							   * For throwing we have some more types.
+							   * First, we have the 'real' throw weapons - like darts or shurikens.
+							   * Second, there are weapons which can be used as hand weapons but
+							   * also as throw weapons. A hammer like mjoellnir or a simple spear, for example.
+							   * Third, there are special throw items. ATM, we have
+							   * Potions - like firestorm
+							   * Dust - like dust of blinding... etc.
+							   * Dusts are also from ' type POTION' but use a different base arch.
+							   * These special items will handled different - we allow the player to throws
+							   * ANY dust or potion. But only when the potion/dust is from sub_type _missile_xx
+							   * we include the skill id and only these items will do a range effect.
+							   * Every potion/dust will have a level (like a spell or rod). If this level is
+							   * 40% higher as our throw skill (and more as 5 level higher), then throwing
+							   * will fail, like we try to use a to high item device.
+							   * If we apply a throw potion/dust, the effect will triggered (a firestorm potion
+							   * will explode) but no skill id will be inserted in the firestorm objects.
+							   * So, the player and perhaps some mobs will take damage - but it will not give
+							   * any exp when this will happen. MNT-11-2002
+							   * have not included this 40% throw thing - perhaps later. MT-2003
+							   */
 #define ST1_MISSILE_BOW     1 /* ammunition for bows = arrows */
 #define ST1_MISSILE_CBOW    2 /* bolts */
 #define ST1_MISSILE_SSTONE  3 /* sling stones */
- /* these are our special throw weapons - they are called AMMUNITION too */
+							  /* these are our special throw weapons - they are called AMMUNITION too */
 #define ST1_MISSILE_IMPACT	(ST1_MISSILE_THROW | 0)  /* impact */
 #define ST1_MISSILE_SLASH	(ST1_MISSILE_THROW | 1)  /* slash */
 #define ST1_MISSILE_PIERCE	(ST1_MISSILE_THROW | 2)  /* pierce */
 #define ST1_MISSILE_CLEAVE	(ST1_MISSILE_THROW | 3)  /* cleave */
 #define ST1_MISSILE_BOULDER	(ST1_MISSILE_THROW | 4)  /* special case - impact damage too */
-                                                     /* boulders get picked by giants and thrown by them */
+							  /* boulders get picked by giants and thrown by them */
 
-/* some fancy macros to determintate the kidn of hand weapon */
+							  /* some fancy macros to determintate the kidn of hand weapon */
 #define WEAPON_IS_1H 0
 #define WEAPON_IS_2H 1
 #define WEAPON_IS_POLE 2
 
-/* definitions for weapontypes */
-/* one hand weapons - allows shields in second hand */
+							  /* definitions for weapontypes */
+							  /* one hand weapons - allows shields in second hand */
 #define WEAP_1H_IMPACT	0  /* impact damage: clubs, maces, hammers, etc. */
 #define WEAP_1H_SLASH	1  /* slash: swords, scimitar */
 #define WEAP_1H_PIERCE	2  /* pierce: daggers, rapier */
 #define WEAP_1H_CLEAVE	3  /* cleave: axes */
 
-/* two-hand weapons. you need base 1h skill + two-hand mastery for use */
-/* exp goes always in 1h skill - mastery skills are indirect skills */
+							  /* two-hand weapons. you need base 1h skill + two-hand mastery for use */
+							  /* exp goes always in 1h skill - mastery skills are indirect skills */
 #define WEAP_2H_IMPACT	4  /* impact damage: clubs, maces, hammers, etc. */
 #define WEAP_2H_SLASH	5  /* slash */
 #define WEAP_2H_PIERCE	6  /* pierce */
 #define WEAP_2H_CLEAVE	7  /* cleave */
 
-/* same like 2h but for polearms */
+							  /* same like 2h but for polearms */
 #define WEAP_POLE_IMPACT	8  /* impact damage: clubs, maces, hammers, etc. */
 #define WEAP_POLE_SLASH	    9  /* slash -swords */
 #define WEAP_POLE_PIERCE	10  /* pierce: rapier */
@@ -385,23 +385,23 @@
 #define RANGE_WEAP_SLINGS	2  /* slings */
 #define RANGE_WEAP_FIREARMS	3  /* firearms - not implemented */
 
-/* some skills are auto-used, some should not be able to use with fire xxx (use_skill) */
+							  /* some skills are auto-used, some should not be able to use with fire xxx (use_skill) */
 #define ST1_SKILL_NORMAL    0   /* normal skill but not direct usable with use_skill() */
 #define ST1_SKILL_USE       1   /* skill can be used with fire and use_skill() */
 #define ST1_SKILL_INDIRECT  2   /* skill is used indirect by server */
 
-/* spellbooks can be different types: mages, cleric and so on.
- * to remove identification from arch name, i use ST1 for it MT
- */
+							  /* spellbooks can be different types: mages, cleric and so on.
+							   * to remove identification from arch name, i use ST1 for it MT
+							   */
 #define ST1_SPELLBOOK_CLERIC 1
 #define ST1_SPELLBOOK_MAGE	 2
 
-/* container can be different items: normal containers, mob corpse or player corpse.
- * all containers sub_type >=64 are "personlized" - in the slaying field of this containers
- * is not the key but the name of the player which can as only person access the container.
- * is the container sub_type >= 128 then its a group container - the group name will open/close it.
- * if the container sub_type >=192 then the clan name will open it.
- */
+							  /* container can be different items: normal containers, mob corpse or player corpse.
+							   * all containers sub_type >=64 are "personlized" - in the slaying field of this containers
+							   * is not the key but the name of the player which can as only person access the container.
+							   * is the container sub_type >= 128 then its a group container - the group name will open/close it.
+							   * if the container sub_type >=192 then the clan name will open it.
+							   */
 
 #define ST1_CONTAINER_NORMAL				0
 #define ST1_CONTAINER_CORPSE				1
@@ -416,21 +416,21 @@
 #define ST1_CONTAINER_NORMAL_clan			192
 #define ST1_CONTAINER_CORPSE_clan			193
 
-/* sub type for EXIT objects - if set, a teleport sound is played */
+							  /* sub type for EXIT objects - if set, a teleport sound is played */
 #define ST1_EXIT_SOUND_NO					0
 #define ST1_EXIT_SOUND						1
 
-/* sub types for doors */
+							  /* sub types for doors */
 #define ST1_DOOR_NORMAL 0
 #define ST1_DOOR_CURTAIN 1 /* make different sound */
 
-/* END SUB TYPE 1 DEFINE */
+							  /* END SUB TYPE 1 DEFINE */
 
-/* definitions for detailed pickup descriptions.
- *   The objective is to define intelligent groups of items that the
- *   user can pick up or leave as he likes. */
+							  /* definitions for detailed pickup descriptions.
+							   *   The objective is to define intelligent groups of items that the
+							   *   user can pick up or leave as he likes. */
 
-/* high bit as flag for new pickup options */
+							  /* high bit as flag for new pickup options */
 #define PU_NOTHING		0x00000000
 
 #define PU_DEBUG		0x10000000
@@ -461,12 +461,12 @@
 #define PU_POTION		0x00080000
 
 
-/* Instead of using arbitrary constants for indexing the
- * freearr, add these values.  <= SIZEOFFREE1 will get you
- * within 1 space.  <= SIZEOFFREE2 wll get you withing
- * 2 spaces, and the entire array (<= SIZEOFFREE) is
- * three spaces
- */
+							  /* Instead of using arbitrary constants for indexing the
+							   * freearr, add these values.  <= SIZEOFFREE1 will get you
+							   * within 1 space.  <= SIZEOFFREE2 wll get you withing
+							   * 2 spaces, and the entire array (<= SIZEOFFREE) is
+							   * three spaces
+							   */
 #define SIZEOFFREE1 8
 #define SIZEOFFREE2 24
 #define SIZEOFFREE 49
@@ -497,11 +497,11 @@
 
 #define NROFREALSPELLS	20	/* Number of different spells */
 
-/* Terrain type flags
- * These values are used from terrain_typ and terrain_flag
- * Arches without terrain flags become AIRBREATH as default.
- * These values also define the enviroment of the map tile position
- */
+							  /* Terrain type flags
+							   * These values are used from terrain_typ and terrain_flag
+							   * Arches without terrain flags become AIRBREATH as default.
+							   * These values also define the enviroment of the map tile position
+							   */
 
 #define TERRAIN_NOTHING         0
 #define TERRAIN_AIRBREATH       1   /* thats default - walk on earth */
@@ -511,35 +511,35 @@
 #define TERRAIN_FIREBREATH      16  /* you can move in fire environment (fire elemental dimension, hell,..) */
 #define TERRAIN_CLOUDWALK       32  /* move "on clouds" in the air - is not flying. Similiar to the story of the magic bean*/
 
-/* Flag structure now changed.
- * Each flag is now a bit offset, starting at zero.  The macros
- * will update/read the appropriate flag element in the object
- * structure.
- *
- * Hopefully, since these offsets are integer constants set at run time,
- * the compiler will reduce the macros something as simple as the
- * old system was.
- *
- * Flags now have FLAG as the prefix.  This to be clearer, and also
- * to make sure F_ names are not still being used anyplace.
- *
- * The macros below assume that the flag size for each element is 32
- * bits.  IF it is smaller, bad things will happen.  See structs.h
- * for more info.
- *
- * All functions should use the macros below.  In process of converting
- * to the new system, I find several files that did not use the previous
- * macros.
- *
- * If any FLAG's are added, be sure to add them to the flag_links structure
- * in common/loader.c, if necessary.
- *
- * flags[0] is 0 to 31
- * flags[1] is 32 to 63
- * flags[2] is 64 to 95
- * flags[3] is 96 to 127 */
+							  /* Flag structure now changed.
+							   * Each flag is now a bit offset, starting at zero.  The macros
+							   * will update/read the appropriate flag element in the object
+							   * structure.
+							   *
+							   * Hopefully, since these offsets are integer constants set at run time,
+							   * the compiler will reduce the macros something as simple as the
+							   * old system was.
+							   *
+							   * Flags now have FLAG as the prefix.  This to be clearer, and also
+							   * to make sure F_ names are not still being used anyplace.
+							   *
+							   * The macros below assume that the flag size for each element is 32
+							   * bits.  IF it is smaller, bad things will happen.  See structs.h
+							   * for more info.
+							   *
+							   * All functions should use the macros below.  In process of converting
+							   * to the new system, I find several files that did not use the previous
+							   * macros.
+							   *
+							   * If any FLAG's are added, be sure to add them to the flag_links structure
+							   * in common/loader.c, if necessary.
+							   *
+							   * flags[0] is 0 to 31
+							   * flags[1] is 32 to 63
+							   * flags[2] is 64 to 95
+							   * flags[3] is 96 to 127 */
 
-/* Basic routines to do above */
+							  /* Basic routines to do above */
 #define SET_FLAG(xyz, p) \
 	((xyz)->flags[p/32] |= (1U << (p % 32)))
 #define CLEAR_FLAG(xyz, p) \
@@ -547,17 +547,17 @@
 #define QUERY_FLAG(xyz, p) \
 	((xyz)->flags[p/32] & (1U << (p % 32)))
 
-/* This is rarely used but needed for some flags, which are
- * used for intern handling like INVISIBLE or WALK_OFF. Because
- * some core functions like remove_ob() use this, it will be better
- * we set this ONE time outside instead of every time in remove_ob():
- * we skip the call for the head in this way.*/
+							  /* This is rarely used but needed for some flags, which are
+							   * used for intern handling like INVISIBLE or WALK_OFF. Because
+							   * some core functions like remove_ob() use this, it will be better
+							   * we set this ONE time outside instead of every time in remove_ob():
+							   * we skip the call for the head in this way.*/
 #define SET_MULTI_FLAG(xyz, p) \
 	{object * _tos_;for(_tos_=xyz;_tos_;_tos_=_tos_->more) ((_tos_)->flags[p/32] |= (1U << (p % 32)));}
 #define CLEAR_MULTI_FLAG(xyz, p) \
 	{object * _tos_;for(_tos_=xyz;_tos_;_tos_=_tos_->more) ((_tos_)->flags[p/32] &= ~(1U << (p % 32)));}
 
-/* convenience macros to determine what kind of things we are dealing with */
+							  /* convenience macros to determine what kind of things we are dealing with */
 #define IS_WEAPON(op) \
 	(op->type == ARROW || op->type == BOW || op->type == WEAPON)
 
@@ -572,15 +572,15 @@
 #define IS_ARROW(op) \
 	(op->type == ARROW || op->type == MMISSILE || op->type == BULLET)
 
-/* Used in blocked() when we only want know about blocked by something */
+							  /* Used in blocked() when we only want know about blocked by something */
 #define TERRAIN_ALL		0xffff
 
-/* the flags */
+							  /* the flags */
 
-/* NOTE: You MUST set the FLAG_xx to V_xxx array in loader.l too when
- * you change something here! Search for NUM_FLAGS in loader.l for more. */
-/* WARNING: The first 8 bit are used from the map2 cmd as direct mapped data.
- * The order must stay as it is here! */
+							  /* NOTE: You MUST set the FLAG_xx to V_xxx array in loader.l too when
+							   * you change something here! Search for NUM_FLAGS in loader.l for more. */
+							  /* WARNING: The first 8 bit are used from the map2 cmd as direct mapped data.
+							   * The order must stay as it is here! */
 #define FLAG_SLEEP			0 /* NPC is sleeping */
 #define FLAG_CONFUSED		1 /* confused... random dir when moving and problems to do actions */
 #define FLAG_PARALYZED      2 /* Object is paralyzed */
@@ -595,21 +595,21 @@
 #define FLAG_NO_PASS		10 /* Nothing can pass (wall() is true) */
 #define FLAG_ANIMATE		11 /* The object looks at archetype for faces */
 #define FLAG_SLOW_MOVE		12 /* Uses the stats.exp/1000 to slow down */
-                               /* I use this flag now in 2 ways: for objects like floors
-							    * it force objects to move slow. For monsters with speed,
-								* it force monsters to move slow! (slow spell or snared!)
-								*/
+							  /* I use this flag now in 2 ways: for objects like floors
+							   * it force objects to move slow. For monsters with speed,
+							   * it force monsters to move slow! (slow spell or snared!)
+							   */
 #define FLAG_FLYING			13 /* Not affected by WALK_ON or SLOW_MOVE) */
 #define FLAG_MONSTER		14 /* A object with this flag is used like a object with
-                                * type == MONSTER. SO, we can use type GOLEMS objects
-								* for example in attack functions like MONSTER without
-								* checking all possible different type defines.
-								*/
+							  * type == MONSTER. SO, we can use type GOLEMS objects
+							  * for example in attack functions like MONSTER without
+							  * checking all possible different type defines.
+							  */
 #define FLAG_FRIENDLY		15 /* Will help players */
-							   /*
-                                *  REMOVED and BEEN_APPLIED are direct used from CAN_MERGE - change it too when
-								* you move this flag!
-								*/
+							  /*
+							   *  REMOVED and BEEN_APPLIED are direct used from CAN_MERGE - change it too when
+							   * you move this flag!
+							   */
 #define FLAG_REMOVED	 	16 /* Object is not in any map or invenory */
 #define FLAG_BEEN_APPLIED	17 /* The object has been applied */
 #define FLAG_AUTO_APPLY		18 /* Will be applied when created */
@@ -628,7 +628,7 @@
 #define FLAG_REFLECTING		30 /* Object reflects from walls (lightning) */
 #define FLAG_CHANGING		31 /* Changes to other_arch when anim is done*/
 
-/* Start of values in flags[1] */
+							  /* Start of values in flags[1] */
 #define FLAG_SPLITTING		32 /* Object splits into stats.food other objs */
 #define FLAG_HITBACK		33 /* Object will hit back when hit */
 #define FLAG_STARTEQUIP		34 /* Object was given to player at start */
@@ -644,11 +644,11 @@
 #define FLAG_IS_EVIL		43 /* alignment flags */
 #define FLAG_TEAR_DOWN		44 /* at->faces[hp*animations/maxhp] at hit */
 #define FLAG_RUN_AWAY		45 /* Object runs away from nearest player
-								* but can still attack at a distance
-								*/
+							  * but can still attack at a distance
+							  */
 #define FLAG_PASS_THRU		46 /* Objects with can_pass_thru can pass
-							    * thru this object as if it wasn't there
-								*/
+							  * thru this object as if it wasn't there
+								  */
 #define FLAG_CAN_PASS_THRU	47 /* Can pass thru... */
 
 #define FLAG_PICK_UP		48 /* Can pick up */
@@ -669,11 +669,11 @@
 #define FLAG_NO_APPLY		62 /* Avoids step_on/fly_on to this object */
 #define FLAG_IS_FLOOR		63 /* Can't see what's underneath this object */
 
-/* Start of values in flags[2] */
+								  /* Start of values in flags[2] */
 #define FLAG_LIFESAVE		64 /* Saves a players' life once, then destr. */
 #define FLAG_IS_MAGICAL     65 /* item is magic - intern used.
-                                * player use FLAG_KNOWN_MAGICAL
-                                */
+								  * player use FLAG_KNOWN_MAGICAL
+								  */
 #define FLAG_ALIVE	 		66 /* Object can fight (or be fought) */
 #define FLAG_STAND_STILL	67 /* NPC will not (ever) move */
 #define FLAG_RANDOM_MOVE	68 /* NPC will move randomly */
@@ -708,16 +708,16 @@
 #define FLAG_IS_CAULDRON	94 /* container can make alchemical stuff */
 #define FLAG_DUST			95 /* item is a 'powder', effects throwing */
 
-/* Start of values in flags[3] */
+								  /* Start of values in flags[3] */
 #define FLAG_NO_STEAL			96 /* Item can't be stolen */
 #define FLAG_ONE_HIT			97 /* Monster can only hit once before going
-									* away (replaces ghosthit)
-									*/
+								  * away (replaces ghosthit)
+								  */
 #define FLAG_CLIENT_SENT		98 /* THIS IS A DEBUG FLAG ONLY.  We use it to
-									* detect cases were the server is trying
-									* to send an upditem when we have not
-									* actually sent the item.
-									*/
+								  * detect cases were the server is trying
+								  * to send an upditem when we have not
+								  * actually sent the item.
+								  */
 #define FLAG_BERSERK            99	/* monster will attack closest living object */
 #define FLAG_NO_ATTACK          100 /* object will not attack */
 #define FLAG_INVULNERABLE       101 /* monster can't be damaged */
@@ -725,9 +725,9 @@
 #define FLAG_QUEST_ITEM			102	/* this is a special quest object */
 
 #define FLAG_IS_TRAPED			103	/* object is traped - most common a container with
-									 * a known trap inside. This info so useful for client
-									 * below and inventory look.
-									 */
+								  * a known trap inside. This info so useful for client
+								  * below and inventory look.
+								  */
 
 #define FLAG_VUL_ELEMENTAL		104	/* Thats the item damage flags. Every flag determinate */
 #define FLAG_PROOF_ELEMENTAL	105 /* that a worn or wielded item can be damaged from this */
@@ -744,39 +744,39 @@
 #define FLAG_MAKE_ETHEREAL		115 /* same as make_invisibile but for ethereal */
 #define FLAG_IS_PLAYER			116 /* object "is player". */
 #define FLAG_IS_NAMED			117	/* object name is "unique"- for artifacts like Stormbringer.
-									 * Unique object normally don't have a race or material
-									 * (no "elven iron Stormbringer")
-									 */
+								  * Unique object normally don't have a race or material
+								  * (no "elven iron Stormbringer")
+									  */
 #define FLAG_SPAWN_MOB			118 /* monster with this flag are created by spawn point
-									 * and have a spawn info object inside inventory
-									 */
+									  * and have a spawn info object inside inventory
+									  */
 #define FLAG_NO_TELEPORT		119	/* objects with this flags will not be teleported
-									 * from teleporters. Except, they are in a inventory
-									 * of a teleporter object.
-									 */
+									  * from teleporters. Except, they are in a inventory
+									  * of a teleporter object.
+									  */
 #define FLAG_CORPSE				120 /* if set, this object (usally mob) will drop corpse using race name->
-                                     * all item of the mob will put in the corpse and/or if slaying of corpse
-                                     * is set only the player which killed the mob can access the corpse until
-                                     * it decayed - then items drop on ground and all can grap it */
+									  * all item of the mob will put in the corpse and/or if slaying of corpse
+									  * is set only the player which killed the mob can access the corpse until
+									  * it decayed - then items drop on ground and all can grap it */
 #define FLAG_CORPSE_FORCED		121 /* normally, corpses will only be placed when the mob has some items to drop.
-									 * this flag will drop a corpse even the corpse is empty */
+									  * this flag will drop a corpse even the corpse is empty */
 #define FLAG_PLAYER_ONLY		122 /* if a item with this flag is placed in a tile, this tile can't be entered
-									 * from anything ecept a player
-									 */
+									  * from anything ecept a player
+									  */
 #define FLAG_NO_CLERIC			123
 #define FLAG_ONE_DROP			124 /* if this flag is set, the item marked with it will flaged
-									 * start equipment when a player gets it (item is inserted
-									 * in player inventory and/or touched by a player)
-									 */
+									  * start equipment when a player gets it (item is inserted
+											  * in player inventory and/or touched by a player)
+										  */
 #define FLAG_PERM_CURSED		125  /* object will set to cursed when monster or player applies it.
-									  * remove curse will remove cursed 1 but not this flag.
-									  */
+										  * remove curse will remove cursed 1 but not this flag.
+										  */
 #define FLAG_PERM_DAMNED		126	  /* same as perm_cursed but for damned */
 
 #define FLAG_DOOR_CLOSED		127	  /* this object works like a closed door. Main function
-									   * is to trigger the right map flags, so a moving objects
-									   * know that spot is blocked by a door and he must open it first->
-									   */
+										  * is to trigger the right map flags, so a moving objects
+										  * know that spot is blocked by a door and he must open it first->
+										  */
 #define FLAG_WAS_REFLECTED		128	  /* object was reflected (arrow, throw object...) */
 #define FLAG_IS_MISSILE			129	  /* object is used as missile (arrow, potion, magic bullet, ...) */
 #define FLAG_CAN_REFL_MISSILE	130		/* Arrows WILL reflect from object (most times) */
@@ -786,18 +786,18 @@
 #define FLAG_OBJECT_WAS_MOVED	133		/* internal used from remove_ob() und insert_xx() */
 #define FLAG_NO_SAVE			134		/* don't save this object - remove it before we save */
 
-/* flag 37 is still free (old FREED flag). Let it free for secure reason for some time */
+										  /* flag 37 is still free (old FREED flag). Let it free for secure reason for some time */
 
 #define NUM_FLAGS		134 /* Should always be equal to the last defined flag */
 #define NUM_FLAGS_32	5	/* the number of uint32 we need to store all flags */
 
-/* Macros for invisible test. The first tests only system objects */
+										  /* Macros for invisible test. The first tests only system objects */
 #define IS_SYS_INVISIBLE(__ob_)			QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
 #define IS_INVISIBLE(__ob_,__player_)	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)||(QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
 
 
-/* Values can go up to 127 before the size of the flags array in the
- * object structure needs to be enlarged. */
+										  /* Values can go up to 127 before the size of the flags array in the
+										   * object structure needs to be enlarged. */
 #define NROFNEWOBJS(xyz)	((xyz)->stats.food)
 
 #define SLOW_PENALTY(xyz)	((xyz)->stats.exp)/1000.0
@@ -805,7 +805,7 @@
 #define SET_GENERATE_TYPE(xyz,va)	(xyz)->stats.sp=(va)
 #define GENERATE_TYPE(xyz)	((xyz)->stats.sp)
 
-/* Note: These values are only a default value, resizing can change them */
+										  /* Note: These values are only a default value, resizing can change them */
 #define INV_SIZE		12	/* How many items can be viewed in inventory */
 #define LOOK_SIZE		6	/* ditto, but for the look-window */
 #define MAX_INV_SIZE		40	/* For initializing arrays */
@@ -829,35 +829,35 @@
 #define ARMOUR_SPEED(xyz)	(xyz)->last_sp
 #define ARMOUR_SPELLS(xyz)	(xyz)->last_heal
 
-/* GET_?_FROM_DIR if used only for positional firing where dir is X and Y
-   each of them signed char, concatenated in a int16 */
+										  /* GET_?_FROM_DIR if used only for positional firing where dir is X and Y
+										     each of them signed char, concatenated in a int16 */
 #define GET_X_FROM_DIR(dir) (signed char) (  dir & 0xFF )
 #define GET_Y_FROM_DIR(dir) (signed char) ( (dir & 0xFF00) >> 8)
 #define SET_DIR_FROM_XY(X,Y) (signed char)X + ( ((signed char)Y)<<8)
 #define FIRE_DIRECTIONAL 0
 #define FIRE_POSITIONAL  1
 
-/******************************************************************************/
-/* Monster Movements added by kholland@sunlab.cit.cornell.edu                 */
-/******************************************************************************/
-/* if your monsters start acting wierd, mail me                               */
-/******************************************************************************/
-/* the following definitions are for the attack_movement variable in monsters */
-/* if the attack_variable movement is left out of the monster archetype, or is*/
-/* set to zero                                                                */
-/* the standard mode of movement from previous versions of crossfire will be  */
-/* used. the upper four bits of movement data are not in effect when the monst*/
-/* er has an enemy. these should only be used for non agressive monsters.     */
-/* to program a monsters movement add the attack movement numbers to the movem*/
-/* ment numbers example a monster that moves in a circle until attacked and   */
-/* then attacks from a distance:                                              */
-/*                                                      CIRCLE1 = 32          */
-/*                                              +       DISTATT = 1           */
-/*                                      -------------------                   */
-/*                      attack_movement = 33                                  */
-/******************************************************************************/
+										  /******************************************************************************/
+										  /* Monster Movements added by kholland@sunlab.cit.cornell.edu                 */
+										  /******************************************************************************/
+										  /* if your monsters start acting wierd, mail me                               */
+										  /******************************************************************************/
+										  /* the following definitions are for the attack_movement variable in monsters */
+										  /* if the attack_variable movement is left out of the monster archetype, or is*/
+										  /* set to zero                                                                */
+										  /* the standard mode of movement from previous versions of crossfire will be  */
+										  /* used. the upper four bits of movement data are not in effect when the monst*/
+										  /* er has an enemy. these should only be used for non agressive monsters.     */
+										  /* to program a monsters movement add the attack movement numbers to the movem*/
+										  /* ment numbers example a monster that moves in a circle until attacked and   */
+										  /* then attacks from a distance:                                              */
+										  /*                                                      CIRCLE1 = 32          */
+										  /*                                              +       DISTATT = 1           */
+										  /*                                      -------------------                   */
+										  /*                      attack_movement = 33                                  */
+										  /******************************************************************************/
 #define DISTATT  1 /* move toward a player if far, but mantain some space,  */
-                   /* attack from a distance - good for missile users only  */
+										  /* attack from a distance - good for missile users only  */
 #define RUNATT   2 /* run but attack if player catches up to object         */
 #define HITRUN   3 /* run to then hit player then run away cyclicly         */
 #define WAITATT  4 /* wait for player to approach then hit, move if hit     */
@@ -865,41 +865,41 @@
 #define ALLRUN   6 /* always run never attack good for sim. of weak player  */
 #define DISTHIT  7 /* attack from a distance if hit as recommended by Frank */
 #define WAIT2    8 /* monster does not try to move towards player if far    */
-                   /* maintains comfortable distance                        */
+										  /* maintains comfortable distance                        */
 #define PETMOVE 16 /* if the upper four bits of move_type / attack_movement */
-                   /* are set to this number, the monster follows a player  */
-                   /* until the owner calls it back or off                  */
-                   /* player followed denoted by 0b->owner                  */
-                   /* the monster will try to attack whatever the player is */
-                   /* attacking, and will continue to do so until the owner */
-                   /* calls off the monster - a key command will be         */
-                   /* inserted to do so                                     */
+										  /* are set to this number, the monster follows a player  */
+										  /* until the owner calls it back or off                  */
+										  /* player followed denoted by 0b->owner                  */
+										  /* the monster will try to attack whatever the player is */
+										  /* attacking, and will continue to do so until the owner */
+										  /* calls off the monster - a key command will be         */
+										  /* inserted to do so                                     */
 #define CIRCLE1 32 /* if the upper four bits of move_type / attack_movement */
-                   /* are set to this number, the monster will move in a    */
-                   /* circle until it is attacked, or the enemy field is    */
-                   /* set, this is good for non-aggressive monsters and NPC */
+										  /* are set to this number, the monster will move in a    */
+										  /* circle until it is attacked, or the enemy field is    */
+										  /* set, this is good for non-aggressive monsters and NPC */
 #define CIRCLE2 48 /* same as above but a larger circle is used             */
 #define PACEH   64 /* The Monster will pace back and forth until attacked   */
-                   /* this is HORIZONTAL movement                           */
+										  /* this is HORIZONTAL movement                           */
 #define PACEH2  80 /* the monster will pace as above but the length of the  */
-                   /* pace area is longer and the monster stops before      */
-                   /* changing directions                                   */
-                   /* this is HORIZONTAL movement                           */
+										  /* pace area is longer and the monster stops before      */
+										  /* changing directions                                   */
+										  /* this is HORIZONTAL movement                           */
 #define RANDO   96 /* the monster will go in a random direction until       */
-                   /* it is stopped by an obstacle, then it chooses another */
-                   /* direction.                                            */
+										  /* it is stopped by an obstacle, then it chooses another */
+										  /* direction.                                            */
 #define RANDO2 112 /* constantly move in a different random direction       */
 #define PACEV  128 /* The Monster will pace back and forth until attacked   */
-                   /* this is VERTICAL movement                             */
+										  /* this is VERTICAL movement                             */
 #define PACEV2 144 /* the monster will pace as above but the length of the  */
-                   /* pace area is longer and the monster stops before      */
-                   /* changing directions                                   */
-                   /* this is VERTICAL movement                             */
+										  /* pace area is longer and the monster stops before      */
+										  /* changing directions                                   */
+										  /* this is VERTICAL movement                             */
 #define WPOINT 176 /* The monster uses waypoints (if it has any)            */
 #define LO4     15 /* bitmasks for upper and lower 4 bits from 8 bit fields */
 #define HI4    240
 
-/* Use of the state-variable in player objects: */
+										  /* Use of the state-variable in player objects: */
 #define ST_PLAYING				0
 #define ST_ROLL_STAT			1
 #define ST_CHANGE_CLASS			2
@@ -911,11 +911,11 @@
 #define NEXT_ITEM_FACE_NAME "next_item.101"
 #define PREVIOUS_ITEM_FACE_NAME "prev_item.101"
 
-/* Defines for the luck/random functions to make things more readable */
+										  /* Defines for the luck/random functions to make things more readable */
 #define PREFER_HIGH	1
 #define PREFER_LOW	0
 
-/* socket defines */
+										  /* socket defines */
 #define SockList_AddChar(_sl_,_c_)		(_sl_)->buf[(_sl_)->len++]=(_c_)
 #define SockList_AddShort(_sl_, _data_) (_sl_)->buf[(_sl_)->len++]= ((_data_)>>8)&0xff; \
 										(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
@@ -925,30 +925,30 @@
 										(_sl_)->buf[(_sl_)->len++]= ((_data_)>>8)&0xff; \
 										(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
 
-/* Basically does the reverse of SockList_AddInt, but on
- * strings instead.  Same for the GetShort, but for 16 bits. */
+										  /* Basically does the reverse of SockList_AddInt, but on
+										   * strings instead.  Same for the GetShort, but for 16 bits. */
 #define GetInt_String(_data_) (((_data_)[0]<<24) + ((_data_)[1]<<16) + ((_data_)[2]<<8) + (_data_)[3])
 #define GetShort_String(_data_) (((_data_)[0]<<8)+(_data_)[1])
 
-/**
- * Simple function we use below to keep adding to the same string
- * but also make sure we don't overwrite that string.
- * @param dest String to append to.
- * @param orig String to append.
- * @param curlen Current length of dest. Will be updated by this function.
- * @param maxlen Maximum length of dest buffer. */
-static inline void safe_strcat(char *dest, const char *orig, int *curlen, int maxlen)
-{
-    if (*curlen == (maxlen - 1))
-    	return;
+										  /**
+										   * Simple function we use below to keep adding to the same string
+										   * but also make sure we don't overwrite that string.
+										   * @param dest String to append to.
+										   * @param orig String to append.
+										   * @param curlen Current length of dest. Will be updated by this function.
+										   * @param maxlen Maximum length of dest buffer. */
+										  static inline void safe_strcat(char *dest, const char *orig, int *curlen, int maxlen)
+		{
+			if (*curlen == (maxlen - 1))
+				return;
 
-    strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
-    dest[maxlen - 1] = 0;
-    *curlen += strlen(orig);
+			strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
+			dest[maxlen - 1] = 0;
+			*curlen += strlen(orig);
 
-    if (*curlen > (maxlen - 1))
-    	*curlen = maxlen - 1;
-}
+			if (*curlen > (maxlen - 1))
+				*curlen = maxlen - 1;
+		}
 
 
 #define DESCRIBE_PATH(retbuf, variable, name)                        \
@@ -997,8 +997,9 @@ static inline void safe_strcat(char *dest, const char *orig, int *curlen, int ma
     }
 
 /* Flags for apply_special() */
-enum apply_flag {
-  /* Basic flags, always use one of these */
+enum apply_flag
+{
+	/* Basic flags, always use one of these */
 	AP_NULL			= 0,
 	AP_APPLY		= 1,
 	AP_UNAPPLY		= 2,

@@ -45,14 +45,14 @@
  * @param ... Arguments for the format */
 void LOG(LogLevel logLevel, const char *format, ...)
 {
-  	static int fatal_error = FALSE;
+	static int fatal_error = FALSE;
 	/* This needs to be really really big - larger
 	 * than any other buffer, since that buffer may
 	 * need to be put in this one. */
-  	char buf[20480];
+	char buf[20480];
 
-  	va_list ap;
-  	va_start(ap, format);
+	va_list ap;
+	va_start(ap, format);
 
 	buf[0] = '\0';
 
@@ -67,12 +67,12 @@ void LOG(LogLevel logLevel, const char *format, ...)
 		else
 			fputs(buf, stderr);
 
-	/* if we have a debug version, we want see ALL output */
-	#ifdef DEBUG
+		/* if we have a debug version, we want see ALL output */
+#ifdef DEBUG
 		/* so flush this! */
 		if (logfile)
 			fflush(logfile);
-	#endif
+#endif
 
 		/* if was it a logfile wrote it to screen too */
 		if (logfile && logfile != stderr)

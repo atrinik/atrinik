@@ -41,9 +41,10 @@
 #define RN_DEMONISH     2048
 #define RN_DRACONISH    4096
 
-_races item_race_table[RACE_NAME_INIT] = {
-	 /* default value - human like */
-    {"",             RN_DEFAULT},
+_races item_race_table[RACE_NAME_INIT] =
+{
+	/* default value - human like */
+	{"",             RN_DEFAULT},
 	{"dwarven ",     RN_DWARVEN},
 	{"elven ",       RN_ELVEN},
 	{"gnomish ",     RN_GNOMISH},
@@ -68,9 +69,10 @@ _races item_race_table[RACE_NAME_INIT] = {
 #define ENCUMBRANCE_LIMIT 65.0f
 
 /* STR - damage boni for melee weapons */
-int dam_bonus[MAX_STAT + 1] = {
+int dam_bonus[MAX_STAT + 1] =
+{
 	/* 0-10: dmg malus */
-  	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
+	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
 	/* 11-15 = nothing */
 	0, 0, 0, 0, 0,
 	/* 16-30 = boni */
@@ -78,9 +80,10 @@ int dam_bonus[MAX_STAT + 1] = {
 };
 
 /* DEX  - wc boni */
-int thaco_bonus[MAX_STAT + 1] = {
+int thaco_bonus[MAX_STAT + 1] =
+{
 	/* 0-10: dmg malus */
-  	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
+	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
 	/* 11-15 = nothing */
 	0, 0, 0, 0, 0,
 	/* 16-30 = boni */
@@ -90,21 +93,24 @@ int thaco_bonus[MAX_STAT + 1] = {
 /* this is only used here for players */
 
 /* CON - % of "real max hp" boni */
-static float con_bonus[MAX_STAT + 1] = {
+static float con_bonus[MAX_STAT + 1] =
+{
 	/* 0-10: mali */
 	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f,-0.3f,-0.25f,-0.2f, -0.15f, -0.11f, -0.07f,
 	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
 };
 
-static float pow_bonus[MAX_STAT + 1] = {
+static float pow_bonus[MAX_STAT + 1] =
+{
 	/* 0-10: mali */
 	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f,-0.3f,-0.25f,-0.2f, -0.15f, -0.11f, -0.07f,
 	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	0.1f, 0.2f, 0.3f, 0.24f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
 };
 
-static float wis_bonus[MAX_STAT + 1] = {
+static float wis_bonus[MAX_STAT + 1] =
+{
 	/* 0-10: mali */
 	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f,-0.3f,-0.25f,-0.2f, -0.15f, -0.11f, -0.07f,
 	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -117,7 +123,8 @@ static float wis_bonus[MAX_STAT + 1] = {
  * 115% as worst.
  * This system use heavy user based economic - for player <-> NPC, we will
  * suffer badly value & payment differences. */
-float cha_bonus[MAX_STAT + 1] = {
+float cha_bonus[MAX_STAT + 1] =
+{
 	/* cha = 0 */
 	-0.15f,
 	/* 1 - 5 */
@@ -135,13 +142,14 @@ float cha_bonus[MAX_STAT + 1] = {
 };
 
 /* speed_bonus uses dex as its stat */
-float speed_bonus[MAX_STAT + 1] = {
-  	-0.4f, 		-0.4f, 		-0.3f, 		-0.3f, 		-0.2f,
-  	-0.2f, 		-0.2f, 		-0.1f, 		-0.1f, 		-0.1f,
-  	-0.05f,	 	0.0, 		0.0f, 		0.0f, 		0.025f, 	0.05f,
-  	0.075f, 	0.1f, 		0.125f, 	0.15f, 		0.175f, 	0.2f,
-  	0.225f, 	0.25f, 		0.275f, 	0.3f,
-  	0.325f, 	0.35f, 		0.4f, 		0.45f, 		0.5f
+float speed_bonus[MAX_STAT + 1] =
+{
+	-0.4f, 		-0.4f, 		-0.3f, 		-0.3f, 		-0.2f,
+	-0.2f, 		-0.2f, 		-0.1f, 		-0.1f, 		-0.1f,
+	-0.05f,	 	0.0, 		0.0f, 		0.0f, 		0.025f, 	0.05f,
+	0.075f, 	0.1f, 		0.125f, 	0.15f, 		0.175f, 	0.2f,
+	0.225f, 	0.25f, 		0.275f, 	0.3f,
+	0.325f, 	0.35f, 		0.4f, 		0.45f, 		0.5f
 };
 
 /* weight_limit - the absolute most a character can carry - a character can't
@@ -149,41 +157,47 @@ float speed_bonus[MAX_STAT + 1] = {
  * value is in grams, so we don't need to do conversion later
  * These limits are probably overly generous, but being there were no values
  * before, you need to start someplace. */
-uint32 weight_limit[MAX_STAT + 1] = {
+uint32 weight_limit[MAX_STAT + 1] =
+{
 	/* 0 */
-    20000,
+	20000,
 	/* 5 */
-    25000,	30000,	35000,	40000,	50000,
+	25000,	30000,	35000,	40000,	50000,
 	/* 10 */
-    60000,	70000,	80000,	90000,	100000,
+	60000,	70000,	80000,	90000,	100000,
 	/* 15 */
-    110000,	120000,	130000,	140000,	150000,
+	110000,	120000,	130000,	140000,	150000,
 	/* 20 */
-    165000,	180000,	195000,	210000,	225000,
+	165000,	180000,	195000,	210000,	225000,
 	/* 25 */
-    240000,	255000,	270000,	285000,	300000,
+	240000,	255000,	270000,	285000,	300000,
 	/* 30 */
-    325000,	350000,	375000,	400000,	450000
+	325000,	350000,	375000,	400000,	450000
 };
 
-int learn_spell[MAX_STAT + 1] = {
-  	0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
-  	100, 100, 100, 100, 100, 100
+int learn_spell[MAX_STAT + 1] =
+{
+	0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
+	100, 100, 100, 100, 100, 100
 };
 
-int cleric_chance[MAX_STAT + 1] = {
-  	100, 100, 100, 100, 90, 80, 70, 60, 50, 40, 35, 30, 25, 20, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0
+int cleric_chance[MAX_STAT + 1] =
+{
+	100, 100, 100, 100, 90, 80, 70, 60, 50, 40, 35, 30, 25, 20, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0
 };
 
-int turn_bonus[MAX_STAT + 1] = {
-  	-1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 7, 8, 9, 10, 12, 15
+int turn_bonus[MAX_STAT + 1] =
+{
+	-1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 7, 8, 9, 10, 12, 15
 };
 
-int fear_bonus[MAX_STAT + 1] = {
-  	3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+int fear_bonus[MAX_STAT + 1] =
+{
+	3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-float lev_damage[MAXLEVEL + 1] = {
+float lev_damage[MAXLEVEL + 1] =
+{
 	1.0f,
 	1.0f, 	1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.25f,
 	3.5f, 	3.75f, 4.0f, 4.25f, 4.5f, 4.75f, 5.0f, 5.25f, 5.5f, 5.75f,
@@ -201,7 +215,8 @@ float lev_damage[MAXLEVEL + 1] = {
 
 /* Max level is 100.  By making it 101, it means values 0->100 are valid.
  * Thus, we can use op->level directly, and it also works for level 0 people. */
-int savethrow[MAXLEVEL + 1] = {
+int savethrow[MAXLEVEL + 1] =
+{
 	18,
 	18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
 	9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6,
@@ -211,35 +226,39 @@ int savethrow[MAXLEVEL + 1] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
-char *attacks[NROFATTACKS] = {
-  	"hit", 				"magical", 		"fire", 		"electricity", 		"cold", 		"confusion",
-  	"acid", 			"drain", 		"weaponmagic", 	"ghosthit", 		"poison", 		"slow",
-  	"paralyze", 		"turn undead", 	"fear", 		"cancellation", 	"depletion", 	"death",
-  	"chaos",			"counterspell",	"god power",	"holy power",		"blinding", 	"",
-  	"life stealing", 	"slash", 		"cleave", 		"pierce"
+char *attacks[NROFATTACKS] =
+{
+	"hit", 				"magical", 		"fire", 		"electricity", 		"cold", 		"confusion",
+	"acid", 			"drain", 		"weaponmagic", 	"ghosthit", 		"poison", 		"slow",
+	"paralyze", 		"turn undead", 	"fear", 		"cancellation", 	"depletion", 	"death",
+	"chaos",			"counterspell",	"god power",	"holy power",		"blinding", 	"",
+	"life stealing", 	"slash", 		"cleave", 		"pierce"
 };
 
-static char *drain_msg[7] = {
-  	"Oh no! You are weakened!",
-  	"You're feeling clumsy!",
-  	"You feel less healthy",
-  	"You suddenly begin to lose your memory!",
-  	"Your face gets distorted!",
-  	"Watch out, your mind is going!",
-  	"Your spirit feels drained!"
+static char *drain_msg[7] =
+{
+	"Oh no! You are weakened!",
+	"You're feeling clumsy!",
+	"You feel less healthy",
+	"You suddenly begin to lose your memory!",
+	"Your face gets distorted!",
+	"Watch out, your mind is going!",
+	"Your spirit feels drained!"
 };
 
-char *restore_msg[7] = {
-  	"You feel your strength return.",
-  	"You feel your agility return.",
-  	"You feel your health return.",
-  	"You feel your wisdom return.",
-  	"You feel your charisma return.",
-  	"You feel your memory return.",
-  	"You feel your spirits return."
+char *restore_msg[7] =
+{
+	"You feel your strength return.",
+	"You feel your agility return.",
+	"You feel your health return.",
+	"You feel your wisdom return.",
+	"You feel your charisma return.",
+	"You feel your memory return.",
+	"You feel your spirits return."
 };
 
-char *gain_msg[7] = {
+char *gain_msg[7] =
+{
 	"You feel stronger.",
 	"You feel more agile.",
 	"You feel healthy.",
@@ -249,7 +268,8 @@ char *gain_msg[7] = {
 	"You feel more potent."
 };
 
-char *lose_msg[7] = {
+char *lose_msg[7] =
+{
 	"You feel weaker!",
 	"You feel clumsy!",
 	"You feel less healthy!",
@@ -259,8 +279,9 @@ char *lose_msg[7] = {
 	"You feel less potent!"
 };
 
-char *statname[7] = {
-  	"strength",
+char *statname[7] =
+{
+	"strength",
 	"dexterity",
 	"constitution",
 	"wisdom",
@@ -269,8 +290,9 @@ char *statname[7] = {
 	"power"
 };
 
-char *short_stat_name[7] = {
-  	"Str",
+char *short_stat_name[7] =
+{
+	"Str",
 	"Dex",
 	"Con",
 	"Wis",
@@ -480,17 +502,17 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-  	/* reset attributes that fix_player doesn't reset since it doesn't search
-   	 * everything to set */
-  	if (flag == -1)
-    	op->path_attuned &= ~tmp->path_attuned, op->path_repelled &= ~tmp->path_repelled, op->path_denied &= ~tmp->path_denied;
+	/* reset attributes that fix_player doesn't reset since it doesn't search
+	  * everything to set */
+	if (flag == -1)
+		op->path_attuned &= ~tmp->path_attuned, op->path_repelled &= ~tmp->path_repelled, op->path_denied &= ~tmp->path_denied;
 
-  	/* call fix_player since op object could have whatever attribute due
-   	 * to multiple items.  if fix_player always has to be called after
-   	 * change_ability then might as well call it from here */
-  	fix_player(op);
+	/* call fix_player since op object could have whatever attribute due
+	  * to multiple items.  if fix_player always has to be called after
+	  * change_ability then might as well call it from here */
+	fix_player(op);
 
-  	if (tmp->attack[ATNR_CONFUSION])
+	if (tmp->attack[ATNR_CONFUSION])
 	{
 		success = 1;
 
@@ -503,20 +525,20 @@ int change_abil(object *op, object *tmp)
 	if (QUERY_FLAG(op, FLAG_LIFESAVE) != QUERY_FLAG(&refop, FLAG_LIFESAVE))
 	{
 		success = 1;
-		if(flag>0)
+		if (flag>0)
 			(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel very protected.");
 		else
 			(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "You don't feel protected anymore.");
 	}
 
-  	if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_CAN_REFL_MISSILE))
+	if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_CAN_REFL_MISSILE))
 	{
-    	success = 1;
-    	if (flag > 0)
-      		(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "A magic force shimmers around you.");
-    	else
-      		(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "The magic force fades away.");
-  	}
+		success = 1;
+		if (flag > 0)
+			(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "A magic force shimmers around you.");
+		else
+			(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "The magic force fades away.");
+	}
 
 	if (QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_CAN_REFL_SPELL))
 	{
@@ -676,14 +698,14 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-  	if ((tmp->stats.hp || tmp->stats.maxhp) && op->type == PLAYER)
+	if ((tmp->stats.hp || tmp->stats.maxhp) && op->type == PLAYER)
 	{
-    	success = 1;
+		success = 1;
 		if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0)
 			(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel much more healthy!");
 		else
 			(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "You feel much less healthy!");
-  	}
+	}
 
 	if ((tmp->stats.sp || tmp->stats.maxsp) && op->type == PLAYER && tmp->type != SKILL)
 	{
@@ -694,15 +716,15 @@ int change_abil(object *op, object *tmp)
 			(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "You suddenly feel very mundane.");
 	}
 
-  	/* for the future when artifacts set this -b.t. */
-  	if ((tmp->stats.grace || tmp->stats.maxgrace) && op->type == PLAYER)
+	/* for the future when artifacts set this -b.t. */
+	if ((tmp->stats.grace || tmp->stats.maxgrace) && op->type == PLAYER)
 	{
-    	success = 1;
+		success = 1;
 		if ((flag * tmp->stats.grace) > 0 || (flag * tmp->stats.maxgrace) > 0)
 			(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel closer to your deity!");
 		else
 			(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, "You suddenly feel less holy.");
-  	}
+	}
 
 	if (tmp->stats.food && op->type == PLAYER && tmp->type != POISONING && tmp->type != POTION_EFFECT)
 	{
@@ -751,7 +773,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-    if (tmp->type != EXPERIENCE && !potion_max)
+	if (tmp->type != EXPERIENCE && !potion_max)
 	{
 		for (j = 0; j < 7; j++)
 		{
@@ -764,9 +786,9 @@ int change_abil(object *op, object *tmp)
 					(*draw_info_func)(NDI_UNIQUE | NDI_GREY, 0, op, lose_msg[j]);
 			}
 		}
-    }
+	}
 
-  	if (tmp->stats.luck)
+	if (tmp->stats.luck)
 	{
 		success = 1;
 		if (flag > 0)
@@ -775,14 +797,14 @@ int change_abil(object *op, object *tmp)
 			(*draw_info_func)(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel more lucky.");
 	}
 
-    return success;
+	return success;
 }
 
 /* Stat draining by Vick 930307
  * (Feeling evil, I made it work as well now.  -Frank 8) */
 void drain_stat(object *op)
 {
-  	drain_specific_stat(op, RANDOM() % 7);
+	drain_specific_stat(op, RANDOM() % 7);
 }
 
 void drain_specific_stat(object *op, int deplete_stats)
@@ -882,8 +904,8 @@ void fix_player(object *op)
 	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
 	float f,max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
-  	int base_reg;
-  	float reg_sec;
+	int base_reg;
+	float reg_sec;
 
 	if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER))
 	{
@@ -925,10 +947,10 @@ void fix_player(object *op)
 	pl->gen_grace = 1;
 	pl->gen_sp_armour = 0;
 	/* the used skills for fast access */
-    pl->set_skill_weapon = NO_SKILL_READY;
-    pl->set_skill_archery = NO_SKILL_READY;
+	pl->set_skill_weapon = NO_SKILL_READY;
+	pl->set_skill_archery = NO_SKILL_READY;
 
-    pl->encumbrance = 0;
+	pl->encumbrance = 0;
 
 	/* for players, we adjust with the values */
 	ac = op->arch->clone.stats.ac;
@@ -959,9 +981,9 @@ void fix_player(object *op)
 	/* reset terrain moving abilities */
 	op->terrain_flag = op->arch->clone.terrain_flag;
 
-    /* only adjust skills which has no own level/exp values */
-    if (op->chosen_skill && !op->chosen_skill->last_eat && op->chosen_skill->exp_obj)
-       op->chosen_skill->level = op->chosen_skill->exp_obj->level;
+	/* only adjust skills which has no own level/exp values */
+	if (op->chosen_skill && !op->chosen_skill->last_eat && op->chosen_skill->exp_obj)
+		op->chosen_skill->level = op->chosen_skill->exp_obj->level;
 
 	FREE_AND_CLEAR_HASH(op->slaying);
 
@@ -1080,21 +1102,21 @@ void fix_player(object *op)
 		if (QUERY_FLAG(tmp, FLAG_APPLIED))
 		{
 			/* still applied stuff */
-			switch(tmp->type)
+			switch (tmp->type)
 			{
 				case TYPE_LIGHT_APPLY:
 					if (tmp->glow_radius > light)
 						light = tmp->glow_radius;
 					break;
 
-		        /* the new weapon skill system is more complex
-				 * when new applied, set_skill_weapon is set.
-				 * But we took care to safely set it here. */
+					/* the new weapon skill system is more complex
+					 * when new applied, set_skill_weapon is set.
+					 * But we took care to safely set it here. */
 				case WEAPON:
 					pl->equipment[PLAYER_EQUIP_WEAPON1] = tmp;
 					/* thats our weapon */
 					pl->selected_weapon = tmp;
-		            i = tmp->sub_type1 % 4;
+					i = tmp->sub_type1 % 4;
 
 					if (i == WEAP_1H_IMPACT)
 						pl->set_skill_weapon = SK_MELEE_WEAPON;
@@ -1134,7 +1156,7 @@ void fix_player(object *op)
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					break;
 
-				/* all armours + rings and amulets */
+					/* all armours + rings and amulets */
 				case RING:
 					pl->equipment[PLAYER_EQUIP_RRING + ring_count] = tmp;
 					ring_count++;
@@ -1177,7 +1199,7 @@ void fix_player(object *op)
 				case CLOAK:
 					pl->equipment[PLAYER_EQUIP_CLOAK] = tmp;
 
-					fix_player_jump1:
+fix_player_jump1:
 					/* thats now used for ALL armours except rings and amulets */
 					if (ARMOUR_SPEED(tmp) && (float)ARMOUR_SPEED(tmp) / 10.0f < max)
 						max = ARMOUR_SPEED(tmp) / 10.0f;
@@ -1186,7 +1208,7 @@ void fix_player(object *op)
 					/* i must control this - at last food has for used_up forces
 					 * a differnet meaning
 					 * add some of this below when used from other applied objects too! */
-					fix_player_no_armour:
+fix_player_no_armour:
 					max_boni_hp += tmp->stats.maxhp;
 					max_boni_sp += tmp->stats.maxsp;
 					max_boni_grace += tmp->stats.maxgrace;
@@ -1199,7 +1221,7 @@ void fix_player(object *op)
 					for (i = 0; i < 7; i++)
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 
-			        if (tmp->stats.wc)
+					if (tmp->stats.wc)
 						wc += (tmp->stats.wc + tmp->magic);
 
 					if (tmp->stats.dam)
@@ -1224,9 +1246,9 @@ void fix_player(object *op)
 						pl->set_skill_archery = SK_SLING_WEAP;
 					break;
 
-				/* more exotic stuff! */
+					/* more exotic stuff! */
 
-				/* no protection from potion effect -resist only! */
+					/* no protection from potion effect -resist only! */
 				case POTION_EFFECT:
 					for (i = 0; i < 7; i++)
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
@@ -1249,11 +1271,11 @@ void fix_player(object *op)
 					break;
 
 
-				/* EXPERIENCE objects. What we are doing here is looking for "relevant"
-				 * experience objects. Some of these will be used to calculate
-				 * level-based changes in player status. For expample, the
-				 * experience object which has exp_obj->stats.Str set controls the
-				 * wc bonus of the player. -b.t. */
+					/* EXPERIENCE objects. What we are doing here is looking for "relevant"
+					 * experience objects. Some of these will be used to calculate
+					 * level-based changes in player status. For expample, the
+					 * experience object which has exp_obj->stats.Str set controls the
+					 * wc bonus of the player. -b.t. */
 				case EXPERIENCE:
 					if (tmp->stats.Str && !wc_obj)
 						wc_obj = tmp;
@@ -1269,7 +1291,7 @@ void fix_player(object *op)
 						grace_obj = tmp;
 					break;
 
-				/* skills modifying the character -b.t. */
+					/* skills modifying the character -b.t. */
 				case SKILL:
 					/* skill is a 'weapon' */
 					if (tmp->stats.dam > 0)
@@ -1277,14 +1299,14 @@ void fix_player(object *op)
 						wc += (tmp->stats.wc + tmp->magic);
 						ac += (tmp->stats.ac + tmp->magic);
 						op->weapon_speed = tmp->weapon_speed;
-    					weapon_weight = tmp->weight;
-	    				op->stats.dam += (tmp->stats.dam + tmp->magic);
+						weapon_weight = tmp->weight;
+						op->stats.dam += (tmp->stats.dam + tmp->magic);
 					}
 					/* be careful with ->magic in applyable skills */
 					else
 					{
 						/* i added magic to wc/ac even when they are not set */
-	    				op->stats.dam += tmp->magic;
+						op->stats.dam += tmp->magic;
 						wc += (tmp->stats.wc + tmp->magic);
 						ac += (tmp->stats.ac + tmp->magic);
 					}
@@ -1294,11 +1316,11 @@ void fix_player(object *op)
 
 					pl->encumbrance += (int)3 * tmp->weight / 1000;
 
-				break;
+					break;
 
-				/* now calc resistance and stuff for all the rest applyable objects! */
-				/* i am not 100% sure this is safe for *all* objects - i have used for that
-				 * reason not default here. */
+					/* now calc resistance and stuff for all the rest applyable objects! */
+					/* i am not 100% sure this is safe for *all* objects - i have used for that
+					 * reason not default here. */
 				case TYPE_AGE_FORCE:
 					/* store our age force */
 					pl->age_force = tmp;
@@ -1319,7 +1341,7 @@ void fix_player(object *op)
 					for (i = 0; i < 7; i++)
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 
-			        if (tmp->stats.wc)
+					if (tmp->stats.wc)
 						wc+=(tmp->stats.wc+tmp->magic);
 
 					if (tmp->stats.dam)
@@ -1349,11 +1371,11 @@ void fix_player(object *op)
 					for (i = 0; i < 7; i++)
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 
-				/* not used atm */
+					/* not used atm */
 				case CLASS:
 				case BLINDNESS:
 				case CONFUSION:
-					fix_player_jump_resi:
+fix_player_jump_resi:
 
 					for (i = 0; i < NROFPROTECTIONS; i++)
 					{
@@ -1387,8 +1409,8 @@ void fix_player(object *op)
 					}
 					break;
 
-				/* catch item which are "applied" but should not -
-				 * or we forgot to catch them here! */
+					/* catch item which are "applied" but should not -
+					 * or we forgot to catch them here! */
 				default:
 					LOG(llevDebug, "DEBUG: fix_player(): unexpected applied object %s (%d)(clear flag now!)\n", query_name(tmp, NULL), tmp->type);
 					CLEAR_FLAG(tmp, FLAG_APPLIED);
@@ -1486,7 +1508,7 @@ void fix_player(object *op)
 					tmp_item = (int)((float)tmp->protection[i] * tmp_con);
 					protect_boni[i] += ((100 - protect_boni[i]) * tmp_item) / 100;
 				}
-	 			else if (tmp->protection[i] < 0)
+				else if (tmp->protection[i] < 0)
 					protect_mali[i] += ((100 - protect_mali[i]) * (-tmp->protection[i])) / 100;
 			}
 
@@ -1516,8 +1538,8 @@ void fix_player(object *op)
 					}
 				}
 			}
-		 }
-	 }
+		}
+	}
 
 	/* 'total resistance = total protections - total vulnerabilities'.
 	 * If there is an uncursed potion in effect, granting more protection
@@ -1762,10 +1784,10 @@ void fix_player(object *op)
 	CONTR(op)->client_dam = (sint16)((float)op->stats.dam * f);
 	op->stats.wc += thaco_bonus[op->stats.Dex];
 
-	 /* thats for the client ... */
+	/* thats for the client ... */
 	pl->weapon_sp = (char)(op->weapon_speed / 0.0025f);
 
-    /* Regenerate HP */
+	/* Regenerate HP */
 	/* default value */
 	base_reg = 38;
 	if (CONTR(op)->gen_hp > 0)
@@ -1800,7 +1822,7 @@ void fix_player(object *op)
 	/* the value for the client */
 	CONTR(op)->gen_client_hp = (uint16) (reg_sec * 10.0f);
 
-    /* Regenerate Mana */
+	/* Regenerate Mana */
 
 	/* default value */
 	base_reg = 35;
@@ -1835,7 +1857,7 @@ void fix_player(object *op)
 
 	CONTR(op)->gen_client_sp = (uint16) (reg_sec * 10.0f);
 
-    /* Regenerate Grace */
+	/* Regenerate Grace */
 
 	/* default value */
 	base_reg = 25;
@@ -1931,7 +1953,7 @@ void set_dragon_name(object *pl, object *abil, object *skin)
 	/* now set the new title */
 	if (CONTR(pl) != NULL)
 	{
-		if(level == 0)
+		if (level == 0)
 			sprintf(CONTR(pl)->title, "%s hatchling", attacks[atnr]);
 		else if (level == 1)
 			sprintf(CONTR(pl)->title, "%s wyrm", attacks[atnr]);
@@ -2029,10 +2051,10 @@ void fix_monster(object *op)
 
 	CLEAR_FLAG(op, FLAG_READY_BOW);
 
-    for (tmp = op->inv; tmp; tmp = tmp->below)
-    {
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
 		/* check for bow and use it! */
-        if (tmp->type == BOW)
+		if (tmp->type == BOW)
 		{
 			if (QUERY_FLAG(op, FLAG_USE_BOW))
 			{
@@ -2125,13 +2147,13 @@ object *insert_base_info_object(object *op)
 	CLEAR_FLAG(tmp, FLAG_ALIVE);
 	CLEAR_FLAG(tmp, FLAG_MONSTER);
 	/* and put it in the mob */
-    insert_ob_in_ob(tmp, head);
+	insert_ob_in_ob(tmp, head);
 
-    /* Store position (for returning home after aggro is lost...) */
-    /* Has to be done after insert_ob_in_ob() */
-    tmp->x = op->x;
-    tmp->y = op->y;
-    FREE_AND_ADD_REF_HASH(tmp->slaying, op->map->path);
+	/* Store position (for returning home after aggro is lost...) */
+	/* Has to be done after insert_ob_in_ob() */
+	tmp->x = op->x;
+	tmp->y = op->y;
+	FREE_AND_ADD_REF_HASH(tmp->slaying, op->map->path);
 
 	return tmp;
 }
@@ -2143,7 +2165,7 @@ object *find_base_info_object(object *op)
 	object *tmp;
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
-    {
+	{
 		if (tmp->type == TYPE_BASE_INFO)
 			return tmp;
 	}

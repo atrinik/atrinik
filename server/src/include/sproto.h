@@ -302,7 +302,6 @@ int command_skills(object *op, char *params);
 int command_dump(object *op, char *params);
 int command_patch(object *op, char *params);
 int command_remove(object *op, char *params);
-int command_free(object *op, char *params);
 int command_addexp(object *op, char *params);
 int command_speed(object *op, char *params);
 int command_stats(object *op, char *params);
@@ -509,7 +508,7 @@ int try_fit(object *op, int x, int y);
 int roll_ob(object *op, int dir, object *pusher);
 int push_ob(object *who, int dir, object *pusher);
 int missile_reflection_adjust(object *op, int flag);
-int push_roll_object(object *op, int dir, const int flag);
+int push_roll_object(object *op, int dir);
 
 /* pets.c */
 object *get_pet_enemy(object *pet, rv_vector *rv);

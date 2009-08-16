@@ -34,15 +34,15 @@
  * Free all animations loaded */
 void free_all_anim()
 {
-    int i;
+	int i;
 
-    for (i = 0; i <= num_animations; i++)
+	for (i = 0; i <= num_animations; i++)
 	{
 		FREE_AND_CLEAR_HASH(animations[i].name);
 		free(animations[i].faces);
-    }
+	}
 
-    free(animations);
+	free(animations);
 }
 
 /**
@@ -50,38 +50,38 @@ void free_all_anim()
  * data from a file. */
 void init_anim()
 {
-    char buf[MAX_BUF];
-    FILE *fp;
-    static int anim_init = 0;
-    int num_frames = 0, faces[MAX_ANIMATIONS], i;
+	char buf[MAX_BUF];
+	FILE *fp;
+	static int anim_init = 0;
+	int num_frames = 0, faces[MAX_ANIMATIONS], i;
 
-    if (anim_init)
+	if (anim_init)
 		return;
 
-    animations_allocated = 9;
-    num_animations = 0;
+	animations_allocated = 9;
+	num_animations = 0;
 
-    /* Make a default.  New animations start at one, so if something
-     * thinks it is animated but hasn't set the animation_id properly,
-     * it will have a default value that should be pretty obvious. */
-    animations = malloc(10 * sizeof(Animations));
-    /* set the name so we don't try to dereferance null.
-     * Put # at start so it will be first in alphabetical
-     * order. */
+	/* Make a default.  New animations start at one, so if something
+	 * thinks it is animated but hasn't set the animation_id properly,
+	 * it will have a default value that should be pretty obvious. */
+	animations = malloc(10 * sizeof(Animations));
+	/* set the name so we don't try to dereferance null.
+	 * Put # at start so it will be first in alphabetical
+	 * order. */
 	animations[0].name = NULL;
 	FREE_AND_COPY_HASH(animations[0].name, "###none" );
-    animations[0].num_animations = 1;
-    animations[0].faces = malloc(sizeof(Fontindex));
-    animations[0].faces[0] = 0;
-    animations[0].facings = 0;
+	animations[0].num_animations = 1;
+	animations[0].faces = malloc(sizeof(Fontindex));
+	animations[0].faces[0] = 0;
+	animations[0].facings = 0;
 
-    sprintf(buf, "%s/animations", settings.datadir);
-    LOG(llevDebug, "Reading animations from %s...\n", buf);
+	sprintf(buf, "%s/animations", settings.datadir);
+	LOG(llevDebug, "Reading animations from %s...\n", buf);
 
-    if ((fp = fopen(buf, "r")) == NULL)
+	if ((fp = fopen(buf, "r")) == NULL)
 		LOG(llevError, "ERROR: Can not open animations file Filename=%s\n", buf);
 
-    while (fgets(buf, MAX_BUF - 1, fp) != NULL)
+	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
 	{
 		if (*buf == '#')
 			continue;
@@ -144,11 +144,11 @@ void init_anim()
 			if (!(faces[num_frames++] = FindFace(buf, 0)))
 				LOG(llevBug, "BUG: Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
 		}
-    }
+	}
 
-    fclose(fp);
+	fclose(fp);
 
-    LOG(llevDebug, "done. (got %d)\n", num_animations);
+	LOG(llevDebug, "done. (got %d)\n", num_animations);
 }
 
 /**
@@ -170,17 +170,17 @@ static int anim_compare(Animations *a, Animations *b)
  * initialized as the 'bug' face). */
 int find_animation(char *name)
 {
-    Animations search, *match;
+	Animations search, *match;
 
-    search.name = name;
+	search.name = name;
 
-    match = (Animations*)bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)())anim_compare);
+	match = (Animations*)bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)())anim_compare);
 
-    if (match)
+	if (match)
 		return match->num;
 
-    LOG(llevBug, "BUG: Unable to find animation %s\n", STRING_SAFE(name));
-    return 0;
+	LOG(llevBug, "BUG: Unable to find animation %s\n", STRING_SAFE(name));
+	return 0;
 }
 
 /**
@@ -192,36 +192,36 @@ void animate_object(object *op, int count)
 {
 	int numfacing, numanim;
 	/* Max animation state object should be drawn in */
-    int max_state;
+	int max_state;
 	/* starting index # to draw from */
-    int base_state;
-    int	dir;
+	int base_state;
+	int	dir;
 
-    numanim = NUM_ANIMATIONS(op);
+	numanim = NUM_ANIMATIONS(op);
 	numfacing = NUM_FACINGS(op);
 
-    if (!op->animation_id || !numanim || op->head)
+	if (!op->animation_id || !numanim || op->head)
 	{
 #if 0
 		/* ONLY activate for active debugging */
 		if (op->animation_id)
-	        LOG(llevBug,"BUG: Object %s (arch %s) lacks animation. (is tail: %s)\n", STRING_OBJ_NAME(op), STRING_OBJ_ARCH_NAME(op), op->head ? "yes" : "no");
+			LOG(llevBug,"BUG: Object %s (arch %s) lacks animation. (is tail: %s)\n", STRING_OBJ_NAME(op), STRING_OBJ_ARCH_NAME(op), op->head ? "yes" : "no");
 #endif
 		return;
-    }
+	}
 
-    /* a animation is not only changed by anim_speed.
-     * If we turn the object by a teleporter for example, the direction & facing can
-     * change - outside the normal animation loop.
-     * We have then to change the frame and not increase the state */
-    if ((!QUERY_FLAG(op, FLAG_SLEEP) && !QUERY_FLAG(op, FLAG_PARALYZED)))
-        /* ||  (!QUERY_FLAG(op,FLAG_MONSTER) && op->type != PLAYER))  */
-        /* only monster & players should be have sleep & paralyze? if not, attach upper line */
+	/* a animation is not only changed by anim_speed.
+	 * If we turn the object by a teleporter for example, the direction & facing can
+	 * change - outside the normal animation loop.
+	 * We have then to change the frame and not increase the state */
+	if ((!QUERY_FLAG(op, FLAG_SLEEP) && !QUERY_FLAG(op, FLAG_PARALYZED)))
+		/* ||  (!QUERY_FLAG(op,FLAG_MONSTER) && op->type != PLAYER))  */
+		/* only monster & players should be have sleep & paralyze? if not, attach upper line */
 		/* increase draw state (of the animation frame) */
-    	op->state += count;
+		op->state += count;
 
-    if (!count)
-    {
+	if (!count)
+	{
 		if (op->type == PLAYER)
 		{
 			/* this should be changed if complexer flags are added */
@@ -230,36 +230,36 @@ void animate_object(object *op, int count)
 		}
 		else
 		{
-	        /* object needs no update for moving */
+			/* object needs no update for moving */
 			if (op->anim_enemy_dir == op->anim_enemy_dir_last && op->anim_moving_dir == op->anim_moving_dir_last && op->anim_last_facing == op->anim_last_facing_last)
 				return;
 		}
-    }
+	}
 
-    dir = op->direction;
+	dir = op->direction;
 
-    /* If object is turning, then max animation state is half through the
-     * animations.  Otherwise, we can use all the animations. */
-    max_state= numanim / numfacing;
-    base_state = 0;
+	/* If object is turning, then max animation state is half through the
+	 * animations.  Otherwise, we can use all the animations. */
+	max_state= numanim / numfacing;
+	base_state = 0;
 
 	/* 0: "stay" "non direction" face
 	 * 1-8: point of the compass the object is facing. */
-    if (numfacing == 9)
+	if (numfacing == 9)
 	{
 		base_state = dir * (numanim / 9);
-	    /* If beyond drawable states, reset */
+		/* If beyond drawable states, reset */
 		if (op->state >= max_state)
 			op->state = 0;
-    }
+	}
 
-    /* thats the new extended animation: base_state is */
-    /* 0:     thats the dying anim - "non direction" facing */
-    /* 1-8:   guard/stand_still anim frames */
-    /* 9-16:  move anim frames */
-    /* 17-24: close fight anim frames */
-    /* TODO: allow different number of faces in each frame */
-    else if (numfacing >= 25)
+	/* thats the new extended animation: base_state is */
+	/* 0:     thats the dying anim - "non direction" facing */
+	/* 1-8:   guard/stand_still anim frames */
+	/* 9-16:  move anim frames */
+	/* 17-24: close fight anim frames */
+	/* TODO: allow different number of faces in each frame */
+	else if (numfacing >= 25)
 	{
 		if (op->type == PLAYER)
 		{
@@ -269,7 +269,7 @@ void animate_object(object *op, int count)
 			if ((CONTR(op)->anim_flags & PLAYER_AFLAG_ADDFRAME || CONTR(op)->anim_flags & PLAYER_AFLAG_ENEMY) && !(CONTR(op)->anim_flags & PLAYER_AFLAG_FIGHT))
 			{
 				/* lets do a swing animation, starting at frame 0 */
-		        op->state = 0;
+				op->state = 0;
 
 				if (CONTR(op)->anim_flags & PLAYER_AFLAG_ENEMY)
 				{
@@ -319,7 +319,7 @@ void animate_object(object *op, int count)
 
 				/* special case, if we have no idea where we fac, we face to enemy */
 				if (!dir || dir == -1)
-				    dir = 4;
+					dir = 4;
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
@@ -354,11 +354,11 @@ void animate_object(object *op, int count)
 
 				/* special case, same spot will be mapped to south dir */
 				if (!dir || dir == -1)
-	                op->anim_last_facing = dir = 4;
-	        }
+					op->anim_last_facing = dir = 4;
+			}
 
 			base_state = dir * (numanim / numfacing);
-		    /* If beyond drawable states, reset */
+			/* If beyond drawable states, reset */
 			if (op->state >= max_state)
 			{
 				op->state = 0;
@@ -369,8 +369,8 @@ void animate_object(object *op, int count)
 		/* mobs & non player anims */
 		else
 		{
-	        /* mob has targeted an enemy and face him. when me move, we strave sidewards */
-		    /* here is a side effect: scared can be set for a player... */
+			/* mob has targeted an enemy and face him. when me move, we strave sidewards */
+			/* here is a side effect: scared can be set for a player... */
 			if (op->anim_enemy_dir != -1 && (!QUERY_FLAG(op, FLAG_RUN_AWAY) && !QUERY_FLAG(op, FLAG_SCARED)))
 			{
 				/* lets face to the enemy position */
@@ -380,7 +380,7 @@ void animate_object(object *op, int count)
 
 				/* special case, same spot will be mapped to south dir */
 				if (!dir)
-				    dir = 4;
+					dir = 4;
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
@@ -411,15 +411,15 @@ void animate_object(object *op, int count)
 
 				/* special case, same spot will be mapped to south dir */
 				if (!dir || dir == -1)
-	                op->anim_last_facing = dir = 4;
-	        }
+					op->anim_last_facing = dir = 4;
+			}
 
 			base_state = dir * (numanim / numfacing);
-		    /* If beyond drawable states, reset */
+			/* If beyond drawable states, reset */
 			if (op->state >= max_state)
 				op->state = 0;
 		}
-    }
+	}
 	else
 	{
 		/* If beyond drawable states, reset */
@@ -429,7 +429,7 @@ void animate_object(object *op, int count)
 
 	/*LOG(-1, "B: %s(%d)::dir:%d face:%d (%d) ->%d (%d)\n", op->name, count, op->direction, op->facing, op->anim_last_facing, base_state, op->state);*/
 
-    SET_ANIMATION(op, op->state + base_state);
+	SET_ANIMATION(op, op->state + base_state);
 
 	/* this will force a "below windows update" - NOT a map face update.
 	 * map faces are updated in the map send command checking the object itself.
@@ -441,5 +441,5 @@ void animate_object(object *op, int count)
 	 * But yeah, it should be coded client-side. Maybe sometime in the future.
 	 * TODO: Code this client-side.
 	 * -- A.T. 2009 */
-   	update_object(op, UP_OBJ_FACE);
+	update_object(op, UP_OBJ_FACE);
 }

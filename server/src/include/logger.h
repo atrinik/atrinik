@@ -48,27 +48,28 @@
  * Set levNoLog for no output.
  * ingore llevSystem - its used for additional infos used by llevError and llevBug */
 
-typedef enum LogLevel {
+typedef enum LogLevel
+{
 	/* set GLOBAL_LOG_LEVEL to this, and no message will be printed out */
-  	llevNoLog = -1,
+	llevNoLog = -1,
 
 	/* internal: used for llevError msg and llevBug message - don't set this! */
-  	llevSystem = 0,
+	llevSystem = 0,
 
 	/* thats fatal errors - server stability is unsafe after this */
-  	llevError,
+	llevError,
 
 	/* thats a bug - but we have it under control (we hope so) */
-  	llevBug,
+	llevBug,
 
 	/* just tell the log stuff we think its useful to know */
-  	llevInfo,
+	llevInfo,
 
 	/* give out maximal information for debug and bug control */
-  	llevDebug,
+	llevDebug,
 
 	/* SPECIAL DEBUG: give out full monster infos & debugs msg */
-  	llevMonster
+	llevMonster
 } LogLevel;
 
 /* if not set from outside, we force a useful setting here */

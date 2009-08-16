@@ -207,7 +207,8 @@
 #define NDI_ALL		0x20000	/* Inform all players of this message */
 
 /* Flags for the item command */
-enum {
+enum
+{
 	a_none,
 	a_readied,
 	a_wielded,
@@ -254,26 +255,29 @@ enum {
 #define UPD_DIRECTION	0x100
 
 /* Contains the base information we use to make up a packet we want to send. */
-typedef struct SockList {
-    int len;
+typedef struct SockList
+{
+	int len;
 
-    unsigned char *buf;
+	unsigned char *buf;
 } SockList;
 
-typedef struct CS_Stats {
+typedef struct CS_Stats
+{
 	/* ibytes, obytes are bytes in, out */
-    int	ibytes;
+	int	ibytes;
 
-    int obytes;
+	int obytes;
 
 	/* Maximum connections received */
-    short max_conn;
+	short max_conn;
 
 	/* When we started logging this */
-    time_t time_start;
+	time_t time_start;
 } CS_Stats;
 
-typedef struct _srv_client_files {
+typedef struct _srv_client_files
+{
 	/* file data, compressed or not */
 	char *file;
 
@@ -287,7 +291,8 @@ typedef struct _srv_client_files {
 	unsigned int crc;
 } _srv_client_files;
 
-enum {
+enum
+{
 	SRV_CLIENT_SKILLS,
 	SRV_CLIENT_SPELLS,
 	SRV_CLIENT_SETTINGS,
@@ -304,7 +309,8 @@ extern CS_Stats cst_tot, cst_lst;
 
 #define DATA_PACKED_CMD 0x80
 
-enum {
+enum
+{
 	DATA_CMD_NO,
 	DATA_CMD_SKILL_LIST,
 	DATA_CMD_SPELL_LIST,
@@ -316,7 +322,8 @@ enum {
 
 #define SOCKET_SET_BINARY_CMD(__s__, __bc__) (__s__)->buf[0]=__bc__;(__s__)->len=1
 
-enum {
+enum
+{
 	BINARY_CMD_COMC = 1,
 	BINARY_CMD_MAP2,
 	BINARY_CMD_DRAWINFO,

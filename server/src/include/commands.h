@@ -41,14 +41,15 @@
 
 typedef int (*CommFunc)(object *op, char *params);
 
-typedef struct {
+typedef struct
+{
 	/* global list's structure */
-  	char *name;
+	char *name;
 
-  	CommFunc func;
+	CommFunc func;
 
 	/* How long it takes to execute this command */
-  	float	time;
+	float	time;
 } CommArray_s;
 
 extern CommArray_s Commands[], WizCommands [], CommunicationCommands[];

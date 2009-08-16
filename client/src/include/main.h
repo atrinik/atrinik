@@ -26,7 +26,8 @@
 #if !defined(__MAIN_H)
 #define __MAIN_H
 
-typedef struct _server_char {
+typedef struct _server_char
+{
 	struct _server_char *next;
 
 	struct _server_char *prev;
@@ -73,7 +74,8 @@ extern _server_char new_character;
 #define BMAPTABLE 15823
 
 /* Structure for out bmap data */
-typedef struct _bmaptype {
+typedef struct _bmaptype
+{
 	char *name;
 	int num;
 	int len;
@@ -129,7 +131,8 @@ typedef struct _server
 
 #define MAX_BMAPTYPE_TABLE 10000
 
-typedef struct _bmaptype_table {
+typedef struct _bmaptype_table
+{
 	char *name;
 	int pos;
 	int len;
@@ -152,7 +155,8 @@ extern int bmaptype_table_size;
 #define FILE_CLIENT_ANIMS "./srv_files/client_anims"
 #define FILE_CLIENT_HFILES "./srv_files/help_files"
 
-enum {
+enum
+{
 	SRV_CLIENT_SKILLS,
 	SRV_CLIENT_SPELLS,
 	SRV_CLIENT_SETTINGS,
@@ -163,7 +167,8 @@ enum {
 	SRV_CLIENT_FILES
 };
 
-enum {
+enum
+{
 	SRV_CLIENT_STATUS_OK,
 	SRV_CLIENT_STATUS_UPDATE
 };
@@ -175,7 +180,8 @@ enum {
 #define	SRV_CLIENT_FLAG_SPELL 	16
 #define SRV_CLIENT_FLAG_HFILES 	32
 
-typedef struct _srv_client_files {
+typedef struct _srv_client_files
+{
 	/* Set from setup exchange */
 	int status;
 
@@ -192,7 +198,8 @@ extern int mb_clicked;
 #define MAXFACES 4
 
 /* IMPORTANT: datatype must also be changed in dialog.c */
-typedef struct _options {
+typedef struct _options
+{
 	/* Sound */
 	int sound_volume;
 	int music_volume;
@@ -322,7 +329,8 @@ typedef struct _face_struct
 /* Groups of skills */
 #define SKILL_LIST_MAX 7
 
-typedef struct _skill_list_entry {
+typedef struct _skill_list_entry
+{
 	/* -1: entry is unused */
 	int flag;
 
@@ -342,7 +350,8 @@ typedef struct _skill_list_entry {
 	int exp;
 }_skill_list_entry;
 
-typedef struct _skill_list {
+typedef struct _skill_list
+{
 	_skill_list_entry entry[DIALOG_LIST_ENTRY];
 }_skill_list;
 
@@ -352,7 +361,8 @@ typedef struct _skill_list {
 #define BINDKEY_LIST_MAX 10
 
 /** Bindkey list structure */
-typedef struct _bindkey_list {
+typedef struct _bindkey_list
+{
 	/** Entry */
 	_keymap entry[DIALOG_LIST_ENTRY];
 
@@ -364,7 +374,8 @@ typedef struct _bindkey_list {
 }_bindkey_list;
 
 /** Dialog list structure */
-typedef struct _dialog_list_set {
+typedef struct _dialog_list_set
+{
 	/** Group number */
 	int group_nr;
 
@@ -386,7 +397,8 @@ typedef struct _dialog_list_set {
 #define SPELL_LIST_CLASS 2
 
 /** Spell list entry structure */
-typedef struct _spell_list_entry {
+typedef struct _spell_list_entry
+{
 	/** -1 - entry is unused */
 	int flag;
 
@@ -404,12 +416,14 @@ typedef struct _spell_list_entry {
 }_spell_list_entry;
 
 /** Spell list structure */
-typedef struct _spell_list {
+typedef struct _spell_list
+{
 	_spell_list_entry entry[SPELL_LIST_CLASS][DIALOG_LIST_ENTRY];
 }_spell_list;
 
 /** Fire mode structure */
-typedef struct _fire_mode {
+typedef struct _fire_mode
+{
 	/** Item */
 	int item;
 
@@ -427,7 +441,8 @@ typedef struct _fire_mode {
 }_fire_mode;
 
 /** Help files structure */
-typedef struct help_files_struct {
+typedef struct help_files_struct
+{
 	/** Help name, like "main", or "apply". */
 	char helpname[MAX_BUF];
 
@@ -443,7 +458,8 @@ typedef struct help_files_struct {
 
 extern help_files_struct *help_files;
 
-typedef enum _fire_mode_id {
+typedef enum _fire_mode_id
+{
 	FIRE_MODE_BOW,
 	FIRE_MODE_SPELL,
 	FIRE_MODE_WAND,
@@ -561,7 +577,8 @@ extern int request_file_flags;
 extern int esc_menu_flag;
 extern int esc_menu_index;
 
-enum {
+enum
+{
 	ESC_MENU_KEYS,
 	ESC_MENU_SETTINGS,
 	ESC_MENU_LOGOUT,
@@ -579,7 +596,8 @@ enum {
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 
-typedef enum _bitmap_index {
+typedef enum _bitmap_index
+{
 	BITMAP_PALETTE,
 	BITMAP_FONT1,
 	BITMAP_FONT6x3OUT,
@@ -744,7 +762,8 @@ typedef enum _bitmap_index {
 }_bitmap_index;
 
 /* For custom cursors */
-enum {
+enum
+{
 	MSCURSOR_MOVE = 1
 };
 

@@ -61,15 +61,15 @@ void dump_abilities()
 /* As dump_abilities(), but with an alternative way of output. */
 void print_monsters()
 {
-    archetype *at;
-    object *op;
-    int i;
+	archetype *at;
+	object *op;
+	int i;
 
-    LOG(llevInfo, "               |     |   |    |    |                                  attacks/ resistances                                                                                              |\n");
-    LOG(llevInfo, "monster        | hp  |dam| ac | wc | phy mag fir ele cld cfs acd drn wmg ght poi slo par tim fea cnc dep dth chs csp gpw hwd bln int lst sla cle pie net son dem psi |  exp   | new exp |\n");
-    LOG(llevInfo, "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	LOG(llevInfo, "               |     |   |    |    |                                  attacks/ resistances                                                                                              |\n");
+	LOG(llevInfo, "monster        | hp  |dam| ac | wc | phy mag fir ele cld cfs acd drn wmg ght poi slo par tim fea cnc dep dth chs csp gpw hwd bln int lst sla cle pie net son dem psi |  exp   | new exp |\n");
+	LOG(llevInfo, "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
-    for (at = first_archetype; at != NULL; at = at->next)
+	for (at = first_archetype; at != NULL; at = at->next)
 	{
 		op = arch_to_object(at);
 
@@ -79,21 +79,21 @@ void print_monsters()
 			for (i = 0; i < NROFATTACKS; i++)
 				LOG(llevInfo, "%4d", op->attack[i]);
 
-		    LOG(llevInfo, " |\n               |     |   |    |    |");
+			LOG(llevInfo, " |\n               |     |   |    |    |");
 
 			for (i = 0; i < NROFATTACKS; i++)
 				LOG(llevInfo, "%4d", op->resist[i]);
 
-	    	LOG(llevInfo, " |%8d|\n", op->stats.exp);
-    	}
-  }
+			LOG(llevInfo, " |%8d|\n", op->stats.exp);
+		}
+	}
 }
 
 /* Writes <num> ones and zeros to the given string based on the
  * <bits> variable. */
 void bitstostring(long bits, int num, char *str)
 {
-  	int i, j = 0;
+	int i, j = 0;
 
 	if (num > 32)
 		num = 32;

@@ -43,26 +43,26 @@ extern object *objects;
 void spell_failure(object *op, int failure, int power)
 {
 	/* wonder */
-    if (failure <= -20 && failure > -40)
-    {
+	if (failure <= -20 && failure > -40)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your spell causes an unexpected effect.");
 		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
-    }
+	}
 	/* confusion */
-    else if (failure <= -40 && failure > -60)
-    {
+	else if (failure <= -40 && failure > -60)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your magic recoils on you!");
 		confuse_player(op, op, 99);
-    }
+	}
 	/* paralysis */
-    else if (failure <= -60 && failure > -80)
-    {
+	else if (failure <= -60 && failure > -80)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your magic recoils on you!");
 		paralyze_player(op, op, 99);
-    }
+	}
 	/* blast the immediate area */
-    else if (failure <= -80)
-    {
+	else if (failure <= -80)
+	{
 		object *tmp;
 
 		/* Safety check to make sure we don't get any mana storms in scorn */
@@ -91,72 +91,72 @@ void spell_failure(object *op, int failure, int power)
 			tmp->stats.maxhp = tmp->count;
 			insert_ob_in_map(tmp, op->map, NULL, 0);
 		}
-    }
+	}
 }
 #endif
 
 /* Oct 95 - hacked on this to bring in cosmetic differences for MULTIPLE_GOD hack -b.t. */
 void prayer_failure(object *op, int failure, int power)
 {
-    const char *godname;
+	const char *godname;
 
-    if (!strcmp((godname = determine_god(op)), "none"))
+	if (!strcmp((godname = determine_god(op)), "none"))
 		godname = "Your spirit";
 
 	/* wonder */
-    if (failure <= -20 && failure > -40)
-    {
+	if (failure <= -20 && failure > -40)
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s gives a sign to renew your faith.", godname);
 #if 0
 		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
 #endif
-    }
+	}
 	/* confusion */
-    else if (failure <= -40 && failure > -60)
-    {
+	else if (failure <= -40 && failure > -60)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your diety touches your mind!");
 		confuse_player(op, op, 99);
-    }
+	}
 	/* paralysis */
-    else if (failure <= -60 && failure> -150)
-    {
+	else if (failure <= -60 && failure> -150)
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s requires you to pray NOW.", godname);
 		new_draw_info(NDI_UNIQUE, 0, op, "You comply, ignoring all else.");
 		paralyze_player(op, op, 99);
-    }
+	}
 	/* blast the immediate area */
-    else if (failure <= -150)
-    {
+	else if (failure <= -150)
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s smites you!", godname);
 		cast_magic_storm(op, get_archetype("god_power"), power);
-    }
+	}
 }
 
 /* Should really just replace all calls to cast_mana_storm to call
  * cast_magic_storm directly. */
 void cast_mana_storm(object *op, int lvl)
 {
-    object *tmp = get_archetype("loose_magic");
+	object *tmp = get_archetype("loose_magic");
 
-    cast_magic_storm(op, tmp, lvl);
+	cast_magic_storm(op, tmp, lvl);
 }
 
 void cast_magic_storm(object *op, object *tmp, int lvl)
 {
 	/* error */
-    if (!tmp)
+	if (!tmp)
 		return;
 
-    tmp->level = SK_level(op);
-    tmp->x = op->x;
-    tmp->y = op->y;
+	tmp->level = SK_level(op);
+	tmp->x = op->x;
+	tmp->y = op->y;
 
 	/* increase the area of destruction */
-    tmp->stats.hp += lvl / 5;
+	tmp->stats.hp += lvl / 5;
 	/* nasty recoils! */
-    tmp->stats.dam = lvl;
-    tmp->stats.maxhp = tmp->count;
-    insert_ob_in_map(tmp, op->map, op, 0);
+	tmp->stats.dam = lvl;
+	tmp->stats.maxhp = tmp->count;
+	insert_ob_in_map(tmp, op->map, op, 0);
 
 }
 
@@ -246,46 +246,46 @@ int recharge(object *op)
  * space monsters. */
 void polymorph_living(object *op)
 {
-    archetype *at;
-    int nr = 0, x = op->x, y = op->y, numat = 0, choice,friendly;
-    mapstruct *map = op->map;
-    object *tmp, *next, *owner;
+	archetype *at;
+	int nr = 0, x = op->x, y = op->y, numat = 0, choice,friendly;
+	mapstruct *map = op->map;
+	object *tmp, *next, *owner;
 
-    if (op->head != NULL || op->more != NULL)
+	if (op->head != NULL || op->more != NULL)
 		return;
 
-    /* High level creatures are immune, as are creatures immune to magic.  Otherwise,
-     * give the creature a saving throw. */
-    if (op->level >= 20 || random_roll(1, 20, op, PREFER_HIGH) + op->resist[ATNR_MAGIC] / 10 > savethrow[op->level] || (op->resist[ATNR_MAGIC] == 100))
+	/* High level creatures are immune, as are creatures immune to magic.  Otherwise,
+	 * give the creature a saving throw. */
+	if (op->level >= 20 || random_roll(1, 20, op, PREFER_HIGH) + op->resist[ATNR_MAGIC] / 10 > savethrow[op->level] || (op->resist[ATNR_MAGIC] == 100))
 		return;
 
-    /* First, count up the number of legal matches */
-    for (at = first_archetype; at != NULL; at = at->next)
+	/* First, count up the number of legal matches */
+	for (at = first_archetype; at != NULL; at = at->next)
 	{
 		if (QUERY_FLAG((&at->clone), FLAG_MONSTER) == QUERY_FLAG(op, FLAG_MONSTER) && at->more == NULL)
 			numat++;
 	}
 
 	/* no valid matches? if so, return */
-    if (!numat)
+	if (!numat)
 		return;
 
-    /* Next make a choice, and loop through until we get to it */
-    choice = rndm(0, numat - 1);
-    for (at = first_archetype; at != NULL; at = at->next)
+	/* Next make a choice, and loop through until we get to it */
+	choice = rndm(0, numat - 1);
+	for (at = first_archetype; at != NULL; at = at->next)
 	{
 		if (QUERY_FLAG((&at->clone), FLAG_MONSTER) == QUERY_FLAG(op, FLAG_MONSTER) && at->more == NULL)
-    	{
+		{
 			if (!choice)
 				break;
 			else
 				choice--;
-    	}
+		}
 	}
 
-    /* Look through the monster.  Unapply anything they have applied,
-     * and remove any abilities. */
-    for (tmp = op->inv; tmp != NULL; tmp = next)
+	/* Look through the monster.  Unapply anything they have applied,
+	 * and remove any abilities. */
+	for (tmp = op->inv; tmp != NULL; tmp = next)
 	{
 		next = tmp->below;
 
@@ -294,45 +294,45 @@ void polymorph_living(object *op)
 
 		if (tmp->type == ABILITY)
 			remove_ob(tmp);
-    }
+	}
 
-    /* Remove the object, preserve some values for the new object */
-    remove_ob(op);
-    owner = get_owner(op);
-    friendly = QUERY_FLAG(op, FLAG_FRIENDLY);
+	/* Remove the object, preserve some values for the new object */
+	remove_ob(op);
+	owner = get_owner(op);
+	friendly = QUERY_FLAG(op, FLAG_FRIENDLY);
 
-    if (friendly)
+	if (friendly)
 		remove_friendly_object(op);
 
-    copy_object(&(at->clone), op);
+	copy_object(&(at->clone), op);
 
-    if (owner != NULL)
+	if (owner != NULL)
 		set_owner(op, owner);
 
-    if (friendly)
+	if (friendly)
 	{
 		SET_FLAG(op, FLAG_FRIENDLY);
 		op->move_type = PETMOVE;
 		add_friendly_object(op);
-    }
+	}
 
-    /* Put the new creature on the map */
-    op->x = x;
+	/* Put the new creature on the map */
+	op->x = x;
 	op->y = y;
-    if ((op = insert_ob_in_map(op, map, owner, 0)) == NULL)
-        return;
+	if ((op = insert_ob_in_map(op, map, owner, 0)) == NULL)
+		return;
 
 	/* No GT_APPLY here because we'll do it manually. */
-    if (op->randomitems != NULL)
+	if (op->randomitems != NULL)
 		create_treasure(op->randomitems, op, GT_INVISIBLE, map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 
-    /* Apply any objects.  This limits it to the first 20 items, which
-     * I guess is reasonable. */
-    for (tmp = op->inv, nr = 0; tmp != NULL && ++nr < 20; tmp = next)
+	/* Apply any objects.  This limits it to the first 20 items, which
+	 * I guess is reasonable. */
+	for (tmp = op->inv, nr = 0; tmp != NULL && ++nr < 20; tmp = next)
 	{
 		next = tmp->below;
 		(void) monster_check_apply(op, tmp);
-    }
+	}
 }
 
 
@@ -343,11 +343,11 @@ void polymorph_living(object *op)
  * something. */
 void polymorph_melt(object *who, object *op)
 {
-    /* Not unique */
-    new_draw_info_format(NDI_WHITE, 0, who, "%s%s glows red, melts and evaporates!", op->nrof ? "" : "The ", query_name(op, NULL));
-    play_sound_map(op->map, op->x, op->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
-    destruct_ob(op);
-    return;
+	/* Not unique */
+	new_draw_info_format(NDI_WHITE, 0, who, "%s%s glows red, melts and evaporates!", op->nrof ? "" : "The ", query_name(op, NULL));
+	play_sound_map(op->map, op->x, op->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
+	destruct_ob(op);
+	return;
 }
 
 /* polymorph_item - changes an item to another item of similar type.
@@ -357,34 +357,34 @@ void polymorph_melt(object *who, object *op)
  * in THIS way in daimonin. */
 void polymorph_item(object *who, object *op)
 {
-    archetype *at;
-    int max_value, difficulty, tries = 0, choice, charges = op->stats.food, numat = 0;
-    object *new_ob;
+	archetype *at;
+	int max_value, difficulty, tries = 0, choice, charges = op->stats.food, numat = 0;
+	object *new_ob;
 
-    /* We try and limit the maximum value of the changd object. */
-    max_value = op->value * 2;
-    if (max_value > 20000)
+	/* We try and limit the maximum value of the changd object. */
+	max_value = op->value * 2;
+	if (max_value > 20000)
 		max_value = 20000 + (max_value - 20000) / 3;
 
-    /* Look through and try to find matching items.  Can't turn into something
-     * invisible.  Also, if the value is too high now, it would almost
-     * certainly be too high below. */
-    for (at = first_archetype; at != NULL; at = at->next)
+	/* Look through and try to find matching items.  Can't turn into something
+	 * invisible.  Also, if the value is too high now, it would almost
+	 * certainly be too high below. */
+	for (at = first_archetype; at != NULL; at = at->next)
 	{
 		if (at->clone.type == op->type && !IS_SYS_INVISIBLE(&at->clone) && at->clone.value > 0 && at->clone.value < max_value && !QUERY_FLAG(&at->clone, FLAG_NO_DROP) && !QUERY_FLAG(&at->clone, FLAG_STARTEQUIP))
-	  		numat++;
-    }
+			numat++;
+	}
 
-    if(!numat)
+	if (!numat)
 		return;
 
-    difficulty = op->magic * 5;
+	difficulty = op->magic * 5;
 
-    if (difficulty < 0)
+	if (difficulty < 0)
 		difficulty = 0;
 
-    new_ob = get_object();
-    do
+	new_ob = get_object();
+	do
 	{
 		choice = rndm(0, numat - 1);
 		for (at = first_archetype; at != NULL; at = at->next)
@@ -400,75 +400,76 @@ void polymorph_item(object *who, object *op)
 		copy_object(&(at->clone), new_ob);
 		fix_generated_item(&new_ob, op, difficulty, -1, 0, FABS(op->magic), 0, 0, GT_ENVIRONMENT);
 		++tries;
-    } while (new_ob->value > max_value && tries < 10);
+	}
+	while (new_ob->value > max_value && tries < 10);
 
-    if (IS_SYS_INVISIBLE(new_ob))
+	if (IS_SYS_INVISIBLE(new_ob))
 		LOG(llevBug, "BUG: polymorph_item: fix_generated_object made %s invisible?!\n", query_name(new_ob, NULL));
 
-    /* Unable to generate an acceptable item?  Melt it */
-    if (tries == 10)
+	/* Unable to generate an acceptable item?  Melt it */
+	if (tries == 10)
 	{
 		polymorph_melt(who, op);
 		return;
-    }
+	}
 
-    if (op->nrof && new_ob->nrof)
+	if (op->nrof && new_ob->nrof)
 	{
 		new_ob->nrof = op->nrof;
 		/* decrease the number of items */
 		if (new_ob->nrof > 2)
 			new_ob->nrof -= rndm(0, op->nrof / 2 - 1);
-    }
+	}
 
-    /* We don't want rings to keep sustenance/hungry status. There are propably
-     * other cases too that should be checked. */
-    if (charges && op->type != RING && op->type != FOOD)
+	/* We don't want rings to keep sustenance/hungry status. There are propably
+	 * other cases too that should be checked. */
+	if (charges && op->type != RING && op->type != FOOD)
 		op->stats.food = charges;
 
-    new_ob->x = op->x;
-    new_ob->y = op->y;
-    destruct_ob(op);
+	new_ob->x = op->x;
+	new_ob->y = op->y;
+	destruct_ob(op);
 
-    /* Don't want objects merged or re-arranged, as it then messes up the
-     * order */
-    insert_ob_in_map(new_ob, who->map, new_ob, INS_NO_MERGE | INS_NO_WALK_ON);
+	/* Don't want objects merged or re-arranged, as it then messes up the
+	 * order */
+	insert_ob_in_map(new_ob, who->map, new_ob, INS_NO_MERGE | INS_NO_WALK_ON);
 }
 
 /* polymorh - caster who has hit object op. */
 void polymorph(object *op, object *who)
 {
-    int tmp;
+	int tmp;
 
-    /* Can't polymorph players right now */
-    /* polymorphing generators opens up all sorts of abuses */
-    if (op->type == PLAYER || QUERY_FLAG(op, FLAG_GENERATOR))
+	/* Can't polymorph players right now */
+	/* polymorphing generators opens up all sorts of abuses */
+	if (op->type == PLAYER || QUERY_FLAG(op, FLAG_GENERATOR))
 		return;
 
-    if (QUERY_FLAG(op, FLAG_MONSTER))
+	if (QUERY_FLAG(op, FLAG_MONSTER))
 	{
 		polymorph_living(op);
 		return;
-    }
+	}
 
-    /* If it is a living object of some other type, don't handle
-     * it now. */
-    if (QUERY_FLAG(op, FLAG_ALIVE))
+	/* If it is a living object of some other type, don't handle
+	 * it now. */
+	if (QUERY_FLAG(op, FLAG_ALIVE))
 		return;
 
-    /* Don't want to morph flying arrows, etc... */
-    if (FABS(op->speed) > 0.001 && !QUERY_FLAG(op, FLAG_ANIMATE))
+	/* Don't want to morph flying arrows, etc... */
+	if (FABS(op->speed) > 0.001 && !QUERY_FLAG(op, FLAG_ANIMATE))
 		return;
 
-    /* Do some sanity checking here.  type=0 is unkown, objects
-     * without archetypes are not good.  As are a few other
-     * cases. */
-    if (op->type == 0 || op->arch == NULL || QUERY_FLAG(op, FLAG_NO_PICK) || QUERY_FLAG(op, FLAG_NO_PASS) || op->type == TREASURE)
+	/* Do some sanity checking here.  type=0 is unkown, objects
+	 * without archetypes are not good.  As are a few other
+	 * cases. */
+	if (op->type == 0 || op->arch == NULL || QUERY_FLAG(op, FLAG_NO_PICK) || QUERY_FLAG(op, FLAG_NO_PASS) || op->type == TREASURE)
 		return;
 
-    tmp = rndm(0, 7);
-    if (tmp)
+	tmp = rndm(0, 7);
+	if (tmp)
 		polymorph_item(who, op);
-    else
+	else
 		polymorph_melt(who, op);
 }
 
@@ -484,15 +485,15 @@ int cast_polymorph(object *op, int dir)
 
 #if 0
 	/* Polymorph is disabled. */
-    object *tmp, *next;
-    int range;
-    archetype *poly;
+	object *tmp, *next;
+	int range;
+	archetype *poly;
 
-    if (dir == 0)
+	if (dir == 0)
 		return 0;
 
-    poly = find_archetype("polymorph");
-    for (range = 1; ; range++)
+	poly = find_archetype("polymorph");
+	for (range = 1; ; range++)
 	{
 		int x = op->x + freearr_x[dir] * range, y = op->y + freearr_y[dir] * range;
 		object *image;
@@ -516,9 +517,9 @@ int cast_polymorph(object *op, int dir)
 		image->stats.food += range;
 		image->speed_left = 0.1f;
 		insert_ob_in_map(image, op->map, op, 0);
-    }
+	}
 #endif
-    return 1;
+	return 1;
 }
 
 
@@ -620,7 +621,7 @@ int probe(object *op)
 {
 	object *tmp;
 
-    for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
 		if (IS_LIVE(tmp))
 		{
@@ -640,7 +641,7 @@ int probe(object *op)
 
 int cast_invisible(object *op, object *caster, int spell_type)
 {
-  	object *tmp;
+	object *tmp;
 
 	(void) caster;
 
@@ -795,7 +796,8 @@ int cast_wow(object *op, int dir, int ability, SpellTypeFrom item)
 			if (sp >= NROFREALSPELLS)
 				sp = 0;
 		}
-	} while (!spells[sp].books);
+	}
+	while (!spells[sp].books);
 
 	return cast_spell(op, op, dir, sp, ability, item, NULL);
 #endif
@@ -804,23 +806,23 @@ int cast_wow(object *op, int dir, int ability, SpellTypeFrom item)
 
 int perceive_self(object *op)
 {
-    char *cp = describe_item(op), buf[MAX_BUF];
-    archetype *at = find_archetype("depletion");
-    object *tmp;
-    int i;
+	char *cp = describe_item(op), buf[MAX_BUF];
+	archetype *at = find_archetype("depletion");
+	object *tmp;
+	int i;
 
-    tmp = find_god(determine_god(op));
+	tmp = find_god(determine_god(op));
 
-    if (tmp)
+	if (tmp)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You worship %s.", tmp->name);
-    else
+	else
 		new_draw_info(NDI_UNIQUE, 0, op, "You worship no god.");
 
-    tmp = present_arch_in_ob(at, op);
+	tmp = present_arch_in_ob(at, op);
 
-    if (*cp == '\0' && tmp == NULL)
+	if (*cp == '\0' && tmp == NULL)
 		new_draw_info(NDI_UNIQUE, 0, op, "You feel very mundane.");
-    else
+	else
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You have:");
 		new_draw_info(NDI_UNIQUE, 0, op, cp);
@@ -836,26 +838,26 @@ int perceive_self(object *op)
 				}
 			}
 		}
-    }
+	}
 
-    return 1;
+	return 1;
 }
 
- /* int cast_create_town_portal (object *op, object *caster, int dir)
-  *
-  * This function cast the spell of town portal for op
-  * The spell operates in two passes. During the first one a place
-  * is marked as a destination for the portal. During the second one,
-  * 2 portals are created, one in the position the player cast it and
-  * one in the destination place. The portal are synchronized and 2 forces
-  * are inserted in the player to destruct the portal next time player
-  * creates a new portal pair.
-  * This spell has a side effect that it allows people to meet each other
-  * in a permanent, private,  appartements by making a town portal from it
-  * to the town or another public place. So, check if the map is unique and if
-  * so return an error
-  *
-  * Code by Tchize (david.delbecq@usa.net) */
+/* int cast_create_town_portal (object *op, object *caster, int dir)
+ *
+ * This function cast the spell of town portal for op
+ * The spell operates in two passes. During the first one a place
+ * is marked as a destination for the portal. During the second one,
+ * 2 portals are created, one in the position the player cast it and
+ * one in the destination place. The portal are synchronized and 2 forces
+ * are inserted in the player to destruct the portal next time player
+ * creates a new portal pair.
+ * This spell has a side effect that it allows people to meet each other
+ * in a permanent, private,  appartements by making a town portal from it
+ * to the town or another public place. So, check if the map is unique and if
+ * so return an error
+ *
+ * Code by Tchize (david.delbecq@usa.net) */
 int cast_create_town_portal(object *op, object *caster, int dir)
 {
 #define PORTAL_DESTINATION_NAME "Town portal destination"
@@ -871,44 +873,44 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 
 	(void) dir;
 
-   	/* The first thing to do is to check if we have a marked destination
-     * dummy is used to make a check inventory for the force */
-   	if (!strncmp(op->map->path, settings.localdir, strlen(settings.localdir)))
+	/* The first thing to do is to check if we have a marked destination
+	* dummy is used to make a check inventory for the force */
+	if (!strncmp(op->map->path, settings.localdir, strlen(settings.localdir)))
 	{
 		new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, "You can't cast that here.\n");
-        return 0;
+		return 0;
 	}
 
-   	dummy = get_archetype("force");
+	dummy = get_archetype("force");
 
-   	if (dummy == NULL)
+	if (dummy == NULL)
 	{
-     	LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", op->name);
-     	return 0;
-   	}
+		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", op->name);
+		return 0;
+	}
 
-   	FREE_AND_COPY_HASH(dummy->name, PORTAL_DESTINATION_NAME);
-   	dummy->stats.hp = EXIT;
+	FREE_AND_COPY_HASH(dummy->name, PORTAL_DESTINATION_NAME);
+	dummy->stats.hp = EXIT;
 	FREE_AND_COPY_HASH(dummy->arch->name, "force");
-  	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_DESTINATION_NAME);
-   	force = check_inv_recursive(op, dummy);
+	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_DESTINATION_NAME);
+	force = check_inv_recursive(op, dummy);
 
 	/* Here we know there is no destination marked up.
-     * We have 2 things to do:
-     * 1. Mark the destination in the player inventory.
-     * 2. Let the player know it worked. */
-   	if (force == NULL || strstr(force->name, op->name))
-    {
-     	FREE_AND_ADD_REF_HASH(dummy->name, op->map->path);
+	 * We have 2 things to do:
+	 * 1. Mark the destination in the player inventory.
+	 * 2. Let the player know it worked. */
+	if (force == NULL || strstr(force->name, op->name))
+	{
+		FREE_AND_ADD_REF_HASH(dummy->name, op->map->path);
 		FREE_AND_ADD_REF_HASH(dummy->race, op->map->path);
-     	EXIT_X(dummy)= op->x;
-     	EXIT_Y(dummy)= op->y;
-     	dummy->speed = 0.0;
-     	update_ob_speed(dummy);
-     	insert_ob_in_ob(dummy, op);
-     	new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, "You fix this place in your mind.\nYou feel you are able to come here from anywhere.");
-     	return 1;
-    }
+		EXIT_X(dummy)= op->x;
+		EXIT_Y(dummy)= op->y;
+		dummy->speed = 0.0;
+		update_ob_speed(dummy);
+		insert_ob_in_ob(dummy, op);
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, "You fix this place in your mind.\nYou feel you are able to come here from anywhere.");
+		return 1;
+	}
 
 	/* Here we know where the town portal should go to
 	 * We should kill any existing portal associated with the player.
@@ -934,21 +936,21 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	}
 
 	/* Useful for string comparaison later */
-   	FREE_AND_COPY_HASH(dummy->name, portal_name);
-   	dummy->stats.hp = EXIT;
+	FREE_AND_COPY_HASH(dummy->name, portal_name);
+	dummy->stats.hp = EXIT;
 	FREE_AND_COPY_HASH(dummy->arch->name, "force");
-   	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_ACTIVE_NAME);
-   	perm_portal = find_archetype("perm_magic_portal");
+	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_ACTIVE_NAME);
+	perm_portal = find_archetype("perm_magic_portal");
 
 	/* To kill a town portal, we go trough the player's inventory,
-     * for each marked portal in player's inventory,
-     *   -We try load the associated map (if impossible, consider the portal destructed)
-     *   -We find any portal in the specified location.
-     *      If it has the good name, we destruct it.
-     *   -We destruct the force indicating that portal. */
-   	while ((old_force = check_inv_recursive(op, dummy)))
-    {
-     	FREE_AND_ADD_REF_HASH(exitpath, !strstr(old_force->name, op->name) ? old_force->name : old_force->race);
+	 * for each marked portal in player's inventory,
+	 *   -We try load the associated map (if impossible, consider the portal destructed)
+	 *   -We find any portal in the specified location.
+	 *      If it has the good name, we destruct it.
+	 *   -We destruct the force indicating that portal. */
+	while ((old_force = check_inv_recursive(op, dummy)))
+	{
+		FREE_AND_ADD_REF_HASH(exitpath, !strstr(old_force->name, op->name) ? old_force->name : old_force->race);
 		exitx = EXIT_X(old_force);
 		exity = EXIT_Y(old_force);
 
@@ -987,7 +989,7 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	 * If we can't, don't fizzle. Simply warn player.
 	 * This ensure player pays his mana for the spell
 	 * because HE is responsible of forgotting. */
-   	op_level = SK_level(op);
+	op_level = SK_level(op);
 	if (op_level < 15)
 		snprintf(portal_message, 1024, "Air moves around you and a huge smell of ammoniac rounds you as you pass through %s's portal.\nPouah!", op->name);
 	else if (op_level < 30)
@@ -997,9 +999,9 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	else
 		snprintf(portal_message, 1024, "As you walk on %s's portal, flowers come from the ground around you.\nYou feel quiet.", op->name);
 
-   	FREE_AND_CLEAR_HASH(exitpath);
+	FREE_AND_CLEAR_HASH(exitpath);
 
-   	/* we want ensure that the force->name is still in hash table */
+	/* we want ensure that the force->name is still in hash table */
 	if (!strstr(force->name, op->name))
 	{
 		FREE_AND_ADD_REF_HASH(exitpath, force->name);
@@ -1015,9 +1017,9 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 
 	/* Ensure exit map is loaded */
 	if (!strncmp(exitpath, settings.localdir, strlen(settings.localdir)))
-     	exitmap = ready_map_name(exitpath, MAP_PLAYER_UNIQUE);
-   	else
-     	exitmap = ready_map_name(exitpath, 0);
+		exitmap = ready_map_name(exitpath, MAP_PLAYER_UNIQUE);
+	else
+		exitmap = ready_map_name(exitpath, 0);
 
 	/* If we were unable to load (ex. random map deleted), warn player */
 	if (exitmap == NULL)
@@ -1027,19 +1029,19 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 		return 1;
 	}
 
-   	/* Create a portal in front of player
-     * dummy contain the portal and
-     * force contain the track to kill it later */
+	/* Create a portal in front of player
+	* dummy contain the portal and
+	* force contain the track to kill it later */
 	snprintf(portal_name, 1024, "%s's portal to %s", op->name, exitpath);
 	/* The portal */
 	dummy = get_archetype("perm_magic_portal");
 
-   	if (dummy == NULL)
-    {
-     	LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
-     	FREE_AND_CLEAR_HASH(exitpath);
-     	return 0;
-    }
+	if (dummy == NULL)
+	{
+		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
+		FREE_AND_CLEAR_HASH(exitpath);
+		return 0;
+	}
 
 	dummy->speed = 0.0;
 	update_ob_speed(dummy);
@@ -1078,10 +1080,10 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	/* Create a portal in the destination map
 	 * dummy contain the portal and
 	 * force the track to kill it later */
-   	snprintf(portal_name, 1024, "%s's portal to %s", op->name, op->map->path);
+	snprintf(portal_name, 1024, "%s's portal to %s", op->name, op->map->path);
 
 	/* The portal */
-   	dummy = get_archetype("perm_magic_portal");
+	dummy = get_archetype("perm_magic_portal");
 	if (dummy == NULL)
 	{
 		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
@@ -1151,7 +1153,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 			xt = op->x + i;
 			yt = op->y + j;
 
-			if(!(m = out_of_map(op->map, &xt, &yt)))
+			if (!(m = out_of_map(op->map, &xt, &yt)))
 				continue;
 
 			tmp = get_map_ob(m, xt, yt);
@@ -1177,31 +1179,31 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 	(void) dir;
 	(void) spell_type;
 #if 0
-    object *tmp, *tmp2;
-    int i, posblocked = 0, negblocked = 0;
-/*
-	mapstruct *mt;
-	int xt,yt;
+	object *tmp, *tmp2;
+	int i, posblocked = 0, negblocked = 0;
+	/*
+		mapstruct *mt;
+		int xt,yt;
 
-	xt=op->x+freearr_x[dir];
-	yt=op->y+freearr_y[dir];
-	if (!(mt=out_of_map (op->map, &nx, &ny)))
-		return 0;
-*/
+		xt=op->x+freearr_x[dir];
+		yt=op->y+freearr_y[dir];
+		if (!(mt=out_of_map (op->map, &nx, &ny)))
+			return 0;
+	*/
 
-    if (!dir)
+	if (!dir)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "In what direction?");
 		return 0;
-    }
+	}
 
-    if (blocked(NULL, op->map, op->x + freearr_x[dir], op->y + freearr_y[dir], op->terrain_flag))
+	if (blocked(NULL, op->map, op->x + freearr_x[dir], op->y + freearr_y[dir], op->terrain_flag))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Something is in the way.");
 		return 0;
-    }
+	}
 
-    switch (spell_type)
+	switch (spell_type)
 	{
 		case SP_EARTH_WALL:
 			tmp = get_archetype("earthwall");
@@ -1278,14 +1280,14 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 		default:
 			LOG(llevBug, "BUG: Unimplemented magic_wall spell: %d\n", spell_type);
 			return 0;
-    }
+	}
 
-    tmp->x = op->x + freearr_x[dir], tmp->y = op->y + freearr_y[dir];
-    if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) == NULL)
+	tmp->x = op->x + freearr_x[dir], tmp->y = op->y + freearr_y[dir];
+	if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) == NULL)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Something destroys your wall.");
 		return 0;
-    }
+	}
 
 	/* This code causes the wall to extend to a distance of 5 in
 	 * each direction, or until an obstruction is encountered.
@@ -1295,9 +1297,9 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 
 	for (i = 1; i < 5; i++)
 	{
-	 	int x, y, dir2;
+		int x, y, dir2;
 
-	 	dir2 = (dir<4)?(dir+2):dir-2;
+		dir2 = (dir<4)?(dir+2):dir-2;
 
 		x = tmp->x + i * freearr_x[dir2];
 		y = tmp->y + i * freearr_y[dir2];
@@ -1328,19 +1330,19 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 		}
 		else
 			negblocked = 1;
-    }
+	}
 
 #if 0
-    if (op->type == PLAYER)
+	if (op->type == PLAYER)
 		draw_client_map(op);
-    else
+	else
 #endif
-	/* We don't want them to walk through the wall! */
-    if (!op->type == PLAYER)
-		SET_FLAG(op, FLAG_SCARED);
+		/* We don't want them to walk through the wall! */
+		if (!op->type == PLAYER)
+			SET_FLAG(op, FLAG_SCARED);
 #endif
 
-    return 1;
+	return 1;
 }
 
 /* cast_light() - I wanted this to be able to blind opponents who stand
@@ -1418,18 +1420,18 @@ int cast_light(object *op, object *caster, int dir)
  * I also want include better position checks here */
 int dimension_door(object *op,int dir)
 {
-    uint32 dist;
+	uint32 dist;
 
-    if (op->type != PLAYER)
+	if (op->type != PLAYER)
 		return 0;
 
-    if (!dir)
+	if (!dir)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "In what direction?");
 		return 0;
-    }
+	}
 
-    if (CONTR(op)->count)
+	if (CONTR(op)->count)
 	{
 		for (dist = 0; dist < CONTR(op)->count; dist++)
 			if (blocks_magic(op->map, op->x + freearr_x[dir] * (dist + 1), op->y + freearr_y[dir] * (dist + 1)))
@@ -1468,7 +1470,7 @@ int dimension_door(object *op,int dir)
 				return 1;
 			}
 		}
-    }
+	}
 	/* Player didn't specify a distance, so lets see how far
 	 * we can move the player. */
 	else
@@ -1476,29 +1478,29 @@ int dimension_door(object *op,int dir)
 		for (dist = 0; !blocks_view (op->map, op->x + freearr_x[dir] * (dist + 1), op->y + freearr_y[dir] * (dist + 1)) && !blocks_magic(op->map, op->x + freearr_x[dir] * (dist + 1), op->y + freearr_y[dir] * (dist + 1)); dist++);
 
 		/* If the destinate is blocked, keep backing up until we
-	 	 * find a place for the player. */
+		  * find a place for the player. */
 		for (; dist > 0 && blocked(op, op->map, op->x + freearr_x[dir] * dist, op->y + freearr_y[dir] * dist, op->terrain_flag); dist--);
 
 		if (!dist)
 		{
-	    	new_draw_info(NDI_UNIQUE, 0, op, "Your spell failed!");
-	    	return 0;
+			new_draw_info(NDI_UNIQUE, 0, op, "Your spell failed!");
+			return 0;
 		}
-    }
+	}
 
-    /* Actually move the player now */
-    remove_ob(op);
-    op->x += freearr_x[dir] * dist, op->y += freearr_y[dir] * dist;
+	/* Actually move the player now */
+	remove_ob(op);
+	op->x += freearr_x[dir] * dist, op->y += freearr_y[dir] * dist;
 
-    if ((op = insert_ob_in_map(op, op->map, op, 0)) == NULL)
-        return 1;
+	if ((op = insert_ob_in_map(op, op->map, op, 0)) == NULL)
+		return 1;
 
-    if (op->type == PLAYER)
+	if (op->type == PLAYER)
 		MapNewmapCmd(CONTR(op));
 
 	/* Freeze them for a short while */
-    op->speed_left = -FABS(op->speed) * 5;
-    return 1;
+	op->speed_left = -FABS(op->speed) * 5;
+	return 1;
 }
 
 int cast_heal(object *op, int level, object *target, int spell_type)
@@ -1520,7 +1522,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 		case SP_CURE_DISEASE:
 			if (cure_disease(target, op))
 				success = 1;
-		break;
+			break;
 
 		case SP_CURE_POISON:
 			at = find_archetype("poisoning");
@@ -1686,7 +1688,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 			return success;
 #endif
-  	}
+	}
 
 	if (heal > 0)
 	{
@@ -1778,7 +1780,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 
 				return 0;
 			}
-			else if(op->type == PLAYER && op != tmp)
+			else if (op->type == PLAYER && op != tmp)
 				new_draw_info_format(NDI_UNIQUE, 0, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
 
 
@@ -1799,7 +1801,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y))
 				LOG(llevDebug, "insert_spell_effect() failed: spell:%d, obj:%s caster:%s target:%s\n", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
 
-	    	break;
+			break;
 
 			/*---------- old -------------- */
 
@@ -1986,7 +1988,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 		case SP_BLESS:
 		{
 			object *god = find_god(determine_god(op));
-			if(god)
+			if (god)
 			{
 				int i;
 
@@ -2026,7 +2028,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			SET_FLAG(force, FLAG_SEE_IN_DARK);
 			break;
 
-		/* attacktype-protection spells: */
+			/* attacktype-protection spells: */
 		case SP_PROT_COLD:
 			if (!i)
 				atnr = ATNR_COLD, path = PATH_FROST, i = 1;
@@ -2064,8 +2066,8 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			if (!i)
 				atnr = ATNR_DEPLETE, path = PATH_DEATH, i = 1;
 
-		/* The amount of prot. granted depends on caster's skill-level and
-		 * on attunement to spellpath, if there is a related one: */
+			/* The amount of prot. granted depends on caster's skill-level and
+			 * on attunement to spellpath, if there is a related one: */
 			force->resist[atnr] = (20 + 30 * SK_level(caster) / 100 + ((caster->path_attuned & path) ? 10 : 0) - ((caster->path_repelled & path) ? 10 : 0)) / ((caster->path_denied & path) ? 2 : 1);
 			break;
 
@@ -2073,7 +2075,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			SET_MULTI_FLAG(force, FLAG_FLYING);
 			break;
 
-		/* The following immunity spells are obsolete... -AV */
+			/* The following immunity spells are obsolete... -AV */
 		case SP_IMMUNE_COLD:
 			force->resist[ATNR_COLD] = 100;
 			break;
@@ -2112,10 +2114,10 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 
 		case SP_INVULNERABILITY:
 		case SP_PROTECTION:
-			 /* Don't give them everything, so can't do a simple loop.
-			 * Added holyword & blind with PR's - they seemed to be
-			 * misising before.
-			 * Note: These Spells shouldn't be used. Especially not on players! -AV */
+			/* Don't give them everything, so can't do a simple loop.
+			* Added holyword & blind with PR's - they seemed to be
+			* misising before.
+			* Note: These Spells shouldn't be used. Especially not on players! -AV */
 			if (spell_type == SP_INVULNERABILITY)
 				i = 100;
 			else
@@ -2149,9 +2151,9 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 		case SP_XRAY:
 			SET_FLAG(force, FLAG_XRAYS);
 			break;
-  	}
+	}
 
-  	force->speed_left = -1 - SP_level_strength_adjust(op, caster, spell_type) * 0.1f;
+	force->speed_left = -1 - SP_level_strength_adjust(op, caster, spell_type) * 0.1f;
 
 	if (!is_refresh)
 	{
@@ -2294,7 +2296,7 @@ int summon_pet(object *op, int dir, SpellTypeFrom item)
 				tmp->type = 0;
 			}
 
-			if(head == NULL)
+			if (head == NULL)
 				head = tmp;
 
 			tmp->x = op->x + freearr_x[dir] + tmp->arch->clone.x;
@@ -2369,20 +2371,20 @@ int create_bomb(object *op, object *caster, int dir, int spell_type, char *name)
 
 void animate_bomb(object *op)
 {
-    int i;
-    object *env;
-    archetype *at;
+	int i;
+	object *env;
+	archetype *at;
 
-    if (op->state != NUM_ANIMATIONS(op) - 1)
+	if (op->state != NUM_ANIMATIONS(op) - 1)
 		return;
 
-    at = find_archetype("splint");
-    for (env = op; env->env != NULL; env = env->env);
+	at = find_archetype("splint");
+	for (env = op; env->env != NULL; env = env->env);
 
-    if (op->env)
+	if (op->env)
 	{
-        if (env->map == NULL)
-            return;
+		if (env->map == NULL)
+			return;
 
 		if (env->type == PLAYER)
 			esrv_del_item(CONTR(env), op->count, op->env);
@@ -2393,40 +2395,40 @@ void animate_bomb(object *op)
 
 		if ((op = insert_ob_in_map(op, env->map, op, 0)) == NULL)
 			return;
-    }
+	}
 
-    if (at)
+	if (at)
 		for (i = 1; i < 9; i++)
-	    	fire_arch(op, op, i, at, 0, 0);
+			fire_arch(op, op, i, at, 0, 0);
 
-    explode_object(op);
+	explode_object(op);
 }
 
 int fire_cancellation(object *op, int dir, archetype *at, int magic)
 {
-    object *tmp;
+	object *tmp;
 
-    if (at == NULL)
+	if (at == NULL)
 		return 0;
 
-    tmp = arch_to_object(at);
+	tmp = arch_to_object(at);
 
-    if (tmp == NULL)
+	if (tmp == NULL)
 		return 0;
 
-    tmp->x = op->x, tmp->y = op->y;
-    tmp->direction = dir;
+	tmp->x = op->x, tmp->y = op->y;
+	tmp->direction = dir;
 
-    if (magic)
+	if (magic)
 		tmp->attacktype |= AT_MAGIC;
 
-    if (op->type == PLAYER)
+	if (op->type == PLAYER)
 		set_owner(tmp, op);
 
-    if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) != NULL)
+	if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) != NULL)
 		move_cancellation(tmp);
 
-    return 1;
+	return 1;
 }
 
 void move_cancellation(object *op)
@@ -2490,12 +2492,12 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 	(void) dir;
 	(void) stringarg;
 #if 0
-  	int missile_plus = 0;
-  	char *missile_name;
-  	object *tmp, *missile;
-  	tag_t tag;
+	int missile_plus = 0;
+	char *missile_name;
+	object *tmp, *missile;
+	tag_t tag;
 
-  	missile_name = "arrow";
+	missile_name = "arrow";
 
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
@@ -2508,16 +2510,16 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 		}
 	}
 
-  	if (stringarg)
-    	missile_plus = atoi(stringarg);
+	if (stringarg)
+		missile_plus = atoi(stringarg);
 
-  	if (!stringarg || ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus)) < 0)
-    	missile_plus = spells[SP_CREATE_MISSILE].bdam + SP_level_dam_adjust(op, caster, SP_CREATE_MISSILE);
+	if (!stringarg || ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus)) < 0)
+		missile_plus = spells[SP_CREATE_MISSILE].bdam + SP_level_dam_adjust(op, caster, SP_CREATE_MISSILE);
 
-  	if (missile_plus > 4)
-    	missile_plus = 4;
-  	else if (missile_plus < -4)
-    	missile_plus = -4;
+	if (missile_plus > 4)
+		missile_plus = 4;
+	else if (missile_plus < -4)
+		missile_plus = -4;
 
 	if (find_archetype(missile_name) == NULL)
 	{
@@ -2525,30 +2527,30 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 		return 0;
 	}
 
-  	missile = get_archetype(missile_name);
-  	missile->nrof = spells[SP_CREATE_MISSILE].bdur * ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus));
+	missile = get_archetype(missile_name);
+	missile->nrof = spells[SP_CREATE_MISSILE].bdur * ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus));
 
-  	if (missile->nrof < 1)
-    	missile->nrof = 1;
+	if (missile->nrof < 1)
+		missile->nrof = 1;
 
-  	missile->magic = missile_plus;
+	missile->magic = missile_plus;
 	/* it would be too easy to get money by creating
 	 * arrows +4 and selling them, even with value = 1 */
-  	missile->value = 0;
+	missile->value = 0;
 
-  	SET_FLAG(missile, FLAG_IDENTIFIED);
-  	tag = missile->count;
-  	if (!cast_create_obj(op, caster, missile, dir) && op->type == PLAYER && !was_destroyed(missile, tag))
-  	{
+	SET_FLAG(missile, FLAG_IDENTIFIED);
+	tag = missile->count;
+	if (!cast_create_obj(op, caster, missile, dir) && op->type == PLAYER && !was_destroyed(missile, tag))
+	{
 		tmp = get_owner(op);
 
 		if (!tmp)
 			pick_up(op, missile);
 		else
 			pick_up(tmp, missile);
-  	}
+	}
 #endif
-  	return 1;
+	return 1;
 }
 
 
@@ -2590,16 +2592,16 @@ static void alchemy_object(object *obj, int *small_nuggets, int *large_nuggets, 
 {
 	int	value = (int)query_cost(obj, NULL, F_TRUE);
 
-    if (QUERY_FLAG(obj, FLAG_UNPAID))
+	if (QUERY_FLAG(obj, FLAG_UNPAID))
 		value = 0;
-    else if (obj->type == MONEY || obj->type == GEM || obj->type == TYPE_JEWEL || obj->type == TYPE_NUGGET)
+	else if (obj->type == MONEY || obj->type == GEM || obj->type == TYPE_JEWEL || obj->type == TYPE_NUGGET)
 		value /= 3;
-    else if (QUERY_FLAG(obj, FLAG_UNPAID))
+	else if (QUERY_FLAG(obj, FLAG_UNPAID))
 		value = 0;
-    else
+	else
 		value = (int)((double)value * 0.9);
 
-    if ((obj->value > 0) && rndm(0, 29))
+	if ((obj->value > 0) && rndm(0, 29))
 	{
 #ifdef LOSSY_ALCHEMY
 		int tmp = (value % large->value) / small->value;
@@ -2618,18 +2620,18 @@ static void alchemy_object(object *obj, int *small_nuggets, int *large_nuggets, 
 		*small_nuggets += count;
 		value_store -= count * small->value;
 #endif
-    }
+	}
 
-    if (*small_nuggets * small->value >= large->value)
+	if (*small_nuggets * small->value >= large->value)
 	{
 		(*large_nuggets)++;
 		*small_nuggets -= large->value / small->value;
 		if (*small_nuggets && large->value % small->value)
 			(*small_nuggets)--;
-    }
+	}
 
-    weight += obj->weight;
-    remove_ob(obj);
+	weight += obj->weight;
+	remove_ob(obj);
 }
 
 static void update_map(object *op, int small_nuggets, int large_nuggets, int x, int y)
@@ -2659,7 +2661,7 @@ static void update_map(object *op, int small_nuggets, int large_nuggets, int x, 
 #endif
 
 /* i will changing alchemy. MT */
- /* weight_max = 100000 + 50000*op->level; */
+/* weight_max = 100000 + 50000*op->level; */
 int alchemy(object *op)
 {
 	(void) op;
@@ -2667,15 +2669,15 @@ int alchemy(object *op)
 	int x, y, weight = 0, weight_max, large_nuggets, small_nuggets, did_alc = 0;
 	object *next, *tmp;
 
-  	if (op->type != PLAYER)
-    	return 0;
+	if (op->type != PLAYER)
+		return 0;
 
- 	weight_max = 100000 + 50000 * SK_level(op);
-  	small = get_archetype("smallnugget"),
-  	large = get_archetype("largenugget");
+	weight_max = 100000 + 50000 * SK_level(op);
+	small = get_archetype("smallnugget"),
+			large = get_archetype("largenugget");
 
 #ifdef ALCHEMY
-  	for (y = op->y - 1; y <= op->y + 1; y++)
+	for (y = op->y - 1; y <= op->y + 1; y++)
 	{
 		for (x = op->x - 1; x <= op->x + 1; x++)
 		{
@@ -2693,13 +2695,13 @@ int alchemy(object *op)
 				}
 			}
 		}
-  	}
+	}
 
-  	if (did_alc)
+	if (did_alc)
 		return 1;
 #endif
 
-  	for (y = op->y - 1; y <= op->y + 1; y++)
+	for (y = op->y - 1; y <= op->y + 1; y++)
 	{
 		for (x = op->x - 1; x <= op->x + 1; x++)
 		{
@@ -2738,9 +2740,9 @@ int alchemy(object *op)
 
 			update_map(op, small_nuggets, large_nuggets, x, y);
 		}
-  	}
+	}
 #endif
-  	return 1;
+	return 1;
 }
 
 int remove_depletion(object *op, object *target)
@@ -2789,7 +2791,7 @@ int remove_depletion(object *op, object *target)
 		}
 		remove_ob(depl);
 		fix_player(target);
-    }
+	}
 
 	if (op != target && op->type == PLAYER)
 	{
@@ -2836,7 +2838,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
 
 				CLEAR_FLAG(tmp, FLAG_CURSED);
 
-				if(!QUERY_FLAG(tmp,FLAG_PERM_CURSED))
+				if (!QUERY_FLAG(tmp,FLAG_PERM_CURSED))
 					CLEAR_FLAG(tmp, FLAG_KNOWN_CURSED);
 
 				if (target->type == PLAYER)
@@ -2905,7 +2907,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 	insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		inside_jump1:
+inside_jump1:
 		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED) && !IS_SYS_INVISIBLE(tmp) && need_identify(tmp))
 		{
 			success2++;
@@ -2968,7 +2970,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 	if (op->type == PLAYER && (!success && !success2))
 		new_draw_info(NDI_UNIQUE, 0, op, "You can't reach anything unidentified in your inventory.");
 
-  	return success2;
+	return success2;
 }
 
 /* the routine under this one is the old detect routine - i
@@ -2976,8 +2978,8 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 int cast_detection(object *op, object *target, int type)
 {
 	int nx, ny, suc = FALSE, sucmap = FALSE;
-    object *tmp;
-    mapstruct *m;
+	object *tmp;
+	mapstruct *m;
 
 	switch (type)
 	{
@@ -3002,7 +3004,7 @@ int cast_detection(object *op, object *target, int type)
 			{
 				if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && (!QUERY_FLAG(tmp, FLAG_KNOWN_MAGICAL) && !QUERY_FLAG(tmp, FLAG_IDENTIFIED) && is_magical(tmp)))
 				{
-				    SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
+					SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
 					suc = TRUE;
 					esrv_send_item(target, tmp);
 				}
@@ -3011,14 +3013,14 @@ int cast_detection(object *op, object *target, int type)
 			nx = target->x;
 			ny = target->y;
 
-			if(!(m = out_of_map(target->map, &nx, &ny)))
+			if (!(m = out_of_map(target->map, &nx, &ny)))
 				return 0;
 
 			for (tmp = GET_MAP_OB(m, nx, ny); tmp != NULL; tmp = tmp->above)
 			{
 				if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && (!QUERY_FLAG(tmp, FLAG_KNOWN_MAGICAL) && !QUERY_FLAG(tmp, FLAG_IDENTIFIED) && is_magical(tmp)))
 				{
-				    SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
+					SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
 					suc = TRUE;
 					sucmap = TRUE;
 				}
@@ -3053,7 +3055,7 @@ int cast_detection(object *op, object *target, int type)
 			nx = target->x;
 			ny = target->y;
 
-			if(!(m = out_of_map(target->map, &nx, &ny)))
+			if (!(m = out_of_map(target->map, &nx, &ny)))
 				return 0;
 
 			for (tmp = GET_MAP_OB(m, nx, ny); tmp != NULL; tmp = tmp->above)
@@ -3209,23 +3211,23 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 	(void) dir;
 	(void) spell_effect;
 #if 0
-    object *tmp = NULL;
+	object *tmp = NULL;
 	mapstruct *m;
-    char buf1[20];
-    int xt, yt, putflag = 0;
+	char buf1[20];
+	int xt, yt, putflag = 0;
 
-    if (!dir)
+	if (!dir)
 		dir = op->facing;
-    else
+	else
 		putflag = 1;
 
-    if (blocked(op, op->map, op->x + freearr_x[dir], op->y + freearr_y[dir], op->terrain_flag))
+	if (blocked(op, op->map, op->x + freearr_x[dir], op->y + freearr_y[dir], op->terrain_flag))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Something is in the way.");
 		return 0;
-    }
+	}
 
-    switch (spell_effect)
+	switch (spell_effect)
 	{
 		case SP_BUILD_DIRECTOR:
 			sprintf(buf1, "director_%d", dir);
@@ -3268,38 +3270,38 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(op, caster, spell_effect);
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
-    }
+	}
 
 	if (op->type == PLAYER)
 		set_owner(tmp, op);
 
 	/* so that the spell that the wall casts
 	 * inherit part of the effectiveness of
-  	 * of the wall builder */
-    tmp->level = SK_level(op) / 2;
-    tmp->x = op->x;
+	   * of the wall builder */
+	tmp->level = SK_level(op) / 2;
+	tmp->x = op->x;
 	tmp->y = op->y;
 	xt = tmp->x + freearr_x[dir];
 	yt = tmp->y + freearr_y[dir];
 
-    if (!(m = out_of_map(op->map, &xt, &yt)))
+	if (!(m = out_of_map(op->map, &xt, &yt)))
 		return 0;
 
-    if (putflag)
+	if (putflag)
 	{
 		tmp->x = xt;
 		tmp->y = yt;
-    }
+	}
 
-    if ((tmp = insert_ob_in_map(tmp, m, op, 0)) == NULL)
-        return 1;
+	if ((tmp = insert_ob_in_map(tmp, m, op, 0)) == NULL)
+		return 1;
 
 	/* We don't want them to walk through the wall! */
-    if (!op->type == PLAYER)
+	if (!op->type == PLAYER)
 		SET_FLAG(op, FLAG_SCARED);
 #endif
 
-    return 1;
+	return 1;
 }
 
 /* cast_transfer:  peterm  */
@@ -3312,28 +3314,28 @@ int cast_transfer(object *op, int dir)
 	(void) op;
 	(void) dir;
 #if 0
-    object *plyr = NULL;
+	object *plyr = NULL;
 	mapstruct *m;
 	int xt, yt;
 
 	/* see if we can find someone to give sp to. */
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
-    if ((m = out_of_map(op->map, &xt, &yt)))
+	if ((m = out_of_map(op->map, &xt, &yt)))
 	{
 		for (plyr = get_map_ob(m, xt, yt); plyr != NULL; plyr = plyr->above)
 			if (IS_LIVE(plyr))
-		    	break;
-    }
+				break;
+	}
 
-    /* If we did not find a player in the specified direction, transfer
+	/* If we did not find a player in the specified direction, transfer
 	 * to anyone on top of us. */
-    if (plyr == NULL)
-        for (plyr = get_map_ob(op->map, op->x, op->y); plyr != NULL; plyr = plyr->above)
-	    	if (IS_LIVE(plyr))
+	if (plyr == NULL)
+		for (plyr = get_map_ob(op->map, op->x, op->y); plyr != NULL; plyr = plyr->above)
+			if (IS_LIVE(plyr))
 				break;
 
-    if (plyr)
+	if (plyr)
 	{
 		/* DAMN: added spell strength adjust; higher level casters transfer mana faster */
 		int maxsp = plyr->stats.maxsp;
@@ -3363,10 +3365,10 @@ int cast_transfer(object *op, int dir)
 			new_draw_info(NDI_UNIQUE, 0, plyr, "You start hearing voices.");
 
 		return 1;
-    }
-    else
+	}
+	else
 #endif
-    	return 0;
+		return 0;
 }
 
 /* drain_magic:  peterm  */
@@ -3433,23 +3435,23 @@ int drain_magic(object *op, int dir)
  * explosion objects, and anything else that |= magic.  */
 void counterspell(object *op, int dir)
 {
-    object *tmp;
+	object *tmp;
 	mapstruct *m;
-    int xt, yt, nflag = 0;
+	int xt, yt, nflag = 0;
 
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
-    if (!(m = out_of_map(op->map, &xt, &yt)))
+	if (!(m = out_of_map(op->map, &xt, &yt)))
 		return;
 
-    for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above, nflag = 0)
-    {
+	for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above, nflag = 0)
+	{
 		/* Basially, if the object is magical and not counterspell,
 		 * we will more or less remove the object.  Changed in 0.94.3
 		 * so that we don't kill monsters with this (some monsters attacktype
 		 * has magic in it). */
-       	/* don't attack our own spells */
-       	if (tmp->owner && tmp->owner == op->owner)
+		/* don't attack our own spells */
+		if (tmp->owner && tmp->owner == op->owner)
 			continue;
 
 		if (tmp->material == 0 && tmp->attacktype & AT_MAGIC && !(tmp->attacktype & AT_COUNTERSPELL) && !QUERY_FLAG(tmp, FLAG_MONSTER))
@@ -3481,7 +3483,7 @@ void counterspell(object *op, int dir)
 
 		switch (nflag)
 		{
-	    	case 1:
+			case 1:
 			{
 				if (SK_level(op) > tmp->level)
 				{
@@ -3504,9 +3506,9 @@ void counterspell(object *op, int dir)
 					}
 				}
 				break;
-	    	}
+			}
 		}
-    }
+	}
 }
 
 /* peterm:  function which summons hostile monsters and
@@ -3658,48 +3660,48 @@ int cast_charm_undead(object *op, object *caster, archetype *arch, int spellnum)
  * This returns NULL if no match was found. */
 object *choose_cult_monster(object *pl, object *god, int summon_level)
 {
-    char buf[MAX_BUF], *race;
-    int racenr, mon_nr, i;
-    racelink *list;
-    objectlink *tobl;
-    object *otmp;
+	char buf[MAX_BUF], *race;
+	int racenr, mon_nr, i;
+	racelink *list;
+	objectlink *tobl;
+	object *otmp;
 
-    /* Determine the number of races available */
-    racenr = 0;
-    strcpy(buf, god->race);
-    race = strtok(buf, ",");
-    while (race)
+	/* Determine the number of races available */
+	racenr = 0;
+	strcpy(buf, god->race);
+	race = strtok(buf, ",");
+	while (race)
 	{
 		racenr++;
 		race = strtok(NULL, ",");
-    }
+	}
 
-    /* next, randomly select a race from the aligned_races string */
-    if (racenr > 1)
+	/* next, randomly select a race from the aligned_races string */
+	if (racenr > 1)
 	{
 		racenr = rndm(0, racenr - 1);
 		strcpy(buf, god->race);
-        race = strtok(buf, ",");
-        for (i = 0; i < racenr; i++)
-	     	race = strtok(NULL, ",");
-    }
-    else
-        race = (char *)god->race;
+		race = strtok(buf, ",");
+		for (i = 0; i < racenr; i++)
+			race = strtok(NULL, ",");
+	}
+	else
+		race = (char *)god->race;
 
-    /* see if a we can match a race list of monsters.  This should not
-     * happen, so graceful recovery isn't really needed, but this sanity
-     * checking is good for cases where the god archetypes mismatch the
-     * race file */
-    if ((list = find_racelink(race)) == NULL)
+	/* see if a we can match a race list of monsters.  This should not
+	 * happen, so graceful recovery isn't really needed, but this sanity
+	 * checking is good for cases where the god archetypes mismatch the
+	 * race file */
+	if ((list = find_racelink(race)) == NULL)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, pl, "The spell fails! %s's creatures are beyond the range of your summons.", god->name);
 		LOG(llevDebug, "choose_cult_monster() requested non-existant aligned race!\n");
 		return 0;
-    }
+	}
 
-    /* search for an apprplritate monster on this race list */
-    mon_nr = 0;
-    for (tobl = list->member; tobl; tobl = tobl->next)
+	/* search for an apprplritate monster on this race list */
+	mon_nr = 0;
+	for (tobl = list->member; tobl; tobl = tobl->next)
 	{
 		otmp = tobl->ob;
 
@@ -3708,17 +3710,17 @@ object *choose_cult_monster(object *pl, object *god, int summon_level)
 
 		if (otmp->level <= summon_level)
 			mon_nr++;
-    }
+	}
 
-    /* If this god has multiple race entries, we should really choose another.
-     * But then we either need to track which ones we have tried, or just
-     * make so many calls to this function, and if we get so many without
-     * a valid entry, assuming nothing is available and quit. */
-    if (!mon_nr)
+	/* If this god has multiple race entries, we should really choose another.
+	 * But then we either need to track which ones we have tried, or just
+	 * make so many calls to this function, and if we get so many without
+	 * a valid entry, assuming nothing is available and quit. */
+	if (!mon_nr)
 		return NULL;
 
-    mon_nr = rndm(0, mon_nr - 1);
-    for (tobl = list->member; tobl; tobl = tobl->next)
+	mon_nr = rndm(0, mon_nr - 1);
+	for (tobl = list->member; tobl; tobl = tobl->next)
 	{
 		otmp = tobl->ob;
 
@@ -3727,47 +3729,47 @@ object *choose_cult_monster(object *pl, object *god, int summon_level)
 
 		if (otmp->level <= summon_level && !mon_nr--)
 			return otmp;
-    }
-    /* This should not happen */
-    LOG(llevDebug, "DEBUG: choose_cult_monster() mon_nr was set, but did not find a monster\n");
-    return NULL;
+	}
+	/* This should not happen */
+	LOG(llevDebug, "DEBUG: choose_cult_monster() mon_nr was set, but did not find a monster\n");
+	return NULL;
 }
 
 /* summons a monster - the monster chosen is determined by the god
  * that is worshiiped.  return 0 on failure, 1 on success */
 int summon_cult_monsters(object *op, int old_dir)
 {
-    object *mon, *otmp, *god = find_god(determine_god(op));
-    int tries = 0, i, summon_level, number, dir;
-    char buf[MAX_BUF];
+	object *mon, *otmp, *god = find_god(determine_god(op));
+	int tries = 0, i, summon_level, number, dir;
+	char buf[MAX_BUF];
 
-    /* find deity */
-    if (!god)
+	/* find deity */
+	if (!god)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You worship no living deity!");
 		return 0;
-    }
-	else if(!god->race)
+	}
+	else if (!god->race)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s has no creatures that you may summon!", god->name);
 		return 0;
-    }
+	}
 
-    /* the summon level */
-    i = SK_level(op) + op->stats.Wis / 10;
+	/* the summon level */
+	i = SK_level(op) + op->stats.Wis / 10;
 
-    if (i == 0)
-    	i = 1;
+	if (i == 0)
+		i = 1;
 
-    summon_level = random_roll(0, i - 1, op, PREFER_HIGH);
+	summon_level = random_roll(0, i - 1, op, PREFER_HIGH);
 
-    if (op->path_attuned & PATH_SUMMON)
-    	summon_level += 5;
+	if (op->path_attuned & PATH_SUMMON)
+		summon_level += 5;
 
-    if (op->path_repelled & PATH_SUMMON)
-    	summon_level -= 5;
+	if (op->path_repelled & PATH_SUMMON)
+		summon_level -= 5;
 
-    do
+	do
 	{
 		/* Need to set dir each time, as it may get clobbered */
 		dir = old_dir;
@@ -3802,16 +3804,17 @@ int summon_cult_monsters(object *op, int old_dir)
 			else
 				continue;
 		}
-    } while (dir == -1);
+	}
+	while (dir == -1);
 
-    /* Aha - we have found a monster - lets customize it an put it on the
-     * map. */
-    if (mon->level > (summon_level / 2))
+	/* Aha - we have found a monster - lets customize it an put it on the
+	 * map. */
+	if (mon->level > (summon_level / 2))
 		number = random_roll(1, 2, op, PREFER_HIGH);
-    else
+	else
 		number = die_roll(2, 2, op, PREFER_HIGH);
 
-    for (i = 1; i < number + 1; i++)
+	for (i = 1; i < number + 1; i++)
 	{
 		object *head;
 
@@ -3883,9 +3886,9 @@ int summon_cult_monsters(object *op, int old_dir)
 				return 1;
 			}
 		}
-    }
+	}
 
-    return 1;
+	return 1;
 }
 
 /* summon_avatar() - taken from the code which summons golems. We
@@ -3995,10 +3998,10 @@ int summon_avatar(object *op, object *caster, int dir, archetype *at, int spelln
  * properly for map insertion. */
 object *fix_summon_pet(archetype *at, object *op, int dir, int type)
 {
-    archetype *atmp;
-    object *tmp = NULL, *prev = NULL, *head = NULL;
+	archetype *atmp;
+	object *tmp = NULL, *prev = NULL, *head = NULL;
 
-    for (atmp = at; atmp != NULL; atmp = atmp->more)
+	for (atmp = at; atmp != NULL; atmp = atmp->more)
 	{
 		tmp = arch_to_object(atmp);
 		if (atmp == at)
@@ -4054,63 +4057,63 @@ object *fix_summon_pet(archetype *at, object *op, int dir, int type)
 			tmp->head = head, prev->more = tmp;
 
 		prev = tmp;
-    }
+	}
 
-    head->direction = dir;
+	head->direction = dir;
 
-    /* need to change some monster attr to prevent problems/crashing */
-    if (head->last_heal)
-    	head->last_heal = 0;
+	/* need to change some monster attr to prevent problems/crashing */
+	if (head->last_heal)
+		head->last_heal = 0;
 
-    if (head->last_eat)
-    	head->last_eat = 0;
+	if (head->last_eat)
+		head->last_eat = 0;
 
-    if (head->last_grace)
-    	head->last_grace = 0;
+	if (head->last_grace)
+		head->last_grace = 0;
 
-    if (head->last_sp)
-    	head->last_sp = 0;
+	if (head->last_sp)
+		head->last_sp = 0;
 
-    if (head->attacktype & AT_GHOSTHIT)
-    	head->attacktype = (AT_PHYSICAL | AT_DRAIN);
+	if (head->attacktype & AT_GHOSTHIT)
+		head->attacktype = (AT_PHYSICAL | AT_DRAIN);
 
-    if (head->other_arch)
-    	head->other_arch = NULL;
+	if (head->other_arch)
+		head->other_arch = NULL;
 
-    if (QUERY_FLAG(head, FLAG_CHANGING))
-    	CLEAR_FLAG(head, FLAG_CHANGING);
+	if (QUERY_FLAG(head, FLAG_CHANGING))
+		CLEAR_FLAG(head, FLAG_CHANGING);
 
-    if (QUERY_FLAG(head, FLAG_STAND_STILL))
-    	CLEAR_FLAG(head, FLAG_STAND_STILL);
+	if (QUERY_FLAG(head, FLAG_STAND_STILL))
+		CLEAR_FLAG(head, FLAG_STAND_STILL);
 
-    if (QUERY_FLAG(head, FLAG_GENERATOR))
-    	CLEAR_FLAG(head, FLAG_GENERATOR);
+	if (QUERY_FLAG(head, FLAG_GENERATOR))
+		CLEAR_FLAG(head, FLAG_GENERATOR);
 
-    if (QUERY_FLAG(head, FLAG_SPLITTING))
-    	CLEAR_FLAG(head, FLAG_SPLITTING);
+	if (QUERY_FLAG(head, FLAG_SPLITTING))
+		CLEAR_FLAG(head, FLAG_SPLITTING);
 
-    return head;
+	return head;
 }
 
 /* cast_consecrate() - a spell to make an altar your god's */
 int cast_consecrate(object *op)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    object *tmp, *god = find_god(determine_god(op));
+	object *tmp, *god = find_god(determine_god(op));
 
-    if (!god)
+	if (!god)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You can't consecrate anything if you don't worship a god!");
-        return 0;
-    }
+		return 0;
+	}
 
-    for (tmp = op->below; tmp; tmp = tmp->below)
+	for (tmp = op->below; tmp; tmp = tmp->below)
 	{
 		if (QUERY_FLAG(tmp, FLAG_IS_FLOOR))
 			break;
 
-        if (tmp->type == HOLY_ALTAR)
+		if (tmp->type == HOLY_ALTAR)
 		{
 			/* We use SK_level here instead of path_level mod because I think
 			 * all the gods should give equal chance of re-consecrating altars */
@@ -4134,10 +4137,10 @@ int cast_consecrate(object *op)
 				return 1;
 			}
 		}
-    }
+	}
 
-    new_draw_info(NDI_UNIQUE, 0, op, "You are not standing over an altar!");
-    return 0;
+	new_draw_info(NDI_UNIQUE, 0, op, "You are not standing over an altar!");
+	return 0;
 }
 
 /* finger_of_death() - boss high-level cleric spell. */
@@ -4452,14 +4455,14 @@ int cast_daylight(object *op)
 {
 	(void) op;
 
-  	return 0;
+	return 0;
 }
 
 int cast_nightfall(object *op)
 {
 	(void) op;
 
-  	return 0;
+	return 0;
 }
 
 /* cast_faery_fire() - this spell primary purpose is to light

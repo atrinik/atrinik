@@ -64,11 +64,11 @@ NewSocket *init_sockets;
  * client. */
 void InitConnection(NewSocket *ns, uint32 from)
 {
-    SockList sl;
-    unsigned char buf[256];
-    int	bufsize = SOCKETBUFSIZE;
-    int oldbufsize;
-    socklen_t buflen = sizeof(int);
+	SockList sl;
+	unsigned char buf[256];
+	int	bufsize = SOCKETBUFSIZE;
+	int oldbufsize;
+	socklen_t buflen = sizeof(int);
 
 #ifdef WIN32
 	int temp = 1;
@@ -76,40 +76,40 @@ void InitConnection(NewSocket *ns, uint32 from)
 	if (ioctlsocket(ns->fd, FIONBIO , &temp) == -1)
 		LOG(llevDebug, "InitConnection:  Error on ioctlsocket.\n");
 #else
-    if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
+	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
 		LOG(llevDebug, "InitConnection:  Error on fcntl.\n");
 #endif
 
-    if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen) == -1)
+	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen) == -1)
 		oldbufsize = 0;
 
-    if (oldbufsize < bufsize)
+	if (oldbufsize < bufsize)
 	{
 		/*LOG(llevDebug, "InitConnection: Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);*/
 		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&bufsize, sizeof(&bufsize)))
 			LOG(llevDebug, "InitConnection: setsockopt unable to set output buf size to %d\n", bufsize);
-    }
+	}
 
-    buflen = sizeof(oldbufsize);
-    getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen);
+	buflen = sizeof(oldbufsize);
+	getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen);
 #ifdef ESRV_DEBUG
-    LOG(llevDebug, "InitConnection: Socket buffer size now %d bytes\n", oldbufsize);
+	LOG(llevDebug, "InitConnection: Socket buffer size now %d bytes\n", oldbufsize);
 #endif
 
 	ns->login_count = 0;
 	ns->addme = 0;
-    ns->faceset = 0;
-    ns->facecache = 0;
-    ns->image2 = 0;
-    ns->sound = 0;
-    ns->ext_title_flag = 1;
-    ns->map2cmd = 0;
-    ns->darkness = 1;
-    ns->status = Ns_Add;
-    ns->mapx = 17;
-    ns->mapy = 17;
-    ns->mapx_2 = 8;
-    ns->mapy_2 = 8;
+	ns->faceset = 0;
+	ns->facecache = 0;
+	ns->image2 = 0;
+	ns->sound = 0;
+	ns->ext_title_flag = 1;
+	ns->map2cmd = 0;
+	ns->darkness = 1;
+	ns->status = Ns_Add;
+	ns->mapx = 17;
+	ns->mapy = 17;
+	ns->mapx_2 = 8;
+	ns->mapy_2 = 8;
 	ns->version = 0;
 	ns->setup = 0;
 	ns->rf_settings = 0;
@@ -119,43 +119,43 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->rf_hfiles = 0;
 	ns->rf_bmaps = 0;
 
-    /* we should really do some checking here - if total clients overflows
-     * we need to do something more intelligent, because client id's will start
-     * duplicating (not likely in normal cases, but malicous attacks that
-     * just open and close connections could get this total up. */
-    ns->inbuf.len = 0;
-    ns->inbuf.buf = malloc(MAXSOCKBUF);
+	/* we should really do some checking here - if total clients overflows
+	 * we need to do something more intelligent, because client id's will start
+	 * duplicating (not likely in normal cases, but malicous attacks that
+	 * just open and close connections could get this total up. */
+	ns->inbuf.len = 0;
+	ns->inbuf.buf = malloc(MAXSOCKBUF);
 
-    /* Basic initialization. Needed because we do a check in
-     * HandleClient for oldsocketmode without checking the
-     * length of data. */
-    ns->inbuf.buf[0] = 0;
-    memset(&ns->lastmap, 0, sizeof(struct Map));
-    memset(&ns->stats, 0, sizeof(struct statsinfo));
+	/* Basic initialization. Needed because we do a check in
+	 * HandleClient for oldsocketmode without checking the
+	 * length of data. */
+	ns->inbuf.buf[0] = 0;
+	memset(&ns->lastmap, 0, sizeof(struct Map));
+	memset(&ns->stats, 0, sizeof(struct statsinfo));
 
-    /* Do this so we don't send a face command for the client for
-     * this face.  Face 0 is sent to the client to say clear
-     * face information. */
-    /*ns->faces_sent[0] = 1;*/
+	/* Do this so we don't send a face command for the client for
+	 * this face.  Face 0 is sent to the client to say clear
+	 * face information. */
+	/*ns->faces_sent[0] = 1;*/
 
-    ns->outputbuffer.start = 0;
-    ns->outputbuffer.len = 0;
-    ns->can_write = 1;
-    ns->sent_scroll = 0;
+	ns->outputbuffer.start = 0;
+	ns->outputbuffer.len = 0;
+	ns->can_write = 1;
+	ns->sent_scroll = 0;
 
-    sprintf((char*)buf, "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
-    ns->host = strdup_local((char*)buf);
-    sprintf((char*)buf, "X%d %d %s\n", VERSION_CS, VERSION_SC, VERSION_INFO);
+	sprintf((char*)buf, "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
+	ns->host = strdup_local((char*)buf);
+	sprintf((char*)buf, "X%d %d %s\n", VERSION_CS, VERSION_SC, VERSION_INFO);
 	buf[0] = BINARY_CMD_VERSION;
-    sl.buf = buf;
-    sl.len = strlen((char*)buf);
-    Send_With_Handling(ns, &sl);
+	sl.buf = buf;
+	sl.len = strlen((char*)buf);
+	Send_With_Handling(ns, &sl);
 
 #ifdef CS_LOGSTATS
-    if (socket_info.nconns > cst_tot.max_conn)
+	if (socket_info.nconns > cst_tot.max_conn)
 		cst_tot.max_conn = socket_info.nconns;
 
-    if (socket_info.nconns > cst_lst.max_conn)
+	if (socket_info.nconns > cst_lst.max_conn)
 		cst_lst.max_conn = socket_info.nconns;
 #endif
 }
@@ -163,18 +163,18 @@ void InitConnection(NewSocket *ns, uint32 from)
 /* This sets up the socket and reads all the image information into memory. */
 void init_ericserver()
 {
-    struct sockaddr_in	insock;
-    struct linger linger_opt;
+	struct sockaddr_in	insock;
+	struct linger linger_opt;
 
 #ifndef WIN32
-    struct protoent *protox;
+	struct protoent *protox;
 #ifdef HAVE_SYSCONF
-  	socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
+	socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
 #else
 #  ifdef HAVE_GETDTABLESIZE
-  	socket_info.max_filedescriptor = getdtablesize();
+	socket_info.max_filedescriptor = getdtablesize();
 #  else
-  "Unable to find usable function to get max filedescriptors";
+	"Unable to find usable function to get max filedescriptors";
 #  endif
 #endif
 
@@ -187,66 +187,66 @@ void init_ericserver()
 	WSAStartup(0x0101, &w);
 #endif
 
-    socket_info.timeout.tv_sec = 0;
-    socket_info.timeout.tv_usec = 0;
-    socket_info.nconns = 0;
+	socket_info.timeout.tv_sec = 0;
+	socket_info.timeout.tv_usec = 0;
+	socket_info.nconns = 0;
 
 #ifdef CS_LOGSTATS
-    memset(&cst_tot, 0, sizeof(CS_Stats));
-    memset(&cst_lst, 0, sizeof(CS_Stats));
-    cst_tot.time_start = time(NULL);
-    cst_lst.time_start = time(NULL);
+	memset(&cst_tot, 0, sizeof(CS_Stats));
+	memset(&cst_lst, 0, sizeof(CS_Stats));
+	cst_tot.time_start = time(NULL);
+	cst_lst.time_start = time(NULL);
 #endif
 
-    LOG(llevDebug, "Initialize new client/server data\n");
-    socket_info.nconns = 1;
-    init_sockets = malloc(sizeof(NewSocket));
-    socket_info.allocated_sockets = 1;
+	LOG(llevDebug, "Initialize new client/server data\n");
+	socket_info.nconns = 1;
+	init_sockets = malloc(sizeof(NewSocket));
+	socket_info.allocated_sockets = 1;
 
 #ifndef WIN32
-    protox = getprotobyname("tcp");
-    if (protox == NULL)
+	protox = getprotobyname("tcp");
+	if (protox == NULL)
 	{
 		LOG(llevBug, "BUG: init_ericserver: Error getting protox\n");
 		return;
-    }
-    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+	}
+	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
 #else
 	/* there was reported problems under windows using the protox
 	 * struct - IPPROTO_TCP should fix it. */
-    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
-    if (init_sockets[0].fd == -1)
+	if (init_sockets[0].fd == -1)
 		LOG(llevError, "ERROR: Error creating socket on port\n");
 
-    insock.sin_family = AF_INET;
-    insock.sin_port = htons(settings.csport);
-    insock.sin_addr.s_addr = htonl(INADDR_ANY);
+	insock.sin_family = AF_INET;
+	insock.sin_port = htons(settings.csport);
+	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    linger_opt.l_onoff = 0;
-    linger_opt.l_linger = 0;
-    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
+	linger_opt.l_onoff = 0;
+	linger_opt.l_linger = 0;
+	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 		LOG(llevBug, "BUG: Error on setsockopt LINGER\n");
 
 	/* Would be nice to have an autoconf check for this.  It appears that
- 	 * these functions are both using the same calling syntax, just one
- 	 * of them needs extra valus passed. */
+	  * these functions are both using the same calling syntax, just one
+	  * of them needs extra valus passed. */
 #if !defined(_WEIRD_OS_) /* means is true for most (win32, linux, etc. ) */
-    {
+	{
 		int tmp = 1;
 
 		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)&tmp, sizeof(tmp)))
 			LOG(llevDebug, "error on setsockopt REUSEADDR\n");
-    }
+	}
 #else
-    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)NULL, 0))
+	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)NULL, 0))
 		LOG(llevDebug, "error on setsockopt REUSEADDR\n");
 
 #endif
 
-    if (bind(init_sockets[0].fd,(struct sockaddr *)&insock,sizeof(insock)) == (-1))
+	if (bind(init_sockets[0].fd,(struct sockaddr *)&insock,sizeof(insock)) == (-1))
 	{
 #ifdef WIN32
 		shutdown(init_sockets[0].fd, SD_BOTH);
@@ -255,9 +255,9 @@ void init_ericserver()
 		close(init_sockets[0].fd);
 #endif
 		LOG(llevError, "Error on bind command.\n");
-    }
+	}
 
-    if (listen(init_sockets[0].fd, 5) == (-1))
+	if (listen(init_sockets[0].fd, 5) == (-1))
 	{
 #ifdef WIN32
 		shutdown(init_sockets[0].fd,SD_BOTH);
@@ -266,10 +266,10 @@ void init_ericserver()
 		close(init_sockets[0].fd);
 #endif
 		LOG(llevError, "Error on listen.\n");
-    }
+	}
 
-    init_sockets[0].status = Ns_Wait;
-    read_client_images();
+	init_sockets[0].status = Ns_Wait;
+	read_client_images();
 	/* load all srv_xxx files or generate them */
 	init_srv_files();
 }
@@ -282,9 +282,9 @@ void init_ericserver()
 /* Free's all the memory that ericserver allocates. */
 void free_all_newserver()
 {
-    LOG(llevDebug, "Freeing all new client/server information.\n");
-    free_socket_images();
-    free(init_sockets);
+	LOG(llevDebug, "Freeing all new client/server information.\n");
+	free_socket_images();
+	free(init_sockets);
 }
 
 /* basically, all we need to do here is free all data structures that
@@ -294,32 +294,32 @@ void free_newsocket(NewSocket *ns)
 {
 #ifdef WIN32
 	shutdown(ns->fd,SD_BOTH);
-    if (closesocket(ns->fd))
+	if (closesocket(ns->fd))
 	{
 #else
-    if (close(ns->fd))
+	if (close(ns->fd))
 	{
 #endif
 
 #ifdef ESRV_DEBUG
 		LOG(llevDebug, "Error closing socket %d\n", ns->fd);
 #endif
-    }
+	}
 
-    if (ns->stats.range)
+	if (ns->stats.range)
 		free(ns->stats.range);
 
-    if (ns->stats.ext_title)
-        free(ns->stats.ext_title);
+	if (ns->stats.ext_title)
+		free(ns->stats.ext_title);
 
-    if (ns->stats.title)
-        free(ns->stats.title);
+	if (ns->stats.title)
+		free(ns->stats.title);
 
 	if (ns->host)
-	    free(ns->host);
+		free(ns->host);
 
-    if (ns->inbuf.buf)
-	    free(ns->inbuf.buf);
+	if (ns->inbuf.buf)
+		free(ns->inbuf.buf);
 
 	memset(ns, 0, sizeof(ns));
 }
@@ -328,15 +328,15 @@ void free_newsocket(NewSocket *ns)
  * as frontend we must serve our depending client files self. */
 static void load_srv_files(char *fname, int id, int cmd)
 {
-    FILE *fp;
+	FILE *fp;
 	char *file_tmp, *comp_tmp;
 	int flen;
 	unsigned long numread;
 	struct stat statbuf;
 
-    LOG(llevDebug,"Loading %s...", fname);
+	LOG(llevDebug,"Loading %s...", fname);
 
-    if ((fp = fopen(fname, "rb")) == NULL)
+	if ((fp = fopen(fname, "rb")) == NULL)
 		LOG(llevError, "\nERROR: Can not open file %s\n", fname);
 
 	fstat (fileno (fp), &statbuf);
@@ -377,31 +377,31 @@ static void load_srv_files(char *fname, int id, int cmd)
 	free(comp_tmp);
 
 	LOG(llevDebug, "(size: %d (%d) (crc uncomp.: %x)\n", SrvClientFiles[id].len_ucomp, numread, SrvClientFiles[id].crc);
-    fclose(fp);
+	fclose(fp);
 }
 
 /* get the /lib/settings default file and create the
  * /data/client_settings with it. */
 static void create_client_settings(void)
 {
-    char buf[MAX_BUF * 4];
+	char buf[MAX_BUF * 4];
 	int i;
 	FILE *fset_default, *fset_create;
 
 	LOG(llevDebug, "Creating %s/client_settings...\n", settings.localdir);
 
-    /* open default */
+	/* open default */
 	sprintf(buf, "%s/client_settings", settings.datadir);
 
-    if ((fset_default = fopen(buf, "rb")) == NULL)
+	if ((fset_default = fopen(buf, "rb")) == NULL)
 		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
 
 	/* delete our target - we create it new now */
-    sprintf(buf, "%s/client_settings", settings.localdir);
+	sprintf(buf, "%s/client_settings", settings.localdir);
 	unlink(buf);
 
 	/* open target client_settings */
-    if ((fset_create = fopen(buf, "wb")) == NULL)
+	if ((fset_create = fopen(buf, "wb")) == NULL)
 	{
 		fclose(fset_default);
 		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
@@ -465,7 +465,7 @@ static void create_help_files(void)
  * the server at startup out of the Atrinik png file. */
 void init_srv_files(void)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
@@ -473,20 +473,20 @@ void init_srv_files(void)
 	sprintf(buf, "%s/hfiles", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
 
-    sprintf(buf, "%s/animations", settings.datadir);
+	sprintf(buf, "%s/animations", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_ANIMS, DATA_CMD_ANIM_LIST);
 
-    sprintf(buf, "%s/client_bmaps", settings.localdir);
+	sprintf(buf, "%s/client_bmaps", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_BMAPS, DATA_CMD_BMAP_LIST);
 
-    sprintf(buf, "%s/client_skills", settings.datadir);
+	sprintf(buf, "%s/client_skills", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_SKILLS, DATA_CMD_SKILL_LIST);
 
-    sprintf(buf, "%s/client_spells", settings.datadir);
+	sprintf(buf, "%s/client_spells", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_SPELLS, DATA_CMD_SPELL_LIST);
 
 	create_client_settings();
-    sprintf(buf, "%s/client_settings", settings.localdir);
+	sprintf(buf, "%s/client_settings", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_SETTINGS, DATA_CMD_SETTINGS_LIST);
 }
 
@@ -501,9 +501,9 @@ void send_srv_file(NewSocket *ns, int id)
 	sl.buf = (unsigned char *) SrvClientFiles[id].file;
 
 	if (SrvClientFiles[id].len != -1)
-	    sl.len = SrvClientFiles[id].len + 2;
+		sl.len = SrvClientFiles[id].len + 2;
 	else
-	    sl.len = SrvClientFiles[id].len_ucomp + 2;
+		sl.len = SrvClientFiles[id].len_ucomp + 2;
 
-    Send_With_Handling(ns, &sl);
+	Send_With_Handling(ns, &sl);
 }

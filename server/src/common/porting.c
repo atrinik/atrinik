@@ -66,46 +66,47 @@ static unsigned int curtmp = 0;
  * at some unix variants. */
 char *tempnam_local(char *dir, char *pfx)
 {
-    char *f, *name;
-    pid_t pid = getpid();
+	char *f, *name;
+	pid_t pid = getpid();
 
-    if (!(name = (char *) malloc(MAXPATHLEN)))
+	if (!(name = (char *) malloc(MAXPATHLEN)))
 		return NULL;
 
-    if (!pfx)
+	if (!pfx)
 		pfx = "cftmp.";
 
-    /* This is a pretty simple method - put the pid as a hex digit and
-     * just keep incrementing the last digit.  Check to see if the file
-     * already exists - if so, we'll just keep looking - eventually we should
-     * find one that is free. */
-    if ((f = (char *)dir) != NULL)
+	/* This is a pretty simple method - put the pid as a hex digit and
+	 * just keep incrementing the last digit.  Check to see if the file
+	 * already exists - if so, we'll just keep looking - eventually we should
+	 * find one that is free. */
+	if ((f = (char *)dir) != NULL)
 	{
 		do
 		{
 #ifdef HAVE_SNPRINTF
-	    	(void)snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", f, pfx, pid, curtmp);
+			(void)snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", f, pfx, pid, curtmp);
 #else
-	    	(void)sprintf(name, "%s/%s%hx%d", f, pfx, pid, curtmp);
+			(void)sprintf(name, "%s/%s%hx%d", f, pfx, pid, curtmp);
 #endif
-	    	curtmp++;
-		} while (access(name, F_OK) != -1);
+			curtmp++;
+		}
+		while (access(name, F_OK) != -1);
 
 		return name;
-    }
+	}
 
-  	return NULL;
+	return NULL;
 }
 
 /* This function removes everything in the directory. */
 void remove_directory(const char *path)
 {
-    DIR *dirp;
-    char buf[MAX_BUF];
-    struct stat statbuf;
-    int status;
+	DIR *dirp;
+	char buf[MAX_BUF];
+	struct stat statbuf;
+	int status;
 
-    if ((dirp = opendir(path)) != NULL)
+	if ((dirp = opendir(path)) != NULL)
 	{
 		struct dirent *de;
 
@@ -134,9 +135,9 @@ void remove_directory(const char *path)
 		}
 
 		closedir(dirp);
-    }
+	}
 
-    if (unlink(path))
+	if (unlink(path))
 		LOG(llevBug, "BUG: Unable to remove directory %s\n", path);
 }
 
@@ -207,9 +208,9 @@ FILE *popen_local(const char *command, const char *type)
  * unix variants. */
 char *strdup_local(const char *str)
 {
-  	char *c = (char *)malloc(sizeof(char) * (strlen(str) + 1));
-  	strcpy(c, str);
-  	return c;
+	char *c = (char *)malloc(sizeof(char) * (strlen(str) + 1));
+	strcpy(c, str);
+	return c;
 }
 
 #define DIGIT(x)        (isdigit(x) ? (x) - '0' : \
@@ -344,9 +345,9 @@ int strcasecmp(char *s1, char*s2)
 char *strerror_local(int errnum)
 {
 #if defined(HAVE_STRERROR)
-    return strerror(errnum);
+	return strerror(errnum);
 #else
-    return "strerror_local not implemented";
+	return "strerror_local not implemented";
 #endif
 }
 
@@ -376,9 +377,9 @@ int isqrt(int n)
  * of the decimal number given will be stored. */
 char *ltostr10(signed long n)
 {
-  	static char buf[10];
-  	char *cp = buf + 9;
-  	long flag;
+	static char buf[10];
+	char *cp = buf + 9;
+	long flag;
 
 	*cp = '\0';
 
@@ -391,7 +392,8 @@ char *ltostr10(signed long n)
 	{
 		*(--cp) = '0' + n % 10;
 		n /= 10;
-	} while (n);
+	}
+	while (n);
 
 	if (flag)
 		*(--cp) = '-';
@@ -419,11 +421,12 @@ void save_long(char *buf, char *name, long n)
  * that needs to be done is to extended this.
  * The first entry must be NULL - this is what is used for non
  * compressed files. */
-char *uncomp[NROF_COMPRESS_METHODS][3] = {
-    {NULL, 		NULL, 		NULL},
-    {".Z", 		UNCOMPRESS, COMPRESS},
-    {".gz", 	GUNZIP, 	GZIP},
-    {".bz2",	BUNZIP, 	BZIP}
+char *uncomp[NROF_COMPRESS_METHODS][3] =
+{
+	{NULL, 		NULL, 		NULL},
+	{".Z", 		UNCOMPRESS, COMPRESS},
+	{".gz", 	GUNZIP, 	GZIP},
+	{".bz2",	BUNZIP, 	BZIP}
 };
 
 /* open_and_uncompress() first searches for the original filename.
@@ -445,12 +448,12 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 	char buf[MAX_BUF], buf2[MAX_BUF], *bufend;
 	int try_once = 0;
 
-  	strcpy(buf, name);
-  	bufend = buf + strlen(buf);
+	strcpy(buf, name);
+	bufend = buf + strlen(buf);
 
 	/*LOG(llevDebug, "open_and_uncompress(%s)\n", name);*/
 
-  	/* strip off any compression prefixes that may exist */
+	/* strip off any compression prefixes that may exist */
 	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
 	{
 		if ((uncomp[*compressed][0]) && (!strcmp(uncomp[*compressed][0], bufend - strlen(uncomp[*compressed][0]))))
@@ -460,21 +463,21 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 		}
 	}
 
-  	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
+	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
 	{
 		struct stat statbuf;
 
-    	if (uncomp[*compressed][0])
-        	strcpy(bufend, uncomp[*compressed][0]);
-    	if (stat(buf, &statbuf))
+		if (uncomp[*compressed][0])
+			strcpy(bufend, uncomp[*compressed][0]);
+		if (stat(buf, &statbuf))
 		{
 
 			/*LOG(llevDebug, "Failed to stat %s\n", buf);*/
-      		continue;
-    	}
+			continue;
+		}
 		/*LOG(llevDebug, "Found file %s\n", buf);*/
 
-    	if (uncomp[*compressed][0])
+		if (uncomp[*compressed][0])
 		{
 			strcpy(buf2, uncomp[*compressed][1]);
 			strcat(buf2, " < ");
@@ -508,7 +511,7 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 
 			if ((fp = popen(buf2, "r")) != NULL)
 				return fp;
-    	}
+		}
 		else if ((fp = fopen(name, "r")) != NULL)
 		{
 			struct stat statbuf;
@@ -521,34 +524,34 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 				return NULL;
 			}
 			return fp;
-    	}
-  	}
+		}
+	}
 
-  	LOG(llevDebug, "Can't open %s\n", name);
-  	return NULL;
+	LOG(llevDebug, "Can't open %s\n", name);
+	return NULL;
 }
 
 /* See open_and_uncompress(). */
 void close_and_delete(FILE *fp, int compressed)
 {
-  	if (compressed)
-    	pclose(fp);
-  	else
-    	fclose(fp);
+	if (compressed)
+		pclose(fp);
+	else
+		fclose(fp);
 }
 
 /* If any directories in the given path doesn't exist, they are created. */
 void make_path_to_file(char *filename)
 {
-    char buf[MAX_BUF], *cp = buf;
-    struct stat statbuf;
+	char buf[MAX_BUF], *cp = buf;
+	struct stat statbuf;
 
-    if (!filename || !*filename)
+	if (!filename || !*filename)
 		return;
 
-    strcpy(buf, filename);
-    LOG(llevDebug, "make_path_tofile %s...", filename);
-    while ((cp = strchr (cp + 1, (int) '/')))
+	strcpy(buf, filename);
+	LOG(llevDebug, "make_path_tofile %s...", filename);
+	while ((cp = strchr (cp + 1, (int) '/')))
 	{
 		*cp = '\0';
 #if 0
@@ -563,14 +566,14 @@ void make_path_to_file(char *filename)
 				return;
 			}
 #if 0
-	    	LOG(llevDebug, "Made dir.");
+			LOG(llevDebug, "Made dir.");
 		}
 		else
-	    	LOG(llevDebug, "Was dir");
+			LOG(llevDebug, "Was dir");
 #else
 		}
 #endif
 		*cp = '/';
-    }
-    LOG(llevDebug, "\n");
+	}
+	LOG(llevDebug, "\n");
 }

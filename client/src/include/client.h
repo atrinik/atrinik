@@ -77,7 +77,8 @@ typedef struct screensize
 
 extern struct screensize *Screensize;
 
-typedef struct Animations {
+typedef struct Animations
+{
 	/* 0 = all fields are invalid, 1 = anim is loaded */
 	int loaded;
 
@@ -94,7 +95,8 @@ typedef struct Animations {
 	uint8 flags;
 } Animations;
 
-typedef struct _anim_table {
+typedef struct _anim_table
+{
 	/* Length of anim_cmd data */
 	int len;
 
@@ -107,7 +109,8 @@ extern _anim_table anim_table[MAXANIM];
 extern Animations animations[MAXANIM];
 
 /* Contains the base information we use to make up a packet we want to send. */
-typedef struct SockList {
+typedef struct SockList
+{
 	int len;
 	unsigned char *buf;
 } SockList;
@@ -115,7 +118,8 @@ typedef struct SockList {
 /* ClientSocket could probably hold more of the global values - it could
  * probably hold most all socket/communication related values instead
  * of globals. */
-typedef struct ClientSocket {
+typedef struct ClientSocket
+{
 	/* Typedef your socket type to SOCKET */
 	SOCKET fd;
 	SockList inbuf;
@@ -133,7 +137,8 @@ typedef struct ClientSocket {
 
 extern ClientSocket csocket;
 
-typedef enum Input_State {
+typedef enum Input_State
+{
 	Playing,
 	Reply_One,
 	Reply_Many,
@@ -142,7 +147,8 @@ typedef enum Input_State {
 	Metaserver_Select
 } Input_State;
 
-typedef enum rangetype {
+typedef enum rangetype
+{
 	range_bottom = -1,
 	range_none = 0,
 	range_bow = 1,
@@ -155,7 +161,8 @@ typedef enum rangetype {
 	range_size = 8
 } rangetype;
 
-typedef struct Stat_struct {
+typedef struct Stat_struct
+{
 	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
 
 	/* Weapon Class and Armour Class */
@@ -202,7 +209,8 @@ typedef struct Stat_struct {
 	sint16 protection[20];
 
 	/* Resistant value has changed */
-	uint32 protection_change:1;
+uint32 protection_change:
+	1;
 
 	/* Level and experience totals for */
 	sint16 skill_level[MAX_SKILL];
@@ -211,12 +219,14 @@ typedef struct Stat_struct {
 	sint32 skill_exp[MAX_SKILL];
 } Stats;
 
-typedef enum _inventory_win {
+typedef enum _inventory_win
+{
 	IWIN_BELOW,
 	IWIN_INV
 }_inventory_win;
 
-typedef struct Player_Struct {
+typedef struct Player_Struct
+{
 	/* Player object */
 	item *ob;
 
@@ -292,25 +302,33 @@ typedef struct Player_Struct {
 	float action_timer;
 
 	/* If true, don't echo keystrokes */
-	uint32 no_echo:1;
+uint32 no_echo:
+	1;
 
 	/* True if fire key is pressed = action key (ALT;CTRL) */
-	uint32 fire_on:1;
+uint32 fire_on:
+	1;
 
 	/* True if run key is on = action key (ALT;CTRL) */
-	uint32 run_on:1;
+uint32 run_on:
+	1;
 
-	uint32 resize_twin:1;
-	uint32 resize_twin_marker:1;
+uint32 resize_twin:
+	1;
+uint32 resize_twin_marker:
+	1;
 
 	/* True if fire key is pressed = permanent mode */
-	uint32 firekey_on:1;
+uint32 firekey_on:
+	1;
 
 	/* True if run key is pressed = permanent mode */
-	uint32 runkey_on:1;
+uint32 runkey_on:
+	1;
 
 	/* If true, echo the command that the key */
-	uint32 echo_bindings:1;
+uint32 echo_bindings:
+	1;
 
 	float window_weight;
 	float real_weight;

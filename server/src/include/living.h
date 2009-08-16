@@ -78,7 +78,8 @@ extern uint32 weight_limit[MAX_STAT + 1];
 /** Mostly used by "alive" objects, but also by other
  * objects like gates, buttons, waypoints and a number
  * of other objects.*/
-typedef struct liv {
+typedef struct liv
+{
 	/** Experience. */
 	sint32 exp;
 

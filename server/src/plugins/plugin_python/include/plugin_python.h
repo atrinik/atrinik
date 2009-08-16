@@ -150,22 +150,24 @@ extern int StackReturn[MAX_RECURSIVE_CALL];
 extern char *StackOptions[MAX_RECURSIVE_CALL];
 
 /* Type used for numeric constants */
-typedef struct {
-    char *name;
-    int value;
+typedef struct
+{
+	char *name;
+	int value;
 } Atrinik_Constant;
 
 /* Types used in objects and maps structs */
-typedef enum {
-    FIELDTYPE_SHSTR, /* Pointer to shared string */
-    FIELDTYPE_CSTR,  /* Pointer to C string */
-    FIELDTYPE_CARY,  /* C string (array directly in struct) */
-    FIELDTYPE_UINT8, FIELDTYPE_SINT8,
-    FIELDTYPE_UINT16, FIELDTYPE_SINT16,
-    FIELDTYPE_UINT32, FIELDTYPE_SINT32,
-    FIELDTYPE_FLOAT,
-    FIELDTYPE_OBJECT, FIELDTYPE_MAP,
-    FIELDTYPE_OBJECTREF /* object pointer + tag */
+typedef enum
+{
+	FIELDTYPE_SHSTR, /* Pointer to shared string */
+	FIELDTYPE_CSTR,  /* Pointer to C string */
+	FIELDTYPE_CARY,  /* C string (array directly in struct) */
+	FIELDTYPE_UINT8, FIELDTYPE_SINT8,
+	FIELDTYPE_UINT16, FIELDTYPE_SINT16,
+	FIELDTYPE_UINT32, FIELDTYPE_SINT32,
+	FIELDTYPE_FLOAT,
+	FIELDTYPE_OBJECT, FIELDTYPE_MAP,
+	FIELDTYPE_OBJECTREF /* object pointer + tag */
 } field_type;
 
 /* Special flags for object attribute access */
@@ -179,9 +181,10 @@ extern PyTypeObject Atrinik_ObjectType;
 extern PyObject *wrap_object(object *what);
 extern int Atrinik_Object_init(PyObject *module);
 
-typedef struct {
-    PyObject_HEAD
-    object *obj; /* Pointer to the Atrinik object we wrap */
+typedef struct
+{
+	PyObject_HEAD
+	object *obj; /* Pointer to the Atrinik object we wrap */
 } Atrinik_Object;
 
 /* Public AtrinikMap related functions and types */
@@ -190,9 +193,10 @@ extern PyTypeObject Atrinik_MapType;
 extern PyObject *wrap_map(mapstruct *map);
 extern int Atrinik_Map_init(PyObject *module);
 
-typedef struct {
-    PyObject_HEAD
-    mapstruct *map;  /* Pointer to the Atrinik map we wrap */
+typedef struct
+{
+	PyObject_HEAD
+	mapstruct *map;  /* Pointer to the Atrinik map we wrap */
 } Atrinik_Map;
 
 /*****************************************************************************/
@@ -209,9 +213,9 @@ extern MODULEAPI int cmd_customPython(object *op, char *params);
 /* This structure is used to define one python-implemented crossfire command.*/
 typedef struct PythonCmdStruct
 {
-    char *name;    /* The name of the command, as known in the game.    */
-    char *script;  /* The name of the script file to bind.              */
-    double speed;   /* The speed of the command execution.                   */
+	char *name;    /* The name of the command, as known in the game.    */
+	char *script;  /* The name of the script file to bind.              */
+	double speed;   /* The speed of the command execution.                   */
 } PythonCmd;
 
 /* This plugin allows up to 1024 custom commands.                            */

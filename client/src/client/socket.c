@@ -53,7 +53,8 @@ int read_socket(int fd, SockList *sl, int len)
 		do
 		{
 			stat = read(fd, sl->buf + sl->len, 3 - sl->len);
-		} while ((stat == -1) && (errno == EINTR));
+		}
+		while ((stat == -1) && (errno == EINTR));
 #endif
 
 		if (stat < 0)
@@ -129,7 +130,8 @@ int read_socket(int fd, SockList *sl, int len)
 		do
 		{
 			stat = read(fd, sl->buf + sl->len, toread);
-		} while ((stat < 0) && (errno == EINTR));
+		}
+		while ((stat < 0) && (errno == EINTR));
 #endif
 
 		if (stat < 0)
@@ -174,7 +176,8 @@ int read_socket(int fd, SockList *sl, int len)
 
 			return -1;
 		}
-	} while (toread > 0);
+	}
+	while (toread > 0);
 
 	return 0;
 }
@@ -196,7 +199,8 @@ int write_socket(int fd, unsigned char *buf, int len)
 		do
 		{
 			amt = write(fd, pos, len);
-		} while ((amt < 0) && (errno == EINTR));
+		}
+		while ((amt < 0) && (errno == EINTR));
 #endif
 
 #ifdef __WIN_32

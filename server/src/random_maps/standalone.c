@@ -35,40 +35,43 @@
 #include <random_map.h>
 #include <rproto.h>
 
-int main(int argc, char *argv[]) {
-  char InFileName[1024],OutFileName[1024];
-  mapstruct *newMap;
-  RMParms rp;
-  FILE *fp;
+int main(int argc, char *argv[])
+{
+	char InFileName[1024],OutFileName[1024];
+	mapstruct *newMap;
+	RMParms rp;
+	FILE *fp;
 
-  if(argc < 3) {
-    printf("\nUsage:  %s inputfile outputfile\n",argv[0]);
-    exit(0);
-  }
-  strcpy(InFileName,argv[1]);
-  strcpy(OutFileName,argv[2]);
+	if (argc < 3)
+	{
+		printf("\nUsage:  %s inputfile outputfile\n",argv[0]);
+		exit(0);
+	}
+	strcpy(InFileName,argv[1]);
+	strcpy(OutFileName,argv[2]);
 
-  init_globals();
-  init_library();
-  init_archetypes();
-  init_artifacts();
-  init_formulae();
-  init_readable();
+	init_globals();
+	init_library();
+	init_archetypes();
+	init_artifacts();
+	init_formulae();
+	init_readable();
 
-  init_gods();
-  memset(&rp, 0, sizeof(RMParms));
-  rp.generate_treasure_now=1;
-  rp.Xsize=-1;
-  rp.Ysize=-1;
-  if ((fp=fopen(InFileName, "r"))==NULL) {
-    fprintf(stderr,"\nError: can not open %s\n", InFileName);
-    exit(1);
-  }
-  load_parameters(fp, LO_NEWFILE, &rp);
-  fclose(fp);
-  newMap = generate_random_map(OutFileName, &rp);
-  new_save_map(newMap,1);
-  exit(0);
+	init_gods();
+	memset(&rp, 0, sizeof(RMParms));
+	rp.generate_treasure_now=1;
+	rp.Xsize=-1;
+	rp.Ysize=-1;
+	if ((fp=fopen(InFileName, "r"))==NULL)
+	{
+		fprintf(stderr,"\nError: can not open %s\n", InFileName);
+		exit(1);
+	}
+	load_parameters(fp, LO_NEWFILE, &rp);
+	fclose(fp);
+	newMap = generate_random_map(OutFileName, &rp);
+	new_save_map(newMap,1);
+	exit(0);
 }
 
 void set_map_timeout() {}   /* doesn't need to do anything */
@@ -78,39 +81,43 @@ void set_map_timeout() {}   /* doesn't need to do anything */
 
 /* some plagarized code from apply.c--I needed just these two functions
 without all the rest of the junk, so.... */
-int auto_apply (object *op) {
-  object *tmp = NULL;
-  int i;
+int auto_apply (object *op)
+{
+	object *tmp = NULL;
+	int i;
 
-  switch(op->type) {
-  case SHOP_FLOOR:
-    if (op->randomitems==NULL) return 0;
-    do {
-      i=10; /* let's give it 10 tries */
-      while((tmp=generate_treasure(op->randomitems,op->map == NULL ?  op->stats.exp: op->map->difficulty))==NULL&&--i);
-      if(tmp==NULL)
-	  return 0;
-      if(QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
-      {
-        free_object(tmp);
-        tmp = NULL;
-      }
-    } while(!tmp);
+	switch (op->type)
+	{
+		case SHOP_FLOOR:
+			if (op->randomitems==NULL) return 0;
+			do
+			{
+				i=10; /* let's give it 10 tries */
+				while ((tmp=generate_treasure(op->randomitems,op->map == NULL ?  op->stats.exp: op->map->difficulty))==NULL&&--i);
+				if (tmp==NULL)
+					return 0;
+				if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
+				{
+					free_object(tmp);
+					tmp = NULL;
+				}
+			}
+			while (!tmp);
 
-    tmp->x=op->x,tmp->y=op->y;
-    SET_FLAG(tmp,FLAG_UNPAID);
-    insert_ob_in_map(tmp,op->map,NULL,0);
-    CLEAR_FLAG(op,FLAG_AUTO_APPLY);
-    identify(tmp);
-    break;
+			tmp->x=op->x,tmp->y=op->y;
+			SET_FLAG(tmp,FLAG_UNPAID);
+			insert_ob_in_map(tmp,op->map,NULL,0);
+			CLEAR_FLAG(op,FLAG_AUTO_APPLY);
+			identify(tmp);
+			break;
 
-  case TREASURE:
-      create_treasure(op->randomitems, op, GT_ENVIRONMENT,
-	op->map == NULL ?  op->stats.exp: op->map->difficulty,T_STYLE_UNSET, ART_CHANCE_UNSET, 0,NULL);
-    remove_ob(op);
-    break;
-  }
+		case TREASURE:
+			create_treasure(op->randomitems, op, GT_ENVIRONMENT,
+							op->map == NULL ?  op->stats.exp: op->map->difficulty,T_STYLE_UNSET, ART_CHANCE_UNSET, 0,NULL);
+			remove_ob(op);
+			break;
+	}
 
-  return tmp ? 1 : 0;
+	return tmp ? 1 : 0;
 }
 

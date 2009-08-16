@@ -38,7 +38,8 @@
 
 /* Item structure keeps all information what player
  * (= client) knows about items in its inventory */
-typedef struct item_struct {
+typedef struct item_struct
+{
 	/* Next item in inventory */
 	struct item_struct *next;
 

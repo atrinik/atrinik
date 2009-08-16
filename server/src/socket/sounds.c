@@ -35,27 +35,27 @@
 
 void play_sound_player_only(player *pl, int soundnum, int soundtype, int x, int y)
 {
-    SockList sl;
+	SockList sl;
 	char buf[32];
 
 	/* player has disabled sound */
-    if (!pl->socket.sound)
+	if (!pl->socket.sound)
 		return;
 
-    sl.buf = (unsigned char *) buf;
+	sl.buf = (unsigned char *) buf;
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
 
 #if 0
-    strcpy((char*)sl.buf, "sound ");
-    sl.len = strlen((char*)sl.buf);
+	strcpy((char*)sl.buf, "sound ");
+	sl.len = strlen((char*)sl.buf);
 #endif
 
-    SockList_AddChar(&sl, (char)x);
-    SockList_AddChar(&sl, (char)y);
-    SockList_AddShort(&sl, (uint16)soundnum);
-    SockList_AddChar(&sl, (char)soundtype);
-    Send_With_Handling(&pl->socket, &sl);
+	SockList_AddChar(&sl, (char)x);
+	SockList_AddChar(&sl, (char)y);
+	SockList_AddShort(&sl, (uint16)soundnum);
+	SockList_AddChar(&sl, (char)soundtype);
+	Send_With_Handling(&pl->socket, &sl);
 }
 
 /* Plays some sound on map at x, y using a distance counter.

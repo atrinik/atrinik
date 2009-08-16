@@ -44,7 +44,8 @@
 _server_level server_level;
 
 /** ID's of the player doll items */
-typedef enum _player_doll_enum {
+typedef enum _player_doll_enum
+{
 	PDOLL_ARMOUR,
 	PDOLL_HELM,
 	PDOLL_GIRDLE,
@@ -67,7 +68,8 @@ typedef enum _player_doll_enum {
 }_player_doll_enum;
 
 /** Player doll item position structure */
-typedef struct _player_doll_pos {
+typedef struct _player_doll_pos
+{
 	/** X position */
 	int xpos;
 
@@ -76,7 +78,8 @@ typedef struct _player_doll_pos {
 }_player_doll_pos;
 
 /** Player doll item positions */
-_player_doll_pos player_doll[PDOLL_INIT] = {
+_player_doll_pos player_doll[PDOLL_INIT] =
+{
 	{93,	55},
 	{93,	8},
 	{93,	100},
@@ -96,7 +99,8 @@ _player_doll_pos player_doll[PDOLL_INIT] = {
 };
 
 /** Weapon speed table */
-static float weapon_speed_table[19] = {
+static float weapon_speed_table[19] =
+{
 	20.0f, 	18.0f, 	10.0f, 	8.0f, 	5.5f,
 	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
 	2.15f,	1.95f,	1.80f, 	1.60f, 	1.52f,
@@ -948,13 +952,13 @@ void widget_show_skill_exp(int x, int y)
 		{
 			switch (options.expDisplay)
 			{
-				/* Default */
+					/* Default */
 				default:
 				case 0:
 					snprintf(buf, sizeof(buf), "%s", cpl.skill_name);
 					break;
 
-				/* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
+					/* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
 				case 1:
 				case 2:
 				case 3:
@@ -984,18 +988,18 @@ void widget_show_skill_exp(int x, int y)
 
 			switch (options.expDisplay)
 			{
-				/* Default */
+					/* Default */
 				default:
 				case 0:
-					if(skill_list[cpl.skill_g].entry[cpl.skill_e].exp >=0)
+					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >=0)
 						snprintf(buf, sizeof(buf), "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
-					else if(skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
+					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
 						snprintf(buf, sizeof(buf), "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
 					else
 						snprintf(buf, sizeof(buf), "** / **");
 					break;
 
-				/* LExp% */
+					/* LExp% */
 				case 1:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 						snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
@@ -1003,7 +1007,7 @@ void widget_show_skill_exp(int x, int y)
 						snprintf(buf, sizeof(buf), "**.**%%");
 					break;
 
-				/* LExp/LExp tnl */
+					/* LExp/LExp tnl */
 				case 2:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 						snprintf(buf, sizeof(buf), "%ld / %ld", liLExp, liLExpTNL);
@@ -1011,7 +1015,7 @@ void widget_show_skill_exp(int x, int y)
 						snprintf(buf, sizeof(buf), "** / **");
 					break;
 
-				/* TExp/TExp tnl */
+					/* TExp/TExp tnl */
 				case 3:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 						snprintf(buf, sizeof(buf), "%ld / %ld", liTExp, liTExpTNL);
@@ -1019,7 +1023,7 @@ void widget_show_skill_exp(int x, int y)
 						snprintf(buf, sizeof(buf), "** / **");
 					break;
 
-				/* (LExp%) LExp/LExp tnl */
+					/* (LExp%) LExp/LExp tnl */
 				case 4:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 						snprintf(buf, sizeof(buf), "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);

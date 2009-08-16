@@ -32,34 +32,35 @@
  * ATNR_... is the attack number that is indexed into the
  * the resist array in the object structure. */
 
-typedef enum _protections {
+typedef enum _protections
+{
 	/* = impact: we use physical intern */
-    PROTECT_PHYSICAL,
-    PROTECT_SLASH,
-    PROTECT_CLEAVE,
-    PROTECT_PIERCE,
-    PROTECT_WEAPON_MAGIC,
+	PROTECT_PHYSICAL,
+	PROTECT_SLASH,
+	PROTECT_CLEAVE,
+	PROTECT_PIERCE,
+	PROTECT_WEAPON_MAGIC,
 
-    PROTECT_FIRE,
-    PROTECT_COLD,
-    PROTECT_ELECTRICITY,
-    PROTECT_POISON,
-    PROTECT_ACID,
+	PROTECT_FIRE,
+	PROTECT_COLD,
+	PROTECT_ELECTRICITY,
+	PROTECT_POISON,
+	PROTECT_ACID,
 
-    PROTECT_MAGIC,
-    PROTECT_MIND,
-    PROTECT_BODY,
-    PROTECT_PSIONIC,
-    PROTECT_FORCE,
+	PROTECT_MAGIC,
+	PROTECT_MIND,
+	PROTECT_BODY,
+	PROTECT_PSIONIC,
+	PROTECT_FORCE,
 
-    PROTECT_NETHER,
-    PROTECT_CHAOS,
-    PROTECT_DEATH,
-    PROTECT_SPIRITUAL,
-    PROTECT_CORRUPTION,
+	PROTECT_NETHER,
+	PROTECT_CHAOS,
+	PROTECT_DEATH,
+	PROTECT_SPIRITUAL,
+	PROTECT_CORRUPTION,
 
 	/* marker - must be last value */
-    NROFPROTECTIONS
+	NROFPROTECTIONS
 }_protections;
 
 #define NROFATTACKS		32
@@ -151,14 +152,16 @@ extern char *protection_save[NROFPROTECTIONS];
 extern char *protection_name[NROFPROTECTIONS];
 #else
 
-EXTERN char *protection_save[NROFPROTECTIONS] = {
-    "impact", 	"slash", 	"cleave", 		"pierce", 		"weapon_magic",
-    "fire", 	"cold", 	"electricity", 	"poison", 		"acid",
-    "magic", 	"mind", 	"body", 		"psionic", 		"force",
-    "nether", 	"chaos", 	"death", 		"spiritual", 	"corruption"
+EXTERN char *protection_save[NROFPROTECTIONS] =
+{
+	"impact", 	"slash", 	"cleave", 		"pierce", 		"weapon_magic",
+	"fire", 	"cold", 	"electricity", 	"poison", 		"acid",
+	"magic", 	"mind", 	"body", 		"psionic", 		"force",
+	"nether", 	"chaos", 	"death", 		"spiritual", 	"corruption"
 };
 
-EXTERN char *protection_name[NROFPROTECTIONS] = {
+EXTERN char *protection_name[NROFPROTECTIONS] =
+{
 	"impact", 	"slash", 	"cleave", 		"pierce", 		"weapon magic",
 	"fire", 	"cold", 	"electricity", 	"poison", 		"acid",
 	"magic", 	"mind", 	"body", 		"psionic", 		"force",
@@ -167,7 +170,8 @@ EXTERN char *protection_name[NROFPROTECTIONS] = {
 
 /* Beware, names require an _ if there is a space, else they will be read
  * as for example: resist_life stealing 50! */
-EXTERN char *resist_save[NROFATTACKS] = {
+EXTERN char *resist_save[NROFATTACKS] =
+{
 	"impact", 		"magic", 		"fire", 		"electricity", 	"cold", 		"confusion",
 	"acid",			"drain", 		"weaponmagic", 	"ghosthit", 	"poison", 		"slow",
 	"paralyze",		"time", 		"fear", 		"cancellation", "depletion",	"death",
@@ -177,7 +181,8 @@ EXTERN char *resist_save[NROFATTACKS] = {
 };
 
 /* Short description of names of the attacktypes */
-EXTERN char *attacktype_desc[NROFATTACKS] = {
+EXTERN char *attacktype_desc[NROFATTACKS] =
+{
 	"impact", 		"magic", 		"fire", 		"electricity", 	"cold", 		"confusion",
 	"acid", 		"drain", 		"weapon magic", "ghost hit", 	"poison", 		"slow",
 	"paralyze", 	"time", 		"fear", 		"cancellation", "depletion", 	"death",
@@ -187,7 +192,8 @@ EXTERN char *attacktype_desc[NROFATTACKS] = {
 };
 
 /* This is the array that is what the player sees. */
-EXTERN char *resist_plus[NROFATTACKS] = {
+EXTERN char *resist_plus[NROFATTACKS] =
+{
 	"resist impact", 		"resist magic", 	"resist fire", 		"resist electricity",
 	"resist cold",			"resist confusion", "resist acid", 		"resist drain",
 	"resist weaponmagic", 	"resist ghosthit", 	"resist poison", 	"resist slow",
@@ -200,7 +206,8 @@ EXTERN char *resist_plus[NROFATTACKS] = {
 
 /* These are the descriptions of the resistances displayed when a
  * player puts on/takes off an item. See change_abil() in living.c. */
-EXTERN char *change_resist_msg[NROFATTACKS] = {
+EXTERN char *change_resist_msg[NROFATTACKS] =
+{
 	"impact", 		"magic", 		"fire", 		"electricity", 	"cold", 		"confusion",
 	"acid",			"drain", 		"weapon magic", "ghosthit", 	"poison", 		"slow",
 	"paralyze", 	"time", 		"fear", 		"cancellation", "depletion", 	"death",
@@ -213,7 +220,8 @@ EXTERN char *change_resist_msg[NROFATTACKS] = {
 /* If you want to weight things so certain resistances show up more often than
  * others, just add more entries in the table for the protections you want to
  * show up. */
-EXTERN int resist_table[] = {
+EXTERN int resist_table[] =
+{
 	ATNR_SLASH,			ATNR_CLEAVE,			ATNR_PIERCE,			ATNR_PHYSICAL,
 	ATNR_MAGIC,			ATNR_FIRE ,				ATNR_ELECTRICITY,		ATNR_COLD,
 	ATNR_CONFUSION,		ATNR_ACID,				ATNR_DRAIN,				ATNR_GHOSTHIT,

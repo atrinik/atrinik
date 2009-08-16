@@ -12,10 +12,10 @@
 
 static inline const char *add_string_hook(const char *stxt)
 {
-    CFParm* CFR;
+	CFParm* CFR;
 
 	GCFP.Value[0] = (void *)(stxt);
-    CFR=(PlugHooks[HOOK_ADDSTRING])(&GCFP);
+	CFR=(PlugHooks[HOOK_ADDSTRING])(&GCFP);
 
 	return (const char *)CFR->Value[0];
 }
@@ -24,17 +24,17 @@ static inline const char *add_string_hook(const char *stxt)
 static inline void free_string_hook(const char *stxt)
 {
 	GCFP.Value[0] = (void *)(stxt);
-    (PlugHooks[HOOK_FREESTRING])(&GCFP);
+	(PlugHooks[HOOK_FREESTRING])(&GCFP);
 }
 
 static inline void fix_player_hook(object *fp1)
 {
-	if(fp1->type == PLAYER)
+	if (fp1->type == PLAYER)
 	{
 		GCFP.Value[0] = (void *)(fp1);
 		(PlugHooks[HOOK_FIXPLAYER])(&GCFP);
 	}
-	else if(IS_LIVE(fp1))
+	else if (IS_LIVE(fp1))
 	{
 		/* if needed we should insert here fix monster! */
 	}
@@ -42,11 +42,11 @@ static inline void fix_player_hook(object *fp1)
 
 static inline object *insert_ob_in_ob_hook(object *ob1, object *ob2)
 {
-    CFParm* CFR;
+	CFParm* CFR;
 
 	GCFP.Value[0] = (void *)(ob1);
 	GCFP.Value[1] = (void *)(ob2);
-    CFR=(PlugHooks[HOOK_INSERTOBJECTINOB])(&GCFP);
+	CFR=(PlugHooks[HOOK_INSERTOBJECTINOB])(&GCFP);
 
 	return (object *)CFR->Value[0];
 }

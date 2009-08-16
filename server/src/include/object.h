@@ -109,11 +109,11 @@ typedef struct obj
 	/** Unique object number for this object */
 	tag_t count;
 
-    /* These get an extra add_refcount(), after having been copied by memcpy().
-     * All fields beow this point are automatically copied by memcpy.  If
-     * adding something that needs a refcount updated, make sure you modify
-     * copy_object to do so.  Everything below here also gets cleared
-     * by clear_object() */
+	/* These get an extra add_refcount(), after having been copied by memcpy().
+	 * All fields beow this point are automatically copied by memcpy.  If
+	 * adding something that needs a refcount updated, make sure you modify
+	 * copy_object to do so.  Everything below here also gets cleared
+	 * by clear_object() */
 
 	/** The name of the object, obviously... */
 	const char *name;
@@ -255,10 +255,10 @@ typedef struct obj
 	sint16 last_eat;
 
 	/** An index into the animation array */
-    uint16 animation_id;
+	uint16 animation_id;
 
 	/** An index into the animation array for the client inv */
-    uint16 inv_animation_id;
+	uint16 inv_animation_id;
 
 	/** Object is a light source */
 	sint8 glow_radius;
@@ -312,7 +312,7 @@ typedef struct obj
 	sint8 move_status;
 
 	/** What kind of movement */
-    uint8 move_type;
+	uint8 move_type;
 
 	/** What kind of attack movement */
 	uint8 attack_move_type;
@@ -336,7 +336,7 @@ typedef struct obj
 	sint8 anim_last_facing_last;
 
 	/** Animation speed in ticks */
-    uint8 anim_speed;
+	uint8 anim_speed;
 
 	/** Ticks between animation-frames */
 	uint8 last_anim;
@@ -403,7 +403,7 @@ typedef struct obj
 #endif
 
 	/** Type-dependant extra data. */
-    void *custom_attrset;
+	void *custom_attrset;
 
 	/** Quickslot ID this object goes in */
 	uint8 quickslot;
@@ -414,27 +414,29 @@ typedef struct obj
 #endif
 
 /** Used to link together several objects */
-typedef struct oblnk {
+typedef struct oblnk
+{
 	/** Object */
-  	object *ob;
+	object *ob;
 
 	/** Next object in this list */
-  	struct oblnk *next;
+	struct oblnk *next;
 
 	/** Object ID */
-  	tag_t id;
+	tag_t id;
 } objectlink;
 
 /** Used to link together several object links */
-typedef struct oblinkpt {
+typedef struct oblinkpt
+{
 	/** Link */
-  	struct oblnk *link;
+	struct oblnk *link;
 
 	/** Used as connected value in buttons/gates */
-  	long value;
+	long value;
 
 	/** Next entry */
-  	struct oblinkpt *next;
+	struct oblinkpt *next;
 } oblinkpt;
 
 /** List of active objects */
@@ -511,14 +513,15 @@ extern object *active_objects;
 /** Minimalistic memory management data for a single chunk of memory
  * It is (currently) up to the application to keep track of which pool
  * it belongs to. */
-struct mempool_chunk {
-    /* This struct must always be padded for longword alignment of the data coming behind it.
-     * Not a problem as long as we only keep a single pointer here, but be careful
-     * if adding more data. */
+struct mempool_chunk
+{
+	/* This struct must always be padded for longword alignment of the data coming behind it.
+	 * Not a problem as long as we only keep a single pointer here, but be careful
+	 * if adding more data. */
 
 	/** Used for the free list and the limbo list. NULL if this
 	 * memory chunk has been allocated and is in use */
-    struct mempool_chunk *next;
+	struct mempool_chunk *next;
 
 #ifdef MEMPOOL_OBJECT_TRACKING
 	/** Previous mempool object */
@@ -545,62 +548,65 @@ typedef void (* chunk_constructor) (void *ptr);
 typedef void (* chunk_destructor) (void *ptr);
 
 /** Data for a single memory pool */
-struct mempool {
+struct mempool
+{
 	/** First free chunk */
-    struct mempool_chunk *first_free;
+	struct mempool_chunk *first_free;
 
 	/** How many chunks to allocate at each expansion */
-    uint32 expand_size;
+	uint32 expand_size;
 
 	/** Size of chunks, excluding sizeof(mempool_chunk) and padding */
-    uint32 chunksize;
+	uint32 chunksize;
 
 	/** Number of used */
-    uint32 nrof_used;
+	uint32 nrof_used;
 
 	/** Number of free */
 	uint32 nrof_free;
 
 	/** Optional constructor to be called when getting chunks */
-    chunk_constructor constructor;
+	chunk_constructor constructor;
 
 	/** Optional destructor to be called when returning chunks */
-    chunk_destructor destructor;
+	chunk_destructor destructor;
 
 	/** Description of chunks. Mostly for debugging */
-    char *chunk_description;
+	char *chunk_description;
 
 	/** Spacial handling flags. See definitions below */
-    uint32 flags;
+	uint32 flags;
 
 	/** First puddle info */
-    struct puddle_info *first_puddle_info;
+	struct puddle_info *first_puddle_info;
 };
 
 #ifdef MEMPOOL_TRACKING
 /** Mempool information structure */
-struct puddle_info {
+struct puddle_info
+{
 	/** Next puddle info */
-    struct puddle_info *next;
+	struct puddle_info *next;
 
 	/** First chunk */
-    struct mempool_chunk *first_chunk;
+	struct mempool_chunk *first_chunk;
 
-    /** Local freelist only for this puddle. Temporary used when freeing memory*/
-    struct mempool_chunk *first_free, *last_free;
+	/** Local freelist only for this puddle. Temporary used when freeing memory*/
+	struct mempool_chunk *first_free, *last_free;
 
 	/** Number of free */
-    uint32 nrof_free;
+	uint32 nrof_free;
 };
 #endif
 
-typedef enum {
+typedef enum
+{
 #ifdef MEMPOOL_TRACKING
-    POOL_PUDDLE,
+	POOL_PUDDLE,
 #endif
-    POOL_OBJECT,
-    POOL_PLAYER,
-    NROF_MEMPOOLS
+	POOL_OBJECT,
+	POOL_PLAYER,
+	NROF_MEMPOOLS
 } mempool_id;
 
 /* Get the memory management struct for a chunk of memory */

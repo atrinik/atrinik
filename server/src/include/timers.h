@@ -76,9 +76,9 @@
 
 typedef struct _cftimer
 {
-    int mode;
-    long delay;
-    object* ob;
+	int mode;
+	long delay;
+	object* ob;
 } cftimer;
 
 #define MAX_TIMERS 1000

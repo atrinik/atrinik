@@ -61,7 +61,7 @@ static int friendly_list_count = 0;
  * No checking to see if the object is already in the linked list is done. */
 void add_friendly_object(object *op)
 {
-    objectlink *ol;
+	objectlink *ol;
 
 	/* only add senseful here - give a note ... i use it as info -
 	 * this will change when we chain the friendly list to maps  */
@@ -77,33 +77,33 @@ void add_friendly_object(object *op)
 	if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_FRIENDLY))
 		return;
 
-    /* Add some error checking.  This shouldn't happen, but the friendly
-     * object list usually isn't very long, and remove_friendly_object
-     * won't remove it either.  Plus, it is easier to put a breakpoint in
-     * the debugger here and see where the problem is happening. */
-    for (ol = first_friendly_object; ol != NULL; ol = ol->next)
+	/* Add some error checking.  This shouldn't happen, but the friendly
+	 * object list usually isn't very long, and remove_friendly_object
+	 * won't remove it either.  Plus, it is easier to put a breakpoint in
+	 * the debugger here and see where the problem is happening. */
+	for (ol = first_friendly_object; ol != NULL; ol = ol->next)
 	{
 		if (ol->ob == op)
 		{
-		    LOG(llevBug, "BUG: (bad bug!) add_friendly_object: Trying to add object already on list (%s)\n", query_name(op, NULL));
-		    return;
+			LOG(llevBug, "BUG: (bad bug!) add_friendly_object: Trying to add object already on list (%s)\n", query_name(op, NULL));
+			return;
 		}
-    }
+	}
 
 	friendly_list_count++;
 	/*LOG(llevDebug, "DEBUG: add f_obj %s (c:%d).\n", query_name(op, NULL), friendly_list_count);*/
 
 	ol = first_friendly_object;
-    first_friendly_object = get_objectlink();
-    first_friendly_object->ob = op;
-    first_friendly_object->id = op->count;
-    first_friendly_object->next = ol;
+	first_friendly_object = get_objectlink();
+	first_friendly_object->ob = op;
+	first_friendly_object->id = op->count;
+	first_friendly_object->next = ol;
 }
 
 /* Removes the specified object from the linked list of friendly objects. */
 void remove_friendly_object(object *op)
 {
-    objectlink *this;
+	objectlink *this;
 
 	/* only add senseful here - give a note ... i use it as info -
 	 * this will change when we chain the friendly list to maps */
@@ -119,22 +119,22 @@ void remove_friendly_object(object *op)
 	if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_FRIENDLY))
 		return;
 
-    CLEAR_FLAG(op, FLAG_FRIENDLY);
-    if (!first_friendly_object)
+	CLEAR_FLAG(op, FLAG_FRIENDLY);
+	if (!first_friendly_object)
 	{
 		LOG(llevBug, "BUG: remove_friendly_object called with empty friendly list, remove ob=%s\n", query_name(op, NULL));
 		return;
-    }
+	}
 
-    /* if the first object happens to be the one, processing is pretty
-     * easy.
-     */
-    if (first_friendly_object->ob == op)
+	/* if the first object happens to be the one, processing is pretty
+	 * easy.
+	 */
+	if (first_friendly_object->ob == op)
 	{
 		this = first_friendly_object;
 		first_friendly_object = this->next;
 		free(this);
-    }
+	}
 	else
 	{
 		objectlink *prev = first_friendly_object;
@@ -157,7 +157,7 @@ void remove_friendly_object(object *op)
 			prev->next = this->next;
 			free(this);
 		}
-    }
+	}
 
 	friendly_list_count--;
 	/*LOG(llevDebug, "DEBUG: remove f_obj %s (c:%d).\n", query_name(op, NULL), friendly_list_count);*/
@@ -166,9 +166,9 @@ void remove_friendly_object(object *op)
 /* Dumps all friendly objects. */
 void dump_friendly_objects()
 {
-    objectlink *ol;
+	objectlink *ol;
 
-    for (ol = first_friendly_object; ol != NULL; ol = ol->next)
+	for (ol = first_friendly_object; ol != NULL; ol = ol->next)
 		LOG(llevInfo, "%s (count: %d)\n", query_name(ol->ob, NULL), ol->ob->count);
 }
 
@@ -177,9 +177,9 @@ void dump_friendly_objects()
  * (ie, do not have friendly flag set, freed, etc) */
 void clean_friendly_list()
 {
-    objectlink *this_link, *prev = NULL, *next;
+	objectlink *this_link, *prev = NULL, *next;
 
-    for (this_link = first_friendly_object; this_link != NULL; this_link = next)
+	for (this_link = first_friendly_object; this_link != NULL; this_link = next)
 	{
 		next=this_link->next;
 		if (!OBJECT_VALID(this_link->ob, this_link->id) || (!QUERY_FLAG(this_link->ob, FLAG_FRIENDLY) && this_link->ob->type != PLAYER))
@@ -195,5 +195,5 @@ void clean_friendly_list()
 		/* If we removed the object, then prev is still valid.  */
 		else
 			prev = this_link;
-    }
+	}
 }

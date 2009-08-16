@@ -30,7 +30,8 @@
 #include <include.h>
 
 /** Party GUI tabs */
-static char *party_tabs[] = {
+static char *party_tabs[] =
+{
 	"List", 	"Who",
 	"Leave",	"Password"
 };
@@ -43,24 +44,24 @@ void switch_tabs()
 
 	switch (gui_interface_party->tab)
 	{
-		/* List tab */
+			/* List tab */
 		case PARTY_TAB_LIST:
 			sprintf(buf, "pt list");
 			cs_write_string(csocket.fd, buf, strlen(buf));
 			break;
 
-		/* Who tab */
+			/* Who tab */
 		case PARTY_TAB_WHO:
 			sprintf(buf, "pt who");
 			cs_write_string(csocket.fd, buf, strlen(buf));
 			break;
 
-		/* Leave tab */
+			/* Leave tab */
 		case PARTY_TAB_LEAVE:
 			sprintf(gui_interface_party->command, "askleave");
 			break;
 
-		/* Password tab */
+			/* Password tab */
 		case PARTY_TAB_PASSWORD:
 			sprintf(gui_interface_party->command, "askpassword");
 			break;

@@ -27,7 +27,8 @@
 #define __COMMANDS_H
 
 #define DATA_PACKED_CMD 0x80
-enum {
+enum
+{
 	DATA_CMD_NO,
 	DATA_CMD_SKILL_LIST,
 	DATA_CMD_SPELL_LIST,

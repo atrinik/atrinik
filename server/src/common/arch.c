@@ -71,23 +71,23 @@ archetype *find_archetype_by_object_name(const char *name)
  * - a corresponding object if found; a singularity object if not found. */
 object *get_archetype_by_object_name(const char *name)
 {
-    archetype *at;
-    char tmpname[MAX_BUF];
-    int i;
+	archetype *at;
+	char tmpname[MAX_BUF];
+	int i;
 
-    strncpy(tmpname, name, MAX_BUF - 1);
-    tmpname[MAX_BUF - 1] = 0;
+	strncpy(tmpname, name, MAX_BUF - 1);
+	tmpname[MAX_BUF - 1] = 0;
 
-    for (i = strlen(tmpname); i > 0; i--)
+	for (i = strlen(tmpname); i > 0; i--)
 	{
 		tmpname[i] = 0;
-        at = find_archetype_by_object_name(tmpname);
+		at = find_archetype_by_object_name(tmpname);
 
-        if (at != NULL)
-	    	return arch_to_object(at);
-    }
+		if (at != NULL)
+			return arch_to_object(at);
+	}
 
-    return create_singularity(name);
+	return create_singularity(name);
 }
 
 /* get the skill object of skill nr. x.
@@ -95,13 +95,13 @@ object *get_archetype_by_object_name(const char *name)
  * if ever skills are defined in artifacts file, add it here. */
 archetype *get_skill_archetype(int skillnr)
 {
-  	archetype *at;
+	archetype *at;
 
-  	for (at = first_archetype; at != NULL; at = at->next)
-  	{
-        if (at->clone.type == SKILL && at->clone.stats.sp == skillnr)
+	for (at = first_archetype; at != NULL; at = at->next)
+	{
+		if (at->clone.type == SKILL && at->clone.stats.sp == skillnr)
 			return at;
-  	}
+	}
 
 	return NULL;
 }
@@ -124,12 +124,12 @@ archetype *get_skill_archetype(int skillnr)
  * Last, make a check on the full name. */
 int item_matched_string(object *pl, object *op, const char *name)
 {
-   	char *cp, local_name[MAX_BUF];
-   	int count, retval = 0;
+	char *cp, local_name[MAX_BUF];
+	int count, retval = 0;
 	/* strtok is destructive to name */
 	strcpy(local_name, name);
 
-   	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
+	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
 	{
 		/* get rid of spaces */
 		while (cp[0] == ' ')
@@ -214,9 +214,9 @@ int item_matched_string(object *pl, object *op, const char *name)
 				CONTR(pl)->count = count;
 			return retval;
 		}
-   	}
+	}
 
-   return 0;
+	return 0;
 }
 
 /* Initialises the internal linked list of archetypes (read from file).
@@ -227,8 +227,8 @@ int item_matched_string(object *pl, object *op, const char *name)
 void init_archetypes()
 {
 	/* Only do this once */
-  	if (first_archetype != NULL)
-    	return;
+	if (first_archetype != NULL)
+		return;
 
 	arch_init = 1;
 	load_archetypes();
@@ -244,32 +244,32 @@ void init_archetypes()
  * used for archetypes has been in the static errmsg array. */
 void arch_info(object *op)
 {
-  	sprintf(errmsg, "%d searches and %d strcmp()'s", arch_search, arch_cmp);
-  	(*draw_info_func)(NDI_WHITE, 0, op, errmsg);
+	sprintf(errmsg, "%d searches and %d strcmp()'s", arch_search, arch_cmp);
+	(*draw_info_func)(NDI_WHITE, 0, op, errmsg);
 }
 
 /* Initialise the hashtable used by the archetypes. */
 void clear_archetable()
 {
-  	memset((void *) arch_table, 0, ARCHTABLE * sizeof(archetype *));
+	memset((void *) arch_table, 0, ARCHTABLE * sizeof(archetype *));
 }
 
 /* An alternative way to init the hashtable which is slower, but _works_... */
 void init_archetable()
 {
-  	archetype *at;
-  	LOG(llevDebug, "setting up archetable...");
+	archetype *at;
+	LOG(llevDebug, "setting up archetable...");
 
-  	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
-    	add_arch(at);
+	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
+		add_arch(at);
 
-  	LOG(llevDebug, " done.\n");
+	LOG(llevDebug, " done.\n");
 }
 
 /* Dumps an archetype to debug-level output. */
 void dump_arch(archetype *at)
 {
-  	dump_object(&at->clone);
+	dump_object(&at->clone);
 }
 
 /* Dumps _all_ archetypes to debug-level output. */
@@ -294,16 +294,17 @@ void dump_all_archetypes()
 			dump_arch(&art->def_at);
 			LOG(llevInfo, "%s\n", errmsg);
 			art = art->next;
-		} while (art != NULL);
+		}
+		while (art != NULL);
 	}
 }
 
 void free_all_archs()
 {
-    archetype *at, *next;
-    int i = 0, f = 0;
+	archetype *at, *next;
+	int i = 0, f = 0;
 
-    for (at = first_archetype; at != NULL; at = next)
+	for (at = first_archetype; at != NULL; at = next)
 	{
 		if (at->more)
 			next = at->more;
@@ -318,19 +319,19 @@ void free_all_archs()
 		FREE_AND_CLEAR_HASH(at->clone.msg);
 		free(at);
 		i++;
-    }
+	}
 
-    LOG(llevDebug, "Freed %d archetypes, %d faces\n", i, f);
+	LOG(llevDebug, "Freed %d archetypes, %d faces\n", i, f);
 }
 
 /* Allocates, initialises and returns the pointer to an archetype structure. */
 archetype *get_archetype_struct()
 {
-  	archetype *new;
+	archetype *new;
 
-  	new = (archetype *)CALLOC(1, sizeof(archetype));
-  	if (new == NULL)
-    	LOG(llevError, "get_archetype_struct() - out of memory\n");
+	new = (archetype *)CALLOC(1, sizeof(archetype));
+	if (new == NULL)
+		LOG(llevError, "get_archetype_struct() - out of memory\n");
 
 #if 0
 	/* These values are actually cleared with calloc (one would hope) */
@@ -384,9 +385,9 @@ void first_arch_pass(FILE *fp)
 		if (op->layer && QUERY_FLAG(op,FLAG_SYS_OBJECT))
 			LOG(llevDebug, "WARNING: Archetype %s has layer %d (!=0) and is sys_object\n", STRING_OBJ_ARCH_NAME(op), op->layer);
 
-		switch(i)
+		switch (i)
 		{
-			/* A new archetype, just link it with the previous */
+				/* A new archetype, just link it with the previous */
 			case LL_NORMAL:
 				if (last_more != NULL)
 					last_more->next = at;
@@ -403,9 +404,9 @@ void first_arch_pass(FILE *fp)
 
 				if (!op->type)
 					LOG(llevDebug, "WARNING: Archetype %s has no type info!\n", STRING_OBJ_ARCH_NAME(op));
-			break;
+				break;
 
-			/* Another part of the previous archetype, link it correctly */
+				/* Another part of the previous archetype, link it correctly */
 			case LL_MORE:
 				at->head = prev;
 				at->clone.head = &prev->clone;
@@ -498,7 +499,7 @@ void second_arch_pass(FILE *fp_start)
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
-		if(*buf == '#')
+		if (*buf == '#')
 			continue;
 
 		if ((argument = strchr(buf, ' ')) != NULL)
@@ -520,12 +521,12 @@ void second_arch_pass(FILE *fp_start)
 		if (!strcmp("artifact", variable))
 		{
 			if ((at = find_archetype(argument)) == NULL)
-		        LOG(llevBug, "BUG: second artifacts pass: failed to find artifact %s\n", STRING_SAFE(argument));
+				LOG(llevBug, "BUG: second artifacts pass: failed to find artifact %s\n", STRING_SAFE(argument));
 		}
 		else if (!strcmp("def_arch", variable))
 		{
 			if ((other = find_archetype(argument)) == NULL)
-		        LOG(llevBug, "BUG: second artifacts pass: failed to find def_arch %s from artifact %s\n", STRING_SAFE(argument), STRING_ARCH_NAME(at));
+				LOG(llevBug, "BUG: second artifacts pass: failed to find def_arch %s from artifact %s\n", STRING_SAFE(argument), STRING_ARCH_NAME(at));
 
 			/* now copy from real arch the stuff from above to our "fake" arches */
 			at->clone.other_arch = other->clone.other_arch;
@@ -535,7 +536,7 @@ void second_arch_pass(FILE *fp_start)
 		{
 			if ((other = find_archetype(argument)) == NULL)
 				LOG(llevBug, "BUG: second artifacts pass: failed to find other_arch %s\n", STRING_SAFE(argument));
-			else if(at != NULL)
+			else if (at != NULL)
 				at->clone.other_arch = other;
 		}
 		else if (!strcmp("randomitems", variable))
@@ -554,10 +555,10 @@ void second_arch_pass(FILE *fp_start)
 #ifdef DEBUG
 void check_generators()
 {
-  	archetype *at;
-  	for (at = first_archetype; at != NULL; at = at->next)
-    	if (QUERY_FLAG(&at->clone, FLAG_GENERATOR) && at->clone.other_arch == NULL)
-      		LOG(llevBug, "BUG: %s is generator but lacks other_arch.\n", STRING_ARCH_NAME(at));
+	archetype *at;
+	for (at = first_archetype; at != NULL; at = at->next)
+		if (QUERY_FLAG(&at->clone, FLAG_GENERATOR) && at->clone.other_arch == NULL)
+			LOG(llevBug, "BUG: %s is generator but lacks other_arch.\n", STRING_ARCH_NAME(at));
 }
 #endif
 
@@ -567,30 +568,30 @@ void check_generators()
  * Then initialises treasures by calling load_treasures(). */
 void load_archetypes()
 {
-    FILE *fp;
-    char filename[MAX_BUF];
-    int comp;
+	FILE *fp;
+	char filename[MAX_BUF];
+	int comp;
 #if TIME_ARCH_LOAD
-    struct timeval tv1,tv2;
+	struct timeval tv1,tv2;
 #endif
 
-    sprintf(filename, "%s/%s", settings.datadir, settings.archetypes);
-    LOG(llevDebug, "Reading archetypes from %s...\n", filename);
+	sprintf(filename, "%s/%s", settings.datadir, settings.archetypes);
+	LOG(llevDebug, "Reading archetypes from %s...\n", filename);
 
-    if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
 	{
 		LOG(llevError, "ERROR: Can't open archetype file.\n");
 		return;
-    }
+	}
 
-    clear_archetable();
-    LOG(llevDebug, "arch-pass 1...\n");
+	clear_archetable();
+	LOG(llevDebug, "arch-pass 1...\n");
 #if TIME_ARCH_LOAD
 	GETTIMEOFDAY(&tv1);
 #endif
-    first_arch_pass(fp);
+	first_arch_pass(fp);
 #if TIME_ARCH_LOAD
-    int sec, usec;
+	int sec, usec;
 	GETTIMEOFDAY(&tv2);
 	sec = tv2.tv_sec - tv1.tv_sec;
 	usec = tv2.tv_usec - tv1.tv_usec;
@@ -602,34 +603,34 @@ void load_archetypes()
 	LOG(llevDebug, "Load took %d.%06d seconds\n", sec, usec);
 #endif
 
-  	LOG(llevDebug, " done.\n");
-  	init_archetable();
+	LOG(llevDebug, " done.\n");
+	init_archetable();
 
-  	/* do a close and reopen instead of a rewind - necessary in case the
-     * file has been compressed. */
-  	close_and_delete(fp, comp);
-  	fp = open_and_uncompress(filename, 0, &comp);
+	/* do a close and reopen instead of a rewind - necessary in case the
+	* file has been compressed. */
+	close_and_delete(fp, comp);
+	fp = open_and_uncompress(filename, 0, &comp);
 
-  	/* I moved the artifacts loading to this position because it must be done
-   	 * BEFORE we load the treasure file - remeber we have now fake arches in the
-   	 * artifacts file
-   	 * second_arch_pass reparses the archetype file again and adds other_arch and
-   	 * randomitems (= treasurelists) to the arches. */
+	/* I moved the artifacts loading to this position because it must be done
+	  * BEFORE we load the treasure file - remeber we have now fake arches in the
+	  * artifacts file
+	  * second_arch_pass reparses the archetype file again and adds other_arch and
+	  * randomitems (= treasurelists) to the arches. */
 
 	/* If not called before, reads all artifacts from file */
-  	init_artifacts();
-  	LOG(llevDebug, " loading treasure...\n");
-  	load_treasures();
-  	LOG(llevDebug, " done\n arch-pass 2...\n");
-  	second_arch_pass(fp);
-  	LOG(llevDebug, " done.\n");
+	init_artifacts();
+	LOG(llevDebug, " loading treasure...\n");
+	load_treasures();
+	LOG(llevDebug, " done\n arch-pass 2...\n");
+	second_arch_pass(fp);
+	LOG(llevDebug, " done.\n");
 
 #ifdef DEBUG
-  	check_generators();
+	check_generators();
 #endif
 
-  	close_and_delete(fp, comp);
-  	LOG(llevDebug, "Reading archetypes done.\n");
+	close_and_delete(fp, comp);
+	LOG(llevDebug, "Reading archetypes done.\n");
 }
 
 /* Creates and returns a new object which is a copy of the given archetype.
@@ -655,52 +656,52 @@ object *arch_to_object(archetype *at)
  * an object, and never NULL. */
 object *create_singularity(const char *name)
 {
-  	object *op;
-  	char buf[MAX_BUF];
-  	sprintf(buf, "singularity (REPORT THIS BUG!) (%s)", name);
-  	op = get_object();
-  	FREE_AND_COPY_HASH(op->name, buf);
-  	SET_FLAG(op, FLAG_NO_PICK);
-  	return op;
+	object *op;
+	char buf[MAX_BUF];
+	sprintf(buf, "singularity (REPORT THIS BUG!) (%s)", name);
+	op = get_object();
+	FREE_AND_COPY_HASH(op->name, buf);
+	SET_FLAG(op, FLAG_NO_PICK);
+	return op;
 }
 
 /* Finds which archetype matches the given name, and returns a new
  * object containing a copy of the archetype. */
 object *get_archetype(const char *name)
 {
-  	archetype *at;
-  	at = find_archetype(name);
+	archetype *at;
+	at = find_archetype(name);
 
-  	if (at == NULL)
-    	return create_singularity(name);
+	if (at == NULL)
+		return create_singularity(name);
 
-  	return arch_to_object(at);
+	return arch_to_object(at);
 }
 
 /* Hash-function used by the arch-hashtable. */
 unsigned long hasharch(const char *str, int tablesize)
 {
-    unsigned long hash = 0;
-    int i = 0, rot = 0;
-    const char *p;
+	unsigned long hash = 0;
+	int i = 0, rot = 0;
+	const char *p;
 
-    for (p = str; i < MAXSTRING && *p; p++, i++)
+	for (p = str; i < MAXSTRING && *p; p++, i++)
 	{
-        hash ^= (unsigned long) *p << rot;
-        rot += 2;
-        if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
-            rot = 0;
-    }
+		hash ^= (unsigned long) *p << rot;
+		rot += 2;
+		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
+			rot = 0;
+	}
 
-    return (hash % tablesize);
+	return (hash % tablesize);
 }
 
 /* Finds, using the hashtable, which archetype matches the given name.
  * returns a pointer to the found archetype, otherwise NULL. */
 archetype *find_archetype(const char *name)
 {
-  	archetype *at;
-  	unsigned long index;
+	archetype *at;
+	unsigned long index;
 
 	if (name == NULL)
 		return (archetype *) NULL;
@@ -780,23 +781,23 @@ object *clone_arch(int type)
 /* member: make instance from class */
 object *ObjectCreateArch (archetype * at)
 {
-    object *op, *prev = NULL, *head = NULL;
+	object *op, *prev = NULL, *head = NULL;
 
-    while (at)
+	while (at)
 	{
-        op = arch_to_object(at);
-        op->x = at->clone.x;
-        op->y = at->clone.y;
+		op = arch_to_object(at);
+		op->x = at->clone.x;
+		op->y = at->clone.y;
 
-        if (head)
-            op->head = head, prev->more = op;
+		if (head)
+			op->head = head, prev->more = op;
 
-        if (!head)
-            head = op;
+		if (!head)
+			head = op;
 
-        prev = op;
-        at = at->more;
-    }
+		prev = op;
+		at = at->more;
+	}
 
-    return head;
+	return head;
 }

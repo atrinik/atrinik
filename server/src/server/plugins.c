@@ -52,10 +52,10 @@ object *get_event_object(object *op, int event_nr)
 	 * through the inventory of object op and stop
 	 * when we find a script object from type event_nr. */
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-    {
-        if (tmp->type == TYPE_EVENT_OBJECT && tmp->sub_type1 == event_nr)
+	{
+		if (tmp->type == TYPE_EVENT_OBJECT && tmp->sub_type1 == event_nr)
 			return tmp;
-    }
+	}
 
 	return tmp;
 }
@@ -67,30 +67,30 @@ object *get_event_object(object *op, int event_nr)
 /*****************************************************************************/
 CommArray_s *find_plugin_command(const char *cmd, object *op)
 {
-    CFParm CmdParm;
-    CFParm* RTNValue;
-    int i;
-    char cmdchar[10];
-    static CommArray_s RTNCmd;
+	CFParm CmdParm;
+	CFParm* RTNValue;
+	int i;
+	char cmdchar[10];
+	static CommArray_s RTNCmd;
 
-    strcpy(cmdchar, "command?");
-    CmdParm.Value[0] = cmdchar;
-    CmdParm.Value[1] = (char *)cmd;
-    CmdParm.Value[2] = op;
+	strcpy(cmdchar, "command?");
+	CmdParm.Value[0] = cmdchar;
+	CmdParm.Value[1] = (char *)cmd;
+	CmdParm.Value[2] = op;
 
-    for (i = 0; i < PlugNR; i++)
-    {
-        RTNValue = (PlugList[i].propfunc(&CmdParm));
-        if (RTNValue != NULL)
-        {
-            RTNCmd.name = (char *)(RTNValue->Value[0]);
-            RTNCmd.func = (CommFunc)(RTNValue->Value[1]);
-            RTNCmd.time = *(float *)(RTNValue->Value[2]);
-            LOG(llevInfo, "RTNCMD: name %s, time %f\n", RTNCmd.name, RTNCmd.time);
-            return &RTNCmd;
-        }
-    }
-    return NULL;
+	for (i = 0; i < PlugNR; i++)
+	{
+		RTNValue = (PlugList[i].propfunc(&CmdParm));
+		if (RTNValue != NULL)
+		{
+			RTNCmd.name = (char *)(RTNValue->Value[0]);
+			RTNCmd.func = (CommFunc)(RTNValue->Value[1]);
+			RTNCmd.time = *(float *)(RTNValue->Value[2]);
+			LOG(llevInfo, "RTNCMD: name %s, time %f\n", RTNCmd.name, RTNCmd.time);
+			return &RTNCmd;
+		}
+	}
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -99,18 +99,18 @@ CommArray_s *find_plugin_command(const char *cmd, object *op)
 /*****************************************************************************/
 void displayPluginsList(object *op)
 {
-    char buf[MAX_BUF];
-    int i;
+	char buf[MAX_BUF];
+	int i;
 
-    new_draw_info(NDI_UNIQUE, 0, op, "List of loaded plugins:");
-    new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
-    for (i = 0;i < PlugNR; i++)
-    {
-        strcpy(buf, PlugList[i].id);
-        strcat(buf, ", ");
-        strcat(buf, PlugList[i].fullname);
-        new_draw_info(NDI_UNIQUE, 0, op, buf);
-    }
+	new_draw_info(NDI_UNIQUE, 0, op, "List of loaded plugins:");
+	new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
+	for (i = 0;i < PlugNR; i++)
+	{
+		strcpy(buf, PlugList[i].id);
+		strcat(buf, ", ");
+		strcat(buf, PlugList[i].fullname);
+		new_draw_info(NDI_UNIQUE, 0, op, buf);
+	}
 }
 
 /*****************************************************************************/
@@ -120,11 +120,11 @@ void displayPluginsList(object *op)
 /*****************************************************************************/
 int findPlugin(const char* id)
 {
-    int i;
-    for (i = 0; i < PlugNR; i++)
-        if(!strcmp(id, PlugList[i].id))
-            return i;
-    return -1;
+	int i;
+	for (i = 0; i < PlugNR; i++)
+		if (!strcmp(id, PlugList[i].id))
+			return i;
+	return -1;
 }
 
 #ifdef WIN32
@@ -134,38 +134,38 @@ int findPlugin(const char* id)
 /*****************************************************************************/
 void initPlugins(void)
 {
-    struct dirent *currentfile;
-    DIR *plugdir;
-    int n;
-    char buf[MAX_BUF];
-    char buf2[MAX_BUF];
+	struct dirent *currentfile;
+	DIR *plugdir;
+	int n;
+	char buf[MAX_BUF];
+	char buf2[MAX_BUF];
 
-    LOG(llevInfo, "Now initializing plugins\n");
-    /* strcpy(buf,DATADIR); dlls should not part of DATADIR or LIBDOR */
-    /* strcpy(buf,"./plugins/"); */
-    strcpy(buf, PLUGINDIR"/");
-    LOG(llevInfo, "Plugins directory is %s\n", buf);
+	LOG(llevInfo, "Now initializing plugins\n");
+	/* strcpy(buf,DATADIR); dlls should not part of DATADIR or LIBDOR */
+	/* strcpy(buf,"./plugins/"); */
+	strcpy(buf, PLUGINDIR"/");
+	LOG(llevInfo, "Plugins directory is %s\n", buf);
 
-    if (!(plugdir = opendir(buf)))
-        return;
+	if (!(plugdir = opendir(buf)))
+		return;
 
-    n = 0;
+	n = 0;
 
-    while (currentfile = readdir(plugdir))
-    {
-        if (strcmp(currentfile->d_name, ".."))
-        {
+	while (currentfile = readdir(plugdir))
+	{
+		if (strcmp(currentfile->d_name, ".."))
+		{
 			/* don't load "." marker, CVS directory or all which has a .txt inside */
-            if (strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt") && strcmp(currentfile->d_name, "CVS"))
-            {
+			if (strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt") && strcmp(currentfile->d_name, "CVS"))
+			{
 				strcpy(buf2, buf);
-                strcat(buf2, currentfile->d_name);
-                LOG(llevInfo, "Registering plugin %s\n", currentfile->d_name);
-                initOnePlugin(buf2);
-            }
-        }
-    }
-    closedir(plugdir);
+				strcat(buf2, currentfile->d_name);
+				LOG(llevInfo, "Registering plugin %s\n", currentfile->d_name);
+				initOnePlugin(buf2);
+			}
+		}
+	}
+	closedir(plugdir);
 }
 
 /*****************************************************************************/
@@ -178,81 +178,81 @@ void initPlugins(void)
 /*****************************************************************************/
 void initOnePlugin(const char* pluginfile)
 {
-    int i = 0;
-    HMODULE DLLInstance;
-    void *ptr = NULL;
-    CFParm* HookParm;
+	int i = 0;
+	HMODULE DLLInstance;
+	void *ptr = NULL;
+	CFParm* HookParm;
 
-    if ((DLLInstance = LoadLibrary(pluginfile))==NULL)
-    {
-        LOG(llevBug, "BUG: Error while trying to load %s\n", pluginfile);
-        return;
-    }
-    PlugList[PlugNR].libptr = DLLInstance;
-    PlugList[PlugNR].initfunc = (f_plugin)(GetProcAddress(DLLInstance, "initPlugin"));
-    if (PlugList[PlugNR].initfunc == NULL)
-    {
-        LOG(llevBug, "BUG: Plugin init error\n");
-        FreeLibrary(ptr);
-        return;
-    }
-    else
-    {
-        CFParm* InitParm;
-        InitParm = PlugList[PlugNR].initfunc(NULL);
-        LOG(llevInfo, "Plugin name: %s, known as %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
-        strcpy(PlugList[PlugNR].id, (char *)(InitParm->Value[0]));
-        strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
-    }
+	if ((DLLInstance = LoadLibrary(pluginfile))==NULL)
+	{
+		LOG(llevBug, "BUG: Error while trying to load %s\n", pluginfile);
+		return;
+	}
+	PlugList[PlugNR].libptr = DLLInstance;
+	PlugList[PlugNR].initfunc = (f_plugin)(GetProcAddress(DLLInstance, "initPlugin"));
+	if (PlugList[PlugNR].initfunc == NULL)
+	{
+		LOG(llevBug, "BUG: Plugin init error\n");
+		FreeLibrary(ptr);
+		return;
+	}
+	else
+	{
+		CFParm* InitParm;
+		InitParm = PlugList[PlugNR].initfunc(NULL);
+		LOG(llevInfo, "Plugin name: %s, known as %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
+		strcpy(PlugList[PlugNR].id, (char *)(InitParm->Value[0]));
+		strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
+	}
 
-    PlugList[PlugNR].hookfunc = (f_plugin)(GetProcAddress(DLLInstance, "registerHook"));
-    PlugList[PlugNR].eventfunc = (f_plugin)(GetProcAddress(DLLInstance, "triggerEvent"));
-    PlugList[PlugNR].pinitfunc = (f_plugin)(GetProcAddress(DLLInstance, "postinitPlugin"));
-    PlugList[PlugNR].propfunc = (f_plugin)(GetProcAddress(DLLInstance, "getPluginProperty"));
+	PlugList[PlugNR].hookfunc = (f_plugin)(GetProcAddress(DLLInstance, "registerHook"));
+	PlugList[PlugNR].eventfunc = (f_plugin)(GetProcAddress(DLLInstance, "triggerEvent"));
+	PlugList[PlugNR].pinitfunc = (f_plugin)(GetProcAddress(DLLInstance, "postinitPlugin"));
+	PlugList[PlugNR].propfunc = (f_plugin)(GetProcAddress(DLLInstance, "getPluginProperty"));
 
-    if (PlugList[PlugNR].pinitfunc == NULL)
-    {
-        LOG(llevBug, "BUG: Plugin postinit error\n");
-        FreeLibrary(ptr);
-        return;
-    }
+	if (PlugList[PlugNR].pinitfunc == NULL)
+	{
+		LOG(llevBug, "BUG: Plugin postinit error\n");
+		FreeLibrary(ptr);
+		return;
+	}
 
-    for (i = 0; i < NR_EVENTS; i++)
-        PlugList[PlugNR].gevent[i] = 0;
+	for (i = 0; i < NR_EVENTS; i++)
+		PlugList[PlugNR].gevent[i] = 0;
 
-    if (PlugList[PlugNR].hookfunc == NULL)
-    {
-        LOG(llevBug, "BUG: Plugin hook error\n");
-        FreeLibrary(ptr);
-        return;
-    }
-    else
-    {
-        int j;
-        i = 0;
-        HookParm = (CFParm *)(malloc(sizeof(CFParm)));
-        HookParm->Value[0] = (int *)(malloc(sizeof(int)));
+	if (PlugList[PlugNR].hookfunc == NULL)
+	{
+		LOG(llevBug, "BUG: Plugin hook error\n");
+		FreeLibrary(ptr);
+		return;
+	}
+	else
+	{
+		int j;
+		i = 0;
+		HookParm = (CFParm *)(malloc(sizeof(CFParm)));
+		HookParm->Value[0] = (int *)(malloc(sizeof(int)));
 
-        for (j = 1; j <= NR_OF_HOOKS; j++)
-        {
-            memcpy(HookParm->Value[0], &j, sizeof(int));
-            HookParm->Value[1] = HookList[j];
+		for (j = 1; j <= NR_OF_HOOKS; j++)
+		{
+			memcpy(HookParm->Value[0], &j, sizeof(int));
+			HookParm->Value[1] = HookList[j];
 
-            PlugList[PlugNR].hookfunc(HookParm);
-        }
-        free(HookParm->Value[0]);
-        free(HookParm);
-    }
+			PlugList[PlugNR].hookfunc(HookParm);
+		}
+		free(HookParm->Value[0]);
+		free(HookParm);
+	}
 
-    if (PlugList[PlugNR].eventfunc == NULL)
-    {
-        LOG(llevBug, "BUG: Event plugin error\n");
-        FreeLibrary(ptr);
-        return;
-    }
-    PlugNR++;
-    PlugList[PlugNR-1].pinitfunc(NULL);
-    LOG(llevInfo, "Done\n");
+	if (PlugList[PlugNR].eventfunc == NULL)
+	{
+		LOG(llevBug, "BUG: Event plugin error\n");
+		FreeLibrary(ptr);
+		return;
+	}
+	PlugNR++;
+	PlugList[PlugNR-1].pinitfunc(NULL);
+	LOG(llevInfo, "Done\n");
 }
 
 /*****************************************************************************/
@@ -260,23 +260,23 @@ void initOnePlugin(const char* pluginfile)
 /*****************************************************************************/
 void removeOnePlugin(const char *id)
 {
-    int plid;
-    int j;
-    LOG(llevDebug, "Warning - removeOnePlugin non-canon under Win32\n");
-    plid = findPlugin(id);
-    if (plid < 0)
-        return;
-    /* We unload the library... */
-    FreeLibrary(PlugList[plid].libptr);
-    /* Then we copy the rest on the list back one position */
-    PlugNR--;
-    if (plid == 31)
+	int plid;
+	int j;
+	LOG(llevDebug, "Warning - removeOnePlugin non-canon under Win32\n");
+	plid = findPlugin(id);
+	if (plid < 0)
+		return;
+	/* We unload the library... */
+	FreeLibrary(PlugList[plid].libptr);
+	/* Then we copy the rest on the list back one position */
+	PlugNR--;
+	if (plid == 31)
 		return;
 
-    for (j = plid + 1; j < 32; j++)
-    {
-        PlugList[j - 1] = PlugList[j];
-    }
+	for (j = plid + 1; j < 32; j++)
+	{
+		PlugList[j - 1] = PlugList[j];
+	}
 }
 
 #else
@@ -292,36 +292,36 @@ extern int alphasort(struct dirent **a, struct dirent **b);
 /*****************************************************************************/
 void initPlugins(void)
 {
-    struct dirent **namelist = NULL;
-    int n;
-    char buf[MAX_BUF];
-    char buf2[MAX_BUF];
+	struct dirent **namelist = NULL;
+	int n;
+	char buf[MAX_BUF];
+	char buf2[MAX_BUF];
 
-    LOG(llevInfo, "Initializing plugins :\n");
-/*  strcpy(buf, DATADIR);
-    strcat(buf, "/../plugins/");*/
+	LOG(llevInfo, "Initializing plugins :\n");
+	/*  strcpy(buf, DATADIR);
+	    strcat(buf, "/../plugins/");*/
 	strcpy(buf, PLUGINDIR"/");
-    LOG(llevInfo, "Plugins directory is %s\n",buf);
-    n = scandir(buf, &namelist, 0, alphasort);
-    if (n < 0)
+	LOG(llevInfo, "Plugins directory is %s\n",buf);
+	n = scandir(buf, &namelist, 0, alphasort);
+	if (n < 0)
 		LOG(llevBug, "BUG: plugins.c: scandir...\n");
-    else
-        while (n--)
-        {
-            if (strcmp(namelist[n]->d_name, ".."))
-            {
+	else
+		while (n--)
+		{
+			if (strcmp(namelist[n]->d_name, ".."))
+			{
 				/* don't load "." marker, CVS directory or all which has a .txt inside */
-		        if (strcmp(namelist[n]->d_name, ".") && !strstr(namelist[n]->d_name, ".txt") && strcmp(namelist[n]->d_name, "CVS"))
-                {
-                    strcpy(buf2, buf);
-                    strcat(buf2, namelist[n]->d_name);
-                    LOG(llevInfo, " -> Loading plugin : %s\n", namelist[n]->d_name);
-                    initOnePlugin(buf2);
-                }
-            }
-        }
+				if (strcmp(namelist[n]->d_name, ".") && !strstr(namelist[n]->d_name, ".txt") && strcmp(namelist[n]->d_name, "CVS"))
+				{
+					strcpy(buf2, buf);
+					strcat(buf2, namelist[n]->d_name);
+					LOG(llevInfo, " -> Loading plugin : %s\n", namelist[n]->d_name);
+					initOnePlugin(buf2);
+				}
+			}
+		}
 
-    if (namelist != NULL)
+	if (namelist != NULL)
 		free(namelist);
 }
 
@@ -330,26 +330,26 @@ void initPlugins(void)
 /*****************************************************************************/
 void removeOnePlugin(const char *id)
 {
-    int plid;
-    int j;
-    plid = findPlugin(id);
+	int plid;
+	int j;
+	plid = findPlugin(id);
 
-    if (plid < 0)
-        return;
-
-    /* We unload the library... */
-    dlclose(PlugList[plid].libptr);
-    /* Then we copy the rest on the list back one position */
-    PlugNR--;
-
-    if (plid == 31)
+	if (plid < 0)
 		return;
 
-    LOG(llevInfo, "plid=%i, PlugNR=%i\n", plid, PlugNR);
-    for (j = plid + 1; j < 32; j++)
-    {
-        PlugList[j - 1] = PlugList[j];
-    }
+	/* We unload the library... */
+	dlclose(PlugList[plid].libptr);
+	/* Then we copy the rest on the list back one position */
+	PlugNR--;
+
+	if (plid == 31)
+		return;
+
+	LOG(llevInfo, "plid=%i, PlugNR=%i\n", plid, PlugNR);
+	for (j = plid + 1; j < 32; j++)
+	{
+		PlugList[j - 1] = PlugList[j];
+	}
 }
 
 /*****************************************************************************/
@@ -362,71 +362,71 @@ void removeOnePlugin(const char *id)
 /*****************************************************************************/
 void initOnePlugin(const char* pluginfile)
 {
-    int i = 0;
-    void *ptr = NULL;
-    CFParm* HookParm;
-    if ((ptr = dlopen(pluginfile, RTLD_NOW | RTLD_GLOBAL)) == NULL)
-    {
-        LOG(llevInfo,"Plugin error: %s\n", dlerror());
-        return;
-    }
-    PlugList[PlugNR].libptr = ptr;
-    PlugList[PlugNR].initfunc = (f_plugin)(dlsym(ptr, "initPlugin"));
-    if (PlugList[PlugNR].initfunc == NULL)
-    {
-        LOG(llevInfo, "Plugin init error: %s\n", dlerror());
-    }
-    else
-    {
-        CFParm* InitParm;
-        InitParm = PlugList[PlugNR].initfunc(NULL);
-        LOG(llevInfo, "Plugin %s loaded under the name of %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
+	int i = 0;
+	void *ptr = NULL;
+	CFParm* HookParm;
+	if ((ptr = dlopen(pluginfile, RTLD_NOW | RTLD_GLOBAL)) == NULL)
+	{
+		LOG(llevInfo,"Plugin error: %s\n", dlerror());
+		return;
+	}
+	PlugList[PlugNR].libptr = ptr;
+	PlugList[PlugNR].initfunc = (f_plugin)(dlsym(ptr, "initPlugin"));
+	if (PlugList[PlugNR].initfunc == NULL)
+	{
+		LOG(llevInfo, "Plugin init error: %s\n", dlerror());
+	}
+	else
+	{
+		CFParm* InitParm;
+		InitParm = PlugList[PlugNR].initfunc(NULL);
+		LOG(llevInfo, "Plugin %s loaded under the name of %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
 		strcpy(PlugList[PlugNR].id, (char *)(InitParm->Value[0]));
-        strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
-    }
-    PlugList[PlugNR].hookfunc = (f_plugin)(dlsym(ptr, "registerHook"));
-    PlugList[PlugNR].eventfunc = (f_plugin)(dlsym(ptr, "triggerEvent"));
-    PlugList[PlugNR].pinitfunc = (f_plugin)(dlsym(ptr, "postinitPlugin"));
-    PlugList[PlugNR].propfunc = (f_plugin)(dlsym(ptr, "getPluginProperty"));
-    LOG(llevInfo, "Done\n");
-    if (PlugList[PlugNR].pinitfunc == NULL)
-    {
-  		LOG(llevInfo, "Plugin postinit error: %s\n", dlerror());
-    }
+		strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
+	}
+	PlugList[PlugNR].hookfunc = (f_plugin)(dlsym(ptr, "registerHook"));
+	PlugList[PlugNR].eventfunc = (f_plugin)(dlsym(ptr, "triggerEvent"));
+	PlugList[PlugNR].pinitfunc = (f_plugin)(dlsym(ptr, "postinitPlugin"));
+	PlugList[PlugNR].propfunc = (f_plugin)(dlsym(ptr, "getPluginProperty"));
+	LOG(llevInfo, "Done\n");
+	if (PlugList[PlugNR].pinitfunc == NULL)
+	{
+		LOG(llevInfo, "Plugin postinit error: %s\n", dlerror());
+	}
 
-    for (i = 0; i < NR_EVENTS; i++)
-    {
-        PlugList[PlugNR].gevent[i] = 0;
-    }
+	for (i = 0; i < NR_EVENTS; i++)
+	{
+		PlugList[PlugNR].gevent[i] = 0;
+	}
 
-    if (PlugList[PlugNR].hookfunc == NULL)
-    {
-        LOG(llevInfo, "Plugin hook error: %s\n", dlerror());
-    }
-    else
-    {
-        int j;
-        i = 0;
-        HookParm = (CFParm *)(malloc(sizeof(CFParm)));
-        HookParm->Value[0] = (const int *)(malloc(sizeof(int)));
+	if (PlugList[PlugNR].hookfunc == NULL)
+	{
+		LOG(llevInfo, "Plugin hook error: %s\n", dlerror());
+	}
+	else
+	{
+		int j;
+		i = 0;
+		HookParm = (CFParm *)(malloc(sizeof(CFParm)));
+		HookParm->Value[0] = (const int *)(malloc(sizeof(int)));
 
-        for(j = 1; j < NR_OF_HOOKS; j++)
-        {
-	        memcpy((void *)HookParm->Value[0], &j, sizeof(int));
-            HookParm->Value[1] = HookList[j];
-            PlugList[PlugNR].hookfunc(HookParm);
-        }
-        free((void *)HookParm->Value[0]);
-        free(HookParm);
-    }
+		for (j = 1; j < NR_OF_HOOKS; j++)
+		{
+			memcpy((void *)HookParm->Value[0], &j, sizeof(int));
+			HookParm->Value[1] = HookList[j];
+			PlugList[PlugNR].hookfunc(HookParm);
+		}
+		free((void *)HookParm->Value[0]);
+		free(HookParm);
+	}
 
-    if (PlugList[PlugNR].eventfunc == NULL)
-    {
-    	LOG(llevBug, "BUG: Event plugin error %s\n", dlerror());
-    }
-    PlugNR++;
-    PlugList[PlugNR - 1].pinitfunc(NULL);
-    LOG(llevInfo, "[Done]\n");
+	if (PlugList[PlugNR].eventfunc == NULL)
+	{
+		LOG(llevBug, "BUG: Event plugin error %s\n", dlerror());
+	}
+	PlugNR++;
+	PlugList[PlugNR - 1].pinitfunc(NULL);
+	LOG(llevInfo, "[Done]\n");
 }
 #endif
 
@@ -471,8 +471,8 @@ CFParm* CFWFixPlayer(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWNewInfoMap(CFParm* PParm)
 {
-    new_info_map(*(int *)(PParm->Value[0]), (struct mapdef *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), (char*)(PParm->Value[5]));
-    return NULL;
+	new_info_map(*(int *)(PParm->Value[0]), (struct mapdef *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), (char*)(PParm->Value[5]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -489,8 +489,8 @@ CFParm* CFWNewInfoMap(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWNewInfoMapExcept(CFParm* PParm)
 {
-    new_info_map_except(*(int *)(PParm->Value[0]), (struct mapdef *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), (object *)(PParm->Value[5]), (object *)(PParm->Value[6]), (char*)(PParm->Value[7]));
-    return NULL;
+	new_info_map_except(*(int *)(PParm->Value[0]), (struct mapdef *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), (object *)(PParm->Value[5]), (object *)(PParm->Value[6]), (char*)(PParm->Value[7]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -501,8 +501,8 @@ CFParm* CFWNewInfoMapExcept(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWSpringTrap(CFParm* PParm)
 {
-    spring_trap((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return NULL;
+	spring_trap((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return NULL;
 }
 
 /*
@@ -531,14 +531,14 @@ CFParm* CFWSpringTrap(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCastSpell(CFParm* PParm)
 {
-    static int val;
-    CFParm *CFP;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	static int val;
+	CFParm *CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
 	/*int cast_spell(object *op, object *caster, int dir, int type, int ability, */
 	/*SpellTypeFrom item, char *stringarg); */
-    val = cast_spell((object *)(PParm->Value[0]), (object *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), *(SpellTypeFrom *)(PParm->Value[5]), (char *)(PParm->Value[6])/*, *(int *) (PParm->Value[7])*/);
-    CFP->Value[0] = (void *)(&val);
-    return CFP;
+	val = cast_spell((object *)(PParm->Value[0]), (object *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]), *(SpellTypeFrom *)(PParm->Value[5]), (char *)(PParm->Value[6])/*, *(int *) (PParm->Value[7])*/);
+	CFP->Value[0] = (void *)(&val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -549,12 +549,12 @@ CFParm* CFWCastSpell(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCmdRSkill(CFParm* PParm)
 {
-    static int val;
-    CFParm *CFP;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = command_rskill((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
-    CFP->Value[0] = (void *)(&val);
-    return CFP;
+	static int val;
+	CFParm *CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = command_rskill((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
+	CFP->Value[0] = (void *)(&val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -565,8 +565,8 @@ CFParm* CFWCmdRSkill(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWBecomeFollower(CFParm* PParm)
 {
-    become_follower((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return NULL;
+	become_follower((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -577,8 +577,8 @@ CFParm* CFWBecomeFollower(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWPickup(CFParm* PParm)
 {
-    pick_up((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return NULL;
+	pick_up((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -589,21 +589,21 @@ CFParm* CFWPickup(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWGetMapObject(CFParm* PParm)
 {
-    object *val = NULL;
-    static CFParm CFP;
+	object *val = NULL;
+	static CFParm CFP;
 
-    mapstruct *mt = (mapstruct *)PParm->Value[0];
-    int x = *(int *)PParm->Value[1];
-    int y = *(int *)PParm->Value[2];
+	mapstruct *mt = (mapstruct *)PParm->Value[0];
+	int x = *(int *)PParm->Value[1];
+	int y = *(int *)PParm->Value[2];
 
 	/* CFP = (CFParm*)(malloc(sizeof(CFParm))); */
 
 	/* Gecko: added tiled map check */
-    if ((mt = out_of_map(mt, &x, &y)))
-        val = get_map_ob(mt, x, y);
+	if ((mt = out_of_map(mt, &x, &y)))
+		val = get_map_ob(mt, x, y);
 
-    CFP.Value[0] = (void *)(val);
-    return &CFP;
+	CFP.Value[0] = (void *)(val);
+	return &CFP;
 }
 
 /*****************************************************************************/
@@ -615,15 +615,15 @@ CFParm* CFWGetMapObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWOutOfMap(CFParm* PParm)
 {
-    static CFParm CFP;
+	static CFParm CFP;
 
-    mapstruct *mt = (mapstruct *)PParm->Value[0];
-    int *x = (int *)PParm->Value[1];
-    int *y = (int *)PParm->Value[2];
+	mapstruct *mt = (mapstruct *)PParm->Value[0];
+	int *x = (int *)PParm->Value[1];
+	int *y = (int *)PParm->Value[2];
 
-    CFP.Value[0] = (void *)out_of_map(mt, x, y);
+	CFP.Value[0] = (void *)out_of_map(mt, x, y);
 
-    return &CFP;
+	return &CFP;
 }
 
 /*****************************************************************************/
@@ -634,8 +634,8 @@ CFParm* CFWOutOfMap(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWESRVSendItem(CFParm* PParm)
 {
-    esrv_send_item((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return(PParm);
+	esrv_send_item((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return(PParm);
 }
 
 /*****************************************************************************/
@@ -645,12 +645,12 @@ CFParm* CFWESRVSendItem(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWFindPlayer(CFParm* PParm)
 {
-    player *pl;
-    CFParm *CFP;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    pl = find_player((char *)(PParm->Value[0]));
-    CFP->Value[0] = (void *)(pl);
-    return CFP;
+	player *pl;
+	CFParm *CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	pl = find_player((char *)(PParm->Value[0]));
+	CFP->Value[0] = (void *)(pl);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -662,12 +662,12 @@ CFParm* CFWFindPlayer(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWManualApply(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = manual_apply((object *)(PParm->Value[0]), (object *)(PParm->Value[1]), *(int *)(PParm->Value[2]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = manual_apply((object *)(PParm->Value[0]), (object *)(PParm->Value[1]), *(int *)(PParm->Value[2]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -678,12 +678,12 @@ CFParm* CFWManualApply(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCmdDrop(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = command_drop((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = command_drop((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -694,14 +694,14 @@ CFParm* CFWCmdDrop(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCmdTake(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
+	CFParm *CFP;
+	static int val;
 
 	(void) PParm;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    /*val = command_take((object *)(PParm->Value[0]),(char *)(PParm->Value[1]));*/
-    CFP->Value[0] = &val;
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	/*val = command_take((object *)(PParm->Value[0]),(char *)(PParm->Value[1]));*/
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -715,12 +715,12 @@ CFParm* CFWCmdTake(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWTransferObject(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = transfer_ob((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), (object *)(PParm->Value[4]), (object *)(PParm->Value[5]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = transfer_ob((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), (object *)(PParm->Value[4]), (object *)(PParm->Value[5]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -731,14 +731,14 @@ CFParm* CFWTransferObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCmdTitle(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
+	CFParm *CFP;
+	static int val;
 
 	(void) PParm;
 
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -751,12 +751,12 @@ CFParm* CFWCmdTitle(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWKillObject(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = kill_object((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = kill_object((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -768,12 +768,12 @@ CFParm* CFWKillObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCheckSpellKnown(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = check_spell_known((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = check_spell_known((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -784,13 +784,13 @@ CFParm* CFWCheckSpellKnown(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWGetSpellNr(CFParm* PParm)
 {
-    static CFParm CFP;
-    static int val;
+	static CFParm CFP;
+	static int val;
 
 	val = look_up_spell_name((char *)PParm->Value[0]);
 
-    CFP.Value[0] = &val;
-    return &CFP;
+	CFP.Value[0] = &val;
+	return &CFP;
 }
 
 /*****************************************************************************/
@@ -806,7 +806,7 @@ CFParm* CFWDoLearnSpell(CFParm* PParm)
 	/* if mode = 1, unlearn - if mode =0 learn */
 	if (*(int *)(PParm->Value[2]))
 	{
-	    do_forget_spell((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
+		do_forget_spell((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
 	}
 	else
 	{
@@ -814,7 +814,7 @@ CFParm* CFWDoLearnSpell(CFParm* PParm)
 		/* The 0 parameter is marker for special_prayer - godgiven spells,
 		 * which will be deleted when player changes god. */
 	}
-    return NULL;
+	return NULL;
 }
 
 
@@ -826,12 +826,12 @@ CFParm* CFWDoLearnSpell(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCheckSkillKnown(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = check_skill_known((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
-    CFP->Value[0] = &val;
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = check_skill_known((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
+	CFP->Value[0] = &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -842,13 +842,13 @@ CFParm* CFWCheckSkillKnown(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWGetSkillNr(CFParm* PParm)
 {
-    static CFParm CFP;
-    static int val;
+	static CFParm CFP;
+	static int val;
 
 	val = lookup_skill_by_name((char *)PParm->Value[0]);
 
-    CFP.Value[0] = &val;
-    return &CFP;
+	CFP.Value[0] = &val;
+	return &CFP;
 }
 
 
@@ -861,14 +861,14 @@ CFParm* CFWGetSkillNr(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWDoLearnSkill(CFParm* PParm)
 {
-    if (*(int *)(PParm->Value[2]))
+	if (*(int *)(PParm->Value[2]))
 	{
 	}
 	else
 	{
 		learn_skill((object *)(PParm->Value[0]), NULL, NULL, *(int *)(PParm->Value[1]), 0);
 	}
-    return NULL;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -879,8 +879,8 @@ CFParm* CFWDoLearnSkill(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWESRVSendInventory(CFParm* PParm)
 {
-    esrv_send_inventory((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return NULL;
+	esrv_send_inventory((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -891,12 +891,12 @@ CFParm* CFWESRVSendInventory(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCreateArtifact(CFParm* PParm)
 {
-    CFParm *CFP;
-    object* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = create_artifact((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm *CFP;
+	object* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = create_artifact((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -906,15 +906,15 @@ CFParm* CFWCreateArtifact(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWGetArchetype(CFParm* PParm)
 {
-    /*object* get_archetype(char* name); */
-    CFParm *CFP;
-    object* val;
+	/*object* get_archetype(char* name); */
+	CFParm *CFP;
+	object* val;
 
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = get_archetype((char *)(PParm->Value[0]));
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = get_archetype((char *)(PParm->Value[0]));
 
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -924,8 +924,8 @@ CFParm* CFWGetArchetype(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWUpdateSpeed(CFParm* PParm)
 {
-    update_ob_speed((object *)(PParm->Value[0]));
-    return NULL;
+	update_ob_speed((object *)(PParm->Value[0]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -935,8 +935,8 @@ CFParm* CFWUpdateSpeed(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWUpdateObject(CFParm* PParm)
 {
-    update_object((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
-    return NULL;
+	update_object((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -946,14 +946,14 @@ CFParm* CFWUpdateObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWFindAnimation(CFParm* PParm)
 {
-    CFParm *CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    LOG(llevInfo, "CFWFindAnimation: %s\n",(char *)(PParm->Value[0]));
-    val = find_animation((char *)(PParm->Value[0]));
-    LOG(llevInfo, "Returned val: %i\n",val);
-    CFP->Value[0] = (void *)(&val);
-    return CFP;
+	CFParm *CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	LOG(llevInfo, "CFWFindAnimation: %s\n",(char *)(PParm->Value[0]));
+	val = find_animation((char *)(PParm->Value[0]));
+	LOG(llevInfo, "Returned val: %i\n",val);
+	CFP->Value[0] = (void *)(&val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -963,12 +963,12 @@ CFParm* CFWFindAnimation(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWGetArchetypeByObjectName(CFParm* PParm)
 {
-    CFParm *CFP;
-    object* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = get_archetype_by_object_name((char *)(PParm->Value[0]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm *CFP;
+	object* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = get_archetype_by_object_name((char *)(PParm->Value[0]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -979,10 +979,10 @@ CFParm* CFWGetArchetypeByObjectName(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWInsertObjectInObject(CFParm* PParm)
 {
-    static CFParm CFP; /* do it static */
+	static CFParm CFP; /* do it static */
 
-    CFP.Value[0] = (void *) insert_ob_in_ob((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
-    return &CFP;
+	CFP.Value[0] = (void *) insert_ob_in_ob((object *)(PParm->Value[0]), (object *)(PParm->Value[1]));
+	return &CFP;
 }
 
 /*****************************************************************************/
@@ -995,12 +995,12 @@ CFParm* CFWInsertObjectInObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWInsertObjectInMap(CFParm* PParm)
 {
-    CFParm *CFP;
-    object* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = insert_ob_in_map((object *)(PParm->Value[0]), (mapstruct *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm *CFP;
+	object* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = insert_ob_in_map((object *)(PParm->Value[0]), (mapstruct *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 
@@ -1012,12 +1012,12 @@ CFParm* CFWInsertObjectInMap(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWReadyMapName(CFParm* PParm)
 {
-    CFParm* CFP;
-    mapstruct* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = ready_map_name((char *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm* CFP;
+	mapstruct* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = ready_map_name((char *)(PParm->Value[0]), *(int *)(PParm->Value[1]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1217,10 +1217,10 @@ CFParm* CFWPlayerExists(CFParm* PParm)
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 	int val = 0;
-    char *playerName = (char *)PParm->Value[0];
+	char *playerName = (char *)PParm->Value[0];
 	CFParm* CFP;
 
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
 
 	db_open(DB_DEFAULT, &db);
 
@@ -1253,8 +1253,8 @@ CFParm* CFWPlayerExists(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWAddExp(CFParm* PParm)
 {
-    add_exp((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]));
-    return(PParm);
+	add_exp((object *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]));
+	return(PParm);
 }
 
 /*****************************************************************************/
@@ -1264,12 +1264,12 @@ CFParm* CFWAddExp(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWDetermineGod(CFParm* PParm)
 {
-    CFParm* CFP;
-    const char* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = determine_god((object *)(PParm->Value[0]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm* CFP;
+	const char* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = determine_god((object *)(PParm->Value[0]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1279,12 +1279,12 @@ CFParm* CFWDetermineGod(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWFindGod(CFParm* PParm)
 {
-    CFParm* CFP;
-    object* val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = find_god((char *)(PParm->Value[0]));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFParm* CFP;
+	object* val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = find_god((char *)(PParm->Value[0]));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1294,14 +1294,14 @@ CFParm* CFWFindGod(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWDumpObject(CFParm* PParm)
 {
-    CFParm* CFP;
-    char*   val;
+	CFParm* CFP;
+	char*   val;
 	/* object* ob; not used */
-    val = (char *)(malloc(sizeof(char) * 10240));
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    dump_me((object *)(PParm->Value[0]), val);
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	val = (char *)(malloc(sizeof(char) * 10240));
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	dump_me((object *)(PParm->Value[0]), val);
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1311,14 +1311,14 @@ CFParm* CFWDumpObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWLoadObject(CFParm* PParm)
 {
-    CFParm* CFP;
-    object* val;
+	CFParm* CFP;
+	object* val;
 
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = load_object_str((char *)(PParm->Value[0]));
-    LOG(llevDebug, "CFWLoadObject: %s\n", query_name(val, NULL));
-    CFP->Value[0] = (void *)(val);
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = load_object_str((char *)(PParm->Value[0]));
+	LOG(llevDebug, "CFWLoadObject: %s\n", query_name(val, NULL));
+	CFP->Value[0] = (void *)(val);
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1328,72 +1328,72 @@ CFParm* CFWLoadObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWRemoveObject(CFParm* PParm)
 {
-    remove_ob((object *)(PParm->Value[0]));
-    return NULL;
+	remove_ob((object *)(PParm->Value[0]));
+	return NULL;
 }
 
 CFParm* CFWAddString(CFParm* PParm)
 {
-    static CFParm CFP;
-    char *val;
-    /*CFP = (CFParm*)(malloc(sizeof(CFParm)));*/
-    val = (char *)(PParm->Value[0]);
+	static CFParm CFP;
+	char *val;
+	/*CFP = (CFParm*)(malloc(sizeof(CFParm)));*/
+	val = (char *)(PParm->Value[0]);
 	CFP.Value[0]=NULL;
 	FREE_AND_COPY_HASH(CFP.Value[0], val);
-    return &CFP;
+	return &CFP;
 }
 
 CFParm* CFWAddRefcount(CFParm* PParm)
 {
-    static CFParm CFP;
-    char *val;
-    val = (char *)(PParm->Value[0]);
-    CFP.Value[0] = NULL;
+	static CFParm CFP;
+	char *val;
+	val = (char *)(PParm->Value[0]);
+	CFP.Value[0] = NULL;
 	FREE_AND_ADD_REF_HASH(CFP.Value[0], val);
-    return &CFP;
+	return &CFP;
 }
 
 CFParm* CFWFreeString(CFParm* PParm)
 {
-    char* val;
-    val = (char *)(PParm->Value[0]);
+	char* val;
+	val = (char *)(PParm->Value[0]);
 	FREE_AND_CLEAR_HASH(val);
-    return NULL;
+	return NULL;
 }
 
 CFParm* CFWGetFirstMap(CFParm* PParm)
 {
-    CFParm* CFP;
+	CFParm* CFP;
 
 	(void) PParm;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*)(first_map) ;
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*)(first_map) ;
+	return CFP;
 }
 
 CFParm* CFWGetFirstPlayer(CFParm* PParm)
 {
-    CFParm* CFP;
+	CFParm* CFP;
 
 	(void) PParm;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*)(first_player) ;
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*)(first_player) ;
+	return CFP;
 }
 
 CFParm* CFWGetFirstArchetype(CFParm* PParm)
 {
-    CFParm* CFP;
+	CFParm* CFP;
 
 	(void) PParm;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*)(first_archetype) ;
-    return CFP;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*)(first_archetype) ;
+	return CFP;
 }
 
 CFParm* CFWDeposit(CFParm* PParm)
 {
-    static CFParm CFP;
+	static CFParm CFP;
 	static int val;
 	int pos = 0;
 	char *text = (char *)(PParm->Value[2]);
@@ -1468,12 +1468,12 @@ CFParm* CFWDeposit(CFParm* PParm)
 		fix_player(who);
 	}
 
-    return &CFP;
+	return &CFP;
 }
 
 CFParm* CFWWithdraw(CFParm* PParm)
 {
-    static CFParm CFP;
+	static CFParm CFP;
 	static int val;
 	int pos = 0;
 	/* TODO: value should be int64 later! */
@@ -1529,7 +1529,7 @@ CFParm* CFWWithdraw(CFParm* PParm)
 		fix_player(who);
 	}
 
-    return &CFP;
+	return &CFP;
 }
 
 
@@ -1542,10 +1542,10 @@ CFParm* CFWWithdraw(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWShowCost(CFParm* PParm)
 {
-    static CFParm CFP;
+	static CFParm CFP;
 
 	CFP.Value[0] = cost_string_from_value(*(int*)(PParm->Value[0]));
-    return &CFP;
+	return &CFP;
 }
 
 /*****************************************************************************/
@@ -1557,18 +1557,18 @@ CFParm* CFWShowCost(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWQueryCost(CFParm* PParm)
 {
-    CFParm* CFP;
-    object* whatptr;
-    object* whoptr;
-    int flag;
-    static double val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    whatptr = (object *)(PParm->Value[0]);
-    whoptr = (object *)(PParm->Value[1]);
-    flag = *(int*)(PParm->Value[2]);
-    val = query_cost(whatptr,whoptr,flag);
-    CFP->Value[0] = (void*) &val;
-    return CFP;
+	CFParm* CFP;
+	object* whatptr;
+	object* whoptr;
+	int flag;
+	static double val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	whatptr = (object *)(PParm->Value[0]);
+	whoptr = (object *)(PParm->Value[1]);
+	flag = *(int*)(PParm->Value[2]);
+	val = query_cost(whatptr,whoptr,flag);
+	CFP->Value[0] = (void*) &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1578,14 +1578,14 @@ CFParm* CFWQueryCost(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWQueryMoney(CFParm* PParm)
 {
-    CFParm* CFP;
-    object* whoptr;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    whoptr = (object *)(PParm->Value[0]);
-    val=query_money (whoptr);
-    CFP->Value[0] = (void*) &val;
-    return CFP;
+	CFParm* CFP;
+	object* whoptr;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	whoptr = (object *)(PParm->Value[0]);
+	val=query_money (whoptr);
+	CFP->Value[0] = (void*) &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1596,16 +1596,16 @@ CFParm* CFWQueryMoney(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWPayForItem(CFParm* PParm)
 {
-    CFParm* CFP;
-    object* whatptr;
-    object* whoptr;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    whatptr = (object *)(PParm->Value[0]);
-    whoptr = (object *)(PParm->Value[1]);
-    val= pay_for_item (whatptr,whoptr);
-    CFP->Value[0] = (void*) &val;
-    return CFP;
+	CFParm* CFP;
+	object* whatptr;
+	object* whoptr;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	whatptr = (object *)(PParm->Value[0]);
+	whoptr = (object *)(PParm->Value[1]);
+	val= pay_for_item (whatptr,whoptr);
+	CFP->Value[0] = (void*) &val;
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1616,23 +1616,23 @@ CFParm* CFWPayForItem(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWPayForAmount(CFParm* PParm)
 {
-    CFParm* CFP;
-    int amount;
-    object* whoptr;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    amount = *(int *)(PParm->Value[0]);
-    whoptr = (object *)(PParm->Value[1]);
-    val= pay_for_amount (amount,whoptr);
-    CFP->Value[0] = (void*) &val;
-    return CFP;
+	CFParm* CFP;
+	int amount;
+	object* whoptr;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	amount = *(int *)(PParm->Value[0]);
+	whoptr = (object *)(PParm->Value[1]);
+	val= pay_for_amount (amount,whoptr);
+	CFP->Value[0] = (void*) &val;
+	return CFP;
 }
 
 /*new_draw_info(int flags, int pri, object *pl, const char *buf); */
 CFParm* CFWNewDrawInfo(CFParm* PParm)
 {
-    new_draw_info(*(int *)(PParm->Value[0]), *(int *)(PParm->Value[1]), (object *)(PParm->Value[2]), (char *)(PParm->Value[3]));
-    return NULL;
+	new_draw_info(*(int *)(PParm->Value[0]), *(int *)(PParm->Value[1]), (object *)(PParm->Value[2]), (char *)(PParm->Value[3]));
+	return NULL;
 }
 /*****************************************************************************/
 /* move_player wrapper.                                                      */
@@ -1642,12 +1642,12 @@ CFParm* CFWNewDrawInfo(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWMovePlayer (CFParm* PParm)
 {
-    CFParm* CFP;
-    static int val;
-    val = move_player((object*)PParm->Value[0], *(int*)PParm->Value[1]);
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*) &val;
-    return(CFP);
+	CFParm* CFP;
+	static int val;
+	val = move_player((object*)PParm->Value[0], *(int*)PParm->Value[1]);
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*) &val;
+	return(CFP);
 }
 /*****************************************************************************/
 /* move_object wrapper.                                                      */
@@ -1658,43 +1658,43 @@ CFParm* CFWMovePlayer (CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWMoveObject (CFParm* PParm)
 {
-    CFParm* CFP;
-    static int val;
-    val = move_ob ((object*)PParm->Value[0], *(int*)PParm->Value[1], (object*)PParm->Value[2]);
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*) &val;
+	CFParm* CFP;
+	static int val;
+	val = move_ob ((object*)PParm->Value[0], *(int*)PParm->Value[1], (object*)PParm->Value[2]);
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*) &val;
 
-    return(CFP);
+	return(CFP);
 }
 
 CFParm* CFWSendCustomCommand(CFParm* PParm)
 {
-    send_plugin_custom_message((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
-    return NULL;
+	send_plugin_custom_message((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
+	return NULL;
 }
 
 /* not used atm! */
 CFParm* CFWCFTimerCreate(CFParm* PParm)
 {
 	/* int cftimer_create(int id, long delay, object* ob, int mode) */
-    CFParm* CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = cftimer_create(*(int *)(PParm->Value[0]), *(long *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
-    CFP->Value[0] = (void *)(&val);
-    return CFP;
+	CFParm* CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = cftimer_create(*(int *)(PParm->Value[0]), *(long *)(PParm->Value[1]), (object *)(PParm->Value[2]), *(int *)(PParm->Value[3]));
+	CFP->Value[0] = (void *)(&val);
+	return CFP;
 }
 
 /* not used atm! */
 CFParm* CFWCFTimerDestroy(CFParm* PParm)
 {
 	/*int cftimer_destroy(int id) */
-    CFParm* CFP;
-    static int val;
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    val = cftimer_destroy(*(int *)(PParm->Value[0]));
-    CFP->Value[0] = (void *)(&val);
-    return CFP;
+	CFParm* CFP;
+	static int val;
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	val = cftimer_destroy(*(int *)(PParm->Value[0]));
+	CFP->Value[0] = (void *)(&val);
+	return CFP;
 }
 /*****************************************************************************/
 /* SET_ANIMATION wrapper.                                                    */
@@ -1704,14 +1704,14 @@ CFParm* CFWCFTimerDestroy(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWSetAnimation (CFParm* PParm)
 {
-    object* op = (object*)PParm->Value[0];
-    int face = *(int*)PParm->Value[1];
-    if (face != -1)
-    {
-        SET_ANIMATION(op, face);
-    }
-    update_object(op, UP_OBJ_FACE);
-    return(PParm);
+	object* op = (object*)PParm->Value[0];
+	int face = *(int*)PParm->Value[1];
+	if (face != -1)
+	{
+		SET_ANIMATION(op, face);
+	}
+	update_object(op, UP_OBJ_FACE);
+	return(PParm);
 }
 
 /*****************************************************************************/
@@ -1722,14 +1722,14 @@ CFParm* CFWSetAnimation (CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWCommunicate (CFParm* PParm)
 {
-    /*char buf[MAX_BUF];*/
-    object* op = (object*)PParm->Value[0];
-    char* string = (char*)PParm->Value[1];
-    if ((!op) || (!string))
+	/*char buf[MAX_BUF];*/
+	object* op = (object*)PParm->Value[0];
+	char* string = (char*)PParm->Value[1];
+	if ((!op) || (!string))
 		return NULL;
 
-    communicate(op, string);
-    return NULL;
+	communicate(op, string);
+	return NULL;
 }
 /*****************************************************************************/
 /* find_best_object_match wrapper.                                           */
@@ -1739,15 +1739,15 @@ CFParm* CFWCommunicate (CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWFindBestObjectMatch (CFParm* PParm)
 {
-    CFParm* CFP;
-    object* op=(object*)PParm->Value[0];
-    char* param=(char*)PParm->Value[1];
-    object* result;
-    result=(object*)find_best_object_match(op, param);
-    CFP = (CFParm*)(malloc(sizeof(CFParm)));
-    CFP->Value[0] = (void*) result;
+	CFParm* CFP;
+	object* op=(object*)PParm->Value[0];
+	char* param=(char*)PParm->Value[1];
+	object* result;
+	result=(object*)find_best_object_match(op, param);
+	CFP = (CFParm*)(malloc(sizeof(CFParm)));
+	CFP->Value[0] = (void*) result;
 
-    return(CFP);
+	return(CFP);
 }
 /*****************************************************************************/
 /* player_apply_below wrapper.                                               */
@@ -1756,13 +1756,13 @@ CFParm* CFWFindBestObjectMatch (CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWApplyBelow(CFParm* PParm)
 {
-    object* op = (object*)PParm->Value[0];
+	object* op = (object*)PParm->Value[0];
 
-    if (!op)
+	if (!op)
 		return NULL;
 
-    player_apply_below(op);
-    return NULL;
+	player_apply_below(op);
+	return NULL;
 }
 /*****************************************************************************/
 /* free_object wrapper. TODO: get rid of                                     */
@@ -1774,11 +1774,11 @@ CFParm* CFWFreeObject(CFParm* PParm)
 	(void) PParm;
 
 #if 0
-    object* op = (object*)PParm->Value[0];
-   	if (op)
+	object* op = (object*)PParm->Value[0];
+	if (op)
 		free_object(op);
 #endif
-    return NULL;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -1792,13 +1792,13 @@ CFParm* CFWFindMarkedObject(CFParm* PParm)
 {
 	static CFParm CFP;
 
-    object* op = (object*)PParm->Value[0];
-    if (op)
+	object* op = (object*)PParm->Value[0];
+	if (op)
 		op = find_marked_object(op);
 
-    CFP.Value[0] = (void*) op;
+	CFP.Value[0] = (void*) op;
 
-    return(&CFP);
+	return(&CFP);
 }
 
 /*****************************************************************************/
@@ -1810,9 +1810,9 @@ CFParm* CFWFindMarkedObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWIdentifyObject(CFParm* PParm)
 {
-    object* caster = (object*)PParm->Value[0];
-    object* target = (object*)PParm->Value[1];
-    object* op = (object*)PParm->Value[2];
+	object* caster = (object*)PParm->Value[0];
+	object* target = (object*)PParm->Value[1];
+	object* op = (object*)PParm->Value[2];
 
 
 	cast_identify(target, caster->level, op, *(int *)(PParm->Value[3]));
@@ -1822,7 +1822,7 @@ CFParm* CFWIdentifyObject(CFParm* PParm)
 	else if (target)
 		play_sound_map(target->map, target->x, target->y, spells[SP_IDENTIFY].sound , SOUND_SPELL);
 
-    return NULL;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -1834,17 +1834,17 @@ CFParm* CFWIdentifyObject(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWObjectCreateClone(CFParm* PParm)
 {
-    CFParm* CFP = (CFParm*)malloc(sizeof (CFParm));
-    if (*(int*)PParm->Value[1] == 0)
-        CFP->Value[0]=ObjectCreateClone ((object*)PParm->Value[0]);
-    else if (*(int*)PParm->Value[1] == 1)
-    {
-        object* tmp;
-        tmp = get_object();
-        copy_object((object*)PParm->Value[0], tmp);
-        CFP->Value[0] = tmp;
-    }
-    return CFP;
+	CFParm* CFP = (CFParm*)malloc(sizeof (CFParm));
+	if (*(int*)PParm->Value[1] == 0)
+		CFP->Value[0]=ObjectCreateClone ((object*)PParm->Value[0]);
+	else if (*(int*)PParm->Value[1] == 1)
+	{
+		object* tmp;
+		tmp = get_object();
+		copy_object((object*)PParm->Value[0], tmp);
+		CFP->Value[0] = tmp;
+	}
+	return CFP;
 }
 
 /*****************************************************************************/
@@ -1859,28 +1859,28 @@ CFParm* CFWObjectCreateClone(CFParm* PParm)
 /*****************************************************************************/
 CFParm* CFWTeleportObject (CFParm* PParm)
 {
-    object* current;
-/*  char * mapname; not used
-    int mapx;
-    int mapy;
-    int unique; not used */
-    current=get_object();
-    FREE_AND_COPY_HASH(EXIT_PATH(current), (char*)PParm->Value[1]);
-    EXIT_X(current) = *(int*)PParm->Value[2];
-    EXIT_Y(current) = *(int*)PParm->Value[3];
+	object* current;
+	/*  char * mapname; not used
+	    int mapx;
+	    int mapy;
+	    int unique; not used */
+	current=get_object();
+	FREE_AND_COPY_HASH(EXIT_PATH(current), (char*)PParm->Value[1]);
+	EXIT_X(current) = *(int*)PParm->Value[2];
+	EXIT_Y(current) = *(int*)PParm->Value[3];
 
-    if (*(int*)PParm->Value[4])
+	if (*(int*)PParm->Value[4])
 		current->last_eat = MAP_PLAYER_MAP;
 
-    if (PParm->Value[5])
+	if (PParm->Value[5])
 		FREE_AND_COPY_HASH(current->msg, (char*)PParm->Value[5]);
 
-    enter_exit((object*) PParm->Value[0],current);
+	enter_exit((object*) PParm->Value[0],current);
 
 	if (((object*) PParm->Value[0])->map)
 		play_sound_map(((object*) PParm->Value[0])->map, ((object*) PParm->Value[0])->x, ((object*) PParm->Value[0])->y, SOUND_TELEPORT, SOUND_NORMAL);
 
-    return NULL;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -1894,15 +1894,15 @@ CFParm* CFWTeleportObject (CFParm* PParm)
 /*****************************************************************************/
 CFParm* RegisterGlobalEvent(CFParm* PParm)
 {
-    int PNR = findPlugin((char *)(PParm->Value[1]));
+	int PNR = findPlugin((char *)(PParm->Value[1]));
 
 #ifdef LOG_VERBOSE
-    LOG(llevDebug, "Plugin %s (%i) registered the event %i\n", (char *)(PParm->Value[1]), PNR, *(int *)(PParm->Value[0]));
+	LOG(llevDebug, "Plugin %s (%i) registered the event %i\n", (char *)(PParm->Value[1]), PNR, *(int *)(PParm->Value[0]));
 #endif
 
-    LOG(llevDebug, "Plugin %s (%i) registered the event %i\n", (char *)(PParm->Value[1]), PNR, *(int *)(PParm->Value[0]));
-    PlugList[PNR].gevent[*(int *)(PParm->Value[0])] = 1;
-    return NULL;
+	LOG(llevDebug, "Plugin %s (%i) registered the event %i\n", (char *)(PParm->Value[1]), PNR, *(int *)(PParm->Value[0]));
+	PlugList[PNR].gevent[*(int *)(PParm->Value[0])] = 1;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -1913,9 +1913,9 @@ CFParm* RegisterGlobalEvent(CFParm* PParm)
 /*****************************************************************************/
 CFParm* UnregisterGlobalEvent(CFParm* PParm)
 {
-    int PNR = findPlugin((char *)(PParm->Value[1]));
-    PlugList[PNR].gevent[*(int *)(PParm->Value[0])] = 0;
-    return NULL;
+	int PNR = findPlugin((char *)(PParm->Value[1]));
+	PlugList[PNR].gevent[*(int *)(PParm->Value[0])] = 0;
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -1926,14 +1926,14 @@ CFParm* UnregisterGlobalEvent(CFParm* PParm)
 /*****************************************************************************/
 void GlobalEvent(CFParm *PParm)
 {
-    int i;
-    for (i = 0; i < PlugNR; i++)
-    {
-        if (PlugList[i].gevent[*(int *)(PParm->Value[0])] != 0)
-        {
-            (PlugList[i].eventfunc)(PParm);
-        }
-    }
+	int i;
+	for (i = 0; i < PlugNR; i++)
+	{
+		if (PlugList[i].gevent[*(int *)(PParm->Value[0])] != 0)
+		{
+			(PlugList[i].eventfunc)(PParm);
+		}
+	}
 }
 
 /**
@@ -1945,8 +1945,8 @@ void GlobalEvent(CFParm *PParm)
 void trigger_global_event(int event_type, void *parm1, void *parm2)
 {
 #ifdef PLUGINS
-    int evtid = event_type;
-    CFParm CFP;
+	int evtid = event_type;
+	CFParm CFP;
 
 	CFP.Value[0] = (void *)(&evtid);
 	CFP.Value[1] = (void *)(parm1);
@@ -2069,8 +2069,8 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 /*****************************************************************************/
 CFParm* CFWPlaySoundMap(CFParm* PParm)
 {
-    play_sound_map((mapstruct *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]));
-    return NULL;
+	play_sound_map((mapstruct *)(PParm->Value[0]), *(int *)(PParm->Value[1]), *(int *)(PParm->Value[2]), *(int *)(PParm->Value[3]), *(int *)(PParm->Value[4]));
+	return NULL;
 }
 
 /*****************************************************************************/
@@ -2084,22 +2084,22 @@ CFParm* CFWPlaySoundMap(CFParm* PParm)
 CFParm* CFWCreateObject(CFParm* PParm)
 {
 	static CFParm CFP;
-    archetype *arch;
-    object *newobj;
+	archetype *arch;
+	object *newobj;
 
-    CFP.Value[0] = NULL;
+	CFP.Value[0] = NULL;
 
-    if (!(arch = find_archetype((char *)(PParm->Value[0]))))
-        return(&CFP);
+	if (!(arch = find_archetype((char *)(PParm->Value[0]))))
+		return(&CFP);
 
-    if (!(newobj = arch_to_object(arch)))
-        return(&CFP);
+	if (!(newobj = arch_to_object(arch)))
+		return(&CFP);
 
-    newobj->x = *(int *)(PParm->Value[2]);
-    newobj->y = *(int *)(PParm->Value[3]);
+	newobj->x = *(int *)(PParm->Value[2]);
+	newobj->y = *(int *)(PParm->Value[3]);
 
-    newobj = insert_ob_in_map(newobj, (mapstruct *)(PParm->Value[1]), NULL, 0);
+	newobj = insert_ob_in_map(newobj, (mapstruct *)(PParm->Value[1]), NULL, 0);
 
-    CFP.Value[0] = newobj;
-    return (&CFP);
+	CFP.Value[0] = newobj;
+	return (&CFP);
 }

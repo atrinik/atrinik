@@ -39,37 +39,37 @@
  * when hit a deadly trap or something). */
 int move_ob(object *op, int dir, object *originator)
 {
-    object *tmp;
+	object *tmp;
 	mapstruct *m;
 	int xt, yt, flags;
 
-    if (op == NULL)
+	if (op == NULL)
 	{
 		LOG(llevBug, "BUG: move_ob(): Trying to move NULL.\n");
 		return 0;
-    }
+	}
 
-    if (QUERY_FLAG(op, FLAG_REMOVED))
+	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
 		LOG(llevBug, "BUG: move_ob: monster has been removed - will not process further\n");
 		return 0;
-    }
+	}
 
-    /* this function should now only be used on the head - it won't call itself
-     * recursively, and functions calling us should pass the right part. */
-    if (op->head)
+	/* this function should now only be used on the head - it won't call itself
+	 * recursively, and functions calling us should pass the right part. */
+	if (op->head)
 	{
 		LOG(llevDebug, "DEBUG: move_ob() called with non head object: %s %s (%d,%d)\n", query_name(op->head, NULL), op->map->path ? op->map->path : "<no map>", op->x, op->y);
 		op = op->head;
-    }
+	}
 
 	/* animation stuff */
-    if (op->head)
-        op->head->anim_moving_dir = dir;
-    else
-        op->anim_moving_dir = dir;
+	if (op->head)
+		op->head->anim_moving_dir = dir;
+	else
+		op->anim_moving_dir = dir;
 
-    op->direction = dir;
+	op->direction = dir;
 
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
@@ -88,7 +88,7 @@ int move_ob(object *op, int dir, object *originator)
 	 * then there is no reason why we can't hit the wall - even when we can't enter in. */
 
 	/* multi arch objects... */
-    if (op->more)
+	if (op->more)
 	{
 		/* insert new blocked_link() here which can hit ALL earthwalls */
 		/* but as long monster don't destroy walls and no mult arch player
@@ -117,7 +117,7 @@ int move_ob(object *op, int dir, object *originator)
 		return 1;
 	}
 
-    /* single arch */
+	/* single arch */
 	if (!QUERY_FLAG(op, FLAG_WIZPASS))
 	{
 		/* is the spot blocked from something? */
@@ -175,14 +175,14 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 
 	/* this is not 100% tested for mobs - enter_exit will still fail to return for mobs */
 	/* but some testing should make it for mobs too */
-    if (trap != NULL && EXIT_PATH(trap))
+	if (trap != NULL && EXIT_PATH(trap))
 	{
 		if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
-		    new_draw_info (NDI_NAVY, 0, op, trap->msg);
+			new_draw_info (NDI_NAVY, 0, op, trap->msg);
 
 		enter_exit(op, trap);
 		return 1;
-    }
+	}
 	else if (randomly)
 		i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
 	else
@@ -210,7 +210,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	if (op->type == PLAYER)
 		MapNewmapCmd(CONTR(op));
 
-  	return ret;
+	return ret;
 }
 
 /* Return value: 1 if object was destroyed, 0 otherwise.
@@ -226,21 +226,21 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 int teleport(object *teleporter, uint8 tele_type, object *user)
 {
 	/* Better use c/malloc here in the future */
-    object *altern[120];
-    int i, j, k, nrofalt = 0, xt, yt;
-    object *other_teleporter, *tmp;
+	object *altern[120];
+	int i, j, k, nrofalt = 0, xt, yt;
+	object *other_teleporter, *tmp;
 	mapstruct *m;
 
-    if (user == NULL)
+	if (user == NULL)
 		return 0;
 
-    if (user->head != NULL)
+	if (user->head != NULL)
 		user = user->head;
 
-    /* Find all other teleporters within range.  This range
-     * should really be setable by some object attribute instead of
-     * using hard coded values. */
-    for (i = -5; i < 6; i++)
+	/* Find all other teleporters within range.  This range
+	 * should really be setable by some object attribute instead of
+	 * using hard coded values. */
+	for (i = -5; i < 6; i++)
 	{
 		for (j = -5; j < 6; j++)
 		{
@@ -268,36 +268,36 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 		}
 	}
 
-    if (!nrofalt)
+	if (!nrofalt)
 	{
 		LOG(llevBug, "BUG: teleport(): No alternative teleporters around!\n");
 		return 0;
-    }
+	}
 
-    other_teleporter = altern[RANDOM() % nrofalt];
-    k = find_free_spot(user->arch, user, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
+	other_teleporter = altern[RANDOM() % nrofalt];
+	k = find_free_spot(user->arch, user, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
 
-    if (k == -1)
+	if (k == -1)
 		return 0;
 
-    remove_ob(user);
+	remove_ob(user);
 
 	if (check_walk_off(user, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
 		return 1;
 
-    /* Update location for the object */
-    for(tmp=user;tmp!=NULL;tmp=tmp->more)
+	/* Update location for the object */
+	for (tmp=user;tmp!=NULL;tmp=tmp->more)
 	{
 		tmp->x = other_teleporter->x + freearr_x[k] + (tmp->arch == NULL ? 0 : tmp->arch->clone.x);
 		tmp->y = other_teleporter->y + freearr_y[k] + (tmp->arch == NULL ? 0 : tmp->arch->clone.y);
-    }
+	}
 
-    tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
+	tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
 
-    if (tmp && tmp->type == PLAYER)
+	if (tmp && tmp->type == PLAYER)
 		MapNewmapCmd(CONTR(tmp));
 
-    return (tmp == NULL);
+	return (tmp == NULL);
 }
 
 void recursive_roll(object *op, int dir, object *pusher)
@@ -319,14 +319,14 @@ void recursive_roll(object *op, int dir, object *pusher)
  * very new version handles also multipart objects */
 int try_fit(object *op, int x, int y)
 {
-    object *tmp, *more;
+	object *tmp, *more;
 	mapstruct *m;
-    int tx, ty;
+	int tx, ty;
 
-    if (op->head)
+	if (op->head)
 		op = op->head;
 
-    for (more = op; more; more = more->more)
+	for (more = op; more; more = more->more)
 	{
 		tx = x + more->x - op->x;
 		ty = y + more->y - op->y;
@@ -344,43 +344,43 @@ int try_fit(object *op, int x, int y)
 			if (QUERY_FLAG(tmp, FLAG_NO_PASS) && (!QUERY_FLAG(tmp, FLAG_PASS_THRU) || !QUERY_FLAG(more, FLAG_CAN_PASS_THRU)))
 				return 1;
 		}
-    }
-    return 0;
+	}
+	return 0;
 }
 
 /* this is not perfect yet. *
  * it does not roll objects behind multipart objects properly. */
 int roll_ob(object *op, int dir, object *pusher)
 {
-    object *tmp;
+	object *tmp;
 	mapstruct *m;
-    int x, y;
+	int x, y;
 
-    if (op->head)
+	if (op->head)
 		op = op->head;
 
-    if (!QUERY_FLAG(op, FLAG_CAN_ROLL) || (op->weight && (op->weight / 50000 - 1 > 0 ? random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) : 0) > pusher->stats.Str))
+	if (!QUERY_FLAG(op, FLAG_CAN_ROLL) || (op->weight && (op->weight / 50000 - 1 > 0 ? random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) : 0) > pusher->stats.Str))
 		return 0;
 
-    x = op->x + freearr_x[dir];
-    y = op->y + freearr_y[dir];
+	x = op->x + freearr_x[dir];
+	y = op->y + freearr_y[dir];
 
-    if (!(m = out_of_map(op->map, &x, &y)))
+	if (!(m = out_of_map(op->map, &x, &y)))
 		return 0;
 
-    for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
+	for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
 	{
 		if (tmp->head == op)
 			continue;
 
 		if (IS_LIVE(tmp) || (QUERY_FLAG(tmp, FLAG_NO_PASS) && !roll_ob(tmp, dir, pusher)))
 			return 0;
-    }
+	}
 
-    if (try_fit(op, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	if (try_fit(op, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 		return 0;
 
-    remove_ob(op);
+	remove_ob(op);
 
 	if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
 		return 0;
@@ -388,28 +388,27 @@ int roll_ob(object *op, int dir, object *pusher)
 	for (tmp = op; tmp != NULL; tmp = tmp->more)
 		tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
 
-    insert_ob_in_map(op, op->map, pusher, 0);
-    return 1;
+	insert_ob_in_map(op, op->map, pusher, 0);
+	return 1;
 }
 
 /* returns 1 if pushing invokes a attack, 0 when not */
 /* new combat command do the attack now - i disabled push attacks */
 int push_ob(object *who, int dir, object *pusher)
 {
-    int str1, str2;
-    object *owner;
+	int str1, str2;
+	object *owner;
 
-    if (who->head != NULL)
+	if (who->head != NULL)
 		who = who->head;
 
-    owner = get_owner(who);
+	owner = get_owner(who);
 
-    /* Wake up sleeping monsters that may be pushed */
-    CLEAR_FLAG(who, FLAG_SLEEP);
+	/* Wake up sleeping monsters that may be pushed */
+	CLEAR_FLAG(who, FLAG_SLEEP);
 
-    /* player change place with his pets or summoned creature */
-    /* TODO: allow multi arch pushing. Can't be very difficult */
-    if (who->more == NULL && owner == pusher)
+	/* player change place with his pets or summoned creature */
+	if (who->more == NULL && owner == pusher)
 	{
 		int temp;
 		temp = pusher->x;
@@ -444,41 +443,41 @@ int push_ob(object *who, int dir, object *pusher)
 		insert_ob_in_map(pusher, pusher->map, pusher, 0);
 
 		return 0;
-  	}
+	}
 
-    /* now, lets test stand still we NEVER can psuh stand_still monsters. */
-    if (QUERY_FLAG(who, FLAG_STAND_STILL))
-    {
+	/* now, lets test stand still we NEVER can psuh stand_still monsters. */
+	if (QUERY_FLAG(who, FLAG_STAND_STILL))
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, pusher, "You can't push %s.", who->name);
 		return 0;
-    }
+	}
 
-    /* This block is basically if you are pushing friendly but
-     * non pet creaturs.
-     * It basically does a random strength comparision to
-     * determine if you can push someone around.  Note that
-     * this pushes the other person away - its not a swap. */
+	/* This block is basically if you are pushing friendly but
+	 * non pet creaturs.
+	 * It basically does a random strength comparision to
+	 * determine if you can push someone around.  Note that
+	 * this pushes the other person away - its not a swap. */
 
-   	str1 = (who->stats.Str > 0 ? who->stats.Str : who->level);
-    str2 = (pusher->stats.Str > 0 ? pusher->stats.Str : pusher->level);
+	str1 = (who->stats.Str > 0 ? who->stats.Str : who->level);
+	str2 = (pusher->stats.Str > 0 ? pusher->stats.Str : pusher->level);
 
-    if (QUERY_FLAG(who, FLAG_WIZ) || random_roll(str1, str1 / 2 + str1 * 2, who, PREFER_HIGH) >= random_roll(str2, str2 / 2 + str2 * 2, pusher, PREFER_HIGH) || !move_ob(who, dir, pusher))
-    {
+	if (QUERY_FLAG(who, FLAG_WIZ) || random_roll(str1, str1 / 2 + str1 * 2, who, PREFER_HIGH) >= random_roll(str2, str2 / 2 + str2 * 2, pusher, PREFER_HIGH) || !move_ob(who, dir, pusher))
+	{
 		if (who ->type == PLAYER)
-	    	new_draw_info_format(NDI_UNIQUE, 0, who, "%s tried to push you.", pusher->name);
+			new_draw_info_format(NDI_UNIQUE, 0, who, "%s tried to push you.", pusher->name);
 		return 0;
-    }
+	}
 
-    /* If we get here, the push succeeded.  Let each now the
-     * status.  I'm not sure if the second statement really needs
-     * to be in an else block - the message is going to a different
-     * player */
-    if (who->type == PLAYER)
+	/* If we get here, the push succeeded.  Let each now the
+	 * status.  I'm not sure if the second statement really needs
+	 * to be in an else block - the message is going to a different
+	 * player */
+	if (who->type == PLAYER)
 		new_draw_info_format(NDI_UNIQUE, 0, who, "%s pushed you.",pusher->name);
-    else if (QUERY_FLAG(who, FLAG_MONSTER))
+	else if (QUERY_FLAG(who, FLAG_MONSTER))
 		new_draw_info_format(NDI_UNIQUE, 0, pusher, "You pushed %s back.", who->name);
 
-    return 1;
+	return 1;
 }
 
 
@@ -487,36 +486,38 @@ int push_ob(object *who, int dir, object *pusher)
  * @param op Object pushing
  * @param dir Direction to push
  * @param flag Unused.
- * @return 1 if successfully pushed an alive object, 0 otherwise
- * @todo Do not push stand_still mobs? */
-int push_roll_object(object *op, int dir, const int flag)
+ * @return 1 if successfully pushed an alive object, 0 otherwise */
+int push_roll_object(object *op, int dir)
 {
-    object *tmp;
-    mapstruct *m;
-    int xt, yt, ret;
-    ret = 0;
-
-	(void) flag;
+	object *tmp;
+	mapstruct *m;
+	int xt, yt, ret = 0;
 
 	/* we check for all conditions where op can't push anything */
-    if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
-        return 0;
+	if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
+	{
+		return 0;
+	}
 
-    xt = op->x + freearr_x[dir];
-    yt = op->y + freearr_y[dir];
+	xt = op->x + freearr_x[dir];
+	yt = op->y + freearr_y[dir];
 
-    if (!(m = out_of_map(op->map, &xt, &yt)))
-        return 0;
+	if (!(m = out_of_map(op->map, &xt, &yt)))
+	{
+		return 0;
+	}
 
 	for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
 	{
-        if (IS_LIVE(tmp) || QUERY_FLAG(tmp, FLAG_CAN_ROLL))
+		if (IS_LIVE(tmp) || QUERY_FLAG(tmp, FLAG_CAN_ROLL))
+		{
 			break;
+		}
 	}
 
 	if (tmp == NULL)
 	{
-        new_draw_info(NDI_UNIQUE, 0, op, "You fail to push anything.");
+		new_draw_info(NDI_UNIQUE, 0, op, "You fail to push anything.");
 		return 0;
 	}
 
@@ -529,25 +530,38 @@ int push_roll_object(object *op, int dir, const int flag)
 
 	/* here we try to push pets, players and mobs */
 	if ((get_owner(tmp) == op || IS_LIVE(tmp)))
-    {
-        play_sound_map(op->map, op->x, op->y, SOUND_PUSH_PLAYER, SOUND_NORMAL);
-        if (push_ob(tmp, dir, op))
-            ret = 1;
+	{
+		play_sound_map(op->map, op->x, op->y, SOUND_PUSH_PLAYER, SOUND_NORMAL);
 
-        if (op->hide)
-            make_visible(op);
+		if (push_ob(tmp, dir, op))
+		{
+			ret = 1;
+		}
+		else
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "Something is in the way.");
+		}
 
-        return ret;
-    }
+		if (op->hide)
+		{
+			make_visible(op);
+		}
+
+		return ret;
+	}
 	/* here we try to push moveable objects */
-    else if (QUERY_FLAG(tmp, FLAG_CAN_ROLL))
-    {
-        tmp->direction = dir;
-        recursive_roll(tmp, dir, op);
-        if (action_makes_visible(op))
-            make_visible(op);
-    }
-    return ret;
+	else if (QUERY_FLAG(tmp, FLAG_CAN_ROLL))
+	{
+		tmp->direction = dir;
+		recursive_roll(tmp, dir, op);
+
+		if (action_makes_visible(op))
+		{
+			make_visible(op);
+		}
+	}
+
+	return ret;
 }
 
 int missile_reflection_adjust(object *op, int flag)

@@ -55,7 +55,8 @@ const char *season_name[] =
 	"\n"
 };
 
-const char *weekdays[DAYS_PER_WEEK] = {
+const char *weekdays[DAYS_PER_WEEK] =
+{
 	"the Day of the Moon",
 	"the Day of the Bull",
 	"the Day of the Deception",
@@ -65,7 +66,8 @@ const char *weekdays[DAYS_PER_WEEK] = {
 	"the Day of the Sun"
 };
 
-const char *month_name[MONTHS_PER_YEAR] = {
+const char *month_name[MONTHS_PER_YEAR] =
+{
 	"Month of the Ice Dragon",
 	"Month of the Frost Giant",
 	"Month of the Clouds",
@@ -83,10 +85,10 @@ const char *month_name[MONTHS_PER_YEAR] = {
 /* Initialise all variables used in the timing routines. */
 void reset_sleep()
 {
-  	int i;
+	int i;
 
-  	for(i = 0; i < PBUFLEN; i++)
-    	process_utime_save[i] = 0;
+	for (i = 0; i < PBUFLEN; i++)
+		process_utime_save[i] = 0;
 
 	psaveind = 0;
 	process_max_utime = 0;
@@ -94,7 +96,7 @@ void reset_sleep()
 	process_tot_mtime = 0;
 	pticks = 0;
 
-  	(void) GETTIMEOFDAY(&last_time);
+	(void) GETTIMEOFDAY(&last_time);
 }
 
 void log_time(long process_utime)
@@ -119,22 +121,22 @@ void log_time(long process_utime)
  * last tick is more than max-time. */
 int enough_elapsed_time()
 {
-  	static struct timeval new_time;
-  	long elapsed_utime;
+	static struct timeval new_time;
+	long elapsed_utime;
 
-  	(void) GETTIMEOFDAY(&new_time);
+	(void) GETTIMEOFDAY(&new_time);
 
-  	elapsed_utime = (new_time.tv_sec - last_time.tv_sec) * 1000000 + new_time.tv_usec - last_time.tv_usec;
+	elapsed_utime = (new_time.tv_sec - last_time.tv_sec) * 1000000 + new_time.tv_usec - last_time.tv_usec;
 
-  	if (elapsed_utime > max_time)
+	if (elapsed_utime > max_time)
 	{
-    	log_time(elapsed_utime);
-    	last_time.tv_sec = new_time.tv_sec;
-    	last_time.tv_usec = new_time.tv_usec;
-    	return 1;
-  	}
+		log_time(elapsed_utime);
+		last_time.tv_sec = new_time.tv_sec;
+		last_time.tv_usec = new_time.tv_usec;
+		return 1;
+	}
 
-  	return 0;
+	return 0;
 }
 
 /* sleep_delta checks how much time has elapsed since last tick.
@@ -220,51 +222,51 @@ void sleep_delta()
 
 void set_max_time(long t)
 {
-  	max_time = t;
+	max_time = t;
 }
 
 void get_tod(timeofday_t *tod)
 {
-  	tod->year = todtick / HOURS_PER_YEAR;
-  	tod->month = (todtick / HOURS_PER_MONTH) % MONTHS_PER_YEAR;
-  	tod->day = (todtick % HOURS_PER_MONTH) / DAYS_PER_MONTH;
-  	tod->dayofweek = tod->day % DAYS_PER_WEEK;
-  	tod->hour = todtick % HOURS_PER_DAY;
-  	tod->minute = (pticks % PTICKS_PER_CLOCK) / (PTICKS_PER_CLOCK / 58);
+	tod->year = todtick / HOURS_PER_YEAR;
+	tod->month = (todtick / HOURS_PER_MONTH) % MONTHS_PER_YEAR;
+	tod->day = (todtick % HOURS_PER_MONTH) / DAYS_PER_MONTH;
+	tod->dayofweek = tod->day % DAYS_PER_WEEK;
+	tod->hour = todtick % HOURS_PER_DAY;
+	tod->minute = (pticks % PTICKS_PER_CLOCK) / (PTICKS_PER_CLOCK / 58);
 
 	/* it's imprecise at best anyhow */
-  	if (tod->minute > 58)
-     	tod->minute = 58;
+	if (tod->minute > 58)
+		tod->minute = 58;
 
-  	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
+	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
 
-  	if (tod->month < 3)
-    	tod->season = 0;
-  	else if (tod->month < 6)
-    	tod->season = 1;
-  	else if (tod->month < 9)
-    	tod->season = 2;
-  	else if (tod->month < 12)
-    	tod->season = 3;
-  	else
-    	tod->season = 4;
+	if (tod->month < 3)
+		tod->season = 0;
+	else if (tod->month < 6)
+		tod->season = 1;
+	else if (tod->month < 9)
+		tod->season = 2;
+	else if (tod->month < 12)
+		tod->season = 3;
+	else
+		tod->season = 4;
 }
 
 void print_tod(object *op)
 {
-  	timeofday_t tod;
-  	char *suf;
-  	int day;
+	timeofday_t tod;
+	char *suf;
+	int day;
 
-  	get_tod(&tod);
-  	sprintf(errmsg, "It is %d minute%s past %d o'clock %s,", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-
-  	sprintf(errmsg, "on %s", weekdays[tod.dayofweek]);
+	get_tod(&tod);
+	sprintf(errmsg, "It is %d minute%s past %d o'clock %s,", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 
-  	day = tod.day + 1;
-  	if (day == 1 || ((day % 10) == 1 && day > 20))
+	sprintf(errmsg, "on %s", weekdays[tod.dayofweek]);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+
+	day = tod.day + 1;
+	if (day == 1 || ((day % 10) == 1 && day > 20))
 		suf = "st";
 	else if (day == 2 || ((day % 10) == 2 && day > 20))
 		suf = "nd";
@@ -273,57 +275,57 @@ void print_tod(object *op)
 	else
 		suf = "th";
 
-  	sprintf(errmsg, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 
-  	sprintf(errmsg, "Time of Year: %s", season_name[tod.season]);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg, "Time of Year: %s", season_name[tod.season]);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 }
 
 void time_info(object *op)
 {
-  	int tot = 0, maxt = 0, mint = 99999999, long_count = 0, i;
+	int tot = 0, maxt = 0, mint = 99999999, long_count = 0, i;
 
-  	print_tod(op);
+	print_tod(op);
 
-  	if (!QUERY_FLAG(op, FLAG_WIZ))
-    	return;
+	if (!QUERY_FLAG(op, FLAG_WIZ))
+		return;
 
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, "Total time:");
-  	sprintf(errmsg, "ticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-  	sprintf(errmsg, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-  	sprintf(errmsg, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, "Total time:");
+	sprintf(errmsg, "ticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 
-  	sprintf(errmsg, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 
-  	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
+	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
 	{
-    	tot += process_utime_save[i];
+		tot += process_utime_save[i];
 
-    	if (process_utime_save[i] > maxt)
+		if (process_utime_save[i] > maxt)
 			maxt = process_utime_save[i];
 
-    	if (process_utime_save[i] < mint)
+		if (process_utime_save[i] < mint)
 			mint = process_utime_save[i];
 
-    	if (process_utime_save[i] > max_time)
+		if (process_utime_save[i] > max_time)
 			long_count++;
-  	}
+	}
 
-  	sprintf(errmsg,"avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-  	sprintf(errmsg,"ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
-  	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg,"avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	sprintf(errmsg,"ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
+	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 }
 
 long seconds()
 {
-  	struct timeval now;
+	struct timeval now;
 
-  	(void) GETTIMEOFDAY(&now);
-  	return now.tv_sec;
+	(void) GETTIMEOFDAY(&now);
+	return now.tv_sec;
 }

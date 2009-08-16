@@ -31,7 +31,8 @@
 
 /** You unforunately need to looking in include/global.h to see what these
  * correspond to. */
-struct Settings settings = {
+struct Settings settings =
+{
 	/* Logfile */
 	"",
 	/* Client/server port */
@@ -58,7 +59,7 @@ struct Settings settings = {
 	0,
 	"",
 	/* worldmap settings */
-	0, 0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0
 };
 
 /* daytime counter (day & night / lightning system) */
@@ -74,23 +75,23 @@ archetype *level_up_arch = NULL;
  * init_hash_table if you are doing any object loading. */
 void init_library()
 {
-    init_environ();
-    init_globals();
-    init_function_pointers();
-    init_hash_table();
+	init_environ();
+	init_globals();
+	init_function_pointers();
+	init_hash_table();
 	/* Inits the pooling memory manager and the new object system */
-    init_mempools();
-    init_vars();
-    init_block();
-    LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
-    LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
-    ReadBmapNames();
+	init_mempools();
+	init_vars();
+	init_block();
+	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
+	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
+	ReadBmapNames();
 	/* Must be after we read in the bitmaps */
-    init_anim();
+	init_anim();
 	/* Reads all archetypes from file */
-    init_archetypes();
-    init_dynamic ();
-    init_clocks();
+	init_archetypes();
+	init_dynamic ();
+	init_clocks();
 
 	/* init some often used default archetypes */
 	if (level_up_arch == NULL)
@@ -108,33 +109,33 @@ void init_environ()
 #ifndef SECURE
 	char *cp;
 
-    cp = getenv("CROSSFIRE_LIBDIR");
-    if (cp)
+	cp = getenv("CROSSFIRE_LIBDIR");
+	if (cp)
 		settings.datadir = cp;
 
-    cp = getenv("CROSSFIRE_LOCALDIR");
-    if (cp)
-    	settings.localdir = cp;
+	cp = getenv("CROSSFIRE_LOCALDIR");
+	if (cp)
+		settings.localdir = cp;
 
-    cp = getenv("CROSSFIRE_MAPDIR");
-    if (cp)
-    	settings.mapdir = cp;
+	cp = getenv("CROSSFIRE_MAPDIR");
+	if (cp)
+		settings.mapdir = cp;
 
-    cp = getenv("CROSSFIRE_ARCHETYPES");
-    if (cp)
-    	settings.archetypes = cp;
+	cp = getenv("CROSSFIRE_ARCHETYPES");
+	if (cp)
+		settings.archetypes = cp;
 
-    cp = getenv("CROSSFIRE_TREASURES");
-    if (cp)
-    	settings.treasures = cp;
+	cp = getenv("CROSSFIRE_TREASURES");
+	if (cp)
+		settings.treasures = cp;
 
-    cp = getenv("CROSSFIRE_UNIQUEDIR");
-    if (cp)
-    	settings.uniquedir = cp;
+	cp = getenv("CROSSFIRE_UNIQUEDIR");
+	if (cp)
+		settings.uniquedir = cp;
 
-    cp = getenv("CROSSFIRE_TMPDIR");
-    if (cp)
-    	settings.tmpdir = cp;
+	cp = getenv("CROSSFIRE_TMPDIR");
+	if (cp)
+		settings.tmpdir = cp;
 #endif
 }
 
@@ -142,53 +143,53 @@ void init_environ()
  * Might use environment-variables as default for some of them. */
 void init_globals()
 {
-    if (settings.logfilename[0] == 0)
+	if (settings.logfilename[0] == 0)
 	{
 		logfile = stderr;
-    }
-    else if ((logfile = fopen(settings.logfilename, "w")) == NULL)
+	}
+	else if ((logfile = fopen(settings.logfilename, "w")) == NULL)
 	{
 		logfile = stderr;
 		LOG(llevInfo, "Unable to open %s as the logfile - will use stderr instead\n", settings.logfilename);
-    }
+	}
 
 	/* global round ticker! this is real a global */
 	global_round_tag = 1;
 	/* global race counter */
 	global_race_counter = 0;
 
-    exiting = 0;
-    first_player = NULL;
-    first_friendly_object = NULL;
-    first_map = NULL;
-    first_treasurelist = NULL;
-    first_artifactlist = NULL;
-    first_archetype = NULL;
-    first_map = NULL;
-    nroftreasures = 0;
-    nrofartifacts = 0;
-    nrofallowedstr=0;
+	exiting = 0;
+	first_player = NULL;
+	first_friendly_object = NULL;
+	first_map = NULL;
+	first_treasurelist = NULL;
+	first_artifactlist = NULL;
+	first_archetype = NULL;
+	first_map = NULL;
+	nroftreasures = 0;
+	nrofartifacts = 0;
+	nrofallowedstr=0;
 	undead_name = NULL;
 	FREE_AND_COPY_HASH(undead_name, "undead");
-    trying_emergency_save = 0;
-    num_animations = 0;
-    animations = NULL;
-    animations_allocated = 0;
-    init_defaults();
+	trying_emergency_save = 0;
+	num_animations = 0;
+	animations = NULL;
+	animations_allocated = 0;
+	init_defaults();
 }
 
 /* Initialises global variables which can be changed by options.
  * Called by init_library(). */
 void init_defaults()
 {
-  	nroferrors = 0;
+	nroferrors = 0;
 }
 
 void init_dynamic()
 {
-    archetype *at = first_archetype;
+	archetype *at = first_archetype;
 
-    while (at)
+	while (at)
 	{
 		if (at->clone.type == MAP && EXIT_PATH(&at->clone))
 		{
@@ -197,9 +198,9 @@ void init_dynamic()
 		}
 
 		at = at->next;
-    }
+	}
 
-    LOG(llevError, "init_dynamic(): You need na archetype called 'map' and it has to contain start map\n");
+	LOG(llevError, "init_dynamic(): You need na archetype called 'map' and it has to contain start map\n");
 }
 
 /* Write out the current time to the database so time does not
@@ -248,14 +249,14 @@ void write_todclock()
  * Called by init_library(). */
 void init_clocks()
 {
-    sqlite3 *db;
+	sqlite3 *db;
 	sqlite3_stmt *statement;
-    static int has_been_done = 0;
+	static int has_been_done = 0;
 
-    if (has_been_done)
-        return;
-    else
-        has_been_done = 1;
+	if (has_been_done)
+		return;
+	else
+		has_been_done = 1;
 
 	LOG(llevDebug, "Reading clockdata from database...");
 

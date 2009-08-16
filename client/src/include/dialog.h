@@ -68,13 +68,15 @@ typedef struct _option
 
 extern _option opt[];
 
-extern enum {
-	VAL_BOOL,
-	VAL_TEXT,
-	VAL_CHAR,
-	VAL_INT,
-	VAL_U32
-} value_type;
+extern enum
+	{
+		VAL_BOOL,
+		VAL_TEXT,
+		VAL_CHAR,
+		VAL_INT,
+		VAL_U32
+	}
+	value_type;
 
 extern int dialog_yoff;
 

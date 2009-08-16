@@ -25,28 +25,30 @@
 
 /* thats the race list - init is in init.c */
 /* Used to link the race lists together */
-typedef struct ralnk {
+typedef struct ralnk
+{
 	/* name of this race entry */
-  	const char *name;
+	const char *name;
 
 	/* nrof things belonging to this race */
-  	int nrof;
+	int nrof;
 
 	/* thats the default corpse of this race */
-  	struct archt *corpse;
+	struct archt *corpse;
 
 	/* linked object list of things belonging to this race */
-  	struct oblnk *member;
+	struct oblnk *member;
 
-  	struct ralnk *next;
+	struct ralnk *next;
 } racelink;
 
 #define RACE_TYPE_NONE 0
 
 /* WARNING: this list is used for the items prefixes and not for the race
  * list. Both are different lists with different meanings. */
-typedef enum _race_names_enum {
-    RACE_NAME_DEFAULT,
+typedef enum _race_names_enum
+{
+	RACE_NAME_DEFAULT,
 	RACE_NAME_DWARVEN,
 	RACE_NAME_ELVEN,
 	RACE_NAME_GNOMISH,
@@ -62,12 +64,13 @@ typedef enum _race_names_enum {
 	RACE_NAME_INIT
 }_race_names_enum;
 
-typedef struct _races {
+typedef struct _races
+{
 	/* prefix name for this race */
-    char *name;
+	char *name;
 
 	/* race can use (wear, wield, apply...) items from this races */
-    uint32 usable;
+	uint32 usable;
 }_races;
 
 extern struct _races item_race_table[RACE_NAME_INIT];

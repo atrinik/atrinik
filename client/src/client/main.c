@@ -453,16 +453,16 @@ void init_game_data()
 /* Save the option file. */
 void save_options_dat()
 {
-   	char txtBuffer[20];
-   	int i = -1, j = -1;
-   	FILE *stream;
+	char txtBuffer[20];
+	int i = -1, j = -1;
+	FILE *stream;
 
-   	if (!(stream = fopen(OPTION_FILE, "w")))
+	if (!(stream = fopen(OPTION_FILE, "w")))
 		return;
 
-   	fputs("##########################################\n", stream);
-   	fputs("# This is the Atrinik client option file #\n", stream);
-   	fputs("##########################################\n", stream);
+	fputs("##########################################\n", stream);
+	fputs("# This is the Atrinik client option file #\n", stream);
+	fputs("##########################################\n", stream);
 
 	snprintf(txtBuffer, sizeof(txtBuffer), "%%21 %d\n", txtwin[TW_MSG].size);
 	fputs(txtBuffer, stream);
@@ -476,8 +476,8 @@ void save_options_dat()
 	snprintf(txtBuffer, sizeof(txtBuffer), "%%3y %d\n", options.resolution_y);
 	fputs(txtBuffer, stream);
 
-   	while (opt_tab[++i])
-   	{
+	while (opt_tab[++i])
+	{
 		fputs("\n# ", stream);
 		fputs(opt_tab[i], stream);
 		fputs("\n", stream);
@@ -626,7 +626,7 @@ void load_options_dat()
 		}
 	}
 
-   	fclose(stream);
+	fclose(stream);
 }
 
 /* Signal handlers: */
@@ -635,41 +635,41 @@ void rec_sigsegv(int i)
 {
 	(void) i;
 
-  	LOG(LOG_MSG, "\nSIGSEGV received.\n");
-  	fatal_signal(1);
+	LOG(LOG_MSG, "\nSIGSEGV received.\n");
+	fatal_signal(1);
 }
 
 void rec_sigint(int i)
 {
 	(void) i;
 
-  	LOG(LOG_MSG, "\nSIGINT received.\n");
-  	fatal_signal(0);
+	LOG(LOG_MSG, "\nSIGINT received.\n");
+	fatal_signal(0);
 }
 
 void rec_sighup(int i)
 {
 	(void) i;
 
-  	LOG(LOG_MSG, "\nSIGHUP received\n");
+	LOG(LOG_MSG, "\nSIGHUP received\n");
 
-  	exit(0);
+	exit(0);
 }
 
 void rec_sigquit(int i)
 {
 	(void) i;
 
-  	LOG(LOG_MSG, "\nSIGQUIT received\n");
-  	fatal_signal(1);
+	LOG(LOG_MSG, "\nSIGQUIT received\n");
+	fatal_signal(1);
 }
 
 void rec_sigterm(int i)
 {
 	(void) i;
 
-  	LOG(LOG_MSG, "\nSIGTERM received\n");
-  	fatal_signal(0);
+	LOG(LOG_MSG, "\nSIGTERM received\n");
+	fatal_signal(0);
 }
 
 void fatal_signal(int make_core)
@@ -677,7 +677,7 @@ void fatal_signal(int make_core)
 	if (make_core)
 		abort();
 
-  	exit(0);
+	exit(0);
 }
 
 void init_signals()
@@ -687,7 +687,7 @@ void init_signals()
 	signal(SIGINT, rec_sigint);
 	signal(SIGQUIT, rec_sigquit);
 	signal(SIGSEGV, rec_sigsegv);
-  	signal(SIGTERM, rec_sigterm);
+	signal(SIGTERM, rec_sigterm);
 #endif
 }
 
@@ -707,7 +707,7 @@ int game_status_chain()
 
 #ifdef INSTALL_SOUND
 		if (!music.flag || strcmp(music.name, "orchestral.ogg"))
-  			sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
+			sound_play_music("orchestral.ogg", options.music_volume, 0, -1, MUSIC_MODE_DIRECT);
 #endif
 
 		clear_map();
@@ -928,7 +928,7 @@ int game_status_chain()
 		if (InputStringEscFlag)
 		{
 			draw_info("Break login.", COLOR_RED);
-   GameStatus = GAME_STATUS_START;
+			GameStatus = GAME_STATUS_START;
 		}
 
 		reset_input_mode();
@@ -1580,9 +1580,9 @@ int main(int argc, char *argv[])
 	/* ticks since this second frame in ms */
 	GameTicksSec = 0;
 
-   	/* the one and only main loop */
-   	/* TODO: frame update can be optimized. It uses some cpu time because it
-	 * draws every loop some parts.*/
+	/* the one and only main loop */
+	/* TODO: frame update can be optimized. It uses some cpu time because it
+	* draws every loop some parts.*/
 	while (!done)
 	{
 		done = Event_PollInputDevice();
@@ -1772,7 +1772,7 @@ int main(int argc, char *argv[])
 		FrameCount++;
 		LastTick = SDL_GetTicks();
 
-  		/* Print frame rate */
+		/* Print frame rate */
 		if (options.show_frame && GameStatus == GAME_STATUS_PLAY && cpl.menustatus == MENU_NO)
 		{
 			snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
@@ -1855,10 +1855,10 @@ static void flip_screen()
 	{
 #endif
 
-	if (options.use_rect)
-		SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
-	else
-		SDL_Flip(ScreenSurface);
+		if (options.use_rect)
+			SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
+		else
+			SDL_Flip(ScreenSurface);
 #ifdef INSTALL_OPENGL
 	}
 #endif

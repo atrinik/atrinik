@@ -35,7 +35,8 @@ static struct MapCell *TheMapCache=NULL;
 _mapdata MapData;
 
 /** We need this to parse the map and sort the multi tile monsters */
-typedef struct _map_object_parse {
+typedef struct _map_object_parse
+{
 	int face;
 	int x;
 	int y;

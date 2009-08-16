@@ -110,35 +110,35 @@
  *
  * Section 4 deals with save file related options. */
 
- /*******************************************************************
- * SECTION 1 - FEATURES
- *
- * You don't have to change anything here to get a working program, but
- * you may want to on personal preferance.  Items are arranged
- * alphabetically.
- *
- * Short list of features, and what to search for:
- * ALCHEMY - enables alchemy code
- * BALANCED_STAT_LOSS - Based death stat depletion on level etc?
- * CS_LOGSTATS - log various new client/server data.
- * DEBUG - more verbose message logging?
- * EXPLORE_MODE - add an explore mode method of play?
- * MAP_CLIENT_X, MAP_CLIENT_Y - determines max size client map will receive
- * MAX_TIME - how long an internal tick is in microseconds
- * MULTIPLE_GODS - adds numerous gods to the game, with different powers
- * NOT_PERMADEATH - should death be the final end or not?
- * PARTY_KILL_LOG - stores party kill information
- * REAL_WIZ - changes wiz stuff to be more mudlike.
- * RECYCLE_TMP_MAPS - use tmp maps across multiple runs?
- * RESURRECTION - lets players bring other dead players back to life.
- * SEARCH_ITEMS - let players search for items on the ground
- * SECURE - Allow overriding values with run time flags?
- * SPELL_* - various spell related options
- * STAT_LOSS_ON_DEATH - toggle between stat loss or stat depletion
- * USE_LIGHTING - enable light/darkness & light sources
- * USE_PERMANENT_EXPERIENCE - allow players to accumulate permanent experience?
- *
- ***********************************************************************/
+/*******************************************************************
+* SECTION 1 - FEATURES
+*
+* You don't have to change anything here to get a working program, but
+* you may want to on personal preferance.  Items are arranged
+* alphabetically.
+*
+* Short list of features, and what to search for:
+* ALCHEMY - enables alchemy code
+* BALANCED_STAT_LOSS - Based death stat depletion on level etc?
+* CS_LOGSTATS - log various new client/server data.
+* DEBUG - more verbose message logging?
+* EXPLORE_MODE - add an explore mode method of play?
+* MAP_CLIENT_X, MAP_CLIENT_Y - determines max size client map will receive
+* MAX_TIME - how long an internal tick is in microseconds
+* MULTIPLE_GODS - adds numerous gods to the game, with different powers
+* NOT_PERMADEATH - should death be the final end or not?
+* PARTY_KILL_LOG - stores party kill information
+* REAL_WIZ - changes wiz stuff to be more mudlike.
+* RECYCLE_TMP_MAPS - use tmp maps across multiple runs?
+* RESURRECTION - lets players bring other dead players back to life.
+* SEARCH_ITEMS - let players search for items on the ground
+* SECURE - Allow overriding values with run time flags?
+* SPELL_* - various spell related options
+* STAT_LOSS_ON_DEATH - toggle between stat loss or stat depletion
+* USE_LIGHTING - enable light/darkness & light sources
+* USE_PERMANENT_EXPERIENCE - allow players to accumulate permanent experience?
+*
+***********************************************************************/
 
 /* Enables Brian Thomas's new alchemy code.  Might unbalance the game - lets
  * characters make potions and other special items.

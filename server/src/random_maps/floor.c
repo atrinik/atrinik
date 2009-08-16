@@ -29,31 +29,35 @@
 
 /*  make a map and layout the floor.  */
 
-mapstruct *make_map_floor(char *floorstyle,RMParms *RP) {
-  char styledirname[256];
-  char stylefilepath[256];
-  mapstruct *style_map=0;
-  object *the_floor;
-  mapstruct *newMap =0; /* (mapstruct *) calloc(sizeof(mapstruct),1); */
+mapstruct *make_map_floor(char *floorstyle,RMParms *RP)
+{
+	char styledirname[256];
+	char stylefilepath[256];
+	mapstruct *style_map=0;
+	object *the_floor;
+	mapstruct *newMap =0; /* (mapstruct *) calloc(sizeof(mapstruct),1); */
 
-  /* allocate the map */
-  newMap = get_empty_map(RP->Xsize,RP->Ysize);
+	/* allocate the map */
+	newMap = get_empty_map(RP->Xsize,RP->Ysize);
 
-  /* get the style map */
-  sprintf(styledirname,"%s","/styles/floorstyles");
-  sprintf(stylefilepath,"%s/%s",styledirname,floorstyle);
-  style_map = find_style(styledirname,floorstyle,-1);
-  if(style_map == 0) return newMap;
+	/* get the style map */
+	sprintf(styledirname,"%s","/styles/floorstyles");
+	sprintf(stylefilepath,"%s/%s",styledirname,floorstyle);
+	style_map = find_style(styledirname,floorstyle,-1);
+	if (style_map == 0) return newMap;
 
-  /* fill up the map with the given floor style */
-  if((the_floor=pick_random_object(style_map))!=NULL) {
-	 int i,j;
-	 for(i=0;i<RP->Xsize;i++)
-		for(j=0;j<RP->Ysize;j++) {
-		  object *thisfloor=arch_to_object(the_floor->arch);
-		  thisfloor->x = i; thisfloor->y = j;
-		  insert_ob_in_map(thisfloor,newMap,thisfloor,INS_NO_MERGE | INS_NO_WALK_ON);
-		}
-  }
-  return newMap;
+	/* fill up the map with the given floor style */
+	if ((the_floor=pick_random_object(style_map))!=NULL)
+	{
+		int i,j;
+		for (i=0;i<RP->Xsize;i++)
+			for (j=0;j<RP->Ysize;j++)
+			{
+				object *thisfloor=arch_to_object(the_floor->arch);
+				thisfloor->x = i;
+				thisfloor->y = j;
+				insert_ob_in_map(thisfloor,newMap,thisfloor,INS_NO_MERGE | INS_NO_WALK_ON);
+			}
+	}
+	return newMap;
 }

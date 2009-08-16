@@ -33,15 +33,15 @@
  */
 
 #define SAFE_CHECKS	/* Regexp's with syntax errors will core dump if
-			 * this is undefined.
-			 */
+* this is undefined.
+*/
 
 #define RE_TOKEN_MAX 64	/* Max amount of tokens in a regexp.
-			 * Each token uses ~264 bytes. They are allocated
-			 * as needed, but never de-allocated.
-			 * E.g. [A-Za-z0-9_] counts as one token, so 64
-			 * should be plenty for most purposes.
-			 */
+* Each token uses ~264 bytes. They are allocated
+* as needed, but never de-allocated.
+* E.g. [A-Za-z0-9_] counts as one token, so 64
+* should be plenty for most purposes.
+*/
 
 /*   D o   n o t   c h a n g e    b e l o w
  */
@@ -64,56 +64,60 @@
 #define True	1	/* Changing this value will break the code */
 #define False	0
 
-typedef enum {
-	/* corresponds to e.g. . */
-    sel_any,
+typedef enum
+{
+/* corresponds to e.g. . */
+sel_any,
 
-	/* "           $ */
-    sel_end,
+/* "           $ */
+sel_end,
 
-	/* "           q */
-    sel_single,
+/* "           q */
+sel_single,
 
-	/* "           [A-F] */
-    sel_range,
+/* "           [A-F] */
+sel_range,
 
-	/* "           [AF-RqO-T] */
-    sel_array,
+/* "           [AF-RqO-T] */
+sel_array,
 
-	/* "           [^f] */
-    sel_not_single,
+/* "           [^f] */
+sel_not_single,
 
-	/* "           [^A-F] */
-    sel_not_range
+/* "           [^A-F] */
+sel_not_range
 } selection_type;
 
-typedef enum {
-	/* corresponds to no meta-char	*/
-    rep_once,
+typedef enum
+{
+/* corresponds to no meta-char	*/
+rep_once,
 
-	/* "       + */
-    rep_once_or_more,
+/* "       + */
+rep_once_or_more,
 
-	/* "       ? */
-    rep_null_or_once,
+/* "       ? */
+rep_null_or_once,
 
-	/* "       * */
-    rep_null_or_more
+/* "       * */
+rep_null_or_more
 } repetetion_type;
 
-typedef struct {
-    selection_type type;
+typedef struct
+{
+selection_type type;
 
-    union
+union
+{
+	uchar single;
+
+	struct
 	{
-		uchar single;
+		uchar low, high;
+	} range;
 
-		struct {
-	    	uchar low, high;
-		} range;
+	Boolean array[UCHAR_MAX];
+	} u;
 
-		Boolean array[UCHAR_MAX];
-    } u;
-
-    repetetion_type repeat;
+	repetetion_type repeat;
 } selection;

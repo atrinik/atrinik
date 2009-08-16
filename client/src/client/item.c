@@ -117,12 +117,13 @@ void update_item_sort(item *it)
  * It is currently only used by the query_name() function. */
 char *get_number(int i)
 {
-	static char numbers[21][20] = {
-  		"no",		"a", 		"two", 			"three",	"four",
-  		"five",		"six",		"seven",		"eight",	"nine",
-  		"ten",		"eleven",	"twelve",		"thirteen",	"fourteen",
-  		"fifteen",	"sixteen",	"seventeen",	"eighteen",	"nineteen",
-  		"twenty"
+	static char numbers[21][20] =
+	{
+		"no",		"a", 		"two", 			"three",	"four",
+		"five",		"six",		"seven",		"eight",	"nine",
+		"ten",		"eleven",	"twelve",		"thirteen",	"fourteen",
+		"fifteen",	"sixteen",	"seventeen",	"eighteen",	"nineteen",
+		"twenty"
 	};
 
 	if (i <= 20)
@@ -425,7 +426,8 @@ item *create_new_item(item *env, sint32 tag, int bflag)
 }
 
 /*  Hardcoded now, server could send these at initiation phase. */
-static char *apply_string[] = {
+static char *apply_string[] =
+{
 	"", " (readied)", " (wielded)", " (worn)", " (active)", " (applied)"
 };
 
@@ -478,7 +480,8 @@ static void get_flags(item *op, int flags)
 /*  get_nrof() functions tries to get number of items from the item name */
 static sint32 get_nrof(char *name)
 {
-	static char *numbers[21] = {
+	static char *numbers[21] =
+	{
 		"no ",		"a ",		"two ",			"three ",		"four ",
 		"five ",	"six ",		"seven ",		"eight ",		"nine ",
 		"ten ",		"eleven ",	"twelve ",		"thirteen ",	"fourteen ",
@@ -486,7 +489,8 @@ static sint32 get_nrof(char *name)
 		"twenty "
 	};
 
-	static char *numbers_10[10] = {
+	static char *numbers_10[10] =
+	{
 		"zero ",	"ten ",		"twenty ",		"thirty ",	"fourty ",
 		"fifty ",	"sixty ",	"seventy ",		"eighty ",	"ninety "
 	};

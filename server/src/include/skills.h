@@ -71,139 +71,141 @@
 
 #define NO_SKILL_READY -1
 
-enum skillnrs {
-    /* 0 */
+enum skillnrs
+{
+	/* 0 */
 	/* DISABLED: steal from other players/NPCs */
-    SK_STEALING,
+	SK_STEALING,
 
 	/* open doors without having to bash them */
-    SK_LOCKPICKING,
+	SK_LOCKPICKING,
 
 	/* player can hide from monsters */
-    SK_HIDING,
+	SK_HIDING,
 
 	/* can auto-ident arms/armour */
-    SK_SMITH,
+	SK_SMITH,
 
 	/* can auto-ident bows/x-bow/arrows/bolts */
-    SK_BOWYER,
+	SK_BOWYER,
 
-    /* 5 */
+	/* 5 */
 	/* can auto-identify gems */
-    SK_JEWELER,
+	SK_JEWELER,
 
 	/* can auto-identify potions/amulets/containers */
-    SK_ALCHEMY,
+	SK_ALCHEMY,
 
 	/* can auto-identify staffs/rods/wands */
-    SK_THAUMATURGY,
+	SK_THAUMATURGY,
 
 	/* can auto-identify scrolls/books */
-    SK_LITERACY,
+	SK_LITERACY,
 
 	/* sells equip at Cha + level-based bonus (30 max) */
-    SK_BARGAINING,
+	SK_BARGAINING,
 
-    /* 10 */
+	/* 10 */
 	/* player may 'hop' over 1-2 spaces */
-    SK_JUMPING,
+	SK_JUMPING,
 
 	/* player may sense magic in handled items */
-    SK_DET_MAGIC,
+	SK_DET_MAGIC,
 
 	/* player may charm unaggressive monsters */
-    SK_ORATORY,
+	SK_ORATORY,
 
 	/* Player may pacify hostile monsters once */
-    SK_MUSIC,
+	SK_MUSIC,
 
 	/* player may sense cursed items in inventory */
-    SK_DET_CURSE,
+	SK_DET_CURSE,
 
-    /* 15 */
+	/* 15 */
 	/* player can find traps better */
-    SK_FIND_TRAPS,
+	SK_FIND_TRAPS,
 
 	/* player can regain sp/hp at a faster rate */
-    SK_MEDITATION,
+	SK_MEDITATION,
 
 	/* can attack hand-to-hand, see attack_hth() */
-    SK_BOXING,
+	SK_BOXING,
 
 	/* player attack for fireborn characters */
-    SK_FLAME_TOUCH,
+	SK_FLAME_TOUCH,
 
 	/* can attack hand-to-hand, see attack_hth() */
-    SK_KARATE,
+	SK_KARATE,
 
-    /* 20 */
+	/* 20 */
 	/* player moves quickly over hills/mountains  */
-    SK_CLIMBING,
+	SK_CLIMBING,
 
 	/* player moves quickly through jungle/forest */
-    SK_WOODSMAN,
+	SK_WOODSMAN,
 
 	/* player may write spell scrolls */
-    SK_INSCRIPTION,
+	SK_INSCRIPTION,
 
 	/* player can attack with melee weapons */
-    SK_MELEE_WEAPON,
+	SK_MELEE_WEAPON,
 
 	/* player can attack with missile weapons */
-    SK_MISSILE_WEAPON,
+	SK_MISSILE_WEAPON,
 
-    /* 25 */
+	/* 25 */
 	/* player can throw items */
-    SK_THROWING,
+	SK_THROWING,
 
 	/* player can cast magic spells */
-    SK_SPELL_CASTING,
+	SK_SPELL_CASTING,
 
 	/* player can remove traps */
-    SK_REMOVE_TRAP,
+	SK_REMOVE_TRAP,
 
 	/* player can set traps - not implemented */
-    SK_SET_TRAP,
+	SK_SET_TRAP,
 
 	/* player use wands/horns/rods */
-    SK_USE_MAGIC_ITEM,
+	SK_USE_MAGIC_ITEM,
 
-    /* 30 */
+	/* 30 */
 	/* player can cast cleric spells, regen grace points */
-    SK_PRAYING,
+	SK_PRAYING,
 
 	/* player attack for troll, dragon characters */
-    SK_CLAWING,
+	SK_CLAWING,
 
 	/* skill for players who can fly. */
 	SK_LEVITATION,
 
 	/* disarm removes traps and grabs sometimes trap items for set traps */
-    SK_DISARM_TRAPS,
+	SK_DISARM_TRAPS,
 
-    SK_XBOW_WEAP,
+	SK_XBOW_WEAP,
 
 	/* 35 */
-    SK_SLING_WEAP,
+	SK_SLING_WEAP,
 
-    SK_IDENTIFY,
+	SK_IDENTIFY,
 
-    SK_SLASH_WEAP,
+	SK_SLASH_WEAP,
 
-    SK_CLEAVE_WEAP,
+	SK_CLEAVE_WEAP,
 
-    SK_PIERCE_WEAP,
+	SK_PIERCE_WEAP,
 
 	/* 40 */
-    SK_TWOHANDS,
+	SK_TWOHANDS,
 
-    SK_POLEARMS,
+	SK_POLEARMS,
 
 	/* always last index! */
-    NROFSKILLS
+	NROFSKILLS
 };
 
-typedef struct skill_struct {
+typedef struct skill_struct
+{
 	/* how to describe it to the player */
 	char *name;
 

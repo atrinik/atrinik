@@ -57,7 +57,7 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	}
 
 	/* Here we handle global messages. */
-    if (flags & NDI_ALL)
+	if (flags & NDI_ALL)
 	{
 		player	*tmppl;
 
@@ -65,11 +65,11 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 			new_draw_info((flags & ~NDI_ALL), pri, tmppl->ob, buf);
 
 		return;
-    }
+	}
 
 
 	/* here handle some security stuff... a bit overhead for max secure */
-    if (!pl || pl->type != PLAYER)
+	if (!pl || pl->type != PLAYER)
 	{
 		LOG(llevBug, "BUG: new_draw_info: called for object != PLAYER! %s (%x - %d) msg: %s\n", query_name(pl, NULL), flags, pri, buf);
 		return;
@@ -85,19 +85,19 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 		return;
 
 	/* player don't want this */
-    if (pri >= CONTR(pl)->listening)
+	if (pri >= CONTR(pl)->listening)
 		return;
 
-    sl.buf = (unsigned char *) info_string;
+	sl.buf = (unsigned char *) info_string;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
 	SockList_AddShort(&sl, flags & NDI_FLAG_MASK);
 	strcpy((char *) sl.buf + sl.len, buf);
-    sl.len += strlen(buf);
-    Send_With_Handling(&CONTR(pl)->socket, &sl);
+	sl.len += strlen(buf);
+	Send_With_Handling(&CONTR(pl)->socket, &sl);
 
 #if 0
 	sprintf(info_string, "X%d %s", flags & NDI_FLAG_MASK, buf);
-    Write_String_To_Socket(&CONTR(pl)->socket, BINARY_CMD_DRAWINFO, info_string, strlen(info_string));
+	Write_String_To_Socket(&CONTR(pl)->socket, BINARY_CMD_DRAWINFO, info_string, strlen(info_string));
 #endif
 }
 
@@ -107,16 +107,16 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
  * client/server bandwidth (client could keep track of various strings. */
 void new_draw_info_format(int flags, int pri, object *pl, char *format, ...)
 {
-    char buf[HUGE_BUF];
+	char buf[HUGE_BUF];
 
-    va_list ap;
-    va_start(ap, format);
+	va_list ap;
+	va_start(ap, format);
 
-    vsprintf(buf, format, ap);
+	vsprintf(buf, format, ap);
 
-    va_end(ap);
+	va_end(ap);
 
-    new_draw_info(flags, pri, pl, buf);
+	new_draw_info(flags, pri, pl, buf);
 }
 
 /* we want give msg to all people on one, specific map */
@@ -129,7 +129,7 @@ static void new_info_map_all_except(int color, mapstruct *map, object *op1, obje
 		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 }
@@ -158,7 +158,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -168,7 +168,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[0]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -178,7 +178,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[1]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -188,7 +188,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[2]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -198,7 +198,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[3]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -209,7 +209,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -220,7 +220,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[5]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -231,7 +231,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[6]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -242,7 +242,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		for (tmp = map->tile_map[7]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 }
@@ -271,7 +271,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -281,7 +281,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[0]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -291,7 +291,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[1]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -301,7 +301,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[2]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -311,7 +311,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[3]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -322,7 +322,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[4]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -333,7 +333,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[5]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -344,7 +344,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[6]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 
@@ -355,7 +355,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		for (tmp = map->tile_map[7]->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
-			    new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, 0, tmp, str);
 		}
 	}
 }

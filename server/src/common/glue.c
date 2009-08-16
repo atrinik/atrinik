@@ -83,58 +83,58 @@ void init_function_pointers()
 /* Specifies which function to call when there is an emergency save. */
 void set_emergency_save(type_func_int addr)
 {
-  	emergency_save_func = addr;
+	emergency_save_func = addr;
 }
 
 /* Specifies which function to call to clean temporary files. */
 void set_clean_tmp_files(type_func_void addr)
 {
-  	clean_tmp_files_func = addr;
+	clean_tmp_files_func = addr;
 }
 
 /* Specifies which function to call to remove an object in the
  * linked list of friendly objects. */
 void set_remove_friendly_object(type_func_ob addr)
 {
-  	remove_friendly_object_func = addr;
+	remove_friendly_object_func = addr;
 }
 
 /* Specify which function to call to recoordinate all buttons. */
 void set_update_buttons(type_func_map addr)
 {
-  	update_buttons_func = addr;
+	update_buttons_func = addr;
 }
 
 /* Specify which function to call to draw text to the window
  * of a player. */
 void set_draw_info(type_func_int_int_ob_cchar addr)
 {
-  	draw_info_func = addr;
+	draw_info_func = addr;
 }
 
 /* Specify which function to call to unlink_container. */
 void set_container_unlink(type_container_unlink_func addr)
 {
-  	container_unlink_func = addr;
+	container_unlink_func = addr;
 }
 
 /* Specify which function to call to apply an object. */
 void set_move_apply(type_move_apply_func addr)
 {
-  	move_apply_func = addr;
+	move_apply_func = addr;
 }
 
 /* Specify which function to call to check if a monster can
  * apply an object. */
 void set_monster_check_apply(type_func_ob_ob addr)
 {
-  	monster_check_apply_func = addr;
+	monster_check_apply_func = addr;
 }
 
 /* Specify which functino to call to initialise the blocksview[] array. */
 void set_init_blocksview_players(type_func_void addr)
 {
-  	init_blocksview_players_func = addr;
+	init_blocksview_players_func = addr;
 }
 
 void set_info_map(type_func_int_map_int_int_int_char addr)
@@ -169,22 +169,22 @@ void set_esrv_send_item (type_func_ob_ob addr)
 
 void set_esrv_update_item (type_func_int_ob_ob addr)
 {
-  	esrv_update_item_func = addr;
+	esrv_update_item_func = addr;
 }
 
 void set_esrv_del_item(type_func_player_int_ob addr)
 {
-  	esrv_del_item_func = addr;
+	esrv_del_item_func = addr;
 }
 
 void set_dragon_gain_func(type_func_dragon_gain addr)
 {
-  	dragon_gain_func = addr;
+	dragon_gain_func = addr;
 }
 
 void set_send_golem_control_func (type_func_ob_int addr)
 {
-  	send_golem_control_func = addr;
+	send_golem_control_func = addr;
 }
 
 /* fatal() is meant to be called whenever a fatal signal is intercepted.
@@ -193,15 +193,15 @@ void fatal(int err)
 {
 	LOG(llevSystem, "Fatal: Shutdown server. Reason: %s\n", err == llevError ? "Fatal Error" : "BUG flood");
 
-	if(init_done)
+	if (init_done)
 	{
-	  	(*emergency_save_func)(0);
-	  	(*clean_tmp_files_func)();
+		(*emergency_save_func)(0);
+		(*clean_tmp_files_func)();
 	}
 
-  	abort();
-  	LOG(llevSystem, "Exiting...\n");
-  	exit(-1);
+	abort();
+	LOG(llevSystem, "Exiting...\n");
+	exit(-1);
 }
 
 #ifndef __Making_docs__ /* Don't want documentation on these */
@@ -258,7 +258,7 @@ int dummy_function_ob2int(object *ob, object *ob2)
 {
 	(void) ob;
 	(void) ob2;
-  	return 0;
+	return 0;
 }
 
 void dummy_function_ob_int(object *ob, int i)

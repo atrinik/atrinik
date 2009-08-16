@@ -46,7 +46,8 @@
 
 #define LUNAR_DAYS		DAYS_PER_MONTH
 
-typedef struct _timeofday {
+typedef struct _timeofday
+{
 	int year;
 	int month;
 	int day;

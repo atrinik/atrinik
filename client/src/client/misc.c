@@ -86,7 +86,7 @@ _bmaptype *find_bmap(char *name)
  * Add a bmap to the bmap table.
  * @param at The bmap */
 void add_bmap(_bmaptype *at)
- {
+{
 	int index = hashbmap(at->name, BMAPTABLE), org_index = index;
 
 	for (; ;)

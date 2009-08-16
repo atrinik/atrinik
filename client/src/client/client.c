@@ -57,7 +57,8 @@ struct CmdMapping
 	void (*cmdproc)(unsigned char *, int);
 };
 
-enum {
+enum
+{
 	BINARY_CMD_COMC = 1,
 	BINARY_CMD_MAP2,
 	BINARY_CMD_DRAWINFO,
@@ -415,7 +416,7 @@ static void face_flag_extension(int pnum, char *buf)
 	}
 
 	/* error jump from for() */
-	finish_face_cmd_j1:
+finish_face_cmd_j1:
 	return;
 }
 

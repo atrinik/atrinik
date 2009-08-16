@@ -100,11 +100,11 @@ static _gui_book_line *get_title_tag(char *data, int *pos)
 
 				strncpy(book_line.line, buf, BOOK_LINES_CHAR);
 				buf[BOOK_LINES_CHAR] = 0;
-			break;
+				break;
 
 			default:
 				return NULL;
-			break;
+				break;
 		}
 	}
 
@@ -138,11 +138,11 @@ static _gui_book_line *get_name_tag(char *data, int *pos)
 
 				strncpy(book_line.line, buf, BOOK_LINES_CHAR);
 				buf[BOOK_LINES_CHAR] = 0;
-			break;
+				break;
 
 			default:
 				return NULL;
-			break;
+				break;
 		}
 	}
 
@@ -204,7 +204,7 @@ static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 			return book_line;
 		}
 		else
-		 	return NULL;
+			return NULL;
 	}
 
 	return NULL;
@@ -320,7 +320,7 @@ _gui_book_struct *load_book_interface(char *data, int len)
 				continue;
 			}
 
-			title_repeat_jump:
+title_repeat_jump:
 			if ((book_line->mode & BOOK_LINE_TITLE && plc_logic + 2 >= BOOK_PAGE_LINES) || book_line->mode & BOOK_LINE_PAGE)
 			{
 				_gui_book_page *page = malloc(sizeof(_gui_book_page));
@@ -396,7 +396,7 @@ _gui_book_struct *load_book_interface(char *data, int len)
 			_gui_book_line *tmp_line;
 
 			force_line = FALSE;
-			force_line_jump:
+force_line_jump:
 			current_book_line.line[lc] = 0;
 
 			book_line = malloc(sizeof(_gui_book_line));
@@ -485,7 +485,7 @@ _gui_book_struct *load_book_interface(char *data, int len)
 			}
 
 			memset(&current_book_line, 0, sizeof(_gui_book_line));
-			force_line_jump_out:
+force_line_jump_out:
 			continue;
 		}
 

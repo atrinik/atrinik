@@ -38,12 +38,12 @@
  * @param victim Object walking on this swamp */
 void walk_on_deep_swamp(object *op, object *victim)
 {
-  	if (victim->type == PLAYER && !QUERY_FLAG(victim, FLAG_FLYING) && victim->stats.hp >= 0)
-  	{
+	if (victim->type == PLAYER && !QUERY_FLAG(victim, FLAG_FLYING) && victim->stats.hp >= 0)
+	{
 		new_draw_info(NDI_UNIQUE, 0, victim, "You are down to your knees in the swamp.");
 		op->stats.food = 1;
 		victim->speed_left -= (float) (SLOW_PENALTY(op));
-  	}
+	}
 }
 
 /**
@@ -65,7 +65,7 @@ void move_deep_swamp(object *op)
 				op->stats.food = 1;
 			}
 
-			switch(op->stats.food)
+			switch (op->stats.food)
 			{
 				case 1:
 					if (rndm(0, 2) == 0)

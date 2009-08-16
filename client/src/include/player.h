@@ -26,7 +26,8 @@
 #if !defined(__PLAYER_H)
 #define __PLAYER_H
 
-typedef struct _server_level {
+typedef struct _server_level
+{
 	int level;
 	uint32 exp[500];
 } _server_level;

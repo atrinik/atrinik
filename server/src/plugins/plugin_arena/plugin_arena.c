@@ -92,7 +92,8 @@
 #define PLUGIN_VERSION "Arena plugin 0.2"
 
 /** Players currently in an arena map */
-typedef struct arena_map_players {
+typedef struct arena_map_players
+{
 	/** The player object. */
 	object *op;
 
@@ -101,7 +102,8 @@ typedef struct arena_map_players {
 } arena_map_players;
 
 /** Arena maps linked list */
-typedef struct arena_maps_struct {
+typedef struct arena_maps_struct
+{
 	/** The arena map path */
 	char path[HUGE_BUF];
 
@@ -129,13 +131,13 @@ MODULEAPI CFParm *initPlugin(CFParm *PParm)
 {
 	(void) PParm;
 
-    LOG(llevDebug, "Atrinik Arena Plugin loading...\n");
-    LOG(llevDebug, "[Done]\n");
+	LOG(llevDebug, "Atrinik Arena Plugin loading...\n");
+	LOG(llevDebug, "[Done]\n");
 
 	GCFP.Value[0] = (void *) PLUGIN_NAME;
-    GCFP.Value[1] = (void *) PLUGIN_VERSION;
+	GCFP.Value[1] = (void *) PLUGIN_VERSION;
 
-    return &GCFP;
+	return &GCFP;
 }
 
 MODULEAPI CFParm *removePlugin(CFParm* PParm)
@@ -149,18 +151,18 @@ MODULEAPI CFParm *getPluginProperty(CFParm* PParm)
 {
 	(void) PParm;
 
-    return NULL;
+	return NULL;
 }
 
 MODULEAPI CFParm *registerHook(CFParm* PParm)
 {
-    int Pos;
-    f_plugin Hook;
+	int Pos;
+	f_plugin Hook;
 
-    Pos = *(int*)(PParm->Value[0]);
-    Hook = (f_plugin)(PParm->Value[1]);
-    PlugHooks[Pos] = Hook;
-    return NULL;
+	Pos = *(int*)(PParm->Value[0]);
+	Hook = (f_plugin)(PParm->Value[1]);
+	PlugHooks[Pos] = Hook;
+	return NULL;
 }
 
 MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
@@ -169,26 +171,26 @@ MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
 
 	(void) PParm;
 
-    plugin_log(llevDebug, "Start postinitPlugin.\n");
+	plugin_log(llevDebug, "Start postinitPlugin.\n");
 
-    GCFP.Value[1] = (void *) PLUGIN_NAME;
+	GCFP.Value[1] = (void *) PLUGIN_NAME;
 
 	/* Register MAPLEAVE global event */
 	i = EVENT_MAPLEAVE;
-    GCFP.Value[0] = (void *)(&i);
-    (PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
+	GCFP.Value[0] = (void *)(&i);
+	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
 
 	/* Register GDEATH global event */
 	i = EVENT_GDEATH;
-    GCFP.Value[0] = (void *)(&i);
-    (PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
+	GCFP.Value[0] = (void *)(&i);
+	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
 
 	/* Register LOGOUT global event */
 	i = EVENT_LOGOUT;
-    GCFP.Value[0] = (void *)(&i);
-    (PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
+	GCFP.Value[0] = (void *)(&i);
+	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
 
-    return NULL;
+	return NULL;
 }
 
 /**
@@ -504,32 +506,32 @@ MODULEAPI int arena_leave(CFParm *PParm)
 
 MODULEAPI CFParm *triggerEvent(CFParm* PParm)
 {
-    int eventcode;
-    static int result = 0;
+	int eventcode;
+	static int result = 0;
 
-    eventcode = *(int *)(PParm->Value[0]);
-    plugin_log(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
+	eventcode = *(int *)(PParm->Value[0]);
+	plugin_log(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
 
-    switch (eventcode)
-    {
-        case EVENT_NONE:
-            plugin_log(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
-            break;
+	switch (eventcode)
+	{
+		case EVENT_NONE:
+			plugin_log(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
+			break;
 
-        case EVENT_APPLY:
-        case EVENT_TRIGGER:
+		case EVENT_APPLY:
+		case EVENT_TRIGGER:
 			result = arena_event(PParm);
-            break;
+			break;
 
-        case EVENT_GDEATH:
+		case EVENT_GDEATH:
 		case EVENT_MAPLEAVE:
 		case EVENT_LOGOUT:
-            result = arena_leave(PParm);
-            break;
-    }
+			result = arena_leave(PParm);
+			break;
+	}
 
-    GCFP.Value[0] = (void *)(&result);
-    return &GCFP;
+	GCFP.Value[0] = (void *)(&result);
+	return &GCFP;
 }
 
 /*@}*/

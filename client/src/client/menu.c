@@ -63,7 +63,8 @@ int quickslot_group = 1;
 
 /** Quickslot positions, because some things change depending on
   * which quickslot bitmap is displayed. */
-int quickslots_pos[MAX_QUICK_SLOTS][2] = {
+int quickslots_pos[MAX_QUICK_SLOTS][2] =
+{
 	{17,	1},
 	{50,	1},
 	{83,	1},
@@ -452,7 +453,8 @@ void do_keybind_input()
 }
 
 /** Few letters representation of a protection ID */
-static char *protections[20] = {
+static char *protections[20] =
+{
 	"I", 	"S", 	"C", 	"P", 	"W",
 	"F",	"C",	"E",	"P",	"A",
 	"M",	"Mi",	"B",	"P",	"F",
@@ -501,22 +503,22 @@ void widget_show_resist(int x, int y)
 			/* Switch the protection ID, so we can output the groups. */
 			switch (protectionID)
 			{
-				/* Physical */
+					/* Physical */
 				case 0:
 					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Physical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
-				/* Elemental */
+					/* Elemental */
 				case 5:
 					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Elemental", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
-				/* Magical */
+					/* Magical */
 				case 10:
 					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Magical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
-				/* Spherical */
+					/* Spherical */
 				case 15:
 					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Spherical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
@@ -829,7 +831,7 @@ int read_anim_tmp()
 	fstat(fileno(stream), &stat_bmap);
 	fclose(stream);
 
-	if( (stream = fopen(FILE_CLIENT_ANIMS, "rb" )) == NULL )
+	if ( (stream = fopen(FILE_CLIENT_ANIMS, "rb" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
 		SYSTEM_End(); /* fatal */
@@ -838,41 +840,41 @@ int read_anim_tmp()
 	fstat(fileno(stream), &stat_anim);
 	fclose( stream );
 
-	if( (stream = fopen(FILE_ANIMS_TMP, "rb" )) != NULL )
+	if ( (stream = fopen(FILE_ANIMS_TMP, "rb" )) != NULL )
 	{
 		fstat(fileno(stream), &stat_tmp);
 		fclose( stream );
 
 		/* our anim file must be newer as our default anim file */
-		if(difftime(stat_tmp.st_mtime, stat_anim.st_mtime) > 0.0f)
+		if (difftime(stat_tmp.st_mtime, stat_anim.st_mtime) > 0.0f)
 		{
 			/* our anim file must be newer as our bmaps.tmp */
-			if(difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
+			if (difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
 				return load_anim_tmp(); /* all fine - load file */
 		}
 	}
 
 	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
-	if( (ftmp = fopen(FILE_ANIMS_TMP, "wt" )) == NULL )
+	if ( (ftmp = fopen(FILE_ANIMS_TMP, "wt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error opening anims.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
-	if( (stream = fopen(FILE_CLIENT_ANIMS, "rt" )) == NULL )
+	if ( (stream = fopen(FILE_CLIENT_ANIMS, "rt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error reading client_anims for anims.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
-	while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
+	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
 	{
 		sscanf(buf,"%s",cmd);
-		if(new_anim == TRUE) /* we are outside a anim body ? */
+		if (new_anim == TRUE) /* we are outside a anim body ? */
 		{
-			if(!strncmp(buf, "anim ",5))
+			if (!strncmp(buf, "anim ",5))
 			{
 				sprintf(cmd, "anim %d -> %s",count++, buf);
 				fputs(cmd,ftmp); /* safe this key string! */
@@ -885,11 +887,11 @@ int read_anim_tmp()
 		}
 		else /* no, we are inside! */
 		{
-			if(!strncmp(buf, "facings ",8))
+			if (!strncmp(buf, "facings ",8))
 			{
 				fputs(buf, ftmp); /* safe this key word! */
 			}
-			else if(!strncmp(cmd, "mina",4))
+			else if (!strncmp(cmd, "mina",4))
 			{
 				fputs(buf, ftmp); /* safe this key word! */
 				new_anim = TRUE;
@@ -900,13 +902,13 @@ int read_anim_tmp()
 				 * browsing #anim * #bmaps times the same table -
 				 * pretty bad - when we stay to long here, we must create
 				 * for bmaps.tmp entries a hash table too. */
-				for(i=0;i<bmaptype_table_size;i++)
+				for (i=0;i<bmaptype_table_size;i++)
 				{
-					if(!strcmp(bmaptype_table[i].name,cmd))
+					if (!strcmp(bmaptype_table[i].name,cmd))
 						break;
 				}
 
-				if(i>=bmaptype_table_size)
+				if (i>=bmaptype_table_size)
 				{
 					/* if we are here then we have a picture name in the anims file
 					 * which we don't have in our bmaps file! Pretty bad. But because
@@ -1041,7 +1043,7 @@ void read_bmaps_p0()
 	return;
 
 	/* If we are here, then we have to (re)create the bmaps.p0 file */
-	create_bmaps:
+create_bmaps:
 	if ((fbmap = fopen(FILE_BMAPS_P0, "w")) == NULL)
 	{
 		LOG(LOG_ERROR, "ERROR: Can't create bmaps.p0 file!\n");
@@ -1144,14 +1146,14 @@ static int load_bmap_tmp()
 	unsigned int crc;
 
 	delete_bmap_tmp();
-	if( (stream = fopen(FILE_BMAPS_TMP, "rt" )) == NULL )
+	if ( (stream = fopen(FILE_BMAPS_TMP, "rt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"bmaptype_table(): error open file <bmap.tmp>");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
-	while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
+	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
 	{
 		sscanf(buf,"%d %d %x %s\n", &pos, &len, &crc, name);
 		bmaptype_table[i].crc = crc;
@@ -1179,7 +1181,7 @@ int read_bmap_tmp()
 	unsigned int crc;
 	_bmaptype *at;
 
-	if( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) == NULL )
+	if ( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) == NULL )
 	{
 		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
@@ -1189,7 +1191,7 @@ int read_bmap_tmp()
 	fstat(fileno(stream), &stat_bmap);
 	fclose( stream );
 
-	if( (stream = fopen(FILE_BMAPS_P0, "rb" )) == NULL )
+	if ( (stream = fopen(FILE_BMAPS_P0, "rb" )) == NULL )
 	{
 		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
@@ -1199,7 +1201,7 @@ int read_bmap_tmp()
 	fstat(fileno(stream), &stat_bp0);
 	fclose( stream );
 
-	if( (stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL )
+	if ( (stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL )
 		goto create_bmap_tmp;
 
 	fstat(fileno(stream), &stat_tmp);
@@ -1209,25 +1211,25 @@ int read_bmap_tmp()
 	 * our bmap_tmp is newer - is not newer as both, we
 	 * create it new - then it is newer. */
 
-	if(difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
+	if (difftime(stat_tmp.st_mtime, stat_bmap.st_mtime) > 0.0f)
 	{
-		if(difftime(stat_tmp.st_mtime, stat_bp0.st_mtime) > 0.0f)
+		if (difftime(stat_tmp.st_mtime, stat_bp0.st_mtime) > 0.0f)
 			return load_bmap_tmp(); /* all fine */
 	}
 
-	create_bmap_tmp:
+create_bmap_tmp:
 	unlink(FILE_BMAPS_TMP);
 
 	/* NOW we are sure... we must create us a new bmaps.tmp */
-	if( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) != NULL )
+	if ( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) != NULL )
 	{
 		/* we can use text mode here, its local */
-		if( (fbmap0 = fopen(FILE_BMAPS_TMP, "wt" )) != NULL )
+		if ( (fbmap0 = fopen(FILE_BMAPS_TMP, "wt" )) != NULL )
 		{
 			/* read in the bmaps from the server, check with the
 			 * loaded bmap table (from bmaps.p0) and create with
 			 * this information the bmaps.tmp file. */
-			while(fgets(buf, HUGE_BUF-1, stream)!=NULL)
+			while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
 			{
 				sscanf(buf,"%x %x %s", (unsigned int *)&len, &crc, name);
 				at=find_bmap(name);
@@ -1240,7 +1242,7 @@ int read_bmap_tmp()
 				 * flag in the server (no face send) - then we need
 				 * to break and upddate the picture and/or check the cache. */
 				/* position -1 mark "not i the atrinik.p0 file */
-				if(!at || at->len != len || at->crc != crc) /* is different or not there! */
+				if (!at || at->len != len || at->crc != crc) /* is different or not there! */
 					sprintf(buf,"-1 %d %x %s\n", len, crc, name);
 				else /* we have it */
 					sprintf(buf,"%d %d %x %s\n", at->pos, len, crc, name);
@@ -1326,9 +1328,9 @@ static int get_bmap_id(char *name)
 {
 	int i;
 
-	for(i=0;i<bmaptype_table_size;i++)
+	for (i=0;i<bmaptype_table_size;i++)
 	{
-		if(!strcmp(bmaptype_table[i].name,name))
+		if (!strcmp(bmaptype_table[i].name,name))
 		{
 			request_face(i, 0);
 			return i;
@@ -2025,7 +2027,7 @@ void widget_show_range(int x, int y)
 			sprite_blt(Bitmaps[BITMAP_RANGE_MARKER], x + 3, y + 2, NULL, NULL);
 			break;
 
-		/* Wands, staves, rods and horns */
+			/* Wands, staves, rods and horns */
 		case FIRE_MODE_WAND:
 			if (!locate_item_from_item(cpl.ob, fire_mode_tab[FIRE_MODE_WAND].item))
 				fire_mode_tab[FIRE_MODE_WAND].item = FIRE_ITEM_NO;
@@ -2046,7 +2048,7 @@ void widget_show_range(int x, int y)
 			StringBlt(ScreenSurface, &SystemFont, "use range tool", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
 			break;
 
-		/* The summon range ctrl will come from server only after the player cast a summon spell */
+			/* The summon range ctrl will come from server only after the player cast a summon spell */
 		case FIRE_MODE_SUMMON:
 			if (fire_mode_tab[FIRE_MODE_SUMMON].item != FIRE_ITEM_NO)
 			{
@@ -2063,7 +2065,7 @@ void widget_show_range(int x, int y)
 			StringBlt(ScreenSurface, &SystemFont, "mind control", x + 3, y + 35, COLOR_WHITE, &rec_item, NULL);
 			break;
 
-		/* These are client only, no server signal needed */
+			/* These are client only, no server signal needed */
 		case FIRE_MODE_SKILL:
 			if (fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{

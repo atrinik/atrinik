@@ -59,12 +59,13 @@
 #endif
 
 #ifdef SS_STATISTICS
-static struct statistics {
-    int calls;
-    int hashed;
-    int strcmps;
-    int search;
-    int linked;
+static struct statistics
+{
+	int calls;
+	int hashed;
+	int strcmps;
+	int search;
+	int linked;
 } add_stats, add_ref_stats, free_stats, find_stats, hash_stats;
 #define GATHER(n) (++n)
 #else /* !SS_STATISTICS */
@@ -87,50 +88,50 @@ static shared_string *hash_table[TABLESIZE];
 /* Initialises the hash-table used by the shared string library. */
 void init_hash_table()
 {
-    /* A static object should be zeroed out always */
+	/* A static object should be zeroed out always */
 #if !defined(__STDC__)
-    (void) memset((void *)hash_table, 0, TABLESIZE * sizeof(shared_string *));
+	(void) memset((void *)hash_table, 0, TABLESIZE * sizeof(shared_string *));
 #endif
 }
 
 /* Hashing-function used by the shared string library. */
 static int hashstr(const char *str)
 {
-    unsigned long hash = 0;
-    int i = 0, rot = 0;
-    const char *p;
+	unsigned long hash = 0;
+	int i = 0, rot = 0;
+	const char *p;
 
-    GATHER(hash_stats.calls);
+	GATHER(hash_stats.calls);
 
-    for (p = str; i < MAXSTRING && *p; p++, i++)
+	for (p = str; i < MAXSTRING && *p; p++, i++)
 	{
 		hash ^= (unsigned long) *p << rot;
 		rot += 2;
 
 		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * CHAR_BIT)
-	    	rot = 0;
-    }
+			rot = 0;
+	}
 
-    return (hash % TABLESIZE);
+	return (hash % TABLESIZE);
 }
 
 /* Allocates and initialises a new shared_string structure, containing
  * the string str. */
 static shared_string *new_shared_string(const char *str)
 {
-    shared_string *ss;
+	shared_string *ss;
 
-    /* Allocate room for a struct which can hold str. Note
-     * that some bytes for the string are already allocated in the
-     * shared_string struct. */
-    ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + strlen(str) + 1);
-    ss->u.previous = NULL;
-    ss->next = NULL;
-    ss->refcount = 1;
+	/* Allocate room for a struct which can hold str. Note
+	 * that some bytes for the string are already allocated in the
+	 * shared_string struct. */
+	ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + strlen(str) + 1);
+	ss->u.previous = NULL;
+	ss->next = NULL;
+	ss->refcount = 1;
 	/*LOG(llevDebug,"SS: >%s< #%d - new\n",str,ss->refcount& ~TOPBIT);*/
-    strcpy(ss->string, str);
+	strcpy(ss->string, str);
 
-    return ss;
+	return ss;
 }
 
 /* Description:
@@ -140,25 +141,25 @@ static shared_string *new_shared_string(const char *str)
  *      - pointer to string identical to str */
 const char *add_string(const char *str)
 {
-    shared_string *ss;
-    int ind;
+	shared_string *ss;
+	int ind;
 
-    GATHER(add_stats.calls);
+	GATHER(add_stats.calls);
 
-    /* Should really core dump here, since functions should not be calling
-     * add_string with a null parameter.  But this will prevent a few
-     * core dumps. */
-    if (str == NULL)
+	/* Should really core dump here, since functions should not be calling
+	 * add_string with a null parameter.  But this will prevent a few
+	 * core dumps. */
+	if (str == NULL)
 	{
 		LOG(llevBug, "BUG: add_string(): try to add null string to hash table\n");
 		return NULL;
 	}
-    ind = hashstr(str);
-    ss = hash_table[ind];
+	ind = hashstr(str);
+	ss = hash_table[ind];
 
-    /* Is there an entry for that hash?
-     */
-    if (ss)
+	/* Is there an entry for that hash?
+	 */
+	if (ss)
 	{
 		/* Simple case first: See if the first pointer matches. */
 		if (str != ss->string)
@@ -201,16 +202,16 @@ const char *add_string(const char *str)
 					new_ss->u.previous = ss;
 					return new_ss->string;
 				}
-	    	}
+			}
 
-	   		/* Fall through. */
+			/* Fall through. */
 		}
 
 		GATHER(add_stats.hashed);
 		++(ss->refcount);
 		/*LOG(llevDebug, "SS: >%s< #%d add-s\n", ss->string, ss->refcount & ~TOPBIT);*/
 		return ss->string;
-    }
+	}
 	else
 	{
 		/* The string isn't registered, and the slot is empty. */
@@ -222,7 +223,7 @@ const char *add_string(const char *str)
 		hash_table[ind]->u.array = &(hash_table[ind]);
 
 		return hash_table[ind]->string;
-    }
+	}
 }
 
 /* Description:
@@ -232,7 +233,7 @@ const char *add_string(const char *str)
  *      - length */
 int query_refcount(const char *str)
 {
-    return SS(str)->refcount& ~TOPBIT;
+	return SS(str)->refcount& ~TOPBIT;
 }
 
 /* Description:
@@ -242,42 +243,42 @@ int query_refcount(const char *str)
  *      - pointer to identical string or NULL */
 const char *find_string(const char *str)
 {
-    shared_string *ss;
-    int ind;
+	shared_string *ss;
+	int ind;
 
-    GATHER(find_stats.calls);
+	GATHER(find_stats.calls);
 
-    ind = hashstr(str);
-    ss = hash_table[ind];
+	ind = hashstr(str);
+	ss = hash_table[ind];
 
-    /* Is there an entry for that hash? */
-    if (ss)
+	/* Is there an entry for that hash? */
+	if (ss)
 	{
 		/* Simple case first: Is the first string the right one? */
 		GATHER(find_stats.strcmps);
 		if (!strcmp(ss->string, str))
 		{
-	    	GATHER(find_stats.hashed);
-	    	return ss->string;
+			GATHER(find_stats.hashed);
+			return ss->string;
 		}
 		else
 		{
-	    	/* Recurse through the linked list, if there's one. */
-	    	while (ss->next)
+			/* Recurse through the linked list, if there's one. */
+			while (ss->next)
 			{
 				GATHER(find_stats.search);
 				GATHER(find_stats.strcmps);
 				ss = ss->next;
 				if (!strcmp(ss->string, str))
 				{
-		    		GATHER(find_stats.linked);
-		    		return ss->string;
+					GATHER(find_stats.linked);
+					return ss->string;
 				}
-	    	}
-	    	/* No match. Fall through. */
+			}
+			/* No match. Fall through. */
 		}
-    }
-    return NULL;
+	}
+	return NULL;
 }
 
 /* This function should be declared
@@ -301,10 +302,10 @@ const char *add_refcount(const char *str)
 	}
 #endif
 
-    GATHER(add_ref_stats.calls);
-    ++(SS(str)->refcount);
+	GATHER(add_ref_stats.calls);
+	++(SS(str)->refcount);
 	/*LOG(llevDebug, "SS: >%s< #%d addref\n", str, SS(str)->refcount& ~TOPBIT);*/
-    return str;
+	return str;
 }
 
 /* Description:
@@ -314,7 +315,7 @@ const char *add_refcount(const char *str)
  *     None */
 void free_string_shared(const char *str)
 {
-    shared_string *ss;
+	shared_string *ss;
 
 	/* We check str is in the hash table - if not, something
 	 * is VERY wrong here. We can also be sure, that SS(str) is
@@ -331,11 +332,11 @@ void free_string_shared(const char *str)
 	}
 #endif
 
-    GATHER(free_stats.calls);
+	GATHER(free_stats.calls);
 
-    ss = SS(str);
+	ss = SS(str);
 	--ss->refcount;
-    if ((ss->refcount & ~TOPBIT) == 0)
+	if ((ss->refcount & ~TOPBIT) == 0)
 	{
 		/* Remove this entry. */
 		if (ss->refcount & TOPBIT)
@@ -365,7 +366,7 @@ void free_string_shared(const char *str)
 			ss->u.previous->next = ss->next;
 			free(ss);
 		}
-    }
+	}
 #if 0
 	else
 		LOG(llevDebug, "SS: >%s< #%d dec\n", str, ss->refcount& ~TOPBIT);
@@ -384,19 +385,19 @@ extern char errmsg[];
  *      None */
 void ss_dump_statistics()
 {
-    static char line[80];
+	static char line[80];
 
-    sprintf(errmsg, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed", "strcmp", "search", "linked");
-    sprintf(line, "%-13s %6d %6d %6d %6d %6d\n", "add_string:", add_stats.calls, add_stats.hashed, add_stats.strcmps, add_stats.search, add_stats.linked);
-    strcat(errmsg, line);
-    sprintf(line, "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
-    strcat(errmsg, line);
-    sprintf(line, "%-13s %6d\n", "free_string:", free_stats.calls);
-    strcat(errmsg, line);
-    sprintf(line, "%-13s %6d %6d %6d %6d %6d\n", "find_string:", find_stats.calls, find_stats.hashed, find_stats.strcmps, find_stats.search, find_stats.linked);
-    strcat(errmsg, line);
-    sprintf(line, "%-13s %6d\n", "hashstr:", hash_stats.calls);
-    strcat(errmsg, line);
+	sprintf(errmsg, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed", "strcmp", "search", "linked");
+	sprintf(line, "%-13s %6d %6d %6d %6d %6d\n", "add_string:", add_stats.calls, add_stats.hashed, add_stats.strcmps, add_stats.search, add_stats.linked);
+	strcat(errmsg, line);
+	sprintf(line, "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
+	strcat(errmsg, line);
+	sprintf(line, "%-13s %6d\n", "free_string:", free_stats.calls);
+	strcat(errmsg, line);
+	sprintf(line, "%-13s %6d %6d %6d %6d %6d\n", "find_string:", find_stats.calls, find_stats.hashed, find_stats.strcmps, find_stats.search, find_stats.linked);
+	strcat(errmsg, line);
+	sprintf(line, "%-13s %6d\n", "hashstr:", hash_stats.calls);
+	strcat(errmsg, line);
 }
 #endif /* SS_STATISTICS */
 
@@ -408,11 +409,11 @@ void ss_dump_statistics()
  *      - a string or NULL */
 char *ss_dump_table(int what)
 {
-    static char totals[80];
-    int entries = 0, refs = 0, links = 0;
-    int i;
+	static char totals[80];
+	int entries = 0, refs = 0, links = 0;
+	int i;
 
-    for (i = 0; i < TABLESIZE; i++)
+	for (i = 0; i < TABLESIZE; i++)
 	{
 		shared_string *ss;
 		if ((ss = hash_table[i]) != NULL)
@@ -433,25 +434,25 @@ char *ss_dump_table(int what)
 					LOG(llevSystem, "     -- %4d refs '%s' %c\n", (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? '*' : ' '));
 			}
 		}
-    }
+	}
 
-    if (what & SS_DUMP_TOTALS)
+	if (what & SS_DUMP_TOTALS)
 	{
 		sprintf(totals, "\n%d entries, %d refs, %d links.", entries, refs, links);
-        return totals;
-    }
-    return NULL;
+		return totals;
+	}
+	return NULL;
 }
 
 /* to find memory leak! */
 void ss_test_table(void)
 {
 	shared_string *ss;
-    int entries = 0;
-    int i;
+	int entries = 0;
+	int i;
 	char c;
 
-    for (i = 0; i < TABLESIZE; i++)
+	for (i = 0; i < TABLESIZE; i++)
 	{
 		if ((ss = hash_table[i]) != NULL)
 		{
@@ -465,16 +466,16 @@ void ss_test_table(void)
  * buf1 by adding on buf2! Returns true if overflow will occur. */
 int buf_overflow(const char *buf1, const char *buf2, int bufsize)
 {
-    int len1 = 0, len2 = 0;
+	int len1 = 0, len2 = 0;
 
-    if (buf1)
+	if (buf1)
 		len1 = strlen (buf1);
 
-    if (buf2)
+	if (buf2)
 		len2 = strlen (buf2);
 
-    if ((len1 + len2) >= bufsize)
+	if ((len1 + len2) >= bufsize)
 		return 1;
 
-    return 0;
+	return 0;
 }

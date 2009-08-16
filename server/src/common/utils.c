@@ -41,26 +41,26 @@
  * not the recipient (ie, the poor slob getting hit). [garbled 20010916] */
 int random_roll(int min, int max, object *op, int goodbad)
 {
-    int omin, diff, luck, base;
+	int omin, diff, luck, base;
 
-    omin = min;
-    diff = max - min + 1;
+	omin = min;
+	diff = max - min + 1;
 	/* d2 and d3 are corner cases */
-    ((diff > 2) ? (base = 20) : (base = 50));
+	((diff > 2) ? (base = 20) : (base = 50));
 
-    if (max < 1 || diff < 1)
+	if (max < 1 || diff < 1)
 	{
-      	LOG(llevBug, "BUG: Calling random_roll with min=%d max=%d\n", min, max);
+		LOG(llevBug, "BUG: Calling random_roll with min=%d max=%d\n", min, max);
 		/* avoids a float exception */
-      	return min;
-    }
+		return min;
+	}
 
-    if (op->type != PLAYER)
+	if (op->type != PLAYER)
 		return (RANDOM() % diff) + min;
 
-    luck = op->stats.luck;
+	luck = op->stats.luck;
 
-    if (RANDOM() % base < MIN(10, abs(luck)))
+	if (RANDOM() % base < MIN(10, abs(luck)))
 	{
 		/* we have a winner */
 		((luck > 0) ? (luck = 1) : (luck = -1));
@@ -68,14 +68,14 @@ int random_roll(int min, int max, object *op, int goodbad)
 
 		/*check again */
 		if (diff < 1)
-	    	return(omin);
+			return(omin);
 
 		((goodbad) ? (min += luck) : (diff));
 
 		return (MAX(omin, MIN(max, (RANDOM() % diff) + min)));
-    }
+	}
 
-    return ((RANDOM() % diff) + min);
+	return ((RANDOM() % diff) + min);
 }
 
 /* Roll a number of dice (2d3, 4d6).  Uses op to determine luck,
@@ -85,47 +85,47 @@ int random_roll(int min, int max, object *op, int goodbad)
  * The args are num D size (ie 4d6)  [garbled 20010916] */
 int die_roll(int num, int size, object *op, int goodbad)
 {
-    int min, diff, luck, total, i, gotlucky, base;
+	int min, diff, luck, total, i, gotlucky, base;
 
-    diff = size;
-    min = 1;
-    luck = total = gotlucky = 0;
+	diff = size;
+	min = 1;
+	luck = total = gotlucky = 0;
 	/* d2 and d3 are corner cases */
-    ((diff > 2) ? (base = 20) : (base = 50));
+	((diff > 2) ? (base = 20) : (base = 50));
 
-    if (size < 2 || diff < 1)
+	if (size < 2 || diff < 1)
 	{
-      	LOG(llevBug, "BUG: Calling die_roll with num=%d size=%d\n", num, size);
+		LOG(llevBug, "BUG: Calling die_roll with num=%d size=%d\n", num, size);
 		/* avoids a float exception */
-      	return num;
-    }
+		return num;
+	}
 
-    if (op->type == PLAYER)
+	if (op->type == PLAYER)
 		luck = op->stats.luck;
 
-    for (i = 0; i < num; i++)
+	for (i = 0; i < num; i++)
 	{
 		if (RANDOM() % base < MIN(10, abs(luck)) && !gotlucky)
 		{
-	    	/* we have a winner */
-	    	gotlucky++;
-	    	((luck > 0) ? (luck = 1) : (luck = -1));
-	    	diff -= luck;
+			/* we have a winner */
+			gotlucky++;
+			((luck > 0) ? (luck = 1) : (luck = -1));
+			diff -= luck;
 
 			/* check again */
-	    	if (diff < 1)
+			if (diff < 1)
 				return num;
 
-	    	((goodbad) ? (min += luck) : (diff));
-	    	total += MAX(1, MIN(size, (RANDOM() % diff) + min));
+			((goodbad) ? (min += luck) : (diff));
+			total += MAX(1, MIN(size, (RANDOM() % diff) + min));
 		}
 		else
 		{
-	    	total += RANDOM() % size + 1;
+			total += RANDOM() % size + 1;
 		}
-    }
+	}
 
-    return total;
+	return total;
 }
 
 /* Another convenience function.  Returns a number between min and max.
@@ -134,13 +134,13 @@ int die_roll(int num, int size, object *op, int goodbad)
  * use of %.  This should also prevent SIGFPE. */
 int rndm(int min, int max)
 {
-  	int diff;
+	int diff;
 
-  	diff = max - min + 1;
-  	if (max < 1 || diff < 1)
-    	return min;
+	diff = max - min + 1;
+	if (max < 1 || diff < 1)
+		return min;
 
-  	return (RANDOM() % diff + min);
+	return (RANDOM() % diff + min);
 }
 
 
@@ -148,15 +148,15 @@ int rndm(int min, int max)
  * argument. Return -1 if no such spell name match is found. */
 int look_up_spell_name(const char * spname)
 {
-   	register int i;
+	register int i;
 
-   	for (i = 0; i < NROFREALSPELLS; i++)
+	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-      	if (strcmp(spname, spells[i].name) == 0)
+		if (strcmp(spname, spells[i].name) == 0)
 			return i;
-   	}
+	}
 
-   	return -1;
+	return -1;
 }
 
 /* Replace in string src all occurrences of key by replacement. The resulting
@@ -164,39 +164,39 @@ int look_up_spell_name(const char * spname)
  * terminating null character) will be written to result. */
 int replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
-    size_t resultlen, keylen, replacementlen, replaced = 0;
+	size_t resultlen, keylen, replacementlen, replaced = 0;
 
-    /* special case to prevent infinite loop if key == replacement == "" */
-    if (strcmp(key, replacement) == 0)
+	/* special case to prevent infinite loop if key == replacement == "" */
+	if (strcmp(key, replacement) == 0)
 	{
-        snprintf(result, resultsize, "%s", src);
-        return -1;
-    }
+		snprintf(result, resultsize, "%s", src);
+		return -1;
+	}
 
-    keylen = strlen(key);
+	keylen = strlen(key);
 	replacementlen = strlen(replacement);
 
-    resultlen = 0;
-    while (*src != '\0' && resultlen + 1 < resultsize)
+	resultlen = 0;
+	while (*src != '\0' && resultlen + 1 < resultsize)
 	{
-        if (strncmp(src, key, keylen) == 0)
+		if (strncmp(src, key, keylen) == 0)
 		{
 			/* If the replacement length is more than keylen, we will need
 			 * to increase the resultsize and realloc the result pointer. */
 			if (replacementlen > keylen)
 				replaced += replacementlen - keylen;
 
-            snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
-            resultlen += strlen(result + resultlen);
-            src += keylen;
-        }
+			snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
+			resultlen += strlen(result + resultlen);
+			src += keylen;
+		}
 		else
 		{
-            result[resultlen++] = *src++;
-        }
-    }
+			result[resultlen++] = *src++;
+		}
+	}
 
-    result[resultlen] = '\0';
+	result[resultlen] = '\0';
 
 	if (replaced >= resultsize - resultlen)
 		return replaced;
@@ -206,14 +206,14 @@ int replace(const char *src, const char *key, const char *replacement, char *res
 
 racelink * find_racelink(const char *name)
 {
-  	racelink *test = NULL;
+	racelink *test = NULL;
 
-  	if (name && first_race)
-    	for (test = first_race; test && test != test->next; test = test->next)
-       		if (!test->name || !strcmp(name, test->name))
+	if (name && first_race)
+		for (test = first_race; test && test != test->next; test = test->next)
+			if (!test->name || !strcmp(name, test->name))
 				break;
 
-  	return test;
+	return test;
 }
 
 /* this function does 2 things: controlling we have
@@ -227,7 +227,7 @@ char *cleanup_string(char *ustring)
 		ustring++;
 
 	/* this happens when whitespace only string was submited */
-    if (!ustring || *ustring == '\0')
+	if (!ustring || *ustring == '\0')
 		return NULL;
 
 	return ustring;
@@ -247,7 +247,7 @@ char *get_word_from_string(char *str, int *pos)
 		(*pos)++;
 
 	/* nothing left! */
-	if(*(str + (*pos)) == '\0')
+	if (*(str + (*pos)) == '\0')
 		return NULL;
 
 	/* copy until end of string nor whitespace */

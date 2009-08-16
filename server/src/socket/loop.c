@@ -69,15 +69,17 @@ static fd_set tmp_read, tmp_exceptions, tmp_write;
 
 typedef void (*func_uint8_int_ns) (char*, int, NewSocket *);
 
-struct NsCmdMapping {
-    char *cmdname;
-    func_uint8_int_ns cmdproc;
+struct NsCmdMapping
+{
+	char *cmdname;
+	func_uint8_int_ns cmdproc;
 };
 
 typedef void (*func_uint8_int_pl)(char*, int, player *);
-struct PlCmdMapping {
-    char *cmdname;
-    func_uint8_int_pl cmdproc;
+struct PlCmdMapping
+{
+	char *cmdname;
+	func_uint8_int_pl cmdproc;
 };
 
 /* CmdMapping is the dispatch table for the server, used in HandleClient,
@@ -94,34 +96,36 @@ struct PlCmdMapping {
  * about pack & packing, i think.
  * Last goal is to reduce the single commands. Adding mapscroll in the mapupdate
  * command for example. MT-11-2002 */
-static struct PlCmdMapping plcommands[] = {
-    {"ex",			ExamineCmd},
-    {"ap",			ApplyCmd},
-    {"mv",			MoveCmd},
-    {"reply",		ReplyCmd},
-    {"cm",			(func_uint8_int_pl)PlayerCmd},
-    {"lt",			LookAt},
-    {"mapredraw",	MapRedrawCmd},
-    {"lock",		(func_uint8_int_pl)LockItem},
-    {"mark",		(func_uint8_int_pl)MarkItem},
+static struct PlCmdMapping plcommands[] =
+{
+	{"ex",			ExamineCmd},
+	{"ap",			ApplyCmd},
+	{"mv",			MoveCmd},
+	{"reply",		ReplyCmd},
+	{"cm",			(func_uint8_int_pl)PlayerCmd},
+	{"lt",			LookAt},
+	{"mapredraw",	MapRedrawCmd},
+	{"lock",		(func_uint8_int_pl)LockItem},
+	{"mark",		(func_uint8_int_pl)MarkItem},
 	{"/fire",		command_fire},
 	{"fr",			command_face_request},
 	{"nc",			command_new_char},
 	{"pt",			PartyCmd},
 	{"qs",			QuickSlotCmd},
-    {NULL, NULL}
+	{NULL, NULL}
 };
 
-static struct NsCmdMapping nscommands[] = {
-    {"addme",		AddMeCmd},
-    {"askface",		SendFaceCmd},
-    {"requestinfo",	RequestInfo},
-    {"setfacemode",	SetFaceMode},
-    {"setsound",	SetSound},
-    {"setup",		SetUp},
-    {"version",		VersionCmd},
-    {"rf",			RequestFileCmd},
-    {NULL, NULL}
+static struct NsCmdMapping nscommands[] =
+{
+	{"addme",		AddMeCmd},
+	{"askface",		SendFaceCmd},
+	{"requestinfo",	RequestInfo},
+	{"setfacemode",	SetFaceMode},
+	{"setsound",	SetSound},
+	{"setup",		SetUp},
+	{"version",		VersionCmd},
+	{"rf",			RequestFileCmd},
+	{NULL, NULL}
 };
 
 /* RequestInfo is sort of a meta command - there is some specific
@@ -129,36 +133,36 @@ static struct NsCmdMapping nscommands[] = {
  * that information. */
 void RequestInfo(char *buf, int len, NewSocket *ns)
 {
-    char *params = NULL, *cp;
-    /* No match */
-    char bigbuf[MAX_BUF];
-    int slen;
+	char *params = NULL, *cp;
+	/* No match */
+	char bigbuf[MAX_BUF];
+	int slen;
 
-    /* Set up replyinfo before we modify any of the buffers - this is used
-     * if we don't find a match. */
-    /*strcpy(bigbuf,"replyinfo ");*/
-    slen = 1;
+	/* Set up replyinfo before we modify any of the buffers - this is used
+	 * if we don't find a match. */
+	/*strcpy(bigbuf,"replyinfo ");*/
+	slen = 1;
 	bigbuf[0] = BINARY_CMD_REPLYINFO;
 	bigbuf[1] = 0;
-    safe_strcat(bigbuf, buf, &slen, sizeof(bigbuf));
+	safe_strcat(bigbuf, buf, &slen, sizeof(bigbuf));
 
-    /* find the first space, make it null, and update the
-     * params pointer. */
-    for (cp = buf; *cp != '\0'; cp++)
+	/* find the first space, make it null, and update the
+	 * params pointer. */
+	for (cp = buf; *cp != '\0'; cp++)
 	{
 		if (*cp == ' ')
 		{
-	    	*cp = '\0';
-	    	params = cp + 1;
-	    	break;
+			*cp = '\0';
+			params = cp + 1;
+			break;
 		}
 	}
 
-    if (!strcmp(buf, "image_info"))
+	if (!strcmp(buf, "image_info"))
 		send_image_info(ns, params);
-    else if (!strcmp(buf, "image_sums"))
+	else if (!strcmp(buf, "image_sums"))
 		send_image_sums(ns, params);
-    else
+	else
 		Write_String_To_Socket(ns, BINARY_CMD_REPLYINFO, bigbuf, len);
 }
 
@@ -171,10 +175,10 @@ void RequestInfo(char *buf, int len, NewSocket *ns)
 void HandleClient(NewSocket *ns, player *pl)
 {
 	int len = 0, i, cmd_count = 0;
-    unsigned char *data;
+	unsigned char *data;
 
-    /* Loop through this - maybe we have several complete packets here. */
-    while (1)
+	/* Loop through this - maybe we have several complete packets here. */
+	while (1)
 	{
 		/* If it is a player, and they don't have any speed left, we
 		 * return, and will read in the data when they do have time. */
@@ -252,14 +256,14 @@ void HandleClient(NewSocket *ns, player *pl)
 		ns->status = Ns_Dead;
 		return;
 
-		next_command:
+next_command:
 		if (cmd_count++ <= 8 && ns->status != Ns_Dead)
 		{
 			/* LOG(llevDebug,"MultiCmd: #%d /%s)\n", cmd_count, (char*)ns->inbuf.buf+2); */
 			continue;
 		}
 		return;
-    }
+	}
 }
 
 
@@ -391,24 +395,24 @@ static void remove_ns_dead_player(player *pl)
  * There are 2 lists we need to look through - init_sockets is a list */
 void doeric_server()
 {
-    int i, pollret;
+	int i, pollret;
 	uint32 update_below;
-    struct sockaddr_in addr;
-    size_t addrlen = sizeof(struct sockaddr);
-    player *pl, *next;
+	struct sockaddr_in addr;
+	size_t addrlen = sizeof(struct sockaddr);
+	player *pl, *next;
 
 #ifdef CS_LOGSTATS
-    if ((time(NULL) - cst_lst.time_start) >= CS_LOGTIME)
+	if ((time(NULL) - cst_lst.time_start) >= CS_LOGTIME)
 		write_cs_stats();
 #endif
 
 	/* would it not be possible to use FD_CLR too and avoid the
 	 * reseting every time? */
-    FD_ZERO(&tmp_read);
-    FD_ZERO(&tmp_write);
-    FD_ZERO(&tmp_exceptions);
+	FD_ZERO(&tmp_read);
+	FD_ZERO(&tmp_write);
+	FD_ZERO(&tmp_exceptions);
 
-    for (i = 0; i < socket_info.allocated_sockets; i++)
+	for (i = 0; i < socket_info.allocated_sockets; i++)
 	{
 		if (init_sockets[i].status == Ns_Dead)
 		{
@@ -435,11 +439,11 @@ void doeric_server()
 			FD_SET((uint32)init_sockets[i].fd, &tmp_write);
 			FD_SET((uint32)init_sockets[i].fd, &tmp_exceptions);
 		}
-    }
+	}
 
-    /* Go through the players.  Let the loop set the next pl value,
-     * since we may remove some. */
-    for (pl = first_player; pl != NULL; )
+	/* Go through the players.  Let the loop set the next pl value,
+	 * since we may remove some. */
+	for (pl = first_player; pl != NULL; )
 	{
 		if (pl->socket.status == Ns_Dead)
 		{
@@ -455,21 +459,21 @@ void doeric_server()
 			FD_SET((uint32)pl->socket.fd, &tmp_exceptions);
 			pl = pl->next;
 		}
-    }
+	}
 
 	/* our one and only select() - after this call, every player socket has signaled us
 	 * in the tmp_xxxx objects the signal status: FD_ISSET will check socket for socket
 	 * for thats signal and trigger read, write or exception (error on socket). */
-    pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
+	pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
 
-    if (pollret == -1)
+	if (pollret == -1)
 	{
 		LOG(llevDebug, "doeric_server: error on select\n");
 		return;
-    }
+	}
 
-    /* Following adds a new connection */
-    if (pollret && FD_ISSET(init_sockets[0].fd, &tmp_read))
+	/* Following adds a new connection */
+	if (pollret && FD_ISSET(init_sockets[0].fd, &tmp_read))
 	{
 		int newsocknum = 0;
 
@@ -510,10 +514,10 @@ void doeric_server()
 		}
 		else
 			LOG(llevDebug, "Error on accept! (S#:%d IP:%d.%d.%d.%d)", newsocknum, (i >> 24) & 255, (i >> 16) & 255, (i >> 8) & 255, i & 255);
-    }
+	}
 
-    /* Check for any exceptions/input on the sockets */
-    if (pollret)
+	/* Check for any exceptions/input on the sockets */
+	if (pollret)
 	{
 		for (i = 1; i < socket_info.allocated_sockets; i++)
 		{
@@ -543,8 +547,8 @@ void doeric_server()
 		}
 	}
 
-    /* This does roughly the same thing, but for the players now */
-    for (pl = first_player; pl != NULL; pl = next)
+	/* This does roughly the same thing, but for the players now */
+	for (pl = first_player; pl != NULL; pl = next)
 	{
 		next = pl->next;
 
@@ -560,7 +564,7 @@ void doeric_server()
 				HandleClient(&pl->socket, pl);
 
 			/* perhaps something was bad in HandleClient(), or player has left the game */
-		    if (pl->socket.status == Ns_Dead)
+			if (pl->socket.status == Ns_Dead)
 				remove_ns_dead_player(pl);
 			else
 			{
@@ -594,15 +598,15 @@ void doeric_server()
 					pl->socket.can_write = 0;
 			}
 		}
-    }
+	}
 }
 
 void doeric_server_write(void)
 {
-    player *pl, *next;
+	player *pl, *next;
 
-   	/* This does roughly the same thing, but for the players now */
-    for (pl = first_player; pl != NULL; pl = next)
+	/* This does roughly the same thing, but for the players now */
+	for (pl = first_player; pl != NULL; pl = next)
 	{
 		next = pl->next;
 
@@ -630,5 +634,5 @@ void doeric_server_write(void)
 			else
 				pl->socket.can_write = 0;
 		}
-    }
+	}
 }

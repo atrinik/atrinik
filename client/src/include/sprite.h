@@ -29,13 +29,15 @@
 /* Our blt and sprite structure */
 
 /* Status of this bitmap/sprite */
-typedef enum _sprite_status {
+typedef enum _sprite_status
+{
 	SPRITE_STATUS_UNLOADED,
 	SPRITE_STATUS_LOADED
 } _sprite_status;
 
 /* Some other informations */
-typedef enum _sprite_type {
+typedef enum _sprite_type
+{
 	SPRITE_TYPE_NORMAL
 } _sprite_type;
 
@@ -48,7 +50,8 @@ typedef enum _sprite_type {
 #define BLTFX_FLAG_GREY 	16
 
 /** Here we can change default blt options or set special options */
-typedef struct _BLTFX {
+typedef struct _BLTFX
+{
 	/** Used from BLTFX_FLAG_xxxx */
 	UINT32 flags;
 
@@ -63,7 +66,8 @@ typedef struct _BLTFX {
 }_BLTFX;
 
 /** Sprite structure */
-typedef struct _Sprite {
+typedef struct _Sprite
+{
 	/** Sprite status */
 	_sprite_status status;
 
@@ -105,7 +109,8 @@ typedef struct _Sprite {
 	SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
 
-typedef struct _Font {
+typedef struct _Font
+{
 	/** Don't free this, we link here a Bitmaps[x] pointer */
 	_Sprite *sprite;
 
@@ -119,7 +124,8 @@ typedef struct _Font {
 #define ANIM_DAMAGE 	1
 #define ANIM_KILL   	2
 
-typedef struct _anim {
+typedef struct _anim
+{
 	/* Pointer to next anim in que */
 	struct _anim *next;
 

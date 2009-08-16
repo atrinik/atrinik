@@ -46,7 +46,7 @@
 
 #ifndef WIN32
 #ifdef NO_ERRNO_H
-    extern int errno;
+extern int errno;
 #else
 #   include <errno.h>
 #endif
@@ -61,14 +61,14 @@
  * @return 1 if banned, 0 if not */
 int checkbanned(char *login, char *host)
 {
-  	sqlite3 *db;
+	sqlite3 *db;
 	sqlite3_stmt *statement;
-  	char log_buf[64], host_buf[64];
+	char log_buf[64], host_buf[64];
 	/* Hits == 2 means we're banned */
-  	int Hits = 0;
+	int Hits = 0;
 
 	/* Open the database */
-  	db_open(DB_DEFAULT, &db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))
@@ -85,8 +85,8 @@ int checkbanned(char *login, char *host)
 		sprintf(host_buf, "%s", db_column_text(statement, 1));
 
 #if 0
-      	LOG(llevDebug, "Login: <%s>; host: <%s>\n", login, host);
-      	LOG(llevDebug, "Checking Banned <%s> and <%s>.\n", log_buf, host_buf);
+		LOG(llevDebug, "Login: <%s>; host: <%s>\n", login, host);
+		LOG(llevDebug, "Checking Banned <%s> and <%s>.\n", log_buf, host_buf);
 #endif
 
 		if (*log_buf == '*')
@@ -97,27 +97,27 @@ int checkbanned(char *login, char *host)
 		if (Hits == 1)
 		{
 			/* Lock out any host */
-        	if (*host_buf == '*')
+			if (*host_buf == '*')
 			{
-          		Hits++;
+				Hits++;
 				/* break out now. otherwise Hits will get reset to one */
-          		break;
-        	}
-        	else if (strstr(host, host_buf) != NULL)
+				break;
+			}
+			else if (strstr(host, host_buf) != NULL)
 			{
 				/* Lock out subdomains (eg, "*@usc.edu") */
-          		Hits++;
-				 /* break out now. otherwise Hits will get reset to one */
-          		break;
-        	}
-        	else if (!strcmp(host, host_buf))
+				Hits++;
+				/* break out now. otherwise Hits will get reset to one */
+				break;
+			}
+			else if (!strcmp(host, host_buf))
 			{
 				/* Lock out specific host */
-          		Hits++;
+				Hits++;
 				/* break out now. otherwise Hits will get reset to one */
-          		break;
-        	}
-      	}
+				break;
+			}
+		}
 	}
 
 	/* Finalize it */
@@ -127,9 +127,9 @@ int checkbanned(char *login, char *host)
 	db_close(db);
 
 	if (Hits >= 2)
-    	return 1;
-  	else
-    	return 0;
+		return 1;
+	else
+		return 0;
 }
 
 /**
@@ -152,7 +152,7 @@ int add_ban(const char *input)
 		return 0;
 
 	/* Open the database */
-  	db_open(DB_DEFAULT, &db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare_format(db, &statement, "INSERT INTO bans (host, name) VALUES ('%s', '%s');", db_sanitize_input(host), db_sanitize_input(name)))
@@ -194,7 +194,7 @@ int remove_ban(const char *input)
 		return 0;
 
 	/* Open the database */
-  	db_open(DB_DEFAULT, &db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare_format(db, &statement, "DELETE FROM bans WHERE host = '%s' AND name = '%s';", db_sanitize_input(host), db_sanitize_input(name)))
@@ -226,7 +226,7 @@ void list_bans(object *op)
 	sqlite3_stmt *statement;
 
 	/* Open the database */
-  	db_open(DB_DEFAULT, &db);
+	db_open(DB_DEFAULT, &db);
 
 	/* Prepare the query */
 	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))

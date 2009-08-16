@@ -24,7 +24,8 @@
 ************************************************************************/
 
 /* 'recipe' and 'recipelist' are used by the alchemy code */
-typedef struct recipestruct {
+typedef struct recipestruct
+{
 	/* distinguishing name of product */
 	const char *title;
 
@@ -54,7 +55,8 @@ typedef struct recipestruct {
 	const char *keycode;
 } recipe;
 
-typedef struct recipeliststruct {
+typedef struct recipeliststruct
+{
 	int total_chance;
 
 	/* number of recipes in this list */

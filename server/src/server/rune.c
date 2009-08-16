@@ -29,7 +29,7 @@
 #endif
 
 #ifdef NO_ERRNO_H
-    extern int errno;
+extern int errno;
 #else
 #   include <errno.h>
 #endif
@@ -55,45 +55,45 @@ extern object *objects;
 
 int write_rune(object *op, int dir, int inspell, int level, char *runename)
 {
-    object *tmp;
-    archetype *at = NULL;
+	object *tmp;
+	archetype *at = NULL;
 	mapstruct *mt;
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 
-    int nx,ny;
+	int nx,ny;
 
 	if (!dir)
 		dir = 1;
 
-    nx = op->x + freearr_x[dir];
-    ny = op->y + freearr_y[dir];
+	nx = op->x + freearr_x[dir];
+	ny = op->y + freearr_y[dir];
 
 	if (!(mt = out_of_map(op->map, &nx, &ny)))
 		return 0;
 
-    if (blocked(op, mt, nx, ny, op->terrain_flag))
+	if (blocked(op, mt, nx, ny, op->terrain_flag))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Can't make a rune there!");
 		return 0;
-    }
+	}
 
-    for (tmp = get_map_ob(mt, nx, ny); tmp != NULL; tmp = tmp->above)
+	for (tmp = get_map_ob(mt, nx, ny); tmp != NULL; tmp = tmp->above)
 		if (tmp->type == RUNE)
 			break;
 
-    if (tmp)
+	if (tmp)
 	{
 #if 0
 		new_draw_info(NDI_UNIQUE, 0, op, "You only succeed in strengthening that rune.");
 		tmp->stats.hp++;
 		return 1;
 #endif
-      	new_draw_info(NDI_UNIQUE, 0, op, "You can't write a rune there.");
-      	return 0;
-    }
+		new_draw_info(NDI_UNIQUE, 0, op, "You can't write a rune there.");
+		return 0;
+	}
 
 	/* can't have runes of small fireball!!!  */
-    if (inspell)
+	if (inspell)
 	{
 		if (inspell == -1)
 		{
@@ -145,7 +145,7 @@ int write_rune(object *op, int dir, int inspell, int level, char *runename)
 		 * of a powerful rune, it won't do him any good,
 		 *  because a rune of marking will have level 0
 		 * and will thus never detonate. */
-    }
+	}
 	else if (level == -2 || (at = find_archetype(runename)) == NULL)
 	{
 		char rune[HUGE_BUF];
@@ -172,28 +172,28 @@ int write_rune(object *op, int dir, int inspell, int level, char *runename)
 			strcpy(rune, "There is no message\n");
 		}
 		FREE_AND_COPY_HASH(tmp->msg, rune);
-    }
+	}
 
-    if (at)
+	if (at)
 		tmp = get_archetype(runename);
 
 	/* the invisibility parameter */
-    tmp->stats.Cha = op->level / 2;
-    tmp->x = nx;
-    tmp->y = ny;
-    tmp->map = op->map;
+	tmp->stats.Cha = op->level / 2;
+	tmp->x = nx;
+	tmp->y = ny;
+	tmp->map = op->map;
 	/* where any spell will go upon detonation */
-    tmp->direction = dir;
+	tmp->direction = dir;
 	/* what level to cast the spell at */
-    tmp->level = SK_level(op);
+	tmp->level = SK_level(op);
 
 	/* runes without need no owner */
-    if (inspell || tmp->stats.dam)
+	if (inspell || tmp->stats.dam)
 		set_owner(tmp,op);
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+	insert_ob_in_map(tmp, op->map, op, 0);
 
-    return 1;
+	return 1;
 }
 
 
@@ -215,7 +215,7 @@ void rune_attack(object *op,object *victim)
 	 * with the hard set float we can control the damage a bit better. */
 	op->stats.dam = (sint16) ((float)dam * (lev_damage[op->level] * 0.925f));
 
-    if (victim)
+	if (victim)
 	{
 		tag_t tag = victim->count;
 		hit_player(victim, op->stats.dam, op, op->attacktype);
@@ -236,8 +236,8 @@ void rune_attack(object *op,object *victim)
 			remove_ob(disease);
 			check_walk_off(disease, NULL, MOVE_APPLY_VANISHED);
 		}
-    }
-    else
+	}
+	else
 		hit_map(op, 0, op->attacktype);
 
 	op->stats.dam = dam;
@@ -365,14 +365,14 @@ int dispel_rune(object *op, int dir, int risk)
 	}
 
 	/*no rune there. */
-  	if (tmp == NULL)
-    {
+	if (tmp == NULL)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "There's no trap there!");
 		return 0;
-    }
+	}
 
-  	trap_disarm(op, tmp, risk);
-  	return 1;
+	trap_disarm(op, tmp, risk);
+	return 1;
 }
 
 int trap_see(object *op, object *trap, int level)
@@ -401,7 +401,7 @@ int trap_show(object *trap, object *where)
 {
 	object *env;
 
-    if (where == NULL)
+	if (where == NULL)
 		return 0;
 
 	/* Because we don't want unhide traps by using "see invisible" (because
@@ -424,7 +424,7 @@ int trap_show(object *trap, object *where)
 
 		/* env object is on map */
 		if (!env->env)
-	        update_object(env, UP_OBJ_FACE);
+			update_object(env, UP_OBJ_FACE);
 		/* somewhere else - if visible, update */
 		else
 		{
@@ -437,9 +437,9 @@ int trap_show(object *trap, object *where)
 			esrv_update_item(UPD_LOCATION, env, trap);
 	}
 	else
-	    insert_ob_in_map(trap, where->map, NULL, 0);
+		insert_ob_in_map(trap, where->map, NULL, 0);
 
-    return 1;
+	return 1;
 
 }
 
@@ -451,29 +451,29 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 {
 	object *env=trap->env;
 	/* need to compute the experience worth of the trap
-     * before we kill it */
-  	int trapworth;
-   	int disarmer_level = SK_level(disarmer);
+	 * before we kill it */
+	int trapworth;
+	int disarmer_level = SK_level(disarmer);
 
-  	/* this formula awards a more reasonable amount of exp */
-  	trapworth =  MAX(1, trap->level) * disarmer->map->difficulty * sqr(MAX(trap->stats.dam, spells[trap->stats.sp].sp)) / disarmer_level;
+	/* this formula awards a more reasonable amount of exp */
+	trapworth =  MAX(1, trap->level) * disarmer->map->difficulty * sqr(MAX(trap->stats.dam, spells[trap->stats.sp].sp)) / disarmer_level;
 
-    if ((trap->level <= disarmer_level && (RANDOM() % 10)) ||!(random_roll(0, (MAX(2, MIN(20, trap->level-disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
-    {
-        new_draw_info_format(NDI_UNIQUE, 0, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
-        remove_ob(trap);
+	if ((trap->level <= disarmer_level && (RANDOM() % 10)) ||!(random_roll(0, (MAX(2, MIN(20, trap->level-disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
+		remove_ob(trap);
 		check_walk_off(trap, NULL,MOVE_APPLY_VANISHED);
 		set_traped_flag(env);
-	    /* If it is your own trap, (or any players trap), you don't
-	     * get exp for it. */
-	    if (trap->owner && trap->owner->type != PLAYER && risk)
+		/* If it is your own trap, (or any players trap), you don't
+		 * get exp for it. */
+		if (trap->owner && trap->owner->type != PLAYER && risk)
 			return trapworth;
-	    else
+		else
 			return 1;
-    }
-    else
-    {
-        new_draw_info_format(NDI_UNIQUE, 0,disarmer,"You fail to remove the %s (lvl %d).", trap->name, trap->level);
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, 0,disarmer,"You fail to remove the %s (lvl %d).", trap->name, trap->level);
 
 		if ((trap->level > disarmer_level * 1.4f || (RANDOM() % 3)))
 		{
@@ -483,8 +483,8 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 				spring_trap(trap, disarmer);
 			}
 		}
-        return 0;
-    }
+		return 0;
+	}
 }
 
 /* traps need to be adjusted for the difficulty of the map.  The

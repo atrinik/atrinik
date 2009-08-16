@@ -23,7 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-typedef struct artifactstruct {
+typedef struct artifactstruct
+{
 	/* memory block with artifacts parse commands for loader.c */
 	char *parse_text;
 
@@ -47,7 +48,8 @@ typedef struct artifactstruct {
 	uint8 difficulty;
 } artifact;
 
-typedef struct artifactliststruct {
+typedef struct artifactliststruct
+{
 	struct artifactliststruct *next;
 
 	struct artifactstruct *items;

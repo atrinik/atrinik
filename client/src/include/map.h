@@ -51,7 +51,8 @@
 #define MAP_TILE_YOFF 24
 
 /** Multi part object tile structure */
-typedef struct _multi_part_tile {
+typedef struct _multi_part_tile
+{
 	/** X-offset */
 	int xoff;
 
@@ -66,7 +67,8 @@ typedef struct _multi_part_tile {
  * The way of determinate the starting and shift points is explained
  * in the dev/multi_arch folder of the arches, where the multi arch templates &
  * masks are. */
-typedef struct _multi_part_obj {
+typedef struct _multi_part_obj
+{
 	/** Natural xlen of the whole multi arch */
 	int xlen;
 
@@ -100,7 +102,8 @@ typedef struct _mapdata
 }_mapdata;
 
 /** Map cell structure */
-struct MapCell {
+struct MapCell
+{
 	/** Faces */
 	short faces[MAXFACES];
 
@@ -127,13 +130,15 @@ struct MapCell {
 } MapCell;
 
 /** Map structure */
-struct Map {
+struct Map
+{
 	/** Map cells */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
 
 /** Map position */
-typedef struct {
+typedef struct
+{
 	/** X position */
 	int x;
 

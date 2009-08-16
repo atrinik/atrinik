@@ -32,12 +32,13 @@
 
 /* this is our "attackform to protection" table.
    it maps 32+ attack forms to our ~20 protections */
-int protection_tab[NROFATTACKS] = {
-    PROTECT_PHYSICAL,10,5,7,6,11,9,
-    11,4,17,8,12,12,   /* drain to mind and ghosthit to death... */
-    18,11,10,15,17,16, /* turn undead and godpower to holy - thats the hard one */
-    10,18,14,12,18,13, /* holy word to energy (pure grace power) and life steal is psionic */
-    1,2,3,15,14,19,13  /* internal to holy... just a joke, we never use this entry */
+int protection_tab[NROFATTACKS] =
+{
+	PROTECT_PHYSICAL,10,5,7,6,11,9,
+	11,4,17,8,12,12,   /* drain to mind and ghosthit to death... */
+	18,11,10,15,17,16, /* turn undead and godpower to holy - thats the hard one */
+	10,18,14,12,18,13, /* holy word to energy (pure grace power) and life steal is psionic */
+	1,2,3,15,14,19,13  /* internal to holy... just a joke, we never use this entry */
 };
 
 #define ATTACK_HIT_DAMAGE(_op, _anum)       dam=dam*((double)_op->attack[_anum]*(double)0.01);dam>=1.0f?(damage=(int)dam):(damage=1)
@@ -62,13 +63,13 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
  */
 int attack_ob(object *op, object *hitter)
 {
-    if (op->head)
-        op = op->head;
+	if (op->head)
+		op = op->head;
 
-    if (hitter->head)
-        hitter = hitter->head;
+	if (hitter->head)
+		hitter = hitter->head;
 
-    return attack_ob_simple (op, hitter, hitter->stats.dam, hitter->stats.wc);
+	return attack_ob_simple (op, hitter, hitter->stats.dam, hitter->stats.wc);
 }
 
 /* attack_ob_simple()
@@ -77,109 +78,109 @@ int attack_ob(object *op, object *hitter)
  */
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
-    int simple_attack, roll, dam = 0;
-    uint32 type;
-    tag_t op_tag, hitter_tag;
+	int simple_attack, roll, dam = 0;
+	uint32 type;
+	tag_t op_tag, hitter_tag;
 
-    if (op->head)
-        op = op->head;
+	if (op->head)
+		op = op->head;
 
-    if (hitter->head)
-        hitter = hitter->head;
+	if (hitter->head)
+		hitter = hitter->head;
 
-    if (get_attack_mode(&op, &hitter, &simple_attack))
-        goto error;
+	if (get_attack_mode(&op, &hitter, &simple_attack))
+		goto error;
 
 	/* Trigger the ATTACK event */
 	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, (int *) base_dam, (int *) base_wc, SCRIPT_FIX_ALL);
 
-    op_tag = op->count;
-    hitter_tag = hitter->count;
+	op_tag = op->count;
+	hitter_tag = hitter->count;
 
 	if (!hitter->stats.wc_range)
 	{
 		LOG(llevDebug, "BUG attack.c: hitter %s has wc_range == 0! (set to 20)\n", query_name(hitter, NULL));
 		hitter->stats.wc_range = 20;
 	}
-    roll = random_roll(0, hitter->stats.wc_range, hitter, PREFER_HIGH);
+	roll = random_roll(0, hitter->stats.wc_range, hitter, PREFER_HIGH);
 
 	/* Adjust roll for various situations. */
-    if (!simple_attack)
-        roll += adj_attackroll(hitter, op);
+	if (!simple_attack)
+		roll += adj_attackroll(hitter, op);
 
 	/* so we do one swing */
-    if (hitter->type == PLAYER)
+	if (hitter->type == PLAYER)
 		CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
 
-    /* Force player to face enemy */
-    if (hitter->type == PLAYER)
-    {
-        rv_vector dir;
+	/* Force player to face enemy */
+	if (hitter->type == PLAYER)
+	{
+		rv_vector dir;
 
-        if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE))
-        {
-            if (hitter->head)
-            {
-                hitter->head->anim_enemy_dir = dir.direction;
-                hitter->head->facing = dir.direction;
-            }
-            else
-            {
-                hitter->anim_enemy_dir = dir.direction;
-                hitter->facing = dir.direction;
-            }
-        }
-    }
+		if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE))
+		{
+			if (hitter->head)
+			{
+				hitter->head->anim_enemy_dir = dir.direction;
+				hitter->head->facing = dir.direction;
+			}
+			else
+			{
+				hitter->anim_enemy_dir = dir.direction;
+				hitter->facing = dir.direction;
+			}
+		}
+	}
 
-    /* See if we hit the creature */
-    if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc+roll)
+	/* See if we hit the creature */
+	if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc+roll)
 	{
 		int hitdam = base_dam;
 
 		/* at this point NO ONE will still sleep */
-        CLEAR_FLAG(op, FLAG_SLEEP);
+		CLEAR_FLAG(op, FLAG_SLEEP);
 
-	    /* i don't use sub_type atm - using it should be smarter i the future */
+		/* i don't use sub_type atm - using it should be smarter i the future */
 		if (hitter->type == ARROW)
 			play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_ARROW_HIT, SOUND_NORMAL);
 		else
 		{
 			if (hitter->attack[ATNR_SLASH])
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_SLASH, SOUND_NORMAL);
-			else if(hitter->attack[ATNR_CLEAVE])
+			else if (hitter->attack[ATNR_CLEAVE])
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_CLEAVE, SOUND_NORMAL);
-			else if(hitter->attack[ATNR_PHYSICAL])
+			else if (hitter->attack[ATNR_PHYSICAL])
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_IMPACT, SOUND_NORMAL);
 			else
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_PIERCE, SOUND_NORMAL);
 		}
 
 		if (!simple_attack)
-        {
+		{
 
 			/* A NPC call for help - this should be part of AI
-            if (op->type != PLAYER && ! can_see_enemy (op, hitter)
-                && ! get_owner (op) && rndm(0, op->stats.Int))
-                npc_call_help (op);
+			if (op->type != PLAYER && ! can_see_enemy (op, hitter)
+			    && ! get_owner (op) && rndm(0, op->stats.Int))
+			    npc_call_help (op);
 			*/
 			/* old HIDE code
-            if (op->hide && QUERY_FLAG (hitter, FLAG_ALIVE)) {
-                make_visible (op);
-                if (op->type == PLAYER)
-                    new_draw_info (NDI_UNIQUE, 0, op,
-                                   "You were hit by a wild attack. "
-                                   "You are no longer hidden!");
-            }
+			if (op->hide && QUERY_FLAG (hitter, FLAG_ALIVE)) {
+			    make_visible (op);
+			    if (op->type == PLAYER)
+			        new_draw_info (NDI_UNIQUE, 0, op,
+			                       "You were hit by a wild attack. "
+			                       "You are no longer hidden!");
+			}
 			*/
 
-            /* thrown items (hitter) will have various effects
-             * when they hit the victim.  For things like thrown daggers,
-             * this sets 'hitter' to the actual dagger, and not the
-             * wrapper object.
-             */
-            thrown_item_effect(hitter, op);
-            if (was_destroyed (hitter, hitter_tag) || was_destroyed (op, op_tag) || abort_attack (op, hitter, simple_attack))
-                goto leave;
+			/* thrown items (hitter) will have various effects
+			 * when they hit the victim.  For things like thrown daggers,
+			 * this sets 'hitter' to the actual dagger, and not the
+			 * wrapper object.
+			 */
+			thrown_item_effect(hitter, op);
+			if (was_destroyed (hitter, hitter_tag) || was_destroyed (op, op_tag) || abort_attack (op, hitter, simple_attack))
+				goto leave;
 		}
 
 		/* Need to do at least 1 damage, otherwise there is no point
@@ -206,41 +207,41 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		dam = hit_player(op, random_roll(hitdam / 2 + 1, hitdam, hitter, PREFER_HIGH), hitter, type);
 		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 			goto leave;
-    }
+	}
 	/* end of if hitter hit op */
-    /* if we missed, dam=0 */
-    else
-    {
+	/* if we missed, dam=0 */
+	else
+	{
 #ifdef ATTACK_TIMING_DEBUG
-        {
-            char buf[256];
-            sprintf(buf,"MISS %s :%d>=%d-%d l:%d aw:%d/%d d:%d/%d h:%d/%d (%d)", hitter->name, op->stats.ac,base_wc, roll, hitter->level, hitter->stats.ac, hitter->stats.wc, hitter->stats.dam_adj, hitter->stats.dam, hitter->stats.hp, hitter->stats.maxhp_adj, op->stats.hp);
-            new_draw_info(NDI_ALL, 1, NULL, buf);
-            /*
-            sprintf(buf,"MISS! attacker %s:: roll:%d ac:%d wc:%d dam:%d", hitter->name, roll,hitter->stats.ac,hitter->stats.wc, hitter->stats.dam);
-            new_draw_info(NDI_UNIQUE, 0,hitter, buf);
-            sprintf(buf,"defender %s:: ac:%d wc:%d dam:%d", op->name, op->stats.ac,op->stats.wc, op->stats.dam);
-            new_draw_info(NDI_UNIQUE, 0,hitter, buf);
-            */
-        }
+		{
+			char buf[256];
+			sprintf(buf,"MISS %s :%d>=%d-%d l:%d aw:%d/%d d:%d/%d h:%d/%d (%d)", hitter->name, op->stats.ac,base_wc, roll, hitter->level, hitter->stats.ac, hitter->stats.wc, hitter->stats.dam_adj, hitter->stats.dam, hitter->stats.hp, hitter->stats.maxhp_adj, op->stats.hp);
+			new_draw_info(NDI_ALL, 1, NULL, buf);
+			/*
+			sprintf(buf,"MISS! attacker %s:: roll:%d ac:%d wc:%d dam:%d", hitter->name, roll,hitter->stats.ac,hitter->stats.wc, hitter->stats.dam);
+			new_draw_info(NDI_UNIQUE, 0,hitter, buf);
+			sprintf(buf,"defender %s:: ac:%d wc:%d dam:%d", op->name, op->stats.ac,op->stats.wc, op->stats.dam);
+			new_draw_info(NDI_UNIQUE, 0,hitter, buf);
+			*/
+		}
 #endif
 		if (hitter->type != ARROW)
 		{
 			if (hitter->type == PLAYER)
-			    play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_MISS_PLAYER, SOUND_NORMAL);
+				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_MISS_PLAYER, SOUND_NORMAL);
 			else
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_MISS_MOB, SOUND_NORMAL);
 		}
-    }
+	}
 
-    goto leave;
+	goto leave;
 
-  	error:
-    dam = 1;
-    goto leave;
+error:
+	dam = 1;
+	goto leave;
 
-  	leave:
-    return dam;
+leave:
+	return dam;
 }
 
 /* This isn't used just for players, but in fact most objects.
@@ -258,20 +259,20 @@ int hit_player(object *op, int dam, object *hitter, int type)
 {
 	object *hit_obj, *target_obj;
 	int maxdam = 0;
-    int attacknum, hit_level;
-    int simple_attack;
-    tag_t op_tag, hitter_tag;
-    int rtn_kill = 0;
+	int attacknum, hit_level;
+	int simple_attack;
+	tag_t op_tag, hitter_tag;
+	int rtn_kill = 0;
 
-    /* if our target has no_damage 1 set or is wiz, we can't hurt him */
-    if (QUERY_FLAG (op, FLAG_WIZ) || QUERY_FLAG(op, FLAG_INVULNERABLE))
-        return 0;
+	/* if our target has no_damage 1 set or is wiz, we can't hurt him */
+	if (QUERY_FLAG (op, FLAG_WIZ) || QUERY_FLAG(op, FLAG_INVULNERABLE))
+		return 0;
 
-    if (hitter->head)
-        hitter = hitter->head;
+	if (hitter->head)
+		hitter = hitter->head;
 
-    if (op->head)
-        op = op->head;
+	if (op->head)
+		op = op->head;
 
 	/* TODO:i must fix here a bit for scrolls, rods, wands and other fix level stuff! */
 	/* the trick: we get for the TARGET the real level - even for player.
@@ -303,7 +304,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	if (hit_level > target_obj->level && hit_obj->type == MONSTER)
 	{
 		dam += (int)((float)(dam/2)*((float)(hit_level-target_obj->level)/
-									(target_obj->level>25?25.0f:(float)target_obj->level)));
+									 (target_obj->level>25?25.0f:(float)target_obj->level)));
 		/*LOG(llevDebug,"DMG-ADD: hl:%d tl_%d -> d:%d \n", hit_level,target_obj->level, dam);*/
 	}
 #endif
@@ -329,37 +330,37 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		}
 	}
 
-    /* this checks objects are valid, on same map and set them to head when needed! */
-    /* also, simple_attack is set to 1, when one of the parts hav ->env != null
-     * atm, this value is only used in the door attack */
-    if (get_attack_mode(&op, &hitter, &simple_attack))
-        return 0;
+	/* this checks objects are valid, on same map and set them to head when needed! */
+	/* also, simple_attack is set to 1, when one of the parts hav ->env != null
+	 * atm, this value is only used in the door attack */
+	if (get_attack_mode(&op, &hitter, &simple_attack))
+		return 0;
 
-    op_tag = op->count;
-    hitter_tag = hitter->count;
+	op_tag = op->count;
+	hitter_tag = hitter->count;
 
 	/* i removed the "is_alive" check. We should handle this before we are here.
 	 * if a object is IS_PLAYER or IS_ALIVE - it should can be attackable.
 	 * It it has HP>0, it is still alive/not destroyed. */
-    if (op->stats.hp < 0)
+	if (op->stats.hp < 0)
 	{
-        /* FIXME: If a player is killed by a rune in a door, the
-         * was_destroyed() check above doesn't return, and might get here.
-         */
+		/* FIXME: If a player is killed by a rune in a door, the
+		 * was_destroyed() check above doesn't return, and might get here.
+		 */
 		/* seems to happen with throwing items alot... i let it still in to see
 		 * what else possible invoke this glitch. we catch it here and ok.
 		 */
-        LOG(llevDebug, "FIXME: victim (arch %s, name %s (%x - %d)) already dead in hit_player()\n", op->arch->name, query_name(op, NULL), op, op->count);
-    	return 0;
-    }
+		LOG(llevDebug, "FIXME: victim (arch %s, name %s (%x - %d)) already dead in hit_player()\n", op->arch->name, query_name(op, NULL), op, op->count);
+		return 0;
+	}
 
-    /* Go through and hit the player with each attacktype, one by one.
+	/* Go through and hit the player with each attacktype, one by one.
 	 * hit_player_attacktype only figures out the damage, doesn't inflict
 	 * it.  It will do the appropriate action for attacktypes with
 	 * effects (slow, paralization, etc.
 	 */
 	for (attacknum = 0; attacknum < NROFATTACKS; attacknum++)
-    {
+	{
 		if (hitter->attack[attacknum])
 
 #ifdef ATTACK_DEBUG
@@ -371,51 +372,51 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		}
 #else
 		{
-/*			LOG(-1, "hitter: %f - %s (dam:%d/%d) (wc:%d/%d)(wcr:%d/%d)(ac:%d/%d) ap:%d\n",hitter->speed,
-				hitter->name,hitter->stats.dam,op->stats.dam, hitter->stats.wc,op->stats.wc,hitter->stats.wc_range,op->stats.wc_range,
-				hitter->stats.ac,op->stats.ac,hitter->attack[attacknum]);
-*/
+			/*			LOG(-1, "hitter: %f - %s (dam:%d/%d) (wc:%d/%d)(wcr:%d/%d)(ac:%d/%d) ap:%d\n",hitter->speed,
+							hitter->name,hitter->stats.dam,op->stats.dam, hitter->stats.wc,op->stats.wc,hitter->stats.wc_range,op->stats.wc_range,
+							hitter->stats.ac,op->stats.ac,hitter->attack[attacknum]);
+			*/
 			maxdam += hit_player_attacktype(op, hitter, dam, attacknum);
 		}
 #endif
-    }
+	}
 
-    /* if one get attacked, the attacker will become the enemy */
-    if (!OBJECT_VALID(op->enemy, op->enemy_count))
+	/* if one get attacked, the attacker will become the enemy */
+	if (!OBJECT_VALID(op->enemy, op->enemy_count))
 	{
 		/* assign the owner as bad boy */
-        if (get_owner(hitter))
-            set_npc_enemy(op, hitter->owner, NULL);
+		if (get_owner(hitter))
+			set_npc_enemy(op, hitter->owner, NULL);
 		/* or normal mob */
-        else if (QUERY_FLAG(hitter, FLAG_MONSTER))
-            set_npc_enemy(op, hitter, NULL);
-    }
-    /* TODO: also handle op->attacked_by here */
+		else if (QUERY_FLAG(hitter, FLAG_MONSTER))
+			set_npc_enemy(op, hitter, NULL);
+	}
+	/* TODO: also handle op->attacked_by here */
 
-    /* this is needed to send the hit number animations to the clients */
-    if (op->damage_round_tag != ROUND_TAG)
-    {
-        op->last_damage = 0;
-        op->damage_round_tag = ROUND_TAG;
-    }
+	/* this is needed to send the hit number animations to the clients */
+	if (op->damage_round_tag != ROUND_TAG)
+	{
+		op->last_damage = 0;
+		op->damage_round_tag = ROUND_TAG;
+	}
 	if ((op->last_damage + maxdam) > 64000)
 		op->last_damage = 64000;
 	else
-	    op->last_damage += maxdam;
+		op->last_damage += maxdam;
 
 	/* thats the damage the target got */
-    op->stats.hp -= maxdam;
+	op->stats.hp -= maxdam;
 
-    /* Eneq(@csd.uu.se): Check to see if monster runs away. */
-    if ((op->stats.hp >= 0) && QUERY_FLAG(op, FLAG_MONSTER) && op->stats.hp < (signed short)(((float)op->run_away / 100.0f) * (float)op->stats.maxhp))
+	/* Eneq(@csd.uu.se): Check to see if monster runs away. */
+	if ((op->stats.hp >= 0) && QUERY_FLAG(op, FLAG_MONSTER) && op->stats.hp < (signed short)(((float)op->run_away / 100.0f) * (float)op->stats.maxhp))
 		SET_FLAG(op, FLAG_RUN_AWAY);
 
-    if (QUERY_FLAG(op, FLAG_TEAR_DOWN))
+	if (QUERY_FLAG(op, FLAG_TEAR_DOWN))
 	{
 		tear_down_wall(op);
 		/* nothing more to do for wall */
 		return maxdam;
-    }
+	}
 
 	/* Start of creature kill processing */
 
@@ -425,10 +426,10 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
 	/* End of creature kill processing */
 
-    /* Used to be ghosthit removal - we now use the ONE_HIT flag.  Note
-     * that before if the player was immune to ghosthit, the monster
-     * remained - that is no longer the case. */
-    if (QUERY_FLAG(hitter, FLAG_ONE_HIT))
+	/* Used to be ghosthit removal - we now use the ONE_HIT flag.  Note
+	 * that before if the player was immune to ghosthit, the monster
+	 * remained - that is no longer the case. */
+	if (QUERY_FLAG(hitter, FLAG_ONE_HIT))
 	{
 		if (QUERY_FLAG(hitter, FLAG_FRIENDLY))
 			remove_friendly_object(hitter);
@@ -436,9 +437,9 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		/* Remove, but don't drop inventory */
 		remove_ob(hitter);
 		check_walk_off(hitter, NULL, MOVE_APPLY_VANISHED);
-    }
-    /* Lets handle creatures that are splitting now */
-    else if ((type & AT_PHYSICAL) && !OBJECT_FREE(op) && QUERY_FLAG(op, FLAG_SPLITTING))
+	}
+	/* Lets handle creatures that are splitting now */
+	else if ((type & AT_PHYSICAL) && !OBJECT_FREE(op) && QUERY_FLAG(op, FLAG_SPLITTING))
 	{
 		int i;
 		int friendly = QUERY_FLAG(op, FLAG_FRIENDLY);
@@ -457,7 +458,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		if (check_walk_off(op, NULL,MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
 		{
 			/* This doesn't handle op->more yet */
-			for(i = 0; i < NROFNEWOBJS(op); i++)
+			for (i = 0; i < NROFNEWOBJS(op); i++)
 			{
 				object *tmp = arch_to_object(op->other_arch);
 				int j;
@@ -484,13 +485,13 @@ int hit_player(object *op, int dam, object *hitter, int type)
 				}
 			}
 		}
-    }
-    else if ((type & AT_DRAIN) && hitter->type == GRIMREAPER && hitter->value++ > 10)
+	}
+	else if ((type & AT_DRAIN) && hitter->type == GRIMREAPER && hitter->value++ > 10)
 	{
 		remove_ob(hitter);
 		check_walk_off(hitter, NULL, MOVE_APPLY_VANISHED);
-    }
-    return maxdam;
+	}
+	return maxdam;
 }
 
 /* if we drop for example a spell object like a fireball to the map,
@@ -498,56 +499,56 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * "hit on this map tile". If they find some - we are here. */
 int hit_map(object *op, int dir, int type)
 {
-  	object *tmp, *next, *tmp_obj, *tmp_head;
-  	mapstruct *map;
-  	int x, y;
+	object *tmp, *next, *tmp_obj, *tmp_head;
+	mapstruct *map;
+	int x, y;
 	/* added this flag..  will return 1 if it hits a monster */
-  	int mflags, retflag = 0;
-  	tag_t op_tag, next_tag = 0;
+	int mflags, retflag = 0;
+	tag_t op_tag, next_tag = 0;
 
-  	if (OBJECT_FREE(op))
+	if (OBJECT_FREE(op))
 	{
-    	LOG(llevBug, "BUG: hit_map(): free object\n");
-    	return 0;
-  	}
+		LOG(llevBug, "BUG: hit_map(): free object\n");
+		return 0;
+	}
 
-  	if (QUERY_FLAG(op, FLAG_REMOVED) || op->env != NULL)
+	if (QUERY_FLAG(op, FLAG_REMOVED) || op->env != NULL)
 	{
-    	LOG(llevBug, "BUG: hit_map(): hitter (arch %s, name %s) not on a map\n", op->arch->name, query_name(op, NULL));
-    	return 0;
-  	}
+		LOG(llevBug, "BUG: hit_map(): hitter (arch %s, name %s) not on a map\n", op->arch->name, query_name(op, NULL));
+		return 0;
+	}
 
-  	if (op->head)
+	if (op->head)
 		op = op->head;
 
-  	op_tag = op->count;
+	op_tag = op->count;
 
-  	if (!op->map)
+	if (!op->map)
 	{
-    	LOG(llevBug, "BUG: hit_map(): %s has no map.\n", query_name(op, NULL));
-    	return 0;
-  	}
+		LOG(llevBug, "BUG: hit_map(): %s has no map.\n", query_name(op, NULL));
+		return 0;
+	}
 
 	x = op->x + freearr_x[dir];
-  	y = op->y + freearr_y[dir];
-  	if (!(map = out_of_map(op->map, &x, &y)))
-      	return 0;
+	y = op->y + freearr_y[dir];
+	if (!(map = out_of_map(op->map, &x, &y)))
+		return 0;
 
-  	mflags = GET_MAP_FLAGS(map, x, y);
+	mflags = GET_MAP_FLAGS(map, x, y);
 
-  	next = get_map_ob(map, x, y);
-  	if (next)
-    	next_tag = next->count;
+	next = get_map_ob(map, x, y);
+	if (next)
+		next_tag = next->count;
 
-  	if (!(tmp_obj = get_owner(op)))
+	if (!(tmp_obj = get_owner(op)))
 		tmp_obj = op;
 
-  	if (tmp_obj->head)
-	  	tmp_obj = tmp_obj->head;
+	if (tmp_obj->head)
+		tmp_obj = tmp_obj->head;
 
-  	while (next)
-  	{
-    	if (was_destroyed(next, next_tag))
+	while (next)
+	{
+		if (was_destroyed(next, next_tag))
 		{
 			/* There may still be objects that were above 'next', but there is no
 			 * simple way to find out short of copying all object references and
@@ -559,14 +560,14 @@ int hit_map(object *op, int dir, int type)
 			 *
 			 * Gecko: this may be a little different now, since we don't really destroy object until
 			 * end of timestep. */
-      		break;
-    	}
-    	tmp = next;
-    	next = tmp->above;
-    	if (next)
-      		next_tag = next->count;
+			break;
+		}
+		tmp = next;
+		next = tmp->above;
+		if (next)
+			next_tag = next->count;
 
-    	if (OBJECT_FREE(tmp))
+		if (OBJECT_FREE(tmp))
 		{
 			LOG(llevBug, "BUG: hit_map(): found freed object (%s)\n", tmp->arch->name ? tmp->arch->name : "<NULL>");
 			break;
@@ -575,8 +576,8 @@ int hit_map(object *op, int dir, int type)
 		/* Something could have happened to 'tmp' while 'tmp->below' was processed.
 		 * For example, 'tmp' was put in an icecube.
 		 * This is one of the few cases where on_same_map should not be used. */
-    	if (tmp->map != map || tmp->x != x || tmp->y != y)
-      		continue;
+		if (tmp->map != map || tmp->x != x || tmp->y != y)
+			continue;
 
 		/* first, we check player .... */
 		if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
@@ -620,9 +621,9 @@ int hit_map(object *op, int dir, int type)
 			if (was_destroyed(op, op_tag))
 				break;
 		}
-  	}
+	}
 
-  	return 0;
+	return 0;
 }
 
 /* This returns the amount of damage hitter does to op with the
@@ -633,38 +634,38 @@ int hit_map(object *op, int dir, int type)
  * the attacktype.  Makes it easier for the PR code.  */
 int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
 {
-    double dam = (double) damage;
-    int doesnt_slay = 1;
+	double dam = (double) damage;
+	int doesnt_slay = 1;
 
-    /* just a sanity check */
-    if (dam < 0)
-    {
-    	LOG(llevBug, "BUG: hit_player_attacktype called with negative damage: %d from object: %s\n", dam, query_name(op, NULL));
-	    return 0;
-    }
+	/* just a sanity check */
+	if (dam < 0)
+	{
+		LOG(llevBug, "BUG: hit_player_attacktype called with negative damage: %d from object: %s\n", dam, query_name(op, NULL));
+		return 0;
+	}
 
-    if (hitter->slaying)
-    {
-        if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying)))
-        {
-	        doesnt_slay = 0;
+	if (hitter->slaying)
+	{
+		if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying)))
+		{
+			doesnt_slay = 0;
 			if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION))
 				damage = (int)((double)damage * 2.25);
 			else
 				damage = (int)((double)damage * 1.75);
 
 			dam = (double) damage;
-        }
-    }
+		}
+	}
 
-    /* AT_INTERNAL is supposed to do exactly dam.  Put a case here so
-     * people can't mess with that or it otherwise get confused.  */
+	/* AT_INTERNAL is supposed to do exactly dam.  Put a case here so
+	 * people can't mess with that or it otherwise get confused.  */
 	/* I extended this  function - it now maps the special damage to the
 	 * depending on the attacking object. For example we fake a poison attack
 	 * from a poison object - we need to handle this here because we don't want
 	 * repoison the target every time recursive.
 	 */
-    if (attacknum == ATNR_INTERNAL)
+	if (attacknum == ATNR_INTERNAL)
 	{
 		/* adjust damage */
 		dam = dam * ((double)hitter->attack[ATNR_INTERNAL] / 100.0);
@@ -683,11 +684,11 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 			}
 
 			/* reduce to % resistance */
-            if (op->resist[attacknum])
+			if (op->resist[attacknum])
 				ATTACK_RESIST_DAMAGE(op, attacknum);
 
 			/* reduce to % protection */
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
 		}
 
 		if (damage && dam < 1.0)
@@ -695,44 +696,44 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 
 		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 		goto jump_show_dmg;
-    }
+	}
 
 	/* quick check for immunity - if so, we skip here.
-     * our formula is (100 - resist) / 100 - so test for 100 = zero division */
-    if (op->resist[attacknum]==100 || op->protection[protection_tab[attacknum]] == 100)
+	 * our formula is (100 - resist) / 100 - so test for 100 = zero division */
+	if (op->resist[attacknum]==100 || op->protection[protection_tab[attacknum]] == 100)
 	{
 		dam = 0;
 		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 		goto jump_show_dmg;
 	}
 
-    switch (attacknum)
-    {
-		/* quick check for disease! */
+	switch (attacknum)
+	{
+			/* quick check for disease! */
 		case ATNR_PHYSICAL:
-            check_physically_infect(op, hitter);
-        case ATNR_SLASH:
-        case ATNR_CLEAVE:
-        case ATNR_PIERCE:
-			#ifdef ATTACK_DEBUG
+			check_physically_infect(op, hitter);
+		case ATNR_SLASH:
+		case ATNR_CLEAVE:
+		case ATNR_PIERCE:
+#ifdef ATTACK_DEBUG
 			/*new_draw_info_format(NDI_ALL|NDI_UNIQUE,5,NULL,"** Start attack #%d with %f damage\n",attacknum,dam);*/
-			#endif
+#endif
 			/* get % of dam from this attack form */
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
-			#ifdef ATTACK_DEBUG
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
+#ifdef ATTACK_DEBUG
 			/*new_draw_info_format(NDI_ALL|NDI_UNIQUE,5,NULL,"** After attack[%d]: %f damage\n",hitter->attack[attacknum],dam);*/
-			#endif
+#endif
 			/* reduce to % resistance */
-            if (op->resist[attacknum])
+			if (op->resist[attacknum])
 				ATTACK_RESIST_DAMAGE(op, attacknum);
-			#ifdef ATTACK_DEBUG
+#ifdef ATTACK_DEBUG
 			/*new_draw_info_format(NDI_ALL|NDI_UNIQUE,5,NULL,"** After resist[%d]: %f damage\n",op->resist[attacknum],dam);*/
-			#endif
+#endif
 			/* reduce to % protection */
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
-			#ifdef ATTACK_DEBUG
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
+#ifdef ATTACK_DEBUG
 			/*new_draw_info_format(NDI_ALL|NDI_UNIQUE,5,NULL,"** After protect[%d]: %f damage\n",op->protection[protection_tab[attacknum]],dam);*/
-			#endif
+#endif
 
 			if (damage && dam < 1.0)
 				dam = 1.0;
@@ -741,10 +742,10 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 			break;
 
 		case ATNR_POISON:
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
-            if (op->resist[attacknum])
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
+			if (op->resist[attacknum])
 				ATTACK_RESIST_DAMAGE(op, attacknum);
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
 
 			/* i must adjust this... alive stand for mobs and player include
 			 * golems, undead and demons - but not for doors or "technical objects"
@@ -761,29 +762,29 @@ int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attackn
 				poison_player(op, hitter, (float)dam);
 			break;
 
-		/* TODO:
-		 * Here comes in all attacks we have not really implemented.
-		 * atm - below this function in old cf code - use it as base. */
+			/* TODO:
+			 * Here comes in all attacks we have not really implemented.
+			 * atm - below this function in old cf code - use it as base. */
 		default:
 			/*LOG(llevBug,"attack(): find unimplemented special attack: #%d obj:%s\n", attacknum, query_name(hitter));*/
 			/* get % of dam from this attack form */
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
 
 			/* reduce to % resistance */
-            if (op->resist[attacknum])
+			if (op->resist[attacknum])
 				ATTACK_RESIST_DAMAGE(op, attacknum);
 
 			/* reduce to % protection */
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
 
 			if (damage && dam < 1.0)
 				dam = 1.0;
 			send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 			break;
-    }
+	}
 
-	jump_show_dmg:
-    return (int) dam;
+jump_show_dmg:
+	return (int) dam;
 }
 
 
@@ -795,7 +796,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 		new_draw_info_format(NDI_PURPLE, 0, op, "%s hit you for %d (%d) damage.", hitter->name, (int)dam, ((int)dam) - damage);
 
 	if (hitter->type == PLAYER)
-        new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) %s.", op->name, (int)dam, ((int)dam) - damage, attacktype_desc[attacknum]);
+		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) %s.", op->name, (int)dam, ((int)dam) - damage, attacktype_desc[attacknum]);
 }
 
 /* OLD CODE FOR ATTACKS!
@@ -961,24 +962,24 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
  * Sword. Note that nothing has been changed from the original version
  * of the following code. */
 
- /* ok, when i have finished the different attacks i must clean this up here too
-  * looks like some artifact code in here - MT-2003 */
+/* ok, when i have finished the different attacks i must clean this up here too
+ * looks like some artifact code in here - MT-2003 */
 int kill_object(object *op,int dam, object *hitter, int type)
 {
-    char buf[MAX_BUF];
+	char buf[MAX_BUF];
 	/* this is used in case of servant monsters */
-    object *old_hitter = NULL;
-    int maxdam = 0;
+	object *old_hitter = NULL;
+	int maxdam = 0;
 	int exp = 0;
 	/* true if op standing on battleground */
-    int battleg = 0;
-    object *owner = NULL;
-    mapstruct *map;
+	int battleg = 0;
+	object *owner = NULL;
+	mapstruct *map;
 
 	(void) dam;
 
 	if (op->stats.hp >= 0)
-        return -1;
+		return -1;
 
 	/* Trigger the DEATH event */
 	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, (int *) type, 0, 0, SCRIPT_FIX_ALL))
@@ -1238,48 +1239,48 @@ int kill_object(object *op,int dam, object *hitter, int type)
 		}
 	}
 
-    return maxdam;
+	return maxdam;
 }
 
 static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 {
-    if (OBJECT_FREE(*target) || OBJECT_FREE(*hitter))
+	if (OBJECT_FREE(*target) || OBJECT_FREE(*hitter))
 	{
-        LOG(llevBug, "BUG: get_attack_mode(): freed object\n");
-        return 1;
-    }
-    if ((*target)->head)
-        *target = (*target)->head;
-    if ((*hitter)->head)
-        *hitter = (*hitter)->head;
-    if ((*hitter)->env != NULL || (*target)->env != NULL)
+		LOG(llevBug, "BUG: get_attack_mode(): freed object\n");
+		return 1;
+	}
+	if ((*target)->head)
+		*target = (*target)->head;
+	if ((*hitter)->head)
+		*hitter = (*hitter)->head;
+	if ((*hitter)->env != NULL || (*target)->env != NULL)
 	{
-        *simple_attack = 1;
-        return 0;
-    }
-    if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED) || (*hitter)->map == NULL || !on_same_map((*hitter), (*target)))
-    {
-        LOG(llevBug, "BUG: hitter (arch %s, name %s) with no relation to target\n", (*hitter)->arch->name, query_name(*hitter, NULL));
-        return 1;
-    }
-    *simple_attack = 0;
-    return 0;
+		*simple_attack = 1;
+		return 0;
+	}
+	if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED) || (*hitter)->map == NULL || !on_same_map((*hitter), (*target)))
+	{
+		LOG(llevBug, "BUG: hitter (arch %s, name %s) with no relation to target\n", (*hitter)->arch->name, query_name(*hitter, NULL));
+		return 1;
+	}
+	*simple_attack = 0;
+	return 0;
 }
 
 static int abort_attack(object *target, object *hitter, int simple_attack)
 {
 	/* Check if target and hitter are still in a relation similar to the one
 	 * determined by get_attack_mode().  Returns true if the relation has changed. */
-    int new_mode;
+	int new_mode;
 
-    if (hitter->env == target || target->env == hitter)
-        new_mode = 1;
-    else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL || !on_same_map(hitter, target))
-        return 1;
-    else
-        new_mode = 0;
+	if (hitter->env == target || target->env == hitter)
+		new_mode = 1;
+	else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL || !on_same_map(hitter, target))
+		return 1;
+	else
+		new_mode = 0;
 
-    return new_mode != simple_attack;
+	return new_mode != simple_attack;
 }
 
 /* op is the arrow, tmp is what is stopping the arrow.
@@ -1289,12 +1290,12 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
 #if 0
 static int stick_arrow (object *op, object *tmp)
 {
-    /* If the missile hit a player, we insert it in their inventory.
-     * However, if the missile is heavy, we don't do so (assume it falls
-     * to the ground after a hit).  What a good value for this is up to
-     * debate - 5000 is 5 kg, so arrows, knives, and other light weapons
-     * stick around. */
-    if (op->weight <= 5000 && tmp->stats.hp >= 0)
+	/* If the missile hit a player, we insert it in their inventory.
+	 * However, if the missile is heavy, we don't do so (assume it falls
+	 * to the ground after a hit).  What a good value for this is up to
+	 * debate - 5000 is 5 kg, so arrows, knives, and other light weapons
+	 * stick around. */
+	if (op->weight <= 5000 && tmp->stats.hp >= 0)
 	{
 		if (tmp->head != NULL)
 			tmp = tmp->head;
@@ -1332,8 +1333,8 @@ static int stick_arrow (object *op, object *tmp)
 		}
 #endif
 
-        return 1;
-    }
+		return 1;
+	}
 	else
 		return 0;
 }
@@ -1347,34 +1348,34 @@ static int stick_arrow (object *op, object *tmp)
  */
 object *hit_with_arrow(object *op, object *victim)
 {
-    object *container, *hitter;
-    int hit_something = 0;
-    tag_t victim_tag, hitter_tag;
-    sint16 victim_x, victim_y;
+	object *container, *hitter;
+	int hit_something = 0;
+	tag_t victim_tag, hitter_tag;
+	sint16 victim_x, victim_y;
 
-    /* Disassemble missile */
-    if (op->inv)
+	/* Disassemble missile */
+	if (op->inv)
 	{
-        container = op;
-        hitter = op->inv;
-        remove_ob(hitter);
-        insert_ob_in_map(hitter, container->map, hitter, INS_NO_MERGE | INS_NO_WALK_ON);
-        /* Note that we now have an empty THROWN_OBJ on the map.  Code that
-         * might be called until this THROWN_OBJ is either reassembled or
-         * removed at the end of this function must be able to deal with empty
-         * THROWN_OBJs. */
-    }
+		container = op;
+		hitter = op->inv;
+		remove_ob(hitter);
+		insert_ob_in_map(hitter, container->map, hitter, INS_NO_MERGE | INS_NO_WALK_ON);
+		/* Note that we now have an empty THROWN_OBJ on the map.  Code that
+		 * might be called until this THROWN_OBJ is either reassembled or
+		 * removed at the end of this function must be able to deal with empty
+		 * THROWN_OBJs. */
+	}
 	else
 	{
-        container = NULL;
-        hitter = op;
-    }
+		container = NULL;
+		hitter = op;
+	}
 
-    /* Try to hit victim */
-    victim_x = victim->x;
-    victim_y = victim->y;
-    victim_tag = victim->count;
-    hitter_tag = hitter->count;
+	/* Try to hit victim */
+	victim_x = victim->x;
+	victim_y = victim->y;
+	victim_tag = victim->count;
+	hitter_tag = hitter->count;
 
 	if (hitter->event_flags & EVENT_FLAG_ATTACK)
 	{
@@ -1388,54 +1389,54 @@ object *hit_with_arrow(object *op, object *victim)
 
 	/*LOG(-1, "hit: %s (%d %d)\n", hitter->name, op->stats.dam, op->stats.wc);*/
 
-    /* Arrow attacks door, rune of summoning is triggered, demon is put on
-     * arrow, move_apply() calls this function, arrow sticks in demon,
-     * attack_ob_simple() returns, and we've got an arrow that still exists
-     * but is no longer on the map. Ugh. (Beware: Such things can happen at
-     * other places as well!) */
+	/* Arrow attacks door, rune of summoning is triggered, demon is put on
+	 * arrow, move_apply() calls this function, arrow sticks in demon,
+	 * attack_ob_simple() returns, and we've got an arrow that still exists
+	 * but is no longer on the map. Ugh. (Beware: Such things can happen at
+	 * other places as well!) */
 	/* hopefully the walk_off event was triggered somewhere there */
-    if (was_destroyed (hitter, hitter_tag) || hitter->env != NULL)
+	if (was_destroyed (hitter, hitter_tag) || hitter->env != NULL)
 	{
-        if (container)
+		if (container)
 		{
-            remove_ob(container);
+			remove_ob(container);
 			check_walk_off (container, NULL, MOVE_APPLY_VANISHED);
 		}
-        return NULL;
-    }
+		return NULL;
+	}
 
-    /* Missile hit victim */
-    if (hit_something)
-    {
-        /* Stop arrow */
-        if (container == NULL)
+	/* Missile hit victim */
+	if (hit_something)
+	{
+		/* Stop arrow */
+		if (container == NULL)
 		{
-            hitter = fix_stopped_arrow(hitter);
-            if (hitter == NULL)
-                return NULL;
-        }
+			hitter = fix_stopped_arrow(hitter);
+			if (hitter == NULL)
+				return NULL;
+		}
 		else
 		{
-            remove_ob(container);
+			remove_ob(container);
 			check_walk_off(container, NULL, MOVE_APPLY_VANISHED);
 		}
-        /* Try to stick arrow into victim */
+		/* Try to stick arrow into victim */
 		/* disabled - this will not work very well now with
 		 * the loot system of corpses.. if several people shot
 		 * at same guys.
 		 */
 		/*
-        if (!was_destroyed(victim, victim_tag) && stick_arrow(hitter, victim))
-            return NULL;
+		if (!was_destroyed(victim, victim_tag) && stick_arrow(hitter, victim))
+		    return NULL;
 		*/
 
 		/* Trigger the STOP event */
 		trigger_event(EVENT_STOP, victim, hitter, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
 
-        /* Else try to put arrow on victim's map square */
-        if ((victim_x != hitter->x || victim_y != hitter->y) && !wall(hitter->map, victim_x, victim_y))
-        {
-            remove_ob(hitter);
+		/* Else try to put arrow on victim's map square */
+		if ((victim_x != hitter->x || victim_y != hitter->y) && !wall(hitter->map, victim_x, victim_y))
+		{
+			remove_ob(hitter);
 			if (check_walk_off(hitter, NULL, MOVE_APPLY_DEFAULT) == CHECK_WALK_OK)
 			{
 				hitter->x = victim_x;
@@ -1445,56 +1446,56 @@ object *hit_with_arrow(object *op, object *victim)
 		}
 		/* Else leave arrow where it is */
 		else
-            hitter = merge_ob(hitter, NULL);
+			hitter = merge_ob(hitter, NULL);
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    /* Missile missed victim - reassemble missile */
-    if (container)
+	/* Missile missed victim - reassemble missile */
+	if (container)
 	{
 		/* technical remove, no walk check */
-        remove_ob(hitter);
-        insert_ob_in_ob(hitter, container);
-    }
-    return op;
+		remove_ob(hitter);
+		insert_ob_in_ob(hitter, container);
+	}
+	return op;
 }
 
 
 void tear_down_wall(object *op)
 {
-    int perc = 0;
+	int perc = 0;
 
-    if (!op->stats.maxhp)
+	if (!op->stats.maxhp)
 	{
 		LOG(llevBug, "BUG: TEAR_DOWN wall %s had no maxhp.\n", op->name);
 		perc = 1;
-    }
+	}
 	else if (!GET_ANIM_ID(op))
 	{
 		/* Object has been called - no animations, so remove it */
 		if (op->stats.hp < 0)
-	    	destruct_ob(op); /* Should update LOS */
+			destruct_ob(op); /* Should update LOS */
 		/* no animations, so nothing more to do */
 		return;
-    }
+	}
 
-    perc = NUM_ANIMATIONS(op) - ((int)NUM_ANIMATIONS(op) * op->stats.hp) / op->stats.maxhp;
+	perc = NUM_ANIMATIONS(op) - ((int)NUM_ANIMATIONS(op) * op->stats.hp) / op->stats.maxhp;
 
-    if (perc >= (int) NUM_ANIMATIONS(op))
+	if (perc >= (int) NUM_ANIMATIONS(op))
 		perc = NUM_ANIMATIONS(op)-1;
-    else if (perc < 1)
+	else if (perc < 1)
 		perc = 1;
 
-    SET_ANIMATION(op, perc);
-    update_object(op, UP_OBJ_FACE);
+	SET_ANIMATION(op, perc);
+	update_object(op, UP_OBJ_FACE);
 	/* Reached the last animation */
-    if (perc == NUM_ANIMATIONS(op) - 1)
+	if (perc == NUM_ANIMATIONS(op) - 1)
 	{
 		/* If the last face is blank, remove the ob */
 		if (op->face == blank_face)
 			/* Should update LOS */
-	    	destruct_ob(op);
+			destruct_ob(op);
 		/* The last face was not blank, leave an image */
 		else
 		{
@@ -1502,7 +1503,7 @@ void tear_down_wall(object *op)
 			CLEAR_FLAG(op, FLAG_NO_PASS);
 			CLEAR_FLAG(op, FLAG_ALIVE);
 		}
-    }
+	}
 }
 
 
@@ -1677,124 +1678,124 @@ void poison_player(object *op, object *hitter, float dam)
 			}
 		}
 		tmp->speed_left = 0;
-    }
-    else
-      	tmp->stats.food++;
+	}
+	else
+		tmp->stats.food++;
 }
 
 void slow_player(object *op, object *hitter, int dam)
 {
 	archetype *at = find_archetype("slowness");
-    object *tmp;
+	object *tmp;
 
 	(void) hitter;
 	(void) dam;
 
-    if (at == NULL)
-      	LOG(llevBug, "BUG: Can't find slowness archetype.\n");
+	if (at == NULL)
+		LOG(llevBug, "BUG: Can't find slowness archetype.\n");
 
-    if ((tmp = present_arch_in_ob(at, op)) == NULL)
+	if ((tmp = present_arch_in_ob(at, op)) == NULL)
 	{
-      	tmp = arch_to_object(at);
-      	tmp = insert_ob_in_ob(tmp, op);
-      	new_draw_info(NDI_UNIQUE, 0, op, "The world suddenly moves very fast!");
-    }
+		tmp = arch_to_object(at);
+		tmp = insert_ob_in_ob(tmp, op);
+		new_draw_info(NDI_UNIQUE, 0, op, "The world suddenly moves very fast!");
+	}
 	else
-      	tmp->stats.food++;
+		tmp->stats.food++;
 
-    SET_FLAG(tmp, FLAG_APPLIED);
-    tmp->speed_left = 0;
-    fix_player(op);
+	SET_FLAG(tmp, FLAG_APPLIED);
+	tmp->speed_left = 0;
+	fix_player(op);
 }
 
 void confuse_player(object *op, object *hitter, int dam)
 {
-    object *tmp;
-    int maxduration;
+	object *tmp;
+	int maxduration;
 
 	(void) hitter;
 	(void) dam;
 
-    tmp = present_in_ob(CONFUSION, op);
-    if (!tmp)
+	tmp = present_in_ob(CONFUSION, op);
+	if (!tmp)
 	{
-      	tmp = get_archetype("confusion");
-      	tmp = insert_ob_in_ob(tmp, op);
-    }
+		tmp = get_archetype("confusion");
+		tmp = insert_ob_in_ob(tmp, op);
+	}
 
-    /* Duration added per hit and max. duration of confusion both depend on the player's resistance */
-    tmp->stats.food += MAX(1, 5 * (100 - op->resist[ATNR_CONFUSION]) / 100);
-    maxduration = MAX(2, 30 * (100 - op->resist[ATNR_CONFUSION]) / 100);
+	/* Duration added per hit and max. duration of confusion both depend on the player's resistance */
+	tmp->stats.food += MAX(1, 5 * (100 - op->resist[ATNR_CONFUSION]) / 100);
+	maxduration = MAX(2, 30 * (100 - op->resist[ATNR_CONFUSION]) / 100);
 
-    if (tmp->stats.food > maxduration)
-      	tmp->stats.food = maxduration;
+	if (tmp->stats.food > maxduration)
+		tmp->stats.food = maxduration;
 
-    if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED))
-      	new_draw_info(NDI_UNIQUE, 0, op, "You suddenly feel very confused!");
+	if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED))
+		new_draw_info(NDI_UNIQUE, 0, op, "You suddenly feel very confused!");
 
-    SET_FLAG(op, FLAG_CONFUSED);
+	SET_FLAG(op, FLAG_CONFUSED);
 }
 
 void blind_player(object *op, object *hitter, int dam)
 {
-    object *tmp, *owner;
+	object *tmp, *owner;
 
-    /* Save some work if we know it isn't going to affect the player */
-    if (op->resist[ATNR_BLIND] == 100)
+	/* Save some work if we know it isn't going to affect the player */
+	if (op->resist[ATNR_BLIND] == 100)
 		return;
 
-    tmp = present_in_ob(BLINDNESS, op);
-    if (!tmp)
+	tmp = present_in_ob(BLINDNESS, op);
+	if (!tmp)
 	{
-      	tmp = get_archetype("blindness");
-      	SET_FLAG(tmp, FLAG_BLIND);
-      	SET_FLAG(tmp, FLAG_APPLIED);
+		tmp = get_archetype("blindness");
+		SET_FLAG(tmp, FLAG_BLIND);
+		SET_FLAG(tmp, FLAG_APPLIED);
 		/* use floats so we don't lose too much precision due to rounding errors.
 		 * speed is a float anyways. */
-      	tmp->speed = tmp->speed * ((float)100.0 - (float)op->resist[ATNR_BLIND]) / (float)100;
+		tmp->speed = tmp->speed * ((float)100.0 - (float)op->resist[ATNR_BLIND]) / (float)100;
 
-      	tmp = insert_ob_in_ob(tmp, op);
+		tmp = insert_ob_in_ob(tmp, op);
 		/* Mostly to display any messages */
-      	change_abil(op, tmp);
+		change_abil(op, tmp);
 		/* This takes care of some other stuff */
-      	fix_player(op);
+		fix_player(op);
 
-      	if (hitter->owner)
+		if (hitter->owner)
 			owner = get_owner(hitter);
-      	else
+		else
 			owner = hitter;
 
-      	new_draw_info_format(NDI_UNIQUE, 0, owner, "Your attack blinds %s!", query_name(op, NULL));
-    }
-    tmp->stats.food += dam;
+		new_draw_info_format(NDI_UNIQUE, 0, owner, "Your attack blinds %s!", query_name(op, NULL));
+	}
+	tmp->stats.food += dam;
 
-    if (tmp->stats.food > 10)
+	if (tmp->stats.food > 10)
 		tmp->stats.food = 10;
 }
 
 void paralyze_player(object *op, object *hitter, int dam)
 {
-    float effect, max;
-    /* object *tmp; */
+	float effect, max;
+	/* object *tmp; */
 
 	(void) hitter;
 
-    /* Do this as a float - otherwise, rounding might very well reduce this to 0 */
-    effect = (float)dam * (float)3.0 * ((float)100.0 - (float)op->resist[ATNR_PARALYZE]) / (float)100;
+	/* Do this as a float - otherwise, rounding might very well reduce this to 0 */
+	effect = (float)dam * (float)3.0 * ((float)100.0 - (float)op->resist[ATNR_PARALYZE]) / (float)100;
 
-    if (effect == 0)
+	if (effect == 0)
 		return;
 
 	/* we mark this object as paralyzed */
-    SET_FLAG(op, FLAG_PARALYZED);
+	SET_FLAG(op, FLAG_PARALYZED);
 
-    op->speed_left -= FABS(op->speed) * effect;
-    /* tmp->stats.food+=(signed short) effect / op->speed; */
+	op->speed_left -= FABS(op->speed) * effect;
+	/* tmp->stats.food+=(signed short) effect / op->speed; */
 
-    /* max number of ticks to be affected for. */
-    max = ((float)100 - (float)op->resist[ATNR_PARALYZE]) / (float) 2;
-    if (op->speed_left < -(FABS(op->speed) * max))
-        op->speed_left = (float) -(FABS(op->speed) * max);
+	/* max number of ticks to be affected for. */
+	max = ((float)100 - (float)op->resist[ATNR_PARALYZE]) / (float) 2;
+	if (op->speed_left < -(FABS(op->speed) * max))
+		op->speed_left = (float) -(FABS(op->speed) * max);
 
 	/* tmp->stats.food = (signed short) (max / FABS(op->speed)); */
 }
@@ -1805,49 +1806,49 @@ void paralyze_player(object *op, object *hitter, int dam)
 void deathstrike_player(object *op, object *hitter, int *dam)
 {
 	/*  The intention of a death attack is to kill outright things
-    **  that are a lot weaker than the attacker, have a chance of killing
-    **  things somewhat weaker than the caster, and no chance of
-    **  killing something equal or stronger than the attacker.
-    **  Also, if a deathstrike attack has a slaying, any monster
-    **  whose name or race matches a comma-delimited list in the slaying
-    **  field of the deathstriking object  */
+	**  that are a lot weaker than the attacker, have a chance of killing
+	**  things somewhat weaker than the caster, and no chance of
+	**  killing something equal or stronger than the attacker.
+	**  Also, if a deathstrike attack has a slaying, any monster
+	**  whose name or race matches a comma-delimited list in the slaying
+	**  field of the deathstriking object  */
 
-    int atk_lev, def_lev, kill_lev;
+	int atk_lev, def_lev, kill_lev;
 
-    if (hitter->slaying)
+	if (hitter->slaying)
 		if (!((QUERY_FLAG(op, FLAG_UNDEAD) && strstr(hitter->slaying, undead_name)) || (op->race && strstr(hitter->slaying, op->race))))
 			return;
 
-    def_lev = op->level;
-    if (def_lev < 1)
+	def_lev = op->level;
+	if (def_lev < 1)
 	{
-        LOG(llevBug, "BUG: arch %s, name %s with level < 1\n", op->arch->name, query_name(op, NULL));
-        def_lev = 1;
-    }
-    atk_lev = SK_level (hitter) / 2;
-    /* LOG(llevDebug,"Deathstrike - attack level %d, defender level %d\n", atk_lev, def_lev); */
+		LOG(llevBug, "BUG: arch %s, name %s with level < 1\n", op->arch->name, query_name(op, NULL));
+		def_lev = 1;
+	}
+	atk_lev = SK_level (hitter) / 2;
+	/* LOG(llevDebug,"Deathstrike - attack level %d, defender level %d\n", atk_lev, def_lev); */
 
-    if (atk_lev >= def_lev)
+	if (atk_lev >= def_lev)
 	{
 		kill_lev = random_roll(0, atk_lev-1, hitter, PREFER_HIGH);
 
-	/* Note that the below effectively means the ratio of the atk vs
-	 * defener level is important - if level 52 character has very little
-	 * chance of killing a level 50 monster.  This should probably be
-	 * redone. */
+		/* Note that the below effectively means the ratio of the atk vs
+		 * defener level is important - if level 52 character has very little
+		 * chance of killing a level 50 monster.  This should probably be
+		 * redone. */
 		if (kill_lev >= def_lev)
 		{
-	    	*dam = op->stats.hp + 10;
+			*dam = op->stats.hp + 10;
 			/* take all hp. they can still save for 1/2 */
 			/* I think this doesn't really do much.  Because of
 			 * integer rounding, this only makes any difference if the
 			 * attack level is double the defender level. */
-	    	*dam *= kill_lev / def_lev;
+			*dam *= kill_lev / def_lev;
 		}
-    }
+	}
 	/* no harm done */
 	else
-      *dam = 0;
+		*dam = 0;
 }
 
 /* thrown_item_effect() - handles any special effects of thrown
@@ -1855,7 +1856,7 @@ void deathstrike_player(object *op, object *hitter, int *dam)
  * monster). */
 static void thrown_item_effect(object *hitter, object *victim)
 {
-    if (!IS_LIVE(hitter))
+	if (!IS_LIVE(hitter))
 	{
 		/* May not need a switch for just 2 types, but this makes it
 		 * easier for expansion. */
@@ -1863,7 +1864,7 @@ static void thrown_item_effect(object *hitter, object *victim)
 		 * OR after this (resist against the damage this here perhaps does) */
 		switch (hitter->type)
 		{
-	    	case POTION:
+			case POTION:
 				/* OLD: should player get a save throw instead of checking magic protection? */
 				/*if(QUERY_FLAG(victim,FLAG_ALIVE)&&!QUERY_FLAG(victim,FLAG_UNDEAD))
 					apply_potion(victim,hitter);
@@ -1875,49 +1876,49 @@ static void thrown_item_effect(object *hitter, object *victim)
 				 * later we should take care about confusion & paralyze.
 				 * we should NEVER allow cure/heal stuff here - it will
 				 * allow too many possible exploits. */
-		 		if (hitter->stats.sp != SP_NO_SPELL && spells[hitter->stats.sp].flags&SPELL_DESC_DIRECTION)
+				if (hitter->stats.sp != SP_NO_SPELL && spells[hitter->stats.sp].flags&SPELL_DESC_DIRECTION)
 					/* apply potion ALWAYS fire on the spot the applier stands - good for healing - bad for firestorm */
 					cast_spell(hitter, hitter, hitter->direction, hitter->stats.sp, 1, spellPotion, NULL);
 
-	    		decrease_ob(hitter);
+				decrease_ob(hitter);
 				break;
 
-			/* poison drinks */
-	    	case POISON:
+				/* poison drinks */
+			case POISON:
 				/* As with potions, should monster get a save? */
 				if (IS_LIVE(victim) && !QUERY_FLAG(victim, FLAG_UNDEAD))
 					apply_poison(victim, hitter);
 				break;
 
-			/* Removed case statements that did nothing.
-			 * food may be poisonous, but monster must be willing to eat it,
-			 * so we don't handle it here.
-			 * Containers should perhaps break open, but that code was disabled. */
+				/* Removed case statements that did nothing.
+				 * food may be poisonous, but monster must be willing to eat it,
+				 * so we don't handle it here.
+				 * Containers should perhaps break open, but that code was disabled. */
 		}
-    }
+	}
 }
 
 /* adj_attackroll() - adjustments to attacks by various conditions */
 int adj_attackroll(object *hitter, object *target)
 {
-  	object *attacker = hitter;
-  	int adjust = 0;
+	object *attacker = hitter;
+	int adjust = 0;
 
-  	/* safety */
-  	if (!target || !hitter || !hitter->map || !target->map || !on_same_map(hitter, target))
+	/* safety */
+	if (!target || !hitter || !hitter->map || !target->map || !on_same_map(hitter, target))
 	{
-    	LOG(llevBug, "BUG: adj_attackroll(): hitter and target not on same map\n");
-    	return 0;
-  	}
+		LOG(llevBug, "BUG: adj_attackroll(): hitter and target not on same map\n");
+		return 0;
+	}
 
-  	/* aimed missiles use the owning object's sight */
-  	if (is_aimed_missile(hitter))
+	/* aimed missiles use the owning object's sight */
+	if (is_aimed_missile(hitter))
 	{
-    	if ((attacker = get_owner(hitter)) == NULL)
+		if ((attacker = get_owner(hitter)) == NULL)
 			attacker = hitter;
 	}
-  	else if (!IS_LIVE(hitter))
-    	return 0;
+	else if (!IS_LIVE(hitter))
+		return 0;
 
 	/* determine the condtions under which we make an attack.
 	 * Add more cases, as the need occurs. */
@@ -1943,31 +1944,31 @@ int adj_attackroll(object *hitter, object *target)
 		adjust -= 2;
 
 #if 0
-  /* slower attacks are less likely to succeed. We should use a
-   * comparison between attacker/target speeds BUT, players have
-   * a generally faster speed, so this will wind up being a HUGE
-   * disadantage for the monsters! Too bad, because missiles which
-   * fly fast should have a better chance of hitting a slower target.
-   */
+	/* slower attacks are less likely to succeed. We should use a
+	 * comparison between attacker/target speeds BUT, players have
+	 * a generally faster speed, so this will wind up being a HUGE
+	 * disadantage for the monsters! Too bad, because missiles which
+	 * fly fast should have a better chance of hitting a slower target.
+	 */
 	if (hitter->speed < target->speed)
 		adjust += ((float) hitter->speed-target->speed);
 #endif
 
 #if 0
-  	LOG(llevDebug, "adj_attackroll() returns %d (%d)\n", adjust, attacker->count);
+	LOG(llevDebug, "adj_attackroll() returns %d (%d)\n", adjust, attacker->count);
 #endif
 
-  	return adjust;
+	return adjust;
 }
 
 
 /* determine if the object is an 'aimed' missile */
 int is_aimed_missile(object *op)
 {
-  	if (op && QUERY_FLAG(op, FLAG_FLYING) &&  (op->type == ARROW || op->type == THROWN_OBJ || op->type == FBULLET || op->type == FBALL))
-    	return 1;
+	if (op && QUERY_FLAG(op, FLAG_FLYING) &&  (op->type == ARROW || op->type == THROWN_OBJ || op->type == FBULLET || op->type == FBALL))
+		return 1;
 
-  	return 0;
+	return 0;
 }
 
 /* improved melee test function.
@@ -1992,7 +1993,7 @@ int is_melee_range(object *hitter, object *enemy)
 		xt = hitter->x + freearr_x[s];
 		yt = hitter->y + freearr_y[s];
 
-	    if (!(mt = out_of_map(hitter->map, &xt, &yt)))
+		if (!(mt = out_of_map(hitter->map, &xt, &yt)))
 			continue;
 
 		for (tmp = enemy; tmp != NULL; tmp = tmp->more)
@@ -2011,41 +2012,41 @@ int is_melee_range(object *hitter, object *enemy)
  * any further action (like destroying the item). */
 int did_make_save_item(object *op, object *originator)
 {
-    int i, saves = 0, materials = 0, number;
+	int i, saves = 0, materials = 0, number;
 
-    if (originator->attack[ATNR_ELECTRICITY] > 0)
+	if (originator->attack[ATNR_ELECTRICITY] > 0)
 		number = ATNR_ELECTRICITY;
-    else if (originator->attack[ATNR_FIRE] > 0)
+	else if (originator->attack[ATNR_FIRE] > 0)
 		number = ATNR_FIRE;
 	else if (originator->attack[ATNR_COLD] > 0)
 		number = ATNR_COLD;
-    else
+	else
 		return 1;
 
-    /* If the object is immune, no effect */
-    if (op->resist[number] == 100)
+	/* If the object is immune, no effect */
+	if (op->resist[number] == 100)
 		return 1;
 
-    for (i = 0; i < NROFMATERIALS; i++)
+	for (i = 0; i < NROFMATERIALS; i++)
 	{
 		if (op->material&(1 << i))
 		{
-	    	materials++;
-	    	if (rndm(1, 20) >= material[i].save[number]-op->magic-op->resist[number] / 100)
+			materials++;
+			if (rndm(1, 20) >= material[i].save[number]-op->magic-op->resist[number] / 100)
 				saves++;
-	    	/* if the attack is too weak */
-	    	if ((20 - material[i].save[number]) / 3 > originator->stats.dam)
+			/* if the attack is too weak */
+			if ((20 - material[i].save[number]) / 3 > originator->stats.dam)
 				saves++;
 		}
-    }
+	}
 
-    if (saves == materials || materials == 0)
+	if (saves == materials || materials == 0)
 		return 1;
 
-    if ((saves == 0) || (rndm(1, materials) > saves))
+	if ((saves == 0) || (rndm(1, materials) > saves))
 		return 0;
 
-    return 1;
+	return 1;
 }
 
 /* This function calls did_make_save_item.  It then performs the
@@ -2069,7 +2070,7 @@ void save_throw_object(object *op, object *originator)
 	if (op->sub_type1 == ST1_CONTAINER_CORPSE_party && op->stats.maxhp && (CONTR(originator->owner)->party_number == -1 || op->stats.maxhp != CONTR(originator->owner)->party_number))
 		return;
 
-    if (originator->attack[ATNR_COLD] > 0)
+	if (originator->attack[ATNR_COLD] > 0)
 	{
 		if (!did_make_save_item(op, originator))
 		{
@@ -2089,7 +2090,7 @@ void save_throw_object(object *op, object *originator)
 			{
 				tmp = arch_to_object(at);
 				tmp->x = op->x,
-				tmp->y = op->y;
+						 tmp->y = op->y;
 				insert_ob_in_map(tmp, op->map, originator, 0);
 			}
 
@@ -2098,50 +2099,50 @@ void save_throw_object(object *op, object *originator)
 
 			(void)insert_ob_in_ob(op, tmp);
 		}
-        return;
-    }
+		return;
+	}
 
-    if (!did_make_save_item(op, originator))
-    {
+	if (!did_make_save_item(op, originator))
+	{
 		object *env = op->env;
 		mapstruct *m = op->map;
 
-        op = stop_item(op);
-        if (op == NULL)
-            return;
+		op = stop_item(op);
+		if (op == NULL)
+			return;
 
 #if 0
 		/* Currently disabled. -- A.T. 2009 */
 		/* Cancellation. */
-        if (originator->attack[ATNR_CANCELLATION] > 0)
+		if (originator->attack[ATNR_CANCELLATION] > 0)
 		{
 			cancellation(op);
 			fix_stopped_item(op, m, originator);
 			return;
-        }
+		}
 #endif
 
 		if (op->nrof > 1)
 		{
-	      	op = decrease_ob_nr(op, rndm(0, op->nrof - 1));
+			op = decrease_ob_nr(op, rndm(0, op->nrof - 1));
 
 			if (op)
 				fix_stopped_item(op, m, originator);
 		}
 		else
 		{
-	    	if (op->env)
+			if (op->env)
 			{
 				object *tmp = is_player_inv(op->env);
 
 				if (tmp)
 				{
-		    		esrv_del_item(CONTR(tmp), op->count,op->env);
-		    		esrv_update_item(UPD_WEIGHT, tmp, tmp);
+					esrv_del_item(CONTR(tmp), op->count,op->env);
+					esrv_update_item(UPD_WEIGHT, tmp, tmp);
 				}
-	    	}
+			}
 
-	    	if (!QUERY_FLAG(op, FLAG_REMOVED))
+			if (!QUERY_FLAG(op, FLAG_REMOVED))
 			{
 				destruct_ob(op);
 				op->speed = 0;
@@ -2151,16 +2152,16 @@ void save_throw_object(object *op, object *originator)
 
 		if (originator->attack[ATNR_FIRE] > 0 || originator->attack[ATNR_ELECTRICITY] > 0)
 		{
-	      	if (env)
+			if (env)
 			{
-                op = get_archetype("burnout");
+				op = get_archetype("burnout");
 				op->x = env->x, op->y = env->y;
 				insert_ob_in_ob(op, env);
-	      	}
+			}
 			else
 				replace_insert_ob_in_map("burnout", originator);
 		}
 
 		return;
-    }
+	}
 }

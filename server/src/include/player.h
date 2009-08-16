@@ -36,7 +36,8 @@ typedef struct _level_color
 extern _level_color level_color[201];
 
 /* fire modes submited from client */
-enum {
+enum
+{
 	FIRE_MODE_NONE = -1,
 	FIRE_MODE_BOW,
 	FIRE_MODE_SPELL,
@@ -46,29 +47,32 @@ enum {
 	FIRE_MODE_SUMMON
 };
 
-typedef enum rangetype {
-  	range_bottom = -1, range_none = 0, range_bow = 1, range_magic = 2,
-  	range_wand = 3, range_rod = 4, range_scroll = 5, range_horn = 6,
-  	range_skill = 7,range_potion = 8, range_dust = 9,
-  	range_size = 10
+typedef enum rangetype
+{
+	range_bottom = -1, range_none = 0, range_bow = 1, range_magic = 2,
+	range_wand = 3, range_rod = 4, range_scroll = 5, range_horn = 6,
+	range_skill = 7,range_potion = 8, range_dust = 9,
+	range_size = 10
 } rangetype;
 
 
-typedef enum usekeytype {
-    key_inventory = 0,
-    keyrings = 1,
-    containers = 2
+typedef enum usekeytype
+{
+	key_inventory = 0,
+	keyrings = 1,
+	containers = 2
 } usekeytype;
 
 /* used for item damage system */
-enum {
+enum
+{
 	PLAYER_EQUIP_MAIL,
 	PLAYER_EQUIP_GAUNTLET,
-    PLAYER_EQUIP_BRACER,
+	PLAYER_EQUIP_BRACER,
 	PLAYER_EQUIP_HELM,
 	PLAYER_EQUIP_BOOTS,
-    PLAYER_EQUIP_CLOAK,
-    PLAYER_EQUIP_GIRDLE,
+	PLAYER_EQUIP_CLOAK,
+	PLAYER_EQUIP_GIRDLE,
 	PLAYER_EQUIP_SHIELD,
 	/* this must 1 entry before LRING! */
 	PLAYER_EQUIP_RRING,
@@ -81,29 +85,30 @@ enum {
 };
 
 /* not really the player, but tied pretty closely */
-typedef struct party_struct {
-  	sint16 partyid;
-  	const char *partyleader;
-  	char passwd[7];
-  	struct party_struct *next;
-  	char *partyname;
+typedef struct party_struct
+{
+	sint16 partyid;
+	const char *partyleader;
+	char passwd[7];
+	struct party_struct *next;
+	char *partyname;
 #ifdef PARTY_KILL_LOG
-  	struct party_kill
-  	{
-    	char killer[MAX_NAME + 1], dead[MAX_NAME + 1];
-    	uint32 exp;
-  	} party_kills[PARTY_KILL_LOG];
+	struct party_kill
+	{
+		char killer[MAX_NAME + 1], dead[MAX_NAME + 1];
+		uint32 exp;
+	} party_kills[PARTY_KILL_LOG];
 #endif
-  	uint32 total_exp, kills;
+	uint32 total_exp, kills;
 } partylist;
 
 /* we can include more flags here... */
 #define PLAYER_AFLAG_NO 0
 #define PLAYER_AFLAG_FIGHT 1	/* if this flag is set, show player fight animation */
 #define PLAYER_AFLAG_ENEMY 2	/* if this flag is set at END of a animation,
-								 * set fight flag and clear this flag. It is set in hit_player()
-                                 * when the player swings to an enemy
-                                 */
+* set fight flag and clear this flag. It is set in hit_player()
+* when the player swings to an enemy
+*/
 #define PLAYER_AFLAG_ADDFRAME 4	/* intern */
 
 #ifdef WIN32
@@ -142,7 +147,7 @@ typedef struct pl_player
 	object *anim_enemy;
 
 	/* thats the weapon in our hand */
-    object *selected_weapon;
+	object *selected_weapon;
 
 	/* thats the hth skill we use when we not use a weapon (like karate) */
 	object *skill_weapon;
@@ -226,7 +231,7 @@ typedef struct pl_player
 	float action_timer;
 
 	/* previous value sent to the client */
-    float last_action_timer;
+	float last_action_timer;
 
 	/* count or mark object */
 	uint32 mark_count;
@@ -255,16 +260,16 @@ typedef struct pl_player
 	sint16 client_dam;
 
 	/* the age of our player */
-    sint16 age;
+	sint16 age;
 
 	/* unnatural changes to our age - can be removed by restoration */
-    sint16 age_add;
+	sint16 age_add;
 
 	/* permanent changes .... very bad (or good when younger) */
-    sint16 age_changes;
+	sint16 age_changes;
 
 	/* the age of our player */
-    sint16 age_max;
+	sint16 age_max;
 
 	/* shadow register for updint skill levels to client */
 	sint16 skill_level[NROFSKILLS];
@@ -288,7 +293,7 @@ typedef struct pl_player
 	char weapon_sp;
 
 	/* Any bonuses/penalties to digestion */
-    signed char digestion;
+	signed char digestion;
 
 	/* Penalty to sp regen from armour */
 	signed char gen_sp_armour;
@@ -372,72 +377,85 @@ typedef struct pl_player
 	/* this flags is set when the player is loaded from file
 	 * and not just created. It is used to overrule the "no save
 	 * when exp is 0" rule - which can lead inventory duping. */
-	uint32 player_loaded:1;
+uint32 player_loaded:
+	1;
 
 	/* If true, the player has set a name. */
-	uint32 name_changed:1;
+uint32 name_changed:
+	1;
 
 	/* If true, update_los() in draw(), and clear */
-	uint32 update_los:1;
+uint32 update_los:
+	1;
 
 	/* if true, player is in combat mode, attacking with weapon */
-	uint32 combat_mode:1;
+uint32 combat_mode:
+	1;
 
 	/* if true, player is praying and gaining fast grace */
-	uint32 praying:1;
+uint32 praying:
+	1;
 
 	/* internal used by praying to send pray msg to player */
-	uint32 was_praying:1;
+uint32 was_praying:
+	1;
 
 	/* some dm flags */
 
 	/* 1 = no "XX enter the game" and no entry in /who */
-	uint32 dm_stealth:1;
+uint32 dm_stealth:
+	1;
 
 	/* 1 = all maps are shown in daylight for the dm */
-	uint32 dm_light:1;
+uint32 dm_light:
+	1;
 
 	/* internal dm flag: player was removed from a map */
-	uint32 dm_removed_from_map:1;
+uint32 dm_removed_from_map:
+	1;
 
 	/* all values before this line are tested and proofed */
 
 	/* True if you know the spell of the wand */
-  	uint32 known_spell:1;
+uint32 known_spell:
+	1;
 
 	/* What was last updated with draw_stats() */
-  	uint32 last_known_spell:1;
+uint32 last_known_spell:
+	1;
 
 	/* update skill list when set */
-  	uint32 update_skills:1;
+uint32 update_skills:
+	1;
 #ifdef EXPLORE_MODE
 	/* if True, player is in explore mode */
-  	uint32 explore:1;
+uint32 explore:
+	1;
 #endif
 
 	/* Which range-attack is being used by player */
-  	rangetype shoottype;
+	rangetype shoottype;
 
 	/* What was last updated with draw_stats() */
-  	rangetype last_shoot;
+	rangetype last_shoot;
 
 	/* Method for finding keys for doors */
-  	usekeytype usekeys;
+	usekeytype usekeys;
 
 	/* Type of readied spell */
-  	sint16 chosen_spell;
+	sint16 chosen_spell;
 
 	/* Type of spell that the item fires */
-  	sint16 chosen_item_spell;
+	sint16 chosen_item_spell;
 
 	/* fire/run on flags for last tick */
-  	uint16 last_flags;
+	uint16 last_flags;
 
 	/* Any numbers typed before a command */
-  	uint32 count;
+	uint32 count;
 
 	/* this is init from init_player_exp() */
-  	int last_skill_index;
+	int last_skill_index;
 
 	unsigned char state;
 
@@ -465,33 +483,33 @@ typedef struct pl_player
 
 	long last_weight;
 
-  	unsigned char last_level;
+	unsigned char last_level;
 
 	/* Who killed this player. */
-  	char killer[BIG_NAME];
+	char killer[BIG_NAME];
 
-  	char last_cmd;
+	char last_cmd;
 
 	/* last player that told you something [mids 01/14/2002] */
 	/* this is a typcial client part - no need to use the server
 	 * to store or handle this! */
-  	char last_tell[MAX_NAME];
+	char last_tell[MAX_NAME];
 
-  	char write_buf[MAX_BUF];
+	char write_buf[MAX_BUF];
 
-  	char input_buf[MAX_BUF];
+	char input_buf[MAX_BUF];
 
 	/* 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
-  	char password[16];
+	char password[16];
 #ifdef SAVE_INTERVAL
-  	time_t last_save_time;
+	time_t last_save_time;
 #endif
 
 #ifdef AUTOSAVE
-  	long last_save_tick;
+	long last_save_tick;
 #endif
 
-  	sint16 party_number;
+	sint16 party_number;
 
 	sint16 afk;
 
@@ -499,22 +517,22 @@ typedef struct pl_player
 	 * but we will have to get password first
 	 * so we have to remember which party to
 	 * join */
-  	sint16 party_number_to_join;
+	sint16 party_number_to_join;
 
 #ifdef SEARCH_ITEMS
-  	char search_str[MAX_BUF];
+	char search_str[MAX_BUF];
 #endif
 
 	int apartment_invite;
 
-  	/* i disabled this now - search for last_used in the code.
-   	 * perhaps we need this in the future. */
+	/* i disabled this now - search for last_used in the code.
+	  * perhaps we need this in the future. */
 #if 0
 	/* Pointer to object last picked or applied */
-  	object *last_used;
+	object *last_used;
 
 	/* Safety measures to be sure it's the same */
-  	long last_used_id;
+	long last_used_id;
 #endif
 } player;
 

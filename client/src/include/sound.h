@@ -27,7 +27,8 @@
 #define __SOUND_H
 
 /* Possible status of the sound system */
-typedef enum _sound_system {
+typedef enum _sound_system
+{
 	SOUND_SYSTEM_NONE,
 	SOUND_SYSTEM_OFF,
 	SOUND_SYSTEM_ON
@@ -46,7 +47,8 @@ extern _sound_system SoundSystem;
 #define MUSIC_MODE_FORCED 4
 
 /* Sound ids. */
-typedef enum _sound_id {
+typedef enum _sound_id
+{
 	SOUND_EVENT01,
 	SOUND_BOW01,
 	SOUND_LEARNSPELL,
@@ -108,7 +110,8 @@ typedef enum _sound_id {
  * SOUND_MAX + SOUND_MAGIC_xxx */
 
 /* This enum should be same as in server */
-typedef enum _spell_sound_id {
+typedef enum _spell_sound_id
+{
 	SOUND_MAGIC_DEFAULT,
 	SOUND_MAGIC_ACID,
 	SOUND_MAGIC_ANIMATE,
@@ -162,7 +165,8 @@ typedef enum _spell_sound_id {
 
 
 #ifdef INSTALL_SOUND
-typedef struct _wave {
+typedef struct _wave
+{
 	Mix_Chunk *sound;
 
 	/* Length of wave data */
@@ -172,7 +176,8 @@ typedef struct _wave {
 	int soundpos;
 } _wave;
 
-typedef struct music_data {
+typedef struct music_data
+{
 	/* If 1, struct is loaded */
 	int flag;
 
@@ -196,7 +201,8 @@ extern music_data music;
 extern music_data music_new;
 #endif
 
-enum {
+enum
+{
 	SPECIAL_SOUND_FOOD,
 	SPECIAL_SOUND_STATDOWN,
 	SPECIAL_SOUND_STATUP,

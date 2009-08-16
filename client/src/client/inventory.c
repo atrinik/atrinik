@@ -25,7 +25,8 @@
 
 #include "include.h"
 
-char *skill_level_name[] = {
+char *skill_level_name[] =
+{
 	"",
 	"Ag",
 	"Pe",
@@ -241,7 +242,7 @@ void widget_inventory_event(int x, int y, SDL_Event event)
 					if (cpl.win_inv_slot > cpl.win_inv_count)
 						cpl.win_inv_slot = cpl.win_inv_count;
 				}
-				else if((event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE) && my > 29 && my < 125)
+				else if ((event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE) && my > 29 && my < 125)
 				{
 					cpl.win_inv_slot = (my - 30) / 32 * INVITEMXLEN + (mx - 3) / 32 + cpl.win_inv_start;
 					cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
@@ -378,13 +379,13 @@ void widget_show_inventory_window(int x, int y)
 			sprite_blt(Bitmaps[BITMAP_CMARK_START], x + ((i - 1) % invxlen) * 32 + 1, y + ((i - 1) / invxlen) * 32 + 1, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
-			jump_in_container1:
+jump_in_container1:
 			for (; tmpc && i < invxlen * invylen; tmpc = tmpc->next)
 			{
 				/* TODO: Implement marked items */
 #if 0
 				if (tmpc->tag == cpl.mark_count)
-				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
+					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
 #endif
 
 				blt_inv_item(tmpc, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1);
@@ -527,7 +528,7 @@ void widget_show_below_window(item *op, int x, int y)
 			sprite_blt(Bitmaps[BITMAP_CMARK_START], x + ((i - 1) % INVITEMBELOWXLEN) * 32 + 5, y + ((i - 1) / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
-			jump_in_container2:
+jump_in_container2:
 			for (; tmpc && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmpc = tmpc->next)
 			{
 				blt_inv_item(tmpc, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19);
@@ -791,7 +792,7 @@ void examine_range_marks(int tag)
 	{
 		/* if item is in inventory, check the stats and adjust the range table */
 		if (tmp->tag == tag)
-			{
+		{
 #if 0
 			snprintf(buf, sizeof(buf), "GO ready %s (%d %d).", tmp->s_name, tmp->stype, tmp->stype & 128);
 			draw_info(buf, COLOR_WHITE);

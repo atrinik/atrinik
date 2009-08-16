@@ -36,7 +36,8 @@
 /* define this for loads of (marginal) debuging information */
 #define EXTREME_ALCHEMY_DEBUG
 
-static char *cauldron_effect[] = {
+static char *cauldron_effect[] =
+{
 	"vibrates briefly",
 	"produces a cloud of steam",
 	"emits bright flames",
@@ -57,9 +58,9 @@ static char *cauldron_effect[] = {
 /* cauldron_sound() - returns a random selection from cauldron_effect[] */
 char *cauldron_sound(void)
 {
-  	int size = sizeof(cauldron_effect) / sizeof(char *);
+	int size = sizeof(cauldron_effect) / sizeof(char *);
 
-  	return cauldron_effect[rndm(0, size - 1)];
+	return cauldron_effect[rndm(0, size - 1)];
 }
 
 /* attempt_do_alchemy() - Main part of the ALCHEMY code. From this we call fctns
@@ -293,21 +294,21 @@ object * attempt_recipe(object *caster, object *cauldron, int ability, recipe *r
 
 #if 0
 			new_draw_info_format(NDI_UNIQUE, 0, caster, "Your spell causes the %s to explode!", cauldron->name);
-		 	kaboom_cauldron();
+			kaboom_cauldron();
 #endif
 		}
 		else
 			new_draw_info_format(NDI_UNIQUE, 0, caster, "The %s %s.", cauldron->name, cauldron_sound());
 	}
 
-  	return item;
+	return item;
 }
 
 /* adjust_product() - we adjust the nrof, exp and level of the final product, based
  * on the item's default parameters, and the relevant caster skill level. */
 void adjust_product(object *item, int lvl, int yield)
 {
-   	int nrof = 1;
+	int nrof = 1;
 
 	if (!yield)
 		yield = 1;
@@ -413,7 +414,7 @@ object * find_transmution_ob(object *first_ingred, recipe *rp)
  * adjustment for playbalance. -b.t. */
 void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger)
 {
-  	int level = 0;
+	int level = 0;
 
 	if (!op || !cauldron)
 		return;
@@ -503,7 +504,8 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
 			do
 			{
 				change_attr_value(&tmp->stats, rndm(0, 6), (signed char)(-1 * (rndm(1, 3))));
-			} while (rndm(0, 2));
+			}
+			while (rndm(0, 2));
 		}
 
 		return;
@@ -663,28 +665,28 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
  * of objects in the cauldron inventory (ex icecube has stuff in it). */
 void remove_contents (object *first_ob, object *save_item)
 {
-  	object *next, *tmp = first_ob;
+	object *next, *tmp = first_ob;
 
-    while (tmp)
+	while (tmp)
 	{
-        next = tmp->below;
-        if (tmp == save_item)
+		next = tmp->below;
+		if (tmp == save_item)
 		{
-          	if (!(tmp = next))
+			if (!(tmp = next))
 				break;
-          	else
+			else
 				next = next->below;
 		}
 
 #if 0
- 		if (tmp->inv)
+		if (tmp->inv)
 			remove_contents(tmp->inv, NULL);
 #endif
 
 		/* only inventory ... */
-        remove_ob(tmp);
-        tmp = next;
-    }
+		remove_ob(tmp);
+		tmp = next;
+	}
 }
 
 /* calc_alch_danger() - "Danger" level will determine how bad the backfire
@@ -698,94 +700,94 @@ void remove_contents (object *first_ob, object *save_item)
 
 int calc_alch_danger(object *caster, object *cauldron)
 {
-   	object *item;
-   	char name[MAX_BUF];
-   	int danger = 0, nrofi = 0;
+	object *item;
+	char name[MAX_BUF];
+	int danger = 0, nrofi = 0;
 
-    /* Knowing alchemy skill reduces yer risk */
-   	if (caster->chosen_skill && caster->chosen_skill->stats.sp == SK_ALCHEMY)
-     	danger -= SK_level(caster);
+	/* Knowing alchemy skill reduces yer risk */
+	if (caster->chosen_skill && caster->chosen_skill->stats.sp == SK_ALCHEMY)
+		danger -= SK_level(caster);
 
-   	/* better cauldrons reduce risk */
-   	danger -= cauldron->magic;
+	/* better cauldrons reduce risk */
+	danger -= cauldron->magic;
 
-   	/* Higher Int, lower the risk */
-   	danger -= 3 * (caster->stats.Int - 15);
+	/* Higher Int, lower the risk */
+	danger -= 3 * (caster->stats.Int - 15);
 
-    /* Ingredients. Longer names usually mean rarer stuff.
-     * Thus the backfire is worse. Also, more ingredients
-     * means we are attempting a more powerfull potion,
-     * and thus the backfire will be worse. */
-   	for (item = cauldron->inv; item; item = item->below)
+	/* Ingredients. Longer names usually mean rarer stuff.
+	 * Thus the backfire is worse. Also, more ingredients
+	 * means we are attempting a more powerfull potion,
+	 * and thus the backfire will be worse. */
+	for (item = cauldron->inv; item; item = item->below)
 	{
-        strcpy(name, item->name);
+		strcpy(name, item->name);
 
-        if (item->title)
+		if (item->title)
 			sprintf(name, "%s %s", item->name, item->title);
 
-        danger += (strtoint(name) / 1000) + 3;
+		danger += (strtoint(name) / 1000) + 3;
 		nrofi++;
-   	}
+	}
 
-   	if (nrofi > 1)
+	if (nrofi > 1)
 		danger *= nrofi;
 
-    /* Using a bad device is *majorly* stupid */
-   	if (QUERY_FLAG(cauldron, FLAG_CURSED))
+	/* Using a bad device is *majorly* stupid */
+	if (QUERY_FLAG(cauldron, FLAG_CURSED))
 		danger += 80;
 
-   	if (QUERY_FLAG(cauldron, FLAG_DAMNED))
+	if (QUERY_FLAG(cauldron, FLAG_DAMNED))
 		danger += 200;
 
 #ifdef ALCHEMY_DEBUG
-   	LOG(llevDebug, "DEBUG: calc_alch_danger() returned danger=%d\n", danger);
+	LOG(llevDebug, "DEBUG: calc_alch_danger() returned danger=%d\n", danger);
 #endif
 
-   	return danger;
+	return danger;
 }
 
 /* Handle use_skill for alchemy-like items. */
 int use_alchemy(object *op)
 {
-    object *tmp, *item, *next;
-    object *unpaid_cauldron = NULL;
-    object *unpaid_item = NULL;
-    int did_alchemy = 0;
+	object *tmp, *item, *next;
+	object *unpaid_cauldron = NULL;
+	object *unpaid_item = NULL;
+	int did_alchemy = 0;
 
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = next)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = next)
 	{
-        next = tmp->above;
-        if (QUERY_FLAG(tmp, FLAG_IS_CAULDRON))
+		next = tmp->above;
+		if (QUERY_FLAG(tmp, FLAG_IS_CAULDRON))
 		{
-            if (QUERY_FLAG(tmp, FLAG_UNPAID))
+			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-                unpaid_cauldron = tmp;
-                continue;
-            }
+				unpaid_cauldron = tmp;
+				continue;
+			}
 
-            unpaid_item = NULL;
-            for (item = tmp->inv; item; item = item->below)
+			unpaid_item = NULL;
+			for (item = tmp->inv; item; item = item->below)
 			{
-                if (QUERY_FLAG(item, FLAG_UNPAID))
+				if (QUERY_FLAG(item, FLAG_UNPAID))
 				{
-                    unpaid_item = item;
-                    break;
-                }
-            }
-            if (unpaid_item != NULL)
-                continue;
+					unpaid_item = item;
+					break;
+				}
+			}
+			if (unpaid_item != NULL)
+				continue;
 
-            attempt_do_alchemy(op, tmp);
-            if (QUERY_FLAG(tmp, FLAG_APPLIED))
-                esrv_send_inventory(op, tmp);
-            did_alchemy = 1;
-        }
-    }
+			attempt_do_alchemy(op, tmp);
+			if (QUERY_FLAG(tmp, FLAG_APPLIED))
+				esrv_send_inventory(op, tmp);
+			did_alchemy = 1;
+		}
+	}
 
-    if (unpaid_cauldron)
+	if (unpaid_cauldron)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You must pay for your %s first!", query_base_name(unpaid_cauldron, NULL));
 	else if (unpaid_item)
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You must pay for your %s first!", query_base_name(unpaid_item, NULL));
 
-    return did_alchemy;
+	return did_alchemy;
 }

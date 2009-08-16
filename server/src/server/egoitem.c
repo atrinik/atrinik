@@ -34,11 +34,11 @@
 /* GROS: I put this here, because no other file seemed quite good. */
 object *create_artifact(object *op, char *artifactname)
 {
-    artifactlist *al;
-    artifact *art;
-    al = find_artifactlist(op->type);
+	artifactlist *al;
+	artifact *art;
+	al = find_artifactlist(op->type);
 
-    if (al == NULL)
+	if (al == NULL)
 		return NULL;
 
 	for (art = al->items; art != NULL; art = art->next)
@@ -61,9 +61,9 @@ object *create_artifact(object *op, char *artifactname)
  * @return Always returns 1. */
 int apply_power_crystal(object *op, object *crystal)
 {
-  	int available_power;
-  	int power_space;
-  	int power_grab;
+	int available_power;
+	int power_space;
+	int power_grab;
 
 	available_power = op->stats.sp - op->stats.maxsp;
 	power_space = crystal->stats.maxsp - crystal->stats.sp;

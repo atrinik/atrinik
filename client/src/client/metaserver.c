@@ -320,7 +320,7 @@ int metaserver_thread(void *dummy)
 	/* We're not connecting anymore */
 	metaserver_connecting = 0;
 
-    return 0;
+	return 0;
 }
 
 /**
@@ -336,5 +336,5 @@ void metaserver_get_servers()
 	if (!thread)
 	{
 		LOG(LOG_ERROR, "ERROR: Thread creation failed.\n");
-    }
+	}
 }

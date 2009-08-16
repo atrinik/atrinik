@@ -76,900 +76,910 @@ object void_container;
 
 /* this IS extrem ugly - i will move it ASAP to a data file, which can be used
  * from editor too! */
-material_real_struct material_real[NROFMATERIALS * NROFMATERIALS_REAL + 1] = {
-    /* undefined Material - for stuff we don't need material information about */
-    {"", 100,100,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+material_real_struct material_real[NROFMATERIALS * NROFMATERIALS_REAL + 1] =
+{
+	/* undefined Material - for stuff we don't need material information about */
+	{"", 100,100,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
 
-        /* PAPERS */
-    {"paper ",       90,    80,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    81,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    82,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    83,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    84,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    85,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    86,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    87,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    88,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"paper ",       90,    89,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   90,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   91,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   92,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   93,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   94,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
-    {"parchment ",   100,   95,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	/* PAPERS */
+	{"paper ",       90,    80,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    81,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    82,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    83,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    84,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    85,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    86,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    87,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    88,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"paper ",       90,    89,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   90,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   91,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   92,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   93,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   94,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
+	{"parchment ",   100,   95,       0,0,0,      M_PAPER,         RACE_TYPE_NONE},
 
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* IRON (= Metal) */
-    {"iron ",                100,    80,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"hardened iron ",       95,     81,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"forged iron ",         90,     82,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"black iron ",          90,     83,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"shear iron ",          90,     84,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"steel ",               90,     85,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"hardened steel ",      85,     86,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"forged steel ",        85,     87,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"shear steel ",         85,     88,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"diamant steel ",       85,     89,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"darksteel ",           70,     90,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"forged darksteel ",    60,     91,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"silksteel ",           50,     92,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"forged silksteel ",    40,     93,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"meteoric steel ",      40,     94,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
-    {"forged meteoric steel ",40,     95,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* IRON (= Metal) */
+	{"iron ",                100,    80,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"hardened iron ",       95,     81,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"forged iron ",         90,     82,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"black iron ",          90,     83,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"shear iron ",          90,     84,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"steel ",               90,     85,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"hardened steel ",      85,     86,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"forged steel ",        85,     87,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"shear steel ",         85,     88,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"diamant steel ",       85,     89,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"darksteel ",           70,     90,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"forged darksteel ",    60,     91,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"silksteel ",           50,     92,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"forged silksteel ",    40,     93,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"meteoric steel ",      40,     94,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
+	{"forged meteoric steel ",40,     95,   0,0,0,          M_IRON,         RACE_TYPE_NONE},
 
 
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* Crystals/breakable/glass */
-    {"glass ",       100,80,       0,0,0,	M_GLASS, RACE_TYPE_NONE}, /* 129 */
-    {"zircon ",		100,80,       0,0,0,	M_GLASS, RACE_TYPE_NONE}, /* 130 */
-    {"pearl ",       75,83,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 131 */
-    {"emerald ",     75,85,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 132 */
-    {"sapphire ",    50,92,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 133 */
-    {"ruby ",        30,93,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 134 */
-    {"diamond ",     10,95,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 135 */
-    {"jasper ", 75,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 136 */
-    {"jade ", 75,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 137 */
-    {"aquamarine ", 80,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 138 */
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* LEATHER */
-    {"soft leather ",				100,	80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"hardened leather ",			70,		81,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"stone leather ",				70,		82,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"dark leather ",				35,     83,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"silk leather ",				30,		84,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"wyvern leather ",				50,		85,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"ankheg leather ",				50,		86,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"griffon leather ",			40,     87,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"hellcat leather ",			40,		88,		  0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"gargoyle leather ",			35,		89,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"diamant leather ",			35,		90,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"chimera leather ",			30,		91,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"manticore leather ",			25,		92,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"cockatrice leather ",			20,		93,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"basilisk leather ",			20,		94,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
-    {"dragon leather ",				20,		95,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* Crystals/breakable/glass */
+	{"glass ",       100,80,       0,0,0,	M_GLASS, RACE_TYPE_NONE}, /* 129 */
+	{"zircon ",		100,80,       0,0,0,	M_GLASS, RACE_TYPE_NONE}, /* 130 */
+	{"pearl ",       75,83,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 131 */
+	{"emerald ",     75,85,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 132 */
+	{"sapphire ",    50,92,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 133 */
+	{"ruby ",        30,93,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 134 */
+	{"diamond ",     10,95,       0,0,0,    M_GLASS, RACE_TYPE_NONE}, /* 135 */
+	{"jasper ", 75,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 136 */
+	{"jade ", 75,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 137 */
+	{"aquamarine ", 80,80,       0,0,0,      M_GLASS,         RACE_TYPE_NONE}, /* 138 */
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* LEATHER */
+	{"soft leather ",				100,	80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"hardened leather ",			70,		81,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"stone leather ",				70,		82,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"dark leather ",				35,     83,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"silk leather ",				30,		84,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"wyvern leather ",				50,		85,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"ankheg leather ",				50,		86,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"griffon leather ",			40,     87,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"hellcat leather ",			40,		88,		  0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"gargoyle leather ",			35,		89,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"diamant leather ",			35,		90,       0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"chimera leather ",			30,		91,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"manticore leather ",			25,		92,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"cockatrice leather ",			20,		93,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"basilisk leather ",			20,		94,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
+	{"dragon leather ",				20,		95,        0,0,0,      M_LEATHER,         RACE_TYPE_NONE},
 
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* WOOD */
-    {"pine ",        100,80,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,81,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,82,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,83,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,84,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,85,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,86,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,87,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,88,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"pine ",        100,89,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,90,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,91,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,92,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,93,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,94,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"oak ",             80,95,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* ORGANIC */
-    {"animal ",       100,80,       0,0,0,      M_ORGANIC,       RACE_TYPE_NONE}, /* 321 used for misc organics */
-    {"dragon ",      50,96,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE}, /* 322 */
-    {"chitin "				, 50,82,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE}, /* 323 */
-    {"scale "				, 50,80,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 324 */
-    {"white dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 325 */
-    {"blue dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 326 */
-    {"red dragonscale "		, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 327 */
-    {"yellow dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 328 */
-    {"grey dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 329 */
-    {"black dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 330 */
-    {"orange dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 331 */
-    {"green dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 332 */
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* STONE */
-    {"flint ",       100,80,       0,0,0,      M_STONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* CLOTH */
-    {"wool ",       100,80,       0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
-    {"linen ",      90,80,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
-    {"silk ",       25,95,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
-    {"elven hair ",  25,95,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* ADAMANT (= magic metals) */
-    {"magic silk ",  1,99,       0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
-    {"mithril ",     1,99,       0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
-    {"adamant ",     10,99,      0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* Liquid */
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* WOOD */
+	{"pine ",        100,80,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,81,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,82,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,83,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,84,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,85,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,86,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,87,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,88,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"pine ",        100,89,       0,0,0,         M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,90,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,91,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,92,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,93,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,94,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"oak ",             80,95,       0,0,0,          M_WOOD,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* ORGANIC */
+	{"animal ",       100,80,       0,0,0,      M_ORGANIC,       RACE_TYPE_NONE}, /* 321 used for misc organics */
+	{"dragon ",      50,96,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE}, /* 322 */
+	{"chitin "				, 50,82,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE}, /* 323 */
+	{"scale "				, 50,80,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 324 */
+	{"white dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 325 */
+	{"blue dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 326 */
+	{"red dragonscale "		, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 327 */
+	{"yellow dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 328 */
+	{"grey dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 329 */
+	{"black dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 330 */
+	{"orange dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 331 */
+	{"green dragonscale "	, 10,100,       0,0,0,      M_ORGANIC,         RACE_TYPE_NONE},/* 332 */
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* STONE */
+	{"flint ",       100,80,       0,0,0,      M_STONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* CLOTH */
+	{"wool ",       100,80,       0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
+	{"linen ",      90,80,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
+	{"silk ",       25,95,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
+	{"elven hair ",  25,95,        0,0,0,      M_CLOTH,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* ADAMANT (= magic metals) */
+	{"magic silk ",  1,99,       0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
+	{"mithril ",     1,99,       0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
+	{"adamant ",     10,99,      0,0,0,      M_ADAMANT,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* Liquid */
 	/* some like ice... the kind of liquid/potions in game don't depend
 	 * or even handle the liquid base type */
-    {"",       100,80,       0,0,0,      M_LIQUID,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* Soft Metal */
-    {"tin ",         100,80,       0,0,0,	M_SOFT_METAL,	RACE_TYPE_NONE}, /* 641 */
-    {"brass ",		 100,80,       0,0,0,	M_SOFT_METAL,   RACE_TYPE_NONE}, /* 642 */
-    {"copper ",      100,80,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 643 */
-    {"bronze ",      100,80,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 644 */
-    {"silver ",      50, 90,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 645 */
-    {"gold ",        20, 95,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 646 */
-    {"platinum ",    10, 99,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 647 */
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* Bone */
-    {"",        100,80,       0,0,0,      M_BONE,         RACE_TYPE_NONE}, /* for misc bones*/
-    {"human ",			100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"elven ",			100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"dwarven ",		100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    /* Ice */
+	{"",       100,80,       0,0,0,      M_LIQUID,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* Soft Metal */
+	{"tin ",         100,80,       0,0,0,	M_SOFT_METAL,	RACE_TYPE_NONE}, /* 641 */
+	{"brass ",		 100,80,       0,0,0,	M_SOFT_METAL,   RACE_TYPE_NONE}, /* 642 */
+	{"copper ",      100,80,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 643 */
+	{"bronze ",      100,80,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 644 */
+	{"silver ",      50, 90,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 645 */
+	{"gold ",        20, 95,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 646 */
+	{"platinum ",    10, 99,       0,0,0,   M_SOFT_METAL,   RACE_TYPE_NONE}, /* 647 */
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* Bone */
+	{"",        100,80,       0,0,0,      M_BONE,         RACE_TYPE_NONE}, /* for misc bones*/
+	{"human ",			100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"elven ",			100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"dwarven ",		100,80,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	/* Ice */
 	/* not sure about the sense to put here different elements in...*/
-    {"",         100,80,       0,0,0,      M_ICE,         RACE_TYPE_NONE}, /* water */
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
-    {"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"",         100,80,       0,0,0,      M_ICE,         RACE_TYPE_NONE}, /* water */
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
+	{"", 0,0,       0,0,0,      M_NONE,         RACE_TYPE_NONE},
 };
 
-materialtype material[NROFMATERIALS] = {
-  /*  		  P  M  F  E  C  C  A  D  W  G  P S P T F  C D D C C G H B  I *
-   *		  H  A  I  L  O  O  C  R  E  H  O L A U E  A E E H O O O L  N *
-   *		  Y  G  R  E  L  N  I  A  A  O  I O R R A  N P A A U D L I  T *
-   *		  S  I  E  C  D  F  D  I  P  S  S W A N R  C L T O N   Y N  R *
-   *		  I  C     T     U     N  O  T  O   L      E E H S T P   D  N */
-  {"paper", 	{15,10,17, 9, 5, 7,13, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
-  {"metal", 	{ 2,12, 3,12, 2,10, 7, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
-  {"crystal",   {14,11, 8, 3,10, 5, 1, 0,20,15, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
-  {"leather", 	{ 5,10,10, 3, 3,10,10, 0,20,15, 0,0,0,0,0,12,0,0,0,0,0,0,0,0}},
-  {"wood", 	    {10,11,13, 2, 2,10, 9, 0,20,15, 0,0,0,0,0,12,0,0,0,0,0,0,0,0}},
-  {"organics", 	{ 3,12, 9,11, 3,10, 9, 0,20,15, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
-  {"stone", 	{ 2, 5, 2, 2, 2, 2, 1, 0,20,15, 0,0,0,0,0, 5,0,0,0,0,0,0,0,0}},
-  {"cloth", 	{14,11,13, 4, 4, 5,10, 0,20,15, 0,0,0,0,0, 5,0,0,0,0,0,0,0,0}},
-  {"magic material", 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
-  {"liquid", 	{ 0, 8, 9, 6,17, 0,15, 0,20,15,12,0,0,0,0,11,0,0,0,0,0,0,0,0}},
-  {"soft metal",{ 6,12, 6,14, 2,10, 1, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
-  {"bone", 	    {10, 9, 4, 5, 3,10,10, 0,20,15, 0,0,0,0,0, 2,0,0,0,0,0,0,0,0}},
-  {"ice", 	    {14,11,16, 5, 0, 5, 6, 0,20,15, 0,0,0,0,0, 7,0,0,0,0,0,0,0,0}}
+materialtype material[NROFMATERIALS] =
+{
+	/*  		  P  M  F  E  C  C  A  D  W  G  P S P T F  C D D C C G H B  I *
+	 *		  H  A  I  L  O  O  C  R  E  H  O L A U E  A E E H O O O L  N *
+	 *		  Y  G  R  E  L  N  I  A  A  O  I O R R A  N P A A U D L I  T *
+	 *		  S  I  E  C  D  F  D  I  P  S  S W A N R  C L T O N   Y N  R *
+	 *		  I  C     T     U     N  O  T  O   L      E E H S T P   D  N */
+	{"paper", 	{15,10,17, 9, 5, 7,13, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
+	{"metal", 	{ 2,12, 3,12, 2,10, 7, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
+	{"crystal",   {14,11, 8, 3,10, 5, 1, 0,20,15, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
+	{"leather", 	{ 5,10,10, 3, 3,10,10, 0,20,15, 0,0,0,0,0,12,0,0,0,0,0,0,0,0}},
+	{"wood", 	    {10,11,13, 2, 2,10, 9, 0,20,15, 0,0,0,0,0,12,0,0,0,0,0,0,0,0}},
+	{"organics", 	{ 3,12, 9,11, 3,10, 9, 0,20,15, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
+	{"stone", 	{ 2, 5, 2, 2, 2, 2, 1, 0,20,15, 0,0,0,0,0, 5,0,0,0,0,0,0,0,0}},
+	{"cloth", 	{14,11,13, 4, 4, 5,10, 0,20,15, 0,0,0,0,0, 5,0,0,0,0,0,0,0,0}},
+	{"magic material", 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0, 0,0,0,0,0,0,0,0,0}},
+	{"liquid", 	{ 0, 8, 9, 6,17, 0,15, 0,20,15,12,0,0,0,0,11,0,0,0,0,0,0,0,0}},
+	{"soft metal",{ 6,12, 6,14, 2,10, 1, 0,20,15, 0,0,0,0,0,10,0,0,0,0,0,0,0,0}},
+	{"bone", 	    {10, 9, 4, 5, 3,10,10, 0,20,15, 0,0,0,0,0, 2,0,0,0,0,0,0,0,0}},
+	{"ice", 	    {14,11,16, 5, 0, 5, 6, 0,20,15, 0,0,0,0,0, 7,0,0,0,0,0,0,0,0}}
 };
 
-int freearr_x[SIZEOFFREE] = {
+int freearr_x[SIZEOFFREE] =
+{
 	0, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2, -1,
-   	0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -3, -3, -3, -3, -2, -1};
+	0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -3, -3, -3, -3, -2, -1
+};
 
-int freearr_y[SIZEOFFREE] = {
+int freearr_y[SIZEOFFREE] =
+{
 	0, -1, -1, 0, 1, 1, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2,
-   	-3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3};
+	-3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3
+};
 
-int maxfree[SIZEOFFREE] = {
+int maxfree[SIZEOFFREE] =
+{
 	0, 9, 10, 13, 14, 17, 18, 21, 22, 25, 26, 27, 30, 31, 32, 33, 36, 37, 39, 39, 42, 43, 44, 45,
-  	48, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49};
+	48, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49
+};
 
-int freedir[SIZEOFFREE]= {
-  	0, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 6, 7, 8, 8, 8,
-  	1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 6, 6, 6, 6, 6, 7, 8, 8, 8, 8, 8};
+int freedir[SIZEOFFREE]=
+{
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 6, 7, 8, 8, 8,
+	1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 6, 6, 6, 6, 6, 7, 8, 8, 8, 8, 8
+};
 
 /** Basic pooling memory management system **/
 /* TODO: move out into mempool.c & mempool.h files.
@@ -979,15 +989,16 @@ int freedir[SIZEOFFREE]= {
 /* A pool definition in the mempools[] array and an entry in the mempool id enum
  * is needed for each type of struct we want to use the pooling memory management for. */
 
-struct mempool mempools[NROF_MEMPOOLS] = {
-    #ifdef MEMPOOL_TRACKING
-    {NULL, 10, sizeof(struct puddle_info), 0, 0, NULL, NULL, "puddles", MEMPOOL_ALLOW_FREEING, NULL},
-    #endif
+struct mempool mempools[NROF_MEMPOOLS] =
+{
+#ifdef MEMPOOL_TRACKING
+	{NULL, 10, sizeof(struct puddle_info), 0, 0, NULL, NULL, "puddles", MEMPOOL_ALLOW_FREEING, NULL},
+#endif
 
-    {NULL, OBJECT_EXPAND, sizeof(object), 0, 0, (chunk_constructor)initialize_object, (chunk_destructor)destroy_object, "objects", 0, NULL},
+	{NULL, OBJECT_EXPAND, sizeof(object), 0, 0, (chunk_constructor)initialize_object, (chunk_destructor)destroy_object, "objects", 0, NULL},
 
-    {NULL, 5, sizeof(player), 0, 0, NULL, NULL, "players", MEMPOOL_BYPASS_POOLS, NULL},
-    /* Actually, we will later set up the destructor to point towards free_player() */
+	{NULL, 5, sizeof(player), 0, 0, NULL, NULL, "players", MEMPOOL_BYPASS_POOLS, NULL},
+	/* Actually, we will later set up the destructor to point towards free_player() */
 };
 
 /* The mempool system never frees memory back to the system, but is extremely efficient
@@ -1001,22 +1012,22 @@ struct mempool mempools[NROF_MEMPOOLS] = {
 /* Initialize the mempools lists and related data structures */
 void init_mempools()
 {
-    int i;
+	int i;
 
-    /* Initialize end-of-list pointers and a few other values*/
-    for (i = 0; i < NROF_MEMPOOLS; i++)
+	/* Initialize end-of-list pointers and a few other values*/
+	for (i = 0; i < NROF_MEMPOOLS; i++)
 	{
-        mempools[i].first_free = &end_marker;
-        mempools[i].nrof_used = 0;
-        mempools[i].nrof_free = 0;
+		mempools[i].first_free = &end_marker;
+		mempools[i].nrof_used = 0;
+		mempools[i].nrof_free = 0;
 #ifdef MEMPOOL_TRACKING
-        mempools[i].first_puddle_info = NULL;
+		mempools[i].first_puddle_info = NULL;
 #endif
-    }
-    removed_objects = &end_marker;
+	}
+	removed_objects = &end_marker;
 
-    /* Set up container for "loose" objects */
-    initialize_object(&void_container);
+	/* Set up container for "loose" objects */
+	initialize_object(&void_container);
 	void_container.type = TYPE_VOID_CONTAINER;
 }
 
@@ -1024,11 +1035,11 @@ void init_mempools()
  * reside outside the library */
 void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor)
 {
-    if (pool >= NROF_MEMPOOLS)
-        LOG(llevBug, "BUG: setup_poolfunctions for illegal memory pool %d\n", pool);
+	if (pool >= NROF_MEMPOOLS)
+		LOG(llevBug, "BUG: setup_poolfunctions for illegal memory pool %d\n", pool);
 
-    mempools[pool].constructor = constructor;
-    mempools[pool].destructor = destructor;
+	mempools[pool].constructor = constructor;
+	mempools[pool].destructor = destructor;
 }
 
 /* Expands the memory pool with MEMPOOL_EXPAND new chunks. All new chunks
@@ -1036,9 +1047,9 @@ void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_d
  * expand_mempool is only meant to be used from get_poolchunk(). */
 static void expand_mempool(mempool_id pool)
 {
-    uint32 i;
+	uint32 i;
 	struct mempool_chunk *first, *ptr;
-    int chunksize_real;
+	int chunksize_real;
 #ifdef MEMPOOL_OBJECT_TRACKING
 	static uint32 real_id = 1;
 #endif
@@ -1046,28 +1057,28 @@ static void expand_mempool(mempool_id pool)
 	struct puddle_info *p;
 #endif
 
-    if (pool >= NROF_MEMPOOLS)
-        LOG(llevBug, "BUG: expand_mempool for illegal memory pool %d\n", pool);
+	if (pool >= NROF_MEMPOOLS)
+		LOG(llevBug, "BUG: expand_mempool for illegal memory pool %d\n", pool);
 
 #if 0
-    if (mempools[pool].nrof_free > 0)
-        LOG(llevBug, "BUG: expand_mempool called with chunks still available in pool\n");
+	if (mempools[pool].nrof_free > 0)
+		LOG(llevBug, "BUG: expand_mempool called with chunks still available in pool\n");
 #endif
 
-    chunksize_real = sizeof(struct mempool_chunk) + mempools[pool].chunksize;
-    first = (struct mempool_chunk *)calloc(mempools[pool].expand_size,chunksize_real);
+	chunksize_real = sizeof(struct mempool_chunk) + mempools[pool].chunksize;
+	first = (struct mempool_chunk *)calloc(mempools[pool].expand_size,chunksize_real);
 
-    if (first == NULL)
-        LOG(llevError, "ERROR: expand_mempool(): Out Of Memory.\n");
+	if (first == NULL)
+		LOG(llevError, "ERROR: expand_mempool(): Out Of Memory.\n");
 
-    mempools[pool].first_free = first;
-    mempools[pool].nrof_free += mempools[pool].expand_size;
+	mempools[pool].first_free = first;
+	mempools[pool].nrof_free += mempools[pool].expand_size;
 
-    /* Set up the linked list */
-    ptr = first;
-    for (i = 0; i < mempools[pool].expand_size - 1; i++)
+	/* Set up the linked list */
+	ptr = first;
+	for (i = 0; i < mempools[pool].expand_size - 1; i++)
 	{
-        ptr = ptr->next = (struct mempool_chunk *)(((char *)ptr) + chunksize_real);
+		ptr = ptr->next = (struct mempool_chunk *)(((char *)ptr) + chunksize_real);
 		/* and the last element */
 #ifdef MEMPOOL_OBJECT_TRACKING
 		/* secure */
@@ -1079,42 +1090,42 @@ static void expand_mempool(mempool_id pool)
 #endif
 	}
 
-    ptr->next = &end_marker;
+	ptr->next = &end_marker;
 
 #ifdef MEMPOOL_TRACKING
-    /* Track the allocation of puddles? */
+	/* Track the allocation of puddles? */
 	p = get_poolchunk(POOL_PUDDLE);
-    p->first_chunk = first;
-    p->next = mempools[pool].first_puddle_info;
-    mempools[pool].first_puddle_info = p;
+	p->first_chunk = first;
+	p->next = mempools[pool].first_puddle_info;
+	mempools[pool].first_puddle_info = p;
 #endif
 }
 
 /* Get a chunk from the selected pool. The pool will be expanded if necessary. */
 void *get_poolchunk(mempool_id pool)
 {
-    struct mempool_chunk *new_obj;
+	struct mempool_chunk *new_obj;
 
-    if (pool >= NROF_MEMPOOLS)
-        LOG(llevBug, "BUG: get_poolchunk for illegal memory pool %d\n", pool);
+	if (pool >= NROF_MEMPOOLS)
+		LOG(llevBug, "BUG: get_poolchunk for illegal memory pool %d\n", pool);
 
-    if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
-        new_obj = calloc(1, sizeof(struct mempool_chunk) + mempools[pool].chunksize);
-    else
+	if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
+		new_obj = calloc(1, sizeof(struct mempool_chunk) + mempools[pool].chunksize);
+	else
 	{
-        if (mempools[pool].nrof_free == 0)
-            expand_mempool(pool);
+		if (mempools[pool].nrof_free == 0)
+			expand_mempool(pool);
 
-        new_obj = mempools[pool].first_free;
-        mempools[pool].first_free = new_obj->next;
-        mempools[pool].nrof_free--;
-    }
+		new_obj = mempools[pool].first_free;
+		mempools[pool].first_free = new_obj->next;
+		mempools[pool].nrof_free--;
+	}
 
-    mempools[pool].nrof_used++;
-    new_obj->next = NULL;
+	mempools[pool].nrof_used++;
+	new_obj->next = NULL;
 
-    if (mempools[pool].constructor)
-        mempools[pool].constructor(MEM_USERDATA(new_obj));
+	if (mempools[pool].constructor)
+		mempools[pool].constructor(MEM_USERDATA(new_obj));
 
 #ifdef MEMPOOL_OBJECT_TRACKING
 	/* that should never happen! */
@@ -1131,20 +1142,20 @@ void *get_poolchunk(mempool_id pool)
 	new_obj->flags |=MEMPOOL_OBJECT_FLAG_USED;
 #endif
 
-    return MEM_USERDATA(new_obj);
+	return MEM_USERDATA(new_obj);
 }
 
 /* Return a chunk to the selected pool. Don't return memory to the wrong pool!
  * Returned memory will be reused, so be careful about those stale pointers */
 void return_poolchunk(void *data, mempool_id pool)
 {
-    struct mempool_chunk *old = MEM_POOLDATA(data);
+	struct mempool_chunk *old = MEM_POOLDATA(data);
 
-    if (CHUNK_FREE(data))
-        LOG(llevBug, "BUG: return_poolchunk on already free chunk\n");
+	if (CHUNK_FREE(data))
+		LOG(llevBug, "BUG: return_poolchunk on already free chunk\n");
 
-    if(pool >= NROF_MEMPOOLS)
-        LOG(llevBug, "BUG: return_poolchunk for illegal memory pool %d\n", pool);
+	if (pool >= NROF_MEMPOOLS)
+		LOG(llevBug, "BUG: return_poolchunk for illegal memory pool %d\n", pool);
 
 #ifdef MEMPOOL_OBJECT_TRACKING
 	if (old->obj_next)
@@ -1161,19 +1172,19 @@ void return_poolchunk(void *data, mempool_id pool)
 	old->flags |= MEMPOOL_OBJECT_FLAG_FREE;
 #endif
 
-    if (mempools[pool].destructor)
-        mempools[pool].destructor(data);
+	if (mempools[pool].destructor)
+		mempools[pool].destructor(data);
 
-    if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
-        free(old);
-    else
+	if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
+		free(old);
+	else
 	{
-        old->next = mempools[pool].first_free;
-        mempools[pool].first_free = old;
-        mempools[pool].nrof_free++;
-    }
+		old->next = mempools[pool].first_free;
+		mempools[pool].first_free = old;
+		mempools[pool].nrof_free++;
+	}
 
-    mempools[pool].nrof_used--;
+	mempools[pool].nrof_used--;
 }
 
 #ifdef MEMPOOL_OBJECT_TRACKING
@@ -1184,7 +1195,7 @@ void return_poolchunk(void *data, mempool_id pool)
  * If we have detached but not deleted a object - we will find it here. */
 void check_use_object_list(void)
 {
-    struct mempool_chunk *chunk;
+	struct mempool_chunk *chunk;
 
 	for (chunk = used_object_list; chunk; chunk = chunk->obj_next)
 	{
@@ -1195,55 +1206,56 @@ void check_use_object_list(void)
 		}
 		else
 #endif
-		if (chunk->pool_id == POOL_OBJECT)
-		{
-			object *tmp2 ,*tmp = MEM_USERDATA(chunk);
-
-			/*LOG(llevDebug, "DEBUG_OBJ:: object >%s< (%d)\n",  query_name(tmp), chunk->id);*/
-
-			if (QUERY_FLAG(tmp, FLAG_REMOVED))
-				LOG(llevDebug, "VOID:DEBUG_OBJ:: object >%s< (%d) has removed flag set!\n", query_name(tmp), chunk->id);
-
-			/* we are on a map */
-			if (tmp->map)
+			if (chunk->pool_id == POOL_OBJECT)
 			{
-				if (tmp->map->in_memory != MAP_IN_MEMORY)
-					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
-				else
+				object *tmp2 ,*tmp = MEM_USERDATA(chunk);
+
+				/*LOG(llevDebug, "DEBUG_OBJ:: object >%s< (%d)\n",  query_name(tmp), chunk->id);*/
+
+				if (QUERY_FLAG(tmp, FLAG_REMOVED))
+					LOG(llevDebug, "VOID:DEBUG_OBJ:: object >%s< (%d) has removed flag set!\n", query_name(tmp), chunk->id);
+
+				/* we are on a map */
+				if (tmp->map)
 				{
-					for (tmp2= get_map_ob(tmp->map, tmp->x, tmp->y); tmp2; tmp2 = tmp2->above)
+					if (tmp->map->in_memory != MAP_IN_MEMORY)
+						LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
+					else
+					{
+						for (tmp2= get_map_ob(tmp->map, tmp->x, tmp->y); tmp2; tmp2 = tmp2->above)
+						{
+							if (tmp2 == tmp)
+								goto goto_object_found;
+						}
+
+						LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
+					}
+				}
+				else if (tmp->env)
+				{
+					/* object claims to be here... lets check it IS here */
+					for (tmp2 = tmp->env->inv; tmp2; tmp2 = tmp2->below)
 					{
 						if (tmp2 == tmp)
 							goto goto_object_found;
 					}
 
-					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
+					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid env >%d<!\n", query_name(tmp), query_name(tmp->env), chunk->id);
 				}
+				/* where we are ? */
+				else
+					LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has no env/map\n", query_name(tmp), chunk->id);
 			}
-			else if (tmp->env)
+			else if (chunk->pool_id == POOL_PLAYER)
 			{
-				/* object claims to be here... lets check it IS here */
-				for (tmp2 = tmp->env->inv; tmp2; tmp2 = tmp2->below)
-				{
-					if (tmp2 == tmp)
-						goto goto_object_found;
-				}
-
-				LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has invalid env >%d<!\n", query_name(tmp), query_name(tmp->env), chunk->id);
+				player *tmp = MEM_USERDATA(chunk);
+				/*LOG(llevDebug, "DEBUG_OBJ:: player >%s< (%d)\n", tmp->ob ? query_name(tmp->ob) : "NONE", chunk->id);*/
 			}
-			/* where we are ? */
 			else
-				LOG(llevDebug, "BUG:DEBUG_OBJ:: object >%s< (%d) has no env/map\n", query_name(tmp), chunk->id);
-		}
-		else if (chunk->pool_id == POOL_PLAYER)
-		{
-			player *tmp = MEM_USERDATA(chunk);
-			/*LOG(llevDebug, "DEBUG_OBJ:: player >%s< (%d)\n", tmp->ob ? query_name(tmp->ob) : "NONE", chunk->id);*/
-		}
-		else
-			LOG(llevDebug, "BUG:DEBUG_OBJ: wrong pool ID! (%d - %d)", chunk->pool_id, chunk->id);
+				LOG(llevDebug, "BUG:DEBUG_OBJ: wrong pool ID! (%d - %d)", chunk->pool_id, chunk->id);
 
-		goto_object_found:;
+goto_object_found:
+		;
 	}
 }
 #endif
@@ -1388,12 +1400,12 @@ static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
 {
 	(void) args;
 
-    if (((struct puddle_info *)a)->nrof_free < ((struct puddle_info *)b)->nrof_free)
-        return -1;
-    else if (((struct puddle_info *)a)->nrof_free > ((struct puddle_info *)b)->nrof_free)
-        return 1;
-    else
-        return 0;
+	if (((struct puddle_info *)a)->nrof_free < ((struct puddle_info *)b)->nrof_free)
+		return -1;
+	else if (((struct puddle_info *)a)->nrof_free > ((struct puddle_info *)b)->nrof_free)
+		return 1;
+	else
+		return 0;
 }
 
 /* Go through the freelists and free puddles with no used chunks.
@@ -1404,26 +1416,26 @@ static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
  * N is number of pools and M is number of puddles in pool  */
 void free_empty_puddles(mempool_id pool)
 {
-    int chunksize_real = sizeof(struct mempool_chunk) + mempools[pool].chunksize;
-    int freed = 0;
+	int chunksize_real = sizeof(struct mempool_chunk) + mempools[pool].chunksize;
+	int freed = 0;
 
-    struct mempool_chunk *last_free, *chunk;
-    struct puddle_info *puddle, *next_puddle;
+	struct mempool_chunk *last_free, *chunk;
+	struct puddle_info *puddle, *next_puddle;
 
-    if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
-        return;
+	if (mempools[pool].flags & MEMPOOL_BYPASS_POOLS)
+		return;
 
-    /* Free empty puddles and setup puddle-local freelists */
-    for (puddle = mempools[pool].first_puddle_info, mempools[pool].first_puddle_info = NULL; puddle != NULL; puddle = next_puddle)
+	/* Free empty puddles and setup puddle-local freelists */
+	for (puddle = mempools[pool].first_puddle_info, mempools[pool].first_puddle_info = NULL; puddle != NULL; puddle = next_puddle)
 	{
-      	uint32 ii;
-      	next_puddle = puddle->next;
+		uint32 ii;
+		next_puddle = puddle->next;
 
-      	/* Count free chunks in puddle, and set up a local freelist */
-      	puddle->first_free = puddle->last_free = NULL;
-      	puddle->nrof_free = 0;
+		/* Count free chunks in puddle, and set up a local freelist */
+		puddle->first_free = puddle->last_free = NULL;
+		puddle->nrof_free = 0;
 
-      	for (ii = 0; ii < mempools[pool].expand_size; ii++)
+		for (ii = 0; ii < mempools[pool].expand_size; ii++)
 		{
 			chunk = (struct mempool_chunk *)((char *)(puddle->first_chunk) + chunksize_real * ii);
 			/* Find free chunks. (Notice special case for objects here. Yuck!) */
@@ -1445,52 +1457,52 @@ void free_empty_puddles(mempool_id pool)
 			}
 		}
 
-      	/* Can we actually free this puddle? */
-      	if (puddle->nrof_free == mempools[pool].expand_size)
+		/* Can we actually free this puddle? */
+		if (puddle->nrof_free == mempools[pool].expand_size)
 		{
-          	/* Yup. Forget about it. */
-          	free(puddle->first_chunk);
-          	return_poolchunk(puddle, POOL_PUDDLE);
-          	mempools[pool].nrof_free -= mempools[pool].expand_size;
-          	freed++;
-      	}
+			/* Yup. Forget about it. */
+			free(puddle->first_chunk);
+			return_poolchunk(puddle, POOL_PUDDLE);
+			mempools[pool].nrof_free -= mempools[pool].expand_size;
+			freed++;
+		}
 		else
 		{
-          	/* Nope keep this puddle: put it back into the tracking list */
-          	puddle->next = mempools[pool].first_puddle_info;
-          	mempools[pool].first_puddle_info = puddle;
-      	}
-    }
+			/* Nope keep this puddle: put it back into the tracking list */
+			puddle->next = mempools[pool].first_puddle_info;
+			mempools[pool].first_puddle_info = puddle;
+		}
+	}
 
-    /* Sort the puddles by amount of free chunks. It will let us set up the freelist so that
-     * the chunks from the fullest puddles are used first.
-     * This should (hopefully) help us free some of the lesser-used puddles earlier. */
-    mempools[pool].first_puddle_info = sort_singly_linked_list(mempools[pool].first_puddle_info, 0, sort_puddle_by_nrof_free, NULL, NULL, NULL);
+	/* Sort the puddles by amount of free chunks. It will let us set up the freelist so that
+	 * the chunks from the fullest puddles are used first.
+	 * This should (hopefully) help us free some of the lesser-used puddles earlier. */
+	mempools[pool].first_puddle_info = sort_singly_linked_list(mempools[pool].first_puddle_info, 0, sort_puddle_by_nrof_free, NULL, NULL, NULL);
 
-    /* Finally: restore the global freelist */
-    mempools[pool].first_free = &end_marker;
-    last_free = &end_marker;
-    LOG(llevDebug, "%s free in puddles: ", mempools[pool].chunk_description);
+	/* Finally: restore the global freelist */
+	mempools[pool].first_free = &end_marker;
+	last_free = &end_marker;
+	LOG(llevDebug, "%s free in puddles: ", mempools[pool].chunk_description);
 
-    for (puddle = mempools[pool].first_puddle_info; puddle != NULL; puddle = puddle->next)
+	for (puddle = mempools[pool].first_puddle_info; puddle != NULL; puddle = puddle->next)
 	{
-        if (puddle->nrof_free > 0)
+		if (puddle->nrof_free > 0)
 		{
-            if (mempools[pool].first_free == &end_marker)
-                mempools[pool].first_free = puddle->first_free;
-            else
-                last_free->next = puddle->first_free;
+			if (mempools[pool].first_free == &end_marker)
+				mempools[pool].first_free = puddle->first_free;
+			else
+				last_free->next = puddle->first_free;
 
-            puddle->last_free->next = &end_marker;
-            last_free = puddle->last_free;
-        }
+			puddle->last_free->next = &end_marker;
+			last_free = puddle->last_free;
+		}
 
-        LOG(llevDebug, "%d ", puddle->nrof_free);
-    }
+		LOG(llevDebug, "%d ", puddle->nrof_free);
+	}
 
-    LOG(llevDebug, "\n");
+	LOG(llevDebug, "\n");
 
-    LOG(llevInfo, "Freed %d %s puddles\n", freed, mempools[pool].chunk_description);
+	LOG(llevInfo, "Freed %d %s puddles\n", freed, mempools[pool].chunk_description);
 }
 #endif
 
@@ -1501,48 +1513,48 @@ void free_empty_puddles(mempool_id pool)
  * server timestep it will be freed */
 void mark_object_removed(object *ob)
 {
-    struct mempool_chunk *mem = MEM_POOLDATA(ob);
+	struct mempool_chunk *mem = MEM_POOLDATA(ob);
 
-    if (OBJECT_FREE(ob))
-        LOG(llevBug, "BUG: mark_object_removed() called for free object\n");
+	if (OBJECT_FREE(ob))
+		LOG(llevBug, "BUG: mark_object_removed() called for free object\n");
 
-    SET_FLAG(ob, FLAG_REMOVED);
+	SET_FLAG(ob, FLAG_REMOVED);
 
-    /* Don't mark objects twice */
-    if (mem->next != NULL)
-        return;
+	/* Don't mark objects twice */
+	if (mem->next != NULL)
+		return;
 
-    mem->next = removed_objects;
-    removed_objects = mem;
+	mem->next = removed_objects;
+	removed_objects = mem;
 }
 
 /* Go through all objects in the removed list and free the forgotten ones */
 void object_gc()
 {
-    struct mempool_chunk *current, *next;
-    object *ob;
+	struct mempool_chunk *current, *next;
+	object *ob;
 
-    while ((next = removed_objects) != &end_marker)
+	while ((next = removed_objects) != &end_marker)
 	{
 		/* destroy_object() may free some more objects (inventory items) */
-        removed_objects = &end_marker;
-        while (next != &end_marker)
+		removed_objects = &end_marker;
+		while (next != &end_marker)
 		{
-            current = next;
-            next = current->next;
-            current->next = NULL;
+			current = next;
+			next = current->next;
+			current->next = NULL;
 
-            ob = (object *)MEM_USERDATA(current);
+			ob = (object *)MEM_USERDATA(current);
 
-            if (QUERY_FLAG(ob, FLAG_REMOVED))
+			if (QUERY_FLAG(ob, FLAG_REMOVED))
 			{
-                if (OBJECT_FREE(ob))
-                    LOG(llevBug, "BUG: Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
-                else
-                    return_poolchunk(ob, POOL_OBJECT);
-            }
-        }
-    }
+				if (OBJECT_FREE(ob))
+					LOG(llevBug, "BUG: Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
+				else
+					return_poolchunk(ob, POOL_OBJECT);
+			}
+		}
+	}
 }
 
 /* Moved this out of define.h and in here, since this is the only file
@@ -1566,51 +1578,51 @@ int CAN_MERGE(object *ob1, object *ob2)
 	if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch)
 		return 1;
 
-    /* Gecko: Moved out special handling of event obejct nrof */
+	/* Gecko: Moved out special handling of event obejct nrof */
 	/* important: don't merge objects with glow_radius set - or we come
 	 * in heavy side effect situations. Because we really not know what
 	 * our calling function will do after this merge (and the calling function
 	 * then must first find out a merge has happen or not). The sense of stacks
 	 * are to store inactive items. Because glow_radius items can be active even
 	 * when not apllied, merging is simply wrong here. MT. */
-    if (((!ob1->nrof || !ob2->nrof) && ob1->type != TYPE_EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
-        return 0;
+	if (((!ob1->nrof || !ob2->nrof) && ob1->type != TYPE_EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
+		return 0;
 
 	/* just a brain dead long check for things NEVER NEVER should be different
 	 * this is true under all circumstances for all objects. */
-    if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material!=ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality!=ob2->item_quality ||ob1->item_condition!=ob2->item_condition || ob1->item_race!=ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
-        return 0;
+	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material!=ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality!=ob2->item_quality ||ob1->item_condition!=ob2->item_condition || ob1->item_race!=ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
+		return 0;
 
-    /* Gecko: added bad special check for event objects
-     * Idea is: if inv is identical events only then go ahead and merge)
-     * This goes hand in hand with the event keeping addition in get_split_ob() */
-    if (ob1->inv || ob2->inv)
+	/* Gecko: added bad special check for event objects
+	 * Idea is: if inv is identical events only then go ahead and merge)
+	 * This goes hand in hand with the event keeping addition in get_split_ob() */
+	if (ob1->inv || ob2->inv)
 	{
-        object *tmp1, *tmp2;
+		object *tmp1, *tmp2;
 
-        if (!ob1->inv || !ob2->inv)
-            return 0;
+		if (!ob1->inv || !ob2->inv)
+			return 0;
 
-        /* Check that all inv objects are event objects */
-        for (tmp1 = ob1->inv, tmp2 = ob2->inv; tmp1 && tmp2; tmp1 = tmp1->below, tmp2 = tmp2->below)
-            if (tmp1->type != TYPE_EVENT_OBJECT || tmp2->type != TYPE_EVENT_OBJECT)
-                return 0;
+		/* Check that all inv objects are event objects */
+		for (tmp1 = ob1->inv, tmp2 = ob2->inv; tmp1 && tmp2; tmp1 = tmp1->below, tmp2 = tmp2->below)
+			if (tmp1->type != TYPE_EVENT_OBJECT || tmp2->type != TYPE_EVENT_OBJECT)
+				return 0;
 
 		/* Same number of events */
-        if (tmp1 || tmp2)
-            return 0;
+		if (tmp1 || tmp2)
+			return 0;
 
-        for (tmp1 = ob1->inv; tmp1; tmp1 = tmp1->below)
+		for (tmp1 = ob1->inv; tmp1; tmp1 = tmp1->below)
 		{
-            for (tmp2 = ob2->inv; tmp2; tmp2 = tmp2->below)
-                if (CAN_MERGE(tmp1, tmp2))
-                    break;
+			for (tmp2 = ob2->inv; tmp2; tmp2 = tmp2->below)
+				if (CAN_MERGE(tmp1, tmp2))
+					break;
 
 			/* Couldn't find something to merge event from ob1 with? */
-            if (!tmp2)
-                return 0;
-        }
-    }
+			if (!tmp2)
+				return 0;
+		}
+	}
 
 	/* check the refcount pointer */
 	if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race || ob1->slaying != ob2->slaying || ob1->msg != ob2->msg)
@@ -1630,7 +1642,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
 	/* some stuff we should not need to test:
 	 * carrying: because container merge isa big nono - and we tested ->inv before. better no double use here.
-     * weight_limit: same reason like carrying - add when we double use for stacking items
+	 * weight_limit: same reason like carrying - add when we double use for stacking items
 	 * last_heal;
 	 * last_sp;
 	 * last_grace;
@@ -1639,9 +1651,9 @@ int CAN_MERGE(object *ob1, object *ob2)
 	 * run_away;
 	 * stealth;
 	 * hide;
-     * move_type;
+	 * move_type;
 	 * layer;				this *can* be different for real same item - watch it
-     * anim_speed;			this can be interesting... */
+	 * anim_speed;			this can be interesting... */
 
 	/* can merge! */
 	return 1;
@@ -1719,7 +1731,7 @@ void add_weight (object *op, sint32 weight)
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 			weight = (sint32) ((float)weight * op->weapon_speed);
 
-	    op->carrying += weight;
+		op->carrying += weight;
 		op = op->env;
 	}
 }
@@ -1736,7 +1748,7 @@ void sub_weight (object *op, sint32 weight)
 
 		op->carrying -= weight;
 		op = op->env;
-  	}
+	}
 }
 
 /* Eneq(@csd.uu.se): Since we can have items buried in a character we need
@@ -1750,11 +1762,11 @@ void sub_weight (object *op, sint32 weight)
  * is this object in a closed container, the player will never notice any change. */
 object *is_player_inv(object *op)
 {
-    for (; op != NULL && op->type != PLAYER; op = op->env)
-      	if (op->env == op)
+	for (; op != NULL && op->type != PLAYER; op = op->env)
+		if (op->env == op)
 			op->env = NULL;
 
-    return op;
+	return op;
 }
 
 /* Used by: Server DM commands: dumpbelow, dump.
@@ -1762,7 +1774,7 @@ object *is_player_inv(object *op)
  * The result of the dump is stored in the static global errmsg array. */
 void dump_object2(object *op)
 {
-  	char *cp;
+	char *cp;
 
 	if (op->arch != NULL)
 	{
@@ -1792,14 +1804,14 @@ void dump_object2(object *op)
 /* Dumps an object.  Returns output in the static global errmsg array. */
 void dump_object(object *op)
 {
-  	if (op == NULL)
+	if (op == NULL)
 	{
-    	strcpy(errmsg, "[NULL pointer]");
-    	return;
-  	}
+		strcpy(errmsg, "[NULL pointer]");
+		return;
+	}
 
-  	errmsg[0] = '\0';
-  	dump_object2(op);
+	errmsg[0] = '\0';
+	dump_object2(op);
 }
 
 /* GROS - Dumps an object. Return the result into a string
@@ -1807,39 +1819,39 @@ void dump_object(object *op)
  * you need to be sure that you allocated enough space for it. */
 void dump_me(object *op, char *outstr)
 {
-    char *cp;
+	char *cp;
 
-    if (op == NULL)
-    {
-        strcpy(outstr, "[NULL pointer]");
-        return;
-    }
+	if (op == NULL)
+	{
+		strcpy(outstr, "[NULL pointer]");
+		return;
+	}
 
-    outstr[0] = '\0';
+	outstr[0] = '\0';
 
-    if (op->arch != NULL)
-    {
-        strcat(outstr, "arch ");
-        strcat(outstr, op->arch->name ? op->arch->name : "(null)");
-        strcat(outstr, "\n");
+	if (op->arch != NULL)
+	{
+		strcat(outstr, "arch ");
+		strcat(outstr, op->arch->name ? op->arch->name : "(null)");
+		strcat(outstr, "\n");
 
-        if ((cp = get_ob_diff(op, &empty_archetype->clone)) != NULL)
-            strcat(outstr, cp);
+		if ((cp = get_ob_diff(op, &empty_archetype->clone)) != NULL)
+			strcat(outstr, cp);
 
-        strcat(outstr, "end\n");
-    }
-    else
-    {
-        strcat(outstr, "Object ");
+		strcat(outstr, "end\n");
+	}
+	else
+	{
+		strcat(outstr, "Object ");
 
-        if (op->name == NULL)
-            strcat(outstr, "(null)");
-        else
-            strcat(outstr, op->name);
+		if (op->name == NULL)
+			strcat(outstr, "(null)");
+		else
+			strcat(outstr, op->name);
 
-        strcat(outstr, "\n");
-        strcat(outstr, "end\n");
-    }
+		strcat(outstr, "\n");
+		strcat(outstr, "end\n");
+	}
 }
 
 /* Gecko: we could at least search through the active, friend and player lists here... */
@@ -1849,16 +1861,16 @@ object *find_object(int i)
 {
 	(void) i;
 
-  	return NULL;
+	return NULL;
 
 #if 0
-  	object *op;
+	object *op;
 
-  	for (op = objects; op != NULL; op = op->next)
-    	if (op->count == (tag_t) i)
-      		break;
+	for (op = objects; op != NULL; op = op->next)
+		if (op->count == (tag_t) i)
+			break;
 
- 	return op;
+	return op;
 #endif
 }
 
@@ -1869,7 +1881,7 @@ object *find_object_name(char *str)
 {
 	(void) str;
 
-    return NULL;
+	return NULL;
 
 	/* if find_string() can't find the string -
 	 * then its impossible that op->name will match.
@@ -1877,38 +1889,38 @@ object *find_object_name(char *str)
 	 * ptr for this string. */
 
 #if 0
-  	const char *name = find_string(str);
-  	object *op;
+	const char *name = find_string(str);
+	object *op;
 
-  	if (name == NULL)
-	  	return NULL;
+	if (name == NULL)
+		return NULL;
 
-  	for (op = objects; op != NULL; op = op->next)
-  	{
+	for (op = objects; op != NULL; op = op->next)
+	{
 		if (op->name == name)
 			break;
-  	}
+	}
 
-  	return op;
+	return op;
 #endif
 }
 
 void free_all_object_data()
 {
 #ifdef MEMORY_DEBUG
-    object *op, *next;
+	object *op, *next;
 
-    for (op = free_objects; op != NULL; )
+	for (op = free_objects; op != NULL; )
 	{
 		next = op->next;
 		free(op);
 		nrofallocobjects--;
 		nroffreeobjects--;
 		op = next;
-    }
+	}
 #endif
 
-    LOG(llevDebug, "%d allocated objects, %d free objects\n", mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free);
+	LOG(llevDebug, "%d allocated objects, %d free objects\n", mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free);
 }
 
 /* Returns the object which this object marks as being the owner.
@@ -1918,28 +1930,28 @@ void free_all_object_data()
  * (This scheme should be changed to a refcount scheme in the future) */
 object *get_owner(object *op)
 {
-  	if (!op || op->owner == NULL)
-    	return NULL;
+	if (!op || op->owner == NULL)
+		return NULL;
 
-  	if (!OBJECT_FREE(op) && op->owner->count == op->ownercount)
-    	return op->owner;
+	if (!OBJECT_FREE(op) && op->owner->count == op->ownercount)
+		return op->owner;
 
-  	op->owner = NULL, op->ownercount = 0;
-  	return NULL;
+	op->owner = NULL, op->ownercount = 0;
+	return NULL;
 }
 
 void clear_owner(object *op)
 {
-    if (!op)
+	if (!op)
 		return;
 
 #if 0
-    if (op->owner && op->ownercount == op->owner->count)
+	if (op->owner && op->ownercount == op->owner->count)
 		op->owner->refcount--;
 #endif
 
-    op->owner = NULL;
-    op->ownercount = 0;
+	op->owner = NULL;
+	op->ownercount = 0;
 }
 
 
@@ -1949,51 +1961,51 @@ void clear_owner(object *op)
  * See also get_owner() */
 static void set_owner_simple(object *op, object *owner)
 {
-    /* next line added to allow objects which own objects */
-    /* Add a check for ownercounts in here, as I got into an endless loop
-     * with the fireball owning a poison cloud which then owned the
-     * fireball.  I believe that was caused by one of the objects getting
-     * freed and then another object replacing it.  Since the ownercounts
-     * didn't match, this check is valid and I believe that cause is valid. */
-    while (owner->owner && owner != owner->owner && owner->ownercount == owner->owner->count)
+	/* next line added to allow objects which own objects */
+	/* Add a check for ownercounts in here, as I got into an endless loop
+	 * with the fireball owning a poison cloud which then owned the
+	 * fireball.  I believe that was caused by one of the objects getting
+	 * freed and then another object replacing it.  Since the ownercounts
+	 * didn't match, this check is valid and I believe that cause is valid. */
+	while (owner->owner && owner != owner->owner && owner->ownercount == owner->owner->count)
 		owner = owner->owner;
 
-    /* IF the owner still has an owner, we did not resolve to a final owner.
-     * so lets not add to that. */
-    if (owner->owner)
+	/* IF the owner still has an owner, we did not resolve to a final owner.
+	 * so lets not add to that. */
+	if (owner->owner)
 		return;
 
-    op->owner = owner;
+	op->owner = owner;
 
-    op->ownercount = owner->count;
-    /*owner->refcount++;*/
+	op->ownercount = owner->count;
+	/*owner->refcount++;*/
 }
 
 static void set_skill_pointers(object *op, object *chosen_skill, object *exp_obj)
 {
-    op->chosen_skill = chosen_skill;
-    op->exp_obj = exp_obj;
+	op->chosen_skill = chosen_skill;
+	op->exp_obj = exp_obj;
 
-    /* unfortunately, we can't allow summoned monsters skill use
-     * because we will need the chosen_skill field to pick the
-     * right skill/stat modifiers for calc_skill_exp(). See
-     * hit_player() in server/attack.c -b.t. */
-    CLEAR_FLAG(op, FLAG_CAN_USE_SKILL);
-    CLEAR_FLAG(op, FLAG_READY_SKILL);
+	/* unfortunately, we can't allow summoned monsters skill use
+	 * because we will need the chosen_skill field to pick the
+	 * right skill/stat modifiers for calc_skill_exp(). See
+	 * hit_player() in server/attack.c -b.t. */
+	CLEAR_FLAG(op, FLAG_CAN_USE_SKILL);
+	CLEAR_FLAG(op, FLAG_READY_SKILL);
 }
 
 /* Sets the owner and sets the skill and exp pointers to owner's current
  * skill and experience objects. */
 void set_owner(object *op, object *owner)
 {
-    if (owner == NULL || op == NULL)
+	if (owner == NULL || op == NULL)
 		return;
 
-    set_owner_simple(op, owner);
+	set_owner_simple(op, owner);
 
-    if (owner->type == PLAYER && owner->chosen_skill)
-        set_skill_pointers(op, owner->chosen_skill, owner->chosen_skill->exp_obj);
-    else if (op->type != PLAYER)
+	if (owner->type == PLAYER && owner->chosen_skill)
+		set_skill_pointers(op, owner->chosen_skill, owner->chosen_skill->exp_obj);
+	else if (op->type != PLAYER)
 		CLEAR_FLAG(op, FLAG_READY_SKILL);
 }
 
@@ -2008,22 +2020,22 @@ void set_owner(object *op, object *owner)
  * skills meanwhile. */
 void copy_owner(object *op, object *clone)
 {
-    object *owner = get_owner(clone);
-    if (owner == NULL)
+	object *owner = get_owner(clone);
+	if (owner == NULL)
 	{
 		/* players don't have owners - they own themselves.  Update
-	 	 * as appropriate. */
+		  * as appropriate. */
 		if (clone->type == PLAYER)
 			owner = clone;
 		else
 			return;
-    }
+	}
 
-    set_owner_simple(op, owner);
+	set_owner_simple(op, owner);
 
-    if (clone->chosen_skill)
-        set_skill_pointers(op, clone->chosen_skill, clone->exp_obj);
-    else if (op->type != PLAYER)
+	if (clone->chosen_skill)
+		set_skill_pointers(op, clone->chosen_skill, clone->exp_obj);
+	else if (op->type != PLAYER)
 		CLEAR_FLAG(op, FLAG_READY_SKILL);
 }
 
@@ -2031,19 +2043,19 @@ void copy_owner(object *op, object *clone)
  * initializes all variables and flags to default settings. */
 void initialize_object(object *op)
 {
-    /* the memset will clear all these values for us, but we need
-     * to reduce the refcount on them. */
-    FREE_ONLY_HASH(op->name);
-    FREE_ONLY_HASH(op->title);
-    FREE_ONLY_HASH(op->race);
-    FREE_ONLY_HASH(op->slaying);
-    FREE_ONLY_HASH(op->msg);
+	/* the memset will clear all these values for us, but we need
+	 * to reduce the refcount on them. */
+	FREE_ONLY_HASH(op->name);
+	FREE_ONLY_HASH(op->title);
+	FREE_ONLY_HASH(op->race);
+	FREE_ONLY_HASH(op->slaying);
+	FREE_ONLY_HASH(op->msg);
 
 	/* Using this memset is a lot easier (and probably faster)
-     * than explicitly clearing the fields. */
-    memset(op, 0, sizeof(object));
+	 * than explicitly clearing the fields. */
+	memset(op, 0, sizeof(object));
 
-    /* Set some values that should not be 0 by default */
+	/* Set some values that should not be 0 by default */
 	/* control the facings 25 animations */
 	op->anim_enemy_dir = -1;
 	/* the same for movement */
@@ -2053,11 +2065,11 @@ void initialize_object(object *op)
 	op->anim_last_facing = 4;
 	op->anim_last_facing_last = -1;
 
-    op->face = blank_face;
-    op->attacked_by_count= -1;
+	op->face = blank_face;
+	op->attacked_by_count= -1;
 
-    /* give the object a new (unique) count tag */
-    op->count= ++ob_count;
+	/* give the object a new (unique) count tag */
+	op->count= ++ob_count;
 }
 
 /* copy object first frees everything allocated by the second object,
@@ -2065,7 +2077,7 @@ void initialize_object(object *op)
  * object, allocating what needs to be allocated. */
 void copy_object(object *op2, object *op)
 {
-  	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
+	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
 
 	FREE_ONLY_HASH(op->name);
 	FREE_ONLY_HASH(op->title);
@@ -2073,10 +2085,10 @@ void copy_object(object *op2, object *op)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 
-  	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
+	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
-    if (is_removed)
-        SET_FLAG(op, FLAG_REMOVED);
+	if (is_removed)
+		SET_FLAG(op, FLAG_REMOVED);
 
 	ADD_REF_NOT_NULL_HASH(op->name);
 	ADD_REF_NOT_NULL_HASH(op->title);
@@ -2084,23 +2096,23 @@ void copy_object(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
 
- 	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
+	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
 		SET_FLAG(op, FLAG_KNOWN_CURSED);
 	}
 
- 	/* Only alter speed_left when we sure we have not done it before */
-  	if (op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
-	  	op->speed_left += (RANDOM() % 90) / 100.0f;
+	/* Only alter speed_left when we sure we have not done it before */
+	if (op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
+		op->speed_left += (RANDOM() % 90) / 100.0f;
 
-  	update_ob_speed(op);
+	update_ob_speed(op);
 }
 
 /* Same as above, but not touching the active list */
 void copy_object_data(object *op2, object *op)
 {
-  	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
+	int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
 
 	FREE_ONLY_HASH(op->name);
 	FREE_ONLY_HASH(op->title);
@@ -2108,10 +2120,10 @@ void copy_object_data(object *op2, object *op)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 
-  	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
+	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
-    if (is_removed)
-        SET_FLAG(op, FLAG_REMOVED);
+	if (is_removed)
+		SET_FLAG(op, FLAG_REMOVED);
 
 	ADD_REF_NOT_NULL_HASH(op->name);
 	ADD_REF_NOT_NULL_HASH(op->title);
@@ -2131,10 +2143,10 @@ void copy_object_data(object *op2, object *op)
  * If there are no free objects, expand_objects() is called to get more. */
 object *get_object()
 {
-    object *new_obj = (object *)get_poolchunk(POOL_OBJECT);
+	object *new_obj = (object *)get_poolchunk(POOL_OBJECT);
 
 	mark_object_removed(new_obj);
-    return new_obj;
+	return new_obj;
 }
 
 /* If an object with the IS_TURNABLE() flag needs to be turned due
@@ -2142,11 +2154,11 @@ object *get_object()
  * be called to update the face variable, _and_ how it looks on the map. */
 void update_turn_face(object *op)
 {
-    if (!QUERY_FLAG(op, FLAG_IS_TURNABLE) || op->arch == NULL)
+	if (!QUERY_FLAG(op, FLAG_IS_TURNABLE) || op->arch == NULL)
 		return;
 
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-    update_object(op, UP_OBJ_FACE);
+	update_object(op, UP_OBJ_FACE);
 }
 
 /* Updates the speed of an object.  If the speed changes from 0 to another
@@ -2154,18 +2166,18 @@ void update_turn_face(object *op)
  * This function needs to be called whenever the speed of an object changes. */
 void update_ob_speed(object *op)
 {
-    extern int arch_init;
+	extern int arch_init;
 
-    /* No reason putting the archetypes objects on the speed list,
-     * since they never really need to be updated. */
-    if (OBJECT_FREE(op) && op->speed)
+	/* No reason putting the archetypes objects on the speed list,
+	 * since they never really need to be updated. */
+	if (OBJECT_FREE(op) && op->speed)
 	{
 		dump_object(op);
 		LOG(llevBug, "BUG: Object %s is freed but has speed.\n:%s\n", op->name, errmsg);
 		op->speed = 0;
-    }
+	}
 
-    if (arch_init)
+	if (arch_init)
 		return;
 
 	/* these are special case objects - they have speed set, but should not put
@@ -2173,7 +2185,7 @@ void update_ob_speed(object *op)
 	if (op->type == SPAWN_POINT_MOB)
 		return;
 
-    if (FABS(op->speed)>MIN_ACTIVE_SPEED)
+	if (FABS(op->speed)>MIN_ACTIVE_SPEED)
 	{
 		/* If already on active list, don't do anything */
 		if (op->active_next || op->active_prev || op == active_objects)
@@ -2189,8 +2201,8 @@ void update_ob_speed(object *op)
 
 		active_objects = op;
 		op->active_prev = NULL;
-    }
-    else
+	}
+	else
 	{
 		/* If not on the active list, nothing needs to be done */
 		if (!op->active_next && !op->active_prev && op != active_objects)
@@ -2212,7 +2224,7 @@ void update_ob_speed(object *op)
 
 		op->active_next = NULL;
 		op->active_prev = NULL;
-    }
+	}
 }
 
 
@@ -2243,26 +2255,26 @@ void update_ob_speed(object *op)
 void update_object(object *op, int action)
 {
 	MapSpace *msp;
-    int flags, newflags;
+	int flags, newflags;
 
 	/*LOG(-1, "update_object: %s (%d,%d) - action %x\n", op->name, op->x, op->y, action);*/
-    if (op == NULL)
+	if (op == NULL)
 	{
-        /* this should never happen */
-        LOG(llevError, "ERROR: update_object() called for NULL object.\n");
+		/* this should never happen */
+		LOG(llevError, "ERROR: update_object() called for NULL object.\n");
 		return;
-    }
+	}
 
-    if (op->env != NULL || !op->map || op->map->in_memory == MAP_SAVING)
+	if (op->env != NULL || !op->map || op->map->in_memory == MAP_SAVING)
 		return;
 
-    /* make sure the object is within map boundaries */
+	/* make sure the object is within map boundaries */
 #if 0
-    if (op->x < 0 || op->x >= MAP_WIDTH(op->map) || op->y < 0 || op->y >= MAP_HEIGHT(op->map))
+	if (op->x < 0 || op->x >= MAP_WIDTH(op->map) || op->y < 0 || op->y >= MAP_HEIGHT(op->map))
 	{
-        LOG(llevError, "ERROR: update_object() called for object out of map!\n");
+		LOG(llevError, "ERROR: update_object() called for object out of map!\n");
 		return;
-    }
+	}
 #endif
 
 	/* no need to change anything except the map update counter */
@@ -2271,16 +2283,16 @@ void update_object(object *op, int action)
 #ifdef DEBUG_CORE
 		LOG(llevDebug, "UO_FACE - %s\n", query_name(op));
 #endif
-	 	INC_MAP_UPDATE_COUNTER(op->map, op->x, op->y);
+		INC_MAP_UPDATE_COUNTER(op->map, op->x, op->y);
 		return;
-    }
+	}
 
 	msp = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
-    newflags = msp->flags;
+	newflags = msp->flags;
 	flags = newflags & ~P_NEED_UPDATE;
 
 	/* always resort layer - but not always flags */
-    if (action == UP_OBJ_INSERT)
+	if (action == UP_OBJ_INSERT)
 	{
 #ifdef DEBUG_CORE
 		LOG(llevDebug, "UO_INS - %s\n", query_name(op));
@@ -2294,7 +2306,7 @@ void update_object(object *op, int action)
 			adjust_light_source(op->map, op->x, op->y, op->glow_radius);
 
 		/* this is handled a bit more complex, we must always loop the flags! */
-        if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU))
+		if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU))
 			newflags |= P_FLAGS_UPDATE;
 		/* floors define our node - force a update */
 		else if (QUERY_FLAG(op, FLAG_IS_FLOOR))
@@ -2307,19 +2319,19 @@ void update_object(object *op, int action)
 		{
 			if (op->type == CHECK_INV)
 				newflags |= P_CHECK_INV;
-			else if(op->type == MAGIC_EAR)
+			else if (op->type == MAGIC_EAR)
 				newflags|= P_MAGIC_EAR;
 
 			if (QUERY_FLAG(op, FLAG_ALIVE))
 				newflags |= P_IS_ALIVE;
 
-	        if (QUERY_FLAG(op, FLAG_IS_PLAYER))
+			if (QUERY_FLAG(op, FLAG_IS_PLAYER))
 				newflags |= P_IS_PLAYER;
 
-	        if (QUERY_FLAG(op, FLAG_PLAYER_ONLY))
+			if (QUERY_FLAG(op, FLAG_PLAYER_ONLY))
 				newflags |= P_PLAYER_ONLY;
 
-	        if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
+			if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
 				newflags |= P_BLOCKSVIEW;
 
 			if (QUERY_FLAG(op, FLAG_NO_MAGIC))
@@ -2349,7 +2361,7 @@ void update_object(object *op, int action)
 			if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE))
 				newflags |= P_REFL_MISSILE;
 		}
-    }
+	}
 	else if (action == UP_OBJ_REMOVE)
 	{
 #ifdef DEBUG_CORE
@@ -2370,7 +2382,7 @@ void update_object(object *op, int action)
 		/* we must rebuild the flags when one of this flags is touched from our object */
 		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) || QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR )
 			newflags |= P_FLAGS_UPDATE;
-    }
+	}
 	else if (action == UP_OBJ_FLAGS)
 	{
 #ifdef DEBUG_CORE
@@ -2378,7 +2390,7 @@ void update_object(object *op, int action)
 #endif
 		/* force flags rebuild but no tile counter*/
 		newflags |= P_FLAGS_UPDATE;
-    }
+	}
 	else if (action == UP_OBJ_FLAGFACE)
 	{
 #ifdef DEBUG_CORE
@@ -2387,7 +2399,7 @@ void update_object(object *op, int action)
 		/* force flags rebuild */
 		newflags |= P_FLAGS_UPDATE;
 		msp->update_tile++;
-    }
+	}
 	else if (action == UP_OBJ_LAYER)
 	{
 #ifdef DEBUG_CORE
@@ -2396,7 +2408,7 @@ void update_object(object *op, int action)
 		/* rebuild layers - most common when we change visibility of the object */
 		newflags |= P_NEED_UPDATE;
 		msp->update_tile++;
-    }
+	}
 	else if (action == UP_OBJ_ALL)
 	{
 #ifdef DEBUG_CORE
@@ -2406,13 +2418,13 @@ void update_object(object *op, int action)
 		newflags |= (P_FLAGS_UPDATE | P_NEED_UPDATE);
 		msp->update_tile++;
 	}
-    else
+	else
 	{
 		LOG(llevError, "ERROR: update_object called with invalid action: %d\n", action);
 		return;
-    }
+	}
 
-    if (flags != newflags)
+	if (flags != newflags)
 	{
 		/* rebuild flags */
 		if (newflags & (P_FLAGS_UPDATE))
@@ -2422,9 +2434,9 @@ void update_object(object *op, int action)
 		}
 		else
 			msp->flags |= newflags;
-    }
+	}
 
-    if (op->more != NULL)
+	if (op->more != NULL)
 		update_object(op->more, action);
 }
 
@@ -2517,109 +2529,109 @@ static inline int add_one_drop_quest_item(object *target, object *obj)
  * create a corpse for the stuff */
 void drop_ob_inv(object *ob)
 {
-    object *corpse = NULL;
-    object *enemy = NULL;
-    object *tmp_op = NULL;
-    object *tmp = NULL;
+	object *corpse = NULL;
+	object *enemy = NULL;
+	object *tmp_op = NULL;
+	object *tmp = NULL;
 
 	/* we don't handle players here */
-    if (ob->type == PLAYER)
+	if (ob->type == PLAYER)
 	{
-        LOG(llevBug, "BUG: drop_ob_inv() - try to drop items of %s\n", ob->name);
-        return;
-    }
+		LOG(llevBug, "BUG: drop_ob_inv() - try to drop items of %s\n", ob->name);
+		return;
+	}
 
 	/* TODO */
-    if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
+	if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
 	{
-        LOG(llevDebug, "BUG: drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%x)\n", ob->name, ob->map);
-        return;
-    }
+		LOG(llevDebug, "BUG: drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%x)\n", ob->name, ob->map);
+		return;
+	}
 
-    /* create race corpse and/or drop stuff to floor */
-    if (ob->enemy && ob->enemy->type == PLAYER)
-        enemy = ob->enemy;
-    else
-        enemy = get_owner(ob->enemy);
+	/* create race corpse and/or drop stuff to floor */
+	if (ob->enemy && ob->enemy->type == PLAYER)
+		enemy = ob->enemy;
+	else
+		enemy = get_owner(ob->enemy);
 
-    if ((QUERY_FLAG(ob, FLAG_CORPSE) && !QUERY_FLAG(ob, FLAG_STARTEQUIP)) || QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
-    {
-        racelink *race_corpse = find_racelink(ob->race);
-        if (race_corpse)
-        {
-            corpse = arch_to_object(race_corpse->corpse);
-            corpse->x = ob->x;
+	if ((QUERY_FLAG(ob, FLAG_CORPSE) && !QUERY_FLAG(ob, FLAG_STARTEQUIP)) || QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
+	{
+		racelink *race_corpse = find_racelink(ob->race);
+		if (race_corpse)
+		{
+			corpse = arch_to_object(race_corpse->corpse);
+			corpse->x = ob->x;
 			corpse->y = ob->y;
 			corpse->map = ob->map;
-            corpse->weight = ob->weight;
-        }
-    }
+			corpse->weight = ob->weight;
+		}
+	}
 
-    tmp_op = ob->inv;
+	tmp_op = ob->inv;
 
-    while (tmp_op != NULL)
-    {
-        tmp = tmp_op->below;
+	while (tmp_op != NULL)
+	{
+		tmp = tmp_op->below;
 		/* Inv-no check off / This will be destroyed in next loop of object_gc() */
-        remove_ob(tmp_op);
-        /* if we recall spawn mobs, we don't want drop their items as free.
-         * So, marking the mob itself with "FLAG_STARTEQUIP" will kill
-         * all inventory and not dropping it on the map.
-         * This also happens when a player slays a to low mob/non exp mob.
-         * Don't drop any sys_object in inventory... I can't think about
-         * any use... when we do it, a disease needle for example
-         * is dropping his disease force and so on. */
+		remove_ob(tmp_op);
+		/* if we recall spawn mobs, we don't want drop their items as free.
+		 * So, marking the mob itself with "FLAG_STARTEQUIP" will kill
+		 * all inventory and not dropping it on the map.
+		 * This also happens when a player slays a to low mob/non exp mob.
+		 * Don't drop any sys_object in inventory... I can't think about
+		 * any use... when we do it, a disease needle for example
+		 * is dropping his disease force and so on. */
 
-        if (QUERY_FLAG(tmp_op, FLAG_QUEST_ITEM))
-        {
-            /* legal, non freed enemy */
-            if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count)
-            {
-                /* this is the new quest item & one drop quest item code!
-                 * Dropping quest items to the ground in a corpse can invoke
-                 * alot of problems and glitches. The only way to avoid it is,
-                 * to move the quest item HERE in the inventory of the player or
-                 * group. For one drop quests it is the really only usable way. */
-                /* first: if the player has this item (normally from killing the
-                 * quest mob before) we free the quest item here and stop.
-                 * otherwise, move the item in the players inventory! */
-                if (!find_quest_item(enemy, tmp_op))
-                {
-                    char auto_buf[HUGE_BUF];
+		if (QUERY_FLAG(tmp_op, FLAG_QUEST_ITEM))
+		{
+			/* legal, non freed enemy */
+			if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count)
+			{
+				/* this is the new quest item & one drop quest item code!
+				 * Dropping quest items to the ground in a corpse can invoke
+				 * alot of problems and glitches. The only way to avoid it is,
+				 * to move the quest item HERE in the inventory of the player or
+				 * group. For one drop quests it is the really only usable way. */
+				/* first: if the player has this item (normally from killing the
+				 * quest mob before) we free the quest item here and stop.
+				 * otherwise, move the item in the players inventory! */
+				if (!find_quest_item(enemy, tmp_op))
+				{
+					char auto_buf[HUGE_BUF];
 
-                    /* first, lets check what we have: quest or one drop quest */
+					/* first, lets check what we have: quest or one drop quest */
 					/* marks one drop quest items */
-                    if (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT))
-                    {
-                        add_one_drop_quest_item(enemy, tmp_op);
-                        sprintf(auto_buf, "You solved the one drop quest %s!\n", query_name(tmp_op, NULL));
-                        (*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
-                    }
-                    else
-                    {
-                        insert_ob_in_ob(tmp_op,enemy);
-                        sprintf(auto_buf, "You found the quest item %s!\n", query_name(tmp_op, NULL));
-                        (*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
-                    }
+					if (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT))
+					{
+						add_one_drop_quest_item(enemy, tmp_op);
+						sprintf(auto_buf, "You solved the one drop quest %s!\n", query_name(tmp_op, NULL));
+						(*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
+					}
+					else
+					{
+						insert_ob_in_ob(tmp_op,enemy);
+						sprintf(auto_buf, "You found the quest item %s!\n", query_name(tmp_op, NULL));
+						(*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
+					}
 
-                    (*esrv_send_item_func)(enemy, tmp_op);
-                }
-            }
-        }
-		else if(!(QUERY_FLAG(ob, FLAG_STARTEQUIP) || (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))))
-        {
-            tmp_op->x = ob->x, tmp_op->y = ob->y;
+					(*esrv_send_item_func)(enemy, tmp_op);
+				}
+			}
+		}
+		else if (!(QUERY_FLAG(ob, FLAG_STARTEQUIP) || (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))))
+		{
+			tmp_op->x = ob->x, tmp_op->y = ob->y;
 
-            /* if we have a corpse put the item in it */
-            if (corpse)
-                insert_ob_in_ob(tmp_op, corpse);
-            else
-            {
-                /* don't drop traps from a container to the floor.
-                 * removing the container where a trap is applied will
-                 * neutralize the trap too
+			/* if we have a corpse put the item in it */
+			if (corpse)
+				insert_ob_in_ob(tmp_op, corpse);
+			else
+			{
+				/* don't drop traps from a container to the floor.
+				 * removing the container where a trap is applied will
+				 * neutralize the trap too
 				 * Also not drop it in env - be safe here */
-                if (tmp_op->type != RUNE)
+				if (tmp_op->type != RUNE)
 				{
 					if (ob->env)
 					{
@@ -2632,52 +2644,52 @@ void drop_ob_inv(object *ob)
 					}
 					/* Insert in same map as the env */
 					else
-	                    insert_ob_in_map(tmp_op, ob->map, NULL, 0);
+						insert_ob_in_map(tmp_op, ob->map, NULL, 0);
 				}
-            }
-        }
-        tmp_op = tmp;
-    }
+			}
+		}
+		tmp_op = tmp;
+	}
 
-    if (corpse)
-    {
-        /* drop the corpse when something is in OR corpse_forced is set */
-        /* i changed this to drop corpse always even they have no items
-         * inside (player get confused when corpse don't drop. To avoid
-         * clear corpses, change below "||corpse " to "|| corpse->inv" */
-        if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED) || corpse)
-        {
-            /* ok... we have a corpse AND we insert something in.
-             * now check enemy and/or attacker to find a player.
-             * if there is one - personlize this corpse container.
-             * this gives the player the chance to grap this stuff first
-             * - and looter will be stopped. */
+	if (corpse)
+	{
+		/* drop the corpse when something is in OR corpse_forced is set */
+		/* i changed this to drop corpse always even they have no items
+		 * inside (player get confused when corpse don't drop. To avoid
+		 * clear corpses, change below "||corpse " to "|| corpse->inv" */
+		if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED) || corpse)
+		{
+			/* ok... we have a corpse AND we insert something in.
+			 * now check enemy and/or attacker to find a player.
+			 * if there is one - personlize this corpse container.
+			 * this gives the player the chance to grap this stuff first
+			 * - and looter will be stopped. */
 
-            if (enemy && enemy->type == PLAYER)
-            {
-                if (enemy->count == ob->enemy_count)
-                    FREE_AND_ADD_REF_HASH(corpse->slaying, enemy->name);
-            }
+			if (enemy && enemy->type == PLAYER)
+			{
+				if (enemy->count == ob->enemy_count)
+					FREE_AND_ADD_REF_HASH(corpse->slaying, enemy->name);
+			}
 			/* && no player */
-            else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
-            {
-                /* normallly only player drop corpse. But in some cases
-                 * npc can do it too. Then its smart to remove that corpse fast.
-                 * It will not harm anything because we never deal for NPC with
-                 * bounty. */
-                corpse->stats.food = 3;
-            }
+			else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
+			{
+				/* normallly only player drop corpse. But in some cases
+				 * npc can do it too. Then its smart to remove that corpse fast.
+				 * It will not harm anything because we never deal for NPC with
+				 * bounty. */
+				corpse->stats.food = 3;
+			}
 
 			/* change sub_type to mark this corpse */
-            if (corpse->slaying)
+			if (corpse->slaying)
 			{
 				if (CONTR(enemy)->party_number != -1)
-                {
-                    corpse->stats.maxhp = CONTR(enemy)->party_number;
-                    corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
-                }
-                else
-                	corpse->sub_type1 = ST1_CONTAINER_CORPSE_player;
+				{
+					corpse->stats.maxhp = CONTR(enemy)->party_number;
+					corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
+				}
+				else
+					corpse->sub_type1 = ST1_CONTAINER_CORPSE_player;
 			}
 
 			if (ob->env)
@@ -2692,17 +2704,17 @@ void drop_ob_inv(object *ob)
 			}
 			else
 				insert_ob_in_map(corpse, ob->map, NULL, 0);
-        }
+		}
 		/* disabled */
-        else
-        {
-            /* if we are here, our corpse mob had something in inv but its nothing to drop */
+		else
+		{
+			/* if we are here, our corpse mob had something in inv but its nothing to drop */
 
 			/* no check off - not put in the map here */
-            if (!QUERY_FLAG(corpse, FLAG_REMOVED))
-                remove_ob(corpse);
-        }
-    }
+			if (!QUERY_FLAG(corpse, FLAG_REMOVED))
+				remove_ob(corpse);
+		}
+	}
 }
 
 /* destroy_object() frees everything allocated by an object, removes
@@ -2720,49 +2732,49 @@ void destroy_object(object *ob)
 		return;
 	}
 
-    if (!QUERY_FLAG(ob, FLAG_REMOVED))
+	if (!QUERY_FLAG(ob, FLAG_REMOVED))
 	{
 		dump_object(ob);
 		LOG(llevBug, "BUG: Destroy object called with non removed object\n:%s\n", errmsg);
-    }
+	}
 
-  	/* This should be very rare... */
-  	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
-	  	remove_button_link(ob);
+	/* This should be very rare... */
+	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
+		remove_button_link(ob);
 
-  	if (QUERY_FLAG(ob, FLAG_FRIENDLY))
-	  	remove_friendly_object(ob);
+	if (QUERY_FLAG(ob, FLAG_FRIENDLY))
+		remove_friendly_object(ob);
 
-  	if (ob->type == CONTAINER && ob->attacked_by)
-	  	container_unlink_func(NULL, ob);
+	if (ob->type == CONTAINER && ob->attacked_by)
+		container_unlink_func(NULL, ob);
 
-  	/* Make sure to get rid of the inventory, too. It will be destroy()ed at the next gc */
-  	/* TODO: maybe destroy() it here too? */
-  	remove_ob_inv(ob);
+	/* Make sure to get rid of the inventory, too. It will be destroy()ed at the next gc */
+	/* TODO: maybe destroy() it here too? */
+	remove_ob_inv(ob);
 
-  	/* Remove object from the active list */
-  	ob->speed = 0;
-  	update_ob_speed(ob);
- 	/*LOG(llevDebug, "FO: a:%s %x >%s< (#%d)\n", ob->arch ? (ob->arch->name ? ob->arch->name : "") : "", ob->name, ob->name ? ob->name : "", ob->name ? query_refcount(ob->name) : 0);*/
+	/* Remove object from the active list */
+	ob->speed = 0;
+	update_ob_speed(ob);
+	/*LOG(llevDebug, "FO: a:%s %x >%s< (#%d)\n", ob->arch ? (ob->arch->name ? ob->arch->name : "") : "", ob->name, ob->name ? ob->name : "", ob->name ? query_refcount(ob->name) : 0);*/
 
-  	/* Free attached attrsets */
-  	if (ob->custom_attrset)
+	/* Free attached attrsets */
+	if (ob->custom_attrset)
 	{
 		/*LOG(llevDebug, "destroy_object() custom attrset found in object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);*/
 
-      	switch (ob->type)
+		switch (ob->type)
 		{
-          	case PLAYER:
-			/* Players are changed into DEAD_OBJECTs when they logout */
-          	case DEAD_OBJECT:
-              return_poolchunk(ob->custom_attrset, POOL_PLAYER);
-              break;
+			case PLAYER:
+				/* Players are changed into DEAD_OBJECTs when they logout */
+			case DEAD_OBJECT:
+				return_poolchunk(ob->custom_attrset, POOL_PLAYER);
+				break;
 
-          default:
-              LOG(llevBug, "BUG: destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
-      	}
-      	ob->custom_attrset = NULL;
-  	}
+			default:
+				LOG(llevBug, "BUG: destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
+		}
+		ob->custom_attrset = NULL;
+	}
 
 	FREE_AND_CLEAR_HASH2(ob->name);
 	FREE_AND_CLEAR_HASH2(ob->title);
@@ -2771,7 +2783,7 @@ void destroy_object(object *ob)
 	FREE_AND_CLEAR_HASH2(ob->msg);
 
 	/* mark object as "do not use" and invalidate all references to it */
-  	ob->count = 0;
+	ob->count = 0;
 }
 
 /* Drop op's inventory on the floor and remove op from the map.
@@ -2779,9 +2791,9 @@ void destroy_object(object *ob)
 void destruct_ob(object *op)
 {
 	if (op->inv)
-	    drop_ob_inv(op);
+		drop_ob_inv(op);
 
-    remove_ob(op);
+	remove_ob(op);
 	check_walk_off(op, NULL, MOVE_APPLY_DEFAULT);
 }
 
@@ -2797,25 +2809,26 @@ void destruct_ob(object *op)
 void remove_ob(object *op)
 {
 	MapSpace *msp;
-    object *otmp;
+	object *otmp;
 
-    if (QUERY_FLAG(op, FLAG_REMOVED))
+	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		/*dump_object(op)*/;
+		/*dump_object(op)*/
+		;
 		LOG(llevBug, "BUG: Trying to remove removed object.:%s map:%s (%d,%d)\n", query_name(op, NULL), op->map ? (op->map->path ? op->map->path : "op->map->path == NULL") : "op->map == NULL", op->x, op->y);
 		return;
-    }
+	}
 
 	/* check off is handled outside here */
-    if (op->more != NULL)
+	if (op->more != NULL)
 		remove_ob(op->more);
 
-    mark_object_removed(op);
+	mark_object_removed(op);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 
-    /* In this case, the object to be removed is in someones
-     * inventory. */
-    if (op->env != NULL)
+	/* In this case, the object to be removed is in someones
+	 * inventory. */
+	if (op->env != NULL)
 	{
 		/* this is not enough... when we for example remove money from a pouch
 		 * which is in a sack (which is itself in the player inv) then the weight
@@ -2830,7 +2843,7 @@ void remove_ob(object *op)
 		 * made to players inventory.  If set, avoiding the call to save cpu time.
 		 * the flag is set from outside... perhaps from a drop_all() function. */
 		if ((otmp = is_player_inv(op->env)) != NULL && CONTR(otmp) && !QUERY_FLAG(otmp, FLAG_NO_FIX_PLAYER))
-		    fix_player(otmp);
+			fix_player(otmp);
 
 		if (op->above != NULL)
 			op->above->below = op->below;
@@ -2845,18 +2858,18 @@ void remove_ob(object *op)
 		 * to the caller to decide what we want to do. */
 		op->x = op->env->x, op->y = op->env->y;
 
-		#ifdef POSITION_DEBUG
+#ifdef POSITION_DEBUG
 		op->ox = op->x, op->oy = op->y;
-		#endif
+#endif
 
 		op->map = op->env->map;
 		op->above = NULL, op->below = NULL;
 		op->env = NULL;
 		return;
-    }
+	}
 
-    /* If we get here, we are removing it from a map */
-    if (!op->map)
+	/* If we get here, we are removing it from a map */
+	if (!op->map)
 	{
 		LOG(llevBug, "BUG: remove_ob(): object %s (%s) not on map or env.\n", query_short_name(op, NULL), op->arch ? (op->arch->name ? op->arch->name : "<nor arch name!>") : "<no arch!>");
 		return;
@@ -2872,7 +2885,7 @@ void remove_ob(object *op)
 		if (GET_MAP_SPACE_LAYER(msp, op->layer - 1) == op)
 		{
 			/* well, don't kick the inv objects of this layer to normal layer */
-		    if (op->above && op->above->layer == op->layer && GET_MAP_SPACE_LAYER(msp, op->layer + 6) != op->above)
+			if (op->above && op->above->layer == op->layer && GET_MAP_SPACE_LAYER(msp, op->layer + 6) != op->above)
 				SET_MAP_SPACE_LAYER(msp, op->layer - 1, op->above);
 			else
 				SET_MAP_SPACE_LAYER(msp, op->layer - 1, NULL);
@@ -2880,29 +2893,29 @@ void remove_ob(object *op)
 		/* inv layer? */
 		else if (GET_MAP_SPACE_LAYER(msp, op->layer + 6) == op)
 		{
-		    if (op->above && op->above->layer == op->layer)
+			if (op->above && op->above->layer == op->layer)
 				SET_MAP_SPACE_LAYER(msp, op->layer + 6, op->above);
 			else
 				SET_MAP_SPACE_LAYER(msp, op->layer + 6, NULL);
 		}
 	}
 
-    /* link the object above us */
-    if (op->above)
+	/* link the object above us */
+	if (op->above)
 		op->above->below = op->below;
 	/* assign below as last one */
 	else
 		SET_MAP_SPACE_LAST(msp, op->below);
 
-    /* Relink the object below us, if there is one */
-    if (op->below)
+	/* Relink the object below us, if there is one */
+	if (op->below)
 		op->below->above = op->above;
 	/* first object goes on above it. */
-    else
+	else
 		SET_MAP_SPACE_FIRST(msp, op->above);
 
-    op->above = NULL;
-    op->below = NULL;
+	op->above = NULL;
+	op->below = NULL;
 
 	/* this is triggered when a map is swaped out and the objects on it get removed too */
 	if (op->map->in_memory == MAP_SAVING)
@@ -2936,9 +2949,9 @@ void remove_ob(object *op)
 			container_unlink_func(pltemp, NULL);
 	}
 
-    update_object(op, UP_OBJ_REMOVE);
+	update_object(op, UP_OBJ_REMOVE);
 
-    op->env = NULL;
+	op->env = NULL;
 }
 
 /* delete and remove recursive the inventory of an object. */
@@ -2985,32 +2998,32 @@ void remove_ob_inv(object *op)
  * explicit when we want make a "move/step" for a object which can trigger it. */
 object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 {
-    object *tmp = NULL, *top;
+	object *tmp = NULL, *top;
 	MapSpace *mc;
-    int x, y, lt, layer, layer_inv;
+	int x, y, lt, layer, layer_inv;
 
 	/* some tests to check all is ok... some cpu ticks
 	 * which tracks we have problems or not */
-    if (OBJECT_FREE(op))
+	if (OBJECT_FREE(op))
 	{
 		dump_object(op);
 		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert freed object %s in map %s!\n:%s\n", query_name(op, NULL), m->name, errmsg);
 		return NULL;
-    }
+	}
 
-    if (m == NULL)
+	if (m == NULL)
 	{
 		dump_object(op);
 		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s in null-map!\n%s\n", query_name(op, NULL), errmsg);
 		return NULL;
-    }
+	}
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
 		dump_object(op);
 		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n%s\n", query_name(op, NULL), m->name, errmsg);
 		return NULL;
-    }
+	}
 
 	/* tail, but no INS_TAIL_MARKER: we had messed something outside! */
 	if (op->head && !(flag & INS_TAIL_MARKER))
@@ -3019,7 +3032,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		return NULL;
 	}
 
-    if (op->more)
+	if (op->more)
 	{
 		if (insert_ob_in_map(op->more, op->more->map, originator, flag | INS_TAIL_MARKER) == NULL)
 		{
@@ -3028,37 +3041,37 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 			return NULL;
 		}
-    }
+	}
 
-    CLEAR_FLAG(op, FLAG_REMOVED);
+	CLEAR_FLAG(op, FLAG_REMOVED);
 
 #ifdef POSITION_DEBUG
-    op->ox = op->x;
-    op->oy = op->y;
+	op->ox = op->x;
+	op->oy = op->y;
 #endif
 
 	/* this is now a key part of this function, because
 	 * we adjust multi arches here when they cross map boarders! */
-    x = op->x;
-    y = op->y;
+	x = op->x;
+	y = op->y;
 	op->map = m;
 
-    if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = out_of_map(m, &x, &y)))
 	{
 		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s outside the map %s (%d,%d).\n\n", query_name(op, NULL), op->map->path, op->x, op->y);
 		return NULL;
-    }
+	}
 
 	/* x and y will only change when we change the map too - so check the map */
-    if (op->map != m)
+	if (op->map != m)
 	{
 		op->map = m;
 		op->x = x;
 		op->y = y;
-    }
+	}
 
 	/* hm, i not checked this, but is it not smarter to remove op instead and return? MT */
-    if (op->nrof && !(flag & INS_NO_MERGE))
+	if (op->nrof && !(flag & INS_NO_MERGE))
 	{
 		for (tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above)
 		{
@@ -3072,14 +3085,14 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 				remove_ob(tmp);
 			}
 		}
-    }
+	}
 
 	/* we need this for FLY/MOVE_ON/OFF */
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	/* nothing on the floor can be applied */
-    CLEAR_FLAG(op, FLAG_APPLIED);
+	CLEAR_FLAG(op, FLAG_APPLIED);
 	/* or locked */
-    CLEAR_FLAG(op, FLAG_INV_LOCKED);
+	CLEAR_FLAG(op, FLAG_INV_LOCKED);
 
 	/* map layer system */
 	/* we don't test for sys object because we ALWAYS set the layer of a sys object
@@ -3273,8 +3286,8 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 	/* we updated something here - mark this tile as changed! */
 	mc->update_tile++;
-    /* updates flags (blocked, alive, no magic, etc) for this map space */
-    update_object(op, UP_OBJ_INSERT);
+	/* updates flags (blocked, alive, no magic, etc) for this map space */
+	update_object(op, UP_OBJ_INSERT);
 
 	/* check walk on/fly on flag if not canceld AND there is some to move on.
 	 * Note: We are first inserting the WHOLE object/multi arch - then we check all
@@ -3310,8 +3323,8 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		}
 
 		/* TODO: check event */
-		check_walk_loop:
-        for (tmp = op->more; tmp != NULL; tmp = tmp->more)
+check_walk_loop:
+		for (tmp = op->more; tmp != NULL; tmp = tmp->more)
 		{
 			mc = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
 
@@ -3340,9 +3353,9 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 					return NULL;
 			}
 		}
-    }
+	}
 
-    return op;
+	return op;
 }
 
 /* this function inserts an object in the map, but if it
@@ -3350,11 +3363,11 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
  *  op is the object to insert it under:  supplies x and the map. */
 void replace_insert_ob_in_map(char *arch_string, object *op)
 {
-    object *tmp;
-    object *tmp1;
+	object *tmp;
+	object *tmp1;
 
-    /* first search for itself and remove any old instances */
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	/* first search for itself and remove any old instances */
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
 		if (!strcmp(tmp->arch->name, arch_string))
 		{
@@ -3364,12 +3377,13 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
 			/* Remove it from active list */
 			update_ob_speed(tmp);
 		}
-    }
+	}
 
-    tmp1 = arch_to_object(find_archetype(arch_string));
+	tmp1 = arch_to_object(find_archetype(arch_string));
 
-    tmp1->x = op->x; tmp1->y = op->y;
-    insert_ob_in_map(tmp1, op->map, op, 0);
+	tmp1->x = op->x;
+	tmp1->y = op->y;
+	insert_ob_in_map(tmp1, op->map, op, 0);
 }
 
 /* get_split_ob(ob,nr) splits up ob into two parts.  The part which
@@ -3379,43 +3393,43 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
  * global static errmsg array. */
 object *get_split_ob(object *orig_ob, int nr)
 {
-    object *newob;
-    object *tmp, *event;
-    int is_removed = (QUERY_FLAG(orig_ob, FLAG_REMOVED) != 0);
+	object *newob;
+	object *tmp, *event;
+	int is_removed = (QUERY_FLAG(orig_ob, FLAG_REMOVED) != 0);
 
-    if ((int) orig_ob->nrof < nr)
+	if ((int) orig_ob->nrof < nr)
 	{
 		sprintf(errmsg, "There are only %d %ss.", orig_ob->nrof ? orig_ob->nrof : 1, query_name(orig_ob, NULL));
 		return NULL;
-    }
+	}
 
-    newob = get_object();
-    copy_object(orig_ob, newob);
+	newob = get_object();
+	copy_object(orig_ob, newob);
 
-    /* Gecko: copy inventory (event objects) */
-    for (tmp = orig_ob->inv; tmp; tmp = tmp->below)
+	/* Gecko: copy inventory (event objects) */
+	for (tmp = orig_ob->inv; tmp; tmp = tmp->below)
 	{
-        if (tmp->type == TYPE_EVENT_OBJECT)
+		if (tmp->type == TYPE_EVENT_OBJECT)
 		{
-            event = get_object();
-            copy_object(tmp, event);
-            insert_ob_in_ob(event, newob);
-        }
-    }
+			event = get_object();
+			copy_object(tmp, event);
+			insert_ob_in_ob(event, newob);
+		}
+	}
 
-/*    if(QUERY_FLAG(orig_ob, FLAG_UNPAID) && QUERY_FLAG(orig_ob, FLAG_NO_PICK))*/
-/*		;*/ /* clone objects .... */
-/*	else*/
+	/*    if(QUERY_FLAG(orig_ob, FLAG_UNPAID) && QUERY_FLAG(orig_ob, FLAG_NO_PICK))*/
+	/*		;*/ /* clone objects .... */
+	/*	else*/
 	orig_ob->nrof -= nr;
 
-    if (orig_ob->nrof < 1)
+	if (orig_ob->nrof < 1)
 	{
 		if (!is_removed)
 			remove_ob(orig_ob);
 
 		check_walk_off(orig_ob, NULL, MOVE_APPLY_VANISHED);
-    }
-    else if (!is_removed)
+	}
+	else if (!is_removed)
 	{
 		if (orig_ob->env != NULL)
 			sub_weight(orig_ob->env, orig_ob->weight * nr);
@@ -3426,10 +3440,10 @@ object *get_split_ob(object *orig_ob, int nr)
 			LOG(llevDebug, "Error, Tried to split object whose map is not in memory.\n");
 			return NULL;
 		}
-    }
+	}
 
-    newob->nrof = nr;
-    return newob;
+	newob->nrof = nr;
+	return newob;
 }
 
 /* decrease_ob_nr(object, number) decreases a specified number from
@@ -3439,23 +3453,23 @@ object *get_split_ob(object *orig_ob, int nr)
  * Return value: 'op' if something is left, NULL if the amount reached 0 */
 object *decrease_ob_nr(object *op, int i)
 {
-    object *tmp;
-    player *pl;
+	object *tmp;
+	player *pl;
 
 	/* objects with op->nrof require this check */
-    if (i == 0)
-        return op;
+	if (i == 0)
+		return op;
 
-    if (i > (int)op->nrof)
-        i = (int)op->nrof;
+	if (i > (int)op->nrof)
+		i = (int)op->nrof;
 
-    if (QUERY_FLAG(op, FLAG_REMOVED))
-        op->nrof -= i;
-    else if (op->env != NULL)
-    {
+	if (QUERY_FLAG(op, FLAG_REMOVED))
+		op->nrof -= i;
+	else if (op->env != NULL)
+	{
 		/* is this object in the players inventory, or sub container
 		 * therein? */
-        tmp = is_player_inv(op->env);
+		tmp = is_player_inv(op->env);
 		/* nope.  Is this a container the player has opened?
 		 * If so, set tmp to that player.
 		 * IMO, searching through all the players will mostly
@@ -3478,60 +3492,60 @@ object *decrease_ob_nr(object *op, int i)
 				tmp = NULL;
 		}
 
-        if (i < (int)op->nrof)
+		if (i < (int)op->nrof)
 		{
-            sub_weight (op->env, op->weight * i);
-            op->nrof -= i;
+			sub_weight (op->env, op->weight * i);
+			op->nrof -= i;
 
-            if (tmp)
+			if (tmp)
 			{
-                (*esrv_send_item_func)(tmp, op);
-                (*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
-            }
-        }
+				(*esrv_send_item_func)(tmp, op);
+				(*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
+			}
+		}
 		else
 		{
-            remove_ob(op);
+			remove_ob(op);
 			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-            op->nrof = 0;
+			op->nrof = 0;
 
-            if (tmp)
+			if (tmp)
 			{
-                (*esrv_del_item_func)(CONTR(tmp), op->count,op->env);
-                (*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
-            }
-        }
-    }
-    else
-    {
+				(*esrv_del_item_func)(CONTR(tmp), op->count,op->env);
+				(*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
+			}
+		}
+	}
+	else
+	{
 		object *above = op->above;
 
-        if (i < (int)op->nrof)
-            op->nrof -= i;
-        else
+		if (i < (int)op->nrof)
+			op->nrof -= i;
+		else
 		{
-            remove_ob(op);
+			remove_ob(op);
 			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-            op->nrof = 0;
-        }
+			op->nrof = 0;
+		}
 
 		/* Since we just removed op, op->above is null */
-        for (tmp = above; tmp != NULL; tmp = tmp->above)
+		for (tmp = above; tmp != NULL; tmp = tmp->above)
 		{
-            if (tmp->type == PLAYER)
+			if (tmp->type == PLAYER)
 			{
-                if (op->nrof)
-                    (*esrv_send_item_func)(tmp, op);
-                else
-                    (*esrv_del_item_func)(CONTR(tmp), op->count, op->env);
-            }
+				if (op->nrof)
+					(*esrv_send_item_func)(tmp, op);
+				else
+					(*esrv_del_item_func)(CONTR(tmp), op->count, op->env);
+			}
 		}
-    }
+	}
 
-    if (op->nrof)
-        return op;
-    else
-        return NULL;
+	if (op->nrof)
+		return op;
+	else
+		return NULL;
 }
 
 /* insert_ob_in_ob(op, environment):
@@ -3547,21 +3561,21 @@ object *decrease_ob_nr(object *op, int i)
  * be != op, if items are merged. -Tero */
 object *insert_ob_in_ob(object *op, object *where)
 {
-  	object *tmp, *otmp;
+	object *tmp, *otmp;
 
-  	if (!QUERY_FLAG(op, FLAG_REMOVED))
+	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-    	dump_object(op);
-    	LOG(llevBug, "BUG: Trying to insert (ob) inserted object.\n%s\n", errmsg);
-    	return op;
-  	}
+		dump_object(op);
+		LOG(llevBug, "BUG: Trying to insert (ob) inserted object.\n%s\n", errmsg);
+		return op;
+	}
 
-  	if (where == NULL)
+	if (where == NULL)
 	{
-    	dump_object(op);
-    	LOG(llevBug, "BUG: Trying to put object in NULL.\n%s\n", errmsg);
-    	return op;
-  	}
+		dump_object(op);
+		LOG(llevBug, "BUG: Trying to put object in NULL.\n%s\n", errmsg);
+		return op;
+	}
 
 	if (where->head)
 	{
@@ -3569,15 +3583,15 @@ object *insert_ob_in_ob(object *op, object *where)
 		where = where->head;
 	}
 
-  	if (op->more)
+	if (op->more)
 	{
-    	LOG(llevError, "ERROR: Tried to insert multipart object %s (%d)\n", query_name(op, NULL), op->count);
-    	return op;
-  	}
+		LOG(llevError, "ERROR: Tried to insert multipart object %s (%d)\n", query_name(op, NULL), op->count);
+		return op;
+	}
 
-  	CLEAR_FLAG(op, FLAG_REMOVED);
+	CLEAR_FLAG(op, FLAG_REMOVED);
 
-  	if (op->nrof)
+	if (op->nrof)
 	{
 		for (tmp = where->inv; tmp != NULL; tmp = tmp->below)
 		{
@@ -3609,9 +3623,9 @@ object *insert_ob_in_ob(object *op, object *where)
 		 * the weight, so we need to add it in again, since we actually do
 		 * the linking below */
 		add_weight(where, op->weight * op->nrof);
-  	}
+	}
 	else
-    	add_weight(where, (op->weight + op->carrying));
+		add_weight(where, (op->weight + op->carrying));
 
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->map = NULL;
@@ -3621,19 +3635,19 @@ object *insert_ob_in_ob(object *op, object *where)
 	op->x = 0, op->y = 0;
 
 #ifdef POSITION_DEBUG
-  	op->ox = 0, op->oy = 0;
+	op->ox = 0, op->oy = 0;
 #endif
 
-  	/* Client has no idea of ordering so lets not bother ordering it here.
-   	 * It sure simplifies this function... */
-  	if (where->inv==NULL)
-      	where->inv = op;
-  	else
+	/* Client has no idea of ordering so lets not bother ordering it here.
+	  * It sure simplifies this function... */
+	if (where->inv==NULL)
+		where->inv = op;
+	else
 	{
-     	op->below = where->inv;
-      	op->below->above = op;
-      	where->inv = op;
-  	}
+		op->below = where->inv;
+		op->below->above = op;
+		where->inv = op;
+	}
 
 	/* check for event object and set the owner object
 	 * event flags. */
@@ -3674,13 +3688,13 @@ object *insert_ob_in_ob(object *op, object *where)
  * on top. */
 int check_walk_on(object *op, object *originator, int flags)
 {
-    object *tmp;
+	object *tmp;
 	/* when TRUE, this function is root call for static_walk_semaphore setting */
 	int local_walk_semaphore = FALSE;
-    tag_t tag;
-    int fly;
+	tag_t tag;
+	int fly;
 
-    if (QUERY_FLAG(op, FLAG_NO_APPLY))
+	if (QUERY_FLAG(op, FLAG_NO_APPLY))
 		return 0;
 
 	fly = QUERY_FLAG(op, FLAG_FLYING);
@@ -3690,20 +3704,20 @@ int check_walk_on(object *op, object *originator, int flags)
 	else
 		flags |= MOVE_APPLY_WALK_ON;
 
-    tag = op->count;
+	tag = op->count;
 
 	/* This flags ensures we notice when a moving event has appeared!
 	 * Because the functions who set/clear the flag can be called recursive
 	 * from this function and walk_off() we need a static, global semaphor
 	 * like flag to ensure we don't clear the flag except in the mother call. */
-	if(!static_walk_semaphore)
+	if (!static_walk_semaphore)
 	{
 		local_walk_semaphore = TRUE;
 		static_walk_semaphore = TRUE;
 		CLEAR_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	}
 
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
 		/* Can't apply yourself */
 		if (tmp == op)
@@ -3734,7 +3748,7 @@ int check_walk_on(object *op, object *originator, int flags)
 				return CHECK_WALK_MOVED;
 			}
 		}
-    }
+	}
 
 	if (local_walk_semaphore)
 		static_walk_semaphore = FALSE;
@@ -3768,7 +3782,7 @@ int check_walk_off(object *op, object *originator, int flags)
 	if (QUERY_FLAG(op, FLAG_NO_APPLY))
 		return CHECK_WALK_OK;
 
-    tag = op->count;
+	tag = op->count;
 	fly = QUERY_FLAG(op, FLAG_FLYING);
 
 	if (fly)
@@ -3781,7 +3795,7 @@ int check_walk_off(object *op, object *originator, int flags)
 	{
 		mc = GET_MAP_SPACE_PTR(part->map, part->x, part->y);
 
-		 /* no event on this tile */
+		/* no event on this tile */
 		if (!(mc->flags & (P_WALK_OFF | P_FLY_OFF)))
 			continue;
 
@@ -3797,7 +3811,7 @@ int check_walk_off(object *op, object *originator, int flags)
 		}
 
 		/* ok, check objects here... */
-	    for (tmp = mc->first; tmp != NULL; tmp = tmp->above)
+		for (tmp = mc->first; tmp != NULL; tmp = tmp->above)
 		{
 			/* its the ob part in this space... better not >1 part in same space of same arch */
 			if (tmp == part)
@@ -3838,7 +3852,7 @@ int check_walk_off(object *op, object *originator, int flags)
 	if (local_walk_semaphore)
 		static_walk_semaphore = FALSE;
 
-    return CHECK_WALK_OK;
+	return CHECK_WALK_OK;
 }
 
 /* present_arch(arch, map, x, y) searches for any objects with
@@ -3915,12 +3929,12 @@ object *present_arch_in_ob(archetype *at, object *op)
  * him/her-self and all object carried by a call to this function. */
 void set_cheat(object *op)
 {
-  	object *tmp;
-  	SET_FLAG(op, FLAG_WAS_WIZ);
+	object *tmp;
+	SET_FLAG(op, FLAG_WAS_WIZ);
 
-  	if (op->inv)
-    	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-      		set_cheat(tmp);
+	if (op->inv)
+		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+			set_cheat(tmp);
 }
 
 /* find_free_spot(archetype, map, x, y, start, stop) will search for
@@ -3936,7 +3950,7 @@ void set_cheat(object *op)
  * pieces. */
 int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
-  	int i, index = 0;
+	int i, index = 0;
 	static int altern[SIZEOFFREE];
 
 	for (i = start; i < stop; i++)
@@ -3959,14 +3973,14 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
  * Changed 0.93.2: Have it return -1 if there is no free spot available. */
 int find_first_free_spot(archetype *at, mapstruct *m, int x, int y)
 {
-  	int i;
-  	for (i = 0; i < SIZEOFFREE; i++)
+	int i;
+	for (i = 0; i < SIZEOFFREE; i++)
 	{
-    	if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i]))
-      		return i;
-  	}
+		if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i]))
+			return i;
+	}
 
-  	return -1;
+	return -1;
 }
 
 int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range)
@@ -4070,13 +4084,13 @@ int find_dir_2(int x, int y)
  * "overflow" in previous calculations of a direction). */
 int absdir(int d)
 {
-  	while (d < 1)
+	while (d < 1)
 		d += 8;
 
-  	while (d > 8)
+	while (d > 8)
 		d -= 8;
 
-  	return d;
+	return d;
 }
 
 /* dirdiff(dir1, dir2) returns how many 45-degrees differences there is
@@ -4102,61 +4116,61 @@ int dirdiff(int dir1, int dir2)
  * Add a check so we can't pick up invisible objects (0.93.8) */
 int can_pick(object *who,object *item)
 {
-  	return ((who->type == PLAYER && QUERY_FLAG(item, FLAG_NO_PICK) && QUERY_FLAG(item, FLAG_UNPAID)) || (item->weight > 0 && !QUERY_FLAG(item, FLAG_NO_PICK) && (!IS_INVISIBLE(item, who) || QUERY_FLAG(who, FLAG_SEE_INVISIBLE)) && (who->type == PLAYER || item->weight < who->weight / 3)));
+	return ((who->type == PLAYER && QUERY_FLAG(item, FLAG_NO_PICK) && QUERY_FLAG(item, FLAG_UNPAID)) || (item->weight > 0 && !QUERY_FLAG(item, FLAG_NO_PICK) && (!IS_INVISIBLE(item, who) || QUERY_FLAG(who, FLAG_SEE_INVISIBLE)) && (who->type == PLAYER || item->weight < who->weight / 3)));
 }
 
 /* create clone from object to another */
 object *ObjectCreateClone(object *asrc)
 {
-    object *dst = NULL, *tmp, *src, *part, *prev, *item;
+	object *dst = NULL, *tmp, *src, *part, *prev, *item;
 
-    if (!asrc)
+	if (!asrc)
 		return NULL;
 
-    src = asrc;
-    if (src->head)
-        src = src->head;
+	src = asrc;
+	if (src->head)
+		src = src->head;
 
-    prev = NULL;
-    for (part = src; part; part = part->more)
+	prev = NULL;
+	for (part = src; part; part = part->more)
 	{
-        tmp = get_object();
-        copy_object(part, tmp);
-        tmp->x -= src->x;
-        tmp->y -= src->y;
+		tmp = get_object();
+		copy_object(part, tmp);
+		tmp->x -= src->x;
+		tmp->y -= src->y;
 
-        if (!part->head)
+		if (!part->head)
 		{
-            dst = tmp;
-            tmp->head = NULL;
-        }
+			dst = tmp;
+			tmp->head = NULL;
+		}
 		else
-            tmp->head = dst;
+			tmp->head = dst;
 
-        tmp->more = NULL;
+		tmp->more = NULL;
 
-        if (prev)
-            prev->more = tmp;
+		if (prev)
+			prev->more = tmp;
 
-        prev = tmp;
-    }
+		prev = tmp;
+	}
 
-    /*** copy inventory ***/
-    for (item = src->inv; item; item = item->below)
+	/*** copy inventory ***/
+	for (item = src->inv; item; item = item->below)
 	{
 		(void) insert_ob_in_ob(ObjectCreateClone(item), dst);
-    }
+	}
 
-    return dst;
+	return dst;
 }
 
 int was_destroyed(object *op, tag_t old_tag)
 {
-    /* checking for OBJECT_FREE isn't necessary, but makes this function more
-     * robust */
-    /* Gecko: redefined "destroyed" a little broader: included removed objects.
-     * -> need to make sure this is never a problem with temporarily removed objects */
-    return (QUERY_FLAG(op, FLAG_REMOVED) || (op->count != old_tag) || OBJECT_FREE(op));
+	/* checking for OBJECT_FREE isn't necessary, but makes this function more
+	 * robust */
+	/* Gecko: redefined "destroyed" a little broader: included removed objects.
+	 * -> need to make sure this is never a problem with temporarily removed objects */
+	return (QUERY_FLAG(op, FLAG_REMOVED) || (op->count != old_tag) || OBJECT_FREE(op));
 }
 
 /* GROS - Creates an object using a string representing its content.
@@ -4167,28 +4181,28 @@ int was_destroyed(object *op, tag_t old_tag)
  * Also remember that multiparts objects are not supported for now. */
 object* load_object_str(char *obstr)
 {
-    object *op;
-    FILE *tempfile;
+	object *op;
+	FILE *tempfile;
 	void *mybuffer;
-    char filename[MAX_BUF];
+	char filename[MAX_BUF];
 
-    sprintf(filename, "%s/cfloadobstr2044", settings.tmpdir);
-    tempfile = fopen(filename, "w+");
-    if (tempfile == NULL)
-    {
-        LOG(llevError, "ERROR: load_object_str(): Unable to access load object temp file\n");
-        return NULL;
-    }
+	sprintf(filename, "%s/cfloadobstr2044", settings.tmpdir);
+	tempfile = fopen(filename, "w+");
+	if (tempfile == NULL)
+	{
+		LOG(llevError, "ERROR: load_object_str(): Unable to access load object temp file\n");
+		return NULL;
+	}
 
-    fprintf(tempfile, "%s", obstr);
-    op = get_object();
-    rewind(tempfile);
+	fprintf(tempfile, "%s", obstr);
+	op = get_object();
+	rewind(tempfile);
 	mybuffer = create_loader_buffer(tempfile);
-    load_object(tempfile, op, mybuffer, LO_REPEAT, 0);
+	load_object(tempfile, op, mybuffer, LO_REPEAT, 0);
 	delete_loader_buffer(mybuffer);
-    LOG(llevDebug, "load str completed, object=%s\n", query_name(op, NULL));
-    fclose(tempfile);
-    return op;
+	LOG(llevDebug, "load str completed, object=%s\n", query_name(op, NULL));
+	fclose(tempfile);
+	return op;
 }
 
 int auto_apply(object *op)
@@ -4213,12 +4227,13 @@ int auto_apply(object *op)
 				i = 10;
 				level = get_enviroment_level(op);
 				while ((tmp = generate_treasure(op->randomitems, level)) == NULL && --i);
-					if (tmp == NULL)
-						return 0;
+				if (tmp == NULL)
+					return 0;
 
 				if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
 					tmp = NULL;
-			} while (!tmp);
+			}
+			while (!tmp);
 
 			tmp->x = op->x, tmp->y = op->y;
 			SET_FLAG(tmp, FLAG_UNPAID);

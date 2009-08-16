@@ -29,15 +29,15 @@
 typedef struct astar_node
 {
 	/* Next node in linked list */
-    struct astar_node *next;
+	struct astar_node *next;
 
 	/* Previous node in linked list */
-    struct astar_node *prev;
+	struct astar_node *prev;
 
 	/* Node this was reached from */
-    struct astar_node *parent;
+	struct astar_node *parent;
 
-    struct mapdef *map;
+	struct mapdef *map;
 
 	/* X-Position in the map for this node */
 	sint16 x;
@@ -46,10 +46,10 @@ typedef struct astar_node
 	sint16 y;
 
 	/* Cost of reaching this node (distance from origin) */
-    uint16 cost;
+	uint16 cost;
 
 	/* Estimated cost of reaching the goal from this node */
-    float heuristic;
+	float heuristic;
 } path_node;
 
 /* Psuedo-flag used to mark waypoints as "has requested path" */

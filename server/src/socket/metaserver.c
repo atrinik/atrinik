@@ -42,23 +42,23 @@ void metaserver_init()
 /* Function to call when receiving data from the metaserver */
 static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
 {
-    size_t realsize = size * nmemb;
+	size_t realsize = size * nmemb;
 
 	(void) data;
 
-    LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char *)ptr);
-    LOG(llevDebug, "DEBUG: metaserver_writer(): End of text.\n");
+	LOG(llevDebug, "DEBUG: metaserver_writer(): Start of text:\n%s\n", (const char *)ptr);
+	LOG(llevDebug, "DEBUG: metaserver_writer(): End of text.\n");
 
-    return realsize;
+	return realsize;
 }
 
 /* Update the metaserver info about this server. */
 void metaserver_update()
 {
-    char buf[MAX_BUF], num_players = 0;
-    player *pl;
+	char buf[MAX_BUF], num_players = 0;
+	player *pl;
 	struct curl_httppost *formpost = NULL;
-    struct curl_httppost *lastptr = NULL;
+	struct curl_httppost *lastptr = NULL;
 	CURL *curl;
 	CURLcode res = 0;
 	time_t now = time(NULL);
@@ -68,10 +68,10 @@ void metaserver_update()
 		return;
 
 	/* We could use socket_info.nconns, but that is not quite as accurate,
-     * as connections in the progress of being established, are listening
-     * but don't have a player, etc.  This operation below should not be that
-     * costly. */
-    for (pl = first_player; pl != NULL; pl = pl->next)
+	 * as connections in the progress of being established, are listening
+	 * but don't have a player, etc.  This operation below should not be that
+	 * costly. */
+	for (pl = first_player; pl != NULL; pl = pl->next)
 		num_players++;
 
 	/* Hostname */
@@ -85,7 +85,7 @@ void metaserver_update()
 
 	/* Number of players */
 	snprintf(buf, MAX_BUF - 1, "%d", num_players);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
 
 	/* Port number */
 	snprintf(buf, MAX_BUF - 1, "%d", settings.csport);

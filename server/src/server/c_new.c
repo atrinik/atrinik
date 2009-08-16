@@ -95,7 +95,7 @@ static int map_pos_array[][2] =
 
 static int compare_A(const void *a, const void *b)
 {
-  	return strcmp(((CommArray_s *)a)->name, ((CommArray_s *)b)->name);
+	return strcmp(((CommArray_s *)a)->name, ((CommArray_s *)b)->name);
 }
 
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize)
@@ -116,53 +116,53 @@ CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsiz
  * command. */
 int execute_newserver_command(object *pl, char *command)
 {
-    CommArray_s *csp;
-    char *cp;
+	CommArray_s *csp;
+	char *cp;
 
 	/* remove the command from the parameters */
-    cp = strchr(command, ' ');
-    if (cp)
+	cp = strchr(command, ' ');
+	if (cp)
 	{
 		*(cp++) = '\0';
 		cp = cleanup_string(cp);
 		if (cp && *cp == '\0')
 			cp = NULL;
-    }
+	}
 
-    csp = find_plugin_command(command,pl);
+	csp = find_plugin_command(command,pl);
 
-    if (!csp)
+	if (!csp)
 		csp = find_command_element(command, Commands, CommandsSize);
 
-    if (!csp)
-        csp = find_command_element(command, CommunicationCommands, CommunicationCommandSize);
+	if (!csp)
+		csp = find_command_element(command, CommunicationCommands, CommunicationCommandSize);
 
-    if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
+	if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
 		csp = find_command_element(command, WizCommands, WizCommandsSize);
 
-    if (csp == NULL)
+	if (csp == NULL)
 	{
-	    new_draw_info_format(NDI_UNIQUE, 0, pl, "'%s' is not a valid command.", command);
-	    return 0;
-    }
+		new_draw_info_format(NDI_UNIQUE, 0, pl, "'%s' is not a valid command.", command);
+		return 0;
+	}
 
-    pl->speed_left -= csp->time;
+	pl->speed_left -= csp->time;
 
-    /* A character time can never exceed his speed (which in many cases,
-     * if wearing armor, is less than one.)  Thus, in most cases, if
-     * the command takes 1.0, the player's speed will be less than zero.
-     * it is only really an issue if time goes below -1
-     * Due to various reasons that are too long to go into here, we will
-     * actually still execute player even if his time is less than 0,
-     * but greater than -1.  This is to improve the performance of the
-     * new client/server.  In theory, it shouldn't make much difference. */
+	/* A character time can never exceed his speed (which in many cases,
+	 * if wearing armor, is less than one.)  Thus, in most cases, if
+	 * the command takes 1.0, the player's speed will be less than zero.
+	 * it is only really an issue if time goes below -1
+	 * Due to various reasons that are too long to go into here, we will
+	 * actually still execute player even if his time is less than 0,
+	 * but greater than -1.  This is to improve the performance of the
+	 * new client/server.  In theory, it shouldn't make much difference. */
 
 #ifdef DEBUG
-    if (csp->time && pl->speed_left < -2.0)
+	if (csp->time && pl->speed_left < -2.0)
 		LOG(llevDebug, "DEBUG: execute_newclient_command: Player issued command that takes more time than he has left.\n");
 #endif
 
-    return csp->func(pl, cp);
+	return csp->func(pl, cp);
 }
 
 /**
@@ -172,7 +172,7 @@ int execute_newserver_command(object *pl, char *command)
 int command_run(object *op, char *params)
 {
 	int dir = 0;
-    CONTR(op)->run_on = 1;
+	CONTR(op)->run_on = 1;
 
 	if (params)
 	{
@@ -188,7 +188,7 @@ int command_run(object *op, char *params)
 	if (dir == 9)
 		dir = absdir(op->facing - 4);
 
-    return (move_player(op, dir));
+	return (move_player(op, dir));
 }
 
 /**
@@ -200,8 +200,8 @@ int command_run_stop(object *op, char *params)
 {
 	(void) params;
 
-    CONTR(op)->run_on = 0;
-    return 1;
+	CONTR(op)->run_on = 0;
+	return 1;
 }
 
 /**
@@ -210,7 +210,7 @@ int command_run_stop(object *op, char *params)
 void send_target_command(player *pl)
 {
 	int aim_self_flag = FALSE;
-    char tmp[256];
+	char tmp[256];
 
 	if (!pl->ob->map)
 		return;
@@ -294,9 +294,9 @@ void send_target_command(player *pl)
 	{
 		if (pl->target_object->level >= level_color[pl->ob->level].purple)
 			tmp[2]= NDI_PURPLE;
-		else if(pl->target_object->level >= level_color[pl->ob->level].red)
+		else if (pl->target_object->level >= level_color[pl->ob->level].red)
 			tmp[2]= NDI_RED;
-		else if(pl->target_object->level >=level_color[pl->ob->level].orange)
+		else if (pl->target_object->level >=level_color[pl->ob->level].orange)
 			tmp[2]= NDI_ORANGE;
 		else
 			tmp[2]= NDI_YELLOW;
@@ -310,7 +310,7 @@ void send_target_command(player *pl)
 		strcat(tmp + 4, buf);
 	}
 
-    Write_String_To_Socket(&pl->socket, BINARY_CMD_TARGET, tmp, strlen(tmp + 4) + 4);
+	Write_String_To_Socket(&pl->socket, BINARY_CMD_TARGET, tmp, strlen(tmp + 4) + 4);
 }
 
 /**
@@ -330,8 +330,8 @@ int command_combat(object *op, char *params)
 	else
 	{
 		CONTR(op)->combat_mode = 1;
-        CONTR(op)->praying = 0;
-    }
+		CONTR(op)->praying = 0;
+	}
 
 	send_target_command(CONTR(op));
 	return 1;
@@ -407,9 +407,9 @@ int command_target(object *op, char *params)
 					CONTR(op)->target_map_pos = n;
 					goto found_target;
 				}
-            }
-        }
-    }
+			}
+		}
+	}
 	else if (params[0] == '0')
 	{
 		/* if our target before was a non enemy, start new search
@@ -423,7 +423,7 @@ int command_target(object *op, char *params)
 		else
 			CONTR(op)->target_object = NULL;
 
-  		for (; n < (int) NROF_MAP_NODE && n != nt; n++)
+		for (; n < (int) NROF_MAP_NODE && n != nt; n++)
 		{
 			int xx, yy;
 
@@ -513,7 +513,7 @@ int command_target(object *op, char *params)
 				if (nt == -1)
 					nt = n;
 
-				dirty_jump_in1:
+dirty_jump_in1:
 				xt = op->x + (xx = map_pos_array[n][MAP_POS_X]);
 				yt = op->y + (yy = map_pos_array[n][MAP_POS_Y]);
 				block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
@@ -584,7 +584,7 @@ int command_target(object *op, char *params)
 		CONTR(op)->target_object = NULL;
 	}
 
-	found_target:
+found_target:
 	send_target_command(CONTR(op));
 	return 1;
 }
@@ -594,26 +594,27 @@ int command_target(object *op, char *params)
  * @param op The player object */
 static void set_first_map(object *op)
 {
-    object* current;
+	object* current;
 
-    strcpy(CONTR(op)->maplevel, first_map_path);
-    op->x = -1;
-    op->y = -1;
+	strcpy(CONTR(op)->maplevel, first_map_path);
+	op->x = -1;
+	op->y = -1;
 
 	if (!strcmp(first_map_path, "/tutorial"))
 	{
 		current = get_object();
-	    FREE_AND_COPY_HASH(EXIT_PATH(current), first_map_path);
+		FREE_AND_COPY_HASH(EXIT_PATH(current), first_map_path);
 		EXIT_X(current) = 1;
 		EXIT_Y(current) = 1;
 		current->last_eat = MAP_PLAYER_MAP;
-	    enter_exit(op, current);
+		enter_exit(op, current);
 	}
 	else
-	    enter_exit(op, NULL);
+		enter_exit(op, NULL);
 }
 
- typedef struct _new_char_template {
+typedef struct _new_char_template
+{
 	char *name;
 	int max_p;
 	int min_Str;
@@ -632,7 +633,8 @@ static void set_first_map(object *op)
 	int max_Cha;
 }_new_char_template;
 
-static _new_char_template new_char_template[] = {
+static _new_char_template new_char_template[] =
+{
 	{"human_male", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},
 	{"human_female", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},
 	{"half_elf_male", 5, 12, 14, 13, 15, 11, 13, 12, 14, 11, 13, 13, 15, 12, 14},
@@ -657,7 +659,7 @@ void command_new_char(char *params, int len, player *pl)
 	archetype *p_arch = NULL;
 	const char *name_tmp = NULL;
 	object *op = pl->ob;
-    int x = pl->ob->x, y = pl->ob->y;
+	int x = pl->ob->x, y = pl->ob->y;
 	int stats[7], i, v;
 	char name[HUGE_BUF] = "";
 	active_DMs *tmp_dm_list;
@@ -710,13 +712,13 @@ void command_new_char(char *params, int len, player *pl)
 
 	/* all boni put on the player? */
 	if (v != (stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6])
-		|| stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str
-		|| stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex
-		|| stats[2] < new_char_template[i].min_Con || stats[2] > new_char_template[i].max_Con
-		|| stats[3] < new_char_template[i].min_Int || stats[3] > new_char_template[i].max_Int
-		|| stats[4] < new_char_template[i].min_Wis || stats[4] > new_char_template[i].max_Wis
-		|| stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow
-		|| stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
+			|| stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str
+			|| stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex
+			|| stats[2] < new_char_template[i].min_Con || stats[2] > new_char_template[i].max_Con
+			|| stats[3] < new_char_template[i].min_Int || stats[3] > new_char_template[i].max_Int
+			|| stats[4] < new_char_template[i].min_Wis || stats[4] > new_char_template[i].max_Wis
+			|| stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow
+			|| stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
 	{
 		LOG(llevDebug, "SHACK:: %s: tried to hack NewChar! (%d - %d)\n", query_name(pl->ob, NULL), i, stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]);
 		/* killl socket */
@@ -728,15 +730,15 @@ void command_new_char(char *params, int len, player *pl)
 
 	/* need to copy the name to new arch */
 	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
-    copy_object(&p_arch->clone, op);
-    op->custom_attrset = pl;
-    pl->ob = op;
-    CONTR(op)->last_value = -1;
-    FREE_AND_CLEAR_HASH2(op->name);
-    op->name = name_tmp;
-    op->x = x;
-    op->y = y;
-	 /* So player faces south */
+	copy_object(&p_arch->clone, op);
+	op->custom_attrset = pl;
+	pl->ob = op;
+	CONTR(op)->last_value = -1;
+	FREE_AND_CLEAR_HASH2(op->name);
+	op->name = name_tmp;
+	op->x = x;
+	op->y = y;
+	/* So player faces south */
 	SET_ANIMATION(op, 4 * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 
 	pl->orig_stats.Str = stats[0];
@@ -791,7 +793,7 @@ void command_new_char(char *params, int len, player *pl)
 	/* THATS our first fix_player() when we create a new char
 	 * add this time, hp and sp will be set */
 	fix_player(op);
-    esrv_update_item(UPD_FACE, op, op);
+	esrv_update_item(UPD_FACE, op, op);
 	esrv_send_inventory(op, op);
 
 	/* NOW we set our new char in the right map - we have a 100% right init player */
@@ -840,25 +842,25 @@ void command_face_request(char *params, int len, player *pl)
 
 void command_fire(char *params, int len, player *pl)
 {
-    int dir = 0, type, tag1, tag2;
+	int dir = 0, type, tag1, tag2;
 	object *op = pl->ob;
 
 	(void) len;
 
-    if (!params)
+	if (!params)
 		return;
 
-    CONTR(op)->fire_on = 1;
+	CONTR(op)->fire_on = 1;
 
-    sscanf(params, "%d %d %d %d", &dir, &type, &tag1, &tag2);
+	sscanf(params, "%d %d %d %d", &dir, &type, &tag1, &tag2);
 
-    if (type == FIRE_MODE_SPELL)
-    {
-        char *tmp;
-        tag2 = -1;
-        tmp = strchr(params, ' ');
-        tmp = strchr(tmp + 1, ' ');
-        tmp = strchr(tmp + 1, ' ');
+	if (type == FIRE_MODE_SPELL)
+	{
+		char *tmp;
+		tag2 = -1;
+		tmp = strchr(params, ' ');
+		tmp = strchr(tmp + 1, ' ');
+		tmp = strchr(tmp + 1, ' ');
 
 		if (strlen(tmp + 1) > 60)
 		{
@@ -866,41 +868,41 @@ void command_fire(char *params, int len, player *pl)
 			return;
 		}
 
-        strncpy(CONTR(op)->firemode_name, tmp + 1, 60);
+		strncpy(CONTR(op)->firemode_name, tmp + 1, 60);
 
 		if (!fire_cast_spell(op, CONTR(op)->firemode_name))
 		{
-		    CONTR(op)->fire_on = 0;
+			CONTR(op)->fire_on = 0;
 			/* marks no client fire action */
-		    CONTR(op)->firemode_type = -1;
+			CONTR(op)->firemode_type = -1;
 			return;
 		}
-    }
-    else if (type == FIRE_MODE_SKILL)
-    {
-        char *tmp;
-        tag2 = -1;
-        tmp = strchr(params, ' ');
-        tmp = strchr(tmp + 1, ' ');
-        tmp = strchr(tmp + 1, ' ');
+	}
+	else if (type == FIRE_MODE_SKILL)
+	{
+		char *tmp;
+		tag2 = -1;
+		tmp = strchr(params, ' ');
+		tmp = strchr(tmp + 1, ' ');
+		tmp = strchr(tmp + 1, ' ');
 
 		if (strlen(tmp + 1) > 60)
 		{
 			LOG(llevDebug, "DEBUG: Player %s has sent too long fire command: %s\n", query_name(pl->ob, NULL), tmp + 1);
 			return;
 		}
-        strncpy(CONTR(op)->firemode_name,tmp + 1, 60);
-    }
+		strncpy(CONTR(op)->firemode_name,tmp + 1, 60);
+	}
 
 	/* only here will this value be set */
-    CONTR(op)->firemode_type = type;
-    CONTR(op)->firemode_tag1 = tag1;
-    CONTR(op)->firemode_tag2 = tag2;
+	CONTR(op)->firemode_type = type;
+	CONTR(op)->firemode_tag1 = tag1;
+	CONTR(op)->firemode_tag2 = tag2;
 
-    move_player(op, dir);
-    CONTR(op)->fire_on = 0;
+	move_player(op, dir);
+	CONTR(op)->fire_on = 0;
 	/* marks no client fire action */
-    CONTR(op)->firemode_type = -1;
+	CONTR(op)->firemode_type = -1;
 }
 
 /**
@@ -910,12 +912,12 @@ void command_fire(char *params, int len, player *pl)
  * @param map Map structure */
 void send_mapstats_cmd(object *op, struct mapdef *map)
 {
-    char tmp[HUGE_BUF];
+	char tmp[HUGE_BUF];
 
 	/* player: remember this is the map the client knows */
-    CONTR(op)->last_update = map;
-    sprintf(tmp, "X%d %d %d %d %s %s", map->width, map->height, op->x, op->y, map->bg_music ? map->bg_music : "no_music", map->name);
-    Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
+	CONTR(op)->last_update = map;
+	sprintf(tmp, "X%d %d %d %d %s %s", map->width, map->height, op->x, op->y, map->bg_music ? map->bg_music : "no_music", map->name);
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
 }
 
 /**
@@ -927,33 +929,33 @@ void send_mapstats_cmd(object *op, struct mapdef *map)
 void send_spelllist_cmd(object *op, char *spellname, int mode)
 {
 	/* we should careful set a big enough buffer here */
-    char tmp[HUGE_BUF * 4];
+	char tmp[HUGE_BUF * 4];
 
-    snprintf(tmp, sizeof(tmp), "X%d ", mode);
+	snprintf(tmp, sizeof(tmp), "X%d ", mode);
 
 	/* Send single name */
-    if (spellname)
-    {
-        strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
-        strncat(tmp, spellname, sizeof(tmp) - strlen(tmp) - 1);
-    }
-    else
-    {
-        int i, spnum;
+	if (spellname)
+	{
+		strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
+		strncat(tmp, spellname, sizeof(tmp) - strlen(tmp) - 1);
+	}
+	else
+	{
+		int i, spnum;
 
-        for (i = 0; i < (QUERY_FLAG(op, FLAG_WIZ) ? NROFREALSPELLS : CONTR(op)->nrofknownspells); i++)
-        {
-            if (QUERY_FLAG(op, FLAG_WIZ))
-                spnum = i;
-            else
-                spnum = CONTR(op)->known_spells[i];
+		for (i = 0; i < (QUERY_FLAG(op, FLAG_WIZ) ? NROFREALSPELLS : CONTR(op)->nrofknownspells); i++)
+		{
+			if (QUERY_FLAG(op, FLAG_WIZ))
+				spnum = i;
+			else
+				spnum = CONTR(op)->known_spells[i];
 
-            strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
-            strncat(tmp, spells[spnum].name, sizeof(tmp) - strlen(tmp) - 1);
-        }
-    }
+			strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
+			strncat(tmp, spells[spnum].name, sizeof(tmp) - strlen(tmp) - 1);
+		}
+	}
 
-    Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, tmp, strlen(tmp));
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, tmp, strlen(tmp));
 }
 
 /**
@@ -963,44 +965,44 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
  * @param mode Mode */
 void send_skilllist_cmd(object *op, object *skillp, int mode)
 {
-    object *tmp2;
-    char buf[256];
+	object *tmp2;
+	char buf[256];
 	/* we should careful set a big enough buffer here */
-    char tmp[HUGE_BUF * 4];
+	char tmp[HUGE_BUF * 4];
 
-    if (skillp)
-    {
+	if (skillp)
+	{
 		/* Normal skills */
-        if (skillp->last_eat == 1)
-            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|%d", mode, skillp->name, skillp->level, skillp->stats.exp);
+		if (skillp->last_eat == 1)
+			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|%d", mode, skillp->name, skillp->level, skillp->stats.exp);
 		/* "buy level" skills */
-        else if (skillp->last_eat == 2)
-            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-2", mode, skillp->name, skillp->level);
+		else if (skillp->last_eat == 2)
+			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-2", mode, skillp->name, skillp->level);
 		/* No level skills */
-        else
-            snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-1", mode, skillp->name, skillp->level);
-    }
-    else
-    {
-        snprintf(tmp, sizeof(tmp), "X%d ", mode);
+		else
+			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-1", mode, skillp->name, skillp->level);
+	}
+	else
+	{
+		snprintf(tmp, sizeof(tmp), "X%d ", mode);
 
-        for (tmp2 = op->inv; tmp2; tmp2 = tmp2->below)
-        {
-            if (tmp2->type == SKILL && IS_SYS_INVISIBLE(tmp2))
-            {
-                if (tmp2->last_eat == 1)
-                    snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
-                else if (tmp2->last_eat == 2)
-                    snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
-                else
-                    snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
+		for (tmp2 = op->inv; tmp2; tmp2 = tmp2->below)
+		{
+			if (tmp2->type == SKILL && IS_SYS_INVISIBLE(tmp2))
+			{
+				if (tmp2->last_eat == 1)
+					snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
+				else if (tmp2->last_eat == 2)
+					snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
+				else
+					snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
 
-                strncat(tmp, buf, sizeof(tmp) - strlen(tmp) - 1);
-            }
-        }
-    }
+				strncat(tmp, buf, sizeof(tmp) - strlen(tmp) - 1);
+			}
+		}
+	}
 
-    Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
 }
 
 /**
@@ -1010,10 +1012,10 @@ void send_skilllist_cmd(object *op, object *skillp, int mode)
 void send_ready_skill(object *op, char *skillname)
 {
 	/* we should careful set a big enough buffer here */
-    char tmp[256];
+	char tmp[256];
 
-    snprintf(tmp, sizeof(tmp), "X%s", skillname);
-    Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
+	snprintf(tmp, sizeof(tmp), "X%s", skillname);
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
 }
 
 /**
@@ -1023,14 +1025,14 @@ void send_ready_skill(object *op, char *skillname)
 void send_golem_control(object *golem, int mode)
 {
 	/* we should careful set a big enough buffer here */
-    char tmp[256];
+	char tmp[256];
 
 	if (mode == GOLEM_CTR_RELEASE)
 		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, 0, golem->name);
 	else
 		snprintf(tmp, sizeof(tmp), "X%d %d %s", mode, golem->face->number, golem->name);
 
-    Write_String_To_Socket(&CONTR(golem->owner)->socket, BINARY_CMD_GOLEMCMD, tmp, strlen(tmp));
+	Write_String_To_Socket(&CONTR(golem->owner)->socket, BINARY_CMD_GOLEMCMD, tmp, strlen(tmp));
 }
 
 /**
@@ -1038,50 +1040,50 @@ void send_golem_control(object *golem, int mode)
  * @param pl The player */
 void generate_ext_title(player *pl)
 {
-    object *walk;
-    char *gender;
-    char prof[32] = "";
-    char title[32] = "";
-    char rank[32] = "";
-    char align[32] = "";
+	object *walk;
+	char *gender;
+	char prof[32] = "";
+	char title[32] = "";
+	char rank[32] = "";
+	char align[32] = "";
 
-    /* collect all information from the force objects. Just walk one time through them*/
-    for (walk = pl->ob->inv; walk != NULL; walk = walk->below)
-    {
+	/* collect all information from the force objects. Just walk one time through them*/
+	for (walk = pl->ob->inv; walk != NULL; walk = walk->below)
+	{
 		if (!walk->name || !walk->arch->name)
 		{
 			LOG(llevDebug, "BUG?: object in %s doesn't have name/archname! (%s:%s)\n", pl->ob->name, walk->name ? walk->name : "<null>", walk->arch->name ? walk->arch->name : "<null>");
 			continue;
 		}
 
-        if (!strcmp(walk->name, "GUILD_FORCE") && !strcmp(walk->arch->name, "guild_force"))
-        {
-            if (walk->slaying)
-                strcpy(prof, walk->slaying);
+		if (!strcmp(walk->name, "GUILD_FORCE") && !strcmp(walk->arch->name, "guild_force"))
+		{
+			if (walk->slaying)
+				strcpy(prof, walk->slaying);
 
-            if (walk->title)
-            {
-                strcpy(title, " the ");
-                strcat(title, walk->title);
-            }
-        }
-        else if (!strcmp(walk->name, "RANK_FORCE") && !strcmp(walk->arch->name, "rank_force"))
-        {
-            if (walk->title)
-            {
-                strcpy(rank, walk->title);
-                strcat(rank, " ");
-            }
-        }
-        else if (!strcmp(walk->name, "ALIGNMENT_FORCE") && !strcmp(walk->arch->name, "alignment_force"))
-        {
-            if (walk->title)
-                strcpy(align, walk->title);
-        }
-    }
+			if (walk->title)
+			{
+				strcpy(title, " the ");
+				strcat(title, walk->title);
+			}
+		}
+		else if (!strcmp(walk->name, "RANK_FORCE") && !strcmp(walk->arch->name, "rank_force"))
+		{
+			if (walk->title)
+			{
+				strcpy(rank, walk->title);
+				strcat(rank, " ");
+			}
+		}
+		else if (!strcmp(walk->name, "ALIGNMENT_FORCE") && !strcmp(walk->arch->name, "alignment_force"))
+		{
+			if (walk->title)
+				strcpy(align, walk->title);
+		}
+	}
 
 	if (QUERY_FLAG(pl->ob, FLAG_IS_MALE))
- 		gender = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
+		gender = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
 	else if (QUERY_FLAG(pl->ob, FLAG_IS_FEMALE))
 		gender = "female";
 	else
@@ -1094,5 +1096,5 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [WIZ]");
 
 	/*strcat(pl->quick_name, title);*/
-    sprintf(pl->ext_title, "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender);
+	sprintf(pl->ext_title, "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender);
 }

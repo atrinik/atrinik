@@ -32,7 +32,7 @@
 #include <newclient.h>
 #include <sproto.h>
 #ifdef NO_ERRNO_H
-    extern int errno;
+extern int errno;
 #else
 #   include <errno.h>
 #endif
@@ -63,14 +63,14 @@ void SockList_AddString(SockList *sl, char *data)
  * at least 2 bytes long. */
 int SockList_ReadPacket(int fd, SockList *sl, int len)
 {
-    int stat, toread;
+	int stat, toread;
 
-    /* Sanity check - shouldn't happen */
-    if (sl->len < 0)
+	/* Sanity check - shouldn't happen */
+	if (sl->len < 0)
 		LOG(llevDebug, "FATAL SOCKET ERROR: sl->len < 0 (%d)\n", sl->len);
 
-    /* We already have a partial packet */
-    if (sl->len < 2)
+	/* We already have a partial packet */
+	if (sl->len < 2)
 	{
 #ifdef WIN32
 		stat = recv(fd, sl->buf + sl->len, 2 - sl->len, 0);
@@ -78,11 +78,12 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 		do
 		{
 			stat = read(fd, sl->buf + sl->len, 2 - sl->len);
-		} while ((stat == -1) && (errno == EINTR));
+		}
+		while ((stat == -1) && (errno == EINTR));
 #endif
 		if (stat < 0)
 		{
-	    	/* EAGAIN is set in non blocking mode when no data available. */
+			/* EAGAIN is set in non blocking mode when no data available. */
 #ifdef WIN32
 			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
 			{
@@ -94,7 +95,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 				}
 
 				return -1;
-	    	}
+			}
 #else
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 			{
@@ -103,7 +104,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 			}
 #endif
 			/* Error */
-	    	return 0;
+			return 0;
 		}
 
 		if (stat == 0)
@@ -118,28 +119,29 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 		/* Still don't have a full packet */
 		if (stat < 2)
 			return 0;
-    }
+	}
 
-    /* Figure out how much more data we need to read.  Add 2 from the
-     * end of this - size header information is not included. */
-    toread = 2 + (sl->buf[0] << 8) + sl->buf[1] - sl->len;
-    if ((toread + sl->len) >= len)
+	/* Figure out how much more data we need to read.  Add 2 from the
+	 * end of this - size header information is not included. */
+	toread = 2 + (sl->buf[0] << 8) + sl->buf[1] - sl->len;
+	if ((toread + sl->len) >= len)
 	{
 		LOG(llevDebug, "SockList_ReadPacket: Want to read more bytes than will fit in buffer (%d>=%d).\n", toread + sl->len, len);
 
 		/* return error so the socket is closed */
 		return -1;
-    }
+	}
 
-    do
+	do
 	{
 #ifdef WIN32
 		stat = recv(fd, sl->buf + sl->len, toread, 0);
 #else
 		do
 		{
-	    	stat = read(fd, sl->buf + sl->len, toread);
-		} while ((stat < 0) && (errno == EINTR));
+			stat = read(fd, sl->buf + sl->len, toread);
+		}
+		while ((stat < 0) && (errno == EINTR));
 #endif
 		if (stat < 0)
 		{
@@ -154,7 +156,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 				}
 
 				return -1;
-	    	}
+			}
 #else
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 			{
@@ -163,7 +165,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 			}
 #endif
 			/* Error */
-	    	return 0;
+			return 0;
 		}
 
 		if (stat == 0)
@@ -181,12 +183,13 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 
 		if (toread < 0)
 		{
-	    	LOG(llevDebug, "SockList_ReadPacket: Read more bytes than desired.\n");
-	    	return 1;
+			LOG(llevDebug, "SockList_ReadPacket: Read more bytes than desired.\n");
+			return 1;
 		}
-    } while (toread > 0);
+	}
+	while (toread > 0);
 
-    return 0;
+	return 0;
 }
 
 /* Start of write related routines. */
@@ -196,38 +199,38 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
  * data, and len is the number of bytes to add. */
 static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
 {
-    int avail, end;
+	int avail, end;
 
-    if ((len + ns->outputbuffer.len) > SOCKETBUFSIZE)
+	if ((len + ns->outputbuffer.len) > SOCKETBUFSIZE)
 	{
 		LOG(llevDebug, "Socket on fd %d has overrun internal buffer - marking as dead\n", ns->fd);
 		ns->status = Ns_Dead;
 		return;
-    }
+	}
 
-    /* data + end is where we start putting the new data.  The last byte
-     * currently in use is actually data + end -1 */
+	/* data + end is where we start putting the new data.  The last byte
+	 * currently in use is actually data + end -1 */
 
-    end = ns->outputbuffer.start + ns->outputbuffer.len;
-    /* The buffer is already in a wrapped state, so adjust end */
-    if (end >= SOCKETBUFSIZE)
+	end = ns->outputbuffer.start + ns->outputbuffer.len;
+	/* The buffer is already in a wrapped state, so adjust end */
+	if (end >= SOCKETBUFSIZE)
 		end -= SOCKETBUFSIZE;
 
-    avail = SOCKETBUFSIZE - end;
+	avail = SOCKETBUFSIZE - end;
 
-    /* We can all fit it behind the current data without wrapping */
-    if (avail >=len )
+	/* We can all fit it behind the current data without wrapping */
+	if (avail >=len )
 	{
 		memcpy(ns->outputbuffer.data + end, buf, len);
-    }
-    else
+	}
+	else
 	{
 		memcpy(ns->outputbuffer.data + end, buf, avail);
 		memcpy(ns->outputbuffer.data, buf+avail, len - avail);
-    }
-    ns->outputbuffer.len += len;
+	}
+	ns->outputbuffer.len += len;
 #if 0
-    LOG(llevDebug, "Added %d to output buffer, total length now %d, start=%d\n", len, ns->outputbuffer.len, ns->outputbuffer.start);
+	LOG(llevDebug, "Added %d to output buffer, total length now %d, start=%d\n", len, ns->outputbuffer.len, ns->outputbuffer.start);
 #endif
 }
 
@@ -235,12 +238,12 @@ static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
  * is called to write it out. */
 void write_socket_buffer(NewSocket *ns)
 {
-    int amt, max;
+	int amt, max;
 
-    if (ns->outputbuffer.len == 0)
+	if (ns->outputbuffer.len == 0)
 		return;
 
-    do
+	do
 	{
 		max = SOCKETBUFSIZE - ns->outputbuffer.start;
 		if (ns->outputbuffer.len < max)
@@ -251,8 +254,9 @@ void write_socket_buffer(NewSocket *ns)
 #else
 		do
 		{
-	    	amt = write(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max);
-		} while ((amt < 0) && (errno == EINTR));
+			amt = write(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max);
+		}
+		while ((amt < 0) && (errno == EINTR));
 #endif
 
 		/* We got an error */
@@ -270,14 +274,14 @@ void write_socket_buffer(NewSocket *ns)
 #endif
 				ns->status=Ns_Dead;
 				return;
-	    	}
+			}
 			/* EWOULDBLOCK */
-	    	else
+			else
 			{
 				/* can't write it, so store it away. */
 				ns->can_write = 0;
 				return;
-	    	}
+			}
 		}
 		ns->outputbuffer.start += amt;
 		/* wrap back to start of buffer */
@@ -288,8 +292,9 @@ void write_socket_buffer(NewSocket *ns)
 #ifdef CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
- #endif
-    } while (ns->outputbuffer.len > 0);
+#endif
+	}
+	while (ns->outputbuffer.len > 0);
 }
 
 /* This writes data to the socket. - It is very low level -
@@ -299,31 +304,32 @@ void write_socket_buffer(NewSocket *ns)
  * updates the ns structure if we get an  error. */
 void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
 {
-    int amt=0;
-    unsigned char *pos=buf;
+	int amt=0;
+	unsigned char *pos=buf;
 
-    if (ns->status == Ns_Dead || !buf)
+	if (ns->status == Ns_Dead || !buf)
 	{
 		LOG(llevDebug, "Write_To_Socket called with dead socket\n");
 		return;
-    }
+	}
 
-    if (!ns->can_write)
+	if (!ns->can_write)
 	{
 		add_to_buffer(ns, buf, len);
 		return;
-    }
+	}
 
-    /* If we manage to write more than we wanted, take it as a bonus */
-    while (len > 0)
+	/* If we manage to write more than we wanted, take it as a bonus */
+	while (len > 0)
 	{
 #ifdef WIN32
 		amt = send(ns->fd, pos, len, 0);
 #else
 		do
 		{
-	    	amt = write(ns->fd, pos, len);
-		} while ((amt < 0) && (errno == EINTR));
+			amt = write(ns->fd, pos, len);
+		}
+		while ((amt < 0) && (errno == EINTR));
 #endif
 
 		/* We got an error */
@@ -340,21 +346,21 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
 #endif
 				ns->status = Ns_Dead;
 				return;
-	    	}
+			}
 			/* EWOULDBLOCK */
-	    	else
+			else
 			{
 				/* can't write it, so store it away. */
 				add_to_buffer(ns, pos, len);
 				ns->can_write = 0;
 				return;
-	    	}
+			}
 		}
 		/* amt gets set to 0 above in blocking code, so we do this as
-	 	 * an else if to make sure we don't reprocess it. */
+		  * an else if to make sure we don't reprocess it. */
 		else if (amt == 0)
 		{
-	    	LOG(llevDebug, "Write_To_Socket: No data written out.\n");
+			LOG(llevDebug, "Write_To_Socket: No data written out.\n");
 		}
 
 		len -= amt;
@@ -362,8 +368,8 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
 #ifdef CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
- #endif
-    }
+#endif
+	}
 }
 
 /* Send With Handling - calls Write_To_Socket to send data to the client.
@@ -371,17 +377,17 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
  *, and we prepend the length information. */
 void Send_With_Handling(NewSocket *ns,SockList  *msg)
 {
-    unsigned char sbuf[4];
+	unsigned char sbuf[4];
 
-    if (ns->status == Ns_Dead || !msg)
+	if (ns->status == Ns_Dead || !msg)
 		return;
 
 	/* Almost certainly we've overflowed a buffer, so quite now to make
 	 * it easier to debug. */
-    if (msg->len >= MAXSOCKBUF)
+	if (msg->len >= MAXSOCKBUF)
 		LOG(llevError, "Trying to send a buffer beyond properly size, len =%d\n", msg->len);
 
-    if(msg->len > 32*1024-1) /* if > 32kb use 3 bytes header and set the high bit to show it client */
+	if (msg->len > 32*1024-1) /* if > 32kb use 3 bytes header and set the high bit to show it client */
 	{
 		sbuf[0] = ((uint32) (msg->len) >> 16) & 0xFF;
 		sbuf[0] |= 0x80; /* high bit marker for the client */
@@ -395,19 +401,19 @@ void Send_With_Handling(NewSocket *ns,SockList  *msg)
 		sbuf[1] = ((uint32) (msg->len)) & 0xFF;
 		Write_To_Socket(ns, sbuf, 2);
 	}
-    Write_To_Socket(ns, msg->buf, msg->len);
+	Write_To_Socket(ns, msg->buf, msg->len);
 }
 
 /* Takes a string of data, and writes it out to the socket. A very handy
  * shortcut function. */
 void Write_String_To_Socket(NewSocket *ns, char cmd, char *buf, int len)
 {
-    SockList sl;
+	SockList sl;
 
-    sl.len = len;
-    sl.buf = (uint8*)buf;
-    *((char*)buf) = cmd;
-    Send_With_Handling(ns, &sl);
+	sl.len = len;
+	sl.buf = (uint8*)buf;
+	*((char*)buf) = cmd;
+	Send_With_Handling(ns, &sl);
 }
 
 
@@ -421,20 +427,20 @@ CS_Stats cst_tot, cst_lst;
 /* Writes out the gathered stats.  We clear cst_lst. */
 void write_cs_stats()
 {
-    time_t now = time(NULL);
+	time_t now = time(NULL);
 
-    /* If no connections recently, don't both to log anything */
-    if (cst_lst.ibytes == 0 && cst_lst.obytes == 0)
+	/* If no connections recently, don't both to log anything */
+	if (cst_lst.ibytes == 0 && cst_lst.obytes == 0)
 		return;
 
-    /* CSSTAT is put in so scripts can easily find the line */
-    LOG(llevInfo, "CSSTAT: %.16s tot in:%d out:%d maxc:%d time:%d last block-> in:%d out:%d maxc:%d time:%d\n", ctime(&now), cst_tot.ibytes, cst_tot.obytes, cst_tot.max_conn, now - cst_tot.time_start, cst_lst.ibytes, cst_lst.obytes, cst_lst.max_conn, now - cst_lst.time_start);
+	/* CSSTAT is put in so scripts can easily find the line */
+	LOG(llevInfo, "CSSTAT: %.16s tot in:%d out:%d maxc:%d time:%d last block-> in:%d out:%d maxc:%d time:%d\n", ctime(&now), cst_tot.ibytes, cst_tot.obytes, cst_tot.max_conn, now - cst_tot.time_start, cst_lst.ibytes, cst_lst.obytes, cst_lst.max_conn, now - cst_lst.time_start);
 
 	LOG(llevInfo, "SYSINFO: objs: %d used, %d free, arch-srh:%d (%d cmp)\n", mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free, arch_search, arch_cmp);
 
-    cst_lst.ibytes = 0;
-    cst_lst.obytes = 0;
-    cst_lst.max_conn = socket_info.nconns;
-    cst_lst.time_start = now;
+	cst_lst.ibytes = 0;
+	cst_lst.obytes = 0;
+	cst_lst.max_conn = socket_info.nconns;
+	cst_lst.time_start = now;
 }
 #endif

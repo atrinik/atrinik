@@ -33,7 +33,8 @@
 extern int txtwin_start_size;
 
 /* windows */
-enum {
+enum
+{
 	TW_MIX,
 	TW_MSG,
 	TW_CHAT,
@@ -41,14 +42,16 @@ enum {
 };
 
 /* Events */
-enum {
+enum
+{
 	TW_CHECK_BUT_DOWN,
 	TW_CHECK_BUT_UP,
 	TW_CHECK_MOVE
 };
 
 /* Highlights */
-enum {
+enum
+{
 	TW_HL_NONE,
 	TW_HL_UP,
 	TW_ABOVE,
@@ -58,14 +61,16 @@ enum {
 };
 
 /* Flags */
-enum {
+enum
+{
 	TW_ACTWIN = 0x0f,
 	TW_SCROLL = 0x10,
 	TW_RESIZE = 0x20
 };
 
 /** Text buf structure */
-typedef struct _text_buf {
+typedef struct _text_buf
+{
 	/** Text */
 	char buf[128];
 
@@ -83,7 +88,8 @@ typedef struct _text_buf {
 }_text_buf;
 
 /** Text win structure */
-typedef struct _textwin_set {
+typedef struct _textwin_set
+{
 	/** startpos of the window */
 	int x, y;
 

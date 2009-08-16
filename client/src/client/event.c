@@ -107,22 +107,26 @@ int MouseEvent = 0; /* do not set to IDLE, EVER */
 int itemExamined = 0;
 
 /* cmds for fire/move/run - used from move_keys()*/
-static char *directions[10] = {
+static char *directions[10] =
+{
 	"null", 	"/sw", 	"/s", 	"/se", 	"/w",
 	"/stay", 	"/e", 	"/nw", 	"/n", 	"/ne"
 };
 
-static char *directions_name[10] = {
+static char *directions_name[10] =
+{
 	"null",	"southwest", 	"south", 		"southeast",	"west",
 	"stay", "east",			"northwest", 	"north", 		"northeast"
 };
 
-static char *directionsrun[10] = {
+static char *directionsrun[10] =
+{
 	"/run 0",	"/run 6",	"/run 5",	"/run 4",	"/run 7",
 	"/run 9", 	"/run 3", 	"/run 8", 	"/run 1",	"/run 2"
 };
 
-static char *directionsfire[10] = {
+static char *directionsfire[10] =
+{
 	"fire 0",	"fire 6",	"fire 5",	"fire 4",	"fire 7",
 	"fire 0",	"fire 3", 	"fire 8", 	"fire 1",	"fire 2"
 };
@@ -167,7 +171,7 @@ void reset_keys()
 int mouseInPlayfield(int x, int y)
 {
 	x = x - options.mapstart_x - 6;
-    y = y - options.mapstart_y - 55;
+	y = y - options.mapstart_y - 55;
 
 	if (x < 408)
 	{
@@ -181,7 +185,7 @@ int mouseInPlayfield(int x, int y)
 	}
 	else
 	{
-  		x -= 408;
+		x -= 408;
 
 		/* upper right */
 		if ((y <  200) && (y + y > x))
@@ -262,7 +266,7 @@ static void mouse_moveHero()
 
 	/* Don't move when clickign inside widgets. */
 	if (get_widget_owner(x, y) != -1)
-        return;
+		return;
 
 	/* Still dragging an item */
 	if (draggingInvItem(DRAG_GET_STATUS))
@@ -381,17 +385,17 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEBUTTONUP:
 				/* Get the mouse state and set an event (event removed at end of main loop) */
-				if(event.button.button == SDL_BUTTON_LEFT)
+				if (event.button.button == SDL_BUTTON_LEFT)
 					MouseEvent = LB_UP;
-				else if(event.button.button == SDL_BUTTON_MIDDLE)
+				else if (event.button.button == SDL_BUTTON_MIDDLE)
 					MouseEvent = MB_UP;
-				else if(event.button.button == SDL_BUTTON_RIGHT)
+				else if (event.button.button == SDL_BUTTON_RIGHT)
 					MouseEvent = RB_UP;
 				else
 					MouseEvent = IDLE;
 
 				/* No button is down */
-            	MouseState = IDLE;
+				MouseState = IDLE;
 
 				cursor_type = 0;
 
@@ -417,9 +421,9 @@ int Event_PollInputDevice()
 				}
 
 				if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
-                	break;
+					break;
 
-            	/* Only drop to ground has to be handled, the rest do the widget handlers */
+				/* Only drop to ground has to be handled, the rest do the widget handlers */
 				if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
 				{
 					/* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
@@ -452,11 +456,11 @@ int Event_PollInputDevice()
 					break;
 
 				x_custom_cursor = x;
-            	y_custom_cursor = y;
+				y_custom_cursor = y;
 
 				/* We have to break now when menu is active - menu is higher priority than any widget! */
-            	if (cpl.menustatus != MENU_NO)
-                	break;
+				if (cpl.menustatus != MENU_NO)
+					break;
 
 				if (widget_event_mousemv(x,y, &event))
 				{
@@ -614,7 +618,7 @@ int Event_PollInputDevice()
 				}
 
 				/* Mouse in play field */
-    			if (mouseInPlayfield(event.motion.x, event.motion.y))
+				if (mouseInPlayfield(event.motion.x, event.motion.y))
 				{
 					/* Targetting */
 					if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)))
@@ -631,7 +635,7 @@ int Event_PollInputDevice()
 					break;
 				}
 
-	    		break;
+				break;
 
 			case SDL_KEYUP:
 				/* end of key-repeat */
@@ -661,15 +665,15 @@ int Event_PollInputDevice()
 					key_string_event(&event.key);
 				}
 				else if (!InputStringEndFlag)
-        		{
+				{
 					if (GameStatus <= GAME_STATUS_WAITLOOP)
 						done = key_meta_menu(&event.key);
-          			else if (GameStatus == GAME_STATUS_PLAY || GAME_STATUS_NEW_CHAR)
+					else if (GameStatus == GAME_STATUS_PLAY || GAME_STATUS_NEW_CHAR)
 						done = key_event(&event.key);
-          			else
+					else
 						key_connection_event(&event.key);
 				}
-        		break;
+				break;
 
 			case SDL_QUIT:
 				done = 1;
@@ -774,8 +778,8 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 		}
 
 		/* Sanity checks for going out of bounds */
-        if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
-            dialog_yoff = 0;
+		if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+			dialog_yoff = 0;
 		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
 			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
 
@@ -796,7 +800,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 	if (key->type == SDL_KEYDOWN)
 	{
-        switch (key->keysym.sym)
+		switch (key->keysym.sym)
 		{
 			case SDLK_ESCAPE:
 				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -819,7 +823,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 				}
 				break;
 
-			/* Erases the previous character or word if CTRL is pressed */
+				/* Erases the previous character or word if CTRL is pressed */
 			case SDLK_BACKSPACE:
 				if (InputCount && CurrentCursorPos)
 				{
@@ -853,7 +857,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 				}
 				break;
 
-			/* Shifts a character or a word if CTRL is pressed */
+				/* Shifts a character or a word if CTRL is pressed */
 			case SDLK_LEFT:
 				if (key->keysym.mod & KMOD_CTRL)
 				{
@@ -875,7 +879,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 				break;
 
-			/* Shifts a character or a word if CTRL is pressed */
+				/* Shifts a character or a word if CTRL is pressed */
 			case SDLK_RIGHT:
 				if (key->keysym.mod & KMOD_CTRL)
 				{
@@ -897,7 +901,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 				break;
 
-			/* If we are in CONSOLE mode, let player scroll back the lines in history */
+				/* If we are in CONSOLE mode, let player scroll back the lines in history */
 			case SDLK_UP:
 				if (cpl.input_mode == INPUT_MODE_CONSOLE && HistoryPos < MAX_HISTORY_LINES && InputHistory[HistoryPos + 1][0])
 				{
@@ -913,7 +917,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 				break;
 
-			/* If we are in CONSOLE mode, let player scroll forward the lines in history */
+				/* If we are in CONSOLE mode, let player scroll forward the lines in history */
 			case SDLK_DOWN:
 				if (cpl.input_mode == INPUT_MODE_CONSOLE && HistoryPos > 0)
 				{
@@ -1037,7 +1041,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 								break;
 
 							default:
-							    c = 0;
+								c = 0;
 								break;
 						}
 
@@ -1083,7 +1087,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 /* We have a key event */
 int key_event(SDL_KeyboardEvent *key)
 {
-    if (GameStatus != GAME_STATUS_PLAY && GameStatus != GAME_STATUS_NEW_CHAR)
+	if (GameStatus != GAME_STATUS_PLAY && GameStatus != GAME_STATUS_NEW_CHAR)
 		return 0;
 
 	if (key->type == SDL_KEYUP)
@@ -1140,7 +1144,7 @@ int key_event(SDL_KeyboardEvent *key)
 				if (keybind_status == KEYBIND_STATUS_EDITKEY)
 				{
 					if (key->keysym.sym != SDLK_ESCAPE)
-     				{
+					{
 						sound_play_effect(SOUND_SCROLL, 0, 100);
 						strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
 						bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
@@ -1162,7 +1166,7 @@ int key_event(SDL_KeyboardEvent *key)
 			{
 				keys[key->keysym.sym].pressed = 1;
 				keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-     			check_keys(key->keysym.sym);
+				check_keys(key->keysym.sym);
 			}
 
 			switch ((int)key->keysym.sym)
@@ -1218,9 +1222,9 @@ int key_event(SDL_KeyboardEvent *key)
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					SetPriorityWidget(MAIN_INV_ID);
-                	if (!options.playerdoll)
-                    	SetPriorityWidget(PDOLL_ID);
-                	cpl.inventory_win = IWIN_INV;
+					if (!options.playerdoll)
+						SetPriorityWidget(PDOLL_ID);
+					cpl.inventory_win = IWIN_INV;
 					break;
 
 				case SDLK_RALT:
@@ -1243,10 +1247,10 @@ int key_event(SDL_KeyboardEvent *key)
 					else
 						esc_menu_flag = 0;
 
-		        	sound_play_effect(SOUND_SCROLL, 0, 100);
+					sound_play_effect(SOUND_SCROLL, 0, 100);
 					break;
 
-		   		default:
+				default:
 					if (esc_menu_flag == 1)
 					{
 						reset_keys();
@@ -1275,7 +1279,7 @@ int key_event(SDL_KeyboardEvent *key)
 									GameStatus = GAME_STATUS_INIT;
 								}
 
-				        		sound_play_effect(SOUND_SCROLL, 0, 100);
+								sound_play_effect(SOUND_SCROLL, 0, 100);
 								esc_menu_flag = 0;
 
 								break;
@@ -1309,57 +1313,57 @@ int key_event(SDL_KeyboardEvent *key)
 /* Here we look in the user defined keymap and try to get same useful macros */
 int check_menu_macros(char *text)
 {
-    if (!strcmp("?M_SPELL_LIST", text))
-    {
-        if (cpl.menustatus == MENU_KEYBIND)
-            save_keybind_file(KEYBIND_FILE);
-
-        map_udate_flag = 2;
-
-        if (cpl.menustatus != MENU_SPELL)
-            cpl.menustatus = MENU_SPELL;
-        else
-            cpl.menustatus = MENU_NO;
-
-        sound_play_effect(SOUND_SCROLL, 0, 100);
-        reset_keys();
-        return 1;
-    }
-    else if (!strcmp("?M_SKILL_LIST", text))
-    {
-        if (cpl.menustatus == MENU_KEYBIND)
-            save_keybind_file(KEYBIND_FILE);
+	if (!strcmp("?M_SPELL_LIST", text))
+	{
+		if (cpl.menustatus == MENU_KEYBIND)
+			save_keybind_file(KEYBIND_FILE);
 
 		map_udate_flag = 2;
 
-        if (cpl.menustatus != MENU_SKILL)
-            cpl.menustatus = MENU_SKILL;
-        else
-            cpl.menustatus = MENU_NO;
+		if (cpl.menustatus != MENU_SPELL)
+			cpl.menustatus = MENU_SPELL;
+		else
+			cpl.menustatus = MENU_NO;
 
-        sound_play_effect(SOUND_SCROLL, 0, 100);
-        reset_keys();
-        return 1;
-    }
-    else if (!strcmp("?M_KEYBIND", text))
-    {
-        map_udate_flag = 2;
+		sound_play_effect(SOUND_SCROLL, 0, 100);
+		reset_keys();
+		return 1;
+	}
+	else if (!strcmp("?M_SKILL_LIST", text))
+	{
+		if (cpl.menustatus == MENU_KEYBIND)
+			save_keybind_file(KEYBIND_FILE);
 
-        if (cpl.menustatus != MENU_KEYBIND)
-        {
-            keybind_status = KEYBIND_STATUS_NO;
-            cpl.menustatus = MENU_KEYBIND;
-        }
-        else
-        {
-            save_keybind_file(KEYBIND_FILE);
-            cpl.menustatus = MENU_NO;
-        }
+		map_udate_flag = 2;
 
-        sound_play_effect(SOUND_SCROLL, 0, 100);
-        reset_keys();
-        return 1;
-    }
+		if (cpl.menustatus != MENU_SKILL)
+			cpl.menustatus = MENU_SKILL;
+		else
+			cpl.menustatus = MENU_NO;
+
+		sound_play_effect(SOUND_SCROLL, 0, 100);
+		reset_keys();
+		return 1;
+	}
+	else if (!strcmp("?M_KEYBIND", text))
+	{
+		map_udate_flag = 2;
+
+		if (cpl.menustatus != MENU_KEYBIND)
+		{
+			keybind_status = KEYBIND_STATUS_NO;
+			cpl.menustatus = MENU_KEYBIND;
+		}
+		else
+		{
+			save_keybind_file(KEYBIND_FILE);
+			cpl.menustatus = MENU_NO;
+		}
+
+		sound_play_effect(SOUND_SCROLL, 0, 100);
+		reset_keys();
+		return 1;
+	}
 
 	return 0;
 }
@@ -1455,16 +1459,16 @@ int process_macro_keys(int id, int value)
 
 	switch (id)
 	{
- 		case KEYFUNC_FIREREADY:
- 			if (cpl.inventory_win == IWIN_BELOW)
- 				tag = cpl.win_below_tag;
- 			else
+		case KEYFUNC_FIREREADY:
+			if (cpl.inventory_win == IWIN_BELOW)
+				tag = cpl.win_below_tag;
+			else
 				tag = cpl.win_inv_tag;
 
 			examine_range_marks(tag);
- 			break;
+			break;
 
- 		case KEYFUNC_PAGEUP:
+		case KEYFUNC_PAGEUP:
 			txtwin[TW_CHAT].scroll++;
 			WIDGET_REDRAW(CHATWIN_ID);
 
@@ -1486,79 +1490,79 @@ int process_macro_keys(int id, int value)
 			WIDGET_REDRAW(MSGWIN_ID);
 			break;
 
-        case KEYFUNC_TARGET_ENEMY:
+		case KEYFUNC_TARGET_ENEMY:
 			send_command("/target 0", -1, SC_NORMAL);
-        	break;
+			break;
 
-        case KEYFUNC_TARGET_FRIEND:
+		case KEYFUNC_TARGET_FRIEND:
 			send_command("/target 1", -1, SC_NORMAL);
-        	break;
+			break;
 
-        case KEYFUNC_TARGET_SELF:
+		case KEYFUNC_TARGET_SELF:
 			send_command("/target 2", -1, SC_NORMAL);
-        	break;
+			break;
 
-        case KEYFUNC_COMBAT:
+		case KEYFUNC_COMBAT:
 			send_command("/combat", -1, SC_NORMAL);
-        	break;
+			break;
 
-        case KEYFUNC_SPELL:
-            map_udate_flag = 2;
-            sound_play_effect(SOUND_SCROLL, 0, 100);
-
-			if (cpl.menustatus == MENU_KEYBIND)
-				save_keybind_file(KEYBIND_FILE);
-
-            if (cpl.menustatus != MENU_SPELL)
-                cpl.menustatus = MENU_SPELL;
-            else
-                cpl.menustatus = MENU_NO;
-
-            reset_keys();
-            break;
-
-        case KEYFUNC_SKILL:
-            map_udate_flag = 2;
+		case KEYFUNC_SPELL:
+			map_udate_flag = 2;
+			sound_play_effect(SOUND_SCROLL, 0, 100);
 
 			if (cpl.menustatus == MENU_KEYBIND)
 				save_keybind_file(KEYBIND_FILE);
 
-            sound_play_effect(SOUND_SCROLL, 0, 100);
+			if (cpl.menustatus != MENU_SPELL)
+				cpl.menustatus = MENU_SPELL;
+			else
+				cpl.menustatus = MENU_NO;
 
-            if (cpl.menustatus != MENU_SKILL)
-                cpl.menustatus = MENU_SKILL;
-            else
-                cpl.menustatus = MENU_NO;
+			reset_keys();
+			break;
 
-            reset_keys();
-            break;
+		case KEYFUNC_SKILL:
+			map_udate_flag = 2;
 
-        case KEYFUNC_KEYBIND:
-            map_udate_flag = 2;
+			if (cpl.menustatus == MENU_KEYBIND)
+				save_keybind_file(KEYBIND_FILE);
 
-            if (cpl.menustatus != MENU_KEYBIND)
-            {
-                keybind_status = KEYBIND_STATUS_NO;
-                cpl.menustatus = MENU_KEYBIND;
-            }
-            else
-            {
-                save_keybind_file(KEYBIND_FILE);
-                cpl.menustatus = MENU_NO;
-            }
+			sound_play_effect(SOUND_SCROLL, 0, 100);
 
-            sound_play_effect(SOUND_SCROLL, 0, 100);
-            reset_keys();
-            break;
+			if (cpl.menustatus != MENU_SKILL)
+				cpl.menustatus = MENU_SKILL;
+			else
+				cpl.menustatus = MENU_NO;
 
-      case KEYFUNC_CONSOLE:
-            sound_play_effect(SOUND_CONSOLE, 0, 100);
-            reset_keys();
+			reset_keys();
+			break;
 
-            if (cpl.input_mode == INPUT_MODE_NO)
+		case KEYFUNC_KEYBIND:
+			map_udate_flag = 2;
+
+			if (cpl.menustatus != MENU_KEYBIND)
+			{
+				keybind_status = KEYBIND_STATUS_NO;
+				cpl.menustatus = MENU_KEYBIND;
+			}
+			else
+			{
+				save_keybind_file(KEYBIND_FILE);
+				cpl.menustatus = MENU_NO;
+			}
+
+			sound_play_effect(SOUND_SCROLL, 0, 100);
+			reset_keys();
+			break;
+
+		case KEYFUNC_CONSOLE:
+			sound_play_effect(SOUND_CONSOLE, 0, 100);
+			reset_keys();
+
+			if (cpl.input_mode == INPUT_MODE_NO)
 			{
 				cpl.input_mode = INPUT_MODE_CONSOLE;
-                open_input_mode(253);
+				open_input_mode(253);
 			}
 			else if (cpl.input_mode == INPUT_MODE_CONSOLE)
 				cpl.input_mode = INPUT_MODE_NO;
@@ -1566,7 +1570,7 @@ int process_macro_keys(int id, int value)
 			map_udate_flag = 2;
 			break;
 
-        case KEYFUNC_RUN:
+		case KEYFUNC_RUN:
 			if (!(cpl.runkey_on = cpl.runkey_on ? 0 : 1))
 				send_command("/run_stop", -1, SC_FIRERUN);
 
@@ -1584,12 +1588,12 @@ int process_macro_keys(int id, int value)
 			cursor_keys(value);
 			break;
 
-        case KEYFUNC_RANGE:
-        	if (RangeFireMode++ == FIRE_MODE_INIT - 1)
-           		RangeFireMode = 0;
+		case KEYFUNC_RANGE:
+			if (RangeFireMode++ == FIRE_MODE_INIT - 1)
+				RangeFireMode = 0;
 
-        	map_udate_flag = 2;
-        	return 0;
+			map_udate_flag = 2;
+			return 0;
 
 		case KEYFUNC_APPLY:
 			if (cpl.inventory_win == IWIN_BELOW)
@@ -1609,7 +1613,7 @@ int process_macro_keys(int id, int value)
 			if (cpl.inventory_win == IWIN_BELOW)
 				tag = cpl.win_below_tag;
 			else
-			    tag = cpl.win_inv_tag;
+				tag = cpl.win_inv_tag;
 
 			if (tag == -1 || !locate_item(tag))
 				return 0;
@@ -1623,7 +1627,7 @@ int process_macro_keys(int id, int value)
 			if (cpl.inventory_win == IWIN_BELOW)
 				tag = cpl.win_below_tag;
 			else
-			    tag = cpl.win_inv_tag;
+				tag = cpl.win_inv_tag;
 
 			if (tag == -1 || !locate_item(tag))
 				return 0;
@@ -1631,13 +1635,13 @@ int process_macro_keys(int id, int value)
 			send_mark_obj((it = locate_item(tag)));
 			snprintf(buf, sizeof(buf), "mark %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
-            return 0;
+			return 0;
 
 		case KEYFUNC_LOCK:
-            if (cpl.inventory_win == IWIN_BELOW)
+			if (cpl.inventory_win == IWIN_BELOW)
 				tag = cpl.win_below_tag;
 			else
-			    tag = cpl.win_inv_tag;
+				tag = cpl.win_inv_tag;
 
 			if (tag == -1  || !locate_item(tag))
 				return 0;
@@ -1653,7 +1657,7 @@ int process_macro_keys(int id, int value)
 				snprintf(buf, sizeof(buf), "lock %s", it->s_name);
 
 			draw_info(buf, COLOR_DGOLD);
-            return 0;
+			return 0;
 
 		case KEYFUNC_GET:
 			/* Number of items */
@@ -1665,57 +1669,57 @@ int process_macro_keys(int id, int value)
 				tag = cpl.win_below_tag;
 
 				if (cpl.container)
-        		{
+				{
 					/* container, aber nicht der gleiche */
-          			if (cpl.container->tag != cpl.win_below_ctag)
+					if (cpl.container->tag != cpl.win_below_ctag)
 						loc = cpl.container->tag;
-          			else
+					else
 						loc = cpl.ob->tag;
-        		}
-       			else
+				}
+				else
 					loc = cpl.ob->tag;
 			}
 			/* Inventory */
 			else
 			{
-                if (cpl.container)
-                {
-                    if (cpl.container->tag == cpl.win_inv_ctag)
-                    {
-                        tag = cpl.win_inv_tag;
-                        loc = cpl.ob->tag;
-                    }
+				if (cpl.container)
+				{
+					if (cpl.container->tag == cpl.win_inv_ctag)
+					{
+						tag = cpl.win_inv_tag;
+						loc = cpl.ob->tag;
+					}
 					/* From inventory to container - if the container is in inv */
-                    else
-                    {
-                        tag = -1;
+					else
+					{
+						tag = -1;
 
-                        if (cpl.ob)
-                        {
-                            for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
-                            {
-                                if (tmp->tag == cpl.container->tag)
-                                {
-                                    tag = cpl.win_inv_tag;
-                                    loc = cpl.container->tag;
-                                    break;
-                                }
-                            }
+						if (cpl.ob)
+						{
+							for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
+							{
+								if (tmp->tag == cpl.container->tag)
+								{
+									tag = cpl.win_inv_tag;
+									loc = cpl.container->tag;
+									break;
+								}
+							}
 
-                            if (tag == -1)
-                                draw_info("You already have it.", COLOR_DGOLD);
-                        }
-                    }
-                }
-                else
-                {
-                    draw_info("You have no open container to put it in.", COLOR_DGOLD);
+							if (tag == -1)
+								draw_info("You already have it.", COLOR_DGOLD);
+						}
+					}
+				}
+				else
+				{
+					draw_info("You have no open container to put it in.", COLOR_DGOLD);
 #if 0
-                    tag = cpl.win_inv_tag;
-                    loc = cpl.ob->tag;
+					tag = cpl.win_inv_tag;
+					loc = cpl.ob->tag;
 #endif
-                    tag = -1;
-                }
+					tag = -1;
+				}
 			}
 
 			if (tag == -1 || !locate_item(tag))
@@ -1723,39 +1727,39 @@ int process_macro_keys(int id, int value)
 
 			if ((it = locate_item(tag)))
 				nrof = it->nrof;
-            else
-                return 0;
+			else
+				return 0;
 
-           	if (nrof == 1)
+			if (nrof == 1)
 				nrof = 0;
-            else
-            {
-            	if (options.collectAll == 1)
-              	{
-               		nrof = cpl.nrof;
-               		goto collectAll;
-              	}
+			else
+			{
+				if (options.collectAll == 1)
+				{
+					nrof = cpl.nrof;
+					goto collectAll;
+				}
 
-                reset_keys();
-                cpl.input_mode = INPUT_MODE_NUMBER;
-                open_input_mode(22);
-                cpl.loc = loc;
-                cpl.tag = tag;
+				reset_keys();
+				cpl.input_mode = INPUT_MODE_NUMBER;
+				open_input_mode(22);
+				cpl.loc = loc;
+				cpl.tag = tag;
 				cpl.nrof = nrof;
 				cpl.nummode = NUM_MODE_GET;
 				snprintf(buf, sizeof(buf), "%d", nrof);
 				textwin_putstring(buf);
 				strncpy(cpl.num_text,it->s_name, 250);
 				cpl.num_text[250] = 0;
-                return 0;
-            }
+				return 0;
+			}
 
-			collectAll:
+collectAll:
 			sound_play_effect(SOUND_GET, 0, 100);
-            snprintf(buf, sizeof(buf), "get %s", it->s_name);
+			snprintf(buf, sizeof(buf), "get %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
-            return 0;
+			return 0;
 
 		case KEYFUNC_LAYER0:
 			if (debug_layer[0])
@@ -1839,11 +1843,11 @@ int process_macro_keys(int id, int value)
 				return 0;
 
 			if (it->locked)
-	   		{
-      			sound_play_effect(SOUND_CLICKFAIL, 0, 100);
-	   			draw_info("Unlock item first!", COLOR_DGOLD);
+			{
+				sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+				draw_info("Unlock item first!", COLOR_DGOLD);
 				return 0;
-	   		}
+			}
 
 			if (nrof == 1)
 				nrof = 0;
@@ -1890,8 +1894,8 @@ static void cursor_keys(int num)
 			}
 			else
 			{
-			    if (cpl.win_inv_slot - INVITEMXLEN >= 0)
-				    cpl.win_inv_slot -= INVITEMXLEN;
+				if (cpl.win_inv_slot - INVITEMXLEN >= 0)
+					cpl.win_inv_slot -= INVITEMXLEN;
 
 				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 			}
@@ -1907,7 +1911,7 @@ static void cursor_keys(int num)
 			}
 			else
 			{
-		        if (cpl.win_inv_slot + INVITEMXLEN < cpl.win_inv_count)
+				if (cpl.win_inv_slot + INVITEMXLEN < cpl.win_inv_count)
 					cpl.win_inv_slot += INVITEMXLEN;
 
 				cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
@@ -1941,7 +1945,7 @@ static void cursor_keys(int num)
 				cpl.win_inv_slot++;
 				cpl.win_inv_tag =
 
-				get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
+					get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 			}
 			break;
 	}
@@ -1950,102 +1954,102 @@ static void cursor_keys(int num)
 /* Handle quickslot key event. */
 static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 {
-   	int tag, real_slot = slot;
-   	char buf[256];
+	int tag, real_slot = slot;
+	char buf[256];
 
 	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
 
-   	/* Put spell into quickslot */
-   	if (!key && cpl.menustatus == MENU_SPELL)
-   	{
+	/* Put spell into quickslot */
+	if (!key && cpl.menustatus == MENU_SPELL)
+	{
 		if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
-      	{
-		  	if (quick_slots[slot].spell && quick_slots[slot].tag == spell_list_set.entry_nr)
-		  	{
-			  	quick_slots[slot].spell = 0;
-			  	quick_slots[slot].tag = -1;
+		{
+			if (quick_slots[slot].spell && quick_slots[slot].tag == spell_list_set.entry_nr)
+			{
+				quick_slots[slot].spell = 0;
+				quick_slots[slot].tag = -1;
 
 				snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-    			cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(csocket.fd, buf, strlen(buf));
 
-			  	snprintf(buf, sizeof(buf), "Unset F%d of group %d.", real_slot + 1, quickslot_group);
-			  	draw_info(buf, COLOR_DGOLD);
-		  	}
-		  	else
-		  	{
-			  	quick_slots[slot].spell = 1;
-			  	quick_slots[slot].groupNr = spell_list_set.group_nr;
-			  	quick_slots[slot].classNr = spell_list_set.class_nr;
-			  	quick_slots[slot].tag = spell_list_set.entry_nr;
+				snprintf(buf, sizeof(buf), "Unset F%d of group %d.", real_slot + 1, quickslot_group);
+				draw_info(buf, COLOR_DGOLD);
+			}
+			else
+			{
+				quick_slots[slot].spell = 1;
+				quick_slots[slot].groupNr = spell_list_set.group_nr;
+				quick_slots[slot].classNr = spell_list_set.class_nr;
+				quick_slots[slot].tag = spell_list_set.entry_nr;
 
 				snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", slot + 1, spell_list_set.group_nr, spell_list_set.class_nr, spell_list_set.entry_nr);
-    			cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(csocket.fd, buf, strlen(buf));
 
-			  	snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
-			  	draw_info(buf, COLOR_DGOLD);
-		  	}
-      	}
-   	}
-   	/* Put item into quickslot */
-   	else if (key && key->keysym.mod & (KMOD_SHIFT | KMOD_ALT))
+				snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
+				draw_info(buf, COLOR_DGOLD);
+			}
+		}
+	}
+	/* Put item into quickslot */
+	else if (key && key->keysym.mod & (KMOD_SHIFT | KMOD_ALT))
 	{
 		if (cpl.inventory_win == IWIN_BELOW)
 			return;
 
-      	tag = cpl.win_inv_tag;
+		tag = cpl.win_inv_tag;
 
-      	if (tag == -1 || !locate_item(tag))
-         	return;
+		if (tag == -1 || !locate_item(tag))
+			return;
 
-      	quick_slots[slot].spell = 0;
+		quick_slots[slot].spell = 0;
 
-	  	if (quick_slots[slot].tag == tag)
+		if (quick_slots[slot].tag == tag)
 		{
-		  	quick_slots[slot].tag = -1;
+			quick_slots[slot].tag = -1;
 			snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 		}
-	  	else
-	  	{
+		else
+		{
 			update_quickslots(tag);
 
-		  	quick_slots[slot].tag = tag;
-		  	quick_slots[slot].invSlot = cpl.win_inv_slot;
+			quick_slots[slot].tag = tag;
+			quick_slots[slot].invSlot = cpl.win_inv_slot;
 
 			snprintf(buf, sizeof(buf), "qs set %d %d", slot + 1, tag);
-    		cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(csocket.fd, buf, strlen(buf));
 
-		  	snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
-		  	draw_info(buf, COLOR_DGOLD);
-	  	}
-   	}
-   	/* Apply item or ready spell */
-   	else if (key)
-   	{
+			snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
+			draw_info(buf, COLOR_DGOLD);
+		}
+	}
+	/* Apply item or ready spell */
+	else if (key)
+	{
 		if (quick_slots[slot].tag != -1)
-      	{
-          	if (quick_slots[slot].spell)
-          	{
-             	fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[quick_slots[slot].groupNr].entry[quick_slots[slot].classNr][quick_slots[slot].tag];
-             	RangeFireMode = 1;
-             	spell_list_set.group_nr = quick_slots[slot].groupNr;
-             	spell_list_set.class_nr = quick_slots[slot].classNr;
-             	spell_list_set.entry_nr = quick_slots[slot].tag;
-             	return;
-          	}
+		{
+			if (quick_slots[slot].spell)
+			{
+				fire_mode_tab[FIRE_MODE_SPELL].spell = &spell_list[quick_slots[slot].groupNr].entry[quick_slots[slot].classNr][quick_slots[slot].tag];
+				RangeFireMode = 1;
+				spell_list_set.group_nr = quick_slots[slot].groupNr;
+				spell_list_set.class_nr = quick_slots[slot].classNr;
+				spell_list_set.entry_nr = quick_slots[slot].tag;
+				return;
+			}
 
-          	if (locate_item(quick_slots[slot].tag))
-          	{
-             	snprintf(buf, sizeof(buf), "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, locate_item(quick_slots[slot].tag)->s_name);
-             	draw_info(buf, COLOR_DGOLD);
-             	client_send_apply(quick_slots[slot].tag);
-             	return;
-          	}
-      	}
+			if (locate_item(quick_slots[slot].tag))
+			{
+				snprintf(buf, sizeof(buf), "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, locate_item(quick_slots[slot].tag)->s_name);
+				draw_info(buf, COLOR_DGOLD);
+				client_send_apply(quick_slots[slot].tag);
+				return;
+			}
+		}
 
-      	snprintf(buf, sizeof(buf), "F%d of group %d quick slot is empty", real_slot + 1, quickslot_group);
-      	draw_info(buf, COLOR_DGOLD);
-   	}
+		snprintf(buf, sizeof(buf), "F%d of group %d quick slot is empty", real_slot + 1, quickslot_group);
+		draw_info(buf, COLOR_DGOLD);
+	}
 }
 
 static void move_keys(int num)
@@ -2067,69 +2071,69 @@ static void move_keys(int num)
 	/* That's the range menu - we handle its messages unique */
 	else if (cpl.firekey_on || cpl.fire_on)
 	{
-        if (RangeFireMode == FIRE_MODE_SKILL)
-        {
-            if (!fire_mode_tab[FIRE_MODE_SKILL].skill || fire_mode_tab[FIRE_MODE_SKILL].skill->flag == -1)
+		if (RangeFireMode == FIRE_MODE_SKILL)
+		{
+			if (!fire_mode_tab[FIRE_MODE_SKILL].skill || fire_mode_tab[FIRE_MODE_SKILL].skill->flag == -1)
 			{
 				draw_info("No skill selected.", COLOR_WHITE);
-                return;
+				return;
 			}
 
-            snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1,fire_mode_tab[RangeFireMode].skill->name);
-            snprintf(msg, sizeof(msg), "use %s %s", fire_mode_tab[RangeFireMode].skill->name, directions_name[num]);
-        }
-        else if (RangeFireMode == FIRE_MODE_SPELL)
-        {
-            if (!fire_mode_tab[FIRE_MODE_SPELL].spell || fire_mode_tab[FIRE_MODE_SPELL].spell->flag == -1)
+			snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1,fire_mode_tab[RangeFireMode].skill->name);
+			snprintf(msg, sizeof(msg), "use %s %s", fire_mode_tab[RangeFireMode].skill->name, directions_name[num]);
+		}
+		else if (RangeFireMode == FIRE_MODE_SPELL)
+		{
+			if (!fire_mode_tab[FIRE_MODE_SPELL].spell || fire_mode_tab[FIRE_MODE_SPELL].spell->flag == -1)
 			{
 				draw_info("No spell selected.", COLOR_WHITE);
-                return;
+				return;
 			}
 
-            snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1, fire_mode_tab[RangeFireMode].spell->name);
-            snprintf(msg, sizeof(msg), "cast %s %s", fire_mode_tab[RangeFireMode].spell->name, directions_name[num]);
-        }
-        else
-            snprintf(buf, sizeof(buf), "/%s %d %d %d", directionsfire[num], RangeFireMode, fire_mode_tab[RangeFireMode].item, fire_mode_tab[RangeFireMode].amun);
+			snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1, fire_mode_tab[RangeFireMode].spell->name);
+			snprintf(msg, sizeof(msg), "cast %s %s", fire_mode_tab[RangeFireMode].spell->name, directions_name[num]);
+		}
+		else
+			snprintf(buf, sizeof(buf), "/%s %d %d %d", directionsfire[num], RangeFireMode, fire_mode_tab[RangeFireMode].item, fire_mode_tab[RangeFireMode].amun);
 
-        if (RangeFireMode == FIRE_MODE_BOW)
+		if (RangeFireMode == FIRE_MODE_BOW)
 		{
-            if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
+			if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
 			{
 				draw_info("No range weapon selected.", COLOR_WHITE);
-                return;
+				return;
 			}
-            else if (fire_mode_tab[FIRE_MODE_BOW].amun == FIRE_ITEM_NO)
+			else if (fire_mode_tab[FIRE_MODE_BOW].amun == FIRE_ITEM_NO)
 			{
 				draw_info("No ammunition selected.", COLOR_WHITE);
-                return;
+				return;
 			}
 
-            snprintf(msg, sizeof(msg), "fire %s", directions_name[num]);
+			snprintf(msg, sizeof(msg), "fire %s", directions_name[num]);
 		}
-        else if (RangeFireMode == FIRE_MODE_THROW)
+		else if (RangeFireMode == FIRE_MODE_THROW)
 		{
-            if (fire_mode_tab[FIRE_MODE_THROW].item == FIRE_ITEM_NO)
+			if (fire_mode_tab[FIRE_MODE_THROW].item == FIRE_ITEM_NO)
 			{
 				draw_info("No item selected.", COLOR_WHITE);
-                return;
+				return;
 			}
 
-            snprintf(msg, sizeof(msg), "throw %s", directions_name[num]);
+			snprintf(msg, sizeof(msg), "throw %s", directions_name[num]);
 		}
-        else if (RangeFireMode == FIRE_MODE_WAND)
+		else if (RangeFireMode == FIRE_MODE_WAND)
 		{
-            if (fire_mode_tab[FIRE_MODE_WAND].item == FIRE_ITEM_NO)
+			if (fire_mode_tab[FIRE_MODE_WAND].item == FIRE_ITEM_NO)
 			{
 				draw_info("No device selected.", COLOR_WHITE);
-                return;
+				return;
 			}
 
-            snprintf(msg, sizeof(msg), "fire device %s", directions_name[num]);
+			snprintf(msg, sizeof(msg), "fire device %s", directions_name[num]);
 		}
-        else if (RangeFireMode == FIRE_MODE_SUMMON)
+		else if (RangeFireMode == FIRE_MODE_SUMMON)
 		{
-            snprintf(msg, sizeof(msg), "cmd golem %s", directions_name[num]);
+			snprintf(msg, sizeof(msg), "cmd golem %s", directions_name[num]);
 		}
 
 		fire_command(buf);
@@ -2166,16 +2170,16 @@ static void key_repeat()
 			for (i = 0; i < OPTWIN_MAX_OPT; i++)
 			{
 				/* Key for this keymap is pressed */
-        		if (keys[bindkey_list[j].entry[i].key].pressed && bindkey_list[j].entry[i].repeatflag)
-        		{
+				if (keys[bindkey_list[j].entry[i].key].pressed && bindkey_list[j].entry[i].repeatflag)
+				{
 					/* If time to repeat */
 					if (keys[bindkey_list[j].entry[i].key].time + KEY_REPEAT_TIME - 5 < LastTick)
 					{
-			    		/* Repeat x times*/
-    					while ((keys[bindkey_list[j].entry[i].key].time += KEY_REPEAT_TIME - 5) < LastTick)
+						/* Repeat x times*/
+						while ((keys[bindkey_list[j].entry[i].key].time += KEY_REPEAT_TIME - 5) < LastTick)
 						{
 							/* If no key macro, submit the text as command */
-		    				if (check_macro_keys(bindkey_list[j].entry[i].text))
+							if (check_macro_keys(bindkey_list[j].entry[i].text))
 							{
 								strcpy(buf, bindkey_list[j].entry[i].text);
 
@@ -2184,9 +2188,9 @@ static void key_repeat()
 
 								draw_info(bindkey_list[j].entry[i].text, COLOR_DGOLD);
 							}
-			    		}
-    				}
-    			}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2221,7 +2225,7 @@ void read_keybind_file(char *fname)
 		while (fgets(line, 255, stream))
 		{
 			/* Skip empty or incomplete lines */
-   			if (strlen(line) < 4)
+			if (strlen(line) < 4)
 				continue;
 
 			i = 1;
@@ -2235,7 +2239,7 @@ void read_keybind_file(char *fname)
 					bindkey_list[bindkey_list_set.group_nr].name[i - 2] = line[i];
 
 				bindkey_list[bindkey_list_set.group_nr].name[++i] = 0;
-			 	bindkey_list_set.entry_nr = 0;
+				bindkey_list_set.entry_nr = 0;
 				continue;
 			}
 
@@ -2251,18 +2255,18 @@ void read_keybind_file(char *fname)
 			while (line[++i] && line[i] != '"');
 
 			while (line[++i] && line[i] != '"')
-   				bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[pos++] = line[i];
+				bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[pos++] = line[i];
 
- 			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[pos] = 0;
+			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[pos] = 0;
 			pos = 0;
 
 			/* start of 2. string */
 			while (line[++i] && line[i] != '"');
 
 			while (line[++i] && line[i] != '"')
-   				bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[pos++] = line[i];
+				bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[pos++] = line[i];
 
- 			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[pos] = 0;
+			bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[pos] = 0;
 
 			if (!strcmp(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text, "?M_GET"))
 				get_action_keycode = bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key;
@@ -2336,154 +2340,154 @@ void save_keybind_file(char *fname)
 /* Handle keystrokes in menu dialog. */
 void check_menu_keys(int menu, int key)
 {
-   	int shiftPressed = SDL_GetModState() & KMOD_SHIFT;
+	int shiftPressed = SDL_GetModState() & KMOD_SHIFT;
 
-   	if (cpl.menustatus == MENU_NO)
+	if (cpl.menustatus == MENU_NO)
 		return;
 
-   	/* close menu */
-   	if (key == SDLK_ESCAPE)
-   	{
-      	if (cpl.menustatus == MENU_KEYBIND)
-      		save_keybind_file(KEYBIND_FILE);
+	/* close menu */
+	if (key == SDLK_ESCAPE)
+	{
+		if (cpl.menustatus == MENU_KEYBIND)
+			save_keybind_file(KEYBIND_FILE);
 
-      	if (cpl.menustatus == MENU_CREATE)
-      	{
-         	SOCKET_CloseSocket(csocket.fd);
-         	GameStatus = GAME_STATUS_INIT;
-      	}
+		if (cpl.menustatus == MENU_CREATE)
+		{
+			SOCKET_CloseSocket(csocket.fd);
+			GameStatus = GAME_STATUS_INIT;
+		}
 
-      	cpl.menustatus = MENU_NO;
-      	map_udate_flag = 2;
-      	reset_keys();
-      	return;
-   	}
+		cpl.menustatus = MENU_NO;
+		map_udate_flag = 2;
+		reset_keys();
+		return;
+	}
 
-   	if (check_keys_menu_status(key))
-      	return;
+	if (check_keys_menu_status(key))
+		return;
 
-   	switch (menu)
-   	{
+	switch (menu)
+	{
 		case MENU_BOOK:
-	   		if (!gui_interface_book || gui_interface_book->pages == 0)
-		   		return;
+			if (!gui_interface_book || gui_interface_book->pages == 0)
+				return;
 
-	   		switch (key)
-	   		{
-	   			case SDLK_LEFT:
-		   			gui_interface_book->page_show -= 2;
-
-			   		if (gui_interface_book->page_show < 0)
-		   			{
-			   			gui_interface_book->page_show = 0;
-			   			sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
-		   			}
-		   			else
-		   			{
-			   			sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
-		   			}
-
-		   			break;
-
-	   			case SDLK_RIGHT:
-		   			gui_interface_book->page_show += 2;
-
-		   			if (gui_interface_book->page_show > (gui_interface_book->pages - 1))
-		   			{
-			   			gui_interface_book->page_show = (gui_interface_book->pages - 1) &~ 1;
-			   			sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
-		   			}
-		   			else
-		   			{
-			   			sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
-		   			}
-
-		   			break;
-	   		}
-
-	   		break;
-
-      	case MENU_OPTION:
-         	switch (key)
+			switch (key)
 			{
-            	case SDLK_LEFT:
-               		option_list_set.key_change =-1;
-               		/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
-               		menuRepeatKey = SDLK_LEFT;
-               		break;
+				case SDLK_LEFT:
+					gui_interface_book->page_show -= 2;
 
-            	case SDLK_RIGHT:
-               		option_list_set.key_change = 1;
-               		/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
-               		menuRepeatKey = SDLK_RIGHT;
-               		break;
-
-            	case SDLK_UP:
-               		if (!shiftPressed)
+					if (gui_interface_book->page_show < 0)
 					{
-                  		if (option_list_set.entry_nr > 0)
-                     		option_list_set.entry_nr--;
-                  		else
-                     		sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
-               		}
+						gui_interface_book->page_show = 0;
+						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+					}
 					else
 					{
-                  		if (option_list_set.group_nr > 0)
-                  		{
-                      		option_list_set.group_nr--;
-							option_list_set.entry_nr = 0;
-                  		}
-               		}
-
-               		menuRepeatKey = SDLK_UP;
-               		break;
-
-            	case SDLK_DOWN:
-               		if (!shiftPressed)
-					{
-                   		option_list_set.entry_nr++;
-                	}
-					else
-					{
-                    	if (opt_tab[option_list_set.group_nr + 1])
-                    	{
-                       		option_list_set.group_nr++;
-                       		option_list_set.entry_nr = 0;
-                    	}
-                	}
-
-                	menuRepeatKey = SDLK_DOWN;
-                	break;
-
-            	case SDLK_d:
-                	sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
-                	map_udate_flag = 2;
-
-                	if (cpl.menustatus == MENU_KEYBIND)
-                   		save_keybind_file(KEYBIND_FILE);
-
-                 	if (cpl.menustatus == MENU_OPTION)
-					{
-                   		save_options_dat();
-
-						if (options.playerdoll)
-                    		cur_widget[PDOLL_ID].show = TRUE;
+						sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
 					}
 
-                 	cpl.menustatus = MENU_NO;
-               		reset_keys();
-               		break;
-           	}
-           	break;
+					break;
 
-		/* The party GUI menu */
+				case SDLK_RIGHT:
+					gui_interface_book->page_show += 2;
+
+					if (gui_interface_book->page_show > (gui_interface_book->pages - 1))
+					{
+						gui_interface_book->page_show = (gui_interface_book->pages - 1) &~ 1;
+						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+					}
+					else
+					{
+						sound_play_effect(SOUND_PAGE, 0, MENU_SOUND_VOL);
+					}
+
+					break;
+			}
+
+			break;
+
+		case MENU_OPTION:
+			switch (key)
+			{
+				case SDLK_LEFT:
+					option_list_set.key_change =-1;
+					/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
+					menuRepeatKey = SDLK_LEFT;
+					break;
+
+				case SDLK_RIGHT:
+					option_list_set.key_change = 1;
+					/*sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);*/
+					menuRepeatKey = SDLK_RIGHT;
+					break;
+
+				case SDLK_UP:
+					if (!shiftPressed)
+					{
+						if (option_list_set.entry_nr > 0)
+							option_list_set.entry_nr--;
+						else
+							sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+					}
+					else
+					{
+						if (option_list_set.group_nr > 0)
+						{
+							option_list_set.group_nr--;
+							option_list_set.entry_nr = 0;
+						}
+					}
+
+					menuRepeatKey = SDLK_UP;
+					break;
+
+				case SDLK_DOWN:
+					if (!shiftPressed)
+					{
+						option_list_set.entry_nr++;
+					}
+					else
+					{
+						if (opt_tab[option_list_set.group_nr + 1])
+						{
+							option_list_set.group_nr++;
+							option_list_set.entry_nr = 0;
+						}
+					}
+
+					menuRepeatKey = SDLK_DOWN;
+					break;
+
+				case SDLK_d:
+					sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					map_udate_flag = 2;
+
+					if (cpl.menustatus == MENU_KEYBIND)
+						save_keybind_file(KEYBIND_FILE);
+
+					if (cpl.menustatus == MENU_OPTION)
+					{
+						save_options_dat();
+
+						if (options.playerdoll)
+							cur_widget[PDOLL_ID].show = TRUE;
+					}
+
+					cpl.menustatus = MENU_NO;
+					reset_keys();
+					break;
+			}
+			break;
+
+			/* The party GUI menu */
 		case MENU_PARTY:
 			if (!gui_interface_party)
 				return;
 
 			switch (key)
 			{
-				/* Arrow up */
+					/* Arrow up */
 				case SDLK_UP:
 					/* If shift is pressed too */
 					if (shiftPressed)
@@ -2508,7 +2512,7 @@ void check_menu_keys(int menu, int key)
 					menuRepeatKey = SDLK_UP;
 					break;
 
-				/* Arrow down */
+					/* Arrow down */
 				case SDLK_DOWN:
 					/* If shift is pressed too */
 					if (shiftPressed)
@@ -2533,7 +2537,7 @@ void check_menu_keys(int menu, int key)
 					menuRepeatKey = SDLK_DOWN;
 					break;
 
-				/* Enter or return key */
+					/* Enter or return key */
 				case SDLK_KP_ENTER:
 				case SDLK_RETURN:
 				{
@@ -2608,7 +2612,7 @@ void check_menu_keys(int menu, int key)
 
 					break;
 
-				/* n key*/
+					/* n key*/
 				case SDLK_n:
 					/* If used from the GUI to change party password, or leave party, just close the menu */
 					if (strcmp(gui_interface_party->command, "askleave") == 0 || strcmp(gui_interface_party->command, "askpassword") == 0)
@@ -2616,7 +2620,7 @@ void check_menu_keys(int menu, int key)
 
 					break;
 
-				/* f key */
+					/* f key */
 				case SDLK_f:
 					/* From the list... */
 					if (strcmp(gui_interface_party->command, "list") == 0)
@@ -2641,7 +2645,7 @@ void check_menu_keys(int menu, int key)
 
 			/* Some sanity checks to make sure yoff doesn't go off-limits. */
 			if (gui_interface_party->yoff < 0 || gui_interface_party->lines < DIALOG_LIST_ENTRY)
-            	gui_interface_party->yoff = 0;
+				gui_interface_party->yoff = 0;
 			else if (gui_interface_party->yoff >= gui_interface_party->lines - DIALOG_LIST_ENTRY)
 				gui_interface_party->yoff = gui_interface_party->lines - DIALOG_LIST_ENTRY;
 
@@ -2653,66 +2657,66 @@ void check_menu_keys(int menu, int key)
 
 			break;
 
-      	case MENU_SKILL:
-         	switch (key)
+		case MENU_SKILL:
+			switch (key)
 			{
-            	case SDLK_RETURN:
+				case SDLK_RETURN:
 				case SDLK_KP_ENTER:
-               		if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
-               		{
-                  		fire_mode_tab[FIRE_MODE_SKILL].skill = &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr];
-                  		RangeFireMode = FIRE_MODE_SKILL;
-                  		sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
-               		}
+					if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
+					{
+						fire_mode_tab[FIRE_MODE_SKILL].skill = &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr];
+						RangeFireMode = FIRE_MODE_SKILL;
+						sound_play_effect(SOUND_SCROLL, 0, MENU_SOUND_VOL);
+					}
 					else
-                   		sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
+						sound_play_effect(SOUND_CLICKFAIL, 0, MENU_SOUND_VOL);
 
-               		map_udate_flag = 2;
-               		cpl.menustatus = MENU_NO;
-               		reset_keys();
-               		break;
+					map_udate_flag = 2;
+					cpl.menustatus = MENU_NO;
+					reset_keys();
+					break;
 
-            	case SDLK_UP:
-               		if (!shiftPressed)
+				case SDLK_UP:
+					if (!shiftPressed)
 					{
-                  		if (skill_list_set.entry_nr > 0)
-                     		skill_list_set.entry_nr--;
-                   	}
-					else
-					{
-                      	if (skill_list_set.group_nr > 0)
-                      	{
-                         	skill_list_set.group_nr--;
-                         	skill_list_set.entry_nr=0;
-                      	}
-               		}
-
-               		menuRepeatKey = SDLK_UP;
-               		break;
-
-            	case SDLK_DOWN:
-               		if (!shiftPressed)
-					{
-                  		if (skill_list_set.entry_nr < DIALOG_LIST_ENTRY - 1)
-                     		skill_list_set.entry_nr++;
-                  	}
+						if (skill_list_set.entry_nr > 0)
+							skill_list_set.entry_nr--;
+					}
 					else
 					{
-                     	if (skill_list_set.group_nr < SKILL_LIST_MAX - 1)
-                     	{
-                        	skill_list_set.group_nr++;
-                        	skill_list_set.entry_nr = 0;
-                     	}
-                  	}
+						if (skill_list_set.group_nr > 0)
+						{
+							skill_list_set.group_nr--;
+							skill_list_set.entry_nr=0;
+						}
+					}
 
-                	menuRepeatKey = SDLK_DOWN;
-                	break;
-            }
+					menuRepeatKey = SDLK_UP;
+					break;
 
-            break;
+				case SDLK_DOWN:
+					if (!shiftPressed)
+					{
+						if (skill_list_set.entry_nr < DIALOG_LIST_ENTRY - 1)
+							skill_list_set.entry_nr++;
+					}
+					else
+					{
+						if (skill_list_set.group_nr < SKILL_LIST_MAX - 1)
+						{
+							skill_list_set.group_nr++;
+							skill_list_set.entry_nr = 0;
+						}
+					}
 
-      	case MENU_SPELL:
-		  	switch (key)
+					menuRepeatKey = SDLK_DOWN;
+					break;
+			}
+
+			break;
+
+		case MENU_SPELL:
+			switch (key)
 			{
 				case SDLK_F1:
 					quickslot_key(NULL, 0);
@@ -2815,8 +2819,8 @@ void check_menu_keys(int menu, int key)
 
 			break;
 
-      	case MENU_KEYBIND:
-         	switch (key)
+		case MENU_KEYBIND:
+			switch (key)
 			{
 				case SDLK_UP:
 					if (!shiftPressed)
@@ -2883,26 +2887,26 @@ void check_menu_keys(int menu, int key)
 
 			break;
 
-       	case MENU_CREATE:
-          	switch (key)
+		case MENU_CREATE:
+			switch (key)
 			{
-             	case SDLK_RETURN:
-                	break;
+				case SDLK_RETURN:
+					break;
 
-             	case SDLK_c:
-                 	if (new_character.stat_points)
-                 	{
-                    	dialog_new_char_warn = 1;
-                    	sound_play_effect(SOUND_CLICKFAIL, 0, 100);
-                    	break;
-                 	}
+				case SDLK_c:
+					if (new_character.stat_points)
+					{
+						dialog_new_char_warn = 1;
+						sound_play_effect(SOUND_CLICKFAIL, 0, 100);
+						break;
+					}
 
-                 	dialog_new_char_warn = 0;
-                 	new_char(&new_character);
-                 	GameStatus = GAME_STATUS_WAITFORPLAY;
-                 	cpl.menustatus = MENU_NO;
+					dialog_new_char_warn = 0;
+					new_char(&new_character);
+					GameStatus = GAME_STATUS_WAITFORPLAY;
+					cpl.menustatus = MENU_NO;
 
-                 	break;
+					break;
 
 				case SDLK_LEFT:
 					create_list_set.key_change = -1;
@@ -2929,8 +2933,8 @@ void check_menu_keys(int menu, int key)
 					menuRepeatKey = SDLK_DOWN;
 
 					break;
-      		}
+			}
 
-      		break;
-   	}
+			break;
+	}
 }

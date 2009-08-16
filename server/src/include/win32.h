@@ -52,7 +52,7 @@
 
 
 #define __STDC__ 1      /* odd too: CF want this, but don't include it */
-                        /* before the standard includes */
+/* before the standard includes */
 #ifndef HAVE_SNPRINTF
 #define HAVE_SNPRINTF 1
 #define snprintf _snprintf
@@ -67,10 +67,10 @@
 #define CS_LOGSTATS
 #define HAVE_SRAND
 #ifndef HAVE_FCNTL_H
-    #define HAVE_FCNTL_H
+#define HAVE_FCNTL_H
 #endif
 #ifndef HAVE_STDDEF_H
-    #define HAVE_STDDEF_H
+#define HAVE_STDDEF_H
 #endif
 #define GETTIMEOFDAY_TWO_ARGS
 #define MAXPATHLEN 256
@@ -124,7 +124,8 @@
 
 /* struct dirent - same as Unix */
 
-typedef struct dirent {
+typedef struct dirent
+{
 	/* inode (always 1 in WIN32) */
 	long d_ino;
 
@@ -141,7 +142,8 @@ typedef struct dirent {
 #define NAMLEN(dirent) strlen((dirent)->d_name)
 
 /* typedef DIR - not the same as Unix */
-typedef struct {
+typedef struct
+{
 	/* _findfirst/_findnext handle */
 	long handle;
 

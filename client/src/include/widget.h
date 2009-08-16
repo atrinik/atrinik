@@ -30,7 +30,8 @@
 /*#define DEBUG_WIDGET*/
 
 /** Used in the priority list (to order widgets) */
-struct _widget_node {
+struct _widget_node
+{
 	/** Next */
 	struct _widget_node *next;
 

@@ -31,7 +31,7 @@
 #include <sproto.h>
 #endif
 #ifdef NO_ERRNO_H
-    extern int errno;
+extern int errno;
 #else
 #   include <errno.h>
 #endif
@@ -80,7 +80,7 @@ int cast_raise_dead_spell(object *op, int dir, int spell_type, object * corpseob
 	int xt, yt, leveldead = 25;
 
 
-  	if (corpseobj == NULL)
+	if (corpseobj == NULL)
 	{
 		xt = op->x + freearr_x[dir];
 		yt = op->y + freearr_y[dir];
@@ -95,22 +95,22 @@ int cast_raise_dead_spell(object *op, int dir, int spell_type, object * corpseob
 				 * the CORPSE type is being used corpses for players, so
 				 * this check should be sufficient.  If we really want
 				 * to be sure, we could probably check the archetype or something. */
-					if (temp->type == CORPSE)
-						break;
+				if (temp->type == CORPSE)
+					break;
 		}
-  	}
+	}
 	else
 		temp = corpseobj;
 
-   	if (temp == NULL && (spell_type == SP_RAISE_DEAD || spell_type == SP_RESURRECTION))
+	if (temp == NULL && (spell_type == SP_RAISE_DEAD || spell_type == SP_RESURRECTION))
 	{
-        new_draw_info(NDI_UNIQUE, 0, op, "You need a body for this spell.");
-        return 0;
-   	}
+		new_draw_info(NDI_UNIQUE, 0, op, "You need a body for this spell.");
+		return 0;
+	}
 
-   	strcpy(name_to_resurrect, temp->name);
+	strcpy(name_to_resurrect, temp->name);
 
-     /* no matter what, we fry the corpse.  */
+	/* no matter what, we fry the corpse.  */
 	if (temp && temp->map)
 	{
 		/* replace corpse object with a burning object */
@@ -126,9 +126,9 @@ int cast_raise_dead_spell(object *op, int dir, int spell_type, object * corpseob
 		check_walk_off(temp, NULL, MOVE_APPLY_VANISHED);
 	}
 
-   	/* chance it fails to resurrect? -- implement here */
-   	/* also, chances you accidentally summon death or worse... */
-	switch(spell_type)
+	/* chance it fails to resurrect? -- implement here */
+	/* also, chances you accidentally summon death or worse... */
+	switch (spell_type)
 	{
 		case SP_RAISE_DEAD:
 			/* see if this spell fails, if so then summon some
@@ -160,24 +160,24 @@ int cast_raise_dead_spell(object *op, int dir, int spell_type, object * corpseob
 			}
 			return resurrect_player(op, name_to_resurrect, spell_type);
 	}
-   	return 1;
+	return 1;
 }
 
 int resurrection_fails(int levelcaster, int leveldead)
 {
-  	int chance = 9;
+	int chance = 9;
 	/* scheme:  equal in level, 50% success.
-     * +5 % for each level below, -5% for each level above.
-     * minimum 20% */
-  	chance += levelcaster - leveldead;
+	 * +5 % for each level below, -5% for each level above.
+	 * minimum 20% */
+	chance += levelcaster - leveldead;
 
-  	if (chance < 4)
+	if (chance < 4)
 		chance = 4;
 
-  	if (chance > rndm(0, 19))
+	if (chance > rndm(0, 19))
 		return 0;
 
-  	return 1;
+	return 1;
 }
 
 
@@ -199,13 +199,13 @@ int resurrect_player(object *op, char *playername, int rspell)
 	char buf[MAX_BUF];
 	char buf2[MAX_BUF];
 
-  	static char *races[]= {"barbarian", "cleric", "elf", "human", "mage", "ninja", "priest", "swashbuckler", "thief", "viking", "warrior", "wizard"};
+	static char *races[]= {"barbarian", "cleric", "elf", "human", "mage", "ninja", "priest", "swashbuckler", "thief", "viking", "warrior", "wizard"};
 
 	long int exp;
 	int Con;
 
 	/* set up our paths/strings...  */
-  	sprintf(path, "%s/%s/%s/%s", settings.localdir, settings.playerdir, playername, playername);
+	sprintf(path, "%s/%s/%s/%s", settings.localdir, settings.playerdir, playername, playername);
 
 	strcpy(newname, path);
 	strcat(newname, ".pl");
@@ -219,20 +219,20 @@ int resurrect_player(object *op, char *playername, int rspell)
 		return 0;
 	}
 
-  	if (!access(newname, 0))
+	if (!access(newname, 0))
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "The soul of %s has already been reborn!", playername);
 		fclose(deadplayer);
 		return 0;
 	}
 
-  	if (!(liveplayer = fopen(newname, "w")))
-    {
+	if (!(liveplayer = fopen(newname, "w")))
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "The soul of %s cannot be re-embodied at the moment.", playername);
 		LOG(llevBug, "BUG: ressurect_player(): Cannot write player file %s!\n", newname);
 		fclose(deadplayer);
 		return 0;
-    }
+	}
 
 	while (!feof(deadplayer))
 	{
@@ -286,10 +286,10 @@ int resurrect_player(object *op, char *playername, int rspell)
 	fclose(liveplayer);
 	fclose(deadplayer);
 	unlink(oldname);
-  	new_draw_info_format(NDI_UNIQUE, 0, op, "%s lives again!", playername);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%s lives again!", playername);
 #endif
 
-  	return 1;
+	return 1;
 }
 
 void dead_character(char *name)

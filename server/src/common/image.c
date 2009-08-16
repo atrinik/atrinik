@@ -49,8 +49,8 @@ New_Face *new_faces;
 
 struct bmappair
 {
-    char *name;
-    unsigned int number;
+	char *name;
+	unsigned int number;
 };
 
 static struct bmappair *xbm = NULL;
@@ -73,7 +73,7 @@ int nroffiles = 0, nrofpixmaps = 0;
 
 static int compar(struct bmappair *a, struct bmappair *b)
 {
-    return strcmp(a->name, b->name);
+	return strcmp(a->name, b->name);
 }
 
 /* This reads the bmaps.paths file to get all the bitmap names and
@@ -82,28 +82,28 @@ static int compar(struct bmappair *a, struct bmappair *b)
  * difference.) */
 int ReadBmapNames()
 {
-    char buf[MAX_BUF], *p, *q;
-    FILE *fp;
-    int value, nrofbmaps = 0, i;
+	char buf[MAX_BUF], *p, *q;
+	FILE *fp;
+	int value, nrofbmaps = 0, i;
 
-    bmaps_checksum = 0;
-    sprintf(buf, "%s/bmaps", settings.datadir);
-    LOG(llevDebug, "Reading bmaps from %s...", buf);
+	bmaps_checksum = 0;
+	sprintf(buf, "%s/bmaps", settings.datadir);
+	LOG(llevDebug, "Reading bmaps from %s...", buf);
 
-    if ((fp = fopen(buf, "r")) == NULL)
+	if ((fp = fopen(buf, "r")) == NULL)
 		LOG(llevError, "ERROR: Can't open bmaps file buf = %s\n", buf);
 
-    /* First count how many bitmaps we have, so we can allocate correctly */
-    while (fgets(buf, MAX_BUF, fp) != NULL)
+	/* First count how many bitmaps we have, so we can allocate correctly */
+	while (fgets(buf, MAX_BUF, fp) != NULL)
 		if (buf[0] != '#' && buf[0] != '\n')
-	    	nrofbmaps++;
+			nrofbmaps++;
 
-    rewind(fp);
+	rewind(fp);
 
-    xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
-    memset (xbm, 0, sizeof (struct bmappair) * (nrofbmaps + 1));
+	xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
+	memset (xbm, 0, sizeof (struct bmappair) * (nrofbmaps + 1));
 
-    while(fgets (buf, MAX_BUF, fp)!=NULL)
+	while (fgets (buf, MAX_BUF, fp)!=NULL)
 	{
 		if (*buf == '#')
 			continue;
@@ -145,36 +145,36 @@ int ReadBmapNames()
 
 		if (value > nrofpixmaps)
 			nrofpixmaps = value;
-    }
-    fclose(fp);
+	}
+	fclose(fp);
 
-    LOG(llevDebug, " done (got %d/%d/%d)\n", nrofpixmaps, nrofbmaps, nroffiles);
+	LOG(llevDebug, " done (got %d/%d/%d)\n", nrofpixmaps, nrofbmaps, nroffiles);
 
-    new_faces = (New_Face *)malloc(sizeof(New_Face) * (nrofpixmaps + 1));
+	new_faces = (New_Face *)malloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
-    for (i = 0; i <= nrofpixmaps; i++)
+	for (i = 0; i <= nrofpixmaps; i++)
 	{
 		new_faces[i].name = "";
 		new_faces[i].number = i;
-    }
+	}
 
-    for (i = 0; i < nroffiles; i++)
+	for (i = 0; i < nroffiles; i++)
 	{
 		new_faces[xbm[i].number].name = xbm[i].name;
-    }
+	}
 
-    nrofpixmaps++;
+	nrofpixmaps++;
 
-    qsort(xbm, nrofbmaps, sizeof(struct bmappair), (int (*)())compar);
+	qsort(xbm, nrofbmaps, sizeof(struct bmappair), (int (*)())compar);
 
-    blank_face = &new_faces[FindFace(BLANK_FACE_NAME, 0)];
-    blank_look.face = blank_face;
-    blank_look.flags = 0;
+	blank_face = &new_faces[FindFace(BLANK_FACE_NAME, 0)];
+	blank_look.face = blank_face;
+	blank_look.flags = 0;
 
-    next_item_face = &new_faces[FindFace(NEXT_ITEM_FACE_NAME, 0)];
-    prev_item_face = &new_faces[FindFace(PREVIOUS_ITEM_FACE_NAME, 0)];
+	next_item_face = &new_faces[FindFace(NEXT_ITEM_FACE_NAME, 0)];
+	prev_item_face = &new_faces[FindFace(PREVIOUS_ITEM_FACE_NAME, 0)];
 
-    return nrofpixmaps;
+	return nrofpixmaps;
 }
 
 
@@ -192,35 +192,35 @@ int ReadBmapNames()
  * from the server) */
 int FindFace (char *name, int error)
 {
-    int i;
-    struct bmappair *bp, tmp;
-    char *p;
+	int i;
+	struct bmappair *bp, tmp;
+	char *p;
 
-    /* Using actual numbers for faces is a very bad idea.  This is because
-     * each time the archetype file is rebuilt, all the face numbers
-     * change. */
-    if ((i = atoi(name)))
+	/* Using actual numbers for faces is a very bad idea.  This is because
+	 * each time the archetype file is rebuilt, all the face numbers
+	 * change. */
+	if ((i = atoi(name)))
 	{
 		LOG(llevBug, "BUG: Integer face name used: %s\n", name);
 		return i;
-    }
+	}
 
-    if ((p = strchr(name, '\n')))
+	if ((p = strchr(name, '\n')))
 		*p = '\0';
 
-    tmp.name = name;
-    bp = (struct bmappair *)bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)())compar);
+	tmp.name = name;
+	bp = (struct bmappair *)bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)())compar);
 
-    return bp ? bp->number : (unsigned int) error;
+	return bp ? bp->number : (unsigned int) error;
 }
 
 void free_all_images()
 {
-    int i;
+	int i;
 
-    for (i = 0; i < nroffiles; i++)
+	for (i = 0; i < nroffiles; i++)
 		free(xbm[i].name);
 
-    free(xbm);
-    free(new_faces);
+	free(xbm);
+	free(new_faces);
 }

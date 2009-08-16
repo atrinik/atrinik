@@ -33,39 +33,40 @@
  * This file controls weather functions, like ticking the clock
  * and initializes the world darkness. */
 
-const int season_timechange[5][HOURS_PER_DAY] = {
+const int season_timechange[5][HOURS_PER_DAY] =
+{
 	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
 		0, 0,  0,  0,  0,  0,  2,  1, 1, 1, 0, 0},
 
 	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-		0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
+	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
 
 	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-		0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
+	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
 
 	{	0, 0,  0,  0,  -1,-1, -1, -2, 0, 0, 0, 0,
-		0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
+	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
 
 	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-		0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0}
+	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0}
 };
 
 /**
  * Initializes the world darkness value. */
 void init_word_darkness()
 {
-    int i;
-    timeofday_t tod;
+	int i;
+	timeofday_t tod;
 
-    world_darkness = MAX_DARKNESS;
-    get_tod(&tod);
+	world_darkness = MAX_DARKNESS;
+	get_tod(&tod);
 
-    for (i = HOURS_PER_DAY / 2; i < HOURS_PER_DAY; i++)
-        world_darkness -= season_timechange[tod.season][i];
+	for (i = HOURS_PER_DAY / 2; i < HOURS_PER_DAY; i++)
+		world_darkness -= season_timechange[tod.season][i];
 
 	/* must be <= and not < ... */
-    for (i = 0; i <= tod.hour; i++)
-        world_darkness -= season_timechange[tod.season][i];
+	for (i = 0; i <= tod.hour; i++)
+		world_darkness -= season_timechange[tod.season][i];
 }
 
 /**
@@ -76,12 +77,12 @@ void init_word_darkness()
  * Please don't modify tod in the dependant function. */
 void tick_the_clock()
 {
-    timeofday_t tod;
+	timeofday_t tod;
 
-    todtick++;
-    if (todtick % 20 == 0)
+	todtick++;
+	if (todtick % 20 == 0)
 		write_todclock();
 
-    get_tod(&tod);
-    world_darkness -= season_timechange[tod.season][tod.hour];
+	get_tod(&tod);
+	world_darkness -= season_timechange[tod.season][tod.hour];
 }
