@@ -11,4 +11,18 @@ More will be added here soon.
 - @ref todo
 - @ref plugin_arena
 - @ref type_index "Type index"
+- @ref identify_modes
+- @ref spelllist_modes
+- @ref golem_control_modes
+- @ref los_blocked_modes
+- @ref type_defines
+- @ref sub_type_defines
+- @ref size_of_free_defines
+- @ref spell_path_defines
+- @ref terrain_type_flags
+- @ref flags_structure
+- @ref monster_movements
+- @ref st_defines
+- @ref bresenham_algorithm
+
 */
