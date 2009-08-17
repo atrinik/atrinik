@@ -989,6 +989,19 @@ trick_jump:
 			if (!check_skill_action_time(op, op->chosen_skill))
 				return;
 
+			/* If the device level is higher than player's skill + 5 */
+			if (weap->level > op->chosen_skill->level + 5)
+			{
+				int level_difference = weap->level - (op->chosen_skill->level + 5);
+
+				/* If the level difference isn't so high, give it a small chance to succeed */
+				if (level_difference > 0 && (level_difference > 10 || RANDOM() % weap->level != RANDOM() % (op->chosen_skill->level + 5)))
+				{
+					new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is impossible to handle for you!", weap->name);
+					return;
+				}
+			}
+
 			if (weap->stats.hp < spells[weap->stats.sp].sp)
 			{
 				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, SOUND_NORMAL, 0, 0);
