@@ -659,7 +659,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
  * @param nrof Number of items to drop (0 for all) */
 void drop_object(object *op, object *tmp, long nrof)
 {
-	char buf[MAX_BUF];
 	object *floor;
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
@@ -723,20 +722,28 @@ void drop_object(object *op, object *tmp, long nrof)
 	{
 		if (op->type == PLAYER)
 		{
-			sprintf(buf, "You drop the %s.", query_name(tmp, NULL));
-			new_draw_info(NDI_UNIQUE, 0, op, buf);
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You drop the %s.", query_name(tmp, NULL));
 
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
+			{
 				new_draw_info(NDI_UNIQUE, 0, op, "The shop magic put it back to the storage.");
+			}
 			else
+			{
 				new_draw_info(NDI_UNIQUE, 0, op, "The one-drop item vanish to nowhere as you drop it!");
+			}
 
 			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
 
-			if (!QUERY_FLAG(tmp, FLAG_STARTEQUIP) && floor && floor->type == SHOP_FLOOR && QUERY_FLAG(floor, FLAG_IS_MAGICAL))
+			/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
+			if (!QUERY_FLAG(tmp, FLAG_STARTEQUIP) && floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
+			{
 				insert_ob_in_map(tmp, op->map, op, 0);
+			}
 			else
+			{
 				esrv_del_item(CONTR(op), tmp->count, tmp->env);
+			}
 		}
 
 		fix_player(op);
