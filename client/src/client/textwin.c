@@ -793,8 +793,10 @@ void textwin_addhistory(char* text)
 	register int i;
 
 	/* If new line is empty or identical to last inserted one, skip it */
-	if (!text[0] || strcmp(InputHistory[0], text) == 0)
+	if (!text[0] || strcmp(InputHistory[1], text) == 0)
+	{
 		return;
+	}
 
 	/* Shift history lines */
 	for (i = MAX_HISTORY_LINES - 1; i > 1; i--)
