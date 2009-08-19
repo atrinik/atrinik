@@ -606,7 +606,7 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
 	/* SUMMON EVIL MONSTERS */
 	else if (level < 110)
 	{
-		object *tmp = get_random_mon(level / 5);
+		object *tmp = get_random_mon();
 
 		remove_contents(cauldron->inv, NULL);
 
