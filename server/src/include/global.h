@@ -339,14 +339,7 @@ EXTERN int num_animations, animations_allocated, bmaps_checksum;
 extern int freearr_x[SIZEOFFREE], freearr_y[SIZEOFFREE];
 extern int maxfree[SIZEOFFREE], freedir[SIZEOFFREE];
 
-/* DM active list */
-typedef struct active_DMs_struct
-{
-	object *op;
-	struct active_DMs_struct *next;
-} active_DMs;
-
-extern active_DMs *dm_list;
+extern objectlink *dm_list;
 
 extern New_Face *blank_face, *next_item_face, *prev_item_face;
 extern MapLook blank_look;

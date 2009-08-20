@@ -31,7 +31,7 @@
 
 extern spell spells[NROFREALSPELLS];
 extern long pticks;
-active_DMs *dm_list = NULL;
+objectlink *dm_list = NULL;
 
 /* If flag is non zero, it means that we want to try and save everyone, but
  * keep the game running.  Thus, we don't want to free any information. */
@@ -930,16 +930,17 @@ void check_login(object *op)
 	if (!pl->dm_stealth)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL, 5, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
+
 		if (dm_list)
 		{
-			active_DMs *tmp_dm_list;
+			objectlink *tmp_dm_list;
 			player *pl_tmp;
 			int players;
 
 			for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
 
 			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
-				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->op, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->ob, "DM: %d players now playing.", players);
 		}
 	}
 

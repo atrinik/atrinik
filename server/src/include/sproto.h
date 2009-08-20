@@ -307,7 +307,7 @@ int command_speed(object *op, char *params);
 int command_stats(object *op, char *params);
 int command_abil(object *op, char *params);
 int command_reset(object *op, char *params);
-void remove_active_DM(active_DMs **list, object *op);
+void remove_active_DM(object *op);
 int command_nowiz(object *op, char *params);
 int command_dm(object *op, char *params);
 int command_invisible(object *op, char *params);

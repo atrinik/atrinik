@@ -915,8 +915,6 @@ void init_readable()
 	LOG(llevDebug, " done.\n");
 }
 
-/* find_title() - Search the titlelist (based on msgtype) to see if
- * book matches something already there.  IF so, return that title. */
 /**
  * Search the title list based on msgtype to see if book matches
  * something already there. If so, return that title.

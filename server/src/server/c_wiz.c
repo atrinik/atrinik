@@ -1030,37 +1030,44 @@ int command_reset(object *op, char *params)
 	return 1;
 }
 
-void remove_active_DM(active_DMs **list, object *op)
+/**
+ * Remove DM from the list of DMs.
+ * @param op The DM object to remove */
+void remove_active_DM(object *op)
 {
-	active_DMs *currP, *prevP;
+	objectlink *this;
 
-	/* For 1st node, indicate there is no previous. */
-	prevP = NULL;
-
-	/* Visit each node, maintaining a pointer to
-	 * the previous node we just visited. */
-	for (currP = *list; currP != NULL; prevP = currP, currP = currP->next)
+	/* Safety */
+	if (!dm_list)
 	{
-		/* Found it. */
-		if (currP->op == op)
+		return;
+	}
+
+	/* Easier if the first object in the list matches */
+	if (dm_list->ob == op)
+	{
+		this = dm_list;
+		dm_list = this->next;
+		free(this);
+	}
+	else
+	{
+		objectlink *prev = dm_list;
+
+		for (this = dm_list->next; this != NULL; this = this->next)
 		{
-			if (prevP == NULL)
+			if (this->ob == op)
 			{
-				/* Fix beginning pointer. */
-				*list = currP->next;
-			}
-			else
-			{
-				/* Fix previous node's next to
-				 * skip over the removed node. */
-				prevP->next = currP->next;
+				break;
 			}
 
-			/* Deallocate the node. */
-			free(currP);
+			prev = this;
+		}
 
-			/* Done searching. */
-			break;
+		if (this)
+		{
+			prev->next = this->next;
+			free(this);
 		}
 	}
 }
@@ -1071,8 +1078,10 @@ int command_nowiz(object *op, char *params)
 	(void) params;
 
 	CLEAR_FLAG(op, FLAG_WIZ);
-	/* clear this dm from global dm list. */
-	remove_active_DM(&dm_list, op);
+
+	/* Clear this DM from DMs list. */
+	remove_active_DM(op);
+
 	CLEAR_FLAG(op, FLAG_WIZPASS);
 	CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 	fix_player(op);
@@ -1080,24 +1089,21 @@ int command_nowiz(object *op, char *params)
 	esrv_send_inventory(op, op);
 	CONTR(op)->update_los = 1;
 	new_draw_info(NDI_UNIQUE, 0, op, "DM mode deactivated.");
+
 	return 1;
 }
 
-/* object *op is trying to become dm.
- * pl_name is name supplied by player.  Restrictive DM will make it harder
- * for socket users to become DM - in that case, it will check for the players
- * character name. */
-#define RESTRICTIVE_DM
-
-static int checkdm(object *op, const char *pl_name, char *pl_passwd, char *pl_host)
+/**
+ * Check to see if player is allowed to become a DM.
+ * @param op The player object trying to become a DM
+ * @param pl_passwd Password can be used to become a DM
+ * if it matches one of passwords in the database.
+ * @return 1 if the object can become a DM, 0 otherwise */
+static int checkdm(object *op, char *pl_passwd)
 {
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 	char name[160], passwd[160], host[160];
-
-#ifdef RESTRICTIVE_DM
-	pl_name = op->name ? op->name : "*";
-#endif
 
 	/* Open the database */
 	db_open(DB_DEFAULT, &db);
@@ -1112,14 +1118,15 @@ static int checkdm(object *op, const char *pl_name, char *pl_passwd, char *pl_ho
 	/* Loop through all the results */
 	while (db_step(statement) == SQLITE_ROW)
 	{
-		sprintf(name, "%s", db_column_text(statement, 0));
-		sprintf(passwd, "%s", db_column_text(statement, 1));
-		sprintf(host, "%s", db_column_text(statement, 2));
+		snprintf(name, sizeof(name), "%s", db_column_text(statement, 0));
+		snprintf(passwd, sizeof(passwd), "%s", db_column_text(statement, 1));
+		snprintf(host, sizeof(host), "%s", db_column_text(statement, 2));
 
-		if ((!strcmp(name, "*") || (pl_name && !strcmp(pl_name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, pl_host)))
+		if ((!strcmp(name, "*") || (op->name && !strcmp(op->name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, CONTR(op)->socket.host)))
 		{
 			db_finalize(statement);
 			db_close(db);
+
 			return 1;
 		}
 	}
@@ -1133,11 +1140,15 @@ static int checkdm(object *op, const char *pl_name, char *pl_passwd, char *pl_ho
 	return 0;
 }
 
-/* Actual command to perhaps become dm.  Changed aroun a bit in version 0.92.2
- * - allow people on sockets to become dm, and allow better dm file */
+/**
+ * Actuall command to perhaps become a DM.
+ * @param op The player object
+ * @param params Params may include password needed to become a DM
+ * @return 1 on success, 0 on failure (caller not a player, etc) */
 int command_dm(object *op, char *params)
 {
 	CONTR(op)->socket.ext_title_flag = 1;
+
 	/* IF we are DM, then turn mode off */
 	if (QUERY_FLAG(op, FLAG_WIZ) && op->type == PLAYER)
 	{
@@ -1146,36 +1157,47 @@ int command_dm(object *op, char *params)
 	}
 
 	if (op->type != PLAYER || !CONTR(op))
+	{
 		return 0;
+	}
 	else
 	{
-		if (checkdm(op, op->name, (params ? params : "*"), CONTR(op)->socket.host))
+		if (checkdm(op, (params ? params : "*")))
 		{
-			/* add this dm to global dm list. */
-			active_DMs *dm_new = (active_DMs *)malloc(sizeof(active_DMs));
+			objectlink *ol;
 
-			dm_new->next = dm_list;
-			dm_list = dm_new;
-			dm_new->op = op;
+			/* Add this DM to the DMs list */
+			ol = dm_list;
+			dm_list = get_objectlink();
+			dm_list->ob = op;
+			dm_list->id = op->count;
+			dm_list->next = ol;
 
 			SET_FLAG(op, FLAG_WIZ);
 			SET_FLAG(op, FLAG_WAS_WIZ);
 			SET_FLAG(op, FLAG_WIZPASS);
+
 			new_draw_info_format(NDI_UNIQUE, 0, op, "DM mode activated for %s!", op->name);
 			SET_MULTI_FLAG(op, FLAG_FLYING);
+
 			esrv_send_inventory(op, op);
+
 			/* Send all the spells for this DM */
 			send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
+
 			clear_los(op);
+
 			/* force a draw_look() */
 			CONTR(op)->socket.update_tile = 0;
 			CONTR(op)->update_los = 1;
 			CONTR(op)->write_buf[0] = '\0';
+
 			return 1;
 		}
 		else
 		{
 			CONTR(op)->write_buf[0] = '\0';
+
 			return 1;
 		}
 	}
@@ -1186,7 +1208,9 @@ int command_invisible(object *op, char *params)
 	(void) params;
 
 	if (!op)
+	{
 		return 0;
+	}
 
 	if (IS_SYS_INVISIBLE(op))
 	{
@@ -1198,7 +1222,9 @@ int command_invisible(object *op, char *params)
 		SET_FLAG(op, FLAG_SYS_OBJECT);
 		new_draw_info(NDI_UNIQUE, 0,op, "You turn invisible.");
 	}
+
 	update_object(op, UP_OBJ_FACE);
+
 	return 0;
 }
 

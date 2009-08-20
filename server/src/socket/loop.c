@@ -296,14 +296,13 @@ void watchdog()
 
 static void remove_ns_dead_player(player *pl)
 {
-	active_DMs *tmp_dm_list;
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 	{
-		remove_active_DM(&dm_list, pl->ob);
+		remove_active_DM(pl->ob);
 	}
 
 	/* Trigger the global LOGOUT event */
@@ -313,12 +312,14 @@ static void remove_ns_dead_player(player *pl)
 	{
 		player *pl_tmp;
 		int players;
+		objectlink *tmp_dm_list;
 
+		/* Count the players */
 		for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
 
 		for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->op, "%s leaves the game (%d still playing).", query_name(pl->ob, NULL), players - 1);
+			new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->ob, "%s leaves the game (%d still playing).", query_name(pl->ob, NULL), players - 1);
 		}
 	}
 

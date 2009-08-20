@@ -84,9 +84,6 @@ int command_say(object *op, char *params)
 	return 1;
 }
 
-/* This command is only available to DMs.
- * It is similar to /shout, however, it will display
- * the message in red to other logged in DMs. */
 /**
  * This command is only available to DMs.
  * It is similar to /shout, however, it will display
@@ -97,7 +94,7 @@ int command_say(object *op, char *params)
  * @return 1 on success, 0 on failure */
 int command_dmsay(object *op, char *params)
 {
-	active_DMs *tmp_dm_list;
+	objectlink *tmp_dm_list;
 
 	if (!params)
 		return 0;
@@ -110,7 +107,7 @@ int command_dmsay(object *op, char *params)
 		return 0;
 
 	for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, 0, tmp_dm_list->op, "[DM Channel]: %s: %s", op->name, params);
+		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, 0, tmp_dm_list->ob, "[DM Channel]: %s: %s", op->name, params);
 
 	return 1;
 }
