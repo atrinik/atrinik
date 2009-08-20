@@ -62,10 +62,10 @@ typedef signed char sint8;
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
-#include <wrapper.h>
 #ifdef INSTALL_SOUND
 #include <SDL_mixer.h>
 #endif
+#include <wrapper.h>
 #include <signal.h>
 #include <curl/curl.h>
 

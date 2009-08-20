@@ -90,7 +90,7 @@ void load_mapdef_dat()
 	int i, ii, x, y, d[32];
 	char line[256];
 
-	if (!(stream = fopen(ARCHDEF_FILE, "r")))
+	if (!(stream = fopen_wrapper(ARCHDEF_FILE, "r")))
 	{
 		LOG(LOG_ERROR, "ERROR: Can't find file %s\n", ARCHDEF_FILE);
 		return;

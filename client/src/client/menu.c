@@ -748,7 +748,7 @@ static int load_anim_tmp()
 
 	count++;
 
-	if ((stream = fopen(FILE_ANIMS_TMP, "rt")) == NULL)
+	if ((stream = fopen_wrapper(FILE_ANIMS_TMP, "rt")) == NULL)
 	{
 		LOG(LOG_ERROR, "load_anim_tmp: Error reading anim.tmp!");
 		/* Fatal */
@@ -822,7 +822,7 @@ int read_anim_tmp()
 	struct stat	stat_bmap, stat_anim, stat_tmp;
 
 	/* if this fails, we have a urgent problem somewhere before */
-	if ((stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL)
+	if ((stream = fopen_wrapper(FILE_BMAPS_TMP, "rb" )) == NULL)
 	{
 		LOG(LOG_ERROR, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
 		SYSTEM_End(); /* fatal */
@@ -831,7 +831,7 @@ int read_anim_tmp()
 	fstat(fileno(stream), &stat_bmap);
 	fclose(stream);
 
-	if ( (stream = fopen(FILE_CLIENT_ANIMS, "rb" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
 		SYSTEM_End(); /* fatal */
@@ -840,7 +840,7 @@ int read_anim_tmp()
 	fstat(fileno(stream), &stat_anim);
 	fclose( stream );
 
-	if ( (stream = fopen(FILE_ANIMS_TMP, "rb" )) != NULL )
+	if ( (stream = fopen_wrapper(FILE_ANIMS_TMP, "rb" )) != NULL )
 	{
 		fstat(fileno(stream), &stat_tmp);
 		fclose( stream );
@@ -855,14 +855,14 @@ int read_anim_tmp()
 	}
 
 	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
-	if ( (ftmp = fopen(FILE_ANIMS_TMP, "wt" )) == NULL )
+	if ( (ftmp = fopen_wrapper(FILE_ANIMS_TMP, "wt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error opening anims.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
-	if ( (stream = fopen(FILE_CLIENT_ANIMS, "rt" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"read_anim_tmp:Error reading client_anims for anims.tmp!");
 		SYSTEM_End(); /* fatal */
@@ -940,7 +940,7 @@ void read_anims()
 	srv_client_files[SRV_CLIENT_ANIMS].len = 0;
 	srv_client_files[SRV_CLIENT_ANIMS].crc = 0;
 
-	if ((stream = fopen(FILE_CLIENT_ANIMS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);
@@ -974,7 +974,7 @@ static void load_bmaps_p0()
 	memset((void *) bmap_table, 0, BMAPTABLE * sizeof(_bmaptype *));
 
 	/* Try to open bmaps_p0 file */
-	if ((fbmap = fopen(FILE_BMAPS_P0, "rb")) == NULL)
+	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "rb")) == NULL)
 	{
 		LOG(LOG_ERROR, "ERROR: Error loading bmaps.p0!\n");
 		/* Fatal */
@@ -1015,7 +1015,7 @@ void read_bmaps_p0()
 	char buf[HUGE_BUF];
 	struct stat	bmap_stat, pic_stat;
 
-	if ((fpic = fopen(FILE_ATRINIK_P0, "rb")) == NULL)
+	if ((fpic = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
 	{
 		LOG(LOG_ERROR, "ERROR: Can't find atrinik.p0 file!\n");
 		/* Fatal */
@@ -1028,7 +1028,7 @@ void read_bmaps_p0()
 	fstat(fileno(fpic), &pic_stat);
 
 	/* Try to open bmaps_p0 file */
-	if ((fbmap = fopen(FILE_BMAPS_P0, "r" )) == NULL)
+	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "r" )) == NULL)
 		goto create_bmaps;
 
 	/* Get time stamp of the file */
@@ -1044,7 +1044,7 @@ void read_bmaps_p0()
 
 	/* If we are here, then we have to (re)create the bmaps.p0 file */
 create_bmaps:
-	if ((fbmap = fopen(FILE_BMAPS_P0, "w")) == NULL)
+	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "w")) == NULL)
 	{
 		LOG(LOG_ERROR, "ERROR: Can't create bmaps.p0 file!\n");
 		/* Fatal */
@@ -1146,7 +1146,7 @@ static int load_bmap_tmp()
 	unsigned int crc;
 
 	delete_bmap_tmp();
-	if ( (stream = fopen(FILE_BMAPS_TMP, "rt" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_BMAPS_TMP, "rt" )) == NULL )
 	{
 		LOG(LOG_ERROR,"bmaptype_table(): error open file <bmap.tmp>");
 		SYSTEM_End(); /* fatal */
@@ -1181,7 +1181,7 @@ int read_bmap_tmp()
 	unsigned int crc;
 	_bmaptype *at;
 
-	if ( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb" )) == NULL )
 	{
 		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
@@ -1191,7 +1191,7 @@ int read_bmap_tmp()
 	fstat(fileno(stream), &stat_bmap);
 	fclose( stream );
 
-	if ( (stream = fopen(FILE_BMAPS_P0, "rb" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_BMAPS_P0, "rb" )) == NULL )
 	{
 		/* we can't make bmaps.tmp without this file */
 		unlink(FILE_BMAPS_TMP);
@@ -1201,7 +1201,7 @@ int read_bmap_tmp()
 	fstat(fileno(stream), &stat_bp0);
 	fclose( stream );
 
-	if ( (stream = fopen(FILE_BMAPS_TMP, "rb" )) == NULL )
+	if ( (stream = fopen_wrapper(FILE_BMAPS_TMP, "rb" )) == NULL )
 		goto create_bmap_tmp;
 
 	fstat(fileno(stream), &stat_tmp);
@@ -1221,10 +1221,10 @@ create_bmap_tmp:
 	unlink(FILE_BMAPS_TMP);
 
 	/* NOW we are sure... we must create us a new bmaps.tmp */
-	if ( (stream = fopen(FILE_CLIENT_BMAPS, "rb" )) != NULL )
+	if ( (stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb" )) != NULL )
 	{
 		/* we can use text mode here, its local */
-		if ( (fbmap0 = fopen(FILE_BMAPS_TMP, "wt" )) != NULL )
+		if ( (fbmap0 = fopen_wrapper(FILE_BMAPS_TMP, "wt" )) != NULL )
 		{
 			/* read in the bmaps from the server, check with the
 			 * loaded bmap table (from bmaps.p0) and create with
@@ -1272,7 +1272,7 @@ void read_bmaps()
 	srv_client_files[SRV_CLIENT_BMAPS].crc = 0;
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_BMAPS);
 
-	if ((stream = fopen(FILE_CLIENT_BMAPS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat (fileno (stream), &statbuf);
@@ -1354,7 +1354,7 @@ void load_settings()
 	delete_server_chars();
 	LOG(LOG_DEBUG, "Loading %s...\n", FILE_CLIENT_SETTINGS);
 
-	if ((stream = fopen(FILE_CLIENT_SETTINGS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
 		while (fgets(buf, HUGE_BUF - 1, stream) != NULL)
 		{
@@ -1514,7 +1514,7 @@ void read_settings()
 	srv_client_files[SRV_CLIENT_SETTINGS].crc = 0;
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SETTINGS);
 
-	if ((stream = fopen(FILE_CLIENT_SETTINGS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);
@@ -1563,7 +1563,7 @@ void read_spells()
 	srv_client_files[SRV_CLIENT_SPELLS].crc = 0;
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SPELLS);
 
-	if ((stream = fopen(FILE_CLIENT_SPELLS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_SPELLS, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);
@@ -1670,7 +1670,7 @@ void read_help_files()
 
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_HFILES);
 
-	if ((stream = fopen(FILE_CLIENT_HFILES, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_HFILES, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);
@@ -1777,7 +1777,7 @@ void read_skills()
 	srv_client_files[SRV_CLIENT_SKILLS].crc = 0;
 	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SKILLS);
 
-	if ((stream = fopen(FILE_CLIENT_SKILLS, "rb")) != NULL)
+	if ((stream = fopen_wrapper(FILE_CLIENT_SKILLS, "rb")) != NULL)
 	{
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);

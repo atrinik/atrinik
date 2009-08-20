@@ -339,7 +339,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	/* Check private cache first */
 	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
 
-	if ((stream = fopen(buf, "rb" )) != NULL)
+	if ((stream = fopen_wrapper(buf, "rb" )) != NULL)
 	{
 		fstat(fileno (stream), &statbuf);
 		len = (int) statbuf.st_size;
@@ -427,7 +427,7 @@ static int load_picture_from_pack(int num)
 	char *pbuf;
 	SDL_RWops *rwop;
 
-	if ((stream = fopen(FILE_ATRINIK_P0, "rb")) == NULL)
+	if ((stream = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
 		return 1;
 
 	lseek(fileno(stream), bmaptype_table[num].pos, SEEK_SET);
@@ -500,7 +500,7 @@ int request_face(int pnum, int mode)
 	/* now lets check BEFORE we do any other test for this name in /gfx_user.
 	 * Perhaps we have a customized picture here. */
 	sprintf(buf, "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
-	if ((stream = fopen(buf, "rb")) != NULL)
+	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
 		/* yes we have a picture with this name in /gfx_user!
 		 * lets try to load. */

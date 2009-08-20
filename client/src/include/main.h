@@ -143,17 +143,21 @@ _bmaptype_table bmaptype_table[MAX_BMAPTYPE_TABLE];
 
 extern int bmaptype_table_size;
 
-#define FILE_ATRINIK_P0 "./atrinik.p0"
-#define FILE_BMAPS_P0 "./bmaps.p0"
-#define FILE_BMAPS_TMP "./srv_files/bmaps.tmp"
-#define FILE_ANIMS_TMP "./srv_files/anims.tmp"
+#ifndef SYSPATH
+#define SYSPATH "./"
+#endif
 
-#define FILE_CLIENT_SPELLS "./srv_files/client_spells"
-#define FILE_CLIENT_SKILLS "./srv_files/client_skills"
-#define FILE_CLIENT_SETTINGS "./srv_files/client_settings"
-#define FILE_CLIENT_BMAPS "./srv_files/client_bmap"
-#define FILE_CLIENT_ANIMS "./srv_files/client_anims"
-#define FILE_CLIENT_HFILES "./srv_files/help_files"
+#define FILE_ATRINIK_P0 "atrinik.p0"
+#define FILE_BMAPS_P0 "bmaps.p0"
+#define FILE_BMAPS_TMP "srv_files/bmaps.tmp"
+#define FILE_ANIMS_TMP "srv_files/anims.tmp"
+
+#define FILE_CLIENT_SPELLS "srv_files/client_spells"
+#define FILE_CLIENT_SKILLS "srv_files/client_skills"
+#define FILE_CLIENT_SETTINGS "srv_files/client_settings"
+#define FILE_CLIENT_BMAPS "srv_files/client_bmap"
+#define FILE_CLIENT_ANIMS "srv_files/client_anims"
+#define FILE_CLIENT_HFILES "srv_files/help_files"
 
 enum
 {

@@ -28,12 +28,12 @@
 #define VERSION_CS 991017
 #define VERSION_SC 991017
 
-#define KEYBIND_FILE 	"./keys.dat"
-#define OPTION_FILE  	"./options.dat"
-#define ARCHDEF_FILE 	"./archdef.dat"
-#define INTERFACE_FILE 	"./interface.gui"
+#define KEYBIND_FILE 	"keys.dat"
+#define OPTION_FILE  	"options.dat"
+#define ARCHDEF_FILE 	"archdef.dat"
+#define INTERFACE_FILE 	"interface.gui"
 
-#define LOG_FILE		"./client.log"
+#define LOG_FILE		"client.log"
 
 #define CLIENT_ICON_NAME "icon.png"
 

@@ -61,7 +61,7 @@ void LOG(int logLevel, char *format, ...)
 	/* secure: we have no open stream */
 	if (!logstream)
 	{
-		logstream = fopen(LOG_FILE, "w");
+		logstream = fopen_wrapper(LOG_FILE, "w");
 
 		if (!logstream)
 			flag = 0;
@@ -91,7 +91,7 @@ int SYSTEM_Start()
 
 	snprintf(buf, sizeof(buf), "%s%s", GetBitmapDirectory(), CLIENT_ICON_NAME);
 
-	if ((icon = IMG_Load(buf)) != NULL)
+	if ((icon = IMG_Load_wrapper(buf)) != NULL)
 		SDL_WM_SetIcon(icon, 0);
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
@@ -99,7 +99,7 @@ int SYSTEM_Start()
 	free(icon);
 
 #if defined( __WIN_32)  || defined(__LINUX)
-	logstream  = fopen(LOG_FILE, "w");
+	logstream = fopen_wrapper(LOG_FILE, "w");
 #endif
 
 	return 1;
@@ -119,7 +119,7 @@ int SYSTEM_End()
 char *GetBitmapDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./bitmaps/";
+	return "bitmaps/";
 #endif
 }
 
@@ -129,7 +129,7 @@ char *GetBitmapDirectory()
 char *GetIconDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./icons/";
+	return "icons/";
 #endif
 }
 
@@ -139,7 +139,7 @@ char *GetIconDirectory()
 char *GetSfxDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./sfx/";
+	return "sfx/";
 #endif
 }
 
@@ -149,7 +149,7 @@ char *GetSfxDirectory()
 char *GetCacheDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./cache/";
+	return "cache/";
 #endif
 }
 
@@ -159,7 +159,7 @@ char *GetCacheDirectory()
 char *GetGfxUserDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./gfx_user/";
+	return "gfx_user/";
 #endif
 }
 
@@ -169,7 +169,7 @@ char *GetGfxUserDirectory()
 char *GetMediaDirectory()
 {
 #if defined( __WIN_32)  || defined(__LINUX)
-	return "./media/";
+	return "media/";
 #endif
 }
 
@@ -326,4 +326,122 @@ int strcasecmp(char *s1, char*s2)
 	return (int) (*s1 - *s2);
 }
 #endif
+#endif
+
+#ifdef __WIN_32
+char *file_path(const char *fname, const char *mode)
+{
+	static char tmp[256];
+
+	snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
+
+	return tmp;
+}
+#else
+
+static int mkdir_recurse(const char *path)
+{
+	char *copy, *p;
+
+	p = copy = strdup(path);
+
+	do
+	{
+		p = strchr(p + 1, '/');
+
+		if (p)
+		{
+			*p = '\0';
+		}
+
+		if (access(copy, F_OK) == -1)
+		{
+			if (mkdir(copy, 0755) == -1)
+			{
+				return -1;
+			}
+		}
+
+		if (p)
+		{
+			*p = '/';
+		}
+	}
+	while (p);
+
+	return 0;
+}
+
+char *file_path(const char *fname, const char *mode)
+{
+	static char tmp[256];
+	char *stmp, ctmp;
+
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s", getenv("HOME"), fname);
+
+	if (strchr(mode, 'w'))
+	{
+		if ((stmp = strrchr(tmp, '/')))
+		{
+			ctmp = stmp[0];
+			stmp[0] = 0;
+			mkdir_recurse(tmp);
+			stmp[0] = ctmp;
+		}
+	}
+	else if (strchr(mode, '+') || strchr(mode, 'a'))
+	{
+		if (access(tmp, W_OK))
+		{
+			char otmp[256], shtmp[517];
+
+			snprintf(otmp, sizeof(otmp), "%s%s", SYSPATH, fname);
+
+			if ((stmp = strrchr(tmp, '/')))
+			{
+				ctmp = stmp[0];
+				stmp[0] = 0;
+				mkdir_recurse(tmp);
+				stmp[0] = ctmp;
+			}
+
+			/* Copy base file to home directory */
+			snprintf(shtmp, sizeof(shtmp), "cp %s %s", otmp, tmp);
+			if (system(shtmp))
+			{
+			}
+		}
+	}
+	else
+	{
+		if (access(tmp, R_OK))
+		{
+            sprintf(tmp, "%s%s", SYSPATH, fname);
+		}
+	}
+
+	return tmp;
+}
+#endif
+
+FILE *fopen_wrapper(const char *fname, const char *mode)
+{
+    return fopen(file_path(fname, mode), mode);
+}
+
+SDL_Surface *IMG_Load_wrapper(const char *file)
+{
+    return IMG_Load(file_path(file, "r"));
+}
+
+#ifdef INSTALL_SOUND
+Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname)
+{
+    return Mix_LoadWAV(file_path(fname, "r"));
+}
+
+Mix_Music *Mix_LoadMUS_wrapper(const char *file)
+{
+    return Mix_LoadMUS(file_path(file, "r"));
+}
 #endif

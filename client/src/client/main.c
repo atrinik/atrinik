@@ -457,7 +457,7 @@ void save_options_dat()
 	int i = -1, j = -1;
 	FILE *stream;
 
-	if (!(stream = fopen(OPTION_FILE, "w")))
+	if (!(stream = fopen_wrapper(OPTION_FILE, "w")))
 		return;
 
 	fputs("##########################################\n", stream);
@@ -543,7 +543,7 @@ void load_options_dat()
 	txtwin_start_size = txtwin[TW_MIX].size;
 
 	/* Read the options from file */
-	if (!(stream = fopen(OPTION_FILE, "r")))
+	if (!(stream = fopen_wrapper(OPTION_FILE, "r")))
 	{
 		LOG(LOG_MSG, "Can't find file %s. Using defaults.\n", OPTION_FILE);
 		return;

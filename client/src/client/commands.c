@@ -471,7 +471,7 @@ void ImageCmd(unsigned char *data, int len)
 	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
 	LOG(LOG_DEBUG, "ImageFromServer: %s\n", FaceList[pnum].name);
 
-	if ((stream = fopen(buf, "wb+")) != NULL)
+	if ((stream = fopen_wrapper(buf, "wb+")) != NULL)
 	{
 		fwrite((char *) data + 8, 1, plen, stream);
 		fclose(stream);
@@ -2072,7 +2072,7 @@ static void save_data_cmd_file(char *path, unsigned char *data, int len)
 {
 	FILE *stream;
 
-	if ((stream = fopen(path, "wb")) != NULL)
+	if ((stream = fopen_wrapper(path, "wb")) != NULL)
 	{
 		if (fwrite(data, 1, len, stream) != (size_t) len)
 			LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);

@@ -2217,7 +2217,7 @@ void read_keybind_file(char *fname)
 	char line[255];
 	int i, pos;
 
-	if ((stream = fopen(fname, "r")))
+	if ((stream = fopen_wrapper(fname, "r")))
 	{
 		bindkey_list_set.group_nr = -1;
 		bindkey_list_set.entry_nr = 0;
@@ -2299,7 +2299,7 @@ void save_keybind_file(char *fname)
 	int entry, group;
 	char buf[256];
 
-	if (!(stream = fopen(fname, "w+")))
+	if (!(stream = fopen_wrapper(fname, "w+")))
 		return;
 
 	for (group=0; group< BINDKEY_LIST_MAX; group++)

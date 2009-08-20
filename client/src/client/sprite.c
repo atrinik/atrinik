@@ -151,7 +151,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 
 	if (fname)
 	{
-		if ((bitmap = IMG_Load(fname)) == NULL)
+		if ((bitmap = IMG_Load_wrapper(fname)) == NULL)
 			return NULL;
 	}
 	else

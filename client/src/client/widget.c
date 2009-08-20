@@ -327,7 +327,7 @@ int load_interface_file(char *filename)
 		tmp_widget[pos] = con_widget[pos];
 
 	/* Sanity check - if the file doesn't exist, exit with error */
-	if (!(stream = fopen(filename, "r")))
+	if (!(stream = fopen_wrapper(filename, "r")))
 	{
 		/* Inform user */
 		LOG(LOG_MSG, "load_interface_file(): Can't find file %s.\n", filename);
@@ -499,7 +499,7 @@ void save_interface_file()
 	FILE *stream;
 
 	/* Leave, if there's an error opening or creating */
-	if (!(stream = fopen(INTERFACE_FILE, "w")))
+	if (!(stream = fopen_wrapper(INTERFACE_FILE, "w")))
 		return;
 
 	fputs("#############################################\n", stream);
