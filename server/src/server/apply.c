@@ -2971,7 +2971,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
+	if (QUERY_FLAG(op, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ) && op->type != PLAYER)
 	{
 		play_sound_map(pl->map, pl->x, pl->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
 		new_draw_info(NDI_UNIQUE, 0, pl, "The object disappears in a puff of smoke!");
