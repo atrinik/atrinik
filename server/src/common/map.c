@@ -2457,12 +2457,6 @@ void delete_map(mapstruct *m)
 	else
 		last->next = m->next;
 
-	/* Free our pathname (we'd like to use it above)*/
-	if (m->path)
-	{
-		FREE_AND_CLEAR_HASH(m->path);
-	}
-
 	free(m);
 }
 
