@@ -3,7 +3,7 @@ name The City of Greyton
 msg
 Creator: Daimonin Map Editor
 Date:    5/11/2009
-Modified: 2009-08-03 Alex Tokar
+Modified: 2009-08-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1598,14 +1598,12 @@ y 12
 arch event_obj
 name Arena
 sub_type 10
-race Arena
-slaying 2
+race greyton.arena
 end
 arch event_obj
 name Arena
 sub_type 1
-race Arena
-slaying 2
+race greyton.arena
 end
 end
 arch light2
