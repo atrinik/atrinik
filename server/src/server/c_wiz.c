@@ -1293,11 +1293,18 @@ int command_loadplugin(object *op, char *params)
 
 	(void) op;
 
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Load what plugin?");
+		return 0;
+	}
+
 	strcpy(buf, DATADIR);
 	strcat(buf, "/../plugins/");
 	strcat(buf, params);
 	printf("Requested plugin file is %s\n", buf);
 	initOnePlugin(buf);
+
 	return 1;
 }
 
@@ -1309,7 +1316,14 @@ int command_unloadplugin(object *op, char *params)
 {
 	(void) op;
 
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Unload what plugin?");
+		return 0;
+	}
+
 	removeOnePlugin(params);
+
 	return 1;
 }
 
