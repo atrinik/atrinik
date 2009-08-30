@@ -93,24 +93,46 @@ CommArray_s *find_plugin_command(const char *cmd, object *op)
 	return NULL;
 }
 
-/*****************************************************************************/
-/* Displays a list of loaded plugins (keystrings and description) in the     */
-/* game log window.                                                          */
-/*****************************************************************************/
+/**
+ * Display a list of loaded and loadable plugins in
+ * player's window.
+ * @param op The player to print the plugins to */
 void displayPluginsList(object *op)
 {
 	char buf[MAX_BUF];
+	struct dirent *currentfile;
+	DIR *plugdir;
 	int i;
 
 	new_draw_info(NDI_UNIQUE, 0, op, "List of loaded plugins:");
 	new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
-	for (i = 0;i < PlugNR; i++)
+
+	for (i = 0; i < PlugNR; i++)
 	{
-		strcpy(buf, PlugList[i].id);
-		strcat(buf, ", ");
-		strcat(buf, PlugList[i].fullname);
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "%s, %s", PlugList[i].id, PlugList[i].fullname);
 	}
+
+	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
+
+	/* Open the plugins directory */
+	if (!(plugdir = opendir(buf)))
+	{
+		return;
+	}
+
+	new_draw_info(NDI_UNIQUE, 0, op, "\nList of loadable plugins:");
+	new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
+
+	/* Go through the files in the directory */
+	while ((currentfile = readdir(plugdir)))
+	{
+		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, currentfile->d_name);
+		}
+	}
+
+	closedir(plugdir);
 }
 
 /*****************************************************************************/
@@ -127,47 +149,40 @@ int findPlugin(const char* id)
 	return -1;
 }
 
-#ifdef WIN32
-/*****************************************************************************/
-/* WIN32 Plugins initialization. Browses the plugins directory and call      */
-/* initOnePlugin for each file found.                                        */
-/*****************************************************************************/
-void initPlugins(void)
+/**
+ * Initializes plugins. Browses the plugins directory and calls
+ * initOnePlugin for each file found, unless the file has ".txt"
+ * in the name. */
+void initPlugins()
 {
 	struct dirent *currentfile;
 	DIR *plugdir;
-	int n;
-	char buf[MAX_BUF];
-	char buf2[MAX_BUF];
+	char plugindir_path[MAX_BUF], pluginfile[MAX_BUF];
 
-	LOG(llevInfo, "Now initializing plugins\n");
-	/* strcpy(buf,DATADIR); dlls should not part of DATADIR or LIBDOR */
-	/* strcpy(buf,"./plugins/"); */
-	strcpy(buf, PLUGINDIR"/");
-	LOG(llevInfo, "Plugins directory is %s\n", buf);
+	LOG(llevInfo, "Initializing plugins:\n");
+	snprintf(plugindir_path, sizeof(plugindir_path), "%s/", PLUGINDIR);
+	LOG(llevInfo, "Plugins directory is %s\n", plugindir_path);
 
-	if (!(plugdir = opendir(buf)))
-		return;
-
-	n = 0;
-
-	while (currentfile = readdir(plugdir))
+	if (!(plugdir = opendir(plugindir_path)))
 	{
-		if (strcmp(currentfile->d_name, ".."))
+		return;
+	}
+
+	while ((currentfile = readdir(plugdir)))
+	{
+		/* Don't load "." or ".." marker and files which have ".txt" inside */
+		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
 		{
-			/* don't load "." marker, CVS directory or all which has a .txt inside */
-			if (strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt") && strcmp(currentfile->d_name, "CVS"))
-			{
-				strcpy(buf2, buf);
-				strcat(buf2, currentfile->d_name);
-				LOG(llevInfo, "Registering plugin %s\n", currentfile->d_name);
-				initOnePlugin(buf2);
-			}
+			snprintf(pluginfile, sizeof(pluginfile), "%s%s", plugindir_path, currentfile->d_name);
+			LOG(llevInfo, "Registering plugin %s\n", currentfile->d_name);
+			initOnePlugin(pluginfile);
 		}
 	}
+
 	closedir(plugdir);
 }
 
+#ifdef WIN32
 /*****************************************************************************/
 /* WIN32 Plugin initialization. Initializes a plugin known by its filename.  */
 /* The initialization process has several stages:                            */
@@ -286,44 +301,7 @@ void removeOnePlugin(const char *id)
 extern int alphasort(struct dirent **a, struct dirent **b);
 #endif
 
-/*****************************************************************************/
-/* UNIX Plugins initialization. Browses the plugins directory and call       */
-/* initOnePlugin for each file found.                                        */
-/*****************************************************************************/
-void initPlugins(void)
-{
-	struct dirent **namelist = NULL;
-	int n;
-	char buf[MAX_BUF];
-	char buf2[MAX_BUF];
 
-	LOG(llevInfo, "Initializing plugins :\n");
-	/*  strcpy(buf, DATADIR);
-	    strcat(buf, "/../plugins/");*/
-	strcpy(buf, PLUGINDIR"/");
-	LOG(llevInfo, "Plugins directory is %s\n",buf);
-	n = scandir(buf, &namelist, 0, alphasort);
-	if (n < 0)
-		LOG(llevBug, "BUG: plugins.c: scandir...\n");
-	else
-		while (n--)
-		{
-			if (strcmp(namelist[n]->d_name, ".."))
-			{
-				/* don't load "." marker, CVS directory or all which has a .txt inside */
-				if (strcmp(namelist[n]->d_name, ".") && !strstr(namelist[n]->d_name, ".txt") && strcmp(namelist[n]->d_name, "CVS"))
-				{
-					strcpy(buf2, buf);
-					strcat(buf2, namelist[n]->d_name);
-					LOG(llevInfo, " -> Loading plugin : %s\n", namelist[n]->d_name);
-					initOnePlugin(buf2);
-				}
-			}
-		}
-
-	if (namelist != NULL)
-		free(namelist);
-}
 
 /*****************************************************************************/
 /* Removes one plugin from memory. The plugin is identified by its keyname.  */
