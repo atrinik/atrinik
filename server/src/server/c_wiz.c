@@ -1291,8 +1291,6 @@ int command_loadplugin(object *op, char *params)
 {
 	char buf[MAX_BUF];
 
-	(void) op;
-
 	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Load what plugin?");
@@ -1314,8 +1312,6 @@ int command_loadplugin(object *op, char *params)
  * are not loaded. */
 int command_unloadplugin(object *op, char *params)
 {
-	(void) op;
-
 	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Unload what plugin?");
