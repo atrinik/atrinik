@@ -291,12 +291,15 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
 	/* very useful sanity check! */
 	if (hit_level == 0 || target_obj->level == 0)
+	{
 		LOG(llevDebug,"DEBUG: hit_player(): hit or target object level == 0(h:>%s< (o:>%s<) l->%d t:>%s< (>%s<)(o:>%s<) l->%d\n", query_name(hitter, NULL), query_name(get_owner(hitter), NULL), hit_level, query_name(op, NULL), target_obj->arch->name, query_name(get_owner(op), NULL), target_obj->level);
+	}
 
-	/* this is hard cut - perhaps we do something more smart later.
-	 * no friendly object take damage from player now. */
-	if (hit_obj->type == PLAYER && QUERY_FLAG(target_obj, FLAG_FRIENDLY) && target_obj->type == MONSTER)
+	/* Do not let friendly objects attack each other. */
+	if (is_friend_of(hit_obj, op))
+	{
 		return 0;
+	}
 
 	/* I disabled this for the time being - it's a ridiculous piece of code. Makes lvl 110 raas do about 10000 damage to lvl 10. - A.T. 2009 */
 #if 0
