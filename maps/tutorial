@@ -964,7 +964,7 @@ x 5
 y 1
 arch event_obj
 name Python
-race gatekeeper.py
+race /gatekeeper.py
 sub_type 6
 end
 arch empty_ai
@@ -3029,7 +3029,7 @@ x 17
 y 5
 arch event_obj
 name Python
-race gatepriest.py
+race /gatepriest.py
 sub_type 6
 end
 arch empty_ai
