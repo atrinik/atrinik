@@ -3,7 +3,7 @@
 #
 # Message entries contained in this file will  
 # appear randomly in readable objects like books, scrolls
-# and such (op->type==BOOK).
+# and such (op->type == BOOK).
 #
 # To add an entry: 
 # ---------------
@@ -16,10 +16,6 @@
 # buffer size for books (you'll generate a warning message
 # if you do this). Check the file include/read.h for the 
 # current message size limit (BOOK_BUF).
-#    2) Text has to fit into the player message window.
-# Don't design lines at lengths of 40 or more, or it will
-# wrap around to the next line. Long lines will appear 
-# differently to the player than as presented in this file. 
 #
 #
 #
@@ -32,21 +28,17 @@ ENDMSG
 #
 #
 MSG
-...and then did the Alchemist agree to
-make me my potion. First he called to 
-his grimm servants who hauld forth a 
-great iron cauldron. Into this black 
-device did he deposit his ingredients
-and, opening his spell book for refer-
-ence, then did he cast his spell of 
-alchemy therepon the cauldron. 
+... and then did the Alchemist agree to make me my potion.
+First he called to his grim servants who hauled forth a 
+great iron cauldron. Into this black device did he deposit
+his ingredients and, opening his spell book for reference,
+then did he cast his spell of alchemy thereupon the cauldron. 
 
   Greatly did the tub shake and move!
-I thought that the Alchemist had broke
-his device, but he chuckled at my ig-
-norance. Into the cauldron did he reach
-an brought forth a filled bottle of 
-golden amber fluid...
+
+I thought that the Alchemist had broken his device, but he
+chuckled at my ignorance. Into the cauldron did he reach
+an brought forth a filled bottle of golden amber fluid...
 ENDMSG
 #
 #
