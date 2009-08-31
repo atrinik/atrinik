@@ -189,12 +189,14 @@
  * server/bandwidth usage.  It will periodially dump out information
  * which contains usage stats for the last X amount of time.
  * CS_LOGTIME is how often it will print out stats. */
+/*
 #ifndef WIN32
 #define CS_LOGSTATS
 #endif
 #ifdef CS_LOGSTATS
 #define CS_LOGTIME  600
 #endif
+*/
 
 /* DEBUG generates copious amounts of output.  I tend to change the CC options
  * in the crosssite.def file if I want this.  By default, you probably
