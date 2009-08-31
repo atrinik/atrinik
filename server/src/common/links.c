@@ -23,56 +23,77 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Object link related functions. */
+
 #include <global.h>
 
-/* Allocates a new objectlink structure, initialises it, and returns
- * a pointer to it. */
+/**
+ * Allocate a new objectlink structure and initialize it.
+ * @return Pointer to the new objectlink */
 objectlink *get_objectlink()
 {
 	objectlink *ol = (objectlink *)CALLOC(1, sizeof(objectlink));
+
 	ol->ob = NULL;
 	ol->next = NULL;
 	ol->id = 0;
+
 	return ol;
 }
 
-/* Allocates a new oblinkpt structure, initialises it, and returns
- * a pointer to it. */
+/**
+ * Allocate a new oblinkpt structure and initialize it.
+ * @return Pointer to the new oblinkpt */
 oblinkpt *get_objectlinkpt()
 {
 	oblinkpt *obp = (oblinkpt *) malloc(sizeof(oblinkpt));
+
 	obp->link = NULL;
 	obp->next = NULL;
 	obp->value = 0;
+
 	return obp;
 }
 
-/* Recursively frees all objectlinks.
- * WARNING: only call for with FLAG_IS_LINKED used
- * lists - friendly list or others handle their
- * objectlink malloc/free native. */
+/**
+ * Recursively free all objectlinks.
+ *
+ * @warning Only call for lists with FLAG_IS_LINKED - friendly lists
+ * and some others handle their own objectlink malloc/free.
+ * @param ol The objectlink */
 void free_objectlink(objectlink *ol)
 {
 	if (ol->next)
+	{
 		free_objectlink(ol->next);
+	}
 
 	if (OBJECT_VALID(ol->ob, ol->id))
+	{
 		CLEAR_FLAG(ol->ob, FLAG_IS_LINKED);
+	}
 
 	free(ol);
 }
 
-/* Recursively frees all linked list of objectlink pointers
- * WARNING: only call for with FLAG_IS_LINKED used
- * lists - friendly list or others handle their
- * objectlink malloc/free native. */
+/**
+ * Recursively free all linked lists of objectlink pointers
+ * @warning Only call for lists with FLAG_IS_LINKED - friendly lists
+ * and some others handle their own objectlink malloc/free.
+ * @param obp The oblinkpt */
 void free_objectlinkpt(oblinkpt *obp)
 {
 	if (obp->next)
+	{
 		free_objectlinkpt(obp->next);
+	}
 
 	if (obp->link)
+	{
 		free_objectlink(obp->link);
+	}
 
 	free(obp);
 }
