@@ -607,3 +607,104 @@ void show_book()
 		SDL_SetClipRect(ScreenSurface, NULL);
 	}
 }
+
+/**
+ * Handle events when the mouse was clicked in the book GUI.
+ *
+ * This will attempt to find any keywords in the book, and
+ * call help menu for them.
+ * @param x Mouse X position
+ * @param y Mouse Y position */
+void gui_book_handle_mouse(int x, int y)
+{
+	int i, yoff, xoff = 50;
+	_gui_book_page *page1, *page2;
+
+	/* Get the 2 pages we show */
+	page1 = gui_interface_book->start;
+
+	/* Figure out what page we're in */
+	for (i = 0; i != gui_interface_book->page_show && page1; i++, page1 = page1->next)
+	{
+	}
+
+	page2 = page1->next;
+
+	if (!page1)
+	{
+		return;
+	}
+
+	/* Loop through the max of book page lines */
+	for (yoff = 0, i = 0; i < BOOK_PAGE_LINES; i++, yoff += 16)
+	{
+		if (page1->line[i] && page1->line[i]->line)
+		{
+			char *current_line = page1->line[i]->line, keyword[MAX_BUF];
+			int in_keyword = 0;
+
+			keyword[0] = '\0';
+
+			/* Loop through the current line character, until we hit a null character */
+			while (*current_line != '\0')
+			{
+				/* '^' marks either start of keyword, or an end. */
+				if (*current_line == '^')
+				{
+					/* If we're in a keyword, it's an end. */
+					if (in_keyword)
+					{
+						in_keyword = 0;
+					}
+					/* Start of keyword otherwise */
+					else
+					{
+						in_keyword = 1;
+					}
+				}
+				/* Otherwise we're in the keyword */
+				else if (in_keyword)
+				{
+					char current_char[2];
+
+					/* Get the current character to a temporary buffer, and append it to the keyword string. */
+					snprintf(current_char, sizeof(current_char), "%c", *current_line);
+					strncat(keyword, current_char, sizeof(keyword) - strlen(keyword) - 1);
+				}
+
+				current_line++;
+			}
+
+			/* If we got a keyword */
+			if (keyword[0] != '\0')
+			{
+				int line_len = StringWidth(&MediumFont, current_line), keyword_len = StringWidth(&MediumFont, keyword);
+
+				/* Calculate if the click occurred on the keyword area */
+				if (y < global_book_data.y + yoff + 85 && y > (global_book_data.y + yoff + 75) && x > global_book_data.x + xoff + line_len && x < global_book_data.x + xoff + line_len + keyword_len)
+				{
+					/* It did, show a help GUI for the keyword. */
+					show_help(keyword);
+
+					break;
+				}
+			}
+		}
+
+		/* If this is the end of page lines */
+		if (i + 1 == BOOK_PAGE_LINES)
+		{
+			/* If second page doesn't exist, or we're already on it */
+			if (!page2 || page1 == page2)
+			{
+				break;
+			}
+
+			/* Otherwise assign the page to second page, reset defaults, and assign xoff to right valu for the second page. */
+			page1 = page2;
+			i = 0;
+			yoff = 0;
+			xoff = 280;
+		}
+	}
+}

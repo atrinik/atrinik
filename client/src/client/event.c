@@ -503,111 +503,17 @@ int Event_PollInputDevice()
 					}
 				}
 
-				/* If this is book GUI, go through all the lines and look for links to click on. */
+				/* If this is book GUI, handle the click */
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
 				{
-					int l_len = 0, w_len, i, ii, yoff;
-					_gui_book_page *page1, *page2;
-					char *p, *p2, line[MAX_BUF], *helpBuf = NULL, word[MAX_BUF];
-
-					/* get the 2 pages we show */
-					page1 = gui_interface_book->start;
-					for (i = 0; i != gui_interface_book->page_show && page1; i++, page1 = page1->next);
-					page2 = page1->next;
-
-					if (page1)
-					{
-						for (yoff = 0, i = 0, ii = 0; ii < BOOK_PAGE_LINES; ii++, yoff += 16)
-						{
-							if (!page1->line[i])
-								break;
-
-							if (page1->line[i]->line)
-							{
-								l_len = 0;
-
-								snprintf(line, sizeof(line), "%s", page1->line[i]->line);
-
-								p = strtok(line, " ");
-								while (p)
-								{
-									w_len = StringWidth(&MediumFont, p) + 1;
-
-									if (strstr(p, "^") && y < global_book_data.y + yoff + 85 && y > global_book_data.y + yoff + 75 && x > global_book_data.x + 50 + l_len && x < global_book_data.x + 50 + l_len + w_len + 1)
-									{
-										helpBuf = p;
-										break;
-									}
-
-									l_len += w_len;
-
-									p = strtok(NULL, " ");
-								}
-
-								if (helpBuf)
-								{
-									snprintf(word, sizeof(word), "%s", helpBuf);
-									p2 = strtok(word, "^");
-									book_clear();
-									show_help(p2);
-									break;
-								}
-							}
-
-							i++;
-						}
-					}
-
-					if (!helpBuf)
-					{
-						if (page2)
-						{
-							for (yoff = 0, i = 0, ii = 0; ii < BOOK_PAGE_LINES; ii++, yoff += 16)
-							{
-								if (!page2->line[i])
-									break;
-
-								if (page2->line[i]->line)
-								{
-									l_len = 0;
-
-									snprintf(line, sizeof(line), "%s", page2->line[i]->line);
-
-									p = strtok(line, " ");
-									while (p)
-									{
-										w_len = StringWidth(&MediumFont, p) + 1;
-
-										if (strstr(p, "^") && y < global_book_data.y + yoff + 85 && y > global_book_data.y + yoff + 75 && x > global_book_data.x + 280 + l_len && x < global_book_data.x + 280 + l_len + w_len + 1)
-										{
-											helpBuf = p;
-											break;
-										}
-
-										l_len += w_len;
-
-										p = strtok(NULL, " ");
-									}
-
-									if (helpBuf)
-									{
-										snprintf(word, sizeof(word), "%s", helpBuf);
-										p2 = strtok(word, "^");
-										book_clear();
-										show_help(p2);
-										break;
-									}
-								}
-
-								i++;
-							}
-						}
-					}
+					gui_book_handle_mouse(x, y);
 				}
 
 				/* Beyond here only when no menu is active. */
 				if (cpl.menustatus != MENU_NO)
+				{
 					break;
+				}
 
 				/* Widget System */
 				if (widget_event_mousedn(x,y, &event))

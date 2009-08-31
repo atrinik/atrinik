@@ -92,5 +92,6 @@ extern _global_book_data global_book_data;
 extern _gui_book_struct *load_book_interface(char *data, int len);
 extern void show_book();
 extern void book_clear();
+extern void gui_book_handle_mouse(int x, int y);
 
 #endif
