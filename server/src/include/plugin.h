@@ -69,26 +69,65 @@
 #include <dirent.h>
 #endif
 
-/*****************************************************************************/
-/* Event ID codes. I sorted them to present local events first, but it is    */
-/* just a 'cosmetic' thing.                                                  */
-/*****************************************************************************/
-/*****************************************************************************/
-/* Local events. Those are always linked to a specific object.               */
-/*****************************************************************************/
-#define EVENT_NONE     0  /* No event. This exists only to reserve the "0".  */
-#define EVENT_APPLY    1  /* Object applied-unapplied.                       */
-#define EVENT_ATTACK   2  /* Monster attacked or Scripted Weapon used.       */
-#define EVENT_DEATH    3  /* Player or monster dead.                         */
-#define EVENT_DROP     4  /* Object dropped on the floor.                    */
-#define EVENT_PICKUP   5  /* Object picked up.                               */
-#define EVENT_SAY      6  /* Someone speaks.                                 */
-#define EVENT_STOP     7  /* Thrown object stopped.                          */
-#define EVENT_TIME     8  /* Triggered each time the object can react/move.  */
-#define EVENT_THROW    9  /* Object is thrown.                               */
-#define EVENT_TRIGGER  10 /* Button pushed, lever pulled, etc.               */
-#define EVENT_CLOSE    11 /* Container closed.                               */
-#define EVENT_TIMER    12 /* Timer connected triggered it.                   */
+/**
+ * @defgroup event_numbers Event number codes
+ * Event ID codes.
+ *@{*/
+
+/** No event. This exists only to reserve the "0". */
+#define EVENT_NONE		0
+/** Object applied-unapplied. */
+#define EVENT_APPLY		1
+/** Monster attacked or Scripted Weapon used. */
+#define EVENT_ATTACK	2
+/** Player or monster dead. */
+#define EVENT_DEATH		3
+/** Object dropped on the floor. */
+#define EVENT_DROP		4
+/** Object picked up. */
+#define EVENT_PICKUP	5
+/** Someone speaks. */
+#define EVENT_SAY		6
+/** Thrown object stopped. */
+#define EVENT_STOP		7
+/** Triggered each time the object can react/move. */
+#define EVENT_TIME		8
+/** Object is thrown. */
+#define EVENT_THROW		9
+/** Button pushed, lever pulled, etc. */
+#define EVENT_TRIGGER	10
+/** Container closed. */
+#define EVENT_CLOSE		11
+/** Timer connected triggered it. */
+#define EVENT_TIMER		12
+
+/** A new character has been created. */
+#define EVENT_BORN     13
+/** Global time event. */
+#define EVENT_CLOCK    14
+/** Triggered when the server crashes. Not recursive */
+#define EVENT_CRASH    15
+/** Global Death event */
+#define EVENT_GDEATH   16
+/** Triggered when anything got killed by anyone. */
+#define EVENT_GKILL    17
+/** Player login. */
+#define EVENT_LOGIN    18
+/** Player logout. */
+#define EVENT_LOGOUT   19
+/** A player entered a map. */
+#define EVENT_MAPENTER 20
+/** A player left a map. */
+#define EVENT_MAPLEAVE 21
+/** A map is resetting. */
+#define EVENT_MAPRESET 22
+/** A player character has been removed. */
+#define EVENT_REMOVE   23
+/** A player shouts something. */
+#define EVENT_SHOUT    24
+/** A player tells something. */
+#define EVENT_TELL     25
+/*@}*/
 
 #define NR_LOCAL_EVENTS 13
 #define NR_EVENTS 26
@@ -108,24 +147,6 @@
 #define EVENT_FLAG_TRIGGER  EVENT_FLAG(EVENT_TRIGGER)
 #define EVENT_FLAG_CLOSE    EVENT_FLAG(EVENT_CLOSE)
 #define EVENT_FLAG_TIMER    EVENT_FLAG(EVENT_TIMER)
-
-
-/*****************************************************************************/
-/* Global events. Those are never linked to a specific object.               */
-/*****************************************************************************/
-#define EVENT_BORN     13 /* A new character has been created.               */
-#define EVENT_CLOCK    14 /* Global time event.                              */
-#define EVENT_CRASH    15 /* Triggered when the server crashes. Not recursive*/
-#define EVENT_GDEATH   16 /* Global Death event                              */
-#define EVENT_GKILL    17 /* Triggered when anything got killed by anyone.   */
-#define EVENT_LOGIN    18 /* Player login.                                   */
-#define EVENT_LOGOUT   19 /* Player logout.                                  */
-#define EVENT_MAPENTER 20 /* A player entered a map.                         */
-#define EVENT_MAPLEAVE 21 /* A player left a map.                            */
-#define EVENT_MAPRESET 22 /* A map is resetting.                             */
-#define EVENT_REMOVE   23 /* A Player character has been removed.            */
-#define EVENT_SHOUT    24 /* A player 'shout' something.                     */
-#define EVENT_TELL     25 /* A player 'tell' something.                      */
 
 /*****************************************************************************/
 /* Hook codes. A hook is a function pointer passed from the server to the    */

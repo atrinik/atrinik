@@ -23,10 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/*****************************************************************************/
-/* First, the headers. We only include plugin.h, because all other includes  */
-/* are done into it, and plugproto.h (which is used only by this file).      */
-/*****************************************************************************/
+/**
+ * @file
+ * Handles the plugins code. */
+
 #include <plugin.h>
 #include <sounds.h>
 
@@ -39,32 +39,40 @@
 CFPlugin PlugList[32];
 int PlugNR = 0;
 
-/* get_event_object()
- * browse through the event_obj chain of the given object the
- * get a inserted script object from it.
- * 1: object
- * 2: EVENT_NR
- * return: script object matching EVENT_NR */
+/**
+ * Browse through the inventory of an object to find first
+ * event that matches the event type of event_nr.
+ * @param op The object to search in
+ * @param event_nr The event number. See
+ * {@link event_numbers event numbers} for a list of possible
+ * event numbers.
+ * @return Script object matching the event type */
 object *get_event_object(object *op, int event_nr)
 {
 	register object *tmp;
-	/* for this first implementation we simply browse
+
+	/* For this first implementation we simply browse
 	 * through the inventory of object op and stop
 	 * when we find a script object from type event_nr. */
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
 		if (tmp->type == TYPE_EVENT_OBJECT && tmp->sub_type1 == event_nr)
+		{
 			return tmp;
+		}
 	}
 
 	return tmp;
 }
 
-/*****************************************************************************/
-/* Tries to find if a given command is handled by a plugin.                  */
-/* Note that find_plugin_command is called *before* the internal commands are*/
-/* checked, meaning that you can "overwrite" them.                           */
-/*****************************************************************************/
+/**
+ * Tries to find if a given command is handled by a plugin.
+ * @note This function is called <b>before</b> the internal commands
+ * are checked, meaning that you can "overwrite" them.
+ * @param cmd The command name to find
+ * @param op Object doing this command
+ * @return Command array structure if found, NULL otherwise
+ */
 CommArray_s *find_plugin_command(const char *cmd, object *op)
 {
 	CFParm CmdParm;
@@ -81,15 +89,18 @@ CommArray_s *find_plugin_command(const char *cmd, object *op)
 	for (i = 0; i < PlugNR; i++)
 	{
 		RTNValue = (PlugList[i].propfunc(&CmdParm));
+
 		if (RTNValue != NULL)
 		{
 			RTNCmd.name = (char *)(RTNValue->Value[0]);
 			RTNCmd.func = (CommFunc)(RTNValue->Value[1]);
 			RTNCmd.time = *(float *)(RTNValue->Value[2]);
 			LOG(llevInfo, "RTNCMD: name %s, time %f\n", RTNCmd.name, RTNCmd.time);
+
 			return &RTNCmd;
 		}
 	}
+
 	return NULL;
 }
 
@@ -135,17 +146,23 @@ void displayPluginsList(object *op)
 	closedir(plugdir);
 }
 
-/*****************************************************************************/
-/* Searches in the loaded plugins list for a plugin with a keyname of id.    */
-/* Returns the position of the plugin in the list if a matching one was found*/
-/* or -1 if no correct plugin was detected.                                  */
-/*****************************************************************************/
-int findPlugin(const char* id)
+/**
+ * Searches in the loaded plugins list for a plugin with a keyname of id.
+ * @param id The keyname
+ * @return The position of the plugin in the list if a matching one was
+ * found or -1 if no correct plugin was detected. */
+int findPlugin(const char *id)
 {
 	int i;
+
 	for (i = 0; i < PlugNR; i++)
+	{
 		if (!strcmp(id, PlugList[i].id))
+		{
 			return i;
+		}
+	}
+
 	return -1;
 }
 
@@ -182,194 +199,90 @@ void initPlugins()
 	closedir(plugdir);
 }
 
-#ifdef WIN32
-/*****************************************************************************/
-/* WIN32 Plugin initialization. Initializes a plugin known by its filename.  */
-/* The initialization process has several stages:                            */
-/* - Loading of the DLL itself;                                              */
-/* - Basical plugin information request;                                     */
-/* - CF-Plugin specific initialization tasks (call to initPlugin());         */
-/* - Hook bindings;                                                          */
-/*****************************************************************************/
-void initOnePlugin(const char* pluginfile)
+/**
+ * Initializes a plugin known by its filename.
+ *
+ * The initialization process has several stages:
+ * <ul>
+ *   <li>Loading of the shared library itself</li>
+ *   <li>Basic plugin information request</li>
+ *   <li>CF Plugin specific initialization tasks (call to initPlugin())</li>
+ *   <li>Hook bindings</li>
+ * </ul>
+ * @param pluginfile The plugin filename */
+void initOnePlugin(const char *pluginfile)
 {
-	int i = 0;
+	int i;
+#ifdef WIN32
 	HMODULE DLLInstance;
+#else
 	void *ptr = NULL;
-	CFParm* HookParm;
+#endif
 
-	if ((DLLInstance = LoadLibrary(pluginfile))==NULL)
+#ifdef WIN32
+	if ((DLLInstance = LoadLibrary(pluginfile)) == NULL)
+#else
+	if ((ptr = dlopen(pluginfile, RTLD_NOW | RTLD_GLOBAL)) == NULL)
+#endif
 	{
+#ifdef WIN32
 		LOG(llevBug, "BUG: Error while trying to load %s\n", pluginfile);
+#else
+		LOG(llevBug, "BUG: Error while trying to load %s, returned: %s\n", pluginfile, dlerror());
+#endif
+
 		return;
 	}
+
+#ifdef WIN32
 	PlugList[PlugNR].libptr = DLLInstance;
-	PlugList[PlugNR].initfunc = (f_plugin)(GetProcAddress(DLLInstance, "initPlugin"));
+	PlugList[PlugNR].initfunc = (f_plugin) (GetProcAddress(DLLInstance, "initPlugin"));
+#else
+	PlugList[PlugNR].libptr = ptr;
+	PlugList[PlugNR].initfunc = (f_plugin) (dlsym(ptr, "initPlugin"));
+#endif
+
 	if (PlugList[PlugNR].initfunc == NULL)
 	{
+#ifdef WIN32
 		LOG(llevBug, "BUG: Plugin init error\n");
-		FreeLibrary(ptr);
+#else
+		LOG(llevBug, "BUG: Plugin init error: %s\n", dlerror());
+#endif
+
 		return;
 	}
 	else
 	{
-		CFParm* InitParm;
-		InitParm = PlugList[PlugNR].initfunc(NULL);
-		LOG(llevInfo, "Plugin name: %s, known as %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
-		strcpy(PlugList[PlugNR].id, (char *)(InitParm->Value[0]));
-		strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
+		CFParm *InitParm = PlugList[PlugNR].initfunc(NULL);
+
+		LOG(llevInfo, "Plugin name: %s, known as %s\n", (char *) (InitParm->Value[1]), (char *) (InitParm->Value[0]));
+
+		strcpy(PlugList[PlugNR].id, (char *) (InitParm->Value[0]));
+		strcpy(PlugList[PlugNR].fullname, (char *) (InitParm->Value[1]));
 	}
 
+#ifdef WIN32
 	PlugList[PlugNR].hookfunc = (f_plugin)(GetProcAddress(DLLInstance, "registerHook"));
 	PlugList[PlugNR].eventfunc = (f_plugin)(GetProcAddress(DLLInstance, "triggerEvent"));
 	PlugList[PlugNR].pinitfunc = (f_plugin)(GetProcAddress(DLLInstance, "postinitPlugin"));
 	PlugList[PlugNR].propfunc = (f_plugin)(GetProcAddress(DLLInstance, "getPluginProperty"));
-
-	if (PlugList[PlugNR].pinitfunc == NULL)
-	{
-		LOG(llevBug, "BUG: Plugin postinit error\n");
-		FreeLibrary(ptr);
-		return;
-	}
-
-	for (i = 0; i < NR_EVENTS; i++)
-		PlugList[PlugNR].gevent[i] = 0;
-
-	if (PlugList[PlugNR].hookfunc == NULL)
-	{
-		LOG(llevBug, "BUG: Plugin hook error\n");
-		FreeLibrary(ptr);
-		return;
-	}
-	else
-	{
-		int j;
-		i = 0;
-		HookParm = (CFParm *)(malloc(sizeof(CFParm)));
-		HookParm->Value[0] = (int *)(malloc(sizeof(int)));
-
-		for (j = 1; j <= NR_OF_HOOKS; j++)
-		{
-			memcpy(HookParm->Value[0], &j, sizeof(int));
-			HookParm->Value[1] = HookList[j];
-
-			PlugList[PlugNR].hookfunc(HookParm);
-		}
-		free(HookParm->Value[0]);
-		free(HookParm);
-	}
-
-	if (PlugList[PlugNR].eventfunc == NULL)
-	{
-		LOG(llevBug, "BUG: Event plugin error\n");
-		FreeLibrary(ptr);
-		return;
-	}
-	PlugNR++;
-	PlugList[PlugNR-1].pinitfunc(NULL);
-	LOG(llevInfo, "Done\n");
-}
-
-/*****************************************************************************/
-/* Removes one plugin from memory. The plugin is identified by its keyname.  */
-/*****************************************************************************/
-void removeOnePlugin(const char *id)
-{
-	int plid;
-	int j;
-	LOG(llevDebug, "Warning - removeOnePlugin non-canon under Win32\n");
-	plid = findPlugin(id);
-	if (plid < 0)
-		return;
-	/* We unload the library... */
-	FreeLibrary(PlugList[plid].libptr);
-	/* Then we copy the rest on the list back one position */
-	PlugNR--;
-	if (plid == 31)
-		return;
-
-	for (j = plid + 1; j < 32; j++)
-	{
-		PlugList[j - 1] = PlugList[j];
-	}
-}
-
 #else
-
-#ifndef HAVE_SCANDIR
-
-extern int alphasort(struct dirent **a, struct dirent **b);
-#endif
-
-
-
-/*****************************************************************************/
-/* Removes one plugin from memory. The plugin is identified by its keyname.  */
-/*****************************************************************************/
-void removeOnePlugin(const char *id)
-{
-	int plid;
-	int j;
-	plid = findPlugin(id);
-
-	if (plid < 0)
-		return;
-
-	/* We unload the library... */
-	dlclose(PlugList[plid].libptr);
-	/* Then we copy the rest on the list back one position */
-	PlugNR--;
-
-	if (plid == 31)
-		return;
-
-	LOG(llevInfo, "plid=%i, PlugNR=%i\n", plid, PlugNR);
-	for (j = plid + 1; j < 32; j++)
-	{
-		PlugList[j - 1] = PlugList[j];
-	}
-}
-
-/*****************************************************************************/
-/* UNIX Plugin initialization. Initializes a plugin known by its filename.   */
-/* The initialization process has several stages:                            */
-/* - Loading of the DLL itself;                                              */
-/* - Basical plugin information request;                                     */
-/* - CF-Plugin specific initialization tasks (call to initPlugin());         */
-/* - Hook bindings;                                                          */
-/*****************************************************************************/
-void initOnePlugin(const char* pluginfile)
-{
-	int i = 0;
-	void *ptr = NULL;
-	CFParm* HookParm;
-	if ((ptr = dlopen(pluginfile, RTLD_NOW | RTLD_GLOBAL)) == NULL)
-	{
-		LOG(llevInfo,"Plugin error: %s\n", dlerror());
-		return;
-	}
-	PlugList[PlugNR].libptr = ptr;
-	PlugList[PlugNR].initfunc = (f_plugin)(dlsym(ptr, "initPlugin"));
-	if (PlugList[PlugNR].initfunc == NULL)
-	{
-		LOG(llevInfo, "Plugin init error: %s\n", dlerror());
-	}
-	else
-	{
-		CFParm* InitParm;
-		InitParm = PlugList[PlugNR].initfunc(NULL);
-		LOG(llevInfo, "Plugin %s loaded under the name of %s\n", (char *)(InitParm->Value[1]), (char *)(InitParm->Value[0]));
-		strcpy(PlugList[PlugNR].id, (char *)(InitParm->Value[0]));
-		strcpy(PlugList[PlugNR].fullname, (char *)(InitParm->Value[1]));
-	}
 	PlugList[PlugNR].hookfunc = (f_plugin)(dlsym(ptr, "registerHook"));
 	PlugList[PlugNR].eventfunc = (f_plugin)(dlsym(ptr, "triggerEvent"));
 	PlugList[PlugNR].pinitfunc = (f_plugin)(dlsym(ptr, "postinitPlugin"));
 	PlugList[PlugNR].propfunc = (f_plugin)(dlsym(ptr, "getPluginProperty"));
-	LOG(llevInfo, "Done\n");
+#endif
+
 	if (PlugList[PlugNR].pinitfunc == NULL)
 	{
-		LOG(llevInfo, "Plugin postinit error: %s\n", dlerror());
+#ifdef WIN32
+		LOG(llevBug, "BUG: Plugin postinit error\n");
+#else
+		LOG(llevBug, "BUG: Plugin postinit error: %s\n", dlerror());
+#endif
+
+		return;
 	}
 
 	for (i = 0; i < NR_EVENTS; i++)
@@ -379,34 +292,97 @@ void initOnePlugin(const char* pluginfile)
 
 	if (PlugList[PlugNR].hookfunc == NULL)
 	{
-		LOG(llevInfo, "Plugin hook error: %s\n", dlerror());
+#ifdef WIN32
+		LOG(llevBug, "BUG: Plugin hook error\n");
+#else
+		LOG(llevBug, "BUG: Plugin hook error: %s\n", dlerror());
+#endif
+
+		return;
 	}
 	else
 	{
-		int j;
-		i = 0;
-		HookParm = (CFParm *)(malloc(sizeof(CFParm)));
-		HookParm->Value[0] = (const int *)(malloc(sizeof(int)));
+		CFParm *HookParm = (CFParm *)(malloc(sizeof(CFParm)));
 
-		for (j = 1; j < NR_OF_HOOKS; j++)
+#ifdef WIN32
+		HookParm->Value[0] = (int *)(malloc(sizeof(int)));
+#else
+		HookParm->Value[0] = (const int *)(malloc(sizeof(int)));
+#endif
+
+		for (i = 1; i <= NR_OF_HOOKS; i++)
 		{
-			memcpy((void *)HookParm->Value[0], &j, sizeof(int));
-			HookParm->Value[1] = HookList[j];
+#ifdef WIN32
+			memcpy(HookParm->Value[0], &i, sizeof(int));
+#else
+			memcpy((void *) HookParm->Value[0], &i, sizeof(int));
+#endif
+
+			HookParm->Value[1] = HookList[i];
+
 			PlugList[PlugNR].hookfunc(HookParm);
 		}
-		free((void *)HookParm->Value[0]);
+
+#ifdef WIN32
+		free(HookParm->Value[0]);
+#else
+		free((void *) HookParm->Value[0]);
+#endif
+
 		free(HookParm);
 	}
 
 	if (PlugList[PlugNR].eventfunc == NULL)
 	{
+#ifdef WIN32
+		LOG(llevBug, "BUG: Event plugin error\n");
+#else
 		LOG(llevBug, "BUG: Event plugin error %s\n", dlerror());
+#endif
+
+		return;
 	}
+
 	PlugNR++;
 	PlugList[PlugNR - 1].pinitfunc(NULL);
+
 	LOG(llevInfo, "[Done]\n");
 }
+
+/**
+ * Removes one plugin from memory. The plugin is identified by its keyname.
+ * @param id The plugin keyname */
+void removeOnePlugin(const char *id)
+{
+	int plid = findPlugin(id), j;
+
+	if (plid < 0)
+	{
+		return;
+	}
+
+	/* We unload the library... */
+#ifdef WIN32
+	FreeLibrary(PlugList[plid].libptr);
+#else
+	dlclose(PlugList[plid].libptr);
 #endif
+
+	/* Then we copy the rest on the list back one position */
+	PlugNR--;
+
+	if (plid == 31)
+	{
+		return;
+	}
+
+	LOG(llevInfo, "Removing plugin: plid: %d, PlugNR: %d\n", plid, PlugNR);
+
+	for (j = plid + 1; j < 32; j++)
+	{
+		PlugList[j - 1] = PlugList[j];
+	}
+}
 
 /*****************************************************************************/
 /* Hook functions. Those are wrappers to crosslib functions, used by plugins.*/
