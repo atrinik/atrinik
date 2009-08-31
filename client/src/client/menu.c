@@ -350,7 +350,7 @@ void show_help(char *helpname)
 		}
 
 		/* Got what we wanted, replace it with the default message */
-		snprintf(message, sizeof(message), "<b t=\"%s\"><t t=\"%s\">%s\n", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
+		snprintf(message, sizeof(message), "<b t=\"%s\"><t t=\"%s\">%s", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
 
 		/* Break out */
 		break;
@@ -362,7 +362,7 @@ void show_help(char *helpname)
 
 	cpl.menustatus = MENU_BOOK;
 
-	gui_interface_book = load_book_interface((char *) data, len + 3);
+	gui_interface_book = load_book_interface((char *) data, len);
 }
 
 /**
