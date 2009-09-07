@@ -659,18 +659,18 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = src/zutil.c \
-                         src/uncompr.c \
-                         src/inftrees.c \
-                         src/inflate.c \
-                         src/include/inflate.h \
-                         src/include/inftrees.h \
-                         src/inffast.c \
-                         src/include/inffast.h \
-                         src/crc32.c \
-                         src/include/zutil.h \
-                         src/include/zlib.h \
-                         src/include/zconf.h
+EXCLUDE                = src/zlib/zutil.c \
+                         src/zlib/uncompr.c \
+                         src/zlib/inftrees.c \
+                         src/zlib/inflate.c \
+                         src/zlib/include/inflate.h \
+                         src/zlib/include/inftrees.h \
+                         src/zlib/inffast.c \
+                         src/zlib/include/inffast.h \
+                         src/zlib/crc32.c \
+                         src/zlib/include/zutil.h \
+                         src/zlib/include/zlib.h \
+                         src/zlib/include/zconf.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
