@@ -1940,23 +1940,31 @@ int action_makes_visible(object *op)
 int pvp_area(object *attacker, object* victim)
 {
 	/* No attacking of party members. */
-	if (attacker && victim && CONTR(attacker)->party_number != -1 && CONTR(victim)->party_number != -1 && CONTR(attacker)->party_number == CONTR(victim)->party_number)
+	if (attacker && victim && attacker->type == PLAYER && victim->type == PLAYER && CONTR(attacker)->party_number != -1 && CONTR(victim)->party_number != -1 && CONTR(attacker)->party_number == CONTR(victim)->party_number)
+	{
 		return 0;
+	}
 
 	/* If both are the same, this is probably a firestorm from attacker or something. Don't want to kill ourselves! */
 	if (attacker && victim && attacker == victim)
+	{
 		return 0;
+	}
 
 	if (attacker)
 	{
 		if (!(attacker->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_IS_PVP))
+		{
 			return 0;
+		}
 	}
 
 	if (victim)
 	{
 		if (!(victim->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_IS_PVP))
+		{
 			return 0;
+		}
 	}
 
 	return 1;
