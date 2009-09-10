@@ -28,6 +28,8 @@
 
 #ifdef __LINUX
 #include "define.h"
+#else
+#include "win32.h"
 #endif
 
 #include "config.h"
