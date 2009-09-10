@@ -63,6 +63,8 @@ extern char *GetSfxDirectory();
 extern char *GetMediaDirectory();
 extern char *GetIconDirectory();
 
+extern char *get_word_from_string(char *str, int *pos);
+
 extern int SYSTEM_Start();
 extern int SYSTEM_End();
 uint32 get_video_flags();

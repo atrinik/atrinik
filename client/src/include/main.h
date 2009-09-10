@@ -761,6 +761,8 @@ typedef enum _bitmap_index
 	BITMAP_PLAYER_INFO,
 	BITMAP_TARGET_BG,
 	BITMAP_TEXTINPUT,
+	BITMAP_SHOP,
+	BITMAP_SHOP_INPUT,
 
 	BITMAP_INIT
 }_bitmap_index;

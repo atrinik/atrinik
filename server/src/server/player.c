@@ -1073,6 +1073,13 @@ int move_player(object *op, int dir)
 	if (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)
 		return 0;
 
+	/* Do not allow the player to move if he is in player shop interface */
+	if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Close your player shop before attempting to move.");
+		return 0;
+	}
+
 	if (dir)
 		op->facing = dir;
 

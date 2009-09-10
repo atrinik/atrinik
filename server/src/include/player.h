@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles player related structures, enums and defines. */
+
 typedef struct _level_color
 {
 	int green;
@@ -63,7 +67,7 @@ typedef enum usekeytype
 	containers = 2
 } usekeytype;
 
-/* used for item damage system */
+/** Used for item damage system */
 enum
 {
 	PLAYER_EQUIP_MAIL,
@@ -74,32 +78,56 @@ enum
 	PLAYER_EQUIP_CLOAK,
 	PLAYER_EQUIP_GIRDLE,
 	PLAYER_EQUIP_SHIELD,
+
 	/* this must 1 entry before LRING! */
 	PLAYER_EQUIP_RRING,
 	PLAYER_EQUIP_LRING,
 	PLAYER_EQUIP_AMULET,
 	PLAYER_EQUIP_WEAPON1,
 	PLAYER_EQUIP_BOW,
-	PLAYER_EQUIP_MAX
+
 	/* last index */
+	PLAYER_EQUIP_MAX
 };
 
-/* not really the player, but tied pretty closely */
+/**
+ * Party structure.
+ * @todo Move this to a new file, party.h */
 typedef struct party_struct
 {
+	/** ID of the party. */
 	sint16 partyid;
+
+	/** Name of the party leader */
 	const char *partyleader;
+
+	/** Password this party requires */
 	char passwd[7];
-	struct party_struct *next;
+
+	/** Name of the party */
 	char *partyname;
+
 #ifdef PARTY_KILL_LOG
 	struct party_kill
 	{
-		char killer[MAX_NAME + 1], dead[MAX_NAME + 1];
+		/** Name of the killer */
+		char killer[MAX_NAME + 1];
+
+		char dead[MAX_NAME + 1];
+
+		/** Exp gained */
 		uint32 exp;
 	} party_kills[PARTY_KILL_LOG];
 #endif
-	uint32 total_exp, kills;
+
+	/** Total experience gained */
+	uint32 total_exp;
+
+	/** Total of kills */
+	uint32 kills;
+
+	/** Next party in the list */
+	struct party_struct *next;
 } partylist;
 
 /* we can include more flags here... */
@@ -524,6 +552,14 @@ uint32 explore:
 #endif
 
 	int apartment_invite;
+
+	/**
+	 * Player shop structure, with linked list of items the player is
+	 * selling. */
+	player_shop *shop_items;
+
+	/** Number of items the player has in his shop. */
+	int shop_items_count;
 
 	/* i disabled this now - search for last_used in the code.
 	  * perhaps we need this in the future. */

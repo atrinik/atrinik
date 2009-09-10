@@ -313,7 +313,9 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
 	{"menu_buttons.png",PIC_TYPE_DEFAULT},
 	{"player_info_bg.png",PIC_TYPE_DEFAULT},
 	{"target_bg.png", PIC_TYPE_DEFAULT},
-	{"textinput.png", PIC_TYPE_DEFAULT}
+	{"textinput.png", PIC_TYPE_DEFAULT},
+	{"shop.png", PIC_TYPE_DEFAULT},
+	{"shop_input.png", PIC_TYPE_DEFAULT}
 };
 
 #define BITMAP_MAX (sizeof(bitmap_name) / sizeof(struct _bitmap_name))

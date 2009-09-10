@@ -105,6 +105,7 @@ void draw_client_map(object *pl);
 void draw_client_map2(object *pl);
 void esrv_map_scroll(NewSocket *ns, int dx, int dy);
 void send_plugin_custom_message(object *pl, char *buf);
+void ShopCmd(char *buf, int len, player *pl);
 
 /* sounds.c */
 void play_sound_player_only(player *pl, int soundnum, int soundtype, int x, int y);

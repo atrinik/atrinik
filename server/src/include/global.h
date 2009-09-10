@@ -177,6 +177,8 @@ typedef struct linked_char
 /* add skills.h global */
 #include "skills.h"
 
+#include "player_shop.h"
+
 /* Pull in the player structure */
 #include "player.h"
 

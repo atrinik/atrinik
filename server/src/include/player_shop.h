@@ -23,23 +23,39 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INVENTORY_H)
-#define __INVENTORY_H
+/**
+ * @file
+ * Handles player shop structures and defines. */
 
-#define INVITEMBELOWXLEN 8
-#define INVITEMBELOWYLEN 1
+/**
+ * Maximum number of items to allow in shop. The same limit is also set
+ * for the client. */
+#define PLAYER_SHOP_MAX_ITEMS 28
 
-#define INVITEMXLEN 7
-#define INVITEMYLEN 3
+/**
+ * Maximum integer value (nrof, price, etc) the server will accept for
+ * shop items. */
+#define PLAYER_SHOP_MAX_INT_VALUE 100000000
 
-extern void blt_inv_item(item *tmp, int x, int y, int nrof);
-extern int get_inventory_data(item *op, int *cflag, int *slot, int *start, int *count, int wxlen, int wylen);
-extern void examine_range_inv();
-extern void examine_range_marks(int tag);
-extern int blt_inv_item_centered(item *tmp, int x, int y);
-extern void widget_below_window_event(int x, int y, int MEvent);
-extern void widget_inventory_event(int x, int y, SDL_Event event);
-extern void widget_show_below_window(item *op, int x, int y);
-extern void widget_show_inventory_window(int x, int y);
+/**
+ * Maximum distance a buyer can be from the seller in order for the
+ * shop interface to work. */
+#define PLAYER_SHOP_MAX_DISTANCE 3
 
-#endif
+/** The player shop item structure. */
+typedef struct player_shop_struct
+{
+	/** Pointer to the object */
+	object *item_object;
+
+	/** Price of the object, set by the seller */
+	sint32 price;
+
+	/**
+	 * Number of objects we're selling, so that you can sell only fifteen
+	 * out of twenty bolts for example. */
+	uint32 nrof;
+
+	/** Pointer to the next object we're selling */
+	struct player_shop_struct *next;
+} player_shop;

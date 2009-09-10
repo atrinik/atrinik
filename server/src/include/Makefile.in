@@ -35,6 +35,7 @@ ALL_FILES = \
 	config.h \
 	living.h \
 	player.h \
+	player_shop.h \
 	spellist.h \
 	define.h \
 	loader.h \

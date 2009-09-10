@@ -1167,12 +1167,17 @@
 #define FLAG_OBJECT_WAS_MOVED	133
 /** don't save this object - remove it before we save */
 #define FLAG_NO_SAVE			134
+
+/**
+ * The object has player shop open and cannot do move actions (checked
+ * for in move_player(), as this is for players only). */
+#define FLAG_PLAYER_SHOP		135
 /*@}*/
 
 /* flag 37 is still free (old FREED flag). Let it free for secure reason for some time */
 
 /** Should always be equal to the last defined flag */
-#define NUM_FLAGS		134
+#define NUM_FLAGS		135
 /** the number of uint32 we need to store all flags */
 #define NUM_FLAGS_32	5
 /*@}*/

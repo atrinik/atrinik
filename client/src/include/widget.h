@@ -113,6 +113,7 @@ typedef enum _WidgetID
 	MAPNAME_ID,
 	IN_CONSOLE_ID,
 	IN_NUMBER_ID,
+	SHOP_ID,
 
 	/* Must be last element */
 	TOTAL_WIDGETS

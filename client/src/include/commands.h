@@ -87,4 +87,5 @@ extern void ItemYCmd(unsigned char *data, int len);
 extern void TargetObject(unsigned char *data, int len);
 extern void DataCmd(unsigned char *data, int len);
 extern void NewCharCmd();
+extern void ShopCmd(unsigned char *data, int len);
 #endif

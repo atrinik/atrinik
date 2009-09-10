@@ -91,6 +91,7 @@ enum
 	BINARY_CMD_BOOK,
 	BINARY_CMD_PARTY,
 	BINARY_CMD_QUICKSLOT,
+	BINARY_CMD_SHOP,
 	/* last entry */
 	BINAR_CMD
 };
@@ -132,6 +133,7 @@ struct CmdMapping commands[] =
 	{"book", BookCmd},
 	{"pt", PartyCmd},
 	{"qs", (CmdProc)QuickSlotCmd},
+	{"shop", ShopCmd},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd},

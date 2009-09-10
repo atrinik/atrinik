@@ -23,11 +23,13 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file implements all of the goo on the server side for handling
+/**
+ * @file
+ * This file implements all of the goo on the server side for handling
  * clients.  It's got a bunch of global variables for keeping track of
  * each of the clients.
  *
- * Note:  All functions that are used to process data from the client
+ * @note All functions that are used to process data from the client
  * have the prototype of (char *data, int datalen, int client_num).  This
  * way, we can use one dispatch table. */
 
@@ -1920,4 +1922,48 @@ void send_plugin_custom_message(object *pl, char *buf)
 	(void) pl;
 	(void) buf;
 	/*Write_String_To_Socket(&CONTR(pl)->socket, buf, strlen(buf));*/
+}
+
+/**
+ * Handles shop commands received from the player's client.
+ * @param buf The buffer
+ * @param len Length of the buffer
+ * @param pl The player */
+void ShopCmd(char *buf, int len, player *pl)
+{
+	(void) len;
+
+	/* Handle opening a shop */
+	if (strncmp(buf, "open|", 5) == 0)
+	{
+		buf += 5;
+
+		player_shop_open(buf, pl);
+	}
+	/* Handle closing a shop */
+	else if (strncmp(buf, "close", 5) == 0)
+	{
+  player_shop_close(pl);
+	}
+	/* Handle loading of a shop */
+	else if (strncmp(buf, "load ", 5) == 0)
+	{
+		buf += 5;
+
+		player_shop_load(buf, pl);
+	}
+	/* Do an examine on shop item */
+	else if (strncmp(buf, "examine ", 8) == 0)
+	{
+		buf += 8;
+
+		player_shop_examine(buf, pl);
+	}
+	/* Buy item an item */
+	else if (strncmp(buf, "buy ", 4) == 0)
+	{
+		buf += 4;
+
+		player_shop_buy(buf, pl);
+	}
 }

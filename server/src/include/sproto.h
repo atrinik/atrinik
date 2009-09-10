@@ -548,6 +548,17 @@ int action_makes_visible(object *op);
 int pvp_area(object *attacker, object *victim);
 void dragon_ability_gain(object *who, int atnr, int level);
 
+/* player_shop.c */
+void player_shop_send_items(player *pl, player *seller);
+void player_shop_close_interface(player *pl);
+void player_shop_free_structure(player *pl, int send_close);
+int shop_player_in_range(object *op, object *seller);
+void player_shop_open(char *data, player *pl);
+void player_shop_close(player *pl);
+void player_shop_load(char *data, player *pl);
+void player_shop_examine(char *data, player *pl);
+void player_shop_buy(char *data, player *pl);
+
 /* plugins.c */
 object *get_event_object(object *op, int event_nr);
 CommArray_s *find_plugin_command(const char *cmd, object *op);

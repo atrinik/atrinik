@@ -405,6 +405,14 @@ int Event_PollInputDevice()
 				mb_clicked = 0;
 				active_scrollbar = 0;
 
+				if (cur_widget[SHOP_ID].show && draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
+				{
+					if (shop_put_item(x, y))
+					{
+						break;
+					}
+				}
+
 				/* Widget has higher priority than anything below, exept menus
 				 * so break if we had a widget event */
 				if (widget_event_mouseup(x,y, &event))
@@ -1042,6 +1050,11 @@ int key_event(SDL_KeyboardEvent *key)
 	}
 	else if (key->type == SDL_KEYDOWN)
 	{
+		if (shop_gui && check_shop_keys(key))
+		{
+			return 0;
+		}
+
 		if (cpl.menustatus != MENU_NO)
 		{
 			/* We catch here the keybind key, when we insert a new macro there */

@@ -274,7 +274,15 @@ item *locate_item(sint32 tag)
 	if (tag == -1)
 		return cpl.sack;
 
+	if (tag == -2)
+	{
+		return cpl.shop;
+	}
+
 	if (cpl.below && (op = locate_item_from_item(cpl.below->inv, tag)) != NULL)
+		return op;
+
+	if (cpl.shop && (op = locate_item_from_item(cpl.shop->inv, tag)) != NULL)
 		return op;
 
 	if (cpl.sack && (op = locate_item_from_item(cpl.sack->inv, tag)) != NULL)
@@ -654,8 +662,11 @@ item *player_item()
 	player = new_item();
 	cpl.below = new_item();
 	cpl.sack = new_item();
+	cpl.shop = new_item();
+
 	cpl.below->weight = -111;
 	cpl.sack->weight = -111;
+	cpl.shop->weight = -111;
 
 	return player;
 }
@@ -797,6 +808,34 @@ void animate_objects()
 	if (cpl.container)
 	{
 		for (ip = cpl.sack->inv; ip; ip = ip->next)
+		{
+			if (ip->animation_id > 0)
+				check_animation_status(ip->animation_id);
+
+			if (ip->animation_id > 0 && ip->anim_speed)
+			{
+				ip->last_anim++;
+
+				if (ip->last_anim >= ip->anim_speed)
+				{
+					if (++ip->anim_state >= animations[ip->animation_id].frame)
+						ip->anim_state = 0;
+
+					if (ip->direction > animations[ip->animation_id].facings)
+						ip->face = animations[ip->animation_id].faces[ip->anim_state];
+					else
+						ip->face = animations[ip->animation_id].faces[animations[ip->animation_id].frame * ip->direction + ip->anim_state];
+
+					ip->last_anim = 0;
+					got_one = 1;
+				}
+			}
+		}
+	}
+
+	if (cpl.shop)
+	{
+		for (ip = cpl.shop->inv; ip; ip = ip->next)
 		{
 			if (ip->animation_id > 0)
 				check_animation_status(ip->animation_id);

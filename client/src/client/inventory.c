@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles inventory related functions. */
+
 #include "include.h"
 
 char *skill_level_name[] =
@@ -363,7 +367,7 @@ void widget_show_inventory_window(int x, int y)
 			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
 #endif
 
-		blt_inv_item(tmp, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1);
+		blt_inv_item(tmp, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
 
 		if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 		{
@@ -388,7 +392,7 @@ jump_in_container1:
 					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
 #endif
 
-				blt_inv_item(tmpc, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1);
+				blt_inv_item(tmpc, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
@@ -500,7 +504,7 @@ void widget_show_below_window(item *op, int x, int y)
 		if (tmp->tag != cpl.container_tag)
 			tmp->applied = 0;
 
-		blt_inv_item(tmp, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19);
+		blt_inv_item(tmp, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
 		tmp->applied = at;
 
 		if (i + cpl.win_below_start == cpl.win_below_slot)
@@ -531,7 +535,7 @@ void widget_show_below_window(item *op, int x, int y)
 jump_in_container2:
 			for (; tmpc && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmpc = tmpc->next)
 			{
-				blt_inv_item(tmpc, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19);
+				blt_inv_item(tmpc, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
 
 				if (i + cpl.win_below_start == cpl.win_below_slot)
 				{
@@ -701,18 +705,40 @@ int blt_inv_item_centered(item *tmp, int x, int y)
 	return 1;
 }
 
-void blt_inv_item(item *tmp, int x, int y)
+/**
+ * Blit an inventory item to the screen surface.
+ *
+ * Uses blt_inv_item_centered() to draw the item's face and center it.
+ * Draws any additional flags (like magical, cursed, damned) as icons
+ * and draws nrof (if higher than 1) of items near the bottom.
+ * @param tmp Pointer to the inventory item
+ * @param x X position of the item
+ * @param y Y position of the item
+ * @param nrof If non-zero, will use the value instead of the item's own
+ * nrof. */
+void blt_inv_item(item *tmp, int x, int y, int nrof)
 {
+	int tmp_nrof = tmp->nrof;
+
+	if (nrof)
+	{
+		tmp_nrof = nrof;
+	}
+
 	blt_inv_item_centered(tmp, x, y);
 
-	if (tmp->nrof > 1)
+	if (tmp_nrof > 1)
 	{
 		char buf[64];
 
-		if (tmp->nrof > 9999)
+		if (tmp_nrof > 9999)
+		{
 			snprintf(buf, sizeof(buf), "many");
+		}
 		else
-			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
+		{
+			snprintf(buf, sizeof(buf), "%d", tmp_nrof);
+		}
 
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
 	}

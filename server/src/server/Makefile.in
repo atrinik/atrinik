@@ -57,6 +57,7 @@ SRCS = \
 	move.c \
 	pets.c \
 	player.c \
+	player_shop.c \
 	plugins.c \
 	resurrection.c \
 	rune.c \

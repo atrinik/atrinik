@@ -322,6 +322,12 @@ int client_command_check(char *cmd)
 			return 1;
 		}
 	}
+	else if (!strncmp(cmd, "/shop", 5))
+	{
+		initialize_shop(SHOP_STATE_NONE);
+
+		return 1;
+	}
 
 	return 0;
 }
@@ -2213,7 +2219,33 @@ void widget_show_target(int x, int y)
 	}
 
 	if (cpl.target_code)
+	{
+		int mx, my, mb;
+
+		mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
+
 		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], x + 223, y + 7, NULL, NULL);
+
+		if (mx > x + 200 && mx < x + 200 + 20 && my > y + 3 && my < y + 13)
+		{
+			static int delta = 0;
+
+			if (mb && mb_clicked && !(delta++ & 7))
+			{
+				char tmp_buf[MAX_BUF];
+
+				snprintf(tmp_buf, sizeof(tmp_buf), "shop load %s", cpl.target_name);
+
+				cs_write_string(csocket.fd, tmp_buf, strlen(tmp_buf));
+			}
+
+			StringBlt(ScreenSurface, &SystemFont, "Shop", x + 200, y + 3, COLOR_HGOLD, NULL, NULL);
+		}
+		else
+		{
+			StringBlt(ScreenSurface, &SystemFont, "Shop", x + 200, y + 3, COLOR_WHITE, NULL, NULL);
+		}
+	}
 
 	if (options.show_target_self || cpl.target_code != 0)
 	{
@@ -2365,7 +2397,7 @@ void widget_quickslots(int x, int y)
 				if (tmp)
 				{
 					/* Show it */
-					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
 
 					/* And show tooltip, if mouse is over it */
 					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
@@ -2566,7 +2598,7 @@ void show_quickslots(int x, int y)
 
 				if (tmp)
 				{
-					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
 
 					/* Show tooltip if mouse is over it */
 					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)

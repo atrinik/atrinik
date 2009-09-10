@@ -41,6 +41,7 @@ SRCS = \
 	metaserver.c \
 	misc.c \
 	player.c \
+	player_shop.c \
 	party.c \
 	socket.c \
 	sound.c \

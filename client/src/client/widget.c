@@ -58,28 +58,31 @@ static const _widgetdata con_widget[TOTAL_WIDGETS] =
 	{"REGEN",		NULL,	399,	0,		98,		39,		TRUE, 	TRUE, 	TRUE},
 	{"SKILL_LVL",	NULL,	695,	0,		52,		101,	TRUE, 	TRUE, 	TRUE},
 	{"MENUBUTTONS",	NULL,	747,	0,		47,		101,	TRUE, 	TRUE, 	TRUE},
-	{"QUICKSLOTS",	NULL,	513,	107,	282,	34,		TRUE, 	TRUE, 	TRUE},
+	{"QUICKSLOTS",	NULL,	509,	107,	282,	34,		TRUE, 	TRUE, 	TRUE},
 	{"CHATWIN",		NULL,	0,		366,	261,	233,	TRUE, 	TRUE, 	TRUE},
 	{"MSGWIN",		NULL,	537,	366,	261,	233,	TRUE, 	TRUE, 	TRUE},
 	{"MIXWIN",		NULL,	539,	420,	261,	233,	TRUE, 	FALSE, 	TRUE},
 	{"PLAYERDOLL",	NULL,	0,		41,		221,	224,	TRUE, 	TRUE, 	TRUE},
 	{"BELOWINV",	NULL,	262,	545,	274,	55,		TRUE, 	TRUE, 	TRUE},
 	{"PLAYERINFO",	NULL,	0,		0,		219,	41,		TRUE, 	TRUE, 	TRUE},
-	{"RANGEBOX",	NULL,	6,		100,	94,		60,		TRUE, 	TRUE, 	TRUE},
+	{"RANGEBOX",	NULL,	6,		51,		94,		60,		TRUE, 	TRUE, 	TRUE},
 	{"TARGET",		NULL,	267,	514,	264,	31,		TRUE, 	TRUE, 	TRUE},
 	{"MAININV",		NULL,	539,	147,	239,	32,		TRUE, 	TRUE, 	TRUE},
 	{"MAPNAME",		NULL,	228,	106,	36,		12,		TRUE, 	TRUE, 	TRUE},
 	{"CONSOLE",		NULL,	271,	489,	256,	25,		TRUE, 	FALSE, 	TRUE},
-	{"NUMBER",		NULL,	271,	465,	256,	43,		TRUE, 	FALSE, 	TRUE},
+	{"NUMBER",		NULL,	270,	471,	256,	43,		TRUE, 	FALSE, 	TRUE},
+	{"SHOP",		NULL,	300,	147,	200,	320,	TRUE,	FALSE,	TRUE},
 };
 
-/** Default overall priority list.. Will change during runtime.
+/**
+ * Default overall priority list. Will change during runtime.
  * Widget at the head has highest priority.
  * Events go to the head first
  * Displaying goes to the foot first */
 static widget_node *priority_list_head, *priority_list_foot;
 
-/** Determines which widget has mouse focus
+/**
+ * Determines which widget has mouse focus
  * This value is determined in the mouse routines for the widgets */
 _widgetevent widget_mouse_event =
 {
@@ -100,7 +103,8 @@ static _widgetmove widget_event_move =
 /** SDL surface for the widgets */
 SDL_Surface *widgetSF[TOTAL_WIDGETS] = {NULL};
 
-/** A way to steal the mouse, and to prevent widgets from using mouse events
+/**
+ * A way to steal the mouse, and to prevent widgets from using mouse events
  * Example: Prevents widgets from using mouse events during dragging procedure */
 int IsMouseExclusive = 0;
 
@@ -466,21 +470,19 @@ int load_interface_file(char *filename)
 
 	fclose(stream);
 
-	/* Test to see if all widgets were found */
-	for (pos = 0; pos < TOTAL_WIDGETS && found_widget[pos]; ++pos);
-
-	/* If all were loaded/found, transfer */
-	if (pos >= TOTAL_WIDGETS)
+	/* Go through the widgets */
+	for (pos = 0; pos < TOTAL_WIDGETS; ++pos)
 	{
-		for (pos = 0; pos < TOTAL_WIDGETS; ++pos)
+		/* If the widget was found, load the data we got */
+		if (found_widget[pos])
+		{
 			cur_widget[pos] = def_widget[pos] = tmp_widget[pos];
-	}
-	/* Some are missing, don't transfer */
-	else
-	{
-		LOG(LOG_MSG, "load_interface_file(): Error! Not all widgets included in interface file: %s (%d, %d)\n", filename, pos, TOTAL_WIDGETS);
-
-		return 0;
+		}
+		/* Otherwise use default data */
+		else
+		{
+			cur_widget[pos] = def_widget[pos] = con_widget[pos];
+		}
 	}
 
 #ifdef DEBUG_WIDGET
@@ -1067,6 +1069,10 @@ void process_widget(int nID)
 
 		case IN_NUMBER_ID:
 			widget_show_number(cur_widget[nID].x1, cur_widget[nID].y1);
+			break;
+
+		case SHOP_ID:
+			widget_show_shop(cur_widget[nID].x1, cur_widget[nID].y1);
 			break;
 	}
 }

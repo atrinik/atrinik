@@ -239,6 +239,9 @@ typedef struct Player_Struct
 	/* Pointer to open container */
 	item *container;
 
+	/** Inventory of items in shop */
+	item *shop;
+
 	/* Tag of the container */
 	sint32 container_tag;
 

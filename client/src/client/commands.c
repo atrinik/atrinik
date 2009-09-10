@@ -2202,3 +2202,139 @@ void DataCmd(unsigned char *data, int len)
 
 	free(dest);
 }
+
+/**
+ * Shop command.
+ * @param data Data buffer
+ * @param len Length of the buffer */
+void ShopCmd(unsigned char *data, int len)
+{
+	/* If we are loading */
+	if (strncmp((char *) data, "load|", 5) == 0)
+	{
+		char *p;
+
+		data += 5;
+
+		/* Only can load once */
+		if (shop_gui && shop_gui->shop_items)
+		{
+			return;
+		}
+
+		/* Initialize the shop */
+		initialize_shop(SHOP_STATE_BUYING);
+
+		p = strtok((char *) data, "|");
+
+		snprintf(shop_gui->shop_owner, sizeof(shop_gui->shop_owner), "%s", p);
+
+		p = strtok(NULL, "|");
+
+		/* Loop through the data */
+		while (p)
+		{
+			sint32 tag, price;
+			int nrof;
+			_shop_struct *shop_item_tmp;
+
+			/* Get the tag, nrof and price */
+			if (!sscanf(p, "%d:%d:%d", &tag, &nrof, &price))
+			{
+				return;
+			}
+
+			/* Allocate a new shop item */
+			shop_item_tmp = (_shop_struct *) malloc(sizeof(_shop_struct));
+
+			/* Set the values */
+			shop_item_tmp->nrof = nrof;
+			shop_item_tmp->price = price;
+			shop_item_tmp->tag = tag;
+			shop_item_tmp->next = NULL;
+
+			/* One more item */
+			shop_gui->shop_items_count++;
+
+			/* If this is the first item, things are easier */
+			if (!shop_gui->shop_items)
+			{
+				shop_gui->shop_items = shop_item_tmp;
+			}
+			/* Otherwise we need to calculate the end of the list */
+			else
+			{
+				_shop_struct *shop_item_next = shop_gui->shop_items;
+				int i;
+
+				/* Loop until the end of the list */
+				for (i = 1; i < shop_gui->shop_items_count - 1 && shop_item_next; i++, shop_item_next = shop_item_next->next)
+				{
+				}
+
+				/* Append the item to the end of the list */
+				shop_item_next->next = shop_item_tmp;
+			}
+
+			p = strtok(NULL, "|");
+		}
+	}
+	else if (strncmp((char *) data, "close", 5) == 0)
+	{
+		clear_shop(0);
+	}
+	/* Otherwise this is data of a specific item */
+	else
+	{
+		int tag, face, flags, pos = 0, nlen, anim, nrof;
+		uint8 animspeed, direction = 0;
+		char name[MAX_BUF];
+
+		/* Loop until we reach end of the data */
+		while (pos < len)
+		{
+			/* Get the item tag */
+			tag = GetInt_String((unsigned char *) data + pos);
+			pos += 4;
+
+			/* Get the flags */
+			flags = GetInt_String((unsigned char *) data + pos);
+			pos += 4;
+
+			/* Get the face */
+			face = GetInt_String((unsigned char *) data + pos);
+			pos += 4;
+
+			/* Request the face now */
+			request_face(face, 0);
+
+			/* Get the direction the item is facing */
+			direction = data[pos++];
+
+			/* Get the item name */
+			nlen = data[pos++];
+			memcpy(name, data + pos, nlen);
+			pos += nlen;
+			name[nlen] = '\0';
+
+			/* Get the animation */
+			anim = GetShort_String((unsigned char *) data + pos);
+			pos += 2;
+
+			/* Get the animation speed */
+			animspeed = data[pos++];
+
+			/* Get the number of the items */
+			nrof = GetInt_String((unsigned char *) data + pos);
+			pos += 4;
+
+			/* Update the item */
+			update_item(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, TRUE);
+		}
+
+		if (pos > len)
+		{
+			LOG(LOG_ERROR, "ERROR: ShopCmd(): Overread buffer: %d > %d\n", pos, len);
+		}
+	}
+}

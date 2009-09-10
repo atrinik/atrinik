@@ -1094,7 +1094,14 @@ void generate_ext_title(player *pl)
 	strcat(pl->quick_name, pl->ob->name);
 
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+	{
 		strcat(pl->quick_name, " [WIZ]");
+	}
+
+	if (pl->shop_items && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
+	{
+		strcat(pl->quick_name, " [SHOP]");
+	}
 
 	/*strcat(pl->quick_name, title);*/
 	sprintf(pl->ext_title, "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender);
