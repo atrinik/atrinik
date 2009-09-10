@@ -3276,7 +3276,7 @@ void spawn_point(object *op)
 int is_friend_of(object *op, object *obj)
 {
 	/* TODO: Add a few other odd types here, such as god and golem */
-	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
+	if (obj->type != PLAYER || obj->type != MONSTER || op->type != PLAYER || op->type != MONSTER || op == obj)
 		return 0;
 
 	/* If on PVP area, they won't be friendly */
