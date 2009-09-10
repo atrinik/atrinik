@@ -3,12 +3,13 @@ name The City of Greyton
 msg
 Creator: Alex Tokar
 Date:    5/11/2009
-Modified: 2009-07-29 Alex Tokar
+Modified: 2009-09-10 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 20
 outdoor 1
+no_harm 1
 tile_path_2 greyton_0102
 tile_path_3 greyton_0001
 tile_path_6 greyton_0101

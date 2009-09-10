@@ -3,12 +3,13 @@ name The City of Greyton
 msg
 Creator: Daimonin Map Editor
 Date:    5/11/2009
-Modified: 2009-08-24 Alex Tokar
+Modified: 2009-09-10 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_2 ../world_0a01
 tile_path_3 greyton_0201
 tile_path_4 greyton_0102
