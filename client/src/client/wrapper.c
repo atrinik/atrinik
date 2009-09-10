@@ -367,6 +367,8 @@ char *file_path(const char *fname, const char *mode)
 {
 	static char tmp[256];
 
+	(void) mode;
+
 	snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
 
 	return tmp;
