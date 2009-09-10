@@ -751,7 +751,7 @@ static int RunPythonScript(const char *path, object *event_object)
 	struct _node *n;
 	PyObject *globdict;
 
-	if (event_object)
+	if (event_object && event_object->map)
 	{
 		char tmp_path[HUGE_BUF];
 
