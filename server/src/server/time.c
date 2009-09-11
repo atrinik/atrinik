@@ -1382,6 +1382,12 @@ void move_teleporter(object *op)
 {
 	object *tmp, *next;
 
+	/* Sanity check */
+	if (!op->map)
+	{
+		return;
+	}
+
 	/* get first object of this map node */
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = next)
 	{
