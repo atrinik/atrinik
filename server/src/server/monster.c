@@ -3088,14 +3088,69 @@ static inline int spawn_point_darkness(object *spoint, int darkness)
 	return 0;
 }
 
+static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
+{
+	object *tmp2, *next, *next2, *item;
+
+	/* we have a mob - now insert a copy of all items the spawn point mob has.
+	 * take care about RANDOM DROP objects.
+	 * usually these items are put from the map maker inside the spawn mob inv.
+	 * remember that these are additional items to the treasures list ones. */
+	for (; tmp; tmp = next)
+	{
+		next = tmp->below;
+
+		if (tmp->type == TYPE_RANDOM_DROP)
+		{
+			/* skip this container - drop the ->inv */
+			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
+			{
+				for (tmp2 = tmp->inv; tmp2; tmp2 = next2)
+				{
+					next2 = tmp2->below;
+
+					if (tmp2->type == TYPE_RANDOM_DROP)
+					{
+						LOG(llevDebug,"DEBUG:: Spawn:: RANDOM_DROP (102) not allowed inside RANDOM_DROP.mob:>%s< map:%s (%d,%d)\n", query_name(monster, NULL), op->map ? op->map->path : "BUG: S-Point without map!", op->x, op->y);
+					}
+					else
+					{
+						item = get_object();
+						copy_object(tmp2, item);
+						/* and put it in the mob */
+						insert_ob_in_ob(item, monster);
+
+						if (tmp2->inv)
+						{
+							insert_spawn_monster_loot(op, item, tmp2->inv);
+						}
+					}
+				}
+			}
+		}
+		/* remember this can be sys_objects too! */
+		else
+		{
+			item = get_object();
+			copy_object(tmp, item);
+			/* and put it in the mob */
+			insert_ob_in_ob(item, monster);
+
+			if (tmp->inv)
+			{
+				insert_spawn_monster_loot(op, item, tmp->inv);
+			}
+		}
+	}
+}
+
 
 /* central spawn point function.
  * Control, generate or remove the generated object. */
 void spawn_point(object *op)
 {
 	int rmt;
-	object *tmp, *mob, *next, *item;
-	object *tmp2, *next2;
+	object *tmp, *mob, *next;
 
 	if (op->enemy)
 	{
@@ -3202,42 +3257,7 @@ void spawn_point(object *op)
 		mob->last_eat = 0;
 	}
 
-	/* we have a mob - now insert a copy of all items the spawn point mob has.
-	 * take care about RANDOM DROP objects.
-	 * usually these items are put from the map maker inside the spawn mob inv.
-	 * remember that these are additional items to the treasures list ones. */
-	for (; tmp; tmp = next)
-	{
-		next = tmp->below;
-		if (tmp->type == TYPE_RANDOM_DROP)
-		{
-			/* skip this container - drop the ->inv */
-			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
-			{
-				for (tmp2 = tmp->inv; tmp2; tmp2 = next2)
-				{
-					next2 = tmp2->below;
-					if (tmp2->type == TYPE_RANDOM_DROP)
-						LOG(llevDebug,"DEBUG:: Spawn:: RANDOM_DROP (102) not allowed inside RANDOM_DROP.mob:>%s< map:%s (%d,%d)\n", query_name(mob, NULL), op->map ? op->map->path : "BUG: S-Point without map!", op->x, op->y);
-					else
-					{
-						item = get_object();
-						copy_object(tmp2, item);
-						/* and put it in the mob */
-						insert_ob_in_ob(item, mob);
-					}
-				}
-			}
-		}
-		/* remember this can be sys_objects too! */
-		else
-		{
-			item = get_object();
-			copy_object(tmp, item);
-			/* and put it in the mob */
-			insert_ob_in_ob(item, mob);
-		}
-	}
+	insert_spawn_monster_loot(op, mob, tmp);
 
 	/* this is the last rand() for what we have spawned! */
 	op->last_sp = rmt;
