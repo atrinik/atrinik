@@ -3088,14 +3088,23 @@ static inline int spawn_point_darkness(object *spoint, int darkness)
 	return 0;
 }
 
+/**
+ * Insert a copy of all items the spawn point mob has to the new monster.
+ * Takes care about random drop objects.
+ *
+ * This will recursively call itself if the item to put to the new
+ * monster has an inventory.
+ *
+ * Usually these items are put from the map maker inside the spawn
+ * monster inventory.
+ * Remember that these are additional items to the treasures list ones.
+ * @param op The spawn point object
+ * @param monster The object where to put the copy of items to
+ * @param tmp The inventory pointer where we are copying the items from */
 static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 {
 	object *tmp2, *next, *next2, *item;
 
-	/* we have a mob - now insert a copy of all items the spawn point mob has.
-	 * take care about RANDOM DROP objects.
-	 * usually these items are put from the map maker inside the spawn mob inv.
-	 * remember that these are additional items to the treasures list ones. */
 	for (; tmp; tmp = next)
 	{
 		next = tmp->below;
