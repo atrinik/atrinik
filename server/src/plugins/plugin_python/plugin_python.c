@@ -751,13 +751,22 @@ static int RunPythonScript(const char *path, object *event_object)
 	struct _node *n;
 	PyObject *globdict;
 
-	if (event_object && event_object->map)
+	if (event_object && fullpath[0] != '/')
 	{
 		char tmp_path[HUGE_BUF];
+		object *outermost = event_object;
 
-		normalize_path(event_object->map->path, path, tmp_path);
+		while (outermost && outermost->env)
+		{
+			outermost = outermost->env;
+		}
 
-		fullpath = create_pathname(tmp_path);
+		if (outermost && outermost->map)
+		{
+			normalize_path(outermost->map->path, path, tmp_path);
+
+			fullpath = create_pathname(tmp_path);
+		}
 	}
 
 	/* TODO: figure out how to get from server */
