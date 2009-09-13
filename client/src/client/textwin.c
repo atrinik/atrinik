@@ -117,7 +117,7 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 	else if (actWin == TW_MSG)
 		wID = MSGWIN_ID;
 
-	clicked_row = (mouseY - cur_widget[wID].y1) / 10;
+	clicked_row = (mouseY - cur_widget[wID].y1 - 2.5f) / 10;
 
 	text = get_keyword_start(actWin, mouseX, &clicked_row, wID);
 
