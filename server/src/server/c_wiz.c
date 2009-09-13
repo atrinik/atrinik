@@ -165,26 +165,34 @@ int command_shutdown(object *op, char *params)
 
 int command_goto(object *op, char *params)
 {
-	char *name;
+	char name[MAX_BUF] = {"\0"};
+	int x = -1, y = -1;
 	object *dummy;
 
 	if (!op)
+	{
 		return 0;
+	}
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Go to what map?");
+		new_draw_info(NDI_UNIQUE, 0, op, "Go to what map?\nUsage: /goto <map> x y");
 		return 1;
 	}
 
-	name = params;
+	sscanf(params, "%s %d %d", name, &x, &y);
+
 	dummy = get_object();
 	dummy->map = op->map;
+	dummy->stats.hp = x;
+	dummy->stats.sp = y;
 	FREE_AND_COPY_HASH(EXIT_PATH(dummy), name);
 	FREE_AND_COPY_HASH(dummy->name, name);
 
 	enter_exit(op, dummy);
+
 	new_draw_info_format(NDI_UNIQUE, 0, op, "Difficulty: %d.", op->map->difficulty);
+
 	return 1;
 }
 
