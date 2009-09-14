@@ -1406,6 +1406,23 @@ save_objects_jump1:
 	}
 }
 
+/**
+ * Sets darkness for map, both light_value and darkness.
+ *
+ * Takes care of checking the passed value.
+ * @param m Pointer to the map's structure
+ * @param value The darkness value */
+void set_map_darkness(mapstruct *m, int value)
+{
+	if (value < 0 || value > MAX_DARKNESS)
+	{
+		value = MAX_DARKNESS;
+	}
+
+	MAP_DARKNESS(m) = (sint32) value;
+	m->light_value = (sint32) global_darkness_table[value];
+}
+
 /* Allocates, initialises, and returns a pointer to a mapstruct.
  * Modified to no longer take a path option which was not being
  * used anyways.  MSW 2001-07-01 */
@@ -1435,9 +1452,7 @@ mapstruct *get_linked_map()
 	MAP_HEIGHT(map) = 16;
 	MAP_RESET_TIMEOUT(map) = 7200;
 	MAP_TIMEOUT(map) = 300;
-	/* default light of a map is full daylight */
-	MAP_DARKNESS(map) = -1;
-	map->light_value = global_darkness_table[MAX_DARKNESS];
+	set_map_darkness(map, MAP_DEFAULT_DARKNESS);
 
 	MAP_ENTER_X(map) = 0;
 	MAP_ENTER_Y(map) = 0;
@@ -1617,18 +1632,15 @@ static int load_map_header(FILE *fp, mapstruct *m)
 		}
 		else if (!strcmp(key, "darkness"))
 		{
-			MAP_DARKNESS(m) = atoi(value);
-			if (MAP_DARKNESS(m) == -1)
-				m->light_value = global_darkness_table[MAX_DARKNESS];
-			else
-			{
-				if (MAP_DARKNESS(m) < 0 || MAP_DARKNESS(m) > MAX_DARKNESS)
-				{
-					LOG(llevBug, "\nBug: Illegal map darkness %d, setting to %d\n", MAP_DARKNESS(m), MAX_DARKNESS);
-					MAP_DARKNESS(m) = MAX_DARKNESS;
-				}
+			int v = atoi(value);
 
-				m->light_value = global_darkness_table[MAP_DARKNESS(m)];
+			if (v < -1 || v > MAX_DARKNESS)
+  			{
+  				LOG(llevBug, "BUG: Illegal map darkness %d (must be -1 to %d, defaulting to -1).\n", v, MAX_DARKNESS);
+			}
+			else if (v != MAP_DEFAULT_DARKNESS)
+			{
+				set_map_darkness(m, v);
 			}
 		}
 		else if (!strcmp(key, "light"))

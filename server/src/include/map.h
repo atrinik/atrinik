@@ -358,6 +358,14 @@ typedef struct MapSpace_s
 /* Call plugin map events for this map */
 #define MAP_FLAG_PLUGINS        16384
 
+/**
+ * @defgroup map_default_values Default map values
+ * Nonzero default map values.
+ *@{*/
+/** Default darkness */
+#define MAP_DEFAULT_DARKNESS	0
+/*@}*/
+
 #define SET_MAP_TILE_VISITED(m, x, y, id)                                                    \
 {                                                                                            \
     if ((m)->pathfinding_id != (id))                                                         \
