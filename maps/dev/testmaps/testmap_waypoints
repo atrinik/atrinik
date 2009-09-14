@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 1
 tile_path_2 testmap_waypoints2
+darkness -1
 end
 arch floor_ostone1
 end

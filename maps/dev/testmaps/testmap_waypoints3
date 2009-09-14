@@ -9,6 +9,7 @@ height 24
 difficulty 1
 tile_path_3 testmap_waypoints4
 tile_path_4 testmap_waypoints2
+darkness -1
 end
 arch floor_ostone1
 end

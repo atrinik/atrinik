@@ -8,6 +8,7 @@ width 16
 height 14
 difficulty 1
 no_harm 1
+darkness -1
 end
 arch floor_stone_b3
 end

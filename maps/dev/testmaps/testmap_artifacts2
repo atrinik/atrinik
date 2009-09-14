@@ -9,6 +9,7 @@ height 24
 difficulty 1
 tile_path_1 testmap_artifacts1
 tile_path_3 testmap_artifacts3
+darkness -1
 end
 arch floor_ostone1
 end

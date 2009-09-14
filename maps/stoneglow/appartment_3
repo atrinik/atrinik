@@ -9,6 +9,7 @@ height 9
 difficulty 1
 no_summon 1
 no_harm 1
+darkness -1
 end
 arch floor_inv
 unique 1

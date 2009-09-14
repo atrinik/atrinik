@@ -9,6 +9,7 @@ height 17
 enter_x 1
 enter_y 1
 difficulty 1
+darkness -1
 end
 arch floor_ostone1
 end

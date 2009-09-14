@@ -3,11 +3,13 @@ name The starting tutorial
 msg
 Creator: Daimonin Map Editor
 Date:    10/2/2003
+Modified: 2009-09-14 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 no_save 1
+darkness -1
 end
 arch floor_stone_b4
 end
@@ -963,9 +965,8 @@ invulnerable 1
 x 5
 y 1
 arch event_obj
-name Python
-race /gatekeeper.py
 sub_type 6
+race /gatekeeper.py
 end
 arch empty_ai
 end
@@ -3028,9 +3029,8 @@ friendly 1
 x 17
 y 5
 arch event_obj
-name Python
-race /gatepriest.py
 sub_type 6
+race /gatepriest.py
 end
 arch empty_ai
 end
@@ -3786,9 +3786,8 @@ sp 10
 x 22
 y 1
 arch event_obj
-name Python
-race TutorialStairs.py
 sub_type 10
+race TutorialStairs.py
 end
 end
 arch floor_stone_b4
