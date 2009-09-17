@@ -339,10 +339,7 @@ static void resize_window(int width, int height)
 
 /**
  * Poll input device like mouse, keys, etc.
- * @return 1 if the the quit key was pressed, 0 otherwise
- * @todo The part of code that handles clicking links in
- * book/help GUI should be moved to separate function in
- * book.c */
+ * @return 1 if the the quit key was pressed, 0 otherwise */
 int Event_PollInputDevice()
 {
 	SDL_Event event;
