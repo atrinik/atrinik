@@ -2151,22 +2151,28 @@ void explode_object(object *op)
 	}
 }
 
-/* if we are here, the arch (spell) we check was able to move
- * to this place. Wall() has failed include reflection.
- * now we look for a target. */
+/**
+ * If we are here, the arch (spell) we check was able to move to this
+ * place. wall() has failed, including reflection checking.
+ *
+ * Look for a target.
+ * @param op The spell object */
 void check_fired_arch(object *op)
 {
 	tag_t op_tag = op->count, tmp_tag;
-	object *tmp, *hitter;
+	object *tmp, *hitter, *head;
 	int dam, flag;
 
 	/* we return here if we have NOTHING blocking here */
 	if (!blocked(op, op->map, op->x, op->y, op->terrain_flag))
+	{
 		return;
+	}
 
 	if (op->other_arch)
 	{
 		explode_object(op);
+
 		return;
 	}
 
@@ -2175,30 +2181,51 @@ void check_fired_arch(object *op)
 		probe(op);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+
 		return;
 	}
 
 	hitter = get_owner(op);
+
 	if (!hitter)
+	{
 		hitter = op;
+	}
 
 	flag = GET_MAP_FLAGS(op->map, op->x, op->y) & P_IS_PVP;
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
-		if (IS_LIVE(tmp) && ((tmp->type != PLAYER && hitter->type == PLAYER) || (tmp->type == PLAYER && hitter->type != PLAYER) || (hitter->type == PLAYER && (flag || tmp->map->map_flags & MAP_FLAG_PVP))))
-		{
-			tmp_tag = tmp->count;
+		head = tmp->head;
 
-			dam = hit_player (tmp, op->stats.dam, op, op->attacktype);
-			if (was_destroyed(op, op_tag) || !was_destroyed (tmp, tmp_tag) || (op->stats.dam -= dam) < 0)
+		if (!head)
+		{
+			head = tmp;
+		}
+
+		if (!IS_LIVE(tmp))
+		{
+			continue;
+		}
+
+		/* Let friends fire through friends */
+		if (is_friend_of(hitter, head) || head == hitter)
+		{
+			continue;
+		}
+
+		tmp_tag = tmp->count;
+
+		dam = hit_player(tmp, op->stats.dam, op, op->attacktype);
+
+		if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0)
+		{
+			if (!QUERY_FLAG(op, FLAG_REMOVED))
 			{
-				if (!QUERY_FLAG(op, FLAG_REMOVED))
-				{
-					remove_ob(op);
-					check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-					return;
-				}
+				remove_ob(op);
+				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+
+				return;
 			}
 		}
 	}
