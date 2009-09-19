@@ -641,14 +641,6 @@ void rec_sigsegv(int i)
 	fatal_signal(1);
 }
 
-void rec_sigint(int i)
-{
-	(void) i;
-
-	LOG(LOG_MSG, "\nSIGINT received.\n");
-	fatal_signal(0);
-}
-
 void rec_sighup(int i)
 {
 	(void) i;
@@ -686,7 +678,6 @@ void init_signals()
 {
 #ifndef WIN32
 	signal(SIGHUP, rec_sighup);
-	signal(SIGINT, rec_sigint);
 	signal(SIGQUIT, rec_sigquit);
 	signal(SIGSEGV, rec_sigsegv);
 	signal(SIGTERM, rec_sigterm);
@@ -1785,8 +1776,10 @@ int main(int argc, char *argv[])
 		flip_screen();
 
 		/* Force the thread to sleep */
-		if (!options.max_speed)
+		if (options.max_speed)
+		{
 			SDL_Delay(options.sleep);
+		}
 	}
 
 	/* Save interface file (widget positions) */
