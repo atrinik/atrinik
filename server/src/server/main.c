@@ -594,7 +594,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	}
 
 	/* If this is new unique map, insert it in the database. */
-	if (is_new && !MAP_NOSAVE(newmap))
+	if (is_new && newmap && !MAP_NOSAVE(newmap))
 	{
 		int size = HUGE_BUF;
 		char *p;
