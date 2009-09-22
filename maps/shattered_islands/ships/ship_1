@@ -1,0 +1,283 @@
+arch map
+name Ship
+msg
+Created:  2009-09-22 Alex Tokar
+Modified: 2009-09-22 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+end
+arch floor_wood2_l1
+end
+arch wall_wood_8
+end
+arch floor_wood2_l1
+y 1
+end
+arch wall_wood2_3
+y 1
+end
+arch floor_wood2_l2
+y 2
+end
+arch wall_wood3_3
+y 2
+end
+arch floor_wood2_l2
+y 3
+end
+arch wall_wood1_3
+y 3
+end
+arch floor_wood2_l1
+y 4
+end
+arch wall_wood2_3
+y 4
+end
+arch floor_wood2_l1
+x 1
+end
+arch wall_wood1_1
+x 1
+end
+arch floor_wood2_l2
+x 1
+y 1
+end
+arch barrel_water.101
+x 1
+y 1
+end
+arch floor_wood2_l1
+x 1
+y 2
+end
+arch stairs_wood_up
+slaying ../world_0305
+hp 13
+sp 18
+x 1
+y 2
+end
+arch floor_wood2_l2
+x 1
+y 3
+end
+arch grain5.101
+x 1
+y 3
+end
+arch floor_wood2_l2
+x 1
+y 4
+end
+arch wall_wood1_1
+x 1
+y 4
+end
+arch floor_wood2_l2
+x 2
+end
+arch wall_wood2_1
+x 2
+end
+arch floor_wood2_l2
+x 2
+y 1
+end
+arch wood_pile.101
+x 2
+y 1
+end
+arch floor_wood2_l1
+x 2
+y 2
+end
+arch light5
+x 2
+y 2
+end
+arch floor_wood2_l1
+x 2
+y 3
+end
+arch floor_wood2_l2
+x 2
+y 4
+end
+arch wall_wood1_1
+x 2
+y 4
+end
+arch floor_wood2_l2
+x 3
+end
+arch wall_wood3_1
+x 3
+end
+arch flag_04
+x 3
+end
+arch floor_wood2_l2
+x 3
+y 1
+end
+arch floor_wood2_l1
+x 3
+y 2
+end
+arch floor_wood2_l2
+x 3
+y 3
+end
+arch floor_wood2_l1
+x 3
+y 4
+end
+arch wall_wood1_1
+x 3
+y 4
+end
+arch floor_wood2_l1
+x 4
+end
+arch wall_wood2_1
+x 4
+end
+arch floor_wood2_l2
+x 4
+y 1
+end
+arch floor_wood2_l1
+x 4
+y 2
+end
+arch floor_wood2_l1
+x 4
+y 3
+end
+arch floor_wood2_l1
+x 4
+y 4
+end
+arch wall_wood1_1
+x 4
+y 4
+end
+arch floor_wood2_l2
+x 5
+end
+arch wall_wood3_1
+x 5
+end
+arch floor_wood2_l2
+x 5
+y 1
+end
+arch floor_wood2_l2
+x 5
+y 2
+end
+arch light5
+x 5
+y 2
+end
+arch floor_wood2_l1
+x 5
+y 3
+end
+arch floor_wood2_l1
+x 5
+y 4
+end
+arch wall_wood3_1
+x 5
+y 4
+end
+arch floor_wood2_l1
+x 6
+end
+arch wall_wood2_1
+x 6
+end
+arch floor_wood2_l2
+x 6
+y 1
+end
+arch pottery5.101
+x 6
+y 1
+end
+arch floor_wood2_l2
+x 6
+y 2
+end
+arch stairs_wood_up
+slaying ../world_0110
+hp 8
+sp 17
+direction 7
+x 6
+y 2
+arch event_obj
+sub_type 1
+race ../scripts/tutorial_island/ship_exit.py
+end
+end
+arch floor_wood2_l1
+x 6
+y 3
+end
+arch straw2.111
+x 6
+y 3
+end
+arch floor_wood2_l2
+x 6
+y 4
+end
+arch wall_wood2_1
+x 6
+y 4
+end
+arch floor_wood2_l1
+x 7
+end
+arch wall_wood3_1
+x 7
+end
+arch floor_wood2_l2
+x 7
+y 1
+end
+arch wall_wood3_3
+x 7
+y 1
+end
+arch floor_wood2_l1
+x 7
+y 2
+end
+arch wall_wood3_3
+x 7
+y 2
+end
+arch floor_wood2_l2
+x 7
+y 3
+end
+arch wall_wood1_3
+x 7
+y 3
+end
+arch floor_wood2_l2
+x 7
+y 4
+end
+arch wall_wood_4
+x 7
+y 4
+end

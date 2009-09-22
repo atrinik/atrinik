@@ -1,88 +1,101 @@
+# Generic script for church priests. Includes removing curse, damnation,
+# curing poison, etc.
 import Atrinik
 import string
 
 activator = Atrinik.WhoIsActivator()
-whoami = Atrinik.WhoAmI()
+me = Atrinik.WhoAmI()
 
 msg = Atrinik.WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-if msg == 'remove curse':
-	if activator.PayAmount(1500) == 1:
-		whoami.SayTo(activator, "\nOk, I will cast 'remove curse' for 15 silver on you.")
+# All possible costs of services. Based on player's level.
+costs = {
+	"remove_curse": 100 * activator.level,
+	"remove_damnation": 100 + (3 * activator.level * activator.level),
+	"remove_depletion": 100 + (4 * activator.level * activator.level),
+	"cure_disease": 100 * activator.level,
+	"cure_poison": 5 * activator.level,
+}
+
+# Remove curse
+if msg == "remove curse":
+	if activator.PayAmount(costs["remove_curse"]) == 1:
+		me.SayTo(activator, "\nOk, I will cast remove curse on you now.")
 		activator.Write("You pay the money.", 0)
-		whoami.CastAbility(activator, Atrinik.GetSpellNr("remove curse"), 1, 0, "")
+		me.CastAbility(activator, Atrinik.GetSpellNr("remove curse"), 1, 0, "")
 	else:
-		whoami.SayTo(activator, "\nSorry, you don't have enough money.")
+		me.SayTo(activator, "\nSorry, you don't have enough money.")
 
-elif msg == 'remove damnation':
-	if activator.PayAmount(3000) == 1:
-		whoami.SayTo(activator, "\nOk, I will cast 'remove damnation' for 30 silver on you.")
+# Remove damnation
+elif msg == "remove damnation":
+	if activator.PayAmount(costs["remove_damnation"]) == 1:
+		me.SayTo(activator, "\nOk, I will cast remove damnation on you now.")
 		activator.Write("You pay the money.", 0)
-		whoami.CastAbility(activator, Atrinik.GetSpellNr("remove damnation"), 1, 0, "")
+		me.CastAbility(activator, Atrinik.GetSpellNr("remove damnation"), 1, 0, "")
 	else:
-		whoami.SayTo(activator, "\nSorry, you don't have enough money.")
+		me.SayTo(activator, "\nSorry, you don't have enough money.")
 
-elif msg == 'remove depletion':
+# Remove depletion
+elif msg == "remove depletion":
 	if activator.level < 3:
-		whoami.SayTo(activator, "\nYou are under level 3. I will help you for free this time!")
-		whoami.CastAbility(activator, Atrinik.GetSpellNr("remove depletion"), 1, 0, "")
+		me.SayTo(activator, "\nYou are under level 3. I will help you for free this time!")
+		me.CastAbility(activator, Atrinik.GetSpellNr("remove depletion"), 1, 0, "")
 	else:
-		if activator.PayAmount(3500) == 1:
-			whoami.SayTo(activator, "\nOk, I will cast 'remove depletion' for 35 silver on you.")
+		if activator.PayAmount(costs["remove_depletion"]) == 1:
+			me.SayTo(activator, "\nOk, I will cast remove depletion on you now.")
 			activator.Write("You pay the money.", 0)
-			whoami.CastAbility(activator, Atrinik.GetSpellNr("remove depletion"), 1, 0, "")
+			me.CastAbility(activator, Atrinik.GetSpellNr("remove depletion"), 1, 0, "")
 		else:
-			whoami.SayTo(activator,"\nSorry, you don't have enough money.")
+			me.SayTo(activator,"\nSorry, you don't have enough money.")
 
-elif msg == 'cure disease':
+# Cure disease
+elif msg == "cure disease":
 	if activator.level < 3:
-		whoami.SayTo(activator, "\nYou are under level 3. I will help you for free this time!")
-		whoami.CastAbility(activator, Atrinik.GetSpellNr("cure disease"), 1, 0, "")
+		me.SayTo(activator, "\nYou are under level 3. I will help you for free this time!")
+		me.CastAbility(activator, Atrinik.GetSpellNr("cure disease"), 1, 0, "")
 	else:
-		if activator.PayAmount(100) == 1:
-			whoami.SayTo(activator, "\nOk, I will cast 'cure disease' for 1 silver on you.")
+		if activator.PayAmount(costs["cure_disease"]) == 1:
+			me.SayTo(activator, "\nOk, I will cast cure disease on you now.")
 			activator.Write("You pay the money.", 0)
-			whoami.CastAbility(activator, Atrinik.GetSpellNr("cure disease"), 1, 0, "")
+			me.CastAbility(activator, Atrinik.GetSpellNr("cure disease"), 1, 0, "")
 		else:
-			whoami.SayTo(activator, "\nSorry, you don't have enough money.")
+			me.SayTo(activator, "\nSorry, you don't have enough money.")
 
-elif msg == 'cure poison':
-		whoami.SayTo(activator, "\nLet me help you ...")
-		whoami.CastAbility(activator, Atrinik.GetSpellNr("cure poison"), 1, 0, "")
-
-elif text[0] == "healing":
-	spell = Atrinik.GetSpellNr("minor healing")
-	if spell == -1:
-		whoami.SayTo(activator, "Unknown spell.")
+# Cure poison
+elif msg == "cure poison":
+	if activator.level < 3:
+		me.SayTo(activator, "\nYou are under level 3. I will help you for free this time!")
+		me.CastAbility(activator, Atrinik.GetSpellNr("cure poison"), 1, 0, "")
 	else:
-		if activator.DoKnowSpell(spell) == 1:
-			whoami.SayTo(activator, "You already know this prayer...")
-		else:	
-			activator.AcquireSpell(spell, Atrinik.LEARN)
+		if activator.PayAmount(costs["cure_poison"]) == 1:
+			me.SayTo(activator, "\nOk, I will cast cure poison on you now.")
+			activator.Write("You pay the money.", 0)
+			me.CastAbility(activator, Atrinik.GetSpellNr("cure poison"), 1, 0, "")
+		else:
+			me.SayTo(activator, "\nSorry, you don't have enough money.")
 
-elif msg == 'wounds':
-	spell = Atrinik.GetSpellNr("cause light wounds")
-	if spell == -1:
-		whoami.SayTo(activator, "Unknown spell.")
-	else:
-		if activator.DoKnowSpell(spell) == 1:
-			whoami.SayTo(activator, "You already know this prayer...")
-		else:	
-			if activator.PayAmount(200) == 1:
-				whoami.SayTo(activator, "\nOk, I will teach you now cause light wounds for 2 silver.")
-				activator.Write("You pay the money.", 0)
-				activator.AcquireSpell(spell, Atrinik.LEARN)
-			else:
-				whoami.SayTo(activator, "\nSorry, you don't have enough money.")
-
-elif msg == 'food':
+# Give out food
+elif msg == "food":
 	if activator.food < 500:
 		activator.food = 500
-		whoami.SayTo(activator, "\nYour stomach is filled again.")
+		me.SayTo(activator, "\nYour stomach is filled again.")
 	else:
-		whoami.SayTo(activator, "\nYou don't look very hungry to me...");
+		me.SayTo(activator, "\nYou don't look very hungry to me...");
 
-elif msg == 'hello' or msg == 'hi' or msg == 'hey':
-	whoami.SayTo(activator,"\nWelcome to the church of the Tabernacle.\nYou can join the cult of Eldath here.\nRead in the book of deities what you have to do.\nI can ^remove curse^ for 15 silver, ^remove damnation^ for 30 silver\nor ^remove depletion^ for 35 silver.\nI will ^cure poison^ for free and ^cure disease^ for 1 silver.\nIf you are starving I can cast ^food^ on you.\nI can teach you minor ^healing^ for free and cause light ^wounds^ for 2 silver!"); 
+# Greeting
+elif msg == "hello" or msg == "hi" or msg == "hey":
+	# Cost strings that might need to be modified before being displayed
+	cost_strings = {
+		"remove_depletion": activator.ShowCost(costs["remove_depletion"]),
+		"cure_disease": activator.ShowCost(costs["cure_disease"]),
+		"cure_poison": activator.ShowCost(costs["cure_poison"]),
+	}
 
+	# Some of the services are free if the player is under level three
+	if activator.level < 3:
+		cost_strings["remove_depletion"] = "free"
+		cost_strings["cure_disease"] = "free"
+		cost_strings["cure_poison"] = "free"
+
+	me.SayTo(activator, "\nWelcome to the church of the Tabernacle.\nYou can join the cult of Eldath here.\nRead in the book of deities what you have to do.\nI can offer you the following services:\n^remove curse^ for %s\n^remove damnation^ for %s\n^remove depletion^ for %s\n^cure disease^ for %s\n^cure poison^ for %s\nIf you are starving I can give you some ^food^." % (activator.ShowCost(costs["remove_curse"]), activator.ShowCost(costs["remove_damnation"]), cost_strings["remove_depletion"], cost_strings["cure_disease"], cost_strings["cure_poison"]));

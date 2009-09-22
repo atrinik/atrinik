@@ -1,0 +1,3033 @@
+arch map
+name Tutorial Island
+msg
+Created:  2009-09-10 Alex Tokar
+Modified: 2009-09-12 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_0205
+tile_path_2 world_0304
+tile_path_3 world_0203
+tile_path_4 world_0104
+tile_path_5 world_0305
+tile_path_6 world_0303
+tile_path_7 world_0103
+tile_path_8 world_0105
+end
+arch water_still
+end
+arch water_still
+y 1
+end
+arch water_still
+y 2
+end
+arch water_still
+y 3
+end
+arch water_still
+y 4
+end
+arch water_still
+y 5
+end
+arch water_still
+y 6
+end
+arch water_still
+y 7
+end
+arch water_still
+y 8
+end
+arch water_still
+y 9
+end
+arch water_still
+y 10
+end
+arch water_still
+y 11
+end
+arch water_still
+y 12
+end
+arch water_still
+y 13
+end
+arch water_still
+y 14
+end
+arch water_still
+y 15
+end
+arch water_still
+y 16
+end
+arch water_still
+y 17
+end
+arch water_still
+y 18
+end
+arch water_still
+y 19
+end
+arch water_still
+y 20
+end
+arch water_still
+y 21
+end
+arch water_still
+y 22
+end
+arch water_still
+y 23
+end
+arch water_still
+x 1
+end
+arch water_still
+x 1
+y 1
+end
+arch water_still
+x 1
+y 2
+end
+arch water_still
+x 1
+y 3
+end
+arch water_still
+x 1
+y 4
+end
+arch water_still
+x 1
+y 5
+end
+arch water_still
+x 1
+y 6
+end
+arch water_still
+x 1
+y 7
+end
+arch water_still
+x 1
+y 8
+end
+arch water_still
+x 1
+y 9
+end
+arch water_still
+x 1
+y 10
+end
+arch water_still
+x 1
+y 11
+end
+arch water_still
+x 1
+y 12
+end
+arch water_still
+x 1
+y 13
+end
+arch water_still
+x 1
+y 14
+end
+arch water_still
+x 1
+y 15
+end
+arch water_still
+x 1
+y 16
+end
+arch water_still
+x 1
+y 17
+end
+arch water_still
+x 1
+y 18
+end
+arch water_still
+x 1
+y 19
+end
+arch water_still
+x 1
+y 20
+end
+arch water_still
+x 1
+y 21
+end
+arch water_still
+x 1
+y 22
+end
+arch fwall_fstone2c
+x 1
+y 22
+end
+arch grassd_1
+x 1
+y 23
+end
+arch fwall_fstone2
+x 1
+y 23
+end
+arch water_still
+x 2
+end
+arch water_still
+x 2
+y 1
+end
+arch water_still
+x 2
+y 2
+end
+arch water_still
+x 2
+y 3
+end
+arch water_still
+x 2
+y 4
+end
+arch water_still
+x 2
+y 5
+end
+arch water_still
+x 2
+y 6
+end
+arch water_still
+x 2
+y 7
+end
+arch water_still
+x 2
+y 8
+end
+arch water_still
+x 2
+y 9
+end
+arch water_still
+x 2
+y 10
+end
+arch water_still
+x 2
+y 11
+end
+arch water_still
+x 2
+y 12
+end
+arch water_still
+x 2
+y 13
+end
+arch water_still
+x 2
+y 14
+end
+arch water_still
+x 2
+y 15
+end
+arch water_still
+x 2
+y 16
+end
+arch water_still
+x 2
+y 17
+end
+arch water_still
+x 2
+y 18
+end
+arch water_still
+x 2
+y 19
+end
+arch water_still
+x 2
+y 20
+end
+arch water_still
+x 2
+y 21
+end
+arch fwall_fstone2c
+x 2
+y 21
+end
+arch grassd_5
+x 2
+y 22
+end
+arch fwall_fstone2
+x 2
+y 22
+end
+arch grassd_5
+x 2
+y 23
+end
+arch fwall_fstone2d
+x 2
+y 23
+end
+arch water_still
+x 3
+end
+arch water_still
+x 3
+y 1
+end
+arch water_still
+x 3
+y 2
+end
+arch water_still
+x 3
+y 3
+end
+arch water_still
+x 3
+y 4
+end
+arch water_still
+x 3
+y 5
+end
+arch water_still
+x 3
+y 6
+end
+arch water_still
+x 3
+y 7
+end
+arch water_still
+x 3
+y 8
+end
+arch water_still
+x 3
+y 9
+end
+arch water_still
+x 3
+y 10
+end
+arch water_still
+x 3
+y 11
+end
+arch water_still
+x 3
+y 12
+end
+arch water_still
+x 3
+y 13
+end
+arch water_still
+x 3
+y 14
+end
+arch water_still
+x 3
+y 15
+end
+arch water_still
+x 3
+y 16
+end
+arch water_still
+x 3
+y 17
+end
+arch water_still
+x 3
+y 18
+end
+arch water_still
+x 3
+y 19
+end
+arch water_still
+x 3
+y 20
+end
+arch fwall_fstone2c
+x 3
+y 20
+end
+arch grassd_3
+x 3
+y 21
+end
+arch fwall_fstone2
+x 3
+y 21
+end
+arch grassd_3
+x 3
+y 22
+end
+arch fwall_fstone2d
+x 3
+y 22
+end
+arch grassd_4
+x 3
+y 23
+end
+arch water_still
+x 4
+end
+arch water_still
+x 4
+y 1
+end
+arch water_still
+x 4
+y 2
+end
+arch water_still
+x 4
+y 3
+end
+arch water_still
+x 4
+y 4
+end
+arch water_still
+x 4
+y 5
+end
+arch water_still
+x 4
+y 6
+end
+arch water_still
+x 4
+y 7
+end
+arch water_still
+x 4
+y 8
+end
+arch water_still
+x 4
+y 9
+end
+arch water_still
+x 4
+y 10
+end
+arch water_still
+x 4
+y 11
+end
+arch water_still
+x 4
+y 12
+end
+arch water_still
+x 4
+y 13
+end
+arch water_still
+x 4
+y 14
+end
+arch water_still
+x 4
+y 15
+end
+arch water_still
+x 4
+y 16
+end
+arch water_still
+x 4
+y 17
+end
+arch water_still
+x 4
+y 18
+end
+arch water_still
+x 4
+y 19
+end
+arch fwall_fstone2c
+x 4
+y 19
+end
+arch grassd_1
+x 4
+y 20
+end
+arch fwall_fstone2
+x 4
+y 20
+end
+arch grassd_8
+x 4
+y 21
+end
+arch fwall_fstone2d
+x 4
+y 21
+end
+arch grassd_6
+x 4
+y 22
+end
+arch plant_mushroom4
+x 4
+y 22
+end
+arch grassd_4
+x 4
+y 23
+end
+arch water_still
+x 5
+end
+arch water_still
+x 5
+y 1
+end
+arch water_still
+x 5
+y 2
+end
+arch water_still
+x 5
+y 3
+end
+arch water_still
+x 5
+y 4
+end
+arch water_still
+x 5
+y 5
+end
+arch water_still
+x 5
+y 6
+end
+arch water_still
+x 5
+y 7
+end
+arch water_still
+x 5
+y 8
+end
+arch water_still
+x 5
+y 9
+end
+arch water_still
+x 5
+y 10
+end
+arch water_still
+x 5
+y 11
+end
+arch water_still
+x 5
+y 12
+end
+arch water_still
+x 5
+y 13
+end
+arch water_still
+x 5
+y 14
+end
+arch water_still
+x 5
+y 15
+end
+arch water_still
+x 5
+y 16
+end
+arch water_still
+x 5
+y 17
+end
+arch water_still
+x 5
+y 18
+end
+arch fwall_fstone2c
+x 5
+y 18
+end
+arch grassd_6
+x 5
+y 19
+end
+arch fwall_fstone2
+x 5
+y 19
+end
+arch grassd_5
+x 5
+y 20
+end
+arch fwall_fstone2d
+x 5
+y 20
+end
+arch grassd_2
+x 5
+y 21
+end
+arch grassd_7
+x 5
+y 22
+end
+arch grassd_7
+x 5
+y 23
+end
+arch water_still
+x 6
+end
+arch water_still
+x 6
+y 1
+end
+arch water_still
+x 6
+y 2
+end
+arch water_still
+x 6
+y 3
+end
+arch water_still
+x 6
+y 4
+end
+arch water_still
+x 6
+y 5
+end
+arch water_still
+x 6
+y 6
+end
+arch water_still
+x 6
+y 7
+end
+arch water_still
+x 6
+y 8
+end
+arch water_still
+x 6
+y 9
+end
+arch water_still
+x 6
+y 10
+end
+arch water_still
+x 6
+y 11
+end
+arch water_still
+x 6
+y 12
+end
+arch water_still
+x 6
+y 13
+end
+arch water_still
+x 6
+y 14
+end
+arch water_still
+x 6
+y 15
+end
+arch water_still
+x 6
+y 16
+end
+arch water_still
+x 6
+y 17
+end
+arch fwall_fstone2c
+x 6
+y 17
+end
+arch grassd_4
+x 6
+y 18
+end
+arch fwall_fstone2
+x 6
+y 18
+end
+arch grassd_1
+x 6
+y 19
+end
+arch fwall_fstone2d
+x 6
+y 19
+end
+arch grassd_4
+x 6
+y 20
+end
+arch grassd_1
+x 6
+y 21
+end
+arch grassd_2
+x 6
+y 22
+end
+arch grassd_6
+x 6
+y 23
+end
+arch plant11
+x 6
+y 23
+end
+arch water_still
+x 7
+end
+arch water_still
+x 7
+y 1
+end
+arch water_still
+x 7
+y 2
+end
+arch water_still
+x 7
+y 3
+end
+arch water_still
+x 7
+y 4
+end
+arch water_still
+x 7
+y 5
+end
+arch water_still
+x 7
+y 6
+end
+arch water_still
+x 7
+y 7
+end
+arch water_still
+x 7
+y 8
+end
+arch water_still
+x 7
+y 9
+end
+arch water_still
+x 7
+y 10
+end
+arch water_still
+x 7
+y 11
+end
+arch water_still
+x 7
+y 12
+end
+arch water_still
+x 7
+y 13
+end
+arch water_still
+x 7
+y 14
+end
+arch water_still
+x 7
+y 15
+end
+arch water_still
+x 7
+y 16
+end
+arch fwall_fstone2c
+x 7
+y 16
+end
+arch grassd_4
+x 7
+y 17
+end
+arch fwall_fstone2
+x 7
+y 17
+end
+arch grassd_2
+x 7
+y 18
+end
+arch fwall_fstone2d
+x 7
+y 18
+end
+arch grassd_6
+x 7
+y 19
+end
+arch plant_flower7
+x 7
+y 19
+end
+arch grassd_5
+x 7
+y 20
+end
+arch grassd_2
+x 7
+y 21
+end
+arch tree_big3
+x 7
+y 21
+end
+arch grassd_5
+x 7
+y 22
+end
+arch grassd_8
+x 7
+y 23
+end
+arch water_still
+x 8
+end
+arch water_still
+x 8
+y 1
+end
+arch water_still
+x 8
+y 2
+end
+arch water_still
+x 8
+y 3
+end
+arch water_still
+x 8
+y 4
+end
+arch water_still
+x 8
+y 5
+end
+arch water_still
+x 8
+y 6
+end
+arch water_still
+x 8
+y 7
+end
+arch water_still
+x 8
+y 8
+end
+arch water_still
+x 8
+y 9
+end
+arch water_still
+x 8
+y 10
+end
+arch water_still
+x 8
+y 11
+end
+arch water_still
+x 8
+y 12
+end
+arch water_still
+x 8
+y 13
+end
+arch water_still
+x 8
+y 14
+end
+arch water_still
+x 8
+y 15
+end
+arch fwall_fstone2c
+x 8
+y 15
+end
+arch grassd_1
+x 8
+y 16
+end
+arch fwall_fstone2
+x 8
+y 16
+end
+arch grassd_4
+x 8
+y 17
+end
+arch fwall_fstone2d
+x 8
+y 17
+end
+arch grassd_4
+x 8
+y 18
+end
+arch plant_flower14
+x 8
+y 18
+end
+arch grassd_6
+x 8
+y 19
+end
+arch grassd_5
+x 8
+y 20
+end
+arch grassd_3
+x 8
+y 21
+end
+arch grassd_2
+x 8
+y 22
+end
+arch grassd_7
+x 8
+y 23
+end
+arch water_still
+x 9
+end
+arch water_still
+x 9
+y 1
+end
+arch water_still
+x 9
+y 2
+end
+arch water_still
+x 9
+y 3
+end
+arch water_still
+x 9
+y 4
+end
+arch water_still
+x 9
+y 5
+end
+arch water_still
+x 9
+y 6
+end
+arch water_still
+x 9
+y 7
+end
+arch water_still
+x 9
+y 8
+end
+arch water_still
+x 9
+y 9
+end
+arch water_still
+x 9
+y 10
+end
+arch water_still
+x 9
+y 11
+end
+arch water_still
+x 9
+y 12
+end
+arch water_still
+x 9
+y 13
+end
+arch water_still
+x 9
+y 14
+end
+arch fwall_fstone2c
+x 9
+y 14
+end
+arch grassd_1
+x 9
+y 15
+end
+arch fwall_fstone2
+x 9
+y 15
+end
+arch grassd_4
+x 9
+y 16
+end
+arch fwall_fstone2d
+x 9
+y 16
+end
+arch grassd_4
+x 9
+y 17
+end
+arch grassd_4
+x 9
+y 18
+end
+arch grassd_1
+x 9
+y 19
+end
+arch grassd_2
+x 9
+y 20
+end
+arch grassd_1
+x 9
+y 21
+end
+arch grassd_2
+x 9
+y 22
+end
+arch grassd_4
+x 9
+y 23
+end
+arch water_still
+x 10
+end
+arch water_still
+x 10
+y 1
+end
+arch water_still
+x 10
+y 2
+end
+arch water_still
+x 10
+y 3
+end
+arch water_still
+x 10
+y 4
+end
+arch water_still
+x 10
+y 5
+end
+arch water_still
+x 10
+y 6
+end
+arch water_still
+x 10
+y 7
+end
+arch water_still
+x 10
+y 8
+end
+arch water_still
+x 10
+y 9
+end
+arch water_still
+x 10
+y 10
+end
+arch water_still
+x 10
+y 11
+end
+arch water_still
+x 10
+y 12
+end
+arch water_still
+x 10
+y 13
+end
+arch fwall_fstone2c
+x 10
+y 13
+end
+arch grassd_3
+x 10
+y 14
+end
+arch fwall_fstone2
+x 10
+y 14
+end
+arch grassd_6
+x 10
+y 15
+end
+arch fwall_fstone2d
+x 10
+y 15
+end
+arch grassd_4
+x 10
+y 16
+end
+arch grassd_5
+x 10
+y 17
+end
+arch grassd_4
+x 10
+y 18
+end
+arch grassd_2
+x 10
+y 19
+end
+arch grassd_8
+x 10
+y 20
+end
+arch grassd_1
+x 10
+y 21
+end
+arch grassd_8
+x 10
+y 22
+end
+arch grassd_5
+x 10
+y 23
+end
+arch water_still
+x 11
+end
+arch water_still
+x 11
+y 1
+end
+arch water_still
+x 11
+y 2
+end
+arch water_still
+x 11
+y 3
+end
+arch water_still
+x 11
+y 4
+end
+arch water_still
+x 11
+y 5
+end
+arch water_still
+x 11
+y 6
+end
+arch water_still
+x 11
+y 7
+end
+arch water_still
+x 11
+y 8
+end
+arch water_still
+x 11
+y 9
+end
+arch water_still
+x 11
+y 10
+end
+arch water_still
+x 11
+y 11
+end
+arch water_still
+x 11
+y 12
+end
+arch fwall_fstone2c
+x 11
+y 12
+end
+arch grassd_8
+x 11
+y 13
+end
+arch fwall_fstone2
+x 11
+y 13
+end
+arch grassd_1
+x 11
+y 14
+end
+arch fwall_fstone2d
+x 11
+y 14
+end
+arch grassd_3
+x 11
+y 15
+end
+arch wall_wood_8
+x 11
+y 15
+end
+arch grassd_6
+x 11
+y 16
+end
+arch wall_wood3_3
+x 11
+y 16
+end
+arch grassd_7
+x 11
+y 17
+end
+arch wall_wood2_3
+x 11
+y 17
+end
+arch grassd_6
+x 11
+y 18
+end
+arch wall_wood3_3
+x 11
+y 18
+end
+arch grassd_1
+x 11
+y 19
+end
+arch wall_wood1_3
+x 11
+y 19
+end
+arch grassd_2
+x 11
+y 20
+end
+arch wall_wood3_3
+x 11
+y 20
+end
+arch grassd_7
+x 11
+y 21
+end
+arch wall_wood1_3
+x 11
+y 21
+end
+arch grassd_8
+x 11
+y 22
+end
+arch wall_wood3_3
+x 11
+y 22
+end
+arch grassd_8
+x 11
+y 23
+end
+arch wall_wood2_3
+x 11
+y 23
+end
+arch water_still
+x 12
+end
+arch water_still
+x 12
+y 1
+end
+arch water_still
+x 12
+y 2
+end
+arch water_still
+x 12
+y 3
+end
+arch water_still
+x 12
+y 4
+end
+arch water_still
+x 12
+y 5
+end
+arch water_still
+x 12
+y 6
+end
+arch water_still
+x 12
+y 7
+end
+arch water_still
+x 12
+y 8
+end
+arch water_still
+x 12
+y 9
+end
+arch water_still
+x 12
+y 10
+end
+arch water_still
+x 12
+y 11
+end
+arch fwall_fstone2c
+x 12
+y 11
+end
+arch grassd_1
+x 12
+y 12
+end
+arch fwall_fstone2
+x 12
+y 12
+end
+arch grassd_5
+x 12
+y 13
+end
+arch fwall_fstone2d
+x 12
+y 13
+end
+arch grassd_3
+x 12
+y 14
+end
+arch grassd_4
+x 12
+y 15
+end
+arch wall_wood1_1
+x 12
+y 15
+end
+arch floor_wood2_l1
+x 12
+y 16
+end
+arch floor_wood2_l1
+x 12
+y 17
+end
+arch floor_wood2_l2
+x 12
+y 18
+end
+arch floor_wood2_l2
+x 12
+y 19
+end
+arch wall_wood2_1
+x 12
+y 19
+end
+arch floor_wood2_l2
+x 12
+y 20
+end
+arch candlelight1.101
+x 12
+y 20
+end
+arch light4
+x 12
+y 20
+end
+arch floor_wood2_l2
+x 12
+y 21
+end
+arch floor_wood2_l1
+x 12
+y 22
+end
+arch sign
+name Welcome to Atrinik
+msg
+Welcome to Atrinik!
+
+This is the first point in the game where you meet other players.
+
+This place is called the "Tutorial Island", a place where new players can learn how to play the game together, and solve first basic quests.
+
+Read the next sign in order to learn how to talk to NPCs. When you are done here, exit the building and head to ~Twitriel, the weapon master~. You will see a direction sign, so apply it to learn which direction to go.
+endmsg
+x 12
+y 22
+end
+arch floor_wood2_l1
+x 12
+y 23
+end
+arch wall_wood1_1
+x 12
+y 23
+end
+arch water_still
+x 13
+end
+arch water_still
+x 13
+y 1
+end
+arch water_still
+x 13
+y 2
+end
+arch water_still
+x 13
+y 3
+end
+arch water_still
+x 13
+y 4
+end
+arch water_still
+x 13
+y 5
+end
+arch water_still
+x 13
+y 6
+end
+arch water_still
+x 13
+y 7
+end
+arch water_still
+x 13
+y 8
+end
+arch water_still
+x 13
+y 9
+end
+arch water_still
+x 13
+y 10
+end
+arch fwall_fstone2c
+x 13
+y 10
+end
+arch grassd_5
+x 13
+y 11
+end
+arch fwall_fstone2
+x 13
+y 11
+end
+arch grassd_4
+x 13
+y 12
+end
+arch fwall_fstone2d
+x 13
+y 12
+end
+arch grassd_6
+x 13
+y 13
+end
+arch plant11
+x 13
+y 13
+end
+arch grassd_5
+x 13
+y 14
+end
+arch grassd_6
+x 13
+y 15
+end
+arch wall_wood3_1
+x 13
+y 15
+end
+arch floor_wood2_l1
+x 13
+y 16
+end
+arch candlelight2.101
+x 13
+y 16
+end
+arch light4
+x 13
+y 16
+end
+arch floor_wood2_l2
+x 13
+y 17
+end
+arch floor_wood2_l2
+x 13
+y 18
+end
+arch floor_wood2_l2
+x 13
+y 19
+end
+arch curtain1
+x 13
+y 19
+end
+arch floor_wood2_l1
+x 13
+y 20
+end
+arch floor_wood2_l1
+x 13
+y 21
+end
+arch floor_wood2_l2
+x 13
+y 22
+end
+arch floor_wood2_l1
+x 13
+y 23
+end
+arch wall_wood3_1
+x 13
+y 23
+end
+arch water_still
+x 14
+end
+arch water_still
+x 14
+y 1
+end
+arch water_still
+x 14
+y 2
+end
+arch water_still
+x 14
+y 3
+end
+arch water_still
+x 14
+y 4
+end
+arch water_still
+x 14
+y 5
+end
+arch water_still
+x 14
+y 6
+end
+arch water_still
+x 14
+y 7
+end
+arch water_still
+x 14
+y 8
+end
+arch water_still
+x 14
+y 9
+end
+arch fwall_fstone2c
+x 14
+y 9
+end
+arch grassd_4
+x 14
+y 10
+end
+arch fwall_fstone2
+x 14
+y 10
+end
+arch grassd_2
+x 14
+y 11
+end
+arch fwall_fstone2d
+x 14
+y 11
+end
+arch grassd_4
+x 14
+y 12
+end
+arch grassd_7
+x 14
+y 13
+end
+arch grassd_4
+x 14
+y 14
+end
+arch grassd_8
+x 14
+y 15
+end
+arch wall_wood2_1
+x 14
+y 15
+end
+arch floor_wood2_l1
+x 14
+y 16
+end
+arch wall_wood2_3
+x 14
+y 16
+end
+arch floor_wood2_l1
+x 14
+y 17
+end
+arch wall_wood3_3
+x 14
+y 17
+end
+arch floor_wood2_l1
+x 14
+y 18
+end
+arch wall_wood1_3
+x 14
+y 18
+end
+arch light2
+x 14
+y 18
+end
+arch floor_wood2_l1
+x 14
+y 19
+end
+arch wall_wood_4
+x 14
+y 19
+end
+arch floor_wood2_l2
+x 14
+y 20
+end
+arch floor_wood2_l2
+x 14
+y 21
+end
+arch floor_wood2_l2
+x 14
+y 22
+end
+arch floor_wood2_l2
+x 14
+y 23
+end
+arch wall_wood2_1
+x 14
+y 23
+end
+arch water_still
+x 15
+end
+arch water_still
+x 15
+y 1
+end
+arch water_still
+x 15
+y 2
+end
+arch water_still
+x 15
+y 3
+end
+arch water_still
+x 15
+y 4
+end
+arch water_still
+x 15
+y 5
+end
+arch water_still
+x 15
+y 6
+end
+arch water_still
+x 15
+y 7
+end
+arch water_still
+x 15
+y 8
+end
+arch fwall_fstone2c
+x 15
+y 8
+end
+arch grassd_3
+x 15
+y 9
+end
+arch fwall_fstone2
+x 15
+y 9
+end
+arch grassd_7
+x 15
+y 10
+end
+arch fwall_fstone2d
+x 15
+y 10
+end
+arch grassd_7
+x 15
+y 11
+end
+arch grassd_7
+x 15
+y 12
+end
+arch grassd_6
+x 15
+y 13
+end
+arch grassd_4
+x 15
+y 14
+end
+arch grassd_6
+x 15
+y 15
+end
+arch wall_wood2_1
+x 15
+y 15
+end
+arch floor_wood2_l2
+x 15
+y 16
+end
+arch light2
+x 15
+y 16
+end
+arch floor_wood2_l1
+x 15
+y 17
+end
+arch bar1
+x 15
+y 17
+end
+arch floor_wood2_l1
+x 15
+y 18
+end
+arch sign
+name Talk to NPCs
+msg
+~Talk to NPCs~
+To talk with NPCs (Non Player Characters) you have to open the ~input console~. Press ~enter~ to do that. Now a small cursor appears under this text in the text window.
+Now type "hello" or "hi", and press ~enter~ again.
+You will see that the NPC here will answer you, unless you stand too far away. You must be inside a range of two tiles to him.
+endmsg
+x 15
+y 18
+end
+arch floor_wood2_l2
+x 15
+y 19
+end
+arch floor_wood2_l1
+x 15
+y 20
+end
+arch floor_wood2_l2
+x 15
+y 21
+end
+arch floor_wood2_l2
+x 15
+y 22
+end
+arch floor_wood2_l2
+x 15
+y 23
+end
+arch wall_wood1_1
+x 15
+y 23
+end
+arch water_still
+x 16
+end
+arch water_still
+x 16
+y 1
+end
+arch water_still
+x 16
+y 2
+end
+arch water_still
+x 16
+y 3
+end
+arch water_still
+x 16
+y 4
+end
+arch water_still
+x 16
+y 5
+end
+arch water_still
+x 16
+y 6
+end
+arch water_still
+x 16
+y 7
+end
+arch fwall_fstone2c
+x 16
+y 7
+end
+arch grassd_6
+x 16
+y 8
+end
+arch fwall_fstone2
+x 16
+y 8
+end
+arch grassd_5
+x 16
+y 9
+end
+arch fwall_fstone2d
+x 16
+y 9
+end
+arch grassd_2
+x 16
+y 10
+end
+arch grassd_7
+x 16
+y 11
+end
+arch grassd_2
+x 16
+y 12
+end
+arch grassd_4
+x 16
+y 13
+end
+arch grassd_7
+x 16
+y 14
+end
+arch grassd_4
+x 16
+y 15
+end
+arch wall_wood3_1
+x 16
+y 15
+end
+arch floor_wood2_l1
+x 16
+y 16
+end
+arch spawn_point
+x 16
+y 16
+arch monk
+msg
+@match roger
+You have said ~roger~ to me.
+Many people in the game have hidden keywords
+which you must find out. Sometimes you have
+to listen carefully, other times you have to read
+a hint somewhere else.
+@match *
+Hello stranger!
+You can talk to me by pressing the ~enter~ key
+again. Type ^roger^ and I will give you some hints
+related to chatting. I will repeat this text every time
+you ask me something different. So type ^roger^ now.
+You can also click on the blue roger text using
+your mouse. Read the signs nearby to learn more
+about mouse and chatting.
+endmsg
+type 83
+invulnerable 1
+friendly 1
+end
+end
+arch floor_wood2_l1
+x 16
+y 17
+end
+arch bar1
+x 16
+y 17
+end
+arch floor_wood2_l1
+x 16
+y 18
+end
+arch floor_wood2_l2
+x 16
+y 19
+end
+arch carpet2.131
+x 16
+y 19
+end
+arch floor_wood2_l2
+x 16
+y 20
+end
+arch carpet2.131
+x 16
+y 20
+end
+arch floor_wood2_l1
+x 16
+y 21
+end
+arch carpet2.131
+x 16
+y 21
+end
+arch floor_wood2_l2
+x 16
+y 22
+end
+arch floor_wood2_l2
+x 16
+y 23
+end
+arch wall_wood3_1
+x 16
+y 23
+end
+arch water_still
+x 17
+end
+arch water_still
+x 17
+y 1
+end
+arch water_still
+x 17
+y 2
+end
+arch water_still
+x 17
+y 3
+end
+arch water_still
+x 17
+y 4
+end
+arch water_still
+x 17
+y 5
+end
+arch water_still
+x 17
+y 6
+end
+arch fwall_fstone2c
+x 17
+y 6
+end
+arch grassd_6
+x 17
+y 7
+end
+arch fwall_fstone2
+x 17
+y 7
+end
+arch grassd_7
+x 17
+y 8
+end
+arch fwall_fstone2d
+x 17
+y 8
+end
+arch grassd_3
+x 17
+y 9
+end
+arch grassd_7
+x 17
+y 10
+end
+arch grassd_7
+x 17
+y 11
+end
+arch plant12
+x 17
+y 11
+end
+arch grassd_6
+x 17
+y 12
+end
+arch grassd_6
+x 17
+y 13
+end
+arch grassd_6
+x 17
+y 14
+end
+arch grassd_4
+x 17
+y 15
+end
+arch wall_wood2_1
+x 17
+y 15
+end
+arch floor_wood2_l1
+x 17
+y 16
+end
+arch bar1
+direction 3
+x 17
+y 16
+end
+arch floor_wood2_l1
+x 17
+y 17
+end
+arch bar1
+direction 4
+x 17
+y 17
+end
+arch floor_wood2_l1
+x 17
+y 18
+end
+arch carpet2.151
+x 17
+y 18
+end
+arch floor_wood2_l2
+x 17
+y 19
+end
+arch carpet2i
+x 17
+y 19
+end
+arch floor_wood2_l2
+x 17
+y 20
+end
+arch carpet2e
+x 17
+y 20
+end
+arch floor_wood2_l2
+x 17
+y 21
+end
+arch carpet2j
+x 17
+y 21
+end
+arch floor_wood2_l2
+x 17
+y 22
+end
+arch carpet2.111
+x 17
+y 22
+end
+arch floor_wood2_l1
+x 17
+y 23
+end
+arch door_wood2
+x 17
+y 23
+end
+arch water_still
+x 18
+end
+arch water_still
+x 18
+y 1
+end
+arch water_still
+x 18
+y 2
+end
+arch water_still
+x 18
+y 3
+end
+arch water_still
+x 18
+y 4
+end
+arch water_still
+x 18
+y 5
+end
+arch fwall_fstone2c
+x 18
+y 5
+end
+arch grassd_1
+x 18
+y 6
+end
+arch fwall_fstone2
+x 18
+y 6
+end
+arch grassd_7
+x 18
+y 7
+end
+arch fwall_fstone2d
+x 18
+y 7
+end
+arch grassd_7
+x 18
+y 8
+end
+arch grassd_1
+x 18
+y 9
+end
+arch grassd_4
+x 18
+y 10
+end
+arch grassd_1
+x 18
+y 11
+end
+arch grassd_3
+x 18
+y 12
+end
+arch plant_flower6
+x 18
+y 12
+end
+arch grassd_3
+x 18
+y 13
+end
+arch grassd_3
+x 18
+y 14
+end
+arch grassd_2
+x 18
+y 15
+end
+arch wall_wood2_1
+x 18
+y 15
+end
+arch floor_wood2_l1
+x 18
+y 16
+end
+arch sign
+name Other Chatting Commands
+msg
+~Other chatting commands~
+There are some more chat commands in the game:
+/shout <message> Sends a message to all players in the game.
+/tell <player name> <message> Sends a private message to one player.
+/say <message> Says out something loud, but only to players and NPCs nearby.
+
+/say is the default chat command - if you type something in the console it
+will be handled as "said", as long as it doesn't start with a '/'.
+The '/' is reserved for marking commands.
+Try ^/help^ as an example!
+endmsg
+x 18
+y 16
+end
+arch floor_wood2_l1
+x 18
+y 17
+end
+arch floor_wood2_l2
+x 18
+y 18
+end
+arch carpet2.151
+x 18
+y 18
+end
+arch floor_wood2_l1
+x 18
+y 19
+end
+arch carpet2f
+x 18
+y 19
+end
+arch floor_wood2_l1
+x 18
+y 20
+end
+arch carpet2g
+x 18
+y 20
+end
+arch candlelight4.101
+x 18
+y 20
+end
+arch light6
+x 18
+y 20
+end
+arch floor_wood2_l2
+x 18
+y 21
+end
+arch carpet2d
+x 18
+y 21
+end
+arch floor_wood2_l1
+x 18
+y 22
+end
+arch carpet2.111
+x 18
+y 22
+end
+arch floor_wood2_l2
+x 18
+y 23
+end
+arch wall_wood1_1
+x 18
+y 23
+end
+arch water_still
+x 19
+end
+arch water_still
+x 19
+y 1
+end
+arch water_still
+x 19
+y 2
+end
+arch water_still
+x 19
+y 3
+end
+arch water_still
+x 19
+y 4
+end
+arch fwall_fstone2c
+x 19
+y 4
+end
+arch grassd_8
+x 19
+y 5
+end
+arch fwall_fstone2
+x 19
+y 5
+end
+arch grassd_8
+x 19
+y 6
+end
+arch fwall_fstone2d
+x 19
+y 6
+end
+arch grassd_7
+x 19
+y 7
+end
+arch grassd_8
+x 19
+y 8
+end
+arch grassd_6
+x 19
+y 9
+end
+arch grassd_3
+x 19
+y 10
+end
+arch grassd_7
+x 19
+y 11
+end
+arch grassd_1
+x 19
+y 12
+end
+arch grassd_1
+x 19
+y 13
+end
+arch grassd_1
+x 19
+y 14
+end
+arch small_stones
+x 19
+y 14
+end
+arch grassd_1
+x 19
+y 15
+end
+arch wall_wood2_1
+x 19
+y 15
+end
+arch floor_wood2_l1
+x 19
+y 16
+end
+arch candlelight1.101
+x 19
+y 16
+end
+arch light4
+x 19
+y 16
+end
+arch floor_wood2_l1
+x 19
+y 17
+end
+arch floor_wood2_l2
+x 19
+y 18
+end
+arch carpet2.151
+x 19
+y 18
+end
+arch floor_wood2_l1
+x 19
+y 19
+end
+arch carpet2f
+x 19
+y 19
+end
+arch floor_wood2_l2
+x 19
+y 20
+end
+arch carpet2g
+x 19
+y 20
+end
+arch floor_wood2_l1
+x 19
+y 21
+end
+arch carpet2d
+x 19
+y 21
+end
+arch floor_wood2_l1
+x 19
+y 22
+end
+arch carpet2.111
+x 19
+y 22
+end
+arch floor_wood2_l1
+x 19
+y 23
+end
+arch wall_wood2_1
+x 19
+y 23
+end
+arch water_still
+x 20
+end
+arch water_still
+x 20
+y 1
+end
+arch water_still
+x 20
+y 2
+end
+arch water_still
+x 20
+y 3
+end
+arch fwall_fstone2c
+x 20
+y 3
+end
+arch grassd_6
+x 20
+y 4
+end
+arch fwall_fstone2
+x 20
+y 4
+end
+arch grassd_6
+x 20
+y 5
+end
+arch fwall_fstone2d
+x 20
+y 5
+end
+arch grassd_7
+x 20
+y 6
+end
+arch grassd_4
+x 20
+y 7
+end
+arch grassd_8
+x 20
+y 8
+end
+arch tree_big2
+x 20
+y 8
+end
+arch grassd_4
+x 20
+y 9
+end
+arch grassd_1
+x 20
+y 10
+end
+arch grassd_8
+x 20
+y 11
+end
+arch grassd_4
+x 20
+y 12
+end
+arch grassd_4
+x 20
+y 13
+end
+arch grassd_3
+x 20
+y 14
+end
+arch grassd_5
+x 20
+y 15
+end
+arch wall_wood1_1
+x 20
+y 15
+end
+arch floor_wood2_l1
+x 20
+y 16
+end
+arch sign
+name Talking using the mouse
+msg
+~Talking using the mouse~
+You can talk to NPCs using the mouse only: Click on the NPC with the right mouse button to target him.
+A bit right of the target name you will see a "hello" button. Click on it with the left mouse button.
+This will make you say "hello" to the NPC. You can then click with the left mouse button on any blue keywords in the text window to say it out loud.
+This doesn't work when chatting with players - only with NPCs.
+endmsg
+x 20
+y 16
+end
+arch floor_wood2_l2
+x 20
+y 17
+end
+arch floor_wood2_l1
+x 20
+y 18
+end
+arch carpet2.151
+x 20
+y 18
+end
+arch floor_wood2_l2
+x 20
+y 19
+end
+arch carpet2h
+x 20
+y 19
+end
+arch floor_wood2_l2
+x 20
+y 20
+end
+arch carpet2c
+x 20
+y 20
+end
+arch floor_wood2_l1
+x 20
+y 21
+end
+arch carpet2k
+x 20
+y 21
+end
+arch floor_wood2_l2
+x 20
+y 22
+end
+arch carpet2.111
+x 20
+y 22
+end
+arch floor_wood2_l2
+x 20
+y 23
+end
+arch wall_wood1_1
+x 20
+y 23
+end
+arch water_still
+x 21
+end
+arch water_still
+x 21
+y 1
+end
+arch water_still
+x 21
+y 2
+end
+arch fwall_fstone2c
+x 21
+y 2
+end
+arch grassd_2
+x 21
+y 3
+end
+arch fwall_fstone2
+x 21
+y 3
+end
+arch grassd_2
+x 21
+y 4
+end
+arch fwall_fstone2d
+x 21
+y 4
+end
+arch grassd_6
+x 21
+y 5
+end
+arch grassd_1
+x 21
+y 6
+end
+arch grassd_6
+x 21
+y 7
+end
+arch grassd_1
+x 21
+y 8
+end
+arch grassd_3
+x 21
+y 9
+end
+arch grassd_6
+x 21
+y 10
+end
+arch grassd_6
+x 21
+y 11
+end
+arch plant_mushroom1
+x 21
+y 11
+end
+arch grassd_1
+x 21
+y 12
+end
+arch grassd_8
+x 21
+y 13
+end
+arch tree_big2
+x 21
+y 13
+end
+arch grassd_3
+x 21
+y 14
+end
+arch grassd_8
+x 21
+y 15
+end
+arch wall_wood3_1
+x 21
+y 15
+end
+arch floor_wood2_l1
+x 21
+y 16
+end
+arch floor_wood2_l2
+x 21
+y 17
+end
+arch floor_wood2_l1
+x 21
+y 18
+end
+arch light2
+x 21
+y 18
+end
+arch floor_wood2_l2
+x 21
+y 19
+end
+arch carpet2.171
+x 21
+y 19
+end
+arch floor_wood2_l2
+x 21
+y 20
+end
+arch carpet2.171
+x 21
+y 20
+end
+arch floor_wood2_l2
+x 21
+y 21
+end
+arch carpet2.171
+x 21
+y 21
+end
+arch light2
+x 21
+y 21
+end
+arch floor_wood2_l2
+x 21
+y 22
+end
+arch floor_wood2_l1
+x 21
+y 23
+end
+arch wall_wood1_1
+x 21
+y 23
+end
+arch water_still
+x 22
+end
+arch water_still
+x 22
+y 1
+end
+arch fwall_fstone2c
+x 22
+y 1
+end
+arch grassd_8
+x 22
+y 2
+end
+arch fwall_fstone2
+x 22
+y 2
+end
+arch grassd_1
+x 22
+y 3
+end
+arch fwall_fstone2d
+x 22
+y 3
+end
+arch grassd_7
+x 22
+y 4
+end
+arch plant10
+x 22
+y 4
+end
+arch grassd_3
+x 22
+y 5
+end
+arch grassd_6
+x 22
+y 6
+end
+arch grassd_7
+x 22
+y 7
+end
+arch grassd_1
+x 22
+y 8
+end
+arch grassd_4
+x 22
+y 9
+end
+arch grassd_2
+x 22
+y 10
+end
+arch plant_flower14
+x 22
+y 10
+end
+arch grassd_4
+x 22
+y 11
+end
+arch grassd_3
+x 22
+y 12
+end
+arch grassd_1
+x 22
+y 13
+end
+arch grassd_6
+x 22
+y 14
+end
+arch grassd_2
+x 22
+y 15
+end
+arch wall_wood2_1
+x 22
+y 15
+end
+arch floor_wood2_l2
+x 22
+y 16
+end
+arch floor_wood2_l1
+x 22
+y 17
+end
+arch floor_wood2_l2
+x 22
+y 18
+end
+arch floor_wood2_l2
+x 22
+y 19
+end
+arch floor_wood2_l2
+x 22
+y 20
+end
+arch floor_wood2_l1
+x 22
+y 21
+end
+arch floor_wood2_l1
+x 22
+y 22
+end
+arch floor_wood2_l1
+x 22
+y 23
+end
+arch wall_wood3_1
+x 22
+y 23
+end
+arch water_still
+x 23
+end
+arch grassd_5
+x 23
+y 1
+end
+arch fwall_fstone2
+x 23
+y 1
+end
+arch grassd_4
+x 23
+y 2
+end
+arch fwall_fstone2d
+x 23
+y 2
+end
+arch grassd_1
+x 23
+y 3
+end
+arch grassd_5
+x 23
+y 4
+end
+arch grassd_5
+x 23
+y 5
+end
+arch grassd_7
+x 23
+y 6
+end
+arch grassd_2
+x 23
+y 7
+end
+arch grassd_4
+x 23
+y 8
+end
+arch grassd_1
+x 23
+y 9
+end
+arch grassd_1
+x 23
+y 10
+end
+arch grassd_2
+x 23
+y 11
+end
+arch grassd_6
+x 23
+y 12
+end
+arch grassd_4
+x 23
+y 13
+end
+arch grassd_1
+x 23
+y 14
+end
+arch grassd_7
+x 23
+y 15
+end
+arch wall_wood1_1
+x 23
+y 15
+end
+arch floor_wood2_l1
+x 23
+y 16
+end
+arch wall_wood2_3
+x 23
+y 16
+end
+arch floor_wood2_l1
+x 23
+y 17
+end
+arch wall_wood3_3
+x 23
+y 17
+end
+arch floor_wood2_l2
+x 23
+y 18
+end
+arch wall_wood1_3
+x 23
+y 18
+end
+arch floor_wood2_l1
+x 23
+y 19
+end
+arch wall_wood3_3
+x 23
+y 19
+end
+arch floor_wood2_l1
+x 23
+y 20
+end
+arch wall_wood1_3
+x 23
+y 20
+end
+arch floor_wood2_l2
+x 23
+y 21
+end
+arch wall_wood2_3
+x 23
+y 21
+end
+arch floor_wood2_l2
+x 23
+y 22
+end
+arch wall_wood2_3
+x 23
+y 22
+end
+arch floor_wood2_l1
+x 23
+y 23
+end
+arch wall_wood_4
+x 23
+y 23
+end

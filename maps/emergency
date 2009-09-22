@@ -1,18 +1,19 @@
 arch map
-name Emergency Map - This is a bug! Call DM!
+name Emergency Map
 msg
-Creator: Daimonin Map Editor
-Date:    10/27/2003
+Created:  2009-09-22 Alex Tokar
+Modified: 2009-09-22 Alex Tokar
 endmsg
-darkness -1
 width 1
 height 1
+difficulty 1
+darkness -1
 no_save 1
 end
 arch floor_ostone1
 end
 arch exit
-slaying /stoneglow/stoneglow_0000
-hp 22
+slaying shattered_islands/world_0312
+hp 3
 sp 7
 end

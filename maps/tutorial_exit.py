@@ -1,0 +1,8 @@
+# Script to run once player exits the starting tutorial map.
+# This will set the player's new save bed to church in Tutorial Island.
+
+from Atrinik import *
+
+activator = WhoIsActivator()
+
+activator.SetSaveBed(ReadyMap("/shattered_islands/world_0303", 0), 6, 11)

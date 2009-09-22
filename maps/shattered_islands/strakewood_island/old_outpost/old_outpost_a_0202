@@ -1,0 +1,3582 @@
+arch map
+name Old Outpost
+msg
+Created:  2009-09-18 Alex Tokar
+Modified: 2009-09-18 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 22
+darkness 2
+tile_path_1 old_outpost_a_0203
+end
+arch floor_stone3b
+end
+arch fwall_flagstone2a
+end
+arch floor_stone3d
+y 1
+end
+arch fwall_flagstone2a
+y 1
+end
+arch floor_stone3d
+y 2
+end
+arch fwall_flagstone2a
+y 2
+end
+arch floor_stone3d
+y 3
+end
+arch fwall_flagstone2a
+y 3
+end
+arch floor_stone3b
+y 4
+end
+arch fwall_flagstone2a
+y 4
+end
+arch chains3.151
+direction 5
+y 4
+end
+arch floor_stone3d
+y 5
+end
+arch fwall_flagstone2a
+y 5
+end
+arch floor_stone3b
+y 6
+end
+arch fwall_flagstone2a
+y 6
+end
+arch floor_stone3b
+y 7
+end
+arch fwall_flagstone2a
+y 7
+end
+arch floor_stone3d
+y 8
+end
+arch fwall_flagstone2a
+y 8
+end
+arch floor_stone3b
+y 9
+end
+arch fwall_flagstone2a
+y 9
+end
+arch floor_stone3d
+y 10
+end
+arch fwall_flagstone2a
+y 10
+end
+arch floor_stone3b
+y 11
+end
+arch fwall_flagstone2a
+y 11
+end
+arch floor_stone3b
+y 12
+end
+arch fwall_flagstone2a
+y 12
+end
+arch floor_stone3b
+y 13
+end
+arch fwall_flagstone2a
+y 13
+end
+arch floor_stone3b
+y 14
+end
+arch fwall_flagstone2a
+y 14
+end
+arch floor_stone3d
+y 15
+end
+arch fwall_flagstone2a
+y 15
+end
+arch floor_stone3d
+y 16
+end
+arch fwall_flagstone2a
+y 16
+end
+arch chains2.151
+direction 5
+y 16
+end
+arch floor_stone3b
+y 17
+end
+arch fwall_flagstone2a
+y 17
+end
+arch floor_stone3b
+y 18
+end
+arch fwall_flagstone2a
+y 18
+end
+arch chains2.151
+direction 5
+y 18
+end
+arch floor_stone3b
+y 19
+end
+arch fwall_flagstone2a
+y 19
+end
+arch floor_stone3b
+y 20
+end
+arch fwall_flagstone2a
+y 20
+end
+arch floor_stone3b
+y 21
+end
+arch fwall_flagstone2a
+y 21
+end
+arch floor_stone3d
+y 22
+end
+arch fwall_flagstone2a
+y 22
+end
+arch floor_stone3b
+y 23
+end
+arch fwall_flagstone2a
+y 23
+end
+arch floor_stone3d
+x 1
+end
+arch fwall_flagstone2a
+x 1
+end
+arch wmask_bflag_brown_1
+x 1
+end
+arch floor_stone3b
+x 1
+y 1
+end
+arch floor_stone3d
+x 1
+y 2
+end
+arch floor_stone3b
+x 1
+y 3
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 1
+y 3
+end
+arch floor_stone3b
+x 1
+y 4
+end
+arch floor_stone3b
+x 1
+y 5
+end
+arch floor_stone3d
+x 1
+y 6
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 1
+y 6
+end
+arch floor_stone3b
+x 1
+y 7
+end
+arch floor_stone3d
+x 1
+y 8
+end
+arch floor_stone3b
+x 1
+y 9
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 1
+y 9
+end
+arch floor_stone3b
+x 1
+y 10
+end
+arch floor_stone3d
+x 1
+y 11
+end
+arch pottery3.101
+x 1
+y 11
+end
+arch floor_stone3b
+x 1
+y 12
+end
+arch fwall_flagstone2a
+x 1
+y 12
+end
+arch floor_stone3d
+x 1
+y 13
+end
+arch spawn_point
+x 1
+y 13
+arch giant_stone
+name stone giant elite guard
+type 83
+level 20
+dam 80
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3d
+x 1
+y 14
+end
+arch floor_stone3b
+x 1
+y 15
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 1
+y 15
+end
+arch floor_stone3d
+x 1
+y 16
+end
+arch floor_stone3d
+x 1
+y 17
+end
+arch floor_stone3b
+x 1
+y 18
+end
+arch stairs_stone_up
+slaying old_outpost_0202
+hp 10
+sp 18
+x 1
+y 18
+end
+arch floor_stone3b
+x 1
+y 19
+end
+arch stairs_stone_up
+slaying old_outpost_0202
+hp 10
+sp 19
+x 1
+y 19
+end
+arch floor_stone3d
+x 1
+y 20
+end
+arch floor_stone3b
+x 1
+y 21
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 1
+y 21
+end
+arch floor_stone3b
+x 1
+y 22
+end
+arch pottery6.101
+x 1
+y 22
+end
+arch floor_stone3d
+x 1
+y 23
+end
+arch fwall_flagstone2a
+x 1
+y 23
+end
+arch floor_stone3d
+x 2
+end
+arch blood_floor1
+x 2
+end
+arch floor_stone3b
+x 2
+y 1
+end
+arch floor_stone3b
+x 2
+y 2
+end
+arch spawn_point
+x 2
+y 2
+arch troll
+name troll elite soldier
+type 83
+level 24
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+arch troll
+name Ksha'sha
+type 83
+level 24
+object_int1 5000
+dam 90
+wc 12
+maxhp 100
+ac 12
+Wis 3
+arch key_blue
+name blue stone giant key
+value 0
+one_drop 1
+quest_item 1
+end
+end
+end
+arch floor_stone3b
+x 2
+y 3
+end
+arch floor_stone3d
+x 2
+y 4
+end
+arch floor_stone3d
+x 2
+y 5
+end
+arch floor_stone3b
+x 2
+y 6
+end
+arch blood_floor1
+x 2
+y 6
+end
+arch floor_stone3b
+x 2
+y 7
+end
+arch blood_floor1
+x 2
+y 7
+end
+arch floor_stone3b
+x 2
+y 8
+end
+arch floor_stone3d
+x 2
+y 9
+end
+arch spawn_point
+x 2
+y 9
+arch troll
+name troll elite soldier
+type 83
+level 24
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+end
+arch floor_stone3d
+x 2
+y 10
+end
+arch floor_stone3b
+x 2
+y 11
+end
+arch floor_stone3b
+x 2
+y 12
+end
+arch fwall_flagstone2a
+x 2
+y 12
+end
+arch floor_stone3d
+x 2
+y 13
+end
+arch blood_floor2
+x 2
+y 13
+end
+arch floor_stone3b
+x 2
+y 14
+end
+arch floor_stone3b
+x 2
+y 15
+end
+arch floor_stone3d
+x 2
+y 16
+end
+arch blood_floor1
+x 2
+y 16
+end
+arch corpse_human
+name slain thraal mercenary
+x 2
+y 16
+end
+arch floor_stone3b
+x 2
+y 17
+end
+arch floor_stone3d
+x 2
+y 18
+end
+arch floor_stone3b
+x 2
+y 19
+end
+arch floor_stone3b
+x 2
+y 20
+end
+arch corpse_human
+name slain chin'hao knight
+x 2
+y 20
+end
+arch floor_stone3d
+x 2
+y 21
+end
+arch floor_stone3b
+x 2
+y 22
+end
+arch floor_stone3b
+x 2
+y 23
+end
+arch fwall_flagstone2a
+x 2
+y 23
+end
+arch floor_stone3b
+x 3
+end
+arch floor_stone3b
+x 3
+y 1
+end
+arch floor_stone3d
+x 3
+y 2
+end
+arch floor_stone3b
+x 3
+y 3
+end
+arch floor_stone3d
+x 3
+y 4
+end
+arch floor_stone3b
+x 3
+y 5
+end
+arch spawn_point
+x 3
+y 5
+arch troll
+name troll elite soldier
+type 83
+level 24
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+end
+arch floor_stone3b
+x 3
+y 6
+end
+arch floor_stone3b
+x 3
+y 7
+end
+arch floor_stone3b
+x 3
+y 8
+end
+arch floor_stone3b
+x 3
+y 9
+end
+arch floor_stone3d
+x 3
+y 10
+end
+arch floor_stone3d
+x 3
+y 11
+end
+arch floor_stone3b
+x 3
+y 12
+end
+arch fwall_flagstone2a
+x 3
+y 12
+end
+arch chains3.151
+x 3
+y 12
+end
+arch floor_stone3b
+x 3
+y 13
+end
+arch floor_stone3b
+x 3
+y 14
+end
+arch floor_stone3b
+x 3
+y 15
+end
+arch blood_floor2
+x 3
+y 15
+end
+arch floor_stone3d
+x 3
+y 16
+end
+arch blood_floor2
+x 3
+y 16
+end
+arch floor_stone3b
+x 3
+y 17
+end
+arch floor_stone3b
+x 3
+y 18
+end
+arch floor_stone3b
+x 3
+y 19
+end
+arch floor_stone3d
+x 3
+y 20
+end
+arch blood_floor2
+x 3
+y 20
+end
+arch floor_stone3b
+x 3
+y 21
+end
+arch floor_stone3d
+x 3
+y 22
+end
+arch floor_stone3b
+x 3
+y 23
+end
+arch fwall_flagstone2a
+x 3
+y 23
+end
+arch floor_stone3d
+x 4
+end
+arch fwall_flagstone2a
+x 4
+end
+arch wmask_bflag_brown_1
+x 4
+end
+arch floor_stone3d
+x 4
+y 1
+end
+arch floor_stone3d
+x 4
+y 2
+end
+arch floor_stone3d
+x 4
+y 3
+end
+arch floor_stone3d
+x 4
+y 4
+end
+arch floor_stone3d
+x 4
+y 5
+end
+arch floor_stone3d
+x 4
+y 6
+end
+arch floor_stone3b
+x 4
+y 7
+end
+arch floor_stone3b
+x 4
+y 8
+end
+arch floor_stone3d
+x 4
+y 9
+end
+arch floor_stone3b
+x 4
+y 10
+end
+arch dirt_floor2
+x 4
+y 10
+end
+arch floor_stone3b
+x 4
+y 11
+end
+arch floor_stone3b
+x 4
+y 12
+end
+arch fwall_flagstone2a
+x 4
+y 12
+end
+arch floor_stone3d
+x 4
+y 13
+end
+arch floor_stone3d
+x 4
+y 14
+end
+arch floor_stone3b
+x 4
+y 15
+end
+arch floor_stone3b
+x 4
+y 16
+end
+arch blood_floor1
+x 4
+y 16
+end
+arch floor_stone3d
+x 4
+y 17
+end
+arch floor_stone3b
+x 4
+y 18
+end
+arch blood_floor2
+x 4
+y 18
+end
+arch floor_stone3d
+x 4
+y 19
+end
+arch corpse_human
+name slain chin'hao knight
+x 4
+y 19
+end
+arch floor_stone3d
+x 4
+y 20
+end
+arch floor_stone3b
+x 4
+y 21
+end
+arch floor_stone3b
+x 4
+y 22
+end
+arch floor_stone3d
+x 4
+y 23
+end
+arch fwall_flagstone2a
+x 4
+y 23
+end
+arch floor_stone3d
+x 5
+end
+arch fwall_flagstone2a
+x 5
+end
+arch floor_stone3d
+x 5
+y 1
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 5
+y 1
+end
+arch floor_stone3d
+x 5
+y 2
+end
+arch blood_floor1
+x 5
+y 2
+end
+arch floor_stone3d
+x 5
+y 3
+end
+arch spawn_point
+x 5
+y 3
+arch troll
+name troll elite soldier
+type 83
+level 24
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+end
+arch floor_stone3d
+x 5
+y 4
+end
+arch floor_stone3d
+x 5
+y 5
+end
+arch floor_stone3d
+x 5
+y 6
+end
+arch keg_big.101
+x 5
+y 6
+end
+arch floor_stone3b
+x 5
+y 7
+end
+arch blood_floor1
+x 5
+y 7
+end
+arch floor_stone3b
+x 5
+y 8
+end
+arch floor_stone3b
+x 5
+y 9
+end
+arch blood_floor2
+x 5
+y 9
+end
+arch floor_stone3b
+x 5
+y 10
+end
+arch floor_stone3d
+x 5
+y 11
+end
+arch floor_stone3b
+x 5
+y 12
+end
+arch fwall_flagstone2a
+x 5
+y 12
+end
+arch floor_stone3d
+x 5
+y 13
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 5
+y 13
+end
+arch floor_stone3b
+x 5
+y 14
+end
+arch spawn_point
+x 5
+y 14
+arch giant_stone
+name stone giant elite guard
+type 83
+level 20
+dam 80
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3d
+x 5
+y 15
+end
+arch floor_stone3d
+x 5
+y 16
+end
+arch corpse_human
+name slain chin'hao knight
+x 5
+y 16
+end
+arch floor_stone3b
+x 5
+y 17
+end
+arch floor_stone3b
+x 5
+y 18
+end
+arch floor_stone3d
+x 5
+y 19
+end
+arch floor_stone3d
+x 5
+y 20
+end
+arch floor_stone3d
+x 5
+y 21
+end
+arch blood_floor2
+x 5
+y 21
+end
+arch floor_stone3b
+x 5
+y 22
+end
+arch floor_stone3d
+x 5
+y 23
+end
+arch fwall_flagstone2a
+x 5
+y 23
+end
+arch floor_stone3b
+x 6
+end
+arch fwall_flagstone2a
+x 6
+end
+arch floor_stone3d
+x 6
+y 1
+end
+arch floor_stone3b
+x 6
+y 2
+end
+arch dirt_floor2
+x 6
+y 2
+end
+arch floor_stone3d
+x 6
+y 3
+end
+arch floor_stone3b
+x 6
+y 4
+end
+arch floor_stone3d
+x 6
+y 5
+end
+arch blood_floor1
+x 6
+y 5
+end
+arch floor_stone3d
+x 6
+y 6
+end
+arch floor_stone3b
+x 6
+y 7
+end
+arch floor_stone3b
+x 6
+y 8
+end
+arch dirt_floor2
+x 6
+y 8
+end
+arch floor_stone3d
+x 6
+y 9
+end
+arch blood_floor1
+x 6
+y 9
+end
+arch floor_stone3b
+x 6
+y 10
+end
+arch floor_stone3b
+x 6
+y 11
+end
+arch floor_stone3d
+x 6
+y 12
+end
+arch fwall_flagstone2a
+x 6
+y 12
+end
+arch floor_stone3b
+x 6
+y 13
+end
+arch floor_stone3b
+x 6
+y 14
+end
+arch blood_floor2
+x 6
+y 14
+end
+arch floor_stone3b
+x 6
+y 15
+end
+arch floor_stone3d
+x 6
+y 16
+end
+arch floor_stone3b
+x 6
+y 17
+end
+arch blood_floor2
+x 6
+y 17
+end
+arch floor_stone3b
+x 6
+y 18
+end
+arch floor_stone3d
+x 6
+y 19
+end
+arch light7
+x 6
+y 19
+end
+arch pool_poison
+x 6
+y 19
+end
+arch floor_stone3b
+x 6
+y 20
+end
+arch floor_stone3b
+x 6
+y 21
+end
+arch floor_stone3b
+x 6
+y 22
+end
+arch floor_stone3d
+x 6
+y 23
+end
+arch fwall_flagstone2a
+x 6
+y 23
+end
+arch floor_stone3b
+x 7
+end
+arch fwall_flagstone2a
+x 7
+end
+arch floor_stone3d
+x 7
+y 1
+end
+arch spawn_point
+x 7
+y 1
+arch troll
+name troll elite soldier
+type 83
+level 24
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 2
+direction 3
+end
+end
+arch floor_stone3b
+x 7
+y 2
+end
+arch floor_stone3b
+x 7
+y 3
+end
+arch floor_stone3d
+x 7
+y 4
+end
+arch floor_stone3b
+x 7
+y 5
+end
+arch floor_stone3d
+x 7
+y 6
+end
+arch floor_stone3b
+x 7
+y 7
+end
+arch pool_poison
+x 7
+y 7
+end
+arch light7
+x 7
+y 7
+end
+arch floor_stone3b
+x 7
+y 8
+end
+arch floor_stone3d
+x 7
+y 9
+end
+arch blood_floor2
+x 7
+y 9
+end
+arch floor_stone3b
+x 7
+y 10
+end
+arch blood_floor2
+x 7
+y 10
+end
+arch floor_stone3d
+x 7
+y 11
+end
+arch floor_stone3d
+x 7
+y 12
+end
+arch fwall_flagstone2a
+x 7
+y 12
+end
+arch floor_stone3b
+x 7
+y 13
+end
+arch table_wood1.111
+x 7
+y 13
+end
+arch floor_stone3b
+x 7
+y 14
+end
+arch floor_stone3b
+x 7
+y 15
+end
+arch floor_stone3d
+x 7
+y 16
+end
+arch dirt_floor2
+x 7
+y 16
+end
+arch floor_stone3b
+x 7
+y 17
+end
+arch floor_stone3d
+x 7
+y 18
+end
+arch floor_stone3d
+x 7
+y 19
+end
+arch floor_stone3b
+x 7
+y 20
+end
+arch corpse_human
+name slain chin'hao knight captain
+x 7
+y 20
+arch letter
+name blood stained letter
+msg
+We are doomed!
+This is our last fight...
+We had underestimated the enemy forces
+in this area. The troll guards have overrun
+our backup troops. We are the last.
+We failed to kill the giant king and his guards too.
+He is guarded by magic doors. We never
+find the keys.. Listen, I hear them coming...
+Oh, Melarin... I never will come home...
+I wi.. (the writing stops here)
+endmsg
+no_pick 1
+weight 20
+value 0
+end
+end
+arch floor_stone3d
+x 7
+y 21
+end
+arch floor_stone3d
+x 7
+y 22
+end
+arch floor_stone3b
+x 7
+y 23
+end
+arch fwall_flagstone2a
+x 7
+y 23
+end
+arch floor_stone3b
+x 8
+end
+arch fwall_flagstone2a
+x 8
+end
+arch floor_stone3d
+x 8
+y 1
+end
+arch floor_stone3d
+x 8
+y 2
+end
+arch floor_stone3d
+x 8
+y 3
+end
+arch floor_stone3b
+x 8
+y 4
+end
+arch dirt_floor2
+x 8
+y 4
+end
+arch floor_stone3b
+x 8
+y 5
+end
+arch floor_stone3d
+x 8
+y 6
+end
+arch blood_floor2
+x 8
+y 6
+end
+arch floor_stone3b
+x 8
+y 7
+end
+arch floor_stone3b
+x 8
+y 8
+end
+arch floor_stone3b
+x 8
+y 9
+end
+arch dirt_floor2
+x 8
+y 9
+end
+arch floor_stone3b
+x 8
+y 10
+end
+arch floor_stone3d
+x 8
+y 11
+end
+arch floor_stone3d
+x 8
+y 12
+end
+arch fwall_flagstone2a
+x 8
+y 12
+end
+arch floor_stone3b
+x 8
+y 13
+end
+arch floor_stone3d
+x 8
+y 14
+end
+arch floor_stone3d
+x 8
+y 15
+end
+arch floor_stone3b
+x 8
+y 16
+end
+arch floor_stone3d
+x 8
+y 17
+end
+arch floor_stone3d
+x 8
+y 18
+end
+arch floor_stone3d
+x 8
+y 19
+end
+arch floor_stone3b
+x 8
+y 20
+end
+arch floor_stone3b
+x 8
+y 21
+end
+arch blood_floor2
+x 8
+y 21
+end
+arch floor_stone3b
+x 8
+y 22
+end
+arch floor_stone3b
+x 8
+y 23
+end
+arch fwall_flagstone2a
+x 8
+y 23
+end
+arch floor_stone3b
+x 9
+end
+arch fwall_flagstone2a
+x 9
+end
+arch floor_stone3d
+x 9
+y 1
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 9
+y 1
+end
+arch floor_stone3b
+x 9
+y 2
+end
+arch floor_stone3b
+x 9
+y 3
+end
+arch floor_stone3d
+x 9
+y 4
+end
+arch floor_stone3d
+x 9
+y 5
+end
+arch blood_floor2
+x 9
+y 5
+end
+arch floor_stone3d
+x 9
+y 6
+end
+arch blood_floor2
+x 9
+y 6
+end
+arch floor_stone3d
+x 9
+y 7
+end
+arch blood_floor1
+x 9
+y 7
+end
+arch floor_stone3d
+x 9
+y 8
+end
+arch floor_stone3d
+x 9
+y 9
+end
+arch floor_stone3d
+x 9
+y 10
+end
+arch floor_stone3d
+x 9
+y 11
+end
+arch floor_stone3b
+x 9
+y 12
+end
+arch fwall_flagstone2a
+x 9
+y 12
+end
+arch floor_stone3d
+x 9
+y 13
+end
+arch fwall_flagstone2a
+x 9
+y 13
+end
+arch floor_stone3d
+x 9
+y 14
+end
+arch floor_stone3d
+x 9
+y 15
+end
+arch floor_stone3d
+x 9
+y 16
+end
+arch spawn_point
+x 9
+y 16
+arch troll
+name troll cave soldier
+type 83
+level 21
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+end
+arch floor_stone3d
+x 9
+y 17
+end
+arch floor_stone3d
+x 9
+y 18
+end
+arch floor_stone3d
+x 9
+y 19
+end
+arch floor_stone3b
+x 9
+y 20
+end
+arch floor_stone3b
+x 9
+y 21
+end
+arch floor_stone3d
+x 9
+y 22
+end
+arch floor_stone3b
+x 9
+y 23
+end
+arch fwall_flagstone2a
+x 9
+y 23
+end
+arch floor_stone3b
+x 10
+end
+arch fwall_flagstone2a
+x 10
+end
+arch chains2.151
+x 10
+end
+arch floor_stone3b
+x 10
+y 1
+end
+arch floor_stone3b
+x 10
+y 2
+end
+arch floor_stone3d
+x 10
+y 3
+end
+arch floor_stone3d
+x 10
+y 4
+end
+arch floor_stone3b
+x 10
+y 5
+end
+arch floor_stone3b
+x 10
+y 6
+end
+arch blood_floor1
+x 10
+y 6
+end
+arch floor_stone3b
+x 10
+y 7
+end
+arch floor_stone3b
+x 10
+y 8
+end
+arch floor_stone3d
+x 10
+y 9
+end
+arch blood_floor2
+x 10
+y 9
+end
+arch floor_stone3b
+x 10
+y 10
+end
+arch blood_floor1
+x 10
+y 10
+end
+arch floor_stone3b
+x 10
+y 11
+end
+arch floor_stone3d
+x 10
+y 12
+end
+arch box2.101
+x 10
+y 12
+end
+arch floor_stone3d
+x 10
+y 13
+end
+arch fwall_flagstone2a
+x 10
+y 13
+end
+arch floor_stone3d
+x 10
+y 14
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 10
+y 14
+end
+arch blood_floor2
+x 10
+y 14
+end
+arch floor_stone3d
+x 10
+y 15
+end
+arch floor_stone3d
+x 10
+y 16
+end
+arch floor_stone3d
+x 10
+y 17
+end
+arch floor_stone3d
+x 10
+y 18
+end
+arch blood_floor2
+x 10
+y 18
+end
+arch floor_stone3d
+x 10
+y 19
+end
+arch floor_stone3d
+x 10
+y 20
+end
+arch spawn_point
+x 10
+y 20
+arch troll
+name troll cave soldier
+type 83
+level 21
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 7
+end
+end
+arch floor_stone3d
+x 10
+y 21
+end
+arch floor_stone3d
+x 10
+y 22
+end
+arch floor_stone3d
+x 10
+y 23
+end
+arch fwall_flagstone2a
+x 10
+y 23
+end
+arch floor_stone3b
+x 11
+end
+arch fwall_flagstone2a
+x 11
+end
+arch floor_stone3d
+x 11
+y 1
+end
+arch pile_floor1
+x 11
+y 1
+end
+arch floor_stone3b
+x 11
+y 2
+end
+arch blood_floor1
+x 11
+y 2
+end
+arch floor_stone3d
+x 11
+y 3
+end
+arch floor_stone3d
+x 11
+y 4
+end
+arch dirt_floor2
+x 11
+y 4
+end
+arch floor_stone3d
+x 11
+y 5
+end
+arch floor_stone3d
+x 11
+y 6
+end
+arch floor_stone3d
+x 11
+y 7
+end
+arch floor_stone3b
+x 11
+y 8
+end
+arch dirt_floor2
+x 11
+y 8
+end
+arch floor_stone3b
+x 11
+y 9
+end
+arch floor_stone3b
+x 11
+y 10
+end
+arch blood_floor1
+x 11
+y 10
+end
+arch floor_stone3b
+x 11
+y 11
+end
+arch floor_stone3b
+x 11
+y 12
+end
+arch floor_stone3d
+x 11
+y 13
+end
+arch fwall_flagstone2a
+x 11
+y 13
+end
+arch floor_stone3d
+x 11
+y 14
+end
+arch fwall_flagstone2a
+x 11
+y 14
+end
+arch floor_stone3d
+x 11
+y 15
+end
+arch floor_stone3b
+x 11
+y 16
+end
+arch floor_stone3b
+x 11
+y 17
+end
+arch floor_stone3d
+x 11
+y 18
+end
+arch floor_stone3b
+x 11
+y 19
+end
+arch floor_stone3b
+x 11
+y 20
+end
+arch floor_stone3b
+x 11
+y 21
+end
+arch floor_stone3b
+x 11
+y 22
+end
+arch floor_stone3b
+x 11
+y 23
+end
+arch fwall_flagstone2a
+x 11
+y 23
+end
+arch floor_stone3b
+x 12
+end
+arch fwall_flagstone2a
+x 12
+end
+arch floor_stone3b
+x 12
+y 1
+end
+arch floor_stone3d
+x 12
+y 2
+end
+arch floor_stone3b
+x 12
+y 3
+end
+arch floor_stone3b
+x 12
+y 4
+end
+arch floor_stone3b
+x 12
+y 5
+end
+arch floor_stone3d
+x 12
+y 6
+end
+arch floor_stone3d
+x 12
+y 7
+end
+arch dirt_floor2
+x 12
+y 7
+end
+arch floor_stone3b
+x 12
+y 8
+end
+arch floor_stone3b
+x 12
+y 9
+end
+arch floor_stone3b
+x 12
+y 10
+end
+arch floor_stone3b
+x 12
+y 11
+end
+arch floor_stone3d
+x 12
+y 12
+end
+arch dirt_floor2
+x 12
+y 12
+end
+arch floor_stone3b
+x 12
+y 13
+end
+arch fwall_flagstone2a
+x 12
+y 13
+end
+arch floor_stone3d
+x 12
+y 14
+end
+arch fwall_flagstone2a
+x 12
+y 14
+end
+arch floor_stone3b
+x 12
+y 15
+end
+arch fwall_flagstone2a
+x 12
+y 15
+end
+arch floor_stone3b
+x 12
+y 16
+end
+arch fwall_flagstone2a
+x 12
+y 16
+end
+arch floor_stone3d
+x 12
+y 17
+end
+arch fwall_flagstone2a
+x 12
+y 17
+end
+arch floor_stone3d
+x 12
+y 18
+end
+arch fwall_flagstone2a
+x 12
+y 18
+end
+arch floor_stone3d
+x 12
+y 19
+end
+arch floor_stone3b
+x 12
+y 20
+end
+arch floor_stone3b
+x 12
+y 21
+end
+arch floor_stone3d
+x 12
+y 22
+end
+arch floor_stone3b
+x 12
+y 23
+end
+arch fwall_flagstone2a
+x 12
+y 23
+end
+arch floor_stone3d
+x 13
+end
+arch fwall_flagstone2a
+x 13
+end
+arch floor_stone3d
+x 13
+y 1
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 13
+y 1
+end
+arch floor_stone3d
+x 13
+y 2
+end
+arch floor_stone3b
+x 13
+y 3
+end
+arch fwall_flagstone2a
+x 13
+y 3
+end
+arch wmask_bflag_brown_1
+direction 5
+x 13
+y 3
+end
+arch floor_stone3d
+x 13
+y 4
+end
+arch fwall_flagstone2a
+x 13
+y 4
+end
+arch chains3.151
+direction 5
+x 13
+y 4
+end
+arch floor_stone3d
+x 13
+y 5
+end
+arch fwall_flagstone2a
+x 13
+y 5
+end
+arch floor_stone3b
+x 13
+y 6
+end
+arch fwall_flagstone2a
+x 13
+y 6
+end
+arch floor_stone3d
+x 13
+y 7
+end
+arch fwall_flagstone2a
+x 13
+y 7
+end
+arch floor_stone3b
+x 13
+y 8
+end
+arch fwall_flagstone2a
+x 13
+y 8
+end
+arch floor_stone3d
+x 13
+y 9
+end
+arch fwall_flagstone2a
+x 13
+y 9
+end
+arch chains3.151
+direction 5
+x 13
+y 9
+end
+arch floor_stone3b
+x 13
+y 10
+end
+arch fwall_flagstone2a
+x 13
+y 10
+end
+arch floor_stone3b
+x 13
+y 11
+end
+arch fwall_flagstone2a
+x 13
+y 11
+end
+arch floor_stone3d
+x 13
+y 12
+end
+arch fwall_flagstone2a
+x 13
+y 12
+end
+arch floor_stone3b
+x 13
+y 13
+end
+arch fwall_flagstone2a
+x 13
+y 13
+end
+arch floor_stone3b
+x 13
+y 14
+end
+arch cave_pillar4
+x 13
+y 14
+end
+arch floor_stone3b
+x 13
+y 15
+end
+arch floor_stone3b
+x 13
+y 16
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 13
+y 16
+end
+arch floor_stone3d
+x 13
+y 17
+end
+arch floor_stone3b
+x 13
+y 18
+end
+arch fwall_flagstone2a
+x 13
+y 18
+end
+arch chains3.151
+direction 5
+x 13
+y 18
+end
+arch floor_stone3d
+x 13
+y 19
+end
+arch fwall_flagstone2a
+x 13
+y 19
+end
+arch floor_stone3d
+x 13
+y 20
+end
+arch fwall_flagstone2a
+x 13
+y 20
+end
+arch floor_stone3d
+x 13
+y 21
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 13
+y 21
+end
+arch blood_floor2
+x 13
+y 21
+end
+arch floor_stone3b
+x 13
+y 22
+end
+arch floor_stone3b
+x 13
+y 23
+end
+arch fwall_flagstone2a
+x 13
+y 23
+end
+arch floor_stone3b
+x 14
+end
+arch fwall_flagstone2a
+x 14
+end
+arch floor_stone3b
+x 14
+y 1
+end
+arch spawn_point
+x 14
+y 1
+arch troll
+name troll elite soldier
+type 83
+level 23
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 3
+direction 3
+end
+end
+arch floor_stone3d
+x 14
+y 2
+end
+arch floor_stone3d
+x 14
+y 3
+end
+arch floor_stone3b
+x 14
+y 4
+end
+arch floor_stone3b
+x 14
+y 5
+end
+arch floor_stone3d
+x 14
+y 6
+end
+arch floor_stone3b
+x 14
+y 7
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 14
+y 7
+end
+arch floor_stone3d
+x 14
+y 8
+end
+arch floor_stone3d
+x 14
+y 9
+end
+arch floor_stone3b
+x 14
+y 10
+end
+arch floor_stone3d
+x 14
+y 11
+end
+arch floor_stone3b
+x 14
+y 12
+end
+arch torch_wall_1
+direction 5
+glow_radius 5
+is_animated 1
+x 14
+y 12
+end
+arch floor_stone3d
+x 14
+y 13
+end
+arch floor_stone3d
+x 14
+y 14
+end
+arch floor_stone3d
+x 14
+y 15
+end
+arch floor_stone3b
+x 14
+y 16
+end
+arch blood_floor2
+x 14
+y 16
+end
+arch floor_stone3d
+x 14
+y 17
+end
+arch floor_stone3b
+x 14
+y 18
+end
+arch floor_stone3b
+x 14
+y 19
+end
+arch floor_stone3b
+x 14
+y 20
+end
+arch blood_floor2
+x 14
+y 20
+end
+arch floor_stone3b
+x 14
+y 21
+end
+arch floor_stone3d
+x 14
+y 22
+end
+arch floor_stone3b
+x 14
+y 23
+end
+arch fwall_flagstone2a
+x 14
+y 23
+end
+arch floor_stone3b
+x 15
+end
+arch fwall_flagstone2a
+x 15
+end
+arch floor_stone3b
+x 15
+y 1
+end
+arch floor_stone3d
+x 15
+y 2
+end
+arch floor_stone3b
+x 15
+y 3
+end
+arch blood_floor1
+x 15
+y 3
+end
+arch floor_stone3b
+x 15
+y 4
+end
+arch floor_stone3b
+x 15
+y 5
+end
+arch floor_stone3b
+x 15
+y 6
+end
+arch floor_stone3b
+x 15
+y 7
+end
+arch floor_stone3d
+x 15
+y 8
+end
+arch blood_floor1
+x 15
+y 8
+end
+arch floor_stone3d
+x 15
+y 9
+end
+arch floor_stone3d
+x 15
+y 10
+end
+arch floor_stone3d
+x 15
+y 11
+end
+arch floor_stone3b
+x 15
+y 12
+end
+arch blood_floor2
+x 15
+y 12
+end
+arch floor_stone3d
+x 15
+y 13
+end
+arch floor_stone3b
+x 15
+y 14
+end
+arch floor_stone3b
+x 15
+y 15
+end
+arch floor_stone3d
+x 15
+y 16
+end
+arch floor_stone3b
+x 15
+y 17
+end
+arch dirt_floor2
+x 15
+y 17
+end
+arch floor_stone3d
+x 15
+y 18
+end
+arch floor_stone3d
+x 15
+y 19
+end
+arch floor_stone3b
+x 15
+y 20
+end
+arch floor_stone3d
+x 15
+y 21
+end
+arch floor_stone3b
+x 15
+y 22
+end
+arch floor_stone3d
+x 15
+y 23
+end
+arch fwall_flagstone2a
+x 15
+y 23
+end
+arch floor_stone3d
+x 16
+end
+arch fwall_flagstone2a
+x 16
+end
+arch chains2.151
+x 16
+end
+arch floor_stone3d
+x 16
+y 1
+end
+arch floor_stone3d
+x 16
+y 2
+end
+arch floor_stone3d
+x 16
+y 3
+end
+arch floor_stone3d
+x 16
+y 4
+end
+arch floor_stone3d
+x 16
+y 5
+end
+arch floor_stone3d
+x 16
+y 6
+end
+arch spawn_point
+x 16
+y 6
+arch giant_stone
+name stone giant elite guard
+type 83
+level 23
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3b
+x 16
+y 7
+end
+arch floor_stone3b
+x 16
+y 8
+end
+arch dirt_floor2
+x 16
+y 8
+end
+arch floor_stone3d
+x 16
+y 9
+end
+arch floor_stone3b
+x 16
+y 10
+end
+arch floor_stone3d
+x 16
+y 11
+end
+arch blood_floor2
+x 16
+y 11
+end
+arch floor_stone3b
+x 16
+y 12
+end
+arch floor_stone3d
+x 16
+y 13
+end
+arch floor_stone3d
+x 16
+y 14
+end
+arch floor_stone3b
+x 16
+y 15
+end
+arch floor_stone3b
+x 16
+y 16
+end
+arch spawn_point
+x 16
+y 16
+arch giant_stone
+name stone giant elite guard
+type 83
+level 22
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3b
+x 16
+y 17
+end
+arch floor_stone3b
+x 16
+y 18
+end
+arch floor_stone3d
+x 16
+y 19
+end
+arch floor_stone3d
+x 16
+y 20
+end
+arch spawn_point
+x 16
+y 20
+arch giant_stone
+name stone giant elite guard
+type 83
+level 22
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3d
+x 16
+y 21
+end
+arch floor_stone3d
+x 16
+y 22
+end
+arch floor_stone3d
+x 16
+y 23
+end
+arch fwall_flagstone2a
+x 16
+y 23
+end
+arch floor_stone3d
+x 17
+end
+arch fwall_flagstone2a
+x 17
+end
+arch floor_stone3d
+x 17
+y 1
+end
+arch dirt_floor2
+x 17
+y 1
+end
+arch floor_stone3d
+x 17
+y 2
+end
+arch blood_floor1
+x 17
+y 2
+end
+arch floor_stone3d
+x 17
+y 3
+end
+arch floor_stone3d
+x 17
+y 4
+end
+arch floor_stone3d
+x 17
+y 5
+end
+arch floor_stone3b
+x 17
+y 6
+end
+arch floor_stone3d
+x 17
+y 7
+end
+arch floor_stone3d
+x 17
+y 8
+end
+arch floor_stone3b
+x 17
+y 9
+end
+arch floor_stone3d
+x 17
+y 10
+end
+arch floor_stone3d
+x 17
+y 11
+end
+arch floor_stone3b
+x 17
+y 12
+end
+arch floor_stone3d
+x 17
+y 13
+end
+arch blood_floor2
+x 17
+y 13
+end
+arch floor_stone3d
+x 17
+y 14
+end
+arch floor_stone3d
+x 17
+y 15
+end
+arch blood_floor2
+x 17
+y 15
+end
+arch floor_stone3b
+x 17
+y 16
+end
+arch floor_stone3d
+x 17
+y 17
+end
+arch floor_stone3b
+x 17
+y 18
+end
+arch floor_stone3b
+x 17
+y 19
+end
+arch floor_stone3d
+x 17
+y 20
+end
+arch blood_floor2
+x 17
+y 20
+end
+arch floor_stone3b
+x 17
+y 21
+end
+arch floor_stone3d
+x 17
+y 22
+end
+arch floor_stone3b
+x 17
+y 23
+end
+arch fwall_flagstone2a
+x 17
+y 23
+end
+arch floor_stone3d
+x 18
+end
+arch fwall_flagstone2a
+x 18
+end
+arch floor_stone3b
+x 18
+y 1
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 18
+y 1
+end
+arch floor_stone3d
+x 18
+y 2
+end
+arch floor_stone3b
+x 18
+y 3
+end
+arch floor_stone3d
+x 18
+y 4
+end
+arch floor_stone3b
+x 18
+y 5
+end
+arch fwall_flagstone2a
+x 18
+y 5
+end
+arch floor_stone3d
+x 18
+y 6
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 18
+y 6
+end
+arch floor_stone3d
+x 18
+y 7
+end
+arch dirt_floor2
+x 18
+y 7
+end
+arch floor_stone3d
+x 18
+y 8
+end
+arch floor_stone3d
+x 18
+y 9
+end
+arch floor_stone3d
+x 18
+y 10
+end
+arch fwall_flagstone2a
+x 18
+y 10
+end
+arch chains3.151
+direction 5
+x 18
+y 10
+end
+arch floor_stone3d
+x 18
+y 11
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 18
+y 11
+end
+arch floor_stone3b
+x 18
+y 12
+end
+arch dirt_floor2
+x 18
+y 12
+end
+arch floor_stone3d
+x 18
+y 13
+end
+arch floor_stone3b
+x 18
+y 14
+end
+arch floor_stone3d
+x 18
+y 15
+end
+arch fwall_flagstone2a
+x 18
+y 15
+end
+arch chains2.151
+direction 5
+x 18
+y 15
+end
+arch floor_stone3b
+x 18
+y 16
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 18
+y 16
+end
+arch floor_stone3b
+x 18
+y 17
+end
+arch floor_stone3b
+x 18
+y 18
+end
+arch floor_stone3d
+x 18
+y 19
+end
+arch fwall_flagstone2a
+x 18
+y 19
+end
+arch floor_stone3b
+x 18
+y 20
+end
+arch torch_wall_1
+glow_radius 5
+is_animated 1
+x 18
+y 20
+end
+arch floor_stone3d
+x 18
+y 21
+end
+arch dirt_floor2
+x 18
+y 21
+end
+arch floor_stone3d
+x 18
+y 22
+end
+arch floor_stone3b
+x 18
+y 23
+end
+arch fwall_flagstone2a
+x 18
+y 23
+end
+arch floor_stone3d
+x 19
+end
+arch fwall_flagstone2a
+x 19
+end
+arch floor_stone3d
+x 19
+y 1
+end
+arch blood_floor1
+x 19
+y 1
+end
+arch floor_stone3d
+x 19
+y 2
+end
+arch floor_stone3b
+x 19
+y 3
+end
+arch floor_stone3d
+x 19
+y 4
+end
+arch floor_stone3b
+x 19
+y 5
+end
+arch floor_stone3d
+x 19
+y 6
+end
+arch blood_floor1
+x 19
+y 6
+end
+arch floor_stone3b
+x 19
+y 7
+end
+arch floor_stone3b
+x 19
+y 8
+end
+arch floor_stone3b
+x 19
+y 9
+end
+arch blood_floor2
+x 19
+y 9
+end
+arch floor_stone3d
+x 19
+y 10
+end
+arch floor_stone3d
+x 19
+y 11
+end
+arch blood_floor2
+x 19
+y 11
+end
+arch floor_stone3d
+x 19
+y 12
+end
+arch floor_stone3d
+x 19
+y 13
+end
+arch floor_stone3d
+x 19
+y 14
+end
+arch floor_stone3b
+x 19
+y 15
+end
+arch floor_stone3b
+x 19
+y 16
+end
+arch floor_stone3d
+x 19
+y 17
+end
+arch blood_floor2
+x 19
+y 17
+end
+arch floor_stone3b
+x 19
+y 18
+end
+arch floor_stone3b
+x 19
+y 19
+end
+arch floor_stone3b
+x 19
+y 20
+end
+arch floor_stone3d
+x 19
+y 21
+end
+arch floor_stone3d
+x 19
+y 22
+end
+arch floor_stone3b
+x 19
+y 23
+end
+arch fwall_flagstone2a
+x 19
+y 23
+end
+arch floor_stone3d
+x 20
+end
+arch fwall_flagstone2a
+x 20
+end
+arch floor_stone3b
+x 20
+y 1
+end
+arch floor_stone3b
+x 20
+y 2
+end
+arch spawn_point
+x 20
+y 2
+arch troll
+name troll elite soldier
+type 83
+level 23
+dam 80
+wc 11
+maxhp 100
+ac 12
+Wis 2
+direction 3
+end
+end
+arch floor_stone3d
+x 20
+y 3
+end
+arch floor_stone3d
+x 20
+y 4
+end
+arch floor_stone3d
+x 20
+y 5
+end
+arch floor_stone3d
+x 20
+y 6
+end
+arch floor_stone3d
+x 20
+y 7
+end
+arch floor_stone3d
+x 20
+y 8
+end
+arch floor_stone3b
+x 20
+y 9
+end
+arch floor_stone3b
+x 20
+y 10
+end
+arch floor_stone3d
+x 20
+y 11
+end
+arch dirt_floor2
+x 20
+y 11
+end
+arch floor_stone3d
+x 20
+y 12
+end
+arch blood_floor1
+x 20
+y 12
+end
+arch floor_stone3d
+x 20
+y 13
+end
+arch blood_floor2
+x 20
+y 13
+end
+arch floor_stone3d
+x 20
+y 14
+end
+arch floor_stone3d
+x 20
+y 15
+end
+arch floor_stone3d
+x 20
+y 16
+end
+arch blood_floor2
+x 20
+y 16
+end
+arch floor_stone3b
+x 20
+y 17
+end
+arch blood_floor2
+x 20
+y 17
+end
+arch floor_stone3b
+x 20
+y 18
+end
+arch floor_stone3b
+x 20
+y 19
+end
+arch floor_stone3b
+x 20
+y 20
+end
+arch blood_floor2
+x 20
+y 20
+end
+arch floor_stone3d
+x 20
+y 21
+end
+arch floor_stone3b
+x 20
+y 22
+end
+arch floor_stone3b
+x 20
+y 23
+end
+arch fwall_flagstone2a
+x 20
+y 23
+end
+arch floor_stone3b
+x 21
+end
+arch fwall_flagstone2a
+x 21
+end
+arch floor_stone3b
+x 21
+y 1
+end
+arch floor_stone3b
+x 21
+y 2
+end
+arch blood_floor1
+x 21
+y 2
+end
+arch floor_stone3b
+x 21
+y 3
+end
+arch floor_stone3b
+x 21
+y 4
+end
+arch dirt_floor2
+x 21
+y 4
+end
+arch floor_stone3b
+x 21
+y 5
+end
+arch floor_stone3d
+x 21
+y 6
+end
+arch spawn_point
+x 21
+y 6
+arch giant_stone
+name stone giant elite guard
+type 83
+level 22
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3b
+x 21
+y 7
+end
+arch dirt_floor2
+x 21
+y 7
+end
+arch floor_stone3d
+x 21
+y 8
+end
+arch floor_stone3b
+x 21
+y 9
+end
+arch blood_floor1
+x 21
+y 9
+end
+arch floor_stone3d
+x 21
+y 10
+end
+arch floor_stone3b
+x 21
+y 11
+end
+arch blood_floor2
+x 21
+y 11
+end
+arch floor_stone3d
+x 21
+y 12
+end
+arch floor_stone3d
+x 21
+y 13
+end
+arch blood_floor1
+x 21
+y 13
+end
+arch floor_stone3d
+x 21
+y 14
+end
+arch blood_floor1
+x 21
+y 14
+end
+arch floor_stone3b
+x 21
+y 15
+end
+arch floor_stone3b
+x 21
+y 16
+end
+arch spawn_point
+x 21
+y 16
+arch giant_stone
+name stone giant elite guard
+type 83
+level 22
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3b
+x 21
+y 17
+end
+arch floor_stone3b
+x 21
+y 18
+end
+arch floor_stone3d
+x 21
+y 19
+end
+arch floor_stone3d
+x 21
+y 20
+end
+arch spawn_point
+x 21
+y 20
+arch giant_stone
+name stone giant elite guard
+type 83
+level 22
+dam 90
+wc 8
+maxhp 80
+ac 11
+Wis 3
+end
+end
+arch floor_stone3d
+x 21
+y 21
+end
+arch floor_stone3d
+x 21
+y 22
+end
+arch floor_stone3b
+x 21
+y 23
+end
+arch fwall_flagstone2a
+x 21
+y 23
+end
+arch floor_stone3b
+x 22
+end
+arch fwall_flagstone2a
+x 22
+end
+arch floor_stone3d
+x 22
+y 1
+end
+arch floor_stone3d
+x 22
+y 2
+end
+arch floor_stone3b
+x 22
+y 3
+end
+arch floor_stone3b
+x 22
+y 4
+end
+arch floor_stone3d
+x 22
+y 5
+end
+arch floor_stone3d
+x 22
+y 6
+end
+arch floor_stone3d
+x 22
+y 7
+end
+arch floor_stone3b
+x 22
+y 8
+end
+arch floor_stone3d
+x 22
+y 9
+end
+arch floor_stone3d
+x 22
+y 10
+end
+arch floor_stone3b
+x 22
+y 11
+end
+arch floor_stone3b
+x 22
+y 12
+end
+arch floor_stone3d
+x 22
+y 13
+end
+arch floor_stone3d
+x 22
+y 14
+end
+arch floor_stone3d
+x 22
+y 15
+end
+arch floor_stone3d
+x 22
+y 16
+end
+arch floor_stone3d
+x 22
+y 17
+end
+arch floor_stone3d
+x 22
+y 18
+end
+arch floor_stone3d
+x 22
+y 19
+end
+arch floor_stone3d
+x 22
+y 20
+end
+arch floor_stone3b
+x 22
+y 21
+end
+arch floor_stone3d
+x 22
+y 22
+end
+arch floor_stone3b
+x 22
+y 23
+end
+arch fwall_flagstone2a
+x 22
+y 23
+end
+arch floor_stone3b
+x 23
+end
+arch fwall_flagstone2a
+x 23
+end
+arch floor_stone3b
+x 23
+y 1
+end
+arch fwall_flagstone2a
+x 23
+y 1
+end
+arch floor_stone3d
+x 23
+y 2
+end
+arch fwall_flagstone2a
+x 23
+y 2
+end
+arch floor_stone3d
+x 23
+y 3
+end
+arch fwall_flagstone2a
+x 23
+y 3
+end
+arch floor_stone3b
+x 23
+y 4
+end
+arch fwall_flagstone2a
+x 23
+y 4
+end
+arch floor_stone3b
+x 23
+y 5
+end
+arch fwall_flagstone2a
+x 23
+y 5
+end
+arch floor_stone3b
+x 23
+y 6
+end
+arch fwall_flagstone2a
+x 23
+y 6
+end
+arch floor_stone3b
+x 23
+y 7
+end
+arch fwall_flagstone2a
+x 23
+y 7
+end
+arch floor_stone3b
+x 23
+y 8
+end
+arch fwall_flagstone2a
+x 23
+y 8
+end
+arch floor_stone3d
+x 23
+y 9
+end
+arch fwall_flagstone2a
+x 23
+y 9
+end
+arch floor_stone3b
+x 23
+y 10
+end
+arch fwall_flagstone2a
+x 23
+y 10
+end
+arch floor_stone3b
+x 23
+y 11
+end
+arch fwall_flagstone2a
+x 23
+y 11
+end
+arch floor_stone3b
+x 23
+y 12
+end
+arch fwall_flagstone2a
+x 23
+y 12
+end
+arch floor_stone3d
+x 23
+y 13
+end
+arch fwall_flagstone2a
+x 23
+y 13
+end
+arch floor_stone3b
+x 23
+y 14
+end
+arch fwall_flagstone2a
+x 23
+y 14
+end
+arch floor_stone3d
+x 23
+y 15
+end
+arch fwall_flagstone2a
+x 23
+y 15
+end
+arch floor_stone3b
+x 23
+y 16
+end
+arch fwall_flagstone2a
+x 23
+y 16
+end
+arch floor_stone3d
+x 23
+y 17
+end
+arch fwall_flagstone2a
+x 23
+y 17
+end
+arch floor_stone3d
+x 23
+y 18
+end
+arch fwall_flagstone2a
+x 23
+y 18
+end
+arch floor_stone3b
+x 23
+y 19
+end
+arch fwall_flagstone2a
+x 23
+y 19
+end
+arch floor_stone3d
+x 23
+y 20
+end
+arch fwall_flagstone2a
+x 23
+y 20
+end
+arch floor_stone3b
+x 23
+y 21
+end
+arch fwall_flagstone2a
+x 23
+y 21
+end
+arch floor_stone3b
+x 23
+y 22
+end
+arch fwall_flagstone2a
+x 23
+y 22
+end
+arch floor_stone3b
+x 23
+y 23
+end
+arch fwall_flagstone2a
+x 23
+y 23
+end
