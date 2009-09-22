@@ -262,8 +262,6 @@ static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args)
 	GCFP.Value[0] = (void *)(mapname);
 	GCFP.Value[1] = (void *)(&flags);
 
-	plugin_log(llevDebug, "Ready to call readymapname with %s %i\n", (char *)(GCFP.Value[0]), *(int *)(GCFP.Value[1]));
-	/* mymap = ready_map_name(mapname,0); */
 	CFR = (PlugHooks[HOOK_READYMAPNAME])(&GCFP);
 	mymap = (mapstruct *)(CFR->Value[0]);
 
