@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-16 Alex Tokar
+Modified: 2009-09-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1695,8 +1695,8 @@ name Monsters and Targets
 msg
 ~Monsters and Targets~
 Here you see some of your enemies. They are called monsters or mobs. Don't fear, they won't attack.
-You can target the monsters by pressing the '^x^' key.
-Pressing the 'x' key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press '^x^' now!
+You can target the monsters by pressing the ~x~ key.
+Pressing the ~x~ key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press ~x~ now!
 After you target something its name is shown on the bottom of the screen, in the target box. The color of the name has a special meaning - read about it on the next sign.
 endmsg
 x 11

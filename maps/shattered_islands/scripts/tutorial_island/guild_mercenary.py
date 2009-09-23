@@ -80,7 +80,7 @@ elif text[0] == "guild":
 		qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
 
 		if qitem == None:
-			me.SayTo(activator,"\nBefore you can ^join^ the guild I have a small task for you.\nSome giant ants have invaded our water supply.\nSee this hole on my side!\nOne of those silly ants stole my old helmet!\nEnter the hole and kill the ants there.\nNo fear, they are weak.\nBring me the helmet back and I will let you ^join^.\n");		
+			me.SayTo(activator,"\nBefore you can ^join^ the guild I have a small task for you.\nSome giant ants have invaded our water supply.\nSee this hole by my side!\nOne of those silly ants stole my old helmet!\nEnter the hole and kill the ants there.\nNo fear, they are weak.\nBring me the helmet back and I will let you ^join^.\n");		
 		else:
 			pinfo = activator.GetPlayerInfo("GUILD_INFO")
 

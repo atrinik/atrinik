@@ -2,7 +2,7 @@ arch map
 name The Starting Tutorial
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-22 Alex Tokar
+Modified: 2009-09-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -677,7 +677,7 @@ msg
 Sometimes messages are too long to fit the window, or maybe you just want to look back and see what was said five minutes ago.
 You can use the ~page up~ and ~page down~ keys to view older messages. You can also control the scroll bar with your mouse.
 Note that it is easy to miss new messages if you aren't at the bottom of the message windows.
-There are two message windows. The one on left shows this text and game related notices like fighting in combat, the one right shows messages from other players.
+There are two message windows. The right one shows this text and game related notices like fighting in combat, the left one shows messages from other players.
 endmsg
 x 7
 y 7
@@ -735,9 +735,7 @@ name Other Inventory Commands
 msg
 ~Other Inventory Command~
 There are some more commands for objects.
-With 'm', which stands for ~mark~, you can mark an object. Some
-NPCs might want a marked object when they do an action, for example
-identifying a single object.
+With 'm', which stands for ~mark~, you can mark an object. Some NPCs might want a marked object when they do an action, for example identifying a single object.
 With 'l', which means ~lock~ you can lock an item in your inventory.
 You cannot drop a locked item unless you first unlock it by pressing the 'l' key again.
 This is useful for making sure you don't accidentally drop your important items.
@@ -1918,9 +1916,8 @@ end
 arch sign
 name Light and Dark
 msg
-It is not very dark here. Dark caves and dark nights are much darker! Never go out without
-a light source. A lamp or a magic lamp will give more light than a torch. Also, magic
-powers like xray-vision or infravision will enhance your vision.
+It is not very dark here. Dark caves and dark nights are much darker! Never go out without a light source.
+A lamp or a magic lamp will give more light than a torch. Also, magic powers like xray-vision or infravision will enhance your vision.
 endmsg
 x 18
 y 3
