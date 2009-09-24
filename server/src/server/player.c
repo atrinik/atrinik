@@ -678,15 +678,13 @@ static void fire_bow(object *op, int dir)
 {
 	object *left_cont, *bow, *arrow = NULL, *left, *tmp_op;
 	tag_t left_tag;
-	rv_vector target_vec;
 
 	/* If no dir is specified, attempt to find get the direction
 	 * from player's target. */
 	if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
-		object *target = CONTR(op)->target_object;
-		get_rangevector(op, target, &target_vec, 0);
-		dir = target_vec.direction;
+		rv_vector range_vector;
+		dir = get_dir_to_target(op, CONTR(op)->target_object, &range_vector);
 	}
 
 	if (!dir)

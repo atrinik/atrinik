@@ -1749,7 +1749,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	tag_t left_tag;
 	int eff_str = 0, str = op->stats.Str, dam = 0, weight_f = 0;
 	int target_throw = 0;
-	rv_vector target_vec;
+	rv_vector range_vector;
 
 	float str_factor = 1.0f, load_factor = 1.0f, item_factor = 1.0f;
 
@@ -1858,9 +1858,7 @@ void do_throw(object *op, object *toss_item, int dir)
 	/* Experimental targetting throw hack */
 	if (!dir && op->type == PLAYER && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
-		object *target = CONTR(op)->target_object;
-		get_rangevector(op, target, &target_vec, 0);
-		dir = target_vec.direction;
+		dir = get_dir_to_target(op, CONTR(op)->target_object, &range_vector);
 		target_throw = 1;
 	}
 	else
@@ -1920,9 +1918,9 @@ void do_throw(object *op, object *toss_item, int dir)
 	if (target_throw)
 	{
 		/* hp */
-		int dx = target_vec.distance_x;
+		int dx = range_vector.distance_x;
 		/* sp */
-		int dy = target_vec.distance_y;
+		int dy = range_vector.distance_y;
 		/* maxhp, maxsp */
 		int stepx, stepy;
 

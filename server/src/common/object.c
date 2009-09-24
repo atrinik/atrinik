@@ -23,12 +23,17 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Object related code. */
+
 #include <global.h>
-#ifndef WIN32 /* ---win32 exclude headers */
+
+#ifndef WIN32
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#endif /* win32 */
+#endif
 
 #include <funcpoint.h>
 #include <skillist.h>
@@ -4104,6 +4109,39 @@ int dirdiff(int dir1, int dir2)
 		d = 8 - d;
 
 	return d;
+}
+
+/**
+ * Get direction from one object to another.
+ *
+ * If the first object is a player, this will set the player's facing
+ * direction to the returned direction.
+ * @param op The first object
+ * @param target The target object
+ * @param range_vector Range vector pointer to use
+ * @return The direction */
+int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
+{
+	int dir;
+
+	get_rangevector(op, target, range_vector, 0);
+	dir = range_vector->direction;
+
+	if (op->type == PLAYER)
+	{
+		if (op->head)
+		{
+			op->head->anim_enemy_dir = dir;
+			op->head->facing = dir;
+		}
+		else
+		{
+			op->anim_enemy_dir = dir;
+			op->facing = dir;
+		}
+	}
+
+	return dir;
 }
 
 /* can_pick(picker, item): finds out if an object is possible to be

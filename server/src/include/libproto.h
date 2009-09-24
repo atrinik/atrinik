@@ -334,6 +334,7 @@ extern int find_dir(mapstruct *m, int x, int y, object *exclude);
 extern int find_dir_2(int x, int y);
 extern int absdir(int d);
 extern int dirdiff(int dir1, int dir2);
+extern int get_dir_to_target(object *op, object *target, rv_vector *range_vector);
 extern int can_pick(object *who, object *item);
 extern object *ObjectCreateClone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
