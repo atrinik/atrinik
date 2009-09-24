@@ -1298,12 +1298,16 @@ void do_specials()
  * @return 0 if no key was pressed, non zero otherwise */
 static int keyboard_press()
 {
+#ifndef WIN32
 	struct timeval tv = {0L, 0L};
 	fd_set fds;
 
 	FD_SET(0, &fds);
 
 	return select(1, &fds, NULL, NULL, &tv);
+#else
+	return 0;
+#endif
 }
 
 /**

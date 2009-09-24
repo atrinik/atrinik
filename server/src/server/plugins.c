@@ -312,22 +312,14 @@ void initOnePlugin(const char *pluginfile)
 
 		for (i = 1; i <= NR_OF_HOOKS; i++)
 		{
-#ifdef WIN32
-			memcpy(HookParm->Value[0], &i, sizeof(int));
-#else
 			memcpy((void *) HookParm->Value[0], &i, sizeof(int));
-#endif
 
 			HookParm->Value[1] = HookList[i];
 
 			PlugList[PlugNR].hookfunc(HookParm);
 		}
 
-#ifdef WIN32
-		free(HookParm->Value[0]);
-#else
 		free((void *) HookParm->Value[0]);
-#endif
 
 		free(HookParm);
 	}

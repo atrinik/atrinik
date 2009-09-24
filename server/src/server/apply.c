@@ -1967,7 +1967,7 @@ static void apply_spellbook(object *op, object *tmp)
 
 static void apply_scroll(object *op, object *tmp)
 {
-	object *old_skill;
+	object *old_skill = NULL;
 	int scroll_spell = tmp->stats.sp, old_spell = 0;
 	rangetype old_shoot = range_none;
 

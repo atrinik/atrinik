@@ -29,7 +29,9 @@
 
 #include <global.h>
 #include <curl/curl.h>
+#ifndef WIN32
 #include <pthread.h>
+#endif
 
 /** The time in seconds for timeout upon connecting */
 #define METASERVER_TIMEOUT 3
@@ -150,8 +152,10 @@ void *metaserver_thread(void *dummy)
  * Update the metaserver info about this server. */
 void metaserver_update()
 {
+#ifndef WIN32
 	pthread_t thread_id;
 	int ret;
+#endif
 
 	/* If the setting is off, just return */
 	if (!settings.meta_on)
@@ -159,6 +163,7 @@ void metaserver_update()
 		return;
 	}
 
+#ifndef WIN32
 	/* Create a thread to update the data */
 	ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
 
@@ -166,4 +171,7 @@ void metaserver_update()
 	{
 		LOG(llevBug, "BUG: metaserver_update(): Failed to create thread.\n");
 	}
+#else
+	metaserver_thread(NULL);
+#endif
 }

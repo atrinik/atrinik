@@ -31,13 +31,6 @@
 #include <errno.h>
 #include <mmsystem.h>
 
-struct timezone
-{
-	int tz_minuteswest;
-	int tz_dsttime;
-};
-
-
 struct itimerval
 {
 	/* next value */
@@ -54,54 +47,33 @@ struct itimerval
 
 /* Functions to capsule or serve linux style function
  * for Windows Visual C++ */
-int gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info)
+int gettimeofday(struct timeval *tv, struct timezone *timezone_Info)
 {
-	/* remarks: a DWORD is an unsigned long */
-	static DWORD time_t0, time_delta, mm_t0;
-	static int t_initialized = 0;
-	DWORD mm_t, delta_t;
+	FILETIME time;
+	double timed;
 
-	if (!t_initialized)
-	{
-		time_t0 = time(NULL);
-		time_delta = 0;
-		mm_t0 = timeGetTime();
-		t_initialized = 1;
-	}
+	GetSystemTimeAsFileTime(&time);
 
-	/* Get the time, if they want it */
-	if (time_Info != NULL)
-	{
-		/* timeGetTime() returns the system time in milliseconds */
-		mm_t = timeGetTime();
+	/* Apparently Win32 has units of 1e-7 sec (tenths of microsecs)
+	 * 4294967296 is 2^32, to shift high word over
+	 * 11644473600 is the number of seconds between
+	 * the Win32 epoch 1601-Jan-01 and the Unix epoch 1970-Jan-01
+	 * Tests found floating point to be 10x faster than 64bit int math. */
 
-		/* handle wrap around of system time (happens every
-		  * 2^32 milliseconds = 49.71 days) */
-		if (mm_t < mm_t0 )
-			delta_t = (0xffffffff - mm_t0) + mm_t + 1;
-		else
-			delta_t = mm_t - mm_t0;
+	timed = ((time.dwHighDateTime * 4294967296e-7) - 11644473600.0) + (time.dwLowDateTime * 1e-7);
 
-		mm_t0 = mm_t;
-
-		time_delta += delta_t;
-		if (time_delta >= 1000 )
-		{
-			time_t0 += time_delta / 1000;
-			time_delta = time_delta % 1000;
-		}
-		time_Info->tv_sec = time_t0;
-		time_Info->tv_usec = time_delta * 1000;
-	}
+	tv->tv_sec  = (long) timed;
+	tv->tv_usec = (long) ((timed - tv->tv_sec) * 1e6);
 
 	/* Get the timezone, if they want it */
 	if (timezone_Info != NULL)
 	{
 		_tzset();
+
 		timezone_Info->tz_minuteswest = _timezone;
 		timezone_Info->tz_dsttime = _daylight;
 	}
-	/* And return */
+
 	return 0;
 }
 

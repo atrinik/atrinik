@@ -316,10 +316,6 @@ typedef struct MapSpace_s
 	uint8 light;
 } MapSpace;
 
-#ifdef WIN32
-#pragma pack(pop)
-#endif
-
 /* map flags for global map settings - used in ->map_flags */
 #define MAP_FLAG_NOTHING        0
 /* map is outdoor map - daytime effects are on */

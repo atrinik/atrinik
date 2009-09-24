@@ -68,10 +68,10 @@ void InitConnection(NewSocket *ns, uint32 from)
 	unsigned char buf[256];
 	int	bufsize = SOCKETBUFSIZE;
 	int oldbufsize;
-	socklen_t buflen = sizeof(int);
+	unsigned int buflen = sizeof(int);
 
 #ifdef WIN32
-	int temp = 1;
+	u_long temp = 1;
 
 	if (ioctlsocket(ns->fd, FIONBIO , &temp) == -1)
 		LOG(llevDebug, "InitConnection:  Error on ioctlsocket.\n");

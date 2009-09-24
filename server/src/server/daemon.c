@@ -37,6 +37,7 @@
  * @param filename Log file name to use */
 void become_daemon(char *filename)
 {
+#ifndef WIN32
 	pid_t pid, sid;
 	time_t now = time(NULL);
 
@@ -77,4 +78,7 @@ void become_daemon(char *filename)
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
+#else
+	(void) filename;
+#endif
 }

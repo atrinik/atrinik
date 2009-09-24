@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE Code::Blocks_project_file>
+<Code::Blocks_project_file>
+	<FileVersion major="1" minor="1" />
+	<Project>
+		<Option title="plugin_arena" />
+		<Option makefile="Makefile" />
+		<Option makefile_is_custom="0" />
+		<Option default_target="-1" />
+		<Option active_target="0" />
+		<Option compiler="0" />
+		<Build>
+			<Target title="Release">
+				<Option output="release\plugin_arena.dll" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option deps_output=".deps" />
+				<Option external_deps="" />
+				<Option type="3" />
+				<Option compiler="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_USRDLL" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DMIN_GW" />
+					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
+					<Add directory="..\..\..\src\include" />
+				</Compiler>
+				<Linker>
+					<Add library="winmm" />
+					<Add directory="Release" />
+					<Add library="libcross.a" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="cp .\Release\plugin_arena.dll ..\..\..\plugins\plugin_arena.dll" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="..\..\..\src\include" />
+			<Add directory="sqlite3" />
+			<Add directory="..\..\..\src\plugins\common\include" />
+		</Compiler>
+
+		<Unit filename="..\..\..\src\plugins\common\include\plugin_common.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+
+		<Unit filename="..\..\..\src\plugins\common\plugin_common.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+
+		<Unit filename="..\..\..\src\plugins\plugin_arena\plugin_arena.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+	</Project>
+</Code::Blocks_project_file>
