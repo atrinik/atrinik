@@ -152,7 +152,10 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 			pos++;
 		}
 
-		send_command(cmdBuf2, -1, SC_NORMAL);
+		if (!client_command_check(cmdBuf2))
+		{
+			send_command(cmdBuf2, -1, SC_NORMAL);
+		}
 	}
 	else
 		send_command(cmdBuf, -1, SC_NORMAL);
