@@ -171,6 +171,8 @@ void metaserver_update()
 	{
 		LOG(llevBug, "BUG: metaserver_update(): Failed to create thread.\n");
 	}
+
+	pthread_detach(thread_id);
 #else
 	metaserver_thread(NULL);
 #endif
