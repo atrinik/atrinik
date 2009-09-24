@@ -35,6 +35,11 @@
 #endif
 
 /**
+ * Get the weight of an object. If the object is a container or doesn't
+ * have nrof, include the weight it is carrying. */
+#define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
+
+/**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
 /*@{*/
 #define MOVE_APPLY_DEFAULT	0

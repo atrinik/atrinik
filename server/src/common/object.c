@@ -1014,7 +1014,8 @@ struct mempool mempools[NROF_MEMPOOLS] =
  * Be careful if you want to use the internal chunk or pool data, its semantics and
  * format might change in the future. */
 
-/* Initialize the mempools lists and related data structures */
+/**
+ * Initialize the mempools lists and related data structures */
 void init_mempools()
 {
 	int i;
@@ -1036,8 +1037,12 @@ void init_mempools()
 	void_container.type = TYPE_VOID_CONTAINER;
 }
 
-/* A tiny little function to set up the constructors/destructors to functions that may
- * reside outside the library */
+/**
+ * A tiny little function to set up the constructors/destructors to functions that may
+ * reside outside the library
+ * @param pool
+ * @param constructor
+ * @param destructor  */
 void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor)
 {
 	if (pool >= NROF_MEMPOOLS)
@@ -1047,9 +1052,11 @@ void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_d
 	mempools[pool].destructor = destructor;
 }
 
-/* Expands the memory pool with MEMPOOL_EXPAND new chunks. All new chunks
+/**
+ * Expands the memory pool with MEMPOOL_EXPAND new chunks. All new chunks
  * are put into the pool's freelist for future use.
- * expand_mempool is only meant to be used from get_poolchunk(). */
+ * expand_mempool is only meant to be used from get_poolchunk().
+ * @param pool The memory pool to expand */
 static void expand_mempool(mempool_id pool)
 {
 	uint32 i;
@@ -1106,7 +1113,10 @@ static void expand_mempool(mempool_id pool)
 #endif
 }
 
-/* Get a chunk from the selected pool. The pool will be expanded if necessary. */
+/**
+ * Get a chunk from the selected pool. The pool will be expanded if necessary.
+ * @param pool The pool ID
+ * @return The chunk from the pool */
 void *get_poolchunk(mempool_id pool)
 {
 	struct mempool_chunk *new_obj;
@@ -1150,8 +1160,11 @@ void *get_poolchunk(mempool_id pool)
 	return MEM_USERDATA(new_obj);
 }
 
-/* Return a chunk to the selected pool. Don't return memory to the wrong pool!
- * Returned memory will be reused, so be careful about those stale pointers */
+/**
+ * Return a chunk to the selected pool. Don't return memory to the wrong pool!
+ * Returned memory will be reused, so be careful about those stale pointers
+ * @param data
+ * @param pool  */
 void return_poolchunk(void *data, mempool_id pool)
 {
 	struct mempool_chunk *old = MEM_POOLDATA(data);
@@ -1193,11 +1206,14 @@ void return_poolchunk(void *data, mempool_id pool)
 }
 
 #ifdef MEMPOOL_OBJECT_TRACKING
-/* this is time consuming DEBUG only
- * function. Mainly, it checks the different memory parts
- * and controls they are was they are - if a object claims its
- * in a inventory we check the inventory - same for map.
- * If we have detached but not deleted a object - we will find it here. */
+
+/**
+ * This is time consuming DEBUG only function. Mainly, it checks the
+ * different memory parts and controls they are was they are - if an
+ * object claims it's in a inventory we check the inventory - same for
+ * map.
+ *
+ * If we have detached but not deleted an object - we will find it here. */
 void check_use_object_list(void)
 {
 	struct mempool_chunk *chunk;
@@ -1513,9 +1529,12 @@ void free_empty_puddles(mempool_id pool)
 
 /** Object management functions **/
 
-/* Put an object in the list of removal candidates.
- * If the object has still FLAG_REMOVED set at the end of the
- * server timestep it will be freed */
+/**
+ * Put an object in the list of removal candidates.
+ *
+ * If the object has still FLAG_REMOVED set at the end of the server
+ * timestep it will be freed.
+ * @param ob The object */
 void mark_object_removed(object *ob)
 {
 	struct mempool_chunk *mem = MEM_POOLDATA(ob);
@@ -1533,7 +1552,8 @@ void mark_object_removed(object *ob)
 	removed_objects = mem;
 }
 
-/* Go through all objects in the removed list and free the forgotten ones */
+/**
+ * Go through all objects in the removed list and free the forgotten ones */
 void object_gc()
 {
 	struct mempool_chunk *current, *next;
@@ -1562,26 +1582,32 @@ void object_gc()
 	}
 }
 
-/* Moved this out of define.h and in here, since this is the only file
- * it is used in.  Also, make it an inline function for cleaner
+/**
+ * Moved this out of define.h and in here, since this is the only file
+ * it is used in. Also, make it an inline function for cleaner
  * design.
  *
- * Function examines the 2 objects given to it, and returns true if
- * they can be merged together.
+ * Examines two objects given to, and returns 1 if they can be merged
+ * together.
  *
- * Note that this function appears a lot longer than the macro it
- * replaces - this is mostly for clarity - a decent compiler should hopefully
- * reduce this to the same efficiency.
- *
- * Check nrof variable *before* calling CAN_MERGE()
+ * Check nrof variable <b>before</b> calling this.
  *
  * Improvements made with merge:  Better checking on potion, and also
- * check weight */
+ * check weight
+ *
+ * @note This function appears a lot longer than the macro it replaces
+ * (mostly for clarity). A decent compiler should hopefully reduce this
+ * to the same efficiency.
+ * @param ob1 The first object
+ * @param ob2 The second object
+ * @return 1 if the two object can merge, 0 otherwise */
 int CAN_MERGE(object *ob1, object *ob2)
 {
 	/* just some quick hack */
 	if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch)
+	{
 		return 1;
+	}
 
 	/* Gecko: Moved out special handling of event obejct nrof */
 	/* important: don't merge objects with glow_radius set - or we come
@@ -1591,12 +1617,16 @@ int CAN_MERGE(object *ob1, object *ob2)
 	 * are to store inactive items. Because glow_radius items can be active even
 	 * when not apllied, merging is simply wrong here. MT. */
 	if (((!ob1->nrof || !ob2->nrof) && ob1->type != TYPE_EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
+	{
 		return 0;
+	}
 
 	/* just a brain dead long check for things NEVER NEVER should be different
 	 * this is true under all circumstances for all objects. */
-	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material!=ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality!=ob2->item_quality ||ob1->item_condition!=ob2->item_condition || ob1->item_race!=ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
+	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
+	{
 		return 0;
+	}
 
 	/* Gecko: added bad special check for event objects
 	 * Idea is: if inv is identical events only then go ahead and merge)
@@ -1606,44 +1636,66 @@ int CAN_MERGE(object *ob1, object *ob2)
 		object *tmp1, *tmp2;
 
 		if (!ob1->inv || !ob2->inv)
+		{
 			return 0;
+		}
 
 		/* Check that all inv objects are event objects */
 		for (tmp1 = ob1->inv, tmp2 = ob2->inv; tmp1 && tmp2; tmp1 = tmp1->below, tmp2 = tmp2->below)
+		{
 			if (tmp1->type != TYPE_EVENT_OBJECT || tmp2->type != TYPE_EVENT_OBJECT)
+			{
 				return 0;
+			}
+		}
 
 		/* Same number of events */
 		if (tmp1 || tmp2)
+		{
 			return 0;
+		}
 
 		for (tmp1 = ob1->inv; tmp1; tmp1 = tmp1->below)
 		{
 			for (tmp2 = ob2->inv; tmp2; tmp2 = tmp2->below)
+			{
 				if (CAN_MERGE(tmp1, tmp2))
+				{
 					break;
+				}
+			}
 
 			/* Couldn't find something to merge event from ob1 with? */
 			if (!tmp2)
+			{
 				return 0;
+			}
 		}
 	}
 
-	/* check the refcount pointer */
+	/* Check the refcount pointer */
 	if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race || ob1->slaying != ob2->slaying || ob1->msg != ob2->msg)
+	{
 		return 0;
+	}
 
-	/* compare the static arrays/structs */
+	/* Compare the static arrays/structs */
 	if ((memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0) || (memcmp(&ob1->resist, &ob2->resist, sizeof(ob1->resist)) != 0) || (memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0) || (memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0))
+	{
 		return 0;
+	}
 
-	/* we ignore REMOVED and BEEN_APPLIED */
+	/* Ignore REMOVED and BEEN_APPLIED */
 	if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level)
+	{
 		return 0;
+	}
 
-	/* face can be difficult - but inv_face should never different or obj is different! */
+	/* Face can be difficult - but inv_face should never be different or obj is different! */
 	if (ob1->face != ob2->face || ob1->inv_face != ob2->inv_face || ob1->animation_id != ob2->animation_id || ob1->inv_animation_id != ob2->inv_animation_id)
+	{
 		return 0;
+	}
 
 	/* some stuff we should not need to test:
 	 * carrying: because container merge isa big nono - and we tested ->inv before. better no double use here.
@@ -1660,36 +1712,46 @@ int CAN_MERGE(object *ob1, object *ob2)
 	 * layer;				this *can* be different for real same item - watch it
 	 * anim_speed;			this can be interesting... */
 
-	/* can merge! */
+	/* Can merge! */
 	return 1;
 }
 
-/* merge_ob(op,top):
- *
+/**
  * This function goes through all objects below and including top, and
  * merges op to the first matching object.
  * If top is NULL, it is calculated.
- * Returns pointer to object if it succeded in the merge, otherwise NULL */
+ * @param op The object
+ * @param top The top object
+ * @return Pointer to object if it succeded in the merge, NULL otherwise */
 object *merge_ob(object *op, object *top)
 {
 	if (!op->nrof)
+	{
 		return 0;
+	}
 
 	if (top == NULL)
+	{
 		for (top = op; top != NULL && top->above != NULL; top = top->above);
+	}
 
 	for (; top != NULL; top = top->below)
 	{
 		if (top == op)
+		{
 			continue;
+		}
 
 		if (CAN_MERGE(op,top))
 		{
 			top->nrof += op->nrof;
+
 			/* Don't want any adjustements now */
 			op->weight = 0;
+
 			/* this is right: no check off */
 			remove_ob(op);
+
 			return top;
 		}
 	}
@@ -1697,9 +1759,13 @@ object *merge_ob(object *op, object *top)
 	return NULL;
 }
 
-/* sum_weight() is a recursive function which calculates the weight
- * an object is carrying.  It goes through in figures out how much
- * containers are carrying, and sums it up. */
+/**
+ * Recursive function to calculate the weight an object is carrying.
+ *
+ * It goes through in figures out how much containers are carrying, and
+ * sums it up.
+ * @param op The object to calculate the weight for
+ * @return The calculated weight */
 signed long sum_weight(object *op)
 {
 	sint32 sum;
@@ -1708,7 +1774,9 @@ signed long sum_weight(object *op)
 	for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below)
 	{
 		if (inv->inv)
+		{
 			sum_weight(inv);
+		}
 
 		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
 	}
@@ -1719,39 +1787,63 @@ signed long sum_weight(object *op)
 	 * container but we are not able to put it back because rounding.
 	 * well, a small prize for saving *alot* of muls in player houses for example. */
 	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
+	{
 		sum = (sint32) ((float)sum * op->weapon_speed);
+	}
 
 	op->carrying = sum;
 
 	return sum;
 }
 
-/* add_weight(object, weight) adds the specified weight to an object,
- * and also updates how much the environment(s) is/are carrying. */
-void add_weight (object *op, sint32 weight)
+/**
+ * Adds the specified weight to an object, and also updates how much the
+ * environment(s) is/are carrying.
+ * @param op The object
+ * @param weight The weight to add */
+void add_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
 		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
-			weight = (sint32) ((float)weight * op->weapon_speed);
+		{
+			weight = (sint32) ((float) weight * op->weapon_speed);
+		}
 
 		op->carrying += weight;
+
+		if (op->env && op->env->type == PLAYER)
+		{
+			esrv_update_item(UPD_WEIGHT, op->env, op);
+		}
+
 		op = op->env;
 	}
 }
 
-/* sub_weight() recursively (outwards) subtracts a number from the
- * weight of an object (and what is carried by it's environment(s)). */
-void sub_weight (object *op, sint32 weight)
+/**
+ * Recursively (outwards) subtracts a number from the weight of an object
+ * (and what is carried by its environment(s)).
+ * @param op The object
+ * @param weight The weight to subtract */
+void sub_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
 		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
-			weight = (sint32) ((float)weight * op->weapon_speed);
+		{
+			weight = (sint32) ((float) weight * op->weapon_speed);
+		}
 
 		op->carrying -= weight;
+
+		if (op->env && op->env->type == PLAYER)
+		{
+			esrv_update_item(UPD_WEIGHT, op->env, op);
+		}
+
 		op = op->env;
 	}
 }

@@ -43,9 +43,6 @@ static int check_container(object *pl, object *con);
  * Functions related to sending object data to the client.                     *
  ******************************************************************************/
 
-/* This is more or less stolen from the query_weight function. */
-#define WEIGHT(op) (op->nrof ? op->weight : op->weight + op->carrying)
-
 /* This is a simple function that we use a lot here.  It basically
  * adds the specified buffer into the socklist, but prepends a
  * single byte in length.  If the data is longer than that byte, it is
