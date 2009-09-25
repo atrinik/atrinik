@@ -33,7 +33,7 @@ Type defined by:
 	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
-		<td>  How fast to play this animation.
+		<td>    How fast to play this animation.
 		</td>
 	</tr>
 	<tr>
@@ -50,26 +50,26 @@ Type defined by:
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>    If an item is set to block view, players (and monsters) cannot
-    see byond it unless they cross it or manage to stand ontop.
+    see beyond it unless they cross it or manage to stand on top of it.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect missiles</td>
 		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>   object CAN reflect missiles. See reflect missiles.
+		<td>    Object CAN reflect missiles. See reflect missiles.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect spells</td>
 		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>  object CAN reflect spells. See reflect spells.
+		<td>    Object CAN reflect spells. See reflect spells.
 		</td>
 	</tr>
 	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
 		<td>    The item is cursed. This object can't be removed when
-    wielded or worn (without uncurse it). Remove curse will
+    wielded or worn (without uncursing it). Remove curse will
     remove this flag.
 		</td>
 	</tr>
@@ -91,8 +91,7 @@ Type defined by:
 	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
-		<td>    If an item is identified, the player has
-    full knowledge about it.
+		<td>    If an item is identified, the player has full knowledge about it.
 		</td>
 	</tr>
 	<tr>
@@ -122,18 +121,18 @@ Type defined by:
 	<tr>
 		<td>is animated</td>
 		<td>@ref FLAG_ANIMATE</td>
-		<td>  If set, the object is animated and animation is used.
-  Note: Some special objects will use a animation NOT as animation but
-  as frame list. Examples are buttons (which frames are changed by the
-  object status of the button). IS_TURNABLE will enable direction turning
-  for some object types. These flags are all "system" related. Be VERY
-  careful to change them.
+		<td>    If set, the object is animated and animation is used.
+    Note: Some special objects will use an animation NOT as animation but
+    as frame list. Examples are buttons (which frames are changed by the
+    object status of the button). IS_TURNABLE will enable direction turning
+    for some object types. These flags are all "system" related. Be VERY
+    careful when changing them.
 		</td>
 	</tr>
 	<tr>
 		<td>is turnable</td>
 		<td>@ref FLAG_IS_TURNABLE</td>
-		<td>  System flag. Object can be turned to the directions.
+		<td>    System flag. Object can be turned to the directions.
 		</td>
 	</tr>
 	<tr>
@@ -141,16 +140,16 @@ Type defined by:
 		<td>@ref obj::layer</td>
 		<td>    This is the map layer, the object will put in. The selected layer will effect where and
     how this object is shown on client side. Layer 0 is reserved for sys_object type objects
-    and will NEVER be shown on client side. Layer 1 is for floor objects and Layer 2 for
+    and will NEVER be shown on client side. Layer 1 is for floor objects and layer 2 for
     floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer 
-    6 is reversed for players and layer 7 is for spell effects and high flying/visible
+    6 is reserved for players and layer 7 is for spell effects and high flying/visible
     objects like arrows.
 		</td>
 	</tr>
 	<tr>
 		<td>magical</td>
 		<td>@ref FLAG_IS_MAGICAL</td>
-		<td>    If set, this object count as "magical". Detect magic or
+		<td>    If set, this object counts as "magical". Detect magic or
     identify will show this flag and the player will see a small
     M in the client inventory part.
 		</td>
@@ -217,23 +216,23 @@ Type defined by:
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>   In the moment a player gets or apply this items, it will
-   flaged as godgiven and vanish when droped to the ground.
+		<td>    In the moment a player gets or applies this item, it will be
+    flagged as godgiven and vanish when dropped to the ground.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
-		<td>    The item is permanent cursed. If this flag set, applying 
-    or unapplying will set "cursed 1" again. This flag can't be
+		<td>    The item is permanently cursed. If this flag is set, applying 
+    or unapplying it will set "cursed 1" again. This flag can't be
     removed by remove curse.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent damned</td>
 		<td>@ref FLAG_PERM_DAMNED</td>
-		<td>    The item is permanent damned. If this flag set, applying 
-    or unapplying will set "damned 1" again. This flag can't be
+		<td>    The item is permanently damned. If this flag is set, applying 
+    or unapplying it will set "damned 1" again. This flag can't be
     removed by remove damnation.
 		</td>
 	</tr>
@@ -254,27 +253,27 @@ Type defined by:
 	<tr>
 		<td>start speed</td>
 		<td>@ref obj::speed_left</td>
-		<td>    NOTE: without speed != 0, this value is not used. Only use
+		<td>    NOTE: Without speed being non-zero, this value is not used. Only use
     for objects with speed (active objects)!
-    When a active object (with 'speed' != 0) is put on a map, this 
+    When an active object (with 'speed' being non-zero) is put on a map, this 
     value is used as counter. Every 'tick', 'speed' (if negative,
     value is turned positive before) is added to this value - 
     if it is bigger 0 the object 'will do something' and this counter is 
-    decreased with -1.0 .
-    As default a normal object will put on the map with start speed 0. 
+    decreased with -1.0.
+    By default a normal object will be put on the map with start speed 0. 
     It 'will do something' with the next coming 'tick'.
     Setting this value to -1.0 will put it on map but wait one full 
     'lifetime' round until it does something. 
     A 'fire object' should be put on map with start speed 0 - it should
     try to burn something in the moment it comes in the game. A bomb for
     example should be put with speed -1.0 on the map - it will stay then
-    on map until the bomb becomes active - it explode.
+    on map until the bomb becomes active - it explodes.
     The 'lifetime' round is determinated by speed. A speed of 1.0 will
     give a 'lifetime' round of 1 tick - a speed of 0.01 100 ticks.
     Special case: A negative speed value will add to start speed a random
     value between 0.0 to 0.9 . So, a speed of -0.1 with a start speed of
     -1.0 will result in speed 0.1 and start speed between -1.0 and -0.1. 
-    This is useful to lets a row of same objects act in different tick ranges.
+    This is useful to let a row of same objects act in different tick ranges.
 		</td>
 	</tr>
 	<tr>
@@ -285,13 +284,14 @@ Type defined by:
     like slash type, cleave type, 1hand, polearms and so on. This value goes to the client
     too. WARNING: not all objects have a sub_type and changing it without care can corrupt
     server AND/OR the clients. Normally this is not a subject to change outside arch definition.
+    Containers with non-zero sub type will behave as apartment container upgrades.
 		</td>
 	</tr>
 	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
 		<td>    This is the object's title. Once an object is identified the title is
-    attached to the name. Typical titels are "of mostrai", "of xray vision" etc.
+    attached to the name. Typical titles are "of mostrai", "of xray vision" etc.
 		</td>
 	</tr>
 	<tr>
@@ -315,7 +315,7 @@ Type defined by:
 	<tr>
 		<td>weight</td>
 		<td>@ref obj::weight</td>
-		<td>    This value defines the object's weight in gramm (1000g is 1kg). Objects with
+		<td>    This value defines the object's weight in gram (1000g is 1kg). Objects with
     zero weight are not pickable for players. Still, set the "non-pickable"-flag
     for explicitly non-pickable objects (hey, this is opensource.. you
     never know ;) ).

@@ -7,7 +7,13 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_77
+@ref page_type_79
+		</td><td>    If set, the object is able to "roll", so it can be pushed around with the
+    /push command. This setting is used for boulders and barrels.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_77
 		</td><td>    If set, the object is able to "roll", so it can be pushed around.
     This setting is used for boulders and barrels.</td>
 	</tr>

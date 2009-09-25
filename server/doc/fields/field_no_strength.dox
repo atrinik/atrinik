@@ -8,7 +8,7 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_14
-		</td><td>    Usually the player's strentgh takes effect on the damage
+		</td><td>    Usually the player's strength takes effect on the damage
     done by the shooting weapon. If &lt;ignore strength&gt; is set,
     the player's strength is ignored.</td>
 	</tr>

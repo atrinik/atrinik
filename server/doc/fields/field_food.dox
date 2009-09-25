@@ -8,16 +8,16 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_74
-		</td><td>  'Ticks of Light' defines how long the object will give light
-  before it wear out. Some lights can be refilled, some not.</td>
+		</td><td>    &lt;Ticks of Light&gt; defines how long the object will give light
+    before it wears out. Some lights can be refilled, some not.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_82
-		</td><td>  How much ticks can be refilled to a light source of the
-  defined light type. If we can refill all in the light, this
-  object is deleted. If we can't put all in the light, the
-  value is decreased by the number we filled in.</td>
+		</td><td>    How many ticks can be refilled to a light source of the
+    defined light type. If we can refill all in the light, this
+    object is deleted. If we can't put all in the light, the
+    value is decreased by the number we filled in.</td>
 	</tr>
 	<tr>
 		<td>

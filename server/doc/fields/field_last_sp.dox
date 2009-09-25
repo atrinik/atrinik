@@ -9,17 +9,17 @@
 		<td>
 @ref page_type_74
 		</td><td>    If &lt;glow radius&gt; is set to a value not zero, the object
-    appears lit up on dark maps. &lt;glow radius&gt; As higher as 
-    more light does the object emmit. The current senseful max value is 9.
-    If the value is 0, the light can't be lighten and can't be applied.
+    appears lit up on dark maps. The higher the value, the more light
+    does the object emit. The current reasonable max value is 9.
+    If the value is 0, the light can't be lit and can't be applied.
     If the value is negative, this object will invoke darkness!
-    A value of 0 means, that this light can't be lighten. This will
+    A value of 0 means that this light can't be lit. This will
     be true for permanent burned out lights like torches.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_18
-		</td><td>    The spell will be casted in this direction. Note, that if the altar
+		</td><td>    The spell will be cast in this direction. Note, that if the altar
     should cast a heal spell on the player, this must be 
     direction 0 &lt;none&gt;. For other spells like fireball,
     it should be set a valid point of the compass direction.</td>

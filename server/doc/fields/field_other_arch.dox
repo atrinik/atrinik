@@ -8,10 +8,10 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_74
-		</td><td>  If a light source wear out, it checks this value. If it set, the
-  object change to this new object. This happens with torches - after
-  they wear out, they change to burned out torches which can't be
-  relight or refilled.</td>
+		</td><td>    If a light source wears out, it checks this value. If it set, the
+    object changes to this new object. This happens with torches - after
+    they wear out, they change to burned out torches which can't be
+    re-lit or refilled.</td>
 	</tr>
 	<tr>
 		<td>

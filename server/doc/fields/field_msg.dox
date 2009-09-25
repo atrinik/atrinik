@@ -18,9 +18,15 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18, @ref page_type_31
-		</td><td>    This text will be displayed to the player
-    in the exact moment when the altar is activated.</td>
+@ref page_type_18
+		</td><td>    This text will be displayed to the player in the exact moment when the altar
+    is activated.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_31
+		</td><td>    This text will be displayed to the player in the exact moment when
+    the altar is activated.</td>
 	</tr>
 	<tr>
 		<td>

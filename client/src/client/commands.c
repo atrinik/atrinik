@@ -23,7 +23,6 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-
 /**
  * @file
  * Handles commands received by the server.  This does not necessarily

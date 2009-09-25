@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_74
-		</td><td>  'Max. Ticks of Light' defines the maximal value of 'Ticks of Light'.
-  This is normally used from refilling light sources.</td>
+		</td><td>    &lt;Max. Ticks of Light&gt; defines the maximal value of &lt;Ticks of Light&gt;.
+    This is normally used from refilling light sources.</td>
 	</tr>
 	<tr>
 		<td>

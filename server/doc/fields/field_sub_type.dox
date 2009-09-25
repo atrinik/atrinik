@@ -12,7 +12,8 @@
     type. Examples are weapons, which are all from type WEAPON but can be different sub types
     like slash type, cleave type, 1hand, polearms and so on. This value goes to the client
     too. WARNING: not all objects have a sub_type and changing it without care can corrupt
-    server AND/OR the clients. Normally this is not a subject to change outside arch definition.</td>
+    server AND/OR the clients. Normally this is not a subject to change outside arch definition.
+    Containers with non-zero sub type will behave as apartment container upgrades.</td>
 	</tr>
 	<tr>
 		<td>

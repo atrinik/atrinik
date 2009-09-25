@@ -15,11 +15,11 @@
 	<tr>
 		<td>
 @ref page_type_74
-		</td><td>   Applyable light can be turned on or off. The value above will 
-   determinate how and then its copied to this value. If this 
-   value is 0 (default) the light is off - every other value
-   means on! This value is normally autoset when applied but can
-   be set by map makers to simulate light on.</td>
+		</td><td>    Applyable light can be turned on or off. The value above will 
+    determinate how and then it's copied to this value. If this 
+    value is 0 (default) the light is off - every other value
+    means on! This value is normally autoset when applied but can
+    be set by map makers to simulate light on.</td>
 	</tr>
 
 */

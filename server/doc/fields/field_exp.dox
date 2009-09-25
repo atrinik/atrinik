@@ -40,7 +40,7 @@
 @ref page_type_80, @ref page_type_83
 		</td><td>    When a player kills this monster, he will get exactly this
     amount of &lt;experience&gt;. The experience will flow into
-    the skill-cathegory the player used for the kill.
+    the skill-category the player used for the kill.
 
     If you create special monsters of tweaked strenght/abilities,
     always make sure that the &lt;experience&gt; is set to a

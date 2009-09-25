@@ -7,9 +7,16 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_18, @ref page_type_31
+@ref page_type_18
 		</td><td>    If a connection value is set, the altar will trigger all objects
-    with the same value, when activated. This will only work once.</td>
+    with the same value when activated. This will only work once.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_31
+		</td><td>    If a connection value is set, the altar will trigger all objects
+    with the same value when activated. This can be used infinitely.
+    The altar will reset itself after some time, specified by &lt;reset time&gt;.</td>
 	</tr>
 	<tr>
 		<td>

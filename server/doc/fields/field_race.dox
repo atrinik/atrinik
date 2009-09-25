@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_82
-		</td><td>  Defines the light type which can we refill with this refill
-  object. </td>
+		</td><td>    Defines the light type which we can refill with this refill
+    object. </td>
 	</tr>
 	<tr>
 		<td>

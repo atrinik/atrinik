@@ -15,9 +15,9 @@
 	<tr>
 		<td>
 @ref page_type_18
-		</td><td>    When activated, the selected &lt;spell&gt; will be casted (once, on the
+		</td><td>    When activated, the selected &lt;spell&gt; will be cast (once, on the
     player). This should work for any given spell. The altar will work
-    infinitly in this way. Don't set both &lt;spell&gt; and &lt;connection&gt; for
+    infinitely in this way. Don't set both &lt;spell&gt; and &lt;connection&gt; for
     one altar.</td>
 	</tr>
 	<tr>

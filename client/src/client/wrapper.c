@@ -29,7 +29,7 @@
  * @file
  * General convenience functions for the client. */
 
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 FILE   *logstream;
 
 int logFlush;
@@ -41,7 +41,7 @@ int logFlush;
  * @param ... Additional arguments for format */
 void LOG(int logLevel, char *format, ...)
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	int flag = 0;
 	va_list ap;
 
@@ -84,7 +84,7 @@ void LOG(int logLevel, char *format, ...)
 /**
  * Start the base system, setting caption name and window icon.
  * @return Always returns 1. */
-int SYSTEM_Start()
+void SYSTEM_Start()
 {
 	SDL_Surface *icon;
 	char buf[256];
@@ -92,17 +92,17 @@ int SYSTEM_Start()
 	snprintf(buf, sizeof(buf), "%s%s", GetBitmapDirectory(), CLIENT_ICON_NAME);
 
 	if ((icon = IMG_Load_wrapper(buf)) != NULL)
+	{
 		SDL_WM_SetIcon(icon, 0);
+	}
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
 
 	free(icon);
 
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	logstream = fopen_wrapper(LOG_FILE, "w");
 #endif
-
-	return 1;
 }
 
 /**
@@ -118,7 +118,7 @@ int SYSTEM_End()
  * @return The bitmap directory */
 char *GetBitmapDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "bitmaps/";
 #endif
 }
@@ -128,7 +128,7 @@ char *GetBitmapDirectory()
  * @return The icon directory */
 char *GetIconDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "icons/";
 #endif
 }
@@ -138,7 +138,7 @@ char *GetIconDirectory()
  * @return The sfx directory */
 char *GetSfxDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "sfx/";
 #endif
 }
@@ -148,7 +148,7 @@ char *GetSfxDirectory()
  * @return The cache directory */
 char *GetCacheDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "cache/";
 #endif
 }
@@ -158,7 +158,7 @@ char *GetCacheDirectory()
  * @return The user defined GFX directory */
 char *GetGfxUserDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "gfx_user/";
 #endif
 }
@@ -168,7 +168,7 @@ char *GetGfxUserDirectory()
  * @return The media directory */
 char *GetMediaDirectory()
 {
-#if defined( __WIN_32)  || defined(__LINUX)
+#if defined(__WIN_32) || defined(__LINUX)
 	return "media/";
 #endif
 }
@@ -375,6 +375,12 @@ char *file_path(const char *fname, const char *mode)
 }
 #else
 
+/**
+ * Recursively creates directories from path.
+ *
+ * Used by file_path().
+ * @param path The path
+ * @return 0 on success, -1 otherwise */
 static int mkdir_recurse(const char *path)
 {
 	char *copy, *p;
@@ -408,6 +414,13 @@ static int mkdir_recurse(const char *path)
 	return 0;
 }
 
+/**
+ * Get path to file, to implement saving settings related data to user's
+ * home directory on GNU/Linux. For Win32, this function is just used to
+ * prefix the path to the file with "./".
+ * @param fname The file path
+ * @param mode File mode
+ * @return The path to the file. */
 char *file_path(const char *fname, const char *mode)
 {
 	static char tmp[256];
@@ -460,24 +473,53 @@ char *file_path(const char *fname, const char *mode)
 }
 #endif
 
+/**
+ * @defgroup file_wrapper_functions File wrapper functions
+ * These functions are used as replacement to common C and SDL functions
+ * that are related to file opening and reading/writing.
+ *
+ * For GNU/Linux, they call file_path() to determine the path to the file
+ * to open in ~/.atrinik, and if the file doesn't exist there, copy it
+ * there from the directory the client is running in.
+ *@{*/
+
+/**
+ * fopen wrapper.
+ * @param fname The file name
+ * @param mode File mode
+ * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
     return fopen(file_path(fname, mode), mode);
 }
 
+/**
+ * IMG_Load wrapper.
+ * @param file The file name
+ * @return Return value of IMG_Load().  */
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
     return IMG_Load(file_path(file, "r"));
 }
 
 #ifdef INSTALL_SOUND
+
+/**
+ * Mix_LoadWAV wrapper.
+ * @param fname The file name
+ * @return Return value of Mix_LoadWAV().  */
 Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname)
 {
     return Mix_LoadWAV(file_path(fname, "r"));
 }
 
+/**
+ * Mix_LoadMUS wrapper.
+ * @param file The file name
+ * @return Return value of Mix_LoadMUS().  */
 Mix_Music *Mix_LoadMUS_wrapper(const char *file)
 {
     return Mix_LoadMUS(file_path(file, "r"));
 }
 #endif
+/*@}*/

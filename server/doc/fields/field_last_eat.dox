@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_74
-		</td><td>  If set this light will wear out. If not set, it is permanent light and
-  'Ticks of Light' counter is ignored.</td>
+		</td><td>    If set this light will wear out. If not set, it is a permanent light and
+    &lt;Ticks of Light&gt; counter is ignored.</td>
 	</tr>
 	<tr>
 		<td>

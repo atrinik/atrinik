@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_110
-		</td><td>  The casting delay this spell/ability invoke to a monster using it.
-  This is cumulative added to the monster default casting delay.</td>
+		</td><td>    The casting delay this spell/ability invokes to a monster using it.
+    This is cumulative added to the monster default casting delay.</td>
 	</tr>
 	<tr>
 		<td>
