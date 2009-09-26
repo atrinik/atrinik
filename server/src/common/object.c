@@ -1815,7 +1815,7 @@ void add_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			(*esrv_update_item_func)(UPD_WEIGHT, op->env, op);
 		}
 
 		op = op->env;
@@ -1841,7 +1841,7 @@ void sub_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			(*esrv_update_item_func)(UPD_WEIGHT, op->env, op);
 		}
 
 		op = op->env;
