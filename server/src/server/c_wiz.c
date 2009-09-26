@@ -960,6 +960,12 @@ int command_reset(object *op, char *params)
 		return 1;
 	}
 
+	if (MAP_UNIQUE(m) && MAP_NOSAVE(m))
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Cannot reset unique no-save map.");
+		return 1;
+	}
+
 	dummy = get_object();
 	dummy->map = NULL;
 	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), m->path);
