@@ -2,12 +2,13 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-22 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_1214
 tile_path_2 world_1313
 tile_path_3 world_1212
