@@ -2,13 +2,14 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-09-17 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 6
 darkness 2
 tile_path_4 giant_stronghold_0101
+bg_music ruins.ogg|0|-1
 end
 arch floor_stone1b
 end

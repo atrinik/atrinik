@@ -2,7 +2,7 @@ arch map
 name Strakewood Island - Luxurious Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-22 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 14
 height 14
@@ -10,6 +10,7 @@ difficulty 1
 darkness -1
 no_summon 1
 no_harm 1
+bg_music harmony2.ogg|0|-1
 end
 arch floor_inv
 unique 1
@@ -166,10 +167,6 @@ arch carpet1.131
 x 1
 y 4
 end
-arch potted_plant2
-x 1
-y 4
-end
 arch floor_ostone1
 unique 1
 x 1
@@ -179,21 +176,12 @@ arch carpet1.131
 x 1
 y 5
 end
-arch chair_small2
-x 1
-y 5
-end
 arch floor_ostone1
 unique 1
 x 1
 y 6
 end
 arch carpet1.131
-x 1
-y 6
-end
-arch bench2.111
-direction 5
 x 1
 y 6
 end
@@ -203,10 +191,6 @@ x 1
 y 7
 end
 arch carpet1.131
-x 1
-y 7
-end
-arch chair_small2
 x 1
 y 7
 end
@@ -216,10 +200,6 @@ x 1
 y 8
 end
 arch carpet1.131
-x 1
-y 8
-end
-arch table_small1
 x 1
 y 8
 end
@@ -917,10 +897,6 @@ unique 1
 x 6
 y 5
 end
-arch plant_flower2
-x 6
-y 5
-end
 arch floor_sand_d4
 unique 1
 x 6
@@ -931,6 +907,7 @@ x 6
 y 6
 end
 arch grassd_m7
+layer 3
 x 6
 y 6
 end
@@ -1025,10 +1002,6 @@ unique 1
 x 7
 y 3
 end
-arch plant13
-x 7
-y 3
-end
 arch grassd_5
 unique 1
 x 7
@@ -1057,6 +1030,7 @@ x 7
 y 6
 end
 arch grassd_m7
+layer 3
 x 7
 y 6
 end
@@ -1198,6 +1172,7 @@ x 8
 y 6
 end
 arch grassd_m7
+layer 3
 x 8
 y 6
 end
@@ -1284,10 +1259,6 @@ x 9
 end
 arch floor_ostone1
 unique 1
-x 9
-y 1
-end
-arch basket2.101
 x 9
 y 1
 end
@@ -1474,10 +1445,6 @@ unique 1
 x 10
 y 6
 end
-arch shelf3a.111
-x 10
-y 6
-end
 arch floor_ostone1
 unique 1
 x 10
@@ -1594,10 +1561,6 @@ unique 1
 x 11
 y 6
 end
-arch shelf3b.111
-x 11
-y 6
-end
 arch floor_ostone1
 unique 1
 x 11
@@ -1668,10 +1631,6 @@ y 2
 end
 arch floor_ostone1
 unique 1
-x 12
-y 3
-end
-arch drawers1.111
 x 12
 y 3
 end

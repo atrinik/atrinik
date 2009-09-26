@@ -2,12 +2,13 @@ arch map
 name Tutorial Island - Abandoned Cellar
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-09-12 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 16
 height 16
 difficulty 1
 darkness 3
+bg_music thonkdonk.ogg|0|-1
 end
 arch fstone1c
 end

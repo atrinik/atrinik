@@ -2,13 +2,14 @@ arch map
 name Tutorial Island - Kobold Den
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-09-15 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 3
 tile_path_1 kobold_den_0102
+bg_music thonkdonk.ogg|0|-1
 end
 arch floor_grit4b
 end
@@ -2743,7 +2744,6 @@ x 18
 y 11
 end
 arch torch_wall_1
-
 x 18
 y 11
 end

@@ -2,7 +2,7 @@ arch map
 name Strakewood Island - Cheap Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-22 Alex Tokar
+Modified: 2009-09-26 Alex Tokar
 endmsg
 width 5
 height 5
@@ -10,6 +10,7 @@ difficulty 1
 darkness -1
 no_summon 1
 no_harm 1
+bg_music harmony2.ogg|0|-1
 end
 arch floor_inv
 unique 1
