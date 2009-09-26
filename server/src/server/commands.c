@@ -92,16 +92,6 @@ CommArray_s Commands[] =
 	/*  {"/sound",		command_sound,			1.0},*/
 	/*  {"/delete",		command_quit,			1.0},*/
 	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
-
-	/* temporary disabled commands
-	  {"party", command_party,	0.0}, need to recode the party system
-	  {"gsay", command_gsay,	1.0}, part of party system
-	  {"drop", command_drop,	1.0},
-	  {"get", command_take,		1.0},
-	  {"skills", command_skills,	0.0},	well, the player has now a perm list
-	  {"examine", command_examine,	0.5}, should work in direction
-	*/
-
 };
 
 const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
@@ -208,6 +198,7 @@ CommArray_s WizCommands [] =
 	{"/sstable", 		command_sstable,				0.0},
 #endif
 	{"/ssdumptable", 	command_ssdumptable,			0.0},
+	{"/patch",			command_patch,					0.0},
 
 	/*
 	{"/archs", command_archs,	0.0},

@@ -1980,29 +1980,39 @@ void dump_me(object *op, char *outstr)
 
 /**
  * Returns the object which has the count-variable equal to the argument.
- * @todo This function currently is unused and just returns NULL. Perhaps
- * at least search through the active, friend and player lists?
  * @param i The count of the object
  * @return The object, NULL if not found. */
 object *find_object(int i)
 {
-	(void) i;
-
-	return NULL;
-
-#if 0
 	object *op;
+	player *pl;
+	objectlink *ol;
 
-	for (op = objects; op != NULL; op = op->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (op->count == (tag_t) i)
+		if (pl->ob->count == (tag_t) i)
 		{
-			break;
+			return pl->ob;
 		}
 	}
 
-	return op;
-#endif
+	for (op = active_objects; op; op = op->active_next)
+	{
+		if (op->count == (tag_t) i)
+		{
+			return op;
+		}
+	}
+
+	for (ol = first_friendly_object; ol; ol = ol->next)
+	{
+		if (ol->ob->count == (tag_t) i)
+		{
+			return ol->ob;
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -2010,39 +2020,48 @@ object *find_object(int i)
  * Used only by the patch command, but not all that useful.
  *
  * Enables features like "/patch <name-of-other-player> food 999"
- * @todo This function currently is unused and just returns NULL. Perhaps
- * at least search through the active, friend and player lists?
  * @param str The object name
  * @return The object if found, NULL otherwise */
 object *find_object_name(char *str)
 {
-	(void) str;
-
-	return NULL;
-
-#if 0
-	/* if find_string() can't find the string -
-	 * then its impossible that op->name will match.
-	 * if we get a string - its the hash table
-	 * ptr for this string. */
 	const char *name = find_string(str);
 	object *op;
+	player *pl;
+	objectlink *ol;
 
+	/* If find_string() can't find the string, then it's impossible that
+	 * op->name will match.
+	 * If we get a string, it's the hash table pointer for this string. */
 	if (name == NULL)
 	{
 		return NULL;
 	}
 
-	for (op = objects; op != NULL; op = op->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (op->name == name)
+		if (pl->ob->name == name)
 		{
-			break;
+			return pl->ob;
 		}
 	}
 
-	return op;
-#endif
+	for (op = active_objects; op; op = op->active_next)
+	{
+		if (op->name == name)
+		{
+			return op;
+		}
+	}
+
+	for (ol = first_friendly_object; ol; ol = ol->next)
+	{
+		if (ol->ob->name == name)
+		{
+			return ol->ob;
+		}
+	}
+
+	return NULL;
 }
 
 void free_all_object_data()
