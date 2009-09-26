@@ -23,9 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/*
- * Command parser
- */
+/**
+ * @file
+ * Command parser */
 
 #include <global.h>
 #ifndef __CEXTRACT__
@@ -33,14 +33,7 @@
 #endif
 #include <ctype.h>
 
-/* Added times to all the commands.  However, this was quickly done,
- * and probably needs more refinements.  All socket and DM commands
- * take 0 time.
- */
-
-/*
- * Normal game commands
- */
+/** Normal game commands */
 CommArray_s Commands[] =
 {
 	{"/stay",			command_stay,			1.0f},
@@ -94,11 +87,12 @@ CommArray_s Commands[] =
 	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
 };
 
+/** Size of normal commands */
 const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
 
+/** Emotion commands */
 CommArray_s CommunicationCommands [] =
 {
-	/* begin emotions */
 	{"/nod", 		command_nod,		1.0},
 	{"/dance", 		command_dance,		1.0},
 	{"/kiss", 		command_kiss,		1.0},
@@ -156,9 +150,10 @@ CommArray_s CommunicationCommands [] =
 	{"/me", 		command_me,			1.0},
 };
 
+/** Size of emotion commands */
 const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommArray_s);
 
-/* Wizard commands (for both) */
+/** Wizard commands */
 CommArray_s WizCommands [] =
 {
 	{"/dmsay",			command_dmsay,					0.0},
@@ -224,16 +219,124 @@ CommArray_s WizCommands [] =
 	#endif
 	*/
 };
+
+/** Size of Wizard commands */
 const int WizCommandsSize = sizeof(WizCommands) / sizeof(CommArray_s);
 
+/**
+ * Compare two commands, for qsort() in init_command() and bsearch() in
+ * find_command_element().
+ * @param a The first command
+ * @param b The second command
+ * @return Return value of strcmp on the two command names. */
 static int compare_A(const void *a, const void *b)
 {
-	return strcmp(((CommArray_s *)a)->name, ((CommArray_s *)b)->name);
+	return strcmp(((CommArray_s *) a)->name, ((CommArray_s *) b)->name);
 }
 
+/**
+ * Initialize all the commands.
+ *
+ * Sorts the commands using qsort(). */
 void init_commands()
 {
-	qsort((char *)Commands, CommandsSize, sizeof(CommArray_s), compare_A);
-	qsort((char *)CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);
-	qsort((char *)WizCommands, WizCommandsSize, sizeof(CommArray_s), compare_A);
+	qsort((char *) Commands, CommandsSize, sizeof(CommArray_s), compare_A);
+	qsort((char *) CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);
+	qsort((char *) WizCommands, WizCommandsSize, sizeof(CommArray_s), compare_A);
+}
+
+/**
+ * Find a command element.
+ * @param cmd The command name
+ * @param commarray The commands array to search in
+ * @param commsize The commands array size
+ * @return The command entry in the array if found */
+CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize)
+{
+	CommArray_s *asp, dummy;
+	char *cp;
+
+	for (cp = cmd; *cp; cp++)
+	{
+		*cp = tolower(*cp);
+	}
+
+	dummy.name = cmd;
+	asp = (CommArray_s *) bsearch((void *) &dummy, (void *) commarray, commsize, sizeof(CommArray_s), compare_A);
+
+	return asp;
+}
+
+/**
+ * This function is called from the new client/server code.
+ * pl is the player who is issuing the command, command is the
+ * command.
+ *  */
+/**
+ * This function is called from the new client/server code.
+ * @param pl The player who is issuing the command
+ * @param command The command
+ * @return 0 if not a valid command, otherwise return value of the called
+ * command function is returned. */
+int execute_newserver_command(object *pl, char *command)
+{
+	CommArray_s *csp;
+	char *cp;
+
+	/* Remove the command from the parameters */
+	cp = strchr(command, ' ');
+
+	if (cp)
+	{
+		*(cp++) = '\0';
+		cp = cleanup_string(cp);
+
+		if (cp && *cp == '\0')
+		{
+			cp = NULL;
+		}
+	}
+
+	csp = find_plugin_command(command,pl);
+
+	if (!csp)
+	{
+		csp = find_command_element(command, Commands, CommandsSize);
+	}
+
+	if (!csp)
+	{
+		csp = find_command_element(command, CommunicationCommands, CommunicationCommandSize);
+	}
+
+	if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
+	{
+		csp = find_command_element(command, WizCommands, WizCommandsSize);
+	}
+
+	if (csp == NULL)
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, pl, "'%s' is not a valid command.", command);
+
+		return 0;
+	}
+
+	pl->speed_left -= csp->time;
+
+	/* A character time can never exceed his speed (which in many cases,
+	 * if wearing armor, is less than one.)  Thus, in most cases, if
+	 * the command takes 1.0, the player's speed will be less than zero.
+	 * it is only really an issue if time goes below -1
+	 * Due to various reasons that are too long to go into here, we will
+	 * actually still execute player even if his time is less than 0,
+	 * but greater than -1.  This is to improve the performance of the
+	 * new client/server.  In theory, it shouldn't make much difference. */
+#ifdef DEBUG
+	if (csp->time && pl->speed_left < -2.0)
+	{
+		LOG(llevDebug, "DEBUG: execute_newclient_command: Player issued command that takes more time than he has left.\n");
+	}
+#endif
+
+	return csp->func(pl, cp);
 }

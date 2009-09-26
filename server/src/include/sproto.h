@@ -228,8 +228,6 @@ int command_turn_left(object *op, char *params);
 int command_turn_right(object *op, char *params);
 
 /* c_new.c */
-CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
-int execute_newserver_command(object *pl, char *command);
 int command_run(object *op, char *params);
 int command_run_stop(object *op, char *params);
 void send_target_command(player *pl);
@@ -267,6 +265,10 @@ void inventory(object *op, object *inv);
 int command_pickup(object *op, char *params);
 void set_pickup_mode(object *op, int i);
 int command_search_items(object *op, char *params);
+
+/* commands.c */
+CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
+int execute_newserver_command(object *pl, char *command);
 
 /* c_party.c */
 partylist *form_party(object *op, char *params, partylist *firstparty, partylist *lastparty);
