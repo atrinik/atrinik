@@ -81,6 +81,7 @@ extern int db_prepare(sqlite3 *db, const char *sql, sqlite3_stmt **statement);
 extern int db_prepare_format(sqlite3 *db, sqlite3_stmt **statement, const char *format, ...);
 extern int db_step(sqlite3_stmt *statement);
 extern const unsigned char *db_column_text(sqlite3_stmt *statement, int col);
+extern int db_column_int(sqlite3_stmt *statement, int col);
 extern int db_finalize(sqlite3_stmt *statement);
 extern int db_close(sqlite3 *db);
 extern char *db_sanitize_input(char *sql_input);
@@ -279,6 +280,7 @@ extern int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapst
 extern int on_same_map(object *op1, object *op2);
 
 /* object.c */
+extern void init_materials_database();
 extern void init_mempools();
 extern void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor);
 extern void *get_poolchunk(mempool_id pool);

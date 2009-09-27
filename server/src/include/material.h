@@ -25,10 +25,7 @@
 
 /**
  * @file
- * Defines are needed by @ref living.h, so they must be loaded early.
- * @todo Move things related to materials to a database which is loaded
- * at startup. Will get rid of the one huge array in object.c, called
- * material_real. */
+ * Defines are needed by @ref living.h, so they must be loaded early. */
 
 #ifndef MATERIAL_H
 #define MATERIAL_H
@@ -113,20 +110,13 @@ typedef struct
 typedef struct _material_real_struct
 {
 	/* name of this material */
-	char *name;
+	char name[MAX_BUF];
 
 	/* % value: speed of tearing when used. (used from item_condition) NOT IMPLEMENTED YET */
 	int tearing;
 
 	/* material base quality */
 	int quality;
-
-	/* unused ext. for later use */
-	int ext1;
-
-	int ext2;
-
-	int ext3;
 
 	/* back ref. to material type */
 	int type;

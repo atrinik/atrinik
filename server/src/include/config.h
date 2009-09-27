@@ -583,5 +583,6 @@
  * is stored. Default is "atrinik.db". */
 #define DB_DEFAULT "atrinik.db"
 
-/* Database where the help files are stored. Default is "helpfiles.db". */
-#define DB_HELP "helpfiles.db"
+/* Database where the reference tables are stored, like help files,
+ * materials, etc. Default is "reference.db". */
+#define DB_REFERENCE "reference.db"

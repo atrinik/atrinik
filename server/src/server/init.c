@@ -429,6 +429,10 @@ static void load_settings()
 			else
 				settings.meta_port = port;
 		}
+		else if (!strcasecmp(buf, "metaserver_comment"))
+		{
+			strcpy(settings.meta_comment, cp);
+		}
 		else
 		{
 			LOG(llevBug, "BUG: Unknown value in %s file: %s\n", SETTINGS, buf);

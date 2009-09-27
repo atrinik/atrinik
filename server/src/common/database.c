@@ -154,6 +154,16 @@ const unsigned char *db_column_text(sqlite3_stmt *statement, int col)
 }
 
 /**
+ * Grabs the integer in database after running db_step().
+ * @param statement SQLite statement handle
+ * @param col Column ID
+ * @return The data from the database */
+int db_column_int(sqlite3_stmt *statement, int col)
+{
+	return sqlite3_column_int(statement, col);
+}
+
+/**
  * Finalizes SQL query previously prepared by db_prepare().
  * @param statement SQLite statement handle
  * @return SQLITE_OK on success, otherwise an error code is returned. */

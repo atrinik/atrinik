@@ -89,8 +89,9 @@ void init_library()
 	init_anim();
 	/* Reads all archetypes from file */
 	init_archetypes();
-	init_dynamic ();
+	init_dynamic();
 	init_clocks();
+	init_materials_database();
 
 	/* init some often used default archetypes */
 	if (level_up_arch == NULL)

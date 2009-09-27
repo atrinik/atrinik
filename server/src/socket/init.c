@@ -444,7 +444,7 @@ static void create_help_files(void)
 		return;
 	}
 
-	db_open(DB_HELP, &db);
+	db_open(DB_REFERENCE, &db);
 
 	db_prepare(db, "SELECT name, title, message FROM help;", &statement);
 
