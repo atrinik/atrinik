@@ -58,8 +58,7 @@ struct Settings settings =
 	"",
 	0,
 	"",
-	/* worldmap settings */
-	0, 0, 0, 0, 0, 0, 0, 0
+	0
 };
 
 /* daytime counter (day & night / lightning system) */

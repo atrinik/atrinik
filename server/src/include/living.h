@@ -23,6 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Structures and defines related to living objects, including stats
+ * of objects. */
+
 #ifndef LIVING_H
 #define LIVING_H
 
@@ -75,7 +80,8 @@ extern uint32 weight_limit[MAX_STAT + 1];
 #pragma pack(push,1)
 #endif
 
-/** Mostly used by "alive" objects, but also by other
+/**
+ * Mostly used by "alive" objects, but also by other
  * objects like gates, buttons, waypoints and a number
  * of other objects.*/
 typedef struct liv
@@ -113,7 +119,8 @@ typedef struct liv
 	/** Armour class */
 	sint16 ac;
 
-	/** Random value range we add to wc value of attacker:
+	/**
+	 * Random value range we add to wc value of attacker:
 	 * wc + (random() % wc_range). If it's higher than
 	 * defender's AC then we can hit our enemy. */
 	uint8 wc_range;

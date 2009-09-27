@@ -23,52 +23,55 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file */
+
 #ifndef LOGGER_H
 #define LOGGER_H
 
-
-/* The LOG system is more as a logger - it works also as a error & bug counter system.
- * Every llevError LOG will increase the error counter of the server - if to many errors
- * happens, the server will start a emergency shutdown. This will avoid bug loops or
- * every round LOGs, which will fill the log file fast.
- * llevError is always fatal - if this happens, ther server is not stabile anymore.
- * For the real bad parts, we go down directly - for some other we go on a bit - most
- * times to see what else is wrong.
- * llevBug is also a bug/error which should not happens BUT but we have catched the
- * problem and the server itself is not in danger. This can be for example wrong
- * settings of a object - we catch it and don't generate it for example. */
-
-/* the log level system have this meaning:
- * in GLOBAL_LOG_LEVEL is the default log level stored - at the bottom of this header.
- * this can changed at runtime by using a debug cmd.
- * When DEBUG is set (or GLOBAL_LOG_LEVEL set to llevDebug) then
- * the system drops maximum log messages.
- * If llevInfo is set, is still drops alot useful messages.
- * If llevBug is set, only really bugs and errors are loged.
- * Set levNoLog for no output.
- * ingore llevSystem - its used for additional infos used by llevError and llevBug */
-
+/**
+ * The log level system have this meaning:
+ *
+ * In GLOBAL_LOG_LEVEL is the default log level stored - at the bottom of
+ * this file.
+ *
+ * This can changed at runtime by using a debug command.
+ *
+ * When DEBUG is set (or GLOBAL_LOG_LEVEL set to llevDebug) then the
+ * system drops maximum log messages.
+ *
+ * If llevInfo is set, is still drops a lot useful messages.
+ *
+ * If llevBug is set, only really bugs and errors are logged.
+ *
+ * Set levNoLog for no output. */
 typedef enum LogLevel
 {
-	/* set GLOBAL_LOG_LEVEL to this, and no message will be printed out */
+	/**
+	 * Set GLOBAL_LOG_LEVEL to this, and no messages will be printed
+	 * out. */
 	llevNoLog = -1,
 
-	/* internal: used for llevError msg and llevBug message - don't set this! */
+	/**
+	 * Internal: used for llevError msg and llevBug message - don't set
+	 * this! */
 	llevSystem = 0,
 
-	/* thats fatal errors - server stability is unsafe after this */
+	/** For fatal errors - server stability is unsafe after this */
 	llevError,
 
-	/* thats a bug - but we have it under control (we hope so) */
+	/** A bug - but we have it under control (we hope so) */
 	llevBug,
 
-	/* just tell the log stuff we think its useful to know */
+	/** Just tell the log stuff we think it's useful to know */
 	llevInfo,
 
-	/* give out maximal information for debug and bug control */
+	/** Give out maximal information for debug and bug control */
 	llevDebug,
 
-	/* SPECIAL DEBUG: give out full monster infos & debugs msg */
+	/**
+	 * SPECIAL DEBUG: give out full monster information and debug
+	 * messages */
 	llevMonster
 } LogLevel;
 
@@ -81,4 +84,4 @@ typedef enum LogLevel
 #endif
 #endif
 
-#endif /* LOGGER_H */
+#endif

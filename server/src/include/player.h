@@ -27,19 +27,31 @@
  * @file
  * Handles player related structures, enums and defines. */
 
+/** Level color structure. */
 typedef struct _level_color
 {
+	/** Green level */
 	int green;
+
+	/** Blue level */
 	int blue;
+
+	/** Yellow level */
 	int yellow;
+
+	/** Orange level */
 	int orange;
+
+	/** Red level*/
 	int red;
+
+	/** Purple level */
 	int purple;
 }_level_color;
 
 extern _level_color level_color[201];
 
-/* fire modes submited from client */
+/** Fire modes submited from client */
 enum
 {
 	FIRE_MODE_NONE = -1,
@@ -58,14 +70,6 @@ typedef enum rangetype
 	range_skill = 7,range_potion = 8, range_dust = 9,
 	range_size = 10
 } rangetype;
-
-
-typedef enum usekeytype
-{
-	key_inventory = 0,
-	keyrings = 1,
-	containers = 2
-} usekeytype;
 
 /** Used for item damage system */
 enum
@@ -143,223 +147,223 @@ typedef struct party_struct
 #pragma pack(push,1)
 #endif
 
-/* slowly reworking this struct - some old values in - MT2003 */
+/** Player structure */
 typedef struct pl_player
 {
-	/* this is not cleared with memset - seek for offsetof((....,maplevel) */
-
-	/* Pointer to next player, NULL if this is last */
+	/** Pointer to next player, NULL if this is last */
 	struct pl_player *next;
 
-	/* Socket information for this player */
+	/** Socket information for this player */
 	NewSocket socket;
 
-	/* all this is set to 0 with memset */
-
-	/* Name of the map the player is on */
+	/** Name of the map the player is on */
 	char maplevel[MAX_BUF];
 
-	/* when moving on tiled maps, player can change
+	/**
+	 * When moving on tiled maps, player can change
 	 * map without triggering mapevents and new_map_cmd.
 	 * This will break client cache and script events.
 	 * This value will used as control value.*/
 	struct mapdef *last_update;
 
-	/* The object representing the player */
+	/** The object representing the player */
 	object *ob;
 
-	/* Which golem is controlled */
+	/** Which golem is controlled */
 	object *golem;
 
-	/* which enemy we hack. needed to skip extra swing animation */
+	/** Which enemy we have. Needed to skip extra swing animation */
 	object *anim_enemy;
 
-	/* thats the weapon in our hand */
+	/** The weapon in our hand */
 	object *selected_weapon;
 
-	/* thats the hth skill we use when we not use a weapon (like karate) */
+	/**
+	 * The hand-to-hand skill we use when we not using a weapon (like
+	 * karate) */
 	object *skill_weapon;
 
-	/* our target */
+	/** Target */
 	object *target_object;
 
-	/* exp object pointer to sp (mana) defining exp object */
+	/** Experience object pointer to sp (mana) defining exp object */
 	object *sp_exp_ptr;
 
-	/* exp object pointer to grace (mana) defining exp object */
+	/** Experience object pointer to grace defining exp object */
 	object *grace_exp_ptr;
 
-	/* pointers to applied items in the players inventory */
+	/** Pointers to applied items in the player's inventory */
 	object *equipment[PLAYER_EQUIP_MAX];
 
-	/* quick jump table to skill objects in the players inv. */
+	/** Quick jump table to skill objects in the player's inventory */
 	object *skill_ptr[NROFSKILLS];
 
-	/* the exp object table */
+	/** The exp object table */
 	object *last_skill_ob[MAX_EXP_CAT];
 
-	/* marked object */
+	/** Marked object */
 	object *mark;
 
-	/* quick jump to our age force */
+	/** Quick jump to our age force */
 	object *age_force;
 
-	/* ptr used from local map player chain */
+	/** Pointer used from local map player chain */
 	object *map_below;
 
+	/** Pointer used from local map player chain */
 	object *map_above;
 
-	/* Current container being used. */
+	/** Current container being used. */
 	object *container;
 
-	/* the count of the container */
+	/** The count of the container */
 	uint32 container_count;
 
-	/* that points to a PLAYER ob, accessing this container too!
-	 * if this is NULL, we are the "last" one looking in ->container. */
+	/**
+	 * Pints to a PLAYER ob, accessing this container too!
+	 * If this is NULL, we are the "last" one looking in ->container. */
 	object *container_above;
 
-	/* same as above - if this is NULl, we are "last" looking the container */
+	/**
+	 * Same as container_above - if this is NULL, we are "last" looking
+	 * the container */
 	object *container_below;
 
-	/* hm, this can be kicked now - i do it for a quick hack to
+	/**
+	 * hm, this can be kicked now - i do it for a quick hack to
 	 * implement the animations. use is_melee_range() instead. */
 	uint32 anim_enemy_count;
 
-	/* for the client target HP marker - special shadow */
+	/** For the client target HP marker - special shadow */
 	int target_hp;
 
-	/* skill number of used weapon skill for fast access */
+	/** Skill number of used weapon skill for fast access */
 	int set_skill_weapon;
 
-	/* same for archery */
+	/** Skill number of used archery skill for fast access */
 	int set_skill_archery;
 
-	/* x, y - coordinates of respawn (savebed) */
+	/** X coordinate of respawn (savebed) */
 	int bed_x;
 
+	/** Y coordinate of respawn (savebed) */
 	int bed_y;
 
-	/* Which golem is controlled - the id count */
+	/** Which golem is controlled - the ID count */
 	uint32 golem_count;
 
-	/* firemode_xxx are set from command_fire() */
+	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
 
 	int firemode_tag1;
 
 	int firemode_tag2;
 
-	/* "skill action timers" - used for action delays like cast time */
+	/** Skill action timers - used for action delays like cast time */
 	uint32 action_casting;
 
 	uint32 action_range;
 
-	/* weapon_speed_left * 1000 and cast from float to int for client */
+	/** weapon_speed_left * 1000 and cast from float to int for client */
 	float action_timer;
 
-	/* previous value sent to the client */
+	/** Previous value of action timer sent to the client */
 	float last_action_timer;
 
-	/* count or mark object */
+	/** Count of mark object */
 	uint32 mark_count;
 
-	/* shadow register. if != exp. obj update client */
+	/** Shadow register. If != exp. obj update client */
 	sint32 last_skill_exp[MAX_EXP_CAT];
 
-	/* shadow register for updating skill values to client */
+	/** Shadow register for updating skill values to client */
 	sint32 skill_exp[NROFSKILLS];
 
-	/* count of target - NOTE: if we target ourself, this count it 0
-	 * this will kick us out of enemy target routines - all functions
-	 * who handle self target know it and use only target_object -
-	 * for our own player object the pointer will never change for us. */
+	/**
+	 * Count of target */
 	uint32 target_object_count;
 
-	/* last target search position */
+	/** Last target search position */
 	uint32 target_map_pos;
-
-	/* Mode of player for pickup. */
-	uint32 mode;
 
 	float last_speed;
 
-	/* condition adjusted damage send to client */
+	/** Condition adjusted damage sent to client */
 	sint16 client_dam;
 
-	/* the age of our player */
+	/** The age of our player */
 	sint16 age;
 
-	/* unnatural changes to our age - can be removed by restoration */
+	/** Unnatural changes to our age - can be removed by restoration */
 	sint16 age_add;
 
-	/* permanent changes .... very bad (or good when younger) */
+	/** Permanent age changes... Very bad, or good when younger */
 	sint16 age_changes;
 
-	/* the age of our player */
+	/** Maximum age of our player */
 	sint16 age_max;
 
-	/* shadow register for updint skill levels to client */
+	/** Shadow register for updint skill levels to client */
 	sint16 skill_level[NROFSKILLS];
 
-	/*  How much our player is encumbered  */
+	/** How much our player is encumbered */
 	sint16 encumbrance;
 
-	/* some anim flags for special player animation handling */
+	/** Some anim flags for special player animation handling */
 	uint16 anim_flags;
 
-	/* Index in the above array */
+	/** Index in the anim_flags array */
 	uint16 nrofknownspells;
 
-	/* Spells known by the player */
+	/** Spells known by the player */
 	sint16 known_spells[NROFREALSPELLS];
 
-	/* for the client target HP real % value*/
+	/** For the client target HP real % value */
 	char target_hp_p;
 
-	/* weapon speed index (mainly used for client) */
+	/** Seapon speed index (mainly used for client) */
 	char weapon_sp;
 
-	/* Any bonuses/penalties to digestion */
+	/** Any bonuses/penalties to digestion */
 	signed char digestion;
 
-	/* Penalty to sp regen from armour */
+	/** Penalty to sp regen from armour */
 	signed char gen_sp_armour;
 
-	/* Bonuses to regeneration speed of hp */
+	/** Bonuses to regeneration speed of hp */
 	signed char gen_hp;
 
-	/* Bonuses to regeneration speed of sp */
+	/** Bonuses to regeneration speed of sp */
 	signed char gen_sp;
 
-	/* Bonuses to regeneration speed of grace */
+	/** Bonuses to regeneration speed of grace */
 	signed char gen_grace;
 
-	/* thats how much every reg tick we get */
+	/** How much HP the player regenerates every tick */
 	int reg_hp_num;
 
+	/** How much SP the player regenerates every tick */
 	int reg_sp_num;
 
+	/** How much grace the player regenerates every tick */
 	int reg_grace_num;
 
-	/* our real tick counter for hp regenerations */
+	/** Real tick counter for hp regenerations */
 	sint16 base_hp_reg;
 
-	/* our real tick counter for sp regenerations */
+	/** Real tick counter for sp regenerations */
 	sint16 base_sp_reg;
 
-	/* our real tick counter for grace regenerations */
+	/** Real tick counter for grace regenerations */
 	sint16 base_grace_reg;
 
-	/* send to client - shadow & prepared gen_xx values */
-
-	/* Bonuses to regeneration speed of hp */
+	/** Bonuses to regeneration speed of hp */
 	uint16 gen_client_hp;
 
-	/* Bonuses to regeneration speed of sp */
+	/** Bonuses to regeneration speed of sp */
 	uint16 gen_client_sp;
 
-	/* Bonuses to regeneration speed of grace */
+	/** Bonuses to regeneration speed of grace */
 	uint16 gen_client_grace;
 
 	uint16 last_gen_hp;
@@ -370,18 +374,18 @@ typedef struct pl_player
 
 	char last_weapon_sp;
 
-	/* shadow register client exp group for level */
+	/** Shadow register client exp group for level */
 	char last_skill_level[MAX_EXP_CAT];
 
-	/* Thats the CS_STATS_ id for client STATS cmd */
+	/** The CS_STATS_ id for client STATS cmd */
 	char last_skill_id[MAX_EXP_CAT];
 
 	char firemode_name[BIG_NAME * 2];
 
-	/* thats rank + name +" the xxxx" */
+	/** Rank + name +" the xxxx" */
 	char quick_name[BIG_NAME * 3];
 
-	/* map where player will respawn after death */
+	/** Map where player will respawn after death */
 	char savebed_map[MAX_BUF];
 
 	/* for smaller map sizes, only the the first elements are used (ie, upper left) */
@@ -389,141 +393,121 @@ typedef struct pl_player
 	/* in fact we only need char size, but use int for faster access */
 	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
 
-	/* for client: <Rank> <Name>\n<Gender> <Race> <Profession> */
+	/** For client: <Rank> <Name>\n<Gender> <Race> <Profession> */
 	char ext_title[MAX_EXT_TITLE];
 
-	/* What the player gained on that level */
+	/** How much HP the player gained on that level */
 	char levhp[MAXLEVEL + 1];
 
+	/** How much SP the player gained on that level */
 	char levsp[MAXLEVEL + 1];
 
+	/** How much grace the player gained on that level */
 	char levgrace[MAXLEVEL + 1];
 
-	/* shadow register for client update resistance table */
+	/** shadow register for client update resistance table */
 	sint8 last_protection[NROFPROTECTIONS];
 
-	/* this flags is set when the player is loaded from file
+	/**
+	 * This flag is set when the player is loaded from file
 	 * and not just created. It is used to overrule the "no save
 	 * when exp is 0" rule - which can lead inventory duping. */
-uint32 player_loaded:
-	1;
+	uint32 player_loaded:1;
 
-	/* If true, the player has set a name. */
-uint32 name_changed:
-	1;
+	/** If true, the player has set a name. */
+	uint32 name_changed:1;
 
-	/* If true, update_los() in draw(), and clear */
-uint32 update_los:
-	1;
+	/** If true, update_los() in draw(), and clear */
+	uint32 update_los:1;
 
-	/* if true, player is in combat mode, attacking with weapon */
-uint32 combat_mode:
-	1;
+	/** If true, player is in combat mode */
+	uint32 combat_mode:1;
 
-	/* if true, player is praying and gaining fast grace */
-uint32 praying:
-	1;
+	/** If true, player is praying and gaining fast grace */
+	uint32 praying:1;
 
-	/* internal used by praying to send pray msg to player */
-uint32 was_praying:
-	1;
+	/** Internal use by praying to send pray message to player */
+	uint32 was_praying:1;
 
-	/* some dm flags */
+	/**
+	 * If true, no message to other players about entering the game, and
+	 * no entry in /who list. */
+	uint32 dm_stealth:1;
 
-	/* 1 = no "XX enter the game" and no entry in /who */
-uint32 dm_stealth:
-	1;
+	/** If true, all maps are shown in daylight for the player */
+	uint32 dm_light:1;
 
-	/* 1 = all maps are shown in daylight for the dm */
-uint32 dm_light:
-	1;
+	/** Internal dm flag: player was removed from a map. Used by /resetmap */
+	uint32 dm_removed_from_map:1;
 
-	/* internal dm flag: player was removed from a map */
-uint32 dm_removed_from_map:
-	1;
+	/** True if you know the spell of the wand */
+	uint32 known_spell:1;
 
-	/* all values before this line are tested and proofed */
+	/** What was last updated with draw_stats() */
+	uint32 last_known_spell:1;
 
-	/* True if you know the spell of the wand */
-uint32 known_spell:
-	1;
+	/** Update skill list when set */
+	uint32 update_skills:1;
 
-	/* What was last updated with draw_stats() */
-uint32 last_known_spell:
-	1;
-
-	/* update skill list when set */
-uint32 update_skills:
-	1;
-
-	/* Which range-attack is being used by player */
+	/** Which range attack is being used by player */
 	rangetype shoottype;
 
-	/* What was last updated with draw_stats() */
+	/** What was last updated with draw_stats() */
 	rangetype last_shoot;
 
-	/* Method for finding keys for doors */
-	usekeytype usekeys;
-
-	/* Type of readied spell */
+	/** Type of readied spell */
 	sint16 chosen_spell;
 
-	/* Type of spell that the item fires */
+	/** Type of spell that the item fires */
 	sint16 chosen_item_spell;
 
-	/* fire/run on flags for last tick */
+	/** fire/run on flags for last tick */
 	uint16 last_flags;
 
-	/* Any numbers typed before a command */
+	/** Any numbers typed before a command */
 	uint32 count;
 
-	/* this is init from init_player_exp() */
+	/** This is initialized from init_player_exp() */
 	int last_skill_index;
 
 	unsigned char state;
 
-	/* Which priority will be used in info_all */
+	/** Which priority will be used in info_all */
 	unsigned char listening;
 
 	unsigned char fire_on;
 
 	unsigned char run_on;
 
-	/* How long this player has been idle */
-	unsigned char idle;
+	/** Last weight limit transmitted to client */
+	uint32 last_weight_limit;
 
-	/* Last weight limit transmitted to client */
-	uint32  last_weight_limit;
-
-	/* Can be less in case of poisoning */
+	/** Can be less in case of poisoning */
 	living orig_stats;
 
-	/* Last stats drawn with draw_stats() */
+	/** Last stats drawn with draw_stats() */
 	living last_stats;
 
-	/* Same usage as last_stats */
+	/** Same usage as last_stats */
 	signed long last_value;
 
 	long last_weight;
 
 	unsigned char last_level;
 
-	/* Who killed this player. */
+	/** Who killed this player. */
 	char killer[BIG_NAME];
 
-	char last_cmd;
-
-	/* last player that told you something [mids 01/14/2002] */
-	/* this is a typcial client part - no need to use the server
-	 * to store or handle this! */
+	/**
+	 * Last player that told you something, used for /reply command.
+	 * @todo The client should handle this instead of the server. */
 	char last_tell[MAX_NAME];
 
 	char write_buf[MAX_BUF];
 
-	char input_buf[MAX_BUF];
-
-	/* 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
+	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
 	char password[16];
+
 #ifdef SAVE_INTERVAL
 	time_t last_save_time;
 #endif
@@ -532,15 +516,11 @@ uint32 update_skills:
 	long last_save_tick;
 #endif
 
+	/** ID of the party the player is in. */
 	sint16 party_number;
 
+	/** Is the player AFK? */
 	sint16 afk;
-
-	/* used when player wants to join a party
-	 * but we will have to get password first
-	 * so we have to remember which party to
-	 * join */
-	sint16 party_number_to_join;
 
 #ifdef SEARCH_ITEMS
 	char search_str[MAX_BUF];

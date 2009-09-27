@@ -1016,38 +1016,6 @@ int command_logs(object *op, char *params)
 	return 1;
 }
 
-int command_usekeys(object *op, char *params)
-{
-	usekeytype oldtype = CONTR(op)->usekeys;
-	static char *types[] =
-	{
-		"inventory",
-		"keyrings",
-		"containers"
-	};
-
-	if (!params)
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "usekeys is set to %s", types[CONTR(op)->usekeys]);
-		return 1;
-	}
-
-	if (!strcmp(params, "inventory"))
-		CONTR(op)->usekeys = key_inventory;
-	else if (!strcmp(params, "keyrings"))
-		CONTR(op)->usekeys = keyrings;
-	else if (!strcmp(params, "containers"))
-		CONTR(op)->usekeys = containers;
-	else
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "usekeys: Unknown options %s, valid options are inventory, keyrings, containers.", params);
-		return 0;
-	}
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "usekeys %s set to %s", (oldtype == CONTR(op)->usekeys ? "" : "now"), types[CONTR(op)->usekeys]);
-	return 1;
-}
-
 /**
  * Print out object's resistances.
  * @param op Object requesting this

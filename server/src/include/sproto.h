@@ -199,7 +199,6 @@ int command_statistics(object *pl, char *params);
 int command_fix_me(object *op, char *params);
 int command_players(object *op, char *paramss);
 int command_logs(object *op, char *params);
-int command_usekeys(object *op, char *params);
 int command_resistances(object *op, char *params);
 int command_praying(object *op, char *params);
 int onoff_value(char *line);
@@ -261,9 +260,6 @@ void examine_monster(object *op, object *tmp);
 char *long_desc(object *tmp, object *caller);
 void examine(object *op, object *tmp);
 void inventory(object *op, object *inv);
-int command_pickup(object *op, char *params);
-void set_pickup_mode(object *op, int i);
-int command_search_items(object *op, char *params);
 
 /* commands.c */
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);

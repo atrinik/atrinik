@@ -23,80 +23,142 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/*
+/**
+ * @file
  * The mapstruct is allocated each time a new map is opened.
- * It contains pointers (very indirectly) to all objects on the map.
- */
+ * It contains pointers (very indirectly) to all objects on the map. */
 
 #ifndef MAP_H
 #define MAP_H
 
-/* number of darkness level. Add +1 for "total dark" */
+/** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
+
 extern int global_darkness_table[MAX_DARKNESS + 1];
 
-/* for exit objects: this is a player unique map */
+/** For exit objects: this is a player unique map */
 #define MAP_PLAYER_MAP 1
-/* thats our 7 logical layers.
- * ! for first and last object, we will use 2 more fake layers! */
+
+/**
+ * Our 7 logical layers.
+ * @note For first and last object, we will use 2 more fake layers */
 #define MAX_ARCH_LAYERS 7
-/* thats our 4 physical layers we really show */
+
+/** Our 4 physical layers we really show */
 #define MAP_LAYERS  4
 
-/* This is when the map will reset */
+/**
+ * @defgroup map_struct_macros Map structure macros
+ * These macros are used to access flags of a map, the map reset time,
+ * the map owner, etc.
+ *@{*/
+
+/** This is when the map will reset */
 #define MAP_WHEN_RESET(m)      ((m)->reset_time)
 
+/** The map reset timeout */
 #define MAP_RESET_TIMEOUT(m)   ((m)->reset_timeout)
+
+/** The map difficulty */
 #define MAP_DIFFICULTY(m)      ((m)->difficulty)
+
+/** The map timeout */
 #define MAP_TIMEOUT(m)         ((m)->timeout)
+
+/** The map swap time */
 #define MAP_SWAP_TIME(m)       ((m)->swap_time)
+
+/** The map owner */
 #define MAP_OWNER(m)           ((m)->owner)
+
+/** Is the map outdoors map? */
 #define MAP_OUTDOORS(m)        ((m)->map_flags & MAP_FLAG_OUTDOOR)
+
+/** Is the map unique map? */
 #define MAP_UNIQUE(m)          ((m)->map_flags & MAP_FLAG_UNIQUE)
+
+/** Does the map have fixed reset time? */
 #define MAP_FIXED_RESETTIME(m) ((m)->map_flags & MAP_FLAG_FIXED_RTIME)
 
+/** Is the map no-save map? */
 #define MAP_NOSAVE(m)          ((m)->map_flags & MAP_FLAG_NO_SAVE)
 
+/** Does the map disallow magic? */
 #define MAP_NOMAGIC(m)         ((m)->map_flags & MAP_FLAG_NOMAGIC)
+
+/** Does the map disallow priest spells? */
 #define MAP_NOPRIEST(m)        ((m)->map_flags & MAP_FLAG_NOPRIEST)
+
+/** Does the map disallow harmful spells? */
 #define MAP_NOHARM(m)          ((m)->map_flags & MAP_FLAG_NOHARM)
+
+/** Does the map disallow summoning spells? */
 #define MAP_NOSUMMON(m)        ((m)->map_flags & MAP_FLAG_NOSUMMON)
+
+/** Is the map a fixed login map? */
 #define MAP_FIXEDLOGIN(m)      ((m)->map_flags & MAP_FLAG_FIXED_LOGIN)
+
+/** Is the map perma death map? */
 #define MAP_PERMDEATH(m)       ((m)->map_flags & MAP_FLAG_PERMDEATH)
+
+/** Is the map ultra death map? */
 #define MAP_ULTRADEATH(m)      ((m)->map_flags & MAP_FLAG_ULTRADEATH)
+
+/** Is the map ultimate death map? */
 #define MAP_ULTIMATEDEATH(m)   ((m)->map_flags & MAP_FLAG_ULTIMATEDEATH)
+
+/** Is the map PVP area? */
 #define MAP_PVP(m)             ((m)->map_flags & MAP_FLAG_PVP)
+
+/** Should global map plugins activate for this map? */
 #define MAP_PLUGINS(m)         ((m)->map_flags & MAP_FLAG_PLUGINS)
-/* mape darkness used to enforce the MAX_DARKNESS value.
- * but IMO, if it is beyond max value, that should be fixed
- * on the map or in the code. */
+
+/** Darkness of a map */
 #define MAP_DARKNESS(m)        (m)->darkness
 
+/** Width of a map */
 #define MAP_WIDTH(m)           (m)->width
+
+/** Height of a map */
 #define MAP_HEIGHT(m)          (m)->height
-/* Convenient function - total number of spaces is used
- * in many places. */
+
+/**
+ * Convenience function - total number of spaces on map is used in many
+ * places. */
 #define MAP_SIZE(m)            ((m)->width * (m)->height)
 
+/** Enter X position of a map */
 #define MAP_ENTER_X(m)         (m)->enter_x
-#define MAP_ENTER_Y(m)         (m)->enter_y
 
-/* options passed to ready_map_name and load_original_map */
+/** Enter Y position of a map */
+#define MAP_ENTER_Y(m)         (m)->enter_y
+/*@}*/
+
+/**
+ * @defgroup map_load_flags Map loading flags
+ * Flags passed to map loading functions such as ready_map_name() and
+ * load_original_map().
+ *@{*/
 #define MAP_FLUSH         0x1
 #define MAP_PLAYER_UNIQUE 0x2
 #define MAP_BLOCK         0x4
 #define MAP_STYLE         0x8
 #define MAP_ARTIFACT      0x20
-/* indicates that the name string is a shared string */
+/** Indicates that the name string is a shared string */
 #define MAP_NAME_SHARED   0x40
-/* original map. generate treasures */
+/** Original map. Generate treasures */
 #define MAP_ORIGINAL      0x80
+/*@}*/
 
-/* Values for in_memory below.  Should probably be an enumerations */
+/**
+ * @defgroup map_memory_flags Map memory flags
+ * Map memory flags, used from @ref mapstruct::in_memory.
+ *@{*/
 #define MAP_IN_MEMORY   1
 #define MAP_SWAPPED     2
 #define MAP_LOADING     3
 #define MAP_SAVING      4
+/*@}*/
 
 /* new macros for map layer system */
 #define GET_MAP_SPACE_PTR(M_, X_, Y_) \
@@ -169,195 +231,262 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 #define GET_MAP_RTAG(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
-/* These are the 'face flags' we grap out of the flags object structure 1:1.
- * I user a macro to get them from the object, doing a fast AND to mask the bigger
- * object flags to a uint8. I had to change to object flag order for it, but it
- * increase the server->client protocol ALOT - we don't need to collect anything. */
+/**
+ * @defgroup map_face_flags Map face flags
+ * These are the 'face flags' we grab out of the flags object structure
+ * 1:1.
+ *
+ * We use a macro to get them from the object, doing it fast AND to mask the bigger
+ * object flags to uint8.
+ *@{*/
 
-/* object sleeps */
+/** Object is sleeping */
 #define FFLAG_SLEEP     0x01
-/* object is confused */
-#define FFLAG_CONFUSED  0x02
-/* object is paralyzed */
-#define FFLAG_PARALYZED 0x04
-/* object is scared - it will run away */
-#define FFLAG_SCARED    0x08
-/* object is blinded */
-#define FFLAG_BLINDED   0x10
-/* object is invisible (can seen with "see invisible" on)*/
-#define FFLAG_INVISIBLE 0x20
-/* object is etheral */
-#define FFLAG_ETHEREAL  0x40
-/* object is probed !Flag is set by map2 cmd! */
-#define FFLAG_PROBE     0x80
 
-/* You should really know what you are doing before using this - you
+/** Object is confused */
+#define FFLAG_CONFUSED  0x02
+
+/** Object is paralyzed */
+#define FFLAG_PARALYZED 0x04
+
+/** Object is scared - it will run away */
+#define FFLAG_SCARED    0x08
+
+/** Object is blinded */
+#define FFLAG_BLINDED   0x10
+
+/** Object is invisible (can be seen with "see invisible" on) */
+#define FFLAG_INVISIBLE 0x20
+
+/** Object is etheral */
+#define FFLAG_ETHEREAL  0x40
+
+/** Object is probed */
+#define FFLAG_PROBE     0x80
+/*@}*/
+
+/**
+ * You should really know what you are doing before using this - you
  * should almost always be using out_of_map instead, which takes into account
  * map tiling. */
 #define OUT_OF_REAL_MAP(M, X, Y) \
     ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
-/* These are used in the MapLook flags element.  They are not used in
- * in the object flags structure. */
+/**
+ * @defgroup map_look_flags Map look flags
+ * These are used in the MapLook flags element.  They are not used in
+ * in the object flags structure.
+ *@{*/
 
 #define P_BLOCKSVIEW          0x01
 
-/* Spells (some) can't pass this object */
+/** Spells (some) can't pass this object */
 #define P_NO_MAGIC            0x02
-/* Nothing can pass (wall() is true) */
+
+/** Nothing can pass (wall() is true) */
 #define P_NO_PASS             0x04
-/* there is one or more player on this tile */
+
+/** There is one or more player on this tile */
 #define P_IS_PLAYER           0x08
-/* something alive is on this space */
+
+/** Something alive is on this space */
 #define P_IS_ALIVE            0x10
-/* no clerical spells cast here */
+
+/** No clerical spells cast here */
 #define P_NO_CLERIC           0x20
-/* Only players are allowed to enter this space. This excludes mobs,
- * pets and golems but also spell effects and throwed / fired items.
- * it works like a no_pass for players only(pass_thru don't work for it).*/
+
+/**
+ * Only players are allowed to enter this space. This excludes mobs,
+ * pets and golems but also spell effects and thrown / fired items.
+ * It works like a no_pass for players only (pass_thru doesn't work for
+ * it). */
 #define P_PLAYER_ONLY         0x40
-/* a closed door is blocking this space - if we want approach, we must first
- * check its possible to open it. */
+
+/**
+ * A closed door is blocking this space - if we want to approach, we must
+ * first check if it's possible to open it. */
 #define P_DOOR_CLOSED         0x80
 
-/* we have something like inventory checker in this tile node.
- * if set, me must blocked_tile(), to see what happens to us */
+/**
+ * We have something like an inventory checker in this tile node. */
 #define P_CHECK_INV           0x100
-/* This is ARENA flag - NOT PvP area flags - area flag is in mapheader */
+
+/** This is ARENA flag - NOT PvP area flags - area flag is in mapheader */
 #define P_IS_PVP              0x200
-/* same as NO_PASS - but objects with PASS_THRU set can cross it.
- * Note: If a node has NO_PASS and P_PASS_THRU set, there are 2 objects
+
+/**
+ * Same as NO_PASS - but objects with PASS_THRU set can cross it.
+ *
+ * @note If a node has NO_PASS and P_PASS_THRU set, there are 2 objects
  * in the node, one with pass_thru and one with real no_pass - then
  * no_pass will overrule pass_thru */
 #define P_PASS_THRU           0x400
-/* we have a magic ear in this map tile... later we should add a map
+
+/**
+ * We have a magic ear on this map tile... Later we should add a map
  * pointer where we attach as chained list this stuff - no search
- * or flags then needed. */
+ * or flags are then needed. */
 #define P_MAGIC_EAR           0x800
-/* this 4 flags are for moving objects and what happens when they enter */
+
+/** For moving objects and what happens when they enter */
 #define P_WALK_ON             0x1000
-/* or leave a map tile */
+
+/** For moving objects and what happens when they leave */
 #define P_WALK_OFF            0x2000
+
+/** For flying objects and what happens when they leave */
 #define P_FLY_OFF             0x4000
+
+/** For flying objects and what happens when they enter */
 #define P_FLY_ON              0x8000
 
-/* something on the tile reflect spells */
+/** Something on the tile reflects spells */
 #define P_REFL_SPELLS         0x10000
-/* something on the tile reflect missiles */
+
+/** Something on the tile reflects missiles */
 #define P_REFL_MISSILE        0x20000
 
-/* of course not set for map tiles but from blocked_xx()
- * function where the out_of_map() fails to grap a valid
- * map or tile. */
+/**
+ * Of course not set for map tiles but from blocked_xx() function where
+ * the out_of_map() fails to grab a valid map or tile. */
 #define P_OUT_OF_MAP          0x4000000
-/* these are special flags to control how and what the update_position()
- * functions updates the map space. */
 
-/* skip the layer update, do flags only */
+/** Skip the layer update, do flags only */
 #define P_FLAGS_ONLY          0x8000000
-/* if set, update the flags by looping the map objects */
+
+/** If set, update the flags by looping the map objects */
 #define P_FLAGS_UPDATE        0x10000000
-/* resort the layer when updating */
+
+/** Resort the layer when updating */
 #define P_NEED_UPDATE         0x20000000
-/* Purely temporary - if set, update_position
+
+/**
+ * Purely temporary - if set, update_position
  * does not complain if the flags are different. */
 #define P_NO_ERROR            0x40000000
 
-/* DON'T USE THIS WITH SET_MAP_FLAGS... this is just to mark for return
- * values of blocked... */
+/**
+ * Do <b>NOT</b> use this with SET_MAP_FLAGS(). This is just to mark for
+ * return values of blocked(). */
 #define P_NO_TERRAIN          0x80000000
+/*@}*/
 
+/** Single tile on a map */
 typedef struct MapSpace_s
 {
-	/* start of the objects in this map tile */
+	/** Start of the objects on this map tile */
 	object *first;
 
-	/* array of visible layer objects + for invisible (*2)*/
+	/** Array of visible layer objects + for invisible (*2) */
 	object *layer[MAX_ARCH_LAYERS * 2];
 
-	/* last object in this list */
+	/** Last object in this list */
 	object *last;
 
-	/* used to create chained light source list.*/
-
+	/** Used to create chained light source list. */
 	struct MapSpace_s *prev_light;
 
+	/** Used to create chained light source list. */
 	struct MapSpace_s *next_light;
 
-	/* tag for last_damage */
+	/** Tag for last_damage */
 	uint32 round_tag;
 
-	/* counter for update tile */
+	/** Counter for update tile */
 	uint32 update_tile;
 
-	/* light source counter - as higher as brighter light source here */
+	/** Light source counter - the higher the brighter light source here */
 	sint32 light_source;
 
-	/* how much light is in this tile. 0 = total dark
-	* 255+ = full daylight. */
+	/**
+	 * How much light is on this tile. 0 = total dark
+	 * 255+ = full daylight. */
 	sint32 light_value;
 
-	/* flags about this space (see the P_ values above) */
+	/**
+	 * Flags about this space
+	 * @see map_look_flags */
 	int flags;
 
-	/* last_damage tmp backbuffer */
+	/** last_damage tmp backbuffer */
 	uint16 last_damage;
 
-	/* terrain type flags (water, underwater,...) */
+	/** Terrain type flags (water, underwater,...) */
 	uint16 move_flags;
 
-	/* index for layer[] - this will send to player */
+	/** Index for layer[] - this will be sent to player */
 	sint8 client_mlayer[MAP_LAYERS];
 
-	/* same for invisible objects */
+	/** Index for layer[], but for invisible objects */
 	sint8 client_mlayer_inv[MAP_LAYERS];
 
-	/* How much light this space provides */
+	/** How much light this space provides */
 	uint8 light;
 } MapSpace;
 
-/* map flags for global map settings - used in ->map_flags */
+/**
+ * @defgroup map_flags Map flags
+ * Map flags for global map settings, used in @ref mapstruct::map_flags.
+ *@{*/
+
+/** No flags. */
 #define MAP_FLAG_NOTHING        0
-/* map is outdoor map - daytime effects are on */
+
+/** Map is outdoor map - daytime effects are on */
 #define MAP_FLAG_OUTDOOR        1
-/* special unique map - see docs */
+
+/** Special unique map  */
 #define MAP_FLAG_UNIQUE         2
-/* if true, reset time is not affected by
- * players entering / exiting map */
+
+/**
+ * If true, reset time is not affected by players entering / exiting
+ * map */
 #define MAP_FLAG_FIXED_RTIME    4
-/* no sp based spells */
+
+/** No wizardy based spells */
 #define MAP_FLAG_NOMAGIC        8
-/* no grace baes spells allowed */
+
+/** No prayer based spells */
 #define MAP_FLAG_NOPRIEST       16
-/* allow only no attack, no debuff spells
- * this is city default setting - heal for example
- * is allowed on you and others but no curse or
- * fireball or abusing stuff like darkness or create walls */
+
+/** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM         32
-/* don't allow any summon/pet summon spell.
- * this includes "call summons" for calling pets from other maps */
+
+/**
+ * Don't allow any summon/pet summon spell. */
 #define MAP_FLAG_NOSUMMON       64
-/* when set, a player login on this map will forced
- * to default enter_x / enter_y of this map.
- * this avoid map stucking and treasure camping */
+
+/**
+ * When set, a player login on this map will be forced to default
+ * @ref mapstruct::enter_x and @ref mapstruct::enter_y of this map.
+ *
+ * This avoids getting stuck in a map and treasure camping. */
 #define MAP_FLAG_FIXED_LOGIN    128
-/* this map is a perm death. */
+
+/** This map is perma death map */
 #define MAP_FLAG_PERMDEATH      256
-/* this map is a ultra death map */
+
+/** This map is ultra death map */
 #define MAP_FLAG_ULTRADEATH     1024
-/* this map is a ultimate death map */
+
+/** This map is ultimate death map */
 #define MAP_FLAG_ULTIMATEDEATH  2048
-/* PvP is possible on this map */
+
+/** PvP is possible on this map */
 #define MAP_FLAG_PVP            4096
-/* don't save maps - atm only used with unique maps */
+
+/** Don't save maps - only used with unique maps */
 #define MAP_FLAG_NO_SAVE        8192
-/* Call plugin map events for this map */
+
+/** Call plugin map events for this map */
 #define MAP_FLAG_PLUGINS        16384
+/*@}*/
 
 /**
  * @defgroup map_default_values Default map values
  * Nonzero default map values.
  *@{*/
+
 /** Default darkness */
 #define MAP_DEFAULT_DARKNESS	0
 /*@}*/
@@ -377,143 +506,169 @@ typedef struct MapSpace_s
 #define QUERY_MAP_TILE_VISITED(m, x, y, id) \
     ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
-/* In general, code should always use the macros
-* above (or functions in map.c) to access many of the
-* values in the map structure.  Failure to do this will
-* almost certainly break various features.  You may think
-* it is safe to look at width and height values directly
-* (or even through the macros), but doing so will completely
-* break map tiling. */
+/**
+ * In general, code should always use the macros above (or functions in
+ * map.c) to access many of the values in the map structure. Failure to
+ * do this will almost certainly break various features.
+ *
+ * You may think it is safe to look at width and height values directly
+ * (or even through the macros), but doing so will completely break map
+ * tiling. */
 typedef struct mapdef
 {
-	/* Next map, linked list */
+	/** Next map, linked list */
 	struct mapdef *next;
 
-	/* Name of map as given by its creator */
+	/** Name of map as given by its creator */
 	char *name;
 
-	/* Background music of the map */
+	/** Background music of the map */
 	char *bg_music;
 
-	/* Name of temporary file */
+	/** Name of temporary file */
 	char *tmpname;
 
-	/* Message map creator may have left */
+	/** Message map creator may have left */
 	char *msg;
 
+	/** Owner of the map (used for unique maps) */
 	char *owner;
 
-	/* The following two are used by the pathfinder algorithm in pathfinder.c */
-
-	/* Bitmap used for marking visited tiles in pathfinding */
+	/** Bitmap used for marking visited tiles in pathfinding */
 	uint32 *bitmap;
 
-	/* For which traversal is the above valid */
+	/** For which traversal is @ref mapstruct::bitmap valid. */
 	uint32 pathfinding_id;
 
-	/* Array of spaces on this map */
+	/** Array of spaces on this map */
 	MapSpace *spaces;
 
-	/* list of tiles spaces with light sources in */
+	/** List of tile spaces with light sources */
 	MapSpace *first_light;
 
-	/* Linked list of linked lists of buttons */
+	/** Linked list of linked lists of buttons */
 	oblinkpt *buttons;
 
-	/* Filename of the map (shared string now) */
+	/** Filename of the map (shared string now) */
 	const char *path;
 
-	/* path to adjoining maps (shared strings) */
+	/** Path to adjoining maps (shared strings) */
 	const char *tile_path[TILED_MAPS];
 
-	/* Next map, linked list */
-
+	/** Any maps tiled together to this one */
 	struct mapdef *tile_map[TILED_MAPS];
 
-	/* chained list of player on this map */
+	/** Chained list of players on this map */
 	object *player_first;
 
-	/* indicates the base light value in this map.
-	* this value is only used when the map is not marked
-	* as outdoor. */
+	/**
+	 * Indicates the base light value on this map.
+	 *
+	 * This value is only used when the map is not marked as outdoor.
+	 * @see MAP_DEFAULT_DARKNESS */
 	int darkness;
 
-	/* the real light_value, build out from darkness and
-	* possible other factors. */
+	/**
+	 * The real light_value, built out from darkness and possible other
+	 * factors. */
 	int light_value;
 
-	/* mag flags for various map settings */
+	/** Map flags for various map settings */
 	uint32 map_flags;
 
-	/* when this map should reset */
+	/** When this map should reset */
 	uint32 reset_time;
 
-	/* How many seconds must elapse before this map
-	* should be reset */
+	/**
+	 * How many seconds must elapse before this map
+	 * should be reset */
 	uint32 reset_timeout;
 
-	/* to identify maps for fixed_login */
+	/** To identify maps for fixed_login */
 	uint32 map_tag;
 
-	/* swapout is set to this */
+	/** Swapout is set to this */
 	sint32 timeout;
 
-	/* When it reaches 0, the map will be swapped out */
+	/** When this reaches 0, the map will be swapped out */
 	sint32 swap_time;
 
-	/* If not true, the map has been freed and must
-	* be loaded before used.  The map,omap and map_ob
-	* arrays will be allocated when the map is loaded */
+	/**
+	 * If not true, the map has been freed and must
+	 * be loaded before used. The map, omap and map_ob
+	 * arrays will be allocated when the map is loaded */
 	uint32 in_memory;
 
-	/* Used by relative_tile_position() to mark visited maps */
+	/** Used by relative_tile_position() to mark visited maps */
 	uint32 traversed;
 
-	/* This is a counter - used for example from NPC's which have
-	* a global function. If this counter is != 0, map will not swap
-	* and the npc/object with perm_load flag will stay in game. */
+	/**
+	 * This is a counter - used for example from NPCs which have a global
+	 * function.
+	 *
+	 * If this counter is != 0, map will not swap and the NPC/object with
+	 * perm_load flag will stay in game. */
 	int perm_load;
 
-	/* What level the player should be to play here */
+	/**
+	 * What level the player should be to play here. Affects treasures,
+	 * random shops and various other things. */
 	int difficulty;
 
-	/* Width and height of map. */
+	/** Height of the map. */
 	int height;
 
+	/** Width of the map. */
 	int width;
 
-	/* enter_x and enter_y are default entrance location */
+	/**
+	 * Used to indicate the X position of where to put the player when he
+	 * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
+	 *
+	 * Also used by exits as the default X location if the exit doesn't
+	 * have one set.
+	 * @see MAP_FLAG_FIXED_LOGIN */
 	int enter_x;
 
-	/* on the map if none are set in the exit */
+	/**
+	 * Used to indicate the Y position of where to put the player when he
+	 * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
+	 *
+	 * Also used by exits as the default Y location if the exit doesn't
+	 * have one set.
+	 * @see MAP_FLAG_FIXED_LOGIN */
 	int enter_y;
 
-	/* Compression method used */
+	/** Compression method used */
 	int compressed;
 } mapstruct;
 
-/* This is used by get_rangevector to determine where the other
- * creature is.  get_rangevector takes into account map tiling,
- * so you just can not look the the map coordinates and get the
- * righte value.  distance_x/y are distance away, which
- * can be negativbe.  direction is the crossfire direction scheme
- * that the creature should head.  part is the part of the
- * monster that is closest.
- * Note: distance should be always >=0. I changed it to UINT. MT */
+/**
+ * This is used by get_rangevector() to determine where the other
+ * creature is. */
 typedef struct rv_vector_s
 {
+	/** The distance away */
 	unsigned int distance;
 
+	/** X distance away */
 	int distance_x;
 
+	/** Y distance away */
 	int distance_y;
 
+	/** Atrinik direction scheme that the creature should head */
 	int direction;
 
+	/** Part of the object that is closest. */
 	object *part;
 } rv_vector;
 
-/* constants for the flags for get_rangevector() and get_rangevector_from_mapcoords() */
+/**
+ * @defgroup range_vector_flags Range Vector Flags
+ * Range vector flags, used by functions like get_rangevector() and
+ * get_rangevector_from_mapcoords().
+ *@{*/
 #define RV_IGNORE_MULTIPART    0x01
 #define RV_RECURSIVE_SEARCH    0x02
 
@@ -521,6 +676,7 @@ typedef struct rv_vector_s
 #define RV_EUCLIDIAN_DISTANCE  0x04
 #define RV_DIAGONAL_DISTANCE   0x08
 #define RV_NO_DISTANCE         (0x08 | 0x04)
+/*@}*/
 
 extern int map_tiled_reverse[TILED_MAPS];
 

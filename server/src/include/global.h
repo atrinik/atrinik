@@ -385,10 +385,10 @@ EXTERN archetype *level_up_arch;
 typedef struct Settings
 {
 	/* logfile to use */
-	char    *logfilename;
+	char *logfilename;
 
 	/* port for new client/server */
-	uint16  csport;
+	uint16 csport;
 
 	/* Default debugging level */
 	LogLevel debug;
@@ -445,41 +445,19 @@ typedef struct Settings
 	 * the lib/settings file. */
 
 	/* True if we should send updates */
-unsigned int   meta_on:
-	1;
+	unsigned int meta_on:1;
 
 	/* Hostname/ip addr of the metaserver */
-	char    meta_server[MAX_BUF];
+	char meta_server[MAX_BUF];
 
 	/* Hostname of this host */
-	char    meta_host[MAX_BUF];
+	char meta_host[MAX_BUF];
 
 	/* Port number to use for updates */
-	uint16  meta_port;
+	uint16 meta_port;
 
 	/* Comment we send to the metaserver */
-	char    meta_comment[MAX_BUF];
-
-	/* starting x tile for the worldmap */
-	uint32  worldmapstartx;
-
-	/* starting y tile for the worldmap */
-	uint32  worldmapstarty;
-
-	/* number of tiles wide the worldmap is */
-	uint32  worldmaptilesx;
-
-	/* number of tiles high the worldmap is */
-	uint32  worldmaptilesy;
-
-	/* number of squares wide in a wm tile */
-	uint32  worldmaptilesizex;
-
-	/* number of squares high in a wm tile */
-	uint32  worldmaptilesizey;
-
-	/* how dynamic is the world? */
-	uint16  dynamiclevel;
+	char meta_comment[MAX_BUF];
 
 	/* Use watchdog? */
 	uint8 watchdog;
@@ -491,8 +469,7 @@ extern Settings settings;
  * rather than have complex #ifdefs throughout the file, lets just figure
  * it out once, here at the top.
  * Have no idea if that is the right symbol to check on for NetBSD,
- * but NetBSD does use 2 params.
- * Move this to global.h from time.c since its also used in arch.c */
+ * but NetBSD does use 2 params. */
 
 #ifdef GETTIMEOFDAY_TWO_ARGS
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);

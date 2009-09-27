@@ -51,7 +51,7 @@
 #endif
 
 /* Include this first, because it lets us know what we are missing */
-#ifdef WIN32 /* ---win32 exclude this, config comes from VC ide */
+#ifdef WIN32
 #include "win32.h"
 #else
 #include <autoconf.h>
@@ -122,7 +122,7 @@ size_t strftime(char *, size_t, const char *, const struct tm *);
 time_t mktime(struct tm *);
 #endif
 
-#ifndef WIN32 /* ---win32 we define this stuff in win32.h */
+#ifndef WIN32
 #if HAVE_DIRENT_H
 # include <dirent.h>
 # define NAMLEN(dirent) strlen((dirent)->d_name)
@@ -141,5 +141,4 @@ time_t mktime(struct tm *);
 #endif
 #endif
 
-#endif /* INCLUDES_H */
-
+#endif

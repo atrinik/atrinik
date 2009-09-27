@@ -241,13 +241,10 @@ int save_player(object *op, int flag)
 	sprintf(sqlbuf, "%sspell %d\n",sqlbuf, pl->chosen_spell);
 	sprintf(sqlbuf, "%sshoottype %d\n", sqlbuf, pl->shoottype);
 	sprintf(sqlbuf, "%sdigestion %d\n", sqlbuf, pl->digestion);
-	sprintf(sqlbuf, "%spickup %d\n", sqlbuf, pl->mode);
 #if 0
 	sprintf(sqlbuf, "%soutputs_sync %d\n", sqlbuf, pl->outputs_sync);
 	sprintf(sqlbuf, "%soutputs_count %d\n", sqlbuf, pl->outputs_count);
 #endif
-	/* Match the enumerations but in string form */
-	sprintf(sqlbuf, "%susekeys %s\n", sqlbuf, pl->usekeys == key_inventory ? "key_inventory" : (pl->usekeys == keyrings ? "keyrings" : "containers"));
 
 #ifdef BACKUP_SAVE_AT_HOME
 	if (op->map != NULL && flag == 0)
@@ -687,8 +684,6 @@ void check_login(object *op)
 		else if (!strcmp(buf, "digestion"))
 			pl->digestion = value;
 
-		else if (!strcmp(buf, "pickup"))
-			pl->mode = value;
 #if 0
 		else if (!strcmp(buf, "outputs_sync"))
 			pl->outputs_sync = value;
@@ -727,18 +722,6 @@ void check_login(object *op)
 
 		else if (!strcmp(buf, "Cha"))
 			pl->orig_stats.Cha = value;
-
-		else if (!strcmp(buf, "usekeys"))
-		{
-			if (!strcmp(bufall + 8, "key_inventory\n"))
-				pl->usekeys = key_inventory;
-			else if (!strcmp(bufall + 8, "keyrings\n"))
-				pl->usekeys = keyrings;
-			else if (!strcmp(bufall + 8, "containers\n"))
-				pl->usekeys = containers;
-			else
-				LOG(llevDebug, "DEBUG: load_player(): got unknown usekeys type: %s\n", bufall + 8);
-		}
 
 		else if (!strcmp(buf, "lev_hp"))
 		{

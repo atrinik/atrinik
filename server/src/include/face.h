@@ -23,41 +23,50 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* New face structure - this enforces the notion that data is face by
+/**
+ * @file
+ * Face related structures */
+
+/**
+ * Face structure - this enforces the notion that data is face by
  * face only - you can not change the color of an item - you need to instead
- * create a new face with that color.
- */
+ * create a new face with that color. */
 typedef struct new_face_struct
 {
-	const char	*name;
-
-	/* This is the image id.  It should be the
-	 * same value as its position in the array */
-	uint16	number;
-} New_Face;
-
-typedef struct map_look_struct
-{
-	New_Face *face;
-
-	uint8	flags;
-} MapLook;
-
-
-typedef struct
-{
-	/* Name of the animation sequence */
+	/** Name of the face */
 	const char *name;
 
-	/* The different animations */
+	/**
+	 * This is the image ID. It should be the same value as its position
+	 * in the array */
+	uint16 number;
+} New_Face;
+
+/** Map look structure. */
+typedef struct map_look_struct
+{
+	/** Face */
+	New_Face *face;
+
+	/** Flags */
+	uint8 flags;
+} MapLook;
+
+/** Animations structure */
+typedef struct
+{
+	/** Name of the animation sequence */
+	const char *name;
+
+	/** The different animations */
 	Fontindex *faces;
 
-	/* Where we are in the array */
+	/** Where we are in the array */
 	uint16 num;
 
-	/* How many different faces to animate */
+	/** How many different faces to animate */
 	uint8 num_animations;
 
-	/* How many facings (9 and 25 are allowed only with the new ext anim system ) */
+	/** How many facings (9 and 25 are allowed only with the new ext anim system) */
 	uint8 facings;
 } Animations;

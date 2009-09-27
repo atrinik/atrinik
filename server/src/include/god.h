@@ -23,20 +23,25 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Used to link together the gods */
+/**
+ * @file
+ * God (deities) related structures. */
+
+/** Used to link together the gods */
 typedef struct glnk
 {
-	/* name of this god */
+	/** Name of this god */
 	const char *name;
 
-	/* pointer to the archetype of this god */
+	/** Pointer to the archetype of this god */
 	struct archt *arch;
 
-	/* id of the god */
+	/** ID of the god */
 	int id;
 
-	/* the name of the group this god belongs to */
+	/** The name of the group this god belongs to */
 	char *pantheon;
 
+	/** Next god */
 	struct glnk *next;
 } godlink;

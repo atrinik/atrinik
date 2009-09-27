@@ -467,8 +467,6 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 		return;
 	}
 
-	pl->idle = 0;
-
 	/* In c_new.c */
 	execute_newserver_command(pl->ob, command);
 	pl->count = 0;

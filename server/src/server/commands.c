@@ -61,7 +61,6 @@ CommArray_s Commands[] =
 	{"/motd",			command_motd,			1.0f},
 	{"/dm",				command_dm,				1.0f},
 	{"/reply",			command_reply,			1.0f},
-	{"/usekeys",		command_usekeys,		1.0f},
 	{"/time",			command_time,			1.0f},
 	{"/version",		command_version,		1.0f},
 	{"/mark",			command_mark,			1.0f},

@@ -25,7 +25,16 @@
 
 /**
  * @file
- * Logger related functions */
+ * The LOG system is more than a logger - it works also as error and bug
+ * counter system.
+ *
+ * Every llevBug LOG will increase the bug counter of the server - if too
+ * many errors occur, the server will start an emergency shutdown. This
+ * will avoid bug loops or every round LOGs, which will fill the log file
+ * quickly.
+ *
+ * llevError is always irrecoverable and fatal - if it happens, the
+ * server is not stable anymore and it will shutdown immediately. */
 
 #include <stdarg.h>
 #include <global.h>

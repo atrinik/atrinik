@@ -23,44 +23,85 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* #defines are needed by living.h, so they must be loaded early */
+/**
+ * @file
+ * Defines are needed by @ref living.h, so they must be loaded early.
+ * @todo Move things related to materials to a database which is loaded
+ * at startup. Will get rid of the one huge array in object.c, called
+ * material_real. */
+
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+/** Number of materials */
 #define NROFMATERIALS			13
+
+/** Number of materials real */
 #define NROFMATERIALS_REAL		64
 
-#define M_NONE			0
-#define M_PAPER			1
-#define M_IRON			2
-#define M_GLASS			4
-#define M_LEATHER		8
-#define M_WOOD			16
-#define M_ORGANIC		32
-#define M_STONE			64
-#define M_CLOTH			128
-#define M_ADAMANT		256
-#define M_LIQUID		512
+/**
+ * @defgroup material_types Material types
+ * Material types.
+ *@{*/
+
+/** No material. */
+#define M_NONE          0
+/** Paper */
+#define M_PAPER         1
+/** Iron */
+#define M_IRON          2
+/** Glass */
+#define M_GLASS         4
+/** Leather */
+#define M_LEATHER       8
+/** Wood */
+#define M_WOOD          16
+/** Organic */
+#define M_ORGANIC       32
+/** Stone */
+#define M_STONE         64
+/** Cloth */
+#define M_CLOTH         128
+/** Adamant */
+#define M_ADAMANT       256
+/** Liquid */
+#define M_LIQUID        512
+/** Soft metal */
 #define M_SOFT_METAL    1024
-#define M_BONE			2048
-#define M_ICE			4096
+/** Bone */
+#define M_BONE          2048
+/** Ice */
+#define M_ICE           4096
+/*@}*/
 
-/* this is all stuff we want load after the system is stable from file */
-
-#define MATERIAL_MISC           0       /* 0 */
-#define M_START_PAPER			0*64+1  /* 1-64 */
-#define M_START_IRON			1*64+1  /* 65 - 128 */
-#define M_START_GLASS			2*64+1  /* 129 - 192 */
-#define M_START_LEATHER		    3*64+1  /* 193 - 256 */
-#define M_START_WOOD			4*64+1  /* 257 - 320 */
-#define M_START_ORGANIC		    5*64+1  /* 321 - 384 */
-#define M_START_STONE			6*64+1  /* 385 - 448 */
-#define M_START_CLOTH			7*64+1  /* 449 - 512 */
-#define M_START_ADAMANT		    8*64+1  /* 513 - 576 */
-#define M_START_LIQUID		    9*64+1  /* 577 - 640 */
-#define M_START_SOFT_METAL      10*64+1 /* 641 - 704 */
-#define M_START_BONE			11*64+1 /* 705 - 768 */
-#define M_START_ICE			    12*64+1 /* 769 - 832 */
+/** 0 */
+#define MATERIAL_MISC           0
+/** 1-64 */
+#define M_START_PAPER			0*64+1
+/** 65 - 128 */
+#define M_START_IRON			1*64+1
+/** 129 - 192 */
+#define M_START_GLASS			2*64+1
+/** 193 - 256 */
+#define M_START_LEATHER		    3*64+1
+/** 257 - 320 */
+#define M_START_WOOD			4*64+1
+/** 321 - 384 */
+#define M_START_ORGANIC		    5*64+1
+/** 385 - 448 */
+#define M_START_STONE			6*64+1
+/** 449 - 512 */
+#define M_START_CLOTH			7*64+1
+/** 513 - 576 */
+#define M_START_ADAMANT		    8*64+1
+/** 577 - 640 */
+#define M_START_LIQUID		    9*64+1
+/** 641 - 704 */
+#define M_START_SOFT_METAL      10*64+1
+/** 705 - 768 */
+#define M_START_BONE			11*64+1
+/** 769 - 832 */
+#define M_START_ICE			    12*64+1
 
 typedef struct
 {
