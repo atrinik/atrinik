@@ -629,10 +629,10 @@ void init_beforeplay()
 	init_readable();
 	/* Setup global pointers to archetypes */
 	init_archetype_pointers();
-#ifdef ALCHEMY
+
 	/* If not called before, reads formulae from file */
 	init_formulae();
-#endif
+
 	/* If not called before, inits experience system */
 	init_new_exp_system();
 
@@ -771,12 +771,6 @@ void compile_info()
 	LOG(llevInfo, "Use_calloc:\t<true>\n");
 #else
 	LOG(llevInfo, "Use_calloc:\t<false>\n");
-#endif
-
-#ifdef EXPLORE_MODE
-	LOG(llevInfo, "Explore mode:\t<true>\n");
-#else
-	LOG(llevInfo, "Explore mode:\t<false>\n");
 #endif
 
 #ifdef SHOP_LISTINGS

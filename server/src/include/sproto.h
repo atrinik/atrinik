@@ -207,7 +207,6 @@ int command_quit(object *op, char *params);
 int command_sound(object *op, char *params);
 void receive_player_name(object *op, char k);
 void receive_player_password(object *op, char k);
-int explore_mode(void);
 int command_save(object *op, char *params);
 int command_style_map_info(object *op, char *params);
 int command_apartment(object *op, char *params);

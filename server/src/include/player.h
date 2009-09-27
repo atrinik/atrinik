@@ -455,11 +455,6 @@ uint32 last_known_spell:
 	/* update skill list when set */
 uint32 update_skills:
 	1;
-#ifdef EXPLORE_MODE
-	/* if True, player is in explore mode */
-uint32 explore:
-	1;
-#endif
 
 	/* Which range-attack is being used by player */
 	rangetype shoottype;

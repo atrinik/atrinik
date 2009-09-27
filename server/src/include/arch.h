@@ -23,12 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef ARCH_H
-#define ARCH_H
-
 /**
  * @file
  * Arch related structures */
+
+#ifndef ARCH_H
+#define ARCH_H
 
 /** The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.

@@ -1709,17 +1709,7 @@ int do_skill_attack(object *tmp, object *op, char *string)
 	* the players--no need to do this for monsters. */
 	if (op->type == PLAYER && QUERY_FLAG(op, FLAG_READY_WEAPON) && (!op->chosen_skill || op->chosen_skill->stats.sp != CONTR(op)->set_skill_weapon))
 	{
-#ifdef NO_AUTO_SKILL_SWITCH
-		rangetype oldrange = CONTR(op)->shoottype;
-#endif
 		(void) change_skill(op, CONTR(op)->set_skill_weapon);
-
-		/* This is just a simple hack - would probably be cleaner to have change_skill
-		 * do the right thing, but this isn't that bad. */
-#ifdef NO_AUTO_SKILL_SWITCH
-		if (CONTR(op)->shoottype != oldrange)
-			CONTR(op)->shoottype = oldrange;
-#endif
 	}
 
 	success = attack_ob(tmp, op);

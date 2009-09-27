@@ -40,19 +40,12 @@
  * everything here should just be selectable by different run time
  * flags  However, for some things, that would just be too messy. */
 
-/* I moved this settings of the lib directory and the local directory
- * to this location. I want have ALL this definitions at one location.
- * As long we have no setup or install tool, we should use this file.
- * (and NOT makefiles... this is a installation thing, not a compilation part.
- * Depending on OS, this can be a big difference.). */
-
 /* Location of read-only machine independent data */
 #ifndef DATADIR
 #define DATADIR "./lib"
 #endif
 
 /* Location of the map files */
-/* this should be part of the installation... maps and data are different sources */
 #ifndef MAPDIR
 #define MAPDIR  "../maps"
 #endif
@@ -69,12 +62,14 @@
 
 /* Your tmp-directory should be large enough to hold the uncompressed
  * map-files for all who are playing.
+ *
  * It ought to be locally mounted, since the function used to generate
- * unique temporary filenames isn't guaranteed to work over NFS or AFS
- * On the other hand, if you know that only one crossfire server will be
+ * unique temporary filenames isn't guaranteed to work over NFS or AFS.
+ *
+ * On the other hand, if you know that only one Atrinik server will be
  * running using this temporary directory, it is likely to be safe to use
  * something that is NFS mounted (but performance may suffer as NFS is
- * slower than local disk) */
+ * slower than local disk). */
 #ifndef TMPDIR
 #define TMPDIR LOCALDIR"/tmp"
 #endif
@@ -90,62 +85,13 @@
 #define HELPDIR   "./man"
 #endif
 
-/* To be removed soon (setable by player) */
-/* IF this is set, then the range type will not switch to skill when
- * you use a melee weapon - this better emulates pre-skill code. */
-
-#define NO_AUTO_SKILL_SWITCH
-
-/* There are 4 main sections to this file-
- * Section 1 is feature selection (enabling/disabling certain features)
- *
- * Section 2 is compiler/machine dependant section (stuff that just
- *     makes the program compile and run properly, but don't change the
- *     behavior)
- *
- * Section 3 is location of certain files and other defaults.  Things in
- *     this section generally do not need to be changed, and generally do
- *     not alter the play as perceived by players.  However, you may
- *     have your own values you want to set here.
- *
- * Section 4 deals with save file related options. */
-
-/*******************************************************************
-* SECTION 1 - FEATURES
-*
-* You don't have to change anything here to get a working program, but
-* you may want to on personal preferance.  Items are arranged
-* alphabetically.
-*
-* Short list of features, and what to search for:
-* ALCHEMY - enables alchemy code
-* BALANCED_STAT_LOSS - Based death stat depletion on level etc?
-* CS_LOGSTATS - log various new client/server data.
-* DEBUG - more verbose message logging?
-* EXPLORE_MODE - add an explore mode method of play?
-* MAP_CLIENT_X, MAP_CLIENT_Y - determines max size client map will receive
-* MAX_TIME - how long an internal tick is in microseconds
-* MULTIPLE_GODS - adds numerous gods to the game, with different powers
-* NOT_PERMADEATH - should death be the final end or not?
-* PARTY_KILL_LOG - stores party kill information
-* REAL_WIZ - changes wiz stuff to be more mudlike.
-* RECYCLE_TMP_MAPS - use tmp maps across multiple runs?
-* RESURRECTION - lets players bring other dead players back to life.
-* SEARCH_ITEMS - let players search for items on the ground
-* SECURE - Allow overriding values with run time flags?
-* SPELL_* - various spell related options
-* STAT_LOSS_ON_DEATH - toggle between stat loss or stat depletion
-* USE_LIGHTING - enable light/darkness & light sources
-* USE_PERMANENT_EXPERIENCE - allow players to accumulate permanent experience?
-*
-***********************************************************************/
-
-/* Enables Brian Thomas's new alchemy code.  Might unbalance the game - lets
- * characters make potions and other special items.
- * 0.94.2 note - I think enough work has been done, and even some maps
- * changed that this really should probably be a standard feature now. */
-
-#define ALCHEMY
+/************************************************************************
+ * SECTION 1 - FEATURES                                                 *
+ *                                                                      *
+ * You don't have to change anything here to get a working program, but *
+ * you may want to on personal preferance.                              *
+ *                                                                      *
+ ***********************************************************************/
 
 /* Use balanced stat loss code?
  * This code is a little more merciful with repeated stat loss at lower
@@ -175,8 +121,6 @@
  * 15, the chance not to lose the stat is 4/(4+3) or 4/7.  The higher the
  * level, the more likely it is a stat can get really depleted, but
  * this gets more offset as the stat gets more depleted. */
-/* GD */
-
 #define BALANCED_STAT_LOSS FALSE
 #define BALSL_LOSS_CHANCE_RATIO    4
 #define BALSL_NUMBER_LOSSES_RATIO  6
@@ -193,35 +137,19 @@
 #ifndef WIN32
 #define CS_LOGSTATS
 #endif
+
 #ifdef CS_LOGSTATS
 #define CS_LOGTIME  600
 #endif
 */
 
-/* DEBUG generates copious amounts of output.  I tend to change the CC options
- * in the crosssite.def file if I want this.  By default, you probably
+/* DEBUG generates copious amounts of output. By default, you probably
  * dont want this defined. */
 #ifndef WIN32
 #ifndef DEBUG
 #define DEBUG
 #endif
 #endif
-
-/* if EXPLORE_MODE is defined, it allows players to enter explore mode,
- * where they can not die.  Unlike other games (nethack for instance) explore
- * modes, the only thing Crossfire explore mode does is prevent death.
- * Characters in explore mode will not be able to go on the scoreboard.  Also,
- * once explore mode is entered, there is no return.  Explore mode can
- * only be entered if the person doing so is the only player in the
- * game, and once done, that person can not add new players to the
- * game.  To get into explore mode, type 'explore
- * Explore mode code added by Mark Wedel (mark@pyramid.com)
- * It's a good idea to turn off EXPLORE_MODE if you will only be running
- * on server, since it would block new players. */
-/*
-#define EXPLORE_MODE
-*/
-
 
 /* This determines the maximum map size the client can request (and
  * thus what the server will send to the client.
@@ -230,7 +158,7 @@
  * The larger this number, the more cpu time and memory the server will
  * need to spend to figure this out in addition to bandwidth needs.
  * The server cpu time should be pretty trivial.
- * There may be reasons to keep it smaller for the 'classic' crossfire
+ * There may be reasons to keep it smaller for the 'classic' Atrinik
  * experience which was 11x11.  Big maps will likely make the same at
  * least somewhat easier, but client will need to worry about lag
  * more.
@@ -240,7 +168,6 @@
  * at the future and have to redo a lot of stuff to support rectangular
  * maps at that point.
  * MSW 2001-05-28 */
-
 #define MAP_CLIENT_X	17
 #define MAP_CLIENT_Y	17
 
@@ -248,34 +175,11 @@
  * You can experiment with the 'speed <new_max_time> command first.
  * The length of a tick is MAX_TIME microseconds.  During a tick,
  * players, monsters, or items with speed 1 can do one thing. */
-
-/* thats 8 ticks per second now - 100.000 are 10 ticks */
 #define MAX_TIME	125000
 
-
-/* Polymorph as it currently stands is unbalancing, so by default
- * we have it disabled.  It can be enabled and it works, but
- * it can be abused in various ways. */
-#define NO_POLYMORPH
-
-/* NOT_PERMADEATH by Charles Henrich (henrich@crh.cl.msu.edu), April 9, 1993
- *
- * Makes death non permanent.  If enabled and you die, you lose a bunch of
- * exp, a random stat, and go back to starting town.
- * If not defined, if you die, you are dead.  If an a multiplayer server,
- * resurrection may be possible
- *
- * This option changes the game significantly one way or the other - it makes
- * adventuring right at the edge of death something more reasonable to do
- * (death still hurts here).  On the other hand, it certainly makes the
- * game a bit safer and easier. */
-
-#define NOT_PERMADEATH
-
-
-/* This determine how many entries are stored in the kill log.  You
- * can see this information with the 'party kills' command.  More entries
- * mean slower performance and more memory.  IF this is not defined, then
+/* This determine how many entries are stored in the kill log. You
+ * can see this information with the '/party kills' command. More entries
+ * mean slower performance and more memory. IF this is not defined, then
  * this feature is disabled. */
 /*
 #define PARTY_KILL_LOG 20
@@ -288,29 +192,18 @@
  * are not set - instead, wizard created/manipulated objects appear as
  * normal objects.  This makes the wizard a little more mudlike, since
  * object manipulations will be usable for other objects. */
-
 #define REAL_WIZ
 
 /* Set this if you want the temporary maps to be saved and reused across
- * crossfire runs.  This can be especially useful for single player
+ * Atrinik runs.  This can be especially useful for single player
  * servers, but even holds use for multiplayer servers.  The file used
  * is updated each time a temp map is updated.
  * Note that the file used to store this information is stored in
- * the LIB directory.  Running multiple crossfires with the same LIB
+ * the LIB directory. Running multiple Atrinik servers with the same LIB
  * directory will cause serious problems, simply because in order for
  * this to really work, the filename must be constant so the next run
  * knows where to find the information. */
-
 /*#define RECYCLE_TMP_MAPS*/
-
-
-/* define RESURECTION if you want to let players bring other players
- * back to life via some spells.  If RESURRECTION is undefined, then a
- * death is permanent.  NOTE: RESURRECTION (either defined or undefined)
- * has no meaning if NOT_PERMADEATH is defined.  SAVE_PLAYER also needs
- * to be defined for this to have any use */
-
-#define RESURRECTION
 
 /* Enables the 'search-item command; a method to find equipment
  * in shops.
@@ -319,28 +212,23 @@
  * client has all the info the player does. */
 #define SEARCH_ITEMS
 
-/* If SECURE is defined, crossfire will not accept enviromental variables
+/* If SECURE is defined, Atrinik will not accept enviromental variables
  * as changes to the LIBDIR and other defines pointing to specific
  * directories.  The only time this should really be an issue if you are
- * running crossfire setuid/setgid and someone else could change the
- * values and get special priveledges.  If you are running with normal uid
+ * running Atrinik setuid/setgid and someone else could change the
+ * values and get special priviledges.  If you are running with normal uid
  * privelidges, then this is not any more/less secure (user could compile
  * there own version pointing wherever they want.)  However, having nonsecure
  * can make debugging or other developement much easier, because you can
- * change the paths without forcing a recompile.
- *
- * NOTE: Prior to 0.93.2, the default was for this to be defined (ie,
- * could not change values on the command line/through environmental
- * variables.) */
+ * change the paths without forcing a recompile. */
 /*
 #define SECURE
 */
 
-/*  SPELLPOINT_LEVEL_DEPEND  --  Causes the spellpoint cost
- *  of spells to vary with their power.  Spells that become very
- *  powerful at high level cost more.  The damage/time of
- *  characters increases though. */
-
+/* SPELLPOINT_LEVEL_DEPEND  --  Causes the spellpoint cost
+ * of spells to vary with their power.  Spells that become very
+ * powerful at high level cost more.  The damage/time of
+ * characters increases though. */
 #define SPELLPOINT_LEVEL_DEPEND
 
 /* Set this to FALSE if you don't want characters to loose a random stat when
@@ -349,7 +237,6 @@
  * changed at run time via -stat_loss_on_death or +stat_loss_on_death.
  * In theory, this can be changed on a running server, but so glue code
  * in the wiz stuff would need to be added for that to happen. */
-
 #define STAT_LOSS_ON_DEATH FALSE
 
 /* Use permanent experience code?
@@ -392,13 +279,13 @@
 #define PERM_EXP_GAIN_RATIO           0.10f
 #define PERM_EXP_MAX_LOSS_RATIO       0.50f
 
-/***********************************************************************
- * SECTION 2 - Machine/Compiler specific stuff.
- *
- * Short list of items:
- * COMPRESS_SUFFIX - selection of compression programs
- * O_NDELAY - If you don't have O_NDELAY, uncomment it.
- *
+/************************************************************************
+ * SECTION 2 - Machine/Compiler specific stuff.                         *
+ *                                                                      *
+ * Short list of items:                                                 *
+ * COMPRESS_SUFFIX - selection of compression programs                  *
+ * O_NDELAY - If you don't have O_NDELAY, uncomment it.                 *
+ *                                                                      *
  ***********************************************************************/
 
 /* If you compress your files to save space, set the COMPRESS_SUFFIX below
@@ -408,8 +295,9 @@
  * problems, so make sure you have the appropriate compression tool installed
  * before you set this.  You can look at the autoconf.h file to see
  * what compression tools it found (search for COMPRESS).
- * Note that this is used when saving files.  Crossfire will search all
- * methods when loading a file to see if it finds a match */
+ *
+ * Note that this is used when saving files.  Atrinik will search all
+ * methods when loading a file to see if it finds a match. */
 
 #ifndef COMPRESS_SUFFIX
 /* #define COMPRESS_SUFFIX ".Z" */
@@ -426,45 +314,26 @@
 */
 
 
-/***********************************************************************
- * Section 3
- *
- * General file and other defaults that don't need to be changed, and
- * do not change gameplay as percieved by players much.  Some options
- * may affect memory consumption however.
- *
- * Values:
- *
- * CSPORT - port to use for new client/server
- * DUMP_SWITCHES - enable -m? flags for spoiler generation
- * LIBDIR - location of archetypes & other data.
- * LOGFILE - where to log if using -daemon option
- * MAP_ - various map timeout and swapping parameters
- * MAX_OBJECTS - how many objects to keep in memory.
- * MAX_OBJECTS_LWM - only swap maps out if below that value
- * MOTD - message of the day - printed each time someone joins the game
- * SHUTDOWN - used when shutting down the server
- * SOCKETBUFSIZE - size of buffer used internally by the server for storing
- *    backlogged messages.
- * USE_CALLOC for some memory requests
- *********************************************************************** */
+/************************************************************************
+ * Section 3                                                            *
+ *                                                                      *
+ * General file and other defaults that don't need to be changed, and   *
+ * do not change gameplay as percieved by players much. Some options    *
+ * may affect memory consumption however.                               *
+ ***********************************************************************/
 
 /* CSPORT is the port used for the new client/server code.  Change
- * if desired.  Only of relevance if ERIC_SERVER is set above
- */
-
-#define CSPORT 13327 /* old port + 1 */
+ * if desired. */
+#define CSPORT 13327
 
 /* If you want to regenerate the spoiler.ps file, you have to recompile
  * the game with DUMP_SWITCHES defined.  If defined, it turns on the
  * -m -m2 -m3 -m4 switches.  There is probably no reason not to define
- * this */
-
+ * this. */
 #define DUMP_SWITCHES
 
 /* LOGFILE specifies which file to log to when playing with the
  * -daemon option. */
-
 #ifndef LOGFILE
 #define LOGFILE "./data/log/atrinik.log"
 #endif
@@ -508,22 +377,21 @@
  * maps (like shops and inns) will be reset during the time I play.
  * Comment out MAP_MAXRESET time if you always want to use the value
  * in the map archetype. */
-
 #define MAP_RESET
 #define MAP_MAXRESET	7200
 
-/* MAX_OBJECTS is no hard limit.  If this limit is exceeded, crossfire
- * will look for maps which are already scheldued for swapping, and
+/* MAX_OBJECTS is no hard limit.  If this limit is exceeded, Atrinik
+ * will look for maps which are already scheduled for swapping, and
  * promptly swap them out before new maps are being loaded.
+ *
  * If playing only by yourself, this number can probably be as low as
- * 3000.  If in server mode, probably figure about 1000-2000 objects per
+ * 3000. If in server mode, probably figure about 1000-2000 objects per
  * active player (if they typically play on different maps), for some guess
  * on how many to define.  If it is too low, maps just get swapped out
  * immediately, causing a performance hit.  If it is too high, the program
  * consumes more memory.  If you have gobs of free memory, a high number
  * might not be a bad idea.  Each object is around 350 bytes right now.
  * 25000 is about 8.5 MB */
-
 #define MAX_OBJECTS	100000
 
 /* Max objects low water mark (lwm).  If defined, the map swapping strategy
@@ -546,7 +414,6 @@
  * Also, the pauses you do get can be worse, as if you enter a map with
  * a lot of new objects and go above MAX_OBJECTS, it may have to swap out
  * many maps to get below the low water mark. */
-
 /*#define MAX_OBJECTS_LWM	MAX_OBJECTS/2*/
 
 /* Turning on MEMORY_DEBUG slows down execution, but makes it easier
@@ -560,23 +427,12 @@
  * This should only be turned on if some form of memory debugging tool
  * is being used - otherwise, turning this on will cause some performance
  * hit with no useful advantage. */
-
 /*#define MEMORY_DEBUG*/
-
-/* If you want to have a Message Of The Day file, define MOTD to be
- * the file with the message.  If the file doesn't exist or if it
- * is empty, no message will be displayed.
- * (It resides in the LIBDIR directory) */
-
-#ifndef MOTD
-#define MOTD "motd"
-#endif
 
 /* If you want to take the game down while installing new versions, or
  * for other reasons, put a message into the SHUTDOWN_FILE file.
  * Remember to delete it when you open the game again.
  * (It resides in the LIBDIR directory) */
-
 #ifndef SHUTDOWN_FILE
 #define SHUTDOWN_FILE "shutdown"
 #endif
@@ -589,19 +445,13 @@
  * will drop the client connection for falling too far behind.  So if
  * you have very slow client connections, a larger value may be
  * warranted. */
-
-/* I used this buffer now for the socket size too (see InitConnection in init.c).
- * Playing around with this value should give us a good hint how many memory we
- * need for a useful socket & command buffer.
- * I *think* using this value for both buffer is a good idea - but i am not 100%
- * sure. I prefer to use first somewhat low values. Increasing this when problems
- * happens is easier as decreasing to search the problems. MT-2003 */
-#define SOCKETBUFSIZE 36*1024
+#define SOCKETBUFSIZE 36 * 1024
 
 /* If undefined, malloc is always used.
- * It looks like this can be oboleted.  However, it can be useful to
+ * It looks like this can be obsoleted.  However, it can be useful to
  * track down some bugs, as it will make sure that the entire data structure
  * is set to 0, at the expense of speed.
+ *
  * Rupert Goldie has run Purify against the code, and if this is disabled,
  * apparantly there are a lot of uninitialized memory reads - I haven't
  * seen any problem (maybe the memory reads are copies, and the destination
@@ -611,45 +461,40 @@
 #define USE_CALLOC
 
 /* These define the players starting map and location on that map, and where
- * emergency saves are defined.  This should be left as is unless you make
+ * emergency saves are defined. This should be left as is unless you make
  * major changes to the map. */
-
 #define EMERGENCY_MAPPATH "/emergency"
 #define EMERGENCY_X 0
 #define EMERGENCY_Y 0
 
-
 /* These defines tells where,
  * archetypes highscore and treaures files and directories can be found. */
-
 #define ARCHETYPES	"archetypes"
-#define HIGHSCORE	"highscore"
 #define TREASURES	"treasures"
 #define SETTINGS    "settings"
 
 /* Bail out if more are received during tick */
 #define MAX_ERRORS	25
+
 /* How big steps to use when expanding array */
 #define OBJECT_EXPAND      100
 
 /* How many entries there are room for */
 #define HIGHSCORE_LENGTH 10
 
-/* this value must be a prime number! */
-/* Used when hashing archetypes */
+/* Used when hashing archetypes, must be a prime number. */
 #define ARCHTABLE 5003
 #define MAXSTRING 20
 
 /* If you change this, delete all characters :) */
 #define COMMAND_HASH_SIZE 107
 
-
-/***********************************************************************
- * Section 4 - save player options.
- *
- * There are a lot of things that deal with the save files, and what
- * gets saved with them, so I put them in there own section.
- *
+/************************************************************************
+ * Section 4 - Save player options.                                     *
+ *                                                                      *
+ * There are a lot of things that deal with the save files, and what    *
+ * gets saved with them, so I put them in there own section.            *
+ *                                                                      *
  ***********************************************************************/
 
 /* If you want the players to be able to save their characters between
@@ -658,7 +503,7 @@
  * Remember to create the directory (make install will do that though).
  *
  * If you intend to run a central server, and not allow the players to
- * start their own crossfire, you won't need to define this.
+ * start their own Atrinik, you won't need to define this.
  *
  * If USE_CHECKSUM is defined, a checksum will be calculated each time
  * a player saves a character.
@@ -669,7 +514,6 @@
  * get checksums, and then define "ENABLE_CHECKSUM" to utilize this.
  * ENABLE_CHECKSUM should not be needed if you are on a central server and
  * players don't have access to the save files. */
-
 #define USE_CHECKSUM
 
 /* Will be default in distant future versions */
@@ -678,7 +522,7 @@
 /* If you have defined SAVE_PLAYER, you might want to change this, too.
  * This is the access rights for the players savefiles.
  * I think it is usefull to restrict access to the savefiles for the
- * game admin. So if you make crossfire set-uid, use 0600.
+ * game admin. So if you make Atrinik set-uid, use 0600.
  * If you are running the game set-gid (to a games-group, for instance),
  * you must remember to make it writeable for the group (ie 0660).
  * Kjetil W. J{\o}rgensen, jorgens@pvv.unit.no
@@ -696,9 +540,7 @@
  * due to item drop is longer
  * the SAVE_INTERVAL seconds, he is then saved.  Depending on your playing
  * environment, you may want to set this to a higher value, so that
- * you are not spending too much time saving the characters.
- * This option should now work (Crossfire 0.90.5) */
-
+ * you are not spending too much time saving the characters. */
 /*#define SAVE_INTERVAL 300*/
 
 /* AUTOSAVE saves the player every AUTOSAVE ticks.  A value of
@@ -709,21 +551,17 @@
  * may not be large enough to save all of them.)  As it is now, it will
  * just set the base tick of when they log on, which should keep the
  * saves pretty well spread out (in a fairly random fashion.) */
-
 #define AUTOSAVE 5000
 
 /* Often, emergency save fails because the memory corruption that caused
  * the crash has trashed the characters too. Define NO_EMERGENCY_SAVE
- * to disable emergency saves.  This actually does
- * prevent emergency saves now (Version 0.90.5). */
-
+ * to disable emergency saves. */
 #define NO_EMERGENCY_SAVE
 
 /* By selecting the following, whenever a player does a backup save (with
- * the 'save command), the player will be saved at home (EMERGENCY_MAP_*
- * information that is specified later).  IF this is not set, the player
+ * the /save command), the player will be saved at home (EMERGENCY_MAP_*
+ * information that is specified later). IF this is not set, the player
  * will be saved at his present location. */
-
 /*#define BACKUP_SAVE_AT_HOME*/
 
 /* RESET_LOCATION_TIME is the number of seconds that must elapse before
@@ -739,7 +577,6 @@
  * on how the player exited the game.  But if the elapsed time is greater than
  * the value below, player will always get returned to savebed location
  * location. */
-
 #define RESET_LOCATION_TIME	0
 
 /* Default database where settings, player data, unique maps, highscore etc

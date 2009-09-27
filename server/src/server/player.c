@@ -64,7 +64,6 @@ player *find_player(char *plname)
  * @param op Player object to print the message to */
 void display_motd(object *op)
 {
-#ifdef MOTD
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 	char buf[HUGE_BUF];
@@ -101,8 +100,9 @@ void display_motd(object *op)
 
 	/* Output the buf */
 	if (strcmp(buf, ""))
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
-#endif
+	}
 }
 
 /**
@@ -196,9 +196,6 @@ static player *get_player(player *p)
 	p->listening = 9;
 	p->last_weapon_sp = -1;
 	p->update_los = 1;
-#ifdef EXPLORE_MODE
-	p->explore = 0;
-#endif
 
 	FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 
@@ -1474,29 +1471,11 @@ void kill_player(object *op)
 
 	if (op->stats.food < 0)
 	{
-#ifdef EXPLORE_MODE
-		if (CONTR(op)->explore)
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You would have starved, but you are in explore mode, so...");
-			op->stats.food = 999;
-			return;
-		}
-#endif
-
 		sprintf(buf, "%s starved to death.", op->name);
 		strcpy(CONTR(op)->killer, "starvation");
 	}
 	else
 	{
-#ifdef EXPLORE_MODE
-		if (CONTR(op)->explore)
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You would have died, but you are in explore mode, so...");
-			op->stats.hp = op->stats.maxhp_adj;
-			return;
-		}
-#endif
-
 		sprintf(buf, "%s died.", op->name);
 	}
 

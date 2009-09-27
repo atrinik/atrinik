@@ -358,15 +358,6 @@ spell spells_DUMMY[]={
 {"charging",			10,200, 0, 75, 1, 1,  0,  0, 0, 0, 1,
 0,0,0,0,0,0,0,1,0,0,
  PATH_TRANSFER, "enchantment",},
-#ifdef NO_POLYMORPH
-{"polymorph",			 6,20, 0, 30, 0, 0,  0,  1, 0, 0, 0,
-0,1,0,0,0,0,0,0,1,0,
- PATH_TRANSMUTE, "polymorph",},
-#else
-{"polymorph",			 6,20, 10, 30, 0, 0,  0,  1, 0, 0, 0,
-0,1,0,0,0,0,0,0,1,0,
- PATH_TRANSMUTE, "polymorph",},
-#endif
 {"cancellation",		10,30, 10, 10, 0, 0,  1,  1, 0, 0, 0,
 0,0,0,0,1,0,1,0,0,0,
  PATH_ABJURE, "cancellation",},

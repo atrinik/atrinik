@@ -23,22 +23,21 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Dec '95 - laid down initial file. Stuff in here is for BOOKs
- * hack. Information in this file describes fundental parameters
- * of 'books' - objects with type==BOOK. -b.t. */
+/**
+ * @file
+ * Book related definitions (type BOOK). */
 
-/* Message buf size. If this is changed, keep in mind that big strings
- * may be unreadable by the player as the tail of the message
- * can scroll over the beginning (as of v0.92.2).  */
+/**
+ * Message buf size. */
 #define BOOK_BUF 800
 
-/* if little books arent getting enough text generated, enlarge this */
+/** If little books aren't getting enough text generated, enlarge this */
 #define BASE_BOOK_BUF 250
 
-/* Book buffer size. We shouldnt let little books/scrolls have
- * more info than big, weighty tomes! So lets base the 'natural'
+/**
+ * Book buffer size. We shouldn't let little books/scrolls have more
+ * information than big, weighty tomes! So let's base the 'natural'
  * book message buffer size on its weight. But never let a book
- * mesg buffer exceed the max. size (BOOK_BUF) */
-#define BOOKSIZE(xyz)   BASE_BOOK_BUF+((xyz)->weight/10)>BOOK_BUF? \
-                                BOOK_BUF:BASE_BOOK_BUF+((xyz)->weight/10);
-
+ * message buffer exceed the maximum size (BOOK_BUF) */
+#define BOOKSIZE(xyz) \
+	BASE_BOOK_BUF + ((xyz)->weight / 10) > BOOK_BUF ? BOOK_BUF : BASE_BOOK_BUF + ((xyz)->weight / 10);

@@ -1675,8 +1675,6 @@ char *spellpath_msg(int level, int booksize)
 	return retbuf;
 }
 
-#ifdef ALCHEMY
-
 /**
  * Generate a message detailing the properties of a randomly
  * selected alchemical formula.
@@ -1822,10 +1820,7 @@ void make_formula_book(object *book, int level)
 		FREE_AND_COPY_HASH(book->msg, retbuf);
 	}
 }
-#endif
 
-/* msgfile_msg() - generate a message drawn randomly from a
- * file in lib/. */
 /**
  * Generate a message drawn randomly from a file in lib/.
  * @param booksize Maximum book size
@@ -2180,14 +2175,10 @@ void tailor_readable_ob(object *book, int msg_type)
 
 		/* Describe an alchemy formula */
 		case 4:
-#ifdef ALCHEMY
 			make_formula_book(book, level);
 			/* make_formula_book already gives title */
 			return;
-#else
-			strcpy(msgbuf, msgfile_msg(book_buf_size));
-			msg_type = 0;
-#endif
+
 			break;
 
 		/* Bits of information about a god */

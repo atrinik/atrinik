@@ -2676,7 +2676,6 @@ int alchemy(object *op)
 	small = get_archetype("smallnugget"),
 			large = get_archetype("largenugget");
 
-#ifdef ALCHEMY
 	for (y = op->y - 1; y <= op->y + 1; y++)
 	{
 		for (x = op->x - 1; x <= op->x + 1; x++)
@@ -2699,7 +2698,6 @@ int alchemy(object *op)
 
 	if (did_alc)
 		return 1;
-#endif
 
 	for (y = op->y - 1; y <= op->y + 1; y++)
 	{

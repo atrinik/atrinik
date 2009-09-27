@@ -233,9 +233,6 @@ int save_player(object *op, int flag)
 
 	sprintf(sqlbuf, "password %s\n", pl->password);
 
-#ifdef EXPLORE_MODE
-	sprintf(sqlbuf, "%sexplore %d\n", sqlbuf, pl->explore);
-#endif
 	sprintf(sqlbuf, "%sdm_stealth %d\n", sqlbuf, pl->dm_stealth);
 	sprintf(sqlbuf, "%sgen_hp %d\n", sqlbuf, pl->gen_hp);
 	sprintf(sqlbuf, "%sgen_sp %d\n", sqlbuf, pl->gen_sp);
@@ -666,10 +663,6 @@ void check_login(object *op)
 		if (!strcmp(buf, "endplst"))
 			break;
 
-#ifdef EXPLORE_MODE
-		else if (!strcmp(buf, "explore"))
-			pl->explore = value;
-#endif
 		else if (!strcmp(buf, "dm_stealth"))
 			pl->dm_stealth = value;
 
