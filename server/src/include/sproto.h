@@ -720,7 +720,6 @@ void dump_skills(void);
 void init_exp_obj(void);
 void link_skills_to_exp(void);
 int check_link(int stat, object *exp);
-void read_skill_params(void);
 int check_skill_known(object *op, int skillnr);
 int lookup_skill_by_name(char *string);
 int check_skill_to_fire(object *who);

@@ -23,29 +23,35 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* thats the race list - init is in init.c */
-/* Used to link the race lists together */
+/**
+ * Used to link the race lists together.
+ *
+ * Initialized by init_races(). */
 typedef struct ralnk
 {
-	/* name of this race entry */
+	/** Name of this race entry */
 	const char *name;
 
-	/* nrof things belonging to this race */
+	/** Number of things belonging to this race */
 	int nrof;
 
-	/* thats the default corpse of this race */
+	/** The default corpse of this race */
 	struct archt *corpse;
 
-	/* linked object list of things belonging to this race */
+	/** Linked object list of things belonging to this race */
 	struct oblnk *member;
 
+	/** Next race */
 	struct ralnk *next;
 } racelink;
 
+/** Marks no race. */
 #define RACE_TYPE_NONE 0
 
-/* WARNING: this list is used for the items prefixes and not for the race
- * list. Both are different lists with different meanings. */
+/**
+ * This list is used for the item prefixes and not for the race list.
+ *
+ * Both are different lists with different meanings. */
 typedef enum _race_names_enum
 {
 	RACE_NAME_DEFAULT,
@@ -62,15 +68,16 @@ typedef enum _race_names_enum
 	RACE_NAME_DRACONISH,
 	RACE_NAME_OGRE,
 	RACE_NAME_INIT
-}_race_names_enum;
+} _race_names_enum;
 
+/** Races */
 typedef struct _races
 {
-	/* prefix name for this race */
+	/** Prefix name for this race */
 	char *name;
 
-	/* race can use (wear, wield, apply...) items from this races */
+	/** Race can use (wear, wield, apply...) items from this race */
 	uint32 usable;
-}_races;
+} _races;
 
 extern struct _races item_race_table[RACE_NAME_INIT];

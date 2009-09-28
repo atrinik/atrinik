@@ -60,4 +60,4 @@ typedef struct _timeofday
 
 /* from common/time.c */
 extern void get_tod(timeofday_t *tod);
-#endif /* _TOD_H_ */
+#endif

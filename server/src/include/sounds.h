@@ -23,21 +23,31 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Sounds header file */
+
 #ifndef SOUNDS_H
 #define SOUNDS_H
 
-/* if we send a sound to the client, this defines what
- * kind of sound we have and how the client use the
- * sound number.
- */
-#define SOUND_NORMAL	0
-#define SOUND_SPELL		1
+/**
+ * @defgroup sound_types Sounds types
+ * If we send a sound to the client, this defines what kind of sound we
+ * have and how the client should use the sound number.
+ *@{*/
 
-/* lets use defines instead of enums because we must
- * be sure to use here and in client the same number.
- */
+/** Normal sound */
+#define SOUND_NORMAL    0
 
-/* these are sounds for SOUND_NORMAL type sounds */
+/** Spell type sound */
+#define SOUND_SPELL     1
+/*@}*/
+
+/**
+ * @defgroup sound_numbers_normal Sound numbers for normal sounds
+ * These are sounds for SOUND_NORMAL type sounds.
+ * @note The order here must match the order used in the client.
+ *@{*/
 #define SOUND_LEVEL_UP			0
 #define SOUND_FIRE_ARROW		1
 #define SOUND_LEARN_SPELL		2
@@ -75,13 +85,15 @@
 #define SOUND_DOOR_CLOSE		31
 #define SOUND_TELEPORT			32
 #define SOUND_CLICK				33
+/*@}*/
 
-/* these are general spell sounds. Different spells can have
- * the same sound - we don't want have 1000 different spell
- * sounds for 1000 spells.
- * This must match with the client spell list too.
- */
-
+/**
+ * @defgroup sound_numbers_spell Sound numbers for spell sounds
+ * These are general spell sounds.
+ *
+ * Different spells can, of course, use the same sound.
+ * @note The order here must match the order used in the client.
+ *@{*/
 typedef enum _spell_sound_id
 {
 	SOUND_MAGIC_DEFAULT,
@@ -131,7 +143,9 @@ typedef enum _spell_sound_id
 	SOUND_MAGIC_WALL,
 	SOUND_MAGIC_WALL2,
 	SOUND_MAGIC_WOUND,
+
 	SPELL_SOUND_MAX
-}_sound_id;
+} _sound_id;
+/*@}*/
 
 #endif

@@ -23,217 +23,143 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* First written 6 Sep 1994, Nick Williams (njw@cs.city.ac.uk)
- *
- * Initially, I was going to do this as spells, but there is so much
- * crap associated with spells (using sp, time to cast, might happen
- * as WONDER, etc) that I decided it was time to implement skills.  A
- * skill at the moment is merely a "flag" which is placed into the
- * player. The idea is that it will develop into having a rating,
- * which can be improved by practice.  A player could potentially
- * "learn" any number of skills, however this would be dependent on
- * their intelligence.  Perhaps skills should also record when they
- * were learnt, and their "rating" should decay as time goes by,
- * making characters have to either practice their skills, or re-learn
- * them.  BTW: Some skills should be dependent on having
- * tools... e.g. lockpicking would work much better if the player is
- * using a lockpick. */
+/**
+ * @file
+ * Skills header. */
 
-/* Modification March 3 1995 - skills are expanded from stealing to
- * include another 14 skills. + skill code generalized. Some player
- * classes now may start with skills. -b.t. (thomas@nomad.astro.psu.edu) */
-
-/* Modification April 21 1995 - more skills added, detect magic - detect
- * curse to woodsman - b.t. (thomas@nomad.astro.psu.edu) */
-
-/* Modification May/June 1995 -
- *  HTH skills to allow hitting while moving.
- *  Modified the bargaining skill to allow incremental CHA increase (based on level)
- *  Added the inscription skill, finished play-testing meditation skill.
- *  - b.t. (thomas@astro.psu.edu) */
-
-/* Modification June/July 1995 -
- *  1- Expansion of the skills code to fit within a scheme of multiple categories
- *  of experience. Henceforth, 2 categories of skills will exist: "associated"
- *  skills which are associated with one of the categories of experience, and
- *  "miscellaneous" skills, which are not related to any experience category.
- *  2- Moved the attacking and spellcasting player activities into skills.
- *  Now have "hand weapons" "missile weapons" "throwing" and "spellcasting".
- *  see doc/??? for details on this system.
- *  - b.t. */
-
-/* define this if you want to have player skills stored for
- * faster access from a linked list. If skill tools are heavily used
- * calls to malloc from this code can actually make performance worse.
- * -b.t. */
-
-/* #define LINKED_SKILL_LIST */
-
+/** Marks no skill being ready. */
 #define NO_SKILL_READY -1
 
+/** Skill numbers. */
 enum skillnrs
 {
-	/* 0 */
-	/* DISABLED: steal from other players/NPCs */
+	/** Steal from other players/NPCs */
 	SK_STEALING,
-
-	/* open doors without having to bash them */
+	/** Open doors without having to bash them */
 	SK_LOCKPICKING,
-
-	/* player can hide from monsters */
+	/** Player can hide from monsters */
 	SK_HIDING,
-
-	/* can auto-ident arms/armour */
+	/** Can auto identify weapons/armour */
 	SK_SMITH,
-
-	/* can auto-ident bows/x-bow/arrows/bolts */
+	/** Can auto identify bows/crossbows/arrows/bolts/etc */
 	SK_BOWYER,
 
-	/* 5 */
-	/* can auto-identify gems */
+	/** Can auto identify gems */
 	SK_JEWELER,
-
-	/* can auto-identify potions/amulets/containers */
+	/** Can auto identify potions/amulets/containers */
 	SK_ALCHEMY,
-
-	/* can auto-identify staffs/rods/wands */
+	/** Can auto identify staves/rods/wands */
 	SK_THAUMATURGY,
-
-	/* can auto-identify scrolls/books */
+	/** Can auto identify scrolls/books */
 	SK_LITERACY,
-
-	/* sells equip at Cha + level-based bonus (30 max) */
+	/** Sells items to shops at Cha + level-based bonus (30 max) */
 	SK_BARGAINING,
 
-	/* 10 */
-	/* player may 'hop' over 1-2 spaces */
+	/** Player may 'hop' over 1-2 spaces */
 	SK_JUMPING,
-
-	/* player may sense magic in handled items */
+	/** Player may sense magic in handled items */
 	SK_DET_MAGIC,
-
-	/* player may charm unaggressive monsters */
+	/** Player may charm unaggressive monsters */
 	SK_ORATORY,
-
-	/* Player may pacify hostile monsters once */
+	/** Player may pacify hostile monsters once */
 	SK_MUSIC,
-
-	/* player may sense cursed items in inventory */
+	/** Player may sense cursed items in inventory */
 	SK_DET_CURSE,
 
-	/* 15 */
-	/* player can find traps better */
+	/** Player can find traps better */
 	SK_FIND_TRAPS,
-
-	/* player can regain sp/hp at a faster rate */
+	/** Player can regain sp/hp at a faster rate */
 	SK_MEDITATION,
-
-	/* can attack hand-to-hand, see attack_hth() */
+	/** Can attack hand-to-hand, see attack_hth() */
 	SK_BOXING,
-
-	/* player attack for fireborn characters */
+	/** Player attack for fireborn characters */
 	SK_FLAME_TOUCH,
-
-	/* can attack hand-to-hand, see attack_hth() */
+	/** Can attack hand-to-hand, see attack_hth() */
 	SK_KARATE,
 
-	/* 20 */
-	/* player moves quickly over hills/mountains  */
+	/** Player moves quickly over hills/mountains  */
 	SK_CLIMBING,
-
-	/* player moves quickly through jungle/forest */
+	/** Player moves quickly through jungle/forest */
 	SK_WOODSMAN,
-
-	/* player may write spell scrolls */
+	/** Player may write spell scrolls */
 	SK_INSCRIPTION,
-
-	/* player can attack with melee weapons */
+	/** Player can attack with melee weapons */
 	SK_MELEE_WEAPON,
-
-	/* player can attack with missile weapons */
+	/** Player can attack with missile weapons */
 	SK_MISSILE_WEAPON,
 
-	/* 25 */
-	/* player can throw items */
+	/** Player can throw items */
 	SK_THROWING,
-
-	/* player can cast magic spells */
+	/** Player can cast magic spells */
 	SK_SPELL_CASTING,
-
-	/* player can remove traps */
+	/** Player can remove traps */
 	SK_REMOVE_TRAP,
-
-	/* player can set traps - not implemented */
+	/** Player can set traps */
 	SK_SET_TRAP,
-
-	/* player use wands/horns/rods */
+	/** Player use wands/horns/rods */
 	SK_USE_MAGIC_ITEM,
 
-	/* 30 */
-	/* player can cast cleric spells, regen grace points */
+	/** Player can cast cleric spells and regenerate grace points */
 	SK_PRAYING,
-
-	/* player attack for troll, dragon characters */
+	/** Player attack for troll, dragon characters */
 	SK_CLAWING,
-
-	/* skill for players who can fly. */
+	/** Skill for players who can fly. */
 	SK_LEVITATION,
-
-	/* disarm removes traps and grabs sometimes trap items for set traps */
+	/** Disarm removes traps and grabs sometimes trap items for set traps */
 	SK_DISARM_TRAPS,
-
+	/** Player can use crossbows. */
 	SK_XBOW_WEAP,
 
-	/* 35 */
+	/** Player can use slings. */
 	SK_SLING_WEAP,
-
+	/** Player can identify items. */
 	SK_IDENTIFY,
-
+	/** Player can use slash weapons. */
 	SK_SLASH_WEAP,
-
+	/** Player can use cleave weapons. */
 	SK_CLEAVE_WEAP,
-
+	/** Player can use pierce weapons. */
 	SK_PIERCE_WEAP,
 
-	/* 40 */
+	/** Player can use two-handed weapons. */
 	SK_TWOHANDS,
-
+	/** Player can use polearms. */
 	SK_POLEARMS,
 
-	/* always last index! */
+	/** Number of the skills, always last. */
 	NROFSKILLS
 };
 
+/** Skill structure for the skills array. */
 typedef struct skill_struct
 {
-	/* how to describe it to the player */
+	/** How to describe it to the player */
 	char *name;
 
-	/* pointer to the skill archetype in the archlist */
+	/** Pointer to the skill archetype in the archlist */
 	archetype *at;
 
-	/* the experience category to which this skill belongs */
+	/** The experience category to which this skill belongs */
 	short category;
 
-	/* base number of ticks it takes to use the skill */
+	/** Base number of ticks it takes to use the skill */
 	short time;
 
-	/* base exp gain for this skill */
+	/** Base exp gain for this skill */
 	long bexp;
 
-	/* level multiplier of exp gain for using this skill */
+	/** Level multiplier of exp gain for using this skill */
 	float lexp;
 
-	/* primary stat effecting use of this skill */
+	/** Primary stat affecting use of this skill */
 	short stat1;
 
-	/* secondary stat for this skill */
+	/** Secondary stat for this skill */
 	short stat2;
 
-	/* tertiary stat for this skill */
+	/** Tertiary stat for this skill */
 	short stat3;
 } skill;
-
 
 extern skill skills[];
 

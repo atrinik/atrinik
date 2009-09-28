@@ -23,48 +23,57 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* 'recipe' and 'recipelist' are used by the alchemy code */
+/**
+ * @file
+ * Recipe header file. */
+
+/** Recipe structure */
 typedef struct recipestruct
 {
-	/* distinguishing name of product */
+	/** Distinguishing name of product */
 	const char *title;
 
-	/* the archetype of the final product made */
+	/** The archetype of the final product made */
 	const char *arch_name;
 
-	/* chance that recipe for this item will appear
-	 * in an alchemical grimore */
+	/**
+	 * Chance that recipe for this item will appear in an alchemical
+	 * grimoire */
 	int chance;
 
-	/* an index value derived from formula ingredients */
+	/** An index value derived from formula ingredients */
 	int index;
 
-	/* if defined, one of the formula ingredients is
-	 * used as the basis for the product object */
+	/**
+	 * If defined, one of the formula ingredients is used as the basis
+	 * for the product object */
 	int transmute;
 
-	/* The maximum number of items produced by the recipe */
+	/** The maximum number of items produced by the recipe */
 	int yield;
 
-	/* comma delimited list of ingredients */
+	/** Comma delimited list of ingredients */
 	linked_char *ingred;
 
-	struct recipestruct *next;
-
-	/* keycode needed to use the recipe */
+	/** Keycode needed to use the recipe */
 	const char *keycode;
+
+	/** Next recipe */
+	struct recipestruct *next;
 } recipe;
 
+/** Recipe list structure */
 typedef struct recipeliststruct
 {
+	/** Total chance */
 	int total_chance;
 
-	/* number of recipes in this list */
+	/** Number of recipes in this list */
 	int number;
 
-	/* pointer to first recipe in this list */
+	/** Pointer to first recipe in this list */
 	struct recipestruct *items;
 
-	/* pointer to next recipe list */
+	/** Pointer to next recipe list */
 	struct recipeliststruct *next;
 } recipelist;

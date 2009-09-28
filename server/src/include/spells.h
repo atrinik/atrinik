@@ -23,15 +23,26 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Spells header. */
+
 #ifndef SPELLS_H
 #define SPELLS_H
 
-extern int turn_bonus[]; /* chance array for stat values */
+extern int turn_bonus[];
 extern int fear_bonus[];
 extern int cleric_chance[];
 
-#define SPELL_USE_INTERN 0x00 /* special spells - don't list them as avaible spell */
-#define SPELL_USE_CAST   0x01 /* spell can be casted normal */
+/**
+ * @defgroup SPELL_USE_xxx Spell use flags
+ * Spell use flags.
+ *@{*/
+
+/** Special spells - don't list them as available spell */
+#define SPELL_USE_INTERN 0x00
+/** Spell can be cast */
+#define SPELL_USE_CAST   0x01
 #define SPELL_USE_BALM   0x02
 #define SPELL_USE_DUST   0x04
 #define SPELL_USE_SCROLL 0x08
@@ -39,116 +50,158 @@ extern int cleric_chance[];
 #define SPELL_USE_WAND   0x20
 #define SPELL_USE_ROD    0x40
 #define SPELL_USE_POTION 0x80
-#define SPELL_USE_BOOK   0x100 /* well, normally we don't use spellbooks as random stuff
-* except some special "quest" spells for quest monster
-*/
+/**
+ * Normally we don't use spellbooks as random stuff except some special
+ * "quest" spells for quest monster. */
+#define SPELL_USE_BOOK   0x100
+/*@}*/
 
-#define SPELL_TYPE_NATURAL 0 /* special case: this is use like a spell but natural ability - effect is non magical */
-#define SPELL_TYPE_WIZARD  1 /* base mage spell: using mana */
-#define SPELL_TYPE_PRIEST  2 /* base cleric spell: using grace */
-#define SPELL_TYPE_NROF	   2 /* This should be highest number of SPELL_TYPES */
+/**
+ * @defgroup SPELL_TYPE_xxx Spell types
+ * Spell types.
+ *@{*/
 
-#define SPELL_DESC_TOWN			0x01	/* Spell is safe to cast in as TOWN marked maps */
-#define SPELL_DESC_DIRECTION	0x02	/* Spell is fired in a direction (bullets, bolts, ... ) */
-/* stack the next flags to define whats possible with this spell */
-#define SPELL_DESC_SELF			0x04	/* Spell can be cast on self (with target system) */
-#define SPELL_DESC_FRIENDLY		0x08	/* Spell can be cast on friendly (with target system) */
-#define SPELL_DESC_ENEMY		0x10	/* Spell can be cast on enemy (with target system) */
-#define SPELL_DESC_GROUP		0x20	/* Spell can be cast on group members  */
-/* end stack flags */
-#define SPELL_DESC_SUMMON		0x40	/* Spell summons something */
-#define SPELL_DESC_PARALYZED	0x80	/* Spell can be casted even when paralyzed (TODO) */
+/**
+ * Special case: this is use like a spell but natural ability - effect
+ * is non magical */
+#define SPELL_TYPE_NATURAL 0
+/** Base mage spell: using mana */
+#define SPELL_TYPE_WIZARD  1
+/** Base cleric spell: using grace */
+#define SPELL_TYPE_PRIEST  2
+/**
+ * Number of different spell types, should be have value of the highest
+ * spell type. */
+#define SPELL_TYPE_NROF	   2
+/*@}*/
 
-#define SPELL_DESC_WIS			0x100   /* special flag - if set, this is a "prayer" using WIS
-* when not set it use INT as is a spell
-*/
-#define SPELL_ACTIVE 1
+/**
+ * @defgroup SPELL_DESC_xxx Spell flags
+ * Spell flags.
+ *@{*/
+
+/** Spell is safe to cast in as TOWN marked maps */
+#define SPELL_DESC_TOWN         0x01
+/** Spell is fired in a direction (bullet, bolt, ... ) */
+#define SPELL_DESC_DIRECTION    0x02
+/** Spell can be cast on self (with target system) */
+#define SPELL_DESC_SELF         0x04
+/** Spell can be cast on friendly creature (with target system) */
+#define SPELL_DESC_FRIENDLY     0x08
+/** Spell can be cast on enemy creature (with target system) */
+#define SPELL_DESC_ENEMY        0x10
+/** Spell can be cast on party members  */
+#define SPELL_DESC_PARTY        0x20
+/** Spell summons something */
+#define SPELL_DESC_SUMMON       0x40
+/**
+ * Spell can be cast even when paralyzed
+ * @todo Implement. */
+#define SPELL_DESC_PARALYZED    0x80
+/**
+ * If set, this is a prayer using wisdom stat, instead of intelligence
+ * stat of an object. */
+#define SPELL_DESC_WIS          0x100
+/*@}*/
+
+/** The spell is active */
+#define SPELL_ACTIVE   1
+/** The spell is not active */
 #define SPELL_DEACTIVE 0
 
+/** Spell structure. */
 typedef struct spell_struct
 {
-	/* name of this spell */
+	/** Name of this spell */
 	char name[BIG_NAME];
 
-		/* Type of spell: wizard, priest, ... */
-		int type;
+	/** Type of spell: wizard, priest, ... */
+	int type;
 
-		/* Level required to cast this spell */
-		int level;
+	/** Level required to cast this spell */
+	int level;
 
-		/* Spellpoint-cost to cast it */
-		int sp;
+	/** Spellpoint cost to cast it */
+	int sp;
 
-		/* How many ticks it takes to cast the spell */
-		float time;
+	/** How many ticks it takes to cast the spell */
+	float time;
 
-		/* thats from 1 to <scrolls> nrof we will generate for potions/scrolls... */
-		int scrolls;
+	/** From 1 to this value we will generate for potions/scrolls... */
+	int scrolls;
 
-		/* If it can be used in wands, max # of charges */
-		int charges;
+	/** If it can be used in wands, max # of charges */
+	int charges;
 
-		/* if target spell, this is max range to target */
-		int range;
+	/** If target spell, this is max range to target */
+	int range;
 
-		/* used when we have a item of tihs spell kind.
-		 * a magic potion has vaule x. We do: (x * value_mul)*level */
-		float value_mul;
+	/**
+	 * Used when we have an item of this kind of spell.
+	 * A magic potion has value x.
+	 *
+	 * We do: (x * value_mul) * level to increase the value.
+	 * @see object::value */
+	float value_mul;
 
-		/* bdam: base damage or hp of spell or summoned monster
-		 * bdur: base duration of spell or base range
-		 * ldam: levels you need over the min for the spell to gain one dam
-		 * ldur: levels you need over the min for the spell to gain one dur
-		 * spl: number of levels beyond minimum for spell point cost to
-		 *		increase by amount equal to base cost.  i.e. if base cost
-		 * 		is 10 at level 2 and spl is 5, cost will increase by 2 per
-		 * 		level.  if base cost is 5 and spl is 10, cost increases by
-		 *		1 every 2 levels. */
+	/** Base damage or hp of spell or summoned monster */
+	int bdam;
 
-		/*  base damage  */
-		int bdam;
+	/** Base duration of spell or base range */
+	int bdur;
 
-		/*  base duration  */
-		int bdur;
+	/** Levels you need over the min for the spell to gain one damage */
+	int ldam;
 
-		/*  damage adjustment for level  */
-		int ldam;
+	/** Levels you need over the min for the spell to gain one duration */
+	int ldur;
 
-		/*  duration adjustment for level  */
-		int ldur;
+	/**
+	 * Number of levels beyond minimum for spell point cost to increase
+	 * by amount equal to base cost.
+	 *
+	 * I.e. if base cost is 10 at level 2 and spl is 5, cost will
+	 * increase by 2 per level.
+	 *
+	 * If base cost is 5 and spl is 10, cost increases by 1 every 2
+	 * levels. */
+	int spl;
 
-		int spl;
+	/** Number of sound ID for this sound */
+	int sound;
 
-		/* number of sound id for this sound */
-		int sound;
+	/** Define to what items this spell can be bound (potion, rod,,, ) */
+	int spell_use;
 
-		/* Define to what items this spell can be bound (potion, rod,,, ) */
-		int spell_use;
+	/** Used for SPELL_DESC_xx flags */
+	uint32 flags;
 
-		/* Used for SPELL_DESC_xx flags */
-		uint32 flags;
+	/** Path this spell belongs to */
+	uint32 path;
 
-		/* Path this spell belongs to */
-		uint32 path;
+	/** Pointer to archetype used by spell */
+	char *archname;
 
-		/* Pointer to archetype used by spell */
-		char *archname;
-
-		/* if 0 then spell is disabled and can't be cast or used */
-		int is_active;
-	} spell;
+	/** If 0 then spell is disabled and can't be cast or used */
+	int is_active;
+} spell;
 
 extern spell spells[NROFREALSPELLS];
 
-/* When adding new spells, don't insert into the middle of the list -
- * add to the end of the list.  Some archetypes and treasures require
- * the spell numbers to be as they are. */
-
 #define SP_NO_SPELL -1
 
+/**
+ * @defgroup spell_numbers Spell numbers
+ * When adding new spells, don't insert into the middle of the list -
+ * add to the end of the list.
+ *
+ * Some archetypes and treasures require the spell numbers to be as they
+ * are.
+ *@{*/
+
+/** The spell numbers. */
 enum spellnrs
 {
-	/* Here starts the Atrinik list */
 	SP_FIRESTORM,
 	SP_ICESTORM,
 	SP_MINOR_HEAL,
@@ -170,7 +223,7 @@ enum spellnrs
 	SP_CREATE_FOOD,
 	SP_WOR,
 
-	/* All down here are from Crossfire */
+	/* All from here on are unused */
 	SP_S_FIREBALL,
 	SP_M_FIREBALL,
 	SP_L_FIREBALL,
@@ -358,20 +411,15 @@ enum spellnrs
 	SP_MISSILE_SWARM,
 	SP_CAUSE_RABIES
 };
-
-#define IS_SUMMON_SPELL(spell) (spells[type].flags&SPELL_DESC_SUMMON)
+/*@}*/
 
 #define PATH_SP_MULT(op,spell) (((op->path_attuned & s->path) ? 0.8 : 1) * \
-				((op->path_repelled & s->path) ? 1.25 : 1))
-#define PATH_TIME_MULT(op,spell) (((op->path_attuned & s->path) ? 0.8 : 1) * \
 				((op->path_repelled & s->path) ? 1.25 : 1))
 
 extern char *spellpathnames[NRSPELLPATHS];
 extern archetype *spellarch[NROFREALSPELLS];
 
-/* i added spellNPC here as special... its used for example to force scripted npc
- * action which is normally ingame not legal - like shopkeepers who casts self only
- * spells like identify over players. */
+/** How is the spell being cast. */
 typedef enum SpellTypeFrom
 {
 	spellNormal,
@@ -382,6 +430,5 @@ typedef enum SpellTypeFrom
 	spellPotion,
 	spellNPC
 } SpellTypeFrom;
-
 
 #endif

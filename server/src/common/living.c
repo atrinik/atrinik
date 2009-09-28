@@ -62,7 +62,7 @@ _races item_race_table[RACE_NAME_INIT] =
 	/* usable from all sizes */
 	{"draconish ",   RN_DRACONISH},
 	/* count as giant */
-	{"ogre ",		RN_GIANT}
+	{"ogre ",        RN_GIANT}
 };
 
 /* when we carry more as this of our weight_limit, we get encumbered. */

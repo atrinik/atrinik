@@ -23,8 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-
-/* This is the order of the skills structure:
+/**
+ * @file
+ * This is the order of the skills structure:
  *  char *name;
  *  short category;  - the associated experience category
  *  short time;      - the base number of ticks it takes to execute skill
@@ -48,65 +49,71 @@
  * If a skill has the primary stat set to NO_STAT_VAL then it defaults to a
  * 'miscellaneous skill'. */
 
-/* Don't change the order here w/o changing the skills.h file */
-
-/* The default skills array, values can be overwritten by init_skills()
- * in skill_util.c */
-
+/**
+ * The default skills array, values can be overwritten by init_skills()
+ * in skill_util.c.
+ *
+ * @warning Don't change the order here without changing the skills.h
+ * file */
 skill skills[NROFSKILLS] =
 {
 	/* 0 */
-	{"stealing",           	NULL, EXP_NONE, 0, 0, 	0.1f,	DEX,     		INTELLIGENCE, 	NO_STAT_VAL},
-	{"pick locks",         	NULL, EXP_NONE, 0, 50, 	1.5f,   DEX,     		INTELLIGENCE, 	NO_STAT_VAL},
-	{"hide in shadows",    	NULL, EXP_NONE, 0, 10, 	2.5f,   DEX,     		CHA, 			NO_STAT_VAL},
-	{"smithery lore",      	NULL, 2, 		0, 0, 	0.0f,   NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
-	{"bowyer lore",        	NULL, 2, 		0, 0, 	0.0f,   NO_STAT_VAL,   	NO_STAT_VAL, 	NO_STAT_VAL},
+	{"stealing",           NULL, EXP_NONE, 0,   0,   0.1f,  DEX,           INTELLIGENCE,  NO_STAT_VAL},
+	{"pick locks",         NULL, EXP_NONE, 0,   50,  1.5f,  DEX,           INTELLIGENCE,  NO_STAT_VAL},
+	{"hide in shadows",    NULL, EXP_NONE, 0,   10,  2.5f,  DEX,           CHA,           NO_STAT_VAL},
+	{"smithery lore",      NULL, 2,        0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"bowyer lore",        NULL, 2,        0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+
 	/* 5 */
-	{"jeweler lore",       	NULL, 2, 		0, 0, 	0.0f, 	NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
-	{"alchemy",            	NULL, EXP_NONE, 10, 1, 	1.0f, 	INTELLIGENCE, 	WIS, 	  		DEX},
-	{"magic lore",         	NULL, 2, 		0, 0, 	0.0f, 	NO_STAT_VAL, 	NO_STAT_VAL,    NO_STAT_VAL},
-	{"common literacy",    	NULL, 1, 		0, 1, 	1.0f, 	INTELLIGENCE, 	WIS, 			NO_STAT_VAL},
-	{"bargaining",         	NULL, EXP_NONE, 0, 0, 	0.0f,  	NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
+	{"jeweler lore",       NULL, 2,        0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"alchemy",            NULL, EXP_NONE, 10,  1,   1.0f,  INTELLIGENCE,  WIS,           DEX},
+	{"magic lore",         NULL, 2,        0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"common literacy",    NULL, 1,        0,   1,   1.0f,  INTELLIGENCE,  WIS,           NO_STAT_VAL},
+	{"bargaining",         NULL, EXP_NONE, 0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+
 	/* 10 */
-	{"jumping",            	NULL, EXP_NONE, 0, 5, 	2.5f,	NO_STAT_VAL,    NO_STAT_VAL, 	NO_STAT_VAL},
-	{"sense magic",        	NULL, EXP_NONE, 10, 10, 1.0f,	POW, 	 		INTELLIGENCE, 	NO_STAT_VAL},
-	{"oratory",            	NULL, EXP_NONE, 5, 1, 	2.0f,	CHA,     		INTELLIGENCE, 	NO_STAT_VAL},
-	{"singing",            	NULL, EXP_NONE, 5, 1, 	2.0f,	CHA,     		INTELLIGENCE, 	NO_STAT_VAL},
-	{"sense curse",        	NULL, EXP_NONE, 10, 10, 1.0f,	WIS,     		POW, 			NO_STAT_VAL},
+	{"jumping",            NULL, EXP_NONE, 0,   5,   2.5f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"sense magic",        NULL, EXP_NONE, 10,  10,  1.0f,  POW,           INTELLIGENCE,  NO_STAT_VAL},
+	{"oratory",            NULL, EXP_NONE, 5,   1,   2.0f,  CHA,           INTELLIGENCE,  NO_STAT_VAL},
+	{"singing",            NULL, EXP_NONE, 5,   1,   2.0f,  CHA,           INTELLIGENCE,  NO_STAT_VAL},
+	{"sense curse",        NULL, EXP_NONE, 10,  10,  1.0f,  WIS,           POW,           NO_STAT_VAL},
+
 	/* 15 */
-	{"find traps",         	NULL, 0, 		0, 1, 	0.0f,  	DEX, 			NO_STAT_VAL, 	NO_STAT_VAL},
-	{"meditation",         	NULL, EXP_NONE, 10, 0, 	0.0f, 	WIS,      		POW,     		INTELLIGENCE},
-	{"punching",           	NULL, EXP_NONE, 0, 0, 	1.0f, 	STR,      		DEX, 			NO_STAT_VAL},
-	{"flame touch", 	    NULL, EXP_NONE, 0, 0, 	1.0f,  	STR,      		DEX,     		INTELLIGENCE},
-	{"karate",             	NULL, EXP_NONE, 0, 0, 	1.0f,   STR,      		DEX, 			NO_STAT_VAL},
+	{"find traps",         NULL, 0,        0,   1,   0.0f,  DEX,           NO_STAT_VAL,   NO_STAT_VAL},
+	{"meditation",         NULL, EXP_NONE, 10,  0,   0.0f,  WIS,           POW,           INTELLIGENCE},
+	{"punching",           NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"flame touch",        NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           INTELLIGENCE},
+	{"karate",             NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+
 	/* 20 */
-	{"mountaineer",        	NULL, EXP_NONE, 0, 0, 	0.0f,  	NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
-	{"ranger lore",        	NULL, 6, 		0, 0, 	0.0f,  	NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
-	{"inscription",        	NULL, EXP_NONE, 0, 1, 	5.0f,   POW,      		INTELLIGENCE,  	NO_STAT_VAL},
-	{"impact weapons",     	NULL, EXP_NONE, 0, 0, 	1.0f,   STR,      		DEX, 			NO_STAT_VAL},
-	{"bow archery",        	NULL, EXP_NONE, 0, 0, 	1.0f,   DEX,      		STR, 			NO_STAT_VAL},
+	{"mountaineer",        NULL, EXP_NONE, 0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"ranger lore",        NULL, 6,        0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"inscription",        NULL, EXP_NONE, 0,   1,   5.0f,  POW,           INTELLIGENCE,  NO_STAT_VAL},
+	{"impact weapons",     NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"bow archery",        NULL, EXP_NONE, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
+
 	/* 25 */
-	{"throwing",           	NULL, EXP_NONE, 1, 0, 	1.0f,   DEX,      		DEX, 			NO_STAT_VAL},
-	{"wizardry spells",		NULL, EXP_NONE, 1, 0, 	0.0f,   POW,      		INTELLIGENCE, 	WIS},
-	{"remove traps",       	NULL, EXP_NONE, 0, 1, 	0.5f,   DEX,      		INTELLIGENCE, 	NO_STAT_VAL},
-	{"set traps",          	NULL, EXP_NONE, 0, 1, 	0.5f,   INTELLIGENCE,  	DEX, 			NO_STAT_VAL},
-	{"magic devices",      	NULL, EXP_NONE, 4, 0, 	1.0f,   POW, 			DEX, 			NO_STAT_VAL},
+	{"throwing",           NULL, EXP_NONE, 1,   0,   1.0f,  DEX,           DEX,           NO_STAT_VAL},
+	{"wizardry spells",    NULL, EXP_NONE, 1,   0,   0.0f,  POW,           INTELLIGENCE,  WIS},
+	{"remove traps",       NULL, EXP_NONE, 0,   1,   0.5f,  DEX,           INTELLIGENCE,  NO_STAT_VAL},
+	{"set traps",          NULL, EXP_NONE, 0,   1,   0.5f,  INTELLIGENCE,  DEX,           NO_STAT_VAL},
+	{"magic devices",      NULL, EXP_NONE, 4,   0,   1.0f,  POW,           DEX,           NO_STAT_VAL},
+
 	/* 30 */
-	{"divine prayers", 		NULL, 4, 		0, 0, 	0.0f,   WIS,      		POW,     		INTELLIGENCE},
-	{"clawing", 	        NULL, EXP_NONE, 0, 0, 	0.0f,   STR,      		DEX, 			NO_STAT_VAL},
-	{"levitation",	        NULL, EXP_NONE, 0, 0, 	0.0f, 	NO_STAT_VAL, 	NO_STAT_VAL, 	NO_STAT_VAL},
-	{"disarm traps", 	    NULL, EXP_NONE, 0, 1, 	0.5f,   DEX,      		INTELLIGENCE, 	INTELLIGENCE},
-	{"crossbow archery",   	NULL, EXP_NONE, 0, 0, 	1.0f,   DEX,      		STR, 			NO_STAT_VAL},
+	{"divine prayers",     NULL, 4,        0,   0,   0.0f,  WIS,           POW,           INTELLIGENCE},
+	{"clawing",            NULL, EXP_NONE, 0,   0,   0.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"levitation",         NULL, EXP_NONE, 0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"disarm traps",       NULL, EXP_NONE, 0,   1,   0.5f,  DEX,           INTELLIGENCE,  INTELLIGENCE},
+	{"crossbow archery",   NULL, EXP_NONE, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
+
 	/* 35 */
-	{"sling archery",      	NULL, EXP_NONE, 0, 0, 	1.0f,   DEX,      		STR, 			NO_STAT_VAL},
-	{"identify items",     	NULL, EXP_NONE, 10, 1, 	1.0f, 	INTELLIGENCE, 	DEX, 	  		WIS},
-	{"slash weapons",      	NULL, EXP_NONE, 0, 0, 	1.0f,   STR,      		DEX, 			NO_STAT_VAL},
-	{"cleave weapons",     	NULL, EXP_NONE, 0, 0, 	1.0f,   STR,      		DEX, 			NO_STAT_VAL},
-	{"pierce weapons",     	NULL, EXP_NONE, 0, 0, 	1.0f,   STR,      		DEX, 			NO_STAT_VAL},
+	{"sling archery",      NULL, EXP_NONE, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
+	{"identify items",     NULL, EXP_NONE, 10,  1,   1.0f,  INTELLIGENCE,  DEX,           WIS},
+	{"slash weapons",      NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"cleave weapons",     NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"pierce weapons",     NULL, EXP_NONE, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+
 	/* 40 */
-	{"two-hand mastery",   	NULL, EXP_NONE, 0, 0, 	0.0f,   STR,      		DEX,		 	NO_STAT_VAL},
-	{"polearm mastery",    	NULL, EXP_NONE, 0, 0, 	0.0f,   STR,      		DEX, 			NO_STAT_VAL}
+	{"two-hand mastery",   NULL, EXP_NONE, 0,   0,   0.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"polearm mastery",    NULL, EXP_NONE, 0,   0,   0.0f,  STR,           DEX,           NO_STAT_VAL}
 };
-
-
-

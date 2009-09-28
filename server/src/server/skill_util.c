@@ -473,8 +473,6 @@ void init_new_exp_system()
 	init_exp_obj();
 	/* link skills to exp cat, based on shared stats */
 	link_skills_to_exp();
-	/* overide skills[] w/ values from skill_params */
-	(void) read_skill_params();
 }
 
 void dump_skills()
@@ -631,64 +629,6 @@ int check_link(int stat, object *exp)
 	}
 
 	return 0;
-}
-
-/* read_skill_params() - based on init_spell_params(). This
- * function should read a file 'skill_params' in the /lib
- * directory.  -b.t.
- *
- *  format of the file 'skill_params' is:
- *	name
- *      EXP_CAT, bexp, lexp, stat1, stat2, stat3
- *
- *  see the values in lib/skill_params for more inspiration/direction */
-void read_skill_params()
-{
-	FILE *skill_params;
-	char fname[MAX_BUF];
-	char skill_name[256];
-	char skill_attrib[256];
-	int cat, bexp, time, stat1, stat2, stat3, skillindex;
-	float lexp;
-
-	sprintf(fname, "%s/%s", settings.datadir, "skill_params");
-	LOG(llevDebug, "Reading skill_params from %s...", fname);
-
-	if (!(skill_params = fopen(fname, "r")))
-	{
-		LOG(llevError, "ERROR: read_skill_params(): error fopen(%s)\n", fname);
-		return;
-	}
-
-	while (!feof(skill_params))
-	{
-		/* Large buf, so that long comments don't kill it. */
-		if (fgets(skill_name, 255, skill_params) == NULL)
-			continue;
-
-		if (*skill_name == '#')
-			continue;
-
-		skillindex = lookup_skill_by_name(skill_name);
-
-		if (skillindex == -1)
-			LOG(llevError, "ERROR: skill_params has unrecognized skill: %s", skill_name);
-
-		if (fgets(skill_attrib, 255, skill_params) == NULL)
-			continue;
-
-		sscanf(skill_attrib, "%d %d %d %f %d %d %d", &cat, &time, &bexp, &lexp, &stat1, &stat2, &stat3);
-		skills[skillindex].category = cat;
-		skills[skillindex].time = time;
-		skills[skillindex].bexp = bexp;
-		skills[skillindex].lexp = lexp;
-		skills[skillindex].stat1 = stat1;
-		skills[skillindex].stat2 = stat2;
-		skills[skillindex].stat3 = stat3;
-	}
-
-	fclose(skill_params);
-	LOG(llevDebug, "done.\n");
 }
 
 /* check op (=player) has skill with skillnr or not.

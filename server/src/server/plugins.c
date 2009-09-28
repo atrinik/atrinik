@@ -36,7 +36,10 @@
 
 #include <plugproto.h>
 
+/** Table of all loaded plugins */
 CFPlugin PlugList[32];
+
+/** Number of loaded plugins. */
 int PlugNR = 0;
 
 /**
