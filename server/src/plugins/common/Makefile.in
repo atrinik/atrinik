@@ -37,7 +37,7 @@ RANLIB = @RANLIB@
 
 DEPEND = @DEPEND@
 
-CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
+CFLAGS = @CFLAGS@ -fPIC $(EXTRA_CFLAGS)
 
 INCLUDES = -I./include -I../../include
 
