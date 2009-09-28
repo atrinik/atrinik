@@ -23,45 +23,66 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file defines various flags that both the new client and
- * newserver uses.  These should never be changed, only expanded.
- * Changing them will likely cause all old clients to not work properly.
- * While called newclient, it is really used by both the client and
- * server to keep some values the same.
+/**
+ * @file
+ * This file defines various flags that both the new client and newserver
+ * uses.
+ *
+ * These should never be changed, only expanded. Changing them will
+ * likely cause all old clients to not work properly. While called
+ * newclient, it is really used by both the client and server to keep
+ * some values the same.
  *
  * Name format is CS_(command)_(flag)
+ *
  * CS = Client/Server.
+ *
  * (command) is protocol command, ie ITEM
+ *
  * (flag) is the flag name */
-
-/* It is trivial to keep a link of copy of this file in the client
- * or server area.  But keeping one common file should make things
- * more reliable, as both the client and server will definately be
- * talking about the same values. */
 
 #ifndef NEWCLIENT_H
 #define NEWCLIENT_H
 
-/* Maximum size of any packet we expect.  Using this makes it so we don't need to
- * allocated and deallocated teh same buffer over and over again and the price
- * of using a bit of extra memory.  IT also makes the code simpler. */
+/**
+ * Maximum size of any packet we expect. Using this makes it so we don't
+ * need to allocate and deallocate the same buffer over and over again
+ * at the price of using a bit of extra memory.
+ *
+ * It also makes the code simpler. */
 #define MAXSOCKBUF (128 * 1024)
 
-#define CS_QUERY_YESNO		0x1		/* Yes/no question */
-#define CS_QUERY_SINGLECHAR 0x2		/* Single character response expected */
-#define CS_QUERY_HIDEINPUT 	0x4		/* Hide input being entered */
+/**
+ * @defgroup CS_QUERY_xxx Client/server queries
+ * Client/server queries
+ *@{*/
+/** Yes/no question */
+#define CS_QUERY_YESNO      0x1
 
-#define CS_SAY_NORMAL		0x1		/* Normal say command */
-#define CS_SAY_SHOUT		0x2		/* Text is shouted. */
-#define CS_SAY_GSAY			0x4		/* Text is group say command */
+/** Single character response expected */
+#define CS_QUERY_SINGLECHAR 0x2
 
-/* These are multiplication values that should be used when changing
- * floats to ints, and vice version.  MULTI is integer representatin
- * (float to int), MULTF is float, for going from int to float. */
+/** Hide input being entered */
+#define CS_QUERY_HIDEINPUT  0x4
+/*@}*/
+
+/**
+ * @defgroup FLOAT_MULTx Float multiplication
+ * These are multiplication values that should be used when changing
+ * floats to ints, and vice versa.
+ *@{*/
+
+/** Integer representatin (float to int) */
 #define FLOAT_MULTI	100000
-#define FLOAT_MULTF	100000.0
 
-/* ID's for the various stats that get sent across. */
+/** Float representatin (int to float) */
+#define FLOAT_MULTF	100000.0
+/*@}*/
+
+/**
+ * @defgroup CS_STAT_xx Client/server stats
+ * IDs for the various stats that get sent across.
+ *@{*/
 #define CS_STAT_HP	 			1
 #define CS_STAT_MAXHP			2
 #define CS_STAT_SP	 			3
@@ -89,8 +110,6 @@
 #define CS_STAT_FLAGS			25
 #define CS_STAT_WEIGHT_LIM		26
 #define CS_STAT_EXT_TITLE 		27
-
-/* 0.96 */
 #define CS_STAT_REG_HP 			28
 #define CS_STAT_REG_MANA 		29
 #define CS_STAT_REG_GRACE 		30
@@ -98,7 +117,6 @@
 
 #define CS_STAT_ACTION_TIME		36
 
-/* Start & end of resistances, inclusive. */
 #define CS_STAT_RESIST_START	100
 #define CS_STAT_RESIST_END		117
 #define CS_STAT_RES_PHYS		100
@@ -120,7 +138,6 @@
 #define CS_STAT_RES_HOLYWORD	116
 #define CS_STAT_RES_BLIND		117
 
-/* Start & end of skill experience + skill level, inclusive. */
 #define CS_STAT_SKILLEXP_START 		118
 #define CS_STAT_SKILLEXP_END 		129
 #define CS_STAT_SKILLEXP_AGILITY 	118
@@ -162,135 +179,200 @@
 #define CS_STAT_PROT_DEATH		147
 #define CS_STAT_PROT_HOLY		148
 #define CS_STAT_PROT_CORRUPT	149
+/*@}*/
 
-/* These are used with CS_STAT_FLAGS above to communicate S->C what the
- * server thinks the fireon & runon states are. */
+/**
+ * @defgroup cs_state_flags Client/server state flags
+ * These are used with @ref CS_STAT_FLAGS to determine the
+ * server thinks the fireon and runon states are.
+ *@{*/
 #define SF_FIREON           1
 #define SF_RUNON            2
 #define SF_BLIND            4
 #define SF_XRAYS            8
 #define SF_INFRAVISION      16
+/*@}*/
 
-/* The following are the color flags passed to new_draw_info.
+/**
+ * @defgroup NDI_xxx New draw info flags
+ * The following are the color flags passed to new_draw_info().
  *
- * We also set up some control flags
- *
- * NDI = New Draw Info */
+ * We also set up some control flags.
+ *@{*/
 
-/* default color 0 = WHITE - if no color is selected */
-#define NDI_WHITE	0
-#define NDI_ORANGE	1
-#define NDI_NAVY	2
-#define NDI_RED		3
-#define NDI_GREEN	4
-#define NDI_BLUE	5
-#define NDI_GREY	6
-#define NDI_BROWN	7
-#define NDI_PURPLE	8
-#define NDI_FLESH  	9
+/** Default color is white (0), if no color is selected */
+#define NDI_WHITE   0
+#define NDI_ORANGE  1
+#define NDI_NAVY    2
+#define NDI_RED     3
+#define NDI_GREEN   4
+#define NDI_BLUE    5
+#define NDI_GREY    6
+#define NDI_BROWN   7
+#define NDI_PURPLE  8
+#define NDI_FLESH   9
 #define NDI_YELLOW  10
 #define NDI_DK_NAVY 11
 
-#define NDI_MAX_COLOR	11	/* Last value in */
-#define NDI_COLOR_MASK	0xff   /* colors are first 8 bit - o bit digit */
-#define NDI_FLAG_MASK	0xffff	/* 2nd 8 bit are flags to define draw_info string */
+/** Last color value in */
+#define NDI_MAX_COLOR 11
 
-/* implicit rule: if not NDI_PLAYER or NDI_SYSTEM is defined,
- * message comes from NPC. */
-#define NDI_SAY		0x0100	/* its a say command */
-#define NDI_SHOUT	0x0200
-#define NDI_TELL	0x0400
-#define NDI_PLAYER	0x0800 	/* this comes from a player */
-#define NDI_SYSTEM	0x01000 /* if this is set, its a "system" message */
+/** Colors are first 8 bit - o bit digit */
+#define NDI_COLOR_MASK  0xff
 
-#define NDI_UNIQUE	0x10000	/* Print this out immediately, don't buffer */
-#define NDI_ALL		0x20000	/* Inform all players of this message */
+/** Second 8 bit are flags to define draw_info string */
+#define NDI_FLAG_MASK   0xffff
 
-/* Flags for the item command */
+/** Say command */
+#define NDI_SAY     0x0100
+
+/** The message is a shout */
+#define NDI_SHOUT   0x0200
+
+/** The message is a tell */
+#define NDI_TELL    0x0400
+
+/** This message comes from a player */
+#define NDI_PLAYER  0x0800
+
+/** If set, it's a system message */
+#define NDI_SYSTEM  0x01000
+
+/** Print this out immediately, don't buffer */
+#define NDI_UNIQUE  0x10000
+
+/** Inform all players of this message */
+#define NDI_ALL     0x20000
+/*@}*/
+
+/**
+ * @defgroup cs_item_flags Client/server item flags
+ * Flags for the item command. Used in query_flags().
+ *@{*/
+
+/** These flags are used if the item is applied. */
 enum
 {
+	/** No flag */
 	a_none,
+	/** The item is readied */
 	a_readied,
+	/** The item is wielded */
 	a_wielded,
+	/** The item is worn */
 	a_worn,
+	/** The item is active */
 	a_active,
+	/** The item is applied */
 	a_applied
 };
 
+/** @see FLAG_APPLIED */
 #define F_APPLIED       0x000F
-#define F_ETHEREAL		0x0080
-#define F_INVISIBLE		0x0100
+
+/** @see FLAG_IS_ETHEREAL */
+#define F_ETHEREAL      0x0080
+
+/** @see FLAG_IS_INVISIBLE */
+#define F_INVISIBLE     0x0100
+
+/** @see FLAG_UNPAID */
 #define F_UNPAID        0x0200
+
+/** @see FLAG_IS_MAGICAL */
 #define F_MAGIC         0x0400
+
+/** @see FLAG_CURSED */
 #define F_CURSED        0x0800
+
+/** @see FLAG_DAMNED */
 #define F_DAMNED        0x1000
+
+/** @see CONTAINER */
 #define F_OPEN          0x2000
+
+/** @see FLAG_NO_PICK */
 #define F_NOPICK        0x4000
+
+/** @see FLAG_INV_LOCKED */
 #define F_LOCKED        0x8000
+
+/** @see FLAG_IS_TRAPED */
 #define F_TRAPED        0x10000
+/*@}*/
 
-#define CF_FACE_NONE	0
-#define CF_FACE_BITMAP	1
-#define CF_FACE_XPM		2
-#define CF_FACE_PNG		3
-#define CF_FACE_CACHE	0x10
+/**
+ * @defgroup image_face_modes Image face modes
+ * Image face modes.
+ * @see SetFaceMode()
+ *@{*/
+#define CF_FACE_NONE    0
+#define CF_FACE_BITMAP  1
+#define CF_FACE_XPM     2
+#define CF_FACE_PNG     3
+#define CF_FACE_CACHE   0x10
+/*@}*/
 
-/* Used in the new_face structure on the magicmap field.  Low bits
- * are color informatin.  For now, only high bit information we need
- * is floor information. */
-#define FACE_FLOOR		0x80
-/* Or'd into the color value by the server
- * right before sending. */
-#define FACE_WALL		0x40
-#define FACE_COLOR_MASK	0xf
+/**
+ * @defgroup cs_item_update_flags Client/server item update flags
+ * Client/server item update flags
+ *@{*/
+#define UPD_LOCATION    0x01
+#define UPD_FLAGS       0x02
+#define UPD_WEIGHT      0x04
+#define UPD_FACE        0x08
+#define UPD_NAME        0x10
+#define UPD_ANIM        0x20
+#define UPD_ANIMSPEED   0x40
+#define UPD_NROF        0x80
+#define UPD_DIRECTION   0x100
+/*@}*/
 
-#define UPD_LOCATION	0x01
-#define UPD_FLAGS		0x02
-#define UPD_WEIGHT		0x04
-#define UPD_FACE		0x08
-#define UPD_NAME		0x10
-#define UPD_ANIM		0x20
-#define UPD_ANIMSPEED	0x40
-#define UPD_NROF		0x80
-#define UPD_DIRECTION	0x100
-
-/* Contains the base information we use to make up a packet we want to send. */
+/**
+ * Contains the base information we use to make up a packet we want to
+ * send. */
 typedef struct SockList
 {
+	/** Length of the packet */
 	int len;
 
+	/** The packet */
 	unsigned char *buf;
 } SockList;
 
+/** Statistics fn server. */
 typedef struct CS_Stats
 {
-	/* ibytes, obytes are bytes in, out */
+	/** Bytes in */
 	int	ibytes;
 
+	/** Bytes out */
 	int obytes;
 
-	/* Maximum connections received */
+	/** Maximum connections received */
 	short max_conn;
 
-	/* When we started logging this */
+	/** When we started logging this */
 	time_t time_start;
 } CS_Stats;
 
+/** Srv client files. */
 typedef struct _srv_client_files
 {
-	/* file data, compressed or not */
+	/** File data, compressed or not */
 	char *file;
 
-	/* if -1, the file is not compressed */
+	/** If -1, the file is not compressed */
 	int len;
 
-	/* original uncompressed file length */
+	/** Original uncompressed file length */
 	int len_ucomp;
 
-	/* crc adler32 */
+	/** CRC adler32 */
 	unsigned int crc;
 } _srv_client_files;
 
+/** Srv client files. */
 enum
 {
 	SRV_CLIENT_SKILLS,
@@ -309,6 +391,7 @@ extern CS_Stats cst_tot, cst_lst;
 
 #define DATA_PACKED_CMD 0x80
 
+/** Data commands. */
 enum
 {
 	DATA_CMD_NO,
@@ -320,8 +403,12 @@ enum
 	DATA_CMD_HFILES_LIST
 };
 
-#define SOCKET_SET_BINARY_CMD(__s__, __bc__) (__s__)->buf[0]=__bc__;(__s__)->len=1
+/** Set binary socket command. */
+#define SOCKET_SET_BINARY_CMD(__s__, __bc__) \
+	(__s__)->buf[0] = __bc__;                \
+	(__s__)->len = 1
 
+/** All the possible binary commands. */
 enum
 {
 	BINARY_CMD_COMC = 1,
