@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-09-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -161,7 +161,14 @@ end
 arch grassd_6
 x 1
 end
+arch wall_stone15_3
+x 1
+end
 arch grassd_5
+x 1
+y 1
+end
+arch wall_stone15_3
 x 1
 y 1
 end
@@ -169,7 +176,15 @@ arch grassd_5
 x 1
 y 2
 end
+arch wall_stone15_3
+x 1
+y 2
+end
 arch grassd_8
+x 1
+y 3
+end
+arch wall_stone15_3
 x 1
 y 3
 end
@@ -177,7 +192,15 @@ arch grassd_7
 x 1
 y 4
 end
+arch wall_stone15_3
+x 1
+y 4
+end
 arch grassd_5
+x 1
+y 5
+end
+arch wall_stone15_3
 x 1
 y 5
 end
@@ -185,7 +208,15 @@ arch grassd_8
 x 1
 y 6
 end
+arch wall_stone15_3
+x 1
+y 6
+end
 arch grassd_5
+x 1
+y 7
+end
+arch wall_stone15_3
 x 1
 y 7
 end
@@ -193,7 +224,15 @@ arch grassd_5
 x 1
 y 8
 end
+arch wall_stone15_3
+x 1
+y 8
+end
 arch grassd_2
+x 1
+y 9
+end
+arch wall_stone15_3
 x 1
 y 9
 end
@@ -201,7 +240,15 @@ arch grassd_4
 x 1
 y 10
 end
+arch wall_stone15_3
+x 1
+y 10
+end
 arch grassd_7
+x 1
+y 11
+end
+arch wall_stone15_3
 x 1
 y 11
 end
@@ -209,7 +256,15 @@ arch grassd_5
 x 1
 y 12
 end
+arch wall_stone15_3
+x 1
+y 12
+end
 arch grassd_8
+x 1
+y 13
+end
+arch wall_stone15_3
 x 1
 y 13
 end
@@ -265,69 +320,159 @@ arch rock_big2
 x 1
 y 23
 end
-arch grassd_7
+arch shop_floor
 x 2
 end
-arch plant5
+arch shelf5_wall.111
+sub_type 1
+value 150000
+unpaid 1
+direction 7
 x 2
 end
-arch grassd_1
+arch shop_floor
 x 2
 y 1
 end
-arch grassd_6
+arch shelf1_wall.111
+sub_type 1
+value 150000
+unpaid 1
+x 2
+y 1
+end
+arch shop_floor
 x 2
 y 2
 end
-arch grassd_5
+arch shelf1_wall.111
+sub_type 1
+value 150000
+unpaid 1
+direction 7
+x 2
+y 2
+end
+arch shop_floor
 x 2
 y 3
 end
-arch grassd_2
+arch shelf3c.111
+sub_type 1
+value 150000
+unpaid 1
+x 2
+y 3
+end
+arch shop_floor
 x 2
 y 4
 end
-arch grassd_6
+arch shelf3c.111
+sub_type 1
+value 150000
+unpaid 1
+direction 7
+x 2
+y 4
+end
+arch shop_floor
 x 2
 y 5
 end
-arch grassd_3
+arch locker4
+sub_type 1
+value 100000
+unpaid 1
+x 2
+y 5
+end
+arch shop_floor
 x 2
 y 6
 end
-arch grassd_8
+arch locker4
+sub_type 1
+value 100000
+unpaid 1
+direction 7
+x 2
+y 6
+end
+arch shop_floor
 x 2
 y 7
 end
-arch stone1
+arch desk1.111
+sub_type 1
+value 150000
+unpaid 1
 x 2
 y 7
 end
-arch grassd_2
+arch shop_floor
 x 2
 y 8
 end
-arch grassd_5
+arch desk1.111
+sub_type 1
+value 150000
+unpaid 1
+direction 7
+x 2
+y 8
+end
+arch shop_floor
 x 2
 y 9
 end
-arch grassd_5
+arch desk2
+sub_type 1
+value 150000
+unpaid 1
+x 2
+y 9
+end
+arch shop_floor
 x 2
 y 10
 end
-arch grassd_4
+arch desk2
+sub_type 1
+value 150000
+unpaid 1
+direction 7
+x 2
+y 10
+end
+arch shop_floor
 x 2
 y 11
 end
-arch grassd_8
+arch rack.111
+sub_type 1
+value 850000
+unpaid 1
+x 2
+y 11
+end
+arch shop_floor
 x 2
 y 12
 end
-arch plant13
+arch rack.111
+sub_type 1
+value 850000
+unpaid 1
+direction 7
 x 2
 y 12
 end
-arch grassd_6
+arch shop_floor_normal
+x 2
+y 13
+end
+arch wall_stone15_1
 x 2
 y 13
 end
@@ -383,66 +528,74 @@ arch rock_big2
 x 2
 y 23
 end
-arch grassd_8
+arch shop_floor
 x 3
 end
-arch grassd_8
+arch shop_floor
 x 3
 y 1
 end
-arch grassd_7
+arch shop_floor
 x 3
 y 2
 end
-arch grassd_7
+arch light5
+x 3
+y 2
+end
+arch shop_floor
 x 3
 y 3
 end
-arch grassd_6
+arch shop_floor
 x 3
 y 4
 end
-arch tree_big3
-x 3
-y 4
-end
-arch grassd_6
+arch shop_floor
 x 3
 y 5
 end
-arch grassd_6
+arch shop_floor
 x 3
 y 6
 end
-arch grassd_1
+arch shop_floor
 x 3
 y 7
 end
-arch grassd_5
+arch light5
+x 3
+y 7
+end
+arch shop_floor
 x 3
 y 8
 end
-arch grassd_5
+arch shop_floor
 x 3
 y 9
 end
-arch grassd_5
+arch shop_floor
 x 3
 y 10
 end
-arch tree_big5b
-x 3
-y 10
-end
-arch grassd_1
+arch shop_floor
 x 3
 y 11
 end
-arch grassd_8
+arch shop_floor
 x 3
 y 12
 end
-arch grassd_6
+arch light5
+x 3
+y 12
+end
+arch shop_floor_normal
+x 3
+y 13
+end
+arch wall_stone1_w.111
 x 3
 y 13
 end
@@ -494,66 +647,78 @@ arch rock_big2
 x 3
 y 23
 end
-arch grassd_3
+arch shop_floor
 x 4
 end
-arch grassd_4
+arch shop_floor
 x 4
 y 1
 end
-arch grassd_8
+arch shop_floor
 x 4
 y 2
 end
-arch grassd_3
+arch light5
+x 4
+y 2
+end
+arch shop_floor
 x 4
 y 3
 end
-arch grassd_8
+arch shop_floor
 x 4
 y 4
 end
-arch grassd_2
+arch shop_floor
 x 4
 y 5
 end
-arch grassd_7
+arch shop_floor
 x 4
 y 6
 end
-arch grassd_3
+arch shop_floor
 x 4
 y 7
 end
-arch grassd_5
+arch light5
+x 4
+y 7
+end
+arch shop_floor
 x 4
 y 8
 end
-arch grassd_2
+arch shop_floor
 x 4
 y 9
 end
-arch grassd_2
+arch shop_floor
 x 4
 y 10
 end
-arch grassd_1
+arch shop_floor
 x 4
 y 11
 end
-arch grassd_1
+arch shop_floor
 x 4
 y 12
 end
-arch grassd_7
+arch light5
+x 4
+y 12
+end
+arch shop_floor_normal
+x 4
+y 13
+end
+arch wall_stone15_1
 x 4
 y 13
 end
 arch grassd_6
-x 4
-y 14
-end
-arch tree_big2
 x 4
 y 14
 end
@@ -597,70 +762,113 @@ arch grassd_6
 x 4
 y 23
 end
-arch grassd_5
+arch shop_floor
 x 5
 end
-arch grassd_6
+arch chest_w1
+sub_type 1
+value 1000000
+unpaid 1
+x 5
+end
+arch shop_floor
 x 5
 y 1
 end
-arch grassd_1
+arch shop_floor
 x 5
 y 2
 end
-arch tree_big4b
-x 5
-y 2
-end
-arch grassd_3
+arch shop_floor
 x 5
 y 3
 end
-arch grassd_6
+arch shop_floor
 x 5
 y 4
 end
-arch grassd_5
+arch shop_floor
 x 5
 y 5
 end
-arch grassd_5
+arch shop_floor
 x 5
 y 6
 end
-arch grassd_5
+arch shop_floor
 x 5
 y 7
 end
-arch grassd_2
+arch chest_sm_1
+sub_type 1
+value 500000
+unpaid 1
+direction 7
+x 5
+y 7
+end
+arch shop_floor
 x 5
 y 8
 end
-arch grassd_5
+arch chest_sm_1
+sub_type 1
+value 500000
+unpaid 1
+x 5
+y 8
+end
+arch shop_floor
 x 5
 y 9
 end
-arch tree_big
+arch chest
+sub_type 1
+value 750000
+unpaid 1
+direction 7
 x 5
 y 9
 end
-arch grassd_5
+arch shop_floor
 x 5
 y 10
 end
-arch grassd_5
+arch chest
+sub_type 1
+value 750000
+unpaid 1
+x 5
+y 10
+end
+arch shop_floor
 x 5
 y 11
 end
-arch plant9
+arch chest_m
+sub_type 1
+value 1000000
+unpaid 1
+direction 7
 x 5
 y 11
 end
-arch grassd_2
+arch shop_floor
 x 5
 y 12
 end
-arch grassd_6
+arch chest_m
+sub_type 1
+value 1000000
+unpaid 1
+x 5
+y 12
+end
+arch shop_floor_normal
+x 5
+y 13
+end
+arch wall_stone15_1
 x 5
 y 13
 end
@@ -726,62 +934,113 @@ arch bridge_wood_NS.181
 x 5
 y 23
 end
-arch grassd_8
+arch shop_floor_normal
 x 6
 end
-arch grassd_7
+arch wall_stone15_3
+x 6
+end
+arch shop_floor_normal
 x 6
 y 1
 end
-arch grassd_1
+arch wall_stone15_3
+x 6
+y 1
+end
+arch shop_floor_normal
 x 6
 y 2
 end
-arch grassd_5
+arch wall_stone15_3
+x 6
+y 2
+end
+arch shop_floor_normal
 x 6
 y 3
 end
-arch grassd_8
+arch wall_stone15_3
+x 6
+y 3
+end
+arch shop_floor_normal
 x 6
 y 4
 end
-arch plant_flower6
+arch wall_stone1_w.131
 x 6
 y 4
 end
-arch grassd_1
+arch shop_floor_normal
 x 6
 y 5
 end
-arch grassd_8
+arch wall_stone15_3
+x 6
+y 5
+end
+arch shop_floor_normal
 x 6
 y 6
 end
-arch grassd_1
+arch wall_stone15_3
+x 6
+y 6
+end
+arch shop_floor_normal
 x 6
 y 7
 end
-arch grassd_2
+arch wall_stone15_3
+x 6
+y 7
+end
+arch shop_floor_normal
 x 6
 y 8
 end
-arch grassd_4
+arch wall_stone15_3
+x 6
+y 8
+end
+arch shop_floor_normal
 x 6
 y 9
 end
-arch grassd_5
+arch wall_stone1_w.131
+x 6
+y 9
+end
+arch shop_floor_normal
 x 6
 y 10
 end
-arch grassd_3
+arch wall_stone15_3
+x 6
+y 10
+end
+arch shop_floor_normal
 x 6
 y 11
 end
-arch grassd_6
+arch wall_stone15_3
+x 6
+y 11
+end
+arch shop_floor_normal
 x 6
 y 12
 end
-arch grassd_3
+arch wall_stone15_3
+x 6
+y 12
+end
+arch shop_floor_normal
+x 6
+y 13
+end
+arch wall_stone15_4
 x 6
 y 13
 end
@@ -860,8 +1119,8 @@ arch grassd_6
 x 7
 y 1
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 1
 end
@@ -894,8 +1153,8 @@ arch grassd_5
 x 7
 y 7
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 7
 end
@@ -928,8 +1187,8 @@ arch grassd_3
 x 7
 y 13
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 13
 end

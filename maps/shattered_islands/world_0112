@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-09-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -204,7 +204,15 @@ arch grassd_2
 x 1
 y 9
 end
+arch wall_stone15_8
+x 1
+y 9
+end
 arch grassd_8
+x 1
+y 10
+end
+arch wall_stone15_3
 x 1
 y 10
 end
@@ -212,11 +220,15 @@ arch grassd_5
 x 1
 y 11
 end
+arch wall_stone15_3
+x 1
+y 11
+end
 arch grassd_8
 x 1
 y 12
 end
-arch plant11
+arch wall_stone15_3
 x 1
 y 12
 end
@@ -224,7 +236,15 @@ arch grassd_5
 x 1
 y 13
 end
+arch wall_stone15_3
+x 1
+y 13
+end
 arch grassd_5
+x 1
+y 14
+end
+arch wall_stone15_3
 x 1
 y 14
 end
@@ -232,7 +252,15 @@ arch grassd_2
 x 1
 y 15
 end
+arch wall_stone15_3
+x 1
+y 15
+end
 arch grassd_2
+x 1
+y 16
+end
+arch wall_stone15_3
 x 1
 y 16
 end
@@ -240,7 +268,15 @@ arch grassd_3
 x 1
 y 17
 end
+arch wall_stone15_3
+x 1
+y 17
+end
 arch grassd_5
+x 1
+y 18
+end
+arch wall_stone15_3
 x 1
 y 18
 end
@@ -248,7 +284,7 @@ arch grassd_8
 x 1
 y 19
 end
-arch plant12
+arch wall_stone15_3
 x 1
 y 19
 end
@@ -256,7 +292,15 @@ arch grassd_2
 x 1
 y 20
 end
+arch wall_stone15_3
+x 1
+y 20
+end
 arch grassd_8
+x 1
+y 21
+end
+arch wall_stone15_3
 x 1
 y 21
 end
@@ -264,7 +308,15 @@ arch grassd_2
 x 1
 y 22
 end
+arch wall_stone15_3
+x 1
+y 22
+end
 arch grassd_8
+x 1
+y 23
+end
+arch wall_stone15_3
 x 1
 y 23
 end
@@ -311,63 +363,121 @@ arch grassd_5
 x 2
 y 9
 end
-arch tree_big5b
+arch wall_stone15_1
 x 2
 y 9
 end
-arch grassd_6
+arch shop_floor_normal
 x 2
 y 10
 end
-arch grassd_5
+arch carpet1
+x 2
+y 10
+end
+arch table_round1
+x 2
+y 10
+end
+arch shop_floor_normal
 x 2
 y 11
 end
-arch grassd_5
+arch carpet1
+x 2
+y 11
+end
+arch chair1_111
+direction 5
+x 2
+y 11
+end
+arch spawn_point
+x 2
+y 11
+arch priest_green
+msg
+@match Apartment Extensions
+Apartment Extensions are items you can buy to extend your apartment.
+As you might have noticed, you can't drop items on floor in your apartment.
+This is a place where you can buy containers to extend your apartment so you can collect more items!
+@match *
+Welcome to my ^Apartment Extensions^ shop!
+endmsg
+type 83
+level 50
+friendly 1
+direction 3
+end
+end
+arch shop_floor_normal
 x 2
 y 12
 end
-arch grassd_1
+arch carpet1.111
+x 2
+y 12
+end
+arch shop_floor_normal
 x 2
 y 13
 end
-arch grassd_3
+arch shop_floor_normal
 x 2
 y 14
 end
-arch grassd_7
+arch shop_floor_normal
 x 2
 y 15
 end
-arch grassd_3
+arch shop_mat
+x 2
+y 15
+end
+arch shop_floor_normal
 x 2
 y 16
 end
-arch grassd_5
+arch grate1_1
+x 2
+y 16
+end
+arch shop_floor
 x 2
 y 17
 end
-arch grassd_7
+arch shop_mat
+x 2
+y 17
+end
+arch shop_floor
 x 2
 y 18
 end
-arch grassd_5
+arch shop_floor
 x 2
 y 19
 end
-arch grassd_8
+arch shop_floor
 x 2
 y 20
 end
-arch grassd_3
+arch shop_floor
 x 2
 y 21
 end
-arch grassd_2
+arch shop_floor
 x 2
 y 22
 end
-arch grassd_7
+arch shop_floor
+x 2
+y 23
+end
+arch shelf5_wall.111
+sub_type 1
+value 150000
+unpaid 1
 x 2
 y 23
 end
@@ -446,67 +556,100 @@ arch grassd_5
 x 3
 y 9
 end
-arch grassd_5
+arch wall_stone15_1
+x 3
+y 9
+end
+arch shop_floor_normal
 x 3
 y 10
 end
-arch grassd_8
+arch carpet1
+x 3
+y 10
+end
+arch chair1_111
+direction 3
+x 3
+y 10
+end
+arch shop_floor_normal
 x 3
 y 11
 end
-arch grassd_5
+arch carpet1
+x 3
+y 11
+end
+arch light5
+x 3
+y 11
+end
+arch shop_floor_normal
 x 3
 y 12
 end
-arch grassd_7
+arch carpet1.111
+x 3
+y 12
+end
+arch shop_floor_normal
 x 3
 y 13
 end
-arch grassd_4
+arch shop_floor_normal
 x 3
 y 14
 end
-arch grassd_7
+arch shop_floor_normal
 x 3
 y 15
 end
-arch grassd_6
+arch light5
+x 3
+y 15
+end
+arch shop_floor_normal
 x 3
 y 16
 end
-arch tree_big
+arch grate1_1
 x 3
 y 16
 end
-arch grassd_8
+arch shop_floor
 x 3
 y 17
 end
-arch grassd_7
+arch light5
+x 3
+y 17
+end
+arch shop_floor
 x 3
 y 18
 end
-arch grassd_7
+arch shop_floor
 x 3
 y 19
 end
-arch grassd_8
+arch shop_floor
 x 3
 y 20
 end
-arch tree_big3
-x 3
-y 20
-end
-arch grassd_3
+arch shop_floor
 x 3
 y 21
 end
-arch grassd_5
+arch light5
+x 3
+y 21
+end
+arch shop_floor
 x 3
 y 22
 end
-arch grassd_1
+arch shop_floor
 x 3
 y 23
 end
@@ -596,67 +739,91 @@ arch grassd_7
 x 4
 y 9
 end
-arch grassd_2
+arch wall_stone15_1
+x 4
+y 9
+end
+arch shop_floor_normal
 x 4
 y 10
 end
-arch grassd_2
+arch carpet1.171
+x 4
+y 10
+end
+arch shop_floor_normal
 x 4
 y 11
 end
-arch grassd_4
+arch carpet1.171
+x 4
+y 11
+end
+arch light5
+x 4
+y 11
+end
+arch shop_floor_normal
 x 4
 y 12
 end
-arch grassd_1
+arch shop_floor_normal
 x 4
 y 13
 end
-arch tree_big4b
-x 4
-y 13
-end
-arch grassd_6
+arch shop_floor_normal
 x 4
 y 14
 end
-arch grassd_2
+arch shop_floor_normal
 x 4
 y 15
 end
-arch grassd_3
+arch light5
+x 4
+y 15
+end
+arch shop_floor_normal
 x 4
 y 16
 end
-arch grassd_7
+arch grate1_1
+x 4
+y 16
+end
+arch shop_floor
 x 4
 y 17
 end
-arch grassd_1
+arch light5
+x 4
+y 17
+end
+arch shop_floor
 x 4
 y 18
 end
-arch grassd_8
+arch shop_floor
 x 4
 y 19
 end
-arch grassd_2
+arch shop_floor
 x 4
 y 20
 end
-arch grassd_7
+arch shop_floor
 x 4
 y 21
 end
-arch grassd_8
+arch light5
+x 4
+y 21
+end
+arch shop_floor
 x 4
 y 22
 end
-arch grassd_4
-x 4
-y 23
-end
-arch plant10
+arch shop_floor
 x 4
 y 23
 end
@@ -706,71 +873,120 @@ arch grassd_6
 x 5
 y 9
 end
-arch grassd_1
+arch wall_stone15_1
+x 5
+y 9
+end
+arch shop_floor_normal
 x 5
 y 10
 end
-arch grassd_7
+arch shop_floor_normal
 x 5
 y 11
 end
-arch plant_mushroom1
-x 5
-y 11
-end
-arch grassd_4
+arch shop_floor_normal
 x 5
 y 12
 end
-arch grassd_2
+arch shop_floor_normal
 x 5
 y 13
 end
-arch grassd_8
+arch shop_floor_normal
 x 5
 y 14
 end
-arch grassd_7
+arch shop_floor_normal
 x 5
 y 15
 end
-arch grassd_4
+arch shop_floor_normal
 x 5
 y 16
 end
-arch grassd_1
+arch grate1_1
+x 5
+y 16
+end
+arch shop_floor
 x 5
 y 17
 end
-arch grassd_5
+arch chest7_111
+sub_type 1
+value 750000
+unpaid 1
+direction 7
+x 5
+y 17
+end
+arch shop_floor
 x 5
 y 18
 end
-arch grassd_2
+arch chest7_111
+sub_type 1
+value 750000
+unpaid 1
+x 5
+y 18
+end
+arch shop_floor
 x 5
 y 19
 end
-arch grassd_5
+arch chest_sw_1
+sub_type 1
+value 500000
+unpaid 1
+direction 7
+x 5
+y 19
+end
+arch shop_floor
 x 5
 y 20
 end
-arch plant9
+arch chest_sw_1
+sub_type 1
+value 500000
+unpaid 1
 x 5
 y 20
 end
-arch grassd_7
+arch shop_floor
 x 5
 y 21
 end
-arch tree_big5b
+arch chest_4.111
+sub_type 1
+value 750000
+unpaid 1
+direction 7
 x 5
 y 21
 end
-arch grassd_1
+arch shop_floor
 x 5
 y 22
 end
-arch grassd_7
+arch chest_4.111
+sub_type 1
+value 750000
+unpaid 1
+x 5
+y 22
+end
+arch shop_floor
+x 5
+y 23
+end
+arch chest_w1
+sub_type 1
+value 1000000
+unpaid 1
+direction 7
 x 5
 y 23
 end
@@ -846,67 +1062,123 @@ arch grassd_5
 x 6
 y 9
 end
-arch grassd_5
+arch wall_stone15_1
+x 6
+y 9
+end
+arch shop_floor_normal
 x 6
 y 10
 end
-arch grassd_5
+arch wall_stone15_3
+x 6
+y 10
+end
+arch shop_floor_normal
 x 6
 y 11
 end
-arch grassd_2
+arch wall_stone1_w.131
+x 6
+y 11
+end
+arch shop_floor_normal
 x 6
 y 12
 end
-arch grassd_8
+arch wall_stone15_3
+x 6
+y 12
+end
+arch shop_floor_normal
 x 6
 y 13
 end
-arch grassd_5
+arch door1_locked
+cursed 1
+direction 3
+x 6
+y 13
+end
+arch shop_floor_normal
 x 6
 y 14
 end
-arch grassd_3
+arch door1_locked
+cursed 1
+direction 5
+x 6
+y 14
+end
+arch shop_floor_normal
 x 6
 y 15
 end
-arch grassd_1
+arch wall_stone15_3
+x 6
+y 15
+end
+arch shop_floor_normal
 x 6
 y 16
 end
-arch grassd_4
+arch wall_stone15_4
+x 6
+y 16
+end
+arch shop_floor_normal
 x 6
 y 17
 end
-arch grassd_7
+arch wall_stone15_3
+x 6
+y 17
+end
+arch shop_floor_normal
 x 6
 y 18
 end
-arch tree_big
+arch wall_stone15_3
 x 6
 y 18
 end
-arch grassd_7
+arch shop_floor_normal
 x 6
 y 19
 end
-arch plant5
+arch wall_stone15_3
 x 6
 y 19
 end
-arch grassd_1
+arch shop_floor_normal
 x 6
 y 20
 end
-arch grassd_4
+arch wall_stone1_w.131
+x 6
+y 20
+end
+arch shop_floor_normal
 x 6
 y 21
 end
-arch grassd_3
+arch wall_stone15_3
+x 6
+y 21
+end
+arch shop_floor_normal
 x 6
 y 22
 end
-arch grassd_2
+arch wall_stone15_3
+x 6
+y 22
+end
+arch shop_floor_normal
+x 6
+y 23
+end
+arch wall_stone15_3
 x 6
 y 23
 end
@@ -979,8 +1251,8 @@ arch grassd_1
 x 7
 y 10
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 10
 end
@@ -993,19 +1265,27 @@ arch grassd_6
 x 7
 y 11
 end
-arch grassd_5
+arch floor_flagm2
 x 7
 y 12
 end
-arch grassd_7
+arch grassd_m4
+x 7
+y 12
+end
+arch floor_flagm4
 x 7
 y 13
 end
-arch grassd_3
+arch floor_flagm4
 x 7
 y 14
 end
-arch grassd_8
+arch floor_flagm4
+x 7
+y 15
+end
+arch grassd_m3
 x 7
 y 15
 end
@@ -1013,8 +1293,8 @@ arch grassd_4
 x 7
 y 16
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 16
 end
@@ -1145,7 +1425,7 @@ arch floor_flagm4
 x 8
 y 12
 end
-arch grassd_m9
+arch grassd_m13
 x 8
 y 12
 end
@@ -1153,15 +1433,7 @@ arch floor_flagm2
 x 8
 y 13
 end
-arch grassd_m9
-x 8
-y 13
-end
 arch floor_flagm4
-x 8
-y 14
-end
-arch grassd_m9
 x 8
 y 14
 end
@@ -1169,7 +1441,7 @@ arch floor_flagm2
 x 8
 y 15
 end
-arch grassd_m9
+arch grassd_m14
 x 8
 y 15
 end
