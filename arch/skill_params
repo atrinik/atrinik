@@ -1,5 +1,0 @@
-# Format:
-# name
-# exp_category usage_time base_exp level_exp_modifier primary_stat secondary_stat tertiary stat
-#
-# Currently unused, because somehow the category IDs always seem to get randomized...
