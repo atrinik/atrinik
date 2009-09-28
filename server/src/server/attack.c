@@ -92,7 +92,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		goto error;
 
 	/* Trigger the ATTACK event */
-	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, (int *) base_dam, (int *) base_wc, SCRIPT_FIX_ALL);
+	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, &base_dam, &base_wc, SCRIPT_FIX_ALL);
 
 	op_tag = op->count;
 	hitter_tag = hitter->count;
@@ -1059,7 +1059,7 @@ int kill_object(object *op,int dam, object *hitter, int type)
 		return -1;
 
 	/* Trigger the DEATH event */
-	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, (int *) type, 0, 0, SCRIPT_FIX_ALL))
+	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, &type, 0, 0, SCRIPT_FIX_ALL))
 	{
 		return 0;
 	}

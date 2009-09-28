@@ -400,7 +400,7 @@ void doeric_server()
 	int i, pollret;
 	uint32 update_below;
 	struct sockaddr_in addr;
-	size_t addrlen = sizeof(struct sockaddr);
+	unsigned int addrlen = sizeof(addr);
 	player *pl, *next;
 
 #ifdef CS_LOGSTATS

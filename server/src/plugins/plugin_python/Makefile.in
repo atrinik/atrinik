@@ -31,7 +31,6 @@ CC        = @CC@
 MAKEDOC = doc_utils/make_documentation.pl
 
 SRCS = \
-	../common/plugin_common.c \
 	plugin_python.c \
 	atrinik_map.c \
 	atrinik_object.c
@@ -42,7 +41,7 @@ INCLUDE   = -I./include -I../../include -I../common/include -I$(INCLUDEROOT)/pyt
 CFLAGS    = -g -O2 -fPIC $(EXTRA_CFLAGS)
 DEPEND = @DEPEND@
 
-LIBPYTHON = $(LIBROOT)/python$(PYTHONVER)/config/libpython$(PYTHONVER).a
+LIBPYTHON = $(LIBROOT)/python$(PYTHONVER)/config/libpython$(PYTHONVER)-pic.a
 
 LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
@@ -57,7 +56,7 @@ distclean : clean
 	$(RM) -f *.o core plugin_python.so.0.1 Makefile
 
 plugin_python.so.0.1 : $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../../common/libcross.a $(ALLLIBS) -o plugin_python.so.0.1
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../../common/libcross.a ../common/plugin_common.a $(ALLLIBS) -o plugin_python.so.0.1
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@

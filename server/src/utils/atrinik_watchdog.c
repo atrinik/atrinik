@@ -65,11 +65,11 @@
 int main(int argc, char *argv[])
 {
 	int sock, length, n, server_running = 1, daemonmode = 0;
-	size_t fromlen;
 	struct sockaddr_in server;
 	struct sockaddr_in from;
 	char buf[MAX_BUF];
 	time_t last_time = time(NULL);
+	unsigned int fromlen = sizeof(from);
 
 	/* Parse options */
 	while (argc > 1)

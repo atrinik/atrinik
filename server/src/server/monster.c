@@ -1960,7 +1960,7 @@ int check_good_armour(object *who, object *item)
 
 void monster_check_pickup(object *monster)
 {
-	object *tmp,*next;
+	object *tmp, *next;
 	int next_tag = 0;
 
 	for (tmp = monster->below; tmp != NULL; tmp = next)
@@ -1972,19 +1972,23 @@ void monster_check_pickup(object *monster)
 		if (monster_can_pick(monster, tmp))
 		{
 			remove_ob(tmp);
+
 			if (check_walk_off(tmp, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
+			{
 				return;
+			}
 
 			tmp = insert_ob_in_ob(tmp, monster);
 
 			/* Trigger the PICKUP event */
-			if (trigger_event(EVENT_PICKUP, monster, tmp, monster, NULL, (int *) tmp->nrof, 0, 0, SCRIPT_FIX_ALL))
+			if (trigger_event(EVENT_PICKUP, monster, tmp, monster, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
 			{
 				return;
 			}
 
 			(void) monster_check_apply(monster, tmp);
 		}
+
 		/* We could try to re-establish the cycling, of the space, but probably
 		 * not a big deal to just bail out. */
 		if (next && was_destroyed(next, next_tag))

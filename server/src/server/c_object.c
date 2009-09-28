@@ -366,7 +366,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	tmp = insert_ob_in_ob(tmp, op);
 
 	/* Trigger the PICKUP event */
-	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, (int *) tmp_nrof, 0, 0, SCRIPT_FIX_ALL))
+	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, &tmp_nrof, 0, 0, SCRIPT_FIX_ALL))
 	{
 		return;
 	}
