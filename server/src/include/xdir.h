@@ -23,13 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Headers and macros necessary for reading a directory
- * Taken from server/input.c into separate files when this was needed
- * in server/encounter.c, too
- */
+/**
+ * @file
+ * Headers and macros necessary for reading a directory. */
 
 /* This glob is right out of the autoconf manual */
-
 #if HAVE_DIRENT_H
 # include <dirent.h>
 # define NAMLEN(dirent) strlen((dirent)d->name)

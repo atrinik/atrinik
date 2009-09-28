@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef PLUGPROTO_H_
-#define PLUGPROTO_H_
+#ifndef PLUGPROTO_H
+#define PLUGPROTO_H
 
 f_plugin HookList[NR_OF_HOOKS] =
 {
@@ -106,4 +106,4 @@ f_plugin HookList[NR_OF_HOOKS] =
 	CFWPlayerExists
 };
 
-#endif /*PLUGPROTO_H_*/
+#endif

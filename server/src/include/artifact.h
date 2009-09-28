@@ -47,7 +47,9 @@ typedef struct artifactstruct
 	/** The base archetype object - this is chained to arch list */
 	archetype def_at;
 
-	/** Treasure style. */
+	/**
+	 * Treasure style.
+	 * @see treasure_style */
 	int t_style;
 
 	/** Chance */

@@ -1,0 +1,47 @@
+/**
+
+@page treasure_style Treasure style
+
+A t_style is a kind of sub class identifier for the artifacts.
+
+It is used to part the single artifact masks (is has no real use for
+unique artifacts) of an Allowed xxx group in sub groups.
+
+There is a t_style variable also in the treasure file for each treasure
+or treasure list which calls the artifacts file after generation of base
+item.
+
+@note An unset t_style for an artifact or treasure is by default 0.
+
+Both t_style are compared:
+
+ - <b>t_style == 0</b>: All - ignore t_style settings of the artifacts
+ - <b>t_style == -1</b>: Get only artifacts with t_style == 0
+ - <b>t_style >= 1</b>: Get only artifacts with same number
+
+@section sec_use Use
+A fire giant should drop fire related items and artifacts. For example
+only red gems, fire related potions and magic items or fire based weapons
+and armour.
+
+So, all fire related artifacts are signed as t_style = 1 (the artifacts
+file default setting for fire related items).
+
+Now the treasures of the fire giant are signed to "t_style 1" too.
+If he drops an artifact then it will be fire related.
+
+Note that a normal or even mixed call is possible. With t_style = 0 all
+artifacts are selected as usual. To let a fire giant drop a cold based
+item just sign one treasure of his treasure list as t_style = 2 (= cold
+based).
+
+@section sec_t_style_defaults t_style Defaults
+Use these default settings for your treasures and artifacts:
+
+-# -> fire
+-# -> cold
+-# -> electricity
+-# -> poison
+-# -> acid
+
+*/

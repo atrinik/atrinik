@@ -23,12 +23,22 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Version header file. */
+
+/** Version of the server. */
 #ifdef MAKE
 #define Version "0.1"
 #else
 #define VERSION "0.1"
 #endif
 
+/** Define CS version */
 #define VERSION_CS 991017
+
+/** Define SC version */
 #define VERSION_SC 991017
+
+/** Define version info */
 #define VERSION_INFO "Atrinik Server"

@@ -1,46 +1,6 @@
-# This file contains various treasures, with generation rules.
-#
-# I added alot of new key commands to the treasure list.
-# I changed double use of magic command and changed the way
-# magic items are generated.
-#
-# In CF, the treasure list is more basic and more random.
-# In daimonin there are more commands and a stronger control,
-# allowing to create more detailed treasures.
-#
-# There are 3 commands now define possible magic items:
-# magic, magic_fix and magic_chance
-#
-# magic_fix:
-# If we want give a item in a treasure list always a fixed
-# bonus magic_fix should be used. This include also negative
-# value (item will then be set to cursed automatically).
-#
-# magic_chance:
-# This value can be between 0 to 100. If there is no magic_chance
-# value, chance for magic item is server internal default drop value.
-# 100 means a 100% chance to generate a magic item.
-#
-# magic:
-# If magic_fix is 0 and magic_chance gives a magic item, magic
-# value is used to generate a magic item. Formula is (RANDOM()%abs(magic))+1.
-# A magic value of 1 will generate always +1 items, a magic value of 2
-# items with +1 or +2 and so on. Negative values are possible too.
-#
-# Other commands:
-#
-# difficulty:
-# For spliting treasure lists, difficulty sets a difficulty level. A map
-# or a object generating this list must be same or higher level. If not,
-# list is ignored.
-#
-# Gods - treasures of gods are special.
-#
-# wealth:
-# The wealth arch is transformed to real money based on the difficulty/level of its
-# enviroment. The default setting is in value of the wealth arch but can be altered
-# by using the magic keyword.
-#
+# See documentation and syntax used for treasures in
+# server/doc/treasures.dox or at
+# http://server.docs.atrinik.org/treasures.html
 
 #########################################################
 # Default "deity" - The Tabernacle

@@ -37,8 +37,8 @@
  *
  * @author Yann Chachkoff */
 
-#ifndef TIMERS_H_
-#define TIMERS_H_
+#ifndef TIMERS_H
+#define TIMERS_H
 
 #include <version.h>
 #include <global.h>

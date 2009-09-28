@@ -29,8 +29,8 @@
  *
  * @author Yann Chachkoff */
 
-#ifndef PLUGIN_H_
-#define PLUGIN_H_
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
 #ifndef WIN32
 #include <dlfcn.h>

@@ -1,0 +1,56 @@
+/**
+
+@page treasures Treasures
+
+The treasures file in arch directory contains various treasures, with
+generation rules.
+
+@section sec_syntax Treasures file syntax
+
+@subsection subsec_magic_fix magic_fix:
+If we want to give an item in a treasure list always a fixed bonus
+magic_fix should be used. This also includes negative value (item will
+then be set to cursed automatically).
+
+@subsection subsec_magic magic:
+If magic_fix is 0 and magic_chance gives a magic item, magic value is
+used to generate a magic item.
+
+Formula is:
+<pre>(RANDOM() % abs(magic)) + 1</pre>
+
+A magic value of 1 will always generate +1 items, a magic value of 2
+items with +1 or +2 and so on. Negative values are possible too.
+
+@subsection subsec_magic_chance magic_chance:
+This value can be between 0 to 100. If there is no magic_chance value,
+chance for magic item is server internal default drop value.
+
+100 means a 100% chance to generate a magic item.
+
+@subsection subsec_difficulty difficulty:
+For spliting treasure lists, difficulty sets a difficulty level. A map
+or a object generating this list must be same or higher level. If not,
+list is ignored.
+
+@subsection subsec_wealth wealth:
+The wealth arch is transformed to real money based on the
+difficulty/level of its enviroment. The default setting is in value of
+the wealth arch but can be altered by using the magic keyword.
+
+@subsection subsec_t_style t_style:
+See: @ref treasure_style
+
+@subsection subsec_artifact_chance artifact_chance:
+@copydoc treasure::artifact_chance
+
+@subsection subsec_chance chance:
+@copydoc treasure::chance
+
+@subsection subsec_chance_fix chance_fix:
+@copydoc treasure::chance_fix
+
+@subsection subsec_nrof nrof:
+@copydoc treasure::nrof
+
+*/
