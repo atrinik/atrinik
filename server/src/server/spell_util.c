@@ -364,7 +364,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		new_draw_info(NDI_UNIQUE, 0, op, "You auto-target yourself with this spell!");
 
 	/*  ban removed on clerical spells in no-magic areas */
-	if (!ability && (((!s->flags & SPELL_DESC_WIS) && blocks_magic(op->map, op->x, op->y)) || ((s->flags & SPELL_DESC_WIS) && blocks_cleric(op->map, op->x, op->y))))
+	if (!ability && ((!(s->flags & SPELL_DESC_WIS) && blocks_magic(op->map, op->x, op->y)) || ((s->flags & SPELL_DESC_WIS) && blocks_cleric(op->map, op->x, op->y))))
 	{
 		if (op->type != PLAYER)
 			return 0;
@@ -424,7 +424,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		return random_roll(1, SP_level_spellpoint_cost(op, caster, type), op, PREFER_LOW);
 	}
 
-	if (item == spellNormal && op->type == PLAYER && (!s->flags & SPELL_DESC_WIS))
+	if (item == spellNormal && op->type == PLAYER && !(s->flags & SPELL_DESC_WIS))
 	{
 		int failure = random_roll(0, 199, op, PREFER_LOW) - CONTR(op)->encumbrance + op->chosen_skill->level -s->level + 35;
 
