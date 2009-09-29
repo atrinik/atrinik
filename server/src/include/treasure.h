@@ -121,7 +121,7 @@ typedef struct treasurestruct
 
 	/**
 	 * Local t_style (will overrule global one) - used from artifacts.
-	 * @see treasure_style */
+	 * @see @ref treasure_style */
 	int t_style;
 
 	/** Value from 0 - 1000. Chance of item is magic. */
@@ -172,7 +172,7 @@ typedef struct treasureliststruct
 
 	/**
 	 * Global style (used from artifacts file).
-	 * @see treasure_style */
+	 * @see @ref treasure_style */
 	int t_style;
 
 	/** Artifact chance */

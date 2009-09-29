@@ -49,7 +49,7 @@ typedef struct artifactstruct
 
 	/**
 	 * Treasure style.
-	 * @see treasure_style */
+	 * @see @ref treasure_style */
 	int t_style;
 
 	/** Chance */
