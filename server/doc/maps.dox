@@ -1,0 +1,18 @@
+/**
+
+@page page_maps Maps
+
+@section sec_map_introduction Introduction
+
+Map files are text files with special syntax, which are loaded by the
+server to create maps, insert objects on the map, connect tiled maps,
+etc.
+
+@section sec_map_structure Structure
+
+When manipulating or accessing the @ref ::mapdef "map" structure, always
+use macros in @ref include/map.h or functions in @ref common/map.c.
+
+@see map_struct_macros
+
+*/

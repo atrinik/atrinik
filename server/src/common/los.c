@@ -1137,8 +1137,7 @@ void remove_light_source_list(mapstruct *map)
  * Uses the Bresenham line algorithm.
  * @param obj The object to check
  * @param rv rv_vector to get distances, map, etc from
- * @return 1 if in line of sight, 0 otherwise
- */
+ * @return 1 if in line of sight, 0 otherwise */
 int obj_in_line_of_sight(object *obj, rv_vector *rv)
 {
 	/* Bresenham variables */

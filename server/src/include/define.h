@@ -152,6 +152,8 @@
  *
  * Type 0 will be undefined and show a non valid type information.
  *@{*/
+
+/** The object is a player object. */
 #define PLAYER		            1
 #define BULLET		            2
 #define ROD		                3
@@ -723,7 +725,7 @@
 /*@}*/
 
 /**
- * @defgroup flags_structure Flag Structure
+ * @defgroup flags_structure Flags Structure
  * Flag structure now changed.
  * Each flag is now a bit offset, starting at zero.  The macros
  * will update/read the appropriate flag element in the object
@@ -755,13 +757,30 @@
 
 /**
  * @defgroup object_flag_macros Object flag macros
- * Basic macros to do the above. */
+ * Basic macros to do the above.
+ *@{*/
+
+/**
+ * Set flag of of an object.
+ * @param xyz The object
+ * @param p The flag to set */
 #define SET_FLAG(xyz, p) \
 	((xyz)->flags[p / 32] |= (1U << (p % 32)))
+
+/**
+ * Clear flag of an object.
+ * @param xyz The object
+ * @param p The flag to clear */
 #define CLEAR_FLAG(xyz, p) \
 	((xyz)->flags[p / 32] &= ~(1U << (p % 32)))
+
+/**
+ * Query flag of an object.
+ * @param xyz The object
+ * @param p The flag to query */
 #define QUERY_FLAG(xyz, p) \
 	((xyz)->flags[p / 32] & (1U << (p % 32)))
+/*@}*/
 
 /**
  * @defgroup object_multiflag_macros Object multiflag macros

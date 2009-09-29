@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Map related functions. */
+
 #include <global.h>
 #include <funcpoint.h>
 

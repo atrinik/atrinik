@@ -4,25 +4,13 @@
 
 @section main_intro Welcome to the Atrinik server documentation.
 
-This documentation only covers the technical aspects of server source code.
-
-More will be added here soon.
+This documentation covers the technical aspects of the Atrinik server source code.
 
 - @ref todo
 - @ref plugin_arena
-- @ref type_index "Type index"
-- @ref identify_modes
-- @ref spelllist_modes
-- @ref golem_control_modes
-- @ref los_blocked_modes
-- @ref type_defines
-- @ref sub_type_defines
-- @ref size_of_free_defines
-- @ref spell_path_defines
-- @ref terrain_type_flags
-- @ref flags_structure
-- @ref monster_movements
-- @ref st_defines
-- @ref bresenham_algorithm
+- @ref page_objects
+- @ref page_monsters
+- @ref page_maps
+- @ref treasures
 
 */

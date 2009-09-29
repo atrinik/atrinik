@@ -1,0 +1,48 @@
+/**
+
+@page page_monsters Monsters
+
+@section sec_monsters_introduction Introduction
+
+Monsters, or sometimes referred to as mobiles (mobs), are
+@ref ::obj "objects" of type @ref MONSTER "monster". They can be both
+NPCs in town if they have @ref FLAG_FRIENDLY "friendly flag" set, or just
+monsters in dungeons.
+
+Monsters are what makes the game fun and enjoyable to play. Enemy
+monsters will chase a player if they detect his presence, and if the
+player kills them, they will drop a corpse with loot, if they were high
+enough level to give experience to the player.
+
+@section sec_monsters_experience Experience from monsters
+
+When player kills an enemy monster, they give experience based on their
+@ref object::experience "experience" value and whether they were high
+enough level for the player.
+
+This is determined by their @ref ::_level_color "color level", which is
+determined by the difference of levels between the monster and the
+player.
+
+@section sec_monsters_enemy_detection Enemy detection
+
+The monster code uses some functions to find enemy creatures, including:
+
+- get_nearest_player()
+- find_nearest_living_creature()
+
+The monster will also check if the enemy it has found with the above
+functions can be seen using obj_in_line_of_sight() function, which makes
+use of @ref bresenham_algorithm "Bresenham's line algorithm".
+
+@section sec_monsters_movement_attack_types Movement and attack types
+
+A monster can have different movement and/or attack types. Those are used
+to give different behavior to monsters when moving or attacking.
+
+Movement type of monster is stored in object::move_type, while attack
+type is stored in object::attack_move_type.
+
+@see monster_movements
+
+*/

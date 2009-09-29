@@ -32,7 +32,7 @@
 #define LIVING_H
 
 /**
- * @defgroup STATS Object statistics. */
+ * @defgroup STATS Object statistics */
 /*@{*/
 /** Strength */
 #define STR				0

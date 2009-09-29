@@ -1,0 +1,66 @@
+/**
+
+@page page_objects Objects
+
+@section sec_obj_introduction Introduction
+
+Objects are one ofthe most important things in Atrinik. They represent
+every item the player can use, monsters, walls, experience, skills, and
+many more.
+
+Objects are represented by the ::obj structure.
+
+@section sec_obj_types Object types
+One of the important fields in the ::obj structure is object::type, which
+defines what kind of object it is, for example, a @ref MONSTER "monster",
+@ref WALL "wall", @ref EXIT "exit", and many many more.
+
+@see @ref type_index, @ref type_defines
+
+@section sec_obj_sub_types Object sub types
+
+An object can also have @ref object::sub_type1 "sub_type", which is
+usually used to give the same sort of object type different functions.
+
+For example, weapons use the @ref object::sub_type1 "sub_type" to
+determine what kind of weapon it is, slash, impact, cleave or pierce.
+
+@see @ref sub_type_defines
+
+@section sec_obj_flags Object flags
+
+An object can have different @ref object::flags "flags" to determine
+various information about the object.
+
+For example, a sleeping monster object will have the flag @ref FLAG_SLEEP
+set. A confused monster object will have the flag @ref FLAG_CONFUSED set
+which will make it move in random directions instead of the one it is
+attempting to move to. @ref FLAG_PARAYLYZED will make a monster object
+unable to move until the flag is cleared.
+
+Flags for objects are controlled by few different macros, including:
+
+- @ref SET_FLAG
+- @ref CLEAR_FLAG
+- @ref QUERY_FLAG
+
+@see @ref flags_structure
+
+@section sec_obj_stats Object statistics
+
+Different object types can have different usage meanings of object
+@ref object::stats "statistics".
+
+For example, a @ref PLAYER "player" object will use these to determine
+the player stats (wisdom, intelligence, strength, etc).
+
+A @ref MONSTER "monster" object will use the same thing to determine the
+stats as well, but in different usage, for example, wisdom will affect
+how far the monster can sense other enemy creatures.
+
+@see ::liv, @ref STATS
+
+An ::object structure should never be created directly, but managed
+through suitable functions located in @ref common/object.c.
+
+*/
