@@ -267,37 +267,37 @@ enum
 	a_applied
 };
 
-/** @see FLAG_APPLIED */
+/** @copydoc FLAG_APPLIED */
 #define F_APPLIED       0x000F
 
-/** @see FLAG_IS_ETHEREAL */
+/** @copydoc FLAG_IS_ETHEREAL */
 #define F_ETHEREAL      0x0080
 
-/** @see FLAG_IS_INVISIBLE */
+/** @copydoc FLAG_IS_INVISIBLE */
 #define F_INVISIBLE     0x0100
 
-/** @see FLAG_UNPAID */
+/** @copydoc FLAG_UNPAID */
 #define F_UNPAID        0x0200
 
-/** @see FLAG_IS_MAGICAL */
+/** @copydoc FLAG_IS_MAGICAL */
 #define F_MAGIC         0x0400
 
-/** @see FLAG_CURSED */
+/** @copydoc FLAG_CURSED */
 #define F_CURSED        0x0800
 
-/** @see FLAG_DAMNED */
+/** @copydoc FLAG_DAMNED */
 #define F_DAMNED        0x1000
 
-/** @see CONTAINER */
+/** @copydoc CONTAINER */
 #define F_OPEN          0x2000
 
-/** @see FLAG_NO_PICK */
+/** @copydoc FLAG_NO_PICK */
 #define F_NOPICK        0x4000
 
-/** @see FLAG_INV_LOCKED */
+/** @copydoc FLAG_INV_LOCKED */
 #define F_LOCKED        0x8000
 
-/** @see FLAG_IS_TRAPED */
+/** @copydoc FLAG_IS_TRAPED */
 #define F_TRAPED        0x10000
 /*@}*/
 
