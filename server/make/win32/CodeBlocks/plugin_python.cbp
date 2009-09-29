@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE Code::Blocks_project_file>
+<Code::Blocks_project_file>
+	<FileVersion major="1" minor="1" />
+	<Project>
+		<Option title="plugin_python" />
+		<Option makefile="Makefile" />
+		<Option makefile_is_custom="0" />
+		<Option default_target="-1" />
+		<Option active_target="0" />
+		<Option compiler="0" />
+		<Build>
+			<Target title="Release">
+				<Option output="release\plugin_python.dll" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option deps_output=".deps" />
+				<Option external_deps="" />
+				<Option type="3" />
+				<Option compiler="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="0" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_USRDLL" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
+					<Add option="-DMIN_GW" />
+					<Add option="-O3" />
+				</Compiler>
+				<Linker>
+					<Add library="winmm" />
+					<Add directory="Release" />
+					<Add directory="c:\Python26\libs" />
+					<Add library="libpython26.a" />
+					<Add library="libcross.a" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="cp .\Release\plugin_python.dll ..\..\..\plugins\plugin_python.dll" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="..\..\..\src\include" />
+			<Add directory="sqlite3" />
+			<Add directory="..\..\..\src\plugins\plugin_python\include" />
+			<Add directory="..\..\..\src\plugins\common\include" />
+			<Add directory="c:\Python26\include" />
+		</Compiler>
+
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_map.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_object.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\inline.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\plugin_python.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+
+		<Unit filename="..\..\..\src\plugins\common\plugin_common.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_map.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_object.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+	</Project>
+</Code::Blocks_project_file>

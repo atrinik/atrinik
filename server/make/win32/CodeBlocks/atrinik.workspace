@@ -4,5 +4,6 @@
 		<Project filename="common.cbp" />
 		<Project filename="atrinik_server.cbp" active="1" />
 		<Project filename="plugin_arena.cbp" />
+		<Project filename="plugin_python.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

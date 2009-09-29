@@ -740,7 +740,7 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 /********************************************************************/
 static int RunPythonScript(const char *path, object *event_object)
 {
-	FILE* scriptfile = NULL;
+	PyObject *scriptfile;
 	char *fullpath = create_pathname(path);
 	const char *sh_path;
 	struct stat stat_buf;
@@ -773,18 +773,21 @@ static int RunPythonScript(const char *path, object *event_object)
 
 	if (maintenance_mode)
 	{
-		if (!(scriptfile = fopen(fullpath, "r")))
+		if (!(scriptfile = PyFile_FromString(fullpath, "r")))
 		{
 			plugin_log(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			return -1;
 		}
 
-		if (fstat(fileno(scriptfile), &stat_buf))
+		if (stat(fullpath, &stat_buf))
 		{
-			plugin_log(llevDebug, "PYTHON - The Script file %s can't be stat:ed\n", path);
+			plugin_log(llevDebug, "PYTHON - The Script file %s can't be stat:ed\n", fullpath);
 
 			if (scriptfile)
-				fclose(scriptfile);
+			{
+				Py_DECREF(scriptfile);
+			}
+
 			return -1;
 		}
 	}
@@ -861,26 +864,33 @@ static int RunPythonScript(const char *path, object *event_object)
 #ifdef PYTHON_DEBUG
 		plugin_log(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
 #endif
-		if (!scriptfile && !(scriptfile = fopen(fullpath, "r")))
+		if (!scriptfile && !(scriptfile = PyFile_FromString(fullpath, "r")))
 		{
 			plugin_log(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			replace->code = NULL;
 		}
 		else
 		{
-			if ((n = PyParser_SimpleParseFile(scriptfile, fullpath, Py_file_input)))
+			FILE *pyfile = PyFile_AsFile(scriptfile);
+
+			if ((n = PyParser_SimpleParseFile(pyfile, fullpath, Py_file_input)))
 			{
 				replace->code = PyNode_Compile(n, fullpath);
-				PyNode_Free (n);
+				PyNode_Free(n);
 			}
 
 			if (maintenance_mode)
 			{
 				if (PyErr_Occurred())
+				{
 					PyErr_Print();
+				}
 				else
+				{
 					replace->cached_time = stat_buf.st_mtime;
+				}
 			}
+
 			run = replace;
 		}
 	}
@@ -897,10 +907,13 @@ static int RunPythonScript(const char *path, object *event_object)
 #endif
 
 		PyEval_EvalCode(run->code, globdict, NULL);
+
 		if (PyErr_Occurred())
 		{
 			if (maintenance_mode)
+			{
 				PyErr_Print();
+			}
 		}
 		else
 		{
@@ -918,7 +931,9 @@ static int RunPythonScript(const char *path, object *event_object)
 	free_string_hook(sh_path);
 
 	if (scriptfile)
-		fclose(scriptfile);
+	{
+		Py_DECREF(scriptfile);
+	}
 
 	return result;
 }
