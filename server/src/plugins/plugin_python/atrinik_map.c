@@ -63,7 +63,7 @@ typedef struct
  *
  * - <b>name</b>: @copydoc mapstruct::name
  * - <b>message</b>: @copydoc mapstruct::msg
- * - <b>reset_interval</b>: @copydoc mapstruct::reset_interval
+ * - <b>reset_interval</b>: @copydoc mapstruct::reset_timeout
  * - <b>difficulty</b>: @copydoc mapstruct::difficulty
  * - <b>height</b>: @copydoc mapstruct::height
  * - <b>width</b>: @copydoc mapstruct::width
