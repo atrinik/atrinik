@@ -21,7 +21,7 @@ if done_all_quests == True:
 	key_arch = "key_brown"
 	key_name = "Tutorial Island key"
 
-	key_activator = activator.CheckInventory(0, key_arch, key_name)
+	key_activator = activator.CheckInventory(2, key_arch, key_name)
 
 	if key_activator == None:
 		key_me = me.CheckInventory(0, key_arch, key_name)
