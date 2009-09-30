@@ -194,9 +194,9 @@ typedef struct
  * - <b>weapon_speed_add</b>: @copydoc object::weapon_speed_add
  * - <b>experience</b>: @copydoc living::exp
  * - <b>hitpoints</b>: @copydoc living::hp
- * - <b>max_hitpoints</b>: @copydoc living::max_hp
+ * - <b>max_hitpoints</b>: @copydoc living::maxhp
  * - <b>spellpoints</b>: @copydoc living::sp
- * - <b>max_spellpoints</b>: @copydoc living::max_sp
+ * - <b>max_spellpoints</b>: @copydoc living::maxsp
  * - <b>grace</b>: @copydoc living::grace
  * - <b>max_grace</b>: @copydoc living::maxgrace
  * - <b>food</b>: @copydoc living::food
