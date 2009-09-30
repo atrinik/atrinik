@@ -225,4 +225,4 @@ extern PythonCmd CustomCommand[NR_CUSTOM_CMD];
 /* not like the use of such a global variable, but it is the most convenient */
 /* way I found to pass the command index to cmd_customPython.                */
 extern int NextCustomCommand;
-#endif /*PLUGIN_PYTHON_H*/
+#endif

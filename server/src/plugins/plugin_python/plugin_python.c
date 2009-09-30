@@ -23,7 +23,9 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This module was original written for crossfire from gros. */
+/**
+ * @file
+ * Atrinik python plugin. */
 
 /*****************************************************************************/
 /* Atrinik - A Python module for Atrinik RPG.                                */
@@ -82,31 +84,31 @@ CFParm* PlugProps;
 f_plugin PlugHooks[1024];
 
 /* A generic exception that we use for error messages */
-PyObject* AtrinikError;
+PyObject *AtrinikError;
 
-/* This one is used to cleanly pass args to the CF core */
+/* This one is used to cleanly pass args to the Atrinik core */
 CFParm GCFP;
 CFParm GCFP0;
 CFParm GCFP1;
 CFParm GCFP2;
 
 /* Atrinik methods */
-static PyObject* Atrinik_MatchString(PyObject* self, PyObject* args);
-static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args);
-static PyObject* Atrinik_FindPlayer(PyObject* self, PyObject* args);
-static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args);
-static PyObject* Atrinik_WhoAmI(PyObject* self, PyObject* args);
-static PyObject* Atrinik_WhoIsActivator(PyObject* self, PyObject* args);
-static PyObject* Atrinik_WhatIsMessage(PyObject* self, PyObject* args);
-static PyObject* Atrinik_WhoIsOther(PyObject* self, PyObject* args);
-static PyObject* Atrinik_GetOptions(PyObject *self, PyObject* args);
-static PyObject* Atrinik_GetSpellNr(PyObject* self, PyObject* args);
-static PyObject* Atrinik_GetSkillNr(PyObject* self, PyObject* args);
-static PyObject* Atrinik_CheckMap(PyObject* self, PyObject* args);
-static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args);
-static PyObject* Atrinik_LoadObject(PyObject *self, PyObject* args);
-static PyObject* Atrinik_GetReturnValue(PyObject *self, PyObject* args);
-static PyObject* Atrinik_SetReturnValue(PyObject *self, PyObject* args);
+static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args);
+static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args);
+static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args);
+static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args);
+static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args);
+static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args);
+static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args);
+static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args);
+static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args);
+static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args);
+static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args);
+static PyObject *Atrinik_CheckMap(PyObject *self, PyObject *args);
+static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args);
+static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args);
+static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args);
+static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -126,40 +128,43 @@ int StackParm4[MAX_RECURSIVE_CALL];
 int StackReturn[MAX_RECURSIVE_CALL];
 char* StackOptions[MAX_RECURSIVE_CALL];
 
-/* Here are the Python Declaration Table, used by the interpreter to make    */
-/* an interface with the C code                                              */
+/**
+ * Here is the Python Declaration Table, used by the interpreter to make
+ * an interface with the C code. */
 static PyMethodDef AtrinikMethods[] =
 {
-	{"LoadObject", 		Atrinik_LoadObject,			METH_VARARGS, 0},
-	{"ReadyMap", 		Atrinik_ReadyMap, 			METH_VARARGS, 0},
-	{"CheckMap",		Atrinik_CheckMap,			METH_VARARGS, 0},
-	{"MatchString", 	Atrinik_MatchString, 		METH_VARARGS, 0},
-	{"FindPlayer", 		Atrinik_FindPlayer, 		METH_VARARGS, 0},
-	{"PlayerExists", 	Atrinik_PlayerExists, 		METH_VARARGS, 0},
-	{"GetOptions", 		Atrinik_GetOptions, 		METH_VARARGS, 0},
-	{"GetReturnValue",	Atrinik_GetReturnValue,		METH_VARARGS, 0},
-	{"SetReturnValue",	Atrinik_SetReturnValue,		METH_VARARGS, 0},
-	{"GetSpellNr",		Atrinik_GetSpellNr,			METH_VARARGS, 0},
-	{"GetSkillNr",		Atrinik_GetSkillNr,			METH_VARARGS, 0},
-	{"WhoAmI", 			Atrinik_WhoAmI, 			METH_VARARGS, 0},
-	{"WhoIsActivator", 	Atrinik_WhoIsActivator, 	METH_VARARGS, 0},
-	{"WhoIsOther",		Atrinik_WhoIsOther,			METH_VARARGS, 0},
-	{"WhatIsMessage", 	Atrinik_WhatIsMessage, 		METH_VARARGS, 0},
-	{"RegisterCommand",	Atrinik_RegisterCommand,	METH_VARARGS, 0},
+	{"LoadObject",       Atrinik_LoadObject,          METH_VARARGS, 0},
+	{"ReadyMap",         Atrinik_ReadyMap,            METH_VARARGS, 0},
+	{"CheckMap",         Atrinik_CheckMap,            METH_VARARGS, 0},
+	{"MatchString",      Atrinik_MatchString,         METH_VARARGS, 0},
+	{"FindPlayer",       Atrinik_FindPlayer,          METH_VARARGS, 0},
+	{"PlayerExists",     Atrinik_PlayerExists,        METH_VARARGS, 0},
+	{"GetOptions",       Atrinik_GetOptions,          METH_VARARGS, 0},
+	{"GetReturnValue",   Atrinik_GetReturnValue,      METH_VARARGS, 0},
+	{"SetReturnValue",   Atrinik_SetReturnValue,      METH_VARARGS, 0},
+	{"GetSpellNr",       Atrinik_GetSpellNr,          METH_VARARGS, 0},
+	{"GetSkillNr",       Atrinik_GetSkillNr,          METH_VARARGS, 0},
+	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
+	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},
+	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
+	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
+	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
-/* Useful constants */
+/**
+ * @anchor plugin_python_constants
+ * Useful constants */
 static Atrinik_Constant module_constants[] =
 {
-	{"NORTH", 		1},
-	{"NORTHEAST", 	2},
-	{"EAST", 		3},
-	{"SOUTHEAST", 	4},
-	{"SOUTH", 		5},
-	{"SOUTHWEST", 	6},
-	{"WEST", 		7},
-	{"NORTHWEST", 	8},
+	{"NORTH",       1},
+	{"NORTHEAST",   2},
+	{"EAST",        3},
+	{"SOUTHEAST",   4},
+	{"SOUTH",       5},
+	{"SOUTHWEST",   6},
+	{"WEST",        7},
+	{"NORTHWEST",   8},
 	{NULL, 0}
 };
 
@@ -180,71 +185,71 @@ typedef struct
 static cacheentry python_cache[PYTHON_CACHE_SIZE];
 static int RunPythonScript(const char *path, object *event_object);
 
+/**
+ * @defgroup plugin_python_functions Python plugin functions
+ *@{*/
 
-/****************************************************************************/
-/*                                                                          */
-/*                          Atrinik module functions                        */
-/*                                                                          */
-/****************************************************************************/
-
-/* FUNCTIONSTART -- Here all the Python plugin functions come */
-
-/*****************************************************************************/
-/* Name   : Atrinik_LoadObject                                               */
-/* Python : Atrinik.LoadObject(string)                                       */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-static PyObject* Atrinik_LoadObject(PyObject *self, PyObject* args)
+/**
+ * <h1>Atrinik.LoadObject(<i>\<string\></i> string)</h1>
+ *
+ * @warning Untested. */
+static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
 	object *whoptr;
 	char *dumpob;
-	CFParm* CFR;
+	CFParm *CFR;
 
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s", &dumpob))
+	{
 		return NULL;
+	}
 
 	/* First step: We create the object */
-	GCFP.Value[0] = (void *)(dumpob);
+	GCFP.Value[0] = (void *) (dumpob);
 	CFR = (PlugHooks[HOOK_LOADOBJECT])(&GCFP);
-	whoptr = (object *)(CFR->Value[0]);
+	whoptr = (object *) (CFR->Value[0]);
+
 	free(CFR);
 
 	return wrap_object(whoptr);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_MatchString                                              */
-/* Python : Atrinik.MatchString(firststr,secondstr)                          */
-/* Info   : Case insensitive string comparision. Returns 1 if the two        */
-/*          strings are the same, or 0 if they differ.                       */
-/*          secondstring can contain regular expressions.                    */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_MatchString(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.MatchString(<i>\<string\></i> firststr, <i>\<string\></i>
+ * secondstr)</h1>
+ *
+ * Case insensitive string comparison.
+ *
+ * @param firststr The first string
+ * @param secondstr The second string, can contain regular expressions
+ * @return 1 if the two strings are the same, or 0 if they differ */
+static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args)
 {
-	char *premiere;
-	char *seconde;
+	char *premiere, *seconde;
 
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "ss", &premiere, &seconde))
+	{
 		return NULL;
+	}
 
 	return Py_BuildValue("i", (re_cmp(premiere, seconde) != NULL) ? 1 : 0);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_ReadyMap                                                 */
-/* Python : Atrinik.ReadyMap(name, unique)                                   */
-/* Info   : Make sure the named map is loaded into memory. unique _must_ be  */
-/*          1 if the map is unique (f_unique = 1).                           */
-/*          Default value for unique is 0                                    */
-/* Status : Stable                                                           */
-/* TODO   : Don't crash if unique is wrong                                   */
-/*****************************************************************************/
-static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.ReadyMap(<i>\<string\></i> name, <i>\<int\></i> unique)
+ * </h1>
+ *
+ * Make sure the named map is loaded into memory.
+ *
+ * @param name Path to the map
+ * @param unique Must be 1 if the map is unique. Optional, defaults to 0.
+ * @return The loaded Atrinik map
+ * @todo Don't crash if unique is wrong */
+static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 {
 	char *mapname;
 	mapstruct *mymap;
@@ -254,31 +259,38 @@ static PyObject* Atrinik_ReadyMap(PyObject* self, PyObject* args)
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s|i", &mapname, &unique))
+	{
 		return NULL;
+	}
 
 	if (unique)
+	{
 		flags = MAP_PLAYER_UNIQUE;
+	}
 
-	GCFP.Value[0] = (void *)(mapname);
-	GCFP.Value[1] = (void *)(&flags);
+	GCFP.Value[0] = (void *) (mapname);
+	GCFP.Value[1] = (void *) (&flags);
 
 	CFR = (PlugHooks[HOOK_READYMAPNAME])(&GCFP);
-	mymap = (mapstruct *)(CFR->Value[0]);
+	mymap = (mapstruct *) (CFR->Value[0]);
 
 	if (mymap != NULL)
+	{
 		plugin_log(llevDebug, "Map file is %s\n", mymap->path);
+	}
 
 	free(CFR);
+
 	return wrap_map(mymap);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_CheckMap                                                 */
-/* Python : Atrinik.CheckMap(arch, map_path, x, y)                           */
-/* Info   :                                                                  */
-/* Status : Unfinished. DO NOT USE!                                          */
-/*****************************************************************************/
-static PyObject* Atrinik_CheckMap(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.CheckMap(<i>\<string\></i> arch, <i>\<string\></i>
+ * map_path, <i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ *
+ * @warning Unfinished, do not use.
+ * @todo Finish. */
+static PyObject *Atrinik_CheckMap(PyObject *self, PyObject *args)
 {
 	char *what;
 	char *mapstr;
@@ -289,7 +301,9 @@ static PyObject* Atrinik_CheckMap(PyObject* self, PyObject* args)
 
 	/* Gecko: replaced coordinate tuple with separate x and y coordinates */
 	if (!PyArg_ParseTuple(args, "ssii", &what, &mapstr, &x, &y))
+	{
 		return NULL;
+	}
 
 	RAISE("CheckMap() is not finished!");
 
@@ -297,41 +311,46 @@ static PyObject* Atrinik_CheckMap(PyObject* self, PyObject* args)
 	    return wrap_object(foundob);*/
 }
 
-
-/*****************************************************************************/
-/* Name   : Atrinik_FindPlayer                                               */
-/* Python : Atrinik.FindPlayer(name)                                         */
-/* Status : Tested                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_FindPlayer(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.FindPlayer(<i>\<string\></i> name)</h1>
+ * Find a player.
+ *
+ * @param name The player name
+ * @return The player's object if found, None otherwise */
+static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 {
 	player *foundpl;
 	object *foundob = NULL;
 	CFParm *CFR;
-	char* txt;
+	char *txt;
 
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s", &txt))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(txt);
+	GCFP.Value[0] = (void *) (txt);
 	CFR = (PlugHooks[HOOK_FINDPLAYER])(&GCFP);
-	foundpl = (player *)(CFR->Value[0]);
+	foundpl = (player *) (CFR->Value[0]);
 	free(CFR);
 
 	if (foundpl != NULL)
+	{
 		foundob = foundpl->ob;
+	}
 
 	return wrap_object(foundob);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_PlayerExists                                             */
-/* Python : Atrinik.PlayerExists(name)                                       */
-/* Status : Tested                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.PlayerExists(<i>\<string\></i> name)</h1>
+ * Check if player exists in the database.
+ *
+ * @param name The player name
+ * @return 1 if the player exists, 0 otherwise */
+static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 {
 	char *playerName;
 	CFParm *CFR;
@@ -340,137 +359,142 @@ static PyObject* Atrinik_PlayerExists(PyObject* self, PyObject* args)
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s", &playerName))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(playerName);
+	GCFP.Value[0] = (void *) (playerName);
 	CFR = (PlugHooks[HOOK_PLAYEREXISTS])(&GCFP);
-	value = *(int *)(CFR->Value[0]);
+	value = *(int *) (CFR->Value[0]);
+
 	free(CFR);
 
 	return Py_BuildValue("i", value);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_WhoAmI                                                   */
-/* Python : Atrinik.WhoAmI()                                                 */
-/* Info   : Get the owner of the active script (the object that has the      */
-/*          event handler)                                                   */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_WhoAmI(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.WhoAmI()</h1>
+ * Get the owner of the active script (the object that has the event
+ * handler).
+ * @return The script owner. */
+static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return wrap_object(StackWho[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_WhoIsActivator                                           */
-/* Python : Atrinik.WhoIsActivator()                                         */
-/* Info   : Gets the object that activated the current event                 */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_WhoIsActivator(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.WhoIsActivator()</h1>
+ * Get the object that activated the current event.
+ * @return The script activator. */
+static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return wrap_object(StackActivator[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_WhoIsOther                                               */
-/* Python : Atrinik.WhoIsOther()                                             */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-static PyObject* Atrinik_WhoIsOther(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.WhoIsOther()</h1>
+ * @warning Untested. */
+static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return wrap_object(StackOther[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_WhatIsMessage                                            */
-/* Python : Atrinik.WhatIsMessage()                                          */
-/* Info   : Gets the actual message in SAY events.                           */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_WhatIsMessage(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.WhatIsMessage()</h1>
+ * Gets the actual message in SAY events.
+ * @return The message. */
+static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return Py_BuildValue("s", StackText[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_GetOptions                                               */
-/* Python : Atrinik.GetOptions()                                             */
-/* Info   : Gets the script options (as passed in the event's slaying field) */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_GetOptions(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.GetOptions()</h1>
+ * Gets the script options (as passed in the event's slaying field).
+ * @return The script options. */
+static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return Py_BuildValue("s", StackOptions[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_GetReturnValue                                           */
-/* Python : Atrinik.GetReturnValue()                                         */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-static PyObject* Atrinik_GetReturnValue(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.GetReturnValue()</h1>
+ * Gets the script's return value.
+ * @return The return value */
+static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 {
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "", NULL))
+	{
 		return NULL;
+	}
 
 	return Py_BuildValue("i", StackReturn[StackPosition]);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_SetReturnValue                                           */
-/* Python : Atrinik.SetReturnValue(value)                                    */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-static PyObject* Atrinik_SetReturnValue(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.SetReturnValue(<i>\<int\></i> value)</h1>
+ * Sets the script's return value.
+ * @param value The new return value */
+static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 {
 	int value;
 
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "i", &value))
+	{
 		return NULL;
+	}
 
 	StackReturn[StackPosition] = value;
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_GetSpellNr                                               */
-/* Python : Atrinik.GetSpellNr(name)                                         */
-/* Info   : Gets the number of the named spell. -1 if no such spell exists   */
-/* Status : Tested                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_GetSpellNr(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.GetSpellNr(<i>\<string\></i> name)</h1>
+ * Gets the number of the named spell.
+ * @param name The spell name
+ * @return Number of the spell, -1 if no such spell exists. */
+static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 {
 	char *spell;
 	CFParm *CFR;
@@ -479,21 +503,24 @@ static PyObject* Atrinik_GetSpellNr(PyObject* self, PyObject* args)
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s", &spell))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(spell);
+	GCFP.Value[0] = (void *) (spell);
 	CFR = (PlugHooks[HOOK_CHECKFORSPELLNAME])(&GCFP);
-	value = *(int *)(CFR->Value[0]);
+
+	value = *(int *) (CFR->Value[0]);
+
 	return Py_BuildValue("i", value);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_GetSkillNr                                               */
-/* Python : Atrinik.GetSkillNr(name)                                         */
-/* Info   : Gets the number of the named skill. -1 if no such skill exists   */
-/* Status : Tested                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_GetSkillNr(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.GetSkillNr(<i>\<string\></i> name)</h1>
+ * Gets the number of the named skill.
+ * @param name The skill name
+ * @return Number of the skill, -1 if no such skill exists. */
+static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 {
 	char *skill;
 	CFParm *CFR;
@@ -502,31 +529,34 @@ static PyObject* Atrinik_GetSkillNr(PyObject* self, PyObject* args)
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "s", &skill))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(skill);
+	GCFP.Value[0] = (void *) (skill);
 	CFR = (PlugHooks[HOOK_CHECKFORSKILLNAME])(&GCFP);
-	value = *(int *)(CFR->Value[0]);
+
+	value = *(int *) (CFR->Value[0]);
+
 	return Py_BuildValue("i", value);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_RegisterCommand                                          */
-/* Python : Atrinik.RegisterCommand(cmdname,scriptname,speed)                */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-/* pretty untested... */
-static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args)
+/**
+ * <h1>Atrinik.RegisterCommand(<i>\<string\></i> cmdname,
+ * <i>\<string\></i> scriptname, <i>\<double\></i> speed)</h1>
+ * @warning Untested. */
+static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
-	char *cmdname;
-	char *scriptname;
+	char *cmdname, *scriptname;
 	double cmdspeed;
 	int i;
 
 	(void) self;
 
 	if (!PyArg_ParseTuple(args, "ssd", &cmdname, &scriptname, &cmdspeed))
+	{
 		return NULL;
+	}
 
 	for (i = 0; i < NR_CUSTOM_CMD; i++)
 	{
@@ -534,7 +564,7 @@ static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args)
 		{
 			if (!strcmp(CustomCommand[i].name, cmdname))
 			{
-				plugin_log(llevDebug, "PYTHON - This command is already registered !\n");
+				plugin_log(llevDebug, "PYTHON:: This command is already registered!\n");
 				RAISE("This command is already registered");
 			}
 		}
@@ -544,9 +574,9 @@ static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args)
 	{
 		if (CustomCommand[i].name == NULL)
 		{
-			CustomCommand[i].name = (char *)(malloc(sizeof(char)*strlen(cmdname)));
-			CustomCommand[i].script = (char *)(malloc(sizeof(char)*strlen(scriptname)));
-			strcpy(CustomCommand[i].name,cmdname);
+			CustomCommand[i].name = (char *) (malloc(sizeof(char) * strlen(cmdname)));
+			CustomCommand[i].script = (char *) (malloc(sizeof(char) * strlen(scriptname)));
+			strcpy(CustomCommand[i].name, cmdname);
 			strcpy(CustomCommand[i].script, scriptname);
 			CustomCommand[i].speed = cmdspeed;
 			i = NR_CUSTOM_CMD;
@@ -557,7 +587,7 @@ static PyObject* Atrinik_RegisterCommand(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
-/* FUNCTIONEND -- End of the Python plugin functions. */
+/*@}*/
 
 /*****************************************************************************/
 /* The Plugin Management Part.                                               */

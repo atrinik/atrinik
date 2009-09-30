@@ -32,22 +32,19 @@
 #include <plugin_python.h>
 
 /* Map object methods */
-static PyObject* Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *self, PyObject* args);
-static PyObject* Atrinik_Map_PlaySound(Atrinik_Map *self, PyObject* args);
-static PyObject* Atrinik_Map_Message(Atrinik_Map *self, PyObject* args);
-static PyObject* Atrinik_Map_MapTileAt(Atrinik_Map *self, PyObject* args);
-static PyObject* Atrinik_Map_CreateObject(Atrinik_Map* map, PyObject* args);
+static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *self, PyObject *args);
+static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *self, PyObject *args);
+static PyObject *Atrinik_Map_Message(Atrinik_Map *self, PyObject *args);
+static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *self, PyObject *args);
+static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args);
 
 /* Object creator (not really needed, since the generic creator does the same thing...) */
-static PyObject *
-Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 /* str() function to get a string representation of this object */
-static PyObject *
-Atrinik_Map_str(Atrinik_Map *self);
+static PyObject *Atrinik_Map_str(Atrinik_Map *self);
 
 /* Object deallocator (needed) */
-static void
-Atrinik_Map_dealloc(Atrinik_Map* self);
+static void Atrinik_Map_dealloc(Atrinik_Map *self);
 
-#endif /*ATRINIK_MAP_H*/
+#endif

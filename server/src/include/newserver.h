@@ -54,7 +54,6 @@ typedef struct MapCell_struct
 	char quick_pos[MAP_LAYERS];
 } MapCell;
 
-/** Map for a player */
 struct Map
 {
 	struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];

@@ -46,7 +46,6 @@ static PyObject* Atrinik_Object_InsertInside(Atrinik_Object *self, PyObject* arg
 static PyObject* Atrinik_Object_Apply(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_PickUp(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Drop(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_Take(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Deposit(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Withdraw(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Communicate(Atrinik_Object *self, PyObject* args);
@@ -60,7 +59,6 @@ static PyObject* Atrinik_Object_SetGuildForce(Atrinik_Object *self, PyObject* ar
 static PyObject* Atrinik_Object_GetGuildForce(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Fix(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Kill(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_CastSpell(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_DoKnowSpell(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_AcquireSpell(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_DoKnowSkill(Atrinik_Object *self, PyObject* args);
@@ -95,16 +93,6 @@ static PyObject* Atrinik_Object_Clone(Atrinik_Object* self, PyObject* args);
 /* Hmmm... Still requires constants... */
 static PyObject* Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object* self, PyObject* args);
 
-#if 0
-/* Get rid of these? */
-static PyObject* Atrinik_Object_GetEventHandler(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_SetEventHandler(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_GetEventPlugin(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_SetEventPlugin(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_GetEventOptions(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_SetEventOptions(Atrinik_Object *self, PyObject* args);
-#endif
-
 /* Atrinik_Object SetGeters */
 static int Object_SetFlag(Atrinik_Object* self, PyObject* val, int flagnp);
 static PyObject* Object_GetFlag(Atrinik_Object* self, int flagno);
@@ -130,4 +118,4 @@ Atrinik_Object_str(Atrinik_Object *self);
 static void
 Atrinik_Object_dealloc(Atrinik_Object* self);
 
-#endif /*ATRINIK_OBJECT_H*/
+#endif

@@ -8,6 +8,7 @@ This documentation covers the technical aspects of the Atrinik server source cod
 
 - @ref todo
 - @ref plugin_arena
+- @ref page_plugin_python
 - @ref page_objects
 - @ref page_monsters
 - @ref page_maps

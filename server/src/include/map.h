@@ -459,7 +459,6 @@ typedef struct MapSpace_s
 /**
  * When set, a player login on this map will be forced to default
  * @ref mapstruct::enter_x and @ref mapstruct::enter_y of this map.
- *
  * This avoids getting stuck in a map and treasure camping. */
 #define MAP_FLAG_FIXED_LOGIN    128
 

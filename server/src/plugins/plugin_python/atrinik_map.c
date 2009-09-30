@@ -23,52 +23,106 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Atrinik Python plugin map related code. */
+
 #include <atrinik_map.h>
 #include <inline.h>
 
-/* Global data objects */
-
+/** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
 {
-	{"GetFirstObjectOnSquare", 	(PyCFunction)Atrinik_Map_GetFirstObjectOnSquare, 	METH_VARARGS, 0},
-	{"PlaySound",				(PyCFunction)Atrinik_Map_PlaySound,					METH_VARARGS, 0},
-	{"Message", 				(PyCFunction)Atrinik_Map_Message,					METH_VARARGS, 0},
-	{"MapTileAt",  				(PyCFunction)Atrinik_Map_MapTileAt, 				METH_VARARGS, 0},
-	{"CreateObject", 			(PyCFunction)Atrinik_Map_CreateObject,				METH_VARARGS, 0},
+	{"GetFirstObjectOnSquare",  (PyCFunction)Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
+	{"PlaySound",               (PyCFunction)Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
+	{"Message",                 (PyCFunction)Atrinik_Map_Message,                   METH_VARARGS, 0},
+	{"MapTileAt",               (PyCFunction)Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
+	{"CreateObject",            (PyCFunction)Atrinik_Map_CreateObject,              METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
-static struct
+/** Map fields structure. */
+typedef struct
 {
+	/** Name of the field */
 	char *name;
 
+	/** Field type */
 	field_type type;
 
-	/* Offset in map struct */
+	/** Offset in map structure */
 	uint32 offset;
-} map_fields[] =
+} map_fields_struct;
+
+/**
+ * @anchor plugin_python_map_fields
+ *
+ * Map fields.
+ *
+ * List of the fields and their meaning:
+ *
+ * - <b>name</b>: @copydoc mapstruct::name
+ * - <b>message</b>: @copydoc mapstruct::msg
+ * - <b>reset_interval</b>: @copydoc mapstruct::reset_interval
+ * - <b>difficulty</b>: @copydoc mapstruct::difficulty
+ * - <b>height</b>: @copydoc mapstruct::height
+ * - <b>width</b>: @copydoc mapstruct::width
+ * - <b>darkness</b>: @copydoc mapstruct::darkness
+ * - <b>path</b>: @copydoc mapstruct::path
+ * - <b>enter_x</b>: @copydoc mapstruct::enter_x
+ * - <b>enter_y</b>: @copydoc mapstruct::enter_y */
+map_fields_struct map_fields[] =
 {
-	{"name",    		FIELDTYPE_CSTR, 	offsetof(mapstruct, name)},
-	{"message", 		FIELDTYPE_CSTR, 	offsetof(mapstruct, msg)},
-	{"reset_interval", 	FIELDTYPE_UINT32, 	offsetof(mapstruct, reset_timeout)},
-	{"difficulty", 		FIELDTYPE_UINT16, 	offsetof(mapstruct, difficulty)},
-	{"height", 			FIELDTYPE_UINT16, 	offsetof(mapstruct, height)},
-	{"width", 			FIELDTYPE_UINT16, 	offsetof(mapstruct, width)},
-	{"darkness", 		FIELDTYPE_UINT8, 	offsetof(mapstruct, darkness)},
-	{"path", 			FIELDTYPE_SHSTR, 	offsetof(mapstruct, path)}
+	{"name",            FIELDTYPE_CSTR,     offsetof(mapstruct, name)},
+	{"message",         FIELDTYPE_CSTR,     offsetof(mapstruct, msg)},
+	{"reset_interval",  FIELDTYPE_UINT32,   offsetof(mapstruct, reset_timeout)},
+	{"difficulty",      FIELDTYPE_UINT16,   offsetof(mapstruct, difficulty)},
+	{"height",          FIELDTYPE_UINT16,   offsetof(mapstruct, height)},
+	{"width",           FIELDTYPE_UINT16,   offsetof(mapstruct, width)},
+	{"darkness",        FIELDTYPE_UINT8,    offsetof(mapstruct, darkness)},
+	{"path",            FIELDTYPE_SHSTR,    offsetof(mapstruct, path)},
+	{"enter_x",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_x)},
+	{"enter_y",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_y)}
 };
 
+/**
+ * @anchor plugin_python_map_flags
+ *
+ * Map flags.
+ *
+ * List of the flags and their meaning:
+ *
+ * - <b>f_outdoor</b>: @copydoc MAP_FLAG_OUTDOOR
+ * - <b>f_unique</b>: @copydoc MAP_FLAG_UNIQUE
+ * - <b>f_fixed_rtime</b>: @copydoc MAP_FLAG_FIXED_RTIME
+ * - <b>f_nomagic</b>: @copydoc MAP_FLAG_NOMAGIC
+ * - <b>f_nopriest</b>: @copydoc MAP_FLAG_NOPRIEST
+ * - <b>f_noharm</b>: @copydoc MAP_FLAG_NOHARM
+ * - <b>f_nosummon</b>: @copydoc MAP_FLAG_NOSUMMON
+ * - <b>f_fixed_login</b>: @copydoc MAP_FLAG_FIXED_LOGIN
+ * - <b>f_permdeath</b>: @copydoc MAP_FLAG_PERMDEATH
+ * - <b>f_ultradeath</b>: @copydoc MAP_FLAG_ULTRADEATH
+ * - <b>f_ultimatedeath</b>: @copydoc MAP_FLAG_ULTIMATEDEATH
+ * - <b>f_pvp</b>: @copydoc MAP_FLAG_PVP
+ * - <b>f_no_save</b>: @copydoc MAP_FLAG_NO_SAVE
+ * - <b>f_plugins</b>: @copydoc MAP_FLAG_PLUGINS
+ *
+ * @note These must be in same order as @ref map_flags "map flags". */
 static char *mapflag_names[] =
 {
-	"f_outdoor", 		"f_unique", 	"f_fixed_rtime",	"f_nomagic",
-	"f_nopriest", 		"f_noharm", 	"f_nosummon",		"f_fixed_login",
-	"f_permdeath", 		"f_ultradeath", "f_ultimatedeath", 	"f_pvp"
+	"f_outdoor",        "f_unique",     "f_fixed_rtime",    "f_nomagic",
+	"f_nopriest",       "f_noharm",     "f_nosummon",       "f_fixed_login",
+	"f_permdeath",      "f_ultradeath", "f_ultimatedeath",  "f_pvp",
+	"f_no_save",        "f_plugins"
 };
 
+/** Number of map fields */
 #define NUM_MAPFIELDS (sizeof(map_fields) / sizeof(map_fields[0]))
+
+/** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
 
-/* This is filled in when we initialize our map type */
+/** This is filled in when we initialize our map type. */
 static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
 
 PyTypeObject Atrinik_MapType =
@@ -200,247 +254,266 @@ PyTypeObject Atrinik_MapType =
 	0
 };
 
-/* Map related constants */
+/**
+ * @anchor plugin_python_map_constants
+ * Map related constants */
 static Atrinik_Constant map_constants[] =
 {
-	{"COST_TRUE", 	F_TRUE},
-	{"COST_BUY", 	F_BUY},
-	{"COST_SELL", 	F_SELL},
-	{NULL, 			0}
+	{"COST_TRUE",   F_TRUE},
+	{"COST_BUY",    F_BUY},
+	{"COST_SELL",   F_SELL},
+	{NULL,          0}
 };
 
-/****************************************************************************/
-/*                          Atrinik_Map methods                             */
-/****************************************************************************/
+/**
+ * @defgroup plugin_python_map_functions Python plugin map functions
+ * Map related functions used in Atrinik Python plugin.
+ *@{*/
 
-/* FUNCTIONSTART -- Here all the Python plugin functions come */
-
-/*****************************************************************************/
-/* Name   : Atrinik_Map_GetFirstObjectOnSquare                               */
-/* Python : map.GetFirstObjectOnSquare(x,y)                                  */
-/* Info   : Gets the bottom object on the tile. Use obj.above to browse objs */
-/* Status : Stable                                                           */
-/*****************************************************************************/
-static PyObject* Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject* args)
+/**
+ * <h1>map.GetFirstObjectOnSquare(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ *
+ * Gets the bottom object on the tile. Use object::above to browse
+ * objects.
+ * @param x X position on the map
+ * @param y Y position on the map
+ * @return The object if found. */
+static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
-	object* val;
-	CFParm* CFR;
+	object *val;
+	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	{
 		return NULL;
+	}
 
 	GCFP.Value[0] = map->map;
-	GCFP.Value[1] = (void *)(&x);
-	GCFP.Value[2] = (void *)(&y);
+	GCFP.Value[1] = (void *) (&x);
+	GCFP.Value[2] = (void *) (&y);
 	CFR = (PlugHooks[HOOK_GETMAPOBJECT])(&GCFP);
-	val = (object *)(CFR->Value[0]);
-
-	/* free(CFR); */
+	val = (object *) (CFR->Value[0]);
 
 	return wrap_object(val);
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_Map_MapTileAt                                            */
-/* Python : map.MapTileAt(x,y)                                               */
-/* Status : untested                                                         */
-/* TODO   : do someting about the new modified coordinates too?              */
-/*****************************************************************************/
-static PyObject* Atrinik_Map_MapTileAt(Atrinik_Map *map, PyObject* args)
+/**
+ * <h1>map.MapTileAt(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ * @param x X position on the map
+ * @param y Y position on the map
+ * @todo Do someting about the new modified coordinates too?
+ * @warning Not tested. */
+static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
-	CFParm* CFR;
+	CFParm *CFR;
 	mapstruct *result;
 
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	{
 		return NULL;
+	}
 
 	GCFP.Value[0] = map->map;
-	GCFP.Value[1] = (void *)(&x);
-	GCFP.Value[2] = (void *)(&y);
+	GCFP.Value[1] = (void *) (&x);
+	GCFP.Value[2] = (void *) (&y);
 	CFR = (PlugHooks[HOOK_OUTOFMAP])(&GCFP);
-	result = (mapstruct *)(CFR->Value[0]);
+	result = (mapstruct *) (CFR->Value[0]);
 
 	return wrap_map(result);
 }
 
-
-/*****************************************************************************/
-/* Name   : Atrinik_Map_PlaySound                                            */
-/* Python : map.PlaySound(x, y, soundnumber, soundtype)                      */
-/* Status : Tested                                                           */
-/* TODO   : supply constants for the sounds                                  */
-/*****************************************************************************/
-static PyObject* Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject* args)
+/**
+ * <h1>map.PlaySound(<i>\<int\></i> x, <i>\<int\></i> y, <i>\<int\></i>
+ * soundnumber, <i>\<int\></i> soundtype)</h1>
+ *
+ * Play a sound on map.
+ * @param x X position on the map where the sound is coming from
+ * @param y Y position on the map where the sound is coming from
+ * @param soundnumber ID of the sound to play
+ * @param soundtype Type of the sound
+ * @todo Supply constants for the sounds */
+static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 {
 	int x, y, soundnumber, soundtype;
 
 	if (!PyArg_ParseTuple(args, "iiii", &x, &y, &soundnumber, &soundtype))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(whereptr->map);
-	GCFP.Value[1] = (void *)(&x);
-	GCFP.Value[2] = (void *)(&y);
-	GCFP.Value[3] = (void *)(&soundnumber);
-	GCFP.Value[4] = (void *)(&soundtype);
+	GCFP.Value[0] = (void *) (whereptr->map);
+	GCFP.Value[1] = (void *) (&x);
+	GCFP.Value[2] = (void *) (&y);
+	GCFP.Value[3] = (void *) (&soundnumber);
+	GCFP.Value[4] = (void *) (&soundtype);
 	(PlugHooks[HOOK_PLAYSOUNDMAP])(&GCFP);
+
 	Py_INCREF(Py_None);
+
 	return Py_None;
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_Map_Message                                              */
-/* Python : map.Message(message, x, y, distance, color)                      */
-/* Info   : Writes a message to all players on a map                         */
-/*          Starting point x,y for all players in distance                   */
-/*          default color is NDI_BLUE|NDI_UNIQUE                             */
-/* Status : Tested                                                           */
-/* TODO   : Add constants for colours                                        */
-/*****************************************************************************/
-static PyObject* Atrinik_Map_Message(Atrinik_Map *map, PyObject* args)
+/**
+ * <h1>map.Message(<i>\<string\></i> message, <i>\<int\></i> x,
+ * <i>\<int\></i> y, <i>\<int\></i> distance, <i>\<int\></i> color)</h1>
+ *
+ * Write a message to all players on a map.
+ * @param x X position on the map
+ * @param y Y position on the map
+ * @param distance Maximum distance for players to be away from x, y to
+ * hear the message.
+ * @param color Color of the message, default is @ref NDI_BLUE.
+ * @todo Add constants for the colors */
+static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 {
-	int color = NDI_BLUE | NDI_UNIQUE, x,y, d;
+	int color = NDI_BLUE | NDI_UNIQUE, x, y, d;
 	char *message;
 
 	if (!PyArg_ParseTuple(args, "iiis|i", &x, &y, &d, &message, &color))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(&color);
-	GCFP.Value[1] = (void *)(map->map);
-	GCFP.Value[2] = (void *)(&x);
-	GCFP.Value[3] = (void *)(&y);
-	GCFP.Value[4] = (void *)(&d);
-	GCFP.Value[5] = (void *)(message);
+	GCFP.Value[0] = (void *) (&color);
+	GCFP.Value[1] = (void *) (map->map);
+	GCFP.Value[2] = (void *) (&x);
+	GCFP.Value[3] = (void *) (&y);
+	GCFP.Value[4] = (void *) (&d);
+	GCFP.Value[5] = (void *) (message);
 
 	(PlugHooks[HOOK_NEWINFOMAP])(&GCFP);
 
 	Py_INCREF(Py_None);
+
 	return Py_None;
 }
 
-/*****************************************************************************/
-/* Name   : Atrinik_Map_CreateObject                                         */
-/* Python : map.CreateObject(arch_name, x, y)                                */
-/* Info   :                                                                  */
-/* Status : Untested                                                         */
-/*****************************************************************************/
-static PyObject* Atrinik_Map_CreateObject(Atrinik_Map* map, PyObject* args)
+/**
+ * <h1>map.CreateObject(<i>\<string\></i> arch_name, <i>\<int\></i> x,
+ * <i>\<int\></i> y)</h1>
+ *
+ * Create an object on map.
+ * @param arch_name Arch name of the object to create
+ * @param x X position on the map
+ * @param y Y position on the map
+ * @warning Not tested. */
+static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 {
 	char *txt;
 	int x, y;
-	CFParm* CFR;
+	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "sii", &txt, &x, &y))
+	{
 		return NULL;
+	}
 
-	GCFP.Value[0] = (void *)(txt);
-	GCFP.Value[1] = (void *)(map->map);
-	GCFP.Value[2] = (void *)(&x);
-	GCFP.Value[3] = (void *)(&y);
+	GCFP.Value[0] = (void *) (txt);
+	GCFP.Value[1] = (void *) (map->map);
+	GCFP.Value[2] = (void *) (&x);
+	GCFP.Value[3] = (void *) (&y);
+
 	CFR = (PlugHooks[HOOK_CREATEOBJECT])(&GCFP);
 
-	return wrap_object((object *)(CFR->Value[0]));
+	return wrap_object((object *) (CFR->Value[0]));
 }
 
+/*@}*/
 
-/* FUNCTIONEND -- End of the Python plugin functions. */
-
-/*****************************************************************************/
-/* Map attribute getter                                                      */
-/*****************************************************************************/
-static PyObject* Map_GetAttribute(Atrinik_Map* map, int fieldno)
+/* Map attribute getter */
+static PyObject *Map_GetAttribute(Atrinik_Map *map, int fieldno)
 {
 	void *field_ptr;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_MAPFIELDS)
+	{
 		RAISE("Illegal field ID");
+	}
 
-	field_ptr = (void *)((char *)(map->map) + map_fields[fieldno].offset);
+	field_ptr = (void *) ((char *) (map->map) + map_fields[fieldno].offset);
 
 	/* TODO: better handling of types, signs, and overflows */
 	switch (map_fields[fieldno].type)
 	{
 		case FIELDTYPE_SHSTR:
 		case FIELDTYPE_CSTR:
-			return Py_BuildValue("s", *(char **)field_ptr);
+			return Py_BuildValue("s", *(char **) field_ptr);
 
 		case FIELDTYPE_CARY:
-			return Py_BuildValue("s", (char *)field_ptr);
+			return Py_BuildValue("s", (char *) field_ptr);
 
 		case FIELDTYPE_UINT8:
-			return Py_BuildValue("b", *(uint8 *)field_ptr);
+			return Py_BuildValue("b", *(uint8 *) field_ptr);
 
 		case FIELDTYPE_SINT8:
-			return Py_BuildValue("b", *(sint8 *)field_ptr);
+			return Py_BuildValue("b", *(sint8 *) field_ptr);
 
 		case FIELDTYPE_UINT16:
-			return Py_BuildValue("i", *(uint16 *)field_ptr);
+			return Py_BuildValue("i", *(uint16 *) field_ptr);
 
 		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *)field_ptr);
+			return Py_BuildValue("i", *(sint16 *) field_ptr);
 
 		case FIELDTYPE_UINT32:
-			return Py_BuildValue("l", *(uint32 *)field_ptr);
+			return Py_BuildValue("l", *(uint32 *) field_ptr);
 
 		case FIELDTYPE_SINT32:
-			return Py_BuildValue("l", *(sint32 *)field_ptr);
+			return Py_BuildValue("l", *(sint32 *) field_ptr);
 
 		case FIELDTYPE_FLOAT:
-			return Py_BuildValue("f", *(float *)field_ptr);
+			return Py_BuildValue("f", *(float *) field_ptr);
 
 		case FIELDTYPE_MAP:
-			return wrap_map(*(mapstruct **)field_ptr);
+			return wrap_map(*(mapstruct **) field_ptr);
 
 		case FIELDTYPE_OBJECT:
-			return wrap_object(*(object **)field_ptr);
+			return wrap_object(*(object **) field_ptr);
 
 		default:
-			RAISE("BUG: unknown field type");
+			RAISE("BUG: Unknown field type");
 	}
 }
 
-/*****************************************************************************/
-/* Map flag getter                                                           */
-/*****************************************************************************/
-static PyObject* Map_GetFlag(Atrinik_Map* map, int flagno)
+/* Map flag getter */
+static PyObject *Map_GetFlag(Atrinik_Map *map, int flagno)
 {
 	if (flagno < 0 || flagno >= (int) NUM_MAPFLAGS)
+	{
 		RAISE("Unknown flag");
+	}
 
 	return Py_BuildValue("i", (map->map->map_flags & (1 << flagno)) ? 1 : 0);
 }
-
-
-/****************************************************************************/
-/* Atrinik_Map object management                                            */
-/****************************************************************************/
 
 /* Initialize the Map Object Type */
 int Atrinik_Map_init(PyObject *module)
 {
 	int i;
 
-	/* field getters */
+	/* Field getters */
 	for (i = 0; i < (int) NUM_MAPFIELDS; i++)
 	{
 		PyGetSetDef *def = &Map_getseters[i];
+
 		def->name = map_fields[i].name;
-		def->get = (getter)Map_GetAttribute;
+		def->get = (getter) Map_GetAttribute;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *)i;
+		def->closure = (void *) i;
 	}
 
-	/* flag getters */
+	/* Flag getters */
 	for (i = 0; i < (int) NUM_MAPFLAGS; i++)
 	{
 		PyGetSetDef *def = &Map_getseters[i + NUM_MAPFIELDS];
+
 		def->name = mapflag_names[i];
-		def->get = (getter)Map_GetFlag;
+		def->get = (getter) Map_GetFlag;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *)i;
+		def->closure = (void *) i;
 	}
 
 	Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS].name = NULL;
@@ -449,17 +522,22 @@ int Atrinik_Map_init(PyObject *module)
 	for (i = 0; map_constants[i].name; i++)
 	{
 		if (PyModule_AddIntConstant(module, map_constants[i].name, map_constants[i].value))
+		{
 			return -1;
+		}
 	}
 
 	Atrinik_MapType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&Atrinik_MapType) < 0)
+	{
 		return -1;
+	}
 
 #if 0
 	Py_INCREF(&Atrinik_MapType);
 #endif
+
 	return 0;
 }
 
@@ -471,46 +549,52 @@ static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *k
 	(void) args;
 	(void) kwds;
 
-	self = (Atrinik_Map *)type->tp_alloc(type, 0);
+	self = (Atrinik_Map *) type->tp_alloc(type, 0);
 
 	if (self)
+	{
 		self->map = NULL;
+	}
 
-	return (PyObject *)self;
+	return (PyObject *) self;
 }
 
-/* Free an Object wrapper */
-static void Atrinik_Map_dealloc(Atrinik_Map* self)
+/* Free a Map wrapper */
+static void Atrinik_Map_dealloc(Atrinik_Map *self)
 {
 	self->map = NULL;
-	self->ob_type->tp_free((PyObject*)self);
+	self->ob_type->tp_free((PyObject*) self);
 }
 
-/* Return a string representation of this object (useful for debugging) */
+/* Return a string representation of this map (useful for debugging) */
 static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 {
 	char buf[HUGE_BUF];
+
 	strcpy(buf, self->map->name);
 
 	return PyString_FromFormat("[%s \"%s\"]", self->map->path, buf);
 }
 
-/* Utility method to wrap an object. */
+/* Utility method to wrap a map. */
 PyObject *wrap_map(mapstruct *what)
 {
 	Atrinik_Map *wrapper;
 
-	/* return None if no map was to be wrapped */
+	/* Return None if no map was to be wrapped */
 	if (what == NULL)
 	{
 		Py_INCREF(Py_None);
+
 		return Py_None;
 	}
 
 	wrapper = PyObject_NEW(Atrinik_Map, &Atrinik_MapType);
 
 	if (wrapper != NULL)
+	{
 		wrapper->map = what;
+	}
 
-	return (PyObject *)wrapper;
+	return (PyObject *) wrapper;
 }
