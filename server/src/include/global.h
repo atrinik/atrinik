@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Global defines. */
+
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
@@ -125,10 +129,18 @@ typedef struct _money_block
 #define MAX_AGGRO_RANGE 9 /* if target of mob is out of this range (or stats.Wis if higher)*/
 #define MAX_AGGRO_TIME 12 /* until this time - then it skip target */
 
-/* return values for esrv_send_face() in image.c */
-#define SEND_FACE_OK 0
-#define SEND_FACE_OUT_OF_BOUNDS 1
-#define SEND_FACE_NO_DATA 2
+/**
+ * @defgroup SEND_FACE_xxx Send face return values
+ * Return values used in esrv_send_face().
+ *@{*/
+
+/** The face was sent OK. */
+#define SEND_FACE_OK             0
+/** Face number was out of bounds. */
+#define SEND_FACE_OUT_OF_BOUNDS  1
+/** Face data not available. */
+#define SEND_FACE_NO_DATA        2
+/*@}*/
 
 /* number of connected maps from a tiled map */
 #define TILED_MAPS 8

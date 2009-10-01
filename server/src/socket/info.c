@@ -23,33 +23,39 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file is the one and only DRAWINFO output module. All player
- * communication using drawinfo is handled here - except the few
- * messages we send to the client using DRAWINFO before we had setup
- * any player structure - thats for example when a outdated client
- * logs in and we send "update your client" direct to the info windows.
- * But if the player is loged in - all DRAWINFO are generated here. */
+/**
+ * @file
+ * This file is the one and only DRAWINFO output module.
+ *
+ * All player communication using drawinfo is handled here - except the
+ * few messages we send to the client using DRAWINFO before we had setup
+ * any player structure - for example when an outdated client logs in and
+ * we send "update your client" directly to the info windows.
+ *
+ * But if the player is logged in, all DRAWINFO are generated here. */
+
 #include <global.h>
 #include <sproto.h>
 #include <stdarg.h>
 
-/* new_draw_info:
- *
- * flags is various flags - mostly color, plus a few specials.
- *
- * pri is priority.  It is a little odd - the lower the value, the more
- * important it is.  Thus, 0 gets sent no matter what.  Otherwise, the
- * value must be less than the listening level that the player has set.
- * Unfortunately, there is no clear guideline on what each level does what.
- *
- * pl can be passed as NULL - in fact, this will be done if NDI_ALL is set
- * in the flags. */
+/**
+ * Draw a message in the text windows for player's client.
+ * @param flags Various flags. Mostly color, but also some others.
+ * @param pri Priority. It is a little odd - the lower the value, the
+ * more important it is. Thus, 0 gets sent no matter what. Otherwise, the
+ * value must be less than the @ref player::listening "listening" level
+ * that the player has set. Unfortunately, there is no clear guideline on
+ * what each level does what.
+ * @param pl The player object to write the information to - if flags has
+ * @ref NDI_ALL, this is unused and can be NULL.
+ * @param buf The message to draw.
+ * @see NDI_xxx*/
 void new_draw_info(int flags, int pri, object *pl, const char *buf)
 {
 	char info_string[HUGE_BUF];
 	SockList sl;
 
-	/* should not happen - generate save string and LOG it */
+	/* Should not happen - generate safe string and LOG it */
 	if (!buf)
 	{
 		buf = "[NULL]";
@@ -59,16 +65,17 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	/* Here we handle global messages. */
 	if (flags & NDI_ALL)
 	{
-		player	*tmppl;
+		player *tmppl;
 
 		for (tmppl = first_player; tmppl != NULL; tmppl = tmppl->next)
+		{
 			new_draw_info((flags & ~NDI_ALL), pri, tmppl->ob, buf);
+		}
 
 		return;
 	}
 
-
-	/* here handle some security stuff... a bit overhead for max secure */
+	/* Handle some security stuff... a bit overhead for max secure */
 	if (!pl || pl->type != PLAYER)
 	{
 		LOG(llevBug, "BUG: new_draw_info: called for object != PLAYER! %s (%x - %d) msg: %s\n", query_name(pl, NULL), flags, pri, buf);
@@ -82,11 +89,15 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	}
 
 	if (CONTR(pl)->state != ST_PLAYING)
+	{
 		return;
+	}
 
-	/* player don't want this */
+	/* Player doesn't want this */
 	if (pri >= CONTR(pl)->listening)
+	{
 		return;
+	}
 
 	sl.buf = (unsigned char *) info_string;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
@@ -101,10 +112,9 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 #endif
 }
 
-/* This is a pretty trivial function, but it allows us to use printf style
- * formatting, so instead of the calling function having to do it, we do
- * it here.  IT may also have advantages in the future for reduction of
- * client/server bandwidth (client could keep track of various strings. */
+/**
+ * Similar to new_draw_info() but allows to use printf style
+ * formatting. */
 void new_draw_info_format(int flags, int pri, object *pl, char *format, ...)
 {
 	char buf[HUGE_BUF];
@@ -129,7 +139,9 @@ static void new_info_map_all_except(int color, mapstruct *map, object *op1, obje
 		for (tmp = map->player_first; tmp; tmp = CONTR(tmp)->map_above)
 		{
 			if (tmp != op && tmp != op1)
+			{
 				new_draw_info(color, 0, tmp, str);
+			}
 		}
 	}
 }
@@ -141,10 +153,14 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 	object *tmp;
 
 	if (!map || map->in_memory != MAP_IN_MEMORY)
+	{
 		return;
+	}
 
 	if (dist != MAP_INFO_ALL)
+	{
 		d = POW2(dist);
+	}
 	else
 	{
 		/* we want all on this map */
