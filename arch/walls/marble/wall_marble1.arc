@@ -1454,7 +1454,7 @@ type 77
 no_pick 1
 no_pass 1
 end
-endObject wall_marble1w.111-01
+Object wall_marble1w.111-01
 name stone wall
 face wall_marble1_w.111-01
 layer 5
