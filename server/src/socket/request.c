@@ -41,15 +41,13 @@
 #include <living.h>
 #include <commands.h>
 
-/* This block is basically taken from socket.c - I assume if it works there,
- * it should work here. */
-#ifndef WIN32 /* ---win32 exclude unix headers */
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#endif /* win32 */
+#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -61,7 +59,7 @@
 
 #include "sounds.h"
 
-#define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0]&0x7f)
+#define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
 static int atnr_prot_stats[NROFPROTECTIONS] =
@@ -91,7 +89,14 @@ static int atnr_prot_stats[NROFPROTECTIONS] =
 	CS_STAT_PROT_CORRUPT
 };
 
-/* This is the Setup cmd - easy first implementation */
+/**
+ * The Setup command.
+ *
+ * The setup syntax is:
+ * <pre>setup <cmdname1> <parameter> <cmdname2> <parameter>...</pre>
+ *
+ * We send the status of the command back, or zero if the command is
+ * unknown. The client must then sort it out. */
 void SetUp(char *buf, int len, NewSocket *ns)
 {
 	int s;
@@ -99,47 +104,51 @@ void SetUp(char *buf, int len, NewSocket *ns)
 
 	if (ns->setup)
 	{
-		LOG(llevInfo, "double call of setup cmd from socket %s\n", ns->host);
+		LOG(llevInfo, "Double call of setup cmd from socket %s\n", ns->host);
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
 	ns->setup = 1;
 
-	/* run through the cmds of setup
-	 * syntax is setup <cmdname1> <parameter> <cmdname2> <parameter> ...
-	 *
-	 * we send the status of the cmd back, or a FALSE is the cmd is the server unknown
-	 * The client then must sort this out */
-
 	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
 	cmdback[0] = BINARY_CMD_SETUP;
 	cmdback[1] = 0;
 
-	/*strcpy(cmdback,"setup");*/
 	for (s = 0; s < len; )
 	{
 		cmd = &buf[s];
 
-		/* find the next space, and put a null there */
-		for (; s < len && buf[s] && buf[s] != ' '; s++);
+		/* Find the next space, and put a null there */
+		for (; s < len && buf[s] && buf[s] != ' '; s++)
+		{
+		}
 
 		buf[s++] = 0;
 
 		while (s < len && buf[s] == ' ')
+		{
 			s++;
+		}
 
 		if (s >= len)
+		{
 			break;
+		}
 
 		param = &buf[s];
 
-		for (;s < len && buf[s] && buf[s] != ' '; s++);
+		for (;s < len && buf[s] && buf[s] != ' '; s++)
+		{
+		}
 
 		buf[s++] = 0;
 
 		while (s < len && buf[s] == ' ')
+		{
 			s++;
+		}
 
 		strcat(cmdback, " ");
 		strcat(cmdback, cmd);
@@ -158,9 +167,12 @@ void SetUp(char *buf, int len, NewSocket *ns)
 		else if (!strcmp(cmd, "map2cmd"))
 		{
 			ns->map2cmd = atoi(param);
-			/* if beyond this size, need to use map2cmd no matter what */
+
+			/* If beyond this size, need to use map2cmd no matter what */
 			if (ns->mapx > 11 || ns->mapy > 11)
+			{
 				ns->map2cmd = 1;
+			}
 
 			strcat(cmdback, ns->map2cmd ? "1" : "0");
 		}
@@ -174,11 +186,14 @@ void SetUp(char *buf, int len, NewSocket *ns)
 			int q = atoi(param);
 
 			if (is_valid_faceset(q))
+			{
 				ns->faceset = q;
+			}
 
-			sprintf(tmpbuf, "%d", ns->faceset);
+			snprintf(tmpbuf, sizeof(tmpbuf), "%d", ns->faceset);
 			strcat(cmdback, tmpbuf);
-			/* if the client is using faceset, it knows about image2 command */
+
+			/* If the client is using faceset, it knows about image2 command */
 			ns->image2 = 1;
 		}
 		else if (!strcmp(cmd, "mapsize"))
@@ -187,18 +202,20 @@ void SetUp(char *buf, int len, NewSocket *ns)
 			char *cp;
 
 			x = atoi(param);
+
 			for (cp = param; *cp != 0; cp++)
 			{
 				if (*cp == 'x' || *cp == 'X')
 				{
 					y = atoi(cp + 1);
+
 					break;
 				}
 			}
 
 			if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y)
 			{
-				sprintf(tmpbuf, " %dx%d", MAP_CLIENT_X, MAP_CLIENT_Y);
+				snprintf(tmpbuf, sizeof(tmpbuf), " %dx%d", MAP_CLIENT_X, MAP_CLIENT_Y);
 				strcat(cmdback, tmpbuf);
 			}
 			else
@@ -208,9 +225,10 @@ void SetUp(char *buf, int len, NewSocket *ns)
 				ns->mapx_2 = x / 2;
 				ns->mapy_2 = y / 2;
 
-				/* better to send back what we are really using and not the
-				 * param as given to us in case it gets parsed differently. */
-				sprintf(tmpbuf, "%dx%d", x, y);
+				/* better to send back what we are really using and not
+				 * the param as given to us in case it gets parsed
+				 * differently. */
+				snprintf(tmpbuf, sizeof(tmpbuf), "%dx%d", x, y);
 				strcat(cmdback, tmpbuf);
 			}
 		}
@@ -228,19 +246,22 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
 
 			/* we check now the loaded file data - if different
-			  * we tell it the client - if not, we skip here */
+			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SKILLS].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp, SrvClientFiles[SRV_CLIENT_SKILLS].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp, SrvClientFiles[SRV_CLIENT_SKILLS].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
+			}
 		}
 		else if (!strcmp(cmd, "spf"))
 		{
@@ -256,6 +277,7 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
@@ -264,12 +286,13 @@ void SetUp(char *buf, int len, NewSocket *ns)
 			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SPELLS].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp,SrvClientFiles[SRV_CLIENT_SPELLS].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp,SrvClientFiles[SRV_CLIENT_SPELLS].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
-
+			}
 		}
 		else if (!strcmp(cmd, "stf"))
 		{
@@ -285,19 +308,22 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
 
 			/* we check now the loaded file data - if different
-			  * we tell it the client - if not, we skip here */
+			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SETTINGS].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp, SrvClientFiles[SRV_CLIENT_SETTINGS].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp, SrvClientFiles[SRV_CLIENT_SETTINGS].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
+			}
 		}
 		else if (!strcmp(cmd, "bpf"))
 		{
@@ -313,19 +339,22 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
 
 			/* we check now the loaded file data - if different
-			  * we tell it the client - if not, we skip here */
+			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_BMAPS].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp, SrvClientFiles[SRV_CLIENT_BMAPS].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp, SrvClientFiles[SRV_CLIENT_BMAPS].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
+			}
 		}
 		else if (!strcmp(cmd, "amf"))
 		{
@@ -341,19 +370,22 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
 
 			/* we check now the loaded file data - if different
-			  * we tell it the client - if not, we skip here */
+			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_ANIMS].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp, SrvClientFiles[SRV_CLIENT_ANIMS].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp, SrvClientFiles[SRV_CLIENT_ANIMS].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
+			}
 		}
 		else if (!strcmp(cmd, "hpf"))
 		{
@@ -369,24 +401,27 @@ void SetUp(char *buf, int len, NewSocket *ns)
 					*cp = 0;
 					x = atoi(param);
 					y = strtoul(cp + 1, NULL, 16);
+
 					break;
 				}
 			}
 
 			/* we check now the loaded file data - if different
-			  * we tell it the client - if not, we skip here */
+			 * we tell it the client - if not, we skip here */
 			if (SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp != x || SrvClientFiles[SRV_CLIENT_HFILES].crc != y)
 			{
-				sprintf(tmpbuf, "%d|%x", SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp, SrvClientFiles[SRV_CLIENT_HFILES].crc);
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp, SrvClientFiles[SRV_CLIENT_HFILES].crc);
 				strcat(cmdback, tmpbuf);
 			}
 			else
+			{
 				strcat(cmdback, "OK");
+			}
 		}
 		else
 		{
-			/* Didn't get a setup command we understood -
-			  * report a failure to the client. */
+			/* Didn't get a setup command we understood - report a
+			 * failure to the client. */
 			strcat(cmdback, "FALSE");
 		}
 	}
@@ -395,10 +430,11 @@ void SetUp(char *buf, int len, NewSocket *ns)
 	Write_String_To_Socket(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
 }
 
-/* The client has requested to be added to the game.  This is what
- * takes care of it.  We tell the client how things worked out.
- * I am not sure if this file is the best place for this function.  however,
- * it either has to be here or init_sockets needs to be exported. */
+/**
+ * The client has requested to be added to the game. This is what takes
+ * care of it.
+ *
+ * We tell the client how things worked out. */
 void AddMeCmd(char *buf, int len, NewSocket *ns)
 {
 	Settings oldsettings;
@@ -421,16 +457,21 @@ void AddMeCmd(char *buf, int len, NewSocket *ns)
 		 * stuff in ns is still relevant. */
 		Write_String_To_Socket(ns, BINARY_CMD_ADDME_SUC, cmd_buf, 1);
 		ns->addme = 1;
-		/* reset idle counter */
+		/* Reset idle counter */
 		ns->login_count = 0;
 		socket_info.nconns--;
 		ns->status = Ns_Avail;
 	}
+
 	settings = oldsettings;
 }
 
-/* This handles the general commands from the client (ie, north, fire, cast,
- * etc.). */
+/**
+ * This handles the general commands from client (ie, north, fire, cast,
+ * etc).
+ * @param buf
+ * @param len  * @param pl
+ */
 void PlayerCmd(uint8 *buf, int len, player *pl)
 {
 	uint16 packet;
@@ -449,18 +490,22 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 
 	/* -1 is special - no repeat, but don't update */
 	if (repeat != -1)
+	{
 		pl->count = repeat;
+	}
 
 	if ((len - 4) >= MAX_BUF)
+	{
 		len = MAX_BUF - 5;
+	}
 
-	strncpy(command, (char*)buf + 6, len - 4);
+	strncpy(command, (char *) buf + 6, len - 4);
 	command[len - 4] = '\0';
 
 	/* The following should never happen with a proper or honest client.
 	 * Therefore, the error message doesn't have to be too clear - if
-	 * someone is playing with a hacked/non working client, this gives them
-	 * an idea of the problem, but they deserve what they get */
+	 * someone is playing with a hacked/non working client, this gives
+	 * them an idea of the problem, but they deserve what they get */
 	if (pl->state != ST_PLAYING)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
@@ -472,26 +517,26 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 	pl->count = 0;
 
 	/* Send confirmation of command execution now */
-	sl.buf = (uint8*)command;
+	sl.buf = (uint8 *) command;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_COMC);
-
-#if 0
-	strcpy((char*)sl.buf,"comc ");
-	sl.len=5;
-#endif
 
 	SockList_AddShort(&sl, packet);
 
 	if (FABS(pl->ob->speed) < 0.001)
+	{
 		time = MAX_TIME * 100;
+	}
 	else
-		time = (int)((float)MAX_TIME / FABS(pl->ob->speed));
+	{
+		time = (int) ((float) MAX_TIME / FABS(pl->ob->speed));
+	}
 
 	SockList_AddInt(&sl, time);
 	Send_With_Handling(&pl->socket, &sl);
 }
 
-/* This is a reply to a previous query. */
+/**
+ * This is a reply to a previous query. */
 void ReplyCmd(char *buf, int len, player *pl)
 {
 	/* This is to synthesize how the data would be stored if it
@@ -505,7 +550,9 @@ void ReplyCmd(char *buf, int len, player *pl)
 	(void) len;
 
 	if (pl->socket.status == Ns_Dead)
+	{
 		return;
+	}
 
 	strcpy(pl->write_buf, ":");
 	strncat(pl->write_buf,buf, 250);
@@ -535,6 +582,9 @@ void ReplyCmd(char *buf, int len, player *pl)
 	}
 }
 
+/**
+ * Send a version mismatch message.
+ * @param ns The socket to send the message to */
 static void version_mismatch_msg(NewSocket *ns)
 {
 	char buf[256];
@@ -550,27 +600,27 @@ static void version_mismatch_msg(NewSocket *ns)
 
 		sprintf(buf, "drawinfo %s %s", text1, VERSION);
 		sl.len = strlen(buf);
-		sl.buf = (uint8*)buf;
+		sl.buf = (uint8 *) buf;
 		Send_With_Handling(ns, &sl);
 
 		sprintf(buf, "drawinfo %s", text2);
 		sl.len = strlen(buf);
-		sl.buf = (uint8*)buf;
+		sl.buf = (uint8 *) buf;
 		Send_With_Handling(ns, &sl);
 
 		sprintf(buf, "drawinfo %s", text3);
 		sl.len = strlen(buf);
-		sl.buf = (uint8*)buf;
+		sl.buf = (uint8 *) buf;
 		Send_With_Handling(ns, &sl);
 
 		sprintf(buf, "drawinfo %s", text4);
 		sl.len = strlen(buf);
-		sl.buf = (uint8*)buf;
+		sl.buf = (uint8 *) buf;
 		Send_With_Handling(ns, &sl);
 
 		sprintf(buf, "drawinfo %s", text5);
 		sl.len = strlen(buf);
-		sl.buf = (uint8*)buf;
+		sl.buf = (uint8 *) buf;
 		Send_With_Handling(ns, &sl);
 	}
 	else
@@ -592,7 +642,8 @@ static void version_mismatch_msg(NewSocket *ns)
 	}
 }
 
-/* request a srv_file! */
+/**
+ * Request a srv file. */
 void RequestFileCmd(char *buf, int len, NewSocket *ns)
 {
 	int id;
@@ -604,14 +655,17 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 	{
 		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
 	id = atoi(buf);
+
 	if (id < 0 || id >= SRV_CLIENT_FILES)
 	{
 		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
@@ -625,7 +679,9 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_skills = 1;
+			}
 
 			break;
 
@@ -637,7 +693,9 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_spells = 1;
+			}
 
 			break;
 
@@ -661,7 +719,9 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_bmaps = 1;
+			}
 
 			break;
 
@@ -673,7 +733,9 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_anims = 1;
+			}
 
 			break;
 
@@ -685,7 +747,9 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_hfiles = 1;
+			}
 
 			break;
 	}
@@ -694,11 +758,13 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 	send_srv_file(ns, id);
 }
 
-/* Client tells its its version.  If there is a mismatch, we close the
- * socket.  In real life, all we should care about is the client having
- * something older than the server.  If we assume the client will be
- * backwards compatible, having it be a later version should not be a
- * problem. */
+/**
+ * Client tells its its version. If there is a mismatch, we close the
+ * socket.
+ *
+ * In real life, all we should care about is the client having something
+ * older than the server. If we assume the client will be backwards
+ * compatible, having it be a later version should not be a problem. */
 void VersionCmd(char *buf, int len, NewSocket *ns)
 {
 	char *cp;
@@ -710,28 +776,34 @@ void VersionCmd(char *buf, int len, NewSocket *ns)
 		version_mismatch_msg(ns);
 		LOG(llevInfo, "CS: received corrupted version command\n");
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
 	ns->version = 1;
 	ns->cs_version = atoi(buf);
 	ns->sc_version = ns->cs_version;
+
 	if (VERSION_CS != ns->cs_version)
 	{
 		version_mismatch_msg(ns);
 		LOG(llevInfo, "CS: csversion mismatch (%d,%d)\n", VERSION_CS, ns->cs_version);
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
 	cp = strchr(buf + 1,' ');
+
 	if (!cp)
 	{
 		version_mismatch_msg(ns);
 		LOG(llevInfo, "CS: invalid version cmd: %s\n", buf);
 		ns->status = Ns_Dead;
+
 		return;
 	}
+
 	ns->sc_version = atoi(cp);
 
 	if (VERSION_SC != ns->sc_version)
@@ -739,10 +811,12 @@ void VersionCmd(char *buf, int len, NewSocket *ns)
 		version_mismatch_msg(ns);
 		LOG(llevInfo, "CS: scversion mismatch (%d,%d)\n", VERSION_SC, ns->sc_version);
 		ns->status = Ns_Dead;
+
 		return;
 	}
 
 	cp = strchr(cp + 1, ' ');
+
 	if (!cp || strncmp("Atrinik Client", cp + 1, 14))
 	{
 		version_mismatch_msg(ns);
@@ -753,11 +827,13 @@ void VersionCmd(char *buf, int len, NewSocket *ns)
 			LOG(llevInfo, "CS: connection from false client (invalid name)\n");
 
 		ns->status = Ns_Dead;
+
 		return;
 	}
 }
 
-/* sound related functions. */
+/**
+ * Sound related functions. */
 void SetSound(char *buf, int len, NewSocket *ns)
 {
 	(void) len;
@@ -765,27 +841,32 @@ void SetSound(char *buf, int len, NewSocket *ns)
 	ns->sound = atoi(buf);
 }
 
-/* client wants the map resent */
+/** Client wants the map resent */
 void MapRedrawCmd(char *buff, int len, player *pl)
 {
 	(void) buff;
 	(void) len;
 
-	/* Okay, this is MAJOR UGLY. but the only way I know how to
+	/* Okay, this is MAJOR UGLY. But the only way I know how to
 	 * clear the "cache" */
 	memset(&pl->socket.lastmap, 0, sizeof(struct Map));
 	draw_client_map(pl->ob);
 }
 
+/**
+ * Newmap command. */
 void MapNewmapCmd(player *pl)
 {
-	/* we are really on a new map. tell it the client */
+	/* We are really on a new map. Tell it the client */
 	send_mapstats_cmd(pl->ob, pl->ob->map);
 	memset(&pl->socket.lastmap, 0, sizeof(struct Map));
 }
 
-/* Moves and object (typically, container to inventory
- * move <to> <tag> <nrof> */
+/**
+ * Moves an object (typically, container to inventory).
+ *
+ * Syntax:
+ * <pre>move \<to\> \<tag\> \<nrof\></pre> */
 void MoveCmd(char *buf, int len, player *pl)
 {
 	int vals[3], i;
@@ -799,6 +880,7 @@ void MoveCmd(char *buf, int len, player *pl)
 	for (i = 0; i < 2; i++)
 	{
 		vals[i] = atoi(buf);
+
 		if (!(buf = strchr(buf, ' ')))
 		{
 			LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
@@ -813,53 +895,69 @@ void MoveCmd(char *buf, int len, player *pl)
 	esrv_move_object(pl->ob, vals[0], vals[1], vals[2]);
 }
 
-
-/* Start of commands the server sends to the client. */
-
-/* send_query asks the client to query the user.  This way, the client knows
- * it needs to send something back (vs just printing out a message) */
+/**
+ * Asks the client to query the user.
+ *
+ * This way, the client knows it needs to send something back (vs just
+ * printing out a message). */
 void send_query(NewSocket *ns, uint8 flags, char *text)
 {
 	char buf[MAX_BUF];
 
-	sprintf(buf, "X%d %s", flags, text ? text : "");
+	snprintf(buf, sizeof(buf), "X%d %s", flags, text ? text : "");
+
 	Write_String_To_Socket(ns, BINARY_CMD_QUERY, buf, strlen(buf));
 }
 
-/* Sends the stats to the client - only sends them if they have changed */
-#define AddIfInt(Old,New,Type) if (Old != New) {\
-			Old = New; \
-			SockList_AddChar(&sl, (char)(Type)); \
-			SockList_AddInt(&sl, (uint32)(New)); \
-		       }
+#define AddIfInt(Old, New, Type)                            \
+	if (Old != New)                                         \
+	{                                                       \
+		Old = New;                                          \
+		SockList_AddChar(&sl, (char) (Type));               \
+		SockList_AddInt(&sl, (uint32) (New));               \
+	}
 
-#define AddIfShort(Old,New,Type) if (Old != New) {\
-			Old = New; \
-			SockList_AddChar(&sl, (char)(Type)); \
-			SockList_AddShort(&sl, (uint16)(New)); \
-		       }
+#define AddIfShort(Old, New, Type)                          \
+	if (Old != New)                                         \
+	{                                                       \
+		Old = New;                                          \
+		SockList_AddChar(&sl, (char) (Type));               \
+		SockList_AddShort(&sl, (uint16) (New));             \
+	}
 
-#define AddIfChar(Old,New,Type) if (Old != New) {\
-			Old = New; \
-			SockList_AddChar(&sl, (char)(Type)); \
-			SockList_AddChar(&sl, (char)(New)); \
-		       }
+#define AddIfChar(Old, New, Type)                           \
+	if (Old != New)                                         \
+	{                                                       \
+		Old = New;                                          \
+		SockList_AddChar(&sl, (char) (Type));               \
+		SockList_AddChar(&sl, (char) (New));                \
+	}
 
-#define AddIfFloat(Old,New,Type) if (Old != New) {\
-			Old = New; \
-			SockList_AddChar(&sl, (char)Type); \
-			SockList_AddInt(&sl,(long)(New*FLOAT_MULTI));\
-			}
+#define AddIfFloat(Old, New, Type)                          \
+	if (Old != New)                                         \
+	{                                                       \
+		Old = New;                                          \
+		SockList_AddChar(&sl, (char) Type);                 \
+		SockList_AddInt(&sl, (long) (New * FLOAT_MULTI));   \
+	}
 
-#define AddIfString(Old,New,Type) if (Old == NULL || strcmp(Old,New)) {\
-			if (Old) free(Old);\
-	                Old = strdup_local(New);\
-			SockList_AddChar(&sl, (char)Type); \
-			SockList_AddChar(&sl, (char) strlen(New)); \
-			strcpy((char*)sl.buf + sl.len, New); \
-			sl.len += strlen(New); \
-			}
+#define AddIfString(Old, New, Type)                         \
+	if (Old == NULL || strcmp(Old, New))                    \
+	{                                                       \
+		if (Old)                                            \
+		{                                                   \
+			free(Old);                                      \
+		}                                                   \
+                                                            \
+		Old = strdup_local(New);                            \
+		SockList_AddChar(&sl, (char) Type);                 \
+		SockList_AddChar(&sl, (char) strlen(New));          \
+		strcpy((char *) sl.buf + sl.len, New);              \
+		sl.len += strlen(New);                              \
+	}
 
+/**
+ * Send the player skills to the client. */
 void esrv_update_skills(player *pl)
 {
 	object *tmp2;
@@ -868,7 +966,7 @@ void esrv_update_skills(player *pl)
 	/* we should careful set a big enough buffer here */
 	char tmp[2048];
 
-	sprintf(tmp, "X%d ", SPLIST_MODE_UPDATE);
+	snprintf(tmp, sizeof(tmp), "X%d ", SPLIST_MODE_UPDATE);
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
@@ -876,15 +974,22 @@ void esrv_update_skills(player *pl)
 		if (pl->skill_ptr[i] && pl->skill_ptr[i]->last_eat)
 		{
 			tmp2 = pl->skill_ptr[i];
+
 			/* send only when really something has changed */
 			if (tmp2->stats.exp != pl->skill_exp[i] || tmp2->level != pl->skill_level[i])
 			{
 				if (tmp2->last_eat == 1)
-					sprintf(buf, "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp );
+				{
+					snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
+				}
 				else if (tmp2->last_eat == 2)
-					sprintf(buf, "/%s|%d|-2", tmp2->name, tmp2->level);
+				{
+					snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
+				}
 				else
-					sprintf(buf, "/%s|%d|-1", tmp2->name, tmp2->level);
+				{
+					snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
+				}
 
 				strcat(tmp, buf);
 				pl->skill_exp[i] = tmp2->stats.exp;
@@ -896,8 +1001,13 @@ void esrv_update_skills(player *pl)
 	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
 }
 
-/* esrv_update_stats sends a statistics update.  We look at the old values,
- * and only send what has changed.  Stat mapping values are in newclient.h
+/**
+ * Sends player statistics update.
+ *
+ * We look at the old values, and only send what has changed.
+ *
+ * Stat mapping values are in newclient.h
+ *
  * Since this gets sent a lot, this is actually one of the few binary
  * commands for now. */
 void esrv_update_stats(player *pl)
@@ -924,7 +1034,8 @@ void esrv_update_stats(player *pl)
 		/* we don't care about count - target function will readjust itself */
 		if (pl->target_object && pl->target_object->stats.hp != pl->target_hp)
 		{
-			char hp = (char)(((float)pl->target_object->stats.hp / (float)pl->target_object->stats.maxhp) * 100.0f);
+			char hp = (char) (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f);
+
 			pl->target_hp = pl->target_object->stats.hp;
 			AddIfChar(pl->target_hp_p, hp, CS_STAT_TARGET_HP);
 		}
@@ -969,12 +1080,17 @@ void esrv_update_stats(player *pl)
 	}
 
 	flags = 0;
+
 	/* TODO: remove fire and run server sided mode */
 	if (pl->fire_on)
+	{
 		flags |= SF_FIREON;
+	}
 
 	if (pl->run_on)
+	{
 		flags |= SF_RUNON;
+	}
 
 	/* we add additional player status flags - in old style, you got a msg
 	 * in the text windows when you get xray of get blineded - we will skip
@@ -983,19 +1099,28 @@ void esrv_update_stats(player *pl)
 
 	/* player is blind */
 	if (QUERY_FLAG(pl->ob, FLAG_BLIND))
+	{
 		flags |= SF_BLIND;
+	}
 
 	/* player has xray */
 	if (QUERY_FLAG(pl->ob, FLAG_XRAYS))
+	{
 		flags |= SF_XRAYS;
+	}
 
 	/* player has infravision */
 	if (QUERY_FLAG(pl->ob, FLAG_SEE_IN_DARK))
+	{
 		flags |= SF_INFRAVISION;
+	}
 
 	AddIfShort(pl->last_flags, flags, CS_STAT_FLAGS);
+
 	for (i = 0; i < NROFPROTECTIONS; i++)
+	{
 		AddIfChar(pl->last_protection[i], pl->ob->protection[i], atnr_prot_stats[i]);
+	}
 
 	if (pl->socket.ext_title_flag)
 	{
@@ -1009,7 +1134,8 @@ void esrv_update_stats(player *pl)
 		Send_With_Handling(&pl->socket, &sl);
 }
 
-/* Tells the client that here is a player it should start using. */
+/**
+ * Tells the client that here is a player it should start using. */
 void esrv_new_player(player *pl, uint32 weight)
 {
 	SockList sl;
@@ -1021,8 +1147,8 @@ void esrv_new_player(player *pl, uint32 weight)
 	SockList_AddInt(&sl, weight);
 	SockList_AddInt(&sl, pl->ob->face->number);
 
-	SockList_AddChar(&sl, (char)strlen(pl->ob->name));
-	strcpy((char*)sl.buf + sl.len, pl->ob->name);
+	SockList_AddChar(&sl, (char) strlen(pl->ob->name));
+	strcpy((char *) sl.buf + sl.len, pl->ob->name);
 	sl.len += strlen(pl->ob->name);
 
 	Send_With_Handling(&pl->socket, &sl);
@@ -1030,15 +1156,13 @@ void esrv_new_player(player *pl, uint32 weight)
 	SET_FLAG(pl->ob, FLAG_CLIENT_SENT);
 }
 
-/******************************************************************************
- *
- * Start of map related commands.
- *
- ******************************************************************************/
-/* Clears a map cell */
-#define map_clearcell(_cell_) memset((_cell_), 0, sizeof(MapCell));(_cell_)->count=-1
+/** Clears a map cell */
+#define map_clearcell(_cell_)                  \
+	memset((_cell_), 0, sizeof(MapCell));      \
+	(_cell_)->count = -1
 
-/* do some checks, map name and LOS and then draw the map */
+/**
+ * Do some checks, map name and LOS and then draw the map. */
 void draw_client_map(object *pl)
 {
 	if (pl->type != PLAYER)
@@ -1051,13 +1175,17 @@ void draw_client_map(object *pl)
 	 * If so, don't try to send them a map.  All will
 	 * be OK once they really log in. */
 	if (!pl->map || pl->map->in_memory != MAP_IN_MEMORY)
+	{
 		return;
+	}
 
-	/* if we has changed somewhere the map - tell it the client now */
+	/* If we changed somewhere the map, tell it to the client now */
 	if (CONTR(pl)->last_update != pl->map)
+	{
 		MapNewmapCmd(CONTR(pl));
+	}
 
-	/* do LOS after calls to update_position */
+	/* Do LOS update after calls to update_position */
 	if (!QUERY_FLAG(pl, FLAG_WIZ) && CONTR(pl)->update_los)
 	{
 		update_los(pl);
@@ -1068,7 +1196,8 @@ void draw_client_map(object *pl)
 }
 
 /**
- * Figure out player name color for the client to show.\n \n
+ * Figure out player name color for the client to show.
+ *
  * As you can see in this function, it is easy to add
  * new player name colors, just check for the match
  * and make it return the correct color.
@@ -1089,17 +1218,10 @@ static int get_playername_color(object *pl, object *op)
 	return NDI_WHITE;
 }
 
-/* The problem to "personalize" a map view is that we have to access here the objects
- * we want to draw. This means alot of memory access in different areas. Iam not
- * sure about the speed increase when we put all this info in the map node. First, this
- * will be some static memory more per node. Second, we have to force to draw it for
- * every object... Here is some we can optimize, but it should happen very careful. */
-
-/* this kind of map update is overused and outdated. We need for all this special stuff
- * to send the object ID to the client - and we use then the object ID to attach more data
- * when we update the object. */
+/** Darkness table */
 static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 
+/** Draw the client map. */
 void draw_client_map2(object *pl)
 {
 	static uint32 map2_count = 0;
@@ -1126,7 +1248,9 @@ void draw_client_map2(object *pl)
 #endif
 
 	if (CONTR(pl)->dm_light)
+	{
 		dm_light = global_darkness_table[MAX_DARKNESS];
+	}
 
 	wdark = darkness_table[world_darkness];
 	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -1880,13 +2004,15 @@ void draw_client_map2(object *pl)
 	}
 }
 
+/**
+ * Send a map scroll command. */
 void esrv_map_scroll(NewSocket *ns, int dx, int dy)
 {
 	struct Map newmap;
 	int x,y;
 	char buf[MAXSOCKBUF];
 
-	sprintf(buf, "X%d %d", dx, dy);
+	snprintf(buf, sizeof(buf), "X%d %d", dx, dy);
 	Write_String_To_Socket(ns, BINARY_CMD_MAP_SCROLL, buf, strlen(buf));
 
 	/* the x and y here are coordinates for the new map, i.e. if we moved
@@ -1909,16 +2035,16 @@ void esrv_map_scroll(NewSocket *ns, int dx, int dy)
 	ns->sent_scroll = 1;
 }
 
-/*****************************************************************************/
-/* GROS: The following one is used to allow a plugin to send a generic cmd to*/
-/* a player. Of course, the client need to know the command to be able to    */
-/* manage it !                                                               */
-/*****************************************************************************/
+/**
+ * The following one is used to allow a plugin to send a generic command
+ * to a player. Of course, the client needs to know the command to be
+ * able to manage it.
+ * @todo Make this work by adding a binary command for it. */
 void send_plugin_custom_message(object *pl, char *buf)
 {
-	/* we must add here binary_cmd! */
 	(void) pl;
 	(void) buf;
+
 	/*Write_String_To_Socket(&CONTR(pl)->socket, buf, strlen(buf));*/
 }
 

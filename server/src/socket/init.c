@@ -23,16 +23,16 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* socket.c mainly deals with initialization and higher level socket
- * maintenance (checking for lost connections and if data has arrived.)
- * The reading of data is handled in ericserver.c
- */
-
+/**
+ * @file
+ * Socket initialization related code. */
 
 #include <global.h>
+
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
+
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/time.h>
@@ -50,6 +50,7 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
+
 #include <newserver.h>
 #include "zlib.h"
 
@@ -58,40 +59,50 @@ _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 Socket_Info socket_info;
 NewSocket *init_sockets;
 
-
-/* Initializes a connection - really, it just sets up the data structure,
- * socket setup is handled elsewhere.  We do send a version to the
- * client. */
+/**
+ * Initializes a connection - really, it just sets up the data structure,
+ * socket setup is handled elsewhere.
+ *
+ * Send server version to the client.
+ * @param ns Client's socket */
 void InitConnection(NewSocket *ns, uint32 from)
 {
 	SockList sl;
 	unsigned char buf[256];
-	int	bufsize = SOCKETBUFSIZE;
-	int oldbufsize;
+	int	bufsize = SOCKETBUFSIZE, oldbufsize;
 	unsigned int buflen = sizeof(int);
 
 #ifdef WIN32
 	u_long temp = 1;
 
 	if (ioctlsocket(ns->fd, FIONBIO , &temp) == -1)
+	{
 		LOG(llevDebug, "InitConnection:  Error on ioctlsocket.\n");
+	}
 #else
 	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
+	{
 		LOG(llevDebug, "InitConnection:  Error on fcntl.\n");
+	}
 #endif
 
-	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen) == -1)
+	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
+	{
 		oldbufsize = 0;
+	}
 
 	if (oldbufsize < bufsize)
 	{
 		/*LOG(llevDebug, "InitConnection: Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);*/
-		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&bufsize, sizeof(&bufsize)))
+		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(&bufsize)))
+		{
 			LOG(llevDebug, "InitConnection: setsockopt unable to set output buf size to %d\n", bufsize);
+		}
 	}
 
 	buflen = sizeof(oldbufsize);
-	getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char*)&oldbufsize, &buflen);
+	getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen);
+
 #ifdef ESRV_DEBUG
 	LOG(llevDebug, "InitConnection: Socket buffer size now %d bytes\n", oldbufsize);
 #endif
@@ -143,24 +154,32 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->can_write = 1;
 	ns->sent_scroll = 0;
 
-	sprintf((char*)buf, "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
-	ns->host = strdup_local((char*)buf);
-	sprintf((char*)buf, "X%d %d %s\n", VERSION_CS, VERSION_SC, VERSION_INFO);
+	snprintf((char *) buf, sizeof(buf), "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
+	ns->host = strdup_local((char *) buf);
+
+	snprintf((char *) buf, sizeof(buf), "X%d %d %s\n", VERSION_CS, VERSION_SC, VERSION_INFO);
 	buf[0] = BINARY_CMD_VERSION;
+
 	sl.buf = buf;
-	sl.len = strlen((char*)buf);
+	sl.len = strlen((char *) buf);
 	Send_With_Handling(ns, &sl);
 
 #ifdef CS_LOGSTATS
 	if (socket_info.nconns > cst_tot.max_conn)
+	{
 		cst_tot.max_conn = socket_info.nconns;
+	}
 
 	if (socket_info.nconns > cst_lst.max_conn)
+	{
 		cst_lst.max_conn = socket_info.nconns;
+	}
 #endif
 }
 
-/* This sets up the socket and reads all the image information into memory. */
+/**
+ * This sets up the socket and reads all the image information into
+ * memory. */
 void init_ericserver()
 {
 	struct sockaddr_in	insock;
@@ -205,11 +224,13 @@ void init_ericserver()
 
 #ifndef WIN32
 	protox = getprotobyname("tcp");
+
 	if (protox == NULL)
 	{
 		LOG(llevBug, "BUG: init_ericserver: Error getting protox\n");
 		return;
 	}
+
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
 #else
@@ -219,7 +240,9 @@ void init_ericserver()
 #endif
 
 	if (init_sockets[0].fd == -1)
+	{
 		LOG(llevError, "ERROR: Error creating socket on port\n");
+	}
 
 	insock.sin_family = AF_INET;
 	insock.sin_port = htons(settings.csport);
@@ -227,26 +250,29 @@ void init_ericserver()
 
 	linger_opt.l_onoff = 0;
 	linger_opt.l_linger = 0;
+
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
+	{
 		LOG(llevBug, "BUG: Error on setsockopt LINGER\n");
+	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that
-	  * these functions are both using the same calling syntax, just one
-	  * of them needs extra valus passed. */
+	 * these functions are both using the same calling syntax, just one
+	 * of them needs extra valus passed. */
 #if !defined(_WEIRD_OS_) /* means is true for most (win32, linux, etc. ) */
 	{
 		int tmp = 1;
 
-		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)&tmp, sizeof(tmp)))
+		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
 			LOG(llevDebug, "error on setsockopt REUSEADDR\n");
 	}
 #else
-	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)NULL, 0))
+	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
 		LOG(llevDebug, "error on setsockopt REUSEADDR\n");
 
 #endif
 
-	if (bind(init_sockets[0].fd,(struct sockaddr *)&insock,sizeof(insock)) == (-1))
+	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == (-1))
 	{
 #ifdef WIN32
 		shutdown(init_sockets[0].fd, SD_BOTH);
@@ -254,17 +280,19 @@ void init_ericserver()
 #else
 		close(init_sockets[0].fd);
 #endif
+
 		LOG(llevError, "Error on bind command.\n");
 	}
 
 	if (listen(init_sockets[0].fd, 5) == (-1))
 	{
 #ifdef WIN32
-		shutdown(init_sockets[0].fd,SD_BOTH);
+		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
 #else
 		close(init_sockets[0].fd);
 #endif
+
 		LOG(llevError, "Error on listen.\n");
 	}
 
@@ -274,26 +302,27 @@ void init_ericserver()
 	init_srv_files();
 }
 
-
-/*******************************************************************************
- * Start of functions dealing with freeing of the data.                        *
- ******************************************************************************/
-
-/* Free's all the memory that ericserver allocates. */
+/**
+ * Free's all the memory that ericserver allocates. */
 void free_all_newserver()
 {
 	LOG(llevDebug, "Freeing all new client/server information.\n");
+
 	free_socket_images();
 	free(init_sockets);
 }
 
-/* basically, all we need to do here is free all data structures that
- * might be associated with the socket.  It is up to the caller to
- * update the list */
+/**
+ * Basically, all we need to do here is free all data structures that
+ * mighr be associated with the socket.
+ *
+ * It is up to the called to update the list.
+ * @param ns The socket */
 void free_newsocket(NewSocket *ns)
 {
 #ifdef WIN32
 	shutdown(ns->fd,SD_BOTH);
+
 	if (closesocket(ns->fd))
 	{
 #else
@@ -307,25 +336,38 @@ void free_newsocket(NewSocket *ns)
 	}
 
 	if (ns->stats.range)
+	{
 		free(ns->stats.range);
+	}
 
 	if (ns->stats.ext_title)
+	{
 		free(ns->stats.ext_title);
+	}
 
 	if (ns->stats.title)
+	{
 		free(ns->stats.title);
+	}
 
 	if (ns->host)
+	{
 		free(ns->host);
+	}
 
 	if (ns->inbuf.buf)
+	{
 		free(ns->inbuf.buf);
+	}
 
 	memset(ns, 0, sizeof(ns));
 }
 
-/* as long the server don't have a autoupdate/login server
- * as frontend we must serve our depending client files self. */
+/**
+ * Load srv file.
+ * @param fname Filename of the srv file
+ * @param id ID of the srv file
+ * @param cmd THe data command */
 static void load_srv_files(char *fname, int id, int cmd)
 {
 	FILE *fp;
@@ -334,31 +376,34 @@ static void load_srv_files(char *fname, int id, int cmd)
 	unsigned long numread;
 	struct stat statbuf;
 
-	LOG(llevDebug,"Loading %s...", fname);
+	LOG(llevDebug, "Loading %s...", fname);
 
 	if ((fp = fopen(fname, "rb")) == NULL)
+	{
 		LOG(llevError, "\nERROR: Can not open file %s\n", fname);
+	}
 
-	fstat (fileno (fp), &statbuf);
+	fstat(fileno(fp), &statbuf);
 	flen = (int) statbuf.st_size;
 	file_tmp = malloc(flen);
-	numread = (unsigned long) fread(file_tmp, sizeof( char ), flen, fp );
+	numread = (unsigned long) fread(file_tmp, sizeof(char), flen, fp);
 
 	/* get a crc from the unpacked file */
 	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) file_tmp, numread);
 	SrvClientFiles[id].len_ucomp = numread;
+
 	numread = flen * 2;
-	comp_tmp = (char*)malloc(numread);
+	comp_tmp = (char *) malloc(numread);
 	compress2((Bytef *) comp_tmp, &numread, (const unsigned char FAR *) file_tmp, flen, Z_BEST_COMPRESSION);
 
 	/* we prepare the files with the right commands - so we can flush
 	 * then direct from this buffer to the client. */
-	if ((int)numread < flen)
+	if ((int) numread < flen)
 	{
 		/* copy the compressed file in the right buffer */
 		SrvClientFiles[id].file = malloc(numread + 2);
-		memcpy(SrvClientFiles[id].file + 2, comp_tmp,numread);
-		SrvClientFiles[id].file[1] = (char)DATA_PACKED_CMD;
+		memcpy(SrvClientFiles[id].file + 2, comp_tmp, numread);
+		SrvClientFiles[id].file[1] = (char) DATA_PACKED_CMD;
 		SrvClientFiles[id].len = numread;
 	}
 	else
@@ -380,9 +425,10 @@ static void load_srv_files(char *fname, int id, int cmd)
 	fclose(fp);
 }
 
-/* get the /lib/settings default file and create the
- * /data/client_settings with it. */
-static void create_client_settings(void)
+/**
+ * Get the lib/settings default file and create the data/client_settings
+ * file from it. */
+static void create_client_settings()
 {
 	char buf[MAX_BUF * 4];
 	int i;
@@ -391,44 +437,48 @@ static void create_client_settings(void)
 	LOG(llevDebug, "Creating %s/client_settings...\n", settings.localdir);
 
 	/* open default */
-	sprintf(buf, "%s/client_settings", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datadir);
 
 	if ((fset_default = fopen(buf, "rb")) == NULL)
+	{
 		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
+	}
 
-	/* delete our target - we create it new now */
-	sprintf(buf, "%s/client_settings", settings.localdir);
+	/* Delete our target - we create it new now */
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
 	unlink(buf);
 
-	/* open target client_settings */
+	/* Open target client_settings */
 	if ((fset_create = fopen(buf, "wb")) == NULL)
 	{
 		fclose(fset_default);
 		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
 	}
 
-	/* copy default to target */
+	/* Copy default to target */
 	while (fgets(buf, MAX_BUF, fset_default) != NULL)
+	{
 		fputs(buf, fset_create);
+	}
 
 	fclose(fset_default);
 
-	/* now we add the server specific date
-	 * first: the exp levels! */
-	/* param: number of levels we have */
-	sprintf(buf, "level %d\n", MAXLEVEL);
+	/* Now add the level information */
+	snprintf(buf, sizeof(buf), "level %d\n", MAXLEVEL);
 	fputs(buf, fset_create);
 
 	for (i = 0; i <= MAXLEVEL; i++)
 	{
-		sprintf(buf, "%x\n", new_levels[i]);
+		snprintf(buf, sizeof(buf), "%x\n", new_levels[i]);
 		fputs(buf, fset_create);
 	}
 
 	fclose(fset_create);
 }
 
-static void create_help_files(void)
+/**
+ * Create hfiles file out of help files for client from database. */
+static void create_help_files()
 {
 	FILE *fp;
 	char filename[MAX_BUF], buf[HUGE_BUF];
@@ -450,7 +500,7 @@ static void create_help_files(void)
 
 	while (db_step(statement) == SQLITE_ROW)
 	{
-		snprintf(buf, sizeof(buf), "Name: %s\nTitle: %s\n%s\n==========\n", (char *)db_column_text(statement, 0), (char *)db_column_text(statement, 1), (char *)db_column_text(statement, 2));
+		snprintf(buf, sizeof(buf), "Name: %s\nTitle: %s\n%s\n==========\n", (char *) db_column_text(statement, 0), (char *) db_column_text(statement, 1), (char *) db_column_text(statement, 2));
 		fputs(buf, fp);
 	}
 
@@ -461,39 +511,48 @@ static void create_help_files(void)
 	fclose(fp);
 }
 
-/* load all src_files we can send to client... client_bmaps is generated from
- * the server at startup out of the Atrinik png file. */
-void init_srv_files(void)
+/**
+ * Load all the srv files we can send to client.
+ *
+ * client_bmaps is generated from the server at startup out of the
+ * Atrinik png file. */
+void init_srv_files()
 {
 	char buf[MAX_BUF];
 
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
 	create_help_files();
-	sprintf(buf, "%s/hfiles", settings.localdir);
+
+	snprintf(buf, sizeof(buf), "%s/hfiles", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
 
-	sprintf(buf, "%s/animations", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_ANIMS, DATA_CMD_ANIM_LIST);
 
-	sprintf(buf, "%s/client_bmaps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_BMAPS, DATA_CMD_BMAP_LIST);
 
-	sprintf(buf, "%s/client_skills", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_skills", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_SKILLS, DATA_CMD_SKILL_LIST);
 
-	sprintf(buf, "%s/client_spells", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_spells", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_SPELLS, DATA_CMD_SPELL_LIST);
 
 	create_client_settings();
-	sprintf(buf, "%s/client_settings", settings.localdir);
+
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
 	load_srv_files(buf, SRV_CLIENT_SETTINGS, DATA_CMD_SETTINGS_LIST);
 }
 
-/* a connecting client has requested a srv_ file.
- * not that we don't know anything about the player
- * at this point - we got a open socket, a IP a matching
- * version and a usable setup string from the client. */
+/**
+ * A connecting client has requested a srv file.
+ *
+ * Note that we don't know anything about the player at this point - we
+ * got an open socket, an IP, a matching version, and an usable setup
+ * string from the client.
+ * @param ns The client's socket
+ * @param id ID of the srv file */
 void send_srv_file(NewSocket *ns, int id)
 {
 	SockList sl;
@@ -501,9 +560,13 @@ void send_srv_file(NewSocket *ns, int id)
 	sl.buf = (unsigned char *) SrvClientFiles[id].file;
 
 	if (SrvClientFiles[id].len != -1)
+	{
 		sl.len = SrvClientFiles[id].len + 2;
+	}
 	else
+	{
 		sl.len = SrvClientFiles[id].len_ucomp + 2;
+	}
 
 	Send_With_Handling(ns, &sl);
 }
