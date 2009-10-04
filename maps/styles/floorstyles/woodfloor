@@ -1,0 +1,8 @@
+arch map
+difficulty 1
+end
+arch floor_wood1
+end
+arch floor_wood1b
+x 1
+end

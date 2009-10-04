@@ -493,7 +493,7 @@ static void enter_random_map(object *pl, object *exit_ob)
 
 	/* pick a new pathname for the new map.  Currently, we just
 	 * use a static variable and increment the counter one each time. */
-	sprintf(newmap_name, "/random/%016d", reference_number++);
+	sprintf(newmap_name, "/random/%04d", reference_number++);
 
 	/* now to generate the actual map. */
 	new_map = (mapstruct *)generate_random_map(newmap_name, &rp);

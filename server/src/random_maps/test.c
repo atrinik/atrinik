@@ -36,7 +36,7 @@ char **make_snake_layout(int xsize, int ysize);
 char **make_square_spiral_layout(int xsize, int ysize);
 char **gen_corridor_rooms(int, int, int);
 
-void dump_layout(char **layout, int Xsize, int Ysize)
+void dump_layout2(char **layout, int Xsize, int Ysize)
 {
 	int i,j;
 
@@ -62,17 +62,17 @@ main()
 
 
 	/* put your layout here */
-	layout = roguelike_layout_gen(Xsize,Ysize);
+	layout = roguelike_layout_gen(Xsize,Ysize,0);
 	/*layout = make_snake_layout(Xsize,Ysize,0); */
 	/*layout = make_square_spiral_layout(Xsize,Ysize); */
 	/*layout = gen_corridor_rooms(Xsize, Ysize, 1); */
 	/*layout = maze_gen(Xsize,Ysize,0); */
 	/*layout = map_gen_onion(Xsize,Ysize,0,0);*/
 
-	dump_layout(layout, Xsize, Ysize);
+	dump_layout2(layout, Xsize, Ysize);
 	printf("\nExpanding layout...\n");
 
 	biglayout = expand2x(layout, Xsize, Ysize);
-	dump_layout(biglayout, Xsize*2-1, Ysize*2-1);
+	dump_layout2(biglayout, Xsize*2-1, Ysize*2-1);
 }
 

@@ -30,8 +30,6 @@
 #include <time.h>
 #include <stdio.h>
 #include <global.h>
-#include <maze_gen.h>
-#include <room_gen.h>
 #include <random_map.h>
 #include <rproto.h>
 

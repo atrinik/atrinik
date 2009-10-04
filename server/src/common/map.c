@@ -1510,8 +1510,10 @@ mapstruct *get_empty_map(int sizex, int sizey)
 	mapstruct *m = get_linked_map();
 	m->width = sizex;
 	m->height = sizey;
-	m->in_memory = MAP_SWAPPED;
 	allocate_map(m);
+
+	m->in_memory = MAP_IN_MEMORY;
+
 	return m;
 }
 

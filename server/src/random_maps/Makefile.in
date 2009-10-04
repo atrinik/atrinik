@@ -2,7 +2,7 @@
 #            Atrinik, a Multiplayer Online Role Playing Game            *
 #                                                                       *
 #                     Copyright (C) 2009 Alex Tokar                     *
-#                                                                       * 
+#                                                                       *
 # Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 # and Crossfire (Multiplayer game for X-windows).                       *
 #                                                                       *
@@ -60,7 +60,7 @@ SED = @SED@
 
 OBJS = $(SRCS:.c=.o)
 
-EXTRA_CFLAGS = -Wall
+EXTRA_CFLAGS = -Wall -W -pedantic
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
@@ -82,10 +82,10 @@ RM = @RM@
 FLEX = @LEX@
 AR = @AR@
 
-random_map: $(OBJS) 
+random_map: $(OBJS)
 	$(RM) -f $@
 	$(CC) $(CFLAGS) $(INCLUDES) -c standalone.c
-	$(CC) -o $@ $(OBJS) standalone.o  $(LIBS) 
+	$(CC) -o $@ $(OBJS) standalone.o  $(LIBS)
 
 random_map.a: $(OBJS)
 	$(RM) -f $@

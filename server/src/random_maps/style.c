@@ -23,303 +23,343 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Those functions deal with style for random maps. */
 
 #include <global.h>
 #include <random_map.h>
 
-#ifndef WIN32 /* ---win32 exclude headers */
+#ifndef WIN32
 #ifdef NO_ERRNO_H
 extern int errno;
 #else
 #   include <errno.h>
 #endif
+
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include "../include/autoconf.h"
-#endif /* win32 */
-#ifndef HAVE_SCANDIR
+#endif
 
-/* The scandir is grabbed from the gnulibc and modified slightly to remove
- * special gnu libc constructs/error conditions.
- */
-
-/* Copyright (C) 1992, 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
-
-int alphasort( struct dirent **a, struct dirent **b)
+/**
+ * Char comparison for sorting purposes.
+ * @param p1 First pointer to compare.
+ * @param p2 Second pointer to compare.
+ * @return Return of strcmp() on pointed strings. */
+static int pointer_strcmp(const void *p1, const void *p2)
 {
-	return strcmp ((*a)->d_name, (*b)->d_name);
+	const char *s1 = *(const char * const *) p1;
+	const char *s2 = *(const char * const *) p2;
+
+	return (strcmp(s1, s2));
 }
 
-int
-scandir (dir, namelist, select, cmp)
-const char *dir;
-struct dirent ***namelist;
-int (*select)(struct dirent *);
-int (*cmp)(const void *, const void *);
+/**
+ * This is our own version of scandir/select_regular_files/sort.
+ *
+ * To support having subdirectories in styles, we need to know if in fact
+ * the directory we read is a subdirectory. However, we can't get that
+ * through the normal dirent entry. So instead, we do our own where we do
+ * have the full directory path so can do stat calls to see if in fact it
+ * is a directory.
+ * @param dir Name of the directory to scan.
+ * @param namelist Array of file names returned. It needs to be freed by
+ * the caller.
+ * @param skip_dirs If nonzero, we don't skip any subdirectories - if
+ * zero, we store those away, since there are cases where we want to
+ * choose a random directory.
+ * @return -1 if directory is invalid, number of files otherwise. */
+int load_dir(const char *dir, char ***namelist, int skip_dirs)
 {
-	DIR *dp = opendir (dir);
-	struct dirent **v = NULL;
-	size_t vsize = 0, i;
+	DIR *dp;
 	struct dirent *d;
-	int save;
+	int entries = 0, entry_size = 0;
+	char name[NAME_MAX + 1], **rn = NULL;
+	struct stat sb;
+
+	dp = opendir(dir);
 
 	if (dp == NULL)
-		return -1;
-
-	save=errno=0;
-
-	i = 0;
-	while ((d = readdir (dp)) != NULL)
-		if (select == NULL || (*select) (d))
-		{
-
-			if (i == vsize)
-			{
-				struct dirent **new;
-				if (vsize == 0)
-					vsize = 10;
-				else
-					vsize *= 2;
-				new = (struct dirent **) realloc (v, vsize * sizeof (*v));
-				if (new == NULL)
-				{
-lose:
-					errno=ENOMEM;
-
-					break;
-				}
-				v = new;
-			}
-
-			/*	dsize = &d->d_name[sizeof(d->d_name)] - (char *) d; */
-			v[i] = (struct dirent *) malloc (d->d_reclen);
-			if (v[i] == NULL)
-				goto lose;
-
-			memcpy (v[i++], d, d->d_reclen);
-		}
-
-	if (errno != 0)
 	{
-		save = errno;
-		(void) closedir (dp);
-		while (i > 0)
-			free (v[--i]);
-		free (v);
-		errno=save;
 		return -1;
 	}
 
-	(void) closedir (dp);
-	errno=save;
+	while ((d = readdir(dp)) != NULL)
+	{
+		if (skip_dirs)
+		{
+			snprintf(name, sizeof(name), "%s/%s", dir, d->d_name);
+            stat(name, &sb);
 
-	/* Sort the list if we have a comparison function to sort with.  */
-	if (cmp != NULL)
-		qsort (v, i, sizeof (*v), cmp);
-	*namelist = v;
-	return i;
+			if (S_ISDIR(sb.st_mode))
+			{
+				continue;
+			}
+		}
+
+		if (entries == entry_size)
+		{
+			entry_size += 10;
+			rn = realloc(rn, sizeof(char *) * entry_size);
+		}
+
+		rn[entries] = strdup_local(d->d_name);
+		entries++;
+	}
+
+	closedir(dp);
+
+	qsort(rn, entries, sizeof(char *), pointer_strcmp);
+
+	*namelist = rn;
+
+	return entries;
 }
 
-#endif
+/**
+ * Loaded styles maps cache, to avoid having to load all the time. */
+mapstruct *styles = NULL;
 
-
-
-/* the warning here is because I've declared it "const", the
-   .h file in linux allows non-const.  */
-int select_regular_files(const struct dirent *the_entry)
-{
-	if (the_entry->d_name[0]=='.') return 0;
-	if (strstr(the_entry->d_name,"CVS")) return 0;
-	return 1;
-}
-
-/* this function loads and returns the map requested.
- * dirname, for example, is "/styles/wallstyles", stylename, is,
- * for example, "castle", difficulty is -1 when difficulty is
- * irrelevant to the style.  If dirname is given, but stylename
- * isn't, and difficult is -1, it returns a random style map.
- * Otherwise, it tries to match the difficulty given with a style
- * file, named style_name_# where # is an integer
- */
-
-/* remove extern, so visible to command_style_map_info function */
-mapstruct *styles=NULL;
-
-
+/**
+ * Loads specified map (or take it from cache list).
+ * @param style_name Map to load.
+ * @return The loaded map. */
 mapstruct *load_style_map(char *style_name)
 {
 	mapstruct *style_map;
 
 	/* Given a file.  See if its in memory */
-	for (style_map = styles; style_map!=NULL; style_map=style_map->next)
+	for (style_map = styles; style_map != NULL; style_map = style_map->next)
 	{
-		if (!strcmp(style_name, style_map->path)) return style_map;
+		if (!strcmp(style_name, style_map->path))
+		{
+			return style_map;
+		}
 	}
-	style_map = load_original_map(style_name,MAP_STYLE);
+
+	style_map = load_original_map(style_name, MAP_STYLE);
+
 	/* Remove it from gloabl list, put it on our local list */
 	if (style_map)
 	{
 		mapstruct *tmp;
 
 		if (style_map == first_map)
+		{
 			first_map = style_map->next;
+		}
 		else
 		{
-			for (tmp = first_map; tmp && tmp->next != style_map; tmp = tmp->next);
+			for (tmp = first_map; tmp && tmp->next != style_map; tmp = tmp->next)
+			{
+			}
+
 			if (tmp)
+			{
 				tmp->next = style_map->next;
+			}
 		}
+
 		style_map->next = styles;
 		styles = style_map;
 	}
+
 	return style_map;
 }
 
-mapstruct *find_style(char *dirname,char *stylename,int difficulty)
+/**
+ * Loads and returns the map requested.
+ *
+ * Dirname, for example, is "/styles/wallstyles", stylename, is,
+ * for example, "castle", difficulty is -1 when difficulty is
+ * irrelevant to the style.
+ *
+ * If dirname is given, but stylename isn't, and difficulty is -1, it
+ * returns a random style map.
+ *
+ * Otherwise, it tries to match the difficulty given with a style file,
+ * named style_name_# where # is an integer.
+ * @param dirname Where to look.
+ * @param stylename Style to use, can be NULL.
+ * @param difficulty Style difficulty.
+ * @return Style, or NULL if none suitable. */
+mapstruct *find_style(char *dirname, char *stylename, int difficulty)
 {
-	char style_file_path[256];
-	char style_file_full_path[256];
+	char style_file_path[256], style_file_full_path[256];
 	mapstruct *style_map = NULL;
 	struct stat file_stat;
 	int i;
 
-	/* if stylename exists, set style_file_path to that file.*/
-	if (stylename && strlen(stylename)>0)
-		sprintf(style_file_path,"%s/%s",dirname,stylename);
-	else /* otherwise, just use the dirname.  We'll pick a random stylefile.*/
-		sprintf(style_file_path,"%s",dirname);
-
-	/* is what we were given a directory, or a file? */
-	sprintf(style_file_full_path,"%s/maps%s",settings.datadir,style_file_path);
-	stat(style_file_full_path,&file_stat);
-
-
-	if (! (S_ISDIR(file_stat.st_mode)))
+	/* If stylename exists, set style_file_path to that file.*/
+	if (stylename && strlen(stylename) > 0)
 	{
-		style_map=load_style_map(style_file_path);
+		snprintf(style_file_path, sizeof(style_file_path), "%s/%s", dirname, stylename);
 	}
-	if (style_map == NULL) /* maybe we were given a directory! */
+	/* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
+	else
 	{
-		struct dirent **namelist;
-		int n;
+		snprintf(style_file_path, sizeof(style_file_path), "%s", dirname);
+	}
+
+	/* Is what we were given a directory, or a file? */
+	snprintf(style_file_full_path, sizeof(style_file_full_path), "%s/%s", MAPDIR, style_file_path);
+
+	stat(style_file_full_path, &file_stat);
+
+	if (!(S_ISDIR(file_stat.st_mode)))
+	{
+		style_map = load_style_map(style_file_path);
+	}
+
+	/* Maybe we were given a directory! */
+	if (style_map == NULL)
+	{
+		char **namelist;
+		int n, only_subdirs = 0;
 		char style_dir_full_path[256];
 
-		/* get the names of all the files in that directory */
-		sprintf(style_dir_full_path,"%s/maps%s",settings.datadir,style_file_path);
-		n = scandir(style_dir_full_path,&namelist,select_regular_files,alphasort);
+		/* Get the names of all the files in that directory */
+		snprintf(style_dir_full_path, sizeof(style_dir_full_path), "%s/%s", MAPDIR, style_file_path);
 
-		if (n<=0) return 0; /* nothing to load.  Bye. */
+		/* First, skip subdirectories.  If we don't find anything, then try again
+		 * without skipping subdirs. */
+		n = load_dir(style_dir_full_path, &namelist, 1);
 
-		if (difficulty==-1)   /* pick a random style from this dir. */
+		if (n <= 0)
 		{
-			strcat(style_file_path,"/");
-			strcat(style_file_path,namelist[RANDOM()%n]->d_name);
-			style_map = load_style_map(style_file_path);
+			n = load_dir(style_dir_full_path, &namelist, 0);
+			only_subdirs = 1;
 		}
-		else    /* find the map closest in difficulty */
-		{
-			int min_dist=32000,min_index=-1;
 
-			for (i=0;i<n;i++)
+		/* Nothing to load.  Bye. */
+		if (n <= 0)
+		{
+			return 0;
+		}
+
+		/* pick a random style from this dir. */
+		if (difficulty == -1)
+		{
+			if (only_subdirs)
+			{
+				style_map = NULL;
+			}
+			else
+			{
+				strcat(style_file_path, "/");
+				strcat(style_file_path, namelist[RANDOM() % n]);
+
+				style_map = load_style_map(style_file_path);
+			}
+		}
+		/* find the map closest in difficulty */
+		else
+		{
+			int min_dist = 32000, min_index = -1;
+
+			for (i = 0; i < n; i++)
 			{
 				int dist;
-				char *mfile_name = strrchr(namelist[i]->d_name,'_')+1;
+				char *mfile_name = strrchr(namelist[i], '_') + 1;
 
-				if ((mfile_name-1) == NULL)  /* since there isn't a sequence, */
+				/* since there isn't a sequence, pick one at random to recurse */
+				if ((mfile_name - 1) == NULL)
 				{
 					int q;
-					/*pick one at random to recurse */
-					style_map= find_style(style_file_path,
-										  namelist[RANDOM()%n]->d_name,difficulty);
-					for (q=0; q<n; q++)
+
+					style_map = find_style(style_file_path, namelist[RANDOM() % n], difficulty);
+
+					for (q = 0; q < n; q++)
+					{
 						free(namelist[q]);
+					}
+
 					free(namelist);
+
 					return style_map;
 				}
 				else
 				{
-					dist = abs(difficulty-atoi(mfile_name));
-					if (dist<min_dist)
+					dist = abs(difficulty - atoi(mfile_name));
+
+					if (dist < min_dist)
 					{
 						min_dist = dist;
 						min_index = i;
 					}
 				}
 			}
+
 			/* presumably now we've found the "best" match for the
-			    difficulty. */
-			strcat(style_file_path,"/");
-			strcat(style_file_path,namelist[min_index]->d_name);
+			 * difficulty. */
+			strcat(style_file_path, "/");
+			strcat(style_file_path, namelist[min_index]);
+
 			style_map = load_style_map(style_file_path);
 		}
-		for (i=0; i<n; i++)
+
+		for (i = 0; i < n; i++)
+		{
 			free(namelist[i]);
+		}
+
 		free(namelist);
 	}
+
 	return style_map;
 
 }
 
-
-/* picks a random object from a style map.
- * Redone by MSW so it should be faster and not use static
- * variables to generate tables.
- */
+/**
+ * Picks a random object from a style map.
+ * @param style Map to pick from.
+ * @return The random object. Can be NULL. */
 object *pick_random_object(mapstruct *style)
 {
-	int x,y, i;
+	int x, y, i;
 	object *new_obj;
 
 	/* If someone makes a style map that is empty, this will loop forever,
-	 * but the callers will crash if we return a null object, so either
-	 * way is not good.
-	 */
+	 * but the callers will crash if we return a NULL object, so either
+	 * way is not good. */
 	do
 	{
 		i = RANDOM () % (MAP_WIDTH(style) * MAP_HEIGHT(style));
 
 		x = i / MAP_HEIGHT(style);
 		y = i % MAP_HEIGHT(style);
-		new_obj = get_map_ob(style,x,y);
+		new_obj = get_map_ob(style, x, y);
 	}
 	while (new_obj == NULL);
-	if (new_obj->head) return new_obj->head;
-	else return new_obj;
+
+	if (new_obj->head)
+	{
+		return new_obj->head;
+	}
+	else
+	{
+		return new_obj;
+	}
 }
 
-
+/**
+ * Frees cached style maps. */
 void free_style_maps()
 {
 	mapstruct *next;
-	int  style_maps=0;
+	int style_maps = 0;
 
 	/* delete_map will try to free it from the linked list,
-	 * but won't find it, so we need to do it ourselves
-	 */
+	 * but won't find it, so we need to do it ourselves */
 	while (styles)
 	{
 		next = styles->next;
 		delete_map(styles);
-		styles=next;
+		styles = next;
 		style_maps++;
 	}
-	LOG(llevDebug,"free_style_maps: Freed %d maps\n", style_maps);
-}
 
+	LOG(llevDebug, "free_style_maps: Freed %d maps\n", style_maps);
+}

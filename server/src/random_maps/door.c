@@ -23,54 +23,109 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Door related functions. */
+
 #include <global.h>
 #include <random_map.h>
 #include <rproto.h>
 
-/* where are there adjacent doors or walls? */
-int surround_check2(char **layout,int i,int j,int Xsize, int Ysize)
+/**
+ * Serch for doors or walls around a spot.
+ * @param layout Naze.
+ * @param x X coordinate to check
+ * @param y Y coordinate to check
+ * @param Xsize X map size
+ * @param Ysize Y map size
+ * @return Combination of flags:
+ * - <b>1</b>: Door or wall to left.
+ * - <b>2</b>: Door or wall to right.
+ * - <b>4</b>: Door or wall above.
+ * - <b>8</b>: Door or wall below. */
+int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
 {
 	/* 1 = door or wall to left,
 	    2 = door or wall to right,
 	    4 = door or wall above
 	    8 = door or wall below */
 	int surround_index = 0;
-	if ((i > 0) && (layout[i-1][j]=='D'||layout[i-1][j]=='#')) surround_index +=1;
-	if ((i < Xsize-1) && (layout[i+1][j]=='D'||layout[i+1][j]=='#')) surround_index +=2;
-	if ((j > 0) && (layout[i][j-1]=='D'||layout[i][j-1]=='#')) surround_index +=4;
-	if ((j < Ysize-1) && (layout[i][j+1]=='D'&&layout[i][j+1]=='#')) surround_index +=8;
+
+	if ((x > 0) && (layout[x - 1][y] == 'D' || layout[x - 1][y] == '#'))
+	{
+		surround_index += 1;
+	}
+
+	if ((x < Xsize - 1) && (layout[x + 1][y] == 'D' || layout[x + 1][y] == '#'))
+	{
+		surround_index += 2;
+	}
+
+	if ((y > 0) && (layout[x][y - 1] == 'D' || layout[x][y - 1] == '#'))
+	{
+		surround_index += 4;
+	}
+
+	if ((y < Ysize - 1) && (layout[x][y + 1] == 'D' && layout[x][y + 1] == '#'))
+	{
+		surround_index += 8;
+	}
+
 	return surround_index;
 }
 
-void put_doors(mapstruct *the_map,char **maze , char *doorstyle, RMParms *RP)
+/**
+ * Add doors to a map.
+ * @param the_map Map we're adding the doors to.
+ * @param maze Naze layout.
+ * @param doorstyle Door style to use. If NULL, will choose one randomly.
+ * @param RP Random map parameters. */
+void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
 {
-	int i,j;
-	mapstruct *vdoors;
-	mapstruct *hdoors;
+	int x, y;
+	mapstruct *vdoors, *hdoors;
 	char doorpath[128];
 
-	if (!strcmp(doorstyle,"none")) return;
-	vdoors = find_style("/styles/doorstyles/vdoors",doorstyle,-1);
-	if (!vdoors) return;
-	sprintf(doorpath,"/styles/doorstyles/hdoors%s",strrchr(vdoors->path,'/'));
-	hdoors = find_style(doorpath,0,-1);
-	for (i=0;i<RP->Xsize;i++)
-		for (j=0;j<RP->Ysize;j++)
+	if (!strcmp(doorstyle, "none"))
+	{
+		return;
+	}
+
+	vdoors = find_style("/styles/doorstyles/vdoors", doorstyle, -1);
+
+	if (!vdoors)
+	{
+		return;
+	}
+
+	snprintf(doorpath, sizeof(doorpath), "/styles/doorstyles/hdoors%s", strrchr(vdoors->path, '/'));
+	hdoors = find_style(doorpath, 0, -1);
+
+	for (x = 0; x < RP->Xsize; x++)
+	{
+		for (y = 0; y < RP->Ysize; y++)
 		{
-			if (maze[i][j]=='D')
+			if (maze[x][y] == 'D')
 			{
-				int sindex;
-				object *this_door,*new_door;
-				sindex = surround_check2(maze,i,j,RP->Xsize,RP->Ysize);
-				if (sindex==3)
-					this_door=pick_random_object(hdoors);
+				int sindex = surround_check2(maze, x, y, RP->Xsize, RP->Ysize);
+				object *this_door, *new_door;
+
+				if (sindex == 3)
+				{
+					this_door = pick_random_object(hdoors);
+				}
 				else
-					this_door=pick_random_object(vdoors);
+				{
+					this_door = pick_random_object(vdoors);
+				}
+
 				new_door = arch_to_object(this_door->arch);
-				copy_object(this_door,new_door);
-				new_door->x = i;
-				new_door->y = j;
-				insert_ob_in_map(new_door,the_map,NULL,INS_NO_MERGE | INS_NO_WALK_ON);
+				copy_object(this_door, new_door);
+				new_door->x = x;
+				new_door->y = y;
+
+				insert_ob_in_map(new_door, the_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 			}
 		}
+	}
 }

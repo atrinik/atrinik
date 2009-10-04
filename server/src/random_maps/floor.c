@@ -23,41 +23,58 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Random map floor handling. */
+
 #include <global.h>
 #include <random_map.h>
 #include <rproto.h>
 
-/*  make a map and layout the floor.  */
-
-mapstruct *make_map_floor(char *floorstyle,RMParms *RP)
+/**
+ * Creates the Atrinik map structure from the layout, and adds the floor.
+ * @param layout Generated layout.
+ * @param floorstyle floor style. Can be NULL, in which case a random one
+ * is chosen.
+ * @param RP Random map parameters.
+ * @return Atrinik map structure. */
+mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 {
-	char styledirname[256];
-	char stylefilepath[256];
-	mapstruct *style_map=0;
+	char styledirname[256], stylefilepath[256];
+	mapstruct *style_map = NULL, *newMap = NULL;
 	object *the_floor;
-	mapstruct *newMap =0; /* (mapstruct *) calloc(sizeof(mapstruct),1); */
 
-	/* allocate the map */
-	newMap = get_empty_map(RP->Xsize,RP->Ysize);
+	/* Allocate the map */
+	newMap = get_empty_map(RP->Xsize, RP->Ysize);
 
-	/* get the style map */
-	sprintf(styledirname,"%s","/styles/floorstyles");
-	sprintf(stylefilepath,"%s/%s",styledirname,floorstyle);
-	style_map = find_style(styledirname,floorstyle,-1);
-	if (style_map == 0) return newMap;
+	/* Get the style map */
+	strncpy(styledirname, "/styles/floorstyles", sizeof(styledirname) - 1);
+	snprintf(stylefilepath, sizeof(stylefilepath), "%s/%s", styledirname, floorstyle);
+	style_map = find_style(styledirname, floorstyle, -1);
 
-	/* fill up the map with the given floor style */
-	if ((the_floor=pick_random_object(style_map))!=NULL)
+	if (style_map == NULL)
 	{
-		int i,j;
-		for (i=0;i<RP->Xsize;i++)
-			for (j=0;j<RP->Ysize;j++)
-			{
-				object *thisfloor=arch_to_object(the_floor->arch);
-				thisfloor->x = i;
-				thisfloor->y = j;
-				insert_ob_in_map(thisfloor,newMap,thisfloor,INS_NO_MERGE | INS_NO_WALK_ON);
-			}
+		return newMap;
 	}
+
+	/* Fill up the map with the given floor style */
+	if ((the_floor = pick_random_object(style_map)) != NULL)
+	{
+		int x, y;
+
+		for (x = 0; x < RP->Xsize; x++)
+		{
+			for (y = 0; y < RP->Ysize; y++)
+			{
+				object *thisfloor = arch_to_object(the_floor->arch);
+
+				thisfloor->x = x;
+				thisfloor->y = y;
+
+				insert_ob_in_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
+			}
+		}
+	}
+
 	return newMap;
 }
