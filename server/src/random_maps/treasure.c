@@ -864,6 +864,16 @@ object **surround_by_doors(mapstruct *map, char **layout, int x, int y, int opts
 		{
 			object *new_door = get_archetype(SURROUND_DOOR);
 
+			if (freearr_x[i] != 0 || freearr_y[i] == 0)
+			{
+				new_door->direction = 3;
+
+				if (QUERY_FLAG(new_door, FLAG_IS_TURNABLE) || QUERY_FLAG(new_door, FLAG_ANIMATE))
+				{
+					SET_ANIMATION(new_door, (NUM_ANIMATIONS(new_door) / NUM_FACINGS(new_door)) * new_door->direction + new_door->state);
+				}
+			}
+
 			new_door->x = x + freearr_x[i];
 			new_door->y = y + freearr_y[i];
 			remove_monsters(new_door->x, new_door->y, map);
