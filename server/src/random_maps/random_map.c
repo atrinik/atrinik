@@ -134,9 +134,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
 	place_specials_in_map(theMap, layout, RP);
 
-#if 0
 	place_monsters(theMap, RP->monsterstyle, RP->difficulty, RP);
-#endif
 
 	place_treasure(theMap, layout, RP->treasurestyle, RP->treasureoptions, RP);
 
