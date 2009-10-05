@@ -70,7 +70,7 @@ LIBS = @LIBS@ $(EXTRA_LIBS) $(SDL_LIBS)
 CC = @CC@
 RM = @RM@
 
-atrinik: $(OBJS) $(LOCAL_LIBRARIES)
+atrinik-client: $(OBJS) $(LOCAL_LIBRARIES)
 	$(RM) -f $@
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LIBS)
 
@@ -81,7 +81,7 @@ depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
 
 clean::
-	$(RM) -f atrinik $(OBJS) Makefile.bak
+	$(RM) -f atrinik-client $(OBJS) Makefile.bak
 
 distclean:: clean
 	$(RM) -f Makefile ./include/define.h
@@ -89,4 +89,4 @@ distclean:: clean
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $*.c
 
-all: atrinik
+all: atrinik-client
