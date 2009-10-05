@@ -62,6 +62,10 @@
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+#ifndef NAME_MAX
+#define NAME_MAX 255
+#endif
+
 /** The maximum legal value of any stat */
 #define MAX_STAT		30
 /** The minimum legal value of any stat */
