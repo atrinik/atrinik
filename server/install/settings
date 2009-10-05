@@ -16,7 +16,7 @@
 # host is the name of this host as we should report it to the metaserver
 
 metaserver_notification off
-metaserver_server meta.atrinik.org
+metaserver_server http://meta.atrinik.org/update.php
 metaserver_host put.your.hostname.here
 metaserver_port 80
 metaserver_comment Put a comment here.
