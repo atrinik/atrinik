@@ -63,10 +63,10 @@ depend:
 install::
 
 clean:
-	$(RM) -f $(OBJS) Makefile.bak
+	$(RM) -f $(OBJS) Makefile.bak zlib.a
 
 distclean: clean
-	$(RM) -f Makefile zlib.a
+	$(RM) -f Makefile
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES)  -c $*.c
