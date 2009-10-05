@@ -420,15 +420,6 @@ static void load_settings()
 			else
 				LOG(llevBug, "BUG: load_settings: metaserver_host must have a value.\n");
 		}
-		else if (!strcasecmp(buf, "metaserver_port"))
-		{
-			int port = atoi(cp);
-
-			if (port < 1 || port > 65535)
-				LOG(llevBug, "BUG: load_settings: metaserver_port must be between 1 and 65535, %d is invalid\n", port);
-			else
-				settings.meta_port = port;
-		}
 		else if (!strcasecmp(buf, "metaserver_comment"))
 		{
 			strcpy(settings.meta_comment, cp);

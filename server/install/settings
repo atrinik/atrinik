@@ -18,7 +18,6 @@
 metaserver_notification off
 metaserver_server http://meta.atrinik.org/update.php
 metaserver_host put.your.hostname.here
-metaserver_port 80
 metaserver_comment Put a comment here.
 # values for the new big worldmap, and weather. Only use if you are using the
 # new bigmap.

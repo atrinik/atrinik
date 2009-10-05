@@ -465,9 +465,6 @@ typedef struct Settings
 	/* Hostname of this host */
 	char meta_host[MAX_BUF];
 
-	/* Port number to use for updates */
-	uint16 meta_port;
-
 	/* Comment we send to the metaserver */
 	char meta_comment[MAX_BUF];
 
