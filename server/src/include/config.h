@@ -580,9 +580,9 @@
 #define RESET_LOCATION_TIME	0
 
 /* Default database where settings, player data, unique maps, highscore etc
- * is stored. Default is "atrinik.db". */
-#define DB_DEFAULT "atrinik.db"
+ * is stored. */
+#define DB_DEFAULT LOCALDIR"/atrinik.db"
 
 /* Database where the reference tables are stored, like help files,
- * materials, etc. Default is "reference.db". */
+ * materials, etc. */
 #define DB_REFERENCE "reference.db"
