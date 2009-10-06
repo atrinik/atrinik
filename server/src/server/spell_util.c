@@ -2191,6 +2191,10 @@ void check_fired_arch(object *op)
 	{
 		hitter = op;
 	}
+	else if (hitter->head)
+	{
+		hitter = hitter->head;
+	}
 
 	flag = GET_MAP_FLAGS(op->map, op->x, op->y) & P_IS_PVP;
 
