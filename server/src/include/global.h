@@ -470,6 +470,9 @@ typedef struct Settings
 
 	/* Use watchdog? */
 	uint8 watchdog;
+
+	/** Interactive mode on? */
+	uint8 interactive;
 } Settings;
 
 extern Settings settings;

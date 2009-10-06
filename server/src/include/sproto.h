@@ -383,6 +383,7 @@ void set_dumpmonA(void);
 void set_dumpmont(char *name);
 void set_daemon();
 void set_watchdog();
+void set_interactive();
 void set_datadir(char *path);
 void set_localdir(char *path);
 void set_mapdir(char *path);

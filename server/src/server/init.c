@@ -126,6 +126,11 @@ void set_watchdog()
 	settings.watchdog = 1;
 }
 
+void set_interactive()
+{
+	settings.interactive = 1;
+}
+
 void set_datadir(char *path)
 {
 	settings.datadir = path;
@@ -261,6 +266,7 @@ struct Command_Line_Options options[] =
 	{"-csport", 1, 2, set_csport},
 	{"-detach", 0, 2, set_daemon},
 	{"-watchdog", 0, 2, set_watchdog},
+	{"-interactive", 0, 2, set_interactive},
 
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */

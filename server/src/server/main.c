@@ -1299,15 +1299,18 @@ void do_specials()
 static int keyboard_press()
 {
 #ifndef WIN32
-	struct timeval tv = {0L, 0L};
-	fd_set fds;
+	if (settings.interactive)
+	{
+		struct timeval tv = {0L, 0L};
+		fd_set fds;
 
-	FD_SET(0, &fds);
+		FD_SET(0, &fds);
 
-	return select(1, &fds, NULL, NULL, &tv);
-#else
-	return 0;
+		return select(1, &fds, NULL, NULL, &tv);
+	}
 #endif
+
+	return 0;
 }
 
 /**
@@ -1511,8 +1514,10 @@ int main(int argc, char **argv)
 		while (!keyboard_press());
 
 		/* Otherwise we've got some keyboard input, parse it! */
-		if (!settings.daemonmode && scanf("\n%4096[^\n]", input))
+		if (settings.interactive && scanf("\n%4096[^\n]", input))
+		{
 			process_keyboard_input(input);
+		}
 	}
 
 	return 0;

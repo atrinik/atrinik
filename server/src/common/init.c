@@ -57,6 +57,7 @@ struct Settings settings =
 	"",
 	"",
 	"",
+	0,
 	0
 };
 
