@@ -401,7 +401,7 @@ void widget_player_stats(int x, int y)
 	char buf[MAX_BUF];
 	double temp;
 	SDL_Rect box;
-	int mx, my;
+	int mx, my, tmp;
 	_BLTFX bltfx;
 
 	SDL_GetMouseState(&mx, &my);
@@ -488,7 +488,7 @@ void widget_player_stats(int x, int y)
 	/* Health bar */
 	if (cpl.stats.maxhp)
 	{
-		int tmp = cpl.stats.hp;
+		tmp = cpl.stats.hp;
 
 		if (tmp < 0)
 			tmp = 0;
@@ -512,7 +512,7 @@ void widget_player_stats(int x, int y)
 	/* Mana bar */
 	if (cpl.stats.maxsp)
 	{
-		int tmp = cpl.stats.sp;
+		tmp = cpl.stats.sp;
 
 		if (tmp < 0)
 			tmp = 0;
@@ -536,7 +536,7 @@ void widget_player_stats(int x, int y)
 	/* Grace bar */
 	if (cpl.stats.maxgrace)
 	{
-		int tmp = cpl.stats.grace;
+		tmp = cpl.stats.grace;
 
 		if (tmp < 0)
 			tmp = 0;
@@ -559,28 +559,31 @@ void widget_player_stats(int x, int y)
 	}
 
 	/* Food bar */
-	if (cpl.stats.food)
+	tmp = cpl.stats.food;
+
+	if (tmp < 0)
 	{
-		int tmp = cpl.stats.food;
-
-		if (tmp < 0)
-			tmp = 0;
-
-		temp = (double) tmp / 1000;
-		box.x = 0;
-		box.y = 0;
-		box.h = Bitmaps[BITMAP_FOOD]->bitmap->h;
-		box.w = (int) (Bitmaps[BITMAP_FOOD]->bitmap->w * temp);
-
-		if (tmp && !box.w)
-			box.w = 1;
-
-		if (box.w > Bitmaps[BITMAP_FOOD]->bitmap->w)
-			box.w = Bitmaps[BITMAP_FOOD]->bitmap->w;
-
-		sprite_blt(Bitmaps[BITMAP_FOOD_BACK], x + 87, y + 88, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_FOOD], x + 87, y + 88, &box, NULL);
+		tmp = 0;
 	}
+
+	temp = (double) tmp / 1000;
+	box.x = 0;
+	box.y = 0;
+	box.h = Bitmaps[BITMAP_FOOD]->bitmap->h;
+	box.w = (int) (Bitmaps[BITMAP_FOOD]->bitmap->w * temp);
+
+	if (tmp && !box.w)
+	{
+		box.w = 1;
+	}
+
+	if (box.w > Bitmaps[BITMAP_FOOD]->bitmap->w)
+	{
+		box.w = Bitmaps[BITMAP_FOOD]->bitmap->w;
+	}
+
+	sprite_blt(Bitmaps[BITMAP_FOOD_BACK], x + 87, y + 88, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_FOOD], x + 87, y + 88, &box, NULL);
 }
 
 /**
