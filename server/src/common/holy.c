@@ -162,7 +162,8 @@ void free_all_god()
 {
 	godlink *god, *godnext;
 
-	LOG(llevDebug,"Freeing god information\n");
+	LOG(llevDebug, "Freeing god information\n");
+
 	for (god = first_god; god; god = godnext)
 	{
 		godnext = god->next;
@@ -184,6 +185,8 @@ void dump_gods()
 		char tmpbuf[HUGE_BUF];
 		int tmpvar, gifts = 0;
 
+		tmpbuf[0] = '\0';
+
 		LOG(llevInfo, "GOD: %s\n", god->name);
 		LOG(llevInfo, " avatar stats:\n");
 		LOG(llevInfo, "  S:%d C:%d D:%d I:%d W:%d P:%d\n", god->stats.Str, god->stats.Con, god->stats.Dex, god->stats.Int, god->stats.Wis, god->stats.Pow);
@@ -200,7 +203,9 @@ void dump_gods()
 			LOG(llevInfo, "  wc:%d ac:%d hp:%d dam:%d \n", serv->stats.wc, serv->stats.ac, serv->stats.hp, serv->stats.dam);
 		}
 		else
+		{
 			LOG(llevInfo, " servant: NONE\n");
+		}
 
 		LOG(llevInfo, " aligned_race(s): %s\n", god->race);
 		LOG(llevInfo, " enemy_race(s): %s\n", (god->slaying ? god->slaying : "none"));
@@ -209,6 +214,7 @@ void dump_gods()
 		strcat(tmpbuf, "\n aura:");
 
 		strcat(tmpbuf, "\n paths:");
+
 		if ((tmpvar = god->path_attuned))
 		{
 			strcat(tmpbuf, "\n  ");
@@ -228,7 +234,7 @@ void dump_gods()
 		}
 
 		LOG(llevInfo, "%s\n", tmpbuf);
-		LOG(llevInfo, " Desc: %s", god->msg ? god->msg : "---\n");
+		LOG(llevInfo, " Desc: %s\n", god->msg ? god->msg : "---");
 		LOG(llevInfo, " Priest gifts/limitations: ");
 
 		if (!QUERY_FLAG(god, FLAG_USE_WEAPON))
@@ -322,7 +328,9 @@ void dump_gods()
 		}
 
 		if (!gifts)
+		{
 			LOG(llevInfo, "NONE");
+		}
 
 		LOG(llevInfo, "\n\n");
 	}
