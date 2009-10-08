@@ -1099,23 +1099,6 @@ int kill_object(object *op,int dam, object *hitter, int type)
 	if (op->map)
 		play_sound_map(op->map, op->x, op->y, SOUND_PLAYER_KILLS, SOUND_NORMAL);
 
-	if (QUERY_FLAG (op, FLAG_FRIENDLY) && op->type != PLAYER)
-	{
-		remove_friendly_object(op);
-		if (get_owner(op) != NULL && op->owner->type == PLAYER)
-		{
-			send_golem_control(op, GOLEM_CTR_RELEASE);
-			CONTR(op->owner)->golem = NULL;
-		}
-		else
-			LOG(llevBug, "BUG: kill_object(): Encountered golem (%s - %s) without owner.\n", query_name(op, NULL), op->arch->name);
-
-		op->speed = 0;
-		update_ob_speed(op);
-		destruct_ob(op);
-		return maxdam;
-	}
-
 	/* Now lets start dealing with experience we get for killing something */
 	owner = get_owner(hitter);
 	if (owner == NULL)

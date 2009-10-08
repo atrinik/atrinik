@@ -40,10 +40,6 @@ struct Settings settings =
 	GLOBAL_LOG_LEVEL,
 	/* dumpvalues, dumparg, daemonmode */
 	0, NULL, 0,
-	/* argc */
-	0,
-	/* argv */
-	NULL,
 	DATADIR,
 	LOCALDIR,
 	MAPDIR, ARCHETYPES,TREASURES,
@@ -106,7 +102,6 @@ void init_library()
  * overwrite these if specified. */
 void init_environ()
 {
-#ifndef SECURE
 	char *cp;
 
 	cp = getenv("CROSSFIRE_LIBDIR");
@@ -136,7 +131,6 @@ void init_environ()
 	cp = getenv("CROSSFIRE_TMPDIR");
 	if (cp)
 		settings.tmpdir = cp;
-#endif
 }
 
 /* Initialises all global variables.

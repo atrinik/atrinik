@@ -129,6 +129,7 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->rf_anims = 0;
 	ns->rf_hfiles = 0;
 	ns->rf_bmaps = 0;
+	ns->password_fails = 0;
 
 	/* we should really do some checking here - if total clients overflows
 	 * we need to do something more intelligent, because client id's will start

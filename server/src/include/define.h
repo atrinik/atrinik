@@ -1561,4 +1561,35 @@ enum apply_flag
 
 #define PLUGINS
 
+/**
+ * @defgroup dump_values Dump values
+ * Dump values, used for various information dumping.
+ *@{*/
+
+/** Dump information about monsters. */
+#define DUMP_VALUE_MONSTERS          1
+/** Dump information about monsters' abilities. */
+#define DUMP_VALUE_ABILITIES         2
+/** Dump artifacts information. */
+#define DUMP_VALUE_ARTIFACTS         3
+/** Dump spells. */
+#define DUMP_VALUE_SPELLS            4
+/** Dump skills and experience categories. */
+#define DUMP_VALUE_SKILLS            5
+/** Dump races. */
+#define DUMP_VALUE_RACES             6
+/** Dump alchemical formulas. */
+#define DUMP_VALUE_ALCHEMY           7
+/** Dump information about gods. */
+#define DUMP_VALUE_GODS              8
+/** Dump alchemy costs. */
+#define DUMP_VALUE_ALCHEMY_COSTS     9
+/** Dump all archetypes. */
+#define DUMP_VALUE_ARCHETYPES        10
+/** Dump treasure list of a monster. */
+#define DUMP_VALUE_MONSTER_TREASURE  11
+/** Dump level colors table. */
+#define DUMP_VALUE_LEVEL_COLORS      12
+/*@}*/
+
 #endif

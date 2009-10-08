@@ -23,6 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Server initialization, settings loading, command line handling and
+ * such. */
+
 #include <global.h>
 #include <loader.h>
 #ifndef __CEXTRACT__
@@ -60,60 +65,66 @@ void set_mondebug()
 {
 	settings.debug = llevMonster;
 }
+
 void set_dumpmon1()
 {
-	settings.dumpvalues = 1;
+	settings.dumpvalues = DUMP_VALUE_MONSTERS;
 }
 
 void set_dumpmon2()
 {
-	settings.dumpvalues = 2;
+	settings.dumpvalues = DUMP_VALUE_ABILITIES;
 }
 
 void set_dumpmon3()
 {
-	settings.dumpvalues = 3;
+	settings.dumpvalues = DUMP_VALUE_ARTIFACTS;
 }
 
 void set_dumpmon4()
 {
-	settings.dumpvalues = 4;
+	settings.dumpvalues = DUMP_VALUE_SPELLS;
 }
 
 void set_dumpmon5()
 {
-	settings.dumpvalues = 5;
+	settings.dumpvalues = DUMP_VALUE_SKILLS;
 }
 
 void set_dumpmon6()
 {
-	settings.dumpvalues = 6;
+	settings.dumpvalues = DUMP_VALUE_RACES;
 }
 
 void set_dumpmon7()
 {
-	settings.dumpvalues = 7;
+	settings.dumpvalues = DUMP_VALUE_ALCHEMY;
 }
 
 void set_dumpmon8()
 {
-	settings.dumpvalues = 8;
+	settings.dumpvalues = DUMP_VALUE_GODS;
 }
 
 void set_dumpmon9()
 {
-	settings.dumpvalues = 9;
+	settings.dumpvalues = DUMP_VALUE_ALCHEMY_COSTS;
 }
 
-void set_dumpmonA()
+void set_dumpmon10()
 {
-	settings.dumpvalues = 11;
+	settings.dumpvalues = DUMP_VALUE_ARCHETYPES;
 }
 
-void set_dumpmont(char *name)
+void set_dumpmon11(char *name)
 {
-	settings.dumpvalues = 10;
+	settings.dumpvalues = DUMP_VALUE_MONSTER_TREASURE;
 	settings.dumparg = name;
+}
+
+void set_dumpmon12()
+{
+	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
 }
 
 void set_daemon()
@@ -143,51 +154,52 @@ void set_localdir(char *path)
 
 void set_mapdir(char *path)
 {
-	settings.mapdir=path;
+	settings.mapdir = path;
 }
 
 void set_archetypes(char *path)
 {
-	settings.archetypes=path;
+	settings.archetypes = path;
 }
 
 void set_treasures(char *path)
 {
-	settings.treasures=path;
+	settings.treasures = path;
 }
 
 void set_uniquedir(char *path)
 {
-	settings.uniquedir=path;
+	settings.uniquedir = path;
 }
 
 void set_tmpdir(char *path)
 {
-	settings.tmpdir=path;
+	settings.tmpdir = path;
 }
 
-void showscoresparm(char *data)
+void showscoresparm(const char *data)
 {
-	(void) data;
-	/*    display_high_score(NULL,9999,data); */
+	display_high_score(NULL, 9999, data);
 	exit(0);
 }
 
-void set_csport(char *val)
+void set_csport(const char *val)
 {
 	settings.csport = atoi(val);
-#ifndef WIN32 /* ***win32: set_csport: we remove csport error secure check here, do this later */
+
+#ifndef WIN32
 	if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
 	{
 		LOG(llevError, "ERROR: %d is an invalid csport number.\n", settings.csport);
 	}
-#endif /* win32 */
+#endif
 }
 
 static void stat_loss_on_death_true()
 {
 	settings.stat_loss_on_death = 1;
 }
+
 static void stat_loss_on_death_false()
 {
 	settings.stat_loss_on_death = 0;
@@ -197,6 +209,7 @@ static void use_permanent_experience_true()
 {
 	settings.use_permanent_experience = 1;
 }
+
 static void use_permanent_experience_false()
 {
 	settings.use_permanent_experience = 0;
@@ -206,40 +219,42 @@ static void balanced_stat_loss_true()
 {
 	settings.balanced_stat_loss = 1;
 }
+
 static void balanced_stat_loss_false()
 {
 	settings.balanced_stat_loss = 0;
 }
 
-static void server()
-{
-}
-
-
-/* Most of this is shamelessly stolen from XSysStats.  But since that is
- * also my program, no problem. */
+/** One command line option definition. */
 struct Command_Line_Options
 {
-	/* how it is called on the command line */
+	/** How it is called on the command line */
 	char *cmd_option;
-	/* Number or args it takes */
+
+	/** Number or args it takes */
 	uint8 num_args;
-	/* What pass this should be processed on. */
+
+	/** What pass this should be processed on. */
 	uint8 pass;
-	/* function to call when we match this.
-	 * if num_args is true, than that gets passed
-	 * to the function, otherwise nothing is passed */
+
+	/**
+	 * Function to call when we match this.
+	 *
+	 * If num_args is true, then that gets passed to the function,
+	 * otherwise nothing is passed. */
 	void (*func)();
 };
 
-/* The way this system works is pretty simple - parse_args takes
- * the options passed to the program and a pass number.  If an option
- * matches both in name and in pass (and we have enough options),
- * we call the associated function.  This makes writing a multi
- * pass system very easy, and it is very easy to add in new options. */
+/**
+ * Valid command line options.
+ *
+ * The way this system works is pretty simple - parse_args takes the
+ * options passed to the program and a pass number. If an option matches
+ * both in name and in pass (and we have enough options), we call the
+ * associated function. This makes writing a multi pass system very easy,
+ * and it is very easy to add in new options. */
 struct Command_Line_Options options[] =
 {
-
 	/* Pass 1 functions - Stuff that can/should be called before we actually
 	 * initialize any data. */
 	{"-h", 0, 1, help},
@@ -248,9 +263,7 @@ struct Command_Line_Options options[] =
 	{"-v", 0, 1, call_version},
 	{"-d", 0, 1, set_debug},
 	{"+d", 0, 1, unset_debug},
-	{"-server", 0, 1, server},
 	{"-mon", 0, 1, set_mondebug},
-#ifndef SECURE
 	{"-data",1,1, set_datadir},
 	{"-local",1,1, set_localdir},
 	{"-maps", 1, 1, set_mapdir},
@@ -258,7 +271,6 @@ struct Command_Line_Options options[] =
 	{"-treasures", 1, 1, set_treasures},
 	{"-uniquedir", 1, 1, set_uniquedir},
 	{"-tmpdir", 1, 1, set_tmpdir},
-#endif
 	{"-log", 1, 1, set_logfile},
 
 	/* Pass 2 functions.  Most of these could probably be in pass 1,
@@ -271,7 +283,7 @@ struct Command_Line_Options options[] =
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */
 	{"-o", 0, 3, compile_info},
-#ifdef DUMP_SWITCHES
+
 	{"-m1", 0, 3, set_dumpmon1},
 	{"-m2", 0, 3, set_dumpmon2},
 	{"-m3", 0, 3, set_dumpmon3},
@@ -281,9 +293,10 @@ struct Command_Line_Options options[] =
 	{"-m7", 0, 3, set_dumpmon7},
 	{"-m8", 0, 3, set_dumpmon8},
 	{"-m9", 0, 3, set_dumpmon9},
-	{"-mA", 0, 3, set_dumpmonA},
-	{"-mt", 1, 3, set_dumpmont},
-#endif
+	{"-m10", 0, 3, set_dumpmon10},
+	{"-m11", 1, 3, set_dumpmon11},
+	{"-m12", 0, 3, set_dumpmon12},
+
 	{"-s", 0, 3, showscores},
 	{"-score", 1, 3, showscoresparm},
 	{"-stat_loss_on_death", 0, 3, stat_loss_on_death_true},
@@ -294,16 +307,22 @@ struct Command_Line_Options options[] =
 	{"+use_permanent_experience", 0, 3, use_permanent_experience_false}
 };
 
-
-/* Note since this may be called before the library has been set up,
- * we don't use any of crossfires built in logging functions. */
+/**
+ * Parse command line arguments.
+ *
+ * Note since this may be called before the library has been set up,
+ * we don't use any of crossfires built in logging functions.
+ * @param argc Length of argv.
+ * @param argv[] Arguments.
+ * @param pass Initialization pass arguments to use. */
 static void parse_args(int argc, char *argv[], int pass)
 {
-	int i, on_arg = 1;
+	size_t i;
+	int on_arg = 1;
 
 	while (on_arg < argc)
 	{
-		for (i = 0; i < (int) sizeof(options) / (int) sizeof(struct Command_Line_Options); i++)
+		for (i = 0; i < sizeof(options) / sizeof(struct Command_Line_Options); i++)
 		{
 			if (!strcmp(options[i].cmd_option, argv[on_arg]))
 			{
@@ -325,10 +344,14 @@ static void parse_args(int argc, char *argv[], int pass)
 					else
 					{
 						if (options[i].num_args == 1)
+						{
 							options[i].func(argv[on_arg + 1]);
+						}
 
 						if (options[i].num_args == 2)
+						{
 							options[i].func(argv[on_arg + 1],argv[on_arg + 2]);
+						}
 
 						on_arg += options[i].num_args + 1;
 					}
@@ -339,6 +362,7 @@ static void parse_args(int argc, char *argv[], int pass)
 					options[i].func();
 					on_arg++;
 				}
+
 				break;
 			}
 		}
@@ -352,16 +376,20 @@ static void parse_args(int argc, char *argv[], int pass)
 	}
 }
 
-/* This loads the settings file.  There could be debate whether this should
- * be here or in the common directory - but since only the server needs this
- * information, having it here probably makes more sense. */
+/**
+ * This loads the settings file.
+ *
+ * There could be debate whether this should be here or in the common
+ * directory - but since only the server needs this information, having
+ * it here probably makes more sense. */
 static void load_settings()
 {
-	char buf[MAX_BUF],*cp;
-	int	has_val,comp;
+	char buf[MAX_BUF], *cp;
+	int	has_val, comp;
 	FILE *fp;
 
-	sprintf(buf, "%s/%s", settings.localdir, SETTINGS);
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SETTINGS);
+
 	/* We don't require a settings file at current time, but down the road,
 	 * there will probably be so many values that not having a settings file
 	 * will not be a good thing. */
@@ -374,21 +402,31 @@ static void load_settings()
 	while (fgets(buf, MAX_BUF-1, fp) != NULL)
 	{
 		if (buf[0] == '#')
+		{
 			continue;
+		}
+
 		/* eliminate newline */
 		if ((cp = strrchr(buf, '\n')) != NULL)
+		{
 			*cp = '\0';
+		}
 
 		/* Skip over empty lines */
 		if (buf[0] == 0)
+		{
 			continue;
+		}
 
 		/* Skip all the spaces and set them to nulls.  If not space,
 		 * set cp to "" to make strcpy's and the like easier down below. */
 		if ((cp = strchr(buf, ' ')) != NULL)
 		{
 			while (*cp == ' ')
+			{
 				*cp++ = 0;
+			}
+
 			has_val = 1;
 		}
 		else
@@ -401,30 +439,38 @@ static void load_settings()
 		{
 			if (!strcasecmp(cp, "on") || !strcasecmp(cp, "true"))
 			{
-				settings.meta_on = TRUE;
+				settings.meta_on = 1;
 			}
 			else if (!strcasecmp(cp, "off") || !strcasecmp(cp, "false"))
 			{
-				settings.meta_on = FALSE;
+				settings.meta_on = 0;
 			}
 			else
 			{
-				LOG(llevBug, "BUG: load_settings: Unkown value for metaserver_notification: %s\n", cp);
+				LOG(llevBug, "BUG: load_settings(): Unknown value for metaserver_notification: %s\n", cp);
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_server"))
 		{
 			if (has_val)
+			{
 				strcpy(settings.meta_server, cp);
+			}
 			else
-				LOG(llevBug, "BUG: load_settings: metaserver_server must have a value.\n");
+			{
+				LOG(llevBug, "BUG: load_settings(): metaserver_server must have a value.\n");
+			}
 		}
 		else if (!strcasecmp(buf, "metaserver_host"))
 		{
 			if (has_val)
+			{
 				strcpy(settings.meta_host, cp);
+			}
 			else
-				LOG(llevBug, "BUG: load_settings: metaserver_host must have a value.\n");
+			{
+				LOG(llevBug, "BUG: load_settings(): metaserver_host must have a value.\n");
+			}
 		}
 		else if (!strcasecmp(buf, "metaserver_comment"))
 		{
@@ -435,11 +481,16 @@ static void load_settings()
 			LOG(llevBug, "BUG: Unknown value in %s file: %s\n", SETTINGS, buf);
 		}
 	}
+
 	close_and_delete(fp, comp);
 }
 
-
-/* init() is called only once, when starting the program. */
+/**
+ * This is the main server initialization function.
+ *
+ * Called only once, when starting the program.
+ * @param argc Length of argv.
+ * @param argv[] Arguments. */
 void init(int argc, char **argv)
 {
 	/* We don't want to be affected by players' umask */
@@ -487,7 +538,6 @@ void init(int argc, char **argv)
 	init_ericserver();
 	metaserver_init();
 	reset_sleep();
-	init_level_color_table();
 	init_done = 1;
 }
 
@@ -512,16 +562,13 @@ void help()
 	LOG(llevInfo, " -o          Prints out info on what was defined at compile time.\n");
 	LOG(llevInfo, " -s          Display the high-score list.\n");
 	LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
-	LOG(llevInfo, " -stat_loss_on_death - if set, player loses stat when they die\n");
-	LOG(llevInfo, " +stat_loss_on_death - if set, player does not lose a stat when they die\n");
-	LOG(llevInfo, " -use_permanent_experience - if set, player may gain permanent experience\n");
-	LOG(llevInfo, " +use_permanent_experience - if set, player does not gain permanent experience\n");
-	LOG(llevInfo, " -balanced_stat_loss - if set, death stat depletion is balanced by level etc\n");
-	LOG(llevInfo, " +balanced_stat_loss - if set, ordinary death stat depletion is used\n");
-	LOG(llevInfo, " -v          Print version and contributors.\n");
-
-#ifndef SECURE
-	LOG(llevInfo, "\nThe following options are only available if a secure server was not compiled.\n");
+	LOG(llevInfo, " -stat_loss_on_death - If set, player loses stat when they die.\n");
+	LOG(llevInfo, " +stat_loss_on_death - If set, player does not lose a stat when they die.\n");
+	LOG(llevInfo, " -use_permanent_experience - If set, player may gain permanent experience\n");
+	LOG(llevInfo, " +use_permanent_experience - If set, player does not gain permanent experience\n");
+	LOG(llevInfo, " -balanced_stat_loss - If set, death stat depletion is balanced by level etc.\n");
+	LOG(llevInfo, " +balanced_stat_loss - If set, ordinary death stat depletion is used.\n");
+	LOG(llevInfo, " -v          Print version information.\n");
 	LOG(llevInfo, " -data       Sets the lib dir (archetypes, treasures, etc.)\n");
 	LOG(llevInfo, " -local      Read/write local data (hiscore, unique items, etc.)\n");
 	LOG(llevInfo, " -maps       Sets the directory for maps.\n");
@@ -530,10 +577,6 @@ void help()
 	LOG(llevInfo, " -treasures	 Sets the treasures file to use.\n");
 	LOG(llevInfo, " -uniquedir  Sets the unique items/maps directory.\n");
 	LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
-#endif
-
-#ifdef DUMP_SWITCHES
-	LOG(llevInfo, "\nThe following are only available in DUMP_SWITCHES was compiled in.\n");
 	LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
 	LOG(llevInfo, " -m2         Dumps out abilities for all monsters.\n");
 	LOG(llevInfo, " -m3         Dumps out artificat information.\n");
@@ -543,9 +586,9 @@ void help()
 	LOG(llevInfo, " -m7         Dumps out alchemy information.\n");
 	LOG(llevInfo, " -m8         Dumps out gods information.\n");
 	LOG(llevInfo, " -m9         Dumps out more alchemy information (formula checking).\n");
-	LOG(llevInfo, " -mA         Dumps out all arches.\n");
-	LOG(llevInfo, " -mt <arch>  Dumps out list of treasures for a monster.\n");
-#endif
+	LOG(llevInfo, " -m10        Dumps out all arches.\n");
+	LOG(llevInfo, " -m11 <arch> Dumps out list of treasures for a monster.\n");
+	LOG(llevInfo, " -m12        Dumps out level colors table.\n");
 	exit(0);
 }
 
@@ -570,59 +613,80 @@ void init_beforeplay()
 	/* If not called before, inits experience system */
 	init_new_exp_system();
 
-#ifdef DUMP_SWITCHES
 	if (settings.dumpvalues)
 	{
-		if (settings.dumpvalues == 1)
-			print_monsters();
+		switch (settings.dumpvalues)
+		{
+			case DUMP_VALUE_MONSTERS:
+				print_monsters();
+				break;
 
-		if (settings.dumpvalues == 2)
-			dump_abilities();
+			case DUMP_VALUE_ABILITIES:
+				dump_abilities();
+				break;
 
-		if (settings.dumpvalues == 3)
-			dump_artifacts();
+			case DUMP_VALUE_ARTIFACTS:
+				dump_artifacts();
+				break;
 
-		if (settings.dumpvalues == 4)
-			dump_spells();
+			case DUMP_VALUE_SPELLS:
+				dump_spells();
+				break;
 
-		if (settings.dumpvalues == 5)
-			dump_skills();
+			case DUMP_VALUE_SKILLS:
+				dump_skills();
+				break;
 
-		if (settings.dumpvalues == 6)
-			dump_races();
+			case DUMP_VALUE_RACES:
+				dump_races();
+				break;
 
-		if (settings.dumpvalues == 7)
-			dump_alchemy();
+			case DUMP_VALUE_ALCHEMY:
+				dump_alchemy();
+				break;
 
-		if (settings.dumpvalues == 8)
-			dump_gods();
+			case DUMP_VALUE_GODS:
+				dump_gods();
+				break;
 
-		if (settings.dumpvalues == 9)
-			dump_alchemy_costs();
+			case DUMP_VALUE_ALCHEMY_COSTS:
+				dump_alchemy_costs();
+				break;
 
-		if (settings.dumpvalues == 10)
-			dump_monster_treasure(settings.dumparg);
+			case DUMP_VALUE_ARCHETYPES:
+				dump_all_archetypes();
+				break;
 
-		if (settings.dumpvalues == 11)
-			dump_all_archetypes();
+			case DUMP_VALUE_MONSTER_TREASURE:
+				dump_monster_treasure(settings.dumparg);
+				break;
+
+			case DUMP_VALUE_LEVEL_COLORS:
+				dump_level_colors_table();
+				break;
+		}
 
 		exit(0);
 	}
-#endif
 }
 
+/**
+ * Checks if starting the server is allowed. */
 void init_startup()
 {
+#ifdef SHUTDOWN_FILE
 	char buf[MAX_BUF];
 	FILE *fp;
 	int comp;
 
-#ifdef SHUTDOWN_FILE
-	sprintf(buf, "%s/%s", settings.localdir, SHUTDOWN_FILE);
+	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SHUTDOWN_FILE);
+
 	if ((fp = open_and_uncompress(buf, 0, &comp)) != NULL)
 	{
 		while (fgets(buf, MAX_BUF - 1, fp) != NULL)
+		{
 			printf("%s", buf);
+		}
 
 		close_and_delete(fp, comp);
 		exit(1);
@@ -630,13 +694,15 @@ void init_startup()
 #endif
 }
 
-/* compile_info(): activated with the -o flag.
+/**
+ * Dump compilation information, activated with the -o flag.
+ *
  * It writes out information on how Imakefile and config.h was configured
  * at compile time. */
-
 void compile_info()
 {
 	int i = 0;
+
 	LOG(llevInfo, "Setup info:\n");
 	LOG(llevInfo, "Non-standard include files:\n");
 #if !defined (__STRICT_ANSI__) || defined (__sun__)
@@ -664,13 +730,9 @@ void compile_info()
 #endif
 
 	if (!i)
+	{
 		LOG(llevInfo, "(none)\n");
-
-#ifdef SECURE
-	LOG(llevInfo, "Secure:\t\t<true>\n");
-#else
-	LOG(llevInfo, "Secure:\t\t<false>\n");
-#endif
+	}
 
 	LOG(llevInfo, "Datadir:\t%s\n", settings.datadir);
 	LOG(llevInfo, "Localdir:\t%s\n", settings.localdir);
@@ -699,7 +761,6 @@ void compile_info()
 #endif
 
 	LOG(llevInfo, "Max objects:\t%d (used:%d free:%d)\n", MAX_OBJECTS, mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free);
-
 
 #ifdef USE_CALLOC
 	LOG(llevInfo, "Use_calloc:\t<true>\n");
@@ -731,7 +792,7 @@ void rec_sigsegv(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGSEGV received.\n");
-	fatal_signal(1, 1);
+	fatal_signal(1);
 }
 
 void rec_sigint(int i)
@@ -739,7 +800,7 @@ void rec_sigint(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGINT received.\n");
-	fatal_signal(0, 1);
+	fatal_signal(0);
 }
 
 void rec_sighup(int i)
@@ -760,7 +821,7 @@ void rec_sigquit(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGQUIT received\n");
-	fatal_signal(1, 1);
+	fatal_signal(1);
 }
 
 void rec_sigpipe(int i)
@@ -780,7 +841,7 @@ void rec_sigpipe(int i)
 #else
 	LOG(llevSystem, "\nSIGPIPE received, not ignoring...\n");
 	/* Might consider to uncomment this line */
-	fatal_signal(1, 1);
+	fatal_signal(1);
 #endif
 }
 
@@ -790,7 +851,7 @@ void rec_sigbus(int i)
 
 #ifdef SIGBUS
 	LOG(llevSystem, "\nSIGBUS received\n");
-	fatal_signal(1, 1);
+	fatal_signal(1);
 #endif
 }
 
@@ -799,13 +860,16 @@ void rec_sigterm(int i)
 	(void) i;
 
 	LOG(llevSystem,"\nSIGTERM received\n");
-	fatal_signal(0, 1);
+	fatal_signal(0);
 }
 
-void fatal_signal(int make_core, int close_sockets)
+/**
+ * General signal handling. Will exit() in any case.
+ *
+ * @param make_core If set abort() instead of exit() to generate a core
+ * dump. */
+void fatal_signal(int make_core)
 {
-	(void) close_sockets;
-
 	if (init_done)
 	{
 		emergency_save(0);
@@ -813,10 +877,15 @@ void fatal_signal(int make_core, int close_sockets)
 	}
 
 	if (make_core)
+	{
 		abort();
+	}
+
 	exit(0);
 }
 
+/**
+ * Setup the signal handlers. */
 void init_signals()
 {
 #ifndef WIN32
@@ -830,11 +899,12 @@ void init_signals()
 	signal(SIGBUS, rec_sigbus);
 #endif
 	signal(SIGTERM, rec_sigterm);
-#endif /* win32 */
+#endif
 }
 
-/* init_library: Set up the function pointers which will point
- * back from the library into the server. */
+/**
+ * Set up the function pointers which will point back from the library
+ * into the server. */
 void setup_library()
 {
 	set_emergency_save(emergency_save);
@@ -858,29 +928,34 @@ void setup_library()
 	setup_poolfunctions(POOL_PLAYER, NULL, (chunk_destructor)free_player);
 }
 
+/**
+ * Add corpse to race list.
+ * @param race_name Race name
+ * @param op Archetype of the corpse. */
 static void add_corpse_to_racelist(const char *race_name, archetype *op)
 {
 	racelink *race;
 
 	if (!op || !race_name)
+	{
 		return;
+	}
 
 	race = find_racelink(race_name);
 
-	/* if we don't have this race, just skip the corpse.
-	 * perhaps we add later the race or this corpse has
-	 * special use (put by hand on map or by script) */
+	/* If we don't have this race, just skip the corpse. */
 	if (race)
+	{
 		race->corpse = op;
+	}
 }
 
-/* init_races() - reworked this function - 2003/MT
- * Because we have now a type MONSTER, we can collect the monster arches
- * from the arch list. We use sub_type1 as selector - every monster of
- * race X will be added to race list. Instead of level will be the sub_type1
- * insert in list - the sub_type is used from the functions who need the
- * race list (like summon spells). */
-
+/**
+ * Initialize races by looking through all the archetypes and checking if
+ * the archetype is a @ref MONSTER or @ref PLAYER.
+ *
+ * We use object::sub_type1 as selector - every monster of race X will be
+ * added to race list. */
 void init_races()
 {
 	archetype *at, *tmp;
@@ -888,7 +963,9 @@ void init_races()
 	static int init_done = 0;
 
 	if (init_done)
+	{
 		return;
+	}
 
 	init_done = 1;
 
@@ -901,35 +978,43 @@ void init_races()
 		{
 			add_to_racelist(at->clone.race, &at->clone);
 		}
-	};
+	}
 
-	/* now search for corpses and add them to the race list */
+	/* Now search for corpses and add them to the race list */
 	for (at = first_archetype; at != NULL; at = at->next)
 	{
-		if (at->clone.type == CONTAINER && at->clone.sub_type1== ST1_CONTAINER_CORPSE)
+		if (at->clone.type == CONTAINER && at->clone.sub_type1 == ST1_CONTAINER_CORPSE)
 		{
 			add_corpse_to_racelist(at->clone.race, at);
 		}
-	};
+	}
 
-	/* last action: for all races without a special defined corpse
-	 * add our corpse_default arch to it. */
+	/* Last action: for all races without a special defined corpse add
+	 * our corpse_default arch to it. */
 	tmp = find_archetype("corpse_default");
+
 	if (!tmp)
-		LOG(llevError, "ERROR: init_races: can't find corpse_default in arches!\n");
+	{
+		LOG(llevError, "ERROR: init_races: Can't find corpse_default in archetypes.\n");
+	}
 
 	for (list = first_race; list; list = list->next)
 	{
 		if (!list->corpse)
+		{
 			list->corpse = tmp;
+		}
 	}
 
 #ifdef DEBUG
 	dump_races();
 #endif
+
 	LOG(llevDebug, "\ndone.\n");
 }
 
+/**
+ * Dumps all race information. */
 void dump_races()
 {
 	racelink *list;
@@ -938,24 +1023,33 @@ void dump_races()
 	for (list = first_race; list; list = list->next)
 	{
 		LOG(llevInfo, "\nRACE %s (%s - %d member): ", list->name, list->corpse->name, list->nrof);
+
 		for (tmp = list->member; tmp; tmp = tmp->next)
+		{
 			LOG(llevInfo, "%s(%d), ", tmp->ob->arch->name, tmp->ob->sub_type1);
+		}
 	}
 }
 
+/**
+ * Add an object to the racelist.
+ * @param race_name Race name.
+ * @param op What object to add to the race. */
 void add_to_racelist(const char *race_name, object *op)
 {
 	racelink *race;
 
 	if (!op || !race_name)
+	{
 		return;
+	}
 
 	race = find_racelink(race_name);
 
-	/* add in a new race list */
+	/* Add in a new race list */
 	if (!race)
 	{
-		/* we need this for treasure generation (slaying race) */
+		/* We need this for treasure generation (slaying race) */
 		global_race_counter++;
 		race = get_racelist();
 		race->next = first_race;
@@ -974,6 +1068,9 @@ void add_to_racelist(const char *race_name, object *op)
 	race->member->ob = op;
 }
 
+/**
+ * Create a new ::racelink structure.
+ * @return Empty structure. */
 racelink *get_racelist()
 {
 	racelink *list;
@@ -988,10 +1085,12 @@ racelink *get_racelist()
 	return list;
 }
 
-/* free race list */
+/**
+ * Frees all race related information. */
 void free_racelist()
 {
 	racelink *list, *next;
+
 	for (list = first_race; list;)
 	{
 		next = list->next;
@@ -1000,10 +1099,10 @@ void free_racelist()
 	}
 }
 
-/* this is debug stuff! */
-void init_level_color_table(void)
+/**
+ * Dump level colors table. */
+void dump_level_colors_table()
 {
-#if 0
 	int i, ii, range, tmp;
 
 	uint32 vx = 0, vc = 1000000;
@@ -1013,31 +1112,20 @@ void init_level_color_table(void)
 	{
 		vc += 100000;
 		vx += vc;
-		LOG(-1, "%4.2f, ", (((float)vc) / xc) / 125.0f);
-		xc +=2;
+		LOG(-1, "%4.2f, ", (((float) vc) / xc) / 125.0f);
+		xc += 2;
 	}
 
-	LOG(-1, "MATERIAL %d: >%s<\n", MATERIAL_MISC, material_real[MATERIAL_MISC].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_PAPER, material_real[M_START_PAPER].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_IRON, material_real[M_START_IRON].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_GLASS, material_real[M_START_GLASS].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_LEATHER, material_real[M_START_LEATHER].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_WOOD, material_real[M_START_WOOD].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_ORGANIC, material_real[M_START_ORGANIC].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_STONE, material_real[M_START_STONE].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_CLOTH, material_real[M_START_CLOTH].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_ADAMANT, material_real[M_START_ADAMANT].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_LIQUID, material_real[M_START_LIQUID].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_SOFT_METAL, material_real[M_START_SOFT_METAL].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_BONE, material_real[M_START_BONE].name);
-	LOG(-1, "MATERIAL %d: >%s<\n", M_START_ICE, material_real[M_START_ICE].name);
+	LOG(-1, "\n");
 
 	for (i = 1; i < 201; i++)
 	{
 		for (ii = i; ii > 1; ii--)
 		{
 			if (!calc_level_difference(i, ii))
+			{
 				break;
+			}
 		}
 
 		level_color[i].yellow = i - (i / 33);
@@ -1045,6 +1133,7 @@ void init_level_color_table(void)
 		level_color[i].orange = i + (i / 33) + 1;
 
 		range = level_color[i].yellow - ii - 1;
+
 		if (range < 2)
 		{
 			level_color[i].green = level_color[i].blue - 1;
@@ -1053,29 +1142,46 @@ void init_level_color_table(void)
 		}
 		else
 		{
-			tmp = (int)((double)range * 0.4);
+			tmp = (int) ((double) range * 0.4);
+
 			if (!tmp)
+			{
 				tmp = 1;
+			}
 			else if (tmp == range)
+			{
 				tmp--;
+			}
+
 			level_color[i].green = level_color[i].blue - (range - tmp);
 
-			range = (int)((double)range * 0.75);
+			range = (int) ((double) range * 0.75);
+
 			if (!range)
+			{
 				range = 0;
-			tmp = (int)((double)range * 0.7);
+			}
+
+			tmp = (int) ((double) range * 0.7);
+
 			if (!tmp)
+			{
 				tmp = 1;
+			}
 			else if (tmp == range)
+			{
 				tmp--;
+			}
 
 			if (tmp == range)
+			{
 				range++;
+			}
 
 			level_color[i].red = level_color[i].orange + (range - tmp);
 			level_color[i].purple = level_color[i].red + tmp;
 		}
+
 		LOG(llevSystem, "{ %d, %d, %d, %d, %d, %d},  lvl %d \n", ii + 1, level_color[i].green + 1, level_color[i].yellow, level_color[i].orange, level_color[i].red, level_color[i].purple, i);
 	}
-#endif
 }

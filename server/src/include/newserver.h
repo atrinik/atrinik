@@ -199,6 +199,11 @@ typedef struct NewSocket_struct
 	/** Has the client requested bitmaps file? */
 	uint32 rf_bmaps:1;
 
+	/**
+	 * How many times the player has failed to provide the right
+	 * password. */
+	uint8 password_fails;
+
 	/** Has the client requested hfiles file? */
 	uint32 rf_hfiles:1;
 } NewSocket;
@@ -220,5 +225,10 @@ typedef struct Socket_Info_struct
 } Socket_Info;
 
 extern Socket_Info socket_info;
+
+/**
+ * Maximum password failures allowed before the server kills the
+ * socket. */
+#define MAX_PASSWORD_FAILURES 3
 
 #endif

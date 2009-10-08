@@ -1144,6 +1144,10 @@ void cleanup()
 	exit(0);
 }
 
+/**
+ * Dequeue path requests.
+ * @todo Only compute time if there is something more in the queue,
+ * something like if (path_request_queue_empty()) { break; } */
 void dequeue_path_requests()
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
@@ -1155,8 +1159,6 @@ void dequeue_path_requests()
 	{
 		waypoint_compute_path(wp);
 
-		/* TODO: only compute time if there is something more in the queue, something
-		 * like if(path_request_queue_empty()) break; */
 		(void) GETTIMEOFDAY(&new_time);
 
 		leftover_sec = last_time.tv_sec - new_time.tv_sec;
@@ -1393,8 +1395,6 @@ int main(int argc, char **argv)
 	malloc_debug(DEBUG_MALLOC_LEVEL);
 #endif
 
-	settings.argc = argc;
-	settings.argv = argv;
 	init(argc, argv);
 #ifdef PLUGINS
 	/* GROS - Init the Plugins */

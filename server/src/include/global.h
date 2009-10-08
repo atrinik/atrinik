@@ -396,79 +396,70 @@ EXTERN archetype *level_up_arch;
 /** Settings structure */
 typedef struct Settings
 {
-	/* logfile to use */
+	/** Logfile to use */
 	char *logfilename;
 
-	/* port for new client/server */
+	/** Port for new client/server */
 	uint16 csport;
 
-	/* Default debugging level */
+	/** Default debugging level */
 	LogLevel debug;
 
-	/* Set to dump various values/tables */
+	/** Set to dump various values/tables */
 	uint8 dumpvalues;
 
-	/* additional argument for some dump functions */
+	/** Additional arguments for some dump functions */
 	char *dumparg;
 
-	/* If true, detach and become daemon */
+	/** If true, detach and become daemon */
 	uint8 daemonmode;
 
-	/* parameters that were passed to the program */
-	int argc;
-
-	/* Only used by xio.c, so will go away at some time */
-	char **argv;
-
-	/* read only data files */
+	/** Read only data files */
 	char *datadir;
 
-	/* read/write data files */
+	/** Read/write data files */
 	char *localdir;
 
-	/* Where the map files are */
+	/** Where the map files are. */
 	char *mapdir;
 
-	/* name of the archetypes file - libdir is prepended */
+	/** Name of the archetypes file - libdir is prepended. */
 	char *archetypes;
 
-	/* location of the treasures file. */
+	/** Location of the treasures file. */
 	char *treasures;
 
-	/* directory for the unique items */
+	/** Directory for the unique items. */
 	char *uniquedir;
 
-	/* Directory to use for temporary files */
+	/** Directory to use for temporary files. */
 	char *tmpdir;
 
-	/* If true, chars lose a random stat when they die */
+	/** If true, players lose a random stat when they die. */
 	uint8 stat_loss_on_death;
 
-	/* If true, players can gain perm exp */
+	/** If true, players can gain perm exp. */
 	uint8 use_permanent_experience;
 
-	/* If true, Death stat depletion based on level etc */
+	/** If true, Death stat depletion based on level etc. */
 	uint8 balanced_stat_loss;
 
-	/* Number of seconds to put player back at home */
+	/** Number of seconds to put player back at home. */
 	int	reset_loc_time;
 
-	/* The meta_ is information for the metaserver.  These are set in
-	 * the lib/settings file. */
-
-	/* True if we should send updates */
+	/** True if we should send updates */
 	unsigned int meta_on:1;
 
-	/* Hostname/ip addr of the metaserver */
+	/** HTTP URL of the metaserver. */
 	char meta_server[MAX_BUF];
 
-	/* Hostname of this host */
+	/** Hostname of this server. */
 	char meta_host[MAX_BUF];
 
-	/* Comment we send to the metaserver */
+	/** Comment about the server we send to the metaserver. */
 	char meta_comment[MAX_BUF];
 
-	/* Use watchdog? */
+	/** Use watchdog? */
 	uint8 watchdog;
 
 	/** Interactive mode on? */

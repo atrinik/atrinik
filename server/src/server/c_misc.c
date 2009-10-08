@@ -1142,21 +1142,17 @@ void receive_player_name(object *op, char k)
 
 	(void) k;
 
-	/* force a "Xxxxxxx" name */
+	/* Force a "Xxxxxxx" name */
 	if (name_len > 1)
 	{
 		int i;
 
 		for (i = 1; *(CONTR(op)->write_buf + i) != 0; i++)
+		{
 			*(CONTR(op)->write_buf + i) = tolower(*(CONTR(op)->write_buf + i));
+		}
 
 		*(CONTR(op)->write_buf + 1) = toupper(*(CONTR(op)->write_buf + 1));
-	}
-
-	if (name_len <= 1 || name_len > 12)
-	{
-		get_name(op);
-		return;
 	}
 
 	if (!check_name(CONTR(op), CONTR(op)->write_buf + 1))

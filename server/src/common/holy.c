@@ -174,7 +174,6 @@ void free_all_god()
 
 void dump_gods()
 {
-#ifdef DUMP_SWITCHES
 	godlink *glist;
 
 	LOG(llevInfo, "\n");
@@ -334,5 +333,4 @@ void dump_gods()
 
 		LOG(llevInfo, "\n\n");
 	}
-#endif
 }

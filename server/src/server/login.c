@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Player login/save/logout related functions. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
@@ -31,10 +35,21 @@
 
 extern spell spells[NROFREALSPELLS];
 extern long pticks;
+
+/** Objects link of DMs. */
 objectlink *dm_list = NULL;
 
-/* If flag is non zero, it means that we want to try and save everyone, but
- * keep the game running.  Thus, we don't want to free any information. */
+/** Minimum length a player name must have. */
+#define PLAYER_NAME_MIN 2
+
+/** Maximum length a player name can have. */
+#define PLAYER_NAME_MAX 12
+
+/**
+ * Save all players.
+ * @param flag If non zero, it means that we want to try and save
+ * everyone, but keep the game running. Thus, we don't want to free any
+ * information. */
 void emergency_save(int flag)
 {
 #ifndef NO_EMERGENCY_SAVE
@@ -42,124 +57,95 @@ void emergency_save(int flag)
 
 	LOG(llevSystem, "Emergency save:  ");
 
-	for (pl=first_player;pl!=NULL;pl=pl->next)
+	for (pl = first_player; pl != NULL; pl = pl->next)
 	{
 		if (!pl->ob)
 		{
 			LOG(llevSystem, "No name, ignoring this.\n");
 			continue;
 		}
+
 		LOG(llevSystem, "%s ", pl->ob->name);
 		new_draw_info(NDI_UNIQUE, 0, pl->ob, "Emergency save...");
 
-		/* If we are not exiting the game (ie, this is sort of a backup save), then
-		 * don't change the location back to the village.  Note that there are other
-		 * options to have backup saves be done at the starting village */
+		/* If we are not exiting the game (ie, this is sort of a backup
+		 * save), then don't change the location back to the village.
+		 * Note that there are other options to have backup saves be done
+		 * at the starting village */
 		if (!flag)
 		{
 			strcpy(pl->maplevel, first_map_path);
 
 			if (pl->ob->map != NULL)
+			{
 				pl->ob->map = NULL;
+			}
 
 			pl->ob->x = -1;
 			pl->ob->y = -1;
 		}
 
 		container_unlink(pl, NULL);
-		if (!save_player(pl->ob,flag))
+
+		if (!save_player(pl->ob, flag))
 		{
 			LOG(llevSystem, "(failed) ");
 			new_draw_info(NDI_UNIQUE, 0, pl->ob, "Emergency save failed, checking score...");
 		}
+
 		check_score(pl->ob, 1);
 	}
-	LOG(llevSystem,"\n");
+
+	LOG(llevSystem, "\n");
 #else
 	(void) flag;
 	LOG(llevSystem, "Emergency saves disabled, no save attempted\n");
 #endif
 }
 
-/* Delete character with name.  if new is set, also delete the new
- * style directory, otherwise, just delete the old style playfile
- * (needed for transition) */
-void delete_character(const char *name, int new)
-{
-	(void) name;
-	(void) new;
-	/* This is commented out because:
-	  * 1.) We don't really want to delete players.
-	  * 2.) With the players now being in SQLite database,
-	 *     it won't work anymore. */
-#if 0
-	char buf[MAX_BUF];
-
-	sprintf(buf, "%s/%s/%s.pl", settings.localdir, settings.playerdir, name);
-	if (unlink(buf) == -1)
-	{
-		LOG(llevBug, "BUG:: delete_character(): unlink(%s) failed! (dir not removed too)\n", buf);
-		return;
-	}
-
-	if (new)
-	{
-		sprintf(buf, "%s/%s/%s", settings.localdir, settings.playerdir, name);
-		/* this effectively does an rm -rf on the directory */
-		remove_directory(buf);
-	}
-#endif
-}
-
-/* Checks to see if anyone else by 'name' is currently playing.  We
- * do this by a lockfile (playername.lock) in the save directory.  If
- * we find that file or another character of some name is already in the
- * game, we don't let this person join.  We return 0 if the name is
- * in use, 1 otherwise. */
-
+/**
+ * Checks to see if the passed player name is valid or not. Does checks
+ * like min/max name length, whether there is anyone else playing by that
+ * name, and whether there are illegal characters in the player name.
+ * @param me Player
+ * @param name Name to check
+ * @return 1 if the name is ok, 0 otherwise. */
 int check_name(player *me, char *name)
 {
 	player *pl;
+	unsigned int name_len = strlen(name);
+	char buf[MAX_BUF];
+
+	if (name_len < PLAYER_NAME_MIN || name_len > PLAYER_NAME_MAX)
+	{
+		strcpy(buf, "X3 That name has an invalid length.");
+		Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
+		me->socket.can_write = 1;
+		write_socket_buffer(&me->socket);
+		return 0;
+	}
 
 	for (pl = first_player; pl != NULL; pl = pl->next)
+	{
 		if (pl != me && pl->ob->name != NULL && !strcmp(pl->ob->name, name))
 		{
-			new_draw_info(NDI_UNIQUE, 0, me->ob, "That name is already in use.");
+			strcpy(buf, "X3 A player with that name is already playing.");
+			Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
+			me->socket.can_write = 1;
+			write_socket_buffer(&me->socket);
 			return 0;
 		}
+	}
 
 	if (!playername_ok(name))
 	{
-		new_draw_info(NDI_UNIQUE, 0, me->ob, "That name contains illegal characters.");
+		strcpy(buf, "X3 That name contains illegal characters.");
+		Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
+		me->socket.can_write = 1;
+		write_socket_buffer(&me->socket);
 		return 0;
 	}
-	return 1;
-}
 
-int create_savedir_if_needed(char *savedir)
-{
-	struct stat *buf;
-
-	if ((buf = (struct stat *) malloc(sizeof(struct stat))) == NULL)
-	{
-		LOG(llevError, "ERROR: Unable to save playerfile... out of memory!! %s\n", savedir);
-		return 0;
-	}
-	else
-	{
-		stat(savedir, buf);
-		if ((buf->st_mode & S_IFDIR) == 0)
-#if defined(_IBMR2) || defined(___IBMR2)
-			if (mkdir(savedir, S_ISUID | S_ISGID | S_IRUSR | S_IWUSR | S_IXUSR))
-#else
-			if (mkdir(savedir, S_ISUID | S_ISGID | S_IREAD | S_IWRITE | S_IEXEC))
-#endif
-			{
-				LOG(llevBug, "BAD BUG: Unable to create player savedir: %s\n", savedir);
-				return 0;
-			}
-		free(buf);
-	}
 	return 1;
 }
 
@@ -180,25 +166,29 @@ long calculate_checksum_new(char *buf, int checkdouble)
 	for (cp = buf; *cp; cp++)
 	{
 		if (++offset > 28)
+		{
 			offset = 0;
+		}
 
 		checksum ^= (*cp << offset);
 	}
 
 	return checksum;
 #else
+	(void) buf;
+	(void) checkdouble;
 	return 0;
 #endif
 }
 
-/* If flag is set, it's only backup, ie dont remove objects from inventory
- * If BACKUP_SAVE_AT_HOME is set, and the flag is set, then the player
- * will be saved at the emergency save location.
- * Returns non zero if successful. */
-
-/* flag is now not used as before. Delete pets & destroy inventory objects
- * has moved outside of this function (as they should).
- * Player is now all deleted in free_player(). */
+/**
+ * Saves a player to database.
+ * @param op Player to save.
+ * @param flag If set, it's only backup, i.e. don't remove objects from
+ * inventory. If BACKUP_SAVE_AT_HOME is set, and the flag is set, then
+ * the player will be saved at the emergency save location.
+ * @return Non zero if successful.
+ * @todo Optimize and simplify the database saving. */
 int save_player(object *op, int flag)
 {
 	char *sqlbuf, *p, *invbuf;
@@ -229,7 +219,7 @@ int save_player(object *op, int flag)
 	/* perhaps we don't need it here ?*/
 	/*container_unlink(pl, NULL);*/
 
-	sqlbuf = (char *)malloc(size);
+	sqlbuf = (char *) malloc(size);
 
 	sprintf(sqlbuf, "password %s\n", pl->password);
 
@@ -419,58 +409,56 @@ long calculate_checksum(char *filename, int checkdouble)
 	int offset = 0;
 	FILE *fp;
 	char buf[MAX_BUF], *cp;
+
 	if ((fp = fopen(filename, "r")) == NULL)
+	{
 		return 0;
+	}
 
 	while (fgets(buf, MAX_BUF, fp))
 	{
 		if (checkdouble && !strncmp(buf, "checksum", 8))
+		{
 			continue;
+		}
 
 		for (cp = buf; *cp; cp++)
 		{
 			if (++offset > 28)
+			{
 				offset = 0;
+			}
 
 			checksum ^= (*cp << offset);
 		}
 	}
+
 	fclose(fp);
+
 	return checksum;
 #else
+	(void) filename;
+	(void) checkdouble;
+
 	return 0;
 #endif
 }
 
-void copy_file(char *filename, FILE *fpout)
-{
-	FILE *fp;
-	char buf[MAX_BUF];
-	if ((fp = fopen(filename, "r")) == NULL)
-		return;
-
-	while (fgets(buf, MAX_BUF, fp) != NULL)
-		fputs(buf, fpout);
-
-	fclose(fp);
-}
-
-#if 1
+/**
+ * Sort loaded spells by comparing a1 against a2.
+ * @param a1 Spell ID to compare
+ * @param a2 Spell ID to compare
+ * @return Return value of strcmp on the two spell names. */
 static int spell_sort(const void *a1, const void *a2)
 {
-	return strcmp(spells[(int)*(sint16 *)a1].name, spells[(int)*(sint16 *)a2].name);
+	return strcmp(spells[(int)*(sint16 *) a1].name, spells[(int)*(sint16 *) a2].name);
 }
-#else
-static int spell_sort(const char *a1, const char *a2)
-{
-	LOG(llevDebug, "spell1=%d, spell2=%d\n", *(sint16*)a1, *(sint16*)a2);
-	return strcmp(spells[(int )*a1].name, spells[(int )*a2].name);
-}
-#endif
 
-/* helper function to reorder the reverse loaded
- * player inventory. This will recursive reorder
- * the container inventories. */
+/**
+ * Helper function to reorder the reverse loaded player inventory.
+ *
+ * This will recursively reorder the container inventories.
+ * @param op The inventory object to reorder. */
 static void reorder_inventory(object *op)
 {
 	object *tmp, *tmp2;
@@ -480,7 +468,9 @@ static void reorder_inventory(object *op)
 	op->inv->below = NULL;
 
 	if (op->inv->inv)
+	{
 		reorder_inventory(op->inv);
+	}
 
 	for (; tmp2; )
 	{
@@ -492,13 +482,18 @@ static void reorder_inventory(object *op)
 		tmp->below = op->inv;
 		tmp->below->above = tmp;
 		op->inv = tmp;
+
 		if (tmp->inv)
+		{
 			reorder_inventory(tmp);
+		}
 	}
 }
 
-/* this whole player loading routine is REALLY not optimized -
- * just look for all these scanf() */
+/**
+ * Login a player.
+ * @param op Player.
+ * @todo Optimize and simplify the database loading. */
 void check_login(object *op)
 {
 	FILE *fp;
@@ -526,9 +521,9 @@ void check_login(object *op)
 		return;
 	}
 
-	if (checkbanned((char *)op->name, pl->socket.host))
+	if (checkbanned((char *) op->name, pl->socket.host))
 	{
-		LOG(llevInfo, "Banned player tried to add. [%s@%s]\n", op->name, pl->socket.host);
+		LOG(llevInfo, "Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
 		strcpy(banbuf, "X3 Connection refused.\nYou are banned!");
 		Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, banbuf, strlen(banbuf));
 		pl->socket.can_write = 1;
@@ -611,20 +606,28 @@ void check_login(object *op)
 			/* New password scheme: */
 			correct = check_password(pl->write_buf + 1, buf);
 		}
-
-		/* Old password mode removed - I have no idea what it
-		 * was, and the current password mechanism has been used
-		 * for at least several years. */
 	}
 
 	if (!correct)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, " ");
-		new_draw_info(NDI_UNIQUE, 0, op, "Wrong Password!");
-		new_draw_info(NDI_UNIQUE, 0, op, " ");
-		FREE_AND_COPY_HASH(op->name, "noname");
+		pl->socket.password_fails++;
+
 		pl->last_value = -1;
-		get_name(op);
+
+		if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
+		{
+			LOG(llevSystem, "SHACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(op, NULL), pl->socket.host);
+			strcpy(buf, "X3 You have failed to provide a correct password too many times.");
+			Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
+			pl->socket.can_write = 1;
+			write_socket_buffer(&pl->socket);
+			pl->socket.status = Ns_Dead;
+		}
+		else
+		{
+			FREE_AND_COPY_HASH(op->name, "noname");
+			get_name(op);
+		}
 
 		/* Once again, rest of code just loads the char */
 		return;
@@ -953,7 +956,7 @@ void check_login(object *op)
 
 	/* This seems to compile without warnings now.  Don't know if it works
 	 * on SGI's or not, however. */
-	qsort((void *)pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)())spell_sort);
+	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)()) spell_sort);
 
 	/* hm, this is for secure - be SURE our player is on
 	 * friendly list. If friendly is set, this was be done

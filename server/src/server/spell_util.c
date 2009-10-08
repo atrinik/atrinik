@@ -3205,14 +3205,6 @@ void shuffle_attack(object *op, int change_face)
 		SET_ANIMATION(op, ATTACKS[i].face);
 }
 
-
-/* the following function reads from the file 'spell_params' in
- * the lib dir, and resets the array in memory to reflect the values
- * in spell_parameters.  The format in there MUST be:
- * (reworked for Daimonin, the crossfire part here was outdated)
- *  spell name (SP_P = SP_PARAMTERS)
- *  spells.level spells.sp  SP_P.bdam SP_P.bdur SP_P.ldam SP_P.ldur SP_P.spl */
-
 /* get_pointed_target() - this is used by finger of death
  * and the 'smite' spells. Returns the pointer to the first
  * monster in the direction which is pointed to by op. b.t. */

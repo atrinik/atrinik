@@ -212,19 +212,6 @@
  * client has all the info the player does. */
 #define SEARCH_ITEMS
 
-/* If SECURE is defined, Atrinik will not accept enviromental variables
- * as changes to the LIBDIR and other defines pointing to specific
- * directories.  The only time this should really be an issue if you are
- * running Atrinik setuid/setgid and someone else could change the
- * values and get special priviledges.  If you are running with normal uid
- * privelidges, then this is not any more/less secure (user could compile
- * there own version pointing wherever they want.)  However, having nonsecure
- * can make debugging or other developement much easier, because you can
- * change the paths without forcing a recompile. */
-/*
-#define SECURE
-*/
-
 /* SPELLPOINT_LEVEL_DEPEND  --  Causes the spellpoint cost
  * of spells to vary with their power.  Spells that become very
  * powerful at high level cost more.  The damage/time of
@@ -325,12 +312,6 @@
 /* CSPORT is the port used for the new client/server code.  Change
  * if desired. */
 #define CSPORT 13327
-
-/* If you want to regenerate the spoiler.ps file, you have to recompile
- * the game with DUMP_SWITCHES defined.  If defined, it turns on the
- * -m -m2 -m3 -m4 switches.  There is probably no reason not to define
- * this. */
-#define DUMP_SWITCHES
 
 /* LOGFILE specifies which file to log to when playing with the
  * -daemon option. */
