@@ -129,6 +129,7 @@ _option opt[] =
 	{"Key-info in Dialog menus:", "","", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_d_key_infos, VAL_BOOL},
 	{"Collect All Items:", "Don't ask for number of items to get, just get all of them.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.collectAll, VAL_BOOL},
 	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;", "~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
+	{"Chat Timestamps", "Show a timestamp before each chat message.", "", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
 	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */

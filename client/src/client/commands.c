@@ -519,10 +519,10 @@ void SkillRdyCmd(char *data, int len)
  * @param data The text to output. */
 void DrawInfoCmd(unsigned char *data)
 {
-	int color = atoi((char *)data);
+	int color = atoi((char *) data);
 	char *buf;
 
-	buf = strchr((char *)data, ' ');
+	buf = strchr((char *) data, ' ');
 
 	if (!buf)
 	{
@@ -530,14 +530,16 @@ void DrawInfoCmd(unsigned char *data)
 		buf = "";
 	}
 	else
+	{
 		buf++;
+	}
 
 	draw_info(buf, color);
 }
 
-/* New draw command */
 /**
- * New draw info command. Used to draw text from the server with various flags, like color.
+ * New draw info command. Used to draw text from the server with various
+ * flags, like color.
  * @param data The incoming data
  * @param len Length of the data */
 void DrawInfoCmd2(unsigned char *data, int len)
@@ -545,7 +547,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 	int flags;
 	char buf[2048];
 
-	flags = (int)GetShort_String(data);
+	flags = (int) GetShort_String(data);
 	data += 2;
 
 	len -= 2;
@@ -553,13 +555,64 @@ void DrawInfoCmd2(unsigned char *data, int len)
 	if (len >= 0)
 	{
 		if (len > 2000)
+		{
 			len = 2000;
+		}
 
-		strncpy(buf, (char *)data, len);
+		if (options.chat_timestamp && (flags & NDI_PLAYER))
+		{
+			time_t now = time(NULL);
+			char timebuf[32], *format;
+			struct tm *tmp = localtime(&now);
+			int timelen;
+
+			switch (options.chat_timestamp)
+			{
+				/* HH:MM */
+				case 1:
+				default:
+					format = "%H:%M";
+					break;
+
+				/* HH:MM:SS */
+				case 2:
+					format = "%H:%M:%S";
+					break;
+
+				/* H:MM AM/PM */
+				case 3:
+					format = "%I:%M %p";
+					break;
+
+				/* H:MM:SS AM/PM */
+				case 4:
+					format = "%I:%M:%S %p";
+					break;
+			}
+
+			timelen = strftime(timebuf, sizeof(timebuf), format, tmp);
+
+			if (timelen == 0)
+			{
+				strncpy(buf, (char *) data, len);
+			}
+			else
+			{
+				len += timelen + 4;
+				snprintf(buf, len, "[%s] %s", timebuf, (char *) data);
+			}
+		}
+		else
+		{
+			strncpy(buf, (char *) data, len);
+		}
+
 		buf[len] = 0;
 	}
 	else
+	{
 		buf[0] = 0;
+	}
 
 	draw_info(buf, flags);
 }
