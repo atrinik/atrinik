@@ -68,77 +68,19 @@ static char days[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 #endif
 
 /**
- * Shows version information and a list of contributors
- * to Atrinik, Daimonin and Crossfire.
- * @param op Object, if NULL, only version is shown
- * @todo The list of contributors should be in client
- * help system. */
+ * Shows version information.
+ * @param op If NULL the version is logged using LOG(), otherwise it is
+ * shown to the player object using new_draw_info_format(). */
 void version(object *op)
 {
-	new_draw_info_format(NDI_UNIQUE, 0, op, "This is Atrinik v%s", VERSION);
-
-	/* If in a socket, don't print out the list of authors.  It confuses the
-	 * crossclient program. */
-	if (op == NULL)
-		return;
-
-	new_draw_info(NDI_UNIQUE, 0, op, "Authors and contributors to Atrinik, Daimonin and Crossfire:");
-	new_draw_info(NDI_UNIQUE, 0, op, "(incomplete list - mail us if you miss your name):");
-	new_draw_info(NDI_UNIQUE, 0, op, "mark@scruz.net (Mark Wedel)");
-	new_draw_info(NDI_UNIQUE, 0, op, "frankj@ifi.uio.no (Frank Tore Johansen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "kjetilho@ifi.uio.no (Kjetil Torgrim Homme)");
-	new_draw_info(NDI_UNIQUE, 0, op, "tvangod@ecst.csuchico.edu (Tyler Van Gorder)");
-	new_draw_info(NDI_UNIQUE, 0, op, "elmroth@cd.chalmers.se (Tony Elmroth)");
-	new_draw_info(NDI_UNIQUE, 0, op, "dougal.scott@fcit.monasu.edu.au (Dougal Scott)");
-	new_draw_info(NDI_UNIQUE, 0, op, "wchuang@athena.mit.edu (William)");
-	new_draw_info(NDI_UNIQUE, 0, op, "ftww@cs.su.oz.au (Geoff Bailey)");
-	new_draw_info(NDI_UNIQUE, 0, op, "jorgens@flipper.pvv.unit.no (Kjetil Wiekhorst Jxrgensen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "c.blackwood@rdt.monash.edu.au (Cameron Blackwood)");
-	new_draw_info(NDI_UNIQUE, 0, op, "jtraub+@cmu.edu (Joseph L. Traub)");
-	new_draw_info(NDI_UNIQUE, 0, op, "rgg@aaii.oz.au (Rupert G. Goldie)");
-	new_draw_info(NDI_UNIQUE, 0, op, "eanders+@cmu.edu (Eric A. Anderson)");
-	new_draw_info(NDI_UNIQUE, 0, op, "eneq@Prag.DoCS.UU.SE (Rickard Eneqvist)");
-	new_draw_info(NDI_UNIQUE, 0, op, "Jarkko.Sonninen@lut.fi (Jarkko Sonninen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "kholland@sunlab.cit.cornell.du (Karl Holland)");
-	new_draw_info(NDI_UNIQUE, 0, op, "vick@bern.docs.uu.se (Mikael Lundgren)");
-	new_draw_info(NDI_UNIQUE, 0, op, "mol@meryl.csd.uu.se (Mikael Olsson)");
-	new_draw_info(NDI_UNIQUE, 0, op, "Tero.Haatanen@lut.fi (Tero Haatanen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "ylitalo@student.docs.uu.se (Lasse Ylitalo)");
-	new_draw_info(NDI_UNIQUE, 0, op, "anipa@guru.magic.fi (Niilo Neuvo)");
-	new_draw_info(NDI_UNIQUE, 0, op, "mta@modeemi.cs.tut.fi (Markku J{rvinen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "meunier@inf.enst.fr (Sylvain Meunier)");
-	new_draw_info(NDI_UNIQUE, 0, op, "jfosback@darmok.uoregon.edu (Jason Fosback)");
-	new_draw_info(NDI_UNIQUE, 0, op, "cedman@capitalist.princeton.edu (Carl Edman)");
-	new_draw_info(NDI_UNIQUE, 0, op, "henrich@crh.cl.msu.edu (Charles Henrich)");
-	new_draw_info(NDI_UNIQUE, 0, op, "schmid@fb3-s7.math.tu-berlin.de (Gregor Schmid)");
-	new_draw_info(NDI_UNIQUE, 0, op, "quinet@montefiore.ulg.ac.be (Raphael Quinet)");
-	new_draw_info(NDI_UNIQUE, 0, op, "jam@modeemi.cs.tut.fi (Jari Vanhala)");
-	new_draw_info(NDI_UNIQUE, 0, op, "kivinen@joker.cs.hut.fi (Tero Kivinen)");
-	new_draw_info(NDI_UNIQUE, 0, op, "peterm@soda.berkeley.edu (Peter Mardahl)");
-	new_draw_info(NDI_UNIQUE, 0, op, "matt@cs.odu.edu (Matthew Zeher)");
-	new_draw_info(NDI_UNIQUE, 0, op, "srt@sun-dimas.aero.org (Scott R. Turner)");
-	new_draw_info(NDI_UNIQUE, 0, op, "huma@netcom.com (Ben Fennema)");
-	new_draw_info(NDI_UNIQUE, 0, op, "njw@cs.city.ac.uk (Nick Williams)");
-	new_draw_info(NDI_UNIQUE, 0, op, "Wacren@Gin.ObsPM.Fr (Laurent Wacrenier)");
-	new_draw_info(NDI_UNIQUE, 0, op, "thomas@astro.psu.edu (Brian Thomas)");
-	new_draw_info(NDI_UNIQUE, 0, op, "jsm@axon.ksc.nasa.gov (John Steven Moerk)");
-	new_draw_info(NDI_UNIQUE, 0, op, "Delbecq David       [david.delbecq@mailandnews.com]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Chachkoff Yann      [yann.chachkoff@mailandnews.com]\n");
-	new_draw_info(NDI_UNIQUE, 0, op, "Images and art:");
-	new_draw_info(NDI_UNIQUE, 0, op, "Peter Gardner");
-	new_draw_info(NDI_UNIQUE, 0, op, "David Gervais       [david_eg@mail.com]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Mitsuhiro Itakura   [ita@gold.koma.jaeri.go.jp]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Hansjoerg Malthaner [hansjoerg.malthaner@danet.de]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Marten Woxberg      [maxmc@telia.com]");
-	new_draw_info(NDI_UNIQUE, 0, op, "The FRUA art community [http://uamirror.dns2go.com/]");
-	new_draw_info(NDI_UNIQUE, 0, op, "future wave shaper(sounds) [http://www.futurewaveshaper.com/]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Zero Sum Software [http://www.zero-sum.com/]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Reiner Prokein [[reiner.prokein@t-online.de]]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Dungeon Craft Community [http://uaf.sourceforge.net/]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Marc [http://www.angelfire.com/dragon/kaltusara_dc/index.html]");
-	new_draw_info(NDI_UNIQUE, 0, op, "Iron Works DC art [http://www.tgeweb.com/ironworks/dungeoncraft/index.shtml]");
-	new_draw_info(NDI_UNIQUE, 0, op, "The mighty Dink.");
-	new_draw_info(NDI_UNIQUE, 0, op, "And many more!");
+	if (op)
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, op, "This is Atrinik v%s", VERSION);
+	}
+	else
+	{
+		LOG(llevInfo, "This is Atrinik v%s.\n", VERSION);
+	}
 }
 
 /**
