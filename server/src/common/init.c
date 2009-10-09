@@ -81,13 +81,13 @@ void init_library()
 	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
 	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
 	ReadBmapNames();
+	init_materials_database();
 	/* Must be after we read in the bitmaps */
 	init_anim();
 	/* Reads all archetypes from file */
 	init_archetypes();
 	init_dynamic();
 	init_clocks();
-	init_materials_database();
 
 	/* init some often used default archetypes */
 	if (level_up_arch == NULL)
