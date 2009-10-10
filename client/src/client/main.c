@@ -1108,9 +1108,12 @@ void reset_input_mode()
 
 void open_input_mode(int maxchar)
 {
+	int interval = (options.key_repeat > 0) ? 70 / options.key_repeat : 0;
+	int delay = (options.key_repeat > 0) ? interval + 280 / options.key_repeat : 0;
+
 	reset_input_mode();
 	InputMax = maxchar;
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+	SDL_EnableKeyRepeat(delay, interval);
 
 	if (cpl.input_mode != INPUT_MODE_NUMBER)
 		cpl.inventory_win = IWIN_BELOW;

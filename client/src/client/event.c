@@ -156,6 +156,8 @@ void reset_keys()
 {
 	register int i;
 
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+
 	InputStringFlag = 0;
 	InputStringEndFlag = 0;
 	InputStringEscFlag = 0;

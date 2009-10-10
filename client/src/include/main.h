@@ -233,6 +233,7 @@ typedef struct _options
 	/* key-infos in dialog-wins. */
 	int show_d_key_infos;
 	int collectAll;
+	int key_repeat;
 
 	/* Exp display */
 	int expDisplay;

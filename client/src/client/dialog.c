@@ -140,6 +140,7 @@ _option opt[] =
 	{"Textwindows alpha value:", "Transparent value. Higher = darker", "", "", SEL_RANGE, 0, 255, 5, 110, &options.textwin_alpha, VAL_INT},
 	{"Save CPU time with sleep():", "Client eats less cput time when set.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
 	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
+	{"Key repeat speed:", "How fast to repeat a held down key.", "", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
 	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Map */
