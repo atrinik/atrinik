@@ -83,4 +83,33 @@
         <title xml:lang="de">Objekte mit &quot;combat_values&quot;</title>
         <TypeNrs numbers="5 6 7 13 39 54 62 72 73 80 83 154 158" />
     </GameObjectMatcher>
+
+    <!-- Objects checked by the "Suspicious connection" map validator: objects
+         matching this matcher are connection sources. -->
+    <GameObjectMatcher id="system_connection_source" system="true">
+        <title xml:lang="en">Connected objects being a source</title>
+        <title xml:lang="en">Verbundene Objekte (Quellen)</title>
+        <TypeNrs numbers="17 18 27 30 31 32 51 64 92 93 132 133 134" />
+    </GameObjectMatcher>
+
+    <!-- Objects checked by the "Suspicious connection" map validator: objects
+         matching this matcher are connection sinks. -->
+    <GameObjectMatcher id="system_connection_sink" system="true">
+        <title xml:lang="en">Connected objects being a sink</title>
+        <title xml:lang="en">Verbundene Objekte (Senken)</title>
+        <Or>
+            <TypeNrs numbers="26 41 42 55 62 65 74 78 81 91 94 98 112 132" />
+        </Or>
+    </GameObjectMatcher>
+
+    <!-- Objects checked by the "Suspicious connection" map validator: objects
+         matching this matcher are connection sinks. This matcher exists in
+         order to match inventory objects since &lt;Env&gt; cannot be included
+         into &lt;Or&gt;. -->
+    <GameObjectMatcher id="system_connection_sink2" system="true">
+        <title xml:lang="en">Connected objects being a sink</title>
+        <title xml:lang="en">Verbundene Objekte (Senken)</title>
+        <TypeNrs numbers="-666" />
+    </GameObjectMatcher>
+
 </GameObjectMatchers>
