@@ -109,6 +109,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args);
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args);
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
+static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -149,6 +150,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
 	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
 	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
+	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -585,6 +587,26 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+/**
+ * <h1>Atrinik.CreatePathname(<i>\<string\></i> path)</h1>
+ * Creates path to file in the maps directory using the create_pathname()
+ * function.
+ * @param path Path to file to create.
+ * @return The path to file in the maps directory. */
+static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
+{
+	char *path;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &path))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("s", create_pathname(path));
 }
 
 /*@}*/
