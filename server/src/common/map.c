@@ -1096,7 +1096,7 @@ void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * map what you like. MT-07.02.04 */
 void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
-	int i, j = 0;
+	int i, j = 0, unique = 0;
 	object *head, *op, *otmp, *tmp, *last_valid;
 
 	/* first, we have to remove all dynamic objects from this map.
@@ -1319,12 +1319,19 @@ save_objects_jump1:
 	{
 		for (j = 0; j < MAP_HEIGHT(m); j++)
 		{
+			unique = 0;
+
 			for (op = get_map_ob (m, i, j); op; op = otmp)
 			{
 				otmp = op->above;
 				/* thats NULL OR a valid ptr - it CAN'T be a non valid
 				 * or we had remove it before AND reseted the ptr then right. */
 				last_valid = op->below;
+
+				if (QUERY_FLAG(op, FLAG_IS_FLOOR) && QUERY_FLAG(op, FLAG_UNIQUE))
+				{
+					unique = 1;
+				}
 
 				/* do some testing... */
 				/* ok, we will *never* save maps with player on */
@@ -1354,7 +1361,7 @@ save_objects_jump1:
 					tmp->x = op->x - op->arch->clone.x;
 					tmp->y = op->y - op->arch->clone.y;
 
-					if (QUERY_FLAG(tmp, FLAG_UNIQUE))
+					if (unique || QUERY_FLAG(tmp, FLAG_UNIQUE))
 						save_map_object(fp2 , tmp, 3);
 					else
 						save_map_object(fp, tmp, 3);
@@ -1382,7 +1389,7 @@ save_objects_jump1:
 					continue;
 				}
 
-				if (QUERY_FLAG(op, FLAG_UNIQUE))
+				if (unique || QUERY_FLAG(op, FLAG_UNIQUE))
 					save_map_object(fp2, op, 3);
 				else
 					save_map_object(fp, op, 3);
