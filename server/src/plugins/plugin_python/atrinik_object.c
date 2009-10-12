@@ -2864,20 +2864,22 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>object.SendCustomCommand(<i>\<string\></i> customcommand)</h1>
+ * <h1>player.SendCustomCommand(<i>\<int\></i>command_id, <i>\<string\></i> command_data)</h1>
  *
  * @warning Untested. */
 static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *customcmd;
+	char cmd[MAX_BUF];
 
-	if (!PyArg_ParseTuple(args, "s", &customcmd))
+	if (!PyArg_ParseTuple(args, "bs", cmd, &customcmd))
 	{
 		return NULL;
 	}
 
 	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (customcmd);
+	GCFP.Value[1] = (void *) (cmd);
+	GCFP.Value[2] = (void *) (customcmd);
 	(PlugHooks[HOOK_SENDCUSTOMCOMMAND])(&GCFP);
 
 	Py_INCREF(Py_None);

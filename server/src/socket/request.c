@@ -2040,12 +2040,9 @@ void esrv_map_scroll(NewSocket *ns, int dx, int dy)
  * to a player. Of course, the client needs to know the command to be
  * able to manage it.
  * @todo Make this work by adding a binary command for it. */
-void send_plugin_custom_message(object *pl, char *buf)
+void send_plugin_custom_message(object *pl, char cmd, char *buf)
 {
-	(void) pl;
-	(void) buf;
-
-	/*Write_String_To_Socket(&CONTR(pl)->socket, buf, strlen(buf));*/
+	Write_String_To_Socket(&CONTR(pl)->socket, cmd, buf, strlen(buf));
 }
 
 /**
@@ -2067,7 +2064,7 @@ void ShopCmd(char *buf, int len, player *pl)
 	/* Handle closing a shop */
 	else if (strncmp(buf, "close", 5) == 0)
 	{
-  player_shop_close(pl);
+		player_shop_close(pl);
 	}
 	/* Handle loading of a shop */
 	else if (strncmp(buf, "load ", 5) == 0)

@@ -1618,7 +1618,7 @@ CFParm* CFWMoveObject (CFParm* PParm)
 
 CFParm* CFWSendCustomCommand(CFParm* PParm)
 {
-	send_plugin_custom_message((object *)(PParm->Value[0]), (char *)(PParm->Value[1]));
+	send_plugin_custom_message((object *)(PParm->Value[0]), *(char *) PParm->Value[1], (char *)(PParm->Value[2]));
 	return NULL;
 }
 
