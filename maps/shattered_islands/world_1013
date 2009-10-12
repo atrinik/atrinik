@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-10-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1128,7 +1128,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race /python/bank.py
+race ../python/generic/bank.py
 end
 end
 end
@@ -1171,7 +1171,7 @@ friendly 1
 direction 3
 arch event_obj
 sub_type 6
-race /python/bank.py
+race ../python/generic/bank.py
 end
 end
 end
@@ -2046,7 +2046,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_container
 x 14
 y 8
@@ -2054,7 +2053,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_potion
 x 14
 y 9
@@ -2202,7 +2200,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 15
 y 7
@@ -2210,7 +2207,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 15
 y 8
@@ -2248,7 +2244,7 @@ level 110
 friendly 1
 arch event_obj
 sub_type 6
-race /python/smith.py
+race ../python/generic/smith.py
 end
 end
 end
@@ -2404,7 +2400,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_potion
 x 16
 y 9
@@ -2518,7 +2513,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_container
 x 17
 y 7
@@ -2533,7 +2527,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_container
 x 17
 y 9
@@ -2654,7 +2647,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 18
 y 8
@@ -2829,7 +2821,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_potion
 x 19
 y 9
@@ -2960,7 +2951,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 20
 y 7
@@ -2975,7 +2965,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 20
 y 9
@@ -3102,7 +3091,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 21
 y 8
@@ -3254,7 +3242,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_potion
 x 22
 y 7
@@ -3262,7 +3249,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_container
 x 22
 y 8
@@ -3402,7 +3388,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_food
 x 23
 y 7
@@ -3421,7 +3406,6 @@ end
 arch shop_floor
 cursed 1
 auto_apply 1
-cursed 1
 randomitems random_potion
 x 23
 y 9

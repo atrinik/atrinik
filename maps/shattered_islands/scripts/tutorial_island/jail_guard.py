@@ -1,10 +1,11 @@
-# Script to make Jail Guard Sahrel in Tutorial Island annoy the ogre
-# in jail.
+## @file
+## Script to make Jail Guard Sahrel in Tutorial Island annoy the ogre in
+## jail.
 
-import Atrinik
+from Atrinil import *
 
-# The guard
-activator = Atrinik.WhoIsActivator()
+## The guard
+activator = WhoIsActivator()
 
-# Do the communication
+## Do the communication
 activator.Communicate("Still there, Frah'ak?")

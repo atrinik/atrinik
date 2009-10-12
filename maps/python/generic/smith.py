@@ -1,16 +1,19 @@
-# Generic script for smiths in shops, to identify items, detect curse,
-# etc.
+## @file
+## Generic script for smiths in shops, to identify items, detect curse,
+## etc.
 
 from Atrinik import *
 import string
 
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-# All possible costs of services. Based on player's level.
+## Dictionary of all possible costs of services. Based on player's level.
 costs = {
 	"detect_curse": 25 + (25 * activator.level),
 	"detect_magic": 25 + (25 * activator.level),
@@ -18,7 +21,7 @@ costs = {
 	"identify_all": 200 + (50 * activator.level),
 }
 
-# If the activator is under this level, some of the services are free.
+## If the activator is under this level, some of the services are free.
 level_free = 5
 
 # Detect curse on all items
@@ -49,6 +52,7 @@ elif msg == "detect magic":
 
 # Identify a single marked item
 elif msg == "identify":
+	## Get the marked object.
 	marked_object = activator.FindMarkedObject()
 
 	if marked_object == None:
@@ -80,7 +84,7 @@ elif msg == "identify all":
 
 # Greeting
 elif msg == "hello" or msg == "hi" or msg == "hey":
-	# Cost strings
+	## Cost strings.
 	cost_strings = {
 		"detect_curse": activator.ShowCost(costs["detect_curse"]),
 		"detect_magic": activator.ShowCost(costs["detect_magic"]),

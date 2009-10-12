@@ -1,15 +1,18 @@
-# Script to run when player comes to Brynknot by the ship from Tutorial Island.
-# This will set the player's save bed to church in Brynknot.
+## @file
+## Script to run when player comes to Brynknot by the ship from Tutorial
+## Island.
+##
+## This will set the player's save bed to church in Brynknot.
 
 from Atrinik import *
 
-# The activator
+## The activator.
 activator = WhoIsActivator()
 
-# Player info tag name
+## Player info tag name.
 pinfo_tag = "VISITED_BRYNKNOT"
 
-# Search for the player info
+## Search for the player info.
 pinfo = activator.GetPlayerInfo(pinfo_tag)
 
 # If no player info, we haven't been to Brynknot before

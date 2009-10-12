@@ -1,16 +1,28 @@
-import Atrinik
+## @file
+## This script implements the weapons master on Tutorial Island.
+##
+## The weapons master gives one of the four weapon skills, and a starting
+## weapon.
+## @todo The functions could be simplified a bit, by defining a common
+## function that is called with arguments about skill to learn, weapon to
+## give, etc.
+
+from Atrinik import *
 import string
 
-activator = Atrinik.WhoIsActivator()
-me = Atrinik.WhoAmI()
+## Activator object.
+activator = WhoIsActivator()
+## Object who has the event object in their inventory.
+me = WhoAmI()
 
-msg = Atrinik.WhatIsMessage().strip().lower()
+msg = WhatIsMessage().strip().lower()
 
-if activator.DoKnowSkill(Atrinik.GetSkillNr("impact weapons")) == 1 or activator.DoKnowSkill(Atrinik.GetSkillNr("slash weapons")) == 1 or activator.DoKnowSkill(Atrinik.GetSkillNr("cleave weapons")) == 1 or activator.DoKnowSkill(Atrinik.GetSkillNr("pierce weapons")) == 1:
+if activator.DoKnowSkill(GetSkillNr("impact weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("slash weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("cleave weapons")) == 1 or activator.DoKnowSkill(GetSkillNr("pierce weapons")) == 1:
 	me.SayTo(activator, "You already know a weapon skill.")
 
 elif msg == "slash":
-	skill = Atrinik.GetSkillNr("slash weapons")
+	## Get the skill number.
+	skill = GetSkillNr("slash weapons")
 
 	if skill == -1:
 		me.SayTo(activator, "Unknown skill.")
@@ -19,11 +31,11 @@ elif msg == "slash":
 			me.SayTo(activator, "You already know this skill.")
 		else:
 			activator.Write("%s gives you a sword." % me.name, 0)
-			activator.AcquireSkill(skill, Atrinik.LEARN)
+			activator.AcquireSkill(skill, LEARN)
 			activator.Apply(activator.CreateObjectInside("shortsword", 1, 1, 1), 0)
 
 elif msg == "impact":
-	skill = Atrinik.GetSkillNr("impact weapons")
+	skill = GetSkillNr("impact weapons")
 
 	if skill == -1:
 		me.SayTo(activator, "Unknown skill.")
@@ -36,7 +48,7 @@ elif msg == "impact":
 			activator.Apply(activator.CreateObjectInside("mstar_small", 1, 1, 1), 0)
 
 elif msg == "cleave":
-	skill = Atrinik.GetSkillNr("cleave weapons")
+	skill = GetSkillNr("cleave weapons")
 
 	if skill == -1:
 		me.SayTo(activator, "Unknown skill.")
@@ -49,7 +61,7 @@ elif msg == "cleave":
 			activator.Apply(activator.CreateObjectInside("axe_small", 1, 1, 1), 0)
 
 elif msg == "pierce":
-	skill = Atrinik.GetSkillNr("pierce weapons")
+	skill = GetSkillNr("pierce weapons")
 
 	if skill == -1:
 		me.SayTo(activator, "Unknown skill.")

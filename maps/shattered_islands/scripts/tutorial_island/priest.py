@@ -1,29 +1,38 @@
-# Script for church priest Manard on Tutorial Island.
+## @file
+## Script for church priest Manard on Tutorial Island, who teached the
+## player first basic prayer "minor healing", and gives quest for
+## "cause light wounds" prayer.
+##
+## The quest is to find a lost prayer book in Slimes dungeon.
 
 from Atrinik import *
 import string, os
 from inspect import currentframe
 
-# The activator
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
+## Quest item arch name.
 quest_arch_name = quest_items["priest_manard"]["arch_name"]
+## Quest item name.
 quest_item_name = quest_items["priest_manard"]["item_name"]
 
-# Get the message
 msg = WhatIsMessage().strip().lower()
-
-# Split the message to words
 text = string.split(msg)
 
+## Check if the activator has a quest object. If so, the quest was
+## already completed.
 qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
+## Check if the activator has the quest item we're looking for.
 item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
 
 if text[0] == "healing":
 	if activator.GetGod() == "Tabernacle":
+		## Get spell ID.
 		spell = GetSpellNr("minor healing")
 
 		if spell == -1:
@@ -31,7 +40,7 @@ if text[0] == "healing":
 		else:
 			if activator.DoKnowSpell(spell) == 1:
 				me.SayTo(activator, "\nYou already know this prayer...")
-			else:	
+			else:
 				activator.AcquireSpell(spell, LEARN)
 	else:
 		me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
@@ -52,7 +61,7 @@ elif text[0] == "cause":
 
 				if activator.DoKnowSpell(spell) == 1:
 					me.SayTo(activator, "\nYou already know this prayer...")
-				else:	
+				else:
 					activator.AcquireSpell(spell, LEARN)
 	else:
 		me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
@@ -68,7 +77,7 @@ elif text[0] == "quest":
 				me.SayTo(activator, "\nYou found the book! Very good. Say ^cause^ now to learn the prayer of cause light wounds, as your reward.")
 	else:
 		me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
-	
+
 elif msg == "cast":
 	if activator.GetGod() == "Tabernacle":
 		me.SayTo(activator, "\nTo cast a prayer you need a deity.\nYou should be a follower of the Tabernacle by now.\n That should be written under your character name.\nYou can cast a spell or prayer in two ways:\nYou can type /cast <spellname> in the console.\nIn our case /cast minor healing.\nOr you can select the spell menu with F9.\nGo to the entry minor healing and press return over it.\nThen you can use it in the range menu like throwing.")

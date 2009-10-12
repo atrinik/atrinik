@@ -1757,7 +1757,7 @@ level 42
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/bank.py
+race ../python/generic/bank.py
 end
 end
 end
@@ -2714,7 +2714,7 @@ level 41
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/bank.py
+race ../python/generic/bank.py
 end
 end
 end

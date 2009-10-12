@@ -1,11 +1,18 @@
+## @file
+## Generic bank script used for bank NPCs.
+
 from Atrinik import *
 import string
 
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
+
+## Player info tag of the bank object.
 pinfo_tag = "BANK_GENERAL"
 
 # Give out information about the bank

@@ -1,9 +1,17 @@
+## @file
+## Script to control stairs in Mercenary Guild and only allow entrance
+## to the guild to fellow Mercenaries.
+
 from Atrinik import *
 
+## Activator object.
 activator = WhoIsActivator()
 
+## The Mercenary guild tag.
 guild_tag = "Mercenary"
 
+## Dictionary of maps to teleport the player to, depending whether we
+## allowed them access or not.
 maps = {
 	"merc_guild":
 	{
@@ -21,6 +29,7 @@ maps = {
 
 SetReturnValue(1)
 
+## Guild force of the player.
 guild_force = activator.GetGuildForce()
 
 if guild_force.slaying != guild_tag:

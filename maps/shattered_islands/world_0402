@@ -1670,7 +1670,7 @@ level 15
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/bank.py
+race ../python/generic/bank.py
 end
 end
 end

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-10-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1032,7 +1032,7 @@ level 110
 friendly 1
 arch event_obj
 sub_type 6
-race /python/church.py
+race ../python/generic/church.py
 end
 arch ability_cause_lig_wound
 end

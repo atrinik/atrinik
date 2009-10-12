@@ -1,22 +1,35 @@
+## @file
+## Quest from Mercenary Chereth in the Mercenary Guild on Tutorial
+## Island. The quest is to kill Ant Queen and bring back her head as
+## proof. As a reward, the player can learn one of the three archery
+## skills: bow, crossbow or sling.
+
 from Atrinik import *
 import string, os
 from inspect import currentframe
 
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
+## Quest item arch name.
 quest_arch_name = quest_items["mercenary_chereth"]["arch_name"]
+## Quest item name.
 quest_item_name = quest_items["mercenary_chereth"]["item_name"]
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
+## Check if the activator has a quest object. If so, the quest was
+## already completed.
 qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
+## Check if the activator has the quest item we're looking for.
 item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
 
-# Common function to finish the quest.
+## Common function to finish the quest.
 def finish_quest():
 	activator.AddQuestObject(quest_arch_name, quest_item_name)
 	item.Remove()

@@ -1,6 +1,8 @@
-# This common file contains apartment related dictionaries and declarations for Strakewood Island.
+## @file
+## This common file contains apartment related dictionaries and
+## declarations for Strakewood Island.
 
-# Dictionary of all the possible apartments
+## Dictionary of all the possible apartments.
 apartments = {
 	"cheap":
 	{

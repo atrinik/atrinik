@@ -509,7 +509,7 @@ level 30
 friendly 1
 arch event_obj
 sub_type 6
-race ../python/church.py
+race ../python/generic/church.py
 end
 end
 end

@@ -1,9 +1,18 @@
+## @file
+## Script used to implement stairs in Brynknot mercenary guild.
+## The stairs only allow entrance to the Mercenary guild if the activator
+## if member of the Mercenary guild.
+
 from Atrinik import *
 
+## Activator object.
 activator = WhoIsActivator()
 
+## Guild tag to look for in activator.
 guild_tag = "Mercenary"
 
+## Dictionary of maps where to teleport the activator depending whether
+## they are member of the guild or not.
 maps = {
 	"merc_guild":
 	{
@@ -21,6 +30,7 @@ maps = {
 
 SetReturnValue(1)
 
+## Get the guild force from activator's inventory.
 guild_force = activator.GetGuildForce()
 
 if guild_force.slaying != guild_tag:

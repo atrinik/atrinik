@@ -1,5 +1,7 @@
-# Includes all the possible quest items in Tutorial Island.
+## @file
+## Includes all the possible quests on Tutorial Island.
 
+## Dictionary of the quests.
 quest_items = {
 	"mercenary_guild":
 	{

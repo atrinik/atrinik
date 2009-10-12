@@ -1,14 +1,27 @@
+## @file
+## This script implements quest for two-hand mastery, given by Mercenary
+## Taleus in the Brynknot Mercenary Guild.
+
 from Atrinik import *
 import string
 
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
+## Quest item arch name.
 quest_arch_name = "tooth"
+## Quest item name.
 quest_item_name = "elder wyvern tooth"
 
+## Check if the ::activator has a quest object. If so, the quest was
+## already completed.
 qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
+## Check if the ::activator has the quest item we're looking for.
 item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
+## Get the ::activator's physical experience object, so we can check if
+## they are high enough level for the quest.
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 msg = WhatIsMessage().strip().lower()

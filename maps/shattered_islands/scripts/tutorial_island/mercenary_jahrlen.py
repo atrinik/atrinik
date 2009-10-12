@@ -1,32 +1,41 @@
-# Script for Jahrlen in Mercenary Guild on Tutorial Island.
+## @file
+## Script for Jahrlen in Mercenary Guild on Tutorial Island.
+##
+## Jahrlen gives out probe spell for free, and magic bullet for doing a
+## quest. The quest consists of retrieving a rod from goblin in Kobold
+## den.
 
 from Atrinik import *
 import string, os
 from inspect import currentframe
 
-# The activator
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
+## Quest item arch name.
 quest_arch_name = quest_items["mercenary_jahrlen"]["arch_name"]
+## Quest item name.
 quest_item_name = quest_items["mercenary_jahrlen"]["item_name"]
 
-# Guild name
+## Guild name
 guild_tag = "Mercenary"
 
-# Get the message
 msg = WhatIsMessage().strip().lower()
-
-# Split the message to words
 text = string.split(msg)
 
+## Check if the activator has a quest object. If so, the quest was
+## already completed.
 qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
+## Check if the activator has the quest item we're looking for.
 item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
 
-# Function to teach the activator the wizardy skill.
+## Function to teach the activator the wizardy skill.
 def teach_wizardy():
+	## Get the skill number.
 	skill = GetSkillNr("wizardry spells")
 
 	if skill == -1:
@@ -47,6 +56,7 @@ if text[0] == "probe":
 		# Teach the wizardy skill
 		teach_wizardy()
 
+		## Get the spell number.
 		spell = GetSpellNr("probe")
 
 		if spell == -1:

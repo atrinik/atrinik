@@ -1,13 +1,21 @@
-from Atrinik import * 
+## @file
+## Script for the apartment seller in Brynknot.
+## @todo With a bit of an effort, this could be made as a common script
+## to be used by other apartment sellers in the future.
+
+from Atrinik import *
 import string, os
 from inspect import currentframe
 
+## Activator object.
 activator = WhoIsActivator()
+## Object who has the event object in their inventory.
 me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/apartments.py")
 
-# To transfer IDs of apartments to strings.
+## To transfer IDs of apartments to strings.
+## @todo Perhaps this should be moved to the apartments.py file?
 apartment_ids = {
 	1: "cheap",
 	2: "normal",
@@ -18,7 +26,7 @@ apartment_ids = {
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-# The apartment's info
+## The apartment's info
 pinfo = activator.GetPlayerInfo(apartment_tag)
 
 # Function to upgrade an old apartment to a new one.
@@ -58,7 +66,6 @@ elif msg == "upgrade":
 		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one.\nGo to upgrade ^procedure^ if you want to upgrade now.");
 
 # Upgrade procedure.
-# TODO: This could be improved to make use of the apartments dictionary.
 elif text[0] == "procedure":
 	if pinfo == None:
 		me.SayTo(activator, "\nYou don't have any apartment to upgrade.")
