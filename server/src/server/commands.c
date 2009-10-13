@@ -193,6 +193,7 @@ CommArray_s WizCommands [] =
 #endif
 	{"/ssdumptable", 	command_ssdumptable,			0.0},
 	{"/patch",			command_patch,					0.0},
+	{"/speed",          command_speed,                  0.0},
 
 	/*
 	{"/archs", command_archs,	0.0},
@@ -210,7 +211,6 @@ CommArray_s WizCommands [] =
 	{"/remove", command_remove,0.0},
 	{"/strings", command_strings,	0.0},
 	{"/set_god", command_setgod, 0.0},
-	{"/speed", command_speed,0.0},
 	{"/stats", command_stats,0.0},
 	{"/style_info", command_style_map_info, 0.0},
 	#ifdef DEBUG_MALLOC_LEVEL
