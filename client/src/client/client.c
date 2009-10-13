@@ -401,11 +401,14 @@ static void face_flag_extension(int pnum, char *buf)
 	if (FaceList[pnum].flags && stemp)
 	{
 		int tc;
+
 		for (tc = 0; tc < 4; tc++)
 		{
 			/* has the string a '0' before our anim tags */
 			if (!*(stemp + tc))
-				goto finish_face_cmd_j1;
+			{
+				return;
+			}
 		}
 
 		/* lets set the right flags for the tags */
@@ -416,10 +419,6 @@ static void face_flag_extension(int pnum, char *buf)
 		else if (*(stemp + tc) == '4'|| *(stemp + tc) == '8' || *(stemp + tc) == '0')
 			FaceList[pnum].flags |= (FACE_FLAG_D3|FACE_FLAG_D1);
 	}
-
-	/* error jump from for() */
-finish_face_cmd_j1:
-	return;
 }
 
 /* we have stored this picture in atrinik.p0 - load it from it! */

@@ -1655,24 +1655,24 @@ int process_macro_keys(int id, int value)
 				if (options.collectAll == 1)
 				{
 					nrof = cpl.nrof;
-					goto collectAll;
 				}
-
-				reset_keys();
-				cpl.input_mode = INPUT_MODE_NUMBER;
-				open_input_mode(22);
-				cpl.loc = loc;
-				cpl.tag = tag;
-				cpl.nrof = nrof;
-				cpl.nummode = NUM_MODE_GET;
-				snprintf(buf, sizeof(buf), "%d", nrof);
-				textwin_putstring(buf);
-				strncpy(cpl.num_text,it->s_name, 250);
-				cpl.num_text[250] = 0;
-				return 0;
+				else
+				{
+					reset_keys();
+					cpl.input_mode = INPUT_MODE_NUMBER;
+					open_input_mode(22);
+					cpl.loc = loc;
+					cpl.tag = tag;
+					cpl.nrof = nrof;
+					cpl.nummode = NUM_MODE_GET;
+					snprintf(buf, sizeof(buf), "%d", nrof);
+					textwin_putstring(buf);
+					strncpy(cpl.num_text,it->s_name, 250);
+					cpl.num_text[250] = 0;
+					return 0;
+				}
 			}
 
-collectAll:
 			sound_play_effect(SOUND_GET, 0, 100);
 			snprintf(buf, sizeof(buf), "get %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
