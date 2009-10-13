@@ -610,6 +610,8 @@ static Atrinik_Constant object_constants[] =
 	{"COLOR_BLUE",                   NDI_BLUE},
 	{"COLOR_RED",                    NDI_RED},
 
+	{"NDI_PLAYER",                   NDI_PLAYER},
+
 	/* Argh, the object types. Make sure to keep up-to date if any are added/removed */
 	{"TYPE_PLAYER",                  PLAYER},
 	{"TYPE_BULLET",                  BULLET},
