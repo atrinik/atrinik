@@ -1165,33 +1165,44 @@ int esrv_apply_container (object *op, object *sack)
 	return 1;
 }
 
-/* Frees a monster trapped in container when opened by a player */
+/**
+ * Frees a monster trapped in container when opened by a player. */
 void free_container_monster(object *monster, object *op)
 {
 	int i;
 	object *container = monster->env;
 
 	if (container == NULL)
+	{
 		return;
+	}
 
 	/* in container, no walk off check */
 	remove_ob(monster);
 	monster->x = container->x;
 	monster->y = container->y;
 	i = find_free_spot(monster->arch, NULL, op->map, monster->x, monster->y, 0, 9);
+
 	if (i != -1)
 	{
 		monster->x += freearr_x[i];
 		monster->y += freearr_y[i];
 	}
+
 	fix_monster(monster);
-	if (insert_ob_in_map (monster, op->map, monster, 0))
+
+	if (insert_ob_in_map(monster, op->map, monster, 0))
+	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "A %s jumps out of the %s.", query_name(monster, NULL), query_name(container, NULL));
+	}
 }
 
-/* examine the items in a container which gets readied or opened by player.
- * Explode or trigger every trap & rune in there and free trapped monsters.
- */
+/**
+ * Examine the items in a container which gets readied or opened by a
+ * player.
+ *
+ * Explode or trigger every trap and rune in there and free trapped
+ * monsters. */
 int container_trap(object *op, object *container)
 {
 	int ret = 0;
@@ -1216,9 +1227,10 @@ int container_trap(object *op, object *container)
 	return ret;/* ret=0 -> no trap or monster found/exploded/freed */
 }
 
-/*
- * Returns pointer a static string containing gravestone text
- */
+/**
+ * Create text for a gravestone object.
+ * @param op Object that died.
+ * @return Pointer to a static string containing the gravestone text. */
 char *gravestone_text(object *op)
 {
 	static char buf2[MAX_BUF];
@@ -1228,77 +1240,83 @@ char *gravestone_text(object *op)
 	strcpy(buf2, "R.I.P.\n\n");
 
 	if (op->type == PLAYER)
-		sprintf(buf, "Here rests the hero %s the %s\n", op->name, op->race);
+	{
+		snprintf(buf, sizeof(buf), "Here rests the hero %s the %s\n", op->name, op->race);
+	}
 	else
-		sprintf(buf, "%s\n", op->name);
+	{
+		snprintf(buf, sizeof(buf), "%s\n", op->name);
+	}
 
-	strcat(buf2, buf);
-
-	if (op->type == PLAYER)
-		sprintf(buf, "who was killed at level %d\n", op->level);
-	else
-		sprintf(buf, "who died at level %d.\n\n", op->level);
-
-	strcat(buf2, buf);
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
 
 	if (op->type == PLAYER)
 	{
-		sprintf(buf, "by %s.\n\n", strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
-		strcat(buf2, buf);
+		snprintf(buf, sizeof(buf), "who was killed at level %d\nby %s.", op->level, strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
+	}
+	else
+	{
+		snprintf(buf, sizeof(buf), "who died at level %d.", op->level);
 	}
 
-	strftime(buf, MAX_BUF, "%b %d %Y", localtime(&now));
-	strcat(buf2, buf);
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
+
+	strftime(buf, sizeof(buf), "\n\n%b %d %Y", localtime(&now));
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
 
 	return buf2;
 }
 
-/* Returns true if sacrifice was accepted. */
+/**
+ * Operate an altar.
+ * @param altar The altar object.
+ * @param sacrifice Sacrifice object for the altar.
+ * @param originator Originator object who put the sacrifice on the
+ * altar.
+ * @return 1 if the sacrifice was accepted, 0 otherwise.
+ */
 static int apply_altar(object *altar, object *sacrifice, object *originator)
 {
 	/* Only players can make sacrifices on spell casting altars. */
 	if (altar->stats.sp != -1 && (!originator || originator->type != PLAYER))
+	{
 		return 0;
+	}
 
 	if (operate_altar(altar, &sacrifice))
 	{
-		/* Simple check.
-		 * with an altar.  We call it a Potion - altars are stationary - it
-		 * is up to map designers to use them properly.
-		 * Change: I changed .sp from 0 = no spell to -1. So we can cast first
-		 * spell too... No idea why this was not done in crossfire. ;T-2003 */
+		/* Simple check. with an altar. We call it a Potion - altars are
+		 * stationary - it is up to map designers to use them
+		 * properly. */
 		if (altar->stats.sp != -1)
 		{
 			new_draw_info_format(NDI_WHITE, 0, originator, "The altar casts %s.", spells[altar->stats.sp].name);
 			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, spellPotion, NULL);
-			/* If it is connected, push the button.  Fixes some problems with
-			 * old maps. */
+			/* If it is connected, push the button. Fixes some problems
+			 * with old maps. */
 			push_button(altar);
 		}
 		else
 		{
-			/* works only once */
+			/* Works only once */
 			altar->value = 1;
-			push_button (altar);
+			push_button(altar);
 		}
 
 		return sacrifice == NULL;
 	}
-	else
-		return 0;
+
+	return 0;
 }
 
-
-/*
- * Returns 1 if 'op' was destroyed, 0 if not.
- * Largely re-written to not use nearly as many gotos, plus
- * some of this code just looked plain out of date.
- * MSW 2001-08-29
- */
-static int apply_shop_mat (object *shop_mat, object *op)
+/**
+ * Apply/trigger a shop map.
+ * @param shop_mat The shop map object.
+ * @param op Object that triggered this.
+ * @return Returns 1 if 'op' was destroyed, 0 otherwise. */
+static int apply_shop_mat(object *shop_mat, object *op)
 {
 	int rv = 0;
-	object *tmp;
 
 	/* prevent loops */
 	SET_FLAG(op, FLAG_NO_APPLY);
@@ -1307,36 +1325,47 @@ static int apply_shop_mat (object *shop_mat, object *op)
 	{
 		if (QUERY_FLAG(op, FLAG_UNPAID))
 		{
-
 			/* Somebody dropped an unpaid item, just move to an adjacent place. */
 			int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
+
 			if (i != -1)
+			{
 				rv = transfer_ob(op, op->x + freearr_x[i], op->y + freearr_y[i], 0, shop_mat, NULL);
+			}
 		}
 
 		rv = teleport(shop_mat, SHOP_MAT, op);
 	}
-	/* immediate block below is only used for players */
+	/* Only used for players. */
 	else if (get_payment(op))
 	{
+		object *tmp;
+
 		rv = teleport(shop_mat, SHOP_MAT, op);
+
 		if (shop_mat->msg)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, shop_mat->msg);
+		}
 		/* This check below is a bit simplistic - generally it should be correct,
 		 * but there is never a guarantee that the bottom space on the map is
 		 * actually the shop floor. */
-		else if (!rv && (tmp = get_map_ob(op->map, op->x, op->y)) != NULL && tmp->type != SHOP_FLOOR)
+		else if (!rv && (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0)) != NULL && tmp->type != SHOP_FLOOR)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "Thank you for visiting our shop.");
+		}
 	}
+	/* If we get here, a player tried to leave a shop but was not able
+	 * to afford the items he has. We try to move the player so that
+	 * they are not on the mat anymore */
 	else
 	{
-		/* if we get here, a player tried to leave a shop but was not able
-		 * to afford the items he has.  We try to move the player so that
-		 * they are not on the mat anymore */
-
 		int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
+
 		if (i == -1)
+		{
 			LOG(llevBug, "BUG: Internal shop-mat problem (map:%s object:%s pos: %d,%d).\n", op->map->name, op->name, op->x, op->y);
+		}
 		else
 		{
 			remove_ob(op);
@@ -1344,6 +1373,7 @@ static int apply_shop_mat (object *shop_mat, object *op)
 			op->x += freearr_x[i];
 			op->y += freearr_y[i];
 			rv = (insert_ob_in_map(op, op->map, shop_mat, 0) == NULL);
+
 			if (op->type == PLAYER)
 			{
 				/* shop */
@@ -1355,10 +1385,18 @@ static int apply_shop_mat (object *shop_mat, object *op)
 	}
 
 	CLEAR_FLAG(op, FLAG_NO_APPLY);
+
 	return rv;
 }
 
-static void apply_sign (object *op, object *sign)
+/**
+ * Apply a sign or trigger a magic mouth.
+ *
+ * Signs and magic mouths can have a "counter" value, which will make it
+ * possible to read/trigger it only so many times.
+ * @param op Object applying the sign
+ * @param sign The sign or magic mouth object. */
+static void apply_sign(object *op, object *sign)
 {
 	if (sign->msg == NULL)
 	{
@@ -1371,9 +1409,13 @@ static void apply_sign (object *op, object *sign)
 		if (sign->last_eat >= sign->stats.food)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+			{
 				new_draw_info(NDI_UNIQUE, 0, op, "You cannot read it anymore.");
+			}
+
 			return;
 		}
+
 		sign->last_eat++;
 	}
 
@@ -1382,8 +1424,7 @@ static void apply_sign (object *op, object *sign)
 	 *
 	 * This check fails for signs with FLAG_WALK_ON/FLAG_FLY_ON.  Checking
 	 * for FLAG_INVISIBLE instead of FLAG_WALK_ON/FLAG_FLY_ON would fail
-	 * for magic mouths that have been made visible.
-	 */
+	 * for magic mouths that have been made visible. */
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to read while blind.");
@@ -1393,22 +1434,25 @@ static void apply_sign (object *op, object *sign)
 	new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, sign->msg);
 }
 
-
-/* 'victim' moves onto 'trap' (trap has FLAG_WALK_ON or FLAG_FLY_ON set) or
+/**
+ * 'victim' moves onto 'trap' (trap has FLAG_WALK_ON or FLAG_FLY_ON set) or
  * 'victim' leaves 'trap' (trap has FLAG_WALK_OFF or FLAG_FLY_OFF) set.
- *
- * originator: Player, monster or other object that caused 'victim' to move
- * onto 'trap'.  Will receive messages caused by this action.  May be NULL.
- * However, some types of traps require an originator to function.
  *
  * I added the flags parameter to give the single events more information
  * about whats going on:
+ *
  * Most important is the "MOVE_APPLY_VANISHED" flag.
- * If set, a object has leaved a tile but "vanished" and not moved (perhaps
- * its exploded or whatever). This means that some events are not triggered
- * like trapdoors or teleporter traps for example which have a "FLY/MOVE_OFF"
- * set. This will avoid that they touch invalid objects.
- */
+ * If set, a object has left a tile but "vanished" and not moved (perhaps
+ * it exploded or something). This means that some events are not
+ * triggered like trapdoors or teleporter traps for example which have a
+ * "FLY/MOVE_OFF" set. This will avoid that they touch invalid objects.
+ * @param trap Object victim moved on.
+ * @param victim The object that moved on trap.
+ * @param originator Player, monster or other object that caused 'victim'
+ * to move onto 'trap'. Will receive messages caused by this action. May
+ * be NULL, however, some types of traps require an originator to
+ * function.
+ * @param flags Flags. */
 void move_apply(object *trap, object *victim, object *originator, int flags)
 {
 	static int recursion_depth = 0;
@@ -1425,10 +1469,13 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		LOG(llevDebug, "WARNING: move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
 		return;
 	}
+
 	recursion_depth++;
 
 	if (trap->head)
+	{
 		trap = trap->head;
+	}
 
 	/* Trigger the TRIGGER event */
 	if (trigger_event(EVENT_TRIGGER, victim, trap, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
@@ -1438,58 +1485,72 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 	switch (trap->type)
 	{
-			/* these objects can trigger other objects connected to them.
-			 * We need to check them at map loading time and other special
-			 * events to be sure to have a 100% working map state. */
+		/* these objects can trigger other objects connected to them.
+		 * We need to check them at map loading time and other special
+		 * events to be sure to have a 100% working map state. */
 		case BUTTON:
 		case PEDESTAL:
 			update_button(trap);
-			goto leave;
+			break;
 
 		case TRIGGER_BUTTON:
 		case TRIGGER_PEDESTAL:
 		case TRIGGER_ALTAR:
-			check_trigger (trap, victim);
-			goto leave;
+			check_trigger(trap, victim);
+			break;
 
 		case CHECK_INV:
-			check_inv (victim, trap);
-			goto leave;
+			check_inv(victim, trap);
+			break;
 
-			/* these objects trigger to but they are "instant".
-			 * We don't need to check them when loading. */
+		/* these objects trigger to but they are "instant".
+		 * We don't need to check them when loading. */
 		case ALTAR:
 			/* sacrifice victim on trap */
 			apply_altar(trap, victim, originator);
-			goto leave;
+			break;
 
 		case CONVERTER:
-			if (!(flags&MOVE_APPLY_VANISHED))
-				convert_item (victim, trap);
-			goto leave;
+			if (!(flags & MOVE_APPLY_VANISHED))
+			{
+				convert_item(victim, trap);
+			}
+
+			break;
 
 		case PLAYERMOVER:
-			/*
+#if 0
 			if (trap->attacktype && (trap->level || victim->type != PLAYER))
 			{
 				if (!trap->stats.maxsp)
+				{
 					trap->stats.maxsp = 2;
-				victim->speed_left = -FABS(trap->stats.maxsp * victim->speed / trap->speed);
-				if (victim->speed_left <- 50.0)
-					victim->speed_left =- 50.0;
-			}
-			*/
-			goto leave;
+				}
 
-			/* should be walk_on/fly_on only */
+				victim->speed_left = -FABS(trap->stats.maxsp * victim->speed / trap->speed);
+
+				if (victim->speed_left <- 50.0)
+				{
+					victim->speed_left =- 50.0;
+				}
+			}
+#endif
+
+			break;
+
+		/* should be walk_on/fly_on only */
 		case SPINNER:
 			if (victim->direction)
 			{
 				if ((victim->direction = victim->direction + trap->direction) > 8)
+				{
 					victim->direction = (victim->direction % 8) + 1;
+				}
+
 				update_turn_face(victim);
 			}
-			goto leave;
+
+			break;
 
 		case DIRECTOR:
 			if (victim->direction)
@@ -1497,32 +1558,43 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 				if (QUERY_FLAG(victim, FLAG_IS_MISSILE))
 				{
 					SET_FLAG(victim, FLAG_WAS_REFLECTED);
+
 					if (!missile_reflection_adjust(victim, 0))
-						goto leave;
+					{
+						break;
+					}
 				}
 
 				victim->direction = trap->direction;
 				update_turn_face(victim);
 			}
-			goto leave;
 
-			/* no need to hit anything */
+			break;
+
+		/* no need to hit anything */
 		case MMISSILE:
 			if (IS_LIVE(victim) && !(flags&MOVE_APPLY_VANISHED))
 			{
 				tag_t trap_tag = trap->count;
 				hit_player(victim, trap->stats.dam, trap, AT_MAGIC);
+
 				if (!was_destroyed(trap, trap_tag))
+				{
 					remove_ob(trap);
+				}
+
 				check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 			}
-			goto leave;
+
+			break;
 
 		case THROWN_OBJ:
-			if (trap->inv == NULL || (flags&MOVE_APPLY_VANISHED))
-				goto leave;
+			if (trap->inv == NULL || (flags & MOVE_APPLY_VANISHED))
+			{
+				break;
+			}
 
-			/* fallthrough */
+		/* fallthrough */
 		case ARROW:
 			/* bad bug: monster throw a object, make a step forwards, step on object ,
 			 * trigger this here and get hit by own missile - and will be own enemy.
@@ -1530,55 +1602,80 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			 * removed) but we have not synced victim and his missile. To avoid senseless
 			 * action, we avoid hits here */
 			if ((IS_LIVE(victim) && trap->speed) && trap->owner != victim)
+			{
 				hit_with_arrow(trap, victim);
-			goto leave;
+			}
+
+			break;
 
 		case CANCELLATION:
 		case BALL_LIGHTNING:
-			if (IS_LIVE(victim) && !(flags&MOVE_APPLY_VANISHED))
+			if (IS_LIVE(victim) && !(flags & MOVE_APPLY_VANISHED))
+			{
 				hit_player(victim, trap->stats.dam, trap, trap->attacktype);
-			else if (victim->material && !(flags&MOVE_APPLY_VANISHED))
+			}
+			else if (victim->material && !(flags & MOVE_APPLY_VANISHED))
+			{
 				save_throw_object(victim, trap);
-			goto leave;
+			}
+
+			break;
 
 		case CONE:
-			/*
+#if 0
 			if (IS_LIVE(victim) && trap->speed)
 			{
 				uint32 attacktype = trap->attacktype & ~AT_COUNTERSPELL;
+
 				if (attacktype)
+				{
 					hit_player(victim, trap->stats.dam, trap, attacktype);
+				}
 			}
-			*/
-			goto leave;
+#endif
+
+			break;
 
 		case FBULLET:
 		case BULLET:
-			if ((QUERY_FLAG(victim, FLAG_NO_PASS) || IS_LIVE(victim)) && !(flags&MOVE_APPLY_VANISHED))
+			if ((QUERY_FLAG(victim, FLAG_NO_PASS) || IS_LIVE(victim)) && !(flags & MOVE_APPLY_VANISHED))
+			{
 				check_fired_arch(trap);
-			goto leave;
+			}
+
+			break;
 
 		case TRAPDOOR:
 		{
 			int max, sound_was_played;
 			object *ab;
 
-			if ((flags&MOVE_APPLY_VANISHED))
-				goto leave;
+			if ((flags & MOVE_APPLY_VANISHED))
+			{
+				break;
+			}
 
 			if (!trap->value)
 			{
 				sint32 tot;
+
 				for (ab = trap->above, tot = 0; ab != NULL; ab = ab->above)
+				{
 					if (!QUERY_FLAG(ab, FLAG_FLYING))
+					{
 						tot += (ab->nrof ? ab->nrof : 1) * ab->weight + ab->carrying;
+					}
+				}
 
 				if (!(trap->value = (tot > trap->weight) ? 1 : 0))
-					goto leave;
+				{
+					break;
+				}
 
 				SET_ANIMATION(trap, (NUM_ANIMATIONS(trap) / NUM_FACINGS(trap)) * trap->direction + trap->value);
 				update_object(trap, UP_OBJ_FACE);
 			}
+
 			for (ab = trap->above, max = 100, sound_was_played = 0; --max && ab && !QUERY_FLAG(ab, FLAG_FLYING); ab = ab->above)
 			{
 				if (!sound_was_played)
@@ -1586,80 +1683,115 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 					play_sound_map(trap->map, trap->x, trap->y, SOUND_FALL_HOLE, SOUND_NORMAL);
 					sound_was_played = 1;
 				}
-				if (ab->type == PLAYER)
-					new_draw_info(NDI_UNIQUE, 0, ab, "You fall into a trapdoor!");
 
-				transfer_ob(ab, (int)EXIT_X(trap), (int)EXIT_Y(trap), trap->last_sp, ab, trap);
+				if (ab->type == PLAYER)
+				{
+					new_draw_info(NDI_UNIQUE, 0, ab, "You fall into a trapdoor!");
+				}
+
+				transfer_ob(ab, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, ab, trap);
 			}
-			goto leave;
+
+			break;
 		}
 
 
 		case PIT:
 			/* Pit not open? */
 			if ((flags & MOVE_APPLY_VANISHED) || trap->stats.wc > 0)
-				goto leave;
+			{
+				break;
+			}
+
 			play_sound_map(victim->map, victim->x, victim->y, SOUND_FALL_HOLE, SOUND_NORMAL);
 
 			if (victim->type == PLAYER)
+			{
 				new_draw_info(NDI_UNIQUE, 0, victim, "You fall through the hole!\n");
+			}
 
-			transfer_ob(victim->head ? victim->head : victim, EXIT_X (trap), EXIT_Y (trap), trap->last_sp, victim, trap);
-			goto leave;
+			transfer_ob(victim->head ? victim->head : victim, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, victim, trap);
+
+			break;
 
 		case EXIT:
-			/* If no map path specified, we assume it is the map path of the exit. - A.T. 2009 */
+			/* If no map path specified, we assume it is the map path of the exit. */
 			if (!EXIT_PATH(trap))
+			{
 				trap->slaying = trap->map->path;
+			}
 
 			if (!(flags & MOVE_APPLY_VANISHED) && victim->type == PLAYER && EXIT_PATH(trap) && EXIT_Y(trap) != -1 && EXIT_X(trap) != -1)
 			{
 				/* Basically, don't show exits leading to random maps the players output. */
 				if (trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
+				{
 					new_draw_info(NDI_NAVY, 0, victim, trap->msg);
+				}
+
 				enter_exit(victim, trap);
 			}
-			goto leave;
+
+			break;
 
 		case SHOP_MAT:
-			if (!(flags&MOVE_APPLY_VANISHED))
+			if (!(flags & MOVE_APPLY_VANISHED))
+			{
 				apply_shop_mat(trap, victim);
-			goto leave;
+			}
 
-			/* Drop a certain amount of gold, and have one item identified */
+			break;
+
+		/* Drop a certain amount of gold, and have one item identified */
 		case IDENTIFY_ALTAR:
-			if (!(flags&MOVE_APPLY_VANISHED))
+			if (!(flags & MOVE_APPLY_VANISHED))
+			{
 				apply_id_altar(victim, trap, originator);
-			goto leave;
+			}
+
+			break;
 
 		case SIGN:
-			/* only player should be able read signs */
+			/* Only player should be able read signs */
 			if (victim->type == PLAYER)
+			{
 				apply_sign(victim, trap);
-			goto leave;
+			}
+
+			break;
 
 		case CONTAINER:
-			if (victim->type==PLAYER)
+			if (victim->type == PLAYER)
+			{
 				(void) esrv_apply_container(victim, trap);
-			goto leave;
+			}
+
+			break;
 
 		case RUNE:
-			if (!(flags&MOVE_APPLY_VANISHED) && trap->level && IS_LIVE(victim))
+			if (!(flags & MOVE_APPLY_VANISHED) && trap->level && IS_LIVE(victim))
+			{
 				spring_trap(trap, victim);
-			goto leave;
+			}
 
-			/* we don't have this atm.
-			case DEEP_SWAMP:
-				if (!(flags&MOVE_APPLY_VANISHED))
-					walk_on_deep_swamp(trap, victim);
-				goto leave;
-			*/
+			break;
+
+#if 0
+		/* we don't have this atm. */
+		case DEEP_SWAMP:
+			if (!(flags & MOVE_APPLY_VANISHED))
+			{
+				walk_on_deep_swamp(trap, victim);
+			}
+
+			break;
+#endif
+
 		default:
 			LOG(llevDebug, "name %s, arch %s, type %d with fly/walk on/off not handled in move_apply()\n", trap->name, trap->arch->name, trap->type);
-			goto leave;
+			break;
 	}
 
-leave:
 	recursion_depth--;
 }
 
