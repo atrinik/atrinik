@@ -1,7 +1,8 @@
 arch map
-name Testmap - Buttons
+name Testmap: Buttons
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -173,14 +174,7 @@ y 2
 end
 arch sign
 msg
-these maps now is testing walk_on/off objects.
-These are options which are triggered when a
-object is moving on it or leaving the spot.
-These are very important objects. The problem
-is, that they need loaded, saved and restored
-in the right way from the server to work like
-they should. Also every move/insert action of
-the server must cover this objects.
+This map tests walk_on/off objects.
 endmsg
 x 1
 y 2
@@ -202,9 +196,8 @@ x 1
 y 6
 end
 arch gate_closed
-face gate_door1.131
-direction 3
 connected 1001
+direction 3
 x 1
 y 6
 end

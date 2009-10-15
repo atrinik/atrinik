@@ -1,7 +1,8 @@
 arch map
-name Testmaps - Food, Flesh and Poison
+name Testmap: Food, Poison
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 17
 height 17
@@ -313,7 +314,6 @@ x 2
 y 13
 end
 arch tooth
-identified 1
 x 2
 y 13
 end

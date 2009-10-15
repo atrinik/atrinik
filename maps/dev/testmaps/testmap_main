@@ -1,7 +1,8 @@
 arch map
-name Testmaps - Main
+name Testmap: Main
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 17
 height 17
@@ -128,13 +129,6 @@ arch floor_ostone1
 x 1
 y 1
 end
-arch exit
-slaying ../../stoneglow/stoneglow_0000
-hp 8
-sp 10
-x 1
-y 1
-end
 arch floor_ostone1
 x 1
 y 2
@@ -230,10 +224,10 @@ arch floor_ostone1
 x 1
 y 15
 end
-arch stairs_stone_up
-slaying /unofficial/lobby
-hp 1
-sp 15
+arch exit
+slaying ../../shattered_islands/world_0312
+hp 3
+sp 7
 x 1
 y 15
 end
@@ -347,15 +341,6 @@ x 2
 y 14
 end
 arch floor_ostone1
-x 2
-y 15
-end
-arch sign
-name unofficial maps
-msg
-To the unofficial map lobby.
-Requires an extra download!
-endmsg
 x 2
 y 15
 end
@@ -714,9 +699,8 @@ stand_still 1
 x 6
 y 8
 arch event_obj
-name Python
-race /dev/testmaps/skills.py
 sub_type 6
+race scripts/skills.py
 end
 end
 arch floor_ostone1
@@ -805,18 +789,6 @@ arch floor_ostone1
 x 7
 y 7
 end
-arch golem
-name Scripter
-friendly 1
-stand_still 1
-x 7
-y 7
-arch event_obj
-name Python
-race /dev/testmaps/ScriptTest.py
-sub_type 6
-end
-end
 arch floor_ostone1
 x 7
 y 8
@@ -828,17 +800,6 @@ end
 arch floor_ostone1
 x 7
 y 9
-end
-arch guard
-name TestGuild master
-friendly 1
-x 7
-y 9
-arch event_obj
-name Python
-race /dev/testmaps/TestGuild.py
-sub_type 6
-end
 end
 arch floor_ostone1
 x 7
@@ -935,9 +896,8 @@ friendly 1
 x 8
 y 8
 arch event_obj
-name Python
-race /dev/testmaps/spells.py
 sub_type 6
+race scripts/spells.py
 end
 end
 arch floor_ostone1
@@ -1263,9 +1223,8 @@ friendly 1
 x 11
 y 12
 arch event_obj
-name Python
-race /dev/testmaps/PythonTest.py
 sub_type 6
+race scripts/PythonTest.py
 end
 end
 arch floor_ostone1

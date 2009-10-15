@@ -1,7 +1,8 @@
 arch map
-name Testmaps - Gods
+name Testmap: Gods
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 17
 height 17

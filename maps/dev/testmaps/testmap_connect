@@ -1,7 +1,8 @@
 arch map
-name Testmap - Connection Objects
+name Testmap: Connections
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 17
 height 17
@@ -132,12 +133,9 @@ end
 arch sign
 msg
 Testmap for connected objects.
-Connected objects are 2 classes:
-Triggers like buttons and levers which
-give a signal to connected object when something
-trigger them.
-The other objects are like doors which do something
-when they got a signal from a connected object.
+Connected objects can be of two types:
+Triggers like buttons and levers which give a signal to the connected object when something triggers them.
+The other objects are like doors which do something when they got a signal from the connected object.
 endmsg
 x 1
 y 2
@@ -186,24 +184,15 @@ y 8
 end
 arch sign
 msg
-Here are 2 types of exits:
+Here are two types of exits:
 EXIT and TELEPORTER.
-When used, they teleport the user to the
-marked spot in front of this sign. Both type
-of exits can be used to change maps too.
-The single magic portal is a TELEPORTER,
-the ladder and the portal next to it are from
-type EXIT.
-A EXIT is a permanent open and
-connected portal. A exit can be configured
-to teleport the user automatically when walk
-or fly over it (like the portal is) or the user must
-apply it like the ladder.
-The TELEPORTER must get a signal to teleport
-the user. Under the portal is a lever - when
-pulled, it triggers the TELEPORTER.
-Note, that the TELEPORTERS will be changed
-in later Daimonin betas for ON/OFF use.
+
+When used, they teleport the user to the marked spot in front of this sign.
+Both type of exits can be used to change maps too.
+The single magic portal is a TELEPORTER, the ladder and the portal next to it are from type EXIT.
+An exit can be configured to teleport the user automatically when walked or flew over it (like the portal is) or the user must apply it like the ladder.
+
+The TELEPORTER must get a signal to teleport the user. Under the portal is a lever - when pulled, it triggers the TELEPORTER.
 endmsg
 x 1
 y 8
@@ -287,42 +276,6 @@ arch floor_ostone2
 x 2
 y 1
 end
-arch sign
-msg
-Here we have 2 levers, both are connected to
-the 4 doors. The lever to the south is from type
-HANDLE, the other is from type TRIGGER.
-The doors are normal connected doors - when
-they got a signal from a connected source, they
-will open or close, depending on the start stats.
-The grates will not block LOS, the normal doors
-will.
-A HANDLE type lever or button has 2 states:
-ON and OFF (or LEFT and RIGHT). For the
-doors it will depend on the start stats of the door.
-If the doors is closed, the lever will open it and
-when the door is open at default, it will close it.
-You can pull the lever as fast as you can - every
-time you pull it gives a signal.
-The TRIGGER lever will drop a pulse when pulled.
-Then, after some time it gives out another pulse
-which means "i am reseted". In this time between
-both pulses the lever will not move - its not
-possible to pull him. After the reset it can be
-pulled again.
-When you pull the HANDLE type lever, only the
-doors will move. If you pull the TRIGGER type
-lever, the HANDLE lever will move too.
-This face the fact that the TRIGGER gives out a
-"neutral"  pulse. The HANDLE type lever instead
-have fixed stats, connected to the stats where it
-itself if connected with  (in this case the doors).
-To hold it synchron, the HANDLE type lever will
-move too.
-endmsg
-x 2
-y 1
-end
 arch floor_ostone2
 x 2
 y 2
@@ -382,11 +335,9 @@ y 13
 end
 arch sign
 msg
-PIT's are teleporters who can be "opened"
-or "closed". If open, the PIT will move the
-target (object above it) to a new location
-or map. A PIT can drop a object on a fixed
-position or in a kind of "random drop area".
+PITs are teleporters which can be "opened" or "closed".
+If open, the PIT will move the target (object above it) to a new location or map.
+A PIT can drop an object on a fixed position or in a kind of "random drop area".
 This is defined with a flag.
 endmsg
 x 2
@@ -461,16 +412,16 @@ y 6
 end
 arch sign
 msg
-3 button types. The big button is triggered
-by weight. This can be the player which carry
-alot of heavy equipment or something like
-the boulder. The boulder can moved over the
-button and trigger it.
-The 2 other buttons are triggered when something
-move over them. The button behind this sign is
-from type TRIGGER_BUTTON, the other is
-a normal button. The work as the levers.
-For all buttons can the weight value be changed.
+Three button types.
+
+The big button is triggered by weight. This can be the player which carries a lot of heavy equipment or something like the boulder.
+The boulder can moved over the button to trigger it.
+
+The other two buttons are triggered when something moves over them.
+The button behind this sign is of type TRIGGER_BUTTON, the other is a normal button.
+They work as levers.
+
+All buttons can have the weight value changed.
 endmsg
 x 3
 y 6
@@ -851,15 +802,6 @@ arch floor_ostone2
 x 7
 y 1
 end
-arch sign
-msg
-The same like the room before - a HANDLE
-connected to GATE's. This time, the gates
-block LOS when closed.
-endmsg
-x 7
-y 1
-end
 arch floor_ostone2
 x 7
 y 2
@@ -893,13 +835,10 @@ x 7
 y 6
 end
 arch sign
-name magic ear object
 msg
-A magic ear is system objects, which "listen"
-to a player. If the player say a keyword,
-the magic ear works like handle.
-The magic ear here is connected to the
-gate next to it.
+A magic ear is system object, which listens to a player.
+If the player says a keyword, the magic ear works like handle or wall switch.
+The magic ear here is connected to the gate next to it.
 The keyword is "magic".
 endmsg
 x 7
@@ -1341,33 +1280,24 @@ y 8
 end
 arch sign
 msg
-Here we have 4 kinds of sensors:
-PEDESTAL and TRIGGER_PEDESTAL
-on the right side and a DETECTOR and
-CHECK_INV on the other.
-This CHECK_INV will check the arch name
-of the chainmail and the name field of the
-boots - both works a triggers.
-PEDESTAL and TRIGGER_PEDESTAL check
-a moving living object over it - normal a mob
-or a player. If the key string is "player", it is
-triggered by every player moving over it. Is the
-key string not player, it is compared with the
-race name of the living object over it. Like
-"human", "dwarf" or "orc".
-The DETECTOR checks the objects on the
-same map square but not the inventory or
-objects inside containers. It compares the
-name strings without title - in our case the
-chainmail there.
-The CHECK_INV is the big brother of the
-DETECTOR. It checks objects inside inventories
-and containers too. It can detect mutiple keys
-like the name field, the slaying field, the arch
-name or the arch type. It can block the space
-when the key is not on the object moving on it
-and/or delete the key item. The editor help
-for this object has many more information about it.
+Here we have four different kinds of sensors:
+PEDESTAL and TRIGGER_PEDESTAL on the right side and a DETECTOR and CHECK_INV on the other.
+
+This CHECK_INV will check the arch name of the chainmail and the name field of the boots - both work as triggers.
+
+PEDESTAL and TRIGGER_PEDESTAL check a moving living object above it - normal a monster or a player.
+If the key string is "player", it is triggered by every player moving over it.
+If the key string is not "player", it is compared with the race name of the living object over it.
+Like "human", "dwarf" or "orc".
+
+The DETECTOR checks the objects on the same map square but not the inventory or objects inside containers.
+It compares the name strings without title - in our case the chainmail there.
+
+The CHECK_INV is the big brother of the DETECTOR. It checks objects inside inventories and containers too.
+It can detect mutiple keys like the name field, the slaying field, the arch name or the arch type.
+It can block the space when the key is not on the object moving on it and/or delete the key item.
+
+Gridarta has a lot more information and help for these objects and how to use them.
 endmsg
 x 11
 y 8
@@ -1438,21 +1368,15 @@ y 1
 end
 arch sign
 msg
-TIMED_GATE's will open/close when they
-get a signal and then reclose/reopen
-automatically after some ticks.
-We have 2 versions: default position closed
-and default open. Closed doors will open and
-reclose after the time delay, open doors will
-close and reopen. Also, we have LOS and no
-LOS versions.
-The TIMED_GATE's have delay time how long
-they stay in the new state until they reclose/reopen.
-This can be changed in the map editor. The open
-grate has a delay in ticks of 10, the closed one
-20. The closed door has a delay of 40 ticks and the
-open door 35. Rough calculated are 10 ticks
-5 seconds in real time.
+TIMED_GATEs will open/close when they get a signal and then reclose/reopen automatically after some ticks.
+We have two versions:
+Default position closed and default open.
+Closed gates will open and reclose after the time delay, open gates will close and reopen.
+Also, we have LOS and no LOS versions.
+
+The TIMED_GATEs have delay time how long they stay in the new state until they reclose/reopen.
+This can be changed in Gridarta. The open gate has a delay in ticks of 10, the closed one 20.
+Roughly calculated, 10 ticks are about 5 seconds in real time.
 endmsg
 x 12
 y 1
@@ -1538,12 +1462,11 @@ y 14
 end
 arch sign
 msg
-ALTAR and TRIGGER_ALTAR are can do
-2 things: casting a spell or trigger a connected
-object. TRIGGER_ALTAR works like all TRIGGER_
-objects. Normal ALTAR's works only ONE time
-when connected but infinitve when casting spells.
-TRIGGER_ALTARS can't cast spells.
+ALTAR and TRIGGER_ALTAR can do two different things:
+Casting a spell or trigger a connected object.
+TRIGGER_ALTAR works like all TRIGGER_ objects.
+Normal ALTARs works only ONE time when connected but infinitively when casting spells.
+TRIGGER_ALTARs cannot cast spells.
 endmsg
 x 12
 y 14
