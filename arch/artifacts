@@ -1137,7 +1137,6 @@ chance 10
 difficulty 20
 artifact girdle_medium_hp
 def_arch girdle
-def_arch chain_mail
 Object
 title of medium health
 item_level_art 7
@@ -1153,7 +1152,6 @@ chance 10
 difficulty 30
 artifact girdle_hp
 def_arch girdle
-def_arch chain_mail
 Object
 title of health
 type 113
@@ -1169,7 +1167,6 @@ chance 8
 difficulty 50
 artifact girdle_major_hp
 def_arch girdle
-def_arch chain_mail
 Object
 title of major health
 type 113
