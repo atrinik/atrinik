@@ -1153,6 +1153,8 @@ MODULEAPI int cmd_customPython(object *op, char *params)
 
 	RunPythonScript(CustomCommand[NextCustomCommand].script, NULL);
 
+	plugin_log(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition--]);
+
 	return StackReturn[StackPosition--];
 }
 
@@ -1249,6 +1251,8 @@ MODULEAPI CFParm* postinitPlugin(CFParm* PParm)
 	GCFP.Value[0] = (void *)(&i);
 	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
 #endif
+
+	RunPythonScript("python/events/python_init.py", NULL);
 
 	return NULL;
 }

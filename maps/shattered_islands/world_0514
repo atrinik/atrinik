@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-10-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -446,7 +446,15 @@ arch grassd_3
 x 3
 y 3
 end
+arch wall_wood_8
+x 3
+y 3
+end
 arch grassd_8
+x 3
+y 4
+end
+arch wall_wood1_3
 x 3
 y 4
 end
@@ -454,11 +462,15 @@ arch grassd_5
 x 3
 y 5
 end
+arch wall_wood3_3
+x 3
+y 5
+end
 arch grassd_4
 x 3
 y 6
 end
-arch plant_flower2
+arch wall_wood3_3
 x 3
 y 6
 end
@@ -466,7 +478,20 @@ arch grassd_3
 x 3
 y 7
 end
+arch wall_wood2_3
+x 3
+y 7
+end
+arch wmask_fire_on_1
+direction 7
+x 3
+y 7
+end
 arch grassd_6
+x 3
+y 8
+end
+arch wall_wood3_3
 x 3
 y 8
 end
@@ -474,7 +499,12 @@ arch grassd_8
 x 3
 y 9
 end
-arch plant12
+arch wall_wood3_3
+x 3
+y 9
+end
+arch picture1.151
+direction 7
 x 3
 y 9
 end
@@ -482,7 +512,15 @@ arch grassd_8
 x 3
 y 10
 end
+arch wall_wood3_3
+x 3
+y 10
+end
 arch grassd_7
+x 3
+y 11
+end
+arch wall_wood3_3
 x 3
 y 11
 end
@@ -490,7 +528,7 @@ arch grassd_4
 x 3
 y 12
 end
-arch plant_flower14
+arch wall_wood1_3
 x 3
 y 12
 end
@@ -498,7 +536,15 @@ arch grassd_6
 x 3
 y 13
 end
+arch wall_wood2_3
+x 3
+y 13
+end
 arch grassd_6
+x 3
+y 14
+end
+arch wall_wood1_3
 x 3
 y 14
 end
@@ -506,7 +552,15 @@ arch grassd_4
 x 3
 y 15
 end
+arch wall_wood3_3
+x 3
+y 15
+end
 arch grassd_2
+x 3
+y 16
+end
+arch wall_wood1_3
 x 3
 y 16
 end
@@ -514,11 +568,23 @@ arch grassd_3
 x 3
 y 17
 end
+arch wall_wood2_3
+x 3
+y 17
+end
 arch grassd_8
 x 3
 y 18
 end
+arch wall_wood2_3
+x 3
+y 18
+end
 arch grassd_6
+x 3
+y 19
+end
+arch wall_wood1_3
 x 3
 y 19
 end
@@ -565,71 +631,104 @@ arch grassd_8
 x 4
 y 3
 end
-arch grassd_2
+arch wall_wood3_1
+x 4
+y 3
+end
+arch floor_wood2_l2
 x 4
 y 4
 end
-arch grassd_2
+arch box_big.101
+x 4
+y 4
+end
+arch floor_wood2_l2
 x 4
 y 5
 end
-arch grassd_2
+arch box2.101
+x 4
+y 5
+end
+arch floor_wood2_l2
 x 4
 y 6
 end
-arch grassd_7
+arch floor_wood2_l2
 x 4
 y 7
 end
-arch grassd_5
+arch floor_wood2_l1
 x 4
 y 8
 end
-arch plant_flower1
-x 4
-y 8
-end
-arch grassd_2
+arch floor_wood2_l1
 x 4
 y 9
 end
-arch grassd_8
+arch floor_wood2_l2
 x 4
 y 10
 end
-arch grassd_5
+arch floor_wood2_l1
 x 4
 y 11
 end
-arch grassd_6
+arch floor_wood2_l1
 x 4
 y 12
 end
-arch grassd_6
+arch floor_wood2_l2
 x 4
 y 13
 end
-arch grassd_1
+arch door_wood2
+x 4
+y 13
+end
+arch floor_wood2_l1
 x 4
 y 14
 end
-arch grassd_2
+arch floor_wood2_l2
 x 4
 y 15
 end
-arch grassd_5
+arch floor_wood2_l2
 x 4
 y 16
 end
-arch grassd_8
+arch straw2.111
+direction 7
+x 4
+y 16
+end
+arch light3
+x 4
+y 16
+end
+arch floor_wood2_l1
 x 4
 y 17
 end
-arch grassd_5
+arch box2.101
+x 4
+y 17
+end
+arch floor_wood2_l2
 x 4
 y 18
 end
-arch grassd_2
+arch barrel_water.101
+x 4
+y 18
+end
+arch floor_wood2_l1
+x 4
+y 19
+end
+arch wall_wood3_1
 x 4
 y 19
 end
@@ -664,75 +763,91 @@ arch grassd_2
 x 5
 y 3
 end
-arch grassd_2
+arch wall_wood3_1
+x 5
+y 3
+end
+arch floor_wood2_l2
 x 5
 y 4
 end
-arch grassd_8
+arch floor_wood2_l1
 x 5
 y 5
 end
-arch grassd_6
+arch light3
+x 5
+y 5
+end
+arch floor_wood2_l1
 x 5
 y 6
 end
-arch grassd_2
+arch floor_wood2_l1
 x 5
 y 7
 end
-arch grassd_7
+arch floor_wood2_l2
 x 5
 y 8
 end
-arch grassd_2
+arch floor_wood2_l1
 x 5
 y 9
 end
-arch plant_mushroom5
-x 5
-y 9
-end
-arch grassd_5
+arch floor_wood2_l1
 x 5
 y 10
 end
-arch grassd_3
+arch light5
+x 5
+y 10
+end
+arch floor_wood2_l1
 x 5
 y 11
 end
-arch grassd_1
+arch floor_wood2_l1
 x 5
 y 12
 end
-arch grassd_5
+arch floor_wood2_l1
 x 5
 y 13
 end
-arch grassd_8
+arch wall_wood1_1
+x 5
+y 13
+end
+arch floor_wood2_l1
 x 5
 y 14
 end
-arch grassd_6
+arch floor_wood2_l1
 x 5
 y 15
 end
-arch grassd_5
+arch floor_wood2_l2
 x 5
 y 16
 end
-arch grassd_2
+arch floor_wood2_l1
 x 5
 y 17
 end
-arch plant3
-x 5
-y 17
-end
-arch grassd_5
+arch floor_wood2_l2
 x 5
 y 18
 end
-arch grassd_7
+arch basket2.101
+x 5
+y 18
+end
+arch floor_wood2_l1
+x 5
+y 19
+end
+arch wall_wood3_1
 x 5
 y 19
 end
@@ -775,79 +890,103 @@ arch grassd_1
 x 6
 y 3
 end
-arch plant5
+arch wall_wood1_1
 x 6
 y 3
 end
-arch grassd_8
+arch floor_wood2_l1
 x 6
 y 4
 end
-arch grassd_6
+arch amphora2.101
+x 6
+y 4
+end
+arch floor_wood2_l2
 x 6
 y 5
 end
-arch grassd_7
+arch floor_wood2_l2
 x 6
 y 6
 end
-arch grassd_6
+arch floor_wood2_l1
 x 6
 y 7
 end
-arch grassd_3
+arch light5
+x 6
+y 7
+end
+arch floor_wood2_l1
 x 6
 y 8
 end
-arch tree_big3
-x 6
-y 8
-end
-arch grassd_1
+arch floor_wood2_l1
 x 6
 y 9
 end
-arch grassd_7
+arch floor_wood2_l2
 x 6
 y 10
 end
-arch grassd_3
+arch floor_wood2_l2
 x 6
 y 11
 end
-arch grassd_7
+arch floor_wood2_l1
 x 6
 y 12
 end
-arch plant_mushroom5
-x 6
-y 12
-end
-arch grassd_2
+arch floor_wood2_l1
 x 6
 y 13
 end
-arch grassd_1
+arch wall_wood3_1
+x 6
+y 13
+end
+arch floor_wood2_l2
 x 6
 y 14
 end
-arch grassd_2
+arch grain4.101
+x 6
+y 14
+end
+arch light3
+x 6
+y 14
+end
+arch floor_wood2_l1
 x 6
 y 15
 end
-arch grassd_7
+arch floor_wood2_l1
 x 6
 y 16
 end
-arch grassd_7
+arch floor_wood2_l2
 x 6
 y 17
 end
-arch grassd_4
+arch light3
+x 6
+y 17
+end
+arch floor_wood2_l2
 x 6
 y 18
 end
-arch grassd_5
+arch straw2.111
+x 6
+y 18
+end
+arch floor_wood2_l2
+x 6
+y 19
+end
+arch wall_wood1_1
 x 6
 y 19
 end
@@ -894,83 +1033,107 @@ arch grassd_4
 x 7
 y 3
 end
-arch grassd_4
+arch wall_wood3_1
+x 7
+y 3
+end
+arch floor_wood2_l2
 x 7
 y 4
 end
-arch plant5
+arch broom.111
 x 7
 y 4
 end
-arch grassd_8
+arch floor_wood2_l2
 x 7
 y 5
 end
-arch grassd_3
+arch floor_wood2_l1
 x 7
 y 6
 end
-arch grassd_5
+arch floor_wood2_l1
 x 7
 y 7
 end
-arch plant_mushroom4
-x 7
-y 7
-end
-arch grassd_8
+arch floor_wood2_l2
 x 7
 y 8
 end
-arch grassd_1
+arch floor_wood2_l1
 x 7
 y 9
 end
-arch grassd_3
+arch floor_wood2_l2
 x 7
 y 10
 end
-arch grassd_3
+arch floor_wood2_l2
 x 7
 y 11
 end
-arch grassd_5
+arch floor_wood2_l2
 x 7
 y 12
 end
-arch plant17
+arch amphora1.101
 x 7
 y 12
 end
-arch grassd_7
+arch floor_wood2_l2
 x 7
 y 13
 end
-arch grassd_7
+arch wall_wood2_1
+x 7
+y 13
+end
+arch floor_wood2_l1
 x 7
 y 14
 end
-arch tree_big5b
+arch grain5.101
 x 7
 y 14
 end
-arch grassd_5
+arch floor_wood2_l2
 x 7
 y 15
 end
-arch grassd_6
+arch wood_pile.101
+x 7
+y 15
+end
+arch floor_wood2_l2
 x 7
 y 16
 end
-arch grassd_8
+arch wood_pile.101
+x 7
+y 16
+end
+arch floor_wood2_l1
 x 7
 y 17
 end
-arch grassd_6
+arch straw1.101
+x 7
+y 17
+end
+arch floor_wood2_l2
 x 7
 y 18
 end
-arch grassd_6
+arch barrel2.101
+x 7
+y 18
+end
+arch floor_wood2_l1
+x 7
+y 19
+end
+arch wall_wood3_1
 x 7
 y 19
 end
@@ -1005,79 +1168,151 @@ arch grassd_5
 x 8
 y 3
 end
-arch grassd_1
+arch wall_wood1_1
+x 8
+y 3
+end
+arch floor_wood2_l2
 x 8
 y 4
 end
-arch grassd_6
+arch wall_wood1_3
+x 8
+y 4
+end
+arch floor_wood2_l2
 x 8
 y 5
 end
-arch grassd_3
+arch wall_wood1_3
+x 8
+y 5
+end
+arch floor_wood2_l2
 x 8
 y 6
 end
-arch grassd_4
+arch wall_wood1_3
+x 8
+y 6
+end
+arch flag_05
+direction 7
+x 8
+y 6
+end
+arch floor_wood2_l1
 x 8
 y 7
 end
-arch plant3
+arch wall_wood1_3
 x 8
 y 7
 end
-arch grassd_6
+arch floor_wood2_l2
 x 8
 y 8
 end
-arch grassd_5
+arch wall_wood2_3
+x 8
+y 8
+end
+arch floor_wood2_l2
 x 8
 y 9
 end
-arch plant9
+arch door_wood1
+direction 3
 x 8
 y 9
 end
-arch grassd_8
+arch floor_wood2_l1
 x 8
 y 10
 end
-arch grassd_6
+arch wall_wood3_3
+x 8
+y 10
+end
+arch picture3.151
+direction 7
+x 8
+y 10
+end
+arch floor_wood2_l1
 x 8
 y 11
 end
-arch grassd_1
+arch wall_wood1_3
+x 8
+y 11
+end
+arch floor_wood2_l1
 x 8
 y 12
 end
-arch grassd_7
+arch wall_wood2_3
+x 8
+y 12
+end
+arch floor_wood2_l1
 x 8
 y 13
 end
-arch grassd_1
+arch wall_wood_4
+x 8
+y 13
+end
+arch floor_wood2_l2
 x 8
 y 14
 end
-arch grassd_5
+arch wall_wood3_3
+x 8
+y 14
+end
+arch floor_wood2_l2
 x 8
 y 15
 end
-arch grassd_8
+arch wall_wood1_3
+x 8
+y 15
+end
+arch floor_wood2_l1
 x 8
 y 16
 end
-arch grassd_8
+arch wall_wood3_3
+x 8
+y 16
+end
+arch floor_wood2_l1
 x 8
 y 17
 end
-arch grassd_7
+arch wall_wood2_3
+x 8
+y 17
+end
+arch flag_02
+direction 7
+x 8
+y 17
+end
+arch floor_wood2_l1
 x 8
 y 18
 end
-arch plant5
+arch wall_wood1_3
 x 8
 y 18
 end
-arch grassd_1
+arch floor_wood2_l2
+x 8
+y 19
+end
+arch wall_wood_4
 x 8
 y 19
 end
@@ -1116,67 +1351,148 @@ arch grassd_3
 x 9
 y 3
 end
-arch grassd_2
+arch wall_wood3_1
+x 9
+y 3
+end
+arch floor_wood2_l1
 x 9
 y 4
 end
-arch grassd_4
+arch amphora1.101
+x 9
+y 4
+end
+arch floor_wood2_l1
 x 9
 y 5
 end
-arch grassd_3
+arch floor_wood2_l1
 x 9
 y 6
 end
-arch grassd_3
+arch floor_wood2_l1
 x 9
 y 7
 end
-arch grassd_6
+arch candlelight1.101
+x 9
+y 7
+end
+arch light7
+x 9
+y 7
+end
+arch floor_wood2_l2
 x 9
 y 8
 end
-arch grassd_8
+arch carpet1.131
+x 9
+y 8
+end
+arch floor_wood2_l2
 x 9
 y 9
 end
-arch grassd_3
+arch carpet1.131
+x 9
+y 9
+end
+arch floor_wood2_l1
 x 9
 y 10
 end
-arch grassd_1
+arch carpet1.131
+x 9
+y 10
+end
+arch floor_wood2_l1
 x 9
 y 11
 end
-arch grassd_1
+arch bank2c
+no_pass 1
+x 9
+y 11
+end
+arch floor_wood2_l2
 x 9
 y 12
 end
-arch grassd_7
+arch candlelight3.101
+x 9
+y 12
+end
+arch light7
+x 9
+y 12
+end
+arch floor_wood2_l1
 x 9
 y 13
 end
-arch grassd_7
+arch wall_wood3_1
+x 9
+y 13
+end
+arch floor_wood2_l1
 x 9
 y 14
 end
-arch grassd_5
+arch amphora2.101
+x 9
+y 14
+end
+arch floor_wood2_l2
 x 9
 y 15
 end
-arch grassd_8
+arch carpet2.131
+x 9
+y 15
+end
+arch floor_wood2_l2
 x 9
 y 16
 end
-arch grassd_2
+arch carpet2.131
+x 9
+y 16
+end
+arch stairs_wood_up
+slaying ../guilds/quick_wolves/guild
+hp 22
+sp 12
+x 9
+y 16
+arch event_obj
+sub_type 1
+race ../python/guilds/guild_entrance.py
+slaying Quick Wolves
+end
+end
+arch floor_wood2_l1
 x 9
 y 17
 end
-arch grassd_4
+arch carpet2.131
+x 9
+y 17
+end
+arch floor_wood2_l1
 x 9
 y 18
 end
-arch grassd_7
+arch amphora2.101
+x 9
+y 18
+end
+arch floor_wood2_l2
+x 9
+y 19
+end
+arch wall_wood1_1
 x 9
 y 19
 end
@@ -1219,75 +1535,128 @@ arch grassd_3
 x 10
 y 3
 end
-arch plant13
+arch door_wood1
 x 10
 y 3
 end
-arch grassd_2
+arch floor_wood2_l1
 x 10
 y 4
 end
-arch grassd_4
+arch floor_wood2_l1
 x 10
 y 5
 end
-arch grassd_5
+arch floor_wood2_l1
 x 10
 y 6
 end
-arch tree_big5b
-x 10
-y 6
-end
-arch grassd_7
+arch floor_wood2_l1
 x 10
 y 7
 end
-arch grassd_6
+arch carpet1.151
+x 10
+y 7
+end
+arch floor_wood2_l1
 x 10
 y 8
 end
-arch grassd_1
+arch carpet1
+x 10
+y 8
+end
+arch floor_wood2_l1
 x 10
 y 9
 end
-arch grassd_5
+arch carpet1
+x 10
+y 9
+end
+arch floor_wood2_l1
 x 10
 y 10
 end
-arch grassd_5
+arch carpet1
+x 10
+y 10
+end
+arch floor_wood2_l2
 x 10
 y 11
 end
-arch grassd_7
+arch carpet1.111
+x 10
+y 11
+end
+arch bank2b
+no_pass 1
+x 10
+y 11
+end
+arch floor_wood2_l1
 x 10
 y 12
 end
-arch grassd_2
+arch floor_wood2_l1
 x 10
 y 13
 end
-arch grassd_6
+arch wall_wood1_1
+x 10
+y 13
+end
+arch flag_04
+x 10
+y 13
+end
+arch floor_wood2_l2
 x 10
 y 14
 end
-arch grassd_6
+arch carpet2.151
+x 10
+y 14
+end
+arch floor_wood2_l2
 x 10
 y 15
 end
-arch grassd_8
+arch carpet2i
+x 10
+y 15
+end
+arch floor_wood2_l2
 x 10
 y 16
 end
-arch grassd_3
+arch carpet2e
+x 10
+y 16
+end
+arch floor_wood2_l1
 x 10
 y 17
 end
-arch grassd_8
+arch carpet2j
+x 10
+y 17
+end
+arch floor_wood2_l1
 x 10
 y 18
 end
-arch grassd_7
+arch carpet2.111
+x 10
+y 18
+end
+arch floor_wood2_l2
+x 10
+y 19
+end
+arch wall_wood1_1
 x 10
 y 19
 end
@@ -1326,83 +1695,164 @@ arch grassd_2
 x 11
 y 3
 end
-arch grassd_3
+arch wall_wood3_1
+x 11
+y 3
+end
+arch floor_wood2_l2
 x 11
 y 4
 end
-arch grassd_4
+arch light5
+x 11
+y 4
+end
+arch floor_wood2_l2
 x 11
 y 5
 end
-arch grassd_6
+arch floor_wood2_l1
 x 11
 y 6
 end
-arch grassd_5
+arch light3
+x 11
+y 6
+end
+arch floor_wood2_l2
 x 11
 y 7
 end
-arch grassd_7
+arch carpet1.151
+x 11
+y 7
+end
+arch floor_wood2_l2
 x 11
 y 8
 end
-arch grassd_8
+arch carpet1
+x 11
+y 8
+end
+arch floor_wood2_l1
 x 11
 y 9
 end
-arch plant17
+arch carpet1
 x 11
 y 9
 end
-arch grassd_4
+arch light5
+x 11
+y 9
+end
+arch floor_wood2_l1
 x 11
 y 10
 end
-arch stone1
+arch carpet1
 x 11
 y 10
 end
-arch grassd_8
+arch floor_wood2_l2
 x 11
 y 11
 end
-arch grassd_3
+arch carpet1.111
+x 11
+y 11
+end
+arch bank2b
+no_pass 1
+x 11
+y 11
+end
+arch floor_wood2_l2
 x 11
 y 12
 end
-arch grassd_6
+arch spawn_point
+x 11
+y 12
+arch ranger
+name Guild Manager
+type 83
+friendly 1
+direction 1
+arch event_obj
+sub_type 6
+race ../python/guilds/guild.py
+slaying Quick Wolves|11|16
+end
+arch note
+name guild options
+msg
+guild_maps: /guilds/quick_wolves/guild|/guilds/quick_wolves/oracle|/guilds/quick_wolves/storage
+enter_x: 11
+enter_y: 7
+endmsg
+sys_object 1
+end
+end
+end
+arch floor_wood2_l2
 x 11
 y 13
 end
-arch grassd_2
+arch wall_wood1_1
+x 11
+y 13
+end
+arch floor_wood2_l2
 x 11
 y 14
 end
-arch grassd_2
+arch carpet2.151
+x 11
+y 14
+end
+arch floor_wood2_l1
 x 11
 y 15
 end
-arch tree_big
+arch carpet2f
 x 11
 y 15
 end
-arch grassd_3
+arch floor_wood2_l2
 x 11
 y 16
 end
-arch grassd_4
+arch carpet2g
+x 11
+y 16
+end
+arch light9
+x 11
+y 16
+end
+arch floor_wood2_l2
 x 11
 y 17
 end
-arch grassd_6
+arch carpet2d
+x 11
+y 17
+end
+arch floor_wood2_l2
 x 11
 y 18
 end
-arch grassd_8
+arch carpet2.111
+x 11
+y 18
+end
+arch floor_wood2_l1
 x 11
 y 19
 end
-arch tree_big
+arch wall_wood3_1
 x 11
 y 19
 end
@@ -1437,75 +1887,124 @@ arch grassd_2
 x 12
 y 3
 end
-arch tree_big
+arch door_wood1
 x 12
 y 3
 end
-arch grassd_7
+arch floor_wood2_l2
 x 12
 y 4
 end
-arch grassd_1
+arch floor_wood2_l1
 x 12
 y 5
 end
-arch grassd_6
+arch floor_wood2_l2
 x 12
 y 6
 end
-arch grassd_1
+arch floor_wood2_l1
 x 12
 y 7
 end
-arch grassd_1
+arch carpet1.151
+x 12
+y 7
+end
+arch floor_wood2_l1
 x 12
 y 8
 end
-arch grassd_1
+arch carpet1
+x 12
+y 8
+end
+arch floor_wood2_l1
 x 12
 y 9
 end
-arch grassd_2
+arch carpet1
+x 12
+y 9
+end
+arch floor_wood2_l2
 x 12
 y 10
 end
-arch grassd_8
+arch carpet1
+x 12
+y 10
+end
+arch floor_wood2_l2
 x 12
 y 11
 end
-arch plant17
+arch carpet1.111
 x 12
 y 11
 end
-arch grassd_1
+arch bank2b
+no_pass 1
+x 12
+y 11
+end
+arch floor_wood2_l2
 x 12
 y 12
 end
-arch grassd_6
+arch floor_wood2_l2
 x 12
 y 13
 end
-arch grassd_6
+arch wall_wood3_1
+x 12
+y 13
+end
+arch floor_wood2_l1
 x 12
 y 14
 end
-arch grassd_5
+arch carpet2.151
+x 12
+y 14
+end
+arch floor_wood2_l2
 x 12
 y 15
 end
-arch grassd_7
+arch carpet2h
+x 12
+y 15
+end
+arch floor_wood2_l1
 x 12
 y 16
 end
-arch grassd_4
+arch carpet2c
+x 12
+y 16
+end
+arch floor_wood2_l1
 x 12
 y 17
 end
-arch grassd_7
+arch carpet2k
+x 12
+y 17
+end
+arch floor_wood2_l1
 x 12
 y 18
 end
-arch grassd_3
+arch carpet2.111
+x 12
+y 18
+end
+arch floor_wood2_l2
+x 12
+y 19
+end
+arch wall_wood2_1
 x 12
 y 19
 end
@@ -1544,75 +2043,134 @@ arch grassd_8
 x 13
 y 3
 end
-arch grassd_7
+arch wall_wood1_1
+x 13
+y 3
+end
+arch floor_wood2_l1
 x 13
 y 4
 end
-arch grassd_2
+arch floor_wood2_l1
 x 13
 y 5
 end
-arch grassd_8
+arch floor_wood2_l2
 x 13
 y 6
 end
-arch plant11
-x 13
-y 6
-end
-arch grassd_4
+arch floor_wood2_l1
 x 13
 y 7
 end
-arch grassd_7
+arch candlelight1.101
+x 13
+y 7
+end
+arch light7
+x 13
+y 7
+end
+arch floor_wood2_l1
 x 13
 y 8
 end
-arch grassd_6
+arch carpet1.171
+x 13
+y 8
+end
+arch floor_wood2_l1
 x 13
 y 9
 end
-arch grassd_6
+arch carpet1.171
+x 13
+y 9
+end
+arch floor_wood2_l2
 x 13
 y 10
 end
-arch grassd_6
+arch carpet1.171
+x 13
+y 10
+end
+arch floor_wood2_l1
 x 13
 y 11
 end
-arch grassd_7
+arch bank2a
+no_pass 1
+x 13
+y 11
+end
+arch floor_wood2_l1
 x 13
 y 12
 end
-arch grassd_8
+arch candlelight3.101
+x 13
+y 12
+end
+arch light7
+x 13
+y 12
+end
+arch floor_wood2_l1
 x 13
 y 13
 end
-arch grassd_3
+arch wall_wood2_1
+x 13
+y 13
+end
+arch wmask_fire_on_1
+x 13
+y 13
+end
+arch floor_wood2_l2
 x 13
 y 14
 end
-arch grassd_1
+arch floor_wood2_l1
 x 13
 y 15
 end
-arch grassd_8
+arch carpet2.171
+x 13
+y 15
+end
+arch floor_wood2_l2
 x 13
 y 16
 end
-arch grassd_7
+arch carpet2.171
+x 13
+y 16
+end
+arch exit
+hp 11
+sp 9
+x 13
+y 16
+end
+arch floor_wood2_l2
 x 13
 y 17
 end
-arch plant_mushroom2
+arch carpet2.171
 x 13
 y 17
 end
-arch grassd_6
+arch floor_wood2_l2
 x 13
 y 18
 end
-arch grassd_7
+arch floor_wood2_l1
+x 13
+y 19
+end
+arch wall_wood1_1
 x 13
 y 19
 end
@@ -1655,75 +2213,146 @@ arch grassd_1
 x 14
 y 3
 end
-arch grassd_2
+arch wall_wood1_1
+x 14
+y 3
+end
+arch floor_wood2_l2
 x 14
 y 4
 end
-arch grassd_2
+arch wall_wood3_3
+x 14
+y 4
+end
+arch floor_wood2_l2
 x 14
 y 5
 end
-arch grassd_2
+arch wall_wood1_3
+x 14
+y 5
+end
+arch floor_wood2_l1
 x 14
 y 6
 end
-arch grassd_4
+arch wall_wood2_3
+x 14
+y 6
+end
+arch floor_wood2_l1
 x 14
 y 7
 end
-arch grassd_7
+arch wall_wood2_3
+x 14
+y 7
+end
+arch picture6.151
+direction 7
+x 14
+y 7
+end
+arch floor_wood2_l1
 x 14
 y 8
 end
-arch small_stones
+arch wall_wood1_3
 x 14
 y 8
 end
-arch grassd_2
+arch floor_wood2_l2
 x 14
 y 9
 end
-arch grassd_6
+arch door_wood1
+direction 3
+x 14
+y 9
+end
+arch floor_wood2_l2
 x 14
 y 10
 end
-arch grassd_6
+arch wall_wood3_3
+x 14
+y 10
+end
+arch floor_wood2_l2
 x 14
 y 11
 end
-arch grassd_6
+arch wall_wood1_3
+x 14
+y 11
+end
+arch floor_wood2_l2
 x 14
 y 12
 end
-arch grassd_2
+arch wall_wood2_3
+x 14
+y 12
+end
+arch floor_wood2_l1
 x 14
 y 13
 end
-arch grassd_2
+arch wall_wood_4
+x 14
+y 13
+end
+arch floor_wood2_l2
 x 14
 y 14
 end
-arch grassd_7
+arch wall_wood2_3
+x 14
+y 14
+end
+arch floor_wood2_l2
 x 14
 y 15
 end
-arch grassd_5
+arch wall_wood1_3
+x 14
+y 15
+end
+arch floor_wood2_l1
 x 14
 y 16
 end
-arch grassd_4
+arch wall_wood2_3
+x 14
+y 16
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 14
+y 16
+end
+arch floor_wood2_l2
 x 14
 y 17
 end
-arch grassd_1
+arch wall_wood1_3
+x 14
+y 17
+end
+arch floor_wood2_l1
 x 14
 y 18
 end
-arch grassd_6
+arch wall_wood3_3
+x 14
+y 18
+end
+arch floor_wood2_l1
 x 14
 y 19
 end
-arch plant_flower1
+arch wall_wood_4
 x 14
 y 19
 end
@@ -1766,87 +2395,139 @@ arch grassd_4
 x 15
 y 3
 end
-arch grassd_5
+arch wall_wood1_1
+x 15
+y 3
+end
+arch floor_wood2_l1
 x 15
 y 4
 end
-arch plant_flower11
+arch bench1b.111
+no_pass 0
+direction 7
 x 15
 y 4
 end
-arch grassd_4
+arch floor_wood2_l1
 x 15
 y 5
 end
-arch grassd_6
+arch bench1a.111
+no_pass 0
+direction 7
+x 15
+y 5
+end
+arch floor_wood2_l1
 x 15
 y 6
 end
-arch grassd_6
+arch candlelight4.101
+x 15
+y 6
+end
+arch light6
+x 15
+y 6
+end
+arch floor_wood2_l2
 x 15
 y 7
 end
-arch grassd_5
+arch floor_wood2_l2
 x 15
 y 8
 end
-arch grassd_1
+arch floor_wood2_l2
 x 15
 y 9
 end
-arch plant_mushroom2
-x 15
-y 9
-end
-arch grassd_7
+arch floor_wood2_l2
 x 15
 y 10
 end
-arch grassd_8
+arch candlelight3.101
+x 15
+y 10
+end
+arch light6
+x 15
+y 10
+end
+arch floor_wood2_l1
 x 15
 y 11
 end
-arch grassd_8
+arch bench1b.111
+no_pass 0
+direction 7
+x 15
+y 11
+end
+arch floor_wood2_l2
 x 15
 y 12
 end
-arch grassd_8
+arch bench1a.111
+no_pass 0
+direction 7
+x 15
+y 12
+end
+arch floor_wood2_l1
 x 15
 y 13
 end
-arch grassd_8
+arch wall_wood2_1
+x 15
+y 13
+end
+arch floor_wood2_l1
 x 15
 y 14
 end
-arch tree_big4b
+arch beer_barrel.101
 x 15
 y 14
 end
-arch grassd_5
+arch floor_wood2_l1
 x 15
 y 15
 end
-arch grassd_3
+arch floor_wood2_l1
 x 15
 y 16
 end
-arch grassd_4
+arch floor_wood2_l1
 x 15
 y 17
 end
-arch grassd_3
+arch carpet1.151
+x 15
+y 17
+end
+arch chair1_111
+x 15
+y 17
+end
+arch floor_wood2_l1
 x 15
 y 18
 end
-arch plant5
+arch carpet1
 x 15
 y 18
 end
-arch grassd_2
+arch table_poker1
+x 15
+y 18
+end
+arch floor_wood2_l2
 x 15
 y 19
 end
-arch plant5
+arch wall_wood1_1
 x 15
 y 19
 end
@@ -1893,71 +2574,88 @@ arch grassd_1
 x 16
 y 3
 end
-arch grassd_3
+arch wall_wood2_1
+x 16
+y 3
+end
+arch floor_wood2_l1
 x 16
 y 4
 end
-arch plant_flower2
-x 16
-y 4
-end
-arch grassd_8
+arch floor_wood2_l1
 x 16
 y 5
 end
-arch grassd_4
+arch floor_wood2_l1
 x 16
 y 6
 end
-arch grassd_2
+arch floor_wood2_l1
 x 16
 y 7
 end
-arch grassd_2
+arch floor_wood2_l2
 x 16
 y 8
 end
-arch grassd_7
+arch floor_wood2_l2
 x 16
 y 9
 end
-arch grassd_6
+arch floor_wood2_l1
 x 16
 y 10
 end
-arch grassd_5
+arch floor_wood2_l2
 x 16
 y 11
 end
-arch grassd_3
+arch floor_wood2_l1
 x 16
 y 12
 end
-arch grassd_3
+arch floor_wood2_l1
 x 16
 y 13
 end
-arch grassd_8
+arch door_wood2
+x 16
+y 13
+end
+arch floor_wood2_l1
 x 16
 y 14
 end
-arch grassd_8
+arch floor_wood2_l2
 x 16
 y 15
 end
-arch grassd_1
+arch floor_wood2_l2
 x 16
 y 16
 end
-arch grassd_3
+arch floor_wood2_l1
 x 16
 y 17
 end
-arch grassd_3
+arch floor_wood2_l1
 x 16
 y 18
 end
-arch grassd_8
+arch carpet1.171
+x 16
+y 18
+end
+arch chair1_111
+direction 3
+x 16
+y 18
+end
+arch floor_wood2_l2
+x 16
+y 19
+end
+arch wall_wood2_1
 x 16
 y 19
 end
@@ -1996,79 +2694,126 @@ arch grassd_8
 x 17
 y 3
 end
-arch grassd_4
+arch wall_wood2_1
+x 17
+y 3
+end
+arch flag_03
+x 17
+y 3
+end
+arch floor_wood2_l2
 x 17
 y 4
 end
-arch grassd_5
+arch light3
+x 17
+y 4
+end
+arch floor_wood2_l2
 x 17
 y 5
 end
-arch grassd_4
+arch floor_wood2_l2
 x 17
 y 6
 end
-arch grassd_4
+arch floor_wood2_l2
 x 17
 y 7
 end
-arch grassd_1
+arch floor_wood2_l1
 x 17
 y 8
 end
-arch grassd_6
+arch floor_wood2_l2
 x 17
 y 9
 end
-arch grassd_5
+arch floor_wood2_l2
 x 17
 y 10
 end
-arch plant1
-x 17
-y 10
-end
-arch grassd_8
+arch floor_wood2_l1
 x 17
 y 11
 end
-arch grassd_5
+arch floor_wood2_l2
 x 17
 y 12
 end
-arch tree_big5b
+arch carpet1.131
 x 17
 y 12
 end
-arch grassd_4
+arch chair1_111
+direction 7
+x 17
+y 12
+end
+arch floor_wood2_l2
 x 17
 y 13
 end
-arch grassd_2
+arch wall_wood1_1
+x 17
+y 13
+end
+arch floor_wood2_l2
 x 17
 y 14
 end
-arch grassd_7
+arch candlelight4.101
+x 17
+y 14
+end
+arch light5
+x 17
+y 14
+end
+arch floor_wood2_l2
 x 17
 y 15
 end
-arch grassd_7
+arch carpet1.131
+x 17
+y 15
+end
+arch chair1_111
+direction 7
+x 17
+y 15
+end
+arch floor_wood2_l2
 x 17
 y 16
 end
-arch grassd_3
+arch floor_wood2_l1
 x 17
 y 17
 end
-arch grassd_5
+arch light5
+x 17
+y 17
+end
+arch floor_wood2_l1
 x 17
 y 18
 end
-arch grassd_6
+arch carpet1.131
+x 17
+y 18
+end
+arch chair1_111
+direction 7
+x 17
+y 18
+end
+arch floor_wood2_l1
 x 17
 y 19
 end
-arch tree_big4b
+arch wall_wood2_1
 x 17
 y 19
 end
@@ -2103,75 +2848,148 @@ arch grassd_1
 x 18
 y 3
 end
-arch grassd_6
+arch wall_wood3_1
+x 18
+y 3
+end
+arch wmask_fire_on_1
+x 18
+y 3
+end
+arch floor_wood2_l1
 x 18
 y 4
 end
-arch grassd_5
+arch floor_wood2_l1
 x 18
 y 5
 end
-arch plant_mushroom5
-x 18
-y 5
-end
-arch grassd_8
+arch floor_wood2_l2
 x 18
 y 6
 end
-arch grassd_7
+arch light3
+x 18
+y 6
+end
+arch floor_wood2_l2
 x 18
 y 7
 end
-arch grassd_8
+arch floor_wood2_l2
 x 18
 y 8
 end
-arch plant_flower1
-x 18
-y 8
-end
-arch grassd_6
+arch floor_wood2_l2
 x 18
 y 9
 end
-arch grassd_6
+arch floor_wood2_l1
 x 18
 y 10
 end
-arch grassd_4
+arch light3
+x 18
+y 10
+end
+arch floor_wood2_l2
 x 18
 y 11
 end
-arch grassd_8
+arch carpet1.151
+x 18
+y 11
+end
+arch chair1_111
+x 18
+y 11
+end
+arch floor_wood2_l2
 x 18
 y 12
 end
-arch grassd_2
+arch carpet1
+x 18
+y 12
+end
+arch table_round1
+x 18
+y 12
+end
+arch floor_wood2_l2
 x 18
 y 13
 end
-arch grassd_2
+arch wall_wood3_1
+x 18
+y 13
+end
+arch floor_wood2_l2
 x 18
 y 14
 end
-arch grassd_8
+arch carpet1.151
+x 18
+y 14
+end
+arch chair1_111
+x 18
+y 14
+end
+arch floor_wood2_l2
 x 18
 y 15
 end
-arch grassd_7
+arch carpet1
+x 18
+y 15
+end
+arch table_poker1
+x 18
+y 15
+end
+arch floor_wood2_l2
 x 18
 y 16
 end
-arch grassd_1
+arch carpet1.111
+x 18
+y 16
+end
+arch chair1_111
+direction 5
+x 18
+y 16
+end
+arch floor_wood2_l2
 x 18
 y 17
 end
-arch grassd_5
+arch carpet1.151
+x 18
+y 17
+end
+arch chair1_111
+x 18
+y 17
+end
+arch floor_wood2_l1
 x 18
 y 18
 end
-arch grassd_7
+arch carpet1
+x 18
+y 18
+end
+arch table_poker1
+x 18
+y 18
+end
+arch floor_wood2_l2
+x 18
+y 19
+end
+arch wall_wood1_1
 x 18
 y 19
 end
@@ -2218,67 +3036,135 @@ arch grassd_2
 x 19
 y 3
 end
-arch grassd_5
+arch wall_wood2_1
+x 19
+y 3
+end
+arch floor_wood2_l1
 x 19
 y 4
 end
-arch grassd_7
+arch wall_wood1_3
+x 19
+y 4
+end
+arch floor_wood2_l2
 x 19
 y 5
 end
-arch grassd_8
+arch wall_wood3_3
+x 19
+y 5
+end
+arch floor_wood2_l2
 x 19
 y 6
 end
-arch grassd_1
+arch wall_wood3_3
+x 19
+y 6
+end
+arch floor_wood2_l2
 x 19
 y 7
 end
-arch grassd_8
+arch wall_wood2_3
+x 19
+y 7
+end
+arch floor_wood2_l2
 x 19
 y 8
 end
-arch grassd_1
+arch wall_wood3_3
+x 19
+y 8
+end
+arch floor_wood2_l2
 x 19
 y 9
 end
-arch grassd_4
+arch wall_wood3_3
+x 19
+y 9
+end
+arch floor_wood2_l1
 x 19
 y 10
 end
-arch grassd_5
+arch wall_wood2_3
+x 19
+y 10
+end
+arch floor_wood2_l2
 x 19
 y 11
 end
-arch grassd_1
+arch wall_wood2_3
+x 19
+y 11
+end
+arch floor_wood2_l2
 x 19
 y 12
 end
-arch grassd_7
+arch wall_wood1_3
+x 19
+y 12
+end
+arch floor_wood2_l2
 x 19
 y 13
 end
-arch grassd_4
+arch wall_wood_4
+x 19
+y 13
+end
+arch floor_wood2_l1
 x 19
 y 14
 end
-arch grassd_5
+arch wall_wood1_3
+x 19
+y 14
+end
+arch floor_wood2_l1
 x 19
 y 15
 end
-arch grassd_4
+arch wall_wood2_3
+x 19
+y 15
+end
+arch floor_wood2_l2
 x 19
 y 16
 end
-arch grassd_2
+arch wall_wood1_3
+x 19
+y 16
+end
+arch floor_wood2_l1
 x 19
 y 17
 end
-arch grassd_3
+arch wall_wood1_3
+x 19
+y 17
+end
+arch floor_wood2_l1
 x 19
 y 18
 end
-arch grassd_6
+arch wall_wood2_3
+x 19
+y 18
+end
+arch floor_wood2_l1
+x 19
+y 19
+end
+arch wall_wood_4
 x 19
 y 19
 end
