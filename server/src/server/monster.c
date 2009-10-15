@@ -114,49 +114,45 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 	}
 	else
 	{
-		/* If mob lost aggro, let it return home */
-		if (!OBJECT_VALID(npc->enemy, npc->enemy_count))
-		{
-			object *base = insert_base_info_object(npc);
-			object *wp = get_active_waypoint(npc);
+		object *base = insert_base_info_object(npc);
+		object *wp = get_active_waypoint(npc);
 
-			if (base && !wp && wp_archetype)
-			{
-				object *return_wp = get_return_waypoint(npc);
+		if (base && !wp && wp_archetype)
+		{
+			object *return_wp = get_return_waypoint(npc);
 
 #ifdef DEBUG_PATHFINDING
-				LOG(llevDebug, "set_npc_enemy(): %s lost aggro and is returning home (%s:%d,%d)\n", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
+			LOG(llevDebug, "set_npc_enemy(): %s lost aggro and is returning home (%s:%d,%d)\n", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
 #endif
-				if (!return_wp)
-				{
-					return_wp = arch_to_object(wp_archetype);
-					insert_ob_in_ob(return_wp, npc);
-					return_wp->owner = npc;
-					return_wp->ownercount = npc->count;
-					FREE_AND_COPY_HASH(return_wp->name, "- home -");
-					/* mark as return-home wp */
-					SET_FLAG(return_wp, FLAG_REFLECTING);
-					/* mark as best-effort wp */
-					SET_FLAG(return_wp, FLAG_NO_ATTACK);
-				}
-
-				return_wp->stats.hp = base->x;
-				return_wp->stats.sp = base->y;
-				FREE_AND_ADD_REF_HASH(return_wp->slaying, base->slaying);
-				/* Activate wp */
-				SET_FLAG(return_wp, FLAG_CURSED);
-				/* reset best-effort timer */
-				return_wp->stats.Int = 0;
-
-				/* setup move_type to use waypoints */
-				return_wp->move_type = npc->move_type;
-				npc->move_type = (npc->move_type & LO4) | WPOINT;
-
-				wp = return_wp;
+			if (!return_wp)
+			{
+				return_wp = arch_to_object(wp_archetype);
+				insert_ob_in_ob(return_wp, npc);
+				return_wp->owner = npc;
+				return_wp->ownercount = npc->count;
+				FREE_AND_COPY_HASH(return_wp->name, "- home -");
+				/* mark as return-home wp */
+				SET_FLAG(return_wp, FLAG_REFLECTING);
+				/* mark as best-effort wp */
+				SET_FLAG(return_wp, FLAG_NO_ATTACK);
 			}
 
-			/* TODO: add a little pause to the active waypoint */
+			return_wp->stats.hp = base->x;
+			return_wp->stats.sp = base->y;
+			FREE_AND_ADD_REF_HASH(return_wp->slaying, base->slaying);
+			/* Activate wp */
+			SET_FLAG(return_wp, FLAG_CURSED);
+			/* reset best-effort timer */
+			return_wp->stats.Int = 0;
+
+			/* setup move_type to use waypoints */
+			return_wp->move_type = npc->move_type;
+			npc->move_type = (npc->move_type & LO4) | WPOINT;
+
+			wp = return_wp;
 		}
+
+		/* TODO: add a little pause to the active waypoint */
 	}
 
 	npc->enemy = enemy;
