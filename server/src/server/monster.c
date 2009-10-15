@@ -115,7 +115,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 	else
 	{
 		/* If mob lost aggro, let it return home */
-		if (OBJECT_VALID(npc->enemy, npc->enemy_count))
+		if (!OBJECT_VALID(npc->enemy, npc->enemy_count))
 		{
 			object *base = insert_base_info_object(npc);
 			object *wp = get_active_waypoint(npc);
