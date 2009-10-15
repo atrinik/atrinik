@@ -417,15 +417,7 @@ op->oy= op->y;
 ^monster{S}					SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
 ^no_attack{S}				SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
 ^invulnerable{S}			SET_OR_CLEAR_FLAG(op, FLAG_INVULNERABLE, IVAL);
-^friendly{S}			{
-							if (IVAL)
-							{
-								SET_FLAG(op, FLAG_FRIENDLY);
-								add_friendly_object(op);
-							}
-							else
-								CLEAR_FLAG(op, FLAG_FRIENDLY);
-						}
+^friendly{S}				SET_OR_CLEAR_FLAG(op, FLAG_FRIENDLY, IVAL);
 ^identified{S}	    {	if (IVAL) {
 			    SET_FLAG(op, FLAG_IDENTIFIED);
 			    CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL);
