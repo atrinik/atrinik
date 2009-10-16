@@ -52,14 +52,10 @@
 # values special. In some cases a positive value will overwrite the old
 # and a negative value is used a ABS() floating point value and used
 # as multiplier.
-#
-# SKILLS: If skills ever defined here, get_skill_archetype() in arch.c 
-# must be extended to search this arches too.
-#
-# Special uses:
-#
-# Lights
-#
+
+##########
+# Lights #
+##########
 Allowed crystal_light
 chance 40
 difficulty 50
@@ -73,9 +69,10 @@ value 254500
 speed 0.15
 last_sp 5
 end
-#
-#Artifact nuggets!
-#
+
+####################
+# Artifact nuggets #
+####################
 Allowed all
 chance 40
 difficulty 1
@@ -89,9 +86,10 @@ value 75
 type 117
 material_real 643
 end
-#
-#Artifact gems!
-#
+
+#################
+# Artifact gems #
+#################
 Allowed all
 chance 40
 difficulty 1
@@ -105,7 +103,7 @@ value 110
 type 60
 material_real 130
 end
-#
+
 Allowed all
 chance 20
 difficulty 3
@@ -120,7 +118,7 @@ value 1100
 type 60
 material_real 130
 end
-#
+
 Allowed all
 chance 40
 difficulty 1
@@ -135,7 +133,7 @@ value 100
 type 60
 material_real 136
 end
-#
+
 Allowed all
 chance 20
 difficulty 3
@@ -150,7 +148,7 @@ value 1000
 type 60
 material_real 136
 end
-#
+
 Allowed all
 chance 40
 difficulty 1
@@ -165,7 +163,7 @@ value 95
 type 60
 material_real 137
 end
-#
+
 Allowed all
 chance 20
 difficulty 3
@@ -180,7 +178,7 @@ value 950
 type 60
 material_real 137
 end
-#
+
 Allowed all
 chance 40
 difficulty 1
@@ -195,7 +193,7 @@ value 150
 type 60
 material_real 138
 end
-#
+
 Allowed all
 chance 20
 difficulty 3
@@ -210,9 +208,10 @@ value 1500
 type 60
 material_real 138
 end
-#
-#Artifact juwels!
-#
+
+###################
+# Artifact jewels #
+###################
 Allowed all
 chance 100
 difficulty 2
@@ -228,7 +227,7 @@ material_real 135
 value 800
 type 116
 end
-#
+
 Allowed all
 chance 40
 difficulty 9
@@ -244,7 +243,7 @@ material_real 135
 value 8000
 type 116
 end
-#
+
 Allowed all
 chance 30
 difficulty 20
@@ -260,7 +259,7 @@ item_condition 100
 value 150000
 type 116
 end
-#
+
 Allowed all
 chance 20
 difficulty 30
@@ -276,7 +275,7 @@ material_real 135
 value 250000
 type 116
 end
-#
+
 Allowed all
 chance 5
 difficulty 50
@@ -292,7 +291,7 @@ item_condition 100
 value 400000
 type 116
 end
-#
+
 Allowed all
 chance 100
 difficulty 2
@@ -308,7 +307,7 @@ material_real 134
 value 600
 type 116
 end
-#
+
 Allowed all
 chance 40
 difficulty 9
@@ -324,7 +323,7 @@ material_real 134
 value 6000
 type 116
 end
-#
+
 Allowed all
 chance 30
 difficulty 20
@@ -340,7 +339,7 @@ material_real 134
 value 120000
 type 116
 end
-#
+
 Allowed all
 chance 20
 difficulty 30
@@ -356,7 +355,7 @@ material_real 134
 value 220000
 type 116
 end
-#
+
 Allowed all
 chance 5
 difficulty 50
@@ -372,7 +371,7 @@ material_real 134
 value 380000
 type 116
 end
-#
+
 Allowed all
 chance 100
 difficulty 2
@@ -387,7 +386,7 @@ material_real 133
 value 500
 type 116
 end
-#
+
 Allowed all
 chance 40
 difficulty 9
@@ -402,7 +401,7 @@ material_real 133
 value 5000
 type 116
 end
-# 
+ 
 Allowed all
 chance 30
 difficulty 20
@@ -417,7 +416,7 @@ material_real 133
 value 90000
 type 116
 end
-#
+
 Allowed all
 chance 20
 difficulty 30
@@ -432,7 +431,7 @@ value 190000
 material_real 133
 type 116
 end
-#
+
 Allowed all
 chance 5
 difficulty 50
@@ -447,7 +446,7 @@ material_real 133
 value 350000
 type 116
 end
-#
+
 Allowed all
 chance 100
 difficulty 2
@@ -462,7 +461,7 @@ material_real 132
 value 300
 type 116
 end
-#
+
 Allowed all
 chance 40
 difficulty 9
@@ -477,7 +476,7 @@ material_real 132
 value 3000
 type 116
 end
-# 
+ 
 Allowed all
 chance 30
 difficulty 20
@@ -492,7 +491,7 @@ material_real 132
 value 75000
 type 116
 end
-# 
+ 
 Allowed all
 chance 20
 difficulty 30
@@ -507,7 +506,7 @@ material_real 132
 value 150000
 type 116
 end
-#
+
 Allowed all
 chance 5
 difficulty 50
@@ -522,9 +521,10 @@ material_real 132
 value 310000
 type 116
 end
-#
-# Containers
-#
+
+##############
+# Containers #
+##############
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 50
 artifact holding_min
@@ -536,7 +536,7 @@ type 122
 value 550
 weapon_speed 0.85
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 45
 difficulty 5
@@ -549,7 +549,7 @@ type 122
 value 1250
 weapon_speed 0.75
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 35
 difficulty 15
@@ -562,7 +562,7 @@ type 122
 value 2600
 weapon_speed 0.65
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,key_ring,r_sack,pouch
 chance 25
 difficulty 25
@@ -575,7 +575,7 @@ type 122
 value 10500
 weapon_speed 0.55
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 15
 difficulty 35
@@ -588,7 +588,7 @@ type 122
 value 20200
 weapon_speed 0.45
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 10
 difficulty 50
@@ -601,7 +601,7 @@ type 122
 value 40400
 weapon_speed 0.40
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 5
 difficulty 65
@@ -614,7 +614,7 @@ type 122
 value 60450
 weapon_speed 0.35
 end
-#
+
 Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
 chance 3
 difficulty 85
@@ -627,9 +627,10 @@ type 122
 value 80420
 weapon_speed 0.30
 end
-#
-# Cloaks
-#
+
+##########
+# Cloaks #
+##########
 Allowed cloak
 chance 49
 artifact cloak_woe1
@@ -650,7 +651,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed cloak
 chance 49
 t_style 1
@@ -663,7 +664,7 @@ protect_fire 15
 is_magical 1
 value 2100
 end
-#
+
 Allowed cloak
 chance 49
 t_style 2
@@ -676,7 +677,7 @@ protect_cold 15
 is_magical 1
 value 2100
 end
-#
+
 Allowed cloak
 chance 49
 t_style 3
@@ -689,7 +690,7 @@ protect_electricity 15
 is_magical 1
 value 2100
 end
-#
+
 Allowed cloak
 chance 49
 t_style 4
@@ -702,7 +703,7 @@ protect_poison 15
 is_magical 1
 value 2100
 end
-#
+
 Allowed cloak
 chance 49
 t_style 5
@@ -715,7 +716,7 @@ protect_acid 15
 is_magical 1
 value 2100
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_woe
@@ -736,7 +737,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_str
@@ -749,7 +750,7 @@ face robe_red.101
 is_magical 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_dex
@@ -762,7 +763,7 @@ face robe_black.101
 is_magical 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_con
@@ -775,7 +776,7 @@ face robe_purple.101
 Con 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_int
@@ -788,7 +789,7 @@ face robe_white.101
 is_magical 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_pow
@@ -800,7 +801,7 @@ Pow 1
 is_magical 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_wis
@@ -812,7 +813,7 @@ Wis 1
 is_magical 1
 value 2500
 end
-#
+
 Allowed robe
 chance 50
 artifact robe_min_cha
@@ -825,7 +826,7 @@ face robe_lblue.101
 is_magical 1
 value 2500
 end
-#
+
 Allowed cape
 chance 50
 artifact cape_woe
@@ -846,7 +847,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed cape
 chance 20
 difficulty 20
@@ -863,7 +864,7 @@ protect_impact -15
 protect_pierce -15
 value 6000
 end
-#
+
 Allowed cape
 chance 20
 difficulty 20
@@ -879,9 +880,10 @@ protect_slash -15
 protect_cleave -15
 value 6000
 end
-#
-# body armours (mails)
-#
+
+################
+# Body armours #
+################
 Allowed !crystal_mail, !mithril_armour,!mithril_ring,!mithril_coat,all
 chance 20
 artifact armour_mass
@@ -895,7 +897,7 @@ cursed_perm 1
 cursed 1
 weight 65000
 end
-#
+
 Allowed all
 chance 10
 artifact armour_minor_hp
@@ -907,7 +909,7 @@ maxhp 12
 is_magical 1
 value 9500
 end
-#
+
 Allowed all
 chance 10
 difficulty 20
@@ -921,8 +923,7 @@ maxhp 20
 is_magical 1
 value 15500
 end
-#
-#
+
 Allowed all
 chance 10
 difficulty 30
@@ -936,8 +937,7 @@ maxhp 25
 is_magical 1
 value 35500
 end
-#
-#
+
 Allowed all
 chance 8
 difficulty 50
@@ -951,8 +951,7 @@ maxhp 30
 is_magical 1
 value 65500
 end
-#
-#
+
 Allowed all
 chance 8
 difficulty 75
@@ -966,7 +965,7 @@ maxhp 40
 is_magical 1
 value 105500
 end
-#
+
 Allowed all
 chance 20
 t_style 1
@@ -979,7 +978,7 @@ protect_fire 25
 is_magical 1
 value 9500
 end
-#
+
 Allowed all
 chance 20
 t_style 2
@@ -992,7 +991,7 @@ protect_cold 25
 is_magical 1
 value 9500
 end
-#
+
 Allowed all
 chance 20
 t_style 3
@@ -1005,7 +1004,7 @@ protect_electricity 25
 is_magical 1
 value 9500
 end
-#
+
 Allowed all
 chance 20
 t_style 4
@@ -1018,7 +1017,7 @@ protect_poison 25
 is_magical 1
 value 9500
 end
-#
+
 Allowed all
 chance 20
 t_style 5
@@ -1031,10 +1030,10 @@ protect_acid 25
 is_magical 1
 value 9500
 end
-#
-#
-# Shields
-#
+
+###########
+# Shields #
+###########
 Allowed all
 chance 20
 artifact shield_mass
@@ -1048,7 +1047,7 @@ cursed_perm 1
 cursed 1
 weight 25000
 end
-#
+
 Allowed all
 chance 20
 t_style 1
@@ -1061,7 +1060,7 @@ is_magical 1
 protect_fire 15
 value 2400
 end
-#
+
 Allowed all
 chance 20
 t_style 2
@@ -1074,7 +1073,7 @@ is_magical 1
 protect_cold 15
 value 2400
 end
-#
+
 Allowed all
 chance 20
 t_style 3
@@ -1087,7 +1086,7 @@ is_magical 1
 protect_electricity 15
 value 2400
 end
-#
+
 Allowed all
 chance 20
 t_style 4
@@ -1100,7 +1099,7 @@ is_magical 1
 protect_poison 15
 value 2400
 end
-#
+
 Allowed all
 chance 20
 t_style 5
@@ -1113,11 +1112,10 @@ is_magical 1
 protect_acid 15
 value 2400
 end
-#
-#
-# girdles
-#
-#
+
+###########
+# Girdles #
+###########
 Allowed all
 chance 10
 difficulty 3
@@ -1131,7 +1129,7 @@ maxhp 10
 is_magical 1
 value 8500
 end
-#
+
 Allowed all
 chance 10
 difficulty 20
@@ -1145,8 +1143,7 @@ maxhp 15
 is_magical 1
 value 13500
 end
-#
-#
+
 Allowed all
 chance 10
 difficulty 30
@@ -1160,8 +1157,7 @@ maxhp 20
 is_magical 1
 value 30500
 end
-#
-#
+
 Allowed all
 chance 8
 difficulty 50
@@ -1175,8 +1171,7 @@ maxhp 25
 is_magical 1
 value 55500
 end
-#
-#
+
 Allowed all
 chance 8
 difficulty 75
@@ -1190,7 +1185,7 @@ maxhp 30
 is_magical 1
 value 85500
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1205,7 +1200,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1220,7 +1215,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1235,7 +1230,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1250,7 +1245,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1265,7 +1260,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1280,7 +1275,7 @@ type 113
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1295,11 +1290,10 @@ type 113
 is_magical 1
 value 5000
 end
-#
-#
-#
-# gauntlets, gloves
-#
+
+#####################
+# Gauntlets, gloves #
+#####################
 Allowed all
 chance 20
 difficulty 2
@@ -1313,7 +1307,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1327,7 +1321,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1341,7 +1335,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1355,7 +1349,7 @@ item_level_art 2
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1369,7 +1363,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1383,7 +1377,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1397,7 +1391,7 @@ type 100
 is_magical 1
 value 5000
 end
-#
+
 Allowed !gloves, all
 chance 20
 difficulty 14
@@ -1411,7 +1405,7 @@ type 100
 is_magical 1
 value 6500
 end
-#
+
 Allowed !gloves, all
 chance 20
 difficulty 14
@@ -1425,7 +1419,7 @@ type 100
 is_magical 1
 value 6500
 end
-#
+
 Allowed !gloves, all
 chance 20
 difficulty 24
@@ -1440,10 +1434,10 @@ type 100
 is_magical 1
 value 82500
 end
-#
-#
-# Helms
-#
+
+#########
+# Helms #
+#########
 Allowed all
 chance 10
 difficulty 20
@@ -1457,7 +1451,7 @@ is_magical 1
 can_see_in_dark 1
 value 113000
 end
-#
+
 Allowed all
 chance 10
 difficulty 30
@@ -1471,7 +1465,7 @@ is_magical 1
 xrays 1
 value 213000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1485,7 +1479,7 @@ Str 1
 item_level_art 3
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1499,7 +1493,7 @@ item_level_art 3
 Dex 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1513,7 +1507,7 @@ is_magical 1
 Int 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1527,7 +1521,7 @@ is_magical 1
 Wis 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1541,7 +1535,7 @@ is_magical 1
 Pow 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1555,7 +1549,7 @@ is_magical 1
 Cha 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 5
@@ -1569,7 +1563,7 @@ is_magical 1
 Con 1
 value 3000
 end
-#
+
 Allowed all
 chance 30
 difficulty 2
@@ -1584,7 +1578,7 @@ is_magical 1
 protect_fire 15
 value 2100
 end
-#
+
 Allowed all
 chance 30
 difficulty 2
@@ -1599,7 +1593,7 @@ is_magical 1
 protect_cold 15
 value 2100
 end
-#
+
 Allowed all
 chance 30
 t_style 3
@@ -1614,7 +1608,7 @@ is_magical 1
 protect_electricity 15
 value 2100
 end
-#
+
 Allowed all
 chance 30
 t_style 4
@@ -1629,7 +1623,7 @@ is_magical 1
 protect_poison 15
 value 2100
 end
-#
+
 Allowed all
 chance 30
 t_style 5
@@ -1644,10 +1638,10 @@ is_magical 1
 protect_acid 15
 value 2100
 end
-#
-#
-# Bracers
-#
+
+###########
+# Bracers #
+###########
 Allowed all
 chance 20
 difficulty 2
@@ -1662,7 +1656,7 @@ Dex 1
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1677,7 +1671,7 @@ type 104
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1692,7 +1686,7 @@ type 104
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1707,7 +1701,7 @@ type 104
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1722,7 +1716,7 @@ type 104
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1737,7 +1731,7 @@ type 104
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 difficulty 2
@@ -1752,10 +1746,10 @@ type 104
 is_magical 1
 value 5000
 end
-#
-#
-#Artifact boots!
-#
+
+#########
+# Boots #
+#########
 Allowed !sandals, !low_boots, all
 chance 20
 artifact boots_granite
@@ -1788,9 +1782,7 @@ endmsg
 cursed_perm 1
 cursed 1
 end
-#
-#
-#
+
 Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
 artifact boots_less_fire
 chance 20
@@ -1803,7 +1795,7 @@ is_magical 1
 protect_fire 9
 value 2000
 end
-#
+
 Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
 artifact boots_less_cold
 chance 20
@@ -1816,7 +1808,7 @@ is_magical 1
 protect_cold 9
 value 2000
 end
-#
+
 Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
 artifact boots_less_elec
 chance 20
@@ -1829,7 +1821,7 @@ is_magical 1
 protect_electricity 9
 value 2000
 end
-#
+
 Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
 artifact boots_less_poison
 chance 20
@@ -1842,7 +1834,7 @@ is_magical 1
 protect_poison 9
 value 2000
 end
-#
+
 Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
 artifact boots_less_acid
 chance 20
@@ -1855,8 +1847,7 @@ is_magical 1
 protect_acid 9
 value 2000
 end
-#
-#
+
 Allowed leggings_plate,leggings_chain,leggings_leather
 artifact leggings_less_fire
 chance 20
@@ -1871,7 +1862,7 @@ is_magical 1
 protect_fire 15
 value 3000
 end
-#
+
 Allowed leggings_plate,leggings_chain,leggings_leather
 artifact leggings_less_cold
 chance 20
@@ -1886,7 +1877,7 @@ is_magical 1
 protect_cold 15
 value 3000
 end
-#
+
 Allowed leggings_plate,leggings_chain,leggings_leather
 artifact leggings_less_electricity
 chance 20
@@ -1901,7 +1892,7 @@ is_magical 1
 protect_electricity 15
 value 3000
 end
-#
+
 Allowed leggings_plate,leggings_chain,leggings_leather
 artifact leggings_less_poison
 chance 20
@@ -1916,7 +1907,7 @@ is_magical 1
 protect_poison 15
 value 3000
 end
-#
+
 Allowed leggings_plate,leggings_chain,leggings_leather
 artifact leggings_less_acid
 chance 20
@@ -1931,10 +1922,10 @@ is_magical 1
 protect_acid 15
 value 3000
 end
-#
-# Weapons
-#
-#
+
+###########
+# Weapons #
+###########
 Allowed all
 chance 20
 artifact weapon_fools
@@ -1951,7 +1942,7 @@ cursed_perm 1
 cursed 1
 value 500
 end
-#
+
 Allowed all
 chance 15
 difficulty 3
@@ -1965,7 +1956,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 15
 difficulty 6
@@ -1979,7 +1970,7 @@ item_level_art 3
 is_magical 1
 value 5500
 end
-#
+
 Allowed all
 chance 15
 difficulty 14
@@ -1994,7 +1985,7 @@ type 15
 is_magical 1
 value 5500
 end
-#
+
 Allowed all
 chance 10
 difficulty 10
@@ -2008,7 +1999,7 @@ type 15
 is_magical 1
 value 7500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_strength
@@ -2020,7 +2011,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_dexterity
@@ -2032,7 +2023,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_const
@@ -2044,7 +2035,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_wisdom
@@ -2056,7 +2047,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_int
@@ -2068,7 +2059,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_power
@@ -2080,7 +2071,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 artifact weapon_charisma
@@ -2092,7 +2083,7 @@ type 15
 is_magical 1
 value 4500
 end
-#
+
 Allowed all
 chance 20
 t_style 1
@@ -2107,7 +2098,7 @@ type 15
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 t_style 2
@@ -2122,7 +2113,7 @@ item_level_art 3
 is_magical 1
 value 5000
 end
-#
+
 Allowed all
 chance 20
 t_style 3
@@ -2137,25 +2128,13 @@ is_magical 1
 item_level_art 3
 value 5000
 end
-#
-# Rings
-#
-# Rings are handled special. 
-# Default arch ring is ring_generic... Normal
-# artifact ring generation use this ring to get
-# for example a "ring of ice".
-# Is no special ring generated, we call the dummy ring
-# ring_normal from this file (its a Allowed none) and
-# grap us one fo the generic generated rings.
-# this will change "tin ring_generic" to a other material
-# value and/or face. We use this file to get use the difficulty
-# and all power of the artifact generation instead of copy it
-# hardcoded in treasure.c.
-# After we got a altered ring, we use the set_magic functions to insert
-# special powers.
-#
-# dummy ring - read above.
-# 
+
+#########
+# Rings #
+#########
+# Rings are specially handled.
+# Default ring arch is ring_generic. Normal artifact ring generation uses
+# this ring to get for example a ring of Ice.
 Allowed none
 chance 100
 artifact ring_normal
@@ -2164,8 +2143,7 @@ Object
 value 4250
 type 70
 end
-# generic rings
-#
+
 Allowed ring_normal
 chance 100
 difficulty 1
@@ -2178,7 +2156,7 @@ item_quality 0
 material_real 642
 face ring_tin.101
 end
-#
+
 Allowed ring_normal
 chance 90
 difficulty 1
@@ -2191,7 +2169,7 @@ item_quality 0
 material_real 643
 face ring_copper.101
 end
-#
+
 Allowed ring_normal
 chance 80
 difficulty 1
@@ -2204,7 +2182,7 @@ item_quality 0
 material_real 644
 face ring_bronze.101
 end
-#
+
 Allowed ring_normal
 chance 70
 difficulty 3
@@ -2217,7 +2195,7 @@ item_quality 0
 material_real 645
 face ring_silver.101
 end
-#
+
 Allowed ring_normal
 chance 50
 difficulty 8
@@ -2230,7 +2208,7 @@ item_quality 0
 material_real 646
 face ring_gold.101
 end
-#
+
 Allowed ring_normal
 chance 40
 difficulty 20
@@ -2243,7 +2221,7 @@ item_quality 0
 material_real 647
 face ring_platinum.101
 end
-#
+
 Allowed ring_normal
 chance 30
 difficulty 25
@@ -2257,7 +2235,7 @@ material 256
 material_real 515
 face ring_adamant.101
 end
-#
+
 Allowed ring_normal
 chance 20
 difficulty 50
@@ -2271,11 +2249,12 @@ material 256
 material_real 514
 face ring_mithril.101
 end
-#
-# Here are the real artifact rings
-#
+
+##################
+# Artifact rings #
+##################
+
 # Ring of Thieves
-#
 Allowed ring_generic
 chance 25
 difficulty 22
@@ -2297,9 +2276,8 @@ Dex 3
 stealth 1
 can_see_in_dark 1
 end
-#
-#Ring of Ice
-#
+
+# Ring of Ice
 Allowed ring_generic
 chance 40
 difficulty 12
@@ -2329,7 +2307,7 @@ msg
   greater control of cold spells.
 endmsg
 end
-#
+
 Allowed ring_generic
 chance 40
 difficulty 12
@@ -2361,7 +2339,7 @@ msg
   with fire spells.
 endmsg
 end
-#
+
 Allowed ring_generic
 chance 40
 difficulty 12
@@ -2392,8 +2370,7 @@ msg
   with electricity spells.
 endmsg
 end
-#
-#
+
 Allowed ring_generic
 chance 40
 difficulty 35
@@ -2426,8 +2403,7 @@ msg
   spells and resists.
 endmsg
 end
-#
-#
+
 Allowed ring_generic
 chance 30
 difficulty 18
@@ -2448,7 +2424,7 @@ is_magical 1
 Dex 2
 dam 2
 end
-#
+
 Allowed ring_generic
 chance 30
 difficulty 7
@@ -2469,8 +2445,7 @@ is_magical 1
 Dex 1
 dam 1
 end
-#
-#
+
 Allowed ring_generic
 chance 15
 artifact ring_woe
@@ -2491,7 +2466,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed ring_generic
 chance 15
 artifact ring_woe1
@@ -2515,7 +2490,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed ring_generic
 chance 15
 artifact ring_woe2
@@ -2539,7 +2514,7 @@ Cha -1
 luck -1
 value 50
 end
-#
+
 Allowed ring_generic
 chance 20
 artifact ring_woe3
@@ -2563,9 +2538,10 @@ Cha -1
 luck -1
 value 50
 end
-#
-# horns
-#
+
+#########
+# Horns #
+#########
 Allowed all
 chance 80
 artifact horn_normal
@@ -2591,10 +2567,10 @@ Int -2
 damned_perm 1
 damned 1
 end
-#
-#
-#Amulets!
-#
+
+###########
+# Amulets #
+###########
 Allowed all
 chance 15
 difficulty 10
@@ -2612,10 +2588,10 @@ protect_cleave 20
 type 39
 value 60000
 end
-#
-#
-# Arrows/Missiles
-#
+
+###################
+# Arrows/Missiles #
+###################
 Allowed all
 chance 250
 artifact missile_inaccuracy
@@ -2628,7 +2604,7 @@ wc -7
 cursed_perm 1
 cursed 1
 end
-#
+
 Allowed all
 chance 100
 difficulty 5
@@ -2642,8 +2618,7 @@ value 50
 wc 7
 dam_add 1
 end
-#
-#
+
 Allowed all
 chance 15
 difficulty 15
@@ -2657,8 +2632,7 @@ is_magical 1
 slaying none
 dam_add 1
 end
-#
-#
+
 Allowed all
 chance 7
 difficulty 25
@@ -2679,10 +2653,10 @@ is_assassin 1
 is_magical 1
 dam_add 1
 end
-#
-#
-# Bows
-#
+
+########
+# Bows #
+########
 Allowed all
 chance 10
 artifact range_accuracy
@@ -2695,12 +2669,12 @@ is_magical 1
 weight 80
 wc 4
 end
-#
-#
-# FOOD. Types of food which can effect player status
-#
-# Note: an item is cursed, the effect is generally reversed!
-#
+
+#########
+# Food. #
+#########
+# Types of food which can affect player's status
+
 Allowed all
 chance 200
 artifact food_poison
@@ -2716,7 +2690,7 @@ Con -1
 value 5
 cursed 1
 end
-#
+
 Allowed all
 chance 20
 artifact food_poison2
@@ -2734,9 +2708,10 @@ Cha -1
 value 5
 cursed 1
 end
-# Scrolls 
-#
-#
+
+###########
+# Scrolls #
+###########
 Allowed all
 chance 30
 artifact scroll_firestorm
@@ -2751,7 +2726,7 @@ type 111
 is_magical 1
 value 25
 end
-#
+
 Allowed all
 chance 30
 artifact scroll_icestorm
@@ -2766,7 +2741,7 @@ type 111
 is_magical 1
 value 25
 end
-#
+
 Allowed all
 chance 40
 artifact scroll_min_heal
@@ -2780,7 +2755,7 @@ type 111
 is_magical 1
 value 27
 end
-#
+
 Allowed all
 chance 35
 artifact scroll_str_self
@@ -2794,7 +2769,7 @@ type 111
 is_magical 1
 value 23
 end
-#
+
 Allowed all
 chance 25
 artifact scroll_identify
@@ -2808,7 +2783,7 @@ type 111
 is_magical 1
 value 28
 end
-#
+
 Allowed all
 chance 40
 artifact scroll_dmagic
@@ -2822,7 +2797,7 @@ type 111
 is_magical 1
 value 23
 end
-#
+
 Allowed all
 chance 40
 artifact scroll_dcurse
@@ -2836,7 +2811,7 @@ type 111
 is_magical 1
 value 23
 end
-#
+
 Allowed all
 chance 25
 artifact scroll_rem_curse
@@ -2850,7 +2825,7 @@ type 111
 is_magical 1
 value 27
 end
-#
+
 Allowed all
 chance 20
 artifact scroll_rem_damn
@@ -2864,7 +2839,7 @@ type 111
 is_magical 1
 value 30
 end
-#
+
 Allowed all
 chance 35
 artifact scroll_cause_lwound
@@ -2878,10 +2853,10 @@ type 111
 is_magical 1
 value 20
 end
-#
-# Potions (incl. dusts and balms)  
-#
-#
+
+###########
+# Potions # 
+###########
 Allowed potion_generic
 chance 40
 artifact potion_minor_res_fire
@@ -2899,7 +2874,7 @@ is_magical 1
 last_eat -1
 value 145
 end
-#
+
 Allowed potion_generic
 chance 40
 artifact potion_minor_res_cold
@@ -2916,7 +2891,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 t_style 3
@@ -2934,7 +2909,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 t_style 4
@@ -2952,7 +2927,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 t_style 5
@@ -2970,7 +2945,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 artifact potion_minor_strength
@@ -2986,7 +2961,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 artifact potion_minor_dex
@@ -3002,7 +2977,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 artifact potion_minor_con
@@ -3017,7 +2992,7 @@ is_magical 1
 last_eat -1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 40
 artifact potion_evil_liquid
@@ -3038,7 +3013,7 @@ is_magical 1
 last_eat -1
 value 35
 end
-#
+
 Allowed potion_generic
 chance 20
 artifact potion_minor_res
@@ -3053,7 +3028,7 @@ is_magical 1
 last_eat 1
 value 135
 end
-#
+
 Allowed potion_generic
 chance 15
 artifact potion_improve
@@ -3067,7 +3042,7 @@ is_magical 1
 last_eat 2
 value 1500
 end
-#
+
 Allowed potion_generic
 chance 30
 artifact potion_firestorm
@@ -3082,7 +3057,7 @@ type 5
 value 170
 sp 0
 end
-#
+
 Allowed potion_generic
 chance 30
 artifact potion_freezing
@@ -3097,7 +3072,7 @@ sub_type 138
 sp 1
 value 170
 end
-#
+
 Allowed potion_generic
 chance 35
 artifact potion_cure_sickness
@@ -3112,7 +3087,7 @@ type 5
 sp 3
 value 170
 end
-#
+
 Allowed potion_generic
 chance 35
 artifact potion_cure_illness
@@ -3127,9 +3102,10 @@ is_magical 1
 sp 4
 value 170
 end
-#
-# - balms
-#
+
+#########
+# Balms #
+#########
 Allowed balm_generic
 chance 40
 artifact balm_first_aid
@@ -3142,31 +3118,29 @@ type 5
 value 170
 sp 2
 end
-#
-#
+
 # SPECIAL AREA 
 # All items with <Allowed none> are excluded from masking
 # Define here unique items
-#
-# age force setting for player classes
-#
+
+# Age force setting for player classes
 Allowed none
 chance 1
 artifact age_force_human
 def_arch age_force
 Object
 title human age force (artifacts generic)
-# we start at age 21
+# We start at age 21
 hp 21
-# this is our max age 
-# we count as "aged" if we are older as 60% of the max age
+# This is our max age 
+# We count as "aged" if we are older than 60% of the max age
 maxhp 80
-# we are not unnatural aged by default
+# We are not unnatural aged by default
 sp   0
-# our permanent (real) age was changed by 0 years by magic or higher forces
+# Our permanent (real) age was changed by 0 years by magic or higher forces
 grace  0
 end
-#
+
 Allowed none
 chance 1
 artifact age_force_half_elf
@@ -3178,8 +3152,7 @@ maxhp 100
 sp   0
 grace  0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact cloak_rhun
@@ -3199,7 +3172,7 @@ face cloak_green.101
 is_magical 1
 value 22100
 end
-#
+
 Allowed none
 chance 1
 artifact armour_eyes
@@ -3221,61 +3194,6 @@ is_magical 1
 value 252600
 end
 
-#
-# DONATION ITEMS
-#
-Allowed none
-chance 1
-artifact don_mega_present
-def_arch xmas_present_green
-Object
-name mega donation present
-identified 1
-is_named 1
-no_pick 0
-material_real 0
-material 0
-end
-#
-Allowed none
-chance 1
-artifact don_big_present
-def_arch xmas_present_red
-Object
-is_named 1
-no_pick 0
-identified 1
-name big donation present
-material_real 0
-material 0
-end
-#
-Allowed none
-chance 1
-artifact don_present
-def_arch xmas_present_yellow
-Object
-identified 1
-is_named 1
-no_pick 0
-name donation present
-material_real 0
-material 0
-end
-#
-Allowed none
-chance 1
-artifact don_small_present
-def_arch gift
-Object
-name small donation present
-identified 1
-is_named 1
-no_pick 0
-material_real 0
-material 0
-end
-#
 Allowed none
 chance 1
 artifact firebird
@@ -3301,7 +3219,7 @@ wc 6
 weapon_speed 0.025
 material 0
 end
-#
+
 Allowed none
 chance 1
 artifact goldhammer
@@ -3327,7 +3245,7 @@ value 10000
 weapon_speed 0.025
 material 0
 end
-#
+
 Allowed none
 chance 1
 artifact bluerage
@@ -3353,7 +3271,7 @@ value 10000
 weapon_speed 0.025
 material 0
 end
-#
+
 Allowed none
 chance 1
 artifact icemoon
@@ -3379,53 +3297,7 @@ value 10000
 weapon_speed 0.025
 material 0
 end
-#
-#
-#
-Allowed none
-chance 1
-artifact donate_amu_expg
-def_arch amulet_generic
-Object
-name Amulet
-face amu_yellow.101
-last_grace 15
-material_real 0
-item_quality 100
-is_named 1
-item_condition 100
-identified 1
-known_magical 1
-known_cursed 1
-is_magical 1
-value 10000
-title of great EXP +15%
-material 0
-end
-#
-#
-Allowed none
-chance 1
-artifact donate_amu_exp
-def_arch amulet_generic
-Object
-name Amulet
-face amu_green.101
-last_grace 10
-material_real 0
-item_quality 100
-item_condition 100
-identified 1
-is_named 1
-known_magical 1
-known_cursed 1
-is_magical 1
-value 10000
-title of EXP +10%
-material 0
-end
-#
-#
+
 Allowed none
 chance 1
 artifact bloodstream
@@ -3451,8 +3323,7 @@ value 10000
 weapon_speed 0.02
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact devilwing
@@ -3478,8 +3349,7 @@ value 10000
 weapon_speed 0.02
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact executioner
@@ -3505,8 +3375,7 @@ value 10000
 weapon_speed 0.02
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact bonecurse
@@ -3532,7 +3401,7 @@ value 10000
 weapon_speed 0.02
 material 0
 end
-#
+
 Allowed none
 chance 1
 artifact armour_elemental
@@ -3562,8 +3431,7 @@ value 10000
 ac 8
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact boots_energetic
@@ -3594,8 +3462,7 @@ value 10000
 ac 1
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact helm_power
@@ -3624,8 +3491,7 @@ value 10000
 ac 2
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact gauntlets_warmage
@@ -3656,8 +3522,7 @@ str 1
 value 10000
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact bracers_mind
@@ -3687,7 +3552,7 @@ value 10000
 ac 1
 material 0
 end
-#
+
 Allowed none
 chance 1
 artifact shield_elemental
@@ -3717,8 +3582,7 @@ value 10000
 ac 3
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact cloak_energy
@@ -3748,8 +3612,7 @@ value 10000
 ac 1
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact belt_elemental
@@ -3779,8 +3642,7 @@ value 10000
 ac 1
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact wildsting
@@ -3801,8 +3663,7 @@ magic 2
 value 10000
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact flashcross
@@ -3823,8 +3684,7 @@ magic 2
 value 10000
 material 0
 end
-#
-#
+
 Allowed none
 chance 1
 artifact powerball
@@ -3870,8 +3730,7 @@ con 1
 dam 1
 material 0
 end
-#
-#
+
 Allowed ring_generic
 chance 10
 difficulty 25
@@ -3896,8 +3755,7 @@ con 3
 dam 2
 material 0
 end
-#
-#
+
 Allowed ring_generic
 chance 20
 difficulty 18
@@ -3925,4 +3783,3 @@ pow 1
 wis 2
 material 0
 end
-#
