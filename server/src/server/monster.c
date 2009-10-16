@@ -3292,9 +3292,6 @@ void spawn_point(object *op)
 	/* *now* all is done - *now* put it on map */
 	if (!insert_ob_in_map(mob, mob->map, op, 0))
 		return;
-
-	if (QUERY_FLAG(mob, FLAG_FRIENDLY))
-		add_friendly_object(mob);
 }
 
 /**
