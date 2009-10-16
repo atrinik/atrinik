@@ -114,8 +114,10 @@ void *metaserver_thread(void *dummy)
 
 	if (curl)
 	{
+#ifdef WIN32
 		/* Set connection timeout value in case metaserver is down or something */
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
+#endif
 
 		/* What URL that receives this POST */
 		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
