@@ -362,6 +362,12 @@ void init_artifacts()
 		if ((cp = strchr(buf, '\n')) != NULL)
 			*cp = '\0';
 
+		/* Skip blank lines. */
+		if (*buf == '\0')
+		{
+			continue;
+		}
+
 		cp = buf;
 		/* Skip blanks */
 		while (*cp == ' ')
