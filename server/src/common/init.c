@@ -66,8 +66,8 @@ archetype *level_up_arch = NULL;
  * using this library.
  * If you want to lessen the size of the program using the library,
  * you can replace the call to init_library() with init_globals() and
- * init_function_pointers().  Good idea to also call init_vars and
- * init_hash_table if you are doing any object loading. */
+ * init_function_pointers().  Good idea to also call init_hash_table
+ * if you are doing any object loading. */
 void init_library()
 {
 	init_environ();
@@ -76,7 +76,6 @@ void init_library()
 	init_hash_table();
 	/* Inits the pooling memory manager and the new object system */
 	init_mempools();
-	init_vars();
 	init_block();
 	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
 	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");

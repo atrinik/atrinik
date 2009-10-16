@@ -219,7 +219,6 @@ extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, char *buf);
 extern void save_double(char *buf, char *name, double v);
-extern void init_vars(void);
 extern char *get_ob_diff(object *op, object *op2);
 extern void save_map_object(FILE *fp, object *op, int flag);
 extern int save_player_object(char *buf, object *op, int flag, size_t len);
