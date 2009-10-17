@@ -2,7 +2,7 @@
 ## Script to make Jail Guard Sahrel in Tutorial Island annoy the ogre in
 ## jail.
 
-from Atrinil import *
+from Atrinik import *
 
 ## The guard
 activator = WhoIsActivator()
