@@ -1051,9 +1051,6 @@ object *is_player_inv(object *op)
 	return op;
 }
 
-/* Used by: Server DM commands: dumpbelow, dump.
- *	Some error messages.
- * The result of the dump is stored in the static global errmsg array. */
 /**
  * Used by: Server DM commands: dumpbelow, dump.
  *
@@ -1063,20 +1060,19 @@ object *is_player_inv(object *op)
  * @param op The object to dump */
 void dump_object2(object *op)
 {
-	char *cp;
+	char *cp, buf[MAX_BUF];
 
 	if (op->arch != NULL)
 	{
-		strcat(errmsg, "arch ");
-		strcat(errmsg, op->arch->name ? op->arch->name : "(null)");
-		strcat(errmsg, "\n");
+		snprintf(buf, sizeof(buf), "arch %s (%u)\n", op->arch->name ? op->arch->name : "(null)", op->count);
+		strcat(errmsg, buf);
 
 		if ((cp = get_ob_diff(op, &empty_archetype->clone)) != NULL)
 		{
 			strcat(errmsg, cp);
 		}
 
-		strcat(errmsg,"end\n");
+		strcat(errmsg, "end\n");
 	}
 	else
 	{
