@@ -278,12 +278,15 @@ extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flag
 extern int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
 extern int on_same_map(object *op1, object *op2);
 
-/* object.c */
+/* mempool.c */
 extern void init_materials_database();
 extern void init_mempools();
 extern void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor);
 extern void *get_poolchunk(mempool_id pool);
+extern void return_poolchunk(void *data, mempool_id pool);
 extern void free_empty_puddles(mempool_id pool);
+
+/* object.c */
 extern void mark_object_removed(object *ob);
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);

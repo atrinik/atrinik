@@ -180,6 +180,7 @@ typedef struct linked_char
 #include "object.h"
 #include "arch.h"
 #include "map.h"
+#include "mempool.h"
 #include "tod.h"
 #include "pathfinder.h"
 

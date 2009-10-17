@@ -2,7 +2,7 @@
 #            Atrinik, a Multiplayer Online Role Playing Game            *
 #                                                                       *
 #                     Copyright (C) 2009 Alex Tokar                     *
-#                                                                       * 
+#                                                                       *
 # Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 # and Crossfire (Multiplayer game for X-windows).                       *
 #                                                                       *
@@ -50,6 +50,7 @@ ALL_FILES = \
 	artifact.h \
 	funcpoint.h \
 	map.h \
+	mempool.h \
 	recipe.h \
 	treasure.h \
 	global.h \
@@ -90,7 +91,7 @@ archive::
 	$(CP) $(ALL_FILES) $(ARCHIVE)/include
 
 patchlist::
-	@echo $(ALL_FILES) > .patchlist	
+	@echo $(ALL_FILES) > .patchlist
 
 
 install::

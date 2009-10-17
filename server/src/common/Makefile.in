@@ -47,6 +47,7 @@ SRCS = \
 	logger.c \
 	los.c \
 	map.c \
+	mempool.c \
 	object.c \
 	porting.c \
 	player.c \
