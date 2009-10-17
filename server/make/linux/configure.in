@@ -25,7 +25,6 @@ case "$target" in
     ;;
 esac
 
-
 AC_PROG_CPP
 AC_PROG_LEX
 AC_PROG_AWK
@@ -36,8 +35,6 @@ AC_PROG_RANLIB
 
 AC_ARG_ENABLE(old-layout, [ --enable-old-layout    Use the old (0.95.3 and earlier) install layout],
 	old_layout=yes, old_layout=no)
-
-
 
 dnl check for some other programs
 AC_PATH_PROG(MKDIR, mkdir)
@@ -62,9 +59,9 @@ changequote([, ])dnl
 AC_MSG_RESULT($PYTHON_VER)
 AC_SUBST(PYTHON_VER)
 
-if test $PYTHON_VERSION -lt 22; then
-	echo "Sorry, you need to have Python 2.2+ installed - update your version!"
-    AC_MSG_ERROR([Python 2.2 or better required])
+if test $PYTHON_VERSION -lt 24; then
+	echo "Sorry, you need to have Python 2.4 or higher installed."
+    AC_MSG_ERROR([Python 2.4 or higher required])
 fi
 
 dnl ----------------------------------------------
@@ -121,9 +118,6 @@ fi;
 AC_PATH_PROGS(BOURNE_SHELL, sh ksh bash)
 
 dnl The following are useful for debugging
-AC_ARG_ENABLE(warnings, [  --enable-warnings       compile with warnings enabled ],
-		EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall", )
-
 AC_ARG_ENABLE(profiling, [  --enable-profiling      compile with profiling enabled ],
 		EXTRA_CFLAGS="$EXTRA_CFLAGS -pg"; LDFLAGS="$LDFLAGS -pg", )
 
@@ -153,34 +147,7 @@ AC_PATH_XTRA
 CPPFLAGS="$CPPFLAGS $EXTRA_INC"
 LDFLAGS="$LDFLAGS $EXTRA_LIB"
 
-dnl Some of these checks are probably excessive.  Unfortunately, on
-dnl some systems, to link in Xaw, Xt you need SM, which needs ICE.
-dnl the order of the checks below is important
-OLD_LD_FLAGS="$LDFLAGS"
-LDFLAGS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
-
-AC_CHECK_LIB(X11, main, AC_DEFINE(HAVE_LIBX11) X11LIBS="$X11LIBS -lX11")
-
-AC_CHECK_LIB(ICE, main, AC_DEFINE(HAVE_LIBICE) X11LIBS="$X11LIBS -lICE")
-
-AC_CHECK_LIB(SM, main, AC_DEFINE(HAVE_LIBSM) X11LIBS="$X11LIBS -lSM", , $X11LIBS)
-
-AC_CHECK_LIB(Xext, main,  AC_DEFINE(HAVE_LIBXEXT) X11LIBS="$X11LIBS -lXext", , -lX11)
-
-AC_CHECK_LIB(Xt, main,  AC_DEFINE(HAVE_LIBXT) X11LIBS="$X11LIBS -lXt", , $X11LIBS)
-
-AC_CHECK_LIB(Xmu, main,  AC_DEFINE(HAVE_LIBXMU) X11LIBS="$X11LIBS -lXmu", ,$X11LIBS)
-
-AC_CHECK_LIB(Xaw, main, AC_DEFINE(HAVE_LIBXAW) X11LIBS="-lXaw $X11LIBS", , $X11LIBS)
-
-LDFLAGS="$OLD_LD_FLAGS"
-X11LIBS="$X_LIBS $X11LIBS"
-
-AC_CHECK_LIB(Xpm, main,  AC_DEFINE(HAVE_LIBXPM) X11LIBS="$X11LIBS -lXpm", , $X11LIBS )
-
 AC_CHECK_LIB(m, main)
-
-AC_CHECK_LIB(png, main,  AC_DEFINE(HAVE_LIBPNG) X11LIBS="$X11LIBS -lpng", , $X11LIBS )
 
 dnl Misc libraries.
 AC_CHECK_LIB(crypt, main)
@@ -198,7 +165,7 @@ AC_CHECK_LIB(dl, main)
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h sys/file.h sys/ioctl.h sys/time.h time.h unistd.h stddef.h stdlib.h sys/ttycom.h sys/termios.h crypt.h arpa/inet.h des.h)
+AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h)
 
 AC_CHECK_HEADERS(sqlite3.h)
 AC_CHECK_LIB(sqlite3, sqlite3_open, [LIBS="$LIBS -lsqlite3"])
@@ -225,9 +192,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_FUNC_SETPGRP
 AC_TYPE_SIGNAL
-AC_FUNC_STRFTIME
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday mkdir mktime rmdir select socket strcspn strerror strspn strstr strtol strcasecmp strncasecmp stricmp strnicmp snprintf setsid srandom getdtablesize srand48 srand sysconf scandir)
+AC_CHECK_FUNCS(gettimeofday strerror strcasecmp strncasecmp stricmp strnicmp srandom srand48 srand getdtablesize sysconf)
 
 AC_MSG_CHECKING(how many args gettimeofday uses)
 AC_CACHE_VAL(ac_cv_gettimeofday_args,
@@ -255,7 +220,6 @@ else
   AC_MSG_RESULT(unknown)
 fi
 
-
 AC_SUBST(x_includes)
 AC_SUBST(x_libraries)
 AC_SUBST(no_x)
@@ -275,9 +239,8 @@ test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 
 nprefix=`eval echo ${prefix}`
 
-ndatadir=`eval echo ${datadir}`/Daimonin
-nlocaldir=`eval echo ${localstatedir}`/Daimonin
-
+ndatadir=`eval echo ${datadir}`/Atrinik
+nlocaldir=`eval echo ${localstatedir}`/Atrinik
 
 dnl Have to do this one twice, since it uses two levels of indirection
 
