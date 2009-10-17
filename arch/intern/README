@@ -1,9 +1,0 @@
-NEVER USE OBJECTS FROM INTERN IN THE EDITOR
-
-The editor ignores objects in this folder!
-
-This directory contains items used by the game engine. They are NOT for 
-map makers and will NOT appear in the editors panels.
-
-WARNING: Using this objects or even adding them to a map will kill the server
-or corrupt the player data. They are used from server only - dev team only.
