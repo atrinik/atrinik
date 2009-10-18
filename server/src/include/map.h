@@ -518,6 +518,9 @@ typedef struct mapdef
 	/** Next map, linked list */
 	struct mapdef *next;
 
+	/** Any maps tiled together to this one */
+	struct mapdef *tile_map[TILED_MAPS];
+
 	/** Name of map as given by its creator */
 	char *name;
 
@@ -532,12 +535,6 @@ typedef struct mapdef
 
 	/** Owner of the map (used for unique maps) */
 	char *owner;
-
-	/** Bitmap used for marking visited tiles in pathfinding */
-	uint32 *bitmap;
-
-	/** For which traversal is @ref mapstruct::bitmap valid. */
-	uint32 pathfinding_id;
 
 	/** Array of spaces on this map */
 	MapSpace *spaces;
@@ -554,23 +551,14 @@ typedef struct mapdef
 	/** Path to adjoining maps (shared strings) */
 	const char *tile_path[TILED_MAPS];
 
-	/** Any maps tiled together to this one */
-	struct mapdef *tile_map[TILED_MAPS];
-
 	/** Chained list of players on this map */
 	object *player_first;
 
-	/**
-	 * Indicates the base light value on this map.
-	 *
-	 * This value is only used when the map is not marked as outdoor.
-	 * @see MAP_DEFAULT_DARKNESS */
-	int darkness;
+	/** Bitmap used for marking visited tiles in pathfinding */
+	uint32 *bitmap;
 
-	/**
-	 * The real light_value, built out from darkness and possible other
-	 * factors. */
-	int light_value;
+	/** For which traversal is @ref mapstruct::bitmap valid. */
+	uint32 pathfinding_id;
 
 	/** Map flags for various map settings */
 	uint32 map_flags;
@@ -600,6 +588,18 @@ typedef struct mapdef
 
 	/** Used by relative_tile_position() to mark visited maps */
 	uint32 traversed;
+
+	/**
+	 * Indicates the base light value on this map.
+	 *
+	 * This value is only used when the map is not marked as outdoor.
+	 * @see MAP_DEFAULT_DARKNESS */
+	int darkness;
+
+	/**
+	 * The real light_value, built out from darkness and possible other
+	 * factors. */
+	int light_value;
 
 	/**
 	 * This is a counter - used for example from NPCs which have a global

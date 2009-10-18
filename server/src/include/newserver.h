@@ -127,27 +127,6 @@ typedef struct NewSocket_struct
 	/** Marker to see we must update the below windows of the tile the player is */
 	uint32 update_tile;
 
-	/** Start of drawing of look window */
-	sint16 look_position;
-
-	/** Faceset the client is using, default 0 */
-	uint8 faceset;
-
-	/** Current state of the socket. */
-	enum Sock_Status status;
-
-	/** Last map */
-	struct Map lastmap;
-
-	/** Socket stats */
-	struct statsinfo stats;
-
-	/** If we get an incomplete packet, this is used to hold the data. */
-	SockList inbuf;
-
-	/** For undeliverable data */
-	Buffer outputbuffer;
-
 	/** Marker to map draw/draw below */
 	uint32 below_clear:1;
 
@@ -199,13 +178,34 @@ typedef struct NewSocket_struct
 	/** Has the client requested bitmaps file? */
 	uint32 rf_bmaps:1;
 
+	/** Has the client requested hfiles file? */
+	uint32 rf_hfiles:1;
+
+	/** Start of drawing of look window */
+	sint16 look_position;
+
+	/** Faceset the client is using, default 0 */
+	uint8 faceset;
+
 	/**
 	 * How many times the player has failed to provide the right
 	 * password. */
 	uint8 password_fails;
 
-	/** Has the client requested hfiles file? */
-	uint32 rf_hfiles:1;
+	/** Current state of the socket. */
+	enum Sock_Status status;
+
+	/** Last map */
+	struct Map lastmap;
+
+	/** Socket stats */
+	struct statsinfo stats;
+
+	/** If we get an incomplete packet, this is used to hold the data. */
+	SockList inbuf;
+
+	/** For undeliverable data */
+	Buffer outputbuffer;
 } NewSocket;
 
 /** Holds some system related information */

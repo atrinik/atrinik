@@ -75,13 +75,15 @@ typedef struct obj
 {
 	/* These variables are not changed by copy_object(): */
 
-	/** Next object in the 'active' list
+	/**
+	 * Next object in the 'active' list
 	 * This is used in process_events
 	 * so that the entire object list does not
 	 * need to be gone through. */
 	struct obj *active_next;
 
-	/** Previous object in the 'active' list
+	/**
+	 * Previous object in the 'active' list
 	 * This is used in process_events
 	 * so that the entire object list does not
 	 * need to be gone through. */
@@ -90,14 +92,16 @@ typedef struct obj
 	/** Pointer to the object stacked below this one */
 	struct obj *below;
 
-	/** Pointer to the object stacked above this one
+	/**
+	 * Pointer to the object stacked above this one
 	 * Note: stacked in the *same* environment */
 	struct obj *above;
 
 	/** Pointer to the first object in the inventory */
 	struct obj *inv;
 
-	/** Pointer to the object which is the environment.
+	/**
+	 * Pointer to the object which is the environment.
 	 * This is typically the container that the object is in.
 	 * If env == NULL then the object is on a map or in the nirvana. */
 	struct obj *env;
@@ -108,11 +112,38 @@ typedef struct obj
 	/** Points to the main object of a large body */
 	struct obj *head;
 
+	/** Monster/player to follow even if not closest */
+	struct obj *enemy;
+
+	/** This object starts to attack us! Only player & monster */
+	struct obj *attacked_by;
+
+	/**
+	 * Pointer to the object which controls this one
+	 * Owner should not be referred to directly
+	 * - get_owner() should be used instead. */
+	struct obj *owner;
+
+	/** The skill chosen to use */
+	struct obj *chosen_skill;
+
+	/** The exp. obj (category) associated with this object */
+	struct obj *exp_obj;
+
 	/** Pointer to the map in which this object is present */
 	struct mapdef *map;
 
 	/** Unique object number for this object */
 	tag_t count;
+
+	/** What count the enemy has */
+	tag_t enemy_count;
+
+	/** What count the owner had (in case owner has been freed) */
+	tag_t ownercount;
+
+	/** The tag of attacker, so we can be sure */
+	tag_t attacked_by_count;
 
 	/* These get an extra add_refcount(), after having been copied by memcpy().
 	 * All fields beow this point are automatically copied by memcpy.  If
@@ -129,7 +160,8 @@ typedef struct obj
 	/** Human, goblin, dragon, etc */
 	const char *race;
 
-	/** Which race to do double damage to.
+	/**
+	 * Which race to do double damage to.
 	 * If this is an exit, this is the filename */
 	const char *slaying;
 
@@ -139,35 +171,20 @@ typedef struct obj
 	/** Pointer to archetype */
 	struct archt *arch;
 
-	/** Items to be generated */
-	struct treasureliststruct *randomitems;
-
-	/* we can remove chosen_skill & exp_obj by drop here a uint8 with a list of skill
-	 * numbers. Mobs has no skill and player can grab it from player struct. For exp,
-	 * i will use skill numbers in golems/ammo and spell objects. So, this can be removed. */
-
-	/** The skill chosen to use */
-	struct obj *chosen_skill;
-
-	/** The exp. obj (category) associated with this object */
-	struct obj *exp_obj;
-
-	/** flags matching events of event objects inside object ->inv */
-	uint32 event_flags;
-
-	/* needed when we want chain script direct without browsing
-	 * the objects inventory (this is needed when we want mutiple
-	 * scripts of same kind in one object). */
-	/*struct obj *event_ptr;*/
-
 	/** Pointer used for various things */
 	struct archt *other_arch;
+
+	/** Items to be generated */
+	struct treasureliststruct *randomitems;
 
 	/** Struct pointer to the 'face' - the picture(s) */
 	New_Face *face;
 
 	/** Struct pointer to the inventory 'face' - the picture(s) */
 	New_Face *inv_face;
+
+	/** flags matching events of event objects inside object ->inv */
+	uint32 event_flags;
 
 	/** Attributes of the object - the weight */
 	sint32 weight;
@@ -202,25 +219,8 @@ typedef struct obj
 	/** Various flags */
 	uint32 flags[NUM_FLAGS_32];
 
-	/** What count the enemy has */
-	tag_t enemy_count;
-
-	/** Monster/player to follow even if not closest */
-	struct obj *enemy;
-
-	/** The tag of attacker, so we can be sure */
-	tag_t attacked_by_count;
-
-	/** This object starts to attack us! Only player & monster */
-	struct obj *attacked_by;
-
-	/** What count the owner had (in case owner has been freed) */
-	tag_t ownercount;
-
-	/** Pointer to the object which controls this one
-	 * Owner should not be referred to directly
-	 * - get_owner() should be used instead. */
-	struct obj *owner;
+	/** Attacktype. REMOVE IS IN PROCESS */
+	uint32 attacktype;
 
 	/** X position in the map for this object */
 	sint16 x;
@@ -234,7 +234,8 @@ typedef struct obj
 	/** The damage sent with map2 */
 	uint16 last_damage;
 
-	/** type flags for different enviroment (tile is under water, firewalk,...)
+	/**
+	 * type flags for different enviroment (tile is under water, firewalk,...)
 	 * A object which can be applied GIVES this terrain flags to his owner */
 	uint16 terrain_type;
 
@@ -265,12 +266,13 @@ typedef struct obj
 	/** An index into the animation array for the client inv */
 	uint16 inv_animation_id;
 
+#ifdef POSITION_DEBUG
+	/** For debugging: Where it was last inserted */
+	sint16 ox, oy;
+#endif
+
 	/** Object is a light source */
 	sint8 glow_radius;
-
-	/* some stuff for someone coming softscrolling / smooth animations */
-	/*sint8 tile_xoff;*/			/* x-offset of position of an object inside a tile */
-	/*sint8 tile_yoff;*/			/* same for y-offset */
 
 	/** Any magical bonuses to this item */
 	sint8 magic;
@@ -287,7 +289,8 @@ typedef struct obj
 	/** Object is oriented/facing that way. */
 	sint8 facing;
 
-	/** quick pos is 0 for single arch, xxxx0000 for a head
+	/**
+	 * quick pos is 0 for single arch, xxxx0000 for a head
 	 * or x/y offset packed to 4 bits for a tail
 	 * warning: change this when include > 15x15 monster */
 	uint8 quick_pos;
@@ -355,17 +358,22 @@ typedef struct obj
 	/** Pickup mode */
 	uint8 pick_up;
 
-	/** The object is hidden. We don't use a flag here because
+	/**
+	 * The object is hidden. We don't use a flag here because
 	 * the range from 0-255 tells us the quality of the hide */
 	uint8 hide;
 
 	/** the layer in a map, this object will be sorted in */
 	uint8 layer;
 
+	/** Quickslot ID this object goes in */
+	uint8 quickslot;
+
 	/** Intrinsic resist against damage - range from -125 to +125 */
 	sint8 resist[NROFATTACKS];
 
-	/** our attack values - range from 0%-125%. (negative values makes no sense).
+	/**
+	 * our attack values - range from 0%-125%. (negative values makes no sense).
 	 * Note: we can in theory allow 300% damage for a attacktype.
 	 * all we need is to increase sint8 to sint16. Thats true for
 	 * resist & protection too. But it will be counter the damage
@@ -399,19 +407,8 @@ typedef struct obj
 	/** Str, Con, Dex, etc */
 	living stats;
 
-	/** Attacktype. REMOVE IS IN PROCESS */
-	uint32 attacktype;
-
-#ifdef POSITION_DEBUG
-	/** For debugging: Where it was last inserted */
-	sint16 ox, oy;
-#endif
-
 	/** Type-dependant extra data. */
 	void *custom_attrset;
-
-	/** Quickslot ID this object goes in */
-	uint8 quickslot;
 } object;
 
 #ifdef WIN32

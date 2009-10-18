@@ -156,9 +156,6 @@ typedef struct pl_player
 	/** Socket information for this player */
 	NewSocket socket;
 
-	/** Name of the map the player is on */
-	char maplevel[MAX_BUF];
-
 	/**
 	 * When moving on tiled maps, player can change
 	 * map without triggering mapevents and new_map_cmd.
@@ -216,9 +213,6 @@ typedef struct pl_player
 	/** Current container being used. */
 	object *container;
 
-	/** The count of the container */
-	uint32 container_count;
-
 	/**
 	 * Pints to a PLAYER ob, accessing this container too!
 	 * If this is NULL, we are the "last" one looking in ->container. */
@@ -228,11 +222,6 @@ typedef struct pl_player
 	 * Same as container_above - if this is NULL, we are "last" looking
 	 * the container */
 	object *container_below;
-
-	/**
-	 * hm, this can be kicked now - i do it for a quick hack to
-	 * implement the animations. use is_melee_range() instead. */
-	uint32 anim_enemy_count;
 
 	/** For the client target HP marker - special shadow */
 	int target_hp;
@@ -249,9 +238,6 @@ typedef struct pl_player
 	/** Y coordinate of respawn (savebed) */
 	int bed_y;
 
-	/** Which golem is controlled - the ID count */
-	uint32 golem_count;
-
 	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
 
@@ -259,85 +245,13 @@ typedef struct pl_player
 
 	int firemode_tag2;
 
-	/** Skill action timers - used for action delays like cast time */
-	uint32 action_casting;
+	/** Number of items the player has in his shop. */
+	int shop_items_count;
 
-	uint32 action_range;
+	/* for smaller map sizes, only the the first elements are used (ie, upper left) */
 
-	/** weapon_speed_left * 1000 and cast from float to int for client */
-	float action_timer;
-
-	/** Previous value of action timer sent to the client */
-	float last_action_timer;
-
-	/** Count of mark object */
-	uint32 mark_count;
-
-	/** Shadow register. If != exp. obj update client */
-	sint32 last_skill_exp[MAX_EXP_CAT];
-
-	/** Shadow register for updating skill values to client */
-	sint32 skill_exp[NROFSKILLS];
-
-	/**
-	 * Count of target */
-	uint32 target_object_count;
-
-	/** Last target search position */
-	uint32 target_map_pos;
-
-	float last_speed;
-
-	/** Condition adjusted damage sent to client */
-	sint16 client_dam;
-
-	/** The age of our player */
-	sint16 age;
-
-	/** Unnatural changes to our age - can be removed by restoration */
-	sint16 age_add;
-
-	/** Permanent age changes... Very bad, or good when younger */
-	sint16 age_changes;
-
-	/** Maximum age of our player */
-	sint16 age_max;
-
-	/** Shadow register for updint skill levels to client */
-	sint16 skill_level[NROFSKILLS];
-
-	/** How much our player is encumbered */
-	sint16 encumbrance;
-
-	/** Some anim flags for special player animation handling */
-	uint16 anim_flags;
-
-	/** Index in the anim_flags array */
-	uint16 nrofknownspells;
-
-	/** Spells known by the player */
-	sint16 known_spells[NROFREALSPELLS];
-
-	/** For the client target HP real % value */
-	char target_hp_p;
-
-	/** Seapon speed index (mainly used for client) */
-	char weapon_sp;
-
-	/** Any bonuses/penalties to digestion */
-	signed char digestion;
-
-	/** Penalty to sp regen from armour */
-	signed char gen_sp_armour;
-
-	/** Bonuses to regeneration speed of hp */
-	signed char gen_hp;
-
-	/** Bonuses to regeneration speed of sp */
-	signed char gen_sp;
-
-	/** Bonuses to regeneration speed of grace */
-	signed char gen_grace;
+	/* in fact we only need char size, but use int for faster access */
+	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
 
 	/** How much HP the player regenerates every tick */
 	int reg_hp_num;
@@ -348,29 +262,27 @@ typedef struct pl_player
 	/** How much grace the player regenerates every tick */
 	int reg_grace_num;
 
-	/** Real tick counter for hp regenerations */
-	sint16 base_hp_reg;
+	/** This is initialized from init_player_exp() */
+	int last_skill_index;
 
-	/** Real tick counter for sp regenerations */
-	sint16 base_sp_reg;
+	int apartment_invite;
 
-	/** Real tick counter for grace regenerations */
-	sint16 base_grace_reg;
+	/** weapon_speed_left * 1000 and cast from float to int for client */
+	float action_timer;
 
-	/** Bonuses to regeneration speed of hp */
-	uint16 gen_client_hp;
+	/** Previous value of action timer sent to the client */
+	float last_action_timer;
 
-	/** Bonuses to regeneration speed of sp */
-	uint16 gen_client_sp;
+	float last_speed;
 
-	/** Bonuses to regeneration speed of grace */
-	uint16 gen_client_grace;
+	/** Name of the map the player is on */
+	char maplevel[MAX_BUF];
 
-	uint16 last_gen_hp;
+	/** For the client target HP real % value */
+	char target_hp_p;
 
-	uint16 last_gen_sp;
-
-	uint16 last_gen_grace;
+	/** Seapon speed index (mainly used for client) */
+	char weapon_sp;
 
 	char last_weapon_sp;
 
@@ -388,11 +300,6 @@ typedef struct pl_player
 	/** Map where player will respawn after death */
 	char savebed_map[MAX_BUF];
 
-	/* for smaller map sizes, only the the first elements are used (ie, upper left) */
-
-	/* in fact we only need char size, but use int for faster access */
-	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
-
 	/** For client: <Rank> <Name>\n<Gender> <Race> <Profession> */
 	char ext_title[MAX_EXT_TITLE];
 
@@ -405,8 +312,96 @@ typedef struct pl_player
 	/** How much grace the player gained on that level */
 	char levgrace[MAXLEVEL + 1];
 
-	/** shadow register for client update resistance table */
-	sint8 last_protection[NROFPROTECTIONS];
+	/** Who killed this player. */
+	char killer[BIG_NAME];
+
+	/**
+	 * Last player that told you something, used for /reply command.
+	 * @todo The client should handle this instead of the server. */
+	char last_tell[MAX_NAME];
+
+	char write_buf[MAX_BUF];
+
+	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
+	char password[16];
+
+#ifdef SEARCH_ITEMS
+	char search_str[MAX_BUF];
+#endif
+
+	unsigned char last_level;
+
+	/** Any bonuses/penalties to digestion */
+	signed char digestion;
+
+	/** Penalty to sp regen from armour */
+	signed char gen_sp_armour;
+
+	/** Bonuses to regeneration speed of hp */
+	signed char gen_hp;
+
+	/** Bonuses to regeneration speed of sp */
+	signed char gen_sp;
+
+	/** Bonuses to regeneration speed of grace */
+	signed char gen_grace;
+
+	unsigned char state;
+
+	/** Which priority will be used in info_all */
+	unsigned char listening;
+
+	unsigned char fire_on;
+
+	unsigned char run_on;
+
+#ifdef AUTOSAVE
+	long last_save_tick;
+#endif
+
+	long last_weight;
+
+	/** Same usage as last_stats */
+	signed long last_value;
+
+#ifdef SAVE_INTERVAL
+	time_t last_save_time;
+#endif
+
+	/** The count of the container */
+	uint32 container_count;
+
+	/**
+	 * hm, this can be kicked now - i do it for a quick hack to
+	 * implement the animations. use is_melee_range() instead. */
+	uint32 anim_enemy_count;
+
+	/** Which golem is controlled - the ID count */
+	uint32 golem_count;
+
+	/** Skill action timers - used for action delays like cast time */
+	uint32 action_casting;
+
+	uint32 action_range;
+
+	/** Count of mark object */
+	uint32 mark_count;
+
+	/** Shadow register. If != exp. obj update client */
+	sint32 last_skill_exp[MAX_EXP_CAT];
+
+	/** Shadow register for updating skill values to client */
+	sint32 skill_exp[NROFSKILLS];
+
+	/**
+	 * Count of target */
+	uint32 target_object_count;
+
+	/** Last target search position */
+	uint32 target_map_pos;
+
+	/** Last weight limit transmitted to client */
+	uint32 last_weight_limit;
 
 	/**
 	 * This flag is set when the player is loaded from file
@@ -449,11 +444,8 @@ typedef struct pl_player
 	/** Update skill list when set */
 	uint32 update_skills:1;
 
-	/** Which range attack is being used by player */
-	rangetype shoottype;
-
-	/** What was last updated with draw_stats() */
-	rangetype last_shoot;
+	/** Any numbers typed before a command */
+	uint32 count;
 
 	/** Type of readied spell */
 	sint16 chosen_spell;
@@ -464,57 +456,29 @@ typedef struct pl_player
 	/** fire/run on flags for last tick */
 	uint16 last_flags;
 
-	/** Any numbers typed before a command */
-	uint32 count;
+	/** Real tick counter for hp regenerations */
+	sint16 base_hp_reg;
 
-	/** This is initialized from init_player_exp() */
-	int last_skill_index;
+	/** Real tick counter for sp regenerations */
+	sint16 base_sp_reg;
 
-	unsigned char state;
+	/** Real tick counter for grace regenerations */
+	sint16 base_grace_reg;
 
-	/** Which priority will be used in info_all */
-	unsigned char listening;
+	/** Bonuses to regeneration speed of hp */
+	uint16 gen_client_hp;
 
-	unsigned char fire_on;
+	/** Bonuses to regeneration speed of sp */
+	uint16 gen_client_sp;
 
-	unsigned char run_on;
+	/** Bonuses to regeneration speed of grace */
+	uint16 gen_client_grace;
 
-	/** Last weight limit transmitted to client */
-	uint32 last_weight_limit;
+	uint16 last_gen_hp;
 
-	/** Can be less in case of poisoning */
-	living orig_stats;
+	uint16 last_gen_sp;
 
-	/** Last stats drawn with draw_stats() */
-	living last_stats;
-
-	/** Same usage as last_stats */
-	signed long last_value;
-
-	long last_weight;
-
-	unsigned char last_level;
-
-	/** Who killed this player. */
-	char killer[BIG_NAME];
-
-	/**
-	 * Last player that told you something, used for /reply command.
-	 * @todo The client should handle this instead of the server. */
-	char last_tell[MAX_NAME];
-
-	char write_buf[MAX_BUF];
-
-	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
-	char password[16];
-
-#ifdef SAVE_INTERVAL
-	time_t last_save_time;
-#endif
-
-#ifdef AUTOSAVE
-	long last_save_tick;
-#endif
+	uint16 last_gen_grace;
 
 	/** ID of the party the player is in. */
 	sint16 party_number;
@@ -522,19 +486,55 @@ typedef struct pl_player
 	/** Is the player AFK? */
 	sint16 afk;
 
-#ifdef SEARCH_ITEMS
-	char search_str[MAX_BUF];
-#endif
+	/** Condition adjusted damage sent to client */
+	sint16 client_dam;
 
-	int apartment_invite;
+	/** The age of our player */
+	sint16 age;
+
+	/** Unnatural changes to our age - can be removed by restoration */
+	sint16 age_add;
+
+	/** Permanent age changes... Very bad, or good when younger */
+	sint16 age_changes;
+
+	/** Maximum age of our player */
+	sint16 age_max;
+
+	/** Shadow register for updint skill levels to client */
+	sint16 skill_level[NROFSKILLS];
+
+	/** How much our player is encumbered */
+	sint16 encumbrance;
+
+	/** Some anim flags for special player animation handling */
+	uint16 anim_flags;
+
+	/** Index in the anim_flags array */
+	uint16 nrofknownspells;
+
+	/** Spells known by the player */
+	sint16 known_spells[NROFREALSPELLS];
+
+	/** shadow register for client update resistance table */
+	sint8 last_protection[NROFPROTECTIONS];
+
+	/** Which range attack is being used by player */
+	rangetype shoottype;
+
+	/** What was last updated with draw_stats() */
+	rangetype last_shoot;
+
+	/** Can be less in case of poisoning */
+	living orig_stats;
+
+	/** Last stats drawn with draw_stats() */
+	living last_stats;
 
 	/**
 	 * Player shop structure, with linked list of items the player is
 	 * selling. */
 	player_shop *shop_items;
-
-	/** Number of items the player has in his shop. */
-	int shop_items_count;
 
 	/* i disabled this now - search for last_used in the code.
 	  * perhaps we need this in the future. */
