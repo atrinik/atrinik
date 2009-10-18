@@ -98,12 +98,13 @@ extern int nrofallocobjects,nroffreeobjects;
 #endif
 #endif
 
-
-/* this updates the orig_map->tile_map[tile_num] value after loading
- * the map.  It also takes care of linking back the freshly loaded
- * maps tile_map values if it tiles back to this one.  It returns
- * the value of orig_map->tile_map[tile_num].  It really only does this
- * so that it is easier for calling functions to verify success. */
+/**
+ * This updates the orig_map->tile_map[tile_num] value after loading the
+ * map. It also takes care of linking back the freshly loaded map's
+ * tile_map values if it tiles back to this one.
+ * @param orig_map Original map.
+ * @param tile_num Tile number.
+ * @return The value of orig_map->tile_map[tile_num]. */
 static mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
 	int dest_tile = map_tiled_reverse[tile_num];
@@ -122,91 +123,111 @@ static mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 	return orig_map->tile_map[tile_num];
 }
 
-/* The recursive part of the function below. */
+/**
+ * Recursive part of the relative_tile_position() function.
+ * @param map1
+ * @param map2
+ * @param x
+ * @param y
+ * @param id
+ * @return
+ * @todo A bidirectional breadth-first search would be more efficient. */
 static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, uint32 id)
 {
 	int i;
 
 	if (map1 == map2)
-		return TRUE;
+	{
+		return 1;
+	}
 
 	map1->traversed = id;
 
-	/* TODO: A bidirectional breadth-first search would be more efficient */
 	/* Depth-first search for the destination map */
 	for (i = 0; i < TILED_MAPS; i++)
 	{
 		if (map1->tile_path[i])
 		{
 			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(map1, i);
+			}
 
 			if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id)))
 			{
 				switch (i)
 				{
-						/* North */
+					/* North */
 					case 0:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* East */
+					/* East */
 					case 1:
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* South */
+					/* South */
 					case 2:
 						*y += MAP_HEIGHT(map1);
-						return TRUE;
+						return 1;
 
-						/* West */
+					/* West */
 					case 3:
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* Northest */
+					/* Northest */
 					case 4:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* Southest */
+					/* Southest */
 					case 5:
 						*y += MAP_HEIGHT(map1);
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* Southwest */
+					/* Southwest */
 					case 6:
 						*y += MAP_HEIGHT(map1);
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* Northwest */
+					/* Northwest */
 					case 7:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 				}
 			}
 		}
 	}
 
-	return FALSE;
+	return 0;
 }
 
-/* Find the distance between two map tiles on a tiled map.
- * Returns true if the two tiles are part of the same map.
- * the distance from the topleft (0,0) corner of map1 to the topleft corner of map2
- * will be added to x and y.
+/**
+ * Find the distance between two map tiles on a tiled map.
  *
- * This function does not work well with assymetrically tiled maps.
- * It will also (naturally) perform bad on very large tilesets such as the world map
- * as it may need to load all tiles into memory before finding a path between two tiles.
- * We probably want to handle the world map as a special case, considering that
- * all tiles are of equal size, and that we might be able to parse their coordinates from
- * their names... */
+ * The distance from the topleft (0, 0) corner of map1 to the topleft
+ * corner of map2 will be added to x and y.
+ *
+ * This function does not work well with asymmetrically tiled maps.
+ *
+ * It will also (naturally) perform bad on very large tilesets such as
+ * the world map as it may need to load all tiles into memory before
+ * finding a path between two tiles.
+ *
+ * We probably want to handle the world map as a special case,
+ * considering that all tiles are of equal size, and that we might be
+ * able to parse their coordinates from their names...
+ * @param map1
+ * @param map2
+ * @param x
+ * @param y
+ * @return 1 if the two tiles are part of the same map, 0 otherwise. */
 static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y)
 {
 	int i;
@@ -214,65 +235,71 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 
 	/* Save some time in the simplest cases ( very similar to on_same_map() )*/
 	if (map1 == NULL || map2 == NULL)
-		return FALSE;
+	{
+		return 0;
+	}
 
 	if (map1 == map2)
-		return TRUE;
+	{
+		return 1;
+	}
 
 	for (i = 0; i < TILED_MAPS; i++)
 	{
 		if (map1->tile_path[i])
 		{
 			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(map1, i);
+			}
 
 			if (map1->tile_map[i] == map2)
 			{
 				switch (i)
 				{
-						/* North */
+					/* North */
 					case 0:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* East */
+					/* East */
 					case 1:
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* South */
+					/* South */
 					case 2:
 						*y += MAP_HEIGHT(map1);
-						return TRUE;
+						return 1;
 
-						/* West */
+					/* West */
 					case 3:
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* Northest */
+					/* Northest */
 					case 4:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* Southest */
+					/* Southest */
 					case 5:
 						*y += MAP_HEIGHT(map1);
 						*x += MAP_WIDTH(map1);
-						return TRUE;
+						return 1;
 
-						/* Southwest */
+					/* Southwest */
 					case 6:
 						*y += MAP_HEIGHT(map1);
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 
-						/* Northwest */
+					/* Northwest */
 					case 7:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return TRUE;
+						return 1;
 				}
 			}
 		}
@@ -286,24 +313,32 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 		LOG(llevDebug, "DEBUG: relative_tile_position(): resetting traversal id\n");
 
 		for (m = first_map; m != NULL; m = m->next)
+		{
 			m->traversed = 0;
+		}
 
 		traversal_id = 0;
 	}
 
-	/* recursive search */
+	/* Recursive search */
 	return relative_tile_position_rec(map1, map2, x, y, ++traversal_id);
 }
 
-/* Returns the mapstruct which has a name matching the given argument.
- * return NULL if no match is found. This version _requires_ a shared string as input. */
+/**
+ * Check whether a specified map has been loaded already.
+ * Returns the mapstruct which has a name matching the given argument.
+ * @param name Shared string of the map path name.
+ * @return ::mapstruct which has a name matching the given argument,
+ * NULL if no such map. */
 mapstruct *has_been_loaded_sh(const char *name)
 {
 	mapstruct *map;
 	int namebug = 0;
 
 	if (!name || !*name)
-		return 0;
+	{
+		return NULL;
+	}
 
 	/* this IS a bug starting without '/' - this can lead in double loaded maps! */
 	if (*name != '/' && *name != '.')
@@ -325,19 +360,26 @@ mapstruct *has_been_loaded_sh(const char *name)
 	{
 		/*LOG(-1, "check map: >%s< find: >%s<\n", name, map->path);*/
 		if (name == map->path)
+		{
 			break;
+		}
 	}
 
 	if (namebug)
+	{
 		free_string_shared(name);
+	}
 
 	return map;
 }
 
-/* This makes a path absolute outside the world of Crossfire.
- * In other words, it prepends LIBDIR/MAPDIR/ to the given path
- * and returns the pointer to a static array containing the result.
- * it really should be called create_mapname */
+/**
+ * Makes a path absolute outside the world of Atrinik.
+ *
+ * In other words, it prepends LIBDIR/MAPDIR/ to the given path and
+ * returns the pointer to a static array containing the result.
+ * @param name Path of the map.
+ * @return The full path. */
 char *create_pathname(const char *name)
 {
 	static char buf[MAX_BUF];
@@ -345,114 +387,145 @@ char *create_pathname(const char *name)
 	/* Why?  having extra / doesn't confuse unix anyplace?  Dependancies
 	 * someplace else in the code? msw 2-17-97 */
 	if (*name == '/')
-		sprintf (buf, "%s%s", settings.mapdir, name);
+	{
+		snprintf(buf, sizeof(buf), "%s%s", settings.mapdir, name);
+	}
 	else
-		sprintf (buf, "%s/%s", settings.mapdir, name);
+	{
+		snprintf(buf, sizeof(buf), "%s/%s", settings.mapdir, name);
+	}
 
-	return (buf);
+	return buf;
 }
 
-/* This makes absolute path to the itemfile where unique objects
- * will be saved. Converts '/' to '@'. I think it's essier maintain
- * files than full directory structure, but if this is problem it can
- * be changed. */
-static char *create_items_path (const char *s)
+/**
+ * This makes absolute path to the itemfile where unique objects will be
+ * saved.
+ *
+ * Converts '/' to '@'.
+ * @param s Path of the map for the items.
+ * @return The absolute path. */
+static char *create_items_path(const char *s)
 {
 	static char buf[MAX_BUF];
 	char *t;
 
 	if (*s == '/')
-		s++;
-
-	sprintf(buf, "%s/%s/", settings.localdir, settings.uniquedir);
-
-	for (t = buf+strlen(buf); *s; s++, t++)
 	{
-		if (*s == '/')
-			*t = '@';
-		else
-			*t = *s;
+		s++;
 	}
 
-	*t = 0;
+	snprintf(buf, sizeof(buf), "%s/%s/", settings.localdir, settings.uniquedir);
+
+	for (t = buf + strlen(buf); *s; s++, t++)
+	{
+		if (*s == '/')
+		{
+			*t = '@';
+		}
+		else
+		{
+			*t = *s;
+		}
+	}
+
+	*t = '\0';
 	return buf;
 }
 
-
-/* This function checks if a file with the given path exists.
- * -1 is returned if it fails, otherwise the mode of the file
- * is returned.
- * It tries out all the compression suffixes listed in the uncomp[] array.
+/**
+ * This function checks if a file with the given path exists.
  *
- * If prepend_dir is set, then we call create_pathname (which prepends
- * libdir & mapdir).  Otherwise, we assume the name given is fully
- * complete.
- * Only the editor actually cares about the writablity of this -
- * the rest of the code only cares that the file is readable.
- * when the editor goes away, the call to stat should probably be
- * replaced by an access instead (similar to the windows one, but
- * that seems to be missing the prepend_dir processing */
+ * It tries out all the compression suffixes listed in the @ref uncomp
+ * array.
+ * @param name Name of the file to check.
+ * @param prepend_dir If set, then we call create_pathname(), which
+ * prepends libdir and mapdir. Otherwise, we assume the name given is
+ * fully complete.
+ * @return -1 if it fails, otherwise the mode of the file. */
 int check_path(const char *name, int prepend_dir)
 {
-#ifdef WIN32
-	/* ***win32: check this sucker in windows style. */
 	char buf[MAX_BUF];
-
-	if (prepend_dir)
-		strcpy(buf, create_pathname(name));
-	else
-		strcpy(buf, name);
-
-	return _access(buf, 0);
-#else
-	char buf[MAX_BUF], *endbuf;
+#ifndef WIN32
+	char *endbuf;
 	struct stat statbuf;
 	int mode = 0, i;
+#endif
 
 	if (prepend_dir)
+	{
 		strcpy(buf, create_pathname(name));
+	}
 	else
+	{
 		strcpy(buf, name);
+	}
 
-	/* old method (strchr(buf, '\0')) seemd very odd to me -
-	 * this method should be equivalant and is clearer.
-	 * Can not use strcat because we need to cycle through
-	 * all the names. */
+#ifdef WIN32
+	return _access(buf, 0);
+#else
 	endbuf = buf + strlen(buf);
 
 	for (i = 0; i < NROF_COMPRESS_METHODS; i++)
 	{
 		if (uncomp[i][0])
+		{
 			strcpy(endbuf, uncomp[i][0]);
+		}
 		else
+		{
 			*endbuf = '\0';
+		}
 
 		if (!stat(buf, &statbuf))
+		{
 			break;
+		}
 	}
 
 	if (i == NROF_COMPRESS_METHODS)
+	{
 		return -1;
+	}
 
 	if (!S_ISREG(statbuf.st_mode))
+	{
 		return -1;
+	}
 
 	if (((statbuf.st_mode & S_IRGRP) && getegid() == statbuf.st_gid) || ((statbuf.st_mode & S_IRUSR) && geteuid() == statbuf.st_uid) || (statbuf.st_mode & S_IROTH))
+	{
 		mode |= 4;
+	}
 
 	if ((statbuf.st_mode & S_IWGRP && getegid() == statbuf.st_gid) || (statbuf.st_mode & S_IWUSR && geteuid() == statbuf.st_uid) || (statbuf.st_mode & S_IWOTH))
+	{
 		mode |= 2;
+	}
 
 	return mode;
 #endif
 }
 
-/* Moved from main.c */
+/**
+ * Make path absolute and remove ".." and "." entries.
+ *
+ * path will become a normalized (absolute) version of the path in dst,
+ * with all relative path references (".." and "." - parent directory and
+ * same directory) resolved (path will not contain any ".." or "."
+ * elements, even if dst did).
+ *
+ * If dst was not already absolute, the directory part of src will be
+ * used as the base path and dst will be added to it.
+ * @param src Already normalized file name for finding absolute path.
+ * @param dst Path to normalize. Should be either an absolute path or a
+ * path relative to src.
+ * @param path Buffer for normalized path.
+ * @return Pointer to path. */
 char *normalize_path(const char *src, const char *dst, char *path)
 {
 	char *p, *q;
 	char buf[HUGE_BUF];
-	/*    static char path[HUGE_BUF]; */
 
 	/*LOG(llevDebug,"path before normalization >%s<>%s<\n", src, dst);*/
 
@@ -465,31 +538,42 @@ char *normalize_path(const char *src, const char *dst, char *path)
 		strcpy (buf, src);
 
 		if ((p = strrchr(buf, '/')))
+		{
 			p[1] = '\0';
+		}
 		else
+		{
 			strcpy(buf, "/");
+		}
 
 		strcat(buf, dst);
 	}
 
 	q = p = buf;
+
 	while ((q = strstr(q, "//")))
+	{
 		p = ++q;
+	}
 
 	*path = '\0';
 	q = path;
 	p = strtok(p, "/");
+
 	while (p)
 	{
 		if (!strcmp(p, ".."))
 		{
 			q = strrchr(path, '/');
+
 			if (q)
+			{
 				*q = '\0';
+			}
 			else
 			{
 				*path = '\0';
-				LOG(llevBug, "BUG: Illegal path.\n");
+				LOG(llevBug, "BUG: Illegal path: %s\n", dst);
 			}
 		}
 		else
@@ -506,19 +590,23 @@ char *normalize_path(const char *src, const char *dst, char *path)
 	return path;
 }
 
-/* Prints out debug-information about a map.
- * Dumping these at llevError doesn't seem right, but is
- * necessary to make sure the information is in fact logged. */
+/**
+ * Prints out debug-information about a map.
+ * @param m Map to dump. */
 void dump_map(mapstruct *m)
 {
 	LOG(llevSystem, "Map %s status: %d.\n", m->path, m->in_memory);
-	LOG(llevSystem, "Size: %dx%d Start: %d,%d\n", MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
+	LOG(llevSystem, "Size: %dx%d Start: %d, %d\n", MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
 
 	if (m->msg != NULL)
+	{
 		LOG(llevSystem, "Message:\n%s", m->msg);
+	}
 
 	if (m->tmpname != NULL)
+	{
 		LOG(llevSystem, "Tmpname: %s\n", m->tmpname);
+	}
 
 	LOG(llevSystem, "Difficulty: %d\n", m->difficulty);
 	LOG(llevSystem, "Darkness: %d\n", m->darkness);
@@ -526,9 +614,11 @@ void dump_map(mapstruct *m)
 	LOG(llevSystem, "Outdoor: %d\n", MAP_OUTDOORS(m));
 }
 
-/* Prints out debug-information about all maps.
- * This basically just goes through all the maps and calls
- * dump_map on each one. */
+/**
+ * Prints out debug information about all maps.
+ *
+ * This basically just goes through all the maps and calls dump_map() on
+ * each one. */
 void dump_all_maps()
 {
 	mapstruct *m;
@@ -545,73 +635,91 @@ void dump_all_maps()
  * The PLAYER_ONLY flag here is analyzed without checking the
  * caller type. Thats possible because player movement releated
  * functions should always use blocked(). */
+/**
+ * Check if there is a wall on specified map at x, y.
+ *
+ * Caller should check for @ref P_PASS_THRU in the return value to see if
+ * it can cross here.
+ *
+ * The @ref P_PLAYER_ONLY flag here is analyzed without checking the
+ * caller type. That is possible because player movement related
+ * functions should always used blocked().
+ * @param m Map we're checking for.
+ * @param x X position where to check.
+ * @param y Y position where to check.
+ * @return 1  */
 int wall(mapstruct *m, int x, int y)
 {
 	if (!(m = out_of_map(m, &x, &y)))
+	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
+	}
 
 	return (GET_MAP_FLAGS(m, x, y) & (P_DOOR_CLOSED | P_PLAYER_ONLY | P_NO_PASS | P_PASS_THRU));
 }
 
-/* Returns true if it's impossible to see through the given coordinate
- * in the given map. */
+/**
+ * Check if it's impossible to see through the given coordinate on the
+ * given map.
+ * @param m Map.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @return  */
 int blocks_view(mapstruct *m, int x, int y)
 {
 	mapstruct *nm;
 
 	if (!(nm = out_of_map(m, &x, &y)))
+	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
+	}
 
 	return (GET_MAP_FLAGS(nm, x, y) & P_BLOCKSVIEW);
 }
 
-/* Returns true if the given coordinate in the given map blocks magic. */
+/**
+ * Check if given coordinates on the given map block magic.
+ * @param m Map.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @return  */
 int blocks_magic(mapstruct *m, int x, int y)
 {
 	if (!(m = out_of_map(m, &x, &y)))
+	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
+	}
 
 	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC);
 }
 
-/* Returns true if clerical spells cannot work here */
+/**
+ * Check if clerical spells do not work on given coordinates on the given
+ * map.
+ * @param m Map.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @return  */
 int blocks_cleric(mapstruct *m, int x, int y)
 {
 	if (!(m = out_of_map(m, &x, &y)))
+	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_CLERIC | P_OUT_OF_MAP);
+	}
 
 	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC);
 }
 
-/* I total reworked the blocked functions. There was several bugs, glitches
- * and loops in. The loops really scaled with bigger load very badly, slowing
- * this part down for heavy traffic.
- * Changes: check ALL P_xxx flags (and really all) of a tile node here. If its impossible
- * to enter the tile - blocked() will tell it us.
- * This included to capsule and integrate blocked_tile() in blocked().
- * blocked_tile() is the function where the single objects of a node gets
- * tested - for example for CHECK_INV. But i added a P_CHECK_INV flag - so its
- * now only called when really needed - before it was called for EVERY moving
- * object for every successful step.
- * PASS_THRU check is moved in blocked() too.. This should generate for example for
- * pathfinding better results. Note, that PASS_THRU only has a meaning when NO_PASS
- * is set. If a object has both flags, NO_PASS can be passed when object has
- * CAN_PASS_THRU. If object has PASS_THRU without NO_PASS, PASS_THRU is ignored.
- * blocked() checks player vs player stuff too. No block in non pvp areas.
- * Note, that blocked() is only on the first glance bigger as before - i moved stuff
- * in which was in blocked_tile() or handled from calling functions around the call -
- * so its less or same code but moved in blocked().
- *
- * Return: 0 = can be passed , elsewhere it gives one or more flags which invoke
- * the block AND/OR which was not tested. (for outside check).
- * MT-2003 */
-
-/* i added the door flag now. The trick is, that we want mark the door as possible
- * to open here and sometimes not. If the object spot is in forbidden terrain, we
- * don't want its possible to open it, even we stand near to it. But for example if
- * it blocked by alive object, we want open it. If the spot marked as pass_thru and
- * we can pass_thru, then we want skip the door (means not open it).
- * MT-29.01.2004 */
+/**
+ * Check if specified object cannot move onto x, y on the given map and
+ * terrain.
+ * @param op Object.
+ * @param m The map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param terrain Terrain type.
+ * @return 0 if not blocked by anything, combination of
+ * @ref map_look_flags otherwise. */
 int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 {
 	int flags;
@@ -695,24 +803,16 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 	return (flags & (P_DOOR_CLOSED));
 }
 
-
-/* Returns true if the given coordinate is blocked by the
- * object passed is not blocking.  This is used with
- * multipart monsters - if we want to see if a 2x2 monster
- * can move 1 space to the left, we don't want its own area
- * to block it from moving there.
- * Returns TRUE if the space is blocked by something other than the
- * monster. */
-/* why is controlling the own arch clone offsets with the new
- * freearr_[] offset a good thing?
- * a.) we don't must check any flags for tiles where we was before
- * b.) we don't block in moving when we got teleported in a no_pass somewhere
- * c.) no call to out_of_map() needed for all parts
- * d.) no checks of objects in every tile node of the multi arch
- * e.) no recursive call needed anymore
- * f.) the multi arch are handled in maps like the single arch
- * g.) no scaling by heavy map action when we move (more objects
- *     on the map don't interest us anymore here) */
+/**
+ * Returns true if the given coordinate is blocked except by the object
+ * passed is not blocking. This is used with multipart monsters - if we
+ * want to see if a 2x2 monster can move 1 space to the left, we don't
+ * want its own area to block it from moving there.
+ * @param op The monster object.
+ * @param xoff X position offset.
+ * @param yoff Y position offset.
+ * @return 0 if the space to check is not blocked by anything other than
+ * the monster, return value of blocked() otherwise. */
 int blocked_link(object *op, int xoff, int yoff)
 {
 	object *tmp, *tmp2;
@@ -730,7 +830,9 @@ int blocked_link(object *op, int xoff, int yoff)
 		{
 			/* if this is true, we can be sure this position is valid */
 			if (xtemp == tmp2->arch->clone.x && ytemp == tmp2->arch->clone.y)
+			{
 				break;
+			}
 		}
 
 		/* if this is NULL, tmp will move in a new node */
@@ -741,13 +843,17 @@ int blocked_link(object *op, int xoff, int yoff)
 
 			/* if this new node is illegal - we can skip all */
 			if (!(m = out_of_map(tmp->map, &xtemp, &ytemp)))
+			{
 				return -1;
+			}
 
 			/* tricky: we use always head for tests - no need to copy any flags to the tail */
 			/* we should kick in here the door test - but we need to diff we are
 			 * just testing here or we doing a real step! */
 			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			{
 				return xtemp;
+			}
 		}
 	}
 
@@ -755,9 +861,16 @@ int blocked_link(object *op, int xoff, int yoff)
 	return 0;
 }
 
-/* As above, but using an absolute coordinate (map, x, y) - triplet
- * TODO: this function should really be combined with the above
- * to reduce code duplication... */
+/**
+ * Same as blocked_link(), but using an absolute coordinate (map, x, y).
+ * @param op The monster object.
+ * @param map The map.
+ * @param x X coordinate on the map.
+ * @param y Y coordinate on the map.
+ * @return 0 if the space to check is not blocked by anything other than
+ * the monster, return value of blocked() otherwise.
+ * @todo This function should really be combined with the above to reduce
+ * code duplication. */
 int blocked_link_2(object *op, mapstruct *map, int x, int y)
 {
 	object *tmp, *tmp2;
@@ -769,12 +882,15 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 		/* we search for this new position */
 		xtemp = x + tmp->arch->clone.x;
 		ytemp = y + tmp->arch->clone.y;
+
 		/* lets check it match a different part of us */
 		for (tmp2 = op; tmp2; tmp2 = tmp2->more)
 		{
 			/* if this is true, we can be sure this position is valid */
 			if (xtemp == tmp2->x && ytemp == tmp2->y)
+			{
 				break;
+			}
 		}
 
 		/* if this is NULL, tmp will move in a new node */
@@ -782,11 +898,15 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 		{
 			/* if this new node is illegal - we can skip all */
 			if (!(m = out_of_map(map, &xtemp, &ytemp)))
+			{
 				return -1;
+			}
 
 			/* tricky: we use always head for tests - no need to copy any flags to the tail */
 			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			{
 				return xtemp;
+			}
 		}
 	}
 
@@ -794,13 +914,14 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 	return 0;
 }
 
-
-/* blocked_tile()
- * return: 0= not blocked 1: blocked
- * This is used for any action which needs to browse
- * through the objects of the tile node - for special objects
- * like inventory checkers - or general for all what can't
- * be easy handled by map flags in blocked(). */
+/**
+ * This is used for any action which needs to browse through the objects
+ * of the tile node, for special objects like inventory checkers.
+ * @param op Object trying to move to map at x, y.
+ * @param m Map we want to check.
+ * @param x X position to check for.
+ * @param y Y position to check for.
+ * @return 1 if the tile is blocked, 0 otherwise. */
 int blocked_tile(object *op, mapstruct *m, int x, int y)
 {
 	object *tmp;
@@ -820,7 +941,9 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 			if (tmp->last_sp)
 			{
 				if (check_inv_recursive(op, tmp) == NULL)
+				{
 					return 1;
+				}
 
 				continue;
 			}
@@ -829,7 +952,9 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 				/* In this case, the player must not have the object -
 				 * if they do, they can't pass through. */
 				if (check_inv_recursive(op, tmp) != NULL)
+				{
 					return 1;
+				}
 
 				continue;
 			}
@@ -902,25 +1027,12 @@ int arch_out_of_map(archetype *at, mapstruct *m, int x, int y)
 	return 0;
 }
 
-/* Loads (ands parses) the objects into a given map from the specified
+/**
+ * Loads (and parses) the objects into a given map from the specified
  * file pointer.
- * mapflags is the same as we get with load_original_map */
-
-/* i optimized this function now - i remove ALOT senseless stuff,
- * processing the load & expanding of objects here in one loop.
- * MT - 05.02.2004 */
-
-/* now, this function is the very deep core of the whole server map &
- * object handling. To understand the tiled map handling, you have to
- * understand the flow of this function. It can now called recursive
- * and it will call themself recursive if the insert_object_in_map()
- * function below has found a multi arch reaching in a different map.
- * Then the out_of_map() call in insert_object_in_map() will trigger a
- * new map load and a recursive call of this function. This will work
- * without any problems. Note the restore_light_source_list() call at
- * the end of the list. Adding overlapping light sources for tiled map
- * in this recursive structure was the hard part but it will work now
- * without problems. MT-25.02.2004 */
+ * @param m Map being loaded.
+ * @param fp File to read from.
+ * @param mapflags The same as we get with load_original_map(). */
 void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
 	int i;
@@ -1087,13 +1199,11 @@ void load_objects(mapstruct *m, FILE *fp, int mapflags)
 	check_light_source_list(m);
 }
 
-/* This saves all the objects on the map in a (most times) non destructive fashion.
- * Except spawn point/mobs and multi arches - see below.
- * Modified by MSW 2001-07-01 to do in a single pass - reduces code,
- * and we only save the head of multi part objects - this is needed
- * in order to do map tiling properly.
- * The function/engine is now multi arch/tiled map save - put on the
- * map what you like. MT-07.02.04 */
+/**
+ * This saves all the objects on the map in a non destructive fashion.
+ * @param m Map to save.
+ * @param fp File where regular objects are saved.
+ * @param fp2 File to save unique objects. */
 void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
 	int i, j = 0, unique = 0;
@@ -1434,23 +1544,31 @@ void set_map_darkness(mapstruct *m, int value)
 	m->light_value = (sint32) global_darkness_table[value];
 }
 
-/* Allocates, initialises, and returns a pointer to a mapstruct.
- * Modified to no longer take a path option which was not being
- * used anyways.  MSW 2001-07-01 */
+/**
+ * Allocates, initialises, and returns a pointer to a mapstruct.
+ * @return The new map structure. */
 mapstruct *get_linked_map()
 {
 	mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
 	mapstruct *mp;
 
 	if (map == NULL)
+	{
 		LOG(llevError, "ERROR: get_linked_map(): OOM.\n");
+	}
 
-	for (mp = first_map; mp != NULL && mp->next != NULL; mp = mp->next);
+	for (mp = first_map; mp != NULL && mp->next != NULL; mp = mp->next)
+	{
+	}
 
 	if (mp == NULL)
+	{
 		first_map = map;
+	}
 	else
+	{
 		mp->next = map;
+	}
 
 	map->buttons = NULL;
 	map->first_light = NULL;
@@ -1471,9 +1589,10 @@ mapstruct *get_linked_map()
 	return map;
 }
 
-/* Allocates the arrays contained in a mapstruct.
+/**
  * This basically allocates the dynamic array of spaces for the
- * map. */
+ * map.
+ * @param m Map to allocate spaces for. */
 void allocate_map(mapstruct *m)
 {
 #if 0
@@ -1510,8 +1629,13 @@ void allocate_map(mapstruct *m)
 		LOG(llevError, "ERROR: allocate_map(): OOM.\n");
 }
 
-/* Creatures and returns a map of the specific size.  Used
- * in random map code and the editor. */
+/**
+ * Creates and returns a map of the specified size.
+ *
+ * Used in random maps code.
+ * @param sizex X size of the map.
+ * @param sizey Y size of the map.
+ * @return The new map structure. */
 mapstruct *get_empty_map(int sizex, int sizey)
 {
 	mapstruct *m = get_linked_map();
@@ -1524,17 +1648,16 @@ mapstruct *get_empty_map(int sizex, int sizey)
 	return m;
 }
 
-/* This loads the header information of the map.  The header
- * contains things like difficulty, size, timeout, etc.
- * this used to be stored in the map object, but with the
- * addition of tiling, fields beyond that easily named in an
- * object structure were needed, so it just made sense to
- * put all the stuff in the map object so that names actually make
+/**
+ * This loads the header information of the map. The header contains
+ * things like difficulty, size, timeout, etc. This used to be stored in
+ * the map object, but with the addition of tiling, fields beyond that
+ * easily named in an object structure were needed, so it just made sense
+ * to put all the stuff in the map object so that names actually make
  * sense.
- * This could be done in lex (like the object loader), but I think
- * currently, there are few enough fields this is not a big deal.
- * MSW 2001-07-01
- * return 0 on success, 1 on failure. */
+ * @param fp File to read from.
+ * @param m Map being read.
+ * @return 0 on success, 1 on failure. */
 static int load_map_header(FILE *fp, mapstruct *m)
 {
 	char buf[HUGE_BUF], msgbuf[HUGE_BUF], *key = buf, *value, *end;
@@ -1815,22 +1938,24 @@ static int load_map_header(FILE *fp, mapstruct *m)
 	return 0;
 }
 
-/* Opens the file "filename" and reads information about the map
+/**
+ * Opens the file "filename" and reads information about the map
  * from the given file, and stores it in a newly allocated
- * mapstruct.  A pointer to this structure is returned, or NULL on failure.
- * flags correspond to those in map.h.  Main ones used are
- * MAP_PLAYER_UNIQUE, in which case we don't do any name changes, and
- * MAP_BLOCK, in which case we block on this load.  This happens in all
- *   cases, no matter if this flag is set or not.
- * MAP_STYLE: style map - don't add active objects, don't add to server
- *		managed map list. */
+ * mapstruct.
+ * @param filename Map path.
+ * @param flags One of (or combination of):
+ * - @ref MAP_PLAYER_UNIQUE: We don't do any name changes.
+ * - @ref MAP_BLOCK: We block on this load. This happens in all cases, no
+ *   matter if this flag is set or not.
+ * - @ref MAP_STYLE: Style map - don't add active objects, don't add to
+ *   server managed map list.
+ * @return The loaded map structure, NULL on failure. */
 mapstruct *load_original_map(const char *filename, int flags)
 {
 	FILE *fp;
 	mapstruct *m;
 	int comp;
-	char pathname[MAX_BUF];
-	char tmp_fname[MAX_BUF];
+	char pathname[MAX_BUF], tmp_fname[MAX_BUF];
 
 	/* this IS a bug - because the missing '/' strcpy will fail when it
 	 * search the loaded maps - this can lead in a double load and break
@@ -1905,9 +2030,11 @@ mapstruct *load_original_map(const char *filename, int flags)
 	return m;
 }
 
-/* Loads a map, which has been loaded earlier, from file.
- * Return the map object we load into (this can change from the passed
- * option if we can't find the original map) */
+/**
+ * Loads a map, which has been loaded earlier, from file.
+ * @param m Map we want to reload.
+ * @return The map object we load into (this can change from the passed
+ * option if we can't find the original map). */
 static mapstruct *load_temporary_map(mapstruct *m)
 {
 	FILE *fp;
@@ -1969,11 +2096,9 @@ static mapstruct *load_temporary_map(mapstruct *m)
 	return m;
 }
 
-/******************************************************************************
- * This is the start of unique map handling code
- *****************************************************************************/
-
-/* This goes through map 'm' and removed any unique items on the map. */
+/**
+ * Goes through a map and removes any unique items on the map.
+ * @param m The map to go through. */
 static void delete_unique_items(mapstruct *m)
 {
 	int i, j, unique = 0;
@@ -2004,12 +2129,13 @@ static void delete_unique_items(mapstruct *m)
 	}
 }
 
-/* Loads unique objects from file(s) into the map which is in memory
- * m is the map to load unique items into. */
+/**
+ * Loads unique objects from file(s) into the map which is in memory.
+ * @param m The map to load unique items into. */
 static void load_unique_objects(mapstruct *m)
 {
 	FILE *fp;
-	int comp,count;
+	int comp, count;
 	char firstname[MAX_BUF];
 
 	for (count = 0; count < 10; count++)
@@ -2042,13 +2168,16 @@ static void load_unique_objects(mapstruct *m)
 	close_and_delete(fp, comp);
 }
 
-
-/* Saves a map to file.  If flag is set, it is saved into the same
+/**
+ * Saves a map to file.  If flag is set, it is saved into the same
  * file it was (originally) loaded from.  Otherwise a temporary
  * filename will be genarated, and the file will be stored there.
  * The temporary filename will be stored in the mapstructure.
  * If the map is unique, we also save to the filename in the map
- * (this should have been updated when first loaded) */
+ * (this should have been updated when first loaded).
+ * @param m The map to save.
+ * @param flag Save flag.
+ * @return  */
 int new_save_map(mapstruct *m, int flag)
 {
 	FILE *fp, *fp2;
@@ -2352,7 +2481,9 @@ int new_save_map(mapstruct *m, int flag)
 	return 0;
 }
 
-/* Remove and free all objects in the given map. */
+/**
+ * Remove and free all objects in the given map.
+ * @param m The map. */
 void free_all_objects(mapstruct *m)
 {
 	int i, j;
@@ -2384,8 +2515,12 @@ void free_all_objects(mapstruct *m)
 	/*LOG(llevDebug, "FAO-end: map:%s ->%d\n", m->name ? m->name : (m->tmpname ? m->tmpname : ""), m->in_memory);*/
 }
 
-/* Frees everything allocated by the given mapstructure.
- * don't free tmpname - our caller is left to do that */
+/**
+ * Frees everything allocated by the given map structure.
+ *
+ * Don't free tmpname - our caller is left to do that.
+ * @param m Map structure.
+ * @param flag If set, free all objects on the map. */
 void free_map(mapstruct *m, int flag)
 {
 	int i;
@@ -2414,6 +2549,7 @@ void free_map(mapstruct *m, int flag)
 
 	FREE_AND_NULL_PTR(m->name);
 	FREE_AND_NULL_PTR(m->bg_music);
+	FREE_AND_NULL_PTR(m->owner);
 	FREE_AND_NULL_PTR(m->spaces);
 	FREE_AND_NULL_PTR(m->msg);
 	m->buttons = NULL;
@@ -2431,10 +2567,10 @@ void free_map(mapstruct *m, int flag)
 	m->in_memory = MAP_SWAPPED;
 }
 
-/* function: vanish mapstruct
- * m       : pointer to mapstruct, if NULL no action
- * this deletes all the data on the map (freeing pointers)
- * and then removes this map from the global linked list of maps. */
+/**
+ * Deletes all the data on the map (freeing pointers) and then removes
+ * this map from the global linked list of maps.
+ * @param m The map to delete. */
 void delete_map(mapstruct *m)
 {
 	mapstruct *tmp, *last;
@@ -2531,12 +2667,10 @@ int check_map_owner(mapstruct *map, object *op)
 	}
 }
 
-/* Create map owner for unique maps with not no_save 1. */
 /**
- * Create map owner for unique maps
- * @param map
- * @return
- */
+ * Create map owner for unique maps with not no_save 1.
+ * @param map Map to create the owner for.
+ * @return Name of the owner. */
 char *create_map_owner(mapstruct *map)
 {
 	char buf[MAX_BUF], name[MAX_BUF], *p;
@@ -2563,15 +2697,15 @@ char *create_map_owner(mapstruct *map)
 	return p;
 }
 
-/* Makes sure the given map is loaded and swapped in.
- * name is path name of the map.
- * flags meaning:
- * 0x1 (MAP_FLUSH): flush the map - always load from the map directory,
+/**
+ * Makes sure the given map is loaded and swapped in.
+ * @param name Path name of the map.
+ * @param flags Possible flags:
+ * - @ref MAP_FLUSH: Flush the map - always load from the map directory,
  *   and don't do unique items or the like.
- * 0x2 (MAP_PLAYER_UNIQUE) - this is a unique map for each player.
- *   dont do any more name translation on it.
- *
- * Returns a pointer to the given map. */
+ *  - @ref MAP_PLAYER_UNIQUE: This is an unique map for each player.
+ *    Don't do any more name translation on it.
+ * @return Pointer to the given map. */
 mapstruct *ready_map_name(const char *name, int flags)
 {
 	mapstruct *m;
@@ -2707,14 +2841,21 @@ mapstruct *ready_map_name(const char *name, int flags)
 	return m;
 }
 
+/**
+ * Remove the temporary file used by the map.
+ * @param m Map. */
 void clean_tmp_map(mapstruct *m)
 {
 	if (m->tmpname == NULL)
+	{
 		return;
+	}
 
 	(void) unlink(m->tmpname);
 }
 
+/**
+ * Free all allocated maps. */
 void free_all_maps()
 {
 	int real_maps = 0;
@@ -2733,10 +2874,13 @@ void free_all_maps()
 	LOG(llevDebug, "free_all_maps: Freed %d maps\n", real_maps);
 }
 
-/* This function updates various attributes about a specific space
- * on the map (what it looks like, whether it blocks magic,
- * has a living creatures, prevents people from passing
- * through, etc) */
+/**
+ * This function updates various attributes about a specific space on the
+ * map (what it looks like, whether it blocks magic, has a living
+ * creatures, prevents people from passing through, etc).
+ * @param m Map to update.
+ * @param x X position on the given map.
+ * @param y Y position on the given map. */
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;
@@ -2929,6 +3073,9 @@ void update_position(mapstruct *m, int x, int y)
 	SET_MAP_FLAGS(m, x, y, GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE);
 }
 
+/**
+ * Updates the map's timeout.
+ * @param map Map to update. */
 void set_map_reset_time(mapstruct *map)
 {
 #ifdef MAP_RESET
@@ -2944,8 +3091,12 @@ void set_map_reset_time(mapstruct *map)
 #endif
 }
 
-/* out of map now checks all 8 possible neighbours of
- * a tiled map and loads them in when needed. */
+/**
+ * Check whether given X, Y position is out of the map.
+ * @param m Map to consider.
+ * @param x X coordinate on the map.
+ * @param y Y coordinate on the map.
+ * @return 1 if out of map, 0 otherwise. */
 mapstruct *out_of_map(mapstruct *m, int *x, int *y)
 {
 	/* Simple case - coordinates are within this local map.*/
