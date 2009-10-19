@@ -1,0 +1,27 @@
+/**
+
+@page page_commands Commands
+
+@section sec_commands_introduction Introduction
+
+Commands are the way players interact with the game. Commands are used
+to move the character, make the character say something to others on the
+map, etc.
+
+Every command begins with a forward slash (/) in order to mark it as a
+command. If player enters something in the console that doesn't begin
+with a forward slash, it will be treated as a say command, by having the
+client prepend "/say " to it.
+
+@section sec_commands_types Command types
+
+There are two different types of commands.
+
+The first type is a <b>server command</b> which is handled by the server,
+being given to the server exactly as the player entered it.
+
+The second type is a <b>client command</b>, which is handled and parsed
+by the client, however, it can send the command (even in a modified form)
+to the server as well.
+
+*/
