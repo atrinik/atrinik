@@ -112,7 +112,6 @@ void emergency_save(int flag)
  * @return 1 if the name is ok, 0 otherwise. */
 int check_name(player *me, char *name)
 {
-	player *pl;
 	unsigned int name_len = strlen(name);
 	char buf[MAX_BUF];
 
@@ -123,18 +122,6 @@ int check_name(player *me, char *name)
 		me->socket.can_write = 1;
 		write_socket_buffer(&me->socket);
 		return 0;
-	}
-
-	for (pl = first_player; pl != NULL; pl = pl->next)
-	{
-		if (pl != me && pl->ob->name != NULL && !strcmp(pl->ob->name, name))
-		{
-			strcpy(buf, "X3 A player with that name is already playing.");
-			Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-			me->socket.can_write = 1;
-			write_socket_buffer(&me->socket);
-			return 0;
-		}
 	}
 
 	if (!playername_ok(name))
@@ -490,6 +477,30 @@ static void reorder_inventory(object *op)
 	}
 }
 
+static void wrong_password(player *pl)
+{
+	pl->socket.password_fails++;
+
+	pl->last_value = -1;
+
+	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
+	{
+		char buf[MAX_BUF];
+
+		LOG(llevSystem, "SHACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
+		strcpy(buf, "X3 You have failed to provide a correct password too many times.");
+		Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
+		pl->socket.can_write = 1;
+		write_socket_buffer(&pl->socket);
+		pl->socket.status = Ns_Dead;
+	}
+	else
+	{
+		FREE_AND_COPY_HASH(pl->ob->name, "noname");
+		get_name(pl->ob);
+	}
+}
+
 /**
  * Login a player.
  * @param op Player.
@@ -501,7 +512,7 @@ void check_login(object *op)
 	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF], banbuf[256], sqlfailbuf[256];
 	int i, value, comp, correct = 0;
 	long checksum = 0;
-	player *pl = CONTR(op);
+	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
 	object *tmp, *tmp2;
@@ -509,6 +520,25 @@ void check_login(object *op)
 	sqlite3_stmt *statement;
 
 	strcpy(pl->maplevel, first_map_path);
+
+	/* Check if this matches a connected player, and if so disconnect old
+	 * and connect new. */
+	for (pltmp = first_player; pltmp != NULL; pltmp = pltmp->next)
+	{
+		if (pltmp != pl && pltmp->ob->name != NULL && !strcmp(pltmp->ob->name, op->name))
+		{
+			if (check_password(pl->write_buf + 1, pltmp->password))
+			{
+				pltmp->socket.status = Ns_Dead;
+				break;
+			}
+			else
+			{
+				wrong_password(pl);
+				return;
+			}
+		}
+	}
 
 	/* a good point to add this i to a 10 minute temp ban...
 	 * if needed, i add it... its not much work but i better
@@ -610,24 +640,7 @@ void check_login(object *op)
 
 	if (!correct)
 	{
-		pl->socket.password_fails++;
-
-		pl->last_value = -1;
-
-		if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
-		{
-			LOG(llevSystem, "SHACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(op, NULL), pl->socket.host);
-			strcpy(buf, "X3 You have failed to provide a correct password too many times.");
-			Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-			pl->socket.can_write = 1;
-			write_socket_buffer(&pl->socket);
-			pl->socket.status = Ns_Dead;
-		}
-		else
-		{
-			FREE_AND_COPY_HASH(op->name, "noname");
-			get_name(op);
-		}
+		wrong_password(pl);
 
 		/* Once again, rest of code just loads the char */
 		return;
