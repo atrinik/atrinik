@@ -37,6 +37,10 @@ extern int errno;
 #   include <errno.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
 /**
  * Add a NULL terminated string.
  * @param sl SockList instance to add to.
@@ -294,15 +298,7 @@ void write_socket_buffer(NewSocket *ns)
 			max = ns->outputbuffer.len;
 		}
 
-#ifdef WIN32
-		amt = send(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max, 0);
-#else
-		do
-		{
-			amt = write(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max);
-		}
-		while ((amt < 0) && (errno == EINTR));
-#endif
+		amt = send(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max, MSG_DONTWAIT);
 
 		/* We got an error */
 		if (amt < 0)
@@ -379,15 +375,7 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
 	/* If we manage to write more than we wanted, take it as a bonus */
 	while (len > 0)
 	{
-#ifdef WIN32
-		amt = send(ns->fd, pos, len, 0);
-#else
-		do
-		{
-			amt = write(ns->fd, pos, len);
-		}
-		while ((amt < 0) && (errno == EINTR));
-#endif
+		amt = send(ns->fd, pos, len, MSG_DONTWAIT);
 
 		/* We got an error */
 		if (amt < 0)

@@ -597,6 +597,19 @@ void doeric_server()
 				free_newsocket(&init_sockets[i]);
 				init_sockets[i].status = Ns_Avail;
 				socket_info.nconns--;
+				continue;
+			}
+
+            if (FD_ISSET(init_sockets[i].fd, &tmp_write))
+			{
+                write_socket_buffer(&init_sockets[i]);
+			}
+
+			if (init_sockets[i].status == Ns_Dead)
+			{
+				free_newsocket(&init_sockets[i]);
+				init_sockets[i].status = Ns_Avail;
+				socket_info.nconns--;
 			}
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_write))
