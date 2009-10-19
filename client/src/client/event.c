@@ -734,6 +734,43 @@ static void key_string_event(SDL_KeyboardEvent *key)
 					if (cpl.input_mode == INPUT_MODE_CONSOLE)
 						textwin_addhistory(InputString);
 				}
+				else if (key->keysym.sym == SDLK_TAB)
+				{
+					help_files_struct *help_files_tmp;
+					int possibilities = 0;
+					char cmd_buf[MAX_BUF];
+
+					if (InputString[0] != '/' || strrchr(InputString, ' '))
+					{
+						break;
+					}
+
+					for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
+					{
+						if (strcmp(help_files_tmp->title + strlen(help_files_tmp->title) - 8, " Command"))
+						{
+							continue;
+						}
+
+						if (!strncmp(help_files_tmp->helpname, InputString + 1, InputCount - 1))
+						{
+							strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
+							possibilities++;
+
+							if (possibilities > 1)
+							{
+								return;
+							}
+						}
+					}
+
+					if (possibilities == 1)
+					{
+						snprintf(InputString, sizeof(InputString), "/%s", cmd_buf);
+						InputCount = CurrentCursorPos = strlen(InputString);
+					}
+				}
+
 				break;
 
 				/* Erases the previous character or word if CTRL is pressed */
