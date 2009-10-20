@@ -1669,7 +1669,12 @@ void read_help_files()
 	struct stat statbuf;
 	int i;
 
-	help_files = (help_files_struct *) malloc(sizeof(help_files_struct));
+	if (help_files)
+	{
+		free(help_files);
+	}
+
+	help_files = NULL;
 
 	srv_client_files[SRV_CLIENT_HFILES].len = 0;
 	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
