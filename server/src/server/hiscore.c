@@ -44,11 +44,11 @@ typedef struct scr
 	/** Name (+ title) or "left". */
 	char killer[BIG_NAME];
 
-	/** Experience. */
-	long exp;
-
 	/** Killed on what level. */
 	char maplevel[BIG_NAME];
+
+	/** Experience. */
+	long exp;
 
 	/** Max hp, sp, grace when killed. */
 	int maxhp, maxsp, maxgrace;
@@ -80,8 +80,6 @@ static void copy_score(const score *sc1, score *sc2)
 	sc2->maxgrace = sc1->maxgrace;
 }
 
-/* The oposite of put_score, get_score reads from the given buffer into
- * a static score structure, and returns a pointer to it. */
 /**
  * The opposite of put_score, this reads from the given buffer into
  * a static score structure, and returns a pointer to it.
@@ -130,8 +128,6 @@ static char *draw_one_high_score(const score *sc, char *buf, int size)
 	return buf;
 }
 
-/* add_score() adds the given score-structure to the high-score list, but
- * only if it was good enough to deserve a place. */
 /**
  * Adds the given score structure to the high score list, but
  * only if it was good enough to deserve a place.
@@ -194,7 +190,6 @@ static score *add_score(score *new_score)
 	/* Did not beat old score */
 	if (old_score.position != -1 && old_score.exp >= new_score->exp)
 	{
-		LOG(llevDebug, "Did not beat old score (%ld, %ld)!\n", old_score.exp, new_score->exp);
 		db_close(db);
 		return &old_score;
 	}
