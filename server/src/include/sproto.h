@@ -326,15 +326,9 @@ void become_daemon(char *filename);
 
 /* disease.c */
 int move_disease(object *disease);
-int remove_symptoms(object *disease);
-object *find_symptom(object *disease);
-int check_infection(object *disease);
 int infect_object(object *victim, object *disease, int force);
-int do_symptoms(object *disease);
-int grant_immunity(object *disease);
-int move_symptom(object *symptom);
-int check_physically_infect(object *victim, object *hitter);
-object *find_disease(object *victim);
+void move_symptom(object *symptom);
+void check_physically_infect(object *victim, object *hitter);
 int cure_disease(object *sufferer, object *caster);
 int reduce_symptoms(object *sufferer, int reduction);
 

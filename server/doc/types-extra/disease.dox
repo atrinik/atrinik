@@ -1,0 +1,202 @@
+/**
+
+@def DISEASE
+
+@ref ::obj "Object" fields used by the DISEASE type.
+
+<table>
+<tr>
+    <th>Field</th>
+    <th>Property</th>
+    <th>Definition</th>
+    <th>Explanation</th>
+</tr>
+<tr>
+    <td>attacktype</td>
+    <td>Attack effects</td>
+    <td>Attacktype of the disease, for example, @ref AT_GODPOWER.</td>
+    <td>The attacktype used by the disease to smite "dam" damage with.
+    </td>
+</tr>
+<tr>
+    <td>other_arch</td>
+    <td>Creation</td>
+    <td>Object created and dropped when symptom moved.</td>
+    <td></td>
+</tr>
+<tr>
+    <td>title</td>
+    <td>Message</td>
+    <td>When the "disease" infects something, it will print "title
+        victim!!!" to the player who owns the "disease".</td>
+    <td></td>
+</tr>
+<tr>
+    <td style="background-color: green;">wc</td>
+    <td>Infectiousness</td>
+    <td>How well the plague spreads person-to-person</td>
+    <td>The chance of someone in range catching it, divided by 127.</td>
+</tr>
+<tr>
+    <td style="background-color: green;">magic</td>
+    <td>Range</td>
+    <td>Range of infection</td>
+    <td>The range at which infection may occur. If negative, the range
+        is NOT level dependent.</td>
+</tr>
+<tr>
+    <td style="background-color: #3BB9FF;">Stats</td>
+    <td>Disability</td>
+    <td>What stats are reduced by the disease (str con...)</td>
+    <td>Stat modifications. These should typically be negative.</td>
+</tr>
+<tr>
+    <td style="background-color: green;">maxhp</td>
+    <td>Persistence</td>
+    <td>How long the disease can last OUTSIDE the host.</td>
+    <td>how long the disease will persist if the host dies and "drops"
+        it, in "disease moves", i.e., moves of the disease. If
+        negative, permanent.</td>
+</tr>
+<tr>
+    <td>value</td>
+    <td>TimeLeft</td>
+    <td>Counter for persistence</td>
+    <td>The counter for maxhp, it starts at maxhp and drops...</td>
+</tr>
+<tr>
+    <td style="background-color: #FBB117;">dam</td>
+    <td>Damage</td>
+    <td>How much damage it does (%?).</td>
+    <td>If positive, it is straight damage. If negative, a percentage.
+    </td>
+</tr>
+<tr>
+    <td style="background-color: green;">maxgrace</td>
+    <td>Duration</td>
+    <td>How long before the disease is naturally cured.</td>
+    <td>How long in "disease moves" the disease lasts in the host, if
+       negative, permanent until cured.</td>
+</tr>
+<tr>
+    <td>food</td>
+    <td>DurCount</td>
+    <td>Counter for Duration</td>
+    <td>If negative, disease is permanent. Otherwise, decreases at
+        \<speed\>, disease goes away at food = 0, set to "maxgrace" on
+        infection.</td>
+</tr>
+<tr>
+    <td>speed</td>
+    <td>Speed</td>
+    <td>How often the disease moves.</td>
+    <td>The speed of the disease, how fast "disease moves" occur.</td>
+</tr>
+<tr>
+    <td style="background-color: #FBB117;">last_sp</td>
+    <td>Lethargy</td>
+    <td>Percentage of max speed--10 = 10% speed.</td>
+    <td>The lethargy imposed on the player by the disease. A lethargy
+        of "1" reduces the players speed to 1% of its normal value.
+    </td>
+</tr>
+<tr>
+    <td style="background-color: #FBB117;">maxsp</td>
+    <td>Mana deplete</td>
+    <td>Saps mana.</td>
+    <td>How much mana is sapped per "disease move". If negative, a
+        percentage is taken.</td>
+</tr>
+<tr>
+    <td style="background-color: #FBB117;">ac</td>
+    <td>Progressiveness</td>
+    <td>How the diseases increases in severity.</td>
+    <td>Every "disease move" the severity of the symptoms are
+        increased by ac/100. (severity = 1 + (accumlated_progression)
+        / 100)</td>
+</tr>
+<tr>
+    <td style="background-color: #FF00FF;">last_eat</td>
+    <td>Deplete food</td>
+    <td>Saps food if negative.</td>
+    <td>Increases food usage if negative.</td>
+</tr>
+<tr>
+    <td>last_heal</td>
+    <td>GrantImmunity</td>
+    <td>If nonzero, disease does NOT grant immunity when it runs
+        out.</td>
+    <td></td>
+</tr>
+<tr>
+    <td>exp</td>
+    <td>experience</td>
+    <td>Experience awarded when plague cured.</td>
+    <td></td>
+</tr>
+<tr>
+    <td style="background-color: #FF00FF;">hp</td>
+    <td>ReduceRegen</td>
+    <td>reduces regeneration of disease-bearer</td>
+    <td></td>
+</tr>
+<tr>
+    <td style="background-color: #FF00FF;">sp</td>
+    <td>ReduceSpRegen</td>
+    <td>reduces spellpoint regeneration</td>
+    <td></td>
+</tr>
+<tr>
+    <td>name</td>
+    <td>Name</td>
+    <td>Name of the plague.</td>
+    <td></td>
+</tr>
+<tr>
+    <td>msg</td>
+    <td>Message</td>
+    <td>What the plague says when it strikes.</td>
+    <td></td>
+</tr>
+<tr>
+    <td>race</td>
+    <td>Those affected</td>
+    <td>Species/race the plague strikes (* = everything)</td>
+    <td></td>
+</tr>
+<tr>
+    <td>level</td>
+    <td>Plague Level</td>
+    <td>General description of the plague's deadliness</td>
+    <td></td>
+</tr>
+<tr>
+    <td>armour</td>
+    <td>Attenuation</td>
+    <td>Reduction in wc per generation of disease. This builds in a
+        self-limiting factor.</td>
+    <td></td>
+</tr>
+<tr>
+    <th colspan="4">Legend</th>
+</tr>
+<tr>
+    <td style="background-color: #3BB9FF;">&nbsp;</td>
+    <td colspan="3">Should be negative to cause adverse effect.</td>
+</tr>
+<tr>
+    <td style="background-color: green;">&nbsp;</td>
+    <td colspan="3">This effect is modulated in spells by ldur.</td>
+</tr>
+<tr>
+    <td style="background-color: #FBB117;">&nbsp;</td>
+    <td colspan="3">This effect is modulated in spells by ldam.</td>
+</tr>
+<tr>
+    <td style="background-color: #FF00FF;">&nbsp;</td>
+    <td colspan="3">Should be negative to cause adverse effect and is modulated in
+        spells by ldam.</td>
+</tr>
+</table>
+
+*/

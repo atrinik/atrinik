@@ -1,0 +1,46 @@
+/**
+
+@def SYMPTOM
+
+@ref ::obj "Object" fields used by the SYMPTOM type.
+
+<table>
+<tr>
+    <th>Field</th>
+    <th>Definition</th>
+</tr>
+<tr>
+    <td>Stats</td>
+    <td>Modify stats</td>
+</tr>
+<tr>
+    <td>hp</td>
+    <td>Modify regen</td>
+</tr>
+<tr>
+    <td>value</td>
+    <td>Progression counter (multiplier = value / 100)</td>
+</tr>
+<tr>
+    <td>food</td>
+    <td>Modify food use (from last_eat in @ref DISEASE)</td>
+</tr>
+<tr>
+    <td>maxsp</td>
+    <td>Suck mana (as noted for @ref DISEASE)</td>
+</tr>
+<tr>
+    <td>last_sp</td>
+    <td>Lethargy</td>
+</tr>
+<tr>
+    <td>msg</td>
+    <td>What to say</td>
+</tr>
+<tr>
+    <td>speed</td>
+    <td>Speed of movement, from @ref DISEASE</td>
+</tr>
+</table>
+
+*/
