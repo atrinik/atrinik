@@ -51,6 +51,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\arrow.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\book.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -63,7 +67,31 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\creator.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\deep_swamp.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\detector.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\disease.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\door.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\food.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\gate.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
@@ -79,6 +107,26 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\marker.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\monster.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\pit.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\player.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\player_mover.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\poison.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -88,6 +136,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\types\power_crystal.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\rod.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
@@ -111,7 +163,15 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\spawn_point.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\spellbook.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\types\teleporter.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
@@ -119,7 +179,16 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\waypoint.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\weapon_improver.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+
+		<Unit filename="..\..\..\src\common\re-cmp.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

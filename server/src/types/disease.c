@@ -25,19 +25,20 @@
 
 /**
  * @file
- * This file contains all the code implementing diseases,
- * except for odds and ends in attack.c and in living.c.
+ * This file contains all the code implementing @ref DISEASE "diseases",
+ * except for odds and ends in @ref attack.c and in @ref living.c.
  *
  * Diseases may be contageous. They are objects which exist in a player's
- * inventory. They themselves do nothing, except modify Symptoms, or
- * spread to other live objects. Symptoms are what actually damage the
- * player: these are their own object. */
+ * inventory. They themselves do nothing, except modify
+ * @ref SYMPTOM "symptoms", or spread to other live objects.
+ * @ref SYMPTOM "symptoms" are what actually damage the player. */
 
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
+static int is_susceptible_to_disease(object *victim, object *disease);
 static void remove_symptoms(object *disease);
 static object *find_symptom(object *disease);
 static void check_infection(object *disease);

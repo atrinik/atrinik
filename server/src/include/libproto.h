@@ -454,6 +454,7 @@ extern void free_artifactlist(artifactlist *al);
 extern void free_all_treasures(void);
 extern void dump_monster_treasure(const char *name);
 extern int get_enviroment_level(object *op);
+extern object *create_artifact(object *op, char *artifactname);
 
 /* utils.c */
 extern int random_roll(int min, int max, object *op, int goodbad);

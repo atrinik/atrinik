@@ -2522,6 +2522,26 @@ int get_enviroment_level(object *op)
 	return 1;
 }
 
+object *create_artifact(object *op, char *artifactname)
+{
+	artifactlist *al = find_artifactlist(op->type);
+	artifact *art;
+
+	if (al == NULL)
+	{
+		return NULL;
+	}
+
+	for (art = al->items; art != NULL; art = art->next)
+	{
+		if (!strcmp(art->name, artifactname))
+		{
+			give_artifact_abilities(op, art);
+		}
+	}
+
+	return NULL;
+}
 
 #ifdef TREASURE_DEBUG
 /* recursived checks the linked list.  Treasurelist is passed only

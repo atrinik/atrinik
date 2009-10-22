@@ -25,67 +25,82 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code for @ref MARKER "marker" type objects. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+ * When moved, a marker will search for a player sitting above it, and
+ * insert an invisible, weightless force into him with a specific code
+ * as the slaying field. At that time, it writes the contents of its own
+ * message field to the player.
+ * @param op The marker object. */
+void move_marker(object *op)
 {
-	if (op->type == PLAYER)
-	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
+	object *tmp, *tmp2;
 
-	if (tmp->stats.dam)
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
-
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	if (!op->stats.food)
-	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
+		/* we've got someone to MARK */
+		if (tmp->type == PLAYER)
 		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
+			/* remove an old force with a slaying field == op->name */
+			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			{
+				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->name))
+				{
+					break;
+				}
+			}
+
+			if (tmp2)
+			{
+				remove_ob(tmp2);
+			}
+
+			/* cycle through his inventory to look for the MARK we want to place */
+			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			{
+				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
+				{
+					break;
+				}
+			}
+
+			/* if we didn't find our own MARK */
+			if (tmp2 == NULL)
+			{
+				object *force = get_archetype("force");
+				force->speed = 0;
+
+				if (op->stats.food)
+				{
+					force->speed = 0.01f;
+					force->speed_left = (float) -op->stats.food;
+				}
+
+				update_ob_speed(force);
+				/* put in the lock code */
+				FREE_AND_COPY_HASH(force->slaying, op->slaying);
+				insert_ob_in_ob(force, tmp);
+
+				if (op->msg)
+				{
+					new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, tmp, op->msg);
+				}
+
+				if (op->stats.hp > 0)
+				{
+					op->stats.hp--;
+
+					if (op->stats.hp == 0)
+					{
+						/* marker expires -- granted mark number limit */
+						destruct_ob(op);
+						return;
+					}
+				}
+			}
 		}
-
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
 	}
-
-	if (op->env->type == PLAYER)
-	{
-		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
-	}
-
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
 }

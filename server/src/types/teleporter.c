@@ -25,67 +25,79 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code used by @ref TELEPORTER "teleporters". */
 
 #include <global.h>
 #include <sproto.h>
 
 /**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+ * Teleporter does its tick.
+ *
+ * A teleporter will teleport any object on the tile node it is on,
+ * including multi arch objects which are with one part on the
+ * teleporter, unless the object has @ref FLAG_NO_TELEPORT set.
+ * @param op The teleporter. */
+void move_teleporter(object *op)
 {
-	if (op->type == PLAYER)
-	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
+	object *tmp, *next;
 
-	if (tmp->stats.dam)
+	/* Sanity check */
+	if (!op->map)
 	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
-
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
-	if (!op->stats.food)
+	/* get first object of this map node */
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = next)
 	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
+		next = tmp->above;
+
+		if (QUERY_FLAG(tmp, FLAG_NO_TELEPORT))
 		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
+			continue;
 		}
 
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
+		/* teleport to different map */
+		if (EXIT_PATH(op))
+		{
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+			{
+				return;
+			}
 
-	if (op->env->type == PLAYER)
-	{
-		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
-	}
+			enter_exit(tmp, op);
+		}
+		/* teleport inside this map */
+		else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1)
+		{
+			/* use OUT_OF_REAL_MAP() - we want be truly on THIS map */
+			if (OUT_OF_REAL_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
+			{
+				LOG(llevBug, "BUG: Removed illegal teleporter (map: %s (%d,%d)) -> (%d,%d)\n", op->map->name, op->x, op->y, EXIT_X(op), EXIT_Y(op));
+				remove_ob(op);
+				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+				return;
+			}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+			{
+				return;
+			}
+
+			transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
+		}
+		/* Random teleporter */
+		else
+		{
+			/* Trigger the TRIGGER event */
+			if (trigger_event(EVENT_TRIGGER, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+			{
+				return;
+			}
+
+			teleport(op, TELEPORTER, tmp);
+		}
+	}
 }

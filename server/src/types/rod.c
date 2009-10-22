@@ -23,30 +23,32 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * @ref ROD "Rod" related code. */
+
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Regenerate rod speed needed to fire the rod again.
+ * @param rod The rod object to regenerate. */
+void regenerate_rod(object *rod)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	if (++rod->stats.food > rod->stats.hp / 10 || rod->type == HORN)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		rod->stats.food = 0;
+
+		if (rod->stats.hp < rod->stats.maxhp)
+		{
+			rod->stats.hp += 1 + rod->stats.maxhp / 10;
+
+			if (rod->stats.hp > rod->stats.maxhp)
+			{
+				rod->stats.hp = rod->stats.maxhp;
+			}
+
+			fix_rod_speed(rod);
+		}
 	}
-
-	return NULL;
 }
-

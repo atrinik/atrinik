@@ -25,67 +25,44 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code used for @ref CREATOR "creators". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+ * Have a creator do its tick.
+ * @param op The creator.
+ * @todo Check if it works properly with multi arch objects.
+ * @todo Perhaps if other_arch is set try to check for an object in its
+ * inventory, and copy any modified values? */
+void move_creator(object *op)
 {
-	if (op->type == PLAYER)
-	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
+	object *tmp;
 
-	if (tmp->stats.dam)
+	if (!op->other_arch)
 	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
-
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
-	if (!op->stats.food)
-	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
-		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
-		}
+	op->stats.hp--;
 
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+	if (op->stats.hp < 0 && !QUERY_FLAG(op, FLAG_LIFESAVE))
+	{
+		op->stats.hp = -1;
 		return;
 	}
 
-	if (op->env->type == PLAYER)
+	tmp = arch_to_object(op->other_arch);
+
+	if (op->slaying)
 	{
-		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
+		FREE_AND_COPY_HASH(tmp->name, op->slaying);
+		FREE_AND_COPY_HASH(tmp->title, op->slaying);
 	}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+	tmp->x = op->x;
+	tmp->y = op->y;
+	tmp->map = op->map;
+	tmp->level = op->level;
+	insert_ob_in_map(tmp, op->map, op, 0);
 }

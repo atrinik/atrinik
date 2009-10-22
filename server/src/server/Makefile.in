@@ -47,17 +47,13 @@ SRCS = \
 	c_wiz.c \
 	commands.c \
 	daemon.c \
-	disease.c \
-	egoitem.c \
 	hiscore.c \
 	gods.c \
 	init.c \
 	login.c \
 	main.c \
-	monster.c \
 	move.c \
 	pets.c \
-	player.c \
 	player_shop.c \
 	plugins.c \
 	resurrection.c \
@@ -67,7 +63,6 @@ SRCS = \
 	skill_util.c \
 	spell_effect.c \
 	spell_util.c \
-	swamp.c \
 	swap.c \
 	time.c \
 	timers.c \

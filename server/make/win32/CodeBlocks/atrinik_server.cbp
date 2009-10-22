@@ -478,14 +478,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\server\disease.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\server\egoitem.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\server\gods.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -506,10 +498,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\server\monster.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\server\move.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -519,10 +507,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\server\pets.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\server\player.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
@@ -559,10 +543,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\server\spell_util.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\server\swamp.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

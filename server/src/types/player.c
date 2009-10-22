@@ -23,8 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Player related functions. */
+
 #include <global.h>
-#ifndef WIN32 /* ---win32 remove headers */
+#ifndef WIN32
 #include <pwd.h>
 #endif
 #ifndef __CEXTRACT__
@@ -32,10 +36,6 @@
 #endif
 #include <sounds.h>
 #include <newclient.h>
-
-/**
- * @file
- * Player related functions. */
 
 /* i left find_arrow - find_arrow() and find_arrow()_ext should merge
  * when the server sided range mode is removed at last from source */

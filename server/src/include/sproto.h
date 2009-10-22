@@ -47,10 +47,6 @@ int player_apply(object *pl, object *op, int aflag, int quiet);
 void player_apply_below(object *pl);
 int apply_special(object *who, object *op, int aflags);
 int monster_apply_special(object *who, object *op, int aflags);
-void apply_player_light_refill(object *who, object *op);
-void apply_player_light(object *who, object *op);
-void apply_lighter(object *who, object *lighter);
-void scroll_failure(object *op, int failure, int power);
 
 /* attack.c */
 int attack_ob(object *op, object *hitter);
@@ -305,17 +301,6 @@ void init_commands(void);
 /* daemon.c */
 void become_daemon(char *filename);
 
-/* disease.c */
-int move_disease(object *disease);
-int infect_object(object *victim, object *disease, int force);
-void move_symptom(object *symptom);
-void check_physically_infect(object *victim, object *hitter);
-int cure_disease(object *sufferer, object *caster);
-int reduce_symptoms(object *sufferer, int reduction);
-
-/* egoitem.c */
-object *create_artifact(object *op, char *artifactname);
-
 /* hiscore.c */
 void check_score(object *op, int quiet);
 void display_high_score(object *op, int max, const char *match);
@@ -417,58 +402,6 @@ void dequeue_path_requests(void);
 void do_specials(void);
 int main(int argc, char **argv);
 
-/* monster.c */
-void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
-object *check_enemy(object *npc, rv_vector *rv);
-object *find_enemy(object *npc, rv_vector *rv);
-int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv);
-int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
-object *get_active_waypoint(object *op);
-object *get_aggro_waypoint(object *op);
-object *get_return_waypoint(object *op);
-object *find_waypoint(object *op, const char *name);
-void waypoint_compute_path(object *waypoint);
-void waypoint_move(object *op, object *waypoint);
-int move_monster(object *op);
-object *find_nearest_living_creature(object *npc);
-int move_randomly(object *op);
-int can_hit(object *ob1, object *ob2, rv_vector *rv);
-int can_apply(object *who, object *item);
-object *monster_choose_random_spell(object *monster);
-int monster_cast_spell(object *head, object *part, object *pl, int dir, rv_vector *rv);
-int monster_use_skill(object *head, object *part, object *pl, int dir);
-int monster_use_wand(object *head, object *part, object *pl, int dir);
-int monster_use_rod(object *head, object *part, object *pl, int dir);
-int monster_use_horn(object *head, object *part, object *pl, int dir);
-int monster_use_bow(object *head, object *part, object *pl, int dir);
-int check_good_weapon(object *who, object *item);
-int check_good_armour(object *who, object *item);
-void monster_check_pickup(object *monster);
-int monster_can_pick(object *monster, object *item);
-void monster_apply_below(object *monster);
-void monster_check_apply(object *mon, object *item);
-void npc_call_help(object *op);
-int dist_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv);
-int run_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv);
-int hitrun_att(int dir, object *ob, object *enemy);
-int wait_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv);
-int disthit_att(int dir, object *ob, object *enemy, object *part, rv_vector *rv);
-int wait_att2(int dir, object *ob, object *enemy, object *part, rv_vector *rv);
-void circ1_move(object *ob);
-void circ2_move(object *ob);
-void pace_movev(object *ob);
-void pace_moveh(object *ob);
-void pace2_movev(object *ob);
-void pace2_moveh(object *ob);
-void rand_move(object *ob);
-void communicate(object *op, char *txt);
-int talk_to_npc(object *op, object *npc, char *txt);
-int talk_to_wall(object *npc, char *txt);
-object *find_mon_throw_ob(object *op);
-int monster_use_scroll(object *head, object *part, object *pl, int dir, rv_vector *rv);
-void spawn_point(object *op);
-int is_friend_of(object *op, object *obj);
-
 /* move.c */
 int move_ob(object *op, int dir, object *originator);
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
@@ -486,37 +419,6 @@ void terminate_all_pets(object *owner);
 void remove_all_pets(mapstruct *map);
 void follow_owner(object *ob, object *owner);
 void pet_move(object *ob);
-
-/* player.c */
-player *find_player(char *plname);
-void display_motd(object *op);
-int playername_ok(char *cp);
-int add_player(NewSocket *ns);
-archetype *get_player_archetype(archetype *at);
-object *get_nearest_player(object *mon);
-int path_to_player(object *mon, object *pl, int mindiff);
-void give_initial_items(object *pl, treasurelist *items);
-void get_name(object *op);
-void get_password(object *op);
-void confirm_password(object *op);
-object *find_arrow(object *op, const char *type);
-void fire(object *op, int dir);
-int move_player(object *op, int dir);
-int handle_newcs_player(player *pl);
-int save_life(object *op);
-void remove_unpaid_objects(object *op, object *env);
-void do_some_living(object *op);
-void kill_player(object *op);
-void fix_weight(void);
-void cast_dust(object *op, object *throw_ob, int dir);
-void make_visible(object *op);
-int is_true_undead(object *op);
-int hideability(object *ob);
-void do_hidden_move(object *op);
-int stand_near_hostile(object *who);
-int action_makes_visible(object *op);
-int pvp_area(object *attacker, object *victim);
-void dragon_ability_gain(object *who, int atnr, int level);
 
 /* player_shop.c */
 void player_shop_send_items(player *pl, player *seller);
@@ -832,10 +734,6 @@ object *get_pointed_target(object *op, int dir);
 int cast_smite_spell(object *op, object *caster, int dir, int type);
 int SP_lvl_dam_adjust2(object *caster, int spell_type, int base_dam);
 
-/* swamp.c */
-void walk_on_deep_swamp(object *op, object *victim);
-void move_deep_swamp(object *op);
-
 /* swap.c */
 void read_map_log(void);
 void swap_map(mapstruct *map, int force_flag);
@@ -846,34 +744,16 @@ int players_on_map(mapstruct *m);
 void flush_old_maps(void);
 
 /* time.c */
-object *find_key(object *op, object *door);
-int open_door(object *op, mapstruct *m, int x, int y, int mode);
-void remove_door(object *op);
-void open_locked_door(object *op, object *opener);
-void close_locked_door(object *op);
-void regenerate_rod(object *rod);
 void remove_force(object *op);
 void remove_blindness(object *op);
 void remove_confusion(object *op);
 void execute_wor(object *op);
-void poison_more(object *op);
-void move_gate(object *op);
-void move_timed_gate(object *op);
-void move_detector(object *op);
 void animate_trigger(object *op);
-void move_pit(object *op);
 object *stop_item(object *op);
 void fix_stopped_item(object *op, mapstruct *map, object *originator);
-object *fix_stopped_arrow(object *op);
-void stop_arrow(object *op);
-void move_arrow(object *op);
 void change_object(object *op);
-void move_teleporter(object *op);
 void move_firewall(object *op);
 void move_firechest(object *op);
-void move_player_mover(object *op);
-void move_creator(object *op);
-void move_marker(object *op);
 int process_object(object *op);
 
 /* timers.c */

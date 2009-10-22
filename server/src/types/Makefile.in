@@ -25,7 +25,10 @@
 
 SHELL = @BOURNE_SHELL@
 
-SRCS := $(wildcard *.c)
+SRCS := \
+	$(wildcard *.c) \
+	../common/re-cmp.c
+
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 
 ARFLAGS = cq

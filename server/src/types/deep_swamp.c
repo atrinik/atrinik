@@ -23,14 +23,14 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * @ref DEEP_SWAMP "Deep swamp" related functions. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
-
-/**
- * @file
- * Swamp related functions. */
 
 /**
  * Walk on deep swamp.
@@ -47,12 +47,11 @@ void walk_on_deep_swamp(object *op, object *victim)
 }
 
 /**
- * Process player on swamp.
- * @param op The player object */
+ * Process deep swamp object.
+ * @param op The deep swamp object. */
 void move_deep_swamp(object *op)
 {
-	object *above = op->above;
-	object *nabove;
+	object *above = op->above, *nabove;
 
 	while (above)
 	{
@@ -74,6 +73,7 @@ void move_deep_swamp(object *op)
 						op->stats.food = 2;
 						above->speed_left -= (float) (SLOW_PENALTY(op));
 					}
+
 					break;
 
 				case 2:
@@ -85,6 +85,7 @@ void move_deep_swamp(object *op)
 						above->stats.hp--;
 						above->speed_left -= (float) (SLOW_PENALTY(op));
 					}
+
 					break;
 
 				case 3:
@@ -107,13 +108,16 @@ void move_deep_swamp(object *op)
 							new_draw_info(NDI_UNIQUE, 0, above, "You almost drowned in the swamp! You survived due to your woodsman skill.");
 						}
 					}
+
 					break;
 			}
 		}
 		else if (!IS_LIVE(above))
 		{
 			if (rndm(0, 2) == 0)
+			{
 				decrease_ob(above);
+			}
 		}
 
 		above = nabove;

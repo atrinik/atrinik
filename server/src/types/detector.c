@@ -25,67 +25,76 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code for @ref DETECTOR "detectors". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+ * Have the detector do its tick.
+ * @param op The detector. */
+void move_detector(object *op)
 {
-	if (op->type == PLAYER)
-	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
+	object *tmp;
+	int last = op->value, detected = 0;
 
-	if (tmp->stats.dam)
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL && !detected; tmp = tmp->above)
 	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
+		object *tmp2;
 
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	if (!op->stats.food)
-	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
+		if (op->stats.hp)
 		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
+			{
+				if (op->slaying && !strcmp(op->slaying, tmp->name))
+				{
+					detected = 1;
+				}
+
+				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
+				{
+					detected = 1;
+				}
+			}
 		}
 
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
+		if (op->slaying && !strcmp(op->slaying, tmp->name))
+		{
+			detected = 1;
+		}
+		else if (tmp->type == SPECIAL_KEY && tmp->slaying == op->slaying)
+		{
+			detected = 1;
+		}
 	}
 
-	if (op->env->type == PLAYER)
+	/* the detector sets the button if detection is found */
+	if (op->stats.sp == 1)
 	{
-		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
-	}
+		if (detected && last == 0)
+		{
+			op->value = 1;
+			push_button(op);
+		}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+		if (!detected && last == 1)
+		{
+			op->value = 0;
+			push_button(op);
+		}
+	}
+	/* in this case, we unset buttons */
+	else
+	{
+		if (detected && last == 1)
+		{
+			op->value = 0;
+			push_button(op);
+		}
+
+		if (!detected && last == 0)
+		{
+			op->value = 1;
+			push_button(op);
+		}
+	}
 }

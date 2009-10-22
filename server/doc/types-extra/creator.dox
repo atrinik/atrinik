@@ -1,0 +1,30 @@
+/**
+
+@def CREATOR
+
+@ref ::obj "Object" fields and flags used by this type.
+
+<table>
+<tr>
+    <th>Field/Flag</th>
+    <th>Explanation</th>
+</tr>
+<tr>
+    <td>connected</td>
+    <td>What connection number will trigger the creator.</td>
+</tr>
+<tr>
+    <td>living::hp</td>
+    <td>How many times it may create before stopping.</td>
+</tr>
+<tr>
+    <td>@ref FLAG_LIFESAVE</td>
+    <td>If set, it'll never disappear but will go on creating everytime
+        it's triggered.</td>
+</tr>
+<tr>
+    <td>object::other_arch</td>
+    <td>The object to create on top of the creator.</td>
+</tr>
+</table>
+*/

@@ -1,0 +1,29 @@
+/**
+
+@def DETECTOR
+
+@ref ::obj "Object" fields and flags used by this type.
+
+<table>
+<tr>
+    <th>Field/Flag</th>
+    <th>Explanation</th>
+</tr>
+<tr>
+    <td>object::slaying</td>
+    <td>Name of the thing the detector is to look for.</td>
+</tr>
+<tr>
+    <td>object::speed</td>
+    <td>Frequency of 'glances'.</td>
+</tr>
+<tr>
+    <td>connected</td>
+    <td>Connected value of detector.</td>
+</tr>
+<tr>
+    <td>living::sp</td>
+    <td>1 if detection sets buttons, -1 if detection unsets buttons.</td>
+</tr>
+</table>
+*/

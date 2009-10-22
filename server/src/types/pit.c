@@ -25,67 +25,62 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code used for @ref PIT "pits". */
 
 #include <global.h>
 #include <sproto.h>
 
 /**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+ * Close or open a pit. op->value is set when something connected to
+ * the pit is triggered.
+ * @param op The pit object */
+void move_pit(object *op)
 {
-	if (op->type == PLAYER)
-	{
-		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
+	object *next,*tmp;
 
-	if (tmp->stats.dam)
+	/* We're opening */
+	if (op->value)
 	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
-
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	if (!op->stats.food)
-	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
+		/* Opened, let's stop */
+		if (--op->stats.wc <= 0)
 		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
+			op->stats.wc = 0;
+			op->speed = 0;
+			update_ob_speed(op);
+			SET_FLAG(op, FLAG_WALK_ON);
+
+			for (tmp = op->above; tmp != NULL; tmp = next)
+			{
+				next = tmp->above;
+				move_apply(op, tmp, tmp, 0);
+			}
 		}
 
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+		op->state = (uint8) op->stats.wc;
+		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+		update_object(op, UP_OBJ_FACE);
 		return;
 	}
 
-	if (op->env->type == PLAYER)
+	/* We're closing */
+	CLEAR_FLAG(op, FLAG_WALK_ON);
+	op->stats.wc++;
+
+	if ((int) op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
 	{
-		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
+		op->stats.wc = NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1;
 	}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+	op->state = (uint8) op->stats.wc;
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+	update_object(op, UP_OBJ_FACE);
+
+	if ((unsigned char) op->stats.wc == (NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1))
+	{
+		op->speed = 0;
+
+		/* Closed, let's stop */
+		update_ob_speed(op);
+		return;
+	}
 }
