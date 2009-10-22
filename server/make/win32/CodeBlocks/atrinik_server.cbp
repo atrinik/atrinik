@@ -34,6 +34,7 @@
 					<Add library="libwinmm.a" />
 					<Add directory="Release" />
 					<Add library="libcross.a" />
+					<Add library="libtypes.a" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="flex.exe -i -Prmap -o..\..\..\src\random_maps\reader.c  ..\..\..\src\random_maps\reader.l" />
@@ -127,6 +128,12 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\libproto.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\include\libtypes.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
 			<Option link="0" />

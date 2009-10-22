@@ -1,0 +1,75 @@
+#************************************************************************
+#            Atrinik, a Multiplayer Online Role Playing Game            *
+#                                                                       *
+#                     Copyright (C) 2009 Alex Tokar                     *
+#                                                                       *
+# Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+# and Crossfire (Multiplayer game for X-windows).                       *
+#                                                                       *
+# This program is free software; you can redistribute it and/or modify  *
+# it under the terms of the GNU General Public License as published by  *
+# the Free Software Foundation; either version 2 of the License, or     *
+# (at your option) any later version.                                   *
+#                                                                       *
+# This program is distributed in the hope that it will be useful,       *
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# GNU General Public License for more details.                          *
+#                                                                       *
+# You should have received a copy of the GNU General Public License     *
+# along with this program; if not, write to the Free Software           *
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+#                                                                       *
+# The author can be reached at admin@atrinik.org                        *
+#***********************************************************************/
+
+SHELL = @BOURNE_SHELL@
+
+SRCS := $(wildcard *.c)
+OBJS := $(patsubst %.c, %.o, $(SRCS))
+
+ARFLAGS = cq
+
+AR = @AR@
+RM = @RM@
+
+RANLIB = @RANLIB@
+
+DEPEND = @DEPEND@
+
+CFLAGS = @CFLAGS@ -fPIC $(EXTRA_CFLAGS)
+
+INCLUDES = $(EXTRA_INCLUDES) -I../include
+
+SED = @SED@
+
+libtypes.a: $(OBJS)
+	$(RM) -f $@
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(RANLIB) $@
+
+depend:
+	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
+
+# Nothing to install here
+install::
+
+
+proto:
+	cproto -e -o ../include/libtypes.h.bak $(INCLUDES) \
+	$(SRCS)
+	$(SED) -e "s/ = {0}//g" -e "s/__signed/signed/g" -e "/inline/d" -e "/YY_BUFFER/d" < ../include/libtypes.h.bak > ../include/libtypes.h
+	chmod 644 ../include/libtypes.h
+	$(RM) -f ../include/libtypes.h.bak
+
+clean::
+	$(RM) -f $(OBJS)
+
+distclean:: clean
+	$(RM) -f Makefile libtypes.a
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES)  -c $*.c
+
+all:: libtypes.a
+

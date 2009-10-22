@@ -126,6 +126,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\common\mempool.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\common\map.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

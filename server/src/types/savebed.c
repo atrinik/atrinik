@@ -23,30 +23,28 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code used for @ref SAVEBED "savebeds". */
+
 #include <global.h>
-#ifndef __CEXTRACT__
-#include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Apply a savebed.
+ * @param op The player applying the savebed. */
+void apply_savebed(object *op)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	if (!CONTR(op)->name_changed || !op->stats.exp)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		new_draw_info(NDI_UNIQUE, 0, op, "You don't deserve to save your character yet.");
+		return;
 	}
 
-	return NULL;
-}
+	/* update respawn position */
+	strcpy(CONTR(op)->savebed_map, op->map->path);
+	CONTR(op)->bed_x = op->x;
+	CONTR(op)->bed_y = op->y;
 
+	new_draw_info(NDI_UNIQUE, 0, op, "You save and leave the game. Bye!\nLeaving...");
+	CONTR(op)->socket.status = Ns_Dead;
+}

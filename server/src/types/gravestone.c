@@ -23,30 +23,48 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code related to @ref GRAVESTONE "gravestones". */
+
 #include <global.h>
-#ifndef __CEXTRACT__
-#include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Create text for a gravestone object.
+ * @param op Object that died.
+ * @return Pointer to a static string containing the gravestone text. */
+char *gravestone_text(object *op)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
+	static char buf2[MAX_BUF];
+	char buf[MAX_BUF];
+	time_t now = time(NULL);
 
-	if (al == NULL)
-		return NULL;
+	strcpy(buf2, "R.I.P.\n\n");
 
-	for (art = al->items; art != NULL; art = art->next)
+	if (op->type == PLAYER)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		snprintf(buf, sizeof(buf), "Here rests the hero %s the %s\n", op->name, op->race);
+	}
+	else
+	{
+		snprintf(buf, sizeof(buf), "%s\n", op->name);
 	}
 
-	return NULL;
-}
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
 
+	if (op->type == PLAYER)
+	{
+		snprintf(buf, sizeof(buf), "who was killed at level %d\nby %s.", op->level, strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
+	}
+	else
+	{
+		snprintf(buf, sizeof(buf), "who died at level %d.", op->level);
+	}
+
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
+
+	strftime(buf, sizeof(buf), "\n\n%b %d %Y", localtime(&now));
+	strncat(buf2, buf, sizeof(buf2) - strlen(buf2) - 1);
+
+	return buf2;
+}

@@ -23,30 +23,32 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code for @ref POISON "poison" objects. */
+
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Apply poisoned object.
+ * @param op The object applying this.
+ * @param tmp The poison object. */
+void apply_poison(object *op, object *tmp)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	if (op->type == PLAYER)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
+		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
+		strcpy(CONTR(op)->killer, "poisonous food");
 	}
 
-	return NULL;
-}
+	if (tmp->stats.dam)
+	{
+		/* internal damage part will take care about our poison */
+		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
+	}
 
+	op->stats.food -= op->stats.food / 4;
+	decrease_ob(tmp);
+}

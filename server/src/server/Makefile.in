@@ -28,6 +28,7 @@ VPATH = @srcdir@
 LOCAL_LIBRARIES = \
 	../common/libcross.a \
 	../random_maps/random_map.a \
+	../types/libtypes.a \
 	../zlib/zlib.a \
 	../socket/socket.a
 

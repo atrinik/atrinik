@@ -266,6 +266,7 @@ AC_OUTPUT(Makefile
 	../../src/server/Makefile ../../src/include/Makefile
 	../../src/utils/Makefile ../../src/common/Makefile
 	../../src/zlib/Makefile ../../src/utils/atrinikloop
+	../../src/types/Makefile
 	../../src/plugins/Makefile
 	../../src/plugins/common/Makefile
 	../../src/plugins/plugin_python/Makefile

@@ -75,7 +75,9 @@
 #endif
 #define GETTIMEOFDAY_TWO_ARGS
 #define MAXPATHLEN 256
+#ifndef SIZEOF_LONG
 #define SIZEOF_LONG 8
+#endif
 
 /* Many defines to redirect unix functions or fake standard unix values */
 #define inline __inline
@@ -133,6 +135,10 @@
 #define BUNZIP "/usr/bin/bunzip2"
 
 #define YY_NEVER_INTERACTIVE 1
+
+#ifndef MSG_DONWAIT
+#define MSG_DONTWAIT 0
+#endif
 
 /* struct dirent - same as Unix */
 

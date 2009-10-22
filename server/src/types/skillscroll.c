@@ -23,30 +23,42 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code used by @ref SKILLSCROLL "skillscrolls". */
+
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Apply a skillscroll.
+ * @param op The player applying the skillscroll.
+ * @param tmp The skillscroll. */
+void apply_skillscroll(object *op, object *tmp)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	/* Must be applied by a player. */
+	if (!op->type == PLAYER)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		return;
 	}
 
-	return NULL;
-}
+	switch (learn_skill(op, tmp, NULL, 0, 1))
+	{
+		case 0:
+			new_draw_info(NDI_UNIQUE, 0, op, "You already possess the knowledge ");
+			new_draw_info_format(NDI_UNIQUE, 0, op, "held within the %s.\n", query_name(tmp, NULL));
+			return;
 
+		case 1:
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You succeed in learning %s", skills[tmp->stats.sp].name);
+			/* to immediately link new skill to exp object */
+			fix_player(op);
+			decrease_ob(tmp);
+			return;
+
+		default:
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You fail to learn the knowledge of the %s.\n", query_name(tmp, NULL));
+			decrease_ob(tmp);
+			return;
+	}
+}

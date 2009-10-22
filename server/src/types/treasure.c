@@ -23,30 +23,83 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code for @ref TREASURE "treasure" objects. */
+
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Apply a treasure chest.
+ * @param op The object applying the chest.
+ * @param tmp The chest object. */
+void apply_treasure(object *op, object *tmp)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
+	object *treas;
+	tag_t tmp_tag = tmp->count, op_tag = op->count;
 
-	if (al == NULL)
-		return NULL;
+	/* Nice side effect of new treasure creation method is that the
+	 * treasure for the chest is done when the chest is created, and put
+	 * into the chest's inventory. So that when the chest burns up, the
+	 * items still exist. Also prevents people from moving chests to more
+	 * difficult maps to get better treasure. */
+	treas = tmp->inv;
 
-	for (art = al->items; art != NULL; art = art->next)
+	if (tmp->map)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		play_sound_map(tmp->map, tmp->x, tmp->y, SOUND_OPEN_CONTAINER, SOUND_NORMAL);
 	}
 
-	return NULL;
-}
+	/* msg like "the chest crumbles to dust" */
+	if (tmp->msg)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, tmp->msg);
+	}
 
+	if (treas == NULL)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "The chest was empty.");
+		decrease_ob(tmp);
+		return;
+	}
+	do
+	{
+		remove_ob(treas);
+		check_walk_off(treas, NULL, MOVE_APPLY_VANISHED);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "You find %s in the chest.", query_name(treas, NULL));
+		treas->x = op->x,treas->y = op->y;
+
+		/* Monsters can be trapped in treasure chests */
+		if (treas->type == MONSTER)
+		{
+			int i = find_free_spot(treas->arch, NULL, op->map, treas->x, treas->y, 0, 9);
+
+			if (i != -1)
+			{
+				treas->x += freearr_x[i];
+				treas->y += freearr_y[i];
+			}
+
+			fix_monster(treas);
+		}
+
+		treas = insert_ob_in_map(treas, op->map, op, 0);
+
+		if (treas && treas->type == RUNE && treas->level && IS_LIVE(op))
+		{
+			spring_trap(treas, op);
+		}
+
+		if (was_destroyed(op, op_tag) || was_destroyed(tmp, tmp_tag))
+		{
+			break;
+		}
+	}
+	while ((treas = tmp->inv) != NULL);
+
+	if (!was_destroyed(tmp, tmp_tag) && tmp->inv == NULL)
+	{
+		decrease_ob(tmp);
+	}
+}

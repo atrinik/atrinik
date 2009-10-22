@@ -23,30 +23,53 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code related to @ref SIGN "signs". */
+
 #include <global.h>
-#ifndef __CEXTRACT__
-#include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Apply a sign or trigger a magic mouth.
+ *
+ * Signs and magic mouths can have a "counter" value, which will make it
+ * possible to read/trigger it only so many times.
+ * @param op Object applying the sign
+ * @param sign The sign or magic mouth object. */
+void apply_sign(object *op, object *sign)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	if (sign->msg == NULL)
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		new_draw_info(NDI_UNIQUE, 0, op, "Nothing is written on it.");
+		return;
 	}
 
-	return NULL;
-}
+	if (sign->stats.food)
+	{
+		if (sign->last_eat >= sign->stats.food)
+		{
+			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+			{
+				new_draw_info(NDI_UNIQUE, 0, op, "You cannot read it anymore.");
+			}
 
+			return;
+		}
+
+		sign->last_eat++;
+	}
+
+	/* Sign or magic mouth?  Do we need to see it, or does it talk to us?
+	 * No way to know for sure.
+	 *
+	 * This check fails for signs with FLAG_WALK_ON/FLAG_FLY_ON.  Checking
+	 * for FLAG_INVISIBLE instead of FLAG_WALK_ON/FLAG_FLY_ON would fail
+	 * for magic mouths that have been made visible. */
+	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to read while blind.");
+		return;
+	}
+
+	new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, sign->msg);
+}

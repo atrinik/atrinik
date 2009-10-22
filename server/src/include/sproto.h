@@ -37,29 +37,10 @@ void remove_contents(object *first_ob, object *save_item);
 int calc_alch_danger(object *caster, object *cauldron);
 
 /* apply.c */
-void draw_find(object *op, object *find);
-int apply_potion(object *op, object *tmp);
-int check_item(object *op, const char *item);
-void eat_item(object *op, const char *item);
-int check_weapon_power(object *who, int improvs);
-int improve_weapon_stat(object *op, object *improver, object *weapon, signed char *stat, int sacrifice_count, char *statname);
-int prepare_weapon(object *op, object *improver, object *weapon);
-int improve_weapon(object *op, object *improver, object *weapon);
-int check_improve_weapon(object *op, object *tmp);
-int improve_armour(object *op, object *improver, object *armour);
-int convert_item(object *item, object *converter);
-int container_link(player *pl, object *sack);
-int container_unlink(player *pl, object *sack);
-int esrv_apply_container(object *op, object *sack);
-int container_trap(object *op, object *container);
-char *gravestone_text(object *op);
 void move_apply(object *trap, object *victim, object *originator, int flags);
+object *find_special_prayer_mark(object *op, int spell);
 void do_learn_spell(object *op, int spell, int special_prayer);
 void do_forget_spell(object *op, int spell);
-void apply_poison(object *op, object *tmp);
-void create_food_force(object *who, object *food, object *force);
-void eat_special_food(object *who, object *food);
-int dragon_eat_flesh(object *op, object *meal);
 int is_legal_2ways_exit(object *op, object *exit);
 int manual_apply(object *op, object *tmp, int aflag);
 int player_apply(object *pl, object *op, int aflag, int quiet);
@@ -334,7 +315,6 @@ int reduce_symptoms(object *sufferer, int reduction);
 
 /* egoitem.c */
 object *create_artifact(object *op, char *artifactname);
-int apply_power_crystal(object *op, object *crystal);
 
 /* hiscore.c */
 void check_score(object *op, int quiet);

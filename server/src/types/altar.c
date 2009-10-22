@@ -23,30 +23,50 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code related to @ref ALTAR "altars". */
+
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
- * @file */
-
-/* GROS: I put this here, because no other file seemed quite good. */
-object *create_artifact(object *op, char *artifactname)
+ * Operate an altar.
+ * @param altar The altar object.
+ * @param sacrifice Sacrifice object for the altar.
+ * @param originator Originator object who put the sacrifice on the
+ * altar.
+ * @return 1 if the sacrifice was accepted, 0 otherwise. */
+int apply_altar(object *altar, object *sacrifice, object *originator)
 {
-	artifactlist *al;
-	artifact *art;
-	al = find_artifactlist(op->type);
-
-	if (al == NULL)
-		return NULL;
-
-	for (art = al->items; art != NULL; art = art->next)
+	/* Only players can make sacrifices on spell casting altars. */
+	if (altar->stats.sp != -1 && (!originator || originator->type != PLAYER))
 	{
-		if (!strcmp(art->name, artifactname))
-			give_artifact_abilities(op, art);
+		return 0;
 	}
 
-	return NULL;
-}
+	if (operate_altar(altar, &sacrifice))
+	{
+		/* Simple check. with an altar. We call it a Potion - altars are
+		 * stationary - it is up to map designers to use them
+		 * properly. */
+		if (altar->stats.sp != -1)
+		{
+			new_draw_info_format(NDI_WHITE, 0, originator, "The altar casts %s.", spells[altar->stats.sp].name);
+			cast_spell(originator, altar, altar->last_sp, altar->stats.sp, 0, spellPotion, NULL);
+			/* If it is connected, push the button. Fixes some problems
+			 * with old maps. */
+			push_button(altar);
+		}
+		else
+		{
+			/* Works only once */
+			altar->value = 1;
+			push_button(altar);
+		}
 
+		return sacrifice == NULL;
+	}
+
+	return 0;
+}
