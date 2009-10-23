@@ -7,6 +7,8 @@
 This documentation covers the technical aspects of the Atrinik server source code.
 
 - @ref todo
+- @ref page_directory_structure
+- @ref type_index
 - @ref plugin_arena
 - @ref page_plugin_python
 - @ref page_objects
