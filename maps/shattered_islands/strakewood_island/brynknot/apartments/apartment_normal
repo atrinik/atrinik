@@ -13,19 +13,16 @@ no_harm 1
 bg_music harmony2.ogg|0|-1
 end
 arch floor_inv
-unique 1
 end
 arch wall_pattern2.181
 end
 arch floor_inv
-unique 1
 y 1
 end
 arch wall_pattern2.131
 y 1
 end
 arch floor_inv
-unique 1
 y 2
 end
 arch wall_pattern2.131
@@ -36,35 +33,30 @@ direction 5
 y 2
 end
 arch floor_inv
-unique 1
 y 3
 end
 arch wall_pattern2.131
 y 3
 end
 arch floor_inv
-unique 1
 y 4
 end
 arch wall_pattern2.131
 y 4
 end
 arch floor_inv
-unique 1
 y 5
 end
 arch wall_pattern2.131
 y 5
 end
 arch floor_inv
-unique 1
 x 1
 end
 arch wall_pattern2.111
 x 1
 end
 arch floor_ostone5
-unique 1
 x 1
 y 1
 end
@@ -77,12 +69,10 @@ race /shattered_islands/scripts/strakewood_island/brynknot/apartment_out.py
 end
 end
 arch floor_ostone5
-unique 1
 x 1
 y 2
 end
 arch floor_ostone5
-unique 1
 x 1
 y 3
 end
@@ -91,7 +81,6 @@ x 1
 y 3
 end
 arch floor_ostone5
-unique 1
 x 1
 y 4
 end
@@ -101,7 +90,6 @@ x 1
 y 4
 end
 arch floor_ostone5
-unique 1
 x 1
 y 5
 end
@@ -110,14 +98,12 @@ x 1
 y 5
 end
 arch floor_inv
-unique 1
 x 2
 end
 arch wall_pattern2.111
 x 2
 end
 arch floor_ostone5
-unique 1
 x 2
 y 1
 end
@@ -126,7 +112,6 @@ x 2
 y 1
 end
 arch floor_ostone5
-unique 1
 x 2
 y 2
 end
@@ -135,7 +120,6 @@ x 2
 y 2
 end
 arch floor_ostone5
-unique 1
 x 2
 y 3
 end
@@ -144,7 +128,6 @@ x 2
 y 3
 end
 arch floor_ostone5
-unique 1
 x 2
 y 4
 end
@@ -154,7 +137,6 @@ x 2
 y 4
 end
 arch floor_ostone5
-unique 1
 x 2
 y 5
 end
@@ -163,14 +145,12 @@ x 2
 y 5
 end
 arch floor_inv
-unique 1
 x 3
 end
 arch wall_pattern2.111
 x 3
 end
 arch floor_ostone5
-unique 1
 x 3
 y 1
 end
@@ -183,7 +163,6 @@ x 3
 y 1
 end
 arch floor_ostone5
-unique 1
 x 3
 y 2
 end
@@ -193,7 +172,6 @@ x 3
 y 2
 end
 arch floor_ostone5
-unique 1
 x 3
 y 3
 end
@@ -203,7 +181,6 @@ x 3
 y 3
 end
 arch floor_ostone5
-unique 1
 x 3
 y 4
 end
@@ -225,7 +202,6 @@ x 3
 y 4
 end
 arch floor_ostone5
-unique 1
 x 3
 y 5
 end
@@ -234,7 +210,6 @@ x 3
 y 5
 end
 arch floor_inv
-unique 1
 x 4
 end
 arch wall_pattern2.111
@@ -244,7 +219,6 @@ arch picture3.151
 x 4
 end
 arch floor_ostone5
-unique 1
 x 4
 y 1
 end
@@ -257,22 +231,18 @@ x 4
 y 1
 end
 arch floor_ostone5
-unique 1
 x 4
 y 2
 end
 arch floor_ostone5
-unique 1
 x 4
 y 3
 end
 arch floor_ostone5
-unique 1
 x 4
 y 4
 end
 arch floor_ostone5
-unique 1
 x 4
 y 5
 end
@@ -281,24 +251,20 @@ x 4
 y 5
 end
 arch floor_inv
-unique 1
 x 5
 end
 arch wall_pattern2.111
 x 5
 end
 arch floor_ostone5
-unique 1
 x 5
 y 1
 end
 arch floor_ostone5
-unique 1
 x 5
 y 2
 end
 arch floor_ostone5
-unique 1
 x 5
 y 3
 end
@@ -307,7 +273,6 @@ x 5
 y 3
 end
 arch floor_ostone5
-unique 1
 x 5
 y 4
 end
@@ -317,7 +282,6 @@ x 5
 y 4
 end
 arch floor_ostone5
-unique 1
 x 5
 y 5
 end
@@ -326,14 +290,12 @@ x 5
 y 5
 end
 arch floor_inv
-unique 1
 x 6
 end
 arch wall_pattern2.111
 x 6
 end
 arch floor_ostone5
-unique 1
 x 6
 y 1
 end
@@ -342,7 +304,6 @@ x 6
 y 1
 end
 arch floor_ostone5
-unique 1
 x 6
 y 2
 end
@@ -351,7 +312,6 @@ x 6
 y 2
 end
 arch floor_ostone5
-unique 1
 x 6
 y 3
 end
@@ -360,7 +320,6 @@ x 6
 y 3
 end
 arch floor_ostone5
-unique 1
 x 6
 y 4
 end
@@ -369,7 +328,6 @@ x 6
 y 4
 end
 arch floor_ostone5
-unique 1
 x 6
 y 5
 end
