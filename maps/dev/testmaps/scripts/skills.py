@@ -24,7 +24,7 @@ if text[0] == "learn":
 		if activator.DoKnowSkill(skill) == 1:
 			me.SayTo(activator, "You already know that skill.")
 		else:
-			activator.AcquireSkill(skill, LEARN)
+			activator.AcquireSkill(skill)
 
 else:
 	me.SayTo(activator, "\nI am the Skillgiver.\nSay ^learn <skillname>^ to learn a particular skill.")

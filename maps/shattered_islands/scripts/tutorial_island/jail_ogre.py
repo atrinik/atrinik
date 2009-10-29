@@ -58,7 +58,7 @@ elif msg == "teach me find traps":
 				item.Remove()
 				me.SayTo(activator, "Here we go!")
 				me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Frah'ak teach some ancient skill.", COLOR_YELLOW)
-				activator.AcquireSkill(skill, LEARN)
+				activator.AcquireSkill(skill)
 			else:
 				me.SayTo(activator, "\nNah, bring Frah'ak note from ^kobolds^ first!")
 

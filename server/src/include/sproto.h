@@ -416,7 +416,7 @@ int push_roll_object(object *op, int dir);
 /* pets.c */
 object *get_pet_enemy(object *pet, rv_vector *rv);
 void terminate_all_pets(object *owner);
-void remove_all_pets(mapstruct *map);
+void remove_all_pets();
 void follow_owner(object *ob, object *owner);
 void pet_move(object *ob);
 
@@ -455,9 +455,7 @@ CFParm *CFWFindPlayer(CFParm *PParm);
 CFParm *CFWPlayerExists(CFParm *PParm);
 CFParm *CFWManualApply(CFParm *PParm);
 CFParm *CFWCmdDrop(CFParm *PParm);
-CFParm *CFWCmdTake(CFParm *PParm);
 CFParm *CFWTransferObject(CFParm *PParm);
-CFParm *CFWCmdTitle(CFParm *PParm);
 CFParm *CFWKillObject(CFParm *PParm);
 CFParm *CFWCheckSpellKnown(CFParm *PParm);
 CFParm *CFWGetSpellNr(CFParm *PParm);
@@ -505,7 +503,6 @@ CFParm *CFWSetAnimation(CFParm *PParm);
 CFParm *CFWCommunicate(CFParm *PParm);
 CFParm *CFWFindBestObjectMatch(CFParm *PParm);
 CFParm *CFWApplyBelow(CFParm *PParm);
-CFParm *CFWFreeObject(CFParm *PParm);
 CFParm *CFWFindMarkedObject(CFParm *PParm);
 CFParm *CFWIdentifyObject(CFParm *PParm);
 CFParm *CFWObjectCreateClone(CFParm *PParm);

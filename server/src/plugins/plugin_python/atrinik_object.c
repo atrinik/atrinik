@@ -1868,27 +1868,22 @@ static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.AcquireSkill(<i>\<int\></i> skillno, <i>\<int\></i> mode)
- * </h1>
+ * <h1>object.AcquireSkill(<i>\<int\></i> skillno)</h1>
  *
  * Object will learn or unlearn skill.
  * @param skillno ID of the skill to learn/unlearn for
- * @param mode Possible modes:
- * - <b>Atrinik.LEARN</b>: Learn the skill
- * - <b>Atrinik.UNLEARN</b>: Unlearn the skill
  * @return 1 if the object knows the skill, 0 otherwise */
 static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *args)
 {
-	int skill, mode;
+	int skill;
 
-	if (!PyArg_ParseTuple(args, "ii", &skill, &mode))
+	if (!PyArg_ParseTuple(args, "i", &skill))
 	{
 		return NULL;
 	}
 
 	GCFP.Value[0] = (void *) (WHO);
 	GCFP.Value[1] = (void *) (&skill);
-	GCFP.Value[2] = (void *) (&mode);
 	(PlugHooks[HOOK_LEARNSKILL])(&GCFP);
 
 	Py_INCREF(Py_None);

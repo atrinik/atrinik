@@ -31,7 +31,7 @@ elif msg == "slash":
 			me.SayTo(activator, "You already know this skill.")
 		else:
 			activator.Write("%s gives you a sword." % me.name, 0)
-			activator.AcquireSkill(skill, LEARN)
+			activator.AcquireSkill(skill)
 			activator.Apply(activator.CreateObjectInside("shortsword", 1, 1, 1), 0)
 
 elif msg == "impact":
@@ -44,7 +44,7 @@ elif msg == "impact":
 			me.SayTo(activator, "You already know this skill.")
 		else:
 			activator.Write("%s gives you a small morningstar." % me.name, 0)
-			activator.AcquireSkill(skill, 0)
+			activator.AcquireSkill(skill)
 			activator.Apply(activator.CreateObjectInside("mstar_small", 1, 1, 1), 0)
 
 elif msg == "cleave":
@@ -57,7 +57,7 @@ elif msg == "cleave":
 			me.SayTo(activator, "You already know this skill.")
 		else:
 			activator.Write("%s gives you an axe." % me.name, 0)
-			activator.AcquireSkill(skill, 0)
+			activator.AcquireSkill(skill)
 			activator.Apply(activator.CreateObjectInside("axe_small", 1, 1, 1), 0)
 
 elif msg == "pierce":
@@ -70,7 +70,7 @@ elif msg == "pierce":
 			me.SayTo(activator, "You already know this skill.")
 		else:
 			activator.Write("%s gives you a large dagger." % me.name, 0)
-			activator.AcquireSkill(skill, 0)
+			activator.AcquireSkill(skill)
 			activator.Apply(activator.CreateObjectInside("dagger_large", 1, 1, 1), 0)
 
 elif msg == "weapons":

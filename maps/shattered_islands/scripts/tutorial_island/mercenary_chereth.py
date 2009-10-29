@@ -55,7 +55,7 @@ elif msg == "teach me bow":
 		finish_quest()
 
 		# Teach the skill
-		activator.AcquireSkill(GetSkillNr("bow archery"), LEARN)
+		activator.AcquireSkill(GetSkillNr("bow archery"))
 
 		# Create the player's first bow
 		activator.CreateObjectInside("bow_short", 1, 1)
@@ -73,7 +73,7 @@ elif msg == "teach me sling":
 		finish_quest()
 
 		# Teach the skill
-		activator.AcquireSkill(GetSkillNr("sling archery"), LEARN)
+		activator.AcquireSkill(GetSkillNr("sling archery"))
 
 		# Create the player's first sling
 		activator.CreateObjectInside("sling_small", 1, 1)
@@ -91,7 +91,7 @@ elif msg == "teach me crossbow":
 		finish_quest()
 
 		# Teach the skill
-		activator.AcquireSkill(GetSkillNr("crossbow archery"), LEARN)
+		activator.AcquireSkill(GetSkillNr("crossbow archery"))
 
 		# Create the player's first crossbow
 		activator.CreateObjectInside("crossbow_small", 1, 1)

@@ -49,7 +49,7 @@ elif msg == "teach me remove traps":
 			if sobj == None:
 				me.SayTo(activator, "Here we go!")
 				me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Regulus teaches some ancient skill.", COLOR_YELLOW)
-				activator.AcquireSkill(skill, LEARN)
+				activator.AcquireSkill(skill)
 
 elif msg == "hello" or msg == "hi" or msg == "hey":
 	if qitem == None:

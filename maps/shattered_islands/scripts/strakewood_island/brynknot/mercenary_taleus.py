@@ -51,7 +51,7 @@ elif text[0] == "teach":
 					me.SayTo(activator, "\nYou already know that skill?!")
 				else:
 					me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Taleus teaches some ancient skill.", COLOR_YELLOW)
-					activator.AcquireSkill(skill, LEARN)
+					activator.AcquireSkill(skill)
 
 elif text[0] == "two-hand":
 	me.SayTo(activator, "\nTwo-hand mastery will allow you to fight with two-hand weapons. You will do more damage and hit better at the cost of lower protection because you can't wield a shield.");

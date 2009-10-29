@@ -151,7 +151,7 @@ void swap_map(mapstruct *map, int force_flag)
 	/* when we are here, map is save to swap! */
 
 	/* Give them a chance to follow */
-	remove_all_pets(map);
+	remove_all_pets();
 
 	/* Update the reset time.  Only do this is STAND_STILL is not set */
 	if (!MAP_FIXED_RESETTIME(map))
