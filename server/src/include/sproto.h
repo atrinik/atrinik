@@ -409,9 +409,8 @@ int teleport(object *teleporter, uint8 tele_type, object *user);
 void recursive_roll(object *op, int dir, object *pusher);
 int try_fit(object *op, int x, int y);
 int roll_ob(object *op, int dir, object *pusher);
-int push_ob(object *who, int dir, object *pusher);
-int missile_reflection_adjust(object *op, int flag);
 int push_roll_object(object *op, int dir);
+int missile_reflection_adjust(object *op, int flag);
 
 /* pets.c */
 object *get_pet_enemy(object *pet, rv_vector *rv);
