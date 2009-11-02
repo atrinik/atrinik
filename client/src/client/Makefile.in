@@ -42,6 +42,7 @@ SRCS = \
 	misc.c \
 	player.c \
 	player_shop.c \
+	scripts.c \
 	party.c \
 	socket.c \
 	sound.c \

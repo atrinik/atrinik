@@ -91,6 +91,9 @@
 		<Unit filename="..\..\..\src\include\player_shop.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\scripts.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\sdlsocket.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -191,6 +194,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\player_shop.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\client\scripts.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\socket.c">

@@ -23,75 +23,83 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INCLUDE_H)
-#define __INCLUDE_H
+/**
+ * @file
+ * Handles scripts structures and function prototype declarations. */
 
-#ifdef __LINUX
-#include "define.h"
+#include <include.h>
+
+#ifndef SCRIPTS_H
+#define SCRIPTS_H
+
+/**
+ * @defgroup script_event_flags Script event flags
+ * Event flags a script can register to get updates when they happen.
+ *@{*/
+
+/** No event flags. */
+#define SCRIPT_EVENT_NONE 0
+/** Get update when the player's stats change. */
+#define SCRIPT_EVENT_STATS 1
+/*@}*/
+
+/** Number of script events. */
+#define SCRIPT_EVENTS 1
+
+/** Script structure. */
+struct script {
+	/** The script name */
+	char *name;
+
+	/** The script parameters, if any */
+	char *params;
+
+	/** Command from the script */
+	char cmd[HUGE_BUF];
+
+#ifndef WIN32
+	/** The file descriptor to which the client writes to the script */
+	int out_fd;
+
+	/** The file descriptor from which we read commands from the script */
+	int in_fd;
 #else
-#include "win32.h"
+	/** The file descriptor to which the client writes to the script */
+	HANDLE out_fd;
+
+	/** The file descriptor from which we read commands from the script */
+	HANDLE in_fd;
 #endif
 
-#include "config.h"
+	/** Bytes already read in */
+	int cmd_count;
 
-/* Just some handy ones I like to use */
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE 1
-#endif
+#ifndef WIN32
+	/** Process ID */
+	pid_t pid;
+#else
+	/** Process ID */
+	DWORD pid;
 
-/* This is for the DevCpp IDE */
-#ifndef __WIN_32
-#ifdef WIN32
-#define __WIN_32
-#endif
+	/** Process handle for win32 */
+	HANDLE process;
 #endif
 
-typedef unsigned int uint32;
-typedef signed int sint32;
-typedef unsigned short uint16;
-typedef signed short sint16;
-typedef unsigned char uint8;
-typedef signed char sint8;
+	/** All the events this script has registered. */
+	char **events;
 
-#ifndef MIN
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
+	/** Number of events this event has registered so far. */
+	int events_count;
+};
 
-#ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
+void script_load(const char *cparams);
+void script_list();
+void script_fdset(int *maxfd, fd_set *set);
+void script_process(fd_set *set);
+int script_trigger_event(int event_id, void *void_data, int data_len);
+void script_send(char *params);
+void script_killall();
+void script_autoload();
+void script_unload(const char *params);
 
-#ifdef INSTALL_SOUND
-#include <SDL_mixer.h>
-#endif
-#include <wrapper.h>
-#include <signal.h>
-#include <curl/curl.h>
-
-#include <zlib.h>
-#include <item.h>
-
-#include <book.h>
-#include <client.h>
-#include <sdlsocket.h>
-#include <commands.h>
-#include <main.h>
-#include <metaserver.h>
-#include <player.h>
-#include <party.h>
-#include <misc.h>
-#include <event.h>
-#include <sound.h>
-#include <map.h>
-#include <sprite.h>
-#include <player_shop.h>
-#include <scripts.h>
-#include <textwin.h>
-#include <inventory.h>
-#include <menu.h>
-#include <dialog.h>
-#include <widget.h>
 #endif

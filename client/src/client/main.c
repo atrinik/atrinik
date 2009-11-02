@@ -720,7 +720,7 @@ int game_status_chain()
 		/* skip of -nometa in command line or no metaserver set in options */
 		if (options.no_meta)
 		{
-			draw_info("Option '-nometa'. Metaserver ignored.", COLOR_GREEN);
+			draw_info("Metaserver ignored.", COLOR_GREEN);
 			metaserver_connecting = 0;
 		}
 		else
@@ -1562,6 +1562,8 @@ int main(int argc, char *argv[])
 		/* wait for keypress */
 	}
 
+	script_autoload();
+
 	snprintf(buf, sizeof(buf), "Welcome to Atrinik version %s", PACKAGE_VERSION);
 	draw_info(buf, COLOR_HGOLD);
 
@@ -1631,14 +1633,24 @@ int main(int argc, char *argv[])
 				}
 #endif
 
+				script_fdset(&maxfd, &tmp_read);
+
 				timeout.tv_sec = 0;
 				timeout.tv_usec = 0;
 
 				/* main poll point for the socket */
 				if ((pollret = select(maxfd, &tmp_read, &tmp_write, &tmp_exceptions, &timeout)) == -1)
+				{
 					LOG(LOG_MSG, "Got errno %d on selectcall.\n", SOCKET_GetError());
+				}
 				else if (FD_ISSET(csocket.fd, &tmp_read))
+				{
 					DoClient(&csocket);
+				}
+				else
+				{
+					script_process(&tmp_read);
+				}
 
 				/* flush face request buffer */
 				request_face(0, 1);
@@ -1776,6 +1788,10 @@ int main(int argc, char *argv[])
 			StringBlt(ScreenSurface, &SystemFont, buf, cur_widget[MAPNAME_ID].x1, cur_widget[MAPNAME_ID].y1 + 12, COLOR_DEFAULT, NULL, NULL);
 		}
 
+#ifdef WIN32
+		script_process(NULL);
+#endif
+
 		flip_screen();
 
 		/* Force the thread to sleep */
@@ -1784,6 +1800,8 @@ int main(int argc, char *argv[])
 			SDL_Delay(options.sleep);
 		}
 	}
+
+	script_killall();
 
 	/* Save interface file (widget positions) */
 	save_interface_file();

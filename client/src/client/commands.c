@@ -653,6 +653,8 @@ void StatsCmd(unsigned char *data, int len)
 	int c, temp;
 	char *tmp, *tmp2;
 
+	script_trigger_event(SCRIPT_EVENT_STATS, (void *) data, len);
+
 	while (i < len)
 	{
 		c = data[i++];
@@ -1046,8 +1048,7 @@ void send_reply(char *text)
  * This function copies relevant data from the archetype to the object.
  * Only copies data that was not set in the object structure.
  * @param data The incoming data
- * @param len Length of the data
- */
+ * @param len Length of the data */
 void PlayerCmd(unsigned char *data, int len)
 {
 	char name[MAX_BUF];

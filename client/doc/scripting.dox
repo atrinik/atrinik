@@ -1,0 +1,260 @@
+/**
+
+@page page_scripting Scripting
+
+@section page_scripting_intro Introduction
+
+Since a program can't possibly have every single feature users want,
+scripting is used, which provides additional features.
+
+@section page_scripting_how_works How it works
+
+The script is a program which is external to the client. It can be
+written in a wide range of languages, including C, Java, Perl, Python,
+Bash, PHP, anything you can think about. How can this be possible? Let's
+take a look at what happens when you type "echo hello world" on a shell
+prompt. Sure it writes on your terminal "hello world". And if you are in
+a graphical shell prompt? It appears in the graphical console! Some
+process changed your request of writing to screen to a complex process of
+getting system's font and rendering the line in the specified window at
+the specified position. All this is because when you ask to "write hello
+world to screen" you really ask to "write hello world to the standard
+output device". This standard output device is called stdout. There is
+also the stdin, which most of the time is your keyboard and stderr, the
+standard error device being most of the time the same as stdout.
+
+
+Now what Atrinik client uses is exactly the same trick as the graphical
+console. When the client runs a script, it changes the script's stdin
+and replaces the keyboard input with it's own orders (using a pipe). And
+it changes the stdout so instead of writing to screen, the script sends
+data to the client (using another pipe). And this is how any language
+can be used. Because every language can write to the screen and read from
+the keyboard!
+
+@section page_scripting_examples Examples
+
+Consider the following example:
+
+@code
+#include <stdio.h>
+
+int main()
+{
+	printf("issue command /say Hello World.\n");
+	fflush(stdout);
+	return 0;
+}
+@endcode
+
+The above example would, when compiled and executed by the client, use
+the /say command to output the message "Hello World." to everyone in
+hearing range.
+
+Another example is this:
+
+@code
+#include <stdio.h>
+
+static char *directions[] = {
+	"s", "w",
+	"n", "e"
+};
+
+#define NUM_DIRECTIONS (int) (sizeof(directions) / sizeof(char *))
+
+#define NUM_REPEATS 4
+
+int main()
+{
+	int i, ii;
+
+	for (i = 0; i <= NUM_REPEATS; i++)
+	{
+		for (ii = 0; ii \< NUM_DIRECTIONS; ii++)
+		{
+			printf("issue command /%s\n", directions[ii]);
+			fflush(stdout);
+		}
+	}
+
+	return 0;
+}
+@endcode
+
+The above example would make your character go south, west, north and
+east, repeating the process 4 times.
+
+@section page_scripting_flushing_stdout Flushing stdout
+
+The stdout has something called a buffer. When you write to output
+device, it's not immediately sent to it. For performance reasons,
+successive prints to stdout are grouped. Most of the time, \\n is enough
+to force sending of data, but we ensure all the data is sent to client by
+flushing the stdout (force empty buffer). In the future, when you think
+client didn't get a command but the script did send it, ensure you
+flushed stdout.
+
+@section page_scripting_commands Commands
+
+This section documents all the possible commands a script can use to make
+the client do something.
+
+ - <b>draw</b> \<color\> \<message\>: Draw a message to player's client.
+ - <b>log</b> \<log_level\> \<message\>: Log a message using log_level level.
+ - <b>request</b> \<type\>: Request an information from client's memory.
+   - <b>player</b>: Return player's tag, rank, rank and name, pname, race,
+     title, alignment, gender and godname.
+   - <b>weight</b>: Return player's weight limit, weight and carrying.
+   - <b>stat stats</b>: Return Str, Dex, Con, Int, Wis, Pow and Cha stats.
+   - <b>stat combat</b>: Return wc, ac, damage, speed and weapon speed.
+   - <b>stat hp</b>: Return hp, maxhp, sp, maxsp, grace, maxgrace and food.
+   - <b>stat exp</b>: Return player's level, overall experience, and all
+   - skill categories with their level and experience.
+   - <b>stat protections</b>: Return player's protections table.
+   - <b>items inv</b>: Return all items from player's inventory, line by line.
+   - <b>items applied</b>: Returns all applied items from player's inventory.
+   - <b>items below</b>: Return items from player's below inventory window.
+ - <b>issue command \<command\></b>: Issue a command. This includes parsing client-side commands.
+ - <b>issue string \<string\></b>: Send a string directly to the server. Useful for things like
+   "ap tag-id" to apply an item with tag ID of tag-id.
+ - <b>event register \<event name\></b>: Register an event.
+ - <b>event unregister \<event name\></b>: Unregister an event.
+
+@section page_scripting_events Events
+
+When something happens, events can be triggered. For example, when server
+sends stats update, the @ref SCRIPT_EVENT_STATS "stats event" is
+triggered. This can be useful for scripts watching food and eat something
+when it reaches critical point, or if hp goes way too down and there is
+grace to be spared cast a healing spell or find a potion of healing in
+inventory and apply it.
+
+Possible events:
+
+<table>
+	<tr>
+		<td colspan="2">Stats.<br><b>Prefixed with</b>: event_stats</td>
+	</tr>
+	<tr>
+		<th>Data</th>
+		<th>Explanation</th>
+	</td>
+	<tr>
+		<td>protects %%d %%d</td>
+		<td>Protections. Includes ID of the protection (zero being first
+		    = impact protection), and the protection value</td>
+	</tr>
+	<tr>
+		<td>target_hp %%d</td>
+		<td>HP of the target.</td>
+	</tr>
+	<tr>
+		<td>regen_hp %%d</td>
+		<td>Regeneration of HP.</td>
+	</tr>
+	<tr>
+		<td>regen_mana %%d</td>
+		<td>Regeneration of mana.</td>
+	</tr>
+	<tr>
+		<td>regen_grace %%d</td>
+		<td>Regeneration of grace.</td>
+	</tr>
+	<tr>
+		<td>hp %%d</td>
+		<td>HP.</td>
+	</tr>
+	<tr>
+		<td>maxhp %%d</td>
+		<td>Max HP.</td>
+	</tr>
+	<tr>
+		<td>sp %%d</td>
+		<td>Spell points.</td>
+	</tr>
+	<tr>
+		<td>maxsp %%d</td>
+		<td>Maximum spell points.</td>
+	</tr>
+	<tr>
+		<td>grace %%d</td>
+		<td>Grace.</td>
+	</tr>
+	<tr>
+		<td>maxgrace %%d</td>
+		<td>Maximum grace.</td>
+	</tr>
+	<tr>
+		<td>str|int|pow|wis|dex|con|cha %%d</td>
+		<td>Stats.</td>
+	</tr>
+	<tr>
+		<td>exp %%d</td>
+		<td>Overall experience.</td>
+	</tr>
+	<tr>
+		<td>level %%d</td>
+		<td>Player's level.</td>
+	</tr>
+	<tr>
+		<td>wc %%d</td>
+		<td>Weapon class.</td>
+	</tr>
+	<tr>
+		<td>ac %%d</td>
+		<td>Armour class.</td>
+	</tr>
+	<tr>
+		<td>dam %%d</td>
+		<td>Damage.</td>
+	</tr>
+	<tr>
+		<td>speed %%d</td>
+		<td>Speed.</td>
+	</tr>
+	<tr>
+		<td>food %%d</td>
+		<td>Food.</td>
+	</tr>
+	<tr>
+		<td>weapon_speed %%d</td>
+		<td>Speed of weapon.</td>
+	</tr>
+	<tr>
+		<td>flags %%d</td>
+		<td>Various flags.</td>
+	</tr>
+	<tr>
+		<td>weight_limit %%d</td>
+		<td>Weight limit of player.</td>
+	</tr>
+	<tr>
+		<td>action_time %%d</td>
+		<td>Action timer.</td>
+	</tr>
+	<tr>
+		<td>skill_exp %%d %%d</td>
+		<td>Skill experience, with information including ID of the skill
+		    and the actual experience in the skill.</td>
+	</tr>
+	<tr>
+		<td>skill_level %%d %%d</td>
+		<td>Skill level, with information including ID of the skill and
+		    the actual level of the skill.</td>
+	</tr>
+	<tr>
+		<td>range %%s</td>
+		<td>Range.</td>
+	</tr>
+	<tr>
+		<td>ext_title %%s:%%s:%%s:%%s:%%s:%%s:%%s:%%s</td>
+		<td>Ext title, with information including @ref cpl::rank "rank",
+		    @ref cpl::rankandname "rank and name",
+		    @ref cpl::pname "pname", @ref cpl::race "race",
+		    @ref cpl::title "title", @ref cpl::alignment "alignment",
+		    @ref cpl::gender "gender", @ref cpl::godname "godname"</td>
+	</tr>
+</table>
+
+*/

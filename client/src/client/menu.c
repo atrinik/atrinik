@@ -322,6 +322,35 @@ int client_command_check(char *cmd)
 			return 1;
 		}
 	}
+	else if (!strncmp(cmd, "/script ", 8))
+	{
+		cmd += 8;
+
+		if (!strncmp(cmd, "load ", 5))
+		{
+			cmd += 5;
+
+			script_load(cmd);
+		}
+		if (!strncmp(cmd, "unload ", 7))
+		{
+			cmd += 7;
+
+			script_unload(cmd);
+		}
+		else if (!strncmp(cmd, "list", 4))
+		{
+			script_list();
+		}
+		else if (!strncmp(cmd, "send ", 5))
+		{
+			cmd += 5;
+
+			script_send(cmd);
+		}
+
+		return 1;
+	}
 	else if (!strncmp(cmd, "/shop", 5))
 	{
 		initialize_shop(SHOP_STATE_NONE);
