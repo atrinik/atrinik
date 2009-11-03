@@ -71,7 +71,7 @@ int main()
 
 	for (i = 0; i <= NUM_REPEATS; i++)
 	{
-		for (ii = 0; ii \< NUM_DIRECTIONS; ii++)
+		for (ii = 0; ii < NUM_DIRECTIONS; ii++)
 		{
 			printf("issue command /%s\n", directions[ii]);
 			fflush(stdout);
