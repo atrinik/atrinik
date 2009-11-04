@@ -1,7 +1,5 @@
 ## @file
 ## Script for the apartment seller in Brynknot.
-## @todo With a bit of an effort, this could be made as a common script
-## to be used by other apartment sellers in the future.
 
 from Atrinik import *
 import string, os
@@ -14,14 +12,14 @@ me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/apartments.py")
 
-## To transfer IDs of apartments to strings.
-## @todo Perhaps this should be moved to the apartments.py file?
-apartment_ids = {
-	1: "cheap",
-	2: "normal",
-	3: "expensive",
-	4: "luxurious",
-}
+## Name of the apartment we're dealing with.
+apartment_id = GetOptions()
+
+## The apartments we're dealing with.
+apartments = apartments_info[apartment_id]["apartments"]
+
+## Tag ID of this apartment.
+apartment_tag = apartments_info[apartment_id]["tag"]
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
@@ -29,7 +27,7 @@ text = string.split(msg)
 ## The apartment's info
 pinfo = activator.GetPlayerInfo(apartment_tag)
 
-# Function to upgrade an old apartment to a new one.
+## Function to upgrade an old apartment to a new one.
 def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	activator.Write("You pay the money.", 0)
 	activator.Write("Darlin is casting some strange magic.", 0)
@@ -45,9 +43,23 @@ def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	if pinfo != None:
 		pinfo.last_heal = -1
 
+## Return the keys of a dictionary sorted by their values.
+## @param d The dictionary.
+## @return The sorted dictionary keys.
+def sort_by_value(d):
+	items = d.items()
+	backitems = [[v[1], v[0]] for v in items]
+	backitems.sort()
+	return [backitems[i][1] for i in range(0, len(backitems))]
+
 # Greeting
 if text[0] == "hello" or text[0] == "hi" or text[0] == "hey":
-	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have ^cheap^, ^normal^, ^expensive^ and ^luxurious^ ones.\nSay ^invited^ to check if you have been invited by somebody to their apartment.");
+	apartment_links = []
+
+	for apartment in sort_by_value(apartments):
+		apartment_links.append("^%s^" % apartment)
+
+	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have %s ones.\nSay ^invited^ to check if you have been invited by somebody to their apartment." % ", ".join(apartment_links));
 
 # Explain what an apartment is
 elif text[0] == "apartment":
@@ -63,7 +75,7 @@ elif msg == "upgrade":
 	else:
 		pinfo.last_heal = -1
 
-		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one.\nGo to upgrade ^procedure^ if you want to upgrade now.");
+		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one, for example.\nGo to upgrade ^procedure^ if you want to upgrade now.");
 
 # Upgrade procedure.
 elif text[0] == "procedure":
@@ -72,16 +84,15 @@ elif text[0] == "procedure":
 	else:
 		pinfo.last_heal = -1
 
-		if pinfo.slaying == "cheap":
-			me.SayTo(activator, "\nYour current home here is cheap apartment.\nYou can upgrade it to normal, expensive or luxurious.\nTo upgrade say ^upgrade to normal apartment^,\n^upgrade to expensive apartment^ or\n^upgrade to luxurious apartment^.")
-		elif pinfo.slaying == "normal":
-			me.SayTo(activator, "\nYour current home here is normal apartment.\nYou can upgrade it to cheap, expensive or luxurious.\nTo upgrade say ^upgrade to cheap apartment^\n^upgrade to expensive apartment^ or\n^upgrade to luxurious apartment^.")
-		elif pinfo.slaying == "expensive":
-			me.SayTo(activator, "\nYour current home here is expensive apartment.\nYou can upgrade it to cheap, normal or luxurious.\nTo upgrade say ^upgrade to cheap apartment^\n^upgrade to normal apartment^ or\n^upgrade to luxurious apartment^.")
-		elif pinfo.slaying == "luxurious":
-			me.SayTo(activator, "\nYour current home here is luxurious apartment.\nYou can upgrade it to cheap, normal or expensive.\nTo upgrade say ^upgrade to cheap apartment^\n^upgrade to normal apartment^ or\n^upgrade to expensive apartment^.")
+		upgrades = []
+		upgrade_links = []
 
-		me.SayTo(activator, "\nAfter you have said the sentence I will ask you to confirm.", 1)
+		for apartment in sort_by_value(apartments):
+			if apartment != pinfo.slaying:
+				upgrades.append(apartment)
+				upgrade_links.append("^upgrade to %s apartment^" % apartment)
+
+		me.SayTo(activator, "\nYour current home here is %s apartment.\nYou can upgrade it to one of %s.\nTo upgrade say one of:\n%s\nAfter you have said the sentence I will ask you to confirm." % (pinfo.slaying, ", ".join(upgrades), "\n".join(upgrade_links)))
 
 # Upgrade an apartment. The text is dynamic and will support anything in the apartments dictionary.
 # Text to activate this might look like this: "upgrade to cheap apartment"
@@ -96,7 +107,7 @@ elif text[0] == "upgrade" and text[1] == "to" and text[2] in apartments and text
 		else:
 			pinfo.last_heal = apartments[text[2]]["id"]
 
-			me.SayTo(activator, "\nThe %s apartment will cost you %s.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to a cheap apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it." % (text[2], activator.ShowCost(apartments[text[2]]["price"])))
+			me.SayTo(activator, "\nThe %(name)s apartment will cost you %(cost)s.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to %(name)s apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it." % {'name': text[2], 'cost': activator.ShowCost(apartments[text[2]]["price"])})
 
 # The player said "Yes, I do", and we can upgrade the apartment now.
 elif msg == "yes, i do":
@@ -106,12 +117,12 @@ elif msg == "yes, i do":
 		if pinfo.last_heal <= 0:
 			me.SayTo(activator, "\nFirst go to the upgrade ^procedure^ before you confirm your choice.")
 		else:
-			apartment_info = apartments[apartment_ids[pinfo.last_heal]]
+			apartment_info = apartments[apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal]]
 
 			old_apartment = apartments[pinfo.slaying]["path"]
 
 			if activator.PayAmount(apartment_info["price"]) == 1:
-				upgrade_apartment(old_apartment, apartment_info["path"], apartment_ids[pinfo.last_heal], apartment_info["x"], apartment_info["y"])
+				upgrade_apartment(old_apartment, apartment_info["path"], apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal], apartment_info["x"], apartment_info["y"])
 			else:
 				me.SayTo(activator, "\nSorry, you don't have enough money.");
 
