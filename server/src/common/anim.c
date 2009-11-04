@@ -141,7 +141,7 @@ void init_anim()
 		}
 		else
 		{
-			if (!(faces[num_frames++] = FindFace(buf, 0)))
+			if (!(faces[num_frames++] = find_face(buf, 0)))
 				LOG(llevBug, "BUG: Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
 		}
 	}

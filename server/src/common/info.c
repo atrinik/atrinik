@@ -23,26 +23,33 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <global.h>
-
-/* The functions in this file are purely mean to generate information
+/**
+ * @file
+ * The functions in this file are purely meant to generate information
  * in differently formatted output, mainly about monsters. */
 
-/* Dump to standard out the abilities of all monsters. */
+#include <global.h>
+
+/** Dump to standard out the abilities of all monsters. */
 void dump_abilities()
 {
 	archetype *at;
+
 	for (at = first_archetype; at; at = at->next)
 	{
 		const char *ch, *gen_name = "";
 		archetype *gen;
 
 		if (!QUERY_FLAG(&at->clone, FLAG_MONSTER))
+		{
 			continue;
+		}
 
 		/* Get rid of e.g. multiple black puddings */
 		if (QUERY_FLAG(&at->clone, FLAG_CHANGING))
+		{
 			continue;
+		}
 
 		for (gen = first_archetype; gen; gen = gen->next)
 		{
@@ -58,7 +65,7 @@ void dump_abilities()
 	}
 }
 
-/* As dump_abilities(), but with an alternative way of output. */
+/** Like dump_abilities(), but with an alternative way of output. */
 void print_monsters()
 {
 	archetype *at;
@@ -76,44 +83,20 @@ void print_monsters()
 		if (QUERY_FLAG(op, FLAG_MONSTER))
 		{
 			LOG(llevInfo,"%-15s|%5d|%3d|%4d|%4d|", op->arch->name, op->stats.maxhp, op->stats.dam, op->stats.ac, op->stats.wc);
+
 			for (i = 0; i < NROFATTACKS; i++)
+			{
 				LOG(llevInfo, "%4d", op->attack[i]);
+			}
 
 			LOG(llevInfo, " |\n               |     |   |    |    |");
 
 			for (i = 0; i < NROFATTACKS; i++)
+			{
 				LOG(llevInfo, "%4d", op->resist[i]);
+			}
 
 			LOG(llevInfo, " |%8d|\n", op->stats.exp);
 		}
 	}
-}
-
-/* Writes <num> ones and zeros to the given string based on the
- * <bits> variable. */
-void bitstostring(long bits, int num, char *str)
-{
-	int i, j = 0;
-
-	if (num > 32)
-		num = 32;
-
-	for (i = 0; i < num; i++)
-	{
-		if (i && (i % 3)==0)
-		{
-			str[i + j] = ' ';
-			j++;
-		}
-
-		if (bits & 1)
-			str[i + j] = '1';
-		else
-			str[i + j] = '0';
-
-		bits >>= 1;
-	}
-
-	str[i + j] = '\0';
-	return;
 }

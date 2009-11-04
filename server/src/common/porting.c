@@ -23,27 +23,25 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This file contains various functions that are not really unique for
- * crossfire, but rather provides what should be standard functions
- * for systems that do not have them.  In this way, most of the
- * nasty system dependent stuff is contained here, with the program
- * calling these functions. */
+/**
+ * @file
+ * This file contains various functions that are not really unique for
+ * Atrinik, but rather provides what should be standard functions for
+ * systems that do not have them. In this way, most of the nasty system
+ * dependent stuff is contained here, with the program calling these
+ * functions. */
 
-#ifdef WIN32 /* ---win32 exclude/include headers */
+#ifdef WIN32
 #include "process.h"
-#define pid_t int  /* we include it non global, because there is a redefinition in python.h */
+#define pid_t int
 #else
 #include <ctype.h>
 #include <sys/stat.h>
 
 #include <sys/param.h>
 #include <stdio.h>
-
-/* Need to pull in the HAVE_... values somehow */
-/* win32 reminder: always put this in a ifndef win32 block */
 #include <autoconf.h>
 #endif
-
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -56,38 +54,42 @@
 /* Has to be after above includes so we don't redefine some values */
 #include "global.h"
 
+/** Used to generate temporary unique name. */
 static unsigned int curtmp = 0;
 
-/*****************************************************************************
- * File related functions
- ****************************************************************************/
-
-/* A replacement for the tempnam() function since it's not defined
- * at some unix variants. */
+/**
+ * A replacement for the tempnam() function since it's not defined
+ * at some unix variants.
+ * @param dir Directory where to create the file. Can be NULL, in which
+ * case NULL is returned.
+ * @param pfx prefix to create unique name. Can be NULL.
+ * @return Path to temporary file, or NULL if failure. Must be freed by
+ * caller. */
 char *tempnam_local(char *dir, char *pfx)
 {
 	char *f, *name;
 	pid_t pid = getpid();
 
 	if (!(name = (char *) malloc(MAXPATHLEN)))
+	{
 		return NULL;
+	}
 
 	if (!pfx)
+	{
 		pfx = "cftmp.";
+	}
 
 	/* This is a pretty simple method - put the pid as a hex digit and
 	 * just keep incrementing the last digit.  Check to see if the file
-	 * already exists - if so, we'll just keep looking - eventually we should
-	 * find one that is free. */
-	if ((f = (char *)dir) != NULL)
+	 * already exists - if so, we'll just keep looking - eventually we
+	 * should find one that is free. */
+	if ((f = (char *) dir) != NULL)
 	{
 		do
 		{
-#ifdef HAVE_SNPRINTF
-			(void)snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", f, pfx, pid, curtmp);
-#else
-			(void)sprintf(name, "%s/%s%hx%d", f, pfx, pid, curtmp);
-#endif
+			snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", f, pfx, pid, curtmp);
+
 			curtmp++;
 		}
 		while (access(name, F_OK) != -1);
@@ -98,7 +100,10 @@ char *tempnam_local(char *dir, char *pfx)
 	return NULL;
 }
 
-/* This function removes everything in the directory. */
+/**
+ * This function removes everything in the directory, and the directory
+ * itself.
+ * @param path Directory to remove. */
 void remove_directory(const char *path)
 {
 	DIR *dirp;
@@ -112,33 +117,40 @@ void remove_directory(const char *path)
 
 		for (de = readdir(dirp); de; de = readdir(dirp))
 		{
+			/* Don't remove '.' or '..'.  In theory we should do a better
+			 * check for .., but the directories we are removing are
+			 * fairly limited and should not have dot files in them. */
+			if (de->d_name[0] == '.')
+			{
+				continue;
+			}
+
 			status = stat(de->d_name, &statbuf);
+
 			/* Linux actually has a type field in the dirent structure,
-			 * but that is not portable - stat should be portable */
+			 * but that is not portable - stat should be portable. */
 			if ((status != -1) && (S_ISDIR(statbuf.st_mode)))
 			{
-				sprintf(buf, "%s/%s", path, de->d_name);
+				snprintf(buf, sizeof(buf), "%s/%s", path, de->d_name);
 				remove_directory(buf);
 				continue;
 			}
 
-			/* Don't remove '.' or '..'  In  theory we should do a better
-			 * check for .., but the directories we are removing are fairly
-			 * limited and should not have dot files in them. */
-			if (de->d_name[0] == '.')
-				continue;
-
-			sprintf(buf, "%s/%s", path, de->d_name);
+			snprintf(buf, sizeof(buf), "%s/%s", path, de->d_name);
 
 			if (unlink(buf))
+			{
 				LOG(llevBug, "BUG: Unable to remove directory %s\n", path);
+			}
 		}
 
 		closedir(dirp);
 	}
 
 	if (unlink(path))
+	{
 		LOG(llevBug, "BUG: Unable to remove directory %s\n", path);
+	}
 }
 
 #if defined(sgi)
@@ -199,17 +211,21 @@ FILE *popen_local(const char *command, const char *type)
 
 #endif
 
-
-/*****************************************************************************
- * String related function
- ****************************************************************************/
-
-/* A replacement of strdup(), since it's not defined at some
- * unix variants. */
+/**
+ * A replacement of strdup(), since it's not defined at some
+ * unix variants.
+ * @param str String to duplicate.
+ * @return Copy, needs to be freed by caller. NULL on memory allocation
+ * error. */
 char *strdup_local(const char *str)
 {
-	char *c = (char *)malloc(sizeof(char) * (strlen(str) + 1));
-	strcpy(c, str);
+	char *c = (char *) malloc(strlen(str) + 1);
+
+	if (c != NULL)
+	{
+		strcpy(c, str);
+	}
+
 	return c;
 }
 
@@ -540,40 +556,40 @@ void close_and_delete(FILE *fp, int compressed)
 		fclose(fp);
 }
 
-/* If any directories in the given path doesn't exist, they are created. */
+/**
+ * Checks if any directories in the given path doesn't exist, and creates
+ * if necessary.
+ * @param filename File path we'll want to access. Can be NULL. */
 void make_path_to_file(char *filename)
 {
 	char buf[MAX_BUF], *cp = buf;
 	struct stat statbuf;
 
 	if (!filename || !*filename)
+	{
 		return;
+	}
 
 	strcpy(buf, filename);
 	LOG(llevDebug, "make_path_tofile %s...", filename);
-	while ((cp = strchr (cp + 1, (int) '/')))
+
+	while ((cp = strchr(cp + 1, '/')))
 	{
 		*cp = '\0';
-#if 0
-		LOG(llevDebug, "\n Checking %s...", buf);
-#endif
+
 		if (stat(buf, &statbuf) || !S_ISDIR (statbuf.st_mode))
 		{
 			LOG(llevDebug, "Was not dir...");
+
 			if (mkdir(buf, 0777))
 			{
 				LOG(llevBug, "Bug: Can't make path to file %s.\n", filename);
 				return;
 			}
-#if 0
-			LOG(llevDebug, "Made dir.");
 		}
-		else
-			LOG(llevDebug, "Was dir");
-#else
-		}
-#endif
+
 		*cp = '/';
 	}
+
 	LOG(llevDebug, "\n");
 }

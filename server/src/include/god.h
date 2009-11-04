@@ -39,9 +39,6 @@ typedef struct glnk
 	/** ID of the god */
 	int id;
 
-	/** The name of the group this god belongs to */
-	char *pantheon;
-
 	/** Next god */
 	struct glnk *next;
 } godlink;

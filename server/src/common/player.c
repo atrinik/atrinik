@@ -23,41 +23,59 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Player related common functions. */
+
 #include <global.h>
 #include <funcpoint.h>
 
-/* find_skill() - looks for the skill and returns a pointer to it if found */
-
+/**
+ * Looks for the skill and returns a pointer to it if found.
+ * @param op The object to look for the skill in.
+ * @param skillnr Skill ID.
+ * @return The skill if found, NULL otherwise.
+ */
 object *find_skill(object *op, int skillnr)
 {
-	object *tmp, *skill1 = NULL;
+	object *tmp;
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->type == SKILL && tmp->stats.sp == skillnr)
-			skill1 = tmp;
+		{
+			return tmp;
+		}
 	}
-	return skill1;
+
+	return NULL;
 }
 
-/* Determine if the attacktype represented by the
- * specified attack-number is enabled for dragon players.
- * A dragon player (quetzal) can gain resistances for
- * all enabled attacktypes. */
+/**
+ * Determine if the attacktype represented by the specified attack number
+ * is enabled for dragon players.
+ * @param attacknr Attacktype to check
+ * @return 1 if the player can gain resistances in that, 0 otherwise. */
 int atnr_is_dragon_enabled(int attacknr)
 {
 	if (attacknr == ATNR_MAGIC || attacknr == ATNR_FIRE || attacknr == ATNR_ELECTRICITY || attacknr == ATNR_COLD || attacknr == ATNR_ACID || attacknr == ATNR_POISON)
+	{
 		return 1;
+	}
 
 	return 0;
 }
 
-/* returns true if the adressed object 'ob' is a player
- * of the dragon race. */
-int is_dragon_pl(object* op)
+/**
+ * Checks if player is a dragon.
+ * @param op Player to check.
+ * @return 1 if the player is of the dragon race, 0 otherwise. */
+int is_dragon_pl(object *op)
 {
 	if (op != NULL && op->type == PLAYER && op->arch != NULL && op->arch->clone.race != NULL && strcmp(op->arch->clone.race, "dragon") == 0)
+	{
 		return 1;
+	}
 
 	return 0;
 }

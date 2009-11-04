@@ -143,33 +143,31 @@ extern void dummy_move_apply_func(object *ob, object *ob2, object *ob3, int);
 extern void dummy_function_dragongain(object *ob, int a1, int a2);
 
 /* holy.c */
-extern void init_gods(void);
-extern void add_god_to_list(archetype *god_arch);
+extern void init_gods();
 extern int baptize_altar(object *op);
-extern godlink *get_rand_god(void);
+extern godlink *get_rand_god();
 extern object *pntr_to_god_obj(godlink *godlnk);
-extern void free_all_god(void);
-extern void dump_gods(void);
+extern void free_all_god();
+extern void dump_gods();
 
 /* info.c */
-extern void dump_abilities(void);
-extern void print_monsters(void);
-extern void bitstostring(long bits, int num, char *str);
+extern void dump_abilities();
+extern void print_monsters();
 
 /* image.c */
-extern int ReadBmapNames(void);
-extern int FindFace(char *name, int error);
-extern void free_all_images(void);
+extern int read_bmap_names();
+extern int find_face(char *name, int error);
+extern void free_all_images();
 
 /* init.c */
-extern void init_library(void);
-extern void init_environ(void);
-extern void init_globals(void);
-extern void init_objects(void);
-extern void init_defaults(void);
-extern void init_dynamic(void);
-extern void write_todclock(void);
-extern void init_clocks(void);
+extern void init_library();
+extern void init_environ();
+extern void init_globals();
+extern void init_objects();
+extern void init_defaults();
+extern void init_dynamic();
+extern void write_todclock();
+extern void init_clocks();
 
 /* item.c */
 extern char *describe_resistance(object *op, int newline);

@@ -23,51 +23,64 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Started file Sept 1996 - initialization of gods in form of a
- * linked list -b.t. */
+/**
+ * @file
+ * God related common functions. */
 
 #include <global.h>
 #include <living.h>
 #include <spells.h>
 
+static godlink *init_godslist();
+static void add_god_to_list(archetype *god_arch);
+
+/**
+ * Initializes a god structure. */
 static godlink *init_godslist()
 {
 	godlink *gl = (godlink *) malloc(sizeof(godlink));
 
 	if (gl == NULL)
-		LOG(llevError, "ERROR: init_godslist(): OOM.\n");
+	{
+		LOG(llevError, "ERROR: init_godslist(): Out of memory.\n");
+	}
 
-	/* how to describe the god to the player */
+	/* How to describe the god to the player */
 	gl->name = NULL;
-	/* pointer to the archetype of this god */
+	/* Pointer to the archetype of this god */
 	gl->arch = NULL;
-	/* id of the god */
+	/* ID of the god */
 	gl->id = 0;
-	/* the group to which the god belongs (not implemented) */
-	gl->pantheon = NULL;
-	/* next god in this linked list */
+	/* Next god in this linked list */
 	gl->next = NULL;
 
 	return gl;
 }
 
-/* init_gods() - this takes a look at all of the archetypes to find
- * the objects which correspond to the GODS (type GOD) */
-void init_gods(void)
+/**
+ * This takes a look at all of the archetypes to find the objects which
+ * correspond to the @ref GOD "gods". */
+void init_gods()
 {
 	archetype *at = NULL;
 
 	LOG(llevDebug, "Initializing gods...");
 
 	for (at = first_archetype; at != NULL; at = at->next)
+	{
 		if (at->clone.type == GOD)
+		{
 			add_god_to_list(at);
+		}
+	}
 
 	LOG(llevDebug, " done.\n");
 }
 
-/* add_god_to_list()- called only from init_gods */
-void add_god_to_list(archetype *god_arch)
+/**
+ * Adds specified god to linked list, giving it an ID.
+ * @param god_arch God to add. If NULL, will log an error. */
+static void add_god_to_list(archetype *god_arch)
 {
 	godlink *god;
 
@@ -83,7 +96,9 @@ void add_god_to_list(archetype *god_arch)
 	FREE_AND_COPY_HASH(god->name, god_arch->clone.name);
 
 	if (!first_god)
+	{
 		god->id = 1;
+	}
 	else
 	{
 		god->id = first_god->id + 1;
@@ -97,37 +112,10 @@ void add_god_to_list(archetype *god_arch)
 #endif
 }
 
-/* baptize_altar() - (cosmetically) change the name to that of the
- * god in question, then set the title for later use. -b.t. */
-int baptize_altar(object *op)
-{
-	char buf[MAX_BUF];
-
-	/* if the title field is pre-set, then that altar is
-	 * already dedicated. */
-	if (!op->title)
-	{
-		godlink *god = get_rand_god();
-		if (!god || !god->name)
-		{
-			LOG(llevBug, "BUG: baptise_altar(): bizarre nameless god!\n");
-			return 0;
-		}
-
-		/* if the object name hasnt' been changed, we tack on the gods name */
-		if (!strcmp(op->name, op->arch->clone.name))
-		{
-			sprintf(buf, "%s of %s", op->name, god->name);
-			FREE_AND_COPY_HASH(op->name, buf);
-		}
-
-		FREE_AND_COPY_HASH(op->title, god->name);
-		return 1;
-	}
-	return 0;
-}
-
-godlink * get_rand_god(void)
+/**
+ * Returns a random god.
+ * @return A random god, or NULL if no god was found. */
+godlink *get_rand_god()
 {
 	godlink *god = first_god;
 	int i;
@@ -135,19 +123,28 @@ godlink * get_rand_god(void)
 	if (god)
 	{
 		for (i = RANDOM() % (god->id) + 1; god; god = god->next)
+		{
 			if (god->id == i)
+			{
 				break;
+			}
+		}
 	}
 
 	if (!god)
-		LOG(llevBug, "BUG: get_rand_god(): can't find a random god!\n");
+	{
+		LOG(llevBug, "BUG: get_rand_god(): Can't find a random god!\n");
+	}
 
 	return god;
 }
 
-/* pntr_to_god_obj() - returns a pointer to the object
- * We need to be VERY carefull about using this, as we
- * are returning a pointer to the CLONE object. -b.t. */
+/**
+ * Returns a pointer to the object.
+ *
+ * We need to be VERY careful about using this, as we are returning a
+ * pointer to the archetype::clone object.
+ * @param godlnk God to get object. */
 object *pntr_to_god_obj(godlink *godlnk)
 {
 	object *god = NULL;
@@ -158,11 +155,12 @@ object *pntr_to_god_obj(godlink *godlnk)
 	return god;
 }
 
+/** Frees all god information. */
 void free_all_god()
 {
 	godlink *god, *godnext;
 
-	LOG(llevDebug, "Freeing god information\n");
+	LOG(llevDebug, "Freeing god information.\n");
 
 	for (god = first_god; god; god = godnext)
 	{
@@ -172,6 +170,8 @@ void free_all_god()
 	}
 }
 
+/**
+ * Prints all gods using LOG(). */
 void dump_gods()
 {
 	godlink *glist;

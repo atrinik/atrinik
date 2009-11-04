@@ -27,11 +27,11 @@
 #include <funcpoint.h>
 #include <tod.h>
 
-#ifndef WIN32 /* ---win32 exclude header */
+#ifndef WIN32
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#endif /* win32 */
+#endif
 
 /* Global variables: */
 long max_time = MAX_TIME;

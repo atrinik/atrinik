@@ -31,7 +31,7 @@
 #include <funcpoint.h>
 
 #include <loader.h>
-/* ---win32 exclude header */
+
 #ifndef WIN32
 #include <unistd.h>
 #endif

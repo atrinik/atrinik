@@ -23,13 +23,19 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Basic initialization for the common library.
+ */
+
 #define EXTERN
 #define INIT_C
 
 #include <global.h>
 #include <object.h>
 
-/** You unforunately need to looking in include/global.h to see what these
+/**
+ * You unforunately need to looking in include/global.h to see what these
  * correspond to. */
 struct Settings settings =
 {
@@ -57,17 +63,26 @@ struct Settings settings =
 	0
 };
 
-/* daytime counter (day & night / lightning system) */
+/** World's darkness value. */
 int world_darkness;
+
+/** Time of day tick. */
 unsigned long todtick;
+
+/** Pointer to archetype that is used as effect when player levels up. */
 archetype *level_up_arch = NULL;
 
-/* It is vital that init_library() is called by any functions
- * using this library.
- * If you want to lessen the size of the program using the library,
- * you can replace the call to init_library() with init_globals() and
- * init_function_pointers().  Good idea to also call init_hash_table
- * if you are doing any object loading. */
+/** Name of the archetype to use for the level up effect. */
+#define ARCHETYPE_LEVEL_UP "level_up"
+
+/**
+ * It is vital that init_library() is called by any functions using this
+ * library.
+ *
+ * If you want to lessen the size of the program using the library, you
+ * can replace the call to init_library() with init_globals() and
+ * init_function_pointers(). Good idea to also call init_vars() and
+ * init_hash_table() if you are doing any object loading. */
 void init_library()
 {
 	init_environ();
@@ -79,7 +94,7 @@ void init_library()
 	init_block();
 	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
 	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
-	ReadBmapNames();
+	read_bmap_names();
 	init_materials_database();
 	/* Must be after we read in the bitmaps */
 	init_anim();
@@ -90,53 +105,81 @@ void init_library()
 
 	/* init some often used default archetypes */
 	if (level_up_arch == NULL)
-		level_up_arch = find_archetype("level_up");
+	{
+		level_up_arch = find_archetype(ARCHETYPE_LEVEL_UP);
+	}
 
 	if (!level_up_arch)
-		LOG(llevBug, "BUG: Cant'find 'level_up' arch\n");
+	{
+		LOG(llevBug, "BUG: Can't find '%s' arch\n", ARCHETYPE_LEVEL_UP);
+	}
 }
 
-/* init_environ initializes values from the environmental variables.
- * it needs to be called very early, since command line options should
+/**
+ * Initializes values from the environmental variables.
+ *
+ * Needs to be called very early, since command line options should
  * overwrite these if specified. */
 void init_environ()
 {
 	char *cp;
 
-	cp = getenv("CROSSFIRE_LIBDIR");
+	cp = getenv("ATRINIK_LIBDIR");
+
 	if (cp)
+	{
 		settings.datadir = cp;
+	}
 
-	cp = getenv("CROSSFIRE_LOCALDIR");
+	cp = getenv("ATRINIK_LOCALDIR");
+
 	if (cp)
+	{
 		settings.localdir = cp;
+	}
 
-	cp = getenv("CROSSFIRE_MAPDIR");
+	cp = getenv("ATRINIK_MAPDIR");
+
 	if (cp)
+	{
 		settings.mapdir = cp;
+	}
 
-	cp = getenv("CROSSFIRE_ARCHETYPES");
+	cp = getenv("ATRINIK_ARCHETYPES");
+
 	if (cp)
+	{
 		settings.archetypes = cp;
+	}
 
-	cp = getenv("CROSSFIRE_TREASURES");
+	cp = getenv("ATRINIK_TREASURES");
+
 	if (cp)
+	{
 		settings.treasures = cp;
+	}
 
-	cp = getenv("CROSSFIRE_UNIQUEDIR");
+	cp = getenv("ATRINIK_UNIQUEDIR");
+
 	if (cp)
+	{
 		settings.uniquedir = cp;
+	}
 
-	cp = getenv("CROSSFIRE_TMPDIR");
+	cp = getenv("ATRINIK_TMPDIR");
+
 	if (cp)
+	{
 		settings.tmpdir = cp;
+	}
 }
 
-/* Initialises all global variables.
- * Might use environment-variables as default for some of them. */
+/**
+ * Initialises all global variables.
+ * Might use environment variables as default for some of them. */
 void init_globals()
 {
-	if (settings.logfilename[0] == 0)
+	if (settings.logfilename[0] == '\0')
 	{
 		logfile = stderr;
 	}
@@ -146,9 +189,9 @@ void init_globals()
 		LOG(llevInfo, "Unable to open %s as the logfile - will use stderr instead\n", settings.logfilename);
 	}
 
-	/* global round ticker! this is real a global */
+	/* Global round ticker */
 	global_round_tag = 1;
-	/* global race counter */
+	/* Global race counter */
 	global_race_counter = 0;
 
 	exiting = 0;
@@ -171,13 +214,17 @@ void init_globals()
 	init_defaults();
 }
 
-/* Initialises global variables which can be changed by options.
+/**
+ * Initializes global variables which can be changed by options.
+ *
  * Called by init_library(). */
 void init_defaults()
 {
 	nroferrors = 0;
 }
 
+/**
+ * Initializes first_map_path from the archetype collection. */
 void init_dynamic()
 {
 	archetype *at = first_archetype;
@@ -193,11 +240,12 @@ void init_dynamic()
 		at = at->next;
 	}
 
-	LOG(llevError, "init_dynamic(): You need na archetype called 'map' and it has to contain start map\n");
+	LOG(llevError, "init_dynamic(): You need an archetype called 'map' and it has to contain start map.\n");
 }
 
-/* Write out the current time to the database so time does not
- * reset every time the server reboots. */
+/**
+ * Write out the current time to the database so time does not reset
+ * every time the server reboots. */
 void write_todclock()
 {
 	sqlite3 *db;
@@ -238,7 +286,9 @@ void write_todclock()
 	db_close(db);
 }
 
-/* Initializes the gametime and TOD counters
+/**
+ * Initializes the gametime and TOD counters.
+ *
  * Called by init_library(). */
 void init_clocks()
 {
@@ -247,9 +297,13 @@ void init_clocks()
 	static int has_been_done = 0;
 
 	if (has_been_done)
+	{
 		return;
+	}
 	else
+	{
 		has_been_done = 1;
+	}
 
 	LOG(llevDebug, "Reading clockdata from database...");
 
@@ -279,8 +333,10 @@ void init_clocks()
 	}
 
 	/* We got a row! */
-	if (sscanf((char *)db_column_text(statement, 0), "%lu", &todtick))
+	if (sscanf((char *) db_column_text(statement, 0), "%lu", &todtick))
+	{
 		LOG(llevDebug, "todtick=%lu\n", todtick);
+	}
 
 	/* Finalize it */
 	db_finalize(statement);

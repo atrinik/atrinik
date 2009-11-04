@@ -23,90 +23,98 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles face-related stuff, including the actual face data. */
 
 #include <global.h>
 #include <stdio.h>
 
 New_Face *new_faces;
 
-/* hm, we really not need bmappair, or? we just sort out New_Face and adjust then
- * the face numbers. When using the same archefile & bmaps file, sorting will always
- * end in the same result. And the client has no knowledge about it. The server
- * tell it the client at runtime - this is face "bla" and it has number <num>.
- * The client use this info only the time it is connected.
- * So, we can remove it. MT-11-2002 */
-
-/* bmappair and xbm are used when looking for the image id numbers
- * of a face by name.  xbm is sorted alphabetically so that bsearch
- * can be used to quickly find the entry for a name.  the number is
- * then an index into the new_faces array.
- * This data is redundant with new_face information - the difference
- * is that this data gets sorted, and that doesn't necessarily happen
- * with the new_face data - when accessing new_face[some number],
- * that some number corresponds to the face at that number - for
- * xbm, it may not.  At current time, these do in fact match because
- * the bmaps file is created in a sorted order. */
-
+/**
+ * bmappair and ::xbm are used when looking for the image ID numbers of a
+ * face by name. xbm is sorted alphabetically so that bsearch can be used
+ * to quickly find the entry for a name. The number is then an index into
+ * the ::new_faces array.
+ *
+ * This data is redundant with new_face information - the difference is
+ * that this data gets sorted, and that doesn't necessarily happen with
+ * the new_face data - when accessing new_face[some number], that some
+ * number corresponds to the face at that number - for ::xbm, it may not.
+ * At current time, these do in fact match because the bmaps file is
+ * created in a sorted order. */
 struct bmappair
 {
 	char *name;
+
 	unsigned int number;
 };
 
+/**
+ * The xbm array (which contains name and number information, and is then
+ * sorted) contains ::nroffiles entries. */
 static struct bmappair *xbm = NULL;
 
-/* only used in loader.c, to go from the numeric image id (which is
- * used throughout the program) backto the standard name. */
-
-MapLook blank_look;
-
-/* Following can just as easily be pointers, but
+/**
+ * Following can just as easily be pointers, but
  * it is easier to keep them like this. */
 New_Face *blank_face, *next_item_face, *prev_item_face;
 
+/** The actual number of bitmaps defined. */
+int nroffiles = 0;
 
-/* nroffiles is the actual number of bitmaps defined.
- * nrofpixmaps is the higest numbers bitmap that is loaded.  With
- * the automatic generation of the bmaps file, this is now equal
- * to nroffiles. */
-int nroffiles = 0, nrofpixmaps = 0;
+/**
+ * The number of bitmaps loaded.  With the automatic generation of the
+ * bmaps file, this is now equal to ::nroffiles. */
+int nrofpixmaps = 0;
 
+/**
+ * Used for bsearch searching. */
 static int compar(struct bmappair *a, struct bmappair *b)
 {
 	return strcmp(a->name, b->name);
 }
 
-/* This reads the bmaps.paths file to get all the bitmap names and
- * stuff.  It only needs to be done once, because it is player
- * independent (ie, what display the person is on will not make a
- * difference.) */
-int ReadBmapNames()
+/**
+ * This reads the bmaps file to get all the bitmap names and stuff. It
+ * only needs to be done once, because it is player independent (ie, what
+ * display the person is on will not make a difference). */
+int read_bmap_names()
 {
 	char buf[MAX_BUF], *p, *q;
 	FILE *fp;
 	int value, nrofbmaps = 0, i;
 
 	bmaps_checksum = 0;
-	sprintf(buf, "%s/bmaps", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/bmaps", settings.datadir);
 	LOG(llevDebug, "Reading bmaps from %s...", buf);
 
 	if ((fp = fopen(buf, "r")) == NULL)
-		LOG(llevError, "ERROR: Can't open bmaps file buf = %s\n", buf);
+	{
+		LOG(llevError, "ERROR: Can't open bmaps file: %s\n", buf);
+	}
 
 	/* First count how many bitmaps we have, so we can allocate correctly */
 	while (fgets(buf, MAX_BUF, fp) != NULL)
+	{
 		if (buf[0] != '#' && buf[0] != '\n')
+		{
 			nrofbmaps++;
+		}
+	}
 
 	rewind(fp);
 
 	xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
-	memset (xbm, 0, sizeof (struct bmappair) * (nrofbmaps + 1));
+	memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
-	while (fgets (buf, MAX_BUF, fp)!=NULL)
+	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
 		if (*buf == '#')
+		{
 			continue;
+		}
 
 		p = (*buf == '\\') ? (buf + 1): buf;
 
@@ -144,13 +152,16 @@ int ReadBmapNames()
 		nroffiles++;
 
 		if (value > nrofpixmaps)
+		{
 			nrofpixmaps = value;
+		}
 	}
+
 	fclose(fp);
 
 	LOG(llevDebug, " done (got %d/%d/%d)\n", nrofpixmaps, nrofbmaps, nroffiles);
 
-	new_faces = (New_Face *)malloc(sizeof(New_Face) * (nrofpixmaps + 1));
+	new_faces = (New_Face *) malloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
 	for (i = 0; i <= nrofpixmaps; i++)
 	{
@@ -167,30 +178,21 @@ int ReadBmapNames()
 
 	qsort(xbm, nrofbmaps, sizeof(struct bmappair), (int (*)())compar);
 
-	blank_face = &new_faces[FindFace(BLANK_FACE_NAME, 0)];
-	blank_look.face = blank_face;
-	blank_look.flags = 0;
-
-	next_item_face = &new_faces[FindFace(NEXT_ITEM_FACE_NAME, 0)];
-	prev_item_face = &new_faces[FindFace(PREVIOUS_ITEM_FACE_NAME, 0)];
+	blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
+	next_item_face = &new_faces[find_face(NEXT_ITEM_FACE_NAME, 0)];
+	prev_item_face = &new_faces[find_face(PREVIOUS_ITEM_FACE_NAME, 0)];
 
 	return nrofpixmaps;
 }
 
-
-/* This returns an the face number of face 'name'.  Number is constant
- * during an invocation, but not necessarily between versions (this
- * is because the faces are arranged in alphabetical order, so
- * if a face is removed or added, all faces after that will now
- * have a different number.
- *
- * the parameter error determines behaviour.  If a face is
- * not found, then error is returned.  This can be useful if
- * you want some default face used, or can be set to negative
- * so that it will be known that the face could not be found
- * (needed in client, so that it will know to request that image
- * from the server) */
-int FindFace (char *name, int error)
+/**
+ * This returns the face number of face 'name'. Number is constant during
+ * an invocation, but not necessarily between versions (this is because
+ * the faces are arranged in alphabetical order, so if a face is removed
+ * or added, all faces after that will have a different number).
+ * @param name Face to search for.
+ * @param error Value to return if face was not found. */
+int find_face(char *name, int error)
 {
 	int i;
 	struct bmappair *bp, tmp;
@@ -214,12 +216,15 @@ int FindFace (char *name, int error)
 	return bp ? bp->number : (unsigned int) error;
 }
 
+/** Deallocates memory allocated by read_bmap_names(). */
 void free_all_images()
 {
 	int i;
 
 	for (i = 0; i < nroffiles; i++)
+	{
 		free(xbm[i].name);
+	}
 
 	free(xbm);
 	free(new_faces);

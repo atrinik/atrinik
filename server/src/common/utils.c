@@ -23,22 +23,25 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* General convenience functions for crossfire. */
-
-#include <global.h>
-#include <funcpoint.h>
-
-/* The random functions here take luck into account when rolling random
+/**
+ * @file
+ * General convenience functions for Atrinik.
+ *
+ * The random functions here take luck into account when rolling random
  * dice or numbers.  This function has less of an impact the larger the
  * difference becomes in the random numbers.  IE, the effect is lessened
  * on a 1-1000 roll, vs a 1-6 roll.  This can be used by crafty programmers,
  * to specifically disable luck in certain rolls, simply by making the
  * numbers larger (ie, 1d1000 > 500 vs 1d6 > 3) */
 
-/* Roll a random number between min and max.  Uses op to determine luck,
+#include <global.h>
+#include <funcpoint.h>
+
+/**
+ * Roll a random number between min and max.  Uses op to determine luck,
  * and if goodbad is non-zero, luck increases the roll, if zero, it decreases.
  * Generally, op should be the player/caster/hitter requesting the roll,
- * not the recipient (ie, the poor slob getting hit). [garbled 20010916] */
+ * not the recipient (ie, the poor slob getting hit). */
 int random_roll(int min, int max, object *op, int goodbad)
 {
 	int omin, diff, luck, base;
@@ -56,7 +59,9 @@ int random_roll(int min, int max, object *op, int goodbad)
 	}
 
 	if (op->type != PLAYER)
+	{
 		return (RANDOM() % diff) + min;
+	}
 
 	luck = op->stats.luck;
 
@@ -66,9 +71,11 @@ int random_roll(int min, int max, object *op, int goodbad)
 		((luck > 0) ? (luck = 1) : (luck = -1));
 		diff -= luck;
 
-		/*check again */
+		/* check again */
 		if (diff < 1)
+		{
 			return(omin);
+		}
 
 		((goodbad) ? (min += luck) : (diff));
 
@@ -78,11 +85,12 @@ int random_roll(int min, int max, object *op, int goodbad)
 	return ((RANDOM() % diff) + min);
 }
 
-/* Roll a number of dice (2d3, 4d6).  Uses op to determine luck,
+/**
+ * Roll a number of dice (2d3, 4d6).  Uses op to determine luck,
  * If goodbad is non-zero, luck increases the roll, if zero, it decreases.
  * Generally, op should be the player/caster/hitter requesting the roll,
  * not the recipient (ie, the poor slob getting hit).
- * The args are num D size (ie 4d6)  [garbled 20010916] */
+ * The args are num D size (ie 4d6) */
 int die_roll(int num, int size, object *op, int goodbad)
 {
 	int min, diff, luck, total, i, gotlucky, base;
@@ -101,7 +109,9 @@ int die_roll(int num, int size, object *op, int goodbad)
 	}
 
 	if (op->type == PLAYER)
+	{
 		luck = op->stats.luck;
+	}
 
 	for (i = 0; i < num; i++)
 	{
@@ -114,7 +124,9 @@ int die_roll(int num, int size, object *op, int goodbad)
 
 			/* check again */
 			if (diff < 1)
+			{
 				return num;
+			}
 
 			((goodbad) ? (min += luck) : (diff));
 			total += MAX(1, MIN(size, (RANDOM() % diff) + min));
@@ -128,38 +140,51 @@ int die_roll(int num, int size, object *op, int goodbad)
 	return total;
 }
 
-/* Another convenience function.  Returns a number between min and max.
+/**
+ * Returns a number between min and max.
+ *
  * It is suggested one use these functions rather than RANDOM()%, as it
  * would appear that a number of off-by-one-errors exist due to improper
- * use of %.  This should also prevent SIGFPE. */
+ * use of %.
+ *
+ * This should also prevent SIGFPE. */
 int rndm(int min, int max)
 {
 	int diff;
 
 	diff = max - min + 1;
+
 	if (max < 1 || diff < 1)
+	{
 		return min;
+	}
 
 	return (RANDOM() % diff + min);
 }
 
-
-/* Return the number of the spell that whose name passes the pasesed string
- * argument. Return -1 if no such spell name match is found. */
-int look_up_spell_name(const char * spname)
+/**
+ * Return the number of the spell that whose name matches the passed
+ * string argument.
+ * @param spname Name of the spell to look up.
+ * @return -1 if no such spell name match is found, the spell ID
+ * otherwise. */
+int look_up_spell_name(const char *spname)
 {
 	register int i;
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
 		if (strcmp(spname, spells[i].name) == 0)
+		{
 			return i;
+		}
 	}
 
 	return -1;
 }
 
-/* Replace in string src all occurrences of key by replacement. The resulting
+/**
+ * Replace in string src all occurrences of key by replacement. The resulting
  * string is put into result; at most resultsize characters (including the
  * terminating null character) will be written to result. */
 int replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
@@ -199,42 +224,65 @@ int replace(const char *src, const char *key, const char *replacement, char *res
 	result[resultlen] = '\0';
 
 	if (replaced >= resultsize - resultlen)
+	{
 		return replaced;
+	}
 
 	return -1;
 }
 
-racelink * find_racelink(const char *name)
+/**
+ * Find a racelink.
+ * @param name The name of the race to look for.
+ * @return The racelink if found, NULL otherwise.
+ */
+racelink *find_racelink(const char *name)
 {
 	racelink *test = NULL;
 
 	if (name && first_race)
+	{
 		for (test = first_race; test && test != test->next; test = test->next)
+		{
 			if (!test->name || !strcmp(name, test->name))
+			{
 				break;
+			}
+		}
+	}
 
 	return test;
 }
 
-/* this function does 2 things: controlling we have
- * a legal string - if not, return NULL  - if return string*
- * - remove all whitespace in front (if all are whitespace
- *   we return NULL) */
+/**
+ * Checks for a legal string by first trimming left whitespace and then
+ * checking if there is anything left.
+ * @param ustring The string to clean up.
+ * @return Cleaned up string, or NULL if the cleaned up string doesn't
+ * have any characters left. */
 char *cleanup_string(char *ustring)
 {
-	/* kill all whitespace */
-	while (*ustring !='\0' && isspace(*ustring))
+	/* Trim all left whitespace */
+	while (*ustring != '\0' && isspace(*ustring))
+	{
 		ustring++;
+	}
 
-	/* this happens when whitespace only string was submited */
+	/* This happens when whitespace only string was submitted. */
 	if (!ustring || *ustring == '\0')
+	{
 		return NULL;
+	}
 
 	return ustring;
 }
 
-/* returns a single word from a string, free from left & right whitespaces.
- * return NULL means that there is word left in str. */
+/**
+ * Returns a single word from a string, free from left and right
+ * whitespace.
+ * @param str The string.
+ * @param pos Position in string.
+ * @return The word, NULL if there is no word left in str. */
 char *get_word_from_string(char *str, int *pos)
 {
 	/* this is used for controled input which never should bigger than this */
@@ -244,15 +292,21 @@ char *get_word_from_string(char *str, int *pos)
 	buf[0] = '\0';
 
 	while (*(str + (*pos)) != '\0' && (!isalnum(*(str + (*pos))) && !isalpha(*(str + (*pos)))))
+	{
 		(*pos)++;
+	}
 
-	/* nothing left! */
+	/* Nothing left. */
 	if (*(str + (*pos)) == '\0')
+	{
 		return NULL;
+	}
 
-	/* copy until end of string nor whitespace */
+	/* Copy until end of string or whitespace */
 	while (*(str + (*pos)) != '\0' && (isalnum(*(str + (*pos))) || isalpha(*(str + (*pos)))))
+	{
 		buf[i++] = *(str + (*pos)++);
+	}
 
 	buf[i] = '\0';
 	return buf;
@@ -260,7 +314,7 @@ char *get_word_from_string(char *str, int *pos)
 
 /**
  * Replaces any unprintable character in the given buffer with a space.
- * @param buf The buffer to modify */
+ * @param buf The buffer to modify. */
 void replace_unprintable_chars(char *buf)
 {
 	char *p;

@@ -357,7 +357,6 @@ extern int maxfree[SIZEOFFREE], freedir[SIZEOFFREE];
 extern objectlink *dm_list;
 
 extern New_Face *blank_face, *next_item_face, *prev_item_face;
-extern MapLook blank_look;
 
 /* loop time */
 extern long max_time;
