@@ -306,21 +306,13 @@ void check_score(object *op, int quiet);
 void display_high_score(object *op, int max, const char *match);
 
 /* gods.c */
-int lookup_god_by_name(const char *name);
 object *find_god(const char *name);
 void pray_at_altar(object *pl, object *altar);
 void become_follower(object *op, object *new_god);
-int worship_forbids_use(object *op, object *exp_obj, uint32 flag, char *string);
-void stop_using_item(object *op, int type, int number);
-void update_priest_flag(object *god, object *exp_ob, uint32 flag);
 const char *determine_god(object *op);
 archetype *determine_holy_arch(object *god, const char *type);
 void god_intervention(object *op, object *god);
-int god_examines_priest(object *op, object *god);
-int god_examines_item(object *god, object *item);
-int get_god(object *priest);
 int tailor_god_spell(object *spellop, object *caster);
-void lose_priest_exp(object *pl, int loss);
 
 /* init.c */
 void set_logfile(char *val);
