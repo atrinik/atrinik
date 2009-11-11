@@ -31,25 +31,14 @@
  * depending whether it was ran from HTTP server or CLI.
  * @author Alex Tokar */
 
-/** Path to the main Atrinik directory. */
-$main_path = '/home/alex/Desktop/atrinik-working';
-
-/** Map cache directory, used for the world viewer. */
-define('MAP_CACHE_DIR', 'map_cache');
-
-/** File to use for the arch cache. */
-define('ARCH_CACHE_FILE', 'arch_cache.php');
-
-/** Map index. */
-define('MAP_INDEX_FILE', 'map_index.php');
-
-/** Whether to draw double walls or not. */
-define('DRAW_DOUBLE_WALLS', 0);
-
-/**
- * The first map to default to if no map was selected yet in the world
- * viewer. */
-define('FIRST_MAP', 'shattered_islands/world_0110');
+if (!file_exists('config.php'))
+{
+	die('ERROR: Could not find config.php.' . "\n");
+}
+else
+{
+	require_once('config.php');
+}
 
 // Set infinite time limit.
 set_time_limit(0);
