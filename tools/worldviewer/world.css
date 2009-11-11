@@ -1,0 +1,126 @@
+/* The main body. */
+html, body
+{
+	font: 12px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	margin: 0;
+}
+
+/* No borders for linked images. */
+a img
+{
+	border: none;
+}
+
+/* Every table cell in the compass should have at least 46 pixels width and height. */
+#compass td
+{
+	width: 46px;
+	height: 46px;
+	min-height: 46px;
+	min-width: 46px;
+}
+
+/* Change background of the table cell on hover. */
+#compass td.enabled:hover
+{
+	background: url('compass-hover.png');
+}
+
+/* Common style for a link inside the compass. */
+#compass a
+{
+	display: block;
+	height: 100%;
+	width: 100%;
+	text-decoration: none;
+}
+
+/* Styles for every direction link on the compass. */
+#compass td.left a
+{
+	background: url('arrows.png') 0 0 no-repeat;
+}
+
+#compass td.bottom a
+{
+	background: url('arrows.png') 0 -49px no-repeat;
+}
+
+#compass td.right a
+{
+	background: url('arrows.png') 0 -98px no-repeat;
+}
+
+#compass td.top a
+{
+	background: url('arrows.png') 0 -147px no-repeat;
+}
+
+#compass td.bottomleft a
+{
+	background: url('arrows.png') 0 -196px no-repeat;
+}
+
+#compass td.bottomright a
+{
+	background: url('arrows.png') 0 -245px no-repeat;
+}
+
+#compass td.topright a
+{
+	background: url('arrows.png') 0 -294px no-repeat;
+}
+
+#compass td.topleft a
+{
+	background: url('arrows.png') 0 -340px no-repeat;
+}
+
+/* Styles for every disabled direction on the compass. */
+#compass td.left.disabled
+{
+	background: url('arrows.png') -48px 1px no-repeat;
+	height: 50px;
+}
+
+#compass td.bottom.disabled
+{
+	background: url('arrows.png') -48px -48px no-repeat;
+	height: 50px;
+}
+
+#compass td.right.disabled
+{
+	background: url('arrows.png') -48px -97px no-repeat;
+	height: 50px;
+}
+
+#compass td.top.disabled
+{
+	background: url('arrows.png') -48px -146px no-repeat;
+	height: 50px;
+}
+
+#compass td.bottomleft.disabled
+{
+	background: url('arrows.png') -48px -195px no-repeat;
+	height: 50px;
+}
+
+#compass td.bottomright.disabled
+{
+	background: url('arrows.png') -48px -244px no-repeat;
+	height: 50px;
+}
+
+#compass td.topright.disabled
+{
+	background: url('arrows.png') -48px -293px no-repeat;
+	height: 50px;
+}
+
+#compass td.topleft.disabled
+{
+	background: url('arrows.png') -48px -339px no-repeat;
+	height: 50px;
+}
