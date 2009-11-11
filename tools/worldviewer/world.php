@@ -301,7 +301,7 @@ function world_viewer()
 					</table>
 				</td>
 				<td>
-					<img src="', MAP_CACHE_DIR, '/', $map, '" alt="">
+					<img src="', MAP_CACHE_DIR, '/', $map, '.png" alt="">
 				</td>
 			</tr>
 		</table>
