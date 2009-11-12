@@ -34,7 +34,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags);
 object *find_special_prayer_mark(object *op, int spell);
 void do_learn_spell(object *op, int spell, int special_prayer);
 void do_forget_spell(object *op, int spell);
-int is_legal_2ways_exit(object *op, object *exit);
 int manual_apply(object *op, object *tmp, int aflag);
 int player_apply(object *pl, object *op, int aflag, int quiet);
 void player_apply_below(object *pl);
@@ -232,6 +231,7 @@ void examine(object *op, object *tmp);
 void inventory(object *op, object *inv);
 
 /* commands.c */
+void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
 int execute_newserver_command(object *pl, char *command);
 
@@ -287,9 +287,6 @@ int command_unloadplugin(object *op, char *params);
 void shutdown_agent(int timer, char *reason);
 int command_motd_set(object *op, char *params);
 int command_ban(object *op, char *params);
-
-/* commands.c */
-void init_commands(void);
 
 /* daemon.c */
 void become_daemon(char *filename);
@@ -405,10 +402,6 @@ void follow_owner(object *ob, object *owner);
 void pet_move(object *ob);
 
 /* player_shop.c */
-void player_shop_send_items(player *pl, player *seller);
-void player_shop_close_interface(player *pl);
-void player_shop_free_structure(player *pl, int send_close);
-int shop_player_in_range(object *op, object *seller);
 void player_shop_open(char *data, player *pl);
 void player_shop_close(player *pl);
 void player_shop_load(char *data, player *pl);

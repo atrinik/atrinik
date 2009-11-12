@@ -30,6 +30,11 @@
 #include <global.h>
 #include <sproto.h>
 
+static void player_shop_send_items(player *pl, player *seller);
+static void player_shop_close_interface(player *pl);
+static void player_shop_free_structure(player *pl, int send_close);
+static int shop_player_in_range(object *op, object *seller);
+
 /**
  * Loop through seller's items on sale, and send the item tags to buyer's
  * shop inventory so they can be displayed and animated properly.
@@ -37,7 +42,7 @@
  * Will also send all the data about the shop items to the buyer.
  * @param pl The player to send the items to
  * @param seller The selling player */
-void player_shop_send_items(player *pl, player *seller)
+static void player_shop_send_items(player *pl, player *seller)
 {
 	player_shop *shop_item_tmp;
 	int flags, anim_speed, len;
@@ -172,7 +177,7 @@ void player_shop_send_items(player *pl, player *seller)
  * Send a player shop socket command to the player's client to close a
  * shop interface.
  * @param pl The player to send the command to */
-void player_shop_close_interface(player *pl)
+static void player_shop_close_interface(player *pl)
 {
 	char sock_buf[MAX_BUF];
 
@@ -185,7 +190,7 @@ void player_shop_close_interface(player *pl)
  * Free a shop structure from player.
  * @param pl The player
  * @param send_close If nonzero, send a close command to the client. */
-void player_shop_free_structure(player *pl, int send_close)
+static void player_shop_free_structure(player *pl, int send_close)
 {
 	player_shop *shop_item_tmp, *shop_item;
 
@@ -222,7 +227,7 @@ void player_shop_free_structure(player *pl, int send_close)
  * @param seller Pointer to the selling player's object
  * @return 1 if the buyer is in range, 0 otherwise
  * @see PLAYER_SHOP_MAX_DISTANCE */
-int shop_player_in_range(object *op, object *seller)
+static int shop_player_in_range(object *op, object *seller)
 {
 	rv_vector rv;
 
