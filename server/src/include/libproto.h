@@ -387,19 +387,13 @@ extern void write_book_archive(void);
 
 /* recipe.c */
 extern recipelist *get_formulalist(int i);
-extern void init_formulae(void);
-extern void check_formulae(void);
-extern void dump_alchemy(void);
-extern archetype *find_treasure_by_name(treasure *t, char *name, int depth);
-extern long find_ingred_cost(const char *name);
-extern void dump_alchemy_costs(void);
-extern const char *ingred_name(const char *name);
+extern void init_formulae();
+extern void dump_alchemy();
+extern void dump_alchemy_costs();
 extern int strtoint(const char *buf);
 extern artifact *locate_recipe_artifact(recipe *rp);
-extern int numb_ingred(const char *buf);
-extern recipelist *get_random_recipelist(void);
 extern recipe *get_random_recipe(recipelist *rpl);
-extern void free_all_recipes(void);
+extern void free_all_recipes();
 
 /* shstr.c */
 extern void init_hash_table(void);
