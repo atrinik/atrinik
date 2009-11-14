@@ -1308,108 +1308,6 @@ void update_object(object *op, int action)
 }
 
 /**
- * Search a player inventory for quest item placeholder.
- * This function is NOT called very often - even it takes some
- * cycles when we examine a group.
- * @param target
- * @param obj
- * @return  */
-static int find_quest_item_inv(object *target, object *obj)
-{
-	object *tmp;
-
-	for (tmp = target->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->inv)
-		{
-			if (find_quest_item_inv(tmp->inv, obj))
-			{
-				return 1;
-			}
-		}
-
-		if (tmp->type == obj->type && tmp->name == obj->name && tmp->arch->name == obj->arch->name)
-		{
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-static inline int find_quest_item(object *target, object *obj)
-{
-	object *tmp;
-
-	if (!target || target->type != PLAYER)
-	{
-		return 0;
-	}
-
-	tmp = present_in_ob(TYPE_QUEST_CONTAINER, target);
-
-	if (tmp)
-	{
-		for (tmp = tmp->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->name == obj->name && !strcmp(tmp->race, obj->arch->name))
-			{
-				return 1;
-			}
-		}
-	}
-
-	return find_quest_item_inv(target, obj);
-}
-
-/**
- * We give a player a one drop item. This also
- * adds this item to the quest_container - instead to quest
- * items which will be added when the next quest step is triggered.
- * (most times from a quest script)
- * @param target
- * @param obj
- * @return  */
-static inline int add_one_drop_quest_item(object *target, object *obj)
-{
-	object *tmp, *q_tmp;
-
-	if (!target || target->type != PLAYER)
-	{
-		return 0;
-	}
-
-	if (!(tmp = present_in_ob(TYPE_QUEST_CONTAINER, target)))
-	{
-		/* create and insert a quest container in player */
-		tmp = get_object();
-		copy_object(get_archetype("quest_container"), tmp);
-		insert_ob_in_ob(tmp, target);
-	}
-
-	q_tmp = get_object();
-	/* copy without put on active list */
-	copy_object_data(obj, q_tmp);
-	/* just to be on the secure side ... */
-	q_tmp->speed = 0.0f;
-	CLEAR_FLAG(q_tmp, FLAG_ANIMATE);
-	CLEAR_FLAG(q_tmp, FLAG_ALIVE);
-	/* we are storing the arch name of quest dummy items in race */
-	FREE_AND_COPY_HASH(q_tmp->race, obj->arch->name);
-	/* dummy copy in quest container */
-	insert_ob_in_ob(q_tmp, tmp);
-	SET_FLAG(obj, FLAG_IDENTIFIED);
-	/* now the player can use this item normal,
-	 * even trade and sell it */
-	CLEAR_FLAG(obj, FLAG_QUEST_ITEM);
-	CLEAR_FLAG(obj, FLAG_SYS_OBJECT);
-	/* real object to player */
-	insert_ob_in_ob(obj, target);
-
-	return 1;
-}
-
-/**
  * Drops the inventory of ob into ob's current environment.
  *
  * Makes some decisions whether to actually drop or not, and/or to
@@ -1477,40 +1375,12 @@ void drop_ob_inv(object *ob)
 		 * any use... when we do it, a disease needle for example
 		 * is dropping his disease force and so on. */
 
-		if (QUERY_FLAG(tmp_op, FLAG_QUEST_ITEM))
+		if (tmp_op->type == TYPE_QUEST_CONTAINER)
 		{
 			/* legal, non freed enemy */
 			if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count)
 			{
-				/* this is the new quest item & one drop quest item code!
-				 * Dropping quest items to the ground in a corpse can invoke
-				 * alot of problems and glitches. The only way to avoid it is,
-				 * to move the quest item HERE in the inventory of the player or
-				 * group. For one drop quests it is the really only usable way. */
-				/* first: if the player has this item (normally from killing the
-				 * quest mob before) we free the quest item here and stop.
-				 * otherwise, move the item in the players inventory! */
-				if (!find_quest_item(enemy, tmp_op))
-				{
-					char auto_buf[HUGE_BUF];
-
-					/* first, lets check what we have: quest or one drop quest */
-					/* marks one drop quest items */
-					if (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT))
-					{
-						add_one_drop_quest_item(enemy, tmp_op);
-						sprintf(auto_buf, "You solved the one drop quest %s!\n", query_name(tmp_op, NULL));
-						(*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
-					}
-					else
-					{
-						insert_ob_in_ob(tmp_op,enemy);
-						sprintf(auto_buf, "You found the quest item %s!\n", query_name(tmp_op, NULL));
-						(*draw_info_func)(NDI_UNIQUE | NDI_NAVY, 0, enemy, auto_buf);
-					}
-
-					(*esrv_send_item_func)(enemy, tmp_op);
-				}
+				check_quest(enemy, tmp_op);
 			}
 		}
 		else if (!(QUERY_FLAG(ob, FLAG_STARTEQUIP) || (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))))

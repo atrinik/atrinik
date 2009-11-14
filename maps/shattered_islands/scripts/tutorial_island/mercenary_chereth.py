@@ -7,6 +7,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -15,24 +16,18 @@ me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
-## Quest item arch name.
-quest_arch_name = quest_items["mercenary_chereth"]["arch_name"]
-## Quest item name.
-quest_item_name = quest_items["mercenary_chereth"]["item_name"]
-
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-## Check if the activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
-## Check if the activator has the quest item we're looking for.
-item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
+
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest_items["mercenary_chereth"]["info"])
 
 ## Common function to finish the quest.
-def finish_quest():
-	activator.AddQuestObject(quest_arch_name, quest_item_name)
-	item.Remove()
+def complete_quest():
+	qm.complete()
 	me.SayTo(activator, "Here we go!")
 	me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Chereth teaches some ancient skill.", COLOR_YELLOW)
 
@@ -42,17 +37,17 @@ if text[0] == "archery":
 
 # Give out a link to the quest
 elif text[0] == "learn":
-	if qitem != None:
+	if qm.started() and qm.completed():
 		me.SayTo(activator, "\nSorry, I can only teach you |one| archery skill.")
 	else:
 		me.SayTo(activator, "\nWell, there are three different ^archery^ skills.\nI can teach you only |one| of them.\nYou have to stay with it then. So choose wisely.\nI can tell you more about ^archery^. But before I teach you I have a little ^quest^ for you.");
 
 # Teach bow archery
 elif msg == "teach me bow":
-	if qitem != None or item == None:
+	if not qm.started() or not qm.finished() or qm.completed():
 		me.SayTo(activator, "\nI can't ^teach^ you this now.")
 	else:
-		finish_quest()
+		complete_quest()
 
 		# Teach the skill
 		activator.AcquireSkill(GetSkillNr("bow archery"))
@@ -67,10 +62,10 @@ elif msg == "teach me bow":
 
 # Teach sling archery
 elif msg == "teach me sling":
-	if qitem != None or item == None:
+	if not qm.started() or not qm.finished() or qm.completed():
 		me.SayTo(activator, "\nI can't ^teach^ you this now.")
 	else:
-		finish_quest()
+		complete_quest()
 
 		# Teach the skill
 		activator.AcquireSkill(GetSkillNr("sling archery"))
@@ -85,10 +80,10 @@ elif msg == "teach me sling":
 
 # Teach crossbow archery
 elif msg == "teach me crossbow":
-	if qitem != None or item == None:
+	if not qm.started() or not qm.finished() or qm.completed():
 		me.SayTo(activator, "\nI can't ^teach^ you this now.")
 	else:
-		finish_quest()
+		complete_quest()
 
 		# Teach the skill
 		activator.AcquireSkill(GetSkillNr("crossbow archery"))
@@ -103,31 +98,44 @@ elif msg == "teach me crossbow":
 
 # Give out links to the various archery skills
 elif text[0] == "teach":
-	if qitem != None:
+	if qm.started() and qm.completed():
 		me.SayTo(activator, "\nSorry, I can only teach you |one| archery skill.")
 	else:
-		if item == None:
+		if not qm.finished():
 			me.SayTo(activator, "\nWhere is the ant queen's head? I don't see it.\nSolve the ^quest^ first and kill the ant queen.\nThen I will teach you.")
 		else:
 			me.SayTo(activator, "\nAs reward I will teach you an archery skill.\nChoose wisely. I can only teach you |one| of three archery skills.\nDo you want some information about the ^archery^ skills?\nIf you know your choice tell me ^teach me bow^,\n^teach me sling^ or ^teach me crossbow^.")
 
 # Give out the quest information
 elif text[0] == "quest":
-	if qitem != None:
+	if qm.started() and qm.completed():
 		me.SayTo(activator, "\nI have no quest for you after you helped us out.")
 	else:
-		if item == None:
+		if not qm.finished():
 			me.SayTo(activator, "\nYes, we need your help first.\nAs supply chief the water support of this outpost is under my command. We noticed last few days problems with our main water source.\nIt seems some giant ants have invaded the caverns under our water well.\nEnter the well next to this house and kill the ant queen!\nBring me her head as a proof and I will ^teach^ you.")
+
+			if not qm.started():
+				me.SayTo(activator, "Do you ^accept^ this quest?", 1)
 		else:
 			me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay ^teach^ to me now to learn an archery skill!")
 
+# Accept the quest.
+elif text[0] == "accept":
+	if not qm.started():
+		me.SayTo(activator, "\nReturn to me with a proof of your victory and I will reward you.")
+		qm.start()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+
 # Greeting
 elif msg == "hello" or msg == "hi" or msg == "hey":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.started():
 			me.SayTo(activator, "\nHello, mercenary. I'm Supply Chief Chereth.\nFomerly Archery Commander Chereth, before I lost my eyes.\nWell, I still know a lot about ^archery^.\nPerhaps you want to ^learn^ an archery skill?")
-		else:
+		elif qm.finished():
 			me.SayTo(activator, "\nThe head! You have done it!\nNow we can repair the water well.\nSay ^teach^ to me now to learn an archery skill!")
+		else:
+			me.SayTo(activator, "\nRemember, you need to bring me the proof that you killed the ant queen, then I will ^teach^ you.")
 	else:
 		me.SayTo(activator, "\nHello %s.\nGood to see you back.\nI have no quest for you or your ^archery^ skill." % activator.name)
 

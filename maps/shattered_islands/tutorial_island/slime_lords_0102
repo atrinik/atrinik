@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - Slime Lords
 msg
 Created:  2009-09-13 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2546,18 +2546,21 @@ level 3
 attack_fire 40
 attack_poison 0
 Wis 2
+arch quest_container
+name Slimes at Tutorial Island
+sub_type 2
 arch bracers_ac
 name crystalized slime master bracers
 material_real 0
 material 36
-sys_object 1
-quest_item 1
+identified 1
 protect_impact 8
 protect_slash 8
 protect_cleave 8
 protect_pierce 8
 item_quality 85
 item_condition 85
+end
 end
 end
 end

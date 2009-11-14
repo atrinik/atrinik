@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - The Ant Hive
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3122,10 +3122,14 @@ arch ant_queen
 type 83
 level 3
 Wis 3
+arch quest_container
+name Tutorial Island Well
+sub_type 2
+x 21
+y 22
 arch head_ant_queen
 name water well ant queen head
-one_drop 1
-quest_item 1
+end
 end
 end
 end

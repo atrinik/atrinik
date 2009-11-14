@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -383,11 +383,15 @@ wc 12
 maxhp 100
 ac 12
 Wis 3
+arch quest_container
+name Old Outpost Key 1
+x 2
+y 2
 arch key_blue
 name blue stone giant key
 value 0
 one_drop 1
-quest_item 1
+end
 end
 end
 end

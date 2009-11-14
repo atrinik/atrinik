@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-10-04 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1632,12 +1632,16 @@ arch lom_lobon
 name lom lobon master
 type 83
 level 104
+arch quest_container
+name Moroch Temple Key 5
+x 12
+y 18
 arch key_brown
 name lom lobon master key
 one_drop 1
-quest_item 1
 identified 1
 slaying moroch_temple_key5
+end
 end
 end
 end

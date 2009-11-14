@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - Kobold Den
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2862,10 +2862,15 @@ name kobold clan chief
 type 83
 level 3
 Wis 2
+arch quest_container
+name Frah'ak and Kobolds
+sub_type 2
+x 19
+y 5
 arch letter
 name Frah'aks letter
 one_drop 1
-quest_item 1
+end
 end
 end
 end

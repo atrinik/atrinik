@@ -65,8 +65,8 @@ static PyObject* Atrinik_Object_DoKnowSkill(Atrinik_Object *self, PyObject* args
 static PyObject* Atrinik_Object_AcquireSkill(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObject* args);
 static PyObject* Atrinik_Object_CreatePlayerForce(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_CheckQuestObject(Atrinik_Object *whoptr, PyObject* args);
-static PyObject* Atrinik_Object_AddQuestObject(Atrinik_Object *whoptr, PyObject* args);
+static PyObject* Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject* args);
+static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args);
 static PyObject* Atrinik_Object_CreatePlayerInfo(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_GetPlayerInfo(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *self, PyObject* args);

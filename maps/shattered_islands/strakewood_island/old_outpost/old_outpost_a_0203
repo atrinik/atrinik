@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -414,9 +414,12 @@ container 80
 arch gauntlet_precision
 end
 end
+arch quest_container
+name King Rhun's Cloak
+x 2
+y 7
 arch cloak_rhun
-sys_object 1
-quest_item 1
+end
 end
 end
 end
@@ -2224,11 +2227,15 @@ wc 10
 maxhp 110
 ac 12
 Wis 3
+arch quest_container
+name Old Outpost Key 2
+x 14
+y 16
 arch key_brown
 name orange stone giant key
 value 0
 one_drop 1
-quest_item 1
+end
 end
 end
 end
@@ -3376,8 +3383,6 @@ y 5
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 22
 y 5
 end

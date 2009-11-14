@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1262,16 +1262,20 @@ name demilich master
 type 83
 level 58
 direction 3
-arch key_brown
-name key of the demilich master
-one_drop 1
-quest_item 1
-identified 1
-slaying moroch_temple_key1
-end
 arch ability_firestorm
 end
 arch ability_cause_lig_wound
+end
+arch quest_container
+name Moroch Temple Key 1
+x 12
+y 19
+arch key_brown
+name key of the demilich master
+one_drop 1
+identified 1
+slaying moroch_temple_key1
+end
 end
 end
 end

@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - Abandoned Cellar
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 16
 height 16
@@ -136,13 +136,18 @@ ac 8
 unaggressive 0
 random_move 0
 Wis 3
+arch quest_container
+name Cashin's Cap
+sub_type 2
+x 1
+y 2
 arch helm_leather
 name Cashin's leather cap
 material_real 0
-sys_object 1
-quest_item 1
+identified 1
 item_quality 85
 item_condition 85
+end
 end
 end
 end

@@ -55,8 +55,8 @@ static PyMethodDef ObjectMethods[] =
 	{"DoKnowSkill",                  (PyCFunction) Atrinik_Object_DoKnowSkill,            METH_VARARGS, 0},
 	{"AcquireSkill",                 (PyCFunction) Atrinik_Object_AcquireSkill,           METH_VARARGS, 0},
 	{"FindMarkedObject",             (PyCFunction) Atrinik_Object_FindMarkedObject,       METH_VARARGS, 0},
-	{"CheckQuestObject",             (PyCFunction) Atrinik_Object_CheckQuestObject,       METH_VARARGS, 0},
-	{"AddQuestObject",               (PyCFunction) Atrinik_Object_AddQuestObject,         METH_VARARGS, 0},
+	{"GetQuestObject",               (PyCFunction) Atrinik_Object_GetQuestObject,         METH_VARARGS, 0},
+	{"StartQuest",                   (PyCFunction) Atrinik_Object_StartQuest,             METH_VARARGS, 0},
 	{"CreatePlayerForce",            (PyCFunction) Atrinik_Object_CreatePlayerForce,      METH_VARARGS, 0},
 	{"CreatePlayerInfo",             (PyCFunction) Atrinik_Object_CreatePlayerInfo,       METH_VARARGS, 0},
 	{"GetPlayerInfo",                (PyCFunction) Atrinik_Object_GetPlayerInfo,          METH_VARARGS, 0},
@@ -2005,22 +2005,17 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 }
 
 /**
- * <h1>object.CheckQuestObject(<i>\<string\></i> archetype, <i>\<string\>
- * </i> name)</h1>
+ * <h1>object.GetQuestObject(<i>\<string\></i> quest_name)</h1>
  *
- * We get and check the player has a misc'ed quest object.
- *
- * If so, the player has usually solved this quest before.
- *
- * @param archetype Name of the quest archetype
- * @param name Name of the quest item
+ * Get a quest object for specified quest.
+ * @param quest_name Name of the quest to look for.
  * @return The quest object if found. */
-static PyObject *Atrinik_Object_CheckQuestObject(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *arch_name, *name;
+	char *quest_name;
 	object *walk;
 
-	if (!PyArg_ParseTuple(args, "ss", &arch_name, &name))
+	if (!PyArg_ParseTuple(args, "s", &quest_name))
 	{
 		return NULL;
 	}
@@ -2030,12 +2025,9 @@ static PyObject *Atrinik_Object_CheckQuestObject(Atrinik_Object *whoptr, PyObjec
 	{
 		if (walk->type == TYPE_QUEST_CONTAINER)
 		{
-			/* Now let's check our quest item is inside. We use arch name
-			 * and object name as id, if needed arch name is stored in
-			 * the race field of the quest dummies. */
 			for (walk = walk->inv; walk != NULL; walk = walk->below)
 			{
-				if (walk->race && !strcmp(walk->race, arch_name) && walk->name && !strcmp(walk->name, name))
+				if (!strcmp(walk->name, quest_name))
 				{
 					return wrap_object(walk);
 				}
@@ -2050,86 +2042,44 @@ static PyObject *Atrinik_Object_CheckQuestObject(Atrinik_Object *whoptr, PyObjec
 }
 
 /**
- * <h1>object.AddQuestObject(<i>\<string\></i> archetype, <i>\<string\>
- * </i> name)</h1>
+ * <h1>object.StartQuest(<i>\<string\></i> quest_name)</h1>
  *
- * Add the misc'ed quest object to player's quest container.
- *
- * Create the quest container if needed.
- *
- * @param archetype Name of the quest archetype
- * @param name Name of the quest item */
-static PyObject *Atrinik_Object_AddQuestObject(Atrinik_Object *whoptr, PyObject *args)
+ * Create a quest object inside the specified object, starting a new
+ * quest.
+ * @param quest_name Name of the quest.
+ * @return The newly created quest object. */
+static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *arch_name, *name, txt2[32];
-	object *walk, *myob;
+	object *quest_container, *quest_object, *myob;
+	char *quest_name, buf[MAX_BUF];
 	CFParm *CFR;
 
-	if (!PyArg_ParseTuple(args, "ss", &arch_name, &name))
+	if (!PyArg_ParseTuple(args, "s", &quest_name))
 	{
 		return NULL;
 	}
 
-	/* Let's first check the inventory for the quest_container object */
-	for (walk = WHO->inv; walk != NULL; walk = walk->below)
+	if (!(quest_container = present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
 	{
-		if (walk->type == TYPE_QUEST_CONTAINER)
-		{
-			break;
-		}
+		quest_container = create_quest_container(WHO);
 	}
 
-	/* No quest container, create it */
-	if (!walk)
-	{
-		strcpy(txt2, "quest_container");
+	quest_object = get_object();
 
-		GCFP.Value[0] = (void *) (txt2);
-		CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-		walk = (object *) (CFR->Value[0]);
-		free(CFR);
+	strncpy(buf, QUEST_CONTAINER_ARCHETYPE, sizeof(buf) - 1);
 
-		if (!walk)
-		{
-			plugin_log(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'quest_container'\n");
-			RAISE("Cant't find archtype 'quest_container'");
-		}
-
-		insert_ob_in_ob_hook(walk, WHO);
-	}
-
-	strcpy(txt2, "player_info");
-
-	GCFP.Value[0] = (void *) (txt2);
+	GCFP.Value[0] = (void *) (buf);
 	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
 	myob = (object *) (CFR->Value[0]);
 	free(CFR);
 
-	if (!myob)
-	{
-		plugin_log(llevDebug, "Python WARNING:: AddQuestObject: Cant't find archtype 'player_info'\n");
-		RAISE("Cant't find archtype 'player_info'");
-	}
+	copy_object(myob, quest_object);
 
-	/* Store name and arch name of the quest object so we can find it later */
-	if (myob->name)
-	{
-		FREE_STRING_HOOK(myob->name);
-	}
+	quest_object->magic = 0;
+	quest_object->name = add_string_hook(quest_name);
+	insert_ob_in_ob_hook(quest_object, quest_container);
 
-	myob->name = add_string_hook(name);
-
-	if (myob->race)
-	{
-		FREE_STRING_HOOK(myob->race);
-	}
-
-	myob->race = add_string_hook(arch_name);
-
-	myob = insert_ob_in_ob_hook(myob, walk);
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	return wrap_object(quest_object);
 }
 
 /**

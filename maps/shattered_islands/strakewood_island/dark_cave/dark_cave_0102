@@ -2,7 +2,7 @@ arch map
 name Wilderness - Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -390,11 +390,15 @@ name elder wyvern
 type 83
 level 12
 Wis 3
+arch quest_container
+name Dark Cave Elder Wyverns
+sub_type 2
+x 2
+y 20
 arch tooth
 name elder wyvern tooth
 value 0
-one_drop 1
-quest_item 1
+end
 end
 end
 end

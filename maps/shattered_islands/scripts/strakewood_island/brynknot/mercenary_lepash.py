@@ -4,22 +4,27 @@
 
 from Atrinik import *
 import string
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-## Quest item arch name.
-quest_arch_name = "horn"
-## Quest item name.
-quest_item_name = "clan horn of the hill giants"
+## Info about the quest for QuestManager.
+quest = {
+	"quest_name": "Hill Giants Stronghold",
+	"type": 2,
+	"arch_name": "horn",
+	"item_name": "clan horn of the hill giants",
+}
 
-## Check if the activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
-## Check if the activator has the quest item we're looking for.
-item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
+
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest)
+
 ## Get the activator's physical experience object, so we can check if
 ## they are high enough level for the quest.
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
@@ -34,18 +39,17 @@ elif text[0] == "teach":
 	skill = GetSkillNr("polearm mastery")
 	sobj = activator.GetSkill(TYPE_SKILL, skill)
 
-	if qitem != None:
+	if qm.started() and qm.completed():
 		me.SayTo(activator, "\nI can't teach you more.")
 	else:
 		if eobj != None and eobj.level < 11:
 			me.SayTo(activator, "\nYour level is too low. Come back later!")
 		else:
-			if item == None:
+			if not qm.finished():
 				me.SayTo(activator, "\nFirst bring me the clan horn of the hill giants!")
 			else:
-				activator.AddQuestObject(quest_arch_name, quest_item_name)
-				activator.Write("Lepash takes %s from your inventory." % item.name, COLOR_WHITE)
-				item.Remove()
+				qm.complete()
+				activator.Write("Lepash takes %s from your inventory." % quest["item_name"], COLOR_WHITE)
 
 				if sobj != None:
 					me.SayTo(activator, "\nYou already know that skill?!")
@@ -56,23 +60,34 @@ elif text[0] == "teach":
 elif text[0] == "polearm" or text[0] == "polearms":
 	me.SayTo(activator, "\nPolearm mastery will allow you to fight with polearm weapons. You will do a lot more damage and you will have some protection even though you can't wear a shield using polearms.");
 
+# Accept the quest.
+elif text[0] == "accept":
+	if not qm.started():
+		me.SayTo(activator, "\nReturn to me with the clan horn and I will reward you.")
+		qm.start()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+
 elif text[0] == "job":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.finished():
 			me.SayTo(activator, "\nThere is somewhere north of Brynknot a hill giant camp.\nPerhaps in a cave or something.\nWe noticed them around here.")
 
 			if eobj != None and eobj.level < 11:
 				me.SayTo(activator, "Hmm, your physique level is not high enough.\nCome back after you get stronger and I'll give you more information.", 1)
 			else:
-				me.SayTo(activator, "You are strong enough.\nFind this hill giant camp and kill the camp leader.\nHe should have a sign of power like a clan horn or something. Show it to me and I will teach you ^polearm^ mastery", 1)
+				me.SayTo(activator, "You are strong enough.\nFind this hill giant camp and kill the camp leader.\nHe should have a sign of power like a clan horn or something. Show it to me and I will teach you ^polearm^ mastery.", 1)
+
+				if not qm.started():
+					me.SayTo(activator, "Do you ^accept^ this quest?", 1)
 		else:
 			me.SayTo(activator, "\nAh, you are back.\nDo you have the clan horn?\nThen I will ^teach^ you polearm mastery.")
 	else:
 		me.SayTo(activator, "\nYes, you have done good work with the hill giants.\n")
 
 elif msg == "hello" or msg == "hi" or msg == "hey":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.finished():
 			me.SayTo(activator, "\nHello there. I am guard commander Lepash.\nI have taken ^home^ here in this mercenary guild.\nHmm, are you interested in a ^job^?")
 		else:
 			if eobj == None or eobj.level < 11:

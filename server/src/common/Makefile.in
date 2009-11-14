@@ -50,6 +50,7 @@ SRCS = \
 	mempool.c \
 	object.c \
 	porting.c \
+	quest.c \
 	player.c \
 	re-cmp.c \
 	readable.c \

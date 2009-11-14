@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -961,12 +961,16 @@ arch ability_firestorm
 end
 arch ability_mbullet
 end
+arch quest_container
+name Moroch Temple Key 3
+x 8
+y 13
 arch key2
 name dread beholder master key
 one_drop 1
-quest_item 1
 identified 1
 slaying moroch_temple_key3
+end
 end
 end
 end
@@ -2245,12 +2249,16 @@ arch raas
 name raas master
 type 83
 level 105
+arch quest_container
+name Moroch Temple Key 4
+x 20
+y 3
 arch key_blue
 name raas master key
 one_drop 1
-quest_item 1
 identified 1
 slaying moroch_temple_key4
+end
 end
 end
 end

@@ -183,4 +183,10 @@
   <listentry value="176" name="Use waypoints" />
 </list>
 
+<list name="quest_type">
+	<listentry value="0" name="One drop quest" />
+	<listentry value="1" name="Kill quest" />
+	<listentry value="2" name="Kill item quest" />
+</list>
+
 </lists>

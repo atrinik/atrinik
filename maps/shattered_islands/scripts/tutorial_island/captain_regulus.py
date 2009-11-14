@@ -6,6 +6,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -14,58 +15,69 @@ me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
-## Quest item arch name.
-quest_arch_name = quest_items["captain_regulus"]["arch_name"]
-## Quest item name.
-quest_item_name = quest_items["captain_regulus"]["item_name"]
-
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-## Check if the activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
 
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest_items["captain_regulus"]["info"])
+
+# Give out information about the quest.
 if text[0] == "quest":
-	if qitem == None:
-		me.SayTo(activator, "\nThere appears to be some kind of hole in the ground over here.\nI have sent some guards down in there, but none returned. I can hear some strange noises from under there, like slimes or something.\nI fear there is some kind of attack going to happen, if no one stops it before it happens.\nYou must go in there now, and kill their leader, whoever it is!\nBring me back some proof if you manage to do it.\nI will, of course, reward you.")
-	else:
+	if not qm.started():
+		me.SayTo(activator, "\nThere appears to be some kind of hole in the ground over here.\nI have sent some guards down in there, but none returned. I can hear some strange noises from under there, like slimes or something.\nI fear there is some kind of attack going to happen, if no one stops it before it happens.\nYou must go in there now, and kill their leader, whoever it is!\nDo you ^accept^ this quest?")
+	elif qm.finished():
 		me.SayTo(activator, "\nYou have done it! Really great! Now say ^teach me remove traps^ for the reward.")
 
+# Accept the quest.
+elif text[0] == "accept":
+	if not qm.started():
+		me.SayTo(activator, "\nReturn to me with a proof of your victory and I will reward you.")
+		qm.start()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+
+# Reward.
 elif msg == "teach me remove traps":
-	if qitem == None:
+	if not qm.finished():
 		me.SayTo(activator, "\nFirst kill the master slime!\nShow me a part of his body as proof!");
-	else:
+	elif not qm.completed():
 		## Get the skill number of remove traps.
 		skill = GetSkillNr("remove traps")
 
 		if skill == -1:
 			me.SayTo(activator, "Unknown skill - remove traps.")
 		else:
-			## Find out whether the player already knows remove traps. If
-			## so, we don't teach him again.
-			sobj = activator.GetSkill(TYPE_SKILL, skill)
+			qm.complete()
 
-			if sobj == None:
+			# Only teach them if they don't know the skill yet.
+			if activator.GetSkill(TYPE_SKILL, skill) == None:
 				me.SayTo(activator, "Here we go!")
 				me.map.Message(me.x, me.y, MAP_INFO_NORMAL, "Regulus teaches some ancient skill.", COLOR_YELLOW)
 				activator.AcquireSkill(skill)
 
+# Greeting section.
 elif msg == "hello" or msg == "hi" or msg == "hey":
-	if qitem == None:
+	if not qm.started():
 		me.SayTo(activator, "\nHello %s. If you are interested, I have a ^quest^ for you." % activator.name)
-	else:
+	elif qm.finished():
 		skill = GetSkillNr("remove traps")
 
 		if skill == -1:
 			me.SayTo(activator, "Unknown skill - remove traps.")
 		else:
-			sobj = activator.GetSkill(TYPE_SKILL, skill)
-
-			if sobj == None:
+			if activator.GetSkill(TYPE_SKILL, skill) == None:
 				me.SayTo(activator, "\nYou have done it! Really great! Thanks so much! Now say ^teach me remove traps^ for the reward.")
 			else:
-				me.SayTo(activator, "\nThank you for helping us out.")
+				me.SayTo(activator, "\nThank you for helping us out, but it seems like you already know the remove traps skill so I have nothing to reward you with.")
+				qm.complete()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+	else:
+		me.SayTo(activator, "\nRemember, bring me back a proof of your victory over the slimes leader!")
 
+# Invalid message.
 else:
 	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)

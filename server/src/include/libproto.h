@@ -357,6 +357,11 @@ extern FILE *open_and_uncompress(char *name, int flag, int *compressed);
 extern void close_and_delete(FILE *fp, int compressed);
 extern void make_path_to_file(char *filename);
 
+/* quest.c */
+extern object *create_quest_container(object *op);
+extern void check_quest(object *pl, object *quest_container);
+extern object *create_quest(object *op, char *quest_name);
+
 /* player.c */
 extern void free_player(player *pl);
 extern object *find_skill(object *op, int skillnr);

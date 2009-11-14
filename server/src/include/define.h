@@ -1592,4 +1592,7 @@ enum apply_flag
 #define DUMP_VALUE_LEVEL_COLORS      12
 /*@}*/
 
+/** Name of the quest container archetype. */
+#define QUEST_CONTAINER_ARCHETYPE "quest_container"
+
 #endif

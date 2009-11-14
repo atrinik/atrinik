@@ -4,22 +4,27 @@
 
 from Atrinik import *
 import string
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-## Quest item arch name.
-quest_arch_name = "tooth"
-## Quest item name.
-quest_item_name = "elder wyvern tooth"
+## Info about the quest for QuestManager.
+quest = {
+	"quest_name": "Dark Cave Elder Wyverns",
+	"type": 2,
+	"arch_name": "tooth",
+	"item_name": "elder wyvern tooth",
+}
 
-## Check if the ::activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
-## Check if the ::activator has the quest item we're looking for.
-item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
+
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest)
+
 ## Get the ::activator's physical experience object, so we can check if
 ## they are high enough level for the quest.
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
@@ -34,18 +39,17 @@ elif text[0] == "teach":
 	skill = GetSkillNr("two-hand mastery")
 	sobj = activator.GetSkill(TYPE_SKILL, skill)
 
-	if qitem != None:
+	if qm.started() and qm.completed():
 		me.SayTo(activator, "\nI can't teach you more.")
 	else:
 		if eobj != None and eobj.level < 10:
 			me.SayTo(activator, "\nYou are not strong enough. Come back later!")
 		else:
-			if item == None:
+			if not qm.finished():
 				me.SayTo(activator, "\nFirst bring me the elder wyvern tooth!")
 			else:
-				activator.AddQuestObject(quest_arch_name, quest_item_name)
-				activator.Write("Taleus takes %s from your inventory." % item.name, COLOR_WHITE)
-				item.Remove()
+				qm.complete()
+				activator.Write("Taleus takes %s from your inventory." % quest["item_name"], COLOR_WHITE)
 
 				if sobj != None:
 					me.SayTo(activator, "\nYou already know that skill?!")
@@ -56,13 +60,24 @@ elif text[0] == "teach":
 elif text[0] == "two-hand":
 	me.SayTo(activator, "\nTwo-hand mastery will allow you to fight with two-hand weapons. You will do more damage and hit better at the cost of lower protection because you can't wield a shield.");
 
+# Accept the quest.
+elif text[0] == "accept":
+	if not qm.started():
+		me.SayTo(activator, "\nReturn to me with the elder wyvern tooth and I will reward you.")
+		qm.start()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+
 elif text[0] == "elder" or text[0] == "quest":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.finished():
 			me.SayTo(activator, "\nThe elder wyverns are the most aggressive and strongest of the wyverns in that cave.");
 
 			if eobj != None and eobj.level >= 10:
 				me.SayTo(activator, "Hmm, it seems you are strong enough to try it...\nIf you can kill one or two I will help you too.\nI'll make a deal with you:\nBring me the tooth of an elder wyvern and I will teach you ^two-hand^ mastery.", 1);
+
+				if not qm.started():
+					me.SayTo(activator, "Do you ^accept^ this quest?", 1)
 			else:
 				me.SayTo(activator, "But they are too strong for you at the moment.\nTrain some more melee fighting.\nWhen you have become stronger I will give you a quest.", 1)
 		else:
@@ -71,8 +86,8 @@ elif text[0] == "elder" or text[0] == "quest":
 		me.SayTo(activator, "\nYes, you have done good work in the wyvern cave.")
 
 elif text[0] == "wyverns" or text[0] == "wyvern":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.finished():
 			me.SayTo(activator, "\nThe wyverns live in a big cave southeast of Brynknot.\nThey are dangerous and attacked us several times.\nWe have sent some expeditions but there are a lot of them.\nThe biggest problem are the ^elder^ wyverns.")
 
 			if eobj != None and eobj.level <10:
@@ -85,8 +100,8 @@ elif text[0] == "wyverns" or text[0] == "wyvern":
 		me.SayTo(activator, "\nYes, you have done good work in the wyvern cave.")
 
 elif msg == "hello" or msg == "hi" or msg == "hey":
-	if qitem == None:
-		if item == None:
+	if not qm.started() or not qm.completed():
+		if not qm.finished():
 			me.SayTo(activator, "\nHello %s.\nI am the current ^archery^ commander after ^Chereth^ lost her eyes in this terrible fight with the ^wyverns^." % activator.name)
 		else:
 			if eobj == None or eobj.level < 10:

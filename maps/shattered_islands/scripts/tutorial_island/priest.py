@@ -8,6 +8,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -16,19 +17,14 @@ me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
-## Quest item arch name.
-quest_arch_name = quest_items["priest_manard"]["arch_name"]
-## Quest item name.
-quest_item_name = quest_items["priest_manard"]["item_name"]
-
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-## Check if the activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
-## Check if the activator has the quest item we're looking for.
-item = activator.CheckInventory(1, quest_arch_name, quest_item_name)
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
+
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest_items["priest_manard"]["info"])
 
 if text[0] == "healing":
 	if activator.GetGod() == "Tabernacle":
@@ -47,7 +43,7 @@ if text[0] == "healing":
 
 elif text[0] == "cause":
 	if activator.GetGod() == "Tabernacle":
-		if qitem != None or item == None:
+		if not qm.started() or not qm.finished() or qm.completed():
 			me.SayTo(activator, "\nI can't teach you this now.")
 		else:
 			spell = GetSpellNr("cause light wounds")
@@ -55,8 +51,7 @@ elif text[0] == "cause":
 			if spell == -1:
 				me.SayTo(activator, "\nUnknown spell.")
 			else:
-				activator.AddQuestObject(quest_arch_name, quest_item_name)
-				item.Remove()
+				qm.complete()
 				me.SayTo(activator, "\nHere we go!")
 
 				if activator.DoKnowSpell(spell) == 1:
@@ -66,17 +61,29 @@ elif text[0] == "cause":
 	else:
 		me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
 
+# Give out information about the quest.
 elif text[0] == "quest":
 	if activator.GetGod() == "Tabernacle":
-		if qitem != None:
+		if qm.started() and qm.completed():
 			me.SayTo(activator, "\nI have no more quests for you.")
 		else:
-			if item == None:
+			if not qm.finished():
 				me.SayTo(activator, "\nMy apprentice went with some guards to explore the hole you might have noticed in the southwest area.\nHe was the only one who returned, and as Captain Regulus probably told you, all the guards that he sent were slain.\nHowever, the apprentice lost a prayerbook, containing the wisdom of the cause light wounds prayer.\nIf you can find the book and return it to me, I will teach you the prayer of cause light wounds.\nI suggest you first do quest Captain Regulus has first, if you have not already.")
+
+				if not qm.started():
+					me.SayTo(activator, "Do you ^accept^ this quest?", 1)
 			else:
 				me.SayTo(activator, "\nYou found the book! Very good. Say ^cause^ now to learn the prayer of cause light wounds, as your reward.")
 	else:
 		me.SayTo(activator, "\nI will listen to you once you join the deity of Tabernacle.")
+
+# Accept the quest.
+elif text[0] == "accept":
+	if not qm.started():
+		me.SayTo(activator, "\nReturn to me with the book and I will reward you.")
+		qm.start()
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping me out.")
 
 elif msg == "cast":
 	if activator.GetGod() == "Tabernacle":

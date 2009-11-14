@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - Slime Lords
 msg
 Created:  2009-09-13 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-11-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -137,12 +137,17 @@ level 4
 attack_electricity 80
 attack_poison 0
 Wis 2
+arch quest_container
+name Manard's Prayerbook
+sub_type 2
+x 4
+y 4
 arch cleric_book
 name Manard's prayerbook of cause light wounds
 type 79
 one_drop 1
-quest_item 1
 identified 1
+end
 end
 end
 end

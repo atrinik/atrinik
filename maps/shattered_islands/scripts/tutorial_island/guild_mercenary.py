@@ -7,6 +7,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
+from imp import load_source
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -20,23 +21,22 @@ guild_rank = ""
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
-## Quest item arch name.
-quest_arch_name = quest_items["mercenary_guild"]["arch_name"]
-## Quest item name.
-quest_item_name = quest_items["mercenary_guild"]["item_name"]
-
-## Check if the activator has a quest object. If so, the quest was
-## already completed.
-qitem = activator.CheckQuestObject(quest_arch_name, quest_item_name)
-
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
+
+## The QuestManager class.
+QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
+
+## Initialize QuestManager.
+qm = QuestManager.QuestManager(activator, quest_items["mercenary_guild"]["info"])
 
 ## Get the guild force of the player.
 guild_force = activator.GetGuildForce()
 
 if text[0] == "join":
-	if guild_force.slaying == guild_tag:
+	if not qm.started():
+		me.SayTo(activator, "\nBefore you can join you must do a quest. Say ^guild^ for more information.")
+	elif guild_force.slaying == guild_tag:
 		me.SayTo(activator, "\nYou are a Mercenary, aren't you?\nYou can't join twice...")
 	else:
 		## So request a player_info arch set to GUILD_INFO
@@ -56,9 +56,11 @@ if text[0] == "join":
 			pinfo = activator.GetNextPlayerInfo(pinfo)
 
 		if pinfo == None or pinfo.slaying != guild_tag:
-			if qitem == None:
+			if not qm.finished():
 				me.SayTo(activator, "\nI don't see my helmet... Where is it?\nRemember: Enter the hole next to me and kill the ants there.\nOne of them stole my old helmet.\nBring it back to me and I will let you join the ^guild^.")
 			else:
+				qm.complete()
+
 				me.SayTo(activator, "\nThere is my helmet back... Well, keep it!\nI am impressed. I think you will make your way.\nWelcome to the Mercenaries of Thraal!\nAsk Jahrlen for instructions. He is down the stairs.")
 
 				## Setup an own PLAYER_INFO
@@ -88,12 +90,19 @@ elif text[0] == "leave":
 		guild_force = activator.SetGuildForce("")
 		guild_force.slaying = ""
 
+elif text[0] == "accept":
+	if not qm.started():
+		qm.start()
+		me.SayTo(activator, "\nRemember, bring me back my old helmet and you can join the ^guild^!")
+	elif qm.completed():
+		me.SayTo(activator, "\nThank you for helping us out.")
+
 elif text[0] == "guild":
 	if guild_force.slaying == guild_tag:
-		me.SayTo(activator,"\nYou can ^leave^ at any time.\nYou can also rejoin without problems.")
+		me.SayTo(activator, "\nYou can ^leave^ at any time.\nYou can also rejoin without problems.")
 	else:
-		if qitem == None:
-			me.SayTo(activator,"\nBefore you can ^join^ the guild I have a small task for you.\nSome giant ants have invaded our water supply.\nSee this hole by my side!\nOne of those silly ants stole my old helmet!\nEnter the hole and kill the ants there.\nNo fear, they are weak.\nBring me the helmet back and I will let you ^join^.\n");
+		if not qm.started():
+			me.SayTo(activator, "\nBefore you can ^join^ the guild I have a small task for you.\nSome giant ants have invaded our water supply.\nSee this hole by my side!\nOne of those silly ants stole my old helmet!\nEnter the hole and kill the ants there.\nNo fear, they are weak.\nBring me the helmet back and I will let you ^join^.\nDo you ^accept^ this quest?");
 		else:
 			pinfo = activator.GetPlayerInfo("GUILD_INFO")
 
@@ -109,20 +118,23 @@ elif text[0] == "guild":
 				pinfo = activator.GetNextPlayerInfo(pinfo)
 
 			if pinfo == None or pinfo.slaying != guild_tag:
-				me.SayTo(activator,"\nAh, you have my helmet! Excellent!\nWell, keep it and may it protect you.\nIf you want you can ^join^ us now.")
+				if qm.finished():
+					me.SayTo(activator, "\nAh, you have my helmet! Excellent!\nWell, keep it and may it protect you.\nIf you want you can ^join^ us now.")
+				else:
+					me.SayTo(activator, "\nI don't see my helmet... Where is it?\nRemember: Enter the hole next to me and kill the ants there.\nOne of them stole my old helmet.\nBring it back to me and I will let you join the ^guild^.")
 
 elif text[0] == "jahrlen":
-		me.SayTo(activator,"\nJahrlen is our guild mage.\nWell, normally we don't have a guild mage.\nBut we are at war here and he was assigned to us.\nIn fact, he is a high level chronomancer and we are honored he helps us.\nHe is in our guild rooms. Talk to him when you meet him!\nHe often has tasks and quests for newbies.")
+	me.SayTo(activator, "\nJahrlen is our guild mage.\nWell, normally we don't have a guild mage.\nBut we are at war here and he was assigned to us.\nIn fact, he is a high level chronomancer and we are honored he helps us.\nHe is in our guild rooms. Talk to him when you meet him!\nHe often has tasks and quests for newbies.")
 
 elif text[0] == "troops":
-		me.SayTo(activator,"\nWe, as part of the the Thraal army corps, are invading these abandoned areas after the defeat of Moroch.\nWell, the chronomancers ensured us after they created the portal that we are still in the galactic main sphere.\nBut it seems to me that these lands have many wormholes to other places...\nPerhaps the long time under Morochs influence has weakened the borders between the planes. You should ask ^Jahrlen^ about it.");
+	me.SayTo(activator, "\nWe, as part of the the Thraal army corps, are invading these abandoned areas after the defeat of Moroch.\nWell, the chronomancers ensured us after they created the portal that we are still in the galactic main sphere.\nBut it seems to me that these lands have many wormholes to other places...\nPerhaps the long time under Morochs influence has weakened the borders between the planes. You should ask ^Jahrlen^ about it.");
 
-elif msg == 'hello' or msg == 'hi' or msg == 'hey':
+elif msg == "hello" or msg == "hi" or msg == "hey":
 	if guild_force.slaying == guild_tag:
 		me.SayTo(activator, "\nHello %s! Welcome back.\nNice that you have joined our ^troops^.\nAsk me when you need info about the guild." % activator.name)
 	else:
-		if qitem == None:
-			me.SayTo(activator,"\nHello, I am the mercenary guildmaster.\nSay ^guild^ if you want to join or for info about the guild.\nOur task is to support the regular ^troops^.\nIf you want a good start - we will give it you.")
+		if not qm.started():
+			me.SayTo(activator, "\nHello, I am the mercenary guildmaster.\nSay ^guild^ if you want to join or for info about the guild.\nOur task is to support the regular ^troops^.\nIf you want a good start - we will give it to you.")
 		else:
 			pinfo = activator.GetPlayerInfo("GUILD_INFO")
 
@@ -138,7 +150,10 @@ elif msg == 'hello' or msg == 'hi' or msg == 'hey':
 				pinfo = activator.GetNextPlayerInfo(pinfo)
 
 			if pinfo == None or pinfo.slaying != guild_tag:
-				me.SayTo(activator,"\nAh, you have my helmet! Excellent!\nWell, keep it and may it protect you.\nIf you want you can ^join^ us now.")
+				if qm.finished():
+					me.SayTo(activator, "\nAh, you have my helmet! Excellent!\nWell, keep it and may it protect you.\nIf you want you can ^join^ us now.")
+				else:
+					me.SayTo(activator, "\nI don't see my helmet... Where is it?\nRemember: Enter the hole next to me and kill the ants there.\nOne of them stole my old helmet.\nBring it back to me and I will let you join the ^guild^.")
 
 else:
 	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)
