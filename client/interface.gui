@@ -68,7 +68,7 @@ end
 Widget: QUICKSLOTS
 moveable: 1
 active: 1
-x: 513
+x: 509
 y: 107
 width: 282
 height: 34
@@ -103,7 +103,7 @@ end
 
 Widget: PLAYERDOLL
 moveable: 1
-active: 0
+active: 1
 x: 0
 y: 41
 width: 221
@@ -132,7 +132,7 @@ Widget: RANGEBOX
 moveable: 1
 active: 1
 x: 6
-y: 100
+y: 51
 width: 94
 height: 60
 end
@@ -176,8 +176,17 @@ end
 Widget: NUMBER
 moveable: 1
 active: 0
-x: 271
-y: 465
+x: 270
+y: 471
 width: 256
 height: 43
+end
+
+Widget: SHOP
+moveable: 1
+active: 0
+x: 300
+y: 147
+width: 200
+height: 320
 end
