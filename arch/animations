@@ -10875,14 +10875,14 @@ mina
 anim _stone_throne
 facings 9
 dummy.111
-char_throne.111
-char_throne.111
-char_throne.111
-char_throne.131
-char_throne.131
-char_throne.131
-char_throne.131
-char_throne.111
+throne_stone.111
+throne_stone.111
+throne_stone.111
+throne_stone.131
+throne_stone.131
+throne_stone.131
+throne_stone.131
+throne_stone.111
 mina
 anim _stonehenge
 facings 9
@@ -12024,26 +12024,26 @@ mina
 anim _wmask_fire_off_1
 facings 9
 dummy.111
-wmask_fire_off.151
-wmask_fire_off.151
-wmask_fire_off.151
-wmask_fire_off.131
-wmask_fire_off.131
-wmask_fire_off.131
-wmask_fire_off.131
-wmask_fire_off.151
+wmask_fire_off.u.151
+wmask_fire_off.u.151
+wmask_fire_off.u.151
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.151
 mina
 anim _wmask_fire_on_1
 facings 9
 dummy.111
-wmask_fire_on.151
-wmask_fire_on.151
-wmask_fire_on.151
-wmask_fire_on.131
-wmask_fire_on.131
-wmask_fire_on.131
-wmask_fire_on.131
-wmask_fire_on.151
+wmask_fire_on.u.151
+wmask_fire_on.u.151
+wmask_fire_on.u.151
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.151
 mina
 anim _wmask_ruin1a.111
 facings 9
