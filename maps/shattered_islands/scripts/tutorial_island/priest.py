@@ -8,7 +8,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
-from imp import load_source
+from QuestManager import QuestManager
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -20,11 +20,8 @@ execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
 
-## The QuestManager class.
-QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
-
 ## Initialize QuestManager.
-qm = QuestManager.QuestManager(activator, quest_items["priest_manard"]["info"])
+qm = QuestManager(activator, quest_items["priest_manard"]["info"])
 
 if text[0] == "healing":
 	if activator.GetGod() == "Tabernacle":

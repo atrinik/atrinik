@@ -5,10 +5,7 @@
 ## The command provides a chat for guild members.
 
 from Atrinik import *
-from imp import load_source
-
-## The Guild class.
-Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
+from Guild import Guild
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -16,13 +13,13 @@ activator = WhoIsActivator()
 message = WhatIsMessage()
 
 ## The guild we're managing.
-guild = Guild.Guild(None)
+guild = Guild(None)
 
 ## Check which guild the player is member of.
 guildname = guild.is_in_guild(activator.name)
 
 if message and guildname != None:
-	guild = Guild.Guild(guildname)
+	guild = Guild(guildname)
 
 	for member in guild.guilddb[guild.guildname]["members"]:
 		## Find the member, and if found, show him the guild message.

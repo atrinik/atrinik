@@ -3,7 +3,7 @@
 ## features to the administrators.
 
 from Atrinik import *
-from imp import load_source
+from Guild import Guild
 import string
 
 ## Activator object.
@@ -14,10 +14,8 @@ me = WhoAmI()
 ## Get the guild name from the event options.
 guildname = GetOptions()
 
-## The Guild class.
-Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
 ## The guild we're managing.
-guild = Guild.Guild(guildname)
+guild = Guild(guildname)
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)

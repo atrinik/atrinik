@@ -8,7 +8,7 @@
 from Atrinik import *
 import string, os
 from inspect import currentframe
-from imp import load_source
+from QuestManager import QuestManager
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -17,15 +17,12 @@ me = WhoAmI()
 
 execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
 
-## The QuestManager class.
-QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
-
 ## Has the player done all quests?
 done_all_quests = True
 
 for quest_name in quest_items:
 	## Initialize QuestManager.
-	qm = QuestManager.QuestManager(activator, quest_items[quest_name]["info"])
+	qm = QuestManager(activator, quest_items[quest_name]["info"])
 
 	if not qm.started() or not qm.completed():
 		done_all_quests = False

@@ -4,7 +4,7 @@
 ## teleported out of the guild.
 
 from Atrinik import *
-from imp import load_source
+from Guild import Guild
 import string
 
 ## Activator object.
@@ -23,10 +23,8 @@ x = event_options[1]
 ## guild.
 y = event_options[2]
 
-## The Guild class.
-Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
 ## The guild we're managing.
-guild = Guild.Guild(guildname)
+guild = Guild(guildname)
 
 if not guild.is_member_of(activator.name, guildname):
 	activator.Write("You have been removed from the guild while you were offline. Goodbye!", COLOR_RED)

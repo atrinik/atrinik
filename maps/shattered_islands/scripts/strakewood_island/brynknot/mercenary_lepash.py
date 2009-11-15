@@ -4,7 +4,7 @@
 
 from Atrinik import *
 import string
-from imp import load_source
+from QuestManager import QuestManager
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -19,11 +19,8 @@ quest = {
 	"item_name": "clan horn of the hill giants",
 }
 
-## The QuestManager class.
-QuestManager = load_source("QuestManager", CreatePathname("/python/QuestManager.py"))
-
 ## Initialize QuestManager.
-qm = QuestManager.QuestManager(activator, quest)
+qm = QuestManager(activator, quest)
 
 ## Get the activator's physical experience object, so we can check if
 ## they are high enough level for the quest.

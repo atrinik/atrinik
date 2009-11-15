@@ -12,7 +12,7 @@
 ##   the current map.
 
 from Atrinik import *
-from imp import load_source
+from Guild import Guild
 import string
 
 ## Activator object.
@@ -32,10 +32,8 @@ else:
 	## Get the guildname.
 	guildname = event_options[0]
 
-	## The Guild class.
-	Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
 	## The guild we're managing.
-	guild = Guild.Guild(guildname)
+	guild = Guild(guildname)
 
 	if not guild.is_administrator(activator.name) and not activator.f_wiz:
 		activator.Write("Entry forbidden.", COLOR_RED)

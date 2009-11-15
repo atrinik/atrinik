@@ -6,7 +6,7 @@
 ## Also allows entrance to DMs.
 
 from Atrinik import *
-from imp import load_source
+from Guild import Guild
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -16,10 +16,8 @@ guildname = GetOptions()
 
 # Sanity check
 if guildname:
-	## The Guild class.
-	Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
 	## The guild we're managing.
-	guild = Guild.Guild(guildname)
+	guild = Guild(guildname)
 
 	if not activator.f_wiz and not guild.is_member_of(activator.name, guildname):
 		activator.Write("You are not member of this guild. You may not enter.", COLOR_RED)

@@ -4,11 +4,8 @@
 ## guild, etc.
 
 from Atrinik import *
-from imp import load_source
+from Guild import Guild
 import string
-
-## The Guild class.
-Guild = load_source("Guild", CreatePathname("/python/Guild.py"))
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -22,7 +19,7 @@ event_options = GetOptions().split("|")
 guildname = event_options[0]
 
 ## The guild we're managing.
-guild = Guild.Guild(guildname)
+guild = Guild(guildname)
 
 msg = WhatIsMessage().strip().lower()
 text = string.split(msg)
