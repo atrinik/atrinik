@@ -93,3 +93,11 @@ class QuestManager:
 			return 1
 
 		return 0
+
+	## Get number of monsters the player needs to kill to complete the
+	## quest.
+	def num_to_kill(self):
+		if not self.quest_object or self.quest["type"] != self.QUEST_TYPE_KILL:
+			return -1
+
+		return self.quest_object.last_grace - self.quest_object.last_sp
