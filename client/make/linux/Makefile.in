@@ -2,7 +2,7 @@
 #            Atrinik, a Multiplayer Online Role Playing Game            *
 #                                                                       *
 #                     Copyright (C) 2009 Alex Tokar                     *
-#                                                                       * 
+#                                                                       *
 # Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 # and Crossfire (Multiplayer game for X-windows).                       *
 #                                                                       *
@@ -129,5 +129,5 @@ install:: all
 	$(CP) ../../archdef.dat $(prefix)
 	$(CP) ../../src/client/atrinik-client $(prefix)
 	@echo "*** Atrinik client successfully installed!"
-	@echo "*** Enter your install directory and type ./atrinik"
+	@echo "*** Enter your install directory and type ./atrinik-client"
 	@echo "*** to start the game!"
