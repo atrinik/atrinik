@@ -1647,7 +1647,6 @@ object *find_throw_tag(object *op, tag_t tag)
 	 * can be thrown from 'hand'.  */
 	if (!tmp)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "fixme: Can't find throw object tag.");
 		return NULL;
 	}
 
