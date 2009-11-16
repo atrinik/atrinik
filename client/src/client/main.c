@@ -1381,6 +1381,11 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[argc - 1], "-server") == 0)
 		{
 			strcpy(argServerName, argv[argc]);
+			if(strchr(argv[argc], ':') != 0)
+			{
+				argServerPort = atoi(strrchr(argv[argc], ':')+1);
+				*strchr(argServerName, ':') = 0;
+			}
 			--argc;
 		}
 		else if (strcmp(argv[argc], "-nometa") == 0)
