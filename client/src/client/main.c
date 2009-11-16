@@ -714,7 +714,8 @@ int game_status_chain()
 	{
 		map_udate_flag = 2;
 
-		if (argServerName[0] != 0)
+		metaserver_add("127.0.0.1", 13327, -1, "local", "localhost. Start server before you try to connect.");
+		if (argServerName[0] != '\0')
 			metaserver_add(argServerName, argServerPort, -1, "user server", "Server from -server '...' command line.");
 
 		/* skip of -nometa in command line or no metaserver set in options */
@@ -727,8 +728,6 @@ int game_status_chain()
 		{
 			metaserver_get_servers();
 		}
-
-		metaserver_add("127.0.0.1", 13327, -1, "local", "localhost. Start server before you try to connect.");
 
 		GameStatus = GAME_STATUS_START;
 	}
