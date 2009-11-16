@@ -1751,6 +1751,8 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	/* we should prepare for this the SystemFontOut */
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME + 1, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Servers", x + TXT_START_NAME, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Port", x + 380, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Port", x + 379, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Players", x + 416, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Players", x + 415, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
 
@@ -1807,9 +1809,12 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 				box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
 				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
 			}
-
+			
 			StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
-
+			
+			sprintf(buf, "%d", node->port);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
+			
 			if (node->player >= 0)
 				sprintf(buf, "%d", node->player);
 			else
