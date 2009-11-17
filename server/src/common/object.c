@@ -3233,8 +3233,11 @@ object* load_object_str(char *obstr)
 
 /**
  * Process object with FLAG_AUTO_APPLY.
- * @param op
- * @return  */
+ *
+ * Basically creates treasure for objects like
+ * @ref SHOP_FLOOR "shop floors" and @ref TREASURE "treasures".
+ * @param op The object to process.
+ * @return 1 if a new object was generated, 0 otherwise. */
 int auto_apply(object *op)
 {
 	object *tmp = NULL, *tmp2;
@@ -3257,7 +3260,7 @@ int auto_apply(object *op)
 			{
 				/* let's give it 10 tries */
 				i = 10;
-				level = get_enviroment_level(op);
+				level = op->stats.exp ? (int) op->stats.exp : get_enviroment_level(op);
 
 				while ((tmp = generate_treasure(op->randomitems, level)) == NULL && --i)
 				{
@@ -3290,14 +3293,13 @@ int auto_apply(object *op)
 			break;
 
 		case TREASURE:
-			level = get_enviroment_level(op);
+			level = op->stats.exp ? (int) op->stats.exp : get_enviroment_level(op);
 			create_treasure(op->randomitems, op, op->map ? GT_ENVIRONMENT : 0, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 
 			/* If we generated on object and put it in this object inventory,
 			 * move it to the parent object as the current object is about
 			 * to disappear.  An example of this item is the random_* stuff
-			 * that is put inside other objects.
-			 * i fixed this - old part only copied one object instead all. */
+			 * that is put inside other objects. */
 			for (tmp = op->inv; tmp; tmp = tmp2)
 			{
 				tmp2 = tmp->below;
