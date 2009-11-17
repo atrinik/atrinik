@@ -607,11 +607,19 @@ void DrawInfoCmd2(unsigned char *data, int len)
 			strncpy(buf, (char *) data, len);
 		}
 
-		buf[len] = 0;
+		buf[len] = '\0';
+
+		if (flags & NDI_ANIM)
+		{
+			strncpy(msg_anim.message, buf, sizeof(msg_anim.message) - 1);
+			msg_anim.message[len - 1] = '\0';
+			msg_anim.flags = flags;
+			msg_anim.tick = LastTick;
+		}
 	}
 	else
 	{
-		buf[0] = 0;
+		buf[0] = '\0';
 	}
 
 	draw_info(buf, flags);

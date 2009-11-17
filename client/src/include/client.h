@@ -548,7 +548,8 @@ extern Client_Player cpl;
 /* This comes from a player */
 #define NDI_PLAYER	0x0800
 /* If this is set, it's a "system" message */
-#define NDI_SYSTEM	0x01000
+#define NDI_SYSTEM  0x01000
+#define NDI_ANIM    0x02000
 
 /* Flags for the item command */
 #define F_APPLIED		0x000F

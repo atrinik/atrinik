@@ -78,7 +78,7 @@ Widget: CHATWIN
 moveable: 1
 active: 1
 x: 0
-y: 366
+y: 426
 width: 261
 height: 233
 end
@@ -86,8 +86,8 @@ end
 Widget: MSGWIN
 moveable: 1
 active: 1
-x: 537
-y: 366
+x: 539
+y: 426
 width: 261
 height: 233
 end

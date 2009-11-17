@@ -129,6 +129,23 @@ typedef struct _server
 	int port;
 } _server;
 
+/**
+ * Message animation structure. Used when NDI_ANIM is passed to
+ * DrawInfoCmd2(). */
+typedef struct msg_anim_struct
+{
+	/** The message to play. */
+	char message[MAX_BUF];
+
+	/** Tick when it started. */
+	uint32 tick;
+
+	/** Flags as determined in DrawInfoCmd2(). */
+	int flags;
+} msg_anim_struct;
+
+extern struct msg_anim_struct msg_anim;
+
 #define MAX_BMAPTYPE_TABLE 10000
 
 typedef struct _bmaptype_table

@@ -141,6 +141,9 @@ int load_bitmap(int index);
 _server *start_server;
 int metaserver_start, metaserver_sel, metaserver_count = 0;
 
+/** The message animation structure. */
+struct msg_anim_struct msg_anim;
+
 typedef enum _pic_type
 {
 	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS
@@ -399,6 +402,8 @@ void init_game_data()
 	metaserver_clear_data();
 	reset_input_mode();
 
+	msg_anim.message[0] = '\0';
+
 	/* anim queue of current active map */
 	start_anim = NULL;
 
@@ -434,10 +439,10 @@ void init_game_data()
 #endif
 
 	txtwin[TW_MIX].size = 50;
-	txtwin[TW_MSG].size = 22;
-	txtwin[TW_CHAT].size = 22;
-	options.mapstart_x = -10;
-	options.mapstart_y = 100;
+	txtwin[TW_MSG].size = 16;
+	txtwin[TW_CHAT].size = 16;
+	options.mapstart_x = 0;
+	options.mapstart_y = 10;
 
 	/* now load options, allowing the user to override the presetings */
 	load_options_dat();
@@ -1797,6 +1802,33 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 		script_process(NULL);
 #endif
+
+		/* Process message animations */
+		if ((GameStatus == GAME_STATUS_PLAY) && msg_anim.message[0] != '\0')
+		{
+			map_udate_flag = 2;
+
+			if ((LastTick - msg_anim.tick) < 3000)
+			{
+				_BLTFX bmbltfx;
+				int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f))));
+
+				bmbltfx.alpha = 255;
+				bmbltfx.flags = BLTFX_FLAG_SRCALPHA;
+
+				if (LastTick - msg_anim.tick > 2000)
+				{
+					bmbltfx.alpha -= (int) (255.0f * ((float) (LastTick - msg_anim.tick - 2000) / 1000.0f));
+				}
+
+				StringBlt(ScreenSurface, &BigFont, msg_anim.message, Screensize->x / 2 - (StringWidth(&BigFont, msg_anim.message) / 2), 300 - bmoff, COLOR_BLACK, NULL, &bmbltfx);
+				StringBlt(ScreenSurface, &BigFont, msg_anim.message, Screensize->x / 2 - (StringWidth(&BigFont, msg_anim.message) / 2) - 2 , 300 - 2 - bmoff, msg_anim.flags & 0xff, NULL, &bmbltfx);
+			}
+			else
+			{
+				msg_anim.message[0] = '\0';
+			}
+		}
 
 		flip_screen();
 

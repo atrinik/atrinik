@@ -238,6 +238,11 @@
 /** If set, it's a system message */
 #define NDI_SYSTEM  0x01000
 
+/**
+ * Message will be played as animation in the middle of the client
+ * screen. */
+#define NDI_ANIM    0x02000
+
 /** Print this out immediately, don't buffer */
 #define NDI_UNIQUE  0x10000
 

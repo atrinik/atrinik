@@ -133,7 +133,7 @@ _option opt[] =
 	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */
-	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.fullscreen, VAL_BOOL},
+	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.", "NOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
 	{"Textwindows use alpha:", "Make the text window transparent.", "WARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
@@ -145,8 +145,8 @@ _option opt[] =
 
 	/* Map */
 	{"Player Names:", "Show names of players above their heads.", "", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield start X:", "The X-position of the playfield.", "", "", SEL_RANGE, -20, 1000, 10, -10, &options.mapstart_x, VAL_INT},
-	{"Playfield start Y:", "The Y-position of the playfield.", "", "", SEL_RANGE, 0, 700, 10, 60, &options.mapstart_y, VAL_INT},
+	{"Playfield start X:", "The X-position of the playfield.", "", "", SEL_RANGE, -20, 1000, 10, 0, &options.mapstart_x, VAL_INT},
+	{"Playfield start Y:", "The Y-position of the playfield.", "", "", SEL_RANGE, 0, 700, 10, 10, &options.mapstart_y, VAL_INT},
 	{"Low health warning:", "Shows a low health warning above your head", "Activatetd if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
 	{"Low food warning:", "Shows a low food warning above your head.", "Activatetd if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
 	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
@@ -177,7 +177,7 @@ _option opt[] =
 	{"Window Any format:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_ANYFORMAT, VAL_BOOL},
 	{"Window Async blit:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_ASYNCBLIT, VAL_BOOL},
 	{"Window Hardware Palette:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_HWPALETTE, VAL_BOOL},
-	{"Window Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_RESIZABLE, VAL_BOOL},
+	{"Window Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RESIZABLE, VAL_BOOL},
 	{"Window No frame:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
 	{"Window RLE accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
 	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
@@ -1809,12 +1809,12 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 				box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
 				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
 			}
-			
+
 			StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
-			
+
 			sprintf(buf, "%d", node->port);
 			StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
-			
+
 			if (node->player >= 0)
 				sprintf(buf, "%d", node->player);
 			else
