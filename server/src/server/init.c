@@ -324,7 +324,7 @@ static void parse_args(int argc, char *argv[], int pass)
 	{
 		for (i = 0; i < sizeof(options) / sizeof(struct Command_Line_Options); i++)
 		{
-			if (!strcmp(options[i].cmd_option, argv[on_arg]))
+			if (!strcmp(options[i].cmd_option, argv[on_arg]) || (argv[on_arg][0] == '-' && !strcmp(options[i].cmd_option, argv[on_arg] + 1)))
 			{
 				/* Found a matching option, but should not be processed on
 				 * this pass.  Just skip over it */
