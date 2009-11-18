@@ -1914,6 +1914,23 @@ CFParm *CFWCreateObject(CFParm *PParm)
 	return (&CFP);
 }
 
+/**
+ * Wrapper to get time of day using get_tod().
+ * @param PParm Unused. */
+CFParm *CFWGetTod(CFParm *PParm)
+{
+	static CFParm CFP;
+	timeofday_t tod;
+
+	(void) PParm;
+
+	get_tod(&tod);
+
+	CFP.Value[0] = &tod;
+
+	return &CFP;
+}
+
 /*@}*/
 
 /**

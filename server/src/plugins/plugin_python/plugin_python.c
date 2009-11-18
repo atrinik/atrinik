@@ -110,6 +110,7 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args);
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args);
+static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -151,6 +152,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
 	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
 	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
+	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -607,6 +609,51 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 	}
 
 	return Py_BuildValue("s", create_pathname(path));
+}
+
+/**
+ * <h1>Atrinik.GetTime()</h1>
+ * Get game time using a hook for get_tod().
+ * @return A dictionary containing all the information about the in-game
+ * time:
+ * - <b>year</b>: Current year.
+ * - <b>month</b>: Current month.
+ * - <b>month_name</b>: Name of the current month.
+ * - <b>day</b>: Day.
+ * - <b>hour</b>: Hour.
+ * - <b>minute</b>: Minute.
+ * - <b>dayofweek</b>: Day of the week.
+ * - <b>dayofweek_name</b>: Name of the week day.
+ * - <b>season</b>: Season.
+ * - <b>season_name</b>: Name of the season.
+ * - <b>periodofday</b>: Period of the day.
+ * - <b>periodofday_name</b>: Name of the period of the day. */
+static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
+{
+    PyObject *dict = PyDict_New();
+	CFParm *CFR;
+    timeofday_t tod;
+
+	(void) self;
+	(void) args;
+
+	CFR = (PlugHooks[HOOK_GETTOD])(&GCFP);
+	tod = *(timeofday_t *) (CFR->Value[0]);
+
+	PyDict_SetItemString(dict, "year", Py_BuildValue("i", tod.year + 1));
+	PyDict_SetItemString(dict, "month", Py_BuildValue("i", tod.month + 1));
+	PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", month_name[tod.month]));
+	PyDict_SetItemString(dict, "day", Py_BuildValue("i", tod.day + 1));
+	PyDict_SetItemString(dict, "hour", Py_BuildValue("i", tod.hour));
+	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute + 1));
+	PyDict_SetItemString(dict, "dayofweek", Py_BuildValue("i", tod.dayofweek + 1));
+	PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", weekdays[tod.dayofweek]));
+	PyDict_SetItemString(dict, "season", Py_BuildValue("i", tod.season + 1));
+	PyDict_SetItemString(dict, "season_name", Py_BuildValue("s", season_name[tod.season]));
+	PyDict_SetItemString(dict, "periodofday", Py_BuildValue("i", tod.periodofday + 1));
+	PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", periodsofday[tod.periodofday]));
+
+    return dict;
 }
 
 /*@}*/

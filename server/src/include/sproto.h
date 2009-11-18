@@ -492,6 +492,7 @@ void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags);
 CFParm *CFWPlaySoundMap(CFParm *PParm);
 CFParm *CFWCreateObject(CFParm *PParm);
+CFParm *CFWGetTod(CFParm *PParm);
 
 /* resurrection.c */
 void dead_player(object *op);

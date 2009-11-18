@@ -100,7 +100,8 @@ f_plugin HookList[NR_OF_HOOKS] =
 	CFWDeposit,
 	CFWWithdraw,
 	CFWSwapApartments,
-	CFWPlayerExists
+	CFWPlayerExists,
+	CFWGetTod
 };
 
 #endif
