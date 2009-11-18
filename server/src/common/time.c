@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * In-game time functions. */
+
 #include <global.h>
 #include <funcpoint.h>
 #include <tod.h>
@@ -36,16 +40,23 @@
 /* Global variables: */
 long max_time = MAX_TIME;
 
+/** Size of history buffer. */
 #define PBUFLEN 100
-long process_utime_save[PBUFLEN];
-long psaveind;
-long process_max_utime = 0;
-long process_min_utime = 999999999;
-long process_tot_mtime;
-long pticks;
-long process_utime_long_count;
 
-const char *season_name[] =
+/** Historic data. */
+static long process_utime_save[PBUFLEN];
+/** Index in ::process_utime_save. */
+static long psaveind;
+/** Longest cycle time. */
+static long process_max_utime = 0;
+/** Shortest cycle time. */
+static long process_min_utime = 999999999;
+static long process_tot_mtime;
+long pticks;
+static long process_utime_long_count;
+
+/** In-game seasons. */
+const char *const season_name[SEASONS_PER_YEAR + 1] =
 {
 	"The Season of New Year",
 	"The Season of Growth",
@@ -55,7 +66,8 @@ const char *season_name[] =
 	"\n"
 };
 
-const char *weekdays[DAYS_PER_WEEK] =
+/** Days of the week. */
+const char *const weekdays[DAYS_PER_WEEK] =
 {
 	"the Day of the Moon",
 	"the Day of the Bull",
@@ -66,7 +78,8 @@ const char *weekdays[DAYS_PER_WEEK] =
 	"the Day of the Sun"
 };
 
-const char *month_name[MONTHS_PER_YEAR] =
+/** Months. */
+const char *const month_name[MONTHS_PER_YEAR] =
 {
 	"Month of the Ice Dragon",
 	"Month of the Frost Giant",
@@ -82,13 +95,26 @@ const char *month_name[MONTHS_PER_YEAR] =
 	"Month of the Ancient Darkness",
 };
 
-/* Initialise all variables used in the timing routines. */
+/** Periods of day. */
+const char *const periodsofday[PERIODS_PER_DAY] = {
+	"Night",
+	"Dawn",
+	"Morning",
+	"Noon",
+	"Evening",
+	"Dusk"
+};
+
+/**
+ * Initialize all variables used in the timing routines. */
 void reset_sleep()
 {
 	int i;
 
 	for (i = 0; i < PBUFLEN; i++)
+	{
 		process_utime_save[i] = 0;
+	}
 
 	psaveind = 0;
 	process_max_utime = 0;
@@ -99,26 +125,35 @@ void reset_sleep()
 	(void) GETTIMEOFDAY(&last_time);
 }
 
-void log_time(long process_utime)
+/**
+ * Adds time to our history list. */
+static void log_time(long process_utime)
 {
 	pticks++;
 
 	if (++psaveind >= PBUFLEN)
+	{
 		psaveind = 0;
+	}
 
 	process_utime_save[psaveind] = process_utime;
 
 	if (process_utime > process_max_utime)
+	{
 		process_max_utime = process_utime;
+	}
 
 	if (process_utime < process_min_utime)
+	{
 		process_min_utime = process_utime;
+	}
 
 	process_tot_mtime += process_utime / 1000;
 }
 
-/* enough_elapsed_time will return true if the time passed since
- * last tick is more than max-time. */
+/**
+ * Checks elapsed time since last tick.
+ * @return 1 if the time passed since last tick is more than max-time. */
 int enough_elapsed_time()
 {
 	static struct timeval new_time;
@@ -133,20 +168,17 @@ int enough_elapsed_time()
 		log_time(elapsed_utime);
 		last_time.tv_sec = new_time.tv_sec;
 		last_time.tv_usec = new_time.tv_usec;
+
 		return 1;
 	}
 
 	return 0;
 }
 
-/* sleep_delta checks how much time has elapsed since last tick.
- * If it is less than max_time, the remaining time is slept with select(). */
-
-/* of course - this is wasted time. it would be much nicer to
- * poll the player socket in this time and store thee incoming data
- * in fast access buffers.
- * On the other hand runs some server as "guests" on their system -
- * their is reduced cpu usage very friendly. */
+/**
+ * Checks how much time has elapsed since last tick.
+ * If it is less than max_time, the remaining time is slept with
+ * select(). */
 void sleep_delta()
 {
 	static struct timeval new_time;
@@ -190,21 +222,32 @@ void sleep_delta()
 #ifndef WIN32
 		/* 'select' doesn't work on Windows, 'Sleep' is used instead */
 		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
+		{
 			select(0, NULL, NULL, NULL, &def_time);
+		}
 		else
+		{
 			select(0, NULL, NULL, NULL, &sleep_time);
+		}
 #else
 		if (sleep_time.tv_usec >= 1000)
-			Sleep((int)(sleep_time.tv_usec / 1000));
+		{
+			Sleep((int) (sleep_time.tv_usec / 1000));
+		}
 		else if (sleep_time.tv_usec)
+		{
 			Sleep(1);
+		}
 #endif
 	}
 	else
+	{
 		process_utime_long_count++;
+	}
 
 	/* Set last_time to when we're expected to wake up: */
 	last_time.tv_usec += max_time;
+
 	while (last_time.tv_usec > 1000000)
 	{
 		last_time.tv_usec -= 1000000;
@@ -220,11 +263,18 @@ void sleep_delta()
 	}
 }
 
+/**
+ * Sets the max speed. Can be called by a DM through the /speed
+ * command.
+ * @param t New speed. */
 void set_max_time(long t)
 {
 	max_time = t;
 }
 
+/**
+ * Computes the in-game time of the day.
+ * @param tod Where to store information. Must not be NULL. */
 void get_tod(timeofday_t *tod)
 {
 	tod->year = todtick / HOURS_PER_YEAR;
@@ -236,22 +286,68 @@ void get_tod(timeofday_t *tod)
 
 	/* it's imprecise at best anyhow */
 	if (tod->minute > 58)
+	{
 		tod->minute = 58;
+	}
 
 	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
 
 	if (tod->month < 3)
+	{
 		tod->season = 0;
+	}
 	else if (tod->month < 6)
+	{
 		tod->season = 1;
+	}
 	else if (tod->month < 9)
+	{
 		tod->season = 2;
+	}
 	else if (tod->month < 12)
+	{
 		tod->season = 3;
+	}
 	else
+	{
 		tod->season = 4;
+	}
+
+	/* Until 4:59 */
+	if (tod->hour < 5)
+	{
+		tod->periodofday = 0;
+	}
+	else if (tod->hour < 8)
+	{
+		tod->periodofday = 1;
+	}
+	else if (tod->hour < 13)
+	{
+		tod->periodofday = 2;
+	}
+	else if (tod->hour < 15)
+	{
+		tod->periodofday = 3;
+	}
+	else if (tod->hour < 20)
+	{
+		tod->periodofday = 4;
+	}
+	else if (tod->hour < 23)
+	{
+		tod->periodofday = 5;
+	}
+	/* Back to night */
+	else
+	{
+		tod->periodofday = 0;
+	}
 }
 
+/**
+ * Prints the time.
+ * @param op Player who requested time. */
 void print_tod(object *op)
 {
 	timeofday_t tod;
@@ -259,21 +355,27 @@ void print_tod(object *op)
 	int day;
 
 	get_tod(&tod);
-	sprintf(errmsg, "It is %d minute%s past %d o'clock %s,", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-
-	sprintf(errmsg, "on %s", weekdays[tod.dayofweek]);
+	sprintf(errmsg, "It is %d minute%s past %d o'clock %s, on %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 
 	day = tod.day + 1;
+
 	if (day == 1 || ((day % 10) == 1 && day > 20))
+	{
 		suf = "st";
+	}
 	else if (day == 2 || ((day % 10) == 2 && day > 20))
+	{
 		suf = "nd";
+	}
 	else if (day == 3 || ((day % 10) == 3 && day > 20))
+	{
 		suf = "rd";
+	}
 	else
+	{
 		suf = "th";
+	}
 
 	sprintf(errmsg, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
@@ -282,6 +384,9 @@ void print_tod(object *op)
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 }
 
+/**
+ * Players wants to know the time. Called through the /time command.
+ * @param op Player who requested time. */
 void time_info(object *op)
 {
 	int tot = 0, maxt = 0, mint = 99999999, long_count = 0, i;
@@ -289,7 +394,9 @@ void time_info(object *op)
 	print_tod(op);
 
 	if (!QUERY_FLAG(op, FLAG_WIZ))
+	{
 		return;
+	}
 
 	(*draw_info_func) (NDI_UNIQUE, 0, op, "Total time:");
 	sprintf(errmsg, "ticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
@@ -307,21 +414,30 @@ void time_info(object *op)
 		tot += process_utime_save[i];
 
 		if (process_utime_save[i] > maxt)
+		{
 			maxt = process_utime_save[i];
+		}
 
 		if (process_utime_save[i] < mint)
+		{
 			mint = process_utime_save[i];
+		}
 
 		if (process_utime_save[i] > max_time)
+		{
 			long_count++;
+		}
 	}
 
-	sprintf(errmsg,"avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
+	sprintf(errmsg, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
-	sprintf(errmsg,"ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
+	sprintf(errmsg, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
 	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
 }
 
+/**
+ * Gets the seconds.
+ * @return Seconds. */
 long seconds()
 {
 	struct timeval now;

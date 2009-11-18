@@ -413,15 +413,15 @@ extern void ss_test_table(void);
 extern int buf_overflow(const char *buf1, const char *buf2, int bufsize);
 
 /* time.c */
-extern void reset_sleep(void);
-extern void log_time(long process_utime);
-extern int enough_elapsed_time(void);
-extern void sleep_delta(void);
+extern void reset_sleep();
+extern void get_tod(timeofday_t *tod);
+extern int enough_elapsed_time();
+extern void sleep_delta();
 extern void set_max_time(long t);
 extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
-extern long seconds(void);
+extern long seconds();
 
 /* treasure.c */
 extern void load_treasures(void);

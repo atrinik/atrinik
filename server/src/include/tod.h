@@ -37,6 +37,8 @@
 #define DAYS_PER_WEEK       7
 #define WEEKS_PER_MONTH     4
 #define MONTHS_PER_YEAR     12
+#define SEASONS_PER_YEAR    5
+#define PERIODS_PER_DAY     6
 
 /* convenience */
 #define WEEKS_PER_YEAR      (WEEKS_PER_MONTH*MONTHS_PER_YEAR)
@@ -47,6 +49,11 @@
 #define HOURS_PER_YEAR      (HOURS_PER_MONTH*MONTHS_PER_YEAR)
 
 #define LUNAR_DAYS          DAYS_PER_MONTH
+
+extern const char *const season_name[SEASONS_PER_YEAR + 1];
+extern const char *const weekdays[DAYS_PER_WEEK];
+extern const char *const month_name[MONTHS_PER_YEAR];
+extern const char *const periodsofday[PERIODS_PER_DAY];
 
 /** Represents the in-game time. */
 typedef struct _timeofday
@@ -74,9 +81,9 @@ typedef struct _timeofday
 
 	/** Season */
 	int season;
-} timeofday_t;
 
-/* from common/time.c */
-extern void get_tod(timeofday_t *tod);
+	/** Period of day. */
+	int periodofday;
+} timeofday_t;
 
 #endif
