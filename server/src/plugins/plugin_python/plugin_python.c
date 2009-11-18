@@ -630,9 +630,9 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
  * - <b>periodofday_name</b>: Name of the period of the day. */
 static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 {
-    PyObject *dict = PyDict_New();
+	PyObject *dict = PyDict_New();
 	CFParm *CFR;
-    timeofday_t tod;
+	timeofday_t tod;
 
 	(void) self;
 	(void) args;
@@ -653,7 +653,7 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 	PyDict_SetItemString(dict, "periodofday", Py_BuildValue("i", tod.periodofday + 1));
 	PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", periodsofday[tod.periodofday]));
 
-    return dict;
+	return dict;
 }
 
 /*@}*/

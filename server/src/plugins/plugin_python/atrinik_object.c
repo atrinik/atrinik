@@ -93,6 +93,7 @@ static PyMethodDef ObjectMethods[] =
 	{"SendCustomCommand",            (PyCFunction) Atrinik_Object_SendCustomCommand,      METH_VARARGS, 0},
 	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
 	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
+	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2959,6 +2960,35 @@ static PyObject *Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object *whoptr, P
 			RAISE("No unmodified version of attribute available");
 	}
 #endif
+}
+
+/**
+ * <h1>object.GetSaveBed()</h1>
+ * Get a player's save bed location.
+ * @note Can only be used on player objects.
+ * @return A dictionary containing the information about the player's
+ * save bed:
+ * - <b>map</b>: Map path of the save bed.
+ * - <b>x</b>: X location of the save bed.
+ * - <b>y</b>: Y location of the save bed. */
+static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *args)
+{
+	PyObject *dict;
+
+	(void) args;
+
+	if (WHO->type != PLAYER)
+	{
+		RAISE("Can only be used on player objects.");
+	}
+
+	dict = PyDict_New();
+
+	PyDict_SetItemString(dict, "map", Py_BuildValue("s", CONTR(WHO)->savebed_map));
+	PyDict_SetItemString(dict, "x", Py_BuildValue("i", CONTR(WHO)->bed_x));
+	PyDict_SetItemString(dict, "y", Py_BuildValue("i", CONTR(WHO)->bed_y));
+
+	return dict;
 }
 
 /*@}*/

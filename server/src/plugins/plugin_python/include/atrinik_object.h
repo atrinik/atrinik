@@ -92,6 +92,7 @@ static PyObject* Atrinik_Object_Clone(Atrinik_Object* self, PyObject* args);
 
 /* Hmmm... Still requires constants... */
 static PyObject* Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object* self, PyObject* args);
+static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *args);
 
 /* Atrinik_Object SetGeters */
 static int Object_SetFlag(Atrinik_Object* self, PyObject* val, int flagnp);
