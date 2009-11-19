@@ -952,52 +952,57 @@ object *find_nearest_living_creature(object *npc)
 
 /**
  * Randomly move a monster.
- * @param op The monster object to move
- * @return 1 if the monster was moved, 0 otherwise */
+ * @param op The monster object to move.
+ * @return 1 if the monster was moved, 0 otherwise. */
 int move_randomly(object *op)
 {
-	int i, r, xt, yt;
+	int i, r;
+	int dirs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 	object *base = find_base_info_object(op);
+	mapstruct *basemap = NULL;
+	rv_vector rv;
+
+	if (op->item_race != 255 && op->item_level != 255)
+	{
+		if ((basemap = ready_map_name(base->slaying, MAP_NAME_SHARED)))
+		{
+			if (!get_rangevector_from_mapcoords(basemap, base->x, base->y, op->map, op->x, op->y, &rv, RV_NO_DISTANCE))
+			{
+				basemap = NULL;
+			}
+		}
+	}
 
 	/* Give up to 8 chances for a monster to move randomly */
 	for (i = 0; i < 8; i++)
 	{
-		r = RANDOM() % 8 + 1;
+		int t = dirs[i];
 
-		/* check x direction of possible move */
-		if (op->item_race != 255)
+		/* Perform a single random shuffle of the remaining directions */
+		r = i + (RANDOM() % (8 - i));
+		dirs[i] = dirs[r];
+		dirs[r] = t;
+
+		r = dirs[i];
+
+		/* Check x and y direction of possible move against limit parameters */
+		if (basemap)
 		{
-			if (!op->item_race && freearr_x[r])
+			if (op->item_race != 255 && SGN(rv.distance_x) == SGN(freearr_x[r]) && abs(rv.distance_x + freearr_x[r]) > op->item_race)
 			{
 				continue;
 			}
 
-			xt = op->x + freearr_x[r];
-
-			if (abs(xt - base->x) >op->item_race)
+			if (op->item_level != 255 && SGN(rv.distance_y) == SGN(freearr_y[r]) && abs(rv.distance_y + freearr_y[r]) > op->item_level)
 			{
 				continue;
 			}
 		}
 
-		/* check x direction of possible move */
-		if (op->item_level != 255)
+		if (!blocked_link(op, freearr_x[r], freearr_y[r]) && move_object(op, r))
 		{
-			if (!op->item_level && freearr_y[r])
-			{
-				continue;
-			}
-
-			yt = op->y + freearr_y[r];
-
-			if (abs(yt - base->y) > op->item_level)
-			{
-				continue;
-			}
-		}
-
-		if (move_object(op, r))
 			return 1;
+		}
 	}
 
 	return 0;

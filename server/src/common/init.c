@@ -25,8 +25,7 @@
 
 /**
  * @file
- * Basic initialization for the common library.
- */
+ * Basic initialization for the common library. */
 
 #define EXTERN
 #define INIT_C
