@@ -118,6 +118,10 @@ static char levelnumbers_10[11][20] =
 	"ninetieth"
 };
 
+static char *describe_attack(object *op, int newline);
+static char *describe_protections(object *op, int newline);
+static char *get_number(int i);
+
 /**
  * Generates the visible naming for resistances.
  * Returns a static array of the description. This can return a
@@ -173,7 +177,7 @@ char *describe_resistance(object *op, int newline)
  * @param newline If true, don't put parens around the description
  * but do put a newline at the end. Useful when dumping to files
  * @return The buffer with the attack forms */
-char *describe_attack(object *op, int newline)
+static char *describe_attack(object *op, int newline)
 {
 	static char buf[VERY_BIG_BUF];
 	char buf1[VERY_BIG_BUF];
@@ -220,7 +224,7 @@ char *describe_attack(object *op, int newline)
  * @param newline If true, don't put parens around the description
  * but do put a newline at the end. Useful when dumping to files
  * @return The buffer with the protections */
-char *describe_protections(object *op, int newline)
+static char *describe_protections(object *op, int newline)
 {
 	static char buf[VERY_BIG_BUF];
 	char buf1[VERY_BIG_BUF];
@@ -317,7 +321,7 @@ char *get_levelnumber(int i)
  * It is currently only used by the query_name() function.
  * @param i The number
  * @return Text representation of the given number */
-char *get_number(int i)
+static char *get_number(int i)
 {
 	if (i <= 20)
 		return numbers[i];

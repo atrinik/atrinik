@@ -1055,16 +1055,6 @@ static char *flag_names[NUM_FLAGS + 1] = {
 };
 
 /**
- * Save a double value. */
-void save_double(char *buf, char *name, double v)
-{
-	char tbuf[200];
-
-	snprintf(tbuf, sizeof(tbuf), "%s %f\n", name, v);
-	strcat(buf, tbuf);
-}
-
-/**
  * Returns a pointer to a static string which contains all variables
  * which are different in the two given objects.
  *

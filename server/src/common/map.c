@@ -54,49 +54,11 @@ extern int nrofallocobjects,nroffreeobjects;
 
 #define DEBUG_OLDFLAGS 1
 
-#if 0
-/* If 0 this block because I don't know if it is still needed.
- * if it is, it really should be done via autoconf now days
- * and not by specific machine checks.
- */
-
-#if defined(sgi)
-/* popen_local is defined in porting.c */
-#define popen popen_local
-#endif
-
-#if defined (MACH) || defined (NeXT) || defined (__MACH__)
-#ifndef S_ISGID
-#define S_ISGID 0002000
-#endif
-#ifndef S_IWOTH
-#define S_IWOTH 0000200
-#endif
-#ifndef S_IWGRP
-#define S_IWGRP 0000020
-#endif
-#ifndef S_IWUSR
-#define S_IWUSR 0000002
-#endif
-#ifndef S_IROTH
-#define S_IROTH 0000400
-#endif
-#ifndef S_IRGRP
-#define S_IRGRP 0000040
-#endif
-#ifndef S_IRUSR
-#define S_IRUSR 0000004
-#endif
-#endif
-#if defined(MACH) || defined(vax) || defined(ibm032) || defined(NeXT) || defined(__MACH__)
-#ifndef S_ISDIR
-#define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
-#endif
-#ifndef S_ISREG
-#define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
-#endif
-#endif
-#endif
+static int check_path(const char *name, int prepend_dir);
+static void load_objects(mapstruct *m, FILE *fp, int mapflags);
+static void save_objects(mapstruct *m, FILE *fp, FILE *fp2);
+static void allocate_map(mapstruct *m);
+static void free_all_objects(mapstruct *m);
 
 /**
  * This updates the orig_map->tile_map[tile_num] value after loading the
@@ -443,7 +405,7 @@ static char *create_items_path(const char *s)
  * prepends libdir and mapdir. Otherwise, we assume the name given is
  * fully complete.
  * @return -1 if it fails, otherwise the mode of the file. */
-int check_path(const char *name, int prepend_dir)
+static int check_path(const char *name, int prepend_dir)
 {
 	char buf[MAX_BUF];
 #ifndef WIN32
@@ -1005,35 +967,13 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 	return 0;
 }
 
-/* Returns true if the given archetype can't fit into the map at the
- * given spot (some part of it is outside the map-boundaries). */
-int arch_out_of_map(archetype *at, mapstruct *m, int x, int y)
-{
-	archetype *tmp;
-	int xt, yt;
-
-	if (at == NULL)
-		return out_of_map(m, &x, &y) == NULL ? 1 : 0;
-
-	for (tmp = at; tmp != NULL; tmp = tmp->more)
-	{
-		xt = x + tmp->clone.x;
-		yt = y + tmp->clone.y;
-
-		if (!out_of_map(m, &xt, &yt))
-			return 1;
-	}
-
-	return 0;
-}
-
 /**
  * Loads (and parses) the objects into a given map from the specified
  * file pointer.
  * @param m Map being loaded.
  * @param fp File to read from.
  * @param mapflags The same as we get with load_original_map(). */
-void load_objects(mapstruct *m, FILE *fp, int mapflags)
+static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
 	int i;
 	archetype *tail;
@@ -1204,7 +1144,7 @@ void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * @param m Map to save.
  * @param fp File where regular objects are saved.
  * @param fp2 File to save unique objects. */
-void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
+static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
 	int i, j = 0, unique = 0;
 	object *head, *op, *otmp, *tmp, *last_valid;
@@ -1593,7 +1533,7 @@ mapstruct *get_linked_map()
  * This basically allocates the dynamic array of spaces for the
  * map.
  * @param m Map to allocate spaces for. */
-void allocate_map(mapstruct *m)
+static void allocate_map(mapstruct *m)
 {
 #if 0
 	/* These are obnoxious - presumably the caller of this function knows what it is
@@ -2484,7 +2424,7 @@ int new_save_map(mapstruct *m, int flag)
 /**
  * Remove and free all objects in the given map.
  * @param m The map. */
-void free_all_objects(mapstruct *m)
+static void free_all_objects(mapstruct *m)
 {
 	int i, j;
 	object *op;

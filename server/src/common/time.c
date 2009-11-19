@@ -152,30 +152,6 @@ static void log_time(long process_utime)
 }
 
 /**
- * Checks elapsed time since last tick.
- * @return 1 if the time passed since last tick is more than max-time. */
-int enough_elapsed_time()
-{
-	static struct timeval new_time;
-	long elapsed_utime;
-
-	(void) GETTIMEOFDAY(&new_time);
-
-	elapsed_utime = (new_time.tv_sec - last_time.tv_sec) * 1000000 + new_time.tv_usec - last_time.tv_usec;
-
-	if (elapsed_utime > max_time)
-	{
-		log_time(elapsed_utime);
-		last_time.tv_sec = new_time.tv_sec;
-		last_time.tv_usec = new_time.tv_usec;
-
-		return 1;
-	}
-
-	return 0;
-}
-
-/**
  * Checks how much time has elapsed since last tick.
  * If it is less than max_time, the remaining time is slept with
  * select(). */

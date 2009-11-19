@@ -480,7 +480,6 @@ void dump_skills()
 	char buf[MAX_BUF];
 	int i;
 
-	/*dump_all_objects();*/
 	LOG(llevInfo, "exper_catgry \t str \t dex \t con \t wis \t cha \t int \t pow \n");
 
 	for (i = 0; i < nrofexpcat; i++)

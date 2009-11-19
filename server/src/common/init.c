@@ -74,6 +74,11 @@ archetype *level_up_arch = NULL;
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
 
+static void init_environ();
+static void init_defaults();
+static void init_dynamic();
+static void init_clocks();
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -119,7 +124,7 @@ void init_library()
  *
  * Needs to be called very early, since command line options should
  * overwrite these if specified. */
-void init_environ()
+static void init_environ()
 {
 	char *cp;
 
@@ -217,14 +222,14 @@ void init_globals()
  * Initializes global variables which can be changed by options.
  *
  * Called by init_library(). */
-void init_defaults()
+static void init_defaults()
 {
 	nroferrors = 0;
 }
 
 /**
  * Initializes first_map_path from the archetype collection. */
-void init_dynamic()
+static void init_dynamic()
 {
 	archetype *at = first_archetype;
 
@@ -289,7 +294,7 @@ void write_todclock()
  * Initializes the gametime and TOD counters.
  *
  * Called by init_library(). */
-void init_clocks()
+static void init_clocks()
 {
 	sqlite3 *db;
 	sqlite3_stmt *statement;

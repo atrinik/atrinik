@@ -76,6 +76,11 @@ materialtype material[NROFMATERIALS] =
  * init_materials_database(). */
 material_real_struct material_real[NROFMATERIALS * NROFMATERIALS_REAL + 1] = {};
 
+static void dump_object2(object *op);
+static void sub_weight(object *op, sint32 weight);
+static void remove_ob_inv(object *op);
+static void add_weight(object *op, sint32 weight);
+
 /**
  * Initialize materials from database. */
 void init_materials_database()
@@ -423,7 +428,7 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-void add_weight(object *op, sint32 weight)
+static void add_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
@@ -449,7 +454,7 @@ void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-void sub_weight(object *op, sint32 weight)
+static void sub_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
@@ -495,7 +500,7 @@ object *is_player_inv(object *op)
  *
  * The result of the dump is stored in the static global errmsg array.
  * @param op The object to dump */
-void dump_object2(object *op)
+static void dump_object2(object *op)
 {
 	char *cp, buf[MAX_BUF];
 
@@ -1799,7 +1804,7 @@ void remove_ob(object *op)
 /**
  * Recursively delete and remove the inventory of an object.
  * @param op  */
-void remove_ob_inv(object *op)
+static void remove_ob_inv(object *op)
 {
 	object *tmp, *tmp2;
 

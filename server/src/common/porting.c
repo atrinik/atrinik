@@ -100,59 +100,6 @@ char *tempnam_local(char *dir, char *pfx)
 	return NULL;
 }
 
-/**
- * This function removes everything in the directory, and the directory
- * itself.
- * @param path Directory to remove. */
-void remove_directory(const char *path)
-{
-	DIR *dirp;
-	char buf[MAX_BUF];
-	struct stat statbuf;
-	int status;
-
-	if ((dirp = opendir(path)) != NULL)
-	{
-		struct dirent *de;
-
-		for (de = readdir(dirp); de; de = readdir(dirp))
-		{
-			/* Don't remove '.' or '..'.  In theory we should do a better
-			 * check for .., but the directories we are removing are
-			 * fairly limited and should not have dot files in them. */
-			if (de->d_name[0] == '.')
-			{
-				continue;
-			}
-
-			status = stat(de->d_name, &statbuf);
-
-			/* Linux actually has a type field in the dirent structure,
-			 * but that is not portable - stat should be portable. */
-			if ((status != -1) && (S_ISDIR(statbuf.st_mode)))
-			{
-				snprintf(buf, sizeof(buf), "%s/%s", path, de->d_name);
-				remove_directory(buf);
-				continue;
-			}
-
-			snprintf(buf, sizeof(buf), "%s/%s", path, de->d_name);
-
-			if (unlink(buf))
-			{
-				LOG(llevBug, "BUG: Unable to remove directory %s\n", path);
-			}
-		}
-
-		closedir(dirp);
-	}
-
-	if (unlink(path))
-	{
-		LOG(llevBug, "BUG: Unable to remove directory %s\n", path);
-	}
-}
-
 #if defined(sgi)
 
 #include <stdio.h>

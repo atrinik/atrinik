@@ -213,6 +213,7 @@ static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] =
 };
 
 inline void clear_los(object *op);
+static void expand_sight(object *op);
 
 /**
  * Initializes the array used by the LOS routines.
@@ -519,7 +520,7 @@ inline void clear_los(object *op)
  * formula.
  * @param op The player object
  * @todo Improve the formula */
-void expand_sight(object *op)
+static void expand_sight(object *op)
 {
 	int i, x, y, dx, dy;
 

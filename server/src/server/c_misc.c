@@ -632,8 +632,6 @@ int command_dumpallobjects(object *op, char *params)
 {
 	(void) params;
 	(void) op;
-	/* Gecko: this is no longer possible */
-	/* dump_all_objects(); */
 
 	return 1;
 }

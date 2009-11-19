@@ -496,6 +496,18 @@ static int max_titles[6] =
 	(sizeof (gods_book_name) / sizeof (char *)) * (sizeof (gods_author) / sizeof (char *))
 };
 
+static int nstrtok(const char *buf1, const char *buf2);
+static char *strtoktolin(const char *buf1, const char *buf2);
+static void change_book(object *book, int msgtype);
+static char *mon_desc(object *mon);
+static object *get_next_mon(object *tmp);
+static char *mon_info_msg(int booksize);
+static char *artifact_msg(int level, int booksize);
+static char *spellpath_msg(int level, int booksize);
+static void make_formula_book(object *book, int level);
+static char *msgfile_msg(int booksize);
+static char *god_info_msg(int level, int booksize);
+
 /**
  * Allocate an empty book list.
  * @return The book list */
@@ -575,7 +587,7 @@ static titlelist *get_titlelist(int i)
  * @param buf1
  * @param buf2
  * @return The number of list items */
-int nstrtok(const char *buf1, const char *buf2)
+static int nstrtok(const char *buf1, const char *buf2)
 {
 	char *tbuf, sbuf[12], buf[MAX_BUF];
 	int number = 0;
@@ -605,7 +617,7 @@ int nstrtok(const char *buf1, const char *buf2)
  * @param buf1
  * @param buf2
  * @return The comma separated string */
-char *strtoktolin(const char *buf1, const char *buf2)
+static char *strtoktolin(const char *buf1, const char *buf2)
 {
 	int maxi, i = nstrtok (buf1, buf2);
 	char *tbuf, buf[MAX_BUF], sbuf[12];
@@ -1176,7 +1188,7 @@ static void add_book_to_list(object *book, int msgtype)
  * and archetypes.
  * @param book The book object to alter
  * @param msgtype Message type to make */
-void change_book(object *book, int msgtype)
+static void change_book(object *book, int msgtype)
 {
 	int nbr = sizeof(book_descrpt) / sizeof(char *);
 	char name[MAX_BUF];
@@ -1345,7 +1357,7 @@ object *get_random_mon()
  * @todo
  * This really needs to be redone, as describe_item() gives
  * a pretty internal description. */
-char *mon_desc(object *mon)
+static char *mon_desc(object *mon)
 {
 	static char retbuf[HUGE_BUF];
 
@@ -1360,7 +1372,7 @@ char *mon_desc(object *mon)
  * @param tmp The monster object
  * @return Next monster after the monster object, NULL
  * if there is no next monster. */
-object *get_next_mon(object *tmp)
+static object *get_next_mon(object *tmp)
 {
 	objectlink *mon;
 
@@ -1393,7 +1405,7 @@ object *get_next_mon(object *tmp)
  * selected monster.
  * @param booksize The maximum book size
  * @return Pointer to the generated message */
-char *mon_info_msg(int booksize)
+static char *mon_info_msg(int booksize)
 {
 	static char retbuf[BOOK_BUF];
 	char tmpbuf[HUGE_BUF];
@@ -1442,7 +1454,7 @@ char *mon_info_msg(int booksize)
  * @param level Level of the book
  * @param booksize Maximum book size
  * @return Pointer to the generated message */
-char *artifact_msg(int level, int booksize)
+static char *artifact_msg(int level, int booksize)
 {
 	artifactlist *al = NULL;
 	artifact *art;
@@ -1593,7 +1605,7 @@ char *artifact_msg(int level, int booksize)
  * @param level The book level
  * @param booksize Maximum book size
  * @return Pointer to the generated message. */
-char *spellpath_msg(int level, int booksize)
+static char *spellpath_msg(int level, int booksize)
 {
 	static char retbuf[BOOK_BUF];
 	char tmpbuf[BOOK_BUF];
@@ -1680,7 +1692,7 @@ char *spellpath_msg(int level, int booksize)
  * selected alchemical formula.
  * @param book The book object
  * @param level Book level */
-void make_formula_book(object *book, int level)
+static void make_formula_book(object *book, int level)
 {
 	char retbuf[BOOK_BUF], title[MAX_BUF];
 	recipelist *fl;
@@ -1825,7 +1837,7 @@ void make_formula_book(object *book, int level)
  * Generate a message drawn randomly from a file in lib/.
  * @param booksize Maximum book size
  * @return Pointer to the generated message */
-char *msgfile_msg(int booksize)
+static char *msgfile_msg(int booksize)
 {
 	static char retbuf[BOOK_BUF];
 	int i, msgnum;
@@ -1865,7 +1877,7 @@ char *msgfile_msg(int booksize)
  * @param level The book level
  * @param booksize Maximum book size
  * @return Pointer to the generated message */
-char *god_info_msg(int level, int booksize)
+static char *god_info_msg(int level, int booksize)
 {
 	static char retbuf[BOOK_BUF];
 	const char *name = NULL;

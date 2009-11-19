@@ -30,7 +30,9 @@
 #include <global.h>
 #include <funcpoint.h>
 
-/* This code is no longer highly inefficient 8) */
+static void animate_turning(object *op);
+static void trigger_move(object *op, int state);
+static objectlink *get_button_links(object *button);
 
 /**
  * Push the specified object. This can affect other buttons/gates/handles
@@ -294,7 +296,7 @@ void use_trigger(object *op)
  * we can do all the things our animation can do - means also in frame animation of
  * our turning objects and so on. MT 2003. */
 /* only one part objects */
-void animate_turning(object *op)
+static void animate_turning(object *op)
 {
 	/* here we move through or frames - we animate the animation */
 	/* state animation should be done from our animation handler now -
@@ -380,7 +382,7 @@ int operate_altar(object *altar, object **sacrifice)
 }
 
 /* 1 down and 0 up */
-void trigger_move(object *op, int state)
+static void trigger_move(object *op, int state)
 {
 	op->stats.wc = state;
 
@@ -623,7 +625,7 @@ void remove_button_link(object *op)
 }
 
 /* Return the first objectlink in the objects linked to this one */
-objectlink *get_button_links(object *button)
+static objectlink *get_button_links(object *button)
 {
 	oblinkpt *obp;
 	objectlink *ol;
@@ -809,29 +811,4 @@ void check_inv(object *op, object *trig)
 	}
 	else if (!match && !trig->last_sp)
 		use_trigger(trig);
-}
-
-/**
- * This does a minimal check of the button link consistency for object
- * map. All it really does it much sure the object id link that is set
- * matches what the object has.
- *
- * Currently seems to be unused.
- * @param map The map */
-void verify_button_links(mapstruct *map)
-{
-	oblinkpt *obp;
-	objectlink *ol;
-
-	if (!map)
-		return;
-
-	for (obp = map->buttons; obp; obp = obp->next)
-	{
-		for (ol = obp->link; ol; ol = ol->next)
-		{
-			if (ol->id != ol->ob->count)
-				LOG(llevError, "verify_button_links: object %s on list is corrupt (%d!=%d)\n", ol->ob->name, ol->id, ol->ob->count);
-		}
-	}
 }

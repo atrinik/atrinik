@@ -62,14 +62,24 @@ static archetype *ring_arch = NULL, *ring_arch_normal = NULL, *amulet_arch = NUL
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
 /* overrule default values */
 static void change_treasure(struct _change_arch *ca, object *op);
-static treasurelist *get_empty_treasurelist(void);
-static treasure *get_empty_treasure(void);
+static treasurelist *get_empty_treasurelist();
+static treasure *get_empty_treasure();
 static void put_treasure(object *op, object *creator, int flags);
-static artifactlist *get_empty_artifactlist(void);
-static artifact *get_empty_artifact(void);
+static artifactlist *get_empty_artifactlist();
+static artifact *get_empty_artifact();
 static void check_treasurelist(treasure *t, treasurelist *tl);
 static inline void set_material_real(object *op, struct _change_arch *change_arch);
-static void create_money_table(void);
+static void create_money_table();
+static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
+static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
+static int set_ring_bonus(object *op, int bonus, int level);
+static int get_magic(int diff);
+static void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
+static void fix_flesh_item(object *item, object *donor);
+static void free_treasurestruct(treasure *t);
+static void free_charlinks(linked_char *lc);
+static void free_artifactlist(artifactlist *al);
+static void free_artifact(artifact *at);
 
 /* Opens LIBDIR/treasure and reads all treasure-declarations from it.
  * Each treasure is parsed with the help of load_treasure(). */
@@ -690,7 +700,7 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
  * If flag is GT_INVISIBLE, only invisible objects are generated (ie, only
  * abilities.  This is used by summon spells, thus no summoned monsters
  * start with equipment, but only their abilities). */
-void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
+static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
 	object *tmp;
 
@@ -774,7 +784,7 @@ void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int
 		create_all_treasures(t->next, op, flag, difficulty, (t->next->t_style == T_STYLE_UNSET) ? t_style : t->next->t_style, a_chance, tries, change_arch);
 }
 
-void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
+static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
 	int value, diff_tries = 0;
 	treasure *t;
@@ -1043,7 +1053,7 @@ void set_abs_magic(object *op, int magic)
  *  other bonuses previously rolled and ones the item might natively have.
  * 2) Add code to deal with new PR method.
  * return 0: no special added. 1: something added. */
-int set_ring_bonus(object *op, int bonus, int level)
+static int set_ring_bonus(object *op, int bonus, int level)
 {
 	int tmp, r, off;
 	off = (level >= 50 ? 1 : 0) + (level >= 60 ? 1 : 0) + (level >= 70 ? 1 : 0) + (level >= 80 ? 1 : 0);
@@ -1431,7 +1441,7 @@ make_prot_items:
  * It is only used in fix_generated_treasure() to set bonuses on
  * rings and amulets.
  * Another scheme is used to calculate the magic of weapons and armours. */
-int get_magic(int diff)
+static int get_magic(int diff)
 {
 	int i;
 
@@ -1952,7 +1962,7 @@ void dump_artifacts()
 }
 
 /* For debugging purposes.  Dumps all treasures recursively (see below). */
-void dump_monster_treasure_rec (const char *name, treasure *t, int depth)
+static void dump_monster_treasure_rec(const char *name, treasure *t, int depth)
 {
 	treasurelist *tl;
 	int i;
@@ -2161,11 +2171,10 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 	return 1;
 }
 
-
 /* fix_flesh_item() - objects of type FLESH are similar to type
  * FOOD, except they inherit properties (name, food value, etc).
  * based on the original owner (or 'donor' if you like). -b.t. */
-void fix_flesh_item(object *item, object *donor)
+static void fix_flesh_item(object *item, object *donor)
 {
 	char tmpbuf[MAX_BUF];
 	int i;
@@ -2205,7 +2214,7 @@ void fix_flesh_item(object *item, object *donor)
 	}
 }
 
-void free_treasurestruct(treasure *t)
+static void free_treasurestruct(treasure *t)
 {
 	if (t->next)
 		free_treasurestruct(t->next);
@@ -2223,7 +2232,7 @@ void free_treasurestruct(treasure *t)
 	free(t);
 }
 
-void free_charlinks(linked_char *lc)
+static void free_charlinks(linked_char *lc)
 {
 	if (lc->next)
 		free_charlinks(lc->next);
@@ -2231,7 +2240,7 @@ void free_charlinks(linked_char *lc)
 	free(lc);
 }
 
-void free_artifact(artifact *at)
+static void free_artifact(artifact *at)
 {
 	FREE_AND_CLEAR_HASH2(at->name);
 
@@ -2252,7 +2261,7 @@ void free_artifact(artifact *at)
 	free(at);
 }
 
-void free_artifactlist(artifactlist *al)
+static void free_artifactlist(artifactlist *al)
 {
 	artifactlist *nextal;
 

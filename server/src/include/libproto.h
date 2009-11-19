@@ -48,19 +48,15 @@ extern void push_button(object *op);
 extern void update_button(object *op);
 extern void update_buttons(mapstruct *m);
 extern void use_trigger(object *op);
-extern void animate_turning(object *op);
 extern int check_altar_sacrifice(object *altar, object *sacrifice);
 extern int operate_altar(object *altar, object **sacrifice);
-extern void trigger_move(object *op, int state);
 extern int check_trigger(object *op, object *cause);
 extern void add_button_link(object *button, mapstruct *map, int connected);
 extern void remove_button_link(object *op);
-extern objectlink *get_button_links(object *button);
 extern int get_button_value(object *button);
 extern void do_mood_floor(object *op, object *op2);
 extern object *check_inv_recursive(object *op, const object *trig);
 extern void check_inv(object *op, object *trig);
-extern void verify_button_links(mapstruct *map);
 
 /* database.c */
 extern int db_open(char *file, sqlite3 **db);
@@ -89,7 +85,7 @@ extern void remove_friendly_object(object *op);
 extern void dump_friendly_objects();
 
 /* glue.c */
-extern void init_function_pointers(void);
+extern void init_function_pointers();
 extern void set_emergency_save(type_func_int addr);
 extern void set_clean_tmp_files(type_func_void addr);
 extern void set_remove_friendly_object(type_func_ob addr);
@@ -130,7 +126,6 @@ extern void dummy_function_dragongain(object *ob, int a1, int a2);
 
 /* holy.c */
 extern void init_gods();
-extern int baptize_altar(object *op);
 extern godlink *get_rand_god();
 extern object *pntr_to_god_obj(godlink *godlnk);
 extern void free_all_god();
@@ -147,21 +142,13 @@ extern void free_all_images();
 
 /* init.c */
 extern void init_library();
-extern void init_environ();
 extern void init_globals();
-extern void init_objects();
-extern void init_defaults();
-extern void init_dynamic();
 extern void write_todclock();
-extern void init_clocks();
 
 /* item.c */
 extern char *describe_resistance(object *op, int newline);
-extern char *describe_attack(object *op, int newline);
-extern char *describe_protections(object *op, int newline);
 extern char *query_weight(object *op);
 extern char *get_levelnumber(int i);
-extern char *get_number(int i);
 extern char *query_short_name(object *op, object *caller);
 extern char *query_name(object *op, object *caller);
 extern char *query_base_name(object *op, object *caller);
@@ -171,8 +158,8 @@ extern void identify(object *op);
 extern void set_traped_flag(object *op);
 
 /* links.c */
-extern objectlink *get_objectlink(void);
-extern oblinkpt *get_objectlinkpt(void);
+extern objectlink *get_objectlink();
+extern oblinkpt *get_objectlinkpt();
 extern void free_objectlink(objectlink *ol);
 extern void free_objectlinkpt(oblinkpt *obp);
 
@@ -184,7 +171,6 @@ extern void check_stat_bounds(living *stats);
 extern int change_abil(object *op, object *tmp);
 extern void drain_stat(object *op);
 extern void drain_specific_stat(object *op, int deplete_stats);
-extern void change_luck(object *op, int value);
 extern void fix_player(object *op);
 extern void set_dragon_name(object *pl, object *abil, object *skin);
 extern void dragon_level_gain(object *who);
@@ -196,13 +182,12 @@ extern void set_mobile_speed(object *op, int index);
 /* loader.c */
 extern int lex_load(object *op, int map_flags);
 extern void yyrestart(FILE *input_file);
-extern void yy_load_buffer_state(void);
+extern void yy_load_buffer_state();
 extern int yyerror(char *s);
 extern void delete_loader_buffer(void *buffer);
 extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, char *buf);
-extern void save_double(char *buf, char *name, double v);
 extern char *get_ob_diff(object *op, object *op2);
 extern void save_map_object(FILE *fp, object *op, int flag);
 extern int save_player_object(char *buf, object *op, int flag, size_t len);
@@ -211,10 +196,9 @@ extern int save_player_object(char *buf, object *op, int flag, size_t len);
 extern void LOG(LogLevel logLevel, const char *format, ...);
 
 /* los.c */
-extern void init_block(void);
+extern void init_block();
 extern void set_block(int x, int y, int bx, int by);
 extern void update_los(object *op);
-extern void expand_sight(object *op);
 extern void clear_los(object *op);
 extern void print_los(object *op);
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
@@ -225,10 +209,9 @@ extern int obj_in_line_of_sight(object *obj, rv_vector *rv);
 /* map.c */
 extern mapstruct *has_been_loaded_sh(const char *name);
 extern char *create_pathname(const char *name);
-extern int check_path(const char *name, int prepend_dir);
 extern char *normalize_path(const char *src, const char *dst, char *path);
 extern void dump_map(mapstruct *m);
-extern void dump_all_maps(void);
+extern void dump_all_maps();
 extern int wall(mapstruct *m, int x, int y);
 extern int blocks_view(mapstruct *m, int x, int y);
 extern int blocks_magic(mapstruct *m, int x, int y);
@@ -238,22 +221,17 @@ extern int blocked_link(object *op, int xoff, int yoff);
 extern int blocked_link_2(object *op, mapstruct *map, int x, int y);
 extern int blocked_tile(object *op, mapstruct *m, int x, int y);
 extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
-extern int arch_out_of_map(archetype *at, mapstruct *m, int x, int y);
-extern void load_objects(mapstruct *m, FILE *fp, int mapflags);
-extern void save_objects(mapstruct *m, FILE *fp, FILE *fp2);
-extern mapstruct *get_linked_map(void);
-extern void allocate_map(mapstruct *m);
+extern mapstruct *get_linked_map();
 extern mapstruct *get_empty_map(int sizex, int sizey);
 extern mapstruct *load_original_map(const char *filename, int flags);
 extern int new_save_map(mapstruct *m, int flag);
-extern void free_all_objects(mapstruct *m);
 extern void free_map(mapstruct *m, int flag);
 extern void delete_map(mapstruct *m);
 extern int check_map_owner(mapstruct *map, object *op);
 extern char *create_map_owner(mapstruct *map);
 extern mapstruct *ready_map_name(const char *name, int flags);
 extern void clean_tmp_map(mapstruct *m);
-extern void free_all_maps(void);
+extern void free_all_maps();
 extern void update_position(mapstruct *m, int x, int y);
 extern void set_map_reset_time(mapstruct *map);
 extern mapstruct *out_of_map(mapstruct *m, int *x, int *y);
@@ -276,13 +254,11 @@ extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);
 extern signed long sum_weight(object *op);
 extern object *is_player_inv(object *op);
-extern void dump_object2(object *op);
 extern void dump_object(object *op);
 extern void dump_me(object *op, char *outstr);
-extern void dump_all_objects(void);
 extern object *find_object(int i);
 extern object *find_object_name(char *str);
-extern void free_all_object_data(void);
+extern void free_all_object_data();
 extern object *get_owner(object *op);
 extern void clear_owner(object *op);
 extern void set_owner(object *op, object *owner);
@@ -290,23 +266,17 @@ extern void copy_owner(object *op, object *clone);
 extern void initialize_object(object *op);
 extern void copy_object(object *op2, object *op);
 extern void copy_object_data(object *op2, object *op);
-extern object *get_object(void);
+extern object *get_object();
 extern void update_turn_face(object *op);
 extern void update_ob_speed(object *op);
 extern void update_object(object *op, int action);
 extern void destroy_object(object *ob);
-extern int count_free(void);
-extern int count_used(void);
-extern void sub_weight(object *op, sint32 weight);
 extern void remove_ob(object *op);
 extern void destruct_ob(object *op);
-extern void drop_ob_inventory(object *op);
-extern void remove_ob_inv(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);
 extern object *get_split_ob(object *orig_ob, int nr);
 extern object *decrease_ob_nr(object *op, int i);
-extern void add_weight(object *op, sint32 weight);
 extern object *insert_ob_in_ob(object *op, object *where);
 extern int check_walk_on(object *op, object *originator, int flags);
 extern int check_walk_off (object *op, object *originator, int flags);
@@ -332,7 +302,6 @@ extern int auto_apply(object *op);
 
 /* porting.c */
 extern char *tempnam_local(char *dir, char *pfx);
-extern void remove_directory(const char *path);
 extern char *strdup_local(const char *str);
 extern long strtol_local(register char *str, char **ptr, register int base);
 extern char *strerror_local(int errnum);
@@ -358,23 +327,12 @@ extern int is_dragon_pl(object *op);
 extern char *re_cmp(char *str, char *regexp);
 
 /* readable.c */
-extern int nstrtok(const char *buf1, const char *buf2);
-extern char *strtoktolin(const char *buf1, const char *buf2);
 extern int book_overflow(const char *buf1, const char *buf2, int booksize);
-extern void init_readable(void);
-extern void change_book(object *book, int msgtype);
+extern void init_readable();
 extern object *get_random_mon();
-extern char *mon_desc(object *mon);
-extern object *get_next_mon(object *tmp);
-extern char *mon_info_msg(int booksize);
-extern char *artifact_msg(int level, int booksize);
-extern char *spellpath_msg(int level, int booksize);
-extern void make_formula_book(object *book, int level);
-extern char *msgfile_msg(int booksize);
-extern char *god_info_msg(int level, int booksize);
 extern void tailor_readable_ob(object *book, int msg_type);
-extern void free_all_readable(void);
-extern void write_book_archive(void);
+extern void free_all_readable();
+extern void write_book_archive();
 
 /* recipe.c */
 extern recipelist *get_formulalist(int i);
@@ -400,40 +358,28 @@ extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 /* time.c */
 extern void reset_sleep();
 extern void get_tod(timeofday_t *tod);
-extern int enough_elapsed_time();
 extern void sleep_delta();
 extern void set_max_time(long t);
-extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds();
 
 /* treasure.c */
-extern void load_treasures(void);
-extern void init_artifacts(void);
-extern void init_archetype_pointers(void);
+extern void load_treasures();
+extern void init_artifacts();
+extern void init_archetype_pointers();
 extern treasurelist *find_treasurelist(const char *name);
 extern object *generate_treasure(treasurelist *t, int difficulty);
 extern void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
-extern void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
-extern void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
 extern void set_abs_magic(object *op, int magic);
-extern int set_ring_bonus(object *op, int bonus, int level);
-extern int get_magic(int diff);
 extern int fix_generated_item(object **op, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
 extern artifactlist *find_artifactlist(int type);
 extern artifact *find_artifact(const char *name);
 extern archetype *find_artifact_archtype(const char *name);
-extern void dump_artifacts(void);
-extern void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
+extern void dump_artifacts();
 extern void give_artifact_abilities(object *op, artifact *art);
 extern int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
-extern void fix_flesh_item(object *item, object *donor);
-extern void free_treasurestruct(treasure *t);
-extern void free_charlinks(linked_char *lc);
-extern void free_artifact(artifact *at);
-extern void free_artifactlist(artifactlist *al);
-extern void free_all_treasures(void);
+extern void free_all_treasures();
 extern void dump_monster_treasure(const char *name);
 extern int get_enviroment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);

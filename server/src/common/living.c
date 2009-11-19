@@ -834,55 +834,6 @@ void drain_specific_stat(object *op, int deplete_stats)
 	fix_player(op);
 }
 
-/* A value of 0 indicates timeout, otherwise change the luck of the object.
- * via an applied bad_luck object. */
-void change_luck(object *op, int value)
-{
-	object *tmp;
-	archetype *at;
-	at = find_archetype("luck");
-
-	if (!at)
-		LOG(llevBug, "BUG: Couldn't find archetype luck.\n");
-	else
-	{
-		tmp = present_arch_in_ob(at, op);
-		if (!tmp)
-		{
-			if (!value)
-				return;
-
-			tmp = arch_to_object(at);
-			tmp = insert_ob_in_ob(tmp, op);
-			SET_FLAG(tmp, FLAG_APPLIED);
-		}
-
-		if (value)
-		{
-			op->stats.luck += value;
-			tmp->stats.luck += value;
-		}
-		else
-		{
-			if (!tmp->stats.luck)
-			{
-				LOG(llevDebug, "Internal error in change_luck().\n");
-				return;
-			}
-
-			/* Randomly change the players luck.  Basically, we move it
-			 * back neutral (if greater>0, subtract, otherwise add)
-			 * I believe this is supposed to be > and not >= - this means
-			 * if your luck is -1/1, it won't get adjusted - only when your
-			 * luck is worse can you hope for improvment.
-			 * note that if we adjusted it with it is -1/1, that check above
-			 * for 0 luck will happen, resulting in error. */
-			if (RANDOM() % (FABS(tmp->stats.luck)) > RANDOM() % 30)
-				tmp->stats.luck += tmp->stats.luck > 0 ? -1 : 1;
-		}
-	}
-}
-
 /* Updates all abilities given by applied objects in the inventory
  * of the given object.  Note: This function works for both monsters
  * and players; the "player" in the name is purely an archaic inheritance. */
