@@ -187,13 +187,10 @@ CommArray_s WizCommands [] =
 	{"/set_map_light", 	command_setmaplight,			0.0},
 	{"/wizpass", 		command_wizpass,				0.0},
 	{"/learn_spell", 	command_learn_spell, 			0.0},
-
-#ifdef DEBUG
-	{"/sstable", 		command_sstable,				0.0},
-#endif
-	{"/ssdumptable", 	command_ssdumptable,			0.0},
+	{"/ssdumptable",    command_ssdumptable,            0.0},
 	{"/patch",			command_patch,					0.0},
 	{"/speed",          command_speed,                  0.0},
+	{"/strings",        command_strings,                0.0},
 
 	/*
 	{"/archs", command_archs,	0.0},

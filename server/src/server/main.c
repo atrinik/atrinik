@@ -1138,8 +1138,6 @@ void cleanup()
 	free_all_god();
 	free_all_anim();
 	free_all_srv_files();
-	/* See what the string data that is out there that hasn't been freed. */
-	/*LOG(llevDebug, ss_dump_table(0xff));*/
 #endif
 	exit(0);
 }

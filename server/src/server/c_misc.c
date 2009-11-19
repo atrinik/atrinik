@@ -26,6 +26,9 @@
 #include <global.h>
 #include <sproto.h>
 
+#undef SS_STATISTICS
+#include <shstr.h>
+
 /** @file
  * Handles misc. input request - things like hash table, malloc, maps,
  * who, etc. */
@@ -445,23 +448,26 @@ int command_maps(object *op, char *params)
  * @return Always returns 1 */
 int command_strings(object *op, char *params)
 {
+	char buf[HUGE_BUF];
+
 	(void) params;
 
-	ss_dump_statistics();
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
-	new_draw_info(NDI_UNIQUE, 0, op, ss_dump_table(2));
+	ss_dump_statistics(buf, sizeof(buf));
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
+
+	ss_dump_table(SS_DUMP_TOTALS, buf, sizeof(buf));
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
+
 	return 1;
 }
 
-#ifdef DEBUG
-int command_sstable(object *op, char *params)
+int command_ssdumptable(object *op, char *params)
 {
 	(void) params;
 	(void) op;
-	ss_dump_table(1);
+	ss_dump_table(SS_DUMP_TABLE, NULL, 0);
 	return 1;
 }
-#endif
 
 /**
  * Time command. Print out game time information.
@@ -735,15 +741,6 @@ int command_dumpactivelist(object *op, char *params)
 	LOG(llevSystem, "%s\n", buf);
 
 	return 1;
-}
-
-int command_ssdumptable(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-
-	(void) ss_dump_table(1);
-	return 0;
 }
 
 /**

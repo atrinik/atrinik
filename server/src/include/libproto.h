@@ -401,16 +401,15 @@ extern recipe *get_random_recipe(recipelist *rpl);
 extern void free_all_recipes();
 
 /* shstr.c */
-extern void init_hash_table(void);
+extern void init_hash_table();
 extern const char *add_string(const char *str);
 extern int query_refcount(const char *str);
 extern const char *find_string(const char *str);
 extern const char *add_refcount(const char *str);
 extern void free_string_shared(const char *str);
-extern void ss_dump_statistics(void);
-extern char *ss_dump_table(int what);
-extern void ss_test_table(void);
-extern int buf_overflow(const char *buf1, const char *buf2, int bufsize);
+extern void ss_dump_statistics(char *buf, size_t size);
+extern void ss_dump_table(int what, char *buf, size_t size);
+extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 
 /* time.c */
 extern void reset_sleep();
