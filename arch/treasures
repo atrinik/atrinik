@@ -5589,7 +5589,6 @@ treasure mob_quickwood
         end
     end
   more
-  list 
   list random_scroll
     chance_fix 65
     no
