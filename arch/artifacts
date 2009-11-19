@@ -2670,6 +2670,22 @@ weight 80
 wc 4
 end
 
+#############
+# Crossbows #
+#############
+Allowed all
+chance 10
+artifact crossbow_accuracy
+def_arch crossbow
+Object Accuracy
+title of accuracy
+type 14
+value 5500
+is_magical 1
+weight 80
+wc 4
+end
+
 #########
 # Food. #
 #########
