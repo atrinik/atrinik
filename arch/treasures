@@ -502,14 +502,78 @@ treasureone random_weapon_l9
     chance 5
 end
 
-treasureone random_weapons_amun
+# Random arrows.
+treasureone random_arrows
   arch arrow
     magic_chance 25
-    magic 2
-    chance 35
+    magic 3
+    chance 50
     nrof 3
     material_quality 80
     material_range 7
+  more
+  arch arrow_woodlanders
+    magic_chance 20
+    magic 3
+    chance 30
+    nrof 3
+    material_quality 80
+    material_range 7
+  more
+  arch arrow_fey
+    magic_chance 15
+    magic 3
+    chance 20
+    nrof 2
+    material_quality 80
+    material_range 7
+  more
+  arch arrow_elven
+    magic_chance 10
+    magic 3
+    chance 10
+    nrof 2
+    material_quality 80
+    material_range 7
+end
+
+treasureone random_bolts
+  arch bolt
+    magic_chance 25
+    magic 3
+    chance 50
+    nrof 3
+    material_quality 80
+    material_range 7
+  more
+  arch bolt_woodlanders
+    magic_chance 20
+    magic 3
+    chance 30
+    nrof 3
+    material_quality 80
+    material_range 7
+  more
+  arch bolt_fey
+    magic_chance 15
+    magic 3
+    chance 20
+    nrof 2
+    material_quality 80
+    material_range 7
+  more
+  arch bolt_dwarven
+    magic_chance 10
+    magic 3
+    chance 10
+    nrof 2
+    material_quality 80
+    material_range 7
+end
+
+treasureone random_weapons_amun
+  list random_arrows
+    chance 35
   more
   arch sstone
     magic_chance 25
@@ -519,13 +583,8 @@ treasureone random_weapons_amun
     material_quality 80
     material_range 7
   more
-  arch bolt
+  list random_bolts
     chance 35
-    magic_chance 25
-    magic 2
-    nrof 3
-    material_quality 80
-    material_range 7
 end
 
 treasureone random_weapons_throw
@@ -5491,6 +5550,9 @@ treasure mob_quickwood
   list traps
     chance 8
   more
+  list random_arrows
+    chance 5
+  more
   list default_loot
     chance 65
     no
@@ -5527,6 +5589,7 @@ treasure mob_quickwood
         end
     end
   more
+  list 
   list random_scroll
     chance_fix 65
     no
@@ -5543,6 +5606,9 @@ end
 treasure mob_treant
   list traps
     chance 8
+  more
+  list random_arrows
+    chance 5
   more
   list default_loot
     chance 65
