@@ -26,12 +26,6 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-#define ASSERT(x)
-
-#if 0
-#define ASSERT(x) if (!(x)) { kill(getpid(),11);}
-#endif
-
 #if defined(osf1) && !defined(__osf__)
 #  define	__osf__
 #endif
@@ -110,11 +104,11 @@
 #endif
 
 #ifdef HAVE_STRICMP
-#define strcasecmp(_s1_,_s2_) stricmp(_s1_,_s2_)
+#define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
 #endif
 
 #ifdef HAVE_STRNICMP
-#define strncasecmp(_s1_,_s2_,_nrof_) strnicmp(_s1_,_s2_,_nrof_)
+#define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
 #if defined(vax) || defined(ibm032)

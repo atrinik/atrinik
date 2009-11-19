@@ -216,36 +216,26 @@
 
 /** Last color value in */
 #define NDI_MAX_COLOR 11
-
 /** Colors are first 8 bit - o bit digit */
 #define NDI_COLOR_MASK  0xff
-
 /** Second 8 bit are flags to define draw_info string */
 #define NDI_FLAG_MASK   0xffff
-
 /** Say command */
 #define NDI_SAY     0x0100
-
 /** The message is a shout */
 #define NDI_SHOUT   0x0200
-
 /** The message is a tell */
 #define NDI_TELL    0x0400
-
 /** This message comes from a player */
 #define NDI_PLAYER  0x0800
-
 /** If set, it's a system message */
 #define NDI_SYSTEM  0x01000
-
 /**
  * Message will be played as animation in the middle of the client
  * screen. */
 #define NDI_ANIM    0x02000
-
 /** Print this out immediately, don't buffer */
 #define NDI_UNIQUE  0x10000
-
 /** Inform all players of this message */
 #define NDI_ALL     0x20000
 /*@}*/
@@ -274,34 +264,24 @@ enum
 
 /** @copydoc FLAG_APPLIED */
 #define F_APPLIED       0x000F
-
 /** @copydoc FLAG_IS_ETHEREAL */
 #define F_ETHEREAL      0x0080
-
 /** @copydoc FLAG_IS_INVISIBLE */
 #define F_INVISIBLE     0x0100
-
 /** @copydoc FLAG_UNPAID */
 #define F_UNPAID        0x0200
-
 /** @copydoc FLAG_IS_MAGICAL */
 #define F_MAGIC         0x0400
-
 /** @copydoc FLAG_CURSED */
 #define F_CURSED        0x0800
-
 /** @copydoc FLAG_DAMNED */
 #define F_DAMNED        0x1000
-
 /** @copydoc CONTAINER */
 #define F_OPEN          0x2000
-
 /** @copydoc FLAG_NO_PICK */
 #define F_NOPICK        0x4000
-
 /** @copydoc FLAG_INV_LOCKED */
 #define F_LOCKED        0x8000
-
 /** @copydoc FLAG_IS_TRAPED */
 #define F_TRAPED        0x10000
 /*@}*/

@@ -23,6 +23,13 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Defines for loader.l / loader.c. */
+
+#ifndef LOADER_H
+#define LOADER_H
+
 #define LL_IGNORED  -1
 #define LL_EOF	    0
 #define LL_MORE	    1
@@ -35,13 +42,6 @@
 #define	LO_NOREAD   3
 #define LO_MEMORYMODE 4
 
-
-#if defined __GNUC__
-#pragma GCC system_header
-#elif defined __SUNPRO_CC
-#pragma disable_warn
-#elif defined _MSC_VER
-#pragma warning(push, 1)
-#endif
-
 extern int nroffiles, nrofpixmaps;
+
+#endif

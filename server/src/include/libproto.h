@@ -24,37 +24,24 @@
 ************************************************************************/
 
 /* anim.c */
-extern void free_all_anim(void);
-extern void init_anim(void);
+extern void free_all_anim();
+extern void init_anim();
 extern int find_animation(char *name);
 extern void animate_object(object *op, int count);
 
 /* arch.c */
-extern archetype *find_archetype_by_object_name(const char *name);
 extern object *get_archetype_by_object_name(const char *name);
 extern archetype *get_skill_archetype(int skillnr);
 extern int item_matched_string(object *pl, object *op, const char *name);
-extern void init_archetypes(void);
+extern void init_archetypes();
 extern void arch_info(object *op);
-extern void clear_archetable(void);
-extern void init_archetable(void);
 extern void dump_arch(archetype *at);
-extern void dump_all_archetypes(void);
-extern void free_all_archs(void);
-extern archetype *get_archetype_struct(void);
-extern void first_arch_pass(FILE *fp);
-extern void second_arch_pass(FILE *fp_start);
-extern void check_generators(void);
-extern void load_archetypes(void);
+extern void dump_all_archetypes();
+extern void free_all_archs();
 extern object *arch_to_object(archetype *at);
-extern object *create_singularity(const char *name);
 extern object *get_archetype(const char *name);
-extern unsigned long hasharch(const char *str, int tablesize);
 extern archetype *find_archetype(const char *name);
-extern void add_arch(archetype *at);
-extern archetype *type_to_archetype(int type);
 extern object *clone_arch(int type);
-extern object *ObjectCreateArch(archetype *at);
 
 /* button.c */
 extern void push_button(object *op);

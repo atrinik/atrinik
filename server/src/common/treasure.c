@@ -511,7 +511,6 @@ void init_artifacts()
 		for (art = al->items; art != NULL; art = art->next)
 		{
 #if 0
-			add_arch();
 			LOG(llevDebug, "art: %s (%s %s)\n", art->name, art->def_at.name, query_name(&art->def_at.clone, NULL));
 #endif
 
