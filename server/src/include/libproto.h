@@ -99,8 +99,7 @@ extern float calc_level_difference(int who_lvl, int op_lvl);
 /* friend.c */
 extern void add_friendly_object(object *op);
 extern void remove_friendly_object(object *op);
-extern void dump_friendly_objects(void);
-extern void clean_friendly_list(void);
+extern void dump_friendly_objects();
 
 /* glue.c */
 extern void init_function_pointers(void);
