@@ -9,6 +9,13 @@
             <Attrib name="no_pick" />
         </And>
     </GameObjectMatcher>
+    <GameObjectMatcher id="tree">
+        <title xml:lang="en">Trees</title>
+        <And>
+            <Attrib name="is_wooded" />
+            <Attrib name="no_pick" />
+        </And>
+    </GameObjectMatcher>
     <GameObjectMatcher id="monster">
         <title xml:lang="en">Monster</title>
         <title xml:lang="de">Monster</title>
