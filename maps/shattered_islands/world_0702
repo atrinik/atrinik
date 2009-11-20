@@ -1,12 +1,14 @@
 arch map
-name World
+name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_0703
 tile_path_2 world_0802
 tile_path_3 world_0701
@@ -15,6 +17,7 @@ tile_path_5 world_0803
 tile_path_6 world_0801
 tile_path_7 world_0601
 tile_path_8 world_0603
+bg_music harmony2.ogg|0|-1
 end
 arch water_still
 end
@@ -1650,55 +1653,116 @@ arch water_still
 x 17
 y 10
 end
-arch water_still
+arch ship_rail_s
+x 17
+y 10
+end
+arch ship_floor_ns_dark_1
 x 17
 y 11
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 11
+end
+arch box_big.101
+layer 7
+x 17
+y 11
+end
+arch ship_floor_ns_dark_4
 x 17
 y 12
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 12
+end
+arch ship_floor_ns_dark_2
 x 17
 y 13
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 13
+end
+arch ship_floor_ns_dark_2
 x 17
 y 14
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 14
+end
+arch ship_floor_ns_dark_4
 x 17
 y 15
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 15
+end
+arch ship_floor_ns_dark_4
 x 17
 y 16
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 16
+end
+arch ship_floor_ns_dark_1
 x 17
 y 17
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 17
+end
+arch ship_floor_ns_dark_1
 x 17
 y 18
 end
-arch water_still
+arch tackelage_w_low
+x 17
+y 18
+end
+arch ship_floor_ns_dark_3
 x 17
 y 19
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 19
+end
+arch ship_floor_ns_dark_3
 x 17
 y 20
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 20
+end
+arch ship_floor_ns_dark_4
 x 17
 y 21
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 21
+end
+arch ship_floor_ns_dark_3
 x 17
 y 22
 end
-arch water_still
+arch ship_rail_w
+x 17
+y 22
+end
+arch ship_floor_ns_dark_4
+x 17
+y 23
+end
+arch tackelage_w_low
 x 17
 y 23
 end
@@ -1745,55 +1809,113 @@ arch water_still
 x 18
 y 10
 end
-arch water_still
+arch ship_rail_s
+x 18
+y 10
+end
+arch ship_floor_ns_dark_2
+no_pass 1
 x 18
 y 11
 end
-arch water_still
+arch light7
+x 18
+y 11
+end
+arch ship_floor_ns_dark_1
 x 18
 y 12
 end
-arch water_still
+arch ship_floor_ns_dark_3
 x 18
 y 13
 end
-arch water_still
+arch ship_floor_ns_dark_1
+no_pass 1
 x 18
 y 14
 end
-arch water_still
+arch ship_rail_e_hole
+x 18
+y 14
+end
+arch light7
+x 18
+y 14
+end
+arch ship_floor_ns_dark_4
 x 18
 y 15
 end
-arch water_still
+arch ship_floor_ns_dark_4
 x 18
 y 16
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 18
 y 17
 end
-arch water_still
+arch light7
+x 18
+y 17
+end
+arch ship_floor_ns_dark_2
 x 18
 y 18
 end
-arch water_still
+arch tackelage_w_high
+x 18
+y 18
+end
+arch ship_floor_ns_dark_1
 x 18
 y 19
 end
-arch water_still
+arch sail_reffed_s
+x 18
+y 19
+end
+arch ship_floor_ns_dark_2
 x 18
 y 20
 end
-arch water_still
+arch box1.101
+x 18
+y 20
+end
+arch ship_rail_e_hole
+x 18
+y 20
+end
+arch light7
+x 18
+y 20
+end
+arch ship_floor_ns_dark_1
 x 18
 y 21
 end
-arch water_still
+arch ship_rail_e_hole
+x 18
+y 21
+end
+arch ship_floor_ns_dark_1
 x 18
 y 22
 end
-arch water_still
+arch ship_floor_ns_dark_3
+x 18
+y 23
+end
+arch tackelage_w_high
+x 18
+y 23
+end
+arch box_big.101
+x 18
+y 23
+end
+arch light7
 x 18
 y 23
 end
@@ -1840,55 +1962,122 @@ arch water_still
 x 19
 y 10
 end
-arch water_still
+arch ship_rail_s
+x 19
+y 10
+end
+arch sail_short_mast_s_3
+x 19
+y 10
+end
+arch ship_floor_ns_dark_2
 x 19
 y 11
 end
-arch water_still
+arch sail_short_mast_s_2
+layer 7
+x 19
+y 11
+end
+arch ship_floor_ns_dark_1
 x 19
 y 12
 end
-arch water_still
+arch sail_short_mast_s_1
+x 19
+y 12
+end
+arch ship_floor_ns_dark_1
 x 19
 y 13
 end
-arch water_still
+arch spawn_point
+x 19
+y 13
+arch peasant
+name Ship Captain
+msg
+@match *
+Hello there! If you want to go back to the Strakewood Island, go down the stairs and take the other stairs in there.
+endmsg
+type 83
+level 13
+friendly 1
+end
+end
+arch ship_floor_ns_dark_1
 x 19
 y 14
 end
-arch water_still
+arch ship_n_steering_wheel_double
+x 19
+y 14
+end
+arch ship_rail_s_hole
+x 19
+y 14
+end
+arch ship_floor_ns_dark_1
 x 19
 y 15
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 19
 y 16
 end
-arch water_still
+arch ship_floor_ns_dark_2
 x 19
 y 17
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 19
 y 18
 end
-arch water_still
+arch mast_s_long
+x 19
+y 18
+end
+arch ship_floor_ns_dark_3
 x 19
 y 19
 end
-arch water_still
+arch sail_reffed_s
+x 19
+y 19
+end
+arch box2.101
+x 19
+y 19
+end
+arch blocked
 x 19
 y 20
 end
-arch water_still
+arch ship_rail_n_hole
+x 19
+y 20
+end
+arch ship_floor_ns_dark_1
 x 19
 y 21
 end
-arch water_still
+arch stairs_wood_down
+slaying ships/ship_1
+hp 6
+sp 10
+direction 1
+x 19
+y 21
+end
+arch ship_floor_ns_dark_1
 x 19
 y 22
 end
-arch water_still
+arch ship_floor_ns_dark_4
+x 19
+y 23
+end
+arch mast_s_long
 x 19
 y 23
 end
@@ -1935,55 +2124,107 @@ arch water_still
 x 20
 y 10
 end
-arch water_still
+arch ship_rail_s
+x 20
+y 10
+end
+arch ship_floor_ns_dark_1
 x 20
 y 11
 end
-arch water_still
+arch light7
+x 20
+y 11
+end
+arch ship_floor_ns_dark_1
 x 20
 y 12
 end
-arch water_still
+arch ship_floor_ns_dark_2
 x 20
 y 13
 end
-arch water_still
+arch ship_floor_ns_dark_3
 x 20
 y 14
 end
-arch water_still
+arch ship_rail_w_hole
+x 20
+y 14
+end
+arch light7
+x 20
+y 14
+end
+arch ship_floor_ns_dark_1
 x 20
 y 15
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 20
 y 16
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 20
 y 17
 end
-arch water_still
+arch light7
+x 20
+y 17
+end
+arch ship_floor_ns_dark_1
 x 20
 y 18
 end
-arch water_still
+arch tackelage_e_high
+x 20
+y 18
+end
+arch ship_floor_ns_dark_3
 x 20
 y 19
 end
-arch water_still
+arch sail_reffed_s
+x 20
+y 19
+end
+arch ship_floor_ns_dark_1
 x 20
 y 20
 end
-arch water_still
+arch ship_rail_w_hole
+x 20
+y 20
+end
+arch light7
+x 20
+y 20
+end
+arch ship_floor_ns_dark_4
 x 20
 y 21
 end
-arch water_still
+arch ship_rail_w_hole
+x 20
+y 21
+end
+arch ship_floor_ns_dark_1
 x 20
 y 22
 end
-arch water_still
+arch ship_floor_ns_dark_2
+x 20
+y 23
+end
+arch tackelage_e_high
+x 20
+y 23
+end
+arch box_big.101
+x 20
+y 23
+end
+arch light7
 x 20
 y 23
 end
@@ -2030,55 +2271,107 @@ arch water_still
 x 21
 y 10
 end
-arch water_still
+arch ship_rail_s
+x 21
+y 10
+end
+arch ship_floor_ns_dark_1
 x 21
 y 11
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 11
+end
+arch ship_floor_ns_dark_4
 x 21
 y 12
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 12
+end
+arch ship_floor_ns_dark_4
 x 21
 y 13
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 13
+end
+arch ship_floor_ns_dark_4
 x 21
 y 14
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 14
+end
+arch ship_floor_ns_dark_4
 x 21
 y 15
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 15
+end
+arch ship_floor_ns_dark_2
 x 21
 y 16
 end
-arch water_still
+arch bollard_tied_e_3
+x 21
+y 16
+end
+arch ship_floor_ns_dark_1
 x 21
 y 17
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 17
+end
+arch ship_floor_ns_dark_1
 x 21
 y 18
 end
-arch water_still
+arch tackelage_e_low
+x 21
+y 18
+end
+arch ship_floor_ns_dark_4
 x 21
 y 19
 end
-arch water_still
+arch sail_reffed_s_over_rail
+x 21
+y 19
+end
+arch ship_floor_ns_dark_1
 x 21
 y 20
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 20
+end
+arch ship_floor_ns_dark_1
 x 21
 y 21
 end
-arch water_still
+arch ship_floor_ns_dark_1
 x 21
 y 22
 end
-arch water_still
+arch ship_rail_e
+x 21
+y 22
+end
+arch ship_floor_ns_dark_1
+x 21
+y 23
+end
+arch tackelage_e_low
 x 21
 y 23
 end
@@ -2129,7 +2422,15 @@ arch water_still
 x 22
 y 11
 end
+arch ship_hull_e_high_corner_n
+x 22
+y 11
+end
 arch water_still
+x 22
+y 12
+end
+arch ship_hull_e_high
 x 22
 y 12
 end
@@ -2137,7 +2438,15 @@ arch water_still
 x 22
 y 13
 end
+arch ship_hull_e_high
+x 22
+y 13
+end
 arch water_still
+x 22
+y 14
+end
+arch ship_hull_e_high
 x 22
 y 14
 end
@@ -2145,7 +2454,19 @@ arch water_still
 x 22
 y 15
 end
+arch ship_hull_e_high
+x 22
+y 15
+end
 arch water_still
+x 22
+y 16
+end
+arch ship_hull_e_high
+x 22
+y 16
+end
+arch bollard_tied_e_2
 x 22
 y 16
 end
@@ -2153,7 +2474,15 @@ arch water_still
 x 22
 y 17
 end
+arch ship_hull_e_high
+x 22
+y 17
+end
 arch water_still
+x 22
+y 18
+end
+arch ship_hull_e_high
 x 22
 y 18
 end
@@ -2161,15 +2490,31 @@ arch water_still
 x 22
 y 19
 end
+arch ship_hull_e_high
+x 22
+y 19
+end
+arch sail_reffed_s
+x 22
+y 19
+end
 arch water_still
 x 22
 y 20
 end
-arch water_still
+arch ship_hull_e_high
+x 22
+y 20
+end
+arch bridge_wood_EW.101
 x 22
 y 21
 end
 arch water_still
+x 22
+y 22
+end
+arch ship_hull_e_high
 x 22
 y 22
 end
@@ -2177,10 +2522,21 @@ arch water_still
 x 22
 y 23
 end
+arch ship_hull_e_high
+x 22
+y 23
+end
 arch water_still
 x 23
 end
+arch grassd_m8
+x 23
+end
 arch water_still
+x 23
+y 1
+end
+arch grassd_m8
 x 23
 y 1
 end
@@ -2188,7 +2544,15 @@ arch water_still
 x 23
 y 2
 end
+arch grassd_m8
+x 23
+y 2
+end
 arch water_still
+x 23
+y 3
+end
+arch grassd_m8
 x 23
 y 3
 end
@@ -2196,7 +2560,15 @@ arch water_still
 x 23
 y 4
 end
+arch grassd_m8
+x 23
+y 4
+end
 arch water_still
+x 23
+y 5
+end
+arch grassd_m8
 x 23
 y 5
 end
@@ -2204,7 +2576,15 @@ arch water_still
 x 23
 y 6
 end
+arch grassd_m8
+x 23
+y 6
+end
 arch water_still
+x 23
+y 7
+end
+arch grassd_m8
 x 23
 y 7
 end
@@ -2212,7 +2592,15 @@ arch water_still
 x 23
 y 8
 end
+arch grassd_m8
+x 23
+y 8
+end
 arch water_still
+x 23
+y 9
+end
+arch grassd_m8
 x 23
 y 9
 end
@@ -2220,7 +2608,15 @@ arch water_still
 x 23
 y 10
 end
+arch grassd_m8
+x 23
+y 10
+end
 arch water_still
+x 23
+y 11
+end
+arch grassd_m8
 x 23
 y 11
 end
@@ -2228,7 +2624,15 @@ arch water_still
 x 23
 y 12
 end
+arch grassd_m8
+x 23
+y 12
+end
 arch water_still
+x 23
+y 13
+end
+arch grassd_m8
 x 23
 y 13
 end
@@ -2236,11 +2640,23 @@ arch water_still
 x 23
 y 14
 end
+arch grassd_m8
+x 23
+y 14
+end
 arch water_still
 x 23
 y 15
 end
-arch water_still
+arch grassd_m5
+x 23
+y 15
+end
+arch grassd_3
+x 23
+y 16
+end
+arch bollard_tied_e_1
 x 23
 y 16
 end
@@ -2248,7 +2664,15 @@ arch water_still
 x 23
 y 17
 end
+arch grassd_m6
+x 23
+y 17
+end
 arch water_still
+x 23
+y 18
+end
+arch grassd_m8
 x 23
 y 18
 end
@@ -2256,11 +2680,23 @@ arch water_still
 x 23
 y 19
 end
+arch grassd_m8
+x 23
+y 19
+end
 arch water_still
 x 23
 y 20
 end
-arch water_still
+arch grassd_m8
+x 23
+y 20
+end
+arch bridge_wood_EW.101
+x 23
+y 21
+end
+arch light7
 x 23
 y 21
 end
@@ -2268,7 +2704,15 @@ arch water_still
 x 23
 y 22
 end
+arch grassd_m8
+x 23
+y 22
+end
 arch water_still
+x 23
+y 23
+end
+arch grassd_m5
 x 23
 y 23
 end
