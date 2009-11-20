@@ -23,114 +23,102 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Small utility to check a map file for any possible errors.
+/**
+ * @file
+ * Small utility to check a map file for common mistakes.
  *
  * Compile as:
  *  gcc map-checker.c -O3 -Wall -W -pedantic -Werror -o map-checker
  *
  * Use as:
- *  ./map-checker "your map"
- *
- * As of now, this map checker checks for the following things:
- *  - Two or more objects with no_pass 1 on same tile
- *  - Two or more objects with layer 1 (floor) on same tile
- *  - Tile with objects but no object with layer 1 (floor)
- *  - Two or more objects with layer 2 (floor mask) on same tile
- *
- * @todo Instead of checking for layer 1, check perhaps for type FLOOR? */
+ *  ./map-checker "your map" */
 
 #include <string.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdarg.h>
 
+/** Maximum size of any character buffer. */
 #define MAX_BUF 4096
 
-/* Path to archetypes file */
+/** Path to archetypes file. */
 #define ARCHETYPES_FILE "../../arch/archetypes"
 
-/* Object structure */
+/** Object structure. */
 typedef struct object {
-	/* Name of this object */
+	/** Name of this object. */
 	char archname[MAX_BUF];
 
-	/* Object type */
+	/** Object type */
 	int type;
 
-	/* Object layer */
+	/** Object layer. */
 	int layer;
 
-	/* Is this object blocking the tile? */
+	/** Is this object blocking the tile? */
 	int no_pass;
 
-	/* Next object in this list */
+	/** Inventory of this object. */
+	struct object *inv;
+
+	/** Next object in this list. */
 	struct object *next;
 } object;
 
-/* Map tile structure */
+/** Map tile structure */
 typedef struct map_tile {
-	/* X position of this tile */
+	/** X position of this tile. */
 	int x;
 
-	/* Y position of this tile */
+	/** Y position of this tile. */
 	int y;
 
-	/* Count of layer 1 objects on this tile */
-	int layer1_count;
-
-	/* Count of layer 2 objects on this tile */
-	int layer2_count;
-
-	/* Count of layer 3 objects on this tile */
-	int layer3_count;
-
-	/* Count of layer 4 objects on this tile */
-	int layer4_count;
-
-	/* Count of layer 5 objects on this tile */
-	int layer5_count;
-
-	/* Count of layer 6 objects on this tile */
-	int layer6_count;
-
-	/* Count of layer 7 objects on this tile */
-	int layer7_count;
-
-	/* Count of blocked objects (no_pass 1) on this tile */
-	int blocked_count;
-
-	/* Linked list of objects on this tile */
+	/** Linked list of objects on this tile. */
 	struct object *objects;
 
-	/* Next map tile */
+	/** Next map tile. */
 	struct map_tile *next;
 } map_tile;
 
-/* Arch structure */
+/** Arch structure */
 typedef struct arch {
-	/* Name of this arch */
+	/** Name of this arch. */
 	char archname[MAX_BUF];
 
-	/* Arch type */
+	/** Arch type. */
 	int type;
 
-	/* Arch layer */
+	/** Arch layer. */
 	int layer;
 
-	/* Is this object blocking the tile? */
+	/** Is this object blocking the tile? */
 	int no_pass;
 
-	/* Next arch */
+	/** Next arch. */
 	struct arch *next;
 } arch;
 
+/** Maximum number of layers. */
+#define MAX_LAYERS 7
+
+/** The object is a spawn point. */
+#define SPAWN_POINT 81
+
+/** Map tile list. */
 map_tile *map_tile_list = NULL;
+/** The arch list. */
 arch *arch_list = NULL;
 
+/** Name of the map file we're checking. */
 char filename[MAX_BUF];
 
-/* Signal handler for SIGSEGV -- make core with abort. */
+static void map_error(map_tile *tile, const char *format, ...);
+
+/**
+ * Signal handler for SIGSEGV -- make core with abort.
+ * @param i Unused. */
 static void signal_sigsegv(int i)
 {
 	(void) i;
@@ -138,8 +126,9 @@ static void signal_sigsegv(int i)
 	abort();
 }
 
-/* Parse arche types file */
-void parse_arches()
+/**
+ * Parse archetypes file. */
+static void parse_arches()
 {
 	char line[MAX_BUF], archname[MAX_BUF];
 	FILE *fh;
@@ -147,7 +136,7 @@ void parse_arches()
 	/* Attempt to open the archetypes file in read-only mode */
 	if ((fh = fopen(ARCHETYPES_FILE, "r")) == NULL)
 	{
-		fprintf(stdout, "ERROR: Failed to open specified file in read-only mode: '%s'\n", ARCHETYPES_FILE);
+		printf("ERROR: Failed to open specified file in read-only mode: '%s'\n", ARCHETYPES_FILE);
 		exit(0);
 	}
 
@@ -212,150 +201,197 @@ void parse_arches()
 	fclose(fh);
 }
 
-/* Scan map */
-void scan_map()
+/**
+ * Recursively parse object from a map file.
+ * @param archname Arch name of the object.
+ * @param fh The map file handled.
+ * @param return_value Whether to returnthe object or not.
+ * @return If return_value is 1, the newly allocated object is returned,
+ * NULL otherwise. */
+static object *parse_arch_recursive(char *archname, FILE *fh, int return_value)
+{
+	int x = -1, y = -1, type = -1, no_pass = -1, layer = -1, found = 0;
+	object *ob, *inv = NULL;
+	map_tile *map_tile_tmp;
+	arch *arch_tmp;
+	char inv_archname[MAX_BUF], line[MAX_BUF];
+
+	/* Loop through the lines after the "arch " until the "end" */
+	while (fgets(line, MAX_BUF, fh))
+	{
+		if (!strcmp(line, "end\n"))
+		{
+			break;
+		}
+
+		if (sscanf(line, "arch %s\n", inv_archname) == 1)
+		{
+			inv = (object *) malloc(sizeof(object));
+			inv = parse_arch_recursive(inv_archname, fh, 1);
+		}
+
+		sscanf(line, "x %d\n", &x);
+		sscanf(line, "y %d\n", &y);
+		sscanf(line, "type %d\n", &type);
+		sscanf(line, "layer %d\n", &layer);
+		sscanf(line, "no_pass %d\n", &no_pass);
+	}
+
+	ob = (object *) malloc(sizeof(object));
+
+	/* Loop through the archetypes list */
+	for (arch_tmp = arch_list; arch_tmp; arch_tmp = arch_tmp->next)
+	{
+		/* If arch name matches the one in map, get the default values */
+		if (strcmp(arch_tmp->archname, archname) == 0)
+		{
+			/* Object type */
+			if (type == -1)
+			{
+				type = arch_tmp->type;
+			}
+
+			/* Object layer */
+			if (layer == -1)
+			{
+				layer = arch_tmp->layer;
+			}
+
+			/* no_pass 1 object? */
+			if (no_pass == -1)
+			{
+				no_pass = arch_tmp->no_pass;
+			}
+
+			/* Break out */
+			break;
+		}
+	}
+
+	/* Object type */
+	ob->type = type;
+
+	/* Object layer */
+	ob->layer = layer;
+
+	/* no_pass 1 object? */
+	ob->no_pass = no_pass == -1 ? 0 : no_pass;
+
+	/* Store the arch name */
+	snprintf(ob->archname, sizeof(ob->archname), "%s", archname);
+
+	if (return_value)
+	{
+		if (x != -1)
+		{
+			map_error(NULL, "%s has X position set, but is in inventory of another object.", archname);
+		}
+
+		if (y != -1)
+		{
+			map_error(NULL, "%s has Y position set, but is in inventory of another object.", archname);
+		}
+
+		return ob;
+	}
+
+	ob->inv = inv;
+
+	if (x == -1)
+	{
+		x = 0;
+	}
+
+	if (y == -1)
+	{
+		y = 0;
+	}
+
+	/* Loop through the map tile list */
+	for (map_tile_tmp = map_tile_list; map_tile_tmp; map_tile_tmp = map_tile_tmp->next)
+	{
+		/* If both X and Y positions match */
+		if (x == map_tile_tmp->x && y == map_tile_tmp->y)
+		{
+			/* So the code that makes new map tile doesn't get executed */
+			found = 1;
+
+			/* Append the old list structure to it */
+			ob->next = map_tile_tmp->objects;
+
+			/* Switch the old structure with this new one */
+			map_tile_tmp->objects = ob;
+		}
+	}
+
+	/* If no X and Y positions matched, this must be a new tile */
+	if (!found)
+	{
+		map_tile_tmp = (map_tile *) malloc(sizeof(map_tile));
+
+		/* Store the X, Y, and the first object */
+		map_tile_tmp->x = x;
+		map_tile_tmp->y = y;
+		map_tile_tmp->objects = ob;
+
+		/* Append the old list structure to it */
+		map_tile_tmp->next = map_tile_list;
+
+		/* Switch the old structure with this new one */
+		map_tile_list = map_tile_tmp;
+	}
+
+	return NULL;
+}
+
+/**
+ * Scan the map. */
+static void scan_map()
 {
 	char line[MAX_BUF], archname[MAX_BUF];
+	int got_map = 0, got_map_end = 0;
 	FILE *fh;
 
 	/* Open the map file in read-only mode */
 	if ((fh = fopen(filename, "r")) == NULL)
 	{
-		fprintf(stdout, "ERROR: Failed to open specified file in read-only mode: '%s'\n", filename);
+		printf("ERROR: Failed to open specified file in read-only mode: '%s'\n", filename);
 		exit(0);
 	}
 
 	/* Loop through the lines */
 	while (fgets(line, MAX_BUF, fh))
 	{
-		/* If the line starts with "arch " */
-		if (strncmp(line, "arch ", 5) == 0)
+		/* Check if this is map arch, which should be the first line. */
+		if (!strcmp(line, "arch map\n"))
 		{
-			/* Must successfully store the arch name and it must not be map */
-			if (sscanf(line, "arch %s\n", archname) && strcmp(archname, "map"))
-			{
-				int x = -1, y = -1, type = -1, no_pass = -1, layer = -1;
+			got_map = 1;
+		}
+		/* If we are inside the map, and we haven't hit the end yet until
+		 * now, set it. */
+		else if (got_map && !got_map_end && !strcmp(line, "end\n"))
+		{
+			got_map_end = 1;
+			continue;
+		}
 
-				/* Loop through the lines after the "arch " until the "end" */
-				while (fgets(line, MAX_BUF, fh) && strcmp(line, "end\n"))
-				{
-					/* X position of the object */
-					if (strncmp(line, "x ", 2) == 0)
-					{
-						if (!sscanf(line, "x %d\n", &x))
-							return;
-					}
-					/* Y position of the object */
-					else if (strncmp(line, "y ", 2) == 0)
-					{
-						if (!sscanf(line, "y %d\n", &y))
-							return;
-					}
-					else if (strncmp(line, "type ", 5) == 0)
-					{
-						if (!sscanf(line, "type %d\n", &type))
-							return;
-					}
-					else if (strncmp(line, "layer ", 6) == 0)
-					{
-						if (!sscanf(line, "layer %d\n", &layer))
-							return;
-					}
-					else if (strncmp(line, "no_pass ", 8) == 0)
-					{
-						if (!sscanf(line, "no_pass %d\n", &no_pass))
-							return;
-					}
-				}
+		/* We haven't got "arch map" as the first line, so break out. */
+		if (!got_map)
+		{
+			break;
+		}
 
-				/* If both x and y are set */
-				if (x != -1 && y != -1)
-				{
-					int found = 0;
-					object *ob = (object *) malloc(sizeof(object));
-					map_tile *map_tile_tmp;
-					arch *arch_tmp;
+		/* We still haven't got a map end, so continue to the next
+		 * line. */
+		if (!got_map_end)
+		{
+			continue;
+		}
 
-					/* Loop through the archetypes list */
-					for (arch_tmp = arch_list; arch_tmp; arch_tmp = arch_tmp->next)
-					{
-						/* If arch name matches the one in map, get the default values */
-						if (strcmp(arch_tmp->archname, archname) == 0)
-						{
-							/* Object type */
-							if (type == -1)
-								type = arch_tmp->type;
-
-							/* Object layer */
-							if (layer == -1)
-								layer = arch_tmp->layer;
-
-							/* no_pass 1 object? */
-							if (no_pass == -1)
-								no_pass = arch_tmp->no_pass;
-
-							/* Break out */
-							break;
-						}
-					}
-
-					/* Object type */
-					ob->type = type;
-
-					/* Object layer */
-					ob->layer = layer;
-
-					/* no_pass 1 object? */
-					ob->no_pass = no_pass == -1 ? 0 : no_pass;
-
-					/* Store the arch name */
-					snprintf(ob->archname, sizeof(ob->archname), "%s", archname);
-
-					/* Loop through the map tile list */
-					for (map_tile_tmp = map_tile_list; map_tile_tmp; map_tile_tmp = map_tile_tmp->next)
-					{
-						/* If both X and Y positions match */
-						if (x == map_tile_tmp->x && y == map_tile_tmp->y)
-						{
-							/* So the code that makes new map tile doesn't get executed */
-							found = 1;
-
-							/* Append the old list structure to it */
-							ob->next = map_tile_tmp->objects;
-
-							/* Switch the old structure with this new one */
-							map_tile_tmp->objects = ob;
-						}
-					}
-
-					/* If no X and Y positions matched, this must be a new tile */
-					if (!found)
-					{
-						map_tile_tmp = (map_tile *) malloc(sizeof(map_tile));
-
-						/* Store the X, Y, and the first object */
-						map_tile_tmp->x = x;
-						map_tile_tmp->y = y;
-						map_tile_tmp->objects = ob;
-
-						/* Set these to 0 */
-						map_tile_tmp->layer1_count = 0;
-						map_tile_tmp->layer2_count = 0;
-						map_tile_tmp->layer3_count = 0;
-						map_tile_tmp->layer4_count = 0;
-						map_tile_tmp->layer5_count = 0;
-						map_tile_tmp->layer6_count = 0;
-						map_tile_tmp->layer7_count = 0;
-						map_tile_tmp->blocked_count = 0;
-
-						/* Append the old list structure to it */
-						map_tile_tmp->next = map_tile_list;
-
-						/* Switch the old structure with this new one */
-						map_tile_list = map_tile_tmp;
-					}
-				}
-			}
+		/* If this is a new arch, call the parsing function. */
+		if (sscanf(line, "arch %s\n", archname) == 1)
+		{
+			parse_arch_recursive(archname, fh, 0);
 		}
 	}
 
@@ -363,97 +399,94 @@ void scan_map()
 	fclose(fh);
 }
 
-/* Print out a map error, tile being the map tile of the error and message the error explanation */
-void map_error(map_tile *tile, const char *message)
+/**
+ * Print out a map error.
+ * @param tile Tile where to get X/Y positions from, can be NULL.
+ * @param format Format string.
+ * @param ... Format arguments. */
+static void map_error(map_tile *tile, const char *format, ...)
 {
-	fprintf(stdout, "MAP ERROR: %s (x: %d, y: %d, map: %s)\n", message, tile->x, tile->y, filename);
+	char buf[MAX_BUF];
+	va_list ap;
+
+	va_start(ap, format);
+	vsprintf(buf, format, ap);
+	va_end(ap);
+
+	if (tile)
+	{
+		printf("MAP ERROR: %s (x: %d, y: %d, map: %s)\n", buf, tile->x, tile->y, filename);
+	}
+	else
+	{
+		printf("MAP ERROR: %s (map: %s)\n", buf, filename);
+	}
 }
 
-/* Actually check the whole map for errors */
-void check_map()
+/**
+ * Actually check the whole map for errors. */
+static void check_map()
 {
 	object *ob;
 	map_tile *map_tile_tmp;
 
-	/* Loop through the tiles */
+	/* Loop through the tiles. */
 	for (map_tile_tmp = map_tile_list; map_tile_tmp; map_tile_tmp = map_tile_tmp->next)
 	{
-		int objects_count = 0;
+		int objects_count = 0, layers[MAX_LAYERS] = {0, 0, 0, 0, 0, 0, 0}, i;
 
-		/* Loop through the objects */
+		/* Loop through the objects. */
 		for (ob = map_tile_tmp->objects; ob; ob = ob->next)
 		{
-			/* Increase number of layer1 objects */
-			if (ob->layer == 1)
-				map_tile_tmp->layer1_count++;
+			/* Store number of objects on this layer. */
+			layers[ob->layer - 1]++;
 
-			/* Increase number of layer2 objects */
-			if (ob->layer == 2)
-				map_tile_tmp->layer2_count++;
+			if (ob->type == SPAWN_POINT && ob->inv == NULL)
+			{
+				map_error(map_tile_tmp, "Empty spawn point object.");
+			}
 
-			/* Increase number of layer3 objects */
-			if (ob->layer == 3)
-				map_tile_tmp->layer3_count++;
-
-			/* Increase number of layer4 objects */
-			if (ob->layer == 4)
-				map_tile_tmp->layer4_count++;
-
-			/* Increase number of layer5 objects */
-			if (ob->layer == 5)
-				map_tile_tmp->layer5_count++;
-
-			/* Increase number of layer6 objects */
-			if (ob->layer == 6)
-				map_tile_tmp->layer6_count++;
-
-			/* Increase number of layer7 objects */
-			if (ob->layer == 7)
-				map_tile_tmp->layer7_count++;
-
-			/* Increase number of no_pass objects */
-			if (ob->no_pass)
-				map_tile_tmp->blocked_count++;
-
-			/* Increase overall number of objects */
+			/* Increase overall number of objects. */
 			objects_count++;
 		}
 
-		/* Multiple blocked objects shouldn't be necessary, and often are glitches */
-		if (map_tile_tmp->blocked_count > 1)
-			map_error(map_tile_tmp, "More than 1 object blocking same tile!");
-
-		/* Layer 1 is reserved for floor, and should NOT have multiple instances of it on one tile */
-		if (map_tile_tmp->layer1_count > 1)
-			map_error(map_tile_tmp, "More than 1 object with layer 1 on same tile -- multiple floors?");
-
-		/* Layer 1 is reserved for floor and doesn't have to be on every single tile, but should be on tiles with other objects. */
-		if (map_tile_tmp->layer1_count < 1 && objects_count)
+		/* Layer 1 is reserved for floor and doesn't have to be on every
+		 * single tile, but should be on tiles with other objects. */
+		if (layers[0] < 1 && objects_count)
+		{
 			map_error(map_tile_tmp, "Missing layer 1 object on tile with some objects -- missing floor?");
+		}
 
-		/* Layer 2 is reserved for floor masks, and double floor masks on same tile will not show correctly for client. */
-		if (map_tile_tmp->layer2_count > 1)
-			map_error(map_tile_tmp, "More than 1 object with layer 2 on same tile -- multiple floor masks?");
+		/* Check all layers; more than one object with same layer on
+		 * a single tile is usually a bug. */
+		for (i = 0; i < MAX_LAYERS; i++)
+		{
+			if (layers[i] > 1)
+			{
+				map_error(map_tile_tmp, "More than 1 object (%d) with layer %d on same tile.", layers[i], i + 1);
+			}
+		}
 	}
 }
 
-/* Main function of the checker */
+/**
+ * Main function of the checker. */
 int main(int argc, char *argv[])
 {
 	(void) argc;
 
-	/* Handle SIGSEGV (Segmentation fault) event, so we can dump core */
+	/* Handle SIGSEGV signal, so we can dump core. */
 	signal(SIGSEGV, signal_sigsegv);
 
-	/* If map path was not specified, show usage */
+	/* If map path was not specified, show usage. */
 	if (argv[1] == NULL)
 	{
-		fprintf(stdout, "Usage: %s <map file to check>\n", argv[0]);
+		printf("Usage: %s <map file to check>\n", argv[0]);
 		exit(0);
 	}
-	/* Otherwise store the filename */
-	else
-		snprintf(filename, sizeof(filename), "%s", argv[1]);
+
+	/* Otherwise store the filename. */
+	snprintf(filename, sizeof(filename), "%s", argv[1]);
 
 	/* First, parse the archetypes file. */
 	parse_arches();
@@ -466,4 +499,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
