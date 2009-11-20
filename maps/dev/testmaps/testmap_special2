@@ -2,18 +2,17 @@ arch map
 name Testmaps - Special Objects
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 17
 height 17
 enter_x 1
 enter_y 1
 difficulty 1
-tile_path_4 testmap_special
 darkness -1
+tile_path_4 testmap_special
 end
 arch floor_ostone1
-end
-arch wall_stone_8
 end
 arch wall_stone_1
 end

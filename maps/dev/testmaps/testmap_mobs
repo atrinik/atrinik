@@ -2,6 +2,7 @@ arch map
 name Testmap - mobs (mobiles)
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -475,9 +476,6 @@ x 2
 y 23
 end
 arch floor_ostone1
-x 3
-end
-arch wall_stone1_1
 x 3
 end
 arch wall_stone1_1

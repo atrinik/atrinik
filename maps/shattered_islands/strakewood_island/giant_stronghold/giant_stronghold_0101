@@ -291,8 +291,6 @@ Wis 3
 arch quest_container
 name Hill Giants Stronghold
 sub_type 2
-x 1
-y 21
 arch horn
 name clan horn of the hill giants
 type 79

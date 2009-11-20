@@ -140,8 +140,6 @@ Wis 2
 arch quest_container
 name Manard's Prayerbook
 sub_type 2
-x 4
-y 4
 arch cleric_book
 name Manard's prayerbook of cause light wounds
 type 79

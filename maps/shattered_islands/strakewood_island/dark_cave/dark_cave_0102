@@ -393,8 +393,6 @@ Wis 3
 arch quest_container
 name Dark Cave Elder Wyverns
 sub_type 2
-x 2
-y 20
 arch tooth
 name elder wyvern tooth
 value 0

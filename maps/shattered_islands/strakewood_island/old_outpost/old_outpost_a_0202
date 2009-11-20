@@ -385,8 +385,6 @@ ac 12
 Wis 3
 arch quest_container
 name Old Outpost Key 1
-x 2
-y 2
 arch key_blue
 name blue stone giant key
 value 0

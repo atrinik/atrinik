@@ -963,8 +963,6 @@ arch ability_mbullet
 end
 arch quest_container
 name Moroch Temple Key 3
-x 8
-y 13
 arch key2
 name dread beholder master key
 one_drop 1
@@ -2251,8 +2249,6 @@ type 83
 level 105
 arch quest_container
 name Moroch Temple Key 4
-x 20
-y 3
 arch key_blue
 name raas master key
 one_drop 1

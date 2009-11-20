@@ -139,8 +139,6 @@ Wis 3
 arch quest_container
 name Cashin's Cap
 sub_type 2
-x 1
-y 2
 arch helm_leather
 name Cashin's leather cap
 material_real 0

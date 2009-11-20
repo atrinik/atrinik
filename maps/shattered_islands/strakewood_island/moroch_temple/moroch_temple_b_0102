@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -431,8 +431,6 @@ arch ability_icestorm
 end
 arch quest_container
 name Moroch Temple Key 2
-x 2
-y 20
 arch key_brown
 name skeleton mage master key
 one_drop 1
@@ -968,9 +966,6 @@ arch fwall_fstone1c
 x 8
 end
 arch plant2_wall.151
-x 8
-end
-arch chains2.151
 x 8
 end
 arch floor_sblack1b

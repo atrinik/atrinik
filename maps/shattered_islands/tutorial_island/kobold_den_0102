@@ -273,8 +273,6 @@ direction 3
 arch quest_container
 name Jahrlen's Heavy Rod
 sub_type 2
-x 1
-y 19
 arch rod_heavy
 name Jahrlen's heavy rod of magic bullet
 type 79

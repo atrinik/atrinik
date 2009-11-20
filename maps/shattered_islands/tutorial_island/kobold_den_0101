@@ -2865,8 +2865,6 @@ Wis 2
 arch quest_container
 name Frah'ak and Kobolds
 sub_type 2
-x 19
-y 5
 arch letter
 name Frah'aks letter
 one_drop 1

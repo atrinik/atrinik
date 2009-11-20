@@ -1268,8 +1268,6 @@ arch ability_cause_lig_wound
 end
 arch quest_container
 name Moroch Temple Key 1
-x 12
-y 19
 arch key_brown
 name key of the demilich master
 one_drop 1

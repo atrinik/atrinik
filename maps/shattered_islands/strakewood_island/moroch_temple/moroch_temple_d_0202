@@ -1634,8 +1634,6 @@ type 83
 level 104
 arch quest_container
 name Moroch Temple Key 5
-x 12
-y 18
 arch key_brown
 name lom lobon master key
 one_drop 1

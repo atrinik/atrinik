@@ -416,8 +416,6 @@ end
 end
 arch quest_container
 name King Rhun's Cloak
-x 2
-y 7
 arch cloak_rhun
 end
 end
@@ -2229,8 +2227,6 @@ ac 12
 Wis 3
 arch quest_container
 name Old Outpost Key 2
-x 14
-y 16
 arch key_brown
 name orange stone giant key
 value 0

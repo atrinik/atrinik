@@ -3125,8 +3125,6 @@ Wis 3
 arch quest_container
 name Tutorial Island Well
 sub_type 2
-x 21
-y 22
 arch head_ant_queen
 name water well ant queen head
 end

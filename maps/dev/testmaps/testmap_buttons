@@ -2,7 +2,7 @@ arch map
 name Testmap: Buttons
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-10-15 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -381,9 +381,6 @@ end
 arch wall_stone1_1
 x 3
 end
-arch wall_stone1_1
-x 3
-end
 arch floor_ostone1
 x 3
 y 1
@@ -423,6 +420,7 @@ x 3
 y 7
 end
 arch club
+layer 4
 x 3
 y 7
 end

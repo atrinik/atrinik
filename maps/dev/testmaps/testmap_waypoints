@@ -2,12 +2,13 @@ arch map
 name Testmap - Waypoints
 msg
 Created:  2009-09-22 Alex Tokar
+Modified: 2009-11-20 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
-tile_path_2 testmap_waypoints2
 darkness -1
+tile_path_2 testmap_waypoints2
 end
 arch floor_ostone1
 end
@@ -382,9 +383,6 @@ end
 arch wall_stone1_1
 x 3
 end
-arch wall_stone1_1
-x 3
-end
 arch floor_ostone1
 x 3
 y 1
@@ -478,9 +476,8 @@ sp 15
 wc 3
 end
 arch event_obj
-name Python
-race /dev/testmaps/waypoint_activate.py
 sub_type 6
+race /dev/testmaps/waypoint_activate.py
 end
 end
 arch floor_ostone1
@@ -562,9 +559,8 @@ title waypoint2
 sp 3
 hp 3
 arch event_obj
-name Python
-race /dev/testmaps/waypoint.py
 sub_type 10
+race /dev/testmaps/waypoint.py
 end
 end
 arch waypoint
@@ -574,9 +570,8 @@ hp 7
 sp 3
 end
 arch event_obj
-name Python
-race /dev/testmaps/waypoint_activate.py
 sub_type 6
+race /dev/testmaps/waypoint_activate.py
 end
 end
 arch floor_ostone1
@@ -1543,9 +1538,8 @@ sp 16
 wc 3
 end
 arch event_obj
-name Python
-race /dev/testmaps/waypoint_activate.py
 sub_type 6
+race /dev/testmaps/waypoint_activate.py
 end
 end
 arch floor_ostone1
@@ -1722,9 +1716,8 @@ sp 3
 wc 10
 end
 arch event_obj
-name Python
-race /dev/testmaps/waypoint_activate.py
 sub_type 6
+race /dev/testmaps/waypoint_activate.py
 end
 arch waypoint
 name waypoint2
@@ -2744,6 +2737,30 @@ arch floor_ostone1
 x 22
 y 5
 end
+arch wyvern
+unaggressive 1
+movement_type 176
+x 22
+y 5
+arch waypoint
+name waypoint1
+title waypoint2
+slaying testmap_waypoints
+hp 15
+sp 6
+wc 1
+end
+arch waypoint
+name waypoint2
+slaying testmap_waypoints
+hp 20
+sp 5
+end
+arch event_obj
+sub_type 6
+race /dev/testmaps/waypoint_activate.py
+end
+end
 arch floor_ostone1
 x 22
 y 6
@@ -2949,29 +2966,4 @@ end
 arch wall_stone1_1
 x 23
 y 23
-end
-arch wyvern
-unaggressive 1
-movement_type 176
-x 22
-y 5
-arch waypoint
-name waypoint1
-title waypoint2
-slaying testmap_waypoints
-hp 15
-sp 6
-wc 1
-end
-arch waypoint
-name waypoint2
-slaying testmap_waypoints
-hp 20
-sp 5
-end
-arch event_obj
-name Python
-race /dev/testmaps/waypoint_activate.py
-sub_type 6
-end
 end
