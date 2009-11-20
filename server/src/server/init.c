@@ -34,156 +34,169 @@
 #include <sproto.h>
 #endif
 
-void set_logfile(char *val)
+static void usage();
+static void help();
+static void init_beforeplay();
+static void init_startup();
+static void fatal_signal(int make_core);
+static void init_signals();
+static void setup_library();
+static void init_races();
+static void dump_races();
+static void add_to_racelist(const char *race_name, object *op);
+static racelink *get_racelist();
+static void dump_level_colors_table();
+
+static void set_logfile(char *val)
 {
 	settings.logfilename = val;
 }
 
-void call_version()
+static void call_version()
 {
 	version(NULL);
 	exit(0);
 }
 
-void showscores()
+static void showscores()
 {
 	display_high_score(NULL, 9999, NULL);
 	exit(0);
 }
 
-void set_debug()
+static void set_debug()
 {
 	settings.debug = llevDebug;
 }
 
-void unset_debug()
+static void unset_debug()
 {
 	settings.debug = llevInfo;
 }
 
-void set_mondebug()
+static void set_mondebug()
 {
 	settings.debug = llevMonster;
 }
 
-void set_dumpmon1()
+static void set_dumpmon1()
 {
 	settings.dumpvalues = DUMP_VALUE_MONSTERS;
 }
 
-void set_dumpmon2()
+static void set_dumpmon2()
 {
 	settings.dumpvalues = DUMP_VALUE_ABILITIES;
 }
 
-void set_dumpmon3()
+static void set_dumpmon3()
 {
 	settings.dumpvalues = DUMP_VALUE_ARTIFACTS;
 }
 
-void set_dumpmon4()
+static void set_dumpmon4()
 {
 	settings.dumpvalues = DUMP_VALUE_SPELLS;
 }
 
-void set_dumpmon5()
+static void set_dumpmon5()
 {
 	settings.dumpvalues = DUMP_VALUE_SKILLS;
 }
 
-void set_dumpmon6()
+static void set_dumpmon6()
 {
 	settings.dumpvalues = DUMP_VALUE_RACES;
 }
 
-void set_dumpmon7()
+static void set_dumpmon7()
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY;
 }
 
-void set_dumpmon8()
+static void set_dumpmon8()
 {
 	settings.dumpvalues = DUMP_VALUE_GODS;
 }
 
-void set_dumpmon9()
+static void set_dumpmon9()
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY_COSTS;
 }
 
-void set_dumpmon10()
+static void set_dumpmon10()
 {
 	settings.dumpvalues = DUMP_VALUE_ARCHETYPES;
 }
 
-void set_dumpmon11(char *name)
+static void set_dumpmon11(char *name)
 {
 	settings.dumpvalues = DUMP_VALUE_MONSTER_TREASURE;
 	settings.dumparg = name;
 }
 
-void set_dumpmon12()
+static void set_dumpmon12()
 {
 	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
 }
 
-void set_daemon()
+static void set_daemon()
 {
 	settings.daemonmode = 1;
 }
 
-void set_watchdog()
+static void set_watchdog()
 {
 	settings.watchdog = 1;
 }
 
-void set_interactive()
+static void set_interactive()
 {
 	settings.interactive = 1;
 }
 
-void set_datadir(char *path)
+static void set_datadir(char *path)
 {
 	settings.datadir = path;
 }
 
-void set_localdir(char *path)
+static void set_localdir(char *path)
 {
 	settings.localdir = path;
 }
 
-void set_mapdir(char *path)
+static void set_mapdir(char *path)
 {
 	settings.mapdir = path;
 }
 
-void set_archetypes(char *path)
+static void set_archetypes(char *path)
 {
 	settings.archetypes = path;
 }
 
-void set_treasures(char *path)
+static void set_treasures(char *path)
 {
 	settings.treasures = path;
 }
 
-void set_uniquedir(char *path)
+static void set_uniquedir(char *path)
 {
 	settings.uniquedir = path;
 }
 
-void set_tmpdir(char *path)
+static void set_tmpdir(char *path)
 {
 	settings.tmpdir = path;
 }
 
-void showscoresparm(const char *data)
+static void showscoresparm(const char *data)
 {
 	display_high_score(NULL, 9999, data);
 	exit(0);
 }
 
-void set_csport(const char *val)
+static void set_csport(const char *val)
 {
 	settings.csport = atoi(val);
 
@@ -541,12 +554,12 @@ void init(int argc, char **argv)
 	init_done = 1;
 }
 
-void usage()
+static void usage()
 {
 	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
 }
 
-void help()
+static void help()
 {
 	LOG(llevInfo, "Flags:\n");
 	LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
@@ -592,7 +605,7 @@ void help()
 	exit(0);
 }
 
-void init_beforeplay()
+static void init_beforeplay()
 {
 	/* If not called before, reads all archetypes from file */
 	init_archetypes();
@@ -672,7 +685,7 @@ void init_beforeplay()
 
 /**
  * Checks if starting the server is allowed. */
-void init_startup()
+static void init_startup()
 {
 #ifdef SHUTDOWN_FILE
 	char buf[MAX_BUF];
@@ -787,7 +800,7 @@ void compile_info()
 
 /* Signal handlers: */
 
-void rec_sigsegv(int i)
+static void rec_sigsegv(int i)
 {
 	(void) i;
 
@@ -795,7 +808,7 @@ void rec_sigsegv(int i)
 	fatal_signal(1);
 }
 
-void rec_sigint(int i)
+static void rec_sigint(int i)
 {
 	(void) i;
 
@@ -803,7 +816,7 @@ void rec_sigint(int i)
 	fatal_signal(0);
 }
 
-void rec_sighup(int i)
+static void rec_sighup(int i)
 {
 	(void) i;
 
@@ -816,7 +829,7 @@ void rec_sighup(int i)
 	exit(0);
 }
 
-void rec_sigquit(int i)
+static void rec_sigquit(int i)
 {
 	(void) i;
 
@@ -824,7 +837,7 @@ void rec_sigquit(int i)
 	fatal_signal(1);
 }
 
-void rec_sigpipe(int i)
+static void rec_sigpipe(int i)
 {
 	(void) i;
 
@@ -845,7 +858,7 @@ void rec_sigpipe(int i)
 #endif
 }
 
-void rec_sigbus(int i)
+static void rec_sigbus(int i)
 {
 	(void) i;
 
@@ -855,7 +868,7 @@ void rec_sigbus(int i)
 #endif
 }
 
-void rec_sigterm(int i)
+static void rec_sigterm(int i)
 {
 	(void) i;
 
@@ -868,7 +881,7 @@ void rec_sigterm(int i)
  *
  * @param make_core If set abort() instead of exit() to generate a core
  * dump. */
-void fatal_signal(int make_core)
+static void fatal_signal(int make_core)
 {
 	if (init_done)
 	{
@@ -886,7 +899,7 @@ void fatal_signal(int make_core)
 
 /**
  * Setup the signal handlers. */
-void init_signals()
+static void init_signals()
 {
 #ifndef WIN32
 	/* init_signals() remove signals */
@@ -905,7 +918,7 @@ void init_signals()
 /**
  * Set up the function pointers which will point back from the library
  * into the server. */
-void setup_library()
+static void setup_library()
 {
 	set_emergency_save(emergency_save);
 	set_clean_tmp_files(clean_tmp_files);
@@ -956,7 +969,7 @@ static void add_corpse_to_racelist(const char *race_name, archetype *op)
  *
  * We use object::sub_type1 as selector - every monster of race X will be
  * added to race list. */
-void init_races()
+static void init_races()
 {
 	archetype *at, *tmp;
 	racelink *list;
@@ -1015,7 +1028,7 @@ void init_races()
 
 /**
  * Dumps all race information. */
-void dump_races()
+static void dump_races()
 {
 	racelink *list;
 	objectlink *tmp;
@@ -1035,7 +1048,7 @@ void dump_races()
  * Add an object to the racelist.
  * @param race_name Race name.
  * @param op What object to add to the race. */
-void add_to_racelist(const char *race_name, object *op)
+static void add_to_racelist(const char *race_name, object *op)
 {
 	racelink *race;
 
@@ -1071,7 +1084,7 @@ void add_to_racelist(const char *race_name, object *op)
 /**
  * Create a new ::racelink structure.
  * @return Empty structure. */
-racelink *get_racelist()
+static racelink *get_racelist()
 {
 	racelink *list;
 
@@ -1101,7 +1114,7 @@ void free_racelist()
 
 /**
  * Dump level colors table. */
-void dump_level_colors_table()
+static void dump_level_colors_table()
 {
 	int i, ii, range, tmp;
 

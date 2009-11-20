@@ -65,6 +65,8 @@ static object *make_item_from_recipe(object *cauldron, recipe *rp);
 static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger);
 static void remove_contents(object *first_ob, object *save_item);
 static int calc_alch_danger(object *caster, object *cauldron);
+static object *find_transmution_ob(object *first_ingred, recipe *rp);
+static object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches);
 
 /**
  * Returns a random selection from cauldron_effect[]. */
@@ -308,7 +310,7 @@ static int numb_ob_inside(object *op)
  * @param nbatches If -1, don't give exp for this creation (random
  * generation/failed recipe)
  * @return Generated item, can be NULL if contents were destroyed. */
-object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches)
+static object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches)
 {
 	object *item = NULL;
 	/* This should be passed to this function, not too effiecent cpu use this way */
@@ -457,7 +459,7 @@ static object *make_item_from_recipe(object *cauldron, recipe *rp)
  * @param first_ingred Pointer to first item to check.
  * @param rp Recipe the player is trying.
  * @return NULL if no suitable item was found, new item otherwise. */
-object * find_transmution_ob(object *first_ingred, recipe *rp)
+static object *find_transmution_ob(object *first_ingred, recipe *rp)
 {
 	object *item = NULL;
 

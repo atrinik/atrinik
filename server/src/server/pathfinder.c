@@ -65,6 +65,11 @@ static struct
 static int pathfinder_nodebuf_next = 0;
 static path_node pathfinder_nodebuf[PATHFINDER_NODEBUF];
 
+static int pathfinder_queue_enqueue(object *waypoint);
+static object *pathfinder_queue_dequeue(int *count);
+static float distance_heuristic(path_node *start, path_node *current, path_node *goal);
+static int find_neighbours(path_node *node, path_node **open_list, path_node **closed_list, path_node *start, path_node *goal, object *op, uint32 id);
+
 /* Possible enhancements (profile and identify need before spending time on):
  *   - Replace the open list with a binary heap or skip list. Will enhance insertion performance.
  *
@@ -74,7 +79,7 @@ static path_node pathfinder_nodebuf[PATHFINDER_NODEBUF];
 /*  Pathfinding scheduling functions */
 
 /* enqueue a waypoint for path computation */
-int pathfinder_queue_enqueue(object *waypoint)
+static int pathfinder_queue_enqueue(object *waypoint)
 {
 	/* Queue full? */
 	if (pathfinder_queue_last == pathfinder_queue_first - 1 || (pathfinder_queue_first == 0 && pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1))
@@ -90,7 +95,7 @@ int pathfinder_queue_enqueue(object *waypoint)
 }
 
 /* Get the first waypoint from the queue (or NULL if empty) */
-object *pathfinder_queue_dequeue(int *count)
+static object *pathfinder_queue_dequeue(int *count)
 {
 	object *waypoint;
 
@@ -455,7 +460,7 @@ path_node *compress_path(path_node *path)
  * if it does, we have to return an error value (HEURISTIC_ERROR)
  *
  * TODO: cache the results from get_rangevector for better efficiency? */
-float distance_heuristic(path_node *start, path_node *current, path_node *goal)
+static float distance_heuristic(path_node *start, path_node *current, path_node *goal)
 {
 	rv_vector v1, v2;
 	float h;
@@ -499,7 +504,7 @@ float distance_heuristic(path_node *start, path_node *current, path_node *goal)
  *
  * Returns FALSE if we ran into a limit of any kind and cannot continue,
  * or TRUE if everything was ok. */
-int find_neighbours(path_node *node, path_node **open_list, path_node **closed_list, path_node *start, path_node *goal, object *op, uint32 id)
+static int find_neighbours(path_node *node, path_node **open_list, path_node **closed_list, path_node *start, path_node *goal, object *op, uint32 id)
 {
 	int i, x2, y2;
 	mapstruct *map;

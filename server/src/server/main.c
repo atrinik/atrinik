@@ -67,6 +67,12 @@ static object marker;
 static char days[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 #endif
 
+static char *unclean_path(const char *src);
+static void process_players1(mapstruct *map);
+static void process_players2();
+static void dequeue_path_requests();
+static void do_specials();
+
 /**
  * Shows version information.
  * @param op If NULL the version is logged using LOG(), otherwise it is
@@ -387,7 +393,7 @@ char *clean_path(const char *file)
  * path.
  * @param src The path to unclean
  * @return Uncleaned up path */
-char *unclean_path(const char *src)
+static char *unclean_path(const char *src)
 {
 	static char newpath[MAX_BUF], *cp2;
 	const char *cp;
@@ -804,7 +810,7 @@ void enter_exit(object *op, object *exit_ob)
  * by the various functions.  process_players1() does the processing before
  * objects have been updated, process_players2() does the processing that
  * is needed after the players have been updated. */
-void process_players1(mapstruct *map)
+static void process_players1(mapstruct *map)
 {
 	int flag;
 	player *pl, *plnext;
@@ -918,7 +924,7 @@ void process_players1(mapstruct *map)
 	}
 }
 
-void process_players2()
+static void process_players2()
 {
 	player *pl;
 
@@ -1146,7 +1152,7 @@ void cleanup()
  * Dequeue path requests.
  * @todo Only compute time if there is something more in the queue,
  * something like if (path_request_queue_empty()) { break; } */
-void dequeue_path_requests()
+static void dequeue_path_requests()
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
 	static struct timeval new_time;
@@ -1198,7 +1204,7 @@ void dequeue_path_requests()
  *
  * I also think this code makes it easier to see how often we really are
  * doing the various things. */
-void do_specials()
+static void do_specials()
 {
 	if (!(pticks % 2))
 		dequeue_path_requests();

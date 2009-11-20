@@ -30,6 +30,9 @@
 #include <sproto.h>
 #endif
 
+static int pay_from_container(object *op, object *pouch, int to_pay);
+static int get_payment2(object *pl, object *op);
+
 /* WARNING: the whole module must rewritten to fix it for the new money
  * system in daimonin. 32bit will be broken when a player has ~250 mithril coins. */
 
@@ -333,7 +336,7 @@ int pay_for_item(object *op, object *pl)
 
 /* DAMN: This function is used for the player, then for any active
  * containers that can hold money, until the op is paid for. */
-int pay_from_container(object *op, object *pouch, int to_pay)
+static int pay_from_container(object *op, object *pouch, int to_pay)
 {
 	int count, i, remain;
 	object *tmp, *coin_objs[NUM_COINS], *next, *bank_object = NULL;
@@ -463,7 +466,7 @@ int pay_from_container(object *op, object *pouch, int to_pay)
 /* Eneq(@csd.uu.se): Better get_payment, descends containers looking for
    unpaid items. get_payment is now used as a link. To make it simple
    we need the player-object here. */
-int get_payment2 (object *pl, object *op)
+static int get_payment2(object *pl, object *op)
 {
 	char buf[MAX_BUF];
 	int ret = 1;

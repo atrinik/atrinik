@@ -23,14 +23,16 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Controls map swap functions. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
-/**
- * @file
- * Controls map swap functions. */
+static mapstruct *map_least_timeout(const char *except_level);
 
 #ifdef RECYCLE_TMP_MAPS
 /**
@@ -219,7 +221,7 @@ void check_active_maps()
 }
 
 /* map_least_timeout() returns the map with the lowest timeout variable (not 0) */
-mapstruct *map_least_timeout(const char *except_level)
+static mapstruct *map_least_timeout(const char *except_level)
 {
 	mapstruct *map, *chosen = NULL;
 	int timeout = MAP_MAXTIMEOUT + 1;

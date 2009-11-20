@@ -45,6 +45,7 @@ static int god_gives_present(object *op, object *god, treasure *tr);
 static int god_examines_priest(object *op, object *god);
 static int god_examines_item(object *god, object *item);
 static void lose_priest_exp(object *pl, int loss);
+static void god_intervention(object *op, object *god);
 
 /**
  * Returns the ID of specified god.
@@ -842,7 +843,7 @@ static int god_gives_present(object *op, object *god, treasure *tr)
  * Later, this function can be used to supply quests, etc for the priest.
  * @param op Player praying.
  * @param god God player is praying to. */
-void god_intervention(object *op, object *god)
+static void god_intervention(object *op, object *god)
 {
 	int level = SK_level(op);
 	treasure *tr;

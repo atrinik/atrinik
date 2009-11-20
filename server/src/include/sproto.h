@@ -25,8 +25,6 @@
 
 /* alchemy.c */
 void attempt_do_alchemy(object *caster, object *cauldron);
-object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches);
-object *find_transmution_ob(object *first_ingred, recipe *rp);
 int use_alchemy(object *op);
 
 /* apply.c */
@@ -300,65 +298,14 @@ void pray_at_altar(object *pl, object *altar);
 void become_follower(object *op, object *new_god);
 const char *determine_god(object *op);
 archetype *determine_holy_arch(object *god, const char *type);
-void god_intervention(object *op, object *god);
 int tailor_god_spell(object *spellop, object *caster);
 
 /* init.c */
-void set_logfile(char *val);
-void call_version(void);
-void showscores(void);
-void set_debug(void);
-void unset_debug(void);
-void set_mondebug(void);
-void set_dumpmon1(void);
-void set_dumpmon2(void);
-void set_dumpmon3(void);
-void set_dumpmon4(void);
-void set_dumpmon5(void);
-void set_dumpmon6(void);
-void set_dumpmon7(void);
-void set_dumpmon8(void);
-void set_dumpmon9(void);
-void set_dumpmon10(void);
-void set_dumpmon11(char *name);
-void set_dumpmon12(void);
-void set_daemon();
-void set_watchdog();
-void set_interactive();
-void set_datadir(char *path);
-void set_localdir(char *path);
-void set_mapdir(char *path);
-void set_archetypes(char *path);
-void set_treasures(char *path);
-void set_uniquedir(char *path);
-void set_tmpdir(char *path);
-void showscoresparm(const char *data);
-void set_csport(const char *val);
 void init(int argc, char **argv);
-void usage(void);
-void help(void);
-void init_beforeplay(void);
-void init_startup(void);
-void compile_info(void);
-void rec_sigsegv(int i);
-void rec_sigint(int i);
-void rec_sighup(int i);
-void rec_sigquit(int i);
-void rec_sigpipe(int i);
-void rec_sigbus(int i);
-void rec_sigterm(int i);
-void fatal_signal(int make_core);
-void init_signals(void);
-void setup_library(void);
-void init_races(void);
-void dump_races(void);
-void add_to_racelist(const char *race_name, object *op);
-racelink *get_racelist(void);
-void dump_level_colors_table();
+void compile_info();
 
 /* login.c */
 void emergency_save(int flag);
-int verify_player(char *name, char *password);
 int check_name(player *me, char *name);
 int save_player(object *op, int flag);
 long calculate_checksum(char *filename, int checkdouble);
@@ -372,15 +319,10 @@ void enter_player_savebed(object *op);
 void leave_map(object *op);
 void set_map_timeout(mapstruct *oldmap);
 char *clean_path(const char *file);
-char *unclean_path(const char *src);
 void enter_exit(object *op, object *exit_ob);
-void process_players1(mapstruct *map);
-void process_players2();
 void process_events(mapstruct *map);
-void clean_tmp_files(void);
-void cleanup(void);
-void dequeue_path_requests(void);
-void do_specials(void);
+void clean_tmp_files();
+void cleanup();
 int main(int argc, char **argv);
 
 /* move.c */
@@ -412,7 +354,7 @@ object *get_event_object(object *op, int event_nr);
 CommArray_s *find_plugin_command(const char *cmd, object *op);
 void displayPluginsList(object *op);
 int findPlugin(const char *id);
-void initPlugins(void);
+void initPlugins();
 void removeOnePlugin(const char *id);
 void initOnePlugin(const char *pluginfile);
 CFParm *CFWLog(CFParm *PParm);
@@ -518,8 +460,6 @@ char *query_cost_string(object *tmp, object *who, int flag);
 int query_money(object *op);
 int pay_for_amount(int to_pay, object *pl);
 int pay_for_item(object *op, object *pl);
-int pay_from_container(object *op, object *pouch, int to_pay);
-int get_payment2(object *pl, object *op);
 int get_payment(object *pl);
 void sell_item(object *op, object *pl, int value);
 void shop_listing(object *op);
@@ -564,10 +504,10 @@ char *find_skill_exp_skillname(object *pl, int item_skill);
 int do_skill(object *op, int dir, char *string);
 int calc_skill_exp(object *who, object *op);
 int get_weighted_skill_stat_sum(object *who, int sk);
-void init_new_exp_system(void);
-void dump_skills(void);
-void init_exp_obj(void);
-void link_skills_to_exp(void);
+void init_new_exp_system();
+void dump_skills();
+void init_exp_obj();
+void link_skills_to_exp();
 int check_link(int stat, object *exp);
 int check_skill_known(object *op, int skillnr);
 int lookup_skill_by_name(char *string);
@@ -661,8 +601,8 @@ void move_peacemaker(object *op);
 int cast_cause_conflict(object *op, object *caster, archetype *spellarch, int type);
 
 /* spell_util.c */
-void init_spells(void);
-void dump_spells(void);
+void init_spells();
+void dump_spells();
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
 spell *find_spell(int spelltype);
 int path_level_mod(object *caster, int base_level, int spell_type);
@@ -709,25 +649,17 @@ int cast_smite_spell(object *op, object *caster, int dir, int type);
 int SP_lvl_dam_adjust2(object *caster, int spell_type, int base_dam);
 
 /* swap.c */
-void read_map_log(void);
+void read_map_log();
 void swap_map(mapstruct *map, int force_flag);
-void check_active_maps(void);
-mapstruct *map_least_timeout(const char *except_level);
+void check_active_maps();
 void swap_below_max(const char *except_level);
 int players_on_map(mapstruct *m);
-void flush_old_maps(void);
+void flush_old_maps();
 
 /* time.c */
-void remove_force(object *op);
-void remove_blindness(object *op);
-void remove_confusion(object *op);
-void execute_wor(object *op);
-void animate_trigger(object *op);
 object *stop_item(object *op);
 void fix_stopped_item(object *op, mapstruct *map, object *originator);
-void change_object(object *op);
 void move_firewall(object *op);
-void move_firechest(object *op);
 int process_object(object *op);
 
 /* timers.c */
@@ -737,15 +669,11 @@ int cftimer_destroy(int id);
 int cftimer_find_free_id();
 
 /* pathfinder.c */
-int pathfinder_queue_enqueue(object *waypoint);
-object *pathfinder_queue_dequeue(int *count);
 void request_new_path(object *waypoint);
-object *get_next_requested_path(void);
+object *get_next_requested_path();
 const char *encode_path(path_node *path);
 int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct **map, int *x, int *y);
 path_node *compress_path(path_node *path);
-float distance_heuristic(path_node *start, path_node *current, path_node *goal);
-int find_neighbours(path_node *node, path_node **open_list, path_node **closed_list, path_node *start, path_node *goal, object *op, uint32 id);
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
 /* weather.c */

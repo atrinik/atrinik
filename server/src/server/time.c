@@ -33,10 +33,18 @@
 #include <sproto.h>
 #endif
 
+static void remove_force(object *op);
+static void remove_blindness(object *op);
+static void remove_confusion(object *op);
+static void execute_wor(object *op);
+static void animate_trigger(object *op);
+static void change_object(object *op);
+static void move_firechest(object *op);
+
 /**
  * Remove a force object from player, like potion effect.
  * @param op Force object to remove */
-void remove_force(object *op)
+static void remove_force(object *op)
 {
 	if (op->env == NULL)
 	{
@@ -53,7 +61,7 @@ void remove_force(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
-void remove_blindness(object *op)
+static void remove_blindness(object *op)
 {
 	if (--op->stats.food > 0)
 	{
@@ -72,7 +80,7 @@ void remove_blindness(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
-void remove_confusion(object *op)
+static void remove_confusion(object *op)
 {
 	if (--op->stats.food > 0)
 	{
@@ -93,7 +101,7 @@ void remove_confusion(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
-void execute_wor(object *op)
+static void execute_wor(object *op)
 {
 	object *wor = op;
 
@@ -118,7 +126,7 @@ void execute_wor(object *op)
 	check_walk_off(wor, NULL, MOVE_APPLY_VANISHED);
 }
 
-void animate_trigger(object *op)
+static void animate_trigger(object *op)
 {
 	if ((unsigned char) ++op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
 	{
@@ -218,7 +226,7 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
  * are being carried, ie a held torch leaps from your hands!.
  * Modified this routine to allow held objects. b.t. */
 /* Doesn't handle linked objs yet */
-void change_object(object *op)
+static void change_object(object *op)
 {
 	object *tmp, *env;
 	int i, j;
@@ -368,7 +376,7 @@ void move_firewall(object *op)
 	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
 }
 
-void move_firechest(object *op)
+static void move_firechest(object *op)
 {
 	/* dm has created a firechest in his inventory */
 	if (!op->map)
