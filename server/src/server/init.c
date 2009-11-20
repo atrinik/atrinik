@@ -509,7 +509,7 @@ void init(int argc, char **argv)
 	init_library();
 	/* Load the settings file */
 	load_settings();
-	init_word_darkness();
+	init_world_darkness();
 	parse_args(argc, argv, 2);
 
 	SRANDOM(time(NULL));

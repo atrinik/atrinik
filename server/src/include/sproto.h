@@ -749,5 +749,5 @@ int find_neighbours(path_node *node, path_node **open_list, path_node **closed_l
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
 /* weather.c */
-void init_word_darkness();
+void init_world_darkness();
 void tick_the_clock();

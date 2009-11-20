@@ -53,7 +53,7 @@ const int season_timechange[5][HOURS_PER_DAY] =
 
 /**
  * Initializes the world darkness value. */
-void init_word_darkness()
+void init_world_darkness()
 {
 	int i;
 	timeofday_t tod;
