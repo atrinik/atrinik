@@ -2055,18 +2055,12 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 	object *quest_container, *quest_object, *myob;
 	char *quest_name, buf[MAX_BUF];
 	CFParm *CFR;
+	int mode = 1;
 
 	if (!PyArg_ParseTuple(args, "s", &quest_name))
 	{
 		return NULL;
 	}
-
-	if (!(quest_container = present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
-	{
-		quest_container = create_quest_container(WHO);
-	}
-
-	quest_object = get_object();
 
 	strncpy(buf, QUEST_CONTAINER_ARCHETYPE, sizeof(buf) - 1);
 
@@ -2075,7 +2069,22 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 	myob = (object *) (CFR->Value[0]);
 	free(CFR);
 
-	copy_object(myob, quest_object);
+	if (!(quest_container = present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
+	{
+		GCFP.Value[0] = (void *) (myob);
+		GCFP.Value[1] = (void *) (&mode);
+		CFR = (PlugHooks[HOOK_CLONEOBJECT])(&GCFP);
+		quest_container = (object *) (CFR->Value[0]);
+		free(CFR);
+
+		insert_ob_in_ob_hook(quest_container, WHO);
+	}
+
+	GCFP.Value[0] = (void *) (myob);
+	GCFP.Value[1] = (void *) (&mode);
+	CFR = (PlugHooks[HOOK_CLONEOBJECT])(&GCFP);
+	quest_object = (object *) (CFR->Value[0]);
+	free(CFR);
 
 	quest_object->magic = 0;
 	quest_object->name = add_string_hook(quest_name);
