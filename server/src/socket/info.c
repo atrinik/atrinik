@@ -41,15 +41,12 @@
 /**
  * Draw a message in the text windows for player's client.
  * @param flags Various flags. Mostly color, but also some others.
- * @param pri Priority. It is a little odd - the lower the value, the
- * more important it is. Thus, 0 gets sent no matter what. Otherwise, the
- * value must be less than the @ref player::listening "listening" level
- * that the player has set. Unfortunately, there is no clear guideline on
- * what each level does what.
+ * @param pri Priority.
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw.
- * @see NDI_xxx*/
+ * @see NDI_xxx
+ * @todo Remove priority. */
 void new_draw_info(int flags, int pri, object *pl, const char *buf)
 {
 	char info_string[HUGE_BUF];
@@ -89,12 +86,6 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	}
 
 	if (CONTR(pl)->state != ST_PLAYING)
-	{
-		return;
-	}
-
-	/* Player doesn't want this */
-	if (pri >= CONTR(pl)->listening)
 	{
 		return;
 	}

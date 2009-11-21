@@ -193,7 +193,6 @@ static player *get_player(player *p)
 	p->gen_sp_armour = 0;
 	p->last_speed = -1;
 	p->shoottype = range_none;
-	p->listening = 9;
 	p->last_weapon_sp = -1;
 	p->update_los = 1;
 

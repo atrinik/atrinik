@@ -214,7 +214,6 @@ int save_player(object *op, int flag)
 	sprintf(sqlbuf, "%sgen_hp %d\n", sqlbuf, pl->gen_hp);
 	sprintf(sqlbuf, "%sgen_sp %d\n", sqlbuf, pl->gen_sp);
 	sprintf(sqlbuf, "%sgen_grace %d\n", sqlbuf, pl->gen_grace);
-	sprintf(sqlbuf, "%slistening %d\n", sqlbuf, pl->listening);
 	sprintf(sqlbuf, "%sspell %d\n",sqlbuf, pl->chosen_spell);
 	sprintf(sqlbuf, "%sshoottype %d\n", sqlbuf, pl->shoottype);
 	sprintf(sqlbuf, "%sdigestion %d\n", sqlbuf, pl->digestion);
@@ -693,9 +692,6 @@ void check_login(object *op)
 
 		else if (!strcmp(buf, "spell"))
 			pl->chosen_spell = value;
-
-		else if (!strcmp(buf, "listening"))
-			pl->listening = value;
 
 		else if (!strcmp(buf, "digestion"))
 			pl->digestion = value;

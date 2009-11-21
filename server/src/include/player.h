@@ -348,9 +348,6 @@ typedef struct pl_player
 
 	unsigned char state;
 
-	/** Which priority will be used in info_all */
-	unsigned char listening;
-
 	unsigned char fire_on;
 
 	unsigned char run_on;

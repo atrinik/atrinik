@@ -85,47 +85,6 @@ static int find_spell_byname(object *op, char *params, int options)
 	return match;
 }
 
-
-/* Shows all spells that op knows.  If params is supplied, the must match
- * that.  If cleric is 1, show cleric spells, if not set, show mage
- * spells.
- */
-/* disabled - we have now spell list in client
-static void show_matching_spells(object *op, char *params, int cleric)
-{
-    int i,spnum,first_match=0;
-    char lev[80], cost[80];
-
-    for (i=0; i<(QUERY_FLAG(op, FLAG_WIZ)?NROFREALSPELLS:CONTR(op)->nrofknownspells); i++) {
-	if (QUERY_FLAG(op,FLAG_WIZ)) spnum=i;
-	else spnum = CONTR(op)->known_spells[i];
-
-	if (spells[spnum].type != (unsigned int) cleric) continue;
-	if (params && strncmp(spells[spnum].name,params, strlen(params)))
-		continue;
-	if (!first_match) {
-	    first_match=1;
-	    if (!cleric)
-		new_draw_info(NDI_UNIQUE, 0, op, "Mage spells");
-	    else
-		new_draw_info(NDI_UNIQUE, 0, op, "Priest spells");
-	    new_draw_info(NDI_UNIQUE, 0,op,"[ sp] [lev] spell name");
-	}
-	if (spells[spnum].path & op->path_denied) {
-	    strcpy(lev,"den");
-            strcpy(cost,"den");
-	} else {
-	    sprintf(lev,"%3d",spells[spnum].level);
-            sprintf(cost,"%3d",SP_level_spellpoint_cost(op,op,spnum));
-        }
-
-	new_draw_info_format(NDI_UNIQUE,0,op,"[%s] [%s] %s",
-		cost, lev, spells[spnum].name);
-    }
-}
-
-*/
-
 /* sets up to cast a spell.  op is the caster, params is the spell name,
  * This function use the name of a spell following the /cast command
  * to invoke a spell (cast_spell() does the rest).

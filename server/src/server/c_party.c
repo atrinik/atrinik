@@ -23,31 +23,38 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * This file handles party related code. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
 /**
- * @file
- * This file handles party related command. */
+ * @defgroup PARTY_MESSAGE_xxx Party message types
+ * Party message types.
+ *@{*/
 
-/* Status is used for party messages like password change, join/leave, etc */
+/** Status is used for party messages like password change, join/leave,
+ * etc */
 #define PARTY_MESSAGE_STATUS 	1
-/* Chat is used for party chat messages from party members */
+/** Chat is used for party chat messages from party members */
 #define PARTY_MESSAGE_CHAT 		2
+/*@}*/
 
-/* Keeps track of first party in list */
+/** Keeps track of first party in list */
 static partylist *firstparty = NULL;
-/* Keeps track of last party in list */
+/** Keeps track of last party in list */
 static partylist *lastparty = NULL;
 
 /**
  * Form a party.
- * @param op Object forming this party
- * @param params Parameters
- * @param firstparty First party
- * @param lastparty Last party
+ * @param op Object forming this party.
+ * @param params Parameters.
+ * @param firstparty First party.
+ * @param lastparty Last party.
  * @return The new party structure. */
 partylist *form_party(object *op, char *params, partylist *firstparty, partylist *lastparty)
 {
@@ -56,7 +63,9 @@ partylist *form_party(object *op, char *params, partylist *firstparty, partylist
 	char tmp[MAX_BUF];
 
 	if (firstparty == NULL)
+	{
 		nextpartyid = 1;
+	}
 	else
 	{
 		nextpartyid = lastparty->partyid;
@@ -74,12 +83,14 @@ partylist *form_party(object *op, char *params, partylist *firstparty, partylist
 	newparty->partyleader = add_string(op->name);
 
 	if (firstparty != NULL)
+	{
 		lastparty->next = newparty;
+	}
 
 	new_draw_info_format(NDI_UNIQUE, 0, op, "You have formed party: %s", newparty->partyname);
 	CONTR(op)->party_number = nextpartyid;
 
-	sprintf(tmp, "Xformsuccess %s", newparty->partyname);
+	snprintf(tmp, sizeof(tmp), "Xformsuccess %s", newparty->partyname);
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmp, strlen(tmp));
 
 	return newparty;
@@ -87,17 +98,21 @@ partylist *form_party(object *op, char *params, partylist *firstparty, partylist
 
 /**
  * Find a party name.
- * @param partynumber Party ID to find
- * @param party The party list
- * @return Party name if found, or NULL */
+ * @param partynumber Party ID to find.
+ * @param party The party list.
+ * @return Party name if found, or NULL. */
 char *find_party(int partynumber, partylist *party)
 {
 	while (party != NULL)
 	{
 		if (party->partyid == partynumber)
+		{
 			return party->partyname;
+		}
 		else
+		{
 			party = party->next;
+		}
 	}
 
 	return NULL;
@@ -105,20 +120,22 @@ char *find_party(int partynumber, partylist *party)
 
 /**
  * Find a party structure by party number.
- * @param partynumber The party ID to find
- * @return The party structure if found, NULL otherwise */
+ * @param partynumber The party ID to find.
+ * @return The party structure if found, NULL otherwise. */
 partylist *find_party_struct(int partynumber)
 {
-	partylist *party;
-
-	party = firstparty;
+	partylist *party = firstparty;
 
 	while (party != NULL)
 	{
 		if (party->partyid == partynumber)
+		{
 			return party;
+		}
 		else
+		{
 			party = party->next;
+		}
 	}
 
 	return NULL;
@@ -126,12 +143,10 @@ partylist *find_party_struct(int partynumber)
 
 /**
  * Remove a party.
- * @param target_party The party to remove */
+ * @param target_party The party to remove. */
 void remove_party(partylist *target_party)
 {
-	partylist *tmpparty;
-	partylist *previousparty;
-	partylist *nextparty;
+	partylist *tmpparty, *previousparty, *nextparty;
 	player *pl;
 
 	if (firstparty == NULL)
@@ -141,14 +156,20 @@ void remove_party(partylist *target_party)
 	}
 
 	for (pl = first_player; pl != NULL; pl = pl->next)
+	{
 		if (pl->party_number == target_party->partyid)
+		{
 			pl->party_number = -1;
+		}
+	}
 
 	/* Special case-ism for parties at the beginning and end of the list */
 	if (target_party == firstparty)
 	{
 		if (lastparty == target_party)
+		{
 			lastparty = NULL;
+		}
 
 		firstparty = firstparty->next;
 		free(target_party->partyname);
@@ -171,63 +192,79 @@ void remove_party(partylist *target_party)
 	}
 
 	for (tmpparty = firstparty; tmpparty->next != NULL; tmpparty = tmpparty->next)
+	{
 		if (tmpparty->next == target_party)
 		{
 			previousparty = tmpparty;
 			nextparty = tmpparty->next->next;
-			/* this should be safe, because we already dealt with the lastparty case */
+			/* This should be safe, because we already dealt with the lastparty case */
 			previousparty->next = nextparty;
 			free(target_party->partyname);
 			free(target_party);
 			return;
 		}
+	}
 }
 
 /**
- * Remove unused parties (no players), this could be made to scale a lot better. */
+ * Remove unused parties (no players), this could be made to scale a lot
+ * better. */
 void obsolete_parties()
 {
 	int player_count;
 	player *pl;
-	partylist *party;
-	partylist *next = NULL;
+	partylist *party, *next = NULL;
 
 	/* We can't obsolete parties if there aren't any */
 	if (!firstparty)
+	{
 		return;
+	}
 
 	for (party = firstparty; party != NULL; party = next)
 	{
 		next = party->next;
 		player_count = 0;
+
 		for (pl = first_player; pl != NULL; pl = pl->next)
+		{
 			if (pl->party_number == party->partyid)
+			{
 				player_count++;
+			}
+		}
 
 		if (player_count == 0)
+		{
 			remove_party(party);
+		}
 	}
 }
 
 #ifdef PARTY_KILL_LOG
 void add_kill_to_party(int numb, char *killer, char *dead, long exp)
 {
-	partylist *party;
+	partylist *party = find_party_struct(numb);
 	int i, pos;
 
-	party = find_party_struct(numb);
-
 	if (party == NULL)
+	{
 		return;
+	}
 
 	if (party->kills >= PARTY_KILL_LOG)
 	{
 		pos = PARTY_KILL_LOG - 1;
+
 		for (i = 0; i < PARTY_KILL_LOG - 1; i++)
+		{
 			memcpy(&(party->party_kills[i]), &(party->party_kills[i + 1]), sizeof(party->party_kills[0]));
+		}
 	}
 	else
+	{
 		pos = party->kills;
+	}
 
 	party->kills++;
 	party->total_exp += exp;
@@ -240,10 +277,10 @@ void add_kill_to_party(int numb, char *killer, char *dead, long exp)
 #endif
 
 /**
- * Send party message to all members of the party..
- * @param op Object sending this message
- * @param msg The message
- * @param flag Message type (PARTY_MESSAGE_STATUS or PARTY_MESSAGE_CHAT) */
+ * Send party message to all members of the party.
+ * @param op Object sending this message.
+ * @param msg The message.
+ * @param flag Message type (PARTY_MESSAGE_STATUS or PARTY_MESSAGE_CHAT). */
 void send_party_message(object *op, char *msg, int flag)
 {
 	player *pl;
@@ -254,17 +291,21 @@ void send_party_message(object *op, char *msg, int flag)
 		if (CONTR(pl->ob)->party_number == no && pl->ob != op)
 		{
 			if (flag == PARTY_MESSAGE_STATUS)
+			{
 				new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, pl->ob, msg);
+			}
 			else if (flag == PARTY_MESSAGE_CHAT)
+			{
 				new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, 0, pl->ob, msg);
+			}
 		}
 	}
 }
 
 /**
  * Command shortcut to /party say.
- * @param op Object requesting this
- * @param params Command paramaters (the message)
+ * @param op Object requesting this.
+ * @param params Command paramaters (the message).
  * @return 1 on success, 0 on failure. */
 int command_gsay(object *op, char *params)
 {
@@ -273,7 +314,9 @@ int command_gsay(object *op, char *params)
 	params = cleanup_chat_string(params);
 
 	if (!params || *params == '\0')
+	{
 		return 0;
+	}
 
 	strcpy(party_params, "say ");
 	strcat(party_params, params);
@@ -282,10 +325,11 @@ int command_gsay(object *op, char *params)
 }
 
 /**
- * Party command, handling things like /party help, /party say, /party leave, etc.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * Party command, handling things like /party help, /party say, /party
+ * leave, etc.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_party(object *op, char *params)
 {
 	char buf[MAX_BUF];
@@ -306,6 +350,7 @@ int command_party(object *op, char *params)
 			currentparty = find_party(CONTR(op)->party_number, firstparty);
 			new_draw_info_format(NDI_UNIQUE, 0, op, "You are a member of party %s.", currentparty);
 		}
+
 		return 1;
 	}
 
@@ -348,8 +393,11 @@ int command_party(object *op, char *params)
 		}
 
 		max = tmpparty->kills - 1;
+
 		if (max > PARTY_KILL_LOG - 1)
+		{
 			max = PARTY_KILL_LOG - 1;
+		}
 
 		new_draw_info(NDI_UNIQUE, 0, op, "Killed          |          Killer|     Exp");
 		new_draw_info(NDI_UNIQUE, 0, op, "----------------+----------------+--------");
@@ -358,6 +406,7 @@ int command_party(object *op, char *params)
 		{
 			exp = tmpparty->party_kills[i].exp;
 			chr = ' ';
+
 			if (exp > 1000000)
 			{
 				exp /= 1000000;
@@ -404,12 +453,14 @@ int command_party(object *op, char *params)
 		params = cleanup_chat_string(params);
 
 		if (!params || *params == '\0')
+		{
 			return 1;
+		}
 
 		tmpparty = find_party_struct(CONTR(op)->party_number);
-		sprintf(buf, "[%s] %s says: %s", tmpparty->partyname, op->name, params);
+		snprintf(buf, sizeof(buf), "[%s] %s says: %s", tmpparty->partyname, op->name, params);
 		send_party_message(op, buf, PARTY_MESSAGE_CHAT);
-		LOG(llevInfo, "CLOG PARTY:%s [%s] >%s<\n", query_name(op, NULL), tmpparty->partyname, params);
+		LOG(llevInfo, "CLOG PARTY: %s [%s] >%s<\n", query_name(op, NULL), tmpparty->partyname, params);
 		new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, 0, op, buf);
 		return 1;
 	}
@@ -423,7 +474,7 @@ int command_party(object *op, char *params)
 
 		currentparty = find_party(CONTR(op)->party_number, firstparty);
 		new_draw_info_format(NDI_UNIQUE, 0, op, "You leave party %s.", currentparty);
-		sprintf(buf, "%s leaves party %s.", op->name, currentparty);
+		snprintf(buf, sizeof(buf), "%s leaves party %s.", op->name, currentparty);
 		send_party_message(op, buf, PARTY_MESSAGE_STATUS);
 
 		party = find_party_struct(CONTR(op)->party_number);
@@ -433,6 +484,7 @@ int command_party(object *op, char *params)
 		{
 			player *pl;
 			int party_remove = 1, no = CONTR(op)->party_number;
+
 			for (pl = first_player; pl != NULL; pl = pl->next)
 			{
 				if (CONTR(pl->ob)->party_number == no && pl->ob != op)
@@ -442,13 +494,16 @@ int command_party(object *op, char *params)
 						party->partyleader = add_string(pl->ob->name);
 						new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You are the new leader of party %s!", currentparty);
 					}
+
 					party_remove = 0;
 					break;
 				}
 			}
 
 			if (party_remove == 1)
+			{
 				remove_party(party);
+			}
 		}
 
 		CONTR(op)->party_number = -1;
@@ -460,9 +515,9 @@ int command_party(object *op, char *params)
 
 /**
  * Party command used from client party GUI.
- * @param buf The incoming data
- * @param len Length of the data
- * @param pl Player */
+ * @param buf The incoming data.
+ * @param len Length of the data.
+ * @param pl Player. */
 void PartyCmd(char *buf, int len, player *pl)
 {
 	char tmp[HUGE_BUF * 16], tmpbuf[MAX_BUF];
@@ -503,7 +558,9 @@ void PartyCmd(char *buf, int len, player *pl)
 		while (party_player)
 		{
 			if (party_player->party_number == pl->party_number)
+			{
 				sprintf(tmp, "%s\nName: %s\tMap: %s\tLevel: %d", tmp, party_player->ob->name, party_player->ob->map->name, party_player->ob->level);
+			}
 
 			party_player = party_player->next;
 		}
@@ -519,7 +576,9 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		/* This means we want to join a password protected party. */
 		if (strstr(buf, "Password: "))
+		{
 			sscanf(buf, "Name: %32[^\n]\nPassword: %32[^\n]", buf, partypassword);
+		}
 
 		party = firstparty;
 
@@ -598,7 +657,9 @@ void PartyCmd(char *buf, int len, player *pl)
 			for (party_player = first_player; party_player->next != NULL; party_player = party_player->next)
 			{
 				if (party_player->party_number == pl->party_number && party_player != pl)
+				{
 					player_count++;
+				}
 			}
 
 			if (player_count == 0)
@@ -615,7 +676,9 @@ void PartyCmd(char *buf, int len, player *pl)
 			return;
 		}
 		else
+		{
 			tmpparty = firstparty->next;
+		}
 
 		if (tmpparty == NULL)
 		{
@@ -630,6 +693,7 @@ void PartyCmd(char *buf, int len, player *pl)
 				return;
 			}
 		}
+
 		tmpparty = firstparty;
 
 		while (tmpparty != NULL)
@@ -639,6 +703,7 @@ void PartyCmd(char *buf, int len, player *pl)
 				new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "The party %s already exists, pick another name.", buf);
 				return;
 			}
+
 			tmpparty = tmpparty->next;
 		}
 
@@ -658,6 +723,7 @@ void PartyCmd(char *buf, int len, player *pl)
 		}
 
 		party = firstparty;
+
 		while (party != NULL)
 		{
 			if (party->partyid == pl->party_number)
@@ -675,5 +741,7 @@ void PartyCmd(char *buf, int len, player *pl)
 
 	/* If we've got some data to send, send it. */
 	if (tmp[0] != '\0')
+	{
 		Write_String_To_Socket(&pl->socket, BINARY_CMD_PARTY, tmp, strlen(tmp));
+	}
 }

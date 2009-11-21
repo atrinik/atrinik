@@ -221,6 +221,7 @@ extern int blocked_link(object *op, int xoff, int yoff);
 extern int blocked_link_2(object *op, mapstruct *map, int x, int y);
 extern int blocked_tile(object *op, mapstruct *m, int x, int y);
 extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
+void set_map_darkness(mapstruct *m, int value);
 extern mapstruct *get_linked_map();
 extern mapstruct *get_empty_map(int sizex, int sizey);
 extern mapstruct *load_original_map(const char *filename, int flags);

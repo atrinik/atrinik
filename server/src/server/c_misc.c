@@ -23,15 +23,15 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/** @file
+ * Handles misc. input request - things like hash table, malloc, maps,
+ * who, etc. */
+
 #include <global.h>
 #include <sproto.h>
 
 #undef SS_STATISTICS
 #include <shstr.h>
-
-/** @file
- * Handles misc. input request - things like hash table, malloc, maps,
- * who, etc. */
 
 /**
  * Show maps information.
@@ -55,13 +55,20 @@ void map_info(object *op)
 	{
 #ifndef MAP_RESET
 		if (m->in_memory == MAP_SWAPPED)
+		{
 			continue;
+		}
 #endif
+
 		/* Print out the last 18 characters of the map name... */
 		if (strlen(m->path) <= 18)
+		{
 			strcpy(map_path, m->path);
+		}
 		else
+		{
 			strcpy(map_path, m->path + strlen(m->path) - 18);
+		}
 
 #ifndef MAP_RESET
 		sprintf(buf, "%-18.18s %c %2d   %c %4ld %2ld", map_path, m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', players_on_map(m), m->in_memory, m->timeout, m->difficulty);
@@ -77,9 +84,9 @@ void map_info(object *op)
 
 /**
  * Show message of the day.
- * @param op The object calling this
- * @param params Parameters
- * @return Always returns 1 */
+ * @param op The object calling this.
+ * @param params Parameters.
+ * @return Always returns 1. */
 int command_motd(object *op, char *params)
 {
 	(void) params;
@@ -88,12 +95,11 @@ int command_motd(object *op, char *params)
 	return 1;
 }
 
-/* Command to report a bug. */
 /**
  * Report a bug and store it in database.
- * @param op Object reporting this bug
- * @param params The bug message
- * @return 1 on success, 0 on failure */
+ * @param op Object reporting this bug.
+ * @param params The bug message.
+ * @return 1 on success, 0 on failure. */
 int command_bug(object *op, char *params)
 {
 	sqlite3 *db;
@@ -132,12 +138,12 @@ int command_bug(object *op, char *params)
 
 /**
  * Command to roll a magical die.
- * Parameters should be XdY where X is
- * how many times to roll the die and
+ *
+ * Parameters should be XdY where X is how many times to roll the die and
  * Y how many sides should the die have.
- * @param op Object rolling the die
- * @param params Parameters
- * @return Always returns 1 */
+ * @param op Object rolling the die.
+ * @param params Parameters.
+ * @return Always returns 1. */
 int command_roll(object *op, char *params)
 {
 	int times, sides, i;
@@ -152,47 +158,62 @@ int command_roll(object *op, char *params)
 
 	/* Make sure times is a valid value. */
 	if (times > 10)
+	{
 		times = 10;
+	}
 	else if (times <= 0)
+	{
 		times = 1;
+	}
 
 	/* Make sure sides is a valid value. */
 	if (sides > 100)
+	{
 		sides = 100;
+	}
 	else if (sides <= 0)
+	{
 		sides = 1;
+	}
 
-	sprintf(buf, "%s rolls a magical die (%dd%d) and gets: ", op->name, times, sides);
+	snprintf(buf, sizeof(buf), "%s rolls a magical die (%dd%d) and gets: ", op->name, times, sides);
 
 	for (i = 1; i <= times; i++)
-		sprintf(buf, "%s%d%s", buf, rndm(1, sides), i < times ? ", " : ".");
+	{
+		char tmp[MAX_BUF];
+
+		snprintf(tmp, sizeof(tmp), "%d%s", rndm(1, sides), i < times ? ", " : ".");
+		strncat(buf, tmp, sizeof(buf) - strlen(buf) - 1);
+	}
 
 	new_draw_info(NDI_ORANGE | NDI_UNIQUE, 0, op, buf);
 	new_info_map_except(NDI_ORANGE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+
 	return 1;
 }
 
 /**
- * Returns the number of objects on the list of active objects.
- * @return The number of active objects */
+ * Counts the number of objects on the list of active objects.
+ * @return The number of active objects. */
 static int count_active()
 {
 	int i = 0;
 	object *tmp = active_objects;
 
 	while (tmp != NULL)
+	{
 		tmp = tmp->active_next, i++;
+	}
 
 	return i;
 }
 
-
 /**
  * Give out of info about memory usage.
- * @param op The object requesting this */
+ * @param op The object requesting this. */
 void malloc_info(object *op)
 {
-	int players,nrofmaps;
+	int players, nrofmaps;
 	int nrm = 0, mapmem = 0, anr, anims, sum_alloc = 0, sum_used = 0, i, j, tlnr, alnr;
 	treasurelist *tl;
 	player *pl;
@@ -200,135 +221,120 @@ void malloc_info(object *op)
 	archetype *at;
 	artifactlist *al;
 
-	for (tl = first_treasurelist, tlnr = 0; tl != NULL; tl = tl->next, tlnr++);
+	for (tl = first_treasurelist, tlnr = 0; tl != NULL; tl = tl->next, tlnr++)
+	{
+	}
 
-	for (al = first_artifactlist, alnr = 0; al != NULL; al = al->next, alnr++);
+	for (al = first_artifactlist, alnr = 0; al != NULL; al = al->next, alnr++)
+	{
+	}
 
-	for (at = first_archetype, anr = 0, anims = 0; at != NULL; at = at->more == NULL ? at->next : at->more, anr++);
+	for (at = first_archetype, anr = 0, anims = 0; at != NULL; at = at->more == NULL ? at->next : at->more, anr++)
+	{
+	}
 
 	for (i = 1; i < num_animations; i++)
+	{
 		anims += animations[i].num_animations;
+	}
 
-	for (pl = first_player, players = 0; pl != NULL; pl = pl->next, players++);
+	for (pl = first_player, players = 0; pl != NULL; pl = pl->next, players++)
+	{
+	}
 
 	for (m = first_map, nrofmaps = 0; m != NULL; m = m->next, nrofmaps++)
+	{
 		if (m->in_memory == MAP_IN_MEMORY)
 		{
 			mapmem += MAP_WIDTH(m) * MAP_HEIGHT(m) * (sizeof(object *) + sizeof(MapSpace));
 			nrm++;
 		}
+	}
 
-	sprintf(errmsg, "Sizeof: object=%ld  player=%ld  map=%ld", (long)sizeof(object), (long)sizeof(player), (long)sizeof(mapstruct));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
 
 	for (j = 0; j < NROF_MEMPOOLS; j++)
 	{
 		int ob_used = mempools[j].nrof_used, ob_free = mempools[j].nrof_free;
 
-		sprintf(errmsg, "%4d used %s:    %8d", ob_used, mempools[j].chunk_description, i = (ob_used * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
-		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "%4d used %s:    %8d", ob_used, mempools[j].chunk_description, i = (ob_used * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
 		sum_used += i;
 		sum_alloc += i;
 
-		sprintf(errmsg, "%4d free %s:    %8d", ob_free, mempools[j].chunk_description, i = (ob_free * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
-		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "%4d free %s:    %8d", ob_free, mempools[j].chunk_description, i = (ob_free * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
 		sum_alloc += i;
 	}
 
-	sprintf(errmsg, "%4d active objects", count_active());
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d active objects", count_active());
 
-	sprintf(errmsg, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
 	sum_alloc += i;
 	sum_used += nrm * sizeof(mapstruct);
 
-	sprintf(errmsg, "%4d maps in memory:  %8d", nrm, mapmem);
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d maps in memory:  %8d", nrm, mapmem);
 	sum_alloc += mapmem;
 	sum_used += mapmem;
 
-	sprintf(errmsg, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	sprintf(errmsg, "Total space allocated:%8d", sum_alloc);
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
-
-	sprintf(errmsg, "Total space used:     %8d", sum_used);
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Total space allocated:%8d", sum_alloc);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Total space used:     %8d", sum_used);
 }
 
 /**
  * Give out some info about the map op is located at.
- * @param op The object requesting this information */
+ * @param op The object requesting this information. */
 void current_map_info(object *op)
 {
 	mapstruct *m = op->map;
-	char buf[128];
 
 	if (!m)
+	{
 		return;
+	}
 
-	strcpy(buf, m->name);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%s (%s)", buf, m->path);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "%s (%s)", m->name, m->path);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
-		new_draw_info_format(NDI_UNIQUE, 0, op, "players:%d difficulty:%d size:%dx%d start:%dx%d timeout %ld", players_on_map(m), m->difficulty, MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m), MAP_TIMEOUT(m));
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, op, "players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
+	}
 
 	if (m->msg)
+	{
 		new_draw_info(NDI_UNIQUE, NDI_NAVY, op, m->msg);
+	}
 }
-
-#ifdef DEBUG_MALLOC_LEVEL
-int command_malloc_verify(object *op, char *parms)
-{
-	extern int malloc_verify(void);
-
-	if (!malloc_verify())
-		new_draw_info(NDI_UNIQUE, 0, op, "Heap is corrupted.");
-	else
-		new_draw_info(NDI_UNIQUE, 0, op, "Heap checks out OK.");
-
-	return 1;
-}
-#endif
 
 /**
  * Print out a list of all logged in players in the game.
@@ -347,12 +353,16 @@ int command_who(object *op, char *params)
 	(void) params;
 
 	if (first_player)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, " ");
+	}
 
 	for (pl = first_player; pl != NULL; pl = pl->next)
 	{
 		if (pl->dm_stealth && !QUERY_FLAG(op, FLAG_WIZ))
+		{
 			continue;
+		}
 
 		if (pl->ob->map == NULL)
 		{
@@ -361,34 +371,47 @@ int command_who(object *op, char *params)
 		}
 
 		ip++;
+
 		if (pl->state == ST_PLAYING)
 		{
 			char *sex = "neuter";
+
 			if (QUERY_FLAG(pl->ob, FLAG_IS_MALE))
+			{
 				sex = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
+			}
 			else if (QUERY_FLAG(pl->ob, FLAG_IS_FEMALE))
+			{
 				sex = "female";
+			}
 
 			if (op == NULL || QUERY_FLAG(op, FLAG_WIZ))
-				(void) sprintf(buf, "%s the %s %s (@%s) [%s]%s%s (%d)", pl->ob->name, sex, pl->ob->race, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
+			{
+				snprintf(buf, sizeof(buf), "%s the %s %s (@%s) [%s]%s%s (%d)", pl->ob->name, sex, pl->ob->race, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
+			}
 			else
-				sprintf(buf, "%s the %s %s (lvl %d)%s%s", pl->ob->name, sex, pl->ob->race, pl->ob->level, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "");
+			{
+				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)%s%s", pl->ob->name, sex, pl->ob->race, pl->ob->level, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "");
+			}
 
 			new_draw_info(NDI_UNIQUE, 0, op, buf);
 		}
 	}
 
-	sprintf(buf, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
 
 	return 1;
 }
 
 /**
  * Malloc info command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ *
+ * If MEMPOOL_TRACKING is defined, parameters are used to free (and force
+ * freeing) empty puddles. Otherwise, malloc_info() is used to display
+ * information about memory usage.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_malloc(object *op, char *params)
 {
 #ifdef MEMPOOL_TRACKING
@@ -403,12 +426,20 @@ int command_malloc(object *op, char *params)
 		}
 
 		if (strcmp(params, "force") == 0)
+		{
 			force_flag = 1;
+		}
 
 		for (i = 0; i < NROF_MEMPOOLS; i++)
+		{
 			if (force_flag == 1 || mempools[i].flags & MEMPOOL_ALLOW_FREEING)
+			{
 				free_empty_puddles(i);
+			}
+		}
 	}
+#else
+	(void) params;
 #endif
 
 	malloc_info(op);
@@ -417,9 +448,9 @@ int command_malloc(object *op, char *params)
 
 /**
  * Map info command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_mapinfo(object *op, char *params)
 {
 	(void) params;
@@ -430,9 +461,9 @@ int command_mapinfo(object *op, char *params)
 
 /**
  * Maps command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_maps(object *op, char *params)
 {
 	(void) params;
@@ -443,9 +474,9 @@ int command_maps(object *op, char *params)
 
 /**
  * Strings command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_strings(object *op, char *params)
 {
 	char buf[HUGE_BUF];
@@ -465,15 +496,16 @@ int command_ssdumptable(object *op, char *params)
 {
 	(void) params;
 	(void) op;
+
 	ss_dump_table(SS_DUMP_TABLE, NULL, 0);
 	return 1;
 }
 
 /**
  * Time command. Print out game time information.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_time(object *op, char *params)
 {
 	(void) params;
@@ -484,9 +516,9 @@ int command_time(object *op, char *params)
 
 /**
  * Arches command. Print out information about the arches.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_archs(object *op, char *params)
 {
 	(void) params;
@@ -497,9 +529,9 @@ int command_archs(object *op, char *params)
 
 /**
  * Highscore command, shows the highscore.
- * @param op Object requesting this
- * @param params Parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Parameters.
+ * @return Always returns 1. */
 int command_hiscore(object *op, char *params)
 {
 	display_high_score(op, op == NULL ? 9999 : 50, params);
@@ -508,57 +540,55 @@ int command_hiscore(object *op, char *params)
 
 /**
  * Set debug level command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_debug(object *op, char *params)
 {
 	int i;
-	char buf[MAX_BUF];
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		sprintf(buf, "Global debug level is %d.", settings.debug);
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
-		return 1;
-	}
-
-	if (op != NULL && !QUERY_FLAG(op, FLAG_WIZ))
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Privileged command.");
+		new_draw_info_format(NDI_UNIQUE, 0, op, "Global debug level is %d.", settings.debug);
 		return 1;
 	}
 
 	settings.debug = (enum LogLevel) FABS(i);
-	sprintf(buf, "Set debug level to %d.", i);
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Set debug level to %d.", i);
 	return 1;
 }
 
 /**
  * Full dump of objects below the DM.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpbelowfull(object *op, char *params)
 {
 	object *tmp;
 
 	(void) params;
+
 	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
-		/* exclude the DM player object */
+		/* Exclude the DM player object */
 		if (tmp == op)
+		{
 			continue;
+		}
 
 		dump_object(tmp);
 		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
 
 		if (tmp->above && tmp->above != op)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, ">next object<");
+		}
 	}
+
 	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
 
 	return 1;
@@ -566,27 +596,30 @@ int command_dumpbelowfull(object *op, char *params)
 
 /**
  * Dump of objects below the DM.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpbelow(object *op, char *params)
 {
 	object *tmp;
-	char buf[5 * 1024];
 	int i = 0;
 
 	(void) params;
+
 	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
 	{
-		/* exclude the DM player object */
+		/* Exclude the DM player object */
 		if (tmp == op)
+		{
 			continue;
+		}
 
-		sprintf(buf, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
 	}
+
 	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
 
 	return 1;
@@ -594,29 +627,35 @@ int command_dumpbelow(object *op, char *params)
 
 /**
  * Wizpass command. Used by DMs to toggle walking through walls on/off.
- * @param op Object requesting this
- * @param params Command parameters
- * @return 1 on success, 0 on failure */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1 on success, 0 on failure. */
 int command_wizpass(object *op, char *params)
 {
 	int i;
 
 	if (!op)
+	{
 		return 0;
+	}
 
 	if (!params)
+	{
 		i = (QUERY_FLAG(op, FLAG_WIZPASS)) ? 0 : 1;
+	}
 	else
+	{
 		i = onoff_value(params);
+	}
 
 	if (i)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now walk through walls.\n");
+		new_draw_info(NDI_UNIQUE, 0, op, "You will now walk through walls.");
 		SET_FLAG(op, FLAG_WIZPASS);
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now be stopped by walls.\n");
+		new_draw_info(NDI_UNIQUE, 0, op, "You will now be stopped by walls.");
 		CLEAR_FLAG(op, FLAG_WIZPASS);
 	}
 
@@ -625,9 +664,9 @@ int command_wizpass(object *op, char *params)
 
 /**
  * Dump all objects.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpallobjects(object *op, char *params)
 {
 	(void) params;
@@ -638,9 +677,9 @@ int command_dumpallobjects(object *op, char *params)
 
 /**
  * Dump all friendly objects.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpfriendlyobjects(object *op, char *params)
 {
 	(void) params;
@@ -651,9 +690,9 @@ int command_dumpfriendlyobjects(object *op, char *params)
 
 /**
  * Dump all archetypes.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpallarchetypes(object *op, char *params)
 {
 	(void) params;
@@ -663,12 +702,12 @@ int command_dumpallarchetypes(object *op, char *params)
 }
 
 /**
- * DM stealth command. Used by DMs to make the DM hidden
- * from all other players. It also works when DM logs in
- * without DM flag set or leaves the DM mode.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * DM stealth command. Used by DMs to make the DM hidden from all other
+ * players. It also works when DM logs in without DM flag set or leaves
+ * the DM mode.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dm_stealth(object *op, char *params)
 {
 	(void) params;
@@ -681,7 +720,9 @@ int command_dm_stealth(object *op, char *params)
 			CONTR(op)->dm_stealth = 0;
 		}
 		else
+		{
 			CONTR(op)->dm_stealth = 1;
+		}
 
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
 	}
@@ -690,11 +731,10 @@ int command_dm_stealth(object *op, char *params)
 }
 
 /**
- * Toggle DM light on/off. DM light will light up
- * all maps for the DM.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * Toggle DM light on/off. DM light will light up all maps for the DM.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dm_light(object *op, char *params)
 {
 	(void) params;
@@ -702,11 +742,15 @@ int command_dm_light(object *op, char *params)
 	if (op->type == PLAYER && CONTR(op))
 	{
 		if (CONTR(op)->dm_light)
+		{
 			CONTR(op)->dm_light = 0;
+		}
 		else
+		{
 			CONTR(op)->dm_light = 1;
+		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "toggle dm_light to %d", CONTR(op)->dm_light);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
 	}
 
 	return 1;
@@ -714,9 +758,9 @@ int command_dm_light(object *op, char *params)
 
 /**
  * Dump active list.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_dumpactivelist(object *op, char *params)
 {
 	char buf[1024];
@@ -728,13 +772,12 @@ int command_dumpactivelist(object *op, char *params)
 	for (tmp = active_objects; tmp; tmp = tmp->active_next)
 	{
 		count++;
+
 		snprintf(buf, sizeof(buf), "%08d %03d %f %s (%s)", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
-		/* It will overflow the send buffer with many players online. */
-		/* new_draw_info(NDI_UNIQUE, 0, op, buf); */
 		LOG(llevSystem, "%s\n", buf);
 	}
 
-	snprintf(buf, sizeof(buf), "active objects: %d (dumped to log)", count);
+	snprintf(buf, sizeof(buf), "Active objects: %d (dumped to log)", count);
 	new_draw_info(NDI_UNIQUE, 0, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
@@ -744,13 +787,13 @@ int command_dumpactivelist(object *op, char *params)
 /**
  * Start server shutdown command. Used by DM to shutdown the
  * server in order to rebuild it to update maps.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_start_shutdown(object *op, char *params)
 {
 	char *bp = NULL;
-	int i =- 2;
+	int i = -2;
 
 	if (params == NULL)
 	{
@@ -759,11 +802,16 @@ int command_start_shutdown(object *op, char *params)
 	}
 
 	sscanf(params, "%d ", &i);
+
 	if ((bp = strchr(params, ' ')) != NULL)
+	{
 		bp++;
+	}
 
 	if (bp && bp == 0)
+	{
 		bp = NULL;
+	}
 
 	if (i < -1)
 	{
@@ -780,32 +828,21 @@ int command_start_shutdown(object *op, char *params)
 
 /**
  * Set map light by DM.
- * @param op Object requesting this
- * @param params Command parameters
- * @return 1 on success, 0 on failure */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1 on success, 0 on failure. */
 int command_setmaplight(object *op, char *params)
 {
 	int i;
-	char buf[256];
 
 	if (params == NULL || !sscanf(params, "%d", &i))
+	{
 		return 0;
+	}
 
-	if (i < -1)
-		i = -1;
+	set_map_darkness(op->map, i);
 
-	if (i > MAX_DARKNESS)
-		i = MAX_DARKNESS;
-
-	op->map->darkness = i;
-
-	if (i == -1)
-		i = MAX_DARKNESS;
-
-	op->map->light_value = global_darkness_table[i];
-
-	sprintf(buf, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
 
 	return 1;
 }
@@ -820,7 +857,9 @@ int command_dumpmap(object *op, char *params)
 	(void) params;
 
 	if (op)
+	{
 		dump_map(op->map);
+	}
 
 	return 1;
 }
@@ -850,7 +889,9 @@ int command_printlos(object *op, char *params)
 	(void) params;
 
 	if (op)
+	{
 		print_los(op);
+	}
 
 	return 1;
 }
@@ -866,61 +907,6 @@ int command_version(object *op, char *params)
 
 	version(op);
 
-	return 1;
-}
-
-/**
- * Set player's listen level.
- * @param op Object requesting this
- * @param params The listen level to set
- * @return Always returns 1 */
-int command_listen(object *op, char *params)
-{
-	int i;
-
-	if (params == NULL || !sscanf(params, "%d", &i))
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Set listen to what (presently %d)?", CONTR(op)->listening);
-		return 1;
-	}
-
-	CONTR(op)->listening = (char) i;
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Your verbose level is now %d.", i);
-	return 1;
-}
-
-/**
- * Prints out some useful information for the character.  Everything we print
- * out can be determined by the docs, so we aren't revealing anything extra -
- * rather, we are making it convenient to find the values.  params have
- * no meaning here.
- * @param pl Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_statistics(object *pl, char *params)
-{
-	(void) params;
-	(void) pl;
-#if 0
-	if (pl->type != PLAYER || !CONTR(pl))
-		return 1;
-
-	new_draw_info(NDI_UNIQUE, 0, pl, "                                        === STATISTICS ===");
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Experience: %d", pl->stats.exp);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Next Level: %d", level_exp(pl->level + 1, 1.0));
-
-	new_draw_info(NDI_UNIQUE, 0, pl, "\nStat       Nat/Real/Max");
-
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Str         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Str, pl->stats.Str, 20 + pl->arch->clone.stats.Str);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Dex         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Dex, pl->stats.Dex, 20 + pl->arch->clone.stats.Dex);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Con         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Con, pl->stats.Con, 20 + pl->arch->clone.stats.Con);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Int         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Int, pl->stats.Int, 20 + pl->arch->clone.stats.Int);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Wis         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Wis, pl->stats.Wis, 20 + pl->arch->clone.stats.Wis);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Pow         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Pow, pl->stats.Pow, 20 + pl->arch->clone.stats.Pow);
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "Cha         %2d/ %3d/%3d", CONTR(pl)->orig_stats.Cha, pl->stats.Cha, 20 + pl->arch->clone.stats.Cha);
-#endif
-
-	/* Can't think of anything else to print right now */
 	return 1;
 }
 
@@ -992,51 +978,6 @@ int command_players(object *op, char *paramss)
 }
 
 /**
- * Logs command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_logs(object *op, char *params)
-{
-	int first;
-
-	(void) params;
-
-	first = 1;
-
-	if (first)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Nobody is currently logging kills.");
-	}
-	return 1;
-}
-
-/**
- * Print out object's resistances.
- * @param op Object requesting this
- * @param params Command parameters
- * @return 1 on success, 0 on failure */
-int command_resistances(object *op, char *params)
-{
-	int i;
-
-	(void) params;
-
-	if (!op)
-		return 0;
-
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		if (i == ATNR_INTERNAL)
-			continue;
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%-20s %+5d", attacktype_desc[i], op->resist[i]);
-	}
-
-	return 1;
-}
-
-/**
  * Pray command, used to start praying to your god.
  * @param op Object requesting this
  * @param params Command parameters
@@ -1051,40 +992,42 @@ int command_praying(object *op, char *params)
 
 /**
  * Scans input and returns if this is ON value (1) or OFF (0).
- * @param line The input string
+ * @param line The input string.
  * @return 1 for ON, 0 for OFF. */
 int onoff_value(char *line)
 {
 	int i;
 
 	if (sscanf(line, "%d", &i))
+	{
 		return (i != 0);
+	}
 
 	switch (line[0])
 	{
 		case 'o':
 			switch (line[1])
 			{
-					/* on */
+				/* on */
 				case 'n':
 					return 1;
 
-					/* o[ff] */
+				/* o[ff] */
 				default:
 					return 0;
 			}
 
-			/* y[es] */
+		/* y[es] */
 		case 'y':
-			/* k[ylla] */
+		/* k[ylla] */
 		case 'k':
 		case 's':
 		case 'd':
 			return 1;
 
-			/* n[o] */
+		/* n[o] */
 		case 'n':
-			/* e[i] */
+		/* e[i] */
 		case 'e':
 		case 'u':
 		default:
@@ -1093,21 +1036,9 @@ int onoff_value(char *line)
 }
 
 /**
- * Quit command. Currently unused.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_quit(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-	return 1;
-}
-
-/**
  * Print out to player if he has sounds enabled.
- * @param op Object requesting this
- * @param params Command parameters
+ * @param op Object requesting this.
+ * @param params Command parameters.
  * @return Always returns 1 */
 int command_sound(object *op, char *params)
 {
@@ -1129,13 +1060,10 @@ int command_sound(object *op, char *params)
 
 /**
  * Receive a player name, and force the first letter to be uppercase.
- * @param op Object
- * @param k Unused */
-void receive_player_name(object *op, char k)
+ * @param op Object. */
+void receive_player_name(object *op)
 {
 	unsigned int name_len = strlen(CONTR(op)->write_buf + 1);
-
-	(void) k;
 
 	/* Force a "Xxxxxxx" name */
 	if (name_len > 1)
@@ -1169,13 +1097,10 @@ void receive_player_name(object *op, char k)
 
 /**
  * Receive player password.
- * @param op Object
- * @param k Unused */
-void receive_player_password(object *op, char k)
+ * @param op Object. */
+void receive_player_password(object *op)
 {
 	unsigned int pwd_len = strlen(CONTR(op)->write_buf);
-
-	(void) k;
 
 	if (pwd_len <= 1 || pwd_len > 17)
 	{
@@ -1213,96 +1138,58 @@ void receive_player_password(object *op, char k)
 
 /**
  * Save command.
- * Cannot be used on unholy ground or if you have 0 exp.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ *
+ * Cannot be used on unholy ground or if you don't have any experience.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_save(object *op, char *params)
 {
 	(void) params;
 
 	if (blocks_cleric(op->map, op->x, op->y))
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You can not save on unholy ground.");
+	}
 	else if (!op->stats.exp)
-		new_draw_info(NDI_UNIQUE, 0, op, "To avoid too much unused player accounts you must get some experience before you can save! Go kill some ants.");
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "To avoid too much unused player accounts you must get some experience before you can save!");
+	}
 	else
 	{
 		if (save_player(op, 1))
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You have been saved.");
+		}
 		else
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "SAVE FAILED!");
-
-#if 0
-		/* with the new code we should NOT save "active" maps.
-		 * we do a kind of neutralizing when we save now that can have
-		 * strange effects when saving! */
-		if (op->map && !strncmp(op->map->path, settings.localdir, strlen(settings.localdir)))
-		{
-			new_save_map(op->map, 0);
-			op->map->in_memory = MAP_IN_MEMORY;
-		}
-#endif
-	}
-
-	return 1;
-}
-
-/**
- * Style maps info command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_style_map_info(object *op, char *params)
-{
-	extern mapstruct *styles;
-	mapstruct *mp;
-	int maps_used = 0, mapmem = 0, objects_used = 0, x,y;
-	object *tmp;
-
-	(void) params;
-
-	for (mp = styles; mp != NULL; mp = mp->next)
-	{
-		maps_used++;
-		mapmem += MAP_WIDTH(mp) * MAP_HEIGHT(mp) * (sizeof(object *) + sizeof(MapSpace)) + sizeof(mapstruct);
-		for (x = 0; x < MAP_WIDTH(mp); x++)
-		{
-			for (y = 0; y < MAP_HEIGHT(mp); y++)
-			{
-				for (tmp = get_map_ob(mp, x, y); tmp != NULL; tmp = tmp->above)
-					objects_used++;
-			}
 		}
 	}
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Style maps loaded:    %d", maps_used);
-	new_draw_info(NDI_UNIQUE, 0, op, "Memory used, not");
-	new_draw_info_format(NDI_UNIQUE, 0, op, "including objects:    %d", mapmem);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Style objects:        %d", objects_used);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Mem for objects:      %d", objects_used * sizeof(object));
 
 	return 1;
 }
 
 /**
  * Apartment command.
- * This command is used to invite other players
- * to your apartment, as well as turn on/off
- * apartment invites, or cancel invitation.
- * @param op Object requesting this
- * @param params Command parameters
- * @return 1 on success, 0 on failure
- * @todo Make the turn on/off inviting use the
- * onoff_value() function to check for on/off. */
+ *
+ * This command is used to invite other players to your apartment, as
+ * well as turn on/off apartment invites, or cancel invitation.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1 on success, 0 on failure.
+ * @todo Convert to Python function, since apartments are Python powered
+ * and the apartment keeper is as well. */
 int command_apartment(object *op, char *params)
 {
 	player *pl;
 	object *apartment_force, *apartment_force_owner = NULL, *tmp = NULL;
 	int dir, num_players = 0;
 
-	/* Go through caller's inventory and look for
-	 * force of apartment inviter. */
+	/* Go through caller's inventory and look for force of apartment
+	 * inviter. */
 	tmp = op->inv;
+
 	while (tmp)
 	{
 		if (strcmp(tmp->arch->name, "force") == 0 && strcmp(tmp->name, "APARTMENT_INVITER") == 0)
@@ -1318,21 +1205,26 @@ int command_apartment(object *op, char *params)
 	/* params are null, show some info. */
 	if (params == NULL)
 	{
-		/* If we're having apartment open, show how many players there are. */
+		/* If we're having apartment open, show how many players there
+		 * are. */
 		if (apartment_force_owner)
 		{
 			/* Count all the players that are on this map */
 			for (pl = first_player; pl != NULL; pl = pl->next)
 			{
 				if (pl->state == ST_PLAYING && pl->ob->map && strcmp(pl->ob->map->path, apartment_force_owner->slaying) == 0)
+				{
 					num_players++;
+				}
 			}
 
 			new_draw_info_format(NDI_UNIQUE, 0, op, "You're currently having an apartment invitation open and there are %d players.", num_players);
 		}
 		/* No apartment open */
 		else
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You're currently not having apartment invitation open.");
+		}
 
 		new_draw_info(NDI_UNIQUE, 0, op, "For help try: /apartment help");
 
@@ -1353,8 +1245,8 @@ int command_apartment(object *op, char *params)
 	{
 		params += 7;
 
-		/* If the inviter IS having apartment open, and
-		 * wants to invite other players to another map... */
+		/* If the inviter IS having apartment open, and wants to invite
+		 * other players to another map... */
 		if (apartment_force_owner && strcmp(apartment_force_owner->slaying, op->map->path))
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, "In order to invite players to a different apartment you must first cancel your old apartment invitation! Type '/apartment cancel' for that.");
@@ -1370,8 +1262,8 @@ int command_apartment(object *op, char *params)
 		/* First char of a name is always uppercase */
 		params[0] = toupper(params[0]);
 
-		/* Check if this map is unique, it is not no_save 1,
-		 * and we are the map owner. */
+		/* Check if this map is unique, it is not no_save 1, and we are
+		 * the map owner. */
 		if (!MAP_UNIQUE(op->map) || MAP_NOSAVE(op->map) || !check_map_owner(op->map, op))
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You can invite players to your apartment only if you're in your apartment!");
@@ -1413,15 +1305,20 @@ int command_apartment(object *op, char *params)
 
 		/* Check if this player has been invited by someone already */
 		tmp = pl->ob->inv;
+
 		while (tmp)
 		{
 			if (strcmp(tmp->arch->name, "force") == 0 && strcmp(tmp->name, "APARTMENT_INVITE") == 0)
 			{
 				/* Found it! */
 				if (apartment_force_owner && strcmp(apartment_force_owner->slaying, tmp->slaying) == 0)
+				{
 					new_draw_info_format(NDI_UNIQUE, 0, op, "You have already invited %s to join your apartment.", pl->ob->name);
+				}
 				else
+				{
 					new_draw_info_format(NDI_UNIQUE, 0, op, "%s has already been invited by someone else.", pl->ob->name);
+				}
 
 				return 1;
 			}
@@ -1446,7 +1343,7 @@ int command_apartment(object *op, char *params)
 			return 0;
 		}
 
-		/* Store important stuff in the force:
+		/* Store important values in the force:
 		 *  - slaying: The map path to apartment
 		 *  - race: The inviter's name
 		 *  - name: The force name to fine it later
@@ -1569,9 +1466,9 @@ int command_apartment(object *op, char *params)
 
 /**
  * Away from keyboard command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_afk(object *op, char *params)
 {
 	(void) params;

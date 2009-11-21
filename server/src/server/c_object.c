@@ -23,15 +23,15 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Object ID parsing functions */
+
 #include <global.h>
 #include <loader.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
-
-/**
- * @file
- * Object ID parsing functions */
 
 #define OBLINKMALLOC(p) if(!((p)=(objectlink *)malloc(sizeof(objectlink))))\
                           fatal(OUT_OF_MEMORY);

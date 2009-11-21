@@ -1383,6 +1383,8 @@ static void process_keyboard_input(char *input)
 	}
 }
 
+#define DEBUG_MALLOC_LEVEL 1
+
 int main(int argc, char **argv)
 {
 #ifdef PLUGINS_X
@@ -1393,10 +1395,6 @@ int main(int argc, char **argv)
 
 #ifdef WIN32 /* ---win32 this sets the win32 from 0d0a to 0a handling */
 	_fmode = _O_BINARY;
-#endif
-
-#ifdef DEBUG_MALLOC_LEVEL
-	malloc_debug(DEBUG_MALLOC_LEVEL);
 #endif
 
 	init(argc, argv);

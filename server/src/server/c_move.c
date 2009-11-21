@@ -23,22 +23,21 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles main movement commands. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
 /**
- * @file
- * Handles main movement commands. */
-
-/**
  * Static command for commands like east, west, etc to use.
- * @param op Object to move
- * @param params Parameters, controls things like running
- * and firing
- * @param dir Direction to move
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Parameters, controls things like running and firing.
+ * @param dir Direction to move.
+ * @return Always returns 0. */
 static int move_internal(object *op, char *params, int dir)
 {
 	if (params)
@@ -54,7 +53,9 @@ static int move_internal(object *op, char *params, int dir)
 			}
 		}
 		else if (params[0] == 'r' && !CONTR(op)->run_on)
+		{
 			CONTR(op)->run_on = 1;
+		}
 	}
 
 	move_player(op, dir);
@@ -63,9 +64,9 @@ static int move_internal(object *op, char *params, int dir)
 
 /**
  * Move player to east.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_east(object *op, char *params)
 {
 	return move_internal(op, params, 3);
@@ -73,9 +74,9 @@ int command_east(object *op, char *params)
 
 /**
  * Move player to north.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_north(object *op, char *params)
 {
 	return move_internal(op, params, 1);
@@ -83,9 +84,9 @@ int command_north(object *op, char *params)
 
 /**
  * Move player to northeast.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_northeast(object *op, char *params)
 {
 	return move_internal(op, params, 2);
@@ -93,9 +94,9 @@ int command_northeast(object *op, char *params)
 
 /**
  * Move player to northwest.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_northwest(object *op, char *params)
 {
 	return move_internal(op, params, 8);
@@ -103,9 +104,9 @@ int command_northwest(object *op, char *params)
 
 /**
  * Move player to south.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_south(object *op, char *params)
 {
 	return move_internal(op, params, 5);
@@ -113,9 +114,9 @@ int command_south(object *op, char *params)
 
 /**
  * Move player to southeast.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_southeast(object *op, char *params)
 {
 	return move_internal(op, params, 4);
@@ -123,9 +124,9 @@ int command_southeast(object *op, char *params)
 
 /**
  * Move player to southwest.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_southwest(object *op, char *params)
 {
 	return move_internal(op, params, 6);
@@ -133,9 +134,9 @@ int command_southwest(object *op, char *params)
 
 /**
  * Move player to west.
- * @param op Object to move
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op Object to move.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_west(object *op, char *params)
 {
 	return move_internal(op, params, 7);
@@ -143,14 +144,15 @@ int command_west(object *op, char *params)
 
 /**
  * Stay command.
- * Usually used to fire in all directions at once
- * @param op The object
- * @param params Command parameters
- * @return Always returns 0 */
+ * @param op The object.
+ * @param params Command parameters.
+ * @return Always returns 0. */
 int command_stay(object *op, char *params)
 {
 	if (!CONTR(op)->fire_on && (!params || params[0] != 'f'))
+	{
 		return 0;
+	}
 
 	fire(op, 0);
 	return 0;
@@ -158,9 +160,9 @@ int command_stay(object *op, char *params)
 
 /**
  * Turn object to face one direction to right.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_turn_right(object *op, char *params)
 {
 	sint8 dir = absdir(op->facing + 1);
@@ -174,9 +176,9 @@ int command_turn_right(object *op, char *params)
 
 /**
  * Turn object to face one direction to left.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
 int command_turn_left(object *op, char *params)
 {
 	sint8 dir = absdir(op->facing - 1);
@@ -190,8 +192,8 @@ int command_turn_left(object *op, char *params)
 
 /**
  * Push object in front of the player.
- * @param op Object requesting this
- * @param params Command parameters
+ * @param op Object requesting this.
+ * @param params Command parameters.
  * @return Always returns 0. */
 int command_push_object(object *op, char *params)
 {

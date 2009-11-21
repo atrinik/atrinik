@@ -567,12 +567,12 @@ void ReplyCmd(char *buf, int len, player *pl)
 			break;
 
 		case ST_GET_NAME:
-			receive_player_name(pl->ob, 13);
+			receive_player_name(pl->ob);
 			break;
 
 		case ST_GET_PASSWORD:
 		case ST_CONFIRM_PASSWORD:
-			receive_player_password(pl->ob, 13);
+			receive_player_password(pl->ob);
 			break;
 
 		default:

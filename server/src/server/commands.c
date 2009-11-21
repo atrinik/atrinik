@@ -71,9 +71,6 @@ CommArray_s Commands[] =
 	{"/bug",          	command_bug,            1.0f},
 	{"/apartment",		command_apartment,		1.0f},
 	{"/afk",			command_afk,			1.0f},
-#if 0
-	{"/listen",       	command_listen,         1.0f},
-#endif
 	{"/drop",         	command_drop,           1.0f},
 	{"/party", 			command_party,			0.0f},
 	{"/gsay", 			command_gsay,			1.0f},
@@ -82,7 +79,6 @@ CommArray_s Commands[] =
 	{"/right",			command_turn_right,		1.0f},
 	{"/roll",			command_roll,			1.0f},
 	/*  {"/sound",		command_sound,			1.0},*/
-	/*  {"/delete",		command_quit,			1.0},*/
 	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
 };
 
@@ -191,28 +187,22 @@ CommArray_s WizCommands [] =
 	{"/patch",			command_patch,					0.0},
 	{"/speed",          command_speed,                  0.0},
 	{"/strings",        command_strings,                0.0},
+	{"/debug",          command_debug,                  0.0},
 
 	/*
 	{"/archs", command_archs,	0.0},
 	{"/abil", command_abil,0.0},
-	{"/debug", command_debug,0.0},
 	{"/fix_me", command_fix_me,	0.0},
 	{"/forget_spell", command_forget_spell, 0.0},
 	{"/invisible", command_invisible,0.0},
 	{"/learn_special_prayer", command_learn_special_prayer, 0.0},
-	{"/logs", command_logs,	0.0},
 	{"/players", command_players,	0.0},
 	{"/patch", command_patch,0.0},
 	{"/printlos", command_printlos,0.0},
-	{"/resistances", command_resistances,	0.0},
 	{"/remove", command_remove,0.0},
 	{"/strings", command_strings,	0.0},
 	{"/set_god", command_setgod, 0.0},
 	{"/stats", command_stats,0.0},
-	{"/style_info", command_style_map_info, 0.0},
-	#ifdef DEBUG_MALLOC_LEVEL
-	{"/verify", command_malloc_verify,0.0},
-	#endif
 	*/
 };
 
