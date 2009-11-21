@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Command parser */
+ * Command parsing related code. */
 
 #include <global.h>
 #ifndef __CEXTRACT__
@@ -219,6 +219,132 @@ CommArray_s WizCommands [] =
 /** Size of Wizard commands */
 const int WizCommandsSize = sizeof(WizCommands) / sizeof(CommArray_s);
 
+/** Emotions that are available when command issuer has no target. */
+emotes_array emotes_no_target[] =
+{
+	{EMOTE_NOD, "%s nods solemnly.", "You nod solemnly.", NULL},
+	{EMOTE_DANCE, "%s expresses himself through interpretive dance.", "You dance with glee.", NULL},
+	{EMOTE_KISS, "%s makes a weird facial contortion.", "All the lonely people...", NULL},
+	{EMOTE_BOUNCE, "%s bounces around.", "BOIINNNNNNGG!", NULL},
+	{EMOTE_SMILE, "%s smiles happily.", "You smile happily.", NULL},
+	{EMOTE_CACKLE, "%s throws back his head and cackles with insane glee!", "You cackle gleefully.", NULL},
+	{EMOTE_LAUGH, "%s falls down laughing.", "You fall down laughing.", NULL},
+	{EMOTE_GIGGLE, "%s giggles.", "You giggle.", NULL},
+	{EMOTE_SHAKE, "%s shakes his head.", "You shake your head.", NULL},
+	{EMOTE_PUKE, "%s pukes.", "Bleaaaaaghhhhhhh!", NULL},
+	{EMOTE_GROWL, "%s growls.", "Grrrrrrrrr....", NULL},
+	{EMOTE_SCREAM, "%s screams at the top of his lungs!", "ARRRRRRRRRRGH!!!!!", NULL},
+	{EMOTE_SIGH, "%s sighs loudly.", "You sigh.", NULL},
+	{EMOTE_SULK, "%s sulks in the corner.", "You sulk.", NULL},
+	{EMOTE_CRY, "%s bursts into tears.", "Waaaaaaahhh...", NULL},
+	{EMOTE_GRIN, "%s grins evilly.", "You grin evilly.", NULL},
+	{EMOTE_BOW, "%s bows deeply.", "You bow deeply.", NULL},
+	{EMOTE_CLAP, "%s gives a round of applause.", "Clap, clap, clap.", NULL},
+	{EMOTE_BLUSH, "%s blushes.", "Your cheeks are burning.", NULL},
+	{EMOTE_BURP, "%s burps loudly.", "You burp loudly.", NULL},
+	{EMOTE_CHUCKLE, "%s chuckles politely.", "You chuckle politely.", NULL},
+	{EMOTE_COUGH, "%s coughs loudly.", "Yuck, try to cover your mouth next time!", NULL},
+	{EMOTE_FLIP, "%s flips head over heels.", "You flip head over heels.", NULL},
+	{EMOTE_FROWN, "%s frowns.", "What's bothering you?", NULL},
+	{EMOTE_GASP, "%s gasps in astonishment.", "You gasp in astonishment.", NULL},
+	{EMOTE_GLARE, "%s glares around him.", "You glare at nothing in particular.", NULL},
+	{EMOTE_GROAN, "%s groans loudly.", "You groan loudly.", NULL},
+	{EMOTE_HICCUP, "%s hiccups.", "*HIC*", NULL},
+	{EMOTE_LICK, "%s licks his mouth and smiles.", "You lick your mouth and smile.", NULL},
+	{EMOTE_POUT, "%s pouts.", "Aww, don't take it so hard.", NULL},
+	{EMOTE_SHIVER, "%s shivers uncomfortably.", "Brrrrrrrrr.", NULL},
+	{EMOTE_SHRUG, "%s shrugs helplessly.", "You shrug.", NULL},
+	{EMOTE_SMIRK, "%s smirks.", "You smirk.", NULL},
+	{EMOTE_SNAP, "%s snaps his fingers.", "PRONTO! You snap your fingers.", NULL},
+	{EMOTE_SNEEZE, "%s sneezes.", "Gesundheit!", NULL},
+	{EMOTE_SNICKER, "%s snickers softly.", "You snicker softly.", NULL},
+	{EMOTE_SNIFF, "%s sniffs sadly.", "You sniff sadly. *SNIFF*", NULL},
+	{EMOTE_SNORE, "%s snores loudly.", "Zzzzzzzzzzzzzzz.", NULL},
+	{EMOTE_SPIT, "%s spits over his left shoulder.", "You spit over your left shoulder.", NULL},
+	{EMOTE_STRUT, "%s struts proudly.", "Strut your stuff.", NULL},
+	{EMOTE_TWIDDLE, "%s patiently twiddles his thumbs.", "You patiently twiddle your thumbs.", NULL},
+	{EMOTE_WAVE, "%s waves happily.", "You wave.", NULL},
+	{EMOTE_WHISTLE, "%s whistles appreciatively.", "You whistle appreciatively.", NULL},
+	{EMOTE_WINK, "%s winks suggestively.", "Have you got something in your eye?", NULL},
+	{EMOTE_YAWN, "%s yawns sleepily.", "You open up your yap and let out a big breeze of stale air.", NULL},
+	{EMOTE_CRINGE, "%s cringes in terror!", "You cringe in terror.", NULL},
+	{EMOTE_BLEED, "%s is bleeding all over the carpet - got a spare tourniquet?", "You bleed all over your nice new armour.", NULL},
+	{EMOTE_THINK, "%s closes his eyes and thinks really hard.", "Anything in particular that you'd care to think about?", NULL}
+};
+
+/** Size of ::emotes_no_target. */
+const int emotes_no_target_size = sizeof(emotes_no_target) / sizeof(emotes_array);
+
+/**
+ * Emotions that are available when the command issuer's target is
+ * himself. */
+emotes_array emotes_self[] =
+{
+	{EMOTE_DANCE, "You skip and dance around by yourself.", "%s embraces himself and begins to dance!", NULL},
+	{EMOTE_LAUGH, "Laugh at yourself all you want, the others won't understand.", "%s is laughing at something.", NULL},
+	{EMOTE_SHAKE, "You are shaken by yourself.", "%s shakes and quivers like a bowlful of jelly.", NULL},
+	{EMOTE_PUKE, "You puke on yourself.", "%s pukes on his clothes.", NULL},
+	{EMOTE_HUG, "You hug yourself.", "%s hugs himself.", NULL},
+	{EMOTE_CRY, "You cry to yourself.", "%s sobs quietly to himself.", NULL},
+	{EMOTE_POKE, "You poke yourself in the ribs, feeling very silly.", "%s pokes himself in the ribs, looking very sheepish.", NULL},
+	{EMOTE_ACCUSE, "You accuse yourself.", "%s seems to have a bad conscience.", NULL},
+	{EMOTE_BOW, "You kiss your toes.", "%s folds up like a jackknife and kisses his own toes.", NULL},
+	{EMOTE_FROWN, "You frown at yourself.", "%s frowns at himself.", NULL},
+	{EMOTE_GLARE, "You glare icily at your feet, they are suddenly very cold.", "%s glares at his feet, what is bothering him?", NULL},
+	{EMOTE_LICK, "You lick yourself.", "%s licks himself - YUCK.", NULL},
+	{EMOTE_SLAP, "You slap yourself, silly you.", "%s slaps himself, really strange...", NULL},
+	{EMOTE_SNEEZE, "You sneeze on yourself, what a mess!", "%s sneezes, and covers himself in a slimy substance.", NULL},
+	{EMOTE_SNIFF, "You sniff yourself.", "%s sniffs himself.", NULL},
+	{EMOTE_SPIT, "You drool all over yourself.", "%s drools all over himself.", NULL},
+	{EMOTE_THANK, "You thank yourself since nobody else wants to!", "%s thanks himself since you won't.", NULL},
+	{EMOTE_WAVE, "Are you going on adventures as well??", "%s waves goodbye to himself.", NULL},
+	{EMOTE_WHISTLE, "You whistle while you work.", "%s whistles to himself in boredom.", NULL},
+	{EMOTE_WINK, "You wink at yourself?? What are you up to?", "%s winks at himself - something strange is going on...", NULL},
+	{EMOTE_BLEED, "Very impressive! You wipe your blood all over yourself.", "%s performs some satanic ritual while wiping his blood on himself.", NULL}
+};
+
+/** Size of ::emotes_self. */
+const int emotes_self_size = sizeof(emotes_self) / sizeof(emotes_array);
+
+/**
+ * Emotions that are available when the command issuer has someone else
+ * other than himself as target. */
+emotes_array emotes_other[] =
+{
+	{EMOTE_NOD, "You nod solemnly to %s.", "%s nods solemnly to you.", "%s nods solemnly to %s."},
+	{EMOTE_DANCE, "You grab %s and begin doing the Cha-Cha!", "%s grabs you, and begins dancing!", "Yipe! %s and %s are doing the Macarena!"},
+	{EMOTE_KISS, "You kiss %s.", "%s kisses you.", "%s kisses %s."},
+	{EMOTE_BOUNCE, "You bounce around the room with %s.", "%s bounces around the room with you.", "%s bounces around the room with %s."},
+	{EMOTE_SMILE, "You smile at %s.", "%s smiles at you.", "%s beams a smile at %s."},
+	{EMOTE_LAUGH, "You take one look at %s and fall down laughing.", "%s looks at you and falls down on the ground laughing.", "%s looks at %s and falls down on the ground laughing."},
+	{EMOTE_SHAKE, "You shake %s's hand.", "%s shakes your hand.", "%s shakes %s's hand."},
+	{EMOTE_PUKE, "You puke on %s.", "%s pukes on your clothes!", "%s pukes on %s."},
+	{EMOTE_HUG, "You hug %s.", "%s hugs you.", "%s hugs %s."},
+	{EMOTE_CRY, "You cry on %s's shoulder.", "%s cries on your shoulder.", "%s cries on %s's shoulder."},
+	{EMOTE_POKE, "You poke %s in the ribs.", "%s pokes you in the ribs.", "%s pokes %s in the ribs."},
+	{EMOTE_ACCUSE, "You look accusingly at %s.", "%s looks accusingly at you.", "%s looks accusingly at %s."},
+	{EMOTE_GRIN, "You grin at %s.", "%s grins evilly at you.", "%s grins evilly at %s."},
+	{EMOTE_BOW, "You bow before %s.", "%s bows before you.", "%s bows before %s."},
+	{EMOTE_FROWN, "You frown darkly at %s.", "%s frowns darkly at you.", "%s frowns darkly at %s."},
+	{EMOTE_GLARE, "You glare icily at %s.", "%s glares icily at you, you feel cold to your bones.", "%s glares at %s."},
+	{EMOTE_LICK, "You lick %s.", "%s licks you.", "%s licks %s."},
+	{EMOTE_SHRUG, "You shrug at %s.", "%s shrugs at you.", "%s shrugs at %s."},
+	{EMOTE_SLAP, "You slap %s.", "You are slapped by %s.", "%s slaps %s."},
+	{EMOTE_SNEEZE, "You sneeze at %s and a film of snot shoots onto him.", "%s sneezes on you, you feel the snot cover you. EEEEEEW.", "%s sneezes on %s and a film of snot covers him."},
+	{EMOTE_SNIFF, "You sniff %s.", "%s sniffs you.", "%s sniffs %s"},
+	{EMOTE_SPIT, "You spit on %s.", "%s spits in your face!", "%s spits in %s's face."},
+	{EMOTE_THANK, "You thank %s heartily.", "%s thanks you heartily.", "%s thanks %s heartily."},
+	{EMOTE_WAVE, "You wave goodbye to %s.", "%s waves goodbye to you. Have a good journey.", "%s waves goodbye to %s."},
+	{EMOTE_WHISTLE, "You whistle at %s.", "%s whistles at you.", "%s whistles at %s."},
+	{EMOTE_WINK, "You wink suggestively at %s.", "%s winks suggestively at you.", "%s winks at %s."},
+	{EMOTE_BEG, "You beg %s for mercy.", "%s begs you for mercy! Show no quarter!", "%s begs %s for mercy!"},
+	{EMOTE_BLEED, "You slash your wrist and bleed all over %s", "%s slashes his wrist and bleeds all over you.", "%s slashes his wrist and bleeds all over %s."},
+	{EMOTE_CRINGE, "You cringe away from %s.", "%s cringes away from you.", "%s cringes away from %s in mortal terror."}
+};
+
+/** Size of ::emotes_other. */
+const int emotes_other_size = sizeof(emotes_other) / sizeof(emotes_array);
+
 /**
  * Compare two commands, for qsort() in init_command() and bsearch() in
  * find_command_element().
@@ -231,22 +357,39 @@ static int compare_A(const void *a, const void *b)
 }
 
 /**
- * Initialize all the commands.
+ * Compare two entries in ::emotes_array.
+ * @param a The first value to compare.
+ * @param b The second value to compare.
+ * @return a->emotion - b->emotion. */
+static int compare_emote(const void *a, const void *b)
+{
+	emotes_array *ia = (emotes_array *) a;
+	emotes_array *ib = (emotes_array *) b;
+
+	return ia->emotion - ib->emotion;
+}
+
+/**
+ * Initialize all the commands and emotes.
  *
- * Sorts the commands using qsort(). */
+ * Sorts the commands and emotes using qsort(). */
 void init_commands()
 {
 	qsort((char *) Commands, CommandsSize, sizeof(CommArray_s), compare_A);
 	qsort((char *) CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);
 	qsort((char *) WizCommands, WizCommandsSize, sizeof(CommArray_s), compare_A);
+
+	qsort(emotes_no_target, emotes_no_target_size, sizeof(emotes_array), compare_emote);
+	qsort(emotes_self, emotes_self_size, sizeof(emotes_array), compare_emote);
+	qsort(emotes_other, emotes_other_size, sizeof(emotes_array), compare_emote);
 }
 
 /**
  * Find a command element.
- * @param cmd The command name
- * @param commarray The commands array to search in
- * @param commsize The commands array size
- * @return The command entry in the array if found */
+ * @param cmd The command name.
+ * @param commarray The commands array to search in.
+ * @param commsize The commands array size.
+ * @return The command entry in the array if found. */
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize)
 {
 	CommArray_s *asp, dummy;
@@ -265,13 +408,8 @@ CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsiz
 
 /**
  * This function is called from the new client/server code.
- * pl is the player who is issuing the command, command is the
- * command.
- *  */
-/**
- * This function is called from the new client/server code.
- * @param pl The player who is issuing the command
- * @param command The command
+ * @param pl The player who is issuing the command.
+ * @param command The command.
  * @return 0 if not a valid command, otherwise return value of the called
  * command function is returned. */
 int execute_newserver_command(object *pl, char *command)
@@ -335,4 +473,21 @@ int execute_newserver_command(object *pl, char *command)
 #endif
 
 	return csp->func(pl, cp);
+}
+
+/**
+ * Find an emote in one of the emote arrays.
+ * @param emotion ID of the emotion to look for.
+ * @param emotes The emotes array to look in.
+ * @param emotessize Size of the array we're searching.
+ * @return An entry from the passed emotes array if found, NULL
+ * otherwise. */
+emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize)
+{
+	emotes_array *asp, dummy;
+
+	dummy.emotion = emotion;
+	asp = (emotes_array *) bsearch((void *) &dummy, (void *) emotes, emotessize, sizeof(emotes_array), compare_emote);
+
+	return asp;
 }

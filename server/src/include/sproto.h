@@ -231,6 +231,7 @@ void inventory(object *op, object *inv);
 void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
 int execute_newserver_command(object *pl, char *command);
+emotes_array *find_emote(int emotion, emotes_array *commarray, int commsize);
 
 /* c_party.c */
 partylist *form_party(object *op, char *params, partylist *firstparty, partylist *lastparty);
