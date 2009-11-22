@@ -246,7 +246,6 @@ void PartyCmd(char *buf, int len, player *pl);
 int command_cast_spell(object *op, char *params);
 int fire_cast_spell(object *op, char *params);
 int legal_range(object *op, int r);
-void change_spell(object *op, char k);
 
 /* c_wiz.c */
 int command_setgod(object *op, char *params);
