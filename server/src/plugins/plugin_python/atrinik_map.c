@@ -38,6 +38,8 @@ static PyMethodDef MapMethods[] =
 	{"Message",                 (PyCFunction)Atrinik_Map_Message,                   METH_VARARGS, 0},
 	{"MapTileAt",               (PyCFunction)Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
 	{"CreateObject",            (PyCFunction)Atrinik_Map_CreateObject,              METH_VARARGS, 0},
+	{"CountPlayers",            (PyCFunction)Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
+	{"GetPlayers",              (PyCFunction)Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -418,6 +420,39 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 	CFR = (PlugHooks[HOOK_CREATEOBJECT])(&GCFP);
 
 	return wrap_object((object *) (CFR->Value[0]));
+}
+
+/**
+ * <h1>map.CountPlayers()</h1>
+ *
+ * Count number of players on map, using players_on_map().
+ * @return The count of players on the map. */
+static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
+{
+	(void) args;
+
+	return Py_BuildValue("i", players_on_map(map->map));
+}
+
+/**
+ * <h1>map.GetPlayers()</h1>
+ *
+ * Get all the players on a specified map.
+ * @return Python list containing pointers to player objects on the
+ * map. */
+static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
+{
+	PyObject *list = PyList_New(0);
+	object *tmp;
+
+	(void) args;
+
+	for (tmp = map->map->player_first; tmp; tmp = CONTR(tmp)->map_above)
+	{
+		PyList_Append(list, wrap_object(tmp));
+	}
+
+	return list;
 }
 
 /*@}*/

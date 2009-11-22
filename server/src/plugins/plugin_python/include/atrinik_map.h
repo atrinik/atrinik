@@ -37,6 +37,8 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *self, PyObject *args);
 static PyObject *Atrinik_Map_Message(Atrinik_Map *self, PyObject *args);
 static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *self, PyObject *args);
 static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args);
+static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args);
+static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args);
 
 /* Object creator (not really needed, since the generic creator does the same thing...) */
 static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
