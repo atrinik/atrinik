@@ -1200,7 +1200,7 @@ MODULEAPI int cmd_customPython(object *op, char *params)
 
 	RunPythonScript(CustomCommand[NextCustomCommand].script, NULL);
 
-	plugin_log(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition--]);
+	plugin_log(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
 
 	return StackReturn[StackPosition--];
 }
