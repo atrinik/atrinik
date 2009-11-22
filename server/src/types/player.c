@@ -761,7 +761,7 @@ static void fire_bow(object *op, int dir)
 
 	/* monster.c 970 holds the arrow code for monsters */
 	arrow->stats.dam += dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic + arrow->magic;
-	arrow->stats.dam = FABS((int)((float)(arrow->stats.dam * lev_damage[SK_level(op)])));
+	arrow->stats.dam = FABS((int)((float)(arrow->stats.dam * LEVEL_DAMAGE(SK_level(op)))));
 
 	/* adjust with the lower of condition */
 	if (bow->item_condition > arrow->item_condition)
@@ -1708,10 +1708,10 @@ void cast_dust (object *op, object *throw_ob, int dir)
 		return;
 
 	if (throw_ob->type == POTION && arch != NULL)
-		cast_cone(op,throw_ob,dir,10,throw_ob->stats.sp,arch,1);
+		cast_cone(op,throw_ob,dir,10,throw_ob->stats.sp,arch);
 	/* dust_effect */
 	else if ((arch = find_archetype("dust_effect")) != NULL)
-		cast_cone(op, throw_ob, dir, 1, 0, arch, 0);
+		cast_cone(op, throw_ob, dir, 1, 0, arch);
 	/* problem occured! */
 	else
 		LOG(llevBug, "BUG: cast_dust() can't find an archetype to use!\n");

@@ -46,7 +46,7 @@ void spell_failure(object *op, int failure, int power)
 	if (failure <= -20 && failure > -40)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your spell causes an unexpected effect.");
-		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
 	}
 	/* confusion */
 	else if (failure <= -40 && failure > -60)
@@ -108,7 +108,7 @@ void prayer_failure(object *op, int failure, int power)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s gives a sign to renew your faith.", godname);
 #if 0
-		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
 #endif
 	}
 	/* confusion */
@@ -531,7 +531,7 @@ int cast_create_food(object *op,object *caster, int dir, char *stringarg)
 	archetype *at = NULL;
 	object *new_op;
 
-	food_value = spells[SP_CREATE_FOOD].bdam + 50 * SP_level_dam_adjust(op, caster, SP_CREATE_FOOD);
+	food_value = spells[SP_CREATE_FOOD].bdam + 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD);
 
 	if (stringarg)
 	{
@@ -585,7 +585,7 @@ int cast_create_food(object *op,object *caster, int dir, char *stringarg)
 	if (new_op->nrof < 1)
 		new_op->nrof = 1;
 
-	cast_create_obj(op, caster, new_op, dir);
+	cast_create_obj(op, new_op, dir);
 	return 1;
 }
 
@@ -661,7 +661,7 @@ int cast_invisible(object *op, object *caster, int spell_type)
 			/* set the base */
 			op->invisible += spells[spell_type].bdur;
 			/*  set the level bonus */
-			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(op, caster, spell_type);
+			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(caster, spell_type);
 #endif
 			break;
 
@@ -669,14 +669,14 @@ int cast_invisible(object *op, object *caster, int spell_type)
 			SET_FLAG(op, FLAG_UNDEAD);
 #if 0
 			op->invisible += spells[spell_type].bdur;
-			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(op, caster, spell_type);
+			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(caster, spell_type);
 #endif
 			break;
 
 		case SP_IMPROVED_INVIS:
 #if 0
 			op->invisible += spells[spell_type].bdur;
-			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(op, caster, spell_type);
+			op->invisible += spells[spell_type].ldam * SP_level_strength_adjust(caster, spell_type);
 #endif
 			break;
 	}
@@ -703,7 +703,7 @@ int cast_earth2dust(object *op, object *caster)
 	if (op->type != PLAYER)
 		return 0;
 
-	strength = spells[SP_EARTH_DUST].bdur + SP_level_strength_adjust(op, caster, SP_EARTH_DUST);
+	strength = spells[SP_EARTH_DUST].bdur + SP_level_strength_adjust(caster, SP_EARTH_DUST);
 	strength = (strength > 15) ? 15 : strength;
 
 	for (i = -strength; i < strength; i++)
@@ -754,7 +754,7 @@ int cast_wor(object *op, object *caster)
 	if (op->owner)
 		op = op->owner;
 
-	dummy->speed = 0.002f * ((float)(spells[SP_WOR].bdur + SP_level_strength_adjust(op, caster, SP_WOR)));
+	dummy->speed = 0.002f * ((float)(spells[SP_WOR].bdur + SP_level_strength_adjust(caster, SP_WOR)));
 	update_ob_speed(dummy);
 	dummy->speed_left = -1;
 	dummy->type = WORD_OF_RECALL;
@@ -770,7 +770,7 @@ int cast_wor(object *op, object *caster)
 
 #if 0
 	LOG(llevDebug, "Word of Recall for %s in %f ticks.\n", op->name, ((-dummy->speed_left) / (dummy->speed == 0 ? 0.0001 : dummy->speed)));
-	LOG(llevDebug, "Word of Recall for player level %d, caster level %d: 0.002 * %d + %d\n", SK_level(op), SK_level(caster), spells[SP_WOR].bdur, SP_level_strength_adjust(op, caster, SP_WOR));
+	LOG(llevDebug, "Word of Recall for player level %d, caster level %d: 0.002 * %d + %d\n", SK_level(op), SK_level(caster), spells[SP_WOR].bdur, SP_level_strength_adjust(caster, SP_WOR));
 #endif
 
 	return 1;
@@ -785,7 +785,7 @@ int cast_wow(object *op, int dir, int ability, SpellTypeFrom item)
 #if 0
 	int sp;
 	if (!rndm(0, 3))
-		return cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+		return cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
 
 	do
 	{
@@ -843,7 +843,7 @@ int perceive_self(object *op)
 	return 1;
 }
 
-/* int cast_create_town_portal (object *op, object *caster, int dir)
+/* int cast_create_town_portal (object *op, int dir)
  *
  * This function cast the spell of town portal for op
  * The spell operates in two passes. During the first one a place
@@ -858,7 +858,7 @@ int perceive_self(object *op)
  * so return an error
  *
  * Code by Tchize (david.delbecq@usa.net) */
-int cast_create_town_portal(object *op, object *caster, int dir)
+int cast_create_town_portal(object *op, int dir)
 {
 #define PORTAL_DESTINATION_NAME "Town portal destination"
 #define PORTAL_ACTIVE_NAME "Existing town portal"
@@ -1057,7 +1057,7 @@ int cast_create_town_portal(object *op, object *caster, int dir)
 	dummy->stats.exp = 1;
 	/* Save the owner of the portal */
 	FREE_AND_COPY_HASH(dummy->race, op->name);
-	cast_create_obj(op, caster, dummy, 0);
+	cast_create_obj(op, dummy, 0);
 
 	/* The force */
 	force = get_archetype("force");
@@ -1143,8 +1143,8 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 	if (op->type != PLAYER)
 		return 0;
 
-	r = 5 + SP_level_strength_adjust(op, caster, SP_DESTRUCTION);
-	dam += SP_level_dam_adjust(op, caster, SP_DESTRUCTION);
+	r = 5 + SP_level_strength_adjust(caster, SP_DESTRUCTION);
+	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION);
 
 	for (i = -r; i < r; i++)
 	{
@@ -1211,7 +1211,7 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 			for (i = 0; i < NROFATTACKS; i++)
 				tmp->resist[i] = 0;
 
-			tmp->stats.hp = spells[spell_type].bdur + 10* SP_level_strength_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 10* SP_level_strength_adjust(caster, spell_type);
 			/* More solid, since they can be torn down */
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
@@ -1219,8 +1219,8 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 		case SP_FIRE_WALL:
 			tmp = get_archetype("firebreath");
 			tmp->attacktype |= AT_MAGIC;
-			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(op, caster, spell_type);
-			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(caster, spell_type);
+			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 			/* so it doesn't propagate */
 			tmp->stats.food = 1;
 			SET_FLAG(tmp, FLAG_WALK_ON);
@@ -1231,8 +1231,8 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 		case SP_FROST_WALL:
 			tmp = get_archetype("icestorm");
 			tmp->attacktype |= AT_MAGIC;
-			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(op, caster, spell_type);
-			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(caster, spell_type);
+			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 			/* so it doesn't propagate */
 			tmp->stats.food = 1;
 			SET_FLAG(tmp, FLAG_WALK_ON);
@@ -1242,8 +1242,8 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 
 		case SP_WALL_OF_THORNS:
 			tmp = get_archetype("thorns");
-			tmp->stats.hp = spells[spell_type].bdur + 3 * SP_level_strength_adjust(op, caster, spell_type);
-			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 3 * SP_level_strength_adjust(caster, spell_type);
+			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 			SET_FLAG(tmp, FLAG_WALK_ON);
 			set_owner(tmp, op);
 			break;
@@ -1251,8 +1251,8 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 		case SP_CHAOS_POOL:
 			tmp = get_archetype("color_spray");
 			tmp->attacktype |= AT_MAGIC;
-			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(op, caster, spell_type);
-			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(caster, spell_type);
+			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 			/* so the color spray object won't propagate */
 			tmp->stats.food = 1;
 			SET_FLAG(tmp, FLAG_WALK_ON);
@@ -1262,14 +1262,14 @@ int magic_wall(object *op, object *caster, int dir, int spell_type)
 
 		case SP_DARKNESS:
 			tmp = get_archetype("darkness");
-			tmp->stats.food = spells[SP_DARKNESS].bdur + SP_level_strength_adjust(op, caster, SP_DARKNESS);
+			tmp->stats.food = spells[SP_DARKNESS].bdur + SP_level_strength_adjust(caster, SP_DARKNESS);
 			break;
 
 		case SP_COUNTERWALL:
 			tmp = get_archetype("counterspell");
 			tmp->attacktype |= AT_MAGIC;
-			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(op, caster, spell_type);
-			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
+			tmp->stats.hp = spells[spell_type].bdur + 5 * SP_level_strength_adjust(caster, spell_type);
+			tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 			tmp->stats.food = 1;
 			tmp->level = SK_level(op);
 			SET_FLAG(tmp, FLAG_WALK_ON);
@@ -1356,7 +1356,7 @@ int cast_light(object *op, object *caster, int dir)
 #if 0
 	object *target = NULL, *tmp = NULL;
 	mapstruct *m;
-	int x, y, dam = spells[SP_LIGHT].bdam + SP_level_dam_adjust(op, caster, SP_LIGHT);
+	int x, y, dam = spells[SP_LIGHT].bdam + SP_level_dam_adjust(caster, SP_LIGHT);
 
 	if (!dir)
 	{
@@ -1398,7 +1398,7 @@ int cast_light(object *op, object *caster, int dir)
 		return 0;
 	}
 
-	tmp->speed = 0.000001f * (float)(spells[SP_LIGHT].bdur - (10 * SP_level_strength_adjust(op, caster, SP_LIGHT)));
+	tmp->speed = 0.000001f * (float)(spells[SP_LIGHT].bdur - (10 * SP_level_strength_adjust(caster, SP_LIGHT)));
 
 	if (tmp->speed < MIN_ACTIVE_SPEED)
 		tmp->speed = MIN_ACTIVE_SPEED;
@@ -1820,7 +1820,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			cast_change_attr(op, caster, target, dir, SP_REGENERATION);
 			/* weapon class */
 			/* ADD POSITIVE WC ADD HERE */
-			force->stats.wc += SP_level_dam_adjust(op, caster, SP_BLESS);
+			force->stats.wc += SP_level_dam_adjust(caster, SP_BLESS);
 
 			break;
 		}
@@ -1884,11 +1884,11 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			/* With PR code, I wonder if this could get merged in with the other protection spells */
 			/* peterm, modified so that it uses level-depend functions */
 			/* change this to POSITIVE AC!! */
-			force->stats.ac = 2 + SP_level_dam_adjust(op, caster, spell_type);
+			force->stats.ac = 2 + SP_level_dam_adjust(caster, spell_type);
 			if ((tmp->stats.ac - force->stats.ac) < -20)
 				force->stats.ac = tmp->stats.ac + 20;
 
-			force->resist[ATNR_PHYSICAL] = 5 + 4 * SP_level_dam_adjust(op, caster, spell_type);
+			force->resist[ATNR_PHYSICAL] = 5 + 4 * SP_level_dam_adjust(caster, spell_type);
 			if (force->resist[ATNR_PHYSICAL] > 25)
 				force->resist[ATNR_PHYSICAL] = 25;
 
@@ -1954,13 +1954,13 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			}
 
 			/* ADD POSITIVE WC ADD HERE */
-			force->stats.wc += SP_level_dam_adjust(op, caster, SP_HOLY_POSSESSION);
-			force->stats.ac += SP_level_dam_adjust(op, caster, SP_HOLY_POSSESSION);
+			force->stats.wc += SP_level_dam_adjust(caster, SP_HOLY_POSSESSION);
+			force->stats.ac += SP_level_dam_adjust(caster, SP_HOLY_POSSESSION);
 			break;
 		}
 
 		case SP_REGENERATION:
-			force->stats.hp = 1 + SP_level_dam_adjust(op, caster, SP_REGENERATION);
+			force->stats.hp = 1 + SP_level_dam_adjust(caster, SP_REGENERATION);
 			break;
 
 		case SP_CURSE:
@@ -1980,8 +1980,8 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 
 			/* change this to negative ! */
 			/* ADD POSITIVE WC ADD HERE */
-			force->stats.ac -= SP_level_dam_adjust(op, caster, SP_CURSE);
-			force->stats.wc -= SP_level_dam_adjust(op, caster, SP_CURSE);
+			force->stats.ac -= SP_level_dam_adjust(caster, SP_CURSE);
+			force->stats.wc -= SP_level_dam_adjust(caster, SP_CURSE);
 			break;
 		}
 
@@ -2019,8 +2019,8 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			}
 
 			/* ADD POSITIVE WC ADD HERE */
-			force->stats.wc += SP_level_dam_adjust(op, caster, SP_BLESS);
-			force->stats.ac += SP_level_dam_adjust(op, caster, SP_BLESS);
+			force->stats.wc += SP_level_dam_adjust(caster, SP_BLESS);
+			force->stats.ac += SP_level_dam_adjust(caster, SP_BLESS);
 			break;
 		}
 
@@ -2143,8 +2143,8 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			force->resist[ATNR_BLIND] = i;
 
 		case SP_HASTE:
-			force->stats.exp = (3 + SP_level_dam_adjust(op, caster, SP_HASTE));
-			if (op->speed > 0.2 * SP_level_strength_adjust(op, caster, SP_HASTE))
+			force->stats.exp = (3 + SP_level_dam_adjust(caster, SP_HASTE));
+			if (op->speed > 0.2 * SP_level_strength_adjust(caster, SP_HASTE))
 				force->stats.exp = 0;
 
 			break;
@@ -2153,7 +2153,7 @@ int cast_change_attr(object *op, object *caster, object *target, int dir, int sp
 			break;
 	}
 
-	force->speed_left = -1 - SP_level_strength_adjust(op, caster, spell_type) * 0.1f;
+	force->speed_left = -1 - SP_level_strength_adjust(caster, spell_type) * 0.1f;
 
 	if (!is_refresh)
 	{
@@ -2360,9 +2360,9 @@ int create_bomb(object *op, object *caster, int dir, int spell_type, char *name)
 	tmp = get_archetype(name);
 
 	/* level dependencies for bomb  */
-	tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(op, caster, spell_type);
-	tmp->stats.hp = spells[spell_type].bdur + SP_level_strength_adjust(op, caster, spell_type);
-	tmp->level = casting_level (caster, spell_type);
+	tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
+	tmp->stats.hp = spells[spell_type].bdur + SP_level_strength_adjust(caster, spell_type);
+	tmp->level = casting_level(caster, SK_level(caster), spell_type);
 	set_owner(tmp,op);
 	tmp->x = dx, tmp->y = dy;
 	insert_ob_in_map(tmp, op->map, op, 0);
@@ -2399,7 +2399,7 @@ void animate_bomb(object *op)
 
 	if (at)
 		for (i = 1; i < 9; i++)
-			fire_arch(op, op, i, at, 0, 0);
+			fire_arch_from_position(op, op, op->x, op->y, i, at, 0, 0);
 
 	explode_object(op);
 }
@@ -2513,8 +2513,8 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 	if (stringarg)
 		missile_plus = atoi(stringarg);
 
-	if (!stringarg || ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus)) < 0)
-		missile_plus = spells[SP_CREATE_MISSILE].bdam + SP_level_dam_adjust(op, caster, SP_CREATE_MISSILE);
+	if (!stringarg || ((1 + SP_level_strength_adjust(caster, SP_CREATE_MISSILE)) - (3 * missile_plus)) < 0)
+		missile_plus = spells[SP_CREATE_MISSILE].bdam + SP_level_dam_adjust(caster, SP_CREATE_MISSILE);
 
 	if (missile_plus > 4)
 		missile_plus = 4;
@@ -2528,7 +2528,7 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 	}
 
 	missile = get_archetype(missile_name);
-	missile->nrof = spells[SP_CREATE_MISSILE].bdur * ((1 + SP_level_strength_adjust(op, caster, SP_CREATE_MISSILE)) - (3 * missile_plus));
+	missile->nrof = spells[SP_CREATE_MISSILE].bdur * ((1 + SP_level_strength_adjust(caster, SP_CREATE_MISSILE)) - (3 * missile_plus));
 
 	if (missile->nrof < 1)
 		missile->nrof = 1;
@@ -2540,7 +2540,7 @@ int cast_create_missile(object *op, object *caster, int dir, char *stringarg)
 
 	SET_FLAG(missile, FLAG_IDENTIFIED);
 	tag = missile->count;
-	if (!cast_create_obj(op, caster, missile, dir) && op->type == PLAYER && !was_destroyed(missile, tag))
+	if (!cast_create_obj(op, missile, dir) && op->type == PLAYER && !was_destroyed(missile, tag))
 	{
 		tmp = get_owner(op);
 
@@ -3112,7 +3112,7 @@ int cast_pacify(object *op, object *weap, archetype *arch, int spellnum)
 	(void) arch;
 	(void) spellnum;
 
-	r = 1 + SP_level_strength_adjust(op ,weap, SP_PACIFY);
+	r = 1 + SP_level_strength_adjust(weap, SP_PACIFY);
 
 	for (i = -r; i < r; i++)
 	{
@@ -3180,7 +3180,7 @@ int summon_fog(object *op, object *caster, int dir, int spellnum)
 	if (!spellarch[spellnum])
 		return 0;
 
-	for (i = 1; i < MIN(2 + SP_level_strength_adjust(op, caster, spellnum), SIZEOFFREE); i++)
+	for (i = 1; i < MIN(2 + SP_level_strength_adjust(caster, spellnum), SIZEOFFREE); i++)
 	{
 		if (wall(op->map, dx, dy))
 		{
@@ -3231,8 +3231,8 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 			sprintf(buf1, "director_%d", dir);
 			tmp = get_archetype(buf1);
 			SET_FLAG(tmp, FLAG_IS_USED_UP);
-			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(op, caster, spell_effect);
-			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(op, caster, spell_effect);
+			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(caster, spell_effect);
+			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(caster, spell_effect);
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
 
@@ -3242,8 +3242,8 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 			SET_FLAG(tmp, FLAG_IS_USED_UP);
 			SET_FLAG(tmp, FLAG_TEAR_DOWN);
 			SET_FLAG(tmp, FLAG_ALIVE);
-			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(op, caster, spell_effect);
-			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(op, caster, spell_effect);
+			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(caster, spell_effect);
+			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(caster, spell_effect);
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
 
@@ -3253,8 +3253,8 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 			SET_FLAG(tmp, FLAG_IS_USED_UP);
 			SET_FLAG(tmp, FLAG_TEAR_DOWN);
 			SET_FLAG(tmp, FLAG_ALIVE);
-			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(op, caster, spell_effect);
-			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(op, caster, spell_effect);
+			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(caster, spell_effect);
+			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(caster, spell_effect);
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
 
@@ -3264,8 +3264,8 @@ int create_the_feature(object *op, object *caster, int dir, int spell_effect)
 			SET_FLAG(tmp, FLAG_IS_USED_UP);
 			SET_FLAG(tmp, FLAG_TEAR_DOWN);
 			SET_FLAG(tmp, FLAG_ALIVE);
-			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(op, caster, spell_effect);
-			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(op, caster, spell_effect);
+			tmp->stats.food = spells[spell_effect].bdur + 10 * SP_level_strength_adjust(caster, spell_effect);
+			tmp->stats.hp = spells[spell_effect].bdam + 5 * SP_level_dam_adjust(caster, spell_effect);
 			tmp->stats.maxhp = tmp->stats.hp;
 			break;
 	}
@@ -3337,7 +3337,7 @@ int cast_transfer(object *op, int dir)
 	{
 		/* DAMN: added spell strength adjust; higher level casters transfer mana faster */
 		int maxsp = plyr->stats.maxsp;
-		int sp = (plyr->stats.sp + spells[SP_TRANSFER].bdam + SP_level_dam_adjust(op, op, SP_TRANSFER));
+		int sp = (plyr->stats.sp + spells[SP_TRANSFER].bdam + SP_level_dam_adjust(op, SP_TRANSFER));
 
 		plyr->stats.sp = sp;
 
@@ -3402,7 +3402,7 @@ int drain_magic(object *op, int dir)
 	 * Caster gains percent of drained mana, also determined by caster level */
 	if (tmp && op!=tmp)
 	{
-		rate = (double)(spells[SP_MAGIC_DRAIN].bdam + 5 * SP_level_dam_adjust(op, op, SP_MAGIC_DRAIN)) / 100.0;
+		rate = (double)(spells[SP_MAGIC_DRAIN].bdam + 5 * SP_level_dam_adjust(op, SP_MAGIC_DRAIN)) / 100.0;
 
 		if (rate > 0.95)
 			rate = 0.95;
@@ -3412,7 +3412,7 @@ int drain_magic(object *op, int dir)
 
 		if (IS_LIVE(op))
 		{
-			rate = (double)(spells[SP_MAGIC_DRAIN].bdam + 5 * SP_level_strength_adjust(op, op, SP_MAGIC_DRAIN)) / 100.0;
+			rate = (double)(spells[SP_MAGIC_DRAIN].bdam + 5 * SP_level_strength_adjust(op, SP_MAGIC_DRAIN)) / 100.0;
 
 			if (rate > 0.95)
 				rate = 0.95;
@@ -3540,7 +3540,7 @@ int cast_charm(object *op, object *caster, archetype *arch, int spellnum)
 	if (op->type != PLAYER)
 		return 0;
 
-	for (i = 1; i < MIN(9 + SP_level_strength_adjust(op, caster, spellnum), SIZEOFFREE); i++)
+	for (i = 1; i < MIN(9 + SP_level_strength_adjust(caster, spellnum), SIZEOFFREE); i++)
 	{
 		xt = op->x + freearr_x[i];
 		yt = op->x + freearr_x[i];
@@ -3605,7 +3605,7 @@ int cast_charm_undead(object *op, object *caster, archetype *arch, int spellnum)
 	else
 		bonus = -1;
 
-	for (i = 1; i < MIN(9 + SP_level_strength_adjust(op, caster, spellnum), SIZEOFFREE); i++)
+	for (i = 1; i < MIN(9 + SP_level_strength_adjust(caster, spellnum), SIZEOFFREE); i++)
 	{
 		xt = op->x + freearr_x[i];
 		yt = op->x + freearr_x[i];
@@ -3938,9 +3938,9 @@ int summon_avatar(object *op, object *caster, int dir, archetype *at, int spelln
 
 	/*  This sets the level dependencies on dam, wc and hp */
 	/* ADD POSITIVE WC ADD HERE */
-	tmp->stats.wc -= SP_level_strength_adjust(op, caster, spellnum);
-	tmp->stats.hp += spells[spellnum].bdur + 12 * SP_level_strength_adjust(op, caster, spellnum);
-	tmp->stats.dam += spells[spellnum].bdam + (2 * SP_level_dam_adjust(op, caster, spellnum));
+	tmp->stats.wc -= SP_level_strength_adjust(caster, spellnum);
+	tmp->stats.hp += spells[spellnum].bdur + 12 * SP_level_strength_adjust(caster, spellnum);
+	tmp->stats.dam += spells[spellnum].bdam + (2 * SP_level_dam_adjust(caster, spellnum));
 
 	/* seen this go negative!*/
 	if (tmp->stats.dam < 0)
@@ -3977,7 +3977,7 @@ int summon_avatar(object *op, object *caster, int dir, archetype *at, int spelln
 
 	/* make experience increase in proportion to the strength of
 	 * the summoned creature. */
-	tmp->stats.exp *= SP_level_spellpoint_cost(op, caster, spellnum) / spells[spellnum].sp;
+	tmp->stats.exp *= SP_level_spellpoint_cost(caster, spellnum) / spells[spellnum].sp;
 	tmp->speed_left = -1;
 	tmp->x = op->x + freearr_x[dir], tmp->y = op->y + freearr_y[dir];
 	tmp->direction = dir;
@@ -4142,12 +4142,19 @@ int cast_consecrate(object *op)
 }
 
 /* finger_of_death() - boss high-level cleric spell. */
-int finger_of_death(object *op, object *caster, int dir)
+int finger_of_death(object *op)
 {
-	object *hitter, *target = get_pointed_target(op, dir);
+	object *hitter, *target = NULL;
 	int success = 1;
 
-	(void) caster;
+	if (op->type == PLAYER)
+	{
+		target = CONTR(op)->target_object;
+	}
+	else if (op->enemy)
+	{
+		target = op->enemy;
+	}
 
 	if (!target || QUERY_FLAG(target, FLAG_CAN_REFL_SPELL))
 	{
@@ -4156,9 +4163,9 @@ int finger_of_death(object *op, object *caster, int dir)
 	}
 
 	/* we create a hitter object -- the spell */
-	hitter=get_archetype("face_of_death");
+	hitter = get_archetype("face_of_death");
 #if 0
-	hitter->level = path_level_mod(caster, spells[SP_FINGER_DEATH].bdam + 3 * SP_level_dam_adjust(op, caster, SP_FINGER_DEATH), SP_FINGER_DEATH);
+	hitter->level = casting_level(caster, spells[SP_FINGER_DEATH].bdam + 3 * SP_level_dam_adjust(caster, SP_FINGER_DEATH), SP_FINGER_DEATH);
 #endif
 	set_owner(hitter, op);
 	hitter->x = target->x;
@@ -4336,13 +4343,13 @@ int animate_weapon(object *op, object *caster, int dir, archetype *at, int spell
 
 	/* modify weapon's animated wc */
 	/* ADD POSITIVE WC ADD HERE */
-	tmp->stats.wc = tmp->stats.wc - SP_level_dam_adjust(op, caster, spellnum) - 5 * weapon->stats.Dex - 2 * weapon->stats.Str - magic;
+	tmp->stats.wc = tmp->stats.wc - SP_level_dam_adjust(caster, spellnum) - 5 * weapon->stats.Dex - 2 * weapon->stats.Str - magic;
 
 	/* Modify hit points for weapon */
-	tmp->stats.maxhp = tmp->stats.maxhp + spells[spellnum].bdur + 4 * SP_level_strength_adjust(op, caster, spellnum) + 8 * magic + 12 * weapon->stats.Con;
+	tmp->stats.maxhp = tmp->stats.maxhp + spells[spellnum].bdur + 4 * SP_level_strength_adjust(caster, spellnum) + 8 * magic + 12 * weapon->stats.Con;
 
 	/* Modify weapon's damage */
-	tmp->stats.dam = spells[spellnum].bdam + weapon->stats.dam + magic + 2 * SP_level_dam_adjust(op, caster, spellnum) + 5 * weapon->stats.Str;
+	tmp->stats.dam = spells[spellnum].bdam + weapon->stats.dam + magic + 2 * SP_level_dam_adjust(caster, spellnum) + 5 * weapon->stats.Str;
 
 	/* sanity checks */
 	/* ADD POSITIVE WC ADD HERE */
@@ -4399,7 +4406,7 @@ int animate_weapon(object *op, object *caster, int dir, archetype *at, int spell
 	LOG(llevDebug, "DEBUG: animate_weapon: slaying %s\n", tmp->slaying ? tmp->slaying : "nothing");
 
 	/* Determine golem's speed */
-	tmp->speed = 0.4f + 0.1f * (float) SP_level_dam_adjust(op, caster, spellnum);
+	tmp->speed = 0.4f + 0.1f * (float) SP_level_dam_adjust(caster, spellnum);
 
 	if (tmp->speed > 3.33f)
 		tmp->speed = 3.33f;
@@ -4441,7 +4448,7 @@ int animate_weapon(object *op, object *caster, int dir, archetype *at, int spell
 	}
 
 	/*  make experience increase in proportion to the strength of the summoned creature. */
-	tmp->stats.exp *= SP_level_spellpoint_cost(op, caster, spellnum) / spells[spellnum].sp;
+	tmp->stats.exp *= SP_level_spellpoint_cost(caster, spellnum) / spells[spellnum].sp;
 	tmp->speed_left = -1;
 	tmp->x = op->x + freearr_x[dir], tmp->y = op->y + freearr_y[dir];
 	tmp->direction = dir;
@@ -4479,8 +4486,8 @@ int cast_faery_fire(object *op, object *caster)
 		return 0;
 
 	/* the smaller this is, the longer it glows */
-	factor = spells[SP_FAERY_FIRE].bdur + SP_level_strength_adjust(op, caster, SP_FAERY_FIRE);
-	r = spells[SP_FAERY_FIRE].bdam + SP_level_dam_adjust(op, caster, SP_FAERY_FIRE);
+	factor = spells[SP_FAERY_FIRE].bdur + SP_level_strength_adjust(caster, SP_FAERY_FIRE);
+	r = spells[SP_FAERY_FIRE].bdam + SP_level_dam_adjust(caster, SP_FAERY_FIRE);
 	r = 5;
 	factor = 10;
 	dam = (SK_level(op) / 10) + 1;
@@ -4594,28 +4601,28 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 
 				/* do level adjustments */
 				if (disease->stats.wc)
-					disease->stats.wc += SP_level_strength_adjust(op, caster, type) / 2;
+					disease->stats.wc += SP_level_strength_adjust(caster, type) / 2;
 
 				if (disease->magic > 0)
-					disease->magic += SP_level_strength_adjust(op, caster, type) / 4;
+					disease->magic += SP_level_strength_adjust(caster, type) / 4;
 
 				if (disease->stats.maxhp > 0)
-					disease->stats.maxhp += SP_level_strength_adjust(op, caster, type);
+					disease->stats.maxhp += SP_level_strength_adjust(caster, type);
 
 				if (disease->stats.maxgrace > 0)
-					disease->stats.maxgrace += SP_level_strength_adjust(op, caster, type);
+					disease->stats.maxgrace += SP_level_strength_adjust(caster, type);
 
 				if (disease->stats.dam)
 				{
 					if (disease->stats.dam > 0)
-						disease->stats.dam += SP_level_dam_adjust(op, caster, type);
+						disease->stats.dam += SP_level_dam_adjust(caster, type);
 					else
-						disease->stats.dam -= SP_level_dam_adjust(op, caster, type);
+						disease->stats.dam -= SP_level_dam_adjust(caster, type);
 				}
 
 				if (disease->last_sp)
 				{
-					disease->last_sp -= 2 * SP_level_dam_adjust(op, caster, type);
+					disease->last_sp -= 2 * SP_level_dam_adjust(caster, type);
 
 					if (disease->last_sp < 1)
 						disease->last_sp = 1;
@@ -4624,22 +4631,22 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 				if (disease->stats.maxsp)
 				{
 					if (disease->stats.maxsp > 0)
-						disease->stats.maxsp += SP_level_dam_adjust(op, caster, type);
+						disease->stats.maxsp += SP_level_dam_adjust(caster, type);
 					else
-						disease->stats.maxsp -= SP_level_dam_adjust(op, caster, type);
+						disease->stats.maxsp -= SP_level_dam_adjust(caster, type);
 				}
 
 				if (disease->stats.ac)
-					disease->stats.ac += SP_level_dam_adjust(op, caster, type);
+					disease->stats.ac += SP_level_dam_adjust(caster, type);
 
 				if (disease->last_eat)
-					disease->last_eat -= SP_level_dam_adjust(op, caster, type);
+					disease->last_eat -= SP_level_dam_adjust(caster, type);
 
 				if (disease->stats.hp)
-					disease->stats.hp -= SP_level_dam_adjust(op, caster, type);
+					disease->stats.hp -= SP_level_dam_adjust(caster, type);
 
 				if (disease->stats.sp)
-					disease->stats.sp -= SP_level_dam_adjust(op, caster, type);
+					disease->stats.sp -= SP_level_dam_adjust(caster, type);
 
 				if (infect_object(walk, disease, 1))
 				{
@@ -4794,7 +4801,7 @@ int cast_cause_conflict(object *op, object *caster, archetype *spellarch, int ty
 	if (op->type != PLAYER)
 		return 0;
 
-	r = 5 + SP_level_strength_adjust(op, caster, type);
+	r = 5 + SP_level_strength_adjust(caster, type);
 
 	for (i = -r; i < r; i++)
 	{

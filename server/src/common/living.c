@@ -196,23 +196,6 @@ int fear_bonus[MAX_STAT + 1] =
 	3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-float lev_damage[MAXLEVEL + 1] =
-{
-	1.0f,
-	1.0f, 	1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.25f,
-	3.5f, 	3.75f, 4.0f, 4.25f, 4.5f, 4.75f, 5.0f, 5.25f, 5.5f, 5.75f,
-	6.0f, 	6.25f, 6.5f, 6.75f, 7.0f, 7.25f, 7.5f, 7.75f, 8.0f, 8.25f,
-	8.5f, 	8.75f, 9.0f, 9.25f, 9.5f, 9.75f, 10.0f, 10.25f, 10.5f, 10.75f,
-	/* 50*/
-	11.0f, 	11.25f, 11.5f, 11.75f, 12.0f, 12.25f, 12.5f, 12.75f, 13.0f, 13.25f,
-	13.5f, 	13.75f, 14.0f, 14.25f, 14.5f, 14.75f, 15.0f, 15.25f, 15.5f, 15.75f,
-	16.0f, 	16.25f, 16.5f, 16.75f, 17.0f, 17.25f, 17.5f, 17.75f, 18.0f, 18.25f,
-	18.5f, 	18.75f, 19.0f, 19.25f, 19.5f, 19.75f, 20.0f, 20.25f, 20.5f, 20.75f,
-	21.0f, 	21.25f, 21.5f, 21.75f, 22.0f, 22.25f, 22.5f, 22.75f, 23.0f, 23.25f,
-	23.5f, 	23.75f, 24.0f, 24.25f, 24.5f, 24.75f, 25.0f, 25.25f, 25.5f, 25.75f,
-	26.0f, 	26.25f, 26.5f, 26.75f, 27.0f, 27.25f, 27.5f, 27.75f, 28.0f, 28.25f
-};
-
 /* Max level is 100.  By making it 101, it means values 0->100 are valid.
  * Thus, we can use op->level directly, and it also works for level 0 people. */
 int savethrow[MAXLEVEL + 1] =
@@ -1706,7 +1689,7 @@ fix_player_jump_resi:
 
 			pl->skill_weapon = skill_weapon;
 			op->stats.wc = wc + skill_weapon->level;
-			op->stats.dam = (sint16)((float)op->stats.dam * lev_damage[skill_weapon->level]);
+			op->stats.dam = (sint16)((float)op->stats.dam * LEVEL_DAMAGE(skill_weapon->level));
 		}
 		else
 			LOG(llevBug, "BUG: fix_player(): player %s has no hth skill!\n", op->name);
@@ -1721,7 +1704,7 @@ fix_player_jump_resi:
 		else
 		{
 			op->stats.wc = wc + pl->skill_ptr[pl->set_skill_weapon]->level;
-			op->stats.dam = (sint16)((float)op->stats.dam * lev_damage[pl->skill_ptr[pl->set_skill_weapon]->level]);
+			op->stats.dam = (sint16)((float)op->stats.dam * LEVEL_DAMAGE(pl->skill_ptr[pl->set_skill_weapon]->level));
 		}
 	}
 
@@ -2057,7 +2040,7 @@ void fix_monster(object *op)
 		op->stats.wc_range = 20;
 
 	/* post adjust */
-	if ((tmp_add = lev_damage[op->level / 3] - 0.75f) < 0)
+	if ((tmp_add = LEVEL_DAMAGE(op->level / 3) - 0.75f) < 0)
 		tmp_add = 0;
 
 	if (op->more && QUERY_FLAG(op, FLAG_FRIENDLY))
@@ -2065,7 +2048,7 @@ void fix_monster(object *op)
 		SET_MULTI_FLAG(op, FLAG_FRIENDLY);
 	}
 
-	op->stats.dam = (sint16) (((float)op->stats.dam * ((lev_damage[(op->level < 0) ? 0 : op->level] + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+	op->stats.dam = (sint16) (((float)op->stats.dam * ((LEVEL_DAMAGE((op->level < 0) ? 0 : op->level) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
 
 	set_mobile_speed(op, 0);
 }

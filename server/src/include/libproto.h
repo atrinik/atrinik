@@ -301,6 +301,7 @@ extern int was_destroyed(object *op, tag_t old_tag);
 extern object *load_object_str(char *obstr);
 extern void object_gc();
 extern int auto_apply(object *op);
+extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
 
 /* porting.c */
 extern char *tempnam_local(char *dir, char *pfx);

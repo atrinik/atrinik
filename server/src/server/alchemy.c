@@ -696,7 +696,7 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
 	{
 		remove_contents(cauldron->inv, NULL);
 #if 0
-		fire_arch(cauldron, cauldron, 0, spellarch[SP_L_FIREBALL], SP_L_FIREBALL, 0);
+		fire_arch_from_position(cauldron, cauldron, cauldron->x, cauldron->y, 0, spellarch[SP_L_FIREBALL], SP_L_FIREBALL, 0);
 #endif
 		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s erupts in flame!", cauldron->name);
 		return;

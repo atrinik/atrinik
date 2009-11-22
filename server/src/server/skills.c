@@ -2008,14 +2008,14 @@ void do_throw(object *op, object *toss_item, int dir)
 		{
 			op->chosen_skill->stats.maxsp = throw_ob->last_grace;
 			/* i don't want overpower the throwing - so dam_bonus / 2 */
-			throw_ob->stats.dam = FABS((int)((float)(throw_ob->stats.dam + dam_bonus[op->stats.Str] / 2) * lev_damage[SK_level(op)]));
+			throw_ob->stats.dam = FABS((int)((float)(throw_ob->stats.dam + dam_bonus[op->stats.Str] / 2) * LEVEL_DAMAGE(SK_level(op))));
 			/* hm, i want not give to much boni for str */
 			throw_ob->stats.wc += thaco_bonus[op->stats.Dex] + SK_level(op);
 		}
 		/* we use level to add boni here-  as higher in level as more dangerous */
 		else
 		{
-			throw_ob->stats.dam = FABS((int)((float)(throw_ob->stats.dam) * lev_damage[op->level]));
+			throw_ob->stats.dam = FABS((int)((float)(throw_ob->stats.dam) * LEVEL_DAMAGE(op->level)));
 			throw_ob->stats.wc += 10 + op->level;
 		}
 

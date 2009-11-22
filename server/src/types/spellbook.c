@@ -145,7 +145,7 @@ static void spellbook_failure(object *op, int failure, int power)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your spell warps!");
 #if 0
-		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW], 0);
+		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
 #endif
 	}
 	/* drain mana */

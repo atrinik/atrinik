@@ -213,7 +213,7 @@ void rune_attack(object *op,object *victim)
 	 * level range boni
 	 * we do here a more simple system like the normal monster damage.
 	 * with the hard set float we can control the damage a bit better. */
-	op->stats.dam = (sint16) ((float)dam * (lev_damage[op->level] * 0.925f));
+	op->stats.dam = (sint16) ((float)dam * (LEVEL_DAMAGE(op->level) * 0.925f));
 
 	if (victim)
 	{

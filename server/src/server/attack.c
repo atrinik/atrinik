@@ -1601,7 +1601,7 @@ void poison_player(object *op, object *hitter, float dam)
 			if (hitter->type == POISON)
 			{
 				dam /= 2.0f;
-				tmp->stats.dam = (int) (((dam + RANDOM() % ((int)dam + 1)) * lev_damage[hitter->level]) * 0.9f);
+				tmp->stats.dam = (int) (((dam + RANDOM() % ((int)dam + 1)) * LEVEL_DAMAGE(hitter->level)) * 0.9f);
 				if (tmp->stats.dam > op->stats.maxhp / 3)
 					tmp->stats.dam = op->stats.maxhp / 3;
 				if (tmp->stats.dam < 1)

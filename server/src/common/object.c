@@ -53,6 +53,64 @@ static int static_walk_semaphore = FALSE;
 /* container for objects without real maps or envs */
 object void_container;
 
+/**
+ * Basically, this is a table of directions, and what directions one
+ * could go to go back to us. Eg, entry 15 below is 4, 14, 16. This
+ * basically means that if direction is 15, then it could either go
+ * direction 4, 14, or 16 to get back to where we are. */
+static const int reduction_dir[SIZEOFFREE][3] =
+{
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{0, 0, 0},
+	{8, 1, 2},
+	{1, 2, -1},
+	{2, 10, 12},
+	{2, 3, -1},
+	{2, 3, 4},
+	{3, 4, -1},
+	{4, 14, 16},
+	{5, 4, -1},
+	{4, 5, 6},
+	{6, 5, -1},
+	{6, 20, 18},
+	{7, 6, -1},
+	{6, 7, 8},
+	{7, 8, -1},
+	{8, 22, 24},
+	{8, 1, -1},
+	{24, 9, 10},
+	{9, 10, -1},
+	{10, 11, -1},
+	{27, 11, 29},
+	{11, 12, -1},
+	{12, 13, -1},
+	{12, 13, 14},
+	{13, 14, -1},
+	{14, 15, -1},
+	{33, 15, 35},
+	{16, 15, -1},
+	{17, 16, -1},
+	{18, 17, 16},
+	{18, 17, -1},
+	{18, 19, -1},
+	{41, 19, 39},
+	{19, 20, -1},
+	{20, 21, -1},
+	{20, 21, 22},
+	{21, 22, -1},
+	{23, 22, -1},
+	{45, 47, 23},
+	{23, 24, -1},
+	{24, 9, -1}
+};
+
 /** Material types */
 materialtype material[NROFMATERIALS] =
 {
@@ -3322,4 +3380,43 @@ int auto_apply(object *op)
 	}
 
 	return tmp ? 1 : 0;
+}
+
+/**
+ * Recursive routine to see if we can find a path to a certain point.
+ * @param m Map we're on
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param dir Direction we're going to. Must be less than SIZEOFFREE.
+ * @return 1 if we can see a direct way to get it */
+int can_see_monsterP(mapstruct *m, int x, int y, int dir)
+{
+	int dx, dy;
+
+	/* Exit condition: invalid direction */
+	if (dir < 0)
+	{
+		return 0;
+	}
+
+	dx = x + freearr_x[dir];
+	dy = y + freearr_y[dir];
+
+	if (!(m = out_of_map(m, &dx, &dy)))
+	{
+		return 0;
+	}
+
+	if (wall(m, dx, dy))
+	{
+		return 0;
+	}
+
+	/* Yes, can see. */
+	if (dir < 9)
+	{
+		return 1;
+	}
+
+	return can_see_monsterP(m, x, y, reduction_dir[dir][0]) | can_see_monsterP(m, x, y, reduction_dir[dir][1]) | can_see_monsterP(m, x, y, reduction_dir[dir][2]);
 }

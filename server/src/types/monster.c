@@ -1131,7 +1131,7 @@ int monster_cast_spell(object *head, object *part, object *pl, int dir, rv_vecto
 		dir = 0;
 
 	/* Monster doesn't have enough spell-points */
-	if (head->stats.sp < SP_level_spellpoint_cost(head, head, sp_typ))
+	if (head->stats.sp < SP_level_spellpoint_cost(head, sp_typ))
 		return 0;
 
 	/* Note: in cf is possible to give the mob a spellbook - this will be used
@@ -1144,7 +1144,7 @@ int monster_cast_spell(object *head, object *part, object *pl, int dir, rv_vecto
 	/* If we cast a spell, only use up casting_time speed */
 	/*head->speed_left += (float)1.0 - (float) spells[sp_typ].time / (float)20.0 * (float)FABS(head->speed); */
 
-	head->stats.sp -= SP_level_spellpoint_cost(head, head, sp_typ);
+	head->stats.sp -= SP_level_spellpoint_cost(head, sp_typ);
 
 	/* add default cast time from spell force to monster */
 	head->last_grace += spell_item->last_grace;
@@ -1401,7 +1401,7 @@ int monster_use_bow(object *head, object *part, object *pl, int dir)
 	arrow->stats.hp = arrow->stats.dam;
 	/* NO_STRENGTH */
 	arrow->stats.dam += bow->stats.dam + bow->magic + arrow->magic;
-	arrow->stats.dam = FABS((int)((float)(arrow->stats.dam * lev_damage[head->level])));
+	arrow->stats.dam = FABS((int)((float)(arrow->stats.dam * LEVEL_DAMAGE(head->level))));
 	arrow->stats.wc = 10 + (bow->magic + bow->stats.wc + arrow->magic + arrow->stats.wc-head->level);
 	arrow->stats.wc_range = bow->stats.wc_range;
 	arrow->map = head->map;

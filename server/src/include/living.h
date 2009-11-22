@@ -76,6 +76,8 @@ extern char *lose_msg[NUM_STATS];
 extern float speed_bonus[MAX_STAT + 1];
 extern uint32 weight_limit[MAX_STAT + 1];
 
+#define LEVEL_DAMAGE(level) (float) (level > 1 ? 0.75f + level * 0.25f : 1.0f)
+
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
@@ -149,8 +151,6 @@ typedef struct liv
 	/** Affects thaco and ac from time to time */
 	sint8 luck;
 } living;
-
-extern float lev_damage[MAXLEVEL + 1];
 
 #ifdef WIN32
 #pragma pack(pop)
