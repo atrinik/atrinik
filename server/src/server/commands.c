@@ -77,7 +77,7 @@ CommArray_s Commands[] =
 	{"/push",			command_push_object, 	1.0f},
 	{"/left",			command_turn_left,		1.0f},
 	{"/right",			command_turn_right,		1.0f},
-	{"/roll",			command_roll,			1.0f},
+	{"/roll",			command_roll,			1.0f}
 	/*  {"/sound",		command_sound,			1.0},*/
 	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
 };
@@ -142,7 +142,7 @@ CommArray_s CommunicationCommands [] =
 	{"/bleed", 		command_bleed,		1.0},
 	{"/cringe", 	command_cringe,		1.0},
 	{"/think", 		command_think,		1.0},
-	{"/me", 		command_me,			1.0},
+	{"/me", 		command_me,			1.0}
 };
 
 /** Size of emotion commands */
@@ -169,7 +169,7 @@ CommArray_s WizCommands [] =
 	{"/addexp", 		command_addexp,					0.0},
 	{"/malloc", 		command_malloc,					0.0},
 	{"/maps", 			command_maps,					0.0},
-	{"/dump", 			command_dump,					0.0}, /* dump info of object nr. x */
+	{"/dump", 			command_dump,					0.0},
 	{"/dm_stealth", 	command_dm_stealth,				0.0},
 	{"/dm_light", 		command_dm_light,				0.0},
 	{"/d_active", 		command_dumpactivelist,			0.0},
@@ -183,26 +183,23 @@ CommArray_s WizCommands [] =
 	{"/set_map_light", 	command_setmaplight,			0.0},
 	{"/wizpass", 		command_wizpass,				0.0},
 	{"/learn_spell", 	command_learn_spell, 			0.0},
+	{"/learn_prayer",   command_learn_special_prayer,   0.0},
 	{"/ssdumptable",    command_ssdumptable,            0.0},
 	{"/patch",			command_patch,					0.0},
 	{"/speed",          command_speed,                  0.0},
 	{"/strings",        command_strings,                0.0},
 	{"/debug",          command_debug,                  0.0},
+	{"/freeze",         command_freeze,                 0.0},
+	{"/remove",         command_remove,                 0.0},
+	{"/stats",          command_stats,                  0.0},
+	{"/forget_spell",   command_forget_spell,           0.0},
+	{"/set_god",        command_setgod,                 0.0}
 
 	/*
 	{"/archs", command_archs,	0.0},
-	{"/abil", command_abil,0.0},
 	{"/fix_me", command_fix_me,	0.0},
-	{"/forget_spell", command_forget_spell, 0.0},
-	{"/invisible", command_invisible,0.0},
-	{"/learn_special_prayer", command_learn_special_prayer, 0.0},
 	{"/players", command_players,	0.0},
-	{"/patch", command_patch,0.0},
 	{"/printlos", command_printlos,0.0},
-	{"/remove", command_remove,0.0},
-	{"/strings", command_strings,	0.0},
-	{"/set_god", command_setgod, 0.0},
-	{"/stats", command_stats,0.0},
 	*/
 };
 
