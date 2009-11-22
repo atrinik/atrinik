@@ -240,6 +240,7 @@ extern mapstruct *out_of_map2(mapstruct *m, int *x, int *y);
 extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
 extern int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
 extern int on_same_map(object *op1, object *op2);
+extern int players_on_map(mapstruct *m);
 
 /* mempool.c */
 extern void init_materials_database();

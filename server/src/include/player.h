@@ -265,8 +265,6 @@ typedef struct pl_player
 	/** This is initialized from init_player_exp() */
 	int last_skill_index;
 
-	int apartment_invite;
-
 	/** weapon_speed_left * 1000 and cast from float to int for client */
 	float action_timer;
 

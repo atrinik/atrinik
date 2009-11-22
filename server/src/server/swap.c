@@ -265,21 +265,6 @@ void swap_below_max(const char *except_level)
 }
 
 /**
- * Count the players on a map, using the local map player list.
- * @param m The map
- * @return Number of players on this map */
-int players_on_map(mapstruct *m)
-{
-	object *tmp;
-	int count;
-
-	for (count = 0, tmp = m->player_first; tmp; tmp = CONTR(tmp)->map_above)
-		count++;
-
-	return count;
-}
-
-/**
  * Removes temporary files of maps which are going to be reset next time
  * they are visited.
  * This is very useful i the tmp-disk is very full. */

@@ -59,7 +59,7 @@ if text[0] == "hello" or text[0] == "hi" or text[0] == "hey":
 	for apartment in sort_by_value(apartments):
 		apartment_links.append("^%s^" % apartment)
 
-	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have %s ones.\nSay ^invited^ to check if you have been invited by somebody to their apartment." % ", ".join(apartment_links));
+	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have %s ones." % ", ".join(apartment_links));
 
 # Explain what an apartment is
 elif text[0] == "apartment":
@@ -160,42 +160,6 @@ elif text[0] == "sell" and text[1] == "me" and text[2] in apartments and text[3]
 		pinfo.last_heal = -1
 
 		me.SayTo(activator, "\nYou have bought an apartment here in the past.\nYou can ^upgrade^ it.");
-
-# Check if the player has been invited by somebody
-elif msg == "invited":
-	apartment_force = activator.CheckInventory(0, "force", "APARTMENT_INVITE")
-
-	if (apartment_force == None):
-		me.SayTo(activator, "\nYou have not been invited by anybody.")
-	else:
-		inviter = FindPlayer(apartment_force.race)
-
-		if inviter == None:
-			me.SayTo(activator, "\nYou have been invited by %s.\nUnfortunately, this player is not in game anymore.\nYour invite has expired." % apartment_force.race)
-			apartment_force.Remove()
-		elif inviter.map.path != apartment_force.slaying:
-			me.SayTo(activator, "\nYou have been invited by %s.\nIt seems like this player left his apartment.\nYour invite has expired." % apartment_force.race)
-			apartment_force.Remove();
-		else:
-			me.SayTo(activator, "\nYou have been invited by %s.\nSay ^join apartment^ now to join %s's apartment!" % (apartment_force.race, apartment_force.race))
-
-# Join the apartment now
-elif msg == "join apartment":
-	apartment_force = activator.CheckInventory(0, "force", "APARTMENT_INVITE")
-
-	if (apartment_force == None):
-		me.SayTo(activator, "\nYou have not been invited by anybody.")
-	else:
-		inviter = FindPlayer(apartment_force.race)
-
-		if inviter == None:
-			me.SayTo(activator, "\nYou have been invited by %s.\nUnfortunately, this player is not in game anymore.\nYour invite has expired." % apartment_force.race)
-		elif inviter.map.path != apartment_force.slaying:
-			me.SayTo(activator, "\nYou have been invited by %s.\nIt seems like this player left his apartment.\nYour invite has expired." % apartment_force.race)
-		else:
-			activator.TeleportTo(apartment_force.slaying, apartment_force.hitpoints, apartment_force.spellpoints, 0)
-
-		apartment_force.Remove()
 
 # Otherwise if the player said anything else, and they were in the upgrade procedure, cancel it.
 else:

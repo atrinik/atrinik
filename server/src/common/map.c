@@ -2489,7 +2489,6 @@ void free_map(mapstruct *m, int flag)
 
 	FREE_AND_NULL_PTR(m->name);
 	FREE_AND_NULL_PTR(m->bg_music);
-	FREE_AND_NULL_PTR(m->owner);
 	FREE_AND_NULL_PTR(m->spaces);
 	FREE_AND_NULL_PTR(m->msg);
 	m->buttons = NULL;
@@ -2567,44 +2566,6 @@ void delete_map(mapstruct *m)
 		last->next = m->next;
 
 	free(m);
-}
-
-/**
- * Check the map owner. Called from functions like pickup,
- * drop, etc.
- * @param map The map to check
- * @param op Player object to check
- * @return 1 if we the player is the map owner, 0 otherwise */
-int check_map_owner(mapstruct *map, object *op)
-{
-	/* Sanity checks */
-	if (map == NULL || map->path == NULL)
-	{
-		LOG(llevBug, "BUG: check_map_owner(): Map provided is either null or has no valid path!\n");
-		return 0;
-	}
-
-	/* Non unique maps or unique maps with no_save 1 are ok for everyone. */
-	if (!map->owner || !MAP_UNIQUE(map) || MAP_NOSAVE(map))
-	{
-		return 1;
-	}
-
-	/* Same for DMs. */
-	if (QUERY_FLAG(op, FLAG_WIZ))
-	{
-		return 1;
-	}
-
-	/* Check the map owner */
-	if (strcmp(MAP_OWNER(map), op->name) == 0)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
 }
 
 /**
@@ -3529,4 +3490,21 @@ int on_same_map(object *op1, object *op2)
 		return TRUE;
 
 	return FALSE;
+}
+
+/**
+ * Count the players on a map, using the local map player list.
+ * @param m The map
+ * @return Number of players on this map */
+int players_on_map(mapstruct *m)
+{
+	object *tmp;
+	int count;
+
+	for (count = 0, tmp = m->player_first; tmp; tmp = CONTR(tmp)->map_above)
+	{
+		count++;
+	}
+
+	return count;
 }

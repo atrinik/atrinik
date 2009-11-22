@@ -701,12 +701,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		}
 	}
 
-	if (tmp->type != CONTAINER && tmp->env != op && op->type == PLAYER && !check_map_owner(op->map, op))
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't apply that here.");
-		return 1;
-	}
-	else if (tmp->type == CONTAINER && tmp->sub_type1 == 1 && tmp->env == op)
+	if (tmp->type == CONTAINER && tmp->sub_type1 == 1 && tmp->env == op)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "This is a special apartment extension - place it in your apartment!");
 		return 1;

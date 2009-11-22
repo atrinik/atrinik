@@ -251,12 +251,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
 		return;
 
-	if (!check_map_owner(pl->map, pl))
-	{
-		new_draw_info(NDI_UNIQUE, 0, pl, "It's not your item!");
-		return;
-	}
-
 	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
 		new_draw_info(NDI_UNIQUE, 0, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
@@ -528,12 +522,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	if (sack->type != CONTAINER)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is not a container.", query_name(sack, NULL));
-		return;
-	}
-
-	if (!check_map_owner(op->map, op))
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't drop this here.");
 		return;
 	}
 

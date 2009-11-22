@@ -63,8 +63,6 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 #define MAP_TIMEOUT(m)         ((m)->timeout)
 /** The map swap time */
 #define MAP_SWAP_TIME(m)       ((m)->swap_time)
-/** The map owner */
-#define MAP_OWNER(m)           ((m)->owner)
 /** Is the map outdoors map? */
 #define MAP_OUTDOORS(m)        ((m)->map_flags & MAP_FLAG_OUTDOOR)
 /** Is the map unique map? */
@@ -478,9 +476,6 @@ typedef struct mapdef
 
 	/** Message map creator may have left */
 	char *msg;
-
-	/** Owner of the map (used for unique maps) */
-	char *owner;
 
 	/** Array of spaces on this map */
 	MapSpace *spaces;
