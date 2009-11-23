@@ -39,7 +39,9 @@
 extern char *coins[NUM_COINS + 1];
 extern archetype *coins_arch[NUM_COINS];
 
-/** Flags to generate_treasures(): */
+/**
+ * Flags to generate_treasures():
+ * @anchor GT_xxx */
 enum
 {
 	GT_ENVIRONMENT = 0x0001,

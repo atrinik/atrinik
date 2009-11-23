@@ -377,7 +377,6 @@ extern void create_treasure(treasurelist *t, object *op, int flag, int difficult
 extern void set_abs_magic(object *op, int magic);
 extern int fix_generated_item(object **op, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
 extern artifactlist *find_artifactlist(int type);
-extern artifact *find_artifact(const char *name);
 extern archetype *find_artifact_archtype(const char *name);
 extern void dump_artifacts();
 extern void give_artifact_abilities(object *op, artifact *art);

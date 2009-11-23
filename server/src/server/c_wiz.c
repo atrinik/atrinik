@@ -502,7 +502,18 @@ int command_create(object *op, char *params)
 		}
 		else
 		{
-			art = find_artifact(cp);
+			art = find_artifactlist(at->clone.type)->items;
+
+			do
+			{
+				if (!strcmp(art->def_at.clone.name, cp))
+				{
+					break;
+				}
+
+				art = art->next;
+			}
+			while (art != NULL);
 
 			if (!art)
 			{
