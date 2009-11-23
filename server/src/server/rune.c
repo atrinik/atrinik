@@ -40,8 +40,6 @@ extern char * sys_errlist[];
 extern int sys_nerr;
 #endif
 
-extern object *objects;
-
 /*  peterm:
     write_rune:
     op:  rune writer

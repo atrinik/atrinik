@@ -525,15 +525,10 @@ dirty_jump:
 
 	switch ((enum spellnrs) type)
 	{
-#if 0
 		case SP_RESTORATION:
-		case SP_HEAL:
-		case SP_MED_HEAL:
-		case SP_MAJOR_HEAL:
 		case SP_CURE_CONFUSION:
-		case SP_CURE_BLINDNESS:
-#endif
 		case SP_MINOR_HEAL:
+		case SP_GREATER_HEAL:
 		case SP_CURE_POISON:
 		case SP_CURE_DISEASE:
 			success = cast_heal(op, SK_level(caster), target, type);
@@ -549,7 +544,11 @@ dirty_jump:
 			break;
 
 		case SP_STRENGTH:
-			success = cast_change_attr(op, caster, target, dir, type);
+		case SP_PROT_COLD:
+		case SP_PROT_FIRE:
+		case SP_PROT_ELEC:
+		case SP_PROT_POISON:
+			success = cast_change_attr(op, caster, target, type);
 			break;
 
 		case SP_DETECT_MAGIC:
@@ -567,469 +566,6 @@ dirty_jump:
 			success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
 			break;
 
-#if 0
-		case SP_BULLET:
-		case SP_LARGE_BULLET:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, 1);
-			break;
-
-		case SP_HOLY_ORB:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, 0);
-			break;
-
-		case SP_S_FIREBALL:
-		case SP_M_FIREBALL:
-		case SP_L_FIREBALL:
-		case SP_S_SNOWSTORM:
-		case SP_M_SNOWSTORM:
-		case SP_L_SNOWSTORM:
-		case SP_HELLFIRE:
-		case SP_POISON_CLOUD:
-		case SP_M_MISSILE:
-		case SP_S_MANABALL:
-		case SP_M_MANABALL:
-		case SP_L_MANABALL:
-		case SP_PROBE:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, !ability);
-			break;
-
-		case SP_VITRIOL:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, 0);
-			break;
-
-		case SP_MASS_CONFUSION:
-		case SP_SHOCKWAVE:
-		case SP_COLOR_SPRAY:
-		case SP_FACE_OF_DEATH:
-		case SP_COUNTER_SPELL:
-		case SP_PARALYZE:
-		case SP_SLOW:
-		case SP_ICESTORM:
-		case SP_FIREBREATH:
-		case SP_LARGE_ICESTORM:
-		case SP_BANISHMENT:
-		case SP_MANA_BLAST:
-		case SP_WINDSTORM:
-		case SP_PEACE:
-		case SP_SPIDERWEB:
-		case SP_VITRIOL_SPLASH:
-		case SP_WRATHFUL_EYE:
-			success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
-			break;
-
-		case SP_TURN_UNDEAD:
-			/* the undead *don't* cast this */
-			if (QUERY_FLAG(op,FLAG_UNDEAD))
-			{
-				new_draw_info(NDI_UNIQUE, 0, op, "Your undead nature prevents you from turning undead!");
-				success = 0;
-				break;
-			}
-
-		case SP_HOLY_WORD:
-			success = cast_cone(op, caster, dir, duration + (turn_bonus[op->stats.Wis] / 5), type, spellarch[type]);
-			break;
-
-		case SP_HOLY_WRATH:
-		case SP_INSECT_PLAGUE:
-		case SP_RETRIBUTION:
-			success = cast_smite_spell(op, caster, type);
-			break;
-
-		case SP_SUNSPEAR:
-		case SP_FIREBOLT:
-		case SP_FROSTBOLT:
-		case SP_S_LIGHTNING:
-		case SP_L_LIGHTNING:
-		case SP_FORKED_LIGHTNING:
-		case SP_STEAMBOLT:
-		case SP_MANA_BOLT:
-			success = fire_bolt(op, caster, dir, type);
-			break;
-
-		case SP_BOMB:
-			success = create_bomb(op, caster, dir, type, "bomb");
-			break;
-
-		case SP_GOLEM:
-		case SP_FIRE_ELEM:
-		case SP_WATER_ELEM:
-		case SP_EARTH_ELEM:
-		case SP_AIR_ELEM:
-			success = summon_monster(op, caster, dir, spellarch[type], type);
-			break;
-
-		case SP_FINGER_DEATH:
-			success = finger_of_death(op);
-			break;
-
-		case SP_SUMMON_AVATAR:
-		case SP_HOLY_SERVANT:
-		{
-			archetype *spat = find_archetype((type == SP_SUMMON_AVATAR) ? "avatar" : "holy_servant");
-			success = summon_avatar(op, caster, dir, spat, type);
-			break;
-		}
-
-		case SP_CONSECRATE:
-			success = cast_consecrate(op);
-			break;
-
-		case SP_SUMMON_CULT:
-			success = summon_cult_monsters(op, dir);
-			break;
-
-		case SP_PET:
-			success = summon_pet(op, dir, item);
-			break;
-
-		case SP_D_DOOR:
-			/* dimension door needs the actual caster, because that is what is moved. */
-			success = dimension_door(op, dir);
-			break;
-
-		case SP_DARKNESS:
-		case SP_WALL_OF_THORNS:
-		case SP_CHAOS_POOL:
-		case SP_COUNTERWALL:
-		case SP_FIRE_WALL:
-		case SP_FROST_WALL:
-		case SP_EARTH_WALL:
-			success = magic_wall(op, caster, dir, type);
-			break;
-
-		case SP_MAGIC_MAPPING:
-			break;
-
-		case SP_FEAR:
-			if (op->type == PLAYER)
-			{
-				bonus = fear_bonus[op->stats.Cha];
-			}
-			else
-			{
-				bonus = caster->head == NULL ? caster->level / 3 + 1 : caster->head->level / 3 + 1;
-			}
-
-			success = cast_cone(op, caster, dir, duration + bonus, SP_FEAR, spellarch[type]);
-			break;
-
-		case SP_WOW:
-			success = cast_wow(op, dir, ability, item);
-			break;
-
-		case SP_DESTRUCTION:
-			success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
-			break;
-
-		case SP_PERCEIVE:
-			success = perceive_self(op);
-			break;
-
-		case SP_INVIS:
-		case SP_INVIS_UNDEAD:
-		case SP_IMPROVED_INVIS:
-			success = cast_invisible(op, caster, type);
-			break;
-
-		case SP_EARTH_DUST:
-			success = cast_earth2dust(op, caster);
-			break;
-
-		case SP_REGENERATION:
-		case SP_BLESS:
-		case SP_CURSE:
-		case SP_HOLY_POSSESSION:
-		case SP_DEXTERITY:
-		case SP_CONSTITUTION:
-		case SP_CHARISMA:
-		case SP_ARMOUR:
-		case SP_IRONWOOD_SKIN:
-		case SP_PROT_COLD:
-		case SP_PROT_FIRE:
-		case SP_PROT_ELEC:
-		case SP_PROT_POISON:
-		case SP_PROT_SLOW:
-		case SP_PROT_DRAIN:
-		case SP_PROT_PARALYZE:
-		case SP_PROT_ATTACK:
-		case SP_PROT_MAGIC:
-		case SP_PROT_CONFUSE:
-		case SP_PROT_CANCEL:
-		case SP_PROT_DEPLETE:
-		case SP_LEVITATE:
-		case SP_HEROISM:
-		case SP_CONFUSION:
-		case SP_XRAY:
-		case SP_DARK_VISION:
-		case SP_RAGE:
-			success = cast_change_attr(op, caster, dir, type);
-			break;
-
-		case SP_REGENERATE_SPELLPOINTS:
-			success = cast_regenerate_spellpoints(op);
-			break;
-
-		case SP_SMALL_SPEEDBALL:
-		case SP_LARGE_SPEEDBALL:
-			success = cast_speedball(op, dir, type);
-			break;
-
-		case SP_CANCELLATION:
-			success = fire_cancellation(op, dir, spellarch[type], !ability);
-			break;
-
-		case SP_ALCHEMY:
-			success = alchemy(op);
-			break;
-
-		case SP_DETECT_MONSTER:
-		case SP_DETECT_EVIL:
-		case SP_SHOW_INVIS:
-			success = cast_detection(op, type);
-			break;
-
-		case SP_AGGRAVATION:
-			aggravate_monsters(op);
-			success = 1;
-			break;
-
-		case SP_BALL_LIGHTNING:
-		case SP_DIVINE_SHOCK:
-		case SP_POISON_FOG:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, !ability);
-			break;
-
-		case SP_METEOR_SWARM:
-		{
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-		}
-
-		case SP_BULLET_SWARM:
-		{
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-		}
-
-		case SP_BULLET_STORM:
-		{
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_LARGE_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-		}
-
-		case SP_CAUSE_MANY:
-		{
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_CAUSE_HEAVY, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-		}
-
-		case SP_METEOR:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type, 0);
-			break;
-
-		case SP_MYSTIC_FIST:
-			success = summon_monster(op, caster, dir, spellarch[type], type);
-			break;
-
-		case SP_RAISE_DEAD:
-		case SP_RESURRECTION:
-			success = cast_raise_dead_spell(op, dir, type, NULL);
-			break;
-
-		case SP_IMMUNE_COLD:
-		case SP_IMMUNE_FIRE:
-		case SP_IMMUNE_ELEC:
-		case SP_IMMUNE_POISON:
-		case SP_IMMUNE_SLOW:
-		case SP_IMMUNE_DRAIN:
-		case SP_IMMUNE_PARALYZE:
-		case SP_IMMUNE_ATTACK:
-		case SP_IMMUNE_MAGIC:
-		case SP_INVULNERABILITY:
-		case SP_PROTECTION:
-		case SP_HASTE:
-			success = cast_change_attr(op, caster, dir, type);
-			break;
-
-		case SP_BUILD_DIRECTOR:
-		case SP_BUILD_BWALL:
-		case SP_BUILD_LWALL:
-		case SP_BUILD_FWALL:
-			success = create_the_feature(op, caster, dir, type);
-			break;
-
-		case SP_RUNE_FIRE:
-		case SP_RUNE_FROST:
-		case SP_RUNE_SHOCK:
-		case SP_RUNE_BLAST:
-		case SP_RUNE_DEATH:
-		case SP_RUNE_ANTIMAGIC:
-			success = write_rune(op, dir, 0, caster->level, s->archname);
-			break;
-
-		case SP_RUNE_DRAINSP:
-			success = write_rune(op, dir, SP_MAGIC_DRAIN, caster->level, s->archname);
-			break;
-
-		case SP_RUNE_TRANSFER:
-			success = write_rune(op, dir, SP_TRANSFER, caster->level, s->archname);
-			break;
-
-		case SP_TRANSFER:
-			success = cast_transfer(op, dir);
-			break;
-
-		case SP_MAGIC_DRAIN:
-			success = drain_magic(op, dir);
-			break;
-
-		case SP_DISPEL_RUNE:
-			/* 0 means no risk of detonating rune */
-			success = dispel_rune(op, dir, 0);
-			break;
-
-		case SP_SUMMON_EVIL_MONST:
-			if (op->type == PLAYER)
-			{
-				return 0;
-			}
-
-			success = summon_hostile_monsters(op, op->stats.maxhp, op->race);
-			break;
-
-		case SP_REINCARNATION:
-		{
-			object *dummy;
-
-			if (stringarg == NULL)
-			{
-				new_draw_info(NDI_UNIQUE, 0,op, "Reincarnate WHO?");
-				success = 0;
-				break;
-			}
-
-			dummy = get_object();
-			FREE_AND_COPY_HASH(dummy->name, stringarg);
-			success = cast_raise_dead_spell(op, dir, type, dummy);
-			break;
-		}
-
-		case SP_RUNE_MAGIC:
-		{
-			int total_sp_cost, spellinrune = look_up_spell_by_name(op, stringarg);
-
-			if (spellinrune != -1)
-			{
-				total_sp_cost = SP_level_spellpoint_cost(caster, spellinrune) + spells[spellinrune].sp;
-
-				if (op->stats.sp < total_sp_cost)
-				{
-					new_draw_info(NDI_UNIQUE, 0, op, "Not enough spellpoints.");
-					return 0;
-				}
-
-				success = write_rune(op, dir, spellinrune, caster->level, stringarg);
-				return (success ? total_sp_cost : 0);
-			}
-
-			return 0;
-		}
-
-		case SP_RUNE_MARK:
-			if (caster->type == PLAYER)
-			{
-				success = write_rune(op, dir, 0, -2, stringarg);
-			}
-			else
-			{
-				success = 0;
-			}
-
-			break;
-
-		case SP_LIGHT:
-			success = cast_light(op, caster, dir);
-			break;
-
-		case SP_DAYLIGHT:
-			success = cast_daylight(op);
-			break;
-
-		case SP_NIGHTFALL:
-			success = cast_nightfall(op);
-			break;
-
-		case SP_FAERY_FIRE:
-			success = cast_faery_fire(op, caster);
-			break;
-
-		case SP_SUMMON_FOG:
-			success = summon_fog(op, caster, dir, type);
-			break;
-
-		case SP_PACIFY:
-			cast_pacify(op, caster, spellarch[type], type);
-			success = 1;
-			break;
-
-		case SP_COMMAND_UNDEAD:
-			cast_charm_undead(op, caster, spellarch[type], type);
-			success = 1;
-			break;
-
-		case SP_CHARM:
-			cast_charm(op, caster, spellarch[type], type);
-			success = 1;
-			break;
-
-		case SP_CAUSE_COLD:
-		case SP_CAUSE_EBOLA:
-		case SP_CAUSE_FLU:
-		case SP_CAUSE_PLAGUE:
-		case SP_CAUSE_LEPROSY:
-		case SP_CAUSE_SMALLPOX:
-		case SP_CAUSE_PNEUMONIC_PLAGUE:
-		case SP_CAUSE_ANTHRAX:
-		case SP_CAUSE_TYPHOID:
-		case SP_CAUSE_RABIES:
-			success = cast_cause_disease(op, caster, dir, spellarch[type], type);
-			break;
-
-		case SP_DANCING_SWORD:
-		case SP_STAFF_TO_SNAKE:
-		case SP_ANIMATE_WEAPON:
-			success = animate_weapon(op, caster, dir, spellarch[type], type);
-			break;
-
-		case SP_SANCTUARY:
-		case SP_FLAME_AURA:
-			success = create_aura(op, caster, spellarch[type], type, 0);
-			break;
-
-		case SP_CONFLICT:
-			success = cast_cause_conflict(op, caster, spellarch[type], type);
-			break;
-
-		case SP_MISSILE_SWARM:
-		{
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_M_MISSILE, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-		}
-#endif
-
-#if 0
-		case SP_CAUSE_HEAVY:
-		case SP_CAUSE_MEDIUM:
-		case SP_CAUSE_CRITICAL:
-		case SP_LARGE_BULLET:
-#endif
-
 		case SP_BULLET:
 		case SP_CAUSE_LIGHT:
 		case SP_PROBE:
@@ -1037,11 +573,7 @@ dirty_jump:
 			break;
 
 		case SP_TOWN_PORTAL:
-			success = cast_create_town_portal(op, dir);
-			break;
-
-		case SP_CREATE_MISSILE:
-			success = cast_create_missile(op, caster, dir, stringarg);
+			success = cast_create_town_portal(op);
 			break;
 
 		case SP_WOR:
@@ -1056,8 +588,55 @@ dirty_jump:
 			success = recharge(op);
 			break;
 
+		case SP_CONSECRATE:
+			success = cast_consecrate(op);
+			break;
+
+		case SP_CAUSE_COLD:
+		case SP_CAUSE_FLU:
+		case SP_CAUSE_LEPROSY:
+		case SP_CAUSE_SMALLPOX:
+		case SP_CAUSE_PNEUMONIC_PLAGUE:
+			success = cast_cause_disease(op, caster, dir, spellarch[type], type);
+			break;
+
+		case SP_FINGER_DEATH:
+			success = finger_of_death(op);
+			break;
+
+		case SP_METEOR:
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type, 0);
+			break;
+
+		case SP_POISON_FOG:
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, !ability);
+			break;
+
+		case SP_METEOR_SWARM:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			break;
+
+		case SP_BULLET_SWARM:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			break;
+
+		case SP_BULLET_STORM:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			break;
+
+		case SP_DESTRUCTION:
+			success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
+			break;
+
+		case SP_BOMB:
+			success = create_bomb(op, caster, dir, type, "bomb");
+			break;
+
 		default:
-			LOG(llevBug, "BUG: cast_spell() has invalid spell nr. %d, town portal is %d\n", type, SP_TOWN_PORTAL);
+			LOG(llevBug, "BUG: cast_spell() has invalid spell nr. %d\n", type);
 			break;
 	}
 
@@ -1415,13 +994,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 
 	switch (type)
 	{
-		case SP_M_MISSILE:
-			move_missile(tmp);
-			break;
-
 		case SP_POISON_FOG:
-		case SP_DIVINE_SHOCK:
-		case SP_BALL_LIGHTNING:
 #if 0
 			tmp->stats.food = spells[type].bdur + 4 * SP_level_strength_adjust(caster, type);
 #endif
@@ -2850,15 +2423,6 @@ void move_ball_lightning(object *op)
 	}
 }
 
-/* raytrace:
- * spell_find_dir(map, x, y, exclude) will search first the center square
- * then some close squares in the given map at the given coordinates for
- * live objects.
- * It will not consider the object given as exlude (= caster) among possible
- * live objects. If the caster is a player, the spell will go after
- * monsters/generators only. If not, the spell will hunt players only.
- * It returns the direction toward the first/closest live object if it finds
- * any, otherwise -1. */
 /**
  * Search what direction a spell should go in, first the center square
  * then some close squares in the given map at the given coordinates for
@@ -3406,4 +2970,23 @@ int cast_smite_spell(object *op, object *caster, int type)
 	insert_ob_in_map(effect, op->map, op, 0);
 
 	return 1;
+}
+
+/**
+ * Summons hostile monsters and places them in nearby squares.
+ * @param op The summoner.
+ * @param n Number of monsters.
+ * @param monstername Name of the monster to summon, should be a valid
+ * archetype.
+ * @return Number of monsters actually put on the map. */
+int summon_hostile_monsters(object *op, int n, const char *monstername)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+	{
+		put_a_monster(op, monstername);
+	}
+
+	return n;
 }

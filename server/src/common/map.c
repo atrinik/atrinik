@@ -1353,7 +1353,7 @@ save_objects_jump1:
 						continue;
 					}
 
-					LOG(llevDebug, "WARNING (only debug): save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
+					LOG(llevDebug, "WARNING (only debug): save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch && op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
 					head->owner = NULL;
 					continue;
 				}

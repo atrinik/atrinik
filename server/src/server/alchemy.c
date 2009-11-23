@@ -590,16 +590,7 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
 			/* Special stuff for consumables */
 			if (tmp->type == FOOD)
 			{
-				/* drains magic */
-				if (tmp->stats.sp && rndm(0 ,1))
-				{
-					tmp->stats.sp = SP_REGENERATE_SPELLPOINTS;
-				}
-				/* So it can drain stats */
-				else
-				{
-					tmp->stats.sp = 0;
-				}
+				tmp->stats.sp = 0;
 
 				/* Poisonous */
 				if (rndm(0, 1))
@@ -790,7 +781,7 @@ void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You unwisely release potent forces!");
 		remove_contents(cauldron->inv, NULL);
-		cast_mana_storm(op, level);
+		cast_magic_storm(op, get_archetype("loose_magic"), level);
 		return;
 	}
 }

@@ -630,10 +630,6 @@ process_object_dirty_jump:
 			move_deep_swamp(op);
 			return 0;
 
-		case CANCELLATION:
-			move_cancellation(op);
-			return 0;
-
 		case BALL_LIGHTNING:
 			move_ball_lightning(op);
 			return 0;
@@ -656,10 +652,6 @@ process_object_dirty_jump:
 
 		case AURA:
 			move_aura(op);
-			return 0;
-
-		case PEACEMAKER:
-			move_peacemaker(op);
 			return 0;
 	}
 

@@ -2171,17 +2171,6 @@ void save_throw_object(object *op, object *originator)
 		if (op == NULL)
 			return;
 
-#if 0
-		/* Currently disabled. -- A.T. 2009 */
-		/* Cancellation. */
-		if (originator->attack[ATNR_CANCELLATION] > 0)
-		{
-			cancellation(op);
-			fix_stopped_item(op, m, originator);
-			return;
-		}
-#endif
-
 		if (op->nrof > 1)
 		{
 			op = decrease_ob_nr(op, rndm(0, op->nrof - 1));

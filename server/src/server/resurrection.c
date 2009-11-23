@@ -42,7 +42,6 @@ extern char * sys_errlist[];
 extern int sys_nerr;
 #endif
 extern char **classname;
-extern object *objects;
 
 void dead_player(object *op)
 {
@@ -65,102 +64,6 @@ void dead_player(object *op)
 	if (!rename(filename, newname))
 		LOG(llevBug, "BUG: dead_player(): rename error (%s) (%s)\n", filename, newname);
 #endif
-}
-
-/*  raise_dead by peterm and mehlhaff@soda.berkeley.edu  */
-/*  *op  --  who is doing the resurrecting
-    dir  --  direction the spell is cast
-    spell_type  --  which spell was cast
-*/
-int cast_raise_dead_spell(object *op, int dir, int spell_type, object * corpseobj)
-{
-	object *temp, *newob;
-	mapstruct *m;
-	char name_to_resurrect[MAX_BUF];
-	int xt, yt, leveldead = 25;
-
-
-	if (corpseobj == NULL)
-	{
-		xt = op->x + freearr_x[dir];
-		yt = op->y + freearr_y[dir];
-		if (!(m = out_of_map(op->map, &xt, &yt)))
-			temp = NULL;
-		else
-		{
-			/*  First we need to find a corpse, if any.  */
-			/* If no object, temp will be set to NULL */
-			for (temp = get_map_ob(m, xt, yt); temp != NULL; temp = temp->above)
-				/* Remove checks for immunity - bit of a hack.  Anyways, only
-				 * the CORPSE type is being used corpses for players, so
-				 * this check should be sufficient.  If we really want
-				 * to be sure, we could probably check the archetype or something. */
-				if (temp->type == CORPSE)
-					break;
-		}
-	}
-	else
-		temp = corpseobj;
-
-	if (temp == NULL && (spell_type == SP_RAISE_DEAD || spell_type == SP_RESURRECTION))
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You need a body for this spell.");
-		return 0;
-	}
-
-	strcpy(name_to_resurrect, temp->name);
-
-	/* no matter what, we fry the corpse.  */
-	if (temp && temp->map)
-	{
-		/* replace corpse object with a burning object */
-		newob = arch_to_object(find_archetype("burnout"));
-		if (newob != NULL)
-		{
-			newob->x = temp->x;
-			newob->y = temp->y;
-			insert_ob_in_map(newob, temp->map, op, 0);
-		}
-		leveldead = temp->level;
-		remove_ob(temp);
-		check_walk_off(temp, NULL, MOVE_APPLY_VANISHED);
-	}
-
-	/* chance it fails to resurrect? -- implement here */
-	/* also, chances you accidentally summon death or worse... */
-	switch (spell_type)
-	{
-		case SP_RAISE_DEAD:
-			/* see if this spell fails, if so then summon some
-			 * undead. levels[1] is important, see below*/
-			if (resurrection_fails(op->level, leveldead))
-			{
-				summon_hostile_monsters(op, 5, "demon");
-				summon_hostile_monsters(op, 3, "skull");
-				return 1;
-			}
-			return resurrect_player(op, name_to_resurrect, spell_type);
-
-		case SP_RESURRECTION:
-			if (resurrection_fails(op->level, leveldead))
-			{
-				summon_hostile_monsters(op, 5, "skull");
-				summon_hostile_monsters(op, 3, "lich");
-				return 1;
-			}
-			return resurrect_player(op, name_to_resurrect, spell_type);
-
-		case SP_REINCARNATION:
-			if (resurrection_fails(op->level, 0))
-			{
-				summon_hostile_monsters(op, 5, "lich");
-				summon_hostile_monsters(op, 3, "demilich");
-				summon_hostile_monsters(op, 1, "spectre");
-				return 1;
-			}
-			return resurrect_player(op, name_to_resurrect, spell_type);
-	}
-	return 1;
 }
 
 int resurrection_fails(int levelcaster, int leveldead)

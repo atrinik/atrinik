@@ -236,10 +236,7 @@
 #define HOLY_ALTAR	            56
 #define PLAYER_CHANGER          57
 
-/**
- * Object owned by a player which can convert
- * a monster into a peaceful being incapable of attack. */
-#define PEACEMAKER              59
+#define UNUSED_TYPE             59
 #define GEM		                60
 #define FIRECHEST	            61
 #define FIREWALL	            62
@@ -404,7 +401,7 @@
  * a fitting amount of money basing on the base setting). */
 #define TYPE_WEALTH				125
 
-/* unused: 126 - 129
+/* unused: 126 - 129, 59
  * type 125 was MONEY_CHANGER */
 
 /**
@@ -707,7 +704,7 @@
 #define NRSPELLPATHS	20
 
 /** Number of different spells */
-#define NROFREALSPELLS	20
+#define NROFREALSPELLS	42
 
 /**
  * @defgroup terrain_type_flags Terrain type flags

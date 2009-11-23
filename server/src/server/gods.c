@@ -189,7 +189,7 @@ void pray_at_altar(object *pl, object *altar)
 				/* you really screwed up */
 				angry = 3;
 				new_draw_info_format(NDI_UNIQUE | NDI_NAVY, 0, pl, "Foul priest! %s punishes you!", pl_god->name);
-				cast_mana_storm(pl, pl_god->level + 20);
+				cast_magic_storm(pl, get_archetype("loose_magic"), pl_god->level + 20);
 			}
 
 			new_draw_info_format(NDI_UNIQUE | NDI_NAVY, 0, pl, "Foolish heretic! %s is livid!", pl_god->name);
@@ -344,7 +344,7 @@ void become_follower(object *op, object *new_god)
 
 		if (random_roll(0, op->level - 1, op, PREFER_LOW) - 5 > 0)
 		{
-			cast_mana_storm(op, new_god->level + 10);
+			cast_magic_storm(op, get_archetype("loose_magic"), new_god->level + 10);
 		}
 
 		return;
@@ -901,9 +901,11 @@ static void god_intervention(object *op, object *god)
 		{
 			if (op->stats.grace < item->stats.grace || op->stats.grace < op->stats.maxgrace)
 			{
+#if 0
 				/* Follower lacks the required grace for the following
 				 * treasure list items. */
-				(void) cast_change_attr(op, op, op, 0, SP_HOLY_POSSESSION);
+				(void) cast_change_attr(op, op, op, SP_HOLY_POSSESSION);
+#endif
 				return;
 			}
 
@@ -1144,7 +1146,7 @@ static int god_examines_priest(object *op, object *god)
 
 		if (random_roll(0, angry, op, PREFER_LOW))
 		{
-			cast_mana_storm(op, SK_level(op) + (angry * 3));
+			cast_magic_storm(op, get_archetype("loose_magic"), SK_level(op) + (angry * 3));
 		}
 
 		new_draw_info_format(NDI_UNIQUE | NDI_NAVY, 0, op, "%s becomes angry and punishes you!", god->name);

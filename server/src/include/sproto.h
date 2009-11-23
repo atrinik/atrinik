@@ -429,7 +429,6 @@ CFParm *CFWGetTod(CFParm *PParm);
 
 /* resurrection.c */
 void dead_player(object *op);
-int cast_raise_dead_spell(object *op, int dir, int spell_type, object *corpseobj);
 int resurrection_fails(int levelcaster, int leveldead);
 int resurrect_player(object *op, char *playername, int rspell);
 void dead_character(char *name);
@@ -530,67 +529,25 @@ object *get_skill_from_inventory(object *op, const char *skname);
 
 /* spell_effect.c */
 void prayer_failure(object *op, int failure, int power);
-void cast_mana_storm(object *op, int lvl);
 void cast_magic_storm(object *op, object *tmp, int lvl);
-void aggravate_monsters(object *op);
 int recharge(object *op);
-void polymorph_living(object *op);
-void polymorph_melt(object *who, object *op);
-void polymorph_item(object *who, object *op);
-void polymorph(object *op, object *who);
-int cast_polymorph(object *op, int dir);
 int cast_create_food(object *op, object *caster, int dir, char *stringarg);
-int cast_speedball(object *op, int dir, int type);
 int probe(object *op);
-int cast_invisible(object *op, object *caster, int spell_type);
-int cast_earth2dust(object *op, object *caster);
 int cast_wor(object *op, object *caster);
-int cast_wow(object *op, int dir, int ability, SpellTypeFrom item);
-int perceive_self(object *op);
-int cast_create_town_portal(object *op, int dir);
+int cast_create_town_portal(object *op);
 int cast_destruction(object *op, object *caster, int dam, int attacktype);
-int magic_wall(object *op, object *caster, int dir, int spell_type);
-int cast_light(object *op, object *caster, int dir);
-int dimension_door(object *op, int dir);
 int cast_heal(object *op, int level, object *target, int spell_type);
-int cast_regenerate_spellpoints(object *op);
-int cast_change_attr(object *op, object *caster, object *target, int dir, int spell_type);
-int summon_pet(object *op, int dir, SpellTypeFrom item);
+int cast_change_attr(object *op, object *caster, object *target, int spell_type);
 int create_bomb(object *op, object *caster, int dir, int spell_type, char *name);
 void animate_bomb(object *op);
-int fire_cancellation(object *op, int dir, archetype *at, int magic);
-void move_cancellation(object *op);
-void cancellation(object *op);
-int cast_create_missile(object *op, object *caster, int dir, char *stringarg);
-int alchemy(object *op);
 int remove_depletion(object *op, object *target);
 int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
 int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_detection(object *op, object *target, int type);
-int cast_pacify(object *op, object *weap, archetype *arch, int spellnum);
-int summon_fog(object *op, object *caster, int dir, int spellnum);
-int create_the_feature(object *op, object *caster, int dir, int spell_effect);
-int cast_transfer(object *op, int dir);
-int drain_magic(object *op, int dir);
-void counterspell(object *op, int dir);
-int summon_hostile_monsters(object *op, int n, const char *monstername);
-int cast_charm(object *op, object *caster, archetype *arch, int spellnum);
-int cast_charm_undead(object *op, object *caster, archetype *arch, int spellnum);
-object *choose_cult_monster(object *pl, object *god, int summon_level);
-int summon_cult_monsters(object *op, int old_dir);
-int summon_avatar(object *op, object *caster, int dir, archetype *at, int spellnum);
-object *fix_summon_pet(archetype *at, object *op, int dir, int type);
 int cast_consecrate(object *op);
 int finger_of_death(object *op);
-int animate_weapon(object *op, object *caster, int dir, archetype *at, int spellnum);
-int cast_daylight(object *op);
-int cast_nightfall(object *op);
-int cast_faery_fire(object *op, object *caster);
-int make_object_glow(object *op, int radius, int time);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
 void move_aura(object *aura);
-void move_peacemaker(object *op);
-int cast_cause_conflict(object *op, object *caster, archetype *spellarch, int type);
 
 /* spell_util.c */
 void init_spells();
@@ -634,6 +591,7 @@ int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type
 int look_up_spell_by_name(object *op, const char *spname);
 void put_a_monster(object *op, const char *monstername);
 int cast_smite_spell(object *op, object *caster, int type);
+int summon_hostile_monsters(object *op, int n, const char *monstername);
 
 /* swap.c */
 void read_map_log();
