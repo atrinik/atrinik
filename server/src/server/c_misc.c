@@ -23,7 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/** @file
+/**
+ * @file
  * Handles misc. input request - things like hash table, malloc, maps,
  * who, etc. */
 

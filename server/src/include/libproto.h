@@ -296,7 +296,7 @@ extern int absdir(int d);
 extern int dirdiff(int dir1, int dir2);
 extern int get_dir_to_target(object *op, object *target, rv_vector *range_vector);
 extern int can_pick(object *who, object *item);
-extern object *ObjectCreateClone(object *asrc);
+extern object *object_create_clone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
 extern object *load_object_str(char *obstr);
 extern void object_gc();

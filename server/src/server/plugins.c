@@ -1751,7 +1751,7 @@ CFParm *CFWIdentifyObject(CFParm *PParm)
 }
 
 /**
- * ObjectCreateClone() and copy_object() wrapper.
+ * object_create_clone() and copy_object() wrapper.
  * @param PParm Parameters array.
  * - <b>0</b>: Object.
  * - <b>1</b>: Modes:
@@ -1764,7 +1764,7 @@ CFParm *CFWObjectCreateClone(CFParm *PParm)
 
 	if (*(int *) PParm->Value[1] == 0)
 	{
-		CFP->Value[0] = ObjectCreateClone((object *) PParm->Value[0]);
+		CFP->Value[0] = object_create_clone((object *) PParm->Value[0]);
 	}
 	else if (*(int *) PParm->Value[1] == 1)
 	{

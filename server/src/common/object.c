@@ -3205,7 +3205,7 @@ int can_pick(object *who, object *item)
  * create clone from object to another
  * @param asrc
  * @return  */
-object *ObjectCreateClone(object *asrc)
+object *object_create_clone(object *asrc)
 {
 	object *dst = NULL, *tmp, *src, *part, *prev, *item;
 
@@ -3243,7 +3243,7 @@ object *ObjectCreateClone(object *asrc)
 	/* copy inventory */
 	for (item = src->inv; item; item = item->below)
 	{
-		(void) insert_ob_in_ob(ObjectCreateClone(item), dst);
+		insert_ob_in_ob(object_create_clone(item), dst);
 	}
 
 	return dst;
