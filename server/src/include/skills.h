@@ -33,93 +33,49 @@
 /** Skill numbers. */
 enum skillnrs
 {
-	/** Steal from other players/NPCs */
-	SK_STEALING,
-	/** Open doors without having to bash them */
-	SK_LOCKPICKING,
-	/** Player can hide from monsters */
-	SK_HIDING,
-	/** Can auto identify weapons/armour */
-	SK_SMITH,
-	/** Can auto identify bows/crossbows/arrows/bolts/etc */
-	SK_BOWYER,
-
-	/** Can auto identify gems */
-	SK_JEWELER,
-	/** Can auto identify potions/amulets/containers */
+	/** Player can attempt alchemical recipes. */
 	SK_ALCHEMY,
-	/** Can auto identify staves/rods/wands */
-	SK_THAUMATURGY,
-	/** Can auto identify scrolls/books */
+	/** Can read books */
 	SK_LITERACY,
 	/** Sells items to shops at Cha + level-based bonus (30 max) */
 	SK_BARGAINING,
+	/** Player may write spell scrolls */
+	SK_INSCRIPTION,
 
-	/** Player may 'hop' over 1-2 spaces */
-	SK_JUMPING,
-	/** Player may sense magic in handled items */
-	SK_DET_MAGIC,
-	/** Player may charm unaggressive monsters */
-	SK_ORATORY,
-	/** Player may pacify hostile monsters once */
-	SK_MUSIC,
-	/** Player may sense cursed items in inventory */
-	SK_DET_CURSE,
+	/** Can attack hand-to-hand, see attack_hth() */
+	SK_BOXING,
+	/** Can attack hand-to-hand, see attack_hth() */
+	SK_KARATE,
+	/** Player can throw items */
+	SK_THROWING,
+
+	/** Player can cast magic spells */
+	SK_SPELL_CASTING,
+	/** Player use wands/horns/rods */
+	SK_USE_MAGIC_ITEM,
+	/** Player can cast cleric spells and regenerate grace points */
+	SK_PRAYING,
 
 	/** Player can find traps better */
 	SK_FIND_TRAPS,
-	/** Player can regain sp/hp at a faster rate */
-	SK_MEDITATION,
-	/** Can attack hand-to-hand, see attack_hth() */
-	SK_BOXING,
-	/** Player attack for fireborn characters */
-	SK_FLAME_TOUCH,
-	/** Can attack hand-to-hand, see attack_hth() */
-	SK_KARATE,
-
-	/** Player moves quickly over hills/mountains  */
-	SK_CLIMBING,
-	/** Player moves quickly through jungle/forest */
-	SK_WOODSMAN,
-	/** Player may write spell scrolls */
-	SK_INSCRIPTION,
-	/** Player can attack with melee weapons */
-	SK_MELEE_WEAPON,
-	/** Player can attack with missile weapons */
-	SK_MISSILE_WEAPON,
-
-	/** Player can throw items */
-	SK_THROWING,
-	/** Player can cast magic spells */
-	SK_SPELL_CASTING,
 	/** Player can remove traps */
 	SK_REMOVE_TRAP,
-	/** Player can set traps */
-	SK_SET_TRAP,
-	/** Player use wands/horns/rods */
-	SK_USE_MAGIC_ITEM,
 
-	/** Player can cast cleric spells and regenerate grace points */
-	SK_PRAYING,
-	/** Player attack for troll, dragon characters */
-	SK_CLAWING,
-	/** Skill for players who can fly. */
-	SK_LEVITATION,
-	/** Disarm removes traps and grabs sometimes trap items for set traps */
-	SK_DISARM_TRAPS,
+	/** Player can use bows. */
+	SK_MISSILE_WEAPON,
 	/** Player can use crossbows. */
 	SK_XBOW_WEAP,
-
 	/** Player can use slings. */
 	SK_SLING_WEAP,
-	/** Player can identify items. */
-	SK_IDENTIFY,
+
 	/** Player can use slash weapons. */
 	SK_SLASH_WEAP,
 	/** Player can use cleave weapons. */
 	SK_CLEAVE_WEAP,
 	/** Player can use pierce weapons. */
 	SK_PIERCE_WEAP,
+	/** Player can attack with impact weapons */
+	SK_MELEE_WEAPON,
 
 	/** Player can use two-handed weapons. */
 	SK_TWOHANDS,

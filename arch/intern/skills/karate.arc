@@ -10,7 +10,7 @@ sub_type 0
 sys_object 1
 last_sp 2
 no_drop 1
-sp 19
+sp 5
 last_eat 1
 level 1
 exp 0

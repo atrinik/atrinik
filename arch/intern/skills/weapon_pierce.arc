@@ -5,7 +5,7 @@ sub_type 0
 sys_object 1
 face skill.101
 no_drop 1
-sp 39
+sp 17
 last_eat 1
 level 1
 exp 0

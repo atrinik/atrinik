@@ -1351,7 +1351,7 @@ void examine(object *op, object *tmp)
 		{
 			if (tmp->item_skill)
 			{
-				sprintf(buf, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(op, tmp->item_skill));
+				sprintf(buf, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
 				new_draw_info(NDI_UNIQUE, 0, op, buf);
 			}
 			else

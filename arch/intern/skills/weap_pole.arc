@@ -5,7 +5,7 @@ sub_type 2
 sys_object 1
 no_drop 1
 face skill.101
-sp 41
+sp 20
 level 1
 exp 0
 end

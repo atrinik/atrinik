@@ -2006,28 +2006,6 @@ void dragon_ability_gain(object *who, int atnr, int level)
 			return;
 		}
 	}
-	else if (item->type == SKILL)
-	{
-		if (strcmp(item->title, "clawing") == 0 && change_skill(who, SK_CLAWING))
-		{
-			/* adding new attacktypes to the clawing skill */
-			/* clawing skill object */
-			tmp = who->chosen_skill;
-
-			if (tmp->type == SKILL && strcmp(tmp->name, "clawing") == 0 && !(tmp->attacktype & item->attacktype))
-			{
-				/* always add physical if there's none */
-				if (tmp->attacktype == 0)
-					tmp->attacktype = AT_PHYSICAL;
-
-				/* we add the new attacktype to the clawing ability */
-				tmp->attacktype += item->attacktype;
-
-				if (item->msg != NULL)
-					new_draw_info(NDI_UNIQUE | NDI_BLUE, 0, who, item->msg);
-			}
-		}
-	}
 	else if (item->type == FORCE)
 	{
 		/* forces in the treasurelist can alter the player's stats */

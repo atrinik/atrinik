@@ -91,8 +91,8 @@ void move_deep_swamp(object *op)
 				case 3:
 					if (rndm(0, 4) == 0)
 					{
-						/* player is ready to drown - only woodsman skill can save him */
-						if (rndm(0, 4) == 0 || !change_skill(above, SK_WOODSMAN))
+						/* player is ready to drown */
+						if (rndm(0, 4) == 0)
 						{
 							op->stats.food = 0;
 							new_draw_info_format(NDI_UNIQUE | NDI_ALL, 1, NULL, "%s disappeared into a swamp.", above->name);
@@ -101,11 +101,6 @@ void move_deep_swamp(object *op)
 							above->stats.hp = -1;
 							/* player dies in the swamp */
 							kill_player(above);
-						}
-						else
-						{
-							op->stats.food = 2;
-							new_draw_info(NDI_UNIQUE, 0, above, "You almost drowned in the swamp! You survived due to your woodsman skill.");
 						}
 					}
 

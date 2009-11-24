@@ -7,5 +7,5 @@ sys_object 1
 no_drop 1
 level 1
 exp 0
-sp 9
+sp 2
 end

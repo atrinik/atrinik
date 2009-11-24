@@ -885,7 +885,7 @@ void check_login(object *op)
 	 * Moved ahead of the esrv functions, so proper weights will be
 	 * sent to the client. */
 	(void) init_player_exp(op);
-	(void) link_player_skills(op);
+	link_player_skills(op);
 
 	if (!legal_range (op, pl->shoottype))
 		pl->shoottype = range_none;

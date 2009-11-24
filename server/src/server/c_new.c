@@ -801,7 +801,7 @@ void command_new_char(char *params, int len, player *pl)
 	CLEAR_FLAG(op, FLAG_WIZ);
 	(void) init_player_exp(op);
 	give_initial_items(op, op->randomitems);
-	(void) link_player_skills(op);
+	link_player_skills(op);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 	/* force send of skill exp data to client */
 	CONTR(op)->last_stats.exp = 1;
