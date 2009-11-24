@@ -427,13 +427,6 @@ CFParm *CFWPlaySoundMap(CFParm *PParm);
 CFParm *CFWCreateObject(CFParm *PParm);
 CFParm *CFWGetTod(CFParm *PParm);
 
-/* resurrection.c */
-void dead_player(object *op);
-int resurrection_fails(int levelcaster, int leveldead);
-int resurrect_player(object *op, char *playername, int rspell);
-void dead_character(char *name);
-int dead_player_exists(char *name);
-
 /* rune.c */
 int write_rune(object *op, int dir, int inspell, int level, char *runename);
 void rune_attack(object *op, object *victim);
