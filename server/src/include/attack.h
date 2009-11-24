@@ -256,7 +256,6 @@ extern char *resist_plus[NROFATTACKS];
 extern char *attacktype_desc[NROFATTACKS];
 extern char *resist_save[NROFATTACKS];
 
-extern int  protection_tab[NROFATTACKS];
 extern char *protection_save[NROFPROTECTIONS];
 extern char *protection_name[NROFPROTECTIONS];
 

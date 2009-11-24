@@ -42,20 +42,11 @@ int monster_apply_special(object *who, object *op, int aflags);
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
 int hit_map(object *op, int dir, int type);
-int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum);
 int kill_object(object *op, int dam, object *hitter, int type);
 object *hit_with_arrow(object *op, object *victim);
-void tear_down_wall(object *op);
-void poison_player(object *op, object *hitter, float dam);
-void slow_living(object *op, object *hitter, int dam);
-void confuse_living(object *op, object *hitter, int dam);
-void blind_living(object *op, object *hitter, int dam);
-void paralyze_living(object *op, object *hitter, int dam);
-void deathstrike_player(object *op, object *hitter, int *dam);
-int adj_attackroll(object *hitter, object *target);
-int is_aimed_missile(object *op);
+void confuse_living(object *op);
+void paralyze_living(object *op, int dam);
 int is_melee_range(object *hitter, object *enemy);
-int did_make_save_item(object *op, object *originator);
 void save_throw_object(object *op, object *originator);
 
 /* ban.c */

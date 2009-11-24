@@ -52,13 +52,13 @@ void spell_failure(object *op, int failure, int power)
 	else if (failure <= -40 && failure > -60)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your magic recoils on you!");
-		confuse_living(op, op, 99);
+		confuse_living(op);
 	}
 	/* paralysis */
 	else if (failure <= -60 && failure > -80)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your magic recoils on you!");
-		paralyze_living(op, op, 99);
+		paralyze_living(op, 99);
 	}
 	/* blast the immediate area */
 	else if (failure <= -80)
@@ -121,14 +121,14 @@ void prayer_failure(object *op, int failure, int power)
 	else if (failure <= -40 && failure > -60)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Your diety touches your mind!");
-		confuse_living(op, op, 99);
+		confuse_living(op);
 	}
 	/* Paralysis */
 	else if (failure <= -60 && failure> -150)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "%s requires you to pray NOW.", godname);
 		new_draw_info(NDI_UNIQUE, 0, op, "You comply, ignoring all else.");
-		paralyze_living(op, op, 99);
+		paralyze_living(op, 99);
 	}
 	/* Blast the immediate area. */
 	else if (failure <= -150)
