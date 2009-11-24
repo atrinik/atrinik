@@ -43,12 +43,11 @@ CFPlugin PlugList[32];
 int PlugNR = 0;
 
 /**
- * Browse through the inventory of an object to find first
- * event that matches the event type of event_nr.
+ * Browse through the inventory of an object to find first event that
+ * matches the event type of event_nr.
  * @param op The object to search in
- * @param event_nr The event number. See
- * {@link event_numbers event numbers} for a list of possible
- * event numbers.
+ * @param event_nr The event number. See @ref event_numbers for a list of
+ * possible event numbers.
  * @return Script object matching the event type */
 object *get_event_object(object *op, int event_nr)
 {
