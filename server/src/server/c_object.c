@@ -28,7 +28,6 @@
  * Object ID parsing functions */
 
 #include <global.h>
-#include <loader.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

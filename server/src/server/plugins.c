@@ -28,7 +28,6 @@
  * Handles the plugins code. */
 
 #include <plugin.h>
-#include <sounds.h>
 
 #ifndef __CEXTRACT__
 #include <sproto.h>

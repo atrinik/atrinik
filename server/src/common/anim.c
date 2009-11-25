@@ -28,7 +28,6 @@
  * This file contains animation related code. */
 
 #include <global.h>
-#include <stdio.h>
 
 /**
  * Free all animations loaded */

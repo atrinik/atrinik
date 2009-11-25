@@ -33,8 +33,6 @@
 
 #include <global.h>
 #include <book.h>
-#include <living.h>
-#include <spells.h>
 
 /* Define this if you want to archive book titles by contents.
  * This option should enforce UNIQUE combinations of titles,authors and

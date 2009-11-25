@@ -28,18 +28,12 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
-
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
 /* need math lib for double-precision and pow() in dragon_eat_flesh() */
 #include <math.h>
-
-#if defined(vax) || defined(ibm032)
-size_t strftime(char *, size_t, const char *, const struct tm *);
-time_t mktime(struct tm *);
-#endif
 
 static int is_legal_2ways_exit(object* op, object *exit);
 

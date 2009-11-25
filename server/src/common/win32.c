@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Win32 related compatibility functions. */
+
 #include <global.h>
 
 #include <stdarg.h>
@@ -39,14 +43,16 @@ struct itimerval
 	struct timeval it_value;
 };
 
-#define ITIMER_REAL    0		/*generates sigalrm */
-#define ITIMER_VIRTUAL 1		/*generates sigvtalrm */
-#define ITIMER_VIRT    1		/*generates sigvtalrm */
-#define ITIMER_PROF    2		/*generates sigprof */
+#define ITIMER_REAL    0
+#define ITIMER_VIRTUAL 1
+#define ITIMER_VIRT    1
+#define ITIMER_PROF    2
 
-
-/* Functions to capsule or serve linux style function
- * for Windows Visual C++ */
+/**
+ * Gets the time of the day.
+ * @param tv Will receive the time of the day.
+ * @param timezone_Info Will receive the timezone info.
+ * @return 0. */
 int gettimeofday(struct timeval *tv, struct timezone *timezone_Info)
 {
 	FILETIME time;
@@ -59,7 +65,6 @@ int gettimeofday(struct timeval *tv, struct timezone *timezone_Info)
 	 * 11644473600 is the number of seconds between
 	 * the Win32 epoch 1601-Jan-01 and the Unix epoch 1970-Jan-01
 	 * Tests found floating point to be 10x faster than 64bit int math. */
-
 	timed = ((time.dwHighDateTime * 4294967296e-7) - 11644473600.0) + (time.dwLowDateTime * 1e-7);
 
 	tv->tv_sec  = (long) timed;
@@ -77,7 +82,10 @@ int gettimeofday(struct timeval *tv, struct timezone *timezone_Info)
 	return 0;
 }
 
-
+/**
+ * Opens a directory for reading. The handle should be disposed through closedir().
+ * @param dir Directory path.
+ * @return Directory handle, NULL if failure. */
 DIR *opendir(const char *dir)
 {
 	DIR *dp;
@@ -88,8 +96,12 @@ DIR *opendir(const char *dir)
 	filespec = malloc(strlen(dir) + 2 + 1);
 	strcpy(filespec, dir);
 	index = strlen(filespec) - 1;
+
 	if (index >= 0 && (filespec[index] == '/' || filespec[index] == '\\'))
+	{
 		filespec[index] = '\0';
+	}
+
 	strcat(filespec, "/*");
 
 	dp = (DIR *) malloc(sizeof(DIR));
@@ -103,16 +115,24 @@ DIR *opendir(const char *dir)
 		free(dp);
 		return NULL;
 	}
+
 	dp->handle = handle;
 	free(filespec);
 
 	return dp;
 }
 
-struct dirent *readdir(DIR * dp)
+/**
+ * Returns the next file/directory for specified directory handle,
+ * obtained through a call to opendir().
+ * @param dp Handle.
+ * @return Next file/directory, NULL if end reached. */
+struct dirent *readdir(DIR *dp)
 {
 	if (!dp || dp->finished)
+	{
 		return NULL;
+	}
 
 	if (dp->offset != 0)
 	{
@@ -122,6 +142,7 @@ struct dirent *readdir(DIR * dp)
 			return NULL;
 		}
 	}
+
 	dp->offset++;
 
 	strncpy(dp->dent.d_name, dp->fileinfo.name, _MAX_FNAME);
@@ -132,20 +153,35 @@ struct dirent *readdir(DIR * dp)
 	return &(dp->dent);
 }
 
-int closedir(DIR * dp)
+/**
+ * Dispose of a directory handle.
+ * @param dp Handle to free. Will become invalid.
+ * @return 0. */
+int closedir(DIR *dp)
 {
 	if (!dp)
+	{
 		return 0;
+	}
 
 	_findclose(dp->handle);
+
 	if (dp->dir)
+	{
 		free(dp->dir);
+	}
+
 	if (dp)
+	{
 		free(dp);
+	}
 
 	return 0;
 }
 
+/**
+ * Restart a directory listing from the beginning.
+ * @param dir_Info Handle to rewind. */
 void rewinddir(DIR *dir_Info)
 {
 	/* Re-set to the beginning */
@@ -160,8 +196,12 @@ void rewinddir(DIR *dir_Info)
 	filespec = malloc(strlen(dir_Info->dir) + 2 + 1);
 	strcpy(filespec, dir_Info->dir);
 	index = strlen(filespec) - 1;
+
 	if (index >= 0 && (filespec[index] == '/' || filespec[index] == '\\'))
+	{
 		filespec[index] = '\0';
+	}
+
 	strcat(filespec, "/*");
 
 	if ((handle = _findfirst(filespec, &(dir_Info->fileinfo))) < 0)
@@ -171,6 +211,7 @@ void rewinddir(DIR *dir_Info)
 			dir_Info->finished = 1;
 		}
 	}
+
 	dir_Info->handle = handle;
 	free(filespec);
 }

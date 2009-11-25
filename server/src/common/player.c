@@ -34,8 +34,7 @@
  * Looks for the skill and returns a pointer to it if found.
  * @param op The object to look for the skill in.
  * @param skillnr Skill ID.
- * @return The skill if found, NULL otherwise.
- */
+ * @return The skill if found, NULL otherwise. */
 object *find_skill(object *op, int skillnr)
 {
 	object *tmp;

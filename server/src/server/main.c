@@ -41,31 +41,15 @@
 #include <sproto.h>
 #endif
 
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
-
-/* #include <Mmsystem.h> swing time debug */
-#include <pathfinder.h>
-
 #include <../random_maps/random_map.h>
 #include <../random_maps/rproto.h>
 
-
 #ifdef MEMPOOL_OBJECT_TRACKING
-extern void check_use_object_list(void);
+extern void check_use_object_list();
 #endif
-
-/* Prototypes of functions used only here. */
-void free_all_srv_files();
-void free_racelist();
 
 /** Object used in proccess_events() */
 static object marker;
-
-#if 0
-static char days[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-#endif
 
 static char *unclean_path(const char *src);
 static void process_players1(mapstruct *map);
@@ -1138,7 +1122,6 @@ void cleanup()
 	free_all_readable();
 	free_all_god();
 	free_all_anim();
-	free_all_srv_files();
 #endif
 	exit(0);
 }

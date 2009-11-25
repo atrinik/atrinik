@@ -28,8 +28,6 @@
  * This handles all attacks, magical or not. */
 
 #include <global.h>
-#include <material.h>
-
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

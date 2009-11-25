@@ -31,7 +31,6 @@
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
-#include <sounds.h>
 
 #ifdef SPELL_FAILURE_EFFECTS
 

@@ -28,8 +28,6 @@
  * Functions dealing with shop handling, bargaining, etc. */
 
 #include <global.h>
-
-#include <newclient.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

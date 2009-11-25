@@ -32,13 +32,13 @@
 #include <sproto.h>
 #endif
 
-/** Define this for some helpful debuging information */
+/** Define this for some helpful debuging information. */
 #define ALCHEMY_DEBUG
 
-/** Define this for loads of (marginal) debuging information */
+/** Define this for loads of (marginal) debuging information. */
 #define EXTREME_ALCHEMY_DEBUG
 
-/** Random cauldron effects */
+/** Random cauldron effects. */
 static char *cauldron_effect[] =
 {
 	"vibrates briefly",
@@ -69,7 +69,7 @@ static object *find_transmution_ob(object *first_ingred, recipe *rp);
 static object *attempt_recipe(object *caster, object *cauldron, int ability, recipe *rp, int nbatches);
 
 /**
- * Returns a random selection from cauldron_effect[]. */
+ * Returns a random selection from ::cauldron_effect. */
 static const char *cauldron_sound()
 {
 	int size = sizeof(cauldron_effect) / sizeof(char *);

@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Standard includes. */
+
 #ifndef INCLUDES_H
 #define INCLUDES_H
 

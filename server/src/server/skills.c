@@ -32,7 +32,6 @@
 #include <sproto.h>
 #endif
 #include <book.h>
-#include <sounds.h>
 
 /**
  * This routine allows players to inscribe messages in ordinary 'books'

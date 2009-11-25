@@ -25,34 +25,18 @@
 
 /**
  * @file
- * Banning related functions. \n
- * It is possible to use the /ban DM command or interactive
- * server mode ban command to ban specified player or IP
- * from the game. \n \n
- * Syntax for banning: \n
- * IP:player \n \n
- * Where IP is the IP address and player is the player name.
- * It is possible to use * for both IP and player, which
- * means any match. */
+ * Banning related functions.
+ *
+ * It is possible to use the /ban DM command or interactive server mode
+ * ban command to ban specified player or IP from the game.
+ *
+ * Syntax for banning:
+ * IP:player
+ *
+ * Where IP is the IP address and player is the player name. It is
+ * possible to use * for both IP and player, which means any match. */
 
 #include <global.h>
-#include <sproto.h>
-#ifndef WIN32
-#include <sys/ioctl.h>
-#endif
-#ifdef hpux
-#include <sys/ptyio.h>
-#endif
-
-#ifndef WIN32
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
-#include <stdio.h>
-#include <sys/file.h>
-#endif
 
 /**
  * Check if this login or host is banned in the database.
@@ -81,18 +65,17 @@ int checkbanned(char *login, char *host)
 	/* Loop through the results */
 	while (db_step(statement) == SQLITE_ROW)
 	{
-		sprintf(log_buf, "%s", db_column_text(statement, 0));
-		sprintf(host_buf, "%s", db_column_text(statement, 1));
-
-#if 0
-		LOG(llevDebug, "Login: <%s>; host: <%s>\n", login, host);
-		LOG(llevDebug, "Checking Banned <%s> and <%s>.\n", log_buf, host_buf);
-#endif
+		snprintf(log_buf, sizeof(log_buf), "%s", db_column_text(statement, 0));
+		snprintf(host_buf, sizeof(host_buf), "%s", db_column_text(statement, 1));
 
 		if (*log_buf == '*')
+		{
 			Hits = 1;
+		}
 		else if (!strcmp(login, log_buf))
+		{
 			Hits = 1;
+		}
 
 		if (Hits == 1)
 		{
@@ -127,9 +110,11 @@ int checkbanned(char *login, char *host)
 	db_close(db);
 
 	if (Hits >= 2)
+	{
 		return 1;
-	else
-		return 0;
+	}
+
+	return 0;
 }
 
 /**
@@ -149,7 +134,9 @@ int add_ban(const char *input)
 	name = strtok(NULL, ":");
 
 	if (!host || !name)
+	{
 		return 0;
+	}
 
 	/* Open the database */
 	db_open(DB_DEFAULT, &db);
@@ -191,7 +178,9 @@ int remove_ban(const char *input)
 	name = strtok(NULL, ":");
 
 	if (!host || !name)
+	{
 		return 0;
+	}
 
 	/* Open the database */
 	db_open(DB_DEFAULT, &db);
@@ -218,8 +207,8 @@ int remove_ban(const char *input)
 
 /**
  * List all bans.
- * @param op Player object to print this information
- * to, NULL to output it to the log. */
+ * @param op Player object to print this information to, NULL to output
+ * it to the log. */
 void list_bans(object *op)
 {
 	sqlite3 *db;
@@ -237,17 +226,25 @@ void list_bans(object *op)
 	}
 
 	if (op)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "List of bans:");
+	}
 	else
+	{
 		LOG(llevInfo, "\nList of bans:\n");
+	}
 
 	/* Loop through the results */
 	while (db_step(statement) == SQLITE_ROW)
 	{
 		if (op)
+		{
 			new_draw_info_format(NDI_UNIQUE, 0, op, "%s:%s", db_column_text(statement, 0), db_column_text(statement, 1));
+		}
 		else
+		{
 			LOG(llevInfo, "%s:%s\n", db_column_text(statement, 0), db_column_text(statement, 1));
+		}
 	}
 
 	/* Finalize it */

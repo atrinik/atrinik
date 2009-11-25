@@ -33,9 +33,6 @@
 #endif
 #include <loader.h>
 
-extern spell spells[NROFREALSPELLS];
-extern long pticks;
-
 /** Objects link of DMs. */
 objectlink *dm_list = NULL;
 

@@ -23,7 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* generate a rogue/nethack-like layout */
+/**
+ * @file
+ * Rogue/nethack-like layout generation. */
+
 #include <global.h>
 #include <random_map.h>
 #include <math.h>

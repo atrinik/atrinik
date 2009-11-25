@@ -52,7 +52,7 @@
 #endif
 
 /* Has to be after above includes so we don't redefine some values */
-#include "global.h"
+#include <global.h>
 
 /** Used to generate temporary unique name. */
 static unsigned int curtmp = 0;

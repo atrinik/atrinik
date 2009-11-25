@@ -29,8 +29,6 @@
 
 #include <global.h>
 #include <funcpoint.h>
-#include <living.h>
-#include <spells.h>
 
 /** Weapon speed table, to figure out a text representation of weapon's speed */
 static float weapon_speed_table[19] =

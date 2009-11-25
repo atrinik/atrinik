@@ -27,7 +27,6 @@
  * of /server/server and not of crosslib.a - so we can't move then easily
  * on this place - another reason to kill the crosslib.a asap. */
 
-#include <stdio.h>
 #include <global.h>
 
 float lev_exp[MAXLEVEL + 1] =

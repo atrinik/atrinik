@@ -28,7 +28,6 @@
  * Handles god related code. */
 
 #include <global.h>
-#include <sounds.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

@@ -28,7 +28,6 @@
  * Handles face-related stuff, including the actual face data. */
 
 #include <global.h>
-#include <stdio.h>
 
 New_Face *new_faces;
 

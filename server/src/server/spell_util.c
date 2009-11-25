@@ -28,12 +28,6 @@
  * Spell related helper functions. */
 
 #include <global.h>
-
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

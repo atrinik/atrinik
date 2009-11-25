@@ -29,7 +29,6 @@
 
 #include <global.h>
 #include <funcpoint.h>
-#include <tod.h>
 
 #ifndef WIN32
 #include <stdio.h>

@@ -29,7 +29,6 @@
  * such. */
 
 #include <global.h>
-#include <loader.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

@@ -32,10 +32,6 @@
 #include <sproto.h>
 #endif
 
-#ifndef tolower
-#define tolower(C)      (((C) >= 'A' && (C) <= 'Z')? (C) - 'A' + 'a': (C))
-#endif
-
 #define MAP_POS_X 0
 #define MAP_POS_Y 1
 

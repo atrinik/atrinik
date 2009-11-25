@@ -28,8 +28,6 @@
  * God related common functions. */
 
 #include <global.h>
-#include <living.h>
-#include <spells.h>
 
 static godlink *init_godslist();
 static void add_god_to_list(archetype *god_arch);

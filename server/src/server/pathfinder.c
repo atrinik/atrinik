@@ -38,7 +38,6 @@
  *   http://www.gamasutra.com/features/19970801/pathfinding.htm */
 
 #include <global.h>
-#include <pathfinder.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif

@@ -23,27 +23,28 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* Structures and types used to implement opendir/readdir/closedir
- * on Windows 95/NT and set the loe level defines */
+/**
+ * @file
+ * Structures and types used to implement opendir/readdir/closedir
+ * on Windows 95/NT and set the low level defines.
+ *
+ * Also some Windows-specific includes and tweaks. */
 
 #if !defined(AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_)
 #define AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
-#endif /* _MSC_VER > 1000 */
+#endif
 
-#endif /* !defined(AFX_STDAFX_H__31666CA1_2474_11D5_AE6C_F07569C10000__INCLUDED_) */
+#endif
 
 #define WIN32_LEAN_AND_MEAN
-/* includes for VC - plz add other include settings for different compiler
- * when needed and comment it
- */
 #include <winsock2.h>
 #include <time.h>
 #include <direct.h>
 #include <math.h>
-#include <sys/stat.h>	/* odd: but you don't get stat here with __STDC__ */
+#include <sys/stat.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,6 +182,7 @@ typedef struct
 	struct dirent dent;
 } DIR;
 
+/** Timezone structure, for gettimeofday(). */
 struct timezone
 {
 	int tz_minuteswest;
@@ -188,7 +190,7 @@ struct timezone
 };
 
 /* Function prototypes */
-extern int gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
+extern int gettimeofday(struct timeval *tv, struct timezone *timezone_Info);
 extern DIR *opendir(const char *);
 extern struct dirent *readdir(DIR *);
 extern int closedir(DIR *);

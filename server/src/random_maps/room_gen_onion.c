@@ -52,10 +52,6 @@
 #include <global.h>
 #include <random_map.h>
 
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
 void centered_onion(char **maze, int xsize, int ysize, int option, int layers);
 void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
 void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
