@@ -23,32 +23,23 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * This file controls weather functions, like ticking the clock
+ * and initializing the world darkness. */
+
 #include <global.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
 
-/**
- * @file
- * This file controls weather functions, like ticking the clock
- * and initializes the world darkness. */
-
 const int season_timechange[5][HOURS_PER_DAY] =
 {
-	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-		0, 0,  0,  0,  0,  0,  2,  1, 1, 1, 0, 0},
-
-	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
-
-	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
-
-	{	0, 0,  0,  0,  -1,-1, -1, -2, 0, 0, 0, 0,
-	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0},
-
-	{	0, 0,  0,  0,  0, -1,-1, -1, -2, 0, 0, 0,
-	  0, 0,  0,  0,  0,  0,  0,  2,  1, 1, 1, 0}
+	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0, 0},
+	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
+	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
+	{0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
+	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0}
 };
 
 /**
@@ -62,17 +53,20 @@ void init_world_darkness()
 	get_tod(&tod);
 
 	for (i = HOURS_PER_DAY / 2; i < HOURS_PER_DAY; i++)
+	{
 		world_darkness -= season_timechange[tod.season][i];
+	}
 
-	/* must be <= and not < ... */
 	for (i = 0; i <= tod.hour; i++)
+	{
 		world_darkness -= season_timechange[tod.season][i];
+	}
 }
 
 /**
  * This performs the basic function of advancing the clock one tick
- * forward.  Every 20 ticks, the clock is saved to disk.  It is also
- * saved on shutdown.  Any time dependant functions should be called
+ * forward. Every 20 ticks, the clock is saved to disk. It is also
+ * saved on shutdown. Any time dependant functions should be called
  * from this function, and probably be passed tod as an argument.
  * Please don't modify tod in the dependant function. */
 void tick_the_clock()
@@ -80,8 +74,11 @@ void tick_the_clock()
 	timeofday_t tod;
 
 	todtick++;
+
 	if (todtick % 20 == 0)
+	{
 		write_todclock();
+	}
 
 	get_tod(&tod);
 	world_darkness -= season_timechange[tod.season][tod.hour];

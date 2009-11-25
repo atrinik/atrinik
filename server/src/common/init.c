@@ -258,22 +258,8 @@ void write_todclock()
 	/* Open the database */
 	db_open(DB_DEFAULT, &db);
 
-	/* Prepare the query to delete old clockdata */
-	if (!db_prepare(db, "DELETE FROM settings WHERE name = 'clockdata';", &statement))
-	{
-		LOG(llevBug, "BUG: Failed to prepare SQL query to delete old clockdata! (%s)\n", db_errmsg(db));
-		db_close(db);
-		return;
-	}
-
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize the query */
-	db_finalize(statement);
-
 	/* Prepare the query to insert new clockdata */
-	if (!db_prepare_format(db, &statement, "INSERT INTO settings (name, data) VALUES ('clockdata', '%lu');", todtick))
+	if (!db_prepare_format(db, &statement, "REPLACE INTO settings (name, data) VALUES ('clockdata', '%lu');", todtick))
 	{
 		LOG(llevBug, "BUG: Failed to prepare SQL query to insert new clockdata! (%s)\n", db_errmsg(db));
 		db_close(db);
@@ -326,7 +312,7 @@ static void init_clocks()
 	/* If there is no row, reset to 0 and attempt to write the row */
 	if (db_step(statement) != SQLITE_ROW)
 	{
-		LOG(llevBug, "BUG: Clockdata row does not exist! Will attempt to insert new one.\n");
+		LOG(llevBug, "Clockdata row does not exist! Will attempt to insert new one.\n");
 		todtick = 0;
 
 		db_finalize(statement);
