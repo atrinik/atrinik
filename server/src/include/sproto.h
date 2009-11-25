@@ -418,9 +418,7 @@ CFParm *CFWGetTod(CFParm *PParm);
 
 /* rune.c */
 int write_rune(object *op, int dir, int inspell, int level, char *runename);
-void rune_attack(object *op, object *victim);
 void spring_trap(object *trap, object *victim);
-int dispel_rune(object *op, int dir, int risk);
 int trap_see(object *op, object *trap, int level);
 int trap_show(object *trap, object *where);
 int trap_disarm(object *disarmer, object *trap, int risk);
@@ -551,7 +549,7 @@ void flush_old_maps();
 object *stop_item(object *op);
 void fix_stopped_item(object *op, mapstruct *map, object *originator);
 void move_firewall(object *op);
-int process_object(object *op);
+void process_object(object *op);
 
 /* timers.c */
 void cftimer_process_timers();

@@ -44,7 +44,7 @@ static void write_map_log()
 	char buf[MAX_BUF];
 	long current_time = time(NULL);
 
-	sprintf(buf, "%s/temp.maps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.localdir);
 
 	if (!(fp = fopen(buf, "w")))
 	{
@@ -79,7 +79,7 @@ void read_map_log()
 	char buf[MAX_BUF],*cp, *cp1;
 	int do_los, darkness, lock;
 
-	sprintf(buf, "%s/temp.maps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.localdir);
 
 	if (!(fp = fopen(buf, "r")))
 	{
@@ -110,7 +110,9 @@ void read_map_log()
 		map->darkness = darkness;
 
 		if (darkness == -1)
+		{
 			darkness = MAX_DARKNESS;
+		}
 
 		map->light_value = global_darkness_table[MAX_DARKNESS];
 	}
@@ -120,13 +122,11 @@ void read_map_log()
 
 /**
  * Swap out a map.
- * @param map The map structure to swap
- * @param force_flag Force flag */
+ * @param map The map structure to swap.
+ * @param force_flag Force flag. */
 void swap_map(mapstruct *map, int force_flag)
 {
 	int i;
-
-	/*LOG(llevDebug, "Check map for swapping: %s. (players:%d) (%d)\n", map->path, players_on_map(map) , force_flag);*/
 
 	/* lets check some legal things... */
 	if (map->in_memory != MAP_IN_MEMORY)
@@ -146,7 +146,9 @@ void swap_map(mapstruct *map, int force_flag)
 		{
 			/* if there is a map, is load AND in memory and players on OR perm_load flag set, then no swap */
 			if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && (map->tile_map[i]->player_first || map->tile_map[i]->perm_load))
+			{
 				return;
+			}
 		}
 	}
 
@@ -157,7 +159,9 @@ void swap_map(mapstruct *map, int force_flag)
 
 	/* Update the reset time.  Only do this is STAND_STILL is not set */
 	if (!MAP_FIXED_RESETTIME(map))
+	{
 		set_map_reset_time(map);
+	}
 
 	/* If it is immediate reset time, don't bother saving it - just get
 	 * rid of it right away. */
@@ -187,7 +191,9 @@ void swap_map(mapstruct *map, int force_flag)
 		delete_map(map);
 	}
 	else
+	{
 		free_map(map, 1);
+	}
 
 #ifdef RECYCLE_TMP_MAPS
 	write_map_log();
@@ -203,14 +209,21 @@ void check_active_maps()
 	for (map = first_map; map != NULL; map = next)
 	{
 		next = map->next;
+
 		if (map->in_memory != MAP_IN_MEMORY)
+		{
 			continue;
+		}
 
 		if (!map->timeout)
+		{
 			continue;
+		}
 
 		if (--(map->timeout) > 0)
+		{
 			continue;
+		}
 
 		/* This is called when MAX_OBJECTS_LWM is *NOT* defined.
 		 * If LWM is set, we only swap maps out when we run out of objects */
@@ -220,23 +233,31 @@ void check_active_maps()
 	}
 }
 
-/* map_least_timeout() returns the map with the lowest timeout variable (not 0) */
+/**
+ * Returns the map with the lowest timeout variable (not 0).
+ * @param except_level Path of map to ignore for reset. Musn't be NULL.
+ * @return Map, or NULL if no map is ready for reset. */
 static mapstruct *map_least_timeout(const char *except_level)
 {
 	mapstruct *map, *chosen = NULL;
 	int timeout = MAP_MAXTIMEOUT + 1;
+
 	for (map = first_map; map != NULL; map = map->next)
 	{
 		if (map->in_memory == MAP_IN_MEMORY && strcmp (map->path, except_level) && map->timeout && map->timeout < timeout)
+		{
 			chosen = map, timeout = map->timeout;
+		}
 	}
 
 	return chosen;
 }
 
-/* swap_below_max() tries to swap out maps which are still in memory because
- * of MAP_TIMEOUT until used objects is below MAX_OBJECTS or there are
- * no more maps to swap. */
+/**
+ * Tries to swap out maps which are still in memory, because of
+ * MAP_TIMEOUT until used objects is below MAX_OBJECTS or there are no
+ * more maps to swap.
+ * @param except_level Path of map to ignore for reset. Musn't be NULL. */
 void swap_below_max(const char *except_level)
 {
 	mapstruct *map;
@@ -244,19 +265,28 @@ void swap_below_max(const char *except_level)
 	int nrofallocobjects = mempools[POOL_OBJECT].nrof_used + nroffreeobjects;
 
 	if (nrofallocobjects - nroffreeobjects < MAX_OBJECTS)
+	{
 		return;
+	}
 
 	for (; ;)
 	{
 #ifdef MAX_OBJECTS_LWM
 		if (nrofallocobjects - nroffreeobjects < MAX_OBJECTS_LWM)
+		{
 			return;
+		}
 #else
 		if (nrofallocobjects - nroffreeobjects < MAX_OBJECTS)
+		{
 			return;
+		}
 #endif
+
 		if ((map = map_least_timeout(except_level)) == NULL)
+		{
 			return;
+		}
 
 		LOG(llevDebug, "Trying to swap out %s before its time.\n", map->path);
 		map->timeout = 0;
@@ -267,21 +297,20 @@ void swap_below_max(const char *except_level)
 /**
  * Removes temporary files of maps which are going to be reset next time
  * they are visited.
- * This is very useful i the tmp-disk is very full. */
+ * This is very useful if the tmp-disk is very full. */
 void flush_old_maps()
 {
-	mapstruct *m, *oldmap;
-	long sec;
+	mapstruct *m = first_map, *oldmap;
+	long sec = seconds();
 
-	sec = seconds();
-
-	m = first_map;
 	while (m)
 	{
-		/* There can be cases (ie death) where a player leaves a map and the timeout
-		 * is not set so it isn't swapped out. */
+		/* There can be cases (ie death) where a player leaves a map and
+		 * the timeout is not set so it isn't swapped out. */
 		if ((m->in_memory == MAP_IN_MEMORY) && (m->timeout == 0) && !m->player_first)
+		{
 			set_map_timeout(m);
+		}
 
 		/* per player unique maps are never really reset.  However, we do want
 		 * to perdiocially remove the entries in the list of active maps - this

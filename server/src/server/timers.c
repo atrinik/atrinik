@@ -23,14 +23,14 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Timer related functions. */
+
 #include <timers.h>
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
-
-/**
- * @file
- * Timer related functions. */
 
 /**
  * Processes all timers. */
@@ -67,41 +67,48 @@ void cftimer_process_timers()
  * @param delay Desired timer delay
  * @param ob Object that will be linked to this timer
  * @param mode Count mode (seconds or cycles). See timers.h
- * @return
- * TIMER_ERR_NONE - Timer was successfully created.\n
- * TIMER_ERR_ID - Invalid ID.\n
- * TIMER_ERR_MODE - Invalid mode.\n
- * TIMER_ERR_OBJ - Invalid object. */
+ * @retval TIMER_ERR_NONE Timer was successfully created.
+ * @retval TIMER_ERR_ID Invalid ID.
+ * @retval TIMER_ERR_MODE Invalid mode.
+ * @retval TIMER_ERR_OBJ Invalid object. */
 int cftimer_create(int id, long delay, object* ob, int mode)
 {
 	if (id >= MAX_TIMERS)
+	{
 		return TIMER_ERR_ID;
+	}
 
 	if (id < 0)
+	{
 		return TIMER_ERR_ID;
+	}
 
 	if (timers_table[id].mode != TIMER_MODE_DEAD)
+	{
 		return TIMER_ERR_ID;
+	}
 
 	if ((mode != TIMER_MODE_SECONDS) && (mode != TIMER_MODE_CYCLES))
+	{
 		return TIMER_ERR_MODE;
+	}
 
 	if (ob == NULL)
+	{
 		return TIMER_ERR_OBJ;
-
-#if 0
-	/* this must be redone! */
-	if (ob->event_hook[EVENT_TIMER] == NULL)
-		return TIMER_ERR_OBJ;
-#endif
+	}
 
 	timers_table[id].mode = mode;
 	timers_table[id].ob = ob;
 
 	if (mode == TIMER_MODE_CYCLES)
+	{
 		timers_table[id].delay = delay;
+	}
 	else
+	{
 		timers_table[id].delay = seconds() + delay;
+	}
 
 	return TIMER_ERR_NONE;
 }
@@ -109,16 +116,19 @@ int cftimer_create(int id, long delay, object* ob, int mode)
 /**
  * Destroys an existing timer.
  * @param id Identifier of the timer to destroy.
- * @return
- * TIMER_ERR_NONE - No problem encountered.\n
- * TIMER_ERR_ID - Unknown ID: timer not found. */
+ * @retval TIMER_ERR_NONE No problem encountered.
+ * @retval TIMER_ERR_ID Unknown ID: timer not found. */
 int cftimer_destroy(int id)
 {
 	if (id >= MAX_TIMERS)
+	{
 		return TIMER_ERR_ID;
+	}
 
 	if (id < 0)
+	{
 		return TIMER_ERR_ID;
+	}
 
 	timers_table[id].mode = TIMER_MODE_DEAD;
 	return TIMER_ERR_NONE;
@@ -126,9 +136,8 @@ int cftimer_destroy(int id)
 
 /**
  * Finds a free ID for a new timer.
- * @return
- * TIMER_ERR_ID - No free ID available.\n
- * > 0 - An available ID. */
+ * @return TIMER_ERR_ID if no free ID is available, a nonzero free ID
+ * otherwise. */
 int cftimer_find_free_id()
 {
 	int i;
@@ -136,7 +145,9 @@ int cftimer_find_free_id()
 	for (i = 0; i < MAX_TIMERS; i++)
 	{
 		if (timers_table[i].mode == TIMER_MODE_DEAD)
+		{
 			return i;
+		}
 	}
 
 	return TIMER_ERR_ID;

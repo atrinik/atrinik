@@ -141,17 +141,16 @@ static void animate_trigger(object *op)
 	}
 }
 
-/* stop_item() returns a pointer to the stopped object.  The stopped object
- * may or may not have been removed from maps or inventories.  It will not
- * have been merged with other items.
+/**
+ * An item (::ARROW or such) stops moving.
  *
  * This function assumes that only items on maps need special treatment.
  *
- * If the object can't be stopped, or it was destroyed while trying to stop
- * it, NULL is returned.
- *
- * fix_stopped_item() should be used if the stopped item should be put on
- * the map. */
+ * If the object can't be stopped, or it was destroyed while trying to
+ * stop it, NULL is returned.
+ * @param op Object to check.
+ * @return Pointer to stopped object, NULL if destroyed or can't be
+ * stopped. */
 object *stop_item(object *op)
 {
 	if (op->map == NULL)
@@ -200,10 +199,13 @@ object *stop_item(object *op)
 	}
 }
 
-/* fix_stopped_item() - put stopped item where stop_item() had found it.
- * Inserts item into the old map, or merges it if it already is on the map.
- *
- * 'map' must be the value of op->map before stop_item() was called. */
+/**
+ * Put stopped item where stop_item() had found it.
+ * Inserts item into the old map, or merges it if it already is on the
+ * map.
+ * @param op Object to stop.
+ * @param map Must be the value of op->map before stop_item() was called.
+ * @param originator What caused op to be stopped. */
 void fix_stopped_item(object *op, mapstruct *map, object *originator)
 {
 	if (map == NULL)
@@ -215,17 +217,16 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
 	{
 		insert_ob_in_map (op, map, originator, 0);
 	}
-	/* only some arrows actually need this */
 	else if (op->type == ARROW)
 	{
+		/* Only some arrows actually need this */
 		merge_ob(op, NULL);
 	}
 }
 
-/* This routine doesnt seem to work for "inanimate" objects that
- * are being carried, ie a held torch leaps from your hands!.
- * Modified this routine to allow held objects. b.t. */
-/* Doesn't handle linked objs yet */
+/**
+ * Replaces op with its other_arch if it has reached its end of life.
+ * @param op Object to change. Will be removed and replaced. */
 static void change_object(object *op)
 {
 	object *tmp, *env;
@@ -240,7 +241,7 @@ static void change_object(object *op)
 		}
 		else
 		{
-			/* we had hooked applyable light object here - handle them special */
+			/* We had hooked applyable light object here - handle them special */
 			if (op->type == TYPE_LIGHT_APPLY)
 			{
 				CLEAR_FLAG(op, FLAG_CHANGING);
@@ -270,13 +271,13 @@ static void change_object(object *op)
 							new_draw_info_format(NDI_UNIQUE, 0, op->env, "The %s burnt out.", query_name(op, NULL));
 							op->glow_radius = 0;
 							esrv_send_item(op->env, op);
-							/* fix player will take care about adjust light masks */
+							/* Fix player will take care about adjust light masks */
 							fix_player(op->env);
 						}
-						/* atm, lights inside other inv as players don't set light masks */
+						/* ATM, lights inside other inv as players don't set light masks */
 						else
 						{
-							/* but we need to update container which are possible watched by players */
+							/* But we need to update container which are possible watched by players */
 							op->glow_radius = 0;
 
 							if (op->env->type == CONTAINER)
@@ -285,22 +286,22 @@ static void change_object(object *op)
 							}
 						}
 					}
-					/* object is on map */
+					/* Object is on map */
 					else
 					{
-						/* remove light mask from map */
+						/* Remove light mask from map */
 						adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-						/* tell map update we have something changed */
+						/* Tell map update we have something changed */
 						update_object(op, UP_OBJ_FACE);
 						op->glow_radius = 0;
 					}
 
 					return;
 				}
-				/* this object will be deleted and exchanged with other_arch */
+				/* This object will be deleted and exchanged with other_arch */
 				else
 				{
-					/* but give the player a note about it too */
+					/* But give the player a note about it too */
 					if (op->env && op->env->type == PLAYER)
 					{
 						new_draw_info_format(NDI_UNIQUE, 0, op->env, "The %s burnt out.", query_name(op, NULL));
@@ -320,7 +321,7 @@ static void change_object(object *op)
 	remove_ob(op);
 	check_walk_off(op, NULL,MOVE_APPLY_VANISHED);
 
-	/* atm we only generate per change tick *ONE* object */
+	/* Only generate per change tick *ONE* object */
 	for (i = 0; i < 1; i++)
 	{
 		tmp = arch_to_object(op->other_arch);
@@ -332,7 +333,7 @@ static void change_object(object *op)
 			tmp->x = env->x, tmp->y = env->y;
 			tmp = insert_ob_in_ob(tmp, env);
 
-			/* this should handle in future insert_ob_in_ob() */
+			/* This should handle in future insert_ob_in_ob() */
 			if (env->type == PLAYER)
 			{
 				esrv_del_item(CONTR(env), op->count, NULL);
@@ -358,47 +359,56 @@ static void change_object(object *op)
 	}
 }
 
-/* peterm:  firewalls generalized to be able to shoot any type
- * of spell at all.  the stats.dam field of a firewall object
- * contains it's spelltype. The direction of the wall is stored
- * in op->direction. walls can have hp, so they can be torn down. */
-
-/* added some new features to FIREWALL - on/off features by connected,
- * advanced spell selection and full turnable by connected and
- * autoturn. MT-2003 */
+/**
+ * Move for ::FIREWALL.
+ *
+ * Firewalls fire other spells. The direction of the wall is stored in
+ * op->stats.dam.
+ * @param op Firewall. */
 void move_firewall(object *op)
 {
-	/* last_eat 0 = off */
-	/* dm has created a firewall in his inventory or no legal spell selected */
+	/* DM has created a firewall in his inventory or no legal spell
+	 * selected. */
 	if (!op->map || !op->last_eat || op->stats.dam == -1)
+	{
 		return;
+	}
 
 	cast_spell(op, op, op->direction, op->stats.dam, 1, spellNPC, NULL);
 }
 
+/**
+ * Move for ::FIRECHEST.
+ * @param op Firechest. */
 static void move_firechest(object *op)
 {
-	/* dm has created a firechest in his inventory */
+	/* DM has created a firechest in his inventory */
 	if (!op->map)
+	{
 		return;
+	}
 
 	fire_a_ball(op, rndm(1, 8), 7);
 }
 
-int process_object(object *op)
+/**
+ * Main object move function.
+ * @param op Object to move.
+ * @todo Get rid of the goto. */
+void process_object(object *op)
 {
 	if (QUERY_FLAG(op, FLAG_MONSTER))
 	{
 		if (move_monster(op) || OBJECT_FREE(op))
 		{
-			return 1;
+			return;
 		}
 	}
 
 	if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state)
 	{
 		change_object(op);
-		return 1;
+		return;
 	}
 
 	if (QUERY_FLAG(op, FLAG_IS_USED_UP) && --op->stats.food <= 0)
@@ -409,24 +419,23 @@ int process_object(object *op)
 		}
 		else
 		{
-			/* we have a decying container on the floor (asuming its only possible here) ! */
-			if (op->type == CONTAINER && (op->sub_type1&1) == ST1_CONTAINER_CORPSE)
+			/* We have a decaying container on the floor (assuming it's
+			 * only possible here) */
+			if (op->type == CONTAINER && (op->sub_type1 & 1) == ST1_CONTAINER_CORPSE)
 			{
-				/* this means someone access the corpse */
+				/* This means someone has the corpse open. */
 				if (op->attacked_by)
 				{
-					/* then stop decaying! - we don't want delete this under the hand of the guy! */
-
-					/* give him a bit time back */
+					/* Give him a bit time back */
 					op->stats.food += 3;
-					/* go on */
+					/* Go on */
 					goto process_object_dirty_jump;
 				}
 
-				/* now we do something funny: WHEN the corpse is a (personal) bounty,
-				 * we delete the bounty marker (->slaying) and reseting the counter.
-				 * Now other people can access the corpse for stuff which are left
-				 * here perhaps. */
+				/* When the corpse is a personal bounty, we delete the
+				 * bounty marker (->slaying) and resetting the counter.
+				 * Now other people can access the corpse for stuff which
+				 * are left here. */
 				if (op->slaying || op->stats.maxhp)
 				{
 					if (op->slaying)
@@ -440,10 +449,9 @@ int process_object(object *op)
 					}
 
 					op->stats.food = op->arch->clone.stats.food;
-					/* another lame way to update view of players... */
 					remove_ob(op);
 					insert_ob_in_map(op, op->map, NULL, INS_NO_WALK_ON);
-					return 1;
+					return;
 				}
 
 				if (op->env && op->env->type == CONTAINER)
@@ -462,10 +470,10 @@ int process_object(object *op)
 
 				remove_ob(op);
 				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-				return 1;
+				return;
 			}
 
-			/* IF necessary, delete the item from the players inventory */
+			/* If necessary, delete the item from the players inventory */
 			if (op->env && op->env->type == CONTAINER)
 			{
 				esrv_del_item(NULL, op->count, op->env);
@@ -483,7 +491,7 @@ int process_object(object *op)
 			destruct_ob(op);
 		}
 
-		return 1;
+		return;
 	}
 
 process_object_dirty_jump:
@@ -496,7 +504,7 @@ process_object_dirty_jump:
 		case ROD:
 		case HORN:
 			regenerate_rod(op);
-			return 1;
+			return;
 
 		case FORCE:
 		case POTION_EFFECT:
@@ -505,155 +513,153 @@ process_object_dirty_jump:
 				remove_force(op);
 			}
 
-			return 1;
+			return;
 
 		case SPAWN_POINT:
 			spawn_point(op);
-			return 0;
+			return;
 
 		case BLINDNESS:
 			remove_blindness(op);
-			return 0;
+			return;
 
 		case CONFUSION:
 			remove_confusion(op);
-			return 0;
+			return;
 
 		case POISONING:
 			poison_more(op);
-			return 0;
+			return;
 
 		case DISEASE:
 			move_disease(op);
-			return 0;
+			return;
 
 		case SYMPTOM:
 			move_symptom(op);
-			return 0;
+			return;
 
 		case WORD_OF_RECALL:
 			execute_wor(op);
-			return 0;
+			return;
 
 		case BULLET:
 			move_fired_arch(op);
-			return 0;
+			return;
 
 		case MMISSILE:
 			move_missile(op);
-			return 0;
+			return;
 
 		case THROWN_OBJ:
 		case ARROW:
 			move_arrow(op);
-			return 0;
+			return;
 
 		case FBULLET:
 			move_fired_arch(op);
-			return 0;
+			return;
 
 		case FBALL:
 		case POISONCLOUD:
 			explosion(op);
-			return 0;
+			return;
 
 		/* It now moves twice as fast */
 		case LIGHTNING:
 			move_bolt(op);
-			return 0;
+			return;
 
 		case CONE:
 			move_cone(op);
-			return 0;
+			return;
 
 		case DOOR:
 			remove_door(op);
-			return 0;
+			return;
 
 		/* handle autoclosing */
 		case LOCKED_DOOR:
 			close_locked_door(op);
-			return 0;
+			return;
 
 		case TELEPORTER:
 			move_teleporter(op);
-			return 0;
+			return;
 
 		case BOMB:
 			animate_bomb(op);
-			return 0;
+			return;
 
 		case GOLEM:
 			move_golem(op);
-			return 0;
+			return;
 
 		case EARTHWALL:
 			hit_player(op, 2, op, AT_PHYSICAL);
-			return 0;
+			return;
 
 		case FIREWALL:
 			move_firewall(op);
-			return 0;
+			return;
 
 		case FIRECHEST:
 			move_firechest(op);
-			return 0;
+			return;
 
 		case MOOD_FLOOR:
 			do_mood_floor(op, op);
-			return 0;
+			return;
 
 		case GATE:
 			move_gate(op);
-			return 0;
+			return;
 
 		case TIMED_GATE:
 			move_timed_gate(op);
-			return 0;
+			return;
 
 		case TRIGGER:
 		case TRIGGER_BUTTON:
 		case TRIGGER_PEDESTAL:
 		case TRIGGER_ALTAR:
 			animate_trigger(op);
-			return 0;
+			return;
 
 		case DETECTOR:
 			move_detector(op);
-			return 0;
+			return;
 
 		case PIT:
 			move_pit(op);
-			return 0;
+			return;
 
 		case DEEP_SWAMP:
 			move_deep_swamp(op);
-			return 0;
+			return;
 
 		case BALL_LIGHTNING:
 			move_ball_lightning(op);
-			return 0;
+			return;
 
 		case SWARM_SPELL:
 			move_swarm_spell(op);
-			return 0;
+			return;
 
 		case PLAYERMOVER:
 			move_player_mover(op);
-			return 0;
+			return;
 
 		case CREATOR:
 			move_creator(op);
-			return 0;
+			return;
 
 		case MARKER:
 			move_marker(op);
-			return 0;
+			return;
 
 		case AURA:
 			move_aura(op);
-			return 0;
+			return;
 	}
-
-	return 0;
 }
