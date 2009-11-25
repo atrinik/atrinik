@@ -949,15 +949,6 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 			return 0;
 
-		case MENU:
-			if (op->type == PLAYER)
-			{
-				shop_listing(op);
-				return 1;
-			}
-
-			return 0;
-
 		case POWER_CRYSTAL:
 			apply_power_crystal(op, tmp);
 			return 1;

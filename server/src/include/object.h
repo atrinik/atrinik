@@ -205,7 +205,7 @@ typedef struct obj
 	uint32 path_denied;
 
 	/** How much money it is worth (or contains) */
-	sint32 value;
+	sint64 value;
 
 	/** How many of the objects */
 	uint32 nrof;

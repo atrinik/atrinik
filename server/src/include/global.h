@@ -83,13 +83,13 @@ typedef struct _money_block
 	/* 0, 1, or -1: see get_money_from_string() */
 	int mode;
 
-	long mithril;
+	sint64 mithril;
 
-	long gold;
+	sint64 gold;
 
-	long silver;
+	sint64 silver;
 
-	long copper;
+	sint64 copper;
 }_money_block;
 
 #define MONEYSTRING_NOTHING 0

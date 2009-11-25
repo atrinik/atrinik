@@ -382,7 +382,7 @@ WS	[ \t]*{NL}
 ^direction{S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
 ^type{S}            op->type = IVAL;
 ^material{S}        op->material = IVAL;
-^value{S}           op->value = IVAL;
+^value{S}           op->value = atoll(yval());
 ^weight{S}          op->weight = atol(yval());
 ^carrying{S}        op->carrying = atol(yval());
 ^attacktype{S}      {
@@ -1365,7 +1365,10 @@ char *get_ob_diff(object *op, object *op2)
 		save_long(buf, "material", op->material);
 
 	if (op->value != op2->value)
-		save_long(buf, "value", op->value);
+	{
+		sprintf(buf2, "value %"FMT64"\n", op->value);
+		strcat(buf, buf2);
+	}
 
 	if (op->carrying != op2->carrying)
 		save_long(buf, "carrying", op->carrying);

@@ -1396,8 +1396,7 @@ CFParm *CFWWithdraw(CFParm *PParm)
 	static CFParm CFP;
 	static int val = 0;
 	int pos = 0;
-	/* TODO: value should be int64 later! */
-	double big_value;
+	sint64 big_value;
 	char *text = (char *) (PParm->Value[2]);
 	object *who = (object *) (PParm->Value[0]), *bank = (object *) (PParm->Value[1]);
 	_money_block money;
@@ -1429,9 +1428,9 @@ CFParm *CFWWithdraw(CFParm *PParm)
 			return &CFP;
 		}
 
-		big_value = (double) money.mithril * (double) coins_arch[0]->clone.value + (double) money.gold * (double) coins_arch[1]->clone.value + (double) money.silver * (double) coins_arch[2]->clone.value + (double) money.copper * (double) coins_arch[3]->clone.value;
+		big_value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
 
-		if (big_value > (double) bank->value)
+		if (big_value > bank->value)
 		{
 			val = 0;
 			return &CFP;
@@ -1457,7 +1456,7 @@ CFParm *CFWWithdraw(CFParm *PParm)
 			insert_money_in_player(who, &coins_arch[3]->clone, money.copper);
 		}
 
-		bank->value -= (sint32) big_value;
+		bank->value -= big_value;
 		fix_player(who);
 	}
 
@@ -1472,7 +1471,7 @@ CFParm *CFWShowCost(CFParm *PParm)
 {
 	static CFParm CFP;
 
-	CFP.Value[0] = cost_string_from_value(*(int *) (PParm->Value[0]));
+	CFP.Value[0] = cost_string_from_value(*(sint64 *) (PParm->Value[0]));
 	return &CFP;
 }
 

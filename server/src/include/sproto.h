@@ -427,18 +427,17 @@ int trap_disarm(object *disarmer, object *trap, int risk);
 void trap_adjust(object *trap, int difficulty);
 
 /* shop.c */
-double query_cost(object *tmp, object *who, int flag);
-char *cost_string_from_value(double cost);
+sint64 query_cost(object *tmp, object *who, int flag);
+char *cost_string_from_value(sint64 cost);
 char *query_cost_string(object *tmp, object *who, int flag);
-int query_money(object *op);
-int pay_for_amount(int to_pay, object *pl);
+sint64 query_money(object *op);
+int pay_for_amount(sint64 to_pay, object *pl);
 int pay_for_item(object *op, object *pl);
-int get_payment(object *pl);
-void sell_item(object *op, object *pl, int value);
-void shop_listing(object *op);
+int get_payment(object *pl, object *op);
+void sell_item(object *op, object *pl, sint64 value);
 int get_money_from_string(char *text, struct _money_block *money);
 int query_money_type(object *op, int value);
-int remove_money_type(object*who, object *op, int value, uint32 amount);
+sint64 remove_money_type(object*who, object *op, sint64 value, sint64 amount);
 void insert_money_in_player(object *pl,object *money, uint32 nrof);
 
 /* skills.c */

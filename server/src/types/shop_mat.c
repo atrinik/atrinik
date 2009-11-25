@@ -58,7 +58,7 @@ int apply_shop_mat(object *shop_mat, object *op)
 		rv = teleport(shop_mat, SHOP_MAT, op);
 	}
 	/* Only used for players. */
-	else if (get_payment(op))
+	else if (get_payment(op, op->inv))
 	{
 		object *tmp;
 

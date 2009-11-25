@@ -1568,7 +1568,7 @@ static char *artifact_msg(int level, int booksize)
 		}
 		else
 		{
-			snprintf(buf, sizeof(buf), "%s item with a value of %d\n", sbuf, tmp->value);
+			snprintf(buf, sizeof(buf), "%s item with a value of %"FMT64"\n", sbuf, tmp->value);
 		}
 
 		strcat(retbuf, buf);

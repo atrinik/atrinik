@@ -248,7 +248,7 @@ obj_fields_struct obj_fields[] =
 	{"path_attuned",           FIELDTYPE_UINT32,     offsetof(object, path_attuned),           0,                           0},
 	{"path_repelled",          FIELDTYPE_UINT32,     offsetof(object, path_repelled),          0,                           0},
 	{"path_denied",            FIELDTYPE_UINT32,     offsetof(object, path_denied),            0,                           0},
-	{"value",                  FIELDTYPE_SINT32,     offsetof(object, value),                  0,                           0},
+	{"value",                  FIELDTYPE_SINT64,     offsetof(object, value),                  0,                           0},
 	{"quantity",               FIELDTYPE_UINT32,     offsetof(object, nrof),                   0,                           0},
 	{"enemy",                  FIELDTYPE_OBJECTREF,  offsetof(object, enemy),                  FIELDFLAG_READONLY,          offsetof(object, enemy_count)},
 	{"attacked_by",            FIELDTYPE_OBJECTREF,  offsetof(object, attacked_by),            FIELDFLAG_READONLY,          offsetof(object, attacked_by_count)},
@@ -2681,20 +2681,20 @@ static PyObject *Atrinik_Object_GetArchName(Atrinik_Object *whoptr, PyObject *ar
 }
 
 /**
- * <h1>object.ShowCost(<i>\<int\></i> value)</h1>
+ * <h1>object.ShowCost(<i>\<sint64\></i> value)</h1>
  *
  * Show cost of value.
  * @param value Value to show cost from
  * @return string describing value as X gold, X silver, X copper. */
 static PyObject *Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject *args)
 {
-	int value;
+	sint64 value;
 	char *cost_string;
 	CFParm *CFR;
 
 	(void) whoptr;
 
-	if (!PyArg_ParseTuple(args, "i", &value))
+	if (!PyArg_ParseTuple(args, "L", &value))
 	{
 		return NULL;
 	}
@@ -3040,6 +3040,12 @@ static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
 		case FIELDTYPE_SINT32:
 			return Py_BuildValue("l", *(sint32 *)field_ptr);
 
+		case FIELDTYPE_UINT64:
+			return Py_BuildValue("L", *(uint64 *) field_ptr);
+
+		case FIELDTYPE_SINT64:
+			return Py_BuildValue("L", *(sint64 *) field_ptr);
+
 		case FIELDTYPE_FLOAT:
 			return Py_BuildValue("f", *(float *)field_ptr);
 
@@ -3141,6 +3147,30 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 				*(sint32 *)field_ptr = (sint32)PyInt_AsLong(value);
 			else
 				INTRAISE("Illegal value for int field");
+
+			break;
+
+		case FIELDTYPE_UINT64:
+			if (PyInt_Check(value))
+			{
+				*(uint64 *) field_ptr = (uint64) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for uint64 field");
+			}
+
+			break;
+
+		case FIELDTYPE_SINT64:
+			if (PyInt_Check(value))
+			{
+				*(sint64 *) field_ptr = (sint64) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for sint64 field");
+			}
 
 			break;
 
