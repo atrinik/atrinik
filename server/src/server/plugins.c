@@ -2013,29 +2013,23 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 	{
 		int returnvalue;
 		CFParm *CFR;
+#ifdef TIME_SCRIPTS
+		struct timeval start, stop;
+		uint64 start_u, stop_u;
+
+		gettimeofday(&start, NULL);
+#endif
+
+		CFR = PlugList[plugin].eventfunc(&CFP);
+
+		returnvalue = *(int *) (CFR->Value[0]);
 
 #ifdef TIME_SCRIPTS
-		int count = 0;
-		struct timeval start, stop;
-		long long start_u, stop_u;
-		gettimeofday(&start, NULL);
-
-		for (count = 0; count < 10000; count++)
-		{
-			CFR = PlugList[plugin].eventfunc(&CFP);
-
-			returnvalue = *(int *) (CFR->Value[0]);
-		}
-
 		gettimeofday(&stop, NULL);
 		start_u = start.tv_sec * 1000000 + start.tv_usec;
 		stop_u = stop.tv_sec * 1000000 + stop.tv_usec;
 
-		LOG(llevDebug, "Running time: %2.4f s\n", (stop_u - start_u) / 1000000.0);
-#else
-		CFR = PlugList[plugin].eventfunc(&CFP);
-
-		returnvalue = *(int *)(CFR->Value[0]);
+		LOG(llevDebug, "Running time: %2.6f seconds\n", (stop_u - start_u) / 1000000.0);
 #endif
 
 		return returnvalue;
