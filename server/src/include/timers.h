@@ -100,16 +100,21 @@ typedef struct _cftimer
  * a cftimer. */
 #define MAX_TIMERS 1000
 
-/** The timers table */
+/** The timers table. */
 cftimer timers_table[MAX_TIMERS];
 
 /**
  * @defgroup timer_error_codes Timer error codes
  * Timer error codes.
  *@{*/
+
+/** No error. */
 #define TIMER_ERR_NONE      0
+/** Invalid timer id. */
 #define TIMER_ERR_ID       -1
+/** NULL object, or no ::EVENT_TIMER handler. */
 #define TIMER_ERR_OBJ      -2
+/** Invalid timer mode. */
 #define TIMER_ERR_MODE     -3
 /*@}*/
 

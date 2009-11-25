@@ -530,16 +530,6 @@ typedef struct pl_player
 	 * Player shop structure, with linked list of items the player is
 	 * selling. */
 	player_shop *shop_items;
-
-	/* i disabled this now - search for last_used in the code.
-	  * perhaps we need this in the future. */
-#if 0
-	/* Pointer to object last picked or applied */
-	object *last_used;
-
-	/* Safety measures to be sure it's the same */
-	long last_used_id;
-#endif
 } player;
 
 #ifdef WIN32

@@ -24,6 +24,10 @@
 ************************************************************************/
 
 /**
+ * @file
+ * Race related defines. */
+
+/**
  * Used to link the race lists together.
  *
  * Initialized by init_races(). */

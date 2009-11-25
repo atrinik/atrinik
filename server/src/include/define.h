@@ -70,35 +70,34 @@
 #endif
 
 /** The maximum legal value of any stat */
-#define MAX_STAT		30
+#define MAX_STAT        30
 /** The minimum legal value of any stat */
-#define MIN_STAT		1
+#define MIN_STAT        1
 
 /** Used for all kinds of things */
-#define MAX_BUF				256
-#define VERY_BIG_BUF		1024
+#define MAX_BUF             256
+#define VERY_BIG_BUF        1024
 /** Used for messages - some can be quite long */
-#define HUGE_BUF			4096
+#define HUGE_BUF            4096
 /** Max length a packet could be */
-#define SOCKET_BUFLEN		4096
-
-#define MAX_ANIMATIONS		256
-
+#define SOCKET_BUFLEN       4096
 /** Maximum size of player name */
-#define MAX_NAME 16
-#define BIG_NAME 32
-#define MAX_EXT_TITLE 98
+#define MAX_NAME            16
+#define BIG_NAME            32
+#define MAX_EXT_TITLE       98
+
+#define MAX_ANIMATIONS      256
 
 /**
  * @defgroup identify_modes Identify modes
- * Modes for cast_identify()
+ * Modes for cast_identify().
  *@{*/
-/** Normal identification */
-#define IDENTIFY_MODE_NORMAL	0
-/** Identify everything */
-#define IDENTIFY_MODE_ALL		1
-/** Identify only marked item */
-#define IDENTIFY_MODE_MARKED	2
+/** Normal identification. */
+#define IDENTIFY_MODE_NORMAL    0
+/** Identify everything. */
+#define IDENTIFY_MODE_ALL       1
+/** Identify only marked item. */
+#define IDENTIFY_MODE_MARKED    2
 /*@}*/
 
 /**
@@ -118,9 +117,9 @@
  * For golem control function sent to client
  *@{*/
 /** Release a golem */
-#define GOLEM_CTR_RELEASE	0
+#define GOLEM_CTR_RELEASE   0
 /** Get control over a golem */
-#define GOLEM_CTR_ADD		1
+#define GOLEM_CTR_ADD       1
 /*@}*/
 
 /** Marks no skill used */
@@ -128,21 +127,22 @@
 
 /** Town portal destination name */
 #define PORTAL_DESTINATION_NAME "Town portal destination"
+#define PORTAL_ACTIVE_NAME "Existing town portal"
 
 /**
  * @defgroup los_blocked_modes LoS blocked modes
  * Line of Sight (los.c) defines
  *@{*/
 /** It's visible */
-#define BLOCKED_LOS_VISIBLE		0x00
+#define BLOCKED_LOS_VISIBLE     0x00
 /** Ignore this tile for blocksview/visible changes */
-#define BLOCKED_LOS_IGNORE		0x01
+#define BLOCKED_LOS_IGNORE      0x01
 /** Visible but will block all behind */
-#define BLOCKED_LOS_BLOCKSVIEW	0x02
+#define BLOCKED_LOS_BLOCKSVIEW  0x02
 /** Sight is blocked */
-#define BLOCKED_LOS_BLOCKED		0x04
+#define BLOCKED_LOS_BLOCKED     0x04
 /** Tile is not visible because it is not part of legal map */
-#define BLOCKED_LOS_OUT_OF_MAP	0x08
+#define BLOCKED_LOS_OUT_OF_MAP  0x08
 /*@}*/
 
 /**
@@ -485,7 +485,7 @@
 /** Ammunition for slings = sling stones */
 #define ST1_MISSILE_SSTONE  3
 /** Throwing missile */
-#define ST1_MISSILE_THROW	128
+#define ST1_MISSILE_THROW   128
 /*@}*/
 
 /**
@@ -494,15 +494,15 @@
  * and slash, etc.
  *@{*/
 /** Impact throwing missile */
-#define ST1_MISSILE_IMPACT	(ST1_MISSILE_THROW | 0)
+#define ST1_MISSILE_IMPACT  (ST1_MISSILE_THROW | 0)
 /** Slash throwing missile */
-#define ST1_MISSILE_SLASH	(ST1_MISSILE_THROW | 1)
+#define ST1_MISSILE_SLASH   (ST1_MISSILE_THROW | 1)
 /** Pierce throwing missile */
-#define ST1_MISSILE_PIERCE	(ST1_MISSILE_THROW | 2)
+#define ST1_MISSILE_PIERCE  (ST1_MISSILE_THROW | 2)
 /** Cleave throwing missile */
-#define ST1_MISSILE_CLEAVE	(ST1_MISSILE_THROW | 3)
+#define ST1_MISSILE_CLEAVE  (ST1_MISSILE_THROW | 3)
 /** Special boulder-like throwing missile (impact damage too) */
-#define ST1_MISSILE_BOULDER	(ST1_MISSILE_THROW | 4)
+#define ST1_MISSILE_BOULDER (ST1_MISSILE_THROW | 4)
 /*@}*/
 
 /**
@@ -510,17 +510,14 @@
  * One handed weapons - allows shield in second hand.
  *@{*/
 /** Impact damage: clubs, maces, hammers, etc. */
-#define WEAP_1H_IMPACT	0
+#define WEAP_1H_IMPACT  0
 /** Slash: swords, scimitars */
-#define WEAP_1H_SLASH	1
+#define WEAP_1H_SLASH   1
 /** Pierce: daggers, rapiers */
-#define WEAP_1H_PIERCE	2
+#define WEAP_1H_PIERCE  2
 /** Cleave: axes */
-#define WEAP_1H_CLEAVE	3
+#define WEAP_1H_CLEAVE  3
 /*@}*/
-
-/* two-hand weapons. you need base 1h skill + two-hand mastery for use */
-/* exp goes always in 1h skill - mastery skills are indirect skills */
 
 /**
  * @defgroup two_handed_weapon_sub_types Two handed weapon sub types
@@ -529,13 +526,13 @@
  * are indirect skills.
  * @{*/
 /** Impact damage: clubs, maces, hammers, etc. */
-#define WEAP_2H_IMPACT	4
+#define WEAP_2H_IMPACT  4
 /** Slash: swords, scimitars */
-#define WEAP_2H_SLASH	5
+#define WEAP_2H_SLASH   5
 /** Pierce: daggers, rapiers */
-#define WEAP_2H_PIERCE	6
+#define WEAP_2H_PIERCE  6
 /** Cleave: axes */
-#define WEAP_2H_CLEAVE	7
+#define WEAP_2H_CLEAVE  7
 /*@}*/
 
 /**
@@ -543,13 +540,13 @@
  * Same like two handed weapons but for polearms.
  *@{*/
 /** Impact damage: clubs, maces, hammers, etc. */
-#define WEAP_POLE_IMPACT	8
+#define WEAP_POLE_IMPACT    8
 /** Slash: swords, scimitars */
-#define WEAP_POLE_SLASH	    9
+#define WEAP_POLE_SLASH     9
 /** Pierce: daggers, rapiers */
-#define WEAP_POLE_PIERCE	10
+#define WEAP_POLE_PIERCE    10
 /** Cleave: axes */
-#define WEAP_POLE_CLEAVE	11
+#define WEAP_POLE_CLEAVE    11
 /*@}*/
 
 /**
@@ -557,13 +554,13 @@
  * Range weapons sub types
  *@{*/
 /** Bows */
-#define RANGE_WEAP_BOW	    0
+#define RANGE_WEAP_BOW      0
 /** Crossbows */
-#define RANGE_WEAP_XBOWS	1
+#define RANGE_WEAP_XBOWS    1
 /** Slings */
-#define RANGE_WEAP_SLINGS	2
+#define RANGE_WEAP_SLINGS   2
 /** Firearms */
-#define RANGE_WEAP_FIREARMS	3
+#define RANGE_WEAP_FIREARMS 3
 /*@}*/
 
 /**
@@ -586,7 +583,7 @@
 /** Cleric spell book */
 #define ST1_SPELLBOOK_CLERIC 1
 /** Mage spell book */
-#define ST1_SPELLBOOK_MAGE	 2
+#define ST1_SPELLBOOK_MAGE   2
 /*@}*/
 
 /**
@@ -603,29 +600,29 @@
  * the party members can open it.
  *@{*/
 /** Normal container */
-#define ST1_CONTAINER_NORMAL				0
+#define ST1_CONTAINER_NORMAL           0
 /** Corpse container */
-#define ST1_CONTAINER_CORPSE				1
+#define ST1_CONTAINER_CORPSE           1
 /** Player container */
-#define ST1_CONTAINER_DEAD_PL				2
+#define ST1_CONTAINER_DEAD_PL          2
 
 /** Personalized normal container */
-#define ST1_CONTAINER_NORMAL_player			64
+#define ST1_CONTAINER_NORMAL_player    64
 /** Personalized corpse container */
-#define ST1_CONTAINER_CORPSE_player			65
+#define ST1_CONTAINER_CORPSE_player    65
 
 /** Party normal container */
-#define ST1_CONTAINER_NORMAL_party			128
+#define ST1_CONTAINER_NORMAL_party     128
 /** Party corpse container */
-#define ST1_CONTAINER_CORPSE_party			129
+#define ST1_CONTAINER_CORPSE_party     129
 /*@}*/
 
 /**
  * @defgroup exit_sub_types Exit sub types
  * Sub types for EXIT objects. If set, a teleport sound is played.
  *@{*/
-#define ST1_EXIT_SOUND_NO					0
-#define ST1_EXIT_SOUND						1
+#define ST1_EXIT_SOUND_NO       0
+#define ST1_EXIT_SOUND          1
 /*@}*/
 
 /**
@@ -633,9 +630,9 @@
  * Sub types for DOOR objects.
  *@{*/
 /** Normal door */
-#define ST1_DOOR_NORMAL		0
+#define ST1_DOOR_NORMAL     0
 /** Different sound */
-#define ST1_DOOR_CURTAIN	1
+#define ST1_DOOR_CURTAIN    1
 /*@}*/
 /*@}*/
 
@@ -647,64 +644,15 @@
  * 2 spaces, and the entire array (<= SIZEOFFREE) is
  * three spaces.
  *@{*/
-#define SIZEOFFREE1		8
-#define SIZEOFFREE2		24
-#define SIZEOFFREE		49
+#define SIZEOFFREE1     8
+#define SIZEOFFREE2     24
+#define SIZEOFFREE      49
 /*@}*/
-
-/**
- * @defgroup spell_path_defines Spell paths
- * Spell path defines.
- *@{*/
-/** 0 */
-#define PATH_NULL		0x00000000
-/** 1 */
-#define PATH_PROT		0x00000001
-/** 2 */
-#define PATH_FIRE		0x00000002
-/** 4 */
-#define PATH_FROST		0x00000004
-/** 8 */
-#define PATH_ELEC		0x00000008
-/** 16 */
-#define PATH_MISSILE	0x00000010
-/** 32 */
-#define PATH_SELF		0x00000020
-/** 64 */
-#define PATH_SUMMON		0x00000040
-/** 128 */
-#define PATH_ABJURE		0x00000080
-/** 256 */
-#define PATH_RESTORE	0x00000100
-/** 512 */
-#define PATH_DETONATE	0x00000200
-/** 1024 */
-#define PATH_MIND		0x00000400
-/** 2048 */
-#define PATH_CREATE		0x00000800
-/** 4096 */
-#define PATH_TELE		0x00001000
-/** 8192 */
-#define PATH_INFO		0x00002000
-/** 16384 */
-#define PATH_TRANSMUTE	0x00004000
-/** 32768 */
-#define PATH_TRANSFER	0x00008000
-/** 65536 */
-#define PATH_TURNING	0x00010000
-/** 131072 */
-#define PATH_WOUNDING	0x00020000
-/** 262144 */
-#define PATH_DEATH		0x00040000
-/** 524288 */
-#define PATH_LIGHT		0x00080000
-/*@}*/
-
-/** Number of spell paths */
-#define NRSPELLPATHS	20
 
 /** Number of different spells */
-#define NROFREALSPELLS	42
+#define NROFREALSPELLS  42
+/** Number of spell paths. */
+#define NRSPELLPATHS    20
 
 /**
  * @defgroup terrain_type_flags Terrain type flags
@@ -794,24 +742,24 @@
  * we set this ONE time outside instead of every time in remove_ob():
  * we skip the call for the head in this way.
  *@{*/
-#define SET_MULTI_FLAG(xyz, p)							\
-{														\
-	object *_tos_;										\
-														\
-	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)		\
-	{													\
-		((_tos_)->flags[p / 32] |= (1U << (p % 32)));	\
-	}													\
+#define SET_MULTI_FLAG(xyz, p)                          \
+{                                                       \
+	object *_tos_;                                      \
+                                                        \
+	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
+	{                                                   \
+		((_tos_)->flags[p / 32] |= (1U << (p % 32)));   \
+	}                                                   \
 }
 
-#define CLEAR_MULTI_FLAG(xyz, p)						\
-{														\
-	object *_tos_;										\
-														\
-	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)		\
-	{													\
-		((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));	\
-	}													\
+#define CLEAR_MULTI_FLAG(xyz, p)                        \
+{                                                       \
+	object *_tos_;                                      \
+                                                        \
+	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
+	{                                                   \
+		((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
+	}                                                   \
 }
 /*@}*/
 
@@ -835,7 +783,7 @@
 /*@}*/
 
 /** Used in blocked() when we only want know about blocked by something */
-#define TERRAIN_ALL		0xffff
+#define TERRAIN_ALL 0xffff
 
 
 /**
@@ -1200,9 +1148,9 @@
 /* flag 37 is still free (old FREED flag). Let it free for secure reason for some time */
 
 /** Should always be equal to the last defined flag */
-#define NUM_FLAGS		135
+#define NUM_FLAGS       135
 /** the number of uint32 we need to store all flags */
-#define NUM_FLAGS_32	5
+#define NUM_FLAGS_32    5
 /*@}*/
 
 /* Macros for invisible test. The first tests only system objects */
@@ -1211,42 +1159,28 @@
 #define IS_INVISIBLE(__ob_,__player_) \
 	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || (QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
 
-
 /* Values can go up to 127 before the size of the flags array in the
  * object structure needs to be enlarged. */
-#define NROFNEWOBJS(xyz)	((xyz)->stats.food)
+#define NROFNEWOBJS(xyz) ((xyz)->stats.food)
 
-#define SLOW_PENALTY(xyz)	((xyz)->stats.exp)/1000.0
-#define SET_SLOW_PENALTY(xyz,fl)	(xyz)->stats.exp= (sint32) ((fl)*1000.0)
-#define SET_GENERATE_TYPE(xyz,va)	(xyz)->stats.sp=(va)
-#define GENERATE_TYPE(xyz)	((xyz)->stats.sp)
+#define SLOW_PENALTY(xyz) ((xyz)->stats.exp) / 1000.0
+#define SET_SLOW_PENALTY(xyz, fl) (xyz)->stats.exp = (sint32) ((fl) * 1000.0)
 
-#define EXIT_PATH(xyz)		(xyz)->slaying
-#define EXIT_LEVEL(xyz)		(xyz)->stats.food
-#define EXIT_X(xyz)		(xyz)->stats.hp
-#define EXIT_Y(xyz)		(xyz)->stats.sp
+#define EXIT_PATH(xyz) (xyz)->slaying
+#define EXIT_LEVEL(xyz) (xyz)->stats.food
+#define EXIT_X(xyz) (xyz)->stats.hp
+#define EXIT_Y(xyz) (xyz)->stats.sp
 
 #define F_BUY 0
 #define F_SELL 1
 /* True value of item, unadjusted */
 #define F_TRUE 2
 
-#define DIRX(xyz)	freearr_x[(xyz)->direction]
-#define DIRY(xyz)	freearr_y[(xyz)->direction]
+#define DIRX(xyz) freearr_x[(xyz)->direction]
+#define DIRY(xyz) freearr_y[(xyz)->direction]
 
-#define D_LOCK(xyz)	(xyz)->contr->freeze_inv=(xyz)->contr->freeze_look=1;
-#define D_UNLOCK(xyz)	(xyz)->contr->freeze_inv=(xyz)->contr->freeze_look=0;
-
-#define ARMOUR_SPEED(xyz)	(xyz)->last_sp
-#define ARMOUR_SPELLS(xyz)	(xyz)->last_heal
-
-/* GET_?_FROM_DIR if used only for positional firing where dir is X and Y
- * each of them signed char, concatenated in a int16 */
-#define GET_X_FROM_DIR(dir) (signed char) (  dir & 0xFF )
-#define GET_Y_FROM_DIR(dir) (signed char) ( (dir & 0xFF00) >> 8)
-#define SET_DIR_FROM_XY(X,Y) (signed char)X + ( ((signed char)Y)<<8)
-#define FIRE_DIRECTIONAL 0
-#define FIRE_POSITIONAL  1
+#define ARMOUR_SPEED(xyz) (xyz)->last_sp
+#define ARMOUR_SPELLS(xyz) (xyz)->last_heal
 
 /**
  * @defgroup monster_movements Monster movements
@@ -1342,7 +1276,7 @@
 #define WPOINT 176
 
 /* bitmasks for upper and lower 4 bits from 8 bit fields */
-#define LO4     15
+#define LO4    15
 #define HI4    240
 /*@}*/
 
@@ -1350,11 +1284,18 @@
  * @defgroup st_defines Player states
  * Use of the state-variable in player objects.
  *@{*/
-#define ST_PLAYING				0
-#define ST_ROLL_STAT			1
-#define ST_CHANGE_CLASS			2
-#define ST_GET_NAME				3
-#define ST_GET_PASSWORD			4
+
+/** Usual state. */
+#define ST_PLAYING              0
+/** New character, rolling stats. */
+#define ST_ROLL_STAT            1
+/** New character, choosing class. */
+#define ST_CHANGE_CLASS         2
+/** Player just connected. */
+#define ST_GET_NAME             3
+/** Name entered, now for password. */
+#define ST_GET_PASSWORD         4
+/** New character, confirm password. */
 #define ST_CONFIRM_PASSWORD     5
 /*@}*/
 
@@ -1366,20 +1307,24 @@
 #define PREFER_HIGH	1
 #define PREFER_LOW	0
 
-/* socket defines */
-#define SockList_AddChar(_sl_,_c_)		(_sl_)->buf[(_sl_)->len++]=(_c_)
-#define SockList_AddShort(_sl_, _data_) (_sl_)->buf[(_sl_)->len++]= ((_data_)>>8)&0xff; \
-										(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
+/* Socket defines */
+#define SockList_AddChar(_sl_, _c_) (_sl_)->buf[(_sl_)->len++] = (_c_)
+#define SockList_AddShort(_sl_, _data_)                  \
+	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff; \
+	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
 
-#define SockList_AddInt(_sl_, _data_)	(_sl_)->buf[(_sl_)->len++]=((_data_)>>24)&0xff; \
-										(_sl_)->buf[(_sl_)->len++]= ((_data_)>>16)&0xff; \
-										(_sl_)->buf[(_sl_)->len++]= ((_data_)>>8)&0xff; \
-										(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
+#define SockList_AddInt(_sl_, _data_)                     \
+	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 24) & 0xff; \
+	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 16) & 0xff; \
+	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff;  \
+	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
 
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */
-#define GetInt_String(_data_) (((_data_)[0]<<24) + ((_data_)[1]<<16) + ((_data_)[2]<<8) + (_data_)[3])
-#define GetShort_String(_data_) (((_data_)[0]<<8)+(_data_)[1])
+#define GetInt_String(_data_)                                                      \
+	(((_data_)[0] << 24) + ((_data_)[1] << 16) + ((_data_)[2] << 8) + (_data_)[3])
+#define GetShort_String(_data_)        \
+	(((_data_)[0] << 8) + (_data_)[1])
 
 /**
  * Simple function we use below to keep adding to the same string
@@ -1405,7 +1350,6 @@ static inline void safe_strcat(char *dest, const char *orig, int *curlen, int ma
 	}
 }
 
-
 #define DESCRIBE_PATH(retbuf, variable, name)                        \
     if (variable)                                                    \
 	{                                                                \
@@ -1427,7 +1371,6 @@ static inline void safe_strcat(char *dest, const char *orig, int *curlen, int ma
                                                                      \
         strcat(retbuf, ")");                                         \
     }
-
 
 #define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen)      \
     if (variable)                                                    \
@@ -1451,21 +1394,24 @@ static inline void safe_strcat(char *dest, const char *orig, int *curlen, int ma
         safe_strcat(retbuf, ")", len, maxlen);                       \
     }
 
-/* Flags for apply_special() */
+/**
+ * Flags for apply_special().
+ *
+ * @anchor AP_xxx */
 enum apply_flag
 {
 	/* Basic flags, always use one of these */
-	AP_NULL			= 0,
-	AP_APPLY		= 1,
-	AP_UNAPPLY		= 2,
-	AP_BASIC_FLAGS	= 15,
+	AP_NULL = 0,
+	AP_APPLY = 1,
+	AP_UNAPPLY = 2,
+	AP_BASIC_FLAGS = 15,
 	/* Optional flags, for bitwise or with a basic flag */
-	AP_NO_MERGE		= 16,
-	AP_IGNORE_CURSE	= 32
+	AP_NO_MERGE = 16,
+	AP_IGNORE_CURSE = 32
 };
 
 /** Cut off point of when an object is put on the active list or not */
-#define MIN_ACTIVE_SPEED	0.00001f
+#define MIN_ACTIVE_SPEED 0.00001f
 
 /**
  * @defgroup bresenham_algorithm Bresenham algorithm
@@ -1540,8 +1486,6 @@ enum apply_flag
     }
 /*@}*/
 
-/* random() is much better than rand().  If you have random(), use it instead.
- * You shouldn't need to change any of this. */
 #ifdef HAVE_SRANDOM
 #define RANDOM() random()
 #define SRANDOM(xyz) srandom(xyz)

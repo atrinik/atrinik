@@ -35,6 +35,34 @@ extern int fear_bonus[];
 extern int cleric_chance[];
 
 /**
+ * @defgroup spell_path_defines Spell paths
+ * Spell path defines.
+ *@{*/
+
+#define PATH_NULL       0x00000000
+#define PATH_PROT       0x00000001
+#define PATH_FIRE       0x00000002
+#define PATH_FROST      0x00000004
+#define PATH_ELEC       0x00000008
+#define PATH_MISSILE    0x00000010
+#define PATH_SELF       0x00000020
+#define PATH_SUMMON     0x00000040
+#define PATH_ABJURE     0x00000080
+#define PATH_RESTORE    0x00000100
+#define PATH_DETONATE   0x00000200
+#define PATH_MIND       0x00000400
+#define PATH_CREATE     0x00000800
+#define PATH_TELE       0x00001000
+#define PATH_INFO       0x00002000
+#define PATH_TRANSMUTE  0x00004000
+#define PATH_TRANSFER   0x00008000
+#define PATH_TURNING    0x00010000
+#define PATH_WOUNDING   0x00020000
+#define PATH_DEATH      0x00040000
+#define PATH_LIGHT      0x00080000
+/*@}*/
+
+/**
  * @defgroup SPELL_USE_xxx Spell use flags
  * Spell use flags.
  *@{*/
@@ -186,20 +214,18 @@ typedef struct spell_struct
 	int is_active;
 } spell;
 
-extern spell spells[NROFREALSPELLS];
-
 #define SP_NO_SPELL -1
 
 /**
- * @defgroup spell_numbers Spell numbers
+ * The spell numbers.
+ *
  * When adding new spells, don't insert into the middle of the list -
  * add to the end of the list.
  *
  * Some archetypes and treasures require the spell numbers to be as they
  * are.
- *@{*/
-
-/** The spell numbers. */
+ *
+ * @anchor spell_numbers */
 enum spellnrs
 {
 	SP_FIRESTORM,
@@ -243,12 +269,13 @@ enum spellnrs
 	SP_BULLET_STORM,
 	SP_DESTRUCTION,
 	SP_BOMB,
-	SP_CURE_CONFUSION,
+	SP_CURE_CONFUSION
 };
-/*@}*/
 
-#define PATH_SP_MULT(op,spell) (((op->path_attuned & s->path) ? 0.8 : 1) * \
-				((op->path_repelled & s->path) ? 1.25 : 1))
+extern spell spells[NROFREALSPELLS];
+
+/** Multiplier for spell points / grace based on the attenuation. */
+#define PATH_SP_MULT(op, spell) (((op->path_attuned & s->path) ? 0.8 : 1) * ((op->path_repelled & s->path) ? 1.25 : 1))
 
 extern char *spellpathnames[NRSPELLPATHS];
 extern archetype *spellarch[NROFREALSPELLS];

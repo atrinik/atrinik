@@ -323,16 +323,7 @@ EXTERN int num_animations, animations_allocated, bmaps_checksum;
 
 #define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name?(__ob__)->name:">NULL<")
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch?((__ob__)->arch->name?(__ob__)->arch->name:">NULL<"):">NULL<")
-#define STRING_OBJ_TITLE(__ob__) ((__ob__)->title?(__ob__)->title:">NULL<")
-#define STRING_OBJ_RACE(__ob__) ((__ob__)->race?(__ob__)->race:">NULL<")
 #define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying?(__ob__)->slaying:">NULL<")
-#define STRING_OBJ_MSG(__ob__) ((__ob__)->msg?(__ob__)->msg:">NULL<")
-
-#define STRING_MAP_PATH(__map__) ((__map__)->path?(__map__)->path:">NULL<")
-#define STRING_MAP_TILE_PATH(__map__, __id__) ((__map__)->tile_path[__id__]?(__map__)->tile_path[__id__]:">NULL<")
-#define STRING_MAP_NAME(__map__) ((__map__)->name?(__map__)->name:">NULL<")
-#define STRING_MAP_TMPNAME(__map__) ((__map__)->tmpname?(__map__)->tmpname:">NULL<")
-#define STRING_MAP_MSG(__map__) ((__map__)->msg?(__map__)->msg:">NULL<")
 
 /* Rotate right from bsd sum. This is used in various places for checksumming */
 #define ROTATE_RIGHT(c) if ((c) & 01) (c) = ((c) >>1) + 0x80000000; else (c) >>= 1;
@@ -471,12 +462,6 @@ extern Settings settings;
 #ifndef tolower
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
-
-/* 0.94.1 - change to GETTIMEOFDAY macro - SNI systems only one one option.
- * rather than have complex #ifdefs throughout the file, lets just figure
- * it out once, here at the top.
- * Have no idea if that is the right symbol to check on for NetBSD,
- * but NetBSD does use 2 params. */
 
 #ifdef GETTIMEOFDAY_TWO_ARGS
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);

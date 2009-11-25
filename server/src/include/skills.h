@@ -118,7 +118,3 @@ typedef struct skill_struct
 } skill;
 
 extern skill skills[];
-
-/* yet more convenience macros. */
-#define USING_SKILL(op, skill) \
-	((op)->chosen_skill->stats.sp == skill)

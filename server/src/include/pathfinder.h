@@ -23,7 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/** @file
+/**
+ * @file
  * Pathfinding header file */
 
 #ifndef PATHFINDER_H

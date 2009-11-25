@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Defines and variables used by the artifact generation routines */
+ * Defines and variables used by the artifact generation routines. */
 
 #ifndef TREASURE_H
 #define TREASURE_H
@@ -61,13 +61,7 @@ enum
 /**
  * When a treasure got cloned from archlist, we want to perhaps change
  * some default values. All values in this structure will override the
- * default arch.
- *
- * @todo It is a bad way to implement this with a special structure.
- * Because the real arch list is at runtime not changed, we can grab for
- * example here a clone of the arch, store it in the treasure list and
- * then run the original arch parser over this clone, using the treasure list as script until an END comes.
- * This will allow ANY changes which is possible and we use ony one parser. */
+ * default arch. */
 typedef struct _change_arch
 {
 	/** If not NULL, copy this over the original arch name. */

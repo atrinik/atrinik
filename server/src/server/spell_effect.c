@@ -390,9 +390,6 @@ int cast_wor(object *op, object *caster)
  * @retval 1 Spell worked. */
 int cast_create_town_portal(object *op)
 {
-#define PORTAL_DESTINATION_NAME "Town portal destination"
-#define PORTAL_ACTIVE_NAME "Existing town portal"
-
 	object *dummy, *force, *old_force, *current_obj;
 	archetype *perm_portal;
 	char portal_name[1024], portal_message[1024];

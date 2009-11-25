@@ -1747,7 +1747,7 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *target;
-	int spell, dir, mode, parm = 1, parm2, typeoffire = FIRE_DIRECTIONAL;
+	int spell, dir, mode, parm = 1, parm2, typeoffire = 0;
 	CFParm *CFR;
 	char *op;
 

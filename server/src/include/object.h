@@ -42,33 +42,31 @@
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
 /*@{*/
-#define MOVE_APPLY_DEFAULT	0
-#define MOVE_APPLY_WALK_ON	1
-#define MOVE_APPLY_FLY_ON	2
+#define MOVE_APPLY_DEFAULT  0
+#define MOVE_APPLY_WALK_ON  1
+#define MOVE_APPLY_FLY_ON   2
 #define MOVE_APPLY_WALK_OFF 4
-#define MOVE_APPLY_FLY_OFF	8
+#define MOVE_APPLY_FLY_OFF  8
 /** Our object makes a step in/out of this tile */
-#define MOVE_APPLY_MOVE		16
-/** When a player logs out, the player char not "move" out of a tile
+#define MOVE_APPLY_MOVE     16
+/**
+ * When a player logs out, the player char not "move" out of a tile
  * but it "turns to nothing on the spot". This sounds senseless but for
  * example a move out can trigger a teleporter action. This flag prevents
  * a loging out/exploding object is teleported after removing it from the spot. */
-#define MOVE_APPLY_VANISHED	32
+#define MOVE_APPLY_VANISHED 32
 /** move_apply() called from saving function */
-#define MOVE_APPLY_SAVING	64
+#define MOVE_APPLY_SAVING   64
 /*@}*/
 
 /**
  * @defgroup CHECK_WALK_xxx WALK ON/OFF function return flags */
 /*@{*/
-#define CHECK_WALK_OK		 0
+#define CHECK_WALK_OK        0
 #define CHECK_WALK_DESTROYED 1
-#define CHECK_WALK_MOVED	 2
+#define CHECK_WALK_MOVED     2
 /*@}*/
 
-/* i sorted the members of this struct in 4 byte (32 bit) groups. This will help compiler
- * and cpu to make aligned access of the members, and can (and will) make things smaller
- * and faster - but this depends on compiler & system too. */
 /**
  * Object structure */
 typedef struct obj
@@ -189,7 +187,9 @@ typedef struct obj
 	/** Attributes of the object - the weight */
 	sint32 weight;
 
-	/** Weight-limit of object - player and container should have this... perhaps we can substitute it? */
+	/**
+	 * Weight-limit of object - player and container should have this...
+	 * perhaps we can substitute it? */
 	uint32 weight_limit;
 
 	/** How much weight this object contains (of objects in inv) */
@@ -446,11 +446,11 @@ extern object *active_objects;
 
 extern struct mempool_chunk *removed_objects;
 
-#define CONTR(ob) ((player *)((ob)->custom_attrset))
+#define CONTR(ob) ((player *) ((ob)->custom_attrset))
 
 /* This returns TRUE if the object is somethign that
  * should be displayed in the look window */
-#define LOOK_OBJ(_ob) (!IS_SYS_INVISIBLE(_ob) && _ob->type!=PLAYER)
+#define LOOK_OBJ(_ob) (!IS_SYS_INVISIBLE(_ob) && _ob->type != PLAYER)
 
 /**
  * @defgroup UP_OBJ_xxx Object update flags
@@ -462,7 +462,9 @@ extern struct mempool_chunk *removed_objects;
 #define UP_OBJ_INSERT   1
 /** Object was removed from a map tile */
 #define UP_OBJ_REMOVE   2
-/** Critical object flags has been changed, rebuild tile flags but NOT increase tile counter */
+/**
+ * Critical object flags has been changed, rebuild tile flags but NOT
+ * increase tile counter */
 #define UP_OBJ_FLAGS    3
 /** Only thing that changed was the face */
 #define UP_OBJ_FACE     4
@@ -470,18 +472,22 @@ extern struct mempool_chunk *removed_objects;
 #define UP_OBJ_FLAGFACE 5
 /** Force full update */
 #define UP_OBJ_ALL		6
-/** Object layer was changed, rebuild layer systen - used from invisible for example */
+/**
+ * Object layer was changed, rebuild layer systen - used from invisible
+ * for example */
 #define UP_OBJ_LAYER	7
 /*@}*/
 
-/** Macro for the often used object validity test (verify an pointer/count pair) */
-#define OBJECT_VALID(_ob_, _count_) ((_ob_) && (_ob_)->count == ((tag_t)_count_) && !QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
+/**
+ * Macro for the often used object validity test (verify an pointer/count
+ * pair) */
+#define OBJECT_VALID(_ob_, _count_) ((_ob_) && (_ob_)->count == ((tag_t) _count_) && !QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
 
 /** Test the object is not removed nor freed - but no count test */
-#define OBJECT_ACTIVE(_ob_) (!QUERY_FLAG((_ob_),FLAG_REMOVED) && !OBJECT_FREE(_ob_))
+#define OBJECT_ACTIVE(_ob_) (!QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
 
 /** Test if an object is in the free-list */
-#define OBJECT_FREE(_ob_) ((_ob_)->count==0 && CHUNK_FREE(_ob_))
+#define OBJECT_FREE(_ob_) ((_ob_)->count == 0 && CHUNK_FREE(_ob_))
 
 /**
  * @defgroup INS_xxx Object insertion flags.
@@ -491,14 +497,16 @@ extern struct mempool_chunk *removed_objects;
  * for both functions. */
 /*@{*/
 /** Don't try to merge inserted object with ones alrady on space. */
-#define INS_NO_MERGE		0x0001
-/** Don't call check_walk_on against the originator - saves cpu
+#define INS_NO_MERGE        0x0001
+/**
+ * Don't call check_walk_on against the originator - saves cpu
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
-#define INS_NO_WALK_ON		0x0002
-/** used intern from insert_xx to track multi
+#define INS_NO_WALK_ON      0x0002
+/**
+ * used intern from insert_xx to track multi
  * arch problems - don't use! */
-#define INS_TAIL_MARKER		0x0004
+#define INS_TAIL_MARKER     0x0004
 /*@}*/
 
 #endif

@@ -119,7 +119,7 @@
 #define EVENT_TELL     25
 /*@}*/
 
-/** Number of local events*/
+/** Number of local events */
 #define NR_LOCAL_EVENTS 13
 
 /** Number of events */
@@ -263,7 +263,7 @@ typedef struct _CFParm
 typedef CFParm* (*f_plugin) (CFParm* PParm);
 
 #ifndef WIN32
-#define LIBPTRTYPE void*
+#define LIBPTRTYPE void *
 #else
 #define LIBPTRTYPE HMODULE
 #endif
