@@ -146,6 +146,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\common\quest.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\common\readable.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
