@@ -518,10 +518,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\server\resurrection.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\server\rune.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
