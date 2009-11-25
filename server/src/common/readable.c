@@ -1564,7 +1564,7 @@ static char *artifact_msg(int level, int booksize)
 		/* value of artifact */
 		if (val)
 		{
-			snprintf(buf, sizeof(buf), "%s item with a value that is %ld times normal.\n", sbuf, tmp->value / val);
+			snprintf(buf, sizeof(buf), "%s item with a value that is %"FMT64" times normal.\n", sbuf, tmp->value / val);
 		}
 		else
 		{
