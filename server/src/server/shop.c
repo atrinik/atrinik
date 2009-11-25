@@ -522,7 +522,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	{
 		sint64 num_coins;
 
-		if (coin_objs[i]->nrof * coin_objs[i]->value > remain)
+		if ((sint64) (coin_objs[i]->nrof * coin_objs[i]->value) > remain)
 		{
 			num_coins = remain / coin_objs[i]->value;
 
@@ -913,7 +913,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 
 		if (tmp->type == MONEY && (tmp->value == value || value == -1))
 		{
-			if (tmp->nrof <= amount || value == -1)
+			if ((sint64) tmp->nrof <= amount || value == -1)
 			{
 				object *env = tmp->env;
 
