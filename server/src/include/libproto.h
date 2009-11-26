@@ -74,7 +74,6 @@ extern const char *db_errmsg(sqlite3* db);
 extern uint32 level_exp(int level, double expmul);
 extern sint32 add_exp(object *op, int exp, int skill_nr);
 extern void player_lvl_adj(object *who, object *op);
-extern void calc_perm_exp(object *op);
 extern int adjust_exp(object *pl, object *op, int exp);
 extern void apply_death_exp_penalty(object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);

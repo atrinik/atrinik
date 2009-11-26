@@ -47,6 +47,35 @@ float stat_exp_mult[MAX_STAT + 1] =
 	2.0f
 };
 
+/**
+ * Used for calculating experience gained in calc_skill_exp(). */
+static float lev_exp[MAXLEVEL + 1] =
+{
+	0.0f,     1.0f,     1.11f,    1.75f,    3.2f,
+	5.5f,     10.0f,    20.0f,    35.25f,   66.1f,
+	137.0f,   231.58f,  240.00f,  247.62f,  254.55f,
+	260.87f,  266.67f,  272.00f,  276.92f,  281.48f,
+	285.71f,  289.66f,  293.33f,  296.77f,  300.00f,
+	303.03f,  305.88f,  308.57f,  311.11f,  313.51f,
+	315.79f,  317.95f,  320.00f,  321.95f,  323.81f,
+	325.58f,  327.27f,  328.89f,  330.43f,  331.91f,
+	333.33f,  334.69f,  336.00f,  337.25f,  338.46f,
+	339.62f,  340.74f,  341.82f,  342.86f,  343.86f,
+	344.83f,  345.76f,  346.67f,  347.54f,  348.39f,
+	349.21f,  350.00f,  350.77f,  351.52f,  352.24f,
+	352.94f,  353.62f,  354.29f,  354.93f,  355.56f,
+	356.16f,  356.76f,  357.33f,  357.89f,  358.44f,
+	358.97f,  359.49f,  360.00f,  360.49f,  360.98f,
+	361.45f,  361.90f,  362.35f,  362.79f,  363.22f,
+	363.64f,  364.04f,  364.44f,  364.84f,  365.22f,
+	365.59f,  365.96f,  366.32f,  366.67f,  367.01f,
+	367.35f,  367.68f,  368.00f,  368.32f,  368.63f,
+	368.93f,  369.23f,  369.52f,  369.81f,  370.09f,
+	370.37f,  370.64f,  370.91f,  371.17f,  371.43f,
+	371.68f,  371.93f,  372.17f,  372.41f,  372.65f,
+	372.88f
+};
+
 /** Skill category table. */
 typedef struct _skill_name_table
 {
@@ -872,12 +901,6 @@ int init_player_exp(object *pl)
 		if (!QUERY_FLAG(exp_ob[i], FLAG_APPLIED))
 		{
 			SET_FLAG(exp_ob[i], FLAG_APPLIED);
-		}
-
-		/* GD: Update perm exp when loading player. */
-		if (settings.use_permanent_experience)
-		{
-			calc_perm_exp(exp_ob[i]);
 		}
 
 		if (pl->stats.exp < exp_ob[i]->stats.exp)

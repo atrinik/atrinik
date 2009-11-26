@@ -217,16 +217,6 @@ static void stat_loss_on_death_false()
 	settings.stat_loss_on_death = 0;
 }
 
-static void use_permanent_experience_true()
-{
-	settings.use_permanent_experience = 1;
-}
-
-static void use_permanent_experience_false()
-{
-	settings.use_permanent_experience = 0;
-}
-
 static void balanced_stat_loss_true()
 {
 	settings.balanced_stat_loss = 1;
@@ -314,9 +304,7 @@ struct Command_Line_Options options[] =
 	{"-stat_loss_on_death", 0, 3, stat_loss_on_death_true},
 	{"+stat_loss_on_death", 0, 3, stat_loss_on_death_false},
 	{"-balanced_stat_loss", 0, 3, balanced_stat_loss_true},
-	{"+balanced_stat_loss", 0, 3, balanced_stat_loss_false},
-	{"-use_permanent_experience", 0, 3, use_permanent_experience_true},
-	{"+use_permanent_experience", 0, 3, use_permanent_experience_false}
+	{"+balanced_stat_loss", 0, 3, balanced_stat_loss_false}
 };
 
 /**
@@ -576,8 +564,6 @@ static void help()
 	LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
 	LOG(llevInfo, " -stat_loss_on_death - If set, player loses stat when they die.\n");
 	LOG(llevInfo, " +stat_loss_on_death - If set, player does not lose a stat when they die.\n");
-	LOG(llevInfo, " -use_permanent_experience - If set, player may gain permanent experience\n");
-	LOG(llevInfo, " +use_permanent_experience - If set, player does not gain permanent experience\n");
 	LOG(llevInfo, " -balanced_stat_loss - If set, death stat depletion is balanced by level etc.\n");
 	LOG(llevInfo, " +balanced_stat_loss - If set, ordinary death stat depletion is used.\n");
 	LOG(llevInfo, " -v          Print version information.\n");

@@ -158,7 +158,6 @@ typedef struct _money_block
 
 #define MAXLEVEL 110
 extern uint32 new_levels[MAXLEVEL + 2];
-extern float lev_exp[MAXLEVEL + 1];
 
 /* our global map_tag value for the server (map.c)*/
 extern uint32 global_map_tag;
