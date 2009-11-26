@@ -1289,45 +1289,40 @@ int command_nowiz(object *op, char *params)
  * Check to see if player is allowed to become a DM.
  * @param op The player object trying to become a DM
  * @param pl_passwd Password can be used to become a DM if it matches one
- * of passwords in the database.
+ * of passwords in the file.
  * @return 1 if the object can become a DM, 0 otherwise */
 static int checkdm(object *op, char *pl_passwd)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	char name[160], passwd[160], host[160];
+	char name[MAX_BUF], passwd[MAX_BUF], host[MAX_BUF], buf[MAX_BUF], filename[MAX_BUF];
+	FILE *fp;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, DMFILE);
 
-	/* Prepare the SQL */
-	if (!db_prepare(db, "SELECT name, passwd, host FROM dms;", &statement))
+	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		LOG(llevBug, "BUG: checkdm(): Failed to prepare SQL query! (%s)\n", db_errmsg(db));
+		LOG(llevDebug, "Could not read DM file.\n");
 		return 0;
 	}
 
-	/* Loop through all the results */
-	while (db_step(statement) == SQLITE_ROW)
+	while(fgets(buf, sizeof(buf), fp) != NULL)
 	{
-		snprintf(name, sizeof(name), "%s", db_column_text(statement, 0));
-		snprintf(passwd, sizeof(passwd), "%s", db_column_text(statement, 1));
-		snprintf(host, sizeof(host), "%s", db_column_text(statement, 2));
-
-		if ((!strcmp(name, "*") || (op->name && !strcmp(op->name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, CONTR(op)->socket.host)))
+		if (buf[0] == '#' || buf[0] == '\n')
 		{
-			db_finalize(statement);
-			db_close(db);
+			continue;
+		}
 
+		if (sscanf(buf, "%[^:]:%[^:]:%s\n", name, passwd, host) != 3)
+		{
+			LOG(llevBug, "BUG: malformed dm file entry: %s", buf);
+		}
+		else if ((!strcmp(name, "*") || (op->name && !strcmp(op->name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, CONTR(op)->socket.host)))
+		{
+			fclose(fp);
 			return 1;
 		}
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fclose(fp);
 
 	return 0;
 }
@@ -1622,69 +1617,45 @@ void shutdown_agent(int timer, char *reason)
 }
 
 /**
- * Set a custom Message of the Day in the database.
+ * Set a custom Message of the Day in the file.
  * @param op DM.
  * @param params The new message of the day, if "original" revert to the
  * original MotD.
  * @return 1 on success, 0 on failure. */
 int command_motd_set(object *op, char *params)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
+	char filename[MAX_BUF];
 
 	/* No params, show usage. */
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /motd_set <original | new motd>");
+		new_draw_info(NDI_UNIQUE, 0, op, "Usage:\nRevert to original MotD: /motd_set original\nAppend to custom MotD: /motd_set message");
 		return 0;
 	}
 
-	/* Open database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL query to first delete the old custom MotD (if there is any) */
-	if (!db_prepare(db, "DELETE FROM settings WHERE name = 'motd_custom';", &statement))
-	{
-		LOG(llevBug, "BUG: Failed to prepare SQL query to delete custom MotD! (%s)\n", db_errmsg(db));
-		db_close(db);
-		return 0;
-	}
-
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
+	snprintf(filename, sizeof(filename), "%s/motd_custom", settings.localdir);
 
 	/* If we are not reverting to original MotD */
 	if (strcmp(params, "original"))
 	{
-		/* Prepare the SQL query to insert new custom MotD */
-		if (!db_prepare_format(db, &statement, "INSERT INTO settings (name, data) VALUES ('motd_custom', '%s');", db_sanitize_input(params)))
+		FILE *fp;
+
+		if (!(fp = fopen(filename, "a")))
 		{
-			LOG(llevBug, "BUG: Failed to prepare SQL query to insert custom MotD! (%s)\n", db_errmsg(db));
-			db_close(db);
+			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Could not open file for appending data.");
 			return 0;
 		}
 
-		/* Run the query */
-		db_step(statement);
+		fprintf(fp, "%s\n", params);
+		fclose(fp);
 
-		/* Finalize it */
-		db_finalize(statement);
-
-		/* Show message that everything went ok */
-		new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "New Message of the Day has been set!");
+		new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Appended to custom Message of the Day.");
 	}
-	/* Otherwise we are reverting. As we already deleted the custom MotD,
-	 * there is not much to do besides show that it was reverted. */
 	else
 	{
+		unlink(filename);
 		new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Reverted original Message of the Day.");
 	}
-
-	/* Close the databas e*/
-	db_close(db);
 
 	return 1;
 }

@@ -129,10 +129,12 @@ materialtype material[NROFMATERIALS] =
 	{"ice",            {14, 11, 16, 5, 0, 5, 6, 0, 20, 15, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0}}
 };
 
+#define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
+
 /**
  * Real material types. This array is initialized by
- * init_materials_database(). */
-material_real_struct material_real[NROFMATERIALS * NROFMATERIALS_REAL + 1] = {};
+ * init_materials(). */
+material_real_struct material_real[NUM_MATERIALS_REAL] = {};
 
 static void dump_object2(object *op);
 static void sub_weight(object *op, sint32 weight);
@@ -140,54 +142,73 @@ static void remove_ob_inv(object *op);
 static void add_weight(object *op, sint32 weight);
 
 /**
- * Initialize materials from database. */
-void init_materials_database()
+ * Initialize materials from file. */
+void init_materials()
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	int i = 1, last_material = 0, j;
+	int i;
+	char filename[MAX_BUF], buf[MAX_BUF];
+	FILE *fp;
 
 	/* First initialize default values to the array */
-	for (j = 0; j < NROFMATERIALS * NROFMATERIALS_REAL + 1; j++)
+	for (i = 0; i < NUM_MATERIALS_REAL; i++)
 	{
-		material_real[j].name[0] = '\0';
+		material_real[i].name[0] = '\0';
 		material_real[i].tearing = 100;
 		material_real[i].quality = 100;
 		material_real[i].type = M_NONE;
 		material_real[i].def_race = RACE_TYPE_NONE;
 	}
 
-	/* Open the reference database */
-	db_open(DB_REFERENCE, &db);
+	snprintf(filename, sizeof(filename), "%s/materials", settings.datadir);
 
-	/* Prepare the SQL, order the entries by material */
-	db_prepare(db, "SELECT material, name, tearing, quality, type, def_race FROM material_real ORDER BY material;", &statement);
-
-	/* Loop through the results */
-	while (db_step(statement) == SQLITE_ROW)
+	if (!(fp = fopen(filename, "r")))
 	{
-		int material = db_column_int(statement, 0);
-
-		if (material != last_material)
-		{
-			i = MAX(i, material * NROFMATERIALS_REAL + 1);
-		}
-
-		strncpy(material_real[i].name, (char *) db_column_text(statement, 1), sizeof(material_real[i].name) - 1);
-		material_real[i].tearing = db_column_int(statement, 2);
-		material_real[i].quality = db_column_int(statement, 3);
-		material_real[i].type = db_column_int(statement, 4);
-		material_real[i].def_race = db_column_int(statement, 5);
-
-		last_material = material;
-		i++;
+		LOG(llevBug, "BUG: Could not open materials file: %s\n", filename);
 	}
 
-	/* Finalize the statement */
-	db_finalize(statement);
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		if (buf[0] == '#' || buf[0] == '\n')
+		{
+			continue;
+		}
 
-	/* Close the database */
-	db_close(db);
+		if (sscanf(buf, "material_real %d\n", &i))
+		{
+			int def_race = RACE_TYPE_NONE, type = M_NONE, quality = 100, tearing = 100;
+			char name[MAX_BUF];
+
+			if (i > NUM_MATERIALS_REAL)
+			{
+				LOG(llevError, "ERROR: Materials file contains declaration for material #%d but it doesn't exist.\n", i);
+			}
+
+			name[0] = '\0';
+
+			while (fgets(buf, sizeof(buf), fp))
+			{
+				if (strcmp(buf, "end\n") == 0)
+				{
+					break;
+				}
+
+				if (!sscanf(buf, "tearing %d\n", &tearing) && !sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %s[^\n]", name))
+				{
+					LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
+				}
+			}
+
+			snprintf(material_real[i].name, sizeof(material_real[i].name), "%s ", name);
+			material_real[i].tearing = tearing;
+			material_real[i].quality = quality;
+			material_real[i].type = type;
+			material_real[i].def_race = def_race;
+		}
+		else
+		{
+			LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
+		}
+	}
 }
 
 int freearr_x[SIZEOFFREE] =

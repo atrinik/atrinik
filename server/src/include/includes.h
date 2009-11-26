@@ -62,7 +62,6 @@
 #include <signal.h>
 #include <setjmp.h>
 #include <stdlib.h>
-#include <sqlite3.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>

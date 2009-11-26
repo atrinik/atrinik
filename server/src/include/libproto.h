@@ -58,18 +58,6 @@ extern void do_mood_floor(object *op, object *op2);
 extern object *check_inv_recursive(object *op, const object *trig);
 extern void check_inv(object *op, object *trig);
 
-/* database.c */
-extern int db_open(char *file, sqlite3 **db);
-extern int db_prepare(sqlite3 *db, const char *sql, sqlite3_stmt **statement);
-extern int db_prepare_format(sqlite3 *db, sqlite3_stmt **statement, const char *format, ...);
-extern int db_step(sqlite3_stmt *statement);
-extern const unsigned char *db_column_text(sqlite3_stmt *statement, int col);
-extern int db_column_int(sqlite3_stmt *statement, int col);
-extern int db_finalize(sqlite3_stmt *statement);
-extern int db_close(sqlite3 *db);
-extern char *db_sanitize_input(char *sql_input);
-extern const char *db_errmsg(sqlite3* db);
-
 /* exp.c */
 extern uint32 level_exp(int level, double expmul);
 extern sint32 add_exp(object *op, int exp, int skill_nr);
@@ -188,8 +176,7 @@ extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, char *buf);
 extern char *get_ob_diff(object *op, object *op2);
-extern void save_map_object(FILE *fp, object *op, int flag);
-extern int save_player_object(char *buf, object *op, int flag, size_t len);
+extern void save_object(FILE *fp, object *op, int flag);
 
 /* logger.c */
 extern void LOG(LogLevel logLevel, const char *format, ...);
@@ -242,7 +229,7 @@ extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 
 /* mempool.c */
-extern void init_materials_database();
+extern void init_materials();
 extern void init_mempools();
 extern void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor);
 extern void *get_poolchunk(mempool_id pool);

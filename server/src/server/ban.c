@@ -31,42 +31,60 @@
  * ban command to ban specified player or IP from the game.
  *
  * Syntax for banning:
- * IP:player
+ * Player:IP
  *
- * Where IP is the IP address and player is the player name. It is
+ * Where Player is the player name and IP is the IP address. It is
  * possible to use * for both IP and player, which means any match. */
 
 #include <global.h>
 
 /**
- * Check if this login or host is banned in the database.
- * @param login Login name to check
- * @param host Host name to check
- * @return 1 if banned, 0 if not */
+ * Check if this login or host is banned.
+ * @param login Login name to check.
+ * @param host Host name to check.
+ * @return 1 if banned, 0 if not. */
 int checkbanned(char *login, char *host)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	char log_buf[64], host_buf[64];
-	/* Hits == 2 means we're banned */
-	int Hits = 0;
+	char filename[MAX_BUF], buf[MAX_BUF], log_buf[64], host_buf[64], *indexpos;
+	FILE *fp;
+	int Hits = 0, i;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
 
-	/* Prepare the query */
-	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))
+	if (!(fp = fopen(filename, "r")))
 	{
-		LOG(llevBug, "BUG: checkbanned(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
-		db_close(db);
 		return 0;
 	}
 
-	/* Loop through the results */
-	while (db_step(statement) == SQLITE_ROW)
+	while (fgets(buf, sizeof(buf), fp))
 	{
-		snprintf(log_buf, sizeof(log_buf), "%s", db_column_text(statement, 0));
-		snprintf(host_buf, sizeof(host_buf), "%s", db_column_text(statement, 1));
+		/* Skip comments and blank lines. */
+		if (buf[0] == '#' || buf[0] == '\n')
+		{
+			continue;
+		}
+
+		if ((indexpos = (char *) strrchr(buf, ':')) == 0)
+		{
+			LOG(llevDebug, "BUG: Bogus line in bans file: %s\n", buf);
+			continue;
+		}
+
+		i = indexpos - buf;
+		/* Copy login name into log_buf */
+		strncpy(log_buf, buf, i);
+		log_buf[i] = '\0';
+		/* Copy host name into host_buf */
+		strncpy(host_buf, indexpos + 1, 64);
+		/* Cut off any extra spaces on the host buffer */
+		indexpos = host_buf;
+
+		while (!isspace(*indexpos))
+		{
+			indexpos++;
+		}
+
+		*indexpos = '\0';
 
 		if (*log_buf == '*')
 		{
@@ -86,16 +104,16 @@ int checkbanned(char *login, char *host)
 				/* break out now. otherwise Hits will get reset to one */
 				break;
 			}
+			/* Lock out subdomains (eg, "*@usc.edu") */
 			else if (strstr(host, host_buf) != NULL)
 			{
-				/* Lock out subdomains (eg, "*@usc.edu") */
 				Hits++;
 				/* break out now. otherwise Hits will get reset to one */
 				break;
 			}
+			/* Lock out specific host */
 			else if (!strcmp(host, host_buf))
 			{
-				/* Lock out specific host */
 				Hits++;
 				/* break out now. otherwise Hits will get reset to one */
 				break;
@@ -103,11 +121,7 @@ int checkbanned(char *login, char *host)
 		}
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fclose(fp);
 
 	if (Hits >= 2)
 	{
@@ -118,91 +132,86 @@ int checkbanned(char *login, char *host)
 }
 
 /**
- * Add ban to the database. Will take care of getting
- * the right values from input string.
- * @param input The input string with both name and IP
- * @return 1 on success, 0 on failure */
+ * Add ban to the bans file. Will take care of getting the right values
+ * from input string.
+ * @param input The input string with both name and IP.
+ * @return 1 on success, 0 on failure. */
 int add_ban(const char *input)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	char *host, *name, buf[MAX_BUF];
+	char filename[MAX_BUF], *host, *name, buf[MAX_BUF];
+	FILE *fp;
 
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
 	snprintf(buf, sizeof(buf), "%s", input);
 
-	host = strtok(buf, ":");
-	name = strtok(NULL, ":");
+	name = strtok(buf, ":");
+	host = strtok(NULL, ":");
 
 	if (!host || !name)
 	{
 		return 0;
 	}
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the query */
-	if (!db_prepare_format(db, &statement, "INSERT INTO bans (host, name) VALUES ('%s', '%s');", db_sanitize_input(host), db_sanitize_input(name)))
+	if (!(fp = fopen(filename, "a")))
 	{
-		LOG(llevBug, "BUG: add_ban(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
-		db_close(db);
 		return 0;
 	}
 
-	/* Execute the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fprintf(fp, "%s:%s\n", name, host);
+	fclose(fp);
 
 	return 1;
 }
 
 /**
- * Remove a ban from the database. Will take care of getting
- * the right values from input string.
- * @param input The input string with both name and IP
- * @return 1 on success, 0 on failure */
+ * Remove a ban from the bans file. Will take care of getting the right
+ * values from input string.
+ * @param input The input string with both name and IP.
+ * @return 1 on success, 0 on failure. */
 int remove_ban(const char *input)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	char *host, *name, buf[MAX_BUF];
+	char filename[MAX_BUF], filename_tmp[MAX_BUF], *host, *name, buf[MAX_BUF], compare_buf[MAX_BUF];
+	FILE *fp, *fp2;
+	int ret = 0;
 
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
+	snprintf(filename_tmp, sizeof(filename_tmp), "%s/%s.tmp", settings.localdir, BANFILE);
 	snprintf(buf, sizeof(buf), "%s", input);
 
-	host = strtok(buf, ":");
-	name = strtok(NULL, ":");
+	name = strtok(buf, ":");
+	host = strtok(NULL, ":");
 
 	if (!host || !name)
 	{
 		return 0;
 	}
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	rename(filename, filename_tmp);
 
-	/* Prepare the query */
-	if (!db_prepare_format(db, &statement, "DELETE FROM bans WHERE host = '%s' AND name = '%s';", db_sanitize_input(host), db_sanitize_input(name)))
+	if (!(fp = fopen(filename_tmp, "r")) || !(fp2 = fopen(filename, "w")))
 	{
-		LOG(llevBug, "BUG: remove_ban(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
-		db_close(db);
 		return 0;
 	}
 
-	/* Execute the query */
-	db_step(statement);
+	snprintf(compare_buf, sizeof(compare_buf), "%s:%s\n", name, host);
 
-	/* Finalize it */
-	db_finalize(statement);
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		if (strcmp(buf, compare_buf) == 0)
+		{
+			ret = 1;
+			continue;
+		}
 
-	/* Close the database */
-	db_close(db);
+		fprintf(fp2, "%s", buf);
+	}
 
-	return 1;
+	fclose(fp);
+	fclose(fp2);
+
+	unlink(filename_tmp);
+
+	return ret;
 }
 
 /**
@@ -211,17 +220,13 @@ int remove_ban(const char *input)
  * it to the log. */
 void list_bans(object *op)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
+	char filename[MAX_BUF], buf[MAX_BUF];
+	FILE *fp;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
 
-	/* Prepare the query */
-	if (!db_prepare(db, "SELECT name, host FROM bans;", &statement))
+	if (!(fp = fopen(filename, "r")))
 	{
-		LOG(llevBug, "BUG: list_bans(): Could not prepare SQL query! (%s)\n", db_errmsg(db));
-		db_close(db);
 		return;
 	}
 
@@ -234,22 +239,24 @@ void list_bans(object *op)
 		LOG(llevInfo, "\nList of bans:\n");
 	}
 
-	/* Loop through the results */
-	while (db_step(statement) == SQLITE_ROW)
+	while (fgets(buf, sizeof(buf), fp))
 	{
+		/* Skip comments and blank lines. */
+		if (buf[0] == '#' || buf[0] == '\n')
+		{
+			continue;
+		}
+
 		if (op)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "%s:%s", db_column_text(statement, 0), db_column_text(statement, 1));
+			buf[strlen(buf) - 1] = '\0';
+			new_draw_info_format(NDI_UNIQUE, 0, op, buf);
 		}
 		else
 		{
-			LOG(llevInfo, "%s:%s\n", db_column_text(statement, 0), db_column_text(statement, 1));
+			LOG(llevInfo, buf);
 		}
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fclose(fp);
 }

@@ -32,7 +32,6 @@ SRCS = \
 	anim.c \
 	arch.c \
 	button.c \
-	database.c \
 	exp.c \
 	friend.c \
 	glue.c \

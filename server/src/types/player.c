@@ -58,51 +58,49 @@ player *find_player(char *plname)
 }
 
 /**
- * Grab the Message of the Day from the database. Message of the Day
- * row is called 'motd', however, if custom 'motd_custom' is set,
- * prefer that one, and print it to the player.
- * @param op Player object to print the message to */
+ * Grab the Message of the Day from a file.
+ *
+ * First motd_custom is tried, and if that doesn't exist, motd is used
+ * instead.
+ * @param op Player object to print the message to. */
 void display_motd(object *op)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	char buf[HUGE_BUF];
+	char buf[MAX_BUF];
+	FILE *fp;
 
-	buf[0] = '\0';
+	snprintf(buf, sizeof(buf), "%s/motd_custom", settings.localdir);
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the query to select either 'motd' or 'motd_custom' */
-	if (!db_prepare(db, "SELECT name, data FROM settings WHERE name = 'motd' OR name = 'motd_custom';", &statement))
+	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		LOG(llevBug, "BUG: Failed to prepare SQL query to select MotD! (%s)\n", db_errmsg(db));
-		db_close(db);
-		return;
+		snprintf(buf, sizeof(buf), "%s/motd", settings.localdir);
+
+		if ((fp = fopen(buf, "r")) == NULL)
+		{
+			return;
+		}
 	}
 
-	/* Loop through the rows (should be only 2) */
-	while (db_step(statement) == SQLITE_ROW)
+	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
-		/* We store the database text in buf */
-		snprintf(buf, sizeof(buf), "%s", (char *)db_column_text(statement, 1));
+		char *cp;
 
-		/* If this is custom MotD, break out now. */
-		if (strcmp((char *)db_column_text(statement, 0), "motd_custom") == 0)
-			break;
-	}
+		if (buf[0] == '#' || buf[0] == '\n')
+		{
+			continue;
+		}
 
-	/* Finalize it */
-	db_finalize(statement);
+		cp = strchr(buf, '\n');
 
-	/* Close the database */
-	db_close(db);
+		if (cp != NULL)
+		{
+			*cp = '\0';
+		}
 
-	/* Output the buf */
-	if (strcmp(buf, ""))
-	{
 		new_draw_info(NDI_UNIQUE, 0, op, buf);
 	}
+
+	fclose(fp);
+	new_draw_info(NDI_UNIQUE, 0, op, " ");
 }
 
 /**

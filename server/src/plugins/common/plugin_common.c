@@ -24,6 +24,7 @@
 ************************************************************************/
 
 #include <global.h>
+#include <stdarg.h>
 
 f_plugin PlugHooks[1024];
 
@@ -46,4 +47,3 @@ void plugin_log(LogLevel logLevel, const char *format, ...)
 
 	(PlugHooks[HOOK_LOG])(&GCFP);
 }
-

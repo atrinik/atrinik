@@ -97,47 +97,6 @@ int command_motd(object *op, char *params)
 }
 
 /**
- * Report a bug and store it in database.
- * @param op Object reporting this bug.
- * @param params The bug message.
- * @return 1 on success, 0 on failure. */
-int command_bug(object *op, char *params)
-{
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-
-	if (params == NULL)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "What bug?");
-		return 1;
-	}
-
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the query */
-	if (!db_prepare_format(db, &statement, "INSERT INTO bugs (reporter, bug) VALUES ('%s', '%s');", op->name, db_sanitize_input(params)))
-	{
-		LOG(llevBug, "BUG: command_bug(): Failed to prepare SQL query for %s! (%s)", op->name, db_errmsg(db));
-		new_draw_info(NDI_UNIQUE, 0, op, "Something strange happened.\nYou forgot what you wanted to report?!");
-		db_close(db);
-		return 0;
-	}
-
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
-
-	new_draw_info(NDI_UNIQUE, 0, op, "OK, thank you for reporting this bug!");
-	return 1;
-}
-
-/**
  * Command to roll a magical die.
  *
  * Parameters should be XdY where X is how many times to roll the die and
@@ -936,7 +895,6 @@ int command_players(object *op, char *paramss)
 	(void) paramss;
 	(void) op;
 
-	/* Nope, because of SQLite this won't work. */
 	return 1;
 
 #if 0

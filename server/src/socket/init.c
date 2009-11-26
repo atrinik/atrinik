@@ -478,41 +478,6 @@ static void create_client_settings()
 }
 
 /**
- * Create hfiles file out of help files for client from database. */
-static void create_help_files()
-{
-	FILE *fp;
-	char filename[MAX_BUF], buf[HUGE_BUF];
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-
-	snprintf(filename, sizeof(filename), "%s/hfiles", settings.localdir);
-	unlink(filename);
-
-	if ((fp = fopen(filename, "wb")) == NULL)
-	{
-		LOG(llevError, "ERROR: Failed to open %s in w/b mode!!!\n", filename);
-		return;
-	}
-
-	db_open(DB_REFERENCE, &db);
-
-	db_prepare(db, "SELECT name, title, message FROM help;", &statement);
-
-	while (db_step(statement) == SQLITE_ROW)
-	{
-		snprintf(buf, sizeof(buf), "Name: %s\nTitle: %s\n%s\n==========\n", (char *) db_column_text(statement, 0), (char *) db_column_text(statement, 1), (char *) db_column_text(statement, 2));
-		fputs(buf, fp);
-	}
-
-	db_finalize(statement);
-
-	db_close(db);
-
-	fclose(fp);
-}
-
-/**
  * Load all the srv files we can send to client.
  *
  * client_bmaps is generated from the server at startup out of the
@@ -523,9 +488,7 @@ void init_srv_files()
 
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
-	create_help_files();
-
-	snprintf(buf, sizeof(buf), "%s/hfiles", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
 	load_srv_files(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);

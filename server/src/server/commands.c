@@ -67,7 +67,6 @@ CommArray_s Commands[] =
 	{"/use_skill",		command_uskill,			0.1f},
 	{"/ready_skill",	command_rskill,			0.1f},
 	{"/hiscore",      	command_hiscore,        1.0f},
-	{"/bug",          	command_bug,            1.0f},
 	{"/afk",			command_afk,			1.0f},
 	{"/drop",         	command_drop,           1.0f},
 	{"/party", 			command_party,			0.0f},

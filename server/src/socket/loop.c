@@ -330,9 +330,6 @@ void watchdog()
  * @param pl The player to remove */
 static void remove_ns_dead_player(player *pl)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 	{
@@ -385,27 +382,6 @@ static void remove_ns_dead_player(player *pl)
 	{
 		return;
 	}
-
-	/* Open database */
-	db_open(DB_DEFAULT, &db);
-
-	/* If we fail to prepare, don't return. Log an error message,
-	 * however. */
-	if (db_prepare_format(db, &statement, "UPDATE players SET playing = 0 WHERE playerName = '%s';", pl->ob->name))
-	{
-		/* Run the query */
-		db_step(statement);
-
-		/* Finalize it */
-		db_finalize(statement);
-	}
-	else
-	{
-		LOG(llevBug, "BUG: remove_ns_dead_player(): SQL query failed to make update player status for %s! (%s)\n", pl->ob->name, db_errmsg(db));
-	}
-
-	/* Close the database */
-	db_close(db);
 
 	/* All players should be on the friendly list - remove this one */
 	if (pl->ob->type == PLAYER)

@@ -897,87 +897,40 @@ CFParm *CFWReadyMapName(CFParm *PParm)
 CFParm *CFWSwapApartments(CFParm *PParm)
 {
 	CFParm *CFP = (CFParm *) (malloc(sizeof(CFParm)));
-	char *oldmappath = (char *) PParm->Value[0], *newmappath = (char *) PParm->Value[1], filename[MAX_BUF], filename2[MAX_BUF], buf[MAX_BUF];
+	char oldmappath[HUGE_BUF], newmappath[HUGE_BUF];
 	int x = *(int *) PParm->Value[2], y = *(int *) PParm->Value[3], i, j;
 	object *activator = (object *) PParm->Value[4], *op, *tmp, *tmp2, *dummy;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	FILE *fp, *fp2;
 	mapstruct *oldmap, *newmap;
 	int val = 1;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL to select unique map */
-	if (!db_prepare_format(db, &statement, "SELECT data FROM unique_maps WHERE mapPath = '%s%s';", activator->name, clean_path(oldmappath)))
-	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): SQL failed to prepare for selecting unique map! (%s)\n", db_errmsg(db));
-		db_close(db);
-		val = 0;
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	/* Run the SQL */
-	if (db_step(statement) != SQLITE_ROW)
-	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): Called to swap apartments, but no previous apartment for %s!", activator->name);
-		db_close(db);
-		val = 0;
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	/* Path to the temporary map */
-	snprintf(filename, sizeof(filename), "%s/%s%s", settings.tmpdir, activator->name, clean_path(oldmappath));
-
-	if ((fp = fopen(filename, "w")) == NULL)
-	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): Failed to open temporary map file!\n");
-		db_close(db);
-		val = 0;
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	fputs((char *) db_column_text(statement, 0), fp);
-	fclose(fp);
+	snprintf(oldmappath, sizeof(oldmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, activator->name, clean_path((char *) PParm->Value[0]));
+	snprintf(newmappath, sizeof(newmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, activator->name, clean_path((char *) PParm->Value[1]));
 
 	/* So we can transfer our items from the old apartment. */
-	oldmap = ready_map_name(filename, 2);
+	oldmap = ready_map_name(oldmappath, 2);
 
-	/* First, make a copy of the apartment map we're upgrading to. */
-	snprintf(filename2, sizeof(filename2), "%s/%s%s", settings.tmpdir, activator->name, clean_path(newmappath));
-
-	if ((fp = fopen(create_pathname(newmappath), "r")) == NULL)
+	if (!oldmap)
 	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): Failed to open original apartment map!\n");
-		db_close(db);
+		LOG(llevBug, "BUG: CFWSwapApartments(): Could not get oldmap using ready_map_name().\n");
 		val = 0;
 		CFP->Value[0] = (void *) &val;
 		return CFP;
 	}
-
-	if ((fp2 = fopen(filename2, "w")) == NULL)
-	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): Failed to open new temporary apartment map!\n");
-		db_close(db);
-		val = 0;
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	while (fgets(buf, MAX_BUF, fp) != NULL)
-	{
-		fprintf(fp2, "%s", buf);
-	}
-
-	fclose(fp2);
-	fclose(fp);
 
 	/* Our new map. */
-	newmap = ready_map_name(filename2, 2);
+	newmap = ready_map_name(create_pathname((char *) PParm->Value[1]), 6);
+
+	if (!newmap)
+	{
+		LOG(llevBug, "BUG: CFWSwapApartments(): Could not get newmap using ready_map_name().\n");
+		val = 0;
+		CFP->Value[0] = (void *) &val;
+		return CFP;
+	}
+
+	/* Goes to player directory. */
+	FREE_AND_COPY_HASH(newmap->path, newmappath);
+	newmap->map_flags |= MAP_FLAG_UNIQUE;
 
 	/* Go through every square on old apartment map, looking for things
 	 * to transfer. */
@@ -1039,31 +992,6 @@ CFParm *CFWSwapApartments(CFParm *PParm)
 		}
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Prepare the query to delete old map from database */
-	if (!db_prepare_format(db, &statement, "DELETE FROM unique_maps WHERE mapPath = '%s%s';", activator->name, clean_path(oldmappath)))
-	{
-		LOG(llevBug, "BUG: CFWSwapApartments(): Failed to prepare SQL query to remove old apartment! (%s)\n", db_errmsg(db));
-		db_close(db);
-		val = 0;
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
-
-	/* Mark this new map as unique map */
-	newmap->map_flags |= MAP_FLAG_UNIQUE;
-
 	/* Save the map */
 	new_save_map(newmap, 0);
 
@@ -1073,13 +1001,11 @@ CFParm *CFWSwapApartments(CFParm *PParm)
 		strcpy(CONTR(activator)->savebed_map, "");
 	}
 
+	unlink(oldmap->path);
+
 	/* Free the maps */
 	free_map(newmap, 1);
 	free_map(oldmap, 1);
-
-	/* Remove the temporary map files */
-	unlink(newmap->path);
-	unlink(oldmap->path);
 
 	/* Success! */
 	CFP->Value[0] = (void *) &val;
@@ -1087,35 +1013,28 @@ CFParm *CFWSwapApartments(CFParm *PParm)
 }
 
 /**
- * Wrapper to check if a player exists in database.
+ * Wrapper to check if a player exists.
  * @param PParm Parameters array.
  * - <b>0</b>: Player name to find. */
 CFParm *CFWPlayerExists(CFParm *PParm)
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	int val = 0;
-	char *playerName = (char *) PParm->Value[0];
+	static int val;
+	char *player_name = (char *) PParm->Value[0], filename[MAX_BUF];
 	CFParm *CFP = (CFParm *) (malloc(sizeof(CFParm)));
+	FILE *fp;
 
-	db_open(DB_DEFAULT, &db);
+	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, player_name, player_name);
+	fp = fopen(filename, "r");
 
-	if (!db_prepare_format(db, &statement, "SELECT playerName FROM players WHERE playerName = '%s' LIMIT 1;", playerName))
+	if (fp)
 	{
-		LOG(llevBug, "BUG: CFWPlayerExists(): Failed to prepare SQL query to check if player exists! (%s)\n", db_errmsg(db));
-		db_close(db);
-		CFP->Value[0] = (void *) &val;
-		return CFP;
-	}
-
-	if (db_step(statement) == SQLITE_ROW)
-	{
+		fclose(fp);
 		val = 1;
 	}
-
-	db_finalize(statement);
-
-	db_close(db);
+	else
+	{
+		val = 0;
+	}
 
 	CFP->Value[0] = (void *) &val;
 	return CFP;

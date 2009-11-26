@@ -165,219 +165,198 @@ long calculate_checksum_new(char *buf, int checkdouble)
 #endif
 }
 
+static void copy_file(char *filename, FILE *fpout)
+{
+	FILE *fp;
+	char buf[MAX_BUF];
+
+	if ((fp = fopen(filename, "r")) == NULL)
+	{
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf), fp) != NULL)
+	{
+		fputs(buf, fpout);
+	}
+
+	fclose(fp);
+}
+
 /**
- * Saves a player to database.
+ * Saves a player to file.
  * @param op Player to save.
  * @param flag If set, it's only backup, i.e. don't remove objects from
  * inventory. If BACKUP_SAVE_AT_HOME is set, and the flag is set, then
  * the player will be saved at the emergency save location.
- * @return Non zero if successful.
- * @todo Optimize and simplify the database saving. */
+ * @return Non zero if successful. */
 int save_player(object *op, int flag)
 {
-	char *sqlbuf, *p, *invbuf;
+	FILE *fp;
+	char filename[MAX_BUF], *tmpfilename, backupfile[MAX_BUF];
 	player *pl = CONTR(op);
-	int i, wiz = QUERY_FLAG(op, FLAG_WIZ), do_update = 0, sqlresult, size = HUGE_BUF * 4, n, old_size;
+	int i, wiz = QUERY_FLAG(op, FLAG_WIZ);
 	long checksum;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
 #ifdef BACKUP_SAVE_AT_HOME
 	sint16 backup_x, backup_y;
 #endif
 
-	/* no experience, no save */
+	/* No experience, no save */
 	if (!op->stats.exp && (!CONTR(op) || !CONTR(op)->player_loaded))
+	{
 		return 0;
+	}
 
 	flag &= 1;
 
 	/* Sanity check - some stuff changes this when player is exiting */
 	if (op->type != PLAYER)
+	{
 		return 0;
+	}
 
 	/* Prevent accidental saves if connection is reset after player has
 	 * mostly exited. */
 	if (pl->state != ST_PLAYING)
+	{
 		return 0;
+	}
 
-	/* perhaps we don't need it here ?*/
-	/*container_unlink(pl, NULL);*/
+	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
+	make_path_to_file(filename);
+	tmpfilename = tempnam_local(settings.tmpdir, NULL);
+	fp = fopen(tmpfilename, "w");
 
-	sqlbuf = (char *) malloc(size);
+	if (!fp)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Can't open file for save.");
+		LOG(llevDebug, "Can't open file for save (%s).\n", tmpfilename);
+		free(tmpfilename);
+		return 0;
+	}
 
-	sprintf(sqlbuf, "password %s\n", pl->password);
-
-	sprintf(sqlbuf, "%sdm_stealth %d\n", sqlbuf, pl->dm_stealth);
-	sprintf(sqlbuf, "%sgen_hp %d\n", sqlbuf, pl->gen_hp);
-	sprintf(sqlbuf, "%sgen_sp %d\n", sqlbuf, pl->gen_sp);
-	sprintf(sqlbuf, "%sgen_grace %d\n", sqlbuf, pl->gen_grace);
-	sprintf(sqlbuf, "%sspell %d\n",sqlbuf, pl->chosen_spell);
-	sprintf(sqlbuf, "%sshoottype %d\n", sqlbuf, pl->shoottype);
-	sprintf(sqlbuf, "%sdigestion %d\n", sqlbuf, pl->digestion);
-#if 0
-	sprintf(sqlbuf, "%soutputs_sync %d\n", sqlbuf, pl->outputs_sync);
-	sprintf(sqlbuf, "%soutputs_count %d\n", sqlbuf, pl->outputs_count);
-#endif
+	fprintf(fp, "password %s\n", pl->password);
+	fprintf(fp, "dm_stealth %d\n", pl->dm_stealth);
+	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
+	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
+	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
+	fprintf(fp, "spell %d\n", pl->chosen_spell);
+	fprintf(fp, "shoottype %d\n", pl->shoottype);
+	fprintf(fp, "digestion %d\n", pl->digestion);
 
 #ifdef BACKUP_SAVE_AT_HOME
 	if (op->map != NULL && flag == 0)
 #else
 	if (op->map != NULL)
 #endif
-		sprintf(sqlbuf, "%smap %s\n", sqlbuf, op->map->path);
+		fprintf(fp, "map %s\n", op->map->path);
 	else
-		sprintf(sqlbuf, "%smap %s\n", sqlbuf, EMERGENCY_MAPPATH);
+		fprintf(fp, "map %s\n", EMERGENCY_MAPPATH);
 
-	sprintf(sqlbuf, "%ssavebed_map %s\n", sqlbuf, pl->savebed_map);
-	sprintf(sqlbuf, "%sbed_x %d\nbed_y %d\n", sqlbuf, pl->bed_x, pl->bed_y);
-	sprintf(sqlbuf, "%sStr %d\n", sqlbuf, pl->orig_stats.Str);
-	sprintf(sqlbuf, "%sDex %d\n", sqlbuf, pl->orig_stats.Dex);
-	sprintf(sqlbuf, "%sCon %d\n", sqlbuf, pl->orig_stats.Con);
-	sprintf(sqlbuf, "%sInt %d\n", sqlbuf, pl->orig_stats.Int);
-	sprintf(sqlbuf, "%sPow %d\n", sqlbuf, pl->orig_stats.Pow);
-	sprintf(sqlbuf, "%sWis %d\n", sqlbuf, pl->orig_stats.Wis);
-	sprintf(sqlbuf, "%sCha %d\n", sqlbuf, pl->orig_stats.Cha);
+	fprintf(fp, "savebed_map %s\n", pl->savebed_map);
+	fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
+	fprintf(fp, "Str %d\n", pl->orig_stats.Str);
+	fprintf(fp, "Dex %d\n", pl->orig_stats.Dex);
+	fprintf(fp, "Con %d\n", pl->orig_stats.Con);
+	fprintf(fp, "Int %d\n", pl->orig_stats.Int);
+	fprintf(fp, "Pow %d\n", pl->orig_stats.Pow);
+	fprintf(fp, "Wis %d\n", pl->orig_stats.Wis);
+	fprintf(fp, "Cha %d\n", pl->orig_stats.Cha);
 
 	/* save hp table */
-	sprintf(sqlbuf, "%slev_hp %d\n", sqlbuf, op->level);
+	fprintf(fp, "lev_hp %d\n", op->level);
 	for (i = 1; i <= op->level; i++)
-		sprintf(sqlbuf, "%s%d\n", sqlbuf, pl->levhp[i]);
+		fprintf(fp, "%d\n", pl->levhp[i]);
 
 	/* save sp table */
-	sprintf(sqlbuf, "%slev_sp %d\n", sqlbuf, pl->sp_exp_ptr->level);
+	fprintf(fp, "lev_sp %d\n", pl->sp_exp_ptr->level);
 	for (i = 1; i <= pl->sp_exp_ptr->level; i++)
-		sprintf(sqlbuf, "%s%d\n", sqlbuf, pl->levsp[i]);
+		fprintf(fp, "%d\n", pl->levsp[i]);
 
-	sprintf(sqlbuf, "%slev_grace %d\n", sqlbuf, pl->grace_exp_ptr->level);
+	fprintf(fp, "lev_grace %d\n", pl->grace_exp_ptr->level);
 	for (i = 1; i <= pl->grace_exp_ptr->level; i++)
-		sprintf(sqlbuf, "%s%d\n", sqlbuf, pl->levgrace[i]);
+		fprintf(fp, "%d\n", pl->levgrace[i]);
 
 	for (i = 0; i < pl->nrofknownspells; i++)
-		sprintf(sqlbuf, "%sknown_spell %s\n", sqlbuf, spells[pl->known_spells[i]].name);
+		fprintf(fp, "known_spell %s\n", spells[pl->known_spells[i]].name);
 
-	sprintf(sqlbuf, "%sendplst\n", sqlbuf);
+	fprintf(fp, "endplst\n");
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 	CLEAR_FLAG(op, FLAG_WIZ);
 
-	invbuf = (char *)malloc(size);
-	old_size = size;
-
-	while (1)
-	{
-		invbuf[0] = '\0';
-
 #ifdef BACKUP_SAVE_AT_HOME
-		/* Save objects, but not unpaid objects.  Don't remove objects from
-		  * inventory. */
-		n = save_player_object(invbuf, op, 2, size - strlen(invbuf) - 1);
-#else
-		/* Don't check and don't remove */
-		n = save_player_object(invbuf, op, 3, size - strlen(invbuf) - 1);
-#endif
-
-		if (n == 0)
-			break;
-		else
-			size += n + 1;
-
-		/* We need more... */
-		if ((p = realloc(invbuf, size)) == NULL)
-		{
-			LOG(llevError, "ERROR: Out of memory.\n");
-			break;
-		}
-		else
-			invbuf = p;
+	if (flag)
+	{
+		backup_x = op->x;
+		backup_y = op->y;
+		op->x = -1;
+		op->y = -1;
 	}
 
-	if (old_size != size)
-	{
-		if ((p = (char *)realloc(sqlbuf, size + 1)) == NULL)
-		{
-			LOG(llevError, "ERROR: Out of memory.\n");
-			return 0;
-		}
-		else
-			sqlbuf = p;
-	}
+	/* Save objects, but not unpaid objects. Don't remove objects from
+	 * inventory. */
+	save_object(fp, op, 2);
 
-	strcat(sqlbuf, invbuf);
-
-	free(invbuf);
-
-#ifdef BACKUP_SAVE_AT_HOME
 	if (flag)
 	{
 		op->x = backup_x;
 		op->y = backup_y;
 	}
+#else
+	/* Don't check and don't remove */
+	save_object(fp, op, 3);
 #endif
 
-	checksum = calculate_checksum_new(sqlbuf, 0);
-
-	/* Open database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL query.
-	 * this way we check which to do:
-	 *  - insert (new player)
-	 *  - update (player already in database) */
-	if (!db_prepare_format(db, &statement, "SELECT playerName FROM players WHERE playerName = '%s';", op->name))
+	/* Make sure the write succeeded */
+	if (fclose(fp) == EOF)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't run database query.");
-		LOG(llevBug, "BUG: save_player(): SQL prepare query failed for %s! (%s)", op->name, db_errmsg(db));
-		db_close(db);
+		new_draw_info(NDI_UNIQUE, 0, op, "Can't save character.");
+		unlink(tmpfilename);
+		free(tmpfilename);
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 		return 0;
 	}
 
-	/* Actually run the query. */
-	db_step(statement);
+	checksum = calculate_checksum(tmpfilename, 0);
+	snprintf(backupfile, sizeof(backupfile), "%s.tmp", filename);
+	rename(filename, backupfile);
+	fp = fopen(filename, "w");
 
-	/* If the selected player name matches, we are going to do an update. */
-	if (db_column_text(statement, 0) && strcmp((char*)db_column_text(statement, 0), op->name) == 0)
-		do_update = 1;
+	if (!fp)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Can't open file for save.");
+		unlink(tmpfilename);
+		free(tmpfilename);
+		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+		return 0;
+	}
 
-	/* Finalize the SQL */
-	db_finalize(statement);
+	fprintf(fp, "checksum %lx\n", checksum);
+	copy_file(tmpfilename, fp);
+	unlink(tmpfilename);
+	free(tmpfilename);
 
-	/* Prepare the SQL and determine right query to use. */
-	if (do_update)
-		sqlresult = db_prepare_format(db, &statement, "UPDATE players SET data = 'checksum %lx\n%s' WHERE playerName = '%s';", checksum, db_sanitize_input(sqlbuf), op->name);
+	/* Got write error */
+	if (fclose(fp) == EOF)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Can't close file for save.");
+		/* Restore the original */
+		rename(backupfile, filename);
+		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+		return 0;
+	}
 	else
-		sqlresult = db_prepare_format(db, &statement, "INSERT INTO players (playing, playerName, data) VALUES (1, '%s', 'checksum %lx\n%s');", op->name, checksum, db_sanitize_input(sqlbuf));
-
-	if (!sqlresult)
 	{
-		LOG(llevBug, "BUG: save_player(): SQL prepare query failed for %s! (%s)\n", op->name, db_errmsg(db));
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't run database query.");
-		db_close(db);
-		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
-		return 0;
+		unlink(backupfile);
 	}
-
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize */
-	db_finalize(statement);
-
-	/* And close the database. */
-	db_close(db);
-
-	/* Free the buf */
-	free(sqlbuf);
-
-#if 0
-	/* Eneq(@csd.uu.se): Reveal the container if we have one. */
-	if (flag && container != NULL)
-		pl->container = container;
-#endif
 
 	if (wiz)
+	{
 		SET_FLAG(op, FLAG_WIZ);
+	}
 
+	chmod(filename, SAVE_MODE);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 	return 1;
 }
@@ -499,21 +478,18 @@ static void wrong_password(player *pl)
 
 /**
  * Login a player.
- * @param op Player.
- * @todo Optimize and simplify the database loading. */
+ * @param op Player. */
 void check_login(object *op)
 {
 	FILE *fp;
 	void *mybuffer;
-	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF], banbuf[256], sqlfailbuf[256];
+	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF], banbuf[MAX_BUF];
 	int i, value, comp, correct = 0;
 	long checksum = 0;
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
 	object *tmp, *tmp2;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
 
 	strcpy(pl->maplevel, first_map_path);
 
@@ -560,39 +536,7 @@ void check_login(object *op)
 
 	LOG(llevInfo, "LOGIN: >%s< from ip %s\n", op->name, pl->socket.host);
 
-	/* The player file will be temporarily stored in temporary directory. */
-	sprintf(filename, "%s/%s.player", settings.tmpdir, op->name);
-
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL query */
-	if (!db_prepare_format(db, &statement, "SELECT data FROM players WHERE playerName = '%s';", op->name))
-	{
-		LOG(llevBug, "BUG: check_login(): SQL prepare query failed for %s! (%s)\n", op->name, db_errmsg(db));
-		strcpy(sqlfailbuf, "X3 SQL QUERY FAILED: CONTACT ADMINISTRATOR.");
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, sqlfailbuf, strlen(sqlfailbuf));
-		pl->socket.can_write = 1;
-		write_socket_buffer(&pl->socket);
-		pl->socket.status = Ns_Dead;
-		return;
-	}
-
-	/* Run the query and check if we got a valid output. */
-	if (db_step(statement) == SQLITE_ROW)
-	{
-		fp = fopen(filename, "w");
-
-		fputs((char *)db_column_text(statement, 0), fp);
-
-		fclose(fp);
-	}
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* And close. */
-	db_close(db);
+	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
 
 	/* If no file, must be a new player, so lets get confirmation of
 	 * the password.  Return control to the higher level dispatch,
@@ -611,6 +555,7 @@ void check_login(object *op)
 	else
 	{
 		elapsed_save_time = time(NULL) - statbuf.st_mtime;
+
 		if (elapsed_save_time < 0)
 		{
 			LOG(llevBug, "BUG: Player file %s was saved in the future? (%d time)\n", filename, elapsed_save_time);
@@ -623,8 +568,11 @@ void check_login(object *op)
 		if (!strncmp(bufall, "checksum ", 9))
 		{
 			checksum = strtol_local(bufall + 9, (char **) NULL, 16);
+
 			if (fgets(bufall, MAX_BUF, fp) == NULL)
+			{
 				LOG(llevDebug, "DEBUG: check_login(): fgets failed for %s.\n", op->name);
+			}
 		}
 
 		if (sscanf(bufall, "password %s\n", buf))
@@ -693,12 +641,6 @@ void check_login(object *op)
 		else if (!strcmp(buf, "digestion"))
 			pl->digestion = value;
 
-#if 0
-		else if (!strcmp(buf, "outputs_sync"))
-			pl->outputs_sync = value;
-		else if (!strcmp(buf, "outputs_count"))
-			pl->outputs_count = value;
-#endif
 		else if (!strcmp(buf, "map"))
 			sscanf(bufall, "map %s", pl->maplevel);
 
@@ -797,7 +739,6 @@ void check_login(object *op)
 	load_object(fp, op, mybuffer, LO_REPEAT, 0);
 	delete_loader_buffer(mybuffer);
 	close_and_delete(fp, comp);
-	unlink(filename);
 
 	/* at this moment, the inventory is reverse loaded.
 	 * Lets exchange it here.
@@ -852,23 +793,6 @@ void check_login(object *op)
 		op->stats.hp = 1;
 
 	pl->name_changed = 1;
-
-	/* Open database once again. */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL query to update status of player.
-	 * If this fails, do not return, because it's not trivial. */
-	if (db_prepare_format(db, &statement, "UPDATE players SET playing = 1 WHERE playerName = '%s';", op->name))
-	{
-		db_step(statement);
-
-		db_finalize(statement);
-	}
-	else
-		LOG(llevBug, "BUG: check_login(): SQL query failed for %s! (%s)\n", op->name, db_errmsg(db));
-
-	/* Close the database */
-	db_close(db);
 
 	pl->state = ST_PLAYING;
 #ifdef AUTOSAVE

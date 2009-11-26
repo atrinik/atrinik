@@ -122,7 +122,6 @@ int command_me(object *op, char *params);
 /* c_misc.c */
 void map_info(object *op);
 int command_motd(object *op, char *params);
-int command_bug(object *op, char *params);
 int command_roll(object *op, char *params);
 void malloc_info(object *op);
 void current_map_info(object *op);

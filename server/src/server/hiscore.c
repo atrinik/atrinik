@@ -81,34 +81,90 @@ static void copy_score(const score *sc1, score *sc2)
 }
 
 /**
+ * Writes the given score structure to a static buffer, and returns
+ * a pointer to it.
+ * @param sc Score.
+ * @param buf The buffer.
+ * @param size Size of the buffer. */
+static void put_score(const score *sc, char *buf, int size)
+{
+    snprintf(buf, size, "%s:%s:%ld:%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+}
+
+/**
  * The opposite of put_score, this reads from the given buffer into
  * a static score structure, and returns a pointer to it.
  * @param statement SQLite statement handle
  * @return The score structure */
-static score *get_score(sqlite3_stmt *statement)
+static score *get_score(char *bp)
 {
 	static score sc;
+	char *cp;
 
-	sscanf((char *)db_column_text(statement, 0), "%ld", &sc.exp);
+	if ((cp = strchr(bp, '\n')) != NULL)
+	{
+		*cp = '\0';
+	}
 
-	strncpy(sc.killer, (char *)db_column_text(statement, 1), BIG_NAME);
-	sc.killer[BIG_NAME - 1] = '\0';
+	if ((cp = strtok(bp, ":")) == NULL)
+	{
+		return NULL;
+	}
 
-	strncpy(sc.maplevel, (char *)db_column_text(statement, 2), BIG_NAME);
-	sc.maplevel[BIG_NAME - 1] = '\0';
-
-	sscanf((char *)db_column_text(statement, 3), "%d", &sc.maxgrace);
-
-	sscanf((char *)db_column_text(statement, 4), "%d", &sc.maxhp);
-
-	sscanf((char *)db_column_text(statement, 5), "%d", &sc.maxsp);
-
-	strncpy(sc.name, (char *)db_column_text(statement, 6), BIG_NAME);
+	strncpy(sc.name, cp, BIG_NAME);
 	sc.name[BIG_NAME - 1] = '\0';
 
-	strncpy(sc.title, (char *)db_column_text(statement, 7), BIG_NAME);
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	strncpy(sc.title, cp, BIG_NAME);
 	sc.title[BIG_NAME - 1] = '\0';
 
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	sscanf(cp, "%ld", &sc.exp);
+
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	strncpy(sc.killer, cp, BIG_NAME);
+	sc.killer[BIG_NAME - 1] = '\0';
+
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	strncpy(sc.maplevel, cp, BIG_NAME);
+	sc.maplevel[BIG_NAME - 1] = '\0';
+
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	sscanf(cp, "%d", &sc.maxhp);
+
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	sscanf(cp, "%d", &sc.maxsp);
+
+	if ((cp = strtok(NULL, ":")) == NULL)
+	{
+		return NULL;
+	}
+
+	sscanf(cp, "%d", &sc.maxgrace);
 	return &sc;
 }
 
@@ -121,9 +177,13 @@ static score *get_score(sqlite3_stmt *statement)
 static char *draw_one_high_score(const score *sc, char *buf, int size)
 {
 	if (!strncmp(sc->killer, "left", MAX_NAME))
+	{
 		snprintf(buf, size, "%3d %10ld %s the %s left the game on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+	}
 	else
+	{
 		snprintf(buf, size, "%3d %10ld %s the %s was killed by %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+	}
 
 	return buf;
 }
@@ -135,122 +195,104 @@ static char *draw_one_high_score(const score *sc, char *buf, int size)
  * @return NULL if an error, or the old score. */
 static score *add_score(score *new_score)
 {
+	FILE *fp;
 	static score old_score;
 	score *tmp_score, pscore[HIGHSCORE_LENGTH];
-	int nrofscores = 0, flag = 0, i;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
+	char buf[MAX_BUF], filename[MAX_BUF], bp[MAX_BUF];
+	int nrofscores = 0, flag = 0, i, comp;
 
 	new_score->position = HIGHSCORE_LENGTH + 1;
 	old_score.position = -1;
+	snprintf(filename, sizeof(filename), "%s/highscore", settings.localdir);
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL */
-	if (!db_prepare(db, "SELECT * FROM highscore;", &statement))
+	if ((fp = open_and_uncompress(filename, 1, &comp)) != NULL)
 	{
-		LOG(llevBug, "BUG: add_score(): Failed to prepare SQL query to select all highscores! (%s)\n", db_errmsg(db));
-		db_close(db);
-		return NULL;
-	}
-
-	/* Loop through all rows (or until we hit scores limit) */
-	while (db_step(statement) == SQLITE_ROW && nrofscores < HIGHSCORE_LENGTH)
-	{
-		if ((tmp_score = get_score(statement)) == NULL)
+		while (fgets(buf, MAX_BUF, fp) != NULL && nrofscores < HIGHSCORE_LENGTH)
 		{
-			LOG(llevBug, "Failed to get score!\n");
-			break;
-		}
-
-		if (!flag && new_score->exp >= tmp_score->exp)
-		{
-			copy_score(new_score, &pscore[nrofscores]);
-			new_score->position = nrofscores;
-			flag = 1;
-			if (++nrofscores >= HIGHSCORE_LENGTH)
+			if ((tmp_score = get_score(buf)) == NULL)
+			{
 				break;
+			}
+
+			if (!flag && new_score->exp >= tmp_score->exp)
+			{
+				copy_score(new_score, &pscore[nrofscores]);
+				new_score->position = nrofscores;
+				flag = 1;
+
+				if (++nrofscores >= HIGHSCORE_LENGTH)
+				{
+					break;
+				}
+			}
+
+			/* Another entry */
+			if (!strcmp(new_score->name, tmp_score->name))
+			{
+				copy_score(tmp_score, &old_score);
+				old_score.position = nrofscores;
+
+				if (flag)
+				{
+					continue;
+				}
+			}
+
+			copy_score(tmp_score, &pscore[nrofscores++]);
 		}
 
-		/* Another entry */
-		if (!strcmp(new_score->name, tmp_score->name))
-		{
-			copy_score(tmp_score, &old_score);
-			old_score.position = nrofscores;
-			if (flag)
-				continue;
-		}
-		copy_score(tmp_score, &pscore[nrofscores++]);
+		close_and_delete(fp, comp);
 	}
-
-	/* Finalize it */
-	db_finalize(statement);
 
 	/* Did not beat old score */
 	if (old_score.position != -1 && old_score.exp >= new_score->exp)
 	{
-		db_close(db);
 		return &old_score;
 	}
 
 	if (!flag && nrofscores < HIGHSCORE_LENGTH)
-		copy_score(new_score, &pscore[nrofscores++]);
-
-	/* Prepare the SQL to delete all entries in the highscore database */
-	if (!db_prepare(db, "DELETE FROM highscore;", &statement))
 	{
-		LOG(llevBug, "BUG: add_score(): Failed to prepare SQL query to delete all highscore entries! (%s)\n", db_errmsg(db));
-		db_close(db);
+		copy_score(new_score, &pscore[nrofscores++]);
+	}
+
+	if ((fp = fopen(filename, "w")) == NULL)
+	{
+		LOG(llevBug, "BUG: Cannot write to highscore file.\n");
 		return NULL;
 	}
 
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Loop through our scores */
 	for (i = 0; i < nrofscores; i++)
 	{
-		/* Prepare the SQL query to insert the score*/
-		if (!db_prepare_format(db, &statement, "INSERT INTO highscore (exp, killer, maplevel, maxgrace, maxhp, maxsp, name, title) VALUES (%ld, '%s', '%s', %d, %d, %d, '%s', '%s');", pscore[i].exp, pscore[i].killer, db_sanitize_input(pscore[i].maplevel), pscore[i].maxgrace, pscore[i].maxhp, pscore[i].maxsp, pscore[i].name, db_sanitize_input(pscore[i].title)))
-		{
-			LOG(llevBug, "BUG: add_score(): Failed to prepare SQL query to insert highscore data! (%s)\n", db_errmsg(db));
-			db_close(db);
-			return NULL;
-		}
-
-		/* Run the query */
-		db_step(statement);
-
-		/* Finalize it */
-		db_finalize(statement);
+		put_score(&pscore[i], bp, sizeof(bp));
+		fprintf(fp, "%s\n", bp);
 	}
 
-	/* Close the database */
-	db_close(db);
+	fclose(fp);
 
 	if (flag)
 	{
-		/* Eneq(@csd.uu.se): Patch to fix error in adding a new score to the hiscore-list */
 		if (old_score.position == -1)
+		{
 			return new_score;
+		}
 
 		return &old_score;
 	}
+
 	new_score->position = -1;
 
 	if (old_score.position != -1)
+	{
 		return &old_score;
+	}
+
 	if (nrofscores)
 	{
 		copy_score(&pscore[nrofscores - 1], &old_score);
 		return &old_score;
 	}
 
-	LOG(llevError, "Highscore error.\n");
+	LOG(llevBug, "Highscore error.\n");
 	return NULL;
 }
 
@@ -261,12 +303,16 @@ void check_score(object *op, int quiet)
 	char bufscore[MAX_BUF];
 
 	if (op->stats.exp == 0)
+	{
 		return;
+	}
 
 	if (QUERY_FLAG(op, FLAG_WAS_WIZ))
 	{
 		if (!quiet)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "Since you have been in wizard mode, you can't enter the high-score list.");
+		}
 
 		return;
 	}
@@ -274,7 +320,9 @@ void check_score(object *op, int quiet)
 	if (!op->stats.exp)
 	{
 		if (!quiet)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You don't deserve to save your character yet.");
+		}
 
 		return;
 	}
@@ -288,26 +336,33 @@ void check_score(object *op, int quiet)
 	strncpy(new_score.killer, CONTR(op)->killer, BIG_NAME);
 
 	if (new_score.killer[0] == '\0')
+	{
 		strcpy(new_score.killer, "a dungeon collapse");
+	}
 
 	new_score.killer[BIG_NAME - 1] = '\0';
 	new_score.exp = op->stats.exp;
 
 	if (op->map == NULL)
+	{
 		*new_score.maplevel = '\0';
+	}
 	else
 	{
 		strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, BIG_NAME - 1);
 		new_score.maplevel[BIG_NAME - 1] = '\0';
 	}
 
-	new_score.maxhp = (int)op->stats.maxhp;
-	new_score.maxsp = (int)op->stats.maxsp;
-	new_score.maxgrace = (int)op->stats.maxgrace;
+	new_score.maxhp = (int) op->stats.maxhp;
+	new_score.maxsp = (int) op->stats.maxsp;
+	new_score.maxgrace = (int) op->stats.maxgrace;
+
 	if ((old_score = add_score(&new_score)) == NULL)
 	{
 		if (!quiet)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "Error in the highscore list.");
+		}
 
 		return;
 	}
@@ -316,7 +371,9 @@ void check_score(object *op, int quiet)
 	 * to the player.  If quiet is set, we can just return
 	 * now. */
 	if (quiet)
+	{
 		return;
+	}
 
 	if (new_score.position == -1)
 	{
@@ -324,9 +381,13 @@ void check_score(object *op, int quiet)
 		new_score.position = HIGHSCORE_LENGTH + 1;
 
 		if (!strcmp(old_score->name, new_score.name))
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You didn't beat your last highscore:");
+		}
 		else
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You didn't enter the highscore list:");
+		}
 
 		new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
 
@@ -336,12 +397,15 @@ void check_score(object *op, int quiet)
 	}
 
 	if (old_score->exp >= new_score.exp)
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You didn't beat your last score:");
+	}
 	else
+	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You beat your last score:");
+	}
 
 	new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
-
 	new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
@@ -352,55 +416,60 @@ void check_score(object *op, int quiet)
  * @param match Only match scores with match. */
 void display_high_score(object *op, int max, const char *match)
 {
-	char scorebuf[MAX_BUF];
-	int i = 0, j = 0;
+	FILE *fp;
+	char buf[MAX_BUF], scorebuf[MAX_BUF];
+	int i = 0, j = 0, comp;
 	score *sc;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	snprintf(buf, sizeof(buf), "%s/highscore", settings.localdir);
 
-	/* Prepare the SQL to grab scores and order them by exp */
-	if (!db_prepare(db, "SELECT * FROM highscore ORDER BY exp DESC;", &statement))
+	if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
 	{
-		LOG(llevBug, "BUG: display_high_score(): Failed to prepare SQL query to select all highscores! (%s)", db_errmsg(db));
+		LOG(llevBug, "BUG: Can't open highscore file");
 
 		if (op != NULL)
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, "There is no highscore file.");
+		}
 
 		return;
 	}
 
 	new_draw_info(NDI_UNIQUE, 0, op, "Nr    Score    Who <max hp><max sp><max grace>");
 
-	/* Loop through the scores */
-	while (db_step(statement) == SQLITE_ROW)
+	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
 		if (j >= HIGHSCORE_LENGTH || i >= (max - 1))
+		{
 			break;
+		}
 
-		if ((sc = get_score(statement)) == NULL)
+		if ((sc = get_score(buf)) == NULL)
+		{
 			break;
+		}
 
 		sc->position = ++j;
+
 		if (match == NULL)
 		{
 			draw_one_high_score(sc, scorebuf, sizeof(scorebuf));
 			i++;
 		}
 		else
+		{
 			continue;
+		}
 
 		if (op == NULL)
+		{
 			LOG(llevDebug, "%s\n", scorebuf);
+		}
 		else
+		{
 			new_draw_info(NDI_UNIQUE, 0, op, scorebuf);
+		}
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	close_and_delete(fp, comp);
 }

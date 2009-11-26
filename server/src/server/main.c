@@ -74,11 +74,10 @@ void version(object *op)
 }
 
 /**
- * Crypt a string. Used for receiving player password
- * on creation and storing it in database.
- * @param str The string to crypt
- * @param salt Salt, if NULL, random will be chosen
- * @return The crypted string */
+ * Crypt a string.
+ * @param str The string to crypt.
+ * @param salt Salt, if NULL, random will be chosen.
+ * @return The crypted string. */
 char *crypt_string(char *str, char *salt)
 {
 #ifndef WIN32
@@ -107,11 +106,11 @@ char *crypt_string(char *str, char *salt)
 }
 
 /**
- * Check if typed password and crypted password
- * in the database are the same.
- * @param typed The typed password
- * @param crypted Crypted password from database
- * @return 0 if no match, non zero if matches */
+ * Check if typed password and crypted password in the player file are
+ * the same.
+ * @param typed The typed password.
+ * @param crypted Crypted password from file.
+ * @return Return value of strcmp() against the two strings. */
 int check_password(char *typed, char *crypted)
 {
 	return !strcmp(crypt_string(typed, crypted), crypted);
@@ -452,49 +451,18 @@ static void enter_random_map(object *pl, object *exit_ob)
  * @param exit_ob Exit object the player is entering from */
 static void enter_unique_map(object *op, object *exit_ob)
 {
-	char apartment[HUGE_BUF], linebuf[MAX_BUF] = "", *sqlbuf;
-	int is_new = 1;
+	char apartment[HUGE_BUF];
 	mapstruct *newmap;
-	sqlite3 *db;
-	sqlite3_stmt *statement;
-	FILE *fp;
-
-	/* The apartment map will be stored in temporary directory for a while. */
-	sprintf(apartment, "%s/%s%s", settings.tmpdir, op->name, clean_path(EXIT_PATH(exit_ob)));
-
-	/* Open database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL. */
-	if (!db_prepare_format(db, &statement, "SELECT data FROM unique_maps WHERE mapPath = '%s%s'", op->name, clean_path(EXIT_PATH(exit_ob))))
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is closed.", query_name(exit_ob, NULL));
-		LOG(llevBug, "BUG: enter_unique_map(): SQL prepare query failed for unique map loading! (%s), (%s), (%s)\n", op->name, clean_path(EXIT_PATH(exit_ob)), db_errmsg(db));
-		db_close(db);
-		return;
-	}
-
-	/* If we got a valid row from it, that means there is already unique map in the database. Make a temporary file. */
-	if (db_step(statement) == SQLITE_ROW)
-	{
-		fp = fopen(apartment, "w");
-		fputs((char *) db_column_text(statement, 0), fp);
-		fclose(fp);
-		is_new = 0;
-	}
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
 
 	if (EXIT_PATH(exit_ob)[0] == '/')
 	{
+		snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(EXIT_PATH(exit_ob)));
 		newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
 
 		if (!newmap)
+		{
 			newmap = load_original_map(create_pathname(EXIT_PATH(exit_ob)), MAP_PLAYER_UNIQUE);
+		}
 	}
 	/* relative directory */
 	else
@@ -507,90 +475,33 @@ static void enter_unique_map(object *op, object *exit_ob)
 
 			/* Need to copy this over, as clean_path only has one static return buffer */
 			strcpy(tmpc, clean_path(reldir));
+
 			/* Remove final component, if any */
 			if ((cp = strrchr(tmpc, '$')) != NULL)
+			{
 				*cp = 0;
+			}
 
+			snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s_%s", settings.localdir, settings.playerdir, op->name, tmpc, clean_path(EXIT_PATH(exit_ob)));
 			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
+
 			if (!newmap)
+			{
 				newmap = load_original_map(create_pathname(normalize_path(reldir, EXIT_PATH(exit_ob), tmp_path)), MAP_PLAYER_UNIQUE);
+			}
 		}
 		else
 		{
 			/* The exit is unique, but the map we are coming from is not unique.  So
 			 * use the basic logic - don't need to demangle the path name */
+			snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path)));
 			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
+
 			if (!newmap)
-				newmap = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path), 0);
-		}
-	}
-
-	/* If this is new unique map, insert it in the database. */
-	if (is_new && newmap && !MAP_NOSAVE(newmap))
-	{
-		int size = HUGE_BUF;
-		char *p;
-
-		/* Allocate the memory */
-		if ((sqlbuf = (char *)malloc(size)) == NULL)
-		{
-			unlink(apartment);
-			LOG(llevError, "ERROR: Out of memory.\n");
-			return;
-		}
-
-		/* Open the map and read it to large buf */
-		fp = fopen(newmap->path, "r");
-
-		sqlbuf[0] = '\0';
-
-		/* Go through the lines */
-		while (fgets(linebuf, MAX_BUF, fp))
-		{
-			/* If this would overflow, reallocate the buffer with more bytes */
-			if (strlen(linebuf) + strlen(sqlbuf) > (unsigned int) size)
 			{
-				size += strlen(linebuf) + strlen(sqlbuf) + 1;
-
-				if ((p = (char *)realloc(sqlbuf, size)) == NULL)
-				{
-					unlink(apartment);
-					LOG(llevError, "ERROR: Out of memory.\n");
-					return;
-				}
-				else
-					sqlbuf = p;
+				newmap = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path), 0);
 			}
-
-			strcat(sqlbuf, linebuf);
 		}
-
-		fclose(fp);
-
-		/* Open the database */
-		db_open(DB_DEFAULT, &db);
-
-		/* Prepare the SQL query to insert the map */
-		if (!db_prepare_format(db, &statement, "INSERT INTO unique_maps (mapPath, data) VALUES ('%s%s', '%s');", op->name, clean_path(EXIT_PATH(exit_ob)), db_sanitize_input(sqlbuf)))
-		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is closed.", query_name(exit_ob, NULL));
-			LOG(llevBug, "BUG: enter_unique_map(): SQL prepare query failed for unique map insert! (%s), (%s), (%s)\n", op->name, clean_path(EXIT_PATH(exit_ob)), db_errmsg(db));
-			unlink(apartment);
-			db_close(db);
-			return;
-		}
-
-		/* Run the query. */
-		db_step(statement);
-
-		/* Finalize it */
-		db_finalize(statement);
-
-		/* Close it */
-		db_close(db);
-
-		/* Free the buf */
-		free(sqlbuf);
 	}
 
 	if (newmap)
@@ -610,9 +521,6 @@ static void enter_unique_map(object *op, object *exit_ob)
 		 * map, but other players can't get it anymore. */
 LOG(llevDebug, "DEBUG: enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
-
-	/* Temporary file is removed. */
-	unlink(apartment);
 }
 
 /**

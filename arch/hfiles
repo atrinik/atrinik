@@ -1,0 +1,556 @@
+Name: main
+Title: General Help
+This is the main help page.
+If you're new to the game, please read on.
+
+Atrinik is a Multiplayer Online Role-Playing Game. The original code was forked from Crossfire and Daimonin in 2009 by Alex Tokar. More at: http://www.atrinik.org
+
+Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
+
+<t t="See also:">
+List of ^contributors^
+<p><t t="Useful commands">
+^apply^
+^run^
+^run_stop^
+^cast^
+^pray^
+^shout^
+^say^
+^tell^
+^reply^
+^who^
+^mapinfo^
+^motd^
+^time^
+^version^
+^mark^
+^save^
+^hiscore^
+^bug^
+^apartment^
+^party^
+^drop^
+^get^
+^push^
+^left^
+^right^
+^roll^
+^emotions^
+^afk^
+==========
+Name: apply
+Title: Apply Command
+The /apply command is used to apply selected things. For example, you can wield a sword in your inventory, or wear an armour. You can also apply things like stairs to enter them, or handles to activate gates.
+<p><t t="See Also:">
+^get^
+^drop^
+==========
+Name: pray
+Title: Pray Command
+The pray command is used to start praying to your god, to regenerate your grace. By default, it is bound to the P key. If you are praying and you move, attack an enemy or you get attacked, you will automatically stop praying.
+==========
+Name: run
+Title: Run Command
+The run command is used to prepare your character for running. Your character will run in direction you press until you type /run_stop or press the ALT key.
+
+<t t="Syntax:">/run
+<p><t t="See Also:">
+^run_stop^
+==========
+Name: run_stop
+Title: Stop Run Command
+The stop run command is used to stop your character from being in 'run mode' by previous usage of /run command.
+
+<t t="Syntax:">/run_stop
+<p><t t="See Also:">
+^run^
+==========
+Name: cast
+Title: Cast command
+The cast command will immediately cast a spell in the direction you're currently facing. It is useful to bind this command to your keys, like this:
+"/cast magic bullet"
+
+<t t="Syntax:">/cast [name of spell]
+<p><t t="See Also:">
+^binding^
+==========
+Name: shout
+Title: Shout command
+The shout command is the main communication command. It will display your message to all currently logged in players.
+
+<t t="Syntax:">/shout [your message]
+<p><t t="See Also:">
+^tell^
+^reply^
+^say^
+==========
+Name: tell
+Title: Tell Command
+The tell command is used to send a private message to another player online. Only he will be able to see the message!
+
+<t t="Syntax:">/tell [name] [your message]
+<p><t t="See Also:">
+^shout^
+^reply^
+^say^
+==========
+Name: reply
+Title: Reply Command
+The reply command is used to reply to the last player that sent you a private message. There's no need to specify his name, just the message!
+
+<t t="Syntax:">/reply [your message]
+<p><t t="See Also:">
+^shout^
+^tell^
+^say^
+==========
+Name: who
+Title: Who Command
+The who command is used to display all players currently online. It will show their name, level, race and gender.
+
+<t t="Syntax:">/who
+==========
+Name: mapinfo
+Title: Map Info Command
+The map info command will give you some info about the map. It will show you the map path, map name, and a message the author may have left.
+
+<t t="Syntax:">/mapinfo
+==========
+Name: motd
+Title: MOTD Command
+The Message of the Day command will show you the current message of the day, as configured by the server administrator or a DM.
+
+<t t="Syntax:">/motd
+==========
+Name: dm
+Title: Dungeon Master Command
+Allows you to become a Dungeon Master, if you are allowed to.
+
+<t t="Syntax:">/dm
+<p><t t="See Also:">
+^summon^
+^kick^
+^plugin^
+^pluglist^
+^teleport^
+^goto^
+^shutdown^
+^shutdown_now^
+^resetmap^
+^create^
+^addexp^
+^dm_stealth^
+^dm_light^
+^wizpass^
+^motd_set^
+^dmsay^
+==========
+Name: time
+Title: Time Command
+The time command displays the current in-game time.
+
+<t t="Syntax:">/time
+==========
+Name: version
+Title: Version Command
+The version command shows you the current server's version.
+
+<t t="Syntax:">/version
+==========
+Name: mark
+Title: Mark Command
+The mark command marks a specified item in your inventory. Some common examples of usage:
+
+Smith will identify your current marked item.
+
+A quest reward could require you to mark an item which will be improved.
+==========
+Name: save
+Title: Save Command
+The save command will save your character at your present location. This is automatically done every several minutes and when you logout, but it can be used as a "just-in-case" command. Remember, you must have some experience in order to be able to save your character!
+
+<t t="Syntax:">/save
+==========
+Name: hiscore
+Title: Highscore Command
+The highscore command shows the top players in the game, the ones with most experience points.
+
+<t t="Syntax:">/hiscore
+
+To search for someone in the highscore list:
+/hiscore [name]
+==========
+Name: bug
+Title: Bug Command
+The bug command is a quick way for you to report minor bugs. It will be saved and the server administrator will take a look at it, and will ask you for more details.
+
+However, the preferred way of reporting bugs to Atrinik developer team is using Atrinik Bugzilla at http://bugzilla.atrinik.org
+
+<t t="Syntax:">/bug [bug report]
+==========
+Name: apartment
+Title: Apartment Command
+The apartment command is used to invite other players to your apartment. They will not be able to steal your things, or drop their things in there!
+
+<t t="Syntax:">To cancel an existing apartment invitation and kick all players besides yourself from your apartment:
+/apartment cancel
+
+To send an invite to another player (you must be in your apartment!):
+/apartment invite [player]
+
+To turn on/off apartment invites (the player you want to invite must have this ON):
+/apartment invites [on|off]
+
+To cancel someone's invite:
+/apartment off
+==========
+Name: party
+Title: Party Command
+The party command can be used to form a party, say a message in your party, and so on.
+
+However, note that there is a party GUI in the client, which can be opened by clicking the Party button at right top of the client. The GUI includes listing all existing parties, seeing who's in a party you're member of, forming new party, etc.
+
+<t t="Syntax:">To form a party:
+/party form [party name]
+
+To join an existing party (you need to specify password only if one is set in the party):
+/party join [party name] [password]
+
+To list ALL existing parties:
+/party list
+
+To list players in your party:
+/party who
+
+To change party password (only party leader can do so):
+/party password [new password]
+
+To leave your party:
+/party leave
+
+To post a message to your party members:
+/party say [your message]
+OR
+/gsay [your message]
+==========
+Name: drop
+Title: Drop Command
+The drop command is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
+<p><t t="See Also:">
+^apply^
+^get^
+==========
+Name: get
+Title: Get Command
+The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
+
+However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -> General -> Collect All Items.
+<p><t t="See Also:">
+^apply^
+^drop^
+==========
+Name: push
+Title: Push Command
+The push command is used to push objects out of your way. Rolling objects like barrels can be pushed, and also players.
+
+<t t="Syntax:">/push
+<p><t t="See Also:">
+^left^
+^right^
+==========
+Name: left
+Title: Left Command
+The left command is used to turn your character left.
+
+<t t="Syntax:">/left
+<p><t t="See Also:">
+^push^
+^right^
+==========
+Name: right
+Title: Right Command
+The right command is used to turn your character right.
+
+<t t="Syntax:">/right
+<p><t t="See Also:">
+^push^
+^left^
+==========
+Name: roll
+Title: Roll Command
+The roll command is used to roll a dice. The results will be displayed to everyone on the map in range.
+
+<t t="Syntax:">/roll [times to roll the dice]d[number of sides]
+==========
+Name: emotions
+Title: Emotion Commands
+This is the list of all emote commands:
+
+/nod
+/dance
+/kiss
+/bounce
+/smile
+/cackle
+/laugh
+/giggle
+/shake
+/puke
+/growl
+/scream
+/sigh
+/sulk
+/hug
+/cry
+/poke
+/accuse
+/grin
+/bow
+/clap
+/blush
+/burp
+/chuckle
+/cough
+/flip
+/frown
+/gasp
+/glare
+/groan
+/hiccup
+/lick
+/pout
+/shiver
+/shrug
+/slap
+/smirk
+/snap
+/sneeze
+/snicker
+/sniff
+/snore
+/spit
+/strut
+/thank
+/twiddle
+/wave
+/whistle
+/wink
+/yawn
+/beg
+/bleed
+/cringe
+/think
+/me
+==========
+Name: summon
+Title: Summon Command
+The DM summon command is used to summon a player next to yourself.
+
+<t t="Syntax:">/summon [player name]
+<p><t t="See Also:">
+^teleport^
+^goto^
+==========
+Name: teleport
+Title: Teleport Command
+The DM teleport command is used to teleport yourself next to a player.
+
+<t t="Syntax:">/teleport [player name]
+<p><t t="See Also:">
+^summon^
+^goto^
+==========
+Name: goto
+Title: Go To Command
+The DM Go To command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
+
+<t t="Syntax:">/goto [map path] [x] [y]
+<p><t t="See Also:">
+^teleport^
+^summon^
+==========
+Name: kick
+Title: Kick Command
+The DM kick command is used to kick a player from the game.
+
+<t t="Syntax:">/kick [player name]
+==========
+Name: plugin
+Title: PlugIn Command
+The DM plugin command is used to load a plugin from existing plugins.
+
+<t t="Syntax:">/plugin [plugin]
+<p><t t="See Also:">
+^plugout^
+^pluglist^
+==========
+Name: plugout
+Title: PlugOut Command
+The DM plugout command is used to unload a plugin from loaded plugins.
+
+<t t="Syntax:">/plugout [plugin]
+<p><t t="See Also:">
+^plugin^
+^pluglist^
+==========
+Name: pluglist
+Title: PlugList Command
+The DM pluglist command is used to show currently loaded plugins. It will also show loadable plugins from the server's plugins directory.
+
+<t t="Syntax:">/pluglist
+<p><t t="See Also:">
+^plugin^
+^plugout^
+==========
+Name: shutdown
+Title: Shutdown Command
+The DM shutdown command is used to start a timed shutdown agent that shuts down the server in specified number of seconds.
+
+<t t="Syntax:">/shutdown [seconds]
+<p><t t="See Also:">
+^shutdown_now^
+==========
+Name: shutdown_now
+Title: Shutdown Now Command
+The DM shutdown now command is used to shutdown the server instantly.
+
+<t t="Syntax:">/shutdown_now
+<p><t t="See Also:">
+^shutdown^
+==========
+Name: resetmap
+Title: Reset Map Command
+The DM reset map command is used to reset a map the DM is currently located on. It will temporarily remove all players from the map, swap the map out, and reinsert the players.
+
+<t t="Syntax:">/resetmap
+==========
+Name: create
+Title: Create Command
+The DM create command used to create almost any item.
+<t t="NOTE: VERY DANGEROUS, USE WITH CAUTION!">
+
+<t t="Syntax:">/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ... 
+==========
+Name: addexp
+Title: Add Exp Command
+The DM add exp command is used to add exp to specified skill to a player.
+
+<t t="Syntax:">/addexp [player name] [skill ID] [experience to add]
+==========
+Name: dm_stealth
+Title: DM Stealth Command
+The DM stealth command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login his entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
+
+<t t="Syntax:">/dm_stealth
+==========
+Name: dm_light
+Title: DM Light Command
+The DM light command is used to make any map appear in daylight.
+
+<t t="Syntax:">/dm_light
+==========
+Name: wizpass
+Title: Wiz Pass Command
+The DM wiz pass command is used to make a DM get stopped by walls and obstacles.
+
+<t t="Syntax:">/wizpass
+==========
+Name: say
+Title: Say Command
+The say command is used to talk with other players on same map, interact with NPCs, activating teleporters and gates and other things.
+
+This command does not require you to type anything before your message; you just write the message, and it gets said on the map you're located at.
+
+<t t="Syntax:">[your message]
+
+<t t="See Also:">
+^shout^
+^tell^
+^reply^
+==========
+Name: motd_set
+Title: Set MOTD Command
+The DM MOTD set command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
+
+<t t="Syntax:">To revert the original (default) Message of the Day:
+/motd_set original
+
+To set a custom Message of the Day:
+/motd_set [message]
+==========
+Name: afk
+Title: AFK Command
+The AFK (Away From Keyboard) command is used to mark you as away. It will be displayed in the client as a "reminder" next to your name, and will appear in the who list for everyone to see.
+
+<t t="Syntax:">/afk
+==========
+Name: dmsay
+Title: DM Say Command
+The DM say command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
+
+<t t="Syntax:">/dmsay [your message]
+==========
+Name: contributors
+Title: Contributors
+
+|Authors and contributors to Atrinik,| |Daimonin and Crossfire:|
+Mark Wedel [mark@scruz.net]
+Frank Tore Johansen [frankj@ifi.uio.no]
+Kjetil Torgrim Homme [kjetilho@ifi.uio.no]
+Tyler Van Gorder [tvangod@ecst.csuchico.edu]
+Tony Elmroth [elmroth@cd.chalmers.se]
+Dougal Scott [dougal.scott@fcit.monasu.edu.au]
+William [wchuang@athena.mit.edu]
+Geoff Bailey [ftww@cs.su.oz.au]
+Kjetil Wiekhorst Jxrgensen [jorgens@flipper.pvv.unit.no]
+Cameron Blackwood [c.blackwood@rdt.monash.edu.au]
+Joseph L. Traub [jtraub+@cmu.edu]
+Rupert G. Goldie [rgg@aaii.oz.au]
+Eric A. Anderson [eanders+@cmu.edu]
+Rickard Eneqvist [eneq@Prag.DoCS.UU.SE]
+Jarkko Sonninen [Jarkko.Sonninen@lut.fi]
+Karl Holland [kholland@sunlab.cit.cornell.du]
+Mikael Lundgren [vick@bern.docs.uu.se]
+Mikael Olsson [mol@meryl.csd.uu.se]
+Tero Haatanen [Tero.Haatanen@lut.fi]
+Lasse Ylitalo [ylitalo@student.docs.uu.se]
+Niilo Neuvo [anipa@guru.magic.fi]
+Markku Jarvinen [mta@modeemi.cs.tut.fi]
+Sylvain Meunier [meunier@inf.enst.fr]
+Jason Fosback [jfosback@darmok.uoregon.edu]
+Carl Edman [cedman@capitalist.princeton.edu]
+Charles Henrich [henrich@crh.cl.msu.edu]
+Gregor Schmid [schmid@fb3-s7.math.tu-berlin.de]
+Raphael Quinet [quinet@montefiore.ulg.ac.be]
+Jari Vanhala [jam@modeemi.cs.tut.fi]
+Tero Kivinen [kivinen@joker.cs.hut.fi]
+Peter Mardahl [peterm@soda.berkeley.edu]
+Matthew Zeher [matt@cs.odu.edu]
+Scott R. Turner [srt@sun-dimas.aero.org]
+Ben Fennema [huma@netcom.com]
+Nick Williams [njw@cs.city.ac.uk]
+Laurent Wacrenier [Wacren@Gin.ObsPM.Fr]
+Brian Thomas [thomas@astro.psu.edu]
+John Steven Moerk [jsm@axon.ksc.nasa.gov]
+Delbecq David [david.delbecq@mailandnews.com]
+Chachkoff Yann [yann.chachkoff@mailandnews.com]
+Alex Tokar [admin@atokar.net]
+Pete Spicer [sleeping@myperch.org]
+
+Images and art:
+Peter Gardner
+David Gervais [david_eg@mail.com]
+Mitsuhiro Itakura [ita@gold.koma.jaeri.go.jp]
+Hansjoerg Malthaner [hansjoerg.malthaner@danet.de]
+Marten Woxberg [maxmc@telia.com]
+The FRUA art community [http://uamirror.dns2go.com/]
+Zero Sum Software [http://www.zero-sum.com/]
+Reiner Prokein [reiner.prokein@t-online.de]
+Dungeon Craft Community [http://uaf.sourceforge.net/]
+Marc [http://www.angelfire.com/dragon/kaltusara_dc/index.html]
+Iron Works DC art [http://www.tgeweb.com/ironworks/dungeoncraft/index.shtml]
+The mighty Dink.
+
+<t t="And many more!">
+==========

@@ -1463,7 +1463,7 @@ char *get_ob_diff(object *op, object *op2)
  *
  * If bit 1 of flag is set, don't remove the object after save.  As of now,
  * all of the callers are setting this. */
-void save_map_object(FILE *fp, object *op, int flag)
+void save_object(FILE *fp, object *op, int flag)
 {
     archetype *at;
     char *cp;
@@ -1503,7 +1503,7 @@ void save_map_object(FILE *fp, object *op, int flag)
 	{
 		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 		{
-	    	save_map_object(fp, tmp, flag);
+	    	save_object(fp, tmp, flag);
 		}
 	}
     /* Slightly different logic because tmp/op will be removed by
@@ -1520,7 +1520,7 @@ void save_map_object(FILE *fp, object *op, int flag)
 	    		break;
 			}
 
-			save_map_object(fp, tmp, flag);
+			save_object(fp, tmp, flag);
 			old = tmp;
     	}
 	}
@@ -1531,91 +1531,4 @@ void save_map_object(FILE *fp, object *op, int flag)
 	}
 
     fprintf(fp, "end\n");
-}
-
-/**
- * Like save_map_object(), but dumps the objects to a buffer.
- * @todo This should be done smarter, and perhaps merged with
- * save_map_object(). */
-int save_player_object(char *buf, object *op, int flag, size_t len)
-{
-    archetype *at;
-    char *cp;
-    object *tmp, *old;
-	int i;
-
-    /* If it is unpaid and we don't want to save those, just return. */
-    if (!(flag & 1) && (QUERY_FLAG(op, FLAG_UNPAID)))
-	{
-		return 0;
-	}
-
-    if ((at = op->arch) == NULL)
-	{
-		at = empty_archetype;
-	}
-
-	cp = get_ob_diff(op, &at->clone);
-
-	if (strlen(buf) + strlen(at->name) + 10 + (cp ? strlen(cp) : 0) > len)
-	{
-		return strlen(buf) + strlen(at->name) + 9 + (cp ? strlen(cp) : 0);
-	}
-
-    sprintf(buf, "%sarch %s\n", buf, at->name);
-
-	/* We really should do some status checking on this */
-    if (cp != NULL)
-	{
-		sprintf(buf, "%s%s", buf, cp);
-	}
-
-    /* Eneq(@csd.uu.se): Added this to allow containers being saved with contents */
-    old = NULL;
-
-    if (flag & 2)
-	{
-		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-		{
-	    	i = save_player_object(buf, tmp, flag, len);
-
-			if (i != 0)
-			{
-				return i;
-			}
-		}
-	}
-    /* Slightly different logic because tmp/op will be removed by
-     * the save_object we call.  So we just keep looking at op->inv
-     * until there is nothing left.  In theory, the variable old
-     * should not be needed, as recursive loops shouldn't happen. */
-    else
-	{
-		while ((tmp = op->inv) != NULL)
-		{
-			if (old == tmp)
-			{
-	    		LOG(llevError, "Recursive loop in inventory\n");
-	    		break;
-			}
-
-			i = save_player_object(buf, tmp, flag, len);
-
-			if (i != 0)
-			{
-				return i;
-			}
-
-			old = tmp;
-    	}
-	}
-
-    if (!(flag & 2))
-	{
-		remove_ob(op);
-	}
-
-    sprintf(buf, "%send\n", buf);
-
-	return 0;
 }

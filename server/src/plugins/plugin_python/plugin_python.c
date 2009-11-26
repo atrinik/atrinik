@@ -350,7 +350,7 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 
 /**
  * <h1>Atrinik.PlayerExists(<i>\<string\></i> name)</h1>
- * Check if player exists in the database.
+ * Check if player exists.
  *
  * @param name The player name
  * @return 1 if the player exists, 0 otherwise */

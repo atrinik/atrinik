@@ -1,0 +1,831 @@
+material_real 1
+name paper
+quality 80
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 2
+name paper
+quality 81
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 3
+name paper
+quality 82
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 4
+name paper
+quality 83
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 5
+name paper
+quality 84
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 6
+name paper
+quality 85
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 7
+name paper
+quality 86
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 8
+name paper
+quality 87
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 9
+name paper
+quality 88
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 10
+name rice paper
+quality 89
+tearing 90
+type 1
+def_race 0
+end
+
+material_real 11
+name parchment
+quality 90
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 12
+name parchment
+quality 91
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 13
+name parchment
+quality 92
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 14
+name vellum
+quality 93
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 15
+name demon vellum
+quality 94
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 16
+name papyrus
+quality 95
+tearing 100
+type 1
+def_race 0
+end
+
+material_real 65
+name iron
+quality 80
+tearing 100
+type 2
+def_race 0
+end
+
+material_real 66
+name hardened iron
+quality 81
+tearing 95
+type 2
+def_race 0
+end
+
+material_real 67
+name forged iron
+quality 82
+tearing 90
+type 2
+def_race 0
+end
+
+material_real 68
+name black iron
+quality 83
+tearing 90
+type 2
+def_race 0
+end
+
+material_real 69
+name shear iron
+quality 84
+tearing 90
+type 2
+def_race 0
+end
+
+material_real 70
+name steel
+quality 85
+tearing 90
+type 2
+def_race 0
+end
+
+material_real 71
+name hardened steel
+quality 86
+tearing 85
+type 2
+def_race 0
+end
+
+material_real 72
+name forged steel
+quality 87
+tearing 85
+type 2
+def_race 0
+end
+
+material_real 73
+name shear steel
+quality 88
+tearing 85
+type 2
+def_race 0
+end
+
+material_real 74
+name diamant steel
+quality 89
+tearing 85
+type 2
+def_race 0
+end
+
+material_real 75
+name darksteel
+quality 90
+tearing 70
+type 2
+def_race 0
+end
+
+material_real 76
+name forged darksteel
+quality 91
+tearing 60
+type 2
+def_race 0
+end
+
+material_real 77
+name silksteel
+quality 92
+tearing 50
+type 2
+def_race 0
+end
+
+material_real 78
+name forged silksteel
+quality 93
+tearing 40
+type 2
+def_race 0
+end
+
+material_real 79
+name meteoric steel
+quality 94
+tearing 40
+type 2
+def_race 0
+end
+
+material_real 80
+name forged meteoric steel
+quality 95
+tearing 40
+type 2
+def_race 0
+end
+
+material_real 129
+name glass
+quality 80
+tearing 100
+type 4
+def_race 0
+end
+
+material_real 130
+name zircon
+quality 80
+tearing 100
+type 4
+def_race 0
+end
+
+material_real 131
+name pearl
+quality 83
+tearing 75
+type 4
+def_race 0
+end
+
+material_real 132
+name emerald
+quality 85
+tearing 75
+type 4
+def_race 0
+end
+
+material_real 133
+name sapphire
+quality 92
+tearing 50
+type 4
+def_race 0
+end
+
+material_real 134
+name ruby
+quality 93
+tearing 30
+type 4
+def_race 0
+end
+
+material_real 135
+name diamond
+quality 95
+tearing 10
+type 4
+def_race 0
+end
+
+material_real 136
+name jasper
+quality 80
+tearing 75
+type 4
+def_race 0
+end
+
+material_real 137
+name jade
+quality 80
+tearing 75
+type 4
+def_race 0
+end
+
+material_real 138
+name aquamarine
+quality 80
+tearing 80
+type 4
+def_race 0
+end
+
+material_real 193
+name soft leather
+quality 80
+tearing 100
+type 8
+def_race 0
+end
+
+material_real 194
+name hardened leather
+quality 81
+tearing 70
+type 8
+def_race 0
+end
+
+material_real 195
+name stone leather
+quality 82
+tearing 70
+type 8
+def_race 0
+end
+
+material_real 196
+name dark leather
+quality 83
+tearing 35
+type 8
+def_race 0
+end
+
+material_real 197
+name silk leather
+quality 84
+tearing 30
+type 8
+def_race 0
+end
+
+material_real 198
+name wyvern leather
+quality 85
+tearing 50
+type 8
+def_race 0
+end
+
+material_real 199
+name ankheg leather
+quality 86
+tearing 50
+type 8
+def_race 0
+end
+
+material_real 200
+name griffon leather
+quality 87
+tearing 40
+type 8
+def_race 0
+end
+
+material_real 201
+name hellcat leather
+quality 88
+tearing 40
+type 8
+def_race 0
+end
+
+material_real 202
+name gargoyle leather
+quality 89
+tearing 35
+type 8
+def_race 0
+end
+
+material_real 203
+name diamant leather
+quality 90
+tearing 35
+type 8
+def_race 0
+end
+
+material_real 204
+name chimera leather
+quality 91
+tearing 30
+type 8
+def_race 0
+end
+
+material_real 205
+name manticore leather
+quality 92
+tearing 25
+type 8
+def_race 0
+end
+
+material_real 206
+name cockatrice leather
+quality 93
+tearing 20
+type 8
+def_race 0
+end
+
+material_real 207
+name basilisk leather
+quality 94
+tearing 20
+type 8
+def_race 0
+end
+
+material_real 208
+name dragon leather
+quality 95
+tearing 20
+type 8
+def_race 0
+end
+
+material_real 257
+name pine
+quality 80
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 258
+name spruce
+quality 81
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 259
+name cedar
+quality 82
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 260
+name ash
+quality 83
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 261
+name yew
+quality 84
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 262
+name birch
+quality 85
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 263
+name hickory
+quality 86
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 264
+name cherry
+quality 87
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 265
+name walnut
+quality 88
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 266
+name maple
+quality 89
+tearing 100
+type 16
+def_race 0
+end
+
+material_real 267
+name elm
+quality 90
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 268
+name red elm
+quality 91
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 269
+name rosewood
+quality 92
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 270
+name pernambuco
+quality 93
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 271
+name white oak
+quality 94
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 272
+name red oak
+quality 95
+tearing 80
+type 16
+def_race 0
+end
+
+material_real 321
+name animal
+quality 80
+tearing 100
+type 32
+def_race 0
+end
+
+material_real 322
+name dragon
+quality 96
+tearing 50
+type 32
+def_race 0
+end
+
+material_real 323
+name chitin
+quality 82
+tearing 50
+type 32
+def_race 0
+end
+
+material_real 324
+name scale
+quality 80
+tearing 50
+type 32
+def_race 0
+end
+
+material_real 325
+name white dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 326
+name blue dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 327
+name red dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 328
+name yellow dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 329
+name grey dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 330
+name black dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 331
+name orange dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 332
+name green dragonscale
+quality 100
+tearing 10
+type 32
+def_race 0
+end
+
+material_real 385
+name flint
+quality 80
+tearing 100
+type 64
+def_race 0
+end
+
+material_real 449
+name wool
+quality 80
+tearing 100
+type 128
+def_race 0
+end
+
+material_real 450
+name linen
+quality 80
+tearing 90
+type 128
+def_race 0
+end
+
+material_real 451
+name silk
+quality 95
+tearing 25
+type 128
+def_race 0
+end
+
+material_real 452
+name elven hair
+quality 95
+tearing 25
+type 128
+def_race 0
+end
+
+material_real 513
+name magic silk
+quality 99
+tearing 1
+type 256
+def_race 0
+end
+
+material_real 514
+name mithril
+quality 99
+tearing 1
+type 256
+def_race 0
+end
+
+material_real 515
+name adamant
+quality 99
+tearing 10
+type 256
+def_race 0
+end
+
+material_real 641
+name tin
+quality 80
+tearing 100
+type 1024
+def_race 0
+end
+
+material_real 642
+name brass
+quality 80
+tearing 100
+type 1024
+def_race 0
+end
+
+material_real 643
+name copper
+quality 80
+tearing 100
+type 1024
+def_race 0
+end
+
+material_real 644
+name bronze
+quality 80
+tearing 100
+type 1024
+def_race 0
+end
+
+material_real 645
+name silver
+quality 90
+tearing 50
+type 1024
+def_race 0
+end
+
+material_real 646
+name gold
+quality 95
+tearing 20
+type 1024
+def_race 0
+end
+
+material_real 647
+name platinum
+quality 99
+tearing 10
+type 1024
+def_race 0
+end
+
+material_real 706
+name human
+quality 80
+tearing 100
+type 2048
+def_race 0
+end
+
+material_real 707
+name elven
+quality 80
+tearing 100
+type 2048
+def_race 0
+end
+
+material_real 708
+name dwarven
+quality 80
+tearing 100
+type 2048
+def_race 0
+end

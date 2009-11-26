@@ -518,16 +518,13 @@ void make_path_to_file(char *filename)
 	}
 
 	strcpy(buf, filename);
-	LOG(llevDebug, "make_path_tofile %s...", filename);
 
 	while ((cp = strchr(cp + 1, '/')))
 	{
 		*cp = '\0';
 
-		if (stat(buf, &statbuf) || !S_ISDIR (statbuf.st_mode))
+		if (stat(buf, &statbuf) || !S_ISDIR(statbuf.st_mode))
 		{
-			LOG(llevDebug, "Was not dir...");
-
 			if (mkdir(buf, 0777))
 			{
 				LOG(llevBug, "Bug: Can't make path to file %s.\n", filename);
@@ -537,6 +534,4 @@ void make_path_to_file(char *filename)
 
 		*cp = '/';
 	}
-
-	LOG(llevDebug, "\n");
 }

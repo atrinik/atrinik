@@ -47,7 +47,7 @@ struct Settings settings =
 	0, NULL, 0,
 	DATADIR,
 	LOCALDIR,
-	MAPDIR, ARCHETYPES,TREASURES,
+	MAPDIR, PLAYERDIR, ARCHETYPES,TREASURES,
 	UNIQUE_DIR, TMPDIR,
 	STAT_LOSS_ON_DEATH,
 	USE_PERMANENT_EXPERIENCE,
@@ -99,7 +99,7 @@ void init_library()
 	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
 	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
 	read_bmap_names();
-	init_materials_database();
+	init_materials();
 	/* Must be after we read in the bitmaps */
 	init_anim();
 	/* Reads all archetypes from file */
@@ -248,32 +248,23 @@ static void init_dynamic()
 }
 
 /**
- * Write out the current time to the database so time does not reset
- * every time the server reboots. */
+ * Write out the current time to a file so time does not reset every
+ * time the server reboots. */
 void write_todclock()
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
+	char filename[MAX_BUF];
+	FILE *fp;
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
+	snprintf(filename, sizeof(filename), "%s/clockdata", settings.localdir);
 
-	/* Prepare the query to insert new clockdata */
-	if (!db_prepare_format(db, &statement, "REPLACE INTO settings (name, data) VALUES ('clockdata', '%lu');", todtick))
+	if ((fp = fopen(filename, "w")) == NULL)
 	{
-		LOG(llevBug, "BUG: Failed to prepare SQL query to insert new clockdata! (%s)\n", db_errmsg(db));
-		db_close(db);
+		LOG(llevBug, "BUG: Cannot open %s for writing.\n", filename);
 		return;
 	}
 
-	/* Run the query */
-	db_step(statement);
-
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fprintf(fp, "%lu", todtick);
+	fclose(fp);
 }
 
 /**
@@ -282,8 +273,8 @@ void write_todclock()
  * Called by init_library(). */
 static void init_clocks()
 {
-	sqlite3 *db;
-	sqlite3_stmt *statement;
+	char filename[MAX_BUF];
+	FILE *fp;
 	static int has_been_done = 0;
 
 	if (has_been_done)
@@ -295,42 +286,21 @@ static void init_clocks()
 		has_been_done = 1;
 	}
 
-	LOG(llevDebug, "Reading clockdata from database...");
+	snprintf(filename, sizeof(filename), "%s/clockdata", settings.localdir);
+	LOG(llevDebug, "Reading clockdata from %s...", filename);
 
-	/* Open the database */
-	db_open(DB_DEFAULT, &db);
-
-	/* Prepare the SQL query to grab clockdata from database */
-	if (!db_prepare(db, "SELECT data FROM settings WHERE name = 'clockdata';", &statement))
+	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		LOG(llevBug, "BUG: Failed to prepare SQL query to get clockdata! (%s)\n", db_errmsg(db));
+		LOG(llevDebug, "Can't open %s.\n", filename);
 		todtick = 0;
-		db_close(db);
-		return;
-	}
-
-	/* If there is no row, reset to 0 and attempt to write the row */
-	if (db_step(statement) != SQLITE_ROW)
-	{
-		LOG(llevBug, "Clockdata row does not exist! Will attempt to insert new one.\n");
-		todtick = 0;
-
-		db_finalize(statement);
-		db_close(db);
-
 		write_todclock();
 		return;
 	}
 
-	/* We got a row! */
-	if (sscanf((char *) db_column_text(statement, 0), "%lu", &todtick))
+	if (fscanf(fp, "%lu", &todtick))
 	{
 		LOG(llevDebug, "todtick=%lu\n", todtick);
 	}
 
-	/* Finalize it */
-	db_finalize(statement);
-
-	/* Close the database */
-	db_close(db);
+	fclose(fp);
 }

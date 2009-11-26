@@ -413,6 +413,9 @@ typedef struct Settings
 	/** Where the map files are. */
 	char *mapdir;
 
+	/** Where the players are saved. */
+	char *playerdir;
+
 	/** Name of the archetypes file - libdir is prepended. */
 	char *archetypes;
 

@@ -11,4 +11,5 @@ md data
 md data\tmp
 md data\log
 md data\unique-items
+md data\players
 copy install\*. data\*.

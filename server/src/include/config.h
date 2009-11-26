@@ -55,9 +55,23 @@
 #define LOCALDIR "./data"
 #endif
 
+/* Player directory. */
+#ifndef PLAYERDIR
+#define PLAYERDIR "players"
+#endif
+
 /* Location of plugins */
 #ifndef PLUGINDIR
 #define PLUGINDIR "./plugins"
+#endif
+
+/* Where the DM file is located. */
+#ifndef DMFILE
+#define DMFILE "dmfile"
+#endif
+
+#ifndef BANFILE
+#define BANFILE "bans"
 #endif
 
 /* Your tmp-directory should be large enough to hold the uncompressed
@@ -559,11 +573,3 @@
  * the value below, player will always get returned to savebed location
  * location. */
 #define RESET_LOCATION_TIME	0
-
-/* Default database where settings, player data, unique maps, highscore etc
- * is stored. */
-#define DB_DEFAULT LOCALDIR"/atrinik.db"
-
-/* Database where the reference tables are stored, like help files,
- * materials, etc. */
-#define DB_REFERENCE "reference.db"

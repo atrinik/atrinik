@@ -21,6 +21,7 @@ mkdir $basedir/$datadir
 mkdir $basedir/$datadir/tmp
 mkdir $basedir/$datadir/log
 mkdir $basedir/$datadir/unique-items
+mkdir $basedir/$datadir/players
 
 echo "Copy server data"
 cp $basedir/install/* $basedir/$datadir

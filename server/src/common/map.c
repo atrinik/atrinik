@@ -1412,9 +1412,9 @@ save_objects_jump1:
 					tmp->y = op->y - op->arch->clone.y;
 
 					if (unique || QUERY_FLAG(tmp, FLAG_UNIQUE))
-						save_map_object(fp2 , tmp, 3);
+						save_object(fp2 , tmp, 3);
 					else
-						save_map_object(fp, tmp, 3);
+						save_object(fp, tmp, 3);
 
 					tmp->x = xt;
 					tmp->y = yt;
@@ -1440,9 +1440,9 @@ save_objects_jump1:
 				}
 
 				if (unique || QUERY_FLAG(op, FLAG_UNIQUE))
-					save_map_object(fp2, op, 3);
+					save_object(fp2, op, 3);
 				else
-					save_map_object(fp, op, 3);
+					save_object(fp, op, 3);
 
 				/* its a head (because we had tails tested before) */
 				if (op->more)
@@ -2318,105 +2318,6 @@ int new_save_map(mapstruct *m, int flag)
 			fclose(fp);
 	}
 
-	/* We save unique maps in the database. */
-	if (MAP_UNIQUE(m))
-	{
-		sqlite3 *db;
-		sqlite3_stmt *statement;
-		char *sqlbuf, linebuf[MAX_BUF] = "", mapPath[MAX_BUF], *p = NULL, path[MAX_BUF];
-		int update = 0, sqlresult, size = HUGE_BUF;
-
-		/* Open the filename where we temporarily saved this map and grab all the lines. */
-		fp = fopen(filename, "r");
-
-		sqlbuf = (char *)malloc(size);
-
-		sqlbuf[0] = '\0';
-
-		/* Go through the lines */
-		while (fgets(linebuf, MAX_BUF, fp))
-		{
-			/* If this would overflow, reallocate the buffer with more bytes */
-			if (strlen(linebuf) + strlen(sqlbuf) > (unsigned int) size)
-			{
-				size += strlen(linebuf) + strlen(sqlbuf) + 1;
-
-				if ((p = (char *)realloc(sqlbuf, size)) == NULL)
-				{
-					fclose(fp);
-					unlink(filename);
-					LOG(llevError, "ERROR: Out of memory.\n");
-					return 0;
-				}
-				else
-					sqlbuf = p;
-			}
-
-			strcat(sqlbuf, linebuf);
-		}
-
-		fclose(fp);
-
-		sprintf(mapPath, "%s", m->path);
-
-		/* Only want the filename. */
-		p = strtok(mapPath, "/");
-		while (p != NULL)
-		{
-			sprintf(path, "%s", p);
-			p = strtok(NULL, "/");
-		}
-
-		/* Open the database */
-		db_open(DB_DEFAULT, &db);
-
-		if (!db_prepare_format(db, &statement, "SELECT mapPath FROM unique_maps WHERE mapPath = '%s';", path))
-		{
-			LOG(llevBug, "BUG: new_save_map(): SQL failed to prepare for selecting unique map! (%s)\n", db_errmsg(db));
-			db_close(db);
-			unlink(filename);
-			return 0;
-		}
-
-		if (db_step(statement) == SQLITE_ROW)
-			update = 1;
-
-		db_finalize(statement);
-
-		/* SQL to update the unique map. */
-		if (update)
-			sqlresult = db_prepare_format(db, &statement, "UPDATE unique_maps SET data = '%s' WHERE mapPath = '%s';", db_sanitize_input(sqlbuf), path);
-		else
-			sqlresult = db_prepare_format(db, &statement, "INSERT INTO unique_maps (mapPath, data) VALUES('%s', '%s');", path, db_sanitize_input(sqlbuf));
-
-		/* Prepare the SQL */
-		if (!sqlresult)
-		{
-			LOG(llevBug, "BUG: new_save_map(): SQL failed to prepare for updating/inserting unique map! (%s)\n", db_errmsg(db));
-			db_close(db);
-			unlink(filename);
-			return 0;
-		}
-
-		/* Run the SQL */
-		db_step(statement);
-
-		/* Finalize it */
-		db_finalize(statement);
-
-		/* Close database */
-		db_close(db);
-
-		/* Remove the temporary file. */
-		unlink(filename);
-
-		/* Free the buf */
-		if (sqlbuf)
-			free(sqlbuf);
-
-		return 0;
-	}
-
 	chmod(filename, SAVE_MODE);
 	return 0;
 }
@@ -2647,50 +2548,6 @@ mapstruct *ready_map_name(const char *name, int flags)
 			delete_map(m);
 		}
 
-		/* Unique maps we handle a bit differently. */
-		if (flags & MAP_PLAYER_UNIQUE)
-		{
-			sqlite3 *db;
-			sqlite3_stmt *statement;
-			char mapPath[MAX_BUF], path[MAX_BUF], *p;
-			FILE *fp;
-
-			/* Open the database */
-			db_open(DB_DEFAULT, &db);
-
-			sprintf(mapPath, "%s", name);
-
-			/* We only need the map name. */
-			p = strtok(mapPath, "/");
-			while (p != NULL)
-			{
-				sprintf(path, "%s", p);
-				p = strtok(NULL, "/");
-			}
-
-			/* Prepare the query */
-			if (!db_prepare_format(db, &statement, "SELECT data FROM unique_maps WHERE mapPath = '%s';", path))
-			{
-				LOG(llevBug, "BUG: ready_map_name(): Failed to prepare SQL for unique map! (%s)\n", db_errmsg(db));
-				db_close(db);
-				return NULL;
-			}
-
-			/* Run the query */
-			if (db_step(statement) == SQLITE_ROW)
-			{
-				fp = fopen(name, "w");
-				fputs((char *)db_column_text(statement, 0), fp);
-				fclose(fp);
-			}
-
-			/* Finalize it */
-			db_finalize(statement);
-
-			/* Close database */
-			db_close(db);
-		}
-
 		/* create and load a map */
 		if (!(m = load_original_map(name, (flags & MAP_PLAYER_UNIQUE))))
 			return NULL;
@@ -2699,9 +2556,6 @@ mapstruct *ready_map_name(const char *name, int flags)
 		 * if from the editor, likewise. */
 		if (!(flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE)))
 			load_unique_objects(m);
-
-		if (flags & MAP_PLAYER_UNIQUE)
-			unlink(name);
 	}
 	else
 	{
