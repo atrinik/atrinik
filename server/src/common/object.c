@@ -192,7 +192,7 @@ void init_materials()
 					break;
 				}
 
-				if (!sscanf(buf, "tearing %d\n", &tearing) && !sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %s[^\n]", name))
+				if (!sscanf(buf, "tearing %d\n", &tearing) && !sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name))
 				{
 					LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
 				}
