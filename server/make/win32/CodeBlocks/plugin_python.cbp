@@ -44,7 +44,6 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
-			<Add directory="sqlite3" />
 			<Add directory="..\..\..\src\plugins\plugin_python\include" />
 			<Add directory="..\..\..\src\plugins\common\include" />
 			<Add directory="c:\Python26\include" />

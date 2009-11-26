@@ -42,7 +42,6 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
-			<Add directory="sqlite3" />
 			<Add directory="..\..\..\src\plugins\common\include" />
 		</Compiler>
 

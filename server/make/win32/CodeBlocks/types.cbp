@@ -40,7 +40,6 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
-			<Add directory="sqlite3" />
 		</Compiler>
 
 		<Unit filename="..\..\..\src\types\altar.c">

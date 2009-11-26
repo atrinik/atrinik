@@ -167,10 +167,6 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h)
 
-AC_CHECK_HEADERS(sqlite3.h)
-AC_CHECK_LIB(sqlite3, sqlite3_open, [LIBS="$LIBS -lsqlite3"])
-AC_PATH_PROGS(SQLITE, sqlite3, no)
-
 AC_CHECK_HEADERS(curl/curl.h)
 AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
 AC_PATH_PROGS(CURL, curl, no)

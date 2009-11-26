@@ -45,7 +45,6 @@
 			<Add directory="..\..\..\src\include" />
 			<Add directory="..\..\..\src\random_maps" />
 			<Add directory="..\..\..\src\zlib\include" />
-			<Add directory="sqlite3" />
 			<Add directory="..\CodeBlocks" />
 		</Compiler>
 		<Unit filename="README">

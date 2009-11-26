@@ -117,9 +117,6 @@
 /* Define if you have the crypt library (-lcrypt).  */
 #undef HAVE_LIBCRYPT
 
-/* Define if you have the sqlite3 library (-sqlite3).  */
-#undef HAVE_LIBSQLITE3
-
 /* Define if you have the dmalloc library (-ldmalloc).  */
 #undef HAVE_LIBDMALLOC
 

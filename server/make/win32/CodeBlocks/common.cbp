@@ -43,21 +43,8 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
-			<Add directory="sqlite3" />
 			<Add directory="..\..\..\src\plugins\common\include" />
 		</Compiler>
-
-		<Unit filename="sqlite3\sqlite3.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="sqlite3\sqlite3.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-
 		<Unit filename="..\..\..\src\common\anim.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
