@@ -110,23 +110,16 @@ void emergency_save(int flag)
 int check_name(player *me, char *name)
 {
 	unsigned int name_len = strlen(name);
-	char buf[MAX_BUF];
 
 	if (name_len < PLAYER_NAME_MIN || name_len > PLAYER_NAME_MAX)
 	{
-		strcpy(buf, "X3 That name has an invalid length.");
-		Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-		me->socket.can_write = 1;
-		write_socket_buffer(&me->socket);
+		send_socket_message(NDI_RED, &me->socket, "That name has an invalid length.");
 		return 0;
 	}
 
 	if (!playername_ok(name))
 	{
-		strcpy(buf, "X3 That name contains illegal characters.");
-		Write_String_To_Socket(&me->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-		me->socket.can_write = 1;
-		write_socket_buffer(&me->socket);
+		send_socket_message(NDI_RED, &me->socket, "That name contains illegal characters.");
 		return 0;
 	}
 
@@ -458,15 +451,12 @@ static void wrong_password(player *pl)
 
 	pl->last_value = -1;
 
+	LOG(llevSystem, "CRACK: %s@%s: Failed to provide correct password.\n", query_name(pl->ob, NULL), pl->socket.host);
+
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
 	{
-		char buf[MAX_BUF];
-
-		LOG(llevSystem, "SHACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
-		strcpy(buf, "X3 You have failed to provide a correct password too many times.");
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-		pl->socket.can_write = 1;
-		write_socket_buffer(&pl->socket);
+		LOG(llevSystem, "CRACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
+		send_socket_message(NDI_RED, &pl->socket, "You have failed to provide a correct password too many times.");
 		pl->socket.status = Ns_Dead;
 	}
 	else
@@ -483,7 +473,7 @@ void check_login(object *op)
 {
 	FILE *fp;
 	void *mybuffer;
-	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF], banbuf[MAX_BUF];
+	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF];
 	int i, value, comp, correct = 0;
 	long checksum = 0;
 	player *pl = CONTR(op), *pltmp;
@@ -512,24 +502,18 @@ void check_login(object *op)
 		}
 	}
 
-	/* a good point to add this i to a 10 minute temp ban...
-	 * if needed, i add it... its not much work but i better
-	 * want a real login server in the future */
 	if (pl->state == ST_PLAYING)
 	{
-		LOG(llevSystem, "HACK-BUG: >%s< from ip %s - double login!\n", op->name, pl->socket.host);
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You manipulated the login procedure.\nYour IP is ... >%s< - hack flag set!\nserver break", pl->socket.host);
+		LOG(llevSystem, "CRACK: >%s< from ip %s - double login!\n", op->name, pl->socket.host);
+		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
 	if (checkbanned((char *) op->name, pl->socket.host))
 	{
-		LOG(llevInfo, "Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
-		strcpy(banbuf, "X3 Connection refused.\nYou are banned!");
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_DRAWINFO, banbuf, strlen(banbuf));
-		pl->socket.can_write = 1;
-		write_socket_buffer(&pl->socket);
+		LOG(llevInfo, "BAN: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
+		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
 		pl->socket.status = Ns_Dead;
 		return;
 	}

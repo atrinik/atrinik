@@ -267,26 +267,16 @@ void free_player(player *pl)
 int add_player(NewSocket *ns)
 {
 	player *p;
-	char *defname = "nobody";
 
-	/* Check for banned players and sites.  usename is no longer accurate,
-	 * (can't get it over sockets), so all we really have to go on is
-	 * the host. */
-
-	if (checkbanned(defname, ns->host))
+	if (checkbanned("nobody", ns->host))
 	{
-		char buf[256];
-		strcpy(buf, "X3 Connection refused.\nYou are banned!");
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf,strlen(buf));
-		LOG(llevInfo, "Banned player tried to add. [%s@%s]\n", defname, ns->host);
+		send_socket_message(NDI_RED, ns, "Connection refused.\nYou are banned!");
+		LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", ns->host);
 		return 1;
 	}
 
 	p = get_player(NULL);
 	memcpy(&p->socket, ns, sizeof(NewSocket));
-	/* Needed because the socket we just copied over needs to be cleared.
-	 * Note that this can result in a client reset if there is partial data
-	 * on the uncoming socket. */
 
 	/* now, we start the login procedure! */
 	p->socket.status = Ns_Login;

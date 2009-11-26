@@ -587,59 +587,7 @@ void ReplyCmd(char *buf, int len, player *pl)
  * @param ns The socket to send the message to */
 static void version_mismatch_msg(NewSocket *ns)
 {
-	char buf[256];
-	char *text1 = "3 This is Atrinik Server";
-	char *text2 = "3 Go to http://www.atrinik.org";
-	char *text3 = "3 and download the latest Atrinik client!";
-	char *text4 = "3 Goodbye. (connection closed)";
-	char *text5 = "3 Your client version is outdated!";
-
-	if (ns->cs_version == 991013)
-	{
-		SockList sl;
-
-		sprintf(buf, "drawinfo %s %s", text1, VERSION);
-		sl.len = strlen(buf);
-		sl.buf = (uint8 *) buf;
-		Send_With_Handling(ns, &sl);
-
-		sprintf(buf, "drawinfo %s", text2);
-		sl.len = strlen(buf);
-		sl.buf = (uint8 *) buf;
-		Send_With_Handling(ns, &sl);
-
-		sprintf(buf, "drawinfo %s", text3);
-		sl.len = strlen(buf);
-		sl.buf = (uint8 *) buf;
-		Send_With_Handling(ns, &sl);
-
-		sprintf(buf, "drawinfo %s", text4);
-		sl.len = strlen(buf);
-		sl.buf = (uint8 *) buf;
-		Send_With_Handling(ns, &sl);
-
-		sprintf(buf, "drawinfo %s", text5);
-		sl.len = strlen(buf);
-		sl.buf = (uint8 *) buf;
-		Send_With_Handling(ns, &sl);
-	}
-	else
-	{
-		sprintf(buf, "X%s %s", text1, VERSION);
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-
-		sprintf(buf, "X%s", text2);
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-
-		sprintf(buf, "X%s", text3);
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-
-		sprintf(buf, "X%s", text4);
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-
-		sprintf(buf, "X%s", text5);
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, buf, strlen(buf));
-	}
+	send_socket_message(NDI_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
 }
 
 /**

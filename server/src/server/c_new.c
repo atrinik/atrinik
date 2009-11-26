@@ -669,15 +669,14 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (CONTR(op)->state != ST_ROLL_STAT)
 	{
-		LOG(llevDebug, "SHACK:: %s: command_new_char send at from time\n", query_name(pl->ob, NULL));
-		/* killl socket */
+		LOG(llevDebug, "CRACK: command_new_char(): %s does not have state ST_ROLL_STAT.\n", query_name(pl->ob, NULL));
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
 	if (!params || len > MAX_BUF)
 	{
-		/* killl socket */
+		/* Kill socket */
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -689,9 +688,8 @@ void command_new_char(char *params, int len, player *pl)
 	/* invalid player arch? */
 	if (!(p_arch = find_archetype(name)) || p_arch->clone.type != PLAYER)
 	{
-		/* killl socket */
+		LOG(llevSystem, "CRACK: %s: Invalid player arch!\n", query_name(pl->ob, NULL));
 		pl->socket.status = Ns_Dead;
-		LOG(llevSystem, "SHACK: %s: invalid player arch!\n", query_name(pl->ob, NULL));
 		return;
 	}
 
@@ -708,14 +706,14 @@ void command_new_char(char *params, int len, player *pl)
 	if (!new_char_template[i].name)
 	{
 		LOG(llevDebug, "BUG:: %s: NewChar %s not in def table!\n", query_name(pl->ob, NULL), name);
-		/* kill socket */
+		/* Kill socket */
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
 	v = new_char_template[i].min_Str + new_char_template[i].min_Dex + new_char_template[i].min_Con + new_char_template[i].min_Int + new_char_template[i].min_Wis + new_char_template[i].min_Pow + new_char_template[i].min_Cha + new_char_template[i].max_p;
 
-	/* all boni put on the player? */
+	/* All bonus values put on the player? */
 	if (v != (stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6])
 			|| stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str
 			|| stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex
@@ -725,8 +723,7 @@ void command_new_char(char *params, int len, player *pl)
 			|| stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow
 			|| stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
 	{
-		LOG(llevDebug, "SHACK:: %s: tried to hack NewChar! (%d - %d)\n", query_name(pl->ob, NULL), i, stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]);
-		/* kill socket */
+		LOG(llevDebug, "CRACK: %s: Tried to crack NewChar! (%d - %d)\n", query_name(pl->ob, NULL), i, stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]);
 		pl->socket.status = Ns_Dead;
 		return;
 	}

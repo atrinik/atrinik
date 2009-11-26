@@ -283,7 +283,7 @@ void HandleClient(NewSocket *ns, player *pl)
 		/* If we get here, we didn't find a valid command.  Logging
 		 * this might be questionable, because a broken client/malicious
 		 * user could certainly send a whole bunch of invalid commands. */
-		LOG(llevDebug, "HACKBUG: Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
+		LOG(llevDebug, "CRACK: Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
 		ns->status = Ns_Dead;
 		return;
 

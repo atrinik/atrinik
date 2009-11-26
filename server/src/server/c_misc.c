@@ -1067,16 +1067,13 @@ void receive_player_password(object *op)
 		return;
 	}
 
-	/* To hide the password better */
-	new_draw_info(NDI_UNIQUE, 0, op, "          ");
-
 	if (CONTR(op)->state == ST_CONFIRM_PASSWORD)
 	{
 		char cmd_buf[] = "X";
 
 		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "The passwords did not match.");
+			send_socket_message(NDI_RED, &CONTR(op)->socket, "The passwords did not match.");
 			get_name(op);
 			return;
 		}

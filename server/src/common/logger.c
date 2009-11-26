@@ -54,11 +54,8 @@
  * @param ... Arguments for the format */
 void LOG(LogLevel logLevel, const char *format, ...)
 {
-	static int fatal_error = FALSE;
-	/* This needs to be really really big - larger
-	 * than any other buffer, since that buffer may
-	 * need to be put in this one. */
-	char buf[20480];
+	static int fatal_error = 0;
+	char buf[HUGE_BUF * 2];
 
 	va_list ap;
 	va_start(ap, format);
@@ -67,45 +64,56 @@ void LOG(LogLevel logLevel, const char *format, ...)
 
 	if (logLevel <= settings.debug)
 	{
-		vsprintf(buf, format, ap);
-#ifdef WIN32
-		/* ---win32 change log handling for win32 */
-		if (logfile)
-			/* wrote to file or stdout */
-			fputs(buf, logfile);
-		else
-			fputs(buf, stderr);
+		vsnprintf(buf, sizeof(buf), format, ap);
 
-		/* if we have a debug version, we want see ALL output */
-#ifdef DEBUG
-		/* so flush this! */
+#ifdef WIN32
 		if (logfile)
+		{
+			/* Write to file or stdout */
+			fputs(buf, logfile);
+		}
+		else
+		{
+			fputs(buf, stderr);
+		}
+
+#ifdef DEBUG
+		if (logfile)
+		{
 			fflush(logfile);
+		}
 #endif
 
-		/* if was it a logfile wrote it to screen too */
 		if (logfile && logfile != stderr)
+		{
 			fputs(buf, stderr);
+		}
 #else
 		if (logfile)
+		{
 			fputs(buf, logfile);
+		}
 		else
+		{
 			fputs(buf, stderr);
+		}
 #endif
 	}
 
 	va_end(ap);
 
 	if (logLevel == llevBug)
-		++nroferrors;
+	{
+		nroferrors++;
+	}
 
 	if (nroferrors > MAX_ERRORS || logLevel == llevError)
 	{
 		exiting = 1;
 
-		if (fatal_error == FALSE)
+		if (fatal_error == 0)
 		{
-			fatal_error = TRUE;
+			fatal_error = 1;
 			fatal(logLevel);
 		}
 	}

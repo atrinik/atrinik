@@ -32,18 +32,16 @@ CFParm GCFP;
 
 void plugin_log(LogLevel logLevel, const char *format, ...)
 {
-	char buf[20480];
+	char buf[HUGE_BUF * 2];
 	va_list ap;
 
-	va_start(ap, format);
 	buf[0] = '\0';
-
-	vsprintf(buf, format, ap);
-
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	GCFP.Value[0] = (void *)(&logLevel);
-	GCFP.Value[1] = (void *)(buf);
+	GCFP.Value[0] = (void *) (&logLevel);
+	GCFP.Value[1] = (void *) (buf);
 
 	(PlugHooks[HOOK_LOG])(&GCFP);
 }

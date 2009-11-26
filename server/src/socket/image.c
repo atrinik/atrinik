@@ -355,7 +355,6 @@ void read_client_images()
  * @param ns Client's socket */
 void SetFaceMode(char *buf, int len, NewSocket *ns)
 {
-	char tmp[256];
 	int mask = (atoi(buf) & CF_FACE_CACHE), mode = (atoi(buf) & ~CF_FACE_CACHE);
 
 	(void) len;
@@ -366,9 +365,7 @@ void SetFaceMode(char *buf, int len, NewSocket *ns)
 	}
 	else if (mode != CF_FACE_PNG)
 	{
-		snprintf(tmp, sizeof(tmp), "X%d %s", NDI_RED, "Warning - send unsupported face mode. Will use Png");
-		Write_String_To_Socket(ns, BINARY_CMD_DRAWINFO, tmp, strlen(tmp));
-
+		send_socket_message(NDI_RED, ns, "Warning - send unsupported face mode. Will use Png.");
 #ifdef ESRV_DEBUG
 		LOG(llevDebug, "SetFaceMode: Invalid mode from client: %d\n", mode);
 #endif
