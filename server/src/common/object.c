@@ -198,7 +198,11 @@ void init_materials()
 				}
 			}
 
-			snprintf(material_real[i].name, sizeof(material_real[i].name), "%s ", name);
+			if (name[0] != '\0')
+			{
+				snprintf(material_real[i].name, sizeof(material_real[i].name), "%s ", name);
+			}
+
 			material_real[i].tearing = tearing;
 			material_real[i].quality = quality;
 			material_real[i].type = type;
