@@ -750,6 +750,14 @@ type 256
 def_race 0
 end
 
+material_real 577
+name
+quality 80
+tearing 100
+type 512
+def_race 0
+end
+
 material_real 641
 name tin
 quality 80
@@ -806,6 +814,14 @@ type 1024
 def_race 0
 end
 
+material_real 705
+name
+quality 80
+tearing 100
+type 2048
+def_race 0
+end
+
 material_real 706
 name human
 quality 80
@@ -827,5 +843,13 @@ name dwarven
 quality 80
 tearing 100
 type 2048
+def_race 0
+end
+
+material_real 769
+name
+quality 80
+tearing 100
+type 4096
 def_race 0
 end
