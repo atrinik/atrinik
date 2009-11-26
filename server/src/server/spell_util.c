@@ -599,7 +599,7 @@ dirty_jump:
 			break;
 
 		case SP_METEOR:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type, 0);
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type, 1);
 			break;
 
 		case SP_POISON_FOG:
@@ -2699,7 +2699,7 @@ void move_swarm_spell(object *op)
 
 	if (!wall(op->map, target_x, target_y))
 	{
-		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp, op->magic);
+		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp, 1);
 	}
 }
 
