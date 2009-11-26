@@ -2,7 +2,7 @@ arch map
 name Tutorial Island - Kobold Den
 msg
 Created:  2009-09-12 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2009-11-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -394,13 +394,11 @@ y 1
 arch kobold_shaman
 type 83
 level 2
+can_cast_spell 0
 maxsp 10
 magic 1
 Dex 2
 Wis 2
-arch ability_cause_lig_wound
-last_grace 3
-end
 end
 end
 arch floor_grit4a
