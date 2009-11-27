@@ -1630,7 +1630,6 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 			}
 		}
 
-		/* funny trick see check container */
 		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
 		if ((tmp = check_container(pl, op)))
@@ -1645,6 +1644,8 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		{
 			drop_object(pl, op, nrof);
 		}
+
+		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
 		return;
 	}
@@ -1677,7 +1678,6 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 	 * is in fact a container for that matter. */
 	if (env->type == CONTAINER && can_pick(pl, op) && sack_can_hold(pl, env, op, nrof))
 	{
-		/* Funny trick see check container */
 		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 		tmp = check_container(pl, op);
 
@@ -1697,6 +1697,8 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		{
 			put_object_in_sack(pl, env, op, nrof);
 		}
+
+		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
 		return;
 	}
