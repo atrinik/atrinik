@@ -25,7 +25,8 @@
 
 /**
  * @file
- *  */
+ * Mainly deals with initialization and higher level socket maintenance
+ * (checking for lost connections and if data has arrived). */
 
 #include <global.h>
 #ifndef __CEXTRACT__
@@ -326,7 +327,7 @@ void watchdog()
 /**
  * Remove a player from the game that has been disconnected by logging
  * out, the socket connection was interrupted, etc.
- * @param pl The player to remove */
+ * @param pl The player to remove. */
 static void remove_ns_dead_player(player *pl)
 {
 	/* Remove DM entry */
