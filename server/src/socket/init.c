@@ -54,9 +54,12 @@
 #include <newserver.h>
 #include "zlib.h"
 
+/** All the server/client files. */
 _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 
+/** Socket information. */
 Socket_Info socket_info;
+/** Established connections for clients not yet playing. */
 NewSocket *init_sockets;
 
 /**
@@ -64,7 +67,8 @@ NewSocket *init_sockets;
  * socket setup is handled elsewhere.
  *
  * Send server version to the client.
- * @param ns Client's socket */
+ * @param ns Client's socket.
+ * @param from Where the connection is coming from. */
 void InitConnection(NewSocket *ns, uint32 from)
 {
 	SockList sl;
@@ -131,24 +135,19 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
 
-	/* we should really do some checking here - if total clients overflows
-	 * we need to do something more intelligent, because client id's will start
-	 * duplicating (not likely in normal cases, but malicous attacks that
-	 * just open and close connections could get this total up. */
+	/* We should really do some checking here - if total clients
+	 * overflows we need to do something more intelligent, because client
+	 * IDs will start duplicating (not likely in normal cases, but
+	 * malicous attacks that just open and close connections could get
+	 * this total up. */
 	ns->inbuf.len = 0;
 	ns->inbuf.buf = malloc(MAXSOCKBUF);
 
-	/* Basic initialization. Needed because we do a check in
-	 * HandleClient for oldsocketmode without checking the
-	 * length of data. */
-	ns->inbuf.buf[0] = 0;
+	/* Basic initialization. Needed because we do a check in HandleClient
+	 * for oldsocketmode without checking the length of data. */
+	ns->inbuf.buf[0] = '\0';
 	memset(&ns->lastmap, 0, sizeof(struct Map));
 	memset(&ns->stats, 0, sizeof(struct statsinfo));
-
-	/* Do this so we don't send a face command for the client for
-	 * this face.  Face 0 is sent to the client to say clear
-	 * face information. */
-	/*ns->faces_sent[0] = 1;*/
 
 	ns->outputbuffer.start = 0;
 	ns->outputbuffer.len = 0;
@@ -201,9 +200,9 @@ void init_ericserver()
 #else
 	WSADATA w;
 
-	/* used in select, ignored in winsockets */
+	/* Used in select, ignored in winsockets */
 	socket_info.max_filedescriptor = 1;
-	/* this setup all socket stuff */
+	/* This sets up all socket stuff */
 	WSAStartup(0x0101, &w);
 #endif
 
@@ -235,8 +234,6 @@ void init_ericserver()
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
 #else
-	/* there was reported problems under windows using the protox
-	 * struct - IPPROTO_TCP should fix it. */
 	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
@@ -260,16 +257,20 @@ void init_ericserver()
 	/* Would be nice to have an autoconf check for this.  It appears that
 	 * these functions are both using the same calling syntax, just one
 	 * of them needs extra valus passed. */
-#if !defined(_WEIRD_OS_) /* means is true for most (win32, linux, etc. ) */
+#if !defined(_WEIRD_OS_)
 	{
 		int tmp = 1;
 
 		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
+		{
 			LOG(llevDebug, "error on setsockopt REUSEADDR\n");
+		}
 	}
 #else
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
+	{
 		LOG(llevDebug, "error on setsockopt REUSEADDR\n");
+	}
 
 #endif
 
@@ -282,7 +283,7 @@ void init_ericserver()
 		close(init_sockets[0].fd);
 #endif
 
-		LOG(llevError, "Error on bind command.\n");
+		LOG(llevError, "Cannot bind socket to port %d: %s\n", ntohs(insock.sin_port), strerror_local(errno));
 	}
 
 	if (listen(init_sockets[0].fd, 5) == (-1))
@@ -294,17 +295,16 @@ void init_ericserver()
 		close(init_sockets[0].fd);
 #endif
 
-		LOG(llevError, "Error on listen.\n");
+		LOG(llevError, "Cannot listen on socket: %s\n", strerror_local(errno));
 	}
 
 	init_sockets[0].status = Ns_Wait;
 	read_client_images();
-	/* load all srv_xxx files or generate them */
 	init_srv_files();
 }
 
 /**
- * Free's all the memory that ericserver allocates. */
+ * Frees all the memory that ericserver allocates. */
 void free_all_newserver()
 {
 	LOG(llevDebug, "Freeing all new client/server information.\n");
@@ -315,10 +315,10 @@ void free_all_newserver()
 
 /**
  * Basically, all we need to do here is free all data structures that
- * mighr be associated with the socket.
+ * might be associated with the socket.
  *
  * It is up to the called to update the list.
- * @param ns The socket */
+ * @param ns The socket. */
 void free_newsocket(NewSocket *ns)
 {
 #ifdef WIN32
@@ -365,10 +365,10 @@ void free_newsocket(NewSocket *ns)
 }
 
 /**
- * Load srv file.
- * @param fname Filename of the srv file
- * @param id ID of the srv file
- * @param cmd THe data command */
+ * Load server file.
+ * @param fname Filename of the server file.
+ * @param id ID of the server file.
+ * @param cmd The data command. */
 static void load_srv_files(char *fname, int id, int cmd)
 {
 	FILE *fp;
@@ -381,7 +381,7 @@ static void load_srv_files(char *fname, int id, int cmd)
 
 	if ((fp = fopen(fname, "rb")) == NULL)
 	{
-		LOG(llevError, "\nERROR: Can not open file %s\n", fname);
+		LOG(llevError, "\nERROR: Can't open file %s\n", fname);
 	}
 
 	fstat(fileno(fp), &statbuf);
@@ -389,7 +389,7 @@ static void load_srv_files(char *fname, int id, int cmd)
 	file_tmp = malloc(flen);
 	numread = (unsigned long) fread(file_tmp, sizeof(char), flen, fp);
 
-	/* get a crc from the unpacked file */
+	/* Get a crc from the unpacked file */
 	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) file_tmp, numread);
 	SrvClientFiles[id].len_ucomp = numread;
 
@@ -397,11 +397,11 @@ static void load_srv_files(char *fname, int id, int cmd)
 	comp_tmp = (char *) malloc(numread);
 	compress2((Bytef *) comp_tmp, &numread, (const unsigned char FAR *) file_tmp, flen, Z_BEST_COMPRESSION);
 
-	/* we prepare the files with the right commands - so we can flush
-	 * then direct from this buffer to the client. */
+	/* We prepare the files with the right commands - so we can flush
+	 * then directly from this buffer to the client. */
 	if ((int) numread < flen)
 	{
-		/* copy the compressed file in the right buffer */
+		/* Copy the compressed file in the right buffer */
 		SrvClientFiles[id].file = malloc(numread + 2);
 		memcpy(SrvClientFiles[id].file + 2, comp_tmp, numread);
 		SrvClientFiles[id].file[1] = (char) DATA_PACKED_CMD;
@@ -409,7 +409,7 @@ static void load_srv_files(char *fname, int id, int cmd)
 	}
 	else
 	{
-		/* compress has no positive effect here */
+		/* Compress has no positive effect here */
 		SrvClientFiles[id].file = malloc(flen + 2);
 		memcpy(SrvClientFiles[id].file + 2, file_tmp,flen);
 		SrvClientFiles[id].file[1] = 0;
@@ -437,9 +437,9 @@ static void create_client_settings()
 
 	LOG(llevDebug, "Creating %s/client_settings...\n", settings.localdir);
 
-	/* open default */
 	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datadir);
 
+	/* Open default */
 	if ((fset_default = fopen(buf, "rb")) == NULL)
 	{
 		LOG(llevError, "\nERROR: Can not open file %s\n", buf);
@@ -478,7 +478,7 @@ static void create_client_settings()
 }
 
 /**
- * Load all the srv files we can send to client.
+ * Load all the server files we can send to client.
  *
  * client_bmaps is generated from the server at startup out of the
  * Atrinik png file. */
@@ -510,13 +510,13 @@ void init_srv_files()
 }
 
 /**
- * A connecting client has requested a srv file.
+ * A connecting client has requested a server file.
  *
  * Note that we don't know anything about the player at this point - we
  * got an open socket, an IP, a matching version, and an usable setup
  * string from the client.
- * @param ns The client's socket
- * @param id ID of the srv file */
+ * @param ns The client's socket.
+ * @param id ID of the server file. */
 void send_srv_file(NewSocket *ns, int id)
 {
 	SockList sl;
