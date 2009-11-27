@@ -109,7 +109,6 @@ static struct PlCmdMapping plcommands[] =
 	{"mv",          MoveCmd},
 	{"reply",       ReplyCmd},
 	{"cm",          (func_uint8_int_pl)PlayerCmd},
-	{"lt",          LookAt},
 	{"mapredraw",   MapRedrawCmd},
 	{"lock",        (func_uint8_int_pl)LockItem},
 	{"mark",        (func_uint8_int_pl)MarkItem},

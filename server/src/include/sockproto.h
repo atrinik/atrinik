@@ -51,7 +51,6 @@ void send_srv_file(NewSocket *ns, int id);
 /* item.c */
 unsigned int query_flags(object *op);
 void esrv_draw_look(object *pl);
-int esrv_draw_DM_inv(object *pl, SockList *sl, object *op);
 void esrv_close_container(object *op);
 void esrv_send_inventory(object *pl, object *op);
 void esrv_update_item(int flags, object *pl, object *op);
@@ -63,8 +62,6 @@ void QuickSlotCmd(char *buf, int len, player *pl);
 void ApplyCmd(char *buf, int len, player *pl);
 void LockItem(uint8 *data, int len, player *pl);
 void MarkItem(uint8 *data, int len, player *pl);
-void look_at(object *op, int dx, int dy);
-void LookAt(char *buf, int len, player *pl);
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 
 /* loop.c */
