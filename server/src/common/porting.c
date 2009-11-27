@@ -303,14 +303,23 @@ int strcasecmp(char *s1, char*s2)
 #endif
 #endif
 
-/* This takes an err number and returns a string with a description of
- * the error. */
+/**
+ * Takes an error number and returns a string with a description of the
+ * error.
+ * @param errnum The error number.
+ * @return If HAVE_STRERROR is defined, strerror() is used to get the
+ * description of the error, otherwise the passed error number is
+ * returned. */
 char *strerror_local(int errnum)
 {
 #if defined(HAVE_STRERROR)
 	return strerror(errnum);
 #else
-	return "strerror_local not implemented";
+	static char buf[MAX_BUF];
+
+	(void) errnum;
+	snprintf(buf, sizeof(buf), "Error %d", errnum);
+	return buf;
 #endif
 }
 
