@@ -369,7 +369,7 @@ void free_newsocket(NewSocket *ns)
  * @param fname Filename of the server file.
  * @param id ID of the server file.
  * @param cmd The data command. */
-static void load_srv_files(char *fname, int id, int cmd)
+static void load_srv_file(char *fname, int id, int cmd)
 {
 	FILE *fp;
 	char *file_tmp, *comp_tmp;
@@ -489,24 +489,24 @@ void init_srv_files()
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
-	load_srv_files(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
+	load_srv_file(buf, SRV_CLIENT_HFILES, DATA_CMD_HFILES_LIST);
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
-	load_srv_files(buf, SRV_CLIENT_ANIMS, DATA_CMD_ANIM_LIST);
+	load_srv_file(buf, SRV_CLIENT_ANIMS, DATA_CMD_ANIM_LIST);
 
 	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
-	load_srv_files(buf, SRV_CLIENT_BMAPS, DATA_CMD_BMAP_LIST);
+	load_srv_file(buf, SRV_CLIENT_BMAPS, DATA_CMD_BMAP_LIST);
 
 	snprintf(buf, sizeof(buf), "%s/client_skills", settings.datadir);
-	load_srv_files(buf, SRV_CLIENT_SKILLS, DATA_CMD_SKILL_LIST);
+	load_srv_file(buf, SRV_CLIENT_SKILLS, DATA_CMD_SKILL_LIST);
 
 	snprintf(buf, sizeof(buf), "%s/client_spells", settings.datadir);
-	load_srv_files(buf, SRV_CLIENT_SPELLS, DATA_CMD_SPELL_LIST);
+	load_srv_file(buf, SRV_CLIENT_SPELLS, DATA_CMD_SPELL_LIST);
 
 	create_client_settings();
 
 	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
-	load_srv_files(buf, SRV_CLIENT_SETTINGS, DATA_CMD_SETTINGS_LIST);
+	load_srv_file(buf, SRV_CLIENT_SETTINGS, DATA_CMD_SETTINGS_LIST);
 }
 
 /**
