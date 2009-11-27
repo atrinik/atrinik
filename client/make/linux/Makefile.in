@@ -121,7 +121,6 @@ install:: all
 	$(CP) ../../srv_files/*.* $(prefix)/srv_files
 	$(CP) ../../gfx_user/*.* $(prefix)/gfx_user
 	$(CP) ../../bitmaps/*.* $(prefix)/bitmaps
-	$(CP) ../../options.dat $(prefix)
 	$(CP) ../../scripts_autoload $(prefix)
 	$(CP) ../../keys.dat $(prefix)
 	$(CP) ../../atrinik.p0 $(prefix)
