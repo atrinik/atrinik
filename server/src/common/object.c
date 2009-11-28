@@ -407,6 +407,12 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 0;
 	}
 
+	/* Avoid merging empty containers. */
+	if (ob1->type == CONTAINER)
+	{
+		return 0;
+	}
+
 	/* some stuff we should not need to test:
 	 * carrying: because container merge isa big nono - and we tested ->inv before. better no double use here.
 	 * weight_limit: same reason like carrying - add when we double use for stacking items
