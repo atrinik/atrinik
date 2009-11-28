@@ -485,7 +485,7 @@ signed long sum_weight(object *op)
 	{
 		if (inv->inv)
 		{
-			sum += sum_weight(inv);
+			sum_weight(inv);
 		}
 
 		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
