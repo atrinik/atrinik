@@ -54,7 +54,6 @@ extern void	(*move_apply_func)						(object *, object *, object *, int);
 extern void	(*draw_info_func)						(int, int, object *, const char *);
 extern void	(*emergency_save_func)					(int);
 extern void	(*init_blocksview_players_func)			();
-extern void	(*monster_check_apply_func)				(object *, object *);
 extern void	(*remove_friendly_object_func)			(object *);
 extern void	(*update_buttons_func)					(mapstruct *);
 extern void	(*info_map_func)						(int, mapstruct *, int, int, int, const char *);

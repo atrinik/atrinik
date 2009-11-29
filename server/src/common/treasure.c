@@ -1168,11 +1168,6 @@ static void put_treasure(object *op, object *creator, int flags)
 
 		op = insert_ob_in_ob(op, creator);
 
-		if ((flags & GT_APPLY) && QUERY_FLAG(creator, FLAG_MONSTER))
-		{
-			(void) (*monster_check_apply_func)(creator, op);
-		}
-
 		if ((flags & GT_UPDATE_INV) && (tmp = is_player_inv(creator)) != NULL)
 		{
 			(*esrv_send_item_func)(tmp, op);

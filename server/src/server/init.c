@@ -912,7 +912,6 @@ static void setup_library()
 	set_draw_info(new_draw_info);
 	set_container_unlink(container_unlink);
 	set_move_apply(move_apply);
-	set_monster_check_apply(monster_check_apply);
 	set_move_teleporter(move_teleporter);
 	set_move_firewall(move_firewall);
 	set_move_creator(move_creator);

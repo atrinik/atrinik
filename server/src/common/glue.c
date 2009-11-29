@@ -37,7 +37,6 @@ type_func_map 						update_buttons_func;
 type_func_int_int_ob_cchar 			draw_info_func;
 type_container_unlink_func 			container_unlink_func;
 type_move_apply_func 				move_apply_func;
-type_func_ob_ob 					monster_check_apply_func;
 type_func_void 						init_blocksview_players_func;
 type_func_int_map_int_int_int_char 	info_map_func;
 type_func_ob 						move_teleporter_func;
@@ -66,7 +65,6 @@ void init_function_pointers()
 	draw_info_func = 				dummy_draw_info;
 	container_unlink_func = 		dummy_container_unlink_func;
 	move_apply_func = 				dummy_move_apply_func;
-	monster_check_apply_func = 		dummy_function_ob2;
 	init_blocksview_players_func = 	dummy_function;
 	info_map_func = 				dummy_function_mapstr;
 	move_teleporter_func = 			dummy_function_ob;
@@ -122,13 +120,6 @@ void set_container_unlink(type_container_unlink_func addr)
 void set_move_apply(type_move_apply_func addr)
 {
 	move_apply_func = addr;
-}
-
-/* Specify which function to call to check if a monster can
- * apply an object. */
-void set_monster_check_apply(type_func_ob_ob addr)
-{
-	monster_check_apply_func = addr;
 }
 
 /* Specify which functino to call to initialise the blocksview[] array. */
