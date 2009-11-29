@@ -26,19 +26,20 @@
 /**
  * @file
  * Client interface main routine.
- * this file sets up a few global variables, connects to the server,
+ *
+ * This file sets up a few global variables, connects to the server,
  * tells it what kind of pictures it wants, adds the client and enters
- * the main dispatch loop
  * the main event loop (event_loop()) checks the tcp socket for input and
- * then polls for x events.  This should be fixed since you can just block
+ * then polls for x events. This should be fixed since you can just block
  * on both filedescriptors.
+ *
  * The DoClient function recieves a message (an ArgList), unpacks it, and
- * in a slow for loop dispatches the command to the right function through
- * the commands table.   ArgLists are essentially like RPC things, only
- * they don't require going through RPCgen, and it's easy to get variable
- * length lists.  They are just lists of longs, strings, characters, and
- * byte arrays that can be converted to a machine independent format */
-
+ * in a slow for loop dispatches the command to the right function
+ * through the commands table. ArgLists are essentially like RPC things,
+ * only they don't require going through RPCgen, and it's easy to get
+ * variable length lists. They are just lists of longs, strings,
+ * characters, and byte arrays that can be converted to a machine
+ * independent format. */
 
 #include <include.h>
 
@@ -143,9 +144,9 @@ struct CmdMapping commands[] =
 static void face_flag_extension(int pnum, char *buf);
 
 /**
- * Do client. The main loop for commands. From this, the data and commands from server are received.
- * @param csocket
- */
+ * Do client. The main loop for commands. From this, the data and
+ * commands from server are received.
+ * @param csocket Socket. */
 void DoClient(ClientSocket *csocket)
 {
 	int i, len;
@@ -167,34 +168,34 @@ void DoClient(ClientSocket *csocket)
 
 		/* Don't have a full packet */
 		if (i == 0)
+		{
 			return;
+		}
 
 		csocket->inbuf.buf[csocket->inbuf.len] = '\0';
 
-		if (csocket->inbuf.buf[0] & 0x80) /* 3 byte header */
+		/* 3 byte header */
+		if (csocket->inbuf.buf[0] & 0x80)
 		{
 			cmd_id = (uint8) csocket->inbuf.buf[3];
 			data = csocket->inbuf.buf + 4;
-			len = csocket->inbuf.len - 4; /* 3 byte package len + 1 byte binary cmd */
+			/* 3 byte package len + 1 byte binary cmd */
+			len = csocket->inbuf.len - 4;
 		}
 		else
 		{
 			cmd_id = (uint8) csocket->inbuf.buf[2];
 			data = csocket->inbuf.buf + 3;
-			len = csocket->inbuf.len - 3; /* 2 byte package len + 1 byte binary cmd */
+			/* 2 byte package len + 1 byte binary cmd */
+			len = csocket->inbuf.len - 3;
 		}
 
-#if 0
-		LOG(LOG_MSG, "Command #%d (LT:%d)(len:%d) ", cmd_id, LastTick, len);
-#endif
-
 		if (!cmd_id || cmd_id >= BINAR_CMD)
+		{
 			LOG(LOG_ERROR, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
+		}
 		else
 		{
-#if 0
-			LOG(LOG_MSG, "(%s) >%s<\n", commands[cmd_id - 1].cmdname, data);
-#endif
 			commands[cmd_id - 1].cmdproc(data, len);
 		}
 
@@ -203,8 +204,8 @@ void DoClient(ClientSocket *csocket)
 }
 
 /**
- * Init socket list.
- * @param sl Socket list */
+ * Init socket list, setting the list's len to 0 and buf to NULL.
+ * @param sl Socket list. */
 void SockList_Init(SockList *sl)
 {
 	sl->len = 0;
@@ -213,8 +214,8 @@ void SockList_Init(SockList *sl)
 
 /**
  * Add character to socket list.
- * @param sl Socket list
- * @param c Character */
+ * @param sl Socket list.
+ * @param c Character to add. */
 void SockList_AddChar(SockList *sl, char c)
 {
 	sl->buf[sl->len] = c;
@@ -223,8 +224,8 @@ void SockList_AddChar(SockList *sl, char c)
 
 /**
  * Add short integer to socket list.
- * @param sl Socket list
- * @param data Short integer data */
+ * @param sl Socket list.
+ * @param data Short integer data. */
 void SockList_AddShort(SockList *sl, uint16 data)
 {
 	sl->buf[sl->len++] = (data >> 8) & 0xff;
@@ -233,8 +234,8 @@ void SockList_AddShort(SockList *sl, uint16 data)
 
 /**
  * Add integer to socket list.
- * @param sl Socket list
- * @param data Integer data */
+ * @param sl Socket list.
+ * @param data Integer data. */
 void SockList_AddInt(SockList *sl, uint32 data)
 {
 	sl->buf[sl->len++] = (data >> 24) & 0xff;
@@ -245,8 +246,8 @@ void SockList_AddInt(SockList *sl, uint32 data)
 
 /**
  * Does the reverse of SockList_AddInt, but on strings instead.
- * @param data The string
- * @return Integer from the string */
+ * @param data The string.
+ * @return Integer from the string. */
 int GetInt_String(unsigned char *data)
 {
 	return ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
@@ -254,8 +255,8 @@ int GetInt_String(unsigned char *data)
 
 /**
  * Does the reverse of SockList_AddShort, but on strings instead.
- * @param data The string
- * @return Short integer from the string */
+ * @param data The string.
+ * @return Short integer from the string. */
 short GetShort_String(unsigned char *data)
 {
 	return ((data[0] << 8) + data[1]);
@@ -263,10 +264,10 @@ short GetShort_String(unsigned char *data)
 
 /**
  * Send With Handling.
- * @param fd Client number
- * @param msg Message to send
+ * @param fd File descriptor to send the socklist to.
+ * @param msg Message to send.
  * @return 0 on success, -1 on failure. */
-int send_socklist(int fd, SockList  msg)
+int send_socklist(int fd, SockList msg)
 {
 	unsigned char sbuf[2];
 
@@ -277,13 +278,12 @@ int send_socklist(int fd, SockList  msg)
 	return write_socket(fd, msg.buf, msg.len);
 }
 
-
 /**
  * Takes a string of data, and writes it out to the socket.
- * @param fd Client number
- * @param buf The string
- * @param len Length of the string
- * @return 0 on success, -1 on failure */
+ * @param fd File descriptor to send the string to.
+ * @param buf The string.
+ * @param len Length of the string.
+ * @return 0 on success, -1 on failure. */
 int cs_write_string(int fd, char *buf, int len)
 {
 	SockList sl;
@@ -295,9 +295,9 @@ int cs_write_string(int fd, char *buf, int len)
 
 /**
  * Finish face command.
- * @param pnum ID of the face
- * @param checksum Face checksum
- * @param face Face name */
+ * @param pnum ID of the face.
+ * @param checksum Face checksum.
+ * @param face Face name. */
 void finish_face_cmd(int pnum, uint32 checksum, char *face)
 {
 	char buf[2048];
@@ -308,40 +308,33 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	unsigned char *data;
 	void *tmp_free;
 
-	/* first, check our memory... perhaps we have it loaded */
-
-	/*LOG(LOG_MSG,"FACE: %s (->%s)\n", face,FaceList[pnum].name);*/
-
-	/* loaded OR requested...hm, no double request check yet */
+	/* Loaded or requested. */
 	if (FaceList[pnum].name)
 	{
-		/* lets check the name and checksum and sprite. ONLY if all is
-		 * ok, we stay with it */
+		/* Let's check the name, checksum and sprite. Only if all is ok,
+		 * we stay with it */
 		if (!strcmp(face, FaceList[pnum].name) && checksum == FaceList[pnum].checksum && FaceList[pnum].sprite)
 		{
 			face_flag_extension(pnum, FaceList[pnum].name);
 			return;
 		}
 
-		/* ok, some is different.
-		 * no big work, clear face data and lets go on
-		 * all this check for invalid ptr, so fire it up */
+		/* Something is different. */
 		tmp_free = &FaceList[pnum].name;
 		FreeMemory(tmp_free);
 		sprite_free_sprite(FaceList[pnum].sprite);
 	}
 
-	/* first, safe face data: name & checksum */
-	sprintf(buf, "%s.png", face);
+	snprintf(buf, sizeof(buf), "%s.png", face);
 	FaceList[pnum].name = (char *) _malloc(strlen(buf) + 1, "finish_face_cmd(): FaceList name");
 	strcpy(FaceList[pnum].name, buf);
 
 	FaceList[pnum].checksum = checksum;
 
 	/* Check private cache first */
-	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
+	snprintf(buf, sizeof(buf), "%s%s", GetCacheDirectory(), FaceList[pnum].name);
 
-	if ((stream = fopen_wrapper(buf, "rb" )) != NULL)
+	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
 		fstat(fileno (stream), &statbuf);
 		len = (int) statbuf.st_size;
@@ -350,17 +343,17 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 		fclose(stream);
 		newsum = 0;
 
-		/* something is wrong... now unlink the file and
-		 * let it reload then possible and needed */
+		/* Something is wrong... Unlink the file and let it reload. */
 		if (len <= 0)
 		{
 			unlink(buf);
-			/* now we are 100% different to newsum */
 			checksum = 1;
 		}
-		/* lets go for the checksum check*/
+		/* Checksum check */
 		else
+		{
 			newsum = crc32(1L, data, len);
+		}
 
 		free(data);
 
@@ -368,60 +361,72 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 		{
 			FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
 
-			/* perhaps we fail, try insanity new load */
 			if (FaceList[pnum].sprite)
 			{
 				face_flag_extension(pnum, buf);
-				/* found and loaded! */
 				return;
 			}
 		}
 	}
 
-	/* LOG(LOG_MSG,"FACE: call server for %s\n", face); */
 	face_flag_extension(pnum, buf);
-	sprintf(buf, "askface %d", pnum);
-	/* face command los */
+	snprintf(buf, sizeof(buf), "askface %d", pnum);
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
+/**
+ * Check face's flag extension.
+ * @param pnum Face number.
+ * @param buf Name of the face. */
 static void face_flag_extension(int pnum, char *buf)
 {
 	char *stemp;
 
 	FaceList[pnum].flags = FACE_FLAG_NO;
 
-	/* check for the "double" / "up" tag in the picture name */
+	/* Check for the "double" / "up" tag in the picture name. */
 	if ((stemp = strstr(buf, ".d")))
+	{
 		FaceList[pnum].flags |= FACE_FLAG_DOUBLE;
+	}
 	else if ((stemp = strstr(buf, ".u")))
+	{
 		FaceList[pnum].flags |= FACE_FLAG_UP;
+	}
 
-	/* Now the facing stuff: if some tag was there, lets grab the facing info */
+	/* If a tag was there, grab the facing info */
 	if (FaceList[pnum].flags && stemp)
 	{
 		int tc;
 
 		for (tc = 0; tc < 4; tc++)
 		{
-			/* has the string a '0' before our anim tags */
 			if (!*(stemp + tc))
 			{
 				return;
 			}
 		}
 
-		/* lets set the right flags for the tags */
+		/* Set the right flags for the tags */
 		if (((FaceList[pnum].flags & FACE_FLAG_UP) && *(stemp + tc) == '5') || *(stemp + tc) == '1')
+		{
 			FaceList[pnum].flags |= FACE_FLAG_D1;
+		}
 		else if (*(stemp + tc) == '3')
+		{
 			FaceList[pnum].flags |= FACE_FLAG_D3;
+		}
 		else if (*(stemp + tc) == '4'|| *(stemp + tc) == '8' || *(stemp + tc) == '0')
-			FaceList[pnum].flags |= (FACE_FLAG_D3|FACE_FLAG_D1);
+		{
+			FaceList[pnum].flags |= (FACE_FLAG_D3 | FACE_FLAG_D1);
+		}
 	}
 }
 
-/* we have stored this picture in atrinik.p0 - load it from it! */
+/**
+ * Load picture from atrinik.p0 file.
+ * @param num ID of the picture to load.
+ * @return 1 if the file does not exist, 0 otherwise. */
 static int load_picture_from_pack(int num)
 {
 	FILE *stream;
@@ -429,16 +434,20 @@ static int load_picture_from_pack(int num)
 	SDL_RWops *rwop;
 
 	if ((stream = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
+	{
 		return 1;
+	}
 
 	lseek(fileno(stream), bmaptype_table[num].pos, SEEK_SET);
 
 	pbuf = malloc(bmaptype_table[num].len);
+
 	if (!fread(pbuf, bmaptype_table[num].len, 1, stream))
 	{
 		fclose(stream);
 		return 0;
 	}
+
 	fclose(stream);
 
 	rwop = SDL_RWFromMem(pbuf, bmaptype_table[num].len);
@@ -446,11 +455,13 @@ static int load_picture_from_pack(int num)
 	FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
 
 	if (FaceList[num].sprite)
+	{
 		face_flag_extension(num, FaceList[num].name);
+	}
 
 	free(rwop);
-
 	free(pbuf);
+
 	return 0;
 }
 
@@ -458,9 +469,10 @@ static int load_picture_from_pack(int num)
 #define REQUEST_FACE_MAX 250
 
 /**
- * We got a face - test if we have it loaded. If not, ask the server to send us face command.
- * @param pnum Face ID
- * @param mode Mode
+ * We got a face - test if we have it loaded. If not, ask the server to
+ * send us face command.
+ * @param pnum Face ID.
+ * @param mode Mode.
  * @return 0 if face is not there, 1 if face was requested or loaded. */
 int request_face(int pnum, int mode)
 {
@@ -473,7 +485,7 @@ int request_face(int pnum, int mode)
 	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
 	uint16 num = (uint16)(pnum &~ 0x8000);
 
-	/* forced flush buffer & command */
+	/* Forced flush buffer and command */
 	if (mode)
 	{
 		if (count)
@@ -488,9 +500,11 @@ int request_face(int pnum, int mode)
 		return 1;
 	}
 
-	/* loaded OR requested.. */
+	/* Loaded or requested */
 	if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED)
+	{
 		return 1;
+	}
 
 	if (num >= bmaptype_table_size)
 	{
@@ -498,14 +512,12 @@ int request_face(int pnum, int mode)
 		return 0;
 	}
 
-	/* now lets check BEFORE we do any other test for this name in /gfx_user.
-	 * Perhaps we have a customized picture here. */
-	sprintf(buf, "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
+	/* First check for this image in gfx_user directory. */
+	snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
+
 	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
-		/* yes we have a picture with this name in /gfx_user!
-		 * lets try to load. */
-		fstat(fileno (stream), &statbuf);
+		fstat(fileno(stream), &statbuf);
 		len = (int) statbuf.st_size;
 		data = malloc(len);
 		len = fread(data, 1, len, stream);
@@ -513,14 +525,13 @@ int request_face(int pnum, int mode)
 
 		if (len > 0)
 		{
-			/* lets try to load first... */
+			/* Try to load it. */
 			FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
 
-			/* NOW we have a valid png with right name ...*/
 			if (FaceList[num].sprite)
 			{
 				face_flag_extension(num, buf);
-				sprintf(buf, "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
+				snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
 				FaceList[num].name = (char*) malloc(strlen(buf) + 1);
 				strcpy(FaceList[num].name, buf);
 				FaceList[num].checksum = crc32(1L, data, len);
@@ -529,70 +540,50 @@ int request_face(int pnum, int mode)
 			}
 		}
 
-		/* if we are here something was wrong with the gfx_user file.*/
+		/* If we are here something was wrong with the file. */
 		free(data);
 	}
 
-	/* ok - at this point we hook in our client stored png lib. */
-
-	/* best case - we have it in atrinik.p0! */
+	/* Best case - we have it in atrinik.p0 */
 	if (bmaptype_table[num].pos != -1)
 	{
-		sprintf(buf, "%s.png", bmaptype_table[num].name);
+		snprintf(buf, sizeof(buf), "%s.png", bmaptype_table[num].name);
 		FaceList[num].name = (char *) _malloc(strlen(buf) + 1, "request_face(): FaceList name");
 		strcpy(FaceList[num].name, buf);
 		FaceList[num].checksum = bmaptype_table[num].crc;
 		load_picture_from_pack(num);
 	}
-	/* 2nd best case  - lets check the cache for it...  or request it */
+	/* Second best case - check the cache for it, or request it. */
 	else
 	{
-		FaceList[num].flags|= FACE_REQUESTED;
+		FaceList[num].flags |= FACE_REQUESTED;
 		finish_face_cmd(num, bmaptype_table[num].crc, bmaptype_table[num].name);
 	}
 
-#if 0
-	*((uint16 *)(fr_buf + 4 + count * sizeof(uint16))) = num;
-	*((uint8 *)(fr_buf + 3)) = (uint8)++count;
-	if (count == REQUEST_FACE_MAX)
-	{
-		fr_buf[0] = 'f';
-		fr_buf[1] = 'r';
-		fr_buf[2] = ' ';
-		cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
-		count = 0;
-	}
-#endif
 	return 1;
 }
 
 /**
  * Check animation status.
- * @param anum Animation ID */
+ * @param anum Animation ID. */
 void check_animation_status(int anum)
 {
-	/* i really do it simple here - because we had stored our default
-	 * anim list in the same way a server used in the past the anim
-	 * command, we simple call the command. This seems a bit odd, but
-	 * perhaps we play around in the future with at runtime created
-	 * anims (server side) - then we need this interface again and we
-	 * can simply call it from both sides. */
+	/* Check if it has been loaded. */
 	if (animations[anum].loaded)
+	{
 		return;
+	}
 
-	/* why we don't preload all anims?
-	 * because the anim also flushes loading of all face
-	 * part of this anim! */
-	/* mark this anim as "we have loaded it" */
+	/* Mark this animation as loaded. */
 	animations[anum].loaded = 1;
-	/* same as server sends it! */
+	/* Same as server sends it */
 	AnimCmd((unsigned char *) anim_table[anum].anim_cmd, anim_table[anum].len);
 }
 
 /**
  * Remove whitespace from right side.
- * @param buf The string to adjust
- * @return The adjusted string */
+ * @param buf The string to adjust.
+ * @return The adjusted string. */
 char *adjust_string(char *buf)
 {
 	int i, len = strlen(buf);
@@ -600,9 +591,12 @@ char *adjust_string(char *buf)
 	for (i = len - 1; i >= 0; i--)
 	{
 		if (!isspace(buf[i]))
+		{
 			return buf;
+		}
 
-		buf[i] = 0;
+		buf[i] = '\0';
 	}
+
 	return buf;
 }
