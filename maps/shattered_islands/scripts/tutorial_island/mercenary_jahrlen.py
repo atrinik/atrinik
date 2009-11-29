@@ -58,7 +58,7 @@ if text[0] == "probe":
 			if activator.DoKnowSpell(spell) == 1:
 				me.SayTo(activator, "\nYou already know this spell...")
 			else:
-				activator.AcquireSpell(spell)
+				activator.AcquireSpell(spell, LEARN)
 
 				me.SayTo(activator, "\nOk, you are ready. Perhaps you want to try the spell?\nYou can safely cast the probe on me to practice.\nJust select the spell and invoke it in my direction.")
 
@@ -106,7 +106,7 @@ elif text[0] == "bullet":
 				if activator.DoKnowSpell(spell) == 1:
 					me.SayTo(activator, "\nYou already know this spell...")
 				else:
-					activator.AcquireSpell(spell)
+					activator.AcquireSpell(spell, LEARN)
 
 elif text[0] == "free":
 	me.SayTo(activator, "\nI can teach you the spell |probe|.\nProbe is one of the most useful information spells you can learn.\nCast on unknown creatures it will grant you information about their powers and weaknesses.\nThe spell itself is very safe. Creatures will not notice that they were probed. They will not get angry or attack.\nSay ^probe^, then I will teach you the probe spell.\nIf you don't have the needed wizardry skill,\nI will teach it to you too.")
