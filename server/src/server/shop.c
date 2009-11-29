@@ -42,7 +42,8 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay);
  * @return The price for the item. */
 sint64 query_cost(object *tmp, object *who, int flag)
 {
-	sint64 val, diff;
+	sint64 val;
+	double diff;
 	int number;
 	int charisma = 11;
 
@@ -152,24 +153,23 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	/* Now adjust for sell or buy multiplier */
 	if (flag == F_BUY)
 	{
-		diff = 1 - cha_bonus[charisma];
+		diff = (double) (1.0 - (double) cha_bonus[charisma]);
 	}
 	else
 	{
-		diff = cha_bonus[charisma];
+		diff = (double) (0.20 + (double) cha_bonus[charisma]);
 	}
 
-	/* Our real value */
-	diff = val * diff;
+	val = (val * (long) (1000 * (diff))) / 1000;
 
 	/* We want to give at least 1 copper for items which have any
 	 * value. */
-	if (diff == 0 && (val > 0 || tmp->value > 0))
+	if (val < 1 && tmp->value > 0)
 	{
-		diff = 1;
+		val = 1;
 	}
 
-	return diff;
+	return val;
 }
 
 /**
