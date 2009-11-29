@@ -102,7 +102,7 @@ static const char *cauldron_sound()
  * want to experiment around. :)
  * @param caster Who is doing alchemy.
  * @param cauldron The cauldron in which alchemy should take place. */
-void attempt_do_alchemy(object *caster, object *cauldron)
+static void attempt_do_alchemy(object *caster, object *cauldron)
 {
 	recipelist *fl;
 	recipe *rp = NULL;
@@ -506,7 +506,7 @@ static object *find_transmution_ob(object *first_ingred, recipe *rp)
  * @param cauldron Container that was used.
  * @param rp Rrecipe that failed.
  * @param danger Danger value, the higher the more evil the effect. */
-void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger)
+static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int danger)
 {
 	int level = 0;
 

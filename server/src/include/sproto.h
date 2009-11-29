@@ -24,7 +24,6 @@
 ************************************************************************/
 
 /* alchemy.c */
-void attempt_do_alchemy(object *caster, object *cauldron);
 int use_alchemy(object *op);
 
 /* apply.c */

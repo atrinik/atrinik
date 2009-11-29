@@ -63,7 +63,6 @@ extern object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int inser
 extern void insert_multisquare_ob_in_map(object *new_obj, mapstruct *map);
 extern void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP);
 extern void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP);
-extern int obj_count_in_map(mapstruct *map, int x, int y);
 extern void put_decor(mapstruct *map, char **maze, char *decorstyle, int decor_option, RMParms *RP);
 extern void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMParms *RP);
 extern void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, RMParms *RP);

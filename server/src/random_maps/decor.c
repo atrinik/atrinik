@@ -40,7 +40,7 @@
  * @param x X coordinate
  * @param y Y coordinate
  * @return Count of objects in the map at x, y. */
-int obj_count_in_map(mapstruct *map, int x, int y)
+static int obj_count_in_map(mapstruct *map, int x, int y)
 {
 	int count = 0;
 	object *tmp;
