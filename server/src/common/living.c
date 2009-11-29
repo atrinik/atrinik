@@ -1229,19 +1229,17 @@ fix_player_no_armour:
 					/* skill is a 'weapon' */
 					if (tmp->stats.dam > 0)
 					{
-						wc += (tmp->stats.wc + tmp->magic);
-						ac += (tmp->stats.ac + tmp->magic);
+						wc += tmp->stats.wc;
+						ac += tmp->stats.ac;
 						op->weapon_speed = tmp->weapon_speed;
 						weapon_weight = tmp->weight;
-						op->stats.dam += (tmp->stats.dam + tmp->magic);
+						op->stats.dam += tmp->stats.dam;
 					}
-					/* be careful with ->magic in applyable skills */
 					else
 					{
-						/* i added magic to wc/ac even when they are not set */
-						op->stats.dam += tmp->magic;
-						wc += (tmp->stats.wc + tmp->magic);
-						ac += (tmp->stats.ac + tmp->magic);
+						op->stats.dam += tmp->stats.dam;
+						wc += tmp->stats.wc;
+						ac += tmp->stats.ac;
 					}
 
 					if (tmp->slaying != NULL)
