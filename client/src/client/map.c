@@ -527,66 +527,85 @@ void map_draw_map()
 								bltfx.flags |= BLTFX_FLAG_SRCALPHA;
 							}
 
+							/* These faces are only shown when they are in a
+							 * position which would be visible to the player. */
 							if (FaceList[index].flags & FACE_FLAG_UP)
 							{
+								/* If the face is dir [0124568] and in
+								 * the top or right quadrant or on the
+								 * central square, blt it. */
 								if (FaceList[index].flags & FACE_FLAG_D1)
 								{
-									if (y < (MAP_MAX_SIZE - 1) / 2)
+									if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
+									{
 										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+									}
 								}
 
+								/* If the face is dir [0234768] and in
+								 * the top or left quadrant or on the
+								 * central square, blt it. */
 								if (FaceList[index].flags & FACE_FLAG_D3)
 								{
-									if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
+									if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
+									{
 										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+									}
+								}
+							}
+  							/* Double faces are shown twice, one above
+							 * the other, when not lower on the screen
+							 * than the player. This simulates high walls
+							 * without obscuring the user's view. */
+							else if (FaceList[index].flags & FACE_FLAG_DOUBLE)
+							{
+								/* Blt face once in normal position. */
+								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+
+								/* If it's not in the bottom quadrant of
+								 * the map, blt it again 'higher up' on
+								 * the same square. */
+								if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
+								{
+									sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx);
 								}
 							}
 							else
-								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
-
-							/* Here we handle high & low walls - for example when
-							 * you enter a house or something. The wall will be drawn
-							 * low and higher wall mask will be removed, when the wall
-							 * is in front of you. */
-							if (FaceList[index].flags)
 							{
-								if (FaceList[index].flags & FACE_FLAG_DOUBLE)
-								{
-									if (FaceList[index].flags & FACE_FLAG_D1)
-									{
-										if (y < (MAP_MAX_SIZE - 1) / 2)
-											sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx);
-									}
-
-									if (FaceList[index].flags & FACE_FLAG_D3)
-									{
-										if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
-											sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx);
-									}
-								}
+								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
 							}
 
 							/* Do we have a playername? Then print it! */
 							if (options.player_names && map->pname[k][0])
 							{
 								if (options.player_names == 1 || (options.player_names == 2 && strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
+								{
 									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, ypos - 48, map->pcolor[k], NULL, NULL);
+								}
 							}
 
 							/* Perhaps the object has a marked effect, blt it now */
 							if (map->ext[k])
 							{
 								if (map->ext[k] & FFLAG_SLEEP)
+								{
 									sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL);
+								}
 
 								if (map->ext[k] & FFLAG_CONFUSED)
+								{
 									sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL);
+								}
 
 								if (map->ext[k] & FFLAG_SCARED)
+								{
 									sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL);
+								}
 
 								if (map->ext[k] & FFLAG_BLINDED)
+								{
 									sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL);
+								}
 
 								if (map->ext[k] & FFLAG_PARALYZED)
 								{
@@ -598,37 +617,114 @@ void map_draw_map()
 								{
 									if (face_sprite)
 									{
-										if (xml == MAP_TILE_POS_XOFF)
-											xtemp = (int) (((double) xml / 100.0) * 25.0);
-										else
-											xtemp = (int) (((double) xml / 100.0) * 20.0);
+										int hp_col;
+										Uint32 sdl_col;
 
-										sprite_blt_map(Bitmaps[BITMAP_ENEMY2], xmpos + xtemp - 3, yl - 11, NULL, NULL);
-										sprite_blt_map(Bitmaps[BITMAP_ENEMY1], xmpos + xtemp + (xml - xtemp * 2) - 3, yl - 11, NULL, NULL);
+										if (cpl.target_hp > 90)
+										{
+											hp_col = COLOR_GREEN;
+										}
+										else if (cpl.target_hp > 75)
+										{
+											hp_col = COLOR_DGOLD;
+										}
+										else if (cpl.target_hp > 50)
+										{
+											hp_col = COLOR_HGOLD;
+										}
+										else if (cpl.target_hp > 25)
+										{
+											hp_col = COLOR_ORANGE;
+										}
+										else if (cpl.target_hp > 10)
+										{
+											hp_col = COLOR_YELLOW;
+										}
+										else
+										{
+											hp_col = COLOR_RED;
+										}
+
+										if (xml == MAP_TILE_POS_XOFF)
+										{
+											xtemp = (int) (((double) xml / 100.0) * 25.0);
+										}
+										else
+										{
+											xtemp = (int) (((double) xml / 100.0) * 20.0);
+										}
 
 										temp = (xml - xtemp * 2) - 1;
 
 										if (temp <= 0)
+										{
 											temp = 1;
+										}
 
 										if (temp >= 300)
+										{
 											temp = 300;
+										}
 
 										mid = map->probe[k];
 
 										if (mid <= 0)
+										{
 											mid = 1;
+										}
 
 										if (mid > 100)
+										{
 											mid = 100;
+										}
 
-										temp = (int)(((double) temp / 100.0) * (double) mid);
+										temp = (int) (((double) temp / 100.0) * (double) mid);
 										rect.h = 2;
 										rect.w = temp;
 										rect.x = 0;
 										rect.y = 0;
 
-										sprite_blt_map(Bitmaps[BITMAP_PROBE], xmpos + xtemp - 1, yl - 9, &rect, NULL);
+										sdl_col = SDL_MapRGB(ScreenSurfaceMap->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
+
+										/* First draw the bar */
+										rect.x = xmpos + xtemp - 1;
+										rect.y = yl - 9;
+										rect.h = 1;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										/* Horizontal lines of left bracked */
+										rect.h = 1;
+										rect.w = 3;
+										rect.x = xmpos + xtemp - 3;
+										rect.y = yl - 11;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										rect.y = yl - 7;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										/* Horizontal lines of right bracked */
+										rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										rect.y = yl - 11;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										/* Vertical lines */
+										rect.w = 1;
+										rect.h = 5;
+										rect.x = xmpos + xtemp - 3;
+										rect.y = yl - 11;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+										rect.x = xmpos + xtemp + (xml - xtemp * 2) - 1;
+										SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+
+										/* Draw the name of target if it's not a player */
+										if (!(options.player_names && map->pname[k][0]))
+										{
+											StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name)*2) + 22, yl - 26, cpl.target_color, NULL, NULL);
+										}
+										/* Draw HP remaining percent */
+										if (cpl.target_hp > 0)
+										{
+											char hp_text[9];
+											int hp_len = snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
+											StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xpos - hp_len * 2 + 22, yl - 36, hp_col, NULL, NULL);
+										}
 									}
 								}
 							}
