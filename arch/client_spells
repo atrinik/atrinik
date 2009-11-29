@@ -1,10 +1,10 @@
-"firestorm" 
+"firestorm"
 w c 2 si_018.png
 "A cone of fire you project in front of you. "
 "The spell gains strength as you grow in level, so it remains"
 "one of your best spells even at high level. "
 " "
-"icestorm" 
+"icestorm"
 w d 3 si_024.png
 "A cone of ice which freezes monsters facing the caster."
 "This spell gains power with level, so it remains useful"
@@ -33,7 +33,7 @@ p p 9 si_080.png
 "This prayer removes stats depletion from a player."
 " "
 " "
-" " 
+" "
 "remove curse"
 p f 17 si_082.png
 "This prayer removes all curses from *wielded* or *worn*"
@@ -63,19 +63,19 @@ w k 14 si_098.png
 "This spell identifies some items in your inventory - typically from 3-10,"
 "depending on caster level.  Higher level = more items identified."
 " "
-" "   
+" "
 "detect magic"
 w o 14 si_099.png
 "*All* magic items in your inventory will be marked as magic."
 " "
 " "
-" " 
+" "
 "detect curse"
 p p 14 si_105.png
 "This prayer will mark *all* cursed or damned items in your inventory."
 " "
 " "
-" " 
+" "
 "cause light wounds"
 p c 18 si_148.png
 "This prayer creates a missile which inflicts damage to your enemies."
@@ -88,20 +88,20 @@ w c 11 si_148.png
 " "
 " "
 " "
-"magic bullet" 
+"magic bullet"
 w c 5 si_017.png
 "This spell fires a magical bullet which does not track but instead "
 "flies in one direction until it hits something. "
 " "
-" " 
-"summon golem" 
+" "
+"summon golem"
 w b 7 si_038.png
 "A golem will appear, which you can control.  You can send him in various "
 "directions by using the fire <dir> keys. "
 "** You get all experience from your golems kills **"
 "** so stay safe and let him fight. **"
-"town portal" 
-w c 5 si_017.png
+"town portal"
+w c 13 si_017.png
 "This spell allows you to set up magic portals from one map to another. "
 " "
 " "
