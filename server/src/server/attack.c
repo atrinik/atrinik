@@ -324,6 +324,11 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		return 0;
 	}
 
+	if (hit_level > target_obj->level && hit_obj->type == MONSTER)
+	{
+		dam += (int) ((float) (dam / 2) * ((float) (hit_level - target_obj->level) / (target_obj->level > 25 ? 25.0f : (float) target_obj->level)));
+	}
+
 	/* Something hit player (can be disease or poison too), break
 	 * praying. */
 	if (op->type == PLAYER && CONTR(op)->was_praying)
