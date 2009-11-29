@@ -1109,7 +1109,7 @@ int command_save(object *op, char *params)
 	}
 	else if (!op->stats.exp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "To avoid too much unused player accounts you must get some experience before you can save!");
+		new_draw_info(NDI_UNIQUE, 0, op, "To avoid too many unused player accounts, you must get some experience before you can save.");
 	}
 	else
 	{
