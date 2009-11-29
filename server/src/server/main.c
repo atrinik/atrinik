@@ -1111,11 +1111,6 @@ static void do_specials()
 	if (!(pticks % 509))
 		flush_old_maps();
 
-#if 0
-	if (!(pticks % 2503))
-		fix_weight();
-#endif
-
 	/* 5000 ticks is about 10 minutes */
 	if (!(pticks % 4999))
 		metaserver_update();

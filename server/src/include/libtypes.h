@@ -81,7 +81,7 @@ extern void move_gate(object *op);
 extern void move_timed_gate(object *op);
 
 /* gravestone.c */
-extern char *gravestone_text(object *op);
+extern const char *gravestone_text(object *op);
 
 /* identify_altar.c */
 extern int apply_identify_altar(object *money, object *altar, object *pl);
@@ -147,7 +147,6 @@ extern player *find_player(char *plname);
 extern void display_motd(object *op);
 extern int playername_ok(char *cp);
 extern int add_player(NewSocket *ns);
-extern archetype *get_player_archetype(archetype *at);
 extern object *get_nearest_player(object *mon);
 extern int path_to_player(object *mon, object *pl, int mindiff);
 extern void give_initial_items(object *pl, treasurelist *items);
@@ -158,18 +157,9 @@ extern object *find_arrow(object *op, const char *type);
 extern void fire(object *op, int dir);
 extern int move_player(object *op, int dir);
 extern int handle_newcs_player(player *pl);
-extern int save_life(object *op);
-extern void remove_unpaid_objects(object *op, object *env);
 extern void do_some_living(object *op);
 extern void kill_player(object *op);
-extern void fix_weight(void);
 extern void cast_dust(object *op, object *throw_ob, int dir);
-extern void make_visible(object *op);
-extern int is_true_undead(object *op);
-extern int hideability(object *ob);
-extern void do_hidden_move(object *op);
-extern int stand_near_hostile(object *who);
-extern int action_makes_visible(object *op);
 extern int pvp_area(object *attacker, object *victim);
 extern void dragon_ability_gain(object *who, int atnr, int level);
 

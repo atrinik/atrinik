@@ -519,11 +519,6 @@ int push_roll_object(object *op, int dir)
 	{
 		tmp->direction = dir;
 		recursive_roll(tmp, dir, op);
-
-		if (action_makes_visible(op))
-		{
-			make_visible(op);
-		}
 	}
 
 	return ret;

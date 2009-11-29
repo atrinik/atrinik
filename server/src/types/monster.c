@@ -576,9 +576,6 @@ int move_monster(object *op)
 	if (QUERY_FLAG(op, FLAG_SCARED) && !(RANDOM() % 20))
 		CLEAR_FLAG(op, FLAG_SCARED);
 
-	/* check if monster pops out of hidden spot */
-	/*if(op->hide) do_hidden_move(op);*/
-
 	/* I disabled automatically pick & and apply of monsters.
 	 * we should not do it in that generic way - taking and using
 	 * items is a AI action - and thats something we still need to

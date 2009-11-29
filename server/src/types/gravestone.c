@@ -33,7 +33,7 @@
  * Create text for a gravestone object.
  * @param op Object that died.
  * @return Pointer to a static string containing the gravestone text. */
-char *gravestone_text(object *op)
+const char *gravestone_text(object *op)
 {
 	static char buf2[MAX_BUF];
 	char buf[MAX_BUF];
