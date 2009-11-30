@@ -46,7 +46,7 @@
     If positive, the &lt;infection range&gt; is level dependant - If negative,
     it is not:
     E.g. "&lt;infection range&gt; -6" means creatures can be infected in
-    six square range, and &lt;plaque level&gt; doesn't modify that. </td>
+    six square range, and &lt;plaque level&gt; doesn't modify that.</td>
 	</tr>
 	<tr>
 		<td>

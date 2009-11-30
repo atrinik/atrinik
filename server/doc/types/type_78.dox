@@ -35,7 +35,7 @@ Type defined by:
 		<td>@ref obj::animation</td>
 		<td>    The animation-name defines what animation is displayed for this object
     in-game. Note that a set animation will overrule the face.
-    Changing animation is easy - adding or deleting a animation is more
+    Changing animation is easy - adding or deleting an animation is more
     difficult and should be done in the text parse window and not in this
     dialog.
 		</td>
@@ -77,9 +77,9 @@ Type defined by:
 	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
-		<td>    If &lt;glow radius&gt; is set to a value greater zero, the object
+		<td>    If &lt;glow radius&gt; is set to a value greater than zero, the object
     appears lit up on dark maps. &lt;glow radius&gt; can be a value
-    between 0 and 4, the higher, the more light does the object emmit.
+    between 0 and 4, the higher, the more light does the object emit.
 		</td>
 	</tr>
 	<tr>
@@ -100,7 +100,7 @@ Type defined by:
 		<td>@ref FLAG_SYS_OBJECT</td>
 		<td>    Marks an object as system object. System objects are ALWAYS invisible and
     hidden from the players. They can't be seen or detected and never will send
-    any information about them to the players client. System objects are put
+    any information about them to the player's client. System objects are put
     in layer 0 under the floor tiles.
 		</td>
 	</tr>
@@ -132,10 +132,10 @@ Type defined by:
 	<tr>
 		<td>layer</td>
 		<td>@ref obj::layer</td>
-		<td>    This is the map layer, the object will put in. The selected layer will effect where and
+		<td>    This is the map layer, the object will put in. The selected layer will affect where and
     how this object is shown on client side. Layer 0 is reserved for sys_object type objects
     and will NEVER be shown on client side. Layer 1 is for floor objects and layer 2 for
-    floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer 
+    floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer
     6 is reserved for players and layer 7 is for spell effects and high flying/visible
     objects like arrows.
 		</td>
@@ -145,7 +145,7 @@ Type defined by:
 		<td>@ref FLAG_IS_MAGICAL</td>
 		<td>    If set, this object counts as "magical". Detect magic or
     identify will show this flag and the player will see a small
-    M in the client inventory part.
+    blue M in the client's inventory part.
 		</td>
 	</tr>
 	<tr>
@@ -189,7 +189,7 @@ Type defined by:
 		<td>no teleport</td>
 		<td>@ref FLAG_NO_TELEPORT</td>
 		<td>    Marks an object as no teleport object. A no teleport object can't be
-    teleported by teleporter except the object is inside the inventory of 
+    teleported by teleporter except if the object is inside the inventory of
     another object which can be teleported.
 		</td>
 	</tr>
@@ -217,7 +217,7 @@ Type defined by:
 	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
-		<td>    The item is permanently cursed. If this flag is set, applying 
+		<td>    The item is permanently cursed. If this flag is set, applying
     or unapplying it will set "cursed 1" again. This flag can't be
     removed by remove curse.
 		</td>
@@ -225,7 +225,7 @@ Type defined by:
 	<tr>
 		<td>permanent damned</td>
 		<td>@ref FLAG_PERM_DAMNED</td>
-		<td>    The item is permanently damned. If this flag is set, applying 
+		<td>    The item is permanently damned. If this flag is set, applying
     or unapplying it will set "damned 1" again. This flag can't be
     removed by remove damnation.
 		</td>
@@ -239,7 +239,7 @@ Type defined by:
 	<tr>
 		<td>quest item</td>
 		<td>@ref FLAG_QUEST_ITEM</td>
-		<td>    Item is a quest item. This item will be inserted in the 
+		<td>    Item is a quest item. This item will be inserted in the
     quest container when a quest is finished and for that player
     this item will never drop again.
 		</td>
@@ -252,7 +252,7 @@ Type defined by:
     like slash type, cleave type, 1hand, polearms and so on. This value goes to the client
     too. WARNING: not all objects have a sub_type and changing it without care can corrupt
     server AND/OR the clients. Normally this is not a subject to change outside arch definition.
-    Containers with non-zero sub type will behave as apartment container upgrades.
+    Containers with non-zero sub type will behave as apartment containers.
 		</td>
 	</tr>
 	<tr>
@@ -273,11 +273,7 @@ Type defined by:
 	<tr>
 		<td>value</td>
 		<td>@ref obj::value</td>
-		<td>    Adds a certain value to the object: It will be worth that many times the
-    default value from it's archetype (E.g. "value = 3" means three times
-    worth the default value). Value for buying/selling will be
-    further modified by various factors. Hence, testing values in-game is
-    usually inevitable.
+		<td>    Change an object's value.
 		</td>
 	</tr>
 	<tr>

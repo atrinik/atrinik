@@ -29,7 +29,7 @@
 		</td><td>    &lt;remove match&gt; means remove object if found. Setting this is usually not
     recommended because inv. checkers are in general invisible. So, unlike
     for altars/ locked doors, the player won't expect to lose an object when
-    walking over that square. And he doesn't even get a message either. 
+    walking over that square. And he doesn't even get a message either.
 
     So, *if* you enable &lt;remove match&gt;, make sure
     to inform the player what's going on!</td>
@@ -37,12 +37,12 @@
 	<tr>
 		<td>
 @ref page_type_81
-		</td><td>    Size of an area around the spawn point where the mob should 
+		</td><td>    Size of an area around the spawn point where the mob should
     be placed randomly. If this value is set to 0, spawn point
     will find no free place. If set to 1, it test the space where
     the spawn point itself is. Increasing the value will start a search
     around the spot, starting in the south. value 2 search spot 0,-1,
-    value 3 spot 1,-1, 4 = 0,-1 ... 
+    value 3 spot 1,-1, 4 = 0,-1 ...
     Warning: The Test will ONLY be done for the head - so careful when
     inserting big monsters on the map. Depending on the "free" area,
     the spawn point will drop the mob somewhere in the free area.</td>
@@ -52,7 +52,7 @@
 @ref page_type_7
 		</td><td>   When a poison force is created after someone is effected
    by this poison food this value sets how often the DOT force
-   applies damage before it wear out. 
+   applies damage before it wear out.
    (DOT = Damage Over Time)</td>
 	</tr>
 

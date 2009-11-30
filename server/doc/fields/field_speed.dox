@@ -22,7 +22,7 @@
 		<td>
 @ref page_type_62
 		</td><td>    The &lt;casting speed&gt; defines the spellcasting speed of the wall.
-    You can fine-tune how long the duration between two casts shall be. </td>
+    You can fine-tune how long the duration between two casts shall be.</td>
 	</tr>
 	<tr>
 		<td>
@@ -53,8 +53,8 @@
 @ref page_type_83
 		</td><td>    The &lt;speed&gt; determines how fast a monster will both move
     and fight. High &lt;speed&gt; makes a monster considerably stronger.
-    If the start value is negative but the speed counter becomes a 
-    random start value. This will avoid for generated objects of same 
+    If the start value is negative but the speed counter becomes a
+    random start value. This will avoid for generated objects of same
     type thats they act totally synchron.</td>
 	</tr>
 	<tr>
@@ -77,7 +77,7 @@
     automatically be activated in regular time-intervals. Hence, the
     player can just step on it and gets teleported sooner or later.
     The duration between two activates depends on the given value.
-    Default in the teleporter arch is &lt;activation speed&gt; 0.1. 
+    Default in the teleporter arch is &lt;activation speed&gt; 0.1.
 
     VERY IMPORTANT: If you want to have your teleporter activated via
     button/handle/magic_ear/etc, you must set &lt;activation speed&gt; to zero!</td>

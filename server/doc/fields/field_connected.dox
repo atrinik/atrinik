@@ -28,7 +28,7 @@
 		<td>
 @ref page_type_42
 		</td><td>    Whenever the connection value is activated,
-    the creator gets triggered.  </td>
+    the creator gets triggered.</td>
 	</tr>
 	<tr>
 		<td>
@@ -81,7 +81,7 @@
 		</td><td>    This should only be set in combination with 'charm' mood.
     Normally, monsters are affected by the mood floor as soon as they
     step on it. But charming (monster -&gt; pet) is too powerful,
-    so it needs to be activated. 
+    so it needs to be activated.
 
     Typically it is connected to an altar, for buying a "hireling".
     But a powerful pet could as well be the reward for solving a

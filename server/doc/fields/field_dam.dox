@@ -55,7 +55,7 @@
 @ref page_type_154
 		</td><td>    &lt;direct damage&gt; specifies how much damage is done by the rune,
     if it doesn't contain a spell. This should be set in reasonable
-    relation to the rune's level. </td>
+    relation to the rune's level.</td>
 	</tr>
 	<tr>
 		<td>

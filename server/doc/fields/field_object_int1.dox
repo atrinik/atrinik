@@ -11,7 +11,7 @@
 		</td><td>    The spawn point will use a random number between 0-9999 to
     find a usable mob to spawn. If this value is nearest but
     not higher, this mob is selected. A number of 0 and only one
-    mob in the spawn point means this mob is spawned always. A 
+    mob in the spawn point means this mob is spawned always. A
     number of 5000 means a 50% chance to spawn.</td>
 	</tr>
 

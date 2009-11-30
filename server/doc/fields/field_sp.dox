@@ -61,7 +61,7 @@
 @ref page_type_6
 		</td><td>    Positive &lt;mana&gt; bonus added to player's mana
     when food eaten. Negative values will reduce mana.
-    Curse will double amd damned will triple it. In both 
+    Curse will double amd damned will triple it. In both
     cases are positive values negated.</td>
 	</tr>
 	<tr>
@@ -69,7 +69,7 @@
 @ref page_type_54
 		</td><td>    Positive &lt;mana&gt; bonus added to player's mana
     when consumed. Negative values will reduce mana.
-    Curse will double amd damned will triple it. In both 
+    Curse will double amd damned will triple it. In both
     cases are positive values negated.</td>
 	</tr>
 	<tr>

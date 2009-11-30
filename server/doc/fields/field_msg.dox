@@ -7,12 +7,6 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_126
-		</td><td>    This is where behaviours are defined. A behaviour belongs to one of the predefined classes,
-    and may take parameters. </td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_79, @ref page_type_71, @ref page_type_60, @ref page_type_116, @ref page_type_117
 		</td><td>    This text may describe the object.</td>
 	</tr>

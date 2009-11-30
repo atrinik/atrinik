@@ -31,7 +31,7 @@
 		<td>
 @ref page_type_42
 		</td><td>    The created object will bear the name specified in &lt;name creation&gt;.
-    If nothing is set, the standard name of the archetype is used. </td>
+    If nothing is set, the standard name of the archetype is used.</td>
 	</tr>
 	<tr>
 		<td>
@@ -49,7 +49,7 @@
     with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
     relative path "Fire1"). Use relative paths whenever possible! Note that
     upper/lower case must always be set correctly. However, please use lower
-    case only. 
+    case only.
     It is well possible to have an exit pointing to the same map that the exit
     is on. If slaying is not set in an exit, the player will see a message like
     "the exit is closed".</td>
@@ -88,7 +88,7 @@
 		</td><td>    the &lt;match race&gt; defines the object we're looking for. If &lt;match race&gt;
     matches the monster's or the player's race, we have a match.
     Yes, pedestals can detect a player's race! E.g. you could create a
-    place where only fireborns can enter, by setting "slaying unnatural". 
+    place where only fireborns can enter, by setting "slaying unnatural".
 
     If it is set to "player", any player stepping on the pedestal
     is a match. Very useful if you want to open a gate for players
@@ -103,7 +103,7 @@
     with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
     relative path "Fire1"). Use relative paths whenever possible! Note that
     upper/lower case must always be set correctly. However, please use lower
-    case only. 
+    case only.
     It is well possible to have an exit pointing to the same map that the exit
     is on. If slaying is not set in an exit, the player will see a message like
     "the exit is closed".
@@ -180,7 +180,7 @@
     with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
     relative path "Fire1"). Use relative paths whenever possible! Note that
     upper/lower case must always be set correctly. However, please use lower
-    case only. </td>
+    case only.</td>
 	</tr>
 
 */

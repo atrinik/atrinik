@@ -20,7 +20,13 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_71, @ref page_type_88
+@ref page_type_71
+		</td><td>    Unique floor means that any items dropped on that spot
+    will be saved beyond map reset.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_88
 		</td><td>    Unique floor means that any items dropped on that spot
     will be saved byond map reset. For permanent apartments,
     all floor tiles must be set &lt;unique map&gt;.</td>

@@ -31,8 +31,8 @@
 		</td><td>    This flag defines the destined map as "personal unique map". If set,
     there will be a seperate version of that map for every player out there.
     This feature is used for the permanent apartments.
-    It should not be used for anything else than apartments, since Atrinik is a 
-    *multi*player game. In such a permanent apartment don't forget to set the 
+    It should not be used for anything else than apartments, since Atrinik is a
+    *multi*player game. In such a permanent apartment don't forget to set the
     unique-flag for all floor tiles too (see floors).
     An exit pointing outside of a personal unique map must have the
     "unique destination"-flag unset.</td>

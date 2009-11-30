@@ -10,7 +10,7 @@
 @ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
 		</td><td>    This is the REAL quality status of item - showing how much it is
     used up. Every time the item is overused or damaged, the
-    &lt;actual quality&gt; is lowered. The value can range from 0 (destroyed) to 
+    &lt;actual quality&gt; is lowered. The value can range from 0 (destroyed) to
     the maximum of &lt;max. quality&gt; (It can never get higher than that).
     The quality value represents a % value affecting the item's stats:
     Lower quality than 100% means effects like protection/damage etc.

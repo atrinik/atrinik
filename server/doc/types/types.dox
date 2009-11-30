@@ -2,7 +2,6 @@
 @page type_index Type index
 Types not listed here have the attributes defined in @ref page_type_0 "this page".
 
-- @ref page_type_126 "AI Object"
 - @ref page_type_79 "Misc Object"
 - @ref page_type_78 "Light Source"
 - @ref page_type_74 "Applyable Light"
@@ -86,4 +85,5 @@ Types not listed here have the attributes defined in @ref page_type_0 "this page
 - @ref page_type_109 "Wand &amp; Staff"
 - @ref page_type_118 "Event Object"
 - @ref page_type_119 "Waypoint Object"
+- @ref page_type_120 "Quest Container"
 */

@@ -56,7 +56,7 @@
 @ref page_type_56
 		</td><td>    To re-consecrate an altar, the player's wisdom level must be as
     high or higher than this value. In that way, some altars can not
-    be re-consecrated, while other altars, like those in dungeons, could be. 
+    be re-consecrated, while other altars, like those in dungeons, could be.
 
     Altars located in temples should have at least &lt;reconsecrate level&gt; 100.
     Some characters might need those altars, they would be very unhappy to
@@ -119,7 +119,7 @@
 @ref page_type_154
 		</td><td>    This value sets the level the rune will cast the spell it contains at,
     if applicable. A level 99 rune casts a very, very mean spell of whatever.
-    (&lt;rune level&gt; 0 runes won't detonate at all!) 
+    (&lt;rune level&gt; 0 runes won't detonate at all!)
 
     Level Also effects how easily a trap may be found and disarmed, and
     how much experience the player gets for doing so. Beware: High level

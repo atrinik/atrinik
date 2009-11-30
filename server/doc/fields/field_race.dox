@@ -9,14 +9,14 @@
 		<td>
 @ref page_type_82
 		</td><td>    Defines the light type which we can refill with this refill
-    object. </td>
+    object.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_122
 		</td><td>    If set, the container will hold only certain types of objects.
     Possible choices for &lt;container class&gt; are: "gold and jewels",
-    "arrows" and "keys". 
+    "arrows" and "keys".
 
     Unfortunately it is not easy to create new container
     classes, because items need a matching counterpiece-attribute

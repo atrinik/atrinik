@@ -47,17 +47,17 @@
 	<tr>
 		<td>
 @ref page_type_6
-		</td><td>    Positive &lt;health&gt; bonus added to player's 
+		</td><td>    Positive &lt;health&gt; bonus added to player's
     hp when food eaten. Negative values will reduce hp.
-    Curse will double amd damned will triple it. In both 
+    Curse will double amd damned will triple it. In both
     cases are positive values negated.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_54
-		</td><td>    Positive &lt;health&gt; bonus added to player's 
+		</td><td>    Positive &lt;health&gt; bonus added to player's
     hp when consumed. Negative values will reduce hp.
-    Curse will double amd damned will triple it. In both 
+    Curse will double amd damned will triple it. In both
     cases are positive values negated.</td>
 	</tr>
 	<tr>
@@ -70,7 +70,7 @@
 		<td>
 @ref page_type_64
 		</td><td>    This value specifies the object we are looking for: We have a match
-    if the player does/don't carry an object that is of type &lt;match type&gt;. 
+    if the player does/don't carry an object that is of type &lt;match type&gt;.
 
     Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and &lt;blocking passage&gt;
     enabled. Now you have an inv. checker blocking all players that carry any
@@ -98,7 +98,7 @@
 		</td><td>    This value has only a meaning if &lt;gets used up&gt; is set:
     &lt;number of uses&gt; is the number of times minus one, that it
     will move a creature before disappearing. (It will move
-    someone &lt;number of uses&gt;+1 times, then vanish). </td>
+    someone &lt;number of uses&gt;+1 times, then vanish).</td>
 	</tr>
 	<tr>
 		<td>

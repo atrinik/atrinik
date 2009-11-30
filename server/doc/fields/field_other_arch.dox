@@ -46,7 +46,7 @@
 @ref page_type_56
 		</td><td>    The altar belongs to the god of the given name. Possible options for
     &lt;god name&gt; are: Devourers, Lythander, Mostrai, Gaea, Ruggilli, Gnarg,
-    Gorokh, Valriel and Sorig. 
+    Gorokh, Valriel and Sorig.
 
     If you want to have an unconsecrated altar, set
     &lt;god name&gt; 0 and eventually &lt;reconsecrate level&gt; 0.</td>
@@ -61,9 +61,9 @@
 	<tr>
 		<td>
 @ref page_type_80
-		</td><td>    This only takes effect if &lt;multiply&gt; or &lt;splits&gt; is enabled. 
-	The monster will create a &lt;breed monster&gt; every once in a while. 
-	&lt;breed monster&gt; can be set to any valid arch-name of a monster. 
+		</td><td>    This only takes effect if &lt;multiply&gt; or &lt;splits&gt; is enabled.
+	The monster will create a &lt;breed monster&gt; every once in a while.
+	&lt;breed monster&gt; can be set to any valid arch-name of a monster.
 	Multipart monster should not be used.</td>
 	</tr>
 	<tr>

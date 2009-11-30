@@ -13,7 +13,7 @@
     shown red.
     For mobs, this flag is a "should-have" for high-level monsters.
     When a monster is unable to see in darkness, in the night they will
-    not be able to move or players can cast darkness and sneak around 
+    not be able to move or players can cast darkness and sneak around
     it safely.</td>
 	</tr>
 	<tr>

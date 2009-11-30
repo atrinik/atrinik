@@ -8,9 +8,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80
-		</td><td>    Monsters with &lt;split&gt; enabled will split into one or more 
+		</td><td>    Monsters with &lt;split&gt; enabled will split into one or more
 	&lt;breed monster&gt; whenever they're hit. The number of new monsters
-	is controlled by &lt;split number&gt;. 
+	is controlled by &lt;split number&gt;.
 	If enabled, you must also set &lt;breed monster&gt; and &lt;split number&gt;.</td>
 	</tr>
 

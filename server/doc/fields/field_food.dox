@@ -23,11 +23,11 @@
 		<td>
 @ref page_type_18, @ref page_type_31
 		</td><td>    The drop amount specifies the amount of items (specified
-    in &lt;match item name&gt;) that must be dropped to activate the altar. 
+    in &lt;match item name&gt;) that must be dropped to activate the altar.
 
     If &lt;match item name&gt; is set to "money", then the value of the
     sacrificed money must be equal to &lt;drop amount&gt; (ie, if food=200, then
-    200 silver, 20 gold, or 4 platinum will all work.) 
+    200 silver, 20 gold, or 4 platinum will all work.)
 
     Note that the maximum possible for &lt;drop amount&gt; is 32767.</td>
 	</tr>
