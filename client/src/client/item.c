@@ -144,7 +144,10 @@ static item *new_item()
 	item *op = _malloc(sizeof(item), "new_item (): new item");
 
 	if (!op)
+	{
+		LOG(LOG_ERROR, "ERROR: new_item(): Out of memory.\n");
 		exit(0);
+	}
 
 	op->next = op->prev = NULL;
 	copy_name(op->d_name, "");
