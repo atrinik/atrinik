@@ -1419,7 +1419,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	atexit(SDL_Quit);
 	/* Start the system after starting SDL */
 	SYSTEM_Start();
 	list_vid_modes();

@@ -106,10 +106,11 @@ void SYSTEM_Start()
 }
 
 /**
- * End the system. Currently does nothing, but could be used in the future.
+ * End the system.
  * @return Always returns 1. */
 int SYSTEM_End()
 {
+	SDL_Quit();
 	return 1;
 }
 
