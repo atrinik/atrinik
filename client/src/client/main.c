@@ -1626,22 +1626,9 @@ int main(int argc, char *argv[])
 				FD_ZERO(&tmp_write);
 				FD_ZERO(&tmp_exceptions);
 
-				FD_SET((unsigned int )csocket.fd, &tmp_exceptions);
-				FD_SET((unsigned int )csocket.fd, &tmp_read);
-				FD_SET((unsigned int )csocket.fd, &tmp_write);
-
-#if 0
-				if (MAX_TIME != 0)
-				{
-					timeout.tv_sec = MAX_TIME / 100000;
-					timeout.tv_usec = MAX_TIME % 100000;
-				}
-				else
-				{
-					timeout.tv_sec = 0;
-					timeout.tv_usec = 0;
-				}
-#endif
+				FD_SET((unsigned int) csocket.fd, &tmp_exceptions);
+				FD_SET((unsigned int) csocket.fd, &tmp_read);
+				FD_SET((unsigned int) csocket.fd, &tmp_write);
 
 				script_fdset(&maxfd, &tmp_read);
 
@@ -1657,10 +1644,12 @@ int main(int argc, char *argv[])
 				{
 					DoClient(&csocket);
 				}
+#ifndef WIN32
 				else
 				{
 					script_process(&tmp_read);
 				}
+#endif
 
 				/* flush face request buffer */
 				request_face(0, 1);
