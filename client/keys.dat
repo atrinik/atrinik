@@ -35,6 +35,7 @@
 274 1 "down" "?M_DOWN"
 276 1 "left" "?M_LEFT"
 275 1 "right" "?M_RIGHT"
+113 0 "q" "?M_QLIST"
 
 +"Targetting"
 009 0 "tab" "?M_RANGE"

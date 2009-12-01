@@ -104,6 +104,7 @@ void draw_client_map2(object *pl);
 void esrv_map_scroll(NewSocket *ns, int dx, int dy);
 void send_plugin_custom_message(object *pl, char cmd, char *buf);
 void ShopCmd(char *buf, int len, player *pl);
+void QuestListCmd(char *data, int len, player *pl);
 
 /* sounds.c */
 void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y);

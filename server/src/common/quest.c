@@ -29,30 +29,6 @@
 
 #include <global.h>
 
-/**
- * @defgroup quest_statuses Quest statuses
- * Quest statuses. Stored in object::magic.
- *@{*/
-
-/** The quest has been started. */
-#define QUEST_STATUS_STARTED 0
-/** The quest has been completed. */
-#define QUEST_STATUS_COMPLETED 1
-/*@}*/
-
-/**
- * @defgroup quest_types Quest types
- * All the possible quest types.
- *@{*/
-
-/** The quest is a one drop type. */
-#define QUEST_TYPE_ITEM 0
-/** The quest requires you to kill X monsters. */
-#define QUEST_TYPE_KILL 1
-/** The quest requires you to get item X from monster Y. */
-#define QUEST_TYPE_KILL_ITEM 2
-/*@}*/
-
 static void add_one_drop_quest_item(object *op, object *quest_item, const char *quest_name);
 static object *find_quest(object *op, const char *quest_name);
 static int has_quest_item(object *op, object *quest_item, sint32 flag);

@@ -17,6 +17,7 @@ quest = {
 	"type": 2,
 	"arch_name": "horn",
 	"item_name": "clan horn of the hill giants",
+	"message": "Kill the leader giant of the Hill Giants Stronghold North of Brynknot and bring back his horn.",
 }
 
 ## Initialize QuestManager.

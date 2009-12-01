@@ -17,6 +17,7 @@ quest = {
 	"quest_name": "Hungry Wolves",
 	"type": 1,
 	"kills": 7,
+	"message": "Kill 7 wolves in a cave East of Clearhaven.",
 }
 
 ## Initialize QuestManager.

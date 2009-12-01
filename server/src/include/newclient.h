@@ -429,6 +429,7 @@ enum
 	BINARY_CMD_PARTY,
 	BINARY_CMD_QUICKSLOT,
 	BINARY_CMD_SHOP,
+	BINARY_CMD_QLIST,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,

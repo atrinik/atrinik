@@ -119,6 +119,7 @@ static struct PlCmdMapping plcommands[] =
 	{"pt",          PartyCmd},
 	{"qs",          QuickSlotCmd},
 	{"shop",        ShopCmd},
+	{"qlist",       QuestListCmd},
 	{NULL, NULL}
 };
 

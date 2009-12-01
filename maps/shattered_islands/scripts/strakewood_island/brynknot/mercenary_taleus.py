@@ -17,6 +17,7 @@ quest = {
 	"type": 2,
 	"arch_name": "tooth",
 	"item_name": "elder wyvern tooth",
+	"message": "Kill elder wyvern in a cave Southeast of Brynknot and bring back his tooth.",
 }
 
 ## Initialize QuestManager.

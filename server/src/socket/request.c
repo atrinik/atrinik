@@ -2036,3 +2036,62 @@ void ShopCmd(char *buf, int len, player *pl)
 		player_shop_buy(buf, pl);
 	}
 }
+
+/**
+ * Client has requested quest list of a player.
+ * @param data Data.
+ * @param len Length of the data.
+ * @param pl The player. */
+void QuestListCmd(char *data, int len, player *pl)
+{
+	object *quest_container = present_in_ob(TYPE_QUEST_CONTAINER, pl->ob), *tmp;
+	char buf[HUGE_BUF * 12], tmp_buf[MAX_BUF];
+
+	(void) data;
+	(void) len;
+
+	if (!quest_container || !quest_container->inv)
+	{
+		strcpy(buf, "qlist <t t=\"No quests to speak of.\">");
+		Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, buf, strlen(buf));
+		return;
+	}
+
+	strcpy(buf, "qlist <b t=\"Quest List\"><t t=\"|Incomplete quests:|\">");
+
+	/* First show incomplete quests */
+	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type != TYPE_QUEST_CONTAINER || tmp->magic == QUEST_STATUS_COMPLETED)
+		{
+			continue;
+		}
+
+		snprintf(tmp_buf, sizeof(tmp_buf), "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
+		strncat(buf, tmp_buf, sizeof(buf) - strlen(buf) - 1);
+
+		switch (tmp->sub_type1)
+		{
+			case QUEST_TYPE_KILL:
+				snprintf(tmp_buf, sizeof(tmp_buf), "Status: %d/%d\n", MIN(tmp->last_sp, tmp->last_grace), tmp->last_grace);
+				strncat(buf, tmp_buf, sizeof(buf) - strlen(buf) - 1);
+				break;
+		}
+	}
+
+	strncat(buf, "<p><t t=\"|Completed quests:|\">", 32);
+
+	/* Now show completed quests */
+	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type != TYPE_QUEST_CONTAINER || tmp->magic != QUEST_STATUS_COMPLETED)
+		{
+			continue;
+		}
+
+		snprintf(tmp_buf, sizeof(tmp_buf), "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
+		strncat(buf, tmp_buf, sizeof(buf) - strlen(buf) - 1);
+	}
+
+	Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, buf, strlen(buf));
+}

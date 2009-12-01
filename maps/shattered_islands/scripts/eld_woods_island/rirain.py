@@ -19,6 +19,7 @@ quest = {
 	"quest_name": "Rirain's Nightmares",
 	"type": 1,
 	"kills": 5,
+	"message": "Kill 5 lost souls near Clearhaven.",
 }
 
 ## Initialize QuestManager.

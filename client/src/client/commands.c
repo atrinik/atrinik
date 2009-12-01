@@ -2399,3 +2399,18 @@ void ShopCmd(unsigned char *data, int len)
 		}
 	}
 }
+
+/**
+ * Quest list command.
+ *
+ * Uses the book GUI to show the quests.
+ * @param data Data.
+ * @param len Length of the data. */
+void QuestListCmd(unsigned char *data, int len)
+{
+	sound_play_effect(SOUND_BOOK, 0, 100);
+	cpl.menustatus = MENU_BOOK;
+
+	data += 4;
+	gui_interface_book = load_book_interface((char *) data, len - 4);
+}

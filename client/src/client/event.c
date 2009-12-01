@@ -85,6 +85,7 @@ _key_macro defkey_macro[] =
 	{"?M_TARGET_FRIEND",	"/target friend",   KEYFUNC_TARGET_FRIEND,	0, SC_NORMAL, MENU_NO},
 	{"?M_TARGET_SELF",		"/target self",     KEYFUNC_TARGET_SELF,  	0, SC_NORMAL, MENU_NO},
 	{"?M_COMBAT_TOGGLE",	"/combat",          KEYFUNC_COMBAT,       	0, SC_NORMAL, MENU_NO},
+	{"?M_QLIST",            "quest list",       KEYFUNC_QLIST,          0, SC_NORMAL, MENU_NO},
 };
 
 #define DEFAULT_KEYMAP_MACROS (sizeof(defkey_macro)/sizeof(struct _key_macro))
@@ -1827,6 +1828,10 @@ int process_macro_keys(int id, int value)
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
 			return 0;
+
+		case KEYFUNC_QLIST:
+			cs_write_string(csocket.fd, "qlist", 5);
+			break;
 
 		default:
 			return 1;
