@@ -982,7 +982,7 @@ void esrv_update_stats(player *pl)
 		/* we don't care about count - target function will readjust itself */
 		if (pl->target_object && pl->target_object->stats.hp != pl->target_hp)
 		{
-			char hp = (char) (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f);
+			char hp = (char) MAX(1, (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f));
 
 			pl->target_hp = pl->target_object->stats.hp;
 			AddIfChar(pl->target_hp_p, hp, CS_STAT_TARGET_HP);
