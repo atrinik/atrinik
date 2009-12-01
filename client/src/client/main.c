@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Client main related functions. */
+
 #include <include.h>
 
 /* list of possible chars/race with setup when we want create a char */
@@ -117,14 +121,15 @@ int InputStringFlag;
 /* if true, we had entered some in text mode and its ready */
 int InputStringEndFlag;
 int InputStringEscFlag;
+/** The book GUI. */
 struct gui_book_struct *gui_interface_book;
+/** The party GUI. */
 struct gui_party_struct *gui_interface_party;
+/** All the loaded help files. */
 help_files_struct *help_files;
-
-/* the global status identifier */
+/** Global status identifier */
 _game_status GameStatus;
-
-/* the stored "anim commands" we created out of anims.tmp */
+/** The stored "anim commands" we created out of anims.tmp */
 _anim_table anim_table[MAXANIM];
 /* get this from commands.c to this place */
 Animations animations[MAXANIM];

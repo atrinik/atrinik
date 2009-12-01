@@ -23,45 +23,94 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Book GUI related code. */
+
 #include <include.h>
 
-#define BOOK_LINE_NORMAL	0
-#define BOOK_LINE_TITLE		1
-#define BOOK_LINE_ICON		2
-#define BOOK_LINE_NAME		4
+/**
+ * @defgroup BOOK_LINE_xxx BOOK_LINE_xxx
+ *@{*/
+/** Normal line. */
+#define BOOK_LINE_NORMAL    0
+/** The line is a title. */
+#define BOOK_LINE_TITLE     1
+/** The line is an icon. */
+#define BOOK_LINE_ICON      2
+/** The line is the book name. */
+#define BOOK_LINE_NAME      4
 
-/* Internal use */
-#define BOOK_LINE_PAGE		16
+/** Internal use. */
+#define BOOK_LINE_PAGE      16
+/*@}*/
+
+/** Book data. */
 _global_book_data global_book_data;
 
-static _gui_book_line *get_page_tag(char *data, int *pos)
+/**
+ * Get a book's tag.
+ * @param data Data.
+ * @param pos Position to start in data.
+ * @param tag Tag.
+ * @return Book line on success, NULL otherwise. */
+static _gui_book_line *get_book_tag(char *data, int *pos, int tag)
 {
-	char *buf,c;
+	char *buf, c;
 	static _gui_book_line book_line;
 
-	memset(&book_line, 0 , sizeof(_gui_book_line));
-	book_line.mode = BOOK_LINE_PAGE;
+	memset(&book_line, 0, sizeof(_gui_book_line));
+
+	switch (tag)
+	{
+		case 't':
+			book_line.mode = BOOK_LINE_TITLE;
+			break;
+
+		case 'p':
+			book_line.mode = BOOK_LINE_PAGE;
+			break;
+
+		case 'b':
+			book_line.mode = BOOK_LINE_NAME;
+			break;
+
+		default:
+			return NULL;
+	}
+
 	(*pos)++;
 
-	while ((c= *(data + *pos)) != '\0' && c  != 0)
+	while ((c = *(data + *pos)) != '\0' && c != 0)
 	{
 		if (c == '>')
+		{
 			return &book_line;
+		}
 
 		(*pos)++;
+
 		if (c <= ' ')
+		{
 			continue;
+		}
 
 		/* Check inside tags */
 		switch (c)
 		{
 			case 't':
 				if (!(buf = get_parameter_string(data, pos)))
+				{
 					return NULL;
+				}
 
-				book_line.mode |= BOOK_LINE_TITLE;
+				if (tag == 'p')
+				{
+					book_line.mode |= BOOK_LINE_TITLE;
+				}
+
 				strncpy(book_line.line, buf, BOOK_LINES_CHAR);
-				buf[BOOK_LINES_CHAR] = 0;
+				buf[BOOK_LINES_CHAR] = '\0';
 				break;
 
 			default:
@@ -73,89 +122,12 @@ static _gui_book_line *get_page_tag(char *data, int *pos)
 	return NULL;
 }
 
-static _gui_book_line *get_title_tag(char *data, int *pos)
-{
-	char *buf, c;
-	static _gui_book_line book_line;
-
-	memset(&book_line, 0 , sizeof(_gui_book_line));
-	book_line.mode = BOOK_LINE_TITLE;
-	(*pos)++;
-
-	while ((c= *(data + *pos)) != '\0' && c  != 0)
-	{
-		if (c == '>')
-			return &book_line;
-
-		(*pos)++;
-		if (c <= ' ')
-			continue;
-
-		/* check inside tags */
-		switch (c)
-		{
-			case 't':
-				if (!(buf = get_parameter_string(data, pos)))
-					return NULL;
-
-				strncpy(book_line.line, buf, BOOK_LINES_CHAR);
-				buf[BOOK_LINES_CHAR] = 0;
-				break;
-
-			default:
-				return NULL;
-				break;
-		}
-	}
-
-	return NULL;
-}
-
-static _gui_book_line *get_name_tag(char *data, int *pos)
-{
-	char *buf, c;
-	static _gui_book_line book_line;
-
-	memset(&book_line, 0 , sizeof(_gui_book_line));
-	book_line.mode = BOOK_LINE_NAME;
-	(*pos)++;
-
-	while ((c= *(data + *pos)) != '\0' && c  != 0)
-	{
-		if (c == '>')
-			return &book_line;
-
-		(*pos)++;
-		if (c <= ' ')
-			continue;
-
-		/* check inside tags */
-		switch (c)
-		{
-			case 't':
-				if (!(buf = get_parameter_string(data, pos)))
-					return NULL;
-
-				strncpy(book_line.line, buf, BOOK_LINES_CHAR);
-				buf[BOOK_LINES_CHAR] = 0;
-				break;
-
-			default:
-				return NULL;
-				break;
-		}
-	}
-
-	return NULL;
-}
-
-#if 0
-static _gui_book_line *get_icon_tag(char *data, int len, int *pos)
-{
-	return NULL;
-}
-#endif
-
+/**
+ * Check book's tag. Will use get_book_tag() to actually get the tags.
+ * @param data Data.
+ * @param len Length of the data.
+ * @param pos Position.
+ * @return Book line on success, NULL otherwise. */
 static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 {
 	int c;
@@ -166,50 +138,23 @@ static _gui_book_line *check_book_tag(char *data, int len, int *pos)
 		c = *(data + *pos);
 
 		if (c <= ' ')
+		{
 			continue;
-
-		/* title tag */
-		if (c == 't')
-		{
-			book_line = get_title_tag(data, pos);
-
-			if (!book_line)
-				return NULL;
-
-			return book_line;
 		}
-		/* 'icon' (picture) tag
-		 * TODO: Implement this. */
-		else if (c == 'i')
-		{
-		}
-		/* new page */
-		else if (c == 'p')
-		{
-			book_line = get_page_tag(data, pos);
 
-			if (!book_line)
-				return NULL;
+		book_line = get_book_tag(data, pos, c);
 
-			return book_line;
-		}
-		/* book name */
-		else if (c == 'b')
-		{
-			book_line = get_name_tag(data, pos);
-
-			if (!book_line)
-				return NULL;
-
-			return book_line;
-		}
-		else
-			return NULL;
+		return book_line;
 	}
 
 	return NULL;
 }
 
+/**
+ * Link a page to the book GUI.
+ *
+ * Allocates the ::gui_interface_book pointer if it isn't already.
+ * @param page Page to link. */
 static void book_link_page(_gui_book_page *page)
 {
 	_gui_book_page *page_link;
@@ -227,24 +172,34 @@ static void book_link_page(_gui_book_page *page)
 	else
 	{
 		page_link = gui_interface_book->start;
-		for (; page_link->next; page_link = page_link->next);
+
+		for (; page_link->next; page_link = page_link->next)
+		{
+		}
 
 		page_link->next = page;
 	}
 }
 
-/* post formating & initializing of a loaded book */
+/**
+ * Post formatting and initializing of a loaded book.
+ *
+ * Sets the book's name, counts the pages in the book, etc.
+ * @param name Book name to set. */
 static void format_book(char *name)
 {
 	int pc = 0;
 	_gui_book_page *page;
 
 	if (!gui_interface_book)
+	{
 		return;
+	}
 
 	gui_interface_book->page_show = 0;
 	strcpy(gui_interface_book->name, name);
 	page = gui_interface_book->start;
+
 	while (page)
 	{
 		pc++;
@@ -254,25 +209,32 @@ static void format_book(char *name)
 	gui_interface_book->pages = pc;
 }
 
-/* free & clear the book gui */
+/**
+ * Free the @ref gui_interface_book "book GUI".  */
 void book_clear()
 {
 	int i;
 	_gui_book_page *page_tmp, *page;
 
 	if (!gui_interface_book)
+	{
 		return;
+	}
 
 	page = gui_interface_book->start;
 
 	while (page)
 	{
 		page_tmp = page->next;
+
 		for (i = 0; i < BOOK_PAGE_LINES; i++)
 		{
 			if (page->line[i])
+			{
 				free(page->line[i]);
+			}
 		}
+
 		free(page);
 		page = page_tmp;
 	}
@@ -281,6 +243,12 @@ void book_clear()
 	gui_interface_book = NULL;
 }
 
+/**
+ * Load book interface.
+ * @param data Data.
+ * @param len Length of data.
+ * @return The loaded book interface.
+ * @todo Get rid of the gotos. */
 _gui_book_struct *load_book_interface(char *data, int len)
 {
 	_gui_book_line current_book_line, *book_line;
@@ -289,7 +257,7 @@ _gui_book_struct *load_book_interface(char *data, int len)
 	int plc = 0, plc_logic = 0;
 	char c, name[256] = "";
 
-	strcpy(name, "Book");
+	strncpy(name, "Book", sizeof(name));
 	book_clear();
 	memset(&current_book_page, 0, sizeof(_gui_book_page));
 	memset(&current_book_line, 0, sizeof(_gui_book_line));
@@ -298,10 +266,20 @@ _gui_book_struct *load_book_interface(char *data, int len)
 	{
 		c = *(data + pos);
 
-		if (c == 0x0d)
+		if (c == '\r')
+		{
 			continue;
+		}
 
-		if (c == '<')
+		/* If this character is "\" and the next is either < or >, skip
+		 * it. */
+		if (c == '\\' && (*(data + pos + 1) == '<' || *(data + pos + 1) == '>'))
+		{
+			continue;
+		}
+
+		/* Only allow tags that do not start with "\<" */
+		if (c == '<' && *(data + pos - 1) != '\\')
 		{
 			pos++;
 			book_line = check_book_tag(data, len, &pos);
@@ -381,23 +359,22 @@ title_repeat_jump:
 			continue;
 		}
 
-		/* should never happen */
-		if (c == '>')
+		if (c == '>' && *(data + pos - 1) != '\\')
 		{
 			draw_info(data, COLOR_GREEN);
 			draw_info("ERROR in book cmd!", COLOR_RED);
 			return NULL;
 		}
 
-		/* we have a line */
-		if (c == '\0' || c  == 0 || c == 0x0a)
+		/* We have a line */
+		if (c == '\0' || c == '\n')
 		{
 			int l_len;
 			_gui_book_line *tmp_line;
 
-			force_line = FALSE;
+			force_line = 0;
 force_line_jump:
-			current_book_line.line[lc] = 0;
+			current_book_line.line[lc] = '\0';
 
 			book_line = malloc(sizeof(_gui_book_line));
 			memcpy(book_line, &current_book_line,sizeof(_gui_book_line));
@@ -410,7 +387,7 @@ force_line_jump:
 			{
 				_gui_book_page *page = malloc(sizeof(_gui_book_page));
 
-				/* add the page & reset the current one */
+				/* Add the page and reset the current one */
 				memcpy(page, &current_book_page, sizeof(_gui_book_page));
 				book_link_page(page);
 				memset(&current_book_page, 0, sizeof(_gui_book_page));
@@ -418,62 +395,65 @@ force_line_jump:
 				plc_logic = 0;
 			}
 
-			/* now lets check the last line - if the line is to long, lets adjust it */
+			/* Now check the last line - if the line is too long, adjust
+			 * it. */
 			if (StringWidthOffset((tmp_line->mode == BOOK_LINE_TITLE) ? &BigFont : &MediumFont, tmp_line->line, &l_len, 186))
 			{
-				int i, wspace_flag = TRUE;
+				int i, wspace_flag = 1;
 
-				/* bigger can't be the string - current_book_line.line is our backbuffer */
-				tmp_line->line[l_len] = 0;
+				tmp_line->line[l_len] = '\0';
 
-				/* now lets go back to a ' ' if we don't find one, we cut the line hard */
 				for (i = l_len; i >= 0; i--)
 				{
 					if (tmp_line->line[i] == ' ')
 					{
-						/* thats our real eof */
-						tmp_line->line[i] = 0;
+						/* End of file */
+						tmp_line->line[i] = '\0';
 						break;
 					}
 					else if (i > 0)
 					{
 						if (tmp_line->line[i] == '(' && tmp_line->line[i - 1] == ')')
 						{
-							tmp_line->line[i] = 0;
-							wspace_flag = FALSE;
+							tmp_line->line[i] = '\0';
+							wspace_flag = 0;
 							break;
 						}
 					}
 				}
 
-				/* lets see where our real eol is ... */
 				if (i < 0)
+				{
 					i = l_len;
+				}
 
-				/* now lets remove all whitespaces.. if we hit EOL, jump back */
+				/* Remove all whitespace */
 				if (wspace_flag)
 				{
 					for (; ; i++)
 					{
 						if (current_book_line.line[i] == 0)
 						{
-							/* thats a real eol */
+							/* End of line */
 							if (!force_line)
 							{
-								/* clear input line setting */
+								/* Clear input line setting */
 								memset(&current_book_line, 0, sizeof(_gui_book_line));
 							}
+
 							goto force_line_jump_out;
 						}
 
 						if (current_book_line.line[i] != ' ')
+						{
 							break;
+						}
 					}
 				}
 
 				memcpy(current_book_line.line, &current_book_line.line[i], strlen(&current_book_line.line[i]) + 1);
-				/* we have a forced linebreak, we go back and load more chars */
 				lc = strlen(current_book_line.line);
+
 				if (force_line)
 				{
 					if (StringWidth((tmp_line->mode == BOOK_LINE_TITLE) ? &BigFont : &MediumFont, current_book_line.line) < 186)
@@ -481,6 +461,7 @@ force_line_jump:
 						goto force_line_jump_out;
 					}
 				}
+
 				goto force_line_jump;
 			}
 
@@ -489,7 +470,8 @@ force_line_jump_out:
 			continue;
 		}
 
-		current_book_line.line[lc++]=c;
+		current_book_line.line[lc++] = c;
+
 		if (lc >= BOOK_LINES_CHAR - 2)
 		{
 			force_line = TRUE;
@@ -501,7 +483,7 @@ force_line_jump_out:
 	{
 		_gui_book_page *page = malloc(sizeof(_gui_book_page));
 
-		/* add the page & reset the current one */
+		/* Add the page and reset the current one */
 		memcpy(page, &current_book_page, sizeof(_gui_book_page));
 		book_link_page(page);
 	}
@@ -510,12 +492,14 @@ force_line_jump_out:
 	return gui_interface_book;
 }
 
+/**
+ * Show the book interface. */
 void show_book()
 {
 	char buf[128];
 	SDL_Rect box;
-	int i, ii, yoff, x, y;
-	_gui_book_page *page1, *page2;
+	int i, ii, yoff, x, y, page_id;
+	_gui_book_page *page;
 
 	x = Screensize->x / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->w / 2;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_JOURNAL]->bitmap->h / 2;
@@ -527,94 +511,84 @@ void show_book()
 	global_book_data.ylen = Bitmaps[BITMAP_JOURNAL]->bitmap->h;
 
 	if (!gui_interface_book)
+	{
 		return;
+	}
 
-	/*add_close_button(x + 27, y + 2, MENU_BOOK);*/
 	if (gui_interface_book->name)
+	{
 		StringBlt(ScreenSurface, &BigFont, gui_interface_book->name, x + global_book_data.xlen / 2 - get_string_pixel_length(gui_interface_book->name, &BigFont) / 2, y + 9, COLOR_WHITE, NULL, NULL);
+	}
 
 	StringBlt(ScreenSurface, &Font6x3Out, "PRESS ESC", x + global_book_data.xlen - 50, y + 25, COLOR_WHITE, NULL, NULL);
+
+	/* Get the two pages we show */
+	page = gui_interface_book->start;
+
+	for (i = 0; i != gui_interface_book->page_show && page; i++, page = page->next)
+	{
+	}
+
 	box.x = x + 47;
 	box.y = y + 72;
 	box.w = 200;
 	box.h = 300;
 
-	/* get the 2 pages we show */
-	page1 = gui_interface_book->start;
-	for (i = 0; i != gui_interface_book->page_show && page1; i++, page1 = page1->next);
-	page2 = page1->next;
-
-	if (page1)
+	if (!page)
 	{
-		sprintf(buf, "Page %d of %d", gui_interface_book->page_show + 1, gui_interface_book->pages);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, box.x + 70, box.y + 295, COLOR_WHITE, NULL, NULL);
+		return;
+	}
 
+	for (page_id = 1; page_id <= 2; page_id++)
+	{
+		snprintf(buf, sizeof(buf), "Page %d of %d", gui_interface_book->page_show + page_id, gui_interface_book->pages);
+		StringBlt(ScreenSurface, &Font6x3Out, buf, box.x + 70, box.y + 295, COLOR_WHITE, NULL, NULL);
 		SDL_SetClipRect(ScreenSurface, &box);
-		/*SDL_FillRect(ScreenSurface, &box, 35325);*/
+
 		for (yoff = 0, i = 0, ii = 0; ii < BOOK_PAGE_LINES; ii++, yoff += 16)
 		{
-			if (!page1->line[i])
+			if (!page->line[i])
+			{
 				break;
-
-			if (page1->line[i]->mode == BOOK_LINE_NORMAL)
-			{
-				StringBlt(ScreenSurface, &MediumFont, page1->line[i]->line , box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
 			}
-			else if (page1->line[i]->mode == BOOK_LINE_TITLE)
+
+			if (page->line[i]->mode == BOOK_LINE_NORMAL)
 			{
-				StringBlt(ScreenSurface, &BigFont, page1->line[i]->line, box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
+				StringBlt(ScreenSurface, &MediumFont, page->line[i]->line , box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
+			}
+			else if (page->line[i]->mode == BOOK_LINE_TITLE)
+			{
+				StringBlt(ScreenSurface, &BigFont, page->line[i]->line, box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
 			}
 
 			i++;
 		}
-		SDL_SetClipRect(ScreenSurface, NULL);
-	}
 
-	box.x = x + 280;
-	box.y = y + 72;
-	box.w = 200;
-	box.h = 300;
+		SDL_SetClipRect(ScreenSurface, NULL);
+		box.x = x + 280;
+
+		if (!page->next)
+		{
+			break;
+		}
+
+		page = page->next;
+	}
 
 	if (gui_interface_book->pages)
 	{
-		sprintf(buf, "%c and %c to turn page", ASCII_RIGHT, ASCII_LEFT);
+		snprintf(buf, sizeof(buf), "%c and %c to turn page", ASCII_RIGHT, ASCII_LEFT);
 		StringBlt(ScreenSurface, &SystemFont, buf, box.x - 59, box.y + 300, COLOR_HGOLD, NULL, NULL);
-	}
-
-	if (page2)
-	{
-		sprintf(buf, "Page %d of %d", gui_interface_book->page_show + 2, gui_interface_book->pages);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, box.x + 76, box.y + 295, COLOR_WHITE, NULL, NULL);
-
-		SDL_SetClipRect(ScreenSurface, &box);
-		/*SDL_FillRect(ScreenSurface, &box, 35325);*/
-		for (yoff = 0, i = 0, ii = 0; ii < BOOK_PAGE_LINES; ii++, yoff += 16)
-		{
-			if (!page2->line[i])
-				break;
-
-			if (page2->line[i]->mode == BOOK_LINE_NORMAL)
-			{
-				StringBlt(ScreenSurface, &MediumFont, page2->line[i]->line, box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
-			}
-			else if (page2->line[i]->mode == BOOK_LINE_TITLE)
-			{
-				StringBlt(ScreenSurface, &BigFont, page2->line[i]->line, box.x + 2, box.y + 2 + yoff, COLOR_DBROWN, NULL, NULL);
-			}
-
-			i++;
-		}
-		SDL_SetClipRect(ScreenSurface, NULL);
 	}
 }
 
 /**
  * Handle events when the mouse was clicked in the book GUI.
  *
- * This will attempt to find any keywords in the book, and
- * call help menu for them.
- * @param x Mouse X position
- * @param y Mouse Y position */
+ * This will attempt to find any keywords in the book, and call help menu
+ * for them.
+ * @param x Mouse X position.
+ * @param y Mouse Y position. */
 void gui_book_handle_mouse(int x, int y)
 {
 	int i, yoff, xoff = 50;
@@ -666,8 +640,6 @@ void gui_book_handle_mouse(int x, int y)
 				else if (in_keyword)
 				{
 					char current_char[2];
-
-					/* Get the current character to a temporary buffer, and append it to the keyword string. */
 					snprintf(current_char, sizeof(current_char), "%c", *current_line);
 					strncat(keyword, current_char, sizeof(keyword) - strlen(keyword) - 1);
 				}
@@ -685,7 +657,6 @@ void gui_book_handle_mouse(int x, int y)
 				{
 					/* It did, show a help GUI for the keyword. */
 					show_help(keyword);
-
 					break;
 				}
 			}
@@ -700,7 +671,8 @@ void gui_book_handle_mouse(int x, int y)
 				break;
 			}
 
-			/* Otherwise assign the page to second page, reset defaults, and assign xoff to right valu for the second page. */
+			/* Otherwise assign the page to second page, reset defaults,
+			 * and assign xoff to right value for the second page. */
 			page1 = page2;
 			i = 0;
 			yoff = 0;
