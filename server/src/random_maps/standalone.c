@@ -91,7 +91,7 @@ int auto_apply (object *op)
 			do
 			{
 				i=10; /* let's give it 10 tries */
-				while ((tmp=generate_treasure(op->randomitems,op->map == NULL ?  op->stats.exp: op->map->difficulty))==NULL&&--i);
+				while ((tmp=generate_treasure(op->randomitems,op->map == NULL ?  op->stats.exp: op->map->difficulty, op->randomitems->artifact_chance))==NULL&&--i);
 				if (tmp==NULL)
 					return 0;
 				if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))

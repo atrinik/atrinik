@@ -3335,7 +3335,7 @@ object* load_object_str(char *obstr)
 int auto_apply(object *op)
 {
 	object *tmp = NULL, *tmp2;
-	int i, level;
+	int i, level, a_chance;
 
 	/* because auto_apply will be done only *one* time
 	 * when a new, base map is loaded, we always clear
@@ -3350,13 +3350,21 @@ int auto_apply(object *op)
 				return 0;
 			}
 
+			a_chance = op->randomitems->artifact_chance;
+
+			/* If damned shop floor, force 0 artifact chance. */
+			if (QUERY_FLAG(op, FLAG_DAMNED))
+			{
+				a_chance = 0;
+			}
+
 			do
 			{
 				/* let's give it 10 tries */
 				i = 10;
 				level = op->stats.exp ? (int) op->stats.exp : get_enviroment_level(op);
 
-				while ((tmp = generate_treasure(op->randomitems, level)) == NULL && --i)
+				while ((tmp = generate_treasure(op->randomitems, level, a_chance)) == NULL && --i)
 				{
 				}
 
@@ -3375,7 +3383,8 @@ int auto_apply(object *op)
 			tmp->x = op->x, tmp->y = op->y;
 			SET_FLAG(tmp, FLAG_UNPAID);
 
-			/* If this shop floor doesn't have FLAG_CURSED, generate shop-clone items */
+			/* If this shop floor doesn't have FLAG_CURSED, generate
+			 * shop-clone items. */
 			if (!QUERY_FLAG(op, FLAG_CURSED))
 			{
 				SET_FLAG(tmp, FLAG_NO_PICK);

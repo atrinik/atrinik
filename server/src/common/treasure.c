@@ -810,11 +810,11 @@ treasurelist *find_treasurelist(const char *name)
  * @param difficulty Treasure difficulty.
  * @return Generated treasure. Can be NULL if no suitable treasure was
  * found. */
-object *generate_treasure(treasurelist *t, int difficulty)
+object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 {
 	object *ob = get_object(), *tmp;
 
-	create_treasure(t, ob, 0, difficulty, t->t_style, t->artifact_chance, 0, NULL);
+	create_treasure(t, ob, 0, difficulty, t->t_style, a_chance, 0, NULL);
 
 	/* Don't want to free the object we are about to return */
 	tmp = ob->inv;
