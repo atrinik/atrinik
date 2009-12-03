@@ -2046,7 +2046,32 @@ void fix_monster(object *op)
 		SET_MULTI_FLAG(op, FLAG_FRIENDLY);
 	}
 
-	op->stats.dam = (sint16) (((float)op->stats.dam * ((LEVEL_DAMAGE((op->level < 0) ? 0 : op->level) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+	op->stats.dam = (sint16) (((float) op->stats.dam * ((LEVEL_DAMAGE((op->level < 0 ? 0 : op->level)) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+
+	/* Add a special decrease of power for monsters level 1-5 */
+	if (op->level <= 5)
+	{
+		float d = 1.0f - ((0.35f / 5.0f) * (float) (6 - op->level));
+
+		op->stats.dam = (int) ((float) op->stats.dam * d);
+
+		if (op->stats.dam < 1)
+		{
+			op->stats.dam = 1;
+		}
+
+		op->stats.maxhp = (int) ((float) op->stats.maxhp * d);
+
+		if (op->stats.maxhp < 1)
+		{
+			op->stats.maxhp = 1;
+		}
+
+		if (op->stats.hp > op->stats.maxhp)
+		{
+			op->stats.hp = op->stats.maxhp;
+		}
+	}
 
 	set_mobile_speed(op, 0);
 }
