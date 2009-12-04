@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    This entry defines which kinds of environment actions the
-    creature is able to perform.</td>
+		</td><td>			This entry defines what kind of environment actions the
+			creature is able to perform.</td>
 	</tr>
 
 */

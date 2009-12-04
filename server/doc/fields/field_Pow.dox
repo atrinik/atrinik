@@ -7,48 +7,15 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_6, @ref page_type_54, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_7, @ref page_type_70, @ref page_type_33
-		</td><td>    The player's power will rise/fall by the given value
-    while wearing this piece of equipment.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_158
-		</td><td>    The player's power will rise by the given value
-    while being infected. (Negative values make power fall)</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    Monsters regenerate this many spellpoints each move. Each time the
-    monster has a move, it gets &lt;spellpoint regen.&gt; spellpoints back.
-    Hence, &lt;movement speed&gt; has great effect on the monster's
-    spellpoint regeneration as well.
+		</td><td>			Monsters regenerate this many spellpoints each move. Each
+			time the monster has a move, it gets
+			&lt;spellpoint regen.&gt; spellpoints back. Hence,
+			&lt;movement speed&gt; has great effect on the monster's
+			spellpoint regeneration as well.
 
-    To make a real tough spellcasting monster, the rate of spellpoint
-    regeneration is most important. If your monster is still not casting
-    fast enough, give it the spell-ability of "regenerate mana".
-    That, paired with high &lt;max spellpoints&gt;, is the ultimate thing.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_5
-		</td><td>    The player's power will rise/fall by the given value for permanent
-    (of course there is an upper limit). Generally there shouldn't be stat
-    potions granting more than one stat. Cursed potions will subtract the
-    stats if positive.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_14
-		</td><td>    The player's power will rise/fall by the given value
-    while wearing this shooting weapon.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_15
-		</td><td>    The player's power will rise/fall by the given value
-    while wearing this weapon.</td>
+			To make a really tough spellcasting monster, the rate of
+			spellpoint regeneration is most important.</td>
 	</tr>
 
 */

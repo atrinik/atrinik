@@ -8,37 +8,39 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_66
-		</td><td>    If set, the player will apply the exit by "flying into it". Flying means
-    the player is levitating. E.g. wearing levitation boots.</td>
+		</td><td>		If set, the player will apply the exit by "flying into it".
+		Flying means the player is levitating. E.g. wearing levitation
+		boots.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_40
-		</td><td>    Move flying creatures enabled means all flying (living)
-    objects will get moved too. If disabled, only walking
-    (non-flying) creatures will get moved.</td>
+		</td><td>			Move flying creatures enabled means all flying (living)
+			objects will get moved too. If disabled, only walking
+			(non-flying) creatures will get moved.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_94
-		</td><td>    If set, all flying creatures will fall into the pit as well.
-    This is not the behaviour expected from a pit, and it should
-    only be used for map-mechanisms (e.g. for transporting flying
-    monsters).
-    An interesting side-effect: If this flag is enabled, spell
-    effects like fire/snow also make their way through the pit.</td>
+		</td><td>		If set, all flying creatures will fall into the pit as well. This
+		is not the behaviour expected from a pit, and it should only be
+		used for map-mechanisms (e.g. for transporting flying monsters).
+
+		An interesting side-effect: If this flag is enabled, spell
+		effects like fire/snow also make their way through the pit.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_69
-		</td><td>    If set, the player can enter/leave the
-    shop by "flying" into the shop mat.</td>
+		</td><td>		If set, the player can enter/leave the shop by "flying" into the
+		shop mat.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_98
-		</td><td>    If set, the player gets the message when flying (=levitating) ontop
-    of the object. Usually this should be set together with walk_on.</td>
+		</td><td>		If set, the player gets the message when flying (=levitating)
+		ontop of the object. Usually this should be set together with
+		walk_on.</td>
 	</tr>
 
 */

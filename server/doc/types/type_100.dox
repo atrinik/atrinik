@@ -8,8 +8,10 @@ See @ref page_type_100
 
 
 @section Description
-    Wearing gloves, the object's stats will directly be inherited to
-    the player. Gloves can add defense or damage bonuses. 
+	<![CDATA[
+		Wearing gloves, the object's stats will be directly inherited by
+		the player. Gloves can add defense or damage bonuses.
+	
 
 
 
@@ -28,814 +30,649 @@ Type defined by:
 	<tr>
 		<td>actual quality</td>
 		<td>@ref obj::item_condition</td>
-		<td>    This is the REAL quality status of item - showing how much it is
-    used up. Every time the item is overused or damaged, the
-    &lt;actual quality&gt; is lowered. The value can range from 0 (destroyed) to
-    the maximum of &lt;max. quality&gt; (It can never get higher than that).
-    The quality value represents a % value affecting the item's stats:
-    Lower quality than 100% means effects like protection/damage etc.
-    are reduced.
+		<td>			This is the real quality status of item - showing how much it
+			is used up. The quality value represents a percent value
+			affecting the item's stats. Lower quality than 100% means
+			effects like protection/damage etc are reduced.
 		</td>
 	</tr>
 	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
-		<td>    How fast to play this animation.
+		<td>		How fast to play this animation.
 		</td>
 	</tr>
 	<tr>
 		<td>animation</td>
-		<td>@ref obj::animation</td>
-		<td>    The animation-name defines what animation is displayed for this object
-    in-game. Note that a set animation will overrule the face.
-    Changing animation is easy - adding or deleting an animation is more
-    difficult and should be done in the text parse window and not in this
-    dialog.
+		<td>@ref obj::animation_id</td>
+		<td>		The animation-name defines what animation is displayed for this
+		object in-game. Note that a set animation will overrule the face.
 		</td>
 	</tr>
 	<tr>
 		<td>armour class</td>
 		<td>@ref liv::ac</td>
-		<td>    This value defines the amount of armour-class bonus for wearing
-    this item. &lt;Armour class&gt; lessens the chance of being hit. Lower
-    values are better. It should usually be set only for armour-like equipment.
+		<td>		This value defines the amount of armour class bonus for wearing
+		this item. &lt;Armour class&gt; lessens the chance of being hit.
+		Higher values are better. It should usually be set only for
+		armour-like equipment.
 		</td>
 	</tr>
 	<tr>
 		<td>attuned paths</td>
 		<td>@ref obj::path_attuned</td>
-		<td>    Click on the &lt;attuned paths&gt; button to select spellpaths.
-    The player will get attuned to the specified spellpaths
-    while wearing this item.
+		<td>			Click on the &lt;attuned paths&gt; button to select
+			spellpaths. The player will get attuned to the specified
+			spellpaths while wearing this item.
 		</td>
 	</tr>
 	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
-		<td>    If an item is set to block view, players (and monsters) cannot
-    see beyond it unless they cross it or manage to stand on top of it.
+		<td>		If an item is set to block view, players (and monsters) cannot
+		see beyond it unless they cross it or manage to stand on top of
+		it.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect missiles</td>
 		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>    Object CAN reflect missiles. See reflect missiles.
+		<td>		Object can reflect missiles. See reflect missiles.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect spells</td>
 		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>    Object CAN reflect spells. See reflect spells.
-		</td>
-	</tr>
-	<tr>
-		<td>charisma</td>
-		<td>@ref liv::Cha</td>
-		<td>    The player's charisma will rise/fall by the given value
-    while wearing this piece of equipment.
-		</td>
-	</tr>
-	<tr>
-		<td>constitution</td>
-		<td>@ref liv::Con</td>
-		<td>    The player's constitution will rise/fall by the given value
-    while wearing this piece of equipment.
+		<td>		Object can reflect spells. See reflect spells.
 		</td>
 	</tr>
 	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
-		<td>    The item is cursed. This object can't be removed when
-    wielded or worn (without uncursing it). Remove curse will
-    remove this flag.
+		<td>		The item is cursed. This object can't be removed when wielded or
+		worn (without uncursing it). Remove curse will remove this flag.
 		</td>
 	</tr>
 	<tr>
 		<td>damned</td>
 		<td>@ref FLAG_DAMNED</td>
-		<td>    Stronger form of curse. Item can't be removed when
-    wielded or worn. Remove damnation will remove this flag.
+		<td>		Stronger form of curse. Item can't be removed when wielded or
+		worn. Remove damnation will remove this flag.
 		</td>
 	</tr>
 	<tr>
 		<td>denied paths</td>
 		<td>@ref obj::path_denied</td>
-		<td>    Click on the &lt;denied paths&gt; button to select spellpaths.
-    The specified spellpaths will be denied to the player
-    while wearing this item.
+		<td>			Click on the &lt;denied paths&gt; button to select
+			spellpaths. The specified spellpaths will be denied to the
+			player while wearing this item.
 		</td>
 	</tr>
 	<tr>
 		<td>description</td>
 		<td>@ref obj::msg</td>
-		<td>    This text describes the item's "story". Every decent artifact
-    should have such a description.
-		</td>
-	</tr>
-	<tr>
-		<td>dexterity</td>
-		<td>@ref liv::Dex</td>
-		<td>    The player's dexterity will rise/fall by the given value
-    while wearing this piece of equipment.
+		<td>		This text describes the item's "story". Every decent artifact
+		should have such a description.
 		</td>
 	</tr>
 	<tr>
 		<td>food bonus</td>
 		<td>@ref liv::food</td>
-		<td>    Positive &lt;food bonus&gt; slows down the player's digestion,
-    thus he consumes less food. Negative values speed it up.
+		<td>			Positive &lt;food bonus&gt; slows down the player's
+			digestion, thus he consumes less food. Negative values speed
+			it up.
 
-    Note that food is consumed not only for "being alive", but
-    also for healing and mana-regeneration.
-    &lt;food bonus&gt; only affects the amount of food consumed
-    for "being alive". Hence, even with high &lt;food bonus&gt;,
-    during a fight a player can run out of food quickly.
+			Note that food is consumed not only for "being alive", but
+			also for healing and mana-regeneration.
+
+			&lt;food bonus&gt; only affects the amount of food consumed
+			for "being alive". Hence, even with high &lt;food bonus&gt;,
+			during a fight a player can run out of food quickly.
 		</td>
 	</tr>
 	<tr>
 		<td>give reflect missiles</td>
 		<td>@ref FLAG_REFL_MISSILE</td>
-		<td>    If a player is wearing any piece of equipment with
-    the ability to &lt;reflect missiles&gt;, all kinds of
-    projectiles (e.g. arrows, bolts, boulders) will
-    bounce off him. This works only about 90% of all
-    times, to avoid players being completely immune to
-    certain types of attacks.
+		<td>			If a player is wearing any piece of equipment with the
+			ability to &lt;reflect missiles&gt;, all kinds of projectiles
+			(e.g. arrows, bolts, boulders) will bounce off him.
+
+			This works only about 90% of all times, to avoid players
+			being completely immune to certain types of attacks.
 		</td>
 	</tr>
 	<tr>
 		<td>give reflect spells</td>
 		<td>@ref FLAG_REFL_SPELL</td>
-		<td>    If a player is wearing any piece of equipment with
-    the ability to &lt;reflect spells&gt;, all kinds of
-    spell-bullets and -beams will bounce off him.
-    This works only about 90% of all times, to
-    avoid players being completely immune to certain
-    types of attacks.
+		<td>			If a player is wearing any piece of equipment with the
+			ability to &lt;reflect spells&gt;, all kinds of spell bullets
+			and beams will bounce off him.
 
-    This is a very powerful ability and it
-    shouldn't be handed out cheap!
+			This works only about 90% of all times, to avoid players
+			being completely immune to certain types of attacks.
+
+			This is a very powerful ability and it shouldn't be handed
+			out cheaply!
 		</td>
 	</tr>
 	<tr>
 		<td>gives infravision</td>
 		<td>@ref FLAG_SEE_IN_DARK</td>
-		<td>    A player with the ability to &lt;infravision (see in darkness)&gt;
-    can see better (but not perfect) in darkness. Living objects will
-    shown red.
-    For mobs, this flag is a "should-have" for high-level monsters.
-    When a monster is unable to see in darkness, in the night they will
-    not be able to move or players can cast darkness and sneak around
-    it safely.
+		<td>			A player with the ability of
+			&lt;infravision (see in darkness)&gt; can see better (but not
+			perfectly) in darkness. Living objects will be shown in red.
+
+			For high-level monsters, this flag is a "should-have".
 		</td>
 	</tr>
 	<tr>
 		<td>gives xray vision</td>
 		<td>@ref FLAG_XRAYS</td>
-		<td>    Xray vision allows the player to see through obstacles
-    in a two-square-wide radius. This is extremely helpful and
-    desireable, so don't give it away for cheap on equipment.
+		<td>			X-ray vision allows the player to see through obstacles in a
+			two-square-wide radius. This is extremely helpful and
+			desirable, so don't give it away for cheap on equipment.
 		</td>
 	</tr>
 	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
-		<td>    If &lt;glow radius&gt; is set to a value greater than zero, the object
-    appears lit up on dark maps. &lt;glow radius&gt; can be a value
-    between 0 and 4, the higher, the more light does the object emit.
+		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
+		object appears lit up on dark maps. &lt;glow radius&gt; can be a
+		value between 0 and 4, the higher, the more light does the object
+		emit.
 		</td>
 	</tr>
 	<tr>
 		<td>godgiven item</td>
 		<td>@ref FLAG_STARTEQUIP</td>
-		<td>    A godgiven item vanishes as soon as the player
-    drops it to the ground.
+		<td>		A godgiven item vanishes as soon as the player drops it to the
+		ground.
 		</td>
 	</tr>
 	<tr>
 		<td>grace bonus</td>
 		<td>@ref liv::maxgrace</td>
-		<td>    Positive &lt;grace bonus&gt; increase the hit points.
-    Negative decrease them (decrease can't reduce the total
-    grace of the wearer below 1).
+		<td>			Positive &lt;grace bonus&gt; increases the hit points.
+			Negative decreases them (decrease can't reduce the total
+			grace of the wearer below 1).
 		</td>
 	</tr>
 	<tr>
 		<td>grace regen.</td>
 		<td>@ref liv::grace</td>
-		<td>    Positive &lt;grace regen.&gt; bonus speeds up the
-    player's grace regeneration. Negative values slow it down.
-    Since grace can be regenerated rather easy with praying,
-    additional &lt;grace regen.&gt; bonus should be VERY RARE!!
+		<td>			Positive &lt;grace regen.&gt; bonus speeds up the player's
+			grace regeneration. Negative values slow it down.
 		</td>
 	</tr>
 	<tr>
 		<td>health bonus</td>
 		<td>@ref liv::maxhp</td>
-		<td>    Positive &lt;health bonus&gt; increase the hit points.
-    Negative decrease them (decrease can't reduce the total
-    hp of the wearer below 1).
+		<td>			Positive &lt;health bonus&gt; increases the hit points.
+			Negative decreases them (decrease can't reduce the total hp of
+			the wearer below 1).
 		</td>
 	</tr>
 	<tr>
 		<td>health regen.</td>
 		<td>@ref liv::hp</td>
-		<td>    Positive &lt;health regen.&gt; bonus speeds up the
-    player's healing process. Negative values slow it down.
+		<td>			Positive &lt;health regen.&gt; bonus speeds up the player's
+			healing process. Negative values slow it down.
 		</td>
 	</tr>
 	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
-		<td>    If an item is identified, the player has full knowledge about it.
+		<td>		If an item is identified, the player has full knowledge about it.
 		</td>
 	</tr>
 	<tr>
 		<td>image</td>
 		<td>@ref obj::face</td>
-		<td>    The image-name defines what image is displayed for this object
-    in-game.
+		<td>		The image name defines what image is displayed for this object
+		in-game.
 		</td>
 	</tr>
 	<tr>
 		<td>indestructible</td>
 		<td>@ref FLAG_INDESTRUCTIBLE</td>
-		<td>    This item can't be damaged in any way (this includes special magic
-    and also attacks.
-		</td>
-	</tr>
-	<tr>
-		<td>intelligence</td>
-		<td>@ref liv::Int</td>
-		<td>    The player's intelligence will rise/fall by the given value
-    while wearing this piece of equipment.
+		<td>			This item can't be damaged in any way (this includes special
+			magic and also attacks).
 		</td>
 	</tr>
 	<tr>
 		<td>inv. system object</td>
 		<td>@ref FLAG_SYS_OBJECT</td>
-		<td>    Marks an object as system object. System objects are ALWAYS invisible and
-    hidden from the players. They can't be seen or detected and never will send
-    any information about them to the player's client. System objects are put
-    in layer 0 under the floor tiles.
+		<td>		Marks an object as system object. System objects are ALWAYS
+		invisible and hidden from the players.
+
+		System objects are put in layer 0.
 		</td>
 	</tr>
 	<tr>
 		<td>invisible</td>
 		<td>@ref FLAG_IS_INVISIBLE</td>
-		<td>    Generally makes the object invisible. Invisible objects will be shown
-    if the player has "see invisible" (from spell or item). To hide objects
-    totally from detection, use "sys_object".
+		<td>		Generally makes the object invisible. Invisible objects will be
+		shown if the player has "see invisible" (from an item). To hide
+		objects totally from detection, use "sys_object".
 		</td>
 	</tr>
 	<tr>
 		<td>is animated</td>
 		<td>@ref FLAG_ANIMATE</td>
-		<td>    If set, the object is animated and animation is used.
-    Note: Some special objects will use an animation NOT as animation but
-    as frame list. Examples are buttons (which frames are changed by the
-    object status of the button). IS_TURNABLE will enable direction turning
-    for some object types. These flags are all "system" related. Be VERY
-    careful when changing them.
+		<td>		If set, the object is animated and animation is used.
+
+		Note: Some special objects will use an animation NOT as animation
+		but as frame list. Examples are buttons (which frames are changed
+		by the object status of the button). IS_TURNABLE will enable
+		direction turning for some object types. These flags are all
+		system related. Be VERY careful when changing them.
 		</td>
 	</tr>
 	<tr>
 		<td>is applied</td>
 		<td>@ref FLAG_APPLIED</td>
-		<td>    If you put this item into the inventory of a monster, and
-    you want the monster to use/wear the item - you must set
-    &lt;is applied&gt;.
-    Enabling this flag doesn't make any sense if the item
-    is NOT in a monster's inventory.
+		<td>		If you put this item into the inventory of a monster, and you
+		want the monster to use/wear the item, you must set
+		&lt;is applied&gt;.
+
+		Enabling this flag doesn't make any sense if the item is NOT in a
+		monster's inventory.
 		</td>
 	</tr>
 	<tr>
 		<td>is turnable</td>
 		<td>@ref FLAG_IS_TURNABLE</td>
-		<td>    System flag. Object can be turned to the directions.
+		<td>		System flag. Object can be turned into directions.
 		</td>
 	</tr>
 	<tr>
 		<td>layer</td>
 		<td>@ref obj::layer</td>
-		<td>    This is the map layer, the object will put in. The selected layer will affect where and
-    how this object is shown on client side. Layer 0 is reserved for sys_object type objects
-    and will NEVER be shown on client side. Layer 1 is for floor objects and layer 2 for
-    floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer
-    6 is reserved for players and layer 7 is for spell effects and high flying/visible
-    objects like arrows.
+		<td>		This is the map layer the object will put in. The selected layer
+		will affect where and how this object is shown on client side.
+		Layer 0 is reserved for sys_object type objects and will NEVER be
+		shown on client side. Layer 1 is for floor objects and layer 2
+		for floor masks. Layer 3 and 4 are for items on the ground. Layer
+		5 is for walls, layer 6 is reserved for players and layer 7 is
+		for spell effects and high flying/visible objects like arrows.
 		</td>
 	</tr>
 	<tr>
 		<td>level required in</td>
 		<td>@ref obj::item_skill</td>
-		<td>    This attribute specifies in which skill category the player
-    must meet the &lt;required level&gt; in order to wear the item.
-    It is meaningless when &lt;required level&gt; is zero/unset.
+		<td>		This attribute specifies in which skill category the player must
+		meet the &lt;required level&gt; in order to wear the item. It is
+		meaningless when &lt;required level&gt; is zero/unset.
 
-    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
-    means the player cannot wear the item unless he is equal or greater
-    level 15 in the physical skill category.
+		For example: &lt;required level&gt; = 15,
+		&lt;level required in&gt; = physical means the player cannot wear
+		the item unless he is equal or greater than level 15 in the
+		physical skill category.
 		</td>
 	</tr>
 	<tr>
 		<td>levitate</td>
 		<td>@ref FLAG_FLYING</td>
-		<td>    As soon as the player applies a piece of equipment with
-    &lt;levitate&gt; set, the player will start to float in the air.
+		<td>			As soon as the player applies a piece of equipment with
+			&lt;levitate&gt; set, the player will start to float in the air.
 		</td>
 	</tr>
 	<tr>
 		<td>luck bonus</td>
 		<td>@ref liv::luck</td>
-		<td>    With positive luck bonus, the player is more likely to
-    succeed in all sorts of things (spellcasting, praying,...).
-    Unless the &lt;luck bonus&gt; is very high, the effect will be
-    barely visible in-game. Luck bonus on one piece of equipment
-    should never exceed 3, and such bonus should not be too
-    frequently available.
+		<td>			With positive luck bonus, the player is more likely to
+			succeed in all sorts of things (spellcasting, praying,...).
+
+			Unless the &lt;luck bonus&gt; is very high, the effect will
+			be barely visible in-game. Luck bonus on one piece of
+			equipment should never exceed 3, and such bonus should not be
+			too frequently available.
 		</td>
 	</tr>
 	<tr>
 		<td>magic bonus</td>
 		<td>@ref obj::magic</td>
-		<td>    If the gloves provide &lt;armour class&gt;, &lt;magic bonus&gt; will increase it.
-    If the gloves have &lt;weapon class&gt; instead, then &lt;magic bonus&gt;
-    will increase that.
+		<td>		If the gloves provide &lt;armour class&gt;, &lt;magic bonus&gt;
+		will increase it. If the gloves have &lt;weapon class&gt;
+		instead, then &lt;magic bonus&gt; will increase that.
 		</td>
 	</tr>
 	<tr>
 		<td>magical</td>
 		<td>@ref FLAG_IS_MAGICAL</td>
-		<td>    If set, this object counts as "magical". Detect magic or
-    identify will show this flag and the player will see a small
-    blue M in the client's inventory part.
+		<td>		If set, this object counts as "magical". Detect magic or identify
+		will show this flag and the player will see a small blue M in the
+		client's inventory part.
 		</td>
 	</tr>
 	<tr>
 		<td>make ethereal</td>
 		<td>@ref FLAG_MAKE_ETHEREAL</td>
-		<td>   When applied the user gets ethereal. He can't still be seen but
-   transparent. He can move through walls and doors which has the
-   PASS_THRU flag set (like ghosts and other non physical monsters).
+		<td>			When applied the user gets ethereal. He can still be
+			transparently seen. Grants the ability to move through walls
+			and doors which have the PASS_THRU flag set (like ghosts and
+			other non physical monsters).
 		</td>
 	</tr>
 	<tr>
 		<td>make invisible</td>
 		<td>@ref FLAG_MAKE_INVISIBLE</td>
-		<td>   When applied the user gets invisible. He can't be seen from player
-   or monster except they have "see invisible" power.
+		<td>			When applied the user gets invisible. He can't be seen by
+			players or monsters unless they have "see invisible".
 		</td>
 	</tr>
 	<tr>
 		<td>mana bonus</td>
 		<td>@ref liv::maxsp</td>
-		<td>    Positive &lt;mana bonus&gt; increase the mana points.
-    Negative decrease them (decrease can't reduce the total
-    mana of the wearer below 1).
+		<td>			Positive &lt;mana bonus&gt; increases the mana points.
+			Negative decreases them (decrease can't reduce the total mana
+			of the wearer below 1).
 		</td>
 	</tr>
 	<tr>
 		<td>mana regen.</td>
 		<td>@ref liv::sp</td>
-		<td>    Positive &lt;mana regen.&gt; bonus speeds up the
-    player's mana regeneration. Negative values slow it down.
+		<td>			Positive &lt;mana regen.&gt; bonus speeds up the player's
+			mana regeneration. Negative values slow it down.
 		</td>
 	</tr>
 	<tr>
 		<td>material</td>
 		<td>@ref obj::material_real</td>
-		<td>    The material defines the exact material of which the object
-    consists. It is much more specific than &lt;material class&gt;,
-    however only one material can be selected, not multiple.
-    &lt;material&gt; is not required to be set, it can be left 'undefined'.
+		<td>		The material defines the exact material of which the object
+		consists. It is much more specific than &lt;material class&gt;,
+		however only one material can be selected, not multiple.
+
+		&lt;material&gt; is not required to be set, it can be left
+		'undefined'.
 		</td>
 	</tr>
 	<tr>
 		<td>material class</td>
 		<td>@ref obj::material</td>
-		<td>    This bitmask-value informs the player of which basic material(s)
-    the object consists. Material class does also affect how likely the
-    object can be destroyed by hazardous spell-effects.
+		<td>		This bitmask-value informs the player of which basic material(s)
+		the object consists. Material class does also affect how likely
+		the object can be destroyed by hazardous spell-effects, like
+		firestorm.
 		</td>
 	</tr>
 	<tr>
 		<td>max. quality %</td>
 		<td>@ref obj::item_quality</td>
-		<td>    Every item has a natural material quality, ranging from 0 top 100.
-    This is a % factor, which affects the base stats of the item.
-    However, &lt;max. quality&gt; does not represent the actual state of the
-    item but the best &lt;actual quality&gt; value this item can ever have.
+		<td>			Every item has a natural material quality, ranging from 0 to
+			100. This is a percent factor, which affects the base stats
+			of the item. However, &lt;max. quality&gt; does not represent
+			the actual state of the item but the best
+			&lt;actual quality&gt; value this item can ever have.
 
-    Basic quality is 80%. If the item is made of cheap material, the
-    value may be lower. If made of very fine material it may be 100%.
+			Basic quality is 80%. If the item is made of cheap material,
+			the value may be lower. If made of very fine material it may
+			be 100%.
 		</td>
 	</tr>
 	<tr>
 		<td>name</td>
 		<td>@ref obj::name</td>
-		<td>    This is the name of the object, displayed to the player.
+		<td>		This is the name of the object, displayed to the player.
 		</td>
 	</tr>
 	<tr>
 		<td>no prayers</td>
 		<td>@ref FLAG_NO_CLERIC</td>
-		<td>    If enabled, it is impossible for players to use (cleric-)
-    prayers on that spot.
+		<td>		If enabled, it is impossible for players to use prayers on that
+		spot.
 		</td>
 	</tr>
 	<tr>
 		<td>no spells</td>
 		<td>@ref FLAG_NO_MAGIC</td>
-		<td>    If enabled, it is impossible for players to use (wizard-)
-    spells on that spot.
+		<td>		If enabled, it is impossible for players to use spells on that
+		spot.
 		</td>
 	</tr>
 	<tr>
 		<td>no teleport</td>
 		<td>@ref FLAG_NO_TELEPORT</td>
-		<td>    Marks an object as no teleport object. A no teleport object can't be
-    teleported by teleporter except if the object is inside the inventory of
-    another object which can be teleported.
+		<td>		Marks an object as no teleport object. A no teleport object can't
+		be teleported by teleporter except if the object is inside the
+		inventory of another object which can be teleported.
 		</td>
 	</tr>
 	<tr>
 		<td>non-pickable</td>
 		<td>@ref FLAG_NO_PICK</td>
-		<td>    If set, the object cannot be picked up (Neither by players nor monsters).
+		<td>		If set, the object cannot be picked up (neither by players nor
+		monsters).
 		</td>
 	</tr>
 	<tr>
 		<td>number</td>
 		<td>@ref obj::nrof</td>
-		<td>    This value determines the number of objects in one stack (for example:
-    100 goldcoins =&gt; "number = 100"). You should set this at least to one, for
-    any pickable object - otherwise it won't be mergeable into a stack.
+		<td>		This value determines the number of objects in one stack (for
+		example: 100 goldcoins =&gt; "number = 100"). You should set this
+		at least to one, for any pickable object - otherwise it won't be
+		mergeable into a stack.
 		</td>
 	</tr>
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>    In the moment a player gets or applies this item, it will be
-    flagged as godgiven and vanish when dropped to the ground.
+		<td>		In the moment a player gets or applies this item, it will be
+		flagged as godgiven and vanish when dropped to the ground.
+
+		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will be able to
+		find the item again, should he lose it.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
-		<td>    The item is permanently cursed. If this flag is set, applying
-    or unapplying it will set "cursed 1" again. This flag can't be
-    removed by remove curse.
+		<td>		The item is permanently cursed. If this flag is set, applying or
+		unapplying it will set "cursed 1" again. This flag can't be
+		removed by remove curse.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent damned</td>
 		<td>@ref FLAG_PERM_DAMNED</td>
-		<td>    The item is permanently damned. If this flag is set, applying
-    or unapplying it will set "damned 1" again. This flag can't be
-    removed by remove damnation.
+		<td>		The item is permanently damned. If this flag is set, applying or
+		unapplying it will set "damned 1" again. This flag can't be
+		removed by remove damnation.
 		</td>
 	</tr>
 	<tr>
 		<td>player only</td>
 		<td>@ref FLAG_PLAYER_ONLY</td>
-		<td>    If set, only players can enter the tile the object with this flag is in too.
-		</td>
-	</tr>
-	<tr>
-		<td>power</td>
-		<td>@ref liv::Pow</td>
-		<td>    The player's power will rise/fall by the given value
-    while wearing this piece of equipment.
-		</td>
-	</tr>
-	<tr>
-		<td>quest item</td>
-		<td>@ref FLAG_QUEST_ITEM</td>
-		<td>    Item is a quest item. This item will be inserted in the
-    quest container when a quest is finished and for that player
-    this item will never drop again.
+		<td>		If set, only players can enter the tile the object with this flag
+		is on.
 		</td>
 	</tr>
 	<tr>
 		<td>repelled paths</td>
 		<td>@ref obj::path_repelled</td>
-		<td>    Click on the &lt;repelled paths&gt; button to select spellpaths.
-    The player will get attuned to the specified spellpaths
-    while wearing this item.
+		<td>			Click on the &lt;repelled paths&gt; button to select
+			spellpaths. The player will get attuned to the specified
+			spellpaths while wearing this item.
 		</td>
 	</tr>
 	<tr>
 		<td>required level</td>
 		<td>@ref obj::item_level</td>
-		<td>    If &lt;required level&gt; is set to a value greater zero, players cannot
-    wear this item unless they meet this level in the skill category
-    specified by &lt;level required in&gt;.
+		<td>		If &lt;required level&gt; is set to a value greater than zero,
+		players cannot wear this item unless they meet this level in the
+		skill category specified by &lt;level required in&gt;.
 
-    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
-    means the player cannot wear the item unless he is equal or greater
-    level 15 in the physical skill category.
+		For example: &lt;required level&gt; = 15,
+		&lt;level required in&gt; = physical means the player cannot wear
+		the item unless he is equal or greater than level 15 in the
+		physical skill category.
 		</td>
 	</tr>
 	<tr>
 		<td>save life</td>
 		<td>@ref FLAG_LIFESAVE</td>
-		<td>    An item with this flag enabled will save the players life
-    for one time: When the player is wearing this item and his
-    health points reach zero, the item disappears, replenishing
-    half of the player's health.
+		<td>		An item with this flag enabled will save the player's life once:
+		When the player is wearing this item and his health points reach
+		zero, the item disappears, replenishing player's HP and bringing
+		him back to his savebed.
 
-    An item with &lt;save life&gt; should not have
-    any decent additional bonuses!
+		An item with &lt;save life&gt; should not have any decent
+		additional bonuses!
 		</td>
 	</tr>
 	<tr>
 		<td>see invisible</td>
 		<td>@ref FLAG_SEE_INVISIBLE</td>
-		<td>   When applied the user can see invisible objects.
-		</td>
-	</tr>
-	<tr>
-		<td>shield acid %</td>
-		<td>@ref obj::protect_acid</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield body %</td>
-		<td>@ref obj::protect_body</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield chaos %</td>
-		<td>@ref obj::protect_chaos</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield cleave %</td>
-		<td>@ref obj::protect_cleave</td>
-		<td>    This adds resistance against physical damage from axes and
-    halbards. The number is a percent-value in the range 0-100.
-		</td>
-	</tr>
-	<tr>
-		<td>shield cold %</td>
-		<td>@ref obj::protect_cold</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield corruption %</td>
-		<td>@ref obj::protect_corruption</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield death %</td>
-		<td>@ref obj::protect_death</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield electricity %</td>
-		<td>@ref obj::protect_electricity</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield fire %</td>
-		<td>@ref obj::protect_fire</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield force %</td>
-		<td>@ref obj::protect_force</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield holy %</td>
-		<td>@ref obj::protect_holy</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield impact %</td>
-		<td>@ref obj::protect_impact</td>
-		<td>    This adds resistance against physical damage from clubs, maces
-    or a simple fist. The number is a percent-value in the range 0-100.
-		</td>
-	</tr>
-	<tr>
-		<td>shield magic %</td>
-		<td>@ref obj::protect_magic</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield mind %</td>
-		<td>@ref obj::protect_mind</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield nether %</td>
-		<td>@ref obj::protect_nether</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield pierce %</td>
-		<td>@ref obj::protect_pierce</td>
-		<td>    This adds resistance against physical damage from arrows and
-    rapier weapons. The number is a percent-value in the range 0-100.
-		</td>
-	</tr>
-	<tr>
-		<td>shield poison %</td>
-		<td>@ref obj::protect_poison</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield psionic %</td>
-		<td>@ref obj::protect_psionic</td>
-		<td>(no description)
-		</td>
-	</tr>
-	<tr>
-		<td>shield slash %</td>
-		<td>@ref obj::protect_slash</td>
-		<td>    This adds resistance against physical damage from swords and claws.
-    The number is a percent-value in the range 0-100.
-		</td>
-	</tr>
-	<tr>
-		<td>shield w.magic %</td>
-		<td>@ref obj::protect_weapon_magic</td>
-		<td>    This adds resistance against (physical) weapon magic damage.
-    Attention! Weaponmagic is a very powerful attacktype which
-    is derived from the power of artifact weapons.
-    This kind of resistance must not be easy to get.
-    The number is a percent-value in the range 0-100.
+		<td>			When applied the user can see invisible objects.
 		</td>
 	</tr>
 	<tr>
 		<td>speed bonus</td>
 		<td>@ref liv::exp</td>
-		<td>    Divide by ten to get the player's speed bonus from wearing
-	this item. (The real formula to calcuate speed bonus is
-	more advanced, but this description will do for now. /Gecko)
+		<td>			Divide by ten to get the player's speed bonus from wearing
+			this item.
 		</td>
 	</tr>
 	<tr>
 		<td>start speed</td>
 		<td>@ref obj::speed_left</td>
-		<td>    NOTE: Without speed being non-zero, this value is not used. Only use
-    for objects with speed (active objects)!
-    When an active object (with 'speed' being non-zero) is put on a map, this
-    value is used as counter. Every 'tick', 'speed' (if negative,
-    value is turned positive before) is added to this value -
-    if it is bigger 0 the object 'will do something' and this counter is
-    decreased with -1.0.
-    By default a normal object will be put on the map with start speed 0.
-    It 'will do something' with the next coming 'tick'.
-    Setting this value to -1.0 will put it on map but wait one full
-    'lifetime' round until it does something.
-    A 'fire object' should be put on map with start speed 0 - it should
-    try to burn something in the moment it comes in the game. A bomb for
-    example should be put with speed -1.0 on the map - it will stay then
-    on map until the bomb becomes active - it explodes.
-    The 'lifetime' round is determinated by speed. A speed of 1.0 will
-    give a 'lifetime' round of 1 tick - a speed of 0.01 100 ticks.
-    Special case: A negative speed value will add to start speed a random
-    value between 0.0 to 0.9 . So, a speed of -0.1 with a start speed of
-    -1.0 will result in speed 0.1 and start speed between -1.0 and -0.1.
-    This is useful to let a row of same objects act in different tick ranges.
+		<td>		When an active object (with 'speed' being non-zero) is put on a
+		map, this value is used as counter. Every 'tick', 'speed' (if
+		negative, value is turned positive before) is added to this
+		value - if it is bigger than 0 the object 'will do something' and
+		this counter is decreased with -1.0.
+
+		By default a normal object will be put on the map with start
+		speed 0. It 'will do something' with the next coming 'tick'.
+		Setting this value to -1.0 will put it on map but wait one full
+		'lifetime' round until it does something.
+
+		A 'fire object' should be put on map with start speed 0 - it
+		should try to burn something in the moment it comes in the game.
+		A bomb for example should be put with speed -1.0 on the map - it
+		will stay then on map until the bomb becomes active - it
+		explodes.
+
+		The 'lifetime' round is determinated by speed. A speed of 1.0
+		will give a 'lifetime' round of 1 tick - a speed of 0.01 100
+		ticks.
+
+		Special case: A negative speed value will add to start speed a
+		random value between 0.0 to 0.9 . So, a speed of -0.1 with a
+		start speed of -1.0 will result in speed 0.1 and start speed
+		between -1.0 and -0.1. This is useful to let a row of same
+		objects act in different tick ranges.
 		</td>
 	</tr>
 	<tr>
 		<td>stealth</td>
 		<td>@ref FLAG_STEALTH</td>
-		<td>    Stealth allows the player to move silently.
-    This comes to effect if a player turns himself
-    invisible and tries to sneak around monsters.
-    (At least that was the idea behind it)
-		</td>
-	</tr>
-	<tr>
-		<td>strength</td>
-		<td>@ref liv::Str</td>
-		<td>    The player's strength will rise/fall by the given value
-    while wearing this piece of equipment.
+		<td>			Stealth allows the player to move stealthily, thus reducing
+			the visibility range of monsters nearby by twice of their
+			noram visibility range.
 		</td>
 	</tr>
 	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type</td>
-		<td>    This important value is used to define "sub types" for objects of the same object
-    type. Examples are weapons, which are all from type WEAPON but can be different sub types
-    like slash type, cleave type, 1hand, polearms and so on. This value goes to the client
-    too. WARNING: not all objects have a sub_type and changing it without care can corrupt
-    server AND/OR the clients. Normally this is not a subject to change outside arch definition.
-    Containers with non-zero sub type will behave as apartment containers.
+		<td>@ref obj::sub_type1</td>
+		<td>		This important value is used to define "sub types" for objects of
+		the same object type. Examples are weapons, which are all from
+		type WEAPON but can be different sub types like slash, cleave,
+		two-handed, polearms and so on. This value goes to the client
+		too.
+
+		Warning: Not all objects have a sub type and changing it without
+		care can corrupt server AND/OR the clients. Normally this is not
+		a subject to change outside arch definition.
 		</td>
 	</tr>
 	<tr>
 		<td>support terrain</td>
 		<td>@ref obj::terrain_type</td>
-		<td>    The bearer of this item can move in every terrain that
-    is set by &lt;support terrain&gt;. Such abilities like
-    "water walking", "fire walking" etc are almost priceless
-    as they open access to an entire new plane of the Atrinik
-    world.
+		<td>			The bearer of this item can move in every terrain that is set
+			by &lt;support terrain&gt;. Such abilities like "water
+			walking", "fire walking" etc are almost priceless as they
+			open access to an entire new plane of the Atrinik world.
 
-    Artifacts with &lt;support terrain&gt; attributes are VERY
-    SPECIAL and they must be well-balanced!!!
+			Artifacts with &lt;support terrain&gt; attributes are VERY
+			SPECIAL and they must be well-balanced!
 		</td>
 	</tr>
 	<tr>
 		<td>susceptible to elements</td>
 		<td>@ref FLAG_VUL_ELEMENTAL</td>
-		<td>    Elemental attacks (fire, cold, elec, poison and acid!) are able
-    to reduce the quality of the item and eventually destroy it.
+		<td>			Elemental attacks (fire, cold, elec, poison and acid) are
+			able to reduce the quality of the item and eventually destroy
+			it.
 		</td>
 	</tr>
 	<tr>
 		<td>susceptible to magic</td>
 		<td>@ref FLAG_VUL_MAGIC</td>
-		<td>    All forms of magical attacks are able to reduce the quality
-    of the item and eventually destroy it.
+		<td>			All forms of magical attacks are able to reduce the quality
+			of the item and eventually destroy it.
 		</td>
 	</tr>
 	<tr>
 		<td>susceptible to physical</td>
 		<td>@ref FLAG_VUL_PHYSICAL</td>
-		<td>    Physical attacks is able to reduce the quality of the item and
-    eventually destroy it.
+		<td>			Physical attacks are able to reduce the quality of the item
+			and eventually destroy it.
 		</td>
 	</tr>
 	<tr>
 		<td>susceptible to sphere</td>
 		<td>@ref FLAG_VUL_SPHERE</td>
-		<td>    All forms of spherical attacks are able to reduce the quality
-    of the item and eventually destroy it.
+		<td>			All forms of spherical attacks are able to reduce the quality
+			of the item and eventually destroy it.
 		</td>
 	</tr>
 	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
-		<td>    This is the object's title. Once an object is identified the title is
-    attached to the name. Typical titles are "of mostrai", "of xray vision" etc.
+		<td>		This is the object's title. Once an object is identified the
+		title is attached to the name. Typical titles are "of Yordan",
+		"of xray vision" etc.
 		</td>
 	</tr>
 	<tr>
 		<td>unique item</td>
 		<td>@ref FLAG_UNIQUE</td>
-		<td>    Unique items exist only one time on a server. If the item
-    is taken, lost or destroyed - it's gone for good.
+		<td>		Unique items exist only one time on a server. If the item is
+		taken, lost or destroyed - it's gone for good.
 		</td>
 	</tr>
 	<tr>
 		<td>unpaid</td>
 		<td>@ref FLAG_UNPAID</td>
-		<td>    An &lt;unpaid&gt; item cannot be used unless a player carried it over
-    a shop mat, paying the demanded price. Setting this flag makes sense
-    only for pickable items inside shops.
+		<td>		An &lt;unpaid&gt; item cannot be used unless the player carried
+		it over a shop mat, paying the demanded price. Setting this flag
+		makes sense only for items inside shops.
 		</td>
 	</tr>
 	<tr>
 		<td>value</td>
 		<td>@ref obj::value</td>
-		<td>    Change an object's value.
+		<td>		Change an object's value.
 		</td>
 	</tr>
 	<tr>
 		<td>weapon class</td>
 		<td>@ref liv::wc</td>
-		<td>    The &lt;weapon class&gt; value adds to the overall weapon class of the wielder's
-    melee attacks. Weapon class improves the chance of hitting the opponent.
-    Weapon class is the "counterpiece" of &lt;armour class&gt;. It should usually
-    be set only for weapon-like items. Lower values are better.
+		<td>		The &lt;weapon class&gt; value adds to the overall weapon class
+		of the wielder's melee attacks. Weapon class improves the chance
+		of hitting the opponent. Weapon class is the "counterpiece" of
+		&lt;armour class&gt;. It should usually be set only for
+		weapon-like items. Higher values are better.
 		</td>
 	</tr>
 	<tr>
 		<td>weight</td>
 		<td>@ref obj::weight</td>
-		<td>    This value defines the object's weight in gram (1000g is 1kg). Objects with
-    zero weight are not pickable for players. Still, set the "non-pickable"-flag
-    for explicitly non-pickable objects (hey, this is opensource.. you
-    never know ;) ).
-		</td>
-	</tr>
-	<tr>
-		<td>wisdom</td>
-		<td>@ref liv::Wis</td>
-		<td>    The player's wisdom will rise/fall by the given value while
-    wearing this piece of equipment.
+		<td>		This value defines the object's weight in gram (1000g is 1kg).
+		Objects with zero weight are not pickable for players. Still, set
+		the "non-pickable" flag for explicitly non-pickable objects.
 		</td>
 	</tr>
 </table>

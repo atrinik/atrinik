@@ -8,7 +8,7 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_79, @ref page_type_71, @ref page_type_77, @ref page_type_62
-		</td><td>    If set, the object cannot be passed by players nor monsters.</td>
+		</td><td>		If set, the object cannot be passed by players nor monsters.</td>
 	</tr>
 
 */

@@ -7,9 +7,9 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    All forms of spherical attacks are able to reduce the quality
-    of the item and eventually destroy it.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33
+		</td><td>			All forms of spherical attacks are able to reduce the quality
+			of the item and eventually destroy it.</td>
 	</tr>
 
 */

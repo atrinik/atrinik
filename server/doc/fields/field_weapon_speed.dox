@@ -8,18 +8,19 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_122
-		</td><td>    This value determines how much the weight of items is reduced in
-    percent, when put inside the container. &lt;reduce weight %&gt; 1.0 means no
-    reduction, &lt;reduce weight %&gt; 0 means items are weightless inside.
-    0.5 means weight is halfed.</td>
+		</td><td>		This value determines how much the weight of items is reduced in
+		percent, when put inside the container. &lt;reduce weight %&gt;
+		1.0 means no reduction, &lt;reduce weight %&gt; 0 means items are
+		weightless inside. 0.5 means weight is halved.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_15
-		</td><td>    The weapon speed determines how often the wielder can swing the weapon
-    during a certain period of time. The lower the faster, &lt;weapon speed&gt; 1
-    is best (that is lightning- fast). A typical average value is 8.
-    Speed and damage should be kept in reasonable relation.</td>
+		</td><td>		The weapon speed determines how often the wielder can swing the
+		weapon during a certain period of time. The lower the faster,
+		&lt;weapon speed&gt; 1 is best (that is lighting fast). A typical
+		average value is 8. Speed and damage should be kept in reasonable
+		relation.</td>
 	</tr>
 
 */

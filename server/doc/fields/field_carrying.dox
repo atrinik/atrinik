@@ -8,9 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    If a monster has something in the inventory, this
-    value can be set to reflect the slowdown due to
-    the carried weight.</td>
+		</td><td>		If a monster has something in the inventory, this value can be
+		set to reflect the slowdown due to the carried weight.</td>
 	</tr>
 
 */

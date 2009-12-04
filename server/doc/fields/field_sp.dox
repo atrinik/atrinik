@@ -8,200 +8,196 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_110
-		</td><td>    The monster will use the specified &lt;short range spell&gt;
-    when the player is within 6-square radius (of the
-    monster's head).</td>
+		</td><td>		The monster will use the specified &lt;short range spell&gt; when
+		the player is within 6-square radius (of the monster's head).</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_18
-		</td><td>    When activated, the selected &lt;spell&gt; will be cast (once, on the
-    player). This should work for any given spell. The altar will work
-    infinitely in this way. Don't set both &lt;spell&gt; and &lt;connection&gt; for
-    one altar.</td>
+		</td><td>		When activated, the selected &lt;spell&gt; will be cast (once, on
+		the player). This should work for any given spell. The altar will
+		work infinitely in this way. Don't set both &lt;spell&gt; and
+		&lt;connection&gt; for one altar.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
-		</td><td>    Positive &lt;mana regen.&gt; bonus speeds up the
-    player's mana regeneration. Negative values slow it down.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			Positive &lt;mana regen.&gt; bonus speeds up the player's
+			mana regeneration. Negative values slow it down.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_103
-		</td><td>    The player has to put &lt;cost number&gt; items of &lt;cost arch&gt;
-    on the converter, in order to get &lt;receive number&gt; items
-    of &lt;receive arch&gt;.</td>
+		</td><td>		The player has to put &lt;cost number&gt; items of
+		&lt;cost arch&gt; on the converter, in order to get
+		&lt;receive number&gt; items of &lt;receive arch&gt;.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_112
-		</td><td>    Projectiles will leave the director flying in the selected &lt;direction&gt;.
-    A director with direction &lt;none&gt; simply stops projectiles.
-    (The latter works out a bit strange for some spells).</td>
+		</td><td>		Projectiles will leave the director flying in the selected
+		&lt;direction&gt;. A director with direction &lt;none&gt; simply
+		stops projectiles.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    This value increases the player's rate of mana regeneration.
-    Negative values decrease it.</td>
+		</td><td>			This value increases the player's rate of mana regeneration.
+			Negative values decrease it.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_66
-		</td><td>    The exit destinations define the (x, y)-coordinates where the exit
-    leads to.
-    If both are set to zero, the player will be transferred to the "default
-    enter location" of the destined map. The latter can be set in the map-
-    properties as "Enter X/Y". Though, please DO NOT use that.
-    It turned out to be a source for numerous map-bugs.</td>
+		</td><td>		The exit destinations define the map coordinates where the exit
+		leads to.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_6
-		</td><td>    Positive &lt;mana&gt; bonus added to player's mana
-    when food eaten. Negative values will reduce mana.
-    Curse will double amd damned will triple it. In both
-    cases are positive values negated.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_54
-		</td><td>    Positive &lt;mana&gt; bonus added to player's mana
-    when consumed. Negative values will reduce mana.
-    Curse will double amd damned will triple it. In both
-    cases are positive values negated.</td>
+@ref page_type_6, @ref page_type_54
+		</td><td>		Positive &lt;mana&gt; bonus added to player's mana when food
+		eaten. Negative values will reduce mana. Curse will double and
+		damned will triple it, and in both cases positive values are
+		negated.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_35
-		</td><td>    Sets the &lt;spell&gt; of the horn. Consider twice before handing out any
-    horns to players, since they can be used endlessly without any mana cost!
-    Horns with heal/ restoration/ protection spells, IF available, MUST be
-    very very VERY hard to get!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_64
-		</td><td>    Enabled means key text is compared to the slaying field of an object
-    and NOT to the name.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_20
-		</td><td>    An opened door will auto-close after some time. The higher
-    this value the longer the door will stay open.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_80, @ref page_type_83
-		</td><td>    Like players, monsters need &lt;spellpoints&gt; to do magic. Monsters use
-    them for both wizard- and prayer-spells. However, this value defines
-    only the amount of *initial* spellpoints the monster starts with.
-    When creating a spellcasting monster, remember that &lt;max spellpoints&gt;
-    and &lt;spellpoint regen.&gt; are more important.
-    If &lt;spelloints&gt; are set to '-1', the monster will start out with
-    maxed spellpoints.
-    &lt;spellpoints&gt;.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_81
-		</td><td>    If -1 at start, the spawn point will do a normal spawn.
-    If set to 0-9999, the spawn point will be forced to spawn
-    the mob with the nearest set chance (lower or same value)
-    ONE TIME when the spawn point is called the first time.
-    See SPAWN POINT MOB objects for more information.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_94
-		</td><td>    The pit will transport creatures (and items) randomly into a two-square
-    radius of the destination coordinates.
-    If the destination square becomes blocked, the pit will act like
-    being filled up and not work anymore!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_5
-		</td><td>    When a player drinks this potion, the selected spell
-    will be casted (once). This should work for any given spell.
-    last_eat must be 0 to invoke the spell effect!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_156
-		</td><td>    &lt;initial mana&gt; is the amount of spellpoints that the
-    crystal holds when the map is loaded.</td>
+		</td><td>		Sets the &lt;spell&gt; of the horn. Consider twice before handing
+		out any horns to players, since they can be used endlessly
+		without any mana cost!
+
+		Horns with heal/restoration/protection spells, IF available, MUST
+		be very very VERY difficult to get!</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_3
-		</td><td>    Sets the &lt;spell&gt; of the rod. Consider twice before handing out special
-    rods to players, since they can be used endlessly without any mana cost!
-    Rods with heal/ restoration/ protection spells, IF available, MUST be
-    very very VERY hard to get!</td>
+		</td><td>		Sets the &lt;spell&gt; of the rod. Consider twice before handing
+		out special rods to players, since they can be used endlessly
+		without any mana cost! Rods with heal/restoration/protection
+		spells, IF available, MUST be very very VERY difficult to get!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
+		</td><td>		Enabled means key text is compared to the slaying field of an
+		object and NOT to the name.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_20
+		</td><td>		An opened door will auto-close after some time. The higher this
+		value the longer the door will stay open.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>			Like players, monsters need &lt;spellpoints&gt; to do magic.
+			Monsters use them for both spells and prayers. However, this
+			value defines only the amount of *initial* spellpoints the
+			monster starts with.
+
+			When creating a spellcasting monster, remember that
+			&lt;max spellpoints&gt; and &lt;spellpoint regen.&gt; are
+			more important.
+
+			If &lt;spelloints&gt; are set to '-1', the monster will start
+			out with maxed spellpoints.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_81
+		</td><td>		If -1 at start, the spawn point will do a normal spawn. If set to
+		0-9999, the spawn point will be forced to spawn the mob with the
+		nearest set chance (lower or same value) ONE TIME when the spawn
+		point is called the first time.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>		If forced movement is enabled, the mover "freezes" anyone it
+		moves (so they are forced to move along a chain). For players
+		there is no way to escape this forced movement.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_94
+		</td><td>		The pit will transport creatures (and items) randomly into a
+		two-square radius of the destination coordinates.
+		If the destination square becomes blocked, the pit will act like
+		being filled up and not work anymore!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_5
+		</td><td>		When a player drinks this potion, the selected spell will be cast
+		once. This should work for any given spell.
+
+		last_eat must be 0 to invoke the spell effect!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_156
+		</td><td>		&lt;initial mana&gt; is the amount of spellpoints that the
+		crystal holds when the map is loaded.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    The selected &lt;spell&gt; defines the spell in the rune, if any.
-    (Many runes and all traps do direct damage).</td>
+		</td><td>			The selected &lt;spell&gt; defines the spell in the rune, if
+			any. Many runes and all traps do direct damage.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_14
-		</td><td>  After shooting the player can't do a 2nd shoot for some time.
-  This value + the arrow shooting delay (different arrows can have
-  different delay) will terminate the time the player must wait.
-  The value is in ticks. 8 ticks are one second.</td>
+		</td><td>		After shooting the player can't do a second shoot for some time.
+		This value + the arrow shooting delay (different arrows can have
+		different delay) will determine the time the player must wait.
+		The value is in ticks.
+		8 ticks are one second.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_111
-		</td><td>    When a player/monster applies this scroll, the selected &lt;spell&gt;
-    will be casted (once). This should work for any given spell.</td>
+		</td><td>		When a player/monster applies this scroll, the selected
+		&lt;spell&gt; will be cast (once). This should work for any given
+		spell.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_85
-		</td><td>    The book will contain the specified spell.
-    You could alternatively use the spell name.</td>
+		</td><td>		The book will contain the specified spell. You could
+		alternatively use the spell name.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_41
-		</td><td>    The exit destinations define the (x, y)-coordinates where the exit
-    leads to.
+		</td><td>		The exit destinations define the (x, y)-coordinates where the exit
+		leads to.
 
-    If both are set to zero and &lt;exit path&gt; is empty, the player will
-    get teleported to another, randomly chosen teleporter on the same
-    map (Slightly confusing for the player though). Make sure there
-    actually *is* a second one in that case.
-
-    If both are set to zero and &lt;exit path&gt; is set, the player will
-    be transferred to the "default enter location" of the destined map.
-    The latter can be set in the map-properties as "Enter X/Y". Though,
-    please DO NOT use that. It turned out to be a source for numerous
-    map-bugs.</td>
+		If both are set to zero and &lt;exit path&gt; is empty, the player will
+		get teleported to another, randomly chosen teleporter on the same
+		map (slightly confusing for the player though). Make sure there
+		actually *is* a second one in that case.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_95
-		</td><td>    The trapdoor will transport creatures (and items) randomly into
-    a two-square radius of the destination coordinates.
-    If the destination square becomes blocked, the trapdoor will act like
-    being filled up and not work anymore!</td>
+		</td><td>		The trapdoor will transport creatures (and items) randomly into
+		a two-square radius of the destination coordinates.
+		If the destination square becomes blocked, the trapdoor will act like
+		being filled up and not work anymore!</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_109
-		</td><td>    The &lt;spell&gt; specifies the contained spell.</td>
+		</td><td>		The &lt;spell&gt; specifies the contained spell.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_119
-		</td><td>    The destinations define the (x, y)-coordinates where the mob should go.</td>
+		</td><td>		The destinations define the (x, y)-coordinates where the mob
+		should go.</td>
 	</tr>
 
 */

@@ -8,14 +8,17 @@ See @ref page_type_14
 
 
 @section Description
-    Schooting weapons like bows/crossbows are used to shoot projectiles
-    (arrows/bolts). Shooting weapons and normal (melee) weapons can be
-    wielded both at the same time. Like with any other equipment,
-    stats/bonuses from shooting weapons are directly inherited to the player.
-    <br><br>
-    It's very easy to add new pairs of weapons &amp; projectiles.
-    Just set matching &lt;ammunition class&gt; both for shooting
-    weapon and projectile. 
+	<![CDATA[
+		Schooting weapons like bows/crossbows are used to shoot
+		projectiles (arrows/bolts). Shooting weapons and normal (melee)
+		weapons can be wielded both at the same time. Like with any other
+		equipment, stats/bonuses from shooting weapons are directly
+		inherited by the player.
+		<br><br>
+		It's very easy to add new pairs of weapons &amp; projectiles.
+		Just set matching &lt;ammunition class&gt; both for shooting
+		weapon and projectile.
+	
 
 
 
@@ -34,473 +37,419 @@ Type defined by:
 	<tr>
 		<td>ammunition class</td>
 		<td>@ref obj::race</td>
-		<td>    Only projectiles with matching &lt;ammunition class&gt; can be fired
-    with this weapon. For normal bows set "arrows", for normal
-    crossbows set "crossbow bolts".
+		<td>		Only projectiles with matching &lt;ammunition class&gt; can be
+		fired with this weapon. For normal bows set "arrows", for normal
+		crossbows set "crossbow bolts".
 
-    In certain cases, the ammunition class is displayed in the game.
-    Hence, when you create a new ammunition class, choose an
-    intuitive name like "missiles", "spirit bolts" - whatever.
+		In certain cases, the ammunition class is displayed in the game.
+		Hence, when you create a new ammunition class, choose an
+		intuitive name like "missiles", "spirit bolts" - whatever.
 		</td>
 	</tr>
 	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
-		<td>    How fast to play this animation.
+		<td>		How fast to play this animation.
 		</td>
 	</tr>
 	<tr>
 		<td>animation</td>
-		<td>@ref obj::animation</td>
-		<td>    The animation-name defines what animation is displayed for this object
-    in-game. Note that a set animation will overrule the face.
-    Changing animation is easy - adding or deleting an animation is more
-    difficult and should be done in the text parse window and not in this
-    dialog.
+		<td>@ref obj::animation_id</td>
+		<td>		The animation-name defines what animation is displayed for this
+		object in-game. Note that a set animation will overrule the face.
 		</td>
 	</tr>
 	<tr>
 		<td>base damage</td>
 		<td>@ref liv::dam</td>
-		<td>    The &lt;base damage&gt; significantly affects the damage done
-    by using this weapon. This damage is added to the projectile
-    damage and then (if &lt;ignore strength&gt; disabled) a bonus
-    according to the player's strength is added.
+		<td>		The &lt;base damage&gt; significantly affects the damage done by
+		using this weapon. This damage is added to the projectile damage
+		and then (if &lt;ignore strength&gt; disabled) a bonus according
+		to the player's strength is added.
 		</td>
 	</tr>
 	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
-		<td>    If an item is set to block view, players (and monsters) cannot
-    see beyond it unless they cross it or manage to stand on top of it.
+		<td>		If an item is set to block view, players (and monsters) cannot
+		see beyond it unless they cross it or manage to stand on top of
+		it.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect missiles</td>
 		<td>@ref FLAG_CAN_REFL_MISSILE</td>
-		<td>    Object CAN reflect missiles. See reflect missiles.
+		<td>		Object can reflect missiles. See reflect missiles.
 		</td>
 	</tr>
 	<tr>
 		<td>can reflect spells</td>
 		<td>@ref FLAG_CAN_REFL_SPELL</td>
-		<td>    Object CAN reflect spells. See reflect spells.
-		</td>
-	</tr>
-	<tr>
-		<td>charisma</td>
-		<td>@ref liv::Cha</td>
-		<td>    The player's charisma will rise/fall by the given value
-    while wearing this shooting weapon.
-		</td>
-	</tr>
-	<tr>
-		<td>constitution</td>
-		<td>@ref liv::Con</td>
-		<td>    The player's constitution will rise/fall by the given value
-    while wearing this shooting weapon.
+		<td>		Object can reflect spells. See reflect spells.
 		</td>
 	</tr>
 	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
-		<td>    The item is cursed. This object can't be removed when
-    wielded or worn (without uncursing it). Remove curse will
-    remove this flag.
+		<td>		The item is cursed. This object can't be removed when wielded or
+		worn (without uncursing it). Remove curse will remove this flag.
 		</td>
 	</tr>
 	<tr>
 		<td>damned</td>
 		<td>@ref FLAG_DAMNED</td>
-		<td>    Stronger form of curse. Item can't be removed when
-    wielded or worn. Remove damnation will remove this flag.
+		<td>		Stronger form of curse. Item can't be removed when wielded or
+		worn. Remove damnation will remove this flag.
 		</td>
 	</tr>
 	<tr>
 		<td>description</td>
 		<td>@ref obj::msg</td>
-		<td>    This text describes the weapons's "story". Every decent artifact weapon
-    should have such a description.
-		</td>
-	</tr>
-	<tr>
-		<td>dexterity</td>
-		<td>@ref liv::Dex</td>
-		<td>    The player's dexterity will rise/fall by the given value
-    while wearing this shooting weapon.
+		<td>		This text describes the weapons's "story". Every decent artifact
+		weapon should have such a description.
 		</td>
 	</tr>
 	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
-		<td>    If &lt;glow radius&gt; is set to a value greater than zero, the object
-    appears lit up on dark maps. &lt;glow radius&gt; can be a value
-    between 0 and 4, the higher, the more light does the object emit.
+		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
+		object appears lit up on dark maps. &lt;glow radius&gt; can be a
+		value between 0 and 4, the higher, the more light does the object
+		emit.
 		</td>
 	</tr>
 	<tr>
 		<td>godgiven item</td>
 		<td>@ref FLAG_STARTEQUIP</td>
-		<td>    A godgiven item vanishes as soon as the player
-    drops it to the ground.
+		<td>		A godgiven item vanishes as soon as the player drops it to the
+		ground.
 		</td>
 	</tr>
 	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
-		<td>    If an item is identified, the player has full knowledge about it.
+		<td>		If an item is identified, the player has full knowledge about it.
 		</td>
 	</tr>
 	<tr>
 		<td>ignore strength</td>
 		<td>@ref obj::no_strength</td>
-		<td>    Usually the player's strength takes effect on the damage
-    done by the shooting weapon. If &lt;ignore strength&gt; is set,
-    the player's strength is ignored.
+		<td>		Usually the player's strength takes effect on the damage done by
+		the shooting weapon. If &lt;ignore strength&gt; is set, the
+		player's strength is ignored.
 		</td>
 	</tr>
 	<tr>
 		<td>image</td>
 		<td>@ref obj::face</td>
-		<td>    The image-name defines what image is displayed for this object
-    in-game.
-		</td>
-	</tr>
-	<tr>
-		<td>intelligence</td>
-		<td>@ref liv::Int</td>
-		<td>    The player's intelligence will rise/fall by the given value
-    while wearing this shooting weapon.
+		<td>		The image name defines what image is displayed for this object
+		in-game.
 		</td>
 	</tr>
 	<tr>
 		<td>inv. system object</td>
 		<td>@ref FLAG_SYS_OBJECT</td>
-		<td>    Marks an object as system object. System objects are ALWAYS invisible and
-    hidden from the players. They can't be seen or detected and never will send
-    any information about them to the player's client. System objects are put
-    in layer 0 under the floor tiles.
+		<td>		Marks an object as system object. System objects are ALWAYS
+		invisible and hidden from the players.
+
+		System objects are put in layer 0.
 		</td>
 	</tr>
 	<tr>
 		<td>invisible</td>
 		<td>@ref FLAG_IS_INVISIBLE</td>
-		<td>    Generally makes the object invisible. Invisible objects will be shown
-    if the player has "see invisible" (from spell or item). To hide objects
-    totally from detection, use "sys_object".
+		<td>		Generally makes the object invisible. Invisible objects will be
+		shown if the player has "see invisible" (from an item). To hide
+		objects totally from detection, use "sys_object".
 		</td>
 	</tr>
 	<tr>
 		<td>is animated</td>
 		<td>@ref FLAG_ANIMATE</td>
-		<td>    If set, the object is animated and animation is used.
-    Note: Some special objects will use an animation NOT as animation but
-    as frame list. Examples are buttons (which frames are changed by the
-    object status of the button). IS_TURNABLE will enable direction turning
-    for some object types. These flags are all "system" related. Be VERY
-    careful when changing them.
+		<td>		If set, the object is animated and animation is used.
+
+		Note: Some special objects will use an animation NOT as animation
+		but as frame list. Examples are buttons (which frames are changed
+		by the object status of the button). IS_TURNABLE will enable
+		direction turning for some object types. These flags are all
+		system related. Be VERY careful when changing them.
 		</td>
 	</tr>
 	<tr>
 		<td>is turnable</td>
 		<td>@ref FLAG_IS_TURNABLE</td>
-		<td>    System flag. Object can be turned to the directions.
+		<td>		System flag. Object can be turned into directions.
 		</td>
 	</tr>
 	<tr>
 		<td>layer</td>
 		<td>@ref obj::layer</td>
-		<td>    This is the map layer, the object will put in. The selected layer will affect where and
-    how this object is shown on client side. Layer 0 is reserved for sys_object type objects
-    and will NEVER be shown on client side. Layer 1 is for floor objects and layer 2 for
-    floor masks. Layer 3 and 4 are for items on the ground. Layer 5 is for walls, layer
-    6 is reserved for players and layer 7 is for spell effects and high flying/visible
-    objects like arrows.
+		<td>		This is the map layer the object will put in. The selected layer
+		will affect where and how this object is shown on client side.
+		Layer 0 is reserved for sys_object type objects and will NEVER be
+		shown on client side. Layer 1 is for floor objects and layer 2
+		for floor masks. Layer 3 and 4 are for items on the ground. Layer
+		5 is for walls, layer 6 is reserved for players and layer 7 is
+		for spell effects and high flying/visible objects like arrows.
 		</td>
 	</tr>
 	<tr>
 		<td>level required in</td>
 		<td>@ref obj::item_skill</td>
-		<td>    This attribute specifies in which skill category the player
-    must meet the &lt;required level&gt; in order to use the weapon.
-    It is meaningless when &lt;required level&gt; is zero/unset.
+		<td>		This attribute specifies in which skill category the player must
+		meet the &lt;required level&gt; in order to use the weapon.
+		It is meaningless when &lt;required level&gt; is zero/unset.
 
-    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
-    means the player cannot use the weapon unless he is equal or greater
-    level 15 in the physical skill category.
+		For example: &lt;required level&gt; = 15, &lt;level required in&gt;
+		= physical means the player cannot use the weapon unless he is
+		equal or greater than level 15 in the physical skill category.
 		</td>
 	</tr>
 	<tr>
 		<td>luck bonus</td>
 		<td>@ref liv::luck</td>
-		<td>    With positive luck bonus, the player is more likely to
-    succeed in all sorts of things (spellcasting, praying,...).
-    Unless the &lt;luck bonus&gt; is very high, the effect will be
-    barely visible in-game. Luck bonus on one piece of equipment
-    should never exceed 3, and such bonus should not be too
-    frequently available.
+		<td>			With positive luck bonus, the player is more likely to
+			succeed in all sorts of things (spellcasting, praying,...).
+			Unless the &lt;luck bonus&gt; is very high, the effect will
+			be barely visible in-game. Luck bonus on one piece of
+			equipment should never exceed 3, and such bonus should not be
+			too frequently available.
 		</td>
 	</tr>
 	<tr>
 		<td>magic bonus</td>
 		<td>@ref obj::magic</td>
-		<td>    &lt;Magic bonus&gt; improves the quality of the shooting weapon.
-    I'm not sure what exactly is increased - maybe weaponclass?
-    However, &lt;magic bonus&gt; seems to have a little bit of positive
-    influence on your chance to hit.
+		<td>			&lt;Magic bonus&gt; improves the quality of the shooting
+			weapon. I'm not sure what exactly is increased - maybe
+			weaponclass? However, &lt;magic bonus&gt; seems to have a
+			little bit of positive influence on your chance to hit.
 		</td>
 	</tr>
 	<tr>
 		<td>magical</td>
 		<td>@ref FLAG_IS_MAGICAL</td>
-		<td>    If set, this object counts as "magical". Detect magic or
-    identify will show this flag and the player will see a small
-    blue M in the client's inventory part.
-		</td>
-	</tr>
-	<tr>
-		<td>make ethereal</td>
-		<td>@ref FLAG_MAKE_ETHEREAL</td>
-		<td>   When applied the user gets ethereal. He can't still be seen but
-   transparent. He can move through walls and doors which has the
-   PASS_THRU flag set (like ghosts and other non physical monsters).
-		</td>
-	</tr>
-	<tr>
-		<td>make invisible</td>
-		<td>@ref FLAG_MAKE_INVISIBLE</td>
-		<td>   When applied the user gets invisible. He can't be seen from player
-   or monster except they have "see invisible" power.
+		<td>		If set, this object counts as "magical". Detect magic or identify
+		will show this flag and the player will see a small blue M in the
+		client's inventory part.
 		</td>
 	</tr>
 	<tr>
 		<td>material</td>
 		<td>@ref obj::material_real</td>
-		<td>    The material defines the exact material of which the object
-    consists. It is much more specific than &lt;material class&gt;,
-    however only one material can be selected, not multiple.
-    &lt;material&gt; is not required to be set, it can be left 'undefined'.
+		<td>		The material defines the exact material of which the object
+		consists. It is much more specific than &lt;material class&gt;,
+		however only one material can be selected, not multiple.
+
+		&lt;material&gt; is not required to be set, it can be left
+		'undefined'.
 		</td>
 	</tr>
 	<tr>
 		<td>material class</td>
 		<td>@ref obj::material</td>
-		<td>    This bitmask-value informs the player of which basic material(s)
-    the object consists. Material class does also affect how likely the
-    object can be destroyed by hazardous spell-effects.
+		<td>		This bitmask-value informs the player of which basic material(s)
+		the object consists. Material class does also affect how likely
+		the object can be destroyed by hazardous spell-effects, like
+		firestorm.
 		</td>
 	</tr>
 	<tr>
 		<td>name</td>
 		<td>@ref obj::name</td>
-		<td>    This is the name of the object, displayed to the player.
+		<td>		This is the name of the object, displayed to the player.
 		</td>
 	</tr>
 	<tr>
 		<td>no prayers</td>
 		<td>@ref FLAG_NO_CLERIC</td>
-		<td>    If enabled, it is impossible for players to use (cleric-)
-    prayers on that spot.
+		<td>		If enabled, it is impossible for players to use prayers on that
+		spot.
 		</td>
 	</tr>
 	<tr>
 		<td>no spells</td>
 		<td>@ref FLAG_NO_MAGIC</td>
-		<td>    If enabled, it is impossible for players to use (wizard-)
-    spells on that spot.
+		<td>		If enabled, it is impossible for players to use spells on that
+		spot.
 		</td>
 	</tr>
 	<tr>
 		<td>no teleport</td>
 		<td>@ref FLAG_NO_TELEPORT</td>
-		<td>    Marks an object as no teleport object. A no teleport object can't be
-    teleported by teleporter except if the object is inside the inventory of
-    another object which can be teleported.
+		<td>		Marks an object as no teleport object. A no teleport object can't
+		be teleported by teleporter except if the object is inside the
+		inventory of another object which can be teleported.
 		</td>
 	</tr>
 	<tr>
 		<td>non-pickable</td>
 		<td>@ref FLAG_NO_PICK</td>
-		<td>    If set, the object cannot be picked up (Neither by players nor monsters).
+		<td>		If set, the object cannot be picked up (neither by players nor
+		monsters).
 		</td>
 	</tr>
 	<tr>
 		<td>number</td>
 		<td>@ref obj::nrof</td>
-		<td>    This value determines the number of objects in one stack (for example:
-    100 goldcoins =&gt; "number = 100"). You should set this at least to one, for
-    any pickable object - otherwise it won't be mergeable into a stack.
+		<td>		This value determines the number of objects in one stack (for
+		example: 100 goldcoins =&gt; "number = 100"). You should set this
+		at least to one, for any pickable object - otherwise it won't be
+		mergeable into a stack.
 		</td>
 	</tr>
 	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
-		<td>    In the moment a player gets or applies this item, it will be
-    flagged as godgiven and vanish when dropped to the ground.
+		<td>		In the moment a player gets or applies this item, it will be
+		flagged as godgiven and vanish when dropped to the ground.
+
+		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will be able to
+		find the item again, should he lose it.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
-		<td>    The item is permanently cursed. If this flag is set, applying
-    or unapplying it will set "cursed 1" again. This flag can't be
-    removed by remove curse.
+		<td>		The item is permanently cursed. If this flag is set, applying or
+		unapplying it will set "cursed 1" again. This flag can't be
+		removed by remove curse.
 		</td>
 	</tr>
 	<tr>
 		<td>permanent damned</td>
 		<td>@ref FLAG_PERM_DAMNED</td>
-		<td>    The item is permanently damned. If this flag is set, applying
-    or unapplying it will set "damned 1" again. This flag can't be
-    removed by remove damnation.
+		<td>		The item is permanently damned. If this flag is set, applying or
+		unapplying it will set "damned 1" again. This flag can't be
+		removed by remove damnation.
 		</td>
 	</tr>
 	<tr>
 		<td>player only</td>
 		<td>@ref FLAG_PLAYER_ONLY</td>
-		<td>    If set, only players can enter the tile the object with this flag is in too.
-		</td>
-	</tr>
-	<tr>
-		<td>power</td>
-		<td>@ref liv::Pow</td>
-		<td>    The player's power will rise/fall by the given value
-    while wearing this shooting weapon.
-		</td>
-	</tr>
-	<tr>
-		<td>quest item</td>
-		<td>@ref FLAG_QUEST_ITEM</td>
-		<td>    Item is a quest item. This item will be inserted in the
-    quest container when a quest is finished and for that player
-    this item will never drop again.
+		<td>		If set, only players can enter the tile the object with this flag
+		is on.
 		</td>
 	</tr>
 	<tr>
 		<td>required level</td>
 		<td>@ref obj::item_level</td>
-		<td>    If &lt;required level&gt; is set to a value greater zero, players cannot
-    use the weapon unless they meet this level in the skill category
-    specified by &lt;level required in&gt;.
+		<td>		If &lt;required level&gt; is set to a value greater than zero,
+		players cannot use the weapon unless they meet this level in the
+		skill category specified by &lt;level required in&gt;.
 
-    For example: &lt;required level&gt; = 15, &lt;level required in&gt; = physical
-    means the player cannot use the weapon unless he is equal or greater
-    level 15 in the physical skill category.
+		For example: &lt;required level&gt; = 15, &lt;level required in&gt;
+		= physical means the player cannot use the weapon unless he is
+		equal or greater than level 15 in the physical skill category.
 		</td>
 	</tr>
 	<tr>
 		<td>shooting range</td>
 		<td>@ref obj::last_sp</td>
-		<td>    This value is supposed to be the base &lt;shooting range&gt;.
-    It is added to the base range of the used ammunition (arrow, bolt,...)
+		<td>		This value is supposed to be the base &lt;shooting range&gt;.
+		It is added to the base range of the used ammunition (arrow,
+		bolt, etc).
 		</td>
 	</tr>
 	<tr>
 		<td>shooting speed</td>
 		<td>@ref liv::sp</td>
-		<td>  After shooting the player can't do a 2nd shoot for some time.
-  This value + the arrow shooting delay (different arrows can have
-  different delay) will terminate the time the player must wait.
-  The value is in ticks. 8 ticks are one second.
+		<td>		After shooting the player can't do a second shoot for some time.
+		This value + the arrow shooting delay (different arrows can have
+		different delay) will determine the time the player must wait.
+		The value is in ticks.
+		8 ticks are one second.
 		</td>
 	</tr>
 	<tr>
 		<td>start speed</td>
 		<td>@ref obj::speed_left</td>
-		<td>    NOTE: Without speed being non-zero, this value is not used. Only use
-    for objects with speed (active objects)!
-    When an active object (with 'speed' being non-zero) is put on a map, this
-    value is used as counter. Every 'tick', 'speed' (if negative,
-    value is turned positive before) is added to this value -
-    if it is bigger 0 the object 'will do something' and this counter is
-    decreased with -1.0.
-    By default a normal object will be put on the map with start speed 0.
-    It 'will do something' with the next coming 'tick'.
-    Setting this value to -1.0 will put it on map but wait one full
-    'lifetime' round until it does something.
-    A 'fire object' should be put on map with start speed 0 - it should
-    try to burn something in the moment it comes in the game. A bomb for
-    example should be put with speed -1.0 on the map - it will stay then
-    on map until the bomb becomes active - it explodes.
-    The 'lifetime' round is determinated by speed. A speed of 1.0 will
-    give a 'lifetime' round of 1 tick - a speed of 0.01 100 ticks.
-    Special case: A negative speed value will add to start speed a random
-    value between 0.0 to 0.9 . So, a speed of -0.1 with a start speed of
-    -1.0 will result in speed 0.1 and start speed between -1.0 and -0.1.
-    This is useful to let a row of same objects act in different tick ranges.
-		</td>
-	</tr>
-	<tr>
-		<td>strength</td>
-		<td>@ref liv::Str</td>
-		<td>    The player's strength will rise/fall by the given value
-    while wearing this shooting weapon.
+		<td>		When an active object (with 'speed' being non-zero) is put on a
+		map, this value is used as counter. Every 'tick', 'speed' (if
+		negative, value is turned positive before) is added to this
+		value - if it is bigger than 0 the object 'will do something' and
+		this counter is decreased with -1.0.
+
+		By default a normal object will be put on the map with start
+		speed 0. It 'will do something' with the next coming 'tick'.
+		Setting this value to -1.0 will put it on map but wait one full
+		'lifetime' round until it does something.
+
+		A 'fire object' should be put on map with start speed 0 - it
+		should try to burn something in the moment it comes in the game.
+		A bomb for example should be put with speed -1.0 on the map - it
+		will stay then on map until the bomb becomes active - it
+		explodes.
+
+		The 'lifetime' round is determinated by speed. A speed of 1.0
+		will give a 'lifetime' round of 1 tick - a speed of 0.01 100
+		ticks.
+
+		Special case: A negative speed value will add to start speed a
+		random value between 0.0 to 0.9 . So, a speed of -0.1 with a
+		start speed of -1.0 will result in speed 0.1 and start speed
+		between -1.0 and -0.1. This is useful to let a row of same
+		objects act in different tick ranges.
 		</td>
 	</tr>
 	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
-		<td>    This is the object's title. Once an object is identified the title is
-    attached to the name. Typical titles are "of mostrai", "of xray vision" etc.
+		<td>		This is the object's title. Once an object is identified the
+		title is attached to the name. Typical titles are "of Yordan",
+		"of xray vision" etc.
 		</td>
 	</tr>
 	<tr>
 		<td>unique item</td>
 		<td>@ref FLAG_UNIQUE</td>
-		<td>    Unique items exist only one time on a server. If the item
-    is taken, lost or destroyed - it's gone for good.
+		<td>		Unique items exist only one time on a server. If the item is
+		taken, lost or destroyed - it's gone for good.
 		</td>
 	</tr>
 	<tr>
 		<td>unpaid</td>
 		<td>@ref FLAG_UNPAID</td>
-		<td>    An &lt;unpaid&gt; item cannot be used unless a player carried it over
-    a shop mat, paying the demanded price. Setting this flag makes sense
-    only for pickable items inside shops.
+		<td>		An &lt;unpaid&gt; item cannot be used unless the player carried
+		it over a shop mat, paying the demanded price. Setting this flag
+		makes sense only for items inside shops.
 		</td>
 	</tr>
 	<tr>
 		<td>value</td>
 		<td>@ref obj::value</td>
-		<td>    Change an object's value.
+		<td>		Change an object's value.
 		</td>
 	</tr>
 	<tr>
 		<td>wc hit range</td>
 		<td>@ref liv::wc_range</td>
-		<td>    The wc_range of a archery weapon is copied to the projectile
-    which is fired with it!
+		<td>		The wc_range of an archery weapon is copied to the projectile
+		which is fired with it.
 		</td>
 	</tr>
 	<tr>
 		<td>weapon type</td>
-		<td>@ref obj::sub_type</td>
-		<td>    The &lt;weapon type&gt; characterizes the type of shooting weapon this is.
-    Each of these weapon types requires an according skill to be used.
+		<td>@ref obj::sub_type1</td>
+		<td>		The &lt;weapon type&gt; characterizes the type of shooting weapon
+		this is. Each of these weapon types requires an according skill
+		to be used.
 		</td>
 	</tr>
 	<tr>
 		<td>weaponclass</td>
 		<td>@ref liv::wc</td>
-		<td>    This value is supposed to be the base &lt;weaponclass&gt;,
-    but it seems to have rather little effect.
-    High values are good here, low values bad.
+		<td>		This value is supposed to be the base &lt;weaponclass&gt;, but it
+		seems to have rather little effect. High values are good here,
+		low values bad.
 		</td>
 	</tr>
 	<tr>
 		<td>weight</td>
 		<td>@ref obj::weight</td>
-		<td>    This value defines the object's weight in gram (1000g is 1kg). Objects with
-    zero weight are not pickable for players. Still, set the "non-pickable"-flag
-    for explicitly non-pickable objects (hey, this is opensource.. you
-    never know ;) ).
-		</td>
-	</tr>
-	<tr>
-		<td>wisdom</td>
-		<td>@ref liv::Wis</td>
-		<td>    The player's wisdom will rise/fall by the given value while
-    wearing this shooting weapon.
+		<td>		This value defines the object's weight in gram (1000g is 1kg).
+		Objects with zero weight are not pickable for players. Still, set
+		the "non-pickable" flag for explicitly non-pickable objects.
 		</td>
 	</tr>
 </table>

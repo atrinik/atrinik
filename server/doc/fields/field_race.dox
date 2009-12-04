@@ -8,83 +8,83 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_82
-		</td><td>    Defines the light type which we can refill with this refill
-    object.</td>
+		</td><td>		Defines the light type which we can refill with this refill
+		object.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_122
-		</td><td>    If set, the container will hold only certain types of objects.
-    Possible choices for &lt;container class&gt; are: "gold and jewels",
-    "arrows" and "keys".
+		</td><td>		If set, the container will hold only certain types of objects.
+		Possible choices for &lt;container class&gt; are: "gold and jewels",
+		"arrows" and "keys".
 
-    Unfortunately it is not easy to create new container
-    classes, because items need a matching counterpiece-attribute
-    to the &lt;container class&gt; before they can be put inside a
-    container. This attribute ("race") is set only for the existing
-    container classes.</td>
+		Unfortunately it is not easy to create new container classes,
+		because items need a matching counterpiece-attribute to the
+		&lt;container class&gt; before they can be put inside a
+		container. This attribute ("race") is set only for the existing
+		container classes.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    The disease will only infect creatures of the specified &lt;race&gt;.
-    "&lt;race&gt; *" means every creature can be infected.</td>
+		</td><td>		The disease will only infect creatures of the specified
+		&lt;race&gt;.
+
+		"&lt;race&gt; *" means every creature can be infected.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_64
-		</td><td>    This string specifies the object we are looking for: We have a match
-    if the player does/don't carry an object of archtype &lt;match arch name&gt;.</td>
+		</td><td>		This string specifies the object we are looking for: We have a
+		match if the player does/don't carry an object of archetype
+		&lt;match arch name&gt;.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    Every monster should have a race set to cathegorize it.
-    The monster's &lt;race&gt; can have different effects:
-    Slaying weapons inflict tripple damage against enemy races
-    and holy word kills only enemy races of the god.</td>
+		</td><td>		Every monster should have a race set to categorize it. The
+		monster's &lt;race&gt; can have different effects: Slaying
+		weapons inflict triple damage against enemy races and holy word
+		kills only enemy races of the god.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_13
-		</td><td>    Only shooting weapons with matching &lt;ammunition class&gt;
-    (and matching &lt;ammunition type&gt;) can fire these projectiles.
-    For arrows set "arrows", for crossbow bolts set
-    "crossbow bolts" (big surprise).
+		</td><td>		Only shooting weapons with matching &lt;ammunition class&gt; (and
+		matching &lt;ammunition type&gt;) can fire these projectiles. For
+		arrows set "arrows", for crossbow bolts set "crossbow bolts" (big
+		surprise).
 
-    ** a bow with race == NULL count as "broken". **
-    In certain cases, the ammunition class is displayed in the game.
-    Hence, when you create a new ammunition class, choose an
-    intuitive name like "missiles", "spirit bolts" - whatever.
-
-    You can also make special containers holding these projectiles
-    by setting the &lt;container class&gt; to match your &lt;ammunition class&gt;.</td>
+		You can also make special containers holding these projectiles
+		by setting the &lt;container class&gt; to match your
+		&lt;ammunition class&gt;.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    If this is set to the arch name of any monster, together with
-    &lt;spell name&gt; "summon evil monster", the rune will summon a bunch
-    of those on detonation. (dam and attacktype will still be ignored
-    in this case). Runes are even capable of summoning multi-square
-    monsters, given enough space. You'd better test it though.</td>
+		</td><td>			If this is set to the arch name of any monster, together with
+			&lt;spell name&gt; "summon evil monster", the rune will
+			summon a bunch of those on detonation. (dam and attacktype
+			will still be ignored in this case). Runes are even capable
+			of summoning multi-square monsters, given enough space.
+			You'd better test it though.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_14
-		</td><td>    Only projectiles with matching &lt;ammunition class&gt; can be fired
-    with this weapon. For normal bows set "arrows", for normal
-    crossbows set "crossbow bolts".
+		</td><td>		Only projectiles with matching &lt;ammunition class&gt; can be
+		fired with this weapon. For normal bows set "arrows", for normal
+		crossbows set "crossbow bolts".
 
-    In certain cases, the ammunition class is displayed in the game.
-    Hence, when you create a new ammunition class, choose an
-    intuitive name like "missiles", "spirit bolts" - whatever.</td>
+		In certain cases, the ammunition class is displayed in the game.
+		Hence, when you create a new ammunition class, choose an
+		intuitive name like "missiles", "spirit bolts" - whatever.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_118
-		</td><td>    Name of the script of data file we want submit to the
-    plugin when the event is triggered.</td>
+		</td><td>		Name of the script of data file we want submit to the plugin when
+		the event is triggered.</td>
 	</tr>
 
 */

@@ -8,9 +8,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    These settings define on which kind of terrain this
-    creature can move. If nothing is set, the creature
-    can walk on land surface.</td>
+		</td><td>			These settings define on which kind of terrain this creature
+			can move. If nothing is set, the creature can walk on land
+			surface.</td>
 	</tr>
 
 */

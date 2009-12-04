@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    Monsters with &lt;one hit only&gt; dissapear after one successful hit
-    to a player.</td>
+		</td><td>			Monsters with &lt;one hit only&gt; dissapear after one
+			successful hit to a player.</td>
 	</tr>
 
 */

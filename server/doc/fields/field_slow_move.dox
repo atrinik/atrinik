@@ -8,24 +8,25 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_71, @ref page_type_88
-		</td><td>    If &lt;slow movement&gt; is set to a value greater zero, all
-    creatures moving over this spot will be slower than normal.
+		</td><td>			If &lt;slow movement&gt; is set to a value greater than zero,
+			all creatures moving over this spot will be slower than
+			normal.
 
-    &lt;slow movement&gt; 1  - rough terrain
-    &lt;slow movement&gt; 2  - very rough terrain
-    ...
-    &lt;slow movement&gt; 7  - spider web (sticky as hell)</td>
+			&lt;slow movement&gt; 1 - rough terrain
+			&lt;slow movement&gt; 2 - very rough terrain
+			...
+			&lt;slow movement&gt; 7 - spider web (sticky as hell)</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_138
-		</td><td>    If &lt;slow movement&gt; is set to a value greater zero, all
-    creatures moving over this spot will be slower than normal.
+		</td><td>		If &lt;slow movement&gt; is set to a value greater than zero, all
+		creatures moving over this spot will be slower than normal.
 
-    &lt;slow movement&gt; 1  - rough terrain
-    &lt;slow movement&gt; 2  - very rough terrain
-    ...
-    &lt;slow movement&gt; 5  - default for deep swamp</td>
+		&lt;slow movement&gt; 1 - rough terrain
+		&lt;slow movement&gt; 2 - very rough terrain
+		...
+		&lt;slow movement&gt; 5 - default for deep swamp</td>
 	</tr>
 
 */

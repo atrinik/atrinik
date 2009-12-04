@@ -8,179 +8,147 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_18, @ref page_type_31
-		</td><td>    This string specifies the item that must be put on the altar to
-    activate it. It can either be the name of an archetype, or directly
-    the name of an object. Yet, titles are not recognized by altars.
-    Remember to put a note somewhere, telling the player what he is
-    expected to drop on the altar. (Often this is put in the altar's
-    name: E.g. "drop 100 platinums")</td>
+		</td><td>		This string specifies the item that must be put on the altar to
+		activate it. It can either be the name of an archetype, or
+		directly the name of an object. Yet, titles are not recognized by
+		altars. Remember to put a note somewhere, telling the player what
+		he is expected to drop on the altar. Often this is put in the
+		altar's name: E.g. "drop 100 platinums".</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_122
-		</td><td>    If &lt;key string&gt; is set, only players with a special key
-    of matching &lt;key string&gt; are able to open the container.</td>
+		</td><td>		If &lt;key string&gt; is set, only players with a special key of
+		matching &lt;key string&gt; are able to open the container.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_103
-		</td><td>    &lt;cost arch&gt; is the name of the archetype the player has to
-    put on the converter, as payment.</td>
+		</td><td>		&lt;Cost arch&gt; is the name of the archetype the player has to
+		put on the converter, as payment.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_42
-		</td><td>    The created object will bear the name specified in &lt;name creation&gt;.
-    If nothing is set, the standard name of the archetype is used.</td>
+		</td><td>		The created object will bear the name specified in
+		&lt;name creation&gt;. If nothing is set, the standard name of
+		the archetype is used.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_51
-		</td><td>    &lt;match name&gt; specifies the name of the object we are looking for.
-    Actually it does also check for the &lt;key string&gt; in key-objects,
-    but for this case inventory checkers are often more powerful to use.</td>
+		</td><td>		&lt;Match name&gt; specifies the name of the object we are
+		looking for. Actually it does also check for the
+		&lt;key string&gt; in key-objects, but for this case inventory
+		checkers are often more powerful to use.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_66
-		</td><td>    The exit path defines the map that the player is transferred to.
-    You can enter an absolute path, beginning with '/' (for example
-    "/peterm/FireTemple/fire1"). It can also be a relative path, not beginning
-    with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
-    relative path "Fire1"). Use relative paths whenever possible! Note that
-    upper/lower case must always be set correctly. However, please use lower
-    case only.
-    It is well possible to have an exit pointing to the same map that the exit
-    is on. If slaying is not set in an exit, the player will see a message like
-    "the exit is closed".</td>
+@ref page_type_66, @ref page_type_94, @ref page_type_41, @ref page_type_95
+		</td><td>		The exit path defines the map that the player is transferred to.
+
+		You can enter an absolute path, beginning with '/' (for example
+		"/tutorial"). It can also be a relative path, not beginning with
+		'/' (on the map "/shattered_islands/world_0303" for example I
+		could use the relative path "0304"). Use relative paths whenever
+		possible! Note that upper/lower case must always be set
+		correctly. However, please use lower case only.
+
+		It is well possible to have an exit pointing to the same map that
+		the exit is on. If slaying is not set in an exit, the player will
+		see a message like "The exit is closed".</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_64
-		</td><td>    This string specifies the object we are looking for: We have a match
-    if the player does/don't carry a key object or a mark with identical
-    &lt;key string&gt;. Note that key objects usually appear as "passports" in
-    this context. This string is compared to the name of an object. If
-    the "match = slaying field" is set, the text is compared to the slaying
-    field of the object we search for. This can make sense if we really want
-     avoid any problems with user set names of objects.</td>
+		</td><td>		This string specifies the object we are looking for: We have a
+		match if the player does/don't carry a key object or a mark with
+		identical &lt;key string&gt;. This string is compared to the name
+		of an object. If the "match = slaying field" is set, the text is
+		compared to the slaying field of the object we search for. This
+		can make sense if we really want avoid any problems with user set
+		names of objects.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_20
-		</td><td>    The &lt;key string&gt; in the door must be identical with the
-    &lt;key string&gt; in the special key, then the door is unlocked.
-    It is VERY important to set the &lt;key string&gt; to something that
-    is unique among the Atrinik maps.
-
-    DON'T EVER USE the default string "set_individual_value".</td>
+		</td><td>		The &lt;key string&gt; in the door must be identical with the
+		&lt;key string&gt; in the special key, then the door is unlocked.
+		It is VERY important to set the &lt;key string&gt; to something that
+		is unique among the Atrinik maps.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_55
-		</td><td>    The &lt;key string&gt; can be detected by inv. checkers/detectors.
-    If the player already has a force with that &lt;key string&gt;,
-    there won't be inserted a second one.</td>
+		</td><td>		The &lt;key string&gt; can be detected by inventory checkers/
+		detectors. If the player already has a force with that
+		&lt;key string&gt;, there won't be inserted a second one.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_17, @ref page_type_32
-		</td><td>    the &lt;match race&gt; defines the object we're looking for. If &lt;match race&gt;
-    matches the monster's or the player's race, we have a match.
-    Yes, pedestals can detect a player's race! E.g. you could create a
-    place where only fireborns can enter, by setting "slaying unnatural".
+		</td><td>		The &lt;match race&gt; defines the object we're looking for. If
+		&lt;match race&gt; matches the monster's or the player's race, we
+		have a match. Yes, pedestals can detect a player's race! E.g. you
+		could create a place where only fireborns can enter, by setting
+		"slaying unnatural".
 
-    If it is set to "player", any player stepping on the pedestal
-    is a match. Very useful if you want to open a gate for players
-    but not for monsters.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_94, @ref page_type_95
-		</td><td>    The exit path defines the map that the player is transferred to.
-    You can enter an absolute path, beginning with '/' (for example
-    "/peterm/FireTemple/fire1"). It can also be a relative path, not beginning
-    with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
-    relative path "Fire1"). Use relative paths whenever possible! Note that
-    upper/lower case must always be set correctly. However, please use lower
-    case only.
-    It is well possible to have an exit pointing to the same map that the exit
-    is on. If slaying is not set in an exit, the player will see a message like
-    "the exit is closed".
-    If the slaying field is blank, the destination will be the same map.</td>
+		If it is set to "player", any player stepping on the pedestal is
+		a match. Very useful if you want to open a gate for players but
+		not for monsters.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_13
-		</td><td>    Slaying means the weapon does tripple (3x) damage to monsters
-    of the specified race. If &lt;slaying race&gt; matches an arch name,
-    only monsters of that archtype receive tripple damage.
-    Tripple damage is very effective.</td>
+		</td><td>		Slaying means the weapon does triple (3x) damage to monsters of
+		the specified race. If &lt;slaying race&gt; matches an arch name,
+		only monsters of that archetype receive triple damage.
+
+		Triple damage is very effective, especially on higher levels.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    Name of the spell in the rune, if any. Slaying is optional,
-    but if present, overrides the &lt;spell&gt; setting.
-
-    For a summoning rune, set &lt;spell name&gt; to "summon evil monster".</td>
+		</td><td>			Name of the spell in the rune, if any. Slaying is optional,
+			but if present, overrides the &lt;spell&gt; setting.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_21
-		</td><td>    This string must be identical with the &lt;key string&gt; in the
-    locked door, then it can be unlocked. It can also be used
-    to trigger inventory checkers.</td>
+		</td><td>		This string must be identical with the &lt;key string&gt; in the
+		locked door, then it can be unlocked. It can also be used to
+		trigger inventory checkers.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_85
-		</td><td>    This string also defines the contained spell (just like
-    field above), but here you write the spell's name directly.
-    Setting both &lt;spell&gt; and &lt;spell name&gt; makes no sense.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_41
-		</td><td>    The exit path specifies the map that the player is transferred to.
-    &lt;exit path&gt; can be an absolute path, beginning with '/'
-    (for example "/peterm/FireTemple/fire1"). It can also be a relative
-    path, not beginning with '/' (On the map "/peterm/FireTemple/Fire2"
-    for example I could use the relative path "Fire1"). Use relative
-    paths whenever possible! Note that upper/lower case must always be
-    set correctly. However, please use lower case only.
-
-    If the &lt;exit path&gt; is set, ONLY players can get teleported. If the
-    &lt;exit path&gt; is unset (empty), anything can get teleported: Players,
-    monsters and items. In this case, the destined map is automatically
-    the same map the teleporter is on.</td>
+		</td><td>		This string also defines the contained spell (just like field
+		above), but here you write the spell's name directly.
+		Setting both &lt;spell&gt; and &lt;spell name&gt; makes no sense.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_15
-		</td><td>    Slaying means the weapon does tripple (3x) damage to monsters of the
-    specified race. If &lt;slaying race&gt; matches an arch name (e.g. "big_dragon"),
-    only monsters of that archtype are hit with tripple damage.
-
-    No god blessings are possible for weapons with a race set in this entry
-    (That's because god blessings add tripple damage against their own
-    enemy races). Tripple damage is very effective.</td>
+		</td><td>		Slaying means the weapon does triple (3x) damage to monsters of
+		the specified race. If &lt;slaying race&gt; matches an arch name,
+		only monsters of that archetype are hit with triple damage.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_118
-		</td><td>    This string is given the event as option string.</td>
+		</td><td>		This string is given the event as option string.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_119
-		</td><td>    Path to destination map. Leave blank to use current map.
-    You can enter an absolute path, beginning with '/' (for example
-    "/peterm/FireTemple/fire1"). It can also be a relative path, not beginning
-    with '/' (On the map "/peterm/FireTemple/Fire2" for example I could use the
-    relative path "Fire1"). Use relative paths whenever possible! Note that
-    upper/lower case must always be set correctly. However, please use lower
-    case only.</td>
+		</td><td>		Path to destination map. Leave blank to use current map.
+
+		You can enter an absolute path, beginning with '/' (for example
+		"/tutorial"). It can also be a relative path, not beginning with
+		'/' (on the map "/shattered_islands/world_0303" for example I
+		could use the relative path "0304"). Use relative paths whenever
+		possible! Note that upper/lower case must always be set
+		correctly. However, please use lower case only.</td>
 	</tr>
 
 */

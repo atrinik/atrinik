@@ -7,10 +7,18 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_35, @ref page_type_70, @ref page_type_3, @ref page_type_14, @ref page_type_33, @ref page_type_15, @ref page_type_109
-		</td><td>   When applied the user gets ethereal. He can't still be seen but
-   transparent. He can move through walls and doors which has the
-   PASS_THRU flag set (like ghosts and other non physical monsters).</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			When applied the user gets ethereal. He can still be
+			transparently seen. Grants the ability to move through walls
+			and doors which have the PASS_THRU flag set (like ghosts and
+			other non physical monsters).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_35, @ref page_type_3
+		</td><td>		When applied the user gets ethereal. He will be seen as
+		transparent. He can move through walls and doors which have the
+		PASS_THRU flag set (like ghosts and other non physical monsters).</td>
 	</tr>
 
 */

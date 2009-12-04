@@ -8,65 +8,69 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_31
-		</td><td>    Being activated, the altar will reset after &lt;reset time&gt; ticks.
-    After reset, the altar is ready to be activated once again.
-    The default &lt;reset time&gt; is 30.</td>
+		</td><td>		Being activated, the altar will reset after &lt;reset time&gt;
+		ticks. After reset, the altar is ready to be activated once
+		again.
+
+		The default &lt;reset time&gt; is 30.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    Divide by ten to get the player's speed bonus from wearing
-	this item. (The real formula to calcuate speed bonus is
-	more advanced, but this description will do for now. /Gecko)</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			Divide by ten to get the player's speed bonus from wearing
+			this item.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_99
-		</td><td>    Boots with &lt;speed bonus&gt; will increase the player's walking speed
-    while worn. This kind of bonus is quite desirable for players of low-
-    and medium level. High level players usually have fastest possible
-    walking speed and thus don't need &lt;speed bonus&gt; anymore.
-    Still, this bonus is good for nice artifacts - not everything has
-    to be for highest level.</td>
+		</td><td>		Boots with &lt;speed bonus&gt; will increase the player's walking
+		speed while worn. This kind of bonus is quite desirable for
+		players of low and medium level. High level players usually have
+		fastest possible walking speed and thus don't need
+		&lt;speed bonus&gt; anymore.
+
+		Still, this bonus is good for nice artifacts - not everything has
+		to be for highest level.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    When the player manages to cure this disease (with a curing spell),
-    he is awarded with &lt;exp. for curing&gt; experience.</td>
+		</td><td>			When the player manages to cure this disease (with a curing
+			spell), he is awarded with &lt;exp. for curing&gt;
+			experience.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    When a player kills this monster, he will get exactly this
-    amount of &lt;experience&gt;. The experience will flow into
-    the skill-category the player used for the kill.
-
-    If you create special monsters of tweaked strenght/abilities,
-    always make sure that the &lt;experience&gt; is set to a
-    reasonable value. Compare with existing arches to get a feeling
-    what reasonable means. Keep in mind that spellcasting monsters
-    are a lot harder to kill than non-spellcasters!</td>
+		</td><td>		When a player kills this monster, he will get this amount of
+		&lt;experience&gt;, with various adjustments, like what level the
+		monster was. The experience will flow into the skill category the
+		player used for the kill.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_68
-		</td><td>    The &lt;quality level&gt; will be used for the quality of the generated
-    goods. If zero/unset, &lt;quality level&gt; 5 is used. Usually this value
-    doesn't need to be set, unless you want extraordinarily good/bad
-    quality. If you want to make a shop with very high quality, meaybe
-    charge an entrance fee, or make the shop hard-to-come-by.
-    Note that &lt;quality level&gt; mainly affects chance of magic bonus
-    and appearance of artifact-items.</td>
+		</td><td>		The &lt;quality level&gt; will be used for the quality of the
+		generated goods. If zero/unset, map difficulty's level is used.
+		Usually this value doesn't need to be set, unless you want
+		extraordinarily good/bad quality. If you want to make a shop with
+		very high quality, maybe charge an entrance fee, or make the shop
+		hard-to-come-by.
+
+		Note that &lt;quality level&gt; mainly affects chance of magic
+		bonus and appearance of artifacts.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_4
-		</td><td>    The &lt;quality level&gt; will be used for the quality of the generated
-    treasure instead of the map difficulty (as was done with shops).
-    If zero/unset, the map difficulty will instead be used.
-    (Example for comparison: Shop floors generate treasure of
-    &lt;quality level&gt; 5 per default).</td>
+		</td><td>		The &lt;quality level&gt; will be used for the quality of the
+		generated treasure instead of the map difficulty (as was done
+		with shops).
+
+		If zero/unset, the map difficulty will instead be used.
+
+		(Example for comparison: Shop floors generate treasure of
+		&lt;quality level&gt; 5 per default).</td>
 	</tr>
 
 */

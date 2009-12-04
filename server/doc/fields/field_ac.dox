@@ -7,33 +7,39 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    This value defines the amount of armour-class bonus for wearing
-    this item. &lt;Armour class&gt; lessens the chance of being hit. Lower
-    values are better. It should usually be set only for armour-like equipment.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33
+		</td><td>		This value defines the amount of armour class bonus for wearing
+		this item. &lt;Armour class&gt; lessens the chance of being hit.
+		Higher values are better. It should usually be set only for
+		armour-like equipment.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    Every time the disease "moves" the severity of the symptoms are increased
-    by &lt;progressiveness&gt;/100. (severity = 1 + (accumlated progression)/100)</td>
+		</td><td>		Every time the disease "moves" the severity of the symptoms are
+		increased by &lt;progressiveness&gt; / 100.
+
+		(severity = 1 + (accumulated progression) / 100)</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>    A magic wall of high &lt;armour class&gt; is less likely to get hit from
-    an opponent. &lt;armour class&gt; can be considered the "counterpiece"
-    to &lt;weapon class&gt;.</td>
+		</td><td>			A magic wall of high &lt;armour class&gt; is less likely to
+			get hit from an opponent. &lt;armour class&gt; can be
+			considered the "counterpiece" to &lt;weapon class&gt;.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    Monsters of low &lt;armour class&gt; are less likely to get hit from
-    their opponent. &lt;armour class&gt; can be considered the "counterpiece"
-    to &lt;weapon class&gt;.
-    Values typically range between +20 (very bad) to -20 (quite good).
-    Note that the monster's level further improves armour class:
-    "real armour class" = &lt;armour class&gt; - &lt;level&gt;</td>
+		</td><td>			Monsters of high &lt;armour class&gt; are less likely to get
+			hit from their opponent. &lt;armour class&gt; can be
+			considered the "counterpiece" to &lt;weapon class&gt;.
+
+			Values typically range between +20 (quite good) to -20 (very
+			bad).
+
+			Note that the monster's level further improves armour class:
+			"real armour class" = &lt;armour class&gt; + &lt;level&gt;</td>
 	</tr>
 
 */

@@ -8,7 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>(no description)</td>
+		</td><td>			The monster will look for an usable bow in its inventory, in
+			order to fire arrows/bolts/stones/etc.</td>
 	</tr>
 
 */

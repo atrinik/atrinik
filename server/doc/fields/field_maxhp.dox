@@ -8,80 +8,68 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_74
-		</td><td>    &lt;Max. Ticks of Light&gt; defines the maximal value of &lt;Ticks of Light&gt;.
-    This is normally used from refilling light sources.</td>
+		</td><td>		&lt;Max. Ticks of Light&gt; defines the maximal value of
+		&lt;Ticks of Light&gt;.
+
+		This is normally used from refilling light sources.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    Positive &lt;health bonus&gt; increase the hit points.
-    Negative decrease them (decrease can't reduce the total
-    hp of the wearer below 1).</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			Positive &lt;health bonus&gt; increases the hit points.
+			Negative decreases them (decrease can't reduce the total hp of
+			the wearer below 1).</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    &lt;persistence&gt; defines how long the disease can persist OUTSIDE a host.
-    The disease can "move" &lt;persistence&gt; times outside a host before it
-    vanishes. A negative value means the disease lasts for permanent
-    (which is only recommended to use in maps without monsters).</td>
+		</td><td>			&lt;persistence&gt; defines how long the disease can persist
+			outside a host. The disease can "move" &lt;persistence&gt;
+			times outside a host before it vanishes. A negative value
+			means the disease lasts for permanent (which is only
+			recommended to use in maps without monsters).</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_26
-		</td><td>    When triggered, this time the timed gate will stay in the new condition, until
-    it reset itself. When opened, it stays this time open, then it close. 10 ticks
-    are around 5 seconds.</td>
+		</td><td>		When triggered, this is the time the timed gate will stay in the
+		new condition, until it resets itself. When opened, it stays this
+		time open, then it closes. 10 ticks are around 5 seconds.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_35
-		</td><td>    When the horn is fully charged up, it will hold this maximum amount of
-    spellpoints. Make sure it is enough to cast the contained spell at least
-    once. But don't set the value too high, as that might make the horn way
-    too effective.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_62
-		</td><td>    &lt;max hitpoints&gt; are the maximum amount of hitpoints the wall
-    can have. This only makes sense if the wall can regain health.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_80
-		</td><td>    &lt;max health&gt; is the maximum amount of &lt;health points&gt; this
-    monster can have.
-
-    Important: This is a relative value, dependant on level.
-    The in-game value is calculated as follows:
-    A value of 50 will be handled as 5.0, a value of 55 = 5.5.
-    "real max health" = (&lt;max health&gt; * (&lt;level&gt; + 3))/10</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_83
-		</td><td>    &lt;max health&gt; is the maximum amount of &lt;health points&gt; this
-    monster can have.
-
-    Important: This is a relative value, dependant on level
-    A value of 50 will be handled as 5.0, a value of 55 = 5.5.
-    The in-game value is (roughly) calculated as follows:
-    "real max health" = &lt;max health&gt; * (&lt;level&gt; + 3)/10</td>
+		</td><td>		When the horn is fully charged up, it will hold this maximum
+		amount of spellpoints. Make sure it is enough to cast the
+		contained spell at least once. But don't set the value too high,
+		as that might make the horn way too effective.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_3
-		</td><td>    When the rod is fully charged up, it will hold this maximum amount of
-    spellpoints. Make sure it is enough to cast the contained spell at least
-    once. But don't set the value too high, as that might make the rod
-    too effective.</td>
+		</td><td>		When the rod is fully charged up, it will hold this maximum
+		amount of spellpoints. Make sure it is enough to cast the
+		contained spell at least once. But don't set the value too high,
+		as that might make the rod too effective.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_62
+		</td><td>			&lt;Max hitpoints&gt; are the maximum amount of hitpoints the
+			wall can have. This only makes sense if the wall can regain
+			health.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>			&lt;max health&gt; is the maximum amount of
+			&lt;health points&gt; this monster can have.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    This should only be set to a summoning rune. It will then summon
-    that many creatures of the kind &lt;summon monster&gt;.</td>
+		</td><td>			This should only be set to a summoning rune. It will then
+			summon that many creatures of the kind &lt;summon monster&gt;.</td>
 	</tr>
 
 */

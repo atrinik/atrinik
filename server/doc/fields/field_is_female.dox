@@ -7,9 +7,9 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_80
-		</td><td>    This monster is female. You can create male, female and neuter monsters.
-	But for some reason, two-sexed monsters doesn't seem to work really well.</td>
+@ref page_type_80, @ref page_type_83
+		</td><td>		This monster is female. You can create male, female and neuter
+		monsters.</td>
 	</tr>
 
 */

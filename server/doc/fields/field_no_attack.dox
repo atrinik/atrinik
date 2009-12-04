@@ -8,7 +8,7 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    This mob will NEVER attack or fight back. Its permanent unaggressive.</td>
+		</td><td>		This mob will never attack or fight back.</td>
 	</tr>
 
 */

@@ -8,13 +8,12 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    If no_pass (blocking passage) is set for a object, no one can pass
-    the tile is it in (true for walls or closed doors). But if this
-    flag is set, the monster can pass through all no_pass objects
-    which has pass_thru set.
-    This is used for example from ghosts who moves through doors.
-    Be careful! This is a extrem powerful ability! Use it in context!
-    Orcs who moves without reason through walls are not senseful.</td>
+		</td><td>			If no_pass (blocking passage) is set for an object, no one can
+			pass the tile it is on (true for walls or closed doors). But
+			if this flag is set, the monster can pass through all no_pass
+			objects which have pass_thru set.
+
+			This is used for example for ghosts who move through doors.</td>
 	</tr>
 
 */

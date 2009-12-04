@@ -8,146 +8,132 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_110
-		</td><td>    The monster will use the specified &lt;long range spell&gt;
-    when the player is at least 6 squares away (from the
-    monster's head).
+		</td><td>		The monster will use the specified &lt;long range spell&gt; when
+		the player is at least 6 squares away (from the monster's head).
 
-    Setting a &lt;long range spell&gt; is optional. If unset, the
-    &lt;short range spell&gt; gets used all the time.</td>
+		Setting a &lt;long range spell&gt; is optional. If unset, the
+		&lt;short range spell&gt; gets used all the time.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
-		</td><td>    Positive &lt;health regen.&gt; bonus speeds up the
-    player's healing process. Negative values slow it down.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			Positive &lt;health regen.&gt; bonus speeds up the player's
+			healing process. Negative values slow it down.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_42
-		</td><td>    The creator can be triggered &lt;number of uses&gt; times, thus
-    creating that many objects, before it dissappears.
-    Default is &lt;number of uses&gt; 1 (-&gt; one-time usage).</td>
+		</td><td>		The creator can be triggered &lt;number of uses&gt; times, thus
+		creating that many objects, before it dissappears.
+
+		Default is &lt;number of uses&gt; 1 (-&gt; one-time usage).</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    This value increases the player's healing rate.
-    Negative values decrease it.</td>
+		</td><td>			This value increases the player's healing rate. Negative
+			values decrease it.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_66
-		</td><td>    The exit destinations define the (x, y)-coordinates where the exit
-    leads to.
-    If both are set to zero, the player will be transferred to the "default
-    enter location" of the destined map. The latter can be set in the map-
-    properties as "Enter X/Y". Though, please DO NOT use that.
-    It turned out to be a source for numerous map-bugs.</td>
+		</td><td>		The exit destinations define the map coordinates where the exit
+		leads to.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_6
-		</td><td>    Positive &lt;health&gt; bonus added to player's
-    hp when food eaten. Negative values will reduce hp.
-    Curse will double amd damned will triple it. In both
-    cases are positive values negated.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_54
-		</td><td>    Positive &lt;health&gt; bonus added to player's
-    hp when consumed. Negative values will reduce hp.
-    Curse will double amd damned will triple it. In both
-    cases are positive values negated.</td>
+@ref page_type_6, @ref page_type_54
+		</td><td>		Positive &lt;health&gt; bonus added to player's hp when food
+		eaten. Negative values will reduce hp. Curse will double and
+		damned will triple it, and in both cases positive values are
+		negated.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_35
-		</td><td>    This value represents the initial amount of spellpoints in the horn.
-    Naturally, this is quite unimportant.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_64
-		</td><td>    This value specifies the object we are looking for: We have a match
-    if the player does/don't carry an object that is of type &lt;match type&gt;.
-
-    Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and &lt;blocking passage&gt;
-    enabled. Now you have an inv. checker blocking all players that carry any
-    kind of melee weapon. To pass, a player is forced to leave behind all
-    his weaponry... bad news for a warrior. ;)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_62
-		</td><td>    The more &lt;hitpoints&gt; the wall has, the longer
-    it takes to be destroyed.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_80, @ref page_type_83
-		</td><td>    The &lt;health points&gt; of a monster define how long it takes to
-    kill it. With every successful hit from an opponent, health points
-    get drained - The monster dies by zero health points.
-    If the value '-1' is set, the monster will start out with full
-    health. How much that is depends on &lt;max health&gt;.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_40
-		</td><td>    This value has only a meaning if &lt;gets used up&gt; is set:
-    &lt;number of uses&gt; is the number of times minus one, that it
-    will move a creature before disappearing. (It will move
-    someone &lt;number of uses&gt;+1 times, then vanish).</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_94
-		</td><td>    The pit will transport creatures (and items) randomly into a two-square
-    radius of the destination coordinates.
-    If the destination square becomes blocked, the pit will act like
-    being filled up and not work anymore!</td>
+		</td><td>		This value represents the initial amount of spellpoints in the
+		horn. Naturally, this is quite unimportant.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_3
-		</td><td>    This value represents the initial amount of spellpoints in the rod.
-    Naturally, this is quite unimportant.</td>
+		</td><td>		This value represents the initial amount of spellpoints in the
+		rod. Naturally, this is quite unimportant.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
+		</td><td>		This value specifies the object we are looking for: We have a
+		match if the player does/don't carry an object that is of type
+		&lt;match type&gt;.
+
+		Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and
+		&lt;blocking passage&gt; enabled. Now you have an inventory
+		checker blocking all players that carry any kind of melee weapon.
+		To pass, a player is forced to leave behind all his weaponry.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_62
+		</td><td>			The more &lt;hitpoints&gt; the wall has, the longer it takes
+			to be destroyed.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>			The &lt;health points&gt; of a monster define how long it
+			takes to kill it. With every successful hit from an opponent,
+			health points get drained - the monster dies by zero health
+			points.
+
+			If the value '-1' is set, the monster will start out with
+			full health. How much that is depends on &lt;max health&gt;.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>		This value has only a meaning if &lt;gets used up&gt; is set:
+		&lt;number of uses&gt; is the number of times minus one, that it
+		will move a creature before disappearing. It will move someone
+		&lt;number of uses&gt; + 1 times, then vanish.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_94
+		</td><td>		The pit will transport creatures (and items) randomly into a
+		two-square radius of the destination coordinates.
+		If the destination square becomes blocked, the pit will act like
+		being filled up and not work anymore!</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    The rune will detonate &lt;number of charges&gt; times before disappearing.</td>
+		</td><td>		The rune will detonate &lt;number of charges&gt; times before disappearing.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_41
-		</td><td>    The exit destinations define the (x, y)-coordinates where the exit
-    leads to.
+		</td><td>		The exit destinations define the (x, y)-coordinates where the exit
+		leads to.
 
-    If both are set to zero and &lt;exit path&gt; is empty, the player will
-    get teleported to another, randomly chosen teleporter on the same
-    map (Slightly confusing for the player though). Make sure there
-    actually *is* a second one in that case.
-
-    If both are set to zero and &lt;exit path&gt; is set, the player will
-    be transferred to the "default enter location" of the destined map.
-    The latter can be set in the map-properties as "Enter X/Y". Though,
-    please DO NOT use that. It turned out to be a source for numerous
-    map-bugs.</td>
+		If both are set to zero and &lt;exit path&gt; is empty, the player will
+		get teleported to another, randomly chosen teleporter on the same
+		map (slightly confusing for the player though). Make sure there
+		actually *is* a second one in that case.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_95
-		</td><td>    The trapdoor will transport creatures (and items) randomly into
-    a two-square radius of the destination coordinates.
-    If the destination square becomes blocked, the trapdoor will act like
-    being filled up and not work anymore!</td>
+		</td><td>		The trapdoor will transport creatures (and items) randomly into
+		a two-square radius of the destination coordinates.
+		If the destination square becomes blocked, the trapdoor will act like
+		being filled up and not work anymore!</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_119
-		</td><td>    The destinations define the (x, y)-coordinates where the mob should go.</td>
+		</td><td>		The destinations define the (x, y)-coordinates where the mob
+		should go.</td>
 	</tr>
 
 */

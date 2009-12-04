@@ -8,9 +8,7 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    Monsters with this flag enabled move around at random.
-    Specifically, that means they do not approach enemy players
-    when agressive, but they never stand still either.</td>
+		</td><td>			Monsters with this flag enabled move around at random.</td>
 	</tr>
 
 */

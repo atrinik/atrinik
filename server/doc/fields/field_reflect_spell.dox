@@ -7,16 +7,16 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33, @ref page_type_15
-		</td><td>    If a player is wearing any piece of equipment with
-    the ability to &lt;reflect spells&gt;, all kinds of
-    spell-bullets and -beams will bounce off him.
-    This works only about 90% of all times, to
-    avoid players being completely immune to certain
-    types of attacks.
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			If a player is wearing any piece of equipment with the
+			ability to &lt;reflect spells&gt;, all kinds of spell bullets
+			and beams will bounce off him.
 
-    This is a very powerful ability and it
-    shouldn't be handed out cheap!</td>
+			This works only about 90% of all times, to avoid players
+			being completely immune to certain types of attacks.
+
+			This is a very powerful ability and it shouldn't be handed
+			out cheaply!</td>
 	</tr>
 
 */

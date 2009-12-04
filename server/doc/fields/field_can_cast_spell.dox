@@ -8,8 +8,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    If &lt;can cast spell&gt; is disabled, the monster cannot cast any spell.
-    Only wands/rods/etc can be used, given the appropriate abilities.</td>
+		</td><td>			If &lt;can cast spell&gt; is disabled, the monster cannot
+			cast any spell. Only wands/rods/etc can be used, given the
+			appropriate abilities.</td>
 	</tr>
 
 */

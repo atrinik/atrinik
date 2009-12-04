@@ -7,22 +7,21 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    A player with the ability to &lt;infravision (see in darkness)&gt;
-    can see better (but not perfect) in darkness. Living objects will
-    shown red.
-    For mobs, this flag is a "should-have" for high-level monsters.
-    When a monster is unable to see in darkness, in the night they will
-    not be able to move or players can cast darkness and sneak around
-    it safely.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			A player with the ability of
+			&lt;infravision (see in darkness)&gt; can see better (but not
+			perfectly) in darkness. Living objects will be shown in red.
+
+			For high-level monsters, this flag is a "should-have".</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    A monster with the ability to &lt;see in darkness&gt; cannot be fooled
-    by spells of darkness or dark maps. This flag is a "should-have"
-    for high-level monsters. When a monster is unable to see in
-    darkness, players can cast darkness and sneak around it safely.</td>
+		</td><td>			A monster with the ability to &lt;see in darkness&gt; cannot
+			be fooled by spells of darkness or dark maps. This flag is a
+			"should-have" for high-level monsters. When a monster is
+			unable to see in darkness, players can cast darkness and
+			sneak around it safely.</td>
 	</tr>
 
 */

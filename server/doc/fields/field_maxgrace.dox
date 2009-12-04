@@ -7,24 +7,29 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    Positive &lt;grace bonus&gt; increase the hit points.
-    Negative decrease them (decrease can't reduce the total
-    grace of the wearer below 1).</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			Positive &lt;grace bonus&gt; increases the hit points.
+			Negative decreases them (decrease can't reduce the total
+			grace of the wearer below 1).</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    The disease will last in the host for &lt;curing duration&gt; "disease moves"
-    (Assuming the host survives and doesn't use a curing spell).
-    After this period the disease is naturally cured, which provides the
-    host with immunity from this particular disease of lower or equal level.
+		</td><td>			The disease will last in the host for &lt;curing duration&gt;
+			"disease moves" (assuming the host survives and doesn't use a
+			curing spell).
 
-    A negative value means the disease can never be cured naturally.
+			After this period the disease is naturally cured, which
+			provides the host with immunity from this particular disease
+			of lower or equal level.
 
-    Note that this value can be further modulated by spell-parameters,
-    if the disease is registered as spell in the code. Due to that,
-    most default diseases take a lot longer to cure than it seems.</td>
+			A negative value means the disease can never be cured
+			naturally.
+
+			Note that this value can be further modulated by spell
+			parameters, if the disease is registered as spell in the
+			code. Due to that, most default diseases take a lot longer to
+			cure than it seems.</td>
 	</tr>
 
 */

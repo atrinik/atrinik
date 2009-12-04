@@ -8,163 +8,140 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_79, @ref page_type_71, @ref page_type_60, @ref page_type_116, @ref page_type_117
-		</td><td>    This text may describe the object.</td>
+		</td><td>		This text may describe the object.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18
-		</td><td>    This text will be displayed to the player in the exact moment when the altar
-    is activated.</td>
+@ref page_type_18, @ref page_type_31
+		</td><td>		This text will be displayed to the player in the exact moment
+		when the altar is activated.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_31
-		</td><td>    This text will be displayed to the player in the exact moment when
-    the altar is activated.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33
+		</td><td>		This text describes the item's "story". Every decent artifact
+		should have such a description.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_33
-		</td><td>    This text describes the item's "story". Every decent artifact
-    should have such a description.</td>
+@ref page_type_9, @ref page_type_92, @ref page_type_30, @ref page_type_72, @ref page_type_93, @ref page_type_27
+		</td><td>		This text may describe the item.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_8
-		</td><td>    This is the text that appears "written" in the book.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_92, @ref page_type_30
-		</td><td>    This text may describe the item. You can use this
-    message to explain the button's purpose to the player.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_9
-		</td><td>    This text may describe the item</td>
+		</td><td>		This is the text that appears "written" in the book.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_122
-		</td><td>    This text may contain a description of the container.</td>
+		</td><td>		This text may contain a description of the container.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_103
-		</td><td>    This text may contain a description of the converter.</td>
+		</td><td>		This text may contain a description of the converter.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    This text is displayed to the player every time the
-    symptoms strike.</td>
+		</td><td>		This text is displayed to the player every time the symptoms
+		strike.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_66
-		</td><td>    If set, this message will be displayed to the player when he applies the exit.
-    This is quite useful to throw in some "role-play feeling": "As you enter the
-    dark cave you hear the sound of rustling dragonscales...". Well, my english
-    is poor, but you get the point. =)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_72
-		</td><td>    This text may describe the item.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_93, @ref page_type_27
-		</td><td>    This text may describe the item. You can use this
-    message to explain the handle's purpose to the player.</td>
+		</td><td>		If set, this message will be displayed to the player when he
+		applies the exit. This is quite useful to throw in some
+		"role-play feeling": "As you enter the dark cave you hear the
+		sound of rustling dragonscales...".</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_35
-		</td><td>    This text may contain a description of the horn.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_20
-		</td><td>    When a player is trying to open the door without carrying the
-    appropriate key, this text is displayed to the player. This is
-    a good opportunity to place hints about the special key needed
-    to unlock the door.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_29
-		</td><td>    This textfield contains the keyword-matching-syntax. The text should
-    have the following format: "@match &lt;keyword1&gt;|&lt;keyword2&gt;|... ".
-    Any number of keywords from one to infinite is allowed. Make sure
-    they are seperated by a '|'.
-
-    Examples: "@match yes", "@match gold|treasure". The connected
-    value will be triggerd when the player speaks any of the given
-    keywords within a two-square radius. IMPORTANT: Upper/lower case
-    does not make a difference!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_55
-		</td><td>    In the moment when the player gets marked, this text is displayed
-    to him. You should really set a message in any marker you create,
-    because it's the only way for the player to notice what's going on.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_80, @ref page_type_83
-		</td><td>(no description)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_13
-		</td><td>    This text may describe the projectile. This
-    could be nice for very special ones.</td>
+		</td><td>		This text may contain a description of the horn.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_3
-		</td><td>    This text may contain a description of the rod.</td>
+		</td><td>		This text may contain a description of the rod.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_20
+		</td><td>		When a player is trying to open the door without carrying the
+		appropriate key, this text is displayed to the player. This is
+		a good opportunity to place hints about the special key needed
+		to unlock the door.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_29, @ref page_type_80, @ref page_type_83
+		</td><td>		This textfield contains the keyword-matching-syntax. The text
+		should have the following format:
+
+		"@match &lt;keyword1&gt;|&lt;keyword2&gt;|... ".
+
+		Any number of keywords from one to infinite is allowed. Make sure
+		they are seperated by a '|'.
+
+		Examples: "@match yes", "@match gold|treasure". The connected
+		value will be triggerd when the player speaks any of the given
+		keywords within a two-square radius.
+
+		IMPORTANT: Upper/lower case does not make a difference.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_55
+		</td><td>		In the moment when the player gets marked, this text is displayed
+		to him. You should really set a message in any marker you create,
+		because it's the only way for the player to notice what's going
+		on.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_13
+		</td><td>		This text may describe the projectile. This could be nice for
+		very special ones.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    When the rune detonates, this text is displayed to the
-    victim. For especially powerful runes, create an appropriate
-    thrilling description. ;)</td>
+		</td><td>		When the rune detonates, this text is displayed to the victim.
+		For especially powerful runes, create an appropriate thrilling
+		description. ;)</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_14, @ref page_type_15
-		</td><td>    This text describes the weapons's "story". Every decent artifact weapon
-    should have such a description.</td>
+		</td><td>		This text describes the weapons's "story". Every decent artifact
+		weapon should have such a description.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_98
-		</td><td>    This text will be displayed to the player.</td>
+		</td><td>		This text will be displayed to the player.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_21
-		</td><td>    This will add a description to the object. The player can read
-    this text by clicking on the item in his inventory. Use this
-    message to describe what the key/passport is good for. A player
-    might have 50 different keys on his key-ring. Don't expect
-    players to recall their purpose just by their names.</td>
+		</td><td>		This will add a description to the object. The player can read
+		this text by clicking on the item in his inventory. Use this
+		message to describe what the key is good for. A player might
+		have 50 different keys on his key-ring. Don't expect players
+		to recall their purpose just by their names.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_85
-		</td><td>    This text may contain a nice description
-    of the spellbook's cover or something.</td>
+		</td><td>		This text may contain a nice description of the spellbook's cover
+		or something.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_109
-		</td><td>    This text may contain a description of the wand.</td>
+		</td><td>		This text may contain a description of the wand.</td>
 	</tr>
 
 */

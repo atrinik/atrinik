@@ -8,8 +8,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>   if random_move is set, this determinates a ABS() value of x position
-   the creatures can move away from the spawn point.</td>
+		</td><td>			If random_move is set, this determines value of X position
+			the creatures can move away from the spawn point (if it has
+			one).</td>
 	</tr>
 
 */

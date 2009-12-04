@@ -8,10 +8,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_13
-		</td><td>    When a monster carries a projectile with &lt;don't drop&gt;,
-    this item will never drop to the ground but
-    vanish instead. If this object is shot, it can still drop
-    after hitting an obstacle.</td>
+		</td><td>		When a monster carries a projectile with &lt;don't drop&gt;, this
+		item will never drop to the ground but vanish instead. If this
+		object is shot, it can still drop after hitting an obstacle.</td>
 	</tr>
 
 */

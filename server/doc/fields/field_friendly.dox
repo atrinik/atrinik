@@ -8,8 +8,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    &lt;friendly&gt; monsters help the player, attacking any
-    non-friendly monsters in range.</td>
+		</td><td>			&lt;friendly&gt; monsters help the player, attacking any non-
+			friendly monsters in range.</td>
 	</tr>
 
 */

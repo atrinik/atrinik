@@ -1,5 +1,5 @@
 /**
-@fn obj::movement_type
+@fn obj::move_type
 @section Use
 <table>
 	<tr>
@@ -8,7 +8,21 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>	FIXME: copy documentation from define.h</td>
+		</td><td>			Pet movement: The monster does pet movement.
+			Small circle: Will move in a circle until it is attacked.
+			Large circle: Same as small circle, but a larger circle is
+			used.
+			Short horizontal pace: Will pace back and forth until
+			attacked.
+			Long horizontal pace: Like short one, but the length of the
+			horizontal pace area is longer.
+			Random direction: Will go in a random direction.
+			Random walk: Constantly move in a different random direction.
+			Short vertical pace: Like short horizontal pace, but vertical
+			instead.
+			Long vertical pace: Like short one, but the length of the
+			vertical pace area is longer.
+			Use waypoints: The monster uses waypoints, if it has any.</td>
 	</tr>
 
 */

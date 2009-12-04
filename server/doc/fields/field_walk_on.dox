@@ -8,35 +8,36 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_66
-		</td><td>    If set, the player will apply the exit by just walking into it. This must
-    be set for the invisible exits for example. If unset, the player has
-    to step onto the exit and press 'a' to get transferred.</td>
+		</td><td>		If set, the player will apply the exit by just walking into it.
+		This must be set for the invisible exits for example. If unset,
+		the player has to step onto the exit and press 'a' to get
+		transferred.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_40
-		</td><td>    This should always be set.</td>
+		</td><td>			This should always be set.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_94
-		</td><td>    If set, all walking creatures will fall into the pit.
-    This does NOT need to be set for closed pits!</td>
+		</td><td>		If set, all walking creatures will fall into the pit. This does
+		NOT need to be set for closed pits!</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_69
-		</td><td>    If set, the player can enter/leave the
-    shop by just walking into the shop mat.</td>
+		</td><td>		If set, the player can enter/leave the shop by just walking into
+		the shop mat.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_98
-		</td><td>    If set, the player gets the message when walking ontop of the object.
-    This is the typical configuration
-    for a "magic_mouth": The player walks through a dungeon and suddenly he
-    gets a message. Use this to create some roleplay atmosphere, and to inform
-    the player about possible dangers or secrets.</td>
+		</td><td>		If set, the player gets the message when walking ontop of the
+		object. This is the typical configuration for a magic mouth: The
+		player walks through a dungeon and suddenly he gets a message.
+		Use this to create some roleplay atmosphere, and to inform the
+		player about possible dangers or secrets.</td>
 	</tr>
 
 */

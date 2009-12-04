@@ -7,13 +7,24 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_39, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_70, @ref page_type_14, @ref page_type_33, @ref page_type_15
-		</td><td>    With positive luck bonus, the player is more likely to
-    succeed in all sorts of things (spellcasting, praying,...).
-    Unless the &lt;luck bonus&gt; is very high, the effect will be
-    barely visible in-game. Luck bonus on one piece of equipment
-    should never exceed 3, and such bonus should not be too
-    frequently available.</td>
+@ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
+		</td><td>			With positive luck bonus, the player is more likely to
+			succeed in all sorts of things (spellcasting, praying,...).
+
+			Unless the &lt;luck bonus&gt; is very high, the effect will
+			be barely visible in-game. Luck bonus on one piece of
+			equipment should never exceed 3, and such bonus should not be
+			too frequently available.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_14
+		</td><td>			With positive luck bonus, the player is more likely to
+			succeed in all sorts of things (spellcasting, praying,...).
+			Unless the &lt;luck bonus&gt; is very high, the effect will
+			be barely visible in-game. Luck bonus on one piece of
+			equipment should never exceed 3, and such bonus should not be
+			too frequently available.</td>
 	</tr>
 
 */

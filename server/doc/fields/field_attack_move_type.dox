@@ -8,7 +8,16 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    FIXME: copy documentation from define.h</td>
+		</td><td>			Distance attack: Move toward a player if far, but mantain
+			some space.
+			Run away: Run but attack if player catches up to object.
+			Hit and run: Run to then hit player then run away cyclicly.
+			Wait and hit: Wait for player to approach then hit, move if
+			hit.
+			Rush: Rush toward player blindly, similiar to dumb monster.
+			Always run: Always run never attack.
+			Wait and hit from distance: Attack from a distance if hit.
+			Keep distance: Do not try to move towards player if far.</td>
 	</tr>
 
 */

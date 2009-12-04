@@ -8,70 +8,74 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_158
-		</td><td>    A disease with a positive &lt;damage&gt; value will strike the player for that
-    amount of damage every time the symptoms occur.
-    A negative &lt;damage&gt; value produces %-based damage: "&lt;damage&gt; -10" means
-    the player's health is reduced by 10% every time the symptoms strike.
+		</td><td>			A disease with a positive &lt;damage&gt; value will strike
+			the player for that amount of damage every time the symptoms
+			occur.
 
-    Diseases with %-based damage can be dangerous - but not deadly -
-    for players of all levels.</td>
+			A negative &lt;damage&gt; value produces %-based damage:
+			"&lt;damage&gt; -10" means the player's health is reduced by
+			10% every time the symptoms strike.
+
+			Diseases with %-based damage can be dangerous - but not
+			deadly - for players of all levels.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_88
-		</td><td>    The &lt;base damage&gt; defines how much damage is inflicted to the
-    victim per hit. The final damage is influenced by several other
-    factors like the victim's resistance and level.</td>
+		</td><td>		The &lt;base damage&gt; defines how much damage is inflicted to
+		the victim per hit. The final damage is influenced by several
+		other factors like the victim's resistance and level.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>    The magic wall will cast this &lt;spell&gt;.</td>
+		</td><td>		The magic wall will cast this &lt;spell&gt;.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>    A value of 50 will be handled as 5.0, a value of 55 = 5.5.
-    Among other parameters, &lt;damage&gt; affects how much melee damage
-    a monster inflicts. &lt;damage&gt; is used as base value for damage per
-    hit. &lt;level&gt;, &lt;speed&gt;, &lt;weapon class&gt; and resistances also
-    take effect on the melee damage of a monster.</td>
+		</td><td>			A value of 50 will be handled as 5.0, a value of 55 =
+			5.5. Amongst other parameters, &lt;damage&gt; affects how
+			much melee damage a monster inflicts. &lt;damage&gt; is used
+			as base value for damage per hit. &lt;level&gt;,
+			&lt;speed&gt;, &lt;weapon class&gt; and resistances also take
+			effect on the melee damage of a monster.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_7
-		</td><td>    A poison with a positive &lt;damage&gt; value will hit the player
-    all ticks with it adjusted by level.</td>
+		</td><td>		A poison with a positive &lt;damage&gt; value will hit the player
+		all ticks with it adjusted by level.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_13
-		</td><td>    The projectile &lt;damage&gt; significantly affects the damage
-    done. Damage can be further increased by the shooting
-    weapon's attributes.</td>
+		</td><td>		The projectile &lt;damage&gt; significantly affects the damage
+		done. Damage can be further increased by the shooting weapon's
+		attributes.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_154
-		</td><td>    &lt;direct damage&gt; specifies how much damage is done by the rune,
-    if it doesn't contain a spell. This should be set in reasonable
-    relation to the rune's level.</td>
+		</td><td>		&lt;direct damage&gt; specifies how much damage is done by the
+		rune, if it doesn't contain a spell. This should be set in
+		reasonable relation to the rune's level.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_14
-		</td><td>    The &lt;base damage&gt; significantly affects the damage done
-    by using this weapon. This damage is added to the projectile
-    damage and then (if &lt;ignore strength&gt; disabled) a bonus
-    according to the player's strength is added.</td>
+		</td><td>		The &lt;base damage&gt; significantly affects the damage done by
+		using this weapon. This damage is added to the projectile damage
+		and then (if &lt;ignore strength&gt; disabled) a bonus according
+		to the player's strength is added.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_15
-		</td><td>    The damage value is used as base value for how much damage the weapon
-    does per hit. The actual damage involves more dependencies,
-    like wielder's level and defender's level. Look at existing weapons
-    to get a feel for the range of weapon damage values.</td>
+		</td><td>		The damage value is used as base value for how much damage the
+		weapon does per hit. The actual damage involves more
+		dependencies, like wielder's level and defender's level. Look at
+		existing weapons to get a feel for the range of weapon damage values.</td>
 	</tr>
 
 */

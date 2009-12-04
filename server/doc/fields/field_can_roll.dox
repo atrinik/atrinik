@@ -8,14 +8,18 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_79
-		</td><td>    If set, the object is able to "roll", so it can be pushed around with the
-    /push command. This setting is used for boulders and barrels.</td>
+		</td><td>		If set, the object is able to "roll", so it can be pushed around
+		with the /push command. This setting is used for boulders and
+		barrels.
+
+		Useful for puzzles and mazes.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_77
-		</td><td>    If set, the object is able to "roll", so it can be pushed around.
-    This setting is used for boulders and barrels.</td>
+		</td><td>		If set, the object is able to "roll", so it can be pushed around
+		with the /push command. This setting is used for boulders and
+		barrels.</td>
 	</tr>
 
 */
