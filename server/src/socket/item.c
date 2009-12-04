@@ -1621,15 +1621,6 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 			return;
 		}
 
-		if (MAP_UNIQUE(pl->map) && !MAP_NOSAVE(pl->map))
-		{
-			if (op->type != CONTAINER || op->sub_type1 != 1)
-			{
-				new_draw_info(NDI_UNIQUE, 0, pl, "You can only drop items into special containers here.");
-				return;
-			}
-		}
-
 		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
 		if ((tmp = check_container(pl, op)))
