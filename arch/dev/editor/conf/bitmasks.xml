@@ -3,67 +3,67 @@
 <bitmasks>
 
 <bitmask name="material">
-  <bmentry bit="0"  name="Paper" />
-  <bmentry bit="1"  name="Hard Metal" />
-  <bmentry bit="2"  name="Crystal" />
-  <bmentry bit="3"  name="Leather" />
-  <bmentry bit="4"  name="Wood" />
-  <bmentry bit="5"  name="Organics" />
-  <bmentry bit="6"  name="Stone" />
-  <bmentry bit="7"  name="Cloth" />
-  <bmentry bit="8"  name="Magic Material" />
-  <bmentry bit="9"  name="Liquid" />
-  <bmentry bit="10" name="Soft Metal" />
-  <bmentry bit="11" name="Bone" />
-  <bmentry bit="12" name="Ice" />
+	<bmentry bit="0" name="Paper" />
+	<bmentry bit="1" name="Hard Metal" />
+	<bmentry bit="2" name="Crystal" />
+	<bmentry bit="3" name="Leather" />
+	<bmentry bit="4" name="Wood" />
+	<bmentry bit="5" name="Organics" />
+	<bmentry bit="6" name="Stone" />
+	<bmentry bit="7" name="Cloth" />
+	<bmentry bit="8" name="Magic Material" />
+	<bmentry bit="9" name="Liquid" />
+	<bmentry bit="10" name="Soft Metal" />
+	<bmentry bit="11" name="Bone" />
+	<bmentry bit="12" name="Ice" />
 </bitmask>
 
 <bitmask name="spellpath">
-  <bmentry bit="0" name="Protection" />
-  <bmentry bit="1" name="Fire" />
-  <bmentry bit="2" name="Frost" />
-  <bmentry bit="3" name="Electricity" />
-  <bmentry bit="4" name="Missiles" />
-  <bmentry bit="5" name="Self" />
-  <bmentry bit="6" name="Summoning" />
-  <bmentry bit="7" name="Abjuration" />
-  <bmentry bit="8" name="Restoration" />
-  <bmentry bit="9" name="Detonation" />
-  <bmentry bit="10" name="Mind" />
-  <bmentry bit="11" name="Creation" />
-  <bmentry bit="12" name="Teleportation" />
-  <bmentry bit="13" name="Information" />
-  <bmentry bit="14" name="Transmutation" />
-  <bmentry bit="15" name="Transferrence" />
-  <bmentry bit="16" name="Turning" />
-  <bmentry bit="17" name="Wounding" />
-  <bmentry bit="18" name="Death" />
-  <bmentry bit="19" name="Light" />
+	<bmentry bit="0" name="Protection" />
+	<bmentry bit="1" name="Fire" />
+	<bmentry bit="2" name="Frost" />
+	<bmentry bit="3" name="Electricity" />
+	<bmentry bit="4" name="Missiles" />
+	<bmentry bit="5" name="Self" />
+	<bmentry bit="6" name="Summoning" />
+	<bmentry bit="7" name="Abjuration" />
+	<bmentry bit="8" name="Restoration" />
+	<bmentry bit="9" name="Detonation" />
+	<bmentry bit="10" name="Mind" />
+	<bmentry bit="11" name="Creation" />
+	<bmentry bit="12" name="Teleportation" />
+	<bmentry bit="13" name="Information" />
+	<bmentry bit="14" name="Transmutation" />
+	<bmentry bit="15" name="Transferrence" />
+	<bmentry bit="16" name="Turning" />
+	<bmentry bit="17" name="Wounding" />
+	<bmentry bit="18" name="Death" />
+	<bmentry bit="19" name="Light" />
 </bitmask>
 
 <bitmask name="will_apply">
-  <bmentry bit="0" name="Apply Handles" />
-  <bmentry bit="1" name="Open Chests" />
-  <bmentry bit="2" name="Break Walls" />
-  <bmentry bit="3" name="Open Doors" />
+	<bmentry bit="0" name="Apply Handles" />
+	<bmentry bit="1" name="Open Chests" />
+	<bmentry bit="2" name="Break Walls" />
+	<bmentry bit="3" name="Open Doors" />
 </bitmask>
 
 <bitmask name="pick_up">
-  <bmentry bit="0" name="Nothing" />
-  <bmentry bit="1" name="Wealth" />
-  <bmentry bit="2" name="Food" />
-  <bmentry bit="3" name="Weapons" />
-  <bmentry bit="4" name="Armour" />
-  <bmentry bit="5" name="Inverse" />
-  <bmentry bit="6" name="All" />
+	<bmentry bit="0" name="Nothing" />
+	<bmentry bit="1" name="Wealth" />
+	<bmentry bit="2" name="Food" />
+	<bmentry bit="3" name="Weapons" />
+	<bmentry bit="4" name="Armour" />
+	<bmentry bit="5" name="Inverse" />
+	<bmentry bit="6" name="All" />
 </bitmask>
 
 <bitmask name="terrain">
-  <bmentry bit="0" name="Land Surface" />
-  <bmentry bit="1" name="Water Surface" />
-  <bmentry bit="2" name="Under Water" />
-  <bmentry bit="3" name="Fire Surface" />
-  <bmentry bit="4" name="Under Fire" />
-  <bmentry bit="5" name="Cloud Surface" />
+	<bmentry bit="0" name="Land Surface" />
+	<bmentry bit="1" name="Water Surface" />
+	<bmentry bit="2" name="Under Water" />
+	<bmentry bit="3" name="Fire Surface" />
+	<bmentry bit="4" name="Under Fire" />
+	<bmentry bit="5" name="Cloud Surface" />
 </bitmask>
 </bitmasks>

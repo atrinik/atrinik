@@ -106,13 +106,13 @@ void move_player_mover(object *op)
 				move_object(victim, dir);
 			}
 
-			if (!op->stats.maxsp && op->attacktype)
+			if (!op->stats.maxsp && op->stats.sp)
 			{
 				op->stats.maxsp = 2;
 			}
 
 			/* flag to paralyze the player */
-			if (op->attacktype)
+			if (op->stats.sp)
 			{
 				victim->speed_left = -FABS(op->stats.maxsp * victim->speed / op->speed);
 			}

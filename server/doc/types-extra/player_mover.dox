@@ -27,8 +27,8 @@
     <td>If set, it'll disappear after living::hp + 1 moves.</td>
 </tr>
 <tr>
-    <td>living::hp, object::attacktype</td>
-    <td>If both are set, it'll paralyze the victim for living::hp * his speed / object::speed</td>
+    <td>living::maxsp, living::sp</td>
+    <td>If both are set, it'll paralyze the victim for living::maxsp * his speed / object::speed</td>
 </tr>
 </table>
 */
