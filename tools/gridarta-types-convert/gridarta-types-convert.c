@@ -440,8 +440,8 @@ type_attribute *get_attribute_for_type(type_definition *type, const char *attrib
 /**
  * Free a type attribute.
  * @param attr Attribute to free. */
-void free_attribute(type_attribute *attr){
-
+void free_attribute(type_attribute *attr)
+{
 	free(attr->field);
 	free(attr->name);
 	free(attr->description);
@@ -531,6 +531,50 @@ int sort_type_attribute(const void *a, const void *b)
 	const type_attribute **lb = (const type_attribute **) b;
 
 	return strcmp((*la)->name, (*lb)->name);
+}
+
+/** Used for ::fake_names. */
+typedef struct
+{
+	/** Fake name. */
+	const char *fake_name;
+
+	/** Real name. */
+	char *real_name;
+} fake_name_definition;
+
+/**
+ * Fake names, because things like "animation" actually is "animation_id"
+ * and "object_int1" is "enemy_count". */
+static fake_name_definition fake_names[] =
+{
+	{"animation", "animation_id"},
+	{"object_int1", "enemy_count"},
+	{"object_int2", "attacked_by_count"},
+	{"object_int3", "ownercount"},
+	{"movement_type", "move_type"},
+	{"sub_type", "sub_type1"},
+	{"container", "weight_limit"},
+	{NULL, NULL}
+};
+
+/**
+ * Find real name from fake name in the ::fake_names array.
+ * @param name Fake name to find.
+ * @return The real name, or the passed name if not found. */
+static char *find_fake_attr_name(char *name)
+{
+	int i;
+
+	for (i = 0; fake_names[i].fake_name; i++)
+	{
+		if (!strcmp(name, fake_names[i].fake_name))
+		{
+			return fake_names[i].real_name;
+		}
+	}
+
+	return name;
 }
 
 /**
@@ -1097,7 +1141,7 @@ int is_custom_attribute(const char *attribute)
  * Write the part to the right of a \@ref for the specified attribute.
  * @param attribute Attribute.
  * @param file File to write to. */
-void write_attribute_reference(const char *attribute, FILE *file)
+void write_attribute_reference(char *attribute, FILE *file)
 {
 	const flag_definition *flag = find_flag(attribute);
 	int val;
@@ -1129,7 +1173,7 @@ void write_attribute_reference(const char *attribute, FILE *file)
 		return;
 	}
 
-	fprintf(file, "obj::%s", attribute);
+	fprintf(file, "obj::%s", find_fake_attr_name(attribute));
 }
 
 /**
