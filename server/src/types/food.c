@@ -75,6 +75,8 @@ void apply_food(object *op, object *tmp)
 
 			if (!QUERY_FLAG(tmp, FLAG_CURSED) && !QUERY_FLAG(tmp, FLAG_DAMNED))
 			{
+				int capacity_remaining = FOOD_MAX - op->stats.food;
+
 				if (!is_dragon_pl(op))
 				{
 					/* eating message for normal players */
@@ -95,6 +97,20 @@ void apply_food(object *op, object *tmp)
 				}
 
 				op->stats.food += tmp->stats.food;
+
+				if (capacity_remaining < tmp->stats.food)
+				{
+					op->stats.hp += capacity_remaining / 50;
+				}
+				else
+				{
+					op->stats.hp += tmp->stats.food / 50;
+				}
+
+				if (op->stats.hp > op->stats.maxhp)
+				{
+					op->stats.hp = op->stats.maxhp;
+				}
 			}
 			/* cursed/damned = food is decreased instead of increased */
 			else
@@ -105,7 +121,7 @@ void apply_food(object *op, object *tmp)
 
 				if (ft > 0)
 				{
-					ft =- ft;
+					ft = -ft;
 				}
 
 				op->stats.food += ft;
