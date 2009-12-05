@@ -170,6 +170,7 @@ void cast_magic_storm(object *op, object *tmp, int lvl)
 int recharge(object *op)
 {
 	object *wand = find_marked_object(op);
+	int cap;
 
 	if (wand == NULL || wand->type != WAND)
 	{
@@ -189,11 +190,12 @@ int recharge(object *op)
 	new_draw_info_format(NDI_UNIQUE, 0, op, "The %s glows with power.", query_name(wand, NULL));
 
 	wand->stats.food += rndm(1, spells[wand->stats.sp].charges);
+	cap = (RANDOM() % spells[wand->stats.sp].charges + 1) + 12;
 
 	/* Place a cap on it. */
-	if (wand->stats.food > spells[wand->stats.sp].charges)
+	if (wand->stats.food > cap)
 	{
-		wand->stats.food = spells[wand->stats.sp].charges;
+		wand->stats.food = cap;
 	}
 
 	if (wand->arch && QUERY_FLAG(&wand->arch->clone, FLAG_ANIMATE))
