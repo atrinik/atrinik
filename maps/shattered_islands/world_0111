@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-12-04 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -161,7 +161,14 @@ end
 arch grassd_5
 x 1
 end
+arch wall_stone16_8
+x 1
+end
 arch grassd_4
+x 1
+y 1
+end
+arch wall_stone16_3
 x 1
 y 1
 end
@@ -169,7 +176,15 @@ arch grassd_1
 x 1
 y 2
 end
+arch wall_stone16_3
+x 1
+y 2
+end
 arch grassd_2
+x 1
+y 3
+end
+arch wall_stone16_3
 x 1
 y 3
 end
@@ -177,7 +192,20 @@ arch grassd_3
 x 1
 y 4
 end
+arch wall_stone16_3
+x 1
+y 4
+end
+arch wmask_fire_on_1
+direction 7
+x 1
+y 4
+end
 arch grassd_1
+x 1
+y 5
+end
+arch wall_stone16_3
 x 1
 y 5
 end
@@ -185,7 +213,15 @@ arch grassd_6
 x 1
 y 6
 end
+arch wall_stone16_3
+x 1
+y 6
+end
 arch grassd_6
+x 1
+y 7
+end
+arch wall_stone16_3
 x 1
 y 7
 end
@@ -268,35 +304,132 @@ end
 arch grassd_3
 x 2
 end
-arch grassd_8
+arch wall_stone16_1
+x 2
+end
+arch floor_ostone10
 x 2
 y 1
 end
-arch grassd_2
+arch chest_4.111
+x 2
+y 1
+end
+arch floor_ostone10
 x 2
 y 2
 end
-arch grassd_7
+arch floor_ostone10
 x 2
 y 3
 end
-arch grassd_8
+arch spawn_point
+x 2
+y 3
+arch monk
+name Derowyn
+type 83
+level 20
+friendly 1
+direction 3
+arch event_obj
+sub_type 6
+race ../python/generic/quest_giver.py
+slaying /shattered_islands/scripts/strakewood_island/quests.py
+end
+arch sack
+name Ogres near Brynknot
+sys_object 1
+arch scroll_min_heal
+nrof 5
+level 5
+identified 1
+value 9
+end
+end
+arch sack
+name Evil Trees at Brynknot
+sys_object 1
+arch wand
+identified 1
+is_magical 1
+sp 0
+level 8
+food 19
+material_real 257
+item_quality 80
+item_condition 80
+end
+end
+arch sack
+name Forgotten Graveyard at Strakewood Island
+sys_object 1
+arch scroll_recharge
+nrof 7
+level 10
+identified 1
+value 7
+end
+end
+arch sack
+name Wyverns at Strakewood Island
+sys_object 1
+arch amulet_generic
+value 1725
+identified 1
+is_magical 1
+ac 1
+end
+end
+arch sack
+name Ice Golems in Old Outpost
+sys_object 1
+arch silvercoin
+nrof 10
+end
+end
+arch sack
+name Lava Golems in Old Outpost
+sys_object 1
+arch silvercoin
+nrof 15
+end
+end
+arch sack
+name Giant Wasps at Strakewood Island
+sys_object 1
+arch silvercoin
+nrof 7
+end
+end
+end
+end
+arch light5
+x 2
+y 3
+end
+arch floor_ostone10
 x 2
 y 4
 end
-arch grassd_8
+arch floor_ostone10
 x 2
 y 5
 end
-arch plant12
-x 2
-y 5
-end
-arch grassd_8
+arch floor_ostone10
 x 2
 y 6
 end
-arch grassd_3
+arch chest_w1
+direction 7
+x 2
+y 6
+end
+arch floor_ostone10
+x 2
+y 7
+end
+arch wall_stone16_1
 x 2
 y 7
 end
@@ -383,43 +516,98 @@ end
 arch grassd_8
 x 3
 end
-arch grassd_3
+arch wall_stone16_1
+x 3
+end
+arch floor_ostone10
 x 3
 y 1
 end
-arch small_stones
+arch bank2c
+no_pass 1
+direction 5
 x 3
 y 1
 end
-arch grassd_1
+arch floor_ostone10
 x 3
 y 2
 end
-arch grassd_3
+arch carpet7.131
+x 3
+y 2
+end
+arch bank2b
+no_pass 1
+direction 7
+x 3
+y 2
+end
+arch light4
+x 3
+y 2
+end
+arch floor_ostone10
 x 3
 y 3
 end
-arch tree_big5b
+arch carpet7.131
 x 3
 y 3
 end
-arch grassd_7
+arch bank2b
+no_pass 1
+direction 7
+x 3
+y 3
+end
+arch floor_ostone10
 x 3
 y 4
 end
-arch grassd_7
+arch carpet7.131
+x 3
+y 4
+end
+arch bank2b
+no_pass 1
+direction 7
+x 3
+y 4
+end
+arch floor_ostone10
 x 3
 y 5
 end
-arch grassd_6
+arch carpet7.131
+x 3
+y 5
+end
+arch bank2b
+no_pass 1
+direction 7
+x 3
+y 5
+end
+arch light4
+x 3
+y 5
+end
+arch floor_ostone10
 x 3
 y 6
 end
-arch grassd_5
+arch bank2a
+no_pass 1
+direction 5
+x 3
+y 6
+end
+arch floor_ostone10
 x 3
 y 7
 end
-arch tree_big2
+arch wall_stone16_1
 x 3
 y 7
 end
@@ -502,31 +690,71 @@ end
 arch grassd_7
 x 4
 end
-arch grassd_5
+arch wall_stone16_1
+x 4
+end
+arch floor_ostone10
 x 4
 y 1
 end
-arch grassd_1
+arch carpet7.151
+x 4
+y 1
+end
+arch fireplace_right
+x 4
+y 1
+end
+arch floor_ostone10
 x 4
 y 2
 end
-arch grassd_7
+arch carpet7i
+x 4
+y 2
+end
+arch floor_ostone10
 x 4
 y 3
 end
-arch grassd_8
+arch carpet7e
+x 4
+y 3
+end
+arch floor_ostone10
 x 4
 y 4
 end
-arch grassd_7
+arch carpet7e
+x 4
+y 4
+end
+arch floor_ostone10
 x 4
 y 5
 end
-arch grassd_3
+arch carpet7j
+x 4
+y 5
+end
+arch floor_ostone10
 x 4
 y 6
 end
-arch grassd_8
+arch carpet7.111
+x 4
+y 6
+end
+arch chair1_111
+direction 7
+x 4
+y 6
+end
+arch floor_ostone10
+x 4
+y 7
+end
+arch wall_stone16_1
 x 4
 y 7
 end
@@ -605,43 +833,82 @@ end
 arch grassd_7
 x 5
 end
-arch grassd_3
+arch wall_stone16_1
+x 5
+end
+arch floor_ostone10
 x 5
 y 1
 end
-arch tree_big2
+arch carpet7.151
 x 5
 y 1
 end
-arch grassd_4
+arch light3
+x 5
+y 1
+end
+arch floor_ostone10
 x 5
 y 2
 end
-arch grassd_5
+arch carpet7h
+x 5
+y 2
+end
+arch floor_ostone10
 x 5
 y 3
 end
-arch grassd_1
+arch carpet7c
+x 5
+y 3
+end
+arch floor_ostone10
 x 5
 y 4
 end
-arch grassd_7
+arch carpet7c
+x 5
+y 4
+end
+arch light5
+x 5
+y 4
+end
+arch floor_ostone10
 x 5
 y 5
 end
-arch tree_big
+arch carpet7k
 x 5
 y 5
 end
-arch grassd_7
+arch chair1_111
+x 5
+y 5
+end
+arch floor_ostone10
 x 5
 y 6
 end
-arch grassd_7
+arch carpet7.111
+x 5
+y 6
+end
+arch table_round5
+x 5
+y 6
+end
+arch light3
+x 5
+y 6
+end
+arch floor_ostone10
 x 5
 y 7
 end
-arch plant_mushroom2
+arch wall_stone16_w.111
 x 5
 y 7
 end
@@ -750,35 +1017,68 @@ end
 arch grassd_5
 x 6
 end
-arch grassd_6
+arch wall_stone16_1
+x 6
+end
+arch floor_ostone10
 x 6
 y 1
 end
-arch grassd_8
+arch wall_stone16_3
+x 6
+y 1
+end
+arch floor_ostone10
 x 6
 y 2
 end
-arch grassd_6
+arch wall_stone16_3
+x 6
+y 2
+end
+arch floor_ostone10
 x 6
 y 3
 end
-arch plant_flower1
+arch wall_stone16_3
 x 6
 y 3
 end
-arch grassd_1
+arch floor_ostone10
 x 6
 y 4
 end
-arch grassd_6
+arch door1_locked
+direction 3
+x 6
+y 4
+end
+arch floor_ostone10
 x 6
 y 5
 end
-arch grassd_3
+arch wall_stone16_3
+x 6
+y 5
+end
+arch wmask_wanted.151
+direction 7
+x 6
+y 5
+end
+arch floor_ostone10
 x 6
 y 6
 end
-arch grassd_7
+arch wall_stone16_3
+x 6
+y 6
+end
+arch floor_ostone10
+x 6
+y 7
+end
+arch wall_stone16_4
 x 6
 y 7
 end
@@ -889,8 +1189,8 @@ arch grassd_6
 x 7
 y 1
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 1
 end
@@ -903,15 +1203,30 @@ arch grassd_6
 x 7
 y 2
 end
-arch grassd_7
+arch floor_flagm2
 x 7
 y 3
 end
-arch grassd_3
+arch grassd_m4
+x 7
+y 3
+end
+arch floor_flagm1
 x 7
 y 4
 end
-arch grassd_2
+arch floor_flagm1
+x 7
+y 5
+end
+arch grassd_m3
+x 7
+y 5
+end
+arch magic_mouth
+msg
+Derowyn, the quest giver
+endmsg
 x 7
 y 5
 end
@@ -923,8 +1238,8 @@ arch grassd_5
 x 7
 y 7
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 7
 end
@@ -1049,7 +1364,7 @@ arch floor_flagm4
 x 8
 y 3
 end
-arch grassd_m9
+arch grassd_m13
 x 8
 y 3
 end
@@ -1057,15 +1372,11 @@ arch floor_flagm2
 x 8
 y 4
 end
-arch grassd_m9
-x 8
-y 4
-end
 arch floor_flagm4
 x 8
 y 5
 end
-arch grassd_m9
+arch grassd_m14
 x 8
 y 5
 end

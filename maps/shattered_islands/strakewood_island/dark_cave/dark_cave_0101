@@ -2,7 +2,7 @@ arch map
 name Wilderness - Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -666,6 +666,10 @@ magic 40
 Wis 4
 arch ability_firestorm
 end
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -771,6 +775,10 @@ protect_fire 6
 item_quality 86
 item_condition 86
 end
+end
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
 end
 end
 end
@@ -1525,6 +1533,10 @@ can_cast_spell 1
 magic 40
 Wis 4
 arch ability_firestorm
+end
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
 end
 end
 end

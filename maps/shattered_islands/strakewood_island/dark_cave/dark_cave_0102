@@ -2,7 +2,7 @@ arch map
 name Wilderness - Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -397,6 +397,10 @@ arch tooth
 name elder wyvern tooth
 value 0
 end
+end
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
 end
 end
 end
@@ -1993,6 +1997,10 @@ arch wyvern
 type 83
 level 11
 Wis 4
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -2163,6 +2171,10 @@ name young wyvern
 type 83
 level 10
 Wis 4
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -2495,6 +2507,10 @@ name young wyvern
 type 83
 level 10
 Wis 4
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -2549,6 +2565,10 @@ name young wyvern
 type 83
 level 11
 Wis 4
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -2586,6 +2606,10 @@ arch wyvern
 type 83
 level 11
 Wis 4
+arch quest_container
+name Wyverns at Strakewood Island
+sub_type 1
+end
 end
 end
 arch floor_ruin4

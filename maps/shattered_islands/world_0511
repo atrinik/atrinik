@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -115,6 +115,10 @@ last_eat 5
 unaggressive 1
 item_race 8
 item_level 8
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
 end
 end
 arch grassd_2
@@ -336,6 +340,10 @@ last_eat 5
 unaggressive 1
 item_race 8
 item_level 8
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
 end
 end
 arch grassd_4
@@ -487,6 +495,10 @@ last_eat 5
 unaggressive 1
 item_race 8
 item_level 8
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
 end
 end
 arch grassd_1
@@ -871,6 +883,10 @@ last_eat 5
 unaggressive 1
 item_race 8
 item_level 8
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
 end
 end
 arch grassd_2

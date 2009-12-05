@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1647,6 +1647,10 @@ name ogre scout
 type 83
 randomitems mob_fighter_l9
 level 3
+arch quest_container
+name Ogres near Brynknot
+sub_type 1
+end
 end
 end
 arch floor_ruin2
@@ -1669,6 +1673,10 @@ name ogre scout
 type 83
 randomitems mob_fighter_l9
 level 3
+arch quest_container
+name Ogres near Brynknot
+sub_type 1
+end
 end
 end
 arch floor_ruin2
@@ -1945,6 +1953,10 @@ name ogre cave leader
 type 83
 randomitems mob_fighter_l9
 level 4
+arch quest_container
+name Ogres near Brynknot
+sub_type 1
+end
 end
 end
 arch floor_ruin4
@@ -2360,6 +2372,10 @@ end
 arch t_lboulder
 sys_object 1
 end
+arch quest_container
+name Ogres near Brynknot
+sub_type 1
+end
 end
 end
 arch floor_ruin6
@@ -2513,6 +2529,10 @@ name ogre cave leader
 type 83
 randomitems mob_fighter_l9
 level 4
+arch quest_container
+name Ogres near Brynknot
+sub_type 1
+end
 end
 end
 arch grassd_5
