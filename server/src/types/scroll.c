@@ -36,7 +36,6 @@
  * @param tmp The scroll. */
 void apply_scroll(object *op, object *tmp)
 {
-	object *old_skill = NULL;
 	int scroll_spell = tmp->stats.sp, old_spell = 0;
 	rangetype old_shoot = range_none;
 
@@ -59,13 +58,10 @@ void apply_scroll(object *op, object *tmp)
 
 	if (op->type == PLAYER)
 	{
-		old_skill = op->chosen_skill;
-
 		/* players need a literacy skill to read stuff! */
 		if (!change_skill(op, SK_LITERACY))
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You are unable to decipher the strange symbols.");
-			op->chosen_skill = old_skill;
 			return;
 		}
 
@@ -75,7 +71,6 @@ void apply_scroll(object *op, object *tmp)
 		if (!change_skill(op, (spells[scroll_spell].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)))
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, "You can read the scroll but you don't understand it.");
-			op->chosen_skill = old_skill;
 			return;
 		}
 
@@ -100,7 +95,5 @@ void apply_scroll(object *op, object *tmp)
 			CONTR(op)->shoottype = old_shoot;
 			CONTR(op)->chosen_spell = old_spell;
 		}
-
-		op->chosen_skill = old_skill;
 	}
 }
