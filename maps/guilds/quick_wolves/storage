@@ -2,13 +2,14 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2009-10-15 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 18
 height 22
 enter_y 17
 difficulty 1
 darkness -1
+no_harm 1
 fixed_login 1
 end
 arch floor_wood2_l2

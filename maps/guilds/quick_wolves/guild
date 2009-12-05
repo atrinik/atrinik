@@ -2,13 +2,14 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2009-10-15 Alex Tokar
+Modified: 2009-12-05 Alex Tokar
 endmsg
 width 24
 height 24
 enter_y 23
 difficulty 1
 darkness -1
+no_harm 1
 fixed_login 1
 end
 arch floor_wood2_l1
