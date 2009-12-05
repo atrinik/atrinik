@@ -3,7 +3,7 @@
 # The Artifacts file looks very similiar to CF
 # list file but its used in an advanced way.
 # Instead of creating dummy items and compare the values
-# of this item to the base objects we parse the 
+# of this item to the base objects we parse the
 # values in the copy of the base arch at runtime.
 # This allows to use EVERY feature a normal arch command
 # has excluding the anim/mina command - this is handled
@@ -15,35 +15,35 @@
 # will overrule the base item name.
 #
 # The Artifacts file has 2 uses in Atrinik:
-# 
+#
 # A.) Using the <name> of a artifact definition, the single
 # artifacts are used as a kind generic arches. They
 # are listed in the arch list and can be called and
 # used as normal arches. To do this, the server/Editor
 # are loading the <def_arch> given in every artifacts
 # definition, overwrite the old commands with the new
-# commands and store it under <name> in the arch list. 
-# 
+# commands and store it under <name> in the arch list.
+#
 # B.) The artifacts are used as masks from random item
-# generator or the treasure list. After these functions 
-# generate a (normal) item, the look in the artifacts 
-# list and using the <type>, <allowed>, <difficulty> 
+# generator or the treasure list. After these functions
+# generate a (normal) item, the look in the artifacts
+# list and using the <type>, <allowed>, <difficulty>
 # and <chance> to alter the old arch. In this case,
 # the items are still from old arch type.
-# The artifact list is sorted by types - from types info 
+# The artifact list is sorted by types - from types info
 # are build the lists for every arch type.
 #
 # By using <Allowed none> setting the item is excluded from
 # masking by random items or treasure list but can still
 # be forced by hand. This is useful for unique items like
-# Stormbringer. 
+# Stormbringer.
 #
 # For every fake arch, the def_arch is stored in the arch list
 # entry. Functions like disenchant can access it. This will allow
 # to 'disenchant' these items. For normal masked items, the def_item
 # entry is null in the arch list - we simple reset them to default.
 # For fake arch, we use def_arch and have so also a 'unmagical' base
-# items. This would be not possible when we define Stormbringer as 
+# items. This would be not possible when we define Stormbringer as
 # a normal arch.
 #
 # In Atrinik, only the def arch is pre parsed - for a "normal" artifactr
@@ -401,7 +401,7 @@ material_real 133
 value 5000
 type 116
 end
- 
+
 Allowed all
 chance 30
 difficulty 20
@@ -476,7 +476,7 @@ material_real 132
 value 3000
 type 116
 end
- 
+
 Allowed all
 chance 30
 difficulty 20
@@ -491,7 +491,7 @@ material_real 132
 value 75000
 type 116
 end
- 
+
 Allowed all
 chance 20
 difficulty 30
@@ -1773,7 +1773,7 @@ value 13400
 weight 35000
 ac 3
 msg
-  What strange boots, they look very 
+  What strange boots, they look very
   protective, but amazingly heavy.
   There also doesn't appear to be
   any laces, you wonder how you're ever
@@ -2298,12 +2298,12 @@ protect_cold 30
 resist_cold 20
 path_attuned 4
 msg
-  This elemental ring is one of those made at 
-  the Guild of Magicks by the powerful wizards 
+  This elemental ring is one of those made at
+  the Guild of Magicks by the powerful wizards
   who survived the ancient war of the elementals.
-  The wielder is surrounded by a thin, almost 
-  invisible, globe of warmth; which protects 
-  against cold.  It also grants its holder 
+  The wielder is surrounded by a thin, almost
+  invisible, globe of warmth; which protects
+  against cold.  It also grants its holder
   greater control of cold spells.
 endmsg
 end
@@ -2328,14 +2328,14 @@ resist_fire 20
 protect_fire 30
 path_attuned 2
 msg
-  This elemental ring is one of those 
-  made at the Guild of Magicks by the 
-  powerful wizards who survived the 
+  This elemental ring is one of those
+  made at the Guild of Magicks by the
+  powerful wizards who survived the
   ancient war of the elementals.
-  The wielder is surrounded by a thin, 
-  almost invisible, globe of coolness; 
+  The wielder is surrounded by a thin,
+  almost invisible, globe of coolness;
   which protects against heat.  It also
-  grants the holder greater facility 
+  grants the holder greater facility
   with fire spells.
 endmsg
 end
@@ -2360,12 +2360,12 @@ resist_electricity 20
 protect_electricity 30
 path_attuned 8
 msg
-  This elemental ring is one of those made 
-  at the Guild of Magicks by the powerful 
-  wizards who survived the ancient war 
-  of the elementals.  The wielder is 
-  surrounded by a thin, almost invisible, 
-  grid of force; which protects against 
+  This elemental ring is one of those made
+  at the Guild of Magicks by the powerful
+  wizards who survived the ancient war
+  of the elementals.  The wielder is
+  surrounded by a thin, almost invisible,
+  grid of force; which protects against
   electricity.  It also gives facility
   with electricity spells.
 endmsg
@@ -2393,13 +2393,13 @@ protect_electricity 30
 path_attuned 8
 msg
   This elemental ring is one of those more
-  rare ones made at the Guild of Magicks by 
-  the powerful  wizards who survived the 
+  rare ones made at the Guild of Magicks by
+  the powerful  wizards who survived the
   ancient war of the elementals.  The wielder
-  is  surrounded by a thin, almost invisible, 
-  grid of force; which protects against 
+  is  surrounded by a thin, almost invisible,
+  grid of force; which protects against
   electricity and allows electric attacks.
-  It also gives facility with electricity 
+  It also gives facility with electricity
   spells and resists.
 endmsg
 end
@@ -2642,8 +2642,8 @@ Object
 title of assassinating
 slaying none
 msg
-  These missiles are inscribed with 
-  powerful runes for the bane of 
+  These missiles are inscribed with
+  powerful runes for the bane of
   their victims.
 endmsg
 value 850
@@ -2870,8 +2870,22 @@ is_magical 1
 value 20
 end
 
+Allowed all
+chance 5
+artifact scroll_recharge
+difficulty 9
+def_arch scroll_generic
+Object
+inv_face scroll_recharge.101
+level 1
+sp 20
+type 111
+is_magical 1
+value 36
+end
+
 ###########
-# Potions # 
+# Potions #
 ###########
 Allowed potion_generic
 chance 40
@@ -3135,7 +3149,7 @@ value 170
 sp 2
 end
 
-# SPECIAL AREA 
+# SPECIAL AREA
 # All items with <Allowed none> are excluded from masking
 # Define here unique items
 
@@ -3148,7 +3162,7 @@ Object
 title human age force (artifacts generic)
 # We start at age 21
 hp 21
-# This is our max age 
+# This is our max age
 # We count as "aged" if we are older than 60% of the max age
 maxhp 80
 # We are not unnatural aged by default
