@@ -1514,7 +1514,7 @@ void do_some_living(object *op)
 				if (op->stats.grace >= op->stats.maxgrace)
 				{
 					op->stats.grace = op->stats.maxgrace;
-					new_draw_info(NDI_UNIQUE, 0, op, "Your are full of grace and stop praying.");
+					new_draw_info(NDI_UNIQUE, 0, op, "You are full of grace and stop praying.");
 					CONTR(op)->was_praying = 0;
 				}
 
