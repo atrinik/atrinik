@@ -156,10 +156,12 @@ typedef struct arena_maps_struct
  * @defgroup arena_map_flags Arena map flags
  * Flags used to determine various usages of the Arena plugin.
  *@{*/
+/** No flags. */
+#define ARENA_FLAG_NONE             0
 /** The arena is a party arena */
-#define ARENA_FLAG_PARTY			1
+#define ARENA_FLAG_PARTY            1
 /** The arena is a party players arena */
-#define ARENA_FLAG_PARTY_PLAYERS	2
+#define ARENA_FLAG_PARTY_PLAYERS    2
 /*@}*/
 
 /** The arena maps */
@@ -219,11 +221,6 @@ MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
 
 	/* Register MAPLEAVE global event */
 	i = EVENT_MAPLEAVE;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	/* Register GDEATH global event */
-	i = EVENT_GDEATH;
 	GCFP.Value[0] = (void *)(&i);
 	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
 
@@ -416,6 +413,7 @@ static void arena_map_parse_script(char *arena_script, object *exit, arena_maps_
 	arena_map->max_parties = 0;
 	arena_map->players = 0;
 	arena_map->parties = 0;
+	arena_map->flags = ARENA_FLAG_NONE;
 	snprintf(arena_map->message_arena_full, sizeof(arena_map->message_arena_full), "%s", "Sorry, this arena seems to be full.");
 	snprintf(arena_map->message_arena_party, sizeof(arena_map->message_arena_party), "%s", "You must be in a party in order to enter this arena.");
 
@@ -459,9 +457,8 @@ static int arena_full(arena_maps_struct *arena_map)
 	{
 		return 1;
 	}
-
 	/* Otherwise a party map */
-	if (arena_map->flags & ARENA_FLAG_PARTY)
+	else if (arena_map->flags & ARENA_FLAG_PARTY)
 	{
 		/* If this is party players arena, count in players */
 		if (arena_map->flags & ARENA_FLAG_PARTY_PLAYERS && arena_map->players == arena_map->max_players)
@@ -778,7 +775,7 @@ MODULEAPI int arena_leave(CFParm *PParm)
 			remove_arena_player(who, &arena_maps_tmp->player_list);
 
 			/* If the player or parties count of this arena reaches 0, remove the arena entry */
-			if (arena_maps_tmp->players < 1 || arena_maps_tmp->parties < 1)
+			if (((arena_maps_tmp->flags == ARENA_FLAG_NONE || arena_maps_tmp->flags & ARENA_FLAG_PARTY_PLAYERS) && arena_maps_tmp->players < 1) || (arena_maps_tmp->flags & ARENA_FLAG_PARTY && arena_maps_tmp->parties < 1))
 			{
 				remove_arena_map(arena_maps_tmp->path);
 			}
