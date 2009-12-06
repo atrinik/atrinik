@@ -292,6 +292,12 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		op = op->head;
 	}
 
+	/* Check if the object to hit has any HP left */
+	if (op->stats.hp < 0)
+	{
+		return 0;
+	}
+
 	if (!(hit_obj = get_owner(hitter)))
 	{
 		hit_obj = hitter;
@@ -359,12 +365,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
 	op_tag = op->count;
 	hitter_tag = hitter->count;
-
-	if (op->stats.hp < 0)
-	{
-		LOG(llevDebug, "FIXME: victim (arch %s, name %s (%x - %d)) already dead in hit_player()\n", op->arch->name, query_name(op, NULL), op, op->count);
-		return 0;
-	}
 
 	/* Go through and hit the player with each attacktype, one by one.
 	 * hit_player_attacktype only figures out the damage, doesn't inflict
