@@ -192,13 +192,13 @@ int command_cast_spell(object *op, char *params)
 		{
 			op->stats.sp -= value;
 		}
-	}
 
-	CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+		CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
-	if (CONTR(op)->last_action_timer > 0)
-	{
-		CONTR(op)->action_timer *= -1;
+		if (CONTR(op)->last_action_timer > 0)
+		{
+			CONTR(op)->action_timer *= -1;
+		}
 	}
 
 	return 1;
