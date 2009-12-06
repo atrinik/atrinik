@@ -31,4 +31,5 @@ weight 85
 value 15
 material 64
 material_real 385
+can_stack 1
 end

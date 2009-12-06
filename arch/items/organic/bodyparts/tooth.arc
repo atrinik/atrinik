@@ -10,4 +10,5 @@ material 32
 type 86
 weight 1
 value 10
+can_stack 1
 end

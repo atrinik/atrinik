@@ -11,4 +11,5 @@ food 1
 weight 2
 value 2
 identified 1
+can_stack 1
 end

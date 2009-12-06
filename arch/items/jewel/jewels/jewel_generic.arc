@@ -11,4 +11,5 @@ nrof 1
 value 5
 weight 50
 material 4
+can_stack 1
 end

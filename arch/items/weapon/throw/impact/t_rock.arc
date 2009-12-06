@@ -30,4 +30,5 @@ is_thrown 1
 weight 500
 value 1
 material 64
+can_stack 1
 end

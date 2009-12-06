@@ -313,6 +313,11 @@ void object_gc()
  * @return 1 if the two object can merge, 0 otherwise */
 int CAN_MERGE(object *ob1, object *ob2)
 {
+	if (!QUERY_FLAG(ob1, FLAG_CAN_STACK))
+	{
+		return 0;
+	}
+
 	/* just some quick hack */
 	if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch)
 	{

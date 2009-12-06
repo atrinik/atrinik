@@ -12,4 +12,5 @@ material 1024
 material_real 645
 value 100
 weight 8
+can_stack 1
 end

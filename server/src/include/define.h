@@ -890,8 +890,8 @@
 #define FLAG_BLOCKSVIEW		35
 /** Monster is undead */
 #define FLAG_UNDEAD			36
-/** used to be FREED */
-#define UNUSED_FLAG2	 	37
+/** The object can stack */
+#define FLAG_CAN_STACK      37
 /** Monster doesn't attack players */
 #define FLAG_UNAGGRESSIVE	38
 /** object will give missile reflection */

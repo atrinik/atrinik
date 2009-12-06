@@ -11,4 +11,5 @@ item_condition 100
 material_real 129
 weight 10
 material 4
+can_stack 1
 end

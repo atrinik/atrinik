@@ -8,4 +8,5 @@ type 5
 material 512
 weight 250
 value 5
+can_stack 1
 end

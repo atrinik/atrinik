@@ -8,4 +8,5 @@ type 54
 material 32
 value 5
 weight 250
+can_stack 1
 end

@@ -31,4 +31,5 @@ material_real 193
 material 8
 weight 15
 value 3
+can_stack 1
 end

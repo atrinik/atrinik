@@ -13,4 +13,5 @@ material 4
 is_dust 1
 weight 15
 value 3
+can_stack 1
 end

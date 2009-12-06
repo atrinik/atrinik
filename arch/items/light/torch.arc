@@ -18,7 +18,9 @@ food 500
 speed 0.15
 last_eat 1
 last_sp 3
+can_stack 1
 end
+
 Object torch_burnt
 name burnt out torch
 layer 3
@@ -32,4 +34,5 @@ glow_radius 0
 weight 425
 food 0
 nrof 1
+can_stack 1
 end

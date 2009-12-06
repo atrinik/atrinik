@@ -408,6 +408,7 @@ WS	[ \t]*{NL}
 ^is_aged{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_AGED, IVAL);
 ^sys_object{S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
 ^generator{S}       SET_OR_CLEAR_FLAG(op, FLAG_GENERATOR, IVAL);
+^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
 ^treasure{S}        SET_OR_CLEAR_FLAG(op, FLAG_TREASURE, IVAL);
@@ -1031,7 +1032,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"is_neutral",          "see_invisible",     "can_roll",        "generator",       "is_turnable",
 	"walk_off",            "fly_on",            "fly_off",         "is_used_up",      "identified",
 	"reflecting",          "changing",          "splitting",       "hitback",         "startequip",
-	"blocksview",          "undead",            NULL,              "unaggressive",    "reflect_missile",
+	"blocksview",          "undead",            "can_stack",       "unaggressive",    "reflect_missile",
 	"reflect_spell",       "no_magic",          "no_fix_player",   "is_evil",         "tear_down",
 	"run_away",            "pass_thru",         "can_pass_thru",   "pick_up",         "unique",
 	"no_drop",             "is_indestructible", "can_cast_spell",  "can_use_scroll",  "can_use_range",

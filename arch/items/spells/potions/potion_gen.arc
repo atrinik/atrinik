@@ -13,4 +13,5 @@ wc_range 20
 material 512
 weight 200
 value 28
+can_stack 1
 end

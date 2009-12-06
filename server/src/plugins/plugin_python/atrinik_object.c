@@ -382,6 +382,7 @@ obj_fields_struct obj_fields[] =
  * - <b>f_startequip</b>: @copydoc FLAG_STARTEQUIP
  * - <b>f_blocksview</b>: @copydoc FLAG_BLOCKSVIEW
  * - <b>f_undead</b>: @copydoc FLAG_UNDEAD
+ * - <b>f_can_stack</b>: @copydoc FLAG_CAN_STACK
  * - <b>f_unaggressive</b>: @copydoc FLAG_UNAGGRESSIVE
  * - <b>f_reflect_missile</b>: @copydoc FLAG_REFL_MISSILE
  * - <b>f_reflect_spell</b>: @copydoc FLAG_REFL_SPELL
@@ -478,7 +479,7 @@ static char *flag_names[NUM_FLAGS + 1] =
 	"f_is_neutral",          "f_see_invisible",     "f_can_roll",            "f_generator",       "f_is_turnable",
 	"f_walk_off",            "f_fly_on",            "f_fly_off",             "f_is_used_up",      "f_identified",
 	"f_reflecting",          "f_changing",          "f_splitting",           "f_hitback",         "f_startequip",
-	"f_blocksview",          "f_undead",            NULL,                    "f_unaggressive",    "f_reflect_missile",
+	"f_blocksview",          "f_undead",            "f_can_stack",           "f_unaggressive",    "f_reflect_missile",
 	"f_reflect_spell",       "f_no_magic",          "f_no_fix_player",       "f_is_evil",         "f_tear_down",
 	"f_run_away",            "f_pass_thru",         "f_can_pass_thru",       "f_pick_up",         "f_unique",
 	"f_no_drop",             "f_is_indestructible", "f_can_cast_spell",      "f_can_use_scroll",  "f_can_use_range",

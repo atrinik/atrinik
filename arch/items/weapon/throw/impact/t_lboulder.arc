@@ -30,4 +30,5 @@ is_animated 0
 is_thrown 1
 value 2
 material 64
+can_stack 1
 end

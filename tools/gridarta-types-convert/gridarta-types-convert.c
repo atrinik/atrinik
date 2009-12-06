@@ -228,6 +228,7 @@ static const flag_definition flags[] =
 	{"is_vul_sphere", "FLAG_VUL_SPHERE"},
 	{"is_proof_sphere", "FLAG_PROOF_SPHERE"},
 	{"is_indestructible", "FLAG_INDESTRUCTIBLE"},
+	{"can_stack", "FLAG_CAN_STACK"},
 	{NULL, NULL}
 };
 
