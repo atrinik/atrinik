@@ -1,7 +1,6 @@
 Object high_boots
 name high boots
 face high_boots.101
-last_heal 4
 layer 3
 ac 1
 weight 750

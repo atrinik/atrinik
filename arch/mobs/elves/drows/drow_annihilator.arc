@@ -108,7 +108,6 @@ wc 3
 dam 61
 hp -1
 maxhp 75
-can_cast_spell 1
 sp -1
 maxsp 10
 Pow 2

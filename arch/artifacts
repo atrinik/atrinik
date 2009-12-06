@@ -3748,7 +3748,6 @@ item_level_art 16
 item_quality 100
 item_condition 100
 is_named 1
-material 256
 material_real 0
 type 70
 value 209000
@@ -3773,7 +3772,6 @@ item_level_art 20
 item_quality 100
 item_condition 100
 is_named 1
-material 256
 material_real 0
 type 70
 value 229000
@@ -3797,7 +3795,6 @@ face ring_silver_yellow2.101
 item_level_art 20
 item_quality 100
 item_condition 100
-material 256
 is_named 1
 material_real 0
 type 70

@@ -12,6 +12,4 @@ value 250
 weapon_speed 1.0
 container 1500
 weight 1500
-identified 1
-no_pick 1
 end
