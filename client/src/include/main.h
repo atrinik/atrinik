@@ -618,6 +618,7 @@ enum
 #define SURFACE_FLAG_PALETTE 	1
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
+#define SURFACE_FLAG_DISPLAYFORMAT 4
 
 typedef enum _bitmap_index
 {

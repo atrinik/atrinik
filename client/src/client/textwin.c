@@ -519,10 +519,9 @@ void widget_textwin_show(int x, int y, int actWin)
 	}
 
 	/* If we don't have a backbuffer, create it */
-	if (!widgetSF[wID] || cur_widget[wID].redraw)
+	if (!widgetSF[wID])
 	{
 		widgetSF[wID] = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
-
 		SDL_SetColorKey(widgetSF[wID], SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widgetSF[wID]->format, 0, 0, 0));
 	}
 

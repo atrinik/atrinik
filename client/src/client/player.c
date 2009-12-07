@@ -116,6 +116,7 @@ void clear_player()
 	free_all_items(cpl.sack);
 	free_all_items(cpl.below);
 	free_all_items(cpl.ob);
+	free_all_items(cpl.shop);
 	cpl.ob = player_item();
 	init_player_data();
 }

@@ -247,29 +247,36 @@ int write_socket(int fd, unsigned char *buf, int len)
 
 int SOCKET_InitSocket()
 {
-#ifdef __WIN_32
+#ifdef WIN32
 	WSADATA w;
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	int error;
 
 	csocket.fd = SOCKET_NO;
 	csocket.cs_version = 0;
 
 	SocketStatusErrorNr = 0;
-	error = WSAStartup(0x0101, &w);
+	error = WSAStartup(wVersionRequested, &w);
 
 	if (error)
 	{
-		LOG(LOG_ERROR, "Error:  Error init starting Winsock: %d!\n", error);
+		wVersionRequested = MAKEWORD(2, 0);
+		error = WSAStartup(wVersionRequested, &w);
 
-		return 0;
+		if (error)
+		{
+			wVersionRequested = MAKEWORD(1, 1);
+			error = WSAStartup(wVersionRequested, &w);
+
+			if (error)
+			{
+				LOG(LOG_ERROR, "Error: Error init starting Winsock: %d!\n", error);
+				return 0;
+			}
+		}
 	}
 
-	if (w.wVersion != 0x0101)
-	{
-		LOG(LOG_ERROR, "Error:  Wrong WinSock version!\n");
-
-		return 0;
-	}
+	LOG(LOG_MSG, "Using socket version %x!\n", w.wVersion);
 #endif
 
 	return 1;
@@ -325,7 +332,7 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 
 #ifdef __WIN_32
 	/* The way to make the sockets work on XP Home - The 'unix' style socket
-	 * seems to fail inder xp home. */
+	 * seems to fail under xp home. */
 	*socket_temp = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	csocket.inbuf.buf = (unsigned char *) malloc(MAXSOCKBUF);

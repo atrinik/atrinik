@@ -1669,7 +1669,7 @@ void read_spells()
 			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon_name, icon);
 
 			sprintf(line, "%s%s", GetIconDirectory(), icon);
-			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon = sprite_load_file(line, 0);
+			spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
 
 			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].name, name);
 			strcpy(spell_list[panel].entry[type == 'w' ? 0 : 1][nchar - 'a'].desc[0], d1);
@@ -1683,6 +1683,22 @@ void read_spells()
 	}
 
 	LOG(LOG_DEBUG, " Done.\n");
+}
+
+/**
+ * Frees the ::help_files structure. */
+void free_help_files()
+{
+	help_files_struct *help_file_tmp, *help_file = help_files;
+
+	while (help_file)
+	{
+		help_file_tmp = help_file->next;
+		free(help_file);
+		help_file = help_file_tmp;
+	}
+
+	help_files = NULL;
 }
 
 /**
@@ -1700,10 +1716,8 @@ void read_help_files()
 
 	if (help_files)
 	{
-		free(help_files);
+		free_help_files();
 	}
-
-	help_files = NULL;
 
 	srv_client_files[SRV_CLIENT_HFILES].len = 0;
 	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
@@ -1889,7 +1903,7 @@ void read_skills()
 
 			strcpy(skill_list[panel].entry[nchar - 'a'].icon_name, icon);
 			snprintf(line, sizeof(line), "%s%s", GetIconDirectory(), icon);
-			skill_list[panel].entry[nchar - 'a'].icon = sprite_load_file(line, 0);
+			skill_list[panel].entry[nchar - 'a'].icon = sprite_load_file(line, SURFACE_FLAG_DISPLAYFORMAT);
 
 			strcpy(skill_list[panel].entry[nchar - 'a'].name, name);
 			strcpy(skill_list[panel].entry[nchar - 'a'].desc[0], d1);

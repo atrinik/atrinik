@@ -104,6 +104,7 @@ extern void load_settings();
 extern void read_settings();
 extern void read_spells();
 extern void read_skills();
+extern void free_help_files();
 extern void read_help_files();
 extern int blt_face_centered(int face, int x, int y);
 extern int get_quickslot(int x, int y);

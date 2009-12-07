@@ -1035,6 +1035,11 @@ int load_bitmap(int index)
 	if (bitmap_name[index].type == PIC_TYPE_TRANS)
 		flags |= SURFACE_FLAG_COLKEY_16M;
 
+	if (index >= BITMAP_INTRO && index != BITMAP_TEXTWIN_MASK)
+	{
+		flags |= SURFACE_FLAG_DISPLAYFORMAT;
+	}
+
 	Bitmaps[index] = sprite_load_file(buf, flags);
 
 	if (!Bitmaps[index] || !Bitmaps[index]->bitmap)

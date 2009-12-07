@@ -257,12 +257,15 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 			SDL_SetColors(bitmap, colors, 0, ncol);
 		}
 
-		sprite->bitmap = SDL_DisplayFormat(bitmap);
-		SDL_FreeSurface(bitmap);
-
 		/* Map original color over default dark */
 		if (dark_flag)
 			sprite->dark_level[0] = sprite->bitmap;
+	}
+
+	if (flag & SURFACE_FLAG_DISPLAYFORMAT)
+	{
+		sprite->bitmap = SDL_DisplayFormat(bitmap);
+		SDL_FreeSurface(bitmap);
 	}
 
 	return sprite;
