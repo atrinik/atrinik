@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__MAIN_H)
-#define __MAIN_H
+#ifndef MAIN_H
+#define MAIN_H
 
 typedef struct _server_char
 {

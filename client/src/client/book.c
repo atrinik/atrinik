@@ -211,7 +211,7 @@ static void format_book(char *name)
 
 /**
  * Free the @ref gui_interface_book "book GUI".  */
-void book_clear()
+static void book_clear()
 {
 	int i;
 	_gui_book_page *page_tmp, *page;
@@ -249,7 +249,7 @@ void book_clear()
  * @param len Length of data.
  * @return The loaded book interface.
  * @todo Get rid of the gotos. */
-_gui_book_struct *load_book_interface(char *data, int len)
+_gui_book_struct *book_gui_load(char *data, int len)
 {
 	_gui_book_line current_book_line, *book_line;
 	int pos = 0, lc = 0, force_line;
@@ -494,7 +494,7 @@ force_line_jump_out:
 
 /**
  * Show the book interface. */
-void show_book()
+void book_gui_show()
 {
 	char buf[128];
 	SDL_Rect box;
@@ -589,7 +589,7 @@ void show_book()
  * for them.
  * @param x Mouse X position.
  * @param y Mouse Y position. */
-void gui_book_handle_mouse(int x, int y)
+void book_gui_handle_mouse(int x, int y)
 {
 	int i, yoff, xoff = 50;
 	_gui_book_page *page1, *page2;

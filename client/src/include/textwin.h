@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__TEXTWIN_H)
-#define __TEXTWIN_H
+#ifndef TEXTWIN_H
+#define TEXTWIN_H
 
 #define TEXT_WIN_MAX 		250
 #define MAX_KEYWORD_LEN 	256

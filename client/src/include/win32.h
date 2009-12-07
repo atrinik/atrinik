@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__WIN32_H)
-#define __WIN32_H
+#ifndef WIN32_H
+#define WIN32_H
 #ifdef __WIN_32
 
 #define STRICT
@@ -88,8 +88,6 @@
 #ifndef int
 #define int int
 #endif
-
-#define SOCKET_TIMEOUT_SEC 8
 
 #endif
 #endif

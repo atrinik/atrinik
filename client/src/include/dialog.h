@@ -23,8 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__DIALOG_H)
-#define __DIALOG_H
+/**
+ * @file
+ * Dialog header file. */
+
+#ifndef DIALOG_H
+#define DIALOG_H
 
 /** Option window max tabs */
 #define OPTWIN_MAX_TAB 20
@@ -35,48 +39,48 @@
 /** Option window max keys */
 #define OPTWIN_MAX_KEYS 100
 
-/** Option structure */
+/** Option structure. */
 typedef struct _option
 {
-	/** Option name */
+	/** Option name. */
 	char *name;
 
-	/** Info text row 1 */
+	/** Info text row 1. */
 	char *info1;
 
-	/** Info text row 2 */
+	/** Info text row 2. */
 	char *info2;
 
-	/** Text replacement for number values */
+	/** Text replacement for number values. */
 	char *val_text;
 
-	/** Select type */
+	/** Select type. */
 	int sel_type;
 
-	/** Ranges */
+	/** Ranges. */
 	int minRange, maxRange, deltaRange;
 
-	/** Default value */
+	/** Default value. */
 	int default_val;
 
-	/** Value */
+	/** Value. */
 	void *value;
 
-	/** Value type */
+	/** Value type. */
 	int value_type;
-}_option;
+} _option;
 
 extern _option opt[];
 
+/** Value types for _option::value_type. */
 extern enum
-	{
-		VAL_BOOL,
-		VAL_TEXT,
-		VAL_CHAR,
-		VAL_INT,
-		VAL_U32
-	}
-	value_type;
+{
+	VAL_BOOL,
+	VAL_TEXT,
+	VAL_CHAR,
+	VAL_INT,
+	VAL_U32
+} value_type;
 
 extern int dialog_yoff;
 
@@ -87,7 +91,6 @@ extern void show_optwin();
 extern void show_newplayer_server();
 extern void show_login_server();
 extern void show_meta_server(_server *node, int metaserver_start, int metaserver_sel);
-extern void accept_char();
 extern void add_close_button(int x, int y, int menu);
 extern void draw_frame(int x, int y, int w, int h);
 extern void metaserver_mouse(SDL_Event *e);

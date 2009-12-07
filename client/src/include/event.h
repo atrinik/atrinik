@@ -23,11 +23,14 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__EVENT_H)
-#define __EVENT_H
+/**
+ * Event related header file. */
 
-#define MAX_KEYS 	512
-#define MAX_KEYMAP 	512
+#ifndef EVENT_H
+#define EVENT_H
+
+#define MAX_KEYS    512
+#define MAX_KEYMAP  512
 
 typedef struct _key_macro
 {
@@ -49,6 +52,7 @@ typedef struct _key_macro
 	int menu_mode;
 } _key_macro;
 
+/** In what status we are in the key binding dialog. */
 enum
 {
 	KEYBIND_STATUS_NO,
@@ -56,6 +60,7 @@ enum
 	KEYBIND_STATUS_EDITKEY
 };
 
+/** All the key functions. */
 enum
 {
 	KEYFUNC_NO,
@@ -94,16 +99,19 @@ enum
 /** Keybind structure */
 typedef struct _keybind_key
 {
-	/* The text */
+	/** The macro */
 	char macro[256];
 
-	/* The text */
+	/** The text */
 	char keyname[256];
 
-	/* -1: new macro - 0-xx edit entry */
+	/** -1: new macro - 0-xx edit entry */
 	int entry;
 
+	/** Key ID. */
 	int key;
+
+	/** Repeat? */
 	int repeat_flag;
 }_keybind_key;
 

@@ -514,7 +514,7 @@ int Event_PollInputDevice()
 				/* If this is book GUI, handle the click */
 				if (cpl.menustatus == MENU_BOOK && gui_interface_book && event.button.button == SDL_BUTTON_LEFT)
 				{
-					gui_book_handle_mouse(x, y);
+					book_gui_handle_mouse(x, y);
 				}
 
 				/* Beyond here only when no menu is active. */
@@ -665,7 +665,12 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
 				metaserver_get_data(metaserver_sel, ServerName, &ServerPort);
-				GameStatus = GAME_STATUS_STARTCONNECT;
+
+				if (ServerName[0] != '\0')
+				{
+					GameStatus = GAME_STATUS_STARTCONNECT;
+				}
+
 				break;
 
 			case SDLK_ESCAPE:
@@ -1231,7 +1236,7 @@ int key_event(SDL_KeyboardEvent *key)
 								}
 								else if (esc_menu_index == ESC_MENU_LOGOUT)
 								{
-									SOCKET_CloseSocket(csocket.fd);
+									socket_close(csocket.fd);
 									GameStatus = GAME_STATUS_INIT;
 								}
 
@@ -2313,7 +2318,7 @@ void check_menu_keys(int menu, int key)
 
 		if (cpl.menustatus == MENU_CREATE)
 		{
-			SOCKET_CloseSocket(csocket.fd);
+			socket_close(csocket.fd);
 			GameStatus = GAME_STATUS_INIT;
 		}
 

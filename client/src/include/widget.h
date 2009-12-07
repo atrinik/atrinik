@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__WIDGET_H)
-#define __WIDGET_H
+#ifndef WIDGET_H
+#define WIDGET_H
 
 /* If you want (a LOT) of debug info about widgets, uncomment this */
 /*#define DEBUG_WIDGET*/

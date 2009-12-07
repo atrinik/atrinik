@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__MAP_H)
-#define __MAP_H
+#ifndef MAP_H
+#define MAP_H
 
 /** Map start X offset */
 #define MAP_START_XOFF 376

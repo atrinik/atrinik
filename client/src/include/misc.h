@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__MISC_H)
-#define __MISC_H
+#ifndef MISC_H
+#define MISC_H
 
 #define MAX_INPUT_STR 256
 

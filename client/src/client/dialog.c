@@ -1778,7 +1778,7 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 		{
 			if (i == metaserver_sel - metaserver_start)
 			{
-				int max_comments = 3, j = 0, len = 0, width = 0, desclen = strlen(node->desc);
+				int ii, j, len = 0, width = 0, desclen = strlen(node->desc);
 				char tmpbuf[MAX_BUF];
 
 				snprintf(buf, sizeof(buf), "version %s", node->version);
@@ -1786,24 +1786,22 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 				StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
 				StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
 
-				/* Get the description width */
-				StringWidthOffset(&SystemFont, node->desc, &width, 298);
-
 				/* Loop through the maximum lines of comments */
-				while (max_comments)
+				for (ii = 0, j = 0; ii < 3; ii++, j += 12)
 				{
 					/* Last line was hit. */
 					if (len > desclen)
+					{
 						break;
+					}
 
-					snprintf(tmpbuf, width + 1, "%s", node->desc + len);
-
+					StringWidthOffset(&SystemFont, node->desc, &width, 298);
+					strncpy(tmpbuf, node->desc + len, width);
+					tmpbuf[width] = '\0';
 					len += width;
 
 					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 160, y + 446 + j, COLOR_BLACK, &rec_desc, NULL);
 					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 159, y + 445 + j, COLOR_HGOLD, &rec_desc, NULL);
-					max_comments--;
-					j += 12;
 				}
 
 				box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;

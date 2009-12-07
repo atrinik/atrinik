@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__PARTY_H)
-#define __PARTY_H
+#ifndef PARTY_H
+#define PARTY_H
 
 /* Party tabs */
 enum

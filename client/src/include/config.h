@@ -23,50 +23,56 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This is a config file for the client. */
+/**
+ * @file
+ * This is the config file for the client. */
 
+/** Client/server version. */
 #define VERSION_CS 991017
+/** Server/client version. */
 #define VERSION_SC 991017
 
-#define KEYBIND_FILE     "keys.dat"
-#define OPTION_FILE      "options.dat"
-#define ARCHDEF_FILE     "archdef.dat"
-#define INTERFACE_FILE   "interface.gui"
+/** File with all the key bindings. */
+#define KEYBIND_FILE "keys.dat"
+/** File with the options. */
+#define OPTION_FILE "options.dat"
+/** File the the arch definitions. */
+#define ARCHDEF_FILE "archdef.dat"
+/** File with the widgets' positions. */
+#define INTERFACE_FILE "interface.gui"
+/** What scripts to autoload on client startup. */
 #define SCRIPTS_AUTOLOAD "scripts_autoload"
-
+/** Log file. */
 #define LOG_FILE		"client.log"
-
+/** Name of the icon. */
 #define CLIENT_ICON_NAME "icon.png"
-
-/* Socket timeout value */
-#define MAX_TIME 0
-
-/* Maximum level you can reach */
-#define MAX_LEVEL 110
 
 /* Experimental feature of widget snapping */
 /*#define WIDGET_SNAP*/
 
-/* Increase when we got MANY new face... Hopefully, we need to increase this
- * in the future... */
+/** Maximum number of faces. */
 #define MAX_FACE_TILES 30000
 
+/** Maximum number of animations. */
 #define MAXANIM 10000
 
+/** Maximum map size. */
 #define MAP_MAX_SIZE 17
 
-/* Careful when changing this, should be no need */
-
-/* Max string len in input string */
+/** Max string length in input string. */
 #define MAX_INPUT_STRING 256
-/* Max input history lines */
+/** Max input history lines. */
 #define MAX_HISTORY_LINES 20
 
-/* Maximum size of any packet we expect.  Using this makes it so we don't need to
- * allocated and deallocated the same buffer over and over again and the price
- * of using a bit of extra memory. IT also makes the code simpler. */
+/**
+ * Maximum size of any packet we expect. Using this makes it so we don't
+ * need to allocate and deallocate the same buffer over and over again
+ * at the price of using a bit of extra memory. It also makes the code
+ * simpler. */
 #define MAXSOCKBUF (256 * 4096)
 
-/* The numbers of our dark levels.
- * For each level - 1 we store an own bitmap copy, so be careful */
+/**
+ * The number of our dark levels.
+ *
+ * For each level we store an own bitmap copy. */
 #define DARK_LEVELS 7

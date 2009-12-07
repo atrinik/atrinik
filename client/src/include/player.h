@@ -23,40 +23,69 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__PLAYER_H)
-#define __PLAYER_H
+/**
+ * @file
+ * Player related header file. */
 
+#ifndef PLAYER_H
+#define PLAYER_H
+
+/**
+ * Contains information about the maximum level the server supports, and
+ * the experience needed to reach every single level. */
 typedef struct _server_level
 {
 	int level;
 	uint32 exp[500];
 } _server_level;
 
+/** IDs of the player doll items. */
+typedef enum _player_doll_enum
+{
+	PDOLL_ARMOUR,
+	PDOLL_HELM,
+	PDOLL_GIRDLE,
+	PDOLL_BOOT,
+	PDOLL_RHAND,
+	PDOLL_LHAND,
+	PDOLL_RRING,
+	PDOLL_LRING,
+	PDOLL_BRACER,
+	PDOLL_AMULET,
+	PDOLL_SKILL,
+	PDOLL_WAND,
+	PDOLL_BOW,
+	PDOLL_GAUNTLET,
+	PDOLL_ROBE,
+	PDOLL_LIGHT,
+
+	/* Must be last element */
+	PDOLL_INIT
+}_player_doll_enum;
+
+/** Player doll item position structure. */
+typedef struct _player_doll_pos
+{
+	/** X position. */
+	int xpos;
+
+	/** Y position. */
+	int ypos;
+}_player_doll_pos;
+
 extern _server_level server_level;
 
-extern void CompleteCmd(unsigned char *data, int len);
-
+extern void clear_player();
 extern void new_player(long tag, char *name, long weight, short face);
 extern void new_char(struct _server_char *nc);
-extern void look_at(int x, int y);
 extern void client_send_apply(int tag);
 extern void client_send_examine(int tag);
 extern void client_send_move(int loc, int tag, int nrof);
-extern void move_player(int dir);
-extern void stop_fire();
-extern void clear_fire_run();
-extern void clear_fire();
-extern void clear_run();
-extern void fire_dir(int dir);
-extern void stop_run();
-extern void run_dir(int dir);
-extern int send_command(const char *command, int repeat, int must_send);
-extern char *complete_command(char *command);
-
+extern void send_command(const char *command, int repeat, int must_send);
+extern void CompleteCmd(unsigned char *data, int len);
+extern void set_weight_limit(uint32 wlim);
 extern void init_player_data();
-
 extern void widget_show_player_doll(int x, int y);
-
 extern void widget_player_stats(int x, int y);
 extern void widget_show_main_lvl(int x, int y);
 extern void widget_show_skill_exp(int x, int y);
@@ -68,8 +97,5 @@ extern void widget_skill_exp_event();
 extern void widget_player_data_event(int x, int y);
 extern void widget_show_player_doll_event();
 extern void widget_show_player_data(int x, int y);
-
-extern void set_weight_limit(uint32 wlim);
-extern void clear_player();
 
 #endif

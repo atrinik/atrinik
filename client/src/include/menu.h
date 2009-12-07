@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__MENU_H)
-#define __MENU_H
+#ifndef MENU_H
+#define MENU_H
 
 #define MENU_NO			1
 #define MENU_KEYBIND	2

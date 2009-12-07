@@ -23,33 +23,45 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * Socket related code. */
+
 #include <include.h>
 
-int SOCKET_GetError()
+/**
+ * Get error number.
+ * @return The error number. */
+int socket_get_error()
 {
-#ifdef __WIN_32
+#ifdef WIN32
 	return WSAGetLastError();
-#elif __LINUX
+#else
 	return errno;
 #endif
 }
 
-/* this readsfrom fd and puts the data in sl.  We return true if we think
- * we have a full packet, 0 if we have a partial packet.  The only processing
- * we do is remove the intial size value.  len (As passed) is the size of the
- * buffer allocated in the socklist.  We make the assumption the buffer is
- * at least 2 bytes long. */
-int read_socket(int fd, SockList *sl, int len)
+/**
+ * Reads from fd and puts the data in sl.
+ *
+ * The only processing we do is remove the initial size value.
+ *
+ * We make the assumption the buffer is at least 3 bytes long.
+ * @param fd File descriptor to read from.
+ * @param sl Socket list to put the data in.
+ * @param len Maximum length of data we can store.
+ * @retval 1 We think we have a full packet.
+ * @retval 0 We have a partial packet.
+ * @retval -1 Something went wrong with reading the socket. */
+int socket_read(int fd, SockList *sl, int len)
 {
 	int stat, toread, readsome = 0;
-	extern int errno;
 
 	/* We already have a partial packet */
 	if (sl->len < 3)
 	{
-#ifdef __WIN_32
+#ifdef WIN32
 		stat = recv(fd, sl->buf + sl->len, 3 - sl->len, 0);
-#elif __LINUX
+#else
 		do
 		{
 			stat = read(fd, sl->buf + sl->len, 3 - sl->len);
@@ -59,22 +71,16 @@ int read_socket(int fd, SockList *sl, int len)
 
 		if (stat < 0)
 		{
-#ifdef __WIN_32
+#ifdef WIN32
 			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
-#elif __LINUX
+#else
 			/* In non blocking mode, EAGAIN is set when there is no
 			 * data available. */
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
 			{
-#ifdef __WIN_32
-				LOG(LOG_DEBUG, "ReadPacket got error %d, returning -1\n", WSAGetLastError());
-#elif __LINUX
-				LOG(LOG_DEBUG, "ReadPacket got error %d, returning -1", errno);
-#endif
-
-				draw_info("WARNING: Lost or bad server connection.", COLOR_RED);
-
+				LOG(LOG_DEBUG, "socket_read(): Got error %d, returning -1\n", socket_get_error());
+				draw_info("Lost or bad server connection.", COLOR_RED);
 				return -1;
 			}
 
@@ -83,8 +89,7 @@ int read_socket(int fd, SockList *sl, int len)
 
 		if (stat == 0)
 		{
-			draw_info("WARNING: Server read package error.", COLOR_RED);
-
+			draw_info("Server closed connection.", COLOR_RED);
 			return -1;
 		}
 
@@ -92,13 +97,15 @@ int read_socket(int fd, SockList *sl, int len)
 
 		/* Still don't have a full packet */
 		if (sl->len < 3)
+		{
 			return 0;
+		}
 
 		readsome = 1;
 	}
 
-	/* Figure out how much more data we need to read.  Add 2 from the
-	 * end of this - size header information is not included. */
+	/* Figure out how much more data we need to read. Add 2 from the end
+	 * of this - size header information is not included. */
 
 	/* High bit set = 3 bytes size header */
 	if (sl->buf[0] & 0x80)
@@ -111,22 +118,22 @@ int read_socket(int fd, SockList *sl, int len)
 	}
 
 	if (toread == 0)
+	{
 		return 1;
+	}
 
 	if ((toread + sl->len) > len)
 	{
-		draw_info("WARNING: Server closed connection.", COLOR_RED);
-		LOG(LOG_ERROR, "SockList_ReadPacket: Want to read more bytes than will fit in buffer.\n");
-
-		/* Return error so the socket is closed */
+		LOG(LOG_ERROR, "socket_read(): Want to read more bytes than will fit in buffer.\n");
+		draw_info("Server closed connection.", COLOR_RED);
 		return -1;
 	}
 
 	do
 	{
-#ifdef __WIN_32
+#ifdef WIN32
 		stat = recv(fd, sl->buf + sl->len, toread, 0);
-#elif __LINUX
+#else
 		do
 		{
 			stat = read(fd, sl->buf + sl->len, toread);
@@ -136,20 +143,14 @@ int read_socket(int fd, SockList *sl, int len)
 
 		if (stat < 0)
 		{
-#ifdef __WIN_32
+#ifdef WIN32
 			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
-#elif __LINUX
+#else
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
 			{
-#ifdef __WIN_32
-				LOG(LOG_DEBUG, "ReadPacket got error %d, returning 0", WSAGetLastError());
-#elif __LINUX
-				LOG(LOG_DEBUG, "ReadPacket got error %d, returning 0", errno);
-#endif
-
-				draw_info("WARNING: Lost or bad server connection.", COLOR_RED);
-
+				LOG(LOG_DEBUG, "socket_read(): Got error %d, returning 0", socket_get_error());
+				draw_info("Lost or bad server connection.", COLOR_RED);
 				return -1;
 			}
 
@@ -158,8 +159,7 @@ int read_socket(int fd, SockList *sl, int len)
 
 		if (stat == 0)
 		{
-			draw_info("WARNING: Server read package error.", COLOR_RED);
-
+			draw_info("Server closed connection.", COLOR_RED);
 			return -1;
 		}
 
@@ -167,13 +167,14 @@ int read_socket(int fd, SockList *sl, int len)
 		toread -= stat;
 
 		if (toread == 0)
+		{
 			return 1;
+		}
 
 		if (toread < 0)
 		{
-			LOG(LOG_ERROR, "SockList_ReadPacket: Read more bytes than desired.");
-			draw_info("WARNING: Server read package error.", COLOR_RED);
-
+			LOG(LOG_ERROR, "socket_read(): Read more bytes than desired.");
+			draw_info("Server closed connection.", COLOR_RED);
 			return -1;
 		}
 	}
@@ -182,20 +183,27 @@ int read_socket(int fd, SockList *sl, int len)
 	return 0;
 }
 
-/* This writes data to the socket.  we precede the len information on the
- * packet.  Len needs to be passed here because buf could be binary
- * data */
-int write_socket(int fd, unsigned char *buf, int len)
+/**
+ * Writes data to the socket.
+ *
+ * We precede the len information on the packet. Len needs to be passed
+ * here because buf could be binary data.
+ * @param fd Socket's file descriptor.
+ * @param buf Data to send.
+ * @param len Length of buf.
+ * @retval 0 Success.
+ * @retval -1 Failed to write. */
+int socket_write(int fd, unsigned char *buf, int len)
 {
 	int amt = 0;
 	unsigned char *pos = buf;
 
-	/* If we manage to write more than we wanted, take it as a bonus */
+	/* If we manage to write more than we wanted, take it as a bonus. */
 	while (len > 0)
 	{
-#ifdef __WIN_32
+#ifdef WIN32
 		amt = send(fd, pos, len, 0);
-#elif __LINUX
+#else
 		do
 		{
 			amt = write(fd, pos, len);
@@ -203,38 +211,24 @@ int write_socket(int fd, unsigned char *buf, int len)
 		while ((amt < 0) && (errno == EINTR));
 #endif
 
-#ifdef __WIN_32
+#ifdef WIN32
 		if (amt == -1 && WSAGetLastError() != WSAEWOULDBLOCK)
-#elif __LINUX
+#else
 		if (amt < 0)
 #endif
 		{
 			/* We got an error */
-#ifdef __WIN_32
-			LOG(LOG_ERROR, "New socket write failed (wsb) (%d).\n", WSAGetLastError());
-#elif __LINUX
-			LOG(LOG_ERROR, "New socket (fd=%d) write failed.\n", fd);
-#endif
-
-			draw_info("SOCKET ERROR: Server write failed.", COLOR_RED);
-
-			SOCKET_CloseSocket(csocket.fd);
-
+			LOG(LOG_ERROR, "socket_write(): Write failed with error %d.\n", socket_get_error());
+			draw_info("Server write failed.", COLOR_RED);
+			socket_close(csocket.fd);
 			return -1;
 		}
 
 		if (amt == 0)
 		{
-#ifdef __WIN_32
-			LOG(LOG_ERROR, "Write_To_Socket: No data written out (%d).\n", WSAGetLastError());
-#elif __LINUX
-			LOG(LOG_ERROR, "Write_To_Socket: No data written out.\n");
-#endif
-
-			draw_info("SOCKET ERROR: No data written out", COLOR_RED);
-
-			SOCKET_CloseSocket(csocket.fd);
-
+			LOG(LOG_ERROR, "socket_write(): No data written out: %d.\n", socket_get_error());
+			draw_info("No data written out.", COLOR_RED);
+			socket_close(csocket.fd);
 			return -1;
 		}
 
@@ -245,7 +239,10 @@ int write_socket(int fd, unsigned char *buf, int len)
 	return 0;
 }
 
-int SOCKET_InitSocket()
+/**
+ * Initialize the socket.
+ * @return 1 on success, 0 on failure. */
+int socket_initialize()
 {
 #ifdef WIN32
 	WSADATA w;
@@ -282,55 +279,62 @@ int SOCKET_InitSocket()
 	return 1;
 }
 
-int SOCKET_DeinitSocket()
+/**
+ * Deinitialize the socket. */
+void socket_deinitialize()
 {
-#ifdef __WIN_32
+#ifdef WIN32
 	/* Drop socket */
 	WSACleanup();
 #endif
-
-	return 1;
 }
 
-int SOCKET_CloseSocket(SOCKET socket_temp)
+/**
+ * Close a socket.
+ * @param socket_temp Socket to close. */
+void socket_close(SOCKET socket_temp)
 {
 	void *tmp_free;
 
-	/* seems differents sockets have different way to shutdown connects??
-	 * win32 needs this
-	 * hard way, normally you should wait for a read() == 0... */
 	if ((int) socket_temp == SOCKET_NO)
-		return 1;
+	{
+		return;
+	}
 
-#ifdef __WIN_32
+#ifdef WIN32
 	shutdown(socket_temp, SD_BOTH);
 	closesocket(socket_temp);
-#elif __LINUX
+#else
 	close(socket_temp);
 #endif
 
 	tmp_free = &csocket.inbuf.buf;
 	FreeMemory(tmp_free);
 	csocket.fd = SOCKET_NO;
-
-	return 1;
 }
 
-int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port)
+/**
+ * Open a new socket.
+ * @param socket_temp Socket to open.
+ * @param csock Client socket.
+ * @param host Host to connect to.
+ * @param port Port to connect to.
+ * @return 1 on success, 0 on failure. */
+int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port)
 {
-#ifdef __WIN_32
+#ifdef WIN32
 	int error;
 	long temp;
 	uint32 start_timer;
-#elif __LINUX
+#else
 	struct protoent *protox;
 	struct sockaddr_in insock;
 #endif
 	unsigned int oldbufsize, newbufsize = 65535, buflen = sizeof(int);
 
-	printf("Opening to %s %i\n", host, port);
+	LOG(LOG_MSG, "Opening to %s %d\n", host, port);
 
-#ifdef __WIN_32
+#ifdef WIN32
 	/* The way to make the sockets work on XP Home - The 'unix' style socket
 	 * seems to fail under xp home. */
 	*socket_temp = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -347,13 +351,12 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 
 		return 0;
 	}
-#elif __LINUX
+#else
 	protox = getprotobyname("tcp");
 
 	if (protox == (struct protoent *) NULL)
 	{
-		fprintf(stderr, "SOCKET_OpenSocket(): Error getting protobyname (tcp)\n");
-
+		LOG(LOG_ERROR, "open_socket(): Error getting protobyname (tcp)\n");
 		return 0;
 	}
 
@@ -361,9 +364,8 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 
 	if (*socket_temp == -1)
 	{
-		perror("SOCKET_OpenSocket(): Error on socket command.\n");
+		perror("open_socket(): Error on socket command");
 		*socket_temp = SOCKET_NO;
-
 		return 0;
 	}
 
@@ -383,7 +385,6 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 		{
 			LOG(LOG_ERROR, "Unknown host: %s\n", host);
 			*socket_temp = SOCKET_NO;
-
 			return 0;
 		}
 
@@ -394,7 +395,7 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 	csock->command_received = 0;
 	csock->command_time = 0;
 
-#ifdef __WIN_32
+#ifdef WIN32
 	/* non-block */
 	temp = 1;
 
@@ -402,7 +403,6 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 	{
 		LOG(LOG_ERROR, "ERROR: ioctlsocket(*socket_temp, FIONBIO , &temp)\n");
 		*socket_temp = SOCKET_NO;
-
 		return 0;
 	}
 
@@ -418,7 +418,6 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 		if (start_timer + SOCKET_TIMEOUT_SEC * 1000 < SDL_GetTicks())
 		{
 			*socket_temp = SOCKET_NO;
-
 			return 0;
 		}
 
@@ -426,13 +425,14 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 
 		/* we have a connect! */
 		if (SocketStatusErrorNr == WSAEISCONN)
+		{
 			break;
+		}
 
-		/* loop until we finished */
+		/* Loop until we finished */
 		if (SocketStatusErrorNr == WSAEWOULDBLOCK || SocketStatusErrorNr == WSAEALREADY || (SocketStatusErrorNr == WSAEINVAL && error))
 		{
 			error = 1;
-
 			continue;
 		}
 
@@ -441,14 +441,13 @@ int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *hos
 
 		return 0;
 	}
-#elif __LINUX
-	csocket.inbuf.buf = (unsigned char *) _malloc(MAXSOCKBUF, "SOCKET_OpenSocket(): MAXSOCKBUF");
+#else
+	csocket.inbuf.buf = (unsigned char *) _malloc(MAXSOCKBUF, "open_socket(): MAXSOCKBUF");
 	csocket.inbuf.len = 0;
 
 	if (connect(*socket_temp, (struct sockaddr *) &insock, sizeof(insock)) == -1)
 	{
-		perror("Can't connect to server\n");
-
+		perror("Can't connect to server");
 		return 0;
 	}
 

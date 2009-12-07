@@ -25,60 +25,26 @@
 
 /**
  * @file
- * This file handles various player related functions.  This includes
- * both things that operate on the player item, cpl structure, or
+ * This file handles various player related functions. This includes
+ * both things that operate on the player item, ::cpl structure, or
  * various commands that the player issues.
  *
- *  This file does most of the handling of commands from the client to
- *  server (see commands.c for server->client)
+ * This file does most of the handling of commands from the client to
+ * server (see commands.c for server->client)
  *
- *  does most of the work for sending messages to the server
- *   Again, most of these appear self explanatory.  Most send a bunch of
- *   commands like apply, examine, fire, run, etc.  This looks like it
- *   was done by Mark to remove the old keypress stupidity I used.
- */
+ * Does most of the work for sending messages to the server */
 
 #include <include.h>
 #include <math.h>
 
+/** Server level structure. */
 _server_level server_level;
 
-/** ID's of the player doll items */
-typedef enum _player_doll_enum
-{
-	PDOLL_ARMOUR,
-	PDOLL_HELM,
-	PDOLL_GIRDLE,
-	PDOLL_BOOT,
-	PDOLL_RHAND,
-	PDOLL_LHAND,
-	PDOLL_RRING,
-	PDOLL_LRING,
-	PDOLL_BRACER,
-	PDOLL_AMULET,
-	PDOLL_SKILL,
-	PDOLL_WAND,
-	PDOLL_BOW,
-	PDOLL_GAUNTLET,
-	PDOLL_ROBE,
-	PDOLL_LIGHT,
-
-	/* Must be last element */
-	PDOLL_INIT
-}_player_doll_enum;
-
-/** Player doll item position structure */
-typedef struct _player_doll_pos
-{
-	/** X position */
-	int xpos;
-
-	/** Y position */
-	int ypos;
-}_player_doll_pos;
-
-/** Player doll item positions */
-_player_doll_pos player_doll[PDOLL_INIT] =
+/**
+ * Player doll item positions.
+ *
+ * Used to determine where to put item sprites on the player doll. */
+static _player_doll_pos player_doll[PDOLL_INIT] =
 {
 	{93,	55},
 	{93,	8},
@@ -98,7 +64,7 @@ _player_doll_pos player_doll[PDOLL_INIT] =
 	{4,		10}
 };
 
-/** Weapon speed table */
+/** Weapon speed table. */
 static float weapon_speed_table[19] =
 {
 	20.0f, 	18.0f, 	10.0f, 	8.0f, 	5.5f,
@@ -122,11 +88,11 @@ void clear_player()
 }
 
 /**
- * Initialize new player
- * @param tag Tag of the player
- * @param name Name of the player
- * @param weight Weight of the player
- * @param face Face ID */
+ * Initialize new player.
+ * @param tag Tag of the player.
+ * @param name Name of the player.
+ * @param weight Weight of the player.
+ * @param face Face ID. */
 void new_player(long tag, char *name, long weight, short face)
 {
 	cpl.ob->tag = tag;
@@ -137,7 +103,7 @@ void new_player(long tag, char *name, long weight, short face)
 
 /**
  * Request to set up a new character with the selected statistics.
- * @param nc The server char */
+ * @param nc The server char. */
 void new_char(_server_char *nc)
 {
 	char buf[MAX_BUF];
@@ -146,24 +112,9 @@ void new_char(_server_char *nc)
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-
-/**
- * Look at command. In Crossfire clients, this command
- * was used to write out information about items on
- * square at x y. Currently unused.
- * @param x The X position of map
- * @param y The Y position of map */
-void look_at(int x, int y)
-{
-	char buf[MAX_BUF];
-
-	snprintf(buf, sizeof(buf), "lt %d %d", x, y);
-	cs_write_string(csocket.fd, buf, strlen(buf));
-}
-
 /**
  * Send apply command to server.
- * @param tag Item tag */
+ * @param tag Item tag. */
 void client_send_apply(int tag)
 {
 	char buf[MAX_BUF];
@@ -174,7 +125,7 @@ void client_send_apply(int tag)
 
 /**
  * Send examine command to server.
- * @param tag Item tag */
+ * @param tag Item tag. */
 void client_send_examine(int tag)
 {
 	char buf[MAX_BUF];
@@ -185,9 +136,9 @@ void client_send_examine(int tag)
 
 /**
  * Request nrof of objects of tag get moved to loc.
- * @param loc Location where to move the object
- * @param tag Item tag
- * @param nrof Number of objects from tag */
+ * @param loc Location where to move the object.
+ * @param tag Item tag.
+ * @param nrof Number of objects from tag. */
 void client_send_move(int loc, int tag, int nrof)
 {
 	char buf[MAX_BUF];
@@ -196,18 +147,17 @@ void client_send_move(int loc, int tag, int nrof)
 	cs_write_string(csocket.fd, buf, strlen(buf));
 }
 
-
 /**
- * This should be used for all 'command' processing.  Other functions should
- * call this so that proper windowing will be done.
- * @param command Text command
+ * This should be used for all 'command' processing. Other functions
+ * should call this so that proper windowing will be done.
+ * @param command Text command.
  * @param repeat Count value or -1 if none desired and we don't want
- * to reset the current count
- * @param must_send Means we must send this command no matter what (ie, it is
- * an administrative type of command like fire_stop, and failure to send
- * it will cause definate problems.
- * @return 1 if command was sent, 0 if not */
-int send_command(const char *command, int repeat, int must_send)
+ * to reset the current count.
+ * @param must_send Means we must send this command no matter what (ie,
+ * it is an administrative type of command like fire_stop, and failure to
+ * send it will cause definite problems).
+ * @return 1 if command was sent, 0 otherwise. */
+void send_command(const char *command, int repeat, int must_send)
 {
 	char buf[MAX_BUF];
 	static char last_command[MAX_BUF] = "";
@@ -215,58 +165,61 @@ int send_command(const char *command, int repeat, int must_send)
 	int commdiff = csocket.command_sent - csocket.command_received;
 
 	if (commdiff < 0)
+	{
 		commdiff += 256;
+	}
 
 	/* Don't want to copy in administrative commands */
 	if (!must_send)
-		strcpy(last_command, command);
+	{
+		strncpy(last_command, command, sizeof(last_command) - 1);
+	}
 
 	csocket.command_sent++;
-	/* max out at 255 */
+	/* Max out at 255 */
 	csocket.command_sent &= 0xff;
 
-	sl.buf = (unsigned char *)buf;
-	strcpy((char *)sl.buf, "cm ");
+	sl.buf = (unsigned char *) buf;
+	strcpy((char *) sl.buf, "cm ");
 	sl.len = 3;
-	SockList_AddShort(&sl, (uint16)csocket.command_sent);
+	SockList_AddShort(&sl, (uint16) csocket.command_sent);
 	SockList_AddInt(&sl, repeat);
-	strncpy((char *)sl.buf + sl.len, command, MAX_BUF - sl.len);
-	sl.buf[MAX_BUF - 1]=0;
+	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
+	sl.buf[MAX_BUF - 1] = '\0';
 	sl.len += strlen(command);
 	send_socklist(csocket.fd, sl);
 
 	if (repeat != -1)
+	{
 		cpl.count = 0;
-
-	return 1;
+	}
 }
 
 /**
  * Receive complete command.
- * @param data The incoming data
- * @param len Length of the data */
+ * @param data The incoming data.
+ * @param len Length of the data. */
 void CompleteCmd(unsigned char *data, int len)
 {
 	if (len != 6)
 	{
-		fprintf(stderr, "comc - invalid length %d - ignoring\n", len);
+		LOG(LOG_ERROR, "comc - invalid length %d - ignoring\n", len);
 	}
 
 	csocket.command_received = GetShort_String(data);
 	csocket.command_time = GetInt_String(data + 2);
 }
 
-
 /**
  * Set the player's weight limit.
- * @param wlim The weight limit */
-void set_weight_limit (uint32 wlim)
+ * @param wlim The weight limit to set. */
+void set_weight_limit(uint32 wlim)
 {
 	cpl.weight_limit = wlim;
 }
 
 /**
- * Initialize player data */
+ * Initialize player data. */
 void init_player_data()
 {
 	int i;
@@ -302,7 +255,9 @@ void init_player_data()
 	cpl.range[0] = '\0';
 
 	for (i = 0; i < range_size; i++)
+	{
 		cpl.ranges[i] = NULL;
+	}
 
 	cpl.map_x = 0;
 	cpl.map_y = 0;
@@ -312,7 +267,6 @@ void init_player_data()
 	/* This is set from title in stat cmd */
 	strcpy(cpl.pname, "");
 	strcpy(cpl.title, "");
-
 	strcpy(cpl.partyname, "");
 
 	cpl.menustatus = MENU_NO;
@@ -333,7 +287,9 @@ void init_player_data()
 	cpl.last_command[0] = '\0';
 
 	for (i = 0; i < range_size; i++)
+	{
 		cpl.ranges[i] = NULL;
+	}
 
 	cpl.map_x = 0;
 	cpl.map_y = 0;
@@ -348,9 +304,9 @@ void init_player_data()
 }
 
 /**
- * Mouse event on player data widget
- * @param x Mouse X
- * @param y Mouse Y */
+ * Mouse event on player data widget.
+ * @param x Mouse X.
+ * @param y Mouse Y. */
 void widget_player_data_event(int x, int y)
 {
 	int mx = x - cur_widget[PLAYER_INFO_ID].x1, my = y - cur_widget[PLAYER_INFO_ID].y1;
@@ -358,14 +314,16 @@ void widget_player_data_event(int x, int y)
 	if (mx >= 184 && mx <= 210 && my >= 5 && my <= 35)
 	{
 		if (!client_command_check("/pray"))
+		{
 			send_command("/pray", -1, SC_NORMAL);
+		}
 	}
 }
 
 /**
- * Show player data widget with name, gender, title, etc
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * Show player data widget with name, gender, title, etc.
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_show_player_data(int x, int y)
 {
 	char buf[256];
@@ -373,19 +331,27 @@ void widget_show_player_data(int x, int y)
 	sprite_blt(Bitmaps[BITMAP_PLAYER_INFO], x, y, NULL, NULL);
 
 	if (cpl.rank[0] != '\0')
+	{
 		snprintf(buf, sizeof(buf), "%s %s\n", cpl.rank, cpl.pname);
+	}
 	else
-		strncpy(buf, cpl.pname, sizeof(buf));
+	{
+		strncpy(buf, cpl.pname, sizeof(buf) - 1);
+	}
 
 	StringBlt(ScreenSurface, &SystemFont,buf,x + 6, y + 2, COLOR_HGOLD, NULL, NULL);
 
 	snprintf(buf, sizeof(buf), "%s %s %s", cpl.gender, cpl.race, cpl.title);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 14, COLOR_HGOLD, NULL, NULL);
 
-	if (strcmp(cpl.godname,"none") )
+	if (strcmp(cpl.godname, "none"))
+	{
 		snprintf(buf, sizeof(buf), "%s follower of %s", cpl.alignment, cpl.godname);
+	}
 	else
-		strncpy(buf, cpl.alignment, sizeof(buf));
+	{
+		strncpy(buf, cpl.alignment, sizeof(buf) - 1);
+	}
 
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 26, COLOR_HGOLD, NULL, NULL);
 
@@ -395,25 +361,28 @@ void widget_show_player_data(int x, int y)
 
 /**
  * Show player stats widget with stats, health, mana, grace, etc.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_player_stats(int x, int y)
 {
-	char buf[MAX_BUF];
 	double temp;
 	SDL_Rect box;
 	int mx, my, tmp;
-	_BLTFX bltfx;
 
 	SDL_GetMouseState(&mx, &my);
 
 	/* Let's look if we have a backbuffer SF, if not create one from the background */
 	if (!widgetSF[STATS_ID])
+	{
 		widgetSF[STATS_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap, Bitmaps[BITMAP_STATS_BG]->bitmap->format, Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
+	}
 
 	/* We have a backbuffer SF, test for the redrawing flag and do the redrawing */
 	if (cur_widget[STATS_ID].redraw)
 	{
+		char buf[MAX_BUF];
+		_BLTFX bltfx;
+
 		cur_widget[STATS_ID].redraw = 0;
 
 		/* We redraw here only all halfway static stuff *
@@ -492,7 +461,9 @@ void widget_player_stats(int x, int y)
 		tmp = cpl.stats.hp;
 
 		if (tmp < 0)
+		{
 			tmp = 0;
+		}
 
 		temp = (double) tmp / (double) cpl.stats.maxhp;
 		box.x = 0;
@@ -501,10 +472,14 @@ void widget_player_stats(int x, int y)
 		box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w*temp);
 
 		if (tmp && !box.w)
+		{
 			box.w = 1;
+		}
 
 		if (box.w > Bitmaps[BITMAP_HP]->bitmap->w)
+		{
 			box.w = Bitmaps[BITMAP_HP]->bitmap->w;
+		}
 
 		sprite_blt(Bitmaps[BITMAP_HP_BACK], x + 57, y + 23, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_HP], x + 57, y + 23, &box, NULL);
@@ -516,7 +491,9 @@ void widget_player_stats(int x, int y)
 		tmp = cpl.stats.sp;
 
 		if (tmp < 0)
+		{
 			tmp = 0;
+		}
 
 		temp = (double) tmp / (double) cpl.stats.maxsp;
 		box.x = 0;
@@ -525,10 +502,14 @@ void widget_player_stats(int x, int y)
 		box.w = (int) (Bitmaps[BITMAP_SP]->bitmap->w * temp);
 
 		if (tmp && !box.w)
+		{
 			box.w = 1;
+		}
 
 		if (box.w > Bitmaps[BITMAP_SP]->bitmap->w)
+		{
 			box.w = Bitmaps[BITMAP_SP]->bitmap->w;
+		}
 
 		sprite_blt(Bitmaps[BITMAP_SP_BACK], x + 57, y + 47, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_SP], x + 57, y + 47, &box, NULL);
@@ -540,7 +521,9 @@ void widget_player_stats(int x, int y)
 		tmp = cpl.stats.grace;
 
 		if (tmp < 0)
+		{
 			tmp = 0;
+		}
 
 		temp = (double) tmp / (double) cpl.stats.maxgrace;
 
@@ -550,10 +533,14 @@ void widget_player_stats(int x, int y)
 		box.w = (int) (Bitmaps[BITMAP_GRACE]->bitmap->w * temp);
 
 		if (tmp && !box.w)
+		{
 			box.w = 1;
+		}
 
 		if (box.w > Bitmaps[BITMAP_GRACE]->bitmap->w)
+		{
 			box.w = Bitmaps[BITMAP_GRACE]->bitmap->w;
+		}
 
 		sprite_blt(Bitmaps[BITMAP_GRACE_BACK], x + 57, y + 71, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_GRACE], x + 57, y + 71, &box, NULL);
@@ -589,17 +576,23 @@ void widget_player_stats(int x, int y)
 
 /**
  * Show menu buttons widget.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ *
+ * Menu buttons contain things like the Party button, spell list button,
+ * etc.
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_menubuttons(int x, int y)
 {
 	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], x, y, NULL, NULL);
 }
 
 /**
- * Handle mouse events over the menu buttons widget
- * @param x X position of the mouse
- * @param y Y position of the mouse */
+ * Handle mouse events over the menu buttons widget.
+ *
+ * Basically calls the right functions depending on which button was
+ * clicked.
+ * @param x X position of the mouse.
+ * @param y Y position of the mouse. */
 void widget_menubuttons_event(int x, int y)
 {
 	int dx = x - cur_widget[MENU_B_ID].x1, dy = y - cur_widget[MENU_B_ID].y1;
@@ -608,36 +601,46 @@ void widget_menubuttons_event(int x, int y)
 	{
 		/* Spell list */
 		if (dy >= 1 && dy <= 24)
+		{
 			check_menu_macros("?M_SPELL_LIST");
+		}
 		/* Skill list */
 		else if (dy >= 26 && dy <= 49)
+		{
 			check_menu_macros("?M_SKILL_LIST");
+		}
 		/* Party GUI */
 		else if (dy >= 51 && dy <= 74)
+		{
 			cs_write_string(csocket.fd, "pt list", 7);
+		}
 		/* Help system */
 		else if (dy >= 76 && dy <= 99)
+		{
 			show_help("main");
+		}
 	}
 }
 
 /**
  * Show skill groups widget.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_skillgroups(int x, int y)
 {
-	char buf[MAX_BUF];
 	SDL_Rect box;
-	_BLTFX bltfx;
 
 	if (!widgetSF[SKILL_LVL_ID])
+	{
 		widgetSF[SKILL_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
+	}
 
 	if (cur_widget[SKILL_LVL_ID].redraw)
 	{
-		cur_widget[SKILL_LVL_ID].redraw = 0;
+		char buf[MAX_BUF];
+		_BLTFX bltfx;
 
+		cur_widget[SKILL_LVL_ID].redraw = 0;
 		bltfx.surface = widgetSF[SKILL_LVL_ID];
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
@@ -683,7 +686,7 @@ void widget_skillgroups(int x, int y)
 }
 
 /**
- * Handle mouse events over player doll widget (dragging items) */
+ * Handle mouse events over player doll widget (dragging items). */
 void widget_show_player_doll_event()
 {
 	int old_inv_win = cpl.inventory_win, old_inv_tag = cpl.win_inv_tag;
@@ -695,16 +698,22 @@ void widget_show_player_doll_event()
 
 		/* Drop to player doll */
 		if (!(locate_item(cpl.win_inv_tag))->applied)
+		{
 			process_macro_keys(KEYFUNC_APPLY, 0);
+		}
 	}
 
 	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
 	{
 		if ((locate_item(cpl.win_inv_tag))->applied)
+		{
 			draw_info("This is applied already!", COLOR_WHITE);
+		}
 		/* Drop to player doll */
 		else
+		{
 			process_macro_keys(KEYFUNC_APPLY, 0);
+		}
 	}
 
 	cpl.inventory_win = old_inv_win;
@@ -716,8 +725,8 @@ void widget_show_player_doll_event()
 
 /**
  * Show player doll widget with applied items from inventory.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_show_player_doll(int x, int y)
 {
 	item *tmp;
@@ -731,14 +740,20 @@ void widget_show_player_doll(int x, int y)
 	int ws_temp = cpl.stats.weapon_sp;
 
 	if (ws_temp < 0)
+	{
 		ws_temp = 0;
+	}
 	else if (ws_temp > 18)
+	{
 		ws_temp = 18;
+	}
 
 	sprite_blt(Bitmaps[BITMAP_DOLL], x, y, NULL, NULL);
 
 	if (!cpl.ob)
+	{
 		return;
+	}
 
 	/* Armour class */
 	StringBlt(ScreenSurface, &SystemFont, "AC", x + 8, y + 50, COLOR_HGOLD, NULL, NULL);
@@ -762,7 +777,7 @@ void widget_show_player_doll(int x, int y)
 
 	/* Moving speed */
 	StringBlt(ScreenSurface, &SystemFont, "Speed ", x + 47, y + 190, COLOR_HGOLD, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%3.2f", (float)cpl.stats.speed / FLOAT_MULTF);
+	snprintf(buf, sizeof(buf), "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 75, y + 190, COLOR_WHITE, NULL, NULL);
 
 	/* Show items applied */
@@ -772,39 +787,75 @@ void widget_show_player_doll(int x, int y)
 		{
 			index = -1;
 
-			if (tmp->itype == TYPE_ARMOUR)
-				index = PDOLL_ARMOUR;
-			else if (tmp->itype == TYPE_HELMET)
-				index = PDOLL_HELM;
-			else if (tmp->itype == TYPE_GIRDLE)
-				index = PDOLL_GIRDLE;
-			else if (tmp->itype == TYPE_BOOTS)
-				index = PDOLL_BOOT;
-			else if (tmp->itype == TYPE_WEAPON)
-				index = PDOLL_RHAND;
-			else if (tmp->itype == TYPE_SHIELD)
-				index = PDOLL_LHAND;
-			else if (tmp->itype == TYPE_RING)
-				index = PDOLL_RRING;
-			else if (tmp->itype == TYPE_BRACERS)
-				index = PDOLL_BRACER;
-			else if (tmp->itype == TYPE_AMULET)
-				index = PDOLL_AMULET;
-			else if (tmp->itype == TYPE_SKILL)
-				index = PDOLL_SKILL;
-			else if (tmp->itype == TYPE_BOW)
-				index = PDOLL_BOW;
-			else if (tmp->itype == TYPE_GLOVES)
-				index = PDOLL_GAUNTLET;
-			else if (tmp->itype == TYPE_CLOAK)
-				index = PDOLL_ROBE;
-			else if (tmp->itype == TYPE_LIGHT_APPLY)
-				index = PDOLL_LIGHT;
-			else if (tmp->itype == TYPE_WAND || tmp->itype == TYPE_ROD || tmp->itype == TYPE_HORN)
-				index = PDOLL_WAND;
+			switch (tmp->itype)
+			{
+				case TYPE_ARMOUR:
+					index = PDOLL_ARMOUR;
+					break;
+
+				case TYPE_HELMET:
+					index = PDOLL_HELM;
+					break;
+
+				case TYPE_GIRDLE:
+					index = PDOLL_GIRDLE;
+					break;
+
+				case TYPE_BOOTS:
+					index = PDOLL_BOOT;
+					break;
+
+				case TYPE_WEAPON:
+					index = PDOLL_RHAND;
+					break;
+
+				case TYPE_SHIELD:
+					index = PDOLL_LHAND;
+					break;
+
+				case TYPE_RING:
+					index = PDOLL_RRING;
+					break;
+
+				case TYPE_BRACERS:
+					index = PDOLL_BRACER;
+					break;
+
+				case TYPE_AMULET:
+					index = PDOLL_AMULET;
+					break;
+
+				case TYPE_SKILL:
+					index = PDOLL_SKILL;
+					break;
+
+				case TYPE_BOW:
+					index = PDOLL_BOW;
+					break;
+
+				case TYPE_GLOVES:
+					index = PDOLL_GAUNTLET;
+					break;
+
+				case TYPE_CLOAK:
+					index = PDOLL_ROBE;
+					break;
+
+				case TYPE_LIGHT_APPLY:
+					index = PDOLL_LIGHT;
+					break;
+
+				case TYPE_WAND:
+				case TYPE_ROD:
+				case TYPE_HORN:
+					index = PDOLL_WAND;
+					break;
+			}
 
 			if (index == PDOLL_RRING)
+			{
 				index += ++ring_flag & 1;
+			}
 
 			if (index != -1)
 			{
@@ -830,28 +881,35 @@ void widget_show_player_doll(int x, int y)
 
 	/* Draw item name tooltip */
 	if (tooltip_index != -1)
+	{
 		show_tooltip(mx, my, tooltip_text);
+	}
 }
 
 /**
  * Show main level widget.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ *
+ * Contains the player's level, experience in highest skill, and percent
+ * in bubbles to how close you are to next level.
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_show_main_lvl(int x, int y)
 {
-	char buf[MAX_BUF];
-	double multi, line;
 	SDL_Rect box;
-	int s, level_exp;
-	_BLTFX bltfx;
 
 	if (!widgetSF[MAIN_LVL_ID])
+	{
 		widgetSF[MAIN_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
+	}
 
 	if (cur_widget[MAIN_LVL_ID].redraw)
 	{
-		cur_widget[MAIN_LVL_ID].redraw = 0;
+		char buf[MAX_BUF];
+		double multi, line;
+		int s, level_exp;
+		_BLTFX bltfx;
 
+		cur_widget[MAIN_LVL_ID].redraw = 0;
 		bltfx.surface = widgetSF[MAIN_LVL_ID];
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
@@ -861,15 +919,19 @@ void widget_show_main_lvl(int x, int y)
 		StringBlt(widgetSF[MAIN_LVL_ID], &Font6x3Out, "Level / Exp", 4, 1, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d", cpl.stats.level);
 
-		if (cpl.stats.level == MAX_LEVEL)
+		if (cpl.stats.level == server_level.level)
+		{
 			StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_HGOLD, NULL, NULL);
+		}
 		else
+		{
 			StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
+		}
 
 		snprintf(buf, sizeof(buf), "%d", cpl.stats.exp);
 		StringBlt(widgetSF[MAIN_LVL_ID], &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
-		/* Calc the exp bubbles */
+		/* Calculate the exp bubbles */
 		level_exp = cpl.stats.exp - server_level.exp[cpl.stats.level];
 		multi = modf(((double) level_exp / (double) (server_level.exp[cpl.stats.level + 1] - server_level.exp[cpl.stats.level]) * 10.0), &line);
 
@@ -883,19 +945,27 @@ void widget_show_main_lvl(int x, int y)
 			box.w = (int) (Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w * multi);
 
 			if (!box.w)
+			{
 				box.w = 1;
+			}
 
 			if (box.w > Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w)
+			{
 				box.w = Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w;
+			}
 
 			sprite_blt(Bitmaps[BITMAP_EXP_SLIDER], 9, 49, &box, &bltfx);
 		}
 
 		for (s = 0; s < 10; s++)
+		{
 			sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE2], 10 + s * 8, 40, NULL, &bltfx);
+		}
 
 		for (s = 0; s < (int) line; s++)
+		{
 			sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE1], 10 + s * 8, 40, NULL, &bltfx);
+		}
 	}
 
 	box.x = x;
@@ -905,22 +975,12 @@ void widget_show_main_lvl(int x, int y)
 
 /**
  * Show skill experience widget. This also includes the action timer.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_show_skill_exp(int x, int y)
 {
-	_BLTFX bltfx;
-	char buf[MAX_BUF];
-	double multi, line;
 	SDL_Rect box;
-	int s, level_exp;
-	long int liLExp = 0;
-	long int liLExpTNL = 0;
-	long int liTExp = 0;
-	long int liTExpTNL = 0;
-	float fLExpPercent = 0;
 	static int action_tick = 0;
-	multi = line = 0;
 
 	/* Pre-emptively tick down the skill delay timer */
 	if (cpl.action_timer > 0)
@@ -930,22 +990,37 @@ void widget_show_skill_exp(int x, int y)
 			cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
 
 			if (cpl.action_timer < 0)
+			{
 				cpl.action_timer = 0;
+			}
 
 			action_tick = LastTick;
 			WIDGET_REDRAW(SKILL_EXP_ID);
 		}
 	}
 	else
+	{
 		action_tick = LastTick;
+	}
 
 	if (!widgetSF[SKILL_EXP_ID])
+	{
 		widgetSF[SKILL_EXP_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
+	}
 
 	if (cur_widget[SKILL_EXP_ID].redraw)
 	{
-		cur_widget[SKILL_EXP_ID].redraw = 0;
+		int s, level_exp;
+		_BLTFX bltfx;
+		char buf[MAX_BUF];
+		long int liLExp = 0;
+		long int liLExpTNL = 0;
+		long int liTExp = 0;
+		long int liTExpTNL = 0;
+		float fLExpPercent = 0;
+		double multi = 0, line = 0;
 
+		cur_widget[SKILL_EXP_ID].redraw = 0;
 		bltfx.surface = widgetSF[SKILL_EXP_ID];
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
@@ -955,25 +1030,30 @@ void widget_show_skill_exp(int x, int y)
 		StringBlt(widgetSF[SKILL_EXP_ID], &Font6x3Out, "Used", 4, -1, COLOR_HGOLD, NULL, NULL);
 		StringBlt(widgetSF[SKILL_EXP_ID], &Font6x3Out, "Skill", 4, 7, COLOR_HGOLD, NULL, NULL);
 
-		if (cpl.skill_name[0] != 0)
+		if (cpl.skill_name[0] != '\0')
 		{
 			switch (options.expDisplay)
 			{
-					/* Default */
+				/* Default */
 				default:
 				case 0:
 					snprintf(buf, sizeof(buf), "%s", cpl.skill_name);
 					break;
 
-					/* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
+				/* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
 				case 1:
 				case 2:
 				case 3:
 				case 4:
 					if ((skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0) || (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2))
+					{
 						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "%s - level: **", cpl.skill_name);
+					}
+
 					break;
 			}
 
@@ -995,52 +1075,81 @@ void widget_show_skill_exp(int x, int y)
 
 			switch (options.expDisplay)
 			{
-					/* Default */
+				/* Default */
 				default:
 				case 0:
-					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >=0)
+					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					{
 						snprintf(buf, sizeof(buf), "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
+					}
 					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
+					{
 						snprintf(buf, sizeof(buf), "%d / **", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "** / **");
+					}
+
 					break;
 
-					/* LExp% */
+				/* LExp% */
 				case 1:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					{
 						snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "**.**%%");
+					}
+
 					break;
 
-					/* LExp/LExp tnl */
+				/* LExp/LExp tnl */
 				case 2:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					{
 						snprintf(buf, sizeof(buf), "%ld / %ld", liLExp, liLExpTNL);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "** / **");
+					}
+
 					break;
 
-					/* TExp/TExp tnl */
+				/* TExp/TExp tnl */
 				case 3:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					{
 						snprintf(buf, sizeof(buf), "%ld / %ld", liTExp, liTExpTNL);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "** / **");
+					}
+
 					break;
 
-					/* (LExp%) LExp/LExp tnl */
+				/* (LExp%) LExp/LExp tnl */
 				case 4:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
+					{
 						snprintf(buf, sizeof(buf), "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);
+					}
 					else
+					{
 						snprintf(buf, sizeof(buf), "(**.**%%) **");
+					}
+
 					break;
 			}
 
-			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == MAX_LEVEL)
-				snprintf(buf, sizeof(buf), "Maximum level reached");
+			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level == server_level.level)
+			{
+				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
+			}
 
 			StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 28, 9, COLOR_WHITE, NULL, NULL);
 
@@ -1058,10 +1167,14 @@ void widget_show_skill_exp(int x, int y)
 			box.w = (int) (Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w * multi);
 
 			if (!box.w)
+			{
 				box.w = 1;
+			}
 
 			if (box.w > Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w)
+			{
 				box.w = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w;
+			}
 
 			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 146, 18, &box, &bltfx);
 		}
@@ -1069,7 +1182,9 @@ void widget_show_skill_exp(int x, int y)
 		if (line > 0)
 		{
 			for (s = 0; s < (int) line; s++)
+			{
 				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 146 + s * 5, 13, NULL, &bltfx);
+			}
 		}
 	}
 
@@ -1079,7 +1194,7 @@ void widget_show_skill_exp(int x, int y)
 }
 
 /**
- * Handle mouse events over skill experience widget */
+ * Handle mouse events over skill experience widget. */
 void widget_skill_exp_event()
 {
 	int i, ii, j, jj, bFound = 0;
@@ -1090,7 +1205,9 @@ void widget_skill_exp_event()
 		jj = cpl.skill_g + ii;
 
 		if (jj >= SKILL_LIST_MAX)
+		{
 			jj -= SKILL_LIST_MAX;
+		}
 
 		for (i = 0; i < DIALOG_LIST_ENTRY && (!bFound); i++)
 		{
@@ -1100,20 +1217,26 @@ void widget_skill_exp_event()
 				j = cpl.skill_e + i + 1;
 
 				if (j >= DIALOG_LIST_ENTRY)
+				{
 					break;
+				}
 			}
 			/* Other pages we look through MUST NOT BE OFFSET */
 			else
+			{
 				j = i;
+			}
 
 			if (j >= DIALOG_LIST_ENTRY)
+			{
 				j -= DIALOG_LIST_ENTRY;
+			}
 
 			/* We have a list entry */
 			if (skill_list[jj].entry[j].flag == LIST_ENTRY_KNOWN)
 			{
 				/* First one we find is the one we want */
-				snprintf(cpl.skill_name, sizeof(cpl.skill_name), "%s", skill_list[jj].entry[j].name);
+				strncpy(cpl.skill_name, skill_list[jj].entry[j].name, sizeof(cpl.skill_name) - 1);
 				cpl.skill_g = jj;
 				cpl.skill_e = j;
 				bFound = 1;
@@ -1127,21 +1250,23 @@ void widget_skill_exp_event()
 
 /**
  * Show regeneration widget.
- * @param x X position of the widget
- * @param y Y position of the widget */
+ * @param x X position of the widget.
+ * @param y Y position of the widget. */
 void widget_show_regeneration(int x, int y)
 {
-	char buf[MAX_BUF];
 	SDL_Rect box;
-	_BLTFX bltfx;
 
 	if (!widgetSF[REGEN_ID])
+	{
 		widgetSF[REGEN_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap, Bitmaps[BITMAP_REGEN_BG]->bitmap->format, Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
+	}
 
 	if (cur_widget[REGEN_ID].redraw)
 	{
-		cur_widget[REGEN_ID].redraw = 0;
+		char buf[MAX_BUF];
+		_BLTFX bltfx;
 
+		cur_widget[REGEN_ID].redraw = 0;
 		bltfx.surface = widgetSF[REGEN_ID];
 		bltfx.flags = 0;
 		bltfx.alpha = 0;

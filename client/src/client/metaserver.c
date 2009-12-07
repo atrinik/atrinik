@@ -125,7 +125,7 @@ void metaserver_add(char *server, int port, int player, char *ver, char *desc)
 {
 	_server *node;
 
-	node = (_server*) _malloc(sizeof(_server), "add_metaserver_data(): add server struct");
+	node = (_server*) _malloc(sizeof(_server), "metaserver_add(): add server struct");
 	memset(node, 0, sizeof(_server));
 
 	node->next = start_server;
@@ -133,11 +133,11 @@ void metaserver_add(char *server, int port, int player, char *ver, char *desc)
 
 	node->player = player;
 	node->port = port;
-	node->nameip = _malloc(strlen(server) + 1, "add_metaserver_data(): nameip string");
+	node->nameip = _malloc(strlen(server) + 1, "metaserver_add(): nameip string");
 	strcpy(node->nameip, server);
-	node->version = _malloc(strlen(ver) + 1, "add_metaserver_data(): version string");
+	node->version = _malloc(strlen(ver) + 1, "metaserver_add(): version string");
 	strcpy(node->version, ver);
-	node->desc = _malloc(strlen(desc) + 1, "add_metaserver_data(): desc string");
+	node->desc = _malloc(strlen(desc) + 1, "metaserver_add(): desc string");
 	strcpy(node->desc, desc);
 
 	metaserver_count++;
@@ -201,7 +201,7 @@ int metaserver_connect(char *metaserver_url)
 	 * or Windows one. Could be used for statistics or something. */
 #ifdef __LINUX
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Linux)/%s", PACKAGE_VERSION);
-#elif __WIN_32
+#elif WIN32
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s", PACKAGE_VERSION);
 #else
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s", PACKAGE_VERSION);

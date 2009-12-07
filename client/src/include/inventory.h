@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INVENTORY_H)
-#define __INVENTORY_H
+#ifndef INVENTORY_H
+#define INVENTORY_H
 
 #define INVITEMBELOWXLEN 8
 #define INVITEMBELOWYLEN 1

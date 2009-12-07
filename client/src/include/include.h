@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__INCLUDE_H)
-#define __INCLUDE_H
+#ifndef INCLUDE_H
+#define INCLUDE_H
 
 #ifdef __LINUX
 #include "define.h"

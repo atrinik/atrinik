@@ -157,13 +157,13 @@ void DoClient(ClientSocket *csocket)
 
 	while (1)
 	{
-		i = read_socket(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
+		i = socket_read(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
 
 		if (i == -1)
 		{
 			/* Need to add some better logic here */
-			LOG(LOG_MSG, "Got error on read (error %d)\n", SOCKET_GetError());
-			SOCKET_CloseSocket(csocket->fd);
+			LOG(LOG_MSG, "Got error on read (error %d)\n", socket_get_error());
+			socket_close(csocket->fd);
 
 			return;
 		}
@@ -276,8 +276,8 @@ int send_socklist(int fd, SockList msg)
 	sbuf[0] = ((uint32)(msg.len) >> 8) & 0xFF;
 	sbuf[1] = ((uint32)(msg.len)) & 0xFF;
 
-	write_socket(fd, sbuf, 2);
-	return write_socket(fd, msg.buf, msg.len);
+	socket_write(fd, sbuf, 2);
+	return socket_write(fd, msg.buf, msg.len);
 }
 
 /**

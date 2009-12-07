@@ -397,7 +397,7 @@ void show_help(char *helpname)
 
 	cpl.menustatus = MENU_BOOK;
 
-	gui_interface_book = load_book_interface((char *) data, len);
+	gui_interface_book = book_gui_load((char *) data, len);
 }
 
 /**
@@ -628,7 +628,7 @@ void show_menu()
 	if (cpl.menustatus == MENU_KEYBIND)
 		show_keybind();
 	else if (cpl.menustatus == MENU_BOOK)
-		show_book();
+		book_gui_show();
 	else if (cpl.menustatus == MENU_PARTY)
 		show_party();
 	else if (cpl.menustatus == MENU_SPELL)

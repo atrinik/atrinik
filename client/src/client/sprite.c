@@ -40,7 +40,7 @@ static double dark_value[DARK_LEVELS] =
 /** Anim queue of current active map */
 struct _anim *start_anim;
 
-static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right,UINT32 ckey);
+static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey);
 static void grey_scale(SDL_Color *col_tab, SDL_Color *grey_tab, int num_col, int r, int g, int b);
 static void red_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
 static void fow_scale(SDL_Color *col_tab, SDL_Color*grey_tab, int numcol, int rcol, int gcol, int bcol);
@@ -146,7 +146,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 	SDL_Surface *bitmap;
 	int i, s, ncol, dark_flag = 0;
 	Uint8 r, g, b;
-	UINT32 ckflags, tmp = 0;
+	uint32 ckflags, tmp = 0;
 	SDL_Color colors[256], dark[256], ckey;
 
 	if (fname)
@@ -584,7 +584,7 @@ void show_tooltip(int mx, int my, char *text)
 	StringBlt(ScreenSurface, &SystemFont, tooltip, rec.x + 2, rec.y - 1, COLOR_BLACK, NULL, NULL);
 }
 
-static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, UINT32 ckey)
+static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey)
 {
 	register int x, y;
 

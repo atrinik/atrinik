@@ -23,10 +23,16 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__BOOK_H)
-#define __BOOK_H
+/**
+ * @file
+ * Book GUI related structures. */
 
-#define BOOK_PAGE_LINES 16
+#ifndef BOOK_H
+#define BOOK_H
+
+/** Maximum lines on a page of book. */
+#define BOOK_PAGE_LINES 18
+/** Maximum characters on a line. */
 #define BOOK_LINES_CHAR 256
 
 /** Book data structure */
@@ -45,7 +51,7 @@ typedef struct __global_book_data
 	int ylen;
 }_global_book_data;
 
-/** Book GUI */
+/** Single line in the book GUI */
 typedef struct gui_book_line
 {
 	/** Line mode */
@@ -77,7 +83,7 @@ typedef struct gui_book_struct
 	char name[256];
 } _gui_book_struct;
 
-/** Book GUI page structure */
+/** Single page in the book GUI */
 typedef struct gui_book_page
 {
 	/** Next page in the structure */
@@ -89,9 +95,8 @@ typedef struct gui_book_page
 
 extern _global_book_data global_book_data;
 
-extern _gui_book_struct *load_book_interface(char *data, int len);
-extern void show_book();
-extern void book_clear();
-extern void gui_book_handle_mouse(int x, int y);
+extern _gui_book_struct *book_gui_load(char *data, int len);
+extern void book_gui_show();
+extern void book_gui_handle_mouse(int x, int y);
 
 #endif

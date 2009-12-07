@@ -746,7 +746,7 @@ int game_status_chain()
 		map_udate_flag = 2;
 
 		if ((int) csocket.fd != SOCKET_NO)
-			SOCKET_CloseSocket(csocket.fd);
+			socket_close(csocket.fd);
 
 		clear_map();
 		map_redraw_flag = 1;
@@ -771,10 +771,11 @@ int game_status_chain()
 	{
 		GameStatusVersionFlag = 0;
 
-		if (!SOCKET_OpenSocket(&csocket.fd, &csocket, ServerName, ServerPort))
+		if (!open_socket(&csocket.fd, &csocket, ServerName, ServerPort))
 		{
 			draw_info("Connection failed!", COLOR_RED);
 			GameStatus = GAME_STATUS_START;
+			return 1;
 		}
 
 		GameStatus = GAME_STATUS_VERSION;
@@ -1589,9 +1590,10 @@ int main(int argc, char *argv[])
 
 	draw_info("Init network...", COLOR_GREEN);
 
-	/* log in function*/
-	if (!SOCKET_InitSocket())
+	if (!socket_initialize())
+	{
 		exit(1);
+	}
 
 	maxfd = csocket.fd + 1;
 	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
@@ -1648,7 +1650,7 @@ int main(int argc, char *argv[])
 				/* main poll point for the socket */
 				if ((pollret = select(maxfd, &tmp_read, &tmp_write, &tmp_exceptions, &timeout)) == -1)
 				{
-					LOG(LOG_MSG, "Got errno %d on selectcall.\n", SOCKET_GetError());
+					LOG(LOG_MSG, "Got errno %d on selectcall.\n", socket_get_error());
 				}
 				else if (FD_ISSET(csocket.fd, &tmp_read))
 				{
@@ -1724,7 +1726,7 @@ int main(int argc, char *argv[])
 		{
 			if (!game_status_chain())
 			{
-				LOG(LOG_ERROR, "Error connecting: GStatus: %d  SocketError: %d\n", GameStatus, SOCKET_GetError());
+				LOG(LOG_ERROR, "Error connecting: GStatus: %d  SocketError: %d\n", GameStatus, socket_get_error());
 				exit(1);
 			}
 		}
@@ -1852,7 +1854,7 @@ int main(int argc, char *argv[])
 	curl_global_cleanup();
 
 	/* We have left main loop and shut down the client */
-	SOCKET_DeinitSocket();
+	socket_deinitialize();
 	sound_freeall();
 	sound_deinit();
 	free_bitmaps();

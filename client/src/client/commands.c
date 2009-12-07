@@ -78,7 +78,7 @@ void BookCmd(unsigned char *data, int len)
 
 	data += 4;
 
-	gui_interface_book = load_book_interface((char *)data, len - 4);
+	gui_interface_book = book_gui_load((char *)data, len - 4);
 }
 
 /**
@@ -2412,5 +2412,5 @@ void QuestListCmd(unsigned char *data, int len)
 	cpl.menustatus = MENU_BOOK;
 
 	data += 4;
-	gui_interface_book = load_book_interface((char *) data, len - 4);
+	gui_interface_book = book_gui_load((char *) data, len - 4);
 }

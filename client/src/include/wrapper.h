@@ -23,11 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__WRAPPER_H)
-#define __WRAPPER_H
+#ifndef WRAPPER_H
+#define WRAPPER_H
 
 /* include here the hardware depend headers */
-#ifdef __WIN_32
+#ifdef WIN32
 #include "win32.h"
 #elif __LINUX
 #include <cflinux.h>

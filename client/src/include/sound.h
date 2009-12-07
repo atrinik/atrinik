@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__SOUND_H)
-#define __SOUND_H
+#ifndef SOUND_H
+#define SOUND_H
 
 /* Possible status of the sound system */
 typedef enum _sound_system

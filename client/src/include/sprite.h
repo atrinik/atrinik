@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__SPRITE_H)
-#define __SPRITE_H
+#ifndef SPRITE_H
+#define SPRITE_H
 
 /* Our blt and sprite structure */
 
@@ -53,7 +53,7 @@ typedef enum _sprite_type
 typedef struct _BLTFX
 {
 	/** Used from BLTFX_FLAG_xxxx */
-	UINT32 flags;
+	uint32 flags;
 
 	/** If != null, overrule default screen */
 	SDL_Surface *surface;
@@ -182,8 +182,8 @@ extern void show_tooltip(int mx, int my, char* text);
 extern int StringWidth(_Font *font, char *text);
 extern int StringWidthOffset(_Font *font, char *text, int *line, int len);
 
-extern _Sprite *sprite_load_file(char *fname, UINT32 flags);
-extern _Sprite *sprite_tryload_file(char *fname, UINT32 flags,SDL_RWops *rwob);
+extern _Sprite *sprite_load_file(char *fname, uint32 flags);
+extern _Sprite *sprite_tryload_file(char *fname, uint32 flags, SDL_RWops *rwob);
 extern void sprite_free_sprite(_Sprite *sprite);
 extern int get_string_pixel_length(char *text, struct _Font *font);
 extern void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);

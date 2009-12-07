@@ -23,19 +23,23 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__SDLSOCKET_H)
-#define __SDLSOCKET_H
+/**
+ * @file
+ * Socket header file. */
+
+#ifndef SDLSOCKET_H
+#define SDLSOCKET_H
 
 #define SOCKET_NO -1
+/** Timeout in seconds. */
+#define SOCKET_TIMEOUT_SEC 8
 
-extern int SOCKET_InitSocket();
-extern int SOCKET_DeinitSocket();
-extern int SOCKET_OpenSocket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
-extern int SOCKET_CloseSocket(SOCKET socket);
-/* Returns socket error */
-extern int SOCKET_GetError();
-
-extern int write_socket(int fd, unsigned char *buf, int len);
-extern int read_socket(int fd, struct SockList *sl, int len);
+extern int socket_get_error();
+extern int socket_read(int fd, SockList *sl, int len);
+extern int socket_write(int fd, unsigned char *buf, int len);
+extern int socket_initialize();
+extern void socket_deinitialize();
+extern void socket_close(SOCKET socket);
+extern int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
 
 #endif

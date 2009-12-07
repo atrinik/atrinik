@@ -23,8 +23,8 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#if !defined(__LINUX_H)
-#define __LINUX_H
+#ifndef LINUX_H
+#define LINUX_H
 #ifdef __LINUX
 
 #ifdef HAVE_SYS_STAT_H
@@ -69,14 +69,8 @@
 
 #define _malloc(__d,__s) malloc(__d)
 
-#ifndef O_BINARY
-#define O_BINARY 0x0
-#endif
-
-#define UINT32 uint32
 #endif
 
 #define SOCKET int
-#define SOCKET_TIMEOUT_SEC 8
 
 #endif

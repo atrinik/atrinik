@@ -23,17 +23,16 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <include.h>
-
 /**
  * @file
  * General convenience functions for the client. */
 
-#if defined(__WIN_32) || defined(__LINUX)
+#include <include.h>
+
 FILE   *logstream;
 
 int logFlush;
-#endif
+
 /**
  * Logs an error, debug output, etc.
  * @param logLevel Level of the log message (LOG_MSG, LOG_DEBUG, ...)
@@ -41,7 +40,6 @@ int logFlush;
  * @param ... Additional arguments for format */
 void LOG(int logLevel, char *format, ...)
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	int flag = 0;
 	va_list ap;
 
@@ -78,7 +76,6 @@ void LOG(int logLevel, char *format, ...)
 	}
 
 	fflush(logstream);
-#endif
 }
 
 /**
@@ -100,9 +97,7 @@ void SYSTEM_Start()
 
 	free(icon);
 
-#if defined(__WIN_32) || defined(__LINUX)
 	logstream = fopen_wrapper(LOG_FILE, "w");
-#endif
 }
 
 /**
@@ -120,9 +115,7 @@ int SYSTEM_End()
  * @return The bitmap directory */
 char *GetBitmapDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "bitmaps/";
-#endif
 }
 
 /**
@@ -130,9 +123,7 @@ char *GetBitmapDirectory()
  * @return The icon directory */
 char *GetIconDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "icons/";
-#endif
 }
 
 /**
@@ -140,9 +131,7 @@ char *GetIconDirectory()
  * @return The sfx directory */
 char *GetSfxDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "sfx/";
-#endif
 }
 
 /**
@@ -150,9 +139,7 @@ char *GetSfxDirectory()
  * @return The cache directory */
 char *GetCacheDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "cache/";
-#endif
 }
 
 /**
@@ -160,9 +147,7 @@ char *GetCacheDirectory()
  * @return The user defined GFX directory */
 char *GetGfxUserDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "gfx_user/";
-#endif
 }
 
 /**
@@ -170,9 +155,7 @@ char *GetGfxUserDirectory()
  * @return The media directory */
 char *GetMediaDirectory()
 {
-#if defined(__WIN_32) || defined(__LINUX)
 	return "media/";
-#endif
 }
 
 /**
@@ -364,7 +347,7 @@ int strcasecmp(char *s1, char*s2)
 #endif
 #endif
 
-#ifdef __WIN_32
+#ifdef WIN32
 char *file_path(const char *fname, const char *mode)
 {
 	static char tmp[256];
