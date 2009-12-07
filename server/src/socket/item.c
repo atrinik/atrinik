@@ -1365,6 +1365,44 @@ static void remove_quickslot(int slot, object *ob)
 }
 
 /**
+ * Send quickslots to player.
+ * @param pl Player to send the quickslots to. */
+void send_quickslots(player *pl)
+{
+	char tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
+	object *op;
+
+	snprintf(tmp, sizeof(tmp), "X");
+
+	/* Go through the inventory */
+	for (op = pl->ob->inv; op; op = op->below)
+	{
+		/* If this has quickslot set */
+		if (op->quickslot)
+		{
+			/* It's a force, so a spell! */
+			if (strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
+			{
+				snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
+			}
+			/* Otherwise an item */
+			else
+			{
+				snprintf(tmpbuf, sizeof(tmpbuf), "\ni %d %d", op->count, op->quickslot);
+			}
+
+			strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmpbuf) - 1);
+		}
+	}
+
+	/* Write it to the client if we found any quickslot entries */
+	if (strlen(tmp) != 1)
+	{
+		Write_String_To_Socket(&pl->socket, BINARY_CMD_QUICKSLOT, tmp, strlen(tmp));
+	}
+}
+
+/**
  * Quick slot command. The quickslot system works like this:
  *  - For spells: Players adds the spell to their quickslot, client sends
  *    data to store that information. The information is stored in a
@@ -1378,7 +1416,7 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 {
 	long tag;
 	object *op;
-	char *cp, tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
+	char *cp, tmpbuf[MAX_BUF];
 	int quickslot;
 
 	(void) len;
@@ -1456,38 +1494,6 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 		buf += 6;
 
 		remove_quickslot(atoi(buf), pl->ob);
-	}
-	/* Load quick slots */
-	else if (strncmp(buf, "load", 4) == 0)
-	{
-		snprintf(tmp, sizeof(tmp), "X");
-
-		/* Go through the inventory */
-		for (op = pl->ob->inv; op; op = op->below)
-		{
-			/* If this has quickslot set */
-			if (op->quickslot)
-			{
-				/* It's a force, so a spell! */
-				if (strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
-				{
-					snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
-				}
-				/* Otherwise an item */
-				else
-				{
-					snprintf(tmpbuf, sizeof(tmpbuf), "\ni %d %d", op->count, op->quickslot);
-				}
-
-				strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmpbuf) - 1);
-			}
-		}
-
-		/* Write it to the client if we found any quickslot entries */
-		if (strlen(tmp) != 1)
-		{
-			Write_String_To_Socket(&pl->socket, BINARY_CMD_QUICKSLOT, tmp, strlen(tmp));
-		}
 	}
 }
 

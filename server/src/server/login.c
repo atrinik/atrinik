@@ -897,5 +897,6 @@ void check_login(object *op)
 	/* send the known spells as list to client */
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
+	send_quickslots(pl);
 	return;
 }

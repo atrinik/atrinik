@@ -1086,9 +1086,6 @@ void PlayerCmd(unsigned char *data, int len)
 	map_transfer_flag = 1;
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
-
-	/* Request to load quickslots */
-	cs_write_string(csocket.fd, "qs load", 7);
 }
 
 /**
