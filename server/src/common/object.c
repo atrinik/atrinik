@@ -286,7 +286,7 @@ void object_gc()
 				if (OBJECT_FREE(ob))
 					LOG(llevBug, "BUG: Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
 				else
-					return_poolchunk(ob, POOL_OBJECT);
+					return_poolchunk(ob, pool_object);
 			}
 		}
 	}
@@ -796,7 +796,7 @@ void free_all_object_data()
 	}
 #endif
 
-	LOG(llevDebug, "%d allocated objects, %d free objects\n", mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free);
+	LOG(llevDebug, "%d allocated objects, %d free objects\n", pool_object->nrof_allocated, pool_object->nrof_free);
 }
 
 /**
@@ -1079,7 +1079,7 @@ void copy_object_data(object *op2, object *op)
  * @return The new object. */
 object *get_object()
 {
-	object *new_obj = (object *) get_poolchunk(POOL_OBJECT);
+	object *new_obj = (object *) get_poolchunk(pool_object);
 
 	mark_object_removed(new_obj);
 
@@ -1660,7 +1660,7 @@ void destroy_object(object *ob)
 			case PLAYER:
 			/* Players are changed into DEAD_OBJECTs when they logout */
 			case DEAD_OBJECT:
-				return_poolchunk(ob->custom_attrset, POOL_PLAYER);
+				return_poolchunk(ob->custom_attrset, pool_player);
 				break;
 
 			default:

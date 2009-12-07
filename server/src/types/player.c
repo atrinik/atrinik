@@ -139,7 +139,7 @@ static player *get_player(player *p)
 	{
 		player *tmp;
 
-		p = (player *) get_poolchunk(POOL_PLAYER);
+		p = (player *) get_poolchunk(pool_player);
 		memset(p, 0, sizeof(player));
 
 		if (p == NULL)

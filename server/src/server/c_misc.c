@@ -174,7 +174,7 @@ static int count_active()
 void malloc_info(object *op)
 {
 	int players, nrofmaps;
-	int nrm = 0, mapmem = 0, anr, anims, sum_alloc = 0, sum_used = 0, i, j, tlnr, alnr;
+	int nrm = 0, mapmem = 0, anr, anims, sum_alloc = 0, sum_used = 0, i, tlnr, alnr;
 	treasurelist *tl;
 	player *pl;
 	mapstruct *m;
@@ -213,17 +213,7 @@ void malloc_info(object *op)
 
 	new_draw_info_format(NDI_UNIQUE, 0, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
 
-	for (j = 0; j < NROF_MEMPOOLS; j++)
-	{
-		int ob_used = mempools[j].nrof_used, ob_free = mempools[j].nrof_free;
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%4d used %s:    %8d", ob_used, mempools[j].chunk_description, i = (ob_used * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
-		sum_used += i;
-		sum_alloc += i;
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%4d free %s:    %8d", ob_free, mempools[j].chunk_description, i = (ob_free * (mempools[j].chunksize + sizeof(struct mempool_chunk))));
-		sum_alloc += i;
-	}
+	dump_mempool_statistics(op, &sum_used, &sum_alloc);
 
 	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d active objects", count_active());
 
@@ -390,11 +380,13 @@ int command_malloc(object *op, char *params)
 			force_flag = 1;
 		}
 
-		for (i = 0; i < NROF_MEMPOOLS; i++)
+		for (i = 0; i < nrof_mempools; i++)
 		{
-			if (force_flag == 1 || mempools[i].flags & MEMPOOL_ALLOW_FREEING)
+			if (force_flag == 1 || mempools[i]->flags & MEMPOOL_ALLOW_FREEING)
 			{
-				free_empty_puddles(i);
+#if 0
+				free_empty_puddles(mempools[i]);
+#endif
 			}
 		}
 	}

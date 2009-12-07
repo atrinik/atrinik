@@ -228,14 +228,16 @@ extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 
 /* mempool.c */
-extern void init_materials();
+extern uint32 nearest_pow_two_exp(uint32 n);
 extern void init_mempools();
-extern void setup_poolfunctions(mempool_id pool, chunk_constructor constructor, chunk_destructor destructor);
-extern void *get_poolchunk(mempool_id pool);
-extern void return_poolchunk(void *data, mempool_id pool);
-extern void free_empty_puddles(mempool_id pool);
+extern void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, chunk_destructor destructor);
+extern struct mempool *create_mempool(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
+extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool);
+extern void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp);
+extern void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
 
 /* object.c */
+extern void init_materials();
 extern void mark_object_removed(object *ob);
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);

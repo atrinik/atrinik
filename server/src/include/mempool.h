@@ -75,44 +75,56 @@ struct mempool_chunk
 #endif
 };
 
-/** Optional constructor to be called when expanding */
-typedef void (* chunk_constructor) (void *ptr);
+/* Optional initialisator to be called when expanding */
+typedef void (*chunk_initialisator) (void *ptr);
+/* Optional deinitialisator to be called when freeing */
+typedef void (*chunk_deinitialisator) (void *ptr);
+/* Optional constructor to be called when getting chunks */
+typedef void (*chunk_constructor) (void *ptr);
+/* Optional destructor to be called when returning chunks */
+typedef void (*chunk_destructor) (void *ptr);
 
-/** Optional destructor to be called when freeing */
-typedef void (* chunk_destructor) (void *ptr);
+/* Definitions used for array handling */
+#define MEMPOOL_NROF_FREELISTS 8
+/* = 256 if NROF_FREELISTS == 8 */
+#define MEMPOOL_MAX_ARRAYSIZE (1 << MEMPOOL_NROF_FREELISTS)
 
 /** Data for a single memory pool */
 struct mempool
 {
-	/** First free chunk */
-	struct mempool_chunk *first_free;
+	/** Description of chunks. Mostly for debugging */
+    const char *chunk_description;
 
 	/** How many chunks to allocate at each expansion */
-	uint32 expand_size;
+    uint32 expand_size;
 
-	/** Size of chunks, excluding sizeof(mempool_chunk) and padding */
-	uint32 chunksize;
+	/** size of chunks, excluding sizeof(mempool_chunk) and padding */
+    uint32 chunksize;
 
-	/** Number of used */
-	uint32 nrof_used;
+	/** Special handling flags. See definitions below */
+    uint32 flags;
 
-	/** Number of free */
-	uint32 nrof_free;
+	/** Optional initialisator to be called when expanding */
+    chunk_initialisator initialisator;
+
+	/** Optional deinitialisator to be called when freeing */
+    chunk_deinitialisator deinitialisator;
 
 	/** Optional constructor to be called when getting chunks */
-	chunk_constructor constructor;
+    chunk_constructor constructor;
 
 	/** Optional destructor to be called when returning chunks */
-	chunk_destructor destructor;
+    chunk_destructor destructor;
 
-	/** Description of chunks. Mostly for debugging */
-	char *chunk_description;
+	/** First free chunk */
+    struct mempool_chunk *freelist[MEMPOOL_NROF_FREELISTS];
 
-	/** Spacial handling flags. See definitions below */
-	uint32 flags;
-
-	/** First puddle info */
-	struct puddle_info *first_puddle_info;
+	/** List size counters */
+    uint32 nrof_free[MEMPOOL_NROF_FREELISTS], nrof_allocated[MEMPOOL_NROF_FREELISTS];
+#ifdef MEMPOOL_TRACKING
+	/** List of puddles used for mempool tracking */
+    struct puddle_info *first_puddle_info;
+#endif
 };
 
 #ifdef MEMPOOL_TRACKING
@@ -133,25 +145,18 @@ struct puddle_info
 	/** Number of free */
 	uint32 nrof_free;
 };
+
+extern struct mempool *pool_puddle;
 #endif
 
-typedef enum
-{
-#ifdef MEMPOOL_TRACKING
-	POOL_PUDDLE,
-#endif
-	POOL_OBJECT,
-	POOL_PLAYER,
-	NROF_MEMPOOLS
-} mempool_id;
+/** Maximum number of mempools we will use */
+#define MAX_NROF_MEMPOOLS 32
 
-/* Get the memory management struct for a chunk of memory */
+/** Get the memory management struct for a chunk of memory */
 #define MEM_POOLDATA(ptr) (((struct mempool_chunk *)(ptr)) - 1)
-
-/* Get the actual user data area from a mempool reference */
+/** Get the actual user data area from a mempool reference */
 #define MEM_USERDATA(ptr) ((void *)(((struct mempool_chunk *)(ptr)) + 1))
-
-/* Check that a chunk of memory is in the free (or removed for objects) list */
+/** Check that a chunk of memory is in the free (or removed for objects) list */
 #define CHUNK_FREE(ptr) (MEM_POOLDATA(ptr)->next != NULL)
 
 /**
@@ -165,8 +170,15 @@ typedef enum
 #define MEMPOOL_BYPASS_POOLS  2
 /*@}*/
 
-extern struct mempool mempools[];
-
+extern struct mempool *mempools[];
 extern struct mempool_chunk end_marker;
+extern struct mempool *pool_object, *pool_objectlink, *pool_player;
+extern int nrof_mempools;
+
+#define get_poolchunk(_pool_) get_poolchunk_array_real((_pool_), 0)
+#define get_poolarray(_pool_, _arraysize_) get_poolchunk_array_real((_pool_), nearest_pow_two_exp(_arraysize_))
+
+#define return_poolchunk(_data_, _pool_) return_poolchunk_array_real((_data_), 0, (_pool_))
+#define return_poolarray(_data_, _arraysize_, _pool_) return_poolchunk_array_real((_data_), nearest_pow_two_exp(_arraysize_), (_pool_))
 
 #endif

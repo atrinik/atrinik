@@ -758,7 +758,7 @@ void compile_info()
 	LOG(llevInfo, "Map reset:\t<false>\n");
 #endif
 
-	LOG(llevInfo, "Max objects:\t%d (used:%d free:%d)\n", MAX_OBJECTS, mempools[POOL_OBJECT].nrof_used, mempools[POOL_OBJECT].nrof_free);
+	LOG(llevInfo, "Max objects:\t%d (allocated:%d free:%d)\n", MAX_OBJECTS, pool_object->nrof_allocated, pool_object->nrof_free);
 
 #ifdef USE_CALLOC
 	LOG(llevInfo, "Use_calloc:\t<true>\n");
@@ -922,7 +922,7 @@ static void setup_library()
 	set_info_map(new_info_map);
 	set_dragon_gain_func(dragon_ability_gain);
 
-	setup_poolfunctions(POOL_PLAYER, NULL, (chunk_destructor)free_player);
+	setup_poolfunctions(pool_player, NULL, (chunk_destructor) free_player);
 }
 
 /**
