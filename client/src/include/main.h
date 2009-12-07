@@ -436,6 +436,9 @@ typedef struct _spell_list_entry
 
 	/** Description (in 4 rows) */
 	char desc[4][96];
+
+	/** Cost of spell */
+	int cost;
 }_spell_list_entry;
 
 /** Spell list structure */

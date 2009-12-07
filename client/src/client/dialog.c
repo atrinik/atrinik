@@ -954,9 +954,10 @@ void show_spelllist()
 			spell_list_set.class_nr = i;
 	}
 
-	StringBlt(ScreenSurface, &SystemFont, "use ~F1-F8~ for spell to quickbar", x + 340, y + 69, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "use ~F1-F8~ for spell to quickbar", x + 250, y + 69, COLOR_WHITE, NULL, NULL);
 	sprintf(buf, "use ~%c%c~ to select spell group", ASCII_RIGHT, ASCII_LEFT);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 340, y + 80, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, x + 250, y + 80, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Cost", x + (Bitmaps[BITMAP_DIALOG_BG]->bitmap->w-60), y + 80, COLOR_WHITE, NULL, NULL);
 
 	box.x = x + 133;
 	box.y = y + TXT_Y_START + 1;
@@ -1031,6 +1032,8 @@ void show_spelllist()
 		if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].flag == LIST_ENTRY_KNOWN)
 		{
 			StringBlt(ScreenSurface, &SystemFont, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].name, x + TXT_START_NAME, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
+			sprintf(buf, "%5d", spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].cost);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + (Bitmaps[BITMAP_DIALOG_BG]->bitmap->w-60), y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 		}
 	}
 

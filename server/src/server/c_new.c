@@ -945,14 +945,26 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 {
 	/* we should careful set a big enough buffer here */
 	char tmp[HUGE_BUF * 4];
+	char cost[MAX_BUF];
+	object *old_skill = op->chosen_skill, *spell_skill = find_skill(op, SK_SPELL_CASTING), *prayer_skill = find_skill(op, SK_PRAYING);
 
 	snprintf(tmp, sizeof(tmp), "X%d ", mode);
 
 	/* Send single name */
 	if (spellname)
 	{
+		int spnum = look_up_spell_name(spellname);
+
 		strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
 		strncat(tmp, spellname, sizeof(tmp) - strlen(tmp) - 1);
+
+		if ((spells[spnum].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spnum].type == SPELL_TYPE_WIZARD && spell_skill))
+		{
+			op->chosen_skill = spells[spnum].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
+			strncat(tmp, ":", sizeof(tmp) - strlen(tmp) - 1);
+			snprintf(cost, sizeof(cost), "%d", SP_level_spellpoint_cost(op, spnum));
+			strncat(tmp, cost, sizeof(tmp) - strlen(tmp) - 1);
+		}
 	}
 	else
 	{
@@ -971,9 +983,18 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 
 			strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
 			strncat(tmp, spells[spnum].name, sizeof(tmp) - strlen(tmp) - 1);
+
+			if ((spells[spnum].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spnum].type == SPELL_TYPE_WIZARD && spell_skill))
+			{
+				op->chosen_skill = spells[spnum].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
+				strncat(tmp, ":", sizeof(tmp) - strlen(tmp) - 1);
+				snprintf(cost, sizeof(cost), "%d", SP_level_spellpoint_cost(op, spnum));
+				strncat(tmp, cost, sizeof(tmp) - strlen(tmp) - 1);
+			}
 		}
 	}
 
+	op->chosen_skill = old_skill;
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, tmp, strlen(tmp));
 }
 

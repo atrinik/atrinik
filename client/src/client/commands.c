@@ -2010,6 +2010,7 @@ void SpelllistCmd(char *data)
 	int i, ii, mode;
 	char *tmp, *tmp2;
 	char name[256];
+	int cost;
 
 #if 0
 	LOG(LOG_DEBUG, "slist: <%s>\n", data);
@@ -2022,8 +2023,11 @@ void SpelllistCmd(char *data)
 	{
 		/* Find start of a name */
 		tmp = strchr(data, '/');
+
 		if (!tmp)
+		{
 			return;
+		}
 
 		data = tmp + 1;
 
@@ -2031,12 +2035,40 @@ void SpelllistCmd(char *data)
 
 		if (tmp2)
 		{
+			char *cost_p;
+
 			strncpy(name, data, tmp2 - data);
-			name[tmp2-data] = 0;
+			name[tmp2 - data] = '\0';
 			data = tmp2;
+			cost_p = strchr(name, ':');
+
+			if (cost_p)
+			{
+				cost = atoi(cost_p + 1);
+				*cost_p = '\0';
+			}
+			else
+			{
+				cost = 0;
+			}
 		}
 		else
+		{
+			char *cost_p;
+
 			strcpy(name, data);
+			cost_p = strchr(name, ':');
+
+			if (cost_p)
+			{
+				cost = atoi(cost_p + 1);
+				*cost_p = '\0';
+			}
+			else
+			{
+				cost = 0;
+			}
+		}
 
 		/* We have a name - now check the spelllist file and set the entry
 		 * to KNOWN */
@@ -2048,6 +2080,8 @@ void SpelllistCmd(char *data)
 				{
 					if (!strcmp(spell_list[i].entry[0][ii].name, name))
 					{
+						spell_list[i].entry[0][ii].cost = cost;
+
 						if (mode == SPLIST_MODE_REMOVE)
 							spell_list[i].entry[0][ii].flag = LIST_ENTRY_USED;
 						else
@@ -2061,6 +2095,8 @@ void SpelllistCmd(char *data)
 				{
 					if (!strcmp(spell_list[i].entry[1][ii].name, name))
 					{
+						spell_list[i].entry[1][ii].cost = cost;
+
 						if (mode == SPLIST_MODE_REMOVE)
 							spell_list[i].entry[1][ii].flag = LIST_ENTRY_USED;
 						else
