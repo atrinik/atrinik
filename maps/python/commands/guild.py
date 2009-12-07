@@ -26,7 +26,7 @@ if message and guildname != None:
 		player = FindPlayer(member)
 
 		if player:
-			player.Write("[%s] %s: %s" % (guild.guildname, member, message), COLOR_BLUE | NDI_PLAYER)
+			player.Write("[%s] %s: %s" % (guild.guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
 elif guildname == None:
 	activator.Write("You are not member of any guild.", COLOR_RED)
 else:
