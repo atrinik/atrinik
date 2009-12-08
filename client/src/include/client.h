@@ -612,6 +612,8 @@ extern Client_Player cpl;
 
 #define COLOR_BLACK 	255
 
+#define COLOR_FLAG_CLIPPED 0x0100
+
 extern void DoClient(ClientSocket *csocket);
 extern void SockList_Init(SockList *sl);
 extern void SockList_AddChar(SockList *sl, char c);

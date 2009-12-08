@@ -419,21 +419,23 @@ void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len)
 
 void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
 {
-	register int i, tmp, line_clip = -1, line_count = 0;
-	register int gflag;
-	int colorToggle = 0;
+	int i, tmp, line_clip = -1, line_count = 0;
+	int gflag, colorToggle = 0, mode, color_real;
 	SDL_Rect src, dst;
 	SDL_Color color, color_g;
 
 	if (area)
 		line_clip = area->w;
 
+	color_real = col & 0xff;
+	mode = col;
+
 	/* .w/h are not used from BlitSurface to draw */
 	dst.x = x;
 	dst.y = y;
 
 	/* Dark brown text will have dark blue links */
-	if (col == COLOR_DBROWN)
+	if (color_real == COLOR_DBROWN)
 	{
 		color_g.r = 72;
 		color_g.g = 5;
@@ -447,9 +449,9 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 		color_g.b = 255;
 	}
 
-	color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].r;
-	color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].g;
-	color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].b;
+	color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].r;
+	color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].g;
+	color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].b;
 
 	SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
 
@@ -460,27 +462,33 @@ void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col
 
 	gflag = 0;
 
+	if (mode & COLOR_FLAG_CLIPPED)
+	{
+		SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color_g, 1, 1);
+		gflag = 1;
+	}
+
 	for (i = 0; text[i] != '\0'; i++)
 	{
 		/* Change text color */
 		if (text[i] == '~' || text[i] == '|')
 		{
 			/* No highlighting in black text */
-			if (col == COLOR_BLACK)
+			if (color_real == COLOR_BLACK)
 				continue;
 
 			if (colorToggle)
 			{
-				color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].r;
-				color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].g;
-				color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[col].b;
+				color.r = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].r;
+				color.g = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].g;
+				color.b = Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color_real].b;
 
 				SDL_SetPalette(font->sprite->bitmap, SDL_LOGPAL | SDL_PHYSPAL, &color, 1, 1);
 			}
 			else
 			{
 				/* Change color for dark brown (generally the book interface) */
-				if (col == COLOR_DBROWN)
+				if (color_real == COLOR_DBROWN)
 				{
 					/* For | the color will be red */
 					if (text[i] == '|')

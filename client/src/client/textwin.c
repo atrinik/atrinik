@@ -44,31 +44,69 @@ int txtwin_start_size = 0;
 
 /**
  * Figure out the start position of a keyword.
- * @param actWin The text window
- * @param mouseX Mouse X
- * @param row Row to check
- * @param wID Widget ID
- * @return NULL if no keyword, otherwise the keyword is returned */
+ * @param actWin The text window.
+ * @param mouseX Mouse X.
+ * @param row Row to check.
+ * @param wID Widget ID.
+ * @return NULL if no keyword, otherwise the keyword is returned. */
 static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 {
 	int pos, pos2 = cur_widget[wID].x1, key_start;
 	char *text;
 
 	if (actWin > TW_SUM)
+	{
 		return 0;
+	}
 
 	pos = (txtwin[actWin].top_drawLine + (*row)) % TEXT_WIN_MAX - txtwin[actWin].scroll;
 
 	if (pos < 0)
+	{
 		pos += TEXT_WIN_MAX;
+	}
+
+	if (mouseX > 0)
+	{
+		/* Check if keyword starts in the row before */
+		if (txtwin[actWin].scroll + 1 != txtwin[actWin].act_bufsize - txtwin[actWin].size && txtwin[actWin].text[pos].key_clipped)
+		{
+			/* Was a clipped keyword clicked? */
+			int index = -1;
+			text = txtwin[actWin].text[pos].buf;
+
+			while (text[++index] && pos2 <= mouseX && text[index] != '^')
+			{
+				pos2 += SystemFont.c[(int) text[index]].w + SystemFont.char_offset;
+			}
+
+			/* Clipped keyword was clicked, so we must start one row before */
+			if (text[index] != '^')
+			{
+				(*row)--;
+				pos = (txtwin[actWin].top_drawLine + (*row)) % TEXT_WIN_MAX - txtwin[actWin].scroll;
+
+				if (pos < 0)
+				{
+					pos += TEXT_WIN_MAX;
+				}
+
+				mouseX = Screensize->x;
+			}
+		}
+	}
 
 	text = txtwin[actWin].text[pos].buf;
 
 	/* Find the first character of the keyword */
 	if (txtwin[actWin].text[pos].key_clipped)
+	{
 		key_start = 0;
+	}
 	else
+	{
 		key_start = -1;
+	}
 
 	pos = 0;
 	pos2 = cur_widget[wID].x1;
@@ -79,10 +117,14 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 		{
 			/* Start of a keyword */
 			if (key_start < 0)
+			{
 				key_start = pos;
+			}
 			/* End of a keyword */
 			else
+			{
 				key_start = -1;
+			}
 
 			continue;
 		}
@@ -92,7 +134,9 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 
 	/* No keyword here */
 	if (key_start < 0)
+	{
 		return NULL;
+	}
 
 	(*row)++;
 
@@ -101,39 +145,50 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 
 /**
  * Check for keyword and send it to server.
- * @param actWin The text window
- * @param mouseX Mouse X
- * @param mouseY Mouse Y */
+ * @param actWin The text window.
+ * @param mouseX Mouse X.
+ * @param mouseY Mouse Y. */
 void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 {
 	char cmdBuf[MAX_KEYWORD_LEN + 1] = {"/say "};
 	char cmdBuf2[MAX_KEYWORD_LEN + 1] = {""};
 	char *text;
-	int clicked_row, pos = 5;
-	int wID = 0;
+	int clicked_row, pos = 5, wID = 0;
 
 	if (actWin == TW_CHAT)
+	{
 		wID = CHATWIN_ID;
+	}
 	else if (actWin == TW_MSG)
+	{
 		wID = MSGWIN_ID;
+	}
 
 	clicked_row = (mouseY - cur_widget[wID].y1 - 2.5f) / 10;
 
 	text = get_keyword_start(actWin, mouseX, &clicked_row, wID);
 
 	if (text == NULL)
+	{
 		return;
+	}
 
 	while (*text && *text != '^')
+	{
 		cmdBuf[pos++] = *text++;
+	}
 
 	if (*text != '^')
 	{
 		text = get_keyword_start(actWin, -1, &clicked_row, wID);
 
 		if (text != NULL)
+		{
 			while (*text && *text != '^')
+			{
 				cmdBuf[pos++] = *text++;
+			}
+		}
 	}
 
 	cmdBuf[pos++] = '\0';
@@ -158,7 +213,9 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 		}
 	}
 	else
+	{
 		send_command(cmdBuf, -1, SC_NORMAL);
+	}
 }
 
 /**
@@ -178,17 +235,15 @@ void textwin_init()
 
 /**
  * Draw info with format arguments.
- * @param flags Various flags, like color
- * @param format Format arguments */
+ * @param flags Various flags, like color.
+ * @param format Format arguments. */
 void draw_info_format(int flags, char *format, ...)
 {
 	char buf[4096];
 	va_list ap;
 
 	va_start(ap, format);
-
 	vsnprintf(buf, sizeof(buf), format, ap);
-
 	va_end(ap);
 
 	draw_info(buf, flags);
@@ -196,8 +251,8 @@ void draw_info_format(int flags, char *format, ...)
 
 /**
  * Add string to the text window (perform auto clipping).
- * @param str The string
- * @param flags Various flags, like color */
+ * @param str The string.
+ * @param flags Various flags, like color. */
 void draw_info(char *str, int flags)
 {
 	static int key_start = 0;
@@ -211,26 +266,25 @@ void draw_info(char *str, int flags)
 	color = flags & 0xff;
 	mode = flags;
 
-	/* First: We set all white spaces (char < 32) to 32 to remove really all odd stuff.
-	 * Except 0x0a - this is EOL for us and will be set to
-	 * 0 to mark C style end of string */
+	/* Remove special characters. */
 	for (i = 0; str[i] != 0; i++)
 	{
-		if (str[i] < 32 && str[i] != 0x0a)
-			str[i]= 32;
+		if (str[i] < ' ' && str[i] != '\n')
+		{
+			str[i] = ' ';
+		}
 	}
 
-	/* Ok, here we must cut a string to make it fit in window.
-	 * For it we must add the char length.
-	 * We assume this standard font in the windows... */
 	len = 0;
 
 	for (a = i = 0; ; i++)
 	{
 		if (str[i] != '^')
+		{
 			len += SystemFont.c[(int) (str[i])].w + SystemFont.char_offset;
+		}
 
-		if (len >= winlen || str[i] == 0x0a || str[i] == 0)
+		if (len >= winlen || str[i] == '\n' || str[i] == '\0')
 		{
 			/* Now the special part - let's look for a good point to cut */
 			if (len >= winlen && a > 10)
@@ -239,7 +293,7 @@ void draw_info(char *str, int flags)
 
 				while (ii >= a / 2)
 				{
-					if (str[it] == ' ' || str[it] == ':' || str[it] == '.' || str[it] == ',' || str[it] == '(' || str[it] == ';' || str[it] == '-' || str[it] == '+' || str[it] == '*' || str[it] == '?' || str[it] == '/' || str[it] == '=' || str[it] == '.' || str[it] == 0 || str[it] == 0x0a)
+					if (str[it] == ' ' || str[it] == ':' || str[it] == '.' || str[it] == ',' || str[it] == '(' || str[it] == ';' || str[it] == '-' || str[it] == '+' || str[it] == '*' || str[it] == '?' || str[it] == '/' || str[it] == '=' || str[it] == '.' || str[it] == '\0' || str[it] == '\n')
 					{
 						tx = it;
 						ix = ii;
@@ -267,10 +321,14 @@ void draw_info(char *str, int flags)
 				txtwin[actWin].text[txtwin[actWin].bot_drawLine % TEXT_WIN_MAX].key_clipped = key_start;
 
 				if (txtwin[actWin].scroll)
+				{
 					txtwin[actWin].scroll++;
+				}
 
 				if (txtwin[actWin].act_bufsize < TEXT_WIN_MAX)
+				{
 					txtwin[actWin].act_bufsize++;
+				}
 
 				txtwin[actWin].bot_drawLine++;
 				txtwin[actWin].bot_drawLine %= TEXT_WIN_MAX;
@@ -284,38 +342,50 @@ void draw_info(char *str, int flags)
 					WIDGET_REDRAW(CHATWIN_ID);
 				}
 				else
+				{
 					WIDGET_REDRAW(MSGWIN_ID);
+				}
 			}
 
 			/* Because of autoclip we must scan every line again */
 			for (text = buf; *text; text++)
 			{
 				if (*text == '^')
+				{
 					key_count = (key_count + 1) & 1;
+				}
 			}
 
 			if (key_count)
+			{
 				key_start = 0x1000;
+			}
 			else
+			{
 				key_start = 0;
+			}
 
 			a = len = 0;
 
 			if (str[i] == 0)
+			{
 				break;
+			}
 		}
 
-		if (str[i] != 0x0a)
+		if (str[i] != '\n')
+		{
 			buf[a++] = str[i];
+		}
 	}
 }
 
 /**
  * Draw a text window.
- * @param actWin The text window
- * @param x X position of the text window
- * @param y Y position of the text window
- * @param bltfx The surface */
+ * @param actWin The text window ID.
+ * @param x X position of the text window.
+ * @param y Y position of the text window.
+ * @param bltfx The surface. */
 static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 {
 	int i, temp;
@@ -324,20 +394,30 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 	txtwin[actWin].y = y;
 
 	if (actWin != TW_MIX)
+	{
 		x = y = 0;
+	}
 
 	txtwin[actWin].top_drawLine = txtwin[actWin].bot_drawLine - (txtwin[actWin].size + 1);
 
 	if (txtwin[actWin].top_drawLine < 0 && txtwin[actWin].act_bufsize == TEXT_WIN_MAX)
+	{
 		txtwin[actWin].top_drawLine += TEXT_WIN_MAX;
+	}
 	else if (txtwin[actWin].top_drawLine < 0)
+	{
 		txtwin[actWin].top_drawLine = 0;
+	}
 
 	if (txtwin[actWin].scroll > txtwin[actWin].act_bufsize - (txtwin[actWin].size + 1))
+	{
 		txtwin[actWin].scroll = txtwin[actWin].act_bufsize - (txtwin[actWin].size + 1);
+	}
 
 	if (txtwin[actWin].scroll < 0)
+	{
 		txtwin[actWin].scroll = 0;
+	}
 
 	for (i = 0; i <= txtwin[actWin].size && i < txtwin[actWin].act_bufsize; i++)
 	{
@@ -348,10 +428,19 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 			temp -= txtwin[actWin].scroll;
 
 			if (temp < 0)
+			{
 				temp = TEXT_WIN_MAX + temp;
+			}
 		}
 
-		StringBlt(bltfx->surface, &SystemFont, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10) | txtwin[actWin].text[temp].key_clipped, txtwin[actWin].text[temp].color, NULL, NULL);
+		if (txtwin[actWin].text[temp].key_clipped)
+		{
+			StringBlt(bltfx->surface, &SystemFont, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color | COLOR_FLAG_CLIPPED, NULL, NULL);
+		}
+		else
+		{
+			StringBlt(bltfx->surface, &SystemFont, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color, NULL, NULL);
+		}
 	}
 
 	/* Only draw scrollbar if needed */
@@ -376,10 +465,14 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 		txtwin[actWin].slider_h = (box.h * (txtwin[actWin].size + 1)) / txtwin[actWin].act_bufsize;
 
 		if (txtwin[actWin].slider_h < 1)
+		{
 			txtwin[actWin].slider_h = 1;
+		}
 
 		if (!txtwin[actWin].scroll && txtwin[actWin].slider_y + txtwin[actWin].slider_h < box.h)
+		{
 			txtwin[actWin].slider_y++;
+		}
 
 		box.h = txtwin[actWin].slider_h;
 		sprite_blt(Bitmaps[BITMAP_TWIN_SCROLL], x + 252, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + txtwin[actWin].slider_y, &box, bltfx);
@@ -449,19 +542,23 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 		}
 	}
 	else
+	{
 		txtwin[actWin].slider_h = 0;
+	}
 }
 
 /**
  * Display one text window with text from both.
- * Used now only at startup.
- * @param x X position of the text window
- * @param y Y position of the text window */
+ *
+ * Used only at startup.
+ * @param x X position of the text window.
+ * @param y Y position of the text window. */
 void textwin_show(int x, int y)
 {
 	int len;
 	SDL_Rect box;
 	_BLTFX bltfx;
+
 	bltfx.alpha = options.textwin_alpha;
 	bltfx.flags = BLTFX_FLAG_SRCALPHA;
 	bltfx.surface = NULL;
@@ -473,9 +570,13 @@ void textwin_show(int x, int y)
 	y -= len;
 
 	if (options.use_TextwinAlpha)
+	{
 		sprite_blt(Bitmaps[BITMAP_TEXTWIN_MASK], x, y, &box, &bltfx);
+	}
 	else
+	{
 		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
+	}
 
 	bltfx.alpha = 255;
 	bltfx.surface = ScreenSurface;
@@ -485,9 +586,9 @@ void textwin_show(int x, int y)
 
 /**
  * Display widget text windows.
- * @param x X position of the text window
- * @param y Y position of the text window
- * @param actWin The text window */
+ * @param x X position of the text window.
+ * @param y Y position of the text window.
+ * @param actWin The text window ID. */
 void widget_textwin_show(int x, int y, int actWin)
 {
 	int len, wID = 0;
@@ -495,9 +596,13 @@ void widget_textwin_show(int x, int y, int actWin)
 	_BLTFX bltfx;
 
 	if (actWin == TW_CHAT)
+	{
 		wID = CHATWIN_ID;
+	}
 	else if (actWin == TW_MSG)
+	{
 		wID = MSGWIN_ID;
+	}
 
 	/* Backbuffering is a bit trickier.
 	 * We always blit the background extra because of the alpha.
@@ -529,7 +634,6 @@ void widget_textwin_show(int x, int y, int actWin)
 	if (cur_widget[wID].redraw)
 	{
 		cur_widget[wID].redraw = 0;
-
 		SDL_FillRect(widgetSF[wID], NULL, 0);
 
 		bltfx.surface = widgetSF[wID];
@@ -549,7 +653,7 @@ void widget_textwin_show(int x, int y, int actWin)
 			box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
 			SDL_FillRect(widgetSF[wID], &box, sdl_gray4);
 			box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-			box.x = box.w-1;
+			box.x = box.w - 1;
 			box.w = 1;
 			box.y = 0;
 			box.h = len;
@@ -573,29 +677,39 @@ void widget_textwin_show(int x, int y, int actWin)
 
 /**
  * Handle mouse button events inside the text window.
- * @param actWin The text window
- * @param event SDL event type */
+ * @param actWin The text window.
+ * @param event SDL event type. */
 void textwin_button_event(int actWin, SDL_Event event)
 {
 	int wID = 0;
 
 	if (actWin == TW_CHAT)
+	{
 		wID = CHATWIN_ID;
+	}
 	else if (actWin == TW_MSG)
+	{
 		wID = MSGWIN_ID;
+	}
 
 	/* Scrolling or resizing */
 	if (event.motion.x < cur_widget[wID].x1 || (textwin_flags & (TW_SCROLL | TW_RESIZE) && (textwin_flags & actWin)))
+	{
 		return;
+	}
 
 	WIDGET_REDRAW(wID);
 
 	/* Mousewheel up */
 	if (event.button.button == 4)
+	{
 		txtwin[actWin].scroll++;
+	}
 	/* Mousewheel down */
 	else if (event.button.button == 5)
+	{
 		txtwin[actWin].scroll--;
+	}
 	else if (event.button.button == SDL_BUTTON_LEFT)
 	{
 		/* Clicked scroller button up */
@@ -605,7 +719,9 @@ void textwin_button_event(int actWin, SDL_Event event)
 		}
 		/* Clicked above the slider */
 		else if (txtwin[actWin].highlight == TW_ABOVE)
+		{
 			txtwin[actWin].scroll += txtwin[actWin].size;
+		}
 		else if (txtwin[actWin].highlight == TW_HL_SLIDER)
 		{
 			/* Clicked on the slider */
@@ -615,23 +731,31 @@ void textwin_button_event(int actWin, SDL_Event event)
 		}
 		/* Clicked under the slider */
 		else if (txtwin[actWin].highlight == TW_UNDER)
+		{
 			txtwin[actWin].scroll -= txtwin[actWin].size;
+		}
 		/* Clicked scroller button down */
 		else if (txtwin[actWin].highlight == TW_HL_DOWN)
+		{
 			txtwin[actWin].scroll--;
+		}
 		/* Size change */
 		else if (event.motion.x < cur_widget[wID].x1 + 246 && event.motion.y > cur_widget[wID].y1 + 2 && event.motion.y < cur_widget[wID].y1 + 7 && cursor_type == 1)
+		{
 			textwin_flags |= (actWin | TW_RESIZE);
+		}
 		else if (event.motion.x < cur_widget[wID].x1 + 250)
+		{
 			say_clickedKeyword(actWin, event.motion.x, event.motion.y);
+		}
 	}
 }
 
 /**
  * Mouse move event inside the text window.
- * @param actWin The text window
- * @param event SDL event type
- * @return 1 if mouse if out of window, 0 otherwise */
+ * @param actWin The text window.
+ * @param event SDL event type.
+ * @return 1 if mouse is out of window, 0 otherwise. */
 int textwin_move_event(int actWin, SDL_Event event)
 {
 	int wID = 0;
@@ -641,9 +765,13 @@ int textwin_move_event(int actWin, SDL_Event event)
 	txtwin[actWin].highlight = TW_HL_NONE;
 
 	if (actWin == TW_CHAT)
+	{
 		wID = CHATWIN_ID;
+	}
 	else if (actWin == TW_MSG)
+	{
 		wID = MSGWIN_ID;
+	}
 
 	WIDGET_REDRAW(wID);
 
@@ -651,7 +779,9 @@ int textwin_move_event(int actWin, SDL_Event event)
 	if ((event.motion.y > cur_widget[wID].y1 + 2 && event.motion.y < cur_widget[wID].y1 + 7 && (event.motion.x < cur_widget[wID].x1 + 246)) || (event.button.button == SDL_BUTTON_LEFT && (textwin_flags & (TW_SCROLL | TW_RESIZE))))
 	{
 		if (!(textwin_flags & TW_SCROLL) && event.motion.x > cur_widget[wID].x1)
+		{
 			cursor_type = 1;
+		}
 	}
 	else
 	{
@@ -664,7 +794,9 @@ int textwin_move_event(int actWin, SDL_Event event)
 	if (event.motion.y < cur_widget[wID].y1 || event.motion.x > cur_widget[wID].x1 + Bitmaps[BITMAP_TEXTWIN]->bitmap->w || event.motion.y > cur_widget[wID].y1 + txtwin[actWin].size * 10 + 13 + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h)
 	{
 		if (!(textwin_flags & TW_RESIZE))
+		{
 			return 1;
+		}
 	}
 
 	/* Highlighting */
@@ -672,19 +804,31 @@ int textwin_move_event(int actWin, SDL_Event event)
 	{
 #define OFFSET (txtwin[actWin].y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h)
 		if (event.motion.y < OFFSET)
+		{
 			txtwin[actWin].highlight = TW_HL_UP;
+		}
 		else if (event.motion.y < OFFSET + txtwin[actWin].slider_y)
+		{
 			txtwin[actWin].highlight = TW_ABOVE;
+		}
 		else if (event.motion.y < OFFSET + txtwin[actWin].slider_y + txtwin[actWin].slider_h + 3)
+		{
 			txtwin[actWin].highlight = TW_HL_SLIDER;
+		}
 		else if (event.motion.y < cur_widget[wID].y1 + txtwin[actWin].size * 10 + 4)
+		{
 			txtwin[actWin].highlight = TW_UNDER;
+		}
 		else if (event.motion.y < cur_widget[wID].y1 + txtwin[actWin].size * 10 + 13)
+		{
 			txtwin[actWin].highlight = TW_HL_DOWN;
+		}
 #undef OFFSET
 
 		if (event.button.button != SDL_BUTTON_LEFT)
+		{
 			return 0;
+		}
 	}
 
 	/* Slider scrolling */
@@ -694,7 +838,6 @@ int textwin_move_event(int actWin, SDL_Event event)
 		txtwin[actWin].slider_y = event.motion.y - old_slider_pos;
 		txtwin[actWin].scroll = txtwin[actWin].act_bufsize - (txtwin[actWin].size + 1) - (txtwin[actWin].act_bufsize * txtwin[actWin].slider_y) / (txtwin[actWin].size * 10 - 1);
 		WIDGET_REDRAW(wID);
-
 		return 0;
 	}
 
@@ -708,7 +851,9 @@ int textwin_move_event(int actWin, SDL_Event event)
 			int newsize = ((cur_widget[CHATWIN_ID].y1 + cur_widget[CHATWIN_ID].ht) - event.motion.y) / 10;
 
 			if (newsize < 3)
+			{
 				newsize = 3;
+			}
 
 			/* We need to calc the new x for the widget, and set the new size */
 			cur_widget[CHATWIN_ID].y1 += (txtwin[actWin].size - newsize) * 10;
@@ -717,10 +862,12 @@ int textwin_move_event(int actWin, SDL_Event event)
 		}
 		else if (actWin == TW_MSG)
 		{
-			int newsize = ((cur_widget[MSGWIN_ID].y1+cur_widget[MSGWIN_ID].ht)-event.motion.y) / 10;
+			int newsize = ((cur_widget[MSGWIN_ID].y1 + cur_widget[MSGWIN_ID].ht) - event.motion.y) / 10;
 
 			if (newsize < 9)
+			{
 				newsize = 9;
+			}
 
 			/* We need to calc the new x for the widget, and set the new size */
 			cur_widget[MSGWIN_ID].y1 += (txtwin[actWin].size - newsize) * 10;
@@ -732,7 +879,9 @@ int textwin_move_event(int actWin, SDL_Event event)
 			int newsize = ((cur_widget[MIXWIN_ID].y1 + cur_widget[MIXWIN_ID].ht) - event.motion.y) / 10;
 
 			if (newsize < 9)
+			{
 				newsize = 9;
+			}
 
 			/* We need to calc the new x for the widget, and set the new size */
 			cur_widget[MIXWIN_ID].y1 += (txtwin[actWin].size - newsize) * 10;
@@ -746,9 +895,9 @@ int textwin_move_event(int actWin, SDL_Event event)
 
 /**
  * Handle text window mouse events.
- * @param e Event
- * @param event SDL event type
- * @param WidgetID Widget ID */
+ * @param e Event.
+ * @param event SDL event type.
+ * @param WidgetID Widget ID. */
 void textwin_event(int e, SDL_Event *event, int WidgetID)
 {
 	if (e == TW_CHECK_BUT_DOWN)
@@ -789,10 +938,10 @@ void textwin_event(int e, SDL_Event *event, int WidgetID)
 
 /**
  * Add history to the text window.
- * @param text The text to add to the history */
-void textwin_addhistory(char* text)
+ * @param text The text to add to the history. */
+void textwin_addhistory(char *text)
 {
-	register int i;
+	int i;
 
 	/* If new line is empty or identical to last inserted one, skip it */
 	if (!text[0] || strcmp(InputHistory[1], text) == 0)
@@ -809,7 +958,7 @@ void textwin_addhistory(char* text)
 	/* Insert new one */
 	strncpy(InputHistory[1], text, MAX_INPUT_STRING);
 	/* Clear temporary editing line */
-	*InputHistory[0] = 0;
+	*InputHistory[0] = '\0';
 	HistoryPos = 0;
 }
 
@@ -817,12 +966,12 @@ void textwin_addhistory(char* text)
  * Clear all the text window history. */
 void textwin_clearhistory()
 {
-	register int i;
+	int i;
 
 	for (i = 0; i < MAX_HISTORY_LINES; i++)
 	{
 		/* It's enough to clear only the first byte of each history line */
-		InputHistory[i][0] = 0;
+		InputHistory[i][0] = '\0';
 	}
 
 	HistoryPos = 0;
@@ -830,7 +979,7 @@ void textwin_clearhistory()
 
 /**
  * Put string to the text window.
- * @param text The string */
+ * @param text The string. */
 void textwin_putstring(char *text)
 {
 	int len = strlen(text);
