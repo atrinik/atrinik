@@ -50,9 +50,8 @@ _multi_part_obj MultiArchs[16];
 /* TODO: Do a real adjust... we just clear here the cache. */
 void adjust_map_cache(int xpos, int ypos)
 {
-	int x, y, i;
-	register struct MapCell *map;
-	int xreal, yreal;
+	int x, y, i, xreal, yreal;
+	struct MapCell *map;
 
 	memset(TheMapCache, 0, 9 * (MapData.xlen * MapData.ylen) * sizeof(struct MapCell));
 
@@ -145,7 +144,7 @@ void display_mapscroll(int dx, int dy)
 
 void map_draw_map_clear()
 {
-	register int ypos, xpos, x, y;
+	int ypos, xpos, x, y;
 
 	for (y = 0; y < MapStatusY; y++)
 	{
@@ -221,7 +220,7 @@ void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 
 void set_map_ext(int x, int y, int layer,int ext, int probe)
 {
-	register struct MapCell *map;
+	struct MapCell *map;
 	int xreal, yreal;
 
 	the_map.cells[x][y].ext[layer] = ext;
@@ -245,7 +244,7 @@ void set_map_ext(int x, int y, int layer,int ext, int probe)
 
 void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color)
 {
-	register struct MapCell *map;
+	struct MapCell *map;
 	int xreal, yreal, i;
 
 	the_map.cells[x][y].faces[layer] = face;
@@ -285,7 +284,7 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 
 void display_map_clearcell(long x, long y)
 {
-	register struct MapCell *map;
+	struct MapCell *map;
 	int xreal, yreal, i;
 
 	the_map.cells[x][y].darkness = 0;
@@ -324,7 +323,7 @@ void display_map_clearcell(long x, long y)
 
 void set_map_darkness(int x, int y, uint8 darkness)
 {
-	register struct MapCell *map;
+	struct MapCell *map;
 	int xreal, yreal;
 
 	if (darkness != the_map.cells[x][y].darkness)
@@ -344,9 +343,9 @@ void set_map_darkness(int x, int y, uint8 darkness)
 
 void map_draw_map()
 {
-	register struct MapCell *map;
+	struct MapCell *map;
 	_Sprite *face_sprite;
-	register int ypos, xpos;
+	int ypos, xpos;
 	int x, y, k, xl, yl, temp, kk, kt, yt, xt, alpha;
 	int xml, xmpos, xtemp = 0;
 	uint16 index, index_tmp;

@@ -215,7 +215,7 @@ void sound_deinit()
 void sound_loadall()
 {
 #ifdef INSTALL_SOUND
-	register int i, ii;
+	int i, ii;
 	char buf[2048];
 
 	if (SoundSystem != SOUND_SYSTEM_ON)
@@ -248,7 +248,7 @@ void sound_loadall()
 void sound_freeall()
 {
 #ifdef INSTALL_SOUND
-	register int i;
+	int i;
 
 	if (SoundSystem != SOUND_SYSTEM_ON)
 		return;

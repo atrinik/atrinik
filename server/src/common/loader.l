@@ -324,7 +324,7 @@ WS	[ \t]*{NL}
 						SET_FLAG(op, FLAG_SLOW_MOVE);
                     }
 ^face{S}            {
-						register int _face_ = find_face(yval(), 0);
+						int _face_ = find_face(yval(), 0);
 						op->face = &new_faces[_face_ ];
 
 						if (!_face_)
@@ -333,7 +333,7 @@ WS	[ \t]*{NL}
 						}
                     }
 ^inv_face{S}        {
-						register int _face_ = find_face(yval(), 0);
+						int _face_ = find_face(yval(), 0);
 						op->inv_face = &new_faces[_face_ ];
 
 						if (!_face_)

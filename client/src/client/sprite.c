@@ -380,7 +380,7 @@ void sprite_free_sprite(_Sprite *sprite)
 /* Init this font structure with gfx data from sprite bitmap */
 void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len)
 {
-	register int i, y;
+	int i, y;
 	int flag;
 
 	SDL_LockSurface(sprite->bitmap);
@@ -594,7 +594,7 @@ void show_tooltip(int mx, int my, char *text)
 
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey)
 {
-	register int x, y;
+	int x, y;
 
 	*up = 0;
 	*down = 0;
@@ -700,7 +700,7 @@ Uint32 GetSurfacePixel(SDL_Surface *Surface, Sint32 X, Sint32 Y)
 
 int get_string_pixel_length(char *text, struct _Font *font)
 {
-	register int i, len = 0;
+	int i, len = 0;
 
 	for (i = 0; text[i] != 0;i++)
 		len += font->c[(int) text[i]].w + font->char_offset;

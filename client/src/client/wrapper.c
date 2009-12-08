@@ -297,7 +297,7 @@ uint32 get_video_flags()
 #if !defined(HAVE_STRNCASECMP)
 int strncasecmp(char *s1, char *s2, int n)
 {
-	register int c1, c2;
+	int c1, c2;
 
 	while (*s1 && *s2 && n)
 	{
@@ -325,7 +325,7 @@ int strncasecmp(char *s1, char *s2, int n)
 #if !defined(HAVE_STRCASECMP)
 int strcasecmp(char *s1, char*s2)
 {
-	register int c1, c2;
+	int c1, c2;
 
 	while (*s1 && *s2)
 	{

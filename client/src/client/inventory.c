@@ -43,9 +43,8 @@ char *skill_level_name[] =
 /* This function returns number of items and adjusst the inventory window data */
 int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, int wxlen, int wylen)
 {
-	register item *tmp, *tmpc;
-	register int i = 0;
-	int ret = -1;
+	item *tmp, *tmpc;
+	int i = 0, ret = -1;
 
 	cpl.window_weight = 0.0f;
 	*ctag = -1;
@@ -286,10 +285,9 @@ void widget_inventory_event(int x, int y, SDL_Event event)
 
 void widget_show_inventory_window(int x, int y)
 {
-	register int i;
-	int invxlen, invylen;
-	item  *op, *tmp, *tmpx = NULL;
-	item  *tmpc;
+	int i, invxlen, invylen;
+	item *op, *tmp, *tmpx = NULL;
+	item *tmpc;
 	char buf[256];
 
 	if (cpl.inventory_win != IWIN_INV)
@@ -460,7 +458,7 @@ void widget_below_window_event(int x, int y, int MEvent)
 
 void widget_show_below_window(item *op, int x, int y)
 {
-	register int i, slot,at;
+	int i, slot,at;
 	item *tmp, *tmpc, *tmpx = NULL;
 	char buf[256];
 	SDL_Rect tmp_rect;
@@ -567,8 +565,7 @@ jump_in_container2:
 #define ICONDEFLEN 32
 int blt_inv_item_centered(item *tmp, int x, int y)
 {
-	register int temp;
-	int xstart, xlen, ystart, ylen;
+	int temp, xstart, xlen, ystart, ylen;
 	sint16 anim1;
 	SDL_Rect box;
 	_BLTFX bltfx;
@@ -768,7 +765,7 @@ void blt_inv_item(item *tmp, int x, int y, int nrof)
 
 void examine_range_inv()
 {
-	register item *op, *tmp;
+	item *op, *tmp;
 
 	op = cpl.ob;
 
@@ -805,7 +802,7 @@ void examine_range_inv()
  * is not, we will have no bad game play effects. MT. */
 void examine_range_marks(int tag)
 {
-	register item *op, *tmp;
+	item *op, *tmp;
 	char buf[256];
 
 	op = cpl.ob;

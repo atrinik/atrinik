@@ -183,11 +183,10 @@ islower (x) ? (x) + 10 - 'a' : (x) + 10 - 'A')
 /* A replacement of strtol() since it's not defined at
  * many unix systems. */
 
-long strtol_local(register char *str, char **ptr, register int base)
+long strtol_local(char *str, char **ptr, int base)
 {
-	register long val;
-	register int c;
-	int xx, neg = 0;
+	long val;
+	int c, xx, neg = 0;
 
 	/* in case no number is formed */
 	if (ptr != (char **) 0)
@@ -253,7 +252,7 @@ long strtol_local(register char *str, char **ptr, register int base)
 #if !defined(HAVE_STRNCASECMP)
 int strncasecmp(char *s1, char *s2, int n)
 {
-	register int c1, c2;
+	int c1, c2;
 
 	while (*s1 && *s2 && n)
 	{
@@ -281,7 +280,7 @@ int strncasecmp(char *s1, char *s2, int n)
 #if !defined(HAVE_STRCASECMP)
 int strcasecmp(char *s1, char*s2)
 {
-	register int c1, c2;
+	int c1, c2;
 
 	while (*s1 && *s2)
 	{

@@ -293,7 +293,7 @@ extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
 /* porting.c */
 extern char *tempnam_local(char *dir, char *pfx);
 extern char *strdup_local(const char *str);
-extern long strtol_local(register char *str, char **ptr, register int base);
+extern long strtol_local(char *str, char **ptr, int base);
 extern char *strerror_local(int errnum);
 extern int isqrt(int n);
 extern char *ltostr10(signed long n);

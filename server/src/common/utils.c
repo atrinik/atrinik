@@ -170,7 +170,7 @@ int rndm(int min, int max)
  * otherwise. */
 int look_up_spell_name(const char *spname)
 {
-	register int i;
+	int i;
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{

@@ -122,7 +122,7 @@ static int do_skill_attack(object *tmp, object *op, char *string);
  * @param index Index. */
 static void find_skill_exp_name(object *pl, object *exp, int index)
 {
-	register int s;
+	int s;
 
 	for (s = 0; skill_name_table[s].id != -1; s++)
 	{
@@ -144,7 +144,7 @@ static void find_skill_exp_name(object *pl, object *exp, int index)
  * @return Found level, 0 on failure. */
 int find_skill_exp_level(object *pl, int item_skill)
 {
-	register int s;
+	int s;
 
 	for (s = 0; s < CONTR(pl)->last_skill_index; s++)
 	{

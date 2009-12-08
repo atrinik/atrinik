@@ -145,7 +145,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot);
 
 void init_keys()
 {
-	register int i;
+	int i;
 
 	for (i = 0; i < MAX_KEYS; i++)
 		keys[i].time = 0;
@@ -155,7 +155,7 @@ void init_keys()
 
 void reset_keys()
 {
-	register int i;
+	int i;
 
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 
@@ -714,8 +714,8 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 /* We get TEXT from keyboard. This is for console input */
 static void key_string_event(SDL_KeyboardEvent *key)
 {
-	register char c;
-	register int i;
+	char c;
+	int i;
 
 	if (key->type == SDL_KEYDOWN)
 	{
@@ -783,7 +783,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 			case SDLK_BACKSPACE:
 				if (InputCount && CurrentCursorPos)
 				{
-					register int ii;
+					int ii;
 
 					/* Actual position of the cursor */
 					ii = CurrentCursorPos;
@@ -885,7 +885,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 			case SDLK_DELETE:
 			{
-				register int ii;
+				int ii;
 
 				/* Actual position of the cursor */
 				ii = CurrentCursorPos;
@@ -2123,7 +2123,7 @@ static void move_keys(int num)
 /* Handle key repeating. */
 static void key_repeat()
 {
-	register int i, j;
+	int i, j;
 	char buf[512];
 
 	/* TODO: optimize this one, too */

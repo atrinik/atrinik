@@ -129,7 +129,7 @@ void FreeMemory(void **p)
 
 char *show_input_string(char *text, struct _Font *font, int wlen)
 {
-	register int i, j,len;
+	int i, j,len;
 	static char buf[MAX_INPUT_STR];
 
 	strcpy(buf, text);
@@ -178,8 +178,8 @@ char *show_input_string(char *text, struct _Font *font, int wlen)
 
 int read_substr_char(char *srcstr, char *desstr, int *sz, char ct)
 {
-	register unsigned char c;
-	register int s = 0;
+	unsigned char c;
+	int s = 0;
 
 	desstr[0] = 0;
 

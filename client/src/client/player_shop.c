@@ -713,11 +713,10 @@ void shop_remove_item(sint32 tag)
  * caller function to do any other handling for the event, 0 otherwise */
 int check_shop_keys(SDL_KeyboardEvent *key)
 {
-	register char c;
-	register int i;
+	char c;
 	char buf[MAX_BUF];
 	_shop_struct *shop_item_tmp;
-	int rtn = 0;
+	int i, rtn = 0;
 
 	/* If no shop gui or no selected tag, we won't do anything */
 	if (!shop_gui || !shop_gui->selected_tag || shop_gui->shop_state == SHOP_STATE_OPEN)
@@ -764,7 +763,7 @@ int check_shop_keys(SDL_KeyboardEvent *key)
 			case SDLK_BACKSPACE:
 				if (shop_gui->input_count && shop_gui->current_cursor_pos)
 				{
-					register int ii;
+					int ii;
 
 					/* Actual position of the cursor */
 					ii = shop_gui->current_cursor_pos;
@@ -935,7 +934,7 @@ int check_shop_keys(SDL_KeyboardEvent *key)
  * @return Char pointer to the string to display */
 char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore)
 {
-	register int i, j, len;
+	int i, j, len;
 	char buf[MAX_INPUT_STR];
 	static char buf_text[MAX_INPUT_STR];
 

@@ -50,7 +50,7 @@ int PlugNR = 0;
  * @return Script object matching the event type */
 object *get_event_object(object *op, int event_nr)
 {
-	register object *tmp;
+	object *tmp;
 
 	/* For this first implementation we simply browse
 	 * through the inventory of object op and stop
@@ -1745,7 +1745,7 @@ CFParm *RegisterGlobalEvent(CFParm *PParm)
 {
 	int PNR = findPlugin((char *) (PParm->Value[1]));
 
-	LOG(llevDebug, "Plugin %s (%i) registered the event %i\n", (char *) (PParm->Value[1]), PNR, *(int *) (PParm->Value[0]));
+	LOG(llevDebug, "Plugin %s (%d) registered the event %d\n", (char *) (PParm->Value[1]), PNR, *(int *) (PParm->Value[0]));
 
 	PlugList[PNR].gevent[*(int *) (PParm->Value[0])] = 1;
 	return NULL;
