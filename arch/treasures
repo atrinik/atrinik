@@ -761,6 +761,13 @@ treasureone random_weapons_cleave
 end
 
 treasureone random_weapons_cleave_1h
+  arch axe_hand2
+    difficulty 3
+    magic 1
+    chance 15
+    material_quality 80
+    material_range 7
+  more
   arch axe
     difficulty 3
     magic 1
@@ -769,6 +776,20 @@ treasureone random_weapons_cleave_1h
     material_range 7
   more
   arch axe_battle
+    difficulty 6
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 7
+  more
+  arch axe_battle2
+    difficulty 6
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 7
+  more
+  arch axe_battle3
     difficulty 6
     magic 1
     chance 10
@@ -870,6 +891,18 @@ treasureone random_weapons_cleave_2h
     material_range 7
   more
   arch axe_2h_war
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
+  arch axe_2h_war2
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
+  arch axe_broad2
     magic 1
     chance 20
     material_quality 80
@@ -1074,18 +1107,6 @@ treasureone random_weapons_slash_2h
     chance 20
     material_quality 80
     material_range 7
-  more
-    arch sword2h_fire
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-    arch sword2h_ice
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
 end
 
 treasureone random_weapons_slash_pole
@@ -1130,19 +1151,6 @@ treasureone random_weapons_impact_1h
     material_range 7
   more
   arch club
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-  arch club_big
-    difficulty 3
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-  arch club_rough
     magic 1
     chance 20
     material_quality 80
@@ -1196,20 +1204,6 @@ treasureone random_weapons_impact_1h
     material_quality 80
     material_range 7
   more
-  arch mace
-    difficulty 3
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-  arch mace_battle
-    difficulty 6
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
   arch mace_spiked
     difficulty 3
     magic 1
@@ -1251,19 +1245,6 @@ treasureone random_weapons_impact_1h
     material_quality 80
     material_range 7
   more
-  arch nunchacu
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-  arch nunchacu_war
-    difficulty 3
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
   arch shootingstar
     difficulty 6
     magic 1
@@ -1273,12 +1254,6 @@ treasureone random_weapons_impact_1h
 end
 
 treasureone random_weapons_impact_2h
-  arch bo
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
   arch club_giant
     magic 1
     chance 20
@@ -1370,6 +1345,13 @@ treasureone random_weapons_pierce_1h
     material_quality 80
     material_range 7
   more
+  arch dagger2
+    difficulty 3
+    magic 1
+    chance 14
+    material_quality 80
+    material_range 7
+  more
   arch dagger_large
     magic 1
     chance 12
@@ -1410,7 +1392,28 @@ treasureone random_weapons_pierce_1h
     material_quality 80
     material_range 7
   more
+  arch rapier2
+    difficulty 6
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
   arch saber
+    difficulty 6
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
+  arch saber2
+    difficulty 6
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
+  arch saber3
     difficulty 6
     magic 1
     chance 20
@@ -1445,13 +1448,31 @@ treasureone random_weapons_pierce_2h
     material_quality 80
     material_range 7
   more
+  arch lance
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
   arch spear
     magic 1
     chance 20
     material_quality 80
     material_range 7
   more
+  arch spear_black
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
   arch trident
+    magic 1
+    chance 20
+    material_quality 80
+    material_range 7
+  more
+  arch pike
     magic 1
     chance 20
     material_quality 80
@@ -1472,12 +1493,6 @@ treasureone random_weapons_pierce_pole
     material_range 7
   more
   arch partisan
-    magic 1
-    chance 20
-    material_quality 80
-    material_range 7
-  more
-  arch pike
     magic 1
     chance 20
     material_quality 80

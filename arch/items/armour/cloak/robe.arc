@@ -1,7 +1,7 @@
 Object robe
 name robe
 type 87
-face robe_lgrey.101
+face robe_grey.101
 layer 3
 weight 350
 value 40

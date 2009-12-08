@@ -822,7 +822,7 @@ Object
 title of minor charisma
 type 87
 Cha 1
-face robe_lblue.101
+face robe_blue.101
 is_magical 1
 value 2500
 end
@@ -1195,7 +1195,7 @@ Object
 title of minor strength
 Str 1
 item_level_art 2
-face girdle3.101
+face girdle2.101
 type 113
 is_magical 1
 value 5000
@@ -1209,7 +1209,7 @@ def_arch girdle
 Object
 title of minor dexterity
 Dex 1
-face girdle3.101
+face girdle2.101
 item_level_art 2
 type 113
 is_magical 1
@@ -1223,7 +1223,7 @@ artifact girdle_min_con
 def_arch girdle
 Object
 title of minor constitution
-face girdle3.101
+face girdle2.101
 Con 1
 item_level_art 2
 type 113
@@ -1240,7 +1240,7 @@ Object
 title of minor intelligence
 Int 1
 item_level_art 2
-face a_girdle2.101
+face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
@@ -1255,7 +1255,7 @@ Object
 title of minor power
 Pow 1
 item_level_art 2
-face a_girdle2.101
+face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
@@ -1270,7 +1270,7 @@ Object
 title of minor wisdom
 Wis 1
 item_level_art 2
-face a_girdle2.101
+face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
@@ -1285,7 +1285,7 @@ Object
 title of minor charisma
 Cha 1
 item_level_art 2
-face a_girdle2.101
+face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
@@ -3528,7 +3528,7 @@ artifact gauntlets_warmage
 def_arch gauntlets
 Object
 name Warmage Gauntlets
-face gauntlet_warmage.101
+face gauntlets_warmage.101
 is_magical 1
 identified 1
 known_magical 1
@@ -3615,11 +3615,11 @@ end
 
 Allowed none
 chance 1
-artifact cloak_energy
+artifact cape_energy
 def_arch cloak
 Object
-name Energy Cloak
-face cloak_energy.101
+name Cape of Energy
+face cape_energy.101
 is_magical 1
 identified 1
 known_magical 1
