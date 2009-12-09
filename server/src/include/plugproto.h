@@ -101,7 +101,9 @@ f_plugin HookList[NR_OF_HOOKS] =
 	CFWWithdraw,
 	CFWSwapApartments,
 	CFWPlayerExists,
-	CFWGetTod
+	CFWGetTod,
+	CFWGetObKeyValue,
+	CFWSetObKeyValue
 };
 
 #endif

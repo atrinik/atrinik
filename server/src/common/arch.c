@@ -401,6 +401,7 @@ void free_all_archs()
 		FREE_AND_CLEAR_HASH(at->clone.race);
 		FREE_AND_CLEAR_HASH(at->clone.slaying);
 		FREE_AND_CLEAR_HASH(at->clone.msg);
+		free_key_values(&at->clone);
 		free(at);
 		i++;
 	}

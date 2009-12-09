@@ -413,6 +413,8 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 CFParm *CFWPlaySoundMap(CFParm *PParm);
 CFParm *CFWCreateObject(CFParm *PParm);
 CFParm *CFWGetTod(CFParm *PParm);
+CFParm *CFWGetObKeyValue(CFParm *PParm);
+CFParm *CFWSetObKeyValue(CFParm *PParm);
 
 /* rune.c */
 int write_rune(object *op, int dir, int inspell, int level, char *runename);

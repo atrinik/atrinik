@@ -83,6 +83,82 @@ static char msgbuf[HUGE_BUF];
 #define FVAL (float) atof(yval())
 
 #define YY_NO_INPUT
+
+/**
+ * This extracts the key/value from the yytext field - calls
+ * set_ob_key_value() to actually set the value.
+ *
+ * Function basically has to find spaces, strip out extra, etc. strchr()
+ * doesn't work as good because could also be tabs.
+ * @param op Object in which to insert the value. */
+static void add_key_value(object *op)
+{
+	char *key = NULL, *value = NULL, *cp, *end;
+
+	/* First, skip over leading whitespace. */
+	for (cp = yytext; isspace(*cp); cp++)
+	{
+	}
+
+	key = cp;
+
+	/* Now look for the end of the key/field name. */
+	for (; !isspace(*cp); cp++)
+	{
+		if (*cp == '\0')
+		{
+			/* Oops, ran out of string! Set the key with an empty value. */
+			set_ob_key_value(op, key, NULL, 1);
+			return;
+		}
+	}
+
+	if (*cp == '\0')
+	{
+		set_ob_key_value(op, key, NULL, 1);
+		return;
+	}
+
+	/* Chop off the key, and start at the next character. */
+	*cp = '\0';
+	cp++;
+
+	if (*cp == '\0')
+	{
+		/* Was followed by one space? */
+		set_ob_key_value(op, key, NULL, 1);
+		return;
+	}
+
+	/* Now looking for the value. Skip over whitespace. */
+	for (; isspace(*cp); cp++)
+	{
+		if (*cp == '\0')
+		{
+			/* Guess not. */
+			set_ob_key_value(op, key, NULL, 1);
+			return;
+		}
+	}
+
+	value = cp;
+
+	/* Got last character before NULL and strip
+	 * off tailing whitespace */
+	for (end = value + (strlen(cp) - 1); isspace(*end); end--)
+	{
+		if (end == value)
+		{
+			/* Still no value? */
+			set_ob_key_value(op, key, NULL, 1);
+			return;
+		}
+
+		*end = '\0';
+	}
+
+	set_ob_key_value(op, key, value, 1);
+}
 %}
 
 LF	\x0A
@@ -109,10 +185,8 @@ WS	[ \t]*{NL}
 %%
 
 %{
-/* Declare some local variables */
-    int ismore = 0;
-
-    lex_error = 0;
+int ismore = 0;
+lex_error = 0;
 %}
 
 ^arch{S}            {
@@ -729,10 +803,8 @@ WS	[ \t]*{NL}
 							return LL_EOF;
 						}
                     }
-	/* Catch unrecognized strings. */
 .*                  {
-						yyerror("BUG: loader(): Unrecognized string");
-						lex_error = -1;
+						add_key_value(op);
                     }
 %%
 
@@ -1062,14 +1134,32 @@ static char *flag_names[NUM_FLAGS + 1] = {
  * This function is typically used to dump objects (op2 = empty object),
  * or to save objects (op2 is the objects original archetype).
  * @param op What object the different values will be taken from.
- * @todo Make buffer overflow safe.*/
+ * @todo Make buffer overflow safe. */
 char *get_ob_diff(object *op, object *op2)
 {
   	static char buf2[HUGE_BUF];
   	static char buf[HUGE_BUF];
+    key_value *my_field, *arch_field;
   	int tmp;
 
   	buf[0] = '\0';
+
+	/* This saves the key/value lists. We do it first so that any
+	 * keys that match field names will be overwritten by the loader. */
+	for (my_field = op->key_values; my_field; my_field = my_field->next)
+	{
+		/* Find the field in the opposing member. */
+		arch_field = get_ob_key_link(op2, my_field->key);
+
+		/* If there's no partnering field, or it's got a different value,
+		 * save our field. */
+		if (arch_field == NULL || my_field->value != arch_field->value)
+		{
+			snprintf(buf2, sizeof(buf2), "%s %s\n", my_field->key, my_field->value ? my_field->value : "");
+			strcat(buf, buf2);
+		}
+	}
+
 	if (op->name && op->name != op2->name)
 	{
 		sprintf(buf2, "name %s\n", op->name);

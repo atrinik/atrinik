@@ -235,12 +235,14 @@
 #define HOOK_SWAPAPARTMENTS      71
 #define HOOK_PLAYEREXISTS		 72
 #define HOOK_GETTOD              73
+#define HOOK_GETOBKEYVALUE       74
+#define HOOK_SETOBKEYVALUE       75
 /*@}*/
 
 /**
  * Number of hooks. This should be the last value in
  * @ref HOOK_xxx + 1. */
-#define NR_OF_HOOKS              74
+#define NR_OF_HOOKS              76
 
 /**
  * CFParm is the data type used to pass informations between the server

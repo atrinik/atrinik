@@ -1847,6 +1847,35 @@ CFParm *CFWGetTod(CFParm *PParm)
 	return &CFP;
 }
 
+/**
+ * Wrapper for get_ob_key_value().
+ * @param PParm Parameters array.
+ * - <b>0</b>: Object.
+ * - <b>1</b>: Key. */
+CFParm *CFWGetObKeyValue(CFParm *PParm)
+{
+	static CFParm CFP;
+
+	CFP.Value[0] = (void *) get_ob_key_value((object *) (PParm->Value[0]), (char *) (PParm->Value[1]));
+	return &CFP;
+}
+
+/**
+ * Wrapper for set_ob_key_value().
+ * @param PParm Parameters array.
+ * - <b>0</b>: Object.
+ * - <b>1</b>: Key.
+ * - <b>2</b>: Value.
+ * - <b>3</b>: Add the value if it doesn't exist? */
+CFParm *CFWSetObKeyValue(CFParm *PParm)
+{
+	static CFParm CFP;
+	int ret = set_ob_key_value((object *) (PParm->Value[0]), (char *) (PParm->Value[1]), (char *) (PParm->Value[2]), *(int *) (PParm->Value[3]));
+
+	CFP.Value[0] = (void *) &ret;
+	return &CFP;
+}
+
 /*@}*/
 
 /**

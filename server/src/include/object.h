@@ -68,7 +68,21 @@
 /*@}*/
 
 /**
- * Object structure */
+ * This structure allows any object to have extra fields the Flex loader
+ * does not know about. */
+typedef struct key_value_struct {
+	/** Name of this extra field. Shared string. */
+	const char *key;
+
+	/** Value of this extra field. Shared string. */
+	const char *value;
+
+	/** Next value in the list. */
+	struct key_value_struct *next;
+} key_value;
+
+/**
+ * Object structure. */
 typedef struct obj
 {
 	/* These variables are not changed by copy_object(): */
@@ -409,6 +423,9 @@ typedef struct obj
 
 	/** Type-dependant extra data. */
 	void *custom_attrset;
+
+	/** Fields not explictly known by the loader. */
+    key_value *key_values;
 } object;
 
 #ifdef WIN32

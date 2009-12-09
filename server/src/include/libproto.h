@@ -289,6 +289,10 @@ extern object *load_object_str(char *obstr);
 extern void object_gc();
 extern int auto_apply(object *op);
 extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
+extern void free_key_values(object *op);
+extern key_value *get_ob_key_link(const object *ob, const char *key);
+extern const char *get_ob_key_value(const object *op, const char *const key);
+extern int set_ob_key_value(object *op, const char *key, const char *value, int add_key);
 
 /* porting.c */
 extern char *tempnam_local(char *dir, char *pfx);

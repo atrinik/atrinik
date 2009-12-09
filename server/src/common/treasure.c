@@ -2844,6 +2844,7 @@ static void free_artifact(artifact *at)
 	FREE_AND_CLEAR_HASH2(at->def_at.clone.slaying);
 	FREE_AND_CLEAR_HASH2(at->def_at.clone.msg);
 	FREE_AND_CLEAR_HASH2(at->def_at.clone.title);
+	free_key_values(&at->def_at.clone);
 	free(at);
 }
 

@@ -94,6 +94,8 @@ static PyMethodDef ObjectMethods[] =
 	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
 	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
 	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
+	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
+	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2845,7 +2847,7 @@ static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObje
 }
 
 /**
- * <h1>object.object.Clone(<i>\<int\></i> mode)</h1>
+ * <h1>object.Clone(<i>\<int\></i> mode)</h1>
  *
  * Clone an object.
  *
@@ -2998,6 +3000,62 @@ static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *arg
 	PyDict_SetItemString(dict, "y", Py_BuildValue("i", CONTR(WHO)->bed_y));
 
 	return dict;
+}
+
+/**
+ * <h1>object.GetObKeyValue(\<string\> key)</h1>
+ * Get key value of an object.
+ * @param key Key to look for.
+ * @return Value for the key if found, None otherwise. */
+static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
+{
+	char *key, *value;
+	CFParm *CFR;
+
+	if (!PyArg_ParseTuple(args, "s", &key))
+	{
+		return NULL;
+	}
+
+	GCFP.Value[0] = (void *) (WHO);
+	GCFP.Value[1] = (void *) (key);
+
+	CFR = (PlugHooks[HOOK_GETOBKEYVALUE])(&GCFP);
+	value = (char *) (CFR->Value[0]);
+
+	return Py_BuildValue("s", value);
+}
+
+/**
+ * <h1>object.SetObKeyValue(\<string\> key, [string] value, [int]
+ * add_key)</h1>
+ * Set the key value of an object.
+ * @param key Key to look for.
+ * @param value Value to set for the key. If not passed, will clear the
+ * key's value if the key is found.
+ * @param add_key Whether to add the key if it's not found in the object.
+ * Defaults to 1.
+ * @return 1 on success, 0 on failure. */
+static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
+{
+	char *key, *value = NULL;
+	int add_key = 1, val;
+	CFParm *CFR;
+
+	if (!PyArg_ParseTuple(args, "s|si", &key, &value, &add_key))
+	{
+		return NULL;
+	}
+
+	GCFP.Value[0] = (void *) (WHO);
+	GCFP.Value[1] = (void *) (key);
+	GCFP.Value[2] = (void *) (value);
+	GCFP.Value[3] = (void *) (&add_key);
+
+	CFR = (PlugHooks[HOOK_SETOBKEYVALUE])(&GCFP);
+	val = *(int *) (CFR->Value[0]);
+
+	return Py_BuildValue("i", val);
 }
 
 /*@}*/

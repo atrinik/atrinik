@@ -293,6 +293,46 @@ void object_gc()
 }
 
 /**
+ * Compares value lists.
+ * @param wants What to search.
+ * @param has Where to search.
+ * @return 1 if every key_values in wants has a partner with the same
+ * value in has. */
+static int compare_ob_value_lists_one(const object *wants, const object *has)
+{
+	key_value *wants_field;
+
+	/* For each field in wants. */
+	for (wants_field = wants->key_values; wants_field; wants_field = wants_field->next)
+	{
+		key_value *has_field = get_ob_key_link(has, wants_field->key);
+
+		if (has_field == NULL)
+		{
+			return 0;
+		}
+
+		/* Found the matching field. */
+		if (has_field->value != wants_field->value)
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+/**
+ * Compares two object lists.
+ * @param ob1 Object to compare.
+ * @param ob2 Object to compare.
+ * @return 1 if ob1 has the same key_values as ob2. */
+static int compare_ob_value_lists(const object *ob1, const object *ob2)
+{
+	return compare_ob_value_lists_one(ob1, ob2) && compare_ob_value_lists_one(ob2, ob1);
+}
+
+/**
  * Moved this out of define.h and in here, since this is the only file
  * it is used in. Also, make it an inline function for cleaner
  * design.
@@ -416,6 +456,20 @@ int CAN_MERGE(object *ob1, object *ob2)
 	if (ob1->type == CONTAINER)
 	{
 		return 0;
+	}
+
+	/* At least one of these has key_values. */
+	if (ob1->key_values != NULL || ob2->key_values != NULL)
+	{
+		/* One has fields, but the other one doesn't. */
+		if ((ob1->key_values == NULL) != (ob2->key_values == NULL))
+		{
+			return 0;
+		}
+		else
+		{
+			return compare_ob_value_lists(ob1, ob2);
+		}
 	}
 
 	/* some stuff we should not need to test:
@@ -1009,6 +1063,8 @@ void copy_object(object *op2, object *op)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 
+	free_key_values(op);
+
 	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
 	if (is_removed)
@@ -1034,6 +1090,43 @@ void copy_object(object *op2, object *op)
 		op->speed_left += (RANDOM() % 90) / 100.0f;
 	}
 
+	/* Copy over key_values, if any. */
+	if (op2->key_values)
+	{
+		key_value *tail = NULL, *i;
+
+		op->key_values = NULL;
+
+		for (i = op2->key_values; i; i = i->next)
+		{
+			key_value *new_link = malloc(sizeof(key_value));
+
+			new_link->next = NULL;
+			new_link->key = add_refcount(i->key);
+
+			if (i->value)
+			{
+				new_link->value = add_refcount(i->value);
+			}
+			else
+			{
+				new_link->value = NULL;
+			}
+
+			/* Try and be clever here, too. */
+			if (op->key_values == NULL)
+			{
+				op->key_values = new_link;
+				tail = new_link;
+			}
+			else
+			{
+				tail->next = new_link;
+				tail = new_link;
+			}
+		}
+	}
+
 	update_ob_speed(op);
 }
 
@@ -1050,6 +1143,8 @@ void copy_object_data(object *op2, object *op)
 	FREE_ONLY_HASH(op->race);
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
+
+    free_key_values(op);
 
 	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
@@ -1068,6 +1163,43 @@ void copy_object_data(object *op2, object *op)
 	{
 		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
 		SET_FLAG(op, FLAG_KNOWN_CURSED);
+	}
+
+	/* Copy over key_values, if any. */
+	if (op2->key_values)
+	{
+		key_value *tail = NULL, *i;
+
+		op->key_values = NULL;
+
+		for (i = op2->key_values; i; i = i->next)
+		{
+			key_value *new_link = malloc(sizeof(key_value));
+
+			new_link->next = NULL;
+			new_link->key = add_refcount(i->key);
+
+			if (i->value)
+			{
+				new_link->value = add_refcount(i->value);
+			}
+			else
+			{
+				new_link->value = NULL;
+			}
+
+			/* Try and be clever here, too. */
+			if (op->key_values == NULL)
+			{
+				op->key_values = new_link;
+				tail = new_link;
+			}
+			else
+			{
+				tail->next = new_link;
+				tail = new_link;
+			}
+		}
 	}
 }
 
@@ -1624,6 +1756,8 @@ void destroy_object(object *ob)
 		dump_object(ob);
 		LOG(llevBug, "BUG: Destroy object called with non removed object\n:%s\n", errmsg);
 	}
+
+	free_key_values(ob);
 
 	/* This should be very rare... */
 	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
@@ -3464,4 +3598,212 @@ int can_see_monsterP(mapstruct *m, int x, int y, int dir)
 	}
 
 	return can_see_monsterP(m, x, y, reduction_dir[dir][0]) | can_see_monsterP(m, x, y, reduction_dir[dir][1]) | can_see_monsterP(m, x, y, reduction_dir[dir][2]);
+}
+
+/**
+ * Zero the key_values on op, decrementing the shared-string refcounts
+ * and freeing the links.
+ * @param op Object to clear. */
+void free_key_values(object *op)
+{
+	key_value *i, *next = NULL;
+
+	if (op->key_values == NULL)
+	{
+		return;
+	}
+
+	for (i = op->key_values; i; i = next)
+	{
+		/* Store next *first*. */
+		next = i->next;
+
+		if (i->key)
+		{
+			FREE_AND_CLEAR_HASH(i->key);
+		}
+
+		if (i->value)
+		{
+			FREE_AND_CLEAR_HASH(i->value);
+		}
+
+		i->next = NULL;
+		free(i);
+	}
+
+	op->key_values = NULL;
+}
+
+/**
+ * Search for a field by key.
+ * @param ob Object to search in.
+ * @param key Key to search. Must be a shared string.
+ * @return The link from the list if ob has a field named key, NULL
+ * otherwise. */
+key_value *get_ob_key_link(const object *ob, const char *key)
+{
+	key_value *link;
+
+	for (link = ob->key_values; link; link = link->next)
+	{
+		if (link->key == key)
+		{
+			return link;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Get an extra value by key.
+ * @param op Object we're considering.
+ * @param key Key of which to retrieve the value. Doesn't need to be a
+ * shared string.
+ * @return The value if found, NULL otherwise.
+ * @note The returned string is shared. */
+const char *get_ob_key_value(const object *op, const char *const key)
+{
+	key_value *link;
+	const char *canonical_key = find_string(key);
+
+	if (canonical_key == NULL)
+	{
+		return NULL;
+	}
+
+	/* This is copied from get_ob_key_link() above - only 4 lines, and
+	 * saves the function call overhead. */
+	for (link = op->key_values; link; link = link->next)
+	{
+		if (link->key == canonical_key)
+		{
+			return link->value;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Updates or sets a key value.
+ * @param op Object we're considering.
+ * @param canonical_key Key to set or update. Must be a shared string.
+ * @param value Value to set. Doesn't need to be a shared string.
+ * @param add_key If 0, will not add the key if it doesn't exist in op.
+ * @return 1 if key was updated or added, 0 otherwise. */
+static int set_ob_key_value_s(object *op, const char *canonical_key, const char *value, int add_key)
+{
+	key_value *field = NULL, *last = NULL;
+
+	for (field = op->key_values; field; field = field->next)
+	{
+		if (field->key != canonical_key)
+		{
+			last = field;
+			continue;
+		}
+
+		if (field->value)
+		{
+			FREE_AND_CLEAR_HASH(field->value);
+		}
+
+		if (value)
+		{
+			field->value = add_string(value);
+		}
+		else
+		{
+			/* Basically, if the archetype has this key set, we need to
+			 * store the NULL value so when we save it, we save the empty
+			 * value so that when we load, we get this value back
+			 * again. */
+			if (get_ob_key_link(&op->arch->clone, canonical_key))
+			{
+				field->value = NULL;
+			}
+			else
+			{
+				/* Delete this link */
+				if (field->key)
+				{
+					FREE_AND_CLEAR_HASH(field->key);
+				}
+
+				if (field->value)
+				{
+					FREE_AND_CLEAR_HASH(field->value);
+				}
+
+				if (last)
+				{
+					last->next = field->next;
+				}
+				else
+				{
+					op->key_values = field->next;
+				}
+
+				free(field);
+			}
+		}
+
+		return 1;
+	}
+
+	if (!add_key)
+	{
+		return 0;
+	}
+
+	/* There isn't any good reason to store a NULL value in the key/value
+	 * list. If the archetype has this key, then we should also have it,
+	 * so shouldn't be here. If user wants to store empty strings, should
+	 * pass in "" */
+	if (value == NULL)
+	{
+		return 1;
+	}
+
+	field = malloc(sizeof(key_value));
+
+	field->key = add_refcount(canonical_key);
+	field->value = add_string(value);
+	/* Usual prepend-addition. */
+	field->next = op->key_values;
+	op->key_values = field;
+
+	return 1;
+}
+
+/**
+ * Updates the key in op to value.
+ * @param op Object we're considering.
+ * @param key Key to set or update. Doesn't need to be a shared string.
+ * @param value Value to set. Doesn't need to be a shared string.
+ * @param add_key If 0, will not add the key if it doesn't exist in op.
+ * @return 1 if key was updated or added, 0 otherwise.
+ * @note This function is merely a wrapper to set_ob_key_value_s() to
+ * ensure the key is a shared string.*/
+int set_ob_key_value(object *op, const char *key, const char *value, int add_key)
+{
+	const char *canonical_key = find_string(key);
+	int floating_ref = 0, ret;
+
+	if (canonical_key == NULL)
+	{
+		canonical_key = add_string(key);
+		floating_ref = 1;
+	}
+
+	ret = set_ob_key_value_s(op, canonical_key, value, add_key);
+
+	if (floating_ref)
+	{
+		FREE_ONLY_HASH(canonical_key);
+	}
+
+	return ret;
 }
