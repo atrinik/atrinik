@@ -187,8 +187,6 @@ typedef struct
  * - <b>last_anim</b>: @copydoc object::last_anim
  * - <b>will_apply</b>: @copydoc object::will_apply
  * - <b>run_away</b>: @copydoc object::run_away
- * - <b>pick_up</b>: @copydoc object::pick_up
- * - <b>hide</b>: @copydoc object::hide
  * - <b>layer</b>: @copydoc object::layer
  * - <b>speed</b>: @copydoc object::speed
  * - <b>speed_left</b>: @copydoc object::speed_left
@@ -300,8 +298,6 @@ obj_fields_struct obj_fields[] =
 	{"will_apply",             FIELDTYPE_UINT8,      offsetof(object, will_apply),             0,                           0},
 	{"run_away",               FIELDTYPE_UINT8,      offsetof(object, run_away),               0,                           0},
 
-	{"pick_up",                FIELDTYPE_UINT8,      offsetof(object, pick_up),                0,                           0},
-	{"hide",                   FIELDTYPE_UINT8,      offsetof(object, hide),                   0,                           0},
 	{"layer",                  FIELDTYPE_UINT8,      offsetof(object, layer),                  0,                           0},
 	{"speed",                  FIELDTYPE_FLOAT,      offsetof(object, speed),                  FIELDFLAG_PLAYER_READONLY,   0},
 	{"speed_left",             FIELDTYPE_FLOAT,      offsetof(object, speed_left),             0,                           0},

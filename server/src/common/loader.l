@@ -468,7 +468,6 @@ lex_error = 0;
 ^path_denied{S}     op->path_denied = IVAL;
 ^magic{S}           op->magic = IVAL;
 ^state{S}           op->state = IVAL;
-^hidden{S}          op->hide = IVAL;
 ^layer{S}           op->layer = IVAL;
 ^door_closed{S}     SET_OR_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
 ^cursed_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
@@ -575,7 +574,6 @@ lex_error = 0;
 ^run_away{S}        op->run_away = IVAL;
 ^pass_thru{S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
 ^can_pass_thru{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
-^pick_up{S}         op->pick_up = IVAL;
 ^anim_speed{S}      op->anim_speed = IVAL;
 ^container{S}       op->weight_limit = IVAL;
 ^no_drop{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_DROP, IVAL);
@@ -1440,9 +1438,6 @@ char *get_ob_diff(object *op, object *op2)
 	if (op->layer != op2->layer)
 		save_long(buf, "layer", op->layer);
 
-	if (op->hide != op2->hide)
-		save_long(buf, "hidden", op->hide);
-
 	if (op->path_attuned != op2->path_attuned)
 		save_long(buf, "path_attuned", op->path_attuned);
 
@@ -1499,9 +1494,6 @@ char *get_ob_diff(object *op, object *op2)
 
 	if (op->run_away != op2->run_away)
 		save_long(buf, "run_away", op->run_away);
-
-	if (op->pick_up != op2->pick_up)
-		save_long(buf, "pick_up", op->pick_up);
 
 	if (op->weight_limit != op2->weight_limit)
 		save_long(buf, "container", op->weight_limit);

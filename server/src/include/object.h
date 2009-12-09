@@ -369,14 +369,6 @@ typedef struct obj
 	/** Monster runs away if its hp goes below this percentage. */
 	uint8 run_away;
 
-	/** Pickup mode */
-	uint8 pick_up;
-
-	/**
-	 * The object is hidden. We don't use a flag here because
-	 * the range from 0-255 tells us the quality of the hide */
-	uint8 hide;
-
 	/** the layer in a map, this object will be sorted in */
 	uint8 layer;
 
