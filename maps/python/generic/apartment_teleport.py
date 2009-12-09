@@ -1,5 +1,5 @@
 ## @file
-## Apartment teleporter in Brynknot.
+## Generic apartment teleporter script.
 ##
 ## Used to teleport apartment owners to their apartment.
 
@@ -18,9 +18,7 @@ execfile(os.path.dirname(currentframe().f_code.co_filename) + "/apartments.py")
 apartment_id = GetOptions()
 
 if not apartment_id or not apartments_info[apartment_id]:
-	me.SayTo(activator, "Wrong apartment ID?!")
-	activator.Write("A strong force teleports you away.", 0)
-	activator.SetPosition(8, 4)
+	activator.SetPosition(me.hitpoints, me.spellpoints)
 else:
 	## The apartments we're dealing with.
 	apartments = apartments_info[apartment_id]["apartments"]
@@ -30,9 +28,8 @@ else:
 
 	# No apartment, teleport them back
 	if pinfo == None:
-		me.SayTo(activator, "You don't own an apartment here!");
-		activator.Write("A strong force teleports you away.", 0)
-		activator.SetPosition(8, 4)
+		activator.Write("You don't own an apartment here!", 0)
+		activator.SetPosition(me.hitpoints, me.spellpoints)
 	else:
 		if apartments[pinfo.slaying]:
 			# The apartment info
@@ -44,8 +41,6 @@ else:
 			pinfo.last_sp = me.hitpoints
 			pinfo.last_grace = me.spellpoints
 		else:
-			me.SayTo(activator, "Wrong apartment ID?!")
-			activator.Write("A strong force teleports you away.", 0)
-			activator.SetPosition(8, 4)
+			activator.SetPosition(activator.me.hitpoints, me.spellpoints)
 
 SetReturnValue(1)
