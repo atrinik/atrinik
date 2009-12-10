@@ -331,6 +331,11 @@ void watchdog()
  * @param pl The player to remove. */
 static void remove_ns_dead_player(player *pl)
 {
+	if (pl == NULL)
+	{
+		return;
+	}
+
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 	{
@@ -378,11 +383,6 @@ static void remove_ns_dead_player(player *pl)
 	}
 
 	LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
-
-	if (pl == NULL)
-	{
-		return;
-	}
 
 	/* All players should be on the friendly list - remove this one */
 	if (pl->ob->type == PLAYER)
