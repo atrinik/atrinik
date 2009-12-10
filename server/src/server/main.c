@@ -57,6 +57,23 @@ static void process_players2();
 static void dequeue_path_requests();
 static void do_specials();
 
+/* fatal() is meant to be called whenever a fatal signal is intercepted.
+ * It will call the emergency_save and the clean_tmp_files functions. */
+void fatal(int err)
+{
+	LOG(llevSystem, "Fatal: Shutdown server. Reason: %s\n", err == llevError ? "Fatal Error" : "BUG flood");
+
+	if (init_done)
+	{
+		emergency_save(0);
+		clean_tmp_files();
+	}
+
+	abort();
+	LOG(llevSystem, "Exiting...\n");
+	exit(-1);
+}
+
 /**
  * Shows version information.
  * @param op If NULL the version is logged using LOG(), otherwise it is
@@ -1075,6 +1092,125 @@ static void dequeue_path_requests()
 	if (wp)
 		waypoint_compute_path(wp);
 #endif
+}
+
+
+/**
+ * Swap one apartment (unique) map for another.
+ * @param mapold Old map path.
+ * @param mapnew Map to switch for.
+ * @param x X position where player's items from old map will go to.
+ * @param y Y position where player's items from old map will go to.
+ * @param op Player we're doing the switching for.
+ * @return 1 on success, 0 on failure. */
+int swap_apartments(char *mapold, char *mapnew, int x, int y, object *op)
+{
+	char oldmappath[HUGE_BUF], newmappath[HUGE_BUF];
+	int i, j;
+	object *ob, *tmp, *tmp2, *dummy;
+	mapstruct *oldmap, *newmap;
+
+	snprintf(oldmappath, sizeof(oldmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(mapold));
+	snprintf(newmappath, sizeof(newmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(mapnew));
+
+	/* So we can transfer our items from the old apartment. */
+	oldmap = ready_map_name(oldmappath, 2);
+
+	if (!oldmap)
+	{
+		LOG(llevBug, "BUG: CFWSwapApartments(): Could not get oldmap using ready_map_name().\n");
+		return 0;
+	}
+
+	/* Our new map. */
+	newmap = ready_map_name(create_pathname(mapnew), 6);
+
+	if (!newmap)
+	{
+		LOG(llevBug, "BUG: CFWSwapApartments(): Could not get newmap using ready_map_name().\n");
+		return 0;
+	}
+
+	/* Goes to player directory. */
+	FREE_AND_COPY_HASH(newmap->path, newmappath);
+	newmap->map_flags |= MAP_FLAG_UNIQUE;
+
+	/* Go through every square on old apartment map, looking for things
+	 * to transfer. */
+	for (i = 0; i < MAP_WIDTH(oldmap); i++)
+	{
+		for (j = 0; j < MAP_HEIGHT(oldmap); j++)
+		{
+			for (ob = get_map_ob(oldmap, i, j); ob; ob = tmp2)
+			{
+				tmp2 = ob->above;
+
+				/* We teleport any possible players here to emergency map. */
+				if (ob->type == PLAYER)
+				{
+					dummy = get_object();
+					dummy->map = ob->map;
+					FREE_AND_COPY_HASH(EXIT_PATH(dummy), EMERGENCY_MAPPATH);
+					FREE_AND_COPY_HASH(dummy->name, EMERGENCY_MAPPATH);
+					enter_exit(ob, dummy);
+					continue;
+				}
+
+				/* If it's sys_object 1, there's no need to transfer it. */
+				if (QUERY_FLAG(ob, FLAG_SYS_OBJECT))
+				{
+					continue;
+				}
+
+				/* A pickable item... Tranfer it */
+				if (!QUERY_FLAG(ob, FLAG_NO_PICK))
+				{
+					remove_ob(ob);
+					ob->x = x;
+					ob->y = y;
+					insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+				}
+				/* Fixed part of map */
+				else
+				{
+					/* Now we test for containers, because player
+					 * can have items stored in it. So, go through
+					 * the container and look for things to transfer. */
+					for (tmp = ob->inv; tmp; tmp = tmp2)
+					{
+						tmp2 = tmp->below;
+
+						if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_NO_PICK))
+						{
+							continue;
+						}
+
+						remove_ob(tmp);
+						tmp->x = x;
+						tmp->y = y;
+						insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+					}
+				}
+			}
+		}
+	}
+
+	/* Save the map */
+	new_save_map(newmap, 0);
+
+	/* Check for old save bed */
+	if (strcmp(oldmap->path, CONTR(op)->savebed_map) == 0)
+	{
+		strcpy(CONTR(op)->savebed_map, "");
+	}
+
+	unlink(oldmap->path);
+
+	/* Free the maps */
+	free_map(newmap, 1);
+	free_map(oldmap, 1);
+
+	return 1;
 }
 
 /**

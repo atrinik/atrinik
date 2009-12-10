@@ -2151,3 +2151,24 @@ static object *find_arrow_ext(object *op, const char *type, int tag)
 		return tmp;
 	}
 }
+
+/**
+ * Check whether the specified player exists.
+ * @param player_name Player name to check for.
+ * @return 1 if the player exists, 0 otherwise. */
+int player_exists(char *player_name)
+{
+	FILE *fp;
+	char filename[HUGE_BUF];
+
+	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, player_name, player_name);
+	fp = fopen(filename, "r");
+
+	if (fp)
+	{
+		fclose(fp);
+		return 1;
+	}
+
+	return 0;
+}

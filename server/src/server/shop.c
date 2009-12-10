@@ -975,3 +975,165 @@ void insert_money_in_player(object *pl, object *money, uint32 nrof)
 	esrv_send_item(pl, pl);
 	esrv_update_item(UPD_WEIGHT, pl, pl);
 }
+
+/**
+ * Deposit money to player's bank object.
+ * @param op Player.
+ * @param bank Bank object in player's inventory.
+ * @param text What was said to trigger this.
+ * @retval 1 Money deposited successfully.
+ * @retval 0 Failed to deposit money.
+ * @retval -1 The text parameter was invalid. */
+int bank_deposit(object *op, object *bank, char *text)
+{
+	int pos = 0;
+	_money_block money;
+
+	get_word_from_string(text, &pos);
+	get_money_from_string(text + pos , &money);
+
+	if (!money.mode)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Deposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'");
+		return -1;
+	}
+	else if (money.mode == MONEYSTRING_ALL)
+	{
+		bank->value += remove_money_type(op, op, -1, 0);
+		fix_player(op);
+	}
+	else
+	{
+		if (money.mithril)
+		{
+			if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril)
+			{
+				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many mithril coins.");
+				return 0;
+			}
+		}
+
+		if (money.gold)
+		{
+			if (query_money_type(op, coins_arch[1]->clone.value) < money.gold)
+			{
+				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many gold coins.");
+				return 0;
+			}
+		}
+
+		if (money.silver)
+		{
+			if (query_money_type(op, coins_arch[2]->clone.value) < money.silver)
+			{
+				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many silver coins.");
+				return 0;
+			}
+		}
+
+		if (money.copper)
+		{
+			if (query_money_type(op, coins_arch[3]->clone.value) < money.copper)
+			{
+				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many copper coins.");
+				return 0;
+			}
+		}
+
+		if (money.mithril)
+		{
+			remove_money_type(op, op, coins_arch[0]->clone.value, money.mithril);
+		}
+
+		if (money.gold)
+		{
+			remove_money_type(op, op, coins_arch[1]->clone.value, money.gold);
+		}
+
+		if (money.silver)
+		{
+			remove_money_type(op, op, coins_arch[2]->clone.value, money.silver);
+		}
+
+		if (money.copper)
+		{
+			remove_money_type(op, op, coins_arch[3]->clone.value, money.copper);
+		}
+
+		bank->value += money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+		fix_player(op);
+	}
+
+	return 1;
+}
+
+/**
+ * Withdraw money player previously stored in bank object.
+ * @param op Player.
+ * @param bank Bank object in player's inventory.
+ * @param text What was said to trigger this.
+ * @retval 1 Money withdrawn successfully.
+ * @retval 0 Failed to withdraw money.
+ * @retval -1 The text parameter was invalid. */
+int bank_withdraw(object *op, object *bank, char *text)
+{
+	int pos = 0;
+	sint64 big_value;
+	_money_block money;
+
+	get_word_from_string(text, &pos);
+	get_money_from_string(text + pos , &money);
+
+	if (!money.mode)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Withdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'");
+		return -1;
+	}
+	else if (money.mode == MONEYSTRING_ALL)
+	{
+		sell_item(NULL, op, bank->value);
+		bank->value = 0;
+		fix_player(op);
+	}
+	else
+	{
+		/* Just to set a border.... */
+		if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "Withdraw values are too high.");
+			return 1;
+		}
+
+		big_value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+
+		if (big_value > bank->value)
+		{
+			return 0;
+		}
+
+		if (money.mithril)
+		{
+			insert_money_in_player(op, &coins_arch[0]->clone, money.mithril);
+		}
+
+		if (money.gold)
+		{
+			insert_money_in_player(op, &coins_arch[1]->clone, money.gold);
+		}
+
+		if (money.silver)
+		{
+			insert_money_in_player(op, &coins_arch[2]->clone, money.silver);
+		}
+
+		if (money.copper)
+		{
+			insert_money_in_player(op, &coins_arch[3]->clone, money.copper);
+		}
+
+		bank->value -= big_value;
+		fix_player(op);
+	}
+
+	return 1;
+}

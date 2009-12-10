@@ -28,7 +28,6 @@
  * Player related common functions. */
 
 #include <global.h>
-#include <funcpoint.h>
 
 /**
  * Looks for the skill and returns a pointer to it if found.
@@ -78,4 +77,3 @@ int is_dragon_pl(object *op)
 
 	return 0;
 }
-

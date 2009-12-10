@@ -128,6 +128,7 @@ extern void kill_player(object *op);
 extern void cast_dust(object *op, object *throw_ob, int dir);
 extern int pvp_area(object *attacker, object *victim);
 extern void dragon_ability_gain(object *who, int atnr, int level);
+extern int player_exists(char *player_name);
 
 /* player_mover.c */
 extern void move_player_mover(object *op);

@@ -216,9 +216,6 @@ typedef struct linked_char
 /* Now for spells */
 #include "spells.h"
 
-/* pointer for the glue.c interface between crosslib and server */
-#include "funcpoint.h"
-
 /*****************************************************************************
  * GLOBAL VARIABLES:							     						 *
  *****************************************************************************/
@@ -260,8 +257,6 @@ EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];
 /* Variables set by different flags (see init.c): */
 /* Ignores signals until init_done is true */
 EXTERN long init_done;
-/* True when emergency_save() is reached */
-EXTERN long trying_emergency_save;
 /* If it exceeds MAX_ERRORS, call fatal() */
 EXTERN long nroferrors;
 

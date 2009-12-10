@@ -48,7 +48,6 @@ ALL_FILES = \
 	re-cmp.h \
 	sproto.h \
 	artifact.h \
-	funcpoint.h \
 	map.h \
 	mempool.h \
 	recipe.h \
@@ -69,7 +68,6 @@ ALL_FILES = \
 	skills.h \
 	sockproto.h \
 	plugin.h \
-	plugproto.h \
 	timers.h \
 	pathfinder.h
 

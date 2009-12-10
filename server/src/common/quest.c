@@ -82,8 +82,8 @@ void check_quest(object *op, object *quest_container)
 			/* Now add it to the player. */
 			add_one_drop_quest_item(op, tmp, quest_container->name);
 			snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
-			(*draw_info_func)(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
-			(*esrv_send_item_func)(op, tmp);
+			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
+			esrv_send_item(op, tmp);
 
 			break;
 
@@ -107,7 +107,7 @@ void check_quest(object *op, object *quest_container)
 					snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_container->name, quest_object->last_sp, quest_object->last_grace);
 				}
 
-				(*draw_info_func)(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
+				new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
 			}
 
 			break;
@@ -129,8 +129,8 @@ void check_quest(object *op, object *quest_container)
 			/* Insert the object to the player. */
 			insert_ob_in_ob(tmp, op);
 			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_name(tmp, NULL));
-			(*draw_info_func)(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
-			(*esrv_send_item_func)(op, tmp);
+			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, 0, op, buf);
+			esrv_send_item(op, tmp);
 
 			break;
 

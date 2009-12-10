@@ -28,7 +28,6 @@
  * In-game time functions. */
 
 #include <global.h>
-#include <funcpoint.h>
 
 #ifndef WIN32
 #include <stdio.h>
@@ -55,7 +54,7 @@ long pticks;
 static long process_utime_long_count;
 
 /** In-game seasons. */
-const char *const season_name[SEASONS_PER_YEAR + 1] =
+const char *season_name[SEASONS_PER_YEAR + 1] =
 {
 	"The Season of New Year",
 	"The Season of Growth",
@@ -66,7 +65,7 @@ const char *const season_name[SEASONS_PER_YEAR + 1] =
 };
 
 /** Days of the week. */
-const char *const weekdays[DAYS_PER_WEEK] =
+const char *weekdays[DAYS_PER_WEEK] =
 {
 	"the Day of the Moon",
 	"the Day of the Bull",
@@ -78,7 +77,7 @@ const char *const weekdays[DAYS_PER_WEEK] =
 };
 
 /** Months. */
-const char *const month_name[MONTHS_PER_YEAR] =
+const char *month_name[MONTHS_PER_YEAR] =
 {
 	"Month of the Ice Dragon",
 	"Month of the Frost Giant",
@@ -95,7 +94,7 @@ const char *const month_name[MONTHS_PER_YEAR] =
 };
 
 /** Periods of day. */
-const char *const periodsofday[PERIODS_PER_DAY] = {
+const char *periodsofday[PERIODS_PER_DAY] = {
 	"Night",
 	"Dawn",
 	"Morning",
@@ -331,7 +330,7 @@ void print_tod(object *op)
 
 	get_tod(&tod);
 	sprintf(errmsg, "It is %d minute%s past %d o'clock %s, on %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 
 	day = tod.day + 1;
 
@@ -353,10 +352,10 @@ void print_tod(object *op)
 	}
 
 	sprintf(errmsg, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 
 	sprintf(errmsg, "Time of Year: %s", season_name[tod.season]);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 }
 
 /**
@@ -373,16 +372,16 @@ void time_info(object *op)
 		return;
 	}
 
-	(*draw_info_func) (NDI_UNIQUE, 0, op, "Total time:");
+	new_draw_info (NDI_UNIQUE, 0, op, "Total time:");
 	sprintf(errmsg, "ticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 	sprintf(errmsg, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 	sprintf(errmsg, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 
 	sprintf(errmsg, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 
 	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
 	{
@@ -405,9 +404,9 @@ void time_info(object *op)
 	}
 
 	sprintf(errmsg, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 	sprintf(errmsg, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
-	(*draw_info_func) (NDI_UNIQUE, 0, op, errmsg);
+	new_draw_info (NDI_UNIQUE, 0, op, errmsg);
 }
 
 /**

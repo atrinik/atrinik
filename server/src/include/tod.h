@@ -50,10 +50,10 @@
 
 #define LUNAR_DAYS          DAYS_PER_MONTH
 
-extern const char *const season_name[SEASONS_PER_YEAR + 1];
-extern const char *const weekdays[DAYS_PER_WEEK];
-extern const char *const month_name[MONTHS_PER_YEAR];
-extern const char *const periodsofday[PERIODS_PER_DAY];
+extern const char *season_name[SEASONS_PER_YEAR + 1];
+extern const char *weekdays[DAYS_PER_WEEK];
+extern const char *month_name[MONTHS_PER_YEAR];
+extern const char *periodsofday[PERIODS_PER_DAY];
 
 /** Represents the in-game time. */
 typedef struct _timeofday

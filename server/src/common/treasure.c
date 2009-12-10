@@ -39,8 +39,8 @@
 #include <global.h>
 #include <treasure.h>
 #include <spellist.h>
-#include <funcpoint.h>
 #include <loader.h>
+#include <sproto.h>
 
 /** For quick search for string "none" */
 static const char *treasure_string_none = NULL;
@@ -1170,7 +1170,7 @@ static void put_treasure(object *op, object *creator, int flags)
 
 		if ((flags & GT_UPDATE_INV) && (tmp = is_player_inv(creator)) != NULL)
 		{
-			(*esrv_send_item_func)(tmp, op);
+			esrv_send_item(tmp, op);
 		}
 	}
 }
@@ -2289,7 +2289,7 @@ jump_break1:
 
 			case RUNE:
 				/* Artifact AND normal treasure runes! */
-				(*trap_adjust_func)(op, difficulty);
+				trap_adjust(op, difficulty);
 				break;
 		}
 	}

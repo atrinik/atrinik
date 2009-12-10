@@ -28,7 +28,7 @@
  * Buttons, gates, handles, etc related code. */
 
 #include <global.h>
-#include <funcpoint.h>
+#include <sproto.h>
 
 static void animate_turning(object *op);
 static void trigger_move(object *op, int state);
@@ -85,7 +85,7 @@ void push_button(object *op)
 			case SIGN:
 				if (!tmp->stats.food || tmp->last_eat < tmp->stats.food)
 				{
-					(*info_map_func)(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
+					new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
 
 					if (tmp->stats.food)
 						tmp->last_eat++;
@@ -122,7 +122,7 @@ void push_button(object *op)
 				/* connection flag1 = on/off */
 				if (op->last_eat)
 					tmp->last_eat != 0 ? (tmp->last_eat = 0) : (tmp->last_eat = 1);
-				/*(*move_firewall_func)(tmp); <- invoke the firewall (removed here)*/
+				/*move_firewall(tmp); <- invoke the firewall (removed here)*/
 				/* "normal" connection - turn wall */
 				else
 				{
@@ -149,11 +149,11 @@ void push_button(object *op)
 				break;
 
 			case TELEPORTER:
-				(*move_teleporter_func)(tmp);
+				move_teleporter(tmp);
 				break;
 
 			case CREATOR:
-				(*move_creator_func)(tmp);
+				move_creator(tmp);
 				break;
 		}
 	}
@@ -376,7 +376,7 @@ int operate_altar(object *altar, object **sacrifice)
 		*sacrifice = decrease_ob_nr(*sacrifice, NROF_SACRIFICE(altar));
 
 	if (altar->msg)
-		(*info_map_func)(NDI_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
+		new_info_map(NDI_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
 
 	return 1;
 }
@@ -707,7 +707,7 @@ void do_mood_floor(object *op, object *op2)
 				 * dereference a null value */
 				if (tmp->type == GOLEM && tmp->owner && tmp->owner->type == PLAYER && CONTR(tmp->owner)->golem == tmp)
 				{
-					(*send_golem_control_func)(tmp, GOLEM_CTR_RELEASE);
+					send_golem_control(tmp, GOLEM_CTR_RELEASE);
 					CONTR(tmp->owner)->golem = NULL;
 				}
 

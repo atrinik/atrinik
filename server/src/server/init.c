@@ -905,23 +905,6 @@ static void init_signals()
  * into the server. */
 static void setup_library()
 {
-	set_emergency_save(emergency_save);
-	set_clean_tmp_files(clean_tmp_files);
-	set_remove_friendly_object(remove_friendly_object);
-	set_update_buttons(update_buttons);
-	set_draw_info(new_draw_info);
-	set_container_unlink(container_unlink);
-	set_move_apply(move_apply);
-	set_move_teleporter(move_teleporter);
-	set_move_firewall(move_firewall);
-	set_move_creator(move_creator);
-	set_trap_adjust(trap_adjust);
-	set_esrv_send_item(esrv_send_item);
-	set_esrv_del_item(esrv_del_item);
-	set_esrv_update_item(esrv_update_item);
-	set_info_map(new_info_map);
-	set_dragon_gain_func(dragon_ability_gain);
-
 	setup_poolfunctions(pool_player, NULL, (chunk_destructor) free_player);
 }
 

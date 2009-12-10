@@ -2,7 +2,7 @@
 #            Atrinik, a Multiplayer Online Role Playing Game            *
 #                                                                       *
 #                     Copyright (C) 2009 Alex Tokar                     *
-#                                                                       * 
+#                                                                       *
 # Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 # and Crossfire (Multiplayer game for X-windows).                       *
 #                                                                       *
@@ -24,7 +24,6 @@
 #***********************************************************************/
 
 PLUGINS = \
-	common \
 	plugin_python \
 	plugin_arena
 
@@ -55,7 +54,7 @@ distclean:: clean
 	    echo "Making distclean in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' distclean;) \
 	done;
-	
+
 proto:
 	@for dir in $(PLUGINS); \
 	do \

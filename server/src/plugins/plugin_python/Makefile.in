@@ -56,7 +56,7 @@ distclean : clean
 	$(RM) -f *.o core plugin_python.so.0.1 Makefile
 
 plugin_python.so.0.1 : $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) ../../common/libcross.a ../common/plugin_common.a $(ALLLIBS) -o plugin_python.so.0.1
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) $(ALLLIBS) -o plugin_python.so.0.1
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@

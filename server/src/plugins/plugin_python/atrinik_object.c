@@ -29,8 +29,6 @@
 
 /* First let's include the header file needed */
 #include <atrinik_object.h>
-#include <plugin_common.h>
-#include <inline.h>
 
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef ObjectMethods[] =
@@ -830,7 +828,7 @@ static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 	{
 		if (tmp->type == type && tmp->stats.sp == skill)
 		{
-			/*plugin_log(-1,"LEVEL1 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
+			/*LOG(-1,"LEVEL1 %d (->%d) :: %s (exp %d)\n",tmp->level,level,hooks->query_name(tmp), tmp->stats.exp);*/
 
 			/* This is a bit tricky: some skills are marked with exp -1
 			 * or -2 as special used skills (level but no exp):
@@ -846,13 +844,10 @@ static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 				currentxp = tmp->stats.exp;
 				value = value - currentxp;
 
-				GCFP.Value[0] = (void *) (WHO);
-				GCFP.Value[1] = (void *) (&value);
-				GCFP.Value[2] = (void *) (&skill);
-				(PlugHooks[HOOK_ADDEXP])(&GCFP);
+				hooks->add_exp(WHO, value, skill);
 			}
 
-			/*plugin_log(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,query_name(tmp), tmp->stats.exp);*/
+			/*LOG(-1,"LEVEL2 %d (->%d) :: %s (exp %d)\n",tmp->level,level,hooks->query_name(tmp), tmp->stats.exp);*/
 
 			/* We will sure change skill exp, mark for update */
 			if (WHO->type == PLAYER && CONTR(WHO))
@@ -883,9 +878,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHAT);
-	GCFP.Value[1] = (void *) (WHO);
-	(PlugHooks[HOOK_SPRINGTRAP])(&GCFP);
+	hooks->spring_trap(WHAT, WHO);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -918,24 +911,13 @@ static PyObject *Atrinik_Object_CheckTrigger(Atrinik_Object *whoptr, PyObject *a
 /**
  * <h1>object.GetGod()</h1>
  *
- * Determine who is the object follower of (who the god is)
+ * Determine who is the object follower of (who the god is).
  * @return Returns a string of the god's name. */
 static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
 {
-	CFParm *CFR;
-	static char *value;
+	(void) args;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
-
-	GCFP.Value[0] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_DETERMINEGOD])(&GCFP);
-	value = (char *) (CFR->Value[0]);
-	free(CFR);
-
-	return Py_BuildValue("s", value);
+	return Py_BuildValue("s", hooks->determine_god(WHO));
 }
 
 /**
@@ -948,38 +930,19 @@ static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *txt;
-	const char *prayname;
-	object *tmp;
-	CFParm *CFR0, *CFR;
-	int value;
 
 	if (!PyArg_ParseTuple(args, "s", &txt))
 	{
 		return NULL;
 	}
 
-	prayname = add_string_hook("praying");
-
-	GCFP1.Value[0] = (void *) (WHO);
-	GCFP1.Value[1] = (void *) (prayname);
-
-	GCFP2.Value[0] = (void *) (WHO);
-	GCFP0.Value[0] = (char *) (txt);
-	CFR0 = (PlugHooks[HOOK_FINDGOD])(&GCFP0);
-	tmp = (object *) (CFR0->Value[0]);
-	free(CFR0);
-	GCFP2.Value[1] = (void *) (tmp);
-
-	CFR = (PlugHooks[HOOK_CMDRSKILL])(&GCFP1);
-	value = *(int *) (CFR->Value[0]);
-
-	if (value)
+	if (hooks->command_rskill(WHO, "praying"))
 	{
-		(PlugHooks[HOOK_BECOMEFOLLOWER])(&GCFP2);
+		object *god = hooks->find_god(txt);
+
+		hooks->become_follower(WHO, god);
 	}
 
-	free(CFR);
-	FREE_STRING_HOOK(prayname);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -996,7 +959,8 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
  * player. Optional, defaults to 0. */
 static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *mapname, *msg = NULL;
+	char *mapname;
+	object *current = hooks->get_object();
 	int x, y, u = 0;
 
 	if (!PyArg_ParseTuple(args, "sii|i", &mapname, &x, &y, &u))
@@ -1004,13 +968,21 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *whoptr, PyObject *arg
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (char *) (mapname);
-	GCFP.Value[2] = (void *) (&x);
-	GCFP.Value[3] = (void *) (&y);
-	GCFP.Value[4] = (void *) (&u);
-	GCFP.Value[5] = (char *) (msg);
-	(PlugHooks[HOOK_TELEPORTOBJECT])(&GCFP);
+	FREE_AND_COPY_HASH(EXIT_PATH(current), mapname);
+	EXIT_X(current) = x;
+	EXIT_Y(current) = y;
+
+	if (u)
+	{
+		current->last_eat = MAP_PLAYER_MAP;
+	}
+
+	hooks->enter_exit(WHO, current);
+
+	if (WHO->map)
+	{
+		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, SOUND_TELEPORT, SOUND_NORMAL);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1036,21 +1008,17 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
 
 	if (!QUERY_FLAG(myob, FLAG_REMOVED))
 	{
-		GCFP.Value[0] = (void *) (myob);
-		(PlugHooks[HOOK_REMOVEOBJECT])(&GCFP);
+		hooks->remove_ob(myob);
 	}
 
-	myob = insert_ob_in_ob_hook(myob, WHERE);
+	myob = hooks->insert_ob_in_ob(myob, WHERE);
 
 	/* Make sure the inventory image/text is updated */
 	for (tmp = WHERE; tmp != NULL; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
 		{
-			GCFP.Value[0] = (void *) (tmp);
-			GCFP.Value[1] = (void *) (myob);
-			(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
-
+			hooks->esrv_send_item(tmp, myob);
 			break;
 		}
 	}
@@ -1060,10 +1028,7 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
 	{
 		if (tmp->type == PLAYER)
 		{
-			GCFP.Value[0] = (void *) (tmp);
-			GCFP.Value[1] = (void *) (tmp);
-			(PlugHooks[HOOK_ESRVSENDINVENTORY])(&GCFP);
-
+			hooks->esrv_send_inventory(tmp, tmp);
 			break;
 		}
 	}
@@ -1090,22 +1055,14 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
 static PyObject *Atrinik_Object_Apply(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
-	int flags, retval;
-	CFParm *CFR;
+	int flags;
 
 	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &flags))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (WHAT);
-	GCFP.Value[2] = (void *) (&flags);
-	CFR = (PlugHooks[HOOK_MANUALAPPLY])(&GCFP);
-	retval = *(int *) (CFR->Value[0]);
-	free(CFR);
-
-	return Py_BuildValue("i", retval);
+	return Py_BuildValue("i", hooks->manual_apply(WHO, WHAT, flags));
 }
 
 /**
@@ -1122,9 +1079,7 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (WHAT);
-	(PlugHooks[HOOK_PICKUP])(&GCFP);
+	hooks->pick_up(WHO, WHAT);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1141,17 +1096,13 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *name;
-	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "s", &name))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (name);
-	CFR = (PlugHooks[HOOK_CMDDROP])(&GCFP);
-	free(CFR);
+	hooks->command_drop(WHO, name);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1173,23 +1124,13 @@ static PyObject *Atrinik_Object_Deposit(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *obptr;
 	char *text;
-	CFParm *CFR;
-	int value;
 
 	if (!PyArg_ParseTuple(args, "O!s", &Atrinik_ObjectType, &obptr, &text))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (obptr->obj);
-	GCFP.Value[2] = (void *) (text);
-
-	CFR = (PlugHooks[HOOK_DEPOSIT])(&GCFP);
-
-	value = *(int *) (CFR->Value[0]);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->bank_deposit(WHO, obptr->obj, text));
 }
 
 /**
@@ -1205,23 +1146,13 @@ static PyObject *Atrinik_Object_Withdraw(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *obptr;
 	char *text;
-	CFParm *CFR;
-	int value;
 
 	if (!PyArg_ParseTuple(args, "O!s", &Atrinik_ObjectType, &obptr, &text))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (obptr->obj);
-	GCFP.Value[2] = (void *) (text);
-
-	CFR = (PlugHooks[HOOK_WITHDRAW])(&GCFP);
-
-	value = *(int *) (CFR->Value[0]);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->bank_withdraw(WHO, obptr->obj, text));
 }
 
 /**
@@ -1239,10 +1170,7 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (message);
-
-	(PlugHooks[HOOK_COMMUNICATE])(&GCFP);
+	hooks->communicate(WHO, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1258,36 +1186,23 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *whoptr, PyObject *ar
  * "object.name says: ". Optional, defaults to 0. */
 static PyObject *Atrinik_Object_Say(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *message;
-	static char buf[HUGE_BUF];
-	int val, d = MAP_INFO_NORMAL, x, y, mode = 0;
+	char *message, buf[HUGE_BUF];
+	int mode = 0;
 
 	if (!PyArg_ParseTuple(args, "s|i", &message, &mode))
 	{
 		return NULL;
 	}
 
-	val = NDI_NAVY | NDI_UNIQUE;
-	x = WHO->x;
-	y = WHO->y;
-
 	if (mode)
 	{
-		GCFP.Value[5] = (void *) (message);
+		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, message);
 	}
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s says: %s", query_name(WHO, NULL), message);
-		GCFP.Value[5] = (void *) (buf);
+		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(WHO, NULL), message);
+		hooks->new_info_map(NDI_NAVY | NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, buf);
 	}
-
-	GCFP.Value[0] = (void *) (&val);
-	GCFP.Value[1] = (void *) (WHO->map);
-	GCFP.Value[2] = (void *) (&x);
-	GCFP.Value[3] = (void *) (&y);
-	GCFP.Value[4] = (void *) (&d);
-
-	(PlugHooks[HOOK_NEWINFOMAP])(&GCFP);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1309,8 +1224,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 	object *target;
 	Atrinik_Object *obptr2;
 	char *message;
-	static char buf[HUGE_BUF];
-	int val, d = MAP_INFO_NORMAL, x, y, zero = 0, mode = 0;
+	int mode = 0;
 
 	if (!PyArg_ParseTuple(args, "O!s|i", &Atrinik_ObjectType, &obptr2, &message, &mode))
 	{
@@ -1321,34 +1235,18 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 
 	if (mode)
 	{
-		GCFP.Value[3] = (void *) (message);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, 0, target, message);
 	}
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(WHO, NULL), query_name(target, NULL));
-		val = NDI_UNIQUE;
-		x = WHO->x;
-		y = WHO->y;
+		char buf[HUGE_BUF];
 
-		GCFP.Value[0] = (void *) (&val);
-		GCFP.Value[1] = (void *) (WHO->map);
-		GCFP.Value[2] = (void *) (&x);
-		GCFP.Value[3] = (void *) (&y);
-		GCFP.Value[4] = (void *) (&d);
-		GCFP.Value[5] = (void *) (WHO);
-		GCFP.Value[6] = (void *) (target);
-		GCFP.Value[7] = (void *) (buf);
-		(PlugHooks[HOOK_NEWINFOMAPEXCEPT])(&GCFP);
+		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(WHO, NULL), hooks->query_name(target, NULL));
+		hooks->new_info_map_except(NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, WHO, target, buf);
 
-		snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(WHO, NULL), message);
-		GCFP.Value[3] = (void *) (buf);
+		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(WHO, NULL), message);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, 0, target, buf);
 	}
-
-	val = NDI_NAVY | NDI_UNIQUE;
-	GCFP.Value[0] = (void *) (&val);
-	GCFP.Value[1] = (void *) (&zero);
-	GCFP.Value[2] = (void *) (target);
-	(PlugHooks[HOOK_NEWDRAWINFO])(&GCFP);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1363,7 +1261,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
  * @param color Color to write the message in. Defaults to orange. */
 static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 {
-	int zero = 0, color = NDI_UNIQUE | NDI_ORANGE;
+	int color = NDI_UNIQUE | NDI_ORANGE;
 	char *message;
 
 	if (!PyArg_ParseTuple(args, "s|i", &message, &color))
@@ -1371,12 +1269,7 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (&color);
-	GCFP.Value[1] = (void *) (&zero);
-	GCFP.Value[2] = (void *) (WHO);
-	GCFP.Value[3] = (void *) (message);
-
-	(PlugHooks[HOOK_NEWDRAWINFO])(&GCFP);
+	hooks->new_draw_info(color, 0, WHO, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1457,13 +1350,13 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 			/* We find the rank of the player, now change it to new one */
 			if (walk->title)
 			{
-				FREE_STRING_HOOK(walk->title);
+				FREE_AND_CLEAR_HASH(walk->title);
 			}
 
 			/* "Mr" is keyword to clear title and not add it as rank */
 			if (strcmp(rank, "Mr"))
 			{
-				walk->title = add_string_hook(rank);
+				FREE_AND_COPY_HASH(walk->title, rank);
 			}
 
 			/* Demand update to client */
@@ -1472,7 +1365,7 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 		}
 	}
 
-	plugin_log(llevDebug, "Python Warning:: SetRank: Object %s has no rank_force!\n", query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: SetRank: Object %s has no rank_force!\n", hooks->query_name(WHO, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1509,10 +1402,10 @@ static PyObject *Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject *a
 			/* We find the alignment of the player, now change it to new one */
 			if (walk->title)
 			{
-				FREE_STRING_HOOK(walk->title);
+				FREE_AND_CLEAR_HASH(walk->title);
 			}
 
-			walk->title = add_string_hook(align);
+			FREE_AND_COPY_HASH(walk->title, align);
 
 			/* Demand update to client */
 			CONTR(WHO)->socket.ext_title_flag = 1;
@@ -1521,7 +1414,7 @@ static PyObject *Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject *a
 		}
 	}
 
-	plugin_log(llevDebug, "Python Warning:: SetAlignment: Object %s has no alignment_force!\n", query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: SetAlignment: Object %s has no alignment_force!\n", hooks->query_name(WHO, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1556,7 +1449,7 @@ static PyObject *Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObje
 		}
 	}
 
-	plugin_log(llevDebug, "Python Warning:: GetAlignmentForce: Object %s has no aligment_force!\n", query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: GetAlignmentForce: Object %s has no aligment_force!\n", hooks->query_name(WHO, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1601,12 +1494,12 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 			/* We find the rank of the player, now change it to new one */
 			if (walk->title)
 			{
-				FREE_STRING_HOOK(walk->title);
+				FREE_AND_CLEAR_HASH(walk->title);
 			}
 
 			if (guild && strcmp(guild, ""))
 			{
-				walk->title = add_string_hook(guild);
+				FREE_AND_COPY_HASH(walk->title, guild);
 			}
 
 			/* Demand update to client */
@@ -1616,7 +1509,7 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 		}
 	}
 
-	plugin_log(llevDebug, "Python Warning:: SetGuildForce: Object %s has no guild_force!\n", query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: SetGuildForce: Object %s has no guild_force!\n", hooks->query_name(WHO, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1651,7 +1544,7 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 		}
 	}
 
-	plugin_log(llevDebug, "Python Warning:: GetGuildForce: Object %s has no guild_force!\n", query_name(WHO, NULL));
+	LOG(llevDebug, "Python Warning:: GetGuildForce: Object %s has no guild_force!\n", hooks->query_name(WHO, NULL));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1671,7 +1564,7 @@ static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	fix_player_hook(WHO);
+	hooks->fix_player(WHO);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1689,8 +1582,7 @@ static PyObject *Atrinik_Object_Fix(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
-	int ktype, k = 1;
-	CFParm *CFR;
+	int ktype;
 
 	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &ktype))
 	{
@@ -1699,24 +1591,17 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 
 	WHAT->speed = 0;
 	WHAT->speed_left = 0.0;
-	GCFP.Value[0] = (void *) (WHAT);
-	(PlugHooks[HOOK_UPDATESPEED])(&GCFP);
+	hooks->update_ob_speed(WHAT);
 
 	if (QUERY_FLAG(WHAT, FLAG_REMOVED))
 	{
-		plugin_log(llevDebug, "Warning (from KillObject): Trying to remove removed object\n");
+		LOG(llevDebug, "Warning (from KillObject): Trying to remove removed object\n");
 		RAISE("Trying to remove removed object");
 	}
 	else
 	{
 		WHAT->stats.hp = -1;
-		GCFP.Value[0] = (void *) (WHAT);
-		GCFP.Value[1] = (void *) (&k);
-		GCFP.Value[2] = (void *) (WHO);
-		GCFP.Value[3] = (void *) (&ktype);
-
-		CFR = (PlugHooks[HOOK_KILLOBJECT])(&GCFP);
-		free(CFR);
+		hooks->kill_object(WHAT, 1, WHO, ktype);
 	}
 
 	/* This is to avoid the attack routine to continue after we called
@@ -1746,43 +1631,32 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *target;
-	int spell, dir, mode, parm = 1, parm2, typeoffire = 0;
-	CFParm *CFR;
-	char *op;
+	int spell, dir, mode;
+	SpellTypeFrom item;
+	char *stringarg;
 
-	if (!PyArg_ParseTuple(args, "O!iiis", &Atrinik_ObjectType, &target, &spell, &mode, &dir, &op))
+	if (!PyArg_ParseTuple(args, "O!iiis", &Atrinik_ObjectType, &target, &spell, &mode, &dir, &stringarg))
 	{
 		return NULL;
 	}
 
 	if (WHO->type != PLAYER)
 	{
-		parm2 = spellNPC;
+		item = spellNPC;
 	}
 	else
 	{
 		if (!mode)
 		{
-			parm2 = spellNormal;
+			item = spellNormal;
 		}
 		else
 		{
-			parm2 = spellPotion;
+			item = spellPotion;
 		}
 	}
 
-	GCFP.Value[0] = (void *) (target->obj);
-	GCFP.Value[1] = (void *) (WHO);
-	GCFP.Value[2] = (void *) (&dir);
-	GCFP.Value[3] = (void *) (&spell);
-	GCFP.Value[4] = (void *) (&parm);
-	GCFP.Value[5] = (void *) (&parm2);
-	GCFP.Value[6] = (void *) (op);
-	GCFP.Value[7] = (void *) (&typeoffire);
-
-	CFR = (PlugHooks[HOOK_CASTSPELL])(&GCFP);
-
-	free(CFR);
+	hooks->cast_spell(target->obj, WHO, dir, spell, 1, item, stringarg);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1796,21 +1670,14 @@ static PyObject *Atrinik_Object_CastAbility(Atrinik_Object *whoptr, PyObject *ar
  * @return 1 if the object knows the spell, 0 otherwise */
 static PyObject *Atrinik_Object_DoKnowSpell(Atrinik_Object *whoptr, PyObject *args)
 {
-	int spell, value;
-	CFParm *CFR;
+	int spell;
 
 	if (!PyArg_ParseTuple(args, "i", &spell))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&spell);
-	CFR = (PlugHooks[HOOK_CHECKFORSPELL])(&GCFP);
-	value = *(int *) (CFR->Value[0]);
-	free(CFR);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->check_spell_known(WHO, spell));
 }
 
 /**
@@ -1832,11 +1699,14 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&spell);
-	GCFP.Value[2] = (void *) (&mode);
-
-	(PlugHooks[HOOK_LEARNSPELL])(&GCFP);
+	if (mode)
+	{
+		hooks->do_forget_spell(WHO, spell);
+	}
+	else
+	{
+		hooks->do_learn_spell(WHO, spell, 0);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1850,21 +1720,14 @@ static PyObject *Atrinik_Object_AcquireSpell(Atrinik_Object *whoptr, PyObject *a
  * @return 1 if the object knows the skill, 0 otherwise */
 static PyObject *Atrinik_Object_DoKnowSkill(Atrinik_Object *whoptr, PyObject *args)
 {
-	int skill, value;
-	CFParm * CFR;
+	int skill;
 
 	if (!PyArg_ParseTuple(args, "i", &skill))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&skill);
-	CFR = (PlugHooks[HOOK_CHECKFORSKILLKNOWN])(&GCFP);
-	value = *(int *) (CFR->Value[0]);
-	free(CFR);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->check_skill_known(WHO, skill));
 }
 
 /**
@@ -1882,9 +1745,7 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&skill);
-	(PlugHooks[HOOK_LEARNSKILL])(&GCFP);
+	hooks->learn_skill(WHO, NULL, NULL, skill, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1897,20 +1758,9 @@ static PyObject *Atrinik_Object_AcquireSkill(Atrinik_Object *whoptr, PyObject *a
  * @return The marked object, or None if no object is marked. */
 static PyObject *Atrinik_Object_FindMarkedObject(Atrinik_Object *whoptr, PyObject *args)
 {
-	object *value;
-	CFParm *CFR;
+	(void) args;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
-
-	GCFP.Value[0] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_FINDMARKEDOBJECT])(&GCFP);
-
-	value = (object *) (CFR->Value[0]);
-
-	return wrap_object(value);
+	return wrap_object(hooks->find_marked_object(WHO));
 }
 
 /**
@@ -1957,9 +1807,8 @@ static PyObject *Atrinik_Object_CheckInvisibleInside(Atrinik_Object *whoptr, PyO
  * @return The new player force object. */
 static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyObject *args)
 {
-	char *txt, txt2[16] = "player_force";
+	char *txt;
 	object *myob;
-	CFParm *CFR;
 	int time = 0;
 
 	if (!PyArg_ParseTuple(args, "s|i", &txt, &time))
@@ -1967,14 +1816,11 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (txt2);
-	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-	myob = (object *)(CFR->Value[0]);
-	free(CFR);
+	myob = hooks->get_archetype("player_force");
 
 	if (!myob)
 	{
-		plugin_log(llevDebug, "Python WARNING:: CreatePlayerForce: Can't find archetype 'player_force'\n");
+		LOG(llevDebug, "Python WARNING:: CreatePlayerForce: Can't find archetype 'player_force'\n");
 		RAISE("Can't find archetype 'player_force'");
 	}
 
@@ -1984,22 +1830,19 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *whereptr, PyOb
 		SET_FLAG(myob, FLAG_IS_USED_UP);
 		myob->stats.food = time;
 		myob->speed = 0.02f;
-		GCFP.Value[0] = (void *)(myob);
-		(PlugHooks[HOOK_UPDATESPEED])(&GCFP);
+		hooks->update_ob_speed(myob);
 	}
 
 	/* Setup the force and put it in activator */
 	if (myob->name)
 	{
-		FREE_STRING_HOOK(myob->name);
+		FREE_AND_CLEAR_HASH(myob->name);
 	}
 
-	myob->name = add_string_hook(txt);
-	myob = insert_ob_in_ob_hook(myob, WHERE);
+	FREE_AND_COPY_HASH(myob->name, txt);
+	myob = hooks->insert_ob_in_ob(myob, WHERE);
 
-	GCFP.Value[0] = (void *)(WHERE);
-	GCFP.Value[1] = (void *)(myob);
-	(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+	hooks->esrv_send_item(WHERE, myob);
 
 	return wrap_object(myob);
 }
@@ -2051,42 +1894,28 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *quest_container, *quest_object, *myob;
-	char *quest_name, buf[MAX_BUF];
-	CFParm *CFR;
-	int mode = 1;
+	char *quest_name;
 
 	if (!PyArg_ParseTuple(args, "s", &quest_name))
 	{
 		return NULL;
 	}
 
-	strncpy(buf, QUEST_CONTAINER_ARCHETYPE, sizeof(buf) - 1);
+	myob = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-	GCFP.Value[0] = (void *) (buf);
-	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-	myob = (object *) (CFR->Value[0]);
-	free(CFR);
-
-	if (!(quest_container = present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
+	if (!(quest_container = hooks->present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
 	{
-		GCFP.Value[0] = (void *) (myob);
-		GCFP.Value[1] = (void *) (&mode);
-		CFR = (PlugHooks[HOOK_CLONEOBJECT])(&GCFP);
-		quest_container = (object *) (CFR->Value[0]);
-		free(CFR);
-
-		insert_ob_in_ob_hook(quest_container, WHO);
+		quest_container = hooks->get_object();
+		hooks->copy_object(myob, quest_container);
+		hooks->insert_ob_in_ob(quest_container, WHO);
 	}
 
-	GCFP.Value[0] = (void *) (myob);
-	GCFP.Value[1] = (void *) (&mode);
-	CFR = (PlugHooks[HOOK_CLONEOBJECT])(&GCFP);
-	quest_object = (object *) (CFR->Value[0]);
-	free(CFR);
+	quest_object = hooks->get_object();
+	hooks->copy_object(myob, quest_object);
 
 	quest_object->magic = 0;
-	quest_object->name = add_string_hook(quest_name);
-	insert_ob_in_ob_hook(quest_object, quest_container);
+	FREE_AND_COPY_HASH(quest_object->name, quest_name);
+	hooks->insert_ob_in_ob(quest_object, quest_container);
 
 	return wrap_object(quest_object);
 }
@@ -2103,40 +1932,32 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
  * @return The new player info object */
 static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *whereptr, PyObject *args)
 {
-	char *txt, txt2[16];
+	char *txt;
 	object *myob;
-	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "s", &txt))
 	{
 		return NULL;
 	}
 
-	strcpy(txt2, "player_info");
-
-	GCFP.Value[0] = (void *) (txt2);
-	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-	myob = (object *) (CFR->Value[0]);
-	free(CFR);
+	myob = hooks->get_archetype("player_info");
 
 	if (!myob)
 	{
-		plugin_log(llevDebug, "Python WARNING:: CreatePlayerInfo: Cant't find archtype 'player_info'\n");
+		LOG(llevDebug, "Python WARNING:: CreatePlayerInfo: Cant't find archtype 'player_info'\n");
 		RAISE("Cant't find archtype 'player_info'");
 	}
 
 	/* Setup the info and put it in activator */
 	if (myob->name)
 	{
-		FREE_STRING_HOOK(myob->name);
+		FREE_AND_CLEAR_HASH(myob->name);
 	}
 
-	myob->name = add_string_hook(txt);
-	myob = insert_ob_in_ob_hook(myob, WHERE);
+	FREE_AND_COPY_HASH(myob->name, txt);
+	myob = hooks->insert_ob_in_ob(myob, WHERE);
 
-	GCFP.Value[0] = (void *)(WHERE);
-	GCFP.Value[1] = (void *)(myob);
-	(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+	hooks->esrv_send_item(WHERE, myob);
 
 	return wrap_object(myob);
 }
@@ -2219,44 +2040,34 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
  * @return The created invisible force object. */
 static PyObject *Atrinik_Object_CreateInvisibleInside(Atrinik_Object *whereptr, PyObject *args)
 {
-	char *txt, txt2[6];
+	char *txt;
 	object *myob;
-	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "s", &txt))
 	{
 		return NULL;
 	}
 
-	strcpy(txt2, "force");
-
-	GCFP.Value[0] = (void *) (txt2);
-	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-
-	myob = (object *)(CFR->Value[0]);
-	free(CFR);
+	myob = hooks->get_archetype("force");
 
 	if (!myob)
 	{
-		plugin_log(llevDebug, "Python WARNING:: CFCreateInvisibleInside: Can't find archtype 'force'\n");
+		LOG(llevDebug, "Python WARNING:: CFCreateInvisibleInside: Can't find archtype 'force'\n");
 		RAISE("Cant't find archtype 'force'");
 	}
 
 	myob->speed = 0.0;
-	GCFP.Value[0] = (void *)(myob);
-	(PlugHooks[HOOK_UPDATESPEED])(&GCFP);
+	hooks->update_ob_speed(myob);
 
 	if (myob->slaying)
 	{
-		FREE_STRING_HOOK(myob->slaying);
+		FREE_AND_CLEAR_HASH(myob->slaying);
 	}
 
-	myob->slaying = add_string_hook(txt);
-	myob = insert_ob_in_ob_hook(myob, WHERE);
+	FREE_AND_COPY_HASH(myob->slaying, txt);
+	myob = hooks->insert_ob_in_ob(myob, WHERE);
 
-	GCFP.Value[0] = (void *) (WHERE);
-	GCFP.Value[1] = (void *) (myob);
-	(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+	hooks->esrv_send_item(WHERE, myob);
 
 	return wrap_object(myob);
 }
@@ -2278,21 +2089,17 @@ static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 	object *myob, *tmp;
 	long value = -1, id, nrof = 1;
 	char *txt;
-	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "sll|l", &txt, &id, &nrof, &value))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (txt);
-	CFR = (PlugHooks[HOOK_GETARCHETYPE])(&GCFP);
-	myob = (object *) (CFR->Value[0]);
-	free(CFR);
+	myob = hooks->get_archetype(txt);
 
 	if (!myob)
 	{
-		plugin_log(llevDebug, "BUG python_CFCreateObjectInside(): ob:>%s< = NULL!\n", query_name(myob, NULL));
+		LOG(llevDebug, "BUG python_CFCreateObjectInside(): ob:>%s< = NULL!\n", hooks->query_name(myob, NULL));
 		RAISE("Failed to create the object. Did you use an existing arch?");
 	}
 
@@ -2314,16 +2121,14 @@ static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 		myob->nrof = nrof;
 	}
 
-	myob = insert_ob_in_ob_hook(myob, WHERE);
+	myob = hooks->insert_ob_in_ob(myob, WHERE);
 
 	/* Make sure inventory image/text is updated */
 	for (tmp = WHERE; tmp != NULL; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
 		{
-			GCFP.Value[0] = (void *) (tmp);
-			GCFP.Value[1] = (void *) (myob);
-			(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+			hooks->esrv_send_item(tmp, myob);
 		}
 	}
 
@@ -2465,15 +2270,12 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 		RAISE("You are not allowed to remove one of the active objects. Workaround using CFTeleport or some other solution.");
 	}
 
-	GCFP.Value[0] = (void *) (myob);
-	(PlugHooks[HOOK_REMOVEOBJECT])(&GCFP);
+	hooks->remove_ob(myob);
 
 	/* Player inventory can be removed even if the activator is not a player */
 	if (obenv != NULL && obenv->type == PLAYER)
 	{
-		GCFP.Value[0] = (void *) (obenv);
-		GCFP.Value[1] = (void *) (obenv);
-		(PlugHooks[HOOK_ESRVSENDINVENTORY])(&GCFP);
+		hooks->esrv_send_inventory(obenv, obenv);
 	}
 
 	/* Handle removing any of the active objects (e.g. the activator) */
@@ -2507,24 +2309,14 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
  * @param y New Y position on the same map */
 static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *whoptr, PyObject *args)
 {
-	int x, y, k = 0;
-	CFParm *CFR;
+	int x, y;
 
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&x);
-	GCFP.Value[2] = (void *) (&y);
-	GCFP.Value[3] = (void *) (&k);
-	GCFP.Value[4] = (void *) (NULL);
-	GCFP.Value[5] = (void *) (NULL);
-
-	CFR = (PlugHooks[HOOK_TRANSFEROBJECT])(&GCFP);
-
-	free(CFR);
+	hooks->transfer_ob(WHO, x, y, 0, NULL, NULL);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2576,11 +2368,16 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 		RAISE("Mode must be IDENTIFY_NORMAL, IDENTIFY_ALL or IDENTIFY_MARKED");
 	}
 
-	GCFP.Value[0] = (void *) WHO;
-	GCFP.Value[1] = (void *) target->obj;
-	GCFP.Value[2] = (void *) marked;
-	GCFP.Value[3] = (void *) &mode;
-	(PlugHooks[HOOK_IDENTIFYOBJECT])(&GCFP);
+	hooks->cast_identify(target->obj, WHO->level, marked, mode);
+
+	if (WHO)
+	{
+		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, spells[SP_IDENTIFY].sound, SOUND_SPELL);
+	}
+	else if (target->obj)
+	{
+		hooks->play_sound_map(target->obj->map, target->obj->x, target->obj->y, spells[SP_IDENTIFY].sound, SOUND_SPELL);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2613,18 +2410,11 @@ static PyObject *Atrinik_Object_IsOfType(Atrinik_Object *whoptr, PyObject *args)
  * @warning Untested. */
 static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 {
-	static char *result;
-	CFParm *CFR;
+	char result[HUGE_BUF * 4];
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
+	(void) args;
 
-	GCFP.Value[0] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_DUMPOBJECT])(&GCFP);
-	result = (char *) (CFR->Value[0]);
-	free(CFR);
+	hooks->dump_me(WHO, result);
 
 	return Py_BuildValue("s", result);
 }
@@ -2640,10 +2430,7 @@ static PyObject *Atrinik_Object_GetIP(Atrinik_Object *whoptr, PyObject *args)
 {
 	static char *result;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
+	(void) args;
 
 	if (WHO->type != PLAYER)
 	{
@@ -2658,7 +2445,7 @@ static PyObject *Atrinik_Object_GetIP(Atrinik_Object *whoptr, PyObject *args)
 	}
 	else
 	{
-		plugin_log(llevDebug, "PYTHON:: Error - This object has no controller\n");
+		LOG(llevDebug, "PYTHON:: Error - This object has no controller\n");
 		return Py_BuildValue("s", "");
 	}
 }
@@ -2688,8 +2475,6 @@ static PyObject *Atrinik_Object_GetArchName(Atrinik_Object *whoptr, PyObject *ar
 static PyObject *Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject *args)
 {
 	sint64 value;
-	char *cost_string;
-	CFParm *CFR;
 
 	(void) whoptr;
 
@@ -2698,11 +2483,7 @@ static PyObject *Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (&value);
-	CFR = (PlugHooks[HOOK_SHOWCOST])(&GCFP);
-	cost_string = (char *) (CFR->Value[0]);
-
-	return Py_BuildValue("s", cost_string);
+	return Py_BuildValue("s", hooks->cost_string_from_value(value));
 }
 
 /**
@@ -2721,23 +2502,14 @@ static PyObject *Atrinik_Object_ShowCost(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
-	int flag, cost;
-	CFParm *CFR;
+	int flag;
 
 	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &whatptr, &flag))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHAT);
-	GCFP.Value[1] = (void *) (WHO);
-	GCFP.Value[2] = (void *) (&flag);
-	CFR = (PlugHooks[HOOK_QUERYCOST])(&GCFP);
-
-	cost = *(int *)(CFR->Value[0]);
-	free (CFR);
-
-	return Py_BuildValue("i", cost);
+	return Py_BuildValue("i", hooks->query_cost(WHAT, WHO, flag));
 }
 
 /**
@@ -2749,21 +2521,9 @@ static PyObject *Atrinik_Object_GetItemCost(Atrinik_Object *whoptr, PyObject *ar
  * integer). */
 static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
 {
-	int amount;
-	CFParm *CFR;
+	(void) args;
 
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
-
-	GCFP.Value[0] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_QUERYMONEY])(&GCFP);
-
-	amount = *(int *) (CFR->Value[0]);
-	free (CFR);
-
-	return Py_BuildValue("i", amount);
+	return Py_BuildValue("i", hooks->query_money(WHO));
 }
 
 /**
@@ -2773,22 +2533,13 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Object *whatptr;
-	int val;
-	CFParm *CFR;
 
 	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &whatptr))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHAT);
-	GCFP.Value[1] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_PAYFORITEM])(&GCFP);
-
-	val = *(int *) (CFR->Value[0]);
-	free (CFR);
-
-	return Py_BuildValue("i", val);
+	return Py_BuildValue("i", hooks->pay_for_item(WHAT, WHO));
 }
 
 /**
@@ -2801,22 +2552,14 @@ static PyObject *Atrinik_Object_PayForItem(Atrinik_Object *whoptr, PyObject *arg
  * inventory), 0 otherwise. */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args)
 {
-	int to_pay, val;
-	CFParm *CFR;
+	int to_pay;
 
 	if (!PyArg_ParseTuple(args, "i", &to_pay))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (&to_pay);
-	GCFP.Value[1] = (void *) (WHO);
-	CFR = (PlugHooks[HOOK_PAYFORAMOUNT])(&GCFP);
-
-	val = *(int *) (CFR->Value[0]);
-	free (CFR);
-
-	return Py_BuildValue("i", val);
+	return Py_BuildValue("i", hooks->pay_for_amount(to_pay, WHO));
 }
 
 /**
@@ -2826,17 +2569,14 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *customcmd;
-	char cmd[MAX_BUF];
+	char cmd;
 
-	if (!PyArg_ParseTuple(args, "bs", cmd, &customcmd))
+	if (!PyArg_ParseTuple(args, "bs", &cmd, &customcmd))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (cmd);
-	GCFP.Value[2] = (void *) (customcmd);
-	(PlugHooks[HOOK_SENDCUSTOMCOMMAND])(&GCFP);
+	hooks->send_plugin_custom_message(WHO, cmd, customcmd);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2858,7 +2598,6 @@ static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObje
  * @return The cloned object. */
 static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 {
-	CFParm *CFR;
 	int mode = 0;
 	object *clone;
 
@@ -2867,13 +2606,15 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (&mode);
-
-	CFR = (PlugHooks[HOOK_CLONEOBJECT])(&GCFP);
-
-	clone = (object *) (CFR->Value[0]);
-	free(CFR);
+	if (!mode)
+	{
+		clone = hooks->object_create_clone(WHO);
+	}
+	else
+	{
+		clone = hooks->get_object();
+		hooks->copy_object(WHO, clone);
+	}
 
 	if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER))
 	{
@@ -2898,25 +2639,14 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *whoptr, PyObject *args)
 static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *mapold, *mapnew;
-	int x, y, val;
-	CFParm *CFR;
+	int x, y;
 
-	if (!PyArg_ParseTuple(args, "ss|ii", &mapold, &mapnew, &x, &y))
+	if (!PyArg_ParseTuple(args, "ssii", &mapold, &mapnew, &x, &y))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (mapold);
-	GCFP.Value[1] = (void *) (mapnew);
-	GCFP.Value[2] = (void *) (&x);
-	GCFP.Value[3] = (void *) (&y);
-	GCFP.Value[4] = (void *) (WHO);
-
-	CFR = (PlugHooks[HOOK_SWAPAPARTMENTS])(&GCFP);
-	val = *(int *) (CFR->Value[0]);
-	free(CFR);
-
-	return Py_BuildValue("i", val);
+	return Py_BuildValue("i", hooks->swap_apartments(mapold, mapnew, x, y, WHO));
 }
 
 /**
@@ -3005,21 +2735,14 @@ static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *arg
  * @return Value for the key if found, None otherwise. */
 static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
 {
-	char *key, *value;
-	CFParm *CFR;
+	char *key;
 
 	if (!PyArg_ParseTuple(args, "s", &key))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (key);
-
-	CFR = (PlugHooks[HOOK_GETOBKEYVALUE])(&GCFP);
-	value = (char *) (CFR->Value[0]);
-
-	return Py_BuildValue("s", value);
+	return Py_BuildValue("s", hooks->get_ob_key_value(WHO, key));
 }
 
 /**
@@ -3035,23 +2758,14 @@ static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *
 static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *key, *value = NULL;
-	int add_key = 1, val;
-	CFParm *CFR;
+	int add_key = 1;
 
 	if (!PyArg_ParseTuple(args, "s|si", &key, &value, &add_key))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (WHO);
-	GCFP.Value[1] = (void *) (key);
-	GCFP.Value[2] = (void *) (value);
-	GCFP.Value[3] = (void *) (&add_key);
-
-	CFR = (PlugHooks[HOOK_SETOBKEYVALUE])(&GCFP);
-	val = *(int *) (CFR->Value[0]);
-
-	return Py_BuildValue("i", val);
+	return Py_BuildValue("i", hooks->set_ob_key_value(WHO, key, value, add_key));
 }
 
 /*@}*/
@@ -3146,10 +2860,10 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 				const char *str = PyString_AsString(value);
 
 				if (*(char **)field_ptr != NULL)
-					FREE_STRING_HOOK(*(char **)field_ptr);
+					FREE_AND_CLEAR_HASH(*(char **)field_ptr);
 
 				if (str && strcmp(str, ""))
-					*(const char **)field_ptr = add_string_hook(str);
+					FREE_AND_COPY_HASH(*(const char **)field_ptr, str);
 			}
 			else
 				INTRAISE("Illegal value for text field");
@@ -3249,9 +2963,7 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 	{
 		if (tmp->type == PLAYER)
 		{
-			GCFP.Value[0] = (void *)(tmp);
-			GCFP.Value[1] = (void *)(WHO);
-			(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+			hooks->esrv_send_item(tmp, WHO);
 		}
 	}
 
@@ -3290,7 +3002,7 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 			CONTR(WHO)->orig_stats.Pow = (sint8)PyInt_AsLong(value);
 
 		if (flags & FIELDFLAG_PLAYER_FIX)
-			fix_player_hook(WHO);
+			hooks->fix_player(WHO);
 	}
 
 	return 0;
@@ -3333,9 +3045,7 @@ int Object_SetFlag(Atrinik_Object* whoptr, PyObject *val, int flagno)
 	{
 		if (tmp->type == PLAYER)
 		{
-			GCFP.Value[0] = (void *)(tmp);
-			GCFP.Value[1] = (void *)(WHO);
-			(PlugHooks[HOOK_ESRVSENDITEM])(&GCFP);
+			hooks->esrv_send_item(tmp, WHO);
 		}
 	}
 
@@ -3420,28 +3130,6 @@ static void Atrinik_Object_dealloc(Atrinik_Object* self)
 {
 	/* Clean up "dangling" objects
 	 * i.e. objects with no environment (from obj.Clone()) or removed objects */
-
-	/* With the semiautomatic gargbage collection this is no longer needed */
-#if 0
-	if (self->obj && !OBJECT_FREE(self->obj))
-	{
-		if (QUERY_FLAG(self->obj, FLAG_REMOVED))
-		{
-			plugin_log(llevDebug, "PYTHON - Freeing removed object %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
-			GCFP.Value[0] = (void *)(self->obj);
-			(PlugHooks[HOOK_FREEOBJECT])(&GCFP);
-		}
-		else if (self->obj->env == NULL && self->obj->map == NULL)
-		{
-			/* This shouldn't really happen, but I added it just for safety */
-			plugin_log(llevDebug, "PYTHON - Freeing object in limbo %s \"%s\"\n", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
-			GCFP.Value[0] = (void *)(self->obj);
-			(PlugHooks[HOOK_REMOVEOBJECT])(&GCFP);
-			GCFP.Value[0] = (void *)(self->obj);
-			(PlugHooks[HOOK_FREEOBJECT])(&GCFP);
-		}
-	}
-#endif
 
 	self->obj = NULL;
 	self->ob_type->tp_free((PyObject*)self);

@@ -57,8 +57,6 @@
 /* First let's include the header file needed                                */
 
 #include <plugin_python.h>
-#include <inline.h>
-#include <plugin_common.h>
 
 #include <compile.h>
 #include <eval.h>
@@ -68,29 +66,14 @@
 #endif
 #include <node.h>
 
-/* Global data objects */
-
-/* The plugin properties and hook functions. A hook function is a pointer to  */
-/* a CF function wrapper. Basically, most CF functions that could be of any   */
-/* use to the plugin have "wrappers", functions that all have the same args   */
-/* and all returns the same type of data (CFParm); pointers to those functs.  */
-/* are passed to the plugin when it is initialized. They are what I called    */
-/* "Hooks". It means that using any server function is slower from a plugin   */
-/* than it is from the "inside" of the server code, because all arguments     */
-/* need to be passed back and forth in a CFParm structure, but the difference */
-/* is not a problem, unless for time-critical code sections. Using such hooks */
-/* may of course sound complicated, but it allows much greater flexibility.   */
-CFParm* PlugProps;
-f_plugin PlugHooks[1024];
+/** Hooks. */
+struct plugin_hooklist *hooks;
 
 /* A generic exception that we use for error messages */
 PyObject *AtrinikError;
 
 /* This one is used to cleanly pass args to the Atrinik core */
 CFParm GCFP;
-CFParm GCFP0;
-CFParm GCFP1;
-CFParm GCFP2;
 
 /* Atrinik methods */
 static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args);
@@ -199,9 +182,7 @@ static int RunPythonScript(const char *path, object *event_object);
  * @warning Untested. */
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
-	object *whoptr;
 	char *dumpob;
-	CFParm *CFR;
 
 	(void) self;
 
@@ -210,14 +191,7 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	/* First step: We create the object */
-	GCFP.Value[0] = (void *) (dumpob);
-	CFR = (PlugHooks[HOOK_LOADOBJECT])(&GCFP);
-	whoptr = (object *) (CFR->Value[0]);
-
-	free(CFR);
-
-	return wrap_object(whoptr);
+	return wrap_object(hooks->load_object_str(dumpob));
 }
 
 /**
@@ -240,7 +214,7 @@ static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("i", (re_cmp(premiere, seconde) != NULL) ? 1 : 0);
+	return Py_BuildValue("i", (hooks->re_cmp(premiere, seconde) != NULL) ? 1 : 0);
 }
 
 /**
@@ -256,9 +230,7 @@ static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args)
 static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 {
 	char *mapname;
-	mapstruct *mymap;
 	int flags = 0, unique = 0;
-	CFParm *CFR;
 
 	(void) self;
 
@@ -272,20 +244,7 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 		flags = MAP_PLAYER_UNIQUE;
 	}
 
-	GCFP.Value[0] = (void *) (mapname);
-	GCFP.Value[1] = (void *) (&flags);
-
-	CFR = (PlugHooks[HOOK_READYMAPNAME])(&GCFP);
-	mymap = (mapstruct *) (CFR->Value[0]);
-
-	if (mymap != NULL)
-	{
-		plugin_log(llevDebug, "Map file is %s\n", mymap->path);
-	}
-
-	free(CFR);
-
-	return wrap_map(mymap);
+	return wrap_map(hooks->ready_map_name(mapname, flags));
 }
 
 /**
@@ -325,7 +284,6 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 {
 	player *foundpl;
 	object *foundob = NULL;
-	CFParm *CFR;
 	char *txt;
 
 	(void) self;
@@ -335,10 +293,7 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (txt);
-	CFR = (PlugHooks[HOOK_FINDPLAYER])(&GCFP);
-	foundpl = (player *) (CFR->Value[0]);
-	free(CFR);
+	foundpl = hooks->find_player(txt);
 
 	if (foundpl != NULL)
 	{
@@ -356,24 +311,16 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
  * @return 1 if the player exists, 0 otherwise */
 static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 {
-	char *playerName;
-	CFParm *CFR;
-	int value;
+	char *player_name;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "s", &playerName))
+	if (!PyArg_ParseTuple(args, "s", &player_name))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (playerName);
-	CFR = (PlugHooks[HOOK_PLAYEREXISTS])(&GCFP);
-	value = *(int *) (CFR->Value[0]);
-
-	free(CFR);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->player_exists(player_name));
 }
 
 /**
@@ -501,8 +448,6 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 {
 	char *spell;
-	CFParm *CFR;
-	int value;
 
 	(void) self;
 
@@ -511,12 +456,7 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (spell);
-	CFR = (PlugHooks[HOOK_CHECKFORSPELLNAME])(&GCFP);
-
-	value = *(int *) (CFR->Value[0]);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->look_up_spell_name(spell));
 }
 
 /**
@@ -527,8 +467,6 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 {
 	char *skill;
-	CFParm *CFR;
-	int value;
 
 	(void) self;
 
@@ -537,12 +475,7 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (skill);
-	CFR = (PlugHooks[HOOK_CHECKFORSKILLNAME])(&GCFP);
-
-	value = *(int *) (CFR->Value[0]);
-
-	return Py_BuildValue("i", value);
+	return Py_BuildValue("i", hooks->lookup_skill_by_name(skill));
 }
 
 /**
@@ -568,7 +501,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 		{
 			if (!strcmp(CustomCommand[i].name, cmdname))
 			{
-				plugin_log(llevDebug, "PYTHON:: This command is already registered!\n");
+				LOG(llevDebug, "PYTHON:: This command is already registered!\n");
 				RAISE("This command is already registered");
 			}
 		}
@@ -608,7 +541,7 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("s", create_pathname(path));
+	return Py_BuildValue("s", hooks->create_pathname(path));
 }
 
 /**
@@ -631,27 +564,25 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 {
 	PyObject *dict = PyDict_New();
-	CFParm *CFR;
 	timeofday_t tod;
 
 	(void) self;
 	(void) args;
 
-	CFR = (PlugHooks[HOOK_GETTOD])(&GCFP);
-	tod = *(timeofday_t *) (CFR->Value[0]);
+	hooks->get_tod(&tod);
 
 	PyDict_SetItemString(dict, "year", Py_BuildValue("i", tod.year + 1));
 	PyDict_SetItemString(dict, "month", Py_BuildValue("i", tod.month + 1));
-	PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", month_name[tod.month]));
+	PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", hooks->month_name[tod.month]));
 	PyDict_SetItemString(dict, "day", Py_BuildValue("i", tod.day + 1));
 	PyDict_SetItemString(dict, "hour", Py_BuildValue("i", tod.hour));
 	PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute + 1));
 	PyDict_SetItemString(dict, "dayofweek", Py_BuildValue("i", tod.dayofweek + 1));
-	PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", weekdays[tod.dayofweek]));
+	PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", hooks->weekdays[tod.dayofweek]));
 	PyDict_SetItemString(dict, "season", Py_BuildValue("i", tod.season + 1));
-	PyDict_SetItemString(dict, "season_name", Py_BuildValue("s", season_name[tod.season]));
+	PyDict_SetItemString(dict, "season_name", Py_BuildValue("s", hooks->season_name[tod.season]));
 	PyDict_SetItemString(dict, "periodofday", Py_BuildValue("i", tod.periodofday + 1));
-	PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", periodsofday[tod.periodofday]));
+	PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", hooks->periodsofday[tod.periodofday]));
 
 	return dict;
 }
@@ -669,18 +600,9 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 /* this has yet to be proven.                                                */
 /*****************************************************************************/
 
-/*****************************************************************************/
-/* Called whenever a Hook Function needs to be connected to the plugin.      */
-/*****************************************************************************/
-MODULEAPI CFParm* registerHook(CFParm* PParm)
+MODULEAPI void registerHooks(struct plugin_hooklist *hooklist)
 {
-	int Pos;
-	f_plugin Hook;
-
-	Pos = *(int*)(PParm->Value[0]);
-	Hook = (f_plugin)(PParm->Value[1]);
-	PlugHooks[Pos] = Hook;
-	return NULL;
+    hooks = hooklist;
 }
 
 /*****************************************************************************/
@@ -709,12 +631,12 @@ MODULEAPI CFParm* triggerEvent(CFParm* PParm)
 	static int result;
 
 	eventcode = *(int *)(PParm->Value[0]);
-	plugin_log(llevDebug, "PYTHON - triggerEvent:: eventcode %d\n", eventcode);
+	LOG(llevDebug, "PYTHON - triggerEvent:: eventcode %d\n", eventcode);
 
 	switch (eventcode)
 	{
 		case EVENT_NONE:
-			plugin_log(llevDebug, "PYTHON - Warning - EVENT_NONE requested\n");
+			LOG(llevDebug, "PYTHON - Warning - EVENT_NONE requested\n");
 			break;
 
 		case EVENT_ATTACK:
@@ -757,7 +679,7 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 {
 	if (StackPosition == MAX_RECURSIVE_CALL)
 	{
-		plugin_log(llevDebug, "Can't execute script - No space left of stack\n");
+		LOG(llevDebug, "Can't execute script - No space left of stack\n");
 		return 0;
 	}
 
@@ -766,12 +688,12 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 	switch (*(int *)(PParm->Value[0]))
 	{
 		case EVENT_CRASH:
-			plugin_log(llevDebug, "Unimplemented for now\n");
+			LOG(llevDebug, "Unimplemented for now\n");
 			break;
 
 		case EVENT_BORN:
 			StackActivator[StackPosition] = (object *)(PParm->Value[1]);
-			/*plugin_log(llevDebug, "Event BORN generated by %s\n",query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Event BORN generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
 			RunPythonScript("python/python_born.py", NULL);
 			break;
 
@@ -779,8 +701,8 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 			StackActivator[StackPosition] = ((player *)(PParm->Value[1]))->ob;
 			StackWho[StackPosition] = ((player *)(PParm->Value[1]))->ob;
 			StackText[StackPosition] = (char *)(PParm->Value[2]);
-			/*plugin_log(llevDebug, "Event LOGIN generated by %s\n",query_name(StackActivator[StackPosition])); */
-			/*plugin_log(llevDebug, "IP is %s\n", (char *)(PParm->Value[2])); */
+			/*LOG(llevDebug, "Event LOGIN generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "IP is %s\n", (char *)(PParm->Value[2])); */
 			RunPythonScript("python/python_login.py", NULL);
 			break;
 
@@ -788,44 +710,44 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 			StackActivator[StackPosition] = ((player *)(PParm->Value[1]))->ob;
 			StackWho[StackPosition] = ((player *)(PParm->Value[1]))->ob;
 			StackText[StackPosition] = (char *)(PParm->Value[2]);
-			/*plugin_log(llevDebug, "Event LOGOUT generated by %s\n",query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Event LOGOUT generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
 			RunPythonScript("python/python_logout.py", NULL);
 			break;
 
 		case EVENT_REMOVE:
 			StackActivator[StackPosition] = (object *)(PParm->Value[1]);
-			/*plugin_log(llevDebug, "Event REMOVE generated by %s\n",query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Event REMOVE generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
 			RunPythonScript("python/python_remove.py", NULL);
 			break;
 
 		case EVENT_SHOUT:
 			StackActivator[StackPosition] = (object *)(PParm->Value[1]);
 			StackText[StackPosition] = (char *)(PParm->Value[2]);
-			/*plugin_log(llevDebug, "Event SHOUT generated by %s\n",query_name(StackActivator[StackPosition])); */
-			/*plugin_log(llevDebug, "Message shout is %s\n",StackText[StackPosition]); */
+			/*LOG(llevDebug, "Event SHOUT generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Message shout is %s\n",StackText[StackPosition]); */
 			RunPythonScript("python/python_shout.py", NULL);
 			break;
 
 		case EVENT_MAPENTER:
 			StackActivator[StackPosition] = (object *)(PParm->Value[1]);
-			/*plugin_log(llevDebug, "Event MAPENTER generated by %s\n",query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Event MAPENTER generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
 			RunPythonScript("python/python_mapenter.py", NULL);
 			break;
 
 		case EVENT_MAPLEAVE:
 			StackActivator[StackPosition] = (object *)(PParm->Value[1]);
-			/*plugin_log(llevDebug, "Event MAPLEAVE generated by %s\n",query_name(StackActivator[StackPosition])); */
+			/*LOG(llevDebug, "Event MAPLEAVE generated by %s\n",hooks->query_name(StackActivator[StackPosition])); */
 			RunPythonScript("python/python_mapleave.py", NULL);
 			break;
 
 		case EVENT_CLOCK:
-			/*plugin_log(llevDebug, "Event CLOCK generated\n"); */
+			/*LOG(llevDebug, "Event CLOCK generated\n"); */
 			RunPythonScript("python/python_clock.py", NULL);
 			break;
 
 		case EVENT_MAPRESET:
 			StackText[StackPosition] = (char *)(PParm->Value[1]);/* Map name/path */
-			plugin_log(llevDebug, "Event MAPRESET generated by %s\n", StackText[StackPosition]);
+			LOG(llevDebug, "Event MAPRESET generated by %s\n", StackText[StackPosition]);
 			RunPythonScript("python/python_mapreset.py", NULL);
 			break;
 	}
@@ -840,8 +762,8 @@ MODULEAPI int HandleGlobalEvent(CFParm* PParm)
 static int RunPythonScript(const char *path, object *event_object)
 {
 	PyObject *scriptfile;
-	char *fullpath = create_pathname(path);
-	const char *sh_path;
+	char *fullpath = hooks->create_pathname(path);
+	const char *sh_path = NULL;
 	struct stat stat_buf;
 	int i, result = -1;
 	cacheentry *replace = NULL, *run = NULL;
@@ -860,9 +782,9 @@ static int RunPythonScript(const char *path, object *event_object)
 
 		if (outermost && outermost->map)
 		{
-			normalize_path(outermost->map->path, path, tmp_path);
+			hooks->normalize_path(outermost->map->path, path, tmp_path);
 
-			fullpath = create_pathname(tmp_path);
+			fullpath = hooks->create_pathname(tmp_path);
 		}
 	}
 
@@ -874,13 +796,13 @@ static int RunPythonScript(const char *path, object *event_object)
 	{
 		if (!(scriptfile = PyFile_FromString(fullpath, "r")))
 		{
-			plugin_log(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
+			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			return -1;
 		}
 
 		if (stat(fullpath, &stat_buf))
 		{
-			plugin_log(llevDebug, "PYTHON - The Script file %s can't be stat:ed\n", fullpath);
+			LOG(llevDebug, "PYTHON - The Script file %s can't be stat:ed\n", fullpath);
 
 			if (scriptfile)
 			{
@@ -892,7 +814,7 @@ static int RunPythonScript(const char *path, object *event_object)
 	}
 
 	/* Create a shared string */
-	sh_path = add_string_hook(fullpath);
+	FREE_AND_COPY_HASH(sh_path, fullpath);
 
 	/* Search through cache. Three cases:
 	 * 1) script in cache, but older than file  -> replace cached (only in maintenance mode)
@@ -904,7 +826,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		if (python_cache[i].file == NULL)
 		{
 #ifdef PYTHON_DEBUG
-			plugin_log(llevDebug, "PYTHON:: Adding file to cache\n");
+			LOG(llevDebug, "PYTHON:: Adding file to cache\n");
 #endif
 			/* case 3 */
 			replace = &python_cache[i];
@@ -916,7 +838,7 @@ static int RunPythonScript(const char *path, object *event_object)
 			if (python_cache[i].code == NULL || (maintenance_mode && python_cache[i].cached_time < stat_buf.st_mtime))
 			{
 #ifdef PYTHON_DEBUG
-				plugin_log(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
+				LOG(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
 #endif
 				/* case 1 */
 				replace = &python_cache[i];
@@ -924,7 +846,7 @@ static int RunPythonScript(const char *path, object *event_object)
 			else
 			{
 #ifdef PYTHON_DEBUG
-				plugin_log(llevDebug, "PYTHON:: Using cached version\n");
+				LOG(llevDebug, "PYTHON:: Using cached version\n");
 #endif
 				/* case 2 */
 				replace = NULL;
@@ -950,22 +872,21 @@ static int RunPythonScript(const char *path, object *event_object)
 			if (replace->file)
 			{
 #ifdef PYTHON_DEBUG
-				plugin_log(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
+				LOG(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
 #endif
-				free_string_hook(replace->file);
+				FREE_AND_CLEAR_HASH(replace->file);
 			}
 
-			replace->file = add_string_hook(sh_path);
-			/* TODO: would get minor speedup with add_ref_hook() */
+			FREE_AND_COPY_HASH(replace->file, sh_path);
 		}
 
 		/* Load, parse and compile */
 #ifdef PYTHON_DEBUG
-		plugin_log(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
+		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
 #endif
 		if (!scriptfile && !(scriptfile = PyFile_FromString(fullpath, "r")))
 		{
-			plugin_log(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
+			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			replace->code = NULL;
 		}
 		else
@@ -1002,7 +923,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
 
 #ifdef PYTHON_DEBUG
-		plugin_log(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
+		LOG(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
 #endif
 
 		PyEval_EvalCode(run->code, globdict, NULL);
@@ -1022,12 +943,12 @@ static int RunPythonScript(const char *path, object *event_object)
 		}
 
 #ifdef PYTHON_DEBUG
-		plugin_log(llevDebug, "closing (%d). ", StackPosition);
+		LOG(llevDebug, "closing (%d). ", StackPosition);
 #endif
 		Py_DECREF(globdict);
 	}
 
-	free_string_hook(sh_path);
+	FREE_AND_CLEAR_HASH(sh_path);
 
 	if (scriptfile)
 	{
@@ -1044,13 +965,13 @@ static int RunPythonScript(const char *path, object *event_object)
 MODULEAPI int HandleEvent(CFParm* PParm)
 {
 #ifdef PYTHON_DEBUG
-	plugin_log(llevDebug, "PYTHON - HandleEvent:: start script file >%s<\n",(char *)(PParm->Value[9]));
-	plugin_log(llevDebug, "PYTHON - call data:: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", STRING_OBJ_NAME((object *)(PParm->Value[1])), STRING_OBJ_NAME((object *)(PParm->Value[2])), STRING_OBJ_NAME((object *)(PParm->Value[3])), STRING_SAFE((char *)(PParm->Value[4])), PParm->Value[5] ? *(int *)(PParm->Value[5]) : 0, PParm->Value[6] ? *(int *)(PParm->Value[6]) : 0, PParm->Value[7] ? *(int *)(PParm->Value[7]) : 0, PParm->Value[8] ? *(int *)(PParm->Value[8]) : 0, StackPosition);
+	LOG(llevDebug, "PYTHON - HandleEvent:: start script file >%s<\n",(char *)(PParm->Value[9]));
+	LOG(llevDebug, "PYTHON - call data:: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", STRING_OBJ_NAME((object *)(PParm->Value[1])), STRING_OBJ_NAME((object *)(PParm->Value[2])), STRING_OBJ_NAME((object *)(PParm->Value[3])), STRING_SAFE((char *)(PParm->Value[4])), PParm->Value[5] ? *(int *)(PParm->Value[5]) : 0, PParm->Value[6] ? *(int *)(PParm->Value[6]) : 0, PParm->Value[7] ? *(int *)(PParm->Value[7]) : 0, PParm->Value[8] ? *(int *)(PParm->Value[8]) : 0, StackPosition);
 #endif
 
 	if (StackPosition == MAX_RECURSIVE_CALL)
 	{
-		plugin_log(llevDebug, "PYTHON - Can't execute script - No space left of stack\n");
+		LOG(llevDebug, "PYTHON - Can't execute script - No space left of stack\n");
 		return 0;
 	}
 
@@ -1073,27 +994,27 @@ MODULEAPI int HandleEvent(CFParm* PParm)
 	}
 
 #ifdef PYTHON_DEBUG
-	plugin_log(llevDebug, "fixing. ");
+	LOG(llevDebug, "fixing. ");
 #endif
 
 	if (StackParm4[StackPosition] == SCRIPT_FIX_ALL)
 	{
 		if (StackOther[StackPosition] != NULL)
-			fix_player_hook(StackOther[StackPosition]);
+			hooks->fix_player(StackOther[StackPosition]);
 
 		if (StackWho[StackPosition] != NULL)
-			fix_player_hook(StackWho[StackPosition]);
+			hooks->fix_player(StackWho[StackPosition]);
 
 		if (StackActivator[StackPosition] != NULL)
-			fix_player_hook(StackActivator[StackPosition]);
+			hooks->fix_player(StackActivator[StackPosition]);
 	}
 	else if (StackParm4[StackPosition] == SCRIPT_FIX_ACTIVATOR)
 	{
-		fix_player_hook(StackActivator[StackPosition]);
+		hooks->fix_player(StackActivator[StackPosition]);
 	}
 
 #ifdef PYTHON_DEBUG
-	plugin_log(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
+	LOG(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
 #endif
 
 	return StackReturn[StackPosition--];
@@ -1159,7 +1080,7 @@ MODULEAPI CFParm* getPluginProperty(CFParm* PParm)
 					{
 						if (!strcmp(CustomCommand[i].name, (char *)(PParm->Value[1])))
 						{
-							plugin_log(llevDebug, "PYTHON - Running command %s\n", CustomCommand[i].name);
+							LOG(llevDebug, "PYTHON - Running command %s\n", CustomCommand[i].name);
 							GCFP.Value[0] = PParm->Value[1];
 							GCFP.Value[1] = cmd_customPython;
 							GCFP.Value[2] = &(CustomCommand[i].speed);
@@ -1172,7 +1093,7 @@ MODULEAPI CFParm* getPluginProperty(CFParm* PParm)
 		}
 		else
 		{
-			plugin_log(llevDebug, "PYTHON - Unknown property tag: %s\n", (char *)(PParm->Value[0]));
+			LOG(llevDebug, "PYTHON - Unknown property tag: %s\n", (char *)(PParm->Value[0]));
 		}
 	}
 
@@ -1182,12 +1103,12 @@ MODULEAPI CFParm* getPluginProperty(CFParm* PParm)
 MODULEAPI int cmd_customPython(object *op, char *params)
 {
 #ifdef PYTHON_DEBUG
-	plugin_log(llevDebug, "PYTHON - cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
+	LOG(llevDebug, "PYTHON - cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
 #endif
 
 	if (StackPosition == MAX_RECURSIVE_CALL)
 	{
-		plugin_log(llevDebug, "PYTHON - Can't execute script - No space left of stack\n");
+		LOG(llevDebug, "PYTHON - Can't execute script - No space left of stack\n");
 		return 0;
 	}
 
@@ -1200,24 +1121,16 @@ MODULEAPI int cmd_customPython(object *op, char *params)
 
 	RunPythonScript(CustomCommand[NextCustomCommand].script, NULL);
 
-	plugin_log(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
+	LOG(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
 
 	return StackReturn[StackPosition--];
 }
 
 MODULEAPI int cmd_aboutPython(object *op, char *params)
 {
-	int color = NDI_BLUE | NDI_UNIQUE;
-	char message[1024];
-
 	(void) params;
+	(void) op;
 
-	sprintf(message, "%s (Kharkov)\n(C) 2001 by Gros. The Plugin code is under GPL.", PLUGIN_VERSION);
-	GCFP.Value[0] = (void *)(&color);
-	GCFP.Value[1] = (void *)(op->map);
-	GCFP.Value[2] = (void *)(message);
-
-	(PlugHooks[HOOK_NEWINFOMAP])(&GCFP);
 	return 0;
 }
 
@@ -1225,79 +1138,16 @@ MODULEAPI int cmd_aboutPython(object *op, char *params)
 /* The postinitPlugin function is called by the server when the plugin load  */
 /* is complete. It lets the opportunity to the plugin to register some events*/
 /*****************************************************************************/
-MODULEAPI CFParm* postinitPlugin(CFParm* PParm)
+MODULEAPI CFParm *postinitPlugin(CFParm *PParm)
 {
-	/*    int i; */
-	/* We can now register some global events if we want */
-	/* We'll only register the global-only events :      */
-	/* BORN, CRASH, LOGIN, LOGOUT, REMOVE, and SHOUT.    */
-	/* The events APPLY, ATTACK, DEATH, DROP, PICKUP, SAY*/
-	/* STOP, TELL, TIME, THROW and TRIGGER are already   */
-	/* handled on a per-object basis and I simply don't  */
-	/* see how useful they could be for the Python stuff.*/
-	/* Registering them as local would be probably useful*/
-	/* for extended logging facilities.                  */
-
-	/* this is a extrem silly code part to remove a linker warning
-	 * from VS c++ 6.x build. The optimizer will drop a warning that
-	 * a function (timeGettime() ) is not used inside gettimeofday() and
-	 * so he can remove the whole system .lib where it is in. This also means
-	 * its not needed to load the .dll at runtime and thats what it tell us.
-	 * this force a call and remove the warning from build. Its redundant
-	 * code to give us a warning free build... without using any #ifdef
-	 * or pragma. */
 	struct timeval new_time;
+
 	(void) GETTIMEOFDAY(&new_time);
 	(void) PParm;
 
-	plugin_log(llevDebug, "PYTHON - Start postinitPlugin.\n");
+	LOG(llevDebug, "PYTHON - Start postinitPlugin.\n");
 
-#if 0
-	GCFP.Value[1] = (void *)(add_string_hook(PLUGIN_NAME));
-#endif
-	GCFP.Value[1] = (void *)PLUGIN_NAME;
-
-#if 0
-	i = EVENT_BORN;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_CRASH;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_LOGIN;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_LOGOUT;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_REMOVE;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_SHOUT;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_MAPENTER;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_MAPLEAVE;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_CLOCK;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	i = EVENT_MAPRESET;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-#endif
+	GCFP.Value[1] = (void *) PLUGIN_NAME;
 
 	RunPythonScript("python/events/python_init.py", NULL);
 

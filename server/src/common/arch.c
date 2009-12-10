@@ -28,7 +28,6 @@
  * Arch related functions. */
 
 #include <global.h>
-#include <funcpoint.h>
 #include <loader.h>
 
 /** If set, does a little timing on the archetype load. */
@@ -309,7 +308,7 @@ void arch_info(object *op)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "%d searches and %d strcmp()'s", arch_search, arch_cmp);
-	(*draw_info_func)(NDI_WHITE, 0, op, buf);
+	new_draw_info(NDI_WHITE, 0, op, buf);
 }
 
 /**

@@ -35,7 +35,6 @@
  * numbers larger (ie, 1d1000 > 500 vs 1d6 > 3) */
 
 #include <global.h>
-#include <funcpoint.h>
 
 /**
  * Roll a random number between min and max.  Uses op to determine luck,

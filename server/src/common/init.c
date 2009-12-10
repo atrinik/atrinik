@@ -91,7 +91,6 @@ void init_library()
 {
 	init_environ();
 	init_globals();
-	init_function_pointers();
 	init_hash_table();
 	/* Inits the pooling memory manager and the new object system */
 	init_mempools();
@@ -211,7 +210,6 @@ void init_globals()
 	nrofallowedstr=0;
 	undead_name = NULL;
 	FREE_AND_COPY_HASH(undead_name, "undead");
-	trying_emergency_save = 0;
 	num_animations = 0;
 	animations = NULL;
 	animations_allocated = 0;

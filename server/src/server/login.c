@@ -50,8 +50,6 @@ objectlink *dm_list = NULL;
 void emergency_save(int flag)
 {
 #ifndef NO_EMERGENCY_SAVE
-	trying_emergency_save = 1;
-
 	LOG(llevSystem, "Emergency save:  ");
 
 	for (pl = first_player; pl != NULL; pl = pl->next)

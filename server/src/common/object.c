@@ -35,9 +35,9 @@
 #include <sys/uio.h>
 #endif
 
-#include <funcpoint.h>
 #include <skillist.h>
 #include <loader.h>
+#include <sproto.h>
 
 /**
  * List of objects that have been removed during the last server
@@ -590,7 +590,7 @@ static void add_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			(*esrv_update_item_func)(UPD_WEIGHT, op->env, op);
+			esrv_update_item(UPD_WEIGHT, op->env, op);
 		}
 
 		op = op->env;
@@ -616,7 +616,7 @@ static void sub_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			(*esrv_update_item_func)(UPD_WEIGHT, op->env, op);
+			esrv_update_item(UPD_WEIGHT, op->env, op);
 		}
 
 		op = op->env;
@@ -1638,11 +1638,11 @@ void drop_ob_inv(object *ob)
 						/* this should handle in future insert_ob_in_ob() */
 						if (ob->env->type == PLAYER)
 						{
-							(*esrv_send_item_func)(ob->env, tmp_op);
+							esrv_send_item(ob->env, tmp_op);
 						}
 						else if (ob->env->type == CONTAINER)
 						{
-							(*esrv_send_item_func)(ob->env, tmp_op);
+							esrv_send_item(ob->env, tmp_op);
 						}
 					}
 					/* Insert in same map as the env */
@@ -1707,11 +1707,11 @@ void drop_ob_inv(object *ob)
 				/* this should handle in future insert_ob_in_ob() */
 				if (ob->env->type == PLAYER)
 				{
-					(*esrv_send_item_func)(ob->env, corpse);
+					esrv_send_item(ob->env, corpse);
 				}
 				else if (ob->env->type == CONTAINER)
 				{
-					(*esrv_send_item_func)(ob->env, corpse);
+					esrv_send_item(ob->env, corpse);
 				}
 			}
 			else
@@ -1772,7 +1772,7 @@ void destroy_object(object *ob)
 
 	if (ob->type == CONTAINER && ob->attacked_by)
 	{
-		container_unlink_func(NULL, ob);
+		container_unlink(NULL, ob);
 	}
 
 	/* Make sure to get rid of the inventory, too. It will be destroy()ed at the next gc */
@@ -2020,7 +2020,7 @@ void remove_ob(object *op)
 		/* a open container NOT in our player inventory = unlink (close) when we move */
 		if (pltemp->container && pltemp->container->env != op)
 		{
-			container_unlink_func(pltemp, NULL);
+			container_unlink(pltemp, NULL);
 		}
 	}
 
@@ -2591,8 +2591,8 @@ object *decrease_ob_nr(object *op, int i)
 
 			if (tmp)
 			{
-				(*esrv_send_item_func)(tmp, op);
-				(*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
+				esrv_send_item(tmp, op);
+				esrv_update_item(UPD_WEIGHT, tmp, tmp);
 			}
 		}
 		else
@@ -2603,8 +2603,8 @@ object *decrease_ob_nr(object *op, int i)
 
 			if (tmp)
 			{
-				(*esrv_del_item_func)(CONTR(tmp), op->count,op->env);
-				(*esrv_update_item_func)(UPD_WEIGHT, tmp, tmp);
+				esrv_del_item(CONTR(tmp), op->count,op->env);
+				esrv_update_item(UPD_WEIGHT, tmp, tmp);
 			}
 		}
 	}
@@ -2627,9 +2627,9 @@ object *decrease_ob_nr(object *op, int i)
 			if (tmp->type == PLAYER)
 			{
 				if (op->nrof)
-					(*esrv_send_item_func)(tmp, op);
+					esrv_send_item(tmp, op);
 				else
-					(*esrv_del_item_func)(CONTR(tmp), op->count, op->env);
+					esrv_del_item(CONTR(tmp), op->count, op->env);
 			}
 		}
 	}
@@ -2829,7 +2829,7 @@ int check_walk_on(object *op, object *originator, int flags)
 			/* apply_func must handle multi arch parts....
 			 * NOTE: move_apply() can be heavy recursive and recall
 			 * this function too.*/
-			move_apply_func(tmp, op, originator,flags);
+			move_apply(tmp, op, originator,flags);
 
 			/* this means we got killed, removed or whatever! */
 			if (was_destroyed(op, tag))
@@ -2926,7 +2926,7 @@ int check_walk_off(object *op, object *originator, int flags)
 			/* event */
 			if (fly ? QUERY_FLAG(tmp, FLAG_FLY_OFF) : QUERY_FLAG(tmp, FLAG_WALK_OFF))
 			{
-				move_apply_func(tmp, part, originator, flags);
+				move_apply(tmp, part, originator, flags);
 
 				if (OBJECT_FREE(part) || tag != op->count)
 				{

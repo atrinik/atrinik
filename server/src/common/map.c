@@ -28,8 +28,7 @@
  * Map related functions. */
 
 #include <global.h>
-#include <funcpoint.h>
-
+#include <sproto.h>
 #include <loader.h>
 
 #ifndef WIN32
@@ -1334,7 +1333,7 @@ save_objects_jump1:
 					/* a golem needs a valid release from the player... */
 					if (head->type == GOLEM)
 					{
-						(*send_golem_control_func)(head, GOLEM_CTR_RELEASE);
+						send_golem_control(head, GOLEM_CTR_RELEASE);
 						remove_friendly_object(head);
 						remove_ob(head);
 						check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);

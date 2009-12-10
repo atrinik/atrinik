@@ -28,7 +28,6 @@
  * Line of sight related functions. */
 
 #include <global.h>
-#include <funcpoint.h>
 #include <math.h>
 
 /** Distance must be less than this for the object to be blocked.
@@ -577,7 +576,7 @@ void print_los(object *op)
 		strcat(buf, buf2);
 	}
 
-	(*draw_info_func)(NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
 
 	for (y = 0; y < CONTR(op)->socket.mapy; y++)
 	{
@@ -588,7 +587,7 @@ void print_los(object *op)
 			strcat(buf, buf2);
 		}
 
-		(*draw_info_func)(NDI_UNIQUE, 0, op, buf);
+		new_draw_info(NDI_UNIQUE, 0, op, buf);
 	}
 }
 

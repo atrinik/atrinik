@@ -38,7 +38,7 @@
 
 #include <stdarg.h>
 #include <global.h>
-#include <funcpoint.h>
+#include <sproto.h>
 
 /**
  * Logs a message to stderr, or to file, and/or even to socket.

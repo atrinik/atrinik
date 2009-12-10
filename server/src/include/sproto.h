@@ -291,6 +291,7 @@ long calculate_checksum(char *filename, int checkdouble);
 void check_login(object *op);
 
 /* main.c */
+void fatal(int err);
 void version(object *op);
 char *crypt_string(char *str, char *salt);
 int check_password(char *typed, char *crypted);
@@ -302,6 +303,7 @@ void enter_exit(object *op, object *exit_ob);
 void process_events(mapstruct *map);
 void clean_tmp_files();
 void cleanup();
+int swap_apartments(char *mapold, char *mapnew, int x, int y, object *op);
 int main(int argc, char **argv);
 
 /* move.c */
@@ -437,6 +439,8 @@ int get_money_from_string(char *text, struct _money_block *money);
 int query_money_type(object *op, int value);
 sint64 remove_money_type(object*who, object *op, sint64 value, sint64 amount);
 void insert_money_in_player(object *pl,object *money, uint32 nrof);
+int bank_deposit(object *op, object *bank, char *text);
+int bank_withdraw(object *op, object *bank, char *text);
 
 /* skills.c */
 int find_traps(object *pl, int level);

@@ -78,28 +78,27 @@
 #define MODULEAPI
 #endif /* ifdef WIN32 */
 
-#define PYTHON_DEBUG   /* give us some general infos out */
+/* give us some general infos out */
+#define PYTHON_DEBUG
 
 #define PLUGIN_NAME    "Python"
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
 
-/* The plugin properties and hook functions. A hook function is a pointer to */
-/* a CF function wrapper. Basically, most CF functions that could be of any  */
-/* use to the plugin have "wrappers", functions that all have the same args  */
-/* and all returns the same type of data (CFParm); pointers to those functs. */
-/* are passed to the plugin when it is initialized. They are what I called   */
-/* "Hooks". It means that using any server function is slower from a plugin  */
-/* than it is from the "inside" of the server code, because all arguments    */
-/* need to be passed back and forth in a CFParm structure, but the difference*/
-/* is not a problem, unless for time-critical code sections. Using such hooks*/
-/* may of course sound complicated, but it allows much greater flexibility.  */
-extern CFParm* PlugProps;
-extern f_plugin PlugHooks[1024];
+struct plugin_hooklist *hooks;
 
-/* Some practical stuff, often used in the plugin                            */
+/* Some practical stuff, often used in the plugin */
 #define WHO (whoptr->obj)
 #define WHAT (whatptr->obj)
 #define WHERE (whereptr->obj)
+
+#undef LOG
+#define LOG hooks->LOG
+
+#undef FREE_AND_COPY_HASH
+#undef FREE_AND_CLEAR_HASH
+
+#define FREE_AND_COPY_HASH(_sv_,_nv_) { if (_sv_) hooks->free_string_shared(_sv_); _sv_=hooks->add_string(_nv_); }
+#define FREE_AND_CLEAR_HASH(_nv_) {if(_nv_){hooks->free_string_shared(_nv_);_nv_ =NULL;}}
 
 /* A generic exception that we use for error messages */
 extern PyObject* AtrinikError;
@@ -109,7 +108,6 @@ extern PyObject* AtrinikError;
 #define INTRAISE(msg) { PyErr_SetString(PyExc_TypeError, (msg)); return -1; }
 
 /* The declarations for the plugin interface. Every plugin should have those.*/
-extern MODULEAPI CFParm* registerHook(CFParm* PParm);
 extern MODULEAPI CFParm* triggerEvent(CFParm* PParm);
 extern MODULEAPI CFParm* initPlugin(CFParm* PParm);
 extern MODULEAPI CFParm* postinitPlugin(CFParm* PParm);
@@ -118,16 +116,9 @@ extern MODULEAPI CFParm* getPluginProperty(CFParm* PParm);
 
 /* This one is used to cleanly pass args to the CF core */
 extern CFParm GCFP;
-extern CFParm GCFP0;
-extern CFParm GCFP1;
-extern CFParm GCFP2;
 
-/* Those are used to handle the events. The first one is used when a player  */
-/* attacks with a "scripted" weapon. HandleEvent is used for all other events*/
-extern MODULEAPI int HandleUseWeaponEvent(CFParm* CFP);
 extern MODULEAPI int HandleEvent(CFParm* CFP);
 extern MODULEAPI int HandleGlobalEvent(CFParm* CFP);
-/* Called to start the Python Interpreter.                                   */
 extern MODULEAPI void init_Atrinik_Python();
 
 /* The execution stack. Altough it is quite rare, a script can actually      */

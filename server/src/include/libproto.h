@@ -71,45 +71,6 @@ extern void add_friendly_object(object *op);
 extern void remove_friendly_object(object *op);
 extern void dump_friendly_objects();
 
-/* glue.c */
-extern void init_function_pointers();
-extern void set_emergency_save(type_func_int addr);
-extern void set_clean_tmp_files(type_func_void addr);
-extern void set_remove_friendly_object(type_func_ob addr);
-extern void set_update_buttons(type_func_map addr);
-extern void set_draw_info(type_func_int_int_ob_cchar addr);
-extern void set_container_unlink(type_container_unlink_func addr);
-extern void set_move_apply(type_move_apply_func addr);
-extern void set_init_blocksview_players(type_func_void addr);
-extern void set_info_map(type_func_int_map_int_int_int_char addr);
-extern void set_move_teleporter(type_func_ob addr);
-extern void set_move_firewall(type_func_ob addr);
-extern void set_trap_adjust(type_func_ob_int addr);
-extern void set_move_creator(type_func_ob addr);
-extern void set_esrv_send_item(type_func_ob_ob addr);
-extern void set_esrv_update_item(type_func_int_ob_ob addr);
-extern void set_esrv_del_item(type_func_player_int_ob addr);
-extern void set_dragon_gain_func(type_func_dragon_gain addr);
-extern void set_send_golem_control_func(type_func_ob_int addr);
-extern void fatal(int err);
-extern void dummy_function_int(int i);
-extern void dummy_function_int_int(int i, int j);
-extern void dummy_function_player_int(player *p, int j);
-extern void dummy_function_player_int_ob(player *p, int c, object *ob);
-extern void dummy_function(void);
-extern void dummy_function_map(mapstruct *m);
-extern void dummy_function_ob(object *ob);
-extern void dummy_function_ob2(object *ob, object *ob2);
-extern int dummy_function_ob2int(object *ob, object *ob2);
-extern void dummy_function_ob_int(object *ob, int i);
-extern void dummy_function_txtnr(char *txt, int nr);
-extern void dummy_draw_info(int a, int b, object *ob, const char *txt);
-extern void dummy_function_mapstr(int a, mapstruct *map, int x, int y, int dist, const char *str);
-extern void dummy_function_int_ob_ob(int n, object *ob, object *ob2);
-extern int dummy_container_unlink_func(player *ob, object *ob2);
-extern void dummy_move_apply_func(object *ob, object *ob2, object *ob3, int);
-extern void dummy_function_dragongain(object *ob, int a1, int a2);
-
 /* holy.c */
 extern void init_gods();
 extern godlink *get_rand_god();

@@ -28,7 +28,6 @@
  * Atrinik Python plugin map related code. */
 
 #include <atrinik_map.h>
-#include <inline.h>
 
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
@@ -283,19 +282,18 @@ static Atrinik_Constant map_constants[] =
 static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
-	object *val;
-	CFParm *CFR;
+	object *val = NULL;
+	mapstruct *m = map->map;
 
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = map->map;
-	GCFP.Value[1] = (void *) (&x);
-	GCFP.Value[2] = (void *) (&y);
-	CFR = (PlugHooks[HOOK_GETMAPOBJECT])(&GCFP);
-	val = (object *) (CFR->Value[0]);
+	if ((m = hooks->out_of_map(m, &x, &y)))
+	{
+		val = get_map_ob(m, x, y);
+	}
 
 	return wrap_object(val);
 }
@@ -309,21 +307,13 @@ static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *
 static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
-	CFParm *CFR;
-	mapstruct *result;
 
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = map->map;
-	GCFP.Value[1] = (void *) (&x);
-	GCFP.Value[2] = (void *) (&y);
-	CFR = (PlugHooks[HOOK_OUTOFMAP])(&GCFP);
-	result = (mapstruct *) (CFR->Value[0]);
-
-	return wrap_map(result);
+	return wrap_map(hooks->out_of_map(map->map, &x, &y));
 }
 
 /**
@@ -345,15 +335,9 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (whereptr->map);
-	GCFP.Value[1] = (void *) (&x);
-	GCFP.Value[2] = (void *) (&y);
-	GCFP.Value[3] = (void *) (&soundnumber);
-	GCFP.Value[4] = (void *) (&soundtype);
-	(PlugHooks[HOOK_PLAYSOUNDMAP])(&GCFP);
+	hooks->play_sound_map(whereptr->map, x, y, soundnumber, soundtype);
 
 	Py_INCREF(Py_None);
-
 	return Py_None;
 }
 
@@ -378,17 +362,9 @@ static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (&color);
-	GCFP.Value[1] = (void *) (map->map);
-	GCFP.Value[2] = (void *) (&x);
-	GCFP.Value[3] = (void *) (&y);
-	GCFP.Value[4] = (void *) (&d);
-	GCFP.Value[5] = (void *) (message);
-
-	(PlugHooks[HOOK_NEWINFOMAP])(&GCFP);
+	hooks->new_info_map(color, map->map, x, y, d, message);
 
 	Py_INCREF(Py_None);
-
 	return Py_None;
 }
 
@@ -405,21 +381,25 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 {
 	char *txt;
 	int x, y;
-	CFParm *CFR;
+	archetype *arch;
+	object *newobj;
 
 	if (!PyArg_ParseTuple(args, "sii", &txt, &x, &y))
 	{
 		return NULL;
 	}
 
-	GCFP.Value[0] = (void *) (txt);
-	GCFP.Value[1] = (void *) (map->map);
-	GCFP.Value[2] = (void *) (&x);
-	GCFP.Value[3] = (void *) (&y);
+	if (!(arch = hooks->find_archetype(txt)) || !(newobj = hooks->arch_to_object(arch)))
+	{
+		return NULL;
+	}
 
-	CFR = (PlugHooks[HOOK_CREATEOBJECT])(&GCFP);
+	newobj->x = x;
+	newobj->y = y;
 
-	return wrap_object((object *) (CFR->Value[0]));
+	newobj = hooks->insert_ob_in_map(newobj, map->map, NULL, 0);
+
+	return wrap_object(newobj);
 }
 
 /**
@@ -431,7 +411,7 @@ static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
 {
 	(void) args;
 
-	return Py_BuildValue("i", players_on_map(map->map));
+	return Py_BuildValue("i", hooks->players_on_map(map->map));
 }
 
 /**

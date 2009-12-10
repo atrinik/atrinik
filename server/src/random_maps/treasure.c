@@ -415,7 +415,7 @@ object *find_closest_monster(mapstruct *map, int x, int y)
  * @return 1 if key was successfully placed, 0 otherwise. */
 int keyplace(mapstruct *map, int x, int y, char *keycode, int door_flag, int n_keys, RMParms *RP)
 {
-	int i, j, kx, ky;
+	int i = 0, j = 0, kx, ky;
 	object *the_keymaster, *the_key;
 	char keybuf[MAX_BUF];
 

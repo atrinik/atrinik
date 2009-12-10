@@ -87,7 +87,6 @@
  * @see plugin_arena */
 
 #include <global.h>
-#include <plugin_common.h>
 
 #undef MODULEAPI
 
@@ -167,9 +166,13 @@ typedef struct arena_maps_struct
 /** The arena maps */
 arena_maps_struct *arena_maps;
 
-f_plugin PlugHooks[1024];
+/** Hooks. */
+struct plugin_hooklist *hooks;
 
 CFParm GCFP;
+
+#undef LOG
+#define LOG hooks->LOG
 
 MODULEAPI CFParm *initPlugin(CFParm *PParm)
 {
@@ -198,36 +201,19 @@ MODULEAPI CFParm *getPluginProperty(CFParm* PParm)
 	return NULL;
 }
 
-MODULEAPI CFParm *registerHook(CFParm* PParm)
+MODULEAPI void registerHooks(struct plugin_hooklist *hooklist)
 {
-	int Pos;
-	f_plugin Hook;
-
-	Pos = *(int*)(PParm->Value[0]);
-	Hook = (f_plugin)(PParm->Value[1]);
-	PlugHooks[Pos] = Hook;
-	return NULL;
+    hooks = hooklist;
 }
 
 MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
 {
-	int i;
-
 	(void) PParm;
 
-	plugin_log(llevDebug, "Start postinitPlugin.\n");
+	LOG(llevDebug, "Start postinitPlugin.\n");
 
-	GCFP.Value[1] = (void *) PLUGIN_NAME;
-
-	/* Register MAPLEAVE global event */
-	i = EVENT_MAPLEAVE;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
-
-	/* Register LOGOUT global event */
-	i = EVENT_LOGOUT;
-	GCFP.Value[0] = (void *)(&i);
-	(PlugHooks[HOOK_REGISTEREVENT])(&GCFP);
+	hooks->register_global_event(PLUGIN_NAME, EVENT_MAPLEAVE);
+	hooks->register_global_event(PLUGIN_NAME, EVENT_LOGOUT);
 
 	return NULL;
 }
@@ -403,10 +389,10 @@ static void arena_map_parse_script(char *arena_script, object *exit, arena_maps_
 	char *arena_script_path;
 
 	/* Normalize the path to the script, allowing relative paths */
-	normalize_path(exit->map->path, arena_script, tmp_path);
+	hooks->normalize_path(exit->map->path, arena_script, tmp_path);
 
 	/* Create path name to the script in maps directory */
-	arena_script_path = create_pathname(tmp_path);
+	arena_script_path = hooks->create_pathname(tmp_path);
 
 	/* Initialize defaults */
 	arena_map->max_players = 0;
@@ -477,22 +463,6 @@ static int arena_full(arena_maps_struct *arena_map)
 }
 
 /**
- * Show a message to the player, using new_draw_info hook.
- * @param op The player object
- * @param message The message pointer */
-static void arena_display_message(object *op, char *message)
-{
-	int val = NDI_UNIQUE, zero = 0;
-
-	GCFP.Value[0] = (void *)(&val);
-	GCFP.Value[1] = (void *)(&zero);
-	GCFP.Value[2] = (void *)(op);
-	GCFP.Value[3] = (void *)(message);
-
-	(PlugHooks[HOOK_NEWDRAWINFO])(&GCFP);
-}
-
-/**
  * Enter an arena entrance.
  * @param who The object entering this arena entrance
  * @param exit The entrance object
@@ -510,7 +480,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 	}
 
 	/* Normalize the map's path */
-	normalize_path(exit->map->path, EXIT_PATH(exit), tmp_path);
+	hooks->normalize_path(exit->map->path, EXIT_PATH(exit), tmp_path);
 
 	/* Go through the list of arenas */
 	for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next)
@@ -521,14 +491,14 @@ int arena_enter(object *who, object *exit, char *arena_script)
 			/* If the arena is full, show a message to the player */
 			if (arena_full(arena_maps_tmp))
 			{
-				arena_display_message(who, arena_maps_tmp->message_arena_full);
+				hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_full);
 
 				return 1;
 			}
 			/* Not full but it's party arena and the player is not in a party? */
 			else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && CONTR(who)->party_number == -1)
 			{
-				arena_display_message(who, arena_maps_tmp->message_arena_party);
+				hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
 
 				return 1;
 			}
@@ -587,7 +557,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 	/* If this arena is full, show a message and return */
 	if (arena_full(arena_maps_tmp))
 	{
-		arena_display_message(who, arena_maps_tmp->message_arena_full);
+		hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_full);
 
 		free(arena_maps_tmp);
 
@@ -596,7 +566,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 	/* Otherwise if not full and the player is not in party */
 	else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && CONTR(who)->party_number == -1)
 	{
-		arena_display_message(who, arena_maps_tmp->message_arena_party);
+		hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
 
 		free(arena_maps_tmp);
 
@@ -634,7 +604,6 @@ int arena_enter(object *who, object *exit, char *arena_script)
 int arena_sign(object *who, const char *path)
 {
 	char sign_message[HUGE_BUF];
-	int val = NDI_UNIQUE | NDI_YELLOW, zero = 0;
 	arena_maps_struct *arena_maps_tmp;
 
 	/* Sanity check */
@@ -682,13 +651,7 @@ int arena_sign(object *who, const char *path)
 		}
 	}
 
-	GCFP.Value[0] = (void *)(&val);
-	GCFP.Value[1] = (void *)(&zero);
-	GCFP.Value[2] = (void *)(who);
-	GCFP.Value[3] = (void *)(sign_message);
-
-	/* Draw the sign's message to the player */
-	(PlugHooks[HOOK_NEWDRAWINFO])(&GCFP);
+	hooks->new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, who, sign_message);
 
 	return 1;
 }
@@ -793,12 +756,12 @@ MODULEAPI CFParm *triggerEvent(CFParm* PParm)
 	static int result = 0;
 
 	eventcode = *(int *)(PParm->Value[0]);
-	plugin_log(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
+	LOG(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
 
 	switch (eventcode)
 	{
 		case EVENT_NONE:
-			plugin_log(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
+			LOG(llevDebug, "Plugin Arena: Warning: EVENT_NONE requested\n");
 			break;
 
 		case EVENT_APPLY:

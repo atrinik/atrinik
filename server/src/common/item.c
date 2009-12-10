@@ -28,7 +28,6 @@
  * Item related functions */
 
 #include <global.h>
-#include <funcpoint.h>
 
 /** Weapon speed table, to figure out a text representation of weapon's speed */
 static float weapon_speed_table[19] =
@@ -1459,7 +1458,7 @@ void identify(object *op)
 		/* A lot of the values can change from an update - might as well send
 		 * it all. */
 		if (pl)
-			esrv_send_item_func(pl, op);
+			esrv_send_item(pl, op);
 	}
 }
 
@@ -1505,6 +1504,6 @@ set_traped_view:
 	else
 	{
 		if (op->env->type == PLAYER || op->env->type == CONTAINER)
-			(*esrv_update_item_func)(UPD_FLAGS, op->env, op);
+			esrv_update_item(UPD_FLAGS, op->env, op);
 	}
 }

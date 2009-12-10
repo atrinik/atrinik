@@ -150,101 +150,6 @@
 /*@}*/
 
 /**
- * @defgroup HOOK_xxx Hook codes
- * Hook codes. A hook is a function pointer passed from the server to the
- * plugin, so the plugin can call a server/crosslib functionality. Some
- * may call them "callbacks", although I don't like that term, which is
- * too closely bound to C and pointers.
- *
- * I didn't add comments for all those hooks, but it should be quite easy
- * to find out to what function they are pointing at. Also consult the
- * plugins.c source file in the server subdirectory to see the hook
- * "wrappers".
- *@{*/
-#define HOOK_NONE                0
-#define HOOK_LOG                 1
-#define HOOK_NEWINFOMAP          2
-#define HOOK_SPRINGTRAP          3
-#define HOOK_CASTSPELL           4
-#define HOOK_CMDRSKILL           5
-#define HOOK_BECOMEFOLLOWER      6
-#define HOOK_PICKUP              7
-#define HOOK_GETMAPOBJECT        8
-#define HOOK_ESRVSENDITEM        9
-#define HOOK_FINDPLAYER          10
-#define HOOK_MANUALAPPLY         11
-#define HOOK_CMDDROP             12
-#define HOOK_TRANSFEROBJECT      13
-#define HOOK_KILLOBJECT          14
-#define HOOK_LEARNSPELL          15
-#define HOOK_CHECKFORSPELLNAME   16
-#define HOOK_CHECKFORSPELL       17
-#define HOOK_ESRVSENDINVENTORY   18
-#define HOOK_CREATEARTIFACT      19
-#define HOOK_GETARCHETYPE        20
-#define HOOK_UPDATESPEED         21
-#define HOOK_UPDATEOBJECT        22
-#define HOOK_FINDANIMATION       23
-#define HOOK_GETARCHBYOBJNAME    24
-#define HOOK_INSERTOBJECTINMAP   25
-#define HOOK_READYMAPNAME        26
-#define HOOK_ADDEXP              27
-#define HOOK_DETERMINEGOD        28
-#define HOOK_FINDGOD             29
-#define HOOK_REGISTEREVENT       30
-#define HOOK_UNREGISTEREVENT     31
-#define HOOK_DUMPOBJECT          32
-#define HOOK_LOADOBJECT          33
-#define HOOK_REMOVEOBJECT        34
-#define HOOK_ADDSTRING           35
-#define HOOK_FREESTRING          36
-#define HOOK_ADDREFCOUNT         37
-#define HOOK_GETFIRSTMAP         38
-#define HOOK_GETFIRSTPLAYER      39
-#define HOOK_GETFIRSTARCHETYPE   40
-#define HOOK_QUERYCOST           41
-#define HOOK_QUERYMONEY          42
-#define HOOK_PAYFORITEM          43
-#define HOOK_PAYFORAMOUNT        44
-#define HOOK_NEWDRAWINFO         45
-#define HOOK_SENDCUSTOMCOMMAND   46
-#define HOOK_CFTIMERCREATE       47
-#define HOOK_CFTIMERDESTROY      48
-#define HOOK_MOVEPLAYER          49
-#define HOOK_MOVEOBJECT          50
-#define HOOK_SETANIMATION        51
-#define HOOK_COMMUNICATE         52
-#define HOOK_FINDBESTOBJECTMATCH 53
-#define HOOK_APPLYBELOW          54
-#define HOOK_CLONEOBJECT         55
-#define HOOK_TELEPORTOBJECT      56
-#define HOOK_LEARNSKILL          57
-#define HOOK_FINDMARKEDOBJECT    58
-#define HOOK_IDENTIFYOBJECT      59
-#define HOOK_CHECKFORSKILLNAME   60
-#define HOOK_CHECKFORSKILLKNOWN	 61
-#define HOOK_NEWINFOMAPEXCEPT    62
-#define HOOK_INSERTOBJECTINOB    63
-#define HOOK_FIXPLAYER           64
-#define HOOK_PLAYSOUNDMAP        65
-#define HOOK_OUTOFMAP            66
-#define HOOK_CREATEOBJECT        67
-#define HOOK_SHOWCOST            68
-#define HOOK_DEPOSIT             69
-#define HOOK_WITHDRAW            70
-#define HOOK_SWAPAPARTMENTS      71
-#define HOOK_PLAYEREXISTS		 72
-#define HOOK_GETTOD              73
-#define HOOK_GETOBKEYVALUE       74
-#define HOOK_SETOBKEYVALUE       75
-/*@}*/
-
-/**
- * Number of hooks. This should be the last value in
- * @ref HOOK_xxx + 1. */
-#define NR_OF_HOOKS              76
-
-/**
  * CFParm is the data type used to pass informations between the server
  * and the plugins.
  *
@@ -290,9 +195,6 @@ typedef struct _CFPlugin
 	/** Plugin Closing function. */
 	f_plugin endfunc;
 
-	/** Plugin CF-funct. hooker function */
-	f_plugin hookfunc;
-
 	/** Plugin getProperty function */
 	f_plugin propfunc;
 
@@ -322,9 +224,6 @@ extern MODULEAPI CFParm *endPlugin(CFParm *PParm);
 /** Currently unused. */
 extern MODULEAPI CFParm *getPluginProperty(CFParm *PParm);
 
-/** Used to transmit hook pointers from server to plugin. */
-extern MODULEAPI CFParm *registerHook(CFParm *PParm);
-
 /** Called whenever an event occurs. */
 extern MODULEAPI CFParm *triggerEvent(CFParm *PParm);
 /*@}*/
@@ -332,5 +231,84 @@ extern MODULEAPI CFParm *triggerEvent(CFParm *PParm);
 extern CFPlugin PlugList[32];
 
 extern int PlugNR;
+
+/** The plugin hook list. */
+struct plugin_hooklist
+{
+	char *(*query_name)(object *, object *);
+	char *(*re_cmp)(char *, char *);
+	object *(*present_in_ob)(unsigned char, object *);
+	int (*players_on_map)(mapstruct *);
+	char *(*create_pathname)(const char *);
+	char *(*normalize_path)(const char *, const char *, char *);
+	void (*LOG)(LogLevel, const char *, ...);
+	void (*free_string_shared)(const char *);
+	const char *(*add_string)(const char *);
+	void (*remove_ob)(object *);
+	void (*fix_player)(object *);
+	object *(*insert_ob_in_ob)(object *, object *);
+	void (*new_info_map)(int, mapstruct *, int, int, int, const char *);
+	void (*new_info_map_except)(int , mapstruct *, int, int, int, object *, object *, const char *);
+	void (*spring_trap)(object *, object *);
+	int (*cast_spell)(object *, object *, int, int, int, SpellTypeFrom, char *);
+	void (*update_ob_speed)(object *);
+	int (*command_rskill)(object *, char *);
+	void (*become_follower)(object *, object *);
+	void (*pick_up)(object *, object *);
+	mapstruct *(*out_of_map)(mapstruct *, int *, int *);
+	void (*esrv_send_item)(object *, object *);
+	player *(*find_player)(char *);
+	int (*manual_apply)(object *, object *, int);
+	int (*command_drop)(object *, char *);
+	int (*transfer_ob)(object *, int, int, int, object *, object *);
+	int (*kill_object)(object *, int, object *, int);
+	void (*do_learn_spell)(object *, int, int);
+	void (*do_forget_spell)(object *, int);
+	int (*look_up_spell_name)(const char *);
+	int (*check_spell_known)(object *, int);
+	void (*esrv_send_inventory)(object *, object *);
+	object *(*get_archetype)(const char *);
+	mapstruct *(*ready_map_name)(const char *, int);
+	sint32 (*add_exp)(object *, int, int);
+	const char *(*determine_god)(object *);
+	object *(*find_god)(const char *);
+	void (*register_global_event)(char *, int);
+	void (*unregister_global_event)(char *, int);
+	void (*dump_me)(object *, char *);
+	object *(*load_object_str)(char *);
+	sint64 (*query_cost)(object *, object *, int);
+	sint64 (*query_money)(object *);
+	int (*pay_for_item)(object *, object *);
+	int (*pay_for_amount)(sint64, object *);
+	void (*new_draw_info)(int, int, object *, const char *);
+	void (*send_plugin_custom_message)(object *, char, char *);
+	void (*communicate)(object *, char *);
+	object *(*object_create_clone)(object *);
+	object *(*get_object)();
+	void (*copy_object)(object *, object *);
+	void (*enter_exit)(object *, object *);
+	void (*play_sound_map)(mapstruct *, int, int, int, int);
+	int (*learn_skill)(object *, object *, char *, int, int);
+	object *(*find_marked_object)(object *);
+	int (*cast_identify)(object *, int, object *, int);
+	int (*lookup_skill_by_name)(char *);
+	int (*check_skill_known)(object *, int);
+	archetype *(*find_archetype)(const char *);
+	object *(*arch_to_object)(archetype *);
+	object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);
+	char *(*cost_string_from_value)(sint64);
+	int (*bank_deposit)(object *, object *, char *);
+	int (*bank_withdraw)(object *, object *, char *);
+	int (*swap_apartments)(char *, char *, int, int, object *);
+	int (*player_exists)(char *);
+	void (*get_tod)(timeofday_t *);
+	const char *(*get_ob_key_value)(const object *, const char *const);
+	int (*set_ob_key_value)(object *, const char *, const char *, int);
+
+	const char **season_name;
+	const char **weekdays;
+	const char **month_name;
+	const char **periodsofday;
+};
 
 #endif

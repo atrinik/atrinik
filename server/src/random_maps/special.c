@@ -221,7 +221,7 @@ int find_spot_for_submap(mapstruct *map, char **layout, int *ix, int *iy, int xs
  * @todo Change logic to allocate potion only if success? */
 void place_fountain_with_specials(mapstruct *map)
 {
-	int ix, iy, i = -1, tries = 0;
+	int ix = 0, iy = 0, i = -1, tries = 0;
 	mapstruct *fountain_style = find_style("/styles/misc", "fountains", -1);
 	object *fountain = get_archetype("fountain"), *potion = get_object();
 
