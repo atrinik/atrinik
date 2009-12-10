@@ -332,7 +332,7 @@ void widget_show_player_data(int x, int y)
 
 	if (cpl.rank[0] != '\0')
 	{
-		snprintf(buf, sizeof(buf), "%s %s\n", cpl.rank, cpl.pname);
+		snprintf(buf, sizeof(buf), "%s %s", cpl.rank, cpl.pname);
 	}
 	else
 	{
