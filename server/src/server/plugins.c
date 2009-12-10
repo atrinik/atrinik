@@ -113,7 +113,8 @@ struct plugin_hooklist hooklist =
 	season_name,
 	weekdays,
 	month_name,
-	periodsofday
+	periodsofday,
+	spells
 };
 
 /** Array of all loaded plugins */

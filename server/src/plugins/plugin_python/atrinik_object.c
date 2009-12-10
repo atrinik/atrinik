@@ -2372,11 +2372,11 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 
 	if (WHO)
 	{
-		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, spells[SP_IDENTIFY].sound, SOUND_SPELL);
+		hooks->play_sound_map(WHO->map, WHO->x, WHO->y, hooks->spells[SP_IDENTIFY].sound, SOUND_SPELL);
 	}
 	else if (target->obj)
 	{
-		hooks->play_sound_map(target->obj->map, target->obj->x, target->obj->y, spells[SP_IDENTIFY].sound, SOUND_SPELL);
+		hooks->play_sound_map(target->obj->map, target->obj->x, target->obj->y, hooks->spells[SP_IDENTIFY].sound, SOUND_SPELL);
 	}
 
 	Py_INCREF(Py_None);

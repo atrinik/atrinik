@@ -1,14 +1,11 @@
-<?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
-	<FileVersion major="1" minor="1" />
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="plugin_python" />
-		<Option makefile="Makefile" />
-		<Option makefile_is_custom="0" />
-		<Option default_target="-1" />
-		<Option active_target="0" />
-		<Option compiler="0" />
+		<Option pch_mode="0" />
+		<Option default_target="Release" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release">
 				<Option output="release\plugin_python.dll" />
@@ -35,7 +32,6 @@
 					<Add directory="Release" />
 					<Add directory="c:\Python26\libs" />
 					<Add library="libpython26.a" />
-					<Add library="libcross.a" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cp .\Release\plugin_python.dll ..\..\..\plugins\plugin_python.dll" />
@@ -45,7 +41,6 @@
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
 			<Add directory="..\..\..\src\plugins\plugin_python\include" />
-			<Add directory="..\..\..\src\plugins\common\include" />
 			<Add directory="c:\Python26\include" />
 		</Compiler>
 
@@ -61,24 +56,12 @@
 			<Option link="0" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\plugins\plugin_python\include\inline.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\include\plugin_python.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Release" />
 		</Unit>
-
-		<Unit filename="..\..\..\src\plugins\common\plugin_common.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_map.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -92,4 +75,4 @@
 			<Option target="Release" />
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

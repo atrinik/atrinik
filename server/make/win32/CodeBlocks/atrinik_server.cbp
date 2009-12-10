@@ -1,7 +1,6 @@
-<?xml version="1.0"?>
-<!DOCTYPE CodeBlocks_project_file>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="1" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="atrinik_server" />
 		<Option makefile="Makefile" />
@@ -46,6 +45,7 @@
 			<Add directory="..\..\..\src\random_maps" />
 			<Add directory="..\..\..\src\zlib\include" />
 			<Add directory="..\CodeBlocks" />
+			<Add directory="curl" />
 		</Compiler>
 		<Unit filename="README">
 			<Option compilerVar="" />
@@ -97,12 +97,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\face.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\include\funcpoint.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
 			<Option link="0" />
@@ -205,12 +199,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\include\plugin.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\include\plugproto.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
 			<Option link="0" />

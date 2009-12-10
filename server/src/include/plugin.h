@@ -309,6 +309,7 @@ struct plugin_hooklist
 	const char **weekdays;
 	const char **month_name;
 	const char **periodsofday;
+	spell *spells;
 };
 
 #endif
