@@ -1353,7 +1353,7 @@ static void remove_quickslot(int slot, object *ob)
 	{
 		if (op->quickslot && op->quickslot == slot)
 		{
-			if (op->arch->name && op->name && strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
+			if (op->arch->name == shstr_cons.force && op->name == shstr_cons.spell_quickslot)
 			{
 				remove_ob(op);
 				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
@@ -1381,7 +1381,7 @@ void send_quickslots(player *pl)
 		if (op->quickslot)
 		{
 			/* It's a force, so a spell! */
-			if (strcmp(op->arch->name, "force") == 0 && strcmp(op->name, "spell_quickslot") == 0)
+			if (op->arch->name == shstr_cons.force && op->name == shstr_cons.spell_quickslot)
 			{
 				snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
 			}
@@ -1481,7 +1481,7 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 		/* Create a new force */
 		op = get_archetype("force");
 		op->x = pl->ob->x, op->y = pl->ob->y;
-		FREE_AND_COPY_HASH(op->name, "spell_quickslot");
+		op->name = shstr_cons.spell_quickslot;
 		FREE_AND_COPY_HASH(op->slaying, cp);
 		op->quickslot = quickslot;
 		op->speed = 0.0;

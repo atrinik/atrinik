@@ -47,7 +47,7 @@ void move_marker(object *op)
 			/* remove an old force with a slaying field == op->name */
 			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
 			{
-				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->name))
+				if (tmp2->type == FORCE && tmp2->slaying && tmp2->slaying == op->name)
 				{
 					break;
 				}
@@ -61,7 +61,7 @@ void move_marker(object *op)
 			/* cycle through his inventory to look for the MARK we want to place */
 			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
 			{
-				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
+				if (tmp2->type == FORCE && tmp2->slaying && tmp2->slaying == op->slaying)
 				{
 					break;
 				}

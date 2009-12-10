@@ -1794,7 +1794,7 @@ void kill_player(object *op)
 	{
 		const char *god = determine_god(op);
 
-		if (god && (strcmp(god, "none")))
+		if (god && god != shstr_cons.none)
 		{
 			new_draw_info_format(NDI_UNIQUE, 0, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
 		}

@@ -347,7 +347,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		 * can't cast, except potions */
 		if (spells[type].flags & SPELL_DESC_WIS && item != spellPotion)
 		{
-			if (!strcmp((godname = determine_god(op)), "none"))
+			if ((godname = determine_god(op)) == shstr_cons.none)
 			{
 				new_draw_info(NDI_UNIQUE, 0, op, "You need a deity to cast a prayer!");
 				return 0;

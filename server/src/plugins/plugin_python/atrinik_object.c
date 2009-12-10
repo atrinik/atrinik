@@ -73,7 +73,9 @@ static PyMethodDef ObjectMethods[] =
 	{"SayTo",                        (PyCFunction) Atrinik_Object_SayTo,                  METH_VARARGS, 0},
 	{"Write",                        (PyCFunction) Atrinik_Object_Write,                  METH_VARARGS, 0},
 	{"SetGender",                    (PyCFunction) Atrinik_Object_SetGender,              METH_VARARGS, 0},
+	{"GetGender",                    (PyCFunction) Atrinik_Object_GetGender,              METH_VARARGS, 0},
 	{"SetRank",                      (PyCFunction) Atrinik_Object_SetRank,                METH_VARARGS, 0},
+	{"GetRank",                      (PyCFunction) Atrinik_Object_GetRank,                METH_VARARGS, 0},
 	{"SetAlignment",                 (PyCFunction) Atrinik_Object_SetAlignment,           METH_VARARGS, 0},
 	{"GetAlignmentForce",            (PyCFunction) Atrinik_Object_GetAlignmentForce,      METH_VARARGS, 0},
 	{"SetGuildForce",                (PyCFunction) Atrinik_Object_SetGuildForce,          METH_VARARGS, 0},
@@ -94,6 +96,8 @@ static PyMethodDef ObjectMethods[] =
 	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
 	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
 	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
+	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
+    {"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -611,6 +615,20 @@ static Atrinik_Constant object_constants[] =
 	{"NDI_PLAYER",                   NDI_PLAYER},
 	{"NDI_ANIM",                     NDI_ANIM},
 
+	{"PLAYER_EQUIP_MAIL", PLAYER_EQUIP_MAIL},
+	{"PLAYER_EQUIP_GAUNTLET", PLAYER_EQUIP_GAUNTLET},
+	{"PLAYER_EQUIP_BRACER", PLAYER_EQUIP_BRACER},
+	{"PLAYER_EQUIP_HELM", PLAYER_EQUIP_HELM},
+	{"PLAYER_EQUIP_BOOTS", PLAYER_EQUIP_BOOTS},
+	{"PLAYER_EQUIP_CLOAK", PLAYER_EQUIP_CLOAK},
+	{"PLAYER_EQUIP_GIRDLE", PLAYER_EQUIP_GIRDLE},
+	{"PLAYER_EQUIP_SHIELD", PLAYER_EQUIP_SHIELD},
+	{"PLAYER_EQUIP_RRING", PLAYER_EQUIP_RRING},
+	{"PLAYER_EQUIP_LRING", PLAYER_EQUIP_LRING},
+	{"PLAYER_EQUIP_AMULET", PLAYER_EQUIP_AMULET},
+	{"PLAYER_EQUIP_WEAPON1", PLAYER_EQUIP_WEAPON1},
+	{"PLAYER_EQUIP_BOW", PLAYER_EQUIP_BOW},
+
 	/* Argh, the object types. Make sure to keep up-to date if any are added/removed */
 	{"TYPE_PLAYER",                  PLAYER},
 	{"TYPE_BULLET",                  BULLET},
@@ -936,7 +954,7 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	if (hooks->command_rskill(WHO, "praying"))
+	if (hooks->command_rskill(WHO, "divine prayers"))
 	{
 		object *god = hooks->find_god(txt);
 
@@ -1042,7 +1060,7 @@ static PyObject *Atrinik_Object_InsertInside(Atrinik_Object *whatptr, PyObject *
  *
  * Forces object to apply what.
  * @param what What object to apply.
- * @param flas Reasonable combination of the following:
+ * @param flags Reasonable combination of the following:
  * - <b>Atrinik.APPLY_TOGGLE</b>: Normal apply (toggle)
  * - <b>Atrinik.APPLY_ALWAYS</b>: Always apply (never unapply)
  * - <b>Atrinik.UNAPPLY_ALWAYS</b>: Always unapply (never apply)
@@ -1086,23 +1104,30 @@ static PyObject *Atrinik_Object_PickUp(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.Drop(<i>\<string\></i> what)</h1>
+ * <h1>object.Drop(<i>\<object\></i> what, <i>[string]</i> name)</h1>
  *
- * Equivalent to the player command "/drop".
- *
- * @param what Object name, "all", "unpaid", "cursed", "unlocked" or a
- * count + object name:\n
- * "\<nnn\> \<object name\>", or a base name, or a short name... */
+ * Drop an object.
+ * @param what Object to drop.
+ * @param name If what is None, this is used for the equivalent of /drop
+ * command. */
 static PyObject *Atrinik_Object_Drop(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *name;
+	Atrinik_Object *ob;
 
-	if (!PyArg_ParseTuple(args, "s", &name))
+	if (!PyArg_ParseTuple(args, "O!|s", &Atrinik_ObjectType, &ob, &name))
 	{
 		return NULL;
 	}
 
-	hooks->command_drop(WHO, name);
+	if (ob)
+	{
+		hooks->drop(WHO, ob->obj);
+	}
+	else
+	{
+		hooks->command_drop(WHO, name);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1276,15 +1301,48 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
+ * <h1>object.GetGender()</h1>
+ *
+ * Get an object's gender.
+ * @retval NEUTER No gender.
+ * @retval MALE Male.
+ * @retval FEMALE Female.
+ * @retval HERMAPHRODITE Both male and female. */
+static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args)
+{
+	int gender;
+
+	(void) args;
+
+	if (!QUERY_FLAG(WHO, FLAG_IS_MALE) && !QUERY_FLAG(WHO, FLAG_IS_FEMALE))
+	{
+		gender = 0;
+	}
+	else if (QUERY_FLAG(WHO, FLAG_IS_MALE) && !QUERY_FLAG(WHO, FLAG_IS_FEMALE))
+	{
+		gender = 1;
+	}
+	else if (!QUERY_FLAG(WHO, FLAG_IS_MALE) && QUERY_FLAG(WHO, FLAG_IS_FEMALE))
+	{
+		gender = 2;
+	}
+	else
+	{
+		gender = 3;
+	}
+
+	return Py_BuildValue("i", gender);
+}
+
+/**
  * <h1>object.SetGender(<i>\<int\></i> gender)</h1>
  *
  * Changes the gender of object.
- *
  * @param gender The new gender to set. One of:
- * - <b>Atrinik.NEUTER</b>: No gender
- * - <b>Atrinik.MALE</b>: Male gender
- * - <b>Atrinik.GENDER_FEMALE</b>: Female gender
- * - <b>Atrinik.HERMAPHRODITE</b>: Both male and female */
+ * - <b>Atrinik.NEUTER</b>: No gender.
+ * - <b>Atrinik.MALE</b>: Male.
+ * - <b>Atrinik.FEMALE</b>: Female.
+ * - <b>Atrinik.HERMAPHRODITE</b>: Both male and female. */
 static PyObject *Atrinik_Object_SetGender(Atrinik_Object *whoptr, PyObject *args)
 {
 	int gender;
@@ -1345,7 +1403,7 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->name, "RANK_FORCE") && !strcmp(walk->arch->name, "rank_force"))
+		if (walk->name == hooks->shstr_cons->RANK_FORCE && walk->arch->name == hooks->shstr_cons->rank_force)
 		{
 			/* We find the rank of the player, now change it to new one */
 			if (walk->title)
@@ -1369,6 +1427,33 @@ static PyObject *Atrinik_Object_SetRank(Atrinik_Object *whoptr, PyObject *args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+/**
+ * <h1>object.GetRank()</h1>
+ *
+ * Get the rank of a player.
+ * @return Player's rank. */
+static PyObject *Atrinik_Object_GetRank(Atrinik_Object *whoptr, PyObject *args)
+{
+	object *walk;
+
+	(void) args;
+
+	if (WHO->type != PLAYER)
+	{
+		RAISE("GetRank() can only be used on players.");
+	}
+
+	for (walk = WHO->inv; walk; walk = walk->below)
+	{
+		if (walk->name == hooks->shstr_cons->RANK_FORCE && walk->arch->name == hooks->shstr_cons->rank_force)
+		{
+			return Py_BuildValue("s", walk->title);
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -1397,7 +1482,7 @@ static PyObject *Atrinik_Object_SetAlignment(Atrinik_Object *whoptr, PyObject *a
 
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->name, "ALIGNMENT_FORCE")  && !strcmp(walk->arch->name, "alignment_force"))
+		if (walk->name == hooks->shstr_cons->ALIGNMENT_FORCE && walk->arch->name == hooks->shstr_cons->alignment_force)
 		{
 			/* We find the alignment of the player, now change it to new one */
 			if (walk->title)
@@ -1443,7 +1528,7 @@ static PyObject *Atrinik_Object_GetAlignmentForce(Atrinik_Object *whoptr, PyObje
 
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->name, "ALIGNMENT_FORCE") && !strcmp(walk->arch->name, "alignment_force"))
+		if (walk->name == hooks->shstr_cons->ALIGNMENT_FORCE && walk->arch->name == hooks->shstr_cons->alignment_force)
 		{
 			return wrap_object(walk);
 		}
@@ -1489,7 +1574,7 @@ static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *whoptr, PyObject *
 
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->name, "GUILD_FORCE") && !strcmp(walk->arch->name, "guild_force"))
+		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
 		{
 			/* We find the rank of the player, now change it to new one */
 			if (walk->title)
@@ -1538,7 +1623,7 @@ static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *whoptr, PyObject *
 
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->name, "GUILD_FORCE") && !strcmp(walk->arch->name, "guild_force"))
+		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
 		{
 			return wrap_object(walk);
 		}
@@ -1983,7 +2068,7 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *whoptr, PyObject *
 	/* Get the first linked player info arch in this inventory */
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->arch->name, "player_info") && !strcmp(walk->name, name))
+		if (walk->name && walk->arch->name == hooks->shstr_cons->player_info && !strcmp(walk->name, name))
 		{
 			return wrap_object(walk);
 		}
@@ -2021,7 +2106,7 @@ static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *whoptr, PyObje
 	/* Get the next linked player_info arch in this inventory */
 	for (walk = myob->obj->below; walk != NULL; walk = walk->below)
 	{
-		if (walk->name && !strcmp(walk->arch->name, "player_info") && !strcmp(walk->name, name))
+		if (walk->name && walk->arch->name == hooks->shstr_cons->player_info && !strcmp(walk->name, name))
 		{
 			return wrap_object(walk);
 		}
@@ -2766,6 +2851,51 @@ static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *
 	}
 
 	return Py_BuildValue("i", hooks->set_ob_key_value(WHO, key, value, add_key));
+}
+
+/**
+ * <h1>object.GetEquipment(\<int\> slot)</h1>
+ * Get a player's current equipment for a given slot.
+ * @param slot One of @ref PLAYER_EQUIP_xxx constants.
+ * @return The equipment for the given slot, can be None. */
+static PyObject *Atrinik_Object_GetEquipment(Atrinik_Object *whoptr, PyObject *args)
+{
+	int slot;
+
+	if (!PyArg_ParseTuple(args, "i", &slot))
+	{
+		return NULL;
+	}
+
+	if (WHO->type != PLAYER || !CONTR(WHO))
+	{
+		RAISE("Can only be used on players.");
+	}
+
+	if (slot < 0 || slot >= PLAYER_EQUIP_MAX)
+	{
+		RAISE("Illegal slot number.");
+	}
+
+	return wrap_object(CONTR(WHO)->equipment[slot]);
+}
+
+/**
+ * <h1>object.GetName(<i>[object]</i> caller)</h1>
+ * An equivalent of query_base_name().
+ * @param caller Object calling this.
+ * @return Full name of the object, including material, name, title,
+ * etc. */
+static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
+{
+	Atrinik_Object *ob;
+
+	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("s", hooks->query_short_name(WHAT, ob ? ob->obj : WHAT));
 }
 
 /*@}*/

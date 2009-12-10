@@ -642,7 +642,7 @@ void enter_exit(object *op, object *exit_ob)
 				/* remove an old force with a slaying field == PORTAL_DESTINATION_NAME */
 				for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 				{
-					if (tmp->type == FORCE && tmp->slaying && !strcmp(tmp->slaying, PORTAL_DESTINATION_NAME))
+					if (tmp->type == FORCE && tmp->slaying && tmp->slaying == shstr_cons.portal_destination_name)
 						break;
 				}
 
@@ -1047,6 +1047,7 @@ void cleanup()
 	free_all_readable();
 	free_all_god();
 	free_all_anim();
+    free_strings();
 #endif
 	exit(0);
 }

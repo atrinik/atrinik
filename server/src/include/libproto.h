@@ -88,6 +88,7 @@ extern int find_face(char *name, int error);
 extern void free_all_images();
 
 /* init.c */
+extern void free_strings();
 extern void init_library();
 extern void init_globals();
 extern void write_todclock();

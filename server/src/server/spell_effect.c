@@ -103,7 +103,7 @@ void prayer_failure(object *op, int failure, int power)
 {
 	const char *godname;
 
-	if (!strcmp((godname = determine_god(op)), "none"))
+	if ((godname = determine_god(op)) == shstr_cons.none)
 	{
 		godname = "Your spirit";
 	}
@@ -416,10 +416,10 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	FREE_AND_COPY_HASH(dummy->name, PORTAL_DESTINATION_NAME);
+	dummy->name = shstr_cons.portal_destination_name;
 	dummy->stats.hp = EXIT;
-	FREE_AND_COPY_HASH(dummy->arch->name, "force");
-	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_DESTINATION_NAME);
+	dummy->arch->name = shstr_cons.force;
+	dummy->slaying = shstr_cons.portal_destination_name;
 	force = check_inv_recursive(op, dummy);
 
 	/* Here we know there is no destination marked up.
@@ -466,8 +466,8 @@ int cast_create_town_portal(object *op)
 	/* Useful for string comparaison later */
 	FREE_AND_COPY_HASH(dummy->name, portal_name);
 	dummy->stats.hp = EXIT;
-	FREE_AND_COPY_HASH(dummy->arch->name, "force");
-	FREE_AND_COPY_HASH(dummy->slaying, PORTAL_ACTIVE_NAME);
+	dummy->arch->name = shstr_cons.force;
+	dummy->slaying = shstr_cons.portal_active_name;
 	perm_portal = find_archetype("perm_magic_portal");
 
 	/* To kill a town portal, we go trough the player's inventory,
@@ -624,7 +624,7 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	FREE_AND_COPY_HASH(force->slaying, PORTAL_ACTIVE_NAME);
+	force->slaying = shstr_cons.portal_active_name;
 	FREE_AND_ADD_REF_HASH(force->race, op->map->path);
 	FREE_AND_COPY_HASH(force->name, portal_name);
 	EXIT_X(force) = dummy->x;
@@ -674,7 +674,7 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	FREE_AND_COPY_HASH(force->slaying, PORTAL_ACTIVE_NAME);
+	force->slaying = shstr_cons.portal_active_name;
 	FREE_AND_ADD_REF_HASH(force->race, exitpath);
 	FREE_AND_COPY_HASH(force->name, portal_name);
 	EXIT_X(force) = dummy->x;

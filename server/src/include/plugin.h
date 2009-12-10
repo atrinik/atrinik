@@ -159,15 +159,12 @@
  * Each CFParm can contain up to 15 different values, stored as (void *). */
 typedef struct _CFParm
 {
-	/** Currently unused, but may prove useful later. */
-	int Type[15];
-
 	/** The values contained in the CFParm structure. */
 	const void *Value[15];
 } CFParm;
 
 /** Generic plugin function prototype. All hook functions follow this. */
-typedef CFParm* (*f_plugin) (CFParm* PParm);
+typedef CFParm *(*f_plugin) (CFParm *PParm);
 
 #ifndef WIN32
 #define LIBPTRTYPE void *
@@ -192,9 +189,6 @@ typedef struct _CFPlugin
 	/** Plugin Post-Init. function. */
 	f_plugin pinitfunc;
 
-	/** Plugin Closing function. */
-	f_plugin endfunc;
-
 	/** Plugin getProperty function */
 	f_plugin propfunc;
 
@@ -218,19 +212,12 @@ typedef struct _CFPlugin
 /** Called when the plugin initialization process starts. */
 extern MODULEAPI CFParm *initPlugin(CFParm *PParm);
 
-/** Called before the plugin gets unloaded from memory. */
-extern MODULEAPI CFParm *endPlugin(CFParm *PParm);
-
 /** Currently unused. */
 extern MODULEAPI CFParm *getPluginProperty(CFParm *PParm);
 
 /** Called whenever an event occurs. */
 extern MODULEAPI CFParm *triggerEvent(CFParm *PParm);
 /*@}*/
-
-extern CFPlugin PlugList[32];
-
-extern int PlugNR;
 
 /** The plugin hook list. */
 struct plugin_hooklist
@@ -304,12 +291,15 @@ struct plugin_hooklist
 	void (*get_tod)(timeofday_t *);
 	const char *(*get_ob_key_value)(const object *, const char *const);
 	int (*set_ob_key_value)(object *, const char *, const char *, int);
+	void (*drop)(object *, object *);
+	char *(*query_short_name)(object *, object *);
 
 	const char **season_name;
 	const char **weekdays;
 	const char **month_name;
 	const char **periodsofday;
 	spell *spells;
+	struct shstr_constants *shstr_cons;
 };
 
 #endif

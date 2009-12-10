@@ -80,6 +80,54 @@ static void init_dynamic();
 static void init_clocks();
 
 /**
+ * Initialize the ::shstr_cons structure. */
+static void init_strings()
+{
+	shstr_cons.none = add_string("none");
+	shstr_cons.NONE = add_string("NONE");
+	shstr_cons.home = add_string("- home -");
+	shstr_cons.force = add_string("force");
+	shstr_cons.portal_destination_name = add_string(PORTAL_DESTINATION_NAME);
+	shstr_cons.portal_active_name = add_string(PORTAL_ACTIVE_NAME);
+	shstr_cons.spell_quickslot = add_string("spell_quickslot");
+
+	shstr_cons.GUILD_FORCE = add_string("GUILD_FORCE");
+	shstr_cons.guild_force = add_string("guild_force");
+	shstr_cons.RANK_FORCE = add_string("RANK_FORCE");
+	shstr_cons.rank_force = add_string("rank_force");
+	shstr_cons.ALIGNMENT_FORCE = add_string("ALIGNMENT_FORCE");
+	shstr_cons.alignment_force = add_string("alignment_force");
+
+	shstr_cons.grace_limit = add_string("grace limit");
+	shstr_cons.restore_grace = add_string("restore grace");
+	shstr_cons.restore_hitpoints = add_string("restore hitpoints");
+	shstr_cons.restore_spellpoints = add_string("restore spellpoints");
+	shstr_cons.heal_spell = add_string("heal spell");
+	shstr_cons.remove_curse = add_string("remove curse");
+	shstr_cons.remove_damnation = add_string("remove damnation");
+	shstr_cons.heal_depletion = add_string("heal depletion");
+	shstr_cons.message = add_string("message");
+	shstr_cons.enchant_weapon = add_string("enchant weapon");
+
+	shstr_cons.player_info = add_string("player_info");
+	shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");
+}
+
+void free_strings()
+{
+	int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
+	const char **ptr = (const char **) &shstr_cons;
+	int i = 0;
+
+	LOG(llevDebug, "Freeing all string constants\n");
+
+	for (i = 0; i < nrof_strings; i++)
+	{
+		FREE_ONLY_HASH(ptr[i]);
+	}
+}
+
+/**
  * It is vital that init_library() is called by any functions using this
  * library.
  *
@@ -207,9 +255,8 @@ void init_globals()
 	first_map = NULL;
 	nroftreasures = 0;
 	nrofartifacts = 0;
-	nrofallowedstr=0;
-	undead_name = NULL;
-	FREE_AND_COPY_HASH(undead_name, "undead");
+	nrofallowedstr = 0;
+	init_strings();
 	num_animations = 0;
 	animations = NULL;
 	animations_allocated = 0;

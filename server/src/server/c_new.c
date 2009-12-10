@@ -1112,7 +1112,7 @@ void generate_ext_title(player *pl)
 			continue;
 		}
 
-		if (!strcmp(walk->name, "GUILD_FORCE") && !strcmp(walk->arch->name, "guild_force"))
+		if (walk->name == shstr_cons.GUILD_FORCE && walk->arch->name == shstr_cons.guild_force)
 		{
 			if (walk->slaying)
 			{
@@ -1125,7 +1125,7 @@ void generate_ext_title(player *pl)
 				strcat(title, walk->title);
 			}
 		}
-		else if (!strcmp(walk->name, "RANK_FORCE") && !strcmp(walk->arch->name, "rank_force"))
+		else if (walk->name == shstr_cons.RANK_FORCE && walk->arch->name == shstr_cons.rank_force)
 		{
 			if (walk->title)
 			{
@@ -1133,7 +1133,7 @@ void generate_ext_title(player *pl)
 				strcat(rank, " ");
 			}
 		}
-		else if (!strcmp(walk->name, "ALIGNMENT_FORCE") && !strcmp(walk->arch->name, "alignment_force"))
+		else if (walk->name == shstr_cons.ALIGNMENT_FORCE && walk->arch->name == shstr_cons.alignment_force)
 		{
 			if (walk->title)
 			{

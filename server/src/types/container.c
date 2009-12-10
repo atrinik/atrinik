@@ -115,7 +115,7 @@ int esrv_apply_container(object *op, object *sack)
 				return 0;
 			}
 			/* Only give player with right name access */
-			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && strcmp(sack->slaying, op->name))
+			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
 			{
 				new_draw_info_format(NDI_UNIQUE, 0, op, "It's not your bounty.");
 				return 0;

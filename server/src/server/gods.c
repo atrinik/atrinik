@@ -556,13 +556,13 @@ const char *determine_god(object *op)
 				}
 				else
 				{
-					return "none";
+					return shstr_cons.none;
 				}
 			}
 		}
 	}
 
-	return "none";
+	return shstr_cons.none;
 }
 
 /**
@@ -896,7 +896,7 @@ static void god_intervention(object *op, object *god)
 		item = &tr->item->clone;
 
 		/* Grace limit */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "grace limit") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.grace_limit)
 		{
 			if (op->stats.grace < item->stats.grace || op->stats.grace < op->stats.maxgrace)
 			{
@@ -912,7 +912,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Restore grace */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "restore grace") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.restore_grace)
 		{
 			if (op->stats.grace >= 0)
 			{
@@ -925,7 +925,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Heal damage */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "restore hitpoints") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.restore_hitpoints)
 		{
 			if (op->stats.hp >= op->stats.maxhp)
 			{
@@ -938,7 +938,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Restore spellpoints */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "restore spellpoints") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.restore_hitpoints)
 		{
 			int max = (int) ((float) op->stats.maxsp * ((float) item->stats.maxsp / (float) 100.0));
 			/* Restore to 50 .. 100%, if sp < 50% */
@@ -954,7 +954,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Various heal spells */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "heal spell") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.heal_spell)
 		{
 			if (cast_heal(op, 1, op, get_spell_number(item)))
 			{
@@ -967,7 +967,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Remove curse */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "remove curse") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.remove_curse)
 		{
 			if (god_removes_curse(op, 0))
 			{
@@ -980,7 +980,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Remove damnation */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "remove damnation") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.remove_damnation)
 		{
 			if (god_removes_curse(op, 1))
 			{
@@ -993,7 +993,7 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Heal depletion */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp (item->name, "heal depletion") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.heal_depletion)
 		{
 			object *depl;
 			archetype *at;
@@ -1028,14 +1028,14 @@ static void god_intervention(object *op, object *god)
 		}
 
 		/* Messages */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp(item->name, "message") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.message)
 		{
 			new_draw_info(NDI_UNIQUE, 0, op, item->msg);
 			return;
 		}
 
 		/* Enchant weapon */
-		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && strcmp (item->name, "enchant weapon") == 0)
+		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.enchant_weapon)
 		{
 			if (god_enchants_weapon(op, god, item))
 			{

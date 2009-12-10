@@ -293,6 +293,7 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
+	txt[0] = toupper(txt[0]);
 	foundpl = hooks->find_player(txt);
 
 	if (foundpl != NULL)
@@ -319,6 +320,8 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 	{
 		return NULL;
 	}
+
+	player_name[0] = toupper(player_name[0]);
 
 	return Py_BuildValue("i", hooks->player_exists(player_name));
 }

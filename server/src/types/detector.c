@@ -50,14 +50,14 @@ void move_detector(object *op)
 					detected = 1;
 				}
 
-				if (tmp2->type == FORCE && tmp2->slaying && !strcmp(tmp2->slaying, op->slaying))
+				if (tmp2->type == FORCE && tmp->slaying && tmp2->slaying == op->slaying)
 				{
 					detected = 1;
 				}
 			}
 		}
 
-		if (op->slaying && !strcmp(op->slaying, tmp->name))
+		if (op->slaying && op->slaying == tmp->name)
 		{
 			detected = 1;
 		}

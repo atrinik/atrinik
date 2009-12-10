@@ -51,8 +51,10 @@ static PyObject* Atrinik_Object_Withdraw(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Communicate(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_Say(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject* args);
-static PyObject* Atrinik_Object_SetGender(Atrinik_Object *self, PyObject* args);
-static PyObject* Atrinik_Object_SetRank(Atrinik_Object *self, PyObject* args);
+static PyObject *Atrinik_Object_SetGender(Atrinik_Object *self, PyObject *args);
+static PyObject *Atrinik_Object_GetGender(Atrinik_Object *self, PyObject *args);
+static PyObject *Atrinik_Object_SetRank(Atrinik_Object *self, PyObject *args);
+static PyObject *Atrinik_Object_GetRank(Atrinik_Object *self, PyObject *args);
 static PyObject* Atrinik_Object_SetAlignment(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_GetAlignmentForce(Atrinik_Object *self, PyObject* args);
 static PyObject* Atrinik_Object_SetGuildForce(Atrinik_Object *self, PyObject* args);
@@ -93,6 +95,8 @@ static PyObject* Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object* self, PyO
 static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *args);
 static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *args);
 static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *args);
+static PyObject *Atrinik_Object_GetEquipment(Atrinik_Object *whoptr, PyObject *args);
+static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args);
 
 /* Atrinik_Object SetGeters */
 static int Object_SetFlag(Atrinik_Object* self, PyObject* val, int flagnp);

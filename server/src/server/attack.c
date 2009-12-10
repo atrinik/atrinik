@@ -2011,7 +2011,7 @@ void save_throw_object(object *op, object *originator)
 	}
 
 	/* If this is player corpse BUT it's not our corpse */
-	if (op->sub_type1 == ST1_CONTAINER_CORPSE_player && op->slaying && strcmp(op->slaying, originator->owner->name) != 0)
+	if (op->sub_type1 == ST1_CONTAINER_CORPSE_player && op->slaying && op->slaying != originator->owner->name)
 	{
 		return;
 	}

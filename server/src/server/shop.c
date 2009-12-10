@@ -326,7 +326,7 @@ sint64 query_money(object *op)
 		{
 			total += query_money(tmp);
 		}
-		else if (strcmp(tmp->arch->name, "player_info") == 0 && strcmp(tmp->name, "BANK_GENERAL") == 0)
+		else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL)
 		{
 			total += tmp->value;
 		}
@@ -491,7 +491,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 				LOG(llevBug, "BUG: pay_from_container(): Did not find string match for %s\n", tmp->arch->name);
 			}
 		}
-		else if (strcmp(tmp->arch->name, "player_info") == 0 && strcmp(tmp->name, "BANK_GENERAL") == 0)
+		else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL)
 		{
 			bank_object = tmp;
 		}

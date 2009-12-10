@@ -71,7 +71,9 @@ typedef enum rangetype
 	range_size = 10
 } rangetype;
 
-/** Used for item damage system */
+/**
+ * Player equipment.
+ * @anchor PLAYER_EQUIP_xxx */
 enum
 {
 	PLAYER_EQUIP_MAIL,
@@ -82,15 +84,12 @@ enum
 	PLAYER_EQUIP_CLOAK,
 	PLAYER_EQUIP_GIRDLE,
 	PLAYER_EQUIP_SHIELD,
-
-	/* this must 1 entry before LRING! */
 	PLAYER_EQUIP_RRING,
 	PLAYER_EQUIP_LRING,
 	PLAYER_EQUIP_AMULET,
 	PLAYER_EQUIP_WEAPON1,
 	PLAYER_EQUIP_BOW,
 
-	/* last index */
 	PLAYER_EQUIP_MAX
 };
 

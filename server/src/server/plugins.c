@@ -109,19 +109,22 @@ struct plugin_hooklist hooklist =
 	get_tod,
 	get_ob_key_value,
 	set_ob_key_value,
+	drop,
+	query_short_name,
 
 	season_name,
 	weekdays,
 	month_name,
 	periodsofday,
-	spells
+	spells,
+	&shstr_cons
 };
 
 /** Array of all loaded plugins */
-CFPlugin PlugList[32];
+static CFPlugin PlugList[32];
 
 /** Number of loaded plugins. */
-int PlugNR = 0;
+static int PlugNR = 0;
 
 /**
  * Register a global event.

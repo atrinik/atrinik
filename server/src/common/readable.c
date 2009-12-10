@@ -1777,7 +1777,7 @@ static void make_formula_book(object *book, int level)
 		}
 
 		/* item name */
-		if (strcmp(formula->title, "NONE"))
+		if (formula->title != shstr_cons.NONE)
 		{
 			snprintf(retbuf, sizeof(retbuf), "%sThe %s of %s", retbuf, op_name, formula->title);
 

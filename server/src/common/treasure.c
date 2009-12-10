@@ -42,9 +42,6 @@
 #include <loader.h>
 #include <sproto.h>
 
-/** For quick search for string "none" */
-static const char *treasure_string_none = NULL;
-
 /** All the coin arches. */
 char *coins[NUM_COINS + 1] =
 {
@@ -105,8 +102,6 @@ void load_treasures()
 	int comp, t_style, a_chance;
 
 	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.treasures);
-
-	FREE_AND_COPY_HASH(treasure_string_none, "none");
 
 	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
 	{
@@ -899,7 +894,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 	{
 		if (t->name)
 		{
-			if (strcmp(t->name, "NONE") && difficulty >= t->difficulty)
+			if (t->name != shstr_cons.NONE && difficulty >= t->difficulty)
 			{
 				create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch ? change_arch : &t->change_arch);
 			}
@@ -1078,7 +1073,7 @@ create_one_treasure_again_jmp:
 
 	if (t->name)
 	{
-		if (!strcmp(t->name, "NONE"))
+		if (t->name == shstr_cons.NONE)
 		{
 			return;
 		}
@@ -2301,7 +2296,7 @@ jump_break1:
 			/* Let's check we have a slaying/assassination arrow */
 			case ARROW:
 				/* Compare hash pointers. */
-				if (op->slaying == treasure_string_none)
+				if (op->slaying == shstr_cons.none)
 				{
 					int tmp = RANDOM() % global_race_counter;
 					racelink *list;
@@ -2888,7 +2883,6 @@ void free_all_treasures()
 	}
 
 	free_artifactlist(first_artifactlist);
-	FREE_AND_CLEAR_HASH2(treasure_string_none);
 }
 
 /**
@@ -3206,7 +3200,7 @@ static void check_treasurelist(treasure *t, treasurelist *tl)
 	}
 
 	/* find_treasurelist will print out its own error message */
-	if (t->name && strcmp(t->name, "NONE"))
+	if (t->name && t->name != shstr_cons.NONE)
 	{
 		(void) find_treasurelist(t->name);
 	}

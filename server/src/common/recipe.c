@@ -128,7 +128,7 @@ static int check_recipe(recipe *rp)
 	{
 		artifact *art = locate_recipe_artifact(rp);
 
-		if (!art && strcmp(rp->title, "NONE"))
+		if (!art && rp->title != shstr_cons.NONE)
 		{
 			LOG(llevBug, "BUG: Formula %s of %s has no artifact.\n", rp->arch_name, rp->title);
 			return 0;
@@ -347,13 +347,13 @@ void dump_alchemy()
 				{
 					art = locate_recipe_artifact(formula);
 
-					if (!art && strcmp(formula->title, "NONE"))
+					if (!art && formula->title != shstr_cons.NONE)
 					{
 						LOG(llevBug, "BUG: Formula %s has no artifact\n", formula->title);
 					}
 					else
 					{
-						if (strcmp(formula->title, "NONE"))
+						if (formula->title != shstr_cons.NONE)
 						{
 							snprintf(buf, sizeof(buf), "%s of %s", string, formula->title);
 						}
@@ -630,13 +630,13 @@ void dump_alchemy_costs()
 				{
 					art = locate_recipe_artifact(formula);
 
-					if (!art && strcmp (formula->title, "NONE"))
+					if (!art && formula->title != shstr_cons.NONE)
 					{
 						LOG(llevBug, "BUG: Formula %s has no artifact\n", formula->title);
 					}
 					else
 					{
-						if (!strcmp(formula->title, "NONE"))
+						if (formula->title == shstr_cons.NONE)
 						{
 							snprintf(buf, sizeof(buf), "%s", string);
 						}

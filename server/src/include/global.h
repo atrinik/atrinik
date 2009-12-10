@@ -456,6 +456,39 @@ typedef struct Settings
 
 extern Settings settings;
 
+/** Constant shared string pointers. */
+EXTERN struct shstr_constants
+{
+    const char *none;
+    const char *NONE;
+	const char *home;
+	const char *force;
+	const char *portal_destination_name;
+	const char *portal_active_name;
+	const char *spell_quickslot;
+
+	const char *GUILD_FORCE;
+	const char *guild_force;
+	const char *RANK_FORCE;
+	const char *rank_force;
+	const char *ALIGNMENT_FORCE;
+	const char *alignment_force;
+
+	const char *grace_limit;
+	const char *restore_grace;
+	const char *restore_hitpoints;
+	const char *restore_spellpoints;
+	const char *heal_spell;
+	const char *remove_curse;
+	const char *remove_damnation;
+	const char *heal_depletion;
+	const char *message;
+	const char *enchant_weapon;
+
+	const char *player_info;
+	const char *BANK_GENERAL;
+} shstr_cons;
+
 #ifndef tolower
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
