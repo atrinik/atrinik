@@ -1,0 +1,2172 @@
+arch map
+name Testmap: Python
+msg
+Created:  2009-12-11 Alex Tokar
+Modified: 2009-12-11 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+end
+arch floor_ostone1
+end
+arch wall_stone1_8
+end
+arch floor_ostone1
+y 1
+end
+arch wall_stone1_3
+y 1
+end
+arch floor_ostone1
+y 2
+end
+arch wall_stone1_3
+y 2
+end
+arch floor_ostone1
+y 3
+end
+arch wall_stone1_3
+y 3
+end
+arch floor_ostone1
+y 4
+end
+arch wall_stone1_3
+y 4
+end
+arch floor_ostone1
+y 5
+end
+arch wall_stone1_3
+y 5
+end
+arch floor_ostone1
+y 6
+end
+arch wall_stone1_3
+y 6
+end
+arch floor_ostone1
+y 7
+end
+arch wall_stone1_3
+y 7
+end
+arch floor_ostone1
+y 8
+end
+arch wall_stone1_3
+y 8
+end
+arch floor_ostone1
+y 9
+end
+arch wall_stone1_3
+y 9
+end
+arch floor_ostone1
+y 10
+end
+arch wall_stone1_3
+y 10
+end
+arch floor_ostone1
+y 11
+end
+arch wall_stone1_3
+y 11
+end
+arch floor_ostone1
+y 12
+end
+arch wall_stone1_3
+y 12
+end
+arch floor_ostone1
+y 13
+end
+arch wall_stone1_3
+y 13
+end
+arch floor_ostone1
+y 14
+end
+arch wall_stone1_3
+y 14
+end
+arch floor_ostone1
+y 15
+end
+arch wall_stone1_3
+y 15
+end
+arch floor_ostone1
+y 16
+end
+arch wall_stone1_3
+y 16
+end
+arch floor_ostone1
+y 17
+end
+arch wall_stone1_3
+y 17
+end
+arch floor_ostone1
+y 18
+end
+arch wall_stone1_3
+y 18
+end
+arch floor_ostone1
+y 19
+end
+arch wall_stone1_3
+y 19
+end
+arch floor_ostone1
+y 20
+end
+arch wall_stone1_3
+y 20
+end
+arch floor_ostone1
+y 21
+end
+arch wall_stone1_3
+y 21
+end
+arch floor_ostone1
+y 22
+end
+arch wall_stone1_3
+y 22
+end
+arch floor_ostone1
+y 23
+end
+arch wall_stone1_3
+y 23
+end
+arch floor_ostone1
+x 1
+end
+arch wall_stone1_1
+x 1
+end
+arch floor_ostone1
+x 1
+y 1
+end
+arch stairs_wood_up
+slaying testmap_main
+hp 9
+sp 15
+x 1
+y 1
+end
+arch floor_ostone1
+x 1
+y 2
+end
+arch floor_ostone1
+x 1
+y 3
+end
+arch floor_ostone1
+x 1
+y 4
+end
+arch floor_ostone1
+x 1
+y 5
+end
+arch floor_ostone1
+x 1
+y 6
+end
+arch floor_ostone1
+x 1
+y 7
+end
+arch floor_ostone1
+x 1
+y 8
+end
+arch sign
+msg
+Python tester.
+
+This NPC script provides many examples how to use various Atrinik Python plugin functions.
+endmsg
+x 1
+y 8
+end
+arch floor_ostone1
+x 1
+y 9
+end
+arch spawn_point
+x 1
+y 9
+arch monk
+name Python Tester
+friendly 1
+direction 3
+type 83
+arch event_obj
+sub_type 6
+race scripts/python_tests.py
+end
+end
+end
+arch floor_ostone1
+x 1
+y 10
+end
+arch floor_ostone1
+x 1
+y 11
+end
+arch wall_stone1_1
+x 1
+y 11
+end
+arch floor_ostone1
+x 1
+y 12
+end
+arch floor_ostone1
+x 1
+y 13
+end
+arch spawn_point
+x 1
+y 13
+arch monk
+friendly 1
+type 83
+direction 3
+arch event_obj
+sub_type 6
+race scripts/quest_item.py
+end
+end
+end
+arch floor_ostone1
+x 1
+y 14
+end
+arch floor_ostone1
+x 1
+y 15
+end
+arch floor_ostone1
+x 1
+y 16
+end
+arch floor_ostone1
+x 1
+y 17
+end
+arch spawn_point
+x 1
+y 17
+arch monk
+friendly 1
+type 83
+direction 3
+arch event_obj
+sub_type 6
+race scripts/quest_item_random.py
+end
+end
+end
+arch floor_ostone1
+x 1
+y 18
+end
+arch floor_ostone1
+x 1
+y 19
+end
+arch floor_ostone1
+x 1
+y 20
+end
+arch floor_ostone1
+x 1
+y 21
+end
+arch spawn_point
+x 1
+y 21
+arch monk
+friendly 1
+type 83
+direction 3
+arch event_obj
+sub_type 6
+race scripts/quest_kill.py
+end
+end
+end
+arch floor_ostone1
+x 1
+y 22
+end
+arch floor_ostone1
+x 1
+y 23
+end
+arch wall_stone1_1
+x 1
+y 23
+end
+arch floor_ostone1
+x 2
+end
+arch wall_stone1_1
+x 2
+end
+arch floor_ostone1
+x 2
+y 1
+end
+arch floor_ostone1
+x 2
+y 2
+end
+arch floor_ostone1
+x 2
+y 3
+end
+arch floor_ostone1
+x 2
+y 4
+end
+arch floor_ostone1
+x 2
+y 5
+end
+arch floor_ostone1
+x 2
+y 6
+end
+arch floor_ostone1
+x 2
+y 7
+end
+arch floor_ostone1
+x 2
+y 8
+end
+arch floor_ostone1
+x 2
+y 9
+end
+arch floor_ostone1
+x 2
+y 10
+end
+arch floor_ostone1
+x 2
+y 11
+end
+arch wall_stone1_1
+x 2
+y 11
+end
+arch floor_ostone1
+x 2
+y 12
+end
+arch floor_ostone1
+x 2
+y 13
+end
+arch floor_ostone1
+x 2
+y 14
+end
+arch floor_ostone1
+x 2
+y 15
+end
+arch floor_ostone1
+x 2
+y 16
+end
+arch floor_ostone1
+x 2
+y 17
+end
+arch floor_ostone1
+x 2
+y 18
+end
+arch floor_ostone1
+x 2
+y 19
+end
+arch floor_ostone1
+x 2
+y 20
+end
+arch floor_ostone1
+x 2
+y 21
+end
+arch floor_ostone1
+x 2
+y 22
+end
+arch floor_ostone1
+x 2
+y 23
+end
+arch wall_stone1_1
+x 2
+y 23
+end
+arch floor_ostone1
+x 3
+end
+arch wall_stone1_1
+x 3
+end
+arch floor_ostone1
+x 3
+y 1
+end
+arch floor_ostone1
+x 3
+y 2
+end
+arch floor_ostone1
+x 3
+y 3
+end
+arch floor_ostone1
+x 3
+y 4
+end
+arch floor_ostone1
+x 3
+y 5
+end
+arch floor_ostone1
+x 3
+y 6
+end
+arch floor_ostone1
+x 3
+y 7
+end
+arch floor_ostone1
+x 3
+y 8
+end
+arch floor_ostone1
+x 3
+y 9
+end
+arch floor_ostone1
+x 3
+y 10
+end
+arch floor_ostone1
+x 3
+y 11
+end
+arch wall_stone1_1
+x 3
+y 11
+end
+arch floor_ostone1
+x 3
+y 12
+end
+arch floor_ostone1
+x 3
+y 13
+end
+arch floor_ostone1
+x 3
+y 14
+end
+arch floor_ostone1
+x 3
+y 15
+end
+arch floor_ostone1
+x 3
+y 16
+end
+arch floor_ostone1
+x 3
+y 17
+end
+arch floor_ostone1
+x 3
+y 18
+end
+arch floor_ostone1
+x 3
+y 19
+end
+arch floor_ostone1
+x 3
+y 20
+end
+arch floor_ostone1
+x 3
+y 21
+end
+arch floor_ostone1
+x 3
+y 22
+end
+arch floor_ostone1
+x 3
+y 23
+end
+arch wall_stone1_1
+x 3
+y 23
+end
+arch floor_ostone1
+x 4
+end
+arch wall_stone1_1
+x 4
+end
+arch floor_ostone1
+x 4
+y 1
+end
+arch floor_ostone1
+x 4
+y 2
+end
+arch floor_ostone1
+x 4
+y 3
+end
+arch floor_ostone1
+x 4
+y 4
+end
+arch floor_ostone1
+x 4
+y 5
+end
+arch floor_ostone1
+x 4
+y 6
+end
+arch floor_ostone1
+x 4
+y 7
+end
+arch floor_ostone1
+x 4
+y 8
+end
+arch floor_ostone1
+x 4
+y 9
+end
+arch floor_ostone1
+x 4
+y 10
+end
+arch floor_ostone1
+x 4
+y 11
+end
+arch wall_stone1_1
+x 4
+y 11
+end
+arch floor_ostone1
+x 4
+y 12
+end
+arch floor_ostone1
+x 4
+y 13
+end
+arch floor_ostone1
+x 4
+y 14
+end
+arch floor_ostone1
+x 4
+y 15
+end
+arch floor_ostone1
+x 4
+y 16
+end
+arch floor_ostone1
+x 4
+y 17
+end
+arch floor_ostone1
+x 4
+y 18
+end
+arch floor_ostone1
+x 4
+y 19
+end
+arch floor_ostone1
+x 4
+y 20
+end
+arch floor_ostone1
+x 4
+y 21
+end
+arch floor_ostone1
+x 4
+y 22
+end
+arch floor_ostone1
+x 4
+y 23
+end
+arch wall_stone1_1
+x 4
+y 23
+end
+arch floor_ostone1
+x 5
+end
+arch wall_stone1_1
+x 5
+end
+arch floor_ostone1
+x 5
+y 1
+end
+arch floor_ostone1
+x 5
+y 2
+end
+arch floor_ostone1
+x 5
+y 3
+end
+arch floor_ostone1
+x 5
+y 4
+end
+arch floor_ostone1
+x 5
+y 5
+end
+arch floor_ostone1
+x 5
+y 6
+end
+arch floor_ostone1
+x 5
+y 7
+end
+arch floor_ostone1
+x 5
+y 8
+end
+arch floor_ostone1
+x 5
+y 9
+end
+arch floor_ostone1
+x 5
+y 10
+end
+arch floor_ostone1
+x 5
+y 11
+end
+arch wall_stone1_1
+x 5
+y 11
+end
+arch floor_ostone1
+x 5
+y 12
+end
+arch sign
+msg
+Atrinik Quest System
+endmsg
+x 5
+y 12
+end
+arch floor_ostone1
+x 5
+y 13
+end
+arch floor_ostone1
+x 5
+y 14
+end
+arch floor_ostone1
+x 5
+y 15
+end
+arch floor_ostone1
+x 5
+y 16
+end
+arch floor_ostone1
+x 5
+y 17
+end
+arch floor_ostone1
+x 5
+y 18
+end
+arch floor_ostone1
+x 5
+y 19
+end
+arch floor_ostone1
+x 5
+y 20
+end
+arch floor_ostone1
+x 5
+y 21
+end
+arch floor_ostone1
+x 5
+y 22
+end
+arch floor_ostone1
+x 5
+y 23
+end
+arch wall_stone1_1
+x 5
+y 23
+end
+arch floor_ostone1
+x 6
+end
+arch wall_stone1_1
+x 6
+end
+arch floor_ostone1
+x 6
+y 1
+end
+arch floor_ostone1
+x 6
+y 2
+end
+arch floor_ostone1
+x 6
+y 3
+end
+arch floor_ostone1
+x 6
+y 4
+end
+arch floor_ostone1
+x 6
+y 5
+end
+arch floor_ostone1
+x 6
+y 6
+end
+arch floor_ostone1
+x 6
+y 7
+end
+arch floor_ostone1
+x 6
+y 8
+end
+arch floor_ostone1
+x 6
+y 9
+end
+arch floor_ostone1
+x 6
+y 10
+end
+arch floor_ostone1
+x 6
+y 11
+end
+arch floor_ostone1
+x 6
+y 12
+end
+arch floor_ostone1
+x 6
+y 13
+end
+arch floor_ostone1
+x 6
+y 14
+end
+arch floor_ostone1
+x 6
+y 15
+end
+arch floor_ostone1
+x 6
+y 16
+end
+arch floor_ostone1
+x 6
+y 17
+end
+arch floor_ostone1
+x 6
+y 18
+end
+arch floor_ostone1
+x 6
+y 19
+end
+arch floor_ostone1
+x 6
+y 20
+end
+arch floor_ostone1
+x 6
+y 21
+end
+arch floor_ostone1
+x 6
+y 22
+end
+arch floor_ostone1
+x 6
+y 23
+end
+arch wall_stone1_1
+x 6
+y 23
+end
+arch floor_ostone1
+x 7
+end
+arch wall_stone1_1
+x 7
+end
+arch floor_ostone1
+x 7
+y 1
+end
+arch floor_ostone1
+x 7
+y 2
+end
+arch floor_ostone1
+x 7
+y 3
+end
+arch floor_ostone1
+x 7
+y 4
+end
+arch floor_ostone1
+x 7
+y 5
+end
+arch floor_ostone1
+x 7
+y 6
+end
+arch floor_ostone1
+x 7
+y 7
+end
+arch floor_ostone1
+x 7
+y 8
+end
+arch floor_ostone1
+x 7
+y 9
+end
+arch floor_ostone1
+x 7
+y 10
+end
+arch floor_ostone1
+x 7
+y 11
+end
+arch floor_ostone1
+x 7
+y 12
+end
+arch floor_ostone1
+x 7
+y 13
+end
+arch floor_ostone1
+x 7
+y 14
+end
+arch floor_ostone1
+x 7
+y 15
+end
+arch floor_ostone1
+x 7
+y 16
+end
+arch floor_ostone1
+x 7
+y 17
+end
+arch floor_ostone1
+x 7
+y 18
+end
+arch floor_ostone1
+x 7
+y 19
+end
+arch floor_ostone1
+x 7
+y 20
+end
+arch floor_ostone1
+x 7
+y 21
+end
+arch floor_ostone1
+x 7
+y 22
+end
+arch floor_ostone1
+x 7
+y 23
+end
+arch wall_stone1_1
+x 7
+y 23
+end
+arch floor_ostone1
+x 8
+end
+arch wall_stone1_1
+x 8
+end
+arch floor_ostone1
+x 8
+y 1
+end
+arch wall_stone1_3
+x 8
+y 1
+end
+arch floor_ostone1
+x 8
+y 2
+end
+arch wall_stone1_3
+x 8
+y 2
+end
+arch floor_ostone1
+x 8
+y 3
+end
+arch wall_stone1_3
+x 8
+y 3
+end
+arch floor_ostone1
+x 8
+y 4
+end
+arch wall_stone1_3
+x 8
+y 4
+end
+arch floor_ostone1
+x 8
+y 5
+end
+arch wall_stone1_3
+x 8
+y 5
+end
+arch floor_ostone1
+x 8
+y 6
+end
+arch wall_stone1_3
+x 8
+y 6
+end
+arch floor_ostone1
+x 8
+y 7
+end
+arch wall_stone1_3
+x 8
+y 7
+end
+arch floor_ostone1
+x 8
+y 8
+end
+arch wall_stone1_3
+x 8
+y 8
+end
+arch floor_ostone1
+x 8
+y 9
+end
+arch wall_stone1_3
+x 8
+y 9
+end
+arch floor_ostone1
+x 8
+y 10
+end
+arch wall_stone1_3
+x 8
+y 10
+end
+arch floor_ostone1
+x 8
+y 11
+end
+arch wall_stone1_3
+x 8
+y 11
+end
+arch floor_ostone1
+x 8
+y 12
+end
+arch floor_ostone1
+x 8
+y 13
+end
+arch floor_ostone1
+x 8
+y 14
+end
+arch floor_ostone1
+x 8
+y 15
+end
+arch floor_ostone1
+x 8
+y 16
+end
+arch floor_ostone1
+x 8
+y 17
+end
+arch floor_ostone1
+x 8
+y 18
+end
+arch floor_ostone1
+x 8
+y 19
+end
+arch floor_ostone1
+x 8
+y 20
+end
+arch floor_ostone1
+x 8
+y 21
+end
+arch floor_ostone1
+x 8
+y 22
+end
+arch floor_ostone1
+x 8
+y 23
+end
+arch wall_stone1_1
+x 8
+y 23
+end
+arch floor_ostone1
+x 9
+y 11
+end
+arch wall_stone1_1
+x 9
+y 11
+end
+arch floor_ostone1
+x 9
+y 12
+end
+arch floor_ostone1
+x 9
+y 13
+end
+arch floor_ostone1
+x 9
+y 14
+end
+arch floor_ostone1
+x 9
+y 15
+end
+arch floor_ostone1
+x 9
+y 16
+end
+arch floor_ostone1
+x 9
+y 17
+end
+arch floor_ostone1
+x 9
+y 18
+end
+arch floor_ostone1
+x 9
+y 19
+end
+arch floor_ostone1
+x 9
+y 20
+end
+arch floor_ostone1
+x 9
+y 21
+end
+arch floor_ostone1
+x 9
+y 22
+end
+arch floor_ostone1
+x 9
+y 23
+end
+arch wall_stone1_1
+x 9
+y 23
+end
+arch floor_ostone1
+x 10
+y 11
+end
+arch wall_stone1_1
+x 10
+y 11
+end
+arch floor_ostone1
+x 10
+y 12
+end
+arch floor_ostone1
+x 10
+y 13
+end
+arch floor_ostone1
+x 10
+y 14
+end
+arch floor_ostone1
+x 10
+y 15
+end
+arch floor_ostone1
+x 10
+y 16
+end
+arch floor_ostone1
+x 10
+y 17
+end
+arch floor_ostone1
+x 10
+y 18
+end
+arch floor_ostone1
+x 10
+y 19
+end
+arch floor_ostone1
+x 10
+y 20
+end
+arch floor_ostone1
+x 10
+y 21
+end
+arch floor_ostone1
+x 10
+y 22
+end
+arch floor_ostone1
+x 10
+y 23
+end
+arch wall_stone1_1
+x 10
+y 23
+end
+arch floor_ostone1
+x 11
+y 11
+end
+arch wall_stone1_1
+x 11
+y 11
+end
+arch floor_ostone1
+x 11
+y 12
+end
+arch floor_ostone1
+x 11
+y 13
+end
+arch floor_ostone1
+x 11
+y 14
+end
+arch floor_ostone1
+x 11
+y 15
+end
+arch floor_ostone1
+x 11
+y 16
+end
+arch floor_ostone1
+x 11
+y 17
+end
+arch floor_ostone1
+x 11
+y 18
+end
+arch floor_ostone1
+x 11
+y 19
+end
+arch floor_ostone1
+x 11
+y 20
+end
+arch floor_ostone1
+x 11
+y 21
+end
+arch floor_ostone1
+x 11
+y 22
+end
+arch floor_ostone1
+x 11
+y 23
+end
+arch wall_stone1_1
+x 11
+y 23
+end
+arch floor_ostone1
+x 12
+y 11
+end
+arch wall_stone1_1
+x 12
+y 11
+end
+arch floor_ostone1
+x 12
+y 12
+end
+arch sign
+msg
+When this slug is killed, player will be get a key. If the player loses the key, it will be given back to him when he kills this monster again.
+endmsg
+x 12
+y 12
+end
+arch floor_ostone1
+x 12
+y 13
+end
+arch floor_ostone1
+x 12
+y 14
+end
+arch floor_ostone1
+x 12
+y 15
+end
+arch floor_ostone1
+x 12
+y 16
+end
+arch floor_ostone1
+x 12
+y 17
+end
+arch floor_ostone1
+x 12
+y 18
+end
+arch floor_ostone1
+x 12
+y 19
+end
+arch floor_ostone1
+x 12
+y 20
+end
+arch floor_ostone1
+x 12
+y 21
+end
+arch floor_ostone1
+x 12
+y 22
+end
+arch floor_ostone1
+x 12
+y 23
+end
+arch wall_stone1_1
+x 12
+y 23
+end
+arch floor_ostone1
+x 13
+y 11
+end
+arch wall_stone1_1
+x 13
+y 11
+end
+arch floor_ostone1
+x 13
+y 12
+end
+arch spawn_point
+x 13
+y 12
+arch slug_giant
+no_attack 1
+stand_still 1
+type 83
+arch quest_container
+name Dev Testmaps Quest 1
+arch key2
+one_drop 1
+identified 1
+slaying key_no_use
+end
+end
+end
+end
+arch floor_ostone1
+x 13
+y 13
+end
+arch floor_ostone1
+x 13
+y 14
+end
+arch floor_ostone1
+x 13
+y 15
+end
+arch floor_ostone1
+x 13
+y 16
+end
+arch floor_ostone1
+x 13
+y 17
+end
+arch floor_ostone1
+x 13
+y 18
+end
+arch floor_ostone1
+x 13
+y 19
+end
+arch floor_ostone1
+x 13
+y 20
+end
+arch floor_ostone1
+x 13
+y 21
+end
+arch floor_ostone1
+x 13
+y 22
+end
+arch floor_ostone1
+x 13
+y 23
+end
+arch wall_stone1_1
+x 13
+y 23
+end
+arch floor_ostone1
+x 14
+y 11
+end
+arch wall_stone1_1
+x 14
+y 11
+end
+arch floor_ostone1
+x 14
+y 12
+end
+arch floor_ostone1
+x 14
+y 13
+end
+arch floor_ostone1
+x 14
+y 14
+end
+arch floor_ostone1
+x 14
+y 15
+end
+arch floor_ostone1
+x 14
+y 16
+end
+arch floor_ostone1
+x 14
+y 17
+end
+arch floor_ostone1
+x 14
+y 18
+end
+arch floor_ostone1
+x 14
+y 19
+end
+arch floor_ostone1
+x 14
+y 20
+end
+arch floor_ostone1
+x 14
+y 21
+end
+arch floor_ostone1
+x 14
+y 22
+end
+arch floor_ostone1
+x 14
+y 23
+end
+arch wall_stone1_1
+x 14
+y 23
+end
+arch floor_ostone1
+x 15
+y 11
+end
+arch wall_stone1_1
+x 15
+y 11
+end
+arch floor_ostone1
+x 15
+y 12
+end
+arch sign
+msg
+Quest like the slug one, but when the snake is killed and player gets the quest item, it will never drop for him again.
+endmsg
+x 15
+y 12
+end
+arch floor_ostone1
+x 15
+y 13
+end
+arch floor_ostone1
+x 15
+y 14
+end
+arch floor_ostone1
+x 15
+y 15
+end
+arch floor_ostone1
+x 15
+y 16
+end
+arch floor_ostone1
+x 15
+y 17
+end
+arch floor_ostone1
+x 15
+y 18
+end
+arch floor_ostone1
+x 15
+y 19
+end
+arch floor_ostone1
+x 15
+y 20
+end
+arch floor_ostone1
+x 15
+y 21
+end
+arch floor_ostone1
+x 15
+y 22
+end
+arch floor_ostone1
+x 15
+y 23
+end
+arch wall_stone1_1
+x 15
+y 23
+end
+arch floor_ostone1
+x 16
+y 11
+end
+arch wall_stone1_1
+x 16
+y 11
+end
+arch floor_ostone1
+x 16
+y 12
+end
+arch spawn_point
+x 16
+y 12
+arch snake
+no_attack 1
+stand_still 1
+type 83
+arch quest_container
+name Dev Testmaps Quest 2
+arch teddy
+identified 1
+end
+end
+end
+end
+arch floor_ostone1
+x 16
+y 13
+end
+arch floor_ostone1
+x 16
+y 14
+end
+arch floor_ostone1
+x 16
+y 15
+end
+arch floor_ostone1
+x 16
+y 16
+end
+arch floor_ostone1
+x 16
+y 17
+end
+arch floor_ostone1
+x 16
+y 18
+end
+arch floor_ostone1
+x 16
+y 19
+end
+arch floor_ostone1
+x 16
+y 20
+end
+arch floor_ostone1
+x 16
+y 21
+end
+arch floor_ostone1
+x 16
+y 22
+end
+arch floor_ostone1
+x 16
+y 23
+end
+arch wall_stone1_1
+x 16
+y 23
+end
+arch floor_ostone1
+x 17
+y 11
+end
+arch wall_stone1_1
+x 17
+y 11
+end
+arch floor_ostone1
+x 17
+y 12
+end
+arch floor_ostone1
+x 17
+y 13
+end
+arch floor_ostone1
+x 17
+y 14
+end
+arch floor_ostone1
+x 17
+y 15
+end
+arch floor_ostone1
+x 17
+y 16
+end
+arch floor_ostone1
+x 17
+y 17
+end
+arch floor_ostone1
+x 17
+y 18
+end
+arch floor_ostone1
+x 17
+y 19
+end
+arch floor_ostone1
+x 17
+y 20
+end
+arch floor_ostone1
+x 17
+y 21
+end
+arch floor_ostone1
+x 17
+y 22
+end
+arch floor_ostone1
+x 17
+y 23
+end
+arch wall_stone1_1
+x 17
+y 23
+end
+arch floor_ostone1
+x 18
+y 11
+end
+arch wall_stone1_1
+x 18
+y 11
+end
+arch floor_ostone1
+x 18
+y 12
+end
+arch sign
+msg
+This monster holds quest item for the quest "Dev Testmaps Quest 3". Kill it and return the item to the quest giver for a reward.
+endmsg
+x 18
+y 12
+end
+arch floor_ostone1
+x 18
+y 13
+end
+arch floor_ostone1
+x 18
+y 14
+end
+arch floor_ostone1
+x 18
+y 15
+end
+arch floor_ostone1
+x 18
+y 16
+end
+arch floor_ostone1
+x 18
+y 17
+end
+arch floor_ostone1
+x 18
+y 18
+end
+arch floor_ostone1
+x 18
+y 19
+end
+arch floor_ostone1
+x 18
+y 20
+end
+arch floor_ostone1
+x 18
+y 21
+end
+arch floor_ostone1
+x 18
+y 22
+end
+arch floor_ostone1
+x 18
+y 23
+end
+arch wall_stone1_1
+x 18
+y 23
+end
+arch floor_ostone1
+x 19
+y 11
+end
+arch wall_stone1_1
+x 19
+y 11
+end
+arch floor_ostone1
+x 19
+y 12
+end
+arch spawn_point
+x 19
+y 12
+arch ant_red
+no_attack 1
+random_move 0
+stand_still 1
+type 83
+arch quest_container
+name Dev Testmaps Quest 3
+sub_type 2
+arch gravedirt
+identified 1
+end
+end
+end
+end
+arch floor_ostone1
+x 19
+y 13
+end
+arch floor_ostone1
+x 19
+y 14
+end
+arch floor_ostone1
+x 19
+y 15
+end
+arch floor_ostone1
+x 19
+y 16
+end
+arch floor_ostone1
+x 19
+y 17
+end
+arch floor_ostone1
+x 19
+y 18
+end
+arch floor_ostone1
+x 19
+y 19
+end
+arch floor_ostone1
+x 19
+y 20
+end
+arch floor_ostone1
+x 19
+y 21
+end
+arch floor_ostone1
+x 19
+y 22
+end
+arch floor_ostone1
+x 19
+y 23
+end
+arch wall_stone1_1
+x 19
+y 23
+end
+arch floor_ostone1
+x 20
+y 11
+end
+arch wall_stone1_1
+x 20
+y 11
+end
+arch floor_ostone1
+x 20
+y 12
+end
+arch floor_ostone1
+x 20
+y 13
+end
+arch floor_ostone1
+x 20
+y 14
+end
+arch floor_ostone1
+x 20
+y 15
+end
+arch floor_ostone1
+x 20
+y 16
+end
+arch floor_ostone1
+x 20
+y 17
+end
+arch floor_ostone1
+x 20
+y 18
+end
+arch floor_ostone1
+x 20
+y 19
+end
+arch floor_ostone1
+x 20
+y 20
+end
+arch floor_ostone1
+x 20
+y 21
+end
+arch floor_ostone1
+x 20
+y 22
+end
+arch floor_ostone1
+x 20
+y 23
+end
+arch wall_stone1_1
+x 20
+y 23
+end
+arch floor_ostone1
+x 21
+y 11
+end
+arch wall_stone1_1
+x 21
+y 11
+end
+arch floor_ostone1
+x 21
+y 12
+end
+arch sign
+msg
+Like the ant one, but this quest "Dev Testmaps Quest 4" has only 1/10 chance of getting the item from this bear.
+endmsg
+x 21
+y 12
+end
+arch floor_ostone1
+x 21
+y 13
+end
+arch floor_ostone1
+x 21
+y 14
+end
+arch floor_ostone1
+x 21
+y 15
+end
+arch floor_ostone1
+x 21
+y 16
+end
+arch floor_ostone1
+x 21
+y 17
+end
+arch floor_ostone1
+x 21
+y 18
+end
+arch floor_ostone1
+x 21
+y 19
+end
+arch floor_ostone1
+x 21
+y 20
+end
+arch floor_ostone1
+x 21
+y 21
+end
+arch floor_ostone1
+x 21
+y 22
+end
+arch floor_ostone1
+x 21
+y 23
+end
+arch wall_stone1_1
+x 21
+y 23
+end
+arch floor_ostone1
+x 22
+y 11
+end
+arch wall_stone1_1
+x 22
+y 11
+end
+arch floor_ostone1
+x 22
+y 12
+end
+arch spawn_point
+x 22
+y 12
+arch bear_grey
+no_attack 1
+stand_still 1
+type 83
+direction 6
+arch quest_container
+name Dev Testmaps Quest 4
+sub_type 2
+arch rand_drop
+container 10
+arch rod_heavy
+identified 1
+type 79
+end
+end
+end
+end
+end
+arch floor_ostone1
+x 22
+y 13
+end
+arch floor_ostone1
+x 22
+y 14
+end
+arch sign
+msg
+Kill 5 demiliches to complete the quest "Dev Testmaps Quest 5"
+endmsg
+x 22
+y 14
+end
+arch floor_ostone1
+x 22
+y 15
+end
+arch spawn_point
+x 22
+y 15
+arch demilich
+no_attack 1
+stand_still 1
+type 83
+direction 7
+arch quest_container
+name Dev Testmaps Quest 5
+sub_type 1
+end
+end
+end
+arch floor_ostone1
+x 22
+y 16
+end
+arch floor_ostone1
+x 22
+y 17
+end
+arch floor_ostone1
+x 22
+y 18
+end
+arch floor_ostone1
+x 22
+y 19
+end
+arch floor_ostone1
+x 22
+y 20
+end
+arch floor_ostone1
+x 22
+y 21
+end
+arch floor_ostone1
+x 22
+y 22
+end
+arch floor_ostone1
+x 22
+y 23
+end
+arch wall_stone1_1
+x 22
+y 23
+end
+arch floor_ostone1
+x 23
+y 11
+end
+arch wall_stone1_1
+x 23
+y 11
+end
+arch floor_ostone1
+x 23
+y 12
+end
+arch wall_stone1_3
+x 23
+y 12
+end
+arch floor_ostone1
+x 23
+y 13
+end
+arch wall_stone1_3
+x 23
+y 13
+end
+arch floor_ostone1
+x 23
+y 14
+end
+arch wall_stone1_3
+x 23
+y 14
+end
+arch floor_ostone1
+x 23
+y 15
+end
+arch wall_stone1_3
+x 23
+y 15
+end
+arch floor_ostone1
+x 23
+y 16
+end
+arch wall_stone1_3
+x 23
+y 16
+end
+arch floor_ostone1
+x 23
+y 17
+end
+arch wall_stone1_3
+x 23
+y 17
+end
+arch floor_ostone1
+x 23
+y 18
+end
+arch wall_stone1_3
+x 23
+y 18
+end
+arch floor_ostone1
+x 23
+y 19
+end
+arch wall_stone1_3
+x 23
+y 19
+end
+arch floor_ostone1
+x 23
+y 20
+end
+arch wall_stone1_3
+x 23
+y 20
+end
+arch floor_ostone1
+x 23
+y 21
+end
+arch wall_stone1_3
+x 23
+y 21
+end
+arch floor_ostone1
+x 23
+y 22
+end
+arch wall_stone1_3
+x 23
+y 22
+end
+arch floor_ostone1
+x 23
+y 23
+end
+arch wall_stone1_4
+x 23
+y 23
+end

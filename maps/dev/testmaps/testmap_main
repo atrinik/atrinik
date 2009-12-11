@@ -2,7 +2,7 @@ arch map
 name Testmap: Main
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-10-15 Alex Tokar
+Modified: 2009-12-11 Alex Tokar
 endmsg
 width 17
 height 17
@@ -290,10 +290,10 @@ x 2
 y 7
 end
 arch sign
-name Misc. Objects
 msg
 Some unsorted interesting objects
 endmsg
+name Misc. Objects
 x 2
 y 7
 end
@@ -1035,7 +1035,22 @@ arch floor_ostone1
 x 9
 y 14
 end
+arch sign
+msg
+Testmap related to the Python plugin.
+endmsg
+x 9
+y 14
+end
 arch floor_ostone1
+x 9
+y 15
+end
+arch stairs_stone_down
+slaying testmap_python
+hp 1
+sp 1
+direction 1
 x 9
 y 15
 end
@@ -1214,19 +1229,6 @@ arch floor_ostone1
 x 11
 y 12
 end
-arch monk
-name PythonTester
-invulnerable 1
-no_attack 1
-unaggressive 0
-friendly 1
-x 11
-y 12
-arch event_obj
-sub_type 6
-race scripts/python_tests.py
-end
-end
 arch floor_ostone1
 x 11
 y 13
@@ -1345,12 +1347,12 @@ x 13
 y 2
 end
 arch sign
-name food, flesh and poison
 msg
 Test of food, flesh and poison.
 This includes poison DOT force and
 food buff/debuff force.
 endmsg
+name food, flesh and poison
 x 13
 y 2
 end
