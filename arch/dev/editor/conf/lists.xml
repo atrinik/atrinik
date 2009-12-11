@@ -106,35 +106,92 @@
 
 <list name="material_real">
 	<listentry value="0" name="&lt;undefined&gt;" />
-	<listentry value="1" name="paper: standard paper" />
-	<listentry value="2" name="paper: parchment" />
-	<listentry value="65" name="hard metal: iron" />
-	<listentry value="66" name="hard metal: hard iron" />
-	<listentry value="67" name="hard metal: steel" />
-	<listentry value="68" name="hard metal: forged steel" />
-	<listentry value="69" name="hard metal: dark steel" />
-	<listentry value="70" name="hard metal: forged dark steel" />
-	<listentry value="71" name="hard metal: silksteel" />
-	<listentry value="72" name="hard metal: forged silksteel" />
-	<listentry value="129" name="crystal: glass" />
-	<listentry value="130" name="crystal: zircon" />
-	<listentry value="131" name="crystal: pearl" />
-	<listentry value="132" name="crystal: emerald" />
-	<listentry value="133" name="crystal: sapphire" />
-	<listentry value="134" name="crystal: ruby" />
-	<listentry value="135" name="crystal: diamond" />
+	<listentry value="1" name="paper: paper" />
+	<listentry value="2" name="paper: paper" />
+	<listentry value="3" name="paper: paper" />
+	<listentry value="4" name="paper: paper" />
+	<listentry value="5" name="paper: paper" />
+	<listentry value="6" name="paper: paper" />
+	<listentry value="7" name="paper: paper" />
+	<listentry value="8" name="paper: paper" />
+	<listentry value="9" name="paper: paper" />
+	<listentry value="10" name="paper: rice paper" />
+	<listentry value="11" name="paper: parchment" />
+	<listentry value="12" name="paper: parchment" />
+	<listentry value="13" name="paper: parchment" />
+	<listentry value="14" name="paper: vellum" />
+	<listentry value="15" name="paper: demon vellum" />
+	<listentry value="16" name="paper: papyrus" />
+	<listentry value="65" name="iron: iron" />
+	<listentry value="66" name="iron: hardened iron" />
+	<listentry value="67" name="iron: forged iron" />
+	<listentry value="68" name="iron: black iron" />
+	<listentry value="69" name="iron: shear iron" />
+	<listentry value="70" name="iron: steel" />
+	<listentry value="71" name="iron: hardened steel" />
+	<listentry value="72" name="iron: forged steel" />
+	<listentry value="73" name="iron: shear steel" />
+	<listentry value="74" name="iron: diamant steel" />
+	<listentry value="75" name="iron: darksteel" />
+	<listentry value="76" name="iron: forged darksteel" />
+	<listentry value="77" name="iron: silksteel" />
+	<listentry value="78" name="iron: forged silksteel" />
+	<listentry value="79" name="iron: meteoric steel" />
+	<listentry value="80" name="iron: forged meteoric steel" />
+	<listentry value="129" name="glass: glass" />
+	<listentry value="130" name="glass: zircon" />
+	<listentry value="131" name="glass: pearl" />
+	<listentry value="132" name="glass: emerald" />
+	<listentry value="133" name="glass: sapphire" />
+	<listentry value="134" name="glass: ruby" />
+	<listentry value="135" name="glass: diamond" />
+	<listentry value="136" name="glass: jasper" />
+	<listentry value="137" name="glass: jade" />
+	<listentry value="138" name="glass: aquamarine" />
 	<listentry value="193" name="leather: soft leather" />
 	<listentry value="194" name="leather: hardened leather" />
-	<listentry value="195" name="leather: ogre leather" />
-	<listentry value="196" name="leather: giant leather" />
-	<listentry value="197" name="leather: dark leather" />
-	<listentry value="198" name="leather: drow leather" />
-	<listentry value="199" name="leather: demon leather" />
-	<listentry value="200" name="leather: dragon leather" />
-	<listentry value="257" name="wood: polished" />
-	<listentry value="258" name="wood: oak wood" />
-	<listentry value="321" name="organic: animal organics" />
-	<listentry value="322" name="organic: dragon organics" />
+	<listentry value="195" name="leather: stone leather" />
+	<listentry value="196" name="leather: dark leather" />
+	<listentry value="197" name="leather: silk leather" />
+	<listentry value="198" name="leather: wyvern leather" />
+	<listentry value="199" name="leather: ankheg leather" />
+	<listentry value="200" name="leather: griffon leather" />
+	<listentry value="201" name="leather: hellcat leather" />
+	<listentry value="202" name="leather: gargoyle leather" />
+	<listentry value="203" name="leather: diamant leather" />
+	<listentry value="204" name="leather: chimera leather" />
+	<listentry value="205" name="leather: manticore leather" />
+	<listentry value="206" name="leather: cockatrice leather" />
+	<listentry value="207" name="leather: basilisk leather" />
+	<listentry value="208" name="leather: dragon leather" />
+	<listentry value="257" name="wood: pine" />
+	<listentry value="258" name="wood: spruce" />
+	<listentry value="259" name="wood: cedar" />
+	<listentry value="260" name="wood: ash" />
+	<listentry value="261" name="wood: yew" />
+	<listentry value="262" name="wood: birch" />
+	<listentry value="263" name="wood: hickory" />
+	<listentry value="264" name="wood: cherry" />
+	<listentry value="265" name="wood: walnut" />
+	<listentry value="266" name="wood: maple" />
+	<listentry value="267" name="wood: elm" />
+	<listentry value="268" name="wood: red elm" />
+	<listentry value="269" name="wood: rosewood" />
+	<listentry value="270" name="wood: pernambuco" />
+	<listentry value="271" name="wood: white oak" />
+	<listentry value="272" name="wood: red oak" />
+	<listentry value="321" name="organic: animal" />
+	<listentry value="322" name="organic: dragon" />
+	<listentry value="323" name="organic: chitin" />
+	<listentry value="324" name="organic: scale" />
+	<listentry value="325" name="organic: white dragonscale" />
+	<listentry value="326" name="organic: blue dragonscale" />
+	<listentry value="327" name="organic: red dragonscale" />
+	<listentry value="328" name="organic: yellow dragonscale" />
+	<listentry value="329" name="organic: grey dragonscale" />
+	<listentry value="330" name="organic: black dragonscale" />
+	<listentry value="331" name="organic: orange dragonscale" />
+	<listentry value="332" name="organic: green dragonscale" />
 	<listentry value="385" name="stone: flint" />
 	<listentry value="449" name="cloth: wool" />
 	<listentry value="450" name="cloth: linen" />
@@ -143,7 +200,7 @@
 	<listentry value="513" name="adamant: magic silk" />
 	<listentry value="514" name="adamant: mithril" />
 	<listentry value="515" name="adamant: adamant" />
-	<listentry value="577" name="liquid: (default liquid)" />
+	<listentry value="577" name="liquid: " />
 	<listentry value="641" name="soft metal: tin" />
 	<listentry value="642" name="soft metal: brass" />
 	<listentry value="643" name="soft metal: copper" />
@@ -151,11 +208,11 @@
 	<listentry value="645" name="soft metal: silver" />
 	<listentry value="646" name="soft metal: gold" />
 	<listentry value="647" name="soft metal: platinum" />
-	<listentry value="705" name="bone: animal bone" />
-	<listentry value="706" name="bone: human bone" />
-	<listentry value="707" name="bone: elven bone" />
-	<listentry value="708" name="bone: dwarven bone" />
-	<listentry value="769" name="ice: (default ice)" />
+	<listentry value="705" name="bone: " />
+	<listentry value="706" name="bone: human" />
+	<listentry value="707" name="bone: elven" />
+	<listentry value="708" name="bone: dwarven" />
+	<listentry value="769" name="ice: " />
 </list>
 
 <list name="attack_type">

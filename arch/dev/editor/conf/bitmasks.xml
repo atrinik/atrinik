@@ -4,14 +4,14 @@
 
 <bitmask name="material">
 	<bmentry bit="0" name="Paper" />
-	<bmentry bit="1" name="Hard Metal" />
-	<bmentry bit="2" name="Crystal" />
+	<bmentry bit="1" name="Iron" />
+	<bmentry bit="2" name="Glass" />
 	<bmentry bit="3" name="Leather" />
 	<bmentry bit="4" name="Wood" />
-	<bmentry bit="5" name="Organics" />
+	<bmentry bit="5" name="Organic" />
 	<bmentry bit="6" name="Stone" />
 	<bmentry bit="7" name="Cloth" />
-	<bmentry bit="8" name="Magic Material" />
+	<bmentry bit="8" name="Adamant" />
 	<bmentry bit="9" name="Liquid" />
 	<bmentry bit="10" name="Soft Metal" />
 	<bmentry bit="11" name="Bone" />
@@ -34,7 +34,7 @@
 	<bmentry bit="12" name="Teleportation" />
 	<bmentry bit="13" name="Information" />
 	<bmentry bit="14" name="Transmutation" />
-	<bmentry bit="15" name="Transferrence" />
+	<bmentry bit="15" name="Transference" />
 	<bmentry bit="16" name="Turning" />
 	<bmentry bit="17" name="Wounding" />
 	<bmentry bit="18" name="Death" />
