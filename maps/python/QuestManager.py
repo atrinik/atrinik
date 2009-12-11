@@ -7,19 +7,6 @@ import string, os
 
 ## The Quest Manager class.
 class QuestManager:
-	## @defgroup quest_types Quest types
-	## All the different quest types this class handles.
-	## @{
-
-	## Kill X monsters type quest.
-	QUEST_TYPE_KILL = 1
-	## Get item X by killing monster Y type quest.
-	QUEST_TYPE_KILL_ITEM = 2
-	## @}
-
-	## Marks the quest as completed.
-	QUEST_STATUS_COMPLETED = 1
-
 	## The quest object inside player's quest container.
 	quest_object = None
 	## Information about the quest.
@@ -46,7 +33,7 @@ class QuestManager:
 
 		# For the kill type quest, set the last_grace field to the value
 		# of monsters we have to kill.
-		if self.quest["type"] == self.QUEST_TYPE_KILL:
+		if self.quest["type"] == QUEST_TYPE_KILL:
 			self.quest_object.last_grace = self.quest["kills"]
 
 	## Check if the quest has been started.
@@ -58,11 +45,11 @@ class QuestManager:
 	def finished(self):
 		# For the kill type quest check if we have killed enough
 		# monsters.
-		if self.quest["type"] == self.QUEST_TYPE_KILL:
+		if self.quest["type"] == QUEST_TYPE_KILL:
 			if self.quest_object.last_sp >= self.quest_object.last_grace:
 				return 1
 		# For the kill item quest type check for the quest item.
-		elif self.quest["type"] == self.QUEST_TYPE_KILL_ITEM:
+		elif self.quest["type"] == QUEST_TYPE_KILL_ITEM:
 			quest_item = self.activator.CheckInventory(1, self.quest["arch_name"], self.quest["item_name"])
 
 			if quest_item and quest_item.f_quest_item:
@@ -72,10 +59,10 @@ class QuestManager:
 
 	## Complete a quest.
 	def complete(self):
-		self.quest_object.magic = self.QUEST_STATUS_COMPLETED
+		self.quest_object.magic = QUEST_STATUS_COMPLETED
 
 		# Do anything extra for the kill item quest type.
-		if self.quest["type"] == self.QUEST_TYPE_KILL_ITEM:
+		if self.quest["type"] == QUEST_TYPE_KILL_ITEM:
 			# Find the quest item that is being looked for.
 			quest_item = self.activator.CheckInventory(1, self.quest["arch_name"], self.quest["item_name"])
 
@@ -92,7 +79,7 @@ class QuestManager:
 	def completed(self):
 		# Check the quest object's magic field to see if the quest has
 		# been completed.
-		if self.quest_object.magic == self.QUEST_STATUS_COMPLETED:
+		if self.quest_object.magic == QUEST_STATUS_COMPLETED:
 			return 1
 
 		return 0
@@ -100,7 +87,7 @@ class QuestManager:
 	## Get number of monsters the player needs to kill to complete the
 	## quest.
 	def num_to_kill(self):
-		if not self.quest_object or self.quest["type"] != self.QUEST_TYPE_KILL:
+		if not self.quest_object or self.quest["type"] != QUEST_TYPE_KILL:
 			return -1
 
 		return self.quest_object.last_grace - self.quest_object.last_sp

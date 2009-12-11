@@ -629,6 +629,10 @@ static Atrinik_Constant object_constants[] =
 	{"PLAYER_EQUIP_WEAPON1", PLAYER_EQUIP_WEAPON1},
 	{"PLAYER_EQUIP_BOW", PLAYER_EQUIP_BOW},
 
+	{"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
+	{"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
+	{"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
+
 	/* Argh, the object types. Make sure to keep up-to date if any are added/removed */
 	{"TYPE_PLAYER",                  PLAYER},
 	{"TYPE_BULLET",                  BULLET},
