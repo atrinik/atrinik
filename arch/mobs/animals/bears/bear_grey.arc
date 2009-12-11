@@ -2,6 +2,7 @@ Object bear_grey
 name grey bear
 face bear_grey.131
 race bear
+randomitems mob_bear_grey
 is_female 1
 corpse 1
 will_apply 8
