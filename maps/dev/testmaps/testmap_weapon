@@ -1,8 +1,8 @@
 arch map
-name Testmap - Effects
+name Testmap - Weapons
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2009-12-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -764,11 +764,6 @@ x 6
 y 6
 end
 arch floor_ostone1
-x 6
-y 7
-end
-arch bo
-identified 1
 x 6
 y 7
 end

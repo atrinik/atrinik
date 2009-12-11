@@ -600,14 +600,6 @@ arch floor_ostone1
 x 5
 y 11
 end
-arch dress
-protect_impact 120
-protect_slash 120
-protect_cleave 120
-protect_pierce 120
-x 5
-y 11
-end
 arch floor_ostone1
 x 5
 y 12
@@ -620,19 +612,7 @@ arch floor_ostone1
 x 5
 y 14
 end
-arch sign
-x 5
-y 14
-end
 arch floor_ostone1
-x 5
-y 15
-end
-arch stairs_stone_down
-slaying testmap_multiarch
-hp 1
-sp 1
-direction 1
 x 5
 y 15
 end
@@ -692,15 +672,18 @@ arch floor_ostone1
 x 6
 y 8
 end
+arch spawn_point
+x 6
+y 8
 arch ant_soldier
 name Skillgiver
 friendly 1
 stand_still 1
-x 6
-y 8
+type 83
 arch event_obj
 sub_type 6
 race scripts/skills.py
+end
 end
 end
 arch floor_ostone1
@@ -749,23 +732,7 @@ arch floor_ostone1
 x 7
 y 1
 end
-arch stairs_stone_down
-name Test Traps
-slaying testmap_traps
-hp 1
-sp 1
-direction 5
-x 7
-y 1
-end
 arch floor_ostone1
-x 7
-y 2
-end
-arch sign
-msg
-Traps and Special Objects
-endmsg
 x 7
 y 2
 end
@@ -810,12 +777,6 @@ x 7
 y 11
 end
 arch floor_ostone1
-x 7
-y 12
-end
-arch dagger
-dam 400
-wc 40
 x 7
 y 12
 end
@@ -889,15 +850,18 @@ arch floor_ostone1
 x 8
 y 8
 end
+arch spawn_point
+x 8
+y 8
 arch ant_red
 name Spellgiver
 stand_still 1
 friendly 1
-x 8
-y 8
+type 83
 arch event_obj
 sub_type 6
 race scripts/spells.py
+end
 end
 end
 arch floor_ostone1
@@ -913,12 +877,6 @@ x 8
 y 11
 end
 arch floor_ostone1
-x 8
-y 12
-end
-arch shortsword
-dam 400
-wc 40
 x 8
 y 12
 end
@@ -981,14 +939,6 @@ arch floor_ostone1
 x 9
 y 4
 end
-arch stairs_stone_down
-slaying testmap_artifacts1
-hp 1
-sp 1
-direction 5
-x 9
-y 4
-end
 arch floor_ostone1
 x 9
 y 5
@@ -1018,12 +968,6 @@ x 9
 y 11
 end
 arch floor_ostone1
-x 9
-y 12
-end
-arch axe_small
-dam 400
-wc 40
 x 9
 y 12
 end
@@ -1084,14 +1028,6 @@ arch floor_ostone1
 x 10
 y 4
 end
-arch sign
-msg
-Items
-Left entry artifacts, right normal arch items.
-endmsg
-x 10
-y 4
-end
 arch floor_ostone1
 x 10
 y 5
@@ -1121,12 +1057,6 @@ x 10
 y 11
 end
 arch floor_ostone1
-x 10
-y 12
-end
-arch hammer_small
-dam 400
-wc 40
 x 10
 y 12
 end
@@ -1185,15 +1115,6 @@ x 11
 y 3
 end
 arch floor_ostone1
-x 11
-y 4
-end
-arch stairs_stone_down
-name Test Items1
-slaying testmap_items1
-hp 1
-sp 1
-direction 5
 x 11
 y 4
 end
@@ -1449,11 +1370,6 @@ arch floor_ostone1
 x 14
 y 5
 end
-arch sign
-name tiled maps testmap (multi arch)
-x 14
-y 5
-end
 arch floor_ostone1
 x 14
 y 6
@@ -1552,14 +1468,6 @@ x 15
 y 4
 end
 arch floor_ostone1
-x 15
-y 5
-end
-arch stairs_stone_down
-slaying testmap_tiled1
-hp 1
-sp 1
-direction 7
 x 15
 y 5
 end

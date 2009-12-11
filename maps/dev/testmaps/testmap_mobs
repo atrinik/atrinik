@@ -1,8 +1,8 @@
 arch map
-name Testmap - mobs (mobiles)
+name Testmap: Monsters
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2009-12-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -177,9 +177,9 @@ x 1
 y 3
 end
 arch ring_generic
-name ring fo stealth
-stealth 1
+name ring of stealth
 identified 1
+stealth 1
 x 1
 y 3
 end
@@ -213,8 +213,8 @@ y 7
 end
 arch potion_generic
 nrof 100
-sp 3
 identified 1
+sp 3
 x 1
 y 7
 end
@@ -224,9 +224,8 @@ y 8
 end
 arch sign
 msg
-Test poison. The sword has poison 100% attack.
-The first mob has no attack and can be poisoned,
-the 2nd mob has poison attack itself and low wc.
+Poison testing. The sword has 100% poison attack.
+The first monster has no attack and can be poisoned, the second one has poison attack and low WC.
 endmsg
 x 1
 y 8
@@ -245,11 +244,11 @@ last_grace 0
 x 1
 y 10
 arch cube_gel
-type 83
-stand_still 1
-attack_pierce 1
 randomitems none
 maxhp 32
+attack_pierce 1
+stand_still 1
+type 83
 end
 end
 arch floor_ostone1
@@ -266,12 +265,12 @@ last_grace 0
 x 1
 y 12
 arch cube_gel
-type 83
-stand_still 1
-wc -100
 dam 5
+wc -100
 attack_pierce 0
 attack_poison 100
+stand_still 1
+type 83
 end
 end
 arch floor_ostone1
@@ -378,7 +377,6 @@ y 8
 end
 arch sword
 attack_poison 100
-attack_slash 0
 x 2
 y 8
 end
@@ -430,20 +428,6 @@ arch floor_ostone1
 x 2
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 2
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 2
 y 21
@@ -451,21 +435,6 @@ end
 arch floor_ostone1
 x 2
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 2
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 10
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 2
@@ -663,21 +632,6 @@ arch floor_ostone1
 x 4
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 4
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 2
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 4
 y 21
@@ -685,21 +639,6 @@ end
 arch floor_ostone1
 x 4
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 4
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 11
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 4
@@ -897,21 +836,6 @@ arch floor_ostone1
 x 6
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 6
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 3
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 6
 y 21
@@ -919,21 +843,6 @@ end
 arch floor_ostone1
 x 6
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 6
-y 22
-arch demilich
-type 83
-no_attack 1
-level 12
-hp 1
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 6
@@ -1131,21 +1040,6 @@ arch floor_ostone1
 x 8
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 8
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 4
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 8
 y 21
@@ -1153,21 +1047,6 @@ end
 arch floor_ostone1
 x 8
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 8
-y 22
-arch demilich
-type 83
-no_attack 1
-level 13
-hp 1
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 8
@@ -1235,13 +1114,13 @@ arch spawn_point
 x 9
 y 12
 arch ogre
-type 83
-stand_still 1
 can_cast_spell 1
 sp -1
 maxsp 30
 Pow 2
 Dex 3
+stand_still 1
+type 83
 arch ability_firestorm
 end
 end
@@ -1385,21 +1264,6 @@ arch floor_ostone1
 x 10
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 10
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 5
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 10
 y 21
@@ -1407,21 +1271,6 @@ end
 arch floor_ostone1
 x 10
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 10
-y 22
-arch demilich
-type 83
-no_attack 1
-level 14
-hp 1
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 10
@@ -1619,21 +1468,6 @@ arch floor_ostone1
 x 12
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 12
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 6
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 12
 y 21
@@ -1641,21 +1475,6 @@ end
 arch floor_ostone1
 x 12
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 12
-y 22
-arch demilich
-type 83
-no_attack 1
-level 15
-hp 1
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 12
@@ -1723,10 +1542,9 @@ arch spawn_point
 x 13
 y 12
 arch giant_hill
-type 83
 Dex 1
 can_use_bow 1
-movement_type 3
+type 83
 arch ability_stone_throw
 end
 arch t_lboulder
@@ -1869,21 +1687,6 @@ arch floor_ostone1
 x 14
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 14
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 7
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 14
 y 21
@@ -1891,21 +1694,6 @@ end
 arch floor_ostone1
 x 14
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 14
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 16
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 14
@@ -2103,21 +1891,6 @@ arch floor_ostone1
 x 16
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 16
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 8
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 16
 y 21
@@ -2125,21 +1898,6 @@ end
 arch floor_ostone1
 x 16
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 16
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 17
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 16
@@ -2337,21 +2095,6 @@ arch floor_ostone1
 x 18
 y 20
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 18
-y 20
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 9
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 18
 y 21
@@ -2359,21 +2102,6 @@ end
 arch floor_ostone1
 x 18
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 18
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 18
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 18
@@ -2579,21 +2307,6 @@ arch floor_ostone1
 x 20
 y 22
 end
-arch spawn_point
-last_grace 0
-speed -1
-x 20
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 19
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
-end
 arch floor_ostone1
 x 20
 y 23
@@ -2797,21 +2510,6 @@ end
 arch floor_ostone1
 x 22
 y 22
-end
-arch spawn_point
-last_grace 0
-speed -1
-x 22
-y 22
-arch demilich
-type 83
-no_attack 1
-hp 1
-level 20
-can_cast_spell 0
-unaggressive 1
-stand_still 1
-end
 end
 arch floor_ostone1
 x 22
