@@ -180,14 +180,18 @@ elif words[0] == "find" and words[1] == "player" and len(words) > 2:
 	else:
 		me.SayTo(activator, "\n%s is on map: %s (%d, %d)" % (words[2], player.map.path, player.x, player.y))
 
+elif words[0] == "beacon" and len(words) > 1:
+	beacon = LocateBeacon(words[1])
+
+	if not beacon:
+		me.SayTo(activator, "\nCould not find beacon '%s'." % words[1])
+	else:
+		me.SayTo(activator, "\nFound beacon '%s':" % words[1])
+
+		if beacon.environment:
+			me.SayTo(activator, "In inventory of '%s'." % beacon.environment.name, 1)
+		else:
+			me.SayTo(activator, "On map '%s' (%d, %d)." % (beacon.map.path, beacon.x, beacon.y), 1)
+
 else:
-	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^")
-
-
-
-
-
-
-
-
-
+	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^")

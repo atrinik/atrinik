@@ -401,8 +401,10 @@
  * a fitting amount of money basing on the base setting). */
 #define TYPE_WEALTH				125
 
-/* unused: 126 - 129, 59
- * type 125 was MONEY_CHANGER */
+/** A beacon. */
+#define BEACON                  126
+
+/* unused: 127 - 129, 59 */
 
 /**
  * Can add a skill to player's inventory

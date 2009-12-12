@@ -111,6 +111,7 @@ struct plugin_hooklist hooklist =
 	set_ob_key_value,
 	drop,
 	query_short_name,
+	beacon_locate,
 
 	season_name,
 	weekdays,

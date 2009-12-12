@@ -97,7 +97,7 @@ static PyMethodDef ObjectMethods[] =
 	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
 	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
 	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
-    {"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
+	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -130,6 +130,7 @@ typedef struct
  * - <b>below</b>: @copydoc object::below
  * - <b>above</b>: @copydoc object::above
  * - <b>inventory</b>: @copydoc object::inv
+ * - <b>environment</b>: @copydoc object::env
  * - <b>map</b>: @copydoc object::map
  * - <b>name</b>: @copydoc object::name
  * - <b>title</b>: @copydoc object::title
@@ -237,6 +238,7 @@ obj_fields_struct obj_fields[] =
 	{"below",                  FIELDTYPE_OBJECT,     offsetof(object, below),                  FIELDFLAG_READONLY,          0},
 	{"above",                  FIELDTYPE_OBJECT,     offsetof(object, above),                  FIELDFLAG_READONLY,          0},
 	{"inventory",              FIELDTYPE_OBJECT,     offsetof(object, inv),                    FIELDFLAG_READONLY,          0},
+	{"environment",            FIELDTYPE_OBJECT,     offsetof(object, env),                    FIELDFLAG_READONLY,          0},
 	{"map",                    FIELDTYPE_MAP,        offsetof(object, map),                    FIELDFLAG_READONLY,          0},
 	{"name",                   FIELDTYPE_SHSTR,      offsetof(object, name),                   FIELDFLAG_PLAYER_READONLY,   0},
 	{"title",                  FIELDTYPE_SHSTR,      offsetof(object, title),                  0,                           0},

@@ -293,6 +293,7 @@ struct plugin_hooklist
 	int (*set_ob_key_value)(object *, const char *, const char *, int);
 	void (*drop)(object *, object *);
 	char *(*query_short_name)(object *, object *);
+	object *(*beacon_locate)(const char *);
 
 	const char **season_name;
 	const char **weekdays;

@@ -257,6 +257,7 @@ void init_globals()
 	nrofartifacts = 0;
 	nrofallowedstr = 0;
 	init_strings();
+	init_object_initializers();
 	num_animations = 0;
 	animations = NULL;
 	animations_allocated = 0;

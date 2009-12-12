@@ -1804,6 +1804,11 @@ void destroy_object(object *ob)
 		ob->custom_attrset = NULL;
 	}
 
+	if (ob->type == BEACON)
+	{
+		beacon_remove(ob);
+	}
+
 	FREE_AND_CLEAR_HASH2(ob->name);
 	FREE_AND_CLEAR_HASH2(ob->title);
 	FREE_AND_CLEAR_HASH2(ob->race);
@@ -3806,4 +3811,11 @@ int set_ob_key_value(object *op, const char *key, const char *value, int add_key
 	}
 
 	return ret;
+}
+
+/**
+ * Initialize the table of object initializers. */
+void init_object_initializers()
+{
+	object_initializers[BEACON] = beacon_add;
 }

@@ -268,6 +268,11 @@ lex_error = 0;
 								{
 									create_treasure(tmp->randomitems, tmp, 0, get_enviroment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 								}
+
+								if (object_initializers[tmp->type])
+								{
+									object_initializers[tmp->type](tmp);
+								}
 							}
 						}
 						/* This is the actual archetype definition */
@@ -1053,6 +1058,11 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		}
 
 		update_ob_speed(op);
+
+		if (object_initializers[op->type])
+		{
+			object_initializers[op->type](op);
+		}
 	}
 
 	/*LOG(llevDebug," load completed, object=%s %s (%d - %d)\n", op->name, op->title, op->item_quality, op->item_condition);*/

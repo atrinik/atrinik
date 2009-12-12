@@ -94,6 +94,7 @@ static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args);
 static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args);
+static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -136,6 +137,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
 	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
 	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
+	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -588,6 +590,31 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 	PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", hooks->periodsofday[tod.periodofday]));
 
 	return dict;
+}
+
+/**
+ * <h1>Atrinik.LocateBeacon(<i>\<string\><i> beacon_name)</h1>
+ * Locate a beacon.
+ * @param beacon_name The beacon name to find.
+ * @return The beacon if found, None otherwise. */
+static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
+{
+	char *beacon_name;
+	const char *name = NULL;
+	object *myob;
+
+	if (!PyArg_ParseTuple(args, "s", &beacon_name))
+	{
+		return NULL;
+	}
+
+	(void) self;
+
+	FREE_AND_COPY_HASH(name, beacon_name);
+	myob = hooks->beacon_locate(name);
+	FREE_AND_CLEAR_HASH(name);
+
+	return wrap_object(myob);
 }
 
 /*@}*/

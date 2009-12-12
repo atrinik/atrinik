@@ -33,6 +33,11 @@ extern void apply_armour_improver(object *op, object *tmp);
 extern object *fix_stopped_arrow(object *op);
 extern void move_arrow(object *op);
 
+/* beacon.c */
+extern void beacon_add(object *ob);
+extern void beacon_remove(object *ob);
+extern object *beacon_locate(const char *name);
+
 /* book.c */
 extern void apply_book(object *op, object *tmp);
 

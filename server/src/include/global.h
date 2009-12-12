@@ -489,6 +489,8 @@ EXTERN struct shstr_constants
 	const char *BANK_GENERAL;
 } shstr_cons;
 
+EXTERN void (*object_initializers[256])(object *);
+
 #ifndef tolower
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
