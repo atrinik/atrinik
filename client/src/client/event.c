@@ -1695,11 +1695,7 @@ int process_macro_keys(int id, int value)
 				nrof = 0;
 			else
 			{
-				if (options.collectAll == 1)
-				{
-					nrof = cpl.nrof;
-				}
-				else
+				if (!options.collectAll)
 				{
 					reset_keys();
 					cpl.input_mode = INPUT_MODE_NUMBER;
