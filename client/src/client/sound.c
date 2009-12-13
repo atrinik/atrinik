@@ -304,9 +304,6 @@ void calculate_map_sound(int soundnr, int xoff, int yoff)
 #endif
 }
 
-/* Play a sound.
- * We define panning as -255 (total left) or +255 (total right)
- * Return: Channel (id) of the sound. -1 = error */
 /**
  * Play a sound.
  * @param soundid Sound ID
@@ -433,7 +430,7 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 		music_new.vol = vol;
 		strcpy(music_new.name, fname);
 		/* Lets fade out old music */
-		sound_fadeout_music(music_new.flag);
+		sound_fadeout_music(music.flag);
 		/* The music_new will be fired in the music hook function after fadeout */
 	}
 	/* No playing music, we fire our new music up */
@@ -461,9 +458,6 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
 	if (SoundSystem != SOUND_SYSTEM_ON)
 		return;
 
-	/* Try to load the ogg */
-	snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
-
 	if (music.data)
 	{
 		Mix_HaltMusic();
@@ -472,12 +466,12 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
 		music.flag = 0;
 	}
 
+	/* Try to load the ogg */
+	snprintf(buf, sizeof(buf), "%s%s", GetMediaDirectory(), fname);
 	music.data = Mix_LoadMUS_wrapper(buf);
 
 	if (!music.data)
 	{
-		sprintf(buf, "mix_loadmus() failed (%s).", fname);
-		draw_info(buf, 4);
 		return;
 	}
 
