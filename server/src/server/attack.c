@@ -1990,6 +1990,12 @@ static int did_make_save_item(object *op, object *originator)
  * @param originator What is attacking. */
 void save_throw_object(object *op, object *originator)
 {
+	/* Only players */
+	if (originator->owner->type != PLAYER)
+	{
+		return;
+	}
+
 	/* If the object is magical AND identified */
 	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
