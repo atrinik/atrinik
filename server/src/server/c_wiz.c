@@ -761,9 +761,9 @@ int command_create(object *op, char *params)
 			prev = tmp;
 		}
 
-		if (at->clone.randomitems)
+		if (head->randomitems)
 		{
-			create_treasure(at->clone.randomitems, head, GT_APPLY, head->type == MONSTER ? head->level : get_enviroment_level(head), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+			create_treasure(head->randomitems, head, GT_APPLY, head->type == MONSTER ? head->level : get_enviroment_level(head), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 		}
 
 		/* If the created object is alive or is multi arch, insert it on
