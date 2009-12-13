@@ -127,7 +127,7 @@ int command_dmsay(object *op, char *params)
 
 	for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, 0, tmp_dm_list->ob, "[DM Channel]: %s: %s", op->name, params);
+		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, 0, tmp_dm_list->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
 	}
 
 	return 1;

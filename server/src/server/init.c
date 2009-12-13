@@ -537,6 +537,7 @@ void init(int argc, char **argv)
 	init_beforeplay();
 	init_ericserver();
 	metaserver_init();
+	load_bans_file();
 	reset_sleep();
 	init_done = 1;
 }
@@ -1006,7 +1007,7 @@ static void dump_races()
 
 		for (tmp = list->member; tmp; tmp = tmp->next)
 		{
-			LOG(llevInfo, "%s(%d), ", tmp->ob->arch->name, tmp->ob->sub_type1);
+			LOG(llevInfo, "%s(%d), ", tmp->objlink.ob->arch->name, tmp->objlink.ob->sub_type1);
 		}
 	}
 }
@@ -1037,7 +1038,7 @@ static void add_to_racelist(const char *race_name, object *op)
 		FREE_AND_COPY_HASH(race->name, race_name);
 	}
 
-	if (race->member->ob)
+	if (race->member->objlink.ob)
 	{
 		objectlink *tmp = get_objectlink();
 		tmp->next=race->member;
@@ -1045,7 +1046,7 @@ static void add_to_racelist(const char *race_name, object *op)
 	}
 
 	race->nrof++;
-	race->member->ob = op;
+	race->member->objlink.ob = op;
 }
 
 /**
@@ -1070,12 +1071,19 @@ static racelink *get_racelist()
 void free_racelist()
 {
 	racelink *list, *next;
+	objectlink *tmp;
 
-	for (list = first_race; list;)
+	for (list = first_race; list; list = next)
 	{
 		next = list->next;
+		FREE_ONLY_HASH(list->name);
+
+		for (tmp = list->member; tmp; tmp = tmp->next)
+		{
+			free_objectlink_simple(tmp);
+		}
+
 		free(list);
-		list = next;
 	}
 }
 

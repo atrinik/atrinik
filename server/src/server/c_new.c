@@ -786,7 +786,7 @@ void command_new_char(char *params, int len, player *pl)
 
 			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->ob, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
 			}
 		}
 	}

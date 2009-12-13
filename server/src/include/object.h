@@ -424,28 +424,32 @@ typedef struct obj
 /** Used to link together several objects */
 typedef struct oblnk
 {
-	/** Object */
-	object *ob;
+	union
+	{
+		/** Link */
+		struct oblnk *link;
+
+		/** Object */
+		object *ob;
+
+		/** Ban */
+		struct ban_struct *ban;
+	} objlink;
 
 	/** Next object in this list */
 	struct oblnk *next;
 
+	/** Previous object in this list */
+	struct oblnk *prev;
+
 	/** Object ID */
 	tag_t id;
-} objectlink;
-
-/** Used to link together several object links */
-typedef struct oblinkpt
-{
-	/** Link */
-	struct oblnk *link;
 
 	/** Used as connected value in buttons/gates */
 	long value;
+} objectlink;
 
-	/** Next entry */
-	struct oblinkpt *next;
-} oblinkpt;
+#define free_objectlink_simple(_chunk_) return_poolchunk((_chunk_), pool_objectlink);
 
 /** List of active objects */
 extern object *active_objects;

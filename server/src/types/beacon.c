@@ -37,12 +37,11 @@ static objectlink *beacons_list;
  * @param ob Beacon to add. */
 void beacon_add(object *ob)
 {
-	objectlink *ol = beacons_list;
+	objectlink *ol = get_objectlink();
 
-	beacons_list = get_objectlink();
-	beacons_list->ob = ob;
-	beacons_list->id = ob->count;
-	beacons_list->next = ol;
+	ol->objlink.ob = ob;
+	ol->id = ob->count;
+	objectlink_link(&beacons_list, NULL, NULL, beacons_list, ol);
 }
 
 /**
@@ -50,38 +49,15 @@ void beacon_add(object *ob)
  * @param ob Beacon to remove. */
 void beacon_remove(object *ob)
 {
-	objectlink *this;
+	objectlink *ol;
 
-	if (!beacons_list)
+	for (ol = beacons_list; ol; ol = ol->next)
 	{
-		return;
-	}
-
-	/* Easier if the first object in the list matches */
-	if (beacons_list->ob == ob)
-	{
-		this = beacons_list;
-		beacons_list = this->next;
-		free(this);
-	}
-	else
-	{
-		objectlink *prev = beacons_list;
-
-		for (this = beacons_list->next; this; this = this->next)
+		if (ol->objlink.ob == ob)
 		{
-			if (this->ob == ob)
-			{
-				break;
-			}
-
-			prev = this;
-		}
-
-		if (this)
-		{
-			prev->next = this->next;
-			free(this);
+			objectlink_unlink(&beacons_list, NULL, ol);
+			return_poolchunk(ol, pool_objectlink);
+			break;
 		}
 	}
 }
@@ -96,9 +72,9 @@ object *beacon_locate(const char *name)
 
 	for (ol = beacons_list; ol; ol = ol->next)
 	{
-		if (ol->ob->name == name)
+		if (ol->objlink.ob->name == name)
 		{
-			return ol->ob;
+			return ol->objlink.ob;
 		}
 	}
 

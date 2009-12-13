@@ -1223,39 +1223,15 @@ int command_reset(object *op, char *params)
  * @param op The DM object to remove. */
 void remove_active_DM(object *op)
 {
-	objectlink *this;
+	objectlink *ol;
 
-	/* Safety */
-	if (!dm_list)
+	for (ol = dm_list; ol; ol = ol->next)
 	{
-		return;
-	}
-
-	/* Easier if the first object in the list matches */
-	if (dm_list->ob == op)
-	{
-		this = dm_list;
-		dm_list = this->next;
-		free(this);
-	}
-	else
-	{
-		objectlink *prev = dm_list;
-
-		for (this = dm_list->next; this != NULL; this = this->next)
+		if (ol->objlink.ob == op)
 		{
-			if (this->ob == op)
-			{
-				break;
-			}
-
-			prev = this;
-		}
-
-		if (this)
-		{
-			prev->next = this->next;
-			free(this);
+			objectlink_unlink(&dm_list, NULL, ol);
+			return_poolchunk(ol, pool_objectlink);
+			break;
 		}
 	}
 }
@@ -1350,14 +1326,11 @@ int command_dm(object *op, char *params)
 
 	if (checkdm(op, (params ? params : "*")))
 	{
-		objectlink *ol;
+		objectlink *ol = get_objectlink();
 
-		/* Add this DM to the DMs list */
-		ol = dm_list;
-		dm_list = get_objectlink();
-		dm_list->ob = op;
-		dm_list->id = op->count;
-		dm_list->next = ol;
+		ol->objlink.ob = op;
+		ol->id = op->count;
+		objectlink_link(&dm_list, NULL, NULL, dm_list, ol);
 
 		SET_FLAG(op, FLAG_WIZ);
 		SET_FLAG(op, FLAG_WAS_WIZ);

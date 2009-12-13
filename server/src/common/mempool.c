@@ -89,7 +89,7 @@ struct mempool *mempools[MAX_NROF_MEMPOOLS];
 struct mempool *pool_puddle;
 #endif
 
-struct mempool *pool_object, *pool_objectlink, *pool_player;
+struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans;
 
 /**
  * Return the exponent exp needed to round n up to the nearest power of two, so that
@@ -187,6 +187,7 @@ void init_mempools()
 	pool_object = create_mempool("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, (chunk_destructor) destroy_object);
 	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
+	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
 
 	/* Initialize end-of-list pointers and a few other values*/
 	removed_objects = &end_marker;

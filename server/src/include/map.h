@@ -484,7 +484,7 @@ typedef struct mapdef
 	MapSpace *first_light;
 
 	/** Linked list of linked lists of buttons */
-	oblinkpt *buttons;
+	objectlink *buttons;
 
 	/** Filename of the map (shared string now) */
 	const char *path;

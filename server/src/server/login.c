@@ -508,7 +508,7 @@ void check_login(object *op)
 		return;
 	}
 
-	if (checkbanned((char *) op->name, pl->socket.host))
+	if (checkbanned(op->name, pl->socket.host))
 	{
 		LOG(llevInfo, "BAN: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
@@ -831,7 +831,7 @@ void check_login(object *op)
 			for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
 
 			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
-				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->ob, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
 		}
 	}
 

@@ -115,7 +115,7 @@ void terminate_all_pets(object *owner)
 
 	for (obl = first_friendly_object; obl != NULL; obl = next)
 	{
-		object *ob = obl->ob;
+		object *ob = obl->objlink.ob;
 		next = obl->next;
 
 		if (get_owner(ob) == owner)
@@ -147,14 +147,14 @@ void remove_all_pets()
 	{
 		next = obl->next;
 
-		if (obl->ob->type != PLAYER && QUERY_FLAG(obl->ob, FLAG_FRIENDLY) && (owner = get_owner(obl->ob)) != NULL && owner->map != obl->ob->map)
+		if (obl->objlink.ob->type != PLAYER && QUERY_FLAG(obl->objlink.ob, FLAG_FRIENDLY) && (owner = get_owner(obl->objlink.ob)) != NULL && owner->map != obl->objlink.ob->map)
 		{
 			/* follow owner checks map status for us */
-			follow_owner(obl->ob, owner);
+			follow_owner(obl->objlink.ob, owner);
 			/* bug: follow can kill the pet here ... */
-			if (QUERY_FLAG(obl->ob, FLAG_REMOVED) && FABS(obl->ob->speed) > MIN_ACTIVE_SPEED)
+			if (QUERY_FLAG(obl->objlink.ob, FLAG_REMOVED) && FABS(obl->objlink.ob->speed) > MIN_ACTIVE_SPEED)
 			{
-				object *ob = obl->ob;
+				object *ob = obl->objlink.ob;
 				LOG(llevMonster, "(pet failed to follow)\n");
 				remove_friendly_object(ob);
 			}

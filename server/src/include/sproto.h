@@ -49,7 +49,8 @@ int is_melee_range(object *hitter, object *enemy);
 void save_throw_object(object *op, object *originator);
 
 /* ban.c */
-int checkbanned(char *login, char *host);
+void load_bans_file();
+int checkbanned(const char *name, char *ip);
 int add_ban(const char *input);
 int remove_ban(const char *input);
 void list_bans(object *op);

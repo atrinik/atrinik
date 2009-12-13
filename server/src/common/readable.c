@@ -890,7 +890,7 @@ static void init_mon_info()
 		if (QUERY_FLAG(&at->clone, FLAG_MONSTER) && (!QUERY_FLAG(&at->clone, FLAG_CHANGING) || QUERY_FLAG(&at->clone, FLAG_UNAGGRESSIVE)))
 		{
 			objectlink *mon = (objectlink *) malloc(sizeof(objectlink));
-			mon->ob = &at->clone;
+			mon->objlink.ob = &at->clone;
 			mon->id = nrofmon;
 			mon->next = first_mon_info;
 			first_mon_info = mon;
@@ -1345,7 +1345,7 @@ object *get_random_mon()
 		return NULL;
 	}
 
-	return mon->ob;
+	return mon->objlink.ob;
 }
 
 /**
@@ -1376,7 +1376,7 @@ static object *get_next_mon(object *tmp)
 
 	for (mon = first_mon_info; mon; mon = mon->next)
 	{
-		if (mon->ob == tmp)
+		if (mon->objlink.ob == tmp)
 		{
 			break;
 		}
@@ -1390,11 +1390,11 @@ static object *get_next_mon(object *tmp)
 
 	if (mon->next)
 	{
-		return mon->next->ob;
+		return mon->next->objlink.ob;
 	}
 	else
 	{
-		return first_mon_info->ob;
+		return first_mon_info->objlink.ob;
 	}
 }
 
@@ -2252,7 +2252,7 @@ void free_all_readable()
 	for (monlink = first_mon_info; monlink; monlink = nextmon)
 	{
 		nextmon = monlink->next;
-		free(monlink);
+		free_objectlink_simple(monlink);
 	}
 }
 

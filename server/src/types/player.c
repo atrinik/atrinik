@@ -293,7 +293,7 @@ int add_player(NewSocket *ns)
 {
 	player *p;
 
-	if (checkbanned("nobody", ns->host))
+	if (checkbanned(NULL, ns->host))
 	{
 		send_socket_message(NDI_RED, ns, "Connection refused.\nYou are banned!");
 		LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", ns->host);
@@ -392,9 +392,9 @@ object *get_nearest_player(object *mon)
 		 * does periodically happen. Given that, let's deal with it.
 		 * While unlikely, it is possible the next object on the friendly
 		 * list is also free, so encapsulate this in a while loop. */
-		while (!OBJECT_VALID(ol->ob, ol->id) || (!QUERY_FLAG(ol->ob, FLAG_FRIENDLY) && ol->ob->type != PLAYER))
+		while (!OBJECT_VALID(ol->objlink.ob, ol->id) || (!QUERY_FLAG(ol->objlink.ob, FLAG_FRIENDLY) && ol->objlink.ob->type != PLAYER))
 		{
-			object *tmp = ol->ob;
+			object *tmp = ol->objlink.ob;
 
 			/* Can't do much more other than log the fact, because the object
 			 * itself will have been cleared. */
@@ -408,14 +408,14 @@ object *get_nearest_player(object *mon)
 			}
 		}
 
-		if (!can_detect_target(mon, ol->ob, aggro_range, aggro_stealth, &rv) || !obj_in_line_of_sight(ol->ob, &rv))
+		if (!can_detect_target(mon, ol->objlink.ob, aggro_range, aggro_stealth, &rv) || !obj_in_line_of_sight(ol->objlink.ob, &rv))
 		{
 			continue;
 		}
 
 		if (lastdist > rv.distance)
 		{
-			op = ol->ob;
+			op = ol->objlink.ob;
 			lastdist = rv.distance;
 		}
 	}

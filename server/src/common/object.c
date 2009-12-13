@@ -777,9 +777,9 @@ object *find_object(int i)
 
 	for (ol = first_friendly_object; ol; ol = ol->next)
 	{
-		if (ol->ob->count == (tag_t) i)
+		if (ol->objlink.ob->count == (tag_t) i)
 		{
-			return ol->ob;
+			return ol->objlink.ob;
 		}
 	}
 
@@ -826,9 +826,9 @@ object *find_object_name(char *str)
 
 	for (ol = first_friendly_object; ol; ol = ol->next)
 	{
-		if (ol->ob->name == name)
+		if (ol->objlink.ob->name == name)
 		{
-			return ol->ob;
+			return ol->objlink.ob;
 		}
 	}
 

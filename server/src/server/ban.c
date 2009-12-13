@@ -38,22 +38,49 @@
 
 #include <global.h>
 
+static objectlink *ban_list = NULL;
+
 /**
- * Check if this login or host is banned.
- * @param login Login name to check.
- * @param host Host name to check.
- * @return 1 if banned, 0 if not. */
-int checkbanned(char *login, char *host)
+ * Add a ban entry to ::ban_list.
+ * @param name Name to ban.
+ * @param ip IP to ban. */
+static void add_ban_entry(char *name, char *ip)
 {
-	char filename[MAX_BUF], buf[MAX_BUF], log_buf[64], host_buf[64], *indexpos;
+	objectlink *ol = get_objectlink();
+	_ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_bans);
+
+	memset(gptr, 0, sizeof(_ban_struct));
+	ol->objlink.ban = gptr;
+
+	ol->objlink.ban->ip = strdup_local(ip);
+	FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
+	objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
+}
+
+/**
+ * Remove a ban entry from ::ban_list.
+ * @param ol Pointer to the objectlink to remove. */
+static void remove_ban_entry(objectlink *ol)
+{
+	free(ol->objlink.ban->ip);
+	FREE_ONLY_HASH(ol->objlink.ban->name);
+	objectlink_unlink(&ban_list, NULL, ol);
+	return_poolchunk(ol->objlink.ban, pool_bans);
+	return_poolchunk(ol, pool_objectlink);
+}
+
+/**
+ * Load the ban file. */
+void load_bans_file()
+{
+	char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
 	FILE *fp;
-	int Hits = 0, i;
 
 	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
 
 	if (!(fp = fopen(filename, "r")))
 	{
-		return 0;
+		return;
 	}
 
 	while (fgets(buf, sizeof(buf), fp))
@@ -64,154 +91,126 @@ int checkbanned(char *login, char *host)
 			continue;
 		}
 
-		if ((indexpos = (char *) strrchr(buf, ':')) == 0)
+		if (sscanf(buf, "%s %s", name, ip) == 2)
 		{
-			LOG(llevDebug, "BUG: Bogus line in bans file: %s\n", buf);
-			continue;
+			add_ban_entry(name, ip);
 		}
-
-		i = indexpos - buf;
-		/* Copy login name into log_buf */
-		strncpy(log_buf, buf, i);
-		log_buf[i] = '\0';
-		/* Copy host name into host_buf */
-		strncpy(host_buf, indexpos + 1, 64);
-		/* Cut off any extra spaces on the host buffer */
-		indexpos = host_buf;
-
-		while (!isspace(*indexpos))
+		else
 		{
-			indexpos++;
-		}
-
-		*indexpos = '\0';
-
-		if (*log_buf == '*')
-		{
-			Hits = 1;
-		}
-		else if (!strcmp(login, log_buf))
-		{
-			Hits = 1;
-		}
-
-		if (Hits == 1)
-		{
-			/* Lock out any host */
-			if (*host_buf == '*')
-			{
-				Hits++;
-				/* break out now. otherwise Hits will get reset to one */
-				break;
-			}
-			/* Lock out subdomains (eg, "*@usc.edu") */
-			else if (strstr(host, host_buf) != NULL)
-			{
-				Hits++;
-				/* break out now. otherwise Hits will get reset to one */
-				break;
-			}
-			/* Lock out specific host */
-			else if (!strcmp(host, host_buf))
-			{
-				Hits++;
-				/* break out now. otherwise Hits will get reset to one */
-				break;
-			}
+			LOG(llevBug, "BUG: Malformed line in bans file: %s\n", buf);
 		}
 	}
 
 	fclose(fp);
+}
 
-	if (Hits >= 2)
+/**
+ * Save the bans file. */
+void save_bans_file()
+{
+	char filename[MAX_BUF];
+	FILE *fp;
+	objectlink *ol;
+
+	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
+
+	if (!(fp = fopen(filename, "w")))
 	{
-		return 1;
+		LOG(llevBug, "BUG: Cannot open %s for writing.\n", filename);
+		return;
+	}
+
+	for (ol = ban_list; ol; ol = ol->next)
+	{
+		fprintf(fp, "%s %s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
+	}
+
+	fclose(fp);
+}
+
+/**
+ * Check if this player or host is banned.
+ * @param name Login name to check.
+ * @param host Host name to check.
+ * @return 1 if banned, 0 if not. */
+int checkbanned(const char *name, char *ip)
+{
+	objectlink *ol;
+
+	for (ol = ban_list; ol; ol = ol->next)
+	{
+		int name_matches = name && (ol->objlink.ban->name[0] == '*' || ol->objlink.ban->name == name);
+
+		if (name_matches)
+		{
+			return 1;
+		}
+
+		if ((name_matches || ol->objlink.ban->name[0] == '*') && (ol->objlink.ban->ip[0] == '*' || strstr(ip, ol->objlink.ban->ip) || !strcmp(ip, ol->objlink.ban->ip)))
+		{
+			return 1;
+		}
 	}
 
 	return 0;
 }
 
 /**
- * Add ban to the bans file. Will take care of getting the right values
- * from input string.
+ * Add a ban. Will take care of getting the right values from input
+ * string.
  * @param input The input string with both name and IP.
  * @return 1 on success, 0 on failure. */
 int add_ban(const char *input)
 {
-	char filename[MAX_BUF], *host, *name, buf[MAX_BUF];
-	FILE *fp;
+	char *ip, *name, buf[MAX_BUF];
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
 	snprintf(buf, sizeof(buf), "%s", input);
 
 	name = strtok(buf, ":");
-	host = strtok(NULL, ":");
+	ip = strtok(NULL, ":");
 
-	if (!host || !name)
+	if (!ip || !name)
 	{
 		return 0;
 	}
 
-	if (!(fp = fopen(filename, "a")))
-	{
-		return 0;
-	}
-
-	fprintf(fp, "%s:%s\n", name, host);
-	fclose(fp);
+	add_ban_entry(name, ip);
+	save_bans_file();
 
 	return 1;
 }
 
 /**
- * Remove a ban from the bans file. Will take care of getting the right
- * values from input string.
+ * Remove a ban. Will take care of getting the right values from input
+ * string.
  * @param input The input string with both name and IP.
  * @return 1 on success, 0 on failure. */
 int remove_ban(const char *input)
 {
-	char filename[MAX_BUF], filename_tmp[MAX_BUF], *host, *name, buf[MAX_BUF], compare_buf[MAX_BUF];
-	FILE *fp, *fp2;
-	int ret = 0;
+	char *ip, *name, buf[MAX_BUF];
+	objectlink *ol;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
-	snprintf(filename_tmp, sizeof(filename_tmp), "%s/%s.tmp", settings.localdir, BANFILE);
 	snprintf(buf, sizeof(buf), "%s", input);
 
 	name = strtok(buf, ":");
-	host = strtok(NULL, ":");
+	ip = strtok(NULL, ":");
 
-	if (!host || !name)
+	if (!ip || !name)
 	{
 		return 0;
 	}
 
-	rename(filename, filename_tmp);
-
-	if (!(fp = fopen(filename_tmp, "r")) || !(fp2 = fopen(filename, "w")))
+	for (ol = ban_list; ol; ol = ol->next)
 	{
-		return 0;
-	}
-
-	snprintf(compare_buf, sizeof(compare_buf), "%s:%s\n", name, host);
-
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		if (strcmp(buf, compare_buf) == 0)
+		if (!strcmp(ol->objlink.ban->name, name) && !strcmp(ol->objlink.ban->ip, ip))
 		{
-			ret = 1;
-			continue;
+			remove_ban_entry(ol);
+			save_bans_file();
+			return 1;
 		}
-
-		fprintf(fp2, "%s", buf);
 	}
 
-	fclose(fp);
-	fclose(fp2);
-
-	unlink(filename_tmp);
-
-	return ret;
+	return 0;
 }
 
 /**
@@ -220,15 +219,7 @@ int remove_ban(const char *input)
  * it to the log. */
 void list_bans(object *op)
 {
-	char filename[MAX_BUF], buf[MAX_BUF];
-	FILE *fp;
-
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
-
-	if (!(fp = fopen(filename, "r")))
-	{
-		return;
-	}
+	objectlink *ol;
 
 	if (op)
 	{
@@ -239,24 +230,15 @@ void list_bans(object *op)
 		LOG(llevInfo, "\nList of bans:\n");
 	}
 
-	while (fgets(buf, sizeof(buf), fp))
+	for (ol = ban_list; ol; ol = ol->next)
 	{
-		/* Skip comments and blank lines. */
-		if (buf[0] == '#' || buf[0] == '\n')
-		{
-			continue;
-		}
-
 		if (op)
 		{
-			buf[strlen(buf) - 1] = '\0';
-			new_draw_info_format(NDI_UNIQUE, 0, op, buf);
+			new_draw_info_format(NDI_UNIQUE, 0, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
 		}
 		else
 		{
-			LOG(llevInfo, buf);
+			LOG(llevInfo, "%s:%s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
 		}
 	}
-
-	fclose(fp);
 }

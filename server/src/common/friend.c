@@ -54,11 +54,11 @@ void add_friendly_object(object *op)
 		return;
 	}
 
-	ol = first_friendly_object;
-	first_friendly_object = get_objectlink();
-	first_friendly_object->ob = op;
-	first_friendly_object->id = op->count;
-	first_friendly_object->next = ol;
+	ol = get_objectlink();
+
+	ol->objlink.ob = op;
+	ol->id = op->count;
+	objectlink_link(&first_friendly_object, NULL, NULL, first_friendly_object, ol);
 }
 
 /**
@@ -66,7 +66,7 @@ void add_friendly_object(object *op)
  * @param op Object to remove from list. */
 void remove_friendly_object(object *op)
 {
-	objectlink *this;
+	objectlink *ol;
 
 	if (!is_valid_friendly(op))
 	{
@@ -81,39 +81,13 @@ void remove_friendly_object(object *op)
 		return;
 	}
 
-	/* If the first object happens to be the one, processing is pretty
-	 * easy. */
-	if (first_friendly_object->ob == op)
+	for (ol = first_friendly_object; ol; ol = ol->next)
 	{
-		this = first_friendly_object;
-		first_friendly_object = this->next;
-		free(this);
-	}
-	else
-	{
-		objectlink *prev = first_friendly_object;
-
-		for (this = first_friendly_object->next; this != NULL; this = this->next)
+		if (ol->objlink.ob == op)
 		{
-			if (this->ob == op)
-			{
-				break;
-			}
-
-			prev = this;
-		}
-
-		if (this)
-		{
-			/* This should not happen.  But if it does, presumably the
-			 * call to remove it is still valid. */
-			if (this->id != op->count)
-			{
-				LOG(llevBug, "BUG: remove_friendly_object(): Tags do no match, %s, %d != %d\n", query_name(op, NULL), op->count, this->id);
-			}
-
-			prev->next = this->next;
-			free(this);
+			objectlink_unlink(&first_friendly_object, NULL, ol);
+			return_poolchunk(ol, pool_objectlink);
+			break;
 		}
 	}
 }
@@ -127,7 +101,7 @@ void dump_friendly_objects()
 
 	for (ol = first_friendly_object; ol != NULL; ol = ol->next)
 	{
-		LOG(llevInfo, "%s (count: %d)\n", query_name(ol->ob, NULL), ol->ob->count);
+		LOG(llevInfo, "%s (count: %d)\n", query_name(ol->objlink.ob, NULL), ol->objlink.ob->count);
 	}
 }
 
@@ -141,7 +115,7 @@ static int is_friendly(const object *op)
 
 	for (ol = first_friendly_object; ol != NULL; ol = ol->next)
 	{
-		if (ol->ob == op)
+		if (ol->objlink.ob == op)
 		{
 			return 1;
 		}

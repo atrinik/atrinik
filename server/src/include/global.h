@@ -491,6 +491,16 @@ EXTERN struct shstr_constants
 
 EXTERN void (*object_initializers[256])(object *);
 
+/** Ban structure. */
+typedef struct ban_struct
+{
+	/** Name of the banned player. */
+	const char *name;
+
+	/** Banned IP/hostname. */
+	char *ip;
+} _ban_struct;
+
 #ifndef tolower
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
