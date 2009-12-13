@@ -437,7 +437,6 @@ static void do_symptoms(object *disease)
 		new_symptom->stats.exp = 0;
 		new_symptom->stats.hp = disease->stats.hp;
 		FREE_AND_COPY_HASH(new_symptom->msg, disease->msg);
-		new_symptom->attacktype = disease->attacktype;
 		new_symptom->other_arch = disease->other_arch;
 
 		set_owner(new_symptom, disease->owner);
@@ -477,7 +476,6 @@ static void do_symptoms(object *disease)
 		symptom->stats.exp = 0;
 		symptom->stats.hp = (int) (scale * disease->stats.hp);
 		FREE_AND_COPY_HASH(symptom->msg, disease->msg);
-		symptom->attacktype = disease->attacktype;
 		symptom->other_arch = disease->other_arch;
 	}
 
@@ -535,11 +533,11 @@ void move_symptom(object *symptom)
 
 	if (symptom->stats.dam > 0)
 	{
-		hit_player(victim, symptom->stats.dam, symptom, symptom->attacktype);
+		hit_player(victim, symptom->stats.dam, symptom, AT_INTERNAL);
 	}
 	else
 	{
-		hit_player(victim, (int) MAX((float) 1, (float) - victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0), symptom, symptom->attacktype);
+		hit_player(victim, (int) MAX((float) 1, (float) - victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0), symptom, AT_INTERNAL);
 	}
 
 	if (symptom->stats.maxsp > 0)

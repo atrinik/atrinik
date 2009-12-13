@@ -40,7 +40,7 @@ int monster_apply_special(object *who, object *op, int aflags);
 /* attack.c */
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
-int hit_map(object *op, int dir, int type);
+int hit_map(object *op, int dir);
 int kill_object(object *op, int dam, object *hitter, int type);
 object *hit_with_arrow(object *op, object *victim);
 void confuse_living(object *op);
@@ -277,7 +277,6 @@ void pray_at_altar(object *pl, object *altar);
 void become_follower(object *op, object *new_god);
 const char *determine_god(object *op);
 archetype *determine_holy_arch(object *god, const char *type);
-int tailor_god_spell(object *spellop, object *caster);
 
 /* init.c */
 void init(int argc, char **argv);
@@ -509,7 +508,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 int cast_create_obj(object *op, object *new_op, int dir);
 int summon_monster(object *op, object *caster, int dir, archetype *at, int spellnum);
 int fire_bolt(object *op, object *caster, int dir, int type);
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, int magic);
+int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type);
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
 void check_cone_push(object *op);
 void cone_drop(object *op);
@@ -536,7 +535,7 @@ int SP_level_strength_adjust(object *caster, int spell_type);
 int SP_level_spellpoint_cost(object *caster, int spell_type);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
-int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type, int magic);
+int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type);
 int look_up_spell_by_name(object *op, const char *spname);
 void put_a_monster(object *op, const char *monstername);
 int cast_smite_spell(object *op, object *caster, int type);

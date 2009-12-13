@@ -122,23 +122,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			break;
 
 		case PLAYERMOVER:
-#if 0
-			if (trap->attacktype && (trap->level || victim->type != PLAYER))
-			{
-				if (!trap->stats.maxsp)
-				{
-					trap->stats.maxsp = 2;
-				}
-
-				victim->speed_left = -FABS(trap->stats.maxsp * victim->speed / trap->speed);
-
-				if (victim->speed_left <- 50.0)
-				{
-					victim->speed_left =- 50.0;
-				}
-			}
-#endif
-
 			break;
 
 		/* should be walk_on/fly_on only */
@@ -215,7 +198,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		case BALL_LIGHTNING:
 			if (IS_LIVE(victim) && !(flags & MOVE_APPLY_VANISHED))
 			{
-				hit_player(victim, trap->stats.dam, trap, trap->attacktype);
+				hit_player(victim, trap->stats.dam, trap, AT_INTERNAL);
 			}
 			else if (victim->material && !(flags & MOVE_APPLY_VANISHED))
 			{
@@ -225,18 +208,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			break;
 
 		case CONE:
-#if 0
-			if (IS_LIVE(victim) && trap->speed)
-			{
-				uint32 attacktype = trap->attacktype & ~AT_COUNTERSPELL;
-
-				if (attacktype)
-				{
-					hit_player(victim, trap->stats.dam, trap, attacktype);
-				}
-			}
-#endif
-
 			break;
 
 		case FBULLET:

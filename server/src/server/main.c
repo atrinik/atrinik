@@ -603,7 +603,7 @@ void enter_exit(object *op, object *exit_ob)
 					/* For exits that cause damages (like pits).  Don't know if any
 					 * random maps use this or not. */
 					if (exit_ob->stats.dam && op->type == PLAYER)
-						hit_player(op, exit_ob->stats.dam, exit_ob, exit_ob->attacktype);
+						hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 					return;
 				}
 			}
@@ -662,7 +662,7 @@ void enter_exit(object *op, object *exit_ob)
 		}
 		/* For exits that cause damages (like pits) */
 		if (exit_ob->stats.dam && op->type == PLAYER)
-			hit_player(op, exit_ob->stats.dam, exit_ob, exit_ob->attacktype);
+			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 	}
 	/* thats only for players */
 	else if (op->type == PLAYER)

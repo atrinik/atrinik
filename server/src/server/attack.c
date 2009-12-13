@@ -89,7 +89,6 @@ int attack_ob(object *op, object *hitter)
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
 	int simple_attack, roll, dam = 0;
-	uint32 type;
 	tag_t op_tag, hitter_tag;
 
 	if (op->head)
@@ -206,17 +205,10 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			hitdam = 1;
 		}
 
-		type = hitter->attacktype;
-
-		if (!type)
-		{
-			type = AT_PHYSICAL;
-		}
-
 		/* Handle monsters that hit back */
 		if (!simple_attack && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter))
 		{
-			hit_player(hitter, random_roll(0, (op->stats.dam), hitter, PREFER_LOW), op, op->attacktype);
+			hit_player(hitter, random_roll(0, (op->stats.dam), hitter, PREFER_LOW), op, AT_PHYSICAL);
 
 			if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 			{
@@ -224,7 +216,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			}
 		}
 
-		dam = hit_player(op, random_roll(hitdam / 2 + 1, hitdam, hitter, PREFER_HIGH), hitter, type);
+		dam = hit_player(op, random_roll(hitdam / 2 + 1, hitdam, hitter, PREFER_HIGH), hitter, AT_PHYSICAL);
 
 		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 		{
@@ -510,7 +502,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * @param dir Direction op is hitting/going.
  * @param type Attacktype.
  * @return 0. */
-int hit_map(object *op, int dir, int type)
+int hit_map(object *op, int dir)
 {
 	object *tmp, *next, *tmp_obj, *tmp_head;
 	mapstruct *map;
@@ -608,7 +600,7 @@ int hit_map(object *op, int dir, int type)
 		/* First, we check player... */
 		if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
 		{
-			hit_player(tmp, op->stats.dam, op, type);
+			hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
 
 			if (was_destroyed(op, op_tag))
 			{
@@ -638,7 +630,7 @@ int hit_map(object *op, int dir, int type)
 
 			}
 
-			hit_player(tmp, op->stats.dam, op, type);
+			hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
 
 			if (was_destroyed(op, op_tag))
 			{

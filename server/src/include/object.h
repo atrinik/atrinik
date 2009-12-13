@@ -195,6 +195,9 @@ typedef struct obj
 	/** Struct pointer to the inventory 'face' - the picture(s) */
 	New_Face *inv_face;
 
+	/** How much money it is worth (or contains) */
+	sint64 value;
+
 	/** flags matching events of event objects inside object ->inv */
 	uint32 event_flags;
 
@@ -218,9 +221,6 @@ typedef struct obj
 	/** Paths the object is denied access to */
 	uint32 path_denied;
 
-	/** How much money it is worth (or contains) */
-	sint64 value;
-
 	/** How many of the objects */
 	uint32 nrof;
 
@@ -232,9 +232,6 @@ typedef struct obj
 
 	/** Various flags */
 	uint32 flags[NUM_FLAGS_32];
-
-	/** Attacktype. REMOVE IS IN PROCESS */
-	uint32 attacktype;
 
 	/** X position in the map for this object */
 	sint16 x;
@@ -392,7 +389,7 @@ typedef struct obj
 	 * the power to boost items to 100%+. */
 	uint8 attack[NROFATTACKS];
 
-	/** Resistance against attacks in % - range from 125-125 */
+	/** Resistance against attacks in % - range from -125 to 125 */
 	sint8 protection[NROFPROTECTIONS];
 
 	/** The overall speed of this object */

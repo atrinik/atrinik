@@ -684,7 +684,6 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 {
 	char buf[MAX_BUF];
 	object *weapon;
-	uint32 attacktype;
 	int tmp;
 
 	for (weapon = op->inv; weapon; weapon = weapon->below)
@@ -708,7 +707,7 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 
 		if (op->type == PLAYER)
 		{
-			esrv_update_item (UPD_NAME, op, weapon);
+			esrv_update_item(UPD_NAME, op, weapon);
 		}
 
 		new_draw_info(NDI_UNIQUE, 0, op, "Your weapon quivers as if struck!");
@@ -719,16 +718,6 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 	{
 		FREE_AND_COPY_HASH(weapon->slaying, god->slaying);
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Your %s now hungers to slay enemies of your god!", weapon->name);
-		return 1;
-	}
-
-	/* Add the god's attacktype */
-	attacktype = (weapon->attacktype == 0) ? AT_PHYSICAL : weapon->attacktype;
-
-	if ((attacktype & god->attacktype) != god->attacktype)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Your weapon suddenly glows!");
-		weapon->attacktype = attacktype | god->attacktype;
 		return 1;
 	}
 
@@ -1203,75 +1192,6 @@ static int god_examines_item(object *god, object *item)
 
 	/* item is sacred to a non-enemy god/or is otherwise magical */
 	return 0;
-}
-
-/**
- * Changes the attributes of cone, smite, and ball spells as needed by
- * the code.
- * @param spellop Spell object to change.
- * @param caster What is casting spellop (player, spell, ...).
- * @return 0 if there was no race to assign to the slaying field of the
- * spell, but the spell attacktype contains AT_HOLYWORD, 1 otherwise. */
-int tailor_god_spell(object *spellop, object *caster)
-{
-	object *god = find_god(determine_god(caster));
-	int caster_is_spell = 0;
-
-	if (caster->type == FBULLET || caster->type == CONE || caster->type == FBALL || caster->type == SWARM_SPELL)
-	{
-		caster_is_spell = 1;
-	}
-
-	if (!god || (spellop->attacktype & AT_HOLYWORD && !god->race))
-	{
-		if (!caster_is_spell)
-		{
-			new_draw_info(NDI_UNIQUE, 0, caster, "This prayer is useless unless you worship an appropriate god.");
-		}
-		else
-		{
-			LOG(llevBug, "BUG: tailor_god_spell(): no god\n");
-		}
-
-		return 0;
-	}
-
-	/* either holy word or godpower attacks will set the slaying field */
-	if (spellop->attacktype & AT_HOLYWORD || spellop->attacktype & AT_GODPOWER)
-	{
-		FREE_AND_CLEAR_HASH2(spellop->slaying);
-
-		if (!caster_is_spell)
-		{
-			FREE_AND_COPY_HASH(spellop->slaying, god->slaying);
-		}
-		else if (caster->slaying)
-		{
-			FREE_AND_COPY_HASH(spellop->slaying, caster->slaying);
-		}
-	}
-
-	/* only the godpower attacktype adds the god's attack onto the spell */
-	if (spellop->attacktype & AT_GODPOWER)
-	{
-		spellop->attacktype = spellop->attacktype | god->attacktype;
-	}
-
-	/* tack on the god's name to the spell */
-	if (spellop->attacktype & AT_HOLYWORD || spellop->attacktype & AT_GODPOWER)
-	{
-		FREE_AND_COPY_HASH(spellop->title, god->name);
-
-		if (spellop->title)
-		{
-			char buf[MAX_BUF];
-
-			snprintf(buf, sizeof(buf), "%s of %s", spellop->name, spellop->title);
-			FREE_AND_COPY_HASH(spellop->name, buf);
-		}
-	}
-
-	return 1;
 }
 
 /* we need a skill for this, not the skill group! */

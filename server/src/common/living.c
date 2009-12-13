@@ -1479,7 +1479,6 @@ fix_player_jump_resi:
 
 	/* now we add in all our values... we add in our potions effects as well as
 	 * our attack boni and/or protections. */
-	op->attacktype = 0;
 	for (j = 1, i = 0; i < NROFATTACKS; i++, j <<= 1)
 	{
 		if (potion_attack[i])
@@ -1489,12 +1488,6 @@ fix_player_jump_resi:
 			else
 				op->attack[i] += potion_attack[i];
 		}
-
-		/* i find this somewhat senseful but we have
-		 * remove attacktype and use a other value -
-		 * attacktype context is to much distorted now */
-		if (op->attack[i])
-			op->attacktype |= j;
 
 		/* add in the potion resists boni/mali */
 		if (potion_resist_boni[i] > 0)

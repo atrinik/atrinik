@@ -1203,7 +1203,7 @@ void animate_bomb(object *op)
 	{
 		for (i = 1; i < 9; i++)
 		{
-			fire_arch_from_position(op, op, op->x, op->y, i, at, 0, 0);
+			fire_arch_from_position(op, op, op->x, op->y, i, at, 0);
 		}
 	}
 
@@ -1945,7 +1945,7 @@ void move_aura(object *aura)
 
 	for (i = 1; i < 9; i++)
 	{
-		hit_map(aura, i, aura->attacktype);
+		hit_map(aura, i);
 
 		if (aura->other_arch)
 		{

@@ -464,10 +464,6 @@ lex_error = 0;
 ^value{S}           op->value = atoll(yval());
 ^weight{S}          op->weight = atol(yval());
 ^carrying{S}        op->carrying = atol(yval());
-^attacktype{S}      {
-						op->attacktype = IVAL;
-						/* LOG(llevDebug, "Warning: Object %s has attacktype %d set\n", op->name, op->attacktype); */
-					}
 ^path_attuned{S}    op->path_attuned = IVAL;
 ^path_repelled{S}   op->path_repelled = IVAL;
 ^path_denied{S}     op->path_denied = IVAL;
@@ -1413,9 +1409,6 @@ char *get_ob_diff(object *op, object *op2)
 
 	if (op->type != op2->type)
 		save_long(buf, "type", op->type);
-
-	if (op->attacktype != op2->attacktype)
-		save_long(buf, "attacktype", op->attacktype);
 
   	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{

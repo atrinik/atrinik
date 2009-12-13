@@ -563,7 +563,7 @@ dirty_jump:
 		case SP_BULLET:
 		case SP_CAUSE_LIGHT:
 		case SP_PROBE:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, 1);
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
 			break;
 
 		case SP_TOWN_PORTAL:
@@ -599,11 +599,11 @@ dirty_jump:
 			break;
 
 		case SP_METEOR:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type, 1);
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type);
 			break;
 
 		case SP_POISON_FOG:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, !ability);
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
 			break;
 
 		case SP_METEOR_SWARM:
@@ -914,9 +914,8 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param dir Direction to fire in.
  * @param at The archetype to fire.
  * @param type Spell ID.
- * @param magic Whether to add AT_MAGIC attacktype to the spell.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, int magic)
+int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type)
 {
 	object *tmp, *env;
 
@@ -959,22 +958,6 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	}
 
 	tmp->level = casting_level(caster, SK_level(caster), type);
-
-	/* Needed for AT_HOLYWORD, AT_GODPOWER stuff */
-	if (tmp->attacktype & AT_HOLYWORD || tmp->attacktype & AT_GODPOWER)
-	{
-		if (!tailor_god_spell(tmp, op))
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		if (magic)
-		{
-			tmp->attacktype |= AT_MAGIC;
-		}
-	}
 
 	if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE))
 	{
@@ -1197,7 +1180,7 @@ void move_cone(object *op)
 	/* Lava saves it's life, but not yours :) */
 	if (QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
-		hit_map(op, 0, op->attacktype);
+		hit_map(op, 0);
 		return;
 	}
 
@@ -1212,15 +1195,7 @@ void move_cone(object *op)
 	/* Hit map returns 1 if it hits a monster.  If it does, set
 	 * food to 1, which will stop the cone from progressing. */
 	tag = op->count;
-	op->stats.food |= hit_map(op, 0, op->attacktype);
-
-	/* Check to see if we should push anything.
-	 * Cones with AT_PHYSICAL push whatever is in them to some
-	 * degree. */
-	if (op->attacktype & AT_PHYSICAL)
-	{
-		check_cone_push(op);
-	}
+	op->stats.food |= hit_map(op, 0);
 
 	if (was_destroyed(op, tag))
 	{
@@ -1275,7 +1250,6 @@ void move_cone(object *op)
 			tmp->stats.sp = op->stats.sp, tmp->stats.hp = op->stats.hp + 1;
 			tmp->stats.maxhp = op->stats.maxhp;
 			tmp->stats.dam = op->stats.dam;
-			tmp->attacktype = op->attacktype;
 
 			if (!insert_ob_in_map(tmp, op->map, op, 0))
 			{
@@ -1361,7 +1335,7 @@ void explosion(object *op)
 		CLEAR_FLAG(op, FLAG_NO_APPLY);
 	}
 
-	hit_map(op, 0, op->attacktype);
+	hit_map(op, 0);
 
 	if (op->stats.hp > 2 && !op->value)
 	{
@@ -1522,7 +1496,7 @@ void move_bolt(object *op)
 		return;
 	}
 
-	hit_map(op, 0, op->attacktype);
+	hit_map(op, 0);
 
 	if (!op->value && --(op->stats.exp) > 0)
 	{
@@ -1793,7 +1767,7 @@ void move_missile(object *op)
 	if (blocked(op, mt, new_x, new_y, op->terrain_flag))
 	{
 		tag_t tag = op->count;
-		hit_map(op, op->direction, AT_MAGIC);
+		hit_map(op, op->direction);
 
 		if (!was_destroyed(op, tag))
 		{
@@ -1875,16 +1849,6 @@ void explode_object(object *op)
 		}
 	}
 
-	if (op->attacktype)
-	{
-		hit_map(op, 0, op->attacktype);
-
-		if (was_destroyed(op, op_tag))
-		{
-			return;
-		}
-	}
-
 	tmp = arch_to_object(op->other_arch);
 
 	switch (tmp->type)
@@ -1893,16 +1857,6 @@ void explode_object(object *op)
 		case FBALL:
 		{
 			tmp->stats.dam = (sint16) SP_level_dam_adjust2(op, op->stats.sp, tmp->stats.dam);
-
-			/* I have to fix this. This code is for marking the object as "magic". Using
-			 * the attacktype for it, is somewhat brain dead. We have now the IS_MAGIC flag
-			 * for it. MT. */
-
-			/* tmp->stats.dam += SP_level_dam_adjust(op, op->stats.sp);*/
-#if 0
-			if (op->attacktype & AT_MAGIC)
-				tmp->attacktype |= AT_MAGIC;
-#endif
 
 			copy_owner(tmp, op);
 
@@ -1915,17 +1869,6 @@ void explode_object(object *op)
 			tmp->stats.maxhp = op->count;
 			tmp->x = op->x;
 			tmp->y = op->y;
-
-			/* Needed for AT_HOLYWORD stuff */
-			if (tmp->attacktype & AT_HOLYWORD || tmp->attacktype & AT_GODPOWER)
-			{
-				if (!tailor_god_spell(tmp, op))
-				{
-					remove_ob(op);
-					check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-					return;
-				}
-			}
 
 			/* Prevent recursion */
 			CLEAR_FLAG(op, FLAG_WALK_ON);
@@ -2025,7 +1968,7 @@ void check_fired_arch(object *op)
 
 		tmp_tag = tmp->count;
 
-		dam = hit_player(tmp, op->stats.dam, op, op->attacktype);
+		dam = hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
 
 		if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0)
 		{
@@ -2284,16 +2227,6 @@ void move_ball_lightning(object *op)
 {
 	int i, nx, ny, j, dam_save, dir;
 	mapstruct *m;
-	object *owner = get_owner(op);
-
-	/* Only those attuned to PATH_ELEC may use ball lightning with AT_GODPOWER */
-	if (owner && (!(owner->path_attuned & PATH_ELEC)) && (op->attacktype & AT_GODPOWER))
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		new_draw_info_format(NDI_UNIQUE, 0, owner, "The ball lightning dispells immediately. Perhaps you need attunement to the spell path?");
-		return;
-	}
 
 	/* The following logic makes sure that the ball doesn't move into a
 	 * wall, and makes sure that it will move along a wall to try and get
@@ -2377,7 +2310,7 @@ void move_ball_lightning(object *op)
 		/* Hmm, I not sure this is always correct, but we will see
 		 * perhaps we must add more checks to avoid bad hits on the
 		 * map. */
-		hit_map(op, j, op->attacktype);
+		hit_map(op, j);
 
 		/* Insert the other arch */
 		if (op->other_arch)
@@ -2699,7 +2632,7 @@ void move_swarm_spell(object *op)
 
 	if (!wall(op->map, target_x, target_y))
 	{
-		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp, 1);
+		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp);
 	}
 }
 
@@ -2726,15 +2659,6 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
 	tmp->level = casting_level(caster, SK_level(caster), spell_type);
 	/* Needed later, see move_swarm_spell */
 	tmp->stats.sp = spell_type;
-	tmp->attacktype = swarm_type->clone.attacktype;
-
-	if (tmp->attacktype & AT_HOLYWORD || tmp->attacktype & AT_GODPOWER)
-	{
-		if (!tailor_god_spell(tmp, op))
-		{
-			return;
-		}
-	}
 
 	tmp->magic = magic;
 	/* n in swarm */
@@ -2754,18 +2678,13 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
  * @param spell_type ID of the spell.
  * @param magic Whether to add AT_MAGIC to the aura's attacktype.
  * @return 1. */
-int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type, int magic)
+int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type)
 {
 	object *new_aura = arch_to_object(aura_arch);
 
 	new_aura->stats.food = spells[spell_type].bdur + 10 * SP_level_strength_adjust(caster, spell_type);
 	new_aura->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
 	set_owner(new_aura, op);
-
-	if (magic)
-	{
-		new_aura->attacktype |= AT_MAGIC;
-	}
 
 	if (new_aura->owner)
 	{
@@ -2931,19 +2850,6 @@ int cast_smite_spell(object *op, object *caster, int type)
 
 	/* Tailor the effect by priest level and worshipped God */
 	effect->level = casting_level(caster, SK_level(caster), type);
-
-	if (effect->attacktype & AT_HOLYWORD || effect->attacktype & AT_GODPOWER)
-	{
-		if (tailor_god_spell(effect, op))
-		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "%s answers your call!", determine_god(op));
-		}
-		else
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Your request is ignored.");
-			return 0;
-		}
-	}
 
 	/* Size of the area of destruction */
 	effect->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
