@@ -87,6 +87,7 @@
  * @see plugin_arena */
 
 #include <global.h>
+#include <stdarg.h>
 
 #undef MODULEAPI
 
@@ -169,53 +170,54 @@ arena_maps_struct *arena_maps;
 /** Hooks. */
 struct plugin_hooklist *hooks;
 
-CFParm GCFP;
-
 #undef LOG
 #define LOG hooks->LOG
 
-MODULEAPI CFParm *initPlugin(CFParm *PParm)
+MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	(void) PParm;
+	hooks = hooklist;
 
 	LOG(llevDebug, "Atrinik Arena Plugin loading...\n");
 	LOG(llevDebug, "[Done]\n");
-
-	GCFP.Value[0] = (void *) PLUGIN_NAME;
-	GCFP.Value[1] = (void *) PLUGIN_VERSION;
-
-	return &GCFP;
 }
 
-MODULEAPI CFParm *removePlugin(CFParm* PParm)
+MODULEAPI void *getPluginProperty(int *type, ...)
 {
-	(void) PParm;
+	va_list args;
+	const char *propname;
+	int size;
+	char *buf;
 
+	va_start(args, type);
+	propname = va_arg(args, const char *);
+
+	if (!strcmp(propname, "Identification"))
+	{
+		buf = va_arg(args, char *);
+		size = va_arg(args, int);
+		va_end(args);
+		snprintf(buf, size, PLUGIN_NAME);
+		return NULL;
+	}
+	else if (!strcmp(propname, "FullName"))
+	{
+		buf = va_arg(args, char *);
+		size = va_arg(args, int);
+		va_end(args);
+		snprintf(buf, size, PLUGIN_VERSION);
+		return NULL;
+	}
+
+	va_end(args);
 	return NULL;
 }
 
-MODULEAPI CFParm *getPluginProperty(CFParm* PParm)
+MODULEAPI void postinitPlugin()
 {
-	(void) PParm;
-
-	return NULL;
-}
-
-MODULEAPI void registerHooks(struct plugin_hooklist *hooklist)
-{
-    hooks = hooklist;
-}
-
-MODULEAPI CFParm *postinitPlugin(CFParm* PParm)
-{
-	(void) PParm;
-
 	LOG(llevDebug, "Start postinitPlugin.\n");
 
 	hooks->register_global_event(PLUGIN_NAME, EVENT_MAPLEAVE);
 	hooks->register_global_event(PLUGIN_NAME, EVENT_LOGOUT);
-
-	return NULL;
 }
 
 /**
@@ -658,16 +660,12 @@ int arena_sign(object *who, const char *path)
 
 /**
  * Handles APPLY and TRIGGER events for the Arena.
- * @param PParm Plugin Parameters
  * @return Returns value of arena_sign() or arena_enter().
  * 1 means to stop execution of the object that triggered
  * this event (block arena entrance), 0 to continue (do
  * not block the arena entrance). */
-MODULEAPI int arena_event(CFParm *PParm)
+static int arena_event(object *who, object *exit, char *event_options, char *arena_script)
 {
-	object *who = (object *) (PParm->Value[1]), *exit = (object *) (PParm->Value[2]);
-	char *event_options = (char *) (PParm->Value[10]), *arena_script = (char *) (PParm->Value[9]);
-
 	/* If the first 5 characters are "sign|", this is an arena sign */
 	if (event_options && strncmp(event_options, "sign|", 5) == 0)
 	{
@@ -688,11 +686,9 @@ MODULEAPI int arena_event(CFParm *PParm)
  * in the list of that arena map's players. If the count
  * of players on this map reaches 0, remove the map from
  * the list of arena maps.
- * @param PParm Plugin parameters
  * @return Always returns 0. */
-MODULEAPI int arena_leave(CFParm *PParm)
+static int arena_leave(object *who)
 {
-	object *who = (object *)(PParm->Value[1]);
 	arena_maps_struct *arena_maps_tmp;
 
 	/* Sanity checks */
@@ -750,13 +746,29 @@ MODULEAPI int arena_leave(CFParm *PParm)
 	return 0;
 }
 
-MODULEAPI CFParm *triggerEvent(CFParm* PParm)
+MODULEAPI void *triggerEvent(int *type, ...)
 {
+	object *activator, *who, *other;
+	char *text, *script, *options;
+	int parm1, parm2, parm3, parm4;
+	va_list args;
 	int eventcode;
 	static int result = 0;
 
-	eventcode = *(int *)(PParm->Value[0]);
+	va_start(args, type);
+	eventcode = va_arg(args, int);
 	LOG(llevDebug, "Plugin Arena: triggerEvent(): eventcode %d\n", eventcode);
+
+	activator = va_arg(args, object *);
+	who = va_arg(args, object *);
+	other = va_arg(args, object *);
+	text = va_arg(args, char *);
+	parm1 = va_arg(args, int);
+	parm2 = va_arg(args, int);
+	parm3 = va_arg(args, int);
+	parm4 = va_arg(args, int);
+	script = va_arg(args, char *);
+	options = va_arg(args, char *);
 
 	switch (eventcode)
 	{
@@ -766,18 +778,18 @@ MODULEAPI CFParm *triggerEvent(CFParm* PParm)
 
 		case EVENT_APPLY:
 		case EVENT_TRIGGER:
-			result = arena_event(PParm);
+			result = arena_event(activator, who, options, script);
 			break;
 
 		case EVENT_GDEATH:
 		case EVENT_MAPLEAVE:
 		case EVENT_LOGOUT:
-			result = arena_leave(PParm);
+			result = arena_leave(activator);
 			break;
 	}
 
-	GCFP.Value[0] = (void *)(&result);
-	return &GCFP;
+	va_end(args);
+	return &result;
 }
 
 /*@}*/

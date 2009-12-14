@@ -1405,10 +1405,6 @@ static void process_keyboard_input(char *input)
 
 int main(int argc, char **argv)
 {
-#ifdef PLUGINS_X
-	int evtid;
-	CFParm CFP;
-#endif
 	char input[HUGE_BUF];
 
 #ifdef WIN32 /* ---win32 this sets the win32 from 0d0a to 0a handling */

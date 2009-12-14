@@ -414,7 +414,7 @@ int execute_newserver_command(object *pl, char *command)
 		}
 	}
 
-	csp = find_plugin_command(command,pl);
+	csp = find_plugin_command(command);
 
 	if (!csp)
 	{

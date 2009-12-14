@@ -107,18 +107,8 @@ extern PyObject* AtrinikError;
 #define RAISE(msg) { PyErr_SetString(AtrinikError, (msg)); return NULL; }
 #define INTRAISE(msg) { PyErr_SetString(PyExc_TypeError, (msg)); return -1; }
 
-/* The declarations for the plugin interface. Every plugin should have those.*/
-extern MODULEAPI CFParm* triggerEvent(CFParm* PParm);
-extern MODULEAPI CFParm* initPlugin(CFParm* PParm);
-extern MODULEAPI CFParm* postinitPlugin(CFParm* PParm);
-extern MODULEAPI CFParm* removePlugin(CFParm* PParm);
-extern MODULEAPI CFParm* getPluginProperty(CFParm* PParm);
-
-/* This one is used to cleanly pass args to the CF core */
-extern CFParm GCFP;
-
-extern MODULEAPI int HandleEvent(CFParm* CFP);
-extern MODULEAPI int HandleGlobalEvent(CFParm* CFP);
+extern MODULEAPI int HandleEvent(va_list args);
+extern MODULEAPI int HandleGlobalEvent(int event_type, va_list args);
 extern MODULEAPI void init_Atrinik_Python();
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
@@ -129,10 +119,10 @@ extern MODULEAPI void init_Atrinik_Python();
 #define MAX_RECURSIVE_CALL 100
 
 extern int StackPosition;
-extern object* StackActivator[MAX_RECURSIVE_CALL];
-extern object* StackWho[MAX_RECURSIVE_CALL];
-extern object* StackOther[MAX_RECURSIVE_CALL];
-extern char* StackText[MAX_RECURSIVE_CALL];
+extern object *StackActivator[MAX_RECURSIVE_CALL];
+extern object *StackWho[MAX_RECURSIVE_CALL];
+extern object *StackOther[MAX_RECURSIVE_CALL];
+extern char *StackText[MAX_RECURSIVE_CALL];
 extern int StackParm1[MAX_RECURSIVE_CALL];
 extern int StackParm2[MAX_RECURSIVE_CALL];
 extern int StackParm3[MAX_RECURSIVE_CALL];

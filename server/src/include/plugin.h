@@ -149,76 +149,6 @@
 #define EVENT_FLAG_TIMER    EVENT_FLAG(EVENT_TIMER)
 /*@}*/
 
-/**
- * CFParm is the data type used to pass informations between the server
- * and the plugins.
- *
- * Using CFParm allows a greater flexibility, at the cost of a "manual"
- * function parameters handling and the need of "wrapper" functions.
- *
- * Each CFParm can contain up to 15 different values, stored as (void *). */
-typedef struct _CFParm
-{
-	/** The values contained in the CFParm structure. */
-	const void *Value[15];
-} CFParm;
-
-/** Generic plugin function prototype. All hook functions follow this. */
-typedef CFParm *(*f_plugin) (CFParm *PParm);
-
-#ifndef WIN32
-#define LIBPTRTYPE void *
-#else
-#define LIBPTRTYPE HMODULE
-#endif
-
-/**
- * CFPlugin contains all pertinent informations about one plugin. The
- * server maintains a list of CFPlugins in memory.
- *
- * Note that the library pointer is a (void *) in general, but a HMODULE
- * under Win32, due to the specific DLL management. */
-typedef struct _CFPlugin
-{
-	/** Event Handler function */
-	f_plugin eventfunc;
-
-	/** Plugin Initialization function. */
-	f_plugin initfunc;
-
-	/** Plugin Post-Init. function. */
-	f_plugin pinitfunc;
-
-	/** Plugin getProperty function */
-	f_plugin propfunc;
-
-	/** Pointer to the plugin library */
-	LIBPTRTYPE libptr;
-
-	/** Plugin identification string */
-	char id[MAX_BUF];
-
-	/** Plugin full name */
-	char fullname[MAX_BUF];
-
-	/** Global events registered */
-	int gevent[NR_EVENTS];
-} CFPlugin;
-
-/**
- * @defgroup exportable_plugin_functions Exportable plugin functions
- * Exportable functions. Any plugin should define all these.
- *@{*/
-/** Called when the plugin initialization process starts. */
-extern MODULEAPI CFParm *initPlugin(CFParm *PParm);
-
-/** Currently unused. */
-extern MODULEAPI CFParm *getPluginProperty(CFParm *PParm);
-
-/** Called whenever an event occurs. */
-extern MODULEAPI CFParm *triggerEvent(CFParm *PParm);
-/*@}*/
-
 /** The plugin hook list. */
 struct plugin_hooklist
 {
@@ -303,5 +233,65 @@ struct plugin_hooklist
 	spell *spells;
 	struct shstr_constants *shstr_cons;
 };
+
+/** General API function. */
+typedef void *(*f_plug_api) (int *type, ...);
+
+typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
+
+typedef void *(*f_plug_pinit) ();
+
+#ifndef WIN32
+#define LIBPTRTYPE void *
+#else
+#define LIBPTRTYPE HMODULE
+#endif
+
+/**
+ * CFPlugin contains all pertinent informations about one plugin. The
+ * server maintains a list of CFPlugins in memory.
+ *
+ * Note that the library pointer is a (void *) in general, but a HMODULE
+ * under Win32, due to the specific DLL management. */
+typedef struct _CFPlugin
+{
+	/** Event Handler function */
+	f_plug_api eventfunc;
+
+	/** Plugin Initialization function. */
+	f_plug_init initfunc;
+
+	/** Plugin Post-Init. function. */
+	f_plug_pinit pinitfunc;
+
+	/** Plugin getProperty function */
+	f_plug_api propfunc;
+
+	/** Pointer to the plugin library */
+	LIBPTRTYPE libptr;
+
+	/** Plugin identification string */
+	char id[MAX_BUF];
+
+	/** Plugin full name */
+	char fullname[MAX_BUF];
+
+	/** Global events registered */
+	int gevent[NR_EVENTS];
+} CFPlugin;
+
+/**
+ * @defgroup exportable_plugin_functions Exportable plugin functions
+ * Exportable functions. Any plugin should define all these.
+ *@{*/
+/** Called when the plugin initialization process starts. */
+extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
+
+/** Called to ask various informations to the plugin. */
+extern MODULEAPI void *getPluginProperty(int *type, ...);
+
+/** Called whenever an event occurs. */
+extern MODULEAPI void *triggerEvent(int *type, ...);
+/*@}*/
 
 #endif

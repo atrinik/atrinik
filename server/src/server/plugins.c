@@ -33,8 +33,6 @@
 #include <sproto.h>
 #endif
 
-f_plugin (*registerHooksFunc) (struct plugin_hooklist *hooks);
-
 static void register_global_event(char *plugin_name, int event_nr);
 static void unregister_global_event(char *plugin_name, int event_nr);
 
@@ -184,31 +182,16 @@ object *get_event_object(object *op, int event_nr)
  * @param cmd The command name to find
  * @param op Object doing this command
  * @return Command array structure if found, NULL otherwise */
-CommArray_s *find_plugin_command(const char *cmd, object *op)
+CommArray_s *find_plugin_command(const char *cmd)
 {
-	CFParm CmdParm;
-	CFParm* RTNValue;
 	int i;
-	char cmdchar[10];
-	static CommArray_s RTNCmd;
-
-	strcpy(cmdchar, "command?");
-	CmdParm.Value[0] = cmdchar;
-	CmdParm.Value[1] = (char *)cmd;
-	CmdParm.Value[2] = op;
+	static CommArray_s rtn_cmd;
 
 	for (i = 0; i < PlugNR; i++)
 	{
-		RTNValue = (PlugList[i].propfunc(&CmdParm));
-
-		if (RTNValue != NULL)
+		if (PlugList[i].propfunc(&i, "command?", cmd, &rtn_cmd))
 		{
-			RTNCmd.name = (char *)(RTNValue->Value[0]);
-			RTNCmd.func = (CommFunc)(RTNValue->Value[1]);
-			RTNCmd.time = *(float *)(RTNValue->Value[2]);
-			LOG(llevInfo, "RTNCMD: name %s, time %f\n", RTNCmd.name, RTNCmd.time);
-
-			return &RTNCmd;
+			return &rtn_cmd;
 		}
 	}
 
@@ -347,10 +330,10 @@ void initOnePlugin(const char *pluginfile)
 
 #ifdef WIN32
 	PlugList[PlugNR].libptr = DLLInstance;
-	PlugList[PlugNR].initfunc = (f_plugin) (GetProcAddress(DLLInstance, "initPlugin"));
+	PlugList[PlugNR].initfunc = (f_plug_init) (GetProcAddress(DLLInstance, "initPlugin"));
 #else
 	PlugList[PlugNR].libptr = ptr;
-	PlugList[PlugNR].initfunc = (f_plugin) (dlsym(ptr, "initPlugin"));
+	PlugList[PlugNR].initfunc = (f_plug_init) (dlsym(ptr, "initPlugin"));
 #endif
 
 	if (PlugList[PlugNR].initfunc == NULL)
@@ -365,32 +348,17 @@ void initOnePlugin(const char *pluginfile)
 	}
 	else
 	{
-		CFParm *InitParm;
-
-#ifdef WIN32
-		if ((registerHooksFunc = (void *) GetProcAddress(DLLInstance, "registerHooks")))
-#else
-		if ((registerHooksFunc = (void *) (dlsym(ptr, "registerHooks"))))
-#endif
-		{
-			registerHooksFunc(&hooklist);
-		}
-
-		InitParm = PlugList[PlugNR].initfunc(NULL);
-		LOG(llevInfo, "Plugin name: %s, known as %s\n", (char *) (InitParm->Value[1]), (char *) (InitParm->Value[0]));
-
-		strcpy(PlugList[PlugNR].id, (char *) (InitParm->Value[0]));
-		strcpy(PlugList[PlugNR].fullname, (char *) (InitParm->Value[1]));
+		PlugList[PlugNR].initfunc(&hooklist);
 	}
 
 #ifdef WIN32
-	PlugList[PlugNR].eventfunc = (f_plugin)(GetProcAddress(DLLInstance, "triggerEvent"));
-	PlugList[PlugNR].pinitfunc = (f_plugin)(GetProcAddress(DLLInstance, "postinitPlugin"));
-	PlugList[PlugNR].propfunc = (f_plugin)(GetProcAddress(DLLInstance, "getPluginProperty"));
+	PlugList[PlugNR].eventfunc = (f_plug_api) (GetProcAddress(DLLInstance, "triggerEvent"));
+	PlugList[PlugNR].pinitfunc = (f_plug_pinit) (GetProcAddress(DLLInstance, "postinitPlugin"));
+	PlugList[PlugNR].propfunc = (f_plug_api) (GetProcAddress(DLLInstance, "getPluginProperty"));
 #else
-	PlugList[PlugNR].eventfunc = (f_plugin)(dlsym(ptr, "triggerEvent"));
-	PlugList[PlugNR].pinitfunc = (f_plugin)(dlsym(ptr, "postinitPlugin"));
-	PlugList[PlugNR].propfunc = (f_plugin)(dlsym(ptr, "getPluginProperty"));
+	PlugList[PlugNR].eventfunc = (f_plug_api) (dlsym(ptr, "triggerEvent"));
+	PlugList[PlugNR].pinitfunc = (f_plug_pinit) (dlsym(ptr, "postinitPlugin"));
+	PlugList[PlugNR].propfunc = (f_plug_api) (dlsym(ptr, "getPluginProperty"));
 #endif
 
 	if (PlugList[PlugNR].pinitfunc == NULL)
@@ -420,8 +388,12 @@ void initOnePlugin(const char *pluginfile)
 		return;
 	}
 
+	PlugList[PlugNR].propfunc(0, "Identification", PlugList[PlugNR].id, sizeof(PlugList[PlugNR].id));
+	PlugList[PlugNR].propfunc(0, "FullName", PlugList[PlugNR].fullname, sizeof(PlugList[PlugNR].fullname));
+	LOG(llevInfo, "Plugin name: %s, known as %s\n", PlugList[PlugNR].fullname, PlugList[PlugNR].id);
+
 	PlugNR++;
-	PlugList[PlugNR - 1].pinitfunc(NULL);
+	PlugList[PlugNR - 1].pinitfunc();
 
 	LOG(llevInfo, "[Done]\n");
 }
@@ -462,23 +434,6 @@ void removeOnePlugin(const char *id)
 }
 
 /**
- * When a specific global event occurs, this function is called.
- * @param PParm Parameters array.
- * - <b>0</b>: The global event ID. */
-void GlobalEvent(CFParm *PParm)
-{
-	int i;
-
-	for (i = 0; i < PlugNR; i++)
-	{
-		if (PlugList[i].gevent[*(int *) (PParm->Value[0])] != 0)
-		{
-			(PlugList[i].eventfunc)(PParm);
-		}
-	}
-}
-
-/**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
  * @param event_type The event type
@@ -487,14 +442,15 @@ void GlobalEvent(CFParm *PParm)
 void trigger_global_event(int event_type, void *parm1, void *parm2)
 {
 #ifdef PLUGINS
-	int evtid = event_type;
-	CFParm CFP;
+	int i;
 
-	CFP.Value[0] = (void *) (&evtid);
-	CFP.Value[1] = (void *) (parm1);
-	CFP.Value[2] = (void *) (parm2);
-
-	GlobalEvent(&CFP);
+	for (i = 0; i < PlugNR; i++)
+	{
+		if (PlugList[i].gevent[event_type] != 0)
+		{
+			(PlugList[i].eventfunc)(0, event_type, parm1, parm2);
+		}
+	}
 #endif
 }
 
@@ -514,7 +470,6 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags)
 {
 #ifdef PLUGINS
-	CFParm CFP;
 	object *event_obj;
 	int plugin;
 
@@ -544,22 +499,9 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		event_obj->damage_round_tag = pticks;
 	}
 
-	CFP.Value[0] = &event_type;
-	CFP.Value[1] = activator;
-	CFP.Value[2] = me;
-	CFP.Value[3] = other;
-	CFP.Value[4] = (void *) msg;
-	CFP.Value[5] = parm1;
-	CFP.Value[6] = parm2;
-	CFP.Value[7] = parm3;
-	CFP.Value[8] = &flags;
-	CFP.Value[9] = (char *) event_obj->race;
-	CFP.Value[10] = (char *) event_obj->slaying;
-
 	if (event_obj->name && (plugin = findPlugin(event_obj->name)) >= 0)
 	{
 		int returnvalue;
-		CFParm *CFR;
 #ifdef TIME_SCRIPTS
 		struct timeval start, stop;
 		uint64 start_u, stop_u;
@@ -567,9 +509,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		gettimeofday(&start, NULL);
 #endif
 
-		CFR = PlugList[plugin].eventfunc(&CFP);
-
-		returnvalue = *(int *) (CFR->Value[0]);
+		returnvalue = *(int *) PlugList[plugin].eventfunc(0, event_type, activator, me, other, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
 
 #ifdef TIME_SCRIPTS
 		gettimeofday(&stop, NULL);
