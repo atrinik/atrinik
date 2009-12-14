@@ -614,8 +614,13 @@ static Atrinik_Constant object_constants[] =
 	{"COLOR_BLUE",                   NDI_BLUE},
 	{"COLOR_RED",                    NDI_RED},
 
+	{"NDI_SAY",                      NDI_SAY},
+	{"NDI_SHOUT",                    NDI_SHOUT},
+	{"NDI_TELL",                     NDI_TELL},
 	{"NDI_PLAYER",                   NDI_PLAYER},
 	{"NDI_ANIM",                     NDI_ANIM},
+	{"NDI_EMOTE",                    NDI_EMOTE},
+	{"NDI_ALL",                      NDI_ALL},
 
 	{"PLAYER_EQUIP_MAIL", PLAYER_EQUIP_MAIL},
 	{"PLAYER_EQUIP_GAUNTLET", PLAYER_EQUIP_GAUNTLET},

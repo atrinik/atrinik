@@ -155,7 +155,7 @@ int command_shout(object *op, char *params)
 		return 0;
 	}
 
-	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE, 1, NULL, "%s shouts: %s", op->name, params);
+	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE | NDI_SHOUT, 1, NULL, "%s shouts: %s", op->name, params);
 
 	/* Trigger the global SHOUT event. */
 	trigger_global_event(EVENT_SHOUT, op, params);
@@ -225,19 +225,14 @@ int command_tell(object *op, char *params)
 		{
 			if (pl->dm_stealth)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, 0, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
-				/* Update last_tell value */
-				strcpy(pl->last_tell, op->name);
-
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, 0, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
 				/* We send it but we kick the "no such player" on. */
 				break;
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE, 0, op, "You tell %s: %s", name, msg);
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, 0, pl->ob, "%s tells you: %s", op->name, msg);
-				/* Update last_tell value. */
-				strcpy(pl->last_tell, op->name);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_TELL, 0, op, "You tell %s: %s", name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, 0, pl->ob, "%s tells you: %s", op->name, msg);
 				return 1;
 			}
 		}
@@ -305,52 +300,6 @@ int command_t_tell(object *op, char *params)
 	}
 
 	play_sound_player_only(CONTR(op), SOUND_WAND_POOF, SOUND_NORMAL, 0, 0);
-	return 1;
-}
-
-/**
- * Reply to last person who told you something.
- * @param op Object doing this command.
- * @param params The message.
- * @return 1 on success, 0 on failure. */
-int command_reply(object *op, char *params)
-{
-	player *pl;
-
-	if (params)
-	{
-		params = cleanup_chat_string(params);
-	}
-
-	/* This happens when whitespace only string was submitted. */
-	if (!params || *params == '\0')
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Reply what?");
-		return 0;
-	}
-
-	if (CONTR(op)->last_tell[0] == '\0')
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't reply to nobody.");
-		return 0;
-	}
-
-	/* Find player object of player to reply to and check if player still
-	 * exists. */
-	pl = find_player(CONTR(op)->last_tell);
-
-	if (pl == NULL || pl->dm_stealth)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't reply, this player has left.");
-		return 0;
-	}
-
-	/* Update last_tell value. */
-	strcpy(pl->last_tell, op->name);
-
-	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY, 0, pl->ob, "%s replies you: %s", op->name, params);
-	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE , 0, op, "You reply %s: %s", pl->ob->name, params);
-
 	return 1;
 }
 
@@ -474,7 +423,7 @@ static int basic_emote(object *op, char *params, int emotion)
 					new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, CONTR(op)->target_object, buf2);
 				}
 
-				new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, CONTR(op)->target_object, buf3);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, CONTR(op)->target_object, buf3);
 				return 0;
 			}
 
@@ -505,7 +454,7 @@ static int basic_emote(object *op, char *params, int emotion)
 			snprintf(buf2, sizeof(buf2), "You are nuts.");
 		}
 
-		new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+		new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 		if (op->type == PLAYER)
 		{
@@ -520,7 +469,7 @@ static int basic_emote(object *op, char *params, int emotion)
 		if (emotion == EMOTE_ME)
 		{
 			snprintf(buf, sizeof(buf), "%s %s", op->name, params);
-			new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 			if (op->type == PLAYER)
 			{
@@ -538,7 +487,7 @@ static int basic_emote(object *op, char *params, int emotion)
 			{
 				emote_self(op, buf, buf2, emotion);
 				new_draw_info(NDI_UNIQUE, 0, op, buf);
-				new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 
 				return 0;
 			}
@@ -559,13 +508,13 @@ static int basic_emote(object *op, char *params, int emotion)
 					{
 						emote_other(op, pl->ob, NULL, buf, buf2, buf3, emotion);
 						new_draw_info(NDI_UNIQUE, 0, op, buf);
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, pl->ob, buf2);
-						new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
+						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, 0, pl->ob, buf2);
+						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
 					}
 					else
 					{
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, pl->ob, buf2);
-						new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
+						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, 0, pl->ob, buf2);
+						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
 					}
 				}
 				else if (op->type == PLAYER)
@@ -580,12 +529,12 @@ static int basic_emote(object *op, char *params, int emotion)
 			{
 				emote_self(op, buf, buf2, -1);
 				new_draw_info(NDI_UNIQUE, 0, op, buf);
-				new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 			}
 			else
 			{
 				emote_other(op, NULL, params, buf, buf2, buf3, emotion);
-				new_info_map_except(NDI_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf3);
+				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf3);
 			}
 		}
 	}

@@ -423,6 +423,9 @@ uint32 echo_bindings:
 
 	/* Party name this player is member of */
 	char partyname[MAX_BUF];
+
+	/** Whom to reply to. */
+	char player_reply[64];
 } Client_Player;
 
 /* Player object. */
@@ -541,14 +544,19 @@ extern Client_Player cpl;
 #define SF_XRAYS			8
 #define SF_INFRAVISION		16
 
-/* It's a say command */
-#define NDI_SAY		0x0100
-#define NDI_SHOUT	0x0200
-#define NDI_TELL	0x0400
-/* This comes from a player */
-#define NDI_PLAYER	0x0800
-/* If this is set, it's a "system" message */
-#define NDI_SYSTEM  0x01000
+/** Say command */
+#define NDI_SAY     0x0100
+/** The message is a shout */
+#define NDI_SHOUT   0x0200
+/** The message is a tell */
+#define NDI_TELL    0x0400
+/** This message comes from a player */
+#define NDI_PLAYER  0x0800
+/** Message is an emote command. */
+#define NDI_EMOTE   0x01000
+/**
+ * Message will be played as animation in the middle of the client
+ * screen. */
 #define NDI_ANIM    0x02000
 
 /* Flags for the item command */

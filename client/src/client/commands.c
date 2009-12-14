@@ -545,7 +545,7 @@ void DrawInfoCmd(unsigned char *data)
 void DrawInfoCmd2(unsigned char *data, int len)
 {
 	int flags;
-	char buf[2048];
+	char buf[2048], *tmp = NULL;
 
 	flags = (int) GetShort_String(data);
 	data += 2;
@@ -608,18 +608,58 @@ void DrawInfoCmd2(unsigned char *data, int len)
 		}
 
 		buf[len] = '\0';
-
-		if (flags & NDI_ANIM)
-		{
-			strncpy(msg_anim.message, buf, sizeof(msg_anim.message) - 1);
-			msg_anim.message[len - 1] = '\0';
-			msg_anim.flags = flags;
-			msg_anim.tick = LastTick;
-		}
 	}
 	else
 	{
 		buf[0] = '\0';
+	}
+
+	if (buf[0] && (flags & (NDI_PLAYER | NDI_SAY | NDI_SHOUT | NDI_TELL | NDI_EMOTE)))
+	{
+		tmp = strchr((char *) data, ' ');
+
+		if (tmp)
+		{
+			*tmp = '\0';
+		}
+	}
+
+	/* We have communication input */
+	if (tmp)
+	{
+		if ((flags & NDI_SAY) && ignore_check((char *) data, "say"))
+		{
+			return;
+		}
+
+		if ((flags & NDI_SHOUT) && ignore_check((char *) data, "shout"))
+		{
+			return;
+		}
+
+		if ((flags & NDI_TELL) && ignore_check((char *) data, "tell"))
+		{
+			return;
+		}
+
+		if ((flags & NDI_EMOTE) && ignore_check((char *) data, "emote"))
+		{
+			return;
+		}
+
+		/* Save last incoming tell for client-sided /reply */
+		if (flags & NDI_TELL)
+		{
+			strncpy(cpl.player_reply, (char *) data, sizeof(cpl.player_reply));
+		}
+	}
+
+	if (flags & NDI_ANIM)
+	{
+		strncpy(msg_anim.message, buf, sizeof(msg_anim.message) - 1);
+		msg_anim.message[len - 1] = '\0';
+		msg_anim.flags = flags;
+		msg_anim.tick = LastTick;
 	}
 
 	draw_info(buf, flags);
@@ -1086,6 +1126,8 @@ void PlayerCmd(unsigned char *data, int len)
 	map_transfer_flag = 1;
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
+
+	ignore_list_load();
 }
 
 /**

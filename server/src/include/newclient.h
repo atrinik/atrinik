@@ -220,6 +220,7 @@
 #define NDI_COLOR_MASK  0xff
 /** Second 8 bit are flags to define draw_info string */
 #define NDI_FLAG_MASK   0xffff
+
 /** Say command */
 #define NDI_SAY     0x0100
 /** The message is a shout */
@@ -228,8 +229,8 @@
 #define NDI_TELL    0x0400
 /** This message comes from a player */
 #define NDI_PLAYER  0x0800
-/** If set, it's a system message */
-#define NDI_SYSTEM  0x01000
+/** Message is an emote command. */
+#define NDI_EMOTE   0x01000
 /**
  * Message will be played as animation in the middle of the client
  * screen. */

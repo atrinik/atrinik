@@ -2000,7 +2000,7 @@ void communicate(object *op, char *txt)
 
 	if (op->type == PLAYER)
 	{
-		new_info_map(NDI_WHITE | NDI_PLAYER, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+		new_info_map(NDI_WHITE | NDI_PLAYER | NDI_SAY, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
 	}
 	else
 	{

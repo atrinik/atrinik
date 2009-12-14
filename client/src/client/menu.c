@@ -357,6 +357,36 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
+	else if (!strncmp(cmd, "/ignore", 7))
+	{
+		ignore_command(cmd + 7);
+		return 1;
+	}
+	else if (!strncmp(cmd, "/reply", 6))
+	{
+		cmd = strchr(cmd, ' ');
+
+		if (!cmd || *++cmd == '\0')
+		{
+			draw_info("Usage: /reply <message>", COLOR_RED);
+		}
+		else
+		{
+			if (!cpl.player_reply[0])
+			{
+				draw_info("There is no one you can /reply.", COLOR_RED);
+			}
+			else
+			{
+				char buf[2048];
+
+				snprintf(buf, sizeof(buf), "/tell %s %s", cpl.player_reply, cmd);
+				send_command(buf, -1, SC_NORMAL);
+			}
+		}
+
+		return 1;
+	}
 
 	return 0;
 }

@@ -23,76 +23,28 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef INCLUDE_H
-#define INCLUDE_H
+/**
+ * @file
+ * Ignore list related header. */
 
-#ifdef __LINUX
-#include "define.h"
-#else
-#include "win32.h"
-#endif
+#ifndef IGNORE_H
+#define IGNORE_H
 
-#include "config.h"
+/** The ignore list structure. */
+typedef struct _ignore_list
+{
+	/** Next entry in this list. */
+	struct _ignore_list *next;
 
-/* Just some handy ones I like to use */
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE 1
-#endif
+	/** Name to ignore. */
+	char name[MAX_BUF];
 
-/* This is for the DevCpp IDE */
-#ifndef __WIN_32
-#ifdef WIN32
-#define __WIN_32
-#endif
-#endif
+	/** Type to ignore. */
+	char type[MAX_BUF];
+} ignore_list_struct;
 
-typedef unsigned int uint32;
-typedef signed int sint32;
-typedef unsigned short uint16;
-typedef signed short sint16;
-typedef unsigned char uint8;
-typedef signed char sint8;
+void ignore_list_load();
+int ignore_check(char *name, char *type);
+void ignore_command(char *cmd);
 
-#ifndef MIN
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-
-#ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-#ifdef INSTALL_SOUND
-#include <SDL_mixer.h>
-#endif
-#include <wrapper.h>
-#include <signal.h>
-#include <curl/curl.h>
-
-#include <zlib.h>
-#include <item.h>
-
-#include <book.h>
-#include <client.h>
-#include <sdlsocket.h>
-#include <commands.h>
-#include <main.h>
-#include <metaserver.h>
-#include <player.h>
-#include <party.h>
-#include <misc.h>
-#include <event.h>
-#include <ignore.h>
-#include <sound.h>
-#include <map.h>
-#include <sprite.h>
-#include <player_shop.h>
-#include <scripts.h>
-#include <textwin.h>
-#include <inventory.h>
-#include <menu.h>
-#include <dialog.h>
-#include <widget.h>
 #endif

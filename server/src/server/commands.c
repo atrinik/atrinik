@@ -60,7 +60,6 @@ CommArray_s Commands[] =
 	{"/mapinfo",		command_mapinfo,		1.0f},
 	{"/motd",			command_motd,			1.0f},
 	{"/dm",				command_dm,				1.0f},
-	{"/reply",			command_reply,			1.0f},
 	{"/time",			command_time,			1.0f},
 	{"/version",		command_version,		1.0f},
 	{"/save",			command_save,			1.0f},

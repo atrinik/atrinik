@@ -312,11 +312,6 @@ typedef struct pl_player
 	/** Who killed this player. */
 	char killer[BIG_NAME];
 
-	/**
-	 * Last player that told you something, used for /reply command.
-	 * @todo The client should handle this instead of the server. */
-	char last_tell[MAX_NAME];
-
 	char write_buf[MAX_BUF];
 
 	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */

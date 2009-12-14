@@ -62,7 +62,6 @@ int command_dmsay(object *op, char *params);
 int command_shout(object *op, char *params);
 int command_tell(object *op, char *params);
 int command_t_tell(object *op, char *params);
-int command_reply(object *op, char *params);
 int command_nod(object *op, char *params);
 int command_dance(object *op, char *params);
 int command_kiss(object *op, char *params);
