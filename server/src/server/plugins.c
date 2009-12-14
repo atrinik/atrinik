@@ -112,6 +112,7 @@ struct plugin_hooklist hooklist =
 	drop,
 	query_short_name,
 	beacon_locate,
+	strdup_local,
 
 	season_name,
 	weekdays,

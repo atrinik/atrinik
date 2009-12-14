@@ -486,7 +486,7 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 /**
  * <h1>Atrinik.RegisterCommand(<i>\<string\></i> cmdname,
  * <i>\<string\></i> scriptname, <i>\<double\></i> speed)</h1>
- * @warning Untested. */
+ * Register a custom command. */
 static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
 	char *cmdname, *scriptname;
@@ -506,7 +506,6 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 		{
 			if (!strcmp(CustomCommand[i].name, cmdname))
 			{
-				LOG(llevDebug, "PYTHON:: This command is already registered!\n");
 				RAISE("This command is already registered");
 			}
 		}
@@ -516,12 +515,10 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 	{
 		if (CustomCommand[i].name == NULL)
 		{
-			CustomCommand[i].name = (char *) (malloc(sizeof(char) * strlen(cmdname)));
-			CustomCommand[i].script = (char *) (malloc(sizeof(char) * strlen(scriptname)));
-			strcpy(CustomCommand[i].name, cmdname);
-			strcpy(CustomCommand[i].script, scriptname);
+			CustomCommand[i].name = hooks->strdup_local(cmdname);
+			CustomCommand[i].script = hooks->strdup_local(scriptname);
 			CustomCommand[i].speed = cmdspeed;
-			i = NR_CUSTOM_CMD;
+			break;
 		}
 	}
 
