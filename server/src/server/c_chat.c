@@ -170,6 +170,7 @@ int command_shout(object *op, char *params)
  * @return 1 on success, 0 on failure */
 int command_tell(object *op, char *params)
 {
+	const char *name_hash;
 	char *name = NULL, *msg = NULL;
 	player *pl;
 
@@ -193,35 +194,45 @@ int command_tell(object *op, char *params)
 
 	if (msg)
 	{
-		*(msg++) = 0;
+		*(msg++) = '\0';
 
-		if (*msg == 0)
+		if (*msg == '\0')
 		{
 			msg = NULL;
 		}
 	}
 
-	if (name == NULL)
+	if (!name)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "Tell whom what?");
 		return 1;
 	}
-	else if (msg == NULL)
+
+	adjust_player_name(name);
+	name_hash = find_string(name);
+
+	if (!name_hash)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+		return 1;
+	}
+
+	if (!msg)
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Tell %s what?", name);
 		return 1;
 	}
 
 	/* Send to yourself? Intelligent... */
-	if (strcasecmp(op->name, name) == 0)
+	if (op->name == name_hash)
 	{
 		new_draw_info(NDI_UNIQUE, 0, op, "You tell yourself the news. Very smart.");
 		return 1;
 	}
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (!strncasecmp(pl->ob->name, name, MAX_NAME))
+		if (pl->ob->name == name_hash)
 		{
 			if (pl->dm_stealth)
 			{

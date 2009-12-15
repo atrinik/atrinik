@@ -31,9 +31,6 @@
 #include <global.h>
 #include <sproto.h>
 
-#undef SS_STATISTICS
-#include <shstr.h>
-
 /**
  * Show maps information.
  * @param op The object to show the information to. */
@@ -264,7 +261,7 @@ void malloc_info(object *op)
 /**
  * Give out some info about the map op is located at.
  * @param op The object requesting this information. */
-void current_map_info(object *op)
+static void current_map_info(object *op)
 {
 	mapstruct *m = op->map;
 
@@ -297,24 +294,26 @@ void current_map_info(object *op)
 int command_who(object *op, char *params)
 {
 	player *pl;
-	int ip = 0, il = 0;
+	int ip = 0, il = 0, wiz;
 	char buf[MAX_BUF];
+
+	if (!op)
+	{
+		return 1;
+	}
+
+	wiz = QUERY_FLAG(op, FLAG_WIZ);
 
 	(void) params;
 
-	if (first_player)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, " ");
-	}
-
 	for (pl = first_player; pl != NULL; pl = pl->next)
 	{
-		if (pl->dm_stealth && !QUERY_FLAG(op, FLAG_WIZ))
+		if (pl->dm_stealth && !wiz)
 		{
 			continue;
 		}
 
-		if (pl->ob->map == NULL)
+		if (!pl->ob->map)
 		{
 			il++;
 			continue;
@@ -335,7 +334,7 @@ int command_who(object *op, char *params)
 				sex = "female";
 			}
 
-			if (op == NULL || QUERY_FLAG(op, FLAG_WIZ))
+			if (wiz)
 			{
 				snprintf(buf, sizeof(buf), "%s the %s %s (@%s) [%s]%s%s (%d)", pl->ob->name, sex, pl->ob->race, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
 			}
@@ -354,51 +353,6 @@ int command_who(object *op, char *params)
 }
 
 /**
- * Malloc info command.
- *
- * If MEMPOOL_TRACKING is defined, parameters are used to free (and force
- * freeing) empty puddles. Otherwise, malloc_info() is used to display
- * information about memory usage.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
-int command_malloc(object *op, char *params)
-{
-#ifdef MEMPOOL_TRACKING
-	if (params)
-	{
-		int force_flag = 0, i;
-
-		if (strcmp(params, "free") && strcmp(params, "force"))
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Usage: /malloc [free | force]");
-			return 1;
-		}
-
-		if (strcmp(params, "force") == 0)
-		{
-			force_flag = 1;
-		}
-
-		for (i = 0; i < nrof_mempools; i++)
-		{
-			if (force_flag == 1 || mempools[i]->flags & MEMPOOL_ALLOW_FREEING)
-			{
-#if 0
-				free_empty_puddles(mempools[i]);
-#endif
-			}
-		}
-	}
-#else
-	(void) params;
-#endif
-
-	malloc_info(op);
-	return 1;
-}
-
-/**
  * Map info command.
  * @param op Object requesting this.
  * @param params Command parameters.
@@ -408,48 +362,6 @@ int command_mapinfo(object *op, char *params)
 	(void) params;
 
 	current_map_info(op);
-	return 1;
-}
-
-/**
- * Maps command.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
-int command_maps(object *op, char *params)
-{
-	(void) params;
-
-	map_info(op);
-	return 1;
-}
-
-/**
- * Strings command.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
-int command_strings(object *op, char *params)
-{
-	char buf[HUGE_BUF];
-
-	(void) params;
-
-	ss_dump_statistics(buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
-
-	ss_dump_table(SS_DUMP_TOTALS, buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
-
-	return 1;
-}
-
-int command_ssdumptable(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-
-	ss_dump_table(SS_DUMP_TABLE, NULL, 0);
 	return 1;
 }
 
@@ -467,19 +379,6 @@ int command_time(object *op, char *params)
 }
 
 /**
- * Arches command. Print out information about the arches.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
-int command_archs(object *op, char *params)
-{
-	(void) params;
-
-	arch_info(op);
-	return 1;
-}
-
-/**
  * Highscore command, shows the highscore.
  * @param op Object requesting this.
  * @param params Parameters.
@@ -487,347 +386,6 @@ int command_archs(object *op, char *params)
 int command_hiscore(object *op, char *params)
 {
 	display_high_score(op, op == NULL ? 9999 : 50, params);
-	return 1;
-}
-
-/**
- * Set debug level.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return 1. */
-int command_debug(object *op, char *params)
-{
-	int i;
-
-	if (params == NULL || !sscanf(params, "%d", &i))
-	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Debug level is %d.", settings.debug);
-		return 1;
-	}
-
-	settings.debug = (enum LogLevel) FABS(i);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Set debug level to %d.", i);
-	return 1;
-}
-
-/**
- * Full dump of objects below the DM.
- * @param op Object requesting this.
- * @param params Unused.
- * @return 1. */
-int command_dumpbelowfull(object *op, char *params)
-{
-	object *tmp;
-
-	(void) params;
-
-	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
-
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
-	{
-		/* Exclude the DM player object */
-		if (tmp == op)
-		{
-			continue;
-		}
-
-		dump_object(tmp);
-		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
-
-		if (tmp->above && tmp->above != op)
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, ">next object<");
-		}
-	}
-
-	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
-
-	return 1;
-}
-
-/**
- * Dump objects below the DM.
- * @param op Object requesting this.
- * @param params Unused.
- * @return 1. */
-int command_dumpbelow(object *op, char *params)
-{
-	object *tmp;
-	int i = 0;
-
-	(void) params;
-
-	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
-
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
-	{
-		/* Exclude the DM player object */
-		if (tmp == op)
-		{
-			continue;
-		}
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
-	}
-
-	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
-
-	return 1;
-}
-
-/**
- * Wizpass command. Used by DMs to toggle walking through walls on/off.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return 1 on success, 0 on failure. */
-int command_wizpass(object *op, char *params)
-{
-	int i;
-
-	if (!op)
-	{
-		return 0;
-	}
-
-	if (!params)
-	{
-		i = !QUERY_FLAG(op, FLAG_WIZPASS);
-	}
-	else
-	{
-		i = onoff_value(params);
-	}
-
-	if (i)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now walk through walls.");
-		SET_FLAG(op, FLAG_WIZPASS);
-	}
-	else
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now be stopped by walls.");
-		CLEAR_FLAG(op, FLAG_WIZPASS);
-	}
-
-	return 1;
-}
-
-/**
- * Dumps all friendly objects.
- * @param op Unused.
- * @param params Unused.
- * @return 1. */
-int command_dumpfriendlyobjects(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-	dump_friendly_objects();
-	return 1;
-}
-
-/**
- * Dumps all archetypes.
- * @param op Unused.
- * @param params Unused.
- * @return 1. */
-int command_dumpallarchetypes(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-	dump_all_archetypes();
-	return 1;
-}
-
-/**
- * DM stealth command. Used by DMs to make the DM hidden from all other
- * players. It also works when DM logs in without DM flag set or leaves
- * the DM mode.
- * @param op Object requesting this.
- * @param params Unused.
- * @return 1. */
-int command_dm_stealth(object *op, char *params)
-{
-	(void) params;
-
-	if (op->type != PLAYER || !CONTR(op))
-	{
-		return 1;
-	}
-
-	if (CONTR(op)->dm_stealth)
-	{
-		CONTR(op)->dm_stealth = 0;
-	}
-	else
-	{
-		CONTR(op)->dm_stealth = 1;
-	}
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
-	return 1;
-}
-
-/**
- * Toggle DM light on/off. DM light will light up all maps for the DM.
- * @param op Object requesting this.
- * @param params Unused.
- * @return 1. */
-int command_dm_light(object *op, char *params)
-{
-	(void) params;
-
-	if (op->type != PLAYER || !CONTR(op))
-	{
-		return 1;
-	}
-
-	if (CONTR(op)->dm_light)
-	{
-		CONTR(op)->dm_light = 0;
-	}
-	else
-	{
-		CONTR(op)->dm_light = 1;
-	}
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
-	return 1;
-}
-
-/**
- * Dump active list.
- * @param op Object requesting this.
- * @param params Unused.
- * @return 1. */
-int command_dumpactivelist(object *op, char *params)
-{
-	int count = 0;
-	object *tmp;
-
-	(void) params;
-
-	for (tmp = active_objects; tmp; tmp = tmp->active_next)
-	{
-		count++;
-		LOG(llevSystem, "%08d %03d %f %s (%s)\n", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
-	}
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Active objects: %d (dumped to log)", count);
-	LOG(llevSystem, "Active objects: %d\n", count);
-
-	return 1;
-}
-
-/**
- * Starts server shutdown timer.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return 1. */
-int command_shutdown(object *op, char *params)
-{
-	char *bp = NULL;
-	int i = -2;
-
-	if (params == NULL)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
-		return 1;
-	}
-
-	sscanf(params, "%d ", &i);
-
-	if ((bp = strchr(params, ' ')) != NULL)
-	{
-		bp++;
-	}
-
-	if (bp && bp == 0)
-	{
-		bp = NULL;
-	}
-
-	if (i < -1)
-	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
-		return 1;
-	}
-
-	LOG(llevSystem, "Shutdown agent started!\n");
-	shutdown_agent(i, bp);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Shutdown agent started! Timer set to %d seconds.", i);
-
-	return 1;
-}
-
-/**
- * Set map light by DM.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return 1 on success, 0 on failure. */
-int command_setmaplight(object *op, char *params)
-{
-	int i;
-
-	if (params == NULL || !sscanf(params, "%d", &i))
-	{
-		return 0;
-	}
-
-	set_map_darkness(op->map, i);
-
-	new_draw_info_format(NDI_UNIQUE, 0, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
-
-	return 1;
-}
-
-/**
- * Dump map information.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_dumpmap(object *op, char *params)
-{
-	(void) params;
-
-	if (op)
-	{
-		dump_map(op->map);
-	}
-
-	return 1;
-}
-
-/**
- * Dump information about all maps.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_dumpallmaps(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-
-	dump_all_maps();
-
-	return 1;
-}
-
-/**
- * Print Line of Sight.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_printlos(object *op, char *params)
-{
-	(void) params;
-
-	if (op)
-	{
-		print_los(op);
-	}
-
 	return 1;
 }
 
@@ -843,72 +401,6 @@ int command_version(object *op, char *params)
 	version(op);
 
 	return 1;
-}
-
-/**
- * Fix me command.
- * @param op Object requesting this
- * @param params Command parameters
- * @return Always returns 1 */
-int command_fix_me(object *op, char *params)
-{
-	(void) params;
-	fix_player(op);
-	return 1;
-}
-
-/**
- * Print out information about players. Currently unused,
- * because the old code will not work with SQLite.
- * @param op Object requesting this
- * @param paramss Command parameters
- * @return Always returns 1
- * @todo Make this work once again, perhaps for DMs only,
- * and allow searching for players by the parameters? */
-int command_players(object *op, char *paramss)
-{
-	(void) paramss;
-	(void) op;
-
-	return 1;
-
-#if 0
-	char buf[MAX_BUF];
-	char *t;
-	DIR *Dir;
-
-	sprintf(buf, "%s/%s/", settings.localdir, settings.playerdir);
-	t = buf + strlen(buf);
-	if ((Dir = opendir(buf)) != NULL)
-	{
-		const struct dirent *Entry;
-
-		while ((Entry = readdir(Dir)) != NULL)
-		{
-			/* skip '.' , '..' */
-			if (!((Entry->d_name[0] == '.' && Entry->d_name[1] == '\0') || (Entry->d_name[0] == '.' && Entry->d_name[1] == '.' && Entry->d_name[2] == '\0')))
-			{
-				struct stat Stat;
-
-				strcpy(t, Entry->d_name);
-
-				if (stat(buf, &Stat) == 0)
-				{
-					if ((Stat.st_mode & S_IFMT) == S_IFDIR)
-					{
-						char buf2[MAX_BUF];
-
-						struct tm *tm = localtime(&Stat.st_mtime);
-						sprintf(buf2, "%s\t%04d %02d %02d %02d %02d %02d", Entry->d_name, 1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-						new_draw_info(NDI_UNIQUE, 0, op, buf2);
-					}
-				}
-			}
-		}
-	}
-	closedir(Dir);
-	return 1;
-#endif
 }
 
 /**
@@ -967,29 +459,6 @@ int onoff_value(char *line)
 		default:
 			return 0;
 	}
-}
-
-/**
- * Print out to player if he has sounds enabled.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1 */
-int command_sound(object *op, char *params)
-{
-	(void) params;
-
-	if (CONTR(op)->socket.sound)
-	{
-		CONTR(op)->socket.sound = 0;
-		new_draw_info(NDI_UNIQUE, 0, op, "The sounds are disabled.");
-	}
-	else
-	{
-		CONTR(op)->socket.sound = 1;
-		new_draw_info(NDI_UNIQUE, 0, op, "The sounds are enabled.");
-	}
-
-	return 1;
 }
 
 /**

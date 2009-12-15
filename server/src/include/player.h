@@ -468,9 +468,6 @@ typedef struct pl_player
 	/** ID of the party the player is in. */
 	sint16 party_number;
 
-	/** Is the player AFK? */
-	sint16 afk;
-
 	/** Condition adjusted damage sent to client */
 	sint16 client_dam;
 
@@ -503,6 +500,9 @@ typedef struct pl_player
 
 	/** shadow register for client update resistance table */
 	sint8 last_protection[NROFPROTECTIONS];
+
+	/** Is the player AFK? */
+	sint8 afk;
 
 	/** Which range attack is being used by player */
 	rangetype shoottype;

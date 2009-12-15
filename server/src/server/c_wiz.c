@@ -31,6 +31,8 @@
 #ifndef __CEXTRACT__
 #include <sproto.h>
 #endif
+#undef SS_STATISTICS
+#include <shstr.h>
 
 /**
  * Search for player other than the searcher in game.
@@ -1749,5 +1751,496 @@ int command_ban(object *op, char *params)
 		list_bans(op);
 	}
 
+	return 1;
+}
+
+/**
+ * Set debug level.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1. */
+int command_debug(object *op, char *params)
+{
+	int i;
+
+	if (params == NULL || !sscanf(params, "%d", &i))
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, op, "Debug level is %d.", settings.debug);
+		return 1;
+	}
+
+	settings.debug = (enum LogLevel) FABS(i);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Set debug level to %d.", i);
+	return 1;
+}
+
+/**
+ * Full dump of objects below the DM.
+ * @param op Object requesting this.
+ * @param params Unused.
+ * @return 1. */
+int command_dumpbelowfull(object *op, char *params)
+{
+	object *tmp;
+
+	(void) params;
+
+	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
+	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	{
+		/* Exclude the DM player object */
+		if (tmp == op)
+		{
+			continue;
+		}
+
+		dump_object(tmp);
+		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+
+		if (tmp->above && tmp->above != op)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, ">next object<");
+		}
+	}
+
+	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
+
+	return 1;
+}
+
+/**
+ * Dump objects below the DM.
+ * @param op Object requesting this.
+ * @param params Unused.
+ * @return 1. */
+int command_dumpbelow(object *op, char *params)
+{
+	object *tmp;
+	int i = 0;
+
+	(void) params;
+
+	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
+	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
+	{
+		/* Exclude the DM player object */
+		if (tmp == op)
+		{
+			continue;
+		}
+
+		new_draw_info_format(NDI_UNIQUE, 0, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
+	}
+
+	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
+
+	return 1;
+}
+
+/**
+ * Wizpass command. Used by DMs to toggle walking through walls on/off.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1 on success, 0 on failure. */
+int command_wizpass(object *op, char *params)
+{
+	int i;
+
+	if (!op)
+	{
+		return 0;
+	}
+
+	if (!params)
+	{
+		i = !QUERY_FLAG(op, FLAG_WIZPASS);
+	}
+	else
+	{
+		i = onoff_value(params);
+	}
+
+	if (i)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "You will now walk through walls.");
+		SET_FLAG(op, FLAG_WIZPASS);
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "You will now be stopped by walls.");
+		CLEAR_FLAG(op, FLAG_WIZPASS);
+	}
+
+	return 1;
+}
+
+/**
+ * Dumps all friendly objects.
+ * @param op Unused.
+ * @param params Unused.
+ * @return 1. */
+int command_dumpfriendlyobjects(object *op, char *params)
+{
+	(void) params;
+	(void) op;
+	dump_friendly_objects();
+	return 1;
+}
+
+/**
+ * Dumps all archetypes.
+ * @param op Unused.
+ * @param params Unused.
+ * @return 1. */
+int command_dumpallarchetypes(object *op, char *params)
+{
+	(void) params;
+	(void) op;
+	dump_all_archetypes();
+	return 1;
+}
+
+/**
+ * DM stealth command. Used by DMs to make the DM hidden from all other
+ * players. It also works when DM logs in without DM flag set or leaves
+ * the DM mode.
+ * @param op Object requesting this.
+ * @param params Unused.
+ * @return 1. */
+int command_dm_stealth(object *op, char *params)
+{
+	(void) params;
+
+	if (op->type != PLAYER || !CONTR(op))
+	{
+		return 1;
+	}
+
+	if (CONTR(op)->dm_stealth)
+	{
+		CONTR(op)->dm_stealth = 0;
+	}
+	else
+	{
+		CONTR(op)->dm_stealth = 1;
+	}
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
+	return 1;
+}
+
+/**
+ * Toggle DM light on/off. DM light will light up all maps for the DM.
+ * @param op Object requesting this.
+ * @param params Unused.
+ * @return 1. */
+int command_dm_light(object *op, char *params)
+{
+	(void) params;
+
+	if (op->type != PLAYER || !CONTR(op))
+	{
+		return 1;
+	}
+
+	if (CONTR(op)->dm_light)
+	{
+		CONTR(op)->dm_light = 0;
+	}
+	else
+	{
+		CONTR(op)->dm_light = 1;
+	}
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
+	return 1;
+}
+
+/**
+ * /dm_password command.
+ * @param op DM.
+ * @param params Command parameters.
+ * @return 0. */
+int command_dm_password(object *op, char *params)
+{
+	FILE *fp, *fpout;
+	const char *name_hash;
+	char filename[MAX_BUF], bufall[MAX_BUF], outfile[MAX_BUF];
+	char name[MAX_BUF], password[MAX_BUF];
+
+	if (!params || sscanf(params, "%s %s", name, password) != 2)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Usage: /dm_password <player name> <new password>");
+		return 0;
+	}
+
+	adjust_player_name(name);
+	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, name, name);
+
+	if (!player_exists(name))
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, op, "Player %s doesn't exist.", name);
+	}
+
+	strncpy(outfile, filename, sizeof(outfile));
+	strncat(outfile, ".tmp", sizeof(outfile) - strlen(outfile) - 1);
+
+	if (!(fp = fopen(filename, "r")))
+	{
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, op, "Error opening file %s.", filename);
+		return 0;
+	}
+
+	if (!(fpout = fopen(outfile, "w")))
+	{
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, op, "Error opening file %s.", outfile);
+		return 0;
+	}
+
+	while (fgets(bufall, sizeof(bufall) - 1, fp))
+	{
+		if (!strncmp(bufall, "password ", 9))
+		{
+			fprintf(fpout, "password %s\n", crypt_string(password, NULL));
+		}
+		else
+		{
+			fputs(bufall, fpout);
+		}
+	}
+
+	if ((name_hash = find_string(name)))
+	{
+		player *pl;
+
+		for (pl = first_player; pl; pl = pl->next)
+		{
+			if (pl->ob && pl->ob->name == name_hash)
+			{
+				strcpy(pl->password, crypt_string(password, NULL));
+				break;
+			}
+		}
+	}
+
+	fclose(fp);
+	fclose(fpout);
+	unlink(filename);
+	rename(outfile, filename);
+
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Done. Changed password of %s to %s!", name, password);
+	return 0;
+}
+
+/**
+ * Dump active list.
+ * @param op Object requesting this.
+ * @param params Unused.
+ * @return 1. */
+int command_dumpactivelist(object *op, char *params)
+{
+	int count = 0;
+	object *tmp;
+
+	(void) params;
+
+	for (tmp = active_objects; tmp; tmp = tmp->active_next)
+	{
+		count++;
+		LOG(llevSystem, "%08d %03d %f %s (%s)\n", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
+	}
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Active objects: %d (dumped to log)", count);
+	LOG(llevSystem, "Active objects: %d\n", count);
+
+	return 1;
+}
+
+/**
+ * Starts server shutdown timer.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1. */
+int command_shutdown(object *op, char *params)
+{
+	char *bp = NULL;
+	int i = -2;
+
+	if (params == NULL)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
+		return 1;
+	}
+
+	sscanf(params, "%d ", &i);
+
+	if ((bp = strchr(params, ' ')) != NULL)
+	{
+		bp++;
+	}
+
+	if (bp && bp == 0)
+	{
+		bp = NULL;
+	}
+
+	if (i < -1)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
+		return 1;
+	}
+
+	LOG(llevSystem, "Shutdown agent started!\n");
+	shutdown_agent(i, bp);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Shutdown agent started! Timer set to %d seconds.", i);
+
+	return 1;
+}
+
+/**
+ * Set map light by DM.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return 1 on success, 0 on failure. */
+int command_setmaplight(object *op, char *params)
+{
+	int i;
+
+	if (params == NULL || !sscanf(params, "%d", &i))
+	{
+		return 0;
+	}
+
+	set_map_darkness(op->map, i);
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
+
+	return 1;
+}
+
+/**
+ * Dump map information.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
+int command_dumpmap(object *op, char *params)
+{
+	(void) params;
+
+	if (op)
+	{
+		dump_map(op->map);
+	}
+
+	return 1;
+}
+
+/**
+ * Dump information about all maps.
+ * @param op Object requesting this
+ * @param params Command parameters
+ * @return Always returns 1 */
+int command_dumpallmaps(object *op, char *params)
+{
+	(void) params;
+	(void) op;
+
+	dump_all_maps();
+
+	return 1;
+}
+
+/**
+ * Malloc info command.
+ *
+ * If MEMPOOL_TRACKING is defined, parameters are used to free (and force
+ * freeing) empty puddles. Otherwise, malloc_info() is used to display
+ * information about memory usage.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
+int command_malloc(object *op, char *params)
+{
+#ifdef MEMPOOL_TRACKING
+	if (params)
+	{
+		int force_flag = 0, i;
+
+		if (strcmp(params, "free") && strcmp(params, "force"))
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "Usage: /malloc [free | force]");
+			return 1;
+		}
+
+		if (strcmp(params, "force") == 0)
+		{
+			force_flag = 1;
+		}
+
+		for (i = 0; i < nrof_mempools; i++)
+		{
+			if (force_flag == 1 || mempools[i]->flags & MEMPOOL_ALLOW_FREEING)
+			{
+#if 0
+				free_empty_puddles(mempools[i]);
+#endif
+			}
+		}
+	}
+#else
+	(void) params;
+#endif
+
+	malloc_info(op);
+	return 1;
+}
+
+/**
+ * Maps command.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
+int command_maps(object *op, char *params)
+{
+	(void) params;
+
+	map_info(op);
+	return 1;
+}
+
+/**
+ * Strings command.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
+int command_strings(object *op, char *params)
+{
+	char buf[HUGE_BUF];
+
+	(void) params;
+
+	LOG(llevSystem, "HASH TABLE DUMP\n");
+
+	ss_dump_statistics(buf, sizeof(buf));
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	LOG(llevSystem, "%s\n", buf);
+
+	ss_dump_table(SS_DUMP_TOTALS, buf, sizeof(buf));
+	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	LOG(llevSystem, "%s\n", buf);
+
+	return 1;
+}
+
+int command_ssdumptable(object *op, char *params)
+{
+	(void) params;
+	(void) op;
+
+	ss_dump_table(SS_DUMP_TABLE, NULL, 0);
 	return 1;
 }

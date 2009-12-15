@@ -74,8 +74,6 @@ CommArray_s Commands[] =
 	{"/left",			command_turn_left,		1.0f},
 	{"/right",			command_turn_right,		1.0f},
 	{"/roll",			command_roll,			1.0f}
-	/*  {"/sound",		command_sound,			1.0},*/
-	/*  {"/pickup",		command_pickup,			1.0}, we don't want and need this anymore */
 };
 
 /** Size of normal commands */
@@ -188,14 +186,8 @@ CommArray_s WizCommands [] =
 	{"/remove",         command_remove,                 0.0},
 	{"/stats",          command_stats,                  0.0},
 	{"/forget_spell",   command_forget_spell,           0.0},
-	{"/set_god",        command_setgod,                 0.0}
-
-	/*
-	{"/archs", command_archs,	0.0},
-	{"/fix_me", command_fix_me,	0.0},
-	{"/players", command_players,	0.0},
-	{"/printlos", command_printlos,0.0},
-	*/
+	{"/set_god",        command_setgod,                 0.0},
+	{"/dm_password",    command_dm_password,            0.0}
 };
 
 /** Size of Wizard commands */
