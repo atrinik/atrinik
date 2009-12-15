@@ -248,8 +248,8 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 
 /**
  * You should really know what you are doing before using this - you
- * should almost always be using out_of_map instead, which takes into account
- * map tiling. */
+ * should almost always be using get_map_from_coord() instead, which
+ * takes into account map tiling. */
 #define OUT_OF_REAL_MAP(M, X, Y) \
     ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
@@ -311,7 +311,7 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 #define P_REFL_MISSILE        0x20000
 /**
  * Of course not set for map tiles but from blocked_xx() function where
- * the out_of_map() fails to grab a valid map or tile. */
+ * the get_map_from_coord() fails to grab a valid map or tile. */
 #define P_OUT_OF_MAP          0x4000000
 /** Skip the layer update, do flags only */
 #define P_FLAGS_ONLY          0x8000000

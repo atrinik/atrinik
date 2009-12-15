@@ -663,7 +663,7 @@ int cast_create_obj(object *op, object *new_op, int dir)
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
 
-	if (!(mt = out_of_map(op->map, &xt, &yt)))
+	if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
 	{
 		return 0;
 	}
@@ -678,7 +678,7 @@ int cast_create_obj(object *op, object *new_op, int dir)
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
 
-	if (!(mt = out_of_map(op->map, &xt, &yt)))
+	if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
 	{
 		return 0;
 	}
@@ -723,7 +723,7 @@ int summon_monster(object *op, object *caster, int dir, archetype *at, int spell
 		xt = op->x + freearr_x[dir];
 		yt = op->y + freearr_y[dir];
 
-		if (!(mt = out_of_map(op->map, &xt, &yt)))
+		if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
 		{
 			return 0;
 		}
@@ -819,7 +819,7 @@ static int ok_to_put_more(mapstruct *m, int x, int y, object *op)
 	object *tmp;
 
 	/* We must check map here or we will go in trouble some line down */
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return 0;
 	}
@@ -1400,7 +1400,7 @@ void forklightning(object *op, object *tmp)
 	xt = tmp->x + freearr_x[t_dir];
 	yt = tmp->y + freearr_y[t_dir];
 
-	if (!(m = out_of_map(tmp->map, &xt, &yt)) || wall(m, xt, yt))
+	if (!(m = get_map_from_coord(tmp->map, &xt, &yt)) || wall(m, xt, yt))
 	{
 		new_dir = 0;
 	}
@@ -1452,7 +1452,7 @@ void forklightning(object *op, object *tmp)
 int reflwall(mapstruct *m, int x, int y, object *sp_op)
 {
 	/* No reflection when we have a illegal space and/or non reflection flag set */
-	if (!(m = out_of_map(m, &x, &y)) || !(GET_MAP_FLAGS(m, x, y) & P_REFL_SPELLS))
+	if (!(m = get_map_from_coord(m, &x, &y)) || !(GET_MAP_FLAGS(m, x, y) & P_REFL_SPELLS))
 	{
 		return 0;
 	}
@@ -1676,7 +1676,7 @@ void move_golem(object *op)
 		x = tmp->x + freearr_x[op->direction];
 		y = tmp->y + freearr_y[op->direction];
 
-		if (!(m = out_of_map(op->map, &x, &y)))
+		if (!(m = get_map_from_coord(op->map, &x, &y)))
 		{
 			continue;
 		}
@@ -1757,7 +1757,7 @@ void move_missile(object *op)
 	new_x = op->x + DIRX(op);
 	new_y = op->y + DIRY(op);
 
-	if (!(mt = out_of_map(op->map, &new_x, &new_y)))
+	if (!(mt = get_map_from_coord(op->map, &new_x, &new_y)))
 	{
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
@@ -1830,7 +1830,7 @@ void explode_object(object *op)
 		xt = env->x;
 		yt = env->y;
 
-		if (!(m = out_of_map(env->map, &xt, &yt)))
+		if (!(m = get_map_from_coord(env->map, &xt, &yt)))
 		{
 			LOG(llevBug, "BUG: explode_object(): env out of map (%s)\n", query_name(op, NULL));
 			remove_ob(op);
@@ -2005,7 +2005,7 @@ void move_fired_arch(object *op)
 	new_x = op->x + DIRX(op);
 	new_y = op->y + DIRY(op);
 
-	if (!(m = out_of_map(op->map, &new_x, &new_y)))
+	if (!(m = get_map_from_coord(op->map, &new_x, &new_y)))
 	{
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
@@ -2291,7 +2291,7 @@ void move_ball_lightning(object *op)
 		hy = ny + freearr_y[j];
 
 		/* Out of map - always skip */
-		if (!(m = out_of_map(op->map, &hx, &hy)))
+		if (!(m = get_map_from_coord(op->map, &hx, &hy)))
 		{
 			continue;
 		}
@@ -2388,7 +2388,7 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude)
 		nx = x + freearr_x[i];
 		ny = y + freearr_y[i];
 
-		if ((m = out_of_map(m, &nx, &ny)))
+		if ((m = get_map_from_coord(m, &nx, &ny)))
 		{
 			tmp = get_map_ob(m, nx, ny);
 
@@ -2618,14 +2618,14 @@ void move_swarm_spell(object *op)
 	target_y = op->y + freearr_y[absdir(basedir + adjustdir)];
 
 	/* Back up one space so we can hit point-blank targets, but this
-	 * necessitates extra out_of_map check below */
+	 * necessitates extra get_map_from_coord check below */
 	origin_x = target_x - freearr_x[basedir];
 	origin_y = target_y - freearr_y[basedir];
 
 	xt = (int) origin_x;
 	yt = (int) origin_y;
 
-	if (!out_of_map(op->map, &xt, &yt))
+	if (!get_map_from_coord(op->map, &xt, &yt))
 	{
 		return;
 	}

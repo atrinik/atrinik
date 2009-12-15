@@ -943,7 +943,7 @@ static object *find_nearest_living_creature(object *npc)
 		nx = npc->x + freearr_x[i];
 		ny = npc->y + freearr_y[i];
 
-		if (!(m = out_of_map(npc->map, &nx, &ny)))
+		if (!(m = get_map_from_coord(npc->map, &nx, &ny)))
 		{
 			continue;
 		}
@@ -1430,7 +1430,7 @@ void npc_call_help(object *op)
 			xt = op->x + x;
 			yt = op->y + y;
 
-			if (!(m = out_of_map(op->map, &xt, &yt)))
+			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				continue;
 			}
@@ -2012,7 +2012,7 @@ void communicate(object *op, char *txt)
 		xt = op->x + freearr_x[i];
 		yt = op->y + freearr_y[i];
 
-		if ((m = out_of_map(op->map, &xt, &yt)))
+		if ((m = get_map_from_coord(op->map, &xt, &yt)))
 		{
 			/* Quick check if we have a magic ear. */
 			if (GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_ALIVE))

@@ -179,7 +179,7 @@ void move_arrow(object *op)
 	was_reflected = 0;
 
 	/* check we are legal */
-	if (!(m = out_of_map(op->map, &new_x, &new_y)))
+	if (!(m = get_map_from_coord(op->map, &new_x, &new_y)))
 	{
 		/* out of map... here is the end */
 		stop_arrow(op);

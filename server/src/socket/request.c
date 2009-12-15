@@ -1257,12 +1257,12 @@ void draw_client_map2(object *pl)
 			/* it IS a valid map -but which? */
 			nx = x;
 			ny = y;
-			if (!(m = out_of_map(pl->map, &nx, &ny)))
+			if (!(m = get_map_from_coord(pl->map, &nx, &ny)))
 			{
 				/* this should be catched in LOS function... so its a glitch,
 				  * except we are in DM mode - there we skip all this LOS stuff. */
 				if (!QUERY_FLAG(pl, FLAG_WIZ))
-					LOG(llevDebug, "BUG: draw_client_map2() out_of_map for player <%s> map:%s (%,%d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
+					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map:%s (%,%d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
 
 				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
 				{

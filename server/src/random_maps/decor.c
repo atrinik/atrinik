@@ -45,7 +45,7 @@ static int obj_count_in_map(mapstruct *map, int x, int y)
 	int count = 0;
 	object *tmp;
 
-	if (!(map = out_of_map(map, &x, &y)))
+	if (!(map = get_map_from_coord(map, &x, &y)))
 	{
 		return 0;
 	}

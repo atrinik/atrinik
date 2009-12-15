@@ -379,7 +379,7 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 	}
 
 	/* Adjust coordinates to be on the safe side */
-	*map = out_of_map(*map, x, y);
+	*map = get_map_from_coord(*map, x, y);
 	if (*map == NULL)
 	{
 		LOG(llevBug, "BUG: get_path_next(): Location (%d, %d) is out of map\n", *x, *y);
@@ -516,7 +516,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node **c
 		x2 = node->x + freearr_x[i];
 		y2 = node->y + freearr_y[i];
 
-		map = out_of_map(node->map, &x2, &y2);
+		map = get_map_from_coord(node->map, &x2, &y2);
 
 		if (map && !QUERY_MAP_TILE_VISITED(map, x2, y2, id))
 		{

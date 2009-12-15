@@ -611,7 +611,7 @@ void dump_all_maps()
  * @return 1  */
 int wall(mapstruct *m, int x, int y)
 {
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
 	}
@@ -630,7 +630,7 @@ int blocks_view(mapstruct *m, int x, int y)
 {
 	mapstruct *nm;
 
-	if (!(nm = out_of_map(m, &x, &y)))
+	if (!(nm = get_map_from_coord(m, &x, &y)))
 	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
 	}
@@ -646,7 +646,7 @@ int blocks_view(mapstruct *m, int x, int y)
  * @return  */
 int blocks_magic(mapstruct *m, int x, int y)
 {
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
 	}
@@ -663,7 +663,7 @@ int blocks_magic(mapstruct *m, int x, int y)
  * @return  */
 int blocks_cleric(mapstruct *m, int x, int y)
 {
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_CLERIC | P_OUT_OF_MAP);
 	}
@@ -803,7 +803,7 @@ int blocked_link(object *op, int xoff, int yoff)
 			ytemp = tmp->y + yoff;
 
 			/* if this new node is illegal - we can skip all */
-			if (!(m = out_of_map(tmp->map, &xtemp, &ytemp)))
+			if (!(m = get_map_from_coord(tmp->map, &xtemp, &ytemp)))
 			{
 				return -1;
 			}
@@ -858,7 +858,7 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 		if (!tmp2)
 		{
 			/* if this new node is illegal - we can skip all */
-			if (!(m = out_of_map(map, &xtemp, &ytemp)))
+			if (!(m = get_map_from_coord(map, &xtemp, &ytemp)))
 			{
 				return -1;
 			}
@@ -944,7 +944,7 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 
 	if (at == NULL)
 	{
-		if (!(m = out_of_map(m, &x, &y)))
+		if (!(m = get_map_from_coord(m, &x, &y)))
 			return -1;
 
 		return blocked(op, m, x, y, t);
@@ -955,7 +955,7 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 		xt = x + tmp->clone.x;
 		yt = y + tmp->clone.y;
 
-		if (!(mt = out_of_map(m, &xt, &yt)))
+		if (!(mt = get_map_from_coord(m, &xt, &yt)))
 			return -1;
 
 		/* double used xt... small hack */
@@ -2846,156 +2846,204 @@ void set_map_reset_time(mapstruct *map)
 }
 
 /**
- * Check whether given X, Y position is out of the map.
+ * Get real coordinates from map.
+ *
+ * Return NULL if no map is valid (coordinates out of bounds and no tiled
+ * map), otherwise it returns the map the coordinates are really on, and
+ * updates x and y to be the localized coordinates.
  * @param m Map to consider.
- * @param x X coordinate on the map.
- * @param y Y coordinate on the map.
- * @return 1 if out of map, 0 otherwise. */
-mapstruct *out_of_map(mapstruct *m, int *x, int *y)
+ * @param x [out] Will contain the real X position that was checked.
+ * @param y [out] Will contain the real Y position that was checked.
+ * @return Map that is at specified location. Will be NULL if not on any
+ * map. */
+mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 {
-	/* Simple case - coordinates are within this local map.*/
+    /* m should never be null, but if a tiled map fails to load below, it
+	 * could happen. */
 	if (!m)
+	{
 		return NULL;
+	}
 
-	if (((*x) >= 0) && ((*x) < MAP_WIDTH(m)) && ((*y) >= 0) && ((*y) < MAP_HEIGHT(m)))
+	/* Simple case - coordinates are within this local map. */
+	if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m))
+	{
 		return m;
+	}
 
-	/* thats w, nw or sw (3,7 or 6) */
+	/* West, Northwest or Southwest (3, 7 or 6) */
 	if (*x < 0)
 	{
-		/*  nw.. */
+		/* Northwest */
 		if (*y < 0)
 		{
 			if (!m->tile_path[7])
+			{
 				return NULL;
+			}
 
 			if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(m, 7);
+			}
 
 			*y += MAP_HEIGHT(m->tile_map[7]);
 			*x += MAP_WIDTH(m->tile_map[7]);
-			return out_of_map(m->tile_map[7], x, y);
+			return get_map_from_coord(m->tile_map[7], x, y);
 		}
 
-		/* sw */
+		/* Southwest */
 		if (*y >= MAP_HEIGHT(m))
 		{
 			if (!m->tile_path[6])
+			{
 				return NULL;
+			}
 
 			if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(m, 6);
+			}
 
 			*y -= MAP_HEIGHT(m);
 			*x += MAP_WIDTH(m->tile_map[6]);
-			return out_of_map(m->tile_map[6], x, y);
+			return get_map_from_coord(m->tile_map[6], x, y);
 		}
 
-		/* it MUST be west */
+		/* West */
 		if (!m->tile_path[3])
+		{
 			return NULL;
+		}
 
 		if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY)
+		{
 			load_and_link_tiled_map(m, 3);
+		}
 
 		*x += MAP_WIDTH(m->tile_map[3]);
-		return out_of_map(m->tile_map[3], x, y);
+		return get_map_from_coord(m->tile_map[3], x, y);
 	}
 
-	/* that's e, ne or se (1 ,4 or 5) */
+	/* East, Northeast or Southeast (1, 4 or 5) */
 	if (*x >= MAP_WIDTH(m))
 	{
-		/*  ne.. */
+		/* Northeast */
 		if (*y < 0)
 		{
 			if (!m->tile_path[4])
+			{
 				return NULL;
+			}
 
 			if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(m, 4);
+			}
 
 			*y += MAP_HEIGHT(m->tile_map[4]);
 			*x -= MAP_WIDTH(m);
-			return out_of_map(m->tile_map[4], x, y);
+			return get_map_from_coord(m->tile_map[4], x, y);
 		}
 
-		/* se */
+		/* Southeast */
 		if (*y >= MAP_HEIGHT(m))
 		{
 			if (!m->tile_path[5])
+			{
 				return NULL;
+			}
 
 			if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY)
+			{
 				load_and_link_tiled_map(m, 5);
+			}
 
 			*y -= MAP_HEIGHT(m);
 			*x -= MAP_WIDTH(m);
-			return out_of_map(m->tile_map[5], x, y);
+			return get_map_from_coord(m->tile_map[5], x, y);
 		}
 
+		/* East */
 		if (!m->tile_path[1])
+		{
 			return NULL;
+		}
 
 		if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY)
+		{
 			load_and_link_tiled_map(m, 1);
+		}
 
 		*x -= MAP_WIDTH(m);
-		return out_of_map(m->tile_map[1], x, y);
+		return get_map_from_coord(m->tile_map[1], x, y);
 	}
 
-	/* because we have tested x above, we don't need to check
-	 * for nw,sw,ne and nw here again. */
+	/* Because we have tested x above, we don't need to check for
+	 * Northwest, Southwest, Northeast and Northwest here again. */
 	if (*y < 0)
 	{
 		if (!m->tile_path[0])
+		{
 			return NULL;
+		}
 
 		if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY)
+		{
 			load_and_link_tiled_map(m, 0);
+		}
 
 		*y += MAP_HEIGHT(m->tile_map[0]);
-		return out_of_map(m->tile_map[0], x, y);
+		return get_map_from_coord(m->tile_map[0], x, y);
 	}
 
 	if (*y >= MAP_HEIGHT(m))
 	{
 		if (!m->tile_path[2])
+		{
 			return NULL;
+		}
 
 		if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY)
+		{
 			load_and_link_tiled_map(m, 2);
+		}
 
 		*y -= MAP_HEIGHT(m);
-		return out_of_map(m->tile_map[2], x, y);
+		return get_map_from_coord(m->tile_map[2], x, y);
 	}
 
 	return NULL;
 }
 
-/* this is a special version of out_of_map() - this version ONLY
- * adjust to loaded maps - it will not trigger a re/newload of a
- * tiled map not in memory. If out_of_map() fails to adjust the
- * map positions, it will return NULL when the there is no tiled
- * map and NULL when the map is not loaded.
- * As special marker, x is set 0 when the coordinates are not
- * in a map (outside also possible tiled maps) and to -1 when
- * there is a tiled map but its not loaded. */
-mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
+/**
+ * Same as get_map_from_coord(), but this version doesn't load tiled maps
+ * into memory, if they are not already.
+ * @param m Map to consider.
+ * @param x [out] Will contain the real X position that was checked. If
+ * coordinates are not in a map this is set to 0, or to -1 if there is a
+ * tiled map but it's not loaded.
+ * @param y [out] Will contain the real Y position that was checked.
+ * @return Map that is at specified location. Will be NULL if not on any
+ * map. */
+mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
 {
-	/* Simple case - coordinates are within this local map.*/
 	if (!m)
 	{
 		*x = 0;
 		return NULL;
 	}
 
-	if (((*x) >= 0) && ((*x) < MAP_WIDTH(m)) && ((*y) >= 0) && ((*y) < MAP_HEIGHT(m)))
+	/* Simple case - coordinates are within this local map. */
+	if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m))
+	{
 		return m;
+	}
 
-	/* thats w, nw or sw (3,7 or 6) */
+	/* West, Northwest or Southwest (3, 7 or 6) */
 	if (*x < 0)
 	{
-		/*  nw.. */
+		/* Northwest */
 		if (*y < 0)
 		{
 			if (!m->tile_path[7])
@@ -3013,10 +3061,10 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 			*y += MAP_HEIGHT(m->tile_map[7]);
 			*x += MAP_WIDTH(m->tile_map[7]);
 
-			return out_of_map2(m->tile_map[7], x, y);
+			return get_map_from_coord2(m->tile_map[7], x, y);
 		}
 
-		/* sw */
+		/* Southwest */
 		if (*y >= MAP_HEIGHT(m))
 		{
 			if (!m->tile_path[6])
@@ -3034,10 +3082,10 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 			*y -= MAP_HEIGHT(m);
 			*x += MAP_WIDTH(m->tile_map[6]);
 
-			return out_of_map2(m->tile_map[6], x, y);
+			return get_map_from_coord2(m->tile_map[6], x, y);
 		}
 
-		/* it MUST be west */
+		/* West */
 		if (!m->tile_path[3])
 		{
 			*x = 0;
@@ -3051,13 +3099,13 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 		}
 
 		*x += MAP_WIDTH(m->tile_map[3]);
-		return out_of_map2(m->tile_map[3], x, y);
+		return get_map_from_coord2(m->tile_map[3], x, y);
 	}
 
-	/* that's e, ne or se (1 ,4 or 5) */
+	/* East, Northeast or Southeast (1, 4 or 5) */
 	if (*x >= MAP_WIDTH(m))
 	{
-		/*  ne.. */
+		/* Northeast */
 		if (*y < 0)
 		{
 			if (!m->tile_path[4])
@@ -3075,10 +3123,10 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 			*y += MAP_HEIGHT(m->tile_map[4]);
 			*x -= MAP_WIDTH(m);
 
-			return out_of_map2(m->tile_map[4], x, y);
+			return get_map_from_coord2(m->tile_map[4], x, y);
 		}
 
-		/* se */
+		/* Southeast */
 		if (*y >= MAP_HEIGHT(m))
 		{
 			if (!m->tile_path[5])
@@ -3096,9 +3144,10 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 			*y -= MAP_HEIGHT(m);
 			*x -= MAP_WIDTH(m);
 
-			return out_of_map2(m->tile_map[5], x, y);
+			return get_map_from_coord2(m->tile_map[5], x, y);
 		}
 
+		/* East */
 		if (!m->tile_path[1])
 		{
 			*x = 0;
@@ -3112,11 +3161,11 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 		}
 
 		*x -= MAP_WIDTH(m);
-		return out_of_map2(m->tile_map[1], x, y);
+		return get_map_from_coord2(m->tile_map[1], x, y);
 	}
 
-	/* because we have tested x above, we don't need to check
-	 * for nw,sw,ne and nw here again. */
+	/* Because we have tested x above, we don't need to check for
+	 * Northwest, Southwest, Northeast and Northwest here again. */
 	if (*y < 0)
 	{
 		if (!m->tile_path[0])
@@ -3133,7 +3182,7 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 
 		*y += MAP_HEIGHT(m->tile_map[0]);
 
-		return out_of_map2(m->tile_map[0], x, y);
+		return get_map_from_coord2(m->tile_map[0], x, y);
 	}
 
 	if (*y >= MAP_HEIGHT(m))
@@ -3151,7 +3200,7 @@ mapstruct *out_of_map2(mapstruct *m, int *x, int *y)
 		}
 
 		*y -= MAP_HEIGHT(m);
-		return out_of_map2(m->tile_map[2], x, y);
+		return get_map_from_coord2(m->tile_map[2], x, y);
 	}
 
 	*x = 0;

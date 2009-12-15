@@ -717,7 +717,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 			xt = op->x + i;
 			yt = op->y + j;
 
-			if (!(m = out_of_map(op->map, &xt, &yt)))
+			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				continue;
 			}
@@ -1531,7 +1531,7 @@ int cast_detection(object *op, object *target, int type)
 			nx = target->x;
 			ny = target->y;
 
-			if (!(m = out_of_map(target->map, &nx, &ny)))
+			if (!(m = get_map_from_coord(target->map, &nx, &ny)))
 			{
 				return 0;
 			}
@@ -1583,7 +1583,7 @@ int cast_detection(object *op, object *target, int type)
 			nx = target->x;
 			ny = target->y;
 
-			if (!(m = out_of_map(target->map, &nx, &ny)))
+			if (!(m = get_map_from_coord(target->map, &nx, &ny)))
 			{
 				return 0;
 			}
@@ -1776,7 +1776,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 		xt = x;
 		yt = y;
 
-		if (!(m = out_of_map(op->map, &xt, &yt)))
+		if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 		{
 			continue;
 		}
@@ -1953,7 +1953,7 @@ void move_aura(object *aura)
 			ny = aura->y + freearr_y[i];
 
 			/* We're done if the "i" square next to us is full */
-			if (!(m = out_of_map(aura->map, &nx, &ny)))
+			if (!(m = get_map_from_coord(aura->map, &nx, &ny)))
 			{
 				continue;
 			}

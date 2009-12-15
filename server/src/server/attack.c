@@ -537,7 +537,7 @@ int hit_map(object *op, int dir)
 	x = op->x + freearr_x[dir];
 	y = op->y + freearr_y[dir];
 
-	if (!(map = out_of_map(op->map, &x, &y)))
+	if (!(map = get_map_from_coord(op->map, &x, &y)))
 	{
 		return 0;
 	}
@@ -1896,7 +1896,7 @@ int is_melee_range(object *hitter, object *enemy)
 		xt = hitter->x + freearr_x[s];
 		yt = hitter->y + freearr_y[s];
 
-		if (!(mt = out_of_map(hitter->map, &xt, &yt)))
+		if (!(mt = get_map_from_coord(hitter->map, &xt, &yt)))
 		{
 			continue;
 		}

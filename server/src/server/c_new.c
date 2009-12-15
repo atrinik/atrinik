@@ -347,7 +347,7 @@ int command_target(object *op, char *params)
 
 			block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
 
-			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = out_of_map(op->map, &xt, &yt)))
+			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				continue;
 			}
@@ -407,7 +407,7 @@ int command_target(object *op, char *params)
 			yt = op->y + (yy = map_pos_array[n][MAP_POS_Y]);
 			block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
 
-			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = out_of_map(op->map, &xt, &yt)))
+			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				if ((n + 1) == NROF_MAP_NODE)
 				{
@@ -504,7 +504,7 @@ dirty_jump_in1:
 				yt = op->y + (yy = map_pos_array[n][MAP_POS_Y]);
 				block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
 
-				if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = out_of_map(op->map, &xt, &yt)))
+				if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = get_map_from_coord(op->map, &xt, &yt)))
 				{
 					if ((n + 1) == NROF_MAP_NODE)
 					{

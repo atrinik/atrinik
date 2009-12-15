@@ -206,7 +206,7 @@ static void check_infection(object *disease)
 			xt = i;
 			yt = j;
 
-			if ((mt = out_of_map(map, &xt, &yt)))
+			if ((mt = get_map_from_coord(map, &xt, &yt)))
 			{
 				for (tmp = get_map_ob(mt, xt, yt); tmp; tmp = tmp->above)
 				{

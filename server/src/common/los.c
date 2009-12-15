@@ -395,7 +395,7 @@ static void check_wall(object *op, int x, int y)
 		 * tiles a "never use it to trigger a los_update()" flag.
 		 * blockview changes to this tiles will have no effect. */
 
-		/* mark the space as out_of_map */
+		/* mark the space as get_map_from_coord */
 		if (blocks_view(op->map,op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) & P_OUT_OF_MAP)
 			CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
 		/* ignore means ignore for LOS */
@@ -416,14 +416,14 @@ static void check_wall(object *op, int x, int y)
 	/* If this space is already blocked, prune the processing - presumably
 	 * whatever has set this space to be blocked has done the work and already
 	 * done the dependency chain.
-	 * but check for out_of_map to speedup our client map draw function. */
+	 * but check for get_map_from_coord to speedup our client map draw function. */
 	if (CONTR(op)->blocked_los[ax][ay] & (BLOCKED_LOS_BLOCKED | BLOCKED_LOS_OUT_OF_MAP))
 	{
 		if (CONTR(op)->blocked_los[ax][ay] & BLOCKED_LOS_BLOCKED)
 		{
 			if ((flags = blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2)))
 			{
-				/* mark the space as out_of_map */
+				/* mark the space as get_map_from_coord */
 				if (flags & P_OUT_OF_MAP)
 					CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
 				else
@@ -443,7 +443,7 @@ static void check_wall(object *op, int x, int y)
 
 		/* out of map clears all other flags! */
 
-		/* mark the space as out_of_map */
+		/* mark the space as get_map_from_coord */
 		if (flags & P_OUT_OF_MAP)
 			CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
 		else
@@ -621,7 +621,7 @@ static inline void remove_light_mask(mapstruct *map, int x, int y, int mid)
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
 
-			if (!(m = out_of_map2(map, &xt, &yt)))
+			if (!(m = get_map_from_coord2(map, &xt, &yt)))
 				continue;
 
 			msp = GET_MAP_SPACE_PTR(m, xt, yt);
@@ -639,7 +639,7 @@ static inline void remove_light_mask(mapstruct *map, int x, int y, int mid)
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
 
-			if (!(m = out_of_map2(map, &xt, &yt)))
+			if (!(m = get_map_from_coord2(map, &xt, &yt)))
 				continue;
 
 			msp = GET_MAP_SPACE_PTR(m, xt, yt);
@@ -663,7 +663,7 @@ static inline int add_light_mask(mapstruct *map, int x, int y, int mid)
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
 
-			if (!(m = out_of_map2(map, &xt, &yt)))
+			if (!(m = get_map_from_coord2(map, &xt, &yt)))
 			{
 				if (xt)
 					map_flag = TRUE;
@@ -690,7 +690,7 @@ static inline int add_light_mask(mapstruct *map, int x, int y, int mid)
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
 
-			if (!(m = out_of_map2(map, &xt, &yt)))
+			if (!(m = get_map_from_coord2(map, &xt, &yt)))
 			{
 				if (xt)
 					map_flag = TRUE;
@@ -808,7 +808,7 @@ static inline void restore_light_mask(mapstruct *restore_map, mapstruct *map, in
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
 
-			m = out_of_map2(map, &xt ,&yt);
+			m = get_map_from_coord2(map, &xt ,&yt);
 			/* only handle parts inside our calling (restore) map */
 			if (restore_map != m)
 				continue;
@@ -827,7 +827,7 @@ static inline void restore_light_mask(mapstruct *restore_map, mapstruct *map, in
 		{
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
-			m = out_of_map2(map, &xt, &yt);
+			m = get_map_from_coord2(map, &xt, &yt);
 			/* only handle parts inside our calling (restore) map */
 			if (restore_map != m)
 				continue;
@@ -1075,7 +1075,7 @@ static inline void remove_light_mask_other(mapstruct *map, int x, int y, int mid
 		{
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
-			m = out_of_map2(map, &xt, &yt);
+			m = get_map_from_coord2(map, &xt, &yt);
 
 			/* only legal OTHER maps */
 			if (!m || m == map)
@@ -1094,7 +1094,7 @@ static inline void remove_light_mask_other(mapstruct *map, int x, int y, int mid
 		{
 			xt = x + lmask_x[i];
 			yt = y + lmask_y[i];
-			m = out_of_map2(map, &xt, &yt);
+			m = get_map_from_coord2(map, &xt, &yt);
 
 			/* only legal OTHER maps */
 			if (!m || m == map)
@@ -1158,6 +1158,6 @@ int obj_in_line_of_sight(object *obj, rv_vector *rv)
 
 		BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
 
-		m = out_of_map(m, &x, &y);
+		m = get_map_from_coord(m, &x, &y);
 	}
 }

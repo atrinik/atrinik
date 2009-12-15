@@ -64,7 +64,7 @@ void move_player_mover(object *op)
 			xt = op->x + freearr_x[dir];
 			yt = op->y + freearr_y[dir];
 
-			if (!(mt = out_of_map(op->map, &xt, &yt)))
+			if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				return;
 			}

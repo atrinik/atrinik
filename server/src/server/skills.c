@@ -355,7 +355,7 @@ int find_traps(object *pl, int level)
 		xt = pl->x + freearr_x[i];
 		yt = pl->y + freearr_y[i];
 
-		if (!(m = out_of_map(pl->map, &xt, &yt)))
+		if (!(m = get_map_from_coord(pl->map, &xt, &yt)))
 		{
 			continue;
 		}
@@ -468,7 +468,7 @@ int remove_trap(object *op)
 		x = op->x + freearr_x[i];
 		y = op->y + freearr_y[i];
 
-		if (!(m = out_of_map(op->map, &x, &y)))
+		if (!(m = get_map_from_coord(op->map, &x, &y)))
 		{
 			continue;
 		}

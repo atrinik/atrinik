@@ -172,7 +172,7 @@ struct plugin_hooklist
 	int (*command_rskill)(object *, char *);
 	void (*become_follower)(object *, object *);
 	void (*pick_up)(object *, object *);
-	mapstruct *(*out_of_map)(mapstruct *, int *, int *);
+	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
 	void (*esrv_send_item)(object *, object *);
 	player *(*find_player)(char *);
 	int (*manual_apply)(object *, object *, int);

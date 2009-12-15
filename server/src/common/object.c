@@ -2058,7 +2058,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	y = op->y;
 	op->map = m;
 
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s outside the map %s (%d,%d).\n\n", query_name(op, NULL), op->map->path, op->x, op->y);
 		return NULL;
@@ -2892,7 +2892,7 @@ object *present_arch(archetype *at, mapstruct *m, int x, int y)
 {
 	object *tmp;
 
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		LOG(llevError, "ERROR: Present_arch called outside map.\n");
 		return NULL;
@@ -2918,7 +2918,7 @@ object *present(unsigned char type, mapstruct *m, int x, int y)
 {
 	object *tmp;
 
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		LOG(llevError, "ERROR: Present called outside map.\n");
 		return NULL;
@@ -3109,7 +3109,7 @@ int find_dir(mapstruct *m, int x, int y, object *exclude)
 		}
 		else
 		{
-			if (!(mt = out_of_map(m, &xt, &yt)))
+			if (!(mt = get_map_from_coord(m, &xt, &yt)))
 			{
 				continue;
 			}
@@ -3500,7 +3500,7 @@ int can_see_monsterP(mapstruct *m, int x, int y, int dir)
 	dx = x + freearr_x[dir];
 	dy = y + freearr_y[dir];
 
-	if (!(m = out_of_map(m, &dx, &dy)))
+	if (!(m = get_map_from_coord(m, &dx, &dy)))
 	{
 		return 0;
 	}

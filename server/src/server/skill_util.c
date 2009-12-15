@@ -1356,7 +1356,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 		xt = pl->x + freearr_x[dir];
 		yt = pl->y + freearr_y[dir];
 
-		if (!(m = out_of_map(pl->map, &xt,&yt)))
+		if (!(m = get_map_from_coord(pl->map, &xt,&yt)))
 		{
 			return 0;
 		}

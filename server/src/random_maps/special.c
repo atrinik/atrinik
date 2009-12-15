@@ -66,7 +66,7 @@ void nuke_map_region(mapstruct *map, int xstart, int ystart, int xsize, int ysiz
 			xt = i;
 			yt = j;
 
-			if (!(mt = out_of_map(map, &xt, &yt)))
+			if (!(mt = get_map_from_coord(map, &xt, &yt)))
 			{
 				continue;
 			}

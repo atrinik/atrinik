@@ -65,7 +65,7 @@ int write_rune(object *op, int dir, int inspell, int level, char *runename)
 	nx = op->x + freearr_x[dir];
 	ny = op->y + freearr_y[dir];
 
-	if (!(mt = out_of_map(op->map, &nx, &ny)))
+	if (!(mt = get_map_from_coord(op->map, &nx, &ny)))
 	{
 		return 0;
 	}

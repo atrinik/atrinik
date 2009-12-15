@@ -293,7 +293,7 @@ int command_t_tell(object *op, char *params)
 				xt = op->x + freearr_x[i];
 				yt = op->y + freearr_y[i];
 
-				if (!(m = out_of_map(op->map, &xt, &yt)))
+				if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 				{
 					continue;
 				}

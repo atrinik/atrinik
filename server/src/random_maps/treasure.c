@@ -84,7 +84,7 @@ int wall_blocked(mapstruct *m, int x, int y)
 {
 	int r;
 
-	if (!(m = out_of_map(m, &x, &y)))
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return 1;
 	}
@@ -368,7 +368,7 @@ object *find_closest_monster(mapstruct *map, int x, int y)
 		lx = x + freearr_x[i];
 		ly = y + freearr_y[i];
 
-		if (!(mt = out_of_map(map, &lx, &ly)))
+		if (!(mt = get_map_from_coord(map, &lx, &ly)))
 		{
 			continue;
 		}
@@ -527,7 +527,7 @@ object *find_monster_in_room_recursive(char **layout, mapstruct *map, int x, int
 	object *monster;
 
 	/* bounds check x and y */
-	if (!(map = out_of_map(map, &x, &y)))
+	if (!(map = get_map_from_coord(map, &x, &y)))
 	{
 		return NULL;
 	}

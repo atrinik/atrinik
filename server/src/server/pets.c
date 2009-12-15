@@ -82,7 +82,7 @@ object *get_pet_enemy(object * pet, rv_vector *rv)
 		x = owner->x + freearr_x[i];
 		y = owner->y + freearr_y[i];
 
-		if (!(nm = out_of_map(owner->map, &x, &y)))
+		if (!(nm = get_map_from_coord(owner->map, &x, &y)))
 		{
 			continue;
 		}
@@ -274,7 +274,7 @@ void pet_move(object * ob)
 			xt = part->x + freearr_x[dir];
 			yt = part->y + freearr_y[dir];
 
-			if (!(mt = out_of_map(part->map, &xt, &yt)))
+			if (!(mt = get_map_from_coord(part->map, &xt, &yt)))
 			{
 				return;
 			}

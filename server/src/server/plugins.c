@@ -58,7 +58,7 @@ struct plugin_hooklist hooklist =
 	command_rskill,
 	become_follower,
 	pick_up,
-	out_of_map,
+	get_map_from_coord,
 	esrv_send_item,
 	find_player,
 	manual_apply,

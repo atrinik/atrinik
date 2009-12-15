@@ -290,7 +290,7 @@ static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *
 		return NULL;
 	}
 
-	if ((m = hooks->out_of_map(m, &x, &y)))
+	if ((m = hooks->get_map_from_coord(m, &x, &y)))
 	{
 		val = get_map_ob(m, x, y);
 	}
@@ -313,7 +313,7 @@ static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *map, PyObject *args)
 		return NULL;
 	}
 
-	return wrap_map(hooks->out_of_map(map->map, &x, &y));
+	return wrap_map(hooks->get_map_from_coord(map->map, &x, &y));
 }
 
 /**

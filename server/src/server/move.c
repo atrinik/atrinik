@@ -83,8 +83,8 @@ int move_ob(object *op, int dir, object *originator)
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
 
-	/* we have here a out_of_map - we can skip all */
-	if (!(m = out_of_map(op->map, &xt, &yt)))
+	/* we have here a get_map_from_coord - we can skip all */
+	if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 	{
 		return 0;
 	}
@@ -275,7 +275,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 			xt = teleporter->x + i;
 			yt = teleporter->y + j;
 
-			if (!(m = out_of_map(teleporter->map, &xt, &yt)))
+			if (!(m = get_map_from_coord(teleporter->map, &xt, &yt)))
 			{
 				continue;
 			}
@@ -382,7 +382,7 @@ int try_fit(object *op, int x, int y)
 		tx = x + more->x - op->x;
 		ty = y + more->y - op->y;
 
-		if (!(m = out_of_map(op->map, &tx, &ty)))
+		if (!(m = get_map_from_coord(op->map, &tx, &ty)))
 		{
 			return 1;
 		}
@@ -434,7 +434,7 @@ int roll_ob(object *op, int dir, object *pusher)
 	x = op->x + freearr_x[dir];
 	y = op->y + freearr_y[dir];
 
-	if (!(m = out_of_map(op->map, &x, &y)))
+	if (!(m = get_map_from_coord(op->map, &x, &y)))
 	{
 		return 0;
 	}
@@ -496,7 +496,7 @@ int push_roll_object(object *op, int dir)
 	xt = op->x + freearr_x[dir];
 	yt = op->y + freearr_y[dir];
 
-	if (!(m = out_of_map(op->map, &xt, &yt)))
+	if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 	{
 		return 0;
 	}
