@@ -76,12 +76,49 @@ static player *get_other_player_from_name(object *op, const char *name)
 }
 
 /**
+ * Recursively find an object by its name or ID.
+ * @param ob Object to start searching from.
+ * @param name Name to search for. Must be a shared string. Can be NULL.
+ * @param count ID of the object to search for. Can be 0.
+ * @return Found object, NULL if no matching object found. */
+static object *find_object_rec(object *ob, const char *name, tag_t count)
+{
+	object *tmp;
+
+	for (tmp = ob; tmp; tmp = tmp->below)
+	{
+		if ((name && tmp->name == name) || (count && tmp->count == count))
+		{
+			return tmp;
+		}
+		else if (tmp->inv)
+		{
+			object *tmp2 = find_object_rec(tmp->inv, name, count);
+
+			if (tmp2)
+			{
+				return tmp2;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+/**
  * This finds and returns the object which matches the name or object
  * number (specified via num #whatever).
+ * @param op The DM requesting this.
  * @param params Name or ID of object to find.
  * @return The object if found, NULL otherwise. */
-static object *find_object_both(char *params)
+static object *find_object_both(object *op, char *params)
 {
+	tag_t count = 0;
+	const char *name = NULL;
+	player *pl;
+	object *tmp, *tmp2;
+	int x, y;
+
 	if (!params)
 	{
 		return NULL;
@@ -89,12 +126,58 @@ static object *find_object_both(char *params)
 
 	if (params[0] == '#')
 	{
-		return find_object(atol(params + 1));
+		count = atol(params + 1);
 	}
 	else
 	{
-		return find_object_name(params);
+		name = find_string(params);
 	}
+
+	/* If find_string() can't find the string, then it's impossible that
+	 * op->name will match. */
+	if (!name && !count)
+	{
+		return NULL;
+	}
+
+	/* First search through the players */
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if ((name && pl->ob->name == name) || (count && pl->ob->count == count))
+		{
+			return pl->ob;
+		}
+	}
+
+	/* Otherwise search below the DM */
+	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	{
+		tmp2 = find_object_rec(tmp, name, count);
+
+		if (tmp2)
+		{
+			return tmp2;
+		}
+	}
+
+	/* No match? Search through the entire map... */
+	for (x = 0; x < MAP_WIDTH(op->map); x++)
+	{
+		for (y = 0; y < MAP_HEIGHT(op->map); y++)
+		{
+			for (tmp = get_map_ob(op->map, x, y); tmp; tmp = tmp->above)
+			{
+				tmp2 = find_object_rec(tmp, name, count);
+
+				if (tmp2)
+				{
+					return tmp2;
+				}
+			}
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -117,7 +200,7 @@ int command_setgod(object *op, char *params)
 	/* Kill the space, and set string to the next param */
 	*str++ = '\0';
 
-	if (!(ob = find_object_both(params)))
+	if (!(ob = find_object_both(op, params)))
 	{
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Set whose god - can not find object %s?", params);
 		return 1;
@@ -207,7 +290,7 @@ int command_kick(object *ob, char *params)
  * @param op DM shutting down the server.
  * @param params Ignored.
  * @return 1. */
-int command_shutdown(object *op, char *params)
+int command_shutdown_now(object *op, char *params)
 {
 	(void) params;
 
@@ -789,7 +872,7 @@ int command_create(object *op, char *params)
 }
 
 /**
- * Shows the inventory or some item.
+ * Shows the inventory of some object.
  * @param op Player.
  * @param params Object count to get the inventory of. If NULL then
  * defaults to op.
@@ -797,7 +880,6 @@ int command_create(object *op, char *params)
 int command_inventory(object *op, char *params)
 {
 	object *tmp;
-	int i;
 
 	if (!params)
 	{
@@ -805,9 +887,11 @@ int command_inventory(object *op, char *params)
 		return 0;
 	}
 
-	if (!sscanf(params, "%d", &i) || (tmp = find_object(i)) == NULL)
+	tmp = find_object_both(op, params);
+
+	if (!tmp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Inventory of what object (nr)?");
+		new_draw_info(NDI_UNIQUE, 0, op, "Inventory of what object?");
 		return 1;
 	}
 
@@ -822,16 +906,15 @@ int command_inventory(object *op, char *params)
  * @return 1. */
 int command_dump(object *op, char *params)
 {
-	int i;
 	object *tmp;
 
 	if (params != NULL && !strcmp(params, "me"))
 	{
 		tmp = op;
 	}
-	else if (params == NULL || !sscanf(params, "%d", &i) || (tmp = find_object(i)) == NULL)
+	else if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Dump what object (nr)?");
+		new_draw_info(NDI_UNIQUE, 0, op, "Dump what object?");
 		return 1;
 	}
 
@@ -847,8 +930,7 @@ int command_dump(object *op, char *params)
  * @return 1. */
 int command_patch(object *op, char *params)
 {
-	int i;
-	char *arg, *arg2, buf[MAX_BUF];
+	char *arg, *arg2;
 	object *tmp = NULL;
 
 	if (params != NULL)
@@ -857,19 +939,15 @@ int command_patch(object *op, char *params)
 		{
 			tmp = op;
 		}
-		else if (sscanf(params, "%d", &i))
+		else
 		{
-			tmp = find_object(i);
-		}
-		else if (sscanf(params, "%s", buf))
-		{
-			tmp = find_object_name(buf);
+			tmp = find_object_both(op, params);
 		}
 	}
 
 	if (tmp == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Patch what object (nr)?");
+		new_draw_info(NDI_UNIQUE, 0, op, "Patch what object?");
 		return 1;
 	}
 
@@ -905,12 +983,11 @@ int command_patch(object *op, char *params)
  * @return 1. */
 int command_remove(object *op, char *params)
 {
-	int i;
 	object *tmp;
 
-	if (params == NULL || !sscanf(params, "%d", &i) || (tmp = find_object(i)) == NULL)
+	if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Remove what object (nr)?");
+		new_draw_info(NDI_UNIQUE, 0, op, "Remove what object?");
 		return 1;
 	}
 
@@ -992,16 +1069,15 @@ int command_addexp(object *op, char *params)
 
 	exp_skill = pl->skill_ptr[snr];
 
-	/* Safety check */
+	/* Our player doesn't have this skill? */
 	if (!exp_skill)
 	{
-		/* Our player doesn't have this skill? */
 		new_draw_info_format(NDI_UNIQUE, 0, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr]);
 		return 0;
 	}
 
-	/* If we are full in this skill, there is nothing is to do */
-	if (exp_skill->level >= MAXLEVEL)
+	/* If we are full in this skill, there is nothing to do */
+	if (exp_skill->level >= MAXLEVEL && exp > 0)
 	{
 		return 0;
 	}
@@ -1099,7 +1175,6 @@ int command_reset(object *op, char *params)
 	mapstruct *m;
 	player *pl;
 	object *dummy = NULL;
-	const char *mapfile_sh;
 
 	if (params == NULL)
 	{
@@ -1107,7 +1182,8 @@ int command_reset(object *op, char *params)
 	}
 	else
 	{
-		mapfile_sh = add_string(params);
+		const char *mapfile_sh = add_string(params);
+
 		m = has_been_loaded_sh(mapfile_sh);
 		free_string_shared(mapfile_sh);
 	}
@@ -1266,7 +1342,8 @@ int command_nowiz(object *op, char *params)
  * @param op The player object trying to become a DM
  * @param pl_passwd Password can be used to become a DM if it matches one
  * of passwords in the file.
- * @return 1 if the object can become a DM, 0 otherwise */
+ * @return 1 if the object can become a DM, 0 otherwise.
+ * @todo Should be rewritten to use objectlinks, similar to ban.c. */
 static int checkdm(object *op, char *pl_passwd)
 {
 	char name[MAX_BUF], passwd[MAX_BUF], host[MAX_BUF], buf[MAX_BUF], filename[MAX_BUF];
@@ -1440,7 +1517,7 @@ int command_forget_spell(object *op, char *params)
 /**
  * Lists all plugins currently loaded with their IDs and full names.
  * @param op DM.
- * @param params Ignored.
+ * @param params Unused.
  * @return 1. */
 int command_listplugins(object *op, char *params)
 {
@@ -1453,7 +1530,7 @@ int command_listplugins(object *op, char *params)
 /**
  * Loads the given plugin. The DM specifies the name of the library to
  * load (no pathname is needed). Do not ever attempt to load the same
- * plugin more than once at a time, or bad things could happen.
+ * plugin more than once at a time, or undefined behavior could happen.
  * @param op DM loading a plugin.
  * @param params Should be the plugin's name, eg plugin_python.so.
  * @return 1. */
@@ -1467,10 +1544,7 @@ int command_loadplugin(object *op, char *params)
 		return 1;
 	}
 
-	strcpy(buf, DATADIR);
-	strcat(buf, "/../plugins/");
-	strcat(buf, params);
-	printf("Requested plugin file is %s\n", buf);
+	snprintf(buf, sizeof(buf), "%s/../plugins/%s", DATADIR, params);
 	initOnePlugin(buf);
 
 	return 1;
@@ -1648,9 +1722,7 @@ int command_ban(object *op, char *params)
 	/* Add a new ban */
 	if (strncmp(params, "add ", 4) == 0)
 	{
-		params += 4;
-
-		if (add_ban(params))
+		if (add_ban(params + 4))
 		{
 			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Added new ban successfully.");
 		}
@@ -1662,9 +1734,7 @@ int command_ban(object *op, char *params)
 	/* Remove ban */
 	else if (strncmp(params, "remove ", 7) == 0)
 	{
-		params += 7;
-
-		if (remove_ban(params))
+		if (remove_ban(params + 7))
 		{
 			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Removed ban successfully.");
 		}

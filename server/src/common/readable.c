@@ -2222,7 +2222,6 @@ void free_all_readable()
 	titlelist *tlist, *tnext;
 	title *title1, *titlenext;
 	linked_char *lmsg, *nextmsg;
-	objectlink *monlink, *nextmon;
 
 	LOG(llevDebug, "DEBUG: Freeing all book information\n");
 
@@ -2247,12 +2246,6 @@ void free_all_readable()
 		nextmsg = lmsg->next;
 		FREE_AND_CLEAR_HASH2(lmsg->name);
 		free(lmsg);
-	}
-
-	for (monlink = first_mon_info; monlink; monlink = nextmon)
-	{
-		nextmon = monlink->next;
-		free_objectlink_simple(monlink);
 	}
 }
 

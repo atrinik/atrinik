@@ -483,7 +483,7 @@ int command_archs(object *op, char *params)
  * Highscore command, shows the highscore.
  * @param op Object requesting this.
  * @param params Parameters.
- * @return Always returns 1. */
+ * @return 1. */
 int command_hiscore(object *op, char *params)
 {
 	display_high_score(op, op == NULL ? 9999 : 50, params);
@@ -491,17 +491,17 @@ int command_hiscore(object *op, char *params)
 }
 
 /**
- * Set debug level command.
+ * Set debug level.
  * @param op Object requesting this.
  * @param params Command parameters.
- * @return Always returns 1. */
+ * @return 1. */
 int command_debug(object *op, char *params)
 {
 	int i;
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Global debug level is %d.", settings.debug);
+		new_draw_info_format(NDI_UNIQUE, 0, op, "Debug level is %d.", settings.debug);
 		return 1;
 	}
 
@@ -513,15 +513,15 @@ int command_debug(object *op, char *params)
 /**
  * Full dump of objects below the DM.
  * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param params Unused.
+ * @return 1. */
 int command_dumpbelowfull(object *op, char *params)
 {
 	object *tmp;
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
+	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
@@ -547,10 +547,10 @@ int command_dumpbelowfull(object *op, char *params)
 }
 
 /**
- * Dump of objects below the DM.
+ * Dump objects below the DM.
  * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param params Unused.
+ * @return 1. */
 int command_dumpbelow(object *op, char *params)
 {
 	object *tmp;
@@ -558,7 +558,7 @@ int command_dumpbelow(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "DUMP OBJECTS OF THIS TILE");
+	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
 	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
@@ -593,7 +593,7 @@ int command_wizpass(object *op, char *params)
 
 	if (!params)
 	{
-		i = (QUERY_FLAG(op, FLAG_WIZPASS)) ? 0 : 1;
+		i = !QUERY_FLAG(op, FLAG_WIZPASS);
 	}
 	else
 	{
@@ -615,23 +615,10 @@ int command_wizpass(object *op, char *params)
 }
 
 /**
- * Dump all objects.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
-int command_dumpallobjects(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-
-	return 1;
-}
-
-/**
- * Dump all friendly objects.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * Dumps all friendly objects.
+ * @param op Unused.
+ * @param params Unused.
+ * @return 1. */
 int command_dumpfriendlyobjects(object *op, char *params)
 {
 	(void) params;
@@ -641,10 +628,10 @@ int command_dumpfriendlyobjects(object *op, char *params)
 }
 
 /**
- * Dump all archetypes.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * Dumps all archetypes.
+ * @param op Unused.
+ * @param params Unused.
+ * @return 1. */
 int command_dumpallarchetypes(object *op, char *params)
 {
 	(void) params;
@@ -658,64 +645,64 @@ int command_dumpallarchetypes(object *op, char *params)
  * players. It also works when DM logs in without DM flag set or leaves
  * the DM mode.
  * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param params Unused.
+ * @return 1. */
 int command_dm_stealth(object *op, char *params)
 {
 	(void) params;
 
-	if (op->type == PLAYER && CONTR(op))
+	if (op->type != PLAYER || !CONTR(op))
 	{
-		if (CONTR(op)->dm_stealth)
-		{
-			new_draw_info_format(NDI_UNIQUE | NDI_ALL, 5, NULL, "%s has entered the game.", query_name(op, NULL));
-			CONTR(op)->dm_stealth = 0;
-		}
-		else
-		{
-			CONTR(op)->dm_stealth = 1;
-		}
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
+		return 1;
 	}
 
+	if (CONTR(op)->dm_stealth)
+	{
+		CONTR(op)->dm_stealth = 0;
+	}
+	else
+	{
+		CONTR(op)->dm_stealth = 1;
+	}
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
 	return 1;
 }
 
 /**
  * Toggle DM light on/off. DM light will light up all maps for the DM.
  * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param params Unused.
+ * @return 1. */
 int command_dm_light(object *op, char *params)
 {
 	(void) params;
 
-	if (op->type == PLAYER && CONTR(op))
+	if (op->type != PLAYER || !CONTR(op))
 	{
-		if (CONTR(op)->dm_light)
-		{
-			CONTR(op)->dm_light = 0;
-		}
-		else
-		{
-			CONTR(op)->dm_light = 1;
-		}
-
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
+		return 1;
 	}
 
+	if (CONTR(op)->dm_light)
+	{
+		CONTR(op)->dm_light = 0;
+	}
+	else
+	{
+		CONTR(op)->dm_light = 1;
+	}
+
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
 	return 1;
 }
 
 /**
  * Dump active list.
  * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param params Unused.
+ * @return 1. */
 int command_dumpactivelist(object *op, char *params)
 {
-	char buf[1024];
 	int count = 0;
 	object *tmp;
 
@@ -724,32 +711,28 @@ int command_dumpactivelist(object *op, char *params)
 	for (tmp = active_objects; tmp; tmp = tmp->active_next)
 	{
 		count++;
-
-		snprintf(buf, sizeof(buf), "%08d %03d %f %s (%s)", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
-		LOG(llevSystem, "%s\n", buf);
+		LOG(llevSystem, "%08d %03d %f %s (%s)\n", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
 	}
 
-	snprintf(buf, sizeof(buf), "Active objects: %d (dumped to log)", count);
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
-	LOG(llevSystem, "%s\n", buf);
+	new_draw_info_format(NDI_UNIQUE, 0, op, "Active objects: %d (dumped to log)", count);
+	LOG(llevSystem, "Active objects: %d\n", count);
 
 	return 1;
 }
 
 /**
- * Start server shutdown command. Used by DM to shutdown the
- * server in order to rebuild it to update maps.
+ * Starts server shutdown timer.
  * @param op Object requesting this.
  * @param params Command parameters.
- * @return Always returns 1. */
-int command_start_shutdown(object *op, char *params)
+ * @return 1. */
+int command_shutdown(object *op, char *params)
 {
 	char *bp = NULL;
 	int i = -2;
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "DM usage: /start_shutdown <-1 ... x>");
+		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
@@ -767,7 +750,7 @@ int command_start_shutdown(object *op, char *params)
 
 	if (i < -1)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "DM usage: /start_shutdown <-1 ... x>");
+		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
