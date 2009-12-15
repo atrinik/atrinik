@@ -317,10 +317,6 @@ typedef struct pl_player
 	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
 	char password[16];
 
-#ifdef SEARCH_ITEMS
-	char search_str[MAX_BUF];
-#endif
-
 	unsigned char last_level;
 
 	/** Any bonuses/penalties to digestion */

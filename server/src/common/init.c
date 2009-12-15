@@ -50,7 +50,6 @@ struct Settings settings =
 	MAPDIR, PLAYERDIR, ARCHETYPES,TREASURES,
 	UNIQUE_DIR, TMPDIR,
 	STAT_LOSS_ON_DEATH,
-	USE_PERMANENT_EXPERIENCE,
 	BALANCED_STAT_LOSS,
 	RESET_LOCATION_TIME,
 	/* This and the next 3 values are metaserver values */

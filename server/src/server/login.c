@@ -580,10 +580,6 @@ void check_login(object *op)
 
 	pl->party_number = -1;
 
-#ifdef SEARCH_ITEMS
-	pl->search_str[0] = '\0';
-#endif
-
 	pl->name_changed = 1;
 	pl->orig_stats.Str = 0;
 	pl->orig_stats.Dex = 0;

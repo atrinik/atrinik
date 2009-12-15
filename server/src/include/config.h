@@ -95,10 +95,6 @@
 #define UNIQUE_DIR "unique-items"
 #endif
 
-#ifndef HELPDIR
-#define HELPDIR   "./man"
-#endif
-
 /************************************************************************
  * SECTION 1 - FEATURES                                                 *
  *                                                                      *
@@ -219,13 +215,6 @@
  * knows where to find the information. */
 /*#define RECYCLE_TMP_MAPS*/
 
-/* Enables the 'search-item command; a method to find equipment
- * in shops.
- * Seems like it now works, and doesn't cause the game to hang.
- * 0.94.2 - I think this really should be a client issue - after all, the
- * client has all the info the player does. */
-#define SEARCH_ITEMS
-
 /* SPELLPOINT_LEVEL_DEPEND  --  Causes the spellpoint cost
  * of spells to vary with their power.  Spells that become very
  * powerful at high level cost more.  The damage/time of
@@ -240,69 +229,14 @@
  * in the wiz stuff would need to be added for that to happen. */
 #define STAT_LOSS_ON_DEATH FALSE
 
-/* Use permanent experience code?
- * This code allows players to build up a small amount of 'permanent
- * experience' which reduces the effect of large experience drains, such as
- * death. This makes multiple frequent deaths less devastating, and also
- * ensures that any character will make some gradual progress even if they
- * die all of the time.
- * A nice option if your keep dying due to massive client/server lags despite
- * playing well... or you like to swim well outside of your depth. :)
- *
- * The PERM_EXP values adjust the behaviour of this option - if
- * USE_PERMAMENT_EXPERIENCE if off, these values have no meaning.  If it
- * is on, the minimum ratio is the minimum amount of permanent exp relative
- * to the total exp in the skill (ie, at a default of .25, if you had 100
- * experience, at least 25 of it would be permanent).  The gain ratio
- * is how much of experienced experience goes to the permanent value.
- * This does not detract from total exp gain (ie, if you gained 100 exp,
- * 100 would go to the skill total and 10 to the permanent value).
- * the loss ratio is the maximum amount of experience that can be lost
- * in any one hit - this is calculated as total exp - perm exp * loss ratio.
- *
- * A few thoughts on these default value (by MSW)
- * gain ratio is pretty much meaningless until exp has been lost, as until
- * that poin, the minimum ratio will be used.
- * It is also impossible for the exp to actually be reduced to the permanent
- * exp ratio - since the loss ratio is .5, it will just get closer and
- * closer.  However, after about half a dozen hits, pretty much all the
- * exp that can be lost has been lost, and after that, only minor loss
- * will occur. */
-/* GD */
-
-/* WARNING: I have not recoded this for skill exp code
- * set perm_exp to TRUE will corrupt your server.
- * I this will fixed in the future, this warning will be removed
- * and using will be ok. MT */
-
-#define USE_PERMANENT_EXPERIENCE FALSE
-#define PERM_EXP_MINIMUM_RATIO        0.25f
-#define PERM_EXP_GAIN_RATIO           0.10f
-#define PERM_EXP_MAX_LOSS_RATIO       0.50f
 
 /************************************************************************
  * SECTION 2 - Machine/Compiler specific stuff.                         *
  *                                                                      *
  * Short list of items:                                                 *
- * COMPRESS_SUFFIX - selection of compression programs                  *
  * O_NDELAY - If you don't have O_NDELAY, uncomment it.                 *
  *                                                                      *
  ***********************************************************************/
-
-/* If you compress your files to save space, set the COMPRESS_SUFFIX below
- * to the compression suffix you want (.Z, .gz, .bz2).  The autoconf
- * should already find the program to use.  If you set the suffix to
- * something that autoconf did not find, you are likely to have serious
- * problems, so make sure you have the appropriate compression tool installed
- * before you set this.  You can look at the autoconf.h file to see
- * what compression tools it found (search for COMPRESS).
- *
- * Note that this is used when saving files.  Atrinik will search all
- * methods when loading a file to see if it finds a match. */
-
-#ifndef COMPRESS_SUFFIX
-/* #define COMPRESS_SUFFIX ".Z" */
-#endif
 
 /* If you get a complaint about O_NDELAY not being known/undefined, try
  * uncommenting this.
@@ -326,12 +260,6 @@
 /* CSPORT is the port used for the new client/server code.  Change
  * if desired. */
 #define CSPORT 13327
-
-/* LOGFILE specifies which file to log to when playing with the
- * -daemon option. */
-#ifndef LOGFILE
-#define LOGFILE "./data/log/atrinik.log"
-#endif
 
 /* MAP_MAXTIMEOUT tells the maximum of ticks until a map is swapped out
  * after a player has left it.  If it is set to 0, maps are
@@ -480,9 +408,6 @@
 /* Used when hashing archetypes, must be a prime number. */
 #define ARCHTABLE 5003
 #define MAXSTRING 20
-
-/* If you change this, delete all characters :) */
-#define COMMAND_HASH_SIZE 107
 
 /************************************************************************
  * Section 4 - Save player options.                                     *

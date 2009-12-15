@@ -426,9 +426,6 @@ typedef struct Settings
 	/** If true, players lose a random stat when they die. */
 	uint8 stat_loss_on_death;
 
-	/** If true, players can gain perm exp. */
-	uint8 use_permanent_experience;
-
 	/** If true, Death stat depletion based on level etc. */
 	uint8 balanced_stat_loss;
 

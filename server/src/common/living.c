@@ -1519,11 +1519,6 @@ fix_player_jump_resi:
 	/* now the speed thing... */
 	op->speed += speed_bonus[op->stats.Dex];
 
-#ifdef SEARCH_ITEMS
-	if (pl->search_str[0])
-		op->speed -= 1.0f;
-#endif
-
 	if (added_speed >= 0)
 		op->speed += added_speed / 10.0f;
 	/* Something wrong here...: */
