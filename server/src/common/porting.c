@@ -316,7 +316,6 @@ char *strerror_local(int errnum)
 #else
 	static char buf[MAX_BUF];
 
-	(void) errnum;
 	snprintf(buf, sizeof(buf), "Error %d", errnum);
 	return buf;
 #endif
