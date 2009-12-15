@@ -111,6 +111,7 @@ struct plugin_hooklist hooklist =
 	query_short_name,
 	beacon_locate,
 	strdup_local,
+	adjust_player_name,
 
 	season_name,
 	weekdays,

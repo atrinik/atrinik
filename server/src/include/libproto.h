@@ -349,3 +349,4 @@ extern char *cleanup_string(char *ustring);
 extern char *get_word_from_string(char *str, int *pos);
 extern void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 extern void replace_unprintable_chars(char *buf);
+extern void adjust_player_name(char *name);

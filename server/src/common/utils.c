@@ -220,8 +220,7 @@ void replace(const char *src, const char *key, const char *replacement, char *re
 /**
  * Find a racelink.
  * @param name The name of the race to look for.
- * @return The racelink if found, NULL otherwise.
- */
+ * @return The racelink if found, NULL otherwise. */
 racelink *find_racelink(const char *name)
 {
 	racelink *test = NULL;
@@ -296,6 +295,32 @@ char *get_word_from_string(char *str, int *pos)
 
 	buf[i] = '\0';
 	return buf;
+}
+
+/**
+ * Adjusts a player name like "xxXxx " to "Xxxxx".
+ * @param name Player name to adjust. */
+void adjust_player_name(char *name)
+{
+	char *tmp = name;
+
+	if (!tmp || *tmp == '\0')
+	{
+		return;
+	}
+
+	*tmp = toupper(*tmp);
+
+	while (*(++tmp) != '\0')
+	{
+		*tmp = tolower(*tmp);
+	}
+
+	/* Trim the right whitespace */
+	while (tmp >= name && *(tmp - 1) == ' ')
+	{
+		*(--tmp) = '\0';
+	}
 }
 
 /**

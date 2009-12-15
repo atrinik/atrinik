@@ -397,8 +397,7 @@ static int basic_emote(object *op, char *params, int emotion)
 	{
 		if (emotion != EMOTE_ME)
 		{
-			/* Force "Xxxxx" name. */
-			params[0] = toupper(params[0]);
+			adjust_player_name(params);
 		}
 	}
 

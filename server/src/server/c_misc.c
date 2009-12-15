@@ -997,20 +997,7 @@ int command_sound(object *op, char *params)
  * @param op Object. */
 void receive_player_name(object *op)
 {
-	unsigned int name_len = strlen(CONTR(op)->write_buf + 1);
-
-	/* Force a "Xxxxxxx" name */
-	if (name_len > 1)
-	{
-		int i;
-
-		for (i = 1; *(CONTR(op)->write_buf + i) != 0; i++)
-		{
-			*(CONTR(op)->write_buf + i) = tolower(*(CONTR(op)->write_buf + i));
-		}
-
-		*(CONTR(op)->write_buf + 1) = toupper(*(CONTR(op)->write_buf + 1));
-	}
+	adjust_player_name(CONTR(op)->write_buf + 1);
 
 	if (!check_name(CONTR(op), CONTR(op)->write_buf + 1))
 	{

@@ -225,6 +225,7 @@ struct plugin_hooklist
 	char *(*query_short_name)(object *, object *);
 	object *(*beacon_locate)(const char *);
 	char *(*strdup_local)(const char *);
+	void (*adjust_player_name)(char *);
 
 	const char **season_name;
 	const char **weekdays;
