@@ -386,48 +386,30 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 		case 0:
 			strcat(RP->wall_name, "_0");
 			break;
-		case 1:
-			strcat(RP->wall_name, "_1_3");
-			break;
-		case 2:
-			strcat(RP->wall_name, "_1_4");
-			break;
-		case 3:
-			strcat(RP->wall_name, "_2_1_2");
-			break;
-		case 4:
-			strcat(RP->wall_name, "_1_2");
-			break;
-		case 5:
-			strcat(RP->wall_name, "_2_2_4");
-			break;
-		case 6:
-			strcat(RP->wall_name, "_2_2_1");
-			break;
-		case 7:
-			strcat(RP->wall_name, "_3_1");
-			break;
-		case 8:
-			strcat(RP->wall_name, "_1_1");
-			break;
-		case 9:
-			strcat(RP->wall_name, "_2_2_3");
-			break;
+
 		case 10:
-			strcat(RP->wall_name, "_2_2_2");
+		case 8:
+		case 2:
+			strcat(RP->wall_name, "_8");
 			break;
+
 		case 11:
-			strcat(RP->wall_name, "_3_3");
+		case 9:
+		case 3:
+			strcat(RP->wall_name, "_1");
 			break;
+
 		case 12:
-			strcat(RP->wall_name, "_2_1_1");
-			break;
-		case 13:
-			strcat(RP->wall_name, "_3_4");
-			break;
+		case 4:
 		case 14:
-			strcat(RP->wall_name, "_3_2");
+		case 6:
+			strcat(RP->wall_name, "_3");
 			break;
+
+		case 1:
+		case 5:
+		case 7:
+		case 13:
 		case 15:
 			strcat(RP->wall_name, "_4");
 			break;

@@ -105,7 +105,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 	layout = layoutgen(RP);
 
 	/* increment these for the current map */
-	RP->dungeon_level+=1;
+	RP->dungeon_level += 1;
 
 	/* rotate the layout randomly */
 	layout = rotate_layout(layout, RANDOM() % 4, RP);
