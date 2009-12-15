@@ -40,6 +40,72 @@
 #include <global.h>
 #include <sproto.h>
 
+/** How often to print out timestamps, in seconds. */
+#define TIMESTAMP_INTERVAL 600
+
+/** Last timestamp. */
+static struct timeval last_timestamp = {0, 0};
+
+/**
+ * Put a string to either stderr or logfile.
+ * @param buf String to put. */
+static void do_print(char *buf)
+{
+#ifdef WIN32
+	if (logfile)
+	{
+		/* Write to file or stdout */
+		fputs(buf, logfile);
+	}
+	else
+	{
+		fputs(buf, stderr);
+	}
+
+#ifdef DEBUG
+	if (logfile)
+	{
+		fflush(logfile);
+	}
+#endif
+
+	if (logfile && logfile != stderr)
+	{
+		fputs(buf, stderr);
+	}
+#else
+	if (logfile)
+	{
+		fputs(buf, logfile);
+	}
+	else
+	{
+		fputs(buf, stderr);
+	}
+#endif
+}
+
+/**
+ * Check if timestamp is due. */
+static void check_timestamp()
+{
+	struct timeval now;
+
+	GETTIMEOFDAY(&now);
+
+	if (now.tv_sec >= last_timestamp.tv_sec + TIMESTAMP_INTERVAL)
+	{
+		struct tm *tim;
+		char buf[256];
+		time_t temp_time = now.tv_sec;
+
+		last_timestamp.tv_sec = now.tv_sec;
+		tim = localtime(&temp_time);
+		snprintf(buf, sizeof(buf), "\n*** TIMESTAMP: %02d:%02d:%02d %02d-%02d-%4d ***\n\n", tim->tm_hour, tim->tm_min, tim->tm_sec, tim->tm_mday, tim->tm_mon + 1, tim->tm_year + 1900);
+		do_print(buf);
+	}
+}
+
 /**
  * Logs a message to stderr, or to file, and/or even to socket.
  * Or discards the message if it is of no importance, and none have
@@ -59,45 +125,12 @@ void LOG(LogLevel logLevel, const char *format, ...)
 
 	va_list ap;
 	va_start(ap, format);
-
-	buf[0] = '\0';
+	check_timestamp();
 
 	if (logLevel <= settings.debug)
 	{
 		vsnprintf(buf, sizeof(buf), format, ap);
-
-#ifdef WIN32
-		if (logfile)
-		{
-			/* Write to file or stdout */
-			fputs(buf, logfile);
-		}
-		else
-		{
-			fputs(buf, stderr);
-		}
-
-#ifdef DEBUG
-		if (logfile)
-		{
-			fflush(logfile);
-		}
-#endif
-
-		if (logfile && logfile != stderr)
-		{
-			fputs(buf, stderr);
-		}
-#else
-		if (logfile)
-		{
-			fputs(buf, logfile);
-		}
-		else
-		{
-			fputs(buf, stderr);
-		}
-#endif
+		do_print(buf);
 	}
 
 	va_end(ap);
