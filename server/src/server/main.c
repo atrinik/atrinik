@@ -1265,15 +1265,12 @@ static void do_specials()
 static int keyboard_press()
 {
 #ifndef WIN32
-	if (settings.interactive)
-	{
-		struct timeval tv = {0L, 0L};
-		fd_set fds;
+	struct timeval tv = {0L, 0L};
+	fd_set fds;
 
-		FD_SET(0, &fds);
+	FD_SET(0, &fds);
 
-		return select(1, &fds, NULL, NULL, &tv);
-	}
+	return select(1, &fds, NULL, NULL, &tv);
 #endif
 
 	return 0;
@@ -1401,8 +1398,56 @@ static void process_keyboard_input(char *input)
 	}
 }
 
-#define DEBUG_MALLOC_LEVEL 1
+/**
+ * Iterate the main loop. */
+static void iterate_main_loop()
+{
+	/* Every llevBug will increase this - avoid LOG loops */
+	nroferrors = 0;
 
+	/* Check and run a shutdown count (with messages and shutdown) */
+	shutdown_agent(-1, NULL);
+
+	doeric_server();
+
+	/* Clean up the object pool */
+	object_gc();
+
+#ifdef MEMPOOL_OBJECT_TRACKING
+	check_use_object_list();
+#endif
+
+	/* Global round ticker. */
+	global_round_tag++;
+
+	/* "do" something with objects with speed */
+	process_events(NULL);
+
+	/* Process the crossfire Timers */
+	cftimer_process_timers();
+
+#ifdef PLUGINS_X
+	/* Trigger the global CLOCK event */
+	trigger_global_event(EVENT_CLOCK, NULL, NULL);
+#endif
+
+	/* Removes unused maps after a certain timeout */
+	check_active_maps();
+
+	/* Routines called from time to time. */
+	do_specials();
+
+	doeric_server_write();
+
+	/* Sleep proper amount of time before next tick */
+	sleep_delta();
+}
+
+/**
+ * The main function.
+ * @param argc Number of arguments.
+ * @param argv Arguments.
+ * @return 0. */
 int main(int argc, char **argv)
 {
 	char input[HUGE_BUF];
@@ -1423,58 +1468,28 @@ int main(int argc, char **argv)
 
 	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");
 
-	/* The main server loop */
-	for (; ;)
+	if (settings.interactive)
 	{
-		/* Do all the necessary functions as long as keyboard input was not entered */
-		do
+		for (; ;)
 		{
-			/* Every llevBug will increase this - avoid LOG loops */
-			nroferrors = 0;
+			/* Do all the necessary functions as long as keyboard input was not entered */
+			while (!keyboard_press())
+			{
+				iterate_main_loop();
+			}
 
-			/* Check and run a shutdown count (with messages and shutdown) */
-			shutdown_agent(-1, NULL);
-
-			doeric_server();
-
-			/* Clean up the object pool */
-			object_gc();
-
-#ifdef MEMPOOL_OBJECT_TRACKING
-			check_use_object_list();
-#endif
-
-			/* Global round ticker. */
-			global_round_tag++;
-
-			/* "do" something with objects with speed */
-			process_events(NULL);
-
-			/* Process the crossfire Timers */
-			cftimer_process_timers();
-
-#ifdef PLUGINS_X
-			/* Trigger the global CLOCK event */
-			trigger_global_event(EVENT_CLOCK, NULL, NULL);
-#endif
-
-			/* Removes unused maps after a certain timeout */
-			check_active_maps();
-
-			/* Routines called from time to time. */
-			do_specials();
-
-			doeric_server_write();
-
-			/* Sleep proper amount of time before next tick */
-			sleep_delta();
+			/* Otherwise we've got some keyboard input, parse it */
+			if (scanf("\n%4096[^\n]", input))
+			{
+				process_keyboard_input(input);
+			}
 		}
-		while (!keyboard_press());
-
-		/* Otherwise we've got some keyboard input, parse it! */
-		if (settings.interactive && scanf("\n%4096[^\n]", input))
+	}
+	else
+	{
+		for (; ;)
 		{
-			process_keyboard_input(input);
+			iterate_main_loop();
 		}
 	}
 
