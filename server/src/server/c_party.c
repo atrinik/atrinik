@@ -32,18 +32,6 @@
 #include <sproto.h>
 #endif
 
-/**
- * @defgroup PARTY_MESSAGE_xxx Party message types
- * Party message types.
- *@{*/
-
-/** Status is used for party messages like password change, join/leave,
- * etc */
-#define PARTY_MESSAGE_STATUS 	1
-/** Chat is used for party chat messages from party members */
-#define PARTY_MESSAGE_CHAT 		2
-/*@}*/
-
 /** Keeps track of first party in list */
 static partylist *firstparty = NULL;
 /** Keeps track of last party in list */
@@ -241,41 +229,6 @@ void obsolete_parties()
 	}
 }
 
-#ifdef PARTY_KILL_LOG
-void add_kill_to_party(int numb, char *killer, char *dead, long exp)
-{
-	partylist *party = find_party_struct(numb);
-	int i, pos;
-
-	if (party == NULL)
-	{
-		return;
-	}
-
-	if (party->kills >= PARTY_KILL_LOG)
-	{
-		pos = PARTY_KILL_LOG - 1;
-
-		for (i = 0; i < PARTY_KILL_LOG - 1; i++)
-		{
-			memcpy(&(party->party_kills[i]), &(party->party_kills[i + 1]), sizeof(party->party_kills[0]));
-		}
-	}
-	else
-	{
-		pos = party->kills;
-	}
-
-	party->kills++;
-	party->total_exp += exp;
-	party->party_kills[pos].exp = exp;
-	strncpy(party->party_kills[pos].killer, killer, MAX_NAME);
-	strncpy(party->party_kills[pos].dead, dead, MAX_NAME);
-	party->party_kills[pos].killer[MAX_NAME] = 0;
-	party->party_kills[pos].dead[MAX_NAME] = 0;
-}
-#endif
-
 /**
  * Send party message to all members of the party.
  * @param op Object sending this message.
@@ -365,81 +318,8 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, 0, op, "There is a 8 character max for password.");
 		new_draw_info(NDI_UNIQUE, 0, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
 		new_draw_info(NDI_UNIQUE, 0, op, "To see who is in your party: /party who");
-#ifdef PARTY_KILL_LOG
-		new_draw_info(NDI_UNIQUE, 0, op, "To see what you've killed, type: /party kills");
-#endif
 		return 1;
 	}
-
-#ifdef PARTY_KILL_LOG
-	else if (strncmp(params, "kills", 5) == 0)
-	{
-		int i,max;
-		char chr;
-		float exp;
-
-		if (CONTR(op)->party_number <= 0)
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
-			return 1;
-		}
-
-		tmpparty = find_party_struct(CONTR(op)->party_number);
-
-		if (!tmpparty->kills)
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You haven't killed anything yet.");
-			return 1;
-		}
-
-		max = tmpparty->kills - 1;
-
-		if (max > PARTY_KILL_LOG - 1)
-		{
-			max = PARTY_KILL_LOG - 1;
-		}
-
-		new_draw_info(NDI_UNIQUE, 0, op, "Killed          |          Killer|     Exp");
-		new_draw_info(NDI_UNIQUE, 0, op, "----------------+----------------+--------");
-
-		for (i = 0; i <= max; i++)
-		{
-			exp = tmpparty->party_kills[i].exp;
-			chr = ' ';
-
-			if (exp > 1000000)
-			{
-				exp /= 1000000;
-				chr = 'M';
-			}
-			else if (exp > 1000)
-			{
-				exp /= 1000;
-				chr = 'k';
-			}
-
-			new_draw_info_format(NDI_UNIQUE, 0, op, "%16s|%16s|%6.1f%c", tmpparty->party_kills[i].dead, tmpparty->party_kills[i].killer, exp, chr);
-		}
-
-		exp = tmpparty->total_exp;
-		chr = ' ';
-
-		if (exp > 1000000)
-		{
-			exp /= 1000000;
-			chr = 'M';
-		}
-		else if (exp > 1000)
-		{
-			exp /= 1000;
-			chr = 'k';
-		}
-
-		new_draw_info(NDI_UNIQUE, 0, op, "----------------+----------------+--------");
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Totals: %d kills, %.1f%c exp", tmpparty->kills, exp, chr);
-		return 1;
-	}
-#endif
 	else if (strncmp(params, "say ", 4) == 0)
 	{
 		if (CONTR(op)->party_number <= 0)

@@ -1047,22 +1047,16 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		/* only calc exp for a player who has not killed a player */
 		if (hitter->type == PLAYER && !old_hitter && op->type != PLAYER)
 		{
-			exp = calc_skill_exp(hitter, op);
+			exp = calc_skill_exp(hitter, op, -1);
 		}
 
 		/* Case for attack spells, summoned monsters killing */
 		if (old_hitter && hitter->type == PLAYER)
 		{
-			object *old_skill = hitter->chosen_skill;
-
-			hitter->chosen_skill = old_hitter->chosen_skill;
-
-			if (hitter->type==PLAYER && op->type != PLAYER)
+			if (hitter->type == PLAYER && op->type != PLAYER)
 			{
-				exp = calc_skill_exp(hitter, op);
+				exp = calc_skill_exp(hitter, op, SK_level(old_hitter));
 			}
-
-			hitter->chosen_skill = old_skill;
 		}
 
 		/* When not NULL, it is our non owner object (spell, arrow) */
@@ -1096,7 +1090,6 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			/* If this player is not in party, it's simple. */
 			if (CONTR(hitter)->party_number <= 0)
 			{
-				/* Only player gets exp - when we have exp */
 				if (exp)
 				{
 					new_draw_info_format(NDI_UNIQUE, 0, hitter, "You got %d exp in skill %s.", add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
@@ -1109,53 +1102,63 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			/* However, if we are in a party, things get a little more tricky. */
 			else
 			{
-				int shares = 0, count = 0;
+				int num_members = 1, pexp;
 				player *pl;
-				int no = CONTR(hitter)->party_number;
-#ifdef PARTY_KILL_LOG
-				add_kill_to_party(no, query_name(hitter), query_name(op), exp);
-#endif
+				object *highest = hitter;
 
-				for (pl = first_player; pl != NULL; pl = pl->next)
+				for (pl = first_player; pl; pl = pl->next)
 				{
-					if (CONTR(pl->ob)->party_number == no && pl->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(pl->ob, hitter))
+					if (pl->ob != hitter && pl->party_number == CONTR(hitter)->party_number && pl->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(pl->ob, hitter))
 					{
-						count++;
-						shares += (pl->ob->level + 4);
+						num_members++;
+
+						if (pl->ob->level > highest->level)
+						{
+							highest = pl->ob;
+						}
 					}
 				}
 
-				if (count == 1 || shares > exp)
+				pexp = calc_skill_exp(highest, op, highest->level);
+
+				if (pexp > exp)
 				{
-					if (exp)
+					pexp = exp;
+				}
+
+				pexp = (int) ((float) pexp * (0.9f + (0.1f * (float) num_members)));
+
+				if (pexp)
+				{
+					pexp /= num_members;
+
+					if (pexp < 4)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, hitter, "You got %d exp in skill %s.", add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+						pexp = 4;
 					}
-					else
+
+					for (pl = first_player; pl; pl = pl->next)
 					{
-						new_draw_info(NDI_UNIQUE, 0, hitter, "Your enemy was too low for exp.");
+						if (pl->party_number == CONTR(hitter)->party_number && pl->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(pl->ob, hitter))
+						{
+							int expgain = calc_skill_exp(pl->ob, op, pl->skill_ptr[old_hitter->chosen_skill->stats.sp]->level);
+
+							if (expgain > pexp)
+							{
+								expgain = pexp;
+							}
+
+							new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You got %d exp in skill %s.", add_exp(pl->ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+						}
 					}
 				}
 				else
 				{
-					int share = exp / shares, given = 0, nexp;
+					char tmpbuf[MAX_BUF];
 
-					for (pl = first_player; pl != NULL; pl = pl->next)
-					{
-						if (CONTR(pl->ob)->party_number == no && on_same_map(pl->ob, hitter))
-						{
-							if (exp)
-							{
-								nexp = (pl->ob->level + 4) * share;
-								new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You got %d exp in skill %s.", add_exp(pl->ob, nexp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
-								given += nexp;
-							}
-							else
-							{
-								new_draw_info(NDI_UNIQUE, 0, pl->ob, "Your enemy was too low for exp.");
-							}
-						}
-					}
+					snprintf(tmpbuf, sizeof(tmpbuf), "%s is too high level to get experience from %s's kill.", highest->name, hitter->name);
+					send_party_message(hitter, tmpbuf, PARTY_MESSAGE_STATUS);
+					new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, hitter, tmpbuf);
 				}
 			}
 		}

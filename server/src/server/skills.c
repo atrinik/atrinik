@@ -228,7 +228,7 @@ static int write_scroll(object *pl, object *scroll)
 		/* Wait until finished manipulating the scroll before inserting it */
 		newScroll = insert_ob_in_ob(newScroll, pl);
 		esrv_send_item(pl, newScroll);
-		success = calc_skill_exp(pl, newScroll);
+		success = calc_skill_exp(pl, newScroll, -1);
 
 		if (!confused)
 		{
@@ -381,7 +381,7 @@ int find_traps(object *pl, int level)
 						{
 							if (!tmp2->owner || tmp2->owner->type != PLAYER)
 							{
-								expsum += calc_skill_exp(pl, tmp2);
+								expsum += calc_skill_exp(pl, tmp2, -1);
 							}
 
 							/* Unhide the trap */
@@ -415,7 +415,7 @@ int find_traps(object *pl, int level)
 					{
 						if (!tmp->owner || tmp->owner->type != PLAYER)
 						{
-							expsum += calc_skill_exp(pl, tmp);
+							expsum += calc_skill_exp(pl, tmp, -1);
 						}
 
 						/* Unhide the trap */
@@ -490,7 +490,7 @@ int remove_trap(object *op)
 					if (trap_disarm(op, tmp2, 1) && (!tmp2->owner || tmp2->owner->type != PLAYER))
 					{
 						tmp2->stats.exp = tmp2->stats.Cha * tmp2->level;
-						success += calc_skill_exp(op, tmp2);
+						success += calc_skill_exp(op, tmp2, -1);
 					}
 					/* Can't continue to disarm after failure */
 					else
@@ -510,7 +510,7 @@ int remove_trap(object *op)
 				if (trap_disarm(op, tmp, 1) && (!tmp->owner || tmp->owner->type != PLAYER))
 				{
 					tmp->stats.exp = tmp->stats.Cha * tmp->level;
-					success += calc_skill_exp(op, tmp);
+					success += calc_skill_exp(op, tmp, -1);
 				}
 				/* Can't continue to disarm after failure */
 				else

@@ -114,7 +114,7 @@ void apply_spellbook(object *op, object *tmp)
 		/* xp gain to literacy for spell learning */
 		if (!QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 		{
-			add_exp(op, calc_skill_exp(op, tmp), op->chosen_skill->stats.sp);
+			add_exp(op, calc_skill_exp(op, tmp, -1), op->chosen_skill->stats.sp);
 		}
 	}
 	else

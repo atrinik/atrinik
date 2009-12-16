@@ -187,14 +187,6 @@
  * players, monsters, or items with speed 1 can do one thing. */
 #define MAX_TIME	125000
 
-/* This determine how many entries are stored in the kill log. You
- * can see this information with the '/party kills' command. More entries
- * mean slower performance and more memory. IF this is not defined, then
- * this feature is disabled. */
-/*
-#define PARTY_KILL_LOG 20
-*/
-
 /* Calling this REAL_WIZ is probably not really good.  Something like
  * MUD_WIZ might be a better name.
  *

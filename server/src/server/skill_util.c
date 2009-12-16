@@ -265,10 +265,12 @@ int do_skill(object *op, int dir, char *string)
  * successfull use of a skill.
  * @param who Player/creature that used the skill.
  * @param op Object that was 'defeated'.
+ * @param level Level of the skill. If -1, will get level of who's chosen
+ * skill.
  * @return Experience for the skill use. */
-int calc_skill_exp(object *who, object *op)
+int calc_skill_exp(object *who, object *op, int level)
 {
-	int who_lvl;
+	int who_lvl = level;
 	int op_exp = 0, op_lvl = 0;
 	float exp_mul, max_mul, tmp;
 
@@ -279,8 +281,11 @@ int calc_skill_exp(object *who, object *op)
 		return 0;
 	}
 
-	/* The related skill level */
-	who_lvl = SK_level(who);
+	if (level == -1)
+	{
+		/* The related skill level */
+		who_lvl = SK_level(who);
+	}
 
 	if (!op)
 	{

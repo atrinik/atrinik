@@ -195,9 +195,6 @@ char *find_party(int partynumber, partylist *party);
 partylist *find_party_struct(int partynumber);
 void remove_party(partylist *target_party);
 void obsolete_parties();
-#ifdef PARTY_KILL_LOG
-void add_kill_to_party(int numb, char *killer, char *dead, long exp);
-#endif
 void send_party_message(object *op, char *msg, int flag);
 int command_gsay(object *op, char *params);
 int command_party(object *op, char *params);
@@ -367,7 +364,7 @@ void do_throw(object *op, object *toss_item, int dir);
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
 int do_skill(object *op, int dir, char *string);
-int calc_skill_exp(object *who, object *op);
+int calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void dump_skills();
 int check_skill_known(object *op, int skillnr);

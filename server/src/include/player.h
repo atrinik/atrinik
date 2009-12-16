@@ -94,6 +94,18 @@ enum
 };
 
 /**
+ * @defgroup PARTY_MESSAGE_xxx Party message types
+ * Party message types.
+ *@{*/
+
+/** Status is used for party messages like password change, join/leave,
+ * etc */
+#define PARTY_MESSAGE_STATUS 	1
+/** Chat is used for party chat messages from party members */
+#define PARTY_MESSAGE_CHAT 		2
+/*@}*/
+
+/**
  * Party structure.
  * @todo Move this to a new file, party.h */
 typedef struct party_struct
@@ -109,19 +121,6 @@ typedef struct party_struct
 
 	/** Name of the party */
 	char *partyname;
-
-#ifdef PARTY_KILL_LOG
-	struct party_kill
-	{
-		/** Name of the killer */
-		char killer[MAX_NAME + 1];
-
-		char dead[MAX_NAME + 1];
-
-		/** Exp gained */
-		uint32 exp;
-	} party_kills[PARTY_KILL_LOG];
-#endif
 
 	/** Total experience gained */
 	uint32 total_exp;
