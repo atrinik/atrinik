@@ -23,43 +23,20 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Party related structures and defines. */
+#ifndef ATRINIK_PARTY_H
+#define ATRINIK_PARTY_H
 
-#ifndef PARTY_H
-#define PARTY_H
+#include <Python.h>
+#include <plugin.h>
+#include <plugin_python.h>
 
-/**
- * @defgroup PARTY_MESSAGE_xxx Party message types
- * Party message types.
- *@{*/
+static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args);
+static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args);
+static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *party, PyObject *args);
+static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args);
 
-/** Status is used for party messages like password change, join/leave,
- * etc */
-#define PARTY_MESSAGE_STATUS    1
-/** Chat is used for party chat messages from party members */
-#define PARTY_MESSAGE_CHAT      2
-/*@}*/
-
-/**
- * Party structure. */
-typedef struct party_struct
-{
-	/** Name of the party leader */
-	const char *leader;
-
-	/** Password this party requires */
-	char passwd[9];
-
-	/** Name of the party */
-	char *name;
-
-	/** Party members. */
-	objectlink *members;
-
-	/** Next party in the list */
-	struct party_struct *next;
-} partylist_struct;
+static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static void Atrinik_Party_dealloc(Atrinik_Party *self);
+static PyObject *Atrinik_Party_str(Atrinik_Party *self);
 
 #endif

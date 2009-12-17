@@ -181,6 +181,17 @@ typedef struct
 	mapstruct *map;  /* Pointer to the Atrinik map we wrap */
 } Atrinik_Map;
 
+extern PyTypeObject Atrinik_PartyType;
+
+extern PyObject *wrap_party(partylist_struct *party);
+extern int Atrinik_Party_init(PyObject *module);
+
+typedef struct
+{
+	PyObject_HEAD
+	partylist_struct *party;
+} Atrinik_Party;
+
 /*****************************************************************************/
 /* Commands management part.                                                 */
 /* It is now possible to add commands to crossfire. The following stuff was  */

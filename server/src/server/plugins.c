@@ -112,6 +112,11 @@ struct plugin_hooklist hooklist =
 	beacon_locate,
 	strdup_local,
 	adjust_player_name,
+	find_party,
+	add_party_member,
+	remove_party_member,
+	send_party_message,
+	Write_String_To_Socket,
 
 	season_name,
 	weekdays,

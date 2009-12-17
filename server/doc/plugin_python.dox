@@ -44,4 +44,16 @@ structure.
 @ref plugin_python_object_fields "Python plugin object fields",
 @ref plugin_python_object_flags "Python plugin object flags"
 
+@section sec_plugin_python_atrinik_party Atrinik Party Python plugin
+functions
+
+The Atrinik Party Python plugin functions allow you to make interesting
+events or dungeons, where in order to participate, one must/mustn't be in
+a party.
+
+@see plugin_python_party_functions,
+@ref plugin_python_party_constants "Python plugin party constants",
+@ref plugin_python_party_fields "Python plugin party fields",
+@ref plugin_python_party_flags "Python plugin party flags"
+
 */

@@ -98,6 +98,7 @@ static PyMethodDef ObjectMethods[] =
 	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
 	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
 	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
+	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2909,6 +2910,23 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 	return Py_BuildValue("s", hooks->query_short_name(WHAT, ob ? ob->obj : WHAT));
 }
 
+/**
+ * <h1>object.GetParty()</h1>
+ * Get player's party.
+ * @warning Only use on player objects.
+ * @return Party if player is member of a party, None otherwise. */
+static PyObject *Atrinik_Object_GetParty(Atrinik_Object *whatptr, PyObject *args)
+{
+	(void) args;
+
+	if (WHAT->type != PLAYER || !CONTR(WHAT))
+	{
+		RAISE("Can only be used on players.");
+	}
+
+	return wrap_party(CONTR(WHAT)->party);
+}
+
 /*@}*/
 
 /* Attribute getter */
@@ -2957,13 +2975,13 @@ static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
 			return Py_BuildValue("L", *(sint64 *) field_ptr);
 
 		case FIELDTYPE_FLOAT:
-			return Py_BuildValue("f", *(float *)field_ptr);
+			return Py_BuildValue("f", *(float *) field_ptr);
 
 		case FIELDTYPE_MAP:
-			return wrap_map(*(mapstruct **)field_ptr);
+			return wrap_map(*(mapstruct **) field_ptr);
 
 		case FIELDTYPE_OBJECT:
-			return wrap_object(*(object **)field_ptr);
+			return wrap_object(*(object **) field_ptr);
 
 		case FIELDTYPE_OBJECTREF:
 			field_ptr2 = (void *)((char *)WHO + obj_fields[fieldno].extra_data);

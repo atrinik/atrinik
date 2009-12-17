@@ -490,7 +490,15 @@ void show_party()
 		/* We joined successfully - copy the party name to our client player structure */
 		else if (strcmp(subcommand, "success") == 0)
 		{
-			sprintf(cpl.partyname, "%s", status);
+			if (status[0] == ' ' && status[1] == '\0')
+			{
+				cpl.partyname[0] = '\0';
+			}
+			else
+			{
+				strncpy(cpl.partyname, status, sizeof(cpl.partyname));
+			}
+
 			cpl.menustatus = MENU_NO;
 		}
 	}

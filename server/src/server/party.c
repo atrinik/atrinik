@@ -43,6 +43,7 @@ void add_party_member(partylist_struct *party, object *op)
 
 	ol->objlink.ob = op;
 	objectlink_link(&party->members, NULL, NULL, party->members, ol);
+	CONTR(op)->party = party;
 }
 
 /**
@@ -107,7 +108,6 @@ void form_party(object *op, char *name)
 
 	add_party_member(party, op);
 	new_draw_info_format(NDI_UNIQUE, 0, op, "You have formed party: %s", name);
-	CONTR(op)->party = party;
 	party->leader = op->name;
 
 	snprintf(tmp, sizeof(tmp), "Xformsuccess %s", name);
@@ -276,7 +276,6 @@ void PartyCmd(char *buf, int len, player *pl)
 			if (party->passwd[0] == '\0' || !strcmp(party->passwd, partypassword))
 			{
 				add_party_member(party, pl->ob);
-				pl->party = party;
 				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, pl->ob, "You have joined party: %s", party->name);
 				snprintf(tmpbuf, sizeof(tmpbuf), "%s joined party %s.", pl->ob->name, party->name);
 				send_party_message(party, tmpbuf, PARTY_MESSAGE_STATUS, pl->ob);
@@ -303,7 +302,9 @@ void PartyCmd(char *buf, int len, player *pl)
 	{
 		buf += 5;
 
-		if (buf[0] == '\0')
+		buf = cleanup_chat_string(buf);
+
+		if (!buf || *buf == '\0')
 		{
 			new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "Invalid party name to form.");
 			return;

@@ -226,6 +226,11 @@ struct plugin_hooklist
 	object *(*beacon_locate)(const char *);
 	char *(*strdup_local)(const char *);
 	void (*adjust_player_name)(char *);
+	partylist_struct *(*find_party)(char *);
+	void (*add_party_member)(partylist_struct *, object *);
+	void (*remove_party_member)(partylist_struct *, object *);
+	void (*send_party_message)(partylist_struct *, char *, int, object *);
+	void (*Write_String_To_Socket)(NewSocket *, char, char *, int);
 
 	const char **season_name;
 	const char **weekdays;

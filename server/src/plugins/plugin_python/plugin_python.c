@@ -92,6 +92,7 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args);
 static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args);
 static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args);
+static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -135,6 +136,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
 	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
 	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
+	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -609,6 +611,25 @@ static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
 	FREE_AND_CLEAR_HASH(name);
 
 	return wrap_object(myob);
+}
+
+/**
+ * <h1>Atrinik.FindParty(<i>\<string\><i> partyname)</h1>
+ * Find a party by name.
+ * @param partyname The party name to find.
+ * @return The party if found, None otherwise. */
+static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
+{
+	char *partyname;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &partyname))
+	{
+		return NULL;
+	}
+
+	return wrap_party(hooks->find_party(partyname));
 }
 
 /*@}*/
@@ -1136,7 +1157,7 @@ MODULEAPI void init_Atrinik_Python()
 
 	/* Initialize our objects */
 	/* TODO: some better error handling */
-	if (Atrinik_Object_init(m) || Atrinik_Map_init(m))
+	if (Atrinik_Object_init(m) || Atrinik_Map_init(m) || Atrinik_Party_init(m))
 		return;
 
 	/* Initialize direction constants */
