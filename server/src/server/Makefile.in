@@ -42,7 +42,6 @@ SRCS = \
 	c_move.c \
 	c_new.c \
 	c_object.c \
-	c_party.c \
 	c_range.c \
 	c_wiz.c \
 	commands.c \
@@ -53,6 +52,7 @@ SRCS = \
 	login.c \
 	main.c \
 	move.c \
+	party.c \
 	pets.c \
 	player_shop.c \
 	plugins.c \

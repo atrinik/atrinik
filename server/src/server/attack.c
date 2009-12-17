@@ -1088,7 +1088,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		if (hitter->type == PLAYER && !battleg)
 		{
 			/* If this player is not in party, it's simple. */
-			if (CONTR(hitter)->party_number <= 0)
+			if (!CONTR(hitter)->party)
 			{
 				if (exp)
 				{
@@ -1103,19 +1103,14 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			else
 			{
 				int num_members = 1, pexp;
-				player *pl;
+				objectlink *ol;
 				object *highest = hitter;
 
-				for (pl = first_player; pl; pl = pl->next)
+				for (ol = CONTR(hitter)->party->members; ol; ol = ol->next)
 				{
-					if (pl->ob != hitter && pl->party_number == CONTR(hitter)->party_number && pl->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(pl->ob, hitter))
+					if (ol->objlink.ob != hitter && CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(ol->objlink.ob, hitter))
 					{
 						num_members++;
-
-						if (pl->ob->level > highest->level)
-						{
-							highest = pl->ob;
-						}
 					}
 				}
 
@@ -1137,18 +1132,18 @@ int kill_object(object *op, int dam, object *hitter, int type)
 						pexp = 4;
 					}
 
-					for (pl = first_player; pl; pl = pl->next)
+					for (ol = CONTR(hitter)->party->members; ol; ol = ol->next)
 					{
-						if (pl->party_number == CONTR(hitter)->party_number && pl->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(pl->ob, hitter))
+						if (CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(ol->objlink.ob, hitter))
 						{
-							int expgain = calc_skill_exp(pl->ob, op, pl->skill_ptr[old_hitter->chosen_skill->stats.sp]->level);
+							int expgain = calc_skill_exp(ol->objlink.ob, op, CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp]->level);
 
 							if (expgain > pexp)
 							{
 								expgain = pexp;
 							}
 
-							new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You got %d exp in skill %s.", add_exp(pl->ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+							new_draw_info_format(NDI_UNIQUE, 0, ol->objlink.ob, "You got %d exp in skill %s.", add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
 						}
 					}
 				}
@@ -1157,8 +1152,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 					char tmpbuf[MAX_BUF];
 
 					snprintf(tmpbuf, sizeof(tmpbuf), "%s is too high level to get experience from %s's kill.", highest->name, hitter->name);
-					send_party_message(hitter, tmpbuf, PARTY_MESSAGE_STATUS);
-					new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, hitter, tmpbuf);
+					send_party_message(CONTR(hitter)->party, tmpbuf, PARTY_MESSAGE_STATUS, NULL);
 				}
 			}
 		}
@@ -2018,7 +2012,7 @@ void save_throw_object(object *op, object *originator)
 	}
 
 	/* If this is party corpse BUT we're not in the party */
-	if (op->sub_type1 == ST1_CONTAINER_CORPSE_party && op->stats.maxhp && (CONTR(originator->owner)->party_number == -1 || op->stats.maxhp != CONTR(originator->owner)->party_number))
+	if (op->sub_type1 == ST1_CONTAINER_CORPSE_party && op->slaying && (!CONTR(originator->owner)->party || op->slaying != CONTR(originator->owner)->party->name))
 	{
 		return;
 	}

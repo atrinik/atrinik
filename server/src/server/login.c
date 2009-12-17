@@ -578,7 +578,7 @@ void check_login(object *op)
 	pl->last_save_time = time(NULL);
 #endif
 
-	pl->party_number = -1;
+	pl->party = NULL;
 
 	pl->name_changed = 1;
 	pl->orig_stats.Str = 0;

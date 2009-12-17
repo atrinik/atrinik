@@ -109,7 +109,7 @@ int esrv_apply_container(object *op, object *sack)
 		else
 		{
 			/* Party corpse */
-			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && (CONTR(op)->party_number == -1 || CONTR(op)->party_number != sack->stats.maxhp))
+			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && (!CONTR(op)->party || sack->slaying != CONTR(op)->party->name))
 			{
 				new_draw_info_format(NDI_UNIQUE, 0, op, "It's not your party's bounty.");
 				return 0;

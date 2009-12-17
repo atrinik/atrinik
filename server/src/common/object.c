@@ -1603,9 +1603,9 @@ void drop_ob_inv(object *ob)
 			/* change sub_type to mark this corpse */
 			if (corpse->slaying)
 			{
-				if (CONTR(enemy)->party_number != -1)
+				if (CONTR(enemy)->party)
 				{
-					corpse->stats.maxhp = CONTR(enemy)->party_number;
+					corpse->slaying = CONTR(enemy)->party->name;
 					corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
 				}
 				else

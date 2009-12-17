@@ -65,6 +65,7 @@ ALL_FILES = \
 	book.h \
 	includes.h \
 	object.h \
+	party.h \
 	skills.h \
 	sockproto.h \
 	plugin.h \

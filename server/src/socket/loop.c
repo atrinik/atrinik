@@ -363,7 +363,7 @@ static void remove_ns_dead_player(player *pl)
 	}
 
 	/* If this player is in a party, leave the party */
-	if (pl->party_number != -1)
+	if (pl->party)
 	{
 		command_party(pl->ob, "leave");
 	}

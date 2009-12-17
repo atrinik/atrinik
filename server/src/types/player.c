@@ -178,10 +178,6 @@ static player *get_player(player *p)
 		memset((void *) ((char *) p + offsetof(player, maplevel)), 0, sizeof(player) - offsetof(player, maplevel));
 	}
 
-	/* There are some elements we want initialized to non zero value -
-	 * we deal with that below this point. */
-	p->party_number = -1;
-
 #ifdef AUTOSAVE
 	p->last_save_tick = 9999999;
 #endif
@@ -1920,7 +1916,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 int pvp_area(object *attacker, object *victim)
 {
 	/* No attacking of party members. */
-	if (attacker && victim && attacker->type == PLAYER && victim->type == PLAYER && CONTR(attacker)->party_number != -1 && CONTR(victim)->party_number != -1 && CONTR(attacker)->party_number == CONTR(victim)->party_number)
+	if (attacker && victim && attacker->type == PLAYER && victim->type == PLAYER && CONTR(attacker)->party != NULL && CONTR(victim)->party != NULL && CONTR(attacker)->party == CONTR(victim)->party)
 	{
 		return 0;
 	}

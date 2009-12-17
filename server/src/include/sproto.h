@@ -134,6 +134,8 @@ void receive_player_name(object *op);
 void receive_player_password(object *op);
 int command_save(object *op, char *params);
 int command_afk(object *op, char *params);
+int command_gsay(object *op, char *params);
+int command_party(object *op, char *params);
 
 /* c_move.c */
 int command_east(object *op, char *params);
@@ -188,17 +190,6 @@ void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
 int execute_newserver_command(object *pl, char *command);
 emotes_array *find_emote(int emotion, emotes_array *commarray, int commsize);
-
-/* c_party.c */
-partylist *form_party(object *op, char *params, partylist *firstparty, partylist *lastparty);
-char *find_party(int partynumber, partylist *party);
-partylist *find_party_struct(int partynumber);
-void remove_party(partylist *target_party);
-void obsolete_parties();
-void send_party_message(object *op, char *msg, int flag);
-int command_gsay(object *op, char *params);
-int command_party(object *op, char *params);
-void PartyCmd(char *buf, int len, player *pl);
 
 /* c_range.c */
 int command_cast_spell(object *op, char *params);
@@ -303,6 +294,15 @@ int try_fit(object *op, int x, int y);
 int roll_ob(object *op, int dir, object *pusher);
 int push_roll_object(object *op, int dir);
 int missile_reflection_adjust(object *op, int flag);
+
+/* party.c */
+void add_party_member(partylist_struct *party, object *op);
+void remove_party_member(partylist_struct *party, object *op);
+partylist_struct *make_party(char *name);
+partylist_struct *find_party(char *name);
+void send_party_message(partylist_struct *party, char *msg, int flag, object *op);
+void remove_party(partylist_struct *party);
+void PartyCmd(char *buf, int len, player *pl);
 
 /* pets.c */
 object *get_pet_enemy(object *pet, rv_vector *rv);

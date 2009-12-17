@@ -621,7 +621,7 @@ static int is_legal_2ways_exit(object* op, object *exit)
 				return 1;
 			}
 
-			if (exit_owner && (CONTR(op)) && ((CONTR(exit_owner)->party_number <= 0) || (CONTR(exit_owner)->party_number != CONTR(op)->party_number)))
+			if (exit_owner && CONTR(op) && (!CONTR(exit_owner)->party || CONTR(exit_owner)->party != CONTR(op)->party))
 			{
 				return 0;
 			}

@@ -190,6 +190,7 @@ typedef struct linked_char
 #include "skills.h"
 
 #include "player_shop.h"
+#include "party.h"
 
 /* Pull in the player structure */
 #include "player.h"

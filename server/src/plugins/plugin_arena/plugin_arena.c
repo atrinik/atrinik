@@ -498,7 +498,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 				return 1;
 			}
 			/* Not full but it's party arena and the player is not in a party? */
-			else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && CONTR(who)->party_number == -1)
+			else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 			{
 				hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
 
@@ -519,7 +519,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 					for (player_list_party = arena_maps_tmp->player_list; player_list_party; player_list_party = player_list_party->next)
 					{
 						/* If we found a match for this party number, do not increase the count */
-						if (CONTR(who)->party_number == CONTR(player_list_party->op)->party_number && CONTR(who)->party_number != -1)
+						if (CONTR(who)->party && CONTR(who)->party == CONTR(player_list_party->op)->party)
 						{
 							new_party = 0;
 							break;
@@ -566,7 +566,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 		return 1;
 	}
 	/* Otherwise if not full and the player is not in party */
-	else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && CONTR(who)->party_number == -1)
+	else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 	{
 		hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
 
@@ -713,7 +713,7 @@ static int arena_leave(object *who)
 				for (player_list_party = arena_maps_tmp->player_list; player_list_party; player_list_party = player_list_party->next)
 				{
 					/* If the party number matches, we're not going to remove this party */
-					if (CONTR(who)->party_number == CONTR(player_list_party->op)->party_number && CONTR(who)->party_number != -1)
+					if (CONTR(who)->party && CONTR(who)->party == CONTR(player_list_party->op)->party)
 					{
 						remove_party = 0;
 						break;

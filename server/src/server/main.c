@@ -1254,9 +1254,6 @@ static void do_specials()
 
 	if (!(pticks % 5003))
 		write_book_archive();
-
-	if (!(pticks % 5011))
-		obsolete_parties();
 }
 
 /**

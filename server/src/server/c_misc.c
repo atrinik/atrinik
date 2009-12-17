@@ -581,3 +581,103 @@ int command_afk(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * Command shortcut to /party say.
+ * @param op Object requesting this.
+ * @param params Command paramaters (the message).
+ * @return 1 on success, 0 on failure. */
+int command_gsay(object *op, char *params)
+{
+	char party_params[MAX_BUF];
+
+	params = cleanup_chat_string(params);
+
+	if (!params || *params == '\0')
+	{
+		return 0;
+	}
+
+	strcpy(party_params, "say ");
+	strcat(party_params, params);
+	command_party(op, party_params);
+	return 0;
+}
+
+/**
+ * Party command, handling things like /party help, /party say, /party
+ * leave, etc.
+ * @param op Object requesting this.
+ * @param params Command parameters.
+ * @return Always returns 1. */
+int command_party(object *op, char *params)
+{
+	char buf[MAX_BUF];
+
+	if (params == NULL)
+	{
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE, 0, op, "For help try: /party help");
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You are a member of party %s.", CONTR(op)->party->name);
+		}
+
+		return 1;
+	}
+
+	if (strcmp(params, "help") == 0)
+	{
+		new_draw_info(NDI_UNIQUE, 0, op, "To form a party type: /party form <partyname>");
+		new_draw_info(NDI_UNIQUE, 0, op, "To join a party type: /party join <partyname>");
+		new_draw_info(NDI_UNIQUE, 0, op, "If the party has a password, it will prompt you for it.");
+		new_draw_info(NDI_UNIQUE, 0, op, "For a list of current parties type: /party list");
+		new_draw_info(NDI_UNIQUE, 0, op, "To leave a party type: /party leave");
+		new_draw_info(NDI_UNIQUE, 0, op, "To change a password for a party type: /party password <password>");
+		new_draw_info(NDI_UNIQUE, 0, op, "There is a 8 character max for password.");
+		new_draw_info(NDI_UNIQUE, 0, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
+		new_draw_info(NDI_UNIQUE, 0, op, "To see who is in your party: /party who");
+		return 1;
+	}
+	else if (strncmp(params, "say ", 4) == 0)
+	{
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		params += 4;
+		params = cleanup_chat_string(params);
+
+		if (!params || *params == '\0')
+		{
+			return 1;
+		}
+
+		snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
+		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, NULL);
+		LOG(llevInfo, "CLOG PARTY: %s [%s] >%s<\n", query_name(op, NULL), CONTR(op)->party->name, params);
+		return 1;
+	}
+	else if (strcmp(params, "leave") == 0)
+	{
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		new_draw_info_format(NDI_UNIQUE, 0, op, "You leave party %s.", CONTR(op)->party->name);
+		snprintf(buf, sizeof(buf), "%s leaves party %s.", op->name, CONTR(op)->party->name);
+		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op);
+
+		remove_party_member(CONTR(op)->party, op);
+		return 1;
+	}
+
+	return 1;
+}

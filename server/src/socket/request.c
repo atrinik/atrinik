@@ -1154,7 +1154,7 @@ void draw_client_map(object *pl)
  * @return NDI_WHITE if no custom color, otherwise other NDI color */
 static int get_playername_color(object *pl, object *op)
 {
-	if (CONTR(pl)->party_number != -1 && CONTR(op)->party_number != -1 && CONTR(pl)->party_number == CONTR(op)->party_number)
+	if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party)
 	{
 		return NDI_GREEN;
 	}

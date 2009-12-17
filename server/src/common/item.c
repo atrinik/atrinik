@@ -418,11 +418,11 @@ char *query_short_name(object *op, object *caller)
 			{
 				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
 				{
-					if (op->stats.maxhp)
+					if (op->slaying)
 					{
-						if (!caller)
+						if (!caller || caller->type != PLAYER)
 							safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
-						else if (CONTR(caller)->party_number != -1 && CONTR(caller)->party_number == op->stats.maxhp)
+						else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying)
 						{
 							safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
 
@@ -717,11 +717,11 @@ char *query_base_name(object *op, object *caller)
 			{
 				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
 				{
-					if (op->stats.maxhp)
+					if (op->slaying)
 					{
-						if (!caller)
+						if (!caller || caller->type != PLAYER)
 							safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
-						else if (CONTR(caller)->party_number != -1 && CONTR(caller)->party_number == op->stats.maxhp)
+						else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying)
 						{
 							safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
 

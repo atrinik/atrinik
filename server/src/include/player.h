@@ -93,45 +93,6 @@ enum
 	PLAYER_EQUIP_MAX
 };
 
-/**
- * @defgroup PARTY_MESSAGE_xxx Party message types
- * Party message types.
- *@{*/
-
-/** Status is used for party messages like password change, join/leave,
- * etc */
-#define PARTY_MESSAGE_STATUS 	1
-/** Chat is used for party chat messages from party members */
-#define PARTY_MESSAGE_CHAT 		2
-/*@}*/
-
-/**
- * Party structure.
- * @todo Move this to a new file, party.h */
-typedef struct party_struct
-{
-	/** ID of the party. */
-	sint16 partyid;
-
-	/** Name of the party leader */
-	const char *partyleader;
-
-	/** Password this party requires */
-	char passwd[7];
-
-	/** Name of the party */
-	char *partyname;
-
-	/** Total experience gained */
-	uint32 total_exp;
-
-	/** Total of kills */
-	uint32 kills;
-
-	/** Next party in the list */
-	struct party_struct *next;
-} partylist;
-
 /* we can include more flags here... */
 #define PLAYER_AFLAG_NO 0
 #define PLAYER_AFLAG_FIGHT 1	/* if this flag is set, show player fight animation */
@@ -464,9 +425,6 @@ typedef struct pl_player
 
 	uint16 last_gen_grace;
 
-	/** ID of the party the player is in. */
-	sint16 party_number;
-
 	/** Condition adjusted damage sent to client */
 	sint16 client_dam;
 
@@ -519,6 +477,9 @@ typedef struct pl_player
 	 * Player shop structure, with linked list of items the player is
 	 * selling. */
 	player_shop *shop_items;
+
+	/** Pointer to the party this player is member of. */
+	partylist_struct *party;
 } player;
 
 #ifdef WIN32
