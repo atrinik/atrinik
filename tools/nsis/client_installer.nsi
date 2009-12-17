@@ -57,7 +57,7 @@ Section "Client (required)"
 
   CreateDirectory $INSTDIR\settings
   SetOutPath $INSTDIR\settings
-  File "settings\*.*"
+;  File "settings\*.*"
 
   CreateDirectory $INSTDIR\sfx
   SetOutPath $INSTDIR\sfx
