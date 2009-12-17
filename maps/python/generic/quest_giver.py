@@ -19,7 +19,7 @@ if not options:
 	raise StandardError("No event options given. Must be path to the quests.py file for the island.")
 
 # Load the quests file
-execfile(CreatePathname(options))
+exec(open(CreatePathname(options)).read())
 
 for quest in quest_items:
 	## Initialize QuestManager for this quest.

@@ -2,7 +2,6 @@
 ## Used to test Python functions.
 
 from Atrinik import *
-from string import split
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -10,7 +9,7 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 msg = WhatIsMessage().lower()
-words = split(msg)
+words = msg.split()
 
 ## Find a marked object.
 marked = activator.FindMarkedObject()

@@ -10,7 +10,7 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 # Learn a skill.
 if text[0] == "learn":

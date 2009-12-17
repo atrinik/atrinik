@@ -3,14 +3,13 @@
 
 from Atrinik import *
 import string, os
-from inspect import currentframe
 
 ## Activator object.
 activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-execfile(os.path.dirname(currentframe().f_code.co_filename) + "/apartments.py")
+exec(open(CreatePathname("/python/generic/apartments.py")).read())
 
 ## Name of the apartment we're dealing with.
 apartment_id = GetOptions()

@@ -28,7 +28,7 @@ qm = QuestManager(activator, quest)
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 if text[0] == "archery" or text[0] == "chereth":
 	me.SayTo(activator, "\nYou should ask Chereth about the three archery skills.\nShe still teaches archery and her knowledge about it is superior.\nAfter she lost her eyes she was transferred to the Tutorial Island.");

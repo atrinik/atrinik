@@ -2,7 +2,6 @@
 ## Script used by the Spellgiver NPC in Developer Testmaps.
 
 from Atrinik import *
-import string
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -10,7 +9,7 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 # Learn a spell.
 if text[0] == "learn":

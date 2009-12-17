@@ -22,7 +22,7 @@ guildname = event_options[0]
 guild = Guild(guildname)
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 # Greeting section.
 if text[0] == "hi" or text[0] == "hey" or text[0] == "hello":

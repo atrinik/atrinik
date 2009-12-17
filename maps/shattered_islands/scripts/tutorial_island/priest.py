@@ -7,7 +7,6 @@
 
 from Atrinik import *
 import string, os
-from inspect import currentframe
 from QuestManager import QuestManager
 
 ## Activator object.
@@ -15,10 +14,10 @@ activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
+exec(open(CreatePathname("/shattered_islands/scripts/tutorial_island/quests.py")).read())
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 ## Initialize QuestManager.
 qm = QuestManager(activator, quest_items["priest_manard"]["info"])

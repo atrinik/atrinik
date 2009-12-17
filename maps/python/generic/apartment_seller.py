@@ -2,15 +2,14 @@
 ## Script for the apartment seller in Brynknot.
 
 from Atrinik import *
-import string, os
-from inspect import currentframe
+import os
 
 ## Activator object.
 activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-execfile(os.path.dirname(currentframe().f_code.co_filename) + "/apartments.py")
+exec(open(CreatePathname("/python/generic/apartments.py")).read())
 
 ## Name of the apartment we're dealing with.
 apartment_id = GetOptions()
@@ -22,7 +21,7 @@ apartments = apartments_info[apartment_id]["apartments"]
 apartment_tag = apartments_info[apartment_id]["tag"]
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 ## The apartment's info
 pinfo = activator.GetPlayerInfo(apartment_tag)
@@ -43,20 +42,21 @@ def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	if pinfo != None:
 		pinfo.last_heal = -1
 
-## Return the keys of a dictionary sorted by their values.
+## Comparing function for sort_apartments().
+def apartment_compare(x):
+	return apartments[x]["id"]
+
+## Sort apartments by their ID from dictionary.
 ## @param d The dictionary.
-## @return The sorted dictionary keys.
-def sort_by_value(d):
-	items = d.items()
-	backitems = [[v[1], v[0]] for v in items]
-	backitems.sort()
-	return [backitems[i][1] for i in range(0, len(backitems))]
+## @return The sorted list of apartments.
+def sort_apartments(d):
+	return sorted(d.keys(), key=apartment_compare)
 
 # Greeting
 if text[0] == "hello" or text[0] == "hi" or text[0] == "hey":
 	apartment_links = []
 
-	for apartment in sort_by_value(apartments):
+	for apartment in sort_apartments(apartments):
 		apartment_links.append("^%s^" % apartment)
 
 	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have %s ones." % ", ".join(apartment_links));
@@ -87,7 +87,7 @@ elif text[0] == "procedure":
 		upgrades = []
 		upgrade_links = []
 
-		for apartment in sort_by_value(apartments):
+		for apartment in sort_apartments(apartments):
 			if apartment != pinfo.slaying:
 				upgrades.append(apartment)
 				upgrade_links.append("^upgrade to %s apartment^" % apartment)

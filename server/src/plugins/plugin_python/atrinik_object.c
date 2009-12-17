@@ -511,54 +511,31 @@ static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
 /* Our actual Python ObjectType */
 PyTypeObject Atrinik_ObjectType =
 {
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
 	PyObject_HEAD_INIT(NULL)
-	0,                         /* ob_size*/
-	"Atrinik.Object",         /* tp_name*/
-	sizeof(Atrinik_Object),   /* tp_basicsize*/
-	0,                         /* tp_itemsize*/
-	(destructor)Atrinik_Object_dealloc, /* tp_dealloc*/
-	0,                         /* tp_print*/
-	0,                         /* tp_getattr*/
-	0,                         /* tp_setattr*/
-	0,                         /* tp_compare*/
-	0,                         /* tp_repr*/
-	0,                         /* tp_as_number*/
-	0,                         /* tp_as_sequence*/
-	0,                         /* tp_as_mapping*/
-	0,                         /* tp_hash */
-	0,                         /* tp_call*/
-	(reprfunc)Atrinik_Object_str,/* tp_str*/
-	0,                         /* tp_getattro*/
-	0,                         /* tp_setattro*/
-	0,                         /* tp_as_buffer*/
-	Py_TPFLAGS_DEFAULT,        /* tp_flags*/
-	"Atrinik objects",        /* tp_doc */
-	0,		                   /* tp_traverse */
-	0,		                   /* tp_clear */
-	0,		                   /* tp_richcompare */
-	0,		                   /* tp_weaklistoffset */
-	0,		                   /* tp_iter */
-	0,		                   /* tp_iternext */
-	ObjectMethods,             /* tp_methods */
-	0,                         /* tp_members */
-	Object_getseters,          /* tp_getset */
-	0,                         /* tp_base */
-	0,                         /* tp_dict */
-	0,                         /* tp_descr_get */
-	0,                         /* tp_descr_set */
-	0,                         /* tp_dictoffset */
-	0,                         /* tp_init */
-	0,                         /* tp_alloc */
-	Atrinik_Object_new,       /* tp_new */
 	0,
+#endif
+	"Atrinik.Object",
+	sizeof(Atrinik_Object),
 	0,
+	(destructor) Atrinik_Object_dealloc,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	(reprfunc) Atrinik_Object_str,
+	0, 0, 0,
+	Py_TPFLAGS_DEFAULT,
+	"Atrinik objects",
+	0, 0, 0, 0, 0, 0,
+	ObjectMethods,
 	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0
+	Object_getseters,
+	0, 0, 0, 0, 0, 0, 0,
+	Atrinik_Object_new,
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
 };
 
 
@@ -3224,28 +3201,28 @@ int Atrinik_Object_init(PyObject *module)
 {
 	int i, flagno;
 
-	/* field getseters */
+	/* Field getseters */
 	for (i = 0; i < (int) NUM_OBJFIELDS; i++)
 	{
 		PyGetSetDef *def = &Object_getseters[i];
 		def->name = obj_fields[i].name;
-		def->get = (getter)Object_GetAttribute;
-		def->set = (setter)Object_SetAttribute;
+		def->get = (getter) Object_GetAttribute;
+		def->set = (setter) Object_SetAttribute;
 		def->doc = NULL;
-		def->closure = (void *)i;
+		def->closure = (void *) i;
 	}
 
-	/* flag getseters */
+	/* Flag getseters */
 	for (flagno = 0; flagno < NUM_FLAGS; flagno++)
 	{
 		if (flag_names[flagno])
 		{
 			PyGetSetDef *def = &Object_getseters[i++];
 			def->name = flag_names[flagno];
-			def->get = (getter)Object_GetFlag;
-			def->set = (setter)Object_SetFlag;
+			def->get = (getter) Object_GetFlag;
+			def->set = (setter) Object_SetFlag;
 			def->doc = NULL;
-			def->closure = (void *)flagno;
+			def->closure = (void *) flagno;
 		}
 	}
 
@@ -3255,43 +3232,46 @@ int Atrinik_Object_init(PyObject *module)
 	for (i = 0; object_constants[i].name; i++)
 	{
 		if (PyModule_AddIntConstant(module, object_constants[i].name, object_constants[i].value))
+		{
 			return -1;
+		}
 	}
 
 	Atrinik_ObjectType.tp_new = PyType_GenericNew;
-	if (PyType_Ready(&Atrinik_ObjectType) < 0)
-		return -1;
 
-#if 0
-	Py_INCREF(&Atrinik_ObjectType);
-#endif
+	if (PyType_Ready(&Atrinik_ObjectType) < 0)
+	{
+		return -1;
+	}
+
 	return 0;
 }
 
 /* Create a new Object wrapper (uninitialized) */
 static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	Atrinik_Object *self;
+	Atrinik_Object *self = (Atrinik_Object *) type->tp_alloc(type, 0);
 
 	(void) args;
 	(void) kwds;
 
-	self = (Atrinik_Object *)type->tp_alloc(type, 0);
-
 	if (self)
+	{
 		self->obj = NULL;
+	}
 
-	return (PyObject *)self;
+	return (PyObject *) self;
 }
 
 /* Free an Object wrapper */
 static void Atrinik_Object_dealloc(Atrinik_Object* self)
 {
-	/* Clean up "dangling" objects
-	 * i.e. objects with no environment (from obj.Clone()) or removed objects */
-
 	self->obj = NULL;
-	self->ob_type->tp_free((PyObject*)self);
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
 }
 
 /** Return a string representation of this object (useful for debugging) */
@@ -3319,5 +3299,5 @@ PyObject * wrap_object(object *what)
 		wrapper->obj = what;
 	}
 
-	return (PyObject *)wrapper;
+	return (PyObject *) wrapper;
 }

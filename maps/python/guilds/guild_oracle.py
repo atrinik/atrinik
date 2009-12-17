@@ -18,7 +18,7 @@ guildname = GetOptions()
 guild = Guild(guildname)
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 # Only allow administrators or DMs to use this script.
 if not guild.is_administrator(activator.name) and not activator.f_wiz:

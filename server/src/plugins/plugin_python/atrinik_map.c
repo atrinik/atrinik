@@ -128,131 +128,31 @@ static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
 
 PyTypeObject Atrinik_MapType =
 {
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
 	PyObject_HEAD_INIT(NULL)
-
-	/* ob_size */
 	0,
-
-	/* tp_name */
+#endif
 	"Atrinik.Map",
-
-	/* tp_basicsize */
 	sizeof(Atrinik_Map),
-
-	/* tp_itemsize */
 	0,
-
-	/* tp_dealloc */
-	(destructor)Atrinik_Map_dealloc,
-
-	/* tp_print */
-	0,
-
-	/* tp_getattr */
-	0,
-
-	/* tp_setattr */
-	0,
-
-	/* tp_compare */
-	0,
-
-	/* tp_repr */
-	0,
-
-	/* tp_as_number */
-	0,
-
-	/* tp_as_sequence */
-	0,
-
-	/* tp_as_mapping */
-	0,
-
-	/* tp_hash */
-	0,
-
-	/* tp_call */
-	0,
-
-	/* tp_str */
-	(reprfunc)Atrinik_Map_str,
-
-	/* tp_getattro */
-	0,
-
-	/* tp_setattro */
-	0,
-
-	/* tp_as_buffer */
-	0,
-
-	/* tp_flags */
+	(destructor) Atrinik_Map_dealloc,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	(reprfunc) Atrinik_Map_str,
+	0, 0, 0,
 	Py_TPFLAGS_DEFAULT,
-
-	/* tp_doc */
 	"Atrinik maps",
-
-	/* tp_traverse */
-	0,
-
-	/* tp_clear */
-	0,
-
-	/* tp_richcompare */
-	0,
-
-	/* tp_weaklistoffset */
-	0,
-
-	/* tp_iter */
-	0,
-
-	/* tp_iternext */
-	0,
-
-	/* tp_methods */
+	0, 0, 0, 0, 0, 0,
 	MapMethods,
-
-	/* tp_members */
 	0,
-
-	/* tp_getset */
 	Map_getseters,
-
-	/* tp_base */
-	0,
-
-	/* tp_dict */
-	0,
-
-	/* tp_descr_get */
-	0,
-
-	/* tp_descr_set */
-	0,
-
-	/* tp_dictoffset */
-	0,
-
-	/* tp_init */
-	0,
-
-	/* tp_alloc */
-	0,
-
-	/* tp_new */
+	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Map_new,
-
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
 };
 
 /**
@@ -549,10 +449,6 @@ int Atrinik_Map_init(PyObject *module)
 		return -1;
 	}
 
-#if 0
-	Py_INCREF(&Atrinik_MapType);
-#endif
-
 	return 0;
 }
 
@@ -578,17 +474,17 @@ static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *k
 static void Atrinik_Map_dealloc(Atrinik_Map *self)
 {
 	self->map = NULL;
-	self->ob_type->tp_free((PyObject*) self);
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
 }
 
 /* Return a string representation of this map (useful for debugging) */
 static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 {
-	char buf[HUGE_BUF];
-
-	strcpy(buf, self->map->name);
-
-	return PyString_FromFormat("[%s \"%s\"]", self->map->path, buf);
+	return PyString_FromFormat("[%s \"%s\"]", self->map->path, self->map->name);
 }
 
 /* Utility method to wrap a map. */

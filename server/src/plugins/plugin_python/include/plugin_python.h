@@ -23,65 +23,51 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/*****************************************************************************/
-/* This is a remake of CFPython module from Crossfire. The big changes done  */
-/* are the addition of real object and map objects with methods and attribs. */
-/* The attributes made it possible to remove almost all Set and Get          */
-/* and the separation of functions into class methods led to the split into  */
-/* three c files for better overview.                                        */
-/* Below is the original blurb from CFPython.                                */
-/*****************************************************************************/
-/* Atrinik Python Plugin 1.0 - feb 2004                              */
-/* Bjorn Axelsson                                                            */
-/* Contact: gecko-at-acc.umu.se                                              */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/* CFPython - A Python module for Atrinik (Crossfire) RPG.                  */
-/*****************************************************************************/
-/* The goal of this module is to provide support for Python scripts into     */
-/* Crossfire. Guile support existed before, but it was put directly in the   */
-/* code, a thing that prevented easy building of Crossfire on platforms that */
-/* didn't have a Guile port. And Guile was seen as difficult to learn and was*/
-/* also less popular than Python in the Crossfire Community.                 */
-/* So, I finally decided to replace Guile with Python and made it a separate */
-/* module since it is not a "critical part" of the code. Of course, it also  */
-/* means that it will never be as fast as it could be, but it allows more    */
-/* flexibility (and although it is not as fast as compiled-in code, it should*/
-/* be fast enough for nearly everything on most today computers).            */
-/*****************************************************************************/
-/* Please note that it is still very beta - some of the functions may not    */
-/* work as expected and could even cause the server to crash.                */
-/*****************************************************************************/
-/* Version: 0.6 Beta  (also known as "Kharkov")                              */
-/* Contact: yann.chachkoff@mailandnews.com                                   */
-/*****************************************************************************/
-/* That code is placed under the GNU General Public Licence (GPL)            */
-/* (C)2001 by Chachkoff Yann (Feel free to deliver your complaints)          */
-/*****************************************************************************/
-
 #ifndef PLUGIN_PYTHON_H
 #define PLUGIN_PYTHON_H
 
-/* First the required header files - only the CF module interface and Python */
 #include <Python.h>
 #include <plugin.h>
 
+/* This is for allowing both python 3 and python 2. */
+#if PY_MAJOR_VERSION >= 3
+#	define IS_PY3K
+#else
+#	if PY_MINOR_VERSION >= 6
+#		define IS_PY26
+#	else
+#		define IS_PY_LEGACY
+#	endif
+#	if PY_MINOR_VERSION >= 5
+#		define IS_PY25
+#	endif
+#endif
+
+/* Fake some Python 2.x functions for Python 3.x */
+#ifdef IS_PY3K
+#	define PyString_Check PyUnicode_Check
+#	define PyString_AsString _PyUnicode_AsString
+#	define PyString_FromFormat PyBytes_FromFormat
+#	define PyInt_Check PyLong_Check
+#	define PyInt_AsLong PyLong_AsLong
+#endif
+
 #undef MODULEAPI
+
 #ifdef WIN32
-#ifdef PYTHON_PLUGIN_EXPORTS
-#define MODULEAPI __declspec(dllexport)
+#	ifdef PYTHON_PLUGIN_EXPORTS
+#		define MODULEAPI __declspec(dllexport)
+#	else
+#		define MODULEAPI __declspec(dllimport)
+#	endif
 #else
-#define MODULEAPI __declspec(dllimport)
-#endif /* ifdef PYTHON_PLUGIN_EXPORTS */
-#else
-#define MODULEAPI
-#endif /* ifdef WIN32 */
+#	define MODULEAPI
+#endif
 
 /* give us some general infos out */
 #define PYTHON_DEBUG
 
-#define PLUGIN_NAME    "Python"
+#define PLUGIN_NAME "Python"
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
 
 struct plugin_hooklist *hooks;
@@ -101,7 +87,7 @@ struct plugin_hooklist *hooks;
 #define FREE_AND_CLEAR_HASH(_nv_) {if(_nv_){hooks->free_string_shared(_nv_);_nv_ =NULL;}}
 
 /* A generic exception that we use for error messages */
-extern PyObject* AtrinikError;
+extern PyObject *AtrinikError;
 
 /* Quick access to the exception. Use only in functions supposed to return pointers */
 #define RAISE(msg) { PyErr_SetString(AtrinikError, (msg)); return NULL; }
@@ -130,46 +116,56 @@ extern int StackParm4[MAX_RECURSIVE_CALL];
 extern int StackReturn[MAX_RECURSIVE_CALL];
 extern char *StackOptions[MAX_RECURSIVE_CALL];
 
-/* Type used for numeric constants */
+/** Type used for numeric constants */
 typedef struct
 {
 	char *name;
 	int value;
 } Atrinik_Constant;
 
-/* Types used in objects and maps structs */
+/** Types used in objects and maps structs */
 typedef enum
 {
-	FIELDTYPE_SHSTR, /* Pointer to shared string */
-	FIELDTYPE_CSTR,  /* Pointer to C string */
-	FIELDTYPE_CARY,  /* C string (array directly in struct) */
+	/* Pointer to shared string */
+	FIELDTYPE_SHSTR,
+	/* Pointer to C string */
+	FIELDTYPE_CSTR,
+	/* C string (array directly in struct) */
+	FIELDTYPE_CARY,
 	FIELDTYPE_UINT8, FIELDTYPE_SINT8,
 	FIELDTYPE_UINT16, FIELDTYPE_SINT16,
 	FIELDTYPE_UINT32, FIELDTYPE_SINT32,
 	FIELDTYPE_UINT64, FIELDTYPE_SINT64,
 	FIELDTYPE_FLOAT,
 	FIELDTYPE_OBJECT, FIELDTYPE_MAP,
-	FIELDTYPE_OBJECTREF /* object pointer + tag */
+	/* object pointer + tag */
+	FIELDTYPE_OBJECTREF
 } field_type;
 
-/* Special flags for object attribute access */
-#define FIELDFLAG_READONLY        1 /* changing value not allowed */
-#define FIELDFLAG_PLAYER_READONLY 2 /* changing value is not allowed if object is a player */
-#define FIELDFLAG_PLAYER_FIX      4 /* fix player or monster after change */
 
-/* Public AtrinikObject related functions and types */
+/**
+ * @defgroup FIELDFLAG_xxx Field flags
+ * Special flags for object attribute access.
+ *@{*/
+/** Changing value not allowed. */
+#define FIELDFLAG_READONLY        1
+/** Changing value is not allowed if object is a player. */
+#define FIELDFLAG_PLAYER_READONLY 2
+/** Fix player or monster after change */
+#define FIELDFLAG_PLAYER_FIX      4
+/*@}*/
+
 extern PyTypeObject Atrinik_ObjectType;
-
 extern PyObject *wrap_object(object *what);
 extern int Atrinik_Object_init(PyObject *module);
 
 typedef struct
 {
 	PyObject_HEAD
-	object *obj; /* Pointer to the Atrinik object we wrap */
+	/* Pointer to the Atrinik object we wrap */
+	object *obj;
 } Atrinik_Object;
 
-/* Public AtrinikMap related functions and types */
 extern PyTypeObject Atrinik_MapType;
 
 extern PyObject *wrap_map(mapstruct *map);
@@ -178,7 +174,8 @@ extern int Atrinik_Map_init(PyObject *module);
 typedef struct
 {
 	PyObject_HEAD
-	mapstruct *map;  /* Pointer to the Atrinik map we wrap */
+	/* Pointer to the Atrinik map we wrap */
+	mapstruct *map;
 } Atrinik_Map;
 
 extern PyTypeObject Atrinik_PartyType;
@@ -192,30 +189,24 @@ typedef struct
 	partylist_struct *party;
 } Atrinik_Party;
 
-/*****************************************************************************/
-/* Commands management part.                                                 */
-/* It is now possible to add commands to crossfire. The following stuff was  */
-/* created to handle such commands.                                          */
-/*****************************************************************************/
-
-/* The "About Python" stuff. Bound to "python" command.                      */
-extern MODULEAPI int cmd_aboutPython(object *op, char *params);
-/* The following one handles all custom Python command calls.                */
 extern MODULEAPI int cmd_customPython(object *op, char *params);
 
-/* This structure is used to define one python-implemented crossfire command.*/
+/** This structure is used to define one Python-implemented command. */
 typedef struct PythonCmdStruct
 {
-	char *name;    /* The name of the command, as known in the game.    */
-	char *script;  /* The name of the script file to bind.              */
-	double speed;   /* The speed of the command execution.                   */
+	/** The name of the command, as known in the game. */
+	char *name;
+
+	/** The name of the script file to bind. */
+	char *script;
+
+	/** The speed of the command execution. */
+	double speed;
 } PythonCmd;
 
-/* This plugin allows up to 1024 custom commands.                            */
+/** Number of custom commands to allow. */
 #define NR_CUSTOM_CMD 1024
 extern PythonCmd CustomCommand[NR_CUSTOM_CMD];
-/* This one contains the index of the next command that needs to be run. I do*/
-/* not like the use of such a global variable, but it is the most convenient */
-/* way I found to pass the command index to cmd_customPython.                */
 extern int NextCustomCommand;
+
 #endif

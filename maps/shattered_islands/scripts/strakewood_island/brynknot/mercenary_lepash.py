@@ -28,7 +28,7 @@ qm = QuestManager(activator, quest)
 eobj = activator.GetSkill(TYPE_EXPERIENCE, EXP_PHYSICAL)
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 if text[0] == "home":
 	me.SayTo(activator, "\nYes, we still have heavy logistic problems.\nWe don't have half the men we need to control half of the area we should.\nWe don't have enough supply and enough rooms.\nWell, it means all is normal if you do such a heavy invasion like we're doing at the moment.");

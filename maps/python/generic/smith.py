@@ -3,7 +3,6 @@
 ## etc.
 
 from Atrinik import *
-import string
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -11,7 +10,7 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 ## Dictionary of all possible costs of services. Based on player's level.
 costs = {

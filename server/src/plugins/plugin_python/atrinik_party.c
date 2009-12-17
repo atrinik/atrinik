@@ -80,8 +80,12 @@ static PyGetSetDef Party_getseters[NUM_PARTYFIELDS + 1];
 
 PyTypeObject Atrinik_PartyType =
 {
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
 	PyObject_HEAD_INIT(NULL)
 	0,
+#endif
 	"Atrinik.Party",
 	sizeof(Atrinik_Party),
 	0,
@@ -97,7 +101,10 @@ PyTypeObject Atrinik_PartyType =
 	Party_getseters,
 	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Party_new,
-	0, 0, 0, 0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
 };
 
 /**
@@ -366,7 +373,11 @@ static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject 
 static void Atrinik_Party_dealloc(Atrinik_Party *self)
 {
 	self->party = NULL;
-	self->ob_type->tp_free((PyObject*) self);
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
 }
 
 /* Return a string representation of this party (useful for debugging) */

@@ -10,7 +10,7 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 ## Player info tag of the bank object.
 pinfo_tag = "BANK_GENERAL"

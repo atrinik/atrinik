@@ -59,9 +59,9 @@ changequote([, ])dnl
 AC_MSG_RESULT($PYTHON_VER)
 AC_SUBST(PYTHON_VER)
 
-if test $PYTHON_VERSION -lt 24; then
-	echo "Sorry, you need to have Python 2.4 or higher installed."
-    AC_MSG_ERROR([Python 2.4 or higher required])
+if test $PYTHON_VERSION -lt 25; then
+	echo "Sorry, you need to have Python 2.5 or higher installed."
+    AC_MSG_ERROR([Python 2.5 or higher required])
 fi
 
 dnl ----------------------------------------------

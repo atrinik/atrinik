@@ -15,13 +15,13 @@ activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-execfile(os.path.dirname(currentframe().f_code.co_filename) + "/quests.py")
+exec(open(CreatePathname("/shattered_islands/scripts/tutorial_island/quests.py")).read())
 
 ## Guild name
 guild_tag = "Mercenary"
 
 msg = WhatIsMessage().strip().lower()
-text = string.split(msg)
+text = msg.split()
 
 ## Initialize QuestManager.
 qm = QuestManager(activator, quest_items["mercenary_jahrlen"]["info"])

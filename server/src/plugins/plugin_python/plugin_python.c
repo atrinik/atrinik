@@ -27,35 +27,6 @@
  * @file
  * Atrinik python plugin. */
 
-/*****************************************************************************/
-/* Atrinik - A Python module for Atrinik RPG.                                */
-/*****************************************************************************/
-/* The goal of this module is to provide support for Python scripts into     */
-/* Atrinik. Python is here used in a extended way as a generic plugin.       */
-/* Thats not a fast way to use this - but extrem flexible (we can load/      */
-/* change and test script over and over in a running server) and easy to     */
-/* extend - we simply don't add somewhere code in the server except some     */
-/* jump points for the plugin model - if we want change someone the script   */
-/* language or add another - it will not change anything in the plugin       */
-/* interface.                                                                */
-/*****************************************************************************/
-/* Please note that it is still very beta - some of the functions may not    */
-/* work as expected and could even cause the server to crash.                */
-/*****************************************************************************/
-/* Version history:                                                          */
-/* 0.1 "Ophiuchus"   - Initial Alpha release                                 */
-/* 0.5 "Stalingrad"  - Message length overflow corrected.                    */
-/* 0.6 "Kharkov"     - Message and Write correctly redefined.                */
-/* 0.x "xxx"         - Work in progress                                      */
-/*****************************************************************************/
-/* Version: 0.6 Beta (also known as "Kharkov")                               */
-/*****************************************************************************/
-/* That code is placed under the GNU General Public Licence (GPL)            */
-/* (C)2001 by Chachkoff Yann (Feel free to deliver your complaints)          */
-/*****************************************************************************/
-
-/* First let's include the header file needed                                */
-
 #include <plugin_python.h>
 
 #include <compile.h>
@@ -69,30 +40,8 @@
 /** Hooks. */
 struct plugin_hooklist *hooks;
 
-/* A generic exception that we use for error messages */
+/** A generic exception that we use for error messages */
 PyObject *AtrinikError;
-
-/* Atrinik methods */
-static PyObject *Atrinik_MatchString(PyObject *self, PyObject *args);
-static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args);
-static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args);
-static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args);
-static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args);
-static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args);
-static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args);
-static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args);
-static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args);
-static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args);
-static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args);
-static PyObject *Atrinik_CheckMap(PyObject *self, PyObject *args);
-static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args);
-static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args);
-static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args);
-static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args);
-static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args);
-static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args);
-static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args);
-static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args);
 
 /* The execution stack. Altough it is quite rare, a script can actually      */
 /* trigger another script. The stack is used to keep track of those multiple */
@@ -113,34 +62,6 @@ int StackReturn[MAX_RECURSIVE_CALL];
 char* StackOptions[MAX_RECURSIVE_CALL];
 
 /**
- * Here is the Python Declaration Table, used by the interpreter to make
- * an interface with the C code. */
-static PyMethodDef AtrinikMethods[] =
-{
-	{"LoadObject",       Atrinik_LoadObject,          METH_VARARGS, 0},
-	{"ReadyMap",         Atrinik_ReadyMap,            METH_VARARGS, 0},
-	{"CheckMap",         Atrinik_CheckMap,            METH_VARARGS, 0},
-	{"MatchString",      Atrinik_MatchString,         METH_VARARGS, 0},
-	{"FindPlayer",       Atrinik_FindPlayer,          METH_VARARGS, 0},
-	{"PlayerExists",     Atrinik_PlayerExists,        METH_VARARGS, 0},
-	{"GetOptions",       Atrinik_GetOptions,          METH_VARARGS, 0},
-	{"GetReturnValue",   Atrinik_GetReturnValue,      METH_VARARGS, 0},
-	{"SetReturnValue",   Atrinik_SetReturnValue,      METH_VARARGS, 0},
-	{"GetSpellNr",       Atrinik_GetSpellNr,          METH_VARARGS, 0},
-	{"GetSkillNr",       Atrinik_GetSkillNr,          METH_VARARGS, 0},
-	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
-	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},
-	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
-	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
-	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
-	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
-	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
-	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
-	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
-
-/**
  * @anchor plugin_python_constants
  * Useful constants */
 static Atrinik_Constant module_constants[] =
@@ -156,8 +77,9 @@ static Atrinik_Constant module_constants[] =
 	{NULL, 0}
 };
 
-/* Commands management part */
+/** All the custom commands. */
 PythonCmd CustomCommand[NR_CUSTOM_CMD];
+/** Contains the index of the next command that needs to be run. */
 int NextCustomCommand;
 
 /* Stuff for python bytecode cache */
@@ -753,9 +675,46 @@ MODULEAPI int HandleGlobalEvent(int event_type, va_list args)
 	return 0;
 }
 
-/********************************************************************/
-/* Execute a script, handling loading, parsing and caching          */
-/********************************************************************/
+/**
+ * Open a Python file. */
+static PyObject *python_openfile(char *filename)
+{
+	PyObject *scriptfile;
+#ifdef IS_PY3K
+	int fd = open(filename, O_RDONLY);
+
+	if (fd == -1)
+	{
+		return NULL;
+	}
+
+	scriptfile = PyFile_FromFd(fd, filename, "r", -1, NULL, NULL, NULL, 1);
+#else
+	if (!(scriptfile = PyFile_FromString(filename, "r")))
+	{
+		return NULL;
+	}
+#endif
+
+	return scriptfile;
+}
+
+/**
+ * Return a file object from a Python file. */
+static FILE *python_pyfile_asfile(PyObject* obj)
+{
+#ifdef IS_PY3K
+	return fdopen(PyObject_AsFileDescriptor(obj), "r");
+#else
+	return PyFile_AsFile(obj);
+#endif
+}
+
+/**
+ * Execute a script, handling loading, parsing and caching.
+ * @param path Path to the script.
+ * @param event_object Event object.
+ * @return  */
 static int RunPythonScript(const char *path, object *event_object)
 {
 	PyObject *scriptfile;
@@ -791,7 +750,7 @@ static int RunPythonScript(const char *path, object *event_object)
 
 	if (maintenance_mode)
 	{
-		if (!(scriptfile = PyFile_FromString(fullpath, "r")))
+		if (!(scriptfile = python_openfile(fullpath)))
 		{
 			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			return -1;
@@ -881,14 +840,14 @@ static int RunPythonScript(const char *path, object *event_object)
 #ifdef PYTHON_DEBUG
 		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
 #endif
-		if (!scriptfile && !(scriptfile = PyFile_FromString(fullpath, "r")))
+		if (!scriptfile && !(scriptfile = python_openfile(fullpath)))
 		{
 			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
 			replace->code = NULL;
 		}
 		else
 		{
-			FILE *pyfile = PyFile_AsFile(scriptfile);
+			FILE *pyfile = python_pyfile_asfile(scriptfile);
 
 			if ((n = PyParser_SimpleParseFile(pyfile, fullpath, Py_file_input)))
 			{
@@ -1111,14 +1070,6 @@ MODULEAPI int cmd_customPython(object *op, char *params)
 	return StackReturn[StackPosition--];
 }
 
-MODULEAPI int cmd_aboutPython(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-
-	return 0;
-}
-
 /*****************************************************************************/
 /* The postinitPlugin function is called by the server when the plugin load  */
 /* is complete. It lets the opportunity to the plugin to register some events*/
@@ -1133,9 +1084,55 @@ MODULEAPI void postinitPlugin()
 	RunPythonScript("python/events/python_init.py", NULL);
 }
 
-/*****************************************************************************/
-/* Initializes the Python Interpreter.                                       */
-/*****************************************************************************/
+/**
+ * Here is the Python Declaration Table, used by the interpreter to make
+ * an interface with the C code. */
+static PyMethodDef AtrinikMethods[] =
+{
+	{"LoadObject",       Atrinik_LoadObject,          METH_VARARGS, 0},
+	{"ReadyMap",         Atrinik_ReadyMap,            METH_VARARGS, 0},
+	{"CheckMap",         Atrinik_CheckMap,            METH_VARARGS, 0},
+	{"MatchString",      Atrinik_MatchString,         METH_VARARGS, 0},
+	{"FindPlayer",       Atrinik_FindPlayer,          METH_VARARGS, 0},
+	{"PlayerExists",     Atrinik_PlayerExists,        METH_VARARGS, 0},
+	{"GetOptions",       Atrinik_GetOptions,          METH_VARARGS, 0},
+	{"GetReturnValue",   Atrinik_GetReturnValue,      METH_VARARGS, 0},
+	{"SetReturnValue",   Atrinik_SetReturnValue,      METH_VARARGS, 0},
+	{"GetSpellNr",       Atrinik_GetSpellNr,          METH_VARARGS, 0},
+	{"GetSkillNr",       Atrinik_GetSkillNr,          METH_VARARGS, 0},
+	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
+	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},
+	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
+	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
+	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
+	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
+	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
+	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
+	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
+#ifdef IS_PY3K
+static PyModuleDef AtrinikModule =
+{
+	PyModuleDef_HEAD_INIT,
+	"Atrinik",
+	NULL,
+	-1,
+	AtrinikMethods,
+	NULL, NULL, NULL, NULL
+};
+
+static PyObject *PyInit_Atrinik()
+{
+	PyObject *m = PyModule_Create(&AtrinikModule);
+	Py_INCREF(m);
+	return m;
+}
+#endif
+
+/**
+ * Initializes the Python Interpreter. */
 MODULEAPI void init_Atrinik_Python()
 {
 	PyObject *m, *d;
@@ -1143,7 +1140,15 @@ MODULEAPI void init_Atrinik_Python()
 
 	LOG(llevDebug, "PYTHON - Start initAtrinik.\n");
 
+#ifdef IS_PY3K
+	PyImport_AppendInittab("Atrinik", &PyInit_Atrinik);
+#endif
+
+#ifdef IS_PY3K
+	m = PyImport_ImportModule("Atrinik");
+#else
 	m = Py_InitModule("Atrinik", AtrinikMethods);
+#endif
 	d = PyModule_GetDict(m);
 	AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
 	PyDict_SetItemString(d, "error", AtrinikError);

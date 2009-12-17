@@ -16,7 +16,7 @@ INCLUDEROOT 	= @PYTHON_INC@
 
 EXTRA_CFLAGS    = @EXTRA_CFLAGS@
 
-# When configure fails set these to the required pathes
+# When configure fails set these to the required paths
 #LIBROOT        = /usr/lib
 #INCLUDEROOT    = /usr/include
 
@@ -28,8 +28,6 @@ EXTRA_CFLAGS    = @EXTRA_CFLAGS@
 RM        = @RM@
 CC        = @CC@
 
-MAKEDOC = doc_utils/make_documentation.pl
-
 SRCS = \
 	plugin_python.c \
 	atrinik_map.c \
@@ -39,7 +37,7 @@ SRCS = \
 OBJECTS   = $(SRCS:.c=.o)
 INCLUDE   = -I./include -I../../include -I../common/include -I$(INCLUDEROOT)/python$(PYTHONVER)
 
-CFLAGS    = -g -O2 -fPIC $(EXTRA_CFLAGS)
+CFLAGS    = -g -O3 -fPIC $(EXTRA_CFLAGS) -Wno-missing-field-initializers -Wno-int-to-pointer-cast
 DEPEND = @DEPEND@
 
 LIBPYTHON = $(LIBROOT)/python$(PYTHONVER)/config/libpython$(PYTHONVER)-pic.a
@@ -48,7 +46,7 @@ LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBPYTHON) $(LIBS) $(SYSLIBS)
 
-all : plugin_python.so.0.1 doc
+all : plugin_python.so.0.1
 
 clean :
 	$(RM) -f *.o core plugin_python.so.0.1
@@ -61,17 +59,6 @@ plugin_python.so.0.1 : $(OBJECTS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
-
-doc:
-#doc/Map_Methods.txt doc/Object_Methods.txt doc/DaimoninFunctions.txt
-#doc/Map_Methods.txt: DaimoninMap.c
-#	$(MAKEDOC) $< > $@
-
-#doc/Object_Methods.txt: DaimoninObject.c
-#	$(MAKEDOC) $< > $@
-
-#doc/DaimoninFunctions.txt: plugin_python.c
-#	$(MAKEDOC) $< > $@
 
 depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDE) --

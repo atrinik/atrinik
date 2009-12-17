@@ -9,4 +9,4 @@ if os.path.exists(path):
 
 	for file in files:
 		if (file.endswith(".py")):
-			execfile(os.path.join(path, file))
+			exec(open(os.path.join(path, file)).read())

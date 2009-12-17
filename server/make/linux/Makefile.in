@@ -45,7 +45,7 @@
 
 # EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror -Wno-int-to-pointer-cast
+EXTRA_CFLAGS=-Wall -W -Werror
 
 #
 #
