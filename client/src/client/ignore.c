@@ -53,7 +53,7 @@ static void ignore_entry_add(char *name, char *type)
  * @param type Type of the ignore. */
 static void ignore_entry_remove(char *name, char *type)
 {
-	ignore_list_struct *tmp, *tmp2;
+	ignore_list_struct *tmp, *tmp2 = NULL;
 
 	for (tmp = ignore_list; tmp; tmp = tmp->next)
 	{

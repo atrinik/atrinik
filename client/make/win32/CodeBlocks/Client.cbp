@@ -81,6 +81,9 @@
 		<Unit filename="..\..\..\src\include\item.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\ignore.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\main.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -179,6 +182,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\inventory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\src\client\ignore.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\client\item.c">
