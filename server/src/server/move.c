@@ -419,7 +419,7 @@ int roll_ob(object *op, int dir, object *pusher)
 {
 	object *tmp;
 	mapstruct *m;
-	int x, y;
+	int x, y, flags;
 
 	if (op->head)
 	{
@@ -439,6 +439,18 @@ int roll_ob(object *op, int dir, object *pusher)
 		return 0;
 	}
 
+	if ((flags = blocked(op, m, x, y, TERRAIN_ALL)))
+	{
+		if (flags & (P_NO_PASS | P_CHECK_INV))
+		{
+			return 0;
+		}
+		else if ((flags & P_DOOR_CLOSED) && !open_door(op, m, x, y, 1))
+		{
+			return 0;
+		}
+	}
+
 	for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
 	{
 		if (tmp->head == op)
@@ -446,7 +458,7 @@ int roll_ob(object *op, int dir, object *pusher)
 			continue;
 		}
 
-		if (IS_LIVE(tmp) || (QUERY_FLAG(tmp, FLAG_NO_PASS) && !roll_ob(tmp, dir, pusher)))
+		if (IS_LIVE(tmp) || tmp->type == TELEPORTER || tmp->type == SHOP_MAT || (QUERY_FLAG(tmp, FLAG_NO_PASS) && !roll_ob(tmp, dir, pusher)))
 		{
 			return 0;
 		}
