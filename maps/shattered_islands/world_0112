@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-12-04 Alex Tokar
+Modified: 2009-12-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -68,88 +68,100 @@ end
 arch rock_big2
 y 8
 end
-arch grassd_5
+arch grassd_4
 y 9
 end
-arch rock_big2
+arch wall_pattern4.181
 y 9
 end
 arch grassd_5
 y 10
 end
-arch rock_big2
+arch wall_pattern4.131
 y 10
-end
-arch grassd_6
-y 11
-end
-arch rock_big2
-y 11
-end
-arch grassd_3
-y 12
-end
-arch rock_big2
-y 12
-end
-arch grassd_8
-y 13
-end
-arch rock_big2
-y 13
-end
-arch grassd_6
-y 14
-end
-arch rock_big2
-y 14
-end
-arch grassd_8
-y 15
-end
-arch rock_big2
-y 15
-end
-arch grassd_4
-y 16
-end
-arch rock_big2
-y 16
-end
-arch grassd_4
-y 17
-end
-arch rock_big2
-y 17
-end
-arch grassd_6
-y 18
-end
-arch rock_big2
-y 18
-end
-arch grassd_2
-y 19
-end
-arch rock_big2
-y 19
 end
 arch grassd_7
-y 20
+y 11
 end
-arch rock_big2
-y 20
+arch wall_pattern4.131
+y 11
+end
+arch grassd_4
+y 12
+end
+arch wall_pattern4.131
+y 12
+end
+arch grassd_7
+y 13
+end
+arch wall_pattern4.131
+y 13
+end
+arch wmask_fire_on_1
+direction 7
+y 13
+end
+arch grassd_2
+y 14
+end
+arch wall_pattern4.131
+y 14
 end
 arch grassd_6
-y 21
+y 15
 end
-arch rock_big2
-y 21
+arch wall_pattern4.131
+y 15
 end
 arch grassd_5
+y 16
+end
+arch wall_pattern4.131
+y 16
+end
+arch picture7
+direction 7
+y 16
+end
+arch grassd_4
+y 17
+end
+arch wall_pattern4.131
+y 17
+end
+arch grassd_8
+y 18
+end
+arch wall_pattern4.131
+y 18
+end
+arch grassd_1
+y 19
+end
+arch wall_pattern4.131
+y 19
+end
+arch wmask_fire_on_1
+direction 7
+y 19
+end
+arch grassd_8
+y 20
+end
+arch wall_pattern4.131
+y 20
+end
+arch grassd_2
+y 21
+end
+arch wall_pattern4.131
+y 21
+end
+arch grassd_3
 y 22
 end
-arch rock_big2
+arch wall_pattern4.131
 y 22
 end
 arch grassd_1
@@ -200,59 +212,123 @@ arch grassd_6
 x 1
 y 8
 end
-arch grassd_4
+arch grassd_3
 x 1
 y 9
 end
-arch grassd_5
+arch wall_pattern4.111
+x 1
+y 9
+end
+arch floor_ostone13
 x 1
 y 10
 end
-arch grassd_7
+arch chest_w1
+direction 7
+x 1
+y 10
+end
+arch floor_ostone13
 x 1
 y 11
 end
-arch grassd_4
+arch light7
+x 1
+y 11
+end
+arch floor_ostone13
 x 1
 y 12
 end
-arch grassd_7
+arch spawn_point
+direction 3
+x 1
+y 12
+arch female1
+name Post Office Clerk
+direction 3
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/postoffice_clerk.py
+end
+end
+end
+arch floor_ostone13
 x 1
 y 13
 end
-arch grassd_2
+arch floor_ostone13
 x 1
 y 14
 end
-arch grassd_6
+arch floor_ostone13
 x 1
 y 15
 end
-arch grassd_5
+arch candlelight1.101
+x 1
+y 15
+end
+arch light8
+x 1
+y 15
+end
+arch floor_ostone13
 x 1
 y 16
 end
-arch grassd_4
+arch floor_ostone13
 x 1
 y 17
 end
-arch grassd_8
+arch floor_ostone13
 x 1
 y 18
 end
-arch grassd_1
+arch spawn_point
+direction 3
+x 1
+y 18
+arch female1
+name Post Office Clerk
+direction 3
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/postoffice_clerk.py
+end
+end
+end
+arch floor_ostone13
 x 1
 y 19
 end
-arch grassd_8
+arch floor_ostone13
 x 1
 y 20
 end
-arch grassd_2
+arch light7
+x 1
+y 20
+end
+arch floor_ostone13
 x 1
 y 21
 end
-arch grassd_3
+arch chest_w1
+direction 7
+x 1
+y 21
+end
+arch floor_ostone13
+x 1
+y 22
+end
+arch wall_pattern4.111
 x 1
 y 22
 end
@@ -299,71 +375,127 @@ arch grassd_5
 x 2
 y 8
 end
-arch grassd_3
+arch grassd_8
 x 2
 y 9
 end
-arch grassd_1
+arch wall_pattern4.111
+x 2
+y 9
+end
+arch floor_ostone13
 x 2
 y 10
 end
-arch plant17
+arch bar1
+direction 3
 x 2
 y 10
 end
-arch grassd_3
+arch floor_ostone13
 x 2
 y 11
 end
-arch grassd_8
+arch bar1
+direction 3
+x 2
+y 11
+end
+arch floor_ostone13
 x 2
 y 12
 end
-arch grassd_3
+arch bar1
+direction 3
+x 2
+y 12
+end
+arch floor_ostone13
 x 2
 y 13
 end
-arch tree_big
+arch bar1
+direction 3
 x 2
 y 13
 end
-arch grassd_4
+arch floor_ostone13
 x 2
 y 14
 end
-arch plant9
+arch bar1
+direction 3
 x 2
 y 14
 end
-arch grassd_3
+arch floor_ostone13
 x 2
 y 15
 end
-arch grassd_8
+arch bar1
+direction 3
+x 2
+y 15
+end
+arch floor_ostone13
 x 2
 y 16
 end
-arch grassd_8
+arch bar1
+direction 3
+x 2
+y 16
+end
+arch floor_ostone13
 x 2
 y 17
 end
-arch grassd_1
+arch bar1
+direction 3
+x 2
+y 17
+end
+arch floor_ostone13
 x 2
 y 18
 end
-arch grassd_6
+arch bar1
+direction 3
+x 2
+y 18
+end
+arch floor_ostone13
 x 2
 y 19
 end
-arch grassd_8
+arch bar1
+direction 3
+x 2
+y 19
+end
+arch floor_ostone13
 x 2
 y 20
 end
-arch grassd_3
+arch bar1
+direction 3
+x 2
+y 20
+end
+arch floor_ostone13
 x 2
 y 21
 end
-arch grassd_1
+arch bar1
+direction 3
+x 2
+y 21
+end
+arch floor_ostone13
+x 2
+y 22
+end
+arch wall_pattern4.141
 x 2
 y 22
 end
@@ -442,71 +574,119 @@ arch grassd_3
 x 3
 y 8
 end
-arch grassd_8
+arch grassd_5
 x 3
 y 9
 end
-arch grassd_3
+arch wall_pattern4.111
+x 3
+y 9
+end
+arch floor_ostone13
 x 3
 y 10
 end
-arch grassd_4
+arch mailbox
+direction 3
+container 0
+x 3
+y 10
+arch event_obj
+sub_type 1
+race /python/generic/postoffice_mailbox.py
+end
+end
+arch floor_ostone13
 x 3
 y 11
 end
-arch grassd_2
+arch floor_ostone13
 x 3
 y 12
 end
-arch grassd_5
+arch light8
+x 3
+y 12
+end
+arch floor_ostone13
 x 3
 y 13
 end
-arch grassd_2
+arch carpet1.131
+x 3
+y 13
+end
+arch floor_ostone13
 x 3
 y 14
 end
-arch grassd_1
+arch carpet1.131
+x 3
+y 14
+end
+arch floor_ostone13
 x 3
 y 15
 end
-arch grassd_8
+arch carpet1.131
+x 3
+y 15
+end
+arch floor_ostone13
 x 3
 y 16
 end
-arch grassd_7
+arch carpet1.131
+x 3
+y 16
+end
+arch floor_ostone13
 x 3
 y 17
 end
-arch tree_big3
+arch carpet1.131
 x 3
 y 17
 end
-arch grassd_5
+arch floor_ostone13
 x 3
 y 18
 end
-arch grassd_1
+arch carpet1.131
+x 3
+y 18
+end
+arch floor_ostone13
 x 3
 y 19
 end
-arch grassd_6
+arch light8
+x 3
+y 19
+end
+arch floor_ostone13
 x 3
 y 20
 end
-arch plant9
-x 3
-y 20
-end
-arch grassd_6
+arch floor_ostone13
 x 3
 y 21
 end
-arch grassd_1
+arch mailbox
+direction 3
+container 0
+x 3
+y 21
+arch event_obj
+sub_type 1
+race /python/generic/postoffice_mailbox.py
+end
+end
+arch floor_ostone13
 x 3
 y 22
 end
-arch tree_big5b
+arch wall_pattern4.111
 x 3
 y 22
 end
@@ -602,63 +782,103 @@ arch grassd_5
 x 4
 y 9
 end
-arch grassd_5
+arch wall_pattern4.111
+x 4
+y 9
+end
+arch floor_ostone13
 x 4
 y 10
 end
-arch tree_big5b
+arch candlelight3.101
 x 4
 y 10
 end
-arch grassd_4
+arch floor_ostone13
 x 4
 y 11
 end
-arch grassd_6
+arch floor_ostone13
 x 4
 y 12
 end
-arch grassd_6
+arch carpet1.151
+x 4
+y 12
+end
+arch floor_ostone13
 x 4
 y 13
 end
-arch tree_big
+arch carpet1
 x 4
 y 13
 end
-arch grassd_4
+arch floor_ostone13
 x 4
 y 14
 end
-arch grassd_6
+arch carpet1
+x 4
+y 14
+end
+arch floor_ostone13
 x 4
 y 15
 end
-arch grassd_5
+arch carpet1
+x 4
+y 15
+end
+arch floor_ostone13
 x 4
 y 16
 end
-arch grassd_1
+arch carpet1
+x 4
+y 16
+end
+arch floor_ostone13
 x 4
 y 17
 end
-arch grassd_6
+arch carpet1
+x 4
+y 17
+end
+arch floor_ostone13
 x 4
 y 18
 end
-arch grassd_5
+arch carpet1
+x 4
+y 18
+end
+arch floor_ostone13
 x 4
 y 19
 end
-arch grassd_3
+arch carpet1.111
+x 4
+y 19
+end
+arch floor_ostone13
 x 4
 y 20
 end
-arch grassd_3
+arch floor_ostone13
 x 4
 y 21
 end
-arch grassd_8
+arch candlelight4.101
+x 4
+y 21
+end
+arch floor_ostone13
+x 4
+y 22
+end
+arch wall_pattern4.111
 x 4
 y 22
 end
@@ -712,63 +932,111 @@ arch grassd_4
 x 5
 y 9
 end
-arch grassd_3
+arch wall_pattern4.111
+x 5
+y 9
+end
+arch wmask_bflag_fire1_1
+x 5
+y 9
+end
+arch floor_ostone13
 x 5
 y 10
 end
-arch grassd_7
+arch mailbox
+direction 3
+container 0
+x 5
+y 10
+arch event_obj
+sub_type 1
+race /python/generic/postoffice_mailbox.py
+end
+end
+arch floor_ostone13
 x 5
 y 11
 end
-arch grassd_1
+arch floor_ostone13
 x 5
 y 12
 end
-arch grassd_6
+arch floor_ostone13
 x 5
 y 13
 end
-arch plant_mushroom5
+arch carpet1.171
 x 5
 y 13
 end
-arch grassd_1
+arch floor_ostone13
 x 5
 y 14
 end
-arch grassd_7
+arch carpet1.171
+x 5
+y 14
+end
+arch floor_ostone13
 x 5
 y 15
 end
-arch grassd_6
+arch carpet1.171
+x 5
+y 15
+end
+arch floor_ostone13
 x 5
 y 16
 end
-arch grassd_2
+arch carpet1.171
+x 5
+y 16
+end
+arch floor_ostone13
 x 5
 y 17
 end
-arch grassd_7
+arch carpet1.171
+x 5
+y 17
+end
+arch floor_ostone13
 x 5
 y 18
 end
-arch grassd_6
+arch carpet1.171
+x 5
+y 18
+end
+arch floor_ostone13
 x 5
 y 19
 end
-arch grassd_8
+arch floor_ostone13
 x 5
 y 20
 end
-arch grassd_8
+arch floor_ostone13
 x 5
 y 21
 end
-arch tree_big2
+arch mailbox
+direction 3
+container 0
 x 5
 y 21
+arch event_obj
+sub_type 1
+race /python/generic/postoffice_mailbox.py
 end
-arch grassd_5
+end
+arch floor_ostone13
+x 5
+y 22
+end
+arch wall_pattern4.111
 x 5
 y 22
 end
@@ -848,71 +1116,115 @@ arch grassd_4
 x 6
 y 9
 end
-arch plant_flower2
+arch wall_pattern4.111
 x 6
 y 9
 end
-arch grassd_4
+arch floor_ostone13
 x 6
 y 10
 end
-arch grassd_8
+arch wall_pattern4.131
+x 6
+y 10
+end
+arch floor_ostone13
 x 6
 y 11
 end
-arch grassd_7
+arch wall_pattern4.131
+x 6
+y 11
+end
+arch floor_ostone13
 x 6
 y 12
 end
-arch grassd_5
+arch wall_pattern4_w.131
+x 6
+y 12
+end
+arch floor_ostone13
 x 6
 y 13
 end
-arch grassd_8
+arch wall_pattern4.131
+x 6
+y 13
+end
+arch floor_ostone13
 x 6
 y 14
 end
-arch grassd_1
+arch wall_pattern4.131
+x 6
+y 14
+end
+arch floor_ostone13
 x 6
 y 15
 end
-arch plant_flower7
+arch door1_locked
+direction 3
+cursed 1
 x 6
 y 15
 end
-arch grassd_8
+arch floor_ostone13
 x 6
 y 16
 end
-arch grassd_5
+arch door1_locked
+direction 5
+cursed 1
+x 6
+y 16
+end
+arch floor_ostone13
 x 6
 y 17
 end
-arch grassd_8
+arch wall_pattern4.131
+x 6
+y 17
+end
+arch floor_ostone13
 x 6
 y 18
 end
-arch tree_big
+arch wall_pattern4.131
 x 6
 y 18
 end
-arch grassd_1
+arch floor_ostone13
 x 6
 y 19
 end
-arch grassd_1
+arch wall_pattern4_w.131
+x 6
+y 19
+end
+arch floor_ostone13
 x 6
 y 20
 end
-arch grassd_7
+arch wall_pattern4.131
+x 6
+y 20
+end
+arch floor_ostone13
 x 6
 y 21
 end
-arch plant12
+arch wall_pattern4.131
 x 6
 y 21
 end
-arch grassd_3
+arch floor_ostone13
+x 6
+y 22
+end
+arch wall_pattern4.141
 x 6
 y 22
 end
@@ -989,8 +1301,8 @@ arch grassd_1
 x 7
 y 10
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 10
 end
@@ -1011,29 +1323,53 @@ arch grassd_4
 x 7
 y 13
 end
-arch grassd_7
+arch floor_flagm2
 x 7
 y 14
 end
-arch grassd_7
+arch grassd_m4
+x 7
+y 14
+end
+arch lantern2_magic.131
+direction 7
+x 7
+y 14
+end
+arch light6
+x 7
+y 14
+end
+arch floor_flagm2
 x 7
 y 15
 end
-arch grassd_4
+arch grassd_m13
+x 7
+y 15
+end
+arch floor_flagm1
 x 7
 y 16
 end
-arch lantern_magic.131
-direction 5
+arch grassd_m14
 x 7
 y 16
 end
-arch light7
-direction 3
+arch floor_flagm2
 x 7
-y 16
+y 17
 end
-arch grassd_3
+arch grassd_m3
+x 7
+y 17
+end
+arch lantern2_magic.131
+direction 7
+x 7
+y 17
+end
+arch light6
 x 7
 y 17
 end
@@ -1053,8 +1389,8 @@ arch grassd_2
 x 7
 y 21
 end
-arch lantern_magic.131
-direction 5
+arch lantern2_magic.131
+direction 7
 x 7
 y 21
 end
@@ -1177,35 +1513,27 @@ arch grassd_m9
 x 8
 y 13
 end
-arch floor_flagm4
+arch floor_flagm3
 x 8
 y 14
 end
-arch grassd_m9
+arch grassd_m13
 x 8
 y 14
+end
+arch floor_flagm1
+x 8
+y 15
+end
+arch floor_flagm1
+x 8
+y 16
 end
 arch floor_flagm2
 x 8
-y 15
-end
-arch grassd_m9
-x 8
-y 15
-end
-arch floor_flagm3
-x 8
-y 16
-end
-arch grassd_m9
-x 8
-y 16
-end
-arch floor_flagm4
-x 8
 y 17
 end
-arch grassd_m9
+arch grassd_m14
 x 8
 y 17
 end
