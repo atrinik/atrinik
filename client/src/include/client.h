@@ -296,6 +296,9 @@ typedef struct Player_Struct
 	int input_mode;
 	int	nummode;
 
+	/** Currently marked item. */
+	int mark_count;
+
 	/* HP, mana and grace regeneration */
 	float gen_hp;
 	float gen_sp;

@@ -1591,9 +1591,18 @@ void MarkItem(uint8 *data, int len, player *pl)
 		return;
 	}
 
-	pl->mark = op;
-	pl->mark_count = op->count;
-	new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "Marked item %s", query_name(op, NULL));
+	if (pl->mark_count == op->count)
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "Unmarked item %s.", query_name(op, NULL));
+		pl->mark = NULL;
+		pl->mark_count = -1;
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "Marked item %s.", query_name(op, NULL));
+		pl->mark_count = op->count;
+		pl->mark = op;
+	}
 }
 
 /**

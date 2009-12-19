@@ -359,11 +359,10 @@ void widget_show_inventory_window(int x, int y)
 
 	for (; tmp && i < invxlen * invylen; tmp = tmp->next)
 	{
-		/* TODO: Implement marked items */
-#if 0
 		if (tmp->tag == cpl.mark_count)
+		{
 			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
-#endif
+		}
 
 		blt_inv_item(tmp, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
 
@@ -384,11 +383,10 @@ void widget_show_inventory_window(int x, int y)
 jump_in_container1:
 			for (; tmpc && i < invxlen * invylen; tmpc = tmpc->next)
 			{
-				/* TODO: Implement marked items */
-#if 0
 				if (tmpc->tag == cpl.mark_count)
+				{
 					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
-#endif
+				}
 
 				blt_inv_item(tmpc, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
 

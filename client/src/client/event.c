@@ -1593,9 +1593,9 @@ int process_macro_keys(int id, int value)
 			if (tag == -1 || !locate_item(tag))
 				return 0;
 
-			send_mark_obj((it = locate_item(tag)));
-			snprintf(buf, sizeof(buf), "mark %s", it->s_name);
-			draw_info(buf, COLOR_DGOLD);
+			it = locate_item(tag);
+			draw_info_format(COLOR_DGOLD, "%smark %s", it->tag == cpl.mark_count ? "un" : "", it->s_name);
+			send_mark_obj(it);
 			return 0;
 
 		case KEYFUNC_LOCK:

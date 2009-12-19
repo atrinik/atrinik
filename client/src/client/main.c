@@ -702,6 +702,7 @@ int game_status_chain()
 	/* autoinit or reset prg data */
 	if (GameStatus == GAME_STATUS_INIT)
 	{
+		cpl.mark_count = -1;
 		LOG(LOG_MSG, "GAMES_STATUS_INIT_1\n");
 
 		map_udate_flag = 2;
@@ -917,10 +918,11 @@ int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_ADDME)
 	{
+		cpl.mark_count = -1;
 		map_transfer_flag = 0;
 		SendAddMe(csocket);
-		cpl.name[0] = 0;
-		cpl.password[0] = 0;
+		cpl.name[0] = '\0';
+		cpl.password[0] = '\0';
 		GameStatus = GAME_STATUS_LOGIN;
 		/* Now wait for login request of the server */
 	}

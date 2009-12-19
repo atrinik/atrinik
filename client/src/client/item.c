@@ -653,6 +653,15 @@ void send_mark_obj(item *op)
 	if (!op || !op->env || op->env->tag == 0)
 		return;
 
+	if (cpl.mark_count == op->tag)
+	{
+		cpl.mark_count = -1;
+	}
+	else
+	{
+		cpl.mark_count = op->tag;
+	}
+
 	sl.buf = (unsigned char *) buf;
 	strcpy((char *) sl.buf, "mark ");
 	sl.len = 5;
