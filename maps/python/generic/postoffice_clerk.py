@@ -77,31 +77,55 @@ elif msg == "items":
 		me.SayTo(activator, "\nThe following items have been sent to you:\n")
 
 		for i, item in enumerate(post.get_items()):
-			activator.Write("#%d %s (%s)%s" % (i + 1, item["name"], item["from"], item["accepted"] and " (accepted)" or ""), COLOR_NAVY)
+			activator.Write("#%d %s (%s)%s" % (i + 1, item["name"], item["from"], item["accepted"] and " (accepted)" or " (^accept " + str(i + 1) + "^)"), COLOR_NAVY)
+
+		activator.Write("\nYou can ^accept all^ or ^decline all^.", COLOR_NAVY)
 	else:
 		me.SayTo(activator, "\nThere is no mail for you right now.")
 
 # Decline an item, sending it back to the sender.
 elif text[0] == "decline":
 	if len(text) > 1:
-		id = int(text[1])
+		if text[1] == "all":
+			declined = False
 
-		if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
-			post.decline_item(id)
-			me.SayTo(activator, "\nYou have declined the item #%d." % id)
+			for i, item in enumerate(post.get_items()):
+				if post.can_accept_or_decline(i + 1):
+					post.decline_item(i + 1)
+					declined = True
+
+			if declined:
+				me.SayTo(activator, "\nYou have declined all items.")
+		else:
+			id = int(text[1])
+
+			if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
+				post.decline_item(id)
+				me.SayTo(activator, "\nYou have declined the item #%d." % id)
 	else:
-		me.SayTo(activator, "\nDecline what? Check for ^items^ to get ID of the item to decline.")
+		me.SayTo(activator, "\nDecline what? Check for ^items^ to get ID of the item to decline, and then use \"decline ID\", for example, ^decline 1^ or ^decline all^.")
 
 # Accept an item.
 elif text[0] == "accept":
 	if len(text) > 1:
-		id = int(text[1])
+		if text[1] == "all":
+			accepted = False
 
-		if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
-			post.accept_item(id)
-			me.SayTo(activator, "\nYou have accepted the item #%d." % id)
+			for i, item in enumerate(post.get_items()):
+				if post.can_accept_or_decline(i + 1):
+					post.accept_item(i + 1)
+					accepted = True
+
+			if accepted:
+				me.SayTo(activator, "\nYou have accepted all items.")
+		else:
+			id = int(text[1])
+
+			if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
+				post.accept_item(id)
+				me.SayTo(activator, "\nYou have accepted the item #%d." % id)
 	else:
-		me.SayTo(activator, "\nAccept what? Check for ^items^ to get ID of the item to accept.")
+		me.SayTo(activator, "\nAccept what? Check for ^items^ to get ID of the item to accept, and then use \"accept ID\", for example, ^accept 1^ or ^accept all^.")
 
 # Explain how the office works.
 elif msg == "explain":
