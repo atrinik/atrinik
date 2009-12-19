@@ -931,9 +931,7 @@ static PyObject *Atrinik_Object_GetGod(Atrinik_Object *whoptr, PyObject *args)
  * <h1>object.SetGod(<i>\<string\></i> godname)</h1>
  *
  * Make an object become follower of a different god.
- * @param godname Name of the god
- * @warning Unfinished, do not use.
- * @todo Finish this. */
+ * @param godname Name of the god. */
 static PyObject *Atrinik_Object_SetGod(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *txt;
@@ -2479,12 +2477,13 @@ static PyObject *Atrinik_Object_IsOfType(Atrinik_Object *whoptr, PyObject *args)
 /**
  * <h1>object.Save()</h1>
  *
- * Check if specified object is of certain type.
- *
- * @warning Untested. */
+ * Dump an object, as if it was being saved to map or player file. Useful
+ * for saving the object somewhere for loading later with
+ * @ref Atrinik_LoadObject "LoadObject()".
+ * @return String containing the saved object. */
 static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 {
-	char result[HUGE_BUF * 4];
+	char result[HUGE_BUF * 8];
 
 	(void) args;
 
@@ -2637,9 +2636,11 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *whoptr, PyObject *args
 }
 
 /**
- * <h1>player.SendCustomCommand(<i>\<int\></i>command_id, <i>\<string\></i> command_data)</h1>
+ * <h1>player.SendCustomCommand(<i>\<int\></i> command_id,
+ * <i>\<string\></i> command_data)</h1>
  *
- * @warning Untested. */
+ * Send a fake command to player's client. This can be used to fake a
+ * book GUI, for example. */
 static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *customcmd;

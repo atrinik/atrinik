@@ -102,7 +102,9 @@ static int RunPythonScript(const char *path, object *event_object);
 /**
  * <h1>Atrinik.LoadObject(<i>\<string\></i> string)</h1>
  *
- * @warning Untested. */
+ * Load an object from string, for example, one stored using
+ * @ref Atrinik_Object_Save "Save()".
+ * @param string The string from which to load the actual object. */
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
 	char *dumpob;
