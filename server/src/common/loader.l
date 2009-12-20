@@ -1392,11 +1392,18 @@ char *get_ob_diff(object *op, object *op2)
 		strcat(buf, buf2);
 	}
 
-	if(op->move_status != op2->move_status)
+	if (op->move_status != op2->move_status)
 		save_long(buf, "move_state", op->move_status);
 
 	if (op->move_type != op2->move_type)
-		save_long(buf, "attack_movement", op->move_type);
+	{
+		save_long(buf, "movement_type", op->move_type);
+	}
+
+	if (op->attack_move_type != op2->attack_move_type)
+	{
+		save_long(buf, "attack_move_type", op->attack_move_type);
+	}
 
 	if (op->nrof != op2->nrof)
 		save_long(buf, "nrof", op->nrof);
