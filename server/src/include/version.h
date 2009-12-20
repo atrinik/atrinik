@@ -29,9 +29,9 @@
 
 /** Version of the server. */
 #ifdef MAKE
-#define Version "0.1"
+#define Version "1.0"
 #else
-#define VERSION "0.1"
+#define VERSION "1.0"
 #endif
 
 /** Define CS version */

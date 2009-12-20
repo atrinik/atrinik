@@ -70,16 +70,16 @@
 #define PACKAGE_NAME "Atrinik Client"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Atrinik Client 0.1"
+#define PACKAGE_STRING "Atrinik Client 1.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "atrinik-client"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1"
+#define PACKAGE_VERSION "1.0"
 
 /* Installation prefix */
-#define PREFIX "../../../client-0.1"
+#define PREFIX "../../../client-1.0"
 
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
    computer */
