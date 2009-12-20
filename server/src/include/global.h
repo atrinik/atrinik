@@ -217,6 +217,8 @@ typedef struct linked_char
 /* Now for spells */
 #include "spells.h"
 
+#include "stringbuffer.h"
+
 /*****************************************************************************
  * GLOBAL VARIABLES:							     						 *
  *****************************************************************************/
@@ -287,8 +289,6 @@ extern object void_container;
 
 /* The start-level */
 EXTERN char first_map_path[MAX_BUF];
-
-EXTERN char errmsg[HUGE_BUF];
 EXTERN long ob_count;
 
 /* global round ticker ! this is real a global */

@@ -70,7 +70,8 @@ ALL_FILES = \
 	sockproto.h \
 	plugin.h \
 	timers.h \
-	pathfinder.h
+	pathfinder.h \
+	stringbuffer.h
 
 all::
 

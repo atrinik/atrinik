@@ -909,6 +909,8 @@ int command_inventory(object *op, char *params)
 int command_dump(object *op, char *params)
 {
 	object *tmp;
+	StringBuffer *sb;
+	char *diff;
 
 	if (params != NULL && !strcmp(params, "me"))
 	{
@@ -920,8 +922,11 @@ int command_dump(object *op, char *params)
 		return 1;
 	}
 
-	dump_object(tmp);
-	new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+	sb = stringbuffer_new();
+	dump_object(tmp, sb);
+	diff = stringbuffer_finish(sb);
+	new_draw_info(NDI_UNIQUE, 0, op, diff);
+	free(diff);
 	return 1;
 }
 
@@ -1782,6 +1787,8 @@ int command_debug(object *op, char *params)
 int command_dumpbelowfull(object *op, char *params)
 {
 	object *tmp;
+	StringBuffer *sb;
+	char *diff;
 
 	(void) params;
 
@@ -1796,8 +1803,11 @@ int command_dumpbelowfull(object *op, char *params)
 			continue;
 		}
 
-		dump_object(tmp);
-		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+		sb = stringbuffer_new();
+		dump_object(tmp, sb);
+		diff = stringbuffer_finish(sb);
+		new_draw_info(NDI_UNIQUE, 0, op, diff);
+		free(diff);
 
 		if (tmp->above && tmp->above != op)
 		{

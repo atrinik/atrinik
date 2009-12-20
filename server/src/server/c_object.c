@@ -346,11 +346,12 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		tag_t tmp2_tag = tmp2->count;
-		tmp = get_split_ob(tmp, nrof);
+		char err[MAX_BUF];
+		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, 0, pl, errmsg);
+			new_draw_info(NDI_UNIQUE, 0, pl, err);
 			return;
 		}
 
@@ -615,11 +616,12 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		tmp2_tag = tmp2->count;
-		tmp = get_split_ob(tmp, nrof);
+		char err[MAX_BUF];
+		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+			new_draw_info(NDI_UNIQUE, 0, op, err);
 			return;
 		}
 
@@ -727,11 +729,12 @@ void drop_object(object *op, object *tmp, long nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		tag_t tmp2_tag = tmp2->count;
-		tmp = get_split_ob(tmp, nrof);
+		char err[MAX_BUF];
+		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+			new_draw_info(NDI_UNIQUE, 0, op, err);
 			return;
 		}
 
@@ -1860,8 +1863,13 @@ dirty_little_jump1:
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
-		dump_object(tmp);
-		new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+		StringBuffer *sb = stringbuffer_new();
+		char *diff;
+
+		dump_object(tmp, sb);
+		diff = stringbuffer_finish(sb);
+		new_draw_info(NDI_UNIQUE, 0, op, diff);
+		free(diff);
 	}
 }
 

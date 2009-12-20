@@ -1252,7 +1252,7 @@ int apply_special(object *who, object *op, int aflags)
 
 	if (op->nrof > 1)
 	{
-		tmp = get_split_ob(op, op->nrof - 1);
+		tmp = get_split_ob(op, op->nrof - 1, NULL, 0);
 	}
 	else
 	{

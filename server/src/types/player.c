@@ -780,7 +780,7 @@ static void fire_bow(object *op, int dir)
 	left = arrow;
 	left_tag = left->count;
 	left_cont = left->env;
-	arrow = get_split_ob(arrow, 1);
+	arrow = get_split_ob(arrow, 1, NULL, 0);
 	set_owner(arrow, op);
 	arrow->direction = dir;
 	arrow->x = op->x;

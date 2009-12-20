@@ -1131,22 +1131,31 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	NULL
 };
 
+/** Adds a line to the buffer. */
+#define ADD_STRINGLINE_ENTRY(sb__, entryname__, entryvalue__) do {\
+	stringbuffer_append_string(sb__, entryname__);\
+	stringbuffer_append_string(sb__, entryvalue__);\
+	stringbuffer_append_string(sb__, "\n");\
+	} while (0)
+/** Adds a long to the buffer.  entryname__ must have a space at the end. */
+#define FAST_SAVE_LONG(sb__, entryname__, entryvalue__) \
+	stringbuffer_append_printf(sb__, "%s%ld\n", entryname__, (long int) entryvalue__)
+/** Adds a double to the buffer. entryname__ must have a space at the end. */
+#define FAST_SAVE_DOUBLE(sb__, entryname__, entryvalue__) \
+	stringbuffer_append_printf(sb__, "%s%f\n", entryname__, entryvalue__)
+
 /**
- * Returns a pointer to a static string which contains all variables
- * which are different in the two given objects.
+ * Get difference between two objects, and save it in StringBuffer.
  *
  * This function is typically used to dump objects (op2 = empty object),
  * or to save objects (op2 is the objects original archetype).
+ * @param sb String buffer to modify.
  * @param op What object the different values will be taken from.
- * @todo Make buffer overflow safe. */
-char *get_ob_diff(object *op, object *op2)
+ * @param op2 Object's original archetype. */
+void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 {
-  	static char buf2[HUGE_BUF];
-  	static char buf[HUGE_BUF];
     key_value *my_field, *arch_field;
   	int tmp;
-
-  	buf[0] = '\0';
 
 	/* This saves the key/value lists. We do it first so that any
 	 * keys that match field names will be overwritten by the loader. */
@@ -1159,270 +1168,309 @@ char *get_ob_diff(object *op, object *op2)
 		 * save our field. */
 		if (arch_field == NULL || my_field->value != arch_field->value)
 		{
-			snprintf(buf2, sizeof(buf2), "%s %s\n", my_field->key, my_field->value ? my_field->value : "");
-			strcat(buf, buf2);
+			stringbuffer_append_string(sb, my_field->key);
+			stringbuffer_append_string(sb, " ");
+
+			if (my_field->value)
+			{
+				stringbuffer_append_string(sb, my_field->value);
+			}
+
+			stringbuffer_append_string(sb, "\n");
 		}
 	}
 
 	if (op->name && op->name != op2->name)
 	{
-		sprintf(buf2, "name %s\n", op->name);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "name ", op->name);
 	}
 
 	if (op->title && op->title != op2->title)
 	{
-		sprintf(buf2, "title %s\n", op->title);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "title ", op->title);
 	}
 
 	if (op->race && op->race != op2->race)
 	{
-		sprintf(buf2, "race %s\n", op->race);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "race ", op->race);
 	}
 
 	if (op->slaying && op->slaying != op2->slaying)
 	{
-		sprintf(buf2, "slaying %s\n", op->slaying);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "slaying ", op->slaying);
 	}
 
 	if (op->msg && op->msg != op2->msg)
 	{
-		strcat(buf, "msg\n");
-		strcat(buf, op->msg);
-		/* we skipped last \n when we read the map, to avoid clear line in client */
-		strcat(buf, "\n");
-		strcat(buf, "endmsg\n");
+		stringbuffer_append_string(sb, "msg\n");
+		stringbuffer_append_string(sb, op->msg);
+		stringbuffer_append_string(sb, "\nendmsg\n");
 	}
 
 	if (op->other_arch != op2->other_arch && op->other_arch != NULL && op->other_arch->name)
 	{
-		sprintf(buf2, "other_arch %s\n", op->other_arch->name);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "other_arch ", op->other_arch->name);
 	}
 
 	if (op->face != op2->face)
 	{
-		sprintf(buf2, "face %s\n", op->face->name);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "face ", op->face->name);
 	}
 
 	if (op->inv_face != op2->inv_face)
 	{
-		sprintf(buf2, "inv_face %s\n", op->inv_face->name);
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "inv_face ", op->inv_face->name);
 	}
 
 	if (op->animation_id != op2->animation_id)
 	{
 		if (op->animation_id)
-			sprintf(buf2, "animation %s\n", animations[GET_ANIM_ID(op)].name);
+		{
+			ADD_STRINGLINE_ENTRY(sb, "animation ", animations[GET_ANIM_ID(op)].name);
+		}
 		else
-			sprintf(buf2, "animation NONE\n");
-
-		strcat(buf, buf2);
+		{
+			stringbuffer_append_string(sb, "animation NONE\n");
+		}
 	}
 
 	if (op->inv_animation_id != op2->inv_animation_id)
 	{
 		if (op->inv_animation_id)
-			sprintf(buf2, "inv_animation %s\n", animations[GET_INV_ANIM_ID(op)].name);
+		{
+			ADD_STRINGLINE_ENTRY(sb, "inv_animation ", animations[GET_INV_ANIM_ID(op)].name);
+		}
 		else
-			sprintf(buf2, "inv_animation NONE\n");
-
-		strcat(buf, buf2);
+		{
+			stringbuffer_append_string(sb, "inv_animation NONE\n");
+		}
 	}
 
-
 	if (op->stats.wc_range != op2->stats.wc_range)
-		save_long(buf, "wc_range", op->stats.wc_range);
+	{
+		FAST_SAVE_LONG(sb, "wc_range ", op->stats.wc_range);
+	}
 
 	if (op->stats.Str != op2->stats.Str)
-		save_long(buf, "Str", op->stats.Str);
+	{
+		FAST_SAVE_LONG(sb, "Str", op->stats.Str);
+	}
 
 	if (op->stats.Dex != op2->stats.Dex)
-		save_long(buf, "Dex", op->stats.Dex);
+	{
+		FAST_SAVE_LONG(sb, "Dex", op->stats.Dex);
+	}
 
 	if (op->stats.Con != op2->stats.Con)
-		save_long(buf, "Con", op->stats.Con);
+	{
+		FAST_SAVE_LONG(sb, "Con", op->stats.Con);
+	}
 
 	if (op->stats.Wis != op2->stats.Wis)
-		save_long(buf, "Wis", op->stats.Wis);
+	{
+		FAST_SAVE_LONG(sb, "Wis ", op->stats.Wis);
+	}
 
 	if (op->stats.Pow != op2->stats.Pow)
-		save_long(buf, "Pow", op->stats.Pow);
+	{
+		FAST_SAVE_LONG(sb, "Pow ", op->stats.Pow);
+	}
 
 	if (op->stats.Cha != op2->stats.Cha)
-		save_long(buf, "Cha", op->stats.Cha);
+	{
+		FAST_SAVE_LONG(sb, "Cha ", op->stats.Cha);
+	}
 
 	if (op->stats.Int != op2->stats.Int)
-		save_long(buf, "Int", op->stats.Int);
+	{
+		FAST_SAVE_LONG(sb, "Int ", op->stats.Int);
+	}
 
 	if (op->stats.hp != op2->stats.hp)
-		save_long(buf, "hp", op->stats.hp);
+	{
+		FAST_SAVE_LONG(sb, "hp ", op->stats.hp);
+	}
 
 	if (op->stats.maxhp != op2->stats.maxhp)
-		save_long(buf, "maxhp", op->stats.maxhp);
+	{
+		FAST_SAVE_LONG(sb, "maxhp ", op->stats.maxhp);
+	}
 
 	if (op->stats.sp != op2->stats.sp)
-		save_long(buf, "sp", op->stats.sp);
+	{
+		FAST_SAVE_LONG(sb, "sp ", op->stats.sp);
+	}
 
 	if (op->stats.maxsp != op2->stats.maxsp)
-		save_long(buf, "maxsp", op->stats.maxsp);
+	{
+		FAST_SAVE_LONG(sb, "maxsp ", op->stats.maxsp);
+	}
 
 	if (op->stats.grace != op2->stats.grace)
-		save_long(buf, "grace", op->stats.grace);
+	{
+		FAST_SAVE_LONG(sb, "grace ", op->stats.grace);
+	}
 
 	if (op->stats.maxgrace != op2->stats.maxgrace)
-		save_long(buf, "maxgrace", op->stats.maxgrace);
+	{
+		FAST_SAVE_LONG(sb, "maxgrace ", op->stats.maxgrace);
+	}
 
 	if (op->stats.exp != op2->stats.exp)
-		save_long(buf, "exp", op->stats.exp);
+	{
+		FAST_SAVE_LONG(sb, "exp ", op->stats.exp);
+	}
 
 	if (op->stats.food != op2->stats.food)
-		save_long(buf, "food", op->stats.food);
+	{
+		FAST_SAVE_LONG(sb, "food ", op->stats.food);
+	}
 
 	if (op->stats.dam != op2->stats.dam)
-		save_long(buf, "dam", op->stats.dam);
+	{
+		FAST_SAVE_LONG(sb, "dam ", op->stats.dam);
+	}
 
 	if (op->stats.luck != op2->stats.luck)
-		save_long(buf, "luck", op->stats.luck);
+	{
+		FAST_SAVE_LONG(sb, "luck ", op->stats.luck);
+	}
 
 	if (op->stats.wc != op2->stats.wc)
-		save_long(buf, "wc", op->stats.wc);
+	{
+		FAST_SAVE_LONG(sb, "wc ", op->stats.wc);
+	}
 
 	if (op->stats.ac != op2->stats.ac)
-		save_long(buf, "ac", op->stats.ac);
+	{
+		FAST_SAVE_LONG(sb, "ac ", op->stats.ac);
+	}
 
 	if (op->x != op2->x)
-		save_long(buf, "x", op->x);
+	{
+		FAST_SAVE_LONG(sb, "x ", op->x);
+	}
 
 	if (op->y != op2->y)
-		save_long(buf, "y", op->y);
+	{
+		FAST_SAVE_LONG(sb, "y ", op->y);
+	}
 
 	if (op->speed != op2->speed)
 	{
-		sprintf(buf2, "speed %f\n", op->speed);
-		strcat(buf, buf2);
+		FAST_SAVE_DOUBLE(sb, "speed ", op->speed);
 	}
 
 	if (op->speed_left != op2->speed_left || op->speed_left)
 	{
-		sprintf(buf2, "speed_left %f\n", op->speed_left);
-		strcat(buf, buf2);
+		FAST_SAVE_DOUBLE(sb, "speed_left ", op->speed_left);
 	}
 
 	if (op->material_real != op2->material_real)
 	{
-		sprintf(buf2, "material_real %d\n", op->material_real);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "material_real ", op->material_real);
 	}
 
 	if (op->sub_type1 != op2->sub_type1)
 	{
-		sprintf(buf2, "sub_type %d\n", op->sub_type1);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type1);
 	}
 
 	if (op->terrain_flag != op2->terrain_flag)
 	{
-		sprintf(buf2, "terrain_flag %d\n", op->terrain_flag);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "terrain_flag ", op->terrain_flag);
 	}
 
 	if (op->terrain_type != op2->terrain_type)
 	{
-		sprintf(buf2, "terrain_type %d\n", op->terrain_type);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "terrain_type ", op->terrain_type);
 	}
 
 	if (op->item_quality != op2->item_quality)
 	{
-		sprintf(buf2, "item_quality %d\n", op->item_quality);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "item_quality ", op->item_quality);
 	}
 
 	if (op->item_condition != op2->item_condition)
 	{
-		sprintf(buf2, "item_condition %d\n", op->item_condition);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "item_condition ", op->item_condition);
 	}
 
 	if (op->item_race != op2->item_race)
 	{
-		sprintf(buf2, "item_race %d\n", op->item_race);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "item_race ", op->item_race);
 	}
 
 	if (op->item_skill != op2->item_skill)
 	{
-		sprintf(buf2, "item_skill %d\n", op->item_skill);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "item_skill ", op->item_skill);
 	}
 
 	if (op->item_level != op2->item_level)
 	{
-		sprintf(buf2, "item_level %d\n", op->item_level);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "item_level ", op->item_level);
 	}
 
 	if (op->weapon_speed != op2->weapon_speed)
 	{
-		sprintf(buf2, "weapon_speed %f\n", op->weapon_speed);
-		strcat(buf, buf2);
+		FAST_SAVE_DOUBLE(sb, "weapon_speed ", op->weapon_speed);
 	}
 
 	if (op->enemy_count != op2->enemy_count)
 	{
-		sprintf(buf2, "object_int1 %d\n", op->enemy_count);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "object_int1 ", op->enemy_count);
 	}
 
 	if (op->attacked_by_count != op2->attacked_by_count)
 	{
-		sprintf(buf2, "object_int2 %d\n", op->attacked_by_count);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "object_int2 ", op->attacked_by_count);
 	}
 
 	if (op->ownercount != op2->ownercount)
 	{
-		sprintf(buf2, "object_int3 %d\n", op->ownercount);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "object_int3 ", op->ownercount);
 	}
 
 	if (op->move_status != op2->move_status)
-		save_long(buf, "move_state", op->move_status);
+	{
+		FAST_SAVE_LONG(sb, "move_state ", op->move_status);
+	}
 
 	if (op->move_type != op2->move_type)
 	{
-		save_long(buf, "movement_type", op->move_type);
+		FAST_SAVE_LONG(sb, "movement_type ", op->move_type);
 	}
 
 	if (op->attack_move_type != op2->attack_move_type)
 	{
-		save_long(buf, "attack_move_type", op->attack_move_type);
+		FAST_SAVE_LONG(sb, "attack_move_type ", op->attack_move_type);
 	}
 
 	if (op->nrof != op2->nrof)
-		save_long(buf, "nrof", op->nrof);
+	{
+		FAST_SAVE_LONG(sb, "nrof ", op->nrof);
+	}
 
 	if (op->level != op2->level)
-		save_long(buf, "level", op->level);
+	{
+		FAST_SAVE_LONG(sb, "level ", op->level);
+	}
 
 	if (op->direction != op2->direction)
-		save_long(buf, "direction", op->direction);
+	{
+		FAST_SAVE_LONG(sb, "direction ", op->direction);
+	}
 
 	if (op->type != op2->type)
-		save_long(buf, "type", op->type);
+	{
+		FAST_SAVE_LONG(sb, "type ", op->type);
+	}
 
   	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
    		if (op->resist[tmp] != op2->resist[tmp])
 		{
-			sprintf(buf2, "resist_%s %d\n", resist_save[tmp], op->resist[tmp]);
-			strcat(buf, buf2);
+			stringbuffer_append_printf(sb, "resist_%s %d\n", resist_save[tmp], op->resist[tmp]);
     	}
   	}
 
@@ -1431,8 +1479,7 @@ char *get_ob_diff(object *op, object *op2)
 	{
 		if (op->attack[tmp] != op2->attack[tmp])
 		{
-			sprintf(buf2, "attack_%s %d\n", resist_save[tmp], op->attack[tmp]);
-			strcat(buf, buf2);
+			stringbuffer_append_printf(sb, "attack_%s %d\n", resist_save[tmp], op->attack[tmp]);
 		}
 	}
 
@@ -1440,93 +1487,120 @@ char *get_ob_diff(object *op, object *op2)
 	{
 		if (op->protection[tmp] != op2->protection[tmp])
 		{
-			sprintf(buf2, "protect_%s %d\n", protection_save[tmp], op->protection[tmp]);
-			strcat(buf, buf2);
+			stringbuffer_append_printf(sb, "protect_%s %d\n", protection_save[tmp], op->protection[tmp]);
 		}
 	}
 
 	if (op->layer != op2->layer)
-		save_long(buf, "layer", op->layer);
+	{
+		FAST_SAVE_LONG(sb, "layer ", op->layer);
+	}
 
 	if (op->path_attuned != op2->path_attuned)
-		save_long(buf, "path_attuned", op->path_attuned);
+	{
+		FAST_SAVE_LONG(sb, "path_attuned ", op->path_attuned);
+	}
 
 	if (op->path_repelled != op2->path_repelled)
-		save_long(buf, "path_repelled", op->path_repelled);
+	{
+		FAST_SAVE_LONG(sb, "path_repelled ", op->path_repelled);
+	}
 
 	if (op->path_denied != op2->path_denied)
-		save_long(buf, "path_denied", op->path_denied);
+	{
+		FAST_SAVE_LONG(sb, "path_denied ", op->path_denied);
+	}
 
 	if (op->material != op2->material)
-		save_long(buf, "material", op->material);
+	{
+		FAST_SAVE_LONG(sb, "material ", op->material);
+	}
 
 	if (op->value != op2->value)
 	{
-		sprintf(buf2, "value %"FMT64"\n", op->value);
-		strcat(buf, buf2);
+		stringbuffer_append_printf(sb, "value %"FMT64"\n", op->value);
 	}
 
 	if (op->carrying != op2->carrying)
-		save_long(buf, "carrying", op->carrying);
+	{
+		FAST_SAVE_LONG(sb, "carrying ", op->carrying);
+	}
 
 	if (op->weight != op2->weight)
-		save_long(buf, "weight", op->weight);
+	{
+		FAST_SAVE_LONG(sb, "weight ", op->weight);
+	}
 
 	if (op->state != op2->state)
-		save_long(buf, "state", op->state);
+	{
+		FAST_SAVE_LONG(sb, "state ", op->state);
+	}
 
 	if (op->magic != op2->magic)
-		save_long(buf, "magic", op->magic);
+	{
+		FAST_SAVE_LONG(sb, "magic ", op->magic);
+	}
 
 	if (op->last_heal != op2->last_heal)
-		save_long(buf, "last_heal", op->last_heal);
+	{
+		FAST_SAVE_LONG(sb, "last_heal ", op->last_heal);
+	}
 
 	if (op->last_sp != op2->last_sp)
-		save_long(buf, "last_sp", op->last_sp);
+	{
+		FAST_SAVE_LONG(sb, "last_sp ", op->last_sp);
+	}
 
 	if (op->last_grace != op2->last_grace)
-		save_long(buf, "last_grace", op->last_grace);
+	{
+		FAST_SAVE_LONG(sb, "last_grace ", op->last_grace);
+	}
 
 	if (op->last_eat != op2->last_eat)
-		save_long(buf, "last_eat", op->last_eat);
+	{
+		FAST_SAVE_LONG(sb, "last_eat ", op->last_eat);
+	}
 
 	if (QUERY_FLAG(op, FLAG_IS_LINKED) && (tmp = get_button_value(op)))
-		save_long(buf, "connected", tmp);
+	{
+		FAST_SAVE_LONG(sb, "connected ", tmp);
+	}
 
 	if (op->glow_radius != op2->glow_radius)
-		save_long(buf, "glow_radius", op->glow_radius);
+	{
+		FAST_SAVE_LONG(sb, "glow_radius ", op->glow_radius);
+	}
 
 	if (op->randomitems != op2->randomitems)
 	{
-		sprintf(buf2, "randomitems %s\n", (op->randomitems ? op->randomitems->name : "none"));
-		strcat(buf, buf2);
+		ADD_STRINGLINE_ENTRY(sb, "randomitems ", (op->randomitems ? op->randomitems->name : "none"));
 	}
 
 	if (op->run_away != op2->run_away)
-		save_long(buf, "run_away", op->run_away);
+	{
+		FAST_SAVE_LONG(sb, "run_away ", op->run_away);
+	}
 
 	if (op->weight_limit != op2->weight_limit)
-		save_long(buf, "container", op->weight_limit);
+	{
+		FAST_SAVE_LONG(sb, "container ", op->weight_limit);
+	}
 
 	if (op->will_apply != op2->will_apply)
-		save_long(buf, "will_apply", op->will_apply);
+	{
+		FAST_SAVE_LONG(sb, "will_apply ", op->will_apply);
+	}
 
 	if (op->quickslot != op2->quickslot)
 	{
-		sprintf(buf2, "quickslot %d\n", op->quickslot);
-		strcat(buf, buf2);
+		FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
 	}
 
   	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{
 		if (flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
 		{
-			if (QUERY_FLAG(op, tmp))
-				sprintf(buf2, "%s 1\n", flag_names[tmp]);
-			else
-				sprintf(buf2, "%s 0\n", flag_names[tmp]);
-
-			strcat(buf, buf2);
+			ADD_STRINGLINE_ENTRY(sb, flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
     	}
   	}
 
@@ -1537,15 +1611,9 @@ char *get_ob_diff(object *op, object *op2)
 	{
     	if (!QUERY_FLAG(op2, FLAG_SLOW_MOVE) || SLOW_PENALTY(op) != SLOW_PENALTY(op2))
 		{
-			sprintf(buf2, "slow_move %f\n", SLOW_PENALTY(op));
-			strcat(buf, buf2);
+			FAST_SAVE_DOUBLE(sb, "slow_move ", SLOW_PENALTY(op));
     	}
   	}
-
-  	if (buf[0] == '\0')
-    	return NULL;
-
-  	return buf;
 }
 
 /**
@@ -1558,70 +1626,71 @@ char *get_ob_diff(object *op, object *op2)
  * all of the callers are setting this. */
 void save_object(FILE *fp, object *op, int flag)
 {
-    archetype *at;
-    char *cp;
-    object *tmp, *old;
+	archetype *at;
+	object *tmp, *old;
+	StringBuffer *sb;
+	char *cp;
 
-    /* Even if the object does have an owner, it would seem that we should
-     * still save it. */
-    /*if(op->owner!=NULL || fp == NULL) this will wreck item we throw - they get player as owner */
-    if (fp == NULL)
+	/* Even if the object does have an owner, it would seem that we should
+	 * still save it. */
+	if (fp == NULL)
 	{
 		return;
 	}
 
-    /* If it is unpaid and we don't want to save those, just return. */
-    if (!(flag & 1) && (QUERY_FLAG(op, FLAG_UNPAID)))
+	/* If it is unpaid and we don't want to save those, just return. */
+	if (!(flag & 1) && (QUERY_FLAG(op, FLAG_UNPAID)))
 	{
 		return;
 	}
 
-    if ((at = op->arch) == NULL)
+	if ((at = op->arch) == NULL)
 	{
 		at = empty_archetype;
 	}
 
-    fprintf(fp, "arch %s\n", at->name);
+	fprintf(fp, "arch %s\n", at->name);
 
-	/* We really should do some status checking on this */
-    if ((cp = get_ob_diff(op, &at->clone)) != NULL)
+	sb = stringbuffer_new();
+	get_ob_diff(sb, op, &at->clone);
+	cp = stringbuffer_finish(sb);
+
+	fputs(cp, fp);
+	free(cp);
+
+	/* Eneq(@csd.uu.se): Added this to allow containers being saved with contents */
+	old = NULL;
+
+	if (flag & 2)
 	{
-		fputs(cp, fp);
-	}
-
-    /* Eneq(@csd.uu.se): Added this to allow containers being saved with contents */
-    old = NULL;
-
-    if (flag & 2)
-	{
-		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
-	    	save_object(fp, tmp, flag);
+			save_object(fp, tmp, flag);
 		}
 	}
-    /* Slightly different logic because tmp/op will be removed by
-     * the save_object we call.  So we just keep looking at op->inv
-     * until there is nothing left.  In theory, the variable old
-     * should not be needed, as recursive loops shouldn't happen. */
-    else
+	/* Slightly different logic because tmp/op will be removed by
+	 * the save_object we call.  So we just keep looking at op->inv
+	 * until there is nothing left.  In theory, the variable old
+	 * should not be needed, as recursive loops shouldn't happen. */
+	else
 	{
 		while ((tmp = op->inv) != NULL)
 		{
 			if (old == tmp)
 			{
-	    		LOG(llevError, "Recursive loop in inventory\n");
-	    		break;
+				LOG(llevError, "Recursive loop in inventory\n");
+				break;
 			}
 
 			save_object(fp, tmp, flag);
 			old = tmp;
-    	}
+		}
 	}
 
-    if (!(flag & 2))
+	if (!(flag & 2))
 	{
 		remove_ob(op);
 	}
 
-    fprintf(fp, "end\n");
+	fprintf(fp, "end\n");
 }

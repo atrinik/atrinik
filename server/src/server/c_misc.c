@@ -302,6 +302,8 @@ int command_who(object *op, char *params)
 		return 1;
 	}
 
+	new_draw_info(NDI_UNIQUE, 0, op, " ");
+
 	wiz = QUERY_FLAG(op, FLAG_WIZ);
 
 	(void) params;

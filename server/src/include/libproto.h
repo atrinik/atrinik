@@ -35,7 +35,6 @@ extern archetype *get_skill_archetype(int skillnr);
 extern int item_matched_string(object *pl, object *op, const char *name);
 extern void init_archetypes();
 extern void arch_info(object *op);
-extern void dump_arch(archetype *at);
 extern void dump_all_archetypes();
 extern void free_all_archs();
 extern object *arch_to_object(archetype *at);
@@ -137,7 +136,7 @@ extern void delete_loader_buffer(void *buffer);
 extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, char *buf);
-extern char *get_ob_diff(object *op, object *op2);
+extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 extern void save_object(FILE *fp, object *op, int flag);
 
 /* logger.c */
@@ -206,8 +205,7 @@ extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);
 extern signed long sum_weight(object *op);
 extern object *is_player_inv(object *op);
-extern void dump_object(object *op);
-extern void dump_me(object *op, char *outstr);
+extern void dump_object(object *op, StringBuffer *sb);
 extern void free_all_object_data();
 extern object *get_owner(object *op);
 extern void clear_owner(object *op);
@@ -225,7 +223,7 @@ extern void remove_ob(object *op);
 extern void destruct_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);
-extern object *get_split_ob(object *orig_ob, int nr);
+extern object *get_split_ob(object *orig_ob, int nr, char *err, size_t size);
 extern object *decrease_ob_nr(object *op, int i);
 extern object *insert_ob_in_ob(object *op, object *where);
 extern int check_walk_on(object *op, object *originator, int flags);
@@ -262,8 +260,6 @@ extern char *strdup_local(const char *str);
 extern long strtol_local(char *str, char **ptr, int base);
 extern char *strerror_local(int errnum);
 extern int isqrt(int n);
-extern char *ltostr10(signed long n);
-extern void save_long(char *buf, char *name, long n);
 extern FILE *open_and_uncompress(char *name, int flag, int *compressed);
 extern void close_and_delete(FILE *fp, int compressed);
 extern void make_path_to_file(char *filename);
@@ -310,6 +306,14 @@ extern void free_string_shared(const char *str);
 extern void ss_dump_statistics(char *buf, size_t size);
 extern void ss_dump_table(int what, char *buf, size_t size);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
+
+/* stringbuffer.c */
+extern StringBuffer *stringbuffer_new();
+extern char *stringbuffer_finish(StringBuffer *sb);
+extern const char *stringbuffer_finish_shared(StringBuffer *sb);
+extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
+extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...);
+extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 
 /* time.c */
 extern void reset_sleep();

@@ -1371,7 +1371,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 	}
 	else
 	{
-		arrow = get_split_ob(arrow, 1);
+		arrow = get_split_ob(arrow, 1, NULL, 0);
 	}
 
 	set_owner(arrow, head);

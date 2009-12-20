@@ -336,25 +336,22 @@ static void init_archetable()
 }
 
 /**
- * Dumps an archetype to debug-level output.
- * @param at Archetype to dump. Must not be NULL. */
-void dump_arch(archetype *at)
-{
-	dump_object(&at->clone);
-}
-
-/**
- * Dumps _all_ archetypes to debug-level output. */
+ * Dumps _all_ archetypes and artifacts to debug-level output. */
 void dump_all_archetypes()
 {
 	archetype *at;
 	artifactlist *al;
 	artifact *art = NULL;
+	StringBuffer *sb;
+	char *diff;
 
 	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
 	{
-		dump_arch(at);
-		LOG(llevInfo, "%s\n", errmsg);
+		sb = stringbuffer_new();
+		dump_object(&at->clone, sb);
+		diff = stringbuffer_finish(sb);
+		LOG(llevInfo, "%s\n", diff);
+		free(diff);
 	}
 
 	LOG(llevInfo, "Artifacts fake arch list:\n");
@@ -365,11 +362,14 @@ void dump_all_archetypes()
 
 		do
 		{
-			dump_arch(&art->def_at);
-			LOG(llevInfo, "%s\n", errmsg);
+			sb = stringbuffer_new();
+			dump_object(&art->def_at.clone, sb);
+			diff = stringbuffer_finish(sb);
+			LOG(llevInfo, "%s\n", diff);
+			free(diff);
 			art = art->next;
 		}
-		while (art != NULL);
+		while (art);
 	}
 }
 

@@ -343,49 +343,6 @@ int isqrt(int n)
 	return result;
 }
 
-/* returns a char-pointer to a static array, in which a representation
- * of the decimal number given will be stored. */
-char *ltostr10(signed long n)
-{
-	static char buf[10];
-	char *cp = buf + 9;
-	long flag;
-
-	*cp = '\0';
-
-	if (n < 0)
-		flag= n = -n;
-	else
-		flag = 0;
-
-	do
-	{
-		*(--cp) = '0' + n % 10;
-		n /= 10;
-	}
-	while (n);
-
-	if (flag)
-		*(--cp) = '-';
-
-	return cp;
-}
-
-/* A fast routine which appends the name and decimal number specified
- * to the given buffer.
- * Could be faster, though, if the strcat()s at the end could be changed
- * into alternate strcat which returned a pointer to the _end_, not the
- * start! */
-void save_long(char *buf, char *name, long n)
-{
-	char buf2[MAX_BUF];
-	strcpy(buf2, name);
-	strcat(buf2, " ");
-	strcat(buf2, ltostr10(n));
-	strcat(buf2, "\n");
-	strcat(buf, buf2);
-}
-
 /* This is a list of the suffix, uncompress and compress functions.  Thus,
  * if you have some other compress program you want to use, the only thing
  * that needs to be done is to extended this.

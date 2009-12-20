@@ -735,7 +735,7 @@ void do_throw(object *op, object *toss_item, int dir)
 
 	/* Sometimes get_split_ob can't split an object (because op->nrof==0?)
 	 * and returns NULL. We must use 'left' then */
-	if ((throw_ob = get_split_ob(throw_ob, 1)) == NULL)
+	if ((throw_ob = get_split_ob(throw_ob, 1, NULL, 0)) == NULL)
 	{
 #ifdef DEBUG_THROW
 		LOG(llevDebug, " get_split_ob(): failed to split throw ob %s\n", left->name);

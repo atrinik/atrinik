@@ -77,7 +77,6 @@ struct plugin_hooklist hooklist =
 	find_god,
 	register_global_event,
 	unregister_global_event,
-	dump_me,
 	load_object_str,
 	query_cost,
 	query_money,
@@ -117,6 +116,9 @@ struct plugin_hooklist hooklist =
 	remove_party_member,
 	send_party_message,
 	Write_String_To_Socket,
+	dump_object,
+	stringbuffer_new,
+	stringbuffer_finish,
 
 	season_name,
 	weekdays,

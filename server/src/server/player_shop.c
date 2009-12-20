@@ -630,7 +630,7 @@ void player_shop_buy(char *data, player *pl)
 
 			if (nrof != tmp->nrof)
 			{
-				tmp = get_split_ob(tmp, nrof);
+				tmp = get_split_ob(tmp, nrof, NULL, 0);
 			}
 			else
 			{

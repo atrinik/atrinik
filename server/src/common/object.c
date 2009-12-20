@@ -136,7 +136,6 @@ materialtype material[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL] = {};
 
-static void dump_object2(object *op);
 static void sub_weight(object *op, sint32 weight);
 static void remove_ob_inv(object *op);
 static void add_weight(object *op, sint32 weight);
@@ -642,110 +641,29 @@ object *is_player_inv(object *op)
 }
 
 /**
- * Used by: Server DM commands: dumpbelow, dump.
- *
- * Some error messages.
- *
- * The result of the dump is stored in the static global errmsg array.
- * @param op The object to dump */
-static void dump_object2(object *op)
-{
-	char *cp, buf[MAX_BUF];
-
-	if (op->arch != NULL)
-	{
-		snprintf(buf, sizeof(buf), "arch %s (%u)\n", op->arch->name ? op->arch->name : "(null)", op->count);
-		strcat(errmsg, buf);
-
-		if ((cp = get_ob_diff(op, &empty_archetype->clone)) != NULL)
-		{
-			strcat(errmsg, cp);
-		}
-
-		strcat(errmsg, "end\n");
-	}
-	else
-	{
-		strcat(errmsg, "Object ");
-
-		if (op->name == NULL)
-		{
-			strcat(errmsg, "(null)");
-		}
-		else
-		{
-			strcat(errmsg, op->name);
-		}
-
-		strcat(errmsg, "\n");
-		strcat(errmsg, "end\n");
-	}
-}
-
-/**
- * Dumps an object. Returns output in the static global errmsg array.
- * @param op The object to dump. */
-void dump_object(object *op)
+ * Dumps an object.
+ * @param op Object to dump. Can be NULL.
+ * @param sb Buffer that will contain object information. Must not be
+ * NULL. */
+void dump_object(object *op, StringBuffer *sb)
 {
 	if (op == NULL)
 	{
-		strcpy(errmsg, "[NULL pointer]");
-
+		stringbuffer_append_string(sb, "[NULL pointer]");
 		return;
 	}
-
-	errmsg[0] = '\0';
-	dump_object2(op);
-}
-
-/**
- * Dumps an object. Return the result into a string.
- *
- * @note No checking is done for the validity of the target string, so
- * you need to be sure that you allocated enough space for it.
- * @param op The object to dump
- * @param outstr Pointer to character where to store the dump. */
-void dump_me(object *op, char *outstr)
-{
-	char *cp;
-
-	if (op == NULL)
-	{
-		strcpy(outstr, "[NULL pointer]");
-
-		return;
-	}
-
-	outstr[0] = '\0';
 
 	if (op->arch != NULL)
 	{
-		strcat(outstr, "arch ");
-		strcat(outstr, op->arch->name ? op->arch->name : "(null)");
-		strcat(outstr, "\n");
-
-		if ((cp = get_ob_diff(op, &empty_archetype->clone)) != NULL)
-		{
-			strcat(outstr, cp);
-		}
-
-		strcat(outstr, "end\n");
+		stringbuffer_append_printf(sb, "arch %s (%u)\n", op->arch->name ? op->arch->name : "(null)", op->count);
+		get_ob_diff(sb, op, &empty_archetype->clone);
+		stringbuffer_append_string(sb, "end\n");
 	}
 	else
 	{
-		strcat(outstr, "Object ");
-
-		if (op->name == NULL)
-		{
-			strcat(outstr, "(null)");
-		}
-		else
-		{
-			strcat(outstr, op->name);
-		}
-
-		strcat(outstr, "\n");
-		strcat(outstr, "end\n");
+		stringbuffer_append_string(sb, "Object ");
+		stringbuffer_append_string(sb, op->name == NULL ? "(null)" : op->name);
+		stringbuffer_append_string(sb, "\nend\n");
 	}
 }
 
@@ -1058,7 +976,7 @@ void copy_object_data(object *op2, object *op)
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
 
-    free_key_values(op);
+	free_key_values(op);
 
 	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
@@ -1163,8 +1081,7 @@ void update_ob_speed(object *op)
 	 * since they never really need to be updated. */
 	if (OBJECT_FREE(op) && op->speed)
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: Object %s is freed but has speed.\n:%s\n", op->name, errmsg);
+		LOG(llevBug, "BUG: Object %s is freed but has speed.\n", op->name);
 		op->speed = 0;
 	}
 
@@ -1659,16 +1576,25 @@ void destroy_object(object *ob)
 {
 	if (OBJECT_FREE(ob))
 	{
-		dump_object(ob);
-		LOG(llevBug, "BUG: Trying to destroy freed object.\n%s\n", errmsg);
+		StringBuffer *sb = stringbuffer_new();
+		char *diff;
 
+		dump_object(ob, sb);
+		diff = stringbuffer_finish(sb);
+		LOG(llevBug, "BUG: Trying to destroy freed object.\n%s\n", diff);
+		free(diff);
 		return;
 	}
 
 	if (!QUERY_FLAG(ob, FLAG_REMOVED))
 	{
-		dump_object(ob);
-		LOG(llevBug, "BUG: Destroy object called with non removed object\n:%s\n", errmsg);
+		StringBuffer *sb = stringbuffer_new();
+		char *diff;
+
+		dump_object(ob, sb);
+		diff = stringbuffer_finish(sb);
+		LOG(llevBug, "BUG: Destroy object called with non removed object\n:%s\n", diff);
+		free(diff);
 	}
 
 	free_key_values(ob);
@@ -1971,33 +1897,13 @@ static void remove_ob_inv(object *op)
 }
 
 /**
- * This function inserts the object in the two-way linked list
- * which represents what is on a map.
- * The second argument specifies the map, and the x and y variables
- * in the object about to be inserted specifies the position.
- *
- * originator: Player, monster or other object that caused 'op' to be inserted
- * into 'map'.  May be NULL.
- *
- * flag is a bitmask about special things to do (or not do) when this
- * function is called.  see the object.h file for the INS_ values.
- * Passing 0 for flag gives proper default values, so flag really only needs
- * to be set if special handling is needed.
- *
- * Return value:
- *   NULL if 'op' was destroyed
- *   just 'op' otherwise
- *   When a trap (like a trapdoor) has moved us here, op will returned true.
- *   The caller function must handle it and controlling ->map, ->x and ->y of op
- *
- * I reworked the FLY/MOVE_ON system - it should now very solid and faster. MT-2004.
- * Notice that the FLY/WALK_OFF stuff is removed from remove_ob() and must be called
- * explicit when we want make a "move/step" for a object which can trigger it.
- * @param op
- * @param m
- * @param originator
- * @param flag
- * @return  */
+ * This function inserts the object in the two-way linked list which
+ * represents what is on a map.
+ * @param op Object to insert.
+ * @param m Map to insert into.
+ * @param originator What caused op to be inserted.
+ * @param flag Combination of @ref INS_xxx "INS_xxx" values.
+ * @return NULL if 'op' was destroyed, 'op' otherwise. */
 object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 {
 	object *tmp = NULL, *top;
@@ -2008,22 +1914,19 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	 * which tracks we have problems or not */
 	if (OBJECT_FREE(op))
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert freed object %s in map %s!\n:%s\n", query_name(op, NULL), m->name, errmsg);
+		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert freed object %s in map %s!\n", query_name(op, NULL), m->name);
 		return NULL;
 	}
 
 	if (m == NULL)
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s in null-map!\n%s\n", query_name(op, NULL), errmsg);
+		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert object %s in null-map!\n", query_name(op, NULL));
 		return NULL;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n%s\n", query_name(op, NULL), m->name, errmsg);
+		LOG(llevBug, "BUG: insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->name);
 		return NULL;
 	}
 
@@ -2394,12 +2297,14 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
 /**
  * Splits up ob into two parts. The part which is returned contains nr
  * objects, and the remaining parts contains the rest (or is removed
- * and freed if that number is 0). On failure, NULL is returned, and the
- * reason put into the global static errmsg array.
- * @param orig_ob
- * @param nr
- * @return  */
-object *get_split_ob(object *orig_ob, int nr)
+ * and freed if that number is 0).
+ * @param orig_ob Object from which to split.
+ * @param nr Number of elements to split.
+ * @param err Buffer that will contain failure reason if NULL is
+ * returned. Can be NULL.
+ * @param size err's size.
+ * @return Split object, or NULL on failure. */
+object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 {
 	object *newob;
 	object *tmp, *event;
@@ -2407,7 +2312,11 @@ object *get_split_ob(object *orig_ob, int nr)
 
 	if ((int) orig_ob->nrof < nr)
 	{
-		sprintf(errmsg, "There are only %d %ss.", orig_ob->nrof ? orig_ob->nrof : 1, query_name(orig_ob, NULL));
+		if (err)
+		{
+			snprintf(err, size, "There are only %d %ss.", orig_ob->nrof ? orig_ob->nrof : 1, query_name(orig_ob, NULL));
+		}
+
 		return NULL;
 	}
 
@@ -2425,9 +2334,6 @@ object *get_split_ob(object *orig_ob, int nr)
 		}
 	}
 
-	/*    if(QUERY_FLAG(orig_ob, FLAG_UNPAID) && QUERY_FLAG(orig_ob, FLAG_NO_PICK))*/
-	/*		;*/ /* clone objects .... */
-	/*	else*/
 	orig_ob->nrof -= nr;
 
 	if (orig_ob->nrof < 1)
@@ -2444,7 +2350,7 @@ object *get_split_ob(object *orig_ob, int nr)
 
 		if (orig_ob->env == NULL && orig_ob->map->in_memory != MAP_IN_MEMORY)
 		{
-			strcpy(errmsg, "Tried to split object whose map is not in memory.");
+			strncpy(err, "Tried to split object whose map is not in memory.", size);
 			LOG(llevDebug, "Error, Tried to split object whose map is not in memory.\n");
 			return NULL;
 		}
@@ -2562,33 +2468,40 @@ object *decrease_ob_nr(object *op, int i)
 /**
  * This function inserts the object op in the linked list inside the
  * object environment.
- *
- * Eneq(@csd.uu.se): Altered insert_ob_in_ob to make things picked up enter
- * the inventory at the last position or next to other objects of the same
- * type.
- *
- * Frank: Now sorted by type, archetype and magic!
- *
- * The function returns now pointer to inserted item, and return value can
- * be != op, if items are merged. -Tero
- * @param op
- * @param where
- * @return  */
+ * @param op Object to insert. Must be removed and not NULL. Must not be
+ * multipart. May become invalid after return, so use return value of the
+ * function.
+ * @param where Object to insert into. Must not be NULL. Should be the
+ * head part.
+ * @return Pointer to inserted item, which will be different than op if
+ * object was merged. */
 object *insert_ob_in_ob(object *op, object *where)
 {
 	object *tmp, *otmp;
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: Trying to insert (ob) inserted object.\n%s\n", errmsg);
+		StringBuffer *sb;
+		char *diff;
+
+		sb = stringbuffer_new();
+		dump_object(op, sb);
+		diff = stringbuffer_finish(sb);
+		LOG(llevBug, "BUG: Trying to insert (ob) inserted object.\n%s\n", diff);
+		free(diff);
 		return op;
 	}
 
 	if (where == NULL)
 	{
-		dump_object(op);
-		LOG(llevBug, "BUG: Trying to put object in NULL.\n%s\n", errmsg);
+		StringBuffer *sb;
+		char *diff;
+
+		sb = stringbuffer_new();
+		dump_object(op, sb);
+		diff = stringbuffer_finish(sb);
+		LOG(llevBug, "BUG: Trying to put object in NULL.\n%s\n", diff);
+		free(diff);
 		return op;
 	}
 
@@ -3351,21 +3264,19 @@ int was_destroyed(object *op, tag_t old_tag)
  * Creates an object using a string representing its content.
  *
  * Basically, we save the content of the string to a temp file, then call
- * load_object on it. I admit it is a highly inefficient way to make things,
- * but it was simple to make and allows reusing the load_object function.
- * Remember not to use load_object_str in a time-critical situation.
- * Also remember that multiparts objects are not supported for now.
- * @param obstr
- * @return  */
-object* load_object_str(char *obstr)
+ * load_object on it.
+ * @param obstr String to load the object from.
+ * @return The newly created object. */
+object *load_object_str(char *obstr)
 {
 	object *op;
 	FILE *tempfile;
 	void *mybuffer;
 	char filename[MAX_BUF];
 
-	sprintf(filename, "%s/cfloadobstr2044", settings.tmpdir);
+	snprintf(filename, sizeof(filename), "%s/cfloadobstr2044", settings.tmpdir);
 	tempfile = fopen(filename, "w+");
+
 	if (tempfile == NULL)
 	{
 		LOG(llevError, "ERROR: load_object_str(): Unable to access load object temp file\n");
@@ -3378,7 +3289,6 @@ object* load_object_str(char *obstr)
 	mybuffer = create_loader_buffer(tempfile);
 	load_object(tempfile, op, mybuffer, LO_REPEAT, 0);
 	delete_loader_buffer(mybuffer);
-	LOG(llevDebug, "load str completed, object=%s\n", query_name(op, NULL));
 	fclose(tempfile);
 	return op;
 }

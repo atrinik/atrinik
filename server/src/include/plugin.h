@@ -191,7 +191,6 @@ struct plugin_hooklist
 	object *(*find_god)(const char *);
 	void (*register_global_event)(char *, int);
 	void (*unregister_global_event)(char *, int);
-	void (*dump_me)(object *, char *);
 	object *(*load_object_str)(char *);
 	sint64 (*query_cost)(object *, object *, int);
 	sint64 (*query_money)(object *);
@@ -231,6 +230,9 @@ struct plugin_hooklist
 	void (*remove_party_member)(partylist_struct *, object *);
 	void (*send_party_message)(partylist_struct *, char *, int, object *);
 	void (*Write_String_To_Socket)(NewSocket *, char, char *, int);
+	void (*dump_object)(object *, StringBuffer *);
+	StringBuffer *(*stringbuffer_new)();
+	char *(*stringbuffer_finish)(StringBuffer *);
 
 	const char **season_name;
 	const char **weekdays;

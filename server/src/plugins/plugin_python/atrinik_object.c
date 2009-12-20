@@ -2483,13 +2483,20 @@ static PyObject *Atrinik_Object_IsOfType(Atrinik_Object *whoptr, PyObject *args)
  * @return String containing the saved object. */
 static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 {
-	char result[HUGE_BUF * 8];
+	PyObject *ret;
+	StringBuffer *sb;
+	char *result;
 
 	(void) args;
 
-	hooks->dump_me(WHO, result);
+	sb = hooks->stringbuffer_new();
+	hooks->dump_object(WHO, sb);
+	result = hooks->stringbuffer_finish(sb);
 
-	return Py_BuildValue("s", result);
+	ret = Py_BuildValue("s", result);
+	free(result);
+
+	return ret;
 }
 
 /**

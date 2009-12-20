@@ -414,6 +414,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempoo
 void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 {
 	int j, k;
+	char buf[MAX_BUF];
 
 	for (j = 0; j < nrof_mempools; j++)
 	{
@@ -425,14 +426,14 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 				int mem_used = ob_used*((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
 				int mem_free = ob_free*((mempools[j]->chunksize << k) + sizeof(struct mempool_chunk));
 
-				snprintf(errmsg, sizeof(errmsg), "%4d used (%4d free) %s[%3d]: %d (%d)", ob_used, ob_free, mempools[j]->chunk_description, 1 << k, mem_used, mem_free);
+				snprintf(buf, sizeof(buf), "%4d used (%4d free) %s[%3d]: %d (%d)", ob_used, ob_free, mempools[j]->chunk_description, 1 << k, mem_used, mem_free);
 
 				if (op)
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, errmsg);
+					new_draw_info(NDI_UNIQUE, 0, op, buf);
 				}
 
-				LOG(llevSystem, "%s\n", errmsg);
+				LOG(llevSystem, "%s\n", buf);
 
 				if (sum_used)
 				{
