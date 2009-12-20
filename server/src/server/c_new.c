@@ -946,7 +946,7 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 	/* we should careful set a big enough buffer here */
 	char tmp[HUGE_BUF * 4];
 	char cost[MAX_BUF];
-	object *old_skill = op->chosen_skill, *spell_skill = find_skill(op, SK_SPELL_CASTING), *prayer_skill = find_skill(op, SK_PRAYING);
+	object *old_skill = op->chosen_skill, *spell_skill = CONTR(op)->skill_ptr[SK_SPELL_CASTING], *prayer_skill = CONTR(op)->skill_ptr[SK_PRAYING];
 
 	snprintf(tmp, sizeof(tmp), "X%d ", mode);
 
