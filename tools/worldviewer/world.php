@@ -673,9 +673,9 @@ function command_overview()
 	}
 
 	// Determine sizes.
-	$size_x = (MAP_TILE_POS_XOFF * (24 + 4) * ($highest_xx > $highest_yy ? $highest_xx : $highest_yy)) / $arguments['resize'];
+	$size_x = (MAP_TILE_POS_XOFF * (24 + 1) * ($highest_xx > $highest_yy ? $highest_xx : $highest_yy)) / $arguments['resize'];
 	$size_xpos = $size_x / 2;
-	$size_y = (MAP_TILE_POS_YOFF * (24 + 10) * ($highest_yy > $highest_xx ? $highest_yy : $highest_xx)) / $arguments['resize'];
+	$size_y = (MAP_TILE_POS_YOFF * (24 + 3) * ($highest_yy > $highest_xx ? $highest_yy : $highest_xx)) / $arguments['resize'];
 	$size_ypos = MAP_TILE_POS_YOFF * 2;
 
 	// Create a new image.
@@ -951,10 +951,10 @@ function make_map_image($map_array)
 	}
 
 	// Determine sizes.
-	$size_x = MAP_TILE_POS_XOFF * (24 + 4);
-	$size_xpos = MAP_TILE_POS_XOFF2 * (24 + 3);
-	$size_y = MAP_TILE_POS_YOFF * (24 + 10);
-	$size_ypos = MAP_TILE_POS_YOFF * 6;
+	$size_x = MAP_TILE_POS_XOFF * (24 + 2);
+	$size_xpos = MAP_TILE_POS_XOFF2 * (24 + 1);
+	$size_y = MAP_TILE_POS_YOFF * (24 + 5);
+	$size_ypos = MAP_TILE_POS_YOFF * 4;
 
 	// Create a new image.
 	$img = imagecreatetruecolor($size_x, $size_y);
@@ -991,7 +991,7 @@ function make_map_image($map_array)
 				}
 
 				// Create a temporary image from the face of the object.
-				$img_face = imagecreatefrompng($arch_path . '/' . $faces[$object['face']] . '/' . $object['face'] . '.png');
+				$img_face = imagecreatefrompng($faces[$object['face']] . '/' . $object['face'] . '.png');
 
 				// Get image X and Y.
 				$img_x = imagesx($img_face);
@@ -1062,25 +1062,58 @@ function make_map_image($map_array)
 }
 
 /**
+ * Get an array of all files in a directory.
+ * @param dir The directory to get files for.
+ * @return Array of all the files in the directory and its
+ * subdirectories. */
+function getfiles($dir)
+{
+	$files = array();
+
+	$dh = opendir($dir);
+
+	while (($file = readdir($dh)))
+	{
+		if ($file == '.' || $file == '..')
+		{
+			continue;
+		}
+
+		if (is_dir($dir . '/' . $file))
+		{
+			$files = array_merge($files, getfiles($dir . '/' . $file));
+		}
+		elseif (is_file($dir . '/' . $file))
+		{
+			$files[$file] = $dir;
+		}
+	}
+
+	closedir($dh);
+
+	return $files;
+}
+
+/**
  * Parse the facetree file, which holds locations of every single face.
  * Parsed into the @ref $faces array.
  * @param file The file to parse. */
 function parse_facetree($file)
 {
-	global $faces;
+	global $faces, $arch_path;
 
 	// Open the file.
 	$fp = fopen($file, 'r');
+
+	$files = getfiles($arch_path);
 
 	// Loop through the lines.
 	while ($line = fgets($fp))
 	{
 		// Get the face name and the directory location where it is.
 		$face_name = substr(strrchr($line, '/'), 1, -1);
-		$face_location = substr($line, 1, -strlen($face_name) - 2);
-
 		// Add it to the array.
-		$faces[$face_name] = $face_location;
+		$faces[$face_name] = $files[$face_name . '.png'];
 	}
 
 	// Close the file.
@@ -1387,8 +1420,7 @@ function image_remove_empty_borders($filename)
 	$height = $newStartX = $imageinfo[1];
 	$width = $newStartY = $imageinfo[0];
 	$newStopX = $newStopY = 0;
-	$palette = array();
-	$palette_real = array();
+	$palette = $palette_num = 0;
 	$img = imagecreatefrompng($filename);
 
 	// Go through the image to get color palette.
@@ -1397,20 +1429,21 @@ function image_remove_empty_borders($filename)
 		for ($ii = 0; $ii < $height; $ii++)
 		{
 			$color = imagecolorat($img, $i, $ii);
-			$palette[] += $color;
-			$palette_real[$i][$ii] = $color;
+			$palette += $color;
+			$palette_num++;
 		}
 	}
 
 	// Get the peak color.
-	$peak_color = round(array_sum($palette) / count($palette)) * 0.95;
+	$peak_color = round($palette / $palette_num) * 0.95;
+	unset($palette);
 
 	// Go through the image again, this time to detect the empty pixels.
 	for ($i = 0; $i < $width; $i++)
 	{
 		for ($ii = 0; $ii < $height; $ii++)
 		{
-			if ($palette_real[$i][$ii] < $peak_color)
+			if (imagecolorat($img, $i, $ii) < $peak_color)
 			{
 				if ($i > $newStopX)
 				{
