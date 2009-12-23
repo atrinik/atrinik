@@ -242,7 +242,7 @@ int command_tell(object *op, char *params)
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_TELL, 0, op, "You tell %s: %s", name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE, 0, op, "You tell %s: %s", name, msg);
 				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, 0, pl->ob, "%s tells you: %s", op->name, msg);
 				return 1;
 			}
