@@ -1479,7 +1479,7 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 
 		/* Create a new player_info */
 		op = get_archetype(shstr_cons.player_info);
-		op->name = shstr_cons.spell_quickslot;
+		FREE_AND_ADD_REF_HASH(op->name, shstr_cons.spell_quickslot);
 		FREE_AND_COPY_HASH(op->slaying, cp);
 		op->quickslot = quickslot;
 		insert_ob_in_ob(op, pl->ob);

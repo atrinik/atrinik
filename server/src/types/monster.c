@@ -154,7 +154,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 				insert_ob_in_ob(return_wp, npc);
 				return_wp->owner = npc;
 				return_wp->ownercount = npc->count;
-				return_wp->name = shstr_cons.home;
+				FREE_AND_ADD_REF_HASH(return_wp->name, shstr_cons.home);
 				/* mark as return-home wp */
 				SET_FLAG(return_wp, FLAG_REFLECTING);
 				/* mark as best-effort wp */

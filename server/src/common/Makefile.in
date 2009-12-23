@@ -37,7 +37,6 @@ SRCS = \
 	holy.c \
 	info.c \
 	image.c \
-	init.c \
 	item.c \
 	links.c \
 	living.c \

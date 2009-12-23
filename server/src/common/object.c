@@ -873,10 +873,10 @@ void initialize_object(object *op)
 	op->anim_last_facing_last = -1;
 
 	op->face = blank_face;
-	op->attacked_by_count= -1;
+	op->attacked_by_count = -1;
 
 	/* give the object a new (unique) count tag */
-	op->count= ++ob_count;
+	op->count = ++ob_count;
 }
 
 /**
