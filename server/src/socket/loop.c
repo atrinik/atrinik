@@ -331,7 +331,7 @@ void watchdog()
  * @param pl The player to remove. */
 static void remove_ns_dead_player(player *pl)
 {
-	if (pl == NULL)
+	if (pl == NULL || pl->ob->type == DEAD_OBJECT)
 	{
 		return;
 	}
