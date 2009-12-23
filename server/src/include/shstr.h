@@ -33,7 +33,7 @@
 /**
  * The size of the shared strings hashtable. This must be smaller than
  * 32767, but 947 ought to be plenty enough. */
-#define TABLESIZE 4133
+#define TABLESIZE 16384
 
 /*
  * This will make the shared string interface more secure by checking for

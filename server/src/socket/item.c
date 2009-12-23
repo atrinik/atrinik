@@ -1341,25 +1341,26 @@ void ExamineCmd(char *buf, int len, player *pl)
 /**
  * Go through object's inventory and find any quickslot match with slot.
  *
- * If match is found, if the object is a force, remove it, otherwise just
- * set the quickslot to 0.
+ * If match is found, if the object is a player info, remove it,
+ * otherwise just set the quickslot to 0.
  * @param slot ID of the quickslot to look for.
  * @param ob Inside what object's inventory to search in. */
 static void remove_quickslot(int slot, object *ob)
 {
-	object *op;
+	object *tmp;
 
-	for (op = ob->inv; op; op = op->below)
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
 	{
-		if (op->quickslot && op->quickslot == slot)
+		if (tmp->quickslot && tmp->quickslot == slot)
 		{
-			if (op->arch->name == shstr_cons.force && op->name == shstr_cons.spell_quickslot)
+			if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.spell_quickslot)
 			{
-				remove_ob(op);
-				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+				remove_ob(tmp);
 			}
 			else
-				op->quickslot = 0;
+			{
+				tmp->quickslot = 0;
+			}
 		}
 	}
 }
@@ -1380,8 +1381,8 @@ void send_quickslots(player *pl)
 		/* If this has quickslot set */
 		if (op->quickslot)
 		{
-			/* It's a force, so a spell! */
-			if (op->arch->name == shstr_cons.force && op->name == shstr_cons.spell_quickslot)
+			/* It's a player info, so a spell! */
+			if (op->arch->name == shstr_cons.player_info && op->name == shstr_cons.spell_quickslot)
 			{
 				snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
 			}
@@ -1406,7 +1407,7 @@ void send_quickslots(player *pl)
  * Quick slot command. The quickslot system works like this:
  *  - For spells: Players adds the spell to their quickslot, client sends
  *    data to store that information. The information is stored in a
- *    force inside player's inventory.
+ *    player_info inside player's inventory.
  *  - For items: Same as spells, except the information is instead stored
  *    inside the object's object::quickslot field.
  * @param buf Data.
@@ -1421,7 +1422,7 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 
 	(void) len;
 
-	/* Set command. We want to set an object's  */
+	/* Set command. We want to set an object's quickslot */
 	if (strncmp(buf, "set ", 4) == 0)
 	{
 		buf += 4;
@@ -1473,19 +1474,14 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 			return;
 		}
 
-		/* First, find any old items/spells for this quickslot, and remove old force */
 		remove_quickslot(quickslot, pl->ob);
-
 		replace_unprintable_chars(cp);
 
-		/* Create a new force */
-		op = get_archetype("force");
-		op->x = pl->ob->x, op->y = pl->ob->y;
+		/* Create a new player_info */
+		op = get_archetype(shstr_cons.player_info);
 		op->name = shstr_cons.spell_quickslot;
 		FREE_AND_COPY_HASH(op->slaying, cp);
 		op->quickslot = quickslot;
-		op->speed = 0.0;
-		update_ob_speed(op);
 		insert_ob_in_ob(op, pl->ob);
 	}
 	/* Unset command. */
