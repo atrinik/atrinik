@@ -948,7 +948,12 @@ int command_patch(object *op, char *params)
 		}
 		else
 		{
-			tmp = find_object_both(op, params);
+			char name[MAX_BUF];
+
+			if (sscanf(params, "%s", name) == 1)
+			{
+				tmp = find_object_both(op, name);
+			}
 		}
 	}
 
