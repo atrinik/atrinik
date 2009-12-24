@@ -308,6 +308,12 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		container_unlink(NULL, tmp);
 	}
 
+	/* Trigger the PICKUP event */
+	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, &tmp_nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	{
+		return;
+	}
+
 #ifndef REAL_WIZ
 	if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
@@ -387,12 +393,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 
 	new_draw_info(NDI_UNIQUE, 0, pl, buf);
 	tmp = insert_ob_in_ob(tmp, op);
-
-	/* Trigger the PICKUP event */
-	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, &tmp_nrof, 0, 0, SCRIPT_FIX_ALL))
-	{
-		return;
-	}
 
 	/* All the stuff below deals with client/server code, and is only
 	 * usable by players */
@@ -723,6 +723,12 @@ void drop_object(object *op, object *tmp, long nrof)
 		container_unlink(NULL, tmp);
 	}
 
+	/* Trigger the DROP event */
+	if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, (int *) nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	{
+		return;
+	}
+
 	/* We are only dropping some of the items. We split the current
 	 * object off. */
 	if (nrof && tmp->nrof != (uint32) nrof)
@@ -760,12 +766,6 @@ void drop_object(object *op, object *tmp, long nrof)
 		{
 			return;
 		}
-	}
-
-	/* Trigger the DROP event */
-	if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, (int *) nrof, 0, 0, SCRIPT_FIX_ALL))
-	{
-		return;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID))
