@@ -316,10 +316,10 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"destruction",                 SPELL_TYPE_WIZARD,
-	 40, 18, 86.0f, 2, 0, 3, 1.0, 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 18, 30, 20.0f, 0, 3, 3, 1.0, 2, 1, 5, 4, 9, SOUND_MAGIC_DESTRUCTION,
 	 SPELL_USE_CAST,
 	 SPELL_DESC_DIRECTION,
-	 PATH_WOUNDING, NULL, SPELL_ACTIVE
+	 PATH_WOUNDING, "spell_destruction", SPELL_ACTIVE
 	},
 
 	{"create bomb",                 SPELL_TYPE_WIZARD,

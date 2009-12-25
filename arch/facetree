@@ -1597,6 +1597,12 @@
 /floor_grit4b.101
 /floor_grit4c.101
 /floor_grit4d.101
+/floor_ice.101
+/floor_ice_sf.101
+/floor_lava_1.101
+/floor_lava_2.101
+/floor_lava_3.101
+/floor_lava_4.101
 /floor_marble1.101
 /floor_marble1a.101
 /floor_marble1b.101
@@ -1720,6 +1726,10 @@
 /floor_stone_b2.101
 /floor_stone_b3.101
 /floor_stone_b4.101
+/floor_volcano_1.101
+/floor_volcano_2.101
+/floor_volcano_3.101
+/floor_volcano_4.101
 /floor_white1.101
 /floor_white1a.101
 /floor_white1b.101
@@ -2501,6 +2511,12 @@
 /human_m.mw.113
 /icecake.101
 /icecube.111
+/icefloor_cave1.101
+/icefloor_cave2.101
+/icefloor_cave3.101
+/icefloor_cave4.101
+/icefloor_cave5.101
+/icefloor_cave6.101
 /icegolem.011
 /icegolem.012
 /icegolem.021

@@ -698,8 +698,8 @@ int cast_create_town_portal(object *op)
  * @return 1 on success, 0 on failure. */
 int cast_destruction(object *op, object *caster, int dam, int attacktype)
 {
-	int i, j, r, xt, yt;
-	object *tmp;
+	int i, j, range, xt, yt;
+	object *tmp, *tmp2;
 	mapstruct *m;
 
 	if (op->type != PLAYER)
@@ -707,34 +707,52 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 		return 0;
 	}
 
-	r = 5 + SP_level_strength_adjust(caster, SP_DESTRUCTION);
+	tmp2 = get_archetype(spells[SP_DESTRUCTION].archname);
+	set_owner(tmp2, op);
+	tmp2->level = casting_level(caster, SK_level(caster), SP_DESTRUCTION);
+
+	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
 	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION);
 
-	for (i = -r; i < r; i++)
+    for (i = -range; i <= range; i++)
 	{
-		for (j = -r; j < r; j++)
+        for (j = -range; j <= range; j++)
 		{
-			xt = op->x + i;
-			yt = op->y + j;
+			xt = op->x + i, yt = op->y + j;
 
 			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
 				continue;
 			}
 
-			tmp = get_map_ob(m, xt, yt);
-
-			while (tmp != NULL && (!QUERY_FLAG(tmp, FLAG_ALIVE) || tmp->type == PLAYER))
-			{
-				tmp = tmp->above;
-			}
-
-			if (tmp == NULL)
+			if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_ALIVE))
 			{
 				continue;
 			}
 
-			hit_player(tmp, dam, op, attacktype);
+			for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
+			{
+				if (QUERY_FLAG(tmp, FLAG_MONSTER) || (tmp->type == PLAYER && pvp_area(op, tmp)))
+				{
+					break;
+				}
+			}
+
+			if (!tmp)
+			{
+				continue;
+			}
+
+			if (tmp->head)
+			{
+				tmp = tmp->head;
+			}
+
+			tmp2->x = tmp->x;
+			tmp2->y = tmp->y;
+			insert_ob_in_map(tmp2, tmp->map, tmp2, INS_NO_MERGE | INS_NO_WALK_ON);
+			hit_player(tmp, dam, tmp2, attacktype);
+			remove_ob(tmp2);
 		}
 	}
 
