@@ -991,7 +991,7 @@ void fire(object *op, int dir)
 			/* Only change the action timer if the spell required mana/grace cost (ie, was successful). */
 			if (spellcost)
 			{
-				get_skill_time(op, op->chosen_skill->stats.sp);
+				CONTR(op)->action_casting = ROUND_TAG + spells[CONTR(op)->chosen_spell].time;
 				CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
 				if (CONTR(op)->last_action_timer > 0)
