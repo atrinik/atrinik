@@ -930,9 +930,9 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 		new_draw_info_format(NDI_PURPLE, 0, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
 	}
 
-	if (hitter->type == PLAYER)
+	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
 	{
-		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) %s.", op->name, dam, dam - damage, attacktype_desc[attacknum]);
+		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacktype_desc[attacknum]);
 	}
 }
 
