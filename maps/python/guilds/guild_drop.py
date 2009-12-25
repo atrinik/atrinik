@@ -11,7 +11,9 @@ activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-if me.f_unpaid:
+floor = activator.map.GetFirstObjectOnSquare(activator.x, activator.y)
+
+if me.f_unpaid and (not floor or floor.type != TYPE_SHOP_FLOOR):
 	activator.Write("You must pay for it first!", COLOR_RED)
 	SetReturnValue(1)
 elif not activator.map.path[:8] == "/guilds/" or (activator.map.path[-7:] != "/oracle" and activator.map.path[-8:] != "/storage"):
