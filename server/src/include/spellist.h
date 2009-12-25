@@ -237,38 +237,38 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"cause cold", SPELL_TYPE_PRIEST,
-	 5, 10, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 5, 10, 50, 2, 0, 3, 1.0,
+	 8, 0, 4, 2, 7, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
-	 PATH_DEATH, NULL
+	 PATH_DEATH, "disease_cold"
 	},
 
 	{"cause flu", SPELL_TYPE_PRIEST,
-	 15, 13, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 10, 12, 50, 2, 0, 3, 1.0,
+	 10, 0, 4, 2, 7, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
-	 PATH_DEATH, NULL
+	 PATH_DEATH, "flu"
 	},
 
 	{"cause leprosy", SPELL_TYPE_PRIEST,
-	 15, 14, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 15, 14, 58, 2, 0, 3, 1.0,
+	 6, 0, 4, 2, 7, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
-	 PATH_DEATH, NULL
+	 PATH_DEATH, "leprosy"
 	},
 
 	{"cause smallpox", SPELL_TYPE_PRIEST,
-	 20, 16, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 20, 16, 58, 2, 0, 3, 1.0,
+	 8, 0, 4, 2, 7, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
-	 PATH_DEATH, NULL
+	 PATH_DEATH, "smallpox"
 	},
 
-	{"cause pneumotic plague", SPELL_TYPE_PRIEST,
-	 25, 18, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	{"cause pneumonic plague", SPELL_TYPE_PRIEST,
+	 25, 18, 58, 2, 0, 3, 1.0,
+	 8, 0, 4, 2, 7, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
-	 PATH_DEATH, NULL
+	 PATH_DEATH, "pneumonic_plague"
 	},
 
 	{"meteor", SPELL_TYPE_WIZARD,

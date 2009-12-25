@@ -154,9 +154,6 @@ static void remove_symptoms(object *disease)
 static object *find_symptom(object *disease)
 {
 	object *walk;
-	char symptom_name[256];
-
-	snprintf(symptom_name, sizeof(symptom_name), "%s", disease->name);
 
 	/* check the inventory for symptoms */
 	for (walk = disease->env->inv; walk; walk = walk->below)
@@ -175,9 +172,10 @@ static object *find_symptom(object *disease)
  * @param disease Disease infecting. */
 static void check_infection(object *disease)
 {
-	int x, y, i, j, range, xt, yt;
-	mapstruct *map, *mt;
+	int x, y, i, j, range, xt, yt, mflags, old_x, old_y;
+	mapstruct *map, *mt, *old_map;
 	object *tmp;
+	rv_vector rv;
 
 	range = abs(disease->magic);
 
@@ -199,22 +197,50 @@ static void check_infection(object *disease)
 		return;
 	}
 
-	for (i = x - range; i < x + range; i++)
-	{
-		for (j = y - range; j < y + range; j++)
-		{
-			xt = i;
-			yt = j;
+	old_x = disease->x, old_y = disease->y;
+	old_map = disease->map;
+	disease->x = x, disease->y = y;
+	disease->map = map;
 
-			if ((mt = get_map_from_coord(map, &xt, &yt)))
+    for (i = -range; i <= range; i++)
+	{
+        for (j = -range; j <= range; j++)
+		{
+			xt = x + i, yt = y + j;
+
+			if (!(mt = get_map_from_coord(map, &xt, &yt)))
 			{
-				for (tmp = get_map_ob(mt, xt, yt); tmp; tmp = tmp->above)
+				continue;
+			}
+
+			mflags = GET_MAP_FLAGS(mt, xt, yt);
+
+			if (!(mflags & P_IS_ALIVE))
+			{
+				continue;
+			}
+
+			for (tmp = GET_MAP_OB(mt, xt, yt); tmp; tmp = tmp->above)
+			{
+				if (!QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER)
 				{
-					infect_object(tmp, disease, 0);
+					continue;
 				}
+
+				get_rangevector(disease, tmp, &rv, 0);
+
+				if (!obj_in_line_of_sight(tmp, &rv))
+				{
+					continue;
+				}
+
+				infect_object(tmp, disease, 0);
 			}
 		}
 	}
+
+	disease->x = old_x, disease->y = old_y;
+	disease->map = old_map;
 }
 
 /**
@@ -230,7 +256,7 @@ static void check_infection(object *disease)
  * @return 1 if the victim was infected, 0 otherwise. */
 int infect_object(object *victim, object *disease, int force)
 {
-	object *tmp, *new_disease;
+	object *tmp, *new_disease, *owner;
 
 	/* only use the head */
 	if (victim->head)
@@ -242,6 +268,14 @@ int infect_object(object *victim, object *disease, int force)
 	if (!QUERY_FLAG(victim, FLAG_MONSTER) && victim->type != PLAYER)
 	{
 		return 0;
+	}
+
+	if ((owner = get_owner(disease)))
+	{
+		if (is_friend_of(owner, victim))
+		{
+			return 0;
+		}
 	}
 
 	/* check and see if victim can catch disease:  diseases are specific */
@@ -306,7 +340,7 @@ int infect_object(object *victim, object *disease, int force)
 	insert_ob_in_ob(new_disease, victim);
 	CLEAR_FLAG(new_disease, FLAG_NO_PASS);
 
-	if (new_disease->owner && new_disease->owner->type==PLAYER)
+	if (new_disease->owner && new_disease->owner->type == PLAYER)
 	{
 		char buf[128];
 

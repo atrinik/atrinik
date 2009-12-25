@@ -925,6 +925,8 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
  * resists/protections/etc. */
 static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage)
 {
+	object *orig_hitter = hitter;
+
 	if (op->type == PLAYER)
 	{
 		new_draw_info_format(NDI_PURPLE, 0, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
@@ -932,7 +934,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 
 	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
 	{
-		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacktype_desc[attacknum]);
+		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attacktype_desc[attacknum]);
 	}
 }
 

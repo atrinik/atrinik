@@ -1729,7 +1729,7 @@ int finger_of_death(object *op)
 	{
 		target = CONTR(op)->target_object;
 
-		if (target && target->type == PLAYER && !pvp_area(op, target))
+		if (target && is_friend_of(op, target))
 		{
 			target = NULL;
 		}
@@ -1800,116 +1800,122 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 			continue;
 		}
 
-		/* Search this square for a victim */
-		for (walk = get_map_ob(m, xt, yt); walk; walk = walk->above)
+		/* Check map flags for alive object */
+		if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_ALIVE))
 		{
+			continue;
+		}
+
+		/* Search this square for a victim */
+		for (walk = GET_MAP_OB(m, xt, yt); walk; walk = walk->above)
+		{
+			object *disease;
+			int dam, strength;
+
 			/* Found a victim */
-			if (QUERY_FLAG(walk, FLAG_MONSTER) || !(walk->type == PLAYER))
+			if (!QUERY_FLAG(walk, FLAG_MONSTER) && (walk->type != PLAYER || !pvp_area(op, walk)))
 			{
-				object *disease = arch_to_object(disease_arch);
-				set_owner(disease, op);
-				disease->stats.exp = 0;
-				disease->level = casting_level(caster, SK_level(caster), type);
+				continue;
+			}
 
-				/* Try to get the experience into the correct category */
-				if (op->chosen_skill && op->chosen_skill->exp_obj)
+			disease = arch_to_object(disease_arch);
+			dam = SP_level_dam_adjust2(caster, type, spells[type].bdam);
+			strength = SP_level_strength_adjust(caster, type);
+
+			set_owner(disease, op);
+			disease->stats.exp = 0;
+			disease->level = casting_level(caster, SK_level(caster), type);
+
+			/* Try to get the experience into the correct category */
+			if (op->chosen_skill && op->chosen_skill->exp_obj)
+			{
+				disease->exp_obj = op->chosen_skill->exp_obj;
+			}
+
+			/* Do level adjustments */
+			if (disease->stats.wc)
+			{
+				disease->stats.wc += strength / 2;
+			}
+
+			if (disease->magic > 0)
+			{
+				disease->magic += strength / 4;
+			}
+
+			if (disease->stats.maxhp > 0)
+			{
+				disease->stats.maxhp += strength;
+			}
+
+			if (disease->stats.maxgrace > 0)
+			{
+				disease->stats.maxgrace += strength;
+			}
+
+			if (disease->stats.dam)
+			{
+				if (disease->stats.dam > 0)
 				{
-					disease->exp_obj = op->chosen_skill->exp_obj;
+					disease->stats.dam += dam;
 				}
-
-				/* Do level adjustments */
-				if (disease->stats.wc)
+				else
 				{
-					disease->stats.wc += SP_level_strength_adjust(caster, type) / 2;
+					disease->stats.dam -= dam;
 				}
+			}
 
-				if (disease->magic > 0)
+			if (disease->last_sp)
+			{
+				disease->last_sp -= 2 * dam;
+
+				if (disease->last_sp < 1)
 				{
-					disease->magic += SP_level_strength_adjust(caster, type) / 4;
+					disease->last_sp = 1;
 				}
+			}
 
-				if (disease->stats.maxhp > 0)
+			if (disease->stats.maxsp)
+			{
+				if (disease->stats.maxsp > 0)
 				{
-					disease->stats.maxhp += SP_level_strength_adjust(caster, type);
+					disease->stats.maxsp += dam;
 				}
-
-				if (disease->stats.maxgrace > 0)
+				else
 				{
-					disease->stats.maxgrace += SP_level_strength_adjust(caster, type);
+					disease->stats.maxsp -= dam;
 				}
+			}
 
-				if (disease->stats.dam)
-				{
-					if (disease->stats.dam > 0)
-					{
-						disease->stats.dam += SP_level_dam_adjust2(caster, type, spells[type].bdam);
-					}
-					else
-					{
-						disease->stats.dam -= SP_level_dam_adjust2(caster, type, spells[type].bdam);
-					}
-				}
+			if (disease->stats.ac)
+			{
+				disease->stats.ac += dam;
+			}
 
-				if (disease->last_sp)
-				{
-					disease->last_sp -= 2 * SP_level_dam_adjust(caster, type);
+			if (disease->last_eat)
+			{
+				disease->last_eat -= dam;
+			}
 
-					if (disease->last_sp < 1)
-					{
-						disease->last_sp = 1;
-					}
-				}
+			if (disease->stats.hp)
+			{
+				disease->stats.hp -= dam;
+			}
 
-				if (disease->stats.maxsp)
-				{
-					if (disease->stats.maxsp > 0)
-					{
-						disease->stats.maxsp += SP_level_dam_adjust(caster, type);
-					}
-					else
-					{
-						disease->stats.maxsp -= SP_level_dam_adjust(caster, type);
-					}
-				}
+			if (disease->stats.sp)
+			{
+				disease->stats.sp -= dam;
+			}
 
-				if (disease->stats.ac)
-				{
-					disease->stats.ac += SP_level_dam_adjust(caster, type);
-				}
-
-				if (disease->last_eat)
-				{
-					disease->last_eat -= SP_level_dam_adjust(caster, type);
-				}
-
-				if (disease->stats.hp)
-				{
-					disease->stats.hp -= SP_level_dam_adjust(caster, type);
-				}
-
-				if (disease->stats.sp)
-				{
-					disease->stats.sp -= SP_level_dam_adjust(caster, type);
-				}
-
-				if (infect_object(walk, disease, 1))
-				{
-					/* visual effect for inflicting disease */
-					object *flash;
-
-					new_draw_info_format(NDI_UNIQUE, 0, op, "You inflict %s on %s!", disease->name, walk->name);
-					flash = get_archetype("detect_magic");
-					flash->x = xt;
-					flash->y = yt;
-					flash->map = walk->map;
-					insert_ob_in_map(flash, walk->map, op, 0);
-					return 1;
-				}
+			if (infect_object(walk, disease, 1))
+			{
+				new_draw_info_format(NDI_UNIQUE, 0, op, "You inflict %s on %s!", disease->name, walk->name);
+				return 1;
 			}
 		}
 
-		/* no more infecting through walls -
-		 * we will use PASS_THRU but P_NO_PASS only will stop us */
+		/* No more infecting through walls - we will use PASS_THRU but
+		 * P_NO_PASS only will stop us. */
 		if ((wall(m, xt, yt) & (~(P_NO_PASS | P_PASS_THRU))) == P_NO_PASS)
 		{
 			return 0;
