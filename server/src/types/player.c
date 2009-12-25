@@ -1169,7 +1169,7 @@ trick_jump:
 			}
 			else
 			{
-				do_skill(op, dir, NULL);
+				do_skill(op, dir);
 			}
 
 			return;

@@ -1226,7 +1226,7 @@ static int monster_use_skill(object *head, object *part, object *pl, int dir)
 	}
 
 	/* Use skill */
-	return do_skill(head, dir, NULL);
+	return do_skill(head, dir);
 }
 
 /**

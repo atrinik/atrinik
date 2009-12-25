@@ -355,7 +355,6 @@ int bank_withdraw(object *op, object *bank, char *text);
 
 /* skills.c */
 int find_traps(object *pl, int level);
-int write_on_item(object *pl, const char *params);
 int remove_trap(object *op);
 object *find_throw_tag(object *op, tag_t tag);
 void do_throw(object *op, object *toss_item, int dir);
@@ -363,7 +362,7 @@ void do_throw(object *op, object *toss_item, int dir);
 /* skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
-int do_skill(object *op, int dir, char *string);
+int do_skill(object *op, int dir);
 int calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void dump_skills();

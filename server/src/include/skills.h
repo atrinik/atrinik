@@ -39,8 +39,8 @@ enum skillnrs
 	SK_LITERACY,
 	/** Sells items to shops at Cha + level-based bonus (30 max) */
 	SK_BARGAINING,
-	/** Player may write spell scrolls */
-	SK_INSCRIPTION,
+	/** Unused skill. Used to be inscription. */
+	SK_UNUSED,
 
 	/** Can attack hand-to-hand, see attack_hth() */
 	SK_BOXING,

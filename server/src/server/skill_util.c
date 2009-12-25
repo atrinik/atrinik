@@ -179,18 +179,13 @@ char *find_skill_exp_skillname(int item_skill)
  * to utilize skills.
  * @param op The object actually using the skill.
  * @param dir The direction in which the skill is used.
- * @param string A parameter string, necessary to use some skills.
  * @return 0 on failure of using the skill, non-zero otherwise. */
-int do_skill(object *op, int dir, char *string)
+int do_skill(object *op, int dir)
 {
 	int success = 0, skill = op->chosen_skill->stats.sp;
 
 	switch (skill)
 	{
-		case SK_INSCRIPTION:
-			success = write_on_item(op, string);
-			break;
-
 		case SK_KARATE:
 			attack_hth(op, dir, "karate-chopped");
 			break;
@@ -1178,7 +1173,7 @@ int use_skill(object *op, char *string)
 		}
 		else
 		{
-			if (do_skill(op, op->facing, string))
+			if (do_skill(op, op->facing))
 			{
 				return 1;
 			}
