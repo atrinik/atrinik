@@ -725,11 +725,13 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 				continue;
 			}
 
+			/* Nothing alive here? Move on... */
 			if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_ALIVE))
 			{
 				continue;
 			}
 
+			/* Try to get an object to hit */
 			for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
 			{
 				if (QUERY_FLAG(tmp, FLAG_MONSTER) || (tmp->type == PLAYER && pvp_area(op, tmp)))
@@ -743,6 +745,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 				continue;
 			}
 
+			/* Get head */
 			if (tmp->head)
 			{
 				tmp = tmp->head;

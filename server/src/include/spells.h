@@ -153,7 +153,7 @@ typedef struct spell_struct
 	int sp;
 
 	/** How many ticks it takes to cast the spell */
-	float time;
+	int time;
 
 	/** From 1 to this value we will generate for potions/scrolls... */
 	int scrolls;

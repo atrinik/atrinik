@@ -182,7 +182,7 @@ int command_cast_spell(object *op, char *params)
 
 	if (value)
 	{
-		get_skill_time(op, op->chosen_skill->stats.sp);
+		CONTR(op)->action_casting = ROUND_TAG + spells[spnum].time;
 
 		if (spells[spnum].flags & SPELL_DESC_WIS)
 		{
