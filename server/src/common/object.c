@@ -655,7 +655,7 @@ void dump_object(object *op, StringBuffer *sb)
 
 	if (op->arch != NULL)
 	{
-		stringbuffer_append_printf(sb, "arch %s (%u)\n", op->arch->name ? op->arch->name : "(null)", op->count);
+		stringbuffer_append_printf(sb, "arch %s\n", op->arch->name ? op->arch->name : "(null)");
 		get_ob_diff(sb, op, &empty_archetype->clone);
 		stringbuffer_append_string(sb, "end\n");
 	}

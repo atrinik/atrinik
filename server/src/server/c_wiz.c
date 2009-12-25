@@ -923,6 +923,7 @@ int command_dump(object *op, char *params)
 	}
 
 	sb = stringbuffer_new();
+	stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 	dump_object(tmp, sb);
 	diff = stringbuffer_finish(sb);
 	new_draw_info(NDI_UNIQUE, 0, op, diff);
@@ -1809,6 +1810,7 @@ int command_dumpbelowfull(object *op, char *params)
 		}
 
 		sb = stringbuffer_new();
+		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
 		new_draw_info(NDI_UNIQUE, 0, op, diff);

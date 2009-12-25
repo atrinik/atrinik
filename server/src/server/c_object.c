@@ -1866,6 +1866,7 @@ dirty_little_jump1:
 		StringBuffer *sb = stringbuffer_new();
 		char *diff;
 
+		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
 		new_draw_info(NDI_UNIQUE, 0, op, diff);
