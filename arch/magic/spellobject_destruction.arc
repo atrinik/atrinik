@@ -1,4 +1,4 @@
-Object spell_destruction
+Object spellobject_destruction
 name destruction
 type 79
 no_pick 1

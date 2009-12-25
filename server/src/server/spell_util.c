@@ -51,21 +51,113 @@ void init_spells()
 		return;
 	}
 
-	LOG(llevDebug, "Initializing spells...");
+	LOG(llevDebug, "Initializing spells... ");
 	init_spells_done = 1;
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
+		char spellname[MAX_BUF], tmpresult[MAX_BUF];
+		archetype *at;
+
+		replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
+		snprintf(spellname, sizeof(spellname), "spell_%s", tmpresult);
+
+		if ((at = find_archetype(spellname)))
+		{
+			object *tmp = arch_to_object(at);
+			const char *value;
+
+			if ((value = get_ob_key_value(tmp, "spell_type")))
+			{
+				spells[i].type = !strcmp(value, "wizard") ? SPELL_TYPE_WIZARD : SPELL_TYPE_PRIEST;
+
+				if (spells[i].type == SPELL_TYPE_PRIEST && !(spells[i].flags & SPELL_DESC_WIS))
+				{
+					spells[i].flags |= SPELL_DESC_WIS;
+				}
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_level")))
+			{
+				spells[i].level = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_cost")))
+			{
+				spells[i].sp = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_time")))
+			{
+				spells[i].time = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_scrolls")))
+			{
+				spells[i].charges = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_charges")))
+			{
+				spells[i].charges = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_range")))
+			{
+				spells[i].range = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_value_mul")))
+			{
+				spells[i].value_mul = atof(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_bdam")))
+			{
+				spells[i].bdam = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_bdur")))
+			{
+				spells[i].bdur = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_ldam")))
+			{
+				spells[i].ldam = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_ldur")))
+			{
+				spells[i].ldur = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_spl")))
+			{
+				spells[i].spl = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_sound")))
+			{
+				spells[i].sound = atoi(value);
+			}
+
+			if ((value = get_ob_key_value(tmp, "spell_archname")))
+			{
+				spells[i].archname = strdup_local(value);
+			}
+		}
+
 		if (spells[i].archname)
 		{
 			if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL)
 			{
-				LOG(llevError, "Error: Spell %s needs arch %s, your archetypes file is out of date.\n", spells[i].name,spells[i].archname);
+				LOG(llevError, "ERROR: Spell %s needs arch %s, your archetypes file is out of date.\n", spells[i].name, spells[i].archname);
 			}
 		}
 		else
 		{
-			spellarch[i] = (archetype *) NULL;
+			spellarch[i] = NULL;
 		}
 	}
 
@@ -598,11 +690,8 @@ dirty_jump:
 			success = finger_of_death(op);
 			break;
 
-		case SP_METEOR:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, find_archetype("meteor"), type);
-			break;
-
 		case SP_POISON_FOG:
+		case SP_METEOR:
 			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
 			break;
 
@@ -612,10 +701,6 @@ dirty_jump:
 			break;
 
 		case SP_BULLET_SWARM:
-			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
-			break;
-
 		case SP_BULLET_STORM:
 			success = 1;
 			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);

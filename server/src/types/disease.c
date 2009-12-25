@@ -363,6 +363,7 @@ static void do_symptoms(object *disease)
 	if (symptom == NULL)
 	{
 		object *new_symptom;
+		int i;
 
 		/* first check and see if the carrier of the disease
 		 * is immune. If so, no symptoms!  */
@@ -438,6 +439,14 @@ static void do_symptoms(object *disease)
 		new_symptom->stats.hp = disease->stats.hp;
 		FREE_AND_COPY_HASH(new_symptom->msg, disease->msg);
 		new_symptom->other_arch = disease->other_arch;
+
+		for (i = 0; i < NROFATTACKS; i++)
+		{
+			if (disease->attack[i])
+			{
+				new_symptom->attack[i] = disease->attack[i];
+			}
+		}
 
 		set_owner(new_symptom, disease->owner);
 

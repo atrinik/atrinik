@@ -468,7 +468,7 @@ int cast_create_town_portal(object *op)
 	dummy->stats.hp = EXIT;
 	FREE_AND_ADD_REF_HASH(dummy->arch->name, shstr_cons.force);
 	FREE_AND_ADD_REF_HASH(dummy->slaying, shstr_cons.portal_active_name);
-	perm_portal = find_archetype("perm_magic_portal");
+	perm_portal = spellarch[SP_TOWN_PORTAL];
 
 	/* To kill a town portal, we go trough the player's inventory,
 	 * for each marked portal in player's inventory,
@@ -589,11 +589,11 @@ int cast_create_town_portal(object *op)
 	 * force contain the track to kill it later. */
 	snprintf(portal_name, sizeof(portal_name), "%s's portal to %s", op->name, exitpath);
 	/* The portal */
-	dummy = get_archetype("perm_magic_portal");
+	dummy = arch_to_object(spellarch[SP_TOWN_PORTAL]);
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "BUG: cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -638,11 +638,11 @@ int cast_create_town_portal(object *op)
 	snprintf(portal_name, sizeof(portal_name), "%s's portal to %s", op->name, op->map->path);
 
 	/* The portal */
-	dummy = get_archetype("perm_magic_portal");
+	dummy = arch_to_object(spellarch[SP_TOWN_PORTAL]);
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
+		LOG(llevBug, "BUG: cast_create_town_portal(): arch_to_object failed (perm_magic_portal) for %s!\n", query_name(op, NULL));
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 0;
 	}
@@ -1723,11 +1723,16 @@ int cast_consecrate(object *op)
 int finger_of_death(object *op)
 {
 	object *hitter, *target = NULL;
-	int success = 1;
+	int dam;
 
 	if (op->type == PLAYER && CONTR(op)->target_object != op)
 	{
 		target = CONTR(op)->target_object;
+
+		if (target && target->type == PLAYER && !pvp_area(op, target))
+		{
+			target = NULL;
+		}
 	}
 	else if (op->enemy)
 	{
@@ -1740,38 +1745,31 @@ int finger_of_death(object *op)
 		return 0;
 	}
 
+	if (QUERY_FLAG(target, FLAG_UNDEAD))
+	{
+		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s looks stronger!", query_name(target, NULL));
+		target->stats.hp = target->stats.maxhp;
+
+		if (!OBJECT_VALID(target->enemy, target->enemy_count))
+		{
+			set_npc_enemy(target, op, NULL);
+		}
+
+		return 1;
+	}
+
 	/* we create a hitter object -- the spell */
-	hitter = get_archetype("face_of_death");
-#if 0
-	hitter->level = casting_level(caster, spells[SP_FINGER_DEATH].bdam + 3 * SP_level_dam_adjust(caster, SP_FINGER_DEATH), SP_FINGER_DEATH);
-#endif
+	hitter = arch_to_object(spellarch[SP_FINGER_DEATH]);
+	hitter->level = casting_level(op, SK_level(op), SP_FINGER_DEATH);
 	set_owner(hitter, op);
 	hitter->x = target->x;
 	hitter->y = target->y;
-	hitter->stats.maxhp = hitter->count;
+	dam = SP_level_dam_adjust2(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam);
+	insert_ob_in_map(hitter, target->map, op, 0);
+	hit_player(target, dam, hitter, AT_INTERNAL);
+	remove_ob(hitter);
 
-	/* there are 'grave' consequences for using this spell on the unliving! */
-	if (QUERY_FLAG(target, FLAG_UNDEAD))
-	{
-		success = 0;
-
-		if (random_roll(0, 2, op, PREFER_LOW))
-		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Idiot! Your spell boomerangs!");
-			hitter->x = op->x;
-			hitter->y = op->y;
-		}
-		else
-		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The %s looks stronger!", query_name(target, NULL));
-			target->stats.hp = target->stats.maxhp * 2;
-			return 0;
-		}
-	}
-
-	insert_ob_in_map(hitter, op->map, op, 0);
-
-	return success;
+	return 1;
 }
 
 /**
@@ -1811,7 +1809,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 				object *disease = arch_to_object(disease_arch);
 				set_owner(disease, op);
 				disease->stats.exp = 0;
-				disease->level = op->level;
+				disease->level = casting_level(caster, SK_level(caster), type);
 
 				/* Try to get the experience into the correct category */
 				if (op->chosen_skill && op->chosen_skill->exp_obj)
@@ -1844,11 +1842,11 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 				{
 					if (disease->stats.dam > 0)
 					{
-						disease->stats.dam += SP_level_dam_adjust(caster, type);
+						disease->stats.dam += SP_level_dam_adjust2(caster, type, spells[type].bdam);
 					}
 					else
 					{
-						disease->stats.dam -= SP_level_dam_adjust(caster, type);
+						disease->stats.dam -= SP_level_dam_adjust2(caster, type, spells[type].bdam);
 					}
 				}
 
