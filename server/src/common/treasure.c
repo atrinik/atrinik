@@ -1898,7 +1898,7 @@ static int get_random_spell(int level, int flags)
 	 * spell. */
 	for (i = tmp; i < NROFREALSPELLS; i++)
 	{
-		if (spells[i].is_active && level >= spells[i].level && spells[i].spell_use & flags)
+		if (level >= spells[i].level && spells[i].spell_use & flags)
 		{
 			return i;
 		}
@@ -1906,7 +1906,7 @@ static int get_random_spell(int level, int flags)
 
 	for (i = 0; i < tmp; i++)
 	{
-		if (spells[i].is_active && level >= spells[i].level && spells[i].spell_use & flags)
+		if (level >= spells[i].level && spells[i].spell_use & flags)
 		{
 			return i;
 		}

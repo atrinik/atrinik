@@ -132,11 +132,6 @@ extern int cleric_chance[];
 #define SPELL_DESC_WIS          0x100
 /*@}*/
 
-/** The spell is active */
-#define SPELL_ACTIVE   1
-/** The spell is not active */
-#define SPELL_DEACTIVE 0
-
 /** Spell structure. */
 typedef struct spell_struct
 {
@@ -209,9 +204,6 @@ typedef struct spell_struct
 
 	/** Pointer to archetype used by spell */
 	char *archname;
-
-	/** If 0 then spell is disabled and can't be cast or used */
-	int is_active;
 } spell;
 
 #define SP_NO_SPELL -1

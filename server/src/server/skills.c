@@ -206,17 +206,6 @@ static int write_scroll(object *pl, object *scroll)
 			do
 			{
 				chosen_spell = rndm(0, NROFREALSPELLS - 1);
-
-				/* Skip all non active spells */
-				while (!spells[chosen_spell].is_active)
-				{
-					chosen_spell++;
-
-					if (chosen_spell >= NROFREALSPELLS)
-					{
-						chosen_spell = 0;
-					}
-				}
 			}
 			while (!(spells[chosen_spell].spell_use & SPELL_USE_SCROLL));
 
