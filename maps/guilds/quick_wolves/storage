@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2009-12-05 Alex Tokar
+Modified: 2009-12-25 Alex Tokar
 endmsg
 width 18
 height 22
@@ -110,13 +110,13 @@ end
 arch invis_exit
 y 17
 arch note
-name guild options
 msg
 guild_maps: /guilds/quick_wolves/guild|/guilds/quick_wolves/oracle|/guilds/quick_wolves/storage
 enter_map: /shattered_islands/world_0514
 enter_x: 11
 enter_y: 7
 endmsg
+name guild options
 sys_object 1
 end
 arch event_obj
@@ -143,9 +143,19 @@ x 1
 y 1
 end
 arch chest_m
+no_pick 0
 direction 7
 x 1
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -153,9 +163,19 @@ x 1
 y 2
 end
 arch chest_sm_1
+no_pick 0
 direction 7
 x 1
 y 2
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -163,9 +183,19 @@ x 1
 y 3
 end
 arch chest7_111
+no_pick 0
 direction 7
 x 1
 y 3
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -173,9 +203,19 @@ x 1
 y 4
 end
 arch chest_sm_1
+no_pick 0
 direction 7
 x 1
 y 4
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -183,9 +223,19 @@ x 1
 y 5
 end
 arch chest_m
+no_pick 0
 direction 7
 x 1
 y 5
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 x 1
@@ -201,9 +251,19 @@ x 1
 y 7
 end
 arch chest_w1
+no_pick 0
 direction 7
 x 1
 y 7
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -211,9 +271,19 @@ x 1
 y 8
 end
 arch chest_4.111
+no_pick 0
 direction 7
 x 1
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -221,9 +291,19 @@ x 1
 y 9
 end
 arch chest_sw_1
+no_pick 0
 direction 7
 x 1
 y 9
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -231,9 +311,19 @@ x 1
 y 10
 end
 arch chest_4.111
+no_pick 0
 direction 7
 x 1
 y 10
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -241,9 +331,19 @@ x 1
 y 11
 end
 arch chest_sw_1
+no_pick 0
 direction 7
 x 1
 y 11
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -251,9 +351,19 @@ x 1
 y 12
 end
 arch chest_w1
+no_pick 0
 direction 7
 x 1
 y 12
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 x 1
@@ -537,8 +647,18 @@ x 5
 y 1
 end
 arch desk2
+no_pick 0
 x 5
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -1509,8 +1629,18 @@ x 11
 y 1
 end
 arch shelf3a.111
+no_pick 0
 x 11
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1523,9 +1653,19 @@ x 11
 y 3
 end
 arch rack.111
+no_pick 0
 direction 7
 x 11
 y 3
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -1538,9 +1678,19 @@ x 11
 y 5
 end
 arch rack.111
+no_pick 0
 direction 7
 x 11
 y 5
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1561,8 +1711,18 @@ x 11
 y 8
 end
 arch locker2.111
+no_pick 0
 x 11
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1570,9 +1730,19 @@ x 11
 y 9
 end
 arch rack2
+no_pick 0
 direction 7
 x 11
 y 9
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -1585,9 +1755,19 @@ x 11
 y 11
 end
 arch rack2
+no_pick 0
 direction 7
 x 11
 y 11
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -1654,8 +1834,18 @@ x 12
 y 1
 end
 arch shelf3b.111
+no_pick 0
 x 12
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1696,8 +1886,18 @@ x 12
 y 8
 end
 arch locker1.111
+no_pick 0
 x 12
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1779,8 +1979,18 @@ x 13
 y 1
 end
 arch shelf3c.111
+no_pick 0
 x 13
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -1821,8 +2031,18 @@ x 13
 y 8
 end
 arch locker2.111
+no_pick 0
 x 13
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -2032,8 +2252,18 @@ x 15
 y 1
 end
 arch shelf2_wall.111
+no_pick 0
 x 15
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -2074,8 +2304,18 @@ x 15
 y 8
 end
 arch locker4
+no_pick 0
 x 15
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l2
 unique 1
@@ -2149,8 +2389,18 @@ x 16
 y 1
 end
 arch shelf5_wall.111
+no_pick 0
 x 16
 y 1
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
@@ -2191,8 +2441,18 @@ x 16
 y 8
 end
 arch drawers1.111
+no_pick 0
 x 16
 y 8
+arch event_obj
+sub_type 4
+race /python/guilds/guild_drop.py
+end
+arch event_obj
+sub_type 5
+race /python/guilds/guild_get.py
+slaying Quick Wolves
+end
 end
 arch floor_wood2_l1
 unique 1
