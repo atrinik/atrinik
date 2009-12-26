@@ -397,7 +397,7 @@ int cast_create_town_portal(object *op);
 int cast_destruction(object *op, object *caster, int dam, int attacktype);
 int cast_heal(object *op, int level, object *target, int spell_type);
 int cast_change_attr(object *op, object *caster, object *target, int spell_type);
-int create_bomb(object *op, object *caster, int dir, int spell_type, char *name);
+int create_bomb(object *op, object *caster, int dir, int spell_type);
 void animate_bomb(object *op);
 int remove_depletion(object *op, object *target);
 int remove_curse(object *op, object *target, int type, SpellTypeFrom src);

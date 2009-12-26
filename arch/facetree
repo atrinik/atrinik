@@ -465,6 +465,10 @@
 /bolt_woodlanders.161
 /bolt_woodlanders.171
 /bolt_woodlanders.181
+/bomb.101
+/bomb.102
+/bomb.103
+/bomb.104
 /bonbons.101
 /bone_armour.101
 /bone_broken.101
@@ -1421,6 +1425,9 @@
 /exit_green.101
 /exit_green.102
 /exp.101
+/explosion.101
+/explosion.102
+/explosion.103
 /falchion.101
 /falling_rocks.101
 /fauchard.101
@@ -4091,6 +4098,7 @@
 /spinner.161
 /spinner.171
 /spinner.181
+/splint.101
 /splint_mail.101
 /spotted_jelly.111
 /spotted_jelly.112

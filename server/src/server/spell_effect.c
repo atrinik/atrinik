@@ -1154,7 +1154,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
  * @param name Name of the spell archetype.
  * @retval 0 No bomb was placed.
  * @retval 1 Bomb was placed on map. */
-int create_bomb(object *op, object *caster, int dir, int spell_type, char *name)
+int create_bomb(object *op, object *caster, int dir, int spell_type)
 {
 	object *tmp;
 	int dx = op->x + freearr_x[dir], dy = op->y + freearr_y[dir];
@@ -1165,7 +1165,7 @@ int create_bomb(object *op, object *caster, int dir, int spell_type, char *name)
 		return 0;
 	}
 
-	tmp = get_archetype(name);
+	tmp = arch_to_object(spellarch[spell_type]);
 
 	/* level dependencies for bomb  */
 	tmp->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
@@ -1184,41 +1184,16 @@ int create_bomb(object *op, object *caster, int dir, int spell_type, char *name)
 void animate_bomb(object *op)
 {
 	int i;
-	object *env;
 	archetype *at;
 
 	if (op->state != NUM_ANIMATIONS(op) - 1)
 	{
+		op->state++;
+		SET_ANIMATION(op, op->state);
 		return;
 	}
 
 	at = find_archetype("splint");
-
-	for (env = op; env->env != NULL; env = env->env)
-	{
-	}
-
-	if (op->env)
-	{
-		if (env->map == NULL)
-		{
-			return;
-		}
-
-		if (env->type == PLAYER)
-		{
-			esrv_del_item(CONTR(env), op->count, op->env);
-		}
-
-		destruct_ob(op);
-		op->x = env->x;
-		op->y = env->y;
-
-		if ((op = insert_ob_in_map(op, env->map, op, 0)) == NULL)
-		{
-			return;
-		}
-	}
 
 	if (at)
 	{

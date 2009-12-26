@@ -184,7 +184,7 @@ void dump_spells()
 			}
 		}
 
-		LOG(llevInfo, "%s: %s: %s\n", spells[i].name, (name1 ? name1 : "null"), (name2 ? name2 : "null"));
+		LOG(llevInfo, "%d: %s: %s: %s\n", i, spells[i].name, (name1 ? name1 : "null"), (name2 ? name2 : "null"));
 	}
 }
 
@@ -711,7 +711,7 @@ dirty_jump:
 			break;
 
 		case SP_BOMB:
-			success = create_bomb(op, caster, dir, type, "bomb");
+			success = create_bomb(op, caster, dir, type);
 			break;
 
 		default:
@@ -1891,9 +1891,7 @@ void move_missile(object *op)
 void explode_object(object *op)
 {
 	tag_t op_tag = op->count;
-	int xt, yt;
-	object *tmp, *env;
-	mapstruct *m;
+	object *tmp;
 
 	play_sound_map(op->map, op->x, op->y, SOUND_OB_EXPLODE, SOUND_NORMAL);
 
@@ -1903,35 +1901,6 @@ void explode_object(object *op)
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
-	}
-
-	/* Object is in container, try to drop on map! */
-	if (op->env)
-	{
-		for (env = op; env->env != NULL; env = env->env)
-		{
-		}
-
-		xt = env->x;
-		yt = env->y;
-
-		if (!(m = get_map_from_coord(env->map, &xt, &yt)))
-		{
-			LOG(llevBug, "BUG: explode_object(): env out of map (%s)\n", query_name(op, NULL));
-			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-			return;
-		}
-
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		op->x = xt;
-		op->y = yt;
-
-		if (!insert_ob_in_map(op, m, op, 0))
-		{
-			return;
-		}
 	}
 
 	tmp = arch_to_object(op->other_arch);

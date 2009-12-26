@@ -314,10 +314,10 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"create bomb", SPELL_TYPE_WIZARD,
-	 15, 18, 86, 2, 0, 3, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_STAT,
+	 30, 20, 76, 2, 0, 3, 1.0,
+	 10, 9, 0, 30, 8, SOUND_MAGIC_BOMB,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-	 PATH_DETONATE, NULL
+	 PATH_DETONATE, "bomb"
 	},
 
 	{"cure confusion", SPELL_TYPE_PRIEST,
