@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-12-08 Alex Tokar
+Modified: 2009-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1178,6 +1178,7 @@ y 3
 end
 arch corpse_human
 name decaying corpse
+speed 0.0
 x 8
 y 3
 end
@@ -1375,20 +1376,6 @@ arch floor_wood2_l2
 x 9
 y 9
 end
-arch spawn_point
-x 9
-y 9
-arch ant_red
-type 83
-level -1
-invulnerable 1
-no_attack 1
-unaggressive 0
-random_move 0
-stand_still 1
-direction 1
-end
-end
 arch floor_wood2_l1
 x 9
 y 10
@@ -1531,19 +1518,6 @@ end
 arch floor_wood2_l1
 x 10
 y 9
-end
-arch spawn_point
-x 10
-y 9
-arch ant_soldier
-name ant
-type 83
-level -2
-invulnerable 1
-no_attack 1
-stand_still 1
-direction 1
-end
 end
 arch floor_wood2_l2
 x 10
