@@ -6,6 +6,7 @@ layer 1
 no_teleport 1
 terrain_type 8
 no_pick 1
+is_floor 1
 end
 
 Object floor_lava_2
@@ -16,6 +17,7 @@ layer 1
 no_teleport 1
 terrain_type 8
 no_pick 1
+is_floor 1
 end
 
 Object floor_lava_3
@@ -26,6 +28,7 @@ layer 1
 no_teleport 1
 terrain_type 8
 no_pick 1
+is_floor 1
 end
 
 Object floor_lava_4
@@ -36,4 +39,5 @@ layer 1
 no_teleport 1
 terrain_type 8
 no_pick 1
+is_floor 1
 end

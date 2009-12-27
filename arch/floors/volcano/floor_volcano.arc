@@ -5,6 +5,7 @@ layer 1
 terrain_type 1
 type 71
 no_pick 1
+is_floor 1
 end
 
 Object floor_volcano_2
@@ -14,6 +15,7 @@ layer 1
 terrain_type 1
 type 71
 no_pick 1
+is_floor 1
 end
 
 Object floor_volcano_3
@@ -23,6 +25,7 @@ layer 1
 terrain_type 1
 type 71
 no_pick 1
+is_floor 1
 end
 
 Object floor_volcano_4
@@ -32,4 +35,5 @@ layer 1
 terrain_type 1
 type 71
 no_pick 1
+is_floor 1
 end
