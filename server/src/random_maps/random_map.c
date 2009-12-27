@@ -104,8 +104,14 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
 	layout = layoutgen(RP);
 
-	/* increment these for the current map */
-	RP->dungeon_level += 1;
+	if (RP->level_increment > 0)
+	{
+		RP->dungeon_level += RP->level_increment;
+	}
+	else
+	{
+		RP->dungeon_level++;
+	}
 
 	/* rotate the layout randomly */
 	layout = rotate_layout(layout, RANDOM() % 4, RP);
@@ -120,10 +126,8 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 	/* set the name of the map. */
 	FREE_AND_COPY_HASH(theMap->path, OutFileName);
 
-	theMap->name = strdup_local(OutFileName);
+	theMap->name = strdup_local(RP->dungeon_name[0] ? RP->dungeon_name : OutFileName);
 
-	/* treasures needs to have a proper difficulty set for
-	   the map. */
 	theMap->difficulty = RP->dungeon_level;
 
 	make_map_walls(theMap, layout, RP->wallstyle, RP);
@@ -132,15 +136,12 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
 	place_exits(theMap, layout, RP->exitstyle, RP->orientation,RP);
 
-	place_specials_in_map(theMap, layout, RP);
-
 	place_monsters(theMap, RP->monsterstyle, RP->difficulty, RP);
-
-	place_treasure(theMap, layout, RP->treasurestyle, RP->treasureoptions, RP);
 
 	put_decor(theMap, layout, RP->decorstyle, RP->decoroptions, RP);
 
 	unblock_exits(theMap, layout, RP);
+	set_map_darkness(theMap, RP->darkness);
 
 	for (i = 0; i < RP->Xsize; i++)
 	{
@@ -912,12 +913,6 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 		strcat(buf, small_buf);
 	}
 
-	if (RP->treasurestyle[0])
-	{
-		sprintf(small_buf, "treasurestyle %s\n", RP->treasurestyle);
-		strcat(buf, small_buf);
-	}
-
 	if (RP->layoutstyle[0])
 	{
 		sprintf(small_buf, "layoutstyle %s\n", RP->layoutstyle);
@@ -933,6 +928,12 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 	if (RP->doorstyle[0])
 	{
 		sprintf(small_buf, "doorstyle %s\n", RP->doorstyle);
+		strcat(buf, small_buf);
+	}
+
+	if (RP->dungeon_name[0])
+	{
+		sprintf(small_buf, "dungeon_name %s\n", RP->dungeon_name);
 		strcat(buf, small_buf);
 	}
 
@@ -1022,162 +1023,28 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 		sprintf(small_buf, "origin_y %d\n", RP->origin_y);
 		strcat(buf, small_buf);
 	}
+
 	if (RP->random_seed)
 	{
 		sprintf(small_buf, "random_seed %d\n", RP->random_seed + 1);
 		strcat(buf, small_buf);
 	}
 
-	if (RP->treasureoptions)
+	if (RP->num_monsters)
 	{
-		sprintf(small_buf, "treasureoptions %d\n", RP->treasureoptions);
-		strcat(buf, small_buf);
-	}
-}
-
-/**
- * Converts various parameters to string suitable for an exit message.
- * @param buf Buffer to write to.
- * @todo Remove this and replace with calls to
- * write_map_parameters_to_string(). */
-void write_parameters_to_string(char *buf, int xsize_n, int ysize_n, char *wallstyle_n, char *floorstyle_n, char *monsterstyle_n, char *treasurestyle_n, char *layoutstyle_n, char *decorstyle_n, char *doorstyle_n, char *exitstyle_n, char *final_map_n, char *this_map_n, int layoutoptions1_n, int layoutoptions2_n, int layoutoptions3_n, int symmetry_n, int dungeon_depth_n, int dungeon_level_n, int difficulty_n, int difficulty_given_n, int decoroptions_n, int orientation_n, int origin_x_n, int origin_y_n, int random_seed_n, int treasureoptions_n)
-{
-	char small_buf[256];
-
-	sprintf(buf, "xsize %d\nysize %d\n", xsize_n, ysize_n);
-
-	if (wallstyle_n && wallstyle_n[0])
-	{
-		sprintf(small_buf, "wallstyle %s\n", wallstyle_n);
+		sprintf(small_buf, "num_monsters %d\n", RP->num_monsters);
 		strcat(buf, small_buf);
 	}
 
-	if (floorstyle_n && floorstyle_n[0])
+	if (RP->darkness)
 	{
-		sprintf(small_buf, "floorstyle %s\n", floorstyle_n);
+		sprintf(small_buf, "darkness %d\n", RP->darkness);
 		strcat(buf, small_buf);
 	}
 
-	if (monsterstyle_n && monsterstyle_n[0])
+	if (RP->level_increment)
 	{
-		sprintf(small_buf, "monsterstyle %s\n", monsterstyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (treasurestyle_n && treasurestyle_n[0])
-	{
-		sprintf(small_buf, "treasurestyle %s\n", treasurestyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (layoutstyle_n &&layoutstyle_n[0])
-	{
-		sprintf(small_buf, "layoutstyle %s\n", layoutstyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (decorstyle_n && decorstyle_n[0])
-	{
-		sprintf(small_buf, "decorstyle %s\n", decorstyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (doorstyle_n && doorstyle_n[0])
-	{
-		sprintf(small_buf, "doorstyle %s\n", doorstyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (exitstyle_n && exitstyle_n[0])
-	{
-		sprintf(small_buf, "exitstyle %s\n", exitstyle_n);
-		strcat(buf, small_buf);
-	}
-
-	if (final_map_n && final_map_n[0])
-	{
-		sprintf(small_buf, "final_map %s\n", final_map_n);
-		strcat(buf, small_buf);
-	}
-
-	if (this_map_n && this_map_n[0])
-	{
-		sprintf(small_buf, "origin_map %s\n", this_map_n);
-		strcat(buf, small_buf);
-	}
-
-	if (layoutoptions1_n)
-	{
-		sprintf(small_buf, "layoutoptions1 %d\n", layoutoptions1_n);
-		strcat(buf, small_buf);
-	}
-
-	if (layoutoptions2_n)
-	{
-		sprintf(small_buf, "layoutoptions2 %d\n", layoutoptions2_n);
-		strcat(buf, small_buf);
-	}
-
-	if (layoutoptions3_n)
-	{
-		sprintf(small_buf, "layoutoptions3 %d\n", layoutoptions3_n);
-		strcat(buf, small_buf);
-	}
-
-	if (symmetry_n)
-	{
-		sprintf(small_buf, "symmetry %d\n", symmetry_n);
-		strcat(buf, small_buf);
-	}
-
-	if (difficulty_n && difficulty_given_n)
-	{
-		sprintf(small_buf, "difficulty %d\n", difficulty_n);
-		strcat(buf, small_buf);
-	}
-
-	sprintf(small_buf, "dungeon_level %d\n", dungeon_level_n);
-	strcat(buf, small_buf);
-
-	if (dungeon_depth_n)
-	{
-		sprintf(small_buf, "dungeon_depth %d\n", dungeon_depth_n);
-		strcat(buf, small_buf);
-	}
-
-	if (decoroptions_n)
-	{
-		sprintf(small_buf, "decoroptions %d\n", decoroptions_n);
-		strcat(buf, small_buf);
-	}
-
-	if (orientation_n)
-	{
-		sprintf(small_buf, "orientation %d\n", orientation_n);
-		strcat(buf, small_buf);
-	}
-
-	if (origin_x_n)
-	{
-		sprintf(small_buf, "origin_x %d\n", origin_x_n);
-		strcat(buf, small_buf);
-	}
-
-	if (origin_y_n)
-	{
-		sprintf(small_buf, "origin_y %d\n", origin_y_n);
-		strcat(buf, small_buf);
-	}
-
-	if (random_seed_n)
-	{
-		sprintf(small_buf, "random_seed %d\n", random_seed_n + 1);
-		strcat(buf, small_buf);
-	}
-
-	if (treasureoptions_n)
-	{
-		sprintf(small_buf, "treasureoptions %d\n", treasureoptions_n);
+		sprintf(small_buf, "level_increment %d\n", RP->level_increment);
 		strcat(buf, small_buf);
 	}
 }

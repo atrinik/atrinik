@@ -187,7 +187,8 @@ CommArray_s WizCommands [] =
 	{"/stats",          command_stats,                  0.0},
 	{"/forget_spell",   command_forget_spell,           0.0},
 	{"/set_god",        command_setgod,                 0.0},
-	{"/dm_password",    command_dm_password,            0.0}
+	{"/dm_password",    command_dm_password,            0.0},
+	{"/follow",         command_follow,                 0.0}
 };
 
 /** Size of Wizard commands */

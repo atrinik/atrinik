@@ -1,6 +1,0 @@
-arch map
-name runes
-difficulty 1
-end
-arch rune_fire
-end

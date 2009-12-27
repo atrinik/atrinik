@@ -1,0 +1,23 @@
+arch map
+name <unnamed>
+msg
+Modified: 2009-12-27 Alex Tokar
+endmsg
+width 3
+height 1
+difficulty 1
+end
+arch floor_lava_4
+terrain_type 1
+is_floor 1
+end
+arch floor_lava_3
+terrain_type 1
+is_floor 1
+x 1
+end
+arch floor_lava_1
+terrain_type 1
+is_floor 1
+x 2
+end

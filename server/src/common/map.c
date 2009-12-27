@@ -1896,11 +1896,12 @@ mapstruct *load_original_map(const char *filename, int flags)
 	int comp;
 	char pathname[MAX_BUF], tmp_fname[MAX_BUF];
 
-	/* this IS a bug - because the missing '/' strcpy will fail when it
-	 * search the loaded maps - this can lead in a double load and break
-	 * the server!
-	 * '.' sign unique maps in fixed directories. */
-	if (*filename != '/' &&  *filename != '.')
+	if (!strncmp(filename, "/random/", 8))
+	{
+		return NULL;
+	}
+
+	if (*filename != '/' && *filename != '.')
 	{
 		LOG(llevDebug, "DEBUG: load_original_map: filename without start '/' - overruled. %s\n", filename);
 		tmp_fname[0] = '/';
@@ -1912,12 +1913,12 @@ mapstruct *load_original_map(const char *filename, int flags)
 	global_map_tag++;
 	if (flags & MAP_PLAYER_UNIQUE)
 	{
-		LOG(llevDebug, "load_original_map unique: %s (%x)\n", filename,flags);
+		LOG(llevDebug, "load_original_map unique: %s (%x)\n", filename, flags);
 		strcpy(pathname, filename);
 	}
 	else
 	{
-		LOG(llevDebug, "load_original_map: %s (%x) ", filename,flags);
+		LOG(llevDebug, "load_original_map: %s (%x) ", filename, flags);
 		strcpy(pathname, create_pathname(filename));
 	}
 
@@ -1997,13 +1998,20 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 	if ((fp = open_and_uncompress(m->tmpname, 0, &comp)) == NULL)
 	{
+		if (!strncmp(m->path, "/random/", 8))
+		{
+			return NULL;
+		}
+
 		LOG(llevBug, "BUG: Can't open temporary map %s! fallback to original!\n", m->tmpname);
 		strcpy(buf, m->path);
 		delete_map(m);
 		m = load_original_map(buf, 0);
 
 		if (m == NULL)
+		{
 			return NULL;
+		}
 
 		return m;
 	}
@@ -3409,4 +3417,25 @@ int players_on_map(mapstruct *m)
 	}
 
 	return count;
+}
+
+/**
+ * Returns true if square x, y has P_NO_PASS set, which is true for walls
+ * and doors but not monsters.
+ * @param m Map to check for
+ * @param x X coordinate to check for
+ * @param y Y coordinate to check for
+ * @return Non zero if blocked, 0 otherwise. */
+int wall_blocked(mapstruct *m, int x, int y)
+{
+	int r;
+
+	if (!(m = get_map_from_coord(m, &x, &y)))
+	{
+		return 1;
+	}
+
+	r = GET_MAP_FLAGS(m, x, y) & (P_NO_PASS | P_PASS_THRU);
+
+	return r;
 }

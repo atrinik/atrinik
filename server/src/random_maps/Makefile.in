@@ -35,8 +35,6 @@ SRCS = \
 	door.c \
 	decor.c \
 	exit.c \
-	treasure.c \
-	special.c \
 	style.c  \
 	rogue_layout.c \
 	snake.c \

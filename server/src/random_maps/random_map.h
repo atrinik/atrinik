@@ -30,21 +30,23 @@
 #ifndef RANDOM_MAP_H
 #define RANDOM_MAP_H
 
+#define RM_SIZE 512
+
 /** Random map parameters. */
 typedef struct
 {
-	char wallstyle[512];
-	char wall_name[512];
-	char floorstyle[512];
-	char monsterstyle[512];
-	char treasurestyle[512];
-	char layoutstyle[512];
-	char doorstyle[512];
-	char decorstyle[512];
-	char origin_map[512];
-	char final_map[512];
-	char exitstyle[512];
-	char this_map[512];
+	char wallstyle[RM_SIZE];
+	char wall_name[RM_SIZE];
+	char floorstyle[RM_SIZE];
+	char monsterstyle[RM_SIZE];
+	char layoutstyle[RM_SIZE];
+	char doorstyle[RM_SIZE];
+	char decorstyle[RM_SIZE];
+	char origin_map[RM_SIZE];
+	char final_map[RM_SIZE];
+	char exitstyle[RM_SIZE];
+	char this_map[RM_SIZE];
+	char dungeon_name[RM_SIZE];
 
 	int Xsize;
 	int Ysize;
@@ -62,11 +64,11 @@ typedef struct
 	int origin_y;
 	int origin_x;
 	int random_seed;
-	long unsigned int total_map_hp;
 	int map_layout_style;
-	int treasureoptions;
 	int symmetry_used;
-	int generate_treasure_now;
+	int num_monsters;
+	int darkness;
+	int level_increment;
 } RMParms;
 
 /**

@@ -1,0 +1,17 @@
+arch map
+name <unnamed>
+msg
+Modified: 2009-12-27 Alex Tokar
+endmsg
+width 3
+height 1
+difficulty 1
+end
+arch fwall_lava1d
+end
+arch fwall_lava1e
+x 1
+end
+arch fwall_lava1f
+x 2
+end

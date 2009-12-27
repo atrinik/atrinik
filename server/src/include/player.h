@@ -277,6 +277,9 @@ typedef struct pl_player
 	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
 	char password[16];
 
+	/** Player the DM Is following. */
+	char followed_player[BIG_NAME];
+
 	unsigned char last_level;
 
 	/** Any bonuses/penalties to digestion */

@@ -81,11 +81,8 @@ void insert_multisquare_ob_in_map(object *new_obj, mapstruct *map)
  * @param RP Random map parameters. */
 void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP)
 {
-	mapstruct *style_map = 0;
-	long unsigned int total_experience = 0;
-	int failed_placements = 0;
-	long unsigned int exp_per_sq = 0;
-	int number_monsters = 0;
+	mapstruct *style_map = NULL;
+	int failed_placements = 0, number_monsters = 0;
 
 	style_map = find_style("/styles/monsterstyles", monsterstyle, difficulty);
 
@@ -94,7 +91,7 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
 		return;
 	}
 
-	while (exp_per_sq <= level_exp(difficulty, 1.0) && failed_placements < 100 && number_monsters < (RP->Xsize * RP->Ysize) / 8)
+	while (number_monsters < RP->num_monsters && failed_placements < 100)
 	{
 		object *this_monster = pick_random_object(style_map);
 		int x, y, freeindex;
@@ -118,17 +115,11 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
 			new_monster->x = x;
 			new_monster->y = y;
 			insert_multisquare_ob_in_map(new_monster, map);
-			total_experience += this_monster->stats.exp;
 			number_monsters++;
-
-			/* a global count */
-			RP->total_map_hp += new_monster->stats.hp;
 		}
 		else
 		{
 			failed_placements++;
 		}
-
-		exp_per_sq = (long unsigned int) ((double) 1000 * total_experience) / (MAP_WIDTH(map) * MAP_HEIGHT(map) + 1);
 	}
 }

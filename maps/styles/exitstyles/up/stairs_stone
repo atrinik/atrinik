@@ -1,0 +1,10 @@
+arch map
+msg
+Modified: 2009-12-27 Alex Tokar
+endmsg
+width 1
+height 1
+difficulty 1
+end
+arch stairs_stone_up
+end

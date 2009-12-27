@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
 
 	init_gods();
 	memset(&rp, 0, sizeof(RMParms));
-	rp.generate_treasure_now=1;
 	rp.Xsize=-1;
 	rp.Ysize=-1;
 	if ((fp=fopen(InFileName, "r"))==NULL)

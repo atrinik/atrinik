@@ -78,6 +78,50 @@ static object *spawn_monster(object *gen, object *orig, int range)
 		at = at->more;
 	}
 
+	if (ret && ret->level < 0)
+	{
+		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = orig->map->difficulty;
+
+		switch (ret->level)
+		{
+			case -1:
+				min = level_color[diff].green;
+				max = level_color[diff].blue - 1;
+				break;
+
+			case -2:
+				min = level_color[diff].blue;
+				max = level_color[diff].yellow - 1;
+				break;
+
+			case -3:
+				min = level_color[diff].yellow;
+				max = level_color[diff].orange - 1;
+				break;
+
+			case -4:
+				min = level_color[diff].orange;
+				max = level_color[diff].red - 1;
+				break;
+
+			case -5:
+				min = level_color[diff].red;
+				max = level_color[diff].purple - 1;
+				break;
+
+			case -6:
+				min = level_color[diff].purple;
+				max = min + 1;
+				break;
+
+			default:
+				min = level;
+				max = min;
+		}
+
+		ret->level = random_roll(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)), ret, PREFER_LOW);
+	}
+
 	/* return object ptr to our spawn */
 	return ret;
 }

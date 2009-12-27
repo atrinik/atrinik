@@ -388,6 +388,39 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 }
 
 /**
+ * <h1>Atrinik.GetSpell(<i>\<int\></i> spell)</h1>
+ * Get various information about a spell, including things like its
+ * level, type, etc.
+ * @param spell ID of the spell. */
+static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
+{
+	int spell;
+	PyObject *dict;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "i", &spell))
+	{
+		return NULL;
+	}
+
+	if (spell < 0 || spell > NROFREALSPELLS)
+	{
+		RAISE("Invalid ID of a spell.");
+	}
+
+	dict = PyDict_New();
+
+	PyDict_SetItemString(dict, "name", Py_BuildValue("s", hooks->spells[spell].name));
+	PyDict_SetItemString(dict, "level", Py_BuildValue("i", hooks->spells[spell].level));
+	PyDict_SetItemString(dict, "type", Py_BuildValue("s", hooks->spells[spell].type == SPELL_TYPE_WIZARD ? "wizard" : "priest"));
+	PyDict_SetItemString(dict, "sp", Py_BuildValue("i", hooks->spells[spell].sp));
+	PyDict_SetItemString(dict, "time", Py_BuildValue("i", hooks->spells[spell].time));
+
+	return dict;
+}
+
+/**
  * <h1>Atrinik.GetSkillNr(<i>\<string\></i> name)</h1>
  * Gets the number of the named skill.
  * @param name The skill name
@@ -1101,6 +1134,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetReturnValue",   Atrinik_GetReturnValue,      METH_VARARGS, 0},
 	{"SetReturnValue",   Atrinik_SetReturnValue,      METH_VARARGS, 0},
 	{"GetSpellNr",       Atrinik_GetSpellNr,          METH_VARARGS, 0},
+	{"GetSpell",         Atrinik_GetSpell,            METH_VARARGS, 0},
 	{"GetSkillNr",       Atrinik_GetSkillNr,          METH_VARARGS, 0},
 	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
 	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},

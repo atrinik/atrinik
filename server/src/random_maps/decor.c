@@ -76,8 +76,12 @@ void put_decor(mapstruct *map, char **maze, char *decorstyle, int decor_option, 
 	mapstruct *decor_map;
 	char style_name[256];
 
-	snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
+	if (decor_option == 0)
+	{
+		return;
+	}
 
+	snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
 	decor_map = find_style(style_name, decorstyle, -1);
 
 	if (decor_map == NULL)
@@ -85,8 +89,8 @@ void put_decor(mapstruct *map, char **maze, char *decorstyle, int decor_option, 
 		return;
 	}
 
-	/* pick a random option, only 1 option right now. */
-	if (decor_option == 0)
+	/* Pick a random option, only 1 option right now. */
+	if (decor_option == -1)
 	{
 		decor_option = RANDOM() % NR_DECOR_OPTIONS + 1;
 	}

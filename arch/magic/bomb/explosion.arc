@@ -19,4 +19,6 @@ fly_on 1
 attack_internal 100
 dam 3
 no_save 1
+anim_speed 1
+is_animated 1
 end

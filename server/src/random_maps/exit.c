@@ -32,8 +32,6 @@
 #include <sproto.h>
 #include <rproto.h>
 
-/* find a character in the layout.  fx and fy are pointers to
-   where to find the char.  fx,fy = -1 if not found. */
 /**
  * Find a character in the layout.
  * @param mode How to look:
@@ -424,7 +422,9 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 		}
 		else
 		{
-			FREE_AND_COPY_HASH(the_exit_down->slaying, "/!");
+			FREE_AND_COPY_HASH(the_exit_down->slaying, "/random/");
+			the_exit_down->stats.hp = 0;
+			the_exit_down->stats.sp = 0;
 		}
 
 		/* Block the exit so things don't get dumped on top of it. */

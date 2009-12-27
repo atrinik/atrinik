@@ -42,7 +42,7 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 {
 	char styledirname[256], stylefilepath[256];
 	mapstruct *style_map = NULL, *newMap = NULL;
-	object *the_floor;
+	int x, y;
 
 	/* Allocate the map */
 	newMap = get_empty_map(RP->Xsize, RP->Ysize);
@@ -58,21 +58,17 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 	}
 
 	/* Fill up the map with the given floor style */
-	if ((the_floor = pick_random_object(style_map)) != NULL)
+	for (x = 0; x < RP->Xsize; x++)
 	{
-		int x, y;
-
-		for (x = 0; x < RP->Xsize; x++)
+		for (y = 0; y < RP->Ysize; y++)
 		{
-			for (y = 0; y < RP->Ysize; y++)
-			{
-				object *thisfloor = arch_to_object(the_floor->arch);
+			object *the_floor = pick_random_object(style_map), *thisfloor = get_object();
 
-				thisfloor->x = x;
-				thisfloor->y = y;
+			copy_object(the_floor, thisfloor);
+			thisfloor->x = x;
+			thisfloor->y = y;
 
-				insert_ob_in_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
-			}
+			insert_ob_in_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
 		}
 	}
 

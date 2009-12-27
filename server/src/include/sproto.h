@@ -243,6 +243,7 @@ int command_dumpallmaps(object *op, char *params);
 int command_malloc(object *op, char *params);
 int command_maps(object *op, char *params);
 int command_strings(object *op, char *params);
+int command_follow(object *op, char *params);
 
 /* daemon.c */
 void become_daemon(char *filename);

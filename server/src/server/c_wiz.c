@@ -1335,6 +1335,7 @@ int command_nowiz(object *op, char *params)
 	(void) params;
 
 	CLEAR_FLAG(op, FLAG_WIZ);
+	CONTR(op)->followed_player[0] = '\0';
 
 	/* Clear this DM from DMs list. */
 	remove_active_DM(op);
@@ -2260,4 +2261,38 @@ int command_ssdumptable(object *op, char *params)
 
 	ss_dump_table(SS_DUMP_TABLE, NULL, 0);
 	return 1;
+}
+
+/**
+ * DM wants to follow a player, or stop following a player.
+ * @param op Wizard.
+ * @param params Player to follow. If NULL, stop following player.
+ * @return 0. */
+int command_follow(object *op, char *params)
+{
+	player *pl;
+
+	if (!params)
+	{
+		if (CONTR(op)->followed_player[0])
+		{
+			new_draw_info_format(NDI_UNIQUE, 0, op, "You stop following %s.", CONTR(op)->followed_player);
+			CONTR(op)->followed_player[0] = '\0';
+		}
+
+		return 0;
+	}
+
+	pl = get_other_player_from_name(op, params);
+
+	if (!pl)
+	{
+		return 0;
+	}
+
+	CONTR(op)->followed_player[0] = '\0';
+	strncpy(CONTR(op)->followed_player, params, sizeof(CONTR(op)->followed_player));
+
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Following %s.", params);
+	return 0;
 }

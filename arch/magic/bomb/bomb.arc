@@ -18,4 +18,6 @@ no_pick 1
 layer 4
 sp 40
 no_save 1
+anim_speed 1
+is_animated 0
 end
