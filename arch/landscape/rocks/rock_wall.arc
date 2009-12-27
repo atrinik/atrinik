@@ -186,6 +186,7 @@ mpart_id 3
 face rock_wall6.101
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall6_a
@@ -197,6 +198,7 @@ mpart_nr 1
 x 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall6_b
@@ -208,6 +210,7 @@ mpart_nr 2
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall6_c
@@ -220,6 +223,7 @@ x 1
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 Object rock_wall7
 name rocks
@@ -229,6 +233,7 @@ mpart_id 3
 face rock_wall7.101
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall7_a
@@ -240,6 +245,7 @@ mpart_nr 1
 x 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall7_b
@@ -251,6 +257,7 @@ mpart_nr 2
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall7_c
@@ -263,6 +270,7 @@ x 1
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 Object rock_wall8
 name rocks
@@ -272,6 +280,7 @@ mpart_id 3
 face rock_wall8.101
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall8_a
@@ -283,6 +292,7 @@ mpart_nr 1
 x 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall8_b
@@ -294,6 +304,7 @@ mpart_nr 2
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
 More
 Object rock_wall8_c
@@ -306,4 +317,5 @@ x 1
 y 1
 no_pass 1
 no_pick 1
+blocksview 1
 end
