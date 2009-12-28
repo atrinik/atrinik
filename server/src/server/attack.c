@@ -1057,7 +1057,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		{
 			if (hitter->type == PLAYER && op->type != PLAYER)
 			{
-				exp = calc_skill_exp(hitter, op, SK_level(old_hitter));
+				exp = calc_skill_exp(hitter, op, SK_level(hitter));
 			}
 		}
 
