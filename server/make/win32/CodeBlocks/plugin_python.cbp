@@ -8,16 +8,14 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release">
-				<Option output="release\plugin_python.dll" />
-				<Option working_dir="" />
+				<Option output="release\plugin_python.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="Release" />
-				<Option deps_output=".deps" />
-				<Option external_deps="" />
 				<Option type="3" />
-				<Option compiler="0" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
-				<Option createStaticLib="0" />
+				<Option createStaticLib="1" />
 				<Compiler>
+					<Add option="-O3" />
 					<Add option="-W" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
@@ -25,7 +23,6 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
 					<Add option="-DMIN_GW" />
-					<Add option="-O3" />
 				</Compiler>
 				<Linker>
 					<Add library="winmm" />
@@ -44,35 +41,25 @@
 			<Add directory="c:\Python26\include" />
 		</Compiler>
 
-		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_map.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_object.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\plugins\plugin_python\include\plugin_python.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_map.h" />
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_object.h" />
+		<Unit filename="..\..\..\src\plugins\plugin_python\include\plugin_python.h" />
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_map.c">
 			<Option compilerVar="CC" />
-			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_object.c">
 			<Option compilerVar="CC" />
-			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_party.c">
+			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">
 			<Option compilerVar="CC" />
-			<Option target="Release" />
 		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

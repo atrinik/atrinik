@@ -53,6 +53,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\types\beacon.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\types\book.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

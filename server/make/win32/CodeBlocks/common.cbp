@@ -76,10 +76,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\common\init.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\common\item.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
@@ -141,6 +137,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\common\shstr.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\..\..\src\common\stringbuffer.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>

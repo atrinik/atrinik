@@ -270,6 +270,12 @@
 			<Option link="0" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\stringbuffer.h">
+			<Option compilerVar="" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\timers.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
@@ -388,19 +394,11 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\random_maps\special.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\random_maps\square_spiral.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\..\..\src\random_maps\style.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\src\random_maps\treasure.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
@@ -449,7 +447,7 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\server\c_party.c">
+		<Unit filename="..\..\..\src\server\party.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
