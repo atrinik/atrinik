@@ -1048,21 +1048,3 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 		strcat(buf, small_buf);
 	}
 }
-
-/**
- * Copy an object with an inventory. I.e., duplicate the inventory too.
- * @param src_ob Source object
- * @param dest_ob Destination object */
-void copy_object_with_inv(object *src_ob, object *dest_ob)
-{
-	object *walk, *tmp;
-
-	copy_object(src_ob, dest_ob);
-
-	for (walk = src_ob->inv; walk != NULL; walk = walk->below)
-	{
-		tmp = get_object();
-		copy_object(walk, tmp);
-		insert_ob_in_ob(tmp, dest_ob);
-	}
-}

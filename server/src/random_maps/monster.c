@@ -107,11 +107,10 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
 
 		if (freeindex != -1)
 		{
-			object *new_monster = arch_to_object(this_monster->arch);
+			object *new_monster = object_create_clone(this_monster);
 
 			x += freearr_x[freeindex];
 			y += freearr_y[freeindex];
-			copy_object_with_inv(this_monster, new_monster);
 			new_monster->x = x;
 			new_monster->y = y;
 			insert_multisquare_ob_in_map(new_monster, map);
