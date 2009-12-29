@@ -47,6 +47,7 @@ typedef struct
 	char exitstyle[RM_SIZE];
 	char this_map[RM_SIZE];
 	char dungeon_name[RM_SIZE];
+	char bg_music[RM_SIZE];
 
 	int Xsize;
 	int Ysize;

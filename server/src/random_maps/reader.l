@@ -87,6 +87,7 @@ rmap_lex_error = 0;
 ^num_monsters{S}          RP->num_monsters = IVAL;
 ^darkness{S}              RP->darkness = IVAL;
 ^level_increment{S}       RP->level_increment = IVAL;
+^bg_music{S}              strncpy(RP->bg_music, rmap_yval(), RM_SIZE);
 
 
 <*>(^{WS}$)|\n		      {/* ignore empty lines, newlines we don't do above */}

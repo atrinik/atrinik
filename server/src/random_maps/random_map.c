@@ -128,6 +128,11 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
 	theMap->name = strdup_local(RP->dungeon_name[0] ? RP->dungeon_name : OutFileName);
 
+	if (RP->bg_music[0])
+	{
+		theMap->bg_music = strdup_local(RP->bg_music);
+	}
+
 	theMap->difficulty = RP->dungeon_level;
 
 	make_map_walls(theMap, layout, RP->wallstyle, RP);
@@ -1045,6 +1050,12 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 	if (RP->level_increment)
 	{
 		sprintf(small_buf, "level_increment %d\n", RP->level_increment);
+		strcat(buf, small_buf);
+	}
+
+	if (RP->bg_music[0])
+	{
+		sprintf(small_buf, "bg_music %s\n", RP->bg_music);
 		strcat(buf, small_buf);
 	}
 }
