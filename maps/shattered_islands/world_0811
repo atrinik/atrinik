@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-12-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1688,7 +1688,7 @@ y 12
 arch ant_red
 type 83
 item_race 5
-item_level  5
+item_level 5
 level 9
 last_eat 5
 end
@@ -1834,7 +1834,7 @@ y 13
 arch ant_red
 type 83
 item_race 5
-item_level  5
+item_level 5
 level 9
 last_eat 5
 end
@@ -1891,6 +1891,14 @@ arch water_still
 x 13
 y 23
 end
+arch ship_hull_prow_w_front_starboard_dark
+x 13
+y 23
+end
+arch ship_prow_w_starboard_b
+x 13
+y 23
+end
 arch grassd_7
 x 14
 end
@@ -1944,7 +1952,7 @@ y 11
 arch ant_red
 type 83
 item_race 5
-item_level  5
+item_level 5
 level 9
 last_eat 5
 end
@@ -1963,7 +1971,7 @@ y 12
 arch ant_red
 type 83
 item_race 5
-item_level  5
+item_level 5
 level 9
 last_eat 5
 end
@@ -2024,7 +2032,11 @@ arch grassd_m10
 x 14
 y 22
 end
-arch water_still
+arch ship_floor_we_dark_1
+x 14
+y 23
+end
+arch ship_prow_w_starboard_a
 x 14
 y 23
 end
@@ -2135,6 +2147,10 @@ arch reed_sm10
 x 15
 y 21
 end
+arch bollard_tied_n_1
+x 15
+y 21
+end
 arch water_still
 x 15
 y 22
@@ -2143,7 +2159,15 @@ arch grassd_m10
 x 15
 y 22
 end
-arch water_still
+arch bollard_tied_n_2
+x 15
+y 22
+end
+arch ship_floor_we_dark_1
+x 15
+y 23
+end
+arch bollard_tied_n_3
 x 15
 y 23
 end
@@ -2250,15 +2274,11 @@ arch reed_sm10
 x 16
 y 21
 end
-arch water_still
+arch bridge_wood_NS.101
 x 16
 y 22
 end
-arch grassd_m10
-x 16
-y 22
-end
-arch water_still
+arch ship_floor_we_dark_1
 x 16
 y 23
 end
@@ -2385,7 +2405,11 @@ arch grassd_m10
 x 17
 y 22
 end
-arch water_still
+arch ship_floor_we_dark_1
+x 17
+y 23
+end
+arch ship_rail_n_hole
 x 17
 y 23
 end
@@ -2488,6 +2512,10 @@ arch reed_sm10
 x 18
 y 21
 end
+arch bollard_tied_n_1
+x 18
+y 21
+end
 arch water_still
 x 18
 y 22
@@ -2496,7 +2524,15 @@ arch grassd_m10
 x 18
 y 22
 end
-arch water_still
+arch bollard_tied_n_2
+x 18
+y 22
+end
+arch ship_floor_we_dark_1
+x 18
+y 23
+end
+arch bollard_tied_n_3
 x 18
 y 23
 end
@@ -2611,7 +2647,11 @@ arch grassd_m10
 x 19
 y 22
 end
-arch water_still
+arch ship_floor_we_dark_1
+x 19
+y 23
+end
+arch ship_rail_ne
 x 19
 y 23
 end
@@ -2731,6 +2771,10 @@ x 20
 y 22
 end
 arch water_still
+x 20
+y 23
+end
+arch ship_hull_e_low_corner_n
 x 20
 y 23
 end

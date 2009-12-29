@@ -1,0 +1,23 @@
+arch map
+name <unnamed>
+msg
+Modified: 2009-12-27 Alex Tokar
+endmsg
+width 1
+height 1
+difficulty 1
+end
+arch spawn_point
+arch demon_fire
+level -3
+type 83
+arch quest_container
+name Knowledge of Meteor
+sub_type 1
+end
+arch quest_container
+name Knowledge of Meteor Swarm
+sub_type 1
+end
+end
+end

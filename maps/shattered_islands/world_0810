@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-20 Alex Tokar
+Modified: 2009-12-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1136,7 +1136,17 @@ end
 arch water_still
 x 12
 end
+arch ship_hull_prow_w_front_3_dark
+x 12
+end
+arch ship_prow_w_long
+x 12
+end
 arch water_still
+x 12
+y 1
+end
+arch ship_hull_prow_w_front_2
 x 12
 y 1
 end
@@ -1228,10 +1238,21 @@ arch water_still
 x 12
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
+x 13
+end
+arch ship_prow_w_midship
 x 13
 end
 arch water_still
+x 13
+y 1
+end
+arch ship_hull_prow_w_front_1_dark
+x 13
+y 1
+end
+arch ship_prow_w_strokeside_b
 x 13
 y 1
 end
@@ -1323,14 +1344,32 @@ arch water_still
 x 13
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
 x 14
 end
-arch water_still
+arch stairs_wood_down
+slaying ships/ship_1
+hp 6
+sp 18
+x 14
+end
+arch ship_floor_we_dark_1
+x 14
+y 1
+end
+arch ship_prow_w_strokeside_a
+x 14
+y 1
+end
+arch ship_hull_prow_w_rear_3
 x 14
 y 1
 end
 arch water_still
+x 14
+y 2
+end
+arch ship_hull_prow_w_rear_2
 x 14
 y 2
 end
@@ -1418,14 +1457,25 @@ arch water_still
 x 14
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
 x 15
 end
-arch water_still
+arch sail_short_mast_w_1
+x 15
+end
+arch ship_floor_we_dark_1
+x 15
+y 1
+end
+arch ship_rail_s_hole
 x 15
 y 1
 end
 arch water_still
+x 15
+y 2
+end
+arch ship_hull_prow_w_rear_1
 x 15
 y 2
 end
@@ -1513,14 +1563,25 @@ arch water_still
 x 15
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
 x 16
 end
-arch water_still
+arch sail_short_mast_w_2
+x 16
+end
+arch ship_floor_we_dark_1
+x 16
+y 1
+end
+arch ship_rail_s_hole
 x 16
 y 1
 end
 arch water_still
+x 16
+y 2
+end
+arch ship_hull_s_high
 x 16
 y 2
 end
@@ -1608,14 +1669,25 @@ arch water_still
 x 16
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
 x 17
 end
-arch water_still
+arch sail_short_mast_w_3
+x 17
+end
+arch ship_floor_we_dark_1
+x 17
+y 1
+end
+arch ship_rail_s_hole
 x 17
 y 1
 end
 arch water_still
+x 17
+y 2
+end
+arch ship_hull_s_high
 x 17
 y 2
 end
@@ -1703,14 +1775,22 @@ arch water_still
 x 17
 y 23
 end
-arch water_still
+arch ship_floor_we_dark_1
 x 18
 end
-arch water_still
+arch ship_floor_we_dark_1
+x 18
+y 1
+end
+arch ship_rail_s_hole
 x 18
 y 1
 end
 arch water_still
+x 18
+y 2
+end
+arch ship_hull_s_high
 x 18
 y 2
 end
@@ -1797,15 +1877,29 @@ end
 arch water_still
 x 18
 y 23
+end
+arch ship_floor_we_dark_1
+x 19
+end
+arch ship_w_steering_wheel
+x 19
+end
+arch ship_rail_e
+x 19
+end
+arch ship_floor_we_dark_1
+x 19
+y 1
+end
+arch ship_rail_se
+x 19
+y 1
 end
 arch water_still
 x 19
+y 2
 end
-arch water_still
-x 19
-y 1
-end
-arch water_still
+arch ship_hull_s_high
 x 19
 y 2
 end
@@ -1896,11 +1990,22 @@ end
 arch water_still
 x 20
 end
+arch ship_hull_e_low
+x 20
+end
 arch water_still
 x 20
 y 1
 end
+arch ship_hull_e_low
+x 20
+y 1
+end
 arch water_still
+x 20
+y 2
+end
+arch ship_hull_se_low_astern_e
 x 20
 y 2
 end
@@ -1992,6 +2097,10 @@ arch water_still
 x 21
 end
 arch water_still
+x 21
+y 1
+end
+arch rudder_e
 x 21
 y 1
 end

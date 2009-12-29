@@ -1,7 +1,8 @@
 arch map
-name World
+name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
+Modified: 2009-12-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,67 +25,97 @@ end
 arch water_still
 y 2
 end
-arch water_still
+arch floor_volcano_1
 y 3
 end
-arch water_still
+arch rock_wall6
+y 3
+end
+arch floor_volcano_2
 y 4
 end
-arch water_still
+arch floor_volcano_1
 y 5
 end
-arch water_still
+arch rock_wall7
+y 5
+end
+arch floor_volcano_2
 y 6
 end
-arch water_still
+arch floor_volcano_2
 y 7
 end
-arch water_still
+arch rock_wall8
+y 7
+end
+arch floor_volcano_2
 y 8
 end
-arch water_still
+arch floor_volcano_1
 y 9
 end
-arch water_still
+arch rock_wall6
+y 9
+end
+arch floor_volcano_1
 y 10
 end
-arch water_still
+arch floor_volcano_2
 y 11
 end
-arch water_still
+arch rock_wall8
+y 11
+end
+arch floor_volcano_2
 y 12
 end
-arch water_still
+arch floor_volcano_2
 y 13
 end
-arch water_still
+arch rock_wall7
+y 13
+end
+arch floor_volcano_1
 y 14
 end
-arch water_still
+arch floor_volcano_1
 y 15
 end
-arch water_still
+arch rock_wall8
+y 15
+end
+arch floor_volcano_2
 y 16
 end
-arch water_still
+arch floor_volcano_1
 y 17
 end
-arch water_still
+arch rock_wall6
+y 17
+end
+arch floor_volcano_1
 y 18
 end
-arch water_still
+arch floor_volcano_2
 y 19
 end
-arch water_still
+arch rock_wall7
+y 19
+end
+arch floor_volcano_2
 y 20
 end
-arch water_still
+arch floor_volcano_1
 y 21
 end
-arch water_still
+arch floor_volcano_1
 y 22
 end
-arch water_still
+arch rock_wall6
+y 22
+end
+arch floor_volcano_2
 y 23
 end
 arch water_still
@@ -98,87 +129,87 @@ arch water_still
 x 1
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 3
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 8
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 9
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 11
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 12
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 14
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 1
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 1
 y 23
 end
@@ -193,87 +224,107 @@ arch water_still
 x 2
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 3
 end
-arch water_still
+arch rock_wall8
+x 2
+y 3
+end
+arch floor_volcano_1
 x 2
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 5
 end
-arch water_still
+arch rock_wall6
+x 2
+y 5
+end
+arch floor_volcano_2
 x 2
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 8
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 9
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 11
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 12
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 17
 end
-arch water_still
+arch rock_wall8
+x 2
+y 17
+end
+arch floor_volcano_1
 x 2
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 19
 end
-arch water_still
+arch rock_wall7
+x 2
+y 19
+end
+arch floor_volcano_1
 x 2
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 2
 y 21
 end
-arch water_still
+arch rock_wall7
+x 2
+y 21
+end
+arch floor_volcano_2
 x 2
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 2
 y 23
 end
@@ -288,87 +339,87 @@ arch water_still
 x 3
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 3
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 3
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 3
 y 9
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 11
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 12
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 16
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 3
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 3
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 3
 y 23
 end
@@ -383,87 +434,125 @@ arch water_still
 x 4
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 3
 end
-arch water_still
+arch rock_wall7
+x 4
+y 3
+end
+arch floor_volcano_2
 x 4
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 5
 end
-arch water_still
+arch rock_wall8
+x 4
+y 5
+end
+arch floor_volcano_2
 x 4
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 9
 end
-arch water_still
+arch portal_red
+slaying world_0207
+hp 4
+sp 11
+walk_on 1
+fly_on 1
+type 66
+x 4
+y 9
+end
+arch light9
+x 4
+y 9
+end
+arch floor_volcano_2
 x 4
 y 10
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 11
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 12
 end
-arch water_still
+arch light9
+x 4
+y 12
+end
+arch floor_volcano_1
 x 4
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 14
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 15
 end
-arch water_still
+arch floor_volcano_1
 x 4
 y 16
 end
-arch water_still
+arch light9
+x 4
+y 16
+end
+arch floor_volcano_2
 x 4
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 19
 end
-arch water_still
+arch rock_wall7
+x 4
+y 19
+end
+arch floor_volcano_1
 x 4
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 21
 end
-arch water_still
+arch rock_wall6
+x 4
+y 21
+end
+arch floor_volcano_2
 x 4
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 4
 y 23
 end
@@ -478,87 +567,91 @@ arch water_still
 x 5
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 5
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 9
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 11
 end
-arch water_still
+arch stone6
+x 5
+y 11
+end
+arch floor_volcano_1
 x 5
 y 12
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 14
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 5
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 5
 y 23
 end
@@ -573,87 +666,107 @@ arch water_still
 x 6
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 3
 end
-arch water_still
+arch rock_wall6
+x 6
+y 3
+end
+arch floor_volcano_1
 x 6
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 5
 end
-arch water_still
+arch rock_wall7
+x 6
+y 5
+end
+arch floor_volcano_2
 x 6
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 9
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 10
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 11
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 12
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 14
 end
-arch water_still
+arch stone5
+x 6
+y 14
+end
+arch floor_volcano_1
 x 6
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 6
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 6
 y 21
 end
-arch water_still
+arch rock_wall8
+x 6
+y 21
+end
+arch floor_volcano_1
 x 6
 y 22
 end
-arch water_still
+arch floor_volcano_2
+x 6
+y 23
+end
+arch stone5
 x 6
 y 23
 end
@@ -668,87 +781,129 @@ arch water_still
 x 7
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 5
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 7
 end
-arch water_still
+arch wall_pattern1.181
+x 7
+y 7
+end
+arch floor_volcano_1
 x 7
 y 8
 end
-arch water_still
+arch wall_pattern1.131
+x 7
+y 8
+end
+arch wmask_fire_on_1
+direction 6
+x 7
+y 8
+end
+arch floor_volcano_2
 x 7
 y 9
 end
-arch water_still
+arch wall_pattern1_w.131
+x 7
+y 9
+end
+arch floor_volcano_2
 x 7
 y 10
 end
-arch water_still
+arch wall_pattern1.131
+x 7
+y 10
+end
+arch floor_volcano_2
 x 7
 y 11
 end
-arch water_still
+arch wall_pattern1.131
+x 7
+y 11
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 7
+y 11
+end
+arch floor_volcano_2
 x 7
 y 12
 end
-arch water_still
+arch wall_pattern1.131
+x 7
+y 12
+end
+arch floor_volcano_2
 x 7
 y 13
 end
-arch water_still
+arch wall_pattern1.131
+x 7
+y 13
+end
+arch floor_volcano_2
 x 7
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 15
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 18
 end
-arch water_still
+arch stone2
+x 7
+y 18
+end
+arch floor_volcano_1
 x 7
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 7
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 7
 y 23
 end
@@ -763,87 +918,119 @@ arch water_still
 x 8
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 3
 end
-arch water_still
+arch rock_wall7
+x 8
+y 3
+end
+arch floor_volcano_2
 x 8
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 5
 end
-arch water_still
+arch rock4
+x 8
+y 5
+end
+arch floor_volcano_1
 x 8
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 8
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 8
+y 7
+end
+arch floor_marble_grey
 x 8
 y 8
 end
-arch water_still
+arch wood_pile.101
+x 8
+y 8
+end
+arch floor_marble_grey
 x 8
 y 9
 end
-arch water_still
+arch floor_marble_grey
 x 8
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 8
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 8
 y 12
 end
-arch water_still
+arch light3
+x 8
+y 12
+end
+arch floor_marble_grey
 x 8
 y 13
 end
-arch water_still
+arch wall_pattern1.111
+x 8
+y 13
+end
+arch floor_volcano_1
 x 8
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 16
 end
-arch water_still
+arch light9
+x 8
+y 16
+end
+arch floor_volcano_1
 x 8
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 8
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 8
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 8
 y 21
 end
-arch water_still
+arch rock_wall6
+x 8
+y 21
+end
+arch floor_volcano_2
 x 8
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 8
 y 23
 end
@@ -858,87 +1045,103 @@ arch water_still
 x 9
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 9
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 9
+y 7
+end
+arch floor_marble_grey
 x 9
 y 8
 end
-arch water_still
+arch shelf3c.111
+x 9
+y 8
+end
+arch light4
+x 9
+y 8
+end
+arch floor_marble_grey
 x 9
 y 9
 end
-arch water_still
+arch floor_marble_grey
 x 9
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 9
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 9
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 9
 y 13
 end
-arch water_still
+arch wall_pattern1_w.111
+x 9
+y 13
+end
+arch floor_volcano_2
 x 9
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 16
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 9
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 9
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 9
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 9
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 9
 y 23
 end
@@ -953,87 +1156,111 @@ arch water_still
 x 10
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 3
 end
-arch water_still
+arch rock_wall8
+x 10
+y 3
+end
+arch floor_volcano_2
 x 10
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 5
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 10
+y 7
+end
+arch floor_marble_grey
 x 10
 y 8
 end
-arch water_still
+arch floor_marble_grey
 x 10
 y 9
 end
-arch water_still
+arch table_lab1.111
+x 10
+y 9
+end
+arch floor_marble_grey
 x 10
 y 10
 end
-arch water_still
+arch light9
+x 10
+y 10
+end
+arch floor_marble_grey
 x 10
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 10
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 10
 y 13
 end
-arch water_still
+arch wall_pattern1.111
+x 10
+y 13
+end
+arch floor_volcano_2
 x 10
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 15
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 10
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 21
 end
-arch water_still
+arch rock_wall7
+x 10
+y 21
+end
+arch floor_volcano_2
 x 10
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 10
 y 23
 end
@@ -1048,87 +1275,125 @@ arch water_still
 x 11
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 11
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 11
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 11
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 11
+y 7
+end
+arch floor_marble_grey
 x 11
 y 8
 end
-arch water_still
+arch chair1_111
+x 11
+y 8
+end
+arch spawn_point
+x 11
+y 8
+arch mage_old
+name Flymar
+level 30
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race scripts/promethia_island/flymar.py
+end
+end
+end
+arch floor_marble_grey
 x 11
 y 9
 end
-arch water_still
+arch table_lab3.111
+x 11
+y 9
+end
+arch floor_marble_grey
 x 11
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 11
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 11
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 11
 y 13
 end
-arch water_still
+arch wall_pattern1.111
+x 11
+y 13
+end
+arch floor_volcano_2
 x 11
 y 14
 end
-arch water_still
+arch lantern2_magic.131
+x 11
+y 14
+end
+arch light5
+x 11
+y 14
+end
+arch floor_volcano_1
 x 11
 y 15
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 11
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 11
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 11
 y 23
 end
@@ -1143,87 +1408,111 @@ arch water_still
 x 12
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 12
 y 3
 end
-arch water_still
+arch rock_wall6
+x 12
+y 3
+end
+arch floor_volcano_1
 x 12
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 12
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 12
+y 7
+end
+arch floor_marble_grey
 x 12
 y 8
 end
-arch water_still
+arch floor_marble_grey
 x 12
 y 9
 end
-arch water_still
+arch table_lab2.111
+x 12
+y 9
+end
+arch floor_marble_grey
 x 12
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 12
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 12
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 12
 y 13
 end
-arch water_still
+arch door1_locked
+x 12
+y 13
+end
+arch floor_volcano_2
 x 12
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 16
 end
-arch water_still
+arch light9
+x 12
+y 16
+end
+arch floor_volcano_1
 x 12
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 12
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 12
 y 20
 end
-arch water_still
+arch light9
+x 12
+y 20
+end
+arch floor_volcano_2
 x 12
 y 21
 end
-arch water_still
+arch floor_volcano_1
 x 12
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 12
 y 23
 end
@@ -1238,87 +1527,115 @@ arch water_still
 x 13
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 3
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 5
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 13
+y 7
+end
+arch picture5.151
+x 13
+y 7
+end
+arch floor_marble_grey
 x 13
 y 8
 end
-arch water_still
+arch light4
+x 13
+y 8
+end
+arch floor_marble_grey
 x 13
 y 9
 end
-arch water_still
+arch floor_marble_grey
 x 13
 y 10
 end
-arch water_still
+arch light9
+x 13
+y 10
+end
+arch floor_marble_grey
 x 13
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 13
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 13
 y 13
 end
-arch water_still
+arch wall_pattern1.111
+x 13
+y 13
+end
+arch floor_volcano_1
 x 13
 y 14
 end
-arch water_still
+arch lantern2_magic.131
+x 13
+y 14
+end
+arch light5
+x 13
+y 14
+end
+arch floor_volcano_1
 x 13
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 16
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 13
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 13
 y 23
 end
@@ -1333,87 +1650,103 @@ arch water_still
 x 14
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 3
 end
-arch water_still
+arch rock_wall7
+x 14
+y 3
+end
+arch floor_volcano_1
 x 14
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 14
+y 7
+end
+arch floor_marble_grey
 x 14
 y 8
 end
-arch water_still
+arch shelf1_wall.111
+x 14
+y 8
+end
+arch floor_marble_grey
 x 14
 y 9
 end
-arch water_still
+arch floor_marble_grey
 x 14
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 14
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 14
 y 12
 end
-arch water_still
+arch floor_marble_grey
 x 14
 y 13
 end
-arch water_still
+arch wall_pattern1.111
+x 14
+y 13
+end
+arch floor_volcano_1
 x 14
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 21
 end
-arch water_still
+arch floor_volcano_1
 x 14
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 14
 y 23
 end
@@ -1428,87 +1761,115 @@ arch water_still
 x 15
 y 2
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 3
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 5
 end
-arch water_still
+arch rock_wall7
+x 15
+y 5
+end
+arch floor_volcano_2
 x 15
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 15
+y 7
+end
+arch floor_marble_grey
 x 15
 y 8
 end
-arch water_still
+arch floor_marble_grey
 x 15
 y 9
 end
-arch water_still
+arch light3
+x 15
+y 9
+end
+arch floor_marble_grey
 x 15
 y 10
 end
-arch water_still
+arch floor_marble_grey
 x 15
 y 11
 end
-arch water_still
+arch floor_marble_grey
 x 15
 y 12
 end
-arch water_still
+arch light3
+x 15
+y 12
+end
+arch floor_marble_grey
 x 15
 y 13
 end
-arch water_still
+arch wall_pattern1_w.111
+x 15
+y 13
+end
+arch floor_volcano_2
 x 15
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 15
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 15
 y 16
 end
-arch water_still
+arch stone4
+x 15
+y 16
+end
+arch floor_volcano_2
 x 15
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 15
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 15
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 15
 y 21
 end
-arch water_still
+arch rock_wall6
+x 15
+y 21
+end
+arch floor_volcano_1
 x 15
 y 22
 end
-arch water_still
+arch floor_volcano_2
 x 15
 y 23
 end
@@ -1523,87 +1884,123 @@ arch water_still
 x 16
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 3
 end
-arch water_still
+arch rock_wall6
+x 16
+y 3
+end
+arch floor_volcano_2
 x 16
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 7
 end
-arch water_still
+arch wall_pattern1.111
+x 16
+y 7
+end
+arch floor_marble_grey
 x 16
 y 8
 end
-arch water_still
+arch wall_pattern1.131
+x 16
+y 8
+end
+arch floor_marble_grey
 x 16
 y 9
 end
-arch water_still
+arch wall_pattern1.131
+x 16
+y 9
+end
+arch floor_marble_grey
 x 16
 y 10
 end
-arch water_still
+arch wall_pattern1.131
+x 16
+y 10
+end
+arch floor_marble_grey
 x 16
 y 11
 end
-arch water_still
+arch wall_pattern1.131
+x 16
+y 11
+end
+arch floor_marble_grey
 x 16
 y 12
 end
-arch water_still
+arch wall_pattern1.131
+x 16
+y 12
+end
+arch floor_marble_grey
 x 16
 y 13
 end
-arch water_still
+arch wall_pattern1.141
+x 16
+y 13
+end
+arch floor_volcano_2
 x 16
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 16
 end
-arch water_still
+arch light9
+x 16
+y 16
+end
+arch floor_volcano_2
 x 16
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 18
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 16
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 16
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 16
 y 23
 end
@@ -1618,87 +2015,103 @@ arch water_still
 x 17
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 3
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 5
 end
-arch water_still
+arch rock_wall8
+x 17
+y 5
+end
+arch floor_volcano_2
 x 17
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 7
 end
-arch water_still
+arch rock_wall8
+x 17
+y 7
+end
+arch floor_volcano_2
 x 17
 y 8
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 9
 end
-arch water_still
+arch rock_wall7
+x 17
+y 9
+end
+arch floor_volcano_1
 x 17
 y 10
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 11
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 12
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 16
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 20
 end
-arch water_still
+arch floor_volcano_2
 x 17
 y 21
 end
-arch water_still
+arch rock_wall7
+x 17
+y 21
+end
+arch floor_volcano_2
 x 17
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 17
 y 23
 end
@@ -1713,87 +2126,91 @@ arch water_still
 x 18
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 3
 end
-arch water_still
+arch rock_wall8
+x 18
+y 3
+end
+arch floor_volcano_2
 x 18
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 6
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 8
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 9
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 11
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 12
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 13
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 14
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 15
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 17
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 19
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 21
 end
-arch water_still
+arch floor_volcano_2
 x 18
 y 22
 end
-arch water_still
+arch floor_volcano_1
 x 18
 y 23
 end
@@ -1808,87 +2225,127 @@ arch water_still
 x 19
 y 2
 end
-arch water_still
+arch floor_volcano_2
 x 19
 y 3
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 4
 end
-arch water_still
+arch floor_volcano_2
 x 19
 y 5
 end
-arch water_still
+arch rock_wall8
+x 19
+y 5
+end
+arch floor_volcano_2
 x 19
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 7
 end
-arch water_still
+arch rock_wall7
+x 19
+y 7
+end
+arch floor_volcano_2
 x 19
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 9
 end
-arch water_still
+arch rock_wall6
+x 19
+y 9
+end
+arch floor_volcano_1
 x 19
 y 10
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 11
 end
-arch water_still
+arch rock_wall7
+x 19
+y 11
+end
+arch floor_volcano_1
 x 19
 y 12
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 13
 end
-arch water_still
+arch rock_wall6
+x 19
+y 13
+end
+arch floor_volcano_1
 x 19
 y 14
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 15
 end
-arch water_still
+arch rock_wall8
+x 19
+y 15
+end
+arch floor_volcano_1
 x 19
 y 16
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 17
 end
-arch water_still
+arch rock_wall6
+x 19
+y 17
+end
+arch floor_volcano_2
 x 19
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 19
 end
-arch water_still
+arch rock_wall8
+x 19
+y 19
+end
+arch floor_volcano_1
 x 19
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 19
 y 21
 end
-arch water_still
+arch rock_wall8
+x 19
+y 21
+end
+arch floor_volcano_2
 x 19
 y 22
 end
-arch water_still
+arch floor_volcano_2
+x 19
+y 23
+end
+arch stone6
 x 19
 y 23
 end
@@ -1911,79 +2368,87 @@ arch water_still
 x 20
 y 4
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 5
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 6
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 7
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 8
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 9
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 10
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 11
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 12
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 13
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 14
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 15
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 16
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 17
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 18
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 19
 end
-arch water_still
+arch floor_volcano_2
 x 20
 y 20
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 21
 end
-arch water_still
+arch floor_volcano_1
 x 20
 y 22
 end
-arch water_still
+arch sand_dm9
+x 20
+y 22
+end
+arch floor_volcano_1
+x 20
+y 23
+end
+arch sand_dm9
 x 20
 y 23
 end
@@ -2010,7 +2475,15 @@ arch water_still
 x 21
 y 5
 end
+arch sand_dm8
+x 21
+y 5
+end
 arch water_still
+x 21
+y 6
+end
+arch sand_dm8
 x 21
 y 6
 end
@@ -2018,7 +2491,15 @@ arch water_still
 x 21
 y 7
 end
+arch sand_dm8
+x 21
+y 7
+end
 arch water_still
+x 21
+y 8
+end
+arch sand_dm8
 x 21
 y 8
 end
@@ -2026,7 +2507,15 @@ arch water_still
 x 21
 y 9
 end
+arch sand_dm8
+x 21
+y 9
+end
 arch water_still
+x 21
+y 10
+end
+arch sand_dm8
 x 21
 y 10
 end
@@ -2034,7 +2523,15 @@ arch water_still
 x 21
 y 11
 end
+arch sand_dm8
+x 21
+y 11
+end
 arch water_still
+x 21
+y 12
+end
+arch sand_dm8
 x 21
 y 12
 end
@@ -2042,7 +2539,15 @@ arch water_still
 x 21
 y 13
 end
+arch sand_dm8
+x 21
+y 13
+end
 arch water_still
+x 21
+y 14
+end
+arch sand_dm8
 x 21
 y 14
 end
@@ -2050,7 +2555,15 @@ arch water_still
 x 21
 y 15
 end
+arch sand_dm8
+x 21
+y 15
+end
 arch water_still
+x 21
+y 16
+end
+arch sand_dm8
 x 21
 y 16
 end
@@ -2058,7 +2571,15 @@ arch water_still
 x 21
 y 17
 end
+arch sand_dm8
+x 21
+y 17
+end
 arch water_still
+x 21
+y 18
+end
+arch sand_dm8
 x 21
 y 18
 end
@@ -2066,7 +2587,15 @@ arch water_still
 x 21
 y 19
 end
+arch sand_dm8
+x 21
+y 19
+end
 arch water_still
+x 21
+y 20
+end
+arch sand_dm8
 x 21
 y 20
 end
@@ -2074,11 +2603,23 @@ arch water_still
 x 21
 y 21
 end
+arch sand_dm8
+x 21
+y 21
+end
 arch water_still
 x 21
 y 22
 end
+arch sand_dm8
+x 21
+y 22
+end
 arch water_still
+x 21
+y 23
+end
+arch sand_dm8
 x 21
 y 23
 end
