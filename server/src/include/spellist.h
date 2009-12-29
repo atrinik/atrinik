@@ -272,15 +272,15 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"meteor", SPELL_TYPE_WIZARD,
-	 30, 18, 86, 2, 0, 3, 1.0,
-	 4, 5, 4, 4, 9, SOUND_MAGIC_STAT,
+	 30, 18, 32, 2, 0, 3, 1.0,
+	 4, 10, 4, 16, 9, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
 	},
 
 	{"meteor swarm", SPELL_TYPE_WIZARD,
-	 75, 18, 86, 2, 0, 3, 1.0,
-	 4, 5, 4, 4, 9, SOUND_MAGIC_STAT,
+	 80, 18, 80, 2, 0, 3, 1.0,
+	 4, 10, 4, 8, 9, SOUND_MAGIC_STAT,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
 	},
