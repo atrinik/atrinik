@@ -33,16 +33,8 @@
 
 /**
  * Put the decor into the map.
- *
- * Right now, it's very primitive.
  * @param map Map to add decor to.
- * @param maze Layout of the map, as was generated.
- * @param decorstyle Style to use. Can be NULL, in which case random is
- * selected.
- * @param decor_option How to place the decoration:
- * - <b>0</b>: No decoration.
- * - <b>1</b>: Randomly place decoration.
- * - <b>Anything else</b>: Fill the map with decoration.
+ * @param layout Layout of the map, as was generated.
  * @param RP Parameters of the random map. */
 void put_decor(mapstruct *map, char **layout, RMParms *RP)
 {
