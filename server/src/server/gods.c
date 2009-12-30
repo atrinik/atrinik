@@ -28,9 +28,7 @@
  * Handles god related code. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /* define this if you want to allow gods to assign more gifts
  * and limitations to priests */

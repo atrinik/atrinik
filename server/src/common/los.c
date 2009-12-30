@@ -211,7 +211,6 @@ static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] =
 
 };
 
-inline void clear_los(object *op);
 static void expand_sight(object *op);
 
 /**
@@ -504,7 +503,7 @@ void update_los(object *op)
  * Clears/initializes the LOS array associated to the player
  * controlling the object.
  * @param op The player object */
-inline void clear_los(object *op)
+void clear_los(object *op)
 {
 	(void) memset((void *) CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
 }

@@ -29,10 +29,8 @@
  * (checking for lost connections and if data has arrived). */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
 #include <sockproto.h>
-#endif
 
 #ifndef WIN32
 #include <sys/types.h>

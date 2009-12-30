@@ -28,9 +28,7 @@
  * Functions dealing with shop handling, bargaining, etc. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay);
 

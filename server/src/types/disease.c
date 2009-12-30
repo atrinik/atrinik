@@ -34,9 +34,7 @@
  * @ref SYMPTOM "symptoms" are what actually damage the player. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 static int is_susceptible_to_disease(object *victim, object *disease);
 static void remove_symptoms(object *disease);

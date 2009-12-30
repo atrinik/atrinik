@@ -28,10 +28,7 @@
  * Socket initialization related code. */
 
 #include <global.h>
-
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #ifndef WIN32
 #include <sys/types.h>

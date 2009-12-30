@@ -1,28 +1,3 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*                     Copyright (C) 2009 Alex Tokar                     *
-*                                                                       *
-* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
-* and Crossfire (Multiplayer game for X-windows).                       *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
-
 /* anim.c */
 extern void free_all_anim();
 extern void init_anim();
@@ -86,12 +61,6 @@ extern int read_bmap_names();
 extern int find_face(char *name, int error);
 extern void free_all_images();
 
-/* init.c */
-extern void free_strings();
-extern void init_library();
-extern void init_globals();
-extern void write_todclock();
-
 /* item.c */
 extern char *describe_resistance(object *op, int newline);
 extern char *query_weight(object *op);
@@ -130,7 +99,19 @@ extern void set_mobile_speed(object *op, int index);
 /* loader.c */
 extern int lex_load(object *op, int map_flags);
 extern void yyrestart(FILE *input_file);
-extern void yy_load_buffer_state();
+extern void yypop_buffer_state();
+extern int yyget_lineno();
+extern FILE *yyget_in();
+extern FILE *yyget_out();
+extern int yyget_leng();
+extern char *yyget_text();
+extern void yyset_lineno(int line_number);
+extern void yyset_in(FILE *in_str);
+extern void yyset_out(FILE *out_str);
+extern int yyget_debug();
+extern void yyset_debug(int bdebug);
+extern int yylex_destroy();
+extern void yyfree(void *ptr);
 extern int yyerror(char *s);
 extern void delete_loader_buffer(void *buffer);
 extern void *create_loader_buffer(void *fp);
@@ -168,14 +149,13 @@ extern int blocked_link(object *op, int xoff, int yoff);
 extern int blocked_link_2(object *op, mapstruct *map, int x, int y);
 extern int blocked_tile(object *op, mapstruct *m, int x, int y);
 extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
-void set_map_darkness(mapstruct *m, int value);
+extern void set_map_darkness(mapstruct *m, int value);
 extern mapstruct *get_linked_map();
 extern mapstruct *get_empty_map(int sizex, int sizey);
 extern mapstruct *load_original_map(const char *filename, int flags);
 extern int new_save_map(mapstruct *m, int flag);
 extern void free_map(mapstruct *m, int flag);
 extern void delete_map(mapstruct *m);
-extern int check_map_owner(mapstruct *map, object *op);
 extern char *create_map_owner(mapstruct *map);
 extern mapstruct *ready_map_name(const char *name, int flags);
 extern void clean_tmp_map(mapstruct *m);
@@ -188,19 +168,21 @@ extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flag
 extern int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
 extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
+extern int wall_blocked(mapstruct *m, int x, int y);
 
 /* mempool.c */
 extern uint32 nearest_pow_two_exp(uint32 n);
-extern void init_mempools();
 extern void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, chunk_destructor destructor);
 extern struct mempool *create_mempool(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
-extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool);
+extern void init_mempools();
 extern void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp);
+extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool);
 extern void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
 
 /* object.c */
 extern void init_materials();
 extern void mark_object_removed(object *ob);
+extern void object_gc();
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);
 extern signed long sum_weight(object *op);
@@ -218,16 +200,17 @@ extern object *get_object();
 extern void update_turn_face(object *op);
 extern void update_ob_speed(object *op);
 extern void update_object(object *op, int action);
+extern void drop_ob_inv(object *ob);
 extern void destroy_object(object *ob);
-extern void remove_ob(object *op);
 extern void destruct_ob(object *op);
+extern void remove_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);
 extern object *get_split_ob(object *orig_ob, int nr, char *err, size_t size);
 extern object *decrease_ob_nr(object *op, int i);
 extern object *insert_ob_in_ob(object *op, object *where);
 extern int check_walk_on(object *op, object *originator, int flags);
-extern int check_walk_off (object *op, object *originator, int flags);
+extern int check_walk_off(object *op, object *originator, int flags);
 extern object *present_arch(archetype *at, mapstruct *m, int x, int y);
 extern object *present(unsigned char type, mapstruct *m, int x, int y);
 extern object *present_in_ob(unsigned char type, object *op);
@@ -235,7 +218,7 @@ extern object *present_arch_in_ob(archetype *at, object *op);
 extern void set_cheat(object *op);
 extern int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
 extern int find_first_free_spot(archetype *at, mapstruct *m, int x, int y);
-extern int find_first_free_spot2(archetype *at, mapstruct *m,int x,int y, int start, int range);
+extern int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range);
 extern int find_dir(mapstruct *m, int x, int y, object *exclude);
 extern int find_dir_2(int x, int y);
 extern int absdir(int d);
@@ -245,7 +228,6 @@ extern int can_pick(object *who, object *item);
 extern object *object_create_clone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
 extern object *load_object_str(char *obstr);
-extern void object_gc();
 extern int auto_apply(object *op);
 extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
 extern void free_key_values(object *op);
@@ -266,11 +248,9 @@ extern void make_path_to_file(char *filename);
 
 /* quest.c */
 extern object *create_quest_container(object *op);
-extern void check_quest(object *pl, object *quest_container);
-extern object *create_quest(object *op, char *quest_name);
+extern void check_quest(object *op, object *quest_container);
 
 /* player.c */
-extern void free_player(player *pl);
 extern object *find_skill(object *op, int skillnr);
 extern int atnr_is_dragon_enabled(int attacknr);
 extern int is_dragon_pl(object *op);
@@ -299,9 +279,9 @@ extern void free_all_recipes();
 /* shstr.c */
 extern void init_hash_table();
 extern const char *add_string(const char *str);
+extern const char *add_refcount(const char *str);
 extern int query_refcount(const char *str);
 extern const char *find_string(const char *str);
-extern const char *add_refcount(const char *str);
 extern void free_string_shared(const char *str);
 extern void ss_dump_statistics(char *buf, size_t size);
 extern void ss_dump_table(int what, char *buf, size_t size);
@@ -317,9 +297,9 @@ extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffe
 
 /* time.c */
 extern void reset_sleep();
-extern void get_tod(timeofday_t *tod);
 extern void sleep_delta();
 extern void set_max_time(long t);
+extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds();
@@ -330,9 +310,9 @@ extern void init_artifacts();
 extern void init_archetype_pointers();
 extern treasurelist *find_treasurelist(const char *name);
 extern object *generate_treasure(treasurelist *t, int difficulty, int a_chance);
-extern void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
+extern void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change);
 extern void set_abs_magic(object *op, int magic);
-extern int fix_generated_item(object **op, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
+extern int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
 extern artifactlist *find_artifactlist(int type);
 extern archetype *find_artifact_archtype(const char *name);
 extern void dump_artifacts();
@@ -348,9 +328,9 @@ extern int random_roll(int min, int max, object *op, int goodbad);
 extern int die_roll(int num, int size, object *op, int goodbad);
 extern int rndm(int min, int max);
 extern int look_up_spell_name(const char *spname);
+extern void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 extern racelink *find_racelink(const char *name);
 extern char *cleanup_string(char *ustring);
 extern char *get_word_from_string(char *str, int *pos);
-extern void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
-extern void replace_unprintable_chars(char *buf);
 extern void adjust_player_name(char *name);
+extern void replace_unprintable_chars(char *buf);

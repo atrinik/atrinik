@@ -31,9 +31,7 @@
 #ifndef WIN32
 #include <pwd.h>
 #endif
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #include <sounds.h>
 #include <newclient.h>
 

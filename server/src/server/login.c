@@ -28,9 +28,7 @@
  * Player login/save/logout related functions. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #include <loader.h>
 
 /** Objects link of DMs. */

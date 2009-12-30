@@ -1,28 +1,3 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*                     Copyright (C) 2009 Alex Tokar                     *
-*                                                                       *
-* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
-* and Crossfire (Multiplayer game for X-windows).                       *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
-
 /* alchemy.c */
 int use_alchemy(object *op);
 
@@ -50,6 +25,7 @@ void save_throw_object(object *op, object *originator);
 
 /* ban.c */
 void load_bans_file();
+void save_bans_file();
 int checkbanned(const char *name, char *ip);
 int add_ban(const char *input);
 int remove_ban(const char *input);
@@ -147,9 +123,9 @@ int command_southeast(object *op, char *params);
 int command_southwest(object *op, char *params);
 int command_west(object *op, char *params);
 int command_stay(object *op, char *params);
-int command_push_object(object *op, char *params);
-int command_turn_left(object *op, char *params);
 int command_turn_right(object *op, char *params);
+int command_turn_left(object *op, char *params);
+int command_push_object(object *op, char *params);
 
 /* c_new.c */
 int command_run(object *op, char *params);
@@ -157,8 +133,8 @@ int command_run_stop(object *op, char *params);
 void send_target_command(player *pl);
 int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
-void command_face_request(char *params, int len, player *pl);
 void command_new_char(char *params, int len, player *pl);
+void command_face_request(char *params, int len, player *pl);
 void command_fire(char *params, int len, player *pl);
 void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, char *spellname, int mode);
@@ -185,12 +161,6 @@ char *long_desc(object *tmp, object *caller);
 void examine(object *op, object *tmp);
 void inventory(object *op, object *inv);
 
-/* commands.c */
-void init_commands();
-CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
-int execute_newserver_command(object *pl, char *command);
-emotes_array *find_emote(int emotion, emotes_array *commarray, int commsize);
-
 /* c_range.c */
 int command_cast_spell(object *op, char *params);
 int fire_cast_spell(object *op, char *params);
@@ -198,7 +168,7 @@ int legal_range(object *op, int r);
 
 /* c_wiz.c */
 int command_setgod(object *op, char *params);
-int command_kick(object *op, char *params);
+int command_kick(object *ob, char *params);
 int command_shutdown_now(object *op, char *params);
 int command_goto(object *op, char *params);
 int command_freeze(object *op, char *params);
@@ -235,15 +205,21 @@ int command_dm_stealth(object *op, char *params);
 int command_dm_light(object *op, char *params);
 int command_dm_password(object *op, char *params);
 int command_dumpactivelist(object *op, char *params);
-int command_ssdumptable(object *op, char *params);
-int command_setmaplight(object *op, char *params);
 int command_shutdown(object *op, char *params);
+int command_setmaplight(object *op, char *params);
 int command_dumpmap(object *op, char *params);
 int command_dumpallmaps(object *op, char *params);
 int command_malloc(object *op, char *params);
 int command_maps(object *op, char *params);
 int command_strings(object *op, char *params);
+int command_ssdumptable(object *op, char *params);
 int command_follow(object *op, char *params);
+
+/* commands.c */
+void init_commands();
+CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
+int execute_newserver_command(object *pl, char *command);
+emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize);
 
 /* daemon.c */
 void become_daemon(char *filename);
@@ -260,12 +236,18 @@ const char *determine_god(object *op);
 archetype *determine_holy_arch(object *god, const char *type);
 
 /* init.c */
+void free_strings();
+void init_library();
+void init_globals();
+void write_todclock();
 void init(int argc, char **argv);
 void compile_info();
+void free_racelist();
 
 /* login.c */
 void emergency_save(int flag);
 int check_name(player *me, char *name);
+long calculate_checksum_new(char *buf, int checkdouble);
 int save_player(object *op, int flag);
 long calculate_checksum(char *filename, int checkdouble);
 void check_login(object *op);
@@ -300,6 +282,7 @@ int missile_reflection_adjust(object *op, int flag);
 void add_party_member(partylist_struct *party, object *op);
 void remove_party_member(partylist_struct *party, object *op);
 partylist_struct *make_party(char *name);
+void form_party(object *op, char *name);
 partylist_struct *find_party(char *name);
 void send_party_message(partylist_struct *party, char *msg, int flag, object *op);
 void remove_party(partylist_struct *party);
@@ -325,8 +308,8 @@ CommArray_s *find_plugin_command(const char *cmd);
 void displayPluginsList(object *op);
 int findPlugin(const char *id);
 void initPlugins();
-void removeOnePlugin(const char *id);
 void initOnePlugin(const char *pluginfile);
+void removeOnePlugin(const char *id);
 void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags);
 
@@ -349,8 +332,8 @@ int get_payment(object *pl, object *op);
 void sell_item(object *op, object *pl, sint64 value);
 int get_money_from_string(char *text, struct _money_block *money);
 int query_money_type(object *op, int value);
-sint64 remove_money_type(object*who, object *op, sint64 value, sint64 amount);
-void insert_money_in_player(object *pl,object *money, uint32 nrof);
+sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount);
+void insert_money_in_player(object *pl, object *money, uint32 nrof);
 int bank_deposit(object *op, object *bank, char *text);
 int bank_withdraw(object *op, object *bank, char *text);
 

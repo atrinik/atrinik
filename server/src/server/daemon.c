@@ -28,9 +28,7 @@
  * Daemon related code. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Make the Atrinik server become a daemon.

@@ -31,9 +31,7 @@
 /* #define SKILL_UTIL_DEBUG */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] =

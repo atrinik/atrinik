@@ -28,9 +28,7 @@
  * Includes high score related functions */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /** The score structure is used when treating new high-scores */
 typedef struct scr

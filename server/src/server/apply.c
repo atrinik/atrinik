@@ -28,9 +28,7 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /* need math lib for double-precision and pow() in dragon_eat_flesh() */
 #include <math.h>

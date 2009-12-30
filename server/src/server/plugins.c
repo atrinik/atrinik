@@ -28,10 +28,7 @@
  * Handles the plugins code. */
 
 #include <plugin.h>
-
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 static void register_global_event(char *plugin_name, int event_nr);
 static void unregister_global_event(char *plugin_name, int event_nr);

@@ -28,9 +28,7 @@
  * Handles main movement commands. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Static command for commands like east, west, etc to use.

@@ -28,9 +28,7 @@
  * @ref DEEP_SWAMP "Deep swamp" related functions. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Walk on deep swamp.

@@ -28,9 +28,7 @@
  * Various spell effects. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #ifdef SPELL_FAILURE_EFFECTS
 

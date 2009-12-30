@@ -28,9 +28,7 @@
  * All rune related functions. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #ifndef sqr
 #define sqr(x) ((x) * (x))

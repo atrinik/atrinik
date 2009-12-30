@@ -28,9 +28,7 @@
  * Controls map swap functions. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 static mapstruct *map_least_timeout(const char *except_level);
 

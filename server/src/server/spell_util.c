@@ -28,9 +28,7 @@
  * Spell related helper functions. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Array of pointers to archetypes used by the spells for quick

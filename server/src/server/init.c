@@ -32,9 +32,7 @@
 #define EXTERN
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * You unforunately need to looking in include/global.h to see what these

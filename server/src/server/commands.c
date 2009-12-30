@@ -28,9 +28,7 @@
  * Command parsing related code. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #include <ctype.h>
 
 /** Normal game commands */

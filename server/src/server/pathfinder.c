@@ -38,9 +38,7 @@
  *   http://www.gamasutra.com/features/19970801/pathfinding.htm */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #define HEURISTIC_ERROR -666.
 

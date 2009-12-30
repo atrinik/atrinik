@@ -37,9 +37,7 @@
 #  endif
 #endif
 
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #include <../random_maps/random_map.h>
 #include <../random_maps/rproto.h>

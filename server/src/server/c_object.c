@@ -28,9 +28,7 @@
  * Object ID parsing functions */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Search the inventory of 'pl' for what matches best with params.

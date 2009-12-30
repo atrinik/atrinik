@@ -1,32 +1,7 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*                     Copyright (C) 2009 Alex Tokar                     *
-*                                                                       *
-* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
-* and Crossfire (Multiplayer game for X-windows).                       *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
-
 /* image.c */
 int is_valid_faceset(int fsn);
-void free_socket_images(void);
-void read_client_images(void);
+void free_socket_images();
+void read_client_images();
 void SetFaceMode(char *buf, int len, NewSocket *ns);
 void SendFaceCmd(char *buff, int len, NewSocket *ns);
 int esrv_send_face(NewSocket *ns, short face_num, int nocache);
@@ -42,10 +17,10 @@ void send_socket_message(int flags, NewSocket *ns, const char *buf);
 
 /* init.c */
 void InitConnection(NewSocket *ns, uint32 from);
-void init_ericserver(void);
-void free_all_newserver(void);
+void init_ericserver();
+void free_all_newserver();
 void free_newsocket(NewSocket *ns);
-void init_srv_files(void);
+void init_srv_files();
 void send_srv_file(NewSocket *ns, int id);
 
 /* item.c */
@@ -69,8 +44,8 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 void RequestInfo(char *buf, int len, NewSocket *ns);
 void HandleClient(NewSocket *ns, player *pl);
 void watchdog();
-void doeric_server(void);
-void doeric_server_write(void);
+void doeric_server();
+void doeric_server_write();
 
 /* lowlevel.c */
 void SockList_AddString(SockList *sl, char *data);
@@ -79,11 +54,11 @@ void write_socket_buffer(NewSocket *ns);
 void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len);
 void Send_With_Handling(NewSocket *ns, SockList *msg);
 void Write_String_To_Socket(NewSocket *ns, char cmd, char *buf, int len);
-void write_cs_stats(void);
 
 /* metaserver.c */
-void metaserver_init(void);
-void metaserver_update(void);
+void metaserver_init();
+void *metaserver_thread(void *dummy);
+void metaserver_update();
 
 /* request.c */
 void SetUp(char *buf, int len, NewSocket *ns);

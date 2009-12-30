@@ -515,11 +515,9 @@ typedef struct ban_struct
 #define SCRIPT_FIX_NOTHING 0
 
 /* include some global project headers */
-#ifndef __CEXTRACT__
 #include "libproto.h"
 #include "libtypes.h"
 #include "sockproto.h"
-#endif
 
 #include "plugin.h"
 

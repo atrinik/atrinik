@@ -28,9 +28,7 @@
  * Contains functions dealing with pets. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Given that 'pet' is a friendly object, this function returns a monster

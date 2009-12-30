@@ -28,9 +28,7 @@
  * Handles object moving and pushing. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Try to move object in specified direction.

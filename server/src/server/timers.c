@@ -28,9 +28,7 @@
  * Timer related functions. */
 
 #include <timers.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * Processes all timers. */

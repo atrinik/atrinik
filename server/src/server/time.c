@@ -29,9 +29,7 @@
  * collected in this file. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 static void remove_force(object *op);
 static void remove_blindness(object *op);

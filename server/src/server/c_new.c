@@ -28,9 +28,7 @@
  * This file deals with administrative commands from the client. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 #define MAP_POS_X 0
 #define MAP_POS_Y 1

@@ -29,9 +29,7 @@
  * and initializing the world darkness. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 const int season_timechange[5][HOURS_PER_DAY] =
 {

@@ -28,9 +28,7 @@
  * This file contains core skill handling. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #include <book.h>
 
 /**

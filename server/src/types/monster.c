@@ -30,9 +30,7 @@
  * objects. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /**
  * When parsing a message-struct, the msglang struct is used to contain

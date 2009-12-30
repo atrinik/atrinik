@@ -28,9 +28,7 @@
  * Functions used by DMs. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #undef SS_STATISTICS
 #include <shstr.h>
 

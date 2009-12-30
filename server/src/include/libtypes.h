@@ -1,28 +1,3 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*                     Copyright (C) 2009 Alex Tokar                     *
-*                                                                       *
-* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
-* and Crossfire (Multiplayer game for X-windows).                       *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
-
 /* altar.c */
 extern int apply_altar(object *altar, object *sacrifice, object *originator);
 
@@ -45,6 +20,7 @@ extern void apply_book(object *op, object *tmp);
 extern int esrv_apply_container(object *op, object *sack);
 extern int container_link(player *pl, object *sack);
 extern int container_unlink(player *pl, object *sack);
+extern void free_container_monster(object *monster, object *op);
 extern int container_trap(object *op, object *container);
 
 /* converter.c */
@@ -117,6 +93,7 @@ extern void move_pit(object *op);
 extern player *find_player(char *plname);
 extern void display_motd(object *op);
 extern int playername_ok(char *cp);
+extern void free_player(player *pl);
 extern int add_player(NewSocket *ns);
 extern object *get_nearest_player(object *mon);
 extern int path_to_player(object *mon, object *pl, int mindiff);
@@ -187,5 +164,5 @@ extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
 
 /* weapon_improver.c */
-extern int check_weapon_power(object *who, int improvs);
 extern void apply_weapon_improver(object *op, object *tmp);
+extern int check_weapon_power(object *who, int improvs);

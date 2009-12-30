@@ -28,9 +28,7 @@
  * Range related commands (casting, shooting, throwing, etc.). */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 #include <newclient.h>
 
 /**

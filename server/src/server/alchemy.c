@@ -28,9 +28,7 @@
  * Contains all alchemy related code. */
 
 #include <global.h>
-#ifndef __CEXTRACT__
 #include <sproto.h>
-#endif
 
 /** Define this for some helpful debuging information. */
 #define ALCHEMY_DEBUG
