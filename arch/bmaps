@@ -4515,10 +4515,10 @@
 04514 wall_drain3.151
 04515 wall_drain4.131
 04516 wall_drain4.151
-04517 wall_dungeon1.d.111
-04518 wall_dungeon1.d.131
-04519 wall_dungeon1.d.141
-04520 wall_dungeon1.d.181
+04517 wall_dungeon.d.111
+04518 wall_dungeon.d.131
+04519 wall_dungeon.d.141
+04520 wall_dungeon.d.181
 04521 wall_dungeon2.d.111
 04522 wall_dungeon2.d.131
 04523 wall_dungeon2.d.141

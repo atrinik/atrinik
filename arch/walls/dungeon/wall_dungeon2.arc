@@ -1,40 +1,4 @@
-Object wall_dungeon1.111
-name dungeon wall
-face wall_dungeon1.d.111
-blocksview 1
-type 77
-layer 5
-no_pick 1
-no_pass 1
-end
-Object wall_dungeon1.131
-name dungeon wall
-face wall_dungeon1.d.131
-blocksview 1
-type 77
-layer 5
-no_pick 1
-no_pass 1
-end
-Object wall_dungeon1.141
-name dungeon wall
-face wall_dungeon1.d.141
-blocksview 1
-type 77
-layer 5
-no_pick 1
-no_pass 1
-end
-Object wall_dungeon1.181
-name dungeon wall
-face wall_dungeon1.d.181
-blocksview 1
-type 77
-layer 5
-no_pick 1
-no_pass 1
-end
-Object wall_dungeon2.111
+Object wall_dungeon2_1
 name dungeon wall
 face wall_dungeon2.d.111
 blocksview 1
@@ -43,7 +7,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2.131
+
+Object wall_dungeon2_3
 name dungeon wall
 face wall_dungeon2.d.131
 blocksview 1
@@ -52,7 +17,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2.141
+
+Object wall_dungeon2_4
 name dungeon wall
 face wall_dungeon2.d.141
 blocksview 1
@@ -61,7 +27,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2.181
+
+Object wall_dungeon2_8
 name dungeon wall
 face wall_dungeon2.d.181
 blocksview 1
@@ -70,7 +37,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2b.111
+
+Object wall_dungeon2b_1
 name dungeon wall
 face wall_dungeon2b.d.111
 blocksview 1
@@ -79,7 +47,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2b.131
+
+Object wall_dungeon2b_3
 name dungeon wall
 face wall_dungeon2b.d.131
 blocksview 1
@@ -88,7 +57,8 @@ layer 5
 no_pick 1
 no_pass 1
 end
-Object wall_dungeon2b.141
+
+Object wall_dungeon2b_4
 name dungeon wall
 face wall_dungeon2b.d.141
 blocksview 1

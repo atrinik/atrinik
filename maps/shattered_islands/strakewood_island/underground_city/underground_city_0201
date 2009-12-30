@@ -17,12 +17,12 @@ bg_music thonkdonk.ogg|0|-1
 end
 arch floor_stone_b1
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 end
 arch floor_stone_b2
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 y 3
 end
 arch chains1.151
@@ -58,13 +58,13 @@ end
 arch floor_stone_b1
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 y 12
 end
 arch floor_stone_b3
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 y 14
 end
 arch floor_stone_b4
@@ -106,20 +106,20 @@ end
 arch floor_stone_b3
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 y 23
 end
 arch floor_stone_b3
 x 1
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 1
 end
 arch floor_stone_b2
 x 1
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 1
 y 3
 end
@@ -175,7 +175,7 @@ arch floor_stone_b2
 x 1
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 1
 y 12
 end
@@ -183,7 +183,7 @@ arch floor_stone_b1
 x 1
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 1
 y 14
 end
@@ -240,21 +240,21 @@ arch floor_stone_b3
 x 1
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 1
 y 23
 end
 arch floor_stone_b4
 x 2
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 2
 end
 arch floor_stone_b2
 x 2
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 2
 y 3
 end
@@ -311,7 +311,7 @@ arch floor_stone_b4
 x 2
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 2
 y 12
 end
@@ -319,7 +319,7 @@ arch floor_stone_b2
 x 2
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 2
 y 14
 end
@@ -390,21 +390,21 @@ arch floor_stone_b2
 x 2
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 2
 y 23
 end
 arch floor_stone_b1
 x 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 3
 end
 arch floor_stone_b4
 x 3
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 3
 y 3
 end
@@ -461,7 +461,7 @@ arch floor_stone_b1
 x 3
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 3
 y 12
 end
@@ -469,7 +469,7 @@ arch floor_stone_b4
 x 3
 y 13
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 3
 y 13
 end
@@ -477,7 +477,7 @@ arch floor_stone_b2
 x 3
 y 14
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 3
 y 14
 end
@@ -534,21 +534,21 @@ arch floor_stone_b1
 x 3
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 3
 y 23
 end
 arch floor_stone_b2
 x 4
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 4
 end
 arch floor_stone_b1
 x 4
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 4
 y 3
 end
@@ -602,7 +602,7 @@ arch floor_stone_b1
 x 4
 y 13
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 4
 y 13
 end
@@ -654,21 +654,21 @@ arch floor_stone_b3
 x 4
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 4
 y 23
 end
 arch floor_stone_b1
 x 5
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 5
 end
 arch floor_stone_b2
 x 5
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 5
 y 3
 end
@@ -676,7 +676,7 @@ arch floor_stone_b2
 x 5
 y 4
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 5
 y 4
 end
@@ -684,7 +684,7 @@ arch floor_stone_b2
 x 5
 y 5
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 5
 y 5
 end
@@ -692,7 +692,7 @@ arch floor_stone_b3
 x 5
 y 6
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 5
 y 6
 end
@@ -789,7 +789,7 @@ arch floor_stone_b2
 x 5
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 5
 y 23
 end
@@ -797,7 +797,7 @@ arch floor_stone_b1
 x 6
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 6
 y 6
 end
@@ -833,7 +833,7 @@ arch floor_stone_b1
 x 6
 y 12
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 6
 y 12
 end
@@ -841,7 +841,7 @@ arch floor_stone_b3
 x 6
 y 13
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 6
 y 13
 end
@@ -849,7 +849,7 @@ arch floor_stone_b1
 x 6
 y 14
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 6
 y 14
 end
@@ -897,7 +897,7 @@ arch floor_stone_b1
 x 6
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 6
 y 23
 end
@@ -905,7 +905,7 @@ arch floor_stone_b4
 x 7
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 7
 y 6
 end
@@ -937,7 +937,7 @@ arch floor_stone_b3
 x 7
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 7
 y 12
 end
@@ -945,7 +945,7 @@ arch floor_stone_b3
 x 7
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 7
 y 14
 end
@@ -999,21 +999,21 @@ arch floor_stone_b3
 x 7
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 7
 y 23
 end
 arch floor_stone_b2
 x 8
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 end
 arch floor_stone_b3
 x 8
 y 1
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 y 1
 end
@@ -1026,7 +1026,7 @@ arch floor_stone_b2
 x 8
 y 2
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 y 2
 end
@@ -1034,7 +1034,7 @@ arch floor_stone_b2
 x 8
 y 3
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 y 3
 end
@@ -1042,7 +1042,7 @@ arch floor_stone_b1
 x 8
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 8
 y 6
 end
@@ -1088,7 +1088,7 @@ arch floor_stone_b2
 x 8
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 8
 y 12
 end
@@ -1096,7 +1096,7 @@ arch floor_stone_b2
 x 8
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 8
 y 14
 end
@@ -1104,7 +1104,7 @@ arch floor_stone_b1
 x 8
 y 15
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 y 15
 end
@@ -1136,7 +1136,7 @@ arch floor_stone_b2
 x 8
 y 21
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 8
 y 21
 end
@@ -1144,7 +1144,7 @@ arch floor_stone_b4
 x 8
 y 22
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 8
 y 22
 end
@@ -1152,7 +1152,7 @@ arch floor_stone_b1
 x 8
 y 23
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 8
 y 23
 end
@@ -1178,7 +1178,7 @@ arch floor_stone_b1
 x 9
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 9
 y 3
 end
@@ -1186,7 +1186,7 @@ arch floor_stone_b1
 x 9
 y 4
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 9
 y 4
 end
@@ -1194,7 +1194,7 @@ arch floor_stone_b2
 x 9
 y 5
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 9
 y 5
 end
@@ -1202,7 +1202,7 @@ arch floor_stone_b3
 x 9
 y 6
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 9
 y 6
 end
@@ -1234,7 +1234,7 @@ arch floor_stone_b1
 x 9
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 9
 y 12
 end
@@ -1242,7 +1242,7 @@ arch floor_stone_b2
 x 9
 y 15
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 9
 y 15
 end
@@ -1274,7 +1274,7 @@ arch floor_stone_b2
 x 9
 y 21
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 9
 y 21
 end
@@ -1308,7 +1308,7 @@ arch floor_stone_b4
 x 10
 y 5
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 10
 y 5
 end
@@ -1344,7 +1344,7 @@ arch floor_stone_b2
 x 10
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 10
 y 12
 end
@@ -1352,7 +1352,7 @@ arch floor_stone_b3
 x 10
 y 15
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 10
 y 15
 end
@@ -1360,7 +1360,7 @@ arch floor_stone_b1
 x 10
 y 16
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 10
 y 16
 end
@@ -1378,7 +1378,7 @@ arch floor_stone_b3
 x 10
 y 18
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 10
 y 18
 end
@@ -1386,7 +1386,7 @@ arch floor_stone_b1
 x 10
 y 19
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 10
 y 19
 end
@@ -1404,7 +1404,7 @@ arch floor_stone_b3
 x 10
 y 21
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 10
 y 21
 end
@@ -1471,7 +1471,7 @@ arch floor_stone_b2
 x 11
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 11
 y 12
 end
@@ -1479,7 +1479,7 @@ arch floor_stone_b3
 x 11
 y 14
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 11
 y 14
 end
@@ -1487,7 +1487,7 @@ arch floor_stone_b2
 x 11
 y 15
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 11
 y 15
 end
@@ -1535,7 +1535,7 @@ arch floor_stone_b2
 x 11
 y 21
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 11
 y 21
 end
@@ -1543,7 +1543,7 @@ arch floor_stone_b4
 x 11
 y 22
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 11
 y 22
 end
@@ -1551,7 +1551,7 @@ arch floor_stone_b4
 x 11
 y 23
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 11
 y 23
 end
@@ -1574,7 +1574,7 @@ arch floor_stone_b3
 x 12
 y 3
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 12
 y 3
 end
@@ -1582,7 +1582,7 @@ arch floor_stone_b3
 x 12
 y 4
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 12
 y 4
 end
@@ -1590,7 +1590,7 @@ arch floor_stone_b1
 x 12
 y 5
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 12
 y 5
 end
@@ -1598,7 +1598,7 @@ arch floor_stone_b2
 x 12
 y 6
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 12
 y 6
 end
@@ -1626,7 +1626,7 @@ arch floor_stone_b1
 x 12
 y 12
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 12
 y 12
 end
@@ -1634,7 +1634,7 @@ arch floor_stone_b4
 x 12
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 12
 y 14
 end
@@ -1710,7 +1710,7 @@ arch floor_stone_b1
 x 12
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 12
 y 23
 end
@@ -1729,7 +1729,7 @@ arch floor_stone_b2
 x 13
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 13
 y 3
 end
@@ -1737,7 +1737,7 @@ arch floor_stone_b2
 x 13
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 13
 y 6
 end
@@ -1745,7 +1745,7 @@ arch floor_stone_b4
 x 13
 y 7
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 13
 y 7
 end
@@ -1753,7 +1753,7 @@ arch floor_stone_b1
 x 13
 y 8
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 13
 y 8
 end
@@ -1761,7 +1761,7 @@ arch floor_stone_b1
 x 13
 y 9
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 13
 y 9
 end
@@ -1769,7 +1769,7 @@ arch floor_stone_b2
 x 13
 y 10
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 13
 y 10
 end
@@ -1777,7 +1777,7 @@ arch floor_stone_b2
 x 13
 y 11
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 13
 y 11
 end
@@ -1785,7 +1785,7 @@ arch floor_stone_b2
 x 13
 y 12
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 13
 y 12
 end
@@ -1793,7 +1793,7 @@ arch floor_stone_b1
 x 13
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 13
 y 14
 end
@@ -1853,7 +1853,7 @@ arch floor_stone_b3
 x 13
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 13
 y 23
 end
@@ -1876,7 +1876,7 @@ arch floor_stone_b2
 x 14
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 14
 y 3
 end
@@ -1884,7 +1884,7 @@ arch floor_stone_b2
 x 14
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 14
 y 14
 end
@@ -1936,7 +1936,7 @@ arch floor_stone_b2
 x 14
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 14
 y 23
 end
@@ -1955,7 +1955,7 @@ arch floor_stone_b4
 x 15
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 15
 y 3
 end
@@ -1963,7 +1963,7 @@ arch floor_stone_b2
 x 15
 y 14
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 15
 y 14
 end
@@ -2009,7 +2009,7 @@ arch floor_stone_b1
 x 15
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 15
 y 23
 end
@@ -2032,7 +2032,7 @@ arch floor_stone_b1
 x 16
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 16
 y 3
 end
@@ -2040,7 +2040,7 @@ arch floor_stone_b1
 x 16
 y 6
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 16
 y 6
 end
@@ -2048,7 +2048,7 @@ arch floor_stone_b1
 x 16
 y 7
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 7
 end
@@ -2061,7 +2061,7 @@ arch floor_stone_b2
 x 16
 y 8
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 8
 end
@@ -2074,7 +2074,7 @@ arch floor_stone_b1
 x 16
 y 9
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 9
 end
@@ -2082,7 +2082,7 @@ arch floor_stone_b2
 x 16
 y 10
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 10
 end
@@ -2095,7 +2095,7 @@ arch floor_stone_b4
 x 16
 y 11
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 11
 end
@@ -2103,7 +2103,7 @@ arch floor_stone_b4
 x 16
 y 12
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 12
 end
@@ -2116,7 +2116,7 @@ arch floor_stone_b1
 x 16
 y 13
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 16
 y 13
 end
@@ -2129,7 +2129,7 @@ arch floor_stone_b2
 x 16
 y 14
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 16
 y 14
 end
@@ -2195,7 +2195,7 @@ arch floor_stone_b3
 x 16
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 16
 y 23
 end
@@ -2221,7 +2221,7 @@ arch floor_stone_b2
 x 17
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 17
 y 3
 end
@@ -2229,7 +2229,7 @@ arch floor_stone_b3
 x 17
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 17
 y 6
 end
@@ -2328,7 +2328,7 @@ arch floor_stone_b2
 x 17
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 17
 y 23
 end
@@ -2347,7 +2347,7 @@ arch floor_stone_b1
 x 18
 y 3
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 18
 y 3
 end
@@ -2355,7 +2355,7 @@ arch floor_stone_b1
 x 18
 y 4
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 18
 y 4
 end
@@ -2363,7 +2363,7 @@ arch floor_stone_b4
 x 18
 y 5
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 18
 y 5
 end
@@ -2371,7 +2371,7 @@ arch floor_stone_b1
 x 18
 y 6
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 18
 y 6
 end
@@ -2481,7 +2481,7 @@ arch floor_stone_b1
 x 18
 y 23
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 18
 y 23
 end
@@ -2508,7 +2508,7 @@ arch floor_stone_b3
 x 19
 y 4
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 19
 y 4
 end
@@ -2583,7 +2583,7 @@ arch floor_stone_b3
 x 19
 y 19
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 19
 y 19
 end
@@ -2591,7 +2591,7 @@ arch floor_stone_b2
 x 19
 y 20
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 19
 y 20
 end
@@ -2599,7 +2599,7 @@ arch floor_stone_b3
 x 19
 y 21
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 19
 y 21
 end
@@ -2607,7 +2607,7 @@ arch floor_stone_b2
 x 19
 y 22
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 19
 y 22
 end
@@ -2615,7 +2615,7 @@ arch floor_stone_b3
 x 19
 y 23
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 19
 y 23
 end
@@ -2710,7 +2710,7 @@ arch floor_stone_b4
 x 20
 y 19
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 20
 y 19
 end
@@ -2729,7 +2729,7 @@ arch floor_stone_b1
 x 21
 y 3
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 21
 y 3
 end
@@ -2737,7 +2737,7 @@ arch floor_stone_b1
 x 21
 y 4
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 21
 y 4
 end
@@ -2745,7 +2745,7 @@ arch floor_stone_b2
 x 21
 y 5
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 21
 y 5
 end
@@ -2753,7 +2753,7 @@ arch floor_stone_b3
 x 21
 y 6
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 21
 y 6
 end
@@ -2825,21 +2825,21 @@ arch floor_stone_b2
 x 21
 y 19
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 21
 y 19
 end
 arch floor_stone_b2
 x 22
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 22
 end
 arch floor_stone_b4
 x 22
 y 1
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 22
 y 1
 end
@@ -2847,7 +2847,7 @@ arch floor_stone_b1
 x 22
 y 2
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 22
 y 2
 end
@@ -2855,7 +2855,7 @@ arch floor_stone_b3
 x 22
 y 3
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 22
 y 3
 end
@@ -2863,7 +2863,7 @@ arch floor_stone_b2
 x 22
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 22
 y 6
 end
@@ -2943,7 +2943,7 @@ arch floor_stone_b1
 x 22
 y 19
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 22
 y 19
 end
@@ -2951,7 +2951,7 @@ arch floor_stone_b1
 x 23
 y 6
 end
-arch wall_dungeon1.111
+arch wall_dungeon_1
 x 23
 y 6
 end
@@ -2959,7 +2959,7 @@ arch floor_stone_b2
 x 23
 y 7
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 7
 end
@@ -2967,7 +2967,7 @@ arch floor_stone_b2
 x 23
 y 8
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 8
 end
@@ -2975,7 +2975,7 @@ arch floor_stone_b3
 x 23
 y 9
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 9
 end
@@ -2983,7 +2983,7 @@ arch floor_stone_b2
 x 23
 y 10
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 10
 end
@@ -2991,7 +2991,7 @@ arch floor_stone_b3
 x 23
 y 11
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 11
 end
@@ -3007,7 +3007,7 @@ arch floor_stone_b3
 x 23
 y 14
 end
-arch wall_dungeon1.181
+arch wall_dungeon_8
 x 23
 y 14
 end
@@ -3015,7 +3015,7 @@ arch floor_stone_b2
 x 23
 y 15
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 15
 end
@@ -3023,7 +3023,7 @@ arch floor_stone_b3
 x 23
 y 16
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 16
 end
@@ -3031,7 +3031,7 @@ arch floor_stone_b2
 x 23
 y 17
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 17
 end
@@ -3039,7 +3039,7 @@ arch floor_stone_b2
 x 23
 y 18
 end
-arch wall_dungeon1.131
+arch wall_dungeon_3
 x 23
 y 18
 end
@@ -3047,7 +3047,7 @@ arch floor_stone_b4
 x 23
 y 19
 end
-arch wall_dungeon1.141
+arch wall_dungeon_4
 x 23
 y 19
 end
