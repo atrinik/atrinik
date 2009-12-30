@@ -60,7 +60,7 @@ typedef struct
 	int difficulty_given;
 	int dungeon_level;
 	int dungeon_depth;
-	int decoroptions;
+	int decorchance;
 	int orientation;
 	int origin_y;
 	int origin_x;

@@ -143,7 +143,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
 	place_monsters(theMap, RP->monsterstyle, RP->difficulty, RP);
 
-	put_decor(theMap, layout, RP->decorstyle, RP->decoroptions, RP);
+	put_decor(theMap, layout, RP);
 
 	unblock_exits(theMap, layout, RP);
 	set_map_darkness(theMap, RP->darkness);
@@ -1005,9 +1005,9 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 		strcat(buf, small_buf);
 	}
 
-	if (RP->decoroptions)
+	if (RP->decorchance)
 	{
-		sprintf(small_buf, "decoroptions %d\n", RP->decoroptions);
+		sprintf(small_buf, "decorchance %d\n", RP->decorchance);
 		strcat(buf, small_buf);
 	}
 

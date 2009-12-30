@@ -74,7 +74,7 @@ rmap_lex_error = 0;
 ^layoutoptions3{S}        RP->layoutoptions3 = IVAL;
 ^symmetry{S}              RP->symmetry = IVAL;
 ^difficulty{S}            RP->difficulty = IVAL;
-^decoroptions{S}          RP->decoroptions = IVAL;
+^decorchance{S}           RP->decorchance = IVAL;
 ^exitstyle{S}             strncpy(RP->exitstyle, rmap_yval(), RM_SIZE);
 ^dungeon_level{S}         RP->dungeon_level = IVAL;
 ^dungeon_depth{S}         RP->dungeon_depth = IVAL;

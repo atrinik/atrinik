@@ -31,33 +31,6 @@
 #include <random_map.h>
 #include <rproto.h>
 
-/** Number of decor styles that can be chosen if none specified. */
-#define NR_DECOR_OPTIONS 1
-
-/**
- * Count number of objects at a spot.
- * @param map Map we want to check
- * @param x X coordinate
- * @param y Y coordinate
- * @return Count of objects in the map at x, y. */
-static int obj_count_in_map(mapstruct *map, int x, int y)
-{
-	int count = 0;
-	object *tmp;
-
-	if (!(map = get_map_from_coord(map, &x, &y)))
-	{
-		return 0;
-	}
-
-	for (tmp = get_map_ob(map, x, y); tmp != NULL; tmp = tmp->above)
-	{
-		count++;
-	}
-
-	return count;
-}
-
 /**
  * Put the decor into the map.
  *
@@ -71,100 +44,53 @@ static int obj_count_in_map(mapstruct *map, int x, int y)
  * - <b>1</b>: Randomly place decoration.
  * - <b>Anything else</b>: Fill the map with decoration.
  * @param RP Parameters of the random map. */
-void put_decor(mapstruct *map, char **maze, char *decorstyle, int decor_option, RMParms *RP)
+void put_decor(mapstruct *map, char **layout, RMParms *RP)
 {
 	mapstruct *decor_map;
 	char style_name[256];
+	int i, j;
+	object *new_decor_object;
 
-	if (decor_option == 0)
+	if (RP->decorstyle[0] == '\0' || !strcmp(RP->decorstyle, "none"))
 	{
 		return;
 	}
 
 	snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
-	decor_map = find_style(style_name, decorstyle, -1);
+	decor_map = find_style(style_name, RP->decorstyle, -1);
 
 	if (decor_map == NULL)
 	{
 		return;
 	}
 
-	/* Pick a random option, only 1 option right now. */
-	if (decor_option == -1)
+	for (i = 0; i < RP->Xsize - 1; i++)
 	{
-		decor_option = RANDOM() % NR_DECOR_OPTIONS + 1;
-	}
-
-	switch (decor_option)
-	{
-		case 0:
-			break;
-
-		/* Random placement of decor objects. */
-		case 1:
+		for (j = 0; j < RP->Ysize - 1; j++)
 		{
-			int number_to_place = RANDOM() % ((RP->Xsize * RP->Ysize) / 5), failures = 0;
-			object *new_decor_object;
-
-			while (failures < 100 && number_to_place > 0)
+			if (RP->decorchance > 0 && RANDOM() % RP->decorchance)
 			{
-				int x = RANDOM() % (RP->Xsize - 2) + 1, y = RANDOM() % (RP->Ysize - 2) + 1;
-
-				/* Empty */
-				if (maze[x][y] == 0 && obj_count_in_map(map, x, y) < 2)
-				{
-					object *this_object;
-
-					new_decor_object = pick_random_object(decor_map);
-					this_object = arch_to_object(new_decor_object->arch);
-					copy_object(new_decor_object, this_object);
-					this_object->x = x;
-					this_object->y = y;
-
-					/* It screws things up if decor can stop people */
-					CLEAR_FLAG(this_object, FLAG_NO_PASS);
-
-					insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-
-					number_to_place--;
-				}
-				else
-				{
-					failures++;
-				}
+				continue;
 			}
 
-			break;
-		}
+			new_decor_object = pick_random_object(decor_map);
 
-		/* Place decor objects everywhere: tile the map. */
-		default:
-		{
-			int x, y;
-
-			for (x = 1; x < RP->Xsize - 1; x++)
+			if (layout[i][j] == (new_decor_object->type == WALL ? '#' : '\0'))
 			{
-				for (y = 1; y < RP->Ysize - 1; y++)
+				object *this_object = get_object();
+
+				copy_object(new_decor_object, this_object);
+				this_object->x = i;
+				this_object->y = j;
+
+				if (new_decor_object->type == WALL && surround_flag2(layout, i, j, RP) & (4 | 8))
 				{
-					if (maze[x][y] == 0)
-					{
-						object *new_decor_object, *this_object;
-
-						new_decor_object = pick_random_object(decor_map);
-						this_object = arch_to_object(new_decor_object->arch);
-						copy_object(new_decor_object, this_object);
-						this_object->x = x;
-						this_object->y = y;
-
-						/* It screws things up if decor can stop people */
-						CLEAR_FLAG(this_object, FLAG_NO_PASS);
-
-						insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-					}
+					this_object->direction = 7;
+					SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);
 				}
-			}
 
-			break;
+				insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+			}
 		}
 	}
 }
