@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2009-12-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -182,7 +182,15 @@ arch grassd_1
 x 1
 y 10
 end
+arch wall_pattern4.181
+x 1
+y 10
+end
 arch grassd_4
+x 1
+y 11
+end
+arch wall_pattern4.131
 x 1
 y 11
 end
@@ -190,7 +198,20 @@ arch grassd_3
 x 1
 y 12
 end
+arch wall_pattern4.131
+x 1
+y 12
+end
 arch grassd_7
+x 1
+y 13
+end
+arch wall_pattern4.131
+x 1
+y 13
+end
+arch wmask_fire_on_1
+direction 7
 x 1
 y 13
 end
@@ -198,7 +219,15 @@ arch grassd_8
 x 1
 y 14
 end
+arch wall_pattern4.131
+x 1
+y 14
+end
 arch grassd_1
+x 1
+y 15
+end
+arch wall_pattern4.131
 x 1
 y 15
 end
@@ -306,31 +335,48 @@ arch grassd_1
 x 2
 y 9
 end
-arch grassd_8
+arch grassd_2
 x 2
 y 10
 end
-arch grassd_1
+arch wall_pattern4.111
+x 2
+y 10
+end
+arch floor_ostone12
 x 2
 y 11
 end
-arch grassd_3
+arch amphora2.101
+x 2
+y 11
+end
+arch floor_ostone12
 x 2
 y 12
 end
-arch grassd_8
+arch wood_pile.101
+x 2
+y 12
+end
+arch floor_ostone12
 x 2
 y 13
 end
-arch plant_flower1
-x 2
-y 13
-end
-arch grassd_7
+arch floor_ostone12
 x 2
 y 14
 end
-arch grassd_6
+arch shelf3a.111
+direction 7
+x 2
+y 14
+end
+arch floor_ostone12
+x 2
+y 15
+end
+arch wall_pattern4.111
 x 2
 y 15
 end
@@ -456,31 +502,39 @@ arch light5
 x 3
 y 9
 end
-arch grassd_3
+arch grassd_4
 x 3
 y 10
 end
-arch grassd_3
+arch wall_pattern4.111
+x 3
+y 10
+end
+arch floor_ostone12
 x 3
 y 11
 end
-arch plant_flower5
+arch table_lab1.111
 x 3
 y 11
 end
-arch grassd_2
+arch floor_ostone12
 x 3
 y 12
 end
-arch grassd_1
+arch floor_ostone12
 x 3
 y 13
 end
-arch grassd_6
+arch floor_ostone12
 x 3
 y 14
 end
-arch grassd_7
+arch floor_ostone12
+x 3
+y 15
+end
+arch wall_pattern4.111
 x 3
 y 15
 end
@@ -584,31 +638,39 @@ arch grassd_2
 x 4
 y 9
 end
-arch grassd_2
+arch grassd_8
 x 4
 y 10
 end
-arch grassd_8
+arch wall_pattern4.111
+x 4
+y 10
+end
+arch wmask_bflag_fire1_1
+x 4
+y 10
+end
+arch floor_ostone12
 x 4
 y 11
 end
-arch grassd_1
+arch floor_ostone12
 x 4
 y 12
 end
-arch grassd_3
+arch floor_ostone12
 x 4
 y 13
 end
-arch grassd_4
+arch floor_ostone12
 x 4
 y 14
 end
-arch grassd_6
+arch floor_ostone12
 x 4
 y 15
 end
-arch tree_big4b
+arch wall_pattern4.111
 x 4
 y 15
 end
@@ -716,31 +778,64 @@ arch grassd_8
 x 5
 y 9
 end
-arch grassd_1
+arch grassd_8
 x 5
 y 10
 end
-arch grassd_5
+arch wall_pattern4.111
+x 5
+y 10
+end
+arch floor_ostone12
 x 5
 y 11
 end
-arch grassd_1
+arch floor_ostone12
 x 5
 y 12
 end
-arch tree_big
+arch carpet1.131
 x 5
 y 12
 end
-arch grassd_3
+arch floor_ostone12
+no_pass 1
 x 5
 y 13
 end
-arch grassd_2
+arch desk1.111
+x 5
+y 13
+end
+arch floor_ostone12
 x 5
 y 14
 end
-arch grassd_7
+arch chair1_111
+direction 5
+x 5
+y 14
+end
+arch spawn_point
+x 5
+y 14
+arch priest_green
+name Fenthal
+direction 1
+level 19
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/greyton/fenthal.py
+end
+end
+end
+arch floor_ostone12
+x 5
+y 15
+end
+arch wall_pattern4.111
 x 5
 y 15
 end
@@ -844,27 +939,47 @@ arch grassd_2
 x 6
 y 9
 end
-arch grassd_6
+arch grassd_5
 x 6
 y 10
 end
-arch grassd_5
+arch wall_pattern4.111
+x 6
+y 10
+end
+arch floor_ostone12
 x 6
 y 11
 end
-arch grassd_8
+arch carpet1.151
+x 6
+y 11
+end
+arch floor_ostone12
 x 6
 y 12
 end
-arch grassd_3
+arch carpet1
+x 6
+y 12
+end
+arch floor_ostone12
 x 6
 y 13
 end
-arch grassd_1
+arch carpet1.111
+x 6
+y 13
+end
+arch floor_ostone12
 x 6
 y 14
 end
-arch grassd_7
+arch floor_ostone12
+x 6
+y 15
+end
+arch wall_pattern4.111
 x 6
 y 15
 end
@@ -968,27 +1083,39 @@ arch grassd_4
 x 7
 y 9
 end
-arch grassd_2
+arch grassd_1
 x 7
 y 10
 end
-arch grassd_2
+arch door1_locked
+x 7
+y 10
+end
+arch floor_ostone12
 x 7
 y 11
 end
-arch grassd_7
+arch floor_ostone12
 x 7
 y 12
 end
-arch grassd_2
+arch carpet1.171
+x 7
+y 12
+end
+arch floor_ostone12
 x 7
 y 13
 end
-arch grassd_1
+arch floor_ostone12
 x 7
 y 14
 end
-arch grassd_2
+arch floor_ostone12
+x 7
+y 15
+end
+arch wall_pattern4.111
 x 7
 y 15
 end
@@ -1096,35 +1223,51 @@ arch grassd_2
 x 8
 y 9
 end
-arch grassd_2
+arch grassd_8
 x 8
 y 10
 end
-arch grassd_6
+arch wall_pattern4.111
+x 8
+y 10
+end
+arch floor_ostone12
 x 8
 y 11
 end
-arch grassd_2
+arch wall_pattern4.131
+x 8
+y 11
+end
+arch floor_ostone12
 x 8
 y 12
 end
-arch grassd_7
+arch wall_pattern4.131
+x 8
+y 12
+end
+arch floor_ostone12
 x 8
 y 13
 end
-arch plant_mushroom3
+arch wall_pattern4.131
 x 8
 y 13
 end
-arch grassd_3
+arch floor_ostone12
 x 8
 y 14
 end
-arch plant17
+arch wall_pattern4.131
 x 8
 y 14
 end
-arch grassd_2
+arch floor_ostone12
+x 8
+y 15
+end
+arch wall_pattern4.141
 x 8
 y 15
 end

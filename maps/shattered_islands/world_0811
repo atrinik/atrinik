@@ -2,11 +2,11 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-12-29 Alex Tokar
+Modified: 2009-12-30 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 18
 outdoor 1
 tile_path_1 world_0812
 tile_path_2 world_0911
@@ -167,6 +167,10 @@ arch grassd_2
 x 1
 y 1
 end
+arch tree_big
+x 1
+y 1
+end
 arch grassd_1
 x 1
 y 2
@@ -326,7 +330,14 @@ end
 arch grassd_2
 x 2
 end
+arch tree_big5b
+x 2
+end
 arch grassd_2
+x 2
+y 1
+end
+arch tree_big4b
 x 2
 y 1
 end
@@ -377,6 +388,21 @@ end
 arch grassd_1
 x 2
 y 9
+end
+arch spawn_point
+x 2
+y 9
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_6
 x 2
@@ -472,7 +498,15 @@ arch grassd_3
 x 3
 y 1
 end
+arch tree_big5b
+x 3
+y 1
+end
 arch grassd_5
+x 3
+y 2
+end
+arch tree_big5b
 x 3
 y 2
 end
@@ -491,6 +525,21 @@ end
 arch grassd_4
 x 3
 y 6
+end
+arch spawn_point
+x 3
+y 6
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_4
 x 3
@@ -619,6 +668,21 @@ arch grassd_6
 x 4
 y 4
 end
+arch spawn_point
+x 4
+y 4
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
+end
 arch grassd_5
 x 4
 y 5
@@ -627,15 +691,7 @@ arch grassd_8
 x 4
 y 6
 end
-arch tree_big2
-x 4
-y 6
-end
 arch grassd_4
-x 4
-y 7
-end
-arch tree_big2
 x 4
 y 7
 end
@@ -651,10 +707,6 @@ arch grassd_3
 x 4
 y 10
 end
-arch tree_big3
-x 4
-y 10
-end
 arch grassd_1
 x 4
 y 11
@@ -663,15 +715,22 @@ arch grassd_5
 x 4
 y 12
 end
-arch tree_big2
+arch spawn_point
 x 4
 y 12
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_7
-x 4
-y 13
-end
-arch tree_big4b
 x 4
 y 13
 end
@@ -683,13 +742,24 @@ arch grassd_7
 x 4
 y 15
 end
-arch tree_big5b
-x 4
-y 15
-end
 arch grassd_3
 x 4
 y 16
+end
+arch spawn_point
+x 4
+y 16
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_1
 x 4
@@ -742,6 +812,10 @@ arch grassd_3
 x 5
 y 1
 end
+arch tree_big3
+x 5
+y 1
+end
 arch grassd_2
 x 5
 y 2
@@ -754,23 +828,11 @@ arch grassd_2
 x 5
 y 4
 end
-arch tree_branch3
-x 5
-y 4
-end
-arch tree_big3
-x 5
-y 4
-end
 arch grassd_5
 x 5
 y 5
 end
 arch grassd_4
-x 5
-y 6
-end
-arch tree_big2
 x 5
 y 6
 end
@@ -781,6 +843,21 @@ end
 arch grassd_4
 x 5
 y 8
+end
+arch spawn_point
+x 5
+y 8
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_7
 x 5
@@ -794,9 +871,20 @@ arch grassd_2
 x 5
 y 11
 end
-arch tree_big4b
+arch spawn_point
 x 5
 y 11
+arch ant_red
+level 19
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_4
 x 5
@@ -819,10 +907,6 @@ x 5
 y 16
 end
 arch grassd_1
-x 5
-y 17
-end
-arch tree_big
 x 5
 y 17
 end
@@ -865,11 +949,22 @@ end
 arch grassd_3
 x 6
 end
+arch tree_big3
+x 6
+end
 arch grassd_3
 x 6
 y 1
 end
+arch tree_big
+x 6
+y 1
+end
 arch grassd_4
+x 6
+y 2
+end
+arch tree_big4b
 x 6
 y 2
 end
@@ -884,6 +979,21 @@ end
 arch grassd_5
 x 6
 y 5
+end
+arch spawn_point
+x 6
+y 5
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_6
 x 6
@@ -901,15 +1011,7 @@ arch grassd_7
 x 6
 y 9
 end
-arch tree_big4b
-x 6
-y 9
-end
 arch grassd_4
-x 6
-y 10
-end
-arch tree_big
 x 6
 y 10
 end
@@ -921,15 +1023,15 @@ arch grassd_4
 x 6
 y 12
 end
+arch plant_flower3
+x 6
+y 12
+end
 arch grassd_8
 x 6
 y 13
 end
 arch grassd_7
-x 6
-y 14
-end
-arch tree_big
 x 6
 y 14
 end
@@ -945,19 +1047,11 @@ arch grassd_7
 x 6
 y 16
 end
-arch tree_big3
-x 6
-y 16
-end
 arch grassd_8
 x 6
 y 17
 end
 arch grassd_2
-x 6
-y 18
-end
-arch tree_big3
 x 6
 y 18
 end
@@ -1000,6 +1094,10 @@ arch grassd_3
 x 7
 y 1
 end
+arch tree_big5b
+x 7
+y 1
+end
 arch grassd_5
 x 7
 y 2
@@ -1012,7 +1110,7 @@ arch grassd_7
 x 7
 y 3
 end
-arch tree_big2
+arch tree_big4b
 x 7
 y 3
 end
@@ -1028,11 +1126,11 @@ arch grassd_1
 x 7
 y 6
 end
-arch grassd_7
+arch plant1
 x 7
-y 7
+y 6
 end
-arch tree_big4b
+arch grassd_7
 x 7
 y 7
 end
@@ -1048,15 +1146,7 @@ arch grassd_7
 x 7
 y 10
 end
-arch tree_big2
-x 7
-y 10
-end
 arch grassd_4
-x 7
-y 11
-end
-arch tree_big3
 x 7
 y 11
 end
@@ -1064,17 +1154,36 @@ arch grassd_1
 x 7
 y 12
 end
+arch tree_burned4
+x 7
+y 12
+end
 arch grassd_5
 x 7
 y 13
 end
-arch tree_big4b
+arch plant13
 x 7
 y 13
 end
 arch grassd_3
 x 7
 y 14
+end
+arch spawn_point
+x 7
+y 14
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_8
 x 7
@@ -1083,6 +1192,21 @@ end
 arch grassd_4
 x 7
 y 16
+end
+arch spawn_point
+x 7
+y 16
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_7
 x 7
@@ -1131,6 +1255,10 @@ arch grassd_8
 x 8
 y 1
 end
+arch tree_big3
+x 8
+y 1
+end
 arch grassd_7
 x 8
 y 2
@@ -1139,7 +1267,7 @@ arch grassd_7
 x 8
 y 3
 end
-arch tree_big3
+arch rock1
 x 8
 y 3
 end
@@ -1151,10 +1279,6 @@ arch grassd_1
 x 8
 y 5
 end
-arch tree_big2
-x 8
-y 5
-end
 arch grassd_7
 x 8
 y 6
@@ -1163,11 +1287,22 @@ arch grassd_8
 x 8
 y 7
 end
-arch grassd_4
+arch spawn_point
 x 8
-y 8
+y 7
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
 end
-arch tree_big2
+end
+end
+arch grassd_4
 x 8
 y 8
 end
@@ -1179,15 +1314,30 @@ arch grassd_7
 x 8
 y 10
 end
-arch tree_big4b
+arch spawn_point
 x 8
 y 10
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_1
 x 8
 y 11
 end
 arch grassd_5
+x 8
+y 12
+end
+arch plant13
 x 8
 y 12
 end
@@ -1199,10 +1349,6 @@ arch grassd_8
 x 8
 y 14
 end
-arch plant13
-x 8
-y 14
-end
 arch grassd_1
 x 8
 y 15
@@ -1211,19 +1357,11 @@ arch grassd_3
 x 8
 y 16
 end
-arch tree_big2
-x 8
-y 16
-end
 arch grassd_7
 x 8
 y 17
 end
 arch grassd_5
-x 8
-y 18
-end
-arch tree_big4b
 x 8
 y 18
 end
@@ -1262,10 +1400,14 @@ end
 arch grassd_6
 x 9
 end
-arch tree_big4b
+arch tree_big
 x 9
 end
 arch grassd_4
+x 9
+y 1
+end
+arch tree_big5b
 x 9
 y 1
 end
@@ -1273,7 +1415,15 @@ arch grassd_6
 x 9
 y 2
 end
+arch tree_big
+x 9
+y 2
+end
 arch grassd_4
+x 9
+y 3
+end
+arch tree_big5b
 x 9
 y 3
 end
@@ -1293,10 +1443,6 @@ arch grassd_2
 x 9
 y 7
 end
-arch tree_big
-x 9
-y 7
-end
 arch grassd_4
 x 9
 y 8
@@ -1313,9 +1459,24 @@ arch grassd_8
 x 9
 y 11
 end
-arch grassd_7
+arch grassd_3
 x 9
 y 12
+end
+arch spawn_point
+x 9
+y 12
+arch ant_red
+level 19
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_1
 x 9
@@ -1328,6 +1489,21 @@ end
 arch grassd_5
 x 9
 y 15
+end
+arch spawn_point
+x 9
+y 15
+arch ant_red
+level 18
+last_eat 5
+item_race 5
+item_level 5
+type 83
+arch quest_container
+name Finger of Death
+sub_type 1
+end
+end
 end
 arch grassd_3
 x 9
@@ -1384,11 +1560,19 @@ arch grassd_4
 x 10
 y 1
 end
+arch tree_big3
+x 10
+y 1
+end
 arch grassd_7
 x 10
 y 2
 end
 arch grassd_7
+x 10
+y 3
+end
+arch tree_big5b
 x 10
 y 3
 end
@@ -1417,6 +1601,10 @@ x 10
 y 9
 end
 arch grassd_5
+x 10
+y 10
+end
+arch plant5
 x 10
 y 10
 end
@@ -1499,7 +1687,14 @@ end
 arch grassd_3
 x 11
 end
+arch tree_big
+x 11
+end
 arch grassd_1
+x 11
+y 1
+end
+arch tree_big2
 x 11
 y 1
 end
@@ -1507,7 +1702,15 @@ arch grassd_4
 x 11
 y 2
 end
+arch tree_big4b
+x 11
+y 2
+end
 arch grassd_3
+x 11
+y 3
+end
+arch tree_big
 x 11
 y 3
 end
@@ -1527,19 +1730,15 @@ arch grassd_7
 x 11
 y 6
 end
+arch plant_mushroom5
+x 11
+y 6
+end
 arch grassd_2
 x 11
 y 7
 end
-arch tree_big3
-x 11
-y 7
-end
 arch grassd_7
-x 11
-y 8
-end
-arch tree_big4b
 x 11
 y 8
 end
@@ -1576,10 +1775,6 @@ x 11
 y 16
 end
 arch grassd_7
-x 11
-y 17
-end
-arch tree_big
 x 11
 y 17
 end
@@ -1622,11 +1817,22 @@ end
 arch grassd_7
 x 12
 end
+arch tree_big
+x 12
+end
 arch grassd_7
 x 12
 y 1
 end
+arch tree_big3
+x 12
+y 1
+end
 arch grassd_1
+x 12
+y 2
+end
+arch tree_big
 x 12
 y 2
 end
@@ -1647,10 +1853,6 @@ x 12
 y 5
 end
 arch grassd_2
-x 12
-y 6
-end
-arch tree_big2
 x 12
 y 6
 end
@@ -1677,21 +1879,6 @@ end
 arch grassd_1
 x 12
 y 12
-end
-arch plant_flower3
-x 12
-y 12
-end
-arch spawn_point
-x 12
-y 12
-arch ant_red
-type 83
-item_race 5
-item_level 5
-level 9
-last_eat 5
-end
 end
 arch grassd_7
 x 12
@@ -1733,10 +1920,6 @@ arch plant7
 x 12
 y 20
 end
-arch tree_big3
-x 12
-y 20
-end
 arch grassd_7
 x 12
 y 21
@@ -1760,7 +1943,14 @@ end
 arch grassd_6
 x 13
 end
+arch tree_big
+x 13
+end
 arch grassd_1
+x 13
+y 1
+end
+arch tree_big
 x 13
 y 1
 end
@@ -1768,7 +1958,7 @@ arch grassd_4
 x 13
 y 2
 end
-arch plant_flower7
+arch tree_big2
 x 13
 y 2
 end
@@ -1784,6 +1974,10 @@ arch grassd_1
 x 13
 y 5
 end
+arch tree_big4b
+x 13
+y 5
+end
 arch grassd_5
 x 13
 y 6
@@ -1793,10 +1987,6 @@ x 13
 y 7
 end
 arch grassd_7
-x 13
-y 8
-end
-arch plant9
 x 13
 y 8
 end
@@ -1816,28 +2006,9 @@ arch grassd_7
 x 13
 y 12
 end
-arch tree_burned4
-x 13
-y 12
-end
 arch grassd_6
 x 13
 y 13
-end
-arch plant13
-x 13
-y 13
-end
-arch spawn_point
-x 13
-y 13
-arch ant_red
-type 83
-item_race 5
-item_level 5
-level 9
-last_eat 5
-end
 end
 arch grassd_8
 x 13
@@ -1910,7 +2081,15 @@ arch grassd_6
 x 14
 y 2
 end
+arch tree_big4b
+x 14
+y 2
+end
 arch grassd_4
+x 14
+y 3
+end
+arch tree_big5b
 x 14
 y 3
 end
@@ -1946,35 +2125,9 @@ arch grassd_2
 x 14
 y 11
 end
-arch spawn_point
-x 14
-y 11
-arch ant_red
-type 83
-item_race 5
-item_level 5
-level 9
-last_eat 5
-end
-end
 arch grassd_8
 x 14
 y 12
-end
-arch plant13
-x 14
-y 12
-end
-arch spawn_point
-x 14
-y 12
-arch ant_red
-type 83
-item_race 5
-item_level 5
-level 9
-last_eat 5
-end
 end
 arch grassd_5
 x 14
@@ -2047,7 +2200,7 @@ arch grassd_2
 x 15
 y 1
 end
-arch tree_big5b
+arch tree_big2
 x 15
 y 1
 end
@@ -2075,11 +2228,19 @@ arch grassd_2
 x 15
 y 7
 end
+arch plant_flower1
+x 15
+y 7
+end
 arch grassd_6
 x 15
 y 8
 end
 arch grassd_3
+x 15
+y 9
+end
+arch small_stones
 x 15
 y 9
 end
@@ -2254,10 +2415,6 @@ arch grassd_8
 x 16
 y 19
 end
-arch tree_big3
-x 16
-y 19
-end
 arch grassd_8
 x 16
 y 20
@@ -2322,10 +2479,6 @@ x 17
 y 7
 end
 arch grassd_1
-x 17
-y 8
-end
-arch tree_big4b
 x 17
 y 8
 end
@@ -2543,6 +2696,10 @@ arch grassd_4
 x 19
 y 1
 end
+arch plant15
+x 19
+y 1
+end
 arch grassd_6
 x 19
 y 2
@@ -2583,6 +2740,10 @@ arch grassd_7
 x 19
 y 10
 end
+arch plant10
+x 19
+y 10
+end
 arch grassd_1
 x 19
 y 11
@@ -2604,10 +2765,6 @@ x 19
 y 15
 end
 arch grassd_6
-x 19
-y 16
-end
-arch tree_big2
 x 19
 y 16
 end
@@ -2789,10 +2946,6 @@ arch grassd_6
 x 21
 y 2
 end
-arch tree_big4b
-x 21
-y 2
-end
 arch grassd_3
 x 21
 y 3
@@ -2806,10 +2959,6 @@ x 21
 y 5
 end
 arch grassd_4
-x 21
-y 6
-end
-arch tree_big4b
 x 21
 y 6
 end
@@ -2830,10 +2979,6 @@ x 21
 y 10
 end
 arch grassd_7
-x 21
-y 11
-end
-arch tree_big5b
 x 21
 y 11
 end

@@ -3,7 +3,6 @@
 
 from Atrinik import *
 from QuestManager import QuestManager
-from threading import Timer
 
 ## Activator object.
 activator = WhoIsActivator()
