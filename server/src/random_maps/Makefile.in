@@ -58,7 +58,7 @@ SED = @SED@
 
 OBJS = $(SRCS:.c=.o)
 
-EXTRA_CFLAGS = -Wall -W -pedantic
+EXTRA_CFLAGS = -Wall -W -pedantic -ansi
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
@@ -80,26 +80,18 @@ RM = @RM@
 FLEX = @LEX@
 AR = @AR@
 
-random_map: $(OBJS)
-	$(RM) -f $@
-	$(CC) $(CFLAGS) $(INCLUDES) -c standalone.c
-	$(CC) -o $@ $(OBJS) standalone.o  $(LIBS)
-
 random_map.a: $(OBJS)
 	$(RM) -f $@
 	$(AR) clq $@ $(OBJS)
-
 
 depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -I../include -- $(SRCS)
 
 proto:
-#	cextract +p -P $(INCLUDES)  \
-		-cpp-program="gcc -E -C" \
-		$(SRCS)  > rproto.h.bak
-#	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" < rproto.h.bak >rproto.h
-#	chmod 644 rproto.h
-#	$(RM) -f rproto.h.bak
+	cproto -e -o rproto.h.bak $(INCLUDES) $(SRCS)
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < rproto.h.bak > rproto.h
+	chmod 644 rproto.h
+	$(RM) -f rproto.h.bak
 
 archive:
 	@if [ ! -d $(ARCHIVE)/random_maps ]; then $(MKDIR) $(ARCHIVE)/random_maps; fi
@@ -116,9 +108,8 @@ distclean:: clean
 
 reader.c: reader.l
 	$(FLEX) -Prmap -i -t reader.l > reader.c
-#	sed -e s/yy/YY/g /tmp/reader.c > reader.c
 
-all: random_map.a # random_map
+all: random_map.a
 
 patchlist::
 	@echo $(SRCS) > .patchlist
@@ -128,6 +119,3 @@ install:: random_map
 		$(MKDIR) -p ${bindir}; \
 	fi
 	$(INSTALL) random_map ${bindir}/random_map
-
-
-

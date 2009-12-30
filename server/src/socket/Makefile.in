@@ -2,7 +2,7 @@
 #            Atrinik, a Multiplayer Online Role Playing Game            *
 #                                                                       *
 #                     Copyright (C) 2009 Alex Tokar                     *
-#                                                                       * 
+#                                                                       *
 # Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 # and Crossfire (Multiplayer game for X-windows).                       *
 #                                                                       *
@@ -44,6 +44,7 @@ ARFLAGS = cq
 
 AR = @AR@
 RM = @RM@
+SED = @SED@
 
 RANLIB = @RANLIB@
 
@@ -65,8 +66,10 @@ depend:
 install::
 
 proto:
-	cproto -D__CEXTRACT__ $(INCLUDES) $(SRCS) > ../include/sockproto.h
+	cproto -o ../include/sockproto.h.bak $(INCLUDES) $(SRCS)
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/sockproto.h.bak > ../include/sockproto.h
 	chmod 644 ../include/sockproto.h
+	$(RM) -f ../include/sockproto.h.bak
 
 archive:
 	if [ ! -d $(ARCHIVE)/socket ]; then $(MKDIR) $(ARCHIVE)/socket; fi

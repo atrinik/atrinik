@@ -59,9 +59,8 @@ install::
 
 
 proto:
-	cproto -e -o ../include/libtypes.h.bak $(INCLUDES) \
-	$(SRCS)
-	$(SED) -e "s/ = {0}//g" -e "s/__signed/signed/g" -e "/inline/d" -e "/YY_BUFFER/d" < ../include/libtypes.h.bak > ../include/libtypes.h
+	cproto -e -o ../include/libtypes.h.bak $(INCLUDES) $(SRCS)
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/libtypes.h.bak > ../include/libtypes.h
 	chmod 644 ../include/libtypes.h
 	$(RM) -f ../include/libtypes.h.bak
 
