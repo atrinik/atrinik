@@ -368,7 +368,6 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
 	if (the_exit_down)
 	{
-		char buf[2048];
 		int i = find_first_free_spot(the_exit_down->arch, map, downx, downy);
 
 		the_exit_down->x = downx + freearr_x[i];
@@ -376,9 +375,6 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
 		RP->origin_x = the_exit_down->x;
 		RP->origin_y = the_exit_down->y;
-
-		write_map_parameters_to_string(buf, RP);
-		FREE_AND_COPY_HASH(the_exit_down->msg, buf);
 
 		/* the identifier for making a random map. */
 		if (RP->dungeon_level >= RP->dungeon_depth && RP->final_map[0] != '\0')
@@ -394,6 +390,8 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
 			FREE_AND_COPY_HASH(the_exit_down->slaying, RP->final_map);
 			FREE_AND_COPY_HASH(new_map->path, RP->final_map);
+			the_exit_down->stats.hp = MAP_ENTER_X(new_map);
+			the_exit_down->stats.sp = MAP_ENTER_Y(new_map);
 
 			for (tmp = GET_MAP_OB(new_map, MAP_ENTER_X(new_map), MAP_ENTER_Y(new_map)); tmp; tmp = tmp->above)
 			{
@@ -422,6 +420,10 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 		}
 		else
 		{
+			char buf[2048];
+
+			write_map_parameters_to_string(buf, RP);
+			FREE_AND_COPY_HASH(the_exit_down->msg, buf);
 			FREE_AND_COPY_HASH(the_exit_down->slaying, "/random/");
 			the_exit_down->stats.hp = 0;
 			the_exit_down->stats.sp = 0;
