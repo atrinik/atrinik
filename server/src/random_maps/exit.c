@@ -399,7 +399,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 				 * which is why we break out.  To try to process more than one
 				 * would require keeping a 'next' pointer, ad free_object kills tmp, which
 				 * breaks the for loop. */
-				if (tmp->type == EXIT && !strncmp(EXIT_PATH(tmp), "/random/", 8))
+				if (tmp->type == EXIT)
 				{
 					remove_ob(tmp);
 					break;
