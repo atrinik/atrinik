@@ -1,0 +1,20 @@
+arch map
+name <unnamed>
+msg
+Modified: 2009-12-30 Alex Tokar
+endmsg
+width 4
+height 1
+difficulty 1
+end
+arch floor_cave6
+end
+arch floor_cave5
+x 1
+end
+arch floor_cave1
+x 2
+end
+arch floor_cave2
+x 3
+end

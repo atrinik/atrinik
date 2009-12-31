@@ -1,0 +1,11 @@
+arch map
+name <unnamed>
+msg
+Modified: 2009-12-30 Alex Tokar
+endmsg
+width 1
+height 1
+difficulty 1
+end
+arch wall_dungeon_1
+end
