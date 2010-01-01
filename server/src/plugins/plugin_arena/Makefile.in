@@ -29,7 +29,7 @@ LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBS) $(SYSLIBS)
 
-all : plugin_arena.so.0.1 doc
+all : plugin_arena.so.0.1
 
 clean :
 	$(RM) -f *.o core plugin_arena.so.0.1

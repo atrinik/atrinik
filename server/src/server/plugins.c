@@ -116,6 +116,7 @@ struct plugin_hooklist hooklist =
 	dump_object,
 	stringbuffer_new,
 	stringbuffer_finish,
+	cleanup_chat_string,
 
 	season_name,
 	weekdays,

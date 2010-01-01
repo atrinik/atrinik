@@ -74,6 +74,11 @@ static Atrinik_Constant module_constants[] =
 	{"SOUTHWEST",   6},
 	{"WEST",        7},
 	{"NORTHWEST",   8},
+
+	{"llevError",   llevError},
+	{"llevBug",     llevBug},
+	{"llevInfo",    llevInfo},
+	{"llevDebug",   llevDebug},
 	{NULL, 0}
 };
 
@@ -587,6 +592,52 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 	}
 
 	return wrap_party(hooks->find_party(partyname));
+}
+
+/**
+ * <h1>Atrinik.CleanupChatString(<i>\<string\><i> string)</h1>
+ * Cleans up a chat string, using cleanup_chat_string().
+ * @param string The string to cleanup.
+ * @return Cleaned up string - can be None. */
+static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
+{
+	char *string;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &string))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("s", hooks->cleanup_chat_string(string));
+}
+
+/**
+ * <h1>Atrinik.LOG(<i>\<int\></i> mode, <i>\<string\><i> string)</h1>
+ * Logs a message.
+ * @param mode Logging mode to use, one of:
+ * - llevError: An irrecoverable error. Will shut down the server.
+ * - llevBug: A bug.
+ * - llevInfo: Info.
+ * - llevDebug: Debug information.
+ * @param string The message to log. */
+static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
+{
+	char *string;
+	int mode;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "is", &mode, &string))
+	{
+		return NULL;
+	}
+
+	LOG(mode, string);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /*@}*/
@@ -1145,6 +1196,8 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
 	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
 	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
+	{"CleanupChatString",Atrinik_CleanupChatString,   METH_VARARGS, 0},
+	{"LOG",              Atrinik_LOG,                 METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

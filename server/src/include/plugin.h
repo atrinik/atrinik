@@ -233,6 +233,7 @@ struct plugin_hooklist
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)();
 	char *(*stringbuffer_finish)(StringBuffer *);
+	char *(*cleanup_chat_string)(char *);
 
 	const char **season_name;
 	const char **weekdays;
