@@ -58,23 +58,20 @@
 /* needed by skills code -b.t. */
 #define NO_STAT_VAL 99
 
-extern char *attacks[NROFATTACKS];
-extern char *spellpathnames[NRSPELLPATHS];
-
-extern float cha_bonus[MAX_STAT + 1];
-extern int thaco_bonus[MAX_STAT + 1];
-extern int turn_bonus[MAX_STAT + 1];
 extern int dam_bonus[MAX_STAT + 1];
-extern int savethrow[111];
-extern int turn_bonus[MAX_STAT + 1];
-extern int learn_prayer_chance[MAX_STAT + 1];
-extern int learn_spell[];
-extern char *restore_msg[NUM_STATS];
-extern char *statname[NUM_STATS];
-extern char *short_stat_name[NUM_STATS];
-extern char *lose_msg[NUM_STATS];
+extern int thaco_bonus[MAX_STAT + 1];
+extern float cha_bonus[MAX_STAT + 1];
 extern float speed_bonus[MAX_STAT + 1];
 extern uint32 weight_limit[MAX_STAT + 1];
+extern int learn_spell[MAX_STAT + 1];
+extern int savethrow[MAXLEVEL + 1];
+extern const char *const attacks[NROFATTACKS];
+extern const char *const restore_msg[NUM_STATS];
+extern const char *const lose_msg[NUM_STATS];
+extern const char *const statname[NUM_STATS];
+extern const char *const short_stat_name[NUM_STATS];
+
+extern char *spellpathnames[NRSPELLPATHS];
 
 #define LEVEL_DAMAGE(level) (float) (level > 1 ? 0.75f + level * 0.25f : 1.0f)
 

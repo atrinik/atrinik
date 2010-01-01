@@ -30,8 +30,6 @@
 #ifndef SPELLS_H
 #define SPELLS_H
 
-extern int turn_bonus[];
-extern int fear_bonus[];
 extern int cleric_chance[];
 
 /**

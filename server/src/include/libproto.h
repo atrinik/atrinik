@@ -81,9 +81,9 @@ extern objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, o
 extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
 
 /* living.c */
-extern void set_attr_value(living *stats, int attr, signed char value);
-extern void change_attr_value(living *stats, int attr, signed char value);
-extern signed char get_attr_value(living *stats, int attr);
+extern void set_attr_value(living *stats, int attr, sint8 value);
+extern void change_attr_value(living *stats, int attr, sint8 value);
+extern sint8 get_attr_value(living *stats, int attr);
 extern void check_stat_bounds(living *stats);
 extern int change_abil(object *op, object *tmp);
 extern void drain_stat(object *op);
