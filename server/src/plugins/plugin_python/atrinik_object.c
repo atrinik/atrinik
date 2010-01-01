@@ -676,6 +676,7 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_MARKER",                  MARKER},
 	{"TYPE_HOLY_ALTAR",              HOLY_ALTAR},
 	{"TYPE_PLAYER_CHANGER",          PLAYER_CHANGER},
+	{"TYPE_PEARL",                   PEARL},
 	{"TYPE_GEM",                     GEM},
 	{"TYPE_FIRECHEST",               FIRECHEST},
 	{"TYPE_FIREWALL",                FIREWALL},

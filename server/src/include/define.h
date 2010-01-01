@@ -236,7 +236,7 @@
 #define HOLY_ALTAR	            56
 #define PLAYER_CHANGER          57
 
-#define UNUSED_TYPE             59
+#define PEARL                   59
 #define GEM		                60
 #define FIRECHEST	            61
 #define FIREWALL	            62
@@ -404,7 +404,7 @@
 /** A beacon. */
 #define BEACON                  126
 
-/* unused: 127 - 129, 59 */
+/* unused: 127 - 129 */
 
 /**
  * Can add a skill to player's inventory

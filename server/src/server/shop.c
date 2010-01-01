@@ -82,7 +82,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 			else
 			{
 				/* Selling unidentified gems is *always* stupid */
-				if (tmp->type == GEM || tmp->type == TYPE_JEWEL || tmp->type == TYPE_NUGGET)
+				if (tmp->type == GEM || tmp->type == TYPE_JEWEL || tmp->type == TYPE_NUGGET || tmp->type == PEARL)
 				{
 					val = number * 3;
 				}

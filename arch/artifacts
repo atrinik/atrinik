@@ -70,21 +70,579 @@ speed 0.15
 last_sp 5
 end
 
+##########
+# Pearls #
+##########
+Allowed all
+chance 70
+difficulty 1
+artifact pearl_poor
+def_arch pearl_generic
+Object
+title of poor quality
+material_real 0
+type 59
+value 15
+end
+
+Allowed all
+chance 60
+difficulty 5
+artifact pearl_medium
+def_arch pearl_generic
+Object
+title of medium quality
+material_real 0
+type 59
+value 70
+end
+
+Allowed all
+chance 50
+difficulty 10
+artifact pearl_great
+def_arch pearl_generic
+Object
+title of great quality
+material_real 0
+type 59
+value 250
+end
+
+Allowed all
+chance 40
+difficulty 20
+artifact pearl_very_great
+def_arch pearl_generic
+Object
+title of very great quality
+material_real 0
+type 59
+value 450
+end
+
+Allowed all
+chance 35
+difficulty 30
+artifact pearl_beauty
+def_arch pearl_generic
+Object
+title of exceptional beauty
+material_real 0
+type 59
+value 1150
+end
+
+Allowed all
+chance 30
+difficulty 45
+artifact pearl_flawless
+def_arch pearl_generic
+Object
+title of flawless beauty
+material_real 0
+type 59
+value 2250
+end
+
+Allowed all
+chance 45
+difficulty 10
+artifact pearl_poor_black
+def_arch pearl_generic
+Object
+name black pearl
+title of poor quality
+face pearl_black.101
+material_real 0
+type 59
+value 30
+end
+
+Allowed all
+chance 40
+difficulty 15
+artifact pearl_medium_black
+def_arch pearl_generic
+Object
+name black pearl
+title of medium quality
+face pearl_black.101
+material_real 0
+type 59
+value 140
+end
+
+Allowed all
+chance 35
+difficulty 20
+artifact pearl_great_black
+def_arch pearl_generic
+Object
+name black pearl
+title of great quality
+face pearl_black.101
+material_real 0
+type 59
+value 500
+end
+
+Allowed all
+chance 30
+difficulty 25
+artifact pearl_very_great_black
+def_arch pearl_generic
+Object
+name black pearl
+title of very great quality
+face pearl_black.101
+material_real 0
+type 59
+value 900
+end
+
+Allowed all
+chance 25
+difficulty 40
+artifact pearl_beauty_black
+def_arch pearl_generic
+Object
+name black pearl
+title of exceptional beauty
+material_real 0
+face pearl_black.101
+type 59
+value 2350
+end
+
+Allowed all
+chance 20
+difficulty 50
+artifact pearl_flawless_black
+def_arch pearl_generic
+Object
+name black pearl
+title of flawless beauty
+face pearl_black.101
+material_real 0
+type 59
+value 4500
+end
+
+Allowed all
+chance 35
+difficulty 15
+artifact pearl_poor_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of poor quality
+face pearl_gold.101
+material_real 0
+type 59
+value 60
+end
+
+Allowed all
+chance 30
+difficulty 20
+artifact pearl_medium_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of medium quality
+face pearl_gold.101
+material_real 0
+type 59
+value 140
+end
+
+Allowed all
+chance 25
+difficulty 25
+artifact pearl_great_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of great quality
+face pearl_gold.101
+material_real 0
+type 59
+value 850
+end
+
+Allowed all
+chance 20
+difficulty 35
+artifact pearl_very_great_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of very great quality
+face pearl_gold.101
+material_real 0
+type 59
+value 1800
+end
+
+Allowed all
+chance 15
+difficulty 50
+artifact pearl_beauty_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of exceptional beauty
+material_real 0
+face pearl_gold.101
+type 59
+value 4600
+end
+
+Allowed all
+chance 10
+difficulty 60
+artifact pearl_flawless_gold
+def_arch pearl_generic
+Object
+name gold pearl
+title of flawless beauty
+face pearl_gold.101
+material_real 0
+type 59
+value 9500
+end
+
 ####################
 # Artifact nuggets #
 ####################
 Allowed all
-chance 40
-difficulty 1
-artifact nug_bronze_small
+chance 60
+artifact nug_tin_small
 def_arch nugget_generic
 Object
 title of small size
+face nugget_silver_s.101
+item_quality 100
+item_condition 100
+type 117
+end
+
+Allowed all
+chance 55
+artifact nug_tin_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_silver_l.101
+item_quality 100
+item_condition 100
+weight 350
+value 150
+type 117
+end
+
+Allowed all
+chance 50
+difficulty 5
+artifact nug_tin_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_silver_h.101
+item_quality 100
+item_condition 100
+value 250
+weight 750
+type 117
+end
+
+Allowed all
+chance 60
+artifact nug_copper_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_copper_s.101
 item_quality 100
 item_condition 100
 value 75
 type 117
 material_real 643
+end
+
+Allowed all
+chance 50
+difficulty 7
+artifact nug_copper_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_copper_l.101
+item_quality 100
+item_condition 100
+weight 320
+value 250
+type 117
+material_real 643
+end
+
+Allowed all
+chance 40
+difficulty 12
+artifact nug_copper_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_copper_h.101
+item_quality 100
+item_condition 100
+value 650
+weight 700
+type 117
+material_real 643
+end
+
+Allowed all
+chance 60
+difficulty 5
+artifact nug_bronze_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_gold_s.101
+item_quality 100
+item_condition 100
+value 150
+type 117
+material_real 644
+end
+
+Allowed all
+chance 50
+difficulty 12
+artifact nug_bronze_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_gold_l.101
+item_quality 100
+item_condition 100
+weight 350
+value 400
+type 117
+material_real 644
+end
+
+Allowed all
+chance 40
+difficulty 18
+artifact nug_bronze_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_gold_h.101
+item_quality 100
+item_condition 100
+value 900
+weight 750
+type 117
+material_real 644
+end
+
+Allowed all
+chance 50
+difficulty 10
+artifact nug_silver_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_silver_s.101
+item_quality 100
+item_condition 100
+value 225
+weight 200
+type 117
+material_real 645
+end
+
+Allowed all
+chance 40
+difficulty 20
+artifact nug_silver_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_silver_l.101
+item_quality 100
+item_condition 100
+weight 450
+value 750
+type 117
+material_real 645
+end
+
+Allowed all
+chance 30
+difficulty 30
+artifact nug_silver_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_silver_h.101
+item_quality 100
+item_condition 100
+value 1950
+weight 900
+type 117
+material_real 645
+end
+
+Allowed all
+chance 40
+difficulty 25
+artifact nug_gold_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_gold_s.101
+item_quality 100
+item_condition 100
+weight 200
+value 500
+type 117
+material_real 646
+end
+
+Allowed all
+chance 30
+difficulty 30
+artifact nug_gold_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_gold_l.101
+item_quality 100
+item_condition 100
+weight 700
+value 950
+type 117
+material_real 646
+end
+
+Allowed all
+chance 20
+difficulty 50
+artifact nug_gold_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_gold_h.101
+item_quality 100
+item_condition 100
+value 2400
+weight 1200
+type 117
+material_real 646
+end
+
+Allowed all
+chance 30
+difficulty 35
+artifact nug_platin_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_silver_s.101
+item_quality 100
+item_condition 100
+weight 50
+value 600
+type 117
+material_real 647
+end
+
+Allowed all
+chance 20
+difficulty 50
+artifact nug_platin_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_silver_l.101
+item_quality 100
+item_condition 100
+weight 100
+value 1150
+type 117
+material_real 647
+end
+
+Allowed all
+chance 15
+difficulty 60
+artifact nug_platin_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_silver_h.101
+item_quality 100
+item_condition 100
+value 2750
+weight 150
+type 117
+material_real 647
+end
+
+Allowed all
+chance 20
+difficulty 85
+artifact nug_mit_small
+def_arch nugget_generic
+Object
+title of small size
+face nugget_mit_s.101
+item_quality 100
+item_condition 100
+weight 10
+value 1350
+type 117
+material_real 514
+material 1280
+end
+
+Allowed all
+chance 10
+difficulty 90
+artifact nug_mit_med
+def_arch nugget_generic
+Object
+title of medium size
+face nugget_mit_l.101
+item_quality 100
+item_condition 100
+weight 20
+value 2650
+type 117
+material_real 514
+material 1280
+end
+
+Allowed all
+chance 5
+difficulty 95
+artifact nug_mit_big
+def_arch nugget_generic
+Object
+title of big size
+face nugget_mit_h.101
+item_quality 100
+item_condition 100
+value 4250
+weight 30
+type 117
+material_real 514
+material 1280
 end
 
 #################

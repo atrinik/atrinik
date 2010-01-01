@@ -1417,6 +1417,7 @@ int need_identify(object *op)
 		case GEM:
 		case TYPE_JEWEL:
 		case TYPE_NUGGET:
+		case PEARL:
 		case POWER_CRYSTAL:
 		case POISON:
 		case BOOK:

@@ -2508,6 +2508,10 @@ treasureone random_gem
   arch gem_generic
     artifact_chance 90
     chance 50
+  more
+  arch pearl_generic
+    artifact_chance 90
+    chance 50
 end
 
 treasureone random_mtools
