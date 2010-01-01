@@ -43,17 +43,6 @@ plugin_arena.so.0.1 : $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-doc:
-#doc/Map_Methods.txt doc/Object_Methods.txt doc/DaimoninFunctions.txt
-#doc/Map_Methods.txt: DaimoninMap.c
-#	$(MAKEDOC) $< > $@
-
-#doc/Object_Methods.txt: DaimoninObject.c
-#	$(MAKEDOC) $< > $@
-
-#doc/DaimoninFunctions.txt: plugin_python.c
-#	$(MAKEDOC) $< > $@
-
 depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDE) --
 

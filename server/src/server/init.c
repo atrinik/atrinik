@@ -1,7 +1,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*                     Copyright (C) 2009 Alex Tokar                     *
+*    Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
 * and Crossfire (Multiplayer game for X-windows).                       *
@@ -156,7 +156,7 @@ void init_library()
 	init_mempools();
 	init_block();
 	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
-	LOG(llevInfo, "Copyright (C) 2009 Alex Tokar.\n");
+	LOG(llevInfo, "Copyright (C) 2009-2010 Alex Tokar and Atrinik Development Team.\n");
 	read_bmap_names();
 	init_materials();
 	/* Must be after we read in the bitmaps */
