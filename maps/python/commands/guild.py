@@ -18,8 +18,12 @@ guild = Guild(None)
 ## Check which guild the player is member of.
 guildname = guild.is_in_guild(activator.name)
 
+if message:
+	message = CleanupChatString(message)
+
 if message and guildname != None:
 	guild = Guild(guildname)
+	LOG(llevInfo, "CLOG GUILD: %s [%s] >%s<\n" % (activator.name, guildname, message))
 
 	for member in guild.guilddb[guild.guildname]["members"]:
 		## Find the member, and if found, show him the guild message.
