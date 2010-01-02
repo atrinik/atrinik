@@ -2294,3 +2294,41 @@ int command_follow(object *op, char *params)
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Following %s.", params);
 	return 0;
 }
+
+/**
+ * Insert marked object into another, specified by params.
+ * @param op Wizard.
+ * @param params Object name or #ID to insert something into.
+ * @return 0. */
+int command_insert_into(object *op, char *params)
+{
+	object *ob, *marked;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "What object to insert something into?");
+		return 0;
+	}
+
+	marked = find_marked_object(op);
+
+	if (!marked)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "You need to mark the object to insert.");
+		return 0;
+	}
+
+	ob = find_object_both(op, params);
+
+	if (!ob)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "No such object.");
+	}
+
+	remove_ob(marked);
+	insert_ob_in_ob(marked, ob);
+	esrv_send_item(op, marked);
+	fix_player(op);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
+	return 0;
+}
