@@ -211,13 +211,13 @@ void follow_owner(object *ob, object *owner)
 		/* Uh, I hope this is always true... */
 		if (owner->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, owner, "Your pet has disappeared.");
+			new_draw_info(NDI_UNIQUE, owner, "Your pet has disappeared.");
 		}
 	}
 	/* Uh, I hope this is always true... */
 	else if (owner->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE, 0, owner, "Your pet magically appears next to you.");
+		new_draw_info(NDI_UNIQUE, owner, "Your pet magically appears next to you.");
 	}
 }
 
@@ -310,7 +310,7 @@ void pet_move(object * ob)
 				}
 				else if (new_ob->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, 0, new_ob, "You stand in the way of someone's pet.");
+					new_draw_info(NDI_UNIQUE, new_ob, "You stand in the way of someone's pet.");
 					return;
 				}
 			}

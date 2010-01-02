@@ -545,11 +545,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your hands begin to glow red.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your hands begin to glow red.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Your hands stop glowing red.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your hands stop glowing red.");
 		}
 	}
 
@@ -559,11 +559,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel very protected.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel very protected.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You don't feel protected anymore.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You don't feel protected anymore.");
 		}
 	}
 
@@ -573,11 +573,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "A magic force shimmers around you.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "A magic force shimmers around you.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "The magic force fades away.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "The magic force fades away.");
 		}
 	}
 
@@ -587,11 +587,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel more safe now, somehow.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel more safe now, somehow.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Suddenly you feel less safe, somehow.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Suddenly you feel less safe, somehow.");
 		}
 	}
 
@@ -604,11 +604,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly higher */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You float a little higher in the air.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You float a little higher in the air.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You start to float in the air!");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You start to float in the air!");
 
 				SET_MULTI_FLAG(op, FLAG_FLYING);
 
@@ -625,11 +625,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly lower */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You float a little lower in the air.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You float a little lower in the air.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You float down to the ground.");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You float down to the ground.");
 				check_walk_on(op, op, 0);
 			}
 		}
@@ -646,7 +646,7 @@ int change_abil(object *op, object *tmp)
 			if (flag > 0)
 			{
 				FREE_AND_COPY_HASH(op->race, "undead");
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Your lifeforce drains away!");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your lifeforce drains away!");
 			}
 			else
 			{
@@ -657,7 +657,7 @@ int change_abil(object *op, object *tmp)
 					FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 				}
 
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your lifeforce returns!");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your lifeforce returns!");
 			}
 		}
 	}
@@ -668,11 +668,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You walk more quietly.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You walk more quietly.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You walk more noisily.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You walk more noisily.");
 		}
 	}
 
@@ -682,11 +682,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You see invisible things.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You see invisible things.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Your vision becomes less clear.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your vision becomes less clear.");
 		}
 	}
 
@@ -696,11 +696,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You become transparent.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You become transparent.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You can see yourself.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You can see yourself.");
 		}
 	}
 
@@ -714,11 +714,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Your mortal self is blinded.");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your mortal self is blinded.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You are blinded.");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You are blinded.");
 				SET_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -731,11 +731,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your mortal self can now see again.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your mortal self can now see again.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your vision returns.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision returns.");
 				CLEAR_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -752,11 +752,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your vision is better in the dark.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision is better in the dark.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You see less well in the dark.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You see less well in the dark.");
 		}
 	}
 
@@ -768,11 +768,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your vision becomes a little clearer.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision becomes a little clearer.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Everything becomes transparent.");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Everything becomes transparent.");
 
 				if (op->type == PLAYER)
 				{
@@ -784,11 +784,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "Your vision becomes a bit out of focus.");
+				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision becomes a bit out of focus.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "Everything suddenly looks very solid.");
+				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Everything suddenly looks very solid.");
 
 				if (op->type == PLAYER)
 				{
@@ -804,11 +804,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel much more healthy!");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel much more healthy!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You feel much less healthy!");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel much less healthy!");
 		}
 	}
 
@@ -818,11 +818,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.sp) > 0 || (flag * tmp->stats.maxsp) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel one with the powers of magic!");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel one with the powers of magic!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You suddenly feel very mundane.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You suddenly feel very mundane.");
 		}
 	}
 
@@ -832,11 +832,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.grace) > 0 || (flag * tmp->stats.maxgrace) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel closer to your deity!");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel closer to your deity!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You suddenly feel less holy.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You suddenly feel less holy.");
 		}
 	}
 
@@ -846,11 +846,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((tmp->stats.food * flag) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel your digestion slowing down.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel your digestion slowing down.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You feel your digestion speeding up.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel your digestion speeding up.");
 		}
 	}
 
@@ -863,11 +863,11 @@ int change_abil(object *op, object *tmp)
 
 			if (op->resist[i] > refop.resist[i])
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Your resistance to %s rises to %d%%.", change_resist_msg[i], op->resist[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your resistance to %s rises to %d%%.", change_resist_msg[i], op->resist[i]);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, 0, op, "Your resistance to %s drops to %d%%.", change_resist_msg[i], op->resist[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your resistance to %s drops to %d%%.", change_resist_msg[i], op->resist[i]);
 			}
 		}
 	}
@@ -881,11 +881,11 @@ int change_abil(object *op, object *tmp)
 
 			if (op->protection[i] > refop.protection[i])
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Your protection to %s rises to %d%%.", protection_name[i], op->protection[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your protection to %s rises to %d%%.", protection_name[i], op->protection[i]);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, 0, op, "Your protection to %s drops to %d%%.", protection_name[i], op->protection[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your protection to %s drops to %d%%.", protection_name[i], op->protection[i]);
 			}
 		}
 	}
@@ -900,11 +900,11 @@ int change_abil(object *op, object *tmp)
 
 				if ((i * flag) > 0)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, gain_msg[j]);
+					new_draw_info(NDI_UNIQUE | NDI_WHITE, op, gain_msg[j]);
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, lose_msg[j]);
+					new_draw_info(NDI_UNIQUE | NDI_GREY, op, lose_msg[j]);
 				}
 			}
 		}
@@ -916,11 +916,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, 0, op, "You feel less lucky.");
+			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel less lucky.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, 0, op, "You feel more lucky.");
+			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel more lucky.");
 		}
 	}
 
@@ -961,7 +961,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, drain_msg[deplete_stats]);
+	new_draw_info(NDI_UNIQUE, op, drain_msg[deplete_stats]);
 	change_attr_value(&tmp->stats, deplete_stats, -1);
 	fix_player(op);
 }
@@ -2313,7 +2313,7 @@ void dragon_level_gain(object *who)
 
 		if (abil->last_eat > 0 && atnr_is_dragon_enabled(abil->last_eat))
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, 0, who, "Your metabolism now focuses on %s!", change_resist_msg[abil->last_eat]);
+			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "Your metabolism now focuses on %s!", change_resist_msg[abil->last_eat]);
 			abil->stats.exp = abil->last_eat;
 			abil->last_eat = 0;
 		}

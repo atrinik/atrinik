@@ -493,14 +493,14 @@ int arena_enter(object *who, object *exit, char *arena_script)
 			/* If the arena is full, show a message to the player */
 			if (arena_full(arena_maps_tmp))
 			{
-				hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_full);
+				hooks->new_draw_info(NDI_UNIQUE, who, arena_maps_tmp->message_arena_full);
 
 				return 1;
 			}
 			/* Not full but it's party arena and the player is not in a party? */
 			else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 			{
-				hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
+				hooks->new_draw_info(NDI_UNIQUE, who, arena_maps_tmp->message_arena_party);
 
 				return 1;
 			}
@@ -559,7 +559,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 	/* If this arena is full, show a message and return */
 	if (arena_full(arena_maps_tmp))
 	{
-		hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_full);
+		hooks->new_draw_info(NDI_UNIQUE, who, arena_maps_tmp->message_arena_full);
 
 		free(arena_maps_tmp);
 
@@ -568,7 +568,7 @@ int arena_enter(object *who, object *exit, char *arena_script)
 	/* Otherwise if not full and the player is not in party */
 	else if (arena_maps_tmp->flags & ARENA_FLAG_PARTY && !CONTR(who)->party)
 	{
-		hooks->new_draw_info(NDI_UNIQUE, 0, who, arena_maps_tmp->message_arena_party);
+		hooks->new_draw_info(NDI_UNIQUE, who, arena_maps_tmp->message_arena_party);
 
 		free(arena_maps_tmp);
 
@@ -653,7 +653,7 @@ int arena_sign(object *who, const char *path)
 		}
 	}
 
-	hooks->new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, who, sign_message);
+	hooks->new_draw_info(NDI_UNIQUE | NDI_YELLOW, who, sign_message);
 
 	return 1;
 }

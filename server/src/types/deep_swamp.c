@@ -38,7 +38,7 @@ void walk_on_deep_swamp(object *op, object *victim)
 {
 	if (victim->type == PLAYER && !QUERY_FLAG(victim, FLAG_FLYING) && victim->stats.hp >= 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, victim, "You are down to your knees in the swamp.");
+		new_draw_info(NDI_UNIQUE, victim, "You are down to your knees in the swamp.");
 		op->stats.food = 1;
 		victim->speed_left -= (float) (SLOW_PENALTY(op));
 	}
@@ -67,7 +67,7 @@ void move_deep_swamp(object *op)
 				case 1:
 					if (rndm(0, 2) == 0)
 					{
-						new_draw_info(NDI_UNIQUE, 0, above, "You are down to your waist in the wet swamp.");
+						new_draw_info(NDI_UNIQUE, above, "You are down to your waist in the wet swamp.");
 						op->stats.food = 2;
 						above->speed_left -= (float) (SLOW_PENALTY(op));
 					}
@@ -77,7 +77,7 @@ void move_deep_swamp(object *op)
 				case 2:
 					if (rndm(0, 2) == 0)
 					{
-						new_draw_info(NDI_UNIQUE, 0, above, "You are down to your NECK in the dangerous swamp.");
+						new_draw_info(NDI_UNIQUE, above, "You are down to your NECK in the dangerous swamp.");
 						op->stats.food = 3;
 						strcpy(CONTR(above)->killer, "drowning in a swamp");
 						above->stats.hp--;
@@ -93,7 +93,7 @@ void move_deep_swamp(object *op)
 						if (rndm(0, 4) == 0)
 						{
 							op->stats.food = 0;
-							new_draw_info_format(NDI_UNIQUE | NDI_ALL, 1, NULL, "%s disappeared into a swamp.", above->name);
+							new_draw_info_format(NDI_UNIQUE | NDI_ALL, NULL, "%s disappeared into a swamp.", above->name);
 							strcpy(CONTR(above)->killer, "drowning in a swamp");
 
 							above->stats.hp = -1;

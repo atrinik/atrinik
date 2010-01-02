@@ -43,10 +43,10 @@ void map_info(object *op)
 #ifdef MAP_RESET
 	LOG(llevSystem, "Current time is: %02ld:%02ld:%02ld.\n", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Current time is: %02ld:%02ld:%02ld.", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
-	new_draw_info(NDI_UNIQUE, 0, op, "Path               Pl PlM IM   TO Dif Reset");
+	new_draw_info_format(NDI_UNIQUE, op, "Current time is: %02ld:%02ld:%02ld.", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
+	new_draw_info(NDI_UNIQUE, op, "Path               Pl PlM IM   TO Dif Reset");
 #else
-	new_draw_info(NDI_UNIQUE, 0, op, "Pl Pl-M IM   TO Dif");
+	new_draw_info(NDI_UNIQUE, op, "Pl Pl-M IM   TO Dif");
 #endif
 
 	for (m = first_map; m != NULL; m = m->next)
@@ -76,7 +76,7 @@ void map_info(object *op)
 		sprintf(buf, "%-18.18s %2d   %c %4d %2d  %02d:%02d:%02d", map_path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
 #endif
 
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info(NDI_UNIQUE, op, buf);
 	}
 }
 
@@ -109,7 +109,7 @@ int command_roll(object *op, char *params)
 	/* No params, or params not in format of <times>d<sides>. */
 	if (params == NULL || !sscanf(params, "%dd%d", &times, &sides))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /roll <times>d<sides>");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /roll <times>d<sides>");
 		return 1;
 	}
 
@@ -143,7 +143,7 @@ int command_roll(object *op, char *params)
 		strncat(buf, tmp, sizeof(buf) - strlen(buf) - 1);
 	}
 
-	new_draw_info(NDI_ORANGE | NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_ORANGE | NDI_UNIQUE, op, buf);
 	new_info_map_except(NDI_ORANGE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 
 	return 1;
@@ -208,54 +208,54 @@ void malloc_info(object *op)
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
+	new_draw_info_format(NDI_UNIQUE, op, "Sizeof: object=%ld  player=%ld  map=%ld", (long) sizeof(object), (long) sizeof(player), (long) sizeof(mapstruct));
 
 	dump_mempool_statistics(op, &sum_used, &sum_alloc);
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d active objects", count_active());
+	new_draw_info_format(NDI_UNIQUE, op, "%4d active objects", count_active());
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d maps allocated:  %8d", nrofmaps, i = (nrofmaps * sizeof(mapstruct)));
 	sum_alloc += i;
 	sum_used += nrm * sizeof(mapstruct);
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d maps in memory:  %8d", nrm, mapmem);
+	new_draw_info_format(NDI_UNIQUE, op, "%4d maps in memory:  %8d", nrm, mapmem);
 	sum_alloc += mapmem;
 	sum_used += mapmem;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d archetypes:      %8d", anr, i = (anr * sizeof(archetype)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d animations:      %8d", anims, i = (anims * sizeof(Fontindex)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d spells:          %8d", NROFREALSPELLS, i = (NROFREALSPELLS * sizeof(spell)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d treasurelists    %8d", tlnr, i = (tlnr * sizeof(treasurelist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4ld treasures        %8d", nroftreasures, i = (nroftreasures * sizeof(treasure)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4ld artifacts        %8d", nrofartifacts, i = (nrofartifacts * sizeof(artifact)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4ld artifacts strngs %8d", nrofallowedstr, i = (nrofallowedstr * sizeof(linked_char)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
+	new_draw_info_format(NDI_UNIQUE, op, "%4d artifactlists    %8d", alnr, i = (alnr * sizeof(artifactlist)));
 	sum_alloc += i;
 	sum_used += i;
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Total space allocated:%8d", sum_alloc);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Total space used:     %8d", sum_used);
+	new_draw_info_format(NDI_UNIQUE, op, "Total space allocated:%8d", sum_alloc);
+	new_draw_info_format(NDI_UNIQUE, op, "Total space used:     %8d", sum_used);
 }
 
 /**
@@ -270,16 +270,16 @@ static void current_map_info(object *op)
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "%s (%s)", m->name, m->path);
+	new_draw_info_format(NDI_UNIQUE, op, "%s (%s)", m->name, m->path);
 
 	if (QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
+		new_draw_info_format(NDI_UNIQUE, op, "players: %d difficulty: %d size: %dx%d start: %dx%d", players_on_map(m), MAP_DIFFICULTY(m), MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
 	}
 
 	if (m->msg)
 	{
-		new_draw_info(NDI_UNIQUE, NDI_NAVY, op, m->msg);
+		new_draw_info(NDI_UNIQUE, op, m->msg);
 	}
 }
 
@@ -302,7 +302,7 @@ int command_who(object *op, char *params)
 		return 1;
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, " ");
+	new_draw_info(NDI_UNIQUE, op, " ");
 
 	wiz = QUERY_FLAG(op, FLAG_WIZ);
 
@@ -345,11 +345,11 @@ int command_who(object *op, char *params)
 				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)%s%s", pl->ob->name, sex, pl->ob->race, pl->ob->level, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "");
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, op, buf);
+			new_draw_info(NDI_UNIQUE, op, buf);
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
+	new_draw_info_format(NDI_UNIQUE, op, "There %s %d player%s online (%d in login).", ip + il > 1 ? "are" : "is", ip + il, ip + il > 1 ? "s" : "", il);
 
 	return 1;
 }
@@ -538,21 +538,21 @@ int command_save(object *op, char *params)
 
 	if (blocks_cleric(op->map, op->x, op->y))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can not save on unholy ground.");
+		new_draw_info(NDI_UNIQUE, op, "You can not save on unholy ground.");
 	}
 	else if (!op->stats.exp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "To avoid too many unused player accounts, you must get some experience before you can save.");
+		new_draw_info(NDI_UNIQUE, op, "To avoid too many unused player accounts, you must get some experience before you can save.");
 	}
 	else
 	{
 		if (save_player(op, 1))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You have been saved.");
+			new_draw_info(NDI_UNIQUE, op, "You have been saved.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "SAVE FAILED!");
+			new_draw_info(NDI_UNIQUE, op, "SAVE FAILED!");
 		}
 	}
 
@@ -571,12 +571,12 @@ int command_afk(object *op, char *params)
 	if (CONTR(op)->afk)
 	{
 		CONTR(op)->afk = 0;
-		new_draw_info(NDI_UNIQUE, 0, op, "You are no longer AFK.");
+		new_draw_info(NDI_UNIQUE, op, "You are no longer AFK.");
 	}
 	else
 	{
 		CONTR(op)->afk = 1;
-		new_draw_info(NDI_UNIQUE, 0, op, "You are now AFK.");
+		new_draw_info(NDI_UNIQUE, op, "You are now AFK.");
 	}
 
 	CONTR(op)->socket.ext_title_flag = 1;
@@ -620,12 +620,12 @@ int command_party(object *op, char *params)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
-			new_draw_info(NDI_UNIQUE, 0, op, "For help try: /party help");
+			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE, op, "For help try: /party help");
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You are a member of party %s.", CONTR(op)->party->name);
+			new_draw_info_format(NDI_UNIQUE, op, "You are a member of party %s.", CONTR(op)->party->name);
 		}
 
 		return 1;
@@ -633,22 +633,22 @@ int command_party(object *op, char *params)
 
 	if (strcmp(params, "help") == 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "To form a party type: /party form <partyname>");
-		new_draw_info(NDI_UNIQUE, 0, op, "To join a party type: /party join <partyname>");
-		new_draw_info(NDI_UNIQUE, 0, op, "If the party has a password, it will prompt you for it.");
-		new_draw_info(NDI_UNIQUE, 0, op, "For a list of current parties type: /party list");
-		new_draw_info(NDI_UNIQUE, 0, op, "To leave a party type: /party leave");
-		new_draw_info(NDI_UNIQUE, 0, op, "To change a password for a party type: /party password <password>");
-		new_draw_info(NDI_UNIQUE, 0, op, "There is a 8 character max for password.");
-		new_draw_info(NDI_UNIQUE, 0, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
-		new_draw_info(NDI_UNIQUE, 0, op, "To see who is in your party: /party who");
+		new_draw_info(NDI_UNIQUE, op, "To form a party type: /party form <partyname>");
+		new_draw_info(NDI_UNIQUE, op, "To join a party type: /party join <partyname>");
+		new_draw_info(NDI_UNIQUE, op, "If the party has a password, it will prompt you for it.");
+		new_draw_info(NDI_UNIQUE, op, "For a list of current parties type: /party list");
+		new_draw_info(NDI_UNIQUE, op, "To leave a party type: /party leave");
+		new_draw_info(NDI_UNIQUE, op, "To change a password for a party type: /party password <password>");
+		new_draw_info(NDI_UNIQUE, op, "There is a 8 character max for password.");
+		new_draw_info(NDI_UNIQUE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
+		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
 		return 1;
 	}
 	else if (strncmp(params, "say ", 4) == 0)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
 			return 1;
 		}
 
@@ -669,11 +669,11 @@ int command_party(object *op, char *params)
 	{
 		if (!CONTR(op)->party)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE, op, "You are not a member of any party.");
 			return 1;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You leave party %s.", CONTR(op)->party->name);
+		new_draw_info_format(NDI_UNIQUE, op, "You leave party %s.", CONTR(op)->party->name);
 		snprintf(buf, sizeof(buf), "%s leaves party %s.", op->name, CONTR(op)->party->name);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op);
 

@@ -98,11 +98,11 @@ void display_motd(object *op)
 			*cp = '\0';
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info(NDI_UNIQUE, op, buf);
 	}
 
 	fclose(fp);
-	new_draw_info(NDI_UNIQUE, 0, op, " ");
+	new_draw_info(NDI_UNIQUE, op, " ");
 }
 
 /**
@@ -737,7 +737,7 @@ static void fire_bow(object *op, int dir)
 
 	if (!dir)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't shoot yourself!");
+		new_draw_info(NDI_UNIQUE, op, "You can't shoot yourself!");
 		return;
 	}
 
@@ -750,19 +750,19 @@ static void fire_bow(object *op, int dir)
 
 	if (!bow->race)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Your %s is broken.", bow->name);
+		new_draw_info_format(NDI_UNIQUE, op, "Your %s is broken.", bow->name);
 		return;
 	}
 
 	if ((arrow = find_arrow_ext(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You have no %s left.", bow->race);
+		new_draw_info_format(NDI_UNIQUE, op, "You have no %s left.", bow->race);
 		return;
 	}
 
 	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Something is in the way.");
+		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
 		return;
 	}
 
@@ -1023,11 +1023,11 @@ void fire(object *op, int dir)
 			if (weap->stats.food <= 0)
 			{
 				play_sound_player_only(CONTR(op), SOUND_WAND_POOF, SOUND_NORMAL, 0, 0);
-				new_draw_info(NDI_UNIQUE, 0, op, "The wand says poof.");
+				new_draw_info(NDI_UNIQUE, op, "The wand says poof.");
 				return;
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, op, "fire wand");
+			new_draw_info(NDI_UNIQUE, op, "fire wand");
 
 			if (cast_spell(op, weap, dir, weap->stats.sp, 0, spellWand, NULL))
 			{
@@ -1083,7 +1083,7 @@ trick_jump:
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "You have no tool readied.");
+					new_draw_info_format(NDI_UNIQUE, op, "You have no tool readied.");
 					return;
 				}
 			}
@@ -1101,7 +1101,7 @@ trick_jump:
 				/* If the level difference isn't so high, give it a small chance to succeed */
 				if (level_difference > 0 && (level_difference > 10 || RANDOM() % weap->level != RANDOM() % (op->chosen_skill->level + 5)))
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is impossible to handle for you!", weap->name);
+					new_draw_info_format(NDI_UNIQUE, op, "The %s is impossible to handle for you!", weap->name);
 					return;
 				}
 			}
@@ -1112,11 +1112,11 @@ trick_jump:
 
 				if (CONTR(op)->shoottype == range_rod)
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "The rod whines for a while, but nothing happens.");
+					new_draw_info(NDI_UNIQUE, op, "The rod whines for a while, but nothing happens.");
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "No matter how hard you try you can't get another note out.");
+					new_draw_info(NDI_UNIQUE, op, "No matter how hard you try you can't get another note out.");
 				}
 
 				return;
@@ -1157,13 +1157,13 @@ trick_jump:
 			if (!op->chosen_skill)
 			{
 				if (op->type == PLAYER)
-					new_draw_info(NDI_UNIQUE, 0, op, "You have no applicable skill to use.");
+					new_draw_info(NDI_UNIQUE, op, "You have no applicable skill to use.");
 				return;
 			}
 
 			if (op->chosen_skill->sub_type1 != ST1_SKILL_USE)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You can't use this skill in this way.");
+				new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
 			}
 			else
 			{
@@ -1173,7 +1173,7 @@ trick_jump:
 			return;
 
 		default:
-			new_draw_info(NDI_UNIQUE, 0, op, "Illegal shoot type.");
+			new_draw_info(NDI_UNIQUE, op, "Illegal shoot type.");
 			return;
 	}
 }
@@ -1195,7 +1195,7 @@ int move_player(object *op, int dir)
 	/* Do not allow the player to move if he is in player shop interface. */
 	if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Close your player shop before attempting to move.");
+		new_draw_info(NDI_UNIQUE, op, "Close your player shop before attempting to move.");
 		return 0;
 	}
 
@@ -1322,7 +1322,7 @@ static int save_life(object *op)
 		if (QUERY_FLAG(tmp, FLAG_APPLIED) && QUERY_FLAG(tmp, FLAG_LIFESAVE))
 		{
 			play_sound_map(op->map, op->x, op->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
+			new_draw_info_format(NDI_UNIQUE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
 			if (CONTR(op))
 			{
@@ -1463,20 +1463,20 @@ void do_some_living(object *op)
 				{
 					if (CONTR(op)->combat_mode)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, op, "You stop combat and start praying to %s...", god->name);
+						new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
 						CONTR(op)->combat_mode = 0;
 						send_target_command(CONTR(op));
 					}
 					else
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, op, "You start praying to %s...", god->name);
+						new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
 					}
 
 					CONTR(op)->was_praying = 1;
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "You worship no deity to pray to!");
+					new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
 					CONTR(op)->praying = 0;
 				}
 
@@ -1490,7 +1490,7 @@ void do_some_living(object *op)
 		}
 		else if (!CONTR(op)->praying && CONTR(op)->was_praying)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You stop praying.");
+			new_draw_info(NDI_UNIQUE, op, "You stop praying.");
 			CONTR(op)->was_praying = 0;
 			op->last_grace = CONTR(op)->base_grace_reg;
 		}
@@ -1508,7 +1508,7 @@ void do_some_living(object *op)
 				if (op->stats.grace >= op->stats.maxgrace)
 				{
 					op->stats.grace = op->stats.maxgrace;
-					new_draw_info(NDI_UNIQUE, 0, op, "You are full of grace and stop praying.");
+					new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
 					CONTR(op)->was_praying = 0;
 				}
 
@@ -1543,7 +1543,7 @@ void do_some_living(object *op)
 				{
 					if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
 					{
-						new_draw_info(NDI_UNIQUE, 0, op, "You blindly grab for a bite of food.");
+						new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
 						manual_apply(op, tmp, 0);
 
 						if (op->stats.food >= 0 || op->stats.hp < 0)
@@ -1562,7 +1562,7 @@ void do_some_living(object *op)
 			 * eat flesh instead. */
 			if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You blindly grab for a bite of food.");
+				new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
 				manual_apply(op, flesh, 0);
 			}
 		}
@@ -1615,8 +1615,8 @@ void kill_player(object *op)
 
 	if (pvp_area(NULL, op))
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, "You have been defeated in combat!");
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, "Local medics have saved your life...");
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!");
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "Local medics have saved your life...");
 
 		/* Restore player */
 		cast_heal(op, 110, op, SP_CURE_POISON);
@@ -1710,7 +1710,7 @@ void kill_player(object *op)
 			check_stat_bounds(&(op->stats));
 			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
 			check_stat_bounds(&(CONTR(op)->orig_stats));
-			new_draw_info(NDI_UNIQUE, 0, op, lose_msg[i]);
+			new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
 			lost_a_stat = 1;
 		}
 		else if (op->level > 3)
@@ -1775,7 +1775,7 @@ void kill_player(object *op)
 				{
 					change_attr_value(&(dep->stats), i, -1);
 					SET_FLAG(dep, FLAG_APPLIED);
-					new_draw_info(NDI_UNIQUE, 0, op, lose_msg[i]);
+					new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
 					fix_player(op);
 					lost_a_stat = 1;
 				}
@@ -1790,11 +1790,11 @@ void kill_player(object *op)
 
 		if (god && god != shstr_cons.none)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
+			new_draw_info_format(NDI_UNIQUE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "For a brief moment you feel a holy presence protecting you.");
+			new_draw_info(NDI_UNIQUE, op, "For a brief moment you feel a holy presence protecting you.");
 		}
 	}
 
@@ -1842,7 +1842,7 @@ void kill_player(object *op)
 	enter_player_savebed(op);
 
 	/* Show a nasty message */
-	new_draw_info(NDI_UNIQUE, 0, op, "YOU HAVE DIED.");
+	new_draw_info(NDI_UNIQUE, op, "YOU HAVE DIED.");
 	save_player(op, 1);
 	return;
 }
@@ -1892,7 +1892,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (op->type == PLAYER && arch)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You cast %s.", query_name(throw_ob, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "You cast %s.", query_name(throw_ob, NULL));
 	}
 
 	if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))
@@ -2004,7 +2004,7 @@ void dragon_ability_gain(object *who, int atnr, int level)
 
 		if (IS_SYS_INVISIBLE(item))
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, 0, who, "You gained the ability of %s", spells[spell].name);
+			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "You gained the ability of %s", spells[spell].name);
 			do_learn_spell(who, spell, 0);
 			return;
 		}
@@ -2047,7 +2047,7 @@ void dragon_ability_gain(object *who, int atnr, int level)
 
 			strcat(buf, ".");
 
-			new_draw_info(NDI_UNIQUE | NDI_BLUE, 0, who, buf);
+			new_draw_info(NDI_UNIQUE | NDI_BLUE, who, buf);
 		}
 
 		if (QUERY_FLAG(item, FLAG_XRAYS))
@@ -2068,14 +2068,14 @@ void dragon_ability_gain(object *who, int atnr, int level)
 		/* Print message if there is one. */
 		if (item->msg)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_BLUE, 0, who, item->msg);
+			new_draw_info(NDI_UNIQUE | NDI_BLUE, who, item->msg);
 		}
 	}
 	else
 	{
 		/* Generate misc. treasure */
 		tmp = arch_to_object(tr->item);
-		new_draw_info_format(NDI_UNIQUE | NDI_BLUE, 0, who, "You gained %s.", query_short_name(tmp, NULL));
+		new_draw_info_format(NDI_UNIQUE | NDI_BLUE, who, "You gained %s.", query_short_name(tmp, NULL));
 		tmp = insert_ob_in_ob(tmp, who);
 
 		if (who->type == PLAYER)

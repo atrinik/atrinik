@@ -478,7 +478,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 		else if (op->level > 1 && op->type == SKILL)
@@ -486,7 +486,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 		else
@@ -494,7 +494,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d.", op->level);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 
@@ -520,7 +520,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 		else if (op->type == SKILL)
@@ -528,7 +528,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 		else
@@ -536,7 +536,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d.", op->level);
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, who, buf);
+				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
 		}
 

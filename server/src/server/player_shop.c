@@ -312,7 +312,7 @@ void player_shop_open(char *data, player *pl)
 		/* Some items cannot be sold in shops */
 		if (IS_SYS_INVISIBLE(item_object) || QUERY_FLAG(item_object, FLAG_UNPAID) || QUERY_FLAG(item_object, FLAG_STARTEQUIP) || item_object->type == MONEY)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "The %s is not allowed to be sold in a player shop.", query_name(item_object, NULL));
+			new_draw_info_format(NDI_UNIQUE, pl->ob, "The %s is not allowed to be sold in a player shop.", query_name(item_object, NULL));
 
 			player_shop_free_structure(pl, 1);
 			return;
@@ -415,7 +415,7 @@ void player_shop_load(char *data, player *pl)
 	/* Too far away? */
 	if (!shop_player_in_range(pl->ob, seller->ob))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You are too far away from %s.", seller->ob->name);
+		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are too far away from %s.", seller->ob->name);
 		return;
 	}
 
@@ -534,7 +534,7 @@ void player_shop_buy(char *data, player *pl)
 	/* Too far away? */
 	if (!shop_player_in_range(pl->ob, seller->ob))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You are too far away from %s.", seller->ob->name);
+		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are too far away from %s.", seller->ob->name);
 		player_shop_close_interface(pl);
 
 		return;
@@ -564,7 +564,7 @@ void player_shop_buy(char *data, player *pl)
 
 			if (!pay_for_amount(to_pay, pl->ob))
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You don't have enough money to buy %s.", shop_item_tmp->item_object->name);
+				new_draw_info_format(NDI_UNIQUE, pl->ob, "You don't have enough money to buy %s.", shop_item_tmp->item_object->name);
 				return;
 			}
 

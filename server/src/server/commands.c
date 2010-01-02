@@ -424,7 +424,7 @@ int execute_newserver_command(object *pl, char *command)
 
 	if (csp == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, pl, "'%s' is not a valid command.", command);
+		new_draw_info_format(NDI_UNIQUE, pl, "'%s' is not a valid command.", command);
 
 		return 0;
 	}

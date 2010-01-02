@@ -215,12 +215,12 @@ void displayPluginsList(object *op)
 	DIR *plugdir;
 	int i;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "List of loaded plugins:");
-	new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
+	new_draw_info(NDI_UNIQUE, op, "List of loaded plugins:");
+	new_draw_info(NDI_UNIQUE, op, "-----------------------");
 
 	for (i = 0; i < PlugNR; i++)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%s, %s", PlugList[i].id, PlugList[i].fullname);
+		new_draw_info_format(NDI_UNIQUE, op, "%s, %s", PlugList[i].id, PlugList[i].fullname);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
@@ -231,15 +231,15 @@ void displayPluginsList(object *op)
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "\nList of loadable plugins:");
-	new_draw_info(NDI_UNIQUE, 0, op, "-----------------------");
+	new_draw_info(NDI_UNIQUE, op, "\nList of loadable plugins:");
+	new_draw_info(NDI_UNIQUE, op, "-----------------------");
 
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
 	{
 		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, currentfile->d_name);
+			new_draw_info(NDI_UNIQUE, op, currentfile->d_name);
 		}
 	}
 

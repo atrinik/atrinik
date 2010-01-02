@@ -308,7 +308,7 @@ void arch_info(object *op)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "%d searches and %d strcmp()'s", arch_search, arch_cmp);
-	new_draw_info(NDI_WHITE, 0, op, buf);
+	new_draw_info(NDI_WHITE, op, buf);
 }
 
 /**

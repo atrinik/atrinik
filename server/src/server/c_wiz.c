@@ -56,19 +56,19 @@ static player *get_other_player_from_name(object *op, const char *name)
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
 		return NULL;
 	}
 
 	if (pl->ob == op)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't do that to yourself.");
+		new_draw_info(NDI_UNIQUE, op, "You can't do that to yourself.");
 		return NULL;
 	}
 
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "That player is in no state for that right now.");
+		new_draw_info(NDI_UNIQUE, op, "That player is in no state for that right now.");
 		return NULL;
 	}
 
@@ -193,7 +193,7 @@ int command_setgod(object *op, char *params)
 
 	if (!params || !(str = strchr(params, ' ')))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /setgod object god");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /setgod object god");
 		return 0;
 	}
 
@@ -202,7 +202,7 @@ int command_setgod(object *op, char *params)
 
 	if (!(ob = find_object_both(op, params)))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Set whose god - can not find object %s?", params);
+		new_draw_info_format(NDI_UNIQUE, op, "Set whose god - can not find object %s?", params);
 		return 1;
 	}
 
@@ -210,7 +210,7 @@ int command_setgod(object *op, char *params)
 	 * rebless altars and the like? */
 	if (ob->type != PLAYER)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%s is not a player - can not change its god", ob->name);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is not a player - can not change its god", ob->name);
 		return 1;
 	}
 
@@ -218,7 +218,7 @@ int command_setgod(object *op, char *params)
 
 	if (!ob->chosen_skill || ob->chosen_skill->stats.sp != SK_PRAYING)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%s doesn't have praying skill.", ob->name);
+		new_draw_info_format(NDI_UNIQUE, op, "%s doesn't have praying skill.", ob->name);
 		return 1;
 	}
 
@@ -226,7 +226,7 @@ int command_setgod(object *op, char *params)
 
 	if (god == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "No such god %s.", str);
+		new_draw_info_format(NDI_UNIQUE, op, "No such god %s.", str);
 		return 1;
 	}
 
@@ -248,13 +248,13 @@ int command_kick(object *ob, char *params)
 
 	if (ob && params == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, ob, "Use: /kick <name>");
+		new_draw_info_format(NDI_UNIQUE, ob, "Use: /kick <name>");
 		return 1;
 	}
 
 	if (ob && ob->name && !strncasecmp(ob->name, params, MAX_NAME))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, ob, "You can't /kick yourself!");
+		new_draw_info_format(NDI_UNIQUE, ob, "You can't /kick yourself!");
 		return 1;
 	}
 
@@ -270,7 +270,7 @@ int command_kick(object *ob, char *params)
 
 			if (params)
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_ALL, 5, ob, "%s was kicked out of the game.", op->name);
+				new_draw_info_format(NDI_UNIQUE | NDI_ALL, ob, "%s was kicked out of the game.", op->name);
 			}
 
 			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
@@ -320,7 +320,7 @@ int command_goto(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Go to what map?\nUsage: /goto <map> x y");
+		new_draw_info(NDI_UNIQUE, op, "Go to what map?\nUsage: /goto <map> x y");
 		return 1;
 	}
 
@@ -335,7 +335,7 @@ int command_goto(object *op, char *params)
 
 	enter_exit(op, dummy);
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Difficulty: %d.", op->map->difficulty);
+	new_draw_info_format(NDI_UNIQUE, op, "Difficulty: %d.", op->map->difficulty);
 
 	return 1;
 }
@@ -352,7 +352,7 @@ int command_freeze(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /freeze [ticks] <player>");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /freeze [ticks] <player>");
 		return 1;
 	}
 
@@ -367,7 +367,7 @@ int command_freeze(object *op, char *params)
 
 		if (*params == 0)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Usage: /freeze [ticks] <player>");
+			new_draw_info(NDI_UNIQUE, op, "Usage: /freeze [ticks] <player>");
 			return 1;
 		}
 	}
@@ -383,9 +383,9 @@ int command_freeze(object *op, char *params)
 		return 1;
 	}
 
-	new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "You have been frozen by the DM!");
+	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been frozen by the DM!");
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "You freeze %s for %d ticks.", pl->ob->name, ticks);
+	new_draw_info_format(NDI_UNIQUE, op, "You freeze %s for %d ticks.", pl->ob->name, ticks);
 
 	pl->ob->speed_left = -(pl->ob->speed * ticks);
 	return 1;
@@ -409,7 +409,7 @@ int command_summon(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /summon <player>.");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /summon <player>.");
 		return 1;
 	}
 
@@ -424,7 +424,7 @@ int command_summon(object *op, char *params)
 
 	if (i == -1)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can not find a free spot to place summoned player.");
+		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to place summoned player.");
 		return 1;
 	}
 
@@ -434,8 +434,8 @@ int command_summon(object *op, char *params)
 	EXIT_Y(dummy) = op->y + freearr_y[i];
 	enter_exit(pl->ob, dummy);
 	pl->ob->map = op->map;
-	new_draw_info(NDI_UNIQUE, 0, pl->ob, "You are summoned.");
-	new_draw_info(NDI_UNIQUE, 0, op, "OK.");
+	new_draw_info(NDI_UNIQUE, pl->ob, "You are summoned.");
+	new_draw_info(NDI_UNIQUE, op, "OK.");
 	return 1;
 }
 
@@ -457,7 +457,7 @@ int command_teleport(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /teleport <player>.");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /teleport <player>.");
 		return 1;
 	}
 
@@ -472,7 +472,7 @@ int command_teleport(object *op, char *params)
 
 	if (i == -1)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can not find a free spot to teleport to.");
+		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to teleport to.");
 		return 1;
 	}
 
@@ -485,10 +485,10 @@ int command_teleport(object *op, char *params)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info(NDI_UNIQUE, 0, pl->ob, "You see a portal open.");
+		new_draw_info(NDI_UNIQUE, pl->ob, "You see a portal open.");
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "OK.");
+	new_draw_info(NDI_UNIQUE, op, "OK.");
 
 	return 1;
 }
@@ -513,7 +513,7 @@ int command_create(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 		return 1;
 	}
 
@@ -523,7 +523,7 @@ int command_create(object *op, char *params)
 	{
 		if ((bp = strchr(params, ' ')) == NULL)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
@@ -536,7 +536,7 @@ int command_create(object *op, char *params)
 	{
 		if ((bp = strchr(bp, ' ')) == NULL)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Usage: create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			new_draw_info(NDI_UNIQUE, op, "Usage: create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
@@ -564,7 +564,7 @@ int command_create(object *op, char *params)
 	/* First step: browse the archetypes for the name. */
 	if ((at = find_archetype(bp)) == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such archetype or artifact name.");
+		new_draw_info(NDI_UNIQUE, op, "No such archetype or artifact name.");
 		return 1;
 	}
 
@@ -581,7 +581,7 @@ int command_create(object *op, char *params)
 
 		if (find_artifactlist(at->clone.type) == NULL)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "No artifact list for type %d\n", at->clone.type);
+			new_draw_info_format(NDI_UNIQUE, op, "No artifact list for type %d\n", at->clone.type);
 		}
 		else
 		{
@@ -600,7 +600,7 @@ int command_create(object *op, char *params)
 
 			if (!art)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
+				new_draw_info_format(NDI_UNIQUE, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
 			}
 		}
 
@@ -690,18 +690,18 @@ int command_create(object *op, char *params)
 
 			if (bp4 == NULL)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "No parameter value for variable %s", bp2);
+				new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
 				break;
 			}
 
 			/* Now bp3 should be the argument, and bp2 the whole command. */
 			if (set_variable(tmp, bp2) == -1)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "Unknown variable %s", bp2);
+				new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
+				new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
 			}
 
 			if (gotquote)
@@ -810,18 +810,18 @@ int command_create(object *op, char *params)
 
 				if (bp4 == NULL)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "No parameter value for variable %s", bp2);
+					new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
 					break;
 				}
 
 				/* Now bp3 should be the argument, and bp2 the whole command */
 				if (set_variable(tmp, bp2) == -1)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "Unknown variable '%s'", bp2);
+					new_draw_info_format(NDI_UNIQUE, op, "Unknown variable '%s'", bp2);
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
+					new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
 				}
 
 				if (gotquote)
@@ -891,7 +891,7 @@ int command_inventory(object *op, char *params)
 
 	if (!tmp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Inventory of what object?");
+		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
 		return 1;
 	}
 
@@ -916,7 +916,7 @@ int command_dump(object *op, char *params)
 	}
 	else if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Dump what object?");
+		new_draw_info(NDI_UNIQUE, op, "Dump what object?");
 		return 1;
 	}
 
@@ -924,7 +924,7 @@ int command_dump(object *op, char *params)
 	stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 	dump_object(tmp, sb);
 	diff = stringbuffer_finish(sb);
-	new_draw_info(NDI_UNIQUE, 0, op, diff);
+	new_draw_info(NDI_UNIQUE, op, diff);
 	free(diff);
 	return 1;
 }
@@ -958,7 +958,7 @@ int command_patch(object *op, char *params)
 
 	if (tmp == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Patch what object?");
+		new_draw_info(NDI_UNIQUE, op, "Patch what object?");
 		return 1;
 	}
 
@@ -966,7 +966,7 @@ int command_patch(object *op, char *params)
 
 	if (arg == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Patch what values?");
+		new_draw_info(NDI_UNIQUE, op, "Patch what values?");
 		return 1;
 	}
 
@@ -977,11 +977,11 @@ int command_patch(object *op, char *params)
 
 	if (set_variable(tmp, arg) == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Unknown variable %s", arg);
+		new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", arg);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, arg, arg2);
+		new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, arg, arg2);
 	}
 
 	return 1;
@@ -998,19 +998,19 @@ int command_remove(object *op, char *params)
 
 	if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Remove what object?");
+		new_draw_info(NDI_UNIQUE, op, "Remove what object?");
 		return 1;
 	}
 
 	if (tmp->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Cannot remove a player!");
+		new_draw_info(NDI_UNIQUE, op, "Cannot remove a player!");
 		return 1;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_REMOVED))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "%s is already removed!", query_name(tmp, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "%s is already removed!", query_name(tmp, NULL));
 		return 1;
 	}
 
@@ -1047,11 +1047,11 @@ int command_addexp(object *op, char *params)
 	{
 		int i;
 
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /addexp <who> <skill nr> <exp>\nSkills/Nr: ");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /addexp <who> <skill nr> <exp>\nSkills/Nr: ");
 
 		for (i = 0; i < NROFSKILLS; i++)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "%d: %s", i, skills[i].name);
+			new_draw_info_format(NDI_UNIQUE, op, "%d: %s", i, skills[i].name);
 		}
 
 		return 1;
@@ -1067,14 +1067,14 @@ int command_addexp(object *op, char *params)
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
 		return 1;
 	}
 
 	/* Safety check */
 	if (snr < 0 || snr >= NROFSKILLS)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such skill.");
+		new_draw_info(NDI_UNIQUE, op, "No such skill.");
 		return 1;
 	}
 
@@ -1083,7 +1083,7 @@ int command_addexp(object *op, char *params)
 	/* Our player doesn't have this skill? */
 	if (!exp_skill)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr]);
+		new_draw_info_format(NDI_UNIQUE, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr]);
 		return 0;
 	}
 
@@ -1126,13 +1126,13 @@ int command_speed(object *op, char *params)
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Current speed is %ld.", max_time);
+		new_draw_info_format(NDI_UNIQUE, op, "Current speed is %ld.", max_time);
 		return 1;
 	}
 
 	set_max_time(i);
 	reset_sleep();
-	new_draw_info(NDI_UNIQUE, 0, op, "The speed has changed.");
+	new_draw_info(NDI_UNIQUE, op, "The speed has changed.");
 	return 1;
 }
 
@@ -1147,7 +1147,7 @@ int command_stats(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Who?");
+		new_draw_info(NDI_UNIQUE, op, "Who?");
 		return 1;
 	}
 
@@ -1155,20 +1155,20 @@ int command_stats(object *op, char *params)
 	{
 		if (!strcmp(pl->ob->name, params))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Wis : %-2d      EXP    : %d", pl->ob->stats.Wis, pl->ob->stats.exp);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
+			new_draw_info_format(NDI_UNIQUE, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
+			new_draw_info_format(NDI_UNIQUE, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
+			new_draw_info_format(NDI_UNIQUE, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
+			new_draw_info_format(NDI_UNIQUE, op, "Wis : %-2d      EXP    : %d", pl->ob->stats.Wis, pl->ob->stats.exp);
+			new_draw_info_format(NDI_UNIQUE, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
+			new_draw_info_format(NDI_UNIQUE, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
+			new_draw_info_format(NDI_UNIQUE, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
 			return 1;
 		}
 	}
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
 	}
 
 	return 1;
@@ -1201,13 +1201,13 @@ int command_reset(object *op, char *params)
 
 	if (m == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such map.");
+		new_draw_info(NDI_UNIQUE, op, "No such map.");
 		return 1;
 	}
 
 	if (MAP_UNIQUE(m) && MAP_NOSAVE(m))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Cannot reset unique no-save map.");
+		new_draw_info(NDI_UNIQUE, op, "Cannot reset unique no-save map.");
 		return 1;
 	}
 
@@ -1223,7 +1223,7 @@ int command_reset(object *op, char *params)
 			return 0;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Start resetting map %s.", m->path ? m->path : ">NULL<");
+		new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path ? m->path : ">NULL<");
 
 		/* Now remove all players from this map - flag them so we can put
 		 * them back later. */
@@ -1244,7 +1244,7 @@ int command_reset(object *op, char *params)
 			}
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Removed %d players from map. Swap map.", count);
+		new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Swap map.", count);
 		swap_map(m, 1);
 	}
 
@@ -1261,7 +1261,7 @@ int command_reset(object *op, char *params)
 		m->tmpname = NULL;
 		/* Setting this effectively causes an immediate reload */
 		m->reset_time = 1;
-		new_draw_info(NDI_UNIQUE, 0, op, "Swap successful. Inserting players.");
+		new_draw_info(NDI_UNIQUE, op, "Swap successful. Inserting players.");
 
 		for (pl = first_player; pl != NULL; pl = pl->next)
 		{
@@ -1275,18 +1275,18 @@ int command_reset(object *op, char *params)
 				{
 					if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "Map reset by %s.", op->name);
+						new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
 					}
 					/* Write a nice little confusing message to the players */
 					else
 					{
-						new_draw_info(NDI_UNIQUE, 0, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
+						new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
 					}
 				}
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op, "Resetmap done.");
+		new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
 	}
 	else
 	{
@@ -1299,7 +1299,7 @@ int command_reset(object *op, char *params)
 			}
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op, "Reset failed, couldn't swap map!");
+		new_draw_info(NDI_UNIQUE, op, "Reset failed, couldn't swap map!");
 	}
 
 	return 1;
@@ -1344,7 +1344,7 @@ int command_nowiz(object *op, char *params)
 	CONTR(op)->socket.update_tile = 0;
 	esrv_send_inventory(op, op);
 	CONTR(op)->update_los = 1;
-	new_draw_info(NDI_UNIQUE, 0, op, "DM mode deactivated.");
+	new_draw_info(NDI_UNIQUE, op, "DM mode deactivated.");
 
 	return 1;
 }
@@ -1425,7 +1425,7 @@ int command_dm(object *op, char *params)
 		SET_FLAG(op, FLAG_WAS_WIZ);
 		SET_FLAG(op, FLAG_WIZPASS);
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "DM mode activated for %s!", op->name);
+		new_draw_info_format(NDI_UNIQUE, op, "DM mode activated for %s!", op->name);
 		SET_MULTI_FLAG(op, FLAG_FLYING);
 
 		esrv_send_inventory(op, op);
@@ -1468,13 +1468,13 @@ static int command_learn_spell_or_prayer(object *op, char *params, int special_p
 
 	if ((spell = look_up_spell_name(params)) < 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Unknown spell.");
+		new_draw_info(NDI_UNIQUE, op, "Unknown spell.");
 		return 1;
 	}
 
 	if (check_spell_known(op, spell))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You already know the spell %s.", params);
+		new_draw_info_format(NDI_UNIQUE, op, "You already know the spell %s.", params);
 		return 0;
 	}
 
@@ -1518,7 +1518,7 @@ int command_forget_spell(object *op, char *params)
 
 	if ((spell = look_up_spell_name(params)) < 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Unknown spell.");
+		new_draw_info(NDI_UNIQUE, op, "Unknown spell.");
 		return 1;
 	}
 
@@ -1552,7 +1552,7 @@ int command_loadplugin(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Load what plugin?");
+		new_draw_info(NDI_UNIQUE, op, "Load what plugin?");
 		return 1;
 	}
 
@@ -1573,7 +1573,7 @@ int command_unloadplugin(object *op, char *params)
 {
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Unload what plugin?");
+		new_draw_info(NDI_UNIQUE, op, "Unload what plugin?");
 		return 1;
 	}
 
@@ -1615,20 +1615,20 @@ void shutdown_agent(int timer, char *reason)
 
 		sd_timer = timer;
 
-		new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: ** SERVER SHUTDOWN STARTED **");
+		new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: ** SERVER SHUTDOWN STARTED **");
 
 		if (reason)
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: %s", reason);
+			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: %s", reason);
 		}
 
 		if (t_sec)
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
+			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
 		}
 		else
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
+			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
 		}
 
 		GETTIMEOFDAY(&tv1);
@@ -1645,11 +1645,11 @@ void shutdown_agent(int timer, char *reason)
 		/* End countdown */
 		if ((int) (tv2.tv_sec - tv1.tv_sec) >= sd_timer)
 		{
-			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: ** SERVER GOES DOWN NOW!!! **");
+			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: ** SERVER GOES DOWN NOW!!! **");
 
 			if (reason)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: %s", reason);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: %s", reason);
 			}
 
 			sd_timer = -1;
@@ -1665,11 +1665,11 @@ void shutdown_agent(int timer, char *reason)
 
 			if (t_sec)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, 5, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
 			}
 		}
 	}
@@ -1688,7 +1688,7 @@ int command_motd_set(object *op, char *params)
 	/* No params, show usage. */
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage:\nRevert to original MotD: /motd_set original\nAppend to custom MotD: /motd_set message");
+		new_draw_info(NDI_UNIQUE, op, "Usage:\nRevert to original MotD: /motd_set original\nAppend to custom MotD: /motd_set message");
 		return 0;
 	}
 
@@ -1701,19 +1701,19 @@ int command_motd_set(object *op, char *params)
 
 		if (!(fp = fopen(filename, "a")))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Could not open file for appending data.");
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Could not open file for appending data.");
 			return 0;
 		}
 
 		fprintf(fp, "%s\n", params);
 		fclose(fp);
 
-		new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Appended to custom Message of the Day.");
+		new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Appended to custom Message of the Day.");
 	}
 	else
 	{
 		unlink(filename);
-		new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Reverted original Message of the Day.");
+		new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Reverted original Message of the Day.");
 	}
 
 	return 1;
@@ -1736,11 +1736,11 @@ int command_ban(object *op, char *params)
 	{
 		if (add_ban(params + 4))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Added new ban successfully.");
+			new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Added new ban successfully.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Failed to add new ban!");
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Failed to add new ban!");
 		}
 	}
 	/* Remove ban */
@@ -1748,11 +1748,11 @@ int command_ban(object *op, char *params)
 	{
 		if (remove_ban(params + 7))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREEN, 0, op, "Removed ban successfully.");
+			new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Removed ban successfully.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Failed to remove ban!");
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Failed to remove ban!");
 		}
 	}
 	/* List bans */
@@ -1775,12 +1775,12 @@ int command_debug(object *op, char *params)
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Debug level is %d.", settings.debug);
+		new_draw_info_format(NDI_UNIQUE, op, "Debug level is %d.", settings.debug);
 		return 1;
 	}
 
 	settings.debug = (enum LogLevel) FABS(i);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Set debug level to %d.", i);
+	new_draw_info_format(NDI_UNIQUE, op, "Set debug level to %d.", i);
 	return 1;
 }
 
@@ -1797,8 +1797,8 @@ int command_dumpbelowfull(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+	new_draw_info(NDI_UNIQUE, op, "OBJECTS ON THIS TILE");
+	new_draw_info(NDI_UNIQUE, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
@@ -1812,16 +1812,16 @@ int command_dumpbelowfull(object *op, char *params)
 		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
-		new_draw_info(NDI_UNIQUE, 0, op, diff);
+		new_draw_info(NDI_UNIQUE, op, diff);
 		free(diff);
 
 		if (tmp->above && tmp->above != op)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, ">next object<");
+			new_draw_info(NDI_UNIQUE, op, ">next object<");
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
+	new_draw_info(NDI_UNIQUE, op, "------------------");
 
 	return 1;
 }
@@ -1838,8 +1838,8 @@ int command_dumpbelow(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, 0, op, "-------------------");
+	new_draw_info(NDI_UNIQUE, op, "OBJECTS ON THIS TILE");
+	new_draw_info(NDI_UNIQUE, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
 	{
@@ -1849,10 +1849,10 @@ int command_dumpbelow(object *op, char *params)
 			continue;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
+		new_draw_info_format(NDI_UNIQUE, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "------------------");
+	new_draw_info(NDI_UNIQUE, op, "------------------");
 
 	return 1;
 }
@@ -1882,12 +1882,12 @@ int command_wizpass(object *op, char *params)
 
 	if (i)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now walk through walls.");
+		new_draw_info(NDI_UNIQUE, op, "You will now walk through walls.");
 		SET_FLAG(op, FLAG_WIZPASS);
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You will now be stopped by walls.");
+		new_draw_info(NDI_UNIQUE, op, "You will now be stopped by walls.");
 		CLEAR_FLAG(op, FLAG_WIZPASS);
 	}
 
@@ -1945,7 +1945,7 @@ int command_dm_stealth(object *op, char *params)
 		CONTR(op)->dm_stealth = 1;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
+	new_draw_info_format(NDI_UNIQUE, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
 	return 1;
 }
 
@@ -1972,7 +1972,7 @@ int command_dm_light(object *op, char *params)
 		CONTR(op)->dm_light = 1;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
+	new_draw_info_format(NDI_UNIQUE, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
 	return 1;
 }
 
@@ -1990,7 +1990,7 @@ int command_dm_password(object *op, char *params)
 
 	if (!params || sscanf(params, "%s %s", name, password) != 2)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "Usage: /dm_password <player name> <new password>");
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /dm_password <player name> <new password>");
 		return 0;
 	}
 
@@ -1999,7 +1999,7 @@ int command_dm_password(object *op, char *params)
 
 	if (!player_exists(name))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Player %s doesn't exist.", name);
+		new_draw_info_format(NDI_UNIQUE, op, "Player %s doesn't exist.", name);
 	}
 
 	strncpy(outfile, filename, sizeof(outfile));
@@ -2007,13 +2007,13 @@ int command_dm_password(object *op, char *params)
 
 	if (!(fp = fopen(filename, "r")))
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, op, "Error opening file %s.", filename);
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Error opening file %s.", filename);
 		return 0;
 	}
 
 	if (!(fpout = fopen(outfile, "w")))
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, op, "Error opening file %s.", outfile);
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Error opening file %s.", outfile);
 		return 0;
 	}
 
@@ -2048,7 +2048,7 @@ int command_dm_password(object *op, char *params)
 	unlink(filename);
 	rename(outfile, filename);
 
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Done. Changed password of %s to %s!", name, password);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Done. Changed password of %s to %s!", name, password);
 	return 0;
 }
 
@@ -2070,7 +2070,7 @@ int command_dumpactivelist(object *op, char *params)
 		LOG(llevSystem, "%08d %03d %f %s (%s)\n", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Active objects: %d (dumped to log)", count);
+	new_draw_info_format(NDI_UNIQUE, op, "Active objects: %d (dumped to log)", count);
 	LOG(llevSystem, "Active objects: %d\n", count);
 
 	return 1;
@@ -2088,7 +2088,7 @@ int command_shutdown(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
@@ -2106,13 +2106,13 @@ int command_shutdown(object *op, char *params)
 
 	if (i < -1)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Usage: /shutdown <seconds> [reason]");
+		new_draw_info(NDI_UNIQUE, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
 	LOG(llevSystem, "Shutdown agent started!\n");
 	shutdown_agent(i, bp);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Shutdown agent started! Timer set to %d seconds.", i);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Shutdown agent started! Timer set to %d seconds.", i);
 
 	return 1;
 }
@@ -2133,7 +2133,7 @@ int command_setmaplight(object *op, char *params)
 
 	set_map_darkness(op->map, i);
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
+	new_draw_info_format(NDI_UNIQUE, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
 
 	return 1;
 }
@@ -2188,7 +2188,7 @@ int command_malloc(object *op, char *params)
 
 		if (strcmp(params, "free") && strcmp(params, "force"))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Usage: /malloc [free | force]");
+			new_draw_info(NDI_UNIQUE, op, "Usage: /malloc [free | force]");
 			return 1;
 		}
 
@@ -2242,11 +2242,11 @@ int command_strings(object *op, char *params)
 	LOG(llevSystem, "HASH TABLE DUMP\n");
 
 	ss_dump_statistics(buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_UNIQUE, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
 	ss_dump_table(SS_DUMP_TOTALS, buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_UNIQUE, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
 	return 1;
@@ -2274,7 +2274,7 @@ int command_follow(object *op, char *params)
 	{
 		if (CONTR(op)->followed_player[0])
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You stop following %s.", CONTR(op)->followed_player);
+			new_draw_info_format(NDI_UNIQUE, op, "You stop following %s.", CONTR(op)->followed_player);
 			CONTR(op)->followed_player[0] = '\0';
 		}
 
@@ -2291,7 +2291,7 @@ int command_follow(object *op, char *params)
 	CONTR(op)->followed_player[0] = '\0';
 	strncpy(CONTR(op)->followed_player, params, sizeof(CONTR(op)->followed_player));
 
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Following %s.", params);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Following %s.", params);
 	return 0;
 }
 
@@ -2306,7 +2306,7 @@ int command_insert_into(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "What object to insert something into?");
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "What object to insert something into?");
 		return 0;
 	}
 
@@ -2314,7 +2314,7 @@ int command_insert_into(object *op, char *params)
 
 	if (!marked)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "You need to mark the object to insert.");
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "You need to mark the object to insert.");
 		return 0;
 	}
 
@@ -2322,13 +2322,13 @@ int command_insert_into(object *op, char *params)
 
 	if (!ob)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, 0, op, "No such object.");
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such object.");
 	}
 
 	remove_ob(marked);
 	insert_ob_in_ob(marked, ob);
 	esrv_send_item(op, marked);
 	fix_player(op);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
 	return 0;
 }

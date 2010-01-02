@@ -47,13 +47,13 @@ void apply_player_light_refill(object *who, object *op)
 
 	if (!item)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, who, "Mark a light source first you want refill.");
+		new_draw_info_format(NDI_UNIQUE, who, "Mark a light source first you want refill.");
 		return;
 	}
 
 	if (item->type != TYPE_LIGHT_APPLY || !item->race || strstr(item->race, op->race))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, who, "You can't refill the %s with the %s.", query_name(item, NULL), query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You can't refill the %s with the %s.", query_name(item, NULL), query_name(op, NULL));
 		return;
 	}
 
@@ -65,21 +65,21 @@ void apply_player_light_refill(object *who, object *op)
 
 	if (!tmp)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, who, "The %s is full and can't be refilled.", query_name(item, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "The %s is full and can't be refilled.", query_name(item, NULL));
 		return;
 	}
 
 	if (op->stats.food <= tmp)
 	{
 		item->stats.food += op->stats.food;
-		new_draw_info_format(NDI_UNIQUE, 0, who, "You refill the %s with %d units %s.", query_name(item, NULL), op->stats.food, query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units %s.", query_name(item, NULL), op->stats.food, query_name(op, NULL));
 		decrease_ob(op);
 	}
 	else
 	{
 		item->stats.food += tmp;
 		op->stats.food -= tmp;
-		new_draw_info_format(NDI_UNIQUE, 0, who, "You refill the %s with %d units %s.", query_name(item, NULL), tmp, query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You refill the %s with %d units %s.", query_name(item, NULL), tmp, query_name(op, NULL));
 		esrv_send_item(who, op);
 	}
 
@@ -99,7 +99,7 @@ void apply_player_light(object *who, object *op)
 	{
 		if ((QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "No matter how hard you try, you just can't remove it!");
+			new_draw_info_format(NDI_UNIQUE, who, "No matter how hard you try, you just can't remove it!");
 			return;
 		}
 
@@ -113,7 +113,7 @@ void apply_player_light(object *who, object *op)
 			SET_FLAG(op, FLAG_DAMNED);
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, who, "You unlight the %s.", query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(op, NULL));
 
 		if (!op->env && op->glow_radius)
 		{
@@ -150,7 +150,7 @@ void apply_player_light(object *who, object *op)
 		 * and we don't want a player applying an illegal item. */
 		if (!op->last_sp)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "The %s can't be lit.", query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, who, "The %s can't be lit.", query_name(op, NULL));
 			return;
 		}
 
@@ -172,7 +172,7 @@ void apply_player_light(object *who, object *op)
 					/* no food charges, we can't light it up.
 					 * Note that light sources with other_arch set are
 					 * non rechargable lights - like torches. */
-					new_draw_info_format(NDI_UNIQUE, 0, who, "You must first refill or recharge the %s.", query_name(op, NULL));
+					new_draw_info_format(NDI_UNIQUE, who, "You must first refill or recharge the %s.", query_name(op, NULL));
 					return;
 				}
 			}
@@ -210,7 +210,7 @@ void apply_player_light(object *who, object *op)
 			 * in hand. */
 			if (op_old->env && op_old->env->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You prepare %s to light.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You prepare %s to light.", query_name(op, NULL));
 
 				/* we have a non permanent source */
 				if (op->last_eat)
@@ -237,7 +237,7 @@ void apply_player_light(object *who, object *op)
 			/* we are not in a player inventory - so simple turn it on */
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You prepare %s to light.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You prepare %s to light.", query_name(op, NULL));
 
 				/* we have a non permanent source */
 				if (op->last_eat)
@@ -296,7 +296,7 @@ void apply_player_light(object *who, object *op)
 					{
 						if ((QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)))
 						{
-							new_draw_info(NDI_UNIQUE, 0, who, "No matter how hard you try, you just can't remove it!");
+							new_draw_info(NDI_UNIQUE, who, "No matter how hard you try, you just can't remove it!");
 							return;
 						}
 
@@ -310,7 +310,7 @@ void apply_player_light(object *who, object *op)
 							SET_FLAG(tmp, FLAG_DAMNED);
 						}
 
-						new_draw_info_format(NDI_UNIQUE, 0, who, "You unlight the %s.", query_name(tmp, NULL));
+						new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(tmp, NULL));
 
 						/* on map */
 						if (!tmp->env && tmp->glow_radius)
@@ -338,7 +338,7 @@ void apply_player_light(object *who, object *op)
 					}
 				}
 
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You apply %s as light.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You apply %s as light.", query_name(op, NULL));
 				SET_FLAG(op, FLAG_APPLIED);
 				fix_player(who);
 				update_object(who, UP_OBJ_FACE);
@@ -356,7 +356,7 @@ void apply_player_light(object *who, object *op)
 					SET_FLAG(op, FLAG_DAMNED);
 				}
 
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You unlight the %s.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You unlight the %s.", query_name(op, NULL));
 
 				/* on map */
 				if (!op->env && op->glow_radius)
@@ -433,7 +433,7 @@ void apply_lighter(object *who, object *lighter)
 		/* no charges left in lighter */
 		else if (lighter->last_eat)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "You attempt to light the %s with a used up %s.", item->name, lighter->name);
+			new_draw_info_format(NDI_UNIQUE, who, "You attempt to light the %s with a used up %s.", item->name, lighter->name);
 			return;
 		}
 
@@ -459,7 +459,7 @@ void apply_lighter(object *who, object *lighter)
 		 * may have gotten recycled */
 		if ((nrof != item->nrof ) || (count != item->count))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "You light the %s with the %s.", item_name, lighter->name);
+			new_draw_info_format(NDI_UNIQUE, who, "You light the %s with the %s.", item_name, lighter->name);
 
 			if (is_player_env)
 			{
@@ -468,12 +468,12 @@ void apply_lighter(object *who, object *lighter)
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "You attempt to light the %s with the %s and fail.", item->name, lighter->name);
+			new_draw_info_format(NDI_UNIQUE, who, "You attempt to light the %s with the %s and fail.", item->name, lighter->name);
 		}
 	}
 	/* nothing to light */
 	else
 	{
-		new_draw_info(NDI_UNIQUE, 0, who, "You need to mark a lightable object.");
+		new_draw_info(NDI_UNIQUE, who, "You need to mark a lightable object.");
 	}
 }

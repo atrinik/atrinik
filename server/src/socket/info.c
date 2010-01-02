@@ -47,7 +47,7 @@
  * @param buf The message to draw.
  * @see NDI_xxx
  * @todo Remove priority. */
-void new_draw_info(int flags, int pri, object *pl, const char *buf)
+void new_draw_info(int flags, object *pl, const char *buf)
 {
 	char info_string[HUGE_BUF];
 	SockList sl;
@@ -56,7 +56,7 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	if (!buf)
 	{
 		buf = "[NULL]";
-		LOG(llevBug, "BUG: new_draw_info: NULL string send! %s (%x - %d)\n", query_name(pl, NULL), flags, pri);
+		LOG(llevBug, "BUG: new_draw_info: NULL string send! %s (%x)\n", query_name(pl, NULL), flags);
 	}
 
 	/* Here we handle global messages. */
@@ -66,7 +66,7 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 
 		for (tmppl = first_player; tmppl != NULL; tmppl = tmppl->next)
 		{
-			new_draw_info((flags & ~NDI_ALL), pri, tmppl->ob, buf);
+			new_draw_info((flags & ~NDI_ALL), tmppl->ob, buf);
 		}
 
 		return;
@@ -75,13 +75,13 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 	/* Handle some security stuff... a bit overhead for max secure */
 	if (!pl || pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: new_draw_info: called for object != PLAYER! %s (%x - %d) msg: %s\n", query_name(pl, NULL), flags, pri, buf);
+		LOG(llevBug, "BUG: new_draw_info: called for object != PLAYER! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 
 	if (CONTR(pl) == NULL)
 	{
-		LOG(llevBug, "BUG: new_draw_info: called for player with contr == NULL! %s (%x - %d) msg: %s\n", query_name(pl, NULL), flags, pri, buf);
+		LOG(llevBug, "BUG: new_draw_info: called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 
@@ -101,7 +101,7 @@ void new_draw_info(int flags, int pri, object *pl, const char *buf)
 /**
  * Similar to new_draw_info() but allows to use printf style
  * formatting. */
-void new_draw_info_format(int flags, int pri, object *pl, char *format, ...)
+void new_draw_info_format(int flags, object *pl, char *format, ...)
 {
 	char buf[HUGE_BUF];
 
@@ -110,7 +110,7 @@ void new_draw_info_format(int flags, int pri, object *pl, char *format, ...)
 	vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	new_draw_info(flags, pri, pl, buf);
+	new_draw_info(flags, pl, buf);
 }
 
 /**
@@ -129,7 +129,7 @@ static void new_info_map_all_except(int color, mapstruct *map, object *op1, obje
 		{
 			if (tmp != op && tmp != op1)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -173,7 +173,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -186,7 +186,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -199,7 +199,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -212,7 +212,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -225,7 +225,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -239,7 +239,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -253,7 +253,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -267,7 +267,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -281,7 +281,7 @@ void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char 
 		{
 			if ((POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -327,7 +327,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -340,7 +340,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -353,7 +353,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -366,7 +366,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - x) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -379,7 +379,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - y)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -393,7 +393,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -407,7 +407,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -421,7 +421,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}
@@ -435,7 +435,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
 		{
 			if (tmp != op && tmp != op1 && (POW2(tmp->x - xt) + POW2(tmp->y - yt)) <= d)
 			{
-				new_draw_info(color, 0, tmp, str);
+				new_draw_info(color, tmp, str);
 			}
 		}
 	}

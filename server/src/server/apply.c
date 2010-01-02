@@ -258,7 +258,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 				if (ab->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, 0, ab, "You fall into a trapdoor!");
+					new_draw_info(NDI_UNIQUE, ab, "You fall into a trapdoor!");
 				}
 
 				transfer_ob(ab, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, ab, trap);
@@ -279,7 +279,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 
 			if (victim->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, 0, victim, "You fall through the hole!\n");
+				new_draw_info(NDI_UNIQUE, victim, "You fall through the hole!\n");
 			}
 
 			transfer_ob(victim->head ? victim->head : victim, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, victim, trap);
@@ -298,7 +298,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 				/* Basically, don't show exits leading to random maps the players output. */
 				if (trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
 				{
-					new_draw_info(NDI_NAVY, 0, victim, trap->msg);
+					new_draw_info(NDI_NAVY, victim, trap->msg);
 				}
 
 				enter_exit(victim, trap);
@@ -423,7 +423,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	/* Upgrade special prayers to normal prayers */
 	if (check_spell_known(op, spell))
 	{
-		new_draw_info_format (NDI_UNIQUE, 0, op, "You already know the spell '%s'!", spells[spell].name);
+		new_draw_info_format(NDI_UNIQUE, op, "You already know the spell '%s'!", spells[spell].name);
 
 		if (special_prayer || !tmp)
 		{
@@ -458,7 +458,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	}
 
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_ADD);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "You have learned the spell %s!", spells[spell].name);
+	new_draw_info_format(NDI_UNIQUE, op, "You have learned the spell %s!", spells[spell].name);
 }
 
 /**
@@ -483,7 +483,7 @@ void do_forget_spell(object *op, int spell)
 	}
 
 	play_sound_player_only(CONTR(op), SOUND_LOSE_SOME,SOUND_NORMAL,0,0);
-	new_draw_info_format (NDI_UNIQUE, 0, op, "You lose knowledge of %s.", spells[spell].name);
+	new_draw_info_format(NDI_UNIQUE, op, "You lose knowledge of %s.", spells[spell].name);
 
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_REMOVE);
 	tmp = find_special_prayer_mark(op, spell);
@@ -654,7 +654,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You should pay for it first.");
+			new_draw_info(NDI_UNIQUE, op, "You should pay for it first.");
 			return 1;
 		}
 		/* Monsters just skip unpaid items */
@@ -666,7 +666,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 	if (tmp->type == CONTAINER && tmp->sub_type1 == 1 && tmp->env == op)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "This is a special apartment extension - place it in your apartment!");
+		new_draw_info(NDI_UNIQUE, op, "This is a special apartment extension - place it in your apartment!");
 		return 1;
 	}
 
@@ -698,7 +698,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 		if (tmp->item_level > tmp_lev)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "The item level is too high to apply.");
+			new_draw_info(NDI_UNIQUE, op, "The item level is too high to apply.");
 			return 1;
 		}
 	}
@@ -706,7 +706,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 	switch (tmp->type)
 	{
 		case HOLY_ALTAR:
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You touch the %s.", tmp->name);
+			new_draw_info_format(NDI_UNIQUE, op, "You touch the %s.", tmp->name);
 
 			if (change_skill(op, SK_PRAYING))
 			{
@@ -714,14 +714,14 @@ int manual_apply(object *op, object *tmp, int aflag)
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "Nothing happens. It seems you miss the right skill.");
+				new_draw_info(NDI_UNIQUE, op, "Nothing happens. It seems you miss the right skill.");
 			}
 
 			return 1;
 			break;
 
 		case CF_HANDLE:
-			new_draw_info(NDI_UNIQUE, 0, op, "You turn the handle.");
+			new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
 			play_sound_map(op->map, op->x, op->y, SOUND_TURN_HANDLE, SOUND_NORMAL);
 			tmp->value = tmp->value ? 0 : 1;
 			SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
@@ -733,12 +733,12 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case TRIGGER:
 			if (check_trigger(tmp, op))
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You turn the handle.");
+				new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
 				play_sound_map(tmp->map, tmp->x, tmp->y, SOUND_TURN_HANDLE, SOUND_NORMAL);
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "The handle doesn't move.");
+				new_draw_info(NDI_UNIQUE, op, "The handle doesn't move.");
 			}
 
 			return 1;
@@ -757,14 +757,14 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 			if (!EXIT_PATH(tmp) || !is_legal_2ways_exit(op, tmp) || (EXIT_Y(tmp) == -1 && EXIT_X(tmp) == -1))
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is closed.", query_name(tmp, NULL));
+				new_draw_info_format(NDI_UNIQUE, op, "The %s is closed.", query_name(tmp, NULL));
 			}
 			else
 			{
 				/* Don't display messages for random maps. */
 				if (tmp->msg && strncmp(EXIT_PATH(tmp), "/!", 2) && strncmp(EXIT_PATH(tmp), "/random/", 8))
 				{
-					new_draw_info(NDI_NAVY, 0, op, tmp->msg);
+					new_draw_info(NDI_NAVY, op, tmp->msg);
 				}
 
 				enter_exit(op, tmp);
@@ -906,7 +906,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 				get_tod(&tod);
 				snprintf(buf, sizeof(buf), "It is %d minute%s past %d o'clock %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
 
-				new_draw_info(NDI_UNIQUE, 0, op, buf);
+				new_draw_info(NDI_UNIQUE, op, buf);
 				return 1;
 			}
 
@@ -930,7 +930,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		default:
 			if (tmp->msg)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, tmp->msg);
+				new_draw_info(NDI_UNIQUE, op, tmp->msg);
 				return 1;
 			}
 
@@ -960,7 +960,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 		/* Player is flying and applying object not in inventory */
 		if (!QUERY_FLAG(pl, FLAG_WIZ) && !QUERY_FLAG(op, FLAG_FLYING) && !QUERY_FLAG(op, FLAG_FLY_ON))
 		{
-			new_draw_info(NDI_UNIQUE, 0, pl, "But you are floating high above the ground!");
+			new_draw_info(NDI_UNIQUE, pl, "But you are floating high above the ground!");
 			return 0;
 		}
 	}
@@ -968,8 +968,8 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 	if (op->type != PLAYER && QUERY_FLAG(op, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
 		play_sound_map(pl->map, pl->x, pl->y, SOUND_OB_EVAPORATE, SOUND_NORMAL);
-		new_draw_info(NDI_UNIQUE, 0, pl, "The object disappears in a puff of smoke!");
-		new_draw_info(NDI_UNIQUE, 0, pl, "It must have been an illusion.");
+		new_draw_info(NDI_UNIQUE, pl, "The object disappears in a puff of smoke!");
+		new_draw_info(NDI_UNIQUE, pl, "It must have been an illusion.");
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return 1;
@@ -981,11 +981,11 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 	{
 		if (tmp == 0)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl, "I don't know how to apply the %s.", query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
 		}
 		else if (tmp == 2)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl, "You must get it first!\n");
+			new_draw_info_format(NDI_UNIQUE, pl, "You must get it first!\n");
 		}
 	}
 
@@ -1091,7 +1091,7 @@ int apply_special(object *who, object *op, int aflags)
 
 		if (!(aflags & AP_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, who, "No matter how hard you try, you just can't remove it!");
+			new_draw_info_format(NDI_UNIQUE, who, "No matter how hard you try, you just can't remove it!");
 			return 1;
 		}
 
@@ -1131,8 +1131,8 @@ int apply_special(object *who, object *op, int aflags)
 					{
 						/* It's a tool, need to unlink it */
 						unlink_skill(op);
-						new_draw_info_format(NDI_UNIQUE, 0, who, "You stop using the %s.", query_name(op, NULL));
-						new_draw_info_format(NDI_UNIQUE, 0, who, "You can no longer use the skill: %s.", skills[op->stats.sp].name);
+						new_draw_info_format(NDI_UNIQUE, who, "You stop using the %s.", query_name(op, NULL));
+						new_draw_info_format(NDI_UNIQUE, who, "You can no longer use the skill: %s.", skills[op->stats.sp].name);
 					}
 				}
 
@@ -1192,7 +1192,7 @@ int apply_special(object *who, object *op, int aflags)
 
 		if (buf[0] != '\0' && who->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, who, buf);
+			new_draw_info(NDI_UNIQUE, who, buf);
 		}
 
 		fix_player(who);
@@ -1263,7 +1263,7 @@ int apply_special(object *who, object *op, int aflags)
 		{
 			if (!QUERY_FLAG(who, FLAG_USE_WEAPON))
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You can't use %s.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You can't use %s.", query_name(op, NULL));
 
 				if (tmp != NULL)
 				{
@@ -1275,7 +1275,7 @@ int apply_special(object *who, object *op, int aflags)
 
 			if (!check_weapon_power(who, op->last_eat))
 			{
-				new_draw_info(NDI_UNIQUE, 0, who, "That weapon is too powerful for you to use.\nIt would consume your soul!");
+				new_draw_info(NDI_UNIQUE, who, "That weapon is too powerful for you to use.\nIt would consume your soul!");
 
 				if (tmp != NULL)
 				{
@@ -1290,7 +1290,7 @@ int apply_special(object *who, object *op, int aflags)
 				/* If the weapon does not have the name as the character,
 				 * can't use it (Ragnarok's sword attempted to be used by
 				 * Foo: won't work). */
-				new_draw_info(NDI_UNIQUE, 0, who, "The weapon does not recognize you as its owner.");
+				new_draw_info(NDI_UNIQUE, who, "The weapon does not recognize you as its owner.");
 
 				if (tmp != NULL)
 				{
@@ -1303,7 +1303,7 @@ int apply_special(object *who, object *op, int aflags)
 			/* If we have applied a shield, don't allow applying of polearm or two-handed weapons */
 			if ((op->sub_type1 >= WEAP_POLE_IMPACT || op->sub_type1 >= WEAP_2H_IMPACT) && who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_SHIELD])
 			{
-				new_draw_info(NDI_UNIQUE, 0, who, "You can't wield this weapon and a shield.");
+				new_draw_info(NDI_UNIQUE, who, "You can't wield this weapon and a shield.");
 
 				if (tmp != NULL)
 				{
@@ -1334,7 +1334,7 @@ int apply_special(object *who, object *op, int aflags)
 			/* Don't allow polearm or two-handed weapons with a shield */
 			if ((who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]) && (CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]->sub_type1 >= WEAP_POLE_IMPACT || CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]->sub_type1 >= WEAP_2H_IMPACT))
 			{
-				new_draw_info(NDI_UNIQUE, 0, who, "You can't use a shield with your current weapon.");
+				new_draw_info(NDI_UNIQUE, who, "You can't use a shield with your current weapon.");
 
 				if (tmp != NULL)
 				{
@@ -1353,7 +1353,7 @@ int apply_special(object *who, object *op, int aflags)
 		case CLOAK:
 			if (!QUERY_FLAG(who, FLAG_USE_ARMOUR))
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, who, "You can't use %s.", query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, who, "You can't use %s.", query_name(op, NULL));
 
 				if (tmp != NULL)
 				{
@@ -1394,8 +1394,8 @@ int apply_special(object *who, object *op, int aflags)
 						(void) link_player_skill(who, op);
 					}
 
-					new_draw_info_format(NDI_UNIQUE, 0, who, "You ready %s.", query_name(op, NULL));
-					new_draw_info_format(NDI_UNIQUE, 0, who, "You can now use the skill: %s.", skills[op->stats.sp].name);
+					new_draw_info_format(NDI_UNIQUE, who, "You ready %s.", query_name(op, NULL));
+					new_draw_info_format(NDI_UNIQUE, who, "You can now use the skill: %s.", skills[op->stats.sp].name);
 				}
 				else
 				{
@@ -1420,13 +1420,13 @@ int apply_special(object *who, object *op, int aflags)
 			}
 
 			SET_FLAG(op, FLAG_APPLIED);
-			new_draw_info_format(NDI_UNIQUE, 0, who, "You ready %s.", query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, who, "You ready %s.", query_name(op, NULL));
 
 			if (who->type == PLAYER)
 			{
 				if (op->type == BOW)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
+					new_draw_info_format(NDI_UNIQUE, who, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, NULL));
 				}
 				else
 				{
@@ -1462,7 +1462,7 @@ int apply_special(object *who, object *op, int aflags)
 
 	if (buf[0] != '\0')
 	{
-		new_draw_info(NDI_UNIQUE, 0, who, buf);
+		new_draw_info(NDI_UNIQUE, who, buf);
 	}
 
 	if (tmp != NULL)
@@ -1491,7 +1491,7 @@ int apply_special(object *who, object *op, int aflags)
 	{
 		if (who->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, who, "Oops, it feels deadly cold!");
+			new_draw_info(NDI_UNIQUE, who, "Oops, it feels deadly cold!");
 			SET_FLAG(op, FLAG_KNOWN_CURSED);
 		}
 	}

@@ -309,7 +309,7 @@ void check_score(object *op, int quiet)
 	{
 		if (!quiet)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Since you have been in wizard mode, you can't enter the high-score list.");
+			new_draw_info(NDI_UNIQUE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
 		}
 
 		return;
@@ -319,7 +319,7 @@ void check_score(object *op, int quiet)
 	{
 		if (!quiet)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You don't deserve to save your character yet.");
+			new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
 		}
 
 		return;
@@ -359,7 +359,7 @@ void check_score(object *op, int quiet)
 	{
 		if (!quiet)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Error in the highscore list.");
+			new_draw_info(NDI_UNIQUE, op, "Error in the highscore list.");
 		}
 
 		return;
@@ -380,31 +380,31 @@ void check_score(object *op, int quiet)
 
 		if (!strcmp(old_score->name, new_score.name))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You didn't beat your last highscore:");
+			new_draw_info(NDI_UNIQUE, op, "You didn't beat your last highscore:");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You didn't enter the highscore list:");
+			new_draw_info(NDI_UNIQUE, op, "You didn't enter the highscore list:");
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
+		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
 
-		new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
+		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 
 		return;
 	}
 
 	if (old_score->exp >= new_score.exp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You didn't beat your last score:");
+		new_draw_info(NDI_UNIQUE, op, "You didn't beat your last score:");
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You beat your last score:");
+		new_draw_info(NDI_UNIQUE, op, "You beat your last score:");
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
-	new_draw_info(NDI_UNIQUE, 0, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
+	new_draw_info(NDI_UNIQUE, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
+	new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
 /**
@@ -427,13 +427,13 @@ void display_high_score(object *op, int max, const char *match)
 
 		if (op != NULL)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "There is no highscore file.");
+			new_draw_info(NDI_UNIQUE, op, "There is no highscore file.");
 		}
 
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "Nr    Score    Who <max hp><max sp><max grace>");
+	new_draw_info(NDI_UNIQUE, op, "Nr    Score    Who <max hp><max sp><max grace>");
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
@@ -465,7 +465,7 @@ void display_high_score(object *op, int max, const char *match)
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, scorebuf);
+			new_draw_info(NDI_UNIQUE, op, scorebuf);
 		}
 	}
 

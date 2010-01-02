@@ -208,23 +208,23 @@ int do_skill(object *op, int dir)
 			break;
 
 		case SK_THROWING:
-			new_draw_info(NDI_UNIQUE, 0, op, "This skill is not usable in this way.");
+			new_draw_info(NDI_UNIQUE, op, "This skill is not usable in this way.");
 			break;
 
 		case SK_USE_MAGIC_ITEM:
 		case SK_MISSILE_WEAPON:
-			new_draw_info(NDI_UNIQUE, 0, op, "There is no special attack for this skill.");
+			new_draw_info(NDI_UNIQUE, op, "There is no special attack for this skill.");
 			return success;
 			break;
 
 		case SK_PRAYING:
-			new_draw_info(NDI_UNIQUE, 0, op, "This skill is not usable in this way.");
+			new_draw_info(NDI_UNIQUE, op, "This skill is not usable in this way.");
 			return success;
 			break;
 
 		case SK_SPELL_CASTING:
 		case SK_BARGAINING:
-			new_draw_info(NDI_UNIQUE, 0, op, "This skill is already in effect.");
+			new_draw_info(NDI_UNIQUE, op, "This skill is already in effect.");
 			return success;
 			break;
 
@@ -1079,7 +1079,7 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 		{
 			if (tmp2->stats.sp == tmp->stats.sp)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, pl, "You already know the skill '%s'!", tmp->name);
+				new_draw_info_format(NDI_UNIQUE, pl, "You already know the skill '%s'!", tmp->name);
 				return 0;
 			}
 		}
@@ -1099,7 +1099,7 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 	(void) insert_ob_in_ob(tmp,pl);
 	(void) link_player_skill(pl, tmp);
 	play_sound_player_only (CONTR(pl), SOUND_LEARN_SPELL,SOUND_NORMAL, 0, 0);
-	new_draw_info_format (NDI_UNIQUE, 0, pl, "You have learned the skill %s!", tmp->name);
+	new_draw_info_format(NDI_UNIQUE, pl, "You have learned the skill %s!", tmp->name);
 
 	send_skilllist_cmd(pl, tmp, SPLIST_MODE_ADD);
 	esrv_send_item(pl, tmp);
@@ -1127,7 +1127,7 @@ int use_skill(object *op, char *string)
 
 		if (sknum == -1)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Unable to find skill by name %s", string);
+			new_draw_info_format(NDI_UNIQUE, op, "Unable to find skill by name %s", string);
 			return 0;
 		}
 
@@ -1167,7 +1167,7 @@ int use_skill(object *op, char *string)
 	{
 		if (op->chosen_skill->sub_type1 != ST1_SKILL_USE)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You can't use this skill in this way.");
+			new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
 		}
 		else
 		{
@@ -1222,7 +1222,7 @@ int change_skill(object *who, int sk_index)
 
 	if (sk_index >= 0)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, who, "You have no knowledge of %s.", skills[sk_index].name);
+		new_draw_info_format(NDI_UNIQUE, who, "You have no knowledge of %s.", skills[sk_index].name);
 	}
 
 	return 0;
@@ -1279,7 +1279,7 @@ static int attack_melee_weapon(object *op, int dir)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You have no ready weapon to attack with!");
+			new_draw_info(NDI_UNIQUE, op, "You have no ready weapon to attack with!");
 		}
 
 		return 0;
@@ -1313,7 +1313,7 @@ static int attack_hth(object *pl, int dir, char *string)
 
 			if (pl->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, 0, pl, "You unwield your weapon in order to attack.");
+				new_draw_info(NDI_UNIQUE, pl, "You unwield your weapon in order to attack.");
 				esrv_update_item(UPD_FLAGS, pl, weapon);
 			}
 
@@ -1380,7 +1380,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 
 	if (pl->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE, 0, pl, "There is nothing to attack!");
+		new_draw_info(NDI_UNIQUE, pl, "There is nothing to attack!");
 	}
 
 	return 0;
@@ -1436,11 +1436,11 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You %s %s!", string, name);
+			new_draw_info_format(NDI_UNIQUE, op, "You %s %s!", string, name);
 		}
 		else if (tmp->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, tmp, "%s %s you!", query_name(op, NULL), string);
+			new_draw_info_format(NDI_UNIQUE, tmp, "%s %s you!", query_name(op, NULL), string);
 		}
 	}
 

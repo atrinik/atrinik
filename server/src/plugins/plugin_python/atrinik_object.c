@@ -1248,7 +1248,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 
 	if (mode)
 	{
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, 0, target, message);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target, message);
 	}
 	else
 	{
@@ -1258,7 +1258,7 @@ static PyObject *Atrinik_Object_SayTo(Atrinik_Object *whoptr, PyObject *args)
 		hooks->new_info_map_except(NDI_UNIQUE, WHO->map, WHO->x, WHO->y, MAP_INFO_NORMAL, WHO, target, buf);
 
 		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(WHO, NULL), message);
-		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, 0, target, buf);
+		hooks->new_draw_info(NDI_NAVY | NDI_UNIQUE, target, buf);
 	}
 
 	Py_INCREF(Py_None);
@@ -1282,7 +1282,7 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	hooks->new_draw_info(color, 0, WHO, message);
+	hooks->new_draw_info(color, WHO, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;

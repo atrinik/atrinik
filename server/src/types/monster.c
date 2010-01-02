@@ -2173,8 +2173,8 @@ int talk_to_npc(object *op, object *npc, char *txt)
 					}
 					else
 					{
-						new_draw_info_format(NDI_NAVY | NDI_UNIQUE, 0, op, "\n%s says:", query_name(npc, NULL));
-						new_draw_info(NDI_NAVY | NDI_UNIQUE, 0, op, msgs->messages[i]);
+						new_draw_info_format(NDI_NAVY | NDI_UNIQUE, op, "\n%s says:", query_name(npc, NULL));
+						new_draw_info(NDI_NAVY | NDI_UNIQUE, op, msgs->messages[i]);
 						sprintf(buf, "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
 						new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 					}

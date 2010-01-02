@@ -329,7 +329,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	 * praying. */
 	if (op->type == PLAYER && CONTR(op)->was_praying)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Your praying is disrupted.");
+		new_draw_info(NDI_UNIQUE, op, "Your praying is disrupted.");
 		CONTR(op)->praying = 0;
 		CONTR(op)->was_praying = 0;
 	}
@@ -804,12 +804,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You confuse %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You confuse %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s confused you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s confused you!", hitter->name);
 					}
 
 					confuse_living(op);
@@ -818,12 +818,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You slow %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You slow %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s slowed you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s slowed you!", hitter->name);
 					}
 
 					slow_living(op);
@@ -832,12 +832,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You paralyze %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You paralyze %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s paralyzed you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s paralyzed you!", hitter->name);
 					}
 
 					paralyze_living(op, (int) dam);
@@ -846,12 +846,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You scare %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You scare %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s scared you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s scared you!", hitter->name);
 					}
 
 					SET_FLAG(op, FLAG_SCARED);
@@ -860,12 +860,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You deplete %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You deplete %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s depleted you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s depleted you!", hitter->name);
 					}
 
 					drain_stat(op);
@@ -874,12 +874,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, 0, hitter, "You blind %s!", op->name);
+						new_draw_info_format(NDI_ORANGE, hitter, "You blind %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, 0, op, "%s blinded you!", hitter->name);
+						new_draw_info_format(NDI_PURPLE, op, "%s blinded you!", hitter->name);
 					}
 
 					blind_living(op, hitter, (int) dam);
@@ -927,12 +927,12 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 
 	if (op->type == PLAYER)
 	{
-		new_draw_info_format(NDI_PURPLE, 0, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
+		new_draw_info_format(NDI_PURPLE, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
 	}
 
 	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
 	{
-		new_draw_info_format(NDI_ORANGE, 0, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attacktype_desc[attacknum]);
+		new_draw_info_format(NDI_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attacktype_desc[attacknum]);
 	}
 }
 
@@ -1024,7 +1024,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		}
 
 		/* message should be displayed */
-		new_draw_info(NDI_WHITE, 0, owner, buf);
+		new_draw_info(NDI_WHITE, owner, buf);
 	}
 
 	/* Pet killed something. */
@@ -1070,8 +1070,8 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		{
 			if (battleg)
 			{
-				new_draw_info(NDI_UNIQUE, 0, owner, "Your foe has fallen!");
-				new_draw_info(NDI_UNIQUE, 0, owner, "VICTORY!!!");
+				new_draw_info(NDI_UNIQUE, owner, "Your foe has fallen!");
+				new_draw_info(NDI_UNIQUE, owner, "VICTORY!!!");
 			}
 			/* Never xp for pvp */
 			else
@@ -1092,11 +1092,11 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			{
 				if (exp)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, hitter, "You got %d exp in skill %s.", add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+					new_draw_info_format(NDI_UNIQUE, hitter, "You got %d exp in skill %s.", add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, 0, hitter, "Your enemy was too low for exp.");
+					new_draw_info(NDI_UNIQUE, hitter, "Your enemy was too low for exp.");
 				}
 			}
 			/* However, if we are in a party, things get a little more tricky. */
@@ -1143,7 +1143,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 								expgain = pexp;
 							}
 
-							new_draw_info_format(NDI_UNIQUE, 0, ol->objlink.ob, "You got %d exp in skill %s.", add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+							new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "You got %d exp in skill %s.", add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
 						}
 					}
 				}
@@ -1166,7 +1166,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 				if (owner != NULL && owner->type == PLAYER)
 				{
 					play_sound_player_only(CONTR(owner), SOUND_PET_IS_KILLED, SOUND_NORMAL, 0, 0);
-					new_draw_info_format(NDI_UNIQUE, 0, owner, "Your pet, the %s, is killed by %s.", op->name, hitter->name);
+					new_draw_info_format(NDI_UNIQUE, owner, "Your pet, the %s, is killed by %s.", op->name, hitter->name);
 				}
 
 				remove_friendly_object(op);
@@ -1201,7 +1201,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		/* Player has been killed! */
 		else
 		{
-			new_draw_info(NDI_ALL, 1, NULL, buf);
+			new_draw_info(NDI_ALL, NULL, buf);
 
 			if (hitter->type == PLAYER)
 			{
@@ -1479,7 +1479,7 @@ static void poison_player(object *op, object *hitter, float dam)
 				{
 					/* Insert the food force in player too */
 					create_food_force(op, hitter, tmp);
-					new_draw_info(NDI_UNIQUE, 0, op, "You suddenly feel very ill.");
+					new_draw_info(NDI_UNIQUE, op, "You suddenly feel very ill.");
 				}
 				/* We have hit with weapon or something */
 				else
@@ -1575,7 +1575,7 @@ static void poison_player(object *op, object *hitter, float dam)
 						tmp->stats.Wis *= -1;
 					}
 
-					new_draw_info_format(NDI_UNIQUE, 0, op, "%s has poisoned you!", query_name(hitter, NULL));
+					new_draw_info_format(NDI_UNIQUE, op, "%s has poisoned you!", query_name(hitter, NULL));
 					insert_ob_in_ob(tmp, op);
 					SET_FLAG(tmp, FLAG_APPLIED);
 					fix_player(op);
@@ -1597,11 +1597,11 @@ static void poison_player(object *op, object *hitter, float dam)
 
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, hitter, "You poisoned %s!", query_name(op, NULL));
+						new_draw_info_format(NDI_UNIQUE, hitter, "You poisoned %s!", query_name(op, NULL));
 					}
 					else if (get_owner(hitter) && hitter->owner->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
+						new_draw_info_format(NDI_UNIQUE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
 					}
 
 				}
@@ -1633,7 +1633,7 @@ static void slow_living(object *op)
 	{
 		tmp = arch_to_object(at);
 		tmp = insert_ob_in_ob(tmp, op);
-		new_draw_info(NDI_UNIQUE, 0, op, "The world suddenly moves very fast!");
+		new_draw_info(NDI_UNIQUE, op, "The world suddenly moves very fast!");
 	}
 	else
 	{
@@ -1673,7 +1673,7 @@ void confuse_living(object *op)
 
 	if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You suddenly feel very confused!");
+		new_draw_info(NDI_UNIQUE, op, "You suddenly feel very confused!");
 	}
 
 	SET_FLAG(op, FLAG_CONFUSED);
@@ -1720,7 +1720,7 @@ static void blind_living(object *op, object *hitter, int dam)
 			owner = hitter;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, owner, "Your attack blinds %s!", query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, owner, "Your attack blinds %s!", query_name(op, NULL));
 	}
 
 	tmp->stats.food += dam;

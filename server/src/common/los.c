@@ -575,7 +575,7 @@ void print_los(object *op)
 		strcat(buf, buf2);
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_UNIQUE, op, buf);
 
 	for (y = 0; y < CONTR(op)->socket.mapy; y++)
 	{
@@ -586,7 +586,7 @@ void print_los(object *op)
 			strcat(buf, buf2);
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op, buf);
+		new_draw_info(NDI_UNIQUE, op, buf);
 	}
 }
 

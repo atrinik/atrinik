@@ -86,7 +86,7 @@ void move_marker(object *op)
 
 				if (op->msg)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, tmp, op->msg);
+					new_draw_info(NDI_UNIQUE | NDI_NAVY, tmp, op->msg);
 				}
 
 				if (op->stats.hp > 0)

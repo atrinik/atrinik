@@ -330,7 +330,7 @@ static object *attempt_recipe(object *caster, object *cauldron, int ability, rec
 		/* Failure - no code found */
 		if (tmp == NULL)
 		{
-			new_draw_info(NDI_UNIQUE, 0, caster, "You know the ingredients, but not the technique. Go learn how to do this recipe.");
+			new_draw_info(NDI_UNIQUE, caster, "You know the ingredients, but not the technique. Go learn how to do this recipe.");
 			return NULL;
 		}
 	}
@@ -348,11 +348,11 @@ static object *attempt_recipe(object *caster, object *cauldron, int ability, rec
 
 		if (!item->env && (item = insert_ob_in_ob(item, cauldron)) == NULL)
 		{
-			new_draw_info(NDI_UNIQUE, 0, caster, "Nothing happened.");
+			new_draw_info(NDI_UNIQUE, caster, "Nothing happened.");
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, caster, "The %s %s.", cauldron->name, cauldron_sound());
+			new_draw_info_format(NDI_UNIQUE, caster, "The %s %s.", cauldron->name, cauldron_sound());
 		}
 	}
 
@@ -561,7 +561,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 		}
 
 		remove_contents(cauldron->inv, item);
-		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s %s.", cauldron->name, cauldron_sound());
+		new_draw_info_format(NDI_UNIQUE, op, "The %s %s.", cauldron->name, cauldron_sound());
 		return;
 	}
 	/* Make tained item. */
@@ -658,14 +658,14 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 				tmp = get_archetype("bomb");
 				tmp->stats.dam = random_roll(1, level, op, PREFER_LOW);
 				tmp->stats.hp = random_roll(1, level, op, PREFER_LOW);
-				new_draw_info_format(NDI_UNIQUE, 0, op, "The %s creates a bomb!", cauldron->name);
+				new_draw_info_format(NDI_UNIQUE, op, "The %s creates a bomb!", cauldron->name);
 				break;
 
 			default:
 				tmp = get_archetype("fireball");
 				tmp->stats.dam = random_roll(1, level, op, PREFER_LOW) / 5 + 1;
 				tmp->stats.hp = random_roll(1, level, op, PREFER_LOW) / 10 + 2;
-				new_draw_info_format(NDI_UNIQUE, 0, op, "The %s erupts in flame!", cauldron->name);
+				new_draw_info_format(NDI_UNIQUE, op, "The %s erupts in flame!", cauldron->name);
 				break;
 		}
 
@@ -676,7 +676,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 	/* Create monster */
 	else if (level < 60)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s %s.", cauldron->name, cauldron_sound());
+		new_draw_info_format(NDI_UNIQUE, op, "The %s %s.", cauldron->name, cauldron_sound());
 		remove_contents(cauldron->inv, NULL);
 		return;
 	}
@@ -687,7 +687,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 #if 0
 		fire_arch_from_position(cauldron, cauldron, cauldron->x, cauldron->y, 0, spellarch[SP_L_FIREBALL], SP_L_FIREBALL);
 #endif
-		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s erupts in flame!", cauldron->name);
+		new_draw_info_format(NDI_UNIQUE, op, "The %s erupts in flame!", cauldron->name);
 		return;
 	}
 	/* Whammy the cauldron */
@@ -707,11 +707,11 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 		if (rndm(0, 1))
 		{
 			remove_contents(cauldron->inv, NULL);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Your %s turns darker then makes a gulping sound!", cauldron->name);
+			new_draw_info_format(NDI_UNIQUE, op, "Your %s turns darker then makes a gulping sound!", cauldron->name);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Your %s becomes darker.", cauldron->name);
+			new_draw_info_format(NDI_UNIQUE, op, "Your %s becomes darker.", cauldron->name);
 		}
 
 		return;
@@ -729,7 +729,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 		}
 		else if (summon_hostile_monsters(cauldron, random_roll(1, 10, op, PREFER_LOW), tmp->arch->name))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The %s %s and then pours forth monsters!", cauldron->name, cauldron_sound());
+			new_draw_info_format(NDI_UNIQUE, op, "The %s %s and then pours forth monsters!", cauldron->name, cauldron_sound());
 		}
 
 		return;
@@ -768,7 +768,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 			if ((tmp = insert_ob_in_ob(tmp, cauldron)))
 			{
 				remove_contents(cauldron->inv, tmp);
-				new_draw_info_format(NDI_UNIQUE, 0, op, "The %s %s.", cauldron->name, cauldron_sound());
+				new_draw_info_format(NDI_UNIQUE, op, "The %s %s.", cauldron->name, cauldron_sound());
 			}
 		}
 
@@ -777,7 +777,7 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 	/* Mana storm -- watch out! */
 	else if (level < 200)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You unwisely release potent forces!");
+		new_draw_info(NDI_UNIQUE, op, "You unwisely release potent forces!");
 		remove_contents(cauldron->inv, NULL);
 		cast_magic_storm(op, get_archetype("loose_magic"), level);
 		return;
@@ -943,11 +943,11 @@ int use_alchemy(object *op)
 
 	if (unpaid_cauldron)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You must pay for your %s first!", query_base_name(unpaid_cauldron, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "You must pay for your %s first!", query_base_name(unpaid_cauldron, NULL));
 	}
 	else if (unpaid_item)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You must pay for your %s first!", query_base_name(unpaid_item, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "You must pay for your %s first!", query_base_name(unpaid_item, NULL));
 	}
 
 	return did_alchemy;

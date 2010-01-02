@@ -82,7 +82,7 @@ void version(object *op)
 {
 	if (op)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "This is Atrinik v%s", VERSION);
+		new_draw_info_format(NDI_UNIQUE, op, "This is Atrinik v%s", VERSION);
 	}
 	else
 	{
@@ -560,7 +560,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is closed.", query_name(exit_ob, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "The %s is closed.", query_name(exit_ob, NULL));
 LOG(llevDebug, "DEBUG: enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
 }
@@ -692,7 +692,7 @@ void enter_exit(object *op, object *exit_ob)
 			{
 				if (op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op, "The %s is closed.", query_name(exit_ob, NULL));
+					new_draw_info_format(NDI_UNIQUE, op, "The %s is closed.", query_name(exit_ob, NULL));
 				}
 
 				return;
@@ -841,7 +841,7 @@ static void process_players1(mapstruct *map)
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, pl->ob, "Player %s left.", pl->followed_player);
+					new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "Player %s left.", pl->followed_player);
 					pl->followed_player[0] = '\0';
 				}
 			}

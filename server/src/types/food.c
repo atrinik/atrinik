@@ -59,17 +59,17 @@ void apply_food(object *op, object *tmp)
 			{
 				if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "You are too full to eat this right now!");
+					new_draw_info(NDI_UNIQUE, op, "You are too full to eat this right now!");
 					return;
 				}
 
 				if (tmp->type == FOOD || tmp->type == FLESH)
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "You feel full, but what a waste of food!");
+					new_draw_info(NDI_UNIQUE, op, "You feel full, but what a waste of food!");
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "Most of the drink goes down your face not your throat!");
+					new_draw_info(NDI_UNIQUE, op, "Most of the drink goes down your face not your throat!");
 				}
 			}
 
@@ -127,7 +127,7 @@ void apply_food(object *op, object *tmp)
 				op->stats.food += ft;
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, op, buf);
+			new_draw_info(NDI_UNIQUE, op, buf);
 
 			/* adjust food to borders when needed */
 			if (op->stats.food > FOOD_MAX)
@@ -315,17 +315,17 @@ void eat_special_food(object *who, object *food)
 				who->stats.hp += tmp * 3;
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, who, "Eck!... that was rotten food!");
+			new_draw_info(NDI_UNIQUE, who, "Eck!... that was rotten food!");
 		}
 		else
 		{
 			if (food->stats.hp > 0)
 			{
-				new_draw_info(NDI_UNIQUE, 0, who, "You begin to feel better.");
+				new_draw_info(NDI_UNIQUE, who, "You begin to feel better.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, 0, who, "Eck!... that was rotten food!");
+				new_draw_info(NDI_UNIQUE, who, "Eck!... that was rotten food!");
 			}
 
 			who->stats.hp += food->stats.hp;
@@ -343,7 +343,7 @@ void eat_special_food(object *who, object *food)
 				tmp = -tmp;
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, who, "Your mana is drained!");
+			new_draw_info(NDI_UNIQUE, who, "Your mana is drained!");
 
 			if (QUERY_FLAG(food, FLAG_CURSED))
 			{
@@ -361,7 +361,7 @@ void eat_special_food(object *who, object *food)
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, who, "You feel a rush of magical energy!");
+			new_draw_info(NDI_UNIQUE, who, "You feel a rush of magical energy!");
 			who->stats.sp += food->stats.sp;
 		}
 	}
@@ -513,7 +513,7 @@ int dragon_eat_flesh(object *op, object *meal)
 		snprintf(buf, sizeof(buf), "The %s had no taste.", meal->name);
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, buf);
+	new_draw_info(NDI_UNIQUE, op, buf);
 
 	/* now choose a winner if we have any */
 	i = -1;
@@ -529,7 +529,7 @@ int dragon_eat_flesh(object *op, object *meal)
 		skin->resist[i]++;
 		fix_player(op);
 
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, op, "Your skin is now more resistant to %s!", change_resist_msg[i]);
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Your skin is now more resistant to %s!", change_resist_msg[i]);
 	}
 
 	/* if this flesh contains a new ability focus, we mark it
@@ -541,12 +541,12 @@ int dragon_eat_flesh(object *op, object *meal)
 
 		if (meal->last_eat != abil->stats.exp)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Your metabolism prepares to focus on %s!", change_resist_msg[meal->last_eat]);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The change will happen at level %d.", abil->level + 1);
+			new_draw_info_format(NDI_UNIQUE, op, "Your metabolism prepares to focus on %s!", change_resist_msg[meal->last_eat]);
+			new_draw_info_format(NDI_UNIQUE, op, "The change will happen at level %d.", abil->level + 1);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "Your metabolism will continue to focus on %s.", change_resist_msg[meal->last_eat]);
+			new_draw_info_format(NDI_UNIQUE, op, "Your metabolism will continue to focus on %s.", change_resist_msg[meal->last_eat]);
 			abil->last_eat = 0;
 		}
 	}

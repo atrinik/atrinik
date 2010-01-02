@@ -223,7 +223,7 @@ void list_bans(object *op)
 
 	if (op)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "List of bans:");
+		new_draw_info(NDI_UNIQUE, op, "List of bans:");
 	}
 	else
 	{
@@ -234,7 +234,7 @@ void list_bans(object *op)
 	{
 		if (op)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
+			new_draw_info_format(NDI_UNIQUE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
 		}
 		else
 		{

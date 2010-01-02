@@ -59,7 +59,7 @@ void emergency_save(int flag)
 		}
 
 		LOG(llevSystem, "%s ", pl->ob->name);
-		new_draw_info(NDI_UNIQUE, 0, pl->ob, "Emergency save...");
+		new_draw_info(NDI_UNIQUE, pl->ob, "Emergency save...");
 
 		/* If we are not exiting the game (ie, this is sort of a backup
 		 * save), then don't change the location back to the village.
@@ -83,7 +83,7 @@ void emergency_save(int flag)
 		if (!save_player(pl->ob, flag))
 		{
 			LOG(llevSystem, "(failed) ");
-			new_draw_info(NDI_UNIQUE, 0, pl->ob, "Emergency save failed, checking score...");
+			new_draw_info(NDI_UNIQUE, pl->ob, "Emergency save failed, checking score...");
 		}
 
 		check_score(pl->ob, 1);
@@ -218,7 +218,7 @@ int save_player(object *op, int flag)
 
 	if (!fp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't open file for save.");
+		new_draw_info(NDI_UNIQUE, op, "Can't open file for save.");
 		LOG(llevDebug, "Can't open file for save (%s).\n", tmpfilename);
 		free(tmpfilename);
 		return 0;
@@ -300,7 +300,7 @@ int save_player(object *op, int flag)
 	/* Make sure the write succeeded */
 	if (fclose(fp) == EOF)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't save character.");
+		new_draw_info(NDI_UNIQUE, op, "Can't save character.");
 		unlink(tmpfilename);
 		free(tmpfilename);
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -314,7 +314,7 @@ int save_player(object *op, int flag)
 
 	if (!fp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't open file for save.");
+		new_draw_info(NDI_UNIQUE, op, "Can't open file for save.");
 		unlink(tmpfilename);
 		free(tmpfilename);
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -329,7 +329,7 @@ int save_player(object *op, int flag)
 	/* Got write error */
 	if (fclose(fp) == EOF)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Can't close file for save.");
+		new_draw_info(NDI_UNIQUE, op, "Can't close file for save.");
 		/* Restore the original */
 		rename(backupfile, filename);
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -814,7 +814,7 @@ void check_login(object *op)
 
 	if (!pl->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL, 5, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
 
 		if (dm_list)
 		{
@@ -825,7 +825,7 @@ void check_login(object *op)
 			for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
 
 			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
-				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
 		}
 	}
 
@@ -836,7 +836,7 @@ void check_login(object *op)
 	LOG(llevDebug, "Checksums: %x %x\n", checksum, calculate_checksum(filename, 1));
 	if (calculate_checksum(filename, 1) != checksum)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Since your savefile has been tampered with, you will not be able to save again.");
+		new_draw_info(NDI_UNIQUE, op, "Since your savefile has been tampered with, you will not be able to save again.");
 		set_cheat(op);
 	}
 #endif
@@ -847,7 +847,7 @@ void check_login(object *op)
 	 * set the play_again flag, so return. */
 	if (op->stats.hp < 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Your character was dead last you played.");
+		new_draw_info(NDI_UNIQUE, op, "Your character was dead last you played.");
 		kill_player(op);
 		if (pl->state != ST_PLAYING)
 			return;

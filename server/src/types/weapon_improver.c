@@ -83,7 +83,7 @@ void apply_weapon_improver(object *op, object *tmp)
 
 	if (blocks_magic(op->map, op->x, op->y))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of the scroll.");
+		new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of the scroll.");
 		return;
 	}
 
@@ -91,11 +91,11 @@ void apply_weapon_improver(object *op, object *tmp)
 
 	if (!otmp || otmp->type != WEAPON)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You need to mark a weapon object.");
+		new_draw_info(NDI_UNIQUE, op, "You need to mark a weapon object.");
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "Applied weapon builder.");
+	new_draw_info(NDI_UNIQUE, op, "Applied weapon builder.");
 	improve_weapon(op, tmp, otmp);
 	esrv_send_item(op, otmp);
 }
@@ -156,10 +156,10 @@ int check_weapon_power(object *who, int improvs)
  * @return Always returns 1. */
 static int improve_weapon_stat(object *op, object *improver, object *weapon, signed char *stat, int sacrifice_count, char *statname)
 {
-	new_draw_info(NDI_UNIQUE, 0, op, "Your sacrifice was accepted.");
+	new_draw_info(NDI_UNIQUE, op, "Your sacrifice was accepted.");
 	*stat += sacrifice_count;
 	weapon->last_eat++;
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Weapon's bonus to %s improved by %d.", statname, sacrifice_count);
+	new_draw_info_format(NDI_UNIQUE, op, "Weapon's bonus to %s improved by %d.", statname, sacrifice_count);
 	decrease_ob(improver);
 
 	/* So it updates the players stats and the window */
@@ -183,7 +183,7 @@ static int prepare_weapon(object *op, object *improver, object *weapon)
 
 	if (weapon->level != 0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Weapon already prepared.");
+		new_draw_info(NDI_UNIQUE, op, "Weapon already prepared.");
 		return 0;
 	}
 
@@ -199,7 +199,7 @@ static int prepare_weapon(object *op, object *improver, object *weapon)
 	 * improvement of items that already have protections. */
 	if (i < NROFATTACKS || weapon->stats.hp || weapon->stats.sp || weapon->stats.exp || weapon->stats.ac)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Cannot prepare magic weapons.");
+		new_draw_info(NDI_UNIQUE, op, "Cannot prepare magic weapons.");
 		return 0;
 	}
 
@@ -212,9 +212,9 @@ static int prepare_weapon(object *op, object *improver, object *weapon)
 
 	sacrifice_count = isqrt(sacrifice_count);
 	weapon->level = sacrifice_count;
-	new_draw_info(NDI_UNIQUE, 0, op, "Your sacrifice was accepted.");
+	new_draw_info(NDI_UNIQUE, op, "Your sacrifice was accepted.");
 	eat_item(op, improver->slaying);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "Your *%s may be improved %d times.", weapon->name, sacrifice_count);
+	new_draw_info_format(NDI_UNIQUE, op, "Your *%s may be improved %d times.", weapon->name, sacrifice_count);
 	snprintf(buf, sizeof(buf), "%s's %s", op->name, weapon->name);
 	FREE_AND_COPY_HASH(weapon->name, buf);
 
@@ -250,19 +250,19 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 
 	if (weapon->level==0)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "This weapon has not been prepared.");
+		new_draw_info(NDI_UNIQUE, op, "This weapon has not been prepared.");
 		return 0;
 	}
 
 	if (weapon->level == weapon->last_eat)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "This weapon cannot be improved any more.");
+		new_draw_info(NDI_UNIQUE, op, "This weapon cannot be improved any more.");
 		return 0;
 	}
 
 	if (QUERY_FLAG(weapon, FLAG_APPLIED) && !check_weapon_power(op, weapon->last_eat + 1))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Improving the weapon will make it too powerful for you to use.\nUnready it if you really want to improve it.");
+		new_draw_info(NDI_UNIQUE, op, "Improving the weapon will make it too powerful for you to use.\nUnready it if you really want to improve it.");
 		return 0;
 	}
 
@@ -275,7 +275,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 		weapon->stats.dam += 5;
 		/* 5 KG's */
 		weapon->weight += 5000;
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Damage has been increased by 5 to %d", weapon->stats.dam);
+		new_draw_info_format(NDI_UNIQUE, op, "Damage has been increased by 5 to %d", weapon->stats.dam);
 		weapon->last_eat++;
 		decrease_ob(improver);
 
@@ -292,7 +292,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 			weapon->weight = 1;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Weapon weight reduced to %6.1f kg", (float)weapon->weight / 1000.0);
+		new_draw_info_format(NDI_UNIQUE, op, "Weapon weight reduced to %6.1f kg", (float)weapon->weight / 1000.0);
 		weapon->last_eat++;
 		decrease_ob(improver);
 		return 1;
@@ -302,7 +302,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 	{
 		weapon->magic++;
 		weapon->last_eat++;
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Weapon magic increased to %d", weapon->magic);
+		new_draw_info_format(NDI_UNIQUE, op, "Weapon magic increased to %d", weapon->magic);
 		decrease_ob(improver);
 		return 1;
 	}
@@ -320,7 +320,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 
 	if (sacrifice_count < sacrifice_needed)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You need at least %d %s", sacrifice_needed, improver->slaying);
+		new_draw_info_format(NDI_UNIQUE, op, "You need at least %d %s", sacrifice_needed, improver->slaying);
 		return 0;
 	}
 
@@ -350,7 +350,7 @@ static int improve_weapon(object *op, object *improver, object *weapon)
 			return improve_weapon_stat(op, improver, weapon, (signed char *) &(weapon->stats.Pow), 1, "power");
 
 		default:
-			new_draw_info(NDI_UNIQUE, 0, op, "Unknown improvement type.");
+			new_draw_info(NDI_UNIQUE, op, "Unknown improvement type.");
 	}
 
 	LOG(llevBug, "BUG: improve_weapon(): Got to end of function!\n");
@@ -440,7 +440,7 @@ static int check_sacrifice(object *op, object *improver)
 
 		if (count < 1)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The gods want more %ss.", improver->slaying);
+			new_draw_info_format(NDI_UNIQUE, op, "The gods want more %ss.", improver->slaying);
 			return 0;
 		}
 	}

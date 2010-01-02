@@ -127,7 +127,7 @@ int command_dmsay(object *op, char *params)
 
 	for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, 0, tmp_dm_list->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
+		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, tmp_dm_list->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
 	}
 
 	return 1;
@@ -155,7 +155,7 @@ int command_shout(object *op, char *params)
 		return 0;
 	}
 
-	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE | NDI_SHOUT, 1, NULL, "%s shouts: %s", op->name, params);
+	new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_ORANGE | NDI_SHOUT, NULL, "%s shouts: %s", op->name, params);
 
 	/* Trigger the global SHOUT event. */
 	trigger_global_event(EVENT_SHOUT, op, params);
@@ -204,7 +204,7 @@ int command_tell(object *op, char *params)
 
 	if (!name)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Tell whom what?");
+		new_draw_info(NDI_UNIQUE, op, "Tell whom what?");
 		return 1;
 	}
 
@@ -213,20 +213,20 @@ int command_tell(object *op, char *params)
 
 	if (!name_hash)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
 		return 1;
 	}
 
 	if (!msg)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "Tell %s what?", name);
+		new_draw_info_format(NDI_UNIQUE, op, "Tell %s what?", name);
 		return 1;
 	}
 
 	/* Send to yourself? Intelligent... */
 	if (op->name == name_hash)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You tell yourself the news. Very smart.");
+		new_draw_info(NDI_UNIQUE, op, "You tell yourself the news. Very smart.");
 		return 1;
 	}
 
@@ -236,20 +236,20 @@ int command_tell(object *op, char *params)
 		{
 			if (pl->dm_stealth)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, 0, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you (dm_stealth): %s", op->name, msg);
 				/* We send it but we kick the "no such player" on. */
 				break;
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE, 0, op, "You tell %s: %s", name, msg);
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, 0, pl->ob, "%s tells you: %s", op->name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE, op, "You tell %s: %s", name, msg);
+				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_NAVY | NDI_TELL, pl->ob, "%s tells you: %s", op->name, msg);
 				return 1;
 			}
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, 0, op, "No such player.");
+	new_draw_info(NDI_UNIQUE, op, "No such player.");
 	return 1;
 }
 
@@ -301,7 +301,7 @@ int command_t_tell(object *op, char *params)
 				if (m == t_obj->map && xt == t_obj->x && yt == t_obj->y)
 				{
 					LOG(llevInfo, "CLOG T_TELL:%s >%s<\n", query_name(op, NULL), params);
-					new_draw_info_format(NDI_UNIQUE | NDI_WHITE, 0, op, "You say to %s: %s", query_name(t_obj, NULL), params);
+					new_draw_info_format(NDI_UNIQUE | NDI_WHITE, op, "You say to %s: %s", query_name(t_obj, NULL), params);
 					talk_to_npc(op, t_obj, params);
 					play_sound_player_only(CONTR(op), SOUND_CLICK, SOUND_NORMAL, 0, 0);
 					return 1;
@@ -426,18 +426,18 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (rv.distance <= 4)
 			{
 				emote_other(op, CONTR(op)->target_object, NULL, buf, buf2, buf3, emotion);
-				new_draw_info(NDI_UNIQUE, 0, op, buf);
+				new_draw_info(NDI_UNIQUE, op, buf);
 
 				if (CONTR(op)->target_object->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, CONTR(op)->target_object, buf2);
+					new_draw_info(NDI_UNIQUE | NDI_YELLOW, CONTR(op)->target_object, buf2);
 				}
 
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, CONTR(op)->target_object, buf3);
 				return 0;
 			}
 
-			new_draw_info(NDI_UNIQUE, 0, op, "The target is not in range for this emote action.");
+			new_draw_info(NDI_UNIQUE, op, "The target is not in range for this emote action.");
 			return 0;
 		}
 
@@ -445,7 +445,7 @@ static int basic_emote(object *op, char *params, int emotion)
 		{
 			if (op->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "Usage: /me <emote to display>");
+				new_draw_info(NDI_UNIQUE, op, "Usage: /me <emote to display>");
 			}
 
 			return 1;
@@ -468,7 +468,7 @@ static int basic_emote(object *op, char *params, int emotion)
 
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, buf2);
+			new_draw_info(NDI_UNIQUE, op, buf2);
 		}
 
 		return 0;
@@ -483,7 +483,7 @@ static int basic_emote(object *op, char *params, int emotion)
 
 			if (op->type == PLAYER)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, buf);
+				new_draw_info(NDI_UNIQUE, op, buf);
 			}
 
 			return 0;
@@ -496,7 +496,7 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (op->type == PLAYER && strcmp(op->name, params) == 0)
 			{
 				emote_self(op, buf, buf2, emotion);
-				new_draw_info(NDI_UNIQUE, 0, op, buf);
+				new_draw_info(NDI_UNIQUE, op, buf);
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 
 				return 0;
@@ -517,19 +517,19 @@ static int basic_emote(object *op, char *params, int emotion)
 					if (op->type == PLAYER)
 					{
 						emote_other(op, pl->ob, NULL, buf, buf2, buf3, emotion);
-						new_draw_info(NDI_UNIQUE, 0, op, buf);
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, 0, pl->ob, buf2);
+						new_draw_info(NDI_UNIQUE, op, buf);
+						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, pl->ob, buf3);
 					}
 					else
 					{
-						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, 0, pl->ob, buf2);
+						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
 					}
 				}
 				else if (op->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "The target is not in range for this emote action.");
+					new_draw_info(NDI_UNIQUE, op, "The target is not in range for this emote action.");
 				}
 
 				return 0;
@@ -538,7 +538,7 @@ static int basic_emote(object *op, char *params, int emotion)
 			if (op->type == PLAYER)
 			{
 				emote_self(op, buf, buf2, -1);
-				new_draw_info(NDI_UNIQUE, 0, op, buf);
+				new_draw_info(NDI_UNIQUE, op, buf);
 				new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf2);
 			}
 			else

@@ -167,7 +167,7 @@ int apply_potion(object *op, object *tmp)
 			/* implicit fix_player() here */
 			if (!change_abil(op, force))
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "Nothing happened.");
+				new_draw_info(NDI_UNIQUE, op, "Nothing happened.");
 			}
 
 			decrease_ob(tmp);
@@ -216,7 +216,7 @@ int apply_potion(object *op, object *tmp)
 				{
 					if (get_attr_value(&depl->stats, i))
 					{
-						new_draw_info(NDI_UNIQUE, 0, op, restore_msg[i]);
+						new_draw_info(NDI_UNIQUE, op, restore_msg[i]);
 					}
 				}
 
@@ -226,7 +226,7 @@ int apply_potion(object *op, object *tmp)
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You feel a great loss...");
+				new_draw_info(NDI_UNIQUE, op, "You feel a great loss...");
 			}
 
 			decrease_ob(tmp);
@@ -372,7 +372,7 @@ improve_done:
 
 			if (!success_flag)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "The potion had no effect - you are already perfect.");
+				new_draw_info(NDI_UNIQUE, op, "The potion had no effect - you are already perfect.");
 				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
 			}
 			else if (success_flag == 1)
@@ -380,21 +380,21 @@ improve_done:
 				fix_player(op);
 				insert_spell_effect("meffect_yellow", op->map, op->x, op->y);
 				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);
-				new_draw_info(NDI_UNIQUE, 0, op, "You feel a little more perfect!");
+				new_draw_info(NDI_UNIQUE, op, "You feel a little more perfect!");
 			}
 			else if (success_flag == 2)
 			{
 				fix_player(op);
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
 				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
-				new_draw_info(NDI_UNIQUE, 0, op, "The foul potion burns like fire in you!");
+				new_draw_info(NDI_UNIQUE, op, "The foul potion burns like fire in you!");
 			}
 			/* bad potion but all values of this player are 1! poor poor guy.... */
 			else
 			{
 				insert_spell_effect("meffect_purple", op->map, op->x, op->y);
 				play_sound_map(op->map, op->x, op->y, SOUND_DRINK_POISON, SOUND_NORMAL);
-				new_draw_info(NDI_UNIQUE, 0, op, "The potion was foul but had no effect on your tortured body.");
+				new_draw_info(NDI_UNIQUE, op, "The potion was foul but had no effect on your tortured body.");
 			}
 
 			decrease_ob(tmp);
@@ -404,7 +404,7 @@ improve_done:
 
 	if (tmp->stats.sp == SP_NO_SPELL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Nothing happens as you apply it.");
+		new_draw_info(NDI_UNIQUE, op, "Nothing happens as you apply it.");
 		decrease_ob(tmp);
 		return 0;
 	}

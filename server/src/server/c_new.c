@@ -770,7 +770,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL, 5, op, "%s entered the game.", op->name);
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL, op, "%s entered the game.", op->name);
 
 		if (dm_list)
 		{
@@ -784,7 +784,7 @@ void command_new_char(char *params, int len, player *pl)
 
 			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
 			}
 		}
 	}
@@ -837,7 +837,7 @@ void command_face_request(char *params, int len, player *pl)
 	{
 		if (esrv_send_face(&pl->socket, *((short *) (params + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_RED, 0, pl->ob, "CLIENT ERROR: Your client requested bad face (#%d). Connection closed!", *((short*)(params + 1) + i));
+			new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "CLIENT ERROR: Your client requested bad face (#%d). Connection closed!", *((short*)(params + 1) + i));
 
 			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Player: %s. Close connection.\n", *((short*)(params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
 

@@ -48,20 +48,20 @@ void apply_book(object *op, object *tmp)
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to read while blind.");
+		new_draw_info(NDI_UNIQUE, op, "You are unable to read while blind.");
 		return;
 	}
 
 	if (tmp->msg == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You open the %s and find it empty.", tmp->name);
+		new_draw_info_format(NDI_UNIQUE, op, "You open the %s and find it empty.", tmp->name);
 		return;
 	}
 
 	/* need a literacy skill to read stuff! */
 	if (!change_skill(op, SK_LITERACY))
 	{
-		new_draw_info(NDI_UNIQUE, 0,op, "You are unable to decipher the strange symbols.");
+		new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
 		return;
 	}
 
@@ -71,33 +71,33 @@ void apply_book(object *op, object *tmp)
 	{
 		if (lev_diff < 2)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is just barely beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is just barely beyond your comprehension.");
 		}
 		else if (lev_diff < 3)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is slightly beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is slightly beyond your comprehension.");
 		}
 		else if (lev_diff < 5)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is beyond your comprehension.");
 		}
 		else if (lev_diff < 8)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is quite a bit beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is quite a bit beyond your comprehension.");
 		}
 		else if (lev_diff < 15)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is way beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is way beyond your comprehension.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "This book is totally beyond your comprehension.");
+			new_draw_info(NDI_UNIQUE, op, "This book is totally beyond your comprehension.");
 		}
 
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "You open the %s and start reading.", tmp->name);
+	new_draw_info_format(NDI_UNIQUE, op, "You open the %s and start reading.", tmp->name);
 
 	if (tmp->event_flags & EVENT_FLAG_APPLY)
 	{

@@ -627,7 +627,7 @@ int get_payment(object *pl, object *op)
 			sint64 i = query_cost(op, pl, F_BUY) - query_money(pl);
 
 			CLEAR_FLAG(op, FLAG_UNPAID);
-			new_draw_info_format(NDI_UNIQUE, 0, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
 			SET_FLAG(op, FLAG_UNPAID);
 			return 0;
 		}
@@ -641,7 +641,7 @@ int get_payment(object *pl, object *op)
 
 			if (pl->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, pl, "You paid %s for %s.", buf, query_name(op, NULL));
+				new_draw_info_format(NDI_UNIQUE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
 			}
 
 			tmp = merge_ob(op, NULL);
@@ -695,7 +695,7 @@ void sell_item(object *op, object *pl, sint64 value)
 	{
 		if (op)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl, "We're not interested in %s.", query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, pl, "We're not interested in %s.", query_name(op, NULL));
 		}
 	}
 
@@ -767,7 +767,7 @@ void sell_item(object *op, object *pl, sint64 value)
 		LOG(llevBug, "BUG: Warning - payment not zero: %d\n", i);
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
+	new_draw_info_format(NDI_UNIQUE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
 	SET_FLAG(op, FLAG_UNPAID);
 
 	/* Identify the item. Makes any unidentified item sold to unique shop appear identified. */
@@ -992,7 +992,7 @@ int bank_deposit(object *op, object *bank, char *text)
 
 	if (!money.mode)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Deposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'");
+		new_draw_info(NDI_UNIQUE, op, "Deposit what?\nUse 'deposit all' or 'deposit 40 gold, 20 silver...'");
 		return -1;
 	}
 	else if (money.mode == MONEYSTRING_ALL)
@@ -1006,7 +1006,7 @@ int bank_deposit(object *op, object *bank, char *text)
 		{
 			if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many mithril coins.");
+				new_draw_info(NDI_UNIQUE, op, "You don't have that many mithril coins.");
 				return 0;
 			}
 		}
@@ -1015,7 +1015,7 @@ int bank_deposit(object *op, object *bank, char *text)
 		{
 			if (query_money_type(op, coins_arch[1]->clone.value) < money.gold)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many gold coins.");
+				new_draw_info(NDI_UNIQUE, op, "You don't have that many gold coins.");
 				return 0;
 			}
 		}
@@ -1024,7 +1024,7 @@ int bank_deposit(object *op, object *bank, char *text)
 		{
 			if (query_money_type(op, coins_arch[2]->clone.value) < money.silver)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many silver coins.");
+				new_draw_info(NDI_UNIQUE, op, "You don't have that many silver coins.");
 				return 0;
 			}
 		}
@@ -1033,7 +1033,7 @@ int bank_deposit(object *op, object *bank, char *text)
 		{
 			if (query_money_type(op, coins_arch[3]->clone.value) < money.copper)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You don't have that many copper coins.");
+				new_draw_info(NDI_UNIQUE, op, "You don't have that many copper coins.");
 				return 0;
 			}
 		}
@@ -1084,7 +1084,7 @@ int bank_withdraw(object *op, object *bank, char *text)
 
 	if (!money.mode)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Withdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'");
+		new_draw_info(NDI_UNIQUE, op, "Withdraw what?\nUse 'withdraw all' or 'withdraw 30 gold, 20 silver...'");
 		return -1;
 	}
 	else if (money.mode == MONEYSTRING_ALL)
@@ -1098,7 +1098,7 @@ int bank_withdraw(object *op, object *bank, char *text)
 		/* Just to set a border.... */
 		if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Withdraw values are too high.");
+			new_draw_info(NDI_UNIQUE, op, "Withdraw values are too high.");
 			return 1;
 		}
 

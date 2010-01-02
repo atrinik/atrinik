@@ -185,7 +185,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	{
 		if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
 		{
-			new_draw_info(NDI_NAVY, 0, op, trap->msg);
+			new_draw_info(NDI_NAVY, op, trap->msg);
 		}
 
 		enter_exit(op, trap);
@@ -344,12 +344,12 @@ void recursive_roll(object *op, int dir, object *pusher)
 {
 	if (!roll_ob(op, dir, pusher))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, pusher, "You fail to push the %s.", query_name(op, NULL));
+		new_draw_info_format(NDI_UNIQUE, pusher, "You fail to push the %s.", query_name(op, NULL));
 		return;
 	}
 
 	move_ob(pusher, dir, pusher);
-	new_draw_info_format(NDI_WHITE, 0, pusher, "You roll the %s.", query_name(op, NULL));
+	new_draw_info_format(NDI_WHITE, pusher, "You roll the %s.", query_name(op, NULL));
 }
 
 /**
@@ -521,7 +521,7 @@ int push_roll_object(object *op, int dir)
 
 	if (tmp == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You fail to push anything.");
+		new_draw_info(NDI_UNIQUE, op, "You fail to push anything.");
 		return 0;
 	}
 

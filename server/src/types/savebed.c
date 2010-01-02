@@ -36,7 +36,7 @@ void apply_savebed(object *op)
 {
 	if (!CONTR(op)->name_changed || !op->stats.exp)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You don't deserve to save your character yet.");
+		new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
 		return;
 	}
 
@@ -45,6 +45,6 @@ void apply_savebed(object *op)
 	CONTR(op)->bed_x = op->x;
 	CONTR(op)->bed_y = op->y;
 
-	new_draw_info(NDI_UNIQUE, 0, op, "You save and leave the game. Bye!\nLeaving...");
+	new_draw_info(NDI_UNIQUE, op, "You save and leave the game. Bye!\nLeaving...");
 	CONTR(op)->socket.status = Ns_Dead;
 }

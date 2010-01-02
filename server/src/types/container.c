@@ -70,11 +70,11 @@ int esrv_apply_container(object *op, object *sack)
 
 		if (container_unlink(CONTR(op), cont))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You close %s.", query_name(cont, op));
+			new_draw_info_format(NDI_UNIQUE, op, "You close %s.", query_name(cont, op));
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You leave %s.", query_name(cont, op));
+			new_draw_info_format(NDI_UNIQUE, op, "You leave %s.", query_name(cont, op));
 		}
 
 		/* we closing the one we applied */
@@ -97,11 +97,11 @@ int esrv_apply_container(object *op, object *sack)
 
 			if (tmp)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
+				new_draw_info_format(NDI_UNIQUE, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "You don't have the key to unlock %s.", query_name(sack, op));
+				new_draw_info_format(NDI_UNIQUE, op, "You don't have the key to unlock %s.", query_name(sack, op));
 				return 0;
 			}
 		}
@@ -111,13 +111,13 @@ int esrv_apply_container(object *op, object *sack)
 			/* Party corpse */
 			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && (!CONTR(op)->party || sack->slaying != CONTR(op)->party->name))
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "It's not your party's bounty.");
+				new_draw_info_format(NDI_UNIQUE, op, "It's not your party's bounty.");
 				return 0;
 			}
 			/* Only give player with right name access */
 			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
 			{
-				new_draw_info_format(NDI_UNIQUE, 0, op, "It's not your bounty.");
+				new_draw_info_format(NDI_UNIQUE, op, "It's not your bounty.");
 				return 0;
 			}
 		}
@@ -138,11 +138,11 @@ int esrv_apply_container(object *op, object *sack)
 		/* this is not possible - opening a container inside another container or an another player */
 		if (sack->env)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You can't open %s.", query_name(sack, op));
+			new_draw_info_format(NDI_UNIQUE, op, "You can't open %s.", query_name(sack, op));
 			return 0;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You open %s.", query_name(sack, op));
+		new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 		container_link(CONTR(op), sack);
 	}
 	/* Sack is in player's inventory */
@@ -151,13 +151,13 @@ int esrv_apply_container(object *op, object *sack)
 		/* readied sack becoming open */
 		if (QUERY_FLAG (sack, FLAG_APPLIED))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You open %s.", query_name(sack, op));
+			new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 			container_link(CONTR(op), sack);
 		}
 		else
 		{
 			CLEAR_FLAG (sack, FLAG_APPLIED);
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You readied %s.", query_name(sack, op));
+			new_draw_info_format(NDI_UNIQUE, op, "You readied %s.", query_name(sack, op));
 			SET_FLAG (sack, FLAG_APPLIED);
 			update_object(sack, UP_OBJ_FACE);
 			esrv_update_item(UPD_FLAGS, op, sack);
@@ -418,7 +418,7 @@ void free_container_monster(object *monster, object *op)
 
 	if (insert_ob_in_map(monster, op->map, monster, 0))
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, op, "A %s jumps out of the %s.", query_name(monster, NULL), query_name(container, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "A %s jumps out of the %s.", query_name(monster, NULL), query_name(container, NULL));
 	}
 }
 

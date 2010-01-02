@@ -39,7 +39,7 @@ void apply_poison(object *op, object *tmp)
 	if (op->type == PLAYER)
 	{
 		play_sound_player_only(CONTR(op), SOUND_DRINK_POISON,SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "Yech! That tasted poisonous!");
+		new_draw_info(NDI_UNIQUE, op, "Yech! That tasted poisonous!");
 		strcpy(CONTR(op)->killer, "poisonous food");
 	}
 
@@ -73,7 +73,7 @@ void poison_more(object *op)
 		{
 			CLEAR_FLAG(op, FLAG_APPLIED);
 			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You feel much better now.");
+			new_draw_info(NDI_UNIQUE, op->env, "You feel much better now.");
 		}
 
 		remove_ob(op);
@@ -84,7 +84,7 @@ void poison_more(object *op)
 	if (op->env->type == PLAYER)
 	{
 		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, 0, op->env, "You feel very sick...");
+		new_draw_info(NDI_UNIQUE, op->env, "You feel very sick...");
 	}
 
 	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);

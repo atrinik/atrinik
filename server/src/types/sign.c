@@ -40,7 +40,7 @@ void apply_sign(object *op, object *sign)
 {
 	if (sign->msg == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Nothing is written on it.");
+		new_draw_info(NDI_UNIQUE, op, "Nothing is written on it.");
 		return;
 	}
 
@@ -50,7 +50,7 @@ void apply_sign(object *op, object *sign)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You cannot read it anymore.");
+				new_draw_info(NDI_UNIQUE, op, "You cannot read it anymore.");
 			}
 
 			return;
@@ -67,9 +67,9 @@ void apply_sign(object *op, object *sign)
 	 * for magic mouths that have been made visible. */
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to read while blind.");
+		new_draw_info(NDI_UNIQUE, op, "You are unable to read while blind.");
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, sign->msg);
+	new_draw_info(NDI_UNIQUE | NDI_NAVY, op, sign->msg);
 }

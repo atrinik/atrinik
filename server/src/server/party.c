@@ -72,7 +72,7 @@ void remove_party_member(partylist_struct *party, object *op)
 	else if (op->name == party->leader)
 	{
 		party->leader = party->members->objlink.ob->name;
-		new_draw_info_format(NDI_UNIQUE, 0, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
 	CONTR(op)->party = NULL;
@@ -107,7 +107,7 @@ void form_party(object *op, char *name)
 	char tmp[MAX_BUF];
 
 	add_party_member(party, op);
-	new_draw_info_format(NDI_UNIQUE, 0, op, "You have formed party: %s", name);
+	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
 	party->leader = op->name;
 
 	snprintf(tmp, sizeof(tmp), "Xformsuccess %s", name);
@@ -153,11 +153,11 @@ void send_party_message(partylist_struct *party, char *msg, int flag, object *op
 
 		if (flag == PARTY_MESSAGE_STATUS)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_YELLOW, 0, ol->objlink.ob, msg);
+			new_draw_info(NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
 		}
 		else if (flag == PARTY_MESSAGE_CHAT)
 		{
-			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, 0, ol->objlink.ob, msg);
+			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
 		}
 	}
 }
@@ -230,7 +230,7 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		if (!pl->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You are not a member of any party.");
 			return;
 		}
 
@@ -250,7 +250,7 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		if (pl->party)
 		{
-			new_draw_info(NDI_UNIQUE, 0, pl->ob, "You must leave your current party before joining another.");
+			new_draw_info(NDI_UNIQUE, pl->ob, "You must leave your current party before joining another.");
 			return;
 		}
 
@@ -264,7 +264,7 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		if (!party)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "Party %s does not exist. You must form it first.", buf);
+			new_draw_info_format(NDI_UNIQUE, pl->ob, "Party %s does not exist. You must form it first.", buf);
 			return;
 		}
 
@@ -276,7 +276,7 @@ void PartyCmd(char *buf, int len, player *pl)
 			if (party->passwd[0] == '\0' || !strcmp(party->passwd, partypassword))
 			{
 				add_party_member(party, pl->ob);
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, 0, pl->ob, "You have joined party: %s", party->name);
+				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You have joined party: %s", party->name);
 				snprintf(tmpbuf, sizeof(tmpbuf), "%s joined party %s.", pl->ob->name, party->name);
 				send_party_message(party, tmpbuf, PARTY_MESSAGE_STATUS, pl->ob);
 				snprintf(tmpbuf, sizeof(tmpbuf), "\nsuccess\n%s", party->name);
@@ -285,13 +285,13 @@ void PartyCmd(char *buf, int len, player *pl)
 			/* Party password was typed but it wasn't correct. */
 			else if (partypassword[0] != '\0')
 			{
-				new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "Incorrect party password.");
+				new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Incorrect party password.");
 				return;
 			}
 			/* Otherwise ask them to type the password */
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_YELLOW, 0, pl->ob, "The party %s requires a password. Please type it now, or press ESC to cancel joining.", party->name);
+				new_draw_info_format(NDI_UNIQUE | NDI_YELLOW, pl->ob, "The party %s requires a password. Please type it now, or press ESC to cancel joining.", party->name);
 				snprintf(tmpbuf, sizeof(tmpbuf), "\npassword\n%s", party->name);
 				strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmp) - 1);
 			}
@@ -306,19 +306,19 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		if (!buf || *buf == '\0')
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "Invalid party name to form.");
+			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Invalid party name to form.");
 			return;
 		}
 
 		if (pl->party)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, 0, pl->ob, "You must leave your current party before forming a new one.");
+			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You must leave your current party before forming a new one.");
 			return;
 		}
 
 		if (find_party(buf))
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "The party %s already exists, pick another name.", buf);
+			new_draw_info_format(NDI_UNIQUE, pl->ob, "The party %s already exists, pick another name.", buf);
 			return;
 		}
 
@@ -332,7 +332,7 @@ void PartyCmd(char *buf, int len, player *pl)
 
 		if (!pl->party)
 		{
-			new_draw_info(NDI_UNIQUE, 0, pl->ob, "You are not a member of any party.");
+			new_draw_info(NDI_UNIQUE, pl->ob, "You are not a member of any party.");
 			return;
 		}
 

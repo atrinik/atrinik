@@ -54,12 +54,12 @@ void apply_treasure(object *op, object *tmp)
 	/* msg like "the chest crumbles to dust" */
 	if (tmp->msg)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, tmp->msg);
+		new_draw_info(NDI_UNIQUE, op, tmp->msg);
 	}
 
 	if (treas == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "The chest was empty.");
+		new_draw_info(NDI_UNIQUE, op, "The chest was empty.");
 		decrease_ob(tmp);
 		return;
 	}
@@ -67,7 +67,7 @@ void apply_treasure(object *op, object *tmp)
 	{
 		remove_ob(treas);
 		check_walk_off(treas, NULL, MOVE_APPLY_VANISHED);
-		new_draw_info_format(NDI_UNIQUE, 0, op, "You find %s in the chest.", query_name(treas, NULL));
+		new_draw_info_format(NDI_UNIQUE, op, "You find %s in the chest.", query_name(treas, NULL));
 		treas->x = op->x,treas->y = op->y;
 
 		/* Monsters can be trapped in treasure chests */

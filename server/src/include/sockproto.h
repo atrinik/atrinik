@@ -9,8 +9,8 @@ void send_image_info(NewSocket *ns, char *params);
 void send_image_sums(NewSocket *ns, char *params);
 
 /* info.c */
-void new_draw_info(int flags, int pri, object *pl, const char *buf);
-void new_draw_info_format(int flags, int pri, object *pl, char *format, ...);
+void new_draw_info(int flags, object *pl, const char *buf);
+void new_draw_info_format(int flags, object *pl, char *format, ...);
 void new_info_map(int color, mapstruct *map, int x, int y, int dist, const char *str);
 void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, object *op1, object *op, const char *str);
 void send_socket_message(int flags, NewSocket *ns, const char *buf);

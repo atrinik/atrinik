@@ -40,7 +40,7 @@ void apply_spellbook(object *op, object *tmp)
 {
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to read while blind.");
+		new_draw_info(NDI_UNIQUE, op, "You are unable to read while blind.");
 		return;
 	}
 
@@ -52,7 +52,7 @@ void apply_spellbook(object *op, object *tmp)
 		if ((tmp->stats.sp = look_up_spell_name(tmp->slaying)) < 0)
 		{
 			tmp->stats.sp = -1;
-			new_draw_info_format(NDI_UNIQUE, 0, op, "The book's formula for %s is incomplete.", tmp->slaying);
+			new_draw_info_format(NDI_UNIQUE, op, "The book's formula for %s is incomplete.", tmp->slaying);
 			return;
 		}
 		/* now clear tmp->slaying since we no longer need it */
@@ -63,17 +63,17 @@ void apply_spellbook(object *op, object *tmp)
 	 * lower than the spell will make learning the spell more difficult */
 	if (!change_skill(op, SK_LITERACY))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You can't read! Your attempt fails.");
+		new_draw_info(NDI_UNIQUE, op, "You can't read! Your attempt fails.");
 		return;
 	}
 
 	if (tmp->stats.sp < 0 || tmp->stats.sp > NROFREALSPELLS || spells[tmp->stats.sp].level > (SK_level(op) + 10))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You are unable to decipher the strange symbols.");
+		new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, 0, op, "The spellbook contains the %s level spell %s.", get_levelnumber(spells[tmp->stats.sp].level), spells[tmp->stats.sp].name);
+	new_draw_info_format(NDI_UNIQUE, op, "The spellbook contains the %s level spell %s.", get_levelnumber(spells[tmp->stats.sp].level), spells[tmp->stats.sp].name);
 
 	if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 	{
@@ -86,7 +86,7 @@ void apply_spellbook(object *op, object *tmp)
 
 	if (check_spell_known(op, tmp->stats.sp) && (tmp->stats.Wis || find_special_prayer_mark(op, tmp->stats.sp) == NULL))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You already know that spell.\n");
+		new_draw_info(NDI_UNIQUE, op, "You already know that spell.\n");
 		return;
 	}
 
@@ -103,12 +103,12 @@ void apply_spellbook(object *op, object *tmp)
 	 * literacy rate very useful!  -b.t. */
 	if (QUERY_FLAG(op, FLAG_CONFUSED))
 	{
-		new_draw_info(NDI_UNIQUE,0, op, "In your confused state you flub the wording of the text!");
+		new_draw_info(NDI_UNIQUE, op, "In your confused state you flub the wording of the text!");
 		spellbook_failure(op, 0 - random_roll(0, spells[tmp->stats.sp].level, op, PREFER_LOW), spells[tmp->stats.sp].sp);
 	}
 	else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || random_roll(0, 149, op, PREFER_LOW) - (2 * SK_level(op)) < learn_spell[spells[tmp->stats.sp].flags&SPELL_DESC_WIS ? op->stats.Wis : op->stats.Int])
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You succeed in learning the spell!");
+		new_draw_info(NDI_UNIQUE, op, "You succeed in learning the spell!");
 		do_learn_spell(op, tmp->stats.sp, 0);
 
 		/* xp gain to literacy for spell learning */
@@ -120,7 +120,7 @@ void apply_spellbook(object *op, object *tmp)
 	else
 	{
 		play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "You fail to learn the spell.\n");
+		new_draw_info(NDI_UNIQUE, op, "You fail to learn the spell.\n");
 	}
 
 	decrease_ob(tmp);
@@ -143,7 +143,7 @@ static void spellbook_failure(object *op, int failure, int power)
 	/* wonder */
 	if (failure <= -1 && failure > -15)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Your spell warps!");
+		new_draw_info(NDI_UNIQUE, op, "Your spell warps!");
 #if 0
 		cast_cone(op, op, 0, 10, SP_WOW, spellarch[SP_WOW]);
 #endif
@@ -151,7 +151,7 @@ static void spellbook_failure(object *op, int failure, int power)
 	/* drain mana */
 	else if (failure <= -15 && failure > -35)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Your mana is drained!");
+		new_draw_info(NDI_UNIQUE, op, "Your mana is drained!");
 		op->stats.sp -= random_roll(0, power - 1, op, PREFER_LOW);
 
 		if (op->stats.sp < 0)

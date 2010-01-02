@@ -508,7 +508,7 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 	 * them an idea of the problem, but they deserve what they get */
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info_format(NDI_UNIQUE, 0, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
+		new_draw_info_format(NDI_UNIQUE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
 		return;
 	}
 

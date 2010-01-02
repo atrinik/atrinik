@@ -364,7 +364,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Powerful countermagic cancels all spellcasting here!");
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all spellcasting here!");
 		}
 
 		return 0;
@@ -375,7 +375,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Powerful countermagic cancels all prayer spells here!");
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all prayer spells here!");
 		}
 
 		return 0;
@@ -386,7 +386,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Powerful countermagic cancels all harmful magic here!");
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all harmful magic here!");
 		}
 
 		return 0;
@@ -397,7 +397,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Powerful countermagic cancels all summoning here!");
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all summoning here!");
 		}
 
 		return 0;
@@ -413,7 +413,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		{
 			if (caster->path_denied & s->path)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "It is denied for you to cast that spell.");
+				new_draw_info(NDI_UNIQUE, op, "It is denied for you to cast that spell.");
 				return 0;
 			}
 
@@ -421,13 +421,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			{
 				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < (points_used = SP_level_spellpoint_cost(caster, type)))
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "You don't have enough mana.");
+					new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
 					return 0;
 				}
 
 				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < (points_used = SP_level_gracepoint_cost(caster, type)))
 				{
-					new_draw_info(NDI_UNIQUE, 0, op, "You don't have enough grace.");
+					new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
 					return 0;
 				}
 			}
@@ -439,7 +439,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		{
 			if ((godname = determine_god(op)) == shstr_cons.none)
 			{
-				new_draw_info(NDI_UNIQUE, 0, op, "You need a deity to cast a prayer!");
+				new_draw_info(NDI_UNIQUE, op, "You need a deity to cast a prayer!");
 				return 0;
 			}
 		}
@@ -451,7 +451,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You lack enough skill to cast that spell.");
+			new_draw_info(NDI_UNIQUE, op, "You lack enough skill to cast that spell.");
 		}
 
 		return 0;
@@ -475,7 +475,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		 * "yourself". */
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "You can't cast this spell on %s!", target ? target->name : "yourself");
+			new_draw_info_format(NDI_UNIQUE, op, "You can't cast this spell on %s!", target ? target->name : "yourself");
 		}
 
 		return 0;
@@ -489,7 +489,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		if ((abs(rv.distance_x) > abs(rv.distance_y) ? abs(rv.distance_x) : abs(rv.distance_y)) > spells[type].range)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "Your target is out of range!");
+			new_draw_info(NDI_UNIQUE, op, "Your target is out of range!");
 			return 0;
 		}
 	}
@@ -497,7 +497,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	/* Tell player that his spell has been redirected to himself. */
 	if (op->type == PLAYER && target == op && CONTR(op)->target_object != op)
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "You auto-target yourself with this spell!");
+		new_draw_info(NDI_UNIQUE, op, "You auto-target yourself with this spell!");
 	}
 
 	/* Ban removed on clerical spells in no-magic areas. */
@@ -510,38 +510,38 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		if (s->flags & SPELL_DESC_WIS)
 		{
-			new_draw_info_format(NDI_UNIQUE, 0, op, "This ground is unholy! %s ignores you.", godname);
+			new_draw_info_format(NDI_UNIQUE, op, "This ground is unholy! %s ignores you.", godname);
 		}
 		else
 		{
 			switch (CONTR(op)->shoottype)
 			{
 				case range_magic:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks your spellcasting.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks your spellcasting.");
 					break;
 
 				case range_wand:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your wand.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your wand.");
 					break;
 
 				case range_rod:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your rod.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your rod.");
 					break;
 
 				case range_horn:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your horn.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your horn.");
 					break;
 
 				case range_scroll:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your scroll.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your scroll.");
 					break;
 
 				case range_potion:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your potion.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your potion.");
 					break;
 
 				case range_dust:
-					new_draw_info(NDI_UNIQUE, 0, op, "Something blocks the magic of your dust.");
+					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your dust.");
 					break;
 
 				default:
@@ -556,7 +556,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	if (item == spellNormal && op->type == PLAYER && s->flags & SPELL_DESC_WIS && random_roll(0, 99, op, PREFER_HIGH) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 	{
 		play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, 0, op, "You fumble the prayer because your wisdom is low.");
+		new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
 
 		/* Shouldn't happen... */
 		if (s->sp == 0)
@@ -573,7 +573,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		if (failure < 0)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You bungle the spell because you have too much heavy equipment in use.");
+			new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
 			return random_roll(0, SP_level_spellpoint_cost(caster, type), op, PREFER_LOW);
 		}
 	}
@@ -753,8 +753,8 @@ int cast_create_obj(object *op, object *new_op, int dir)
 
 	if (dir && wall_blocked(mt, xt, yt))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "Something is in the way.");
-		new_draw_info(NDI_UNIQUE, 0, op, "You cast it at your feet.");
+		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
+		new_draw_info(NDI_UNIQUE, op, "You cast it at your feet.");
 		dir = 0;
 	}
 
@@ -816,7 +816,7 @@ int summon_monster(object *op, object *caster, int dir, archetype *at, int spell
 
 	if ((dir == -1) || blocked(tmp, mt, xt, yt, tmp->terrain_flag))
 	{
-		new_draw_info(NDI_UNIQUE, 0, op, "There is something in the way.");
+		new_draw_info(NDI_UNIQUE, op, "There is something in the way.");
 		return 0;
 	}
 
@@ -1729,7 +1729,7 @@ void move_golem(object *op)
 			snprintf(buf, sizeof(buf), "Your %s dissolved.", op->name);
 		}
 
-		new_draw_info(NDI_UNIQUE, 0, op->owner, buf);
+		new_draw_info(NDI_UNIQUE, op->owner, buf);
 		send_golem_control(op, GOLEM_CTR_RELEASE);
 		remove_friendly_object(op);
 		CONTR(op->owner)->golem = NULL;
@@ -1786,14 +1786,14 @@ void move_golem(object *op)
 			{
 				if (op->owner)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op->owner, "%s avoids damaging %s.", op->name, victim->name);
+					new_draw_info_format(NDI_UNIQUE, op->owner, "%s avoids damaging %s.", op->name, victim->name);
 				}
 			}
 			else if (op->exp_obj && victim == op->owner)
 			{
 				if (op->owner)
 				{
-					new_draw_info_format(NDI_UNIQUE, 0, op->owner, "%s avoids damaging you.", op->name);
+					new_draw_info_format(NDI_UNIQUE, op->owner, "%s avoids damaging you.", op->name);
 				}
 			}
 			else
@@ -2887,7 +2887,7 @@ int cast_smite_spell(object *op, object *caster, int type)
 	 * of our god, the spell will fail. */
 	if (!target || QUERY_FLAG(target, FLAG_CAN_REFL_SPELL) || !god || (target->title && !strcmp(target->title, god->name)) || (target->race && strstr(target->race, god->race)))
 	{
-		new_draw_info(NDI_UNIQUE, 0,op, "Your request is unheeded.");
+		new_draw_info(NDI_UNIQUE, op, "Your request is unheeded.");
 		return 0;
 	}
 

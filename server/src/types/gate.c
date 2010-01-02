@@ -190,7 +190,7 @@ void move_gate(object *op)
 
 					if (tmp->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, tmp, "You are crushed by the %s!", op->name);
+						new_draw_info_format(NDI_UNIQUE, tmp, "You are crushed by the %s!", op->name);
 					}
 				}
 

@@ -91,7 +91,7 @@ static void remove_confusion(object *op)
 
 		if (op->env->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, 0, op->env, "You regain your senses.");
+			new_draw_info(NDI_UNIQUE, op->env, "You regain your senses.");
 		}
 	}
 
@@ -112,7 +112,7 @@ static void execute_wor(object *op)
 	{
 		if (blocks_magic(op->map, op->x, op->y))
 		{
-			new_draw_info(NDI_UNIQUE, 0, op, "You feel something fizzle inside you.");
+			new_draw_info(NDI_UNIQUE, op, "You feel something fizzle inside you.");
 		}
 		else
 		{
@@ -266,7 +266,7 @@ static void change_object(object *op)
 						/* inside player char? */
 						if (op->env->type == PLAYER)
 						{
-							new_draw_info_format(NDI_UNIQUE, 0, op->env, "The %s burnt out.", query_name(op, NULL));
+							new_draw_info_format(NDI_UNIQUE, op->env, "The %s burnt out.", query_name(op, NULL));
 							op->glow_radius = 0;
 							esrv_send_item(op->env, op);
 							/* Fix player will take care about adjust light masks */
@@ -302,7 +302,7 @@ static void change_object(object *op)
 					/* But give the player a note about it too */
 					if (op->env && op->env->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, 0, op->env, "The %s burnt out.", query_name(op, NULL));
+						new_draw_info_format(NDI_UNIQUE, op->env, "The %s burnt out.", query_name(op, NULL));
 					}
 				}
 			}

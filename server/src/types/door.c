@@ -98,7 +98,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 				{
 					if (op->type == PLAYER && mode)
 					{
-						new_draw_info(NDI_UNIQUE | NDI_NAVY, 0, op, tmp->msg);
+						new_draw_info(NDI_UNIQUE | NDI_NAVY, op, tmp->msg);
 					}
 
 					/* We can't open it! */
@@ -114,7 +114,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 
 				if (op->type == PLAYER && key)
 				{
-					new_draw_info_format(NDI_UNIQUE, NDI_BROWN, op, "You open the door with the %s.", query_short_name(key, NULL));
+					new_draw_info_format(NDI_UNIQUE, op, "You open the door with the %s.", query_short_name(key, NULL));
 				}
 			}
 
