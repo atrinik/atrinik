@@ -55,7 +55,9 @@ void init_anim()
 	int num_frames = 0, faces[MAX_ANIMATIONS], i;
 
 	if (anim_init)
+	{
 		return;
+	}
 
 	animations_allocated = 9;
 	num_animations = 0;
@@ -74,16 +76,20 @@ void init_anim()
 	animations[0].faces[0] = 0;
 	animations[0].facings = 0;
 
-	sprintf(buf, "%s/animations", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
 	LOG(llevDebug, "Reading animations from %s...\n", buf);
 
 	if ((fp = fopen(buf, "r")) == NULL)
+	{
 		LOG(llevError, "ERROR: Can not open animations file Filename=%s\n", buf);
+	}
 
 	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
 	{
 		if (*buf == '#')
+		{
 			continue;
+		}
 
 		/* Kill the newline */
 		buf[strlen(buf) - 1] = '\0';
@@ -95,6 +101,7 @@ void init_anim()
 				LOG(llevError, "ERROR: Didn't get a mina before %s\n", buf);
 				num_frames = 0;
 			}
+
 			num_animations++;
 
 			if (num_animations == animations_allocated)
@@ -112,8 +119,11 @@ void init_anim()
 		else if (!strncmp(buf, "mina", 4))
 		{
 			animations[num_animations].faces = malloc(sizeof(Fontindex) * num_frames);
+
 			for (i = 0; i < num_frames; i++)
+			{
 				animations[num_animations].faces[i] = faces[i];
+			}
 
 			animations[num_animations].num_animations = num_frames;
 
@@ -141,7 +151,9 @@ void init_anim()
 		else
 		{
 			if (!(faces[num_frames++] = find_face(buf, 0)))
+			{
 				LOG(llevBug, "BUG: Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
+			}
 		}
 	}
 
@@ -173,10 +185,12 @@ int find_animation(char *name)
 
 	search.name = name;
 
-	match = (Animations*)bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)())anim_compare);
+	match = (Animations *) bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)()) anim_compare);
 
 	if (match)
+	{
 		return match->num;
+	}
 
 	LOG(llevBug, "BUG: Unable to find animation %s\n", STRING_SAFE(name));
 	return 0;
@@ -209,29 +223,31 @@ void animate_object(object *op, int count)
 		return;
 	}
 
-	/* a animation is not only changed by anim_speed.
+	/* An animation is not only changed by anim_speed.
 	 * If we turn the object by a teleporter for example, the direction & facing can
 	 * change - outside the normal animation loop.
 	 * We have then to change the frame and not increase the state */
 	if ((!QUERY_FLAG(op, FLAG_SLEEP) && !QUERY_FLAG(op, FLAG_PARALYZED)))
-		/* ||  (!QUERY_FLAG(op,FLAG_MONSTER) && op->type != PLAYER))  */
-		/* only monster & players should be have sleep & paralyze? if not, attach upper line */
-		/* increase draw state (of the animation frame) */
+	{
 		op->state += count;
+	}
 
 	if (!count)
 	{
 		if (op->type == PLAYER)
 		{
-			/* this should be changed if complexer flags are added */
 			if (!CONTR(op)->anim_flags && op->anim_moving_dir == op->anim_moving_dir_last && op->anim_last_facing == op->anim_last_facing_last)
+			{
 				return;
+			}
 		}
 		else
 		{
-			/* object needs no update for moving */
+			/* Object needs no update for moving */
 			if (op->anim_enemy_dir == op->anim_enemy_dir_last && op->anim_moving_dir == op->anim_moving_dir_last && op->anim_last_facing == op->anim_last_facing_last)
+			{
 				return;
+			}
 		}
 	}
 
@@ -247,9 +263,12 @@ void animate_object(object *op, int count)
 	if (numfacing == 9)
 	{
 		base_state = dir * (numanim / 9);
+
 		/* If beyond drawable states, reset */
 		if (op->state >= max_state)
+		{
 			op->state = 0;
+		}
 	}
 
 	/* thats the new extended animation: base_state is */
@@ -262,183 +281,194 @@ void animate_object(object *op, int count)
 	{
 		if (op->type == PLAYER)
 		{
-			/*LOG(-1, "ppA: %s fdir:%d mdir:%d ldir:%d (%d %d %d) state:%d\n", op->name, op->anim_enemy_dir, op->anim_moving_dir, op->anim_last_facing, CONTR(op)->anim_flags & PLAYER_AFLAG_ENEMY, CONTR(op)->anim_flags & PLAYER_AFLAG_ADDFRAME, CONTR(op)->anim_flags & PLAYER_AFLAG_FIGHT, op->state); */
-
-			/* lets check flags - perhaps we have hit something in close fight */
+			/* Check flags - perhaps we have hit something in close fight */
 			if ((CONTR(op)->anim_flags & PLAYER_AFLAG_ADDFRAME || CONTR(op)->anim_flags & PLAYER_AFLAG_ENEMY) && !(CONTR(op)->anim_flags & PLAYER_AFLAG_FIGHT))
 			{
-				/* lets do a swing animation, starting at frame 0 */
+				/* Do swing animation, starting at frame 0 */
 				op->state = 0;
 
 				if (CONTR(op)->anim_flags & PLAYER_AFLAG_ENEMY)
 				{
-					/* so we do one more swing */
+					/* So we do one more swing */
 					CONTR(op)->anim_flags |= PLAYER_AFLAG_ADDFRAME;
-					/* so we do one swing */
+					/* So we do one swing */
 					CONTR(op)->anim_flags |= PLAYER_AFLAG_FIGHT;
-					/* this can perhaps be skipped when we have a clean enemy handling in attack.c */
-					/* save this for be sure to skip unneeded animation */
+					/* Save this to be sure to skip unneeded animation */
 					CONTR(op)->anim_enemy = op->enemy;
 					CONTR(op)->anim_enemy_count = op->enemy_count;
 				}
 				else
 				{
-					/* only do ADDFRAME if we still fight something */
+					/* Only do ADDFRAME if we are still fighting something */
 					if (OBJECT_VALID(op->enemy, CONTR(op)->anim_enemy_count))
+					{
 						CONTR(op)->anim_flags |= PLAYER_AFLAG_FIGHT;
+					}
 
-					/* we do our additional frame*/
+					/* We do our additional frame*/
 					CONTR(op)->anim_flags &=~PLAYER_AFLAG_ADDFRAME;
 				}
 
-				/* clear enemy, set fight */
+				/* Clear enemy, set fight */
 				CONTR(op)->anim_flags &=~PLAYER_AFLAG_ENEMY;
 			}
 
-			/* now setup the best animation for our action */
+			/* Now setup the best animation for our action */
 			if (CONTR(op)->anim_flags & PLAYER_AFLAG_FIGHT)
 			{
 				op->anim_enemy_dir_last = op->anim_enemy_dir;
 
-				/* test of moving when swing */
+				/* Test of moving when swing */
 				if (op->anim_moving_dir != -1)
 				{
-					/* lets face in moving direction */
+					/* Face in moving direction */
 					dir = op->anim_moving_dir;
 					op->anim_moving_dir_last = op->anim_moving_dir;
 				}
 				else
 				{
-					/* lets face to last direction we had done something */
+					/* Face to last direction we had done something */
 					if (op->anim_enemy_dir != -1)
+					{
 						dir = op->anim_enemy_dir;
+					}
 					else
+					{
 						dir = op->anim_last_facing;
+					}
 				}
 
-				/* special case, if we have no idea where we fac, we face to enemy */
+				/* If we have no idea where we faced, we face to enemy */
 				if (!dir || dir == -1)
+				{
 					dir = 4;
+				}
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
 				dir += 16;
 			}
-			/* test of moving */
+			/* Test of moving */
 			else if (op->anim_moving_dir != -1)
 			{
-				/* lets face in moving direction */
+				/* Face in moving direction */
 				dir = op->anim_moving_dir;
 				op->anim_moving_dir_last = op->anim_moving_dir;
 				op->anim_enemy_dir_last = -1;
 
-				/* special case, same spot will be mapped to south dir */
+				/* Same spot will be mapped to south dir */
 				if (!dir)
+				{
 					dir = 4;
+				}
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
 				dir += 8;
 			}
-			/* if nothing to do: object do nothing. use original facing */
+			/* If nothing to do: object is doing nothing. Use original facing */
 			else
 			{
-				/* lets face to last direction we had done something */
+				/* Face to last direction we had done something */
 				if (op->anim_enemy_dir != -1)
+				{
 					dir = op->anim_enemy_dir;
+				}
 				else
+				{
 					dir = op->anim_last_facing;
+				}
 
 				op->anim_last_facing_last = dir;
 
-				/* special case, same spot will be mapped to south dir */
+				/* Same spot will be mapped to south dir */
 				if (!dir || dir == -1)
+				{
 					op->anim_last_facing = dir = 4;
+				}
 			}
 
 			base_state = dir * (numanim / numfacing);
+
 			/* If beyond drawable states, reset */
 			if (op->state >= max_state)
 			{
 				op->state = 0;
-				/* clear always fight flag */
-				CONTR(op)->anim_flags &=~PLAYER_AFLAG_FIGHT;
+				/* Always clear fighting flag */
+				CONTR(op)->anim_flags &= ~PLAYER_AFLAG_FIGHT;
 			}
 		}
-		/* mobs & non player anims */
+		/* Monster and non player animations */
 		else
 		{
-			/* mob has targeted an enemy and face him. when me move, we strave sidewards */
-			/* here is a side effect: scared can be set for a player... */
+			/* Mob has targeted an enemy and faces him. When me move, we strafe sidewards */
 			if (op->anim_enemy_dir != -1 && (!QUERY_FLAG(op, FLAG_RUN_AWAY) && !QUERY_FLAG(op, FLAG_SCARED)))
 			{
-				/* lets face to the enemy position */
+				/* Face to the enemy position */
 				dir = op->anim_enemy_dir;
 				op->anim_enemy_dir_last = op->anim_enemy_dir;
 				op->anim_moving_dir_last = -1;
 
-				/* special case, same spot will be mapped to south dir */
+				/* Same spot will be mapped to south dir */
 				if (!dir)
+				{
 					dir = 4;
+				}
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
 				dir += 16;
 			}
-			/* test of moving */
+			/* Test of moving */
 			else if (op->anim_moving_dir != -1)
 			{
-				/* lets face in moving direction */
+				/* Face in moving direction */
 				dir = op->anim_moving_dir;
 				op->anim_moving_dir_last = op->anim_moving_dir;
 				op->anim_enemy_dir_last = -1;
 
-				/* special case, same spot will be mapped to south dir */
+				/* Same spot will be mapped to south dir */
 				if (!dir)
+				{
 					dir = 4;
+				}
 
 				op->anim_last_facing = dir;
 				op->anim_last_facing_last = -1;
 				dir += 8;
 			}
-			/* if nothing to do: object do nothing. use original facing */
 			else
 			{
-				/* lets face to last direction we had done something */
+				/* Face to last direction we had done something */
 				dir = op->anim_last_facing;
 				op->anim_last_facing_last = dir;
 
-				/* special case, same spot will be mapped to south dir */
+				/* Same spot will be mapped to south dir */
 				if (!dir || dir == -1)
+				{
 					op->anim_last_facing = dir = 4;
+				}
 			}
 
 			base_state = dir * (numanim / numfacing);
+
 			/* If beyond drawable states, reset */
 			if (op->state >= max_state)
+			{
 				op->state = 0;
+			}
 		}
 	}
 	else
 	{
 		/* If beyond drawable states, reset */
 		if (op->state >= max_state)
+		{
 			op->state = 0;
+		}
 	}
-
-	/*LOG(-1, "B: %s(%d)::dir:%d face:%d (%d) ->%d (%d)\n", op->name, count, op->direction, op->facing, op->anim_last_facing, base_state, op->state);*/
 
 	SET_ANIMATION(op, op->state + base_state);
 
-	/* this will force a "below windows update" - NOT a map face update.
-	 * map faces are updated in the map send command checking the object itself.
-	 * disabling this, will remove animations in the below windows, but also not
-	 * forcing an update of it every turn, But in one of the next steps, we will
-	 * add animation playing to the client and remove it from server. */
-
-	/* I re-enabled this for the time being.
-	 * But yeah, it should be coded client-side. Maybe sometime in the future.
-	 * TODO: Code this client-side.
-	 * -- A.T. 2009 */
 	update_object(op, UP_OBJ_FACE);
 }
