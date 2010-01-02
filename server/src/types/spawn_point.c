@@ -68,9 +68,6 @@ static object *spawn_monster(object *gen, object *orig, int range)
 		if (OBJECT_FREE(op))
 			return NULL;
 
-		if (op->randomitems != NULL)
-			create_treasure(op->randomitems, op, 0, op->level ? op->level : orig->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-
 		if (head == NULL)
 			head = op;
 
@@ -120,6 +117,11 @@ static object *spawn_monster(object *gen, object *orig, int range)
 		}
 
 		ret->level = random_roll(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)), ret, PREFER_LOW);
+	}
+
+	if (ret->randomitems)
+	{
+		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : orig->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 	}
 
 	/* return object ptr to our spawn */
