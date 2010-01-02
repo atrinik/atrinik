@@ -246,6 +246,7 @@ typedef struct _options
 	int warning_food;
 	int show_tooltips;
 	int chat_timestamp;
+	int chat_font_size;
 
 	/* key-infos in dialog-wins. */
 	int show_d_key_infos;

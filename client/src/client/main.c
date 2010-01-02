@@ -452,9 +452,11 @@ void init_game_data()
 	/* now load options, allowing the user to override the presetings */
 	load_options_dat();
 
-	Screensize = (_screensize *)malloc(sizeof(_screensize));
+	Screensize = (_screensize *) malloc(sizeof(_screensize));
 	Screensize->x = options.resolution_x;
 	Screensize->y = options.resolution_y;
+
+	change_textwin_font(options.chat_font_size);
 
 	init_widgets_fromCurrent();
 

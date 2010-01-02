@@ -131,5 +131,6 @@ extern void textwin_addhistory(char *text);
 extern void textwin_clearhistory();
 extern void textwin_putstring(char *text);
 extern void widget_textwin_show(int x, int y, int actWin);
+extern void change_textwin_font(int font);
 
 #endif

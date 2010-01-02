@@ -2432,7 +2432,13 @@ void check_menu_keys(int menu, int key)
 						save_options_dat();
 
 						if (options.playerdoll)
-							cur_widget[PDOLL_ID].show = TRUE;
+						{
+							cur_widget[PDOLL_ID].show = 1;
+						}
+
+						change_textwin_font(options.chat_font_size);
+						WIDGET_REDRAW(CHATWIN_ID);
+						WIDGET_REDRAW(MSGWIN_ID);
 					}
 
 					cpl.menustatus = MENU_NO;

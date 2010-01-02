@@ -36,6 +36,8 @@ static int old_slider_pos = 0;
 
 int txtwin_start_size = 0;
 
+static struct _Font *textwin_font = &SystemFont;
+
 /* Definition of keyword:
  *  A keyword is the text between two '^' characters.
  *  The size can vary between a single word and a complete sentence.
@@ -77,7 +79,7 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 
 			while (text[++index] && pos2 <= mouseX && text[index] != '^')
 			{
-				pos2 += SystemFont.c[(int) text[index]].w + SystemFont.char_offset;
+				pos2 += textwin_font->c[(int) text[index]].w + textwin_font->char_offset;
 			}
 
 			/* Clipped keyword was clicked, so we must start one row before */
@@ -129,7 +131,7 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 			continue;
 		}
 
-		pos2 += SystemFont.c[(int) text[pos]].w + SystemFont.char_offset;
+		pos2 += textwin_font->c[(int) text[pos]].w + textwin_font->char_offset;
 	}
 
 	/* No keyword here */
@@ -281,7 +283,7 @@ void draw_info(char *str, int flags)
 	{
 		if (str[i] != '^')
 		{
-			len += SystemFont.c[(int) (str[i])].w + SystemFont.char_offset;
+			len += textwin_font->c[(int) (str[i])].w + textwin_font->char_offset;
 		}
 
 		if (len >= winlen || str[i] == '\n' || str[i] == '\0')
@@ -435,11 +437,11 @@ static void show_window(int actWin, int x, int y, _BLTFX *bltfx)
 
 		if (txtwin[actWin].text[temp].key_clipped)
 		{
-			StringBlt(bltfx->surface, &SystemFont, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color | COLOR_FLAG_CLIPPED, NULL, NULL);
+			StringBlt(bltfx->surface, textwin_font, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color | COLOR_FLAG_CLIPPED, NULL, NULL);
 		}
 		else
 		{
-			StringBlt(bltfx->surface, &SystemFont, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color, NULL, NULL);
+			StringBlt(bltfx->surface, textwin_font, &txtwin[actWin].text[temp].buf[0], x + 2, (y + 1 + i * 10), txtwin[actWin].text[temp].color, NULL, NULL);
 		}
 	}
 
@@ -989,4 +991,22 @@ void textwin_putstring(char *text)
 
 	/* Set cursor after inserted text */
 	CurrentCursorPos = InputCount = len;
+}
+
+/**
+ * Change the font used for drawing text in text windows.
+ * @param font ID of the font to change to. */
+void change_textwin_font(int font)
+{
+	switch (font)
+	{
+		case 0:
+		default:
+			textwin_font = &SystemFont;
+			break;
+
+		case 1:
+			textwin_font = &MediumFont;
+			break;
+	}
 }
