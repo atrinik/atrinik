@@ -1333,7 +1333,9 @@ int swap_apartments(char *mapold, char *mapnew, int x, int y, object *op)
 	/* Check for old save bed */
 	if (strcmp(oldmap->path, CONTR(op)->savebed_map) == 0)
 	{
-		strcpy(CONTR(op)->savebed_map, "");
+		strcpy(CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
+		CONTR(op)->bed_x = EMERGENCY_X;
+		CONTR(op)->bed_y = EMERGENCY_Y;
 	}
 
 	unlink(oldmap->path);
