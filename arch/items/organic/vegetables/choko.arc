@@ -1,7 +1,7 @@
 Object choko
 name choko
 face choko.101
-food 25
+food 120
 item_quality 100
 item_condition 100
 nrof 1

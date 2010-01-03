@@ -1,7 +1,7 @@
 Object banana
 name banana
 face banana.101
-food 120
+food 210
 item_quality 100
 item_condition 100
 nrof 1

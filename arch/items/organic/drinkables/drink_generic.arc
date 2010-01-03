@@ -1,7 +1,7 @@
 Object drink_generic
 name water
 face water.101
-food 25
+food 50
 layer 3
 nrof 1
 type 54

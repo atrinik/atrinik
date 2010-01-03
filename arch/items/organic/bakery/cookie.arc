@@ -1,7 +1,7 @@
 Object cookie
 name cookie
 face cookie.101
-food 50
+food 90
 item_quality 100
 item_condition 100
 nrof 1

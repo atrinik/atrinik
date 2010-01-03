@@ -1,7 +1,7 @@
 Object cake_chocolate
 name chocolate cake
 face cake_chocolate.101
-food 60
+food 100
 item_quality 100
 item_condition 100
 nrof 1

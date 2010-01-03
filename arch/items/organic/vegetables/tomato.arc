@@ -1,7 +1,7 @@
 Object tomato
 name tomato
 face tomato.101
-food 35
+food 100
 item_quality 100
 item_condition 100
 nrof 1

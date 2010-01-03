@@ -1,7 +1,7 @@
 Object whitewine
 name white wine
 face whitewine.101
-food 100
+food 190
 item_quality 100
 item_condition 100
 nrof 1

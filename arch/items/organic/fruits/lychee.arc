@@ -1,7 +1,7 @@
 Object lychee
 name lychee
 face lychee.101
-food 75
+food 180
 item_quality 100
 item_condition 100
 nrof 1

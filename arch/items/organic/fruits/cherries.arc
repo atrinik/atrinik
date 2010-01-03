@@ -1,7 +1,7 @@
 Object cherries
 name cherries
 face cherries.101
-food 70
+food 110
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,7 +1,7 @@
 Object booze_generic
 name booze
 face booze.101
-food 175
+food 275
 item_quality 100
 item_condition 100
 nrof 1

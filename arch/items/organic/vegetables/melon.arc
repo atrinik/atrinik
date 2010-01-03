@@ -1,7 +1,7 @@
 Object melon
 name melon
 face melon.101
-food 125
+food 320
 item_quality 100
 item_condition 100
 nrof 1

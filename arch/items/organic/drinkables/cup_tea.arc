@@ -1,7 +1,7 @@
 Object cup_tea
 name cup of tea
 face cup_tea.101
-food 200
+food 170
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,7 +1,7 @@
 Object orange
 name orange
 face orange.101
-food 140
+food 190
 item_quality 100
 item_condition 100
 nrof 1

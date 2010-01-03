@@ -1,7 +1,7 @@
 Object cheese
 name cheese
 face cheese.101
-food 150
+food 190
 item_quality 100
 item_condition 100
 nrof 1

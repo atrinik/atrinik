@@ -1,7 +1,7 @@
 Object redwine
 name red wine
 face redwine.101
-food 100
+food 130
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,7 +1,7 @@
 Object icecake
 name ice cake
 face icecake.101
-food 80
+food 180
 item_quality 100
 item_condition 100
 nrof 1

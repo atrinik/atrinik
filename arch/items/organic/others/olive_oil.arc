@@ -1,7 +1,7 @@
 Object olive_oil
 name olive oil
 face olive_oil.101
-food 20
+food 70
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,7 +1,7 @@
 Object bonbons
 name bonbons
 face bonbons.101
-food 10
+food 90
 item_quality 100
 item_condition 100
 nrof 1

@@ -1,7 +1,7 @@
 Object teabag
 name teabag
 face teabag.101
-food 10
+food 30
 item_quality 100
 item_condition 100
 nrof 1

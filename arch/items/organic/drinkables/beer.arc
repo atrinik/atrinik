@@ -1,7 +1,7 @@
 Object beer
 name beer
 face beer.101
-food 100
+food 200
 item_quality 100
 item_condition 100
 nrof 1

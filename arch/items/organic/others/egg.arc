@@ -1,7 +1,7 @@
 Object egg
 name egg
 face egg.101
-food 80
+food 140
 item_quality 100
 item_condition 100
 nrof 1

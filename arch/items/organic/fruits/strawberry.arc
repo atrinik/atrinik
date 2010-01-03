@@ -1,7 +1,7 @@
 Object strawberry
 name strawberry
 face strawberry.101
-food 40
+food 110
 item_quality 100
 item_condition 100
 nrof 1

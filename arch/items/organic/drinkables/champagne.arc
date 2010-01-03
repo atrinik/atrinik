@@ -1,7 +1,7 @@
 Object champagne
 name champagne
 face champagne.101
-food 150
+food 200
 item_quality 100
 item_condition 100
 nrof 1

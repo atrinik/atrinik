@@ -1,7 +1,7 @@
 Object snozzcumber
 name snozzcumber
 face snozzcumber.101
-food 50
+food 120
 item_quality 100
 item_condition 100
 nrof 1

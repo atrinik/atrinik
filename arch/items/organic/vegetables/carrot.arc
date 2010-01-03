@@ -1,7 +1,7 @@
 Object carrot
 name carrot
 face carrot.101
-food 50
+food 110
 item_quality 100
 item_condition 100
 nrof 1
