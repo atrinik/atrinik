@@ -647,7 +647,7 @@ void enter_exit(object *op, object *exit_ob)
 					 * that go up, don't. If the going home has reset, there
 					 * isn't much point generating a random map, because it
 					 * won't match the maps, so just teleport the player
-					 * to emergency map. */
+					 * to their savebed map. */
 					if (exit_ob->msg)
 					{
 						if (exit_ob->sub_type1 == ST1_EXIT_SOUND && op->map)
@@ -659,7 +659,7 @@ void enter_exit(object *op, object *exit_ob)
 					}
 					else
 					{
-						enter_map(op, ready_map_name(EMERGENCY_MAPPATH, 0), EMERGENCY_X, EMERGENCY_Y, 1);
+						enter_player_savebed(op);
 					}
 
 					/* For exits that cause damages (like pits).  Don't know if any
@@ -770,17 +770,21 @@ void enter_exit(object *op, object *exit_ob)
 			if (strncmp(CONTR(op)->maplevel, "/random/", 8))
 			{
 				LOG(llevBug, "BUG: enter_exit(): Pathname to map does not exist! player: %s (%s)\n", op->name, CONTR(op)->maplevel);
+				newmap = ready_map_name(EMERGENCY_MAPPATH, 0);
+				op->x = EMERGENCY_X;
+				op->y = EMERGENCY_Y;
+
+				/* If we can't load the emergency map, something is probably
+				 * really screwed up, so bail out now. */
+				if (!newmap)
+				{
+					LOG(llevError, "ERROR: enter_exit(): could not load emergency map? Fatal error! (player: %s)\n", op->name);
+				}
 			}
-
-			newmap = ready_map_name(EMERGENCY_MAPPATH, 0);
-			op->x = EMERGENCY_X;
-			op->y = EMERGENCY_Y;
-
-			/* If we can't load the emergency map, something is probably
-			 * really screwed up, so bail out now. */
-			if (!newmap)
+			else
 			{
-				LOG(llevError, "ERROR: enter_exit(): could not load emergency map? Fatal error! (player: %s)\n", op->name);
+				enter_player_savebed(op);
+				return;
 			}
 		}
 
