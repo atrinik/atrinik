@@ -2515,20 +2515,28 @@ treasureone random_gem
 end
 
 treasureone random_mtools
-  arch wand
-    chance 93
-  more
-  arch rod_light
-    difficulty 20
-    chance 3
-  more
-  arch horn
-    difficulty 30
-    chance 3
-  more
-  arch rod_heavy
-    difficulty 50
-    chance 1
+	arch wand
+		chance 92
+		quality_range 7
+		magic 0
+	more
+	arch rod_light
+		difficulty 15
+		chance 3
+		quality_range 7
+		magic 0
+	more
+	arch horn
+		difficulty 25
+		chance 3
+		quality_range 7
+		magic 0
+	more
+	arch rod_heavy
+		difficulty 40
+		chance 2
+		quality_range 7
+		magic 0
 end
 
 treasureone random_food
