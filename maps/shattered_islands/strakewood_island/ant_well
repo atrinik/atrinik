@@ -2,7 +2,7 @@ arch map
 name Ant Well
 msg
 Created:  2009-12-31 Alex Tokar
-Modified: 2009-12-31 Alex Tokar
+Modified: 2010-01-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1195,9 +1195,9 @@ x 9
 y 1
 end
 arch ladder_up
-slaying /emergency
-hp 0
-sp 0
+slaying ../world_0613
+hp 18
+sp 8
 x 9
 y 1
 end
