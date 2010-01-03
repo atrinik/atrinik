@@ -31,7 +31,7 @@ def check_send(player, object):
 		return False
 	# Don't allow sending containers with items inside it.
 	elif object.type == TYPE_CONTAINER and object.inventory:
-		me.SayTo(activator, "\nYou cannot send a container with items inside it.")
+		me.SayTo(activator, "\nDue to heightened security levels all items must be removed from containers and sent separately.")
 		return False
 	# Check if the item can be sent.
 	elif not post.can_be_sent(object):
