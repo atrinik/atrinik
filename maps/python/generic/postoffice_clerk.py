@@ -29,6 +29,10 @@ def check_send(player, object):
 	elif object.f_applied:
 		me.SayTo(activator, "\nYou must first unapply that item.")
 		return False
+	# Don't allow sending containers with items inside it.
+	elif object.type == TYPE_CONTAINER and object.inventory:
+		me.SayTo(activator, "\nYou cannot send a container with items inside it.")
+		return False
 	# Check if the item can be sent.
 	elif not post.can_be_sent(object):
 		me.SayTo(activator, "\nYou cannot send that item.")
