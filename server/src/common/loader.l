@@ -1253,17 +1253,17 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
 	if (op->stats.Str != op2->stats.Str)
 	{
-		FAST_SAVE_LONG(sb, "Str", op->stats.Str);
+		FAST_SAVE_LONG(sb, "Str ", op->stats.Str);
 	}
 
 	if (op->stats.Dex != op2->stats.Dex)
 	{
-		FAST_SAVE_LONG(sb, "Dex", op->stats.Dex);
+		FAST_SAVE_LONG(sb, "Dex ", op->stats.Dex);
 	}
 
 	if (op->stats.Con != op2->stats.Con)
 	{
-		FAST_SAVE_LONG(sb, "Con", op->stats.Con);
+		FAST_SAVE_LONG(sb, "Con ", op->stats.Con);
 	}
 
 	if (op->stats.Wis != op2->stats.Wis)
