@@ -1659,6 +1659,12 @@ void examine(object *op, object *tmp)
 						}
 					}
 				}
+
+				if (tmp->carrying)
+				{
+					new_draw_info(NDI_UNIQUE, op, buf);
+					snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.f);
+				}
 			}
 
 			break;
