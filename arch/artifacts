@@ -3250,7 +3250,93 @@ end
 # Types of food which can affect player's status
 
 Allowed all
-chance 200
+chance 95
+artifact food_mana_lesser
+def_arch food_generic
+Object
+title of lesser mana
+type 6
+sp 13
+end
+
+Allowed all
+chance 90
+difficulty 16
+artifact food_mana_medium
+def_arch food_generic
+Object
+title of medium mana
+type 6
+sp 24
+end
+
+Allowed all
+chance 85
+difficulty 27
+artifact food_mana
+def_arch food_generic
+Object
+title of mana
+type 6
+sp 37
+end
+
+Allowed all
+chance 80
+difficulty 42
+artifact food_mana_greater
+def_arch food_generic
+Object
+title of greater mana
+type 6
+sp 57
+end
+
+Allowed all
+chance 95
+artifact food_grace_lesser
+def_arch food_generic
+Object
+title of lesser grace
+type 6
+grace 13
+end
+
+Allowed all
+chance 90
+difficulty 16
+artifact food_grace_medium
+def_arch food_generic
+Object
+title of medium grace
+type 6
+grace 24
+end
+
+Allowed all
+chance 85
+difficulty 27
+artifact food_grace
+def_arch food_generic
+Object
+title of grace
+type 6
+grace 37
+end
+
+Allowed all
+chance 80
+difficulty 42
+artifact food_grace_greater
+def_arch food_generic
+Object
+title of greater grace
+type 6
+grace 57
+end
+
+Allowed all
+chance 40
 artifact food_poison
 def_arch food_generic
 Object
@@ -3259,7 +3345,7 @@ type 6
 food 10
 hp -5
 resist_magic -10
-Str -1
+Str -2
 Con -1
 value 5
 cursed 1
@@ -3275,8 +3361,8 @@ type 6
 food 10
 hp -25
 resist_magic -25
-Str -1
-Con -1
+Str -3
+Con -2
 Dex -1
 Cha -1
 value 5

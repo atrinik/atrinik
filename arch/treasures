@@ -2549,9 +2549,6 @@ treasureone random_food
   arch drink_generic
     chance 10
   more
-  arch poison_food
-    chance 10
-  more
   arch drumstick
     chance 10
   more

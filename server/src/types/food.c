@@ -274,7 +274,7 @@ void create_food_force(object* who, object *food, object *force)
 void eat_special_food(object *who, object *food)
 {
 	/* if there is any stat or resist value - create force for the object! */
-	if (food->stats.Pow ||food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha)
+	if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha)
 	{
 		create_food_force(who, food, get_archetype("force"));
 	}
@@ -292,8 +292,8 @@ void eat_special_food(object *who, object *food)
 		}
 	}
 
-	/* check for hp, sp change */
-	if (food->stats.hp != 0)
+	/* Check for hp, sp and grace change */
+	if (food->stats.hp)
 	{
 		if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
 		{
@@ -332,7 +332,7 @@ void eat_special_food(object *who, object *food)
 		}
 	}
 
-	if (food->stats.sp != 0)
+	if (food->stats.sp)
 	{
 		if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
 		{
@@ -363,6 +363,40 @@ void eat_special_food(object *who, object *food)
 		{
 			new_draw_info(NDI_UNIQUE, who, "You feel a rush of magical energy!");
 			who->stats.sp += food->stats.sp;
+		}
+	}
+
+	if (food->stats.grace && determine_god(who) != shstr_cons.none)
+	{
+		if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
+		{
+			int tmp = food->stats.grace;
+
+			if (tmp > 0)
+			{
+				tmp = -tmp;
+			}
+
+			new_draw_info(NDI_UNIQUE, who, "Your grace is drained!");
+
+			if (QUERY_FLAG(food, FLAG_CURSED))
+			{
+				who->stats.grace += tmp * 2;
+			}
+			else
+			{
+				who->stats.grace += tmp * 3;
+			}
+
+			if (who->stats.grace < 0)
+			{
+				who->stats.grace = 0;
+			}
+		}
+		else
+		{
+			new_draw_info(NDI_UNIQUE, who, "You are returned to a state of grace.");
+			who->stats.grace += food->stats.grace;
 		}
 	}
 }

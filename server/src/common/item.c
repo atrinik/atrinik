@@ -1206,18 +1206,36 @@ char *describe_item(object *op)
 					if (!QUERY_FLAG(op, FLAG_CURSED))
 					{
 						if (op->stats.hp)
+						{
 							strcat(retbuf, "(heals)");
+						}
 
 						if (op->stats.sp)
-							strcat(retbuf, "(spellpoint regen)");
+						{
+							strcat(retbuf, "(mana regen)");
+						}
+
+						if (op->stats.grace)
+						{
+							strcat(retbuf, "(grace regen)");
+						}
 					}
 					else
 					{
 						if (op->stats.hp)
+						{
 							strcat(retbuf, "(damages)");
+						}
 
 						if (op->stats.sp)
-							strcat(retbuf, "(spellpoint depletion)");
+						{
+							strcat(retbuf, "(mana depletion)");
+						}
+
+						if (op->stats.grace)
+						{
+							strcat(retbuf, "(grace depletion)");
+						}
 					}
 				}
 				break;
