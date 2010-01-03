@@ -23,10 +23,11 @@ no_pick 1
 type 122
 material 18
 value 350
-container 15000
+container 100000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf2.111
 name shelf
 face shelf2.111
@@ -52,10 +53,11 @@ no_pick 1
 type 122
 material 18
 value 350
-container 15000
+container 100000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3.111
 name shelf
 face shelf3.111
@@ -81,10 +83,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 140000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3a.111
 name shelf
 face shelf3a.111
@@ -110,10 +113,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 140000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3b.111
 name shelf
 face shelf3b.111
@@ -139,10 +143,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 140000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3c.111
 name shelf
 face shelf3c.111
@@ -168,10 +173,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 140000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3_dem1.111
 name demolished shelf
 face shelf3_dem1.111
@@ -197,10 +203,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 20000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3_dem2.111
 name demolished shelf
 face shelf3_dem2.111
@@ -226,10 +233,11 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 20000
 weight 15000
 weapon_speed 1.0
 end
+
 Object shelf3_dem3.111
 name demolished shelf
 face shelf3_dem3.111
@@ -255,7 +263,7 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 20000
 weight 15000
 weapon_speed 1.0
 end

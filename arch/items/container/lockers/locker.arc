@@ -24,7 +24,7 @@ type 122
 no_pick 1
 material 18
 value 350
-container 15000
+container 80000
 weight 15000
 weapon_speed 1.0
 end
@@ -55,7 +55,7 @@ type 122
 no_pick 1
 material 18
 value 350
-container 15000
+container 80000
 weight 15000
 weapon_speed 1.0
 end
@@ -86,7 +86,7 @@ type 122
 material 18
 no_pick 1
 value 350
-container 15000
+container 30000
 weight 15000
 weapon_speed 1.0
 end

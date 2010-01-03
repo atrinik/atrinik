@@ -24,7 +24,7 @@ no_pick 1
 type 122
 material 18
 value 350
-container 15000
+container 30000
 weight 15000
 weapon_speed 1.0
 end
