@@ -1,9 +1,10 @@
-Object bear_grey
-name grey bear
-face bear_grey.131
-race bear
-randomitems mob_bear_grey
+Object snowman_evil2
+name snowman
+face snowman_evil2.151
+race snowcreature
+randomitems mob_default
 is_female 1
+is_male 1
 corpse 1
 will_apply 8
 item_race 255
@@ -16,7 +17,7 @@ weapon_speed 0.038
 attack_cleave 80
 type 80
 Wis 6
-animation bear_grey
+animation snowman_evil2
 is_animated 1
 anim_speed 4
 monster 1

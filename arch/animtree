@@ -23,6 +23,7 @@
 /bar1
 /barmaid
 /bartender
+/bat_brown
 /bear_grey
 /bed_1a.111
 /bed_1b.111
@@ -41,6 +42,7 @@
 /bolt_fey
 /bolt_woodlanders
 /bomb
+/bone_devil
 /broom.111
 /bullet
 /burnout
@@ -101,11 +103,13 @@
 /deer
 /demilich
 /demon_fire
+/demon_green
 /desk1.111
 /desk2
 /detector
 /dir_sign
 /director
+/dog_brown
 /door1_locked
 /door_bar1
 /door_wood1
@@ -245,6 +249,7 @@
 /orc_sorcerer
 /orc_warlord
 /orc_warrior
+/oty
 /peasant
 /ped_black
 /ped_black_h1
@@ -323,6 +328,7 @@
 /rod_light
 /rooster
 /rune_fire
+/santa
 /scarecrow.111
 /sewer_wall
 /shelf1.111
@@ -351,11 +357,14 @@
 /skel_fighter3
 /skel_mage
 /slime
+/slime_blue
 /slug_giant
 /smith
 /snake
 /snowball
 /snowball2
+/snowman_evil
+/snowman_evil2
 /spider_web
 /spinner
 /sstone

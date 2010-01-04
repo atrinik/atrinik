@@ -5778,7 +5778,7 @@ treasure mob_mage_l9
     end
 end
 
-treasure mob_bear_grey
+treasure mob_default
   list traps
     chance 8
   more
