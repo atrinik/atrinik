@@ -1,18 +1,7 @@
 Object couch1a
 name bed
 face couch1a.111
-anim
-facings 9
-dummy.111
-couch1a.111
-couch1a.111
-couch1a.111
-couch1a.171
-couch1a.171
-couch1a.171
-couch1a.171
-couch1a.111
-mina
+animation couch1a
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -24,18 +13,7 @@ end
 Object couch1b
 name bed
 face couch1b.111
-anim
-facings 9
-dummy.111
-couch1b.111
-couch1b.111
-couch1b.111
-couch1b.171
-couch1b.171
-couch1b.171
-couch1b.171
-couch1b.111
-mina
+animation couch1b
 is_animated 0
 anim_speed 1
 is_turnable 1

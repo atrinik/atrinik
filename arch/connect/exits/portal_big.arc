@@ -8,15 +8,7 @@ sp -1
 type 41
 layer 5
 no_pick 1
-anim
-portal_big.101
-portal_big.102
-portal_big.103
-portal_big.104
-portal_big.105
-portal_big.106
-portal_big.107
-mina
+animation portal_big
 is_animated 1
 anim_speed 2
 end

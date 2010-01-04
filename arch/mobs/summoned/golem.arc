@@ -13,59 +13,7 @@ terrain_flag 1
 weapon_speed 0.039
 face golem.131
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-golem.131
-golem.132
-golem.131
-golem.132
-golem.131
-golem.132
-golem.131
-golem.132
-golem.151
-golem.152
-golem.151
-golem.152
-golem.151
-golem.152
-golem.151
-golem.152
-golem.131
-golem.132
-golem.131
-golem.132
-golem.131
-golem.132
-golem.131
-golem.132
-golem.151
-golem.152
-golem.151
-golem.152
-golem.151
-golem.152
-golem.151
-golem.152
-golem.131
-golem.232
-golem.131
-golem.232
-golem.131
-golem.232
-golem.131
-golem.232
-golem.151
-golem.252
-golem.151
-golem.252
-golem.151
-golem.252
-golem.151
-golem.252
-mina
+animation golem
 is_animated 1
 anim_speed 4
 monster 1

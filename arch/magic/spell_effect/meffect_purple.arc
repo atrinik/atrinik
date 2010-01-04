@@ -4,12 +4,7 @@ face effect1_purble.101
 layer 7
 no_save 1
 type 79
-anim
-effect1_purble.101
-effect1_purble.102
-effect1_purble.103
-effect1_purble.104
-mina
+animation meffect_purple
 is_animated 1
 anim_speed 1
 speed 1

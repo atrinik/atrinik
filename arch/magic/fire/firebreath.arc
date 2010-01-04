@@ -7,11 +7,7 @@ walk_on 1
 fly_on 1
 glow_radius 1
 face fire.101
-anim
-fire.101
-fire.102
-fire.103
-mina
+animation firebreath
 is_animated 1
 anim_speed 4
 speed 1

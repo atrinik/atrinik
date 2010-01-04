@@ -20,59 +20,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face pudding_green.111
-anim
-facings 25
-trans.101
-trans.101
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-pudding_green.111
-pudding_green.112
-mina
+animation pudding_green
 is_animated 1
 anim_speed 4
 type 80

@@ -2,18 +2,7 @@ Object fmask_ruin1a.111
 name ruin parts
 layer 2
 face fmask_ruin1a.111
-anim
-facings 9
-dummy.111
-fmask_ruin1a.111
-fmask_ruin1a.111
-fmask_ruin1a.111
-fmask_ruin1a.131
-fmask_ruin1a.131
-fmask_ruin1a.131
-fmask_ruin1a.131
-fmask_ruin1a.111
-mina
+animation fmask_ruin1a.111
 is_animated 0
 anim_speed 1
 is_turnable 1

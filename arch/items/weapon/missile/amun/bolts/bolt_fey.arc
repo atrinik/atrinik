@@ -11,18 +11,7 @@ last_sp 4
 type 13
 sub_type 2
 face bolt_fey.101
-anim
-facings 9
-bolt_fey.101
-bolt_fey.111
-bolt_fey.121
-bolt_fey.131
-bolt_fey.141
-bolt_fey.151
-bolt_fey.161
-bolt_fey.171
-bolt_fey.181
-mina
+animation bolt_fey
 anim_speed 1
 is_animated 0
 is_turnable 1

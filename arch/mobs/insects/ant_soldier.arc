@@ -16,59 +16,7 @@ direction 5
 terrain_flag 1
 randomitems mob_ant
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.131
-ant_soldier.132
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-ant_soldier.151
-ant_soldier.152
-mina
+animation ant_soldier
 is_animated 1
 anim_speed 4
 monster 1

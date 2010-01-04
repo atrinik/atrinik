@@ -18,59 +18,7 @@ random_move 1
 type 80
 Wis 6
 randomitems mob_ant
-anim
-facings 25
-trans.101
-trans.101
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.131
-ant_red.132
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.151
-ant_red.152
-ant_red.131
-ant_red.232
-ant_red.131
-ant_red.232
-ant_red.131
-ant_red.232
-ant_red.131
-ant_red.232
-ant_red.151
-ant_red.252
-ant_red.151
-ant_red.252
-ant_red.151
-ant_red.252
-ant_red.151
-ant_red.252
-mina
+animation ant_red
 is_animated 1
 anim_speed 4
 monster 1

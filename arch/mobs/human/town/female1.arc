@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face female1.131
-anim
-facings 25
-trans.101
-trans.101
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.131
-female1.132
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-female1.151
-female1.152
-mina
+animation female1
 is_animated 1
 anim_speed 4
 speed -0.047

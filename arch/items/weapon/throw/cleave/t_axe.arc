@@ -11,18 +11,7 @@ nrof 1
 wc_range 20
 type 13
 sub_type 131
-anim
-facings 9
-t_axe.101
-t_axe.111
-t_axe.111
-t_axe.111
-t_axe.111
-t_axe.111
-t_axe.111
-t_axe.111
-t_axe.111
-mina
+animation t_axe
 is_animated 0
 anim_speed 5
 is_turnable 1

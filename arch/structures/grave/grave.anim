@@ -1,0 +1,38 @@
+anim grave1.111
+facings 9
+dummy.111
+grave1.111
+grave1.111
+grave1.111
+grave1.131
+grave1.131
+grave1.131
+grave1.131
+grave1.111
+mina
+
+anim grave2.111
+facings 9
+dummy.111
+grave2.111
+grave2.111
+grave2.111
+grave2.131
+grave2.131
+grave2.131
+grave2.131
+grave2.111
+mina
+
+anim grave_open.111
+facings 9
+dummy.111
+grave_open.111
+grave_open.111
+grave_open.111
+grave_open.131
+grave_open.131
+grave_open.131
+grave_open.131
+grave_open.111
+mina

@@ -20,59 +20,7 @@ terrain_flag 1
 Wis 5
 can_see_in_dark 1
 face gel_cube.111
-anim
-facings 25
-trans.101
-trans.101
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-gel_cube.111
-gel_cube.112
-mina
+animation cube_gel
 is_animated 1
 anim_speed 4
 type 80

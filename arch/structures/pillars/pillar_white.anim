@@ -1,0 +1,51 @@
+anim pillar_white1c
+facings 9
+dummy.111
+pillar_white1c.111
+pillar_white1c.111
+pillar_white1c.111
+pillar_white1c.131
+pillar_white1c.131
+pillar_white1c.131
+pillar_white1c.131
+pillar_white1c.111
+mina
+
+anim pillar_white1d
+facings 9
+dummy.111
+pillar_white1d.111
+pillar_white1d.111
+pillar_white1d.111
+pillar_white1d.131
+pillar_white1d.131
+pillar_white1d.131
+pillar_white1d.131
+pillar_white1d.111
+mina
+
+anim pillar_white2c
+facings 9
+dummy.111
+pillar_white2c.111
+pillar_white2c.111
+pillar_white2c.111
+pillar_white2c.131
+pillar_white2c.131
+pillar_white2c.131
+pillar_white2c.131
+pillar_white2c.111
+mina
+
+anim pillar_white2d
+facings 9
+dummy.111
+pillar_white2d.111
+pillar_white2d.111
+pillar_white2d.111
+pillar_white1d.131
+pillar_white1d.131
+pillar_white2d.131
+pillar_white2d.131
+pillar_white2d.111
+mina

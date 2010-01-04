@@ -15,59 +15,7 @@ weapon_speed 0.045
 corpse 1
 attack_weaponmagic 100
 face ranger.131
-anim
-facings 25
-trans.101
-trans.101
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.131
-ranger.132
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-ranger.151
-ranger.152
-mina
+animation ranger
 is_animated 1
 anim_speed 4
 speed -0.0495

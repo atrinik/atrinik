@@ -1,18 +1,7 @@
 Object chained_skel.111
 name chained skeleton
 face chained_skel.111
-anim
-facings 9
-dummy.111
-chained_skel.111
-chained_skel.111
-chained_skel.111
-chained_skel.171
-chained_skel.171
-chained_skel.171
-chained_skel.171
-chained_skel.111
-mina
+animation chained_skel.111
 is_animated 0
 anim_speed 1
 is_turnable 1

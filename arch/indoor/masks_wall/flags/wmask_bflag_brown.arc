@@ -1,18 +1,7 @@
 Object wmask_bflag_brown_1
 name big flag
 face wmask_bflag_brown.u.151
-anim
-facings 9
-dummy.111
-wmask_bflag_brown.u.151
-wmask_bflag_brown.u.151
-wmask_bflag_brown.u.151
-wmask_bflag_brown.u.131
-wmask_bflag_brown.u.131
-wmask_bflag_brown.u.131
-wmask_bflag_brown.u.131
-wmask_bflag_brown.u.151
-mina
+animation wmask_bflag_brown_1
 is_animated 0
 anim_speed 1
 is_turnable 1

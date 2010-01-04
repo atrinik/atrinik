@@ -1,0 +1,51 @@
+anim wall_drain1
+facings 9
+dummy.111
+wall_drain1.151
+wall_drain1.151
+wall_drain1.151
+wall_drain1.131
+wall_drain1.131
+wall_drain1.131
+wall_drain1.131
+wall_drain1.151
+mina
+
+anim wall_drain2
+facings 9
+dummy.111
+wall_drain2.151
+wall_drain2.151
+wall_drain2.151
+wall_drain2.131
+wall_drain2.131
+wall_drain2.131
+wall_drain2.131
+wall_drain2.151
+mina
+
+anim wall_drain3
+facings 9
+dummy.111
+wall_drain3.151
+wall_drain3.151
+wall_drain3.151
+wall_drain3.131
+wall_drain3.131
+wall_drain3.131
+wall_drain3.131
+wall_drain3.151
+mina
+
+anim wall_drain4
+facings 9
+dummy.111
+wall_drain4.151
+wall_drain4.151
+wall_drain4.151
+wall_drain4.131
+wall_drain4.131
+wall_drain4.131
+wall_drain4.131
+wall_drain4.151
+mina

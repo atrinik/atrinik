@@ -15,59 +15,7 @@ weapon_speed 0.038
 attack_impact 80
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.131
-horse_white.132
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-horse_white.151
-horse_white.152
-mina
+animation horse_white
 is_animated 1
 anim_speed 4
 monster 1

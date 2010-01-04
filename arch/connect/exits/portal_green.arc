@@ -8,16 +8,7 @@ sp -1
 type 41
 layer 5
 no_pick 1
-anim
-portal_green.211
-portal_green.221
-portal_green.231
-portal_green.241
-portal_green.251
-portal_green.261
-portal_green.271
-portal_green.281
-mina
+animation portal_green
 is_animated 1
 anim_speed 2
 end

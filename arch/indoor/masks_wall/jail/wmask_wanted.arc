@@ -1,18 +1,7 @@
 Object wmask_wanted.151
 name paper
 face wmask_wanted.u.151
-anim
-facings 9
-dummy.111
-wmask_wanted.u.151
-wmask_wanted.u.151
-wmask_wanted.u.151
-wmask_wanted.u.131
-wmask_wanted.u.131
-wmask_wanted.u.131
-wmask_wanted.u.131
-wmask_wanted.u.151
-mina
+animation wmask_wanted.151
 is_animated 0
 anim_speed 1
 is_turnable 1

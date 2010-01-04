@@ -23,59 +23,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face quivering_blob.111
-anim
-facings 25
-trans.101
-trans.101
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-quivering_blob.111
-quivering_blob.112
-mina
+animation blob_quivering
 is_animated 1
 anim_speed 4
 type 80

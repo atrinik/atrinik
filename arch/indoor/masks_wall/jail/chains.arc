@@ -1,18 +1,7 @@
 Object chains1.151
 name chains
 face chains1.u.151
-anim
-facings 9
-dummy.111
-chains1.u.151
-chains1.u.151
-chains1.u.151
-chains1.u.131
-chains1.u.131
-chains1.u.131
-chains1.u.131
-chains1.u.151
-mina
+animation chains1.151
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -24,18 +13,7 @@ end
 Object chains2.151
 name chains
 face chains2.u.151
-anim
-facings 9
-dummy.111
-chains2.u.151
-chains2.u.151
-chains2.u.151
-chains2.u.131
-chains2.u.131
-chains2.u.131
-chains2.u.131
-chains2.u.151
-mina
+animation chains2.151
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -47,18 +25,7 @@ end
 Object chains3.151
 name chains
 face chains3.u.151
-anim
-facings 9
-dummy.111
-chains3.u.151
-chains3.u.151
-chains3.u.151
-chains3.u.131
-chains3.u.131
-chains3.u.131
-chains3.u.131
-chains3.u.151
-mina
+animation chains3.151
 is_animated 0
 anim_speed 1
 is_turnable 1

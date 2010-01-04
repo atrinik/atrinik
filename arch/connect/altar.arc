@@ -5,27 +5,7 @@ type 18
 face altar.111
 food 10
 sp -1
-anim
-facings 9
-dummy.111
-dummy.111
-altar.111
-altar.111
-altar.111
-altar.111
-altar.131
-altar.131
-altar.131
-altar.131
-altar.111
-altar.111
-altar.111
-altar.111
-altar.131
-altar.131
-altar.131
-altar.131
-mina
+animation altar
 level 1
 is_animated 0
 anim_speed 1

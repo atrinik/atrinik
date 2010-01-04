@@ -16,59 +16,7 @@ attack_slash 35
 attack_pierce 65
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.131
-crocodile.132
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.151
-crocodile.152
-crocodile.133
-crocodile.132
-crocodile.133
-crocodile.132
-crocodile.133
-crocodile.132
-crocodile.133
-crocodile.132
-crocodile.153
-crocodile.152
-crocodile.153
-crocodile.152
-crocodile.153
-crocodile.152
-crocodile.153
-crocodile.152
-mina
+animation crocodile
 is_animated 1
 anim_speed 4
 monster 1

@@ -17,59 +17,7 @@ attack_slash 75
 type 80
 Wis 6
 randomitems mob_kobold_big
-anim
-facings 25
-trans.101
-trans.101
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.131
-kobold_big.132
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.151
-kobold_big.152
-kobold_big.132
-kobold_big.133
-kobold_big.132
-kobold_big.133
-kobold_big.132
-kobold_big.133
-kobold_big.132
-kobold_big.133
-kobold_big.152
-kobold_big.153
-kobold_big.152
-kobold_big.153
-kobold_big.152
-kobold_big.153
-kobold_big.152
-kobold_big.153
-mina
+animation kobold_big
 is_animated 1
 anim_speed 4
 monster 1

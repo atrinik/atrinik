@@ -1,18 +1,7 @@
 Object shelf1.111
 name shelf
 face shelf1.111
-anim
-facings 9
-dummy.111
-shelf1.111
-shelf1.111
-shelf1.111
-shelf1.171
-shelf1.171
-shelf1.171
-shelf1.171
-shelf1.111
-mina
+animation shelf1.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -31,18 +20,7 @@ end
 Object shelf2.111
 name shelf
 face shelf2.111
-anim
-facings 9
-dummy.111
-shelf2.111
-shelf2.111
-shelf2.111
-shelf2.171
-shelf2.171
-shelf2.171
-shelf2.171
-shelf2.111
-mina
+animation shelf2.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -61,18 +39,7 @@ end
 Object shelf3.111
 name shelf
 face shelf3.111
-anim
-facings 9
-dummy.111
-shelf3.111
-shelf3.111
-shelf3.111
-shelf3.171
-shelf3.171
-shelf3.171
-shelf3.171
-shelf3.111
-mina
+animation shelf3.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -91,18 +58,7 @@ end
 Object shelf3a.111
 name shelf
 face shelf3a.111
-anim
-facings 9
-dummy.111
-shelf3a.111
-shelf3a.111
-shelf3a.111
-shelf3a.171
-shelf3a.171
-shelf3a.171
-shelf3a.171
-shelf3a.111
-mina
+animation shelf3a.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -121,18 +77,7 @@ end
 Object shelf3b.111
 name shelf
 face shelf3b.111
-anim
-facings 9
-dummy.111
-shelf3b.111
-shelf3b.111
-shelf3b.111
-shelf3b.171
-shelf3b.171
-shelf3b.171
-shelf3b.171
-shelf3b.111
-mina
+animation shelf3b.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -151,18 +96,7 @@ end
 Object shelf3c.111
 name shelf
 face shelf3c.111
-anim
-facings 9
-dummy.111
-shelf3c.111
-shelf3c.111
-shelf3c.111
-shelf3c.171
-shelf3c.171
-shelf3c.171
-shelf3c.171
-shelf3c.111
-mina
+animation shelf3c.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -181,18 +115,7 @@ end
 Object shelf3_dem1.111
 name demolished shelf
 face shelf3_dem1.111
-anim
-facings 9
-dummy.111
-shelf3_dem1.111
-shelf3_dem1.111
-shelf3_dem1.111
-shelf3_dem1.171
-shelf3_dem1.171
-shelf3_dem1.171
-shelf3_dem1.171
-shelf3_dem1.111
-mina
+animation shelf3_dem1.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -211,18 +134,7 @@ end
 Object shelf3_dem2.111
 name demolished shelf
 face shelf3_dem2.111
-anim
-facings 9
-dummy.111
-shelf3_dem2.111
-shelf3_dem2.111
-shelf3_dem2.111
-shelf3_dem2.171
-shelf3_dem2.171
-shelf3_dem2.171
-shelf3_dem2.171
-shelf3_dem2.111
-mina
+animation shelf3_dem2.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -241,18 +153,7 @@ end
 Object shelf3_dem3.111
 name demolished shelf
 face shelf3_dem3.111
-anim
-facings 9
-dummy.111
-shelf3_dem3.111
-shelf3_dem3.111
-shelf3_dem3.111
-shelf3_dem3.171
-shelf3_dem3.171
-shelf3_dem3.171
-shelf3_dem3.171
-shelf3_dem3.111
-mina
+animation shelf3_dem3.111
 is_animated 0
 anim_speed 1
 is_turnable 1

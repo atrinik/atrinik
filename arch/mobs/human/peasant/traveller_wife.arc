@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face traveller_wife.131
-anim
-facings 25
-trans.101
-trans.101
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-traveller_wife.131
-traveller_wife.151
-mina
+animation traveller_wife
 is_animated 1
 anim_speed 4
 speed -0.047

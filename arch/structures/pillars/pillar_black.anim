@@ -1,0 +1,51 @@
+anim pillar_black1c
+facings 9
+dummy.111
+pillar_black1c.111
+pillar_black1c.111
+pillar_black1c.111
+pillar_black1c.131
+pillar_black1c.131
+pillar_black1c.131
+pillar_black1c.131
+pillar_black1c.111
+mina
+
+anim pillar_black1d
+facings 9
+dummy.111
+pillar_black1d.111
+pillar_black1d.111
+pillar_black1d.111
+pillar_black1d.131
+pillar_black1d.131
+pillar_black1d.131
+pillar_black1d.131
+pillar_black1d.111
+mina
+
+anim pillar_black2c
+facings 9
+dummy.111
+pillar_black2c.111
+pillar_black2c.111
+pillar_black2c.111
+pillar_black2c.131
+pillar_black2c.131
+pillar_black2c.131
+pillar_black2c.131
+pillar_black2c.111
+mina
+
+anim pillar_black2d
+facings 9
+dummy.111
+pillar_black2d.111
+pillar_black2d.111
+pillar_black2d.111
+pillar_black1d.131
+pillar_black1d.131
+pillar_black2d.131
+pillar_black2d.131
+pillar_black2d.111
+mina

@@ -4,11 +4,7 @@ face dwarf_wheel.101
 type 79
 mpart_id 2
 layer 5
-anim
-dwarf_wheel.101
-dwarf_wheel.102
-dwarf_wheel.103
-mina
+animation dwarf_wheel
 is_animated 1
 anim_speed 1
 speed 1
@@ -30,11 +26,7 @@ face dwarf_wheel_2.101
 type 79
 mpart_id 1
 layer 5
-anim
-dwarf_wheel_2.101
-dwarf_wheel_2.102
-dwarf_wheel_2.103
-mina
+animation dwarf_wheel_2
 is_animated 1
 anim_speed 1
 speed 1

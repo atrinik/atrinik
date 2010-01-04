@@ -1,18 +1,7 @@
 Object doorway_wood1_1
 name passage
 face doorway_wood1.111
-anim
-facings 9
-dummy.111
-doorway_wood1.111
-doorway_wood1.111
-doorway_wood1.111
-doorway_wood1.131
-doorway_wood1.131
-doorway_wood1.131
-doorway_wood1.131
-doorway_wood1.111
-mina
+animation doorway_wood1_1
 is_animated 0
 anim_speed 1
 is_turnable 1

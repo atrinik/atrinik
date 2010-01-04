@@ -17,59 +17,7 @@ random_move 1
 type 80
 Wis 6
 randomitems mob_insect
-anim
-facings 25
-trans.101
-trans.101
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.131
-wasp_giant.132
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.151
-wasp_giant.152
-wasp_giant.131
-wasp_giant.231
-wasp_giant.131
-wasp_giant.231
-wasp_giant.131
-wasp_giant.231
-wasp_giant.131
-wasp_giant.231
-wasp_giant.151
-wasp_giant.251
-wasp_giant.151
-wasp_giant.251
-wasp_giant.151
-wasp_giant.251
-wasp_giant.151
-wasp_giant.251
-mina
+animation wasp_giant
 is_animated 1
 anim_speed 4
 monster 1

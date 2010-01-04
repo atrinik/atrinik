@@ -14,18 +14,7 @@ sub_type 132
 nrof 1
 weight 20000
 value 1
-anim
-facings 9
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-t_boulder.101
-mina
+animation t_boulder
 anim_speed 5
 is_animated 0
 is_turnable 1

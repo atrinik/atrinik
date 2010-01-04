@@ -1,0 +1,129 @@
+anim ped_black
+facings 9
+dummy.111
+ped_black.111
+ped_black.111
+ped_black.111
+ped_black.131
+ped_black.131
+ped_black.131
+ped_black.131
+ped_black.111
+mina
+
+anim ped_black_h1
+facings 9
+dummy.111
+ped_black_h1.111
+ped_black_h1.111
+ped_black_h1.111
+ped_black_h1.131
+ped_black_h1.131
+ped_black_h1.131
+ped_black_h1.131
+ped_black_h1.111
+mina
+
+anim ped_black_hs1
+facings 9
+dummy.111
+ped_black_hs1.111
+ped_black_hs1.111
+ped_black_hs1.111
+ped_black_hs1.131
+ped_black_hs1.131
+ped_black_hs1.131
+ped_black_hs1.131
+ped_black_hs1.111
+mina
+
+anim ped_black_hw1
+facings 9
+dummy.111
+ped_black_hw1.111
+ped_black_hw1.111
+ped_black_hw1.111
+ped_black_hw1.131
+ped_black_hw1.131
+ped_black_hw1.131
+ped_black_hw1.131
+ped_black_hw1.111
+mina
+
+anim ped_black_hws1
+facings 9
+dummy.111
+ped_black_hws1.111
+ped_black_hws1.111
+ped_black_hws1.111
+ped_black_hws1.131
+ped_black_hws1.131
+ped_black_hws1.131
+ped_black_hws1.131
+ped_black_hws1.111
+mina
+
+anim ped_white
+facings 9
+dummy.111
+ped_white.111
+ped_white.111
+ped_white.111
+ped_white.131
+ped_white.131
+ped_white.131
+ped_white.131
+ped_white.111
+mina
+
+anim ped_white_h1
+facings 9
+dummy.111
+ped_white_h1.111
+ped_white_h1.111
+ped_white_h1.111
+ped_white_h1.131
+ped_white_h1.131
+ped_white_h1.131
+ped_white_h1.131
+ped_white_h1.111
+mina
+
+anim ped_white_hs1
+facings 9
+dummy.111
+ped_white_hs1.111
+ped_white_hs1.111
+ped_white_hs1.111
+ped_white_hs1.131
+ped_white_hs1.131
+ped_white_hs1.131
+ped_white_hs1.131
+ped_white_hs1.111
+mina
+
+anim ped_white_hw1
+facings 9
+dummy.111
+ped_white_hw1.111
+ped_white_hw1.111
+ped_white_hw1.111
+ped_white_hw1.131
+ped_white_hw1.131
+ped_white_hw1.131
+ped_white_hw1.131
+ped_white_hw1.111
+mina
+
+anim ped_white_hws1
+facings 9
+dummy.111
+ped_white_hws1.111
+ped_white_hws1.111
+ped_white_hws1.111
+ped_white_hws1.131
+ped_white_hws1.131
+ped_white_hws1.131
+ped_white_hws1.131
+ped_white_hws1.111
+mina

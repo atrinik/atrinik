@@ -15,59 +15,7 @@ direction 5
 terrain_flag 1
 randomitems mob_treant
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.131
-treant_evil.132
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.151
-treant_evil.152
-treant_evil.131
-treant_evil.231
-treant_evil.131
-treant_evil.231
-treant_evil.131
-treant_evil.231
-treant_evil.131
-treant_evil.231
-treant_evil.151
-treant_evil.251
-treant_evil.151
-treant_evil.251
-treant_evil.151
-treant_evil.251
-treant_evil.151
-treant_evil.251
-mina
+animation treant_evil
 is_animated 1
 anim_speed 4
 monster 1

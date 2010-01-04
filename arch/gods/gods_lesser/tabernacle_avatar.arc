@@ -4,34 +4,7 @@ race avatar
 type 80
 layer 6
 no_pick 1
-anim
-facings 25
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-mina
+animation tabernacle_avatar
 is_animated 1
 anim_speed 3
 Str 30

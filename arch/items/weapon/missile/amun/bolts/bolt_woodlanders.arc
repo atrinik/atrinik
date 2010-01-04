@@ -11,18 +11,7 @@ last_sp 4
 type 13
 sub_type 2
 face bolt_woodlanders.101
-anim
-facings 9
-bolt_woodlanders.101
-bolt_woodlanders.111
-bolt_woodlanders.121
-bolt_woodlanders.131
-bolt_woodlanders.141
-bolt_woodlanders.151
-bolt_woodlanders.161
-bolt_woodlanders.171
-bolt_woodlanders.181
-mina
+animation bolt_woodlanders
 anim_speed 1
 is_animated 0
 is_turnable 1

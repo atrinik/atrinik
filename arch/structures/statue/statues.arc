@@ -37,18 +37,7 @@ end
 Object statue_white2
 name statue
 face statue_white2.131
-anim
-facings 9
-dummy.111
-statue_white2.131
-statue_white2.131
-statue_white2.131
-statue_white2.151
-statue_white2.151
-statue_white2.151
-statue_white2.151
-statue_white2.131
-mina
+animation statue_white2
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -62,18 +51,7 @@ end
 Object statue_white3
 name statue
 face statue_white3.131
-anim
-facings 9
-dummy.111
-statue_white3.131
-statue_white3.131
-statue_white3.131
-statue_white3.151
-statue_white3.151
-statue_white3.151
-statue_white3.151
-statue_white3.131
-mina
+animation statue_white3
 is_animated 0
 anim_speed 1
 is_turnable 1

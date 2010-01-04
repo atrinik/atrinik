@@ -11,18 +11,7 @@ last_sp 4
 type 13
 sub_type 2
 face bolt.101
-anim
-facings 9
-bolt.101
-bolt.111
-bolt.121
-bolt.131
-bolt.141
-bolt.151
-bolt.161
-bolt.171
-bolt.181
-mina
+animation bolt
 anim_speed 1
 is_animated 0
 is_turnable 1

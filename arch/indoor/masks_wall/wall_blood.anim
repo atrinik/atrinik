@@ -1,0 +1,51 @@
+anim wall_blood1
+facings 9
+dummy.111
+wall_blood1.u.151
+wall_blood1.u.151
+wall_blood1.u.151
+wall_blood1.u.131
+wall_blood1.u.131
+wall_blood1.u.131
+wall_blood1.u.131
+wall_blood1.u.151
+mina
+
+anim wall_blood2
+facings 9
+dummy.111
+wall_blood2.u.151
+wall_blood2.u.151
+wall_blood2.u.151
+wall_blood2.u.131
+wall_blood2.u.131
+wall_blood2.u.131
+wall_blood2.u.131
+wall_blood2.u.151
+mina
+
+anim wall_blood3
+facings 9
+dummy.111
+wall_blood3.u.151
+wall_blood3.u.151
+wall_blood3.u.151
+wall_blood3.u.131
+wall_blood3.u.131
+wall_blood3.u.131
+wall_blood3.u.131
+wall_blood3.u.151
+mina
+
+anim wall_blood4
+facings 9
+dummy.111
+wall_blood4.u.151
+wall_blood4.u.151
+wall_blood4.u.151
+wall_blood4.u.131
+wall_blood4.u.131
+wall_blood4.u.131
+wall_blood4.u.131
+wall_blood4.u.151
+mina

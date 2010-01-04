@@ -1,18 +1,7 @@
 Object wagon_small.111
 name small wagon
 face wagon_small.111
-anim
-facings 9
-dummy.111
-wagon_small.111
-wagon_small.111
-wagon_small.111
-wagon_small.131
-wagon_small.131
-wagon_small.131
-wagon_small.131
-wagon_small.111
-mina
+animation wagon_small.111
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face archer.131
-anim
-facings 25
-trans.101
-trans.101
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.131
-archer.132
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-archer.151
-archer.152
-mina
+animation archer
 is_animated 1
 anim_speed 4
 speed -0.049

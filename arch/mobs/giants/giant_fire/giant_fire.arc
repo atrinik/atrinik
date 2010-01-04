@@ -16,34 +16,7 @@ attack_fire 60
 attack_cleave 40
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-giant_fire.111
-giant_fire.121
-giant_fire.131
-giant_fire.141
-giant_fire.151
-giant_fire.161
-giant_fire.171
-giant_fire.181
-giant_fire.111
-giant_fire.121
-giant_fire.131
-giant_fire.141
-giant_fire.151
-giant_fire.161
-giant_fire.171
-giant_fire.181
-giant_fire.111
-giant_fire.121
-giant_fire.131
-giant_fire.141
-giant_fire.151
-giant_fire.161
-giant_fire.171
-giant_fire.181
-mina
+animation giant_fire
 is_animated 1
 anim_speed 4
 monster 1

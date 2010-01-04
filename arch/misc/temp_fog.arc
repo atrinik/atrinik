@@ -3,17 +3,7 @@ name fog
 face fog.111
 type 79
 layer 7
-anim
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-mina
+animation temp_fog
 is_animated 1
 anim_speed 4
 food 2

@@ -4,11 +4,7 @@ face fireplace_right.101
 type 79
 mpart_id 2
 layer 5
-anim
-fireplace_right.101
-fireplace_right.102
-fireplace_right.103
-mina
+animation fireplace_right
 is_animated 1
 anim_speed 1
 speed 1
@@ -51,11 +47,7 @@ face fireplace_left.101
 type 79
 mpart_id 1
 layer 5
-anim
-fireplace_left.101
-fireplace_left.102
-fireplace_left.103
-mina
+animation fireplace_left
 is_animated 1
 anim_speed 1
 speed 1

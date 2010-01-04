@@ -19,18 +19,7 @@ name dark pillar
 layer 5
 type 79
 face pillar_black1c.111
-anim
-facings 9
-dummy.111
-pillar_black1c.111
-pillar_black1c.111
-pillar_black1c.111
-pillar_black1c.131
-pillar_black1c.131
-pillar_black1c.131
-pillar_black1c.131
-pillar_black1c.111
-mina
+animation pillar_black1c
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -43,18 +32,7 @@ name dark pillar
 layer 5
 type 79
 face pillar_black1d.111
-anim
-facings 9
-dummy.111
-pillar_black1d.111
-pillar_black1d.111
-pillar_black1d.111
-pillar_black1d.131
-pillar_black1d.131
-pillar_black1d.131
-pillar_black1d.131
-pillar_black1d.111
-mina
+animation pillar_black1d
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -83,18 +61,7 @@ name dark pillar
 layer 5
 type 79
 face pillar_black2c.111
-anim
-facings 9
-dummy.111
-pillar_black2c.111
-pillar_black2c.111
-pillar_black2c.111
-pillar_black2c.131
-pillar_black2c.131
-pillar_black2c.131
-pillar_black2c.131
-pillar_black2c.111
-mina
+animation pillar_black2c
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -107,18 +74,7 @@ name dark pillar
 layer 5
 type 79
 face pillar_black2d.111
-anim
-facings 9
-dummy.111
-pillar_black2d.111
-pillar_black2d.111
-pillar_black2d.111
-pillar_black1d.131
-pillar_black1d.131
-pillar_black2d.131
-pillar_black2d.131
-pillar_black2d.111
-mina
+animation pillar_black2d
 is_animated 0
 anim_speed 1
 is_turnable 1

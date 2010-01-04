@@ -4,11 +4,7 @@ layer 3
 face rod_light.101
 sp -1
 last_grace 35
-anim
-rod_light.101
-rod_light.102
-rod_light.103
-mina
+animation rod_light
 is_animated 1
 anim_speed 5
 speed -0.25

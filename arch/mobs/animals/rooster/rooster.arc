@@ -15,59 +15,7 @@ weapon_speed 0.038
 attack_pierce 80
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.121
-rooster.122
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-rooster.161
-rooster.162
-mina
+animation rooster
 is_animated 1
 anim_speed 4
 monster 1

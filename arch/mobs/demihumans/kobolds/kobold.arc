@@ -17,59 +17,7 @@ attack_slash 75
 type 80
 Wis 6
 randomitems mob_kobold
-anim
-facings 25
-trans.101
-trans.101
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.131
-kobold.132
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.151
-kobold.152
-kobold.132
-kobold.133
-kobold.132
-kobold.133
-kobold.132
-kobold.133
-kobold.132
-kobold.133
-kobold.152
-kobold.153
-kobold.152
-kobold.153
-kobold.152
-kobold.153
-kobold.152
-kobold.153
-mina
+animation kobold
 is_animated 1
 anim_speed 4
 monster 1

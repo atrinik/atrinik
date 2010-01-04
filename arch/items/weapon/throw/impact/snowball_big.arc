@@ -11,18 +11,7 @@ wc_range 20
 nrof 1
 type 13
 sub_type 128
-anim
-facings 9
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-snowball2.101
-mina
+animation snowball2
 anim_speed 5
 is_animated 0
 is_turnable 1

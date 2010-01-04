@@ -17,59 +17,7 @@ attack_slash 80
 type 80
 Wis 6
 randomitems mob_skeleton2
-anim
-facings 25
-trans.101
-trans.101
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.131
-skel_fighter3.132
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.151
-skel_fighter3.152
-skel_fighter3.132
-skel_fighter3.231
-skel_fighter3.132
-skel_fighter3.231
-skel_fighter3.132
-skel_fighter3.231
-skel_fighter3.132
-skel_fighter3.231
-skel_fighter3.152
-skel_fighter3.251
-skel_fighter3.152
-skel_fighter3.251
-skel_fighter3.152
-skel_fighter3.251
-skel_fighter3.152
-skel_fighter3.251
-mina
+animation skel_fighter3
 is_animated 1
 anim_speed 4
 monster 1

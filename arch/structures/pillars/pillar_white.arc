@@ -19,18 +19,7 @@ name white pillar
 layer 5
 type 79
 face pillar_white1c.111
-anim
-facings 9
-dummy.111
-pillar_white1c.111
-pillar_white1c.111
-pillar_white1c.111
-pillar_white1c.131
-pillar_white1c.131
-pillar_white1c.131
-pillar_white1c.131
-pillar_white1c.111
-mina
+animation pillar_white1c
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -43,18 +32,7 @@ name white pillar
 layer 5
 type 79
 face pillar_white1d.111
-anim
-facings 9
-dummy.111
-pillar_white1d.111
-pillar_white1d.111
-pillar_white1d.111
-pillar_white1d.131
-pillar_white1d.131
-pillar_white1d.131
-pillar_white1d.131
-pillar_white1d.111
-mina
+animation pillar_white1d
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -83,18 +61,7 @@ name white pillar
 layer 5
 type 79
 face pillar_white2c.111
-anim
-facings 9
-dummy.111
-pillar_white2c.111
-pillar_white2c.111
-pillar_white2c.111
-pillar_white2c.131
-pillar_white2c.131
-pillar_white2c.131
-pillar_white2c.131
-pillar_white2c.111
-mina
+animation pillar_white2c
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -107,18 +74,7 @@ name white pillar
 layer 5
 type 79
 face pillar_white2d.111
-anim
-facings 9
-dummy.111
-pillar_white2d.111
-pillar_white2d.111
-pillar_white2d.111
-pillar_white1d.131
-pillar_white1d.131
-pillar_white2d.131
-pillar_white2d.131
-pillar_white2d.111
-mina
+animation pillar_white2d
 is_animated 0
 anim_speed 1
 is_turnable 1

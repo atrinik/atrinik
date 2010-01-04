@@ -15,59 +15,7 @@ weapon_speed 0.040
 corpse 1
 attack_weaponmagic 100
 face priest_sad.121
-anim
-facings 25
-trans.101
-trans.101
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.121
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-priest_sad.161
-mina
+animation priest_sad
 is_animated 1
 anim_speed 4
 speed -0.048

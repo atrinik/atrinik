@@ -1,18 +1,7 @@
 Object cave_deco_wall1
 name cave
 face cave_deco_w1.u.151
-anim
-facings 9
-dummy.111
-cave_deco_w1.u.151
-cave_deco_w1.u.151
-cave_deco_w1.u.151
-cave_deco_w1.u.131
-cave_deco_w1.u.131
-cave_deco_w1.u.131
-cave_deco_w1.u.131
-cave_deco_w1.u.151
-mina
+animation cave_deco_wall1
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -24,18 +13,7 @@ end
 Object cave_deco_wall2
 name cave
 face cave_deco_w2.u.151
-anim
-facings 9
-dummy.111
-cave_deco_w2.u.151
-cave_deco_w2.u.151
-cave_deco_w2.u.151
-cave_deco_w2.u.131
-cave_deco_w2.u.131
-cave_deco_w2.u.131
-cave_deco_w2.u.131
-cave_deco_w2.u.151
-mina
+animation cave_deco_wall2
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -47,18 +25,7 @@ end
 Object cave_deco_wall3
 name cave
 face cave_deco_w3.u.151
-anim
-facings 9
-dummy.111
-cave_deco_w3.u.151
-cave_deco_w3.u.151
-cave_deco_w3.u.151
-cave_deco_w3.u.131
-cave_deco_w3.u.131
-cave_deco_w3.u.131
-cave_deco_w3.u.131
-cave_deco_w3.u.151
-mina
+animation cave_deco_wall3
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -70,18 +37,7 @@ end
 Object cave_deco_wall4
 name cave
 face cave_deco_w4.u.151
-anim
-facings 9
-dummy.111
-cave_deco_w4.u.151
-cave_deco_w4.u.151
-cave_deco_w4.u.151
-cave_deco_w4.u.131
-cave_deco_w4.u.131
-cave_deco_w4.u.131
-cave_deco_w4.u.131
-cave_deco_w4.u.151
-mina
+animation cave_deco_wall4
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -93,18 +49,7 @@ end
 Object cave_deco_wall5
 name cave
 face cave_deco_w5.u.151
-anim
-facings 9
-dummy.111
-cave_deco_w5.u.151
-cave_deco_w5.u.151
-cave_deco_w5.u.151
-cave_deco_w5.u.131
-cave_deco_w5.u.131
-cave_deco_w5.u.131
-cave_deco_w5.u.131
-cave_deco_w5.u.151
-mina
+animation cave_deco_wall5
 is_animated 0
 anim_speed 1
 is_turnable 1

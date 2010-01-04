@@ -1,0 +1,38 @@
+anim close_locker1
+facings 9
+dummy.111
+locker1.112
+locker1.112
+locker1.112
+locker1.172
+locker1.172
+locker1.172
+locker1.172
+locker1.112
+mina
+
+anim close_locker2
+facings 9
+dummy.111
+locker2.112
+locker2.112
+locker2.112
+locker2.172
+locker2.172
+locker2.172
+locker2.172
+locker2.112
+mina
+
+anim close_locker3
+facings 9
+dummy.111
+locker3.112
+locker3.112
+locker3.112
+locker3.172
+locker3.172
+locker3.172
+locker3.172
+locker3.112
+mina

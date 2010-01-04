@@ -1,12 +1,7 @@
 Object kettle
 name kettle
 face kettle.101
-anim
-kettle.101
-kettle.102
-kettle.103
-kettle.104
-mina
+animation kettle
 is_animated 1
 anim_speed 1
 speed 1

@@ -1135,7 +1135,7 @@ function parse_animations($file)
 	while ($line = fgets($fp))
 	{
 		// If this is a start of an animation.
-		if (sscanf($line, 'anim _%s' . "\n", $animname) == 1)
+		if (sscanf($line, 'anim %s' . "\n", $animname) == 1)
 		{
 			// Value defaults.
 			$facings = 1;

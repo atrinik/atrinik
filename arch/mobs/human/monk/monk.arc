@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face monk.131
-anim
-facings 25
-trans.101
-trans.101
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.131
-monk.132
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-monk.151
-monk.152
-mina
+animation monk
 is_animated 1
 anim_speed 4
 speed -0.049

@@ -6,10 +6,7 @@ level 1
 no_save 1
 glow_radius 1
 face icestorm.101
-anim
-icestorm.101
-icestorm.102
-mina
+animation icestorm
 is_animated 1
 anim_speed 3
 terrain_flag 32767

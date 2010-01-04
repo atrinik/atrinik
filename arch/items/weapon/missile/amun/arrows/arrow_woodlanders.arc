@@ -11,18 +11,7 @@ last_sp 5
 attack_pierce 100
 type 13
 sub_type 1
-anim
-facings 9
-arrow_woodlanders.101
-arrow_woodlanders.111
-arrow_woodlanders.121
-arrow_woodlanders.131
-arrow_woodlanders.141
-arrow_woodlanders.151
-arrow_woodlanders.161
-arrow_woodlanders.171
-arrow_woodlanders.181
-mina
+animation arrow_woodlanders
 anim_speed 1
 is_animated 0
 is_turnable 1

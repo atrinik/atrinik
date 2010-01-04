@@ -1,18 +1,7 @@
 Object random_chest_wood
 name treasure chest
 face chest_wood_s.111
-anim
-facings 9
-dummy.111
-chest_wood_s.111
-chest_wood_s.111
-chest_wood_s.111
-chest_wood_s.171
-chest_wood_s.171
-chest_wood_s.171
-chest_wood_s.171
-chest_wood_s.111
-mina
+animation random_chest_wood
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -33,18 +22,7 @@ end
 Object random_chest_black
 name treasure chest
 face chest_black_s.111
-anim
-facings 9
-dummy.111
-chest_black_s.111
-chest_black_s.111
-chest_black_s.111
-chest_black_s.171
-chest_black_s.171
-chest_black_s.171
-chest_black_s.171
-chest_black_s.111
-mina
+animation random_chest_black
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -65,18 +43,7 @@ end
 Object random_chest_metal
 name chest
 face chest_metal_s.111
-anim
-facings 9
-dummy.111
-chest_metal_s.111
-chest_metal_s.111
-chest_metal_s.111
-chest_metal_s.171
-chest_metal_s.171
-chest_metal_s.171
-chest_metal_s.171
-chest_metal_s.111
-mina
+animation random_chest_metal
 is_animated 0
 anim_speed 1
 is_turnable 1

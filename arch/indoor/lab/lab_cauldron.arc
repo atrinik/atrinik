@@ -1,18 +1,7 @@
 Object fire_cauld.131
 name small cauldron
 face fire_cauld.131
-anim
-facings 9
-dummy.111
-fire_cauld.131
-fire_cauld.131
-fire_cauld.131
-fire_cauld.151
-fire_cauld.151
-fire_cauld.151
-fire_cauld.151
-fire_cauld.131
-mina
+animation fire_cauld.131
 is_animated 0
 anim_speed 1
 is_turnable 1

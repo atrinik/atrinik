@@ -18,59 +18,7 @@ attack_cleave 40
 type 80
 Wis 6
 mpart_id 3
-anim
-facings 25
-trans.101
-trans.101
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.131
-dragon_black.132
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.151
-dragon_black.152
-dragon_black.331
-dragon_black.132
-dragon_black.331
-dragon_black.132
-dragon_black.331
-dragon_black.132
-dragon_black.331
-dragon_black.132
-dragon_black.351
-dragon_black.152
-dragon_black.351
-dragon_black.152
-dragon_black.351
-dragon_black.152
-dragon_black.351
-dragon_black.152
-mina
+animation dragon_black
 is_animated 1
 anim_speed 4
 monster 1

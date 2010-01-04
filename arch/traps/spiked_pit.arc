@@ -6,10 +6,7 @@ hp 1
 msg
 You are stabbed by spikes!
 endmsg
-anim
-spiked_pit.101
-spiked_pit.101
-mina
+animation trap_spike_pit
 level 1
 anim_speed 1
 is_animated 0

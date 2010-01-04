@@ -1,18 +1,7 @@
 Object plant1_wall.151
 name plants
 face plant1_wall.151
-anim
-facings 9
-dummy.111
-plant1_wall.151
-plant1_wall.151
-plant1_wall.151
-plant1_wall.131
-plant1_wall.131
-plant1_wall.131
-plant1_wall.131
-plant1_wall.151
-mina
+animation plant1_wall.151
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -24,18 +13,7 @@ end
 Object plant2_wall.151
 name plants
 face plant2_wall.151
-anim
-facings 9
-dummy.111
-plant2_wall.151
-plant2_wall.151
-plant2_wall.151
-plant2_wall.131
-plant2_wall.131
-plant2_wall.131
-plant2_wall.131
-plant2_wall.151
-mina
+animation plant2_wall.151
 is_animated 0
 anim_speed 1
 is_turnable 1

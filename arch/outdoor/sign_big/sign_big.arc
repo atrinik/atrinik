@@ -16,18 +16,7 @@ Object marker0
 name big sign ('a'pply to read)
 face marker.111
 type 98
-anim
-facings 9
-dummy.111
-marker.111
-marker.111
-marker.111
-marker.171
-marker.171
-marker.171
-marker.171
-marker.111
-mina
+animation marker0
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -39,18 +28,7 @@ Object marker1
 name big sign ('a'pply to read)
 face marker1.111
 type 98
-anim
-facings 9
-dummy.111
-marker1.111
-marker1.111
-marker1.131
-marker1.131
-marker1.151
-marker1.151
-marker1.171
-marker1.171
-mina
+animation marker1
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -62,18 +40,7 @@ Object marker2
 name big sign ('a'pply to read)
 face marker2.121
 type 98
-anim
-facings 9
-dummy.111
-marker2.121
-marker2.121
-marker2.141
-marker2.141
-marker2.161
-marker2.161
-marker2.181
-marker2.181
-mina
+animation marker2
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -85,18 +52,7 @@ Object marker3
 name big sign ('a'pply to read)
 face marker3.111
 type 98
-anim
-facings 9
-dummy.111
-marker3.111
-marker3.111
-marker3.131
-marker3.131
-marker3.151
-marker3.151
-marker3.171
-marker3.171
-mina
+animation marker3
 is_animated 0
 anim_speed 1
 is_turnable 1

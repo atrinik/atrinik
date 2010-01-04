@@ -1,18 +1,7 @@
 Object anvil_111
 name anvil
 face anvil.111
-anim
-facings 9
-dummy.111
-anvil.111
-anvil.111
-anvil.111
-anvil.131
-anvil.131
-anvil.131
-anvil.131
-anvil.111
-mina
+animation anvil_111
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -1,18 +1,7 @@
 Object chair1_111
 name chair
 face chair1.111
-anim
-facings 9
-dummy.111
-chair1.111
-chair1.131
-chair1.131
-chair1.151
-chair1.151
-chair1.171
-chair1.171
-chair1.111
-mina
+animation chair1_111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -25,18 +14,7 @@ end
 Object chair2_111
 name chair
 face chair2.111
-anim
-facings 9
-dummy.111
-chair2.111
-chair2.131
-chair2.131
-chair2.151
-chair2.151
-chair2.171
-chair2.171
-chair2.111
-mina
+animation chair2_111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -49,18 +27,7 @@ end
 Object chair3
 name chair
 face chair3.111
-anim
-facings 9
-dummy.111
-chair3.111
-chair3.131
-chair3.131
-chair3.151
-chair3.151
-chair3.171
-chair3.171
-chair3.111
-mina
+animation chair3
 is_animated 0
 anim_speed 1
 is_turnable 1

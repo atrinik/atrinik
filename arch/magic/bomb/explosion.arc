@@ -2,11 +2,7 @@ Object explosion
 name explosion
 type 88
 face explosion.101
-anim
-explosion.101
-explosion.102
-explosion.103
-mina
+animation explosion
 wc -30
 speed 0.2
 speed_left -0.21

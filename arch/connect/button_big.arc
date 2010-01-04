@@ -3,10 +3,7 @@ name large button
 layer 3
 type 92
 face button_big.101
-anim
-button_big.101
-button_big.102
-mina
+animation button_plate
 is_animated 0
 anim_speed 1
 no_pick 1

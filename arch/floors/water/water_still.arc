@@ -1,12 +1,7 @@
 Object water_still
 name water
 face lake.101
-anim
-lake.101
-lake.102
-lake.103
-lake.104
-mina
+animation water_still
 speed 0.02
 is_animated 1
 anim_speed 10

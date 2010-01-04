@@ -2,18 +2,7 @@ Object desk1.111
 name desk
 other_arch close_desk1
 face desk1.111
-anim
-facings 9
-dummy.111
-desk1.111
-desk1.111
-desk1.111
-desk1.171
-desk1.171
-desk1.171
-desk1.171
-desk1.111
-mina
+animation desk1.111
 is_animated 0
 anim_speed 1
 is_turnable 1

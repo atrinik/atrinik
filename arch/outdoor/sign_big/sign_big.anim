@@ -1,0 +1,51 @@
+anim marker0
+facings 9
+dummy.111
+marker.111
+marker.111
+marker.111
+marker.171
+marker.171
+marker.171
+marker.171
+marker.111
+mina
+
+anim marker1
+facings 9
+dummy.111
+marker1.111
+marker1.111
+marker1.131
+marker1.131
+marker1.151
+marker1.151
+marker1.171
+marker1.171
+mina
+
+anim marker2
+facings 9
+dummy.111
+marker2.121
+marker2.121
+marker2.141
+marker2.141
+marker2.161
+marker2.161
+marker2.181
+marker2.181
+mina
+
+anim marker3
+facings 9
+dummy.111
+marker3.111
+marker3.111
+marker3.131
+marker3.131
+marker3.151
+marker3.151
+marker3.171
+marker3.171
+mina

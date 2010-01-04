@@ -4,18 +4,7 @@ layer 5
 type 74
 sub_type 1
 face torch_wall.110
-anim
-facings 9
-dummy.111
-torch_wall.110
-torch_wall.110
-torch_wall.110
-torch_wall.170
-torch_wall.170
-torch_wall.170
-torch_wall.170
-torch_wall.110
-mina
+animation torch_wall_1_unlit
 speed -0.02
 is_animated 1
 is_turnable 1

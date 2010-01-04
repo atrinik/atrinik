@@ -1,18 +1,7 @@
 Object mirror_big.111
 name mirror
 face mirror_big.111
-anim
-facings 9
-dummy.111
-mirror_big.111
-mirror_big.111
-mirror_big.111
-mirror_big.171
-mirror_big.171
-mirror_big.171
-mirror_big.171
-mirror_big.111
-mina
+animation mirror_big.111
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -4,10 +4,7 @@ other_arch torch_burnt
 face torch_unlit.101
 layer 3
 type 74
-anim
-torch_lit1.101
-torch_lit1.102
-mina
+animation torch
 is_animated 0
 anim_speed 4
 material 144

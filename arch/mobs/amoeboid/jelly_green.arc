@@ -23,59 +23,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face green_jelly.111
-anim
-facings 25
-trans.101
-trans.101
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-green_jelly.111
-green_jelly.112
-mina
+animation jelly_green
 is_animated 1
 anim_speed 4
 type 80

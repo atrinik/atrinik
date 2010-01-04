@@ -15,59 +15,7 @@ weapon_speed 0.040
 corpse 1
 attack_weaponmagic 100
 face smith.141
-anim
-facings 25
-trans.101
-trans.101
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-smith.141
-smith.142
-mina
+animation smith
 is_animated 1
 anim_speed 4
 speed -0.048

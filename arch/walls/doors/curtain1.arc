@@ -10,27 +10,7 @@ pass_thru 1
 no_pick 1
 direction 1
 face curtain1.111
-anim
-facings 9
-dummy.111
-dummy.111
-curtain1.111
-curtain1.112
-curtain1.111
-curtain1.112
-curtain1.131
-curtain1.132
-curtain1.131
-curtain1.132
-curtain1.111
-curtain1.112
-curtain1.111
-curtain1.112
-curtain1.131
-curtain1.132
-curtain1.131
-curtain1.132
-mina
+animation curtain1
 is_animated 0
 anim_speed 1
 is_turnable 1

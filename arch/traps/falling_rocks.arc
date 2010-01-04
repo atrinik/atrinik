@@ -6,10 +6,7 @@ hp 1
 msg
 You set off a falling rocks trap!
 endmsg
-anim
-falling_rocks.101
-falling_rocks.101
-mina
+animation trap_rocks
 level 1
 anim_speed 1
 is_animated 0

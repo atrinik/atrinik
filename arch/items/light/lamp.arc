@@ -4,10 +4,7 @@ race lamp_light
 layer 3
 face lamp_unlit.101
 type 74
-anim
-lamp_lit1.101
-lamp_lit1.102
-mina
+animation lamp
 is_animated 0
 anim_speed 4
 material 1024

@@ -5,10 +5,7 @@ type 74
 layer 3
 item_quality 100
 item_condition 100
-anim
-lcrystal_lit1.101
-lcrystal_lit1.102
-mina
+animation crystal_light
 is_animated 0
 anim_speed 4
 material 256

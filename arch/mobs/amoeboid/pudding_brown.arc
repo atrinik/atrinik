@@ -20,59 +20,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face pudding_brown.111
-anim
-facings 25
-trans.101
-trans.101
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-pudding_brown.111
-pudding_brown.112
-mina
+animation pudding_brown
 is_animated 1
 anim_speed 4
 type 80

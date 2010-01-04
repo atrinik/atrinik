@@ -20,59 +20,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face slime.111
-anim
-facings 25
-trans.101
-trans.101
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-slime.111
-slime.112
-mina
+animation slime
 is_animated 1
 anim_speed 4
 type 80

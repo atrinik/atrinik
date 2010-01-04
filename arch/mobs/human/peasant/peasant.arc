@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face peasant.131
-anim
-facings 25
-trans.101
-trans.101
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.131
-peasant.132
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-peasant.151
-peasant.152
-mina
+animation peasant
 is_animated 1
 anim_speed 4
 speed -0.047

@@ -2,18 +2,7 @@ Object chest_4.111
 name chest
 other_arch close_chest_4.111
 face chest_mw_closed.111
-anim
-facings 9
-dummy.111
-chest_mw_closed.111
-chest_mw_closed.111
-chest_mw_closed.111
-chest_mw_closed.171
-chest_mw_closed.171
-chest_mw_closed.171
-chest_mw_closed.171
-chest_mw_closed.111
-mina
+animation chest_4.111
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -1,18 +1,7 @@
 Object wmask_fire_on_1
 name fire place
 face wmask_fire_on.u.151
-anim
-facings 9
-dummy.111
-wmask_fire_on.u.151
-wmask_fire_on.u.151
-wmask_fire_on.u.151
-wmask_fire_on.u.131
-wmask_fire_on.u.131
-wmask_fire_on.u.131
-wmask_fire_on.u.131
-wmask_fire_on.u.151
-mina
+animation wmask_fire_on_1
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -25,18 +14,7 @@ end
 Object wmask_fire_off_1
 name fire place
 face wmask_fire_off.u.151
-anim
-facings 9
-dummy.111
-wmask_fire_off.u.151
-wmask_fire_off.u.151
-wmask_fire_off.u.151
-wmask_fire_off.u.131
-wmask_fire_off.u.131
-wmask_fire_off.u.131
-wmask_fire_off.u.131
-wmask_fire_off.u.151
-mina
+animation wmask_fire_off_1
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -1,18 +1,7 @@
 Object rack.111
 name weapon rack
 face rack.111
-anim
-facings 9
-dummy.111
-rack.111
-rack.111
-rack.111
-rack.171
-rack.171
-rack.171
-rack.171
-rack.111
-mina
+animation rack.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -31,18 +20,7 @@ end
 Object rack2
 name weapon rack
 face rack2.111
-anim
-facings 9
-dummy.111
-rack2.111
-rack2.111
-rack2.111
-rack2.171
-rack2.171
-rack2.171
-rack2.171
-rack2.111
-mina
+animation rack2
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -61,18 +39,7 @@ end
 Object rack3
 name weapon rack
 face rack3.111
-anim
-facings 9
-dummy.111
-rack3.111
-rack3.111
-rack3.111
-rack3.171
-rack3.171
-rack3.171
-rack3.171
-rack3.111
-mina
+animation rack3
 is_animated 0
 anim_speed 1
 is_turnable 1

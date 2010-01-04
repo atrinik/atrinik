@@ -17,59 +17,7 @@ is_evil 1
 Wis 7
 terrain_flag 1
 mpart_id 3
-anim
-facings 25
-trans.101
-trans.101
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.131
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.151
-troll.131
-troll.132
-troll.131
-troll.132
-troll.131
-troll.132
-troll.131
-troll.132
-troll.151
-troll.152
-troll.151
-troll.152
-troll.151
-troll.152
-troll.151
-troll.152
-mina
+animation troll
 is_animated 1
 anim_speed 5
 monster 1

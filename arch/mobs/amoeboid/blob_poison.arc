@@ -20,59 +20,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face blob_poison.111
-anim
-facings 25
-trans.101
-trans.101
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-blob_poison.111
-blob_poison.112
-mina
+animation blob_poison
 is_animated 1
 anim_speed 4
 type 80

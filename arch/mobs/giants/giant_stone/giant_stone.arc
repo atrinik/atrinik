@@ -22,59 +22,7 @@ maxhp 74
 terrain_flag 1
 Wis 6
 face giant_stone.131
-anim
-facings 25
-trans.101
-trans.101
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.131
-giant_stone.132
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.151
-giant_stone.152
-giant_stone.131
-giant_stone.133
-giant_stone.131
-giant_stone.133
-giant_stone.131
-giant_stone.133
-giant_stone.131
-giant_stone.133
-giant_stone.151
-giant_stone.153
-giant_stone.151
-giant_stone.153
-giant_stone.151
-giant_stone.153
-giant_stone.151
-giant_stone.153
-mina
+animation giant_stone
 is_animated 1
 anim_speed 4
 type 80

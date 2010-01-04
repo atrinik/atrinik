@@ -4,11 +4,7 @@ type 2
 no_save 1
 layer 7
 face wounds.101
-anim
-wounds.101
-wounds.102
-wounds.103
-mina
+animation cause_wounds
 is_animated 1
 last_sp 12
 is_missile 1

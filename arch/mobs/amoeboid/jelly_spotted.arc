@@ -23,59 +23,7 @@ terrain_flag 1
 Wis 6
 can_see_in_dark 1
 face spotted_jelly.111
-anim
-facings 25
-trans.101
-trans.101
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-spotted_jelly.111
-spotted_jelly.112
-mina
+animation jelly_spotted
 is_animated 1
 anim_speed 4
 type 80

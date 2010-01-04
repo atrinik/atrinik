@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face queen.131
-anim
-facings 25
-trans.101
-trans.101
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.131
-queen.132
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-queen.151
-queen.152
-mina
+animation queen
 is_animated 1
 anim_speed 4
 speed -0.047

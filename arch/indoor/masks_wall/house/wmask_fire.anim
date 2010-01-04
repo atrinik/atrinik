@@ -1,0 +1,25 @@
+anim wmask_fire_on_1
+facings 9
+dummy.111
+wmask_fire_on.u.151
+wmask_fire_on.u.151
+wmask_fire_on.u.151
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.131
+wmask_fire_on.u.151
+mina
+
+anim wmask_fire_off_1
+facings 9
+dummy.111
+wmask_fire_off.u.151
+wmask_fire_off.u.151
+wmask_fire_off.u.151
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.131
+wmask_fire_off.u.151
+mina

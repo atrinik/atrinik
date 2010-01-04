@@ -3,12 +3,7 @@ name Glowing Crystal
 maxsp 1000
 layer 3
 face power_crystal.101
-anim
-power_crystal.101
-power_crystal.102
-power_crystal.103
-power_crystal.104
-mina
+animation power_crystal
 is_animated 1
 anim_speed 5
 type 156

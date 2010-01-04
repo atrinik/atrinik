@@ -1,0 +1,38 @@
+anim random_chest_wood
+facings 9
+dummy.111
+chest_wood_s.111
+chest_wood_s.111
+chest_wood_s.111
+chest_wood_s.171
+chest_wood_s.171
+chest_wood_s.171
+chest_wood_s.171
+chest_wood_s.111
+mina
+
+anim random_chest_black
+facings 9
+dummy.111
+chest_black_s.111
+chest_black_s.111
+chest_black_s.111
+chest_black_s.171
+chest_black_s.171
+chest_black_s.171
+chest_black_s.171
+chest_black_s.111
+mina
+
+anim random_chest_metal
+facings 9
+dummy.111
+chest_metal_s.111
+chest_metal_s.111
+chest_metal_s.111
+chest_metal_s.171
+chest_metal_s.171
+chest_metal_s.171
+chest_metal_s.171
+chest_metal_s.111
+mina

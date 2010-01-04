@@ -4,18 +4,7 @@ layer 5
 type 79
 mpart_id 3
 face stonehenge.111
-anim
-facings 9
-dummy.111
-stonehenge.111
-stonehenge.121
-stonehenge.131
-stonehenge.141
-stonehenge.151
-stonehenge.161
-stonehenge.171
-stonehenge.181
-mina
+animation stonehenge
 is_animated 0
 anim_speed 1
 is_turnable 1

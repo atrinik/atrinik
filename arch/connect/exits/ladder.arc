@@ -11,18 +11,7 @@ end
 Object ladder_down2
 name ladder going down
 face ladder_down_01.101
-anim
-facings 9
-dummy.111
-ladder_down_01.101
-ladder_down_04.101
-ladder_down_04.101
-ladder_down_03.101
-ladder_down_03.101
-ladder_down_02.101
-ladder_down_02.101
-ladder_down_01.101
-mina
+animation ladder_down2
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -37,18 +26,7 @@ end
 Object ladder_down3
 name ladder going down
 face ladder_round_down_01.101
-anim
-facings 9
-dummy.111
-ladder_round_down_01.101
-ladder_round_down_04.101
-ladder_round_down_04.101
-ladder_round_down_03.101
-ladder_round_down_03.101
-ladder_round_down_02.101
-ladder_round_down_02.101
-ladder_round_down_01.101
-mina
+animation ladder_down3
 is_animated 0
 anim_speed 1
 is_turnable 1

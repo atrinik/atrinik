@@ -9,27 +9,7 @@ pass_thru 1
 no_pick 1
 direction 1
 face door_wood2.111
-anim
-facings 9
-dummy.111
-dummy.111
-door_wood2.111
-door_wood2.112
-door_wood2.111
-door_wood2.112
-door_wood2.131
-door_wood2.132
-door_wood2.131
-door_wood2.132
-door_wood2.111
-door_wood2.112
-door_wood2.111
-door_wood2.112
-door_wood2.131
-door_wood2.132
-door_wood2.131
-door_wood2.132
-mina
+animation door_wood2
 is_animated 0
 anim_speed 1
 is_turnable 1

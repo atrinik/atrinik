@@ -1,18 +1,7 @@
 Object shrine1.111
 name shrine
 face shrine1.111
-anim
-facings 9
-dummy.111
-shrine1.111
-shrine1.111
-shrine1.111
-shrine1.171
-shrine1.171
-shrine1.171
-shrine1.171
-shrine1.111
-mina
+animation shrine1.111
 is_animated 0
 anim_speed 1
 is_turnable 1

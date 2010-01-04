@@ -7,34 +7,7 @@ no_pick 1
 layer 6
 face dummy.111
 race god_lesser
-anim
-facings 25
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-trans.101
-mina
+animation Moroch
 is_animated 1
 anim_speed 3
 Str 30

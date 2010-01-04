@@ -1,18 +1,7 @@
 Object close_drawers1
 name open drawer
 face drawers1.211
-anim
-facings 9
-dummy.111
-drawers1.211
-drawers1.211
-drawers1.211
-drawers1.271
-drawers1.271
-drawers1.271
-drawers1.271
-drawers1.211
-mina
+animation close_drawers1
 is_animated 0
 anim_speed 1
 is_turnable 1

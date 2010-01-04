@@ -2,18 +2,7 @@ Object mover
 name mover
 face mover.111
 direction 1
-anim
-facings 9
-dummy.111
-mover.111
-mover.121
-mover.131
-mover.141
-mover.151
-mover.161
-mover.171
-mover.181
-mina
+animation mover
 is_animated 0
 is_turnable 1
 anim_speed 3

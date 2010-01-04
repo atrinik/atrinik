@@ -10,11 +10,7 @@ end
 Object statue_fire
 name statue
 face statue_fire.111
-anim
-statue_fire.111
-statue_fire.112
-statue_fire.113
-mina
+animation statue_fire
 speed -0.02
 is_animated 1
 anim_speed 4

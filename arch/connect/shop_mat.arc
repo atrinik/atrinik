@@ -3,10 +3,7 @@ name shop teleporter
 layer 4
 face exit.101
 no_pick 1
-anim
-exit.101
-exit.102
-mina
+animation shop_mat
 player_only 1
 is_animated 1
 anim_speed 4

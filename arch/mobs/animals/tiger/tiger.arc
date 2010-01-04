@@ -16,59 +16,7 @@ attack_slash 80
 attack_pierce 20
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.131
-tiger.132
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.151
-tiger.152
-tiger.133
-tiger.132
-tiger.133
-tiger.132
-tiger.133
-tiger.132
-tiger.133
-tiger.132
-tiger.153
-tiger.152
-tiger.153
-tiger.152
-tiger.153
-tiger.152
-tiger.153
-tiger.152
-mina
+animation tiger
 is_animated 1
 anim_speed 4
 monster 1

@@ -1,18 +1,7 @@
 Object broom.111
 name broom
 face broom.111
-anim
-facings 9
-dummy.111
-broom.111
-broom.111
-broom.111
-broom.171
-broom.171
-broom.171
-broom.171
-broom.111
-mina
+animation broom.111
 is_animated 0
 anim_speed 1
 is_turnable 1

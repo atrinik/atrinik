@@ -6,27 +6,7 @@ direction 1
 level 1
 type 62
 face magic_wall.101
-anim
-facings 9
-magic_wall.101
-dummy.111
-magic_wall.111
-dummy.111
-magic_wall.121
-dummy.111
-magic_wall.131
-dummy.111
-magic_wall.141
-dummy.111
-magic_wall.151
-dummy.111
-magic_wall.161
-dummy.111
-magic_wall.171
-dummy.111
-magic_wall.181
-dummy.111
-mina
+animation magic_wall
 is_animated 0
 is_turnable 1
 anim_speed 6

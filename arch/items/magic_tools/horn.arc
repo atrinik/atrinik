@@ -5,12 +5,7 @@ layer 3
 type 35
 last_grace 40
 sp -1
-anim
-horn.101
-horn.102
-horn.103
-horn.104
-mina
+animation horn
 hp 10
 maxhp 10
 is_animated 1

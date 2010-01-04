@@ -8,27 +8,7 @@ level 1
 sp -1
 exp 30
 face altar.111
-anim
-facings 9
-dummy.111
-dummy.111
-altar.111
-altar.111
-altar.111
-altar.111
-altar.131
-altar.131
-altar.131
-altar.131
-altar.111
-altar.111
-altar.111
-altar.111
-altar.131
-altar.131
-altar.131
-altar.131
-mina
+animation altar_trigger
 is_animated 0
 anim_speed 1
 is_turnable 1

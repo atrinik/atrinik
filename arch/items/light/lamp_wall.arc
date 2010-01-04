@@ -6,18 +6,7 @@ face lamp_wall.111
 other_arch lamp_wall_1_unlit
 glow_radius 5
 is_animated 1
-anim
-facings 9
-dummy.111
-lamp_wall.111
-lamp_wall.111
-lamp_wall.111
-lamp_wall.171
-lamp_wall.171
-lamp_wall.171
-lamp_wall.171
-lamp_wall.111
-mina
+animation lamp_wall
 speed -0.02
 is_turnable 1
 anim_speed 100

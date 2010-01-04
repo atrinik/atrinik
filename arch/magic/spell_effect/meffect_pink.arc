@@ -4,12 +4,7 @@ face effect1_pink.101
 layer 7
 type 79
 no_save 1
-anim
-effect1_pink.101
-effect1_pink.102
-effect1_pink.103
-effect1_pink.104
-mina
+animation meffect_pink
 is_animated 1
 anim_speed 1
 speed 1

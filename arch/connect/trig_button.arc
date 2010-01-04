@@ -3,10 +3,7 @@ name button
 type 30
 layer 3
 face button_small.101
-anim
-button_small.101
-button_small.102
-mina
+animation button_trigger
 is_animated 0
 anim_speed 1
 weight 1 

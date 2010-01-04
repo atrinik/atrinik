@@ -16,59 +16,7 @@ attack_poison 80
 attack_slash 20
 type 80
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-snake.131
-snake.132
-snake.131
-snake.132
-snake.131
-snake.132
-snake.131
-snake.132
-snake.151
-snake.152
-snake.151
-snake.152
-snake.151
-snake.152
-snake.151
-snake.152
-snake.131
-snake.132
-snake.131
-snake.132
-snake.131
-snake.132
-snake.131
-snake.132
-snake.151
-snake.152
-snake.151
-snake.152
-snake.151
-snake.152
-snake.151
-snake.152
-snake.133
-snake.132
-snake.133
-snake.132
-snake.133
-snake.132
-snake.133
-snake.132
-snake.153
-snake.152
-snake.153
-snake.152
-snake.153
-snake.152
-snake.153
-snake.152
-mina
+animation snake
 is_animated 1
 anim_speed 4
 monster 1

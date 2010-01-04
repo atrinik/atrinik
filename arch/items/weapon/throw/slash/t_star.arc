@@ -11,18 +11,7 @@ nrof 1
 type 13
 wc_range 20
 sub_type 129
-anim
-facings 9
-t_star.101
-t_star.111
-t_star.111
-t_star.111
-t_star.111
-t_star.111
-t_star.111
-t_star.111
-t_star.111
-mina
+animation t_star
 is_animated 0
 anim_speed 5
 is_turnable 1

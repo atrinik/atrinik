@@ -1,18 +1,7 @@
 Object sewer_wall
 name sewer hole
 face sewer_wall.151
-anim
-facings 9
-dummy.111
-sewer_wall.151
-sewer_wall.151
-sewer_wall.151
-sewer_wall.131
-sewer_wall.131
-sewer_wall.131
-sewer_wall.131
-sewer_wall.151
-mina
+animation sewer_wall
 is_animated 0
 anim_speed 1
 is_turnable 1

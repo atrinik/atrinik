@@ -16,59 +16,7 @@ attack_cleave 80
 type 80
 Wis 6
 randomitems mob_ant_queen
-anim
-facings 25
-trans.101
-trans.101
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.131
-ant_queen.132
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.151
-ant_queen.152
-ant_queen.131
-ant_queen.232
-ant_queen.131
-ant_queen.232
-ant_queen.131
-ant_queen.232
-ant_queen.131
-ant_queen.232
-ant_queen.151
-ant_queen.252
-ant_queen.151
-ant_queen.252
-ant_queen.151
-ant_queen.252
-ant_queen.151
-ant_queen.252
-mina
+animation ant_queen
 is_animated 1
 anim_speed 4
 monster 1

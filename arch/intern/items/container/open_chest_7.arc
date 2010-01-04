@@ -1,18 +1,7 @@
 Object close_chest7_111
 name open chest
 face chest_mm2_open.111
-anim
-facings 9
-dummy.111
-chest_mm2_open.111
-chest_mm2_open.111
-chest_mm2_open.111
-chest_mm2_open.171
-chest_mm2_open.171
-chest_mm2_open.171
-chest_mm2_open.171
-chest_mm2_open.111
-mina
+animation close_chest7_111
 is_animated 0
 anim_speed 1
 is_turnable 1

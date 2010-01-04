@@ -1,0 +1,51 @@
+anim cave_deco_full
+facings 9
+dummy.111
+cave_deco_full.u.111
+cave_deco_full.u.111
+cave_deco_full.u.111
+cave_deco_full.u.111
+cave_deco_full.u.131
+cave_deco_full.u.131
+cave_deco_full.u.131
+cave_deco_full.u.131
+mina
+
+anim cave_deco1
+facings 9
+dummy.111
+cave_deco1.111
+cave_deco1.111
+cave_deco1.111
+cave_deco1.111
+cave_deco1.131
+cave_deco1.131
+cave_deco1.131
+cave_deco1.131
+mina
+
+anim cave_deco2
+facings 9
+dummy.111
+cave_deco2.111
+cave_deco2.111
+cave_deco2.111
+cave_deco2.111
+cave_deco2.131
+cave_deco2.131
+cave_deco2.131
+cave_deco2.131
+mina
+
+anim cave_deco3
+facings 9
+dummy.111
+cave_deco3.111
+cave_deco2.111
+cave_deco3.111
+cave_deco3.111
+cave_deco3.131
+cave_deco3.131
+cave_deco3.131
+cave_deco3.131
+mina

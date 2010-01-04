@@ -1,18 +1,7 @@
 Object wmask_ruin1a.111
 name runes
 face wmask_ruin1a.111
-anim
-facings 9
-dummy.111
-wmask_ruin1a.111
-wmask_ruin1a.111
-wmask_ruin1a.111
-wmask_ruin1a.131
-wmask_ruin1a.131
-wmask_ruin1a.131
-wmask_ruin1a.131
-wmask_ruin1a.111
-mina
+animation wmask_ruin1a.111
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -24,18 +13,7 @@ end
 Object wmask_ruin1b.111
 name runes
 face wmask_ruin1b.111
-anim
-facings 9
-dummy.111
-wmask_ruin1b.111
-wmask_ruin1b.111
-wmask_ruin1b.111
-wmask_ruin1b.131
-wmask_ruin1b.131
-wmask_ruin1b.131
-wmask_ruin1b.131
-wmask_ruin1b.111
-mina
+animation wmask_ruin1b.111
 is_animated 0
 anim_speed 1
 is_turnable 1

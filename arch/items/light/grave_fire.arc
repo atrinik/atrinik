@@ -4,10 +4,7 @@ face grave_fire_off.101
 type 74
 layer 3
 no_pick 1
-anim
-grave_fire_on.101
-grave_fire_on.102
-mina
+animation grave_fire.101
 is_animated 0
 anim_speed 15
 material 64

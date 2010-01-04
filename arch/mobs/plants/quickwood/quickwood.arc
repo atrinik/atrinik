@@ -15,59 +15,7 @@ direction 5
 terrain_flag 1
 randomitems mob_quickwood
 Wis 6
-anim
-facings 25
-trans.101
-trans.101
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.131
-quickwood.132
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.151
-quickwood.152
-quickwood.131
-quickwood.231
-quickwood.131
-quickwood.231
-quickwood.131
-quickwood.231
-quickwood.131
-quickwood.231
-quickwood.151
-quickwood.251
-quickwood.151
-quickwood.251
-quickwood.151
-quickwood.251
-quickwood.151
-quickwood.251
-mina
+animation quickwood
 is_animated 1
 anim_speed 4
 monster 1

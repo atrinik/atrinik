@@ -18,59 +18,7 @@ Wis 7
 Dex 13
 terrain_flag 1
 mpart_id 3
-anim
-facings 25
-trans.101
-trans.101
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.131
-dragon_skeletal.132
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.151
-dragon_skeletal.152
-dragon_skeletal.231
-dragon_skeletal.132
-dragon_skeletal.231
-dragon_skeletal.132
-dragon_skeletal.231
-dragon_skeletal.132
-dragon_skeletal.231
-dragon_skeletal.132
-dragon_skeletal.251
-dragon_skeletal.152
-dragon_skeletal.251
-dragon_skeletal.152
-dragon_skeletal.251
-dragon_skeletal.152
-dragon_skeletal.251
-dragon_skeletal.152
-mina
+animation dragon_skeletal
 is_animated 1
 anim_speed 5
 monster 1

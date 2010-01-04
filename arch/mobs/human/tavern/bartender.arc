@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face bartender.131
-anim
-facings 25
-trans.101
-trans.101
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.131
-bartender.132
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-bartender.151
-bartender.152
-mina
+animation bartender
 is_animated 1
 anim_speed 4
 speed -0.047

@@ -1,12 +1,7 @@
 Object kettle_table
 name kettle
 face table_round_kettle.101
-anim
-table_round_kettle.101
-table_round_kettle.102
-table_round_kettle.103
-table_round_kettle.104
-mina
+animation kettle_table
 is_animated 1
 anim_speed 2
 speed 2

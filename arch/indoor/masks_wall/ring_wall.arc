@@ -1,18 +1,7 @@
 Object ring_wall.151
 name big iron ring
 face ring_wall.151
-anim
-facings 9
-dummy.111
-ring_wall.151
-ring_wall.151
-ring_wall.151
-ring_wall.131
-ring_wall.131
-ring_wall.131
-ring_wall.131
-ring_wall.151
-mina
+animation ring_wall.151
 is_animated 0
 anim_speed 1
 is_turnable 1

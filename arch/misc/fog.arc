@@ -4,17 +4,7 @@ other_arch fog
 terrain_flag 65535
 type 79
 layer 7
-anim
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-mina
+animation fog
 is_animated 1
 anim_speed 4
 flying 1
@@ -35,17 +25,7 @@ type 79
 face fog.111
 other_arch fog_glow1
 terrain_flag 65535
-anim
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-mina
+animation fog
 is_animated 1
 anim_speed 4
 flying 1
@@ -66,17 +46,7 @@ face fog.111
 layer 7
 terrain_flag 65535
 other_arch fog_glow2
-anim
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-fog.111
-fog.112
-fog.111
-mina
+animation fog
 is_animated 1
 anim_speed 4
 flying 1

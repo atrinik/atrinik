@@ -6,10 +6,7 @@ hp 1
 msg
 You set off a Blades trap!
 endmsg
-anim
-blades.101
-blades.101
-mina
+animation trap_blades
 level 1
 anim_speed 1
 is_animated 0

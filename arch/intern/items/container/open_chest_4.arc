@@ -1,18 +1,7 @@
 Object close_chest_4.111
 name open chest
 face chest_mw_open.111
-anim
-facings 9
-dummy.111
-chest_mw_open.111
-chest_mw_open.111
-chest_mw_open.111
-chest_mw_open.171
-chest_mw_open.171
-chest_mw_open.171
-chest_mw_open.171
-chest_mw_open.111
-mina
+animation close_chest_4.111
 is_animated 0
 anim_speed 1
 is_turnable 1

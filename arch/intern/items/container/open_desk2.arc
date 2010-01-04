@@ -1,18 +1,7 @@
 Object close_desk2
 name open desk
 face desk2.112
-anim
-facings 9
-dummy.111
-desk2.112
-desk2.112
-desk2.112
-desk2.172
-desk2.172
-desk2.172
-desk2.172
-desk2.112
-mina
+animation close_desk2
 is_animated 0
 anim_speed 1
 is_turnable 1

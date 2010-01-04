@@ -10,18 +10,7 @@ end
 Object straw2.111
 name straw
 face straw2.111
-anim
-facings 9
-dummy.111
-straw2.131
-straw2.131
-straw2.131
-straw2.111
-straw2.111
-straw2.111
-straw2.111
-straw2.131
-mina
+animation straw2.111
 is_animated 0
 anim_speed 1
 is_turnable 1

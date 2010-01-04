@@ -2,18 +2,7 @@ Object drawers1.111
 name drawer
 other_arch close_drawers1
 face drawers1.111
-anim
-facings 9
-dummy.111
-drawers1.111
-drawers1.111
-drawers1.111
-drawers1.171
-drawers1.171
-drawers1.171
-drawers1.171
-drawers1.111
-mina
+animation drawers1.111
 is_animated 0
 anim_speed 1
 is_turnable 1

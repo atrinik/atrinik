@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face traveller_parka.131
-anim
-facings 25
-trans.101
-trans.101
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.131
-traveller_parka.132
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-traveller_parka.151
-traveller_parka.152
-mina
+animation traveller_parka
 is_animated 1
 anim_speed 4
 speed -0.047

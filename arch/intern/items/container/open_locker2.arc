@@ -1,18 +1,7 @@
 Object close_locker4
 name open locker
 face locker4.112
-anim
-facings 9
-dummy.111
-locker4.112
-locker4.112
-locker4.112
-locker4.172
-locker4.172
-locker4.172
-locker4.172
-locker4.112
-mina
+animation close_locker4
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -31,18 +20,7 @@ end
 Object close_locker5
 name open locker
 face locker5.112
-anim
-facings 9
-dummy.111
-locker5.112
-locker5.112
-locker5.112
-locker5.172
-locker5.172
-locker5.172
-locker5.172
-locker5.112
-mina
+animation close_locker5
 is_animated 0
 anim_speed 1
 is_turnable 1

@@ -1,18 +1,7 @@
 Object wall_well.131
 name well
 face wall_well.131
-anim
-facings 9
-dummy.111
-wall_well.131
-wall_well.131
-wall_well.131
-wall_well.151
-wall_well.151
-wall_well.151
-wall_well.151
-wall_well.131
-mina
+animation wall_well.131
 is_animated 0
 anim_speed 1
 is_turnable 1

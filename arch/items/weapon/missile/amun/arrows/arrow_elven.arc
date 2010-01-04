@@ -11,18 +11,7 @@ last_sp 5
 attack_pierce 100
 type 13
 sub_type 1
-anim
-facings 9
-arrow_elven.101
-arrow_elven.111
-arrow_elven.121
-arrow_elven.131
-arrow_elven.141
-arrow_elven.151
-arrow_elven.161
-arrow_elven.171
-arrow_elven.181
-mina
+animation arrow_elven
 anim_speed 1
 is_animated 0
 is_turnable 1

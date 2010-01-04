@@ -1,0 +1,38 @@
+anim chair1_111
+facings 9
+dummy.111
+chair1.111
+chair1.131
+chair1.131
+chair1.151
+chair1.151
+chair1.171
+chair1.171
+chair1.111
+mina
+
+anim chair2_111
+facings 9
+dummy.111
+chair2.111
+chair2.131
+chair2.131
+chair2.151
+chair2.151
+chair2.171
+chair2.171
+chair2.111
+mina
+
+anim chair3
+facings 9
+dummy.111
+chair3.111
+chair3.131
+chair3.131
+chair3.151
+chair3.151
+chair3.171
+chair3.171
+chair3.111
+mina

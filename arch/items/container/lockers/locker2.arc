@@ -2,18 +2,7 @@ Object locker4
 name locker
 other_arch close_locker4
 face locker4.111
-anim
-facings 9
-dummy.111
-locker4.111
-locker4.111
-locker4.111
-locker4.171
-locker4.171
-locker4.171
-locker4.171
-locker4.111
-mina
+animation locker4
 is_animated 0
 anim_speed 1
 is_turnable 1
@@ -33,18 +22,7 @@ Object locker5
 name locker
 other_arch close_locker5
 face locker5.111
-anim
-facings 9
-dummy.111
-locker5.111
-locker5.111
-locker5.111
-locker5.171
-locker5.171
-locker5.171
-locker5.171
-locker5.111
-mina
+animation locker5
 is_animated 0
 anim_speed 1
 is_turnable 1

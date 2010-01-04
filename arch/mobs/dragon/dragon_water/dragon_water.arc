@@ -17,34 +17,7 @@ direction 5
 terrain_flag 2
 randomitems mob_dragon_water
 Wis 6
-anim
-facings 25
-trans.101
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.151
-dragon_water.151
-dragon_water.151
-dragon_water.151
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.151
-dragon_water.151
-dragon_water.151
-dragon_water.151
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.131
-dragon_water.151
-dragon_water.151
-dragon_water.151
-dragon_water.151
-mina
+animation dragon_water_small
 is_animated 1
 anim_speed 4
 monster 1

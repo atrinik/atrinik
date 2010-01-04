@@ -11,18 +11,7 @@ wc_range 20
 nrof 1
 type 13
 sub_type 128
-anim
-facings 9
-hammer_2.101
-hammer_2.111
-hammer_2.121
-hammer_2.131
-hammer_2.141
-hammer_2.151
-hammer_2.161
-hammer_2.171
-hammer_2.181
-mina
+animation t_hammer
 anim_speed 5
 is_animated 0
 is_turnable 1

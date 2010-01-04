@@ -6,18 +6,7 @@ face bullet.101
 level 1
 no_save 1
 attack_weaponmagic 100
-anim
-facings 9
-bullet.101
-bullet.111
-bullet.121
-bullet.131
-bullet.141
-bullet.151
-bullet.161
-bullet.171
-bullet.181
-mina
+animation bullet
 anim_speed 1
 terrain_flag 32767
 last_sp 12

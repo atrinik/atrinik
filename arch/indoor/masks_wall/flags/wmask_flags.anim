@@ -1,0 +1,64 @@
+anim flag_01
+facings 9
+dummy.111
+flag_01.u.151
+flag_01.u.151
+flag_01.u.151
+flag_01.u.131
+flag_01.u.131
+flag_01.u.131
+flag_01.u.131
+flag_01.u.151
+mina
+
+anim flag_02
+facings 9
+dummy.111
+flag_02.u.151
+flag_02.u.151
+flag_02.u.151
+flag_02.u.131
+flag_02.u.131
+flag_02.u.131
+flag_02.u.131
+flag_02.u.151
+mina
+
+anim flag_03
+facings 9
+dummy.111
+flag_03.u.151
+flag_03.u.151
+flag_03.u.151
+flag_03.u.131
+flag_03.u.131
+flag_03.u.131
+flag_03.u.131
+flag_03.u.151
+mina
+
+anim flag_04
+facings 9
+dummy.111
+flag_04.u.151
+flag_04.u.151
+flag_04.u.151
+flag_04.u.131
+flag_04.u.131
+flag_04.u.131
+flag_04.u.131
+flag_04.u.151
+mina
+
+anim flag_05
+facings 9
+dummy.111
+flag_05.u.151
+flag_05.u.151
+flag_05.u.151
+flag_05.u.131
+flag_05.u.131
+flag_05.u.131
+flag_05.u.131
+flag_05.u.151
+mina

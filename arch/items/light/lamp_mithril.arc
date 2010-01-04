@@ -6,9 +6,7 @@ type 74
 layer 3
 item_quality 100
 item_condition 100
-anim
-lamp_mithril_lit.101
-mina
+animation mithril_lamp
 is_animated 0
 anim_speed 4
 material 256

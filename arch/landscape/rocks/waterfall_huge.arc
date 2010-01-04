@@ -4,11 +4,7 @@ face waterfall_huge.101
 type 79
 mpart_id 6
 layer 5
-anim
-waterfall_huge.101
-waterfall_huge.102
-waterfall_huge.103
-mina
+animation waterfall_huge
 is_animated 1
 anim_speed 1
 speed 1

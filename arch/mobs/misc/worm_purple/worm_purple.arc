@@ -16,59 +16,7 @@ is_neutral 1
 Wis 7
 terrain_flag 1
 mpart_id 3
-anim
-facings 25
-trans.101
-trans.101
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.131
-worm_purple.132
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.151
-worm_purple.152
-worm_purple.131
-worm_purple.231
-worm_purple.131
-worm_purple.231
-worm_purple.131
-worm_purple.231
-worm_purple.131
-worm_purple.231
-worm_purple.151
-worm_purple.251
-worm_purple.151
-worm_purple.251
-worm_purple.151
-worm_purple.251
-worm_purple.151
-worm_purple.251
-mina
+animation worm_purple
 is_animated 1
 anim_speed 5
 monster 1

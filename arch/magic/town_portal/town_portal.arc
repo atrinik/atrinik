@@ -26,10 +26,7 @@ no_pick 1
 exp 1
 layer 0
 sys_object 1
-anim
-magic_portal.111
-magic_portal.112
-mina
+animation town_portal_magic
 is_animated 0
 anim_speed 4
 end

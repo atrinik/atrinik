@@ -22,59 +22,7 @@ attack_slash 80
 type 80
 Wis 6
 randomitems mob_skeleton_mage
-anim
-facings 25
-trans.101
-trans.101
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.131
-skel_mage.132
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.151
-skel_mage.152
-skel_mage.132
-skel_mage.231
-skel_mage.132
-skel_mage.231
-skel_mage.132
-skel_mage.231
-skel_mage.132
-skel_mage.231
-skel_mage.152
-skel_mage.251
-skel_mage.152
-skel_mage.251
-skel_mage.152
-skel_mage.251
-skel_mage.152
-skel_mage.251
-mina
+animation skel_mage
 is_animated 1
 anim_speed 4
 monster 1

@@ -2,11 +2,7 @@ Object wand
 layer 3
 face wand.101
 sp -1
-anim
-wand.101
-wand.102
-wand.103
-mina
+animation wand
 is_animated 1
 last_grace 12
 anim_speed 5

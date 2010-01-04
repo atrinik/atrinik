@@ -15,59 +15,7 @@ weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
 face woman_old.131
-anim
-facings 25
-trans.101
-trans.101
-woman_old.131
-woman_old.132
-woman_old.131
-woman_old.132
-woman_old.131
-woman_old.132
-woman_old.141
-woman_old.142
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.131
-woman_old.132
-woman_old.131
-woman_old.132
-woman_old.131
-woman_old.132
-woman_old.141
-woman_old.142
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.151
-woman_old.152
-woman_old.231
-woman_old.232
-woman_old.231
-woman_old.232
-woman_old.231
-woman_old.232
-woman_old.241
-woman_old.141
-woman_old.251
-woman_old.252
-woman_old.251
-woman_old.252
-woman_old.251
-woman_old.252
-woman_old.251
-woman_old.252
-mina
+animation woman_old
 is_animated 1
 anim_speed 4
 speed -0.047

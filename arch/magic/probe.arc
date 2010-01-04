@@ -3,11 +3,7 @@ type 2
 face probe.101
 layer 7
 no_save 1
-anim
-probe.101
-probe.102
-probe.103
-mina
+animation probebullet
 is_animated 1
 last_sp 12
 is_missile 1

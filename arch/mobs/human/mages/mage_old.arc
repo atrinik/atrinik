@@ -15,59 +15,7 @@ weapon_speed 0.050
 corpse 1
 attack_weaponmagic 100
 face mage_old.131
-anim
-facings 25
-trans.101
-trans.101
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.131
-mage_old.132
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mage_old.151
-mage_old.152
-mina
+animation mage_old
 is_animated 1
 anim_speed 4
 speed -0.047
