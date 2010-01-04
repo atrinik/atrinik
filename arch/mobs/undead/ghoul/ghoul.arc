@@ -111,4 +111,5 @@ maxhp 65
 level 1
 speed -0.047
 weight 122500
+undead 1
 end
