@@ -126,7 +126,6 @@ extern void init_block();
 extern void set_block(int x, int y, int bx, int by);
 extern void update_los(object *op);
 extern void clear_los(object *op);
-extern void print_los(object *op);
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
 extern void check_light_source_list(mapstruct *map);
 extern void remove_light_source_list(mapstruct *map);
