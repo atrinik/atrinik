@@ -8,7 +8,7 @@ exp 86
 wc_range 20
 item_race 255
 item_level 255
-speed -0.024
+speed -0.025
 weapon_speed 0.040
 attack_impact 75
 ac 10

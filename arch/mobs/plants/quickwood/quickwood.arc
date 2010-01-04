@@ -80,7 +80,7 @@ wc 3
 dam 52
 hp -1
 maxhp 66
-speed -0.0325
+speed -0.048
 level 1
 weight 355000
 end

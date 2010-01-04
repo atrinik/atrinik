@@ -283,8 +283,8 @@ enum
 #define F_NOPICK        0x4000
 /** @copydoc FLAG_INV_LOCKED */
 #define F_LOCKED        0x8000
-/** @copydoc FLAG_IS_TRAPED */
-#define F_TRAPED        0x10000
+/** @copydoc FLAG_IS_TRAPPED */
+#define F_TRAPPED       0x10000
 /*@}*/
 
 /**

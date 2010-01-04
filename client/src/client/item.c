@@ -159,7 +159,7 @@ static item *new_item()
 	op->face = 0;
 	op->weight = 0;
 	op->magical = op->cursed = op->damned = 0;
-	op->traped = op->unpaid = op->locked = op->applied = 0;
+	op->trapped = op->unpaid = op->locked = op->applied = 0;
 	op->flagsval = 0;
 	op->animation_id = 0;
 	op->last_anim = 0;
@@ -482,7 +482,7 @@ static void get_flags(item *op, int flags)
 	op->unpaid = flags & F_UNPAID ? 1 : 0;
 	op->applied = flags & F_APPLIED ? 1 : 0;
 	op->locked = flags & F_LOCKED ? 1 : 0;
-	op->traped = flags & F_TRAPED ? 1 : 0;
+	op->trapped = flags & F_TRAPPED ? 1 : 0;
 	op->flagsval = flags;
 	op->apply_type = flags & F_APPLIED;
 	set_flag_string(op);

@@ -113,6 +113,6 @@ maxhp 77
 sp -1
 maxsp 30
 level 1
-speed -0.0275
+speed -0.054
 weight 22500
 end

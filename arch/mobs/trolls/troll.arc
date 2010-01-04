@@ -6,7 +6,7 @@ randomitems mob_troll
 face troll.131
 wc_range 20
 direction 5
-speed -0.06
+speed -0.061
 will_apply 8
 corpse 1
 item_race 255

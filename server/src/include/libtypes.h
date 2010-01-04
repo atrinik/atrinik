@@ -1,5 +1,7 @@
 /* altar.c */
 extern int apply_altar(object *altar, object *sacrifice, object *originator);
+extern int check_altar_sacrifice(object *altar, object *sacrifice);
+extern int operate_altar(object *altar, object **sacrifice);
 
 /* armour_improver.c */
 extern void apply_armour_improver(object *op, object *tmp);

@@ -207,10 +207,12 @@ int find_face(char *name, int error)
 	}
 
 	if ((p = strchr(name, '\n')))
+	{
 		*p = '\0';
+	}
 
 	tmp.name = name;
-	bp = (struct bmappair *)bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)())compar);
+	bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (int (*)()) compar);
 
 	return bp ? bp->number : (unsigned int) error;
 }

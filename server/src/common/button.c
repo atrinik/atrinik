@@ -89,8 +89,11 @@ void push_button(object *op)
 					new_info_map(NDI_UNIQUE | NDI_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, tmp->msg);
 
 					if (tmp->stats.food)
+					{
 						tmp->last_eat++;
+					}
 				}
+
 				break;
 
 			case ALTAR:
@@ -122,8 +125,10 @@ void push_button(object *op)
 			case FIREWALL:
 				/* connection flag1 = on/off */
 				if (op->last_eat)
+				{
 					tmp->last_eat != 0 ? (tmp->last_eat = 0) : (tmp->last_eat = 1);
-				/*move_firewall(tmp); <- invoke the firewall (removed here)*/
+				}
+
 				/* "normal" connection - turn wall */
 				else
 				{
@@ -131,11 +136,14 @@ void push_button(object *op)
 					if (tmp->stats.maxsp)
 					{
 						if ((tmp->direction += tmp->stats.maxsp) > 8)
+						{
 							tmp->direction = (tmp->direction % 8) + 1;
+						}
 
 						animate_turning(tmp);
 					}
 				}
+
 				break;
 
 			case DIRECTOR:
@@ -143,10 +151,13 @@ void push_button(object *op)
 				if (tmp->stats.maxsp)
 				{
 					if ((tmp->direction += tmp->stats.maxsp) > 8)
+					{
 						tmp->direction = (tmp->direction % 8) + 1;
+					}
 
 					animate_turning(tmp);
 				}
+
 				break;
 
 			case TELEPORTER:
@@ -172,7 +183,6 @@ void update_button(object *op)
 	int move, fly, tot, any_down = 0, old_value = op->value;
 	objectlink *ol;
 
-	/* LOG(llevDebug, "update_button: %s (%d)\n", op->name, op->count); */
 	for (ol = get_button_links(op); ol; ol = ol->next)
 	{
 		tmp = ol->objlink.ob;
@@ -191,13 +201,17 @@ void update_button(object *op)
 			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2), tot = 0; ab != NULL; ab = ab->above)
 			{
 				if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
+				{
 					tot += ab->weight * (ab->nrof ? ab->nrof : 1) + ab->carrying;
+				}
 			}
 
 			tmp->value = (tot >= tmp->weight) ? 1 : 0;
 
 			if (tmp->value)
+			{
 				any_down = 1;
+			}
 
 		}
 		else if (tmp->type == PEDESTAL)
@@ -209,18 +223,25 @@ void update_button(object *op)
 			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
 			{
 				head = ab->head ? ab->head : ab;
+
 				if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move) && (head->race == tmp->slaying || (!strcmp(tmp->slaying, "player") && head->type == PLAYER)))
+				{
 					tmp->value = 1;
+				}
 			}
 
 			if (tmp->value)
+			{
 				any_down = 1;
+			}
 		}
 	}
 
 	/* If any other buttons were down, force this to remain down */
 	if (any_down)
+	{
 		op->value = 1;
+	}
 
 	/* If this button hasn't changed, don't do anything */
 	if (op->value != old_value)
@@ -253,7 +274,9 @@ void update_buttons(mapstruct *m)
 			}
 
 			if (ol->objlink.ob->type == BUTTON || ol->objlink.ob->type == PEDESTAL)
+			{
 				update_button(ol->objlink.ob);
+			}
 			else if (ol->objlink.ob->type == CHECK_INV)
 			{
 				tmp = ol->objlink.ob;
@@ -263,7 +286,9 @@ void update_buttons(mapstruct *m)
 				for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
 				{
 					if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
+					{
 						check_inv(ab, tmp);
+					}
 				}
 			}
 			else if (ol->objlink.ob->type == TRIGGER_BUTTON || ol->objlink.ob->type == TRIGGER_PEDESTAL || ol->objlink.ob->type == TRIGGER_ALTAR)
@@ -276,6 +301,9 @@ void update_buttons(mapstruct *m)
 	}
 }
 
+/**
+ * Toggles the state of specified button.
+ * @param op Object to toggle. */
 void use_trigger(object *op)
 {
 	/* Toggle value */
@@ -283,103 +311,13 @@ void use_trigger(object *op)
 	push_button(op);
 }
 
-/* We changed this function to fit in the anim system. This is used from
- * DIRECTORS and FIREWALLS but not from all is_turning objects (even not in crossfire,
- * throwing weapons use different system). This is of course confusing - directors
- * used is_throwing with 8 animations, throwing weapons with 9.
- * In Daimonin, i change it for use with facings 9 and facings 25 ext anim system.
- * To do it, we must change 2 things: All is_throwing using objects must have a facings 9
- * or facings 25 animation. All must use ->direction to set the animation.
- * In the old version, the object here sets animation by using ->sp. We must change this,
- * that this technical value (sp menas for directors the direction of reflection and
- * for firewalls the fire direction) map to the right animation value - this is simple
- * the right setting. And then all problems are gone - if we setup the animation right,
- * we can do all the things our animation can do - means also in frame animation of
- * our turning objects and so on. MT 2003. */
-/* only one part objects */
+/**
+ * Animates one step of object.
+ * @param op Object to animate. */
 static void animate_turning(object *op)
 {
-	/* here we move through or frames - we animate the animation */
-	/* state animation should be done from our animation handler now -
-	 * if is_animated 0 set, we don't want animate here too. */
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
 	update_object(op, UP_OBJ_FACE);
-}
-
-#define ARCH_SACRIFICE(xyz) ((xyz)->slaying)
-#define NROF_SACRIFICE(xyz) ((xyz)->stats.food)
-
-/**
- * Check if the sacrifice meets the needs of the altar.
- *
- * Identify altars won't grab money unnecessarily - we can see
- * if there is sufficient money, see if something needs to be
- * identified, and then remove money if needed.
- *
- * Linked objects (ie, objects that are connected) can not be
- * sacrificed. This fixes a bug of trying to put multiple altars/related
- * objects on the same space that take the same sacrifice.
- * @param altar The altar object
- * @param sacrifice The sacrifice
- * @return 1 if it meets the needs, 0 otherwise */
-int check_altar_sacrifice(object *altar, object *sacrifice)
-{
-	if (!IS_LIVE(sacrifice) && !QUERY_FLAG(sacrifice, FLAG_IS_LINKED))
-	{
-		if ((ARCH_SACRIFICE(altar) == sacrifice->arch->name || ARCH_SACRIFICE(altar) == sacrifice->name || ARCH_SACRIFICE(altar) == sacrifice->slaying) && NROF_SACRIFICE(altar) <= (sint16)(sacrifice->nrof ? sacrifice->nrof : 1))
-			return 1;
-
-		if (strcmp(ARCH_SACRIFICE(altar), "money") == 0 && sacrifice->type == MONEY && sacrifice->nrof * sacrifice->value >= (uint32) NROF_SACRIFICE(altar))
-			return 1;
-	}
-
-	return 0;
-}
-
-/**
- * Checks if sacrifice was accepted and removes sacrificed objects.
- * Might be better to call check_altar_sacrifice (above) than
- * depend on the return value, since operate_altar will remove the
- * sacrifice also.
- *
- * If this function returns 1, '*sacrifice' is modified to point to the
- * remaining sacrifice, or is set to NULL if the sacrifice was used up.
- * @param altar The altar object
- * @param sacrifice The object to be sacrificed
- * @return 1 if sacrifice was succeed, 0 otherwise */
-int operate_altar(object *altar, object **sacrifice)
-{
-	if (!altar->map)
-	{
-		LOG(llevBug, "BUG: operate_altar(): altar has no map\n");
-		return 0;
-	}
-
-	if (!altar->slaying || altar->value)
-		return 0;
-
-	if (!check_altar_sacrifice(altar, *sacrifice))
-		return 0;
-
-	/* check_altar_sacrifice should have already verified that enough money
-	 * has been dropped. */
-	if (!strcmp(ARCH_SACRIFICE(altar), "money"))
-	{
-		int number = NROF_SACRIFICE(altar) / (*sacrifice)->value;
-
-		/* Round up any sacrifices.  Altars don't make change either */
-		if (NROF_SACRIFICE(altar) % (*sacrifice)->value)
-			number++;
-
-		*sacrifice = decrease_ob_nr(*sacrifice, number);
-	}
-	else
-		*sacrifice = decrease_ob_nr(*sacrifice, NROF_SACRIFICE(altar));
-
-	if (altar->msg)
-		new_info_map(NDI_WHITE, altar->map, altar->x, altar->y, MAP_INFO_NORMAL, altar->msg);
-
-	return 1;
 }
 
 /* 1 down and 0 up */
@@ -426,24 +364,36 @@ int check_trigger(object *op, object *cause)
 				if (cause)
 				{
 					for (tmp = op->above; tmp; tmp = tmp->above)
+					{
 						if (!QUERY_FLAG(tmp, FLAG_FLYING))
+						{
 							tot += tmp->weight * (tmp->nrof ? tmp->nrof : 1) + tmp->carrying;
+						}
+					}
 
 					if (tot >= op->weight)
+					{
 						push = 1;
+					}
 
 					if (op->stats.ac == push)
+					{
 						return 0;
+					}
 
 					op->stats.ac = push;
 					SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + push);
 					update_object(op, UP_OBJ_FACE);
 
-					if (in_movement || ! push)
+					if (in_movement || !push)
+					{
 						return 0;
+					}
 				}
+
 				trigger_move(op, push);
 			}
+
 			return 0;
 
 		case TRIGGER_PEDESTAL:
@@ -461,14 +411,18 @@ int check_trigger(object *op, object *cause)
 				}
 
 				if (op->stats.ac == push)
+				{
 					return 0;
+				}
 
 				op->stats.ac = push;
 				SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + push);
 				update_object(op, UP_OBJ_FACE);
 
-				if (in_movement || ! push)
+				if (in_movement || !push)
+				{
 					return 0;
+				}
 			}
 
 			trigger_move(op, push);
@@ -478,7 +432,9 @@ int check_trigger(object *op, object *cause)
 			if (cause)
 			{
 				if (in_movement)
+				{
 					return 0;
+				}
 
 				if (operate_altar(op, &cause))
 				{
@@ -490,7 +446,9 @@ int check_trigger(object *op, object *cause)
 						trigger_move (op, 1);
 
 						if (op->last_sp > 0)
+						{
 							op->last_sp = -op->last_sp;
+						}
 					}
 					else
 					{
@@ -505,7 +463,9 @@ int check_trigger(object *op, object *cause)
 					return cause == NULL;
 				}
 				else
+				{
 					return 0;
+				}
 			}
 			else
 			{
@@ -517,7 +477,9 @@ int check_trigger(object *op, object *cause)
 				 * Otherwise (default), the connected value will be
 				 * pushed twice: First by sacrifice, second by reset! -AV */
 				if (!op->last_sp)
+				{
 					trigger_move(op, 0);
+				}
 				else
 				{
 					op->stats.wc = 0;
@@ -533,7 +495,10 @@ int check_trigger(object *op, object *cause)
 			if (cause)
 			{
 				if (in_movement)
+				{
 					return 0;
+				}
+
 				push = 1;
 			}
 
@@ -548,6 +513,11 @@ int check_trigger(object *op, object *cause)
 	}
 }
 
+/**
+ * Links specified object in the map.
+ * @param button Object to link. Must not be NULL.
+ * @param map Map we are on. Should not be NULL.
+ * @param connected Connection value for the item. */
 void add_button_link(object *button, mapstruct *map, int connected)
 {
 	objectlink *obp, *ol = get_objectlink();
@@ -558,10 +528,7 @@ void add_button_link(object *button, mapstruct *map, int connected)
 		return;
 	}
 
-	/* peterm:  I need this so I can rebuild
-	 * a connected map from a template map. */
 	button->path_attuned = connected;
-	/*LOG(llevDebug, "adding button %s (%d)\n", button->name, connected);*/
 
 	SET_FLAG(button, FLAG_IS_LINKED);
 
@@ -587,21 +554,22 @@ void add_button_link(object *button, mapstruct *map, int connected)
 	}
 }
 
-/* Remove the object from the linked lists of buttons in the map.
- * This is only needed by editors. */
+/**
+ * Remove the object from the linked lists of buttons in the map.
+ * @param op Object to remove. Must be on a map, and linked. */
 void remove_button_link(object *op)
 {
 	objectlink *obp, **olp, *ol;
 
 	if (op->map == NULL)
 	{
-		LOG(llevBug, "BUG: remove_button_link() in object without map.\n");
+		LOG(llevBug, "BUG: remove_button_link(): Object without map.\n");
 		return;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_IS_LINKED))
 	{
-		LOG(llevBug, "BUG: remove_button_linked() in unlinked object.\n");
+		LOG(llevBug, "BUG: remove_button_link(): Unlinked object.\n");
 		return;
 	}
 
@@ -611,7 +579,6 @@ void remove_button_link(object *op)
 		{
 			if (ol->objlink.ob == op)
 			{
-				/*LOG(llevDebug, "Removed link %d in button %s and map %s.\n", obp->value, op->name, op->map->path);*/
 				*olp = ol->next;
 				free_objectlink_simple(ol);
 				return;
@@ -619,44 +586,59 @@ void remove_button_link(object *op)
 		}
 	}
 
-	LOG(llevError, "remove_button_linked(): couldn't find object.\n");
+	LOG(llevBug, "BUG: remove_button_link(): Couldn't find object.\n");
 	CLEAR_FLAG(op, FLAG_IS_LINKED);
 }
 
-/* Return the first objectlink in the objects linked to this one */
+/**
+ * Return the first objectlink in the objects linked to this one.
+ * @param button Object to check. Must not be NULL.
+ * @return ::objectlink for this object, or NULL. */
 static objectlink *get_button_links(object *button)
 {
 	objectlink *obp, *ol;
 
 	if (!button->map)
+	{
 		return NULL;
+	}
 
 	for (obp = button->map->buttons; obp; obp = obp->next)
 	{
 		for (ol = obp->objlink.link; ol; ol = ol->next)
 		{
 			if (ol->objlink.ob == button && ol->id == button->count)
+			{
 				return obp->objlink.link;
+			}
 		}
 	}
 
 	return NULL;
 }
 
-/* Made as a separate function to increase efficiency */
+/**
+ * Returns the first value linked to this button.
+ * Made as a separate function to increase efficiency.
+ * @param button Object to check. Must not be NULL.
+ * @return Connection value, or 0 if not connected. */
 int get_button_value(object *button)
 {
 	objectlink *obp, *ol;
 
 	if (!button->map)
+	{
 		return 0;
+	}
 
 	for (obp = button->map->buttons; obp; obp = obp->next)
 	{
 		for (ol = obp->objlink.link; ol; ol = ol->next)
 		{
 			if (ol->objlink.ob == button && ol->id == button->count)
+			{
 				return obp->value;
+			}
 		}
 	}
 
@@ -679,28 +661,36 @@ void do_mood_floor(object *op, object *op2)
 	object *tmp;
 	object *tmp2;
 
-	for (tmp = op->above; tmp; tmp=tmp->above)
+	for (tmp = op->above; tmp; tmp = tmp->above)
+	{
 		if (QUERY_FLAG(tmp, FLAG_MONSTER))
+		{
 			break;
+		}
+	}
 
-	/* doesn't effect players, and if there is a player on this space, won't also
+	/* Doesn't affect players, and if there is a player on this space, won't also
 	 * be a monster here. */
 	if (!tmp || tmp->type == PLAYER)
+	{
 		return;
+	}
 
 	switch (op->last_sp)
 	{
-			/* furious -- makes all monsters mad */
+		/* Furious -- makes all monsters mad */
 		case 0:
 			if (QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE))
+			{
 				CLEAR_FLAG(tmp, FLAG_UNAGGRESSIVE);
+			}
 
 			if (QUERY_FLAG(tmp, FLAG_FRIENDLY))
 			{
 				CLEAR_FLAG(tmp, FLAG_FRIENDLY);
 				remove_friendly_object(tmp);
 				tmp->move_type = 0;
-				/* lots of checks here, but want to make sure we don't
+				/* Lots of checks here, but want to make sure we don't
 				 * dereference a null value */
 				if (tmp->type == GOLEM && tmp->owner && tmp->owner->type == PLAYER && CONTR(tmp->owner)->golem == tmp)
 				{
@@ -712,40 +702,54 @@ void do_mood_floor(object *op, object *op2)
 			}
 			break;
 
-			/* angry -- get neutral monsters mad */
+		/* Angry -- get neutral monsters mad */
 		case 1:
 			if (QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE) && !QUERY_FLAG(tmp, FLAG_FRIENDLY))
+			{
 				CLEAR_FLAG(tmp, FLAG_UNAGGRESSIVE);
+			}
 
 			break;
 
-			/* calm -- pacify unfriendly monsters */
+		/* Calm -- pacify unfriendly monsters */
 		case 2:
 			if (!QUERY_FLAG(tmp, FLAG_UNAGGRESSIVE))
+			{
 				SET_FLAG(tmp, FLAG_UNAGGRESSIVE);
+			}
 
 			break;
 
-			/* make all monsters fall asleep */
+		/* Make all monsters fall asleep */
 		case 3:
 			if (!QUERY_FLAG(tmp, FLAG_SLEEP))
+			{
 				SET_FLAG(tmp, FLAG_SLEEP);
+			}
 
 			break;
 
-			/* charm all monsters */
+		/* Charm all monsters */
 		case 4:
 			/* only if 'connected' */
 			if (op == op2)
+			{
 				break;
+			}
 
-			/* finding an owner */
+			/* Find an owner */
 			for (tmp2 = get_map_ob(op2->map, op2->x, op2->y); tmp2->type != PLAYER; tmp2 = tmp2->above)
+			{
 				if (tmp2->above == NULL)
+				{
 					break;
+				}
+			}
 
 			if (tmp2->type != PLAYER)
+			{
 				break;
+			}
 
 			set_owner(tmp, tmp2);
 			SET_FLAG(tmp,FLAG_MONSTER);
@@ -760,11 +764,17 @@ void do_mood_floor(object *op, object *op2)
 	}
 }
 
-/* this function returns the object it matches, or NULL if non.
+/**
+ * Checks object and its inventory for specific item.
+ *
  * It will descend through containers to find the object.
- *	slaying = match object slaying field
- * 	arch name = match object archetype name field
- *	if hp != 0, hp = match object type */
+ *
+ * - slaying = match object slaying
+ * - race = match object archetype name
+ * - hp = match object type
+ * @param op Object of which to search inventory
+ * @param trig What to search
+ * @return Object that matches, or NULL if none matched. */
 object *check_inv_recursive(object *op, const object *trig)
 {
 	object *tmp, *ret = NULL;
@@ -774,38 +784,52 @@ object *check_inv_recursive(object *op, const object *trig)
 		if (tmp->inv)
 		{
 			ret = check_inv_recursive(tmp, trig);
+
 			if (ret)
+			{
 				return ret;
+			}
 		}
 		else if ((trig->stats.hp && tmp->type == trig->stats.hp) || (trig->slaying && trig->stats.sp ? (tmp->slaying && !strcmp(trig->slaying, tmp->slaying)) : (tmp->name && !strcmp(trig->slaying, tmp->name)) ) || (trig->arch->name && !strcmp(tmp->arch->name, trig->arch->name)))
+		{
 			return tmp;
+		}
 	}
 
 	return NULL;
 }
 
-/* check_inv(), a function to search the inventory,
- * of a player and then based on a set of conditions,
- * the square will activate connected items.
+/**
+ * Function to search the inventory of a player and then based on a set
+ * of conditions, the square will activate connected items.
+ *
  * Monsters can't trigger this square (for now)
- * Values are:	last_sp = 1/0 obj/no obj triggers
- * 		last_heal = 1/0  remove/dont remove obj if triggered
- * -b.t. (thomas@nomad.astro.psu.edu  */
+ * Values are:   last_sp = 1/0 obj/no obj triggers
+ *               last_heal = 1/0  remove/dont remove obj if triggered
+ * @param op Object to check. Must be a player.
+ * @param trig Trigger object that may be activated. */
 void check_inv(object *op, object *trig)
 {
 	object *match;
 
 	if (op->type != PLAYER)
+	{
 		return;
+	}
 
 	match = check_inv_recursive(op, trig);
+
 	if (match && trig->last_sp)
 	{
 		if (trig->last_heal)
+		{
 			decrease_ob(match);
+		}
 
 		use_trigger(trig);
 	}
 	else if (!match && !trig->last_sp)
+	{
 		use_trigger(trig);
+	}
 }

@@ -5,7 +5,7 @@ layer 6
 randomitems mob_dragon_skeletal
 face dragon_skeletal.131
 direction 5
-speed -0.06
+speed -0.061
 corpse 1
 wc_range 20
 will_apply 8

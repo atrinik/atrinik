@@ -10,7 +10,7 @@ wc_range 20
 exp 105
 item_race 255
 item_level 255
-speed -0.0275
+speed -0.053
 weapon_speed 0.04
 attack_impact 80
 protect_poison 25

@@ -6,7 +6,7 @@ wc_range 20
 is_neutral 1
 weight 13250
 exp 101
-speed -0.03
+speed -0.05
 item_race 255
 item_level 255
 weapon_speed 0.038

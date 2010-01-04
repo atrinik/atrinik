@@ -769,7 +769,7 @@ static void script_send_item(int i, const char *head, const item *it)
 	flags = (flags << 1) | it->applied;
 	flags = (flags << 1) | it->open;
 	flags = (flags << 1) | it->locked;
-	flags = (flags << 1) | it->traped;
+	flags = (flags << 1) | it->trapped;
 
 	snprintf(buf, sizeof(buf), "%s%d %d %f %d %d %s\n", head, it->tag, it->nrof, it->weight, flags, it->itype, it->s_name);
 	w = write(scripts[i].out_fd, buf, strlen(buf));

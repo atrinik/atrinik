@@ -1047,10 +1047,10 @@
 #define FLAG_QUEST_ITEM			102
 
 /**
- * object is traped - most common a container with
+ * object is trapped - most common a container with
  * a known trap inside. This info so useful for client
  * below and inventory look. */
-#define FLAG_IS_TRAPED			103
+#define FLAG_IS_TRAPPED			103
 
 /**
  * Thats the item damage flags. Every flag determinate

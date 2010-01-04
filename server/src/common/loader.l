@@ -474,7 +474,7 @@ lex_error = 0;
 ^cursed_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
 ^damned_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL);
 ^one_drop{S}        SET_OR_CLEAR_FLAG(op, FLAG_ONE_DROP, IVAL);
-^is_traped{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_TRAPED, IVAL);
+^is_trapped{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_TRAPPED, IVAL);
 ^quest_item{S}      SET_OR_CLEAR_FLAG(op, FLAG_QUEST_ITEM, IVAL);
 ^player_only{S}     SET_OR_CLEAR_FLAG(op, FLAG_PLAYER_ONLY, IVAL);
 ^is_named{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
@@ -1121,7 +1121,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"applied",             "inv_locked",        "is_wooded",       "is_hilly",        "has_ready_skill",
 	"has_ready_weapon",    "no_skill_ident",    "was_wiz",         "can_see_in_dark", "is_cauldron",
 	"is_dust",             "no_steal",          "one_hit",         NULL,              "berserk",
-	"no_attack",           "invulnerable",      "quest_item",      "is_traped",       "is_vul_elemental",
+	"no_attack",           "invulnerable",      "quest_item",      "is_trapped",      "is_vul_elemental",
 	"is_proof_elemental",  "is_vul_magic",      "is_proof_magic",  "is_vul_physical", "is_proof_physical",
 	"sys_object",          "use_fix_pos",       "unpaid",          "is_aged",         "make_invisible",
 	"make_ethereal",       "is_player",         "is_named",        NULL,              "no_teleport",

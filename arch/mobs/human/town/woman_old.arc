@@ -70,7 +70,7 @@ woman_old.252
 mina
 is_animated 1
 anim_speed 4
-speed -0.025
+speed -0.047
 alive 1
 monster 1
 Wis 7

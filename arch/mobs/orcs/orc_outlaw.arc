@@ -108,6 +108,6 @@ dam 61
 hp -1
 maxhp 69
 level 1
-speed -0.041
+speed -0.0486
 weight 76500
 end

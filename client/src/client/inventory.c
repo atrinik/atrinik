@@ -757,8 +757,8 @@ void blt_inv_item(item *tmp, int x, int y, int nrof)
 	if (tmp->damned)
 		sprite_blt(Bitmaps[BITMAP_DAMNED], x + ICONDEFLEN - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
 
-	if (tmp->traped)
-		sprite_blt(Bitmaps[BITMAP_TRAPED], x + 8, y + 7, NULL, NULL);
+	if (tmp->trapped)
+		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + 8, y + 7, NULL, NULL);
 }
 
 void examine_range_inv()

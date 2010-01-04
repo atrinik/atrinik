@@ -8,7 +8,7 @@ exp 102
 wc_range 20
 item_race 255
 item_level 255
-speed -0.025
+speed -0.04
 weapon_speed 0.0375
 attack_poison 76
 ac 9

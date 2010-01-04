@@ -109,7 +109,7 @@ static const flag_definition flags[] =
 	{"cursed_perm", "FLAG_PERM_CURSED"},
 	{"damned_perm", "FLAG_PERM_DAMNED"},
 	{"one_drop", "FLAG_ONE_DROP"},
-	{"is_traped", "FLAG_IS_TRAPED"},
+	{"is_trapped", "FLAG_IS_TRAPPED"},
 	{"quest_item", "FLAG_QUEST_ITEM"},
 	{"player_only", "FLAG_PLAYER_ONLY"},
 	{"is_named", "FLAG_IS_NAMED"},

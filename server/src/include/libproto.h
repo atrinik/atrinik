@@ -22,8 +22,6 @@ extern void push_button(object *op);
 extern void update_button(object *op);
 extern void update_buttons(mapstruct *m);
 extern void use_trigger(object *op);
-extern int check_altar_sacrifice(object *altar, object *sacrifice);
-extern int operate_altar(object *altar, object **sacrifice);
 extern int check_trigger(object *op, object *cause);
 extern void add_button_link(object *button, mapstruct *map, int connected);
 extern void remove_button_link(object *op);
@@ -71,7 +69,7 @@ extern char *query_base_name(object *op, object *caller);
 extern char *describe_item(object *op);
 extern int need_identify(object *op);
 extern void identify(object *op);
-extern void set_traped_flag(object *op);
+extern void set_trapped_flag(object *op);
 
 /* links.c */
 extern objectlink *get_objectlink();

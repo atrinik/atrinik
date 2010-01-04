@@ -306,7 +306,7 @@ static _bitmap_name  bitmap_name[BITMAP_INIT] =
 	{"quad_button_down.png", PIC_TYPE_DEFAULT},
 	{"nchar_marker.png", PIC_TYPE_TRANS},
 
-	{"traped.png", PIC_TYPE_TRANS},
+	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
 	{"wand.png", PIC_TYPE_TRANS},
 	{"journal.png", PIC_TYPE_TRANS},

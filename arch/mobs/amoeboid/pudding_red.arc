@@ -6,7 +6,7 @@ is_neutral 1
 weight 16250
 exp 109
 wc_range 20
-speed -0.026
+speed -0.031
 weapon_speed 0.040
 attack_fire 40
 attack_acid 40

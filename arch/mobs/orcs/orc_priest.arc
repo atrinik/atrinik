@@ -113,6 +113,6 @@ maxsp 7
 Pow 2
 magic 5
 level 1
-speed -0.041
+speed -0.047
 weight 52500
 end

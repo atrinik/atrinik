@@ -572,7 +572,7 @@ extern Client_Player cpl;
 #define F_OPEN			0x2000
 #define F_NOPICK		0x4000
 #define F_LOCKED		0x8000
-#define F_TRAPED		0x10000
+#define F_TRAPPED       0x10000
 
 #define CF_FACE_NONE	0
 #define CF_FACE_BITMAP	1

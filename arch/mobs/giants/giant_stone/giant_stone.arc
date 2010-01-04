@@ -10,7 +10,7 @@ weight 732500
 exp 105
 item_race 255
 item_level 255
-speed -0.045
+speed -0.054
 weapon_speed 0.042
 attack_impact 90
 protect_acid 25

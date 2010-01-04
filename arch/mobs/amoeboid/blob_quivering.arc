@@ -8,7 +8,7 @@ wc_range 20
 exp 97
 item_race 255
 item_level 255
-speed -0.025
+speed -0.04
 weapon_speed 0.038
 attack_slash 100
 resist_paralyze 100

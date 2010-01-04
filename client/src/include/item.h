@@ -104,7 +104,7 @@ typedef struct item_struct
 	uint16 locked;
 
 	/* Item is trapped */
-	uint16 traped;
+	uint16 trapped;
 
 	/* Item is applied */
 	uint16 applied;

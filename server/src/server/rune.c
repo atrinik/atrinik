@@ -312,7 +312,7 @@ void spring_trap(object *trap, object *victim)
 	if (!trap->stats.sp)
 	{
 		rune_attack(trap, victim);
-		set_traped_flag(env);
+		set_trapped_flag(env);
 
 		if (was_destroyed(trap, trap_tag))
 		{
@@ -324,7 +324,7 @@ void spring_trap(object *trap, object *victim)
 		/* This is necessary if the trap is inside something else */
 		remove_ob(trap);
 		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
-		set_traped_flag(env);
+		set_trapped_flag(env);
 		trap->x = victim->x;
 		trap->y = victim->y;
 
@@ -395,7 +395,7 @@ int trap_show(object *trap, object *where)
 
 	if (env && env->type != PLAYER && env->type != MONSTER && env->type != LOCKED_DOOR && !QUERY_FLAG(env, FLAG_NO_PASS))
 	{
-		SET_FLAG(env, FLAG_IS_TRAPED);
+		SET_FLAG(env, FLAG_IS_TRAPPED);
 
 		/* Env object is on map */
 		if (!env->env)
@@ -447,7 +447,7 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
 		check_walk_off(trap, NULL,MOVE_APPLY_VANISHED);
-		set_traped_flag(env);
+		set_trapped_flag(env);
 
 		/* If it is your own trap, (or any players trap), you don't
 		 * get exp for it. */

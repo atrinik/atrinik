@@ -122,9 +122,9 @@ unsigned int query_flags(object *op)
 		flags |= F_OPEN;
 	}
 
-	if (QUERY_FLAG(op, FLAG_IS_TRAPED))
+	if (QUERY_FLAG(op, FLAG_IS_TRAPPED))
 	{
-		flags |= F_TRAPED;
+		flags |= F_TRAPPED;
 	}
 
 	if (QUERY_FLAG(op,FLAG_KNOWN_CURSED))
