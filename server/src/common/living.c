@@ -2131,6 +2131,11 @@ fix_player_jump_resi:
 		base_reg += (CONTR(op)->gen_grace * CONTR(op)->gen_grace) + 5;
 	}
 
+	if (CONTR(op)->skill_ptr[SK_PRAYING])
+	{
+		CONTR(op)->reg_grace_num += CONTR(op)->skill_ptr[SK_PRAYING]->level / 10;
+	}
+
 	if (base_reg < 0)
 	{
 		base_reg = 0;
