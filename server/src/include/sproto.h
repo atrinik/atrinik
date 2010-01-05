@@ -248,9 +248,7 @@ void free_racelist();
 /* login.c */
 void emergency_save(int flag);
 int check_name(player *me, char *name);
-long calculate_checksum_new(char *buf, int checkdouble);
 int save_player(object *op, int flag);
-long calculate_checksum(char *filename, int checkdouble);
 void check_login(object *op);
 
 /* main.c */

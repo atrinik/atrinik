@@ -1061,12 +1061,6 @@ void compile_info()
 	LOG(llevInfo, "Save mode:\t%4.4o\n", SAVE_MODE);
 	LOG(llevInfo, "Itemsdir:\t%s/%s\n", settings.localdir, settings.uniquedir);
 
-#ifdef USE_CHECKSUM
-	LOG(llevInfo, "Use checksum:\t<true>\n");
-#else
-	LOG(llevInfo, "Use checksum:\t<false>\n");
-#endif
-
 	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 

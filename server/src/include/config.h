@@ -409,28 +409,6 @@
  *                                                                      *
  ***********************************************************************/
 
-/* If you want the players to be able to save their characters between
- * games, define SAVE_PLAYER and set PLAYERDIR to the directories
- * where the player-files will be put.
- * Remember to create the directory (make install will do that though).
- *
- * If you intend to run a central server, and not allow the players to
- * start their own Atrinik, you won't need to define this.
- *
- * If USE_CHECKSUM is defined, a checksum will be calculated each time
- * a player saves a character.
- *
- * If ENABLE_CHECKSUM is defined, the players will get the cheat-flag set
- * if the checksums don't match.  If your player-files don't have checksums,
- * you'll want to leave "USE_CHECKSUM" defined for a while so they all
- * get checksums, and then define "ENABLE_CHECKSUM" to utilize this.
- * ENABLE_CHECKSUM should not be needed if you are on a central server and
- * players don't have access to the save files. */
-#define USE_CHECKSUM
-
-/* Will be default in distant future versions */
-/* #define ENABLE_CHECKSUM */
-
 /* If you have defined SAVE_PLAYER, you might want to change this, too.
  * This is the access rights for the players savefiles.
  * I think it is usefull to restrict access to the savefiles for the
@@ -469,12 +447,6 @@
  * the crash has trashed the characters too. Define NO_EMERGENCY_SAVE
  * to disable emergency saves. */
 #define NO_EMERGENCY_SAVE
-
-/* By selecting the following, whenever a player does a backup save (with
- * the /save command), the player will be saved at home (EMERGENCY_MAP_*
- * information that is specified later). IF this is not set, the player
- * will be saved at his present location. */
-/*#define BACKUP_SAVE_AT_HOME*/
 
 /* RESET_LOCATION_TIME is the number of seconds that must elapse before
  * we fill return the player to his savebed location.  If this is zero,
