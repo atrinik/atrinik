@@ -1328,7 +1328,7 @@ char *describe_item(object *op)
 			case DRINK:
 				if (id_true)
 				{
-					sprintf(buf, "(food+%d)", op->stats.food);
+					sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
 					strcat(retbuf, buf);
 
 					if (op->type == FLESH && op->last_eat > 0 && atnr_is_dragon_enabled(op->last_eat))

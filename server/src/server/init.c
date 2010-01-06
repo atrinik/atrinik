@@ -123,6 +123,8 @@ static void init_strings()
 
 	shstr_cons.player_info = add_string("player_info");
 	shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");
+	shstr_cons.of_poison = add_string("of poison");
+	shstr_cons.of_hideous_poison = add_string("of hideous poison");
 }
 
 void free_strings()

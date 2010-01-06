@@ -1949,7 +1949,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 		difficulty = 1;
 	}
 
-	if (op->type != POTION && op->type != SCROLL)
+	if (op->type != POTION && op->type != SCROLL && op->type != FOOD)
 	{
 		if ((!op->magic && max_magic) || fix_magic)
 		{
@@ -2285,6 +2285,88 @@ jump_break1:
 			case RUNE:
 				/* Artifact AND normal treasure runes! */
 				trap_adjust(op, difficulty);
+				break;
+
+			/* Generate some special food */
+			case FOOD:
+				if (!(RANDOM() % 3))
+				{
+					generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
+				}
+
+				/* Small chance to become cursed food */
+				if (!(flags & GT_ONLY_GOOD) && !(RANDOM() % 20))
+				{
+					int strong_curse = RANDOM() % 2, i;
+
+					SET_FLAG(op, FLAG_CURSED);
+					SET_FLAG(op, FLAG_PERM_CURSED);
+
+					/* Pick a random stat to put negative value on */
+					change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
+
+					/* If this is strong curse food, give it half a chance to curse another stat */
+					if (strong_curse && RANDOM() % 2)
+					{
+						change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
+					}
+
+					/* Put a negative value on random resist */
+					op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+
+					/* And again, if this is strong curse food, half a chance to curse another resist */
+					if (strong_curse && RANDOM() % 2)
+					{
+						op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+					}
+
+					/* Change food, hp, mana and grace bonuses to negative values */
+					if (op->stats.food)
+					{
+						op->stats.food = -op->stats.food;
+					}
+
+					if (op->stats.hp)
+					{
+						op->stats.hp = -op->stats.hp;
+					}
+
+					if (op->stats.sp)
+					{
+						op->stats.sp = -op->stats.sp;
+					}
+
+					if (op->stats.grace)
+					{
+						op->stats.grace = -op->stats.grace;
+					}
+
+					/* Change any positive stat bonuses to negative bonuses. */
+					for (i = 0; i < NUM_STATS; i++)
+					{
+						sint8 val = get_attr_value(&op->stats, i);
+
+						if (val > 0)
+						{
+							set_attr_value(&op->stats, i, -val);
+						}
+					}
+
+					/* And the same for resists. */
+					for (i = 0; i < NROFATTACKS; i++)
+					{
+						if (op->resist[i] > 0)
+						{
+							op->resist[i] = -op->resist[i];
+						}
+					}
+
+					if (!op->title)
+					{
+						FREE_AND_ADD_REF_HASH(op->title, (strong_curse ? shstr_cons.of_hideous_poison : shstr_cons.of_poison));
+					}
+				}
+
 				break;
 		}
 	}

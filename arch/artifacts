@@ -3250,7 +3250,7 @@ end
 # Types of food which can affect player's status
 
 Allowed all
-chance 95
+chance 100
 artifact food_mana_lesser
 def_arch food_generic
 Object
@@ -3260,7 +3260,7 @@ sp 13
 end
 
 Allowed all
-chance 90
+chance 85
 difficulty 16
 artifact food_mana_medium
 def_arch food_generic
@@ -3271,7 +3271,7 @@ sp 24
 end
 
 Allowed all
-chance 85
+chance 70
 difficulty 27
 artifact food_mana
 def_arch food_generic
@@ -3282,7 +3282,7 @@ sp 37
 end
 
 Allowed all
-chance 80
+chance 55
 difficulty 42
 artifact food_mana_greater
 def_arch food_generic
@@ -3293,7 +3293,7 @@ sp 57
 end
 
 Allowed all
-chance 95
+chance 100
 artifact food_grace_lesser
 def_arch food_generic
 Object
@@ -3303,7 +3303,7 @@ grace 13
 end
 
 Allowed all
-chance 90
+chance 85
 difficulty 16
 artifact food_grace_medium
 def_arch food_generic
@@ -3314,7 +3314,7 @@ grace 24
 end
 
 Allowed all
-chance 85
+chance 70
 difficulty 27
 artifact food_grace
 def_arch food_generic
@@ -3325,7 +3325,7 @@ grace 37
 end
 
 Allowed all
-chance 80
+chance 55
 difficulty 42
 artifact food_grace_greater
 def_arch food_generic
@@ -3333,40 +3333,6 @@ Object
 title of greater grace
 type 6
 grace 57
-end
-
-Allowed all
-chance 40
-artifact food_poison
-def_arch food_generic
-Object
-title of poison
-type 6
-food 10
-hp -5
-resist_magic -10
-Str -2
-Con -1
-value 5
-cursed 1
-end
-
-Allowed all
-chance 20
-artifact food_poison2
-def_arch food_generic
-Object
-title of hideous poison
-type 6
-food 10
-hp -25
-resist_magic -25
-Str -3
-Con -2
-Dex -1
-Cha -1
-value 5
-cursed 1
 end
 
 ###########

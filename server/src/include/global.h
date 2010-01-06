@@ -485,6 +485,9 @@ EXTERN struct shstr_constants
 
 	const char *player_info;
 	const char *BANK_GENERAL;
+
+	const char *of_poison;
+	const char *of_hideous_poison;
 } shstr_cons;
 
 EXTERN void (*object_initializers[256])(object *);
