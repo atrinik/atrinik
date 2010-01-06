@@ -1368,9 +1368,10 @@ object *hit_with_arrow(object *op, object *victim)
 
 		/* Trigger the STOP event */
 		trigger_event(EVENT_STOP, victim, hitter, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
+		CLEAR_FLAG(hitter, FLAG_IS_MISSILE);
 
 		/* Else try to put arrow on victim's map square */
-		if ((victim_x != hitter->x || victim_y != hitter->y) && !wall(hitter->map, victim_x, victim_y))
+		if ((victim_x != hitter->x || victim_y != hitter->y))
 		{
 			remove_ob(hitter);
 

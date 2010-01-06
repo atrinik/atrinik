@@ -1639,14 +1639,7 @@ void remove_ob(object *op)
 	 * inventory. */
 	if (op->env)
 	{
-		if (op->nrof > 1)
-		{
-			sub_weight(op->env, op->weight * op->nrof);
-		}
-		else
-		{
-			sub_weight(op->env, op->weight + op->carrying);
-		}
+		sub_weight(op->env, WEIGHT_NROF(op));
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
 		 * made to players inventory. If set, avoid the call to save cpu time. */
@@ -2447,43 +2440,36 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
 
-	if (op->nrof > 1)
+	for (tmp = where->inv; tmp; tmp = tmp->below)
 	{
-		for (tmp = where->inv; tmp; tmp = tmp->below)
+		if (CAN_MERGE(tmp, op))
 		{
-			if (CAN_MERGE(tmp, op))
-			{
-				/* Return the original object and remove inserted object
-				 * (client needs the original object) */
-				tmp->nrof += op->nrof;
+			/* Return the original object and remove inserted object
+			 * (client needs the original object) */
+			tmp->nrof += op->nrof;
 
-				/* Weight handling gets pretty funky. Since we are adding to
-				 * tmp->nrof, we need to increase the weight. */
-				add_weight(where, op->weight * op->nrof);
+			/* Weight handling gets pretty funky. Since we are adding to
+			 * tmp->nrof, we need to increase the weight. */
+			add_weight(where, WEIGHT_NROF(op));
 
-				/* Make sure we get rid of the old object */
-				SET_FLAG(op, FLAG_REMOVED);
+			/* Make sure we get rid of the old object */
+			SET_FLAG(op, FLAG_REMOVED);
 
-				op = tmp;
-				/* And fix old object's links (we will insert it further down)*/
-				remove_ob(op);
-				/* Just kidding about previous remove */
-				CLEAR_FLAG(op, FLAG_REMOVED);
-				break;
-			}
+			op = tmp;
+			/* And fix old object's links (we will insert it further down)*/
+			remove_ob(op);
+			/* Just kidding about previous remove */
+			CLEAR_FLAG(op, FLAG_REMOVED);
+			break;
 		}
+	}
 
-		/* I assume stackable objects have no inventory
-		 * We add the weight - this object could have just been removed
-		 * (if it was possible to merge).  calling remove_ob will subtract
-		 * the weight, so we need to add it in again, since we actually do
-		 * the linking below */
-		add_weight(where, op->weight * op->nrof);
-	}
-	else
-	{
-		add_weight(where, (op->weight + op->carrying));
-	}
+	/* I assume stackable objects have no inventory
+	 * We add the weight - this object could have just been removed
+	 * (if it was possible to merge).  calling remove_ob will subtract
+	 * the weight, so we need to add it in again, since we actually do
+	 * the linking below */
+	add_weight(where, WEIGHT_NROF(op));
 
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->map = NULL;

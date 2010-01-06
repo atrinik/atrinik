@@ -30,8 +30,6 @@
 #include <global.h>
 #include <sproto.h>
 
-static void stop_arrow(object *op);
-
 /**
  * Fix a stopped arrow.
  * @param op The arrow object.
@@ -324,7 +322,7 @@ void move_arrow(object *op)
 /**
  * What to do when a non-living flying object has to stop.
  * @param op The object. */
-static void stop_arrow(object *op)
+void stop_arrow(object *op)
 {
 	play_sound_map(op->map, op->x, op->y, SOUND_DROP_THROW, SOUND_NORMAL);
 	CLEAR_FLAG(op, FLAG_IS_MISSILE);

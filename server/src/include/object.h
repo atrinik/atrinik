@@ -39,6 +39,8 @@
  * have nrof, include the weight it is carrying. */
 #define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
 
+#define WEIGHT_NROF(op) ((op->nrof ? op->weight * (sint32) op->nrof : op->weight) + op->carrying)
+
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
 /*@{*/

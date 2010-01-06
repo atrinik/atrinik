@@ -9,6 +9,7 @@ extern void apply_armour_improver(object *op, object *tmp);
 /* arrow.c */
 extern object *fix_stopped_arrow(object *op);
 extern void move_arrow(object *op);
+extern void stop_arrow(object *op);
 
 /* beacon.c */
 extern void beacon_add(object *ob);
