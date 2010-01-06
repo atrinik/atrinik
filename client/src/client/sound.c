@@ -190,7 +190,7 @@ void sound_init()
 	SoundSystem = SOUND_SYSTEM_OFF;
 
 	/* Open the audio device */
-	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
+	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 4096) < 0)
 	{
 		LOG(LOG_MSG, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
 		return;
