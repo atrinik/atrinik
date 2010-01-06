@@ -81,7 +81,7 @@ typedef struct _cftimer
 	long delay;
 
 	/** Object */
-	object* ob;
+	object *ob;
 } cftimer;
 
 /**
@@ -99,9 +99,6 @@ typedef struct _cftimer
  * this - memory should not be a problem in that case, given the size of
  * a cftimer. */
 #define MAX_TIMERS 1000
-
-/** The timers table. */
-cftimer timers_table[MAX_TIMERS];
 
 /**
  * @defgroup timer_error_codes Timer error codes

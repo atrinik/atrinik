@@ -234,6 +234,9 @@ struct plugin_hooklist
 	StringBuffer *(*stringbuffer_new)();
 	char *(*stringbuffer_finish)(StringBuffer *);
 	char *(*cleanup_chat_string)(char *);
+	int (*cftimer_find_free_id)();
+	int (*cftimer_create)(int, long, object *, int);
+	int (*cftimer_destroy)(int);
 
 	const char **season_name;
 	const char **weekdays;

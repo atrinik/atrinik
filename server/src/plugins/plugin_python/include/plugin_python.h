@@ -28,6 +28,7 @@
 
 #include <Python.h>
 #include <plugin.h>
+#include <timers.h>
 
 /* This is for allowing both python 3 and python 2. */
 #if PY_MAJOR_VERSION >= 3

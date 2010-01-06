@@ -453,6 +453,7 @@ void cftimer_process_timers();
 int cftimer_create(int id, long delay, object *ob, int mode);
 int cftimer_destroy(int id);
 int cftimer_find_free_id();
+void cftimer_init();
 
 /* pathfinder.c */
 void request_new_path(object *waypoint);

@@ -30,6 +30,10 @@
 #include <timers.h>
 #include <sproto.h>
 
+cftimer timers_table[MAX_TIMERS];
+
+static void cftimer_process_event(object *ob);
+
 /**
  * Processes all timers. */
 void cftimer_process_timers()
@@ -46,6 +50,7 @@ void cftimer_process_timers()
 			{
 				/* Call object timer event */
 				timers_table[i].mode = TIMER_MODE_DEAD;
+				cftimer_process_event(timers_table[i].ob);
 			}
 		}
 		else if (timers_table[i].mode == TIMER_MODE_SECONDS)
@@ -54,22 +59,35 @@ void cftimer_process_timers()
 			{
 				/* Call object timer event */
 				timers_table[i].mode = TIMER_MODE_DEAD;
+				cftimer_process_event(timers_table[i].ob);
 			}
 		}
 	}
 }
 
 /**
+ * Triggers the ::EVENT_TIMER of the given object.
+ * @param ob Object to trigger the event for. */
+static void cftimer_process_event(object *ob)
+{
+	if (ob)
+	{
+		trigger_event(EVENT_TIMER, NULL, ob, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL);
+	}
+}
+
+/**
  * Creates a new timer.
- * @param id Desired timer identifier
- * @param delay Desired timer delay
- * @param ob Object that will be linked to this timer
- * @param mode Count mode (seconds or cycles). See timers.h
+ * @param id Desired timer identifier.
+ * @param delay Desired timer delay.
+ * @param ob Object that will be linked to this timer.
+ * @param mode Unit for delay, should be ::TIMER_MODE_SECONDS or
+ * ::TIMER_MODE_CYCLES. See timers.h.
  * @retval TIMER_ERR_NONE Timer was successfully created.
  * @retval TIMER_ERR_ID Invalid ID.
  * @retval TIMER_ERR_MODE Invalid mode.
  * @retval TIMER_ERR_OBJ Invalid object. */
-int cftimer_create(int id, long delay, object* ob, int mode)
+int cftimer_create(int id, long delay, object *ob, int mode)
 {
 	if (id >= MAX_TIMERS)
 	{
@@ -91,7 +109,7 @@ int cftimer_create(int id, long delay, object* ob, int mode)
 		return TIMER_ERR_MODE;
 	}
 
-	if (ob == NULL)
+	if (!ob || !get_event_object(ob, EVENT_TIMER))
 	{
 		return TIMER_ERR_OBJ;
 	}
@@ -149,4 +167,11 @@ int cftimer_find_free_id()
 	}
 
 	return TIMER_ERR_ID;
+}
+
+/**
+ * Initialize timers. */
+void cftimer_init()
+{
+	memset(&timers_table[0], 0, sizeof(cftimer) * MAX_TIMERS);
 }

@@ -99,6 +99,7 @@ static PyMethodDef ObjectMethods[] =
 	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
 	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
 	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
+	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2911,6 +2912,38 @@ static PyObject *Atrinik_Object_GetParty(Atrinik_Object *whatptr, PyObject *args
 	}
 
 	return wrap_party(CONTR(WHAT)->party);
+}
+
+/**
+ * <h1>object.CreateTimer(<i>\<long\></i> delay, <i>\<int\></i> mode)</h1>
+ * Create a timer for an object.
+ * @param delay How long until the timer event gets executed for the object
+ * @param mode If 1, delay is in seconds, if 2, delay is in ticks (8 ticks = 1 second)
+ * @return 0 and higher means success (and represents ID of the created timer),
+ * anything lower means a failure of some sort. */
+static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *args)
+{
+	int mode, timer;
+	long delay;
+
+	if (!PyArg_ParseTuple(args, "li", &delay, &mode))
+	{
+		return NULL;
+	}
+
+	timer = hooks->cftimer_find_free_id();
+
+	if (timer != TIMER_ERR_ID)
+	{
+		int res = hooks->cftimer_create(timer, delay, WHAT, mode);
+
+		if (res != TIMER_ERR_NONE)
+		{
+			timer = res;
+		}
+	}
+
+	return Py_BuildValue("i", timer);
 }
 
 /*@}*/

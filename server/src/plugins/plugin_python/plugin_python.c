@@ -50,16 +50,17 @@ PyObject *AtrinikError;
 /* The code will still work, but the plugin will eat more memory.            */
 #define MAX_RECURSIVE_CALL 100
 int StackPosition = 0;
-object* StackActivator[MAX_RECURSIVE_CALL];
-object* StackWho[MAX_RECURSIVE_CALL];
-object* StackOther[MAX_RECURSIVE_CALL];
+object *StackActivator[MAX_RECURSIVE_CALL];
+object *StackWho[MAX_RECURSIVE_CALL];
+object *StackOther[MAX_RECURSIVE_CALL];
+object *StackEvent[MAX_RECURSIVE_CALL];
 char* StackText[MAX_RECURSIVE_CALL];
 int StackParm1[MAX_RECURSIVE_CALL];
 int StackParm2[MAX_RECURSIVE_CALL];
 int StackParm3[MAX_RECURSIVE_CALL];
 int StackParm4[MAX_RECURSIVE_CALL];
 int StackReturn[MAX_RECURSIVE_CALL];
-char* StackOptions[MAX_RECURSIVE_CALL];
+char *StackOptions[MAX_RECURSIVE_CALL];
 
 /**
  * @anchor plugin_python_constants
@@ -79,6 +80,33 @@ static Atrinik_Constant module_constants[] =
 	{"llevBug",     llevBug},
 	{"llevInfo",    llevInfo},
 	{"llevDebug",   llevDebug},
+
+	{"EVENT_APPLY", EVENT_APPLY},
+	{"EVENT_ATTACK", EVENT_ATTACK},
+	{"EVENT_DEATH", EVENT_DEATH},
+	{"EVENT_DROP", EVENT_DROP},
+	{"EVENT_PICKUP", EVENT_PICKUP},
+	{"EVENT_SAY", EVENT_SAY},
+	{"EVENT_STOP", EVENT_STOP},
+	{"EVENT_TIME", EVENT_TIME},
+	{"EVENT_THROW", EVENT_THROW},
+	{"EVENT_TRIGGER", EVENT_TRIGGER},
+	{"EVENT_CLOSE", EVENT_CLOSE},
+	{"EVENT_TIMER", EVENT_TIMER},
+	{"EVENT_BORN", EVENT_BORN},
+	{"EVENT_CLOCK", EVENT_CLOCK},
+	{"EVENT_CRASH", EVENT_CRASH},
+	{"EVENT_GDEATH", EVENT_GDEATH},
+	{"EVENT_GKILL", EVENT_GKILL},
+	{"EVENT_LOGIN", EVENT_LOGIN},
+	{"EVENT_LOGOUT", EVENT_LOGOUT},
+	{"EVENT_MAPENTER", EVENT_MAPENTER},
+	{"EVENT_MAPLEAVE", EVENT_MAPLEAVE},
+	{"EVENT_MAPRESET", EVENT_MAPRESET},
+	{"EVENT_REMOVE", EVENT_REMOVE},
+	{"EVENT_SHOUT", EVENT_SHOUT},
+	{"EVENT_TELL", EVENT_TELL},
+
 	{NULL, 0}
 };
 
@@ -302,6 +330,28 @@ static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 	}
 
 	return wrap_object(StackOther[StackPosition]);
+}
+
+/**
+ * <h1>Atrinik.WhatIsEvent()</h1>
+ * Get the event object that caused this event to trigger.
+ * @return The event object. */
+static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
+{
+	(void) self;
+	(void) args;
+	return wrap_object(StackEvent[StackPosition]);
+}
+
+/**
+ * <h1>Atrinik.GetEventNumber()</h1>
+ * Get the ID of the event that is being triggered.
+ * @return Event ID. */
+static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
+{
+	(void) self;
+	(void) args;
+	return Py_BuildValue("i", StackEvent[StackPosition]->sub_type1);
 }
 
 /**
@@ -640,6 +690,25 @@ static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>Atrinik.DestroyTimer(<i>\<int\></i> timer)</h1>
+ * Destroy an existing timer.
+ * @param timer ID of the timer.
+ * @return 0 on success, anything lower on failure. */
+static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
+{
+	int id;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "i", &id))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->cftimer_destroy(id));
+}
+
 /*@}*/
 
 MODULEAPI void *triggerEvent(int *type, ...)
@@ -670,6 +739,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 		case EVENT_THROW:
 		case EVENT_TRIGGER:
 		case EVENT_CLOSE:
+		case EVENT_TIMER:
 			result = HandleEvent(args);
 			break;
 
@@ -1018,6 +1088,7 @@ MODULEAPI int HandleEvent(va_list args)
 	StackActivator[StackPosition] = va_arg(args, object *);
 	StackWho[StackPosition] = va_arg(args, object *);
 	StackOther[StackPosition] = va_arg(args, object *);
+	StackEvent[StackPosition] = va_arg(args, object *);
 	StackText[StackPosition] = va_arg(args, char *);
 	StackParm1[StackPosition] = va_arg(args, int);
 	StackParm2[StackPosition] = va_arg(args, int);
@@ -1028,7 +1099,7 @@ MODULEAPI int HandleEvent(va_list args)
 	StackReturn[StackPosition] = 0;
 
 #ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON - Ctart script file >%s<\n", script);
+	LOG(llevDebug, "PYTHON - Start script file >%s<\n", script);
 	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", STRING_OBJ_NAME(StackActivator[StackPosition]), STRING_OBJ_NAME(StackWho[StackPosition]), STRING_OBJ_NAME(StackOther[StackPosition]), STRING_SAFE(StackText[StackPosition]), StackParm1[StackPosition], StackParm2[StackPosition], StackParm3[StackPosition], StackParm4[StackPosition], StackPosition);
 #endif
 
@@ -1190,6 +1261,8 @@ static PyMethodDef AtrinikMethods[] =
 	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
 	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},
 	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
+	{"WhatIsEvent",      Atrinik_WhatIsEvent,         METH_VARARGS, 0},
+	{"GetEventNumber",   Atrinik_GetEventNumber,      METH_VARARGS, 0},
 	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
 	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
 	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
@@ -1198,6 +1271,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
 	{"CleanupChatString",Atrinik_CleanupChatString,   METH_VARARGS, 0},
 	{"LOG",              Atrinik_LOG,                 METH_VARARGS, 0},
+	{"DestroyTimer",     Atrinik_DestroyTimer,        METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

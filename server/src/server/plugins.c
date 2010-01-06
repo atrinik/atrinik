@@ -117,6 +117,9 @@ struct plugin_hooklist hooklist =
 	stringbuffer_new,
 	stringbuffer_finish,
 	cleanup_chat_string,
+	cftimer_find_free_id,
+	cftimer_create,
+	cftimer_destroy,
 
 	season_name,
 	weekdays,
@@ -515,7 +518,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		gettimeofday(&start, NULL);
 #endif
 
-		returnvalue = *(int *) PlugList[plugin].eventfunc(0, event_type, activator, me, other, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
+		returnvalue = *(int *) PlugList[plugin].eventfunc(0, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
 
 #ifdef TIME_SCRIPTS
 		gettimeofday(&stop, NULL);

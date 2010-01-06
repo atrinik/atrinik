@@ -98,6 +98,7 @@ static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *
 static PyObject *Atrinik_Object_GetEquipment(Atrinik_Object *whoptr, PyObject *args);
 static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args);
 static PyObject *Atrinik_Object_GetParty(Atrinik_Object *whatptr, PyObject *args);
+static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *args);
 
 /* Atrinik_Object SetGeters */
 static int Object_SetFlag(Atrinik_Object* self, PyObject* val, int flagnp);

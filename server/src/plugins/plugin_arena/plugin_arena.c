@@ -748,7 +748,7 @@ static int arena_leave(object *who)
 
 MODULEAPI void *triggerEvent(int *type, ...)
 {
-	object *activator, *who, *other;
+	object *activator, *who, *other, *event;
 	char *text, *script, *options;
 	int parm1, parm2, parm3, parm4;
 	va_list args;
@@ -762,6 +762,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	activator = va_arg(args, object *);
 	who = va_arg(args, object *);
 	other = va_arg(args, object *);
+	event = va_arg(args, object *);
 	text = va_arg(args, char *);
 	parm1 = va_arg(args, int);
 	parm2 = va_arg(args, int);

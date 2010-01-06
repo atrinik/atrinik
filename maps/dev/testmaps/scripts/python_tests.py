@@ -8,15 +8,26 @@ activator = WhoIsActivator()
 ## Object who has the event object in their inventory.
 me = WhoAmI()
 
-msg = WhatIsMessage().lower()
-words = msg.split()
+event_num = GetEventNumber()
 
-## Find a marked object.
-marked = activator.FindMarkedObject()
+if event_num == EVENT_SAY:
+	msg = WhatIsMessage().lower()
+	words = msg.split()
+
+	## Find a marked object.
+	marked = activator.FindMarkedObject()
+
+if event_num == EVENT_TIMER:
+	pl = FindPlayer(me.GetObKeyValue("timer_player"))
+
+	if pl:
+		pl.Write("5 seconds are up!")
+
+	me.SetObKeyValue("timer_player")
 
 # GetEquipment is much more efficient than looping player's inventory for
 # applied equipment.
-if words[0] == "equipment" and len(words) > 1:
+elif words[0] == "equipment" and len(words) > 1:
 	if words[1] == "armor":
 		if activator.GetEquipment(PLAYER_EQUIP_MAIL):
 			me.SayTo(activator, "\nYour armor is '%s'." % activator.GetEquipment(PLAYER_EQUIP_MAIL).GetName())
@@ -192,5 +203,13 @@ elif words[0] == "beacon" and len(words) > 1:
 		else:
 			me.SayTo(activator, "On map '%s' (%d, %d)." % (beacon.map.path, beacon.x, beacon.y), 1)
 
+elif msg == "timer":
+	if me.GetObKeyValue("timer_player"):
+		me.SayTo(activator, "\nAlready talking to someone...")
+	else:
+		me.SetObKeyValue("timer_player", activator.name)
+		me.CreateTimer(5, 1)
+		me.SayTo(activator, "\nOK! Will tell you when 5 seconds pass.")
+
 else:
-	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^")
+	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^")
