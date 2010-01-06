@@ -1211,6 +1211,12 @@ int command_reset(object *op, char *params)
 		return 1;
 	}
 
+	if (!strncmp(m->path, "/random/", 8))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You cannot reset a random map.");
+		return 1;
+	}
+
 	dummy = get_object();
 	dummy->map = NULL;
 	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), m->path);
