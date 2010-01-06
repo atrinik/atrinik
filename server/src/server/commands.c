@@ -155,7 +155,7 @@ CommArray_s WizCommands [] =
 	{"/goto", 			command_goto,					0.0},
 	{"/shutdown",       command_shutdown,               0.0},
 	{"/shutdown_now",   command_shutdown_now,           0.0},
-	{"/resetmap", 		command_reset,					0.0},
+	{"/resetmap", 		command_resetmap,				0.0},
 	{"/plugout",		command_unloadplugin,			0.0},
 	{"/create", 		command_create,					0.0},
 	{"/addexp", 		command_addexp,					0.0},

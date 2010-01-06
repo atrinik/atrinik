@@ -1180,7 +1180,7 @@ int command_stats(object *op, char *params)
  * @param params Map to reset. Can be NULL for current op's map, or a map
  * path.
  * @return 1. */
-int command_reset(object *op, char *params)
+int command_resetmap(object *op, char *params)
 {
 	int count;
 	mapstruct *m;

@@ -182,7 +182,7 @@ int command_remove(object *op, char *params);
 int command_addexp(object *op, char *params);
 int command_speed(object *op, char *params);
 int command_stats(object *op, char *params);
-int command_reset(object *op, char *params);
+int command_resetmap(object *op, char *params);
 void remove_active_DM(object *op);
 int command_nowiz(object *op, char *params);
 int command_dm(object *op, char *params);
