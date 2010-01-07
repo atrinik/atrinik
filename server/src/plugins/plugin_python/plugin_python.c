@@ -709,6 +709,44 @@ static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", hooks->cftimer_destroy(id));
 }
 
+/**
+ * <h1>Atrinik.FindFace(<i>\<string\></i> face)</h1>
+ * Find a face ID by its name.
+ * @param face Name of the face to find.
+ * @return ID of the face. */
+static PyObject *Atrinik_FindFace(PyObject *self, PyObject *args)
+{
+	char *name;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &name))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->find_face(name, 0));
+}
+
+/**
+ * <h1>Atrinik.FindAnimation(<i>\<string\></i> animation)</h1>
+ * Find an animation ID by its name.
+ * @param animation Name of the animation to find.
+ * @return ID of the animation. */
+static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
+{
+	char *name;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &name))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->find_animation(name));
+}
+
 /*@}*/
 
 MODULEAPI void *triggerEvent(int *type, ...)
@@ -1272,6 +1310,8 @@ static PyMethodDef AtrinikMethods[] =
 	{"CleanupChatString",Atrinik_CleanupChatString,   METH_VARARGS, 0},
 	{"LOG",              Atrinik_LOG,                 METH_VARARGS, 0},
 	{"DestroyTimer",     Atrinik_DestroyTimer,        METH_VARARGS, 0},
+	{"FindFace",         Atrinik_FindFace,            METH_VARARGS, 0},
+	{"FindAnimation",    Atrinik_FindAnimation,       METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

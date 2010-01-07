@@ -237,6 +237,8 @@ struct plugin_hooklist
 	int (*cftimer_find_free_id)();
 	int (*cftimer_create)(int, long, object *, int);
 	int (*cftimer_destroy)(int);
+	int (*find_face)(char *, int);
+	int (*find_animation)(char *);
 
 	const char **season_name;
 	const char **weekdays;

@@ -120,6 +120,8 @@ struct plugin_hooklist hooklist =
 	cftimer_find_free_id,
 	cftimer_create,
 	cftimer_destroy,
+	find_face,
+	find_animation,
 
 	season_name,
 	weekdays,
