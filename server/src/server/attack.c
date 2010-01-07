@@ -105,7 +105,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 	}
 
 	/* Trigger the ATTACK event */
-	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, &base_dam, &base_wc, SCRIPT_FIX_ALL);
+	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, base_dam, base_wc, SCRIPT_FIX_ALL);
 
 	op_tag = op->count;
 	hitter_tag = hitter->count;
@@ -963,7 +963,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	}
 
 	/* Trigger the DEATH event */
-	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, &type, 0, 0, SCRIPT_FIX_ALL))
+	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, type, 0, 0, SCRIPT_FIX_ALL))
 	{
 		return 0;
 	}
@@ -1324,7 +1324,7 @@ object *hit_with_arrow(object *op, object *victim)
 	if (hitter->event_flags & EVENT_FLAG_ATTACK)
 	{
 		/* Trigger the ATTACK event */
-		trigger_event(EVENT_ATTACK, hitter, hitter, victim, NULL, 0, (int *) &(op->stats.dam), (int *) &(op->stats.wc), SCRIPT_FIX_ALL);
+		trigger_event(EVENT_ATTACK, hitter, hitter, victim, NULL, 0, op->stats.dam, op->stats.wc, SCRIPT_FIX_ALL);
 	}
 	else
 	{

@@ -664,12 +664,6 @@ int manual_apply(object *op, object *tmp, int aflag)
 		}
 	}
 
-	if (tmp->type == CONTAINER && tmp->sub_type1 == 1 && tmp->env == op)
-	{
-		new_draw_info(NDI_UNIQUE, op, "This is a special apartment extension - place it in your apartment!");
-		return 1;
-	}
-
 	/* Monsters must not apply random chests, nor magic_mouths with a counter */
 	if (op->type != PLAYER && tmp->type == TREASURE)
 	{
@@ -677,7 +671,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 	}
 
 	/* Trigger the APPLY event */
-	if (trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, &aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	if (trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
 		return 1;
 	}

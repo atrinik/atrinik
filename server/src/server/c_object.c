@@ -307,7 +307,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 	}
 
 	/* Trigger the PICKUP event */
-	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, &tmp_nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, tmp_nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
 		return;
 	}
@@ -722,7 +722,7 @@ void drop_object(object *op, object *tmp, long nrof)
 	}
 
 	/* Trigger the DROP event */
-	if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, (int *) nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
 		return;
 	}

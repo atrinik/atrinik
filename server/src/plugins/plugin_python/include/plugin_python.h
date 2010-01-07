@@ -98,24 +98,21 @@ extern MODULEAPI int HandleEvent(va_list args);
 extern MODULEAPI int HandleGlobalEvent(int event_type, va_list args);
 extern MODULEAPI void init_Atrinik_Python();
 
-/* The execution stack. Altough it is quite rare, a script can actually      */
-/* trigger another script. The stack is used to keep track of those multiple */
-/* levels of execution. A recursion stack of size 100 shout be sufficient.   */
-/* If for some reason you think it is not enough, simply increase its size.  */
-/* The code will still work, but the plugin will eat more memory.            */
-#define MAX_RECURSIVE_CALL 100
+typedef struct _pythoncontext
+{
+	struct _pythoncontext *down;
+	object *activator;
+	object *who;
+	object *other;
+	object *event;
+	char *text;
+	char *options;
+	int returnvalue;
+	int parms[4];
+} PythonContext;
 
-extern int StackPosition;
-extern object *StackActivator[MAX_RECURSIVE_CALL];
-extern object *StackWho[MAX_RECURSIVE_CALL];
-extern object *StackOther[MAX_RECURSIVE_CALL];
-extern char *StackText[MAX_RECURSIVE_CALL];
-extern int StackParm1[MAX_RECURSIVE_CALL];
-extern int StackParm2[MAX_RECURSIVE_CALL];
-extern int StackParm3[MAX_RECURSIVE_CALL];
-extern int StackParm4[MAX_RECURSIVE_CALL];
-extern int StackReturn[MAX_RECURSIVE_CALL];
-extern char *StackOptions[MAX_RECURSIVE_CALL];
+extern PythonContext *context_stack;
+extern PythonContext *current_context;
 
 /** Type used for numeric constants */
 typedef struct

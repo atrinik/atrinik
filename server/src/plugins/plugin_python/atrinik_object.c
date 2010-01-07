@@ -1682,9 +1682,9 @@ static PyObject *Atrinik_Object_Kill(Atrinik_Object *whoptr, PyObject *args)
 	 * killObject, since the attacked object no longer exists.
 	 * By fixing guile_current_other to NULL, guile_use_weapon_script will
 	 * return -1, meaning the attack function must be immediately terminated. */
-	if (WHAT == StackOther[StackPosition])
+	if (WHAT == current_context->other)
 	{
-		StackOther[StackPosition] = NULL;
+		current_context->other = NULL;
 	}
 
 	Py_INCREF(Py_None);
@@ -2339,7 +2339,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 	obenv = myob->env;
 
 	/* Don't allow removing any of the involved objects. Messes things up... */
-	if (StackActivator[StackPosition] == myob || StackWho[StackPosition] == myob || StackOther[StackPosition] == myob)
+	if (current_context->activator == myob || current_context->who == myob || current_context->other == myob)
 	{
 		RAISE("You are not allowed to remove one of the active objects. Workaround using CFTeleport or some other solution.");
 	}
@@ -2350,22 +2350,6 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *whoptr, PyObject *args)
 	if (obenv != NULL && obenv->type == PLAYER)
 	{
 		hooks->esrv_send_inventory(obenv, obenv);
-	}
-
-	/* Handle removing any of the active objects (e.g. the activator) */
-	if (StackActivator[StackPosition] == myob)
-	{
-		StackActivator[StackPosition] = NULL;
-	}
-
-	if (StackWho[StackPosition] == myob)
-	{
-		StackWho[StackPosition] = NULL;
-	}
-
-	if (StackOther[StackPosition] == myob)
-	{
-		StackOther[StackPosition] = NULL;
 	}
 
 	Py_INCREF(Py_None);

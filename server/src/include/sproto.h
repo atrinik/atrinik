@@ -310,7 +310,7 @@ void initPlugins();
 void initOnePlugin(const char *pluginfile);
 void removeOnePlugin(const char *id);
 void trigger_global_event(int event_type, void *parm1, void *parm2);
-int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags);
+int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 
 /* rune.c */
 int write_rune(object *op, int dir, int inspell, int level, char *runename);

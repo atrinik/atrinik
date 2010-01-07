@@ -43,24 +43,8 @@ struct plugin_hooklist *hooks;
 /** A generic exception that we use for error messages */
 PyObject *AtrinikError;
 
-/* The execution stack. Altough it is quite rare, a script can actually      */
-/* trigger another script. The stack is used to keep track of those multiple */
-/* levels of execution. A recursion stack of size 100 shout be sufficient.   */
-/* If for some reason you think it is not enough, simply increase its size.  */
-/* The code will still work, but the plugin will eat more memory.            */
-#define MAX_RECURSIVE_CALL 100
-int StackPosition = 0;
-object *StackActivator[MAX_RECURSIVE_CALL];
-object *StackWho[MAX_RECURSIVE_CALL];
-object *StackOther[MAX_RECURSIVE_CALL];
-object *StackEvent[MAX_RECURSIVE_CALL];
-char* StackText[MAX_RECURSIVE_CALL];
-int StackParm1[MAX_RECURSIVE_CALL];
-int StackParm2[MAX_RECURSIVE_CALL];
-int StackParm3[MAX_RECURSIVE_CALL];
-int StackParm4[MAX_RECURSIVE_CALL];
-int StackReturn[MAX_RECURSIVE_CALL];
-char *StackOptions[MAX_RECURSIVE_CALL];
+PythonContext *context_stack;
+PythonContext *current_context;
 
 /**
  * @anchor plugin_python_constants
@@ -127,6 +111,46 @@ typedef struct
 
 static cacheentry python_cache[PYTHON_CACHE_SIZE];
 static int RunPythonScript(const char *path, object *event_object);
+
+static void initContextStack()
+{
+	current_context = NULL;
+	context_stack = NULL;
+}
+
+static void pushContext(PythonContext *context)
+{
+	if (current_context == NULL)
+	{
+		context_stack = context;
+		context->down = NULL;
+	}
+	else
+	{
+		context->down = current_context;
+	}
+
+	current_context = context;
+}
+
+static PythonContext *popContext()
+{
+	PythonContext *oldcontext;
+
+	if (current_context)
+	{
+		oldcontext = current_context;
+		current_context = current_context->down;
+		return oldcontext;
+	}
+
+	return NULL;
+}
+
+static void freeContext(PythonContext *context)
+{
+	free(context);
+}
 
 /**
  * @defgroup plugin_python_functions Python plugin functions
@@ -298,7 +322,7 @@ static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return wrap_object(StackWho[StackPosition]);
+	return wrap_object(current_context->who);
 }
 
 /**
@@ -314,7 +338,7 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return wrap_object(StackActivator[StackPosition]);
+	return wrap_object(current_context->activator);
 }
 
 /**
@@ -329,7 +353,7 @@ static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return wrap_object(StackOther[StackPosition]);
+	return wrap_object(current_context->event);
 }
 
 /**
@@ -340,7 +364,7 @@ static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
-	return wrap_object(StackEvent[StackPosition]);
+	return wrap_object(current_context->event);
 }
 
 /**
@@ -351,7 +375,7 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
-	return Py_BuildValue("i", StackEvent[StackPosition]->sub_type1);
+	return Py_BuildValue("i", current_context->event->sub_type1);
 }
 
 /**
@@ -367,7 +391,7 @@ static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("s", StackText[StackPosition]);
+	return Py_BuildValue("s", current_context->text);
 }
 
 /**
@@ -383,7 +407,7 @@ static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("s", StackOptions[StackPosition]);
+	return Py_BuildValue("s", current_context->options);
 }
 
 /**
@@ -399,7 +423,7 @@ static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("i", StackReturn[StackPosition]);
+	return Py_BuildValue("i", current_context->returnvalue);
 }
 
 /**
@@ -417,10 +441,33 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	StackReturn[StackPosition] = value;
+	current_context->returnvalue = value;
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+/**
+ * <h1>Atrinik.GetEventParameters()</h1>
+ * Get the parameters of an event. This varies from event to event, and
+ * some events pass all parameters as 0. EVENT_ATTACK usually passes damage
+ * done and the WC of the hit as second and third parameter, respectively.
+ * @return A list of the event parameters. The last entry is the event flags,
+ * used to determine whom to call fix_player() on after executing the script. */
+static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
+{
+	unsigned int i;
+	PyObject *list = PyList_New(0);
+
+	(void) self;
+	(void) args;
+
+	for (i = 0; i < sizeof(current_context->parms) / sizeof(current_context->parms[0]); i++)
+	{
+		PyList_Append(list, Py_BuildValue("i", current_context->parms[i]));
+	}
+
+	return list;
 }
 
 /**
@@ -801,13 +848,21 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
 MODULEAPI int HandleGlobalEvent(int event_type, va_list args)
 {
-	if (StackPosition == MAX_RECURSIVE_CALL)
-	{
-		LOG(llevDebug, "Can't execute script - No space left of stack\n");
-		return 0;
-	}
+	PythonContext *context = malloc(sizeof(PythonContext));
 
-	StackPosition++;
+	context->activator = NULL;
+	context->who = NULL;
+	context->other = NULL;
+	context->event = NULL;
+	context->parms[0] = 0;
+	context->parms[1] = 0;
+	context->parms[2] = 0;
+	context->parms[3] = 0;
+	context->text = NULL;
+	context->options = NULL;
+	context->returnvalue = 0;
+
+	pushContext(context);
 
 	switch (event_type)
 	{
@@ -816,56 +871,55 @@ MODULEAPI int HandleGlobalEvent(int event_type, va_list args)
 			break;
 
 		case EVENT_BORN:
-			StackActivator[StackPosition] = (object *) va_arg(args, void *);
-			RunPythonScript("python/python_born.py", NULL);
+			context->activator = (object *) va_arg(args, void *);
 			break;
 
 		case EVENT_LOGIN:
-			StackActivator[StackPosition] = ((player *) va_arg(args, void *))->ob;
-			StackWho[StackPosition] = ((player *) va_arg(args, void *))->ob;
-			StackText[StackPosition] = (char *) va_arg(args, void *);
-			RunPythonScript("python/python_login.py", NULL);
+			context->activator = ((player *) va_arg(args, void *))->ob;
+			context->who = ((player *) va_arg(args, void *))->ob;
+			context->text = (char *) va_arg(args, void *);
 			break;
 
 		case EVENT_LOGOUT:
-			StackActivator[StackPosition] = ((player *) va_arg(args, void *))->ob;
-			StackWho[StackPosition] = ((player *) va_arg(args, void *))->ob;
-			StackText[StackPosition] = (char *) va_arg(args, void *);
-			RunPythonScript("python/python_logout.py", NULL);
+			context->activator = ((player *) va_arg(args, void *))->ob;
+			context->who = ((player *) va_arg(args, void *))->ob;
+			context->text = (char *) va_arg(args, void *);
 			break;
 
 		case EVENT_REMOVE:
-			StackActivator[StackPosition] = (object *) va_arg(args, void *);
-			RunPythonScript("python/python_remove.py", NULL);
+			context->activator = (object *) va_arg(args, void *);
 			break;
 
 		case EVENT_SHOUT:
-			StackActivator[StackPosition] = (object *) va_arg(args, void *);
-			StackText[StackPosition] = (char *) va_arg(args, void *);
-			RunPythonScript("python/python_shout.py", NULL);
+			context->activator = (object *) va_arg(args, void *);
+			context->text = (char *) va_arg(args, void *);
 			break;
 
 		case EVENT_MAPENTER:
-			StackActivator[StackPosition] = (object *) va_arg(args, void *);
-			RunPythonScript("python/python_mapenter.py", NULL);
+			context->activator = (object *) va_arg(args, void *);
 			break;
 
 		case EVENT_MAPLEAVE:
-			StackActivator[StackPosition] = (object *) va_arg(args, void *);
-			RunPythonScript("python/python_mapleave.py", NULL);
+			context->activator = (object *) va_arg(args, void *);
 			break;
 
 		case EVENT_CLOCK:
-			RunPythonScript("python/python_clock.py", NULL);
 			break;
 
 		case EVENT_MAPRESET:
-			StackText[StackPosition] = (char *) va_arg(args, void *);
-			RunPythonScript("python/python_mapreset.py", NULL);
+			context->text = (char *) va_arg(args, void *);
 			break;
 	}
 
-	StackPosition--;
+	if (RunPythonScript("python/events/python_event.py", NULL))
+	{
+		freeContext(context);
+		return 0;
+	}
+
+	context = popContext();
+	freeContext(context);
+
 	return 0;
 }
 
@@ -1093,7 +1147,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		}
 
 #ifdef PYTHON_DEBUG
-		LOG(llevDebug, "closing (%d). ", StackPosition);
+		LOG(llevDebug, "closing. ");
 #endif
 		Py_DECREF(globdict);
 	}
@@ -1108,42 +1162,38 @@ static int RunPythonScript(const char *path, object *event_object)
 	return result;
 }
 
-
 /*****************************************************************************/
 /* Handles standard local events.                                            */
 /*****************************************************************************/
 MODULEAPI int HandleEvent(va_list args)
 {
 	char *script;
+	PythonContext *context = malloc(sizeof(PythonContext));
+	int rv;
 
-	if (StackPosition == MAX_RECURSIVE_CALL)
-	{
-		LOG(llevDebug, "PYTHON - Can't execute script - No space left on stack\n");
-		return 0;
-	}
-
-	StackPosition++;
-	StackActivator[StackPosition] = va_arg(args, object *);
-	StackWho[StackPosition] = va_arg(args, object *);
-	StackOther[StackPosition] = va_arg(args, object *);
-	StackEvent[StackPosition] = va_arg(args, object *);
-	StackText[StackPosition] = va_arg(args, char *);
-	StackParm1[StackPosition] = va_arg(args, int);
-	StackParm2[StackPosition] = va_arg(args, int);
-	StackParm3[StackPosition] = va_arg(args, int);
-	StackParm4[StackPosition] = va_arg(args, int);
+	context->activator = va_arg(args, object *);
+	context->who = va_arg(args, object *);
+	context->other = va_arg(args, object *);
+	context->event = va_arg(args, object *);
+	context->text = va_arg(args, char *);
+	context->parms[0] = va_arg(args, int);
+	context->parms[1] = va_arg(args, int);
+	context->parms[2] = va_arg(args, int);
+	context->parms[3] = va_arg(args, int);
 	script = va_arg(args, char *);
-	StackOptions[StackPosition] = va_arg(args, char *);
-	StackReturn[StackPosition] = 0;
+	context->options = va_arg(args, char *);
+	context->returnvalue = 0;
 
 #ifdef PYTHON_DEBUG
 	LOG(llevDebug, "PYTHON - Start script file >%s<\n", script);
-	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d SP:%d\n", STRING_OBJ_NAME(StackActivator[StackPosition]), STRING_OBJ_NAME(StackWho[StackPosition]), STRING_OBJ_NAME(StackOther[StackPosition]), STRING_SAFE(StackText[StackPosition]), StackParm1[StackPosition], StackParm2[StackPosition], StackParm3[StackPosition], StackParm4[StackPosition], StackPosition);
+	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
 #endif
 
-	if (RunPythonScript(script, StackWho[StackPosition]))
+	pushContext(context);
+
+	if (RunPythonScript(script, context->who))
 	{
-		StackPosition--;
+		freeContext(context);
 		return 0;
 	}
 
@@ -1151,27 +1201,38 @@ MODULEAPI int HandleEvent(va_list args)
 	LOG(llevDebug, "fixing. ");
 #endif
 
-	if (StackParm4[StackPosition] == SCRIPT_FIX_ALL)
-	{
-		if (StackOther[StackPosition] != NULL)
-			hooks->fix_player(StackOther[StackPosition]);
+	context = popContext();
 
-		if (StackWho[StackPosition] != NULL)
-			hooks->fix_player(StackWho[StackPosition]);
-
-		if (StackActivator[StackPosition] != NULL)
-			hooks->fix_player(StackActivator[StackPosition]);
-	}
-	else if (StackParm4[StackPosition] == SCRIPT_FIX_ACTIVATOR)
+	if (context->parms[3] == SCRIPT_FIX_ALL)
 	{
-		hooks->fix_player(StackActivator[StackPosition]);
+		if (context->other)
+		{
+			hooks->fix_player(context->other);
+		}
+
+		if (context->who)
+		{
+			hooks->fix_player(context->who);
+		}
+
+		if (context->activator)
+		{
+			hooks->fix_player(context->activator);
+		}
 	}
+	else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR)
+	{
+		hooks->fix_player(context->activator);
+	}
+
+	rv = context->returnvalue;
+	freeContext(context);
 
 #ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
+	LOG(llevDebug, "done (returned: %d)!\n", rv);
 #endif
 
-	return StackReturn[StackPosition--];
+	return rv;
 }
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
@@ -1241,28 +1302,40 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 
 MODULEAPI int cmd_customPython(object *op, char *params)
 {
+	PythonContext *context = malloc(sizeof(PythonContext));
+	int rv;
+
 #ifdef PYTHON_DEBUG
 	LOG(llevDebug, "PYTHON - cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
 #endif
 
-	if (StackPosition == MAX_RECURSIVE_CALL)
+	context->activator = op;
+	context->who = op;
+	context->other = op;
+	context->event = NULL;
+	context->parms[0] = 0;
+	context->parms[1] = 0;
+	context->parms[2] = 0;
+	context->parms[3] = 0;
+	context->text = params;
+	context->options = NULL;
+	context->returnvalue = 0;
+
+	pushContext(context);
+
+	if (RunPythonScript(CustomCommand[NextCustomCommand].script, NULL))
 	{
-		LOG(llevDebug, "PYTHON - Can't execute script - No space left of stack\n");
+		freeContext(context);
 		return 0;
 	}
 
-	StackPosition++;
-	StackActivator[StackPosition] = op;
-	StackWho[StackPosition] = op;
-	StackOther[StackPosition] = op;
-	StackText[StackPosition] = params;
-	StackReturn[StackPosition] = 0;
+	context = popContext();
+	rv = context->returnvalue;
+	freeContext(context);
 
-	RunPythonScript(CustomCommand[NextCustomCommand].script, NULL);
+	LOG(llevDebug, "done (returned: %d)!\n", rv);
 
-	LOG(llevDebug, "done (returned: %d)!\n", StackReturn[StackPosition]);
-
-	return StackReturn[StackPosition--];
+	return rv;
 }
 
 /*****************************************************************************/
@@ -1276,6 +1349,7 @@ MODULEAPI void postinitPlugin()
 	(void) GETTIMEOFDAY(&new_time);
 
 	LOG(llevDebug, "PYTHON - Start postinitPlugin.\n");
+	initContextStack();
 	RunPythonScript("python/events/python_init.py", NULL);
 }
 
@@ -1284,34 +1358,35 @@ MODULEAPI void postinitPlugin()
  * an interface with the C code. */
 static PyMethodDef AtrinikMethods[] =
 {
-	{"LoadObject",       Atrinik_LoadObject,          METH_VARARGS, 0},
-	{"ReadyMap",         Atrinik_ReadyMap,            METH_VARARGS, 0},
-	{"CheckMap",         Atrinik_CheckMap,            METH_VARARGS, 0},
-	{"MatchString",      Atrinik_MatchString,         METH_VARARGS, 0},
-	{"FindPlayer",       Atrinik_FindPlayer,          METH_VARARGS, 0},
-	{"PlayerExists",     Atrinik_PlayerExists,        METH_VARARGS, 0},
-	{"GetOptions",       Atrinik_GetOptions,          METH_VARARGS, 0},
-	{"GetReturnValue",   Atrinik_GetReturnValue,      METH_VARARGS, 0},
-	{"SetReturnValue",   Atrinik_SetReturnValue,      METH_VARARGS, 0},
-	{"GetSpellNr",       Atrinik_GetSpellNr,          METH_VARARGS, 0},
-	{"GetSpell",         Atrinik_GetSpell,            METH_VARARGS, 0},
-	{"GetSkillNr",       Atrinik_GetSkillNr,          METH_VARARGS, 0},
-	{"WhoAmI",           Atrinik_WhoAmI,              METH_VARARGS, 0},
-	{"WhoIsActivator",   Atrinik_WhoIsActivator,      METH_VARARGS, 0},
-	{"WhoIsOther",       Atrinik_WhoIsOther,          METH_VARARGS, 0},
-	{"WhatIsEvent",      Atrinik_WhatIsEvent,         METH_VARARGS, 0},
-	{"GetEventNumber",   Atrinik_GetEventNumber,      METH_VARARGS, 0},
-	{"WhatIsMessage",    Atrinik_WhatIsMessage,       METH_VARARGS, 0},
-	{"RegisterCommand",  Atrinik_RegisterCommand,     METH_VARARGS, 0},
-	{"CreatePathname",   Atrinik_CreatePathname,      METH_VARARGS, 0},
-	{"GetTime",          Atrinik_GetTime,             METH_VARARGS, 0},
-	{"LocateBeacon",     Atrinik_LocateBeacon,        METH_VARARGS, 0},
-	{"FindParty",        Atrinik_FindParty,           METH_VARARGS, 0},
-	{"CleanupChatString",Atrinik_CleanupChatString,   METH_VARARGS, 0},
-	{"LOG",              Atrinik_LOG,                 METH_VARARGS, 0},
-	{"DestroyTimer",     Atrinik_DestroyTimer,        METH_VARARGS, 0},
-	{"FindFace",         Atrinik_FindFace,            METH_VARARGS, 0},
-	{"FindAnimation",    Atrinik_FindAnimation,       METH_VARARGS, 0},
+	{"LoadObject",          Atrinik_LoadObject,            METH_VARARGS, 0},
+	{"ReadyMap",            Atrinik_ReadyMap,              METH_VARARGS, 0},
+	{"CheckMap",            Atrinik_CheckMap,              METH_VARARGS, 0},
+	{"MatchString",         Atrinik_MatchString,           METH_VARARGS, 0},
+	{"FindPlayer",          Atrinik_FindPlayer,            METH_VARARGS, 0},
+	{"PlayerExists",        Atrinik_PlayerExists,          METH_VARARGS, 0},
+	{"GetOptions",          Atrinik_GetOptions,            METH_VARARGS, 0},
+	{"GetReturnValue",      Atrinik_GetReturnValue,        METH_VARARGS, 0},
+	{"SetReturnValue",      Atrinik_SetReturnValue,        METH_VARARGS, 0},
+	{"GetSpellNr",          Atrinik_GetSpellNr,            METH_VARARGS, 0},
+	{"GetSpell",            Atrinik_GetSpell,              METH_VARARGS, 0},
+	{"GetSkillNr",          Atrinik_GetSkillNr,            METH_VARARGS, 0},
+	{"WhoAmI",              Atrinik_WhoAmI,                METH_VARARGS, 0},
+	{"WhoIsActivator",      Atrinik_WhoIsActivator,        METH_VARARGS, 0},
+	{"WhoIsOther",          Atrinik_WhoIsOther,            METH_VARARGS, 0},
+	{"WhatIsEvent",         Atrinik_WhatIsEvent,           METH_VARARGS, 0},
+	{"GetEventNumber",      Atrinik_GetEventNumber,        METH_VARARGS, 0},
+	{"WhatIsMessage",       Atrinik_WhatIsMessage,         METH_VARARGS, 0},
+	{"RegisterCommand",     Atrinik_RegisterCommand,       METH_VARARGS, 0},
+	{"CreatePathname",      Atrinik_CreatePathname,        METH_VARARGS, 0},
+	{"GetTime",             Atrinik_GetTime,               METH_VARARGS, 0},
+	{"LocateBeacon",        Atrinik_LocateBeacon,          METH_VARARGS, 0},
+	{"FindParty",           Atrinik_FindParty,             METH_VARARGS, 0},
+	{"CleanupChatString",   Atrinik_CleanupChatString,     METH_VARARGS, 0},
+	{"LOG",                 Atrinik_LOG,                   METH_VARARGS, 0},
+	{"DestroyTimer",        Atrinik_DestroyTimer,          METH_VARARGS, 0},
+	{"FindFace",            Atrinik_FindFace,              METH_VARARGS, 0},
+	{"FindAnimation",       Atrinik_FindAnimation,         METH_VARARGS, 0},
+	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

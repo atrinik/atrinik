@@ -478,7 +478,7 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
  * @param parm3 Third parameter
  * @param flags Event flags
  * @return 1 if the event returns an event value, 0 otherwise */
-int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int *parm1, int *parm2, int *parm3, int flags)
+int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags)
 {
 #ifdef PLUGINS
 	object *event_obj;
