@@ -1,0 +1,115 @@
+region world
+longname The World
+msg
+Somewhere in the world...
+endmsg
+jail /shattered_islands/world_0202 22 4
+end
+region creation
+parent world
+longname The Creation of Time
+msg
+No one knows where this place is, but all have seen it.
+
+As mysterious as it is, it's just another part of life.
+endmsg
+end
+region tutorial_island
+parent world
+longname The Tutorial Island
+msg
+This island is the starting place of all new players.
+endmsg
+end
+region strakewood_island
+parent world
+longname The Strakewood Island
+msg
+It has been found in the ancient records that the Strakewood Island was the first island formed in this world.
+
+The rumor is that in the ancient times the Strakewood Island was home to two opposing deities, Tabernacle and Moroch, both fighting an endless battle against each other.
+endmsg
+end
+region brynknot
+parent strakewood_island
+longname Brynknot
+msg
+Brynknot is a town on the Western side of Strakewood Island.
+endmsg
+end
+region greyton
+parent strakewood_island
+longname The City of Greyton
+msg
+The City of Greyton is a town on the Eastern side of Strakewood Island.
+
+It really is a separate island, connected to Strakewood Island by a human-made bridge.
+endmsg
+end
+region old_outpost
+parent strakewood_island
+longname The Old Outpost
+msg
+The Old Outpost was once a great outpost of Moroch's giant and troll forces, controlled by King Rhun, but is mostly inhabited by ice and lava golems now.
+
+You wonder if King Rhun still lives in here.
+endmsg
+end
+region moroch_temple_outside
+parent strakewood_island
+longname The Moroch Temple
+msg
+You gape in wonder at the ancient temple of Moroch.
+endmsg
+end
+region moroch_temple
+parent strakewood_island
+longname The Moroch Temple Dungeon
+msg
+You see many passages here, and wonder which you should take.
+
+It is said Moroch awaits any challenger at the end of the temple.
+endmsg
+end
+region underground_city
+parent strakewood_island
+longname The Underground City
+end
+region dark_cave
+parent strakewood_island
+longname The Dark Cave
+end
+region giant_stronghold
+parent strakewood_island
+longname The Giant Stronghold
+end
+region eld_woods_island
+parent world
+longname The Eld Woods Island
+msg
+This is an ancient place, filled with mysteries and power.
+
+Things are still and quiet in here.
+endmsg
+end
+region clearhaven
+parent world
+longname Clearhaven
+msg
+The town of Clearhaven is located on the West side of Eld Woods Island.
+endmsg
+end
+region ship
+parent world
+longname a ship
+msg
+
+endmsg
+end
+region promethia_island
+parent world
+longname The Promethia Island
+msg
+
+endmsg
+end

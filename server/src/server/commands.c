@@ -71,7 +71,8 @@ CommArray_s Commands[] =
 	{"/push",			command_push_object, 	1.0f},
 	{"/left",			command_turn_left,		1.0f},
 	{"/right",			command_turn_right,		1.0f},
-	{"/roll",			command_roll,			1.0f}
+	{"/roll",			command_roll,			1.0f},
+	{"/whereami",       command_whereami,       1.0f}
 };
 
 /** Size of normal commands */
@@ -187,7 +188,8 @@ CommArray_s WizCommands [] =
 	{"/set_god",        command_setgod,                 0.0},
 	{"/dm_password",    command_dm_password,            0.0},
 	{"/follow",         command_follow,                 0.0},
-	{"/insert_into",    command_insert_into,            0.0}
+	{"/insert_into",    command_insert_into,            0.0},
+	{"/arrest",         command_arrest,                 0.0}
 };
 
 /** Size of Wizard commands */

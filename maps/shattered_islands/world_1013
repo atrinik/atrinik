@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-10-12 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_6 world_1112
 tile_path_7 world_0912
 tile_path_8 world_0914
 bg_music town_music.ogg|0|-1
+region greyton
 end
 arch water_still
 end

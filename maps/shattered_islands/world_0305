@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-11-11 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_6 world_0404
 tile_path_7 world_0204
 tile_path_8 world_0206
 bg_music allusion_world.ogg|0|-1
+region tutorial_island
 end
 arch water_still
 end
@@ -1003,11 +1004,11 @@ arch spawn_point
 x 9
 y 18
 arch peasant
-name Ship Captain
 msg
 @match *
 Hello there! If you want to leave the Tutorial Island and go to Brynknot at Strakewood Island, go down the stairs, and take the other stairs in there.
 endmsg
+name Ship Captain
 type 83
 level 13
 friendly 1
@@ -1439,7 +1440,6 @@ x 12
 y 22
 end
 arch sign
-name Leaving Tutorial Island
 msg
 ~Leaving Tutorial Island~
 By now you should know most of the basics of Atrinik.
@@ -1447,6 +1447,7 @@ Now you will enter the real world of Atrinik, with many dungeons and monsters to
 Just enter the ship and talk to the captain for more instructions.
 If you lose your Tutorial Island gate key, take the teleporter nearby. It will teleport you past the gate, and if you talk to the guard he will give you another key.
 endmsg
+name Leaving Tutorial Island
 x 12
 y 22
 end

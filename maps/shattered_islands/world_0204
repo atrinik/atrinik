@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_6 world_0303
 tile_path_7 world_0103
 tile_path_8 world_0105
 bg_music allusion_world.ogg|0|-1
+region tutorial_island
 end
 arch water_still
 end
@@ -1439,7 +1440,6 @@ x 12
 y 22
 end
 arch sign
-name Welcome to Atrinik
 msg
 Welcome to Atrinik!
 
@@ -1449,6 +1449,7 @@ This place is called the "Tutorial Island", a place where new players can learn 
 
 Read the next sign in order to learn how to talk to NPCs. When you are done here, exit the building and head to ~Twitriel, the weapon master~. You will see a direction sign, so apply it to learn which direction to go.
 endmsg
+name Welcome to Atrinik
 x 12
 y 22
 end
@@ -1826,13 +1827,13 @@ x 15
 y 18
 end
 arch sign
-name Talk to NPCs
 msg
 ~Talk to NPCs~
 To talk with NPCs (Non Player Characters) you have to open the ~input console~. Press ~enter~ to do that. Now a small cursor appears under this text in the text window.
 Now type "hello" or "hi", and press ~enter~ again.
 You will see that the NPC here will answer you, unless you stand too far away. You must be inside a range of two tiles to him.
 endmsg
+name Talk to NPCs
 x 15
 y 18
 end
@@ -2254,7 +2255,6 @@ x 18
 y 16
 end
 arch sign
-name Other Chatting Commands
 msg
 ~Other chatting commands~
 There are some more chat commands in the game:
@@ -2267,6 +2267,7 @@ will be handled as "said", as long as it doesn't start with a '/'.
 The '/' is reserved for marking commands.
 Try ^/help^ as an example!
 endmsg
+name Other Chatting Commands
 x 18
 y 16
 end
@@ -2565,7 +2566,6 @@ x 20
 y 16
 end
 arch sign
-name Talking using the mouse
 msg
 ~Talking using the mouse~
 You can talk to NPCs using the mouse only: Click on the NPC with the right mouse button to target him.
@@ -2573,6 +2573,7 @@ A bit right of the target name you will see a "hello" button. Click on it with t
 This will make you say "hello" to the NPC. You can then click with the left mouse button on any blue keywords in the text window to say it out loud.
 This doesn't work when chatting with players - only with NPCs.
 endmsg
+name Talking using the mouse
 x 20
 y 16
 end

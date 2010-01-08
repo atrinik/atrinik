@@ -10,6 +10,7 @@ difficulty 10
 darkness 2
 tile_path_1 dark_cave_0102
 bg_music desert_town.ogg|0|-1
+region dark_cave
 end
 arch floor_ruin4
 end

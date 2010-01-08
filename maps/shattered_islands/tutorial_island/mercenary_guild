@@ -9,6 +9,7 @@ height 14
 difficulty 1
 darkness -1
 no_harm 1
+region tutorial_island
 end
 arch floor_stone_b3
 end

@@ -136,6 +136,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\..\..\src\common\region.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\..\src\common\shstr.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

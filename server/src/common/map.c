@@ -1663,6 +1663,11 @@ static int load_map_header(FILE *fp, mapstruct *m)
 			*end = 0;
 			m->bg_music = strdup_local(value);
 		}
+		else if (!strcmp(key, "region"))
+		{
+			*end = 0;
+			m->region = get_region_by_name(value);
+		}
 		else if (!strcmp(key, "enter_x"))
 		{
 			m->enter_x = atoi(value);
@@ -2192,6 +2197,11 @@ int new_save_map(mapstruct *m, int flag)
 		fprintf(fp, "bg_music %s\n", m->bg_music);
 	}
 
+	if (m->region)
+	{
+		fprintf(fp, "region %s\n", m->region->name);
+	}
+
 	if (!flag)
 		fprintf(fp, "swap_time %d\n", m->swap_time);
 
@@ -2389,7 +2399,9 @@ void free_map(mapstruct *m, int flag)
 	m->first_light = NULL;
 
 	for (i = 0; i < TILED_MAPS; i++)
+	{
 		FREE_AND_CLEAR_HASH(m->tile_path[i]);
+	}
 
 	if (m->bitmap)
 	{

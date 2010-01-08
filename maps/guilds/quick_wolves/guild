@@ -11,6 +11,7 @@ difficulty 1
 darkness -1
 no_harm 1
 fixed_login 1
+region strakewood_island
 end
 arch floor_wood2_l1
 y 10

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_6 world_1312
 tile_path_7 world_1112
 tile_path_8 world_1114
 bg_music town_music.ogg|0|-1
+region greyton
 end
 arch floor_flagm1
 end
@@ -536,11 +537,11 @@ arch spawn_point
 x 3
 y 10
 arch peasant
-name Galend
 msg
 @match *
 Welcome to the Greyton arena entrance!
 endmsg
+name Galend
 type 83
 level 20
 friendly 1
@@ -1258,8 +1259,8 @@ name Arena sign
 x 8
 y 9
 arch event_obj
-name Arena
 sub_type 1
+name Arena
 race Arena
 slaying sign|/shattered_islands/world_1112
 end
@@ -1599,13 +1600,13 @@ sp 13
 x 10
 y 12
 arch event_obj
-name Arena
 sub_type 10
+name Arena
 race scripts/strakewood_island/greyton/greyton.arena
 end
 arch event_obj
-name Arena
 sub_type 1
+name Arena
 race scripts/strakewood_island/greyton/greyton.arena
 end
 end

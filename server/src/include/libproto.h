@@ -254,6 +254,13 @@ extern int is_dragon_pl(object *op);
 /* re-cmp.c */
 extern char *re_cmp(char *str, char *regexp);
 
+/* region.c */
+extern region *get_region_by_name(const char *region_name);
+extern char *get_region_longname(const region *r);
+extern char *get_region_msg(const region *r);
+extern object *get_jail_exit(object *op);
+extern void init_regions();
+
 /* readable.c */
 extern int book_overflow(const char *buf1, const char *buf2, int booksize);
 extern void init_readable();

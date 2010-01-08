@@ -9,6 +9,7 @@ height 24
 difficulty 1
 darkness 2
 bg_music travelling.ogg|0|-1
+region ship
 end
 arch floor_wood2_l1
 end

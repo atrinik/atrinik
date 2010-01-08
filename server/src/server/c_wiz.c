@@ -2338,3 +2338,42 @@ int command_insert_into(object *op, char *params)
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
 	return 0;
 }
+
+/**
+ * Wizard jails player.
+ * @param op Wizard.
+ * @param params Player to jail.
+ * @return 1. */
+int command_arrest(object *op, char *params)
+{
+	object *dummy;
+	player *pl;
+
+	if (params == NULL)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /arrest <player>.");
+		return 1;
+	}
+
+	pl = get_other_player_from_name(op, params);
+
+	if (!pl)
+	{
+		return 1;
+	}
+
+	dummy = get_jail_exit(pl->ob);
+
+	if (!dummy)
+	{
+		/* We have nowhere to send the prisoner....*/
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Can't jail player, there is no map to hold them.");
+		return 0;
+	}
+
+	enter_exit(pl->ob, dummy);
+	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been arrested.");
+	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
+	LOG(llevInfo, "Player %s arrested by %s\n", pl->ob->name, op->name);
+	return 1;
+}

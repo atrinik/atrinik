@@ -50,6 +50,7 @@ SRCS = \
 	quest.c \
 	player.c \
 	re-cmp.c \
+	region.c \
 	readable.c \
 	recipe.c \
 	shstr.c \

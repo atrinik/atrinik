@@ -2,12 +2,13 @@ arch map
 name Hall of DMs
 msg
 Created:  2009-12-19 Alex Tokar
-Modified: 2009-12-19 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
+region creation
 end
 arch floor_stone_b4
 y 8

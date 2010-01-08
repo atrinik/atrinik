@@ -450,6 +450,51 @@ typedef struct MapSpace_s
     ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
 /**
+ * This is a game region.
+ *
+ * Each map is in a given region of the game world and links to a region
+ * definiton. */
+typedef struct regiondef
+{
+	/** Pointer to next region, NULL for the last one */
+	struct regiondef *next;
+
+	/**
+	 * Pointer to the region that is a parent of the current
+	 * region, if a value isn't defined in the current region
+	 * we traverse this series of pointers until it is. */
+	struct regiondef *parent;
+
+	/** Shortend name of the region as maps refer to it */
+	char *name;
+
+	/**
+	 * So that parent and child regions can be defined in
+	 * any order, we keep hold of the parent_name during
+	 * initialization, and the children get assigned to their
+	 * parents later. (before runtime on the server though)
+	 * nothing outside the init code should ever use this value. */
+	char *parent_name;
+
+	/**
+	 * Official title of the region, this might be defined
+	 * to be the same as name */
+	char *longname;
+
+	/** The description of the region. */
+	char *msg;
+
+	/** Where a player that is arrested in this region should be imprisoned. */
+	char *jailmap;
+
+	/** X coodinate in jailmap to which the player should be sent. */
+	sint16 jailx;
+
+	/** Y coodinate in jailmap to which the player should be sent. */
+	sint16 jaily;
+} region;
+
+/**
  * In general, code should always use the macros above (or functions in
  * map.c) to access many of the values in the map structure. Failure to
  * do this will almost certainly break various features.
@@ -483,14 +528,17 @@ typedef struct mapdef
 	/** List of tile spaces with light sources */
 	MapSpace *first_light;
 
+	/** Pointer to the region this map is in. */
+	struct regiondef *region;
+
 	/** Linked list of linked lists of buttons */
 	objectlink *buttons;
 
 	/** Filename of the map (shared string now) */
-	const char *path;
+	shstr *path;
 
 	/** Path to adjoining maps (shared strings) */
-	const char *tile_path[TILED_MAPS];
+	shstr *tile_path[TILED_MAPS];
 
 	/** Chained list of players on this map */
 	object *player_first;

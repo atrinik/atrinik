@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-01-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_6 world_0502
 tile_path_7 world_0302
 tile_path_8 world_0304
 bg_music allusion_world.ogg|0|-1
+region tutorial_island
 end
 arch grassd_7
 end
@@ -118,7 +119,6 @@ arch grassd_6
 x 1
 end
 arch sign
-name Range System and Throwing
 msg
 ~Range System and Throwing~
 Atrinik has a complex range system allowing you to throw items, fire bows or spells but also use skills.
@@ -126,6 +126,7 @@ By using the ~tab~ key you can cycle through the range actions. You can have dif
 To throw/fire/control something you press and hold the ~control~ (ctrl) key and choose a direction with your movement keys. The object or spell will be fired in that direction.
 If you have a target and you press ~control~ (ctrl) key and 5 on numpad, your character will attempt to fire in the direction of the target.
 endmsg
+name Range System and Throwing
 x 1
 end
 arch floor_flagm3
@@ -253,11 +254,11 @@ x 1
 y 23
 end
 arch sign
-name Mercenary Quest
 msg
 ~Mercenary Quest~
 One of your first quests is to join the Mercenary guild. Say "hello" to Cashin nearby for more details about the quest.
 endmsg
+name Mercenary Quest
 x 1
 y 23
 end
@@ -455,13 +456,13 @@ arch grassd_m4
 x 3
 end
 arch sign
-name Throwing
 msg
 ~Throwing~
 You can test out the throwing system right here, in the range testing area. Use the throwing daggers you found in the starting tutorial.
 To ready a throwing item or ammunition, locate the daggers in your inventory, and press 'f' (fire) key on them to ready them. Then press ~tab~ key until you can see it in the range chooser below your player name at top left.
 When a missile hits a wall or another solid object, it will be dropped on the floor before the object.
 endmsg
+name Throwing
 x 3
 end
 arch floor_flagm3
@@ -497,13 +498,13 @@ x 3
 y 7
 end
 arch sign
-name How to Fight
 msg
 ~How to Fight~
 If you have visited Twitriel, the weapon master, you now have a weapon in your hand. If not, go see him now. To fight with it you need two things: A target and to be in combat mode.
 Target with the 'x' key, and change from ~safe~ to ~combat~ mode with the 'c' key.
 When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to ~safe~. You don't have to press 'c' before every attack.
 endmsg
+name How to Fight
 x 3
 y 7
 end
@@ -512,7 +513,6 @@ x 3
 y 8
 end
 arch sign
-name Skills and Experience
 msg
 ~Skills and Experience~
 If you have been to Twitriel, the weapon master, you got a weapon AND a weapon skill. If not, go see him now.
@@ -520,6 +520,7 @@ Press F10 or click the skill button for the skill list.
 When you kill an enemy you will |only| gain experience in the skill you do the final hit with!
 Under the armor protection table you will see the currently used skill. It is automatically updated depending on your actions. You will see ~action timer~ there as well. When using a skill, your action timer will gain a number of seconds before you can use the skill again. It will count down to zero, by which time you can use the skill again.
 endmsg
+name Skills and Experience
 x 3
 y 8
 end
@@ -532,13 +533,13 @@ x 3
 y 9
 end
 arch sign
-name Attack the Combat Dummies
 msg
 ~Attack the Combat Dummies~
 Now attack one of the combat dummies behind this fence. Do not fear, it's only a training dummy. It will not fight back or die.
 Press the 'x' key to target the golem and 'c' to get into combat mode. Move next to the golem and watch the hit messages and the hit numbers over your target's head.
 Try to play around with 'x' and 'c' key - this is an easy fight but most times you have |a lot| more action.
 endmsg
+name Attack the Combat Dummies
 x 3
 y 9
 end

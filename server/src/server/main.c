@@ -724,7 +724,15 @@ void enter_exit(object *op, object *exit_ob)
 					remove_ob(tmp);
 				}
 
-				strcpy(CONTR(op)->savebed_map, normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path));
+				if (exit_ob->map)
+				{
+					strcpy(CONTR(op)->savebed_map, normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path));
+				}
+				else
+				{
+					strcpy(CONTR(op)->savebed_map, EXIT_PATH(exit_ob));
+				}
+
 				CONTR(op)->bed_x = EXIT_X(exit_ob), CONTR(op)->bed_y = EXIT_Y(exit_ob);
 				save_player(op, 1);
 			}

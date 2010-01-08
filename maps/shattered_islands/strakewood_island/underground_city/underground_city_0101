@@ -12,6 +12,7 @@ tile_path_1 underground_city_0102
 tile_path_2 underground_city_0201
 tile_path_5 underground_city_0202
 bg_music thonkdonk.ogg|0|-1
+region underground_city
 end
 arch floor_stone_b4
 end

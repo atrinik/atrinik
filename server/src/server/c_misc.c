@@ -683,3 +683,23 @@ int command_party(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * The '/whereami' command will display some information about the region
+ * the player is located in.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_whereami(object *op, char *params)
+{
+	if (!op->map->region)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You appear to be lost somewhere...");
+		return 1;
+	}
+
+	(void) params;
+
+	new_draw_info_format(NDI_UNIQUE, op, "You are in %s.\n%s", get_region_longname(op->map->region), get_region_msg(op->map->region));
+	return 1;
+}

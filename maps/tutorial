@@ -9,6 +9,7 @@ height 24
 difficulty 1
 darkness -1
 no_save 1
+region creation
 end
 arch floor_stone_b3
 end

@@ -112,6 +112,7 @@ int command_save(object *op, char *params);
 int command_afk(object *op, char *params);
 int command_gsay(object *op, char *params);
 int command_party(object *op, char *params);
+int command_whereami(object *op, char *params);
 
 /* c_move.c */
 int command_east(object *op, char *params);
@@ -215,6 +216,7 @@ int command_strings(object *op, char *params);
 int command_ssdumptable(object *op, char *params);
 int command_follow(object *op, char *params);
 int command_insert_into(object *op, char *params);
+int command_arrest(object *op, char *params);
 
 /* commands.c */
 void init_commands();

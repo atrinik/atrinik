@@ -846,6 +846,7 @@ void init(int argc, char **argv)
 	read_map_log();
 	parse_args(argc, argv, 3);
 	cftimer_init();
+	init_regions();
 
 #ifndef WIN32
 	if (settings.daemonmode)
