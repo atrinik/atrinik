@@ -115,11 +115,17 @@ FILE *popen_local(const char *command, const char *type)
 	FILE *ret;
 
 	if (!strcmp(type, "r"))
+	{
 		pd = STDOUT_FILENO;
+	}
 	else if (!strcmp(type, "w"))
+	{
 		pd = STDIN_FILENO;
+	}
 	else
+	{
 		return NULL;
+	}
 
 	if (pipe(fd) != -1)
 	{
@@ -132,21 +138,28 @@ FILE *popen_local(const char *command, const char *type)
 
 			case 0:
 				close(fd[0]);
+
 				if ((fd[1] == pd) || (dup2(fd[1], pd) == pd))
 				{
 					if (fd[1] != pd)
+					{
 						close(fd[1]);
+					}
 
 					execl("/bin/sh", "sh", "-c", command, NULL);
 					close(pd);
 				}
+
 				exit(1);
 				break;
 
 			default:
 				close(fd[1]);
+
 				if (ret = fdopen(fd[0], type))
+				{
 					return ret;
+				}
 
 				close(fd[0]);
 				break;
@@ -168,7 +181,7 @@ char *strdup_local(const char *str)
 {
 	char *c = (char *) malloc(strlen(str) + 1);
 
-	if (c != NULL)
+	if (c)
 	{
 		strcpy(c, str);
 	}
@@ -190,7 +203,9 @@ int strncasecmp(char *s1, char *s2, int n)
 		c2 = tolower(*s2);
 
 		if (c1 != c2)
+		{
 			return (c1 - c2);
+		}
 
 		s1++;
 		s2++;
@@ -198,7 +213,9 @@ int strncasecmp(char *s1, char *s2, int n)
 	}
 
 	if (!n)
+	{
 		return 0;
+	}
 
 	return (int) (*s1 - *s2);
 }
@@ -218,14 +235,18 @@ int strcasecmp(char *s1, char*s2)
 		c2 = tolower(*s2);
 
 		if (c1 != c2)
+		{
 			return (c1 - c2);
+		}
 
 		s1++;
 		s2++;
 	}
 
 	if (*s1 == '\0' && *s2 == '\0')
+	{
 		return 0;
+	}
 
 	return (int) (*s1 - *s2);
 }
@@ -251,54 +272,67 @@ char *strerror_local(int errnum)
 #endif
 }
 
-/* Based on (n+1)^2 = n^2 + 2n + 1
- * given that	1^2 = 1, then
- *		2^2 = 1 + (2 + 1) = 1 + 3 = 4
- * 		3^2 = 4 + (4 + 1) = 4 + 5 = 1 + 3 + 5 = 9
- * 		4^2 = 9 + (6 + 1) = 9 + 7 = 1 + 3 + 5 + 7 = 16
- *		...
+/**
+ * Computes the square root.
+ * Based on (n+1)^2 = n^2 + 2n + 1
+ * given that   1^2 = 1, then
+ *              2^2 = 1 + (2 + 1) = 1 + 3 = 4
+ *              3^2 = 4 + (4 + 1) = 4 + 5 = 1 + 3 + 5 = 9
+ *              4^2 = 9 + (6 + 1) = 9 + 7 = 1 + 3 + 5 + 7 = 16
+ *              ...
  * In other words, a square number can be express as the sum of the
- * series n^2 = 1 + 3 + ... + (2n-1) */
+ * series n^2 = 1 + 3 + ... + (2n-1)
+ * @param n Number of which to compute the root.
+ * @return Square root. */
 int isqrt(int n)
 {
 	int result, sum, prev;
+
 	result = 0;
 	prev = sum = 1;
+
 	while (sum <= n)
 	{
 		prev += 2;
 		sum += prev;
 		++result;
 	}
+
 	return result;
 }
 
-/* This is a list of the suffix, uncompress and compress functions.  Thus,
+/**
+ * This is a list of the suffix, uncompress and compress functions. Thus,
  * if you have some other compress program you want to use, the only thing
  * that needs to be done is to extended this.
+ *
  * The first entry must be NULL - this is what is used for non
  * compressed files. */
 char *uncomp[NROF_COMPRESS_METHODS][3] =
 {
-	{NULL, 		NULL, 		NULL},
-	{".Z", 		UNCOMPRESS, COMPRESS},
-	{".gz", 	GUNZIP, 	GZIP},
-	{".bz2",	BUNZIP, 	BZIP}
+	{NULL,      NULL,        NULL},
+	{".Z",      UNCOMPRESS,  COMPRESS},
+	{".gz",     GUNZIP,      GZIP},
+	{".bz2",    BUNZIP,      BZIP}
 };
 
-/* open_and_uncompress() first searches for the original filename.
- * if it exist, then it opens it and returns the file-pointer.
- * if not, it does two things depending on the flag.  If the flag
- * is set, it tries to create the original file by uncompressing a .Z file.
- * If the flag is not set, it creates a pipe that is used for
- * reading the file (NOTE - you can not use fseek on pipes)
+/**
+ * open_and_uncompress() first searches for the original filename. If it exists,
+ * then it opens it and returns the file-pointer.
  *
- * The compressed pointer is set to nonzero if the file is
- * compressed (and thus,  fp is actually a pipe.)  It returns 0
- * if it is a normal file
+ * If not, it does two things depending on the flag. If the flag is set, it
+ * tries to create the original file by appending a compression suffix to name
+ * and uncompressing it. If the flag is not set, it creates a pipe that is used
+ * for reading the file (NOTE - you can not use fseek on pipes).
  *
- * (Note, the COMPRESS_SUFFIX is used instead of ".Z", thus it can easily
- * be changed in the config file.) */
+ * The compressed pointer is set to nonzero if the file is compressed (and
+ * thus, fp is actually a pipe.) It returns 0 if it is a normal file.
+ * @param name The base file name without compression extension
+ * @param flag Only used for compressed files:
+ * - If set, uncompress and open the file
+ * - If unset, uncompress the file via pipe
+ * @param compressed [out] Set to zero if the file was uncompressed
+ * @return Pointer to opened file, NULL on failure. */
 FILE *open_and_uncompress(char *name, int flag, int *compressed)
 {
 	FILE *fp;
@@ -308,9 +342,7 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 	strcpy(buf, name);
 	bufend = buf + strlen(buf);
 
-	/*LOG(llevDebug, "open_and_uncompress(%s)\n", name);*/
-
-	/* strip off any compression prefixes that may exist */
+	/* Strip off any compression prefixes that may exist */
 	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
 	{
 		if ((uncomp[*compressed][0]) && (!strcmp(uncomp[*compressed][0], bufend - strlen(uncomp[*compressed][0]))))
@@ -325,14 +357,14 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 		struct stat statbuf;
 
 		if (uncomp[*compressed][0])
+		{
 			strcpy(bufend, uncomp[*compressed][0]);
+		}
+
 		if (stat(buf, &statbuf))
 		{
-
-			/*LOG(llevDebug, "Failed to stat %s\n", buf);*/
 			continue;
 		}
-		/*LOG(llevDebug, "Found file %s\n", buf);*/
 
 		if (uncomp[*compressed][0])
 		{
@@ -343,6 +375,7 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 			if (flag)
 			{
 				int i;
+
 				if (try_once)
 				{
 					LOG(llevBug, "BUG: Failed to open %s after decompression.\n", name);
@@ -353,11 +386,13 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 				strcat(buf2, " > ");
 				strcat(buf2, name);
 				LOG(llevDebug, "system(%s)\n", buf2);
+
 				if ((i = system(buf2)))
 				{
 					LOG(llevBug, "BUG: system(%s) returned %d\n", buf2, i);
 					return NULL;
 				}
+
 				/* Delete the original */
 				unlink(buf);
 				/* Restart the loop from the beginning */
@@ -367,7 +402,9 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 			}
 
 			if ((fp = popen(buf2, "r")) != NULL)
+			{
 				return fp;
+			}
 		}
 		else if ((fp = fopen(name, "r")) != NULL)
 		{
@@ -376,10 +413,11 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 			if (fstat(fileno(fp), &statbuf) || !S_ISREG(statbuf.st_mode))
 			{
 				LOG(llevDebug, "Can't open %s - not a regular file\n", name);
-				(void) fclose (fp);
+				(void) fclose(fp);
 				errno = EISDIR;
 				return NULL;
 			}
+
 			return fp;
 		}
 	}
@@ -388,13 +426,20 @@ FILE *open_and_uncompress(char *name, int flag, int *compressed)
 	return NULL;
 }
 
-/* See open_and_uncompress(). */
+/**
+ * Closes specified file.
+ * @param fp File to close.
+ * @param compressed Whether the file was compressed or not. Set by open_and_uncompress(). */
 void close_and_delete(FILE *fp, int compressed)
 {
 	if (compressed)
+	{
 		pclose(fp);
+	}
 	else
+	{
 		fclose(fp);
+	}
 }
 
 /**

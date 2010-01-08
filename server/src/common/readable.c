@@ -527,10 +527,10 @@ static titlelist *get_empty_booklist()
 
 /**
  * Allocate an empty book.
- * @return The book */
+ * @return The book. */
 static title *get_empty_book()
 {
-	title *t = (title *) malloc (sizeof (title));
+	title *t = (title *) malloc(sizeof(title));
 
 	if (t == NULL)
 	{
@@ -550,8 +550,8 @@ static title *get_empty_book()
 
 /**
  * Returns pointer to the title list referenced by a number.
- * @param i The number of the title
- * @return The pointer to the title */
+ * @param i The number of the title.
+ * @return The pointer to the title. */
 static titlelist *get_titlelist(int i)
 {
 	titlelist *tl = booklist;
@@ -576,15 +576,12 @@ static titlelist *get_titlelist(int i)
 	return tl;
 }
 
-/* HANDMADE STRING FUNCTIONS.., perhaps these belong in another file
- * (shstr.c ?), but the quantity BOOK_BUF will need to be defined. */
-
 /**
- * Simple routine to return the number of list items
- * in buf1 as separated by the value of buf2.
- * @param buf1
- * @param buf2
- * @return The number of list items */
+ * Simple routine to return the number of list items in buf1 as separated
+ * by the value of buf2
+ * @param buf1 Items we want to split.
+ * @param buf2 What to split by.
+ * @return Number of elements. */
 static int nstrtok(const char *buf1, const char *buf2)
 {
 	char *tbuf, sbuf[12], buf[MAX_BUF];
@@ -612,8 +609,8 @@ static int nstrtok(const char *buf1, const char *buf2)
  * Takes a string in buf1 and separates it into a list of
  * strings delimited by buf2. Then returns a comma separated
  * string with decent punctuation.
- * @param buf1
- * @param buf2
+ * @param buf1 Buffer to split.
+ * @param buf2 What to split buf1 by.
  * @return The comma separated string */
 static char *strtoktolin(const char *buf1, const char *buf2)
 {
@@ -656,8 +653,9 @@ static char *strtoktolin(const char *buf1, const char *buf2)
  * Checks if book will overflow.
  * @param buf1
  * @param buf2
- * @param booksize
- * @return 1 if it will overflow, 0 otherwise */
+ * Buffers we plan on combining.
+ * @param booksize Maximum book size.
+ * @return 1 if it will overflow, 0 otherwise. */
 int book_overflow(const char *buf1, const char *buf2, int booksize)
 {
 	/* 2 less so always room for trailing \n */
@@ -885,7 +883,7 @@ static void init_mon_info()
 
 	did_init_mon_info = 1;
 
-	for (at = first_archetype; at != NULL; at = at->next)
+	for (at = first_archetype; at; at = at->next)
 	{
 		if (QUERY_FLAG(&at->clone, FLAG_MONSTER) && (!QUERY_FLAG(&at->clone, FLAG_CHANGING) || QUERY_FLAG(&at->clone, FLAG_UNAGGRESSIVE)))
 		{
@@ -898,7 +896,7 @@ static void init_mon_info()
 		}
 	}
 
-	LOG(llevDebug, "init_mon_info() got %d monsters ...", nrofmon);
+	LOG(llevDebug, "init_mon_info() got %d monsters...", nrofmon);
 }
 
 /**
@@ -918,7 +916,7 @@ void init_readable()
 
 	did_this = 1;
 
-	LOG(llevDebug, "Initializing reading data...");
+	LOG(llevDebug, "Initializing reading data... ");
 	init_msgfile();
 	init_book_archive();
 	init_mon_info();
@@ -940,7 +938,7 @@ static title *find_title(object *book, int msgtype)
 
 	if (msgtype < 0)
 	{
-		return (title *) NULL;
+		return NULL;
 	}
 
 	if (tl)
@@ -975,10 +973,10 @@ static title *find_title(object *book, int msgtype)
  * handled directly in change_book_name(). Names are based on text
  * msgtype.
  *
- * This sets book book->name based on msgtype given.  What name
+ * This sets book book->name based on msgtype given. What name
  * is given is based on various criteria.
- * @param book The book object
- * @param msgtype Message type */
+ * @param book The book object.
+ * @param msgtype Message type. */
 static void new_text_name(object *book, int msgtype)
 {
 	int nbr;
@@ -995,35 +993,30 @@ static void new_text_name(object *book, int msgtype)
 		case 1:
 			nbr = sizeof(mon_book_name) / sizeof(char *);
 			strcpy(name, mon_book_name[RANDOM () % nbr]);
-
 			break;
 
 		/* Artifact */
 		case 2:
 			nbr = sizeof(art_book_name) / sizeof(char *);
 			strcpy(name, art_book_name[RANDOM () % nbr]);
-
 			break;
 
 		/* Spellpath */
 		case 3:
 			nbr = sizeof(path_book_name) / sizeof(char *);
 			strcpy(name, path_book_name[RANDOM () % nbr]);
-
 			break;
 
 		/* Alchemy */
 		case 4:
 			nbr = sizeof(formula_book_name) / sizeof(char *);
 			strcpy(name, formula_book_name[RANDOM () % nbr]);
-
 			break;
 
 		/* Gods */
 		case 5:
 			nbr = sizeof(gods_book_name) / sizeof(char *);
 			strcpy(name, gods_book_name[RANDOM () % nbr]);
-
 			break;
 
 		/* Msg file */
@@ -1050,8 +1043,8 @@ static void new_text_name(object *book, int msgtype)
 /**
  * A lot like new_text_name(), but instead chooses an author and
  * sets op->title to that value.
- * @param op The book object
- * @param msgtype Message type */
+ * @param op The book object.
+ * @param msgtype Message type. */
 static void add_author(object *op, int msgtype)
 {
 	char title[MAX_BUF], name[MAX_BUF];
@@ -1068,28 +1061,24 @@ static void add_author(object *op, int msgtype)
 		case 1:
 			nbr = sizeof(mon_author) / sizeof(char *);
 			strcpy(name, mon_author[RANDOM () % nbr]);
-
 			break;
 
 		/* Artifacts */
 		case 2:
 			nbr = sizeof(art_author) / sizeof(char *);
 			strcpy(name, art_author[RANDOM () % nbr]);
-
 			break;
 
 		/* Spellpath */
 		case 3:
 			nbr = sizeof(path_author) / sizeof(char *);
 			strcpy(name, path_author[RANDOM () % nbr]);
-
 			break;
 
 		/* Alchemy */
 		case 4:
 			nbr = sizeof(formula_author) / sizeof(char *);
 			strcpy(name, formula_author[RANDOM () % nbr]);
-
 			break;
 
 		/* Gods */
@@ -1112,9 +1101,9 @@ static void add_author(object *op, int msgtype)
  * Check to see if the book title/msg is unique. We go through the
  * entire list of possibilities each time. If we find a match,
  * then unique_book returns true (because is unique).
- * @param book The book object
- * @param msgtype Message type
- * @return 1 if unique, 0 if not */
+ * @param book The book object.
+ * @param msgtype Message type.
+ * @return 1 if unique, 0 otherwise. */
 static int unique_book(object *book, int msgtype)
 {
 	title *test;
@@ -1139,9 +1128,9 @@ static int unique_book(object *book, int msgtype)
 }
 
 /**
- *
- * @param book
- * @param msgtype  */
+ * Adds a book to the list of existing books.
+ * @param book Book to add.
+ * @param msgtype What information the book contains. */
 static void add_book_to_list(object *book, int msgtype)
 {
 	titlelist *tl = get_titlelist(msgtype);
@@ -1150,7 +1139,6 @@ static void add_book_to_list(object *book, int msgtype)
 	if (!tl)
 	{
 		LOG(llevBug, "BUG: add_book_to_list(): can't get booklist!\n");
-
 		return;
 	}
 
@@ -1177,15 +1165,14 @@ static void add_book_to_list(object *book, int msgtype)
 #define MAX_TITLE_CHECK 20
 
 /**
- * Give a new, fancier name to generated objects of type
- * BOOK and SPELLBOOK.
+ * Give a new, fancier name to generated objects of type BOOK and
+ * SPELLBOOK.
  *
- * Will attempt to create consistent author/title and
- * message content for BOOKs. Also, will alter books
- * that match archive entries to the archival levels
- * and archetypes.
- * @param book The book object to alter
- * @param msgtype Message type to make */
+ * Will attempt to create consistent author/title and message content for
+ * BOOKs. Also, will alter books that match archive entries to the
+ * archival levels and archetypes.
+ * @param book The book object to alter.
+ * @param msgtype Message type to make. */
 static void change_book(object *book, int msgtype)
 {
 	int nbr = sizeof(book_descrpt) / sizeof(char *);
@@ -1207,7 +1194,7 @@ static void change_book(object *book, int msgtype)
 			{
 				object *tmpbook;
 
-				/* alter book properties */
+				/* Alter book properties */
 				if ((tmpbook = get_archetype(t->archname)) != NULL)
 				{
 					FREE_AND_COPY_HASH(tmpbook->msg, book->msg);
@@ -1218,7 +1205,7 @@ static void change_book(object *book, int msgtype)
 				FREE_AND_COPY_HASH(book->name, t->name);
 				book->level = t->level;
 			}
-			/* Don't have any default title, so lets make up a new one */
+			/* Don't have any default title, so let's make up a new one */
 			else
 			{
 				int numb, maxnames = max_titles[msgtype];
@@ -1322,13 +1309,13 @@ object *get_random_mon()
 	objectlink *mon = first_mon_info;
 	int i = 0, monnr;
 
-	/* safety check.  Problem with init_mon_info list? */
+	/* Safety check. Problem with init_mon_info list? */
 	if (!nrofmon || !mon)
 	{
-		return (object *) NULL;
+		return NULL;
 	}
 
-	/* lets get a random monster from the mon_info linked list */
+	/* Let's get a random monster from the mon_info linked list */
 	monnr = RANDOM () % nrofmon;
 
 	for (mon = first_mon_info, i = 0; mon; mon = mon->next)
@@ -1539,8 +1526,8 @@ static char *artifact_msg(int level, int booksize)
 		snprintf(buf, sizeof(buf), "\n<t t=\"%s %s\">It is ", tmp->name, tmp->title ? tmp->title : "");
 		strcat(retbuf, buf);
 
-		/* chance of finding */
-		chance = (int) (100.0f * ((float) art->chance / (float) al->total_chance));
+		/* Chance of finding */
+		chance = 100 * ((float) art->chance / al->total_chance);
 
 		if (chance >= 20)
 		{
@@ -1559,7 +1546,7 @@ static char *artifact_msg(int level, int booksize)
 			snprintf(sbuf, sizeof(sbuf), "a very rare");
 		}
 
-		/* value of artifact */
+		/* Value of artifact */
 		if (val)
 		{
 			snprintf(buf, sizeof(buf), "%s item with a value that is %"FMT64" times normal.\n", sbuf, tmp->value / val);
@@ -1607,21 +1594,12 @@ static char *spellpath_msg(int level, int booksize)
 {
 	static char retbuf[BOOK_BUF];
 	char tmpbuf[BOOK_BUF];
-	int path = RANDOM () % NRSPELLPATHS, prayers = (RANDOM () % SPELL_TYPE_NROF) + 1;
+	int path = RANDOM() % NRSPELLPATHS, prayers = (RANDOM() % SPELL_TYPE_NROF) + 1;
 	int i = 0, did_first_sp = 0;
-	uint32 pnum = (path == -1) ? PATH_NULL : spellpathdef[path];
+	uint32 pnum = spellpathdef[path];
 
 	/* Preamble */
-	snprintf(retbuf, sizeof(retbuf), "<t t=\"Path of %s\">Herein are detailed the names of %s\n", path == -1 ? "Unknown" : spellpathnames[path], !(prayers) ? "incantations" : "prayers");
-
-	if (path == -1)
-	{
-		strcat(retbuf, "having no known spell path.\n");
-	}
-	else
-	{
-		snprintf(retbuf, sizeof(retbuf), "%sbelonging to the path of %s:\n\n", retbuf, spellpathnames[path]);
-	}
+	snprintf(retbuf, sizeof(retbuf), "<t t=\"Path of %s\">Herein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
 
 	/* Now go through the entire list of spells. Add appropriate spells
 	 * in our message buffer */
@@ -1892,8 +1870,7 @@ static char *god_info_msg(int level, int booksize)
 	name = god->name;
 
 	/* Preamble... */
-	snprintf(retbuf, sizeof(retbuf), "<t t=\"%s\">This document contains knowledge concerning ", name);
-	snprintf(retbuf, sizeof(retbuf), "%sthe deity %s", retbuf, name);
+	snprintf(retbuf, sizeof(retbuf), "<t t=\"%s\">This document contains knowledge concerning the deity %s", name, name);
 
 	/* Always have as default information the god's descriptive terms. */
 	if (nstrtok(god->msg, ",") > 0)

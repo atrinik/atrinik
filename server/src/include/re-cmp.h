@@ -23,100 +23,77 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* re-cmp.h
+/**
+ * @file
  * Datastructures for representing a subset of regular expressions.
  *
- * Author: Kjetil T. Homme <kjetilho@ifi.uio.no> May 1993
- */
+ * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993 */
 
-/*   C o n f i g u r a t i o n
- */
+/* Regexp's with syntax errors will core dump if
+ * this is undefined. */
+#define SAFE_CHECKS
 
-#define SAFE_CHECKS	/* Regexp's with syntax errors will core dump if
-* this is undefined.
-*/
-
-#define RE_TOKEN_MAX 64	/* Max amount of tokens in a regexp.
-* Each token uses ~264 bytes. They are allocated
-* as needed, but never de-allocated.
-* E.g. [A-Za-z0-9_] counts as one token, so 64
-* should be plenty for most purposes.
-*/
-
-/*   D o   n o t   c h a n g e    b e l o w
- */
-
-#ifdef uchar
-#    undef uchar
-#endif
-#ifdef Boolean
-#    undef Boolean
-#endif
-#ifdef True
-#    undef True
-#endif
-#ifdef False
-#    undef False
-#endif
-
-#define uchar	unsigned char
-#define Boolean	uchar
-#define True	1	/* Changing this value will break the code */
-#define False	0
+/*
+ * Max amount of tokens in a regexp.
+ * Each token uses ~264 bytes. They are allocated
+ * as needed, but never de-allocated.
+ * E.g. [A-Za-z0-9_] counts as one token, so 64
+ * should be plenty for most purposes. */
+#define RE_TOKEN_MAX 64
 
 typedef enum
 {
-/* corresponds to e.g. . */
-sel_any,
+	/* corresponds to e.g. . */
+	sel_any,
 
-/* "           $ */
-sel_end,
+	/* "           $ */
+	sel_end,
 
-/* "           q */
-sel_single,
+	/* "           q */
+	sel_single,
 
-/* "           [A-F] */
-sel_range,
+	/* "           [A-F] */
+	sel_range,
 
-/* "           [AF-RqO-T] */
-sel_array,
+	/* "           [AF-RqO-T] */
+	sel_array,
 
-/* "           [^f] */
-sel_not_single,
+	/* "           [^f] */
+	sel_not_single,
 
-/* "           [^A-F] */
-sel_not_range
+	/* "           [^A-F] */
+	sel_not_range
 } selection_type;
 
 typedef enum
 {
-/* corresponds to no meta-char	*/
-rep_once,
+	/* corresponds to no meta-char	*/
+	rep_once,
 
-/* "       + */
-rep_once_or_more,
+	/* "       + */
+	rep_once_or_more,
 
-/* "       ? */
-rep_null_or_once,
+	/* "       ? */
+	rep_null_or_once,
 
-/* "       * */
-rep_null_or_more
+	/* "       * */
+	rep_null_or_more
 } repetetion_type;
 
 typedef struct
 {
-selection_type type;
+	selection_type type;
 
-union
-{
-	uchar single;
-
-	struct
+	union
 	{
-		uchar low, high;
-	} range;
+		unsigned char single;
 
-	Boolean array[UCHAR_MAX];
+		struct
+		{
+			unsigned char low, high;
+		} range;
+
+		int array[UCHAR_MAX];
 	} u;
 
 	repetetion_type repeat;

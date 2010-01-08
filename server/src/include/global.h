@@ -59,6 +59,8 @@ typedef unsigned char uint8;
 typedef signed char sint8;
 typedef unsigned short Fontindex;
 typedef unsigned int tag_t;
+/* This should be used to differentiate shared strings from normal strings */
+typedef const char shstr;
 
 #if SIZEOF_LONG == 8
 
