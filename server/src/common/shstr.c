@@ -51,7 +51,7 @@
 #include <dmalloc.h>
 #endif
 
-/** Hash table to store our string. */
+/** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
 /**
@@ -68,10 +68,11 @@ void init_hash_table()
  * Hashing function used by the shared string library.
  * @param str String to hash.
  * @return Hash of string, suitable for use in ::hash_table. */
-static int hashstr(const char *str)
+static unsigned long hashstr(const char *str)
 {
 	unsigned long hash = 0;
-	int i = 0, rot = 0;
+	int i = 0;
+	unsigned int rot = 0;
 	const char *p;
 
 	GATHER(hash_stats.calls);
@@ -81,7 +82,7 @@ static int hashstr(const char *str)
 		hash ^= (unsigned long) *p << rot;
 		rot += 2;
 
-		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * CHAR_BIT)
+		if (rot >= (sizeof(unsigned long) - sizeof(char)) * CHAR_BIT)
 		{
 			rot = 0;
 		}
@@ -103,10 +104,15 @@ static shared_string *new_shared_string(const char *str)
 	 * that some bytes for the string are already allocated in the
 	 * shared_string struct. */
 	ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + strlen(str) + 1);
+
+	if (!ss)
+	{
+		LOG(llevError, "ERROR: new_shared_string(): Out of memory.");
+	}
+
 	ss->u.previous = NULL;
 	ss->next = NULL;
 	ss->refcount = 1;
-	/*LOG(llevDebug,"SS: >%s< #%d - new\n",str,ss->refcount& ~TOPBIT);*/
 	strcpy(ss->string, str);
 
 	return ss;
@@ -120,7 +126,7 @@ static shared_string *new_shared_string(const char *str)
 const char *add_string(const char *str)
 {
 	shared_string *ss;
-	int ind;
+	unsigned long ind;
 
 	GATHER(add_stats.calls);
 
@@ -169,7 +175,6 @@ const char *add_string(const char *str)
 					 * refcount and exit. */
 					GATHER(add_stats.linked);
 					++(ss->refcount);
-					/*LOG(llevDebug,"SS: >%s< #%d add-s\n", ss->string,ss->refcount& ~TOPBIT);*/
 
 					return ss->string;
 				}
@@ -195,9 +200,9 @@ const char *add_string(const char *str)
 
 		return ss->string;
 	}
+	/* The string isn't registered, and the slot is empty. */
 	else
 	{
-		/* The string isn't registered, and the slot is empty. */
 		GATHER(add_stats.hashed);
 		hash_table[ind] = new_shared_string(str);
 
@@ -249,7 +254,7 @@ int query_refcount(const char *str)
 const char *find_string(const char *str)
 {
 	shared_string *ss;
-	int ind;
+	unsigned long ind;
 
 	GATHER(find_stats.calls);
 
@@ -310,11 +315,9 @@ void free_string_shared(const char *str)
 #endif
 
 	GATHER(free_stats.calls);
-
 	ss = SS(str);
-	--ss->refcount;
 
-	if ((ss->refcount & ~TOPBIT) == 0)
+	if ((--ss->refcount & ~TOPBIT) == 0)
 	{
 		/* Remove this entry. */
 		if (ss->refcount & TOPBIT)
@@ -360,17 +363,17 @@ void ss_dump_statistics(char *buf, size_t size)
 {
 	static char line[MAX_BUF];
 
-    snprintf(buf, size, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed", "strcmp", "search", "linked");
-    snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "add_string:", add_stats.calls, add_stats.hashed, add_stats.strcmps, add_stats.search, add_stats.linked);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "free_string:", free_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "find_string:", find_stats.calls, find_stats.hashed, find_stats.strcmps, find_stats.search, find_stats.linked);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "hashstr:", hash_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+	snprintf(buf, size, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed", "strcmp", "search", "linked");
+	snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "add_string:", add_stats.calls, add_stats.hashed, add_stats.strcmps, add_stats.search, add_stats.linked);
+	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+	snprintf(line, sizeof(line), "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
+	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+	snprintf(line, sizeof(line), "%-13s %6d\n", "free_string:", free_stats.calls);
+	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+	snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "find_string:", find_stats.calls, find_stats.hashed, find_stats.strcmps, find_stats.search, find_stats.linked);
+	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+	snprintf(line, sizeof(line), "%-13s %6d\n", "hashstr:", hash_stats.calls);
+	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
 }
 #endif
 
