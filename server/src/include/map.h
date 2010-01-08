@@ -271,8 +271,8 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 /** No clerical spells cast here */
 #define P_NO_CLERIC           0x20
 /**
- * Only players are allowed to enter this space. This excludes mobs,
- * pets and golems but also spell effects and thrown / fired items.
+ * Only players are allowed to enter this space. This excludes mobs
+ * and golems but also spell effects and thrown / fired items.
  * It works like a no_pass for players only (pass_thru doesn't work for
  * it). */
 #define P_PLAYER_ONLY         0x40
@@ -404,7 +404,7 @@ typedef struct MapSpace_s
 /** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM         32
 /**
- * Don't allow any summon/pet summon spell. */
+ * Don't allow any summoning spells. */
 #define MAP_FLAG_NOSUMMON       64
 /**
  * When set, a player login on this map will be forced to default

@@ -376,7 +376,6 @@ static void remove_ns_dead_player(player *pl)
 
 	if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 	{
-		terminate_all_pets(pl->ob);
 		leave_map(pl->ob);
 	}
 

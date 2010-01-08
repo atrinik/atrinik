@@ -287,13 +287,6 @@ void send_party_message(partylist_struct *party, char *msg, int flag, object *op
 void remove_party(partylist_struct *party);
 void PartyCmd(char *buf, int len, player *pl);
 
-/* pets.c */
-object *get_pet_enemy(object *pet, rv_vector *rv);
-void terminate_all_pets(object *owner);
-void remove_all_pets();
-void follow_owner(object *ob, object *owner);
-void pet_move(object *ob);
-
 /* player_shop.c */
 void player_shop_open(char *data, player *pl);
 void player_shop_close(player *pl);
@@ -400,7 +393,6 @@ int casting_level(object *caster, int base_level, int spell_type);
 int check_spell_known(object *op, int spell_type);
 int cast_spell(object *op, object *caster, int dir, int type, int ability, SpellTypeFrom item, char *stringarg);
 int cast_create_obj(object *op, object *new_op, int dir);
-int summon_monster(object *op, object *caster, int dir, archetype *at, int spellnum);
 int fire_bolt(object *op, object *caster, int dir, int type);
 int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type);
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);

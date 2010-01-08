@@ -491,10 +491,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\server\pets.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\server\player_shop.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

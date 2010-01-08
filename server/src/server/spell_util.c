@@ -774,122 +774,6 @@ int cast_create_obj(object *op, object *new_op, int dir)
 }
 
 /**
- * Summon a monster.
- * @param op Player.
- * @param caster Caster.
- * @param dir Direction.
- * @param at Monster archetype.
- * @param spellnum Spell ID.
- * @return 1 on success, 0 otherwise. */
-int summon_monster(object *op, object *caster, int dir, archetype *at, int spellnum)
-{
-	object *tmp;
-	mapstruct *mt;
-	int xt, yt;
-
-	if (op->type == PLAYER)
-	{
-		if (CONTR(op)->golem != NULL && !OBJECT_FREE(CONTR(op)->golem))
-		{
-			control_golem(CONTR(op)->golem, dir);
-			return 0;
-		}
-	}
-
-	if (!dir)
-	{
-		dir = find_free_spot(NULL, NULL, op->map, op->x, op->y, 1, 9);
-	}
-
-	if (dir != -1)
-	{
-		xt = op->x + freearr_x[dir];
-		yt = op->y + freearr_y[dir];
-
-		if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
-		{
-			return 0;
-		}
-
-		tmp = arch_to_object(at);
-	}
-
-	if ((dir == -1) || blocked(tmp, mt, xt, yt, tmp->terrain_flag))
-	{
-		new_draw_info(NDI_UNIQUE, op, "There is something in the way.");
-		return 0;
-	}
-
-	if (op->type == PLAYER)
-	{
-		CLEAR_FLAG(tmp, FLAG_MONSTER);
-		SET_FLAG(tmp, FLAG_FRIENDLY);
-		tmp->stats.exp = 0;
-		add_friendly_object(tmp);
-		tmp->type = GOLEM;
-		/* Don't see any point in setting this when monsters summon monsters: */
-		set_owner(tmp, op);
-		CONTR(op)->golem = tmp;
-		/* give the player control of the golem */
-		send_golem_control(tmp, GOLEM_CTR_ADD);
-	}
-	else
-	{
-		if (QUERY_FLAG(op, FLAG_FRIENDLY))
-		{
-			object *owner = get_owner(op);
-
-			/* For now, we transfer ownership */
-			if (owner != NULL)
-			{
-				set_owner(tmp, owner);
-				tmp->move_type = PETMOVE;
-				add_friendly_object(tmp);
-				SET_FLAG(tmp, FLAG_FRIENDLY);
-			}
-		}
-
-		SET_FLAG(tmp, FLAG_MONSTER);
-	}
-
-	/* Make the speed positive. */
-	if (tmp->speed < 0)
-	{
-		tmp->speed = -tmp->speed;
-	}
-
-	/* This sets the level dependencies on dam and hp for monsters */
-	if (op->type == PLAYER)
-	{
-		/* Players can't cope with too strong summonings, but monsters
-		 * can. Reserve these for players. */
-		tmp->stats.hp = spells[spellnum].bdur + 10 * SP_level_strength_adjust(caster, spellnum);
-		tmp->stats.dam = spells[spellnum].bdam + 2 * SP_level_dam_adjust(caster, spellnum);
-		tmp->speed += 0.02f * (int) SP_level_dam_adjust(caster, spellnum);
-		tmp->speed = MIN(tmp->speed, 1.0f);
-	}
-
-	tmp->stats.wc += SP_level_dam_adjust(caster, spellnum);
-
-	/* Seen this go negative! */
-	if (tmp->stats.dam < 0)
-	{
-		tmp->stats.dam = 127;
-	}
-
-	/* Make experience increase in proportion to the strength of the summoned creature. */
-	tmp->stats.exp *= SP_level_spellpoint_cost(caster, spellnum) / spells[spellnum].sp;
-
-	tmp->speed_left = -1;
-	tmp->x = xt;
-	tmp->y = yt;
-	tmp->map = mt;
-	tmp->direction = dir;
-	insert_ob_in_map(tmp, mt, op, 0);
-	return 1;
-}
-
-/**
  * Returns true if it is ok to put spell op on the space/may provided.
  *
  * @param m Map.
@@ -2250,7 +2134,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 			}
 		}
 	}
-	/* A mob OR rune/firewall/.. OR a pet/summon controlled from player */
+	/* A monster or rune/firewall/etc */
 	else
 	{
 		/* we use op->enemy as target from non player caster.

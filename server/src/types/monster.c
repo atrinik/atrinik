@@ -50,7 +50,6 @@ typedef struct _msglang
 extern spell spells[NROFREALSPELLS];
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
-static object *find_nearest_living_creature(object *npc);
 static int move_randomly(object *op);
 static int can_hit(object *ob1, rv_vector *rv);
 static object *monster_choose_random_spell(object *monster);
@@ -102,7 +101,11 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 	if (npc->type == PLAYER)
 	{
 		npc->enemy = enemy;
-		npc->enemy_count = enemy->count;
+
+		if (enemy)
+		{
+			npc->enemy_count = enemy->count;
+		}
 
 		return;
 	}
@@ -235,28 +238,6 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
  * @return Enemy object if valid, NULL otherwise. */
 object *check_enemy(object *npc, rv_vector *rv)
 {
-	/* if this is pet, let him attack the same enemy as his owner
-	 * TODO: when there is no ower enemy, try to find a target,
-	 * which CAN attack the owner. */
-	if ((npc->move_type & HI4) == PETMOVE)
-	{
-		if (npc->owner != NULL)
-		{
-			/* if owner enemy != pet enemy, change it! */
-			if (npc->owner->enemy && (npc->enemy != npc->owner->enemy || npc->enemy_count != npc->enemy->count))
-			{
-				set_npc_enemy(npc, npc->owner->enemy, NULL);
-			}
-		}
-		else
-		{
-			if (npc->enemy)
-			{
-				set_npc_enemy(npc, NULL, NULL);
-			}
-		}
-	}
-
 	if (npc->enemy == NULL)
 	{
 		return NULL;
@@ -333,24 +314,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 	 * one of both is dead.
 	 * If we have no enemy and we are...
 	 * a monster: try to find a player, a pet or a friendly monster
-	 * a friendly: only target a monster which is targeting you first or targeting a player
-	 * a pet: attack player enemy or a monster */
-
-	/* Pet move */
-	if ((npc->move_type & HI4) == PETMOVE)
-	{
-		/* Always clear the attacker entry */
-		npc->attacked_by = NULL;
-		tmp= get_pet_enemy(npc, rv);
-		npc->last_eat = 0;
-
-		if (tmp)
-		{
-			get_rangevector(npc, tmp, rv, 0);
-		}
-
-		return tmp;
-	}
+	 * a friendly: only target a monster which is targeting you first or targeting a player */
 
 	/* We check our old enemy.
 	 * If tmp != 0, we have succesfully callled get_rangevector() too. */
@@ -507,7 +471,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 int move_monster(object *op)
 {
 	int dir, special_dir = 0, diff;
-	object *owner, *enemy, *part, *tmp;
+	object *enemy, *part, *tmp;
 	rv_vector rv;
 
 	if (op->head)
@@ -615,10 +579,6 @@ int move_monster(object *op)
 			{
 				switch (op->move_type & HI4)
 				{
-					case PETMOVE:
-						pet_move(op);
-						break;
-
 					case CIRCLE1:
 						circ1_move(op);
 						break;
@@ -662,21 +622,6 @@ int move_monster(object *op)
 			{
 				move_randomly(op);
 			}
-		}
-
-		return 0;
-	}
-
-	/* We have an enemy. Block immediately below is for pets */
-	if ((op->type & HI4) == PETMOVE && (owner = get_owner(op)) != NULL && !on_same_map(op, owner))
-	{
-		follow_owner(op, owner);
-
-		/* Gecko: The following block seems buggy, but I'm not sure... */
-		if (QUERY_FLAG(op, FLAG_REMOVED) && FABS(op->speed) > MIN_ACTIVE_SPEED)
-		{
-			remove_friendly_object(op);
-			return 1;
 		}
 
 		return 0;
@@ -922,7 +867,7 @@ int move_monster(object *op)
  * @return Nearest living creature, NULL if none nearby.
  * @todo can_see_monsterP() is pathfinding function, it does
  * not check visibility. Use obj_in_line_of_sight()? */
-static object *find_nearest_living_creature(object *npc)
+object *find_nearest_living_creature(object *npc)
 {
 	int i, j = 0, start;
 	int nx, ny, friendly_attack = 1;

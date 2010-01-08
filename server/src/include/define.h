@@ -253,7 +253,6 @@
  * <li>1 = angry, all but friendly become aggressive</li>
  * <li>2 = calm, all aggressive monsters calm down</li>
  * <li>3 = sleep, all monsters fall asleep</li>
- * <li>4 = charm, monsters become pets</li>
  * </ul>
  * @author b.t. thomas@nomad.astro.psu.edu */
 #define MOOD_FLOOR	            65
@@ -1220,16 +1219,7 @@
 /** Monster does not try to move towards player if far */
 #define WAIT2    8
 
-/**
- * if the upper four bits of move_type / attack_movement
- * are set to this number, the monster follows a player
- * until the owner calls it back or off
- * player followed denoted by 0b->owner
- * the monster will try to attack whatever the player is
- * attacking, and will continue to do so until the owner
- * calls off the monster - a key command will be
- * inserted to do so */
-#define PETMOVE 16
+#define UNUSED_MOVE 16
 
 /**
  * if the upper four bits of move_type / attack_movement

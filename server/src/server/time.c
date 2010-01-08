@@ -606,7 +606,7 @@ process_object_dirty_jump:
 			return;
 
 		case MOOD_FLOOR:
-			do_mood_floor(op, op);
+			do_mood_floor(op);
 			return;
 
 		case GATE:

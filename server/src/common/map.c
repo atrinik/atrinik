@@ -1310,26 +1310,12 @@ save_objects_jump1:
 				}
 
 				/* we will delete here all temporary owner objects.
-				 * We talk here about spell effects, pets, golems and
+				 * We talk here about spell effects, golems and
 				 * other "dynamic" objects.
 				 * What NOT should be deleted are throw objects and other
 				 * permanent items which has a owner setting! (if they have) */
 				if (head->owner)
 				{
-					/* perhaps we should add here a flag for pets...
-					 * But the pet code needs a rework so or so.
-					 * ATM we simply delete GOLEMS and clearing
-					 * from all other spells/stuff the owner tags.
-					 * SPAWN MOBS are not here so we only speak about
-					 * spell effects
-					 * we *can* delete them here too - but then i would
-					 * prefer a no_save flag. Only reason to save them is
-					 * to reset for example buttons or avoiding side effects
-					 * like a fireball saved with neutral owner which does then
-					 * something evil - but that CAN always catched in the code
-					 * and scripts so lets go the easy way here - as less we
-					 * manipulate the map here as more secure we are! */
-
 					/* a golem needs a valid release from the player... */
 					if (head->type == GOLEM)
 					{

@@ -109,10 +109,6 @@ void push_button(object *op)
 				update_object(tmp, UP_OBJ_FACE);
 				break;
 
-			case MOOD_FLOOR:
-				do_mood_floor(tmp, op);
-				break;
-
 			case TIMED_GATE:
 				tmp->speed = tmp->arch->clone.speed;
 				/* original values */
@@ -656,10 +652,9 @@ int get_button_value(object *button)
  * @author b.t. thomas@nomad.astro.psu.edu
  * @param op The mood floor object
  * @param op2 Connected mood floor object */
-void do_mood_floor(object *op, object *op2)
+void do_mood_floor(object *op)
 {
 	object *tmp;
-	object *tmp2;
 
 	for (tmp = op->above; tmp; tmp = tmp->above)
 	{
@@ -727,36 +722,6 @@ void do_mood_floor(object *op, object *op2)
 				SET_FLAG(tmp, FLAG_SLEEP);
 			}
 
-			break;
-
-		/* Charm all monsters */
-		case 4:
-			/* only if 'connected' */
-			if (op == op2)
-			{
-				break;
-			}
-
-			/* Find an owner */
-			for (tmp2 = get_map_ob(op2->map, op2->x, op2->y); tmp2->type != PLAYER; tmp2 = tmp2->above)
-			{
-				if (tmp2->above == NULL)
-				{
-					break;
-				}
-			}
-
-			if (tmp2->type != PLAYER)
-			{
-				break;
-			}
-
-			set_owner(tmp, tmp2);
-			SET_FLAG(tmp,FLAG_MONSTER);
-			tmp->stats.exp = 0;
-			SET_FLAG(tmp, FLAG_FRIENDLY);
-			add_friendly_object(tmp);
-			tmp->move_type = PETMOVE;
 			break;
 
 		default:

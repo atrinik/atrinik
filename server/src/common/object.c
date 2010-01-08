@@ -2898,6 +2898,50 @@ int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, 
 }
 
 /**
+ * Randomly permutes an array.
+ * @param arr Array to permute.
+ * @param begin First index to permute.
+ * @param end Second index to permute. */
+static void permute(int *arr, int begin, int end)
+{
+	int i, j, tmp, len;
+
+	len = end - begin;
+
+	for (i = begin; i < end; i++)
+	{
+		j = begin + RANDOM() % len;
+
+		tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+}
+
+/**
+ * New function to make monster searching more efficient, and effective!
+ * This basically returns a randomized array (in the passed pointer) of
+ * the spaces to find monsters. In this way, it won't always look for
+ * monsters to the north first. However, the size of the array passed
+ * covers all the spaces, so within that size, all the spaces within
+ * the 3x3 area will be searched, just not in a predictable order.
+ * @param search_arr Array that will be initialized. Must contain at
+ * least SIZEOFFREE elements. */
+void get_search_arr(int *search_arr)
+{
+	int i;
+
+	for (i = 0; i < SIZEOFFREE; i++)
+	{
+		search_arr[i] = i;
+	}
+
+	permute(search_arr, 1, SIZEOFFREE1 + 1);
+	permute(search_arr, SIZEOFFREE1 + 1, SIZEOFFREE2 + 1);
+	permute(search_arr, SIZEOFFREE2 + 1, SIZEOFFREE);
+}
+
+/**
  * Searches some close squares in the given map at the given coordinates for
  * alive objects.
  * @param m Map.

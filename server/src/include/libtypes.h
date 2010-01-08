@@ -84,6 +84,7 @@ extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
 extern int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv);
 extern int move_monster(object *op);
+extern object *find_nearest_living_creature(object *npc);
 extern void npc_call_help(object *op);
 extern void communicate(object *op, char *txt);
 extern int talk_to_npc(object *op, object *npc, char *txt);

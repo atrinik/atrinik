@@ -186,7 +186,7 @@ void leave_map(object *op)
 }
 
 /**
- * Moves the player and pets from current map (if any) to new map.
+ * Moves the player from current map (if any) to new map.
  * map, x, y must be set.
  *
  * If default map coordinates are to be used, then the function that
@@ -335,10 +335,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		}
 
 		op->direction = 0;
-
-		/* Since the player's map is already loaded, we don't need to worry
-		 * about pending objects. */
-		remove_all_pets();
 
 		/* If the player is changing maps, we need to do some special things
 		 * Do this after the player is on the new map - otherwise the force swap of the

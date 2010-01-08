@@ -26,7 +26,7 @@ extern int check_trigger(object *op, object *cause);
 extern void add_button_link(object *button, mapstruct *map, int connected);
 extern void remove_button_link(object *op);
 extern int get_button_value(object *button);
-extern void do_mood_floor(object *op, object *op2);
+extern void do_mood_floor(object *op);
 extern object *check_inv_recursive(object *op, const object *trig);
 extern void check_inv(object *op, object *trig);
 
@@ -215,6 +215,7 @@ extern object *present_arch_in_ob(archetype *at, object *op);
 extern int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
 extern int find_first_free_spot(archetype *at, mapstruct *m, int x, int y);
 extern int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range);
+extern void get_search_arr(int *search_arr);
 extern int find_dir(mapstruct *m, int x, int y, object *exclude);
 extern int find_dir_2(int x, int y);
 extern int absdir(int d);

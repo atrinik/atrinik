@@ -432,7 +432,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	{
 		int i, friendly = QUERY_FLAG(op, FLAG_FRIENDLY);
 		int unaggressive = QUERY_FLAG(op, FLAG_UNAGGRESSIVE);
-		object *owner = get_owner(op);
 
 		if (!op->other_arch)
 		{
@@ -456,18 +455,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 				int j;
 
 				tmp->stats.hp = op->stats.hp;
-
-				if (friendly)
-				{
-					SET_FLAG(tmp, FLAG_FRIENDLY);
-					add_friendly_object(tmp);
-					tmp->move_type = PETMOVE;
-
-					if (owner != NULL)
-					{
-						set_owner(tmp, owner);
-					}
-				}
 
 				if (unaggressive)
 				{
@@ -1161,14 +1148,6 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		{
 			if (QUERY_FLAG(op, FLAG_FRIENDLY))
 			{
-				object *owner = get_owner(op);
-
-				if (owner != NULL && owner->type == PLAYER)
-				{
-					play_sound_player_only(CONTR(owner), SOUND_PET_IS_KILLED, SOUND_NORMAL, 0, 0);
-					new_draw_info_format(NDI_UNIQUE, owner, "Your pet, the %s, is killed by %s.", op->name, hitter->name);
-				}
-
 				remove_friendly_object(op);
 			}
 
