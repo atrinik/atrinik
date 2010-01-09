@@ -832,7 +832,6 @@ void init(int argc, char **argv)
 	parse_args(argc, argv, 2);
 
 	SRANDOM(time(NULL));
-	global_map_tag = (uint32) RANDOM();
 
 	/* Write (C), check shutdown file */
 	init_startup();

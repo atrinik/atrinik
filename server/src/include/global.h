@@ -161,9 +161,6 @@ typedef struct _money_block
 #define MAXLEVEL 110
 extern uint32 new_levels[MAXLEVEL + 2];
 
-/* our global map_tag value for the server (map.c)*/
-extern uint32 global_map_tag;
-
 /* So far only used when dealing with artifacts.
  * (now used by alchemy and other code too. Nov 95 b.t). */
 typedef struct linked_char

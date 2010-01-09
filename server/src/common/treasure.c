@@ -476,7 +476,7 @@ void init_artifacts()
 		{
 			art = get_empty_artifact();
 			nrofartifacts++;
-			none_flag = FALSE;
+			none_flag = 0;
 			cp = strchr(cp, ' ') + 1;
 
 			if (!strcmp(cp, "all"))

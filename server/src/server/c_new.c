@@ -131,7 +131,7 @@ int command_run_stop(object *op, char *params)
  * @param pl Player requesting this. */
 void send_target_command(player *pl)
 {
-	int aim_self_flag = FALSE;
+	int aim_self_flag = 0;
 	char tmp[256];
 
 	if (!pl->ob->map)
@@ -150,7 +150,7 @@ void send_target_command(player *pl)
 	/* thats we self */
 	if (!pl->target_object || !OBJECT_ACTIVE(pl->target_object) || pl->target_object == pl->ob)
 	{
-		aim_self_flag = TRUE;
+		aim_self_flag = 1;
 	}
 	else if (pl->target_object_count == pl->target_object->count)
 	{
@@ -162,7 +162,7 @@ void send_target_command(player *pl)
 		 * this special stuff is handled deeper in attack() functions. */
 		if (QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))
 		{
-			aim_self_flag = TRUE;
+			aim_self_flag = 1;
 		}
 		else
 		{
@@ -191,7 +191,7 @@ void send_target_command(player *pl)
 	}
 	else
 	{
-		aim_self_flag = TRUE;
+		aim_self_flag = 1;
 	}
 
 	/* ok... at last, target self */

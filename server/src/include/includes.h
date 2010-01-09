@@ -98,14 +98,6 @@
 #include "logger.h"
 #include "newclient.h"
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 #ifdef HAVE_STRICMP
 #define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
 #endif

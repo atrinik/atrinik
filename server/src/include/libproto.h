@@ -153,7 +153,6 @@ extern mapstruct *load_original_map(const char *filename, int flags);
 extern int new_save_map(mapstruct *m, int flag);
 extern void free_map(mapstruct *m, int flag);
 extern void delete_map(mapstruct *m);
-extern char *create_map_owner(mapstruct *map);
 extern mapstruct *ready_map_name(const char *name, int flags);
 extern void clean_tmp_map(mapstruct *m);
 extern void free_all_maps();

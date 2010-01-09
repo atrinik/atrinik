@@ -48,7 +48,7 @@ struct mempool_chunk *removed_objects;
 object *active_objects;
 
 /* see walk_off/walk_on functions  */
-static int static_walk_semaphore = FALSE;
+static int static_walk_semaphore = 0;
 
 /* container for objects without real maps or envs */
 object void_container;

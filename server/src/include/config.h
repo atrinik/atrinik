@@ -131,7 +131,7 @@
  * 15, the chance not to lose the stat is 4/(4+3) or 4/7.  The higher the
  * level, the more likely it is a stat can get really depleted, but
  * this gets more offset as the stat gets more depleted. */
-#define BALANCED_STAT_LOSS FALSE
+#define BALANCED_STAT_LOSS 0
 #define BALSL_LOSS_CHANCE_RATIO    4
 #define BALSL_NUMBER_LOSSES_RATIO  6
 #define BALSL_MAX_LOSS_RATIO       2
@@ -219,7 +219,7 @@
  * changed at run time via -stat_loss_on_death or +stat_loss_on_death.
  * In theory, this can be changed on a running server, but so glue code
  * in the wiz stuff would need to be added for that to happen. */
-#define STAT_LOSS_ON_DEATH FALSE
+#define STAT_LOSS_ON_DEATH 0
 
 
 /************************************************************************

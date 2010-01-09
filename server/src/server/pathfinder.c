@@ -80,7 +80,7 @@ static int pathfinder_queue_enqueue(object *waypoint)
 {
 	/* Queue full? */
 	if (pathfinder_queue_last == pathfinder_queue_first - 1 || (pathfinder_queue_first == 0 && pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1))
-		return FALSE;
+		return 0;
 
 	pathfinder_queue[pathfinder_queue_last].waypoint = waypoint;
 	pathfinder_queue[pathfinder_queue_last].wp_count = waypoint->count;
@@ -88,7 +88,7 @@ static int pathfinder_queue_enqueue(object *waypoint)
 	if (++pathfinder_queue_last >= PATHFINDER_QUEUE_SIZE)
 		pathfinder_queue_last = 0;
 
-	return TRUE;
+	return 1;
 }
 
 /* Get the first waypoint from the queue (or NULL if empty) */
@@ -318,7 +318,7 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 	if (buf == NULL || *map == NULL)
 	{
 		LOG(llevBug, "BUG: get_path_next(): Illegal parameters\n");
-		return FALSE;
+		return 0;
 	}
 
 	/* TODO: hmm... I don't think this is necessary anymore, since we have the store path name */
@@ -340,7 +340,7 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 		if (mapend == NULL)
 		{
 			LOG(llevBug, "BUG: get_path_next(): No delimeter after map name in path description '%s' off %d\n", buf, *off);
-			return FALSE;
+			return 0;
 		}
 
 		strncpy(map_name, map_def, mapend - map_def);
@@ -365,7 +365,7 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 	if (*map == NULL)
 	{
 		LOG(llevBug, "BIG: get_path_next(): Couldn't load map from description '%s' off %d\n", buf, *off);
-		return FALSE;
+		return 0;
 	}
 
 	/* Get the requested coordinate pair */
@@ -373,7 +373,7 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 	if (coord_end == coord_start || sscanf(coord_start, "%d,%d", x, y) != 2)
 	{
 		LOG(llevBug, "BUG: get_path_next(): Illegal coordinate pair in '%s' off %d\n", buf, *off);
-		return FALSE;
+		return 0;
 	}
 
 	/* Adjust coordinates to be on the safe side */
@@ -381,13 +381,13 @@ int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct 
 	if (*map == NULL)
 	{
 		LOG(llevBug, "BUG: get_path_next(): Location (%d, %d) is out of map\n", *x, *y);
-		return FALSE;
+		return 0;
 	}
 
 	/* Adjust the offset */
 	*off = coord_end - buf + (*coord_end ? 1 : 0);
 
-	return TRUE;
+	return 1;
 }
 
 /* Compress a path by removing redundant segments.
@@ -548,12 +548,12 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node **c
 					new_node->heuristic = distance_heuristic(start, new_node, goal);
 
 					if (new_node->heuristic == HEURISTIC_ERROR)
-						return FALSE;
+						return 0;
 
 					insert_priority_node(new_node, open_list);
 				}
 				else
-					return FALSE;
+					return 0;
 			}
 
 			/* TODO: might need to reopen neighbour nodes if their cost can be lowered from the new node.
@@ -563,7 +563,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node **c
 		}
 	}
 
-	return TRUE;
+	return 1;
 }
 
 /* Find a path for op from location (x1,y1) on map1 to location (x2,y2) on map2 */

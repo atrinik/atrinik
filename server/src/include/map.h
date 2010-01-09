@@ -560,9 +560,6 @@ typedef struct mapdef
 	 * should be reset */
 	uint32 reset_timeout;
 
-	/** To identify maps for fixed_login */
-	uint32 map_tag;
-
 	/** Swapout is set to this */
 	sint32 timeout;
 
