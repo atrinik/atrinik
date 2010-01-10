@@ -1405,6 +1405,10 @@ void drop_ob_inv(object *ob)
 		{
 			tmp_op->x = ob->x, tmp_op->y = ob->y;
 
+			/* Always clear these in case the monster used the item */
+			CLEAR_FLAG(tmp_op, FLAG_APPLIED);
+			CLEAR_FLAG(tmp_op, FLAG_BEEN_APPLIED);
+
 			/* If we have a corpse put the item in it */
 			if (corpse)
 			{

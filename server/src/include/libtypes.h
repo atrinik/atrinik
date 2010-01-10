@@ -89,6 +89,8 @@ extern void npc_call_help(object *op);
 extern void communicate(object *op, char *txt);
 extern int talk_to_npc(object *op, object *npc, char *txt);
 extern int is_friend_of(object *op, object *obj);
+extern int check_good_weapon(object *who, object *item);
+extern int check_good_armour(object *who, object *item);
 
 /* pit.c */
 extern void move_pit(object *op);

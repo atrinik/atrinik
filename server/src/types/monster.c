@@ -2214,3 +2214,107 @@ int is_friend_of(object *op, object *obj)
 
 	return 0;
 }
+
+/**
+ * Checks if using weapon 'item' would be better for 'who'.
+ * @param who Creature considering to apply item.
+ * @param item Item to check.
+ * @return 1 if item is a better object, 0 otherwise. */
+int check_good_weapon(object *who, object *item)
+{
+	object *other_weap;
+	int val = 0, i;
+
+	/* Cursed or damned; never better. */
+	if (QUERY_FLAG(item, FLAG_CURSED) || QUERY_FLAG(item, FLAG_DAMNED))
+	{
+		return 0;
+	}
+
+	for (other_weap = who->inv; other_weap; other_weap = other_weap->below)
+	{
+		if (other_weap->type == item->type && QUERY_FLAG(other_weap, FLAG_APPLIED))
+		{
+			break;
+		}
+	}
+
+	/* No other weapons */
+	if (other_weap == NULL)
+	{
+		return 1;
+	}
+
+	val = item->stats.dam - other_weap->stats.dam;
+	val += (item->magic - other_weap->magic) * 3;
+
+	/* Monsters don't really get benefits from things like regen rates
+	 * from items. But the bonus for their stats are very important. */
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		val += (get_attr_value(&item->stats, i) - get_attr_value(&other_weap->stats, i)) * 2;
+	}
+
+	if (val > 0)
+	{
+		CLEAR_FLAG(other_weap, FLAG_APPLIED);
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Checks if using armor 'item' would be better for 'who'.
+ * @param who Creature considering to apply item.
+ * @param item Item to check.
+ * @return 1 if item is a better object, 0 otherwise. */
+int check_good_armour(object *who, object *item)
+{
+	object *other_armour;
+	int val = 0, i;
+
+	/* Cursed or damned; never better. */
+	if (QUERY_FLAG(item, FLAG_CURSED) || QUERY_FLAG(item, FLAG_DAMNED))
+	{
+		return 0;
+	}
+
+	for (other_armour = who->inv; other_armour; other_armour = other_armour->below)
+	{
+		if (other_armour->type == item->type && QUERY_FLAG(other_armour, FLAG_APPLIED))
+		{
+			break;
+		}
+	}
+
+	/* No other armour, use the new */
+	if (other_armour == NULL)
+	{
+		return 1;
+	}
+
+	/* See which is better */
+	val = item->stats.ac - other_armour->stats.ac;
+	val += (item->magic - other_armour->magic) * 3;
+
+	for (i = 0; i < NROFPROTECTIONS; i++)
+	{
+		if (item->protection[i] > other_armour->protection[i])
+		{
+			val++;
+		}
+		else if (item->protection[i] < other_armour->protection[i])
+		{
+			val--;
+		}
+	}
+
+	if (val > 0)
+	{
+		CLEAR_FLAG(other_armour, FLAG_APPLIED);
+		return 1;
+	}
+
+	return 0;
+}

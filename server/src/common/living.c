@@ -2348,23 +2348,6 @@ void fix_monster(object *op)
 
 	CLEAR_FLAG(op, FLAG_READY_BOW);
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		/* Check for bow and use it! */
-		if (tmp->type == BOW)
-		{
-			if (QUERY_FLAG(op, FLAG_USE_BOW))
-			{
-				SET_FLAG(tmp, FLAG_APPLIED);
-				SET_FLAG(op, FLAG_READY_BOW);
-			}
-			else
-			{
-				CLEAR_FLAG(tmp, FLAG_APPLIED);
-			}
-		}
-	}
-
 	op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) * base->stats.maxhp) / 10;
 	op->stats.maxsp = base->stats.maxsp * (op->level + 1);
 	op->stats.maxgrace = base->stats.maxgrace * (op->level + 1);
@@ -2414,6 +2397,51 @@ void fix_monster(object *op)
 	else
 	{
 		op->stats.wc_range = 20;
+	}
+
+	for (tmp = op->inv; tmp; tmp = tmp->below)
+	{
+		/* Check for bow and use it! */
+		if (tmp->type == BOW)
+		{
+			if (QUERY_FLAG(op, FLAG_USE_BOW))
+			{
+				SET_FLAG(tmp, FLAG_APPLIED);
+				SET_FLAG(op, FLAG_READY_BOW);
+			}
+			else
+			{
+				CLEAR_FLAG(tmp, FLAG_APPLIED);
+			}
+		}
+		else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) && check_good_armour(op, tmp))
+		{
+			SET_FLAG(tmp, FLAG_APPLIED);
+		}
+		else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON && check_good_weapon(op, tmp))
+		{
+			SET_FLAG(tmp, FLAG_APPLIED);
+		}
+
+		if (QUERY_FLAG(tmp, FLAG_APPLIED))
+		{
+			int i;
+
+			if (tmp->type == WEAPON)
+			{
+				op->stats.dam += tmp->stats.dam;
+				op->stats.wc += tmp->stats.wc;
+			}
+			else if (IS_ARMOR(tmp))
+			{
+				for (i = 0; i < NROFPROTECTIONS; i++)
+				{
+					op->protection[i] = MIN(op->protection[i] + tmp->protection[i], 15);
+				}
+
+				op->stats.ac += tmp->stats.ac;
+			}
+		}
 	}
 
 	if ((tmp_add = LEVEL_DAMAGE(op->level / 3) - 0.75f) < 0)
