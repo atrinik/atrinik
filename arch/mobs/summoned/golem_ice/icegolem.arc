@@ -6,8 +6,6 @@ corpse 1
 layer 6
 is_neutral 1
 will_apply 8
-item_race 255
-item_level 255
 wc_range 20
 direction 5
 terrain_flag 1

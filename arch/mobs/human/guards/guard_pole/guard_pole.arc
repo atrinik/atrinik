@@ -3,8 +3,6 @@ name guard
 race human
 type 80
 layer 6
-item_race 255
-item_level 255
 will_apply 8
 direction 5
 is_male 1

@@ -6,8 +6,6 @@ randomitems mob_worm_purple
 face worm_purple.131
 direction 5
 wc_range 20
-item_race 255
-item_level 255
 speed -0.0611
 corpse 1
 type 80

@@ -8,8 +8,6 @@ wc_range 20
 will_apply 8
 layer 6
 direction 5
-item_race 255
-item_level 255
 is_evil 1
 terrain_flag 1
 weapon_speed 0.035

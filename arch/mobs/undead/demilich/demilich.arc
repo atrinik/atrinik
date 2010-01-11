@@ -8,8 +8,6 @@ will_apply 8
 glow_radius 2
 wc_range 20
 layer 6
-item_race 255
-item_level 255
 direction 5
 terrain_flag 1
 weapon_speed 0.035

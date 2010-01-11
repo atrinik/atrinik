@@ -7,8 +7,6 @@ is_neutral 1
 weight 23250
 exp 98
 speed -0.040
-item_race 255
-item_level 255
 weapon_speed 0.038
 attack_cleave 65
 attack_acid 10

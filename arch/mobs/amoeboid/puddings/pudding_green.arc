@@ -10,8 +10,6 @@ speed -0.031
 weapon_speed 0.040
 attack_poison 80
 ac 10
-item_race 255
-item_level 255
 wc 3
 dam 51
 hp -1

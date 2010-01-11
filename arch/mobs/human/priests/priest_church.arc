@@ -8,8 +8,6 @@ wc_range 20
 will_apply 8
 is_male 1
 is_good 1
-item_race 255
-item_level 255
 terrain_flag 1
 weapon_speed 0.040
 corpse 1

@@ -9,8 +9,6 @@ will_apply 8
 speed -0.06
 corpse 1
 wc_range 20
-item_race 255
-item_level 255
 type 80
 is_male 1
 is_neutral 1

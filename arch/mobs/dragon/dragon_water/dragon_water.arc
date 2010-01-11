@@ -6,9 +6,7 @@ layer 6
 race dragon
 corpse 1
 will_apply 8
-item_race 255
 wc_range 20
-item_level 255
 weapon_speed 0.035
 attack_cleave 80
 is_male 1

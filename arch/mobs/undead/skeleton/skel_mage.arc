@@ -15,8 +15,6 @@ layer 6
 direction 5
 is_evil 1
 terrain_flag 1
-item_race 255
-item_level 255
 weapon_speed 0.035
 attack_slash 80
 type 80

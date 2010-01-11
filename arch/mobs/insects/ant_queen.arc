@@ -5,8 +5,6 @@ race ants
 is_female 1
 corpse 1
 will_apply 8
-item_race 255
-item_level 255
 layer 6
 direction 5
 is_neutral 1

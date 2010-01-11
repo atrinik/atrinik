@@ -8,8 +8,6 @@ exp 106
 wc_range 20
 speed -0.05
 weapon_speed 0.0375
-item_race 255
-item_level 255
 attack_poison 40
 attack_cold 40
 resist_poison 100

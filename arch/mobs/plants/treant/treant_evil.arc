@@ -6,8 +6,6 @@ layer 6
 race tree
 wc_range 20
 corpse 1
-item_race 255
-item_level 255
 weapon_speed 0.035
 attack_impact 80
 is_evil 1

@@ -8,8 +8,6 @@ wc_range 20
 exp 104
 speed -0.03
 weapon_speed 0.040
-item_race 255
-item_level 255
 attack_cold 80
 ac 10
 wc 3

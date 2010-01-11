@@ -9,8 +9,6 @@ wc_range 20
 speed -0.031
 weapon_speed 0.040
 attack_fire 80
-item_race 255
-item_level 255
 ac 10
 wc 3
 dam 53

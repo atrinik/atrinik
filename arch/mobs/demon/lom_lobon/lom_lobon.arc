@@ -6,8 +6,6 @@ randomitems mob_lom_lobon
 type 80
 layer 6
 direction 5
-item_race 255
-item_level 255
 corpse 1
 alive 1
 monster 1

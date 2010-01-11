@@ -6,8 +6,6 @@ randomitems mob_dragon_fire
 is_female 1
 corpse 1
 will_apply 8
-item_race 255
-item_level 255
 layer 6
 direction 5
 terrain_flag 1

@@ -10,8 +10,6 @@ direction 5
 will_apply 8
 is_evil 1
 terrain_flag 1
-item_race 255
-item_level 255
 weapon_speed 0.035
 attack_slash 75
 type 80

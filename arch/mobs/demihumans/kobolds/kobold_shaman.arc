@@ -13,8 +13,6 @@ maxsp 6
 Pow 2
 magic 5
 wc_range 20
-item_race 255
-item_level 255
 direction 5
 is_evil 1
 terrain_flag 1

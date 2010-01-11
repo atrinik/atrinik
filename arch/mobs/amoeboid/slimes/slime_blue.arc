@@ -10,8 +10,6 @@ speed -0.029
 weapon_speed 0.040
 attack_impact 75
 ac 10
-item_race 255
-item_level 255
 wc 2
 dam 41
 hp -1

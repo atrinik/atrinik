@@ -933,12 +933,13 @@ static int move_randomly(object *op)
 {
 	int i, r;
 	int dirs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-	object *base = find_base_info_object(op);
 	mapstruct *basemap = NULL;
 	rv_vector rv;
 
-	if (op->item_race != 255 && op->item_level != 255)
+	if (op->item_race || op->item_level)
 	{
+		object *base = find_base_info_object(op);
+
 		if ((basemap = ready_map_name(base->slaying, MAP_NAME_SHARED)))
 		{
 			if (!get_rangevector_from_mapcoords(basemap, base->x, base->y, op->map, op->x, op->y, &rv, RV_NO_DISTANCE))
@@ -963,18 +964,18 @@ static int move_randomly(object *op)
 		/* Check x and y direction of possible move against limit parameters */
 		if (basemap)
 		{
-			if (op->item_race != 255 && SGN(rv.distance_x) == SGN(freearr_x[r]) && abs(rv.distance_x + freearr_x[r]) > op->item_race)
+			if (abs(rv.distance_x + freearr_x[r]) > op->item_race)
 			{
 				continue;
 			}
 
-			if (op->item_level != 255 && SGN(rv.distance_y) == SGN(freearr_y[r]) && abs(rv.distance_y + freearr_y[r]) > op->item_level)
+			if (abs(rv.distance_y + freearr_y[r]) > op->item_level)
 			{
 				continue;
 			}
 		}
 
-		if (!blocked_link(op, freearr_x[r], freearr_y[r]) && move_object(op, r))
+		if (move_object(op, r))
 		{
 			return 1;
 		}

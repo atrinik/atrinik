@@ -9,8 +9,6 @@ will_apply 8
 is_female 1
 is_good 1
 terrain_flag 1
-item_race 255
-item_level 255
 weapon_speed 0.040
 corpse 1
 attack_weaponmagic 100
