@@ -130,7 +130,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 
 		sl->len += stat;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 		cst_tot.ibytes += stat;
 		cst_lst.ibytes += stat;
 #endif
@@ -202,7 +202,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 
 		sl->len += stat;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 		cst_tot.ibytes += stat;
 		cst_lst.ibytes += stat;
 #endif
@@ -235,7 +235,7 @@ static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
 {
 	int avail, end;
 
-	if ((len + ns->outputbuffer.len) > SOCKETBUFSIZE)
+	if ((len + ns->outputbuffer.len) > MAXSOCKBUF)
 	{
 		LOG(llevDebug, "Socket on fd %d has overrun internal buffer - marking as dead\n", ns->fd);
 		ns->status = Ns_Dead;
@@ -249,12 +249,12 @@ static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
 	end = ns->outputbuffer.start + ns->outputbuffer.len;
 
 	/* The buffer is already in a wrapped state, so adjust end */
-	if (end >= SOCKETBUFSIZE)
+	if (end >= MAXSOCKBUF)
 	{
-		end -= SOCKETBUFSIZE;
+		end -= MAXSOCKBUF;
 	}
 
-	avail = SOCKETBUFSIZE - end;
+	avail = MAXSOCKBUF - end;
 
 	/* We can all fit it behind the current data without wrapping */
 	if (avail >= len)
@@ -291,7 +291,7 @@ void write_socket_buffer(NewSocket *ns)
 
 	do
 	{
-		max = SOCKETBUFSIZE - ns->outputbuffer.start;
+		max = MAXSOCKBUF - ns->outputbuffer.start;
 
 		if (ns->outputbuffer.len < max)
 		{
@@ -329,14 +329,14 @@ void write_socket_buffer(NewSocket *ns)
 		ns->outputbuffer.start += amt;
 
 		/* wrap back to start of buffer */
-		if (ns->outputbuffer.start == SOCKETBUFSIZE)
+		if (ns->outputbuffer.start == MAXSOCKBUF)
 		{
 			ns->outputbuffer.start = 0;
 		}
 
 		ns->outputbuffer.len -= amt;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
 #endif
@@ -412,7 +412,7 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
 		len -= amt;
 		pos += amt;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
 #endif
@@ -479,7 +479,7 @@ void Write_String_To_Socket(NewSocket *ns, char cmd, char *buf, int len)
 	Send_With_Handling(ns, &sl);
 }
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 
 /** Life of the server. */
 CS_Stats cst_tot;

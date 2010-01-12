@@ -344,9 +344,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			set_map_timeout(oldmap);
 		}
 
-#ifdef MAX_OBJECTS_LWM
-		swap_below_max(newmap->path);
-#endif
 		MapNewmapCmd(CONTR(op));
 	}
 }
@@ -1146,7 +1143,7 @@ void clean_tmp_files()
 
 		if (m->in_memory == MAP_IN_MEMORY)
 		{
-#ifdef RECYCLE_TMP_MAPS
+#if RECYCLE_TMP_MAPS
 			swap_map(m, 0);
 #else
 			new_save_map(m, 0);
@@ -1166,7 +1163,7 @@ void cleanup()
 	LOG(llevDebug, "Cleanup called. Freeing data.\n");
 	clean_tmp_files();
 	write_book_archive();
-#ifdef MEMORY_DEBUG
+#if MEMORY_DEBUG
 	free_all_maps();
 	free_style_maps();
 	free_all_object_data();

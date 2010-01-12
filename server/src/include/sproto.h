@@ -433,7 +433,6 @@ int summon_hostile_monsters(object *op, int n, const char *monstername);
 void read_map_log();
 void swap_map(mapstruct *map, int force_flag);
 void check_active_maps();
-void swap_below_max(const char *except_level);
 void flush_old_maps();
 
 /* time.c */

@@ -724,11 +724,7 @@ dirty_jump:
 		return success;
 	}
 
-#ifdef SPELLPOINT_LEVEL_DEPEND
 	return success ? SP_level_spellpoint_cost(caster, type) : 0;
-#else
-	return success ? (s->sp * PATH_SP_MULT(op, s)) : 0;
-#endif
 }
 
 /**
@@ -2452,7 +2448,6 @@ int SP_level_strength_adjust(object *caster, int spell_type)
 int SP_level_spellpoint_cost(object *caster, int spell_type)
 {
 	spell *s = find_spell(spell_type);
-#ifdef SPELLPOINT_LEVEL_DEPEND
 	int level = casting_level(caster, SK_level(caster), spell_type), sp;
 
 	if (spells[spell_type].spl)
@@ -2467,9 +2462,6 @@ int SP_level_spellpoint_cost(object *caster, int spell_type)
 	sp = (int) ((float) sp * (float) PATH_SP_MULT(caster, s));
 
 	return MIN(sp, (spells[spell_type].sp + 50));
-#else
-	return s->sp * PATH_SP_MULT(caster, s);
-#endif
 }
 
 /**
@@ -2480,7 +2472,6 @@ int SP_level_spellpoint_cost(object *caster, int spell_type)
 static int SP_level_gracepoint_cost(object *caster, int spell_type)
 {
 	spell *s = find_spell(spell_type);
-#ifdef SPELLPOINT_LEVEL_DEPEND
 	int level = casting_level(caster, SK_level(caster), spell_type), grace;
 
 	if (spells[spell_type].spl)
@@ -2495,9 +2486,6 @@ static int SP_level_gracepoint_cost(object *caster, int spell_type)
 	grace = (int) ((float) grace * (float) PATH_SP_MULT(caster, s));
 
 	return MIN(grace, (spells[spell_type].sp + 50));
-#else
-	return s->sp * PATH_SP_MULT(caster, s);
-#endif
 }
 
 /**

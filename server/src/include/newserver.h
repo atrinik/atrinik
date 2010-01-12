@@ -77,7 +77,7 @@ enum Sock_Status
 };
 
 /**
- * The following is the setup for a ring buffer for storing outbut
+ * The following is the setup for a ring buffer for storing output
  * data that the OS can't handle right away. */
 typedef struct Buffer_struct
 {
@@ -85,7 +85,7 @@ typedef struct Buffer_struct
 
 	int	len;
 
-	char data[SOCKETBUFSIZE];
+	char data[MAXSOCKBUF];
 } Buffer;
 
 #ifdef WIN32

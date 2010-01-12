@@ -71,7 +71,7 @@ void remove_party_member(partylist_struct *party, object *op)
 	/* Otherwise choose a new leader, if the old one left */
 	else if (op->name == party->leader)
 	{
-		party->leader = party->members->objlink.ob->name;
+		FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
 		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
@@ -108,7 +108,7 @@ void form_party(object *op, char *name)
 
 	add_party_member(party, op);
 	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
-	party->leader = op->name;
+	FREE_AND_ADD_REF_HASH(party->leader, op->name);
 
 	snprintf(tmp, sizeof(tmp), "Xformsuccess %s", name);
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmp, strlen(tmp));
@@ -195,6 +195,7 @@ void remove_party(partylist_struct *party)
 	}
 
 	free(party->name);
+	FREE_ONLY_HASH(party->leader);
 	return_poolchunk(party, pool_parties);
 }
 

@@ -52,7 +52,6 @@ struct Settings settings =
 	UNIQUE_DIR, TMPDIR,
 	STAT_LOSS_ON_DEATH,
 	BALANCED_STAT_LOSS,
-	RESET_LOCATION_TIME,
 	/* This and the next 3 values are metaserver values */
 	0,
 	"",
@@ -77,7 +76,6 @@ archetype *level_up_arch = NULL;
 static void usage();
 static void help();
 static void init_beforeplay();
-static void init_startup();
 static void fatal_signal(int make_core);
 static void init_signals();
 static void setup_library();
@@ -259,7 +257,6 @@ void init_globals()
 	/* Global race counter */
 	global_race_counter = 0;
 
-	exiting = 0;
 	first_player = NULL;
 	first_friendly_object = NULL;
 	first_map = NULL;
@@ -833,8 +830,6 @@ void init(int argc, char **argv)
 
 	SRANDOM(time(NULL));
 
-	/* Write (C), check shutdown file */
-	init_startup();
 	/* Sets up signal interceptions */
 	init_signals();
 	/* Set up callback function pointers */
@@ -990,30 +985,6 @@ static void init_beforeplay()
 }
 
 /**
- * Checks if starting the server is allowed. */
-static void init_startup()
-{
-#ifdef SHUTDOWN_FILE
-	char buf[MAX_BUF];
-	FILE *fp;
-	int comp;
-
-	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SHUTDOWN_FILE);
-
-	if ((fp = open_and_uncompress(buf, 0, &comp)) != NULL)
-	{
-		while (fgets(buf, MAX_BUF - 1, fp) != NULL)
-		{
-			printf("%s", buf);
-		}
-
-		close_and_delete(fp, comp);
-		exit(1);
-	}
-#endif
-}
-
-/**
  * Dump compilation information, activated with the -o flag.
  *
  * It writes out information on how Imakefile and config.h was configured
@@ -1056,10 +1027,6 @@ void compile_info()
 	LOG(llevInfo, "Datadir:\t%s\n", settings.datadir);
 	LOG(llevInfo, "Localdir:\t%s\n", settings.localdir);
 
-#ifdef SHUTDOWN_FILE
-	LOG(llevInfo, "Shutdown file:\t%s/%s\n", settings.localdir, SHUTDOWN_FILE);
-#endif
-
 	LOG(llevInfo, "Save player:\t<true>\n");
 	LOG(llevInfo, "Save mode:\t%4.4o\n", SAVE_MODE);
 	LOG(llevInfo, "Itemsdir:\t%s/%s\n", settings.localdir, settings.uniquedir);
@@ -1073,7 +1040,7 @@ void compile_info()
 	LOG(llevInfo, "Map reset:\t<false>\n");
 #endif
 
-	LOG(llevInfo, "Max objects:\t%d (allocated:%d free:%d)\n", MAX_OBJECTS, pool_object->nrof_allocated, pool_object->nrof_free);
+	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated, pool_object->nrof_free);
 
 #ifdef USE_CALLOC
 	LOG(llevInfo, "Use_calloc:\t<true>\n");
@@ -1085,10 +1052,13 @@ void compile_info()
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);
 	LOG(llevInfo, "ObjectSize:\t%d (living: %d)\n", sizeof(object), sizeof(living));
+	LOG(llevInfo, "ObjectlinkSize:\t%d\n", sizeof(objectlink));
 	LOG(llevInfo, "MapStructSize:\t%d\n", sizeof(mapstruct));
 	LOG(llevInfo, "MapSpaceSize:\t%d\n", sizeof(MapSpace));
 	LOG(llevInfo, "PlayerSize:\t%d\n", sizeof(player));
 	LOG(llevInfo, "SocketSize:\t%d\n", sizeof(NewSocket));
+	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(partylist_struct));
+	LOG(llevInfo, "KeyValueSize:\t%d\n", sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");
 }

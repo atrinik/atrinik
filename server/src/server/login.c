@@ -590,20 +590,11 @@ void check_login(object *op)
 			if (tmp->inv)
 				reorder_inventory(tmp);
 		}
-
 	}
 
 	op->custom_attrset = pl;
 	pl->ob = op;
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
-
-	/* If player saved beyond some time ago, and the feature is
-	 * enabled, put the player back on his savebed map. */
-	if ((settings.reset_loc_time > 0) && (elapsed_save_time > settings.reset_loc_time))
-	{
-		strcpy(pl->maplevel, pl->savebed_map);
-		op->x = pl->bed_x, op->y = pl->bed_y;
-	}
 
 	/* make sure he's a player -- needed because of class change. */
 	op->type = PLAYER;

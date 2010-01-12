@@ -47,7 +47,7 @@
 typedef struct party_struct
 {
 	/** Name of the party leader */
-	const char *leader;
+	shstr *leader;
 
 	/** Password this party requires */
 	char passwd[9];

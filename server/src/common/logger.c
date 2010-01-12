@@ -142,8 +142,6 @@ void LOG(LogLevel logLevel, const char *format, ...)
 
 	if (nroferrors > MAX_ERRORS || logLevel == llevError)
 	{
-		exiting = 1;
-
 		if (fatal_error == 0)
 		{
 			fatal_error = 1;

@@ -521,4 +521,7 @@ extern struct mempool_chunk *removed_objects;
 #define INS_TAIL_MARKER     0x0004
 /*@}*/
 
+/** Decrease an object by one. */
+#define decrease_ob(xyz) decrease_ob_nr(xyz, 1)
+
 #endif

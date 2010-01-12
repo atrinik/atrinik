@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Global defines. */
+ * Global definitions, u/sint8, things like that. */
 
 #ifndef GLOBAL_H
 #define GLOBAL_H
@@ -35,7 +35,6 @@
 #endif
 
 #include "includes.h"
-
 
 /* Type defines for specific signed/unsigned variables of a certain number
  * of bits.  Not really used anyplace, but if a certain number of bits
@@ -52,84 +51,196 @@
  * will probably be more portable than sint8/unit8 */
 
 typedef unsigned int uint32;
+#ifndef UINT32_MAX
+#	define UINT32_MAX 4294967295U
+#endif
+
 typedef signed int sint32;
+#define SINT32_MAX 2147483647
+
 typedef unsigned short uint16;
+#ifndef UINT16_MAX
+#	define UINT16_MAX 65535
+#endif
+
 typedef signed short sint16;
+#define SINT16_MAX 32767
+
 typedef unsigned char uint8;
+#ifndef UINT8_MAX
+#	define UINT8_MAX 255
+#endif
+
 typedef signed char sint8;
+#define SINT8_MAX 127
+
 typedef unsigned short Fontindex;
+
 typedef unsigned int tag_t;
+
 /* This should be used to differentiate shared strings from normal strings */
 typedef const char shstr;
 
-#if SIZEOF_LONG == 8
+#ifdef WIN32
+	/* Python plugin stuff defines SIZEOF_LONG_LONG as 8, and besides __int64
+	 * is a 64b type on MSVC... So let's force the typedef. */
+	typedef unsigned __int64            uint64;
+	typedef signed __int64              sint64;
+#	define atoll                        _atoi64
 
-typedef unsigned long			uint64;
-typedef signed long				sint64;
-#define FMT64					"ld"
-#define FMT64U					"lu"
+#	define FMT64                        "I64d"
+#	define FMT64U                       "I64u"
 
-#elif SIZEOF_LONG_LONG == 8
-typedef unsigned long long		uint64;
-typedef signed long long		sint64;
-#define FMT64					"lld"
-#define FMT64U					"llu"
-
+	/* Conversion from 'xxx' to 'yyy', possible loss of data */
+#	pragma warning(disable: 4244)
+	/* Initializing float f = 0.05; instead of f = 0.05f; */
+#	pragma warning(disable: 4305)
 #else
-#error Do not know how to get a 64 bit value on this system.
-#error Correct and send email to the Atrinik Team on how to do this.
+#	if SIZEOF_LONG == 8
+		typedef unsigned long           uint64;
+		typedef signed long             sint64;
+#		define FMT64                    "ld"
+#		define FMT64U                   "lu"
+
+#	elif SIZEOF_LONG_LONG == 8
+		typedef unsigned long long      uint64;
+		typedef signed long long        sint64;
+#		define FMT64                    "lld"
+#		define FMT64U                   "llu"
+
+#	else
+#		error Do not know how to get a 64 bit value on this system.
+#		error Correct and send email to the Atrinik Team on how to do this.
+#	endif
 #endif
 
+/**
+ * @defgroup MONEYSTRING_xxx Money string modes
+ * Modes used for ::_money_block and get_money_from_string().
+ *@{*/
+
+/** Invalid string (did not include any valid amount). */
+#define MONEYSTRING_NOTHING 0
+/** Got a valid amount of money from string. */
+#define MONEYSTRING_AMOUNT 1
+/** The string was "all". */
+#define MONEYSTRING_ALL -1
+/*@}*/
+
+/**
+ * Used for depositing/withdrawing money from bank, and using string
+ * to get information about how much money to deposit/withdraw. */
 typedef struct _money_block
 {
-	/* 0, 1, or -1: see get_money_from_string() */
+	/** One of @ref MONEYSTRING_xxx. */
 	int mode;
 
+	/** Number of mithril coins. */
 	sint64 mithril;
 
+	/** Number of gold coins. */
 	sint64 gold;
 
+	/** Number of silver coins. */
 	sint64 silver;
 
+	/** Number of copper coins. */
 	sint64 copper;
-}_money_block;
-
-#define MONEYSTRING_NOTHING 0
-#define MONEYSTRING_AMOUNT 1
-#define MONEYSTRING_ALL -1
+} _money_block;
 
 #define POW2(x) ((x) * (x))
 
-/* map distance values for draw_info_map functions
- * This value is in tiles */
+/**
+ * @defgroup MAP_INFO_xxx Map info modes
+ * Modes used for new_info_map().
+ *@{*/
+
+/** Normal map info, to everyone in range of 12 tiles. */
 #define MAP_INFO_NORMAL 12
+/** To everyone on a map; a value of 9999 should be enough. */
 #define MAP_INFO_ALL 9999
+/*@}*/
 
-/* use this macros *only* to access the global hash table!
- * Note: there is a 2nd hash table for the arch list - thats a static
- * list BUT the arch names are inserted in the global hash to - so every
- * archlist name has 2 entries! */
-#define FREE_AND_COPY_HASH(_sv_,_nv_) { if (_sv_) free_string_shared(_sv_); _sv_=add_string(_nv_); }
-#define FREE_AND_ADD_REF_HASH(_sv_,_nv_) { if (_sv_) free_string_shared(_sv_); _sv_=add_refcount(_nv_); }
-#define FREE_AND_CLEAR_HASH(_nv_) {if(_nv_){free_string_shared(_nv_);_nv_ =NULL;}}
-#define FREE_ONLY_HASH(_nv_) if(_nv_)free_string_shared(_nv_);
+/**
+ * @defgroup shared_string_macros Shared string macros
+ * Common macros used for manipulating shared strings.
+ *@{*/
 
-#define ADD_REF_NOT_NULL_HASH(_nv_) if(_nv_!=NULL)add_refcount(_nv_);
-
-/* special macro with no {} ! if() FREE_AND_CLEAR_HASH2 will FAIL! */
-#define FREE_AND_CLEAR_HASH2(_nv_) if(_nv_){free_string_shared(_nv_);_nv_ =NULL;}
+/**
+ * Free old shared string and add new string.
+ * @param _sv_ Shared string.
+ * @param _nv_ String to copy to the shared string. */
+#define FREE_AND_COPY_HASH(_sv_, _nv_) \
+{                                      \
+	if (_sv_)                          \
+	{                                  \
+		free_string_shared(_sv_);      \
+	}                                  \
+                                       \
+	_sv_ = add_string(_nv_);           \
+}
+/**
+ * Free old hash and add a reference to the new one.
+ * @param _sv_ Pointer to shared string.
+ * @param _nv_ String to add reference to. Must be a shared string. */
+#define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
+{                                         \
+	if (_sv_)                             \
+	{                                     \
+		free_string_shared(_sv_);         \
+	}                                     \
+                                          \
+	_sv_ = add_refcount(_nv_);            \
+}
+/**
+ * Free and NULL a shared string.
+ * @param _nv_ Shared string to free and NULL. */
+#define FREE_AND_CLEAR_HASH(_nv_) \
+{                                 \
+	if (_nv_)                     \
+	{                             \
+		free_string_shared(_nv_); \
+		_nv_ = NULL;              \
+	}                             \
+}
+/**
+ * Free a shared string.
+ * @param _nv_ Shared string to free. */
+#define FREE_ONLY_HASH(_nv_)  \
+if (_nv_)                     \
+{                             \
+	free_string_shared(_nv_); \
+}
+/**
+ * Add reference to a non-null hash.
+ * @param _nv_ Pointer to shared string. */
+#define ADD_REF_NOT_NULL_HASH(_nv_) \
+if (_nv_)                           \
+{                                   \
+	add_refcount(_nv_);             \
+}
+/**
+ * @copydoc FREE_AND_CLEAR_HASH
+ * @warning Like FREE_AND_CLEAR_HASH(), but without { and }. */
+#define FREE_AND_CLEAR_HASH2(_nv_) \
+if (_nv_)                          \
+{                                  \
+	free_string_shared(_nv_);      \
+	_nv_ = NULL;                   \
+}
+/*@}*/
 
 #define SPAWN_RANDOM_RANGE 10000
-#define RANDOM_DROP_RAND_RANGE 1000000
 
-/* for creating treasures (treasure.c) */
 #define T_STYLE_UNSET (-2)
 #define ART_CHANCE_UNSET (-1)
 
-/* mob defines */
-#define MIN_MON_RADIUS 2  /* minimum monster detection radius */
-#define MAX_AGGRO_RANGE 9 /* if target of mob is out of this range (or stats.Wis if higher)*/
-#define MAX_AGGRO_TIME 12 /* until this time - then it skip target */
+/** Minimum monster detection radius */
+#define MIN_MON_RADIUS 2
+/** If target of mob is out of this range (or stats.Wis if higher). */
+#define MAX_AGGRO_RANGE 9
+/** Until this time - then it skip target */
+#define MAX_AGGRO_TIME 12
 
 /**
  * @defgroup SEND_FACE_xxx Send face return values
@@ -144,34 +255,31 @@ typedef struct _money_block
 #define SEND_FACE_NO_DATA        2
 /*@}*/
 
-/* number of connected maps from a tiled map */
+/** Number of connected maps from a tiled map */
 #define TILED_MAPS 8
 
-/* global stuff used by new skill/experience system -b.t.
- * Needed before player.h */
-/* This should be => # of exp obj in the game
- * remember to include the "NULL" exp object
- * EXP_NONE as part of the overall tally. */
+/** Number of experience categories. */
 #define MAX_EXP_CAT 7
 
-/* "NULL" exp. object. This is the last
- * experience obj always.*/
+/** Null experience object. */
 #define EXP_NONE (MAX_EXP_CAT - 1)
 
+/** The maximum level. */
 #define MAXLEVEL 110
 extern uint32 new_levels[MAXLEVEL + 2];
 
-/* So far only used when dealing with artifacts.
- * (now used by alchemy and other code too. Nov 95 b.t). */
+/**
+ * Used to link together shared strings. */
 typedef struct linked_char
 {
-	const char *name;
+	/** Shared string. */
+	shstr *name;
 
+	/** Next shared string. */
 	struct linked_char *next;
 } linked_char;
 
 #include "face.h"
-/* needs to be before material.h */
 #include "attack.h"
 #include "material.h"
 #include "living.h"
@@ -181,159 +289,127 @@ typedef struct linked_char
 #include "mempool.h"
 #include "tod.h"
 #include "pathfinder.h"
-
-/* Pull in the socket structure - used in the player structure */
 #include "newserver.h"
-
-/* add skills.h global */
 #include "skills.h"
-
 #include "player_shop.h"
 #include "party.h"
-
-/* Pull in the player structure */
 #include "player.h"
-
-/* pull in treasure structure */
 #include "treasure.h"
-
 #include "commands.h"
-
-/* Pull in artifacts */
 #include "artifact.h"
-
-/* Now for gods */
 #include "god.h"
-
-/* Now for races */
 #include "race.h"
-
 #include "sounds.h"
-
-/* Now for recipe/alchemy */
 #include "recipe.h"
-
-/* Now for spells */
 #include "spells.h"
-
 #include "stringbuffer.h"
 
-/*****************************************************************************
- * GLOBAL VARIABLES:							     						 *
- *****************************************************************************/
-/* Special potions are now identifed by the last_eat value.
+/**
+ * Special potions are identifed by the last_eat value.
  * last_eat == 0 is no special potion - means they are used
  * as spell effect carrier. */
 #define special_potion(__op_sp) (__op_sp)->last_eat
 
-/* arch.c - sysinfo for lowlevel */
-
-/* How many strcmp's */
 extern int arch_cmp;
-/* How many searches */
 extern int arch_search;
 
-#define move_object(__op, __dir) move_ob(__op,__dir,__op)
-
-#define is_magical(__op_) QUERY_FLAG(__op_,FLAG_IS_MAGICAL)
-
-#define NUM_COLORS 13
-
-extern char *colorname[NUM_COLORS];
+/** Move an object. */
+#define move_object(__op, __dir) move_ob(__op, __dir, __op)
+/** Is the object magical? */
+#define is_magical(__op_) QUERY_FLAG(__op_, FLAG_IS_MAGICAL)
 
 extern New_Face *new_faces;
 
-/* These are the beginnings of linked lists: */
+/**
+ * @defgroup first_xxx Beginnings of linked lists.
+ *@{*/
+/** First player. */
 EXTERN player *first_player;
+/** First map. */
 EXTERN mapstruct *first_map;
+/** First treasure. */
 EXTERN treasurelist *first_treasurelist;
+/** First artifact. */
 EXTERN artifactlist *first_artifactlist;
-/* Objects monsters will go after */
+/** Objects monsters will go after */
 EXTERN objectlink *first_friendly_object;
+/** God list. */
 EXTERN godlink *first_god;
+/** Race list. */
 EXTERN racelink *first_race;
+/*@}*/
 
 #define NROF_COMPRESS_METHODS 4
 EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];
 
-/* Variables set by different flags (see init.c): */
-/* Ignores signals until init_done is true */
+/** Ignores signals until init_done is true. */
 EXTERN long init_done;
-/* If it exceeds MAX_ERRORS, call fatal() */
+/** If this exceeds MAX_ERRORS, the server will shut down. */
 EXTERN long nroferrors;
 
-/* used by various function to determine
- * how often to save the character */
+/** Used by various function to determine how often to save the character. */
 extern long pticks;
 
-/* Misc global variables: */
-
-/* Used by server/daemon.c */
+/** Log file to use. */
 EXTERN FILE *logfile;
-/* True if the game is about to exit */
-EXTERN int exiting;
-/* Only used in malloc_info() */
+/** Number of treasures. */
 EXTERN long nroftreasures;
-/* Only used in malloc_info() */
+/** Number of artifacts. */
 EXTERN long nrofartifacts;
-/* Only used in malloc_info() */
+/** Number of allowed treasure combinations. */
 EXTERN long nrofallowedstr;
 
-/* Current number of experience categories in the game */
+/** Current number of experience categories in the game. */
 EXTERN short nrofexpcat;
-/* Array of experience objects in the game */
+/** Array of experience objects in the game. */
 EXTERN object *exp_cat[MAX_EXP_CAT];
-/* Container for objects without env or map (e.g. exp_cat[i])*/
 extern object void_container;
 
-/* The start-level */
+/** The starting map. */
 EXTERN char first_map_path[MAX_BUF];
+/**
+ * Progressive object counter (every new object will increase this, even
+ * if that object is later removed). */
 EXTERN long ob_count;
 
-/* global round ticker ! this is real a global */
+/** Round ticker. */
 EXTERN uint32 global_round_tag;
 #define ROUND_TAG global_round_tag /* put this here because the DIFF */
 
-/* global race counter */
+/** Global race counter. */
 EXTERN int global_race_counter;
 
-/* Used for main loop timing */
+/** Used for main loop timing. */
 EXTERN struct timeval last_time;
-
-/* Used in treasure.c */
-/* Used in hit_player() in main.c */
-EXTERN const char *undead_name;
-
 EXTERN Animations *animations;
 EXTERN int num_animations, animations_allocated, bmaps_checksum;
 
-/* to access strings from objects, maps, arches or other system objects,
- * for printf() or others use only this macros to avoid NULL pointer exceptions.
- * Some standard c libaries don't check for NULL in that functions - most times
- * the retail versions. */
-#define STRING_SAFE(__string__) (__string__?__string__:">NULL<")
+/** Use to get a safe string, even if the string is NULL. */
+#define STRING_SAFE(__string__) (__string__ ? __string__ : ">NULL<")
+/** Use to get a safe name of arch, even if the arch name is NULL. */
+#define STRING_ARCH_NAME(__arch__) ((__arch__)->name ? (__arch__)->name : ">NULL<")
+/** Use to get a safe name of object, even if the object name is NULL. */
+#define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name ? (__ob__)->name : ">NULL<")
+/** Use to get a safe arch name of object, even if the object arch name is NULL. */
+#define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
+/** Use to get a safe slaying value of an object, even if the slaying value is NULL. */
+#define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying ? (__ob__)->slaying : ">NULL<")
 
-#define STRING_ARCH_NAME(__arch__) ((__arch__)->name?(__arch__)->name:">NULL<")
-
-#define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name?(__ob__)->name:">NULL<")
-#define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch?((__ob__)->arch->name?(__ob__)->arch->name:">NULL<"):">NULL<")
-#define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying?(__ob__)->slaying:">NULL<")
-
-/* Rotate right from bsd sum. This is used in various places for checksumming */
+/** Rotate right from bsd sum. This is used in various places for checksumming. */
 #define ROTATE_RIGHT(c) if ((c) & 01) (c) = ((c) >>1) + 0x80000000; else (c) >>= 1;
 
-#define SET_ANIMATION(ob,newanim) ob->face=&new_faces[animations[ob->animation_id].faces[newanim]]
-#define GET_ANIMATION(ob,anim) (animations[ob->animation_id].faces[anim])
+/**
+ * Set object's face by its animation ID.
+ * @param ob Object.
+ * @param newanim Animation ID to set. */
+#define SET_ANIMATION(ob, newanim) ob->face = &new_faces[animations[ob->animation_id].faces[newanim]]
+/** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)
-
-#define SET_INV_ANIMATION(ob,newanim) ob->face=&new_faces[animations[ob->inv_animation_id].faces[newanim]]
-#define GET_INV_ANIMATION(ob,anim) (animations[ob->inv_animation_id].faces[anim])
+/** Get object's inventory animation ID. */
 #define GET_INV_ANIM_ID(ob) (ob->inv_animation_id)
-/* NUM_ANIMATIONS returns the number of animations allocated.  The last
- * usuable animation will be NUM_ANIMATIONS-1 (for example, if an object
- * has 8 animations, NUM_ANIMATIONS will return 8, but the values will
- * range from 0 through 7. */
+/** Get the number of possible animations for an object. */
 #define NUM_ANIMATIONS(ob) (animations[ob->animation_id].num_animations)
+/** Get the number of possible facings for object's animation. */
 #define NUM_FACINGS(ob) (animations[ob->animation_id].facings)
 
 extern int freearr_x[SIZEOFFREE], freearr_y[SIZEOFFREE];
@@ -343,39 +419,40 @@ extern objectlink *dm_list;
 
 extern New_Face *blank_face, *next_item_face, *prev_item_face;
 
-/* loop time */
 extern long max_time;
 extern NewSocket *init_sockets;
-
-/* time of the day tick counter */
 extern unsigned long todtick;
-/* daylight value. 0= totally dark. 7= daylight */
 extern int world_darkness;
 
-/* Nice to have fast access to it */
+/** Pointer to waypoint archetype. */
 EXTERN archetype *wp_archetype;
-/* Nice to have fast access to it */
+/** Pointer to empty_archetype archetype. */
 EXTERN archetype *empty_archetype;
-/* Nice to have fast access to it */
+/** Pointer to base_info archetype. */
 EXTERN archetype *base_info_archetype;
-EXTERN archetype *map_archeytpe;
-/* a global animation arch we use it in 2 modules, so not static */
 EXTERN archetype *level_up_arch;
 
-#define decrease_ob(xyz) decrease_ob_nr(xyz,1)
-
-#define FREE_AND_NULL_PTR(_xyz_) {if(_xyz_){free(_xyz_); _xyz_=NULL; }}
+/** Free and NULL a pointer. */
+#define FREE_AND_NULL_PTR(_xyz_) \
+{                                \
+	if (_xyz_)                   \
+	{                            \
+		free(_xyz_);             \
+	}                            \
+                                 \
+	_xyz_ = NULL;                \
+}
 
 #ifdef CALLOC
 #undef CALLOC
 #endif
 
 #ifdef USE_CALLOC
-# define CALLOC(x,y)	calloc(x,y)
-# define CFREE(x)	free(x)
+#	define CALLOC(x, y) calloc(x, y)
+#	define CFREE(x) free(x)
 #else
-# define CALLOC(x,y)	malloc(x*y)
-# define CFREE(x)	free(x)
+#	define CALLOC(x, y) malloc(x * y)
+#	define CFREE(x) free(x)
 #endif
 
 /** Settings structure */
@@ -428,9 +505,6 @@ typedef struct Settings
 
 	/** If true, Death stat depletion based on level etc. */
 	uint8 balanced_stat_loss;
-
-	/** Number of seconds to put player back at home. */
-	int	reset_loc_time;
 
 	/** True if we should send updates */
 	unsigned int meta_on:1;
@@ -502,25 +576,30 @@ typedef struct ban_struct
 } _ban_struct;
 
 #ifndef tolower
-#define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
+#	define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
 
 #ifdef GETTIMEOFDAY_TWO_ARGS
-#define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
+#	define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
 #else
-#define GETTIMEOFDAY(last_time) gettimeofday(last_time);
+#	define GETTIMEOFDAY(last_time) gettimeofday(last_time);
 #endif
 
-/* GROS: Those are used by plugin events (argument fixthem) */
+/**
+ * @defgroup SCRIPT_FIX_xxx For plugin events
+ * These are used by plugin events.
+ *@{*/
+/** Fix the event activator. */
 #define SCRIPT_FIX_ACTIVATOR 2
+/** Fix all objects related to the event. */
 #define SCRIPT_FIX_ALL 1
+/** Don't do any fixing. */
 #define SCRIPT_FIX_NOTHING 0
+/*@}*/
 
-/* include some global project headers */
 #include "libproto.h"
 #include "libtypes.h"
 #include "sockproto.h"
-
 #include "plugin.h"
 
 #endif

@@ -778,9 +778,7 @@ void sell_item(object *op, object *pl, sint64 value)
  * Get money from a string.
  * @param text Text to get money from.
  * @param money Money block structure.
- * @retval 0 Nothing found.
- * @retval 1 Some money was found.
- * @retval -1 We have keyword "all". */
+ * @return One of @ref MONEYSTRING_xxx. */
 int get_money_from_string(char *text, struct _money_block *money)
 {
 	int pos = 0;

@@ -70,7 +70,7 @@ void InitConnection(NewSocket *ns, uint32 from)
 {
 	SockList sl;
 	unsigned char buf[256];
-	int	bufsize = SOCKETBUFSIZE, oldbufsize;
+	int	bufsize = MAXSOCKBUF, oldbufsize;
 	unsigned int buflen = sizeof(int);
 
 #ifdef WIN32
@@ -161,7 +161,7 @@ void InitConnection(NewSocket *ns, uint32 from)
 	sl.len = strlen((char *) buf);
 	Send_With_Handling(ns, &sl);
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 	if (socket_info.nconns > cst_tot.max_conn)
 	{
 		cst_tot.max_conn = socket_info.nconns;
@@ -207,7 +207,7 @@ void init_ericserver()
 	socket_info.timeout.tv_usec = 0;
 	socket_info.nconns = 0;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 	memset(&cst_tot, 0, sizeof(CS_Stats));
 	memset(&cst_lst, 0, sizeof(CS_Stats));
 	cst_tot.time_start = time(NULL);

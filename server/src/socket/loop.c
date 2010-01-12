@@ -414,7 +414,7 @@ void doeric_server()
 	unsigned int addrlen = sizeof(addr);
 	player *pl, *next;
 
-#ifdef CS_LOGSTATS
+#if CS_LOGSTATS
 	if ((time(NULL) - cst_lst.time_start) >= CS_LOGTIME)
 	{
 		write_cs_stats();

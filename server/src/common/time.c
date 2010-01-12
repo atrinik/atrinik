@@ -35,7 +35,6 @@
 #include <sys/time.h>
 #endif
 
-/* Global variables: */
 long max_time = MAX_TIME;
 
 /** Size of history buffer. */

@@ -44,13 +44,13 @@
  * timestep. */
 struct mempool_chunk *removed_objects;
 
-/* List of active objects that need to be processed */
+/** List of active objects that need to be processed */
 object *active_objects;
 
 /* see walk_off/walk_on functions  */
 static int static_walk_semaphore = 0;
 
-/* container for objects without real maps or envs */
+/** Container for objects without real maps or envs */
 object void_container;
 
 /**
