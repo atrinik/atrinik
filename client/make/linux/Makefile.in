@@ -65,7 +65,7 @@ exec_prefix = @exec_prefix@
 
 XX_EXTRA_CFLAGS = $(EXTRA_CFLAGS) -D__LINUX
 
-VERSION = atrinik-0.1
+VERSION = atrinik-1.0
 
 ARCHIVE = /tmp/$(VERSION)
 

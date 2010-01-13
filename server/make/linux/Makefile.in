@@ -71,7 +71,7 @@ NO_X = @no_x@
 # Changed.
 #
 
-VERSION = atrinik-0.1
+VERSION = atrinik-1.0
 
 ARCHIVE = /tmp/$(VERSION)
 
