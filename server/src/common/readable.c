@@ -869,8 +869,8 @@ static void init_book_archive()
 }
 
 /**
- * Creates the linked list of pointers to monster
- * archetype objects if not called previously. */
+ * Creates the linked list of pointers to monster archetype objects if
+ * not called previously. */
 static void init_mon_info()
 {
 	archetype *at;
@@ -887,7 +887,8 @@ static void init_mon_info()
 	{
 		if (QUERY_FLAG(&at->clone, FLAG_MONSTER) && (!QUERY_FLAG(&at->clone, FLAG_CHANGING) || QUERY_FLAG(&at->clone, FLAG_UNAGGRESSIVE)))
 		{
-			objectlink *mon = (objectlink *) malloc(sizeof(objectlink));
+			objectlink *mon = get_objectlink();
+
 			mon->objlink.ob = &at->clone;
 			mon->id = nrofmon;
 			mon->next = first_mon_info;
@@ -897,6 +898,19 @@ static void init_mon_info()
 	}
 
 	LOG(llevDebug, "init_mon_info() got %d monsters...", nrofmon);
+}
+
+/**
+ * Frees object links created by init_mon_info(). */
+void free_mon_info()
+{
+	objectlink *ol, *next;
+
+	for (ol = first_mon_info; ol; ol = next)
+	{
+		next = ol->next;
+		free_objectlink_simple(ol);
+	}
 }
 
 /**
@@ -2200,7 +2214,7 @@ void free_all_readable()
 	title *title1, *titlenext;
 	linked_char *lmsg, *nextmsg;
 
-	LOG(llevDebug, "DEBUG: Freeing all book information\n");
+	LOG(llevDebug, "Freeing all book information.\n");
 
 	for (tlist = booklist; tlist != NULL; tlist = tnext)
 	{

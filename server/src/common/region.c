@@ -328,3 +328,24 @@ static void assign_region_parents()
 
 	LOG(llevDebug, "Assigned %u regions with %u parents.\n", region_count, parent_count);
 }
+
+/**
+ * Deinitializes all regions. */
+void free_regions()
+{
+	region *reg, *next;
+
+	LOG(llevDebug, "Freeing regions.\n");
+
+	for (reg = first_region; reg; reg = next)
+	{
+		next = reg->next;
+
+		FREE_AND_NULL_PTR(reg->name);
+		FREE_AND_NULL_PTR(reg->parent_name);
+		FREE_AND_NULL_PTR(reg->longname);
+		FREE_AND_NULL_PTR(reg->msg);
+		FREE_AND_NULL_PTR(reg->jailmap);
+		CFREE(reg);
+	}
+}

@@ -31,10 +31,10 @@
 #define MATERIAL_H
 
 /** Number of materials */
-#define NROFMATERIALS			13
+#define NROFMATERIALS 13
 
 /** Number of materials real */
-#define NROFMATERIALS_REAL		64
+#define NROFMATERIALS_REAL 64
 
 /**
  * @defgroup material_types Material types
@@ -71,59 +71,62 @@
 #define M_ICE           4096
 /*@}*/
 
-/** 0 */
-#define MATERIAL_MISC           0
 /** 1-64 */
-#define M_START_PAPER			0*64+1
+#define M_START_PAPER           0 * 64 + 1
 /** 65 - 128 */
-#define M_START_IRON			1*64+1
+#define M_START_IRON            1 * 64 + 1
 /** 129 - 192 */
-#define M_START_GLASS			2*64+1
+#define M_START_GLASS           2 * 64 + 1
 /** 193 - 256 */
-#define M_START_LEATHER		    3*64+1
+#define M_START_LEATHER         3 * 64 + 1
 /** 257 - 320 */
-#define M_START_WOOD			4*64+1
+#define M_START_WOOD            4 * 64 + 1
 /** 321 - 384 */
-#define M_START_ORGANIC		    5*64+1
+#define M_START_ORGANIC         5 * 64 + 1
 /** 385 - 448 */
-#define M_START_STONE			6*64+1
+#define M_START_STONE           6 * 64 + 1
 /** 449 - 512 */
-#define M_START_CLOTH			7*64+1
+#define M_START_CLOTH           7 * 64 + 1
 /** 513 - 576 */
-#define M_START_ADAMANT		    8*64+1
+#define M_START_ADAMANT         8 * 64 + 1
 /** 577 - 640 */
-#define M_START_LIQUID		    9*64+1
+#define M_START_LIQUID          9 * 64 + 1
 /** 641 - 704 */
-#define M_START_SOFT_METAL      10*64+1
+#define M_START_SOFT_METAL      10 * 64 + 1
 /** 705 - 768 */
-#define M_START_BONE			11*64+1
+#define M_START_BONE            11 * 64 + 1
 /** 769 - 832 */
-#define M_START_ICE			    12*64+1
+#define M_START_ICE             12 * 64 + 1
 
+/** A single material. */
 typedef struct
 {
+	/** Name of the material. */
 	char *name;
 
+	/** If an item is attacked, this table determines the save throw of the item. */
 	sint8 save[NROFATTACKS];
 } materialtype;
 
+/** A real material. */
 typedef struct _material_real_struct
 {
-	/* name of this material */
+	/** Name of this material. */
 	char name[MAX_BUF];
 
-	/* % value: speed of tearing when used. (used from item_condition) NOT IMPLEMENTED YET */
+	/**
+	 * Speed of tearing when used, in percent.
+	 * @todo Do we really need this? */
 	int tearing;
 
-	/* material base quality */
+	/** Material base quality. */
 	int quality;
 
-	/* back ref. to material type */
+	/** Back-reference to material type. */
 	int type;
 
-	/* we can assign a default race for this material. */
+	/** We can assign a default race for this material. */
 	int def_race;
-	/* these race have this material then exclusive */
 } material_real_struct;
 
 extern materialtype material[NROFMATERIALS];

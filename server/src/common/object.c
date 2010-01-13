@@ -212,6 +212,8 @@ void init_materials()
 			LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
 		}
 	}
+
+	fclose(fp);
 }
 
 /** X offset when searching around a spot. */

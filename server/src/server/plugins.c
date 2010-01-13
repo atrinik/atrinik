@@ -445,6 +445,27 @@ void removeOnePlugin(const char *id)
 }
 
 /**
+ * Deinitialize all plugins. */
+void remove_plugins()
+{
+	int i;
+
+	LOG(llevInfo, "Removing all plugins from memory.\n");
+
+	for (i = 0; i < PlugNR; i++)
+	{
+		/* We unload the library... */
+#ifdef WIN32
+		FreeLibrary(PlugList[i].libptr);
+#else
+		dlclose(PlugList[i].libptr);
+#endif
+	}
+
+	PlugNR = 0;
+}
+
+/**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
  * @param event_type The event type

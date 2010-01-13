@@ -304,6 +304,7 @@ int findPlugin(const char *id);
 void initPlugins();
 void initOnePlugin(const char *pluginfile);
 void removeOnePlugin(const char *id);
+void remove_plugins();
 void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 
@@ -343,6 +344,7 @@ char *find_skill_exp_skillname(int item_skill);
 int do_skill(object *op, int dir);
 int calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
+void free_exp_objects();
 void dump_skills();
 int check_skill_known(object *op, int skillnr);
 int lookup_skill_by_name(char *string);

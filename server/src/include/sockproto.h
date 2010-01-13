@@ -21,6 +21,7 @@ void init_ericserver();
 void free_all_newserver();
 void free_newsocket(NewSocket *ns);
 void init_srv_files();
+void free_srv_files();
 void send_srv_file(NewSocket *ns, int id);
 
 /* item.c */

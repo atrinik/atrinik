@@ -171,6 +171,7 @@ extern uint32 nearest_pow_two_exp(uint32 n);
 extern void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, chunk_destructor destructor);
 extern struct mempool *create_mempool(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void init_mempools();
+extern void free_mempools();
 extern void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp);
 extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool);
 extern void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
@@ -259,9 +260,11 @@ extern char *get_region_longname(const region *r);
 extern char *get_region_msg(const region *r);
 extern object *get_jail_exit(object *op);
 extern void init_regions();
+extern void free_regions();
 
 /* readable.c */
 extern int book_overflow(const char *buf1, const char *buf2, int booksize);
+extern void free_mon_info();
 extern void init_readable();
 extern object *get_random_mon();
 extern void tailor_readable_ob(object *book, int msg_type);

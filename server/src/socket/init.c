@@ -507,6 +507,20 @@ void init_srv_files()
 }
 
 /**
+ * Free all server files previously initialized by init_srv_files(). */
+void free_srv_files()
+{
+	int i;
+
+	LOG(llevDebug, "Freeing server/client files.\n");
+
+	for (i = 0; i < SRV_CLIENT_FILES; i++)
+	{
+		free(SrvClientFiles[i].file);
+	}
+}
+
+/**
  * A connecting client has requested a server file.
  *
  * Note that we don't know anything about the player at this point - we

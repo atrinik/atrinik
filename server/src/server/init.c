@@ -1078,6 +1078,12 @@ static void rec_sigint(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGINT received.\n");
+
+	if (init_done)
+	{
+		cleanup();
+	}
+
 	fatal_signal(0);
 }
 
@@ -1086,11 +1092,13 @@ static void rec_sighup(int i)
 	(void) i;
 
 	LOG(llevSystem, "\nSIGHUP received\n");
+
 	if (init_done)
 	{
 		emergency_save(0);
 		cleanup();
 	}
+
 	exit(0);
 }
 
@@ -1350,15 +1358,16 @@ static racelink *get_racelist()
 void free_racelist()
 {
 	racelink *list, *next;
-	objectlink *tmp;
+	objectlink *tmp, *tmp_next;
 
 	for (list = first_race; list; list = next)
 	{
 		next = list->next;
 		FREE_ONLY_HASH(list->name);
 
-		for (tmp = list->member; tmp; tmp = tmp->next)
+		for (tmp = list->member; tmp; tmp = tmp_next)
 		{
+			tmp_next = tmp->next;
 			free_objectlink_simple(tmp);
 		}
 

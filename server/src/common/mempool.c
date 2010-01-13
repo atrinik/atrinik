@@ -161,6 +161,10 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
 	pool->constructor = constructor;
 	pool->destructor = destructor;
 
+#if MEMORY_DEBUG
+	pool->flags |= MEMPOOL_BYPASS_POOLS;
+#endif
+
 	for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++)
 	{
 		pool->freelist[i] = &end_marker;
@@ -197,6 +201,31 @@ void init_mempools()
 	initialize_object(&void_container);
 	void_container.type = TYPE_VOID_CONTAINER;
 	FREE_AND_COPY_HASH(void_container.name, "<void container>");
+}
+
+/**
+ * Free a mempool.
+ * @param pool The mempool to free. */
+static void free_mempool(struct mempool *pool)
+{
+	cfree(pool);
+}
+
+/**
+ * Free all the mempools previously initialized by init_mempools(). */
+void free_mempools()
+{
+	LOG(llevDebug, "Freeing memory pools.\n");
+#ifdef MEMPOOL_TRACKING
+	free_mempool(pool_puddle);
+#endif
+	free_mempool(pool_object);
+	free_mempool(pool_player);
+	free_mempool(pool_objectlink);
+	free_mempool(pool_bans);
+	free_mempool(pool_parties);
+
+	FREE_AND_CLEAR_HASH2(void_container.name);
 }
 
 /**

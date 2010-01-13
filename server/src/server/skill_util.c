@@ -407,6 +407,24 @@ void init_new_exp_system()
 }
 
 /**
+ * Free all previously initialized experience objects. */
+void free_exp_objects()
+{
+	int i;
+
+	for (i = 0; i < MAX_EXP_CAT; i++)
+	{
+		if (!exp_cat[i])
+		{
+			continue;
+		}
+
+		SET_FLAG(exp_cat[i], FLAG_REMOVED);
+		return_poolchunk(exp_cat[i], pool_object);
+	}
+}
+
+/**
  * Dump debugging information about the skills. */
 void dump_skills()
 {

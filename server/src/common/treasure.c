@@ -86,7 +86,7 @@ static void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
 static void fix_flesh_item(object *item, object *donor);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
-static void free_artifactlist(artifactlist *al);
+static void free_artifactlist();
 static void free_artifact(artifact *at);
 
 /**
@@ -2885,12 +2885,14 @@ static void free_treasurestruct(treasure *t)
  * @param lc Item to free. Pointer is free()d too, so becomes invalid. */
 static void free_charlinks(linked_char *lc)
 {
-	if (lc->next)
-	{
-		free_charlinks(lc->next);
-	}
+	linked_char *tmp, *next;
 
-	free(lc);
+	for (tmp = lc; tmp; tmp = next)
+	{
+		next = tmp->next;
+		FREE_AND_CLEAR_HASH(tmp->name);
+		free(tmp);
+	}
 }
 
 /**
@@ -2900,6 +2902,7 @@ static void free_charlinks(linked_char *lc)
 static void free_artifact(artifact *at)
 {
 	FREE_AND_CLEAR_HASH2(at->name);
+	FREE_AND_CLEAR_HASH2(at->def_at.name);
 
 	if (at->next)
 	{
@@ -2926,13 +2929,14 @@ static void free_artifact(artifact *at)
 }
 
 /**
- * Free specified list and its items.
- * @param al List to free. Pointer is free()d too, so becomes invalid. */
-static void free_artifactlist(artifactlist *al)
+ * Free the artifact list. */
+static void free_artifactlist()
 {
-	artifactlist *nextal;
+	artifactlist *al, *nextal;
 
-	for (al = first_artifactlist; al != NULL; al = nextal)
+	LOG(llevDebug, "Freeing artifact list.\n");
+
+	for (al = first_artifactlist; al; al = nextal)
 	{
 		nextal = al->next;
 
@@ -2951,7 +2955,9 @@ void free_all_treasures()
 {
 	treasurelist *tl, *next;
 
-	for (tl = first_treasurelist; tl != NULL; tl = next)
+	LOG(llevDebug, "Freeing treasure lists.\n");
+
+	for (tl = first_treasurelist; tl; tl = next)
 	{
 		next = tl->next;
 		FREE_AND_CLEAR_HASH2(tl->name);
@@ -2964,7 +2970,7 @@ void free_all_treasures()
 		free(tl);
 	}
 
-	free_artifactlist(first_artifactlist);
+	free_artifactlist();
 }
 
 /**

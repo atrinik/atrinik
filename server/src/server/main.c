@@ -1176,6 +1176,13 @@ void cleanup()
 	free_all_god();
 	free_all_anim();
     free_strings();
+	free_racelist();
+	free_exp_objects();
+	free_srv_files();
+	free_regions();
+	free_mon_info();
+	free_mempools();
+	remove_plugins();
 #endif
 	exit(0);
 }

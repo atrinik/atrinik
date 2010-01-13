@@ -1931,7 +1931,7 @@ static int did_make_save_item(object *op, object *originator)
 		{
 			materials++;
 
-			if (rndm(1, 20) >= material[i].save[number]-op->magic-op->resist[number] / 100)
+			if (rndm(1, 20) >= material[i].save[number] - op->magic - op->resist[number] / 100)
 			{
 				saves++;
 			}
