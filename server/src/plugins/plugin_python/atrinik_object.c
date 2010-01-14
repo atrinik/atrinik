@@ -572,9 +572,9 @@ static Atrinik_Constant object_constants[] =
 	{"UNIDENTIFIED",                 0},
 	{"IDENTIFIED",                   1},
 
-	{"IDENTIFY_NORMAL",              0},
-	{"IDENTIFY_ALL",                 1},
-	{"IDENTIFY_MARKED",              2},
+	{"IDENTIFY_NORMAL",              IDENTIFY_MODE_NORMAL},
+	{"IDENTIFY_ALL",                 IDENTIFY_MODE_ALL},
+	{"IDENTIFY_MARKED",              IDENTIFY_MODE_MARKED},
 
 	{"CLONE_WITH_INVENTORY",         0},
 	{"CLONE_WITHOUT_INVENTORY",      1},
@@ -671,7 +671,6 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_BLINDNESS",               BLINDNESS},
 	{"TYPE_GOD",                     GOD},
 	{"TYPE_DETECTOR",                DETECTOR},
-	{"TYPE_SPEEDBALL",               SPEEDBALL},
 	{"TYPE_DEAD_OBJECT",             DEAD_OBJECT},
 	{"TYPE_DRINK",                   DRINK},
 	{"TYPE_MARKER",                  MARKER},
@@ -681,26 +680,24 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_GEM",                     GEM},
 	{"TYPE_FIRECHEST",               FIRECHEST},
 	{"TYPE_FIREWALL",                FIREWALL},
-	{"TYPE_ANVIL",                   ANVIL},
 	{"TYPE_CHECK_INV",               CHECK_INV},
 	{"TYPE_MOOD_FLOOR",              MOOD_FLOOR},
 	{"TYPE_EXIT",                    EXIT},
-	{"TYPE_AGE_FORCE",               TYPE_AGE_FORCE},
+	{"TYPE_AGE_FORCE",               AGE_FORCE},
 	{"TYPE_SHOP_FLOOR",              SHOP_FLOOR},
 	{"TYPE_SHOP_MAT",                SHOP_MAT},
 	{"TYPE_RING",                    RING},
 	{"TYPE_FLOOR",                   FLOOR},
 	{"TYPE_FLESH",                   FLESH},
 	{"TYPE_INORGANIC",               INORGANIC},
-	{"TYPE_LIGHT_APPLY",             TYPE_LIGHT_APPLY},
+	{"TYPE_LIGHT_APPLY",             LIGHT_APPLY},
 	{"TYPE_LIGHTER",                 LIGHTER},
-	{"TYPE_TRAP_PART",               TRAP_PART},
 	{"TYPE_WALL",                    WALL},
 	{"TYPE_LIGHT_SOURCE",            LIGHT_SOURCE},
 	{"TYPE_MISC_OBJECT",             MISC_OBJECT},
 	{"TYPE_MONSTER",                 MONSTER},
 	{"TYPE_SPAWN_POINT",             SPAWN_POINT},
-	{"TYPE_LIGHT_REFILL",            TYPE_LIGHT_REFILL},
+	{"TYPE_LIGHT_REFILL",            LIGHT_REFILL},
 	{"TYPE_SPAWN_POINT_MOB",         SPAWN_POINT_MOB},
 	{"TYPE_SPAWN_POINT_INFO",        SPAWN_POINT_INFO},
 	{"TYPE_SPELLBOOK",               SPELLBOOK},
@@ -711,22 +708,20 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_SPINNER",                 SPINNER},
 	{"TYPE_GATE",                    GATE},
 	{"TYPE_BUTTON",                  BUTTON},
-	{"TYPE_CF_HANDLE",               CF_HANDLE},
+	{"TYPE_HANDLE",                  HANDLE},
 	{"TYPE_PIT",                     PIT},
 	{"TYPE_TRAPDOOR",                TRAPDOOR},
 	{"TYPE_WORD_OF_RECALL",          WORD_OF_RECALL},
-	{"TYPE_PARAIMAGE",               PARAIMAGE},
 	{"TYPE_SIGN",                    SIGN},
 	{"TYPE_BOOTS",                   BOOTS},
 	{"TYPE_GLOVES",                  GLOVES},
-	{"TYPE_BASE_INFO",               TYPE_BASE_INFO},
-	{"TYPE_RANDOM_DROP",             TYPE_RANDOM_DROP},
+	{"TYPE_BASE_INFO",               BASE_INFO},
+	{"TYPE_RANDOM_DROP",             RANDOM_DROP},
 	{"TYPE_CONVERTER",               CONVERTER},
 	{"TYPE_BRACERS",                 BRACERS},
 	{"TYPE_POISONING",               POISONING},
 	{"TYPE_SAVEBED",                 SAVEBED},
 	{"TYPE_POISONCLOUD",             POISONCLOUD},
-	{"TYPE_FIREHOLES",               FIREHOLES},
 	{"TYPE_WAND",                    WAND},
 	{"TYPE_ABILITY",                 ABILITY},
 	{"TYPE_SCROLL",                  SCROLL},
@@ -734,21 +729,20 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_GIRDLE",                  GIRDLE},
 	{"TYPE_FORCE",                   FORCE},
 	{"TYPE_POTION_EFFECT",           POTION_EFFECT},
-	{"TYPE_JEWEL",                   TYPE_JEWEL},
-	{"TYPE_NUGGET",                  TYPE_NUGGET},
-	{"TYPE_EVENT_OBJECT",            TYPE_EVENT_OBJECT},
-	{"TYPE_WAYPOINT_OBJECT",         TYPE_WAYPOINT_OBJECT},
-	{"TYPE_QUEST_CONTAINER",         TYPE_QUEST_CONTAINER},
+	{"TYPE_JEWEL",                   JEWEL},
+	{"TYPE_NUGGET",                  NUGGET},
+	{"TYPE_EVENT_OBJECT",            EVENT_OBJECT},
+	{"TYPE_WAYPOINT_OBJECT",         WAYPOINT_OBJECT},
+	{"TYPE_QUEST_CONTAINER",         QUEST_CONTAINER},
 	{"TYPE_CLOSE_CON",               CLOSE_CON},
 	{"TYPE_CONTAINER",               CONTAINER},
 	{"TYPE_ARMOUR_IMPROVER",         ARMOUR_IMPROVER},
 	{"TYPE_WEAPON_IMPROVER",         WEAPON_IMPROVER},
-	{"TYPE_WEALTH",                  TYPE_WEALTH},
+	{"TYPE_WEALTH",                  WEALTH},
 	{"TYPE_SKILLSCROLL",             SKILLSCROLL},
 	{"TYPE_DEEP_SWAMP",              DEEP_SWAMP},
 	{"TYPE_IDENTIFY_ALTAR",          IDENTIFY_ALTAR},
 	{"TYPE_CANCELLATION",            CANCELLATION},
-	{"TYPE_MENU",                    MENU},
 	{"TYPE_BALL_LIGHTNING",          BALL_LIGHTNING},
 	{"TYPE_SWARM_SPELL",             SWARM_SPELL},
 	{"TYPE_RUNE",                    RUNE},
@@ -1940,7 +1934,7 @@ static PyObject *Atrinik_Object_GetQuestObject(Atrinik_Object *whoptr, PyObject 
 	/* Let's first check the inventory for the quest_container object */
 	for (walk = WHO->inv; walk != NULL; walk = walk->below)
 	{
-		if (walk->type == TYPE_QUEST_CONTAINER)
+		if (walk->type == QUEST_CONTAINER)
 		{
 			for (walk = walk->inv; walk != NULL; walk = walk->below)
 			{
@@ -1977,7 +1971,7 @@ static PyObject *Atrinik_Object_StartQuest(Atrinik_Object *whoptr, PyObject *arg
 
 	myob = hooks->get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-	if (!(quest_container = hooks->present_in_ob(TYPE_QUEST_CONTAINER, WHO)))
+	if (!(quest_container = hooks->present_in_ob(QUEST_CONTAINER, WHO)))
 	{
 		quest_container = hooks->get_object();
 		hooks->copy_object(myob, quest_container);

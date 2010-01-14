@@ -928,7 +928,7 @@ int command_dropall(object *op, char *params)
 				nextinv = nextinv->below;
 			}
 
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && curinv->type != MONEY && curinv->type != FOOD && curinv->type != KEY && curinv->type != SPECIAL_KEY && (curinv->type != GEM && curinv->type != PEARL && curinv->type != TYPE_JEWEL && curinv->type != TYPE_NUGGET) && !IS_SYS_INVISIBLE(curinv) && (curinv->type != CONTAINER || (op->type == PLAYER && CONTR(op)->container != curinv)))
+			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && curinv->type != MONEY && curinv->type != FOOD && curinv->type != KEY && curinv->type != SPECIAL_KEY && (curinv->type != GEM && curinv->type != PEARL && curinv->type != JEWEL && curinv->type != NUGGET) && !IS_SYS_INVISIBLE(curinv) && (curinv->type != CONTAINER || (op->type == PLAYER && CONTR(op)->container != curinv)))
 			{
 				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
 				{

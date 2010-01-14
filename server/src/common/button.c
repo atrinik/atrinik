@@ -78,7 +78,7 @@ void push_button(object *op)
 				update_ob_speed(tmp);
 				break;
 
-			case CF_HANDLE:
+			case HANDLE:
 				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + (tmp->value = tmp->stats.maxsp ? !op->value : op->value));
 				update_object(tmp, UP_OBJ_FACE);
 				break;

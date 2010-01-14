@@ -714,7 +714,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			return 1;
 			break;
 
-		case CF_HANDLE:
+		case HANDLE:
 			new_draw_info(NDI_UNIQUE, op, "You turn the handle.");
 			play_sound_map(op->map, op->x, op->y, SOUND_TURN_HANDLE, SOUND_NORMAL);
 			tmp->value = tmp->value ? 0 : 1;
@@ -805,11 +805,11 @@ int manual_apply(object *op, object *tmp, int aflag)
 			(void) apply_potion(op, tmp);
 			return 1;
 
-		case TYPE_LIGHT_APPLY:
+		case LIGHT_APPLY:
 			apply_player_light(op, tmp);
 			return 1;
 
-		case TYPE_LIGHT_REFILL:
+		case LIGHT_REFILL:
 			apply_player_light_refill(op, tmp);
 			return 1;
 
@@ -894,13 +894,10 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case CLOCK:
 			if (op->type == PLAYER)
 			{
-				char buf[MAX_BUF];
 				timeofday_t tod;
 
 				get_tod(&tod);
-				snprintf(buf, sizeof(buf), "It is %d minute%s past %d o'clock %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
-
-				new_draw_info(NDI_UNIQUE, op, buf);
+				new_draw_info_format(NDI_UNIQUE, op, "It is %d minute%s past %d o'clock %s", tod.minute + 1, ((tod.minute + 1 < 2) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
 				return 1;
 			}
 

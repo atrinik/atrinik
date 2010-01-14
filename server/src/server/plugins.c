@@ -177,7 +177,7 @@ object *get_event_object(object *op, int event_nr)
 	 * when we find a script object from type event_nr. */
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
-		if (tmp->type == TYPE_EVENT_OBJECT && tmp->sub_type1 == event_nr)
+		if (tmp->type == EVENT_OBJECT && tmp->sub_type1 == event_nr)
 		{
 			return tmp;
 		}

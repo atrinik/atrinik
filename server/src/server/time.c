@@ -240,7 +240,7 @@ static void change_object(object *op)
 		else
 		{
 			/* We had hooked applyable light object here - handle them special */
-			if (op->type == TYPE_LIGHT_APPLY)
+			if (op->type == LIGHT_APPLY)
 			{
 				CLEAR_FLAG(op, FLAG_CHANGING);
 

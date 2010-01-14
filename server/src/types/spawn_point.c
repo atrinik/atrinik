@@ -182,7 +182,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 	{
 		next = tmp->below;
 
-		if (tmp->type == TYPE_RANDOM_DROP)
+		if (tmp->type == RANDOM_DROP)
 		{
 			/* skip this container - drop the ->inv */
 			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
@@ -191,7 +191,7 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 				{
 					next2 = tmp2->below;
 
-					if (tmp2->type == TYPE_RANDOM_DROP)
+					if (tmp2->type == RANDOM_DROP)
 					{
 						LOG(llevDebug,"DEBUG:: Spawn:: RANDOM_DROP (102) not allowed inside RANDOM_DROP.mob:>%s< map:%s (%d,%d)\n", query_name(monster, NULL), op->map ? op->map->path : "BUG: S-Point without map!", op->x, op->y);
 					}

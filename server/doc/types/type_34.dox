@@ -118,6 +118,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>food bonus</td>
 		<td>@ref liv::food</td>
 		<td>			Positive &lt;food bonus&gt; slows down the player's
@@ -553,6 +559,15 @@ Type defined by:
 		<td>@ref obj::last_heal</td>
 		<td>		This poses a penalty to spell regeneration speed, for wearing the
 		helmet. The higher the spellpoint penalty, the worse.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

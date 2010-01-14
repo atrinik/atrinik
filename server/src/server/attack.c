@@ -449,7 +449,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		if (check_walk_off(op, NULL,MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
 		{
 			/* This doesn't handle op->more yet */
-			for (i = 0; i < NROFNEWOBJS(op); i++)
+			for (i = 0; i < op->stats.food; i++)
 			{
 				object *tmp = arch_to_object(op->other_arch);
 				int j;

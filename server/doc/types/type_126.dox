@@ -1,10 +1,31 @@
 /**
-@page page_type_0 Misc
+@page page_type_126 Beacon
 
 
 @section Description
-This type regroups all types who don't have a specific definition.
+	<![CDATA[
+		Beacons are objects which can be located by scripts using their
+		ID, wherever in the game they might be. This behavior is useful,
+		for example, for gates and switches on different maps, as
+		connections normally work only on a single map (you can't open a
+		gate that is on map2 with lever that is on map1, for example).
+		<br><br>
+		With beacons, however, you can. Make a lever that triggers a
+		script on use, with the script looking for a specific beacon ID
+		in the game (if you know the map path the beacon is on you should
+		use ReadyMap() first to ensure the beacon's map is loaded in
+		memory). The beacon would be inside an invisible lever on the map
+		with the gate you want to trigger sharing the same connection
+		values, and the script would just then trigger the invisible
+		lever using something like:
+		<br><br>
+		me.Apply(beacon.environment, APPLY_TOGGLE)
+	
 
+
+
+Type defined by:
+- @ref object::type = 126
 
 
 @section Attributes
@@ -29,17 +50,18 @@ This type regroups all types who don't have a specific definition.
 		</td>
 	</tr>
 	<tr>
+		<td>beacon ID</td>
+		<td>@ref obj::name</td>
+		<td>		ID of the beacon. This should be unique string and no other
+		beacon should have the same ID.
+		</td>
+	</tr>
+	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>		If an item is set to block view, players (and monsters) cannot
 		see beyond it unless they cross it or manage to stand on top of
 		it.
-		</td>
-	</tr>
-	<tr>
-		<td>blocking passage</td>
-		<td>@ref FLAG_NO_PASS</td>
-		<td>		If set, the object cannot be passed by players nor monsters.
 		</td>
 	</tr>
 	<tr>
@@ -62,30 +84,9 @@ This type regroups all types who don't have a specific definition.
 		</td>
 	</tr>
 	<tr>
-		<td>damned</td>
-		<td>@ref FLAG_DAMNED</td>
-		<td>		Stronger form of curse. Item can't be removed when wielded or
-		worn. Remove damnation will remove this flag.
-		</td>
-	</tr>
-	<tr>
-		<td>description</td>
-		<td>@ref obj::msg</td>
-		<td>		This text may describe the object.
-		</td>
-	</tr>
-	<tr>
 		<td>direction</td>
 		<td>@ref obj::direction</td>
 		<td>		The object's direction.
-		</td>
-	</tr>
-	<tr>
-		<td>ethereal can pass</td>
-		<td>@ref FLAG_PASS_THRU</td>
-		<td>		If no_pass (blocking passage) is set, no one can pass. If this
-		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
-		pass. This is used for example for ghosts who move through doors.
 		</td>
 	</tr>
 	<tr>
@@ -95,13 +96,6 @@ This type regroups all types who don't have a specific definition.
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
-		</td>
-	</tr>
-	<tr>
-		<td>godgiven item</td>
-		<td>@ref FLAG_STARTEQUIP</td>
-		<td>		A godgiven item vanishes as soon as the player drops it to the
-		ground.
 		</td>
 	</tr>
 	<tr>
@@ -190,12 +184,6 @@ This type regroups all types who don't have a specific definition.
 		the object consists. Material class does also affect how likely
 		the object can be destroyed by hazardous spell-effects, like
 		firestorm.
-		</td>
-	</tr>
-	<tr>
-		<td>name</td>
-		<td>@ref obj::name</td>
-		<td>		This is the name of the object, displayed to the player.
 		</td>
 	</tr>
 	<tr>
@@ -311,32 +299,11 @@ This type regroups all types who don't have a specific definition.
 		</td>
 	</tr>
 	<tr>
-		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
-		<td>		This important value is used to define "sub types" for objects of
-		the same object type. Examples are weapons, which are all from
-		type WEAPON but can be different sub types like slash, cleave,
-		two-handed, polearms and so on. This value goes to the client
-		too.
-
-		Warning: Not all objects have a sub type and changing it without
-		care can corrupt server AND/OR the clients. Normally this is not
-		a subject to change outside arch definition.
-		</td>
-	</tr>
-	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
 		<td>		This is the object's title. Once an object is identified the
 		title is attached to the name. Typical titles are "of Yordan",
 		"of xray vision" etc.
-		</td>
-	</tr>
-	<tr>
-		<td>unique item</td>
-		<td>@ref FLAG_UNIQUE</td>
-		<td>		Unique items exist only one time on a server. If the item is
-		taken, lost or destroyed - it's gone for good.
 		</td>
 	</tr>
 	<tr>

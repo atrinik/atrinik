@@ -2044,7 +2044,7 @@ void ShopCmd(char *buf, int len, player *pl)
  * @param pl The player. */
 void QuestListCmd(char *data, int len, player *pl)
 {
-	object *quest_container = present_in_ob(TYPE_QUEST_CONTAINER, pl->ob), *tmp;
+	object *quest_container = present_in_ob(QUEST_CONTAINER, pl->ob), *tmp;
 	char buf[HUGE_BUF * 12], tmp_buf[MAX_BUF];
 
 	(void) data;
@@ -2062,7 +2062,7 @@ void QuestListCmd(char *data, int len, player *pl)
 	/* First show incomplete quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type != TYPE_QUEST_CONTAINER || tmp->magic == QUEST_STATUS_COMPLETED)
+		if (tmp->type != QUEST_CONTAINER || tmp->magic == QUEST_STATUS_COMPLETED)
 		{
 			continue;
 		}
@@ -2084,7 +2084,7 @@ void QuestListCmd(char *data, int len, player *pl)
 	/* Now show completed quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type != TYPE_QUEST_CONTAINER || tmp->magic != QUEST_STATUS_COMPLETED)
+		if (tmp->type != QUEST_CONTAINER || tmp->magic != QUEST_STATUS_COMPLETED)
 		{
 			continue;
 		}

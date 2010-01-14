@@ -1,5 +1,5 @@
 /**
-@var TYPE_WAYPOINT_OBJECT
+@var WAYPOINT_OBJECT
 See @ref page_type_119
 */
 
@@ -101,6 +101,12 @@ Type defined by:
 		could use the relative path "0304"). Use relative paths whenever
 		possible! Note that upper/lower case must always be set
 		correctly. However, please use lower case only.
+		</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
 		</td>
 	</tr>
 	<tr>
@@ -290,6 +296,15 @@ Type defined by:
 		<td>@ref FLAG_PLAYER_ONLY</td>
 		<td>		If set, only players can enter the tile the object with this flag
 		is on.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

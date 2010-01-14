@@ -34,22 +34,22 @@
 /**
  * @defgroup STATS Object statistics */
 /*@{*/
-/** Strength */
-#define STR				0
-/** Dexterity */
-#define DEX				1
-/** Constitution */
-#define CON				2
-/** Wisdom */
-#define WIS				3
-/** Charisma */
-#define CHA				4
-/** Intelligence */
-#define INTELLIGENCE	5
-/** Power */
-#define POW				6
-/** Number of stats */
-#define NUM_STATS		7
+/** Strength. */
+#define STR             0
+/** Dexterity. */
+#define DEX             1
+/** Constitution. */
+#define CON             2
+/** Wisdom. */
+#define WIS             3
+/** Charisma. */
+#define CHA             4
+/** Intelligence. */
+#define INTELLIGENCE    5
+/** Power. */
+#define POW             6
+/** Number of stats. */
+#define NUM_STATS       7
 /*@}*/
 
 /* Changed from NO_STAT to NO_STAT_VAL to fix conlfict on
@@ -73,16 +73,17 @@ extern const char *const short_stat_name[NUM_STATS];
 
 extern char *spellpathnames[NRSPELLPATHS];
 
-#define LEVEL_DAMAGE(level) (float) (level > 1 ? 0.75f + level * 0.25f : 1.0f)
+/**
+ * Calculates damage based on level. */
+#define LEVEL_DAMAGE(level) (float) ((level) ? 0.75f + (level) * 0.25f : 1.0f)
 
 #ifdef WIN32
 #pragma pack(push,1)
 #endif
 
 /**
- * Mostly used by "alive" objects, but also by other
- * objects like gates, buttons, waypoints and a number
- * of other objects.*/
+ * Mostly used by "alive" objects, but also by other objects like gates,
+ * buttons, waypoints and a number of other objects. */
 typedef struct liv
 {
 	/** Experience. */
@@ -91,7 +92,7 @@ typedef struct liv
 	/** Hit points. */
 	sint32 hp;
 
-	/** Max hit points */
+	/** Max hit points. */
 	sint32 maxhp;
 
 	/** Spell points. Used to cast mage spells. */
@@ -103,19 +104,19 @@ typedef struct liv
 	/** Grace. Used to invoke clerical prayers. */
 	sint16 grace;
 
-	/** Max Grace. */
+	/** Max grace. */
 	sint16 maxgrace;
 
-	/** How much food in stomach.  0 = starved. */
+	/** How much food in stomach. 0 = starved. */
 	sint16 food;
 
-	/** How much damage this object does when hitting */
+	/** How much damage this object does when hitting. */
 	sint16 dam;
 
-	/** Weapon class */
+	/** Weapon class. */
 	sint16 wc;
 
-	/** Armour class */
+	/** Armour class. */
 	sint16 ac;
 
 	/**
@@ -124,28 +125,28 @@ typedef struct liv
 	 * defender's AC then we can hit our enemy. */
 	uint8 wc_range;
 
-	/** Strength */
+	/** Strength. */
 	sint8 Str;
 
-	/** Dexterity */
+	/** Dexterity. */
 	sint8 Dex;
 
-	/** Constitution */
+	/** Constitution. */
 	sint8 Con;
 
-	/** Wisdom */
+	/** Wisdom. */
 	sint8 Wis;
 
-	/** Charisma */
+	/** Charisma. */
 	sint8 Cha;
 
-	/** Intelligence */
+	/** Intelligence. */
 	sint8 Int;
 
-	/** Power */
+	/** Power. */
 	sint8 Pow;
 
-	/** Affects thaco and ac from time to time */
+	/** Affects thaco and ac from time to time. */
 	sint8 luck;
 } living;
 

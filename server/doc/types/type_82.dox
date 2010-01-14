@@ -1,5 +1,5 @@
 /**
-@var TYPE_LIGHT_REFILL
+@var LIGHT_REFILL
 See @ref page_type_82
 */
 
@@ -72,6 +72,12 @@ Type defined by:
 		<td>@ref FLAG_DAMNED</td>
 		<td>		Stronger form of curse. Item can't be removed when wielded or
 		worn. Remove damnation will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
 		</td>
 	</tr>
 	<tr>
@@ -263,6 +269,15 @@ Type defined by:
 		light type. If we can refill all in the light, this object is
 		deleted. If we can't put all in the light, the value is decreased
 		by the number we filled in.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

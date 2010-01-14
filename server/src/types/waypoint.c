@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Handles the code for @ref TYPE_WAYPOINT_OBJECT "waypoint objects". */
+ * Handles the code for @ref WAYPOINT_OBJECT "waypoint objects". */
 
 #include <global.h>
 #include <sproto.h>
@@ -40,7 +40,7 @@ object *get_active_waypoint(object *op)
 
 	for (wp = op->inv; wp != NULL; wp = wp->below)
 	{
-		if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_CURSED))
+		if (wp->type == WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_CURSED))
 		{
 			break;
 		}
@@ -59,7 +59,7 @@ object *get_aggro_waypoint(object *op)
 
 	for (wp = op->inv; wp != NULL; wp = wp->below)
 	{
-		if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_DAMNED))
+		if (wp->type == WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_DAMNED))
 		{
 			break;
 		}
@@ -79,7 +79,7 @@ object *get_return_waypoint(object *op)
 
 	for (wp = op->inv; wp != NULL; wp = wp->below)
 	{
-		if (wp->type == TYPE_WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_REFLECTING))
+		if (wp->type == WAYPOINT_OBJECT && QUERY_FLAG(wp, FLAG_REFLECTING))
 		{
 			break;
 		}
@@ -104,7 +104,7 @@ object *find_waypoint(object *op, const char *name)
 
 	for (wp = op->inv; wp != NULL; wp = wp->below)
 	{
-		if (wp->type == TYPE_WAYPOINT_OBJECT && strcmp(wp->name, name) == 0)
+		if (wp->type == WAYPOINT_OBJECT && strcmp(wp->name, name) == 0)
 		{
 			break;
 		}

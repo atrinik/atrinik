@@ -95,6 +95,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>glow radius</td>
 		<td>@ref obj::glow_radius</td>
 		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
@@ -281,6 +287,15 @@ Type defined by:
 		<td>		This value sets the speed of the DOT ticks. Careful - a value of
 		1 means damage every game tick - that can be 9 per second!
 		(DOT = Damage Over Time)
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

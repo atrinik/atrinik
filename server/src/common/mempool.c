@@ -199,7 +199,7 @@ void init_mempools()
 
 	/* Set up container for "loose" objects */
 	initialize_object(&void_container);
-	void_container.type = TYPE_VOID_CONTAINER;
+	void_container.type = VOID_CONTAINER;
 	FREE_AND_COPY_HASH(void_container.name, "<void container>");
 }
 

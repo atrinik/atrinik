@@ -86,4 +86,5 @@ Types not listed here have the attributes defined in @ref page_type_0 "this page
 - @ref page_type_118 "Event Object"
 - @ref page_type_119 "Waypoint Object"
 - @ref page_type_120 "Quest Container"
+- @ref page_type_126 "Beacon"
 */

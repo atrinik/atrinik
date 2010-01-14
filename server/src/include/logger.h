@@ -31,21 +31,7 @@
 #define LOGGER_H
 
 /**
- * The log level system have this meaning:
- *
- * In GLOBAL_LOG_LEVEL is the default log level stored - at the bottom of
- * this file.
- *
- * This can changed at runtime by using a debug command.
- *
- * When DEBUG is set (or GLOBAL_LOG_LEVEL set to llevDebug) then the
- * system drops maximum log messages.
- *
- * If llevInfo is set, is still drops a lot useful messages.
- *
- * If llevBug is set, only really bugs and errors are logged.
- *
- * Set levNoLog for no output. */
+ * Log levels for the LOG() function. */
 typedef enum LogLevel
 {
 	/**
@@ -54,35 +40,35 @@ typedef enum LogLevel
 	llevNoLog = -1,
 
 	/**
-	 * Internal: used for llevError msg and llevBug message - don't set
-	 * this! */
+	 * Used for system-type messages. */
 	llevSystem = 0,
 
-	/** For fatal errors - server stability is unsafe after this */
+	/** An irrecoverable fatal error; the server will shut down. */
 	llevError,
 
-	/** A bug - but we have it under control (we hope so) */
+	/**
+	 * A bug; after too many of these in a single tick the server will
+	 * shut down. */
 	llevBug,
 
-	/** Just tell the log stuff we think it's useful to know */
+	/** Just tell the log stuff we think it's useful to know. */
 	llevInfo,
 
-	/** Give out maximal information for debug and bug control */
+	/** Give out maximal information for debug and bug control. */
 	llevDebug,
 
 	/**
-	 * SPECIAL DEBUG: give out full monster information and debug
-	 * messages */
+	 * Give out full monster information and debug messages. */
 	llevMonster
 } LogLevel;
 
-/* if not set from outside, we force a useful setting here */
+/* If not set from outside, we force a useful setting here */
 #ifndef GLOBAL_LOG_LEVEL
-#ifdef DEBUG
-#define GLOBAL_LOG_LEVEL llevMonster
-#else
-#define GLOBAL_LOG_LEVEL llevInfo
-#endif
+#	ifdef DEBUG
+#		define GLOBAL_LOG_LEVEL llevMonster
+#	else
+#		define GLOBAL_LOG_LEVEL llevInfo
+#	endif
 #endif
 
 #endif

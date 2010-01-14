@@ -132,6 +132,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>exp. for curing</td>
 		<td>@ref liv::exp</td>
 		<td>			When the player manages to cure this disease (with a curing
@@ -427,6 +433,15 @@ Type defined by:
 		<td>			If set, the disease imposes a &lt;slowdown&gt; penalty while
 			being infected. The player's speed is reduced by
 			&lt;slowdown&gt; % of normal value.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

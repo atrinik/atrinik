@@ -67,7 +67,6 @@
 	<type number="49" name="BLINDNESS" />
 	<type number="50" name="GOD" />
 	<type number="51" name="DETECTOR" />
-	<type number="52" name="SPEEDBALL" />
 	<type number="53" name="DEAD_OBJECT" />
 	<type number="54" name="DRINK" />
 	<type number="55" name="MARKER" />
@@ -82,24 +81,23 @@
 	<type number="64" name="CHECK_INV" />
 	<type number="65" name="MOOD_FLOOR" />
 	<type number="66" name="EXIT" />
-	<type number="67" name="TYPE_AGE_FORCE" />
+	<type number="67" name="AGE_FORCE" />
 	<type number="68" name="SHOP_FLOOR" />
 	<type number="69" name="SHOP_MAT" />
 	<type number="70" name="RING" />
 	<type number="71" name="FLOOR" />
 	<type number="72" name="FLESH" />
 	<type number="73" name="INORGANIC" />
-	<type number="74" name="TYPE_LIGHT_APPLY" />
+	<type number="74" name="LIGHT_APPLY" />
 	<type number="75" name="LIGHTER" />
-	<type number="76" name="TRAP_PART" />
 	<type number="77" name="WALL" />
 	<type number="78" name="LIGHT_SOURCE" />
 	<type number="79" name="MISC_OBJECT" />
 	<type number="80" name="MONSTER" />
 	<type number="81" name="SPAWN_POINT" />
-	<type number="82" name="TYPE_LIGHT_REFILL" />
-	<type number="83" name="TYPE_SPAWN_MOB" />
-	<type number="84" name="TYPE_SPAWN_INFO" />
+	<type number="82" name="LIGHT_REFILL" />
+	<type number="83" name="SPAWN_MOB" />
+	<type number="84" name="SPAWN_INFO" />
 	<type number="85" name="SPELLBOOK" />
 	<type number="86" name="ORGANIC" />
 	<type number="87" name="CLOAK" />
@@ -108,22 +106,20 @@
 	<type number="90" name="SPINNER" />
 	<type number="91" name="GATE" />
 	<type number="92" name="BUTTON" />
-	<type number="93" name="CF_HANDLE" />
+	<type number="93" name="HANDLE" />
 	<type number="94" name="HOLE" />
 	<type number="95" name="TRAPDOOR" />
 	<type number="96" name="WORD_OF_RECALL" />
-	<type number="97" name="PARAIMAGE" />
 	<type number="98" name="SIGN" />
 	<type number="99" name="BOOTS" />
 	<type number="100" name="GLOVES" />
-	<type number="101" name="BASE_INFO (internal)" />
+	<type number="101" name="BASE_INFO" />
 	<type number="102" name="RANDOM_DROP" />
 	<type number="103" name="CONVERTER" />
 	<type number="104" name="BRACERS" />
 	<type number="105" name="POISONING" />
 	<type number="106" name="SAVEBED" />
 	<type number="107" name="POISONCLOUD" />
-	<type number="108" name="FIREHOLES" />
 	<type number="109" name="WAND" />
 	<type number="110" name="ABILITY" />
 	<type number="111" name="SCROLL" />
@@ -131,22 +127,21 @@
 	<type number="113" name="GIRDLE" />
 	<type number="114" name="FORCE" />
 	<type number="115" name="POTION_EFFECT" />
-	<type number="116" name="TYPE_JEWEL" />
-	<type number="117" name="TYPE_NUGGET" />
-	<type number="118" name="TYPE_EVENT_OBJECT" />
-	<type number="119" name="TYPE_WAYPOINT_OBJECT" />
-	<type number="120" name="TYPE_QUEST_CONTAINER" />
+	<type number="116" name="JEWEL" />
+	<type number="117" name="NUGGET" />
+	<type number="118" name="EVENT_OBJECT" />
+	<type number="119" name="WAYPOINT_OBJECT" />
+	<type number="120" name="QUEST_CONTAINER" />
 	<type number="121" name="CLOSE_CON" />
 	<type number="122" name="CONTAINER" />
 	<type number="123" name="ARMOUR_IMPROVER" />
 	<type number="124" name="WEAPON_IMPROVER" />
-	<type number="125" name="TYPE_WEALTH" />
+	<type number="125" name="WEALTH" />
 	<type number="126" name="BEACON" />
 	<type number="130" name="SKILLSCROLL" />
 	<type number="138" name="DEEP_SWAMP" />
 	<type number="139" name="IDENTIFY_ALTAR" />
 	<type number="141" name="CANCELLATION" />
-	<type number="150" name="MENU" />
 	<type number="151" name="BALL_LIGHTNING" />
 	<type number="153" name="SWARM_SPELL" />
 	<type number="154" name="RUNE" />

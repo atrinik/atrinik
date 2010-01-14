@@ -388,7 +388,7 @@ char *query_short_name(object *op, object *caller)
 		if (!QUERY_FLAG(op, FLAG_IS_NAMED))
 		{
 			/* Add the item race name */
-			if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
+			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
 				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
 			}
@@ -430,7 +430,7 @@ char *query_short_name(object *op, object *caller)
 	{
 		if (!QUERY_FLAG(op, FLAG_IS_NAMED))
 		{
-			if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
+			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
 				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
 			}
@@ -607,7 +607,7 @@ char *query_short_name(object *op, object *caller)
 		default:
 			if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED)))
 			{
-				if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
+				if (!IS_LIVE(op) && op->type != BASE_INFO)
 				{
 					sprintf(buf2, " %+d", op->magic);
 					safe_strcat(buf, buf2, &len, sizeof(buf));
@@ -776,7 +776,7 @@ char *query_base_name(object *op, object *caller)
 	if (!QUERY_FLAG(op, FLAG_IS_NAMED))
 	{
 		/* Add the item race name */
-		if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
+		if (!IS_LIVE(op) && op->type != BASE_INFO)
 		{
 			strcpy(buf, item_race_table[op->item_race].name);
 		}
@@ -960,7 +960,7 @@ char *query_base_name(object *op, object *caller)
 		default:
 			if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED)))
 			{
-				if (!IS_LIVE(op) && op->type != TYPE_BASE_INFO)
+				if (!IS_LIVE(op) && op->type != BASE_INFO)
 				{
 					sprintf(buf2, " %+d", op->magic);
 					safe_strcat(buf, buf2, &len, sizeof(buf));
@@ -1595,14 +1595,14 @@ int need_identify(object *op)
 		case CLOSE_CON:
 		case CLOAK:
 		case GEM:
-		case TYPE_JEWEL:
-		case TYPE_NUGGET:
+		case JEWEL:
+		case NUGGET:
 		case PEARL:
 		case POWER_CRYSTAL:
 		case POISON:
 		case BOOK:
-		case TYPE_LIGHT_APPLY:
-		case TYPE_LIGHT_REFILL:
+		case LIGHT_APPLY:
+		case LIGHT_REFILL:
 			return 1;
 	}
 

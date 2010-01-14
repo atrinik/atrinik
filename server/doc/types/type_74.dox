@@ -1,5 +1,5 @@
 /**
-@var TYPE_LIGHT_APPLY
+@var LIGHT_APPLY
 See @ref page_type_74
 */
 
@@ -73,6 +73,12 @@ Type defined by:
 		<td>@ref FLAG_DAMNED</td>
 		<td>		Stronger form of curse. Item can't be removed when wielded or
 		worn. Remove damnation will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
 		</td>
 	</tr>
 	<tr>
@@ -271,6 +277,15 @@ Type defined by:
 		<td>@ref FLAG_PLAYER_ONLY</td>
 		<td>		If set, only players can enter the tile the object with this flag
 		is on.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

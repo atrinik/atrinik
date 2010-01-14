@@ -91,7 +91,7 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 		"identify_all": activator.ShowCost(costs["identify_all"]),
 	}
 
-	# Some of the services are free if the player is under level three
+	# Some of the services are free if the player is under certain level
 	if activator.level < level_free:
 		cost_strings["detect_curse"] = "free"
 		cost_strings["detect_magic"] = "free"

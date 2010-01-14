@@ -252,6 +252,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>experience</td>
 		<td>@ref liv::exp</td>
 		<td>		When a player kills this monster, he will get this amount of
@@ -690,6 +696,15 @@ Type defined by:
 		<td>		This is the number of new monsters generated when this monster is
 		split. This only takes effect if &lt;split&gt; and
 		&lt;breed monster&gt; are set.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

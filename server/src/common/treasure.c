@@ -903,7 +903,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 		{
 			if (IS_SYS_INVISIBLE(&t->item->clone) || !(flag & GT_INVISIBLE))
 			{
-				if (t->item->clone.type != TYPE_WEALTH)
+				if (t->item->clone.type != WEALTH)
 				{
 					tmp = arch_to_object(t->item);
 
@@ -1092,7 +1092,7 @@ create_one_treasure_again_jmp:
 
 	if (IS_SYS_INVISIBLE(&t->item->clone) || flag != GT_INVISIBLE)
 	{
-		if (t->item->clone.type != TYPE_WEALTH)
+		if (t->item->clone.type != WEALTH)
 		{
 			tmp = arch_to_object(t->item);
 

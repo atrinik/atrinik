@@ -100,6 +100,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>drop amount</td>
 		<td>@ref liv::food</td>
 		<td>		The drop amount specifies the amount of items (specified in
@@ -318,6 +324,15 @@ Type defined by:
 		<td>spell level</td>
 		<td>@ref obj::level</td>
 		<td>		Set the power level of the spell.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

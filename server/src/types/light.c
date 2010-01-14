@@ -51,7 +51,7 @@ void apply_player_light_refill(object *who, object *op)
 		return;
 	}
 
-	if (item->type != TYPE_LIGHT_APPLY || !item->race || strstr(item->race, op->race))
+	if (item->type != LIGHT_APPLY || !item->race || strstr(item->race, op->race))
 	{
 		new_draw_info_format(NDI_UNIQUE, who, "You can't refill the %s with the %s.", query_name(item, NULL), query_name(op, NULL));
 		return;
@@ -144,7 +144,7 @@ void apply_player_light(object *who, object *op)
 		 * with the second, we apply it. if we unapply a light source, we always unlight
 		 * them implicit. */
 
-		/* TYPE_LIGHT_APPLY light sources with last_sp (aka glow_radius) 0 are useless -
+		/* LIGHT_APPLY light sources with last_sp (aka glow_radius) 0 are useless -
 		 * for example burnt out torches. The burnt out lights are still from same type
 		 * because they are perhaps applied from the player as they burnt out
 		 * and we don't want a player applying an illegal item. */

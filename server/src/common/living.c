@@ -1176,7 +1176,7 @@ void fix_player(object *op)
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
 		/* Add here more types we can and must skip. */
-		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == CLOSE_CON || tmp->type == TYPE_LIGHT_REFILL || tmp->type == WAND || tmp->type == ROD || tmp->type == HORN)
+		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == CLOSE_CON || tmp->type == LIGHT_REFILL || tmp->type == WAND || tmp->type == ROD || tmp->type == HORN)
 		{
 			continue;
 		}
@@ -1185,8 +1185,8 @@ void fix_player(object *op)
 		 * object like holy glowing aura force or something */
 		if (tmp->glow_radius > light)
 		{
-			/* Don't use this item when it is a 'not applied TYPE_LIGHT_APPLY' */
-			if (tmp->type != TYPE_LIGHT_APPLY || QUERY_FLAG(tmp, FLAG_APPLIED))
+			/* Don't use this item when it is a 'not applied LIGHT_APPLY' */
+			if (tmp->type != LIGHT_APPLY || QUERY_FLAG(tmp, FLAG_APPLIED))
 			{
 				light = tmp->glow_radius;
 			}
@@ -1220,7 +1220,7 @@ void fix_player(object *op)
 			/* Still applied stuff */
 			switch (tmp->type)
 			{
-				case TYPE_LIGHT_APPLY:
+				case LIGHT_APPLY:
 					if (tmp->glow_radius > light)
 					{
 						light = tmp->glow_radius;
@@ -1475,7 +1475,7 @@ fix_player_no_armour:
 					break;
 
 				/* Now calculate resistance and stuff for all the rest applyable objects! */
-				case TYPE_AGE_FORCE:
+				case AGE_FORCE:
 					/* Store our age force */
 					pl->age_force = tmp;
 					pl->age = tmp->stats.hp;
@@ -1518,17 +1518,17 @@ fix_player_no_armour:
 						ac += (tmp->stats.ac + tmp->magic);
 					}
 
-					if (tmp->stats.maxhp && tmp->type != TYPE_AGE_FORCE)
+					if (tmp->stats.maxhp && tmp->type != AGE_FORCE)
 					{
 						op->stats.maxhp += tmp->stats.maxhp;
 					}
 
-					if (tmp->stats.maxsp && tmp->type != TYPE_AGE_FORCE)
+					if (tmp->stats.maxsp && tmp->type != AGE_FORCE)
 					{
 						op->stats.maxsp += tmp->stats.maxsp;
 					}
 
-					if (tmp->stats.maxgrace && tmp->type != TYPE_AGE_FORCE)
+					if (tmp->stats.maxgrace && tmp->type != AGE_FORCE)
 					{
 						op->stats.maxgrace += tmp->stats.maxgrace;
 					}
@@ -2454,7 +2454,7 @@ void fix_monster(object *op)
 		SET_MULTI_FLAG(op, FLAG_FRIENDLY);
 	}
 
-	op->stats.dam = (sint16) (((float) op->stats.dam * ((LEVEL_DAMAGE((op->level < 0 ? 0 : op->level)) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+	op->stats.dam = (sint16) (((float) op->stats.dam * ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
 
 	/* Add a special decrease of power for monsters level 1-5 */
 	if (op->level <= 5)
@@ -2512,7 +2512,7 @@ object *insert_base_info_object(object *op)
 	tmp->arch = op->arch;
 	/* Copy without putting it on active list */
 	copy_object_data(head, tmp);
-	tmp->type = TYPE_BASE_INFO;
+	tmp->type = BASE_INFO;
 	tmp->speed_left = tmp->speed;
 	/* Ensure this object will not be active in any way */
 	tmp->speed = 0.0f;
@@ -2543,7 +2543,7 @@ object *find_base_info_object(object *op)
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type == TYPE_BASE_INFO)
+		if (tmp->type == BASE_INFO)
 		{
 			return tmp;
 		}

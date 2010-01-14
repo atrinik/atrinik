@@ -1,5 +1,5 @@
 /**
-@var TYPE_EVENT_OBJECT
+@var EVENT_OBJECT
 See @ref page_type_118
 */
 
@@ -67,6 +67,12 @@ Type defined by:
 		<td>@ref FLAG_CURSED</td>
 		<td>		The item is cursed. This object can't be removed when wielded or
 		worn (without uncursing it). Remove curse will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
 		</td>
 	</tr>
 	<tr>
@@ -261,6 +267,15 @@ Type defined by:
 		<td>@ref obj::race</td>
 		<td>		Name of the script of data file we want submit to the plugin when
 		the event is triggered.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

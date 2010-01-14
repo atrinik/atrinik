@@ -115,6 +115,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>don't drop</td>
 		<td>@ref FLAG_NO_DROP</td>
 		<td>		When a monster carries a projectile with &lt;don't drop&gt;, this
@@ -328,6 +334,15 @@ Type defined by:
 		only monsters of that archetype receive triple damage.
 
 		Triple damage is very effective, especially on higher levels.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

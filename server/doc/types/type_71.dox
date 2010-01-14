@@ -87,6 +87,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
 		<td>ethereal can pass</td>
 		<td>@ref FLAG_PASS_THRU</td>
 		<td>		If no_pass (blocking passage) is set, no one can pass. If this
@@ -289,6 +295,15 @@ Type defined by:
 			&lt;slow movement&gt; 2 - very rough terrain
 			...
 			&lt;slow movement&gt; 7 - spider web (sticky as hell)
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
 		</td>
 	</tr>
 	<tr>

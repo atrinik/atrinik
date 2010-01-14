@@ -1403,12 +1403,11 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src)
  * @param single_ob If mode is IDENTIFY_MODE_MARKED, only this object will
  * be identified.
  * @param mode One of @ref identify_modes.
- * @return Number of objects identified.
- * @todo Get rid of the goto. */
+ * @return Number of objects identified. */
 int cast_identify(object *op, int level, object *single_ob, int mode)
 {
-	object *tmp;
-	int success = 0, success2 = 0, random_val = 0;
+	object *tmp = op->inv;
+	int success = 0, success2 = 0;
 	int chance = 8 + op->stats.luck + op->stats.Wis;
 
 	if (chance < 1)
@@ -1416,18 +1415,17 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 		chance = 1;
 	}
 
-	/* iam to lazy to put the id stuff in own function... */
 	if (mode == IDENTIFY_MODE_MARKED)
 	{
 		tmp = single_ob;
-		goto inside_jump1;
+	}
+	else
+	{
+		insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 	}
 
-	insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
+	for ( ; tmp; tmp = tmp->below)
 	{
-inside_jump1:
 		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED) && !IS_SYS_INVISIBLE(tmp) && need_identify(tmp))
 		{
 			success2++;
@@ -1454,7 +1452,7 @@ inside_jump1:
 					}
 				}
 
-				if (IDENTIFY_MODE_NORMAL && ((random_val = random_roll(0, chance - 1, op, PREFER_LOW)) > (chance - ++success - 2)))
+				if (mode == IDENTIFY_MODE_NORMAL && random_roll(0, chance - 1, op, PREFER_LOW) > (chance - ++success - 2))
 				{
 					break;
 				}

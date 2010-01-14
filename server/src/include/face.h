@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Face related structures */
+ * Face related structures. */
 
 /**
  * Face structure - this enforces the notion that data is face by
@@ -33,40 +33,40 @@
  * create a new face with that color. */
 typedef struct new_face_struct
 {
-	/** Name of the face */
-	const char *name;
+	/** Name of the face. */
+	char *name;
 
 	/**
 	 * This is the image ID. It should be the same value as its position
-	 * in the array */
+	 * in the array. */
 	uint16 number;
 } New_Face;
 
 /** Map look structure. */
 typedef struct map_look_struct
 {
-	/** Face */
+	/** Face. */
 	New_Face *face;
 
-	/** Flags */
+	/** Flags. */
 	uint8 flags;
 } MapLook;
 
 /** Animations structure */
 typedef struct
 {
-	/** Name of the animation sequence */
-	const char *name;
+	/** Name of the animation sequence. */
+	shstr *name;
 
-	/** The different animations */
+	/** The different animations. */
 	Fontindex *faces;
 
-	/** Where we are in the array */
+	/** Where we are in the array. */
 	uint16 num;
 
-	/** How many different faces to animate */
+	/** How many different faces to animate. */
 	uint8 num_animations;
 
-	/** How many facings (9 and 25 are allowed only with the new ext anim system) */
+	/** How many facings (9 and 25 are allowed only with the new ext anim system). */
 	uint8 facings;
 } Animations;

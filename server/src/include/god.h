@@ -27,18 +27,18 @@
  * @file
  * God (deities) related structures. */
 
-/** Used to link together the gods */
+/** Used to link together the gods. */
 typedef struct glnk
 {
-	/** Name of this god */
-	const char *name;
+	/** Name of this god. */
+	shstr *name;
 
-	/** Pointer to the archetype of this god */
+	/** Pointer to the archetype of this god. */
 	struct archt *arch;
 
-	/** ID of the god */
+	/** ID of the god. */
 	int id;
 
-	/** Next god */
+	/** Next god. */
 	struct glnk *next;
 } godlink;

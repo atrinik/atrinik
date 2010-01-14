@@ -32,5 +32,11 @@
 @ref page_type_120
 		</td><td>		Name of this quest.</td>
 	</tr>
+	<tr>
+		<td>
+@ref page_type_126
+		</td><td>		ID of the beacon. This should be unique string and no other
+		beacon should have the same ID.</td>
+	</tr>
 
 */

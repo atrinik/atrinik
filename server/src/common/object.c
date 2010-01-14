@@ -385,7 +385,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 	 * then must first find out a merge has happen or not). The sense of stacks
 	 * are to store inactive items. Because glow_radius items can be active even
 	 * when not apllied, merging is simply wrong here. MT. */
-	if (((!ob1->nrof || !ob2->nrof) && ob1->type != TYPE_EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
+	if (((!ob1->nrof || !ob2->nrof) && ob1->type != EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius)
 	{
 		return 0;
 	}
@@ -412,7 +412,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 		/* Check that all inv objects are event objects */
 		for (tmp1 = ob1->inv, tmp2 = ob2->inv; tmp1 && tmp2; tmp1 = tmp1->below, tmp2 = tmp2->below)
 		{
-			if (tmp1->type != TYPE_EVENT_OBJECT || tmp2->type != TYPE_EVENT_OBJECT)
+			if (tmp1->type != EVENT_OBJECT || tmp2->type != EVENT_OBJECT)
 			{
 				return 0;
 			}
@@ -1395,7 +1395,7 @@ void drop_ob_inv(object *ob)
 		/* Inv-no check off / This will be destroyed in next loop of object_gc() */
 		remove_ob(tmp_op);
 
-		if (tmp_op->type == TYPE_QUEST_CONTAINER)
+		if (tmp_op->type == QUEST_CONTAINER)
 		{
 			/* Legal, non freed enemy */
 			if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count)
@@ -2248,7 +2248,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 	/* Copy inventory (event objects) */
 	for (tmp = orig_ob->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type == TYPE_EVENT_OBJECT)
+		if (tmp->type == EVENT_OBJECT)
 		{
 			event = get_object();
 			copy_object(tmp, event);
@@ -2503,7 +2503,7 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	/* Check for event object and set the owner object
 	 * event flags. */
-	if (op->type == TYPE_EVENT_OBJECT && op->sub_type1)
+	if (op->type == EVENT_OBJECT && op->sub_type1)
 	{
 		where->event_flags |= (1U << (op->sub_type1 - 1));
 	}

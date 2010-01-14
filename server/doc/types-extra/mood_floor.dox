@@ -1,0 +1,21 @@
+/**
+
+@def PLAYERMOVER
+
+@ref ::obj "Object" fields and flags used by this type.
+
+<table>
+<tr>
+    <th>Field/Flag</th>
+    <th>Explanation</th>
+</tr>
+<tr>
+    <td>object::last_sp</td>
+    <td>Used to differentiate mood floors. Value meanings:
+        - 0 = furious, all monsters become aggressive.
+        - 1 = angry, all but friendly become aggressive.
+        - 2 = calm, all aggressive monsters calm down.
+        - 3 = sleep, all monsters fall asleep.</td>
+</tr>
+</table>
+*/

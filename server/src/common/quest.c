@@ -147,7 +147,7 @@ void check_quest(object *op, object *quest_container)
  * @param quest_name Name of the quest. */
 static void add_one_drop_quest_item(object *op, object *quest_item, const char *quest_name)
 {
-	object *quest_container = present_in_ob(TYPE_QUEST_CONTAINER, op), *quest_item_tmp = get_object();
+	object *quest_container = present_in_ob(QUEST_CONTAINER, op), *quest_item_tmp = get_object();
 
 	/* If the quest container doesn't exist yet, create it. */
 	if (!quest_container)
@@ -182,7 +182,7 @@ static void add_one_drop_quest_item(object *op, object *quest_item, const char *
  * container, NULL if no matching quest found. */
 static object *find_quest(object *op, const char *quest_name)
 {
-	object *tmp = present_in_ob(TYPE_QUEST_CONTAINER, op);
+	object *tmp = present_in_ob(QUEST_CONTAINER, op);
 
 	/* No quest container? */
 	if (!tmp)
