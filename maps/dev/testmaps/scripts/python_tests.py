@@ -34,8 +34,8 @@ elif words[0] == "equipment" and len(words) > 1:
 		else:
 			me.SayTo(activator, "\nYou are not wearing any armor.")
 	elif words[1] == "weapon":
-		if activator.GetEquipment(PLAYER_EQUIP_WEAPON1):
-			me.SayTo(activator, "\nYour weapon is '%s'." % activator.GetEquipment(PLAYER_EQUIP_WEAPON1).GetName())
+		if activator.GetEquipment(PLAYER_EQUIP_WEAPON):
+			me.SayTo(activator, "\nYour weapon is '%s'." % activator.GetEquipment(PLAYER_EQUIP_WEAPON).GetName())
 		else:
 			me.SayTo(activator, "\nYou are not wielding any weapon.")
 	elif words[1].isdigit():

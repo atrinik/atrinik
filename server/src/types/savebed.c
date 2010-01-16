@@ -34,7 +34,7 @@
  * @param op The player applying the savebed. */
 void apply_savebed(object *op)
 {
-	if (!CONTR(op)->name_changed || !op->stats.exp)
+	if (!op->stats.exp)
 	{
 		new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
 		return;

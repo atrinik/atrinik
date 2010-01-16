@@ -345,7 +345,6 @@ int legal_range(object *op, int r)
 						CONTR(op)->known_spell = 0;
 					}
 
-					CONTR(op)->chosen_item_spell = tmp->stats.sp;
 					return 1;
 				}
 			}
@@ -367,7 +366,6 @@ int legal_range(object *op, int r)
 						CONTR(op)->known_spell = 0;
 					}
 
-					CONTR(op)->chosen_item_spell = tmp->stats.sp;
 					return 1;
 				}
 			}
@@ -389,7 +387,6 @@ int legal_range(object *op, int r)
 						CONTR(op)->known_spell = 0;
 					}
 
-					CONTR(op)->chosen_item_spell = tmp->stats.sp;
 					return 1;
 				}
 			}

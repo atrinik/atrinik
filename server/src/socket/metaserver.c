@@ -33,7 +33,7 @@
 #include <pthread.h>
 #endif
 
-/** The time in seconds for timeout upon connecting */
+/** The time in seconds for timeout upon connecting. */
 #define METASERVER_TIMEOUT 3
 
 /**
@@ -85,9 +85,9 @@ void *metaserver_thread(void *dummy)
 
 	/* We could use socket_info.nconns, but that is not quite as accurate,
 	 * as connections in the progress of being established, are listening
-	 * but don't have a player, etc.  This operation below should not be that
+	 * but don't have a player, etc. This operation below should not be that
 	 * costly. */
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
 		num_players++;
 	}
@@ -102,11 +102,11 @@ void *metaserver_thread(void *dummy)
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);
 
 	/* Number of players */
-	snprintf(buf, MAX_BUF - 1, "%d", num_players);
+	snprintf(buf, sizeof(buf), "%d", num_players);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
 
 	/* Port number */
-	snprintf(buf, MAX_BUF - 1, "%d", settings.csport);
+	snprintf(buf, sizeof(buf), "%d", settings.csport);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
 
 	/* Init "easy" cURL */

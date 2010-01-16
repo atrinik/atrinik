@@ -477,13 +477,7 @@ void receive_player_name(object *op)
 	}
 
 	FREE_AND_COPY_HASH(op->name, CONTR(op)->write_buf + 1);
-#if 0
-	new_draw_info(NDI_UNIQUE, 0, op,CONTR(op)->write_buf);
-	/* Flag: redraw all stats */
-	CONTR(op)->last_value= -1;
-#endif
 
-	CONTR(op)->name_changed = 1;
 	get_password(op);
 }
 

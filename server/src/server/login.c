@@ -305,8 +305,6 @@ static void wrong_password(player *pl)
 {
 	pl->socket.password_fails++;
 
-	pl->last_value = -1;
-
 	LOG(llevSystem, "CRACK: %s@%s: Failed to provide correct password.\n", query_name(pl->ob, NULL), pl->socket.host);
 
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
@@ -426,7 +424,6 @@ void check_login(object *op)
 
 	pl->party = NULL;
 
-	pl->name_changed = 1;
 	pl->orig_stats.Str = 0;
 	pl->orig_stats.Dex = 0;
 	pl->orig_stats.Con = 0;
@@ -607,8 +604,6 @@ void check_login(object *op)
 	if (op->stats.hp < 0)
 		op->stats.hp = 1;
 
-	pl->name_changed = 1;
-
 	pl->state = ST_PLAYING;
 #ifdef AUTOSAVE
 	pl->last_save_tick = pticks;
@@ -688,8 +683,6 @@ void check_login(object *op)
 	 * the data isn't needed. */
 	esrv_new_player(pl, op->weight + op->carrying);
 	esrv_send_inventory(op, op);
-
-	pl->last_value = -1;
 
 	/* This seems to compile without warnings now.  Don't know if it works
 	 * on SGI's or not, however. */

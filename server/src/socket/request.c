@@ -470,8 +470,8 @@ void AddMeCmd(char *buf, int len, NewSocket *ns)
  * This handles the general commands from client (ie, north, fire, cast,
  * etc).
  * @param buf
- * @param len  * @param pl
- */
+ * @param len
+ * @param pl */
 void PlayerCmd(uint8 *buf, int len, player *pl)
 {
 	uint16 packet;

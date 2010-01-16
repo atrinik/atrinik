@@ -28,6 +28,7 @@
  * This file contains animation related code. */
 
 #include <global.h>
+#include <sproto.h>
 
 /**
  * Free all animations loaded */
@@ -293,14 +294,11 @@ void animate_object(object *op, int count)
 					CONTR(op)->anim_flags |= PLAYER_AFLAG_ADDFRAME;
 					/* So we do one swing */
 					CONTR(op)->anim_flags |= PLAYER_AFLAG_FIGHT;
-					/* Save this to be sure to skip unneeded animation */
-					CONTR(op)->anim_enemy = op->enemy;
-					CONTR(op)->anim_enemy_count = op->enemy_count;
 				}
 				else
 				{
 					/* Only do ADDFRAME if we are still fighting something */
-					if (OBJECT_VALID(op->enemy, CONTR(op)->anim_enemy_count))
+					if (op->enemy && is_melee_range(op, op->enemy))
 					{
 						CONTR(op)->anim_flags |= PLAYER_AFLAG_FIGHT;
 					}

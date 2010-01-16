@@ -954,12 +954,6 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 		strcat(buf, small_buf);
 	}
 
-	if (RP->this_map[0])
-	{
-		sprintf(small_buf, "origin_map %s\n", RP->this_map);
-		strcat(buf, small_buf);
-	}
-
 	if (RP->expand2x)
 	{
 		sprintf(small_buf, "expand2x %d\n", RP->expand2x);
@@ -1014,18 +1008,6 @@ void write_map_parameters_to_string(char *buf, RMParms *RP)
 	if (RP->orientation)
 	{
 		sprintf(small_buf, "orientation %d\n", RP->orientation);
-		strcat(buf, small_buf);
-	}
-
-	if (RP->origin_x)
-	{
-		sprintf(small_buf, "origin_x %d\n", RP->origin_x);
-		strcat(buf, small_buf);
-	}
-
-	if (RP->origin_y)
-	{
-		sprintf(small_buf, "origin_y %d\n", RP->origin_y);
 		strcat(buf, small_buf);
 	}
 

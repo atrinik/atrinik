@@ -35,40 +35,103 @@
 /** Random map parameters. */
 typedef struct
 {
+	/** Wall style used. */
 	char wallstyle[RM_SIZE];
+
+	/** Wall name. */
 	char wall_name[RM_SIZE];
+
+	/** Floor style used. */
 	char floorstyle[RM_SIZE];
+
+	/** Monster style used. */
 	char monsterstyle[RM_SIZE];
+
+	/** Layout style. */
 	char layoutstyle[RM_SIZE];
+
+	/** Door style. */
 	char doorstyle[RM_SIZE];
+
+	/** Decoration style. */
 	char decorstyle[RM_SIZE];
+
+	/** Original map. */
 	char origin_map[RM_SIZE];
+
+	/** Final map. */
 	char final_map[RM_SIZE];
+
+	/** Exit style (stairs, portals, etc). */
 	char exitstyle[RM_SIZE];
-	char this_map[RM_SIZE];
+
+	/** Name of the dungeon. */
 	char dungeon_name[RM_SIZE];
+
+	/** Background music. */
 	char bg_music[RM_SIZE];
 
+	/** X size of the map. */
 	int Xsize;
+
+	/** Y size of the map. */
 	int Ysize;
+
+	/** Whether to expand twice. */
 	int expand2x;
+
+	/** First layout options. */
 	int layoutoptions1;
+
+	/** Second layout options. */
 	int layoutoptions2;
+
+	/** Third layout options. */
 	int layoutoptions3;
+
+	/** Symmetry. */
 	int symmetry;
+
+	/** Difficulty of the dungeon. */
 	int difficulty;
+
+	/** Was the difficulty given? */
 	int difficulty_given;
+
+	/** Level of the dungeon. */
 	int dungeon_level;
+
+	/** Depth of the dungeon. */
 	int dungeon_depth;
+
+	/** Chance to add decoration. */
 	int decorchance;
+
+	/** Orientation. */
 	int orientation;
+
+	/** Origin Y. */
 	int origin_y;
+
+	/** Origin X. */
 	int origin_x;
+
+	/** Random seed value. */
 	int random_seed;
+
+	/** Map layout style. */
 	int map_layout_style;
+
+	/** Symmetry used. */
 	int symmetry_used;
+
+	/** Number of monsters to generate. */
 	int num_monsters;
+
+	/** Darkness of the dungeon. */
 	int darkness;
+
+	/** Level increment. */
 	int level_increment;
 } RMParms;
 
@@ -87,7 +150,6 @@ typedef struct
 /**
  * @defgroup OPT_xxx Random map layout options.
  *@{*/
-
 /** Random option. */
 #define OPT_RANDOM     0
 /** Centered. */

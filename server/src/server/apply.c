@@ -1116,7 +1116,6 @@ int apply_special(object *who, object *op, int aflags)
 				if (who->type == PLAYER)
 				{
 					CONTR(who)->shoottype = range_none;
-					CONTR(who)->last_value = -1;
 
 					if (!IS_INVISIBLE(op, who))
 					{
@@ -1156,7 +1155,6 @@ int apply_special(object *who, object *op, int aflags)
 				if (who->type == PLAYER)
 				{
 					CONTR(who)->shoottype = range_none;
-					CONTR(who)->last_value = -1;
 				}
 				else
 				{
@@ -1323,7 +1321,7 @@ int apply_special(object *who, object *op, int aflags)
 
 		case SHIELD:
 			/* Don't allow polearm or two-handed weapons with a shield */
-			if ((who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]) && (CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]->sub_type1 >= WEAP_POLE_IMPACT || CONTR(who)->equipment[PLAYER_EQUIP_WEAPON1]->sub_type1 >= WEAP_2H_IMPACT))
+			if ((who->type == PLAYER && CONTR(who) && CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]) && (CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type1 >= WEAP_POLE_IMPACT || CONTR(who)->equipment[PLAYER_EQUIP_WEAPON]->sub_type1 >= WEAP_2H_IMPACT))
 			{
 				new_draw_info(NDI_UNIQUE, who, "You can't use a shield with your current weapon.");
 
@@ -1421,7 +1419,6 @@ int apply_special(object *who, object *op, int aflags)
 				}
 				else
 				{
-					CONTR(who)->chosen_item_spell = op->stats.sp;
 					CONTR(who)->known_spell = (QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED));
 				}
 			}

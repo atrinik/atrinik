@@ -733,7 +733,6 @@ void command_new_char(char *params, int len, player *pl)
 	copy_object(&p_arch->clone, op);
 	op->custom_attrset = pl;
 	pl->ob = op;
-	CONTR(op)->last_value = -1;
 	FREE_AND_CLEAR_HASH2(op->name);
 	op->name = name_tmp;
 	op->x = x;
@@ -872,13 +871,7 @@ void command_fire(char *params, int len, player *pl)
 		tmp = strchr(tmp + 1, ' ');
 		tmp = strchr(tmp + 1, ' ');
 
-		if (strlen(tmp + 1) > 60)
-		{
-			LOG(llevDebug, "DEBUG: Player %s has sent too long fire command: %s\n", query_name(pl->ob, NULL), tmp + 1);
-			return;
-		}
-
-		strncpy(CONTR(op)->firemode_name, tmp + 1, 60);
+		strncpy(CONTR(op)->firemode_name, tmp + 1, sizeof(CONTR(op)->firemode_name) - 1);
 
 		if (!fire_cast_spell(op, CONTR(op)->firemode_name))
 		{
@@ -897,13 +890,7 @@ void command_fire(char *params, int len, player *pl)
 		tmp = strchr(tmp + 1, ' ');
 		tmp = strchr(tmp + 1, ' ');
 
-		if (strlen(tmp + 1) > 60)
-		{
-			LOG(llevDebug, "DEBUG: Player %s has sent too long fire command: %s\n", query_name(pl->ob, NULL), tmp + 1);
-			return;
-		}
-
-		strncpy(CONTR(op)->firemode_name,tmp + 1, 60);
+		strncpy(CONTR(op)->firemode_name, tmp + 1, sizeof(CONTR(op)->firemode_name) - 1);
 	}
 
 	/* only here will this value be set */

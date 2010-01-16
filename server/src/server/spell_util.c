@@ -536,14 +536,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your scroll.");
 					break;
 
-				case range_potion:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your potion.");
-					break;
-
-				case range_dust:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your dust.");
-					break;
-
 				default:
 					break;
 			}

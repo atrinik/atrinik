@@ -1229,7 +1229,7 @@ void fix_player(object *op)
 					break;
 
 				case WEAPON:
-					pl->equipment[PLAYER_EQUIP_WEAPON1] = tmp;
+					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 					/* Our weapon */
 					pl->selected_weapon = tmp;
 					i = tmp->sub_type1 % 4;
@@ -2002,7 +2002,7 @@ fix_player_jump_resi:
 	/* Weapon in hand */
 	else
 	{
-		f = (float) (pl->equipment[PLAYER_EQUIP_WEAPON1]->item_condition) / 100.0f;
+		f = (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 
 		/* Weapon without the skill applied... */
 		if (!pl->skill_ptr[pl->set_skill_weapon])

@@ -2341,6 +2341,11 @@ int new_save_map(mapstruct *m, int flag)
 			}
 		}
 	}
+	/* Otherwise to the same file, like apartments */
+	else
+	{
+		save_objects(m, fp, fp);
+	}
 
 	if (fp)
 	{

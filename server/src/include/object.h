@@ -362,7 +362,7 @@ typedef struct obj
 	/** Ticks between animation-frames */
 	uint8 last_anim;
 
-	/** See @ref WILL_APPLY_xxx */
+	/** Currently only used to check whether the monster can open doors. */
 	uint8 will_apply;
 
 	/** Monster runs away if its hp goes below this percentage. */
@@ -423,31 +423,32 @@ typedef struct obj
 #pragma pack(pop)
 #endif
 
-/** Used to link together several objects */
+/** Used to link together several objects. */
 typedef struct oblnk
 {
+	/** The object link. */
 	union
 	{
-		/** Link */
+		/** Link. */
 		struct oblnk *link;
 
-		/** Object */
+		/** Object. */
 		object *ob;
 
-		/** Ban */
+		/** Ban. */
 		struct ban_struct *ban;
 	} objlink;
 
-	/** Next object in this list */
+	/** Next object in this list. */
 	struct oblnk *next;
 
-	/** Previous object in this list */
+	/** Previous object in this list. */
 	struct oblnk *prev;
 
-	/** Object ID */
+	/** Object ID. */
 	tag_t id;
 
-	/** Used as connected value in buttons/gates */
+	/** Used as connected value in buttons/gates. */
 	long value;
 } objectlink;
 
