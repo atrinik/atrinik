@@ -1613,8 +1613,7 @@ int main(int argc, char **argv)
 
 	init(argc, argv);
 #ifdef PLUGINS
-	/* GROS - Init the Plugins */
-	initPlugins();
+	init_plugins();
 #endif
 	/* its not a bad idea to show at start whats up */
 	compile_info();

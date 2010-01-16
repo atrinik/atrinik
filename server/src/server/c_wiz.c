@@ -1541,7 +1541,7 @@ int command_listplugins(object *op, char *params)
 {
 	(void) params;
 
-	displayPluginsList(op);
+	display_plugins_list(op);
 	return 1;
 }
 
@@ -1562,8 +1562,8 @@ int command_loadplugin(object *op, char *params)
 		return 1;
 	}
 
-	snprintf(buf, sizeof(buf), "%s/../plugins/%s", DATADIR, params);
-	initOnePlugin(buf);
+	snprintf(buf, sizeof(buf), "%s/%s", PLUGINDIR, params);
+	init_plugin(buf);
 
 	return 1;
 }
@@ -1583,7 +1583,7 @@ int command_unloadplugin(object *op, char *params)
 		return 1;
 	}
 
-	removeOnePlugin(params);
+	remove_plugin(params);
 
 	return 1;
 }

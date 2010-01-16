@@ -33,24 +33,25 @@
 #define PLUGIN_H
 
 #ifndef WIN32
-#include <dlfcn.h>
+#	include <dlfcn.h>
 #endif
 
 #undef MODULEAPI
+
 #ifdef WIN32
-#ifdef PYTHON_PLUGIN_EXPORTS
-#define MODULEAPI __declspec(dllexport)
+#	ifdef PYTHON_PLUGIN_EXPORTS
+#		define MODULEAPI __declspec(dllexport)
+#	else
+#		define MODULEAPI __declspec(dllimport)
+#	endif
 #else
-#define MODULEAPI __declspec(dllimport)
-#endif
-#else
-#define MODULEAPI
+#	define MODULEAPI
 #endif
 
 #include <global.h>
 
 #ifdef HAVE_TIME_H
-#include <time.h>
+#	include <time.h>
 #endif
 #include <../random_maps/random_map.h>
 #include <../random_maps/rproto.h>
@@ -149,7 +150,11 @@
 #define EVENT_FLAG_TIMER    EVENT_FLAG(EVENT_TIMER)
 /*@}*/
 
-/** The plugin hook list. */
+/**
+ * The plugin hook list.
+ *
+ * If you need a function or variable from server accessed by a plugin,
+ * add it here and to ::hooklist in plugins.c. */
 struct plugin_hooklist
 {
 	char *(*query_name)(object *, object *);
@@ -189,8 +194,8 @@ struct plugin_hooklist
 	sint32 (*add_exp)(object *, int, int);
 	const char *(*determine_god)(object *);
 	object *(*find_god)(const char *);
-	void (*register_global_event)(char *, int);
-	void (*unregister_global_event)(char *, int);
+	void (*register_global_event)(const char *, int);
+	void (*unregister_global_event)(const char *, int);
 	object *(*load_object_str)(char *);
 	sint64 (*query_cost)(object *, object *, int);
 	sint64 (*query_money)(object *);
@@ -250,49 +255,53 @@ struct plugin_hooklist
 
 /** General API function. */
 typedef void *(*f_plug_api) (int *type, ...);
-
+/** First function called in a plugin. */
 typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
-
+/** Function called after the plugin was initialized. */
 typedef void *(*f_plug_pinit) ();
 
 #ifndef WIN32
-#define LIBPTRTYPE void *
+	/** Library handle. */
+#	define LIBPTRTYPE void *
+	/** Load a shared library. */
+#	define plugins_dlopen(fname) dlopen(fname, RTLD_NOW | RTLD_GLOBAL)
+	/** Unload a shared library. */
+#	define plugins_dlclose(lib) dlclose(lib)
+	/** Get a function from a shared library. */
+#	define plugins_dlsym(lib, name) dlsym(lib, name)
+	/** Library error. */
+#	define plugins_dlerror() dlerror()
 #else
-#define LIBPTRTYPE HMODULE
+#	define LIBPTRTYPE HMODULE
+#	define plugins_dlopen(fname) LoadLibrary(fname)
+#	define plugins_dlclose(lib) FreeLibrary(lib)
+#	define plugins_dlsym(lib, name) GetProcAddress(lib, name)
 #endif
 
-/**
- * CFPlugin contains all pertinent informations about one plugin. The
- * server maintains a list of CFPlugins in memory.
- *
- * Note that the library pointer is a (void *) in general, but a HMODULE
- * under Win32, due to the specific DLL management. */
-typedef struct _CFPlugin
+/** One loaded plugin. */
+typedef struct _atrinik_plugin
 {
-	/** Event Handler function */
+	/** Event handler function. */
 	f_plug_api eventfunc;
 
-	/** Plugin Initialization function. */
-	f_plug_init initfunc;
-
-	/** Plugin Post-Init. function. */
-	f_plug_pinit pinitfunc;
-
-	/** Plugin getProperty function */
+	/** Plugin getProperty function. */
 	f_plug_api propfunc;
 
-	/** Pointer to the plugin library */
+	/** Pointer to the plugin library. */
 	LIBPTRTYPE libptr;
 
-	/** Plugin identification string */
+	/** Plugin identification string. */
 	char id[MAX_BUF];
 
-	/** Plugin full name */
+	/** Plugin's full name. */
 	char fullname[MAX_BUF];
 
-	/** Global events registered */
-	int gevent[NR_EVENTS];
-} CFPlugin;
+	/** Global events registered. */
+	sint8 gevent[NR_EVENTS];
+
+	/** Next plugin in list. */
+    struct _atrinik_plugin *next;
+} atrinik_plugin;
 
 /**
  * @defgroup exportable_plugin_functions Exportable plugin functions

@@ -30,9 +30,10 @@
 #include <plugin.h>
 #include <sproto.h>
 
-static void register_global_event(char *plugin_name, int event_nr);
-static void unregister_global_event(char *plugin_name, int event_nr);
+static void register_global_event(const char *plugin_name, int event_nr);
+static void unregister_global_event(const char *plugin_name, int event_nr);
 
+/** The actual hooklist. */
 struct plugin_hooklist hooklist =
 {
 	query_name,
@@ -131,50 +132,78 @@ struct plugin_hooklist hooklist =
 	&shstr_cons
 };
 
-/** Array of all loaded plugins */
-static CFPlugin PlugList[32];
+/** The list of loaded plugins. */
+static atrinik_plugin *plugins_list = NULL;
 
-/** Number of loaded plugins. */
-static int PlugNR = 0;
+/**
+ * Find a plugin by its identification string.
+ * @param id Plugin's identification string.
+ * @return Pointer to the found plugin, NULL if not found. */
+static atrinik_plugin *find_plugin(const char *id)
+{
+	atrinik_plugin *plugin;
+
+	if (!plugins_list)
+	{
+		return NULL;
+	}
+
+	for (plugin = plugins_list; plugin; plugin = plugin->next)
+	{
+		if (!strcmp(id, plugin->id))
+		{
+			return plugin;
+		}
+	}
+
+	return NULL;
+}
 
 /**
  * Register a global event.
  * @param plugin_name Plugin's name.
  * @param event_nr Event ID to register. */
-static void register_global_event(char *plugin_name, int event_nr)
+static void register_global_event(const char *plugin_name, int event_nr)
 {
-	int PNR = findPlugin(plugin_name);
+	atrinik_plugin *plugin = find_plugin(plugin_name);
 
-	LOG(llevDebug, "Plugin %s (%d) registered the event %d\n", plugin_name, PNR, event_nr);
+	if (!plugin)
+	{
+		LOG(llevBug, "BUG: register_global_event(): Could not find plugin %s.\n", plugin_name);
+		return;
+	}
 
-	PlugList[PNR].gevent[event_nr] = 1;
+	LOG(llevInfo, "Plugin %s registered the event %d\n", plugin_name, event_nr);
+	plugin->gevent[event_nr] = 1;
 }
 
 /**
  * Unregister a global event.
  * @param plugin_name Plugin's name.
  * @param event_nr Event ID to unregister. */
-static void unregister_global_event(char *plugin_name, int event_nr)
+static void unregister_global_event(const char *plugin_name, int event_nr)
 {
-	int PNR = findPlugin(plugin_name);
+	atrinik_plugin *plugin = find_plugin(plugin_name);
 
-	PlugList[PNR].gevent[event_nr] = 0;
+	if (!plugin)
+	{
+		LOG(llevBug, "BUG: unregister_global_event(): Could not find plugin %s.\n", plugin_name);
+		return;
+	}
+
+	plugin->gevent[event_nr] = 0;
 }
 
 /**
  * Browse through the inventory of an object to find first event that
  * matches the event type of event_nr.
- * @param op The object to search in
- * @param event_nr The event number. See @ref event_numbers for a list of
- * possible event numbers.
- * @return Script object matching the event type */
+ * @param op The object to search in.
+ * @param event_nr The @ref event_numbers "event number".
+ * @return Script object matching the event type. */
 object *get_event_object(object *op, int event_nr)
 {
 	object *tmp;
 
-	/* For this first implementation we simply browse
-	 * through the inventory of object op and stop
-	 * when we find a script object from type event_nr. */
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
 		if (tmp->type == EVENT_OBJECT && tmp->sub_type1 == event_nr)
@@ -188,19 +217,24 @@ object *get_event_object(object *op, int event_nr)
 
 /**
  * Tries to find if a given command is handled by a plugin.
- * @note This function is called <b>before</b> the internal commands
- * are checked, meaning that you can "overwrite" them.
- * @param cmd The command name to find
- * @param op Object doing this command
- * @return Command array structure if found, NULL otherwise */
+ * @note This function is called <b>before</b> the internal commands are
+ * checked, meaning that you can "overwrite" them.
+ * @param cmd The command name to find.
+ * @return Command array structure if found, NULL otherwise. */
 CommArray_s *find_plugin_command(const char *cmd)
 {
 	int i;
+	atrinik_plugin *plugin;
 	static CommArray_s rtn_cmd;
 
-	for (i = 0; i < PlugNR; i++)
+	if (!plugins_list)
 	{
-		if (PlugList[i].propfunc(&i, "command?", cmd, &rtn_cmd))
+		return NULL;
+	}
+
+	for (plugin = plugins_list; plugin; plugin = plugin->next)
+	{
+		if (plugin->propfunc(&i, "command?", cmd, &rtn_cmd))
 		{
 			return &rtn_cmd;
 		}
@@ -212,20 +246,20 @@ CommArray_s *find_plugin_command(const char *cmd)
 /**
  * Display a list of loaded and loadable plugins in
  * player's window.
- * @param op The player to print the plugins to */
-void displayPluginsList(object *op)
+ * @param op The player to print the plugins to. */
+void display_plugins_list(object *op)
 {
 	char buf[MAX_BUF];
 	struct dirent *currentfile;
 	DIR *plugdir;
-	int i;
+	atrinik_plugin *plugin;
 
 	new_draw_info(NDI_UNIQUE, op, "List of loaded plugins:");
 	new_draw_info(NDI_UNIQUE, op, "-----------------------");
 
-	for (i = 0; i < PlugNR; i++)
+	for (plugin = plugins_list; plugin; plugin = plugin->next)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s, %s", PlugList[i].id, PlugList[i].fullname);
+		new_draw_info_format(NDI_UNIQUE, op, "%s, %s", plugin->id, plugin->fullname);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
@@ -252,40 +286,18 @@ void displayPluginsList(object *op)
 }
 
 /**
- * Searches in the loaded plugins list for a plugin with a keyname of id.
- * @param id The keyname
- * @return The position of the plugin in the list if a matching one was
- * found or -1 if no correct plugin was detected. */
-int findPlugin(const char *id)
-{
-	int i;
-
-	for (i = 0; i < PlugNR; i++)
-	{
-		if (!strcmp(id, PlugList[i].id))
-		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-/**
  * Initializes plugins. Browses the plugins directory and calls
- * initOnePlugin for each file found, unless the file has ".txt"
- * in the name. */
-void initPlugins()
+ * init_plugin() for each file found, unless the file has ".txt" in the
+ * name. */
+void init_plugins()
 {
 	struct dirent *currentfile;
 	DIR *plugdir;
-	char plugindir_path[MAX_BUF], pluginfile[MAX_BUF];
+	char pluginfile[MAX_BUF];
 
-	LOG(llevInfo, "Initializing plugins:\n");
-	snprintf(plugindir_path, sizeof(plugindir_path), "%s/", PLUGINDIR);
-	LOG(llevInfo, "Plugins directory is %s\n", plugindir_path);
+	LOG(llevInfo, "Initializing plugins from '%s':\n", PLUGINDIR);
 
-	if (!(plugdir = opendir(plugindir_path)))
+	if (!(plugdir = opendir(PLUGINDIR)))
 	{
 		return;
 	}
@@ -295,152 +307,158 @@ void initPlugins()
 		/* Don't load "." or ".." marker and files which have ".txt" inside */
 		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
 		{
-			snprintf(pluginfile, sizeof(pluginfile), "%s%s", plugindir_path, currentfile->d_name);
-			LOG(llevInfo, "Registering plugin %s\n", currentfile->d_name);
-			initOnePlugin(pluginfile);
+			snprintf(pluginfile, sizeof(pluginfile), "%s/%s", PLUGINDIR, currentfile->d_name);
+			LOG(llevInfo, "Loading plugin %s\n", currentfile->d_name);
+			init_plugin(pluginfile);
 		}
 	}
 
 	closedir(plugdir);
 }
 
+#ifdef WIN32
+/**
+ * There is no dlerror() on Win32, so we make our own.
+ * @return Returned error from loading a plugin. */
+static const char *plugins_dlerror()
+{
+	static char buf[MAX_BUF];
+	DWORD err = GetLastError();
+	char *p;
+
+	if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL) == 0)
+	{
+		snprintf(buf, sizeof(buf), "error %lu", err);
+	}
+
+	p = strchr(buf, '\0');
+
+	while (p > buf && (p[ - 1] == '\r' || p[ - 1] == '\n'))
+	{
+		p--;
+	}
+
+	*p = '\0';
+	return buf;
+}
+#endif
+
 /**
  * Initializes a plugin known by its filename.
- *
- * The initialization process has several stages:
- * <ul>
- *   <li>Loading of the shared library itself</li>
- *   <li>Basic plugin information request</li>
- *   <li>CF Plugin specific initialization tasks (call to initPlugin())</li>
- *   <li>Hook bindings</li>
- * </ul>
- * @param pluginfile The plugin filename */
-void initOnePlugin(const char *pluginfile)
+ * @param pluginfile The plugin filename. */
+void init_plugin(const char *pluginfile)
 {
 	int i;
-#ifdef WIN32
-	HMODULE DLLInstance;
-#else
-	void *ptr = NULL;
-#endif
+	LIBPTRTYPE ptr;
+	f_plug_api eventfunc, propfunc;
+	f_plug_init initfunc;
+	f_plug_pinit pinitfunc;
+	atrinik_plugin *plugin;
 
-#ifdef WIN32
-	if ((DLLInstance = LoadLibrary(pluginfile)) == NULL)
-#else
-	if ((ptr = dlopen(pluginfile, RTLD_NOW | RTLD_GLOBAL)) == NULL)
-#endif
+	ptr = plugins_dlopen(pluginfile);
+
+	if (!ptr)
 	{
-#ifdef WIN32
-		LOG(llevBug, "BUG: Error while trying to load %s\n", pluginfile);
-#else
 		LOG(llevBug, "BUG: Error while trying to load %s, returned: %s\n", pluginfile, dlerror());
-#endif
-
 		return;
 	}
 
-#ifdef WIN32
-	PlugList[PlugNR].libptr = DLLInstance;
-	PlugList[PlugNR].initfunc = (f_plug_init) (GetProcAddress(DLLInstance, "initPlugin"));
-#else
-	PlugList[PlugNR].libptr = ptr;
-	PlugList[PlugNR].initfunc = (f_plug_init) (dlsym(ptr, "initPlugin"));
-#endif
+	initfunc = (f_plug_init) (plugins_dlsym(ptr, "initPlugin"));
 
-	if (PlugList[PlugNR].initfunc == NULL)
+	if (!initfunc)
 	{
-#ifdef WIN32
-		LOG(llevBug, "BUG: Plugin init error\n");
-#else
-		LOG(llevBug, "BUG: Plugin init error: %s\n", dlerror());
-#endif
-
+		LOG(llevBug, "BUG: Error while requesting 'initPlugin' from %s: %s\n", pluginfile, dlerror());
+		plugins_dlclose(ptr);
 		return;
 	}
-	else
+
+	eventfunc = (f_plug_api) (plugins_dlsym(ptr, "triggerEvent"));
+
+	if (!eventfunc)
 	{
-		PlugList[PlugNR].initfunc(&hooklist);
-	}
-
-#ifdef WIN32
-	PlugList[PlugNR].eventfunc = (f_plug_api) (GetProcAddress(DLLInstance, "triggerEvent"));
-	PlugList[PlugNR].pinitfunc = (f_plug_pinit) (GetProcAddress(DLLInstance, "postinitPlugin"));
-	PlugList[PlugNR].propfunc = (f_plug_api) (GetProcAddress(DLLInstance, "getPluginProperty"));
-#else
-	PlugList[PlugNR].eventfunc = (f_plug_api) (dlsym(ptr, "triggerEvent"));
-	PlugList[PlugNR].pinitfunc = (f_plug_pinit) (dlsym(ptr, "postinitPlugin"));
-	PlugList[PlugNR].propfunc = (f_plug_api) (dlsym(ptr, "getPluginProperty"));
-#endif
-
-	if (PlugList[PlugNR].pinitfunc == NULL)
-	{
-#ifdef WIN32
-		LOG(llevBug, "BUG: Plugin postinit error\n");
-#else
-		LOG(llevBug, "BUG: Plugin postinit error: %s\n", dlerror());
-#endif
-
+		LOG(llevBug, "BUG: Error while requesting 'triggerEvent' from %s: %s\n", pluginfile, dlerror());
+		plugins_dlclose(ptr);
 		return;
 	}
+
+	pinitfunc = (f_plug_pinit) (plugins_dlsym(ptr, "postinitPlugin"));
+
+	if (!pinitfunc)
+	{
+		LOG(llevBug, "BUG: Error while requesting 'postinitPlugin' from %s: %s\n", pluginfile, dlerror());
+		plugins_dlclose(ptr);
+		return;
+	}
+
+	propfunc = (f_plug_api) (plugins_dlsym(ptr, "getPluginProperty"));
+
+	if (!propfunc)
+	{
+		LOG(llevBug, "BUG: Error while requesting 'getPluginProperty' from %s: %s\n", pluginfile, dlerror());
+		plugins_dlclose(ptr);
+		return;
+	}
+
+	plugin = malloc(sizeof(atrinik_plugin));
 
 	for (i = 0; i < NR_EVENTS; i++)
 	{
-		PlugList[PlugNR].gevent[i] = 0;
+		plugin->gevent[i] = 0;
 	}
 
-	if (PlugList[PlugNR].eventfunc == NULL)
+	plugin->eventfunc = eventfunc;
+	plugin->propfunc = propfunc;
+	plugin->libptr = ptr;
+	plugin->next = NULL;
+
+	initfunc(&hooklist);
+	propfunc(0, "Identification", plugin->id, sizeof(plugin->id));
+	propfunc(0, "FullName", plugin->fullname, sizeof(plugin->fullname));
+	LOG(llevInfo, "Plugin name: %s, known as %s\n", plugin->fullname, plugin->id);
+
+	if (!plugins_list)
 	{
-#ifdef WIN32
-		LOG(llevBug, "BUG: Event plugin error\n");
-#else
-		LOG(llevBug, "BUG: Event plugin error %s\n", dlerror());
-#endif
-
-		return;
+		plugins_list = plugin;
+	}
+	else
+	{
+		plugin->next = plugins_list;
+		plugins_list = plugin;
 	}
 
-	PlugList[PlugNR].propfunc(0, "Identification", PlugList[PlugNR].id, sizeof(PlugList[PlugNR].id));
-	PlugList[PlugNR].propfunc(0, "FullName", PlugList[PlugNR].fullname, sizeof(PlugList[PlugNR].fullname));
-	LOG(llevInfo, "Plugin name: %s, known as %s\n", PlugList[PlugNR].fullname, PlugList[PlugNR].id);
-
-	PlugNR++;
-	PlugList[PlugNR - 1].pinitfunc();
-
+	pinitfunc();
 	LOG(llevInfo, "[Done]\n");
 }
 
 /**
  * Removes one plugin from memory. The plugin is identified by its keyname.
- * @param id The plugin keyname */
-void removeOnePlugin(const char *id)
+ * @param id The plugin keyname. */
+void remove_plugin(const char *id)
 {
-	int plid = findPlugin(id), j;
+	atrinik_plugin *plugin, *prev = NULL;
 
-	if (plid < 0)
+	if (!plugins_list)
 	{
 		return;
 	}
 
-	/* We unload the library... */
-#ifdef WIN32
-	FreeLibrary(PlugList[plid].libptr);
-#else
-	dlclose(PlugList[plid].libptr);
-#endif
-
-	/* Then we copy the rest on the list back one position */
-	PlugNR--;
-
-	if (plid == 31)
+	for (plugin = plugins_list; plugin; prev = plugin, plugin = plugin->next)
 	{
-		return;
-	}
+		if (!strcmp(plugin->id, id))
+		{
+			if (!prev)
+			{
+				plugins_list = plugin->next;
+			}
+			else
+			{
+				prev->next = plugin->next;
+			}
 
-	LOG(llevInfo, "Removing plugin: plid: %d, PlugNR: %d\n", plid, PlugNR);
-
-	for (j = plid + 1; j < 32; j++)
-	{
-		PlugList[j - 1] = PlugList[j];
+			plugins_dlclose(plugin->libptr);
+			free(plugin);
+			break;
+		}
 	}
 }
 
@@ -448,39 +466,48 @@ void removeOnePlugin(const char *id)
  * Deinitialize all plugins. */
 void remove_plugins()
 {
-	int i;
+	atrinik_plugin *plugin;
+
+	if (!plugins_list)
+	{
+		return;
+	}
 
 	LOG(llevInfo, "Removing all plugins from memory.\n");
 
-	for (i = 0; i < PlugNR; i++)
+	for (plugin = plugins_list; plugin; )
 	{
-		/* We unload the library... */
-#ifdef WIN32
-		FreeLibrary(PlugList[i].libptr);
-#else
-		dlclose(PlugList[i].libptr);
-#endif
+		atrinik_plugin *next = plugin->next;
+
+		plugins_dlclose(plugin->libptr);
+		free(plugin);
+		plugin = next;
 	}
 
-	PlugNR = 0;
+	plugins_list = NULL;
 }
 
 /**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
- * @param event_type The event type
- * @param parm1 First parameter
- * @param parm2 Second parameter */
+ * @param event_type The event type.
+ * @param parm1 First parameter.
+ * @param parm2 Second parameter. */
 void trigger_global_event(int event_type, void *parm1, void *parm2)
 {
 #ifdef PLUGINS
-	int i;
+	atrinik_plugin *plugin;
 
-	for (i = 0; i < PlugNR; i++)
+	if (!plugins_list)
 	{
-		if (PlugList[i].gevent[event_type] != 0)
+		return;
+	}
+
+	for (plugin = plugins_list; plugin; plugin = plugin->next)
+	{
+		if (plugin->gevent[event_type])
 		{
-			(PlugList[i].eventfunc)(0, event_type, parm1, parm2);
+			(plugin->eventfunc)(0, event_type, parm1, parm2);
 		}
 	}
 #endif
@@ -489,32 +516,31 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 /**
  * Handles triggering normal events like EVENT_ATTACK, EVENT_STOP,
  * etc.
- * @param event_type The event type
- * @param activator Activator object
- * @param me Object the event object is in
- * @param other Other object
- * @param msg Message
- * @param parm1 First parameter
- * @param parm2 Second parameter
- * @param parm3 Third parameter
- * @param flags Event flags
- * @return 1 if the event returns an event value, 0 otherwise */
+ * @param event_type The event type.
+ * @param activator Activator object.
+ * @param me Object the event object is in.
+ * @param other Other object.
+ * @param msg Message.
+ * @param parm1 First parameter.
+ * @param parm2 Second parameter.
+ * @param parm3 Third parameter.
+ * @param flags Event flags.
+ * @return 1 if the event returns an event value, 0 otherwise. */
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags)
 {
 #ifdef PLUGINS
 	object *event_obj;
-	int plugin;
+	atrinik_plugin *plugin;
 
-	if (me == NULL || !(me->event_flags & EVENT_FLAG(event_type)))
+	if (me == NULL || !(me->event_flags & EVENT_FLAG(event_type)) || !plugins_list)
 	{
 		return 0;
 	}
 
 	if ((event_obj = get_event_object(me, event_type)) == NULL)
 	{
-		LOG(llevBug, "BUG: object with event flag and no event object: %s\n", STRING_OBJ_NAME(me));
+		LOG(llevBug, "BUG: Object with event flag and no event object: %s\n", STRING_OBJ_NAME(me));
 		me->event_flags &= ~(1 << event_type);
-
 		return 0;
 	}
 
@@ -524,14 +550,13 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		if ((long) event_obj->damage_round_tag == pticks)
 		{
 			LOG(llevDebug, "DEBUG: trigger_event(): Event object (type %d) for %s called twice the same round\n", event_type, STRING_OBJ_NAME(me));
-
 			return 0;
 		}
 
 		event_obj->damage_round_tag = pticks;
 	}
 
-	if (event_obj->name && (plugin = findPlugin(event_obj->name)) >= 0)
+	if (event_obj->name && (plugin = find_plugin(event_obj->name)))
 	{
 		int returnvalue;
 #ifdef TIME_SCRIPTS
@@ -541,7 +566,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		gettimeofday(&start, NULL);
 #endif
 
-		returnvalue = *(int *) PlugList[plugin].eventfunc(0, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
+		returnvalue = *(int *) plugin->eventfunc(0, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
 
 #ifdef TIME_SCRIPTS
 		gettimeofday(&stop, NULL);
@@ -550,7 +575,6 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 
 		LOG(llevDebug, "Running time: %2.6f seconds\n", (stop_u - start_u) / 1000000.0);
 #endif
-
 		return returnvalue;
 	}
 	else

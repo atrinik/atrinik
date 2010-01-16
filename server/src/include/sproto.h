@@ -299,11 +299,10 @@ void player_shop_buy(char *data, player *pl);
 /* plugins.c */
 object *get_event_object(object *op, int event_nr);
 CommArray_s *find_plugin_command(const char *cmd);
-void displayPluginsList(object *op);
-int findPlugin(const char *id);
-void initPlugins();
-void initOnePlugin(const char *pluginfile);
-void removeOnePlugin(const char *id);
+void display_plugins_list(object *op);
+void init_plugins();
+void init_plugin(const char *pluginfile);
+void remove_plugin(const char *id);
 void remove_plugins();
 void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
