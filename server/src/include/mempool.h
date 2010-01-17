@@ -119,8 +119,11 @@ struct mempool
 	/** First free chunk */
     struct mempool_chunk *freelist[MEMPOOL_NROF_FREELISTS];
 
-	/** List size counters */
-    uint32 nrof_free[MEMPOOL_NROF_FREELISTS], nrof_allocated[MEMPOOL_NROF_FREELISTS];
+	/** Number of free. */
+    uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
+
+	/** Number of allocated. */
+	uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
 #ifdef MEMPOOL_TRACKING
 	/** List of puddles used for mempool tracking */
     struct puddle_info *first_puddle_info;

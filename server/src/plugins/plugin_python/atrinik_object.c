@@ -27,81 +27,7 @@
  * @file
  * Atrinik Python plugin object related code. */
 
-/* First let's include the header file needed */
-#include <atrinik_object.h>
-
-/** Available Python methods for the AtrinikObject object */
-static PyMethodDef ObjectMethods[] =
-{
-	{"SetSaveBed",                   (PyCFunction) Atrinik_Object_SetSaveBed,             METH_VARARGS, 0},
-	{"SwapApartments",               (PyCFunction) Atrinik_Object_SwapApartments,         METH_VARARGS, 0},
-	{"GetSkill",                     (PyCFunction) Atrinik_Object_GetSkill,               METH_VARARGS, 0},
-	{"SetSkill",                     (PyCFunction) Atrinik_Object_SetSkill,               METH_VARARGS, 0},
-	{"ActivateRune",                 (PyCFunction) Atrinik_Object_ActivateRune,           METH_VARARGS, 0},
-	{"CastAbility",                  (PyCFunction) Atrinik_Object_CastAbility,            METH_VARARGS, 0},
-	{"InsertInside",                 (PyCFunction) Atrinik_Object_InsertInside,           METH_VARARGS, 0},
-	{"GetGod",                       (PyCFunction) Atrinik_Object_GetGod,                 METH_VARARGS, 0},
-	{"SetGod",                       (PyCFunction) Atrinik_Object_SetGod,                 METH_VARARGS, 0},
-	{"TeleportTo",                   (PyCFunction) Atrinik_Object_TeleportTo,             METH_VARARGS, 0},
-	{"Apply",                        (PyCFunction) Atrinik_Object_Apply,                  METH_VARARGS, 0},
-	{"PickUp",                       (PyCFunction) Atrinik_Object_PickUp,                 METH_VARARGS, 0},
-	{"Drop",                         (PyCFunction) Atrinik_Object_Drop,                   METH_VARARGS, 0},
-	{"Fix",                          (PyCFunction) Atrinik_Object_Fix,                    METH_VARARGS, 0},
-	{"Kill",                         (PyCFunction) Atrinik_Object_Kill,                   METH_VARARGS, 0},
-	{"DoKnowSpell",                  (PyCFunction) Atrinik_Object_DoKnowSpell,            METH_VARARGS, 0},
-	{"AcquireSpell",                 (PyCFunction) Atrinik_Object_AcquireSpell,           METH_VARARGS, 0},
-	{"DoKnowSkill",                  (PyCFunction) Atrinik_Object_DoKnowSkill,            METH_VARARGS, 0},
-	{"AcquireSkill",                 (PyCFunction) Atrinik_Object_AcquireSkill,           METH_VARARGS, 0},
-	{"FindMarkedObject",             (PyCFunction) Atrinik_Object_FindMarkedObject,       METH_VARARGS, 0},
-	{"GetQuestObject",               (PyCFunction) Atrinik_Object_GetQuestObject,         METH_VARARGS, 0},
-	{"StartQuest",                   (PyCFunction) Atrinik_Object_StartQuest,             METH_VARARGS, 0},
-	{"CreatePlayerForce",            (PyCFunction) Atrinik_Object_CreatePlayerForce,      METH_VARARGS, 0},
-	{"CreatePlayerInfo",             (PyCFunction) Atrinik_Object_CreatePlayerInfo,       METH_VARARGS, 0},
-	{"GetPlayerInfo",                (PyCFunction) Atrinik_Object_GetPlayerInfo,          METH_VARARGS, 0},
-	{"GetNextPlayerInfo",            (PyCFunction) Atrinik_Object_GetNextPlayerInfo,      METH_VARARGS, 0},
-	{"CheckInvisibleObjectInside",   (PyCFunction) Atrinik_Object_CheckInvisibleInside,   METH_VARARGS, 0},
-	{"CreateInvisibleObjectInside",  (PyCFunction) Atrinik_Object_CreateInvisibleInside,  METH_VARARGS, 0},
-	{"CreateObjectInside",           (PyCFunction) Atrinik_Object_CreateObjectInside,     METH_VARARGS, 0},
-	{"CheckInventory",               (PyCFunction) Atrinik_Object_CheckInventory,         METH_VARARGS, 0},
-	{"Remove",                       (PyCFunction) Atrinik_Object_Remove,                 METH_VARARGS, 0},
-	{"SetPosition",                  (PyCFunction) Atrinik_Object_SetPosition,            METH_VARARGS, 0},
-	{"IdentifyItem",                 (PyCFunction) Atrinik_Object_IdentifyItem,           METH_VARARGS, 0},
-	{"Deposit",                      (PyCFunction) Atrinik_Object_Deposit,                METH_VARARGS, 0},
-	{"Withdraw",                     (PyCFunction) Atrinik_Object_Withdraw,               METH_VARARGS, 0},
-	{"Communicate",                  (PyCFunction) Atrinik_Object_Communicate,            METH_VARARGS, 0},
-	{"Say",                          (PyCFunction) Atrinik_Object_Say,                    METH_VARARGS, 0},
-	{"SayTo",                        (PyCFunction) Atrinik_Object_SayTo,                  METH_VARARGS, 0},
-	{"Write",                        (PyCFunction) Atrinik_Object_Write,                  METH_VARARGS, 0},
-	{"SetGender",                    (PyCFunction) Atrinik_Object_SetGender,              METH_VARARGS, 0},
-	{"GetGender",                    (PyCFunction) Atrinik_Object_GetGender,              METH_VARARGS, 0},
-	{"SetRank",                      (PyCFunction) Atrinik_Object_SetRank,                METH_VARARGS, 0},
-	{"GetRank",                      (PyCFunction) Atrinik_Object_GetRank,                METH_VARARGS, 0},
-	{"SetAlignment",                 (PyCFunction) Atrinik_Object_SetAlignment,           METH_VARARGS, 0},
-	{"GetAlignmentForce",            (PyCFunction) Atrinik_Object_GetAlignmentForce,      METH_VARARGS, 0},
-	{"SetGuildForce",                (PyCFunction) Atrinik_Object_SetGuildForce,          METH_VARARGS, 0},
-	{"GetGuildForce",                (PyCFunction) Atrinik_Object_GetGuildForce,          METH_VARARGS, 0},
-	{"IsOfType",                     (PyCFunction) Atrinik_Object_IsOfType,               METH_VARARGS, 0},
-	{"Save",                         (PyCFunction) Atrinik_Object_Save,                   METH_VARARGS, 0},
-	{"GetIP",                        (PyCFunction) Atrinik_Object_GetIP,                  METH_VARARGS, 0},
-	{"GetArchName",                  (PyCFunction) Atrinik_Object_GetArchName,            METH_VARARGS, 0},
-	{"ShowCost",                     (PyCFunction) Atrinik_Object_ShowCost,               METH_VARARGS, 0},
-	{"GetItemCost",                  (PyCFunction) Atrinik_Object_GetItemCost,            METH_VARARGS, 0},
-	{"GetMoney",                     (PyCFunction) Atrinik_Object_GetMoney,               METH_VARARGS, 0},
-	{"PayForItem",                   (PyCFunction) Atrinik_Object_PayForItem,             METH_VARARGS, 0},
-	{"PayAmount",                    (PyCFunction) Atrinik_Object_PayAmount,              METH_VARARGS, 0},
-	{"GetUnmodifiedAttribute",       (PyCFunction) Atrinik_Object_GetUnmodifiedAttribute, METH_VARARGS, 0},
-	{"SendCustomCommand",            (PyCFunction) Atrinik_Object_SendCustomCommand,      METH_VARARGS, 0},
-	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
-	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
-	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
-	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
-	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
-	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
-	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
-	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
-	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
+#include <plugin_python.h>
 
 /** Object fields structure */
 typedef struct
@@ -505,40 +431,6 @@ static char *flag_names[NUM_FLAGS + 1] =
 	"f_can_reflect_missile", "f_can_reflect_spell", "flag_is_assassination", NULL,                NULL,
 	NULL
 };
-
-/** This is filled in when we initialize our object type */
-static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
-
-/* Our actual Python ObjectType */
-PyTypeObject Atrinik_ObjectType =
-{
-#ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
-#else
-	PyObject_HEAD_INIT(NULL)
-	0,
-#endif
-	"Atrinik.Object",
-	sizeof(Atrinik_Object),
-	0,
-	(destructor) Atrinik_Object_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Object_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik objects",
-	0, 0, 0, 0, 0, 0,
-	ObjectMethods,
-	0,
-	Object_getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Object_new,
-	0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-	, 0
-#endif
-};
-
 
 /**
  * @anchor plugin_python_object_constants
@@ -2926,8 +2818,85 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 
 /*@}*/
 
-/* Attribute getter */
-static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
+/** Available Python methods for the AtrinikObject object */
+static PyMethodDef ObjectMethods[] =
+{
+	{"SetSaveBed",                   (PyCFunction) Atrinik_Object_SetSaveBed,             METH_VARARGS, 0},
+	{"SwapApartments",               (PyCFunction) Atrinik_Object_SwapApartments,         METH_VARARGS, 0},
+	{"GetSkill",                     (PyCFunction) Atrinik_Object_GetSkill,               METH_VARARGS, 0},
+	{"SetSkill",                     (PyCFunction) Atrinik_Object_SetSkill,               METH_VARARGS, 0},
+	{"ActivateRune",                 (PyCFunction) Atrinik_Object_ActivateRune,           METH_VARARGS, 0},
+	{"CastAbility",                  (PyCFunction) Atrinik_Object_CastAbility,            METH_VARARGS, 0},
+	{"InsertInside",                 (PyCFunction) Atrinik_Object_InsertInside,           METH_VARARGS, 0},
+	{"GetGod",                       (PyCFunction) Atrinik_Object_GetGod,                 METH_VARARGS, 0},
+	{"SetGod",                       (PyCFunction) Atrinik_Object_SetGod,                 METH_VARARGS, 0},
+	{"TeleportTo",                   (PyCFunction) Atrinik_Object_TeleportTo,             METH_VARARGS, 0},
+	{"Apply",                        (PyCFunction) Atrinik_Object_Apply,                  METH_VARARGS, 0},
+	{"PickUp",                       (PyCFunction) Atrinik_Object_PickUp,                 METH_VARARGS, 0},
+	{"Drop",                         (PyCFunction) Atrinik_Object_Drop,                   METH_VARARGS, 0},
+	{"Fix",                          (PyCFunction) Atrinik_Object_Fix,                    METH_VARARGS, 0},
+	{"Kill",                         (PyCFunction) Atrinik_Object_Kill,                   METH_VARARGS, 0},
+	{"DoKnowSpell",                  (PyCFunction) Atrinik_Object_DoKnowSpell,            METH_VARARGS, 0},
+	{"AcquireSpell",                 (PyCFunction) Atrinik_Object_AcquireSpell,           METH_VARARGS, 0},
+	{"DoKnowSkill",                  (PyCFunction) Atrinik_Object_DoKnowSkill,            METH_VARARGS, 0},
+	{"AcquireSkill",                 (PyCFunction) Atrinik_Object_AcquireSkill,           METH_VARARGS, 0},
+	{"FindMarkedObject",             (PyCFunction) Atrinik_Object_FindMarkedObject,       METH_VARARGS, 0},
+	{"GetQuestObject",               (PyCFunction) Atrinik_Object_GetQuestObject,         METH_VARARGS, 0},
+	{"StartQuest",                   (PyCFunction) Atrinik_Object_StartQuest,             METH_VARARGS, 0},
+	{"CreatePlayerForce",            (PyCFunction) Atrinik_Object_CreatePlayerForce,      METH_VARARGS, 0},
+	{"CreatePlayerInfo",             (PyCFunction) Atrinik_Object_CreatePlayerInfo,       METH_VARARGS, 0},
+	{"GetPlayerInfo",                (PyCFunction) Atrinik_Object_GetPlayerInfo,          METH_VARARGS, 0},
+	{"GetNextPlayerInfo",            (PyCFunction) Atrinik_Object_GetNextPlayerInfo,      METH_VARARGS, 0},
+	{"CheckInvisibleObjectInside",   (PyCFunction) Atrinik_Object_CheckInvisibleInside,   METH_VARARGS, 0},
+	{"CreateInvisibleObjectInside",  (PyCFunction) Atrinik_Object_CreateInvisibleInside,  METH_VARARGS, 0},
+	{"CreateObjectInside",           (PyCFunction) Atrinik_Object_CreateObjectInside,     METH_VARARGS, 0},
+	{"CheckInventory",               (PyCFunction) Atrinik_Object_CheckInventory,         METH_VARARGS, 0},
+	{"Remove",                       (PyCFunction) Atrinik_Object_Remove,                 METH_VARARGS, 0},
+	{"SetPosition",                  (PyCFunction) Atrinik_Object_SetPosition,            METH_VARARGS, 0},
+	{"IdentifyItem",                 (PyCFunction) Atrinik_Object_IdentifyItem,           METH_VARARGS, 0},
+	{"Deposit",                      (PyCFunction) Atrinik_Object_Deposit,                METH_VARARGS, 0},
+	{"Withdraw",                     (PyCFunction) Atrinik_Object_Withdraw,               METH_VARARGS, 0},
+	{"Communicate",                  (PyCFunction) Atrinik_Object_Communicate,            METH_VARARGS, 0},
+	{"Say",                          (PyCFunction) Atrinik_Object_Say,                    METH_VARARGS, 0},
+	{"SayTo",                        (PyCFunction) Atrinik_Object_SayTo,                  METH_VARARGS, 0},
+	{"Write",                        (PyCFunction) Atrinik_Object_Write,                  METH_VARARGS, 0},
+	{"SetGender",                    (PyCFunction) Atrinik_Object_SetGender,              METH_VARARGS, 0},
+	{"GetGender",                    (PyCFunction) Atrinik_Object_GetGender,              METH_VARARGS, 0},
+	{"SetRank",                      (PyCFunction) Atrinik_Object_SetRank,                METH_VARARGS, 0},
+	{"GetRank",                      (PyCFunction) Atrinik_Object_GetRank,                METH_VARARGS, 0},
+	{"SetAlignment",                 (PyCFunction) Atrinik_Object_SetAlignment,           METH_VARARGS, 0},
+	{"GetAlignmentForce",            (PyCFunction) Atrinik_Object_GetAlignmentForce,      METH_VARARGS, 0},
+	{"SetGuildForce",                (PyCFunction) Atrinik_Object_SetGuildForce,          METH_VARARGS, 0},
+	{"GetGuildForce",                (PyCFunction) Atrinik_Object_GetGuildForce,          METH_VARARGS, 0},
+	{"IsOfType",                     (PyCFunction) Atrinik_Object_IsOfType,               METH_VARARGS, 0},
+	{"Save",                         (PyCFunction) Atrinik_Object_Save,                   METH_VARARGS, 0},
+	{"GetIP",                        (PyCFunction) Atrinik_Object_GetIP,                  METH_VARARGS, 0},
+	{"GetArchName",                  (PyCFunction) Atrinik_Object_GetArchName,            METH_VARARGS, 0},
+	{"ShowCost",                     (PyCFunction) Atrinik_Object_ShowCost,               METH_VARARGS, 0},
+	{"GetItemCost",                  (PyCFunction) Atrinik_Object_GetItemCost,            METH_VARARGS, 0},
+	{"GetMoney",                     (PyCFunction) Atrinik_Object_GetMoney,               METH_VARARGS, 0},
+	{"PayForItem",                   (PyCFunction) Atrinik_Object_PayForItem,             METH_VARARGS, 0},
+	{"PayAmount",                    (PyCFunction) Atrinik_Object_PayAmount,              METH_VARARGS, 0},
+	{"GetUnmodifiedAttribute",       (PyCFunction) Atrinik_Object_GetUnmodifiedAttribute, METH_VARARGS, 0},
+	{"SendCustomCommand",            (PyCFunction) Atrinik_Object_SendCustomCommand,      METH_VARARGS, 0},
+	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
+	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
+	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
+	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
+	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
+	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
+	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
+	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
+	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
+/**
+ * Get object's attribute.
+ * @param whoptr Python object wrapper.
+ * @param fieldno Attribute ID.
+ * @return Python object with the attribute value, NULL on failure. */
+static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, int fieldno)
 {
 	void *field_ptr, *field_ptr2;
 	tag_t tag;
@@ -2935,35 +2904,36 @@ static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
 	char *str;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
-		RAISE("Illegal field ID");
+	{
+		RAISE("Illegal field ID.");
+	}
 
-	field_ptr = (void *)((char *)WHO + obj_fields[fieldno].offset);
+	field_ptr = (void *) ((char *) WHO + obj_fields[fieldno].offset);
 
-	/* TODO: better handling of types, signs, and overflows */
 	switch (obj_fields[fieldno].type)
 	{
 		case FIELDTYPE_SHSTR:
 		case FIELDTYPE_CSTR:
-			str =  *(char **)field_ptr;
+			str =  *(char **) field_ptr;
 			return Py_BuildValue("s", str ? str : "");
 
 		case FIELDTYPE_UINT8:
-			return Py_BuildValue("b", *(uint8 *)field_ptr);
+			return Py_BuildValue("b", *(uint8 *) field_ptr);
 
 		case FIELDTYPE_SINT8:
-			return Py_BuildValue("b", *(sint8 *)field_ptr);
+			return Py_BuildValue("b", *(sint8 *) field_ptr);
 
 		case FIELDTYPE_UINT16:
-			return Py_BuildValue("i", *(uint16 *)field_ptr);
+			return Py_BuildValue("i", *(uint16 *) field_ptr);
 
 		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *)field_ptr);
+			return Py_BuildValue("i", *(sint16 *) field_ptr);
 
 		case FIELDTYPE_UINT32:
-			return Py_BuildValue("l", *(uint32 *)field_ptr);
+			return Py_BuildValue("l", *(uint32 *) field_ptr);
 
 		case FIELDTYPE_SINT32:
-			return Py_BuildValue("l", *(sint32 *)field_ptr);
+			return Py_BuildValue("l", *(sint32 *) field_ptr);
 
 		case FIELDTYPE_UINT64:
 			return Py_BuildValue("L", *(uint64 *) field_ptr);
@@ -2981,32 +2951,45 @@ static PyObject *Object_GetAttribute(Atrinik_Object* whoptr, int fieldno)
 			return wrap_object(*(object **) field_ptr);
 
 		case FIELDTYPE_OBJECTREF:
-			field_ptr2 = (void *)((char *)WHO + obj_fields[fieldno].extra_data);
-			obj = *(object **)field_ptr;
-			tag = *(tag_t *)field_ptr2;
+			field_ptr2 = (void *) ((char *) WHO + obj_fields[fieldno].extra_data);
+			obj = *(object **) field_ptr;
+			tag = *(tag_t *) field_ptr2;
 			return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
 
 		default:
-			RAISE("BUG: unknown field type");
+			RAISE("BUG: Unknown field type.");
 	}
+
+	return NULL;
 }
 
-/* Object attribute setter */
-static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fieldno)
+/**
+ * Set attribute of an object.
+ * @param whoptr Python object wrapper.
+ * @param value Value to set.
+ * @param fieldno Attribute ID.
+ * @return 0 on success, -1 on failure.
+ * @todo Better handling of types, signs, and overflows. */
+static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fieldno)
 {
 	void *field_ptr;
 	object *tmp;
 	uint32 flags, offset;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
-		INTRAISE("Illegal field ID");
+	{
+		INTRAISE("Illegal field ID.");
+	}
 
 	flags = obj_fields[fieldno].flags;
+
 	if ((flags & FIELDFLAG_READONLY) || ((flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER))
-		INTRAISE("Trying to modify readonly field");
+	{
+		INTRAISE("Trying to modify readonly field.");
+	}
 
 	offset = obj_fields[fieldno].offset;
-	field_ptr = (void *)((char *)WHO + offset);
+	field_ptr = (void *) ((char *) WHO + offset);
 
 	switch (obj_fields[fieldno].type)
 	{
@@ -3015,63 +2998,92 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 			{
 				const char *str = PyString_AsString(value);
 
-				if (*(char **)field_ptr != NULL)
-					FREE_AND_CLEAR_HASH(*(char **)field_ptr);
+				if (*(char **) field_ptr)
+				{
+					FREE_AND_CLEAR_HASH(*(char **) field_ptr);
+				}
 
 				if (str && strcmp(str, ""))
-					FREE_AND_COPY_HASH(*(const char **)field_ptr, str);
+				{
+					FREE_AND_COPY_HASH(*(const char **) field_ptr, str);
+				}
 			}
 			else
-				INTRAISE("Illegal value for text field");
+			{
+				INTRAISE("Illegal value for text field.");
+			}
 
 			break;
 
-			/* TODO: better handling of types, signs, and overflows */
 		case FIELDTYPE_UINT8:
 			if (PyInt_Check(value))
-				*(uint8 *)field_ptr = (uint8) PyInt_AsLong(value);
+			{
+				*(uint8 *) field_ptr = (uint8) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for uint8 field.");
+			}
 
 			break;
 
 		case FIELDTYPE_SINT8:
 			if (PyInt_Check(value))
-				*(sint8 *)field_ptr = (sint8)PyInt_AsLong(value);
+			{
+				*(sint8 *) field_ptr = (sint8) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for sint8 field.");
+			}
 
 			break;
 
 		case FIELDTYPE_UINT16:
 			if (PyInt_Check(value))
-				*(uint16 *)field_ptr = (uint16)PyInt_AsLong(value);
+			{
+				*(uint16 *) field_ptr = (uint16) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for uint16 field.");
+			}
 
 			break;
 
 		case FIELDTYPE_SINT16:
 			if (PyInt_Check(value))
-				*(sint16 *)field_ptr = (sint16)PyInt_AsLong(value);
+			{
+				*(sint16 *) field_ptr = (sint16) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for sint16 field.");
+			}
 
 			break;
 
 		case FIELDTYPE_UINT32:
 			if (PyInt_Check(value))
-				*(uint32 *)field_ptr = (uint32)PyInt_AsLong(value);
+			{
+				*(uint32 *) field_ptr = (uint32) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for uint32 field.");
+			}
 
 			break;
 
 		case FIELDTYPE_SINT32:
 			if (PyInt_Check(value))
-				*(sint32 *)field_ptr = (sint32)PyInt_AsLong(value);
+			{
+				*(sint32 *) field_ptr = (sint32)PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for int field");
+			{
+				INTRAISE("Illegal value for sint32 field.");
+			}
 
 			break;
 
@@ -3082,7 +3094,7 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 			}
 			else
 			{
-				INTRAISE("Illegal value for uint64 field");
+				INTRAISE("Illegal value for uint64 field.");
 			}
 
 			break;
@@ -3094,27 +3106,32 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 			}
 			else
 			{
-				INTRAISE("Illegal value for sint64 field");
+				INTRAISE("Illegal value for sint64 field.");
 			}
 
 			break;
 
 		case FIELDTYPE_FLOAT:
 			if (PyFloat_Check(value))
-				*(float *)field_ptr = (float)PyFloat_AsDouble(value);
+			{
+				*(float *) field_ptr = (float) PyFloat_AsDouble(value);
+			}
 			else if (PyInt_Check(value))
-				*(float *)field_ptr = (float)PyInt_AsLong(value);
+			{
+				*(float *) field_ptr = (float) PyInt_AsLong(value);
+			}
 			else
-				INTRAISE("Illegal value for float field");
+			{
+				INTRAISE("Illegal value for float field.");
+			}
 
 			break;
 
 		default:
-			INTRAISE("BUG: unknown field type");
+			INTRAISE("BUG: Unknown field type.");
 	}
 
-	/* Make sure the inventory image/text is updated */
-	/* FIXME: what if object was not carried by player ? */
+	/* Make sure the inventory image/text is updated. */
 	for (tmp = WHO->env; tmp != NULL; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
@@ -3123,80 +3140,101 @@ static int Object_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fiel
 		}
 	}
 
-	/* Special handling for some player stuff */
+	/* Special handling for some player stuff. */
 	if (WHO->type == PLAYER)
 	{
-		/* VC gives a error for the offsetof() because case:
-		 * must be followed by a constant value.
-		switch (offset)
-		{
-		    case offsetof(object, stats.Int): CONTR(WHO)->orig_stats.Int = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Str): CONTR(WHO)->orig_stats.Str = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Cha): CONTR(WHO)->orig_stats.Cha = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Wis): CONTR(WHO)->orig_stats.Wis = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Dex): CONTR(WHO)->orig_stats.Dex = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Con): CONTR(WHO)->orig_stats.Con = PyInt_AsLong(value); break;
-		    case offsetof(object, stats.Pow): CONTR(WHO)->orig_stats.Pow = PyInt_AsLong(value); break;
-		    default:
-		}
-		*/
-
-		/* replacing the switch struct above */
 		if (offset == offsetof(object, stats.Int))
-			CONTR(WHO)->orig_stats.Int = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Int = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Str))
-			CONTR(WHO)->orig_stats.Str = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Str = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Cha))
-			CONTR(WHO)->orig_stats.Cha = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Wis))
-			CONTR(WHO)->orig_stats.Wis = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Dex))
-			CONTR(WHO)->orig_stats.Dex = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Con))
-			CONTR(WHO)->orig_stats.Con = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Con = (sint8) PyInt_AsLong(value);
+		}
 		else if (offset == offsetof(object, stats.Pow))
-			CONTR(WHO)->orig_stats.Pow = (sint8)PyInt_AsLong(value);
+		{
+			CONTR(WHO)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
+		}
 
 		if (flags & FIELDFLAG_PLAYER_FIX)
+		{
 			hooks->fix_player(WHO);
+		}
 	}
 
 	return 0;
 }
 
-/* Object flag getter */
-static PyObject *Object_GetFlag(Atrinik_Object* whoptr, int flagno)
+/**
+ * Get object's flag.
+ * @param whoptr Python object wrapper.
+ * @param flagno Flag to get.
+ * @return 1 if the object has the flag set, 0 otherwise. */
+static PyObject *Object_GetFlag(Atrinik_Object *whoptr, int flagno)
 {
 	if (flagno < 0 || flagno >= NUM_FLAGS)
+	{
 		RAISE("Unknown flag");
+	}
 
 	return Py_BuildValue("i", QUERY_FLAG(WHO,flagno) ? 1 : 0);
 }
 
-/* Object flag setter */
-int Object_SetFlag(Atrinik_Object* whoptr, PyObject *val, int flagno)
+/**
+ * Set flag for an object.
+ * @param whoptr Python object wrapper.
+ * @param val Value to set.
+ * @param flagno ID of the flag to set.
+ * @return 0 on success, -1 on failure.
+ * @todo If gender of player has changed, demand update to client. */
+static int Object_SetFlag(Atrinik_Object *whoptr, PyObject *val, int flagno)
 {
 	int value;
 	object *tmp;
 
 	if (flagno < 0 || flagno >= NUM_FLAGS)
-		INTRAISE("Unknown flag");
+	{
+		INTRAISE("Unknown flag.");
+	}
 
 	if (!PyInt_Check(val))
-		INTRAISE("Value must be 0 or 1");
+	{
+		INTRAISE("Value must be 0 or 1.");
+	}
 
 	value = PyInt_AsLong(val);
 
-	if (value <0 || value > 1)
-		INTRAISE("Value must be 0 or 1");
+	if (value < 0 || value > 1)
+	{
+		INTRAISE("Value must be 0 or 1.");
+	}
 
 	if (value)
+	{
 		SET_FLAG(WHO, flagno);
+	}
 	else
+	{
 		CLEAR_FLAG(WHO, flagno);
+	}
 
 	/* Make sure the inventory image/text is updated */
-	/* FIXME: what if object was not carried by player ? */
 	for (tmp = WHO->env; tmp != NULL; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
@@ -3205,18 +3243,97 @@ int Object_SetFlag(Atrinik_Object* whoptr, PyObject *val, int flagno)
 		}
 	}
 
-	/* TODO: if gender changed:
-	if()
-	   CONTR(WHO)->socket.ext_title_flag = 1; * demand update to client */
+	/* If gender has changed, demand update to client. */
+#if 0
+	if ()
+	{
+		CONTR(WHO)->socket.ext_title_flag = 1;
+	}
+#endif
 
 	return 0;
 }
 
-/****************************************************************************/
-/* Python Object management code                                            */
-/****************************************************************************/
+/**
+ * Create a new object wrapper.
+ * @param type Type object.
+ * @param args Unused.
+ * @param kwds Unused.
+ * @return The new wrapper. */
+static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	Atrinik_Object *self = (Atrinik_Object *) type->tp_alloc(type, 0);
 
-/* Initialize our CF object wrapper */
+	(void) args;
+	(void) kwds;
+
+	if (self)
+	{
+		self->obj = NULL;
+	}
+
+	return (PyObject *) self;
+}
+
+/**
+ * Free an object wrapper.
+ * @param self The wrapper to free. */
+static void Atrinik_Object_dealloc(Atrinik_Object* self)
+{
+	self->obj = NULL;
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
+}
+
+/**
+ * Return a string representation of an object.
+ * @param self The object type.
+ * @return Python object containing the arch name and name of the object. */
+static PyObject *Atrinik_Object_str(Atrinik_Object *self)
+{
+	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+}
+
+/** This is filled in when we initialize our object type. */
+static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
+
+/** Our actual Python ObjectType. */
+PyTypeObject Atrinik_ObjectType =
+{
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
+	PyObject_HEAD_INIT(NULL)
+	0,
+#endif
+	"Atrinik.Object",
+	sizeof(Atrinik_Object),
+	0,
+	(destructor) Atrinik_Object_dealloc,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	(reprfunc) Atrinik_Object_str,
+	0, 0, 0,
+	Py_TPFLAGS_DEFAULT,
+	"Atrinik objects",
+	0, 0, 0, 0, 0, 0,
+	ObjectMethods,
+	0,
+	Object_getseters,
+	0, 0, 0, 0, 0, 0, 0,
+	Atrinik_Object_new,
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
+};
+
+/**
+ * Initialize the object wrapper.
+ * @param module The Atrinik Python module.
+ * @return 1 on success, 0 on failure. */
 int Atrinik_Object_init(PyObject *module)
 {
 	int i, flagno;
@@ -3253,7 +3370,7 @@ int Atrinik_Object_init(PyObject *module)
 	{
 		if (PyModule_AddIntConstant(module, object_constants[i].name, object_constants[i].value))
 		{
-			return -1;
+			return 0;
 		}
 	}
 
@@ -3261,52 +3378,22 @@ int Atrinik_Object_init(PyObject *module)
 
 	if (PyType_Ready(&Atrinik_ObjectType) < 0)
 	{
-		return -1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
-/* Create a new Object wrapper (uninitialized) */
-static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	Atrinik_Object *self = (Atrinik_Object *) type->tp_alloc(type, 0);
-
-	(void) args;
-	(void) kwds;
-
-	if (self)
-	{
-		self->obj = NULL;
-	}
-
-	return (PyObject *) self;
-}
-
-/* Free an Object wrapper */
-static void Atrinik_Object_dealloc(Atrinik_Object* self)
-{
-	self->obj = NULL;
-#ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
-#else
-	self->ob_type->tp_free((PyObject *) self);
-#endif
-}
-
-/** Return a string representation of this object (useful for debugging) */
-static PyObject *Atrinik_Object_str(Atrinik_Object *self)
-{
-	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
-}
-
-/** Utility method to wrap an object. */
-PyObject * wrap_object(object *what)
+/**
+ * Utility method to wrap an object.
+ * @param what Object to wrap.
+ * @return Python object wrapping the real object. */
+PyObject *wrap_object(object *what)
 {
 	Atrinik_Object *wrapper;
 
-	/* return None if no object was to be wrapped */
-	if (what == NULL)
+	/* Return None if no object was to be wrapped. */
+	if (!what)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -3314,7 +3401,7 @@ PyObject * wrap_object(object *what)
 
 	wrapper = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
 
-	if (wrapper != NULL)
+	if (wrapper)
 	{
 		wrapper->obj = what;
 	}

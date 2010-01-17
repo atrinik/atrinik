@@ -307,14 +307,27 @@ typedef struct _atrinik_plugin
  * @defgroup exportable_plugin_functions Exportable plugin functions
  * Exportable functions. Any plugin should define all these.
  *@{*/
-/** Called when the plugin initialization process starts. */
+/**
+ * Called when the plugin initialization process starts.
+ * @param hooklist Plugin hooklist to register. */
 extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
 
-/** Called to ask various informations to the plugin. */
+/**
+ * Called to ask various informations about the plugin.
+ * @param type Integer pointer for va_start().
+ * @return Return value depends on the type of information requested.
+ * Can be NULL. */
 extern MODULEAPI void *getPluginProperty(int *type, ...);
 
-/** Called whenever an event occurs. */
+/**
+ * Called whenever an event occurs.
+ * @param type Integer pointer for va_start().
+ * @return Integer containing the event's return value. */
 extern MODULEAPI void *triggerEvent(int *type, ...);
+
+/**
+ * Called by the server when the plugin loading is completed. */
+extern MODULEAPI void postinitPlugin();
 /*@}*/
 
 #endif

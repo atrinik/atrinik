@@ -40,10 +40,12 @@
 /** Hooks. */
 struct plugin_hooklist *hooks;
 
-/** A generic exception that we use for error messages */
+/** A generic exception that we use for error messages. */
 PyObject *AtrinikError;
 
-PythonContext *context_stack;
+/** The context stack. */
+static PythonContext *context_stack;
+/** Current context. */
 PythonContext *current_context;
 
 /**
@@ -95,29 +97,46 @@ static Atrinik_Constant module_constants[] =
 };
 
 /** All the custom commands. */
-PythonCmd CustomCommand[NR_CUSTOM_CMD];
+static PythonCmd CustomCommand[NR_CUSTOM_CMD];
 /** Contains the index of the next command that needs to be run. */
-int NextCustomCommand;
+static int NextCustomCommand;
 
-/* Stuff for python bytecode cache */
-#define PYTHON_CACHE_SIZE 10
+/** Maximum number of cached scripts. */
+#define PYTHON_CACHE_SIZE 16
 
+/** One cache entry. */
 typedef struct
 {
+	/** The script file. */
 	const char *file;
+
+	/** The cached code. */
 	PyCodeObject *code;
-	time_t cached_time, used_time;
+
+	/** Last cached time. */
+	time_t cached_time;
+
+	/** Last used time. */
+	time_t used_time;
 } cacheentry;
 
+/** The Python cache. */
 static cacheentry python_cache[PYTHON_CACHE_SIZE];
-static int RunPythonScript(const char *path, object *event_object);
 
+static int cmd_customPython(object *op, char *params);
+static void init_Atrinik_Python();
+
+/**
+ * Initialize the context stack. */
 static void initContextStack()
 {
 	current_context = NULL;
 	context_stack = NULL;
 }
 
+/**
+ * Push context to the context stack and to current context.
+ * @param context The context to push. */
 static void pushContext(PythonContext *context)
 {
 	if (current_context == NULL)
@@ -133,6 +152,11 @@ static void pushContext(PythonContext *context)
 	current_context = context;
 }
 
+/**
+ * Pop the first context from the current context, replacing it by the
+ * next one in the list.
+ * @return NULL if there is no current context, the previous current
+ * context otherwise. */
 static PythonContext *popContext()
 {
 	PythonContext *oldcontext;
@@ -147,6 +171,9 @@ static PythonContext *popContext()
 	return NULL;
 }
 
+/**
+ * Free a context.
+ * @param context Context to free. */
 static void freeContext(PythonContext *context)
 {
 	free(context);
@@ -316,12 +343,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return wrap_object(current_context->who);
 }
 
@@ -332,12 +354,7 @@ static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return wrap_object(current_context->activator);
 }
 
@@ -347,12 +364,7 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return wrap_object(current_context->event);
 }
 
@@ -385,12 +397,7 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return Py_BuildValue("s", current_context->text);
 }
 
@@ -401,12 +408,7 @@ static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return Py_BuildValue("s", current_context->options);
 }
 
@@ -417,12 +419,7 @@ static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 {
 	(void) self;
-
-	if (!PyArg_ParseTuple(args, "", NULL))
-	{
-		return NULL;
-	}
-
+	(void) args;
 	return Py_BuildValue("i", current_context->returnvalue);
 }
 
@@ -796,57 +793,304 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 
 /*@}*/
 
-MODULEAPI void *triggerEvent(int *type, ...)
+/**
+ * Open a Python file.
+ * @param filename File to open.
+ * @return Python object of the file, NULL on failure. */
+static PyObject *python_openfile(char *filename)
 {
-	va_list args;
-	int eventcode;
-	static int result = 0;
+	PyObject *scriptfile;
+#ifdef IS_PY3K
+	int fd = open(filename, O_RDONLY);
 
-	va_start(args, type);
-	eventcode = va_arg(args, int);
-	LOG(llevDebug, "PYTHON - triggerEvent:: eventcode %d\n", eventcode);
-
-	switch (eventcode)
+	if (fd == -1)
 	{
-		case EVENT_NONE:
-			LOG(llevDebug, "PYTHON - Warning - EVENT_NONE requested\n");
-			break;
-
-		case EVENT_ATTACK:
-		case EVENT_APPLY:
-		case EVENT_DEATH:
-		case EVENT_DROP:
-		case EVENT_PICKUP:
-		case EVENT_SAY:
-		case EVENT_STOP:
-		case EVENT_TELL:
-		case EVENT_TIME:
-		case EVENT_THROW:
-		case EVENT_TRIGGER:
-		case EVENT_CLOSE:
-		case EVENT_TIMER:
-			result = HandleEvent(args);
-			break;
-
-		case EVENT_BORN:
-		case EVENT_CRASH:
-		case EVENT_LOGIN:
-		case EVENT_LOGOUT:
-		case EVENT_REMOVE:
-		case EVENT_SHOUT:
-		case EVENT_MAPENTER:
-		case EVENT_MAPLEAVE:
-		case EVENT_CLOCK:
-		case EVENT_MAPRESET:
-			result = HandleGlobalEvent(eventcode, args);
-			break;
+		return NULL;
 	}
 
-	va_end(args);
-	return &result;
+	scriptfile = PyFile_FromFd(fd, filename, "r", -1, NULL, NULL, NULL, 1);
+#else
+	if (!(scriptfile = PyFile_FromString(filename, "r")))
+	{
+		return NULL;
+	}
+#endif
+
+	return scriptfile;
 }
 
-MODULEAPI int HandleGlobalEvent(int event_type, va_list args)
+/**
+ * Return a FILE object from a Python file object.
+ * @param obj Python object of the file.
+ * @return FILE pointer to the file. */
+static FILE *python_pyfile_asfile(PyObject *obj)
+{
+#ifdef IS_PY3K
+	return fdopen(PyObject_AsFileDescriptor(obj), "r");
+#else
+	return PyFile_AsFile(obj);
+#endif
+}
+
+/**
+ * Execute a script, handling loading, parsing and caching.
+ * @param path Path to the script.
+ * @param event_object Event object.
+ * @return -1 on failure, 0 on success. */
+static int RunPythonScript(const char *path, object *event_object)
+{
+	PyObject *scriptfile;
+	char *fullpath = hooks->create_pathname(path);
+	const char *sh_path = NULL;
+	struct stat stat_buf;
+	int i, result = -1;
+	cacheentry *replace = NULL, *run = NULL;
+	struct _node *n;
+	PyObject *globdict;
+
+	if (event_object && fullpath[0] != '/')
+	{
+		char tmp_path[HUGE_BUF];
+		object *outermost = event_object;
+
+		while (outermost && outermost->env)
+		{
+			outermost = outermost->env;
+		}
+
+		if (outermost && outermost->map)
+		{
+			hooks->normalize_path(outermost->map->path, path, tmp_path);
+
+			fullpath = hooks->create_pathname(tmp_path);
+		}
+	}
+
+	if (!(scriptfile = python_openfile(fullpath)))
+	{
+		LOG(llevDebug, "PYTHON - The script file %s can't be opened\n", path);
+		return -1;
+	}
+
+	if (stat(fullpath, &stat_buf))
+	{
+		LOG(llevDebug, "PYTHON - The Script file %s can't be stat()ed\n", fullpath);
+		Py_DECREF(scriptfile);
+		return -1;
+	}
+
+	/* Create a shared string */
+	FREE_AND_COPY_HASH(sh_path, fullpath);
+
+	/* Search through cache. Three cases:
+	 * 1) script in cache, but older than file  -> replace cached
+	 * 2) script in cache and up to date        -> use cached
+	 * 3) script not in cache, cache not full   -> add to end of cache
+	 * 4) script not in cache, cache full       -> replace least recently used */
+	for (i = 0; i < PYTHON_CACHE_SIZE; i++)
+	{
+		if (python_cache[i].file == NULL)
+		{
+#ifdef PYTHON_DEBUG
+			LOG(llevDebug, "PYTHON:: Adding file to cache\n");
+#endif
+			/* Case 3 */
+			replace = &python_cache[i];
+			break;
+		}
+		else if (python_cache[i].file == sh_path)
+		{
+			/* Found it. Compare timestamps. */
+			if (python_cache[i].code == NULL || python_cache[i].cached_time < stat_buf.st_mtime)
+			{
+#ifdef PYTHON_DEBUG
+				LOG(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
+#endif
+				/* Case 1 */
+				replace = &python_cache[i];
+			}
+			else
+			{
+#ifdef PYTHON_DEBUG
+				LOG(llevDebug, "PYTHON:: Using cached version\n");
+#endif
+				/* Case 2 */
+				replace = NULL;
+				run = &python_cache[i];
+			}
+			break;
+		}
+		/* Prepare for case 4 */
+		else if (replace == NULL || python_cache[i].used_time < replace->used_time)
+		{
+			replace = &python_cache[i];
+		}
+	}
+
+	/* Replace a specific cache index with the file */
+	if (replace)
+	{
+		FILE *pyfile;
+
+		/* Safe to call on NULL */
+		Py_XDECREF(replace->code);
+		replace->code = NULL;
+
+		/* Need to replace path string? */
+		if (replace->file != sh_path)
+		{
+			if (replace->file)
+			{
+#ifdef PYTHON_DEBUG
+				LOG(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
+#endif
+				FREE_AND_CLEAR_HASH(replace->file);
+			}
+
+			FREE_AND_COPY_HASH(replace->file, sh_path);
+		}
+
+		/* Load, parse and compile */
+#ifdef PYTHON_DEBUG
+		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
+#endif
+
+		pyfile = python_pyfile_asfile(scriptfile);
+
+		if ((n = PyParser_SimpleParseFile(pyfile, fullpath, Py_file_input)))
+		{
+			replace->code = PyNode_Compile(n, fullpath);
+			PyNode_Free(n);
+		}
+
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+		}
+		else
+		{
+			replace->cached_time = stat_buf.st_mtime;
+		}
+
+		run = replace;
+	}
+
+	/* Run an old or new code object */
+	if (run && run->code)
+	{
+		/* Create a new environment with each execution. Don't want any old variables hanging around */
+		globdict = PyDict_New();
+		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
+
+#ifdef PYTHON_DEBUG
+		LOG(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
+#endif
+
+		PyEval_EvalCode(run->code, globdict, NULL);
+
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+		}
+		else
+		{
+			/* Only return 0 if we actually succeeded */
+			result = 0;
+			run->used_time = time(NULL);
+		}
+
+#ifdef PYTHON_DEBUG
+		LOG(llevDebug, "closing. ");
+#endif
+		Py_DECREF(globdict);
+	}
+
+	FREE_AND_CLEAR_HASH(sh_path);
+	Py_DECREF(scriptfile);
+
+	return result;
+}
+
+/**
+ * Handles standard local events.
+ * @param args List of arguments for context.
+ * @return 0 on failure, script's return value otherwise. */
+static int HandleEvent(va_list args)
+{
+	char *script;
+	PythonContext *context = malloc(sizeof(PythonContext));
+	int rv;
+
+	context->activator = va_arg(args, object *);
+	context->who = va_arg(args, object *);
+	context->other = va_arg(args, object *);
+	context->event = va_arg(args, object *);
+	context->text = va_arg(args, char *);
+	context->parms[0] = va_arg(args, int);
+	context->parms[1] = va_arg(args, int);
+	context->parms[2] = va_arg(args, int);
+	context->parms[3] = va_arg(args, int);
+	script = va_arg(args, char *);
+	context->options = va_arg(args, char *);
+	context->returnvalue = 0;
+
+#ifdef PYTHON_DEBUG
+	LOG(llevDebug, "PYTHON - Start script file >%s<\n", script);
+	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
+#endif
+
+	pushContext(context);
+
+	if (RunPythonScript(script, context->who))
+	{
+		freeContext(context);
+		return 0;
+	}
+
+#ifdef PYTHON_DEBUG
+	LOG(llevDebug, "fixing. ");
+#endif
+
+	context = popContext();
+
+	if (context->parms[3] == SCRIPT_FIX_ALL)
+	{
+		if (context->other)
+		{
+			hooks->fix_player(context->other);
+		}
+
+		if (context->who)
+		{
+			hooks->fix_player(context->who);
+		}
+
+		if (context->activator)
+		{
+			hooks->fix_player(context->activator);
+		}
+	}
+	else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR)
+	{
+		hooks->fix_player(context->activator);
+	}
+
+	rv = context->returnvalue;
+	freeContext(context);
+
+#ifdef PYTHON_DEBUG
+	LOG(llevDebug, "done (returned: %d)!\n", rv);
+#endif
+
+	return rv;
+}
+
+/**
+ * Handle a global event.
+ * @param event_type The event type.
+ * @param args List of arguments for context.
+ * @return 0. */
+static int HandleGlobalEvent(int event_type, va_list args)
 {
 	PythonContext *context = malloc(sizeof(PythonContext));
 
@@ -923,316 +1167,54 @@ MODULEAPI int HandleGlobalEvent(int event_type, va_list args)
 	return 0;
 }
 
-/**
- * Open a Python file. */
-static PyObject *python_openfile(char *filename)
+MODULEAPI void *triggerEvent(int *type, ...)
 {
-	PyObject *scriptfile;
-#ifdef IS_PY3K
-	int fd = open(filename, O_RDONLY);
+	va_list args;
+	int eventcode;
+	static int result = 0;
 
-	if (fd == -1)
+	va_start(args, type);
+	eventcode = va_arg(args, int);
+	LOG(llevDebug, "PYTHON - triggerEvent:: eventcode %d\n", eventcode);
+
+	switch (eventcode)
 	{
-		return NULL;
-	}
-
-	scriptfile = PyFile_FromFd(fd, filename, "r", -1, NULL, NULL, NULL, 1);
-#else
-	if (!(scriptfile = PyFile_FromString(filename, "r")))
-	{
-		return NULL;
-	}
-#endif
-
-	return scriptfile;
-}
-
-/**
- * Return a file object from a Python file. */
-static FILE *python_pyfile_asfile(PyObject* obj)
-{
-#ifdef IS_PY3K
-	return fdopen(PyObject_AsFileDescriptor(obj), "r");
-#else
-	return PyFile_AsFile(obj);
-#endif
-}
-
-/**
- * Execute a script, handling loading, parsing and caching.
- * @param path Path to the script.
- * @param event_object Event object.
- * @return  */
-static int RunPythonScript(const char *path, object *event_object)
-{
-	PyObject *scriptfile;
-	char *fullpath = hooks->create_pathname(path);
-	const char *sh_path = NULL;
-	struct stat stat_buf;
-	int i, result = -1;
-	cacheentry *replace = NULL, *run = NULL;
-	struct _node *n;
-	PyObject *globdict;
-
-	if (event_object && fullpath[0] != '/')
-	{
-		char tmp_path[HUGE_BUF];
-		object *outermost = event_object;
-
-		while (outermost && outermost->env)
-		{
-			outermost = outermost->env;
-		}
-
-		if (outermost && outermost->map)
-		{
-			hooks->normalize_path(outermost->map->path, path, tmp_path);
-
-			fullpath = hooks->create_pathname(tmp_path);
-		}
-	}
-
-	/* TODO: figure out how to get from server */
-	/* 1 for timestamp checking and error messages */
-	int maintenance_mode = 1;
-
-	if (maintenance_mode)
-	{
-		if (!(scriptfile = python_openfile(fullpath)))
-		{
-			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
-			return -1;
-		}
-
-		if (stat(fullpath, &stat_buf))
-		{
-			LOG(llevDebug, "PYTHON - The Script file %s can't be stat:ed\n", fullpath);
-
-			if (scriptfile)
-			{
-				Py_DECREF(scriptfile);
-			}
-
-			return -1;
-		}
-	}
-
-	/* Create a shared string */
-	FREE_AND_COPY_HASH(sh_path, fullpath);
-
-	/* Search through cache. Three cases:
-	 * 1) script in cache, but older than file  -> replace cached (only in maintenance mode)
-	 * 2) script in cache and up to date        -> use cached
-	 * 3) script not in cache, cache not full   -> add to end of cache
-	 * 4) script not in cache, cache full       -> replace least recently used */
-	for (i = 0; i < PYTHON_CACHE_SIZE; i++)
-	{
-		if (python_cache[i].file == NULL)
-		{
-#ifdef PYTHON_DEBUG
-			LOG(llevDebug, "PYTHON:: Adding file to cache\n");
-#endif
-			/* case 3 */
-			replace = &python_cache[i];
+		case EVENT_NONE:
+			LOG(llevDebug, "PYTHON - Warning - EVENT_NONE requested\n");
 			break;
-		}
-		else if (python_cache[i].file == sh_path)
-		{
-			/* Found it. Compare timestamps. */
-			if (python_cache[i].code == NULL || (maintenance_mode && python_cache[i].cached_time < stat_buf.st_mtime))
-			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
-#endif
-				/* case 1 */
-				replace = &python_cache[i];
-			}
-			else
-			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: Using cached version\n");
-#endif
-				/* case 2 */
-				replace = NULL;
-				run = &python_cache[i];
-			}
+
+		case EVENT_ATTACK:
+		case EVENT_APPLY:
+		case EVENT_DEATH:
+		case EVENT_DROP:
+		case EVENT_PICKUP:
+		case EVENT_SAY:
+		case EVENT_STOP:
+		case EVENT_TELL:
+		case EVENT_TIME:
+		case EVENT_THROW:
+		case EVENT_TRIGGER:
+		case EVENT_CLOSE:
+		case EVENT_TIMER:
+			result = HandleEvent(args);
 			break;
-		}
-		/* prepare for case 4 */
-		else if (replace == NULL || python_cache[i].used_time < replace->used_time)
-			replace = &python_cache[i];
+
+		case EVENT_BORN:
+		case EVENT_CRASH:
+		case EVENT_LOGIN:
+		case EVENT_LOGOUT:
+		case EVENT_REMOVE:
+		case EVENT_SHOUT:
+		case EVENT_MAPENTER:
+		case EVENT_MAPLEAVE:
+		case EVENT_CLOCK:
+		case EVENT_MAPRESET:
+			result = HandleGlobalEvent(eventcode, args);
+			break;
 	}
 
-	/* replace a specific cache index with the file */
-	if (replace)
-	{
-		/* safe to call on NULL */
-		Py_XDECREF(replace->code);
-		replace->code = NULL;
-
-		/* Need to replace path string? */
-		if (replace->file != sh_path)
-		{
-			if (replace->file)
-			{
-#ifdef PYTHON_DEBUG
-				LOG(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
-#endif
-				FREE_AND_CLEAR_HASH(replace->file);
-			}
-
-			FREE_AND_COPY_HASH(replace->file, sh_path);
-		}
-
-		/* Load, parse and compile */
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
-#endif
-		if (!scriptfile && !(scriptfile = python_openfile(fullpath)))
-		{
-			LOG(llevDebug, "PYTHON - The Script file %s can't be opened\n", path);
-			replace->code = NULL;
-		}
-		else
-		{
-			FILE *pyfile = python_pyfile_asfile(scriptfile);
-
-			if ((n = PyParser_SimpleParseFile(pyfile, fullpath, Py_file_input)))
-			{
-				replace->code = PyNode_Compile(n, fullpath);
-				PyNode_Free(n);
-			}
-
-			if (maintenance_mode)
-			{
-				if (PyErr_Occurred())
-				{
-					PyErr_Print();
-				}
-				else
-				{
-					replace->cached_time = stat_buf.st_mtime;
-				}
-			}
-
-			run = replace;
-		}
-	}
-
-	/* run an old or new code object */
-	if (run && run->code)
-	{
-		/* Create a new environment with each execution. Don't want any old variables hanging around */
-		globdict = PyDict_New();
-		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
-
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
-#endif
-
-		PyEval_EvalCode(run->code, globdict, NULL);
-
-		if (PyErr_Occurred())
-		{
-			if (maintenance_mode)
-			{
-				PyErr_Print();
-			}
-		}
-		else
-		{
-			/* only return 0 if we actually succeeded */
-			result = 0;
-			run->used_time = time(NULL);
-		}
-
-#ifdef PYTHON_DEBUG
-		LOG(llevDebug, "closing. ");
-#endif
-		Py_DECREF(globdict);
-	}
-
-	FREE_AND_CLEAR_HASH(sh_path);
-
-	if (scriptfile)
-	{
-		Py_DECREF(scriptfile);
-	}
-
-	return result;
-}
-
-/*****************************************************************************/
-/* Handles standard local events.                                            */
-/*****************************************************************************/
-MODULEAPI int HandleEvent(va_list args)
-{
-	char *script;
-	PythonContext *context = malloc(sizeof(PythonContext));
-	int rv;
-
-	context->activator = va_arg(args, object *);
-	context->who = va_arg(args, object *);
-	context->other = va_arg(args, object *);
-	context->event = va_arg(args, object *);
-	context->text = va_arg(args, char *);
-	context->parms[0] = va_arg(args, int);
-	context->parms[1] = va_arg(args, int);
-	context->parms[2] = va_arg(args, int);
-	context->parms[3] = va_arg(args, int);
-	script = va_arg(args, char *);
-	context->options = va_arg(args, char *);
-	context->returnvalue = 0;
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON - Start script file >%s<\n", script);
-	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
-#endif
-
-	pushContext(context);
-
-	if (RunPythonScript(script, context->who))
-	{
-		freeContext(context);
-		return 0;
-	}
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "fixing. ");
-#endif
-
-	context = popContext();
-
-	if (context->parms[3] == SCRIPT_FIX_ALL)
-	{
-		if (context->other)
-		{
-			hooks->fix_player(context->other);
-		}
-
-		if (context->who)
-		{
-			hooks->fix_player(context->who);
-		}
-
-		if (context->activator)
-		{
-			hooks->fix_player(context->activator);
-		}
-	}
-	else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR)
-	{
-		hooks->fix_player(context->activator);
-	}
-
-	rv = context->returnvalue;
-	freeContext(context);
-
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "done (returned: %d)!\n", rv);
-#endif
-
-	return rv;
+	va_end(args);
+	return &result;
 }
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
@@ -1300,7 +1282,12 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	return NULL;
 }
 
-MODULEAPI int cmd_customPython(object *op, char *params)
+/**
+ * Run custom command using Python script.
+ * @param op Object running the command.
+ * @param params Command parameters.
+ * @return 0 on failure, return value of the script otherwise. */
+static int cmd_customPython(object *op, char *params)
 {
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
@@ -1338,16 +1325,8 @@ MODULEAPI int cmd_customPython(object *op, char *params)
 	return rv;
 }
 
-/*****************************************************************************/
-/* The postinitPlugin function is called by the server when the plugin load  */
-/* is complete. It lets the opportunity to the plugin to register some events*/
-/*****************************************************************************/
 MODULEAPI void postinitPlugin()
 {
-	struct timeval new_time;
-
-	(void) GETTIMEOFDAY(&new_time);
-
 	LOG(llevDebug, "PYTHON - Start postinitPlugin.\n");
 	initContextStack();
 	RunPythonScript("python/events/python_init.py", NULL);
@@ -1411,7 +1390,7 @@ static PyObject *PyInit_Atrinik()
 
 /**
  * Initializes the Python Interpreter. */
-MODULEAPI void init_Atrinik_Python()
+static void init_Atrinik_Python()
 {
 	PyObject *m, *d;
 	int i;
@@ -1438,13 +1417,14 @@ MODULEAPI void init_Atrinik_Python()
 		CustomCommand[i].speed = 0.0;
 	}
 
-	/* Initialize our objects */
-	/* TODO: some better error handling */
-	if (Atrinik_Object_init(m) || Atrinik_Map_init(m) || Atrinik_Party_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m))
+	{
 		return;
+	}
 
-	/* Initialize direction constants */
-	/* Gecko: TODO: error handling here */
+	/* Initialize integer constants */
 	for (i = 0; module_constants[i].name; i++)
+	{
 		PyModule_AddIntConstant(m, module_constants[i].name, module_constants[i].value);
+	}
 }

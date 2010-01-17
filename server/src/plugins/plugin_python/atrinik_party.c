@@ -27,17 +27,7 @@
  * @file
  * Atrinik Python plugin party related code. */
 
-#include <atrinik_party.h>
-
-/** Available Python methods for the AtrinikParty object */
-static PyMethodDef PartyMethods[] =
-{
-	{"AddMember",               (PyCFunction) Atrinik_Party_AddMember,               METH_VARARGS, 0},
-	{"RemoveMember",            (PyCFunction) Atrinik_Party_RemoveMember,            METH_VARARGS, 0},
-	{"GetMembers",              (PyCFunction) Atrinik_Party_GetMembers,              METH_VARARGS, 0},
-	{"SendMessage",             (PyCFunction) Atrinik_Party_SendMessage,             METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
+#include <plugin_python.h>
 
 /** Party fields structure. */
 typedef struct
@@ -74,38 +64,6 @@ party_fields_struct party_fields[] =
 
 /** Number of party fields */
 #define NUM_PARTYFIELDS (sizeof(party_fields) / sizeof(party_fields[0]))
-
-/** This is filled in when we initialize our party type. */
-static PyGetSetDef Party_getseters[NUM_PARTYFIELDS + 1];
-
-PyTypeObject Atrinik_PartyType =
-{
-#ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
-#else
-	PyObject_HEAD_INIT(NULL)
-	0,
-#endif
-	"Atrinik.Party",
-	sizeof(Atrinik_Party),
-	0,
-	(destructor) Atrinik_Party_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Party_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik parties",
-	0, 0, 0, 0, 0, 0,
-	PartyMethods,
-	0,
-	Party_getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Party_new,
-	0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-	, 0
-#endif
-};
 
 /**
  * @anchor plugin_python_party_constants
@@ -236,19 +194,22 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 
 /*@}*/
 
-/* Party attribute getter */
+/**
+ * Get party's attribute.
+ * @param whoptr Python party wrapper.
+ * @param fieldno Attribute ID.
+ * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Party_GetAttribute(Atrinik_Party *party, int fieldno)
 {
 	void *field_ptr;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_PARTYFIELDS)
 	{
-		RAISE("Illegal field ID");
+		RAISE("Illegal field ID.");
 	}
 
 	field_ptr = (void *) ((char *) (party->party) + party_fields[fieldno].offset);
 
-	/* TODO: better handling of types, signs, and overflows */
 	switch (party_fields[fieldno].type)
 	{
 		case FIELDTYPE_SHSTR:
@@ -259,24 +220,29 @@ static PyObject *Party_GetAttribute(Atrinik_Party *party, int fieldno)
 			return Py_BuildValue("s", (char *) field_ptr);
 
 		default:
-			RAISE("BUG: Unknown field type");
+			RAISE("BUG: Unknown field type.");
 	}
 }
 
-/* Object attribute setter */
-static int Party_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int fieldno)
+/**
+ * Set attribute of a party.
+ * @param whoptr Python party wrapper.
+ * @param value Value to set.
+ * @param fieldno Attribute ID.
+ * @return 0 on success, -1 on failure. */
+static int Party_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fieldno)
 {
 	void *field_ptr;
 	uint32 offset;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_PARTYFIELDS)
 	{
-		INTRAISE("Illegal field ID");
+		INTRAISE("Illegal field ID.");
 	}
 
 	if ((party_fields[fieldno].flags & FIELDFLAG_READONLY))
 	{
-		INTRAISE("Trying to modify readonly field");
+		INTRAISE("Trying to modify readonly field.");
 	}
 
 	offset = party_fields[fieldno].offset;
@@ -301,19 +267,110 @@ static int Party_SetAttribute(Atrinik_Object* whoptr, PyObject *value, int field
 			}
 			else
 			{
-				INTRAISE("Illegal value for text field");
+				INTRAISE("Illegal value for text field.");
 			}
 
 			break;
 
 		default:
-			INTRAISE("BUG: Unknown field type");
+			INTRAISE("BUG: Unknown field type.");
 	}
 
 	return 0;
 }
 
-/* Initialize the Party Object Type */
+/**
+ * Create a new party wrapper.
+ * @param type Type object.
+ * @param args Unused.
+ * @param kwds Unused.
+ * @return The new wrapper. */
+static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	Atrinik_Party *self;
+
+	(void) args;
+	(void) kwds;
+
+	self = (Atrinik_Party *) type->tp_alloc(type, 0);
+
+	if (self)
+	{
+		self->party = NULL;
+	}
+
+	return (PyObject *) self;
+}
+
+/**
+ * Free a party wrapper.
+ * @param self The wrapper to free. */
+static void Atrinik_Party_dealloc(Atrinik_Party *self)
+{
+	self->party = NULL;
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
+}
+
+/**
+ * Return a string representation of a party.
+ * @param self The party type.
+ * @return Python object containing the name of the party. */
+static PyObject *Atrinik_Party_str(Atrinik_Party *self)
+{
+	return Py_BuildValue("s", self->party->name);
+}
+
+/** Available Python methods for the AtrinikParty object */
+static PyMethodDef PartyMethods[] =
+{
+	{"AddMember",               (PyCFunction) Atrinik_Party_AddMember,               METH_VARARGS, 0},
+	{"RemoveMember",            (PyCFunction) Atrinik_Party_RemoveMember,            METH_VARARGS, 0},
+	{"GetMembers",              (PyCFunction) Atrinik_Party_GetMembers,              METH_VARARGS, 0},
+	{"SendMessage",             (PyCFunction) Atrinik_Party_SendMessage,             METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
+/** This is filled in when we initialize our party type. */
+static PyGetSetDef Party_getseters[NUM_PARTYFIELDS + 1];
+
+/** Our actual Python PartyType. */
+PyTypeObject Atrinik_PartyType =
+{
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
+	PyObject_HEAD_INIT(NULL)
+	0,
+#endif
+	"Atrinik.Party",
+	sizeof(Atrinik_Party),
+	0,
+	(destructor) Atrinik_Party_dealloc,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	(reprfunc) Atrinik_Party_str,
+	0, 0, 0,
+	Py_TPFLAGS_DEFAULT,
+	"Atrinik parties",
+	0, 0, 0, 0, 0, 0,
+	PartyMethods,
+	0,
+	Party_getseters,
+	0, 0, 0, 0, 0, 0, 0,
+	Atrinik_Party_new,
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
+};
+
+/**
+ * Initialize the party wrapper.
+ * @param module The Atrinik Python module.
+ * @return 1 on success, 0 on failure. */
 int Atrinik_Party_init(PyObject *module)
 {
 	int i;
@@ -337,7 +394,7 @@ int Atrinik_Party_init(PyObject *module)
 	{
 		if (PyModule_AddIntConstant(module, party_constants[i].name, party_constants[i].value))
 		{
-			return -1;
+			return 0;
 		}
 	}
 
@@ -345,54 +402,22 @@ int Atrinik_Party_init(PyObject *module)
 
 	if (PyType_Ready(&Atrinik_PartyType) < 0)
 	{
-		return -1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
-/* Create a new (uninitialized) Party wrapper */
-static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	Atrinik_Party *self;
-
-	(void) args;
-	(void) kwds;
-
-	self = (Atrinik_Party *) type->tp_alloc(type, 0);
-
-	if (self)
-	{
-		self->party = NULL;
-	}
-
-	return (PyObject *) self;
-}
-
-/* Free a Party wrapper */
-static void Atrinik_Party_dealloc(Atrinik_Party *self)
-{
-	self->party = NULL;
-#ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
-#else
-	self->ob_type->tp_free((PyObject *) self);
-#endif
-}
-
-/* Return a string representation of this party (useful for debugging) */
-static PyObject *Atrinik_Party_str(Atrinik_Party *self)
-{
-	return Py_BuildValue("s", self->party->name);
-}
-
-/* Utility method to wrap a party. */
+/**
+ * Utility method to wrap a party.
+ * @param what Party to wrap.
+ * @return Python object wrapping the real party. */
 PyObject *wrap_party(partylist_struct *what)
 {
 	Atrinik_Party *wrapper;
 
-	/* Return None if no party was to be wrapped */
-	if (what == NULL)
+	/* Return None if no party was to be wrapped. */
+	if (!what)
 	{
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -400,7 +425,7 @@ PyObject *wrap_party(partylist_struct *what)
 
 	wrapper = PyObject_NEW(Atrinik_Party, &Atrinik_PartyType);
 
-	if (wrapper != NULL)
+	if (wrapper)
 	{
 		wrapper->party = what;
 	}

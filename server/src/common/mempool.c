@@ -208,7 +208,7 @@ void init_mempools()
  * @param pool The mempool to free. */
 static void free_mempool(struct mempool *pool)
 {
-	cfree(pool);
+	free(pool);
 }
 
 /**

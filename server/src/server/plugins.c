@@ -359,7 +359,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!ptr)
 	{
-		LOG(llevBug, "BUG: Error while trying to load %s, returned: %s\n", pluginfile, dlerror());
+		LOG(llevBug, "BUG: Error while trying to load %s, returned: %s\n", pluginfile, plugins_dlerror());
 		return;
 	}
 
@@ -367,7 +367,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!initfunc)
 	{
-		LOG(llevBug, "BUG: Error while requesting 'initPlugin' from %s: %s\n", pluginfile, dlerror());
+		LOG(llevBug, "BUG: Error while requesting 'initPlugin' from %s: %s\n", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -376,7 +376,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!eventfunc)
 	{
-		LOG(llevBug, "BUG: Error while requesting 'triggerEvent' from %s: %s\n", pluginfile, dlerror());
+		LOG(llevBug, "BUG: Error while requesting 'triggerEvent' from %s: %s\n", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -385,7 +385,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!pinitfunc)
 	{
-		LOG(llevBug, "BUG: Error while requesting 'postinitPlugin' from %s: %s\n", pluginfile, dlerror());
+		LOG(llevBug, "BUG: Error while requesting 'postinitPlugin' from %s: %s\n", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -394,7 +394,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!propfunc)
 	{
-		LOG(llevBug, "BUG: Error while requesting 'getPluginProperty' from %s: %s\n", pluginfile, dlerror());
+		LOG(llevBug, "BUG: Error while requesting 'getPluginProperty' from %s: %s\n", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}

@@ -27,20 +27,7 @@
  * @file
  * Atrinik Python plugin map related code. */
 
-#include <atrinik_map.h>
-
-/** Available Python methods for the AtrinikMap object */
-static PyMethodDef MapMethods[] =
-{
-	{"GetFirstObjectOnSquare",  (PyCFunction)Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
-	{"PlaySound",               (PyCFunction)Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
-	{"Message",                 (PyCFunction)Atrinik_Map_Message,                   METH_VARARGS, 0},
-	{"MapTileAt",               (PyCFunction)Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
-	{"CreateObject",            (PyCFunction)Atrinik_Map_CreateObject,              METH_VARARGS, 0},
-	{"CountPlayers",            (PyCFunction)Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
-	{"GetPlayers",              (PyCFunction)Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
-};
+#include <plugin_python.h>
 
 /** Map fields structure. */
 typedef struct
@@ -122,38 +109,6 @@ static char *mapflag_names[] =
 
 /** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
-
-/** This is filled in when we initialize our map type. */
-static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
-
-PyTypeObject Atrinik_MapType =
-{
-#ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
-#else
-	PyObject_HEAD_INIT(NULL)
-	0,
-#endif
-	"Atrinik.Map",
-	sizeof(Atrinik_Map),
-	0,
-	(destructor) Atrinik_Map_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Map_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik maps",
-	0, 0, 0, 0, 0, 0,
-	MapMethods,
-	0,
-	Map_getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Map_new,
-	0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-	, 0
-#endif
-};
 
 /**
  * @anchor plugin_python_map_constants
@@ -337,19 +292,22 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 
 /*@}*/
 
-/* Map attribute getter */
+/**
+ * Get map's attribute.
+ * @param map Python map wrapper.
+ * @param fieldno Attribute ID.
+ * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Map_GetAttribute(Atrinik_Map *map, int fieldno)
 {
 	void *field_ptr;
 
 	if (fieldno < 0 || fieldno >= (int) NUM_MAPFIELDS)
 	{
-		RAISE("Illegal field ID");
+		RAISE("Illegal field ID.");
 	}
 
 	field_ptr = (void *) ((char *) (map->map) + map_fields[fieldno].offset);
 
-	/* TODO: better handling of types, signs, and overflows */
 	switch (map_fields[fieldno].type)
 	{
 		case FIELDTYPE_SHSTR:
@@ -387,22 +345,122 @@ static PyObject *Map_GetAttribute(Atrinik_Map *map, int fieldno)
 			return wrap_object(*(object **) field_ptr);
 
 		default:
-			RAISE("BUG: Unknown field type");
+			RAISE("BUG: Unknown field type.");
 	}
+
+	return NULL;
 }
 
-/* Map flag getter */
+/**
+ * Get map's flag.
+ * @param map Python map wrapper.
+ * @param flagno Flag to get.
+ * @return 1 if the map has the flag set, 0 otherwise. */
 static PyObject *Map_GetFlag(Atrinik_Map *map, int flagno)
 {
 	if (flagno < 0 || flagno >= (int) NUM_MAPFLAGS)
 	{
-		RAISE("Unknown flag");
+		RAISE("Unknown flag.");
 	}
 
 	return Py_BuildValue("i", (map->map->map_flags & (1 << flagno)) ? 1 : 0);
 }
 
-/* Initialize the Map Object Type */
+/**
+ * Create a new map wrapper.
+ * @param type Type object.
+ * @param args Unused.
+ * @param kwds Unused.
+ * @return The new wrapper. */
+static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	Atrinik_Map *self;
+
+	(void) args;
+	(void) kwds;
+
+	self = (Atrinik_Map *) type->tp_alloc(type, 0);
+
+	if (self)
+	{
+		self->map = NULL;
+	}
+
+	return (PyObject *) self;
+}
+
+/**
+ * Free a map wrapper.
+ * @param self The wrapper to free. */
+static void Atrinik_Map_dealloc(Atrinik_Map *self)
+{
+	self->map = NULL;
+#ifndef IS_PY_LEGACY
+	Py_TYPE(self)->tp_free((PyObject *) self);
+#else
+	self->ob_type->tp_free((PyObject *) self);
+#endif
+}
+
+/**
+ * Return a string representation of a map.
+ * @param self The map type.
+ * @return Python object containing the map path and name of the map. */
+static PyObject *Atrinik_Map_str(Atrinik_Map *self)
+{
+	return PyString_FromFormat("[%s \"%s\"]", self->map->path, self->map->name);
+}
+
+/** Available Python methods for the AtrinikMap object */
+static PyMethodDef MapMethods[] =
+{
+	{"GetFirstObjectOnSquare",  (PyCFunction)Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
+	{"PlaySound",               (PyCFunction)Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
+	{"Message",                 (PyCFunction)Atrinik_Map_Message,                   METH_VARARGS, 0},
+	{"MapTileAt",               (PyCFunction)Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
+	{"CreateObject",            (PyCFunction)Atrinik_Map_CreateObject,              METH_VARARGS, 0},
+	{"CountPlayers",            (PyCFunction)Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
+	{"GetPlayers",              (PyCFunction)Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
+	{NULL, NULL, 0, 0}
+};
+
+/** This is filled in when we initialize our map type. */
+static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
+
+/** Our actual Python MapType. */
+PyTypeObject Atrinik_MapType =
+{
+#ifdef IS_PY3K
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
+	PyObject_HEAD_INIT(NULL)
+	0,
+#endif
+	"Atrinik.Map",
+	sizeof(Atrinik_Map),
+	0,
+	(destructor) Atrinik_Map_dealloc,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	(reprfunc) Atrinik_Map_str,
+	0, 0, 0,
+	Py_TPFLAGS_DEFAULT,
+	"Atrinik maps",
+	0, 0, 0, 0, 0, 0,
+	MapMethods,
+	0,
+	Map_getseters,
+	0, 0, 0, 0, 0, 0, 0,
+	Atrinik_Map_new,
+	0, 0, 0, 0, 0, 0, 0, 0
+#ifndef IS_PY_LEGACY
+	, 0
+#endif
+};
+
+/**
+ * Initialize the map wrapper.
+ * @param module The Atrinik Python module.
+ * @return 1 on success, 0 on failure. */
 int Atrinik_Map_init(PyObject *module)
 {
 	int i;
@@ -438,7 +496,7 @@ int Atrinik_Map_init(PyObject *module)
 	{
 		if (PyModule_AddIntConstant(module, map_constants[i].name, map_constants[i].value))
 		{
-			return -1;
+			return 0;
 		}
 	}
 
@@ -446,63 +504,30 @@ int Atrinik_Map_init(PyObject *module)
 
 	if (PyType_Ready(&Atrinik_MapType) < 0)
 	{
-		return -1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
-/* Create a new (uninitialized) Map wrapper */
-static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	Atrinik_Map *self;
-
-	(void) args;
-	(void) kwds;
-
-	self = (Atrinik_Map *) type->tp_alloc(type, 0);
-
-	if (self)
-	{
-		self->map = NULL;
-	}
-
-	return (PyObject *) self;
-}
-
-/* Free a Map wrapper */
-static void Atrinik_Map_dealloc(Atrinik_Map *self)
-{
-	self->map = NULL;
-#ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
-#else
-	self->ob_type->tp_free((PyObject *) self);
-#endif
-}
-
-/* Return a string representation of this map (useful for debugging) */
-static PyObject *Atrinik_Map_str(Atrinik_Map *self)
-{
-	return PyString_FromFormat("[%s \"%s\"]", self->map->path, self->map->name);
-}
-
-/* Utility method to wrap a map. */
+/**
+ * Utility method to wrap a map.
+ * @param what Map to wrap.
+ * @return Python object wrapping the real map. */
 PyObject *wrap_map(mapstruct *what)
 {
 	Atrinik_Map *wrapper;
 
-	/* Return None if no map was to be wrapped */
-	if (what == NULL)
+	/* Return None if no map was to be wrapped. */
+	if (!what)
 	{
 		Py_INCREF(Py_None);
-
 		return Py_None;
 	}
 
 	wrapper = PyObject_NEW(Atrinik_Map, &Atrinik_MapType);
 
-	if (wrapper != NULL)
+	if (wrapper)
 	{
 		wrapper->map = what;
 	}
