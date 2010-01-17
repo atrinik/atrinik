@@ -40,7 +40,7 @@
 #pragma pack(push,1)
 #endif
 
-/** One map cell, as sent to the client */
+/** One map cell, as sent to the client. */
 typedef struct MapCell_struct
 {
 	int	count;
@@ -54,16 +54,21 @@ typedef struct MapCell_struct
 	char quick_pos[MAP_LAYERS];
 } MapCell;
 
+/** One map for a player. */
 struct Map
 {
+	/** The map cells. */
 	struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
+/** Contains the last range/title information sent to client. */
 struct statsinfo
 {
-	char *range,
-	*title,
-	*ext_title;
+	/** Last range. */
+	char *range;
+
+	/** Last title. */
+	char *ext_title;
 };
 
 /** Possible socket statuses. */
@@ -103,56 +108,50 @@ typedef struct NewSocket_struct
 	 * disconnected. */
 	int login_count;
 
-	/** X size of the map the client wants */
+	/** X size of the map the client wants. */
 	int mapx;
 
-	/** Y size of the map the client wants */
+	/** Y size of the map the client wants. */
 	int mapy;
 
-	/** X size of the map the client wants / 2 */
+	/** X size of the map the client wants / 2. */
 	int mapx_2;
 
-	/** Y size of the map the client wants / 2 */
+	/** Y size of the map the client wants / 2. */
 	int mapy_2;
 
-	/** Which host it is connected from (ip address) */
+	/** Which host it is connected from (ip address). */
 	char *host;
 
-	/** Version of the client */
-	uint32 cs_version;
+	/** Version of the client. */
+	uint32 socket_version;
 
-	/** Version of the client */
-	uint32 sc_version;
-
-	/** Marker to see we must update the below windows of the tile the player is */
+	/** Marker to see we must update the below windows of the tile the player is. */
 	uint32 update_tile;
 
-	/** Marker to map draw/draw below */
+	/** Marker to map draw/draw below. */
 	uint32 below_clear:1;
 
-	/** When set, a "connect" was initizialised as "player" */
+	/** When set, a "connect" was initialized as "player". */
 	uint32 addme:1;
 
-	/** If true, client is caching images */
+	/** If true, client is caching images. */
 	uint32 facecache:1;
 
-	/** Sent map scroll command */
+	/** Sent map scroll command. */
 	uint32 sent_scroll:1;
 
 	/** Does the client want sound? */
 	uint32 sound:1;
 
-	/** Always use map2 protocol command */
+	/** Always use map2 protocol command. */
 	uint32 map2cmd:1;
 
-	/** Send ext title to client */
+	/** Send ext title to client. */
 	uint32 ext_title_flag:1;
 
-	/** True if client wants darkness information */
+	/** True if client wants darkness information. */
 	uint32 darkness:1;
-
-	/** Client wants image2/face2 commands */
-	uint32 image2:1;
 
 	/** Can we write to this socket? */
 	uint32 can_write:1;
@@ -181,10 +180,10 @@ typedef struct NewSocket_struct
 	/** Has the client requested hfiles file? */
 	uint32 rf_hfiles:1;
 
-	/** Start of drawing of look window */
+	/** Start of drawing of look window. */
 	sint16 look_position;
 
-	/** Faceset the client is using, default 0 */
+	/** Faceset the client is using, default 0. */
 	uint8 faceset;
 
 	/**
@@ -195,32 +194,32 @@ typedef struct NewSocket_struct
 	/** Current state of the socket. */
 	enum Sock_Status status;
 
-	/** Last map */
+	/** Last map. */
 	struct Map lastmap;
 
-	/** Socket stats */
+	/** Socket stats. */
 	struct statsinfo stats;
 
 	/** If we get an incomplete packet, this is used to hold the data. */
 	SockList inbuf;
 
-	/** For undeliverable data */
+	/** For undeliverable data. */
 	Buffer outputbuffer;
 } NewSocket;
 
-/** Holds some system related information */
+/** Holds some system related information. */
 typedef struct Socket_Info_struct
 {
-	/** Timeout for select */
+	/** Timeout for select. */
 	struct timeval timeout;
 
-	/** Max filedescriptor on the system */
+	/** Max filedescriptor on the system. */
 	int	max_filedescriptor;
 
-	/** Number of connections */
+	/** Number of connections. */
 	int	nconns;
 
-	/** Number of allocated in init_sockets */
+	/** Number of allocated in init_sockets. */
 	int allocated_sockets;
 } Socket_Info;
 

@@ -33,12 +33,3 @@
 #else
 #define VERSION "1.0"
 #endif
-
-/** Define CS version */
-#define VERSION_CS 991017
-
-/** Define SC version */
-#define VERSION_SC 991017
-
-/** Define version info */
-#define VERSION_INFO "Atrinik Server"

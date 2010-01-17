@@ -250,7 +250,6 @@ int socket_initialize()
 	int error;
 
 	csocket.fd = SOCKET_NO;
-	csocket.cs_version = 0;
 
 	SocketStatusErrorNr = 0;
 	error = WSAStartup(wVersionRequested, &w);

@@ -1837,83 +1837,28 @@ void MagicMapCmd()
 }
 
 /**
- * Version command. Used to validate that the server version and client matches.
+ * Version command. Currently unused.
  * @param data The incoming data. */
 void VersionCmd(char *data)
 {
-	char *cp;
-	char buf[1024];
-
-	GameStatusVersionOKFlag = 0;
-	GameStatusVersionFlag = 1;
-	csocket.cs_version = atoi(data);
-
-	/* The first version is the client to server version the server wants
-	 * ATM, we just do for "must match".
-	 * Later it will be smarter to define range where the differences are ok */
-	if (VERSION_CS != csocket.cs_version)
-	{
-		sprintf(buf, "Invalid CS version (%d,%d)", VERSION_CS, csocket.cs_version);
-		draw_info(buf, COLOR_RED);
-
-		if (VERSION_CS > csocket.cs_version)
-			sprintf(buf, "The server is outdated!\nSelect a different one!");
-		else
-			sprintf(buf, "Your client is outdated!\nUpdate your client!");
-
-		draw_info(buf, COLOR_RED);
-		LOG(LOG_ERROR, "%s\n", buf);
-		return;
-	}
-
-	cp = (char *)(strchr(data, ' '));
-	if (!cp)
-	{
-		sprintf(buf, "Invalid version string: %s", data);
-		draw_info(buf, COLOR_RED);
-		LOG(LOG_ERROR, "%s\n", buf);
-		return;
-	}
-
-	csocket.sc_version = atoi(cp);
-	if (csocket.sc_version != VERSION_SC)
-	{
-		sprintf(buf, "Invalid SC version (%d,%d)", VERSION_SC, csocket.sc_version);
-		draw_info(buf, COLOR_RED);
-		LOG(LOG_ERROR, "%s\n", buf);
-		return;
-	}
-
-	cp = (char *)(strchr(cp + 1, ' '));
-	if (!cp || strncmp(cp + 1, "Atrinik Server", 14))
-	{
-		sprintf(buf, "Invalid server name: %s", cp);
-		draw_info(buf, COLOR_RED);
-		LOG(LOG_ERROR, "%s\n", buf);
-		return;
-	}
-
-	LOG(LOG_MSG, "Playing on server type %s\n", cp);
-	GameStatusVersionOKFlag = TRUE;
+	(void) data;
 }
 
 /**
  * Sends version and client name.
- * @param csock Socket to send this information to */
+ * @param csock Socket to send this information to. */
 void SendVersion(ClientSocket csock)
 {
 	char buf[MAX_BUF];
 
-	sprintf(buf, "version %d %d %s", VERSION_CS, VERSION_SC, PACKAGE_NAME);
+	snprintf(buf, sizeof(buf), "version %d %s", VERSION_SOCKET, PACKAGE_NAME);
 	cs_write_string(csock.fd, buf, strlen(buf));
 }
-
 
 /**
  * Request srv file.
  * @param csock Socket to request from
- * @param index SRV file ID
- */
+ * @param index SRV file ID */
 void RequestFile(ClientSocket csock, int index)
 {
 	char buf[MAX_BUF];
@@ -1922,11 +1867,9 @@ void RequestFile(ClientSocket csock, int index)
 	cs_write_string(csock.fd, buf, strlen(buf));
 }
 
-
 /**
  * Send an addme command to the server.
- * @param csock Socket to send the command to.
- */
+ * @param csock Socket to send the command to. */
 void SendAddMe(ClientSocket csock)
 {
 	cs_write_string(csock.fd, "addme", 5);

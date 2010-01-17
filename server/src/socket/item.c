@@ -888,26 +888,19 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
 	if (flags & UPD_NAME)
 	{
-		if (CONTR(pl)->socket.sc_version >= 1024)
-		{
-			int len;
-			char *item_p, item_n[MAX_BUF];
+		int len;
+		char *item_p, item_n[MAX_BUF];
 
-			strncpy(item_n, query_base_name(op, pl), 127);
-			item_n[127] = '\0';
-			len = strlen(item_n);
-			item_p = query_base_name(op, pl);
-			strncpy(item_n + len + 1, item_p, 127);
-			item_n[254] = '\0';
-			len += strlen(item_n + 1 + len) + 1;
-			SockList_AddChar(&sl, (char)len);
-			memcpy(sl.buf + sl.len, item_n, len);
-			sl.len += len;
-		}
-		else
-		{
-			add_stringlen_to_sockbuf(query_base_name(op, pl), &sl);
-		}
+		strncpy(item_n, query_base_name(op, pl), 127);
+		item_n[127] = '\0';
+		len = strlen(item_n);
+		item_p = query_base_name(op, pl);
+		strncpy(item_n + len + 1, item_p, 127);
+		item_n[254] = '\0';
+		len += strlen(item_n + 1 + len) + 1;
+		SockList_AddChar(&sl, (char)len);
+		memcpy(sl.buf + sl.len, item_n, len);
+		sl.len += len;
 	}
 
 	if (flags & UPD_ANIM)
@@ -995,7 +988,7 @@ void esrv_update_item(int flags, object *pl, object *op)
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
-	int anim_speed;
+	int anim_speed, len;
 	SockList sl;
 	char item_n[MAX_BUF];
 
@@ -1066,20 +1059,12 @@ static void esrv_send_item_send(object *pl, object *op)
 		}
 	}
 
-	if (CONTR(pl)->socket.sc_version >= 1024)
-	{
-		int len;
-		strncpy(item_n, query_base_name(op, pl), 127);
-		item_n[127] = '\0';
-		len=strlen(item_n) + 1;
-		SockList_AddChar(&sl, (char) len);
-		memcpy(sl.buf + sl.len, item_n, len);
-		sl.len += len;
-	}
-	else
-	{
-		add_stringlen_to_sockbuf(query_base_name(op, pl), &sl);
-	}
+	strncpy(item_n, query_base_name(op, pl), 127);
+	item_n[127] = '\0';
+	len = strlen(item_n) + 1;
+	SockList_AddChar(&sl, (char) len);
+	memcpy(sl.buf + sl.len, item_n, len);
+	sl.len += len;
 
 	if (op->env && op->inv_animation_id)
 	{

@@ -42,7 +42,7 @@ typedef struct StringBuffer_struct
 	/**
 	 * The current length of ::buf. The invariant <code>pos < size</code>
 	 * always holds; this means there is always enough room to attach a
-	 * trailing \0 character. */
+	 * trailing NUL character. */
 	size_t pos;
 
 	/**

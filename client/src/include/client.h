@@ -124,9 +124,6 @@ typedef struct ClientSocket
 	SOCKET fd;
 	SockList inbuf;
 
-	/* Server versions of these */
-	int	cs_version, sc_version;
-
 	/* These are used for the newer 'windowing' method of commands -
 	 * number of last command sent, number of received confirmation */
 	int command_sent, command_received;

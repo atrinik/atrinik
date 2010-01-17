@@ -522,9 +522,6 @@ typedef enum _game_status
 	/** Now the steps: Connect, we send version */
 	GAME_STATUS_VERSION,
 
-	/** Wait for response... add up in version command */
-	GAME_STATUS_WAITVERSION,
-
 	/** We ready to send setup commands */
 	GAME_STATUS_SETUP,
 
@@ -594,9 +591,6 @@ extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 extern uint32 GameTicksSec;
 extern _server *start_server;
 extern int metaserver_start, metaserver_sel, metaserver_count;
-
-extern int GameStatusVersionFlag;
-extern int GameStatusVersionOKFlag;
 
 extern int request_file_chain;
 extern int request_file_flags;

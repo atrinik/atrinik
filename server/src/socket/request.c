@@ -192,9 +192,6 @@ void SetUp(char *buf, int len, NewSocket *ns)
 
 			snprintf(tmpbuf, sizeof(tmpbuf), "%d", ns->faceset);
 			strcat(cmdback, tmpbuf);
-
-			/* If the client is using faceset, it knows about image2 command */
-			ns->image2 = 1;
 		}
 		else if (!strcmp(cmd, "mapsize"))
 		{
@@ -707,12 +704,7 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 }
 
 /**
- * Client tells its its version. If there is a mismatch, we close the
- * socket.
- *
- * In real life, all we should care about is the client having something
- * older than the server. If we assume the client will be backwards
- * compatible, having it be a later version should not be a problem. */
+ * Client tells its its version. */
 void VersionCmd(char *buf, int len, NewSocket *ns)
 {
 	char *cp;
@@ -722,60 +714,20 @@ void VersionCmd(char *buf, int len, NewSocket *ns)
 	if (!buf || ns->version)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "CS: received corrupted version command\n");
+		LOG(llevInfo, "CS: Received corrupted version command\n");
 		ns->status = Ns_Dead;
-
 		return;
 	}
 
 	ns->version = 1;
-	ns->cs_version = atoi(buf);
-	ns->sc_version = ns->cs_version;
-
-	if (VERSION_CS != ns->cs_version)
-	{
-		version_mismatch_msg(ns);
-		LOG(llevInfo, "CS: csversion mismatch (%d,%d)\n", VERSION_CS, ns->cs_version);
-		ns->status = Ns_Dead;
-
-		return;
-	}
-
-	cp = strchr(buf + 1,' ');
+	ns->socket_version = atoi(buf);
+	cp = strchr(buf + 1, ' ');
 
 	if (!cp)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "CS: invalid version cmd: %s\n", buf);
+		LOG(llevInfo, "VersionCmd(): Connection from false client (invalid name)\n");
 		ns->status = Ns_Dead;
-
-		return;
-	}
-
-	ns->sc_version = atoi(cp);
-
-	if (VERSION_SC != ns->sc_version)
-	{
-		version_mismatch_msg(ns);
-		LOG(llevInfo, "CS: scversion mismatch (%d,%d)\n", VERSION_SC, ns->sc_version);
-		ns->status = Ns_Dead;
-
-		return;
-	}
-
-	cp = strchr(cp + 1, ' ');
-
-	if (!cp || strncmp("Atrinik Client", cp + 1, 14))
-	{
-		version_mismatch_msg(ns);
-
-		if (cp)
-			LOG(llevInfo, "CS: connection from false client of type <%s>\n", cp);
-		else
-			LOG(llevInfo, "CS: connection from false client (invalid name)\n");
-
-		ns->status = Ns_Dead;
-
 		return;
 	}
 }

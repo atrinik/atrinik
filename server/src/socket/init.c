@@ -65,10 +65,11 @@ NewSocket *init_sockets;
  *
  * Send server version to the client.
  * @param ns Client's socket.
- * @param from Where the connection is coming from. */
+ * @param from Where the connection is coming from.
+ * @todo Remove version sending legacy support for older clients at some
+ * point. */
 void InitConnection(NewSocket *ns, uint32 from)
 {
-	SockList sl;
 	unsigned char buf[256];
 	int	bufsize = MAXSOCKBUF, oldbufsize;
 	unsigned int buflen = sizeof(int);
@@ -112,7 +113,6 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->addme = 0;
 	ns->faceset = 0;
 	ns->facecache = 0;
-	ns->image2 = 0;
 	ns->sound = 0;
 	ns->ext_title_flag = 1;
 	ns->map2cmd = 0;
@@ -154,12 +154,17 @@ void InitConnection(NewSocket *ns, uint32 from)
 	snprintf((char *) buf, sizeof(buf), "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
 	ns->host = strdup_local((char *) buf);
 
-	snprintf((char *) buf, sizeof(buf), "X%d %d %s\n", VERSION_CS, VERSION_SC, VERSION_INFO);
-	buf[0] = BINARY_CMD_VERSION;
+	/* Legacy support for older clients. */
+	{
+		SockList sl;
 
-	sl.buf = buf;
-	sl.len = strlen((char *) buf);
-	Send_With_Handling(ns, &sl);
+		strncpy((char *) buf, "X991017 991017 Atrinik Server", sizeof(buf) - 1);
+		buf[0] = BINARY_CMD_VERSION;
+
+		sl.buf = buf;
+		sl.len = strlen((char *) buf);
+		Send_With_Handling(ns, &sl);
+	}
 
 #if CS_LOGSTATS
 	if (socket_info.nconns > cst_tot.max_conn)
@@ -341,11 +346,6 @@ void free_newsocket(NewSocket *ns)
 	if (ns->stats.ext_title)
 	{
 		free(ns->stats.ext_title);
-	}
-
-	if (ns->stats.title)
-	{
-		free(ns->stats.title);
 	}
 
 	if (ns->host)

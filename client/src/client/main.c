@@ -105,8 +105,6 @@ _bmaptype *bmap_table[BMAPTABLE];
 
 /* update map area */
 int map_udate_flag, map_transfer_flag, map_redraw_flag;
-int GameStatusVersionFlag;
-int GameStatusVersionOKFlag;
 int request_file_chain, request_file_flags;
 
 int ToggleScreenFlag;
@@ -772,8 +770,6 @@ int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
 	{
-		GameStatusVersionFlag = 0;
-
 		if (!open_socket(&csocket.fd, &csocket, ServerName, ServerPort))
 		{
 			draw_info("Connection failed!", COLOR_RED);
@@ -787,29 +783,7 @@ int game_status_chain()
 	else if (GameStatus == GAME_STATUS_VERSION)
 	{
 		SendVersion(csocket);
-		GameStatus = GAME_STATUS_WAITVERSION;
-	}
-	else if (GameStatus == GAME_STATUS_WAITVERSION)
-	{
-		/* Perhaps here should be a timer?
-		 * The version exchange server<->client is asynchron
-		 * so perhaps the server sends its version faster
-		 * than the client sends it to the server */
-
-		/* Wait for version answer when needed */
-		if (GameStatusVersionFlag)
-		{
-			/* False version! */
-			if (!GameStatusVersionOKFlag)
-			{
-				GameStatus = GAME_STATUS_START;
-			}
-			else
-			{
-				draw_info("Version confirmed.\nStarting login procedure...", COLOR_GREEN);
-				GameStatus = GAME_STATUS_SETUP;
-			}
-		}
+		GameStatus = GAME_STATUS_SETUP;
 	}
 	else if (GameStatus == GAME_STATUS_SETUP)
 	{
