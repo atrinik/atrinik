@@ -241,6 +241,7 @@ extern int isqrt(int n);
 extern FILE *open_and_uncompress(char *name, int flag, int *compressed);
 extern void close_and_delete(FILE *fp, int compressed);
 extern void make_path_to_file(char *filename);
+extern const char *strcasestr_local(const char *s, const char *find);
 
 /* quest.c */
 extern object *create_quest_container(object *op);
@@ -339,3 +340,6 @@ extern char *cleanup_string(char *ustring);
 extern char *get_word_from_string(char *str, int *pos);
 extern void adjust_player_name(char *name);
 extern void replace_unprintable_chars(char *buf);
+extern size_t split_string(char *str, char *array[], size_t array_size, char sep);
+extern int get_random_dir();
+extern int get_randomized_dir(int dir);

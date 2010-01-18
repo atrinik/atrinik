@@ -160,23 +160,23 @@ int checkbanned(const char *name, char *ip)
  * string.
  * @param input The input string with both name and IP.
  * @return 1 on success, 0 on failure. */
-int add_ban(const char *input)
+int add_ban(char *input)
 {
-	char *ip, *name, buf[MAX_BUF];
+	char *tmp[2];
 
-	snprintf(buf, sizeof(buf), "%s", input);
-
-	name = strtok(buf, ":");
-	ip = strtok(NULL, ":");
-
-	if (!ip || !name)
+	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2)
 	{
 		return 0;
 	}
 
-	add_ban_entry(name, ip);
-	save_bans_file();
+	/* IPs with ':' in them will be impossible to remove once added. */
+	if (strstr(tmp[1], ":"))
+	{
+		return 0;
+	}
 
+	add_ban_entry(tmp[0], tmp[1]);
+	save_bans_file();
 	return 1;
 }
 
@@ -185,24 +185,19 @@ int add_ban(const char *input)
  * string.
  * @param input The input string with both name and IP.
  * @return 1 on success, 0 on failure. */
-int remove_ban(const char *input)
+int remove_ban(char *input)
 {
-	char *ip, *name, buf[MAX_BUF];
+	char *tmp[2];
 	objectlink *ol;
 
-	snprintf(buf, sizeof(buf), "%s", input);
-
-	name = strtok(buf, ":");
-	ip = strtok(NULL, ":");
-
-	if (!ip || !name)
+	if (split_string(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2)
 	{
 		return 0;
 	}
 
 	for (ol = ban_list; ol; ol = ol->next)
 	{
-		if (!strcmp(ol->objlink.ban->name, name) && !strcmp(ol->objlink.ban->ip, ip))
+		if (!strcmp(ol->objlink.ban->name, tmp[0]) && !strcmp(ol->objlink.ban->ip, tmp[1]))
 		{
 			remove_ban_entry(ol);
 			save_bans_file();

@@ -134,7 +134,7 @@ materialtype material[NROFMATERIALS] =
 /**
  * Real material types. This array is initialized by
  * init_materials(). */
-material_real_struct material_real[NUM_MATERIALS_REAL] = {};
+material_real_struct material_real[NUM_MATERIALS_REAL];
 
 static void sub_weight(object *op, sint32 weight);
 static void remove_ob_inv(object *op);

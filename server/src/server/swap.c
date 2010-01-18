@@ -48,17 +48,17 @@ static void write_map_log()
 		return;
 	}
 
-	for (map = first_map; map != NULL; map = map->next)
+	for (map = first_map; map; map = map->next)
 	{
 		/* If tmpname is null, it is probably a unique player map,
 		 * so don't save information on it. */
-		if (map->in_memory != MAP_IN_MEMORY && (map->tmpname != NULL) && (strncmp(map->path, "/random", 7)))
+		if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7))
 		{
 			/* the 0 written out is a leftover from the lock number for
 			 * unique items and second one is from encounter maps.
 			 * Keep using it so that old temp files continue
 			 * to work. */
-			fprintf(fp, "%s:%s:%ld:0:0:%d:0:%d\n", map->path, map->tmpname, (map->reset_time == -1 ? -1: map->reset_time - current_time), map->difficulty, map->darkness);
+			fprintf(fp, "%s:%s:%ld:%d:%d\n", map->path, map->tmpname, (map->reset_time == -1 ? -1: map->reset_time - current_time), map->difficulty, map->darkness);
 		}
 	}
 
@@ -72,8 +72,8 @@ void read_map_log()
 {
 	FILE *fp;
 	mapstruct *map;
-	char buf[MAX_BUF],*cp, *cp1;
-	int do_los, darkness, lock;
+	char buf[MAX_BUF];
+	int darkness;
 
 	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.localdir);
 
@@ -83,24 +83,22 @@ void read_map_log()
 		return;
 	}
 
-	while (fgets(buf, MAX_BUF, fp) != NULL)
+	while (fgets(buf, sizeof(buf), fp))
 	{
+		char *tmp[3];
+
 		map = get_linked_map();
 
-		/* scanf doesn't work all that great on strings, so we break
-		 * out that manually.  strdup is used for tmpname, since other
-		 * routines will try to free that pointer. */
-		cp = strchr(buf, ':');
-		*cp++ = '\0';
-		FREE_AND_COPY_HASH(map->path, buf);
-		cp1 = strchr(cp, ':');
-		*cp1++ = '\0';
-		map->tmpname = strdup_local(cp);
+		if (split_string(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
+		{
+			LOG(llevDebug, "DEBUG: %s/temp.maps: ignoring invalid line: %s\n", settings.localdir, buf);
+			continue;
+		}
 
-		/* Lock is left over from the lock items - we just toss it now.
-		 * We use it twice - second one is from encounter, but as we
-		 * don't care about the value, this works fine */
-		sscanf(cp1, "%ud:%d:%d:%d:%d:%d\n", &map->reset_time, &lock, &lock, &map->difficulty, &do_los, &darkness);
+		FREE_AND_COPY_HASH(map->path, tmp[0]);
+		map->tmpname = strdup_local(tmp[1]);
+
+		sscanf(tmp[2], "%ud:%d:%d\n", &map->reset_time, &map->difficulty, &darkness);
 
 		map->in_memory = MAP_SWAPPED;
 		map->darkness = darkness;
@@ -117,30 +115,30 @@ void read_map_log()
 }
 
 /**
- * Swap out a map.
- * @param map The map structure to swap.
- * @param force_flag Force flag. */
+ * Swaps a map to disk.
+ * @param map Map to swap.
+ * @param force_flag Force flag. If set, will not check for players. */
 void swap_map(mapstruct *map, int force_flag)
 {
 	int i;
 
-	/* lets check some legal things... */
 	if (map->in_memory != MAP_IN_MEMORY)
 	{
 		LOG(llevBug, "BUG: Tried to swap out map which was not in memory (%s).\n", map->path);
 		return;
 	}
 
-	/* test for players! */
+	/* Test for players. */
 	if (!force_flag)
 	{
-		/* player nor perm_loaded marked */
 		if (map->player_first || map->perm_load)
+		{
 			return;
+		}
 
 		for (i = 0; i < TILED_MAPS; i++)
 		{
-			/* if there is a map, is load AND in memory and players on OR perm_load flag set, then no swap */
+			/* If there is a map, is loaded and in memory, has players or perm_load flag set, then no swap */
 			if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && (map->tile_map[i]->player_first || map->tile_map[i]->perm_load))
 			{
 				return;
@@ -148,9 +146,7 @@ void swap_map(mapstruct *map, int force_flag)
 		}
 	}
 
-	/* when we are here, map is save to swap! */
-
-	/* Update the reset time.  Only do this is STAND_STILL is not set */
+	/* Update the reset time. */
 	if (!MAP_FIXED_RESETTIME(map))
 	{
 		set_map_reset_time(map);
@@ -178,7 +174,7 @@ void swap_map(mapstruct *map, int force_flag)
 	if (new_save_map(map, 0) == -1)
 	{
 		LOG(llevBug, "BUG: Failed to swap map %s.\n", map->path);
-		/* need to reset the in_memory flag so that delete map will also
+		/* Need to reset the in_memory flag so that delete map will also
 		 * free the objects with it. */
 		map->in_memory = MAP_IN_MEMORY;
 		delete_map(map);
@@ -225,6 +221,7 @@ void check_active_maps()
 /**
  * Removes temporary files of maps which are going to be reset next time
  * they are visited.
+ *
  * This is very useful if the tmp-disk is very full. */
 void flush_old_maps()
 {
@@ -240,15 +237,7 @@ void flush_old_maps()
 			set_map_timeout(m);
 		}
 
-		/* per player unique maps are never really reset.  However, we do want
-		 * to perdiocially remove the entries in the list of active maps - this
-		 * generates a cleaner listing if a player issues the map commands, and
-		 * keeping all those swapped out per player unique maps also has some
-		 * memory and cpu consumption.
-		 * We do the cleanup here because there are lots of places that call
-		 * swap map, and doing it within swap map may cause problems as
-		 * the functions calling it may not expect the map list to change
-		 * underneath them. */
+		/* Per player unique maps are never really reset. */
 		if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED)
 		{
 			LOG(llevDebug, "Resetting2 map %s.\n", m->path);

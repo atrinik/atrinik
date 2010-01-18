@@ -48,7 +48,7 @@ void move_player_mover(object *op)
 	/* Determine direction now for random movers so we do the right thing */
 	if (!dir)
 	{
-		dir = rndm(1, 8);
+		dir = get_random_dir();
 	}
 
 	for (victim = get_map_ob(op->map, op->x, op->y); victim != NULL; victim = victim->above)

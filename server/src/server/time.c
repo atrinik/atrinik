@@ -41,14 +41,13 @@ static void move_firechest(object *op);
 
 /**
  * Remove a force object from player, like potion effect.
- * @param op Force object to remove */
+ * @param op Force object to remove. */
 static void remove_force(object *op)
 {
 	if (op->env == NULL)
 	{
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-
 		return;
 	}
 
@@ -59,6 +58,9 @@ static void remove_force(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
+/**
+ * Remove blindness force object.
+ * @param op Force object to remove. */
 static void remove_blindness(object *op)
 {
 	if (--op->stats.food > 0)
@@ -68,7 +70,7 @@ static void remove_blindness(object *op)
 
 	CLEAR_FLAG(op, FLAG_APPLIED);
 
-	if (op->env != NULL)
+	if (op->env)
 	{
 		change_abil(op->env, op);
 		fix_player(op->env);
@@ -78,6 +80,9 @@ static void remove_blindness(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
+/**
+ * Remove confusion force object.
+ * @param op Force object to remove. */
 static void remove_confusion(object *op)
 {
 	if (--op->stats.food > 0)
@@ -85,7 +90,7 @@ static void remove_confusion(object *op)
 		return;
 	}
 
-	if (op->env != NULL)
+	if (op->env)
 	{
 		CLEAR_FLAG(op->env, FLAG_CONFUSED);
 
@@ -99,11 +104,14 @@ static void remove_confusion(object *op)
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }
 
+/**
+ * Execute word of recall force object, and remove the force object.
+ * @param op The force object. */
 static void execute_wor(object *op)
 {
 	object *wor = op;
 
-	while (op != NULL && op->type != PLAYER)
+	while (op && op->type != PLAYER)
 	{
 		op = op->env;
 	}
@@ -124,16 +132,19 @@ static void execute_wor(object *op)
 	check_walk_off(wor, NULL, MOVE_APPLY_VANISHED);
 }
 
+/**
+ * Animate a ::TRIGGER.
+ * @param op Trigger. */
 static void animate_trigger(object *op)
 {
-	if ((unsigned char) ++op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
+	if (++op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
 	{
 		op->stats.wc = 0;
 		check_trigger(op, NULL);
 	}
 	else
 	{
-		op->state = (uint8) op->stats.wc;
+		op->state = op->stats.wc;
 		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		update_object(op, UP_OBJ_FACE);
 	}
@@ -213,11 +224,11 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
 
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		insert_ob_in_map (op, map, originator, 0);
+		insert_ob_in_map(op, map, originator, 0);
 	}
 	else if (op->type == ARROW)
 	{
-		/* Only some arrows actually need this */
+		/* Only some arrows actually need this. */
 		merge_ob(op, NULL);
 	}
 }
@@ -228,7 +239,7 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
 static void change_object(object *op)
 {
 	object *tmp, *env;
-	int i, j;
+	int j;
 
 	/* In non-living items only change when food value is 0 */
 	if (!IS_LIVE(op))
@@ -244,7 +255,7 @@ static void change_object(object *op)
 			{
 				CLEAR_FLAG(op, FLAG_CHANGING);
 
-				/* thats special lights like lamp which can be refilled */
+				/* Special light like lamp which can be refilled */
 				if (op->other_arch == NULL)
 				{
 					op->stats.food = 0;
@@ -260,22 +271,20 @@ static void change_object(object *op)
 						op->face = op->arch->clone.face;
 					}
 
-					/* not on map? */
+					/* Not on map? */
 					if (op->env)
 					{
-						/* inside player char? */
+						/* Inside player? */
 						if (op->env->type == PLAYER)
 						{
 							new_draw_info_format(NDI_UNIQUE, op->env, "The %s burnt out.", query_name(op, NULL));
 							op->glow_radius = 0;
 							esrv_send_item(op->env, op);
-							/* Fix player will take care about adjust light masks */
+							/* Fix player will take care about adjusting light masks */
 							fix_player(op->env);
 						}
-						/* ATM, lights inside other inv as players don't set light masks */
 						else
 						{
-							/* But we need to update container which are possible watched by players */
 							op->glow_radius = 0;
 
 							if (op->env->type == CONTAINER)
@@ -284,12 +293,12 @@ static void change_object(object *op)
 							}
 						}
 					}
-					/* Object is on map */
+					/* Object is on map. */
 					else
 					{
-						/* Remove light mask from map */
+						/* Remove light mask from map. */
 						adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-						/* Tell map update we have something changed */
+						/* Tell map update we have something changed. */
 						update_object(op, UP_OBJ_FACE);
 						op->glow_radius = 0;
 					}
@@ -299,7 +308,7 @@ static void change_object(object *op)
 				/* This object will be deleted and exchanged with other_arch */
 				else
 				{
-					/* But give the player a note about it too */
+					/* But give the player a note about it too. */
 					if (op->env && op->env->type == PLAYER)
 					{
 						new_draw_info_format(NDI_UNIQUE, op->env, "The %s burnt out.", query_name(op, NULL));
@@ -319,40 +328,37 @@ static void change_object(object *op)
 	remove_ob(op);
 	check_walk_off(op, NULL,MOVE_APPLY_VANISHED);
 
-	/* Only generate per change tick *ONE* object */
-	for (i = 0; i < 1; i++)
+	tmp = arch_to_object(op->other_arch);
+	/* The only variable it keeps. */
+	tmp->stats.hp = op->stats.hp;
+
+	if (env)
 	{
-		tmp = arch_to_object(op->other_arch);
-		/* The only variable it keeps. */
-		tmp->stats.hp = op->stats.hp;
+		tmp->x = env->x;
+		tmp->y = env->y;
+		tmp = insert_ob_in_ob(tmp, env);
 
-		if (env)
+		if (env->type == PLAYER)
 		{
-			tmp->x = env->x, tmp->y = env->y;
-			tmp = insert_ob_in_ob(tmp, env);
-
-			/* This should handle in future insert_ob_in_ob() */
-			if (env->type == PLAYER)
-			{
-				esrv_del_item(CONTR(env), op->count, NULL);
-				esrv_send_item(env, tmp);
-			}
-			else if (env->type == CONTAINER)
-			{
-				esrv_del_item(NULL, op->count, env);
-				esrv_send_item(env, tmp);
-			}
+			esrv_del_item(CONTR(env), op->count, NULL);
+			esrv_send_item(env, tmp);
 		}
-		else
+		else if (env->type == CONTAINER)
 		{
-			j = find_first_free_spot(tmp->arch, op->map, op->x, op->y);
+			esrv_del_item(NULL, op->count, env);
+			esrv_send_item(env, tmp);
+		}
+	}
+	else
+	{
+		j = find_first_free_spot(tmp->arch, op->map, op->x, op->y);
 
-			/* Found a free spot */
-			if (j != -1)
-			{
-				tmp->x = op->x + freearr_x[j], tmp->y = op->y + freearr_y[j];
-				insert_ob_in_map(tmp, op->map, op, 0);
-			}
+		/* Found a free spot */
+		if (j != -1)
+		{
+			tmp->x = op->x + freearr_x[j];
+			tmp->y = op->y + freearr_y[j];
+			insert_ob_in_map(tmp, op->map, op, 0);
 		}
 	}
 }
@@ -380,19 +386,18 @@ void move_firewall(object *op)
  * @param op Firechest. */
 static void move_firechest(object *op)
 {
-	/* DM has created a firechest in his inventory */
+	/* DM has created a firechest in his inventory. */
 	if (!op->map)
 	{
 		return;
 	}
 
-	fire_a_ball(op, rndm(1, 8), 7);
+	fire_a_ball(op, get_random_dir(), 7);
 }
 
 /**
  * Main object move function.
- * @param op Object to move.
- * @todo Get rid of the goto. */
+ * @param op Object to move. */
 void process_object(object *op)
 {
 	if (QUERY_FLAG(op, FLAG_MONSTER))
@@ -426,8 +431,7 @@ void process_object(object *op)
 				{
 					/* Give him a bit time back */
 					op->stats.food += 3;
-					/* Go on */
-					goto process_object_dirty_jump;
+					return;
 				}
 
 				/* When the corpse is a personal bounty, we delete the
@@ -471,7 +475,7 @@ void process_object(object *op)
 				return;
 			}
 
-			/* If necessary, delete the item from the players inventory */
+			/* If necessary, delete the item from the player's inventory. */
 			if (op->env && op->env->type == CONTAINER)
 			{
 				esrv_del_item(NULL, op->count, op->env);
@@ -491,8 +495,6 @@ void process_object(object *op)
 
 		return;
 	}
-
-process_object_dirty_jump:
 
 	/* Trigger the TIME event */
 	trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
@@ -576,7 +578,7 @@ process_object_dirty_jump:
 			remove_door(op);
 			return;
 
-		/* handle autoclosing */
+		/* Handle autoclosing */
 		case LOCKED_DOOR:
 			close_locked_door(op);
 			return;

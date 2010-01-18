@@ -30,11 +30,11 @@
 #include <global.h>
 
 #ifdef HAVE_DES_H
-#include <des.h>
+#	include <des.h>
 #else
-#  ifdef HAVE_CRYPT_H
-#  include <crypt.h>
-#  endif
+#	ifdef HAVE_CRYPT_H
+#		include <crypt.h>
+#	endif
 #endif
 
 #include <sproto.h>
@@ -357,12 +357,12 @@ void set_map_timeout(mapstruct *oldmap)
 	oldmap->timeout = MAP_TIMEOUT(oldmap);
 	/* Do MINTIMEOUT first, so that MAXTIMEOUT is used if that is
 	 * lower than the min value. */
-#if MAP_MINTIMEOUT
+#	if MAP_MINTIMEOUT
 	if (oldmap->timeout < MAP_MINTIMEOUT)
 	{
 		oldmap->timeout = MAP_MINTIMEOUT;
 	}
-#endif
+#	endif
 
 	if (oldmap->timeout > MAP_MAXTIMEOUT)
 	{
@@ -867,7 +867,7 @@ static void process_players1(mapstruct *map)
 				{
 					save_player(pl->ob, 1);
 					pl->last_save_tick = pticks;
-					check_score(pl->ob, 1);
+					hiscore_check(pl->ob, 1);
 				}
 			}
 #endif

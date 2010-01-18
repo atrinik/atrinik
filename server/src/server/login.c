@@ -86,7 +86,7 @@ void emergency_save(int flag)
 			new_draw_info(NDI_UNIQUE, pl->ob, "Emergency save failed, checking score...");
 		}
 
-		check_score(pl->ob, 1);
+		hiscore_check(pl->ob, 1);
 	}
 
 	LOG(llevSystem, "\n");

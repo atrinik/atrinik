@@ -448,7 +448,9 @@ void waypoint_move(object *op, object *waypoint)
 	dir = dest_rv->direction;
 
 	if (QUERY_FLAG(op, FLAG_CONFUSED))
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+	{
+		dir = get_randomized_dir(dir);
+	}
 
 	if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL))
 	{

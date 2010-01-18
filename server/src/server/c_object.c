@@ -613,8 +613,9 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	if (nrof && tmp->nrof != (uint32) nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
-		tmp2_tag = tmp2->count;
 		char err[MAX_BUF];
+
+		tmp2_tag = tmp2->count;
 		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)

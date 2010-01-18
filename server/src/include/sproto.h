@@ -27,8 +27,8 @@ void save_throw_object(object *op, object *originator);
 void load_bans_file();
 void save_bans_file();
 int checkbanned(const char *name, char *ip);
-int add_ban(const char *input);
-int remove_ban(const char *input);
+int add_ban(char *input);
+int remove_ban(char *input);
 void list_bans(object *op);
 
 /* c_chat.c */
@@ -228,8 +228,9 @@ emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize);
 void become_daemon(char *filename);
 
 /* hiscore.c */
-void check_score(object *op, int quiet);
-void display_high_score(object *op, int max, const char *match);
+void hiscore_init();
+void hiscore_check(object *op, int quiet);
+void hiscore_display(object *op, int max, const char *match);
 
 /* gods.c */
 object *find_god(const char *name);
@@ -308,7 +309,6 @@ void trigger_global_event(int event_type, void *parm1, void *parm2);
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 
 /* rune.c */
-int write_rune(object *op, int dir, int inspell, int level, char *runename);
 void spring_trap(object *trap, object *victim);
 int trap_see(object *op, object *trap, int level);
 int trap_show(object *trap, object *where);

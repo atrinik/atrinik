@@ -25,12 +25,13 @@
 
 /**
  * @file
- * Includes high score related functions */
+ * Includes high score related functions. */
 
 #include <global.h>
 #include <sproto.h>
 
-/** The score structure is used when treating new high-scores */
+/**
+ * The score structure is used when treating new high-scores */
 typedef struct scr
 {
 	/** Name. */
@@ -56,27 +57,19 @@ typedef struct scr
 } score;
 
 /**
- * Does what it says, copies the contents of the first score structure
- * to the second one.
- * @param sc1 First score structure
- * @param sc2 Second score structure */
-static void copy_score(const score *sc1, score *sc2)
+ * The highscore table. */
+typedef struct
 {
-	strncpy(sc2->name, sc1->name, BIG_NAME);
-	sc2->name[BIG_NAME - 1] = '\0';
+	/** Filename of the backing file. */
+	char fname[MAX_BUF];
 
-	strncpy(sc2->title, sc1->title, BIG_NAME);
-	sc2->title[BIG_NAME - 1] = '\0';
+	/** The entries in decreasing exp order. */
+	score entry[HIGHSCORE_LENGTH];
+} score_table;
 
-	strncpy(sc2->killer, sc1->killer, BIG_NAME);
-	sc2->killer[BIG_NAME - 1] = '\0';
-
-	sc2->exp = sc1->exp;
-	strcpy(sc2->maplevel, sc1->maplevel);
-	sc2->maxhp = sc1->maxhp;
-	sc2->maxsp = sc1->maxsp;
-	sc2->maxgrace = sc1->maxgrace;
-}
+/**
+ * The highscore table. Unused entries are set to zero (except for position). */
+static score_table hiscore_table;
 
 /**
  * Writes the given score structure to a static buffer, and returns
@@ -90,217 +83,259 @@ static void put_score(const score *sc, char *buf, int size)
 }
 
 /**
- * The opposite of put_score, this reads from the given buffer into
- * a static score structure, and returns a pointer to it.
- * @param statement SQLite statement handle
- * @return The score structure */
-static score *get_score(char *bp)
+ * Saves the highscore_table into the highscore file.
+ * @param table The highscore table to save. */
+static void hiscore_save(const score_table *table)
 {
-	static score sc;
-	char *cp;
+	FILE *fp;
+	size_t i;
+	char buf[MAX_BUF];
 
-	if ((cp = strchr(bp, '\n')) != NULL)
+	LOG(llevDebug, "Writing highscore file %s\n", table->fname);
+	fp = fopen(table->fname, "w");
+
+	if (!fp)
+	{
+		LOG(llevBug, "BUG: Cannot create highscore file %s: %s\n", table->fname, strerror_local(errno));
+		return;
+	}
+
+	for (i = 0; i < HIGHSCORE_LENGTH; i++)
+	{
+		if (table->entry[i].name[0] == '\0')
+		{
+			break;
+		}
+
+		put_score(&table->entry[i], buf, sizeof(buf));
+		fprintf(fp, "%s\n", buf);
+	}
+
+	if (ferror(fp))
+	{
+		LOG(llevBug, "BUG: Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+		fclose(fp);
+	}
+	else if (fclose(fp) != 0)
+	{
+		LOG(llevBug, "BUG: Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+	}
+}
+
+/**
+ * The opposite of put_score(), get_score reads from the given buffer into
+ * a given score structure.
+ * @param bp String to parse.
+ * @param sc Includes the parsed score.
+ * @return Whether parsing was successful. */
+static int get_score(char *bp, score *sc)
+{
+	char *cp, *tmp[8];
+
+	cp = strchr(bp, '\n');
+
+	if (cp)
 	{
 		*cp = '\0';
 	}
 
-	if ((cp = strtok(bp, ":")) == NULL)
+	if (split_string(bp, tmp, 8, ':') != 8)
 	{
-		return NULL;
+		return 0;
 	}
 
-	strncpy(sc.name, cp, BIG_NAME);
-	sc.name[BIG_NAME - 1] = '\0';
+	strncpy(sc->name, tmp[0], sizeof(sc->name));
+	sc->name[sizeof(sc->name) - 1] = '\0';
 
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
+	strncpy(sc->title, tmp[1], sizeof(sc->title));
+	sc->title[sizeof(sc->title) - 1] = '\0';
 
-	strncpy(sc.title, cp, BIG_NAME);
-	sc.title[BIG_NAME - 1] = '\0';
+	sscanf(tmp[2], "%ld", &sc->exp);
 
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
+	strncpy(sc->killer, tmp[3], sizeof(sc->killer));
+	sc->killer[sizeof(sc->killer) - 1] = '\0';
 
-	sscanf(cp, "%ld", &sc.exp);
+	strncpy(sc->maplevel, tmp[4], sizeof(sc->maplevel));
+	sc->maplevel[sizeof(sc->maplevel) - 1] = '\0';
 
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
-
-	strncpy(sc.killer, cp, BIG_NAME);
-	sc.killer[BIG_NAME - 1] = '\0';
-
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
-
-	strncpy(sc.maplevel, cp, BIG_NAME);
-	sc.maplevel[BIG_NAME - 1] = '\0';
-
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
-
-	sscanf(cp, "%d", &sc.maxhp);
-
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
-
-	sscanf(cp, "%d", &sc.maxsp);
-
-	if ((cp = strtok(NULL, ":")) == NULL)
-	{
-		return NULL;
-	}
-
-	sscanf(cp, "%d", &sc.maxgrace);
-	return &sc;
+	sscanf(tmp[5], "%d", &sc->maxhp);
+	sscanf(tmp[6], "%d", &sc->maxsp);
+	sscanf(tmp[7], "%d", &sc->maxgrace);
+	return 1;
 }
 
 /**
- * Draw one high score.
- * @param sc Score structure
- * @param buf Buffer
- * @param size Buffer size
- * @return Return the buffer */
-static char *draw_one_high_score(const score *sc, char *buf, int size)
+ * Formats one score to display to a player.
+ * @param sc Score to format.
+ * @param buf Buffer to write to. Will contain suitably formatted score.
+ * @param size Length of buf.
+ * @return buf. */
+static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
-	if (!strncmp(sc->killer, "left", MAX_NAME))
+	const char *s1, *s2;
+
+	if (!strcmp(sc->killer, "left"))
 	{
-		snprintf(buf, size, "%3d %10ld %s the %s left the game on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		s1 = sc->killer;
+		s2 = "the game";
 	}
 	else
 	{
-		snprintf(buf, size, "%3d %10ld %s the %s was killed by %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		s1 = "was killed by";
+		s2 = sc->killer;
 	}
 
+	snprintf(buf, size, "%3d %10ld %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	return buf;
 }
 
 /**
- * Adds the given score structure to the high score list, but
- * only if it was good enough to deserve a place.
- * @param new_score The new score structure
- * @return NULL if an error, or the old score. */
-static score *add_score(score *new_score)
+ * Adds the given score-structure to the high-score list, but only if it
+ * was good enough to deserve a place.
+ * @param table The highscore table to add to.
+ * @param new_score Score to add.
+ * @param old_score Returns the old player score. */
+static void add_score(score_table *table, score *new_score, score *old_score)
 {
-	FILE *fp;
-	static score old_score;
-	score *tmp_score, pscore[HIGHSCORE_LENGTH];
-	char buf[MAX_BUF], filename[MAX_BUF], bp[MAX_BUF];
-	int nrofscores = 0, flag = 0, i, comp;
+	size_t i;
 
 	new_score->position = HIGHSCORE_LENGTH + 1;
-	old_score.position = -1;
-	snprintf(filename, sizeof(filename), "%s/highscore", settings.localdir);
+	memset(old_score, 0, sizeof(*old_score));
+	old_score->position = -1;
 
-	if ((fp = open_and_uncompress(filename, 1, &comp)) != NULL)
+	/* Find existing entry by name */
+	for (i = 0; i < HIGHSCORE_LENGTH; i++)
 	{
-		while (fgets(buf, MAX_BUF, fp) != NULL && nrofscores < HIGHSCORE_LENGTH)
+		if (table->entry[i].name[0] == '\0')
 		{
-			if ((tmp_score = get_score(buf)) == NULL)
+			table->entry[i] = *new_score;
+			table->entry[i].position = i + 1;
+			break;
+		}
+
+		if (strcmp(new_score->name, table->entry[i].name) == 0)
+		{
+			*old_score = table->entry[i];
+
+			if (table->entry[i].exp <= new_score->exp)
+			{
+				table->entry[i] = *new_score;
+				table->entry[i].position = i + 1;
+			}
+
+			break;
+		}
+	}
+
+	/* Entry for unknown name */
+	if (i >= HIGHSCORE_LENGTH)
+	{
+		/* New exp is less than lowest hiscore entry => drop */
+		if (new_score->exp < table->entry[i - 1].exp)
+		{
+			return;
+		}
+
+		/* New exp is not less than lowest hiscore entry => add */
+		i--;
+		table->entry[i] = *new_score;
+		table->entry[i].position = i + 1;
+	}
+
+	/* Move entry to correct position */
+	while (i > 0 && new_score->exp >= table->entry[i - 1].exp)
+	{
+		score tmp;
+
+		tmp = table->entry[i - 1];
+		table->entry[i - 1] = table->entry[i];
+		table->entry[i] = tmp;
+
+		table->entry[i - 1].position = i;
+		table->entry[i].position = i + 1;
+
+		i--;
+	}
+
+	new_score->position = table->entry[i].position;
+	hiscore_save(table);
+}
+
+/**
+ * Loads the hiscore_table from the highscore file.
+ * @param table The highscore table to load. */
+static void hiscore_load(score_table *table)
+{
+	FILE *fp;
+	size_t i = 0;
+
+	fp = fopen(table->fname, "r");
+
+	if (!fp)
+	{
+		if (errno == ENOENT)
+		{
+			LOG(llevInfo, "Highscore file %s does not exist\n", table->fname);
+		}
+		else
+		{
+			LOG(llevBug, "BUG: Cannot open highscore file %s: %s\n", table->fname, strerror_local(errno));
+		}
+	}
+	else
+	{
+		LOG(llevInfo, "Reading highscore file %s\n", table->fname);
+
+		while (i < HIGHSCORE_LENGTH)
+		{
+			char buf[MAX_BUF];
+
+			if (!fgets(buf, sizeof(buf), fp))
 			{
 				break;
 			}
 
-			if (!flag && new_score->exp >= tmp_score->exp)
+			if (!get_score(buf, &table->entry[i]))
 			{
-				copy_score(new_score, &pscore[nrofscores]);
-				new_score->position = nrofscores;
-				flag = 1;
-
-				if (++nrofscores >= HIGHSCORE_LENGTH)
-				{
-					break;
-				}
+				break;
 			}
 
-			/* Another entry */
-			if (!strcmp(new_score->name, tmp_score->name))
-			{
-				copy_score(tmp_score, &old_score);
-				old_score.position = nrofscores;
-
-				if (flag)
-				{
-					continue;
-				}
-			}
-
-			copy_score(tmp_score, &pscore[nrofscores++]);
+			table->entry[i].position = i + 1;
+			i++;
 		}
 
-		close_and_delete(fp, comp);
+		fclose(fp);
 	}
 
-	/* Did not beat old score */
-	if (old_score.position != -1 && old_score.exp >= new_score->exp)
+	while (i < HIGHSCORE_LENGTH)
 	{
-		return &old_score;
+		memset(&table->entry[i], 0, sizeof(table->entry[i]));
+		table->entry[i].position = i + 1;
+		i++;
 	}
-
-	if (!flag && nrofscores < HIGHSCORE_LENGTH)
-	{
-		copy_score(new_score, &pscore[nrofscores++]);
-	}
-
-	if ((fp = fopen(filename, "w")) == NULL)
-	{
-		LOG(llevBug, "BUG: Cannot write to highscore file.\n");
-		return NULL;
-	}
-
-	for (i = 0; i < nrofscores; i++)
-	{
-		put_score(&pscore[i], bp, sizeof(bp));
-		fprintf(fp, "%s\n", bp);
-	}
-
-	fclose(fp);
-
-	if (flag)
-	{
-		if (old_score.position == -1)
-		{
-			return new_score;
-		}
-
-		return &old_score;
-	}
-
-	new_score->position = -1;
-
-	if (old_score.position != -1)
-	{
-		return &old_score;
-	}
-
-	if (nrofscores)
-	{
-		copy_score(&pscore[nrofscores - 1], &old_score);
-		return &old_score;
-	}
-
-	LOG(llevBug, "Highscore error.\n");
-	return NULL;
 }
 
-void check_score(object *op, int quiet)
+/**
+ * Initializes the module. */
+void hiscore_init()
 {
-	score new_score;
-	score *old_score;
-	char bufscore[MAX_BUF];
+	snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/%s", settings.localdir, HIGHSCORE);
+	hiscore_load(&hiscore_table);
+}
 
-	if (op->stats.exp == 0)
+/**
+ * Checks if player should enter the hiscore, and if so writes them into the list.
+ * @param op Player to check.
+ * @param quiet If set, don't print anything out - used for periodic updates during
+ * game play or when player unexpectedly quits - don't need to print anything in
+ * those cases. */
+void hiscore_check(object *op, int quiet)
+{
+	score new_score, old_score;
+	char bufscore[MAX_BUF];
+	const char *message;
+
+	if (!op->stats.exp)
 	{
 		return;
 	}
@@ -315,30 +350,20 @@ void check_score(object *op, int quiet)
 		return;
 	}
 
-	if (!op->stats.exp)
-	{
-		if (!quiet)
-		{
-			new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
-		}
+	strncpy(new_score.name, op->name, sizeof(new_score.name));
+	new_score.name[sizeof(new_score.name) - 1] = '\0';
 
-		return;
-	}
+	strncpy(new_score.title, op->race, sizeof(new_score.title));
+	new_score.title[sizeof(new_score.title) - 1] = '\0';
 
-	strncpy(new_score.name, op->name, BIG_NAME);
-	new_score.name[BIG_NAME - 1] = '\0';
-
-	strncpy(new_score.title, op->race, BIG_NAME);
-	new_score.title[BIG_NAME - 1] = '\0';
-
-	strncpy(new_score.killer, CONTR(op)->killer, BIG_NAME);
+	strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
 
 	if (new_score.killer[0] == '\0')
 	{
 		strcpy(new_score.killer, "a dungeon collapse");
 	}
 
-	new_score.killer[BIG_NAME - 1] = '\0';
+	new_score.killer[sizeof(new_score.killer) - 1] = '\0';
 	new_score.exp = op->stats.exp;
 
 	if (op->map == NULL)
@@ -347,23 +372,14 @@ void check_score(object *op, int quiet)
 	}
 	else
 	{
-		strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, BIG_NAME - 1);
-		new_score.maplevel[BIG_NAME - 1] = '\0';
+		strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, sizeof(new_score.maplevel) - 1);
+		new_score.maplevel[sizeof(new_score.maplevel) - 1] = '\0';
 	}
 
 	new_score.maxhp = (int) op->stats.maxhp;
 	new_score.maxsp = (int) op->stats.maxsp;
 	new_score.maxgrace = (int) op->stats.maxgrace;
-
-	if ((old_score = add_score(&new_score)) == NULL)
-	{
-		if (!quiet)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Error in the highscore list.");
-		}
-
-		return;
-	}
+	add_score(&hiscore_table, &new_score, &old_score);
 
 	/* Everything below here is just related to print messages
 	 * to the player.  If quiet is set, we can just return
@@ -373,91 +389,67 @@ void check_score(object *op, int quiet)
 		return;
 	}
 
-	if (new_score.position == -1)
+	if (old_score.position == -1)
 	{
-		/* Not strictly correct... */
-		new_score.position = HIGHSCORE_LENGTH + 1;
-
-		if (!strcmp(old_score->name, new_score.name))
+		if (new_score.position > HIGHSCORE_LENGTH)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You didn't beat your last highscore:");
+			message = "You didn't enter the highscore list:";
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "You didn't enter the highscore list:");
+			message = "You entered the highscore list:";
 		}
-
-		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
-
-		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
-
-		return;
-	}
-
-	if (old_score->exp >= new_score.exp)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You didn't beat your last score:");
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "You beat your last score:");
+		if (new_score.position > HIGHSCORE_LENGTH)
+		{
+			message = "You left the highscore list:";
+		}
+		else if (new_score.exp  > old_score.exp)
+		{
+			message = "You beat your last score:";
+		}
+		else
+		{
+			message = "You didn't beat your last score:";
+		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, draw_one_high_score(old_score, bufscore, sizeof(bufscore)));
+	new_draw_info(NDI_UNIQUE, op, message);
+
+	if (old_score.position != -1)
+	{
+		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&old_score, bufscore, sizeof(bufscore)));
+	}
+
 	new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
 /**
  * Displays the high score file.
- * @param op Object calling this
- * @param max Maximum scores to show
- * @param match Only match scores with match. */
-void display_high_score(object *op, int max, const char *match)
+ * @param op Player asking for the score file.
+ * @param max Maximum number of scores to display.
+ * @param match If non-empty, will only print players with name or title
+ * containing the string (non case-sensitive). */
+void hiscore_display(object *op, int max, const char *match)
 {
-	FILE *fp;
-	char buf[MAX_BUF], scorebuf[MAX_BUF];
-	int i = 0, j = 0, comp;
-	score *sc;
+	int printed_entries = 0;
+	size_t j;
 
-	snprintf(buf, sizeof(buf), "%s/highscore", settings.localdir);
+	new_draw_info(NDI_UNIQUE, op, "Nr    Score   Who <max hp><max sp><max grace>");
 
-	if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
+	for (j = 0; j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max; j++)
 	{
-		LOG(llevBug, "BUG: Can't open highscore file");
+		char scorebuf[MAX_BUF];
 
-		if (op != NULL)
-		{
-			new_draw_info(NDI_UNIQUE, op, "There is no highscore file.");
-		}
-
-		return;
-	}
-
-	new_draw_info(NDI_UNIQUE, op, "Nr    Score    Who <max hp><max sp><max grace>");
-
-	while (fgets(buf, MAX_BUF, fp) != NULL)
-	{
-		if (j >= HIGHSCORE_LENGTH || i >= (max - 1))
-		{
-			break;
-		}
-
-		if ((sc = get_score(buf)) == NULL)
-		{
-			break;
-		}
-
-		sc->position = ++j;
-
-		if (match == NULL)
-		{
-			draw_one_high_score(sc, scorebuf, sizeof(scorebuf));
-			i++;
-		}
-		else
+		if (match && !strcasestr_local(hiscore_table.entry[j].name, match) && !strcasestr_local(hiscore_table.entry[j].title, match))
 		{
 			continue;
 		}
+
+		draw_one_high_score(&hiscore_table.entry[j], scorebuf, sizeof(scorebuf));
+		printed_entries++;
 
 		if (op == NULL)
 		{
@@ -468,6 +460,4 @@ void display_high_score(object *op, int max, const char *match)
 			new_draw_info(NDI_UNIQUE, op, scorebuf);
 		}
 	}
-
-	close_and_delete(fp, comp);
 }

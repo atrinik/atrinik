@@ -2307,7 +2307,7 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude)
 		owner_type = exclude->type;
 	}
 
-	for (i = rndm(1, 8); i < max; i++)
+	for (i = get_random_dir(); i < max; i++)
 	{
 		nx = x + freearr_x[i];
 		ny = y + freearr_y[i];
@@ -2508,7 +2508,7 @@ void move_swarm_spell(object *op)
 	if (basedir == 0)
 	{
 		/* Spray in all directions! 8) */
-		basedir = rndm(1, 8);
+		basedir = get_random_dir();
 	}
 
 	/* New offset calculation to make swarm element distribution

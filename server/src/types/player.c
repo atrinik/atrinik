@@ -1206,7 +1206,7 @@ int move_player(object *op, int dir)
 
 	if (QUERY_FLAG(op, FLAG_CONFUSED) && dir)
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	op->anim_moving_dir = -1;
@@ -1826,7 +1826,7 @@ void kill_player(object *op)
 	op->stats.sp = op->stats.maxsp;
 	op->stats.grace = op->stats.maxgrace;
 
-	check_score(op, 1);
+	hiscore_check(op, 1);
 
 	/* Check to see if the player is in a shop. Ii so, then check to see
 	 * if the player has any unpaid items. If so, remove them and put

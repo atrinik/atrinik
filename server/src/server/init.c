@@ -125,6 +125,8 @@ static void init_strings()
 	shstr_cons.of_hideous_poison = add_string("of hideous poison");
 }
 
+/**
+ * Free the string constants. */
 void free_strings()
 {
 	int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
@@ -375,7 +377,7 @@ static void call_version()
 
 static void showscores()
 {
-	display_high_score(NULL, 9999, NULL);
+	hiscore_display(NULL, 9999, NULL);
 	exit(0);
 }
 
@@ -507,7 +509,7 @@ static void set_tmpdir(char *path)
 
 static void showscoresparm(const char *data)
 {
-	display_high_score(NULL, 9999, data);
+	hiscore_display(NULL, 9999, data);
 	exit(0);
 }
 
@@ -806,7 +808,7 @@ static void load_settings()
  *
  * Called only once, when starting the program.
  * @param argc Length of argv.
- * @param argv[] Arguments. */
+ * @param argv Arguments. */
 void init(int argc, char **argv)
 {
 	/* We don't want to be affected by players' umask */
@@ -841,6 +843,7 @@ void init(int argc, char **argv)
 	parse_args(argc, argv, 3);
 	cftimer_init();
 	init_regions();
+	hiscore_init();
 
 #ifndef WIN32
 	if (settings.daemonmode)

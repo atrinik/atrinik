@@ -367,7 +367,7 @@ static void remove_ns_dead_player(player *pl)
 	}
 
 	strncpy(pl->killer, "left", MAX_BUF - 1);
-	check_score(pl->ob, 1);
+	hiscore_check(pl->ob, 1);
 
 	/* Be sure we have closed container when we leave */
 	container_unlink(pl, NULL);

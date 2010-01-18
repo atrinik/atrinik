@@ -30,176 +30,6 @@
 #include <global.h>
 #include <sproto.h>
 
-#ifndef sqr
-#define sqr(x) ((x) * (x))
-#endif
-
-static void rune_attack(object *op, object *victim);
-
-/**
- * Player is attempting to write a magical rune.
- * @param op Rune writer.
- * @param dir Orientation of rune, direction rune's contained spell will
- * be cast in, if applicable.
- * @param inspell ID of the spell.
- * @param level Level.
- * @param runename Name of the rune or message displayed by the rune for
- * a rune of marking.
- * @retval 0 No rune was written.
- * @retval 1 Rune written. */
-int write_rune(object *op, int dir, int inspell, int level, char *runename)
-{
-	object *tmp;
-	archetype *at = NULL;
-	mapstruct *mt;
-	char buf[MAX_BUF];
-	int nx, ny;
-
-	if (!dir)
-	{
-		dir = 1;
-	}
-
-	nx = op->x + freearr_x[dir];
-	ny = op->y + freearr_y[dir];
-
-	if (!(mt = get_map_from_coord(op->map, &nx, &ny)))
-	{
-		return 0;
-	}
-
-	if (blocked(op, mt, nx, ny, op->terrain_flag))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Can't make a rune there!");
-		return 0;
-	}
-
-	for (tmp = get_map_ob(mt, nx, ny); tmp != NULL; tmp = tmp->above)
-	{
-		if (tmp->type == RUNE)
-		{
-			break;
-		}
-	}
-
-	if (tmp)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You can't write a rune there.");
-		return 0;
-	}
-
-	/* Can't have runes of small fireball!  */
-	if (inspell)
-	{
-		if (inspell == -1)
-		{
-			new_draw_info(NDI_UNIQUE, op, "You can't make a rune containing a spell you don't know. (idiot!)");
-			return 0;
-		}
-
-		at = find_archetype(runename);
-
-		/* What it compares to should probably be expanded.  But basically,
-		 * creating a rune of sword should not be allowed. */
-		if (at && at->clone.type != RUNE)
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "You can't make a rune of %s", runename);
-			return 0;
-		}
-		/* next it attempts to look up a rune_archetype for this spell
-		 * by doing some string manipulations */
-		if (!at)
-		{
-			char insp[MAX_BUF];
-			int i;
-
-			strcpy(insp, spells[inspell].name);
-
-			for (i = 0; i < (int)strlen(insp); i++)
-			{
-				if (insp[i] == ' ')
-				{
-					insp[i] = '_';
-				}
-			}
-
-			snprintf(buf, sizeof(buf), "rune_%s", insp);
-			at = find_archetype(buf);
-		}
-
-		if (!at)
-		{
-			tmp = get_archetype("generic_rune");
-		}
-		else
-		{
-			tmp = arch_to_object(at);
-		}
-
-		/* The spell it contains */
-		tmp->stats.sp = inspell;
-
-		snprintf(buf, sizeof(buf), "You set off a rune of %s", spells[inspell].name);
-		FREE_AND_COPY_HASH(tmp->msg, buf);
-		at = NULL;
-	}
-	else if (level == -2 || (at = find_archetype(runename)) == NULL)
-	{
-		char rune[HUGE_BUF];
-
-		level = 0;
-		/* This is a rune of marking */
-		tmp = get_archetype("rune_mark");
-		at = NULL;
-
-		if (runename)
-		{
-			if (strstr(runename, "endmsg"))
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "Trying to cheat are we?", runename);
-				LOG(llevInfo, "CHEAT: write_rune(): Player %s tried to write bogus rune.\n", op->name);
-				return 0;
-			}
-
-			strncpy(rune, runename, HUGE_BUF - 2);
-			rune[HUGE_BUF - 2] = 0;
-			strcat(rune, "\n");
-		}
-		else
-		{
-			/* Not totally efficient, but keeps code simpler */
-			strcpy(rune, "There is no message\n");
-		}
-
-		FREE_AND_COPY_HASH(tmp->msg, rune);
-	}
-
-	if (at)
-	{
-		tmp = get_archetype(runename);
-	}
-
-	/* The invisibility parameter */
-	tmp->stats.Cha = op->level / 2;
-	tmp->x = nx;
-	tmp->y = ny;
-	tmp->map = op->map;
-	/* Where any spell will go upon detonation */
-	tmp->direction = dir;
-	/* What level to cast the spell at */
-	tmp->level = SK_level(op);
-
-	/* Runes without need no owner */
-	if (inspell || tmp->stats.dam)
-	{
-		set_owner(tmp, op);
-	}
-
-	insert_ob_in_map(tmp, op->map, op, 0);
-
-	return 1;
-}
-
 /**
  * This function handles those runes which detonate but do not cast
  * spells. Typically, poisoned or diseased runes.
@@ -209,11 +39,6 @@ static void rune_attack(object *op, object *victim)
 {
 	int dam = op->stats.dam;
 
-	/* lets first calc the damage - we use base dmg * level
-	 * For rune, the damage will *not* get additional
-	 * level range boni
-	 * we do here a more simple system like the normal monster damage.
-	 * with the hard set float we can control the damage a bit better. */
 	op->stats.dam = (sint16) ((float) dam * (LEVEL_DAMAGE(op->level) * 0.925f));
 
 	if (victim)
@@ -362,7 +187,7 @@ int trap_see(object *op, object *trap, int level)
 {
 	int chance = random_roll(0, 99, op, PREFER_HIGH);
 
-	/* Decide if we see the rune or not */
+	/* Decide if we can see the rune or not */
 	if ((trap->level <= level && RANDOM() % 10) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0))))))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
@@ -439,8 +264,8 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 	int trapworth;
 	int disarmer_level = SK_level(disarmer);
 
-	/* this formula awards a more reasonable amount of exp */
-	trapworth =  MAX(1, trap->level) * disarmer->map->difficulty * sqr(MAX(trap->stats.dam, spells[trap->stats.sp].sp)) / disarmer_level;
+	/* This formula awards a reasonable amount of exp. */
+	trapworth =  MAX(1, trap->level) * disarmer->map->difficulty * POW2(MAX(trap->stats.dam, spells[trap->stats.sp].sp)) / disarmer_level;
 
 	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(random_roll(0, (MAX(2, MIN(20, trap->level-disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
 	{

@@ -205,7 +205,7 @@ static void check_faceset_fallback(int faceset, int togo)
  * atrinik.1, atrinik.2, etc. */
 void read_client_images()
 {
-	char filename[400], buf[HUGE_BUF], *cp, *cps[7];
+	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
 	FILE *infile, *fbmap;
 	int num, len, compressed, fileno, i, badline;
 
@@ -227,20 +227,7 @@ void read_client_images()
 			continue;
 		}
 
-		if (!(cps[0] = strtok(buf, ":")))
-		{
-			badline = 1;
-		}
-
-		for (i = 1; i<7; i++)
-		{
-			if (!(cps[i] = strtok(NULL, ":")))
-			{
-				badline = 1;
-			}
-		}
-
-		if (badline)
+ 		if (split_string(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
 		{
 			LOG(llevBug, "BUG: read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
 		}

@@ -387,7 +387,7 @@ int command_time(object *op, char *params)
  * @return 1. */
 int command_hiscore(object *op, char *params)
 {
-	display_high_score(op, op == NULL ? 9999 : 50, params);
+	hiscore_display(op, 50, params);
 	return 1;
 }
 

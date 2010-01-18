@@ -288,6 +288,8 @@
 #define ARCHETYPES "archetypes"
 #define TREASURES "treasures"
 #define SETTINGS "settings"
+/** Where the highscore file is located. */
+#define HIGHSCORE "highscore"
 
 /** Bail out if more are received during tick. */
 #define MAX_ERRORS 25

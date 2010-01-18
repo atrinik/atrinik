@@ -474,3 +474,38 @@ void make_path_to_file(char *filename)
 		*cp = '/';
 	}
 }
+
+/**
+ * Finds a substring in a string, in a case-insensitive manner.
+ * @param s String we're searching in.
+ * @param find String we're searching for.
+ * @return Pointer to first occurrence of find in s, NULL if not found. */
+const char *strcasestr_local(const char *s, const char *find)
+{
+	char c, sc;
+	size_t len;
+
+	if ((c = *find++) != 0)
+	{
+		c = tolower(c);
+		len = strlen(find);
+
+		do
+		{
+			do
+			{
+				if ((sc = *s++) == 0)
+				{
+					return NULL;
+				}
+			}
+			while (tolower(sc) != c);
+		}
+		while (strncasecmp(s, find, len) != 0);
+
+		s--;
+	}
+
+	return s;
+}
+

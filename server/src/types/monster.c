@@ -647,7 +647,7 @@ int move_monster(object *op)
 
 			if (QUERY_FLAG(op, FLAG_CONFUSED))
 			{
-				dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+				dir = get_randomized_dir(dir);
 			}
 
 			if (op->last_grace)
@@ -705,7 +705,7 @@ int move_monster(object *op)
 
 	if (QUERY_FLAG(op, FLAG_CONFUSED))
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	if (!QUERY_FLAG(op, FLAG_SCARED))
@@ -1063,7 +1063,7 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 	if (QUERY_FLAG(head, FLAG_CONFUSED))
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	if ((spell_item = monster_choose_random_spell(head)) == NULL)
@@ -1146,7 +1146,7 @@ static int monster_use_skill(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_CONFUSED))
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	/* skill selection - monster will use the next unused skill.
@@ -1202,7 +1202,7 @@ static int monster_use_range(object *head, object *part, object *pl, int dir)
 
 	if (QUERY_FLAG(head, FLAG_CONFUSED))
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	for (range = head->inv; range; range = range->below)
@@ -1275,7 +1275,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 	if (QUERY_FLAG(head, FLAG_CONFUSED))
 	{
-		dir = absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+		dir = get_randomized_dir(dir);
 	}
 
 	for (bow = head->inv; bow != NULL; bow = bow->below)
