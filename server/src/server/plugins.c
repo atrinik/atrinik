@@ -30,6 +30,13 @@
 #include <plugin.h>
 #include <sproto.h>
 
+/** The plugin suffix. */
+#ifndef WIN32
+#	define PLUGIN_SUFFIX ".so"
+#else
+#	define PLUGIN_SUFFIX ".dll"
+#endif
+
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
 
@@ -244,8 +251,7 @@ CommArray_s *find_plugin_command(const char *cmd)
 }
 
 /**
- * Display a list of loaded and loadable plugins in
- * player's window.
+ * Display a list of loaded and loadable plugins in player's window.
  * @param op The player to print the plugins to. */
 void display_plugins_list(object *op)
 {
@@ -276,7 +282,9 @@ void display_plugins_list(object *op)
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
 	{
-		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
+		size_t l = strlen(currentfile->d_name);
+
+		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
 		{
 			new_draw_info(NDI_UNIQUE, op, currentfile->d_name);
 		}
@@ -287,8 +295,8 @@ void display_plugins_list(object *op)
 
 /**
  * Initializes plugins. Browses the plugins directory and calls
- * init_plugin() for each file found, unless the file has ".txt" in the
- * name. */
+ * init_plugin() for each plugin file found with the extension being
+ * @ref PLUGIN_SUFFIX. */
 void init_plugins()
 {
 	struct dirent *currentfile;
@@ -304,8 +312,9 @@ void init_plugins()
 
 	while ((currentfile = readdir(plugdir)))
 	{
-		/* Don't load "." or ".." marker and files which have ".txt" inside */
-		if (strcmp(currentfile->d_name, "..") && strcmp(currentfile->d_name, ".") && !strstr(currentfile->d_name, ".txt"))
+		size_t l = strlen(currentfile->d_name);
+
+		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
 		{
 			snprintf(pluginfile, sizeof(pluginfile), "%s/%s", PLUGINDIR, currentfile->d_name);
 			LOG(llevInfo, "Loading plugin %s\n", currentfile->d_name);

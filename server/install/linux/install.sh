@@ -4,8 +4,8 @@
 # Use it after compiling or when using a binary package
 
 prgname="atrinik_server"
-pythonplug="plugin_python.so.0.1"
-arenaplug="plugin_arena.so.0.1"
+pythonplug="plugin_python.so"
+arenaplug="plugin_arena.so"
 
 basedir="./../.."
 datadir="/data"

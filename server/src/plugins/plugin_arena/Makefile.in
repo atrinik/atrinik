@@ -29,16 +29,16 @@ LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBS) $(SYSLIBS)
 
-all : plugin_arena.so.0.1
+all : plugin_arena.so
 
 clean :
-	$(RM) -f *.o core plugin_arena.so.0.1
+	$(RM) -f *.o core plugin_arena.so
 
 distclean : clean
-	$(RM) -f *.o core plugin_arena.so.0.1 Makefile
+	$(RM) -f *.o core plugin_arena.so Makefile
 
-plugin_arena.so.0.1 : $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_arena.so.0 $(LDFLAGS) $(OBJECTS) $(ALLLIBS) -o plugin_arena.so.0.1
+plugin_arena.so : $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_arena.so $(LDFLAGS) $(OBJECTS) $(ALLLIBS) -o plugin_arena.so
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@

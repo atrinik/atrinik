@@ -46,16 +46,16 @@ LDFLAGS=	-export-dynamic -rdynamic -Xlinker -Bsymbolic
 SYSLIBS=	-lm
 ALLLIBS=	$(LIBPYTHON) $(LIBS) $(SYSLIBS)
 
-all : plugin_python.so.0.1
+all : plugin_python.so
 
 clean :
-	$(RM) -f *.o core plugin_python.so.0.1
+	$(RM) -f *.o core plugin_python.so
 
 distclean : clean
-	$(RM) -f *.o core plugin_python.so.0.1 Makefile
+	$(RM) -f *.o core plugin_python.so Makefile
 
-plugin_python.so.0.1 : $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so.0 $(LDFLAGS) $(OBJECTS) $(ALLLIBS) -o plugin_python.so.0.1
+plugin_python.so : $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,plugin_python.so $(LDFLAGS) $(OBJECTS) $(ALLLIBS) -o plugin_python.so
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@

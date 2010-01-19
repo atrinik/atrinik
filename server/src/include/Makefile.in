@@ -61,7 +61,6 @@ ALL_FILES = \
 	god.h \
 	newserver.h \
 	skillist.h \
-	xdir.h \
 	book.h \
 	includes.h \
 	object.h \

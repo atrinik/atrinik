@@ -1,0 +1,2 @@
+All plugins in this directory get auto-loaded when the server starts,
+unless PLUGINS was not defined when compiling the server.

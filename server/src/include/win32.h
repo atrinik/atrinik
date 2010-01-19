@@ -55,7 +55,6 @@
 #define __STDC__ 1
 #endif
 
-/* before the standard includes */
 #ifndef HAVE_SNPRINTF
 #define HAVE_SNPRINTF 1
 #define snprintf _snprintf
@@ -87,6 +86,7 @@
 #define getpid() _getpid()
 #define popen(__a, __b) _popen(__a, __b)
 #define pclose(__a) _pclose(__a)
+#define vsnprintf _vsnprintf
 
 #ifndef R_OK
 #define R_OK 6
