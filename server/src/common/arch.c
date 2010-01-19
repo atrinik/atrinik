@@ -812,21 +812,21 @@ object *get_archetype(const char *name)
 static unsigned long hasharch(const char *str, int tablesize)
 {
 	unsigned long hash = 0;
-	int i = 0, rot = 0;
+	int i = 0;
 	const char *p;
 
 	for (p = str; i < MAXSTRING && *p; p++, i++)
 	{
-		hash ^= (unsigned long) *p << rot;
-		rot += 2;
-
-		if (rot >= ((int) sizeof(long) - (int) sizeof(char)) * 8)
-		{
-			rot = 0;
-		}
+		hash += *p;
+		hash += hash << 10;
+		hash ^= hash >> 6;
 	}
 
-	return (hash % tablesize);
+	hash += hash << 3;
+	hash ^= hash >> 11;
+	hash += hash << 15;
+
+	return hash % tablesize;
 }
 
 /**
@@ -873,7 +873,7 @@ archetype *find_archetype(const char *name)
  * Adds an archetype to the hashtable. */
 static void add_arch(archetype *at)
 {
-	int index = hasharch(at->name, ARCHTABLE), org_index = index;
+	unsigned long index = hasharch(at->name, ARCHTABLE), org_index = index;
 
 	for (; ;)
 	{

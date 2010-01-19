@@ -253,7 +253,7 @@ extern int atnr_is_dragon_enabled(int attacknr);
 extern int is_dragon_pl(object *op);
 
 /* re-cmp.c */
-extern char *re_cmp(char *str, char *regexp);
+extern char *re_cmp(const char *str, const char *regexp);
 
 /* region.c */
 extern region *get_region_by_name(const char *region_name);
@@ -284,11 +284,11 @@ extern void free_all_recipes();
 
 /* shstr.c */
 extern void init_hash_table();
-extern const char *add_string(const char *str);
-extern const char *add_refcount(const char *str);
-extern int query_refcount(const char *str);
-extern const char *find_string(const char *str);
-extern void free_string_shared(const char *str);
+extern shstr *add_string(const char *str);
+extern shstr *add_refcount(shstr *str);
+extern int query_refcount(shstr *str);
+extern shstr *find_string(const char *str);
+extern void free_string_shared(shstr *str);
 extern void ss_dump_statistics(char *buf, size_t size);
 extern void ss_dump_table(int what, char *buf, size_t size);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);

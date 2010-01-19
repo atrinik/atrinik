@@ -52,18 +52,18 @@
 #  include "sunos.h"
 #endif
 
-char *re_cmp(char *, char *);
-static int re_cmp_step(char *, char *, int, int);
+const char *re_cmp(const char *, const char *);
+static int re_cmp_step(const char *, const char *, int, int);
 static void re_init(void);
 static int re_match_token(unsigned char, selection *);
-static char *re_get_token(selection *, char *);
+static const char *re_get_token(selection *, const char *);
 #ifdef DEBUG2
 static void re_dump_sel(selection *);
 #endif
 
 static int re_init_done = 0;
 static selection *re_token[RE_TOKEN_MAX];
-static char *re_substr[RE_TOKEN_MAX];
+static const char *re_substr[RE_TOKEN_MAX];
 static unsigned int	re_token_depth;
 
 /**
@@ -73,9 +73,9 @@ static unsigned int	re_token_depth;
  * @return
  * - No match or error in regexp.
  * - Pointer to beginning of matching string */
-char *re_cmp(char *str, char *regexp)
+const char *re_cmp(const char *str, const char *regexp)
 {
-	char *next_regexp;
+	const char *next_regexp;
 	int once = 0;
 	int matched = 0;
 
@@ -205,9 +205,9 @@ char *re_cmp(char *str, char *regexp)
  * @param slot Number of the token which under consideration.
  * @param matches How many times the token has matched.
  * @return 1 if match, 0 otherwise. */
-static int re_cmp_step(char *str, char *regexp, int slot, int matches)
+static int re_cmp_step(const char *str, const char *regexp, int slot, int matches)
 {
-	char *next_regexp;
+	const char *next_regexp;
 	int matched;
 
 	if (*regexp == '\0')
@@ -369,7 +369,7 @@ static int re_match_token(unsigned char c, selection *sel)
  * @return
  * - NULL: syntax error
  * - Pointer to first character past token. */
-static char *re_get_token(selection *sel, char *regexp)
+static const char *re_get_token(selection *sel, const char *regexp)
 {
 #ifdef SAFE_CHECKS
 #   define exit_if_null	if (*regexp == '\0') return NULL

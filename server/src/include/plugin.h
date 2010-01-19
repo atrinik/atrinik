@@ -158,7 +158,7 @@
 struct plugin_hooklist
 {
 	char *(*query_name)(object *, object *);
-	char *(*re_cmp)(char *, char *);
+	char *(*re_cmp)(const char *, const char *);
 	object *(*present_in_ob)(unsigned char, object *);
 	int (*players_on_map)(mapstruct *);
 	char *(*create_pathname)(const char *);

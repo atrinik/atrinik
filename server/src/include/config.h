@@ -300,8 +300,8 @@
 /** How many entries there is room for. */
 #define HIGHSCORE_LENGTH 1000
 
-/** Used when hashing archetypes, must be a prime number. */
-#define ARCHTABLE 5003
+/** Used when hashing archetypes. */
+#define ARCHTABLE 8192
 #define MAXSTRING 20
 
 /**

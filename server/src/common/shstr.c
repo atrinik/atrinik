@@ -28,28 +28,16 @@
  * This is a simple shared strings package with a simple interface.
  * @author Kjetil T. Homme, Oslo 1992. */
 
-#include <stdio.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <sys/types.h>
 #include <limits.h>
-#include <string.h>
 #include <global.h>
 
-#if defined (__sun__) && defined (StupidSunHeaders)
-#include <sys/time.h>
-#include "sunos.h"
+#if defined(__sun__) && defined(StupidSunHeaders)
+#	include <sys/time.h>
+#	include "sunos.h"
 #endif
 
 #define SS_STATISTICS
 #include "shstr.h"
-
-#ifndef WIN32
-#include <autoconf.h>
-#endif
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
 
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
@@ -58,7 +46,6 @@ static shared_string *hash_table[TABLESIZE];
  * Initializes the hash-table used by the shared string library. */
 void init_hash_table()
 {
-	/* A static object should be zeroed out always */
 #if !defined(__STDC__)
 	(void) memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
 #endif
@@ -123,7 +110,7 @@ static shared_string *new_shared_string(const char *str)
  * string, a copy will be allocated, and a pointer to that is returned.
  * @param str String to share.
  * @return Pointer to string identical to str, but shared. */
-const char *add_string(const char *str)
+shstr *add_string(const char *str)
 {
 	shared_string *ss;
 	unsigned long ind;
@@ -219,14 +206,14 @@ const char *add_string(const char *str)
  * @param str String which <b>must</b> have been returned from a previous
  * add_string().
  * @return str. */
-const char *add_refcount(const char *str)
+shstr *add_refcount(shstr *str)
 {
 #ifdef SECURE_SHSTR_HASH
-	char *tmp_str = find_string(str);
+	shstr *tmp_str = find_string(str);
 
 	if (!str || str != tmp_str)
 	{
-		LOG(llevBug, "BUG: add_refcount(shared_string)(): tried to free a invalid string! >%s<\n", str ? str : ">NULL<");
+		LOG(llevBug, "BUG: add_refcount(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
 		return NULL;
 	}
 #endif
@@ -242,7 +229,7 @@ const char *add_refcount(const char *str)
  * @param str String which <b>must</b> have been returned from a previous
  * add_string().
  * @return Refcount of the string. */
-int query_refcount(const char *str)
+int query_refcount(shstr *str)
 {
 	return SS(str)->refcount & ~TOPBIT;
 }
@@ -251,7 +238,7 @@ int query_refcount(const char *str)
  * Searches a string in the shared strings.
  * @param str String to search for.
  * @return Pointer to identical string or NULL. */
-const char *find_string(const char *str)
+shstr *find_string(const char *str)
 {
 	shared_string *ss;
 	unsigned long ind;
@@ -300,16 +287,16 @@ const char *find_string(const char *str)
  * freed.
  * @param str String to release, which <b>must</b> have been returned
  * from a previous add_string(). */
-void free_string_shared(const char *str)
+void free_string_shared(shstr *str)
 {
 	shared_string *ss;
 
 #ifdef SECURE_SHSTR_HASH
-	const char *tmp_str = find_string(str);
+	shstr *tmp_str = find_string(str);
 
 	if (!str || str != tmp_str)
 	{
-		LOG(llevBug, "BUG: free_string_shared(): tried to free a invalid string! >%s<\n", str ? str : ">NULL<");
+		LOG(llevBug, "BUG: free_string_shared(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
 		return;
 	}
 #endif

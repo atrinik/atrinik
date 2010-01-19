@@ -32,21 +32,6 @@
 #include <global.h>
 #include <sproto.h>
 
-/**
- * When parsing a message-struct, the msglang struct is used to contain
- * the values.
- *
- * This struct will be expanded as new features are added.
- * When things are stable, it will be parsed only once. */
-typedef struct _msglang
-{
-	/** An array of messages */
-	char **messages;
-
-	/** For each message, an array of strings to match */
-	char ***keywords;
-} msglang;
-
 extern spell spells[NROFREALSPELLS];
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
@@ -1665,223 +1650,6 @@ static void rand_move(object *ob)
 }
 
 /**
- * Free NPC's messages.
- * @param msgs Messages. */
-static void free_messages(msglang *msgs)
-{
-	int messages, keywords;
-
-	if (!msgs)
-	{
-		return;
-	}
-
-	for (messages = 0; msgs->messages[messages]; messages++)
-	{
-		if (msgs->keywords[messages])
-		{
-			for (keywords = 0; msgs->keywords[messages][keywords]; keywords++)
-			{
-				free(msgs->keywords[messages][keywords]);
-			}
-
-			free(msgs->keywords[messages]);
-		}
-
-		free(msgs->messages[messages]);
-	}
-
-	free(msgs->messages);
-	free(msgs->keywords);
-	free(msgs);
-}
-
-/**
- * Parse NPC's message.
- * @param msg Message to parse.
- * @return Newly allocated ::msglang structure. */
-static msglang *parse_message(const char *msg)
-{
-	msglang *msgs;
-	int nrofmsgs, msgnr, i;
-	char *cp, *line, *last, *tmp;
-	char *buf = strdup_local(msg);
-
-	/* First find out how many messages there are. A @ for each. */
-	for (nrofmsgs = 0, cp = buf; *cp; cp++)
-	{
-		if (*cp == '@')
-		{
-			nrofmsgs++;
-		}
-	}
-
-	if (!nrofmsgs)
-	{
-		free(buf);
-		return NULL;
-	}
-
-	msgs = (msglang *) malloc(sizeof(msglang));
-	msgs->messages = (char **) malloc(sizeof(char *) * (nrofmsgs + 1));
-	msgs->keywords = (char ***) malloc(sizeof(char **) * (nrofmsgs + 1));
-
-	for (i = 0; i <= nrofmsgs; i++)
-	{
-		msgs->messages[i] = NULL;
-		msgs->keywords[i] = NULL;
-	}
-
-	for (last = NULL, cp = buf, msgnr = 0;*cp; cp++)
-	{
-		if (*cp == '@')
-		{
-			int nrofkeywords, keywordnr;
-
-			*cp = '\0';
-			cp++;
-
-			if (last != NULL)
-			{
-				msgs->messages[msgnr++] = strdup_local(last);
-				tmp = msgs->messages[msgnr - 1];
-
-				for (i = (int) strlen(tmp); i; i--)
-				{
-					if (*(tmp + i) && *(tmp + i) != 0x0a && *(tmp + i) != 0x0d)
-					{
-						break;
-					}
-
-					*(tmp + i) = 0;
-				}
-			}
-
-			if (strncmp(cp, "match", 5))
-			{
-				LOG(llevBug, "BUG: parse_message(): Unsupported command in message.\n");
-				free(buf);
-				return NULL;
-			}
-
-			for (line = cp + 6, nrofkeywords = 0; *line != '\n' && *line; line++)
-			{
-				if (*line == '|')
-				{
-					nrofkeywords++;
-				}
-			}
-
-			if (line > cp + 6)
-			{
-				nrofkeywords++;
-			}
-
-			if (nrofkeywords < 1)
-			{
-				LOG(llevBug, "BUG: parse_message(): Too few keywords in message.\n");
-				free(buf);
-				free_messages(msgs);
-				return NULL;
-			}
-
-			msgs->keywords[msgnr] = (char **) malloc(sizeof(char **) * (nrofkeywords +1));
-			msgs->keywords[msgnr][nrofkeywords] = NULL;
-			last = cp + 6;
-			cp = strchr(cp, '\n');
-
-			if (cp != NULL)
-			{
-				cp++;
-			}
-
-			for (line = last, keywordnr = 0; line < cp && *line; line++)
-			{
-				if (*line == '\n' || *line == '|')
-				{
-					*line = '\0';
-
-					if (last != line)
-					{
-						msgs->keywords[msgnr][keywordnr++] = strdup_local(last);
-					}
-					else
-					{
-						if (keywordnr < nrofkeywords)
-						{
-							/* Whoops, Either got || or |\n in @match. Not good */
-							msgs->keywords[msgnr][keywordnr++] = strdup_local("xxxx");
-							/* We need to set the string to something sensible to
-							 * prevent crashes later. Unfortunately, we can't set to
-							 * NULL, as that's used to terminate the for loop in
-							 * talk_to_npc.  Using xxxx should also help map
-							 * developers track down the problem cases. */
-							LOG(llevBug, "BUG: parse_message(): Tried to set a zero length message in parse_message\n");
-							/* I think this is a error worth reporting at a reasonably
-							 * high level. When logging gets redone, this should
-							 * be something like MAP_ERROR, or whatever gets put in
-							 * place. */
-							if (keywordnr > 1)
-							{
-								/* This is purely addtional information, should only be gieb if asked */
-								LOG(llevDebug, "Msgnr %d, after keyword %s\n", msgnr + 1, msgs->keywords[msgnr][keywordnr - 2]);
-							}
-							else
-							{
-								LOG(llevDebug, "Msgnr %d, first keyword\n", msgnr + 1);
-							}
-						}
-					}
-
-					last = line + 1;
-				}
-			}
-
-			/* Your eyes aren't decieving you, this is code repetition. However,
-			 * the above code doesn't catch the case where line < cp going into the
-			 * for loop, skipping the above code completely, and leaving undefined
-			 * data in the keywords array. This patches it up and solves a crash
-			 * bug.  */
-			if (keywordnr < nrofkeywords)
-			{
-				LOG(llevBug, "BUG: parse_message(): Map developer screwed up match statement in parse_message\n");
-
-				if (keywordnr > 1)
-				{
-					LOG(llevDebug, "Msgnr %d, after keyword %s\n", msgnr + 1, msgs->keywords[msgnr][keywordnr - 2]);
-				}
-				else
-				{
-					LOG(llevDebug, "Msgnr %d, first keyword\n", msgnr + 1);
-				}
-			}
-
-			last = cp;
-		}
-	}
-
-	if (last != NULL)
-	{
-		msgs->messages[msgnr++] = strdup_local(last);
-	}
-
-	tmp = msgs->messages[msgnr - 1];
-
-	for (i = (int) strlen(tmp); i; i--)
-	{
-		if (*(tmp + i) && *(tmp + i) != 0x0a && *(tmp + i) != 0x0d)
-		{
-			break;
-		}
-
-		*(tmp + i) = '\0';
-	}
-
-	free(buf);
-	return msgs;
-}
-
-/**
  * Communication between NPC and player.
  * @param op Who is saying something.
  * @param txt What was said. */
@@ -1905,8 +1673,8 @@ void communicate(object *op, char *txt)
 		char *cp = NULL;
 
 		/* Remove the command from the parameters */
-		strncpy(buf, txt, HUGE_BUF - 1);
-		buf[HUGE_BUF - 1] = '\0';
+		strncpy(buf, txt, sizeof(buf) - 1);
+		buf[sizeof(buf) - 1] = '\0';
 
 		cp = strchr(buf, ' ');
 
@@ -1932,9 +1700,7 @@ void communicate(object *op, char *txt)
 		return;
 	}
 
-	snprintf(buf, sizeof(buf), "%s says: ", query_name(op, NULL));
-	strncat(buf, txt, MAX_BUF - strlen(buf) - 1);
-	buf[MAX_BUF - 1] = '\0';
+	snprintf(buf, sizeof(buf), "%s says: %s", query_name(op, NULL), txt);
 
 	if (op->type == PLAYER)
 	{
@@ -1950,28 +1716,121 @@ void communicate(object *op, char *txt)
 		xt = op->x + freearr_x[i];
 		yt = op->y + freearr_y[i];
 
-		if ((m = get_map_from_coord(op->map, &xt, &yt)))
+		if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 		{
-			/* Quick check if we have a magic ear. */
-			if (GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_ALIVE))
+			continue;
+		}
+
+		/* Check to see if we have magic ear or monster here. */
+		if (!(GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_ALIVE)))
+		{
+			continue;
+		}
+
+		for (npc = get_map_ob(m, xt, yt); npc; npc = npc->above)
+		{
+			/* Avoid talking to self. */
+			if (op != npc)
 			{
-				/* Browse only on demand */
-				for (npc = get_map_ob(m, xt, yt); npc != NULL; npc = npc->above)
+				/* The ear. */
+				if (npc->type == MAGIC_EAR)
 				{
-					/* Avoid talking to self */
-					if (op != npc)
+					talk_to_wall(npc, txt);
+				}
+				else if (QUERY_FLAG(npc, FLAG_ALIVE))
+				{
+					talk_to_npc(op, npc, txt);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * This function takes the message to be parsed in 'msg', the text to
+ * match in 'match', and returns the portion of the message.
+ * @param msg Message to parse.
+ * @param match Text to try to match.
+ * @return Returned portion which should be freed later, NULL if there
+ * was no match. */
+static char *find_matching_message(const char *msg, const char *match)
+{
+	const char *cp = msg, *cp1, *cp2;
+	char regex[MAX_BUF], *cp3;
+	int gotmatch = 0;
+
+	while (1)
+	{
+		if (strncmp(cp, "@match ", 7))
+		{
+			LOG(llevDebug, "DEBUG: find_matching_message(): Invalid message: %s\n", msg);
+			return NULL;
+		}
+		else
+		{
+			/* Find the end of the line, and copy the regex portion into it */
+			cp2 = strchr(cp + 7, '\n');
+			strncpy(regex, cp + 7, (cp2 - cp - 7));
+			regex[cp2 - cp - 7] = '\0';
+
+			/* Find the next match command */
+			cp1 = strstr(cp + 6, "\n@match");
+
+			/* Got a match - handle * as special case. */
+			if (regex[0] == '*')
+			{
+				gotmatch = 1;
+			}
+			else
+			{
+				char *pipe, *pnext = NULL;
+
+				/* Need to parse all the | seperators.  Our re_cmp isn't
+				 * really a fully blown regex parser. */
+				for (pipe = regex; pipe; pipe = pnext)
+				{
+					pnext = strchr(pipe, '|');
+
+					if (pnext)
 					{
-						/* The ear. */
-						if (npc->type == MAGIC_EAR)
-						{
-							talk_to_wall(npc, txt);
-						}
-						else if (QUERY_FLAG(npc, FLAG_ALIVE))
-						{
-							talk_to_npc(op, npc, txt);
-						}
+						*pnext = '\0';
+						pnext ++;
+					}
+
+					if (re_cmp(match, pipe))
+					{
+						gotmatch = 1;
+						break;
 					}
 				}
+			}
+
+			if (gotmatch)
+			{
+				if (cp1)
+				{
+					cp3 = malloc(cp1 - cp2 + 1);
+					strncpy(cp3, cp2 + 1, cp1 - cp2);
+					cp3[cp1 - cp2 - 1] = '\0';
+				}
+				/* If no next match, just want the rest of the string */
+				else
+				{
+					cp3 = strdup_local(cp2 + 1);
+				}
+
+				return cp3;
+			}
+
+			gotmatch = 0;
+
+			if (cp1)
+			{
+				cp = cp1 + 1;
+			}
+			else
+			{
+				return NULL;
 			}
 		}
 	}
@@ -1988,9 +1847,8 @@ void communicate(object *op, char *txt)
  * internally by the server. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
-	msglang *msgs;
-	int i, j;
 	object *cobj;
+	char *cp;
 
 	if (npc->event_flags & EVENT_FLAG_SAY)
 	{
@@ -2002,7 +1860,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	/* Here we let the objects inside inventories hear and answer, too.
 	 * This allows the existence of "intelligent" weapons you can discuss
 	 * with. */
-	for (cobj = npc->inv; cobj != NULL; )
+	for (cobj = npc->inv; cobj; cobj = cobj->below)
 	{
 		if (cobj->event_flags & EVENT_FLAG_SAY)
 		{
@@ -2010,123 +1868,36 @@ int talk_to_npc(object *op, object *npc, char *txt)
 			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 			return 0;
 		}
-
-		cobj = cobj->below;
 	}
 
-	if (npc->msg == NULL || *npc->msg != '@')
+	if (!npc->msg || *npc->msg != '@')
 	{
 		return 0;
 	}
 
-	if ((msgs = parse_message(npc->msg)) == NULL)
-	{
-		return 0;
-	}
+	cp = find_matching_message(npc->msg, txt);
 
-	for (i = 0; msgs->messages[i]; i++)
+	if (cp)
 	{
-		for (j = 0; msgs->keywords[i][j]; j++)
+		char buf[MAX_BUF];
+
+		if (op->type == PLAYER)
 		{
-			if (msgs->keywords[i][j][0] == '*' || re_cmp(txt, msgs->keywords[i][j]))
-			{
-				char buf[MAX_BUF];
-
-				/* NPC talks to another one - show both in white. */
-				if (op->type != PLAYER)
-				{
-					/* If message starts with '/', we assume an emote. */
-					if (*msgs->messages[i] == '/')
-					{
-						CommArray_s *csp;
-						char *cp = NULL, buf[MAX_BUF];
-
-						strncpy(buf, msgs->messages[i], MAX_BUF - 1);
-						buf[MAX_BUF - 1] = '\0';
-						cp = strchr(buf, ' ');
-
-						if (cp)
-						{
-							*(cp++) = '\0';
-							cp = cleanup_string(cp);
-
-							if (cp && *cp == '\0')
-							{
-								cp = NULL;
-							}
-
-							if (cp && *cp == '%')
-							{
-								cp = (char *) op->name;
-							}
-						}
-
-						csp = find_command_element(buf, CommunicationCommands, CommunicationCommandSize);
-
-						if (csp)
-						{
-							csp->func(npc, cp);
-						}
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), msgs->messages[i]);
-						new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL,op, op, buf);
-					}
-				}
-				/* If npc is talking to a player, show in navy and with
-				 * separate "xx says:" lines. */
-				else
-				{
-					/* If message starts with '/', we assume an emote. */
-					if (*msgs->messages[i] == '/')
-					{
-						CommArray_s *csp;
-						char *cp = NULL, buf[MAX_BUF];
-
-						strncpy(buf, msgs->messages[i], MAX_BUF - 1);
-						buf[MAX_BUF - 1] = '\0';
-						cp = strchr(buf, ' ');
-
-						if (cp)
-						{
-							*(cp++) = '\0';
-							cp = cleanup_string(cp);
-
-							if (cp && *cp == '\0')
-							{
-								cp = NULL;
-							}
-
-							if (cp && *cp == '%')
-							{
-								cp = (char *) op->name;
-							}
-						}
-
-						csp = find_command_element(buf, CommunicationCommands, CommunicationCommandSize);
-
-						if (csp)
-						{
-							csp->func(npc, cp);
-						}
-					}
-					else
-					{
-						new_draw_info_format(NDI_NAVY | NDI_UNIQUE, op, "\n%s says:", query_name(npc, NULL));
-						new_draw_info(NDI_NAVY | NDI_UNIQUE, op, msgs->messages[i]);
-						sprintf(buf, "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
-						new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
-					}
-				}
-
-				free_messages(msgs);
-				return 1;
-			}
+			new_draw_info_format(NDI_NAVY | NDI_UNIQUE, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
+			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
+			new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
+		else
+		{
+			snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
+			new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+		}
+
+		free(cp);
+
+		return 1;
 	}
 
-	free_messages(msgs);
 	return 0;
 }
 
@@ -2137,39 +1908,25 @@ int talk_to_npc(object *op, object *npc, char *txt)
  * @return 1 if text matches something, 0 otherwise. */
 static int talk_to_wall(object *npc, char *txt)
 {
-	msglang *msgs;
-	int i, j;
+	char *cp;
 
-	if (npc->msg == NULL || *npc->msg != '@')
+	if (!npc->msg || *npc->msg != '@')
 	{
 		return 0;
 	}
 
-	if ((msgs = parse_message(npc->msg)) == NULL)
+	cp = find_matching_message(npc->msg, txt);
+
+	if (!cp)
 	{
 		return 0;
 	}
 
-	for (i = 0; msgs->messages[i]; i++)
-	{
-		for (j = 0; msgs->keywords[i][j]; j++)
-		{
-			if (msgs->keywords[i][j][0] == '*' || re_cmp(txt, msgs->keywords[i][j]))
-			{
-				if (msgs->messages[i] && *msgs->messages[i] != 0)
-				{
-					new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, msgs->messages[i]);
-				}
+	new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+	use_trigger(npc);
+	free(cp);
 
-				free_messages(msgs);
-				use_trigger(npc);
-				return 1;
-			}
-		}
-	}
-
-	free_messages(msgs);
-	return 0;
+	return 1;
 }
 
 /**
