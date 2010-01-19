@@ -407,12 +407,7 @@ int execute_newserver_command(object *pl, char *command)
 		}
 	}
 
-	csp = find_plugin_command(command);
-
-	if (!csp)
-	{
-		csp = find_command_element(command, Commands, CommandsSize);
-	}
+	csp = find_command_element(command, Commands, CommandsSize);
 
 	if (!csp)
 	{
@@ -424,10 +419,14 @@ int execute_newserver_command(object *pl, char *command)
 		csp = find_command_element(command, WizCommands, WizCommandsSize);
 	}
 
+	if (!csp)
+	{
+		csp = find_plugin_command(command);
+	}
+
 	if (csp == NULL)
 	{
 		new_draw_info_format(NDI_UNIQUE, pl, "'%s' is not a valid command.", command);
-
 		return 0;
 	}
 

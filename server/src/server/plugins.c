@@ -224,8 +224,6 @@ object *get_event_object(object *op, int event_nr)
 
 /**
  * Tries to find if a given command is handled by a plugin.
- * @note This function is called <b>before</b> the internal commands are
- * checked, meaning that you can "overwrite" them.
  * @param cmd The command name to find.
  * @return Command array structure if found, NULL otherwise. */
 CommArray_s *find_plugin_command(const char *cmd)
