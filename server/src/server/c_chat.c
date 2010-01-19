@@ -552,7 +552,8 @@ static int basic_emote(object *op, char *params, int emotion)
 	return 0;
 }
 
-/* Everything from here on out are just wrapper calls to basic_emote() */
+/** @cond */
+
 int command_nod(object *op, char *params)
 {
 	return basic_emote(op, params, EMOTE_NOD);
@@ -827,3 +828,5 @@ int command_me(object *op, char *params)
 {
 	return basic_emote(op, params, EMOTE_ME);
 }
+
+/** @endcond */

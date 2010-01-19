@@ -41,7 +41,6 @@
 /**
  * Draw a message in the text windows for player's client.
  * @param flags Various flags. Mostly color, but also some others.
- * @param pri Priority.
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw.
@@ -100,7 +99,11 @@ void new_draw_info(int flags, object *pl, const char *buf)
 
 /**
  * Similar to new_draw_info() but allows to use printf style
- * formatting. */
+ * formatting.
+ * @param flags Flags.
+ * @param pl Player.
+ * @param format Format.
+ * @see new_draw_info() */
 void new_draw_info_format(int flags, object *pl, char *format, ...)
 {
 	char buf[HUGE_BUF];
@@ -116,6 +119,7 @@ void new_draw_info_format(int flags, object *pl, char *format, ...)
 /**
  * Give message to all people on one, specified map.
  * @param color Flags.
+ * @param map The map.
  * @param op1 Will not write to this object.
  * @param op Will not write to this object.
  * @param str What to write. */

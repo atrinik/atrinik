@@ -1012,6 +1012,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
  * Cast some stat-improving spell.
  * @param op Who is casting.
  * @param caster What is casting.
+ * @param target Target of the caster; who is receiving the spell.
  * @param spell_type ID of the spell.
  * @retval 0 Spell failed.
  * @retval 1 Spell was successful. */
@@ -1149,7 +1150,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
  * @param caster What object is casting.
  * @param dir Cast direction.
  * @param spell_type ID of the spell to cast.
- * @param name Name of the spell archetype.
  * @retval 0 No bomb was placed.
  * @retval 1 Bomb was placed on map. */
 int create_bomb(object *op, object *caster, int dir, int spell_type)

@@ -35,11 +35,9 @@
  * If we send a sound to the client, this defines what kind of sound we
  * have and how the client should use the sound number.
  *@{*/
-
-/** Normal sound */
+/** Normal sound. */
 #define SOUND_NORMAL    0
-
-/** Spell type sound */
+/** Spell type sound. */
 #define SOUND_SPELL     1
 /*@}*/
 
@@ -48,52 +46,51 @@
  * These are sounds for SOUND_NORMAL type sounds.
  * @note The order here must match the order used in the client.
  *@{*/
-#define SOUND_LEVEL_UP			0
-#define SOUND_FIRE_ARROW		1
-#define SOUND_LEARN_SPELL		2
-#define SOUND_FUMBLE_SPELL		3
-#define SOUND_WAND_POOF			4
-#define SOUND_OPEN_DOOR			5
-#define SOUND_PUSH_PLAYER		6
+#define SOUND_LEVEL_UP          0
+#define SOUND_FIRE_ARROW        1
+#define SOUND_LEARN_SPELL       2
+#define SOUND_FUMBLE_SPELL      3
+#define SOUND_WAND_POOF         4
+#define SOUND_OPEN_DOOR         5
+#define SOUND_PUSH_PLAYER       6
 
-#define SOUND_HIT_IMPACT    	7
-#define SOUND_HIT_CLEAVE    	8
-#define SOUND_HIT_SLASH     	9
-#define SOUND_HIT_PIERCE    	10
-#define SOUND_MISS_BLOCK    	11
-#define SOUND_MISS_HAND     	12
-#define SOUND_MISS_MOB      	13
-#define SOUND_MISS_PLAYER   	14
+#define SOUND_HIT_IMPACT        7
+#define SOUND_HIT_CLEAVE        8
+#define SOUND_HIT_SLASH         9
+#define SOUND_HIT_PIERCE        10
+#define SOUND_MISS_BLOCK        11
+#define SOUND_MISS_HAND         12
+#define SOUND_MISS_MOB          13
+#define SOUND_MISS_PLAYER       14
 
-#define SOUND_PET_IS_KILLED		15
-#define SOUND_PLAYER_DIES		16
-#define SOUND_OB_EVAPORATE		17
-#define SOUND_OB_EXPLODE		18
-#define SOUND_PLAYER_KILLS		19
-#define SOUND_TURN_HANDLE		20
-#define SOUND_FALL_HOLE			21
-#define SOUND_DRINK_POISON  	22
+#define SOUND_PET_IS_KILLED     15
+#define SOUND_PLAYER_DIES       16
+#define SOUND_OB_EVAPORATE      17
+#define SOUND_OB_EXPLODE        18
+#define SOUND_PLAYER_KILLS      19
+#define SOUND_TURN_HANDLE       20
+#define SOUND_FALL_HOLE         21
+#define SOUND_DRINK_POISON      22
 
-#define SOUND_DROP_THROW    	23
-#define SOUND_LOSE_SOME     	24
-#define SOUND_THROW		    	25
-#define SOUND_GATE_OPEN			26
-#define SOUND_GATE_CLOSE		27
-#define SOUND_OPEN_CONTAINER	28
-#define SOUND_GROWL				29
-#define SOUND_ARROW_HIT			30
-#define SOUND_DOOR_CLOSE		31
-#define SOUND_TELEPORT			32
-#define SOUND_CLICK				33
+#define SOUND_DROP_THROW        23
+#define SOUND_LOSE_SOME         24
+#define SOUND_THROW             25
+#define SOUND_GATE_OPEN         26
+#define SOUND_GATE_CLOSE        27
+#define SOUND_OPEN_CONTAINER    28
+#define SOUND_GROWL             29
+#define SOUND_ARROW_HIT         30
+#define SOUND_DOOR_CLOSE        31
+#define SOUND_TELEPORT          32
+#define SOUND_CLICK             33
 /*@}*/
 
 /**
- * @defgroup sound_numbers_spell Sound numbers for spell sounds
- * These are general spell sounds.
+ * Sound numbers for spell sounds.
  *
  * Different spells can, of course, use the same sound.
  * @note The order here must match the order used in the client.
- *@{*/
+ * @anchor sound_numbers_spell */
 typedef enum _spell_sound_id
 {
 	SOUND_MAGIC_DEFAULT,
@@ -146,6 +143,5 @@ typedef enum _spell_sound_id
 
 	SPELL_SOUND_MAX
 } _sound_id;
-/*@}*/
 
 #endif

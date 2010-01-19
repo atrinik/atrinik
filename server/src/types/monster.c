@@ -1051,7 +1051,6 @@ static object *monster_choose_random_spell(object *monster)
  * Tries to make a monster cast a spell.
  * @param head Head of the monster.
  * @param part Part of the monster that we use to cast.
- * @param pl Target.
  * @param dir Direction to cast.
  * @param rv Vector describing where the enemy is.
  * @return 1 if monster casted a spell, 0 otherwise. */
@@ -1265,7 +1264,6 @@ static int monster_use_range(object *head, object *part, object *pl, int dir)
  * Tries to make a (part of a) monster fire a bow.
  * @param head Head of the monster.
  * @param part Part of the monster that we use to fire.
- * @param pl Target.
  * @param dir Direction to cast.
  * @return 1 if monster fired something, 0 otherwise. */
 static int monster_use_bow(object *head, object *part, int dir)
@@ -1393,7 +1391,6 @@ void npc_call_help(object *op)
 /**
  * Monster does a distance attack.
  * @param dir Direction.
- * @param enemy Enemy.
  * @param part Part of the object.
  * @param rv Range vector.
  * @return New direction. */
@@ -1420,7 +1417,6 @@ static int dist_att(int dir, object *part, rv_vector *rv)
  * Monster runs.
  * @param dir Direction.
  * @param ob The monster.
- * @param enemy Enemy.
  * @param part Part of the monster.
  * @param rv Range vector.
  * @return New direction. */
@@ -1466,7 +1462,6 @@ static int hitrun_att(int dir, object *ob)
  * Wait, and attack.
  * @param dir Direction.
  * @param ob Monster.
- * @param enemy Enemy.
  * @param part Part of the monster.
  * @param rv Range vector.
  * @return New direction. */
@@ -1498,7 +1493,6 @@ static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
  * Distance hit attack.
  * @param dir Direction.
  * @param ob Monster.
- * @param enemy Enemy.
  * @param part Part of the monster.
  * @param rv Range vector.
  * @return New direction. */

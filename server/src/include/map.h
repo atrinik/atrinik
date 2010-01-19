@@ -259,6 +259,7 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
  * in the object flags structure.
  *@{*/
 
+/** Blocks the view. */
 #define P_BLOCKSVIEW          0x01
 /** Spells (some) can't pass this object */
 #define P_NO_MAGIC            0x02

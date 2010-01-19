@@ -35,7 +35,7 @@ various information about the object.
 For example, a sleeping monster object will have the flag @ref FLAG_SLEEP
 set. A confused monster object will have the flag @ref FLAG_CONFUSED set
 which will make it move in random directions instead of the one it is
-attempting to move to. @ref FLAG_PARAYLYZED will make a monster object
+attempting to move to. @ref FLAG_PARALYZED will make a monster object
 unable to move until the flag is cleared.
 
 Flags for objects are controlled by few different macros, including:

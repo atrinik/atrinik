@@ -134,18 +134,19 @@ struct mempool
 /** Mempool information structure */
 struct puddle_info
 {
-	/** Next puddle info */
+	/** Next puddle info. */
 	struct puddle_info *next;
 
-	/** First chunk */
+	/** First chunk. */
 	struct mempool_chunk *first_chunk;
 
-	/**
-	 * Local freelist only for this puddle. Temporary used when freeing
-	 * memory */
-	struct mempool_chunk *first_free, *last_free;
+	/** First free chunk. */
+	struct mempool_chunk *first_free;
 
-	/** Number of free */
+	/** Last free chunk. */
+	struct mempool_chunk *last_free;
+
+	/** Number of free. */
 	uint32 nrof_free;
 };
 

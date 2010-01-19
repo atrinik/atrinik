@@ -364,6 +364,8 @@ static void init_clocks()
 	fclose(fp);
 }
 
+/** @cond */
+
 static void set_logfile(char *val)
 {
 	settings.logfilename = val;
@@ -544,6 +546,8 @@ static void balanced_stat_loss_false()
 {
 	settings.balanced_stat_loss = 0;
 }
+
+/** @cond */
 
 /** One command line option definition. */
 struct Command_Line_Options
@@ -860,11 +864,15 @@ void init(int argc, char **argv)
 	init_done = 1;
 }
 
+/**
+ * Show the usage. */
 static void usage()
 {
 	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
 }
 
+/**
+ * Show help about the command line options. */
 static void help()
 {
 	LOG(llevInfo, "Flags:\n");
@@ -909,25 +917,18 @@ static void help()
 	exit(0);
 }
 
+/**
+ * Initialize before playing.
+ */
 static void init_beforeplay()
 {
-	/* If not called before, reads all archetypes from file */
 	init_archetypes();
-	/* If not called before, links archtypes used by spells */
 	init_spells();
-	/* overwrite race designations using entries in lib/races file */
 	init_races();
-	/* init linked list of gods from archs*/
 	init_gods();
-	/* inits useful arrays for readable texts */
 	init_readable();
-	/* Setup global pointers to archetypes */
 	init_archetype_pointers();
-
-	/* If not called before, reads formulae from file */
 	init_formulae();
-
-	/* If not called before, inits experience system */
 	init_new_exp_system();
 
 	if (settings.dumpvalues)
@@ -1066,7 +1067,7 @@ void compile_info()
 	LOG(llevInfo, "Setup info: Done.\n");
 }
 
-/* Signal handlers: */
+/** @cond */
 
 static void rec_sigsegv(int i)
 {
@@ -1151,6 +1152,8 @@ static void rec_sigterm(int i)
 	LOG(llevSystem,"\nSIGTERM received\n");
 	fatal_signal(0);
 }
+
+/** @endcond */
 
 /**
  * General signal handling. Will exit() in any case.

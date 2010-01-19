@@ -24,7 +24,6 @@ extern int esrv_apply_container(object *op, object *sack);
 extern int container_link(player *pl, object *sack);
 extern int container_unlink(player *pl, object *sack);
 extern void free_container_monster(object *monster, object *op);
-extern int container_trap(object *op, object *container);
 
 /* converter.c */
 extern int convert_item(object *item, object *converter);

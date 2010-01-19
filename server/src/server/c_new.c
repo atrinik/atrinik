@@ -614,26 +614,63 @@ static void set_first_map(object *op)
 	}
 }
 
+/**
+ * A single new character template. */
 typedef struct _new_char_template
 {
+	/** Archetype of the player. */
 	char *name;
+
+	/**
+	 * Maximum number of points the player can allocate to their
+	 * character's stats. */
 	int max_p;
+
+	/** Minimum strength. */
 	int min_Str;
+
+	/** Maximum strength. */
 	int max_Str;
+
+	/** Minimum dexterity. */
 	int min_Dex;
+
+	/** Maximum dexterity. */
 	int max_Dex;
+
+	/** Minimum constitution. */
 	int min_Con;
+
+	/** Maximum constitution. */
 	int max_Con;
+
+	/** Minimum intelligence. */
 	int min_Int;
+
+	/** Maximum intelligence. */
 	int max_Int;
+
+	/** Minimum wisdom. */
 	int min_Wis;
+
+	/** Maximum wisdom. */
 	int max_Wis;
+
+	/** Minimum power. */
 	int min_Pow;
+
+	/** Maximum power. */
 	int max_Pow;
+
+	/** Minimum charisma. */
 	int min_Cha;
+
+	/** Maximum charisma. */
 	int max_Cha;
 }_new_char_template;
 
+/**
+ * The new character templates. */
 static _new_char_template new_char_template[] =
 {
 	{"human_male", 5, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14, 12, 14},

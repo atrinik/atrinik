@@ -202,16 +202,27 @@
 
 /** Default color is white (0), if no color is selected */
 #define NDI_WHITE   0
+/** Orange. */
 #define NDI_ORANGE  1
+/** Navy. */
 #define NDI_NAVY    2
+/** Red. */
 #define NDI_RED     3
+/** Green. */
 #define NDI_GREEN   4
+/** Blue. */
 #define NDI_BLUE    5
+/** Grey. */
 #define NDI_GREY    6
+/** Brown. */
 #define NDI_BROWN   7
+/** Purple. */
 #define NDI_PURPLE  8
+/** Flesh. */
 #define NDI_FLESH   9
+/** Yellow. */
 #define NDI_YELLOW  10
+/** Dark navy. */
 #define NDI_DK_NAVY 11
 
 /** Last color value in */
@@ -221,13 +232,13 @@
 /** Second 8 bit are flags to define draw_info string */
 #define NDI_FLAG_MASK   0xffff
 
-/** Say command */
+/** Say command. */
 #define NDI_SAY     0x0100
-/** The message is a shout */
+/** The message is a shout. */
 #define NDI_SHOUT   0x0200
-/** The message is a tell */
+/** The message is a tell. */
 #define NDI_TELL    0x0400
-/** This message comes from a player */
+/** This message comes from a player. */
 #define NDI_PLAYER  0x0800
 /** Message is an emote command. */
 #define NDI_EMOTE   0x01000
@@ -235,9 +246,9 @@
  * Message will be played as animation in the middle of the client
  * screen. */
 #define NDI_ANIM    0x02000
-/** Print this out immediately, don't buffer */
+/** Print this out immediately, don't buffer. */
 #define NDI_UNIQUE  0x10000
-/** Inform all players of this message */
+/** Inform all players of this message. */
 #define NDI_ALL     0x20000
 /*@}*/
 
@@ -249,17 +260,17 @@
 /** These flags are used if the item is applied. */
 enum
 {
-	/** No flag */
+	/** No flag. */
 	a_none,
-	/** The item is readied */
+	/** The item is readied. */
 	a_readied,
-	/** The item is wielded */
+	/** The item is wielded. */
 	a_wielded,
-	/** The item is worn */
+	/** The item is worn. */
 	a_worn,
-	/** The item is active */
+	/** The item is active. */
 	a_active,
-	/** The item is applied */
+	/** The item is applied. */
 	a_applied
 };
 

@@ -1192,7 +1192,11 @@ static int god_examines_item(object *god, object *item)
 	return 0;
 }
 
-/* we need a skill for this, not the skill group! */
+/**
+ * Lose some priest experience.
+ * @param pl Player.
+ * @param loss How much to lose.
+ * @todo Make work again? */
 static void lose_priest_exp(object *pl, int loss)
 {
 	(void) pl;
@@ -1200,11 +1204,13 @@ static void lose_priest_exp(object *pl, int loss)
 #if 0
 	if (!pl || pl->type != PLAYER || !pl->chosen_skill || !pl->chosen_skill->exp_obj)
 	{
-		LOG(llevBug, "BUG: Bad call to lose_priest_exp() \n");
+		LOG(llevBug, "BUG: Bad call to lose_priest_exp()\n");
 		return;
 	}
 
 	if ((loss = check_dm_add_exp_to_obj(pl->chosen_skill->exp_obj, loss)))
+	{
 		add_exp(pl, -loss, pl->chosen_skill->stats.sp);
+	}
 #endif
 }

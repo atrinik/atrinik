@@ -80,8 +80,7 @@ void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, in
  * @param y Y position on map.
  * @param sound_num ID of the sound. See @ref sound_numbers_normal and
  * @ref sound_numbers_spell.
- * @param sound_type Sound type, see @ref sound_types "the sound
- * types". */
+ * @param sound_type Sound type, see @ref sound_types "the sound types". */
 void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type)
 {
 	int xt, yt;

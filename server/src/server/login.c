@@ -301,6 +301,11 @@ static void reorder_inventory(object *op)
 	}
 }
 
+/**
+ * Player in login failed to provide a correct password.
+ *
+ * After several repeated password failures, kill the socket.
+ * @param pl Player. */
 static void wrong_password(player *pl)
 {
 	pl->socket.password_fails++;

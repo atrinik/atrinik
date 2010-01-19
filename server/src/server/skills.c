@@ -151,7 +151,6 @@ int find_traps(object *pl, int level)
 /**
  * This skill will disarm any previously discovered trap.
  * @param op Player disarming. Must be on a map.
- * @param skill Disarming skill.
  * @return Experience gained to disarm. */
 int remove_trap(object *op)
 {

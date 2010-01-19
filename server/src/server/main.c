@@ -1578,7 +1578,7 @@ static void iterate_main_loop()
 	/* "do" something with objects with speed */
 	process_events(NULL);
 
-	/* Process the crossfire Timers */
+	/* Process the timers */
 	cftimer_process_timers();
 
 #ifdef PLUGINS_X

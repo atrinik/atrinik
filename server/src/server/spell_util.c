@@ -35,8 +35,6 @@
  * access. */
 archetype *spellarch[NROFREALSPELLS];
 
-static int SP_level_gracepoint_cost(object *caster, int spell_type);
-
 /**
  * Initialize spells. */
 void init_spells()
@@ -273,7 +271,7 @@ int casting_level(object *caster, int base_level, int spell_type)
 /**
  * Checks to see if player knows the spell.
  * @param op Object we're checking.
- * @param name Spell ID.
+ * @param spell_type Spell ID.
  * @return 1 if op knows the spell, 0 otherwise. */
 int check_spell_known(object *op, int spell_type)
 {
@@ -309,7 +307,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	spell *s = find_spell(type);
 	const char *godname = NULL;
 	object *target = NULL, *cast_op;
-	int success = 0, duration, points_used = 0;
+	int success = 0, duration;
 	rv_vector rv;
 
 	if (s == NULL)
@@ -419,13 +417,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 			if (!(QUERY_FLAG(op, FLAG_WIZ)))
 			{
-				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < (points_used = SP_level_spellpoint_cost(caster, type)))
+				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type))
 				{
 					new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
 					return 0;
 				}
 
-				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < (points_used = SP_level_gracepoint_cost(caster, type)))
+				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type))
 				{
 					new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
 					return 0;
@@ -2457,30 +2455,6 @@ int SP_level_spellpoint_cost(object *caster, int spell_type)
 }
 
 /**
- * Like SP_level_spellpoint_cost(), but calculates grace cost.
- * @param caster What is casting the spell.
- * @param spell_type Spell ID.
- * @return Grace cost. */
-static int SP_level_gracepoint_cost(object *caster, int spell_type)
-{
-	spell *s = find_spell(spell_type);
-	int level = casting_level(caster, SK_level(caster), spell_type), grace;
-
-	if (spells[spell_type].spl)
-	{
-		grace = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float) (level-spells[spell_type].level) / (float) spells[spell_type].spl))));
-	}
-	else
-	{
-		grace = spells[spell_type].sp;
-	}
-
-	grace = (int) ((float) grace * (float) PATH_SP_MULT(caster, s));
-
-	return MIN(grace, (spells[spell_type].sp + 50));
-}
-
-/**
  * This is an implementation of the swarm spell. It was written for
  * meteor swarm, but it could be used for any swarm. A swarm spell is a
  * special type of object that casts swarms of other types of spells.
@@ -2584,37 +2558,6 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
 	tmp->direction = dir;
 
 	insert_ob_in_map(tmp, op->map, op, 0);
-}
-
-/**
- * Create an aura spell object and put it in the player's inventory.
- * @param op Who is casting.
- * @param caster What is casting.
- * @param aura_arch Archetype of the aura spell.
- * @param spell_type ID of the spell.
- * @param magic Whether to add AT_MAGIC to the aura's attacktype.
- * @return 1. */
-int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type)
-{
-	object *new_aura = arch_to_object(aura_arch);
-
-	new_aura->stats.food = spells[spell_type].bdur + 10 * SP_level_strength_adjust(caster, spell_type);
-	new_aura->stats.dam = spells[spell_type].bdam + SP_level_dam_adjust(caster, spell_type);
-	set_owner(new_aura, op);
-
-	if (new_aura->owner)
-	{
-		new_aura->chosen_skill = op->chosen_skill;
-
-		if (new_aura->chosen_skill)
-		{
-			new_aura->exp_obj = op->chosen_skill->exp_obj;
-		}
-	}
-
-	new_aura->level = SK_level(caster);
-	insert_ob_in_ob(new_aura, op);
-	return 1;
 }
 
 /**

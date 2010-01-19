@@ -29,47 +29,62 @@
 
 #include <global.h>
 
-/* drop a monster on the map, by copying a monster object or
- * monster object head. Add treasures. */
-static object *spawn_monster(object *gen, object *orig, int range)
+/**
+ * Actually spawn the monster.
+ * @param monster Monster to generate.
+ * @param spawn_point Spawn point.
+ * @param range Maximum range the monster can be spawned away.
+ * @return The generated monster, NULL on failure. */
+static object *spawn_monster(object *monster, object *spawn_point, int range)
 {
 	int i;
 	object *op, *head = NULL, *prev = NULL, *ret = NULL;
-	archetype *at = gen->arch;
+	archetype *at = monster->arch;
 
-	i = find_first_free_spot2(at, orig->map, orig->x, orig->y, 0, range);
+	i = find_first_free_spot2(at, spawn_point->map, spawn_point->x, spawn_point->y, 0, range);
 
 	if (i == -1)
+	{
 		return NULL;
+	}
 
-	while (at != NULL)
+	while (at)
 	{
 		op = get_object();
-		/* copy single/head from spawn inventory */
+
+		/* Copy single/head from spawn inventory */
 		if (head == NULL)
 		{
-			gen->type = MONSTER;
-			copy_object(gen, op);
-			gen->type = SPAWN_POINT_MOB;
+			monster->type = MONSTER;
+			copy_object(monster, op);
+			monster->type = SPAWN_POINT_MOB;
 			ret = op;
 		}
-		/* but the tails for multi arch from the clones */
+		/* But the tails for multi arch from the clones */
 		else
 		{
 			copy_object(&at->clone, op);
 		}
-		op->x = orig->x + freearr_x[i] + at->clone.x;
-		op->y = orig->y + freearr_y[i] + at->clone.y;
-		op->map = orig->map;
 
-		if (head != NULL)
-			op->head = head, prev->more = op;
+		op->x = spawn_point->x + freearr_x[i] + at->clone.x;
+		op->y = spawn_point->y + freearr_y[i] + at->clone.y;
+		op->map = spawn_point->map;
+
+		if (head)
+		{
+			op->head = head;
+			prev->more = op;
+		}
 
 		if (OBJECT_FREE(op))
+		{
 			return NULL;
+		}
 
 		if (head == NULL)
+		{
 			head = op;
+		}
 
 		prev = op;
 		at = at->more;
@@ -77,7 +92,7 @@ static object *spawn_monster(object *gen, object *orig, int range)
 
 	if (ret && ret->level < 0)
 	{
-		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = orig->map->difficulty;
+		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = spawn_point->map->difficulty;
 
 		switch (ret->level)
 		{
@@ -121,48 +136,64 @@ static object *spawn_monster(object *gen, object *orig, int range)
 
 	if (ret->randomitems)
 	{
-		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : orig->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : spawn_point->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 	}
 
-	/* return object ptr to our spawn */
 	return ret;
 }
 
-/* check the current darkness on this map allows to spawn
- * 0: not allowed, 1: allowed */
-static inline int spawn_point_darkness(object *spoint, int darkness)
+/**
+ * Check whether the current darkness on the spawn point's map allows
+ * spawn a monster.
+ * @param spawn_point The spawn point.
+ * @param darkness Darkness needed.
+ * @return 1 if the spawn can be done, 0 otherwise. */
+static inline int spawn_point_darkness(object *spawn_point, int darkness)
 {
 	int map_light;
 
-	if (!spoint->map)
+	if (!spawn_point->map)
+	{
 		return 0;
+	}
 
-	/* outdoor map */
-	if (MAP_OUTDOORS(spoint->map))
+	/* Outdoor map */
+	if (MAP_OUTDOORS(spawn_point->map))
+	{
 		map_light = world_darkness;
+	}
 	else
 	{
-		if (MAP_DARKNESS(spoint->map) == -1)
+		if (MAP_DARKNESS(spawn_point->map) == -1)
+		{
 			map_light = MAX_DARKNESS;
+		}
 		else
-			map_light = MAP_DARKNESS(spoint->map);
+		{
+			map_light = MAP_DARKNESS(spawn_point->map);
+		}
 	}
 
 	if (darkness < 0)
 	{
 		if (map_light < -darkness)
+		{
 			return 1;
+		}
 	}
 	else
 	{
 		if (map_light > darkness)
+		{
 			return 1;
+		}
 	}
+
 	return 0;
 }
 
 /**
- * Insert a copy of all items the spawn point mob has to the new monster.
+ * Insert a copy of all items the spawn point monster has to the new monster.
  * Takes care about random drop objects.
  *
  * This will recursively call itself if the item to put to the new
@@ -184,7 +215,6 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 		if (tmp->type == RANDOM_DROP)
 		{
-			/* skip this container - drop the ->inv */
 			if (!tmp->weight_limit || !(RANDOM() % (tmp->weight_limit + 1)))
 			{
 				for (tmp2 = tmp->inv; tmp2; tmp2 = next2)
@@ -193,13 +223,12 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 
 					if (tmp2->type == RANDOM_DROP)
 					{
-						LOG(llevDebug,"DEBUG:: Spawn:: RANDOM_DROP (102) not allowed inside RANDOM_DROP.mob:>%s< map:%s (%d,%d)\n", query_name(monster, NULL), op->map ? op->map->path : "BUG: S-Point without map!", op->x, op->y);
+						LOG(llevDebug, "DEBUG:: RANDOM_DROP not allowed inside another RANDOM_DROP. Monster: >%s< map: %s (x: %d, y: %d)\n", query_name(monster, NULL), op->map ? op->map->path : "null", op->x, op->y);
 					}
 					else
 					{
 						item = get_object();
 						copy_object(tmp2, item);
-						/* and put it in the mob */
 						insert_ob_in_ob(item, monster);
 
 						if (tmp2->inv)
@@ -210,12 +239,10 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 				}
 			}
 		}
-		/* remember this can be sys_objects too! */
 		else
 		{
 			item = get_object();
 			copy_object(tmp, item);
-			/* and put it in the mob */
 			insert_ob_in_ob(item, monster);
 
 			if (tmp->inv)
@@ -226,143 +253,134 @@ static void insert_spawn_monster_loot(object *op, object *monster, object *tmp)
 	}
 }
 
-
-/* central spawn point function.
- * Control, generate or remove the generated object. */
+/**
+ * Main spawn point processing function.
+ * @param op Spawn point to process. */
 void spawn_point(object *op)
 {
 	int rmt;
-	object *tmp, *mob, *next;
+	object *tmp, *monster, *next;
 
 	if (op->enemy)
 	{
-		/* all ok, our spawn have fun */
 		if (OBJECT_VALID(op->enemy, op->enemy_count))
 		{
-			/* check darkness if needed */
+			/* Check darkness if needed */
 			if (op->last_eat)
 			{
-				/* 1 = darkness is ok */
 				if (spawn_point_darkness(op, op->last_eat))
+				{
 					return;
+				}
 
-				/* darkness has changed - now remove the spawned monster */
+				/* Darkness has changed - now remove the spawned monster */
 				remove_ob(op->enemy);
 				check_walk_off(op->enemy, NULL, MOVE_APPLY_VANISHED);
 			}
 			else
+			{
 				return;
+			}
 		}
-		/* spawn point has nothing spawned */
+
+		/* Spawn point has nothing spawned */
 		op->enemy = NULL;
 	}
 
-	/* a set sp value will override the spawn chance.
-	* with that "trick" we force for map loading the
-	* default spawns of the map because sp is 0 as default. */
-	/*LOG(-1,"SPAWN...(%d,%d)",op->x, op->y);*/
+	/* A set sp value will override the spawn chance, which is particularly
+	 * useful when saving/loading maps. */
 	if (op->stats.sp == -1)
 	{
 		int gg;
-		/* now lets decide we will have a spawn event */
-		/* never */
+
 		if (op->last_grace <= -1)
 		{
-			/*LOG(-1," closed (-1)\n");*/
 			return;
 		}
-		/* if >0 and random%x is NOT null ... */
+
 		if (op->last_grace && (gg = (RANDOM() % (op->last_grace + 1))))
 		{
-			/*LOG(-1," chance: %d (%d)\n",gg,op->last_grace);*/
 			return;
 		}
 
 		op->stats.sp = (RANDOM() % SPAWN_RANDOM_RANGE);
 	}
-	/*LOG(-1," hit!: %d\n",op->stats.sp);*/
 
-	/* spawn point without inventory! */
+	/* Spawn point without inventory! */
 	if (!op->inv)
 	{
-		LOG(llevBug, "BUG: Spawn point without inventory!! --> map %s (%d,%d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
-		/* kill this spawn point - its useless and need to fixed from the map maker/generator */
+		LOG(llevBug, "BUG: Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
 		remove_ob(op);
 		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
-	/* now we move through the spawn point inventory and
-	 * get the mob with a number under this value AND nearest. */
-	for (rmt = 0, mob = NULL, tmp = op->inv; tmp; tmp = next)
+
+	for (rmt = 0, monster = NULL, tmp = op->inv; tmp; tmp = next)
 	{
 		next = tmp->below;
 
 		if (tmp->type != SPAWN_POINT_MOB)
-			LOG(llevBug, "BUG: spawn point in map %s (%d,%d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
-		else if ((int)tmp->enemy_count <= op->stats.sp && (int)tmp->enemy_count >= rmt)
 		{
-			/* we have a possible hit - control special settings now */
-			/* darkness */
+			LOG(llevBug, "BUG: Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
+		}
+		else if ((int) tmp->enemy_count <= op->stats.sp && (int) tmp->enemy_count >= rmt)
+		{
 			if (tmp->last_eat)
 			{
-				/* 1: darkness on map of spawn point is ok */
 				if (!spawn_point_darkness(op, tmp->last_eat))
+				{
 					continue;
+				}
 			}
 
-			rmt = (int)tmp->enemy_count;
-			mob = tmp;
+			rmt = (int) tmp->enemy_count;
+			monster = tmp;
 		}
-		/*LOG(llevInfo,"inv -> %s (%d :: %d - %f)\n", tmp->name, op->stats.sp, tmp->enemy_count, tmp->speed_left);*/
 	}
 
-	/* we try only ONE time a respawn of a pre setting - so careful! */
 	rmt = op->stats.sp;
 	op->stats.sp = -1;
-	/* well, this time we spawn nothing */
-	if (!mob)
-		return;
 
-	/* quick save the def mob inventory */
-	tmp = mob->inv;
-	/* that happens when we have no free spot....*/
-	if (!(mob = spawn_monster(mob, op, op->last_heal)))
-		return;
-
-	/* setup special monster -> spawn point values */
-	op->last_eat = 0;
-
-	/* darkness controled spawns */
-	if (mob->last_eat)
+	if (!monster)
 	{
-		op->last_eat = mob->last_eat;
-		mob->last_eat = 0;
+		return;
 	}
 
-	insert_spawn_monster_loot(op, mob, tmp);
+	/* Quick save the default monster inventory */
+	tmp = monster->inv;
 
-	/* this is the last rand() for what we have spawned! */
+	if (!(monster = spawn_monster(monster, op, op->last_heal)))
+	{
+		return;
+	}
+
+	/* Setup special monster -> spawn point values */
+	op->last_eat = 0;
+
+	/* Darkness controlled spawns */
+	if (monster->last_eat)
+	{
+		op->last_eat = monster->last_eat;
+		monster->last_eat = 0;
+	}
+
+	insert_spawn_monster_loot(op, monster, tmp);
+
 	op->last_sp = rmt;
 
-	/* chain the mob to our spawn point */
-	op->enemy = mob;
-	op->enemy_count = mob->count;
+	/* Chain the monster to our spawn point */
+	op->enemy = monster;
+	op->enemy_count = monster->count;
 
-	/* perhaps we have later more unique mob setting - then we can store it here too. */
-
-	/* create spawn info */
+	/* Create spawn info */
 	tmp = arch_to_object(op->other_arch);
-	/* chain spawn point to our mob */
+	/* Chain spawn point to our monster */
 	tmp->owner = op;
-	/* and put it in the mob */
-	insert_ob_in_ob(tmp, mob);
+	/* And put it inside the monster */
+	insert_ob_in_ob(tmp, monster);
 
-	/* FINISH: now mark our mob as a spawn */
-	SET_MULTI_FLAG(mob, FLAG_SPAWN_MOB);
-	/* fix all the values and add in possible abilities or forces ... */
-	fix_monster(mob);
+	SET_MULTI_FLAG(monster, FLAG_SPAWN_MOB);
+	fix_monster(monster);
 
-	/* *now* all is done - *now* put it on map */
-	if (!insert_ob_in_map(mob, mob->map, op, 0))
-		return;
+	insert_ob_in_map(monster, monster->map, op, 0);
 }

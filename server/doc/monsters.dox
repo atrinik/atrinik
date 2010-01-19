@@ -17,7 +17,7 @@ enough level to give experience to the player.
 @section sec_monsters_experience Experience from monsters
 
 When player kills an enemy monster, they give experience based on their
-@ref object::experience "experience" value and whether they were high
+@ref living::exp "experience" value and whether they were high
 enough level for the player.
 
 This is determined by their @ref ::_level_color "color level", which is

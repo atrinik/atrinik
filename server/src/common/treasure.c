@@ -875,7 +875,7 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
  * @param t_style Treasure style.
  * @param a_chance Artifact chance.
  * @param tries To avoid infinite recursion.
- * @param arch_change Arch change. */
+ * @param change_arch Arch change. */
 static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
 	object *tmp;
@@ -981,7 +981,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
  * @param t_style Treasure style.
  * @param a_chance Artifact chance.
  * @param tries To avoid infinite recursion.
- * @param arch_change Arch change.
+ * @param change_arch Arch change.
  * @todo Get rid of the goto. */
 static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {

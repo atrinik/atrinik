@@ -30,21 +30,22 @@
 /** The artifact structure. */
 typedef struct artifactstruct
 {
-	/** Memory block with artifacts parse commands for loader.c */
+	/** Memory block with artifacts parse commands for loader.l. */
 	char *parse_text;
 
-	/** The fake arch name when chained to arch list */
+	/** The fake arch name when chained to arch list. */
 	const char *name;
 
-	/** We use this as marker for def_at is valid and quick name access */
+	/** We use this as marker for def_at is valid and quick name access. */
 	const char *def_at_name;
 
-	/** Next artifact in the list */
+	/** Next artifact in the list. */
 	struct artifactstruct *next;
 
+	/** List of allowed archetypes. */
 	linked_char *allowed;
 
-	/** The base archetype object - this is chained to arch list */
+	/** The base archetype object. */
 	archetype def_at;
 
 	/**
@@ -52,27 +53,27 @@ typedef struct artifactstruct
 	 * @see @ref treasure_style */
 	int t_style;
 
-	/** Chance */
+	/** Chance. */
 	uint16 chance;
 
-	/** Difficulty */
+	/** Difficulty. */
 	uint8 difficulty;
 } artifact;
 
 /** Artifact list structure. */
 typedef struct artifactliststruct
 {
-	/** Next list */
+	/** Next list. */
 	struct artifactliststruct *next;
 
-	/** Items in this artifact list */
+	/** Items in this artifact list. */
 	struct artifactstruct *items;
 
-	/** Sum of chance for are artifacts on this list */
+	/** Sum of chance for all artifacts on this list. */
 	uint16 total_chance;
 
 	/**
 	 * Object type that this list represents.
-	 * -1 are "Allowed none" items. They are called explicit by name */
+	 * -1 are "Allowed none" items. */
 	sint16 type;
 } artifactlist;

@@ -30,25 +30,34 @@
 #ifndef TOD_H
 #define TOD_H
 
+/** Ticks per clock. */
 #define PTICKS_PER_CLOCK    1500
 
-/* game time */
+/** Hours per day. */
 #define HOURS_PER_DAY       24
+/** Days per week. */
 #define DAYS_PER_WEEK       7
+/** Weeks per month. */
 #define WEEKS_PER_MONTH     4
+/** Months per year. */
 #define MONTHS_PER_YEAR     12
+/** Seasons per year. */
 #define SEASONS_PER_YEAR    5
+/** Periods per day. */
 #define PERIODS_PER_DAY     6
 
-/* convenience */
-#define WEEKS_PER_YEAR      (WEEKS_PER_MONTH*MONTHS_PER_YEAR)
-#define DAYS_PER_MONTH      (DAYS_PER_WEEK*WEEKS_PER_MONTH)
-#define DAYS_PER_YEAR       (DAYS_PER_MONTH*MONTHS_PER_YEAR)
-#define HOURS_PER_WEEK      (HOURS_PER_DAY*DAYS_PER_WEEK)
-#define HOURS_PER_MONTH     (HOURS_PER_WEEK*WEEKS_PER_MONTH)
-#define HOURS_PER_YEAR      (HOURS_PER_MONTH*MONTHS_PER_YEAR)
-
-#define LUNAR_DAYS          DAYS_PER_MONTH
+/** Weeks per year. */
+#define WEEKS_PER_YEAR      (WEEKS_PER_MONTH * MONTHS_PER_YEAR)
+/** Days per month. */
+#define DAYS_PER_MONTH      (DAYS_PER_WEEK * WEEKS_PER_MONTH)
+/** Days per year. */
+#define DAYS_PER_YEAR       (DAYS_PER_MONTH * MONTHS_PER_YEAR)
+/** Hours per week. */
+#define HOURS_PER_WEEK      (HOURS_PER_DAY * DAYS_PER_WEEK)
+/** Hours per month. */
+#define HOURS_PER_MONTH     (HOURS_PER_WEEK * WEEKS_PER_MONTH)
+/** Hours per year. */
+#define HOURS_PER_YEAR      (HOURS_PER_MONTH * MONTHS_PER_YEAR)
 
 extern const char *season_name[SEASONS_PER_YEAR + 1];
 extern const char *weekdays[DAYS_PER_WEEK];

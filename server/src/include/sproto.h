@@ -424,7 +424,6 @@ int SP_level_strength_adjust(object *caster, int spell_type);
 int SP_level_spellpoint_cost(object *caster, int spell_type);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
-int create_aura(object *op, object *caster, archetype *aura_arch, int spell_type);
 int look_up_spell_by_name(object *op, const char *spname);
 void put_a_monster(object *op, const char *monstername);
 int cast_smite_spell(object *op, object *caster, int type);

@@ -101,6 +101,7 @@ typedef struct _shared_string
 		struct _shared_string *previous;
 	} u;
 
+	/** Next shared string. */
 	struct _shared_string *next;
 
 	/**

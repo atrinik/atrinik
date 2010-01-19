@@ -33,7 +33,6 @@
 
 /**
  * Creates the Atrinik map structure from the layout, and adds the floor.
- * @param layout Generated layout.
  * @param floorstyle floor style. Can be NULL, in which case a random one
  * is chosen.
  * @param RP Random map parameters.

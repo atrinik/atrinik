@@ -676,7 +676,8 @@ EXCLUDE                = src/zlib/zutil.c \
                          src/zlib/include/crc32.h \
                          src/zlib/include/deflate.h \
                          src/zlib/include/trees.h \
-                         src/include/win32.h
+                         src/include/win32.h \
+                         src/common/win32.c
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded

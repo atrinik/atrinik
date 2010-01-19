@@ -360,7 +360,6 @@ void recursive_roll(object *op, int dir, object *pusher)
  *
  * Very new version handles also multipart objects
  * @param op What object to fit.
- * @param m Map where to put the object.
  * @param x X position on the map.
  * @param y Y position on the map.
  * @return 1 if the object fits, 0 otherwise. */
@@ -487,10 +486,9 @@ int roll_ob(object *op, int dir, object *pusher)
 
 /**
  * Push an object, using the /push command.
- * @param op Object pushing
- * @param dir Direction to push
- * @param flag Unused.
- * @return 1 if successfully pushed an alive object, 0 otherwise */
+ * @param op Object pushing.
+ * @param dir Direction to push.
+ * @return 1 if successfully pushed an object, 0 otherwise. */
 int push_roll_object(object *op, int dir)
 {
 	object *tmp;

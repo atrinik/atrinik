@@ -107,7 +107,7 @@ static object *find_object_rec(object *ob, const char *name, tag_t count)
 
 /**
  * This finds and returns the object which matches the name or object
- * number (specified via num #whatever).
+ * number (specified via num \#whatever).
  * @param op The DM requesting this.
  * @param params Name or ID of object to find.
  * @return The object if found, NULL otherwise. */
@@ -239,7 +239,7 @@ int command_setgod(object *op, char *params)
  * Kicks a player from the server.
  *
  * If both parameters are NULL, will kick all players.
- * @param op DM kicking.
+ * @param ob DM kicking.
  * @param params Player to kick. Must be a full name match.
  * @return 1. */
 int command_kick(object *ob, char *params)
@@ -2258,6 +2258,11 @@ int command_strings(object *op, char *params)
 	return 1;
 }
 
+/**
+ * Dump the strings table.
+ * @param op Wizard.
+ * @param params Parameters.
+ * @return 1. */
 int command_ssdumptable(object *op, char *params)
 {
 	(void) params;
@@ -2304,7 +2309,7 @@ int command_follow(object *op, char *params)
 /**
  * Insert marked object into another, specified by params.
  * @param op Wizard.
- * @param params Object name or #ID to insert something into.
+ * @param params Object name or \#ID to insert something into.
  * @return 0. */
 int command_insert_into(object *op, char *params)
 {

@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Spells header. */
+ * Spells header file. */
 
 #ifndef SPELLS_H
 #define SPELLS_H
@@ -36,27 +36,45 @@ extern int cleric_chance[];
  * @defgroup spell_path_defines Spell paths
  * Spell path defines.
  *@{*/
-
-#define PATH_NULL       0x00000000
+/** Protection. */
 #define PATH_PROT       0x00000001
+/** Fire. */
 #define PATH_FIRE       0x00000002
+/** Frost. */
 #define PATH_FROST      0x00000004
+/** Electricity. */
 #define PATH_ELEC       0x00000008
+/** Missiles. */
 #define PATH_MISSILE    0x00000010
+/** Self. */
 #define PATH_SELF       0x00000020
+/** Summoning. */
 #define PATH_SUMMON     0x00000040
+/** Abjuration. */
 #define PATH_ABJURE     0x00000080
+/** Restoration. */
 #define PATH_RESTORE    0x00000100
+/** Detonation. */
 #define PATH_DETONATE   0x00000200
+/** Mind. */
 #define PATH_MIND       0x00000400
+/** Creation. */
 #define PATH_CREATE     0x00000800
+/** Teleportation. */
 #define PATH_TELE       0x00001000
+/** Information. */
 #define PATH_INFO       0x00002000
+/** Transmutation. */
 #define PATH_TRANSMUTE  0x00004000
+/** Transference. */
 #define PATH_TRANSFER   0x00008000
+/** Turning. */
 #define PATH_TURNING    0x00010000
+/** Wounding. */
 #define PATH_WOUNDING   0x00020000
+/** Death. */
 #define PATH_DEATH      0x00040000
+/** Light. */
 #define PATH_LIGHT      0x00080000
 /*@}*/
 
@@ -64,21 +82,25 @@ extern int cleric_chance[];
  * @defgroup SPELL_USE_xxx Spell use flags
  * Spell use flags.
  *@{*/
-
-/** Special spells - don't list them as available spell */
-#define SPELL_USE_INTERN 0x00
-/** Spell can be cast */
+/** Spell can be cast. */
 #define SPELL_USE_CAST   0x01
+/** Spell can be found in balms. */
 #define SPELL_USE_BALM   0x02
+/** Spell can be found in dusts. */
 #define SPELL_USE_DUST   0x04
+/** Spell can be found in scrolls. */
 #define SPELL_USE_SCROLL 0x08
+/** Spell can be found in horns. */
 #define SPELL_USE_HORN   0x10
+/** Spell can be found in wands. */
 #define SPELL_USE_WAND   0x20
+/** Spell can be found in rods. */
 #define SPELL_USE_ROD    0x40
+/** Spell can be found in potions. */
 #define SPELL_USE_POTION 0x80
 /**
- * Normally we don't use spellbooks as random stuff except some special
- * "quest" spells for quest monster. */
+ * Spell can be found in books.
+ * @todo Remove as this no longer seems to be relevant/used? */
 #define SPELL_USE_BOOK   0x100
 /*@}*/
 
@@ -91,37 +113,40 @@ extern int cleric_chance[];
  * Special case: this is use like a spell but natural ability - effect
  * is non magical */
 #define SPELL_TYPE_NATURAL 0
-/** Base mage spell: using mana */
+/** Base mage spell: using mana. */
 #define SPELL_TYPE_WIZARD  1
-/** Base cleric spell: using grace */
+/** Base cleric spell: using grace. */
 #define SPELL_TYPE_PRIEST  2
+/*@}*/
+
 /**
  * Number of different spell types, should be have value of the highest
  * spell type. */
 #define SPELL_TYPE_NROF	   2
-/*@}*/
 
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
  * Spell flags.
  *@{*/
 
-/** Spell is safe to cast in as TOWN marked maps */
+/** Spell is safe to cast in town. */
 #define SPELL_DESC_TOWN         0x01
-/** Spell is fired in a direction (bullet, bolt, ... ) */
+/** Spell is fired in a direction (bullet, bolt, ...). */
 #define SPELL_DESC_DIRECTION    0x02
-/** Spell can be cast on self (with target system) */
+/** Spell can be cast on self. */
 #define SPELL_DESC_SELF         0x04
-/** Spell can be cast on friendly creature (with target system) */
+/** Spell can be cast on friendly creature. */
 #define SPELL_DESC_FRIENDLY     0x08
-/** Spell can be cast on enemy creature (with target system) */
+/** Spell can be cast on enemy creature. */
 #define SPELL_DESC_ENEMY        0x10
-/** Spell can be cast on party members  */
+/**
+ * Spell can be cast on party members.
+ * @todo Implement. I think the idea is 'buffs' of some sort. */
 #define SPELL_DESC_PARTY        0x20
-/** Spell summons something */
+/** Spell summons something. */
 #define SPELL_DESC_SUMMON       0x40
 /**
- * Spell can be cast even when paralyzed
+ * Spell can be cast even when paralyzed.
  * @todo Implement. */
 #define SPELL_DESC_PARALYZED    0x80
 /**
@@ -133,28 +158,28 @@ extern int cleric_chance[];
 /** Spell structure. */
 typedef struct spell_struct
 {
-	/** Name of this spell */
+	/** Name of this spell. */
 	char name[BIG_NAME];
 
-	/** Type of spell: wizard, priest, ... */
+	/** @ref SPELL_TYPE_xxx "Type of spell". */
 	int type;
 
-	/** Level required to cast this spell */
+	/** Level required to cast this spell. */
 	int level;
 
-	/** Spellpoint cost to cast it */
+	/** Spellpoint cost to cast it. */
 	int sp;
 
-	/** How many ticks it takes to cast the spell */
+	/** How many ticks it takes to cast the spell. */
 	int time;
 
 	/** From 1 to this value we will generate for potions/scrolls... */
 	int scrolls;
 
-	/** If it can be used in wands, max # of charges */
+	/** If it can be used in wands, max # of charges. */
 	int charges;
 
-	/** If target spell, this is max range to target */
+	/** If target spell, this is max range to target. */
 	int range;
 
 	/**
@@ -165,16 +190,16 @@ typedef struct spell_struct
 	 * @see object::value */
 	float value_mul;
 
-	/** Base damage or hp of spell or summoned monster */
+	/** Base damage or hp of spell or summoned monster. */
 	int bdam;
 
-	/** Base duration of spell or base range */
+	/** Base duration of spell or base range. */
 	int bdur;
 
-	/** Levels you need over the min for the spell to gain one damage */
+	/** Levels you need over the min for the spell to gain one damage. */
 	int ldam;
 
-	/** Levels you need over the min for the spell to gain one duration */
+	/** Levels you need over the min for the spell to gain one duration. */
 	int ldur;
 
 	/**
@@ -188,22 +213,23 @@ typedef struct spell_struct
 	 * levels. */
 	int spl;
 
-	/** Number of sound ID for this sound */
+	/** Number of sound ID for this sound. */
 	int sound;
 
-	/** Define to what items this spell can be bound (potion, rod,,, ) */
+	/** A combination of @ref SPELL_USE_xxx. */
 	int spell_use;
 
-	/** Used for SPELL_DESC_xx flags */
+	/** A combination of @ref SPELL_DESC_xxx. */
 	uint32 flags;
 
-	/** Path this spell belongs to */
+	/** Path this spell belongs to. */
 	uint32 path;
 
-	/** Pointer to archetype used by spell */
+	/** Pointer to archetype used by spell. */
 	char *archname;
 } spell;
 
+/** Marks no spell. */
 #define SP_NO_SPELL -1
 
 /**

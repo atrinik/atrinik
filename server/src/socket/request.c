@@ -93,7 +93,7 @@ static int atnr_prot_stats[NROFPROTECTIONS] =
  * The Setup command.
  *
  * The setup syntax is:
- * <pre>setup <cmdname1> <parameter> <cmdname2> <parameter>...</pre>
+ * <pre>setup \<cmdname1\> \<parameter\> \<cmdname2\> \<parameter\>...</pre>
  *
  * We send the status of the command back, or zero if the command is
  * unknown. The client must then sort it out. */

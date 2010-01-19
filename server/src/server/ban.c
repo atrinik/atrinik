@@ -38,6 +38,7 @@
 
 #include <global.h>
 
+/** The list of the bans. */
 static objectlink *ban_list = NULL;
 
 /**
@@ -131,7 +132,7 @@ void save_bans_file()
 /**
  * Check if this player or host is banned.
  * @param name Login name to check.
- * @param host Host name to check.
+ * @param ip Host name to check.
  * @return 1 if banned, 0 if not. */
 int checkbanned(const char *name, char *ip)
 {

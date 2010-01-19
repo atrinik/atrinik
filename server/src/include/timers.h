@@ -40,13 +40,7 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
-#include <version.h>
 #include <global.h>
-#include <object.h>
-
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
 
 /**
  * @defgroup timer_modes Timer modes
@@ -69,18 +63,17 @@
 #define TIMER_MODE_CYCLES  2
 /*@}*/
 
-/** The timer structure */
+/** The timer structure. */
 typedef struct _cftimer
 {
 	/**
-	 * Timer mode.
-	 * @see timer_modes */
+	 * @ref timer_modes "Timer mode". */
 	int mode;
 
-	/** Delay */
+	/** Delay. */
 	long delay;
 
-	/** Object */
+	/** Object associated with this timer. */
 	object *ob;
 } cftimer;
 

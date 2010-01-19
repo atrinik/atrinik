@@ -30,6 +30,8 @@
 #include <global.h>
 #include <sproto.h>
 
+static int container_trap(object *op, object *container);
+
 /**
  * Handle apply on containers.
  * @note There are three states for any container - closed (not applied),
@@ -229,8 +231,7 @@ int container_link(player *pl, object *sack)
 
 		update_object(sack, UP_OBJ_FACE);
 		esrv_update_item (UPD_FLAGS|UPD_FACE, pl->ob, sack);
-		/* search & explode a rune in the container */
-		container_trap(pl->ob,sack);
+		container_trap(pl->ob, sack);
 		ret = 1;
 	}
 
@@ -430,22 +431,22 @@ void free_container_monster(object *monster, object *op)
  * monsters.
  * @param op The player opening the container.
  * @param container The container object.
- * @param 0 if no trap or monster found/exploded/freed, count of all
+ * @return 0 if no trap or monster found/exploded/freed, count of all
  * found/exploded/freed traps and monsters otherwise. */
-int container_trap(object *op, object *container)
+static int container_trap(object *op, object *container)
 {
 	int ret = 0;
 	object *tmp;
 
 	for (tmp = container->inv; tmp; tmp = tmp->below)
 	{
-		/* search for traps & runes */
+		/* Search for traps and runes */
 		if (tmp->type == RUNE)
 		{
 			ret++;
 			spring_trap(tmp, op);
 		}
-		/* search for monsters living in containers */
+		/* Search for monsters living in containers */
 		else if (tmp->type == MONSTER)
 		{
 			ret++;

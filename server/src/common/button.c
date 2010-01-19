@@ -650,8 +650,7 @@ int get_button_value(object *button)
  * of zero (default is 1 for all but the charm floor
  * type).
  * @author b.t. thomas@nomad.astro.psu.edu
- * @param op The mood floor object
- * @param op2 Connected mood floor object */
+ * @param op The mood floor object. */
 void do_mood_floor(object *op)
 {
 	object *tmp;

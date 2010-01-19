@@ -485,7 +485,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * Attack a spot on the map.
  * @param op Object hitting the map.
  * @param dir Direction op is hitting/going.
- * @param type Attacktype.
  * @return 0. */
 int hit_map(object *op, int dir)
 {
