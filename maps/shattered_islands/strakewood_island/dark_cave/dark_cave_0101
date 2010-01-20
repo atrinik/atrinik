@@ -1,14 +1,17 @@
 arch map
-name Wilderness - Dark Cave
+name Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2009-12-05 Alex Tokar
+Modified: 2010-01-20 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness 2
 tile_path_1 dark_cave_0102
+tile_path_3 dark_cave_01aa
+tile_path_4 dark_cave_aa01
+tile_path_7 dark_cave_aaaa
 bg_music desert_town.ogg|0|-1
 region dark_cave
 end
@@ -67,91 +70,91 @@ end
 arch floor_ruin4
 y 9
 end
-arch fwall_grey
+arch sand_dm8
 y 9
 end
 arch floor_ruin4
 y 10
 end
-arch fwall_grey
+arch sand_dm8
 y 10
 end
 arch floor_ruin4
 y 11
 end
-arch fwall_grey
+arch sand_dm8
 y 11
 end
 arch floor_ruin4
 y 12
 end
-arch fwall_grey
+arch sand_dm8
 y 12
 end
 arch floor_ruin4
 y 13
 end
-arch fwall_grey
+arch sand_dm8
 y 13
 end
 arch floor_ruin4
 y 14
 end
-arch fwall_grey
+arch sand_dm8
 y 14
 end
 arch floor_ruin4
 y 15
 end
-arch fwall_grey
+arch sand_dm8
 y 15
 end
 arch floor_ruin4
 y 16
 end
-arch fwall_grey
+arch sand_dm8
 y 16
 end
 arch floor_ruin4
 y 17
 end
-arch fwall_grey
+arch sand_dm8
 y 17
 end
 arch floor_ruin4
 y 18
 end
-arch fwall_grey
+arch sand_dm8
 y 18
 end
 arch floor_ruin4
 y 19
 end
-arch fwall_grey
+arch sand_dm8
 y 19
 end
 arch floor_ruin4
 y 20
 end
-arch fwall_grey
+arch sand_dm8
 y 20
 end
 arch floor_ruin4
 y 21
 end
-arch fwall_grey
+arch sand_dm8
 y 21
 end
 arch floor_ruin4
 y 22
 end
-arch fwall_grey
+arch sand_dm8
 y 22
 end
 arch floor_ruin4
 y 23
 end
-arch fwall_grey
+arch sand_dm13
 y 23
 end
 arch floor_ruin4
@@ -265,7 +268,7 @@ arch floor_ruin4
 x 1
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 1
 y 23
 end
@@ -417,7 +420,7 @@ arch floor_ruin4
 x 2
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 2
 y 23
 end
@@ -552,7 +555,7 @@ arch floor_ruin4
 x 3
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 3
 y 23
 end
@@ -689,7 +692,7 @@ arch floor_ruin4
 x 4
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 4
 y 23
 end
@@ -761,11 +764,11 @@ x 5
 y 12
 arch wyvern
 name fire wyvern lord
-type 83
 level 15
 can_cast_spell 1
 magic 40
 Wis 4
+type 83
 arch ability_firestorm
 end
 arch rand_drop
@@ -827,7 +830,7 @@ arch floor_ruin4
 x 5
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 5
 y 23
 end
@@ -934,7 +937,7 @@ arch floor_ruin4
 x 6
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 6
 y 23
 end
@@ -1053,7 +1056,7 @@ arch floor_ruin4
 x 7
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 7
 y 23
 end
@@ -1194,7 +1197,7 @@ arch floor_ruin4
 x 8
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 8
 y 23
 end
@@ -1317,7 +1320,7 @@ arch floor_ruin4
 x 9
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 9
 y 23
 end
@@ -1440,7 +1443,7 @@ arch floor_ruin4
 x 10
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 10
 y 23
 end
@@ -1593,7 +1596,7 @@ arch floor_ruin4
 x 11
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 11
 y 23
 end
@@ -1724,7 +1727,7 @@ arch floor_ruin4
 x 12
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 12
 y 23
 end
@@ -1851,7 +1854,7 @@ arch floor_ruin4
 x 13
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 13
 y 23
 end
@@ -1973,7 +1976,7 @@ arch floor_ruin4
 x 14
 y 23
 end
-arch fwall_grey
+arch sand_dm7
 x 14
 y 23
 end

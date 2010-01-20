@@ -1,0 +1,429 @@
+arch map
+name Dark Cave
+msg
+Created:  2010-01-19 Alex Tokar
+Modified: 2010-01-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+tile_path_1 dark_cave_aa01
+tile_path_2 dark_cave_01aa
+tile_path_5 dark_cave_0101
+end
+arch sign
+name geyser
+layer 0
+speed_left -0.4
+sys_object 1
+type 79
+speed 0.01
+x 13
+y 9
+arch event_obj
+sub_type 8
+race ../../scripts/strakewood_island/dark_cave_geyser.py
+end
+end
+arch floor_fire1a
+x 14
+end
+arch floor_fire1c
+x 14
+y 1
+end
+arch floor_fire1c
+x 14
+y 2
+end
+arch floor_fire1c
+x 14
+y 3
+end
+arch floor_fire1c
+x 14
+y 4
+end
+arch floor_fire1c
+x 14
+y 5
+end
+arch floor_fire1a
+x 14
+y 6
+end
+arch floor_fire1a
+x 14
+y 7
+end
+arch floor_fire1a
+x 14
+y 8
+end
+arch floor_fire1c
+x 14
+y 9
+end
+arch floor_fire1b
+x 15
+end
+arch floor_fire1a
+x 15
+y 1
+end
+arch floor_fire1b
+x 15
+y 2
+end
+arch floor_fire1c
+x 15
+y 3
+end
+arch floor_fire1b
+x 15
+y 4
+end
+arch floor_fire1b
+x 15
+y 5
+end
+arch floor_fire1c
+x 15
+y 6
+end
+arch floor_fire1b
+x 15
+y 7
+end
+arch floor_fire1c
+x 15
+y 8
+end
+arch floor_fire1a
+x 15
+y 9
+end
+arch floor_fire1b
+x 16
+end
+arch floor_fire1a
+x 16
+y 1
+end
+arch floor_fire1c
+x 16
+y 2
+end
+arch floor_fire1a
+x 16
+y 3
+end
+arch floor_fire1a
+x 16
+y 4
+end
+arch floor_fire1c
+x 16
+y 5
+end
+arch floor_fire1b
+x 16
+y 6
+end
+arch floor_fire1b
+x 16
+y 7
+end
+arch floor_fire1c
+x 16
+y 8
+end
+arch floor_fire1a
+x 16
+y 9
+end
+arch floor_fire1b
+x 17
+end
+arch floor_fire1b
+x 17
+y 1
+end
+arch light2
+x 17
+y 1
+end
+arch floor_fire1c
+x 17
+y 2
+end
+arch floor_fire1b
+x 17
+y 3
+end
+arch floor_fire1b
+x 17
+y 4
+end
+arch floor_fire1c
+x 17
+y 5
+end
+arch floor_fire1b
+x 17
+y 6
+end
+arch floor_fire1c
+x 17
+y 7
+end
+arch floor_fire1c
+x 17
+y 8
+end
+arch floor_fire1a
+x 17
+y 9
+end
+arch floor_fire1c
+x 18
+end
+arch floor_fire1c
+x 18
+y 1
+end
+arch floor_fire1b
+x 18
+y 2
+end
+arch floor_fire1a
+x 18
+y 3
+end
+arch floor_fire1c
+x 18
+y 4
+end
+arch floor_fire1c
+x 18
+y 5
+end
+arch floor_fire1a
+x 18
+y 6
+end
+arch floor_fire1c
+x 18
+y 7
+end
+arch floor_fire1a
+x 18
+y 8
+end
+arch floor_fire1b
+x 18
+y 9
+end
+arch floor_fire1b
+x 19
+end
+arch floor_fire1c
+x 19
+y 1
+end
+arch floor_fire1a
+x 19
+y 2
+end
+arch floor_fire1b
+x 19
+y 3
+end
+arch floor_fire1c
+x 19
+y 4
+end
+arch floor_fire1a
+x 19
+y 5
+end
+arch floor_fire1a
+x 19
+y 6
+end
+arch floor_fire1a
+x 19
+y 7
+end
+arch floor_fire1a
+x 19
+y 8
+end
+arch floor_fire1b
+x 19
+y 9
+end
+arch floor_fire1a
+x 20
+end
+arch floor_fire1a
+x 20
+y 1
+end
+arch floor_fire1b
+x 20
+y 2
+end
+arch floor_fire1a
+x 20
+y 3
+end
+arch floor_fire1a
+x 20
+y 4
+end
+arch floor_fire1b
+x 20
+y 5
+end
+arch floor_fire1c
+x 20
+y 6
+end
+arch floor_fire1c
+x 20
+y 7
+end
+arch light2
+x 20
+y 7
+end
+arch floor_fire1b
+x 20
+y 8
+end
+arch floor_fire1a
+x 20
+y 9
+end
+arch floor_fire1b
+x 21
+end
+arch floor_fire1b
+x 21
+y 1
+end
+arch floor_fire1a
+x 21
+y 2
+end
+arch floor_fire1b
+x 21
+y 3
+end
+arch floor_fire1b
+x 21
+y 4
+end
+arch floor_fire1c
+x 21
+y 5
+end
+arch floor_fire1a
+x 21
+y 6
+end
+arch floor_fire1c
+x 21
+y 7
+end
+arch floor_fire1c
+x 21
+y 8
+end
+arch floor_fire1a
+x 21
+y 9
+end
+arch floor_fire1b
+x 22
+end
+arch floor_fire1c
+x 22
+y 1
+end
+arch floor_fire1a
+x 22
+y 2
+end
+arch floor_fire1b
+x 22
+y 3
+end
+arch floor_fire1c
+x 22
+y 4
+end
+arch floor_fire1a
+x 22
+y 5
+end
+arch floor_fire1b
+x 22
+y 6
+end
+arch floor_fire1b
+x 22
+y 7
+end
+arch floor_fire1a
+x 22
+y 8
+end
+arch floor_fire1c
+x 22
+y 9
+end
+arch floor_fire1b
+x 23
+end
+arch sand_dm2
+x 23
+end
+arch floor_fire1c
+x 23
+y 1
+end
+arch floor_fire1a
+x 23
+y 2
+end
+arch floor_fire1b
+x 23
+y 3
+end
+arch floor_fire1c
+x 23
+y 4
+end
+arch floor_fire1c
+x 23
+y 5
+end
+arch floor_fire1c
+x 23
+y 6
+end
+arch floor_fire1b
+x 23
+y 7
+end
+arch floor_fire1a
+x 23
+y 8
+end
+arch floor_fire1b
+x 23
+y 9
+end
