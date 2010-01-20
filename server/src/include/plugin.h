@@ -244,6 +244,7 @@ struct plugin_hooklist
 	int (*cftimer_destroy)(int);
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
+	void (*play_sound_player_only)(player *, int, int, int, int);
 
 	const char **season_name;
 	const char **weekdays;

@@ -152,8 +152,6 @@ typedef struct
  * @todo Make enemy and owner settable (requires HOOK to set_npc_enemy()
  * and set_owner().
  * @todo Limit last_sp and last_grace to max 16000?
- * @todo Animation_id will require animation lookup function. How about
- * face, is that a special anim?
  * @todo -10.0 \< speed \< 10.0, also might want to call
  * update_object_speed()
  * @todo Limit food to max 999 (at least to players)?
@@ -642,6 +640,92 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_CORPSE",                  CORPSE},
 	{"TYPE_DISEASE",                 DISEASE},
 	{"TYPE_SYMPTOM",                 SYMPTOM},
+
+	{"SOUNDTYPE_NORMAL", SOUND_NORMAL},
+	{"SOUNDTYPE_SPELL", SOUND_SPELL},
+
+	{"SOUND_LEVEL_UP", SOUND_LEVEL_UP},
+	{"SOUND_FIRE_ARROW", SOUND_FIRE_ARROW},
+	{"SOUND_LEARN_SPELL", SOUND_LEARN_SPELL},
+	{"SOUND_FUMBLE_SPELL", SOUND_FUMBLE_SPELL},
+	{"SOUND_WAND_POOF", SOUND_WAND_POOF},
+	{"SOUND_OPEN_DOOR", SOUND_OPEN_DOOR},
+	{"SOUND_PUSH_PLAYER", SOUND_PUSH_PLAYER},
+	{"SOUND_HIT_IMPACT", SOUND_HIT_IMPACT},
+	{"SOUND_HIT_CLEAVE", SOUND_HIT_CLEAVE},
+	{"SOUND_HIT_SLASH", SOUND_HIT_SLASH},
+	{"SOUND_HIT_PIERCE", SOUND_HIT_PIERCE},
+	{"SOUND_MISS_BLOCK", SOUND_MISS_BLOCK},
+	{"SOUND_MISS_HAND", SOUND_MISS_HAND},
+	{"SOUND_MISS_MOB", SOUND_MISS_MOB},
+	{"SOUND_MISS_PLAYER", SOUND_MISS_PLAYER},
+	{"SOUND_PET_IS_KILLED", SOUND_PET_IS_KILLED},
+	{"SOUND_PLAYER_DIES", SOUND_PLAYER_DIES},
+	{"SOUND_OB_EVAPORATE", SOUND_OB_EVAPORATE},
+	{"SOUND_OB_EXPLODE", SOUND_OB_EXPLODE},
+	{"SOUND_PLAYER_KILLS", SOUND_PLAYER_KILLS},
+	{"SOUND_TURN_HANDLE", SOUND_TURN_HANDLE},
+	{"SOUND_FALL_HOLE", SOUND_FALL_HOLE},
+	{"SOUND_DRINK_POISON", SOUND_DRINK_POISON},
+	{"SOUND_DROP_THROW", SOUND_DROP_THROW},
+	{"SOUND_LOSE_SOME", SOUND_LOSE_SOME},
+	{"SOUND_THROW", SOUND_THROW},
+	{"SOUND_GATE_OPEN", SOUND_GATE_OPEN},
+	{"SOUND_GATE_CLOSE", SOUND_GATE_CLOSE},
+	{"SOUND_OPEN_CONTAINER", SOUND_OPEN_CONTAINER},
+	{"SOUND_GROWL", SOUND_GROWL},
+	{"SOUND_ARROW_HIT", SOUND_ARROW_HIT},
+	{"SOUND_DOOR_CLOSE", SOUND_DOOR_CLOSE},
+	{"SOUND_TELEPORT", SOUND_TELEPORT},
+	{"SOUND_CLICK", SOUND_CLICK},
+
+	{"SOUND_MAGIC_DEFAULT", SOUND_MAGIC_DEFAULT},
+	{"SOUND_MAGIC_ACID", SOUND_MAGIC_ACID},
+	{"SOUND_MAGIC_ANIMATE", SOUND_MAGIC_ANIMATE},
+	{"SOUND_MAGIC_AVATAR", SOUND_MAGIC_AVATAR},
+	{"SOUND_MAGIC_BOMB", SOUND_MAGIC_BOMB},
+	{"SOUND_MAGIC_BULLET1", SOUND_MAGIC_BULLET1},
+	{"SOUND_MAGIC_BULLET2", SOUND_MAGIC_BULLET2},
+	{"SOUND_MAGIC_CANCEL", SOUND_MAGIC_CANCEL},
+	{"SOUND_MAGIC_COMET", SOUND_MAGIC_COMET},
+	{"SOUND_MAGIC_CONFUSION", SOUND_MAGIC_CONFUSION},
+	{"SOUND_MAGIC_CREATE", SOUND_MAGIC_CREATE},
+	{"SOUND_MAGIC_DARK", SOUND_MAGIC_DARK},
+	{"SOUND_MAGIC_DEATH", SOUND_MAGIC_DEATH},
+	{"SOUND_MAGIC_DESTRUCTION", SOUND_MAGIC_DESTRUCTION},
+	{"SOUND_MAGIC_ELEC", SOUND_MAGIC_ELEC},
+	{"SOUND_MAGIC_FEAR", SOUND_MAGIC_FEAR},
+	{"SOUND_MAGIC_FIRE", SOUND_MAGIC_FIRE},
+	{"SOUND_MAGIC_FIREBALL1", SOUND_MAGIC_FIREBALL1},
+	{"SOUND_MAGIC_FIREBALL2", SOUND_MAGIC_FIREBALL2},
+	{"SOUND_MAGIC_HWORD", SOUND_MAGIC_HWORD},
+	{"SOUND_MAGIC_ICE", SOUND_MAGIC_ICE},
+	{"SOUND_MAGIC_INVISIBLE", SOUND_MAGIC_INVISIBLE},
+	{"SOUND_MAGIC_INVOKE", SOUND_MAGIC_INVOKE},
+	{"SOUND_MAGIC_INVOKE2", SOUND_MAGIC_INVOKE2},
+	{"SOUND_MAGIC_MAGIC", SOUND_MAGIC_MAGIC},
+	{"SOUND_MAGIC_MANABALL", SOUND_MAGIC_MANABALL},
+	{"SOUND_MAGIC_MISSILE", SOUND_MAGIC_MISSILE},
+	{"SOUND_MAGIC_MMAP", SOUND_MAGIC_MMAP},
+	{"SOUND_MAGIC_ORB", SOUND_MAGIC_ORB},
+	{"SOUND_MAGIC_PARALYZE", SOUND_MAGIC_PARALYZE},
+	{"SOUND_MAGIC_POISON", SOUND_MAGIC_POISON},
+	{"SOUND_MAGIC_PROTECTION", SOUND_MAGIC_PROTECTION},
+	{"SOUND_MAGIC_RSTRIKE", SOUND_MAGIC_RSTRIKE},
+	{"SOUND_MAGIC_RUNE", SOUND_MAGIC_RUNE},
+	{"SOUND_MAGIC_SBALL", SOUND_MAGIC_SBALL},
+	{"SOUND_MAGIC_SLOW", SOUND_MAGIC_SLOW},
+	{"SOUND_MAGIC_SNOWSTORM", SOUND_MAGIC_SNOWSTORM},
+	{"SOUND_MAGIC_STAT", SOUND_MAGIC_STAT},
+	{"SOUND_MAGIC_STEAMBOLT", SOUND_MAGIC_STEAMBOLT},
+	{"SOUND_MAGIC_SUMMON1", SOUND_MAGIC_SUMMON1},
+	{"SOUND_MAGIC_SUMMON2", SOUND_MAGIC_SUMMON2},
+	{"SOUND_MAGIC_SUMMON3", SOUND_MAGIC_SUMMON3},
+	{"SOUND_MAGIC_TELEPORT", SOUND_MAGIC_TELEPORT},
+	{"SOUND_MAGIC_TURN", SOUND_MAGIC_TURN},
+	{"SOUND_MAGIC_WALL", SOUND_MAGIC_WALL},
+	{"SOUND_MAGIC_WALL2", SOUND_MAGIC_WALL2},
+	{"SOUND_MAGIC_WOUND", SOUND_MAGIC_WOUND},
 
 	{NULL, 0}
 };
@@ -2816,6 +2900,36 @@ static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *whatptr, PyObject *a
 	return Py_BuildValue("i", timer);
 }
 
+/**
+ * <h1>player.Sound(<i>\<int\></i> x, <i>\<int\></i> y, <i>\<int\></i> soundnumber, <i>[int]</i> soundtype)</h1>
+ *
+ * Play a sound to player.
+ * @param x X position on the map where the sound is coming from, can be 0.
+ * @param y Y position on the map where the sound is coming from, can be 0.
+ * @param soundnumber ID of the sound to play.
+ * @param soundtype Type of the sound, one of:
+ * - SOUNDTYPE_NORMAL (default): Sound number should be one of @ref sound_numbers_normal "normal sound numbers".
+ * - SOUNDTYPE_SPELL: Sound number should be one of @ref sound_numbers_spell "spell sound numbers". */
+static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
+{
+	int x, y, sound_number, sound_type = SOUND_NORMAL;
+
+	if (!PyArg_ParseTuple(args, "iii|i", &x, &y, &sound_number, &sound_type))
+	{
+		return NULL;
+	}
+
+	if (WHO->type != PLAYER || !CONTR(WHO))
+	{
+		RAISE("Sound(): Can only be used on players.");
+	}
+
+	hooks->play_sound_player_only(CONTR(WHO), sound_number, sound_type, x, y);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2888,6 +3002,7 @@ static PyMethodDef ObjectMethods[] =
 	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
 	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
 	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
+	{"Sound",                        (PyCFunction) Atrinik_Object_Sound,                  METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

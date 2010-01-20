@@ -130,6 +130,7 @@ struct plugin_hooklist hooklist =
 	cftimer_destroy,
 	find_face,
 	find_animation,
+	play_sound_player_only,
 
 	season_name,
 	weekdays,
