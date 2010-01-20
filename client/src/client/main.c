@@ -1118,11 +1118,6 @@ void open_input_mode(int maxchar)
 
 static void play_action_sounds()
 {
-	if (!cpl.stats.food)
-	{
-		sound_play_one_repeat(SOUND_WARN_FOOD, SPECIAL_SOUND_FOOD);
-	}
-
 	if (cpl.warn_statdown)
 	{
 		sound_play_one_repeat(SOUND_WARN_STATDOWN, SPECIAL_SOUND_STATDOWN);
