@@ -1810,6 +1810,7 @@ void Map2Cmd(unsigned char *data, int len)
 void map_scrollCmd(char *data)
 {
 	static int step = 0;
+	static uint32 tick = 0;
 	char *buf;
 
 	scrolldx += atoi(data);
@@ -1817,17 +1818,29 @@ void map_scrollCmd(char *data)
 
 	if (!buf)
 	{
-		LOG(LOG_ERROR, "ERROR: map_scrollCmd: Got short packet.\n");
+		LOG(LOG_ERROR, "ERROR: map_scrollCmd(): Got short packet.\n");
 		return;
 	}
 
 	buf++;
 	scrolldy += atoi(buf);
 
-	if (++step % 2)
-		sound_play_effect(SOUND_STEP1, 0, 100);
-	else
-		sound_play_effect(SOUND_STEP2, 0, 100);
+	if (LastTick - tick > 125)
+	{
+		step++;
+
+		if (step % 2)
+		{
+			sound_play_effect(SOUND_STEP1, 0, 100);
+		}
+		else
+		{
+			step = 0;
+			sound_play_effect(SOUND_STEP2, 0, 100);
+		}
+
+		tick = LastTick;
+	}
 }
 
 /**
