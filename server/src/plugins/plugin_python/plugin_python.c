@@ -868,13 +868,13 @@ static int RunPythonScript(const char *path, object *event_object)
 
 	if (!(scriptfile = python_openfile(fullpath)))
 	{
-		LOG(llevDebug, "PYTHON - The script file %s can't be opened\n", path);
+		LOG(llevDebug, "PYTHON:: The script file %s can't be opened\n", path);
 		return -1;
 	}
 
 	if (stat(fullpath, &stat_buf))
 	{
-		LOG(llevDebug, "PYTHON - The Script file %s can't be stat()ed\n", fullpath);
+		LOG(llevDebug, "PYTHON:: The script file %s can't be stat()ed\n", fullpath);
 		Py_DECREF(scriptfile);
 		return -1;
 	}
@@ -891,7 +891,7 @@ static int RunPythonScript(const char *path, object *event_object)
 	{
 		if (python_cache[i].file == NULL)
 		{
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 			LOG(llevDebug, "PYTHON:: Adding file to cache\n");
 #endif
 			/* Case 3 */
@@ -903,7 +903,7 @@ static int RunPythonScript(const char *path, object *event_object)
 			/* Found it. Compare timestamps. */
 			if (python_cache[i].code == NULL || python_cache[i].cached_time < stat_buf.st_mtime)
 			{
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 				LOG(llevDebug, "PYTHON:: File newer than cached bytecode -> reloading\n");
 #endif
 				/* Case 1 */
@@ -911,7 +911,7 @@ static int RunPythonScript(const char *path, object *event_object)
 			}
 			else
 			{
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 				LOG(llevDebug, "PYTHON:: Using cached version\n");
 #endif
 				/* Case 2 */
@@ -941,7 +941,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		{
 			if (replace->file)
 			{
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 				LOG(llevDebug, "PYTHON:: Purging %s (cache index %d): \n", replace->file, replace - python_cache);
 #endif
 				FREE_AND_CLEAR_HASH(replace->file);
@@ -951,7 +951,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		}
 
 		/* Load, parse and compile */
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 		LOG(llevDebug, "PYTHON:: Parse and compile (cache index %d): \n", replace - python_cache);
 #endif
 
@@ -982,7 +982,7 @@ static int RunPythonScript(const char *path, object *event_object)
 		globdict = PyDict_New();
 		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
 
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 		LOG(llevDebug, "PYTHON:: PyEval_EvalCode (cache index %d): \n", run - python_cache);
 #endif
 
@@ -999,7 +999,7 @@ static int RunPythonScript(const char *path, object *event_object)
 			run->used_time = time(NULL);
 		}
 
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 		LOG(llevDebug, "closing. ");
 #endif
 		Py_DECREF(globdict);
@@ -1034,9 +1034,9 @@ static int HandleEvent(va_list args)
 	context->options = va_arg(args, char *);
 	context->returnvalue = 0;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON - Start script file >%s<\n", script);
-	LOG(llevDebug, "PYTHON - Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
+#if PYTHON_DEBUG
+	LOG(llevDebug, "PYTHON:: Start script file >%s<\n", script);
+	LOG(llevDebug, "PYTHON:: Call data: o1:>%s< o2:>%s< o3:>%s< text:>%s< i1:%d i2:%d i3:%d i4:%d\n", STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
 #endif
 
 	pushContext(context);
@@ -1047,7 +1047,7 @@ static int HandleEvent(va_list args)
 		return 0;
 	}
 
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 	LOG(llevDebug, "fixing. ");
 #endif
 
@@ -1078,7 +1078,7 @@ static int HandleEvent(va_list args)
 	rv = context->returnvalue;
 	freeContext(context);
 
-#ifdef PYTHON_DEBUG
+#if PYTHON_DEBUG
 	LOG(llevDebug, "done (returned: %d)!\n", rv);
 #endif
 
@@ -1175,12 +1175,15 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
 	va_start(args, type);
 	eventcode = va_arg(args, int);
-	LOG(llevDebug, "PYTHON - triggerEvent:: eventcode %d\n", eventcode);
+
+#if PYTHON_DEBUG
+	LOG(llevDebug, "PYTHON:: triggerEvent(): eventcode %d\n", eventcode);
+#endif
 
 	switch (eventcode)
 	{
 		case EVENT_NONE:
-			LOG(llevDebug, "PYTHON - Warning - EVENT_NONE requested\n");
+			LOG(llevDebug, "PYTHON:: Warning - EVENT_NONE requested\n");
 			break;
 
 		case EVENT_ATTACK:
@@ -1292,8 +1295,8 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-#ifdef PYTHON_DEBUG
-	LOG(llevDebug, "PYTHON - cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
+#if PYTHON_DEBUG
+	LOG(llevDebug, "PYTHON:: cmd_customPython called:: script file: %s\n", CustomCommand[NextCustomCommand].script);
 #endif
 
 	context->activator = op;
@@ -1320,14 +1323,16 @@ static int cmd_customPython(object *op, char *params)
 	rv = context->returnvalue;
 	freeContext(context);
 
+#if PYTHON_DEBUG
 	LOG(llevDebug, "done (returned: %d)!\n", rv);
+#endif
 
 	return rv;
 }
 
 MODULEAPI void postinitPlugin()
 {
-	LOG(llevDebug, "PYTHON - Start postinitPlugin.\n");
+	LOG(llevDebug, "PYTHON:: Start postinitPlugin.\n");
 	initContextStack();
 	RunPythonScript("python/events/python_init.py", NULL);
 }
@@ -1395,7 +1400,7 @@ static void init_Atrinik_Python()
 	PyObject *m, *d;
 	int i;
 
-	LOG(llevDebug, "PYTHON - Start initAtrinik.\n");
+	LOG(llevDebug, "PYTHON:: Start initAtrinik.\n");
 
 #ifdef IS_PY3K
 	PyImport_AppendInittab("Atrinik", &PyInit_Atrinik);

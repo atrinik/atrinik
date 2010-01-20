@@ -69,8 +69,8 @@
 #	define MODULEAPI
 #endif
 
-/** Print out some general information about scripts running. */
-#define PYTHON_DEBUG
+/** If 1, print out some general information about scripts running. */
+#define PYTHON_DEBUG 0
 
 /** Name of the plugin. */
 #define PLUGIN_NAME "Python"
