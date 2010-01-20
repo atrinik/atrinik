@@ -20,6 +20,9 @@ for i in range(0, geysers):
 
 	# Must have at least one object, and it must be 'fire'
 	if floor and floor.name == "fire":
+		# Play firestorm-like sound
+		me.map.PlaySound(x, y, SOUND_MAGIC_FIRE, SOUNDTYPE_SPELL)
+
 		# Now create the geyser
 		for i in range(0, SIZEOFFREE):
 			new_x = x + freearr_x[i]
