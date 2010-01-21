@@ -79,7 +79,6 @@ void esrv_new_player(player *pl, uint32 weight);
 void draw_client_map(object *pl);
 void draw_client_map2(object *pl);
 void esrv_map_scroll(NewSocket *ns, int dx, int dy);
-void send_plugin_custom_message(object *pl, char cmd, char *buf);
 void ShopCmd(char *buf, int len, player *pl);
 void QuestListCmd(char *data, int len, player *pl);
 

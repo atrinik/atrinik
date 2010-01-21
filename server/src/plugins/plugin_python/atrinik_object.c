@@ -2614,7 +2614,12 @@ static PyObject *Atrinik_Object_SendCustomCommand(Atrinik_Object *whoptr, PyObje
 		return NULL;
 	}
 
-	hooks->send_plugin_custom_message(WHO, cmd, customcmd);
+	if (WHO->type != PLAYER || !CONTR(WHO))
+	{
+		RAISE("SendCustomCommand(): Can only be used on players.");
+	}
+
+	hooks->Write_String_To_Socket(&CONTR(WHO)->socket, cmd, customcmd, strlen(customcmd));
 
 	Py_INCREF(Py_None);
 	return Py_None;

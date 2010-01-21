@@ -40,12 +40,10 @@
 
 /**
  * Draw a message in the text windows for player's client.
- * @param flags Various flags. Mostly color, but also some others.
+ * @param flags Various @ref NDI_xxx "flags". Mostly color, but also some others.
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
- * @param buf The message to draw.
- * @see NDI_xxx
- * @todo Remove priority. */
+ * @param buf The message to draw. */
 void new_draw_info(int flags, object *pl, const char *buf)
 {
 	char info_string[HUGE_BUF];

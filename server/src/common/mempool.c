@@ -56,9 +56,7 @@
  * - <b>...</b> end of timestep
  * - <b>object_gc()</b>: Freed and moved to freelist
  *
- * attrsets are freed and given back to their respective pools too.
- * @todo Increase efficiency by replacing nrof_used with nrof_allocated
- * @todo Poolify objlinks */
+ * attrsets are freed and given back to their respective pools too. */
 
 #include <global.h>
 

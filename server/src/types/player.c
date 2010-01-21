@@ -476,6 +476,8 @@ int path_to_player(object *mon, object *pl, int mindiff)
 
 	get_rangevector(mon, pl, &rv, 0);
 
+	return rv.direction;
+
 	if ((int) rv.distance < mindiff)
 	{
 		return 0;

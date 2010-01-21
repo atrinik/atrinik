@@ -88,7 +88,6 @@ struct plugin_hooklist hooklist =
 	pay_for_item,
 	pay_for_amount,
 	new_draw_info,
-	send_plugin_custom_message,
 	communicate,
 	object_create_clone,
 	get_object,

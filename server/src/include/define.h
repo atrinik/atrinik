@@ -463,41 +463,7 @@
 
 /**
  * @defgroup sub_type_defines Sub type defines
- * <h1>Sub Type Defines</h1>
- * These are very special sub_types - used by different types.
- * The reason is, that different items can be missiles - amuns and throw items.
- * First, we have the amun types - arrows for bows, or bolts for crossbows.
- * They need a firing weapon and get fired indirect.
- *
- * For throwing we have some more types.
- *
- * Second, we have the 'real' throw weapons - like darts or shurikens.
- *
- * Third, there are weapons which can be used as hand weapons but
- * also as throw weapons. A hammer like mjoellnir or a simple spear, for example.
- *
- * Fourth, there are special throw items. ATM, we have:
- *
- * Potions - like firestorm
- *
- * Dust - like dust of blinding... etc.
- * Dusts are also from 'type POTION' but use a different base arch.
- *
- * These special items will handled different - we allow the player to throw
- * ANY dust or potion. But only when the potion/dust is from sub_type _missile_xx
- * we include the skill id and only these items will do a range effect.
- *
- * Every potion/dust will have a level (like a spell or rod). If this level is
- * 40% higher than our throw skill (and more than 5 level higher), then throwing
- * will fail, like we try to use a too high item device.
- *
- * If we apply a throw potion/dust, the effect will triggered (a firestorm potion
- * will explode) but no skill id will be inserted in the firestorm objects.
- * So, the player and perhaps some mobs will take damage - but it will not give
- * any exp when this will happen. MNT-11-2002
- *
- * @todo
- * Have not included this 40% throw thing - perhaps later. MT-2003
+ * The sub type defines.
  *@{*/
 
 /**

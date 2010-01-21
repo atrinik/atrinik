@@ -82,8 +82,7 @@ int attack_ob(object *op, object *hitter)
  * @param hitter Attacker.
  * @param base_dam Damage to do.
  * @param base_wc WC to hit with.
- * @return Dealt damage.
- * @todo Get rid of gotos. */
+ * @return Dealt damage. */
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
 	int simple_attack, roll, dam = 0;
@@ -101,7 +100,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 	if (get_attack_mode(&op, &hitter, &simple_attack))
 	{
-		goto error;
+		return 1;
 	}
 
 	/* Trigger the ATTACK event */
@@ -192,7 +191,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 			if (was_destroyed(hitter, hitter_tag) || was_destroyed(op, op_tag) || abort_attack(op, hitter, simple_attack))
 			{
-				goto leave;
+				return dam;
 			}
 		}
 
@@ -210,7 +209,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 			if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 			{
-				goto leave;
+				return dam;
 			}
 		}
 
@@ -218,7 +217,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
 		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 		{
-			goto leave;
+			return dam;
 		}
 	}
 	/* We missed */
@@ -237,13 +236,6 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		}
 	}
 
-	goto leave;
-
-error:
-	dam = 1;
-	goto leave;
-
-leave:
 	return dam;
 }
 

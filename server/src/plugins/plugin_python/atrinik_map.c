@@ -205,8 +205,7 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *whereptr, PyObject *args)
  * @param y Y position on the map
  * @param distance Maximum distance for players to be away from x, y to
  * hear the message.
- * @param color Color of the message, default is @ref NDI_BLUE.
- * @todo Add constants for the colors */
+ * @param color Color of the message, default is @ref NDI_BLUE. */
 static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args)
 {
 	int color = NDI_BLUE | NDI_UNIQUE, x, y, d;

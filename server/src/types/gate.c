@@ -33,9 +33,7 @@
 
 /**
  * Move a gate up/down.
- * @param op Gate object
- * @todo I have not included damage to mobs/player on reverse up going gates!
- * Look in the code! */
+ * @param op Gate object. */
 void move_gate(object *op)
 {
 	object *tmp;

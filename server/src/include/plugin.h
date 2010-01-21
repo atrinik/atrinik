@@ -202,7 +202,6 @@ struct plugin_hooklist
 	int (*pay_for_item)(object *, object *);
 	int (*pay_for_amount)(sint64, object *);
 	void (*new_draw_info)(int, object *, const char *);
-	void (*send_plugin_custom_message)(object *, char, char *);
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
 	object *(*get_object)();

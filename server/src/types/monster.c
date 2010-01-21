@@ -39,8 +39,6 @@ static int move_randomly(object *op);
 static int can_hit(object *ob1, rv_vector *rv);
 static object *monster_choose_random_spell(object *monster);
 static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv);
-static int monster_use_skill(object *head, object *part, object *pl, int dir);
-static int monster_use_range(object *head, object *part, object *pl, int dir);
 static int monster_use_bow(object *head, object *part, int dir);
 static int dist_att(int dir, object *part, rv_vector *rv);
 static int run_att(int dir, object *ob, object *part, rv_vector *rv);
@@ -652,20 +650,6 @@ int move_monster(object *op)
 					}
 				}
 
-				if (QUERY_FLAG(op, FLAG_READY_RANGE) && !(RANDOM() % 3))
-				{
-					if (monster_use_range(op, part, enemy, dir))
-					{
-						return 0;
-					}
-				}
-
-				if (QUERY_FLAG(op, FLAG_READY_SKILL) && !(RANDOM() % 3))
-				{
-					/* Allow skill use AND melee attack */
-					monster_use_skill(op, part, enemy, dir);
-				}
-
 				if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
 				{
 					if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
@@ -1045,11 +1029,6 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 	spell *sp;
 	int sp_typ, ability;
 
-	if (QUERY_FLAG(head, FLAG_CONFUSED))
-	{
-		dir = get_randomized_dir(dir);
-	}
-
 	if ((spell_item = monster_choose_random_spell(head)) == NULL)
 	{
 		LOG(llevDebug, "DEBUG: monster_cast_spell: No spell found! Turned off spells in %s (%s) (%d,%d)\n", query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y );
@@ -1103,149 +1082,6 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 }
 
 /**
- * Allow monster to use a skill.
- * @param head Head of the monster.
- * @param part Part of the monster that may use a skill.
- * @param pl Target.
- * @param dir Direction to use the skill.
- * @return 1 if monster used a skill, 0 otherwise. */
-static int monster_use_skill(object *head, object *part, object *pl, int dir)
-{
-	object *skill, *owner;
-	rv_vector rv;
-
-	if (!(dir = path_to_player(part, pl, 0)))
-	{
-		return 0;
-	}
-
-	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
-	{
-		/* Might hit owner with skill - thrown rocks for example? */
-		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 1)
-		{
-			return 0;
-		}
-	}
-
-	if (QUERY_FLAG(head, FLAG_CONFUSED))
-	{
-		dir = get_randomized_dir(dir);
-	}
-
-	/* skill selection - monster will use the next unused skill.
-	 * well...the following scenario will allow the monster to
-	 * toggle between 2 skills. One day it would be nice to make
-	 * more skills available to monsters. */
-	for (skill = head->inv; skill != NULL; skill = skill->below)
-	{
-		if (skill->type == SKILL && skill != head->chosen_skill)
-		{
-			head->chosen_skill = skill;
-			break;
-		}
-	}
-
-	if (!skill && !head->chosen_skill)
-	{
-		LOG(llevDebug, "Error: Monster %s (%d) has FLAG_READY_SKILL without skill.\n", head->name, head->count);
-		CLEAR_FLAG(head, FLAG_READY_SKILL);
-		return 0;
-	}
-
-	/* Use skill */
-	return do_skill(head, dir);
-}
-
-/**
- * Monster will use a ranged attack (HORN, WAND, ...).
- * @param head Head of the monster.
- * @param part Part of the monster that can do a range attack.
- * @param pl Target.
- * @param dir Direction to fire.
- * @return 1 if monster casted a spell, 0 otherwise. */
-static int monster_use_range(object *head, object *part, object *pl, int dir)
-{
-	object *range, *owner;
-	int found_one = 0;
-	rv_vector rv;
-
-	if (!(dir = path_to_player(part, pl, 0)))
-	{
-		return 0;
-	}
-
-	if (QUERY_FLAG(head, FLAG_FRIENDLY) && (owner = get_owner(head)) != NULL)
-	{
-		/* Might hit owner with spell */
-		if (get_rangevector(head, owner, &rv, 0) && dirdiff(dir, rv.direction) < 2)
-		{
-			return 0;
-		}
-	}
-
-	if (QUERY_FLAG(head, FLAG_CONFUSED))
-	{
-		dir = get_randomized_dir(dir);
-	}
-
-	for (range = head->inv; range; range = range->below)
-	{
-		if (!QUERY_FLAG(range, FLAG_APPLIED))
-		{
-			continue;
-		}
-
-		if (range->type == WAND)
-		{
-			found_one = 1;
-
-			if (range->stats.food <= 0)
-			{
-				manual_apply(head, range, 0);
-				CLEAR_FLAG(head, FLAG_READY_RANGE);
-
-				if (range->arch)
-				{
-					CLEAR_FLAG(range, FLAG_ANIMATE);
-					range->face = range->arch->clone.face;
-					range->speed = 0;
-					update_ob_speed(range);
-				}
-
-				continue;
-			}
-
-			cast_spell(part, range, dir, range->stats.sp, 0, spellWand, NULL);
-			range->stats.food--;
-
-			return 1;
-		}
-		else if (range->type == ROD || range->type == HORN)
-		{
-			found_one = 1;
-
-			/* Not recharged enough yet */
-			if (range->stats.hp < spells[range->stats.sp].sp)
-			{
-				continue;
-			}
-
-			cast_spell(part, range, dir, range->stats.sp, 0, range->type == ROD ? spellRod : spellHorn, NULL);
-		}
-	}
-
-	if (found_one)
-	{
-		return 0;
-	}
-
-	LOG(llevBug, "BUG: Monster %s (%d) HAS_READY_WAND() without wand.\n", query_name(head, NULL), head->count);
-	CLEAR_FLAG(head, FLAG_READY_RANGE);
-	return 0;
-}
-
-/**
  * Tries to make a (part of a) monster fire a bow.
  * @param head Head of the monster.
  * @param part Part of the monster that we use to fire.
@@ -1255,11 +1091,6 @@ static int monster_use_bow(object *head, object *part, int dir)
 {
 	object *bow, *arrow;
 	int tag;
-
-	if (QUERY_FLAG(head, FLAG_CONFUSED))
-	{
-		dir = get_randomized_dir(dir);
-	}
 
 	for (bow = head->inv; bow != NULL; bow = bow->below)
 	{

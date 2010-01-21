@@ -1936,16 +1936,6 @@ void esrv_map_scroll(NewSocket *ns, int dx, int dy)
 }
 
 /**
- * The following one is used to allow a plugin to send a generic command
- * to a player. Of course, the client needs to know the command to be
- * able to manage it.
- * @todo Make this work by adding a binary command for it. */
-void send_plugin_custom_message(object *pl, char cmd, char *buf)
-{
-	Write_String_To_Socket(&CONTR(pl)->socket, cmd, buf, strlen(buf));
-}
-
-/**
  * Handles shop commands received from the player's client.
  * @param buf The buffer
  * @param len Length of the buffer
