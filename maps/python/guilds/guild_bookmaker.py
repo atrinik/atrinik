@@ -29,7 +29,7 @@ elif text[0] == "add":
 	if len(text) > 1:
 		book_message = WhatIsMessage().strip()
 
-		if book_message.find("endmsg") == -1:
+		if book_message.lower().find("endmsg") == -1:
 			info.message += book_message[4:].replace("<nl>", "\n")
 			me.SayTo(activator, "\nI have added your message.\nUse ^save^ to save everything you have added so far to your marked book.")
 		else:
