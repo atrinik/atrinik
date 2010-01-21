@@ -36,6 +36,8 @@ class QuestManager:
 		if self.quest["type"] == QUEST_TYPE_KILL:
 			self.quest_object.last_grace = self.quest["kills"]
 
+		self.activator.Sound(0, 0, SOUND_LEARN_SPELL)
+
 	## Check if the quest has been started.
 	def started(self):
 		return self.quest_object != None
@@ -60,6 +62,7 @@ class QuestManager:
 	## Complete a quest.
 	def complete(self):
 		self.quest_object.magic = QUEST_STATUS_COMPLETED
+		self.activator.Sound(0, 0, SOUND_LEARN_SPELL)
 
 		# Do anything extra for the kill item quest type.
 		if self.quest["type"] == QUEST_TYPE_KILL_ITEM:
