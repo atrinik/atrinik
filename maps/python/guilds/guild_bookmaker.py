@@ -27,8 +27,14 @@ if msg == "revert":
 # Add a message, replacing "<nl>" with actual newline character.
 elif text[0] == "add":
 	if len(text) > 1:
-		info.message += WhatIsMessage().strip()[4:].replace("<nl>", "\n")
-		me.SayTo(activator, "\nI have added your message.\nUse ^save^ to save everything you have added so far to your marked book.")
+		book_message = WhatIsMessage().strip()
+
+		if book_message.find("endmsg") == -1:
+			info.message += book_message[4:].replace("<nl>", "\n")
+			me.SayTo(activator, "\nI have added your message.\nUse ^save^ to save everything you have added so far to your marked book.")
+		else:
+			activator.Write("Trying to cheat, are we?", COLOR_RED)
+			LOG(llevInfo, "CRACK: Player %s tried to write bogus message using guild book maker.\n" % activator.name)
 	else:
 		me.SayTo(activator, "\nUse ^add <your message>^, for example, ^add Today is a nice day.^.\n~<nl>~ will automatically get converted to newline.")
 
