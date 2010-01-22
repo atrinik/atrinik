@@ -158,7 +158,7 @@
 struct plugin_hooklist
 {
 	char *(*query_name)(object *, object *);
-	char *(*re_cmp)(const char *, const char *);
+	const char *(*re_cmp)(const char *, const char *);
 	object *(*present_in_ob)(unsigned char, object *);
 	int (*players_on_map)(mapstruct *);
 	char *(*create_pathname)(const char *);
@@ -233,7 +233,7 @@ struct plugin_hooklist
 	void (*add_party_member)(partylist_struct *, object *);
 	void (*remove_party_member)(partylist_struct *, object *);
 	void (*send_party_message)(partylist_struct *, char *, int, object *);
-	void (*Write_String_To_Socket)(NewSocket *, char, char *, int);
+	void (*Write_String_To_Socket)(socket_struct *, char, char *, int);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)();
 	char *(*stringbuffer_finish)(StringBuffer *);

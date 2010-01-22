@@ -142,11 +142,6 @@ int checkbanned(const char *name, char *ip)
 	{
 		int name_matches = name && (ol->objlink.ban->name[0] == '*' || ol->objlink.ban->name == name);
 
-		if (name_matches)
-		{
-			return 1;
-		}
-
 		if ((name_matches || ol->objlink.ban->name[0] == '*') && (ol->objlink.ban->ip[0] == '*' || strstr(ip, ol->objlink.ban->ip) || !strcmp(ip, ol->objlink.ban->ip)))
 		{
 			return 1;

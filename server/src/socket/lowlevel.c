@@ -231,7 +231,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
  * @param ns The socket we are adding the data to.
  * @param buf Start of the data.
  * @param len Number of bytes to add. */
-static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
+static void add_to_buffer(socket_struct *ns, unsigned char *buf, int len)
 {
 	int avail, end;
 
@@ -280,7 +280,7 @@ static void add_to_buffer(NewSocket *ns, unsigned char *buf, int len)
  * When the socket is clear to write, and we have backlogged data, this
  * is called to write it out.
  * @param ns The socket we are writing to. */
-void write_socket_buffer(NewSocket *ns)
+void write_socket_buffer(socket_struct *ns)
 {
 	int amt, max;
 
@@ -355,7 +355,7 @@ void write_socket_buffer(NewSocket *ns)
  * @param ns The socket to write to
  * @param buf Data to write
  * @param len Number of bytes to write */
-void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
+void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 {
 	int amt = 0;
 	unsigned char *pos = buf;
@@ -426,7 +426,7 @@ void Write_To_Socket(NewSocket *ns, unsigned char *buf, int len)
  * we prepend the length information.
  * @param ns Socket to send the data to
  * @param msg The SockList instance */
-void Send_With_Handling(NewSocket *ns, SockList *msg)
+void Send_With_Handling(socket_struct *ns, SockList *msg)
 {
 	unsigned char sbuf[4];
 
@@ -468,7 +468,7 @@ void Send_With_Handling(NewSocket *ns, SockList *msg)
 /**
  * Takes a string of data, and writes it out to the socket. A very handy
  * shortcut function. */
-void Write_String_To_Socket(NewSocket *ns, char cmd, char *buf, int len)
+void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len)
 {
 	SockList sl;
 

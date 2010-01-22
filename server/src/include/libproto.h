@@ -253,7 +253,7 @@ extern int atnr_is_dragon_enabled(int attacknr);
 extern int is_dragon_pl(object *op);
 
 /* re-cmp.c */
-extern char *re_cmp(const char *str, const char *regexp);
+extern const char *re_cmp(const char *str, const char *regexp);
 
 /* region.c */
 extern region *get_region_by_name(const char *region_name);

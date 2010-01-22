@@ -99,7 +99,7 @@ extern player *find_player(char *plname);
 extern void display_motd(object *op);
 extern int playername_ok(char *cp);
 extern void free_player(player *pl);
-extern int add_player(NewSocket *ns);
+extern int add_player(socket_struct *ns);
 extern object *get_nearest_player(object *mon);
 extern int path_to_player(object *mon, object *pl, int mindiff);
 extern void give_initial_items(object *pl, treasurelist *items);

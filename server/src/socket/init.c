@@ -31,21 +31,17 @@
 #include <sproto.h>
 
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#	include <sys/types.h>
+#	include <sys/time.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netdb.h>
+#	include <sys/stat.h>
+#	include <stdio.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#	include <arpa/inet.h>
 #endif
 
 #include <newserver.h>
@@ -57,34 +53,34 @@ _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 /** Socket information. */
 Socket_Info socket_info;
 /** Established connections for clients not yet playing. */
-NewSocket *init_sockets;
+socket_struct *init_sockets;
 
 /**
  * Initializes a connection - really, it just sets up the data structure,
  * socket setup is handled elsewhere.
  *
- * Send server version to the client.
+ * Sends server version to the client.
  * @param ns Client's socket.
  * @param from Where the connection is coming from.
  * @todo Remove version sending legacy support for older clients at some
  * point. */
-void InitConnection(NewSocket *ns, uint32 from)
+void init_connection(socket_struct *ns, const char *from_ip)
 {
 	unsigned char buf[256];
 	int	bufsize = MAXSOCKBUF, oldbufsize;
-	unsigned int buflen = sizeof(int);
+	socklen_t buflen = sizeof(int);
 
 #ifdef WIN32
 	u_long temp = 1;
 
-	if (ioctlsocket(ns->fd, FIONBIO , &temp) == -1)
+	if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1)
 	{
-		LOG(llevDebug, "InitConnection:  Error on ioctlsocket.\n");
+		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
 	}
 #else
 	if (fcntl(ns->fd, F_SETFL, O_NDELAY) == -1)
 	{
-		LOG(llevDebug, "InitConnection:  Error on fcntl.\n");
+		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
 	}
 #endif
 
@@ -95,10 +91,13 @@ void InitConnection(NewSocket *ns, uint32 from)
 
 	if (oldbufsize < bufsize)
 	{
-		/*LOG(llevDebug, "InitConnection: Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);*/
+#ifdef ESRV_DEBUG
+		LOG(llevDebug, "init_connection(): Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);
+#endif
+
 		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(&bufsize)))
 		{
-			LOG(llevDebug, "InitConnection: setsockopt unable to set output buf size to %d\n", bufsize);
+			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
 		}
 	}
 
@@ -106,7 +105,7 @@ void InitConnection(NewSocket *ns, uint32 from)
 	getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen);
 
 #ifdef ESRV_DEBUG
-	LOG(llevDebug, "InitConnection: Socket buffer size now %d bytes\n", oldbufsize);
+	LOG(llevDebug, "init_connection(): Socket buffer size now %d bytes\n", oldbufsize);
 #endif
 
 	ns->login_count = 0;
@@ -131,16 +130,10 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->rf_hfiles = 0;
 	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
-
-	/* We should really do some checking here - if total clients
-	 * overflows we need to do something more intelligent, because client
-	 * IDs will start duplicating (not likely in normal cases, but
-	 * malicous attacks that just open and close connections could get
-	 * this total up. */
 	ns->inbuf.len = 0;
 	ns->inbuf.buf = malloc(MAXSOCKBUF);
 
-	/* Basic initialization. Needed because we do a check in HandleClient
+	/* Basic initialization. Needed because we do a check in handle_client
 	 * for oldsocketmode without checking the length of data. */
 	ns->inbuf.buf[0] = '\0';
 	memset(&ns->lastmap, 0, sizeof(struct Map));
@@ -150,9 +143,7 @@ void InitConnection(NewSocket *ns, uint32 from)
 	ns->outputbuffer.len = 0;
 	ns->can_write = 1;
 	ns->sent_scroll = 0;
-
-	snprintf((char *) buf, sizeof(buf), "%d.%d.%d.%d", (from >> 24) & 255, (from >> 16) & 255, (from >> 8) & 255, from & 255);
-	ns->host = strdup_local((char *) buf);
+	ns->host = strdup_local(from_ip);
 
 	/* Legacy support for older clients. */
 	{
@@ -184,21 +175,20 @@ void InitConnection(NewSocket *ns, uint32 from)
  * memory. */
 void init_ericserver()
 {
-	struct sockaddr_in	insock;
+	struct sockaddr_in insock;
 	struct linger linger_opt;
-
 #ifndef WIN32
 	struct protoent *protox;
-#ifdef HAVE_SYSCONF
-	socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
-#else
-#  ifdef HAVE_GETDTABLESIZE
-	socket_info.max_filedescriptor = getdtablesize();
-#  else
-	"Unable to find usable function to get max filedescriptors";
-#  endif
-#endif
 
+#	ifdef HAVE_SYSCONF
+	socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
+#	else
+#		ifdef HAVE_GETDTABLESIZE
+	socket_info.max_filedescriptor = getdtablesize();
+#		else
+	"Unable to find usable function to get max filedescriptors";
+#		endif
+#	endif
 #else
 	WSADATA w;
 
@@ -221,7 +211,7 @@ void init_ericserver()
 
 	LOG(llevDebug, "Initialize new client/server data\n");
 	socket_info.nconns = 1;
-	init_sockets = malloc(sizeof(NewSocket));
+	init_sockets = malloc(sizeof(socket_struct));
 	socket_info.allocated_sockets = 1;
 
 #ifndef WIN32
@@ -241,7 +231,7 @@ void init_ericserver()
 
 	if (init_sockets[0].fd == -1)
 	{
-		LOG(llevError, "ERROR: Error creating socket on port\n");
+		LOG(llevError, "ERROR: Cannot create socket: %s\n", strerror_local(errno));
 	}
 
 	insock.sin_family = AF_INET;
@@ -253,7 +243,7 @@ void init_ericserver()
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevBug, "BUG: Error on setsockopt LINGER\n");
+		LOG(llevDebug, "Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that
@@ -265,38 +255,35 @@ void init_ericserver()
 
 		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
 		{
-			LOG(llevDebug, "error on setsockopt REUSEADDR\n");
+			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
 		}
 	}
 #else
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
 	{
-		LOG(llevDebug, "error on setsockopt REUSEADDR\n");
+		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
 	}
-
 #endif
 
-	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == (-1))
+	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
 	{
-#ifdef WIN32
+#ifndef WIN32
+		close(init_sockets[0].fd);
+#else
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
-#else
-		close(init_sockets[0].fd);
 #endif
-
 		LOG(llevError, "Cannot bind socket to port %d: %s\n", ntohs(insock.sin_port), strerror_local(errno));
 	}
 
-	if (listen(init_sockets[0].fd, 5) == (-1))
+	if (listen(init_sockets[0].fd, 5) == -1)
 	{
-#ifdef WIN32
+#ifndef WIN32
+		close(init_sockets[0].fd);
+#else
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
-#else
-		close(init_sockets[0].fd);
 #endif
-
 		LOG(llevError, "Cannot listen on socket: %s\n", strerror_local(errno));
 	}
 
@@ -321,18 +308,15 @@ void free_all_newserver()
  *
  * It is up to the called to update the list.
  * @param ns The socket. */
-void free_newsocket(NewSocket *ns)
+void free_newsocket(socket_struct *ns)
 {
-#ifdef WIN32
-	shutdown(ns->fd,SD_BOTH);
-
-	if (closesocket(ns->fd))
-	{
-#else
+#ifndef WIN32
 	if (close(ns->fd))
-	{
+#else
+	shutdown(ns->fd, SD_BOTH);
+	if (closesocket(ns->fd))
 #endif
-
+	{
 #ifdef ESRV_DEBUG
 		LOG(llevDebug, "Error closing socket %d\n", ns->fd);
 #endif
@@ -528,7 +512,7 @@ void free_srv_files()
  * string from the client.
  * @param ns The client's socket.
  * @param id ID of the server file. */
-void send_srv_file(NewSocket *ns, int id)
+void send_srv_file(socket_struct *ns, int id)
 {
 	SockList sl;
 

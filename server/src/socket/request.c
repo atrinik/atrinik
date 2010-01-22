@@ -97,7 +97,7 @@ static int atnr_prot_stats[NROFPROTECTIONS] =
  *
  * We send the status of the command back, or zero if the command is
  * unknown. The client must then sort it out. */
-void SetUp(char *buf, int len, NewSocket *ns)
+void SetUp(char *buf, int len, socket_struct *ns)
 {
 	int s;
 	char *cmd, *param, tmpbuf[MAX_BUF], cmdback[HUGE_BUF];
@@ -432,7 +432,7 @@ void SetUp(char *buf, int len, NewSocket *ns)
  * care of it.
  *
  * We tell the client how things worked out. */
-void AddMeCmd(char *buf, int len, NewSocket *ns)
+void AddMeCmd(char *buf, int len, socket_struct *ns)
 {
 	Settings oldsettings;
 	char cmd_buf[2] = "X";
@@ -582,14 +582,14 @@ void ReplyCmd(char *buf, int len, player *pl)
 /**
  * Send a version mismatch message.
  * @param ns The socket to send the message to */
-static void version_mismatch_msg(NewSocket *ns)
+static void version_mismatch_msg(socket_struct *ns)
 {
 	send_socket_message(NDI_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
 }
 
 /**
  * Request a srv file. */
-void RequestFileCmd(char *buf, int len, NewSocket *ns)
+void RequestFileCmd(char *buf, int len, socket_struct *ns)
 {
 	int id;
 
@@ -705,7 +705,7 @@ void RequestFileCmd(char *buf, int len, NewSocket *ns)
 
 /**
  * Client tells its its version. */
-void VersionCmd(char *buf, int len, NewSocket *ns)
+void VersionCmd(char *buf, int len, socket_struct *ns)
 {
 	char *cp;
 
@@ -734,7 +734,7 @@ void VersionCmd(char *buf, int len, NewSocket *ns)
 
 /**
  * Sound related functions. */
-void SetSound(char *buf, int len, NewSocket *ns)
+void SetSound(char *buf, int len, socket_struct *ns)
 {
 	(void) len;
 
@@ -800,7 +800,7 @@ void MoveCmd(char *buf, int len, player *pl)
  *
  * This way, the client knows it needs to send something back (vs just
  * printing out a message). */
-void send_query(NewSocket *ns, uint8 flags, char *text)
+void send_query(socket_struct *ns, uint8 flags, char *text)
 {
 	char buf[MAX_BUF];
 
@@ -1906,7 +1906,7 @@ void draw_client_map2(object *pl)
 
 /**
  * Send a map scroll command. */
-void esrv_map_scroll(NewSocket *ns, int dx, int dy)
+void esrv_map_scroll(socket_struct *ns, int dx, int dy)
 {
 	struct Map newmap;
 	int x,y;

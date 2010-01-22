@@ -420,7 +420,7 @@ extern objectlink *dm_list;
 extern New_Face *blank_face, *next_item_face, *prev_item_face;
 
 extern long max_time;
-extern NewSocket *init_sockets;
+extern socket_struct *init_sockets;
 extern unsigned long todtick;
 extern int world_darkness;
 

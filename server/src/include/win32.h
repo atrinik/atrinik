@@ -141,6 +141,11 @@
 #define MSG_DONTWAIT 0
 #endif
 
+/* Doesn't exist, just a plain int */
+#ifndef socklen_t
+#	define socklen_t int
+#endif
+
 /* struct dirent - same as Unix */
 
 typedef struct dirent

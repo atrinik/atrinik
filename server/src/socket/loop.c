@@ -33,84 +33,60 @@
 #include <sockproto.h>
 
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+#	include <sys/types.h>
+#	include <sys/time.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netdb.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#	include <unistd.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#	include <arpa/inet.h>
 #endif
 
 #include <newserver.h>
 
-static fd_set tmp_read, tmp_exceptions, tmp_write;
+/** Prototype for functions the client sends without player interaction. */
+typedef void (*func_uint8_int_ns)(char *, int, socket_struct *);
 
-/**
- * Socket command, used when the player has not fully connected yet.
- * @param char The data from client.
- * @param int Length of the data.
- * @param NewSocket The client's socket. */
-typedef void (*func_uint8_int_ns) (char *, int, NewSocket *);
-
-/** Socket command structure. */
-struct NsCmdMapping
+/** Definition of a function the client sends without player interaction. */
+struct client_cmd_mapping
 {
 	/** The command name. */
 	char *cmdname;
 
-	/** Function to call for the command. */
+	/** Function to call. */
 	func_uint8_int_ns cmdproc;
 };
 
-/**
- * Player command, used after the player has logged to the game.
- * @param char The data from client.
- * @param int Length of the data.
- * @param player The player that is sending the command. */
-typedef void (*func_uint8_int_pl) (char *, int, player *);
+/** Prototype for functions used to handle player actions. */
+typedef void (*func_uint8_int_pl)(char *, int, player *);
 
-/** Player command structure. */
-struct PlCmdMapping
+/** Definition of a function called in reaction to player's action. */
+struct player_cmd_mapping
 {
 	/** The command name. */
 	char *cmdname;
 
-	/** Function to call for the command. */
+	/** Function to call. */
 	func_uint8_int_pl cmdproc;
 };
 
-/**
- * @defgroup dispatch_tables Dispatch tables
- * Dispatch tables for the server.
- *
- *
- * CmdMapping is the dispatch table for the server, used in HandleClient,
- * which gets called when the client has input.  All commands called here
- * use the same parameter form (char* data, int len, int clientnum.
- * We do implicit casts, because the data that is being passed is
- * unsigned (pretty much needs to be for binary data), however, most
- * of these treat it only as strings, so it makes things easier
- * to cast it here instead of a bunch of times in the function itself.
- *@{*/
-
 /** Commands sent by the client, based on player's actions. */
-static struct PlCmdMapping plcommands[] =
+static const struct player_cmd_mapping player_commands[] =
 {
 	{"ex",          ExamineCmd},
 	{"ap",          ApplyCmd},
 	{"mv",          MoveCmd},
 	{"reply",       ReplyCmd},
-	{"cm",          (func_uint8_int_pl)PlayerCmd},
+	{"cm",          (func_uint8_int_pl) PlayerCmd},
 	{"mapredraw",   MapRedrawCmd},
-	{"lock",        (func_uint8_int_pl)LockItem},
-	{"mark",        (func_uint8_int_pl)MarkItem},
+	{"lock",        (func_uint8_int_pl) LockItem},
+	{"mark",        (func_uint8_int_pl) MarkItem},
 	{"/fire",       command_fire},
 	{"fr",          command_face_request},
 	{"nc",          command_new_char},
@@ -122,7 +98,7 @@ static struct PlCmdMapping plcommands[] =
 };
 
 /** Commands sent directly by the client, when connecting or needed. */
-static struct NsCmdMapping nscommands[] =
+static const struct client_cmd_mapping client_commands[] =
 {
 	{"addme",       AddMeCmd},
 	{"askface",     SendFaceCmd},
@@ -134,23 +110,21 @@ static struct NsCmdMapping nscommands[] =
 	{"rf",          RequestFileCmd},
 	{NULL, NULL}
 };
-/*@}*/
 
 /**
  * RequestInfo is sort of a meta command - there is some specific request
  * of information, but we call other functions to provide that
  * information. */
-void RequestInfo(char *buf, int len, NewSocket *ns)
+void RequestInfo(char *buf, int len, socket_struct *ns)
 {
 	char *params = NULL, *cp;
 	char bigbuf[MAX_BUF];
-	int slen;
+	int slen = 1;
 
 	/* Set up replyinfo before we modify any of the buffers - this is
 	 * used if we don't find a match. */
-	slen = 1;
 	bigbuf[0] = BINARY_CMD_REPLYINFO;
-	bigbuf[1] = 0;
+	bigbuf[1] = '\0';
 	safe_strcat(bigbuf, buf, &slen, sizeof(bigbuf));
 
 	/* Find the first space, make it NULL, and update the params
@@ -161,7 +135,6 @@ void RequestInfo(char *buf, int len, NewSocket *ns)
 		{
 			*cp = '\0';
 			params = cp + 1;
-
 			break;
 		}
 	}
@@ -186,11 +159,11 @@ void RequestInfo(char *buf, int len, NewSocket *ns)
  * We only get here once there is input, and only do basic connection
  * checking.
  * @param ns Socket sending the command.
- * @param pl Player associated to the socket, NULL if no player (one of
- * the init_sockets for just starting a connection). */
-void HandleClient(NewSocket *ns, player *pl)
+ * @param pl Player associated to the socket. If NULL, only commands in
+ * client_cmd_mapping will be checked. */
+void handle_client(socket_struct *ns, player *pl)
 {
-	int len = 0, i, cmd_count = 0;
+	int len = 0, i;
 	unsigned char *data;
 
 	/* Loop through this - maybe we have several complete packets here. */
@@ -208,9 +181,7 @@ void HandleClient(NewSocket *ns, player *pl)
 		if (i < 0)
 		{
 			LOG(llevDebug, "Drop Connection: %s (%s)\n", (pl ? pl->ob->name : "NONE"), ns->host ? ns->host : "NONE");
-			/* Caller will take care of cleaning this up */
 			ns->status = Ns_Dead;
-
 			return;
 		}
 
@@ -246,35 +217,33 @@ void HandleClient(NewSocket *ns, player *pl)
 		/* Terminate buffer - useful for string data */
 		ns->inbuf.buf[ns->inbuf.len] = '\0';
 
-		for (i = 0; nscommands[i].cmdname != NULL; i++)
+		for (i = 0; client_commands[i].cmdname; i++)
 		{
-			if (strcmp((char *) ns->inbuf.buf + 2, nscommands[i].cmdname) == 0)
+			if (strcmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname) == 0)
 			{
-				nscommands[i].cmdproc((char *) data, len, ns);
+				client_commands[i].cmdproc((char *) data, len, ns);
 				ns->inbuf.len = 0;
 
 				/* We have successfully added this connect! */
 				if (ns->addme)
 				{
 					ns->addme = 0;
-					return;
 				}
 
-				goto next_command;
+				return;
 			}
 		}
 
 		/* Only valid players can use these commands */
 		if (pl)
 		{
-			for (i = 0; plcommands[i].cmdname != NULL; i++)
+			for (i = 0; player_commands[i].cmdname; i++)
 			{
-				if (strcmp((char *) ns->inbuf.buf + 2, plcommands[i].cmdname) == 0)
+				if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
 				{
-					plcommands[i].cmdproc((char *) data, len, pl);
+					player_commands[i].cmdproc((char *) data, len, pl);
 					ns->inbuf.len = 0;
-
-					goto next_command;
+					return;
 				}
 			}
 		}
@@ -282,18 +251,7 @@ void HandleClient(NewSocket *ns, player *pl)
 		/* If we get here, we didn't find a valid command.  Logging
 		 * this might be questionable, because a broken client/malicious
 		 * user could certainly send a whole bunch of invalid commands. */
-		LOG(llevDebug, "CRACK: Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
-		ns->status = Ns_Dead;
-		return;
-
-next_command:
-		if (cmd_count++ <= 8 && ns->status != Ns_Dead)
-		{
-			/* LOG(llevDebug,"MultiCmd: #%d /%s)\n", cmd_count, (char*)ns->inbuf.buf+2); */
-			continue;
-		}
-
-		return;
+		LOG(llevDebug, "Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
 	}
 }
 
@@ -350,11 +308,11 @@ static void remove_ns_dead_player(player *pl)
 		objectlink *tmp_dm_list;
 
 		/* Count the players */
-		for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++)
+		for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
 		{
 		}
 
-		for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
+		for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
 		{
 			new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "%s leaves the game (%d still playing).", query_name(pl->ob, NULL), players - 1);
 		}
@@ -402,6 +360,27 @@ static void remove_ns_dead_player(player *pl)
 }
 
 /**
+ * Checks if file descriptor is valid.
+ * @param fd File descriptor to check.
+ * @return 1 if fd is valid, 0 else. */
+static int is_fd_valid(int fd)
+{
+#ifndef WIN32
+	return fcntl(fd, F_GETFL) != -1 || errno != EBADF;
+#else
+	return 1;
+#endif
+}
+
+/**
+ * Common way to free a socket. Frees the socket from ::init_sockets,
+ * sets its status to Ns_Avail and decrements number of connections. */
+#define FREE_SOCKET(i) \
+	free_newsocket(&init_sockets[(i)]); \
+	init_sockets[(i)].status = Ns_Avail; \
+	socket_info.nconns--;
+
+/**
  * This checks the sockets for input and exceptions, does the right
  * thing.
  *
@@ -410,8 +389,9 @@ void doeric_server()
 {
 	int i, pollret;
 	uint32 update_below;
+	fd_set tmp_read, tmp_exceptions, tmp_write;
 	struct sockaddr_in addr;
-	unsigned int addrlen = sizeof(addr);
+	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
 
 #if CS_LOGSTATS
@@ -421,33 +401,30 @@ void doeric_server()
 	}
 #endif
 
-	/* Would it not be possible to use FD_CLR too and avoid the resetting
-	 * every time? */
 	FD_ZERO(&tmp_read);
 	FD_ZERO(&tmp_write);
 	FD_ZERO(&tmp_exceptions);
 
 	for (i = 0; i < socket_info.allocated_sockets; i++)
 	{
+		if (init_sockets[i].status == Ns_Add && !is_fd_valid(init_sockets[i].fd))
+		{
+			LOG(llevDebug, "doeric_server(): Invalid waiting fd %d\n", i);
+			init_sockets[i].status = Ns_Dead;
+		}
+
 		if (init_sockets[i].status == Ns_Dead)
 		{
-			free_newsocket(&init_sockets[i]);
-			init_sockets[i].status = Ns_Avail;
-			socket_info.nconns--;
+			FREE_SOCKET(i);
 		}
-		/* ns_add... */
 		else if (init_sockets[i].status != Ns_Avail)
 		{
-			/* exclude socket #0 which listens for new connects */
 			if (init_sockets[i].status > Ns_Wait)
 			{
-				/* kill this after 3 minutes idle... */
+				/* Kill this socket after being 3 minutes idle */
 				if (init_sockets[i].login_count++ == 60 * 4 * (1000000 / MAX_TIME))
 				{
-					free_newsocket(&init_sockets[i]);
-					init_sockets[i].status = Ns_Avail;
-					socket_info.nconns--;
-
+					FREE_SOCKET(i);
 					continue;
 				}
 			}
@@ -462,6 +439,12 @@ void doeric_server()
 	 * we may remove some. */
 	for (pl = first_player; pl != NULL; )
 	{
+		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
+		{
+			LOG(llevDebug, "doeric_server(): Invalid file descriptor for player %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+			pl->socket.status = Ns_Dead;
+		}
+
 		if (pl->socket.status == Ns_Dead)
 		{
 			player *npl = pl->next;
@@ -486,8 +469,7 @@ void doeric_server()
 
 	if (pollret == -1)
 	{
-		LOG(llevDebug, "DEBUG: doeric_server(): Error on select\n");
-
+		LOG(llevDebug, "DEBUG: doeric_server(): select failed: %s\n", strerror_local(errno));
 		return;
 	}
 
@@ -496,16 +478,14 @@ void doeric_server()
 	{
 		int newsocknum = 0;
 
-		LOG(llevInfo, "CONNECT from... ");
-
-		/* If this is the case, all sockets currently in used */
+		/* If this is the case, all sockets are currently in use */
 		if (socket_info.allocated_sockets <= socket_info.nconns)
 		{
-			init_sockets = realloc(init_sockets, sizeof(NewSocket) * (socket_info.nconns + 1));
+			init_sockets = realloc(init_sockets, sizeof(socket_struct) * (socket_info.nconns + 1));
 
 			if (!init_sockets)
 			{
-				LOG(llevError, "\nERROR: doeric_server(): Out of memory\n");
+				LOG(llevError, "ERROR: doeric_server(): Out of memory\n");
 			}
 
 			newsocknum = socket_info.allocated_sockets;
@@ -526,19 +506,35 @@ void doeric_server()
 			}
 		}
 
-		init_sockets[newsocknum].fd = accept(init_sockets[0].fd, (struct sockaddr *)&addr, &addrlen);
-		i = ntohl(addr.sin_addr.s_addr);
+		init_sockets[newsocknum].fd = accept(init_sockets[0].fd, (struct sockaddr *) &addr, &addrlen);
 
-		if (init_sockets[newsocknum].fd != -1)
+		if (init_sockets[newsocknum].fd == -1)
 		{
-			LOG(llevDebug, " ip %d.%d.%d.%d (add to sock #%d)\n", (i >> 24) & 255, (i >> 16) & 255, (i >> 8) & 255, i & 255, newsocknum);
-
-			InitConnection(&init_sockets[newsocknum], i);
-			socket_info.nconns++;
+			LOG(llevDebug, "doeric_server(): accept failed: %s\n", strerror_local(errno));
 		}
 		else
 		{
-			LOG(llevDebug, "Error on accept! (S#:%d IP:%d.%d.%d.%d)", newsocknum, (i >> 24) & 255, (i >> 16) & 255, (i >> 8) & 255, i & 255);
+			char buf[MAX_BUF];
+			long ip = ntohl(addr.sin_addr.s_addr);
+
+			snprintf(buf, sizeof(buf), "%ld.%ld.%ld.%ld", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255);
+
+			if (checkbanned(NULL, buf))
+			{
+				LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", buf);
+#ifndef WIN32
+				close(init_sockets[newsocknum].fd);
+#else
+				shutdown(init_sockets[newsocknum].fd, SD_BOTH);
+				closesocket(init_sockets[newsocknum].fd);
+#endif
+				init_sockets[newsocknum].fd = -1;
+			}
+			else
+			{
+				init_connection(&init_sockets[newsocknum], buf);
+				socket_info.nconns++;
+			}
 		}
 	}
 
@@ -554,23 +550,18 @@ void doeric_server()
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_exceptions))
 			{
-				free_newsocket(&init_sockets[i]);
-				init_sockets[i].status = Ns_Avail;
-				socket_info.nconns--;
-
+				FREE_SOCKET(i);
 				continue;
 			}
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_read))
 			{
-				HandleClient(&init_sockets[i], NULL);
+				handle_client(&init_sockets[i], NULL);
 			}
 
 			if (init_sockets[i].status == Ns_Dead)
 			{
-				free_newsocket(&init_sockets[i]);
-				init_sockets[i].status = Ns_Avail;
-				socket_info.nconns--;
+				FREE_SOCKET(i);
 				continue;
 			}
 
@@ -581,9 +572,7 @@ void doeric_server()
 
 			if (init_sockets[i].status == Ns_Dead)
 			{
-				free_newsocket(&init_sockets[i]);
-				init_sockets[i].status = Ns_Avail;
-				socket_info.nconns--;
+				FREE_SOCKET(i);
 			}
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_write))
@@ -594,7 +583,7 @@ void doeric_server()
 	}
 
 	/* This does roughly the same thing, but for the players now */
-	for (pl = first_player; pl != NULL; pl = next)
+	for (pl = first_player; pl; pl = next)
 	{
 		next = pl->next;
 
@@ -602,92 +591,52 @@ void doeric_server()
 		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
 		{
 			remove_ns_dead_player(pl);
+			continue;
 		}
-		else
+
+		if (FD_ISSET(pl->socket.fd, &tmp_read))
 		{
-			/* This will be triggered when it's POSSIBLE to read from the
-			 * socket - this tells us not there is really something! */
-			if (FD_ISSET(pl->socket.fd, &tmp_read))
-			{
-				HandleClient(&pl->socket, pl);
-			}
-
-			/* Perhaps something was bad in HandleClient(), or player has
-			 * left the game */
-			if (pl->socket.status == Ns_Dead)
-			{
-				remove_ns_dead_player(pl);
-			}
-			else
-			{
-				/* Update the players stats once per tick. More efficient
-				 * than sending them whenever they change, and probably
-				 * just as useful */
-				esrv_update_stats(pl);
-
-				if (pl->update_skills)
-				{
-					esrv_update_skills(pl);
-				}
-
-				pl->update_skills = 0;
-				draw_client_map(pl->ob);
-
-				if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
-				{
-					esrv_draw_look(pl->ob);
-					pl->socket.update_tile = update_below + 1;
-				}
-
-				/* and do a quick write ... */
-				if (FD_ISSET(pl->socket.fd, &tmp_write))
-				{
-					if (!pl->socket.can_write)
-					{
-						pl->socket.can_write = 1;
-						write_socket_buffer(&pl->socket);
-					}
-				}
-				else
-				{
-					pl->socket.can_write = 0;
-				}
-			}
+			handle_client(&pl->socket, pl);
 		}
-	}
-}
 
-/**
- * Write to players' sockets. */
-void doeric_server_write()
-{
-	player *pl, *next;
-
-	/* This does roughly the same thing, but for the players now */
-	for (pl = first_player; pl != NULL; pl = next)
-	{
-		next = pl->next;
-
-		/* We don't care about problems here... let remove player at start of next loop! */
-		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		/* Perhaps something was bad in handle_client(), or player has
+		 * left the game */
+		if (pl->socket.status == Ns_Dead)
 		{
 			remove_ns_dead_player(pl);
 			continue;
 		}
 
-		/* And *now* write back to player */
+		/* Update the players stats once per tick. More efficient
+		 * than sending them whenever they change, and probably
+		 * just as useful */
+		esrv_update_stats(pl);
+
+		if (pl->update_skills)
+		{
+			esrv_update_skills(pl);
+			pl->update_skills = 0;
+		}
+
+		draw_client_map(pl->ob);
+
+		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
+		{
+			esrv_draw_look(pl->ob);
+			pl->socket.update_tile = update_below + 1;
+		}
+
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
 			if (!pl->socket.can_write)
 			{
 				pl->socket.can_write = 1;
-
 				write_socket_buffer(&pl->socket);
 			}
-			else
-			{
-				pl->socket.can_write = 0;
-			}
+		}
+		else
+		{
+			pl->socket.can_write = 0;
 		}
 	}
 }

@@ -340,7 +340,7 @@ void read_client_images()
  * @param buf The data given to us
  * @param len Length of buf
  * @param ns Client's socket */
-void SetFaceMode(char *buf, int len, NewSocket *ns)
+void SetFaceMode(char *buf, int len, socket_struct *ns)
 {
 	int mask = (atoi(buf) & CF_FACE_CACHE), mode = (atoi(buf) & ~CF_FACE_CACHE);
 
@@ -371,7 +371,7 @@ void SetFaceMode(char *buf, int len, NewSocket *ns)
  * @param buff The data sent to us
  * @param len Length of buf
  * @param ns Client's socket */
-void SendFaceCmd(char *buff, int len, NewSocket *ns)
+void SendFaceCmd(char *buff, int len, socket_struct *ns)
 {
 	long tmpnum = atoi(buff);
 	short facenum = tmpnum & 0xffff;
@@ -395,7 +395,7 @@ void SendFaceCmd(char *buff, int len, NewSocket *ns)
  * it).  Otherwise, we look at the facecache, and if set, send the image
  * name.
  * @return One of SEND_FACE_xxx. */
-int esrv_send_face(NewSocket *ns, short face_num, int nocache)
+int esrv_send_face(socket_struct *ns, short face_num, int nocache)
 {
 	SockList sl;
 	int fallback;
@@ -447,7 +447,7 @@ int esrv_send_face(NewSocket *ns, short face_num, int nocache)
  * image_info file information.
  * @param ns Client's socket
  * @param params Unused. */
-void send_image_info(NewSocket *ns, char *params)
+void send_image_info(socket_struct *ns, char *params)
 {
 	SockList sl;
 	int i;
@@ -476,7 +476,7 @@ void send_image_info(NewSocket *ns, char *params)
  * Send image checksums.
  * @param ns Client's socket
  * @param params Parameters */
-void send_image_sums(NewSocket *ns, char *params)
+void send_image_sums(socket_struct *ns, char *params)
 {
 	int start, stop, qq, i;
 	char *cp, buf[MAX_BUF];

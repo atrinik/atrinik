@@ -277,25 +277,16 @@ void free_player(player *pl)
 }
 
 /**
- * Tries to add a player on the connection passwd in ns.
+ * Tries to add a player on the connection in ns.
  *
  * All we can really get in this is some settings like host and display
  * mode.
  * @param ns The socket of this player.
- * @return 1 on failure (banned host?), 0 on success. */
-int add_player(NewSocket *ns)
+ * @return 0. */
+int add_player(socket_struct *ns)
 {
-	player *p;
-
-	if (checkbanned(NULL, ns->host))
-	{
-		send_socket_message(NDI_RED, ns, "Connection refused.\nYou are banned!");
-		LOG(llevInfo, "BAN: Banned IP tried to connect. [%s]\n", ns->host);
-		return 1;
-	}
-
-	p = get_player(NULL);
-	memcpy(&p->socket, ns, sizeof(NewSocket));
+	player *p = get_player(NULL);
+	memcpy(&p->socket, ns, sizeof(socket_struct));
 
 	/* now, we start the login procedure! */
 	p->socket.status = Ns_Login;
@@ -1271,7 +1262,7 @@ int handle_newcs_player(player *pl)
 	/* Call this here - we also will call this in do_ericserver, but
 	 * the players time has been increased when doericserver has been
 	 * called, so we recheck it here. */
-	HandleClient(&pl->socket, pl);
+	handle_client(&pl->socket, pl);
 	op = pl->ob;
 
 	if (op->speed_left < 0.0f)

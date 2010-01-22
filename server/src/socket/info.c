@@ -452,7 +452,7 @@ void new_info_map_except(int color, mapstruct *map, int x, int y, int dist, obje
  * @param flags Flags to send.
  * @param ns Socket to send to.
  * @param buf Message to send. */
-void send_socket_message(int flags, NewSocket *ns, const char *buf)
+void send_socket_message(int flags, socket_struct *ns, const char *buf)
 {
 	char tmp[MAX_BUF];
 

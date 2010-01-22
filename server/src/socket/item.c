@@ -175,7 +175,7 @@ unsigned int query_flags(object *op)
  * @param pl Player to draw the look window for. */
 void esrv_draw_look(object *pl)
 {
-	NewSocket *ns = &CONTR(pl)->socket;
+	socket_struct *ns = &CONTR(pl)->socket;
 	char *tmp_sp, buf[MAX_BUF];
 	object *head, *tmp, *last;
 	int len, flags, got_one = 0, anim_speed, start_look = 0, end_look = 0;

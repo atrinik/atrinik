@@ -152,7 +152,7 @@ typedef struct pl_player
 	struct pl_player *next;
 
 	/** Socket information for this player. */
-	NewSocket socket;
+	socket_struct socket;
 
 	/**
 	 * Last sent map. */

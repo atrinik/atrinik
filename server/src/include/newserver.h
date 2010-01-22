@@ -98,7 +98,7 @@ typedef struct Buffer_struct
 #endif
 
 /** This contains basic information on the socket structure. */
-typedef struct NewSocket_struct
+typedef struct socket_struct_struct
 {
 	/** The actual file descriptor we are using. */
 	int fd;
@@ -205,7 +205,7 @@ typedef struct NewSocket_struct
 
 	/** For undeliverable data. */
 	Buffer outputbuffer;
-} NewSocket;
+} socket_struct;
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct
