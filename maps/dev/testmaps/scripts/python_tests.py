@@ -18,12 +18,12 @@ if event_num == EVENT_SAY:
 	marked = activator.FindMarkedObject()
 
 if event_num == EVENT_TIMER:
-	pl = FindPlayer(me.GetObKeyValue("timer_player"))
+	pl = FindPlayer(me.ReadKey("timer_player"))
 
 	if pl:
 		pl.Write("5 seconds are up!")
 
-	me.SetObKeyValue("timer_player")
+	me.WriteKey("timer_player")
 
 # GetEquipment is much more efficient than looping player's inventory for
 # applied equipment.
@@ -138,17 +138,17 @@ elif (words[0] == "get" or words[0] == "add" or words[0] == "delete") and words[
 		me.SayTo(activator, "\nYou need to mark an object.")
 	else:
 		if words[0] == "get":
-			if marked.GetObKeyValue("custom_field"):
-				me.SayTo(activator, "\nMarked object's 'custom_field' key value: %s" % marked.GetObKeyValue("custom_field"))
+			if marked.ReadKey("custom_field"):
+				me.SayTo(activator, "\nMarked object's 'custom_field' key value: %s" % marked.ReadKey("custom_field"))
 			else:
 				me.SayTo(activator, "\nMarked object does not have 'custom_field' key.")
 		elif words[0] == "add":
-			if marked.SetObKeyValue("custom_field", "test string"):
+			if marked.WriteKey("custom_field", "test string"):
 				me.SayTo(activator, "\nSuccessfully set marked object's 'custom_field' key.")
 			else:
 				me.SayTo(activator, "\nFailed to set marked object's 'custom_field' key.")
 		elif words[0] == "delete":
-			if marked.SetObKeyValue("custom_field"):
+			if marked.WriteKey("custom_field"):
 				me.SayTo(activator, "\nSuccessfully removed marked object's 'custom_field' key.")
 			else:
 				me.SayTo(activator, "\nFailed to remove marked object's 'custom_field' key.")
@@ -204,10 +204,10 @@ elif words[0] == "beacon" and len(words) > 1:
 			me.SayTo(activator, "On map '%s' (%d, %d)." % (beacon.map.path, beacon.x, beacon.y), 1)
 
 elif msg == "timer":
-	if me.GetObKeyValue("timer_player"):
+	if me.ReadKey("timer_player"):
 		me.SayTo(activator, "\nAlready talking to someone...")
 	else:
-		me.SetObKeyValue("timer_player", activator.name)
+		me.WriteKey("timer_player", activator.name)
 		me.CreateTimer(5, 1)
 		me.SayTo(activator, "\nOK! Will tell you when 5 seconds pass.")
 

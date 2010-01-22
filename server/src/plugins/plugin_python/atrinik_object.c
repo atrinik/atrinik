@@ -2772,11 +2772,11 @@ static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *arg
 }
 
 /**
- * <h1>object.GetObKeyValue(\<string\> key)</h1>
+ * <h1>object.ReadKey(\<string\> key)</h1>
  * Get key value of an object.
  * @param key Key to look for.
  * @return Value for the key if found, None otherwise. */
-static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *key;
 
@@ -2789,8 +2789,7 @@ static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *
 }
 
 /**
- * <h1>object.SetObKeyValue(\<string\> key, [string] value, [int]
- * add_key)</h1>
+ * <h1>object.WriteKey(\<string\> key, [string] value, [int] add_key)</h1>
  * Set the key value of an object.
  * @param key Key to look for.
  * @param value Value to set for the key. If not passed, will clear the
@@ -2798,7 +2797,7 @@ static PyObject *Atrinik_Object_GetObKeyValue(Atrinik_Object *whoptr, PyObject *
  * @param add_key Whether to add the key if it's not found in the object.
  * Defaults to 1.
  * @return 1 on success, 0 on failure. */
-static PyObject *Atrinik_Object_SetObKeyValue(Atrinik_Object *whoptr, PyObject *args)
+static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 {
 	char *key, *value = NULL;
 	int add_key = 1;
@@ -3001,8 +3000,8 @@ static PyMethodDef ObjectMethods[] =
 	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
 	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
 	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
-	{"GetObKeyValue",                (PyCFunction) Atrinik_Object_GetObKeyValue,          METH_VARARGS, 0},
-	{"SetObKeyValue",                (PyCFunction) Atrinik_Object_SetObKeyValue,          METH_VARARGS, 0},
+	{"ReadKey",                      (PyCFunction) Atrinik_Object_ReadKey,                METH_VARARGS, 0},
+	{"WriteKey",                     (PyCFunction) Atrinik_Object_WriteKey,               METH_VARARGS, 0},
 	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
 	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
 	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
