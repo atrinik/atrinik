@@ -122,6 +122,11 @@ object *get_jail_exit(object *op)
 		return NULL;
 	}
 
+	if (!op->map->region)
+	{
+		return NULL;
+	}
+
 	reg = op->map->region;
 
 	while (reg)
@@ -147,7 +152,7 @@ object *get_jail_exit(object *op)
 }
 
 /**
- * Initialises regions from the regions file. */
+ * Initializes regions from the regions file. */
 void init_regions()
 {
 	FILE *fp;
