@@ -64,11 +64,22 @@ elif msg == "preview":
 	me.SayTo(activator, "\nText that would appear on a sign in chosen location:\n%s: %s" % (news.get_time(), info.message))
 
 # Save a message.
-elif msg == "save":
-	if not info.slaying:
+elif text[0] == "save":
+	if not info.slaying and len(msg) <= 4:
 		me.SayTo(activator, "\nFirst select location you want to save the message for.")
 	else:
-		news.add_message(info.message)
+		if len(msg) > 4:
+			locations = WhatIsMessage()[4:].strip().split(",")
+
+			for location in locations:
+				news = News(location.strip())
+				news.add_message(info.message)
+				news.db.close()
+
+			news = None
+		else:
+			news.add_message(info.message)
+
 		info.message = ""
 		me.SayTo(activator, "\nDone! I have added your message.")
 
@@ -88,6 +99,7 @@ elif text[0] == "remove" and len(text) > 1:
 
 # Explain usage and commands.
 elif msg == "hi" or msg == "hey" or msg == "hello":
-	me.SayTo(activator, "\nHello %s, I am %s.\nI can change news in various locations -- like Brynknot, Clearhaven, etc. Full list can be found on sign next to me.\nList of commands:\n^location NEWLOCATION^: Change location for adding/removing messages.\n^messages^: Show messages for chosen location.\n^revert^: Make me forget everything you have written for a message.\n^add MESSAGE^: Add a new message. You can use this multiple times to make longer messages. Use ~<nl>~ to indicate newline.\n^preview^: Preview what your message would look like.\n^save^: Save your complete message as a new message for the chosen location.\n^remove ID^: Remove #ID message from chosen location.\n^remove all^: Remove all messages from chosen location." % (activator.name, me.name))
+	me.SayTo(activator, "\nHello %s, I am %s.\nI can change news in various locations -- like Brynknot, Clearhaven, etc. Full list can be found on sign next to me.\nList of commands:\n^location NEWLOCATION^: Change location for adding/removing messages.\n^messages^: Show messages for chosen location.\n^revert^: Make me forget everything you have written for a message.\n^add MESSAGE^: Add a new message. You can use this multiple times to make longer messages. Use ~<nl>~ to indicate newline.\n^preview^: Preview what your message would look like.\n^save^: Save your complete message as a new message for the chosen location. You can also specify a comma-separated string of locations to save the message into (for example, ~save Brynknot, Greyton~).\n^remove ID^: Remove #ID message from chosen location.\n^remove all^: Remove all messages from chosen location." % (activator.name, me.name))
 
-news.db.close()
+if news:
+	news.db.close()
