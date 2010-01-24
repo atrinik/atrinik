@@ -1557,7 +1557,6 @@ static void process_keyboard_input(char *input)
  * Iterate the main loop. */
 static void iterate_main_loop()
 {
-	/* Every llevBug will increase this - avoid LOG loops */
 	nroferrors = 0;
 
 	/* Check and run a shutdown count (with messages and shutdown) */
@@ -1610,12 +1609,8 @@ int main(int argc, char **argv)
 #endif
 
 	init(argc, argv);
-#ifdef PLUGINS
 	init_plugins();
-#endif
-	/* its not a bad idea to show at start whats up */
 	compile_info();
-	/* used from proccess_events() */
 	memset(&marker, 0, sizeof(struct obj));
 
 	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");

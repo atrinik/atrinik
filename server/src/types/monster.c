@@ -1681,7 +1681,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	object *cobj;
 	char *cp;
 
-	if (npc->event_flags & EVENT_FLAG_SAY)
+	if (HAS_EVENT(npc, EVENT_SAY))
 	{
 		/* Trigger the SAY event */
 		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
@@ -1693,7 +1693,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	 * with. */
 	for (cobj = npc->inv; cobj; cobj = cobj->below)
 	{
-		if (cobj->event_flags & EVENT_FLAG_SAY)
+		if (HAS_EVENT(cobj, EVENT_SAY))
 		{
 			/* Trigger the SAY event */
 			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);

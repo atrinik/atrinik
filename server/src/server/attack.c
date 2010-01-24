@@ -1291,7 +1291,7 @@ object *hit_with_arrow(object *op, object *victim)
 	victim_tag = victim->count;
 	hitter_tag = hitter->count;
 
-	if (hitter->event_flags & EVENT_FLAG_ATTACK)
+	if (HAS_EVENT(hitter, EVENT_ATTACK))
 	{
 		/* Trigger the ATTACK event */
 		trigger_event(EVENT_ATTACK, hitter, hitter, victim, NULL, 0, op->stats.dam, op->stats.wc, SCRIPT_FIX_ALL);

@@ -99,7 +99,7 @@ void apply_book(object *op, object *tmp)
 
 	new_draw_info_format(NDI_UNIQUE, op, "You open the %s and start reading.", tmp->name);
 
-	if (tmp->event_flags & EVENT_FLAG_APPLY)
+	if (HAS_EVENT(tmp, EVENT_APPLY))
 	{
 		/* Trigger the APPLY event */
 		trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL);

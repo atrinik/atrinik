@@ -502,7 +502,6 @@ void remove_plugins()
  * @param parm2 Second parameter. */
 void trigger_global_event(int event_type, void *parm1, void *parm2)
 {
-#ifdef PLUGINS
 	atrinik_plugin *plugin;
 
 	if (!plugins_list)
@@ -517,7 +516,6 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 			(plugin->eventfunc)(0, event_type, parm1, parm2);
 		}
 	}
-#endif
 }
 
 /**
@@ -535,7 +533,6 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
  * @return 1 if the event returns an event value, 0 otherwise. */
 int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags)
 {
-#ifdef PLUGINS
 	object *event_obj;
 	atrinik_plugin *plugin;
 
@@ -589,7 +586,6 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		LOG(llevBug, "BUG: event object with unknown plugin: %s, plugin %s\n", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
 		me->event_flags &= ~(1 << event_type);
 	}
-#endif
 
 	return 0;
 }

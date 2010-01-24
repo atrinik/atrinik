@@ -496,8 +496,10 @@ void process_object(object *op)
 		return;
 	}
 
-	/* Trigger the TIME event */
-	trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
+	if (HAS_EVENT(op, EVENT_TIME))
+	{
+		trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
+	}
 
 	switch (op->type)
 	{

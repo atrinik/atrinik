@@ -1455,8 +1455,6 @@ enum apply_flag
 #	endif
 #endif
 
-#define PLUGINS
-
 /**
  * @defgroup dump_values Dump values
  * Dump values, used for various information dumping.

@@ -66,7 +66,7 @@
  *@{*/
 
 /** No event. This exists only to reserve the "0". */
-#define EVENT_NONE		0
+#define EVENT_NONE     0
 /** Object applied-unapplied. */
 #define EVENT_APPLY    1
 /** Monster attacked or Scripted Weapon used. */
@@ -123,8 +123,8 @@
 /** Number of local events */
 #define NR_LOCAL_EVENTS 13
 
-/** Number of events */
-#define NR_EVENTS       26
+/** Number of events. */
+#define NR_EVENTS 26
 
 /**
  * Get an event flag from event number code.
@@ -132,23 +132,10 @@
 #define EVENT_FLAG(x) (1 << (x - 1))
 
 /**
- * @defgroup EVENT_FLAG_xxx Event flags
- * Event flags. Uses EVENT_FLAG() to get the actual flags.
- *@{*/
-#define EVENT_FLAG_NONE     0
-#define EVENT_FLAG_APPLY    EVENT_FLAG(EVENT_APPLY)
-#define EVENT_FLAG_ATTACK   EVENT_FLAG(EVENT_ATTACK)
-#define EVENT_FLAG_DEATH    EVENT_FLAG(EVENT_DEATH)
-#define EVENT_FLAG_DROP     EVENT_FLAG(EVENT_DROP)
-#define EVENT_FLAG_PICKUP   EVENT_FLAG(EVENT_PICKUP)
-#define EVENT_FLAG_SAY      EVENT_FLAG(EVENT_SAY)
-#define EVENT_FLAG_STOP     EVENT_FLAG(EVENT_STOP)
-#define EVENT_FLAG_TIME     EVENT_FLAG(EVENT_TIME)
-#define EVENT_FLAG_THROW    EVENT_FLAG(EVENT_THROW)
-#define EVENT_FLAG_TRIGGER  EVENT_FLAG(EVENT_TRIGGER)
-#define EVENT_FLAG_CLOSE    EVENT_FLAG(EVENT_CLOSE)
-#define EVENT_FLAG_TIMER    EVENT_FLAG(EVENT_TIMER)
-/*@}*/
+ * Check to see if object has an event in its object::event_flags.
+ * @param ob Object.
+ * @param event Event to check. */
+#define HAS_EVENT(ob, event) (ob->event_flags & EVENT_FLAG(event))
 
 /**
  * The plugin hook list.
