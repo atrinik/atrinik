@@ -226,7 +226,7 @@ static void expand_sight(object *op);
 void init_block()
 {
 	int x, y, dx, dy, i;
-	static int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
+	static const int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
 
 	for (x = 0; x < MAP_CLIENT_X; x++)
 	{

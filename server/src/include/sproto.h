@@ -451,8 +451,8 @@ void cftimer_init();
 /* pathfinder.c */
 void request_new_path(object *waypoint);
 object *get_next_requested_path();
-const char *encode_path(path_node *path);
-int get_path_next(const char *buf, sint16 *off, const char **mappath, mapstruct **map, int *x, int *y);
+shstr *encode_path(path_node *path);
+int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y);
 path_node *compress_path(path_node *path);
 path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2);
 
