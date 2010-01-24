@@ -50,8 +50,14 @@ elif msg == "revert":
 
 # Add a message, replacing "<nl>" with actual newline character.
 elif text[0] == "add" and len(text) > 1:
-	info.message += WhatIsMessage().strip()[4:].replace("<nl>", "\n")
-	me.SayTo(activator, "\nI have added your message.")
+	news_message = WhatIsMessage().strip()
+
+	if news_message.lower().find("endmsg") == -1:
+		info.message += news_message[4:].replace("<nl>", "\n")
+		me.SayTo(activator, "\nI have added your message.")
+	else:
+		activator.Write("Trying to cheat, are we?", COLOR_RED)
+		LOG(llevInfo, "CRACK: Player %s tried to write bogus message using news changer.\n" % activator.name)
 
 # Preview what the new message would look like.
 elif msg == "preview":
