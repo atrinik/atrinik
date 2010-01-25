@@ -1353,11 +1353,46 @@ static int check_keys_menu_status(int key)
 	return 0;
 }
 
+/**
+ * Process a single macro.
+ * @param macro The macro to process. */
+static void process_macro(_keymap macro)
+{
+	char command[MAX_BUF], *cp;
 
+	if (!check_macro_keys(macro.text))
+	{
+		return;
+	}
+
+	strncpy(command, macro.text, sizeof(command) - 1);
+	command[MAX_BUF - 1] = '\0';
+	cp = strtok(command, ";");
+
+	while (cp)
+	{
+		while (*cp == ' ')
+		{
+			cp++;
+		}
+
+		draw_info(cp, COLOR_DGOLD);
+
+		if (!client_command_check(cp))
+		{
+			send_command(cp, -1, macro.mode);
+		}
+
+		cp = strtok(NULL, ";");
+	}
+}
+
+/**
+ * Check a key for macros.
+ * @param key Key to check. */
 void check_keys(int key)
 {
 	int i, j;
-	char buf[512];
 
 	/* groups */
 	for (j = 0; j < BINDKEY_LIST_MAX; j++)
@@ -1366,31 +1401,19 @@ void check_keys(int key)
 		{
 			if (key == bindkey_list[j].entry[i].key)
 			{
-				/* if no key macro, submit the text as cmd*/
-				if (check_macro_keys(bindkey_list[j].entry[i].text))
-				{
-					draw_info(bindkey_list[j].entry[i].text, COLOR_DGOLD);
-					strcpy(buf, bindkey_list[j].entry[i].text);
-
-					if (!client_command_check(buf))
-						send_command(buf, -1, bindkey_list[j].entry[i].mode);
-				}
-
+				process_macro(bindkey_list[j].entry[i]);
 				return;
 			}
 		}
 	}
 }
 
-
 static int check_macro_keys(char *text)
 {
 	int i;
-	int magic_len;
+	size_t magic_len = strlen(macro_magic_console);
 
-	magic_len = strlen(macro_magic_console);
-
-	if (!strncmp(macro_magic_console, text, magic_len) && (int)strlen(text) > magic_len)
+	if (!strncmp(macro_magic_console, text, magic_len) && strlen(text) > magic_len)
 	{
 		process_macro_keys(KEYFUNC_CONSOLE, 0);
 		textwin_putstring(&text[magic_len]);
@@ -1402,7 +1425,9 @@ static int check_macro_keys(char *text)
 		if (!strcmp(defkey_macro[i].macro, text))
 		{
 			if (!process_macro_keys(defkey_macro[i].internal, defkey_macro[i].value))
+			{
 				return 0;
+			}
 
 			return 1;
 		}
@@ -1410,7 +1435,6 @@ static int check_macro_keys(char *text)
 
 	return 1;
 }
-
 
 int process_macro_keys(int id, int value)
 {
@@ -2120,9 +2144,7 @@ static void move_keys(int num)
 static void key_repeat()
 {
 	int i, j;
-	char buf[512];
 
-	/* TODO: optimize this one, too */
 	if (cpl.menustatus == MENU_NO)
 	{
 		/* Groups */
@@ -2139,16 +2161,7 @@ static void key_repeat()
 						/* Repeat x times*/
 						while ((keys[bindkey_list[j].entry[i].key].time += KEY_REPEAT_TIME - 5) < LastTick)
 						{
-							/* If no key macro, submit the text as command */
-							if (check_macro_keys(bindkey_list[j].entry[i].text))
-							{
-								strcpy(buf, bindkey_list[j].entry[i].text);
-
-								if (!client_command_check(buf))
-									send_command(buf, -1, bindkey_list[j].entry[i].mode);
-
-								draw_info(bindkey_list[j].entry[i].text, COLOR_DGOLD);
-							}
+							process_macro(bindkey_list[j].entry[i]);
 						}
 					}
 				}
