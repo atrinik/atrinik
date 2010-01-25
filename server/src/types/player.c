@@ -1612,7 +1612,7 @@ void kill_player(object *op)
 		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "Local medics have saved your life...");
 
 		/* Restore player */
-		cast_heal(op, 110, op, SP_CURE_POISON);
+		cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
 		/* Remove any disease */
 		cure_disease(op, NULL);
 		op->stats.hp = op->stats.maxhp;
@@ -1803,7 +1803,7 @@ void kill_player(object *op)
 	 * food, and reset HP... */
 
 	/* Remove any poisoning the character may be suffering. */
-	cast_heal(op, 110, op, SP_CURE_POISON);
+	cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
 	/* Remove any disease */
 	cure_disease(op, NULL);
 

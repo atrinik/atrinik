@@ -774,7 +774,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 		case ATNR_DEPLETE:
 		case ATNR_BLIND:
 		{
-			int level_diff = MIN(110, MAX(0, op->level - hitter->level));
+			int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
 
 			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((random_roll(1, 20, op, PREFER_LOW) + op->protection[attacknum] / 10) < savethrow[level_diff]))
 			{

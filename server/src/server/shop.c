@@ -141,9 +141,9 @@ sint64 query_cost(object *tmp, object *who, int flag)
 		{
 			charisma += 4;
 
-			if (charisma > 30)
+			if (charisma > MAX_STAT)
 			{
-				charisma = 30;
+				charisma = MAX_STAT;
 			}
 		}
 	}

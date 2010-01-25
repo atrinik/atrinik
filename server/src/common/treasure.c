@@ -1999,9 +1999,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 				{
 					temp = 1;
 				}
-				else if (temp > 110)
+				else if (temp > MAXLEVEL)
 				{
-					temp = 110;
+					temp = MAXLEVEL;
 				}
 
 				op->level = temp;
@@ -2056,9 +2056,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 				{
 					temp = 1;
 				}
-				else if (temp > 110)
+				else if (temp > MAXLEVEL)
 				{
-					temp = 110;
+					temp = MAXLEVEL;
 				}
 
 				if (!is_special && temp < spells[op->stats.sp].level)
@@ -2230,9 +2230,9 @@ jump_break1:
 				{
 					temp = 1;
 				}
-				else if (temp > 110)
+				else if (temp > MAXLEVEL)
 				{
-					temp = 110;
+					temp = MAXLEVEL;
 				}
 
 				if (temp < spells[op->stats.sp].level)
@@ -2267,9 +2267,9 @@ jump_break1:
 				{
 					temp = 1;
 				}
-				else if (temp > 110)
+				else if (temp > MAXLEVEL)
 				{
-					temp = 110;
+					temp = MAXLEVEL;
 				}
 
 				op->level = temp;
