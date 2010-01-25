@@ -230,6 +230,7 @@ typedef struct _options
 	int fullscreen;
 	int resolution_x;
 	int resolution_y;
+	int resolution;
 	int use_TextwinAlpha;
 	int textwin_alpha;
 #ifdef WIDGET_SNAP

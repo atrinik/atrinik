@@ -132,6 +132,29 @@ static char *directionsfire[10] =
 	"fire 0",	"fire 3", 	"fire 8", 	"fire 1",	"fire 2"
 };
 
+/**
+ * Screen definitions used when changing between resolutions in the
+ * client. */
+static const int screen_definitions[16][2] =
+{
+	{800, 600},
+	{960, 600},
+	{1024, 768},
+	{1100, 700},
+	{1280, 720},
+	{1280, 800},
+	{1280, 960},
+	{1280, 1024},
+	{1440, 900},
+	{1400, 1050},
+	{1600, 1200},
+	{1680, 1050},
+	{1920, 1080},
+	{1920, 1200},
+	{2048, 1536},
+	{2560, 1600},
+};
+
 static int key_event(SDL_KeyboardEvent *key);
 static void key_string_event(SDL_KeyboardEvent *key);
 static int check_macro_keys(char *text);
@@ -381,6 +404,7 @@ int Event_PollInputDevice()
 				}
 
 				resize_window(event.resize.w, event.resize.h);
+				options.resolution = 0;
 				break;
 
 			case SDL_MOUSEBUTTONUP:
@@ -2310,7 +2334,6 @@ void save_keybind_file(char *fname)
 	fclose(stream);
 }
 
-
 /* Handle keystrokes in menu dialog. */
 void check_menu_keys(int menu, int key)
 {
@@ -2452,6 +2475,46 @@ void check_menu_keys(int menu, int key)
 						change_textwin_font(options.chat_font_size);
 						WIDGET_REDRAW(CHATWIN_ID);
 						WIDGET_REDRAW(MSGWIN_ID);
+
+						if (options.resolution && (screen_definitions[options.resolution - 1][0] != Screensize->x || screen_definitions[options.resolution - 1][1] != Screensize->y))
+						{
+							uint32 videoflags = get_video_flags();
+
+							resize_window(screen_definitions[options.resolution - 1][0], screen_definitions[options.resolution - 1][1]);
+
+							if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
+							{
+								/* We have a problem, not supportet screensize */
+								/* If we have higher resolution we try the default 800x600 */
+								if (Screensize->x > 800 && Screensize->y > 600)
+								{
+									LOG(LOG_ERROR, "Try to set to default 800x600...\n");
+
+									if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
+									{
+										/* Now we have a really really big problem */
+										LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
+										exit(2);
+									}
+									else
+									{
+										const SDL_VideoInfo *info = SDL_GetVideoInfo();
+
+										options.real_video_bpp = info->vfmt->BitsPerPixel;
+									}
+								}
+								else
+								{
+									exit(2);
+								}
+							}
+							else
+							{
+								const SDL_VideoInfo *info = SDL_GetVideoInfo();
+
+								options.used_video_bpp = info->vfmt->BitsPerPixel;
+							}
+						}
 					}
 
 					cpl.menustatus = MENU_NO;

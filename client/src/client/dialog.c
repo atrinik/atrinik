@@ -135,6 +135,7 @@ _option opt[] =
 
 	/* Client */
 	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
+	{"Resolution:", "The resolution of the screen/window.", "If you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
 	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
 	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.", "NOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
 	{"Textwindows use alpha:", "Make the text window transparent.", "WARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
