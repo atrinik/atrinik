@@ -594,7 +594,8 @@ int check_skill_known(object *op, int skillnr)
  * @return ID of the skill if found, -1 otherwise. */
 int lookup_skill_by_name(char *string)
 {
-	int skillnr = 0, nmlen;
+	int skillnr = 0;
+	size_t nmlen;
 	char name[MAX_BUF];
 
 	if (!string)
@@ -609,7 +610,7 @@ int lookup_skill_by_name(char *string)
 	{
 		if (strlen(name) >= strlen(skills[skillnr].name))
 		{
-			if (!strncmp(name, skills[skillnr].name, MIN((int) strlen(skills[skillnr].name), nmlen)))
+			if (!strncmp(name, skills[skillnr].name, MIN(strlen(skills[skillnr].name), nmlen)))
 			{
 				return skillnr;
 			}
@@ -1141,7 +1142,7 @@ int use_skill(object *op, char *string)
 	 * need to reset the string to next word, if it exists. */
 	if (string && (sknum = lookup_skill_by_name(string)) >= 0)
 	{
-		int len;
+		size_t len;
 
 		if (sknum == -1)
 		{
@@ -1153,7 +1154,7 @@ int use_skill(object *op, char *string)
 
 		/* All this logic goes and skips over the skill name to find any
 		 * options given to the skill. */
-		if (len >= (int) strlen(string))
+		if (len >= strlen(string))
 		{
 			*string = '\0';
 		}

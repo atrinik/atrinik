@@ -825,7 +825,7 @@ int get_money_from_string(char *text, struct _money_block *money)
 			{
 				if ((word = get_word_from_string(text, &pos)) && *word != '\0')
 				{
-					int len = strlen(word);
+					size_t len = strlen(word);
 
 					if (!strncasecmp("mithril", word, len))
 					{

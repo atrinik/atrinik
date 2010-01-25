@@ -119,7 +119,7 @@ void RequestInfo(char *buf, int len, socket_struct *ns)
 {
 	char *params = NULL, *cp;
 	char bigbuf[MAX_BUF];
-	int slen = 1;
+	size_t slen = 1;
 
 	/* Set up replyinfo before we modify any of the buffers - this is
 	 * used if we don't find a match. */

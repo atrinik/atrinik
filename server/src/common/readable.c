@@ -83,11 +83,11 @@ typedef struct titlestruct
 	/** Level or difficulty of this message */
 	int level;
 
-	/** Size of the book message */
-	int size;
-
 	/** An index value derived from book message */
 	int msg_index;
+
+	/** Size of the book message */
+	size_t size;
 
 	/** Next entry in this list */
 	struct titlestruct *next;
@@ -947,7 +947,7 @@ static title *find_title(object *book, int msgtype)
 {
 	title *t = NULL;
 	titlelist *tl = get_titlelist(msgtype);
-	int length = strlen(book->msg);
+	size_t length = strlen(book->msg);
 	int index = strtoint(book->msg);
 
 	if (msgtype < 0)
@@ -2278,7 +2278,7 @@ void write_book_archive()
 					fprintf(fp, "arch %s\n", book->archname);
 					fprintf(fp, "level %d\n", book->level);
 					fprintf(fp, "type %d\n", index);
-					fprintf(fp, "size %d\n", book->size);
+					fprintf(fp, "size %lu\n", (unsigned long) book->size);
 					fprintf(fp, "index %d\n", book->msg_index);
 					fprintf(fp, "end\n");
 				}

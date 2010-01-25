@@ -55,9 +55,7 @@ static int check_container(object *pl, object *con);
  * @param sl Socklist to add the buffer to. */
 static void add_stringlen_to_sockbuf(char *buf, SockList *sl)
 {
-	int len = strlen(buf);
-
-	len = strlen(buf);
+	size_t len = strlen(buf);
 
 	if (len > 255)
 	{
@@ -178,7 +176,8 @@ void esrv_draw_look(object *pl)
 	socket_struct *ns = &CONTR(pl)->socket;
 	char *tmp_sp, buf[MAX_BUF];
 	object *head, *tmp, *last;
-	int len, flags, got_one = 0, anim_speed, start_look = 0, end_look = 0;
+	int flags, got_one = 0, anim_speed, start_look = 0, end_look = 0;
+	size_t len;
 	SockList sl;
 
 	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_REAL_MAP(pl->map, pl->x, pl->y))
@@ -395,7 +394,8 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
 {
 	char *tmp_sp;
 	object *tmp, *head;
-	int got_one = 0, flags, len, anim_speed;
+	int got_one = 0, flags, anim_speed;
+	size_t len;
 
 	SockList_AddInt(sl, 0);
 	SockList_AddInt(sl, 0);
@@ -553,7 +553,8 @@ void esrv_close_container(object *op)
 static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 {
 	object *tmp;
-	int flags, got_one = 0, anim_speed, len;
+	int flags, got_one = 0, anim_speed;
+	size_t len;
 	char item_n[MAX_BUF];
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
@@ -673,7 +674,8 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 void esrv_send_inventory(object *pl, object *op)
 {
 	object *tmp;
-	int flags, got_one = 0, anim_speed, len;
+	int flags, got_one = 0, anim_speed;
+	size_t len;
 	SockList sl;
 	char item_n[MAX_BUF];
 
@@ -888,7 +890,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
 	if (flags & UPD_NAME)
 	{
-		int len;
+		size_t len;
 		char *item_p, item_n[MAX_BUF];
 
 		strncpy(item_n, query_base_name(op, pl), 127);
@@ -988,7 +990,8 @@ void esrv_update_item(int flags, object *pl, object *op)
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
-	int anim_speed, len;
+	int anim_speed;
+	size_t len;
 	SockList sl;
 	char item_n[MAX_BUF];
 

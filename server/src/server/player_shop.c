@@ -45,7 +45,8 @@ static int shop_player_in_range(object *op, object *seller);
 static void player_shop_send_items(player *pl, player *seller)
 {
 	player_shop *shop_item_tmp;
-	int flags, anim_speed, len;
+	int flags, anim_speed;
+	size_t len;
 	SockList sl;
 	char item_n[MAX_BUF];
 	char shop_buf[HUGE_BUF];

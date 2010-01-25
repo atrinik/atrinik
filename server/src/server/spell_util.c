@@ -2568,7 +2568,8 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
  * spell, the spell ID otherwise. */
 int look_up_spell_by_name(object *op, const char *spname)
 {
-	int numknown, spnum, plen, spellen, i;
+	int numknown, spnum, i;
+	size_t plen, spellen;
 
 	if (spname == NULL)
 	{

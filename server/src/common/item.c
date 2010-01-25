@@ -367,7 +367,7 @@ char *query_short_name(object *op, object *caller)
 {
 	static char buf[HUGE_BUF];
 	char buf2[HUGE_BUF];
-	int len = 0;
+	size_t len = 0;
 
 	buf[0] = '\0';
 
@@ -647,7 +647,7 @@ char *query_name(object *op, object *caller)
 {
 	static char buf[5][HUGE_BUF];
 	static int use_buf = 0;
-	int len = 0;
+	size_t len = 0;
 
 	use_buf++;
 	use_buf %= 5;
@@ -764,7 +764,7 @@ char *query_base_name(object *op, object *caller)
 {
 	static char buf[MAX_BUF];
 	char buf2[32];
-	int len;
+	size_t len;
 
 	buf[0] = '\0';
 

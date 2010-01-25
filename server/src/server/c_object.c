@@ -1324,7 +1324,7 @@ char *long_desc(object *tmp, object *caller)
 		case CONTAINER:
 			if (*(cp = describe_item(tmp)) != '\0')
 			{
-				int len;
+				size_t len;
 
 				strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
 

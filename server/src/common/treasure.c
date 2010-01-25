@@ -424,7 +424,8 @@ void init_artifacts()
 	char filename[MAX_BUF], buf[MAX_BUF], *cp, *next;
 	artifact *art = NULL;
 	linked_char *tmp;
-	int lcount, value, comp, none_flag = 0;
+	int value, comp, none_flag = 0;
+	size_t lcount;
 	artifactlist *al;
 	char buf_text[10 * 1024];
 

@@ -50,7 +50,8 @@ static void god_intervention(object *op, object *god);
  * @return Identifier of god, -1 if not found. */
 static int lookup_god_by_name(const char *name)
 {
-	int godnr = -1, nmlen = strlen(name);
+	int godnr = -1;
+	size_t nmlen = strlen(name);
 
 	if (name && strcmp(name, "none"))
 	{
@@ -58,7 +59,7 @@ static int lookup_god_by_name(const char *name)
 
 		for (gl = first_god; gl; gl = gl->next)
 		{
-			if (!strncmp(name, gl->name, MIN((int) strlen(gl->name), nmlen)))
+			if (!strncmp(name, gl->name, MIN(strlen(gl->name), nmlen)))
 			{
 				break;
 			}

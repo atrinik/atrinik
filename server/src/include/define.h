@@ -1285,7 +1285,7 @@
  * @param orig String to append.
  * @param curlen Current length of dest. Will be updated by this function.
  * @param maxlen Maximum length of dest buffer. */
-static inline void safe_strcat(char *dest, const char *orig, int *curlen, int maxlen)
+static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, size_t maxlen)
 {
 	if (*curlen == (maxlen - 1))
 	{
