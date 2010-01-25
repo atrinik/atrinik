@@ -50,7 +50,7 @@ void emergency_save(int flag)
 #ifndef NO_EMERGENCY_SAVE
 	LOG(llevSystem, "Emergency save:  ");
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
 		if (!pl->ob)
 		{
@@ -100,22 +100,30 @@ void emergency_save(int flag)
  * Checks to see if the passed player name is valid or not. Does checks
  * like min/max name length, whether there is anyone else playing by that
  * name, and whether there are illegal characters in the player name.
- * @param me Player
- * @param name Name to check
+ * @param pl Player.
+ * @param name Name to check.
  * @return 1 if the name is ok, 0 otherwise. */
-int check_name(player *me, char *name)
+int check_name(player *pl, char *name)
 {
-	unsigned int name_len = strlen(name);
+	size_t name_len;
+
+	if (name[0] == '\0')
+	{
+		send_socket_message(NDI_RED, &pl->socket, "You must provide a name to log in.");
+		return 0;
+	}
+
+	name_len = strlen(name);
 
 	if (name_len < PLAYER_NAME_MIN || name_len > PLAYER_NAME_MAX)
 	{
-		send_socket_message(NDI_RED, &me->socket, "That name has an invalid length.");
+		send_socket_message(NDI_RED, &pl->socket, "That name has an invalid length.");
 		return 0;
 	}
 
 	if (!playername_ok(name))
 	{
-		send_socket_message(NDI_RED, &me->socket, "That name contains illegal characters.");
+		send_socket_message(NDI_RED, &pl->socket, "That name contains illegal characters.");
 		return 0;
 	}
 
@@ -266,10 +274,12 @@ static int spell_sort(const void *a1, const void *a2)
 }
 
 /**
+ * Reorder the inventory of an object (reverses the order of the inventory
+ * objects).
  * Helper function to reorder the reverse loaded player inventory.
  *
- * This will recursively reorder the container inventories.
- * @param op The inventory object to reorder. */
+ * @note This will recursively reorder the container inventories.
+ * @param op The object to reorder. */
 static void reorder_inventory(object *op)
 {
 	object *tmp, *tmp2;
@@ -278,18 +288,13 @@ static void reorder_inventory(object *op)
 	op->inv->above = NULL;
 	op->inv->below = NULL;
 
-	if (op->inv->inv)
-	{
-		reorder_inventory(op->inv);
-	}
-
 	for (; tmp2; )
 	{
 		tmp = tmp2;
-		/* save the following element */
+		/* Save the following element */
 		tmp2 = tmp->below;
 		tmp->above = NULL;
-		/* resort it like in insert_ob_in_ob() */
+		/* Resort it like in insert_ob_in_ob() */
 		tmp->below = op->inv;
 		tmp->below->above = tmp;
 		op->inv = tmp;
@@ -337,7 +342,6 @@ void check_login(object *op)
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
-	object *tmp, *tmp2;
 
 	strcpy(pl->maplevel, first_map_path);
 
@@ -362,7 +366,7 @@ void check_login(object *op)
 
 	if (pl->state == ST_PLAYING)
 	{
-		LOG(llevSystem, "CRACK: >%s< from ip %s - double login!\n", op->name, pl->socket.host);
+		LOG(llevSystem, "CRACK: >%s< from IP %s - double login!\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
 		pl->socket.status = Ns_Dead;
 		return;
@@ -376,7 +380,7 @@ void check_login(object *op)
 		return;
 	}
 
-	LOG(llevInfo, "LOGIN: >%s< from ip %s\n", op->name, pl->socket.host);
+	LOG(llevInfo, "LOGIN: >%s< from IP %s\n", op->name, pl->socket.host);
 
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
 
@@ -405,11 +409,10 @@ void check_login(object *op)
 		}
 	}
 
-	if (fgets(bufall, MAX_BUF, fp) != NULL)
+	if (fgets(bufall, sizeof(bufall), fp))
 	{
 		if (sscanf(bufall, "password %s\n", buf))
 		{
-			/* New password scheme: */
 			correct = check_password(pl->write_buf + 1, buf);
 		}
 	}
@@ -417,7 +420,6 @@ void check_login(object *op)
 	if (!correct)
 	{
 		wrong_password(pl);
-		/* Once again, rest of code just loads the char */
 		return;
 	}
 
@@ -437,120 +439,154 @@ void check_login(object *op)
 	pl->orig_stats.Wis = 0;
 	pl->orig_stats.Cha = 0;
 	strcpy(pl->savebed_map, first_map_path);
-	pl->bed_x = 0, pl->bed_y = 0;
+	pl->bed_x = 0;
+	pl->bed_y = 0;
 
-	/* Loop through the file, loading the rest of the values */
-	while (fgets(bufall, MAX_BUF, fp) != NULL)
+	/* Loop through the file, loading the rest of the values. */
+	while (fgets(bufall, sizeof(bufall), fp))
 	{
 		sscanf(bufall, "%s %d\n", buf, &value);
+
 		if (!strcmp(buf, "endplst"))
+		{
 			break;
-
+		}
 		else if (!strcmp(buf, "dm_stealth"))
+		{
 			pl->dm_stealth = value;
-
+		}
 		else if (!strcmp(buf, "gen_hp"))
+		{
 			pl->gen_hp = value;
-
+		}
 		else if (!strcmp(buf, "shoottype"))
-			pl->shoottype = (rangetype)value;
-
+		{
+			pl->shoottype = (rangetype) value;
+		}
 		else if (!strcmp(buf, "gen_sp"))
+		{
 			pl->gen_sp = value;
-
+		}
 		else if (!strcmp(buf, "gen_grace"))
+		{
 			pl->gen_grace = value;
-
+		}
 		else if (!strcmp(buf, "spell"))
+		{
 			pl->chosen_spell = value;
-
+		}
 		else if (!strcmp(buf, "digestion"))
+		{
 			pl->digestion = value;
-
+		}
 		else if (!strcmp(buf, "map"))
+		{
 			sscanf(bufall, "map %s", pl->maplevel);
-
+		}
 		else if (!strcmp(buf, "savebed_map"))
+		{
 			sscanf(bufall, "savebed_map %s", pl->savebed_map);
-
+		}
 		else if (!strcmp(buf, "bed_x"))
+		{
 			pl->bed_x = value;
-
+		}
 		else if (!strcmp(buf, "bed_y"))
+		{
 			pl->bed_y = value;
-
+		}
 		else if (!strcmp(buf, "Str"))
+		{
 			pl->orig_stats.Str = value;
-
+		}
 		else if (!strcmp(buf, "Dex"))
+		{
 			pl->orig_stats.Dex = value;
-
+		}
 		else if (!strcmp(buf, "Con"))
+		{
 			pl->orig_stats.Con = value;
-
+		}
 		else if (!strcmp(buf, "Int"))
+		{
 			pl->orig_stats.Int = value;
-
+		}
 		else if (!strcmp(buf, "Pow"))
+		{
 			pl->orig_stats.Pow = value;
-
+		}
 		else if (!strcmp(buf, "Wis"))
+		{
 			pl->orig_stats.Wis = value;
-
+		}
 		else if (!strcmp(buf, "Cha"))
+		{
 			pl->orig_stats.Cha = value;
-
+		}
 		else if (!strcmp(buf, "lev_hp"))
 		{
 			int j;
+
 			for (i = 1; i <= value; i++)
 			{
 				if (fscanf(fp, "%d\n", &j))
+				{
 					pl->levhp[i] = j;
+				}
 			}
 		}
-
 		else if (!strcmp(buf, "lev_sp"))
 		{
 			int j;
+
 			for (i = 1; i <= value; i++)
 			{
 				if (fscanf(fp, "%d\n", &j))
+				{
 					pl->levsp[i] = j;
+				}
 			}
 		}
-
 		else if (!strcmp(buf, "lev_grace"))
 		{
 			int j;
+
 			for (i = 1; i <= value; i++)
 			{
 				if (fscanf(fp, "%d\n", &j))
+				{
 					pl->levgrace[i] = j;
+				}
 			}
 		}
-
 		else if (!strcmp(buf, "known_spell"))
 		{
 			char *cp = strchr(bufall, '\n');
 			*cp = '\0';
 			cp = strchr(bufall, ' ');
 			cp++;
+
 			for (i = 0; i < NROFREALSPELLS; i++)
+			{
 				if (!strcmp(spells[i].name, cp))
 				{
 					pl->known_spells[pl->nrofknownspells++] = i;
 					break;
 				}
+			}
 
 			if (i == NROFREALSPELLS)
-				LOG(llevDebug, "Error: unknown spell (%s)\n", cp);
+			{
+				LOG(llevDebug, "BUG: check_login(): Bogus spell (%s) in %s\n", cp, filename);
+			}
 		}
 	}
 
-	/* Take the player ob out from the void */
+	/* Take the player object out from the void */
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
+	{
 		remove_ob(op);
+	}
 
 	/* We transfer it to a new object */
 	op->custom_attrset = NULL;
@@ -566,48 +602,27 @@ void check_login(object *op)
 	delete_loader_buffer(mybuffer);
 	close_and_delete(fp, comp);
 
-	/* at this moment, the inventory is reverse loaded.
-	 * Lets exchange it here.
-	 * Caution: We do it on the hard way here without
-	 * calling remove/insert again. */
+	/* The inventory of players is reverse loaded, so let's exchange the
+	 * order here. */
 	if (op->inv)
 	{
-		tmp2 = op->inv->below;
-		op->inv->above = NULL;
-		op->inv->below = NULL;
-
-		if (op->inv->inv)
-			reorder_inventory(op->inv);
-
-		for (; tmp2; )
-		{
-			tmp = tmp2;
-			/* save the following element */
-			tmp2 = tmp->below;
-			tmp->above = NULL;
-			/* resort it like in insert_ob_in_ob() */
-			tmp->below = op->inv;
-			tmp->below->above = tmp;
-			op->inv = tmp;
-			if (tmp->inv)
-				reorder_inventory(tmp);
-		}
+		reorder_inventory(op);
 	}
 
 	op->custom_attrset = pl;
 	pl->ob = op;
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-	/* make sure he's a player -- needed because of class change. */
 	op->type = PLAYER;
 
-	/* this is a funny thing: what happens when the autosave function saves a player
-	 * with negative hp? (never thought thats possible but happens in a 0.95 server)
-	 * Well, the sever tries to create a gravestone and heals the player... and then
-	 * server tries to insert gravestone and anim on a map - but player is still in login!
-	 * So, we are nice and set hp to 1 if here negative. */
+	/* This is a funny thing: what happens when the autosave function saves a player
+	 * with negative hp? Well, the sever tries to create a gravestone and heals the
+	 * player... and then server tries to insert gravestone and anim on a map - but
+	 * player is still in login! So, we are nice and set hp to 1 if here negative. */
 	if (op->stats.hp < 0)
+	{
 		op->stats.hp = 1;
+	}
 
 	pl->state = ST_PLAYING;
 #ifdef AUTOSAVE
@@ -615,37 +630,40 @@ void check_login(object *op)
 #endif
 	op->carrying = sum_weight(op);
 
-	/* Need to call fix_player now - program modified so that it is not
-	 * called during the load process (FLAG_NO_FIX_PLAYER set when
-	 * saved)
-	 * Moved ahead of the esrv functions, so proper weights will be
-	 * sent to the client. */
-	(void) init_player_exp(op);
+	init_player_exp(op);
 	link_player_skills(op);
 
-	if (!legal_range (op, pl->shoottype))
+	if (!legal_range(op, pl->shoottype))
+	{
 		pl->shoottype = range_none;
+	}
 
 	fix_player(op);
 
-	/* if it's a dragon player, set the correct title here */
-	if (is_dragon_pl(op) && op->inv != NULL)
+	/* If it's a dragon player, set the correct title here */
+	if (is_dragon_pl(op) && op->inv)
 	{
 		object *tmp, *abil = NULL, *skin = NULL;
-		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
 			if (tmp->type == FORCE)
 			{
 				if (strcmp(tmp->arch->name, "dragon_ability_force") == 0)
+				{
 					abil = tmp;
+				}
 				else if (strcmp(tmp->arch->name, "dragon_skin_force") == 0)
+				{
 					skin = tmp;
+				}
 			}
 		}
+
 		set_dragon_name(op, abil, skin);
 	}
 
-	/* important: there is a player file */
+	/* Important: there is a player file */
 	pl->player_loaded = 1;
 
 	/* Display Message of the Day */
@@ -653,39 +671,28 @@ void check_login(object *op)
 
 	if (!pl->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
 
 		if (dm_list)
 		{
-			objectlink *tmp_dm_list;
+			objectlink *ol;
 			player *pl_tmp;
 			int players;
 
-			for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++);
+			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
+			{
+			}
 
-			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
-				new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
+			for (ol = dm_list; ol; ol = ol->next)
+			{
+				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
+			}
 		}
 	}
 
 	/* Trigger the global LOGIN event */
 	trigger_global_event(EVENT_LOGIN, pl, pl->socket.host);
 
-	/* If the player should be dead, call kill_player for them
-	 * Only check for hp - if player lacks food, let the normal
-	 * logic for that to take place.  If player is permanently
-	 * dead, and not using permadeath mode, the kill_player will
-	 * set the play_again flag, so return. */
-	if (op->stats.hp < 0)
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your character was dead last you played.");
-		kill_player(op);
-		if (pl->state != ST_PLAYING)
-			return;
-	}
-
-	/* Do this after checking for death - no reason sucking up bandwidth if
-	 * the data isn't needed. */
 	esrv_new_player(pl, op->weight + op->carrying);
 	esrv_send_inventory(op, op);
 
@@ -693,9 +700,6 @@ void check_login(object *op)
 	 * on SGI's or not, however. */
 	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)()) spell_sort);
 
-	/* hm, this is for secure - be SURE our player is on
-	 * friendly list. If friendly is set, this was be done
-	 * in loader.c. */
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
 		LOG(llevBug, "BUG: Player %s was loaded without friendly flag!", query_name(op, NULL));
@@ -703,21 +707,13 @@ void check_login(object *op)
 		add_friendly_object(op);
 	}
 
-	/* ok, we are done with the login.
-	 * Lets put the player on the map and send all player lists to the client.
-	 * The player is active now. */
-	/* kick player on map - load map if needed */
 	enter_exit(op, NULL);
 
 	pl->socket.update_tile = 0;
 	pl->socket.look_position = 0;
 	pl->socket.ext_title_flag = 1;
-
-	pl->ob->direction = 4;
 	esrv_new_player(pl, op->weight + op->carrying);
-	/* send the known spells as list to client */
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_quickslots(pl);
-	return;
 }

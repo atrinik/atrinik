@@ -108,7 +108,7 @@ int command_say(object *op, char *params)
  * @return 1 on success, 0 on failure. */
 int command_dmsay(object *op, char *params)
 {
-	objectlink *tmp_dm_list;
+	objectlink *ol;
 
 	if (!params)
 	{
@@ -125,9 +125,9 @@ int command_dmsay(object *op, char *params)
 		return 0;
 	}
 
-	for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
+	for (ol = dm_list; ol; ol = ol->next)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, tmp_dm_list->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
+		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, ol->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
 	}
 
 	return 1;

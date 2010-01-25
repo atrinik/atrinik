@@ -319,7 +319,7 @@ static int compare_ob_value_lists_one(const object *wants, const object *has)
 	/* For each field in wants. */
 	for (wants_field = wants->key_values; wants_field; wants_field = wants_field->next)
 	{
-		key_value *has_field = get_ob_key_link(has, wants_field->key);
+		key_value *has_field = object_get_key_link(has, wants_field->key);
 
 		if (has_field == NULL)
 		{
@@ -3461,7 +3461,7 @@ void free_key_values(object *op)
  * @param key Key to search. Must be a shared string.
  * @return The link from the list if ob has a field named key, NULL
  * otherwise. */
-key_value *get_ob_key_link(const object *ob, const char *key)
+key_value *object_get_key_link(const object *ob, const char *key)
 {
 	key_value *link;
 
@@ -3483,7 +3483,7 @@ key_value *get_ob_key_link(const object *ob, const char *key)
  * shared string.
  * @return The value if found, NULL otherwise.
  * @note The returned string is shared. */
-const char *get_ob_key_value(const object *op, const char *const key)
+const char *object_get_value(const object *op, const char *const key)
 {
 	key_value *link;
 	const char *canonical_key = find_string(key);
@@ -3493,7 +3493,7 @@ const char *get_ob_key_value(const object *op, const char *const key)
 		return NULL;
 	}
 
-	/* This is copied from get_ob_key_link() above - only 4 lines, and
+	/* This is copied from object_get_key_link() above - only 4 lines, and
 	 * saves the function call overhead. */
 	for (link = op->key_values; link; link = link->next)
 	{
@@ -3513,7 +3513,7 @@ const char *get_ob_key_value(const object *op, const char *const key)
  * @param value Value to set. Doesn't need to be a shared string.
  * @param add_key If 0, will not add the key if it doesn't exist in op.
  * @return 1 if key was updated or added, 0 otherwise. */
-static int set_ob_key_value_s(object *op, const char *canonical_key, const char *value, int add_key)
+static int object_set_value_s(object *op, const char *canonical_key, const char *value, int add_key)
 {
 	key_value *field = NULL, *last = NULL;
 
@@ -3540,7 +3540,7 @@ static int set_ob_key_value_s(object *op, const char *canonical_key, const char 
 			 * store the NULL value so when we save it, we save the empty
 			 * value so that when we load, we get this value back
 			 * again. */
-			if (get_ob_key_link(&op->arch->clone, canonical_key))
+			if (object_get_key_link(&op->arch->clone, canonical_key))
 			{
 				field->value = NULL;
 			}
@@ -3605,9 +3605,9 @@ static int set_ob_key_value_s(object *op, const char *canonical_key, const char 
  * @param value Value to set. Doesn't need to be a shared string.
  * @param add_key If 0, will not add the key if it doesn't exist in op.
  * @return 1 if key was updated or added, 0 otherwise.
- * @note This function is merely a wrapper to set_ob_key_value_s() to
+ * @note This function is merely a wrapper to object_set_value_s() to
  * ensure the key is a shared string.*/
-int set_ob_key_value(object *op, const char *key, const char *value, int add_key)
+int object_set_value(object *op, const char *key, const char *value, int add_key)
 {
 	const char *canonical_key = find_string(key);
 	int floating_ref = 0, ret;
@@ -3618,7 +3618,7 @@ int set_ob_key_value(object *op, const char *key, const char *value, int add_key
 		floating_ref = 1;
 	}
 
-	ret = set_ob_key_value_s(op, canonical_key, value, add_key);
+	ret = object_set_value_s(op, canonical_key, value, add_key);
 
 	if (floating_ref)
 	{

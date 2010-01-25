@@ -158,41 +158,43 @@ int command_stay(object *op, char *params)
 
 /**
  * Turn object to face one direction to right.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param op Object.
+ * @param params Parameters.
+ * @return 11. */
 int command_turn_right(object *op, char *params)
 {
-	sint8 dir = absdir(op->facing + 1);
+	int dir = absdir(op->facing + 1);
 
 	(void) params;
 
 	op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
+	SET_ANIMATION(op, dir * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 
 	return 1;
 }
 
 /**
  * Turn object to face one direction to left.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 1. */
+ * @param op Object.
+ * @param params Parameters.
+ * @return 1. */
 int command_turn_left(object *op, char *params)
 {
-	sint8 dir = absdir(op->facing - 1);
+	int dir = absdir(op->facing - 1);
 
 	(void) params;
 
 	op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
+	SET_ANIMATION(op, dir * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 
 	return 1;
 }
 
 /**
  * Push object in front of the player.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return Always returns 0. */
+ * @param op Object.
+ * @param params Parameters.
+ * @return 0. */
 int command_push_object(object *op, char *params)
 {
 	(void) params;

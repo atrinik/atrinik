@@ -63,7 +63,7 @@ void init_spells()
 			object *tmp = arch_to_object(at);
 			const char *value;
 
-			if ((value = get_ob_key_value(tmp, "spell_type")))
+			if ((value = object_get_value(tmp, "spell_type")))
 			{
 				spells[i].type = !strcmp(value, "wizard") ? SPELL_TYPE_WIZARD : SPELL_TYPE_PRIEST;
 
@@ -73,72 +73,72 @@ void init_spells()
 				}
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_level")))
+			if ((value = object_get_value(tmp, "spell_level")))
 			{
 				spells[i].level = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_cost")))
+			if ((value = object_get_value(tmp, "spell_cost")))
 			{
 				spells[i].sp = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_time")))
+			if ((value = object_get_value(tmp, "spell_time")))
 			{
 				spells[i].time = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_scrolls")))
+			if ((value = object_get_value(tmp, "spell_scrolls")))
 			{
 				spells[i].charges = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_charges")))
+			if ((value = object_get_value(tmp, "spell_charges")))
 			{
 				spells[i].charges = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_range")))
+			if ((value = object_get_value(tmp, "spell_range")))
 			{
 				spells[i].range = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_value_mul")))
+			if ((value = object_get_value(tmp, "spell_value_mul")))
 			{
 				spells[i].value_mul = atof(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_bdam")))
+			if ((value = object_get_value(tmp, "spell_bdam")))
 			{
 				spells[i].bdam = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_bdur")))
+			if ((value = object_get_value(tmp, "spell_bdur")))
 			{
 				spells[i].bdur = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_ldam")))
+			if ((value = object_get_value(tmp, "spell_ldam")))
 			{
 				spells[i].ldam = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_ldur")))
+			if ((value = object_get_value(tmp, "spell_ldur")))
 			{
 				spells[i].ldur = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_spl")))
+			if ((value = object_get_value(tmp, "spell_spl")))
 			{
 				spells[i].spl = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_sound")))
+			if ((value = object_get_value(tmp, "spell_sound")))
 			{
 				spells[i].sound = atoi(value);
 			}
 
-			if ((value = get_ob_key_value(tmp, "spell_archname")))
+			if ((value = object_get_value(tmp, "spell_archname")))
 			{
 				spells[i].archname = strdup_local(value);
 			}

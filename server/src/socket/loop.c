@@ -301,22 +301,7 @@ static void remove_ns_dead_player(player *pl)
 	/* Trigger the global LOGOUT event */
 	trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
 
-	if (dm_list)
-	{
-		player *pl_tmp;
-		int players;
-		objectlink *tmp_dm_list;
-
-		/* Count the players */
-		for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
-		{
-		}
-
-		for (tmp_dm_list = dm_list; tmp_dm_list; tmp_dm_list = tmp_dm_list->next)
-		{
-			new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "%s leaves the game (%d still playing).", query_name(pl->ob, NULL), players - 1);
-		}
-	}
+	new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
 
 	/* If this player is in a party, leave the party */
 	if (pl->party)

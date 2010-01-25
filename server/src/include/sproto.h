@@ -250,7 +250,7 @@ void free_racelist();
 
 /* login.c */
 void emergency_save(int flag);
-int check_name(player *me, char *name);
+int check_name(player *pl, char *name);
 int save_player(object *op, int flag);
 void check_login(object *op);
 

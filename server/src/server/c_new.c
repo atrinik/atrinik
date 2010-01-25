@@ -806,39 +806,36 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL, op, "%s entered the game.", op->name);
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, op, "%s entered the game.", op->name);
 
 		if (dm_list)
 		{
 			player *pl_tmp;
 			int players;
-			objectlink *tmp_dm_list;
+			objectlink *ol;
 
-			for (pl_tmp = first_player, players = 0; pl_tmp != NULL; pl_tmp = pl_tmp->next, players++)
+			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
 			{
 			}
 
-			for (tmp_dm_list = dm_list; tmp_dm_list != NULL; tmp_dm_list = tmp_dm_list->next)
+			for (ol = dm_list; ol; ol = ol->next)
 			{
-				new_draw_info_format(NDI_UNIQUE, tmp_dm_list->objlink.ob, "DM: %d players now playing.", players);
+				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
 			}
 		}
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);
-	(void) init_player_exp(op);
+	init_player_exp(op);
 	give_initial_items(op, op->randomitems);
 	link_player_skills(op);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
-	/* force send of skill exp data to client */
+	/* Force sending of skill exp data to client */
 	CONTR(op)->last_stats.exp = 1;
-	/* THATS our first fix_player() when we create a new char
-	 * add this time, hp and sp will be set */
 	fix_player(op);
 	esrv_update_item(UPD_FACE, op, op);
 	esrv_send_inventory(op, op);
 
-	/* NOW we set our new char in the right map - we have a 100% right init player */
 	set_first_map(op);
 	SET_FLAG(op, FLAG_FRIENDLY);
 	add_friendly_object(op);

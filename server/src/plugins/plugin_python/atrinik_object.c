@@ -476,12 +476,20 @@ static Atrinik_Constant object_constants[] =
 	{"EXP_PHYSICAL",                 5},
 	{"EXP_WISDOM",                   6},
 
-	{"COLOR_ORANGE",                 NDI_ORANGE},
-	{"COLOR_WHITE",                  NDI_WHITE},
-	{"COLOR_NAVY",                   NDI_NAVY},
-	{"COLOR_YELLOW",                 NDI_YELLOW},
-	{"COLOR_BLUE",                   NDI_BLUE},
-	{"COLOR_RED",                    NDI_RED},
+	{"COLOR_WHITE", NDI_WHITE},
+	{"COLOR_ORANGE", NDI_ORANGE},
+	{"COLOR_NAVY", NDI_NAVY},
+	{"COLOR_RED", NDI_RED},
+	{"COLOR_GREEN", NDI_GREEN},
+	{"COLOR_BLUE", NDI_BLUE},
+	{"COLOR_GREY", NDI_GREY},
+	{"COLOR_BROWN", NDI_BROWN},
+	{"COLOR_PURPLE", NDI_PURPLE},
+	{"COLOR_PINK", NDI_PINK},
+	{"COLOR_YELLOW", NDI_YELLOW},
+	{"COLOR_DK_NAVY", NDI_DK_NAVY},
+	{"COLOR_DK_GREEN", NDI_DK_GREEN},
+	{"COLOR_DK_ORANGE", NDI_DK_ORANGE},
 
 	{"NDI_SAY",                      NDI_SAY},
 	{"NDI_SHOUT",                    NDI_SHOUT},
@@ -2785,7 +2793,7 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("s", hooks->get_ob_key_value(WHO, key));
+	return Py_BuildValue("s", hooks->object_get_value(WHO, key));
 }
 
 /**
@@ -2807,7 +2815,7 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 		return NULL;
 	}
 
-	return Py_BuildValue("i", hooks->set_ob_key_value(WHO, key, value, add_key));
+	return Py_BuildValue("i", hooks->object_set_value(WHO, key, value, add_key));
 }
 
 /**

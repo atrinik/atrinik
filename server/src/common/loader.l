@@ -86,7 +86,7 @@ static char msgbuf[HUGE_BUF];
 
 /**
  * This extracts the key/value from the yytext field - calls
- * set_ob_key_value() to actually set the value.
+ * object_set_value() to actually set the value.
  *
  * Function basically has to find spaces, strip out extra, etc. strchr()
  * doesn't work as good because could also be tabs.
@@ -108,14 +108,14 @@ static void add_key_value(object *op)
 		if (*cp == '\0')
 		{
 			/* Oops, ran out of string! Set the key with an empty value. */
-			set_ob_key_value(op, key, NULL, 1);
+			object_set_value(op, key, NULL, 1);
 			return;
 		}
 	}
 
 	if (*cp == '\0')
 	{
-		set_ob_key_value(op, key, NULL, 1);
+		object_set_value(op, key, NULL, 1);
 		return;
 	}
 
@@ -126,7 +126,7 @@ static void add_key_value(object *op)
 	if (*cp == '\0')
 	{
 		/* Was followed by one space? */
-		set_ob_key_value(op, key, NULL, 1);
+		object_set_value(op, key, NULL, 1);
 		return;
 	}
 
@@ -136,7 +136,7 @@ static void add_key_value(object *op)
 		if (*cp == '\0')
 		{
 			/* Guess not. */
-			set_ob_key_value(op, key, NULL, 1);
+			object_set_value(op, key, NULL, 1);
 			return;
 		}
 	}
@@ -150,14 +150,14 @@ static void add_key_value(object *op)
 		if (end == value)
 		{
 			/* Still no value? */
-			set_ob_key_value(op, key, NULL, 1);
+			object_set_value(op, key, NULL, 1);
 			return;
 		}
 
 		*end = '\0';
 	}
 
-	set_ob_key_value(op, key, value, 1);
+	object_set_value(op, key, value, 1);
 }
 %}
 
@@ -1162,7 +1162,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	for (my_field = op->key_values; my_field; my_field = my_field->next)
 	{
 		/* Find the field in the opposing member. */
-		arch_field = get_ob_key_link(op2, my_field->key);
+		arch_field = object_get_key_link(op2, my_field->key);
 
 		/* If there's no partnering field, or it's got a different value,
 		 * save our field. */

@@ -209,8 +209,8 @@ struct plugin_hooklist
 	int (*swap_apartments)(char *, char *, int, int, object *);
 	int (*player_exists)(char *);
 	void (*get_tod)(timeofday_t *);
-	const char *(*get_ob_key_value)(const object *, const char *const);
-	int (*set_ob_key_value)(object *, const char *, const char *, int);
+	const char *(*object_get_value)(const object *, const char *const);
+	int (*object_set_value)(object *, const char *, const char *, int);
 	void (*drop)(object *, object *);
 	char *(*query_short_name)(object *, object *);
 	object *(*beacon_locate)(const char *);

@@ -218,12 +218,16 @@
 #define NDI_BROWN   7
 /** Purple. */
 #define NDI_PURPLE  8
-/** Flesh. */
-#define NDI_FLESH   9
+/** Pink. */
+#define NDI_PINK    9
 /** Yellow. */
 #define NDI_YELLOW  10
 /** Dark navy. */
 #define NDI_DK_NAVY 11
+/** Dark green. */
+#define NDI_DK_GREEN 12
+/** Dark orange. */
+#define NDI_DK_ORANGE 17
 
 /** Last color value in */
 #define NDI_MAX_COLOR 11
