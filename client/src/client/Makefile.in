@@ -71,6 +71,7 @@ LIBS = @LIBS@ $(EXTRA_LIBS) $(SDL_LIBS)
 
 CC = @CC@
 RM = @RM@
+SED = @SED@
 
 atrinik-client: $(OBJS) $(LOCAL_LIBRARIES)
 	$(RM) -f $@
@@ -87,6 +88,12 @@ clean::
 
 distclean:: clean
 	$(RM) -f Makefile ./include/define.h
+
+proto:
+	cproto -o ../include/proto.h.bak -D__LINUX $(INCLUDES) $(SDL_CFLAGS) $(SRCS)
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/proto.h.bak > ../include/proto.h
+	chmod 644 ../include/proto.h
+	$(RM) -f ../include/proto.h.bak
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $*.c

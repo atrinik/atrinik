@@ -140,16 +140,6 @@ extern int itemExamined;
 extern uint32 MouseState;
 extern _key_macro defkey_macro[];
 extern const int DEFAULT_KEYMAP_MACROS;
-extern int draggingInvItem(int src);
-extern int Event_PollInputDevice();
-extern void init_keys();
-extern void reset_keys();
-extern void read_keybind_file(char *fname);
-extern void save_keybind_file(char *fname);
-extern void check_menu_keys(int menu, int value);
-extern int check_menu_macros(char *text);
-extern void check_keys(int key);
-extern int process_macro_keys(int id, int value);
 
 /* Use these constants to determine the state of mouse and its events */
 enum

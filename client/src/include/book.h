@@ -95,8 +95,4 @@ typedef struct gui_book_page
 
 extern _global_book_data global_book_data;
 
-extern _gui_book_struct *book_gui_load(char *data, int len);
-extern void book_gui_show();
-extern void book_gui_handle_mouse(int x, int y);
-
 #endif

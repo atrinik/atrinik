@@ -68,11 +68,4 @@ typedef struct gui_party_line
 	char line[MAX_BUF + 1];
 } _gui_party_line;
 
-extern void switch_tabs();
-extern _gui_party_struct *load_party_interface(char *data, int len);
-extern void show_party();
-extern void gui_party_interface_mouse(SDL_Event *e);
-extern int console_party();
-extern void clear_party_interface();
-
 #endif

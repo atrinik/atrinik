@@ -133,18 +133,4 @@ extern _shop_gui_struct *shop_gui;
 /** Maximum price value the server will accept */
 #define MAX_PRICE_VALUE 100000000
 
-extern void widget_show_shop(int x, int y);
-extern void shop_open();
-extern void shop_buy_item();
-extern void initialize_shop(int shop_state);
-extern void clear_shop(int send_to_server);
-extern void shop_add_close_button(int x, int y);
-extern void shop_add_button(int x, int y, char *text);
-extern int shop_put_item(int x, int y);
-extern void shop_remove_item(sint32 tag);
-extern int check_shop_keys(SDL_KeyboardEvent *key);
-extern char *shop_show_input(char *text, struct _Font *font, int wlen, int append_underscore);
-extern int shop_price2int(char *text);
-extern char *shop_int2price(int value);
-
 #endif

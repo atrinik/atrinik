@@ -174,24 +174,4 @@ typedef struct _anim
 /* Anim queue of current active map */
 extern struct _anim *start_anim;
 
-extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
-extern void remove_anim(struct _anim *anim);
-extern void play_anims();
-extern void delete_anim_que();
-extern void show_tooltip(int mx, int my, char* text);
-extern int StringWidth(_Font *font, char *text);
-extern int StringWidthOffset(_Font *font, char *text, int *line, int len);
-
-extern _Sprite *sprite_load_file(char *fname, uint32 flags);
-extern _Sprite *sprite_tryload_file(char *fname, uint32 flags, SDL_RWops *rwob);
-extern void sprite_free_sprite(_Sprite *sprite);
-extern int get_string_pixel_length(char *text, struct _Font *font);
-extern void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
-extern void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx);
-
-extern Uint32 GetSurfacePixel(SDL_Surface *Surface, Sint32 X, Sint32 Y);
-extern void CreateNewFont(_Sprite *sprite, _Font *font, int xlen, int ylen, int c32len);
-extern void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y,int col, SDL_Rect *area, _BLTFX *bltfx);
-extern int sprite_collision(int x1,int y1,int x2,int y2,_Sprite *sprite1, _Sprite *sprite2);
-
 #endif

@@ -1473,6 +1473,7 @@ int main(int argc, char *argv[])
 		options.used_video_bpp = info->vfmt->BitsPerPixel;
 	}
 
+	sprite_init_system();
 	ScreenSurfaceMap = SDL_CreateRGBSurface(videoflags, 850, 600, options.used_video_bpp, 0,0,0,0);
 
 	/* 60, 70*/

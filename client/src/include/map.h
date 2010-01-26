@@ -149,17 +149,4 @@ typedef struct
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
 
-extern void clear_map();
-extern void display_map_clearcell(long x, long y);
-extern void set_map_darkness(int x, int y, uint8 darkness);
-extern void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color);
-extern void map_draw_map();
-extern void display_mapscroll ( int dx, int dy );
-extern void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music);
-extern void set_map_ext(int x, int y, int layer,int ext, int probe);
-extern void map_draw_map_clear();
-extern void load_mapdef_dat();
-extern void adjust_map_cache(int x, int y);
-extern int get_tile_position( int mx, int my, int *tx, int *ty );
-
 #endif

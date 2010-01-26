@@ -105,6 +105,13 @@ distclean:: clean
 	$(RM) -f Makefile
 	$(RM) -rf $(prefix)
 
+proto:
+	@for dir in $(SUBDIRS); \
+	do \
+	    echo "making proto in $$dir..."; \
+	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(XX_EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
+	done;
+
 install:: all
 	$(MKDIR) -p $(prefix)
 	$(MKDIR) -p $(prefix)/sfx

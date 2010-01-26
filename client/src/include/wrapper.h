@@ -54,21 +54,6 @@ typedef enum _LOGLEVEL
 
 #define LOGLEVEL LOG_DEBUG
 
-extern void LOG(int logLevel, char *format, ...);
-
-extern char *GetCacheDirectory();
-extern char *GetGfxUserDirectory();
-extern char *GetBitmapDirectory();
-extern char *GetSfxDirectory();
-extern char *GetMediaDirectory();
-extern char *GetIconDirectory();
-
-extern char *get_word_from_string(char *str, int *pos);
-
-extern void SYSTEM_Start();
-extern int SYSTEM_End();
-uint32 get_video_flags();
-
 #if defined(HAVE_STRNICMP)
 #else
 #if !defined(HAVE_STRNCASECMP)
@@ -82,11 +67,6 @@ int strncasecmp(char *s1, char *s2, int n);
 int strcasecmp(char *s1, char *s2);
 #endif
 #endif
-
-char *file_path(const char *fname, const char *mode);
-
-FILE *fopen_wrapper(const char *fname, const char *mode);
-SDL_Surface *IMG_Load_wrapper(const char *file);
 
 #ifdef INSTALL_SOUND
 Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);

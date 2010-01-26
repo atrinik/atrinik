@@ -148,31 +148,11 @@ typedef struct _widgetmove
 	int yOffset;
 }_widgetmove;
 
-extern SDL_Surface *widgetSF[TOTAL_WIDGETS];
+SDL_Surface *widgetSF[TOTAL_WIDGETS];
 
 extern _widgetdata cur_widget[TOTAL_WIDGETS];
 extern _widgetevent widget_mouse_event;
 extern int IsMouseExclusive;
-
-/* Init and kill */
-extern void	init_widgets_fromDefault();
-extern void	init_widgets_fromCurrent();
-extern void kill_widgets();
-
-/* File */
-extern void save_interface_file();
-
-/* Events */
-extern int widget_event_mousedn(int x,int y, SDL_Event *event);
-extern int widget_event_mouseup(int x,int y, SDL_Event *event);
-extern int widget_event_mousemv(int x,int y, SDL_Event *event);
-
-/* Misc */
-extern void process_widgets();
-extern uint32 GetMouseState(int *mx, int *my,int nWidgetID);
-extern void SetPriorityWidget(int nWidgetID);
-
-extern int get_widget_owner(int x,int y);
 
 /** Macro to redraw widget */
 #define WIDGET_REDRAW(__a) cur_widget[__a].redraw = 1;

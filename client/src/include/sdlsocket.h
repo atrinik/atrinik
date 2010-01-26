@@ -34,12 +34,4 @@
 /** Timeout in seconds. */
 #define SOCKET_TIMEOUT_SEC 8
 
-extern int socket_get_error();
-extern int socket_read(int fd, SockList *sl, int len);
-extern int socket_write(int fd, unsigned char *buf, int len);
-extern int socket_initialize();
-extern void socket_deinitialize();
-extern void socket_close(SOCKET socket);
-extern int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
-
 #endif

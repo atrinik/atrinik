@@ -37,7 +37,7 @@
 #include <include.h>
 
 /* File scope routines */
-static void  process_widget(int nID);
+static void process_widget(int nID);
 static int load_interface_file(char *filename);
 static void init_priority_list();
 static void kill_priority_list();
@@ -185,7 +185,7 @@ void init_widgets_fromCurrent()
 /**
  * Initializes the widget priority list.
  * Used in two places at the moment, so it's in a static scope function */
-void init_priority_list()
+static void init_priority_list()
 {
 	widget_node *node;
 	int lp;
@@ -251,7 +251,7 @@ void init_priority_list()
 
 /**
  * Kill widget priority list. */
-void kill_priority_list()
+static void kill_priority_list()
 {
 	widget_node *tmp_node;
 	int lp;
@@ -313,7 +313,7 @@ void kill_widgets()
  * Do not perform any dynamic allocation.
  * @param filename The interface filename
  * @return 1 on success, 0 on failure */
-int load_interface_file(char *filename)
+static int load_interface_file(char *filename)
 {
 	int i = -1, pos;
 	FILE *stream;
@@ -986,7 +986,7 @@ int get_widget_owner(int x, int y)
 /**
  * Function list for each widget. Calls the widget with the process type.
  * @param nID The widget ID */
-void process_widget(int nID)
+static void process_widget(int nID)
 {
 	/* Doesn't matter which order the case statements follow */
 	switch (nID)

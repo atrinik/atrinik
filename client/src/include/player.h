@@ -75,27 +75,4 @@ typedef struct _player_doll_pos
 
 extern _server_level server_level;
 
-extern void clear_player();
-extern void new_player(long tag, char *name, long weight, short face);
-extern void new_char(struct _server_char *nc);
-extern void client_send_apply(int tag);
-extern void client_send_examine(int tag);
-extern void client_send_move(int loc, int tag, int nrof);
-extern void send_command(const char *command, int repeat, int must_send);
-extern void CompleteCmd(unsigned char *data, int len);
-extern void set_weight_limit(uint32 wlim);
-extern void init_player_data();
-extern void widget_show_player_doll(int x, int y);
-extern void widget_player_stats(int x, int y);
-extern void widget_show_main_lvl(int x, int y);
-extern void widget_show_skill_exp(int x, int y);
-extern void widget_show_regeneration(int x, int y);
-extern void widget_skillgroups(int x, int y);
-extern void widget_menubuttons(int x, int y);
-extern void widget_menubuttons_event(int x, int y);
-extern void widget_skill_exp_event();
-extern void widget_player_data_event(int x, int y);
-extern void widget_show_player_doll_event();
-extern void widget_show_player_data(int x, int y);
-
 #endif

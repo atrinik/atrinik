@@ -87,11 +87,4 @@ extern int dialog_yoff;
 extern char *opt_tab[];
 extern int dialog_new_char_warn;
 
-extern void show_optwin();
-extern void show_newplayer_server();
-extern void show_login_server();
-extern void show_meta_server(_server *node, int metaserver_start, int metaserver_sel);
-extern void add_close_button(int x, int y, int menu);
-extern void draw_frame(int x, int y, int w, int h);
-extern void metaserver_mouse(SDL_Event *e);
 #endif

@@ -621,17 +621,3 @@ extern Client_Player cpl;
 #define COLOR_BLACK 	255
 
 #define COLOR_FLAG_CLIPPED 0x0100
-
-extern void DoClient(ClientSocket *csocket);
-extern void SockList_Init(SockList *sl);
-extern void SockList_AddChar(SockList *sl, char c);
-extern void SockList_AddShort(SockList *sl, uint16 data);
-extern void SockList_AddInt(SockList *sl, uint32 data);
-extern int GetInt_String(unsigned char *data);
-extern short GetShort_String(unsigned char *data);
-extern int send_socklist(int fd, SockList msg);
-extern int cs_write_string(int fd, char *buf, int len);
-extern void finish_face_cmd(int pnum, uint32 checksum, char *face);
-extern int request_face(int num, int mode);
-extern void check_animation_status(int anum);
-extern char *adjust_string(char *buf);

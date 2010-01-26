@@ -84,6 +84,9 @@
 		<Unit filename="..\..\..\src\include\ignore.h">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\include\proto.h">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\include\main.h">
 			<Option compilerVar="CC" />
 		</Unit>

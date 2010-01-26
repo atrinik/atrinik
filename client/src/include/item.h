@@ -345,30 +345,4 @@ typedef struct item_struct
 #define delete_item(tag) remove_item(locate_item(tag))
 #define delete_item_inventory(tag) remove_item_inventory(locate_item(tag))
 
-extern void init_item_types();
-extern int locate_item_nr_from_tag(item *op, int tag);
-extern int locate_item_tag_from_nr(item *op, int nr);
-extern item *locate_item_from_inv(item *op, sint32 tag);
-extern item *locate_item_from_item (item *op, sint32 tag);
-extern void update_item_sort(item *it);
-extern char *get_number(int i);
-extern void free_all_items(item *op);
-extern item *locate_item(sint32 tag);
-extern void remove_item(item *op);
-extern void remove_item_inventory(item *op);
-extern item *create_new_item(item *env, sint32 tag, int bflag);
-
-extern void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 q, uint8 c, uint8 s, uint8 l, uint8 dir);
-extern void toggle_locked(item *op);
-extern void send_mark_obj(item *op);
-extern item *player_item();
-extern item *map_item();
-extern void update_item(int tag, int loc, char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 type, uint8 subtype, uint8 quality, uint8 codition, uint8 skill, uint8 level, uint8 direction, int bflag);
-extern void print_inventory(item *op);
-extern void animate_objects();
-
-extern void fire_command(char *buf);
-extern void combat_command(char *buf);
-extern void dump_inv(item *);
-
 #endif

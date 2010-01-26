@@ -53,47 +53,4 @@ enum
 #define SPLIST_MODE_REMOVE  1
 /*@}*/
 
-extern void BookCmd(unsigned char *data, int len);
-extern void PartyCmd(unsigned char *data, int len);
-extern void QuickSlotCmd(char *data);
-extern void SoundCmd(unsigned char *data, int len);
-extern void SetupCmd(char *buf, int len);
-extern void FaceCmd(unsigned char *data, int len);
-extern void Face1Cmd(unsigned char *data, int len);
-extern void AddMeFail();
-extern void AddMeSuccess();
-extern void GoodbyeCmd();
-extern void AnimCmd(unsigned char *data, int len);
-extern void ImageCmd(unsigned char *data, int len);
-extern void DrawInfoCmd(unsigned char *data);
-extern void DrawInfoCmd2(unsigned char *data, int len);
-extern void StatsCmd(unsigned char *data, int len);
-extern void PreParseInfoStat(char *cmd);
-extern void handle_query(char *data);
-extern void send_reply(char *text);
-extern void PlayerCmd(unsigned char *data, int len);
-extern void Item1Cmd(unsigned char *data, int len);
-extern void UpdateItemCmd(unsigned char *data, int len);
-extern void DeleteItem(unsigned char *data, int len);
-extern void DeleteInventory(unsigned char *data);
-extern void Map2Cmd(unsigned char *data, int len );
-extern void map_scrollCmd(char *data);
-extern void MagicMapCmd();
-extern void VersionCmd(char *data);
-extern void SendVersion(ClientSocket csock);
-extern void SendAddMe(ClientSocket csock);
-extern void RequestFile(ClientSocket csock, int index);
-extern void SendSetFaceMode(ClientSocket csock, int mode);
-extern void MapstatsCmd(unsigned char *data);
-extern void SpelllistCmd(char *data);
-extern void SkilllistCmd(char *data);
-extern void SkillRdyCmd(char *data, int len);
-extern void GolemCmd(unsigned char *data);
-extern void ItemXCmd(unsigned char *data, int len);
-extern void ItemYCmd(unsigned char *data, int len);
-extern void TargetObject(unsigned char *data, int len);
-extern void DataCmd(unsigned char *data, int len);
-extern void NewCharCmd();
-extern void ShopCmd(unsigned char *data, int len);
-extern void QuestListCmd(unsigned char *data, int len);
 #endif

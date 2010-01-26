@@ -844,10 +844,4 @@ extern struct sockaddr_in insock;
 /* If socket error, this is it */
 extern int SocketStatusErrorNr;
 
-extern void fatal_signal(int make_core);
-extern int main(int argc, char *argv[]);
-extern void open_input_mode(int maxchar);
-extern void free_faces();
-extern void load_options_dat();
-extern void save_options_dat();
 #endif
