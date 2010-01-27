@@ -40,7 +40,7 @@ typedef struct StringBuffer_struct
 	char *buf;
 
 	/**
-	 * The current length of ::buf. The invariant <code>pos < size</code>
+	 * The current length of ::buf. The invariant <code>pos \< size</code>
 	 * always holds; this means there is always enough room to attach a
 	 * trailing NUL character. */
 	size_t pos;

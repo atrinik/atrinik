@@ -30,7 +30,7 @@
  * there is no upper limit for the total string length.
  *
  * Usage is:
- * <code>
+ * @code
  * StringBuffer *sb = stringbuffer_new();
  * stringbuffer_append_string(sb, "abc");
  * stringbuffer_append_string(sb, "def");
@@ -38,7 +38,7 @@
  * char *str = stringbuffer_finish(sb);
  * ... use str
  * free(str);
- * </code>
+ * @endcode
  *
  * No function ever fails. In case not enough memory is available, the
  * program exits. */

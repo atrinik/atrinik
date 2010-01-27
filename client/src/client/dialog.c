@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Implements most client dialogs (GUIs). */
+
 #include "include.h"
 #define TXT_START_NAME  136
 #define TXT_START_LEVEL 370
@@ -32,11 +36,9 @@
 #define X_COL2 290
 #define X_COL3 430
 
-int dialog_new_char_warn = FALSE;
+int dialog_new_char_warn = 0;
 
-int add_rangebox(int x, int y, int id, int text_x, int text_, char *text, int text_color);
-
-/* selection types */
+/** Selection types */
 enum
 {
 	SEL_BUTTON,
@@ -45,70 +47,28 @@ enum
 	SEL_TEXT
 };
 
-enum
-{
-	OPTION,
-	SPELL,
-	SKILL
-};
-
 static int active_button = -1;
 
-#define MIN_ATTR_DELTA -2 /* attr. can be sub by MIN_ATTR_DELTA points. */
-#define MAX_ATTR_DELTA  1 /* attr. can be add by MIN_ATTR_DELTA points. */
-
-typedef struct _attribute
+/** The attributes, like Strength, Charisma, etc. */
+static const char *attributes[7] =
 {
-	char *name;
-	/* info text row 1 */
-	char *info;
-	int minRange, maxRange;
-	int value;
-	int valDelta;
-} _attribute;
-
-enum
-{
-	ATT_STR,
-	ATT_DEX,
-	ATT_CON,
-	ATT_INT,
-	ATT_WIS,
-	ATT_POW,
-	ATT_CHA,
-	ATT_SUM
+	"STR", "DEX", "CON", "INT", "WIS", "POW", "CHA"
 };
 
-static _attribute attribute[] =
+/** Number of ::attributes. */
+#define NUM_ATTRIBUTES (sizeof(attributes) / sizeof(attributes[0]))
+
+/** The possible genders. */
+static const char *gender[] =
 {
-	{"STR", "Strength", 8, 15, 4, 0},
-	{"DEX", "Dextery", 8, 15, 4, 0},
-	{"CON", "Constitution", 8, 15, 4, 0},
-	{"INT", "Intellect", 8, 15, 4, 0},
-	{"WIS", "Wisdom", 8, 15, 4, 0},
-	{"POW", "Power", 8, 15, 4, 0},
-	{"CHA", "Charisma", 8, 15, 4, 0}
+	"male", "female", "hermaphrodite", "neuter"
 };
 
-#define SUM_ATTRIBUTE (sizeof(attribute) / sizeof(_attribute))
-
-char *gender[] =
-{
-	"male",
-	"female",
-	"hermaphrodite",
-	"neuter"
-};
-#define SUM_GENDER (sizeof(gender) / sizeof(char*))
-
-int gen = 0;
-
+/** Dialog Y offset. */
 int dialog_yoff = 0;
 
-/******************************************************************
- Option Menue
-******************************************************************/
-char *opt_tab[] =
+/** Option tabs. */
+const char *opt_tab[] =
 {
 	"General",
 	"Client",
@@ -117,84 +77,85 @@ char *opt_tab[] =
 	"Fullscreen flags",
 	"Windowed flags",
 	"Debug",
-	0
+	NULL
 };
 
+/** The actual options. */
 _option opt[] =
 {
 	/* General */
-	{"Playerdoll:", "Whether to always show the playerdoll.", "If unchecked, the playerdoll is only shown while the inventory is open.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.playerdoll, VAL_BOOL},
-	{"Show yourself targeted:", "Show your name in the target area instead of blank.","", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_target_self, VAL_BOOL},
-	{"Show Tooltips:", "Show tooltips when hovering with the mouse over items.", "", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_tooltips, VAL_BOOL},
-	{"Key-info in Dialog menus:", "","", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_d_key_infos, VAL_BOOL},
-	{"Collect All Items:", "Don't ask for number of items to get, just get all of them.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.collectAll, VAL_BOOL},
-	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;", "~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
-	{"Chat Timestamps:", "Show a timestamp before each chat message.", "", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
-	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "", "Normal#Bigger", SEL_RANGE, 0, 1, 1, 0, &options.chat_font_size, VAL_INT},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Playerdoll:", "Whether to always show the playerdoll.\nIf unchecked, the playerdoll is only shown while the inventory is open.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.playerdoll, VAL_BOOL},
+	{"Show yourself targeted:", "Show your name in the target area instead of blank.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_target_self, VAL_BOOL},
+	{"Show Tooltips:", "Show tooltips when hovering with the mouse over items.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_tooltips, VAL_BOOL},
+	{"Key-info in Dialog menus:", "", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_d_key_infos, VAL_BOOL},
+	{"Collect All Items:", "Don't ask for number of items to get, just get all of them.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.collectAll, VAL_BOOL},
+	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;\n~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
+	{"Chat Timestamps:", "Show a timestamp before each chat message.", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
+	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "Normal#Bigger", SEL_RANGE, 0, 1, 1, 0, &options.chat_font_size, VAL_INT},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Client */
-	{"Fullscreen:", "Toogle fullscreen to windowed mode.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
-	{"Resolution:", "The resolution of the screen/window.", "If you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
-	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
-	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.", "NOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
-	{"Textwindows use alpha:", "Make the text window transparent.", "WARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
-	{"Textwindows alpha value:", "Transparent value. Higher = darker", "", "", SEL_RANGE, 0, 255, 5, 110, &options.textwin_alpha, VAL_INT},
-	{"Save CPU time with sleep():", "Client eats less cput time when set.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
-	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
-	{"Key repeat speed:", "How fast to repeat a held down key.", "", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Fullscreen:", "Toogle fullscreen to windowed mode.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
+	{"Resolution:", "The resolution of the screen/window.\nIf you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
+	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
+	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.\nNOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
+	{"Textwindows use alpha:", "Make the text window transparent.\nWARNING: Don't use this if you have a very slow computer.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.use_TextwinAlpha, VAL_INT},
+	{"Textwindows alpha value:", "Transparent value. Higher = darker", "", SEL_RANGE, 0, 255, 5, 110, &options.textwin_alpha, VAL_INT},
+	{"Save CPU time with sleep():", "Client eats less cput time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
+	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 10, &options.sleep, VAL_INT},
+	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Map */
-	{"Player Names:", "Show names of players above their heads.", "", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield start X:", "The X-position of the playfield.", "", "", SEL_RANGE, -20, 1000, 10, 0, &options.mapstart_x, VAL_INT},
-	{"Playfield start Y:", "The Y-position of the playfield.", "", "", SEL_RANGE, 0, 700, 10, 10, &options.mapstart_y, VAL_INT},
-	{"Low health warning:", "Shows a low health warning above your head", "Activatetd if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
-	{"Low food warning:", "Shows a low food warning above your head.", "Activatetd if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Player Names:", "Show names of players above their heads.", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
+	{"Playfield start X:", "The X-position of the playfield.", "", SEL_RANGE, -20, 1000, 10, 0, &options.mapstart_x, VAL_INT},
+	{"Playfield start Y:", "The Y-position of the playfield.", "", SEL_RANGE, 0, 700, 10, 10, &options.mapstart_y, VAL_INT},
+	{"Low health warning:", "Shows a low health warning above your head.\nActivatetd if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
+	{"Low food warning:", "Shows a low food warning above your head.\nActivatetd if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Sound */
-	{"Sound volume:", "Set sound volume for effects.", "", "", SEL_RANGE, 0, 100, 5, 100, &options.sound_volume, VAL_INT},
-	{"Music volume:", "Set music volume for background.", "", "", SEL_RANGE, 0, 100, 5, 80, &options.music_volume, VAL_INT},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Sound volume:", "Set sound volume for effects.", "", SEL_RANGE, 0, 100, 5, 100, &options.sound_volume, VAL_INT},
+	{"Music volume:", "Set music volume for background.", "", SEL_RANGE, 0, 100, 5, 80, &options.music_volume, VAL_INT},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Fullscreen Flags */
-	{"Hardware Surface:", "Don't change unless you know what you're doing", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_HWSURFACE, VAL_BOOL},
-	{"Software Surface:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_SWSURFACE, VAL_BOOL},
-	{"Hardware Accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWACCEL, VAL_BOOL},
-	{"Doublebuffer:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_DOUBLEBUF, VAL_BOOL},
-	{"Any format:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ANYFORMAT, VAL_BOOL},
-	{"Async blit:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ASYNCBLIT, VAL_BOOL},
-	{"Hardware Palette:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWPALETTE, VAL_BOOL},
-	{"Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
-	{"No frame:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_NOFRAME, VAL_BOOL},
-	{"RLE accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_RLEACCEL, VAL_BOOL},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Hardware Surface:", "Don't change unless you know what you're doing\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_HWSURFACE, VAL_BOOL},
+	{"Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_SWSURFACE, VAL_BOOL},
+	{"Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWACCEL, VAL_BOOL},
+	{"Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_DOUBLEBUF, VAL_BOOL},
+	{"Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ANYFORMAT, VAL_BOOL},
+	{"Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ASYNCBLIT, VAL_BOOL},
+	{"Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWPALETTE, VAL_BOOL},
+	{"Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
+	{"No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_NOFRAME, VAL_BOOL},
+	{"RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_RLEACCEL, VAL_BOOL},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Windowed flags */
-	{"Window Hardware Surface:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWSURFACE, VAL_BOOL},
-	{"Window Software Surface:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_SWSURFACE, VAL_BOOL},
-	{"Window Hardware Accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWACCEL, VAL_BOOL},
-	{"Window Doublebuffer:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_DOUBLEBUF, VAL_BOOL},
-	{"Window Any format:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_ANYFORMAT, VAL_BOOL},
-	{"Window Async blit:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_ASYNCBLIT, VAL_BOOL},
-	{"Window Hardware Palette:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_HWPALETTE, VAL_BOOL},
-	{"Window Resizeable:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RESIZABLE, VAL_BOOL},
-	{"Window No frame:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
-	{"Window RLE accel:", "Don't change unless you know what you're doing.", "NOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Window Hardware Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWSURFACE, VAL_BOOL},
+	{"Window Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_SWSURFACE, VAL_BOOL},
+	{"Window Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWACCEL, VAL_BOOL},
+	{"Window Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_DOUBLEBUF, VAL_BOOL},
+	{"Window Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_ANYFORMAT, VAL_BOOL},
+	{"Window Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_ASYNCBLIT, VAL_BOOL},
+	{"Window Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_HWPALETTE, VAL_BOOL},
+	{"Window Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RESIZABLE, VAL_BOOL},
+	{"Window No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
+	{"Window RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
 	/* Debug */
-	{"Show Framerate:", "", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
-	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
-	{"Use Update Rect:", "", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
-	{"#", "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{"Show Framerate:", "Show the framerate.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
+	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
+	{"Use Update Rect:", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
+	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
 
-	{0, "", "", "", 0, 0, 0, 0, 0, 0, 0},
+	{0, "", "", 0, 0, 0, 0, 0, 0, 0},
 };
 
-/* Skill Menu */
-static char *skill_tab[] =
+/** The skill groups. */
+static const char *skill_tab[] =
 {
 	"Agility",
 	"Mental",
@@ -203,28 +164,31 @@ static char *skill_tab[] =
 	"Physique",
 	"Wisdom",
 	"Misc",
-	0
+	NULL
 };
 
-#define SKILL_TAB_SIZE (sizeof(skill_tab) / sizeof(char*))
-
-/* Spell Menu */
-static char *spell_tab[] =
+/** The spell paths. */
+static const char *spell_tab[] =
 {
-	"Protection", 		"Fire", 		"Frost", 			"Electricity", 		"Missiles",
-	"Self",				"Summoning", 	"Abjuration", 		"Restoration", 		"Detonation",
-	"Mind",				"Creation", 	"Teleportation", 	"Information", 		"Transmutation",
-	"Transferrence", 	"Turning", 		"Wounding", 		"Death", 			"Light",
-	0
+	"Protection", "Fire", "Frost", "Electricity", "Missiles",
+	"Self", "Summoning", "Abjuration", "Restoration", "Detonation",
+	"Mind", "Creation", "Teleportation", "Information", "Transmutation",
+	"Transferrence", "Turning", "Wounding", "Death", "Light",
+	NULL
 };
-#define SPELL_TAB_SIZE (sizeof(spell_tab) / sizeof(char*))
 
-static char *spell_class[SPELL_LIST_CLASS] =
+/** Spell classes. */
+static const char *spell_class[SPELL_LIST_CLASS] =
 {
 	"Spell", "Prayer"
 };
 
-/* draws a frame. */
+/**
+ * Draw a single frame.
+ * @param x X position.
+ * @param y Y position.
+ * @param w Width of the frame.
+ * @param h Height of the frame. */
 void draw_frame(int x, int y, int w, int h)
 {
 	SDL_Rect box;
@@ -234,38 +198,40 @@ void draw_frame(int x, int y, int w, int h)
 	box.h = h;
 	box.w = 1;
 	SDL_FillRect(ScreenSurface, &box, sdl_gray4);
-	box.x = x+w;
+	box.x = x + w;
 	box.h++;
-	/* right */
 	SDL_FillRect(ScreenSurface, &box, sdl_gray3);
 	box.x = x;
 	box.y+= h;
 	box.w = w;
 	box.h = 1;
-	/* bottom */
 	SDL_FillRect(ScreenSurface, &box, sdl_gray4);
 	box.x++;
 	box.y = y;
-	/* top */
 	SDL_FillRect(ScreenSurface, &box, sdl_gray3);
 }
 
-/* decode value with given value_type to text. */
-char *get_value(void* value, int type)
+/**
+ * Parse a given value to a string.
+ * @param value Value to parse.
+ * @param type @ref value_type "Type" of the value.
+ * @return Static character array representing the given value. */
+static char *get_value(void *value, int type)
 {
 	static char txt_value[20];
+
 	switch (type)
 	{
 		case VAL_INT:
-			sprintf(txt_value, "%d",  *((int*)value));
+			snprintf(txt_value, sizeof(txt_value), "%d", *((int *) value));
 			return txt_value;
 
 		case VAL_U32:
-			sprintf(txt_value, "%d",  *((uint32*)value));
+			snprintf(txt_value, sizeof(txt_value), "%d", *((uint32 *) value));
 			return txt_value;
 
 		case VAL_CHAR:
-			sprintf(txt_value, "%d",  *((uint8*)value));
+			snprintf(txt_value, sizeof(txt_value), "%d", *((uint8 *) value));
 			return txt_value;
 
 		default:
@@ -273,53 +239,75 @@ char *get_value(void* value, int type)
 	}
 }
 
-/* add the close button and handle mouse events on it. */
+/**
+ * Add a close button and handle mouse events over it.
+ * @param x X position.
+ * @param y Y position.
+ * @param menu Menu the button is on. */
 void add_close_button(int x, int y, int menu)
 {
 	int mx, my, mb;
 
-	mb = SDL_GetMouseState(&mx, &my)& SDL_BUTTON(SDL_BUTTON_LEFT);
+	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 	StringBlt(ScreenSurface, &SystemFont, "X", x + 463, y + 28, COLOR_BLACK, NULL, NULL);
 
 	if (mx >x + 459 && mx < x + 469 && my > y + 27 && my < y + 39)
 	{
 		StringBlt(ScreenSurface, &SystemFont, "X", x + 462, y + 27, COLOR_HGOLD, NULL, NULL);
+
 		if (mb && mb_clicked)
+		{
 			check_menu_keys(menu, SDLK_ESCAPE);
+		}
 	}
 	else
+	{
 		StringBlt(ScreenSurface, &SystemFont, "X", x + 462, y + 27, COLOR_WHITE, NULL, NULL);
+	}
 }
 
-/* add a button and handle mouse events on it.
- * text_h:
- *  info for keyboard user. You can give them here a highlighted char
- *  to identify the key for this button. if not needed set it to NULL. */
+/**
+ * Add a button and handle mouse events over it.
+ * @param x X position.
+ * @param y Y position.
+ * @param id Button ID.
+ * @param gfxNr ID of the button bitmap to draw.
+ * @param text Text to draw.
+ * @param text_h Text for keyboard user.
+ * @return 1 if the button was pressed, 0 otherwise. */
 static int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h)
 {
 	char *text_sel;
-	int ret = 0;
-	int mx, my, mb;
+	int ret = 0, mx, my, mb;
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
 	if (text_h)
+	{
 		text_sel = text_h;
+	}
 	else
+	{
 		text_sel = text;
+	}
 
-	sprite_blt(Bitmaps[gfxNr],x, y, NULL, NULL);
+	sprite_blt(Bitmaps[gfxNr], x, y, NULL, NULL);
 
 	if (mx >x && my >y && mx < x + Bitmaps[gfxNr]->bitmap->w && my < y + Bitmaps[gfxNr]->bitmap->h)
 	{
 		if (mb && mb_clicked && active_button < 0)
+		{
 			active_button = id;
+		}
 
 		if (active_button == id)
 		{
 			sprite_blt(Bitmaps[gfxNr + 1], x, y++, NULL, NULL);
+
 			if (!mb)
+			{
 				ret = 1;
+			}
 		}
 
 		StringBlt(ScreenSurface, &SystemFont, text, x + 11, y + 2, COLOR_BLACK, NULL, NULL);
@@ -330,60 +318,22 @@ static int add_button(int x, int y, int id, int gfxNr, char *text, char *text_h)
 		StringBlt(ScreenSurface, &SystemFont, text, x + 11, y + 2, COLOR_BLACK, NULL, NULL);
 		StringBlt(ScreenSurface, &SystemFont, text_sel, x + 10, y + 1, COLOR_WHITE, NULL, NULL);
 	}
+
 	return ret;
 }
 
-/* add a gfx-button and handle mouse events on it.
- * text_h:
- *  info for keyboard user. You can give them here a highlighted char
- *  to identify the key for this button. if not needed set it to NULL. */
-#if 0
-static int add_gfx_button(int x, int y, int id, int gfxNr, int gfx_inner, char *text, char *text_h)
+/**
+ * Add a group button and handle mouse events over it.
+ * @param x X position.
+ * @param y Y position.
+ * @param id Button ID.
+ * @param gfxNr ID of the button bitmap to draw.
+ * @param text Text to draw.
+ * @param text_h Text for keyboard user.
+ * @return 1 if the button was pressed, 0 otherwise. */
+static int add_gr_button(int x, int y, int id, int gfxNr, const char *text, const char *text_h)
 {
-	char *text_sel;
-	int ret = 0;
-	int mx, my, mb;
-	int color = COLOR_WHITE;
-
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-
-	if (text_h)
-		text_sel = text_h;
-	else
-		text_sel = text;
-
-	sprite_blt(Bitmaps[gfxNr], x, y, NULL, NULL);
-	sprite_blt(Bitmaps[gfx_inner], x + 5, y + 3, NULL, NULL);
-
-	if (mx >x && my >y && mx < x + Bitmaps[gfxNr]->bitmap->w && my < y + Bitmaps[gfxNr]->bitmap->h)
-	{
-		if (mb && mb_clicked && active_button < 0)
-			active_button = id;
-		if (active_button== id)
-		{
-			sprite_blt(Bitmaps[gfxNr + 1], x, y, NULL, NULL);
-			sprite_blt(Bitmaps[gfx_inner], x + 6, y + 4, NULL, NULL);
-			if (!mb)
-				ret = 1;
-		}
-		color = COLOR_HGOLD;
-	}
-
-	x += Bitmaps[gfxNr]->bitmap->w + 10;
-	y += Bitmaps[gfxNr]->bitmap->h / 2 - 5;
-	StringBlt(ScreenSurface, &SystemFont, text, x + 1, y + 1, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, text_sel, x, y, color, NULL, NULL);
-	return ret;
-}
-#endif
-
-/* add a group-button and handle mouse events on it.
- * text_h:
- *  info for keyboard user. You can give them here a highlighted char
- *  to identify the key for this button. if not needed set it to NULL. */
-static int add_gr_button(int x, int y, int id, int gfxNr, char *text, char *text_h)
-{
-	char *text_sel;
+	const char *text_sel;
 	int ret = 0;
 	int mx, my, mb;
 
@@ -414,9 +364,18 @@ static int add_gr_button(int x, int y, int id, int gfxNr, char *text, char *text
 	return ret;
 }
 
-/* text_x: 0 => text left ; !=0 => text right  of rangebox.
- * text_w: size of textfield. */
-int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int color)
+/**
+ * Add a range box.
+ * @param x X position.
+ * @param y Y position.
+ * @param id Button ID.
+ * @param text_w Size of text field.
+ * @param text_x If 0 text field will be left of rangebox, if 1 text field
+ * will be right of rangebox.
+ * @param text Text.
+ * @param color Color.
+ * @return  */
+int add_rangebox(int x, int y, int id, int text_w, int text_x, const char *text, int color)
 {
 	static int active = -1;
 	SDL_Rect box;
@@ -425,7 +384,7 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int c
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
-	/* box right of text */
+	/* Box right of text */
 	if (text_x)
 	{
 		text_x = x + width + 2;
@@ -436,7 +395,6 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int c
 		x += text_w;
 	}
 
-	/* draw the range gadget */
 	sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x, y, NULL, NULL);
 	box.x = text_x - 2;
 	box.y = y + 1;
@@ -446,17 +404,20 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int c
 	StringBlt(ScreenSurface, &SystemFont, text, text_x + 1, y + 3, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, text, text_x, y + 2, color, NULL, NULL);
 
-	/* check for action */
+	/* Check for action */
 	if (mx >x && my > y && my < y + 18)
 	{
 		if (mx < x + width / 2)
 		{
 			if (mb && active < 0)
+			{
 				active = id;
+			}
 
 			if (active == id)
 			{
 				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x, y, NULL, NULL);
+
 				if (!mb)
 				{
 					active = -1;
@@ -466,13 +427,16 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int c
 		}
 		else if (mx < x + width)
 		{
-			/* a rangebox has 2 buttons */
+			/* A rangebox has 2 buttons */
 			if (mb && active < 0)
+			{
 				active = id + 1;
+			}
 
 			if (active == id + 1)
 			{
 				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + width / 2, y, NULL, NULL);
+
 				if (!mb)
 				{
 					active = -1;
@@ -485,30 +449,44 @@ int add_rangebox(int x, int y, int id, int text_w, int text_x, char *text, int c
 	return 0;
 }
 
-/* add offset to the value. */
-void add_value(void* value, int type, int offset, int min, int max)
+/**
+ * Add offset to an integer value.
+ * @param value Value to add to.
+ * @param type @ref value_type "Type" of the value.
+ * @param offset What to add to value.
+ * @param min Minimum value.
+ * @param max Maximum value. */
+void add_value(void *value, int type, int offset, int min, int max)
 {
 	switch (type)
 	{
 		case VAL_INT:
-			*((int*)value) += offset;
+			*((int *) value) += offset;
 
-			if (*((int*)value) > max)
-				*((int*)value) = max;
+			if (*((int *) value) > max)
+			{
+				*((int *) value) = max;
+			}
 
-			if (*((int*)value) < min)
-				*((int*)value) = min;
+			if (*((int *) value) < min)
+			{
+				*((int *) value) = min;
+			}
 
 			break;
 
 		case VAL_U32:
-			*((uint32*)value) += offset;
+			*((uint32 *) value) += offset;
 
-			if (*((uint32*)value) > (uint32)max)
-				*((uint32*)value) = (uint32)max;
+			if (*((uint32 *) value) > (uint32) max)
+			{
+				*((uint32 *) value) = (uint32) max;
+			}
 
-			if (*((uint32*)value) < (uint32)min)
-				*((uint32*)value) = (uint32)min;
+			if (*((uint32 *) value) < (uint32) min)
+			{
+				*((uint32 *) value) = (uint32) min;
+			}
 
 			break;
 
@@ -517,13 +495,16 @@ void add_value(void* value, int type, int offset, int min, int max)
 	}
 }
 
-/* draws all options for the actual page. */
+/**
+ * Draw all options for the actual options group.
+ * @param x X position.
+ * @param y Y position. */
 void optwin_draw_options(int x, int y)
 {
 #define LEN_NAME 111
 	int i = -1, pos = 0, max = 0;
 	/* for info text */
-	int y2 = y + 347;
+	int y2 = y + 344;
 	int mxy_opt = -1;
 	int page = option_list_set.group_nr;
 	int id = 0;
@@ -531,12 +512,16 @@ void optwin_draw_options(int x, int y)
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
-	/* find actual page */
+	/* Find actual page */
 	while (page && opt[++i].name)
+	{
 		if (opt[i].name[0] == '#')
-			--page;
+		{
+			page--;
+		}
+	}
 
-	/* draw actual page */
+	/* Draw actual page */
 	while (opt[++i].name && opt[i].name[0] != '#')
 	{
 		max++;
@@ -550,15 +535,17 @@ void optwin_draw_options(int x, int y)
 				if (option_list_set.entry_nr == max - 1)
 				{
 					tmp = COLOR_HGOLD;
-					/* remember this tab for later use */
+					/* Remember this tab for later use */
 					if (mxy_opt == -1)
+					{
 						mxy_opt = i;
+					}
 				}
 
 				if (mx > x && mx < x + 280 && my > y && my < y + 20 )
 				{
 					tmp = COLOR_GREEN;
-					/* remember this tab for later use */
+					/* Remember this tab for later use */
 					mxy_opt = i;
 				}
 
@@ -566,21 +553,25 @@ void optwin_draw_options(int x, int y)
 
 				sprite_blt(Bitmaps[BITMAP_DIALOG_CHECKER], x + LEN_NAME, y, NULL, NULL);
 
-				if (*((int*)opt[i].value) == TRUE)
+				if (*((int *) opt[i].value) == 1)
 				{
 					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 8, y + 2, COLOR_BLACK, NULL, NULL);
 					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 7, y + 1, COLOR_WHITE, NULL, NULL);
 				}
 
-				if ((pos ==option_list_set.entry_nr && option_list_set.key_change) || (mb && mb_clicked && active_button < 0 && mx > x + LEN_NAME && mx < x + LEN_NAME + 20 && my > y && my < y + 18))
+				if ((pos == option_list_set.entry_nr && option_list_set.key_change) || (mb && mb_clicked && active_button < 0 && mx > x + LEN_NAME && mx < x + LEN_NAME + 20 && my > y && my < y + 18))
 				{
-					mb_clicked =0;
-					option_list_set.key_change =0;
+					mb_clicked = 0;
+					option_list_set.key_change = 0;
 
-					if (*((int*)opt[i].value) == TRUE)
-						*((int*)opt[i].value) = FALSE;
+					if (*((int *) opt[i].value) == 1)
+					{
+						*((int *) opt[i].value) = 0;
+					}
 					else
-						*((int*)opt[i].value) = TRUE;
+					{
+						*((int *) opt[i].value) = 1;
+					}
 				}
 				break;
 
@@ -592,37 +583,29 @@ void optwin_draw_options(int x, int y)
 				box.h = 16, box.w = LEN_VALUE;
 
 				tmp = COLOR_WHITE;
+
 				if (option_list_set.entry_nr == max - 1)
 				{
 					tmp = COLOR_HGOLD;
 
-					/* remember this tab for later use */
+					/* Remember this tab for later use */
 					if (mxy_opt == -1)
+					{
 						mxy_opt = i;
+					}
 				}
 
 				if (mx > x && mx < x + 280 && my > y && my < y + 20)
 				{
 					tmp = COLOR_GREEN;
-					/* remember this tab for later use */
+					/* Remember this tab for later use */
 					mxy_opt = i;
 				}
 
 				StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, tmp, NULL, NULL);
-
-#if 0
-				if (option_list_set.entry_nr == max - 1 || (mx > x && mx < x + 280 && my > y && my < y + 20))
-				{
-					StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, COLOR_HGOLD, NULL, NULL);
-					mxy_opt = i;
-				}
-				else
-					StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, COLOR_WHITE, NULL, NULL);
-#endif
-
 				SDL_FillRect(ScreenSurface, &box, 0);
 
-				if (*opt[i].val_text == 0)
+				if (*opt[i].val_text == '\0')
 				{
 					StringBlt(ScreenSurface, &SystemFont, get_value(opt[i].value, opt[i].value_type), box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
 				}
@@ -630,33 +613,45 @@ void optwin_draw_options(int x, int y)
 				{
 #define MAX_LEN 40
 					char text[MAX_LEN + 1];
-					int o= *((int*)opt[i].value);
+					int o= *((int *) opt[i].value);
 					int p = 0, q = -1;
 
-					/* find start pos of string */
+					/* Find starting position of string */
 					while (o && opt[i].val_text[p])
+					{
 						if (opt[i].val_text[p++] == '#')
+						{
 							o--;
+						}
+					}
 
-					/* find end pos of string */
+					/* Find ending position of string */
 					while (q++ < MAX_LEN  && opt[i].val_text[p])
-						if ((text[q] = opt[i].val_text[p++])== '#')
+					{
+						if ((text[q] = opt[i].val_text[p++]) == '#')
+						{
 							break;
+						}
+					}
 
-					text[q] = 0;
+					text[q] = '\0';
 					StringBlt(ScreenSurface, &SystemFont,text, box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
 #undef MAX_LEN
 				}
 
 				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
 
-				/* keyboard event */
+				/* Keyboard event */
 				if (option_list_set.key_change && option_list_set.entry_nr == pos)
 				{
 					if (option_list_set.key_change == -1)
+					{
 						add_value(opt[i].value, opt[i].value_type,-opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
+					}
 					else if (option_list_set.key_change == 1)
+					{
 						add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
+					}
 
 					option_list_set.key_change = 0;
 				}
@@ -665,27 +660,35 @@ void optwin_draw_options(int x, int y)
 				{
 					/* 2 buttons per row */
 					if (mb && active_button < 0)
+					{
 						active_button = id + 1;
+					}
 
 					if (active_button == id + 1)
 					{
 						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
 
 						if (!mb)
+						{
 							add_value(opt[i].value, opt[i].value_type, -opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
+						}
 					}
 				}
 				else if (mx > x + LEN_NAME + LEN_VALUE + 14 && mx < x + LEN_NAME + LEN_VALUE + 28 && my > y && my < y + 18)
 				{
 					if (mb && active_button < 0)
+					{
 						active_button = id;
+					}
 
 					if (active_button == id)
 					{
 						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + LEN_NAME+LEN_VALUE + 14, y, NULL, NULL);
 
 						if (!mb)
+						{
 							add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
+						}
 					}
 				}
 #undef LEN_VALUE
@@ -703,25 +706,41 @@ void optwin_draw_options(int x, int y)
 	}
 
 	if (option_list_set.entry_nr > max - 1)
+	{
 		option_list_set.entry_nr = max - 1;
+	}
 
-	/* print the info text */
+	/* Print the info text */
 	x += 20;
+
 	if (mxy_opt >= 0)
 	{
-		if (*opt[mxy_opt].info2 == 0)
-			y2 += 5;
+		char *cp, buf[MAX_BUF];
+		int y_tmp = 0;
 
-		StringBlt(ScreenSurface, &SystemFont, opt[mxy_opt].info1, x + 11, y2 + 1, COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, opt[mxy_opt].info1, x + 10, y2, COLOR_WHITE, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, opt[mxy_opt].info2, x + 11, y2 + 13,COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, opt[mxy_opt].info2, x + 10, y2 + 12,COLOR_WHITE, NULL, NULL);
+		strncpy(buf, opt[mxy_opt].info, sizeof(buf) - 1);
+		buf[sizeof(buf) - 1] = '\0';
+		cp = strtok(buf, "\n");
+
+		while (cp)
+		{
+			StringBlt(ScreenSurface, &SystemFont, cp, x + 11, y2 + 1 + y_tmp, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, cp, x + 10, y2 + y_tmp, COLOR_WHITE, NULL, NULL);
+			y_tmp += 12;
+			cp = strtok(NULL, "\n");
+		}
 	}
 #undef LEN_NAME
 }
 
-/* draws all tabs on the left side of window. */
-static void draw_tabs(char *tabs[], int *act_tab, char *head_text, int x, int y)
+/**
+ * Draw tabs on the left side of a window.
+ * @param tabs[] The tabs to draw.
+ * @param[out] act_tab Currently active tab.
+ * @param head_text Header text, above the tabs.
+ * @param x X position.
+ * @param y Y position. */
+static void draw_tabs(const char *tabs[], int *act_tab, const char *head_text, int x, int y)
 {
 	int i = -1;
 	int mx, my, mb;
@@ -741,7 +760,9 @@ static void draw_tabs(char *tabs[], int *act_tab, char *head_text, int x, int y)
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TAB], x, y, NULL, NULL);
 
 		if (i == *act_tab)
+		{
 			sprite_blt(Bitmaps[BITMAP_DIALOG_TAB_SEL], x, y, NULL, NULL);
+		}
 
 		StringBlt(ScreenSurface, &SystemFont, tabs[i], x + 25, y + 4, COLOR_BLACK, NULL, NULL);
 
@@ -750,13 +771,19 @@ static void draw_tabs(char *tabs[], int *act_tab, char *head_text, int x, int y)
 			StringBlt(ScreenSurface, &SystemFont, tabs[i], x + 24, y + 3, COLOR_HGOLD, NULL, NULL);
 
 			if (mb && mb_clicked)
+			{
 				active = 1;
+			}
 
 			if (active)
+			{
 				*act_tab = i;
+			}
 		}
 		else
+		{
 			StringBlt(ScreenSurface, &SystemFont, tabs[i], x + 24, y + 3, COLOR_WHITE, NULL, NULL);
+		}
 
 		y += 17;
 	}
@@ -764,10 +791,13 @@ static void draw_tabs(char *tabs[], int *act_tab, char *head_text, int x, int y)
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TAB_STOP], x, y, NULL, NULL);
 
 	if (!mb)
+	{
 		active = 0;
+	}
 }
 
-/* show the skill-window and handle mouse actions. */
+/**
+ * Show the skill list window. */
 void show_skilllist()
 {
 	SDL_Rect box;
@@ -775,18 +805,18 @@ void show_skilllist()
 	int x, y, i;
 	int mx, my, mb;
 	static int active = 0, dblclk = 0;
-	static Uint32 Ticks= 0;
+	static Uint32 Ticks = 0;
 
 	mb = SDL_GetMouseState(&mx, &my);
 
-	/* background */
+	/* Background */
 	x= Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
 	y= Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SKILL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SKILL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SKILL);
 
-	/* tabs */
+	/* Tabs */
 	draw_tabs(skill_tab, &skill_list_set.group_nr, "Skill Group", x + 8, y + 70);
 
 	sprintf(buf, "~SHIFT~ + ~%c%c~ to select group                  ~%c%c~ to select skill                    ~RETURN~ for use", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN);
@@ -805,26 +835,32 @@ void show_skilllist()
 	box.w = 329;
 	box.h = 12;
 
-	/* frame for selection field */
+	/* Frame for selection field */
 	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
 
-	/* print skill entries */
+	/* Print skill entries */
 	if (!(mb & SDL_BUTTON(SDL_BUTTON_LEFT)))
+	{
 		active = 0;
+	}
 
 	if (mx > x + TXT_START_NAME && mx < x + TXT_START_NAME + 327 && my > y + TXT_Y_START && my < y + 12 + TXT_Y_START + DIALOG_LIST_ENTRY * 12)
 	{
 		if (!mb)
 		{
 			if (dblclk == 1)
+			{
 				dblclk = 2;
+			}
 
 			if (dblclk == 3)
 			{
 				dblclk = 0;
 
 				if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
+				{
 					check_menu_keys(MENU_SKILL, SDLK_RETURN);
+				}
 			}
 		}
 		else
@@ -838,13 +874,18 @@ void show_skilllist()
 			if (dblclk == 2)
 			{
 				dblclk = 3;
+
 				if (SDL_GetTicks() - Ticks > 300)
+				{
 					dblclk = 0;
+				}
 			}
 
 			/* mb was pressed in the selection field */
 			if (mb_clicked)
+			{
 				active = 1;
+			}
 
 			if (active && skill_list_set.entry_nr != (my - y - 12 - TXT_Y_START) / 12)
 			{
@@ -863,30 +904,46 @@ void show_skilllist()
 		if (i != skill_list_set.entry_nr)
 		{
 			if (i & 1)
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+			}
 			else
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+			}
 		}
 		else
+		{
 			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+		}
 
 		if (skill_list[skill_list_set.group_nr].entry[i].flag == LIST_ENTRY_KNOWN)
 		{
 			StringBlt(ScreenSurface, &SystemFont, skill_list[skill_list_set.group_nr].entry[i].name, x + TXT_START_NAME, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 
 			if (skill_list[skill_list_set.group_nr].entry[i].exp == -1)
+			{
 				strcpy(buf, "**");
+			}
 			else
+			{
 				sprintf(buf, "%d", skill_list[skill_list_set.group_nr].entry[i].exp_level);
+			}
 
 			StringBlt(ScreenSurface, &SystemFont, buf, x + TXT_START_LEVEL, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 
 			if (skill_list[skill_list_set.group_nr].entry[i].exp == -1)
+			{
 				strcpy(buf, "**");
+			}
 			else if (skill_list[skill_list_set.group_nr].entry[i].exp == -2)
+			{
 				strcpy(buf, "**");
+			}
 			else
+			{
 				sprintf(buf, "%d", skill_list[skill_list_set.group_nr].entry[i].exp);
+			}
 
 			StringBlt(ScreenSurface, &SystemFont, buf, x + TXT_START_EXP, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 		}
@@ -895,10 +952,10 @@ void show_skilllist()
 	x += 160;
 	y += 120;
 
-	/* print skill description */
+	/* Print skill description */
 	if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].flag >= LIST_ENTRY_KNOWN)
 	{
-		/* selected */
+		/* Selected */
 		if ((mb & SDL_BUTTON(SDL_BUTTON_LEFT)) && mx > x - 40 && mx < x - 10 && my > y + 10 && my < y + 43)
 		{
 			check_menu_keys(MENU_SKILL, SDLK_RETURN);
@@ -906,12 +963,7 @@ void show_skilllist()
 
 		sprite_blt(skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].icon, x - 42, y + 10, NULL, NULL);
 
-		/* center ypos of textblock */
-		for (i = 0; i < 4; i++)
-			if (skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].desc[i][0] ==  ' ')
-				y += 6;
-
-		/* print textblock */
+		/* Print textblock */
 		for (i = 0; i <= 3; i++)
 		{
 			StringBlt(ScreenSurface, &SystemFont, &skill_list[skill_list_set.group_nr].entry[skill_list_set.entry_nr].desc[i][0], x - 2, y + 1, COLOR_BLACK, NULL, NULL);
@@ -921,10 +973,13 @@ void show_skilllist()
 	}
 
 	if (!mb)
+	{
 		active_button = -1;
+	}
 }
 
-/* show the spell-window and handle mouse actions. */
+/**
+ * Show the spell list. */
 void show_spelllist()
 {
 	SDL_Rect box;
@@ -936,56 +991,64 @@ void show_spelllist()
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
-	/* background */
+	/* Background */
 	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SPELL], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SPELL]->bitmap->w / 2, y + 14, NULL, NULL);
 	add_close_button(x, y, MENU_SPELL);
 
-	/* tabs */
+	/* Tabs */
 	draw_tabs(spell_tab, &spell_list_set.group_nr, "Spell Path", x + 8, y + 70);
 
 	sprintf(buf, "~SHIFT~ + ~%c%c~ to select path                   ~%c%c~ to select spell                    ~RETURN~ for use", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN);
-	StringBlt(ScreenSurface,&SystemFont, buf, x + 135, y + 410, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, x + 135, y + 410, COLOR_WHITE, NULL, NULL);
 
-	/* spellClass buttons */
+	/* Spell class buttons */
 	for (i = 0; i < SPELL_LIST_CLASS; i++)
 	{
 		if (add_gr_button(x + 133 + i * 56, y + 75, (spell_list_set.class_nr == i), BITMAP_DIALOG_BUTTON_UP, spell_class[i], NULL))
+		{
 			spell_list_set.class_nr = i;
+		}
 	}
 
 	StringBlt(ScreenSurface, &SystemFont, "use ~F1-F8~ for spell to quickbar", x + 250, y + 69, COLOR_WHITE, NULL, NULL);
 	sprintf(buf, "use ~%c%c~ to select spell group", ASCII_RIGHT, ASCII_LEFT);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 250, y + 80, COLOR_WHITE, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Cost", x + (Bitmaps[BITMAP_DIALOG_BG]->bitmap->w-60), y + 80, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Cost", x + (Bitmaps[BITMAP_DIALOG_BG]->bitmap->w - 60), y + 80, COLOR_WHITE, NULL, NULL);
 
 	box.x = x + 133;
 	box.y = y + TXT_Y_START + 1;
 	box.w = 329;
 	box.h = 12;
 
-	/* frame for selection field */
+	/* Frame for selection field */
 	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
 
-	/* print skill entries */
+	/* Print skill entries */
 	if (!mb)
+	{
 		active = 0;
+	}
 
 	if (mx > x + TXT_START_NAME && mx < x + TXT_START_NAME + 327 && my > y + TXT_Y_START && my < y + 12 + TXT_Y_START + DIALOG_LIST_ENTRY * 12)
 	{
 		if (!mb)
 		{
 			if (dblclk == 1)
+			{
 				dblclk = 2;
+			}
 
 			if (dblclk == 3)
 			{
 				dblclk = 0;
 
 				if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
+				{
 					check_menu_keys(MENU_SPELL, SDLK_RETURN);
+				}
 			}
 		}
 		else
@@ -1001,12 +1064,16 @@ void show_spelllist()
 				dblclk = 3;
 
 				if (SDL_GetTicks() - Ticks > 300)
+				{
 					dblclk = 0;
+				}
 			}
 
 			/* mb was pressed in the selection field */
 			if (mb_clicked)
+			{
 				active = 1;
+			}
 
 			if (active && spell_list_set.entry_nr != (my - y - 12 - TXT_Y_START) / 12)
 			{
@@ -1024,12 +1091,18 @@ void show_spelllist()
 		if (i != spell_list_set.entry_nr)
 		{
 			if (i & 1)
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+			}
 			else
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+			}
 		}
 		else
+		{
 			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+		}
 
 		if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][i].flag == LIST_ENTRY_KNOWN)
 		{
@@ -1042,10 +1115,10 @@ void show_spelllist()
 	x += 160;
 	y += 120;
 
-	/* print spell description */
+	/* Print spell description */
 	if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].flag == LIST_ENTRY_KNOWN)
 	{
-		/* selected */
+		/* Selected */
 		if (mb && mx > x - 40 && mx < x - 10 && my > y + 10 && my < y + 43)
 		{
 			dblclk = 0;
@@ -1054,12 +1127,7 @@ void show_spelllist()
 
 		sprite_blt(spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].icon, x - 42, y + 10, NULL, NULL);
 
-		/* center ypos of textblock */
-		for (i = 0; i < 4; i++)
-			if (spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].desc[i][0] == ' ')
-				y += 6;
-
-		/* print textblock */
+		/* Print textblock */
 		for (i = 0; i < 4; i++)
 		{
 			StringBlt(ScreenSurface, &SystemFont, &spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].desc[i][0], x - 2, y + 1, COLOR_BLACK, NULL, NULL);
@@ -1069,10 +1137,13 @@ void show_spelllist()
 	}
 
 	if (!mb)
+	{
 		active_button = -1;
+	}
 }
 
-/* show the option-window and handle mouse actions. */
+/**
+ * Show the options window. */
 void show_optwin()
 {
 	char buf[128];
@@ -1093,18 +1164,23 @@ void show_optwin()
 	sprintf(buf, "~SHIFT~ + ~%c%c~ to select group            ~%c%c~ to select option          ~%c%c~ to change option", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN, ASCII_RIGHT, ASCII_LEFT);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 135, y + 410, COLOR_WHITE, NULL, NULL);
 
-	/* mark active entry */
+	/* Mark active entry */
 	StringBlt(ScreenSurface, &SystemFont, ">", x + TXT_START_NAME - 15, y + 10 + TXT_Y_START + option_list_set.entry_nr * 20, COLOR_HGOLD, NULL, NULL);
 
 	/* save button */
 	if (add_button(x + 25, y + 454, numButton++, BITMAP_DIALOG_BUTTON_UP, "Done", "~D~one"))
+	{
 		check_menu_keys(MENU_OPTION, SDLK_d);
+	}
 
 	if (!mb)
+	{
 		active_button = -1;
+	}
 }
 
-/* show the keybind-window and handle mouse actions. */
+/**
+ * Show the keybinds window. */
 void show_keybind()
 {
 	SDL_Rect box;
@@ -1115,7 +1191,7 @@ void show_keybind()
 
 	mb = SDL_GetMouseState(&mx, &my);
 
-	/* background */
+	/* Background */
 	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
@@ -1125,7 +1201,7 @@ void show_keybind()
 	sprintf(buf, "~SHIFT~ + ~%c%c~ to select group         ~%c%c~ to select macro          ~RETURN~ to change/create", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 125, y + 410, COLOR_WHITE, NULL, NULL);
 
-	/* draw group tabs */
+	/* Draw group tabs */
 	i = 0;
 	x2 = x + 8;
 	y2 = y + 70;
@@ -1144,7 +1220,9 @@ void show_keybind()
 		sprite_blt(Bitmaps[BITMAP_DIALOG_TAB], x2, y2, NULL, NULL);
 
 		if (i == bindkey_list_set.group_nr)
+		{
 			sprite_blt(Bitmaps[BITMAP_DIALOG_TAB_SEL], x2, y2, NULL, NULL);
+		}
 
 		StringBlt(ScreenSurface, &SystemFont, bindkey_list[i].name, x2 + 25, y2 + 4, COLOR_BLACK, NULL, NULL);
 
@@ -1153,10 +1231,14 @@ void show_keybind()
 			StringBlt(ScreenSurface, &SystemFont, bindkey_list[i].name, x2 + 24, y2 + 3, COLOR_HGOLD, NULL, NULL);
 
 			if (mb && bindkey_list_set.group_nr != i)
+			{
 				bindkey_list_set.group_nr = i;
+			}
 		}
 		else
+		{
 			StringBlt(ScreenSurface, &SystemFont, bindkey_list[i].name, x2 + 24, y2 + 3, COLOR_WHITE, NULL, NULL);
+		}
 
 		y2 += 17;
 		i++;
@@ -1172,20 +1254,22 @@ void show_keybind()
 	StringBlt(ScreenSurface, &SystemFont, "Repeat", x+X_COL3 + 1, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "~R~epeat", x+X_COL3, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
 
-	/* save button */
+	/* Save button */
 	if (add_button(x + 25, y + 454, numButton++, BITMAP_DIALOG_BUTTON_UP, "Done", "~D~one"))
+	{
 		check_menu_keys(MENU_KEYBIND, SDLK_d);
+	}
 
 	box.x = x + 133;
 	box.y = y + TXT_Y_START + 1;
 	box.w = 329;
 	box.h = 12;
 
-	/* frame for selection field */
+	/* Frame for selection field */
 	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
 	y2 = y;
 
-	/* print keybind entries */
+	/* Print keybind entries */
 	for (i = 0; i <OPTWIN_MAX_OPT; i++)
 	{
 		y += 12;
@@ -1193,7 +1277,7 @@ void show_keybind()
 
 		if (mb && mx > x + TXT_START_NAME && mx < x + TXT_START_NAME + 327 && my > y + TXT_Y_START && my < y + 12 + TXT_Y_START)
 		{
-			/* cancel edit */
+			/* Cancel edit */
 			if (mb & SDL_BUTTON(SDL_BUTTON_LEFT))
 			{
 				InputStringEscFlag = TRUE;
@@ -1204,12 +1288,16 @@ void show_keybind()
 
 			if ((mb & SDL_BUTTON(SDL_BUTTON_RIGHT)) && mb_clicked && mx > x + X_COL1)
 			{
-				/* macro name + key value */
+				/* Macro name + key value */
 				if (mx < x + X_COL3)
+				{
 					check_menu_keys(MENU_KEYBIND, SDLK_RETURN);
-				/* key repeat */
+				}
+				/* Key repeat */
 				else
+				{
 					check_menu_keys(MENU_KEYBIND, SDLK_r);
+				}
 
 				mb_clicked = 0;
 			}
@@ -1218,12 +1306,18 @@ void show_keybind()
 		if (i != bindkey_list_set.entry_nr)
 		{
 			if (i & 1)
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+			}
 			else
+			{
 				SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+			}
 		}
 		else
+		{
 			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+		}
 
 		if (bindkey_list[bindkey_list_set.group_nr].entry[i].text[0])
 		{
@@ -1231,13 +1325,16 @@ void show_keybind()
 			StringBlt(ScreenSurface, &SystemFont, bindkey_list[bindkey_list_set.group_nr].entry[i].keyname, x + X_COL2, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
 
 			if (bindkey_list[bindkey_list_set.group_nr].entry[i].repeatflag)
+			{
 				StringBlt(ScreenSurface, &SystemFont, "on", x + X_COL3, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
+			}
 			else
+			{
 				StringBlt(ScreenSurface, &SystemFont, "off", x + X_COL3, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);
+			}
 		}
 	}
 
-	/* Edit modus */
 	y2 += 13 + TXT_Y_START + bindkey_list_set.entry_nr * 12;
 	box.y = y2;
 
@@ -1245,7 +1342,7 @@ void show_keybind()
 	{
 		box.w = X_COL2 - X_COL1;
 		SDL_FillRect(ScreenSurface, &box, 0);
-		StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont,box.w), x + X_COL1, y2, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, box.w), x + X_COL1, y2, COLOR_WHITE, NULL, NULL);
 	}
 	else if (keybind_status == KEYBIND_STATUS_EDITKEY)
 	{
@@ -1253,33 +1350,38 @@ void show_keybind()
 		box.w = X_COL3 - X_COL2;
 
 		SDL_FillRect(ScreenSurface, &box, 0);
-		StringBlt(ScreenSurface, &SystemFont, "Press a Key!", x + X_COL2, y2, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Press a key!", x + X_COL2, y2, COLOR_WHITE, NULL, NULL);
 	}
 
 	if (!mb)
+	{
 		active_button = -1;
+	}
 }
 
+/**
+ * Blit a face.
+ * @param id ID of the face.
+ * @param x X position.
+ * @param y Y position. */
 static void blit_face(int id, int x, int y)
 {
 	if (id == -1 || !FaceList[id].sprite)
+	{
 		return;
+	}
 
 	if (FaceList[id].sprite->status != SPRITE_STATUS_LOADED)
+	{
 		return;
+	}
 
 	sprite_blt(FaceList[id].sprite, x, y, NULL, NULL);
 }
 
 #define CREATE_Y0 120
-/* show hero creation dialog. */
-
-/* as nice this menu is there is a technical problem here:
- * in this function is the input, setting and display mixed to one
- * function of source. There are plenty of books and tutorials out
- * explaining why it is bad - if this application becomes more complex
- * we need to migrate some stuff in own functions.
- * MT-2004 */
+/**
+ * Show hero creation window. */
 void show_newplayer_server()
 {
 	int id = 0;
@@ -1297,22 +1399,24 @@ void show_newplayer_server()
 	sprite_blt(Bitmaps[BITMAP_PENTAGRAM], x + 25, y + 430, NULL, NULL);
 	add_close_button(x, y, MENU_CREATE);
 
-	/* print all attributes */
+	/* Print all attributes */
 	StringBlt(ScreenSurface, &SystemFont, "Welcome!", x + 131, y + 64, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Welcome!", x + 130, y + 63, COLOR_WHITE, NULL, NULL);
-	sprintf(buf,"Use ~%c%c~ and ~%c%c~ cursor keys to setup your stats.", ASCII_UP, ASCII_DOWN, ASCII_RIGHT, ASCII_LEFT);
+	sprintf(buf, "Use ~%c%c~ and ~%c%c~ cursor keys to setup your stats.", ASCII_UP, ASCII_DOWN, ASCII_RIGHT, ASCII_LEFT);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 131, y + 76, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 130, y + 75, COLOR_WHITE, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Adjust the stats using *all* your points.", x + 131, y + 89, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Adjust the stats using *all* your points.", x + 130, y + 88, COLOR_WHITE, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, "Press ~C~ to create your new character", x + 131, y + 101, COLOR_BLACK, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Press ~C~ to create your new character.", x + 131, y + 101, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Press ~C~ to create your new character.", x + 130, y + 100, COLOR_WHITE, NULL, NULL);
 
-	/* create button */
+	/* Create button */
 	if (add_button(x + 30, y + 397, id++, BITMAP_DIALOG_BUTTON_UP, "Create", "~C~reate"))
+	{
 		check_menu_keys(MENU_CREATE, SDLK_c);
+	}
 
-	if (dialog_new_char_warn == TRUE)
+	if (dialog_new_char_warn == 1)
 	{
 		StringBlt(ScreenSurface, &SystemFont, "  ** ASSIGN ALL **", x + 21, y + 368, COLOR_BLACK, NULL, NULL);
 		StringBlt(ScreenSurface, &SystemFont, "  ** ASSIGN ALL **", x + 20, y + 367, COLOR_HGOLD, NULL, NULL);
@@ -1320,38 +1424,52 @@ void show_newplayer_server()
 		StringBlt(ScreenSurface, &SystemFont, "** POINTS FIRST **", x + 20, y + 379, COLOR_HGOLD, NULL, NULL);
 	}
 
-	/* draw attributes */
+	/* Draw attributes */
 	StringBlt(ScreenSurface, &SystemFont, "Points:", x + 130, y + CREATE_Y0 + 3 * 17, COLOR_WHITE, NULL, NULL);
 
 	if (new_character.stat_points)
+	{
 		sprintf(buf, "%.2d  LEFT", new_character.stat_points);
+	}
 	else
+	{
 		sprintf(buf, "%.2d", new_character.stat_points);
+	}
 
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 171, y + CREATE_Y0 + 3 * 17 + 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 170, y + CREATE_Y0 + 3 * 17, COLOR_HGOLD, NULL, NULL);
 
 	if (create_list_set.entry_nr > 8)
+	{
 		create_list_set.entry_nr = 8;
+	}
 
-	for (i = 0; i < ATT_SUM; i++)
+	for (i = 0; i < (int) NUM_ATTRIBUTES; i++)
 	{
 		id += 2;
-		sprintf(buf, "%s:", attribute[i].name);
+		sprintf(buf, "%s:", attributes[i]);
 
 		if (create_list_set.entry_nr == i + 2)
+		{
 			StringBlt(ScreenSurface, &SystemFont, buf, x + 130, y + CREATE_Y0 + (i + 4) * 17, COLOR_GREEN, NULL, NULL);
+		}
 		else
+		{
 			StringBlt(ScreenSurface, &SystemFont, buf, x + 130, y + CREATE_Y0 + (i + 4) * 17, COLOR_WHITE, NULL, NULL);
+		}
 
 		sprintf(buf, "%.2d", new_character.stats[i]);
 
 		if (create_list_set.entry_nr == i + 2)
+		{
 			delta = add_rangebox(x + 170, y + CREATE_Y0 + (i + 4) * 17, id, 20, 0, buf, COLOR_GREEN);
+		}
 		else
+		{
 			delta = add_rangebox(x + 170, y + CREATE_Y0 + (i + 4) * 17, id, 20, 0, buf, COLOR_WHITE);
+		}
 
-		/* keyboard event */
+		/* Keyboard event */
 		if (create_list_set.key_change && create_list_set.entry_nr == i + 2)
 		{
 			delta = create_list_set.key_change;
@@ -1360,7 +1478,7 @@ void show_newplayer_server()
 
 		if (delta)
 		{
-			dialog_new_char_warn = FALSE;
+			dialog_new_char_warn = 0;
 
 			if (delta > 0)
 			{
@@ -1394,55 +1512,71 @@ void show_newplayer_server()
 		StringBlt(ScreenSurface, &Font6x3Out, tmpc->name, box.x + 10, box.y + 40, COLOR_WHITE, NULL, NULL);
 
 		if (!strcmp(tmpc->name, new_character.name))
+		{
 			sprite_blt(Bitmaps[BITMAP_NCHAR_MARKER], box.x, box.y, NULL, NULL);
+		}
 	}
 
 	if (create_list_set.entry_nr == 0)
+	{
 		StringBlt(ScreenSurface, &SystemFont, "Race:", x + 130, y + CREATE_Y0 + 0 * 17 + 2, COLOR_GREEN, NULL, NULL);
+	}
 	else
+	{
 		StringBlt(ScreenSurface, &SystemFont, "Race:", x + 130, y + CREATE_Y0 + 0 * 17 + 2, COLOR_WHITE, NULL, NULL);
+	}
 
 	if (create_list_set.entry_nr == 0)
-		delta= add_rangebox(x + 170, y + CREATE_Y0 + 0 * 17, ++id, 80, 0, new_character.name, COLOR_GREEN);
+	{
+		delta = add_rangebox(x + 170, y + CREATE_Y0 + 0 * 17, ++id, 80, 0, new_character.name, COLOR_GREEN);
+	}
 	else
-		delta= add_rangebox(x + 170, y + CREATE_Y0 + 0 * 17, ++id, 80, 0, new_character.name, COLOR_WHITE);
+	{
+		delta = add_rangebox(x + 170, y + CREATE_Y0 + 0 * 17, ++id, 80, 0, new_character.name, COLOR_WHITE);
+	}
 
 	if (create_list_set.key_change && create_list_set.entry_nr == 0)
 	{
-		delta=create_list_set.key_change;
-		create_list_set.key_change =0;
+		delta = create_list_set.key_change;
+		create_list_set.key_change = 0;
 	}
 
-	/* init new race */
+	/* Init new race */
 	if (delta)
 	{
 		int g;
 
 		for (tmpc = first_server_char; tmpc; tmpc = tmpc->next)
 		{
-			/* get our current template */
+			/* Get our current template */
 			if (!strcmp(tmpc->name, new_character.name))
 			{
-				/* get next template */
+				/* Get next template */
 				if (delta > 0)
 				{
 					tmpc = tmpc->next;
+
 					if (!tmpc)
+					{
 						tmpc = first_server_char;
+					}
 				}
 				else
 				{
 					tmpc = tmpc->prev;
+
 					if (!tmpc)
 					{
-						/* get last node */
-						for (tmpc = first_server_char; tmpc->next; tmpc = tmpc->next);
+						/* Get last node */
+						for (tmpc = first_server_char; tmpc->next; tmpc = tmpc->next)
+						{
+						}
 					}
 				}
 
 				memcpy(&new_character, tmpc, sizeof(_server_char));
 
-				/* adjust gender */
+				/* Adjust gender */
 				for (g = 0; g < 4; g++)
 				{
 					if (new_character.gender[g])
@@ -1451,20 +1585,29 @@ void show_newplayer_server()
 						break;
 					}
 				}
+
 				break;
 			}
 		}
 	}
 
 	if (create_list_set.entry_nr == 1)
+	{
 		StringBlt(ScreenSurface, &SystemFont, "Gender:", x + 130, y + CREATE_Y0 + 1 * 17 + 2, COLOR_GREEN, NULL, NULL);
+	}
 	else
+	{
 		StringBlt(ScreenSurface, &SystemFont, "Gender:", x + 130, y + CREATE_Y0 + 1 * 17 + 2, COLOR_WHITE, NULL, NULL);
+	}
 
 	if (create_list_set.entry_nr == 1)
+	{
 		delta = add_rangebox(x + 170, y + CREATE_Y0 + 1 * 17, ++id, 80, 0, gender[new_character.gender_selected], COLOR_GREEN);
+	}
 	else
+	{
 		delta = add_rangebox(x + 170, y + CREATE_Y0 + 1 * 17, ++id, 80, 0, gender[new_character.gender_selected], COLOR_WHITE);
+	}
 
 	if (create_list_set.key_change && create_list_set.entry_nr == 1)
 	{
@@ -1484,7 +1627,9 @@ void show_newplayer_server()
 				tmp_g = ++new_character.gender_selected;
 
 				if (tmp_g > 3)
+				{
 					tmp_g -= 4;
+				}
 
 				if (new_character.gender[tmp_g])
 				{
@@ -1500,7 +1645,9 @@ void show_newplayer_server()
 				tmp_g = new_character.gender_selected - g;
 
 				if (tmp_g < 0)
+				{
 					tmp_g += 4;
+				}
 
 				if (new_character.gender[tmp_g])
 				{
@@ -1511,7 +1658,7 @@ void show_newplayer_server()
 		}
 	}
 
-	/* draw player image */
+	/* Draw player image */
 	StringBlt(ScreenSurface, &SystemFont, cpl.name, x + 40, y + 85, COLOR_WHITE, NULL, NULL);
 
 	blit_face(new_character.face_id[new_character.gender_selected], x + 35, y + 100);
@@ -1537,22 +1684,14 @@ void show_newplayer_server()
 	StringBlt(ScreenSurface, &SystemFont, new_character.desc[3], x + 160, y + 470, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, new_character.desc[3], x + 159, y + 469, COLOR_WHITE, NULL, NULL);
 
-	/* draw portrait */
-#if 0
-	box.x= x + 350;
-	box.y= y + CREATE_Y0;
-	box.w= 100;
-	box.h= 100;
-	SDL_FillRect(ScreenSurface, &box, sdl_gray1);
-	StringBlt(ScreenSurface, &SystemFont, "Portrait:",  x + 350, y + CREATE_Y0 - 13, COLOR_WHITE, NULL, NULL);
-	add_rangebox(x + 350, y + CREATE_Y0 + 101, ++id, 70, 1, "todo ;-)", COLOR_GREEN);
-#endif
-
 	if (!mb)
+	{
 		active_button = -1;
+	}
 }
 
-/* show login: status & identify part. */
+/**
+ * Show login window. */
 void show_login_server()
 {
 	SDL_Rect box;
@@ -1562,15 +1701,12 @@ void show_login_server()
 
 	mb = SDL_GetMouseState(&mx, &my);
 
-	/* background */
+	/* Background */
 	x = 25;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_LOGIN], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_LOGIN]->bitmap->w / 2, y + 17, NULL, NULL);
-#if 0
-	add_close_button(x, y, MENU_LOGIN);
-#endif
 
 	t = x + 275;
 	x += 170;
@@ -1585,9 +1721,13 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "Server", t - 21 , y - 36, COLOR_WHITE, NULL, NULL);
 
 	if (!strcmp(ServerName, "127.0.0.1"))
-		strcpy(buf, "local host");
+	{
+		strcpy(buf, "localhost");
+	}
 	else
-		sprintf(buf, "%s", ServerName);
+	{
+		snprintf(buf, sizeof(buf), "%s", ServerName);
+	}
 
 	t -= get_string_pixel_length(buf, &BigFont) / 2;
 	StringBlt(ScreenSurface, &BigFont, buf, t + 1, y - 21, COLOR_BLACK, NULL, NULL);
@@ -1602,22 +1742,42 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "- UPDATING FILES -", x + 57, y, COLOR_WHITE, NULL, NULL);
 
 	if (request_file_chain >= 0)
+	{
 		StringBlt(ScreenSurface, &SystemFont, "Updating settings file from server...", x + 2, y + 20, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 1)
-		StringBlt(ScreenSurface, &SystemFont, "Updating spells file from server...", x + 2, y + 32, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 3)
-		StringBlt(ScreenSurface, &SystemFont, "Updating skills file from server...", x + 2, y + 44, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 5)
-		StringBlt(ScreenSurface, &SystemFont, "Updating bmaps file from server...", x + 2, y + 56, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 7)
-		StringBlt(ScreenSurface, &SystemFont, "Updating anims file from server...", x + 2, y + 68, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 9)
-		StringBlt(ScreenSurface, &SystemFont, "Updating help files from server...", x + 2, y + 80, COLOR_WHITE, NULL, NULL);
-	if (request_file_chain > 11)
-		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 92, COLOR_WHITE, NULL, NULL);
+	}
 
-	/* if set, we have requested something and the stuff in the socket buffer is our file! */
-	if (request_file_chain == 1 || request_file_chain == 3 ||request_file_chain ==  5 || request_file_chain == 7 || request_file_chain == 9 || request_file_chain == 11)
+	if (request_file_chain > 1)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Updating spells file from server...", x + 2, y + 32, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 3)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Updating skills file from server...", x + 2, y + 44, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 5)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Updating bmaps file from server...", x + 2, y + 56, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 7)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Updating anims file from server...", x + 2, y + 68, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 9)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Updating help files from server...", x + 2, y + 80, COLOR_WHITE, NULL, NULL);
+	}
+
+	if (request_file_chain > 11)
+	{
+		StringBlt(ScreenSurface, &SystemFont, "Sync files..." , x + 2, y + 92, COLOR_WHITE, NULL, NULL);
+	}
+
+	/* If set, we have requested something and the stuff in the socket buffer is our file! */
+	if (request_file_chain == 1 || request_file_chain == 3 || request_file_chain ==  5 || request_file_chain == 7 || request_file_chain == 9 || request_file_chain == 11)
 	{
 		snprintf(buf, sizeof(buf), "received ~%d~ bytes", csocket.inbuf.len);
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 1, y + 150, COLOR_WHITE, NULL, NULL);
@@ -1633,9 +1793,11 @@ void show_login_server()
 	box.w = (int) ((float) Bitmaps[BITMAP_PROGRESS]->bitmap->w / 100 * progress);
 	sprite_blt(Bitmaps[BITMAP_PROGRESS], x, y + (168 - Bitmaps[BITMAP_PROGRESS]->bitmap->h - 5), &box, NULL);
 
-	/* login user part */
+	/* Login user part */
 	if (GameStatus == GAME_STATUS_REQUEST_FILES)
+	{
 		return;
+	}
 
 	StringBlt(ScreenSurface, &SystemFont, "done.", x + 2, y + 104, COLOR_WHITE, NULL, NULL);
 	y += 180;
@@ -1647,7 +1809,6 @@ void show_login_server()
 	{
 		strcpy(buf, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 16));
 		buf[0] = toupper(buf[0]);
-
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 2, y + 17, COLOR_WHITE, NULL, NULL);
 	}
 	else
@@ -1664,20 +1825,26 @@ void show_login_server()
 		strcpy(buf, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 16));
 
 		for (i = 0; i < CurrentCursorPos; i++)
+		{
 			buf[i] = '*';
+		}
 
-		for (i = CurrentCursorPos + 1; i < (int)strlen(InputString) + 1; i++)
+		for (i = CurrentCursorPos + 1; i < (int) strlen(InputString) + 1; i++)
+		{
 			buf[i] = '*';
+		}
 
-		buf[i] = 0;
+		buf[i] = '\0';
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 2, y + 57, COLOR_WHITE, NULL, NULL);
 	}
 	else
 	{
-		for (i = 0; i < (int)strlen(cpl.password); i++)
+		for (i = 0; i < (int) strlen(cpl.password); i++)
+		{
 			buf[i] = '*';
+		}
 
-		buf[i] = 0;
+		buf[i] = '\0';
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 2, y + 57, COLOR_WHITE, NULL, NULL);
 	}
 
@@ -1687,9 +1854,12 @@ void show_login_server()
 		sprite_blt(Bitmaps[BITMAP_LOGIN_INP], x - 2, y + 95, NULL, NULL);
 		strcpy(buf, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_LOGIN_INP]->bitmap->w - 16));
 
-		for (i = 0; i < (int)strlen(InputString); i++)
+		for (i = 0; i < (int) strlen(InputString); i++)
+		{
 			buf[i] = '*';
+		}
 
+		buf[i] = '\0';
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 2, y + 97, COLOR_WHITE, NULL, NULL);
 	}
 
@@ -1702,28 +1872,27 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "You will be asked to ~verify~ the password for new characters.", x - 11, y, COLOR_WHITE, NULL, NULL);
 }
 
-/* show login: select-server part. */
+/**
+ * Show metaserver window.
+ * @param node First server.
+ * @param metaserver_start Server start.
+ * @param metaserver_sel Selected server. */
 void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 {
 	int x, y, i;
 	char buf[1024];
-	SDL_Rect rec_name;
-	SDL_Rect rec_desc;
-	SDL_Rect box;
+	SDL_Rect rec_name, rec_desc, box;
 	int mx, my, mb;
 
 	mb = SDL_GetMouseState(&mx, &my);
 
-	/* background */
+	/* Background */
 	x = 25;
 	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
 
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_LOGO270], x + 20, y + 85, NULL, NULL);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_SERVER], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_SERVER]->bitmap->w / 2, y + 15, NULL, NULL);
-#if 0
-	add_close_button(x, y, MENU_LOGIN);
-#endif
 
 	rec_name.w = 272;
 	rec_desc.w = 325;
@@ -1733,7 +1902,7 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	box.w = 329;
 	box.h = 12;
 
-	/* frame for selection field */
+	/* Frame for selection field */
 	draw_frame(box.x - 1, box.y + 11, box.w + 1, 313);
 
 	/* Frame for scrollbar */
@@ -1761,7 +1930,7 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 	StringBlt(ScreenSurface, &SystemFont, "Players", x + 416, y + TXT_Y_START - 1, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Players", x + 415, y + TXT_Y_START - 2, COLOR_WHITE, NULL, NULL);
 
-	sprintf(buf, "use cursors ~%c%c~ to select server                                  press ~RETURN~ to connect", ASCII_UP, ASCII_DOWN);
+	sprintf(buf, "Use cursors ~%c%c~ to select server                                  press ~RETURN~ to connect", ASCII_UP, ASCII_DOWN);
 	StringBlt(ScreenSurface, &SystemFont, buf, x + 140, y + 410, COLOR_WHITE, NULL, NULL);
 
 	for (i = 0; i < OPTWIN_MAX_OPT; i++)
@@ -1769,13 +1938,19 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 		box.y += 12;
 
 		if (i & 1)
+		{
 			SDL_FillRect(ScreenSurface, &box, sdl_gray2);
+		}
 		else
+		{
 			SDL_FillRect(ScreenSurface, &box, sdl_gray1);
+		}
 	}
 
 	for (i = 0; node && i < metaserver_start; i++)
+	{
 		node = node->next;
+	}
 
 	for (i = 0; node && i < metaserver_count; i++)
 	{
@@ -1819,9 +1994,13 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 			StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
 
 			if (node->player >= 0)
+			{
 				sprintf(buf, "%d", node->player);
+			}
 			else
-				sprintf(buf, "-");
+			{
+				strcpy(buf, "-");
+			}
 
 			StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
 		}
@@ -1830,13 +2009,15 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 
 		/* Never more than maximum */
 		if (i + 1 - dialog_yoff >= DIALOG_LIST_ENTRY)
+		{
 			break;
+		}
 	}
 }
 
 /**
- * Called on mouse event in metaserver dialog
- * @param e SDL event */
+ * Called on mouse event in metaserver dialog.
+ * @param e SDL event. */
 void metaserver_mouse(SDL_Event *e)
 {
 	/* Mousewheel up/down */
@@ -1846,30 +2027,46 @@ void metaserver_mouse(SDL_Event *e)
 		if (e->button.button == 5)
 		{
 			if (metaserver_sel < metaserver_count - 1)
+			{
 				metaserver_sel++;
+			}
 
 			if (metaserver_sel >= DIALOG_LIST_ENTRY + dialog_yoff)
+			{
 				dialog_yoff++;
+			}
 		}
 		/* .. or up */
 		else
 		{
 			if (metaserver_sel)
+			{
 				metaserver_sel--;
+			}
 
 			if (dialog_yoff > metaserver_sel)
+			{
 				dialog_yoff--;
+			}
 		}
 
-		/* Sanity checks for going out of bounds */
+		/* Sanity checks for going out of bounds. */
 		if (dialog_yoff < 0 || metaserver_count < DIALOG_LIST_ENTRY)
+		{
 			dialog_yoff = 0;
+		}
 		else if (dialog_yoff >= metaserver_count - DIALOG_LIST_ENTRY)
+		{
 			dialog_yoff = metaserver_count - DIALOG_LIST_ENTRY;
+		}
 
 		if (metaserver_sel < 0)
+		{
 			metaserver_sel = 0;
+		}
 		else if (metaserver_sel >= metaserver_count)
+		{
 			metaserver_sel = metaserver_count;
+		}
 	}
 }

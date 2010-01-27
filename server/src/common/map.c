@@ -2920,8 +2920,8 @@ void set_map_reset_time(mapstruct *map)
  * map), otherwise it returns the map the coordinates are really on, and
  * updates x and y to be the localized coordinates.
  * @param m Map to consider.
- * @param x [out] Will contain the real X position that was checked.
- * @param y [out] Will contain the real Y position that was checked.
+ * @param[out] x Will contain the real X position that was checked.
+ * @param[out] y Will contain the real Y position that was checked.
  * @return Map that is at specified location. Will be NULL if not on any
  * map. */
 mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
@@ -3088,10 +3088,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
  * Same as get_map_from_coord(), but this version doesn't load tiled maps
  * into memory, if they are not already.
  * @param m Map to consider.
- * @param x [out] Will contain the real X position that was checked. If
+ * @param[out] x Will contain the real X position that was checked. If
  * coordinates are not in a map this is set to 0, or to -1 if there is a
  * tiled map but it's not loaded.
- * @param y [out] Will contain the real Y position that was checked.
+ * @param[out] y Will contain the real Y position that was checked.
  * @return Map that is at specified location. Will be NULL if not on any
  * map. */
 mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)

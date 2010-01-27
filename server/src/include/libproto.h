@@ -234,11 +234,11 @@ extern int object_set_value(object *op, const char *key, const char *value, int 
 extern void init_object_initializers();
 
 /* porting.c */
-extern char *tempnam_local(char *dir, char *pfx);
+extern char *tempnam_local(const char *dir, const char *pfx);
 extern char *strdup_local(const char *str);
 extern char *strerror_local(int errnum);
 extern int isqrt(int n);
-extern FILE *open_and_uncompress(char *name, int flag, int *compressed);
+extern FILE *open_and_uncompress(const char *name, int flag, int *compressed);
 extern void close_and_delete(FILE *fp, int compressed);
 extern void make_path_to_file(char *filename);
 extern const char *strcasestr_local(const char *s, const char *find);
@@ -291,7 +291,6 @@ extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
 extern void ss_dump_statistics(char *buf, size_t size);
 extern void ss_dump_table(int what, char *buf, size_t size);
-extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 
 /* stringbuffer.c */
 extern StringBuffer *stringbuffer_new();
@@ -330,8 +329,8 @@ extern int get_enviroment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 
 /* utils.c */
-extern int random_roll(int min, int max, object *op, int goodbad);
-extern int die_roll(int num, int size, object *op, int goodbad);
+extern int random_roll(int min, int max, const object *op, int goodbad);
+extern int die_roll(int num, int size, const object *op, int goodbad);
 extern int rndm(int min, int max);
 extern int look_up_spell_name(const char *spname);
 extern void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
@@ -343,3 +342,4 @@ extern void replace_unprintable_chars(char *buf);
 extern size_t split_string(char *str, char *array[], size_t array_size, char sep);
 extern int get_random_dir();
 extern int get_randomized_dir(int dir);
+extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);

@@ -65,7 +65,7 @@
 /* include all needed autoconfig.h defines */
 #define HAVE_STRICMP
 #define HAVE_STRNICMP
-
+#define HAVE_STRERROR
 #define HAVE_SRAND
 #ifndef HAVE_FCNTL_H
 #define HAVE_FCNTL_H
@@ -140,6 +140,9 @@
 #ifndef MSG_DONWAIT
 #define MSG_DONTWAIT 0
 #endif
+
+#define WIFEXITED(x) 1
+#define WEXITSTATUS(x) x
 
 /* Doesn't exist, just a plain int */
 #ifndef socklen_t

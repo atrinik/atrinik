@@ -45,11 +45,8 @@ typedef struct _option
 	/** Option name. */
 	char *name;
 
-	/** Info text row 1. */
-	char *info1;
-
-	/** Info text row 2. */
-	char *info2;
+	/** Info text. */
+	char *info;
 
 	/** Text replacement for number values. */
 	char *val_text;
@@ -84,7 +81,7 @@ extern enum
 
 extern int dialog_yoff;
 
-extern char *opt_tab[];
+extern const char *opt_tab[];
 extern int dialog_new_char_warn;
 
 #endif

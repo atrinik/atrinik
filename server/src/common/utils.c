@@ -41,9 +41,9 @@
  * and if goodbad is non-zero, luck increases the roll, if zero, it decreases.
  * Generally, op should be the player/caster/hitter requesting the roll,
  * not the recipient (ie, the poor slob getting hit). */
-int random_roll(int min, int max, object *op, int goodbad)
+int random_roll(int min, int max, const object *op, int goodbad)
 {
-	int omin, diff, luck, base;
+	int omin, diff, luck, base, ran;
 
 	omin = min;
 	diff = max - min + 1;
@@ -57,9 +57,11 @@ int random_roll(int min, int max, object *op, int goodbad)
 		return min;
 	}
 
+	ran = RANDOM();
+
 	if (op->type != PLAYER)
 	{
-		return (RANDOM() % diff) + min;
+		return (ran % diff) + min;
 	}
 
 	luck = op->stats.luck;
@@ -78,10 +80,10 @@ int random_roll(int min, int max, object *op, int goodbad)
 
 		((goodbad) ? (min += luck) : (diff));
 
-		return (MAX(omin, MIN(max, (RANDOM() % diff) + min)));
+		return (MAX(omin, MIN(max, (ran % diff) + min)));
 	}
 
-	return ((RANDOM() % diff) + min);
+	return ((ran % diff) + min);
 }
 
 /**
@@ -90,7 +92,7 @@ int random_roll(int min, int max, object *op, int goodbad)
  * Generally, op should be the player/caster/hitter requesting the roll,
  * not the recipient (ie, the poor slob getting hit).
  * The args are num D size (ie 4d6) */
-int die_roll(int num, int size, object *op, int goodbad)
+int die_roll(int num, int size, const object *op, int goodbad)
 {
 	int min, diff, luck, total, i, gotlucky, base;
 
@@ -406,4 +408,33 @@ int get_random_dir()
 int get_randomized_dir(int dir)
 {
 	return absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+}
+
+/**
+ * We don't want to exceed the buffer size of buf1 by adding on buf2!
+ * @param buf1
+ * @param buf2
+ * Buffers we plan on concatening. Can be NULL.
+ * @param bufsize Size of buf1. Can be 0.
+ * @return 1 if overflow will occur, 0 otherwise. */
+int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
+{
+	size_t len1 = 0, len2 = 0;
+
+	if (buf1)
+	{
+		len1 = strlen(buf1);
+	}
+
+	if (buf2)
+	{
+		len2 = strlen(buf2);
+	}
+
+	if ((len1 + len2) >= bufsize)
+	{
+		return 1;
+	}
+
+	return 0;
 }

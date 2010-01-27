@@ -364,7 +364,7 @@ static int re_match_token(unsigned char c, selection *sel)
 
 /**
  * Get the first regular expression token found in regexp in sel.
- * @param sel [out] Where to store the token.
+ * @param[out] sel Where to store the token.
  * @param regexp Regular expression.
  * @return
  * - NULL: syntax error

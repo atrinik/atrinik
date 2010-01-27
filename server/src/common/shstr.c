@@ -407,32 +407,3 @@ void ss_dump_table(int what, char *buf, size_t size)
 		snprintf(buf, size, "\n%d entries, %d refs, %d links.", entries, refs, links);
 	}
 }
-
-/**
- * We don't want to exceed the buffer size of buf1 by adding on buf2!
- * @param buf1
- * @param buf2
- * Buffers we plan on concatening. Can be NULL.
- * @param bufsize Size of buf1. Can be 0.
- * @return 1 if overflow will occur, 0 otherwise. */
-int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
-{
-	size_t len1 = 0, len2 = 0;
-
-	if (buf1)
-	{
-		len1 = strlen(buf1);
-	}
-
-	if (buf2)
-	{
-		len2 = strlen(buf2);
-	}
-
-	if ((len1 + len2) >= bufsize)
-	{
-		return 1;
-	}
-
-	return 0;
-}

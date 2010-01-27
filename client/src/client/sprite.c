@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Sprite related functions. */
+
 #include <include.h>
 
 /** Anim queue of current active map */
@@ -511,10 +515,10 @@ static void fow_scale(_Sprite *sprite)
 /**
  * Get bitmap borders.
  * @param Surface Bitmap's surface.
- * @param up [out] Top border.
- * @param down [out] Bottom border.
- * @param left [out] Left border.
- * @param right [out] Right border.
+ * @param[out] up Top border.
+ * @param[out] down Bottom border.
+ * @param[out] left Left border.
+ * @param[out] right Right border.
  * @param ckey Color key.
  * @return 1 on success, 0 on failure. */
 static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey)
@@ -597,7 +601,7 @@ down_border:
  * @param col Color.
  * @param area Area.
  * @param bltfx Bltfx. */
-void StringBlt(SDL_Surface *surf, _Font *font, char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
+void StringBlt(SDL_Surface *surf, _Font *font, const char *text, int x, int y, int col, SDL_Rect *area, _BLTFX *bltfx)
 {
 	int i, tmp, line_clip = -1, line_count = 0;
 	int gflag, colorToggle = 0, mode, color_real;

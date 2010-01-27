@@ -163,7 +163,7 @@ void RequestInfo(char *buf, int len, socket_struct *ns)
  * client_cmd_mapping will be checked. */
 void handle_client(socket_struct *ns, player *pl)
 {
-	int len = 0, i;
+	int len = 0, i, cmd_count = 0;
 	unsigned char *data;
 
 	/* Loop through this - maybe we have several complete packets here. */
@@ -230,7 +230,7 @@ void handle_client(socket_struct *ns, player *pl)
 					ns->addme = 0;
 				}
 
-				return;
+				goto next_command;
 			}
 		}
 
@@ -243,7 +243,7 @@ void handle_client(socket_struct *ns, player *pl)
 				{
 					player_commands[i].cmdproc((char *) data, len, pl);
 					ns->inbuf.len = 0;
-					return;
+					goto next_command;
 				}
 			}
 		}
@@ -252,6 +252,14 @@ void handle_client(socket_struct *ns, player *pl)
 		 * this might be questionable, because a broken client/malicious
 		 * user could certainly send a whole bunch of invalid commands. */
 		LOG(llevDebug, "Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
+
+next_command:
+		if (cmd_count++ <= 8 && ns->status != Ns_Dead)
+		{
+			continue;
+		}
+
+		return;
 	}
 }
 

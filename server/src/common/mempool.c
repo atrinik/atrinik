@@ -434,9 +434,9 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempoo
  * Gather mempool statistics and write details to the log and the given
  * player.
  * @param op To send detailed info to (optional).
- * @param sum_used [out] Total number of bytes actively in use from
+ * @param[out] sum_used Total number of bytes actively in use from
  * mempools.
- * @param sum_alloc [out] Total number of bytes allocated by the mempool
+ * @param[out] sum_alloc Total number of bytes allocated by the mempool
  * system. */
 void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 {

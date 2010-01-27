@@ -2308,12 +2308,15 @@ void widget_show_target(int x, int y)
 		{
 			static int delta = 0;
 
-			if (mb && mb_clicked && !(delta++ & 7))
+			if (!(SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+			{
+				delta = 0;
+			}
+			else if (mb && mb_clicked && !(delta++ & 7))
 			{
 				char tmp_buf[MAX_BUF];
 
 				snprintf(tmp_buf, sizeof(tmp_buf), "shop load %s", cpl.target_name);
-
 				cs_write_string(csocket.fd, tmp_buf, strlen(tmp_buf));
 			}
 

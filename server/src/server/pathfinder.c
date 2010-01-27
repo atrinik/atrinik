@@ -97,7 +97,7 @@ static int pathfinder_queue_enqueue(object *waypoint)
 
 /**
  * Get the first waypoint from the queue.
- * @param count [out] Waypoint's ID if there is a valid waypoint.
+ * @param[out] count Waypoint's ID if there is a valid waypoint.
  * @return The waypoint, NULL if the queue is empty. */
 static object *pathfinder_queue_dequeue(int *count)
 {

@@ -29,7 +29,7 @@
 
 #include <include.h>
 
-/** The shop GUI */
+/** The shop GUI. */
 _shop_gui_struct *shop_gui = NULL;
 
 /**
@@ -45,6 +45,8 @@ coins_struct coins[] =
 
 /** Size of the coin types array */
 #define COINS_ARRAY_SIZE (int) (sizeof(coins) / sizeof(coins_struct))
+
+static void shop_add_button(int x, int y, const char *text);
 
 /**
  * Show the shop GUI widget.
@@ -495,7 +497,7 @@ void shop_add_close_button(int x, int y)
  * @param x X position of the button
  * @param y Y position of the button
  * @param text Text of the button */
-void shop_add_button(int x, int y, char *text)
+static void shop_add_button(int x, int y, const char *text)
 {
 	int mx, my, mb, text_x;
 
@@ -514,6 +516,15 @@ void shop_add_button(int x, int y, char *text)
 	{
 		static int delta = 0;
 
+		/* Show the text in gold */
+		StringBlt(ScreenSurface, &SystemFont, text, text_x, y + 1, COLOR_HGOLD, NULL, NULL);
+
+		if (!(SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+		{
+			delta = 0;
+			return;
+		}
+
 		/* If it was clicked */
 		if (shop_gui && mb && mb_clicked && !(delta++ & 7))
 		{
@@ -526,7 +537,6 @@ void shop_add_button(int x, int y, char *text)
 					char buf[MAX_BUF];
 
 					snprintf(buf, sizeof(buf), "shop examine %s %d", shop_gui->shop_owner, shop_gui->selected_tag);
-
 					cs_write_string(csocket.fd, buf, strlen(buf));
 				}
 				/* Otherwise buy the item */
@@ -547,9 +557,6 @@ void shop_add_button(int x, int y, char *text)
 				}
 			}
 		}
-
-		/* Show the text in gold */
-		StringBlt(ScreenSurface, &SystemFont, text, text_x, y + 1, COLOR_HGOLD, NULL, NULL);
 	}
 	/* Mouse is not over the button, show the text in white */
 	else

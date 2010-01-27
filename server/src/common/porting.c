@@ -32,30 +32,22 @@
  * functions. */
 
 #ifdef WIN32
-#include "process.h"
-#define pid_t int
+#	include "process.h"
+#	define pid_t int
 #else
-#include <ctype.h>
-#include <sys/stat.h>
-
-#include <sys/param.h>
-#include <stdio.h>
-#include <autoconf.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#	include <ctype.h>
+#	include <sys/stat.h>
+#	include <sys/wait.h>
+#	include <sys/param.h>
+#	include <stdio.h>
+#	include <autoconf.h>
 #endif
 
 /* Has to be after above includes so we don't redefine some values */
 #include <global.h>
 
 /** Used to generate temporary unique name. */
-static unsigned int curtmp = 0;
+static uint32 curtmp = 0;
 
 /**
  * A replacement for the tempnam() function since it's not defined
@@ -65,15 +57,10 @@ static unsigned int curtmp = 0;
  * @param pfx prefix to create unique name. Can be NULL.
  * @return Path to temporary file, or NULL if failure. Must be freed by
  * caller. */
-char *tempnam_local(char *dir, char *pfx)
+char *tempnam_local(const char *dir, const char *pfx)
 {
-	char *f, *name;
+	char *name;
 	pid_t pid = getpid();
-
-	if (!(name = (char *) malloc(MAXPATHLEN)))
-	{
-		return NULL;
-	}
 
 	if (!pfx)
 	{
@@ -81,15 +68,19 @@ char *tempnam_local(char *dir, char *pfx)
 	}
 
 	/* This is a pretty simple method - put the pid as a hex digit and
-	 * just keep incrementing the last digit.  Check to see if the file
+	 * just keep incrementing the last digit. Check to see if the file
 	 * already exists - if so, we'll just keep looking - eventually we
 	 * should find one that is free. */
-	if ((f = (char *) dir) != NULL)
+	if (dir)
 	{
+		if (!(name = (char *) malloc(MAXPATHLEN)))
+		{
+			return NULL;
+		}
+
 		do
 		{
-			snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", f, pfx, pid, curtmp);
-
+			snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", dir, pfx, pid, curtmp);
 			curtmp++;
 		}
 		while (access(name, F_OK) != -1);
@@ -99,77 +90,6 @@ char *tempnam_local(char *dir, char *pfx)
 
 	return NULL;
 }
-
-#if defined(sgi)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define popen popen_local
-
-FILE *popen_local(const char *command, const char *type)
-{
-	int	fd[2];
-	int	pd;
-	FILE *ret;
-
-	if (!strcmp(type, "r"))
-	{
-		pd = STDOUT_FILENO;
-	}
-	else if (!strcmp(type, "w"))
-	{
-		pd = STDIN_FILENO;
-	}
-	else
-	{
-		return NULL;
-	}
-
-	if (pipe(fd) != -1)
-	{
-		switch (fork())
-		{
-			case -1:
-				close(fd[0]);
-				close(fd[1]);
-				break;
-
-			case 0:
-				close(fd[0]);
-
-				if ((fd[1] == pd) || (dup2(fd[1], pd) == pd))
-				{
-					if (fd[1] != pd)
-					{
-						close(fd[1]);
-					}
-
-					execl("/bin/sh", "sh", "-c", command, NULL);
-					close(pd);
-				}
-
-				exit(1);
-				break;
-
-			default:
-				close(fd[1]);
-
-				if (ret = fdopen(fd[0], type))
-				{
-					return ret;
-				}
-
-				close(fd[0]);
-				break;
-		}
-	}
-
-	return NULL;
-}
-
-#endif
 
 /**
  * A replacement of strdup(), since it's not defined at some
@@ -189,86 +109,17 @@ char *strdup_local(const char *str)
 	return c;
 }
 
-/* This seems to be lacking on some system */
-#if defined(HAVE_STRNICMP)
-#else
-#if !defined(HAVE_STRNCASECMP)
-int strncasecmp(char *s1, char *s2, int n)
-{
-	int c1, c2;
-
-	while (*s1 && *s2 && n)
-	{
-		c1 = tolower(*s1);
-		c2 = tolower(*s2);
-
-		if (c1 != c2)
-		{
-			return (c1 - c2);
-		}
-
-		s1++;
-		s2++;
-		n--;
-	}
-
-	if (!n)
-	{
-		return 0;
-	}
-
-	return (int) (*s1 - *s2);
-}
-#endif
-#endif
-
-#if defined(HAVE_STRICMP)
-#else
-#if !defined(HAVE_STRCASECMP)
-int strcasecmp(char *s1, char*s2)
-{
-	int c1, c2;
-
-	while (*s1 && *s2)
-	{
-		c1 = tolower(*s1);
-		c2 = tolower(*s2);
-
-		if (c1 != c2)
-		{
-			return (c1 - c2);
-		}
-
-		s1++;
-		s2++;
-	}
-
-	if (*s1 == '\0' && *s2 == '\0')
-	{
-		return 0;
-	}
-
-	return (int) (*s1 - *s2);
-}
-#endif
-#endif
-
 /**
  * Takes an error number and returns a string with a description of the
  * error.
  * @param errnum The error number.
- * @return If HAVE_STRERROR is defined, strerror() is used to get the
- * description of the error, otherwise the passed error number is
- * returned. */
+ * @return The description of the error. */
 char *strerror_local(int errnum)
 {
 #if defined(HAVE_STRERROR)
 	return strerror(errnum);
 #else
-	static char buf[MAX_BUF];
-
-	snprintf(buf, sizeof(buf), "Error %d", errnum);
-	return buf;
+#	error Missing strerror().
 #endif
 }
 
@@ -310,119 +161,147 @@ int isqrt(int n)
  * compressed files. */
 char *uncomp[NROF_COMPRESS_METHODS][3] =
 {
-	{NULL,      NULL,        NULL},
-	{".Z",      UNCOMPRESS,  COMPRESS},
-	{".gz",     GUNZIP,      GZIP},
-	{".bz2",    BUNZIP,      BZIP}
+	{NULL, NULL, NULL},
+	{".Z", UNCOMPRESS, COMPRESS},
+	{".gz", GUNZIP, GZIP},
+	{".bz2", BUNZIP, BZIP}
 };
+
+/**
+ * Open and possibly uncompress a file.
+ * @param ext The extension if the file is compressed.
+ * @param uncompressor The command to uncompress the file if the file is compressed.
+ * @param name The base file name without compression extension.
+ * @param flag Only used for compressed files:
+ * - If set, uncompress and open the file
+ * - If unset, uncompress the file via pipe
+ * @param[out] compressed Set to zero if the file was uncompressed.
+ * @return Pointer to opened file, NULL on failure.
+ * @note Will set ::errno if an error occurs. */
+static FILE *open_and_uncompress_file(const char *ext, const char *uncompressor, const char *name, int flag, int *compressed)
+{
+	struct stat st;
+	char buf[MAX_BUF], buf2[MAX_BUF];
+	int ret;
+
+	if (!ext)
+	{
+		ext = "";
+	}
+
+	if (strlen(name) + strlen(ext) >= sizeof(buf))
+	{
+		/* File name too long */
+		errno = ENAMETOOLONG;
+		return NULL;
+	}
+
+	snprintf(buf, sizeof(buf), "%s%s", name, ext);
+
+	if (stat(buf, &st) != 0)
+	{
+		return NULL;
+	}
+
+	if (!S_ISREG(st.st_mode))
+	{
+		/* Not a regular file */
+		errno = EISDIR;
+		return NULL;
+	}
+
+	if (uncompressor == NULL)
+	{
+		/* Open without uncompression */
+		return fopen(buf, "rb");
+	}
+
+	/* The file name buf (and its substring name) is passed as an argument to a
+	 * shell command, therefore check for characters that could confuse the
+	 * shell. */
+	if (strpbrk(buf, "'\\\r\n") != NULL)
+	{
+		/* Pretend the file does not exist */
+		errno = ENOENT;
+		return NULL;
+	}
+
+	if (!flag)
+	{
+		/* Uncompress via pipe */
+		if (strlen(uncompressor) + 4 + strlen(buf) + 1 >= sizeof(buf2))
+		{
+			/* File name too long */
+			errno = ENAMETOOLONG;
+			return NULL;
+		}
+
+		snprintf(buf2, sizeof(buf2), "%s < '%s'", uncompressor, buf);
+		return popen(buf2, "r");
+	}
+
+	/* Remove compression from file, then open file */
+	if (stat(name, &st) == 0 && !S_ISREG(st.st_mode))
+	{
+		errno = EISDIR;
+		return NULL;
+	}
+
+	if (strlen(uncompressor) + 4 + strlen(buf) + 5 + strlen(name) + 1 >= sizeof(buf2))
+	{
+		/* File name too long */
+		errno = ENAMETOOLONG;
+		return NULL;
+	}
+
+	snprintf(buf2, sizeof(buf2), "%s < '%s' > '%s'", uncompressor, buf, name);
+
+	ret = system(buf2);
+
+	if (!WIFEXITED(ret) || WEXITSTATUS(ret) != 0)
+	{
+		LOG(llevBug, "BUG: system(%s) returned %d\n", buf2, ret);
+		errno = ENOENT;
+		return NULL;
+	}
+
+	/* Delete the original */
+	unlink(buf);
+	/* Change to "uncompressed file" */
+	*compressed = 0;
+	/* Copy access mode from compressed file */
+	chmod(name, st.st_mode);
+
+	return fopen(name, "rb");
+}
 
 /**
  * open_and_uncompress() first searches for the original filename. If it exists,
  * then it opens it and returns the file-pointer.
- *
- * If not, it does two things depending on the flag. If the flag is set, it
- * tries to create the original file by appending a compression suffix to name
- * and uncompressing it. If the flag is not set, it creates a pipe that is used
- * for reading the file (NOTE - you can not use fseek on pipes).
- *
- * The compressed pointer is set to nonzero if the file is compressed (and
- * thus, fp is actually a pipe.) It returns 0 if it is a normal file.
- * @param name The base file name without compression extension
+ * @param name The base file name without compression extension.
  * @param flag Only used for compressed files:
  * - If set, uncompress and open the file
  * - If unset, uncompress the file via pipe
- * @param compressed [out] Set to zero if the file was uncompressed
- * @return Pointer to opened file, NULL on failure. */
-FILE *open_and_uncompress(char *name, int flag, int *compressed)
+ * @param[out] compressed Set to zero if the file was uncompressed
+ * @return Pointer to opened file, NULL on failure.
+ * @note Will set ::errno if an error occurs. */
+FILE *open_and_uncompress(const char *name, int flag, int *compressed)
 {
+	size_t i;
 	FILE *fp;
-	char buf[MAX_BUF], buf2[MAX_BUF], *bufend;
-	int try_once = 0;
 
-	strcpy(buf, name);
-	bufend = buf + strlen(buf);
-
-	/* Strip off any compression prefixes that may exist */
-	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
+	for (i = 0; i < NROF_COMPRESS_METHODS; i++)
 	{
-		if ((uncomp[*compressed][0]) && (!strcmp(uncomp[*compressed][0], bufend - strlen(uncomp[*compressed][0]))))
+		*compressed = i;
+		fp = open_and_uncompress_file(uncomp[i][0], uncomp[i][1], name, flag, compressed);
+
+		if (fp)
 		{
-			buf[strlen(buf) - strlen(uncomp[*compressed][0])] = '\0';
-			bufend = buf + strlen(buf);
-		}
-	}
-
-	for (*compressed = 0; *compressed < NROF_COMPRESS_METHODS; (*compressed)++)
-	{
-		struct stat statbuf;
-
-		if (uncomp[*compressed][0])
-		{
-			strcpy(bufend, uncomp[*compressed][0]);
-		}
-
-		if (stat(buf, &statbuf))
-		{
-			continue;
-		}
-
-		if (uncomp[*compressed][0])
-		{
-			strcpy(buf2, uncomp[*compressed][1]);
-			strcat(buf2, " < ");
-			strcat(buf2, buf);
-
-			if (flag)
-			{
-				int i;
-
-				if (try_once)
-				{
-					LOG(llevBug, "BUG: Failed to open %s after decompression.\n", name);
-					return NULL;
-				}
-
-				try_once = 1;
-				strcat(buf2, " > ");
-				strcat(buf2, name);
-				LOG(llevDebug, "system(%s)\n", buf2);
-
-				if ((i = system(buf2)))
-				{
-					LOG(llevBug, "BUG: system(%s) returned %d\n", buf2, i);
-					return NULL;
-				}
-
-				/* Delete the original */
-				unlink(buf);
-				/* Restart the loop from the beginning */
-				*compressed = '\0';
-				chmod(name, statbuf.st_mode);
-				continue;
-			}
-
-			if ((fp = popen(buf2, "r")) != NULL)
-			{
-				return fp;
-			}
-		}
-		else if ((fp = fopen(name, "r")) != NULL)
-		{
-			struct stat statbuf;
-
-			if (fstat(fileno(fp), &statbuf) || !S_ISREG(statbuf.st_mode))
-			{
-				LOG(llevDebug, "Can't open %s - not a regular file\n", name);
-				(void) fclose(fp);
-				errno = EISDIR;
-				return NULL;
-			}
-
 			return fp;
 		}
 	}
 
-	LOG(llevDebug, "Can't open %s\n", name);
+	errno = ENOENT;
 	return NULL;
 }
 
@@ -466,7 +345,7 @@ void make_path_to_file(char *filename)
 		{
 			if (mkdir(buf, 0777))
 			{
-				LOG(llevBug, "Bug: Can't make path to file %s.\n", filename);
+				LOG(llevBug, "BUG: Cannot mkdir %s: %s\n", buf, strerror_local(errno));
 				return;
 			}
 		}

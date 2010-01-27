@@ -980,7 +980,7 @@ void widget_show_main_lvl(int x, int y)
 void widget_show_skill_exp(int x, int y)
 {
 	SDL_Rect box;
-	static int action_tick = 0;
+	static uint32 action_tick = 0;
 
 	/* Pre-emptively tick down the skill delay timer */
 	if (cpl.action_timer > 0)
