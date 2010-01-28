@@ -1387,7 +1387,7 @@ set_ring_bonus_jump1:
 		case 0:
 			tmp = 5;
 
-			if (level < 10)
+			if (level < 5)
 			{
 				tmp += RANDOM() % 10;
 
@@ -1396,7 +1396,7 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.3f);
 				}
 			}
-			else if (level < 20)
+			else if (level < 10)
 			{
 				tmp += 10 + RANDOM() % 10;
 
@@ -1405,7 +1405,7 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.32f);
 				}
 			}
-			else if (level < 30)
+			else if (level < 15)
 			{
 				tmp += 15 + RANDOM() % 20;
 
@@ -1414,49 +1414,49 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.34f);
 				}
 			}
-			else if (level < 40)
+			else if (level < 20)
 			{
 				tmp += 20 + RANDOM() % 21;
+
+				if (bonus > 0)
+				{
+					op->value = (int) ((float) op->value * 1.36f);
+				}
+			}
+			else if (level < 25)
+			{
+				tmp += 25 + RANDOM() % 23;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.38f);
 				}
 			}
-			else if (level < 50)
+			else if (level < 30)
 			{
-				tmp += 25 + RANDOM() % 23;
+				tmp += 30 + RANDOM() % 25;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.4f);
 				}
 			}
-			else if (level < 60)
+			else if (level < 40)
 			{
-				tmp += 30 + RANDOM() % 25;
+				tmp += 40 + RANDOM() % 30;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.42f);
 				}
 			}
-			else if (level < 80)
+			else
 			{
-				tmp += 40 + RANDOM() % 30;
+				tmp += (int) ((double) level * 0.65) + 50 + RANDOM() % 40;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.44f);
-				}
-			}
-			else
-			{
-				tmp += 50 + RANDOM() % 40;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.5f);
 				}
 			}
 
@@ -1466,19 +1466,20 @@ set_ring_bonus_jump1:
 			}
 			else
 			{
-				op->item_level = level;
+				op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
 			}
 
 			op->stats.maxhp = tmp;
 			break;
 
+		/* Stats */
 		case 1:
 		case 2:
 		case 3:
 		case 4:
 		case 5:
 		case 6:
-			set_attr_value(&op->stats, r, (signed char) (bonus + get_attr_value(&op->stats, r)));
+			set_attr_value(&op->stats, r, (sint8) (bonus + get_attr_value(&op->stats, r)));
 			break;
 
 		case 7:
@@ -1503,8 +1504,8 @@ set_ring_bonus_jump1:
 
 			break;
 
+		/* Hunger/sustenance */
 		case 9:
-			/* Hunger/sustenance */
 			op->stats.food += bonus;
 
 			if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
@@ -1527,94 +1528,6 @@ set_ring_bonus_jump1:
 			break;
 
 		case 11:
-			if (!RANDOM() % 3)
-			{
-				goto make_prot_items;
-			}
-
-			tmp = 3;
-
-			if (level < 10)
-			{
-				tmp += RANDOM() % 3;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.3f);
-				}
-			}
-			else if (level < 20)
-			{
-				tmp += 3 + RANDOM() % 4;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.32f);
-				}
-			}
-			else if (level < 30)
-			{
-				tmp += 4 + RANDOM() % 6;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.34f);
-				}
-			}
-			else if (level < 40)
-			{
-				tmp += 6 + RANDOM() % 8;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.38f);
-				}
-			}
-			else if (level < 50)
-			{
-				tmp += 8 + RANDOM() % 10;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.4f);
-				}
-			}
-			else if (level < 60)
-			{
-				tmp += 10 + RANDOM() % 12;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.42f);
-				}
-			}
-			else if (level < 80)
-			{
-				tmp += 15 + RANDOM() % 15;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.44f);
-				}
-			}
-			else
-			{
-				tmp += 20 + RANDOM() % 20;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.5f);
-				}
-			}
-
-			if (bonus < 0)
-				tmp = -tmp;
-			else
-				op->item_level = level;
-
-			op->stats.maxsp = tmp;
-			break;
-
 		case 12:
 			if (!RANDOM() % 3)
 			{
@@ -1623,7 +1536,7 @@ set_ring_bonus_jump1:
 
 			tmp = 3;
 
-			if (level < 10)
+			if (level < 5)
 			{
 				tmp += RANDOM() % 3;
 
@@ -1632,7 +1545,7 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.3f);
 				}
 			}
-			else if (level < 20)
+			else if (level < 10)
 			{
 				tmp += 3 + RANDOM() % 4;
 
@@ -1641,7 +1554,7 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.32f);
 				}
 			}
-			else if (level < 30)
+			else if (level < 15)
 			{
 				tmp += 4 + RANDOM() % 6;
 
@@ -1650,49 +1563,49 @@ set_ring_bonus_jump1:
 					op->value = (int) ((float) op->value * 1.34f);
 				}
 			}
-			else if (level < 40)
+			else if (level < 20)
 			{
 				tmp += 6 + RANDOM() % 8;
+
+				if (bonus > 0)
+				{
+					op->value = (int) ((float) op->value * 1.36f);
+				}
+			}
+			else if (level < 25)
+			{
+				tmp += 8 + RANDOM() % 10;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.38f);
 				}
 			}
-			else if (level < 50)
+			else if (level < 33)
 			{
-				tmp += 8 + RANDOM() % 10;
+				tmp += 10 + RANDOM() % 12;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.4f);
 				}
 			}
-			else if (level < 60)
+			else if (level < 44)
 			{
-				tmp += 10 + RANDOM() % 12;
+				tmp += 15 + RANDOM() % 15;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.42f);
 				}
 			}
-			else if (level < 80)
+			else
 			{
-				tmp += 15 + RANDOM() % 15;
+				tmp += (int) ((double) level * 0.53) + 20 + RANDOM() % 20;
 
 				if (bonus > 0)
 				{
 					op->value = (int) ((float) op->value * 1.44f);
-				}
-			}
-			else
-			{
-				tmp += 20 + RANDOM() % 20;
-
-				if (bonus > 0)
-				{
-					op->value = (int) ((float) op->value * 1.5f);
 				}
 			}
 
@@ -1702,7 +1615,7 @@ set_ring_bonus_jump1:
 			}
 			else
 			{
-				op->item_level = level;
+				op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
 			}
 
 			op->stats.maxsp = tmp;
