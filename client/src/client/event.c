@@ -196,6 +196,9 @@ void reset_keys()
  * 	-1 if mousepointer is in a menu-field. */
 int mouseInPlayfield(int x, int y)
 {
+	x = (int) (x / (options.zoom / 100.0f));
+	y = (int) (y / (options.zoom / 100.0f));
+
 	x = x - options.mapstart_x - 6;
 	y = y - options.mapstart_y - 55;
 
@@ -330,13 +333,13 @@ static void mouse_moveHero()
 		else if (ty < MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 8);
 	}
-	else if (tx <  MY_POS)
+	else if (tx < MY_POS)
 	{
 		if (ty == MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 4);
-		else if (ty >  MY_POS)
+		else if (ty > MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 1);
-		else if (ty <  MY_POS)
+		else if (ty < MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 7);
 	}
 	/* (x > MY_POS) */
@@ -344,10 +347,9 @@ static void mouse_moveHero()
 	{
 		if (ty == MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 6);
-
-		if (ty <  MY_POS)
+		else if (ty < MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 9);
-		if (ty >  MY_POS)
+		else if (ty > MY_POS)
 			process_macro_keys(KEYFUNC_MOVE, 3);
 	}
 

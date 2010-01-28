@@ -150,9 +150,8 @@ void map_draw_map_clear()
 	{
 		for (x = 0; x < MapStatusX; x++)
 		{
-			xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
-			ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-
+			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
+			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
 			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL);
 		}
 	}
@@ -365,7 +364,7 @@ void map_draw_map()
 	player_posx = MapStatusX - (MapStatusX / 2) - 1;
 	player_posy = MapStatusY - (MapStatusY / 2) - 1;
 	player_pixx = MAP_START_XOFF + player_posx * MAP_TILE_YOFF - player_posy * MAP_TILE_YOFF + 20;
-	player_pixy = MAP_START_YOFF + player_posx * MAP_TILE_XOFF + player_posy * MAP_TILE_XOFF - 14;
+	player_pixy = 0 + player_posx * MAP_TILE_XOFF + player_posy * MAP_TILE_XOFF - 14;
 	player_dummy.border_left = -5;
 	player_dummy.border_right = 0;
 	player_dummy.border_up = 0;
@@ -744,39 +743,53 @@ void map_draw_map()
  * ret: 0 ok;  < 0 not a valid position. */
 int get_tile_position(int x, int y, int *tx, int *ty)
 {
-	if (x < options.mapstart_x + MAP_START_XOFF)
-		x -= MAP_TILE_POS_XOFF;
+	if (x < (int) ((options.mapstart_x + MAP_START_XOFF) * (options.zoom / 100.0)))
+	{
+		x -= (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
+	}
 
-	x -= options.mapstart_x + MAP_START_XOFF;
-	y -= options.mapstart_x + MAP_START_YOFF;
-
-	*tx = x / MAP_TILE_POS_XOFF + y / MAP_TILE_YOFF;
-	*ty = y / MAP_TILE_YOFF - x / MAP_TILE_POS_XOFF;
+	x -= (int) ((options.mapstart_x + MAP_START_XOFF) * (options.zoom / 100.0));
+	y -= (int) ((options.mapstart_y + MAP_START_YOFF) * (options.zoom / 100.0));
+	*tx = x / (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) + y / (int) (MAP_TILE_YOFF * (options.zoom / 100.0));
+	*ty = y / (int) (MAP_TILE_YOFF * (options.zoom / 100.0)) - x / (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
 
 	if (x < 0)
-		x += (MAP_TILE_POS_XOFF << 3) - 1;
-
-	x %= MAP_TILE_POS_XOFF;
-	y %= MAP_TILE_YOFF;
-
-	if (x < MAP_TILE_POS_XOFF2)
 	{
-		if (x + y + y < MAP_TILE_POS_XOFF2)
-			--(*tx);
+		x += ((int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) << 3) - 1;
+	}
+
+	x %= (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0));
+	y %= (int) (MAP_TILE_YOFF * (options.zoom / 100.0));
+
+	if (x < (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0)))
+	{
+		if (x + y + y < (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0)))
+		{
+			(*tx)--;
+		}
 		else if (y - x > 0)
-			++(*ty);
+		{
+			(*ty)++;
+		}
 	}
 	else
 	{
-		x-= MAP_TILE_POS_XOFF2;
+		x -= (int) (MAP_TILE_POS_XOFF2 * (options.zoom / 100.0));
+
 		if (x - y - y > 0)
-			--(*ty);
-		else if (x + y + y > MAP_TILE_POS_XOFF)
-			++(*tx);
+		{
+			(*ty)--;
+		}
+		else if (x + y + y > (int) (MAP_TILE_POS_XOFF * (options.zoom / 100.0)))
+		{
+			(*tx)++;
+		}
 	}
 
-	if (*tx < 0 || *tx > 16 || *ty < 0 || *ty > 16)
+	if (*tx < 0 || *tx > MAP_MAX_SIZE || *ty < 0 || *ty > MAP_MAX_SIZE)
+	{
 		return -1;
+	}
 
 	return 0;
 }
