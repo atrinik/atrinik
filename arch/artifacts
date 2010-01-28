@@ -2521,7 +2521,7 @@ difficulty 6
 artifact weapon_accuracy
 def_arch sword
 Object
-title of defense
+title of accuracy
 wc_add 1
 type 15
 item_level_art 3
@@ -2535,7 +2535,7 @@ difficulty 14
 artifact weapon_precision
 def_arch sword
 Object
-title of defense
+title of precision
 wc_range_add 5
 item_level_art 7
 wc_add 1
