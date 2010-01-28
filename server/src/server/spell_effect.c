@@ -993,6 +993,14 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 				target->stats.hp = target->stats.maxhp;
 			}
 		}
+
+		if (target->damage_round_tag != ROUND_TAG)
+		{
+			target->last_damage = 0;
+			target->damage_round_tag = ROUND_TAG;
+		}
+
+		target->last_damage -= heal;
 	}
 
 	if (success)
