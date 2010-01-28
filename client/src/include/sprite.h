@@ -174,4 +174,22 @@ typedef struct _anim
 /* Anim queue of current active map */
 extern struct _anim *start_anim;
 
+#ifndef M_PI
+#define M_PI 3.141592654
+#endif
+#define VALUE_LIMIT 0.001
+
+typedef struct tColorRGBA
+{
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+} tColorRGBA;
+
+typedef struct tColorY
+{
+	Uint8 y;
+} tColorY;
+
 #endif

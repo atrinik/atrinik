@@ -242,6 +242,8 @@ typedef struct _options
 	/* Look & Feel */
 	int player_names;
 	int playerdoll;
+	int zoom;
+	int zoom_smooth;
 	int show_target_self;
 	int warning_hp;
 	int warning_food;

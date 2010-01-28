@@ -34,9 +34,12 @@ _server_char *first_server_char = NULL;
 /* if we login as new char, thats the values of it we set */
 _server_char new_character;
 
-/* THE main surface (backbuffer) */
+/** The main screen surface. */
 SDL_Surface *ScreenSurface;
+/** Map surface. */
 SDL_Surface *ScreenSurfaceMap;
+/** Zoomed map surface. */
+SDL_Surface *zoomed;
 _Font MediumFont;
 /* our main font */
 _Font SystemFont;
@@ -444,6 +447,7 @@ void init_game_data()
 	txtwin[TW_MIX].size = 50;
 	txtwin[TW_MSG].size = 16;
 	txtwin[TW_CHAT].size = 16;
+	options.zoom = 100;
 	options.mapstart_x = 0;
 	options.mapstart_y = 10;
 
@@ -1253,13 +1257,26 @@ static void display_layer1()
 	{
 		SDL_FillRect(ScreenSurfaceMap, NULL, 0);
 		map_draw_map();
-
 		map_redraw_flag = 0;
+
+		if (options.zoom != 100)
+		{
+			SDL_FreeSurface(zoomed);
+			zoomed = zoomSurface(ScreenSurfaceMap, options.zoom / 100.0, options.zoom / 100.0, options.zoom_smooth);
+		}
 	}
 
 	rect.x = options.mapstart_x;
 	rect.y = options.mapstart_y;
-	SDL_BlitSurface(ScreenSurfaceMap, NULL, ScreenSurface, &rect);
+
+	if (options.zoom == 100)
+	{
+		SDL_BlitSurface(ScreenSurfaceMap, NULL, ScreenSurface, &rect);
+	}
+	else
+	{
+		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &rect);
+	}
 
 	/* the damage numbers */
 	play_anims();
