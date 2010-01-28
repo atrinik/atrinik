@@ -420,9 +420,9 @@ int command_summon(object *op, char *params)
 		return 1;
 	}
 
-	i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 8);
+	i = find_free_spot(op->arch, op, op->map, op->x, op->y, 1, SIZEOFFREE1 + 1);
 
-	if (i == -1)
+	if (i == -1 || op->x + freearr_x[i] < 0 || op->y + freearr_y[i] < 0 || op->x + freearr_x[i] >= MAP_WIDTH(op->map) || op->y + freearr_y[i] >= MAP_HEIGHT(op->map))
 	{
 		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to place summoned player.");
 		return 1;
@@ -435,7 +435,7 @@ int command_summon(object *op, char *params)
 	enter_exit(pl->ob, dummy);
 	pl->ob->map = op->map;
 	new_draw_info(NDI_UNIQUE, pl->ob, "You are summoned.");
-	new_draw_info(NDI_UNIQUE, op, "OK.");
+	new_draw_info_format(NDI_UNIQUE, op, "You summon %s.", pl->ob->name);
 	return 1;
 }
 
@@ -468,9 +468,9 @@ int command_teleport(object *op, char *params)
 		return 1;
 	}
 
-	i = find_free_spot(pl->ob->arch, NULL, pl->ob->map, pl->ob->x, pl->ob->y, 1, 8);
+	i = find_free_spot(pl->ob->arch, pl->ob, pl->ob->map, pl->ob->x, pl->ob->y, 1, SIZEOFFREE1 + 1);
 
-	if (i == -1)
+	if (i == -1 || pl->ob->x + freearr_x[i] < 0 || pl->ob->y + freearr_y[i] < 0 || pl->ob->x + freearr_x[i] >= MAP_WIDTH(pl->ob->map) || pl->ob->y + freearr_y[i] >= MAP_HEIGHT(pl->ob->map))
 	{
 		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to teleport to.");
 		return 1;
@@ -488,7 +488,7 @@ int command_teleport(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, pl->ob, "You see a portal open.");
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "OK.");
+	new_draw_info_format(NDI_UNIQUE, op, "You teleport to %s.", pl->ob->name);
 
 	return 1;
 }

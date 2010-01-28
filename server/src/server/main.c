@@ -827,21 +827,17 @@ static void process_players1(mapstruct *map)
 				{
 					rv_vector rv;
 
-					get_rangevector(pl->ob, followed->ob, &rv, 0);
-
-					if (rv.distance > 4)
+					if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
 					{
-						int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, 25);
+						int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
 
-						if (space == -1)
+						if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
 						{
-							space = 0;
+							remove_ob(pl->ob);
+							pl->ob->x = followed->ob->x + freearr_x[space];
+							pl->ob->y = followed->ob->y + freearr_y[space];
+							insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
 						}
-
-						remove_ob(pl->ob);
-						pl->ob->x = followed->ob->x + freearr_x[space];
-						pl->ob->y = followed->ob->y + freearr_y[space];
-						insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
 					}
 				}
 				else
