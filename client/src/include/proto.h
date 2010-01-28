@@ -269,8 +269,8 @@ int socket_read(int fd, SockList *sl, int len);
 int socket_write(int fd, unsigned char *buf, int len);
 int socket_initialize();
 void socket_deinitialize();
-void socket_close(int socket_temp);
-int open_socket(int *socket_temp, struct ClientSocket *csock, char *host, int port);
+void socket_close(SOCKET socket_temp);
+int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
 
 /* sound.c */
 void sound_init();
