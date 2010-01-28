@@ -37,7 +37,7 @@ void move_detector(object *op)
 	object *tmp;
 	int last = op->value, detected = 0;
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL && !detected; tmp = tmp->above)
+	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL && !detected; tmp = tmp->above)
 	{
 		object *tmp2;
 

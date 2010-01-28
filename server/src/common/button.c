@@ -194,7 +194,7 @@ void update_button(object *op)
 			fly = QUERY_FLAG(tmp, FLAG_FLY_ON);
 			move = QUERY_FLAG(tmp, FLAG_WALK_ON);
 
-			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2), tot = 0; ab != NULL; ab = ab->above)
+			for (ab = GET_BOTTOM_MAP_OB(tmp), tot = 0; ab != NULL; ab = ab->above)
 			{
 				if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
 				{
@@ -216,7 +216,7 @@ void update_button(object *op)
 			fly = QUERY_FLAG(tmp, FLAG_FLY_ON);
 			move = QUERY_FLAG(tmp, FLAG_WALK_ON);
 
-			for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
+			for (ab = GET_BOTTOM_MAP_OB(tmp); ab != NULL; ab = ab->above)
 			{
 				head = ab->head ? ab->head : ab;
 
@@ -279,7 +279,7 @@ void update_buttons(mapstruct *m)
 				fly = QUERY_FLAG(tmp, FLAG_FLY_ON);
 				move = QUERY_FLAG(tmp, FLAG_WALK_ON);
 
-				for (ab = GET_MAP_OB_LAYER(tmp->map, tmp->x, tmp->y, 2); ab != NULL; ab = ab->above)
+				for (ab = GET_BOTTOM_MAP_OB(tmp); ab != NULL; ab = ab->above)
 				{
 					if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
 					{
@@ -359,7 +359,7 @@ int check_trigger(object *op, object *cause)
 			{
 				if (cause)
 				{
-					for (tmp = op->above; tmp; tmp = tmp->above)
+					for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = tmp->above)
 					{
 						if (!QUERY_FLAG(tmp, FLAG_FLYING))
 						{
@@ -395,7 +395,7 @@ int check_trigger(object *op, object *cause)
 		case TRIGGER_PEDESTAL:
 			if (cause)
 			{
-				for (tmp = op->above; tmp; tmp = tmp->above)
+				for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = tmp->above)
 				{
 					object *head = tmp->head ? tmp->head : tmp;
 

@@ -51,7 +51,7 @@ void move_player_mover(object *op)
 		dir = get_random_dir();
 	}
 
-	for (victim = get_map_ob(op->map, op->x, op->y); victim != NULL; victim = victim->above)
+	for (victim = GET_BOTTOM_MAP_OB(op); victim != NULL; victim = victim->above)
 	{
 		if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp))
 		{

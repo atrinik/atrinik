@@ -219,6 +219,8 @@ extern int global_darkness_table[MAX_DARKNESS + 1];
 #define GET_MAP_RTAG(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
+#define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
+
 /**
  * @defgroup map_face_flags Map face flags
  * These are the 'face flags' we grab out of the flags object structure

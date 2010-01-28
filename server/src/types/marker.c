@@ -39,7 +39,7 @@ void move_marker(object *op)
 {
 	object *tmp, *tmp2;
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL; tmp = tmp->above)
 	{
 		/* we've got someone to MARK */
 		if (tmp->type == PLAYER)

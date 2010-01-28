@@ -30,6 +30,30 @@
 #include <global.h>
 
 /**
+ * Search for duplicate object on map at x, y.
+ *
+ * A duplicate object is an object that has same name, type and arch.
+ * @param op Object we're checking against.
+ * @param map Map to check on.
+ * @param x X position.
+ * @param y Y position.
+ * @return 1 if there is a duplicate object, 0 otherwise. */
+static int check_for_duplicate_ob(object *op, mapstruct *map, int x, int y)
+{
+	object *tmp;
+
+	for (tmp = GET_MAP_OB(map, x, y); tmp; tmp = tmp->above)
+	{
+		if (tmp != op && tmp->name == op->name && tmp->type == op->type && tmp->arch == op->arch)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
  * Have a creator do its tick.
  * @param op The creator.
  * @todo Check if it works properly with multi arch objects.
@@ -37,32 +61,97 @@
  * inventory, and copy any modified values? */
 void move_creator(object *op)
 {
-	object *tmp;
-
-	if (!op->other_arch)
+	if (op->stats.hp <= 0 && !QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
 		return;
 	}
 
-	op->stats.hp--;
-
-	if (op->stats.hp < 0 && !QUERY_FLAG(op, FLAG_LIFESAVE))
+	/* Create from other_arch */
+	if (op->other_arch)
 	{
-		op->stats.hp = -1;
-		return;
+		object *tmp = arch_to_object(op->other_arch);
+
+		if (op->slaying)
+		{
+			FREE_AND_ADD_REF_HASH(tmp->name, op->slaying);
+			FREE_AND_ADD_REF_HASH(tmp->title, op->slaying);
+		}
+
+		tmp->x = op->x;
+		tmp->y = op->y;
+		tmp->level = op->level;
+
+		if (QUERY_FLAG(op, FLAG_ONE_DROP) && check_for_duplicate_ob(tmp, op->map, op->x, op->y))
+		{
+			return;
+		}
+
+		op->stats.hp--;
+		insert_ob_in_map(tmp, op->map, op, 0);
 	}
+	/* Clone from inventory. System objects won't be copied, with an exception for player movers. */
+    else if (op->inv)
+    {
+		object *source, *tmp;
+		int didit = 0, cloneindex = 0;
 
-	tmp = arch_to_object(op->other_arch);
+		/* Create single random item from inventory? */
+		if (QUERY_FLAG(op, FLAG_SPLITTING))
+		{
+			int numobs = 0;
 
-	if (op->slaying)
+			/* Count applicable items */
+			for (tmp = op->inv; tmp; tmp = tmp->below)
+			{
+				if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || tmp->type == PLAYERMOVER)
+				{
+					numobs++;
+				}
+			}
+
+			if (numobs == 0)
+			{
+				return;
+			}
+
+			cloneindex = RANDOM() % numobs;
+		}
+
+		for (source = op->inv; source && cloneindex >= 0; source = source->below)
+		{
+			/* Don't clone sys objects */
+			if (QUERY_FLAG(source, FLAG_SYS_OBJECT) && source->type != PLAYERMOVER)
+			{
+				continue;
+			}
+
+			/* Count down to target if creating a single random item */
+			if (QUERY_FLAG(op, FLAG_SPLITTING) && --cloneindex >= 0)
+			{
+				continue;
+			}
+
+			tmp = object_create_clone(source);
+			tmp->x = op->x;
+			tmp->y = op->y;
+
+			if (QUERY_FLAG(op, FLAG_ONE_DROP) && check_for_duplicate_ob(tmp, op->map, op->x, op->y))
+			{
+				continue;
+			}
+
+			insert_ob_in_map(tmp, op->map, op, 0);
+			didit = 1;
+		}
+
+		/* Reduce count if we cloned any object from inventory */
+		if (didit)
+		{
+			op->stats.hp--;
+		}
+    }
+	else
 	{
-		FREE_AND_COPY_HASH(tmp->name, op->slaying);
-		FREE_AND_COPY_HASH(tmp->title, op->slaying);
+		LOG(llevDebug, "DEBUG: Creator object with no other_arch/inventory: %s (%d, %d)\n", op->map->path, op->x, op->y);
 	}
-
-	tmp->x = op->x;
-	tmp->y = op->y;
-	tmp->map = op->map;
-	tmp->level = op->level;
-	insert_ob_in_map(tmp, op->map, op, 0);
 }

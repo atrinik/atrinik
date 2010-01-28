@@ -48,7 +48,7 @@ void move_teleporter(object *op)
 	}
 
 	/* get first object of this map node */
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = next)
+	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL; tmp = next)
 	{
 		next = tmp->above;
 
