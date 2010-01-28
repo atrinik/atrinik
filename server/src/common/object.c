@@ -443,7 +443,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 	}
 
 	/* Check the refcount pointer */
-	if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race || ob1->slaying != ob2->slaying || ob1->msg != ob2->msg)
+	if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race || ob1->slaying != ob2->slaying || ob1->msg != ob2->msg || ob1->artifact != ob2->artifact)
 	{
 		return 0;
 	}
@@ -840,6 +840,7 @@ void initialize_object(object *op)
 	FREE_ONLY_HASH(op->race);
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
+	FREE_ONLY_HASH(op->artifact);
 
 	/* Using this memset is a lot easier (and probably faster)
 	 * than explicitly clearing the fields. */
@@ -877,6 +878,7 @@ void copy_object(object *op2, object *op)
 	FREE_ONLY_HASH(op->race);
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
+	FREE_ONLY_HASH(op->artifact);
 
 	free_key_values(op);
 
@@ -892,6 +894,7 @@ void copy_object(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->race);
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
+	ADD_REF_NOT_NULL_HASH(op->artifact);
 
 	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
@@ -958,6 +961,7 @@ void copy_object_data(object *op2, object *op)
 	FREE_ONLY_HASH(op->race);
 	FREE_ONLY_HASH(op->slaying);
 	FREE_ONLY_HASH(op->msg);
+	FREE_ONLY_HASH(op->artifact);
 
 	free_key_values(op);
 
@@ -973,6 +977,7 @@ void copy_object_data(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->race);
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
+	ADD_REF_NOT_NULL_HASH(op->artifact);
 
 	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
@@ -1588,6 +1593,7 @@ void destroy_object(object *ob)
 	FREE_AND_CLEAR_HASH2(ob->race);
 	FREE_AND_CLEAR_HASH2(ob->slaying);
 	FREE_AND_CLEAR_HASH2(ob->msg);
+	FREE_AND_CLEAR_HASH2(ob->artifact);
 
 	/* Mark object as "do not use" and invalidate all references to it */
 	ob->count = 0;

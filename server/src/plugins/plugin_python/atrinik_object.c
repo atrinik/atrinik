@@ -171,6 +171,7 @@ obj_fields_struct obj_fields[] =
 	{"race",                   FIELDTYPE_SHSTR,      offsetof(object, race),                   0,                           0},
 	{"slaying",                FIELDTYPE_SHSTR,      offsetof(object, slaying),                0,                           0},
 	{"message",                FIELDTYPE_SHSTR,      offsetof(object, msg),                    0,                           0},
+	{"artifact",               FIELDTYPE_SHSTR,      offsetof(object, artifact),               0,                           0},
 	{"weight",                 FIELDTYPE_SINT32,     offsetof(object, weight),                 0,                           0},
 
 	{"weight_limit",           FIELDTYPE_UINT32,     offsetof(object, weight_limit),           0,                           0},

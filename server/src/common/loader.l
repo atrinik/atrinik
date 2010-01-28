@@ -347,7 +347,7 @@ lex_error = 0;
                     }
 ^race{S}            FREE_AND_COPY_HASH(op->race, yval());
 ^slaying{S}         FREE_AND_COPY_HASH(op->slaying, yval());
-
+^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
 ^quickslot{S}       op->quickslot = IVAL;
 
 ^other_arch{S}      op->other_arch = find_archetype(yval());
@@ -1205,6 +1205,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		stringbuffer_append_string(sb, "msg\n");
 		stringbuffer_append_string(sb, op->msg);
 		stringbuffer_append_string(sb, "\nendmsg\n");
+	}
+
+	if (op->artifact && op->artifact != op2->artifact)
+	{
+		ADD_STRINGLINE_ENTRY(sb, "artifact ", op->artifact);
 	}
 
 	if (op->other_arch != op2->other_arch && op->other_arch != NULL && op->other_arch->name)

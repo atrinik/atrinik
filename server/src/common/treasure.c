@@ -2593,6 +2593,8 @@ void give_artifact_abilities(object *op, artifact *art)
 		LOG(llevError, "ERROR: give_artifact_abilities(): load_object() error (ob: %s art: %s).\n", op->name, art->name);
 	}
 
+	FREE_AND_ADD_REF_HASH(op->artifact, art->name);
+
 	/* This will solve the problem to adjust the value for different
 	 * items of same artification. Also we can safely use negative
 	 * values. */

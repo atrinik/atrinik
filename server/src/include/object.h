@@ -182,6 +182,9 @@ typedef struct obj
 	/** If this is a book/sign/magic mouth/etc */
 	const char *msg;
 
+	/** Artifact name that was applied to this object by give_artifact_abilities(). */
+	shstr *artifact;
+
 	/** Pointer to archetype */
 	struct archt *arch;
 
