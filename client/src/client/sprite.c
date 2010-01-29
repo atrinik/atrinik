@@ -1072,7 +1072,7 @@ void play_anims()
 					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + MapStatusX && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + MapStatusY)
 					{
 						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 26) * (options.zoom / 100.0));
+						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
 
 						if (anim->value < 0)
 						{
@@ -1094,7 +1094,7 @@ void play_anims()
 					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + MapStatusX && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + MapStatusY)
 					{
 						xpos = options.mapstart_x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (options.zoom / 100.0));
-						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 26) * (options.zoom / 100.0));
+						ypos = options.mapstart_y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (options.zoom / 100.0));
 
 						sprite_blt(Bitmaps[BITMAP_DEATH], xpos + anim->x - 5, ypos + tmp_y - 4, NULL, NULL);
 						snprintf(buf, sizeof(buf), "%d", anim->value);
