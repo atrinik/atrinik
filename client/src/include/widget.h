@@ -153,6 +153,7 @@ SDL_Surface *widgetSF[TOTAL_WIDGETS];
 extern _widgetdata cur_widget[TOTAL_WIDGETS];
 extern _widgetevent widget_mouse_event;
 extern int IsMouseExclusive;
+extern int old_alpha_option;
 
 /** Macro to redraw widget */
 #define WIDGET_REDRAW(__a) cur_widget[__a].redraw = 1;

@@ -33,6 +33,8 @@ int textwin_flags;
 
 _textwin_set txtwin[TW_SUM];
 static int old_slider_pos = 0;
+SDL_Surface *txtwinbg = NULL;
+int old_txtwin_alpha = -1;
 
 int txtwin_start_size = 0;
 
@@ -594,7 +596,7 @@ void textwin_show(int x, int y)
 void widget_textwin_show(int x, int y, int actWin)
 {
 	int len, wID = 0;
-	SDL_Rect box;
+	SDL_Rect box, box2;
 	_BLTFX bltfx;
 
 	if (actWin == TW_CHAT)
@@ -606,37 +608,55 @@ void widget_textwin_show(int x, int y, int actWin)
 		wID = MSGWIN_ID;
 	}
 
-	/* Backbuffering is a bit trickier.
-	 * We always blit the background extra because of the alpha.
-	 * TODO: Maybe use a 32bit alpha chanel surface */
 	box.x = box.y = 0;
 	box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
 	box.h = len = txtwin[actWin].size * 10 + 13;
 
-	if (options.use_TextwinAlpha)
-	{
-		bltfx.alpha = options.textwin_alpha;
-		bltfx.flags = BLTFX_FLAG_SRCALPHA;
-		bltfx.surface = ScreenSurface;
-		sprite_blt(Bitmaps[BITMAP_TEXTWIN_MASK], x, y, &box, &bltfx);
-	}
-	else
-	{
-		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
-	}
-
 	/* If we don't have a backbuffer, create it */
 	if (!widgetSF[wID])
 	{
+		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
 		widgetSF[wID] = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
 		SDL_SetColorKey(widgetSF[wID], SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widgetSF[wID]->format, 0, 0, 0));
+	}
+
+	if (options.use_TextwinAlpha)
+	{
+		if (old_txtwin_alpha != options.textwin_alpha || old_alpha_option != options.use_TextwinAlpha)
+		{
+			if (txtwinbg)
+			{
+				SDL_FreeSurface(txtwinbg);
+			}
+
+			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
+			txtwinbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
+			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
+
+			old_txtwin_alpha = options.textwin_alpha;
+
+			WIDGET_REDRAW(wID);
+		}
+
+		box2.x = x;
+		box2.y = y;
+		SDL_BlitSurface(txtwinbg, &box, ScreenSurface, &box2);
+	}
+	else
+	{
+		if (old_alpha_option != options.use_TextwinAlpha)
+		{
+			WIDGET_REDRAW(wID);
+		}
+
+		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
 	}
 
 	/* Let's draw the widgets in the backbuffer */
 	if (cur_widget[wID].redraw)
 	{
 		cur_widget[wID].redraw = 0;
-		SDL_FillRect(widgetSF[wID], NULL, 0);
+		SDL_FillRect(widgetSF[wID], NULL, SDL_MapRGBA(widgetSF[wID]->format, 0, 0, 0, options.textwin_alpha));
 
 		bltfx.surface = widgetSF[wID];
 		bltfx.flags = 0;
@@ -648,23 +668,23 @@ void widget_textwin_show(int x, int y, int actWin)
 			box.y = 0;
 			box.h = 1;
 			box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-			SDL_FillRect(widgetSF[wID], &box, sdl_gray4);
+			SDL_FillRect(widgetSF[wID], &box, SDL_MapRGBA(widgetSF[wID]->format, 0x60, 0x60, 0x60, 255));
 			box.y = len;
 			box.h = 1;
 			box.x = 0;
 			box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-			SDL_FillRect(widgetSF[wID], &box, sdl_gray4);
+			SDL_FillRect(widgetSF[wID], &box, SDL_MapRGBA(widgetSF[wID]->format, 0x60, 0x60, 0x60, 255));
 			box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
 			box.x = box.w - 1;
 			box.w = 1;
 			box.y = 0;
 			box.h = len;
-			SDL_FillRect(widgetSF[wID], &box, sdl_gray4);
+			SDL_FillRect(widgetSF[wID], &box, SDL_MapRGBA(widgetSF[wID]->format, 0x60, 0x60, 0x60, 255));
 			box.x = 0;
 			box.y = 0;
 			box.h = len;
 			box.w = 1;
-			SDL_FillRect(widgetSF[wID], &box, sdl_gray4);
+			SDL_FillRect(widgetSF[wID], &box, SDL_MapRGBA(widgetSF[wID]->format, 0x60, 0x60, 0x60, 255));
 		}
 
 		show_window(actWin, x, y - 2, &bltfx);
@@ -672,9 +692,12 @@ void widget_textwin_show(int x, int y, int actWin)
 
 	box.x = x;
 	box.y = y;
-	box.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
-	box.h = len = txtwin[actWin].size * 10 + 13;
-	SDL_BlitSurface(widgetSF[wID], NULL, ScreenSurface, &box);
+	box2.x = 0;
+	box2.y = 0;
+	box2.w = Bitmaps[BITMAP_TEXTWIN]->bitmap->w;
+	box2.h = len = txtwin[actWin].size * 10 + 14;
+
+	SDL_BlitSurface(widgetSF[wID], &box2, ScreenSurface, &box);
 }
 
 /**

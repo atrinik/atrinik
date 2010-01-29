@@ -109,6 +109,11 @@ SDL_Surface *widgetSF[TOTAL_WIDGETS] = {NULL};
 int IsMouseExclusive = 0;
 
 /**
+ * The alpha setting in the last frame. If it differs from the current frame,
+ * certain widgets need to be redrawn. */
+int old_alpha_option = 0;
+
+/**
  * Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
 void init_widgets_fromDefault()
@@ -1088,6 +1093,8 @@ void process_widgets()
 	/* Sanity checks */
 	if (!priority_list_head || !priority_list_foot)
 		return;
+
+	old_alpha_option = options.use_TextwinAlpha;
 
 	for (node = priority_list_foot; node; node = node->prev)
 	{
