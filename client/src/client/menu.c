@@ -937,13 +937,13 @@ int read_anim_tmp()
 	while (fgets(buf, HUGE_BUF-1, stream)!=NULL)
 	{
 		sscanf(buf,"%s",cmd);
-		if (new_anim == TRUE) /* we are outside a anim body ? */
+		if (new_anim == 1) /* we are outside a anim body ? */
 		{
 			if (!strncmp(buf, "anim ",5))
 			{
 				sprintf(cmd, "anim %d -> %s",count++, buf);
 				fputs(cmd,ftmp); /* safe this key string! */
-				new_anim = FALSE;
+				new_anim = 0;
 			}
 			else /* we should never hit this point */
 			{
@@ -959,7 +959,7 @@ int read_anim_tmp()
 			else if (!strncmp(cmd, "mina",4))
 			{
 				fputs(buf, ftmp); /* safe this key word! */
-				new_anim = TRUE;
+				new_anim = 1;
 			}
 			else
 			{

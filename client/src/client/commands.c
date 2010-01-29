@@ -787,9 +787,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Str)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Str = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -799,9 +799,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Int)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Int = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -811,9 +811,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Pow)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Pow = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -823,9 +823,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Wis)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Wis = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -835,9 +835,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Dex)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Dex = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -847,9 +847,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Con)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Con = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -859,9 +859,9 @@ void StatsCmd(unsigned char *data, int len)
 					temp = (int)*(data + i++);
 
 					if (temp > cpl.stats.Cha)
-						cpl.warn_statup = TRUE;
+						cpl.warn_statup = 1;
 					else
-						cpl.warn_statdown = TRUE;
+						cpl.warn_statdown = 1;
 
 					cpl.stats.Cha = temp;
 					WIDGET_REDRAW(STATS_ID);
@@ -871,7 +871,7 @@ void StatsCmd(unsigned char *data, int len)
 					temp = GetInt_String(data + i);
 
 					if (temp < cpl.stats.exp)
-						cpl.warn_drain = TRUE;
+						cpl.warn_drain = 1;
 
 					cpl.stats.exp = temp;
 					i += 4;
@@ -1104,7 +1104,7 @@ void PlayerCmd(unsigned char *data, int len)
 
 	GameStatus = GAME_STATUS_PLAY;
 	txtwin[TW_MIX].size = txtwin_start_size;
-	InputStringEndFlag = FALSE;
+	InputStringEndFlag = 0;
 	tag = GetInt_String(data);
 	i += 4;
 	weight = GetInt_String(data + i);
@@ -1221,7 +1221,7 @@ void ItemXCmd(unsigned char *data, int len)
 			animspeed = data[pos++];
 			nrof = GetInt_String(data+pos);
 			pos += 4;
-			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, FALSE);
+			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 0);
 		}
 
 		if (pos > len)
@@ -1324,7 +1324,7 @@ void ItemYCmd(unsigned char *data, int len)
 			animspeed = data[pos++];
 			nrof = GetInt_String(data + pos);
 			pos += 4;
-			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, TRUE);
+			update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 1);
 		}
 
 		if (pos > len)
@@ -1435,7 +1435,7 @@ void UpdateItemCmd(unsigned char *data, int len)
 		pos += 4;
 	}
 
-	update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, FALSE);
+	update_item(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, 0);
 	map_udate_flag = 2;
 }
 
@@ -1553,7 +1553,7 @@ void Map2Cmd(unsigned char *data, int len)
 	/* its not xpos, its the changed map marker */
 	if (xpos == 255)
 	{
-		map_new_flag = TRUE;
+		map_new_flag = 1;
 		xpos = (uint8)(data[pos++]);
 	}
 
@@ -2421,7 +2421,7 @@ void ShopCmd(unsigned char *data, int len)
 			pos += 4;
 
 			/* Update the item */
-			update_item(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, TRUE);
+			update_item(tag, -2, name, -1, face, flags, anim, animspeed, nrof, 0, 0, 0, 0, 0, 0, direction, 1);
 		}
 
 		if (pos > len)

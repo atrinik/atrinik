@@ -117,21 +117,7 @@ void print_inventory(item *op);
 void animate_objects();
 
 /* main.c */
-void init_game_data();
 void save_options_dat();
-void load_options_dat();
-void rec_sigsegv(int i);
-void rec_sighup(int i);
-void rec_sigquit(int i);
-void rec_sigterm(int i);
-void fatal_signal(int make_core);
-void init_signals();
-int game_status_chain();
-void load_bitmaps();
-int load_bitmap(int index);
-void free_bitmaps();
-void free_faces();
-void reset_input_mode();
 void open_input_mode(int maxchar);
 void list_vid_modes();
 int main(int argc, char *argv[]);

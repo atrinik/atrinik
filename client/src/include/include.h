@@ -34,14 +34,6 @@
 
 #include "config.h"
 
-/* Just some handy ones I like to use */
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 /* This is for the DevCpp IDE */
 #ifndef __WIN_32
 #ifdef WIN32

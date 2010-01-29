@@ -251,7 +251,6 @@ int socket_initialize()
 
 	csocket.fd = SOCKET_NO;
 
-	SocketStatusErrorNr = 0;
 	error = WSAStartup(wVersionRequested, &w);
 
 	if (error)
@@ -325,6 +324,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 	int error;
 	long temp;
 	uint32 start_timer;
+	int SocketStatusErrorNr;
 #else
 	struct protoent *protox;
 	struct sockaddr_in insock;

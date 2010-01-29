@@ -474,7 +474,7 @@ force_line_jump_out:
 
 		if (lc >= BOOK_LINES_CHAR - 2)
 		{
-			force_line = TRUE;
+			force_line = 1;
 			goto force_line_jump;
 		}
 	}

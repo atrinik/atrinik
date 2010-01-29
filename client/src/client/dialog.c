@@ -1282,7 +1282,7 @@ void show_keybind()
 			/* Cancel edit */
 			if (mb & SDL_BUTTON(SDL_BUTTON_LEFT))
 			{
-				InputStringEscFlag = TRUE;
+				InputStringEscFlag = 1;
 				keybind_status = KEYBIND_STATUS_NO;
 			}
 

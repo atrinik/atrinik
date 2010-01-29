@@ -230,7 +230,7 @@ void script_load(const char *cparams)
 	}
 #else
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-	saAttr.bInheritHandle = TRUE;
+	saAttr.bInheritHandle = 1;
 	saAttr.lpSecurityDescriptor = NULL;
 
 	hSaveStdout = GetStdHandle(STD_OUTPUT_HANDLE);

@@ -264,7 +264,6 @@ typedef struct _options
 
 	/* True: show frame rate */
 	int show_frame;
-	int use_gl;
 	int sleep;
 	int speedup;
 	int max_speed;
@@ -568,36 +567,18 @@ extern int x_custom_cursor;
 extern int y_custom_cursor;
 
 extern int debug_layer[MAXFACES];
-
-/* Global flag for polling music fade out */
 extern int music_global_fade;
-
-/* THE game status 2 */
 extern _game_status GameStatus;
-
-/* Map x, y len */
 extern int MapStatusX;
 extern int MapStatusY;
-
-/* System time counter in ms since client start */
 extern uint32 LastTick;
-
-/* Name of the server we want to connect to */
 extern char ServerName[];
-
-/* Server port */
 extern int ServerPort;
-
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-
-/* Ticks since this second frame in ms */
-extern uint32 GameTicksSec;
 extern _server *start_server;
 extern int metaserver_start, metaserver_sel, metaserver_count;
-
 extern int request_file_chain;
 extern int request_file_flags;
-
 extern int esc_menu_flag;
 extern int esc_menu_index;
 
@@ -620,6 +601,22 @@ enum
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 #define SURFACE_FLAG_DISPLAYFORMAT 4
+
+/** Types of pictures. */
+typedef enum _pic_type
+{
+	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS
+} _pic_type;
+
+/** Bitmap name structure */
+typedef struct _bitmap_name
+{
+	/** Name */
+	char *name;
+
+	/** Type */
+	_pic_type type;
+} _bitmap_name;
 
 typedef enum _bitmap_index
 {
@@ -842,8 +839,5 @@ extern SDL_Surface *ScreenSurfaceMap;
 
 /* Server's attributes */
 extern struct sockaddr_in insock;
-
-/* If socket error, this is it */
-extern int SocketStatusErrorNr;
 
 #endif
