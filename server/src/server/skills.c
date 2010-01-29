@@ -80,6 +80,8 @@ int find_traps(object *pl, int level)
 								expsum += calc_skill_exp(pl, tmp2, -1);
 							}
 
+							/* Store the original charisma */
+							tmp2->stats.Int = tmp2->stats.Cha;
 							/* Unhide the trap */
 							tmp2->stats.Cha = 1;
 						}
@@ -114,6 +116,8 @@ int find_traps(object *pl, int level)
 							expsum += calc_skill_exp(pl, tmp, -1);
 						}
 
+						/* Store the original charisma */
+						tmp->stats.Int = tmp->stats.Cha;
 						/* Unhide the trap */
 						tmp->stats.Cha = 1;
 					}

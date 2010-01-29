@@ -255,35 +255,21 @@ int trap_show(object *trap, object *where)
  * Try to disarm a trap.
  * @param disarmer Object disarming the trap.
  * @param trap Trap to disarm.
- * @param risk If 0, trap won't spring if disarm failure. Otherwise it
+ * @param risk If 0, trap won't spring if disarm fails. Otherwise it
  * will spring.
- * @return Experience to award, 0 on failure. */
+ * @return 1 if trap was disarmed, 0 otherwise. */
 int trap_disarm(object *disarmer, object *trap, int risk)
 {
 	object *env = trap->env;
-	int trapworth;
 	int disarmer_level = SK_level(disarmer);
 
-	/* This formula awards a reasonable amount of exp. */
-	trapworth =  MAX(1, trap->level) * disarmer->map->difficulty * POW2(MAX(trap->stats.dam, spells[trap->stats.sp].sp)) / disarmer_level;
-
-	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(random_roll(0, (MAX(2, MIN(20, trap->level-disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
+	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(random_roll(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
 	{
 		new_draw_info_format(NDI_UNIQUE, disarmer, "You successfuly remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
-		check_walk_off(trap, NULL,MOVE_APPLY_VANISHED);
+		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 		set_trapped_flag(env);
-
-		/* If it is your own trap, (or any players trap), you don't
-		 * get exp for it. */
-		if (trap->owner && trap->owner->type != PLAYER && risk)
-		{
-			return trapworth;
-		}
-		else
-		{
-			return 1;
-		}
+		return 1;
 	}
 	else
 	{
@@ -291,7 +277,7 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 
 		if ((trap->level > disarmer_level * 1.4f || (RANDOM() % 3)))
 		{
-			if (!(random_roll(0, (MAX(2, disarmer_level-trap->level + disarmer->stats.Dex / 2 - 6)) - 1, disarmer, PREFER_LOW)) && risk)
+			if (!(random_roll(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1, disarmer, PREFER_LOW)) && risk)
 			{
 				new_draw_info(NDI_UNIQUE, disarmer, "In fact, you set it off!");
 				spring_trap(trap, disarmer);

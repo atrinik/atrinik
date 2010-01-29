@@ -286,17 +286,16 @@ int calc_skill_exp(object *who, object *op, int level)
 		op_lvl = who->map->difficulty < 1 ? 1: who->map->difficulty;
 		op_exp = 0;
 	}
-	/* All traps. If stats.Cha > 1 we use that for the amount of
-	 * experience. */
+	/* Traps. If stats.Cha is higher than 1, it means we're using the find
+	 * traps skill. */
 	else if (op->type == RUNE)
 	{
-		op_exp = op->stats.Cha > 1 ? op->stats.Cha : op->stats.exp;
+		op_exp = op->stats.Cha > 1 ? (op->stats.Cha * 5) : (op->stats.Int * 6);
 		op_lvl = op->level;
 	}
 	/* All other items/living creatures */
 	else
 	{
-		/* get base exp */
 		op_exp = op->stats.exp;
 		op_lvl = op->level;
 	}
