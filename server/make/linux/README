@@ -1,10 +1,5 @@
-To compile the server type:
+To compile and install the Atrinik server:
 
-1. make distclean
-2. sh configure
-3. make all
-4. make install
-
-Done.
-
-Help: www.atrinik.org
+1) ./autogen.sh
+2) make
+3) make install
