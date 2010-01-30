@@ -1132,9 +1132,38 @@ static int key_event(SDL_KeyboardEvent *key)
 				{
 					if (key->keysym.sym != SDLK_ESCAPE)
 					{
-						sound_play_effect(SOUND_SCROLL, 0, 100);
-						strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
-						bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
+						int i, j, already_bound = 0;
+
+						for (i = 0; i < BINDKEY_LIST_MAX; i++)
+						{
+							for (j = 0; j < OPTWIN_MAX_OPT; j++)
+							{
+								if (i == bindkey_list_set.group_nr && j == bindkey_list_set.entry_nr)
+								{
+									continue;
+								}
+
+								if (bindkey_list[i].entry[j].key == (int) key->keysym.sym)
+								{
+									already_bound = 1;
+									draw_info_format(COLOR_RED, "The key %s is already bound!", bindkey_list[i].entry[j].keyname);
+									break;
+								}
+							}
+						}
+
+						if (already_bound)
+						{
+							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[0] = '\0';
+							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[0] = '\0';
+							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = '\0';
+						}
+						else
+						{
+							sound_play_effect(SOUND_SCROLL, 0, 100);
+							strcpy(bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname, SDL_GetKeyName(key->keysym.sym));
+							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = key->keysym.sym;
+						}
 					}
 
 					keybind_status = KEYBIND_STATUS_NO;

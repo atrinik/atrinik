@@ -315,7 +315,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 };
 
 /** Number of bitmaps. */
-#define BITMAP_MAX (sizeof(bitmap_name) / sizeof(bitmap_name[0]))
+#define BITMAP_MAX (sizeof(bitmap_name) / sizeof(_bitmap_name))
 /** The actual bitmaps. */
 _Sprite *Bitmaps[BITMAP_MAX];
 
