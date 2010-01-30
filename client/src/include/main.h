@@ -572,6 +572,8 @@ extern _game_status GameStatus;
 extern int MapStatusX;
 extern int MapStatusY;
 extern uint32 LastTick;
+extern uint32 tmpGameTick;
+extern uint32 FrameCount;
 extern char ServerName[];
 extern int ServerPort;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;

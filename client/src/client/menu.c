@@ -2723,3 +2723,21 @@ void update_quickslots(int del_item)
 		}
 	}
 }
+
+/**
+ * Show the frames per second widget.
+ * @param x X position.
+ * @param y Y position. */
+void widget_show_fps(int x, int y)
+{
+	char buf[MAX_BUF];
+
+	if (!options.show_frame || !FrameCount)
+	{
+		return;
+	}
+
+	snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
+
+	StringBlt(ScreenSurface, &SystemFont, buf, x, y, COLOR_DEFAULT, NULL, NULL);
+}

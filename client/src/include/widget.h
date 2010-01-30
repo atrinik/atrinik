@@ -114,6 +114,7 @@ typedef enum _WidgetID
 	IN_CONSOLE_ID,
 	IN_NUMBER_ID,
 	SHOP_ID,
+	FPS_ID,
 
 	/* Must be last element */
 	TOTAL_WIDGETS

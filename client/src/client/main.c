@@ -97,7 +97,9 @@ uint32 LastTick;
 /** Ticks since this second frame in ms. */
 static uint32 GameTicksSec;
 /** Used from several functions, just to store real ticks. */
-static uint32 tmpGameTick;
+uint32 tmpGameTick;
+/** Number of frames drawn. */
+uint32 FrameCount = 0;
 
 /** Is the esc menu open? */
 int esc_menu_flag;
@@ -1445,11 +1447,10 @@ static void DisplayCustomCursor()
  * @return 0 */
 int main(int argc, char *argv[])
 {
-	char buf[MAX_BUF];
 	int x, y, drag;
 	uint32 anim_tick;
 	Uint32 videoflags;
-	int i, done = 0, FrameCount = 0;
+	int i, done = 0;
 	fd_set tmp_read, tmp_write, tmp_exceptions;
 	int pollret, maxfd;
 	struct timeval timeout;
@@ -1664,14 +1665,6 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		/* Get our ticks */
-		if ((LastTick - tmpGameTick) > 1000)
-		{
-			tmpGameTick = LastTick;
-			FrameCount = 0;
-			GameTicksSec = 0;
-		}
-
 		GameTicksSec = LastTick - tmpGameTick;
 
 		if (GameStatus > GAME_STATUS_CONNECT)
@@ -1765,6 +1758,14 @@ int main(int argc, char *argv[])
 					map_udate_flag = 0;
 				}
 			}
+		}
+
+		/* Get our ticks */
+		if ((LastTick - tmpGameTick) > 1000)
+		{
+			tmpGameTick = LastTick;
+			FrameCount = 0;
+			GameTicksSec = 0;
 		}
 
 		if (GameStatus != GAME_STATUS_PLAY)
@@ -1882,14 +1883,6 @@ int main(int argc, char *argv[])
 
 		FrameCount++;
 		LastTick = SDL_GetTicks();
-
-		/* Print frame rate */
-		if (options.show_frame && GameStatus == GAME_STATUS_PLAY && cpl.menustatus == MENU_NO)
-		{
-			snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
-
-			StringBlt(ScreenSurface, &SystemFont, buf, cur_widget[MAPNAME_ID].x1, cur_widget[MAPNAME_ID].y1 + 12, COLOR_DEFAULT, NULL, NULL);
-		}
 
 #ifdef WIN32
 		script_process(NULL);

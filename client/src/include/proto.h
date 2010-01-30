@@ -173,6 +173,7 @@ void widget_quickslots(int x, int y);
 void widget_quickslots_mouse_event(int x, int y, int MEvent);
 void show_quickslots(int x, int y);
 void update_quickslots(int del_item);
+void widget_show_fps(int x, int y);
 
 /* metaserver.c */
 void metaserver_get_data(int num, char *server, int *port);

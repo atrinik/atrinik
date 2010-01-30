@@ -72,6 +72,7 @@ static const _widgetdata con_widget[TOTAL_WIDGETS] =
 	{"CONSOLE",		NULL,	271,	489,	256,	25,		1, 	0, 	1},
 	{"NUMBER",		NULL,	270,	471,	256,	43,		1, 	0, 	1},
 	{"SHOP",		NULL,	300,	147,	200,	320,	1,	0,	1},
+	{"FPS", NULL, 123, 47, 70, 12, 1, 1, 1}
 };
 
 /**
@@ -1078,6 +1079,10 @@ static void process_widget(int nID)
 
 		case SHOP_ID:
 			widget_show_shop(cur_widget[nID].x1, cur_widget[nID].y1);
+			break;
+
+		case FPS_ID:
+			widget_show_fps(cur_widget[nID].x1, cur_widget[nID].y1);
 			break;
 	}
 }
