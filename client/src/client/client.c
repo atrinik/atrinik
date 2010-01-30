@@ -54,8 +54,9 @@ typedef void (*CmdProc)(unsigned char *, int len);
 
 struct CmdMapping
 {
-	char *cmdname;
+	const char *cmdname;
 	void (*cmdproc)(unsigned char *, int);
+	enum CmdFormat cmdformat;
 };
 
 enum
@@ -103,44 +104,44 @@ struct CmdMapping commands[] =
 {
 	/* Order of this table doesn't make a difference.  I tried to sort
 	 * of cluster the related stuff together. */
-	{"comc", CompleteCmd},
-	{"map2", Map2Cmd},
-	{"drawinfo", (CmdProc)DrawInfoCmd},
-	{"drawinfo2", (CmdProc)DrawInfoCmd2},
-	{"map_scroll", (CmdProc)map_scrollCmd},
-	{"itemx", ItemXCmd},
-	{"sound", SoundCmd},
-	{"to", TargetObject},
-	{"upditem", UpdateItemCmd},
-	{"delitem", DeleteItem},
-	{"stats", StatsCmd},
-	{"image", ImageCmd},
-	{"face1", Face1Cmd},
-	{"anim", AnimCmd},
-	{"skill_rdy", (CmdProc) SkillRdyCmd},
-	{"player", PlayerCmd},
-	{"mapstats", (CmdProc)MapstatsCmd},
-	{"splist", (CmdProc)SpelllistCmd},
-	{"sklist", (CmdProc)SkilllistCmd},
-	{"gc", (CmdProc)GolemCmd},
-	{"addme_success", AddMeSuccess},
-	{"addme_failed", AddMeFail},
-	{"version", (CmdProc)VersionCmd},
-	{"goodbye", GoodbyeCmd},
-	{"setup", (CmdProc)SetupCmd},
-	{"query", (CmdProc)handle_query},
-	{"data", (CmdProc)DataCmd},
-	{"new_char", (CmdProc)NewCharCmd},
-	{"itemy", ItemYCmd},
-	{"book", BookCmd},
-	{"pt", PartyCmd},
-	{"qs", (CmdProc)QuickSlotCmd},
-	{"shop", ShopCmd},
-	{"qlist", QuestListCmd},
+	{"comc", CompleteCmd, SHORT_INT},
+	{"map2", Map2Cmd, MIXED},
+	{"drawinfo", (CmdProc) DrawInfoCmd, ASCII},
+	{"drawinfo2", (CmdProc) DrawInfoCmd2, ASCII},
+	{"map_scroll", (CmdProc) map_scrollCmd, ASCII},
+	{"itemx", ItemXCmd, MIXED},
+	{"sound", SoundCmd, ASCII},
+	{"to", TargetObject, ASCII},
+	{"upditem", UpdateItemCmd, MIXED},
+	{"delitem", DeleteItem, INT_ARRAY},
+	{"stats", StatsCmd, STATS},
+	{"image", ImageCmd, ASCII},
+	{"face1", Face1Cmd, SHORT_ARRAY},
+	{"anim", AnimCmd, SHORT_ARRAY},
+	{"skill_rdy", (CmdProc) SkillRdyCmd, ASCII},
+	{"player", PlayerCmd, MIXED},
+	{"mapstats", (CmdProc) MapstatsCmd, ASCII},
+	{"splist", (CmdProc) SpelllistCmd, ASCII},
+	{"sklist", (CmdProc) SkilllistCmd, ASCII},
+	{"gc", (CmdProc) GolemCmd, ASCII},
+	{"addme_success", AddMeSuccess, NODATA},
+	{"addme_failed", AddMeFail, NODATA},
+	{"version", (CmdProc) VersionCmd, NODATA},
+	{"goodbye", GoodbyeCmd, NODATA},
+	{"setup", (CmdProc) SetupCmd, ASCII},
+	{"query", (CmdProc) handle_query, ASCII},
+	{"data", (CmdProc) DataCmd, MIXED},
+	{"new_char", (CmdProc) NewCharCmd, NODATA},
+	{"itemy", ItemYCmd, MIXED},
+	{"book", BookCmd, ASCII},
+	{"pt", PartyCmd, ASCII},
+	{"qs", (CmdProc) QuickSlotCmd, ASCII},
+	{"shop", ShopCmd, ASCII},
+	{"qlist", QuestListCmd, ASCII},
 
 	/* Unused! */
-	{"magicmap", MagicMapCmd},
-	{"delinv", (CmdProc)DeleteInventory},
+	{"magicmap", MagicMapCmd, NODATA},
+	{"delinv", (CmdProc) DeleteInventory, NODATA},
 };
 
 static void face_flag_extension(int pnum, char *buf);
@@ -198,6 +199,7 @@ void DoClient(ClientSocket *csocket)
 		}
 		else
 		{
+			script_trigger_event(commands[cmd_id - 1].cmdname, data, len, commands[cmd_id - 1].cmdformat);
 			commands[cmd_id - 1].cmdproc(data, len);
 		}
 
@@ -250,7 +252,7 @@ void SockList_AddInt(SockList *sl, uint32 data)
  * Does the reverse of SockList_AddInt, but on strings instead.
  * @param data The string.
  * @return Integer from the string. */
-int GetInt_String(unsigned char *data)
+int GetInt_String(const unsigned char *data)
 {
 	return ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
 }
@@ -259,7 +261,7 @@ int GetInt_String(unsigned char *data)
  * Does the reverse of SockList_AddShort, but on strings instead.
  * @param data The string.
  * @return Short integer from the string. */
-short GetShort_String(unsigned char *data)
+short GetShort_String(const unsigned char *data)
 {
 	return ((data[0] << 8) + data[1]);
 }

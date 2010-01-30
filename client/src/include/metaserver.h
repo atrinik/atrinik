@@ -37,8 +37,3 @@ typedef struct metaserver_struct
 } metaserver_struct;
 
 extern int metaserver_connecting;
-
-void metaserver_get_servers();
-void metaserver_add(char *server, int port, int player, char *ver, char *desc);
-void metaserver_get_data(int num, char *server, int *port);
-void metaserver_clear_data();

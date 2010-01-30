@@ -23,11 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include "include.h"
-
 /**
  * @file
  * Sound related functions. */
+
+#include "include.h"
 
 /** The SoundSystem status */
 _sound_system SoundSystem;

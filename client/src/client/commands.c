@@ -701,8 +701,6 @@ void StatsCmd(unsigned char *data, int len)
 	int c, temp;
 	char *tmp, *tmp2;
 
-	script_trigger_event(SCRIPT_EVENT_STATS, (void *) data, len);
-
 	while (i < len)
 	{
 		c = data[i++];

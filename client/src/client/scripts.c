@@ -47,11 +47,6 @@ static struct script *scripts = NULL;
 /** Number of scripts. */
 static int num_scripts = 0;
 
-/** String representations of @ref script_event_flags "script events". */
-static char *script_event_names[SCRIPT_EVENTS] = {
-	"stats",
-};
-
 #ifdef WIN32
 
 #define write(x, y, z) emulate_write(x, y, z)
@@ -781,7 +776,7 @@ static void script_send_item(int i, const char *head, const item *it)
  * @param void_data Data.
  * @param data_len Length of the data.
  * @return Always returns 0. */
-int script_trigger_event(int event_id, void *void_data, int data_len)
+int script_trigger_event(const char *cmd, const uint8 *data, const int data_len, const enum CmdFormat format)
 {
 	int i, e, w, len;
 
@@ -793,25 +788,62 @@ int script_trigger_event(int event_id, void *void_data, int data_len)
 		{
 			char buf[10240];
 
-			if (strcmp(script_event_names[event_id - 1], scripts[i].events[e]) != 0)
+			if (strcmp(cmd, scripts[i].events[e]))
 			{
 				continue;
 			}
 
 			len = data_len;
 
-			switch (event_id)
+			switch (format)
 			{
-				case SCRIPT_EVENT_STATS:
+				case ASCII:
+					snprintf(buf, sizeof(buf), "event %s %s\n", cmd, data);
+					break;
+
+				case SHORT_INT:
+					snprintf(buf, sizeof(buf), "event %s %d %d\n", cmd, GetShort_String(data), GetInt_String(data + 2));
+					break;
+
+				case SHORT_ARRAY:
+				{
+					int be, p;
+
+					be = snprintf(buf, sizeof(buf), "event %s", cmd);
+
+					for (p = 0; p * 2 < len && p < 100; ++p)
+					{
+						be += snprintf(buf + be, sizeof(buf) - be, " %d", GetShort_String(data + p * 2));
+					}
+
+					be += snprintf(buf + be, sizeof(buf) - be, "\n");
+					break;
+				}
+
+				case INT_ARRAY:
+				{
+					int be, p;
+
+					be = snprintf(buf, sizeof(buf), "event %s", cmd);
+
+					for (p = 0; p * 4 < len; ++p)
+					{
+						be += snprintf(buf + be, sizeof(buf) - be, " %d", GetInt_String(data + p * 4));
+					}
+
+					be += snprintf(buf + be, sizeof(buf) - be, "\n");
+					break;
+				}
+
+				case STATS:
 				{
 					int i = 0, c, be = 0;
-					uint8 *data = (uint8 *) void_data;
 
 					while (i < len)
 					{
 						c = data[i++];
 
-						be += snprintf(buf + be, sizeof(buf) - be, "event %s", script_event_names[event_id - 1]);
+						be += snprintf(buf + be, sizeof(buf) - be, "event %s", cmd);
 
 						if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
 						{
@@ -996,6 +1028,29 @@ int script_trigger_event(int event_id, void *void_data, int data_len)
 						}
 					}
 
+					break;
+				}
+
+				case MIXED:
+				case NODATA:
+				default:
+				{
+					int be, p;
+
+					/* We may receive null data, in which case len has no meaning */
+					if (!data)
+					{
+						len = 0;
+					}
+
+					be = snprintf(buf, sizeof(buf), "event %s %d bytes unparsed:", cmd, len);
+
+					for (p = 0; p < len && p < 100; ++p)
+					{
+						be += snprintf(buf + be, sizeof(buf) - be, " %02x", data[p]);
+					}
+
+					be += snprintf(buf + be, sizeof(buf) - be, "\n");
 					break;
 				}
 			}

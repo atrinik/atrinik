@@ -211,19 +211,4 @@ enum
 	SPECIAL_SOUND_INIT
 };
 
-void sound_fillerup(void *unused, Uint8 *stream, int len);
-
-void sound_init();
-void sound_deinit();
-
-void sound_loadall();
-void sound_freeall();
-
-void calculate_map_sound(int soundnr, int xoff, int yoff);
-int sound_play_effect(int soundid, int pan, int vol);
-void sound_play_one_repeat(int soundid, int special_id);
-
-void sound_play_music(char *fname, int vol, int fade, int loop, int mode);
-void sound_fadeout_music(int i);
-
 #endif

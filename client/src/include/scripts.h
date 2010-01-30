@@ -32,53 +32,54 @@
 #ifndef SCRIPTS_H
 #define SCRIPTS_H
 
-/**
- * @defgroup script_event_flags Script event flags
- * Event flags a script can register to get updates when they happen.
- *@{*/
-
-/** No event flags. */
-#define SCRIPT_EVENT_NONE 0
-/** Get update when the player's stats change. */
-#define SCRIPT_EVENT_STATS 1
-/*@}*/
-
-/** Number of script events. */
-#define SCRIPT_EVENTS 1
+/** Command format. */
+enum CmdFormat
+{
+	/** Regular ASCII string. */
+	ASCII,
+	/** Array of shorts. */
+	SHORT_ARRAY,
+	/** Integer array. */
+	INT_ARRAY,
+	/** Short and integer. */
+	SHORT_INT,
+	/** Mixed data. */
+	MIXED,
+	/** The stats command. */
+	STATS,
+	/** No data. */
+	NODATA
+};
 
 /** Script structure. */
 struct script {
-	/** The script name */
+	/** The script name. */
 	char *name;
 
-	/** The script parameters, if any */
+	/** The script parameters, if any. */
 	char *params;
 
-	/** Command from the script */
+	/** Command from the script. */
 	char cmd[HUGE_BUF];
 
 #ifndef WIN32
-	/** The file descriptor to which the client writes to the script */
+	/** The file descriptor to which the client writes to the script. */
 	int out_fd;
 
-	/** The file descriptor from which we read commands from the script */
+	/** The file descriptor from which we read commands from the script. */
 	int in_fd;
 #else
-	/** The file descriptor to which the client writes to the script */
 	HANDLE out_fd;
-
-	/** The file descriptor from which we read commands from the script */
 	HANDLE in_fd;
 #endif
 
-	/** Bytes already read in */
+	/** Bytes already read in. */
 	int cmd_count;
 
 #ifndef WIN32
-	/** Process ID */
+	/** Process ID. */
 	pid_t pid;
 #else
-	/** Process ID */
 	DWORD pid;
 
 	/** Process handle for win32 */
@@ -91,15 +92,5 @@ struct script {
 	/** Number of events this event has registered so far. */
 	int events_count;
 };
-
-void script_load(const char *cparams);
-void script_list();
-void script_fdset(int *maxfd, fd_set *set);
-void script_process(fd_set *set);
-int script_trigger_event(int event_id, void *void_data, int data_len);
-void script_send(char *params);
-void script_killall();
-void script_autoload();
-void script_unload(const char *params);
 
 #endif

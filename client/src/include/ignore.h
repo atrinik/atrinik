@@ -43,8 +43,4 @@ typedef struct _ignore_list
 	char type[MAX_BUF];
 } ignore_list_struct;
 
-void ignore_list_load();
-int ignore_check(char *name, char *type);
-void ignore_command(char *cmd);
-
 #endif
