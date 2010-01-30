@@ -68,7 +68,7 @@ static const _widgetdata con_widget[TOTAL_WIDGETS] =
 	{"RANGEBOX",	NULL,	6,		51,		94,		60,		1, 	1, 	1},
 	{"TARGET",		NULL,	267,	514,	264,	31,		1, 	1, 	1},
 	{"MAININV",		NULL,	539,	147,	239,	32,		1, 	1, 	1},
-	{"MAPNAME",		NULL,	228,	106,	36,		12,		1, 	1, 	1},
+	{"MAPNAME",		NULL,	228,	106,	36,		16,		1, 	1, 	1},
 	{"CONSOLE",		NULL,	271,	489,	256,	25,		1, 	0, 	1},
 	{"NUMBER",		NULL,	270,	471,	256,	43,		1, 	0, 	1},
 	{"SHOP",		NULL,	300,	147,	200,	320,	1,	0,	1},

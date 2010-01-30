@@ -2049,7 +2049,7 @@ void widget_show_number(int x, int y)
  * @param y Y position of the map name */
 void widget_show_mapname(int x, int y)
 {
-	StringBlt(ScreenSurface, &SystemFont, MapData.name, x, y, COLOR_DEFAULT, NULL, NULL);
+	StringBlt(ScreenSurface, &BigFont, MapData.name, x, y, COLOR_HGOLD, NULL, NULL);
 }
 
 /**
