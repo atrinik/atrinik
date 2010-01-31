@@ -183,7 +183,11 @@ void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 	}
 
 	if (name)
+	{
 		strcpy(MapData.name, name);
+		/* Calculate new width of map name widget */
+		cur_widget[MAPNAME_ID].wd = get_string_pixel_length(name, &BigFont);
+	}
 
 	if (xl != -1)
 		MapData.xlen = xl;

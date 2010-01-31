@@ -324,7 +324,6 @@ Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
 Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 
 /* widget.c */
-void init_widgets_fromDefault();
 void init_widgets_fromCurrent();
 void kill_widgets();
 void save_interface_file();

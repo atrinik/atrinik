@@ -26,63 +26,57 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-/* If you want (a LOT) of debug info about widgets, uncomment this */
+/* If you want (a LOT of) debug info about widgets, uncomment this */
 /*#define DEBUG_WIDGET*/
 
-/** Used in the priority list (to order widgets) */
-struct _widget_node
+/** Used in the priority list (to order widgets). */
+typedef struct widget_node_struct
 {
-	/** Next */
-	struct _widget_node *next;
+	/** Next. */
+	struct widget_node_struct *next;
 
-	/** Previous */
-	struct _widget_node *prev;
+	/** Previous. */
+	struct widget_node_struct *prev;
 
-	/** Widget ID */
+	/** Widget ID. */
 	int WidgetID;
-};
+} widget_node;
 
-typedef struct _widget_node widget_node;
-
-/** Information about a widget - used for current/default list */
-typedef struct _widgetdata
+/** Information about a widget. */
+typedef struct widgetdata
 {
-	/** Widget name */
+	/** Widget name. */
 	char *name;
 
-	/** Widget priority */
+	/** Widget priority. */
 	widget_node *priority_index;
 
-	/** Position X */
+	/** X position. */
 	int x1;
 
-	/** Position Y */
+	/** Y position. */
 	int y1;
 
-	/** Width */
+	/** Width. */
 	int wd;
 
-	/** Height */
+	/** Height. */
 	int ht;
 
-	/** Moveable */
+	/** Is the widget moveable? */
 	int moveable;
 
-	/** Hidden and inactive or shown */
+	/** Is the widget visible? */
 	int show;
 
-	/** Widget must be redrawn */
+	/** Widget must be redrawn. */
 	int redraw;
-}_widgetdata;
 
-/** Events that are passed to the widget handler */
-typedef enum _proc_type
-{
-	PROCESS,
-	EVENT,
-	KILL
-} _proc_type;
+	/** Save the widget's height/width? */
+	int save_width_height;
+} widgetdata;
 
+/** A mouse event. */
 enum _MEvent
 {
 	MOUSE_UP = 1,
@@ -90,8 +84,8 @@ enum _MEvent
 	MOUSE_MOVE
 };
 
-/* add the widget id here */
-typedef enum _WidgetID
+/** The widget IDs. */
+typedef enum WidgetID
 {
 	STATS_ID,
 	RESIST_ID,
@@ -116,12 +110,12 @@ typedef enum _WidgetID
 	SHOP_ID,
 	FPS_ID,
 
-	/* Must be last element */
+	/** The total number of widgets. */
 	TOTAL_WIDGETS
-}_WidgetID;
+} WidgetID;
 
 /** Used for mouse button/move events */
-typedef struct _widgetevent
+typedef struct widgetevent
 {
 	/** Widget owner */
 	int owner;
@@ -131,45 +125,43 @@ typedef struct _widgetevent
 
 	/** Widget Y */
 	int y;
-}_widgetevent;
+} widgetevent;
 
-/** This is used when moving a widget with the mouse */
-typedef struct _widgetmove
+/** This is used when moving a widget with the mouse. */
+typedef struct widgetmove
 {
 	/** Is the widget active? */
 	int active;
 
-	/** Widget ID */
+	/** Widget ID. */
 	int id;
 
-	/** X offset */
+	/** X offset. */
 	int xOffset;
 
-	/** Y offset */
+	/** Y offset. */
 	int yOffset;
-}_widgetmove;
+} widgetmove;
 
 SDL_Surface *widgetSF[TOTAL_WIDGETS];
-
-extern _widgetdata cur_widget[TOTAL_WIDGETS];
-extern _widgetevent widget_mouse_event;
-extern int IsMouseExclusive;
+extern widgetdata cur_widget[TOTAL_WIDGETS];
+extern widgetevent widget_mouse_event;
 extern int old_alpha_option;
 
-/** Macro to redraw widget */
+/** Macro to redraw widget. */
 #define WIDGET_REDRAW(__a) cur_widget[__a].redraw = 1;
 
 #ifdef WIDGET_SNAP
-/** Left position */
+/** Left position. */
 #define LEFT(ID) (cur_widget[(ID)].x1)
 
-/** Right position*/
+/** Right position. */
 #define RIGHT(ID) (cur_widget[(ID)].x1 + cur_widget[(ID)].wd)
 
-/** Top position */
+/** Top position. */
 #define TOP(ID) (cur_widget[(ID)].y1)
 
-/** Bottom position */
+/** Bottom position. */
 #define BOTTOM(ID) (cur_widget[(ID)].y1 + cur_widget[(ID)].ht)
 #endif
 
