@@ -178,8 +178,7 @@ void widget_show_fps(int x, int y);
 /* metaserver.c */
 void metaserver_get_data(int num, char *server, int *port);
 void metaserver_clear_data();
-void metaserver_add(char *server, int port, int player, char *ver, char *desc);
-int metaserver_connect(char *metaserver_url);
+void metaserver_add(const char *server, int port, int player, const char *ver, const char *desc);
 int metaserver_thread(void *dummy);
 void metaserver_get_servers();
 
@@ -347,5 +346,5 @@ void show_optwin();
 void show_keybind();
 void show_newplayer_server();
 void show_login_server();
-void show_meta_server(_server *node, int metaserver_start, int metaserver_sel);
+void show_meta_server(_server *node, int metaserver_sel);
 void metaserver_mouse(SDL_Event *e);

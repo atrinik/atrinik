@@ -578,7 +578,7 @@ extern char ServerName[];
 extern int ServerPort;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 extern _server *start_server;
-extern int metaserver_start, metaserver_sel, metaserver_count;
+extern int metaserver_sel, metaserver_count;
 extern int request_file_chain;
 extern int request_file_flags;
 extern int esc_menu_flag;

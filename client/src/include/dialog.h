@@ -39,6 +39,12 @@
 /** Option window max keys */
 #define OPTWIN_MAX_KEYS 100
 
+/** Maximum length in pixels for a single server description line. */
+#define MAX_MS_DESC_LINE 298
+
+/** Maximum Y position the server description can go to. */
+#define MAX_MS_DESC_Y 36
+
 /** Option structure. */
 typedef struct _option
 {

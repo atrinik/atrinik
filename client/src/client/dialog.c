@@ -1877,9 +1877,8 @@ void show_login_server()
 /**
  * Show metaserver window.
  * @param node First server.
- * @param metaserver_start Server start.
  * @param metaserver_sel Selected server. */
-void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
+void show_meta_server(_server *node, int metaserver_sel)
 {
 	int x, y, i;
 	char buf[1024];
@@ -1949,71 +1948,75 @@ void show_meta_server(_server *node, int metaserver_start, int metaserver_sel)
 		}
 	}
 
-	for (i = 0; node && i < metaserver_start; i++)
+	for (i = 0; i < metaserver_count && node; i++, node = node->next)
 	{
-		node = node->next;
-	}
-
-	for (i = 0; node && i < metaserver_count; i++)
-	{
-		if (dialog_yoff <= i)
+		if (i < dialog_yoff)
 		{
-			if (i == metaserver_sel - metaserver_start)
-			{
-				int ii, j, len = 0, width = 0, desclen = strlen(node->desc);
-				char tmpbuf[MAX_BUF];
-
-				snprintf(buf, sizeof(buf), "version %s", node->version);
-
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
-
-				/* Loop through the maximum lines of comments */
-				for (ii = 0, j = 0; ii < 3; ii++, j += 12)
-				{
-					/* Last line was hit. */
-					if (len > desclen)
-					{
-						break;
-					}
-
-					StringWidthOffset(&SystemFont, node->desc, &width, 298);
-					strncpy(tmpbuf, node->desc + len, width);
-					tmpbuf[width] = '\0';
-					len += width;
-
-					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 160, y + 446 + j, COLOR_BLACK, &rec_desc, NULL);
-					StringBlt(ScreenSurface, &SystemFont, tmpbuf, x + 159, y + 445 + j, COLOR_HGOLD, &rec_desc, NULL);
-				}
-
-				box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
-				SDL_FillRect(ScreenSurface, &box, sdl_blue1);
-			}
-
-			StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
-
-			sprintf(buf, "%d", node->port);
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
-
-			if (node->player >= 0)
-			{
-				sprintf(buf, "%d", node->player);
-			}
-			else
-			{
-				strcpy(buf, "-");
-			}
-
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
+			continue;
 		}
-
-		node = node->next;
-
 		/* Never more than maximum */
-		if (i + 1 - dialog_yoff >= DIALOG_LIST_ENTRY)
+		else if (i - dialog_yoff >= DIALOG_LIST_ENTRY)
 		{
 			break;
 		}
+
+		if (i == metaserver_sel)
+		{
+			int tmp_y = 0, width = 0;
+			char tmpbuf[MAX_BUF], *cp;
+
+			snprintf(buf, sizeof(buf), "version %s", node->version);
+
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 160, y + 433, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, x + 159, y + 432, COLOR_WHITE, NULL, NULL);
+
+			strncpy(tmpbuf, node->desc, sizeof(tmpbuf));
+			cp = strtok(tmpbuf, " ");
+
+			/* Loop through spaces */
+			while (cp)
+			{
+				int len = get_string_pixel_length(cp, &SystemFont) + SystemFont.c[' '].w + SystemFont.char_offset;
+
+				/* Do we need to adjust for the next line? */
+				if (width + len > MAX_MS_DESC_LINE)
+				{
+					width = 0;
+					tmp_y += 12;
+
+					/* We hit the max */
+					if (tmp_y >= MAX_MS_DESC_Y)
+					{
+						break;
+					}
+				}
+
+				StringBlt(ScreenSurface, &SystemFont, cp, x + 160 + width, y + 446 + tmp_y, COLOR_BLACK, &rec_desc, NULL);
+				StringBlt(ScreenSurface, &SystemFont, cp, x + 159 + width, y + 445 + tmp_y, COLOR_HGOLD, &rec_desc, NULL);
+				width += len;
+
+				cp = strtok(NULL, " ");
+			}
+
+			box.y = y + TXT_Y_START + 13 + (i - dialog_yoff) * 12;
+			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
+		}
+
+		StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
+
+		sprintf(buf, "%d", node->port);
+		StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
+
+		if (node->player >= 0)
+		{
+			sprintf(buf, "%d", node->player);
+		}
+		else
+		{
+			strcpy(buf, "-");
+		}
+
+		StringBlt(ScreenSurface, &SystemFont, buf, x + 416, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);
 	}
 }
 

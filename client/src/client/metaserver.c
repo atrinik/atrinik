@@ -23,45 +23,41 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <include.h>
-
 /**
  * @file
- * This file handles connection to the metaserver and receiving data from it. */
+ * Handles connection to the metaserver and receiving data from it. */
 
-/** List of metaservers. Will loop until these until we successfully connect to one. */
-static char *metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/"};
+#include <include.h>
+
+/** List of metaservers. Will loop these until we successfully connect to one. */
+static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/"};
+/** The number of ::metaservers. */
+#define NUM_METASERVERS (sizeof(metaservers) / sizeof(metaservers[0]))
 
 /** Are we connecting to the metaserver? */
 int metaserver_connecting = 1;
 
 /**
  * Parse data returned from HTTP metaserver and add it to the list of servers.
- * @param info The data */
-static void parse_metaserver_data(char *info)
+ * @param info The data to parse. */
+static void parse_metaserver_data(const char *info)
 {
-	char server_ip[MAX_BUF], port[MAX_BUF], server[MAX_BUF], num_players[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
+	char server_ip[MAX_BUF], server[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
+	int port, num_players;
 
-	server[0] = server_ip[0] = port[0] = num_players[0] = version[0] = desc[0] = '\0';
-
-	if (info == NULL || !sscanf(info, "%64[^:]:%32[^:]:%128[^:]:%64[^:]:%64[^:]:%512[^\n]", server_ip, port, server, num_players, version, desc))
+	if (!info || sscanf(info, "%64[^:]:%d:%128[^:]:%d:%64[^:]:%512[^\n]", server_ip, &port, server, &num_players, version, desc) != 6)
 	{
 		return;
 	}
 
-	if (server[0] == '\0' || server_ip[0] == '\0' || port[0] == '\0' || num_players[0] == '\0' || version[0] == '\0' || desc[0] == '\0')
-	{
-		return;
-	}
-
-	metaserver_add(server, atoi(port), atoi(num_players), version, desc);
+	metaserver_add(server, port, num_players, version, desc);
 }
 
 /**
  * Get metaserver data, IP/hostname and port.
- * @param num ID of the server
- * @param server Char pointer where to copy the server IP/hostname
- * @param port Int pointer where to copy the server port */
+ * @param num ID of the server.
+ * @param[out] server Where to copy the server IP/hostname.
+ * @param[out] port Where to copy the server port. */
 void metaserver_get_data(int num, char *server, int *port)
 {
 	_server *node = start_server;
@@ -73,7 +69,6 @@ void metaserver_get_data(int num, char *server, int *port)
 		{
 			strcpy(server, node->nameip);
 			*port = node->port;
-
 			return;
 		}
 
@@ -86,46 +81,39 @@ void metaserver_get_data(int num, char *server, int *port)
 void metaserver_clear_data()
 {
 	_server *node, *tmp;
-	void *tmp_free;
 
 	node = start_server;
 
-	for (; node ;)
+	while (node)
 	{
-		tmp_free = &node->nameip;
-		FreeMemory(tmp_free);
-
-		tmp_free = &node->version;
-		FreeMemory(tmp_free);
-
-		tmp_free = &node->desc;
-		FreeMemory(tmp_free);
-
 		tmp = node->next;
-		tmp_free = &node;
-		FreeMemory(tmp_free);
+
+		free(node->nameip);
+		free(node->version);
+		free(node->desc);
+		free(node);
+
 		node = tmp;
 	}
 
 	start_server = NULL;
-	metaserver_start = 0;
 	metaserver_sel = 0;
 	metaserver_count = 0;
 }
 
 /**
- * Add a server entry to the linked list of available servers
- * reported by metaserver.
- * @param server The server IP/hostname
- * @param port Server port
- * @param player Number of players
- * @param ver Server version
- * @param desc Description of the server */
-void metaserver_add(char *server, int port, int player, char *ver, char *desc)
+ * Add a server entry to the linked list of available servers reported by
+ * metaserver.
+ * @param server The server IP/hostname.
+ * @param port Server port.
+ * @param player Number of players.
+ * @param ver Server version.
+ * @param desc Description of the server. */
+void metaserver_add(const char *server, int port, int player, const char *ver, const char *desc)
 {
 	_server *node;
 
-	node = (_server*) _malloc(sizeof(_server), "metaserver_add(): add server struct");
+	node = (_server *) malloc(sizeof(_server));
 	memset(node, 0, sizeof(_server));
 
 	node->next = start_server;
@@ -133,63 +121,46 @@ void metaserver_add(char *server, int port, int player, char *ver, char *desc)
 
 	node->player = player;
 	node->port = port;
-	node->nameip = _malloc(strlen(server) + 1, "metaserver_add(): nameip string");
+	node->nameip = malloc(strlen(server) + 1);
 	strcpy(node->nameip, server);
-	node->version = _malloc(strlen(ver) + 1, "metaserver_add(): version string");
+	node->version = malloc(strlen(ver) + 1);
 	strcpy(node->version, ver);
-	node->desc = _malloc(strlen(desc) + 1, "metaserver_add(): desc string");
+	node->desc = malloc(strlen(desc) + 1);
 	strcpy(node->desc, desc);
 
 	metaserver_count++;
 }
 
 /**
- * There might be a realloc() out there that doesn't like reallocing
- * NULL pointers, so we take care of it with this function.
- * @param ptr Pointer to reallocate
- * @param size Size to reallocate
- * @return The pointer to the memory */
-static void *metaserver_realloc(void *ptr, size_t size)
-{
-	if (ptr)
-	{
-		return realloc(ptr, size);
-	}
-	else
-	{
-		return malloc(size);
-	}
-}
-
-/**
  * Function to call when receiving data from the metaserver.
- * @param ptr Pointer to the data
- * @param size Size of the data
- * @param nmemb Number of items
- * @param data Data
- * @return Returns the realsize of the data returned (size * nmemb). */
+ * @param ptr Pointer to data to process.
+ * @param size The size of each piece of data.
+ * @param nmemb Number of data elements.
+ * @param data User supplied data pointer - points to @ref metaserver_struct "metaserver structure"
+ * that holds the data returned from the metaserver.
+ * @return Number of bytes processed. */
 static size_t metaserver_callback(void *ptr, size_t size, size_t nmemb, void *data)
 {
 	size_t realsize = size * nmemb;
 	metaserver_struct *mem = (metaserver_struct *) data;
 
-	mem->memory = metaserver_realloc(mem->memory, mem->size + realsize + 1);
+	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
 
 	if (mem->memory)
 	{
 		memcpy(&(mem->memory[mem->size]), ptr, realsize);
 		mem->size += realsize;
-		mem->memory[mem->size] = 0;
+		mem->memory[mem->size] = '\0';
 	}
 
 	return realsize;
 }
 
 /**
- * Connect to a metaserver. This function takes care of parsing the returned
- * data. The data is temporarily put into memory so we can parse it.
- * If we fail, log the error and show information that metaserver failed. */
-int metaserver_connect(char *metaserver_url)
+ * Connect to a metaserver using cURL and get data about metaservers.
+ * @param metaserver_url URL of the metaserver to connect to.
+ * @return 1 on success, 0 on failure. */
+static int metaserver_connect(const char *metaserver_url)
 {
 	CURL *handle;
 	CURLcode res;
@@ -197,11 +168,11 @@ int metaserver_connect(char *metaserver_url)
 	char user_agent[MAX_BUF];
 	int success = 0;
 
-	/* Store user agent for cURL, including if this is Linux build of client
+	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. Could be used for statistics or something. */
-#ifdef __LINUX
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Linux)/%s", PACKAGE_VERSION);
-#elif WIN32
+#if defined(__LINUX)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s", PACKAGE_VERSION);
+#elif defined(WIN32)
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s", PACKAGE_VERSION);
 #else
 	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s", PACKAGE_VERSION);
@@ -236,7 +207,6 @@ int metaserver_connect(char *metaserver_url)
 		/* Get the data */
 		res = curl_easy_perform(handle);
 
-		/* If it failed, log it and show information about to the client */
 		if (res)
 		{
 			LOG(LOG_DEBUG, "DEBUG: metaserver_connect(): curl_easy_perform got error %d (%s).\n", res, curl_easy_strerror(res));
@@ -248,33 +218,25 @@ int metaserver_connect(char *metaserver_url)
 		/* If we go the data, might as well do something with it. */
 		if (chunk->memory)
 		{
-			char *buf = (char *) malloc(chunk->size), *p;
+			char *buf = (char *) malloc(chunk->size), *cp;
 
 			/* No need to connect to other mirror metaservers */
 			success = 1;
 
-			/* Store the data in a temporary buffer */
 			snprintf(buf, chunk->size, "%s", chunk->memory);
-
-			p = strtok(buf, "\n");
+			cp = strtok(buf, "\n");
 
 			/* Loop through all the lines returned */
-			while (p)
+			while (cp)
 			{
-				/* Parse it */
-				parse_metaserver_data(p);
-
-				p = strtok(NULL, "\n");
+				parse_metaserver_data(cp);
+				cp = strtok(NULL, "\n");
 			}
 
-			/* Free the temporary buffer */
 			free(buf);
-
-			/* Free the memory */
 			free(chunk->memory);
 		}
 
-		/* Free the chunk */
 		if (chunk)
 		{
 			free(chunk);
@@ -294,18 +256,18 @@ int metaserver_connect(char *metaserver_url)
  * @return Always returns 0. */
 int metaserver_thread(void *dummy)
 {
-	int metaserver_id, metaserver_failed = 1;
+	size_t metaserver_id;
+	int metaserver_failed = 1;
 
 	(void) dummy;
 
 	/* Go through all the metaservers in the list */
-	for (metaserver_id = 0; metaserver_id < (int) (sizeof(metaservers) / sizeof(char *)); metaserver_id++)
+	for (metaserver_id = 0; metaserver_id < NUM_METASERVERS; metaserver_id++)
 	{
 		/* If the connection succeeded, break out */
 		if (metaserver_connect(metaservers[metaserver_id]))
 		{
 			metaserver_failed = 0;
-
 			break;
 		}
 	}
@@ -318,14 +280,13 @@ int metaserver_thread(void *dummy)
 
 	/* We're not connecting anymore */
 	metaserver_connecting = 0;
-
 	return 0;
 }
 
 /**
  * Connect to metaserver and get the available servers.
  *
- * Uses SDL CreateThread function and calls metaserver_thread(). */
+ * Works in a thread using SDL_CreateThread(). */
 void metaserver_get_servers()
 {
 	SDL_Thread *thread;

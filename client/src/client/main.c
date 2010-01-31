@@ -149,7 +149,7 @@ struct screensize *Screensize;
 _face_struct FaceList[MAX_FACE_TILES];
 
 _server *start_server;
-int metaserver_start, metaserver_sel, metaserver_count = 0;
+int metaserver_sel, metaserver_count = 0;
 
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
@@ -1847,7 +1847,7 @@ int main(int argc, char *argv[])
 
 		if (GameStatus < GAME_STATUS_REQUEST_FILES)
 		{
-			show_meta_server(start_server, metaserver_start, metaserver_sel);
+			show_meta_server(start_server, metaserver_sel);
 		}
 		else if (GameStatus >= GAME_STATUS_REQUEST_FILES && GameStatus < GAME_STATUS_NEW_CHAR)
 		{
