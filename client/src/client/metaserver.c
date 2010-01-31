@@ -30,7 +30,7 @@
 #include <include.h>
 
 /** List of metaservers. Will loop these until we successfully connect to one. */
-static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/"};
+static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/", "http://www.wordowl.com/misc/atrinik/"};
 /** The number of ::metaservers. */
 #define NUM_METASERVERS (sizeof(metaservers) / sizeof(metaservers[0]))
 
