@@ -996,6 +996,8 @@ static void add_spell_to_spelllist(object *op, int spell_number, char *buf, size
 	object *spell_skill = CONTR(op)->skill_ptr[SK_SPELL_CASTING], *prayer_skill = CONTR(op)->skill_ptr[SK_PRAYING];
 	char tmp[MAX_BUF];
 
+	op->chosen_skill = spells[spell_number].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
+
 	if (COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1027))
 	{
 		snprintf(tmp, sizeof(tmp), "/%s:%d:%c", spells[spell_number].name, (spells[spell_number].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spell_number].type == SPELL_TYPE_WIZARD && spell_skill) ? SP_level_spellpoint_cost(op, spell_number) : 0, spelllist_determine_path(op, spell_number));
