@@ -29,6 +29,7 @@
  * only living things. */
 
 #include <global.h>
+#include <sproto.h>
 
 /**
  * @defgroup RN_xxx Race types
@@ -888,6 +889,13 @@ int change_abil(object *op, object *tmp)
 				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your protection to %s drops to %d%%.", protection_name[i], op->protection[i]);
 			}
 		}
+	}
+
+	/* If the attuned/repelled/denied paths changed, we need to update the
+	 * spell list. */
+	if (op->path_attuned != refop.path_attuned || op->path_repelled != refop.path_repelled || op->path_denied != refop.path_denied)
+	{
+		send_spelllist_cmd(op, NULL, SPLIST_MODE_UPDATE);
 	}
 
 	if (tmp->type != EXPERIENCE && !potion_max)
