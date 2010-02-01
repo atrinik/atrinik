@@ -190,6 +190,7 @@ char *show_input_string(char *text, struct _Font *font, int wlen);
 int read_substr_char(char *srcstr, char *desstr, int *sz, char ct);
 int isqrt(int n);
 char *get_parameter_string(char *data, int *pos);
+size_t split_string(char *str, char *array[], size_t array_size, char sep);
 
 /* player.c */
 void clear_player();

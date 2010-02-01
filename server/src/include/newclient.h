@@ -459,4 +459,11 @@ enum
 	BINAR_CMD
 };
 
+/**
+ * Compare two client versions.
+ * @todo This macro was created because the original 1.0 client had version
+ * 991017, but the current one has 10xx. Remove this macro at some point when
+ * 1.0 client is no longer used. */
+#define COMPARE_CLIENT_VERSION(ver1, ver2) ((ver1) != 991017 && (ver1) >= (ver2))
+
 #endif

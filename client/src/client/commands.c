@@ -2000,113 +2000,67 @@ void SkilllistCmd(char *data)
 
 /**
  * Spell list command. Used to update the player's spell list.
- * @param data The incoming data */
+ * @param data The incoming data. */
 void SpelllistCmd(char *data)
 {
-	int i, ii, mode;
-	char *tmp, *tmp2;
-	char name[256];
-	int cost;
-
-#if 0
-	LOG(LOG_DEBUG, "slist: <%s>\n", data);
-#endif
+	int mode;
+	char *tmp_data, *cp;
 
 	/* We grab our mode */
 	mode = atoi(data);
 
-	for (; ;)
+	tmp_data = strdup(data);
+	cp = strtok(tmp_data, "/");
+
+	while (cp)
 	{
-		/* Find start of a name */
-		tmp = strchr(data, '/');
+		int i, ii, spell_type, found = 0;
+		char *tmp[3];
 
-		if (!tmp)
+		if (split_string(cp, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
 		{
-			return;
-		}
-
-		data = tmp + 1;
-
-		tmp2 = strchr(data, '/');
-
-		if (tmp2)
-		{
-			char *cost_p;
-
-			strncpy(name, data, tmp2 - data);
-			name[tmp2 - data] = '\0';
-			data = tmp2;
-			cost_p = strchr(name, ':');
-
-			if (cost_p)
-			{
-				cost = atoi(cost_p + 1);
-				*cost_p = '\0';
-			}
-			else
-			{
-				cost = 0;
-			}
-		}
-		else
-		{
-			char *cost_p;
-
-			strcpy(name, data);
-			cost_p = strchr(name, ':');
-
-			if (cost_p)
-			{
-				cost = atoi(cost_p + 1);
-				*cost_p = '\0';
-			}
-			else
-			{
-				cost = 0;
-			}
+			cp = strtok(NULL, "/");
+			continue;
 		}
 
 		/* We have a name - now check the spelllist file and set the entry
 		 * to KNOWN */
-		for (i = 0; i < SPELL_LIST_MAX; i++)
+		for (i = 0; i < SPELL_LIST_MAX && !found; i++)
 		{
-			for (ii = 0; ii < DIALOG_LIST_ENTRY; ii++)
+			for (ii = 0; ii < DIALOG_LIST_ENTRY && !found; ii++)
 			{
-				if (spell_list[i].entry[0][ii].flag >= LIST_ENTRY_USED)
+				for (spell_type = 0; spell_type < SPELL_LIST_CLASS; spell_type++)
 				{
-					if (!strcmp(spell_list[i].entry[0][ii].name, name))
+					if (spell_list[i].entry[spell_type][ii].flag >= LIST_ENTRY_USED)
 					{
-						spell_list[i].entry[0][ii].cost = cost;
+						if (!strcmp(spell_list[i].entry[spell_type][ii].name, tmp[0]))
+						{
+							/* Store the cost */
+							spell_list[i].entry[spell_type][ii].cost = atoi(tmp[1]);
+							/* Store the path relationship */
+							spell_list[i].entry[spell_type][ii].path = tmp[2][0];
 
-						if (mode == SPLIST_MODE_REMOVE)
-							spell_list[i].entry[0][ii].flag = LIST_ENTRY_USED;
-						else
-							spell_list[i].entry[0][ii].flag = LIST_ENTRY_KNOWN;
+							if (mode == SPLIST_MODE_REMOVE)
+							{
+								spell_list[i].entry[spell_type][ii].flag = LIST_ENTRY_USED;
+							}
+							else
+							{
+								spell_list[i].entry[spell_type][ii].flag = LIST_ENTRY_KNOWN;
+							}
 
-						goto next_name;
-					}
-				}
-
-				if (spell_list[i].entry[1][ii].flag >= LIST_ENTRY_USED)
-				{
-					if (!strcmp(spell_list[i].entry[1][ii].name, name))
-					{
-						spell_list[i].entry[1][ii].cost = cost;
-
-						if (mode == SPLIST_MODE_REMOVE)
-							spell_list[i].entry[1][ii].flag = LIST_ENTRY_USED;
-						else
-							spell_list[i].entry[1][ii].flag = LIST_ENTRY_KNOWN;
-
-						goto next_name;
+							found = 1;
+							break;
+						}
 					}
 				}
 			}
 		}
 
-next_name:
-		;
+		cp = strtok(NULL, "/");
 	}
+
+	free(tmp_data);
 }
 
 /**

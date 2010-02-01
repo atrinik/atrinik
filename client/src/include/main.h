@@ -434,14 +434,21 @@ typedef struct _spell_list_entry
 	/** Icon name */
 	char icon_name[32];
 
-	/** Sprite */
+	/** Spell's icon. */
 	struct _Sprite *icon;
 
 	/** Description (in 4 rows) */
 	char desc[4][96];
 
-	/** Cost of spell */
+	/** Cost of spell. */
 	int cost;
+
+	/**
+	 * Contains what kind of relationship the player has with the spell's path:
+	 * - a: Attuned
+	 * - r: Repelled
+	 * - d: Denied */
+	char path;
 }_spell_list_entry;
 
 /** Spell list structure */

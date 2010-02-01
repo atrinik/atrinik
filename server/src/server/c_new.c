@@ -955,6 +955,60 @@ void send_mapstats_cmd(object *op, struct mapdef *map)
 }
 
 /**
+ * Determine spell's path for spell list sending.
+ * @param op Object.
+ * @param spell_number Spell ID.
+ * @retval d Player is denied from casting the spell.
+ * @retval a Player is attuned to the spell.
+ * @retval r Player is repelled from the spell.
+ * @return If none of the above, a space character is returned. */
+static char spelllist_determine_path(object *op, int spell_number)
+{
+	uint32 path = spells[spell_number].path;
+
+	if ((op->path_denied & path))
+	{
+		return 'd';
+	}
+
+	if ((op->path_attuned & path) && !(op->path_repelled & path))
+	{
+		return 'a';
+	}
+
+	if ((op->path_repelled & path) && !(op->path_attuned & path))
+	{
+		return 'r';
+	}
+
+	return ' ';
+}
+
+/**
+ * Helper function for send_spelllist_cmd(), adds one spell to buffer
+ * which is then sent to the client as the spell list command.
+ * @param op Object.
+ * @param spell_number ID of the spell to add.
+ * @param buf Buffer to add to.
+ * @param size Size of buf. */
+static void add_spell_to_spelllist(object *op, int spell_number, char *buf, size_t size)
+{
+	object *spell_skill = CONTR(op)->skill_ptr[SK_SPELL_CASTING], *prayer_skill = CONTR(op)->skill_ptr[SK_PRAYING];
+	char tmp[MAX_BUF];
+
+	if (COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1027))
+	{
+		snprintf(tmp, sizeof(tmp), "/%s:%d:%c", spells[spell_number].name, (spells[spell_number].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spell_number].type == SPELL_TYPE_WIZARD && spell_skill) ? SP_level_spellpoint_cost(op, spell_number) : 0, spelllist_determine_path(op, spell_number));
+	}
+	else
+	{
+		snprintf(tmp, sizeof(tmp), "/%s:%d", spells[spell_number].name, (spells[spell_number].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spell_number].type == SPELL_TYPE_WIZARD && spell_skill) ? SP_level_spellpoint_cost(op, spell_number) : 0);
+	}
+
+	strncat(buf, tmp, size - strlen(buf) - 1);
+}
+
+/**
  * Send spell list command to the client.
  * @param op Player object.
  * @param spellname If specified, send only this spell name.
@@ -964,26 +1018,14 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 {
 	/* we should careful set a big enough buffer here */
 	char tmp[HUGE_BUF * 4];
-	char cost[MAX_BUF];
-	object *old_skill = op->chosen_skill, *spell_skill = CONTR(op)->skill_ptr[SK_SPELL_CASTING], *prayer_skill = CONTR(op)->skill_ptr[SK_PRAYING];
+	object *old_skill = op->chosen_skill;
 
 	snprintf(tmp, sizeof(tmp), "X%d ", mode);
 
 	/* Send single name */
 	if (spellname)
 	{
-		int spnum = look_up_spell_name(spellname);
-
-		strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
-		strncat(tmp, spellname, sizeof(tmp) - strlen(tmp) - 1);
-
-		if ((spells[spnum].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spnum].type == SPELL_TYPE_WIZARD && spell_skill))
-		{
-			op->chosen_skill = spells[spnum].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
-			strncat(tmp, ":", sizeof(tmp) - strlen(tmp) - 1);
-			snprintf(cost, sizeof(cost), "%d", SP_level_spellpoint_cost(op, spnum));
-			strncat(tmp, cost, sizeof(tmp) - strlen(tmp) - 1);
-		}
+		add_spell_to_spelllist(op, look_up_spell_name(spellname), tmp, sizeof(tmp));
 	}
 	else
 	{
@@ -1000,16 +1042,7 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 				spnum = CONTR(op)->known_spells[i];
 			}
 
-			strncat(tmp, "/", sizeof(tmp) - strlen(tmp) - 1);
-			strncat(tmp, spells[spnum].name, sizeof(tmp) - strlen(tmp) - 1);
-
-			if ((spells[spnum].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spnum].type == SPELL_TYPE_WIZARD && spell_skill))
-			{
-				op->chosen_skill = spells[spnum].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
-				strncat(tmp, ":", sizeof(tmp) - strlen(tmp) - 1);
-				snprintf(cost, sizeof(cost), "%d", SP_level_spellpoint_cost(op, spnum));
-				strncat(tmp, cost, sizeof(tmp) - strlen(tmp) - 1);
-			}
+			add_spell_to_spelllist(op, spnum, tmp, sizeof(tmp));
 		}
 	}
 
