@@ -1410,7 +1410,11 @@ int command_dm(object *op, char *params)
 	/* IF we are DM, then turn mode off */
 	if (QUERY_FLAG(op, FLAG_WIZ) && op->type == PLAYER)
 	{
+		/* First remove all the spells */
+		send_spelllist_cmd(op, NULL, SPLIST_MODE_REMOVE);
 		command_nowiz(op, params);
+		/* Now that we are out of DM mode, add the known ones back */
+		send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 		return 1;
 	}
 
@@ -1436,7 +1440,7 @@ int command_dm(object *op, char *params)
 
 		esrv_send_inventory(op, op);
 
-		/* Send all the spells for this DM */
+		/* Send all the spells */
 		send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 
 		clear_los(op);
@@ -1444,16 +1448,9 @@ int command_dm(object *op, char *params)
 		/* force a draw_look() */
 		CONTR(op)->socket.update_tile = 0;
 		CONTR(op)->update_los = 1;
-		CONTR(op)->write_buf[0] = '\0';
-
-		return 1;
 	}
-	else
-	{
-		CONTR(op)->write_buf[0] = '\0';
 
-		return 1;
-	}
+	return 1;
 }
 
 /**
