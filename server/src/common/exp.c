@@ -28,6 +28,7 @@
  * Experience management. */
 
 #include <global.h>
+#include <sproto.h>
 
 /**
  * Experience needed for each level.
@@ -485,6 +486,12 @@ void player_lvl_adj(object *who, object *op)
 		{
 			if (who)
 			{
+				/* If we leveled up praying or wizardry, we need to send a spell list update */
+				if (op->stats.sp == SK_PRAYING || op->stats.sp == SK_SPELL_CASTING)
+				{
+					send_spelllist_cmd(who, NULL, SPLIST_MODE_UPDATE);
+				}
+
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
 				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
 			}
