@@ -709,14 +709,11 @@ void command_new_char(char *params, int len, player *pl)
 		return;
 	}
 
-	if (!params || len > MAX_BUF)
+	if (!params || !len || len > MAX_BUF || sscanf(params, "%s %d %d %d %d %d %d %d\n", name, &stats[0], &stats[1], &stats[2], &stats[3], &stats[4], &stats[5], &stats[6]) != 8)
 	{
-		/* Kill socket */
 		pl->socket.status = Ns_Dead;
 		return;
 	}
-
-	sscanf(params, "%s %d %d %d %d %d %d %d\n", name, &stats[0], &stats[1], &stats[2], &stats[3], &stats[4], &stats[5], &stats[6]);
 
 	/* now: we have to verify every *bit* of what the client has sent us */
 
@@ -749,14 +746,7 @@ void command_new_char(char *params, int len, player *pl)
 	v = new_char_template[i].min_Str + new_char_template[i].min_Dex + new_char_template[i].min_Con + new_char_template[i].min_Int + new_char_template[i].min_Wis + new_char_template[i].min_Pow + new_char_template[i].min_Cha + new_char_template[i].max_p;
 
 	/* All bonus values put on the player? */
-	if (v != (stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6])
-			|| stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str
-			|| stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex
-			|| stats[2] < new_char_template[i].min_Con || stats[2] > new_char_template[i].max_Con
-			|| stats[3] < new_char_template[i].min_Int || stats[3] > new_char_template[i].max_Int
-			|| stats[4] < new_char_template[i].min_Wis || stats[4] > new_char_template[i].max_Wis
-			|| stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow
-			|| stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
+	if (v != (stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]) || stats[0] < new_char_template[i].min_Str || stats[0] > new_char_template[i].max_Str || stats[1] < new_char_template[i].min_Dex || stats[1] > new_char_template[i].max_Dex || stats[2] < new_char_template[i].min_Con || stats[2] > new_char_template[i].max_Con || stats[3] < new_char_template[i].min_Int || stats[3] > new_char_template[i].max_Int || stats[4] < new_char_template[i].min_Wis || stats[4] > new_char_template[i].max_Wis || stats[5] < new_char_template[i].min_Pow || stats[5] > new_char_template[i].max_Pow || stats[6] < new_char_template[i].min_Cha || stats[6] > new_char_template[i].max_Cha)
 	{
 		LOG(llevDebug, "CRACK: %s: Tried to crack NewChar! (%d - %d)\n", query_name(pl->ob, NULL), i, stats[0] + stats[1] + stats[2] + stats[3] + stats[4] + stats[5] + stats[6]);
 		pl->socket.status = Ns_Dead;
@@ -857,9 +847,7 @@ void command_face_request(char *params, int len, player *pl)
 {
 	int i, count;
 
-	(void) len;
-
-	if (!params)
+	if (!params || !len)
 	{
 		return;
 	}
@@ -870,10 +858,7 @@ void command_face_request(char *params, int len, player *pl)
 	{
 		if (esrv_send_face(&pl->socket, *((short *) (params + 1) + i), 0) == SEND_FACE_OUT_OF_BOUNDS)
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "CLIENT ERROR: Your client requested bad face (#%d). Connection closed!", *((short*)(params + 1) + i));
-
-			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Player: %s. Close connection.\n", *((short*)(params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
-
+			LOG(llevInfo, "CLIENT BUG: command_face_request (%d) out of bounds. Player: %s. Close connection.\n", *((short *) (params + 1) + i), pl->ob ? pl->ob->name : "(->ob <no name>)");
 			/* Kill socket */
 			pl->socket.status = Ns_Dead;
 			return;
@@ -881,14 +866,19 @@ void command_face_request(char *params, int len, player *pl)
 	}
 }
 
+/**
+ * The fire command.
+ *
+ * Sent by the client by pressing Ctrl + numpad.
+ * @param params Parameters.
+ * @param len Length.
+ * @param pl Player. */
 void command_fire(char *params, int len, player *pl)
 {
 	int dir = 0, type, tag1, tag2;
 	object *op = pl->ob;
 
-	(void) len;
-
-	if (!params)
+	if (!params || !len)
 	{
 		return;
 	}
@@ -900,6 +890,7 @@ void command_fire(char *params, int len, player *pl)
 	if (type == FIRE_MODE_SPELL)
 	{
 		char *tmp;
+
 		tag2 = -1;
 		tmp = strchr(params, ' ');
 		tmp = strchr(tmp + 1, ' ');
@@ -943,12 +934,11 @@ void command_fire(char *params, int len, player *pl)
  *
  * Command sends map width, map height, map name, map music, etc.
  * @param op Player object.
- * @param map Map structure. */
+ * @param map Map. */
 void send_mapstats_cmd(object *op, struct mapdef *map)
 {
 	char tmp[HUGE_BUF];
 
-	/* player: remember this is the map the client knows */
 	CONTR(op)->last_update = map;
 	snprintf(tmp, sizeof(tmp), "X%d %d %d %d %s %s", map->width, map->height, op->x, op->y, map->bg_music ? map->bg_music : "no_music", map->name);
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_MAPSTATS, tmp, strlen(tmp));
@@ -1020,7 +1010,7 @@ static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *s
  * @param spellname If specified, send only this spell name. Otherwise
  * send all spells the player knows.
  * @param mode One of @ref spelllist_modes. */
-void send_spelllist_cmd(object *op, char *spellname, int mode)
+void send_spelllist_cmd(object *op, const char *spellname, int mode)
 {
 	StringBuffer *sb = stringbuffer_new();
 	char *cp;
@@ -1122,12 +1112,11 @@ void send_skilllist_cmd(object *op, object *skillp, int mode)
 
 /**
  * Send skill ready command.
- * @param op Player object.
+ * @param op Object.
  * @param skillname Name of skill to ready. */
-void send_ready_skill(object *op, char *skillname)
+void send_ready_skill(object *op, const char *skillname)
 {
-	/* we should careful set a big enough buffer here */
-	char tmp[256];
+	char tmp[MAX_BUF];
 
 	snprintf(tmp, sizeof(tmp), "X%s", skillname);
 	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
@@ -1136,11 +1125,10 @@ void send_ready_skill(object *op, char *skillname)
 /**
  * Send to client the golem face and name.
  * @param golem Golem object (will grab golem owner from this).
- * @param mode Mode (release or new golem). */
+ * @param mode One of @ref golem_control_modes. */
 void send_golem_control(object *golem, int mode)
 {
-	/* we should careful set a big enough buffer here */
-	char tmp[256];
+	char tmp[MAX_BUF];
 
 	if (mode == GOLEM_CTR_RELEASE)
 	{
@@ -1166,12 +1154,11 @@ void generate_ext_title(player *pl)
 	char rank[32] = "";
 	char align[32] = "";
 
-	/* collect all information from the force objects. Just walk one time through them*/
-	for (walk = pl->ob->inv; walk != NULL; walk = walk->below)
+	for (walk = pl->ob->inv; walk; walk = walk->below)
 	{
 		if (!walk->name || !walk->arch->name)
 		{
-			LOG(llevDebug, "BUG?: object in %s doesn't have name/archname! (%s:%s)\n", pl->ob->name, walk->name ? walk->name : "<null>", walk->arch->name ? walk->arch->name : "<null>");
+			LOG(llevDebug, "BUG: Object in %s doesn't have name/archname! (%s:%s)\n", pl->ob->name, STRING_SAFE(walk->name), STRING_SAFE(walk->arch->name));
 			continue;
 		}
 

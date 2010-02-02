@@ -1001,7 +1001,6 @@ void fix_player(object *op)
 
 	if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER))
 	{
-		LOG(llevDebug,"fix_player(): called for object %s with FLAG_NO_FIX_PLAYER set\n", query_name(op, NULL));
 		return;
 	}
 

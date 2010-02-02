@@ -610,7 +610,7 @@ void give_initial_items(object *pl, treasurelist *items)
 {
 	object *op, *next = NULL;
 
-	if (pl->randomitems != NULL)
+	if (pl->randomitems)
 	{
 		create_treasure(items, pl, GT_ONLY_GOOD | GT_NO_VALUE, 1, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 	}
@@ -645,6 +645,12 @@ void give_initial_items(object *pl, treasurelist *items)
 			SET_FLAG(op, FLAG_IDENTIFIED);
 			CLEAR_FLAG(op, FLAG_CURSED);
 			CLEAR_FLAG(op, FLAG_DAMNED);
+		}
+
+		/* Apply initial armor */
+		if (IS_ARMOR(op))
+		{
+			manual_apply(pl, op, 0);
 		}
 
 		if (op->type == ABILITY)

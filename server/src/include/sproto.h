@@ -138,9 +138,9 @@ void command_new_char(char *params, int len, player *pl);
 void command_face_request(char *params, int len, player *pl);
 void command_fire(char *params, int len, player *pl);
 void send_mapstats_cmd(object *op, struct mapdef *map);
-void send_spelllist_cmd(object *op, char *spellname, int mode);
+void send_spelllist_cmd(object *op, const char *spellname, int mode);
 void send_skilllist_cmd(object *op, object *skillp, int mode);
-void send_ready_skill(object *op, char *skillname);
+void send_ready_skill(object *op, const char *skillname);
 void send_golem_control(object *golem, int mode);
 void generate_ext_title(player *pl);
 
