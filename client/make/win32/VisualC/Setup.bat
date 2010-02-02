@@ -14,10 +14,6 @@ rem SDL dlls
 ..\tools\gunzip -c sdl_dll.tar.gz > sdl_dll.tar
 ..\tools\tar xvf sdl_dll.tar
 
-rem cURL
-..\tools\gunzip -c curl.tar.gz > curl.tar
-..\tools\tar xvf curl.tar
-
 rem ====================================
 rem Copy the dlls to main directory.
 rem ====================================
