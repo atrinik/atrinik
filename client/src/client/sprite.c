@@ -183,7 +183,7 @@ void sprite_free_sprite(_Sprite *sprite)
 
 	if (sprite->dark_level)
 	{
-		for (i = 1; i < DARK_LEVELS; i++)
+		for (i = 0; i < DARK_LEVELS; i++)
 		{
 			if (sprite->dark_level[i])
 			{
