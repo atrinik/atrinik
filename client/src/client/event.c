@@ -2979,6 +2979,7 @@ void check_menu_keys(int menu, int key)
 					new_char(&new_character);
 					GameStatus = GAME_STATUS_WAITFORPLAY;
 					cpl.menustatus = MENU_NO;
+					reset_keys();
 
 					break;
 
