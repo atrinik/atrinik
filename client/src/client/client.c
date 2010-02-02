@@ -463,7 +463,7 @@ static int load_picture_from_pack(int num)
 		face_flag_extension(num, FaceList[num].name);
 	}
 
-	free(rwop);
+	SDL_FreeRW(rwop);
 	free(pbuf);
 
 	return 0;

@@ -95,7 +95,7 @@ void SYSTEM_Start()
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
 
-	free(icon);
+	SDL_FreeSurface(icon);
 
 	logstream = fopen_wrapper(LOG_FILE, "w");
 }
