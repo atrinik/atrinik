@@ -56,6 +56,12 @@ typedef signed char sint8;
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+/* Just so that the entries in proto.h don't error on this... */
+#ifndef INSTALL_SOUND
+#define Mix_Chunk int
+#define Mix_Music int
+#endif
+
 #ifdef INSTALL_SOUND
 #include <SDL_mixer.h>
 #endif

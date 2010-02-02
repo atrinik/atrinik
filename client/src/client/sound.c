@@ -170,8 +170,10 @@ static char *spell_sound_files[SPELL_SOUND_MAX] =
 /** This value is defined in server too - change only both at once */
 #define MAX_SOUND_DISTANCE 12
 
+#ifdef INSTALL_SOUND
 static void musicDone();
 static void sound_start_music(char *fname, int vol, int fade, int loop);
+#endif
 
 /**
  * Initialize the sound system */
@@ -301,6 +303,10 @@ void calculate_map_sound(int soundnr, int xoff, int yoff)
 		pane *= -1;
 
 	sound_play_effect(soundnr, pane, distance);
+#else
+	(void) soundnr;
+	(void) xoff;
+	(void) yoff;
 #endif
 }
 
@@ -342,6 +348,9 @@ int sound_play_effect(int soundid, int pan, int vol)
 
 	return tmp;
 #else
+	(void) soundid;
+	(void) pan;
+	(void) vol;
 	return -1;
 #endif
 }
@@ -383,6 +392,9 @@ void sound_play_one_repeat(int soundid, int special_id)
 	}
 
 	special_sounds[special_id] = tmp;
+#else
+	(void) soundid;
+	(void) special_id;
 #endif
 }
 
@@ -440,10 +452,16 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
 		music_new.flag = 0;
 		sound_start_music(fname, vol2, fade, loop);
 	}
-
+#else
+	(void) fname;
+	(void) vol;
+	(void) fade;
+	(void) loop;
+	(void) mode;
 #endif
 }
 
+#ifdef INSTALL_SOUND
 /**
  * Start music.
  * @param fname File name in the media directory
@@ -452,7 +470,6 @@ void sound_play_music(char *fname, int vol, int fade, int loop, int mode)
  * @param loop Should the music loop? */
 static void sound_start_music(char *fname, int vol, int fade, int loop)
 {
-#ifdef INSTALL_SOUND
 	char buf[4096];
 
 	if (SoundSystem != SOUND_SYSTEM_ON)
@@ -489,8 +506,8 @@ static void sound_start_music(char *fname, int vol, int fade, int loop)
 		Mix_PlayMusic(music.data, loop);
 
 	Mix_HookMusicFinished(musicDone);
-#endif
 }
+#endif
 
 /**
  * Fade out music.
@@ -520,14 +537,16 @@ void sound_fadeout_music(int i)
 	}
 
 	music_global_fade = 0;
+#else
+	(void) i;
 #endif
 }
 
+#ifdef INSTALL_SOUND
 /**
  * Callback function from current played music sound */
 static void musicDone()
 {
-#ifdef INSTALL_SOUND
 	if (music.data)
 	{
 		Mix_HaltMusic();
@@ -543,5 +562,5 @@ static void musicDone()
 	}
 
 	music_global_fade = 0;
-#endif
 }
+#endif
