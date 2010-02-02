@@ -1067,14 +1067,14 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 	}
 
 	/* Monster doesn't have enough spell-points */
-	if (head->stats.sp < SP_level_spellpoint_cost(head, sp_typ))
+	if (head->stats.sp < SP_level_spellpoint_cost(head, sp_typ, -1))
 	{
 		return 0;
 	}
 
 	ability = (spell_item->type == ABILITY && QUERY_FLAG(spell_item, FLAG_IS_MAGICAL));
 
-	head->stats.sp -= SP_level_spellpoint_cost(head, sp_typ);
+	head->stats.sp -= SP_level_spellpoint_cost(head, sp_typ, -1);
 	/* Add default cast time from spell force to monster */
 	head->last_grace += spell_item->last_grace;
 

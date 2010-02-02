@@ -417,13 +417,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 			if (!(QUERY_FLAG(op, FLAG_WIZ)))
 			{
-				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type))
+				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 				{
 					new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
 					return 0;
 				}
 
-				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type))
+				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
 				{
 					new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
 					return 0;
@@ -554,7 +554,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			return 0;
 		}
 
-		return random_roll(1, SP_level_spellpoint_cost(caster, type), op, PREFER_LOW);
+		return random_roll(1, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
 	}
 
 	if (item == spellNormal && op->type == PLAYER && !(s->flags & SPELL_DESC_WIS))
@@ -564,7 +564,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		if (failure < 0)
 		{
 			new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
-			return random_roll(0, SP_level_spellpoint_cost(caster, type), op, PREFER_LOW);
+			return random_roll(0, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
 		}
 	}
 
@@ -714,7 +714,7 @@ dirty_jump:
 		return success;
 	}
 
-	return success ? SP_level_spellpoint_cost(caster, type) : 0;
+	return success ? SP_level_spellpoint_cost(caster, type, -1) : 0;
 }
 
 /**
@@ -2434,11 +2434,13 @@ int SP_level_strength_adjust(object *caster, int spell_type)
  * the sp cost related to the effectiveness.
  * @param caster What is casting the spell.
  * @param spell_type Spell ID.
+ * @param caster_level Level of caster. If -1, will use SK_level() to
+ * determine caster's level.
  * @return Spell points cost. */
-int SP_level_spellpoint_cost(object *caster, int spell_type)
+int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
 	spell *s = find_spell(spell_type);
-	int level = casting_level(caster, SK_level(caster), spell_type), sp;
+	int level = casting_level(caster, caster_level == -1 ? SK_level(caster) : caster_level, spell_type), sp;
 
 	if (spells[spell_type].spl)
 	{

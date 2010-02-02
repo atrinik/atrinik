@@ -421,7 +421,7 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude);
 int SP_level_dam_adjust(object *caster, int spell_type);
 int SP_level_dam_adjust2(object *caster, int spell_type, int base_dam);
 int SP_level_strength_adjust(object *caster, int spell_type);
-int SP_level_spellpoint_cost(object *caster, int spell_type);
+int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
 int look_up_spell_by_name(object *op, const char *spname);

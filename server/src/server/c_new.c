@@ -304,7 +304,7 @@ int command_target(object *op, char *params)
 	int jump_in, jump_in_n = 0, get_ob_flag;
 	int n, nt, xt, yt, block;
 
-	if (!op || !op->map || op->type != PLAYER || !CONTR(op) || !params || params[0] == 0)
+	if (!op || !op->map || op->type != PLAYER || !CONTR(op) || !params || params[0] == '\0')
 	{
 		return 1;
 	}
@@ -989,51 +989,56 @@ static char spelllist_determine_path(object *op, int spell_number)
  * which is then sent to the client as the spell list command.
  * @param op Object.
  * @param spell_number ID of the spell to add.
- * @param buf Buffer to add to.
- * @param size Size of buf. */
-static void add_spell_to_spelllist(object *op, int spell_number, char *buf, size_t size)
+ * @param sb StringBuffer instance to add to. */
+static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *sb)
 {
-	object *spell_skill = CONTR(op)->skill_ptr[SK_SPELL_CASTING], *prayer_skill = CONTR(op)->skill_ptr[SK_PRAYING];
-	char tmp[MAX_BUF];
+	int cost = 0;
 
-	op->chosen_skill = spells[spell_number].type == SPELL_TYPE_PRIEST ? prayer_skill : spell_skill;
+	/* Determine cost of the spell */
+	if (spells[spell_number].type == SPELL_TYPE_PRIEST && CONTR(op)->skill_ptr[SK_PRAYING])
+	{
+		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_PRAYING]->level);
+	}
+	else if (spells[spell_number].type == SPELL_TYPE_WIZARD && CONTR(op)->skill_ptr[SK_SPELL_CASTING])
+	{
+		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
+	}
 
 	if (COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1027))
 	{
-		snprintf(tmp, sizeof(tmp), "/%s:%d:%c", spells[spell_number].name, (spells[spell_number].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spell_number].type == SPELL_TYPE_WIZARD && spell_skill) ? SP_level_spellpoint_cost(op, spell_number) : 0, spelllist_determine_path(op, spell_number));
+		stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
 	}
 	else
 	{
-		snprintf(tmp, sizeof(tmp), "/%s:%d", spells[spell_number].name, (spells[spell_number].type == SPELL_TYPE_PRIEST && prayer_skill) || (spells[spell_number].type == SPELL_TYPE_WIZARD && spell_skill) ? SP_level_spellpoint_cost(op, spell_number) : 0);
+		stringbuffer_append_printf(sb, "/%s:%d", spells[spell_number].name, cost);
 	}
-
-	strncat(buf, tmp, size - strlen(buf) - 1);
 }
 
 /**
  * Send spell list command to the client.
- * @param op Player object.
- * @param spellname If specified, send only this spell name.
- * Otherwise send all spells the player knows.
- * @param mode Mode. */
+ * @param op Player.
+ * @param spellname If specified, send only this spell name. Otherwise
+ * send all spells the player knows.
+ * @param mode One of @ref spelllist_modes. */
 void send_spelllist_cmd(object *op, char *spellname, int mode)
 {
-	/* we should careful set a big enough buffer here */
-	char tmp[HUGE_BUF * 4];
-	object *old_skill = op->chosen_skill;
+	StringBuffer *sb = stringbuffer_new();
+	char *cp;
+	size_t cp_len;
 
-	snprintf(tmp, sizeof(tmp), "X%d ", mode);
+	stringbuffer_append_printf(sb, "X%d ", mode);
 
 	/* Send single name */
 	if (spellname)
 	{
-		add_spell_to_spelllist(op, look_up_spell_name(spellname), tmp, sizeof(tmp));
+		add_spell_to_spelllist(op, look_up_spell_name(spellname), sb);
 	}
+	/* Send all. If the player is a wizard, send all spells in the game. */
 	else
 	{
-		int i, spnum;
+		int i, spnum, num_spells = QUERY_FLAG(op, FLAG_WIZ) ? NROFREALSPELLS : CONTR(op)->nrofknownspells;
 
-		for (i = 0; i < (QUERY_FLAG(op, FLAG_WIZ) ? NROFREALSPELLS : CONTR(op)->nrofknownspells); i++)
+		for (i = 0; i < num_spells; i++)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
@@ -1044,12 +1049,14 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 				spnum = CONTR(op)->known_spells[i];
 			}
 
-			add_spell_to_spelllist(op, spnum, tmp, sizeof(tmp));
+			add_spell_to_spelllist(op, spnum, sb);
 		}
 	}
 
-	op->chosen_skill = old_skill;
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, tmp, strlen(tmp));
+	cp_len = sb->pos;
+	cp = stringbuffer_finish(sb);
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, cp, cp_len);
+	free(cp);
 }
 
 /**
