@@ -67,7 +67,7 @@
  * need to allocate and deallocate the same buffer over and over again
  * at the price of using a bit of extra memory. It also makes the code
  * simpler. */
-#define MAXSOCKBUF (256 * 4096)
+#define MAXSOCKBUF (256 * 1024)
 
 /**
  * The number of our dark levels.
