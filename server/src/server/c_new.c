@@ -1060,62 +1060,64 @@ void send_spelllist_cmd(object *op, char *spellname, int mode)
 }
 
 /**
+ * Helper function for send_skilllist_cmd(), adds one skill to buffer
+ * which is then sent to the client as the skill list command.
+ * @param op Object.
+ * @param skill Skill object to add.
+ * @param sb StringBuffer instance to add to. */
+static void add_skill_to_skilllist(object *skill, StringBuffer *sb)
+{
+	/* Normal skills */
+	if (skill->last_eat == 1)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|%d", skill->name, skill->level, skill->stats.exp);
+	}
+	/* 'Buy level' skills */
+	else if (skill->last_eat == 2)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-2", skill->name, skill->level);
+	}
+	/* No level skills */
+	else
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-1", skill->name, skill->level);
+	}
+}
+
+/**
  * Send skill list to the client.
- * @param op Player object.
- * @param skillp Skill object.
- * @param mode Mode. */
+ * @param op Object.
+ * @param skillp Skill object; if not NULL, will only send this skill.
+ * @param mode One of @ref spelllist_modes. */
 void send_skilllist_cmd(object *op, object *skillp, int mode)
 {
-	object *tmp2;
-	char buf[256];
-	/* we should careful set a big enough buffer here */
-	char tmp[HUGE_BUF * 4];
+	StringBuffer *sb = stringbuffer_new();
+	char *cp;
+	size_t cp_len;
+
+	stringbuffer_append_printf(sb, "X%d ", mode);
 
 	if (skillp)
 	{
-		/* Normal skills */
-		if (skillp->last_eat == 1)
-		{
-			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|%d", mode, skillp->name, skillp->level, skillp->stats.exp);
-		}
-		/* "buy level" skills */
-		else if (skillp->last_eat == 2)
-		{
-			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-2", mode, skillp->name, skillp->level);
-		}
-		/* No level skills */
-		else
-		{
-			snprintf(tmp, sizeof(tmp), "X%d /%s|%d|-1", mode, skillp->name, skillp->level);
-		}
+		add_skill_to_skilllist(skillp, sb);
 	}
 	else
 	{
-		snprintf(tmp, sizeof(tmp), "X%d ", mode);
+		int i;
 
-		for (tmp2 = op->inv; tmp2; tmp2 = tmp2->below)
+		for (i = 0; i < NROFSKILLS; i++)
 		{
-			if (tmp2->type == SKILL && IS_SYS_INVISIBLE(tmp2))
+			if (CONTR(op)->skill_ptr[i])
 			{
-				if (tmp2->last_eat == 1)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
-				}
-				else if (tmp2->last_eat == 2)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
-				}
-
-				strncat(tmp, buf, sizeof(tmp) - strlen(tmp) - 1);
+				add_skill_to_skilllist(CONTR(op)->skill_ptr[i], sb);
 			}
 		}
 	}
 
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
+	cp_len = sb->pos;
+	cp = stringbuffer_finish(sb);
+	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
+	free(cp);
 }
 
 /**
