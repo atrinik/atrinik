@@ -69,7 +69,7 @@ elif text[0] == "remove":
 	if not text[1]:
 		me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.")
 	else:
-		member_name = text[1].title()
+		member_name = text[1].capitalize()
 		member = guild.member(member_name)
 
 		if member == None:
@@ -89,7 +89,7 @@ elif text[0] == "approve":
 	if not text[1]:
 		me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.")
 	else:
-		member_name = text[1].title()
+		member_name = text[1].capitalize()
 		member = guild.member(member_name)
 
 		if member == None:
@@ -117,7 +117,7 @@ elif text[0] == "remove_admin":
 	if not text[1]:
 		me.SayTo(activator, "\nThe remove_admin command is used to take administrator rights from a guild member.")
 	else:
-		member_name = text[1].title()
+		member_name = text[1].capitalize()
 		member = guild.member(member_name)
 
 		if member == None:
@@ -139,7 +139,7 @@ elif text[0] == "make_admin":
 	if not text[1]:
 		me.SayTo(activator, "\nThe make_admin command is used to give administrator rights to a guild member.")
 	else:
-		member_name = text[1].title()
+		member_name = text[1].capitalize()
 		member = guild.member(member_name)
 
 		if member == None:
@@ -158,7 +158,7 @@ elif text[0] == "add":
 		if not text[1]:
 			me.SayTo(activator, "\nThe add command can be used by DMs to directly add a member to the guild.")
 		else:
-			member_name = text[1].title()
+			member_name = text[1].capitalize()
 			member = guild.member(member_name)
 
 			if not PlayerExists(member_name):
@@ -177,7 +177,7 @@ elif text[0] == "founder":
 		if not text[1]:
 			me.SayTo(activator, "\nThe founder command sets a founder of the guild.")
 		else:
-			member_name = text[1].title()
+			member_name = text[1].capitalize()
 			member = guild.member(member_name)
 
 			if member == None:

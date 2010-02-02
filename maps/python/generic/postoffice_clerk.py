@@ -52,7 +52,7 @@ def check_send(player, object):
 if text[0] == "send":
 	if len(text) > 1:
 		marked = activator.FindMarkedObject()
-		text[1] = text[1].title()
+		text[1] = text[1].capitalize()
 
 		if check_send(text[1], marked):
 			me.SayTo(activator, "\nIt will cost you %s to send the '%s'. If you are pleased with that, say ^sendto %s^ to send the item." % (activator.ShowCost(post.get_price(marked)), marked.GetName(), text[1]))
@@ -62,7 +62,7 @@ if text[0] == "send":
 # Actually send an item to someone.
 elif text[0] == "sendto" and len(text) > 1:
 	marked = activator.FindMarkedObject()
-	text[1] = text[1].title()
+	text[1] = text[1].capitalize()
 
 	if check_send(text[1], marked):
 		if activator.PayAmount(post.get_price(marked)):
