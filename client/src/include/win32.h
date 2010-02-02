@@ -57,7 +57,9 @@
 #include <SDL/SDL_image.h>
 
 #define _malloc(__d,__s) malloc(__d)
-
+#define snprintf _snprintf
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #define inline __inline
 
 #define HAVE_STRICMP
