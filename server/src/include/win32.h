@@ -149,6 +149,8 @@
 #	define socklen_t int
 #endif
 
+#define sleep(x) Sleep(x * 1000)
+
 /* struct dirent - same as Unix */
 
 typedef struct dirent

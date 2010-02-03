@@ -6,6 +6,9 @@ rem cURL
 gunzip -c curl.tar.gz > curl.tar
 tar xvf curl.tar
 
+gunzip -c pthread.tar.gz > pthread.tar
+tar xvf pthread.tar
+
 rem ====================================
 rem Clean up.
 rem ====================================
