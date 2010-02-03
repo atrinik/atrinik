@@ -206,39 +206,39 @@ void remove_party(partylist_struct *party)
  * @param pl Player. */
 void PartyCmd(char *buf, int len, player *pl)
 {
-	char tmp[HUGE_BUF * 16], tmpbuf[MAX_BUF];
 	partylist_struct *party;
 	objectlink *ol;
+	StringBuffer *sb = NULL;
+	char tmpbuf[MAX_BUF];
 
 	(void) len;
-	tmp[0] = '\0';
 
 	/* List command */
 	if (!strcmp(buf, "list"))
 	{
-		sprintf(tmp, "Xlist");
+		sb = stringbuffer_new();
+		stringbuffer_append_string(sb, "Xlist");
 
 		for (party = partylist; party; party = party->next)
 		{
-			snprintf(tmpbuf, sizeof(tmpbuf), "\nName: %s\tLeader: %s", party->name, party->leader);
-			strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmp) - 1);
+			stringbuffer_append_printf(sb, "\nName: %s\tLeader: %s", party->name, party->leader);
 		}
 	}
 	/* Who command */
 	else if (!strcmp(buf, "who"))
 	{
-		sprintf(tmp, "Xwho");
-
 		if (!pl->party)
 		{
 			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You are not a member of any party.");
 			return;
 		}
 
+		sb = stringbuffer_new();
+		stringbuffer_append_string(sb, "Xwho");
+
 		for (ol = pl->party->members; ol; ol = ol->next)
 		{
-			snprintf(tmpbuf, sizeof(tmpbuf), "\nName: %s\tMap: %s\tLevel: %d", ol->objlink.ob->name, ol->objlink.ob->map->name, ol->objlink.ob->level);
-			strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmp) - 1);
+			stringbuffer_append_printf(sb, "\nName: %s\tMap: %s\tLevel: %d", ol->objlink.ob->name, ol->objlink.ob->map->name, ol->objlink.ob->level);
 		}
 	}
 	/* Join command */
@@ -269,8 +269,6 @@ void PartyCmd(char *buf, int len, player *pl)
 			return;
 		}
 
-		sprintf(tmp, "Xjoin");
-
 		if (pl->party != party)
 		{
 			/* If party password is not set or they've typed correct password... */
@@ -280,8 +278,9 @@ void PartyCmd(char *buf, int len, player *pl)
 				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You have joined party: %s", party->name);
 				snprintf(tmpbuf, sizeof(tmpbuf), "%s joined party %s.", pl->ob->name, party->name);
 				send_party_message(party, tmpbuf, PARTY_MESSAGE_STATUS, pl->ob);
-				snprintf(tmpbuf, sizeof(tmpbuf), "\nsuccess\n%s", party->name);
-				strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmp) - 1);
+
+				sb = stringbuffer_new();
+				stringbuffer_append_printf(sb, "Xjoin\nsuccess\n%s", party->name);
 			}
 			/* Party password was typed but it wasn't correct. */
 			else if (partypassword[0] != '\0')
@@ -293,8 +292,8 @@ void PartyCmd(char *buf, int len, player *pl)
 			else
 			{
 				new_draw_info_format(NDI_UNIQUE | NDI_YELLOW, pl->ob, "The party %s requires a password. Please type it now, or press ESC to cancel joining.", party->name);
-				snprintf(tmpbuf, sizeof(tmpbuf), "\npassword\n%s", party->name);
-				strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmp) - 1);
+				sb = stringbuffer_new();
+				stringbuffer_append_printf(sb, "Xjoin\npassword\n%s", party->name);
 			}
 		}
 	}
@@ -344,8 +343,12 @@ void PartyCmd(char *buf, int len, player *pl)
 	}
 
 	/* If we've got some data to send, send it. */
-	if (tmp[0] != '\0')
+	if (sb)
 	{
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_PARTY, tmp, strlen(tmp));
+		size_t cp_len = sb->pos;
+		char *cp = stringbuffer_finish(sb);
+
+		Write_String_To_Socket(&pl->socket, BINARY_CMD_PARTY, cp, cp_len);
+		free(cp);
 	}
 }
