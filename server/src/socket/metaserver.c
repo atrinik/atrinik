@@ -27,9 +27,9 @@
  * @file
  * Metaserver updating related code. */
 
+#include <pthread.h>
 #include <global.h>
 #include <curl/curl.h>
-#include <pthread.h>
 
 static void *metaserver_thread(void *junk);
 
