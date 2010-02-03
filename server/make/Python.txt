@@ -1,24 +1,7 @@
-Python Scripting Engine
+Python
 
-The server uses the python scripting engine.
+The server makes use of Python 3.1. You will need to download Python 3.1 from
+the Python homepage [1] to compile the server, or adjust the project files by
+hand.
 
-To compile the server and run the python plugin, you must install python
-on your computer.
-
-You can download a binary package here:
-
-http://www.python.org/
-
-The default python directory for the project & makefiles is D:/python22 and the
-used version python 2.2.1 (updating the version should be no problem but it
-should be at least 2.2.1).
-If you install your python in a different directory or use a different version,
-be sure you update the python directory entries in the project & makefiles too.
-
-If you want compile the server as DEBUG version, you must download the python
-source and build a python debug .lib and .dll - the python binary packages comes
-without debug stuff.
-
-Copy the pythonXX_d.lib in the same directory your pythonXX.lib is.
-Copy the pythonXX_d.dll in the same directory your pyythonXX.dll is
-(for windows, the .dll file comes in the windows/system directory).
+[1] http://www.python.org/
