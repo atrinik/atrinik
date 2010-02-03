@@ -31,22 +31,65 @@
 // Load the common functions
 require_once('common.php');
 
-// All the data that _MUST_ be sent by the server
+// The fields we need to look through
 $fields = array(
-	'hostname',
-	'num_players',
-	'version',
-	'text_comment',
-	'port',
+	'hostname' => array(
+		'type' => 'string',
+	),
+	'num_players' => array(
+		'type' => 'int',
+		'empty' => true,
+	),
+	'version' => array(
+		'type' => 'string',
+	),
+	'text_comment' => array(
+		'type' => 'string',
+	),
+	'port' => array(
+		'type' => 'int',
+	),
+	'players' => array(
+		'type' => 'string',
+		'required' => false,
+		'empty' => true,
+	),
 );
 
-// Check the POST values
-foreach ($fields as $field)
+// Check the POST values. All data is sanitized here.
+foreach ($fields as $field => $field_data)
 {
-	// If it's not set, or empty and not 0 (ie, number of players)
-	if (!isset($_POST[$field]) || (empty($_POST[$field]) && $_POST[$field] != 0))
+	// Not set but it's required?
+	if (!isset($_POST[$field]))
 	{
-		// Show a message, log it and die.
+		if (!isset($field_data['required']) || $field_data['required'])
+		{
+			echo 'Did not get required post variable: ', $field, "\n";
+			log_message('ERROR: Did not get required POST variable from server: ' . $field . "\n");
+			die;
+		}
+		else
+		{
+			$_POST[$field] = '';
+		}
+	}
+
+	// Trim the right and left whitespace.
+	$_POST[$field] = trim($_POST[$field]);
+
+	// Sanitize the data
+	if ($field_data['type'] == 'string')
+	{
+		$_POST[$field] = db_sanitize($_POST[$field]);
+	}
+	elseif ($field_data['type'] == 'int')
+	{
+		$_POST[$field] = (int) $_POST[$field];
+	}
+
+	// Set, but we need a value for it?
+	if ((!isset($field_data['empty']) || !$field_data['empty']) && empty($_POST[$field]))
+	{
 		echo 'Did not get required post variable: ', $field, "\n";
 		log_message('ERROR: Did not get required POST variable from server: ' . $field . "\n");
 		die;
@@ -66,24 +109,22 @@ $ip = gethostbyname($_POST['hostname']);
 // Sanity checks
 if ($ip != $_SERVER['REMOTE_ADDR'] && $hostname != $_POST['hostname'])
 {
-    echo 'Neither forward nor reverse DNS look corresponds to incoming IP address.', "\n";
+    echo 'Neither forward nor reverse DNS look corresponding to incoming IP address.', "\n";
     echo 'Incoming IP: ', $_SERVER['REMOTE_ADDR'], ', DNS of that: ', $hostname, "\n";;
     echo 'User specified hostname: ', $_POST['hostname'], ' IP of that hostname: ', $ip, "\n";;
 
-    log_message('WARNING: ' . $_SERVER['REMOTE_ADDR'] . ' does not have correct hostname set', "\n");
+    log_message('WARNING: ' . $_SERVER['REMOTE_ADDR'] . ' does not have correct hostname set' . "\n");
     die;
 }
 
-// Are we blacklisted entry?
-$query = '
+// Send the query
+$request = db_query('
 	SELECT *
 	FROM blacklist
-	WHERE (\'' . db_sanitize($_SERVER['REMOTE_ADDR']) . '\' REGEXP hostname) OR (\'' .
-	db_sanitize($hostname) . '\' REGEXP hostname) OR (\'' .
-	db_sanitize($_POST['hostname']) . '\' REGEXP hostname)';
-
-// Send the query
-$request = db_query($query);
+	WHERE
+		(\'' . $_SERVER['REMOTE_ADDR'] . '\' REGEXP hostname)
+		OR (\'' . $hostname . '\' REGEXP hostname)
+		OR (\'' . $_POST['hostname'] . '\' REGEXP hostname)');
 
 // Go through the returned rows, any first row returned is a match
 while ($row = db_fetch_assoc($request))
@@ -96,33 +137,27 @@ while ($row = db_fetch_assoc($request))
 db_free_result($request);
 
 // Query to update the server info
-$query = '
+db_query('
 	UPDATE servers
 	SET
-		ip_address = \'' . db_sanitize($_SERVER['REMOTE_ADDR']) . '\',
-		port = ' . (is_numeric($_POST['port']) ? (int) $_POST['port'] : 13327) . ',
-		num_players = ' . (is_numeric($_POST['num_players']) ? (int) $_POST['num_players'] : 0) . ',
-		version = \'' . db_sanitize($_POST['version']) . '\',
-		text_comment = \'' . db_sanitize($_POST['text_comment']) . '\',
-		last_update = ' . time() . '
+		ip_address = \'' . $_SERVER['REMOTE_ADDR'] . '\',
+		port = ' . $_POST['port'] . ',
+		num_players = ' . $_POST['num_players'] . ',
+		version = \'' . $_POST['version'] . '\',
+		text_comment = \'' . $_POST['text_comment'] . '\',
+		last_update = ' . time() . ',
+		players = \'' . $_POST['players'] . '\'
 	WHERE
-		hostname = \'' . db_sanitize($_POST['hostname']) . '\'';
-
-// Send the query
-db_query($query);
+		hostname = \'' . $_POST['hostname'] . '\'');
 
 // If no rows were affected (there wasn't a row to update), this is a new insert
 if (db_affected_rows() < 1)
 {
-	// Insert query
-	$query = '
-	INSERT INTO servers
-	(ip_address, port, hostname, num_players, version, text_comment, last_update)
-	VALUES
-	(\'' . db_sanitize($_SERVER['REMOTE_ADDR']) . '\', ' . (is_numeric($_POST['port']) ? (int) $_POST['port'] : 13327) . ', \'' . db_sanitize($_POST['hostname']) . '\', ' . (is_numeric($_POST['num_players']) ? (int) $_POST['num_players'] : 0) . ', \'' . db_sanitize($_POST['version']) . '\', \'' . db_sanitize($_POST['text_comment']) . '\', ' . time() . ')';
-
-	// Run the query
-	db_query($query);
+	db_query('
+		INSERT INTO servers
+		(ip_address, port, hostname, num_players, version, text_comment, last_update, players)
+		VALUES
+		(\'' . $_SERVER['REMOTE_ADDR'] . '\', ' . $_POST['port'] . ', \'' . $_POST['hostname'] . '\', ' . $_POST['num_players'] . ', \'' . $_POST['version'] . '\', \'' . $_POST['text_comment'] . '\', ' . time() . ', \'' . $_POST['players'] . '\')');
 }
 
 ?>

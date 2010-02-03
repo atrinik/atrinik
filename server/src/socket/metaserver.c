@@ -29,17 +29,17 @@
 
 #include <global.h>
 #include <curl/curl.h>
-#ifndef WIN32
 #include <pthread.h>
-#endif
 
-/** The time in seconds for timeout upon connecting. */
-#define METASERVER_TIMEOUT 3
+static void *metaserver_thread(void *junk);
 
 /**
  * Init metaserver. */
 void metaserver_init()
 {
+	int ret;
+	pthread_t thread_id;
+
 	if (!settings.meta_on)
 	{
 		return;
@@ -47,6 +47,13 @@ void metaserver_init()
 
 	/* Init global cURL */
 	curl_global_init(CURL_GLOBAL_ALL);
+
+	ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
+
+	if (ret)
+	{
+		LOG(llevBug, "BUG: metaserver_init(): Failed to create thread.\n");
+	}
 }
 
 /**
@@ -68,27 +75,29 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 }
 
 /**
- * The actual function doing the metaserver updating, called by
- * pthread_create() in metaserver_update().
- * @return Always returns NULL. */
-void *metaserver_thread(void *dummy)
+ * Do the metaserver updating. */
+static void metaserver_update()
 {
 	char buf[MAX_BUF], num_players = 0;
 	player *pl;
-	struct curl_httppost *formpost = NULL;
-	struct curl_httppost *lastptr = NULL;
+	struct curl_httppost *formpost = NULL, *lastptr = NULL;
 	CURL *curl;
 	CURLcode res = 0;
-	time_t now = time(NULL);
+	StringBuffer *sb = stringbuffer_new();
+	char *cp;
 
-	(void) dummy;
-
-	/* We could use socket_info.nconns, but that is not quite as accurate,
-	 * as connections in the progress of being established, are listening
-	 * but don't have a player, etc. This operation below should not be that
-	 * costly. */
 	for (pl = first_player; pl; pl = pl->next)
 	{
+		if (pl->state == ST_PLAYING && !pl->ms_privacy && !pl->dm_stealth)
+		{
+			if (sb->pos)
+			{
+				stringbuffer_append_string(sb, ":");
+			}
+
+			stringbuffer_append_string(sb, pl->quick_name);
+		}
+
 		num_players++;
 	}
 
@@ -109,16 +118,15 @@ void *metaserver_thread(void *dummy)
 	snprintf(buf, sizeof(buf), "%d", settings.csport);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
 
+	cp = stringbuffer_finish(sb);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, cp, CURLFORM_END);
+	free(cp);
+
 	/* Init "easy" cURL */
 	curl = curl_easy_init();
 
 	if (curl)
 	{
-#ifdef WIN32
-		/* Set connection timeout value in case metaserver is down or something */
-		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, METASERVER_TIMEOUT);
-#endif
-
 		/* What URL that receives this POST */
 		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
@@ -144,38 +152,23 @@ void *metaserver_thread(void *dummy)
 	/* Output info that the data was updated. */
 	if (!res)
 	{
-		LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.16s.\n", ctime(&now));
-	}
+		time_t now = time(NULL);
 
-	return NULL;
+		LOG(llevInfo, "INFO: metaserver_update(): Sent data at %.19s.\n", ctime(&now));
+	}
 }
 
 /**
- * Update the metaserver info about this server. */
-void metaserver_update()
+ * Send metaserver updates in a thread.
+ * @return NULL. */
+static void *metaserver_thread(void *junk)
 {
-#ifndef WIN32
-	pthread_t thread_id;
-	int ret;
-#endif
-
-	/* If the setting is off, just return */
-	if (!settings.meta_on)
+	while (1)
 	{
-		return;
+		metaserver_update();
+		sleep(600);
 	}
 
-#ifndef WIN32
-	/* Create a thread to update the data */
-	ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
-
-	if (ret)
-	{
-		LOG(llevBug, "BUG: metaserver_update(): Failed to create thread.\n");
-	}
-
-	pthread_detach(thread_id);
-#else
-	metaserver_thread(NULL);
-#endif
+	(void) junk;
+	return NULL;
 }

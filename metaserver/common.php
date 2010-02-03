@@ -45,14 +45,18 @@ function log_message($message)
 
 	// No log file specified?
 	if (!isset($logfile) || empty($logfile))
+	{
 		return;
+	}
 
 	// Open the log file
 	$fp = fopen($logfile, 'a');
 
 	// Failed to open?
 	if (!$fp)
+	{
 		return;
+	}
 
 	// Write it to the file
 	fwrite($fp, $message);

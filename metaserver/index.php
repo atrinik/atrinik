@@ -33,21 +33,21 @@ header('Content-type: text/plain');
 
 require_once('common.php');
 
-// Query to select servers
-$query = '
+// Select the servers
+$request = db_query('
 	SELECT ip_address, port, hostname, num_players, version, text_comment
 	FROM servers
-	WHERE last_update > (' . (time() - $last_update_timeout) . ')';
-
-// Send the query
-$request = db_query($query);
+	WHERE last_update > (' . (time() - $last_update_timeout) . ')
+	ORDER BY roworder DESC');
 
 // Calculate the number of rows
 $num_rows = db_num_rows($request);
 
 // No rows?
 if ($num_rows < 1)
-    die;
+{
+	die;
+}
 
 $i = 0;
 // Now go through the rows
@@ -61,7 +61,9 @@ while ($row = db_fetch_assoc($request))
 
 	// If this is not last row, echo a line break
 	if ($i < $num_rows)
+	{
 		echo "\n";
+	}
 }
 
 // Free the request

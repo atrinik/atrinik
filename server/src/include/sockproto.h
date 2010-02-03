@@ -57,8 +57,6 @@ void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
 
 /* metaserver.c */
 void metaserver_init();
-void *metaserver_thread(void *dummy);
-void metaserver_update();
 
 /* request.c */
 void SetUp(char *buf, int len, socket_struct *ns);

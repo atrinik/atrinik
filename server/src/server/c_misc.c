@@ -697,3 +697,25 @@ int command_whereami(object *op, char *params)
 	new_draw_info_format(NDI_UNIQUE, op, "You are in %s.\n%s", get_region_longname(op->map->region), get_region_msg(op->map->region));
 	return 1;
 }
+
+/**
+ * Toggle metaserver privacy on/off.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_ms_privacy(object *op, char *params)
+{
+	if (CONTR(op)->ms_privacy)
+	{
+		CONTR(op)->ms_privacy = 0;
+		new_draw_info(NDI_UNIQUE, op, "Metaserver privacy turned off.");
+	}
+	else
+	{
+		CONTR(op)->ms_privacy = 1;
+		new_draw_info(NDI_UNIQUE, op, "Metaserver privacy turned on.");
+	}
+
+	(void) params;
+	return 1;
+}

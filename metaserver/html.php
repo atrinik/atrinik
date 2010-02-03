@@ -38,14 +38,12 @@ echo '
 	</head>
 	<body>';
 
-// Query to select servers
-$query = '
-	SELECT ip_address, port, hostname, num_players, version, text_comment
+// Select the servers
+$request = db_query('
+	SELECT ip_address, port, hostname, num_players, version, text_comment, players
 	FROM servers
-	WHERE last_update > (' . (time() - $last_update_timeout) . ')';
-
-// Send the query
-$request = db_query($query);
+	WHERE last_update > (' . (time() - $last_update_timeout) . ')
+	ORDER BY roworder DESC');
 
 echo '
 		<center>
@@ -56,9 +54,10 @@ echo '
 					<td><b>IP Address</b></td>
 					<td><b>Port</b></td>
 					<td><b>Hostname</b></td>
-					<td><b># of players</b></td>
+					<td width="10%"><b># of players</b></td>
 					<td><b>Version</b></td>
 					<td><b>Comment</b></td>
+					<td width="20%"><b>Players</b></td>
 				</tr>';
 
 // If no servers...
@@ -79,6 +78,15 @@ while ($row = db_fetch_assoc($request))
 					<td>', $row['num_players'], '</td>
 					<td>', $row['version'], '</td>
 					<td>', $row['text_comment'], '</td>
+					<td valign="top">';
+
+	if (isset($_GET['players']) && !empty($row['players']))
+	{
+		echo str_replace(':', '<br>', $row['players']);
+	}
+
+	echo '
+					&nbsp;</td>
 				</tr>';
 }
 
@@ -86,7 +94,18 @@ while ($row = db_fetch_assoc($request))
 db_free_result($request);
 
 echo '
-			</table>
+			</table>';
+
+if (!isset($_GET['players']))
+{
+	echo '<a href="', $_SERVER['PHP_SELF'], '?players">Show online players</a>';
+}
+else
+{
+	echo '<a href="', $_SERVER['PHP_SELF'], '">Hide online players</a>';
+}
+
+echo '
 		</center>
 	</body>
 </html>';

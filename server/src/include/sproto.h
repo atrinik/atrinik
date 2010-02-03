@@ -113,6 +113,7 @@ int command_afk(object *op, char *params);
 int command_gsay(object *op, char *params);
 int command_party(object *op, char *params);
 int command_whereami(object *op, char *params);
+int command_ms_privacy(object *op, char *params);
 
 /* c_move.c */
 int command_east(object *op, char *params);

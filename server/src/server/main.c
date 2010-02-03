@@ -1380,12 +1380,6 @@ static void do_specials()
 		flush_old_maps();
 	}
 
-	/* 5000 ticks is about 10 minutes */
-	if (!(pticks % 4999))
-	{
-		metaserver_update();
-	}
-
 	if (!(pticks % 5003))
 	{
 		write_book_archive();

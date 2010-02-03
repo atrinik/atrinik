@@ -414,6 +414,12 @@ typedef struct pl_player
 	/** Player was removed from a map. Used by /resetmap command. */
 	uint32 dm_removed_from_map:1;
 
+	/** Is the player AFK? */
+	uint32 afk:1;
+
+	/** Is metaserver privacy activated? */
+	uint32 ms_privacy:1;
+
 	/** True if you know the spell of the wand */
 	uint32 known_spell:1;
 
@@ -488,9 +494,6 @@ typedef struct pl_player
 
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFPROTECTIONS];
-
-	/** Is the player AFK? */
-	sint8 afk;
 
 	/** Which range attack is being used by player. */
 	rangetype shoottype;

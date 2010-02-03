@@ -180,6 +180,7 @@ int save_player(object *op, int flag)
 
 	fprintf(fp, "password %s\n", pl->password);
 	fprintf(fp, "dm_stealth %d\n", pl->dm_stealth);
+	fprintf(fp, "ms_privacy %d\n", pl->ms_privacy);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
 	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
@@ -423,8 +424,6 @@ void check_login(object *op)
 		return;
 	}
 
-	pl->afk = 0;
-
 #ifdef SAVE_INTERVAL
 	pl->last_save_time = time(NULL);
 #endif
@@ -454,6 +453,10 @@ void check_login(object *op)
 		else if (!strcmp(buf, "dm_stealth"))
 		{
 			pl->dm_stealth = value;
+		}
+		else if (!strcmp(buf, "ms_privacy"))
+		{
+			pl->ms_privacy = value;
 		}
 		else if (!strcmp(buf, "gen_hp"))
 		{
