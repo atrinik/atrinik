@@ -786,19 +786,27 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 						if (!strncmp(help_files_tmp->helpname, InputString + 1, InputCount - 1))
 						{
-							strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
-							possibilities++;
-
-							if (possibilities > 1)
+							if (possibilities == 0)
 							{
-								return;
+								strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
 							}
+							else
+							{
+								if (possibilities == 1)
+								{
+									draw_info_format(COLOR_WHITE, "\nMatching commands:\n%s", cmd_buf);
+								}
+
+								draw_info(help_files_tmp->helpname, COLOR_WHITE);
+							}
+
+							possibilities++;
 						}
 					}
 
 					if (possibilities == 1)
 					{
-						snprintf(InputString, sizeof(InputString), "/%s", cmd_buf);
+						snprintf(InputString, sizeof(InputString), "/%s ", cmd_buf);
 						InputCount = CurrentCursorPos = strlen(InputString);
 					}
 				}
