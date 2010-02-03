@@ -27,8 +27,8 @@
 				<Linker>
 					<Add library="winmm" />
 					<Add directory="Release" />
-					<Add directory="c:\Python26\libs" />
-					<Add library="libpython26.a" />
+					<Add directory="c:\Python31\libs" />
+					<Add library="libpython31.a" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cp .\Release\plugin_python.dll ..\..\..\plugins\plugin_python.dll" />
@@ -38,7 +38,7 @@
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
 			<Add directory="..\..\..\src\plugins\plugin_python\include" />
-			<Add directory="c:\Python26\include" />
+			<Add directory="c:\Python31\include" />
 		</Compiler>
 
 		<Unit filename="..\..\..\src\plugins\plugin_python\include\atrinik_map.h" />
