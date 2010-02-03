@@ -2331,6 +2331,7 @@ int command_insert_into(object *op, char *params)
 	if (!ob)
 	{
 		new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such object.");
+		return 0;
 	}
 
 	remove_ob(marked);
