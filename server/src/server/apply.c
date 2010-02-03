@@ -738,7 +738,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			return 1;
 
 		case EXIT:
-			if (op->type != PLAYER)
+			if (op->type != PLAYER || !tmp->map)
 			{
 				return 0;
 			}
