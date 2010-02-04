@@ -38,7 +38,7 @@ $request = db_query('
 	SELECT ip_address, port, hostname, num_players, version, text_comment
 	FROM servers
 	WHERE last_update > (' . (time() - $last_update_timeout) . ')
-	ORDER BY roworder DESC');
+	ORDER BY roworder ASC');
 
 // Calculate the number of rows
 $num_rows = db_num_rows($request);
