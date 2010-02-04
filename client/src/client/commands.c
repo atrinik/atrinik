@@ -1536,7 +1536,6 @@ void Map2Cmd(unsigned char *data, int len)
 {
 	int mask, x, y, pos = 0, ext_flag, xdata;
 	int ext1, ext2, ext3, probe;
-	int map_new_flag = 0;
 	int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
 	char pname1[64], pname2[64], pname3[64], pname4[64];
 	uint16 face;
@@ -1551,21 +1550,14 @@ void Map2Cmd(unsigned char *data, int len)
 	/* its not xpos, its the changed map marker */
 	if (xpos == 255)
 	{
-		map_new_flag = 1;
 		xpos = (uint8)(data[pos++]);
 	}
 
 	ypos = (uint8)(data[pos++]);
-	if (map_new_flag)
-		adjust_map_cache(xpos, ypos);
 
 	/* map windows is from range to +MAPWINSIZE_X */
 	MapData.posx = xpos;
 	MapData.posy = ypos;
-
-#if 0
-	LOG(-1, "MAPPOS: x:%d y:%d (nflag:%x)\n", xpos, ypos, map_new_flag);
-#endif
 
 	while (pos < len)
 	{

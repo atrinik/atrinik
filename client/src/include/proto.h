@@ -123,7 +123,6 @@ void list_vid_modes();
 int main(int argc, char *argv[]);
 
 /* map.c */
-void adjust_map_cache(int xpos, int ypos);
 void load_mapdef_dat();
 void clear_map();
 void display_mapscroll(int dx, int dy);
@@ -320,8 +319,6 @@ uint32 get_video_flags();
 char *file_path(const char *fname, const char *mode);
 FILE *fopen_wrapper(const char *fname, const char *mode);
 SDL_Surface *IMG_Load_wrapper(const char *file);
-Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
-Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 
 /* widget.c */
 void init_widgets_fromCurrent();

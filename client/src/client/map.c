@@ -25,62 +25,12 @@
 
 #include "include.h"
 
-extern _Sprite *test_sprite;
-
 static struct Map the_map;
-
-static struct MapCell *TheMapCache=NULL;
 
 /** Current shown map: mapname, length, etc */
 _mapdata MapData;
 
-/** We need this to parse the map and sort the multi tile monsters */
-typedef struct _map_object_parse
-{
-	int face;
-	int x;
-	int y;
-	struct _map_object_parse *next;
-}_map_object_parse;
-
-struct _map_object_parse * start_map_object_parse=NULL;
-
 _multi_part_obj MultiArchs[16];
-
-/* TODO: Do a real adjust... we just clear here the cache. */
-void adjust_map_cache(int xpos, int ypos)
-{
-	int x, y, i, xreal, yreal;
-	struct MapCell *map;
-
-	memset(TheMapCache, 0, 9 * (MapData.xlen * MapData.ylen) * sizeof(struct MapCell));
-
-	for (y = 0; y < MapStatusY; y++)
-	{
-		for (x = 0; x < MapStatusX; x++)
-		{
-			xreal = xpos + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
-			yreal = ypos + (y - (MAP_MAX_SIZE - 1) / 2) + MapData.ylen;
-
-			if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || xreal >= MapData.ylen * 3)
-				continue;
-
-			map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-			map->fog_of_war = 0;
-			map->darkness = the_map.cells[x][y].darkness;
-
-			/* Lets update the whole cell for secure */
-			for (i = 0; i < MAXFACES; i++)
-			{
-				map->faces[i] = the_map.cells[x][y].faces[i];
-				map->ext[i] = the_map.cells[x][y].ext[i];
-				map->pos[i] = the_map.cells[x][y].pos[i];
-				map->probe[i] = the_map.cells[x][y].probe[i];
-			}
-		}
-	}
-}
 
 /* Load the multi arch offsets */
 void load_mapdef_dat()
@@ -160,7 +110,6 @@ void map_draw_map_clear()
 void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 {
 	int music_fade = 0;
-	void *tmp_free;
 
 	if (strcmp(bg_music, "no_music"))
 	{
@@ -204,52 +153,19 @@ void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 	if (xl > 0)
 	{
 		clear_map();
-
-		if (TheMapCache)
-		{
-			tmp_free = &TheMapCache;
-			FreeMemory(tmp_free);
-		}
-
-		/* We allocate 9 times the map... In tiled maps, we can have 8 connected
-		 * maps to our map - we want cache a map except it's 2 maps away.
-		 * WARNING: Tiled maps must be of same size... Don't attach a 32x32
-		 * map on a 16x16 map. It's possible to handle this here, but then we need
-		 * to know the sizes of the attached maps here */
-		TheMapCache = malloc(9 * xl * yl * sizeof(struct MapCell));
-		memset(TheMapCache, 0, 9 * xl * yl * sizeof(struct MapCell));
 	}
 }
 
 void set_map_ext(int x, int y, int layer,int ext, int probe)
 {
-	struct MapCell *map;
-	int xreal, yreal;
-
 	the_map.cells[x][y].ext[layer] = ext;
 
 	if (probe != -1)
 		the_map.cells[x][y].probe[layer] = probe;
-
-	xreal = MapData.posx + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
-	yreal = MapData.posy + (y - (MAP_MAX_SIZE - 1) / 2) + MapData.ylen;
-
-	if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || yreal >= MapData.ylen * 3)
-		return;
-
-	map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-	map->ext[layer] = ext;
-
-	if (probe != -1)
-		map->probe[layer] = probe;
 }
 
 void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color)
 {
-	struct MapCell *map;
-	int xreal, yreal, i;
-
 	the_map.cells[x][y].faces[layer] = face;
 
 	if (!face)
@@ -260,35 +176,12 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 
 	the_map.cells[x][y].pos[layer] = pos;
 	the_map.cells[x][y].pcolor[layer] = name_color;
-	strcpy(the_map.cells[x][y].pname[layer],name);
-
-	xreal = MapData.posx + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
-	yreal = MapData.posy + (y - (MAP_MAX_SIZE - 1) / 2) + MapData.ylen;
-
-	if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || yreal >= MapData.ylen * 3)
-		return;
-
-	map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-	map->fog_of_war = 0;
-	map->darkness = the_map.cells[x][y].darkness;
-
-	/* Lets update the whole cell for secure */
-	for (i = 0; i < MAXFACES; i++)
-	{
-		map->faces[i] = the_map.cells[x][y].faces[i];
-		map->ext[i] = the_map.cells[x][y].ext[i];
-		map->pos[i] = the_map.cells[x][y].pos[i];
-		map->probe[i] = the_map.cells[x][y].probe[i];
-		strcpy(map->pname[i], the_map.cells[x][y].pname[i]);
-		map->pcolor[i] = the_map.cells[x][y].pcolor[i];
-	}
+	strcpy(the_map.cells[x][y].pname[layer], name);
 }
 
 void display_map_clearcell(long x, long y)
 {
-	struct MapCell *map;
-	int xreal, yreal, i;
+	int i;
 
 	the_map.cells[x][y].darkness = 0;
 
@@ -300,48 +193,12 @@ void display_map_clearcell(long x, long y)
 		the_map.cells[x][y].pos[i] = 0;
 		the_map.cells[x][y].probe[i] = 0;
 	}
-
-	xreal = MapData.posx + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
-	yreal = MapData.posy + (y - (MAP_MAX_SIZE - 1) / 2) + MapData.ylen;
-
-	if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || yreal >= MapData.ylen * 3)
-		return;
-
-	map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-	map->fog_of_war = 1;
-	map->darkness = 0;
-
-	for (i = 0; i < MAXFACES; i++)
-	{
-		if (map->faces[i] & 0x8000)
-			map->faces[i] = 0;
-
-		map->ext[i] = 0;
-		map->pname[i][0] = 0;
-		map->probe[i] = 0;
-		map->pcolor[i] = COLOR_DEFAULT;
-	}
 }
 
 void set_map_darkness(int x, int y, uint8 darkness)
 {
-	struct MapCell *map;
-	int xreal, yreal;
-
 	if (darkness != the_map.cells[x][y].darkness)
 		the_map.cells[x][y].darkness = darkness;
-
-	xreal = MapData.posx + (x - (MAP_MAX_SIZE - 1) / 2) + MapData.xlen;
-	yreal = MapData.posy + (y - (MAP_MAX_SIZE - 1) / 2) + MapData.ylen;
-
-	if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || yreal >= MapData.ylen * 3)
-		return;
-
-	map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-	if (darkness != map->darkness)
-		map->darkness = darkness;
 }
 
 void map_draw_map()
@@ -352,7 +209,7 @@ void map_draw_map()
 	int x, y, k, xl, yl, temp, kk, kt, yt, xt, alpha;
 	int xml, xmpos, xtemp = 0;
 	uint16 index, index_tmp;
-	int mid, mnr, xreal, yreal;
+	int mid, mnr;
 	_BLTFX bltfx;
 	SDL_Rect rect;
 
@@ -361,9 +218,6 @@ void map_draw_map()
 	SDL_Surface bmap;
 	int player_posx, player_posy;
 	int player_pixx, player_pixy;
-
-	if (!TheMapCache)
-		return;
 
 	player_posx = MapStatusX - (MapStatusX / 2) - 1;
 	player_posy = MapStatusY - (MapStatusY / 2) - 1;
@@ -387,7 +241,7 @@ void map_draw_map()
 		{
 			xt = yt = -1;
 
-			while (xt <alpha || yt < alpha)
+			while (xt < alpha || yt < alpha)
 			{
 				/* Draw x row from 0 to alpha with y = alpha */
 				if (xt < alpha)
@@ -413,22 +267,11 @@ void map_draw_map()
 					xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 					ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
 
-					if (!k)
-						sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL);
-
 					if (!debug_layer[k])
 						continue;
 
-					xreal = MapData.posx - (MAP_MAX_SIZE - 1) / 2 + x + MapData.xlen;
-					yreal = MapData.posy - (MAP_MAX_SIZE - 1) / 2 + y + MapData.ylen;
+					map = &the_map.cells[x][y];
 
-					if (xreal < 0 || yreal < 0 || xreal >= MapData.xlen * 3 || yreal >= MapData.ylen * 3)
-						continue;
-
-					/*LOG(-1, "MAPCACHE: x:%d y:%d l:%d\n", xreal, yreal, (yreal * MapData.xlen * 3) + xreal);*/
-					map = TheMapCache + (yreal * MapData.xlen * 3) + xreal;
-
-					/*map = &the_map.cells[x][y]; */
 					if ((index_tmp = map->faces[k]) > 0)
 					{
 						index = index_tmp &~ 0x8000;
@@ -511,10 +354,10 @@ void map_draw_map()
 
 							if (map->fog_of_war)
 								bltfx.flags |= BLTFX_FLAG_FOW;
-							else if (cpl.stats.flags & SF_XRAYS)
-								bltfx.flags |= BLTFX_FLAG_GREY;
 							else if (cpl.stats.flags & SF_INFRAVISION && index_tmp & 0x8000 && map->darkness < 150)
 								bltfx.flags |= BLTFX_FLAG_RED;
+							else if (cpl.stats.flags & SF_XRAYS)
+								bltfx.flags |= BLTFX_FLAG_GREY;
 							else
 								bltfx.flags |= BLTFX_FLAG_DARK;
 
