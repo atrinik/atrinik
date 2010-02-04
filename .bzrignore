@@ -1,0 +1,7 @@
+Thumbs.db
+maps/**/.dedit
+*.pyc
+*.o
+*.so
+*.dll
+core
