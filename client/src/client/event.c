@@ -690,7 +690,7 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				metaserver_get_data(metaserver_sel, ServerName, &ServerPort);
+				metaserver_get_data(metaserver_sel, ServerName, sizeof(ServerName), &ServerPort);
 
 				if (ServerName[0] != '\0')
 				{

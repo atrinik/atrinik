@@ -40,36 +40,36 @@ int metaserver_connecting = 1;
 /**
  * Parse data returned from HTTP metaserver and add it to the list of servers.
  * @param info The data to parse. */
-static void parse_metaserver_data(const char *info)
+static void parse_metaserver_data(char *info)
 {
-	char server_ip[MAX_BUF], server[MAX_BUF], version[MAX_BUF], desc[HUGE_BUF];
-	int port, num_players;
+	char *tmp[6];
 
-	if (!info || sscanf(info, "%64[^:]:%d:%128[^:]:%d:%64[^:]:%512[^\n]", server_ip, &port, server, &num_players, version, desc) != 6)
+	if (!info || split_string(info, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 6)
 	{
 		return;
 	}
 
-	metaserver_add(server, port, num_players, version, desc);
+	metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
 }
 
 /**
- * Get metaserver data, IP/hostname and port.
+ * Get server's IP and port based on its ID in the list.
  * @param num ID of the server.
- * @param[out] server Where to copy the server IP/hostname.
+ * @param[out] server Where to copy the server's IP.
+ * @param server_size Size of server.
  * @param[out] port Where to copy the server port. */
-void metaserver_get_data(int num, char *server, int *port)
+void metaserver_get_data(int num, char *server, size_t server_size, int *port)
 {
-	_server *node = start_server;
+	server_struct *node = start_server;
 	int i;
 
 	for (i = 0; node; i++)
 	{
 		if (i == num)
 		{
-			strcpy(server, node->nameip);
+			strncpy(server, node->ip, server_size - 1);
 			*port = node->port;
-			return;
+			break;
 		}
 
 		node = node->next;
@@ -80,7 +80,7 @@ void metaserver_get_data(int num, char *server, int *port)
  * Clear all data in the linked list of servers reported by metaserver. */
 void metaserver_clear_data()
 {
-	_server *node, *tmp;
+	server_struct *node, *tmp;
 
 	node = start_server;
 
@@ -88,7 +88,8 @@ void metaserver_clear_data()
 	{
 		tmp = node->next;
 
-		free(node->nameip);
+		free(node->ip);
+		free(node->hostname);
 		free(node->version);
 		free(node->desc);
 		free(node);
@@ -104,29 +105,27 @@ void metaserver_clear_data()
 /**
  * Add a server entry to the linked list of available servers reported by
  * metaserver.
- * @param server The server IP/hostname.
+ * @param ip The server IP.
  * @param port Server port.
+ * @param hostname Server's hostname.
  * @param player Number of players.
- * @param ver Server version.
+ * @param version Server version.
  * @param desc Description of the server. */
-void metaserver_add(const char *server, int port, int player, const char *ver, const char *desc)
+void metaserver_add(const char *ip, int port, const char *hostname, int player, const char *version, const char *desc)
 {
-	_server *node;
+	server_struct *node = (server_struct *) malloc(sizeof(server_struct));
 
-	node = (_server *) malloc(sizeof(_server));
-	memset(node, 0, sizeof(_server));
+	memset(node, 0, sizeof(server_struct));
 
 	node->next = start_server;
 	start_server = node;
 
 	node->player = player;
 	node->port = port;
-	node->nameip = malloc(strlen(server) + 1);
-	strcpy(node->nameip, server);
-	node->version = malloc(strlen(ver) + 1);
-	strcpy(node->version, ver);
-	node->desc = malloc(strlen(desc) + 1);
-	strcpy(node->desc, desc);
+	node->ip = strdup(ip);
+	node->hostname = strdup(hostname);
+	node->version = strdup(version);
+	node->desc = strdup(desc);
 
 	metaserver_count++;
 }

@@ -1896,7 +1896,7 @@ void show_login_server()
  * Show metaserver window.
  * @param node First server.
  * @param metaserver_sel Selected server. */
-void show_meta_server(_server *node, int metaserver_sel)
+void show_meta_server(server_struct *node, int metaserver_sel)
 {
 	int x, y, i;
 	char buf[1024];
@@ -2020,7 +2020,7 @@ void show_meta_server(_server *node, int metaserver_sel)
 			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
 		}
 
-		StringBlt(ScreenSurface, &SystemFont, node->nameip, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
+		StringBlt(ScreenSurface, &SystemFont, node->hostname, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
 
 		sprintf(buf, "%d", node->port);
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);

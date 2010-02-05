@@ -93,5 +93,7 @@ typedef signed char sint8;
 #include <menu.h>
 #include <dialog.h>
 #include <widget.h>
+#ifndef __CPROTO__
 #include <proto.h>
+#endif
 #endif

@@ -107,27 +107,30 @@ typedef struct _keymap
 	int menu_mode;
 }_keymap;
 
-/* Structure for the servers list*/
-typedef struct _server
+/** The servers list, as given by the metaserver. */
+typedef struct server_struct
 {
-	/* Go on in list. NULL: no following this node */
-	struct _server *next;
+	/** Next server in the list. */
+	struct server_struct *next;
 
-	/* IP or hostname of the server */
-	char *nameip;
+	/** IP of the server. */
+	char *ip;
 
-	/* Server version */
+	/** Hostname of the server. */
+	char *hostname;
+
+	/** Server version. */
 	char *version;
 
-	/* Server description (will be split to 3 lines if needed) */
+	/** Server description. */
 	char *desc;
 
-	/* Number of players online */
+	/** Number of players online. */
 	int player;
 
-	/* Server port */
+	/** Server port. */
 	int port;
-} _server;
+} server_struct;
 
 /**
  * Message animation structure. Used when NDI_ANIM is passed to
@@ -581,10 +584,10 @@ extern int MapStatusY;
 extern uint32 LastTick;
 extern uint32 tmpGameTick;
 extern uint32 FrameCount;
-extern char ServerName[];
+extern char ServerName[2048];
 extern int ServerPort;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
-extern _server *start_server;
+extern server_struct *start_server;
 extern int metaserver_sel, metaserver_count;
 extern int request_file_chain;
 extern int request_file_flags;

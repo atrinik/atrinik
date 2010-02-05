@@ -148,7 +148,8 @@ struct screensize *Screensize;
 /** Face data */
 _face_struct FaceList[MAX_FACE_TILES];
 
-_server *start_server;
+/** The list of the servers. */
+server_struct *start_server;
 int metaserver_sel, metaserver_count = 0;
 
 /** The message animation structure. */
@@ -751,11 +752,11 @@ static int game_status_chain()
 	{
 		map_udate_flag = 2;
 
-		metaserver_add("127.0.0.1", 13327, -1, "local", "localhost. Start server before you try to connect.");
+		metaserver_add("127.0.0.1", 13327, "localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
 		if (argServerName[0] != '\0')
 		{
-			metaserver_add(argServerName, argServerPort, -1, "user server", "Server from -server '...' command line.");
+			metaserver_add(argServerName, argServerPort, argServerName, -1, "user server", "Server from command line -server option.");
 		}
 
 		/* Skip if -nometa in command line */
