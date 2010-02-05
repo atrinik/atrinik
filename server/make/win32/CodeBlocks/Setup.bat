@@ -9,6 +9,8 @@ tar xvf curl.tar
 gunzip -c pthread.tar.gz > pthread.tar
 tar xvf pthread.tar
 
+move pthread\* ..\*
+
 move *.dll ..\..\..\
 
 rem ====================================
