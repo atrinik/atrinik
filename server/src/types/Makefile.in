@@ -59,8 +59,10 @@ install::
 
 
 proto:
-	cproto -e -o ../include/libtypes.h.bak $(INCLUDES) $(wildcard *.c)
-	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/libtypes.h.bak > ../include/libtypes.h
+	cproto -e -o ../include/libtypes.h.bak -D__CPROTO__ $(INCLUDES) $(wildcard *.c)
+	echo "#ifndef __CPROTO__" > ../include/libtypes.h
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/libtypes.h.bak >> ../include/libtypes.h
+	echo "#endif" >> ../include/libtypes.h
 	chmod 644 ../include/libtypes.h
 	$(RM) -f ../include/libtypes.h.bak
 

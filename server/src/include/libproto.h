@@ -1,3 +1,4 @@
+#ifndef __CPROTO__
 /* anim.c */
 extern void free_all_anim();
 extern void init_anim();
@@ -343,3 +344,4 @@ extern size_t split_string(char *str, char *array[], size_t array_size, char sep
 extern int get_random_dir();
 extern int get_randomized_dir(int dir);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
+#endif

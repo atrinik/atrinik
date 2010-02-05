@@ -1,3 +1,4 @@
+#ifndef __CPROTO__
 /* random_map.c */
 extern void dump_layout(char **layout, RMParms *RP);
 extern mapstruct *generate_random_map(char *OutFileName, RMParms *RP);
@@ -92,3 +93,4 @@ extern char **make_square_spiral_layout(int xsize, int ysize);
 
 /* expand2x.c */
 extern char **expand2x(char **layout, int xsize, int ysize);
+#endif

@@ -1,3 +1,4 @@
+#ifndef __CPROTO__
 /* altar.c */
 extern int apply_altar(object *altar, object *sacrifice, object *originator);
 extern int check_altar_sacrifice(object *altar, object *sacrifice);
@@ -171,3 +172,4 @@ extern void waypoint_move(object *op, object *waypoint);
 /* weapon_improver.c */
 extern void apply_weapon_improver(object *op, object *tmp);
 extern int check_weapon_power(object *who, int improvs);
+#endif

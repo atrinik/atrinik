@@ -66,8 +66,10 @@ depend:
 install::
 
 proto:
-	cproto -o ../include/sockproto.h.bak $(INCLUDES) $(SRCS)
-	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/sockproto.h.bak > ../include/sockproto.h
+	cproto -o ../include/sockproto.h.bak -D__CPROTO__ $(INCLUDES) $(SRCS)
+	echo "#ifndef __CPROTO__" > ../include/sockproto.h
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < ../include/sockproto.h.bak >> ../include/sockproto.h
+	echo "#endif" >> ../include/sockproto.h
 	chmod 644 ../include/sockproto.h
 	$(RM) -f ../include/sockproto.h.bak
 

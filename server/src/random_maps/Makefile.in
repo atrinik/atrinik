@@ -88,8 +88,10 @@ depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -I../include -- $(SRCS)
 
 proto:
-	cproto -e -o rproto.h.bak $(INCLUDES) $(SRCS)
-	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < rproto.h.bak > rproto.h
+	cproto -e -o rproto.h.bak -D__CPROTO__ $(INCLUDES) $(SRCS)
+	echo "#ifndef __CPROTO__" > rproto.h
+	$(SED) -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < rproto.h.bak >> rproto.h
+	echo "#endif" >> rproto.h
 	chmod 644 rproto.h
 	$(RM) -f rproto.h.bak
 

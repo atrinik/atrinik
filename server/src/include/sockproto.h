@@ -1,3 +1,4 @@
+#ifndef __CPROTO__
 /* image.c */
 int is_valid_faceset(int fsn);
 void free_socket_images();
@@ -82,3 +83,4 @@ void QuestListCmd(char *data, int len, player *pl);
 /* sounds.c */
 void play_sound_player_only(player *pl, int sound_num, int sound_type, int x, int y);
 void play_sound_map(mapstruct *map, int x, int y, int sound_num, int sound_type);
+#endif

@@ -1,3 +1,4 @@
+#ifndef __CPROTO__
 /* alchemy.c */
 int use_alchemy(object *op);
 
@@ -460,3 +461,4 @@ path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map
 /* weather.c */
 void init_world_darkness();
 void tick_the_clock();
+#endif
