@@ -185,10 +185,9 @@ void metaserver_get_servers();
 _bmaptype *find_bmap(char *name);
 void add_bmap(_bmaptype *at);
 void FreeMemory(void **p);
-char *show_input_string(char *text, struct _Font *font, int wlen);
-int read_substr_char(char *srcstr, char *desstr, int *sz, char ct);
+const char *show_input_string(const char *text, struct _Font *font, int wlen);
 int isqrt(int n);
-char *get_parameter_string(char *data, int *pos);
+char *get_parameter_string(const char *data, int *pos);
 size_t split_string(char *str, char *array[], size_t array_size, char sep);
 
 /* player.c */
