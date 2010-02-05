@@ -244,6 +244,9 @@ typedef struct obj
 	/** Y position in the map for this object */
 	sint16 y;
 
+	/** Z-Position in the map (in pixels) for this object. */
+	sint16 z;
+
 	/** Needed to target the nearest enemy */
 	sint16 attacked_by_distance;
 

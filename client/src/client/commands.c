@@ -1736,11 +1736,15 @@ void Map2Cmd(unsigned char *data, int len)
 		 * this face in the right way (position and shift offsets) */
 		if (mask & 0x8)
 		{
+			int z_height;
+
 			face = GetShort_String(data + pos);
 			pos += 2;
 			request_face(face, 0);
 			xdata = 0;
-			set_map_face(x, y, 0, face, xdata, -1, pname1, pcolor);
+			z_height = GetShort_String(data + pos);
+			pos += 2;
+			set_map_face(x, y, 0, face, xdata, -1, pname1, pcolor, z_height);
 		}
 
 		if (mask & 0x4)
@@ -1755,7 +1759,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 1, face, xdata, ext1, pname2, pcolor);
+			set_map_face(x, y, 1, face, xdata, ext1, pname2, pcolor, 0);
 		}
 
 		if (mask & 0x2)
@@ -1770,7 +1774,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 2, face, xdata, ext2, pname3, pcolor);
+			set_map_face(x, y, 2, face, xdata, ext2, pname3, pcolor, 0);
 		}
 
 		if (mask & 0x1)
@@ -1786,7 +1790,7 @@ void Map2Cmd(unsigned char *data, int len)
 				xdata = (uint8)(data[pos]);
 				pos++;
 			}
-			set_map_face(x, y, 3, face, xdata, ext3, pname4, pcolor);
+			set_map_face(x, y, 3, face, xdata, ext3, pname4, pcolor, 0);
 		}
 	}
 

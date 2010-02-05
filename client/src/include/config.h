@@ -28,7 +28,7 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define VERSION_SOCKET 1027
+#define VERSION_SOCKET 1028
 
 /** File with all the key bindings. */
 #define KEYBIND_FILE "keys.dat"

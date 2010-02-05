@@ -48,6 +48,7 @@ typedef enum _sprite_type
 #define BLTFX_FLAG_FOW 		4
 #define BLTFX_FLAG_RED 		8
 #define BLTFX_FLAG_GREY 	16
+#define BLTFX_FLAG_STRETCH  32
 
 /** Here we can change default blt options or set special options */
 typedef struct _BLTFX

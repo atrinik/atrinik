@@ -456,6 +456,7 @@ lex_error = 0;
 						op->oy = op->y;
 #endif
                     }
+^z{S}               op->z = IVAL;
 ^nrof{S}            op->nrof = atol(yval());
 ^level{S}           op->level = IVAL;
 ^direction{S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
@@ -1354,6 +1355,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->x != op2->x)
 	{
 		FAST_SAVE_LONG(sb, "x ", op->x);
+	}
+
+	if (op->z != op2->z)
+	{
+		FAST_SAVE_LONG(sb, "z ", op->z);
 	}
 
 	if (op->y != op2->y)

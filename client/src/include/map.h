@@ -127,6 +127,12 @@ struct MapCell
 
 	/** Cell darkness */
 	uint8 darkness;
+
+	/** Height of this maptile */
+	sint16 height;
+
+	/** How we stretch this is really 8 char for N S E W */
+	uint32 stretch;
 } MapCell;
 
 /** Map structure */

@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Map drawing. */
+
 #include "include.h"
 
 static struct Map the_map;
@@ -47,8 +51,10 @@ void load_mapdef_dat()
 
 	for (i = 0; i < 16; i++)
 	{
-		if (fgets(line, 255, stream) == NULL)
+		if (!fgets(line, 255, stream))
+		{
 			break;
+		}
 
 		sscanf(line, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &x, &y, &d[0],&d[1], &d[2], &d[3], &d[4], &d[5], &d[6], &d[7], &d[8], &d[9], &d[10], &d[11], &d[12], &d[13], &d[14], &d[15], &d[16], &d[17], &d[18], &d[19], &d[20], &d[21], &d[22], &d[23], &d[24], &d[25], &d[26], &d[27], &d[28], &d[29], &d[30], &d[31]);
 		MultiArchs[i].xlen = x;
@@ -80,16 +86,16 @@ void display_mapscroll(int dx, int dy)
 		{
 			if (x + dx < 0 || x + dx >= MapStatusX || y + dy < 0 || y + dy >= MapStatusY)
 			{
-				memset((char *) & (newmap.cells[x][y]), 0, sizeof(struct MapCell));
+				memset((char *) &(newmap.cells[x][y]), 0, sizeof(struct MapCell));
 			}
 			else
 			{
-				memcpy((char *) & (newmap.cells[x][y]), (char *) & (the_map.cells[x + dx][y + dy]), sizeof(struct MapCell));
+				memcpy((char *) &(newmap.cells[x][y]), (char *) &(the_map.cells[x + dx][y + dy]), sizeof(struct MapCell));
 			}
 		}
 	}
 
-	memcpy((char *) & the_map, (char *) & newmap, sizeof(struct Map));
+	memcpy((char *) &the_map, (char *) & newmap, sizeof(struct Map));
 }
 
 void map_draw_map_clear()
@@ -102,7 +108,7 @@ void map_draw_map_clear()
 		{
 			xpos = options.mapstart_x + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 			ypos = options.mapstart_y + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL);
+			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0);
 		}
 	}
 }
@@ -161,10 +167,154 @@ void set_map_ext(int x, int y, int layer,int ext, int probe)
 	the_map.cells[x][y].ext[layer] = ext;
 
 	if (probe != -1)
+	{
 		the_map.cells[x][y].probe[layer] = probe;
+	}
 }
 
-void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color)
+/**
+ * Calculate the real X/Y of map, adjusting the coordinates if overflow
+ * should happen.
+ * @param x X position.
+ * @param y Y position.
+ * @return The map. */
+struct MapCell *calc_real_map(int x, int y)
+{
+	int x1 = x, y1 = y;
+
+	if (x1 < 0)
+	{
+		x1 = 0;
+	}
+
+	if (y1 < 0)
+	{
+		y1 = 0;
+	}
+
+	if (x1 > MapStatusX)
+	{
+		x1 = MapStatusX;
+	}
+
+	if (y1 > MapStatusY)
+	{
+		y1 = MapStatusY;
+	}
+
+	return &the_map.cells[x1][y1];
+}
+
+#define MAX_STRETCH 8
+#define MAX_STRETCH_DIAG 12
+
+/**
+ * Align tile stretch based on X/Y.
+ * @param x X position.
+ * @param y Y position. */
+void align_tile_stretch(int x, int y)
+{
+	struct MapCell *map;
+	uint8 top, bottom, right, left, min_ht;
+	uint32 h;
+	int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height, my_height;
+
+	if (x < 0 || y < 0 || x >= MapStatusX || y >= MapStatusY)
+	{
+		return;
+	}
+
+	map = calc_real_map(x - 1, y - 1);
+	nw_height = map->height;
+	map = calc_real_map(x, y - 1);
+	n_height = map->height;
+	map = calc_real_map(x + 1, y - 1);
+	ne_height = map->height;
+	map = calc_real_map(x - 1, y + 1);
+	sw_height = map->height;
+	map = calc_real_map(x, y + 1);
+	s_height = map->height;
+	map = calc_real_map(x + 1, y + 1);
+	se_height = map->height;
+	map = calc_real_map(x - 1, y);
+	w_height = map->height;
+	map = calc_real_map(x + 1, y);
+	e_height = map->height;
+	map = calc_real_map(x, y);
+	my_height = map->height;
+
+	if (abs(my_height - e_height) > MAX_STRETCH)
+	{
+		e_height = my_height;
+	}
+
+	if (abs(my_height - se_height) > MAX_STRETCH_DIAG)
+	{
+		se_height = my_height;
+	}
+
+	if (abs(my_height - s_height) > MAX_STRETCH)
+	{
+		s_height = my_height;
+	}
+
+	if (abs(my_height - sw_height) > MAX_STRETCH_DIAG)
+	{
+		sw_height = my_height;
+	}
+
+	if (abs(my_height - w_height) > MAX_STRETCH)
+	{
+		w_height = my_height;
+	}
+
+	if (abs(my_height - nw_height) > MAX_STRETCH_DIAG)
+	{
+		nw_height = my_height;
+	}
+
+	if (abs(my_height - n_height) > MAX_STRETCH)
+	{
+		n_height = my_height;
+	}
+
+	if (abs(my_height - ne_height) > MAX_STRETCH_DIAG)
+	{
+		ne_height = my_height;
+	}
+
+	top = MAX(w_height, nw_height);
+	top = MAX(top, n_height);
+	top = MAX(top, my_height);
+
+	bottom = MAX(s_height, se_height);
+	bottom = MAX(bottom, e_height);
+	bottom = MAX(bottom, my_height);
+
+	right = MAX(n_height, ne_height);
+	right = MAX(right, e_height);
+	right = MAX(right, my_height);
+
+	left = MAX(w_height, sw_height);
+	left = MAX(left, s_height);
+	left = MAX(left, my_height);
+
+	/* Normalize these... */
+	min_ht = MIN(top, bottom);
+	min_ht = MIN(min_ht, left);
+	min_ht = MIN(min_ht, right);
+	min_ht = MIN(min_ht, my_height);
+
+	top -= min_ht;
+	bottom -= min_ht;
+	left -= min_ht;
+	right -= min_ht;
+
+	h = bottom + (left << 8) + (right << 16) + (top << 24);
+	the_map.cells[x][y].stretch = h;
+}
+
+void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color, sint16 height)
 {
 	the_map.cells[x][y].faces[layer] = face;
 
@@ -177,6 +327,24 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 	the_map.cells[x][y].pos[layer] = pos;
 	the_map.cells[x][y].pcolor[layer] = name_color;
 	strcpy(the_map.cells[x][y].pname[layer], name);
+
+	/* See if we need to stretch this tile */
+	if (layer == 0)
+	{
+		the_map.cells[x][y].height = height;
+
+		align_tile_stretch(x - 1, y - 1);
+		align_tile_stretch(x , y - 1);
+		align_tile_stretch(x + 1, y - 1);
+		align_tile_stretch(x + 1, y);
+
+		align_tile_stretch(x + 1, y + 1);
+		align_tile_stretch(x, y + 1);
+		align_tile_stretch(x - 1, y + 1);
+		align_tile_stretch(x - 1, y);
+
+		align_tile_stretch(x, y);
+	}
 }
 
 void display_map_clearcell(long x, long y)
@@ -187,7 +355,7 @@ void display_map_clearcell(long x, long y)
 
 	for (i = 0; i < MAXFACES; i++)
 	{
-		the_map.cells[x][y].pname[i][0] = 0;
+		the_map.cells[x][y].pname[i][0] = '\0';
 		the_map.cells[x][y].faces[i] = 0;
 		the_map.cells[x][y].ext[i] = 0;
 		the_map.cells[x][y].pos[i] = 0;
@@ -218,6 +386,8 @@ void map_draw_map()
 	SDL_Surface bmap;
 	int player_posx, player_posy;
 	int player_pixx, player_pixy;
+	uint32 stretch = 0;
+	int player_height_offset;
 
 	player_posx = MapStatusX - (MapStatusX / 2) - 1;
 	player_posy = MapStatusY - (MapStatusY / 2) - 1;
@@ -233,6 +403,8 @@ void map_draw_map()
 	player_pixy = (player_pixy + MAP_TILE_POS_YOFF) - bmap.h;
 	bltfx.surface = NULL;
 	bltfx.alpha = 128;
+
+ 	player_height_offset = the_map.cells[player_posx][player_posy].height;
 
 	/* We draw floor & mask as layer wise (layer 0 & 1) */
 	for (kk = 0; kk < MAXFACES - 1; kk++)
@@ -372,6 +544,16 @@ void map_draw_map()
 								bltfx.flags |= BLTFX_FLAG_SRCALPHA;
 							}
 
+							stretch = 0;
+
+							if (kk < 2 && map->stretch)
+							{
+								bltfx.flags |= BLTFX_FLAG_STRETCH;
+								stretch = map->stretch;
+							}
+
+							yl = (yl - map->height) + player_height_offset;
+
 							/* These faces are only shown when they are in a
 							 * position which would be visible to the player. */
 							if (FaceList[index].flags & FACE_FLAG_UP)
@@ -383,7 +565,7 @@ void map_draw_map()
 								{
 									if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
 									{
-										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
 									}
 								}
 
@@ -394,7 +576,7 @@ void map_draw_map()
 								{
 									if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
 									{
-										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+										sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
 									}
 								}
 							}
@@ -405,19 +587,19 @@ void map_draw_map()
 							else if (FaceList[index].flags & FACE_FLAG_DOUBLE)
 							{
 								/* Blt face once in normal position. */
-								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
 
 								/* If it's not in the bottom quadrant of
 								 * the map, blt it again 'higher up' on
 								 * the same square. */
 								if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
 								{
-									sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx);
+									sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0);
 								}
 							}
 							else
 							{
-								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx);
+								sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch);
 							}
 
 							/* Do we have a playername? Then print it! */
@@ -434,28 +616,28 @@ void map_draw_map()
 							{
 								if (map->ext[k] & FFLAG_SLEEP)
 								{
-									sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL);
+									sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL, 0);
 								}
 
 								if (map->ext[k] & FFLAG_CONFUSED)
 								{
-									sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL);
+									sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL, 0);
 								}
 
 								if (map->ext[k] & FFLAG_SCARED)
 								{
-									sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL);
+									sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL, 0);
 								}
 
 								if (map->ext[k] & FFLAG_BLINDED)
 								{
-									sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL);
+									sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL, 0);
 								}
 
 								if (map->ext[k] & FFLAG_PARALYZED)
 								{
-									sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 2, yl + 3, NULL, NULL);
-									sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL);
+									sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 2, yl + 3, NULL, NULL, 0);
+									sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL, 0);
 								}
 
 								if (map->ext[k] & FFLAG_PROBE && cpl.target_code != 0)

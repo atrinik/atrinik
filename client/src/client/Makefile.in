@@ -51,7 +51,8 @@ SRCS = \
 	textwin.c \
 	wrapper.c \
 	widget.c \
-	dialog.c
+	dialog.c \
+	tilestretcher.c
 
 DEPEND = @DEPEND@
 

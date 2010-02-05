@@ -232,6 +232,9 @@
 		<Unit filename="..\..\..\src\client\textwin.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\client\tilestretcher.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\client\widget.c">
 			<Option compilerVar="CC" />
 		</Unit>

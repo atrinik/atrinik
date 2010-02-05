@@ -1142,6 +1142,7 @@ void draw_client_map2(object *pl)
 	int pname_flag, ext_flag, dmg_flag, oldlen;
 	int dmg_layer2, dmg_layer1, dmg_layer0;
 	int wdark;
+	sint16 z1;
 
 #ifdef DEBUG_CORE
 	int tile_count = 0;
@@ -1272,6 +1273,7 @@ void draw_client_map2(object *pl)
 				pname_flag = 0, ext_flag = 0, dmg_flag = 0, oldlen = sl.len;
 				dmg_layer2 = 0, dmg_layer1 = 0, dmg_layer0 = 0;
 				dark = NO_FACE_SEND;
+				z1 = 0;
 
 				/* lets calc the darkness/light value for this tile.*/
 				if (MAP_OUTDOORS(m))
@@ -1342,7 +1344,10 @@ void draw_client_map2(object *pl)
 					tmp = GET_MAP_SPACE_CL_INV(msp, 0);
 
 				if (tmp)
+				{
 					face_num0 = tmp->face->number;
+					z1 = tmp->z;
+				}
 
 				if (mp->faces[3] != face_num0)
 				{
@@ -1853,6 +1858,11 @@ void draw_client_map2(object *pl)
 				if (mask & 0x08)
 				{
 					SockList_AddShort(&sl, face_num0);
+
+					if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1028))
+					{
+						SockList_AddShort(&sl, z1);
+					}
 				}
 
 				if (mask & 0x04)
