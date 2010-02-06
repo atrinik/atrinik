@@ -37,7 +37,7 @@
 					<Add library=".\libpthread.a" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="flex.exe -i -Prmap -o..\..\..\src\random_maps\reader.c  ..\..\..\src\random_maps\reader.l" />
+					<Add before="..\tools\flex.exe -i -Prmap -o..\..\..\src\random_maps\reader.c  ..\..\..\src\random_maps\reader.l" />
 				</ExtraCommands>
 			</Target>
 		</Build>

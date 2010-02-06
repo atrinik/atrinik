@@ -36,7 +36,7 @@
 					<Add directory="..\common\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="flex.exe -i -o..\..\..\src\common\loader.c  ..\..\..\src\common\loader.l" />
+					<Add before="..\tools\flex.exe -i -o..\..\..\src\common\loader.c  ..\..\..\src\common\loader.l" />
 				</ExtraCommands>
 			</Target>
 		</Build>

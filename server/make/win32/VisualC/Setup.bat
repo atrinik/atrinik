@@ -2,16 +2,8 @@ rem ====================================
 rem Unpack all files.
 rem ====================================
 
-rem cURL
-..\tools\gunzip -c curl.tar.gz > curl.tar
-..\tools\tar xvf curl.tar
-
-..\tools\gunzip -c pthread.tar.gz > pthread.tar
-..\tools\tar xvf pthread.tar
-
-move pthread\* ..\*
-
-move *.dll ..\..\..\
+..\tools\gunzip -c libs.tar.gz > libs.tar
+..\tools\tar xvf libs.tar
 
 rem ====================================
 rem Clean up.
