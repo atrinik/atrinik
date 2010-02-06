@@ -178,31 +178,29 @@ void set_map_ext(int x, int y, int layer,int ext, int probe)
  * @param x X position.
  * @param y Y position.
  * @return The map. */
-struct MapCell *calc_real_map(int x, int y)
+static struct MapCell *calc_real_map(int x, int y)
 {
-	int x1 = x, y1 = y;
-
-	if (x1 < 0)
+	if (x < 0)
 	{
-		x1 = 0;
+		x = 0;
 	}
 
-	if (y1 < 0)
+	if (y < 0)
 	{
-		y1 = 0;
+		y = 0;
 	}
 
-	if (x1 > MapStatusX)
+	if (x >= MapStatusX)
 	{
-		x1 = MapStatusX;
+		x = MapStatusX - 1;
 	}
 
-	if (y1 > MapStatusY)
+	if (y >= MapStatusY)
 	{
-		y1 = MapStatusY;
+		y = MapStatusY - 1;
 	}
 
-	return &the_map.cells[x1][y1];
+	return &the_map.cells[x][y];
 }
 
 #define MAX_STRETCH 8

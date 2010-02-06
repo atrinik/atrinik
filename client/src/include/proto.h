@@ -129,7 +129,6 @@ void display_mapscroll(int dx, int dy);
 void map_draw_map_clear();
 void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music);
 void set_map_ext(int x, int y, int layer, int ext, int probe);
-struct MapCell *calc_real_map(int x, int y);
 void align_tile_stretch(int x, int y);
 void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color, sint16 height);
 void display_map_clearcell(long x, long y);
