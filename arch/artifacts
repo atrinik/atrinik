@@ -3592,7 +3592,7 @@ artifact potion_minor_strength
 difficulty 3
 def_arch potion_generic
 Object
-title of minor strentgh
+title of minor strength
 face potion_ruby.101
 level 1
 type 5
