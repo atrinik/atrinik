@@ -1203,15 +1203,7 @@ void examine_living(object *op, object *tmp)
 		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", att, gender, mon->race);
 	}
 
-	if (mon->type == PLAYER)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is level %d and %d years old%s.", att, mon->level, CONTR(mon)->age, QUERY_FLAG(mon, FLAG_IS_AGED) ? " (magical aged)" : "");
-	}
-	else
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is level %d%s.", att, mon->level, QUERY_FLAG(mon, FLAG_IS_AGED) ? " and unatural aged" : "");
-	}
-
+	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", att, mon->level);
 	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", att, mon->stats.dam, mon->stats.maxhp);
 	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", att, mon->stats.wc, mon->stats.ac);
 

@@ -382,7 +382,6 @@ obj_fields_struct obj_fields[] =
  * - <b>f_sys_object</b>: @copydoc FLAG_SYS_OBJECT
  * - <b>f_use_fix_pos</b>: @copydoc FLAG_USE_FIX_POS
  * - <b>f_unpaid</b>: @copydoc FLAG_UNPAID
- * - <b>f_is_aged</b>: @copydoc FLAG_IS_AGED
  * - <b>f_make_invisible</b>: @copydoc FLAG_MAKE_INVISIBLE
  * - <b>f_make_ethereal</b>: @copydoc FLAG_MAKE_ETHEREAL
  * - <b>f_is_named</b>: @copydoc FLAG_IS_NAMED
@@ -423,7 +422,7 @@ static char *flag_names[NUM_FLAGS + 1] =
 	"f_is_dust",             "f_no_steal",          "f_one_hit",             NULL,                "f_berserk",
 	"f_no_attack",           "f_invulnerable",      "f_quest_item",          NULL,                "f_is_vul_elemental",
 	"f_is_proof_elemental",  "f_is_vul_magic",      "f_is_proof_magic",      "f_is_vul_physical", "f_is_proof_physical",
-	"f_sys_object",          "f_use_fix_pos",       "f_unpaid",              "f_is_aged",         "f_make_invisible",
+	"f_sys_object",          "f_use_fix_pos",       "f_unpaid",              NULL,                "f_make_invisible",
 	"f_make_ethereal",       NULL,                  "f_is_named",            NULL,                "f_no_teleport",
 	"f_corpse",              "f_corpse_forced",     "f_player_only",         "f_no_cleric",       "f_one_drop",
 	"f_cursed_perm",         "f_damned_perm",       "f_door_closed",         NULL,                "f_is_missile",
@@ -582,7 +581,6 @@ static Atrinik_Constant object_constants[] =
 	{"TYPE_CHECK_INV",               CHECK_INV},
 	{"TYPE_MOOD_FLOOR",              MOOD_FLOOR},
 	{"TYPE_EXIT",                    EXIT},
-	{"TYPE_AGE_FORCE",               AGE_FORCE},
 	{"TYPE_SHOP_FLOOR",              SHOP_FLOOR},
 	{"TYPE_SHOP_MAT",                SHOP_MAT},
 	{"TYPE_RING",                    RING},

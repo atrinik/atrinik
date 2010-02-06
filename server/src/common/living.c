@@ -1478,26 +1478,7 @@ fix_player_no_armour:
 					}
 
 					pl->encumbrance += (int) 3 * tmp->weight / 1000;
-
 					break;
-
-				/* Now calculate resistance and stuff for all the rest applyable objects! */
-				case AGE_FORCE:
-					/* Store our age force */
-					pl->age_force = tmp;
-					pl->age = tmp->stats.hp;
-					pl->age_max = tmp->stats.maxhp;
-					pl->age_add = tmp->stats.sp;
-					pl->age_changes = tmp->stats.grace;
-
-					if (pl->age >= (sint16) (((float) pl->age_max / 100.0f) * 60.0f))
-					{
-						SET_FLAG(op, FLAG_IS_AGED);
-					}
-					else
-					{
-						CLEAR_FLAG(op, FLAG_IS_AGED);
-					}
 
 				case FORCE:
 					if (ARMOUR_SPEED(tmp) && (float)ARMOUR_SPEED(tmp) / 10.0f < max)
@@ -1525,17 +1506,17 @@ fix_player_no_armour:
 						ac += (tmp->stats.ac + tmp->magic);
 					}
 
-					if (tmp->stats.maxhp && tmp->type != AGE_FORCE)
+					if (tmp->stats.maxhp)
 					{
 						op->stats.maxhp += tmp->stats.maxhp;
 					}
 
-					if (tmp->stats.maxsp && tmp->type != AGE_FORCE)
+					if (tmp->stats.maxsp)
 					{
 						op->stats.maxsp += tmp->stats.maxsp;
 					}
 
-					if (tmp->stats.maxgrace && tmp->type != AGE_FORCE)
+					if (tmp->stats.maxgrace)
 					{
 						op->stats.maxgrace += tmp->stats.maxgrace;
 					}

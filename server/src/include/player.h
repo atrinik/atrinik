@@ -193,9 +193,6 @@ typedef struct pl_player
 	/** Marked object. */
 	object *mark;
 
-	/** Quick jump to our age force. */
-	object *age_force;
-
 	/** Pointer used from local map player chain. */
 	object *map_below;
 
@@ -464,18 +461,6 @@ typedef struct pl_player
 
 	/** Condition adjusted damage sent to client. */
 	sint16 client_dam;
-
-	/** The age of our player. */
-	sint16 age;
-
-	/** Unnatural changes to our age. */
-	sint16 age_add;
-
-	/** Permanent age changes... Very bad, or good when younger */
-	sint16 age_changes;
-
-	/** Maximum age of our player. */
-	sint16 age_max;
 
 	/** Table of last skill levels sent to client. */
 	sint16 skill_level[NROFSKILLS];

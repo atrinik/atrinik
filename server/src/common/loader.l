@@ -480,7 +480,6 @@ lex_error = 0;
 ^player_only{S}     SET_OR_CLEAR_FLAG(op, FLAG_PLAYER_ONLY, IVAL);
 ^is_named{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
 ^is_player{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL);
-^is_aged{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_AGED, IVAL);
 ^sys_object{S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
 ^generator{S}       SET_OR_CLEAR_FLAG(op, FLAG_GENERATOR, IVAL);
 ^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
@@ -1124,7 +1123,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"is_dust",             "no_steal",          "one_hit",         NULL,              "berserk",
 	"no_attack",           "invulnerable",      "quest_item",      "is_trapped",      "is_vul_elemental",
 	"is_proof_elemental",  "is_vul_magic",      "is_proof_magic",  "is_vul_physical", "is_proof_physical",
-	"sys_object",          "use_fix_pos",       "unpaid",          "is_aged",         "make_invisible",
+	"sys_object",          "use_fix_pos",       "unpaid",          NULL,              "make_invisible",
 	"make_ethereal",       "is_player",         "is_named",        NULL,              "no_teleport",
 	"corpse",              "corpse_forced",     "player_only",     "no_cleric",       "one_drop",
 	"cursed_perm",         "damned_perm",       "door_closed",     "was_reflected",   "is_missile",

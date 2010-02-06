@@ -162,7 +162,7 @@
  *
  * Type 0 will be undefined and show a non valid type information.
  *
- * Currently unused types to fill: 52, 63, 76, 97, 108, 127, 128, 129,
+ * Currently unused types to fill: 52, 63, 67, 76, 97, 108, 127, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
  * 148, 149, 150, 152, 155.
  *@{*/
@@ -306,8 +306,6 @@
 #define MOOD_FLOOR              65
 /** Stairs, holes, portals, etc. */
 #define EXIT                    66
-/** This object is an age force */
-#define AGE_FORCE               67
 /** Shop floor. */
 #define SHOP_FLOOR              68
 /** Shop mat. */
@@ -776,6 +774,8 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
+ * Unused: 113.
+ *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
  * you change something here! Search for NUM_FLAGS in loader.l for more.
@@ -1040,8 +1040,6 @@
 
 /** Object hasn't been paid for yet. */
 #define FLAG_UNPAID               112
-/** If set, object falls under heavy aging effects */
-#define FLAG_IS_AGED              113
 /** Makes the wearer invisible. */
 #define FLAG_MAKE_INVISIBLE       114
 /** Makes the wearer ethereal. */
