@@ -18,31 +18,22 @@ changed on the fly without even restarting the server.
 The Atrinik Python plugin functions are used to make an interface with
 the Atrinik C server code, get script options, activator, etc.
 
-@see plugin_python_functions,
-@ref plugin_python_constants "Python plugin constants"
+@see plugin_python_functions, @ref plugin_python_constants
 
-@section sec_plugin_python_atrinik_map Atrinik Map Python plugin
-functions
+@section sec_plugin_python_atrinik_map Atrinik Map Python plugin functions
 
 The Atrinik Map Python plugin functions allow you to access map related
 functions, the map structure fields, and so on.
 
-@see plugin_python_map_functions,
-@ref plugin_python_map_constants "Python plugin map constants",
-@ref plugin_python_map_fields "Python plugin map fields",
-@ref plugin_python_map_flags "Python plugin map flags"
+@see plugin_python_map_functions, @ref plugin_python_map_constants, @ref plugin_python_map_fields, @ref plugin_python_map_flags
 
-@section sec_plugin_python_atrinik_object Atrinik Object Python plugin
-functions
+@section sec_plugin_python_atrinik_object Atrinik Object Python plugin functions
 
 The Atrinik Object Python plugin functions allow you great flexibility in
 manipulating objects, players, and about everything related to object
 structure.
 
-@see plugin_python_object_functions,
-@ref plugin_python_object_constants "Python plugin object constants",
-@ref plugin_python_object_fields "Python plugin object fields",
-@ref plugin_python_object_flags "Python plugin object flags"
+@see plugin_python_object_functions, @ref plugin_python_object_constants, @ref plugin_python_object_fields, @ref plugin_python_object_flags
 
 @section sec_plugin_python_atrinik_party Atrinik Party Python plugin
 functions
@@ -51,8 +42,6 @@ The Atrinik Party Python plugin functions allow you to make interesting
 events or dungeons, where in order to participate, one must/mustn't be in
 a party.
 
-@see plugin_python_party_functions,
-@ref plugin_python_party_constants "Python plugin party constants",
-@ref plugin_python_party_fields "Python plugin party fields"
+@see plugin_python_party_functions, @ref plugin_python_party_constants, @ref plugin_python_party_fields
 
 */

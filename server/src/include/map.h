@@ -389,9 +389,6 @@ typedef struct MapSpace_s
  * @defgroup map_flags Map flags
  * Map flags for global map settings, used in @ref mapstruct::map_flags.
  *@{*/
-
-/** No flags. */
-#define MAP_FLAG_NOTHING        0
 /** Map is outdoor map - daytime effects are on */
 #define MAP_FLAG_OUTDOOR        1
 /** Special unique map  */

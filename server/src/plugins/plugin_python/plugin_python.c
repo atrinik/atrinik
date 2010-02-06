@@ -52,7 +52,6 @@ static PythonContext *context_stack;
 PythonContext *current_context;
 
 /**
- * @anchor plugin_python_constants
  * Useful constants */
 static Atrinik_Constant module_constants[] =
 {

@@ -49,101 +49,7 @@ typedef struct
 } obj_fields_struct;
 
 /**
- * @anchor plugin_python_object_fields
- *
  * All the possible fields of an object.
- *
- * List of the fields and their meaning:
- *
- * - <b>below</b>: @copydoc object::below
- * - <b>above</b>: @copydoc object::above
- * - <b>inventory</b>: @copydoc object::inv
- * - <b>environment</b>: @copydoc object::env
- * - <b>map</b>: @copydoc object::map
- * - <b>name</b>: @copydoc object::name
- * - <b>title</b>: @copydoc object::title
- * - <b>race</b>: @copydoc object::race
- * - <b>slaying</b>: @copydoc object::slaying
- * - <b>message</b>: @copydoc object::msg
- * - <b>weight</b>: @copydoc object::weight
- * - <b>weight_limit</b>: @copydoc object::weight_limit
- * - <b>carrying</b>: @copydoc object::carrying
- * - <b>path_attuned</b>: @copydoc object::path_attuned
- * - <b>path_repelled</b>: @copydoc object::path_repelled
- * - <b>path_denied</b>: @copydoc object::path_denied
- * - <b>value</b>: @copydoc object::value
- * - <b>quantity</b>: @copydoc object::nrof
- * - <b>damage_round_tag</b>: @copydoc object::damage_round_tag
- * - <b>update_tag</b>: @copydoc object::update_tag
- * - <b>enemy</b>: @copydoc object::enemy
- * - <b>attacked_by</b>: @copydoc object::attacked_by
- * - <b>owner</b>: @copydoc object::owner
- * - <b>x</b>: @copydoc object::x
- * - <b>y</b>: @copydoc object::y
- * - <b>attacked_by_distance</b>: @copydoc object::attacked_by_distance
- * - <b>last_damage</b>: @copydoc object::last_damage
- * - <b>terrain_type</b>: @copydoc object::terrain_type
- * - <b>terrain_flag</b>: @copydoc object::terrain_flag
- * - <b>material</b>: @copydoc object::material
- * - <b>material_real</b>: @copydoc object::material_real
- * - <b>last_heal</b>: @copydoc object::last_heal
- * - <b>last_sp</b>: @copydoc object::last_sp
- * - <b>last_grace</b>: @copydoc object::last_grace
- * - <b>last_eat</b>: @copydoc object::last_eat
- * - <b>animation_id</b>: @copydoc object::animation_id
- * - <b>inv_animation_id</b>: @copydoc object::inv_animation_id
- * - <b>magic</b>: @copydoc object::magic
- * - <b>state</b>: @copydoc object::state
- * - <b>level</b>: @copydoc object::level
- * - <b>direction</b>: @copydoc object::direction
- * - <b>facing</b>: @copydoc object::facing
- * - <b>quick_pos</b>: @copydoc object::quick_pos
- * - <b>type</b>: @copydoc object::type
- * - <b>sub_type_1</b>: @copydoc object::sub_type1
- * - <b>item_quality</b>: @copydoc object::item_quality
- * - <b>item_condition</b>: @copydoc object::item_condition
- * - <b>item_race</b>: @copydoc object::item_race
- * - <b>item_level</b>: @copydoc object::item_level
- * - <b>item_skill</b>: @copydoc object::item_skill
- * - <b>glow_radius</b>: @copydoc object::glow_radius
- * - <b>move_status</b>: @copydoc object::move_status
- * - <b>move_type</b>: @copydoc object::move_type
- * - <b>anim_enemy_dir</b>: @copydoc object::anim_enemy_dir
- * - <b>anim_moving_dir</b>: @copydoc object::anim_moving_dir
- * - <b>anim_enemy_dir_last</b>: @copydoc object::anim_enemy_dir_last
- * - <b>anim_moving_dir_last</b>: @copydoc object::anim_moving_dir_last
- * - <b>anim_last_facing</b>: @copydoc object::anim_last_facing
- * - <b>anim_last_facing_last</b>: @copydoc object::anim_last_facing_last
- * - <b>anim_speed</b>: @copydoc object::anim_speed
- * - <b>last_anim</b>: @copydoc object::last_anim
- * - <b>will_apply</b>: @copydoc object::will_apply
- * - <b>run_away</b>: @copydoc object::run_away
- * - <b>layer</b>: @copydoc object::layer
- * - <b>speed</b>: @copydoc object::speed
- * - <b>speed_left</b>: @copydoc object::speed_left
- * - <b>weapon_speed</b>: @copydoc object::weapon_speed
- * - <b>weapon_speed_left</b>: @copydoc object::weapon_speed_left
- * - <b>weapon_speed_add</b>: @copydoc object::weapon_speed_add
- * - <b>experience</b>: @copydoc living::exp
- * - <b>hitpoints</b>: @copydoc living::hp
- * - <b>max_hitpoints</b>: @copydoc living::maxhp
- * - <b>spellpoints</b>: @copydoc living::sp
- * - <b>max_spellpoints</b>: @copydoc living::maxsp
- * - <b>grace</b>: @copydoc living::grace
- * - <b>max_grace</b>: @copydoc living::maxgrace
- * - <b>food</b>: @copydoc living::food
- * - <b>damage</b>: @copydoc living::dam
- * - <b>weapon_class</b>: @copydoc living::wc
- * - <b>armour_class</b>: @copydoc living::ac
- * - <b>weapon_class_range</b>: @copydoc living::wc_range
- * - <b>strength</b>: @copydoc living::Str
- * - <b>dexterity</b>: @copydoc living::Dex
- * - <b>constitution</b>: @copydoc living::Con
- * - <b>wisdom</b>: @copydoc living::Wis
- * - <b>charisma</b>: @copydoc living::Cha
- * - <b>intelligence</b>: @copydoc living::Int
- * - <b>power</b>: @copydoc living::Pow
- * - <b>luck</b>: @copydoc living::luck
  *
  * @todo Message field needs special handling (check for endmsg, limit to
  * 4096 characters.
@@ -263,7 +169,6 @@ obj_fields_struct obj_fields[] =
 #define NUM_OBJFIELDS (sizeof(obj_fields) / sizeof(obj_fields[0]))
 
 /**
- * @anchor plugin_python_object_flags
  * This is a list of strings that correspond to the FLAG_... values.
  *
  * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15th
@@ -273,131 +178,7 @@ obj_fields_struct obj_fields[] =
  *
  * Yes, this is almost exactly a repeat from loader.l.
  *
- * List of the flags and their meaning:
- *
- * - <b>f_sleep</b>: @copydoc FLAG_SLEEP
- * - <b>f_confused</b>: @copydoc FLAG_CONFUSED
- * - <b>f_paralyzed</b>: @copydoc FLAG_PARALYZED
- * - <b>f_scared</b>: @copydoc FLAG_SCARED
- * - <b>f_is_blind</b>: @copydoc FLAG_BLIND
- * - <b>f_is_invisible</b>: @copydoc FLAG_IS_INVISIBLE
- * - <b>f_is_ethereal</b>: @copydoc FLAG_IS_ETHEREAL
- * - <b>f_is_good</b>: @copydoc FLAG_IS_GOOD
- * - <b>f_no_pick</b>: @copydoc FLAG_NO_PICK
- * - <b>f_walk_on</b>: @copydoc FLAG_WALK_ON
- * - <b>f_no_pass</b>: @copydoc FLAG_NO_PASS
- * - <b>f_is_animated</b>: @copydoc FLAG_ANIMATE
- * - <b>f_slow_move</b>: @copydoc FLAG_SLOW_MOVE
- * - <b>f_flying</b>: @copydoc FLAG_FLYING
- * - <b>f_monster</b>: @copydoc FLAG_MONSTER
- * - <b>f_friendly</b>: @copydoc FLAG_FRIENDLY
- * - <b>f_been_applied</b>: @copydoc FLAG_BEEN_APPLIED
- * - <b>f_auto_apply</b>: @copydoc FLAG_AUTO_APPLY
- * - <b>f_treasure</b>: @copydoc FLAG_TREASURE
- * - <b>f_is_neutral</b>: @copydoc FLAG_IS_NEUTRAL
- * - <b>f_see_invisible</b>: @copydoc FLAG_SEE_INVISIBLE
- * - <b>f_can_roll</b>: @copydoc FLAG_CAN_ROLL
- * - <b>f_generator</b>: @copydoc FLAG_GENERATOR
- * - <b>f_is_turnable</b>: @copydoc FLAG_IS_TURNABLE
- * - <b>f_walk_off</b>: @copydoc FLAG_WALK_OFF
- * - <b>f_fly_on</b>: @copydoc FLAG_FLY_ON
- * - <b>f_fly_off</b>: @copydoc FLAG_FLY_OFF
- * - <b>f_is_used_up</b>: @copydoc FLAG_IS_USED_UP
- * - <b>f_identified</b>: @copydoc FLAG_IDENTIFIED
- * - <b>f_reflecting</b>: @copydoc FLAG_REFLECTING
- * - <b>f_changing</b>: @copydoc FLAG_CHANGING
- * - <b>f_splitting</b>: @copydoc FLAG_SPLITTING
- * - <b>f_hitback</b>: @copydoc FLAG_HITBACK
- * - <b>f_startequip</b>: @copydoc FLAG_STARTEQUIP
- * - <b>f_blocksview</b>: @copydoc FLAG_BLOCKSVIEW
- * - <b>f_undead</b>: @copydoc FLAG_UNDEAD
- * - <b>f_can_stack</b>: @copydoc FLAG_CAN_STACK
- * - <b>f_unaggressive</b>: @copydoc FLAG_UNAGGRESSIVE
- * - <b>f_reflect_missile</b>: @copydoc FLAG_REFL_MISSILE
- * - <b>f_reflect_spell</b>: @copydoc FLAG_REFL_SPELL
- * - <b>f_no_magic</b>: @copydoc FLAG_NO_MAGIC
- * - <b>f_no_fix_player</b>: @copydoc FLAG_NO_FIX_PLAYER
- * - <b>f_is_evil</b>: @copydoc FLAG_IS_EVIL
- * - <b>f_tear_down</b>: @copydoc FLAG_TEAR_DOWN
- * - <b>f_run_away</b>: @copydoc FLAG_RUN_AWAY
- * - <b>f_pass_thru</b>: @copydoc FLAG_PASS_THRU
- * - <b>f_can_pass_thru</b>: @copydoc FLAG_CAN_PASS_THRU
- * - <b>f_pick_up</b>: @copydoc FLAG_PICK_UP
- * - <b>f_unique</b>: @copydoc FLAG_UNIQUE
- * - <b>f_no_drop</b>: @copydoc FLAG_NO_DROP
- * - <b>f_is_indestructible</b>: @copydoc FLAG_INDESTRUCTIBLE
- * - <b>f_can_cast_spell</b>: @copydoc FLAG_CAST_SPELL
- * - <b>f_can_use_scroll</b>: @copydoc FLAG_USE_SCROLL
- * - <b>f_can_use_range</b>: @copydoc FLAG_USE_RANGE
- * - <b>f_can_use_bow</b>: @copydoc FLAG_USE_BOW
- * - <b>f_can_use_armour</b>: @copydoc FLAG_USE_ARMOUR
- * - <b>f_can_use_weapon</b>: @copydoc FLAG_USE_WEAPON
- * - <b>f_can_use_ring</b>: @copydoc FLAG_USE_RING
- * - <b>f_has_ready_range</b>: @copydoc FLAG_READY_RANGE
- * - <b>f_has_ready_bow</b>: @copydoc FLAG_READY_BOW
- * - <b>f_xrays</b>: @copydoc FLAG_XRAYS
- * - <b>f_no_apply</b>: @copydoc FLAG_NO_APPLY
- * - <b>f_is_floor</b>: @copydoc FLAG_IS_FLOOR
- * - <b>f_lifesave</b>: @copydoc FLAG_LIFESAVE
- * - <b>f_is_magical</b>: @copydoc FLAG_IS_MAGICAL
- * - <b>f_alive</b>: @copydoc FLAG_ALIVE
- * - <b>f_stand_still</b>: @copydoc FLAG_STAND_STILL
- * - <b>f_random_move</b>: @copydoc FLAG_RANDOM_MOVE
- * - <b>f_only_attack</b>: @copydoc FLAG_ONLY_ATTACK
- * - <b>f_wiz</b>: @copydoc FLAG_WIZ
- * - <b>f_stealth</b>: @copydoc FLAG_STEALTH
- * - <b>f_cursed</b>: @copydoc FLAG_CURSED
- * - <b>f_damned</b>: @copydoc FLAG_DAMNED
- * - <b>f_see_anywhere</b>: @copydoc FLAG_SEE_ANYWHERE
- * - <b>f_known_magical</b>: @copydoc FLAG_KNOWN_MAGICAL
- * - <b>f_known_cursed</b>: @copydoc FLAG_KNOWN_CURSED
- * - <b>f_can_use_skill</b>: @copydoc FLAG_CAN_USE_SKILL
- * - <b>f_is_thrown</b>: @copydoc FLAG_IS_THROWN
- * - <b>f_is_vul_sphere</b>: @copydoc FLAG_VUL_SPHERE
- * - <b>f_is_proof_sphere</b>: @copydoc FLAG_PROOF_SPHERE
- * - <b>f_is_male</b>: @copydoc FLAG_IS_MALE
- * - <b>f_is_female</b>: @copydoc FLAG_IS_FEMALE
- * - <b>f_applied</b>: @copydoc FLAG_APPLIED
- * - <b>f_inv_locked</b>: @copydoc FLAG_INV_LOCKED
- * - <b>f_is_wooded</b>: @copydoc FLAG_IS_WOODED
- * - <b>f_is_hilly</b>: @copydoc FLAG_IS_HILLY
- * - <b>f_has_ready_skill</b>: @copydoc FLAG_READY_SKILL
- * - <b>f_has_ready_weapon</b>: @copydoc FLAG_READY_WEAPON
- * - <b>f_no_skill_ident</b>: @copydoc FLAG_NO_SKILL_IDENT
- * - <b>f_can_see_in_dark</b>: @copydoc FLAG_SEE_IN_DARK
- * - <b>f_is_cauldron</b>: @copydoc FLAG_IS_CAULDRON
- * - <b>f_is_dust</b>: @copydoc FLAG_DUST
- * - <b>f_no_steal</b>: @copydoc FLAG_NO_STEAL
- * - <b>f_one_hit</b>: @copydoc FLAG_ONE_HIT
- * - <b>f_berserk</b>: @copydoc FLAG_BERSERK
- * - <b>f_no_attack</b>: @copydoc FLAG_NO_ATTACK
- * - <b>f_invulnerable</b>: @copydoc FLAG_INVULNERABLE
- * - <b>f_quest_item</b>: @copydoc FLAG_QUEST_ITEM
- * - <b>f_is_vul_elemental</b>: @copydoc FLAG_VUL_ELEMENTAL
- * - <b>f_is_proof_elemental</b>: @copydoc FLAG_PROOF_ELEMENTAL
- * - <b>f_is_vul_magic</b>: @copydoc FLAG_VUL_MAGIC
- * - <b>f_is_proof_magic</b>: @copydoc FLAG_PROOF_MAGIC
- * - <b>f_is_vul_physical</b>: @copydoc FLAG_VUL_PHYSICAL
- * - <b>f_is_proof_physical</b>: @copydoc FLAG_PROOF_PHYSICAL
- * - <b>f_sys_object</b>: @copydoc FLAG_SYS_OBJECT
- * - <b>f_use_fix_pos</b>: @copydoc FLAG_USE_FIX_POS
- * - <b>f_unpaid</b>: @copydoc FLAG_UNPAID
- * - <b>f_make_invisible</b>: @copydoc FLAG_MAKE_INVISIBLE
- * - <b>f_make_ethereal</b>: @copydoc FLAG_MAKE_ETHEREAL
- * - <b>f_is_named</b>: @copydoc FLAG_IS_NAMED
- * - <b>f_no_teleport</b>: @copydoc FLAG_NO_TELEPORT
- * - <b>f_corpse</b>: @copydoc FLAG_CORPSE
- * - <b>f_corpse_forced</b>: @copydoc FLAG_CORPSE_FORCED
- * - <b>f_player_only</b>: @copydoc FLAG_PLAYER_ONLY
- * - <b>f_no_cleric</b>: @copydoc FLAG_NO_CLERIC
- * - <b>f_one_drop</b>: @copydoc FLAG_ONE_DROP
- * - <b>f_cursed_perm</b>: @copydoc FLAG_PERM_CURSED
- * - <b>f_damned_perm</b>: @copydoc FLAG_PERM_DAMNED
- * - <b>f_door_closed</b>: @copydoc FLAG_DOOR_CLOSED
- * - <b>f_is_missile</b>: @copydoc FLAG_IS_MISSILE
- * - <b>f_can_reflect_missile</b>: @copydoc FLAG_CAN_REFL_MISSILE
- * - <b>f_can_reflect_spell</b>: @copydoc FLAG_CAN_REFL_SPELL
- * - <b>flag_is_assassination</b>: @copydoc FLAG_IS_ASSASSINATION */
+ * List of the flags and their meaning: */
 static char *flag_names[NUM_FLAGS + 1] =
 {
 	"f_sleep",               "f_confused",          "f_paralyzed",           "f_scared",          "f_is_blind",
@@ -431,7 +212,6 @@ static char *flag_names[NUM_FLAGS + 1] =
 };
 
 /**
- * @anchor plugin_python_object_constants
  * Object constants. */
 static Atrinik_Constant object_constants[] =
 {
@@ -517,7 +297,6 @@ static Atrinik_Constant object_constants[] =
 	{"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
 	{"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
 
-	/* Argh, the object types. Make sure to keep up-to date if any are added/removed */
 	{"TYPE_PLAYER",                  PLAYER},
 	{"TYPE_BULLET",                  BULLET},
 	{"TYPE_ROD",                     ROD},

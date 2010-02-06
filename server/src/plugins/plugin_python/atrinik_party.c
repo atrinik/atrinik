@@ -46,15 +46,7 @@ typedef struct
 } party_fields_struct;
 
 /**
- * @anchor plugin_python_party_fields
- *
- * Party fields.
- *
- * List of the fields and their meaning:
- *
- * - <b>name</b>: @copydoc partylist_struct::name
- * - <b>leader</b>: @copydoc partylist_struct::leader
- * - <b>password</b>: @copydoc partylist_struct::passwd */
+ * Party fields. */
 party_fields_struct party_fields[] =
 {
 	{"name",            FIELDTYPE_CSTR,     offsetof(partylist_struct, name),       FIELDFLAG_READONLY},
@@ -66,7 +58,6 @@ party_fields_struct party_fields[] =
 #define NUM_PARTYFIELDS (sizeof(party_fields) / sizeof(party_fields[0]))
 
 /**
- * @anchor plugin_python_party_constants
  * Party related constants. */
 static Atrinik_Constant party_constants[] =
 {

@@ -43,22 +43,7 @@ typedef struct
 } map_fields_struct;
 
 /**
- * @anchor plugin_python_map_fields
- *
- * Map fields.
- *
- * List of the fields and their meaning:
- *
- * - <b>name</b>: @copydoc mapstruct::name
- * - <b>message</b>: @copydoc mapstruct::msg
- * - <b>reset_interval</b>: @copydoc mapstruct::reset_timeout
- * - <b>difficulty</b>: @copydoc mapstruct::difficulty
- * - <b>height</b>: @copydoc mapstruct::height
- * - <b>width</b>: @copydoc mapstruct::width
- * - <b>darkness</b>: @copydoc mapstruct::darkness
- * - <b>path</b>: @copydoc mapstruct::path
- * - <b>enter_x</b>: @copydoc mapstruct::enter_x
- * - <b>enter_y</b>: @copydoc mapstruct::enter_y */
+ * Map fields. */
 map_fields_struct map_fields[] =
 {
 	{"name",            FIELDTYPE_CSTR,     offsetof(mapstruct, name)},
@@ -74,26 +59,7 @@ map_fields_struct map_fields[] =
 };
 
 /**
- * @anchor plugin_python_map_flags
- *
  * Map flags.
- *
- * List of the flags and their meaning:
- *
- * - <b>f_outdoor</b>: @copydoc MAP_FLAG_OUTDOOR
- * - <b>f_unique</b>: @copydoc MAP_FLAG_UNIQUE
- * - <b>f_fixed_rtime</b>: @copydoc MAP_FLAG_FIXED_RTIME
- * - <b>f_nomagic</b>: @copydoc MAP_FLAG_NOMAGIC
- * - <b>f_nopriest</b>: @copydoc MAP_FLAG_NOPRIEST
- * - <b>f_noharm</b>: @copydoc MAP_FLAG_NOHARM
- * - <b>f_nosummon</b>: @copydoc MAP_FLAG_NOSUMMON
- * - <b>f_fixed_login</b>: @copydoc MAP_FLAG_FIXED_LOGIN
- * - <b>f_permdeath</b>: @copydoc MAP_FLAG_PERMDEATH
- * - <b>f_ultradeath</b>: @copydoc MAP_FLAG_ULTRADEATH
- * - <b>f_ultimatedeath</b>: @copydoc MAP_FLAG_ULTIMATEDEATH
- * - <b>f_pvp</b>: @copydoc MAP_FLAG_PVP
- * - <b>f_no_save</b>: @copydoc MAP_FLAG_NO_SAVE
- * - <b>f_plugins</b>: @copydoc MAP_FLAG_PLUGINS
  *
  * @note These must be in same order as @ref map_flags "map flags". */
 static char *mapflag_names[] =
@@ -111,7 +77,6 @@ static char *mapflag_names[] =
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
 
 /**
- * @anchor plugin_python_map_constants
  * Map related constants */
 static Atrinik_Constant map_constants[] =
 {
