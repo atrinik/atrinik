@@ -27,6 +27,9 @@
  * @file
  * Atrinik python plugin. */
 
+#ifdef WIN32
+#include <fcntl.h>
+#endif
 #include <plugin_python.h>
 
 #include <compile.h>
