@@ -605,7 +605,7 @@ void map_draw_map()
 							{
 								if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
 								{
-									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, ypos - 48, map->pcolor[k], NULL, NULL);
+									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, yl - 26, map->pcolor[k], NULL, NULL);
 								}
 							}
 
@@ -741,7 +741,7 @@ void map_draw_map()
 										/* Draw the name of target if it's not a player */
 										if (!(options.player_names && map->pname[k][0]))
 										{
-											StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name)*2) + 22, yl - 26, cpl.target_color, NULL, NULL);
+											StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name) * 2) + 22, yl - 26, cpl.target_color, NULL, NULL);
 										}
 										/* Draw HP remaining percent */
 										if (cpl.target_hp > 0)
