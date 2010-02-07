@@ -173,34 +173,20 @@ void set_map_ext(int x, int y, int layer,int ext, int probe)
 }
 
 /**
- * Calculate the real X/Y of map, adjusting the coordinates if overflow
- * should happen.
+ * Calculate height of X/Y coordinate on ::the_map.
+ *
+ * Checks for X/Y overflows.
  * @param x X position.
  * @param y Y position.
- * @return The map. */
-static struct MapCell *calc_real_map(int x, int y)
+ * @return The height. */
+static int calc_map_cell_height(int x, int y)
 {
-	if (x < 0)
+	if (x >= 0 && x < MapStatusX && y >= 0 && y < MapStatusY)
 	{
-		x = 0;
+		return the_map.cells[x][y].height;
 	}
 
-	if (y < 0)
-	{
-		y = 0;
-	}
-
-	if (x >= MapStatusX)
-	{
-		x = MapStatusX - 1;
-	}
-
-	if (y >= MapStatusY)
-	{
-		y = MapStatusY - 1;
-	}
-
-	return &the_map.cells[x][y];
+	return 0;
 }
 
 #define MAX_STRETCH 8
@@ -212,7 +198,6 @@ static struct MapCell *calc_real_map(int x, int y)
  * @param y Y position. */
 void align_tile_stretch(int x, int y)
 {
-	struct MapCell *map;
 	uint8 top, bottom, right, left, min_ht;
 	uint32 h;
 	int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height, my_height;
@@ -222,24 +207,15 @@ void align_tile_stretch(int x, int y)
 		return;
 	}
 
-	map = calc_real_map(x - 1, y - 1);
-	nw_height = map->height;
-	map = calc_real_map(x, y - 1);
-	n_height = map->height;
-	map = calc_real_map(x + 1, y - 1);
-	ne_height = map->height;
-	map = calc_real_map(x - 1, y + 1);
-	sw_height = map->height;
-	map = calc_real_map(x, y + 1);
-	s_height = map->height;
-	map = calc_real_map(x + 1, y + 1);
-	se_height = map->height;
-	map = calc_real_map(x - 1, y);
-	w_height = map->height;
-	map = calc_real_map(x + 1, y);
-	e_height = map->height;
-	map = calc_real_map(x, y);
-	my_height = map->height;
+	nw_height = calc_map_cell_height(x - 1, y - 1);
+	n_height = calc_map_cell_height(x, y - 1);
+	ne_height = calc_map_cell_height(x + 1, y - 1);
+	sw_height = calc_map_cell_height(x - 1, y + 1);
+	s_height = calc_map_cell_height(x, y + 1);
+	se_height = calc_map_cell_height(x + 1, y + 1);
+	w_height = calc_map_cell_height(x - 1, y);
+	e_height = calc_map_cell_height(x + 1, y);
+	my_height = calc_map_cell_height(x, y);
 
 	if (abs(my_height - e_height) > MAX_STRETCH)
 	{
@@ -312,15 +288,49 @@ void align_tile_stretch(int x, int y)
 	the_map.cells[x][y].stretch = h;
 }
 
+/**
+ * Adjust the tile stretch of a map.
+ *
+ * Goes through the whole map and for each coordinate calls align_tile_stretch()
+ * in all directions. This is done to fix any inconsistencies, since the map
+ * command doesn't send us the whole map all over again, but only new/changes
+ * parts. */
+void adjust_tile_stretch()
+{
+	int x, y;
+
+	for (x = 0; x < MapStatusX; x++)
+	{
+		for (y = 0; y < MapStatusY; y++)
+		{
+			align_tile_stretch(x - 1, y - 1);
+			align_tile_stretch(x , y - 1);
+			align_tile_stretch(x + 1, y - 1);
+			align_tile_stretch(x + 1, y);
+
+			align_tile_stretch(x + 1, y + 1);
+			align_tile_stretch(x, y + 1);
+			align_tile_stretch(x - 1, y + 1);
+			align_tile_stretch(x - 1, y);
+
+			align_tile_stretch(x, y);
+		}
+	}
+}
+
 void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *name, int name_color, sint16 height)
 {
 	the_map.cells[x][y].faces[layer] = face;
 
 	if (!face)
+	{
 		ext = 0;
+	}
 
 	if (ext != -1)
+	{
 		the_map.cells[x][y].ext[layer] = ext;
+	}
 
 	the_map.cells[x][y].pos[layer] = pos;
 	the_map.cells[x][y].pcolor[layer] = name_color;
@@ -330,18 +340,6 @@ void set_map_face(int x, int y, int layer, int face, int pos, int ext, char *nam
 	if (layer == 0)
 	{
 		the_map.cells[x][y].height = height;
-
-		align_tile_stretch(x - 1, y - 1);
-		align_tile_stretch(x , y - 1);
-		align_tile_stretch(x + 1, y - 1);
-		align_tile_stretch(x + 1, y);
-
-		align_tile_stretch(x + 1, y + 1);
-		align_tile_stretch(x, y + 1);
-		align_tile_stretch(x - 1, y + 1);
-		align_tile_stretch(x - 1, y);
-
-		align_tile_stretch(x, y);
 	}
 }
 
@@ -364,7 +362,9 @@ void display_map_clearcell(long x, long y)
 void set_map_darkness(int x, int y, uint8 darkness)
 {
 	if (darkness != the_map.cells[x][y].darkness)
+	{
 		the_map.cells[x][y].darkness = darkness;
+	}
 }
 
 void map_draw_map()

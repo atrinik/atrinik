@@ -1801,6 +1801,7 @@ void Map2Cmd(unsigned char *data, int len)
 		}
 	}
 
+	adjust_tile_stretch();
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
