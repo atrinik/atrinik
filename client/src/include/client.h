@@ -134,30 +134,6 @@ typedef struct ClientSocket
 
 extern ClientSocket csocket;
 
-typedef enum Input_State
-{
-	Playing,
-	Reply_One,
-	Reply_Many,
-	Configure_Keys,
-	Command_Mode,
-	Metaserver_Select
-} Input_State;
-
-typedef enum rangetype
-{
-	range_bottom = -1,
-	range_none = 0,
-	range_bow = 1,
-	range_magic = 2,
-	range_wand = 3,
-	range_rod = 4,
-	range_scroll = 5,
-	range_horn = 6,
-	range_steal = 7,
-	range_size = 8
-} rangetype;
-
 typedef struct Stat_struct
 {
 	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
@@ -205,10 +181,6 @@ typedef struct Stat_struct
 	/* Resistant values */
 	sint16 protection[20];
 
-	/* Resistant value has changed */
-uint32 protection_change:
-	1;
-
 	/* Level and experience totals for */
 	sint16 skill_level[MAX_SKILL];
 
@@ -222,6 +194,7 @@ typedef enum _inventory_win
 	IWIN_INV
 }_inventory_win;
 
+/** The player structure. */
 typedef struct Player_Struct
 {
 	/* Player object */
@@ -242,13 +215,13 @@ typedef struct Player_Struct
 	/* Tag of the container */
 	sint32 container_tag;
 
-	/* Object that is used for that */
-	item *ranges[range_size];
-
 	uint32 weight_limit;
 
 	/* Repeat count on command */
 	uint32 count;
+
+	/** Are we a DM? */
+	int dm;
 
 	/* Target mode */
 	int	target_mode;
@@ -304,49 +277,20 @@ typedef struct Player_Struct
 	/* Skill cooldown time */
 	float action_timer;
 
-	/* If true, don't echo keystrokes */
-uint32 no_echo:
-	1;
-
 	/* True if fire key is pressed = action key (ALT;CTRL) */
-uint32 fire_on:
-	1;
+	uint32 fire_on:1;
 
 	/* True if run key is on = action key (ALT;CTRL) */
-uint32 run_on:
-	1;
-
-uint32 resize_twin:
-	1;
-uint32 resize_twin_marker:
-	1;
+	uint32 run_on:1;
 
 	/* True if fire key is pressed = permanent mode */
-uint32 firekey_on:
-	1;
+	uint32 firekey_on:1;
 
 	/* True if run key is pressed = permanent mode */
-uint32 runkey_on:
-	1;
-
-	/* If true, echo the command that the key */
-uint32 echo_bindings:
-	1;
+	uint32 runkey_on:1;
 
 	float window_weight;
 	float real_weight;
-
-	/* Count for commands */
-	uint16 count_left;
-
-	/* size of magic map */
-	uint16 mmapx, mmapy;
-
-	/* Where the player is on the magic map */
-	uint16 pmapx, pmapy;
-
-	/* Resolution to draw on the magic map */
-	uint16 mapxres, mapyres;
 
 	int warn_statdown;
 	int warn_statup;
@@ -355,37 +299,11 @@ uint32 echo_bindings:
 	/* Player stats */
 	Stats stats;
 
-	/* What the input state is */
-	Input_State input_state;
-
-	/* What type of range attack player has */
-	rangetype shoottype;
-
-	/* Magic map data */
-	uint8 *magicmap;
-
-	/* If 0, show normal map, otherwise, show
-	 * magic map. */
-	uint8 showmagic;
-
-	/* How many outstanding commands to allow */
-	uint8 command_window;
-
-	/* Index to spell that is readied
-	 * player knows */
-	uint8 ready_spell;
-
-	/* These are offset values. See object.c */
-	uint8 map_x, map_y;
-
 	/* HP of our target in % */
 	char target_hp;
 
 	/* Last command entered */
 	char last_command[MAX_BUF];
-
-	/* Keys typed (for long commands) */
-	char input_text[MAX_BUF];
 
 	/* Name and password.  Only used while logging in. */
 	char name[40];

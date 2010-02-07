@@ -409,7 +409,7 @@ void show_help(char *helpname)
 	for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
 	{
 		/* If title or message are empty or helpname doesn't match, just continue to the next item */
-		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname))
+		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname) || (help_files_tmp->dm_only && !cpl.dm))
 		{
 			continue;
 		}
@@ -1756,6 +1756,9 @@ void read_help_files()
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_HFILES, "rb")) != NULL)
 	{
+		char helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
+		int end_marker = 0, dm_only = 0, autocomplete = 1;
+
 		/* Temporary load the file and get the data we need for compare with server */
 		fstat(fileno(stream), &statbuf);
 		i = (int) statbuf.st_size;
@@ -1763,68 +1766,66 @@ void read_help_files()
 		temp_buf = malloc(i);
 
 		if (fread(temp_buf, 1, i, stream))
+		{
 			srv_client_files[SRV_CLIENT_HFILES].crc = crc32(1L, (const unsigned char FAR *) temp_buf, i);
+		}
 
 		free(temp_buf);
-
 		rewind(stream);
+
+		helpname[0] = title[0] = message[0] = '\0';
 
 		/* Loop through the lines */
 		while (fgets(buf, sizeof(buf), stream))
 		{
-			char helpname[MAX_BUF], title[MAX_BUF], message[HUGE_BUF * 12];
-			help_files_struct *help_files_tmp;
+			char *end = strchr(buf, '\n');
 
-			/* Null initialize the character arrays */
-			title[0] = message[0] = helpname[0] = '\0';
-
-			/* If this first line has "Name: " as first 6 characters (legal help file should) */
-			if (strncmp(buf, "Name: ", 6) == 0)
+			if (!strncmp(buf, "Name: ", 6))
 			{
-				/* Store it */
-				snprintf(helpname, sizeof(helpname), "%s", buf + 6);
-
-				/* Null terminate the new line of it */
-				helpname[strlen(helpname) - 1] = '\0';
+				*end = '\0';
+				strncpy(helpname, buf + 6, sizeof(helpname) - 1);
+			}
+			else if (!strncmp(buf, "Title: ", 7))
+			{
+				*end = '\0';
+				strncpy(title, buf + 7, sizeof(title) - 1);
+			}
+			else if (!strcmp(buf, "DM: 1\n"))
+			{
+				dm_only = 1;
+			}
+			else if (!strcmp(buf, "Autocomplete: 0\n"))
+			{
+				autocomplete = 0;
+			}
+			else if (!strcmp(buf, "==========\n"))
+			{
+				end_marker = 1;
+			}
+			else
+			{
+				strncat(message, buf, sizeof(message) - strlen(message) - 1);
 			}
 
-			/* Loop trough the next lines, after the stop marker */
-			while (fgets(buf, sizeof(buf), stream) && strcmp(buf, "==========\n"))
+			if (end_marker)
 			{
-				/* If this has "Title: " as first 7 characters */
-				if (strncmp(buf, "Title: ", 7) == 0)
-				{
-					/* Store the title */
-					snprintf(title, sizeof(title), "%s", buf + 7);
+				help_files_struct *help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
 
-					/* Null terminate the new line of the title */
-					title[strlen(title) - 1] = '\0';
-				}
-				/* Otherwise, it's a message */
-				else
-				{
-					/* Put it at the end of our buffer with the message */
-					strncat(message, buf, sizeof(message) - strlen(message) - 1);
-				}
+				help_files_tmp->next = help_files;
+				help_files = help_files_tmp;
+
+				strncpy(help_files_tmp->helpname, helpname, sizeof(help_files_tmp->helpname) - 1);
+				strncpy(help_files_tmp->title, title, sizeof(help_files_tmp->title) - 1);
+				strncpy(help_files_tmp->message, message, sizeof(help_files_tmp->message) - 1);
+				help_files_tmp->dm_only = dm_only;
+				help_files_tmp->autocomplete = autocomplete;
+
+				helpname[0] = title[0] = message[0] = '\0';
+				dm_only = 0;
+				autocomplete = 1;
+
+				end_marker = 0;
 			}
-
-			/* Allocate a new help files list */
-			help_files_tmp = (help_files_struct *) malloc(sizeof(help_files_struct));
-
-			/* Append the old help files list to it */
-			help_files_tmp->next = help_files;
-
-			/* Switch the old help files list with this one */
-			help_files = help_files_tmp;
-
-			/* Store help name */
-			snprintf(help_files_tmp->helpname, sizeof(help_files_tmp->helpname), "%s", helpname);
-
-			/* Store help title */
-			snprintf(help_files_tmp->title, sizeof(help_files_tmp->title), "%s", title);
-
-			/* Store help message (the important bit) */
-			snprintf(help_files_tmp->message, sizeof(help_files_tmp->message), "%s", message);
 		}
 
 		fclose(stream);

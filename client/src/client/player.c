@@ -222,17 +222,13 @@ void set_weight_limit(uint32 wlim)
  * Initialize player data. */
 void init_player_data()
 {
-	int i;
-
 	new_player(0, "", 0,0);
 
+	cpl.dm = 0;
 	cpl.fire_on = cpl.firekey_on = 0;
-	cpl.resize_twin = 0;
-	cpl.resize_twin_marker = 0;
 	cpl.run_on = cpl.runkey_on = 0;
 	cpl.inventory_win = IWIN_BELOW;
 
-	cpl.count_left = 0;
 	cpl.container_tag = -996;
 	cpl.container = NULL;
 
@@ -247,20 +243,11 @@ void init_player_data()
 
 	cpl.stats.maxgrace = 1;
 	cpl.stats.speed = 1;
-	cpl.input_text[0] = '\0';
 
 	cpl.title[0] = '\0';
 	cpl.alignment[0] = '\0';
 	cpl.gender[0] = '\0';
 	cpl.range[0] = '\0';
-
-	for (i = 0; i < range_size; i++)
-	{
-		cpl.ranges[i] = NULL;
-	}
-
-	cpl.map_x = 0;
-	cpl.map_y = 0;
 
 	cpl.ob->nrof = 1;
 
@@ -271,7 +258,6 @@ void init_player_data()
 
 	cpl.menustatus = MENU_NO;
 	cpl.menustatus = MENU_NO;
-	cpl.count_left = 0;
 
 	/* Avoid division by 0 errors */
 	cpl.stats.maxsp = 1;
@@ -282,20 +268,10 @@ void init_player_data()
 	cpl.stats.speed = 0;
 	cpl.stats.weapon_sp = 0;
 	cpl.action_timer = 0.0f;
-	cpl.input_text[0] = '\0';
-	cpl.range[0] = '\0';
 	cpl.last_command[0] = '\0';
 
-	for (i = 0; i < range_size; i++)
-	{
-		cpl.ranges[i] = NULL;
-	}
-
-	cpl.map_x = 0;
-	cpl.map_y = 0;
 	cpl.container_tag = -997;
 	cpl.container = NULL;
-	cpl.magicmap = NULL;
 
 	RangeFireMode = 0;
 
@@ -367,9 +343,7 @@ void widget_player_stats(int x, int y)
 {
 	double temp;
 	SDL_Rect box;
-	int mx, my, tmp;
-
-	SDL_GetMouseState(&mx, &my);
+	int tmp;
 
 	/* Let's look if we have a backbuffer SF, if not create one from the background */
 	if (!widgetSF[STATS_ID])

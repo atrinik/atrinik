@@ -31,8 +31,6 @@
 
 FILE *logstream;
 
-int logFlush;
-
 /**
  * Logs an error, debug output, etc.
  * @param logLevel Level of the log message (LOG_MSG, LOG_DEBUG, ...)

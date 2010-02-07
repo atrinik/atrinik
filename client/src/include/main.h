@@ -479,19 +479,25 @@ typedef struct _fire_mode
 	char name[128];
 }_fire_mode;
 
-/** Help files structure */
+/** Help files structure. */
 typedef struct help_files_struct
 {
 	/** Help name, like "main", or "apply". */
 	char helpname[MAX_BUF];
 
-	/** Help title (shown at the start of the book) */
+	/** Help title (shown at the start of the book). */
 	char title[MAX_BUF];
 
-	/** The help message */
+	/** The help message. */
 	char message[HUGE_BUF * 12];
 
-	/** Next help entry */
+	/** Is this for DMs only? */
+	int dm_only;
+
+	/** Can the command be autocompleted using the tab key? */
+	int autocomplete;
+
+	/** Next help entry. */
 	struct help_files_struct *next;
 } help_files_struct;
 

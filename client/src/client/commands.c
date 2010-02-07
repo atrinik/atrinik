@@ -708,7 +708,6 @@ void StatsCmd(unsigned char *data, int len)
 		if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
 		{
 			cpl.stats.protection[c - CS_STAT_PROT_START] = (sint16)*(data + i++);
-			cpl.stats.protection_change = 1;
 			WIDGET_REDRAW(RESIST_ID);
 		}
 		else
@@ -1012,6 +1011,16 @@ void StatsCmd(unsigned char *data, int len)
 					adjust_string(cpl.alignment);
 					adjust_string(cpl.gender);
 					adjust_string(cpl.godname);
+
+					if (strstr(cpl.pname, "[WIZ]"))
+					{
+						cpl.dm = 1;
+					}
+					else
+					{
+						cpl.dm = 0;
+					}
+
 					break;
 				}
 

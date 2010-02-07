@@ -1,9 +1,8 @@
 Name: main
 Title: General Help
-This is the main help page.
-If you're new to the game, please read on.
+Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at www.atrinik.org for FAQ, playing guides, and more.
 
-Atrinik is a Multiplayer Online Role-Playing Game. The original code was forked from Crossfire and Daimonin in 2009 by Alex Tokar. More at: http://www.atrinik.org
+Quick help:
 
 Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
 
@@ -27,8 +26,6 @@ List of ^contributors^
 ^mark^
 ^save^
 ^hiscore^
-^bug^
-^apartment^
 ^party^
 ^drop^
 ^get^
@@ -42,6 +39,16 @@ List of ^contributors^
 Name: apply
 Title: Apply Command
 The /apply command is used to apply selected things. For example, you can wield a sword in your inventory, or wear an armour. You can also apply things like stairs to enter them, or handles to activate gates.
+
+/apply can also be used to apply specified item in your inventory, for example, /apply amulet
+
+/apply accepts two flags, -a and -u.
+
+This would always apply the item 'amulet' from your inventory, never unapplying it:
+/apply -a amulet
+
+This would always unapply the item 'amulet' from your inventory, never applying it:
+/apply -u amulet
 <p><t t="See Also:">
 ^get^
 ^drop^
@@ -125,6 +132,7 @@ The Message of the Day command will show you the current message of the day, as 
 ==========
 Name: dm
 Title: Dungeon Master Command
+Autocomplete: 0
 Allows you to become a Dungeon Master, if you are allowed to.
 
 <t t="Syntax:">/dm
@@ -160,7 +168,8 @@ The version command shows you the current server's version.
 ==========
 Name: mark
 Title: Mark Command
-The mark command marks a specified item in your inventory. Some common examples of usage:
+Autocomplete: 0
+The mark command marks a specified item in your inventory. It is, by default, bound to the M key. Some common examples of usage:
 
 Smith will identify your current marked item.
 
@@ -180,30 +189,6 @@ The highscore command shows the top players in the game, the ones with most expe
 
 To search for someone in the highscore list:
 /hiscore [name]
-==========
-Name: bug
-Title: Bug Command
-The bug command is a quick way for you to report minor bugs. It will be saved and the server administrator will take a look at it, and will ask you for more details.
-
-However, the preferred way of reporting bugs to Atrinik developer team is using Atrinik Bugzilla at http://bugzilla.atrinik.org
-
-<t t="Syntax:">/bug [bug report]
-==========
-Name: apartment
-Title: Apartment Command
-The apartment command is used to invite other players to your apartment. They will not be able to steal your things, or drop their things in there!
-
-<t t="Syntax:">To cancel an existing apartment invitation and kick all players besides yourself from your apartment:
-/apartment cancel
-
-To send an invite to another player (you must be in your apartment!):
-/apartment invite [player]
-
-To turn on/off apartment invites (the player you want to invite must have this ON):
-/apartment invites [on|off]
-
-To cancel someone's invite:
-/apartment off
 ==========
 Name: party
 Title: Party Command
@@ -237,12 +222,17 @@ OR
 Name: drop
 Title: Drop Command
 The drop command is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
+
+You can also drop matching items from your inventory using /drop, for example:
+/drop ring
+would drop all items with "ring" in their name from your inventory. Locked items wouldn't be dropped.
 <p><t t="See Also:">
 ^apply^
 ^get^
 ==========
 Name: get
 Title: Get Command
+Autocomplete: 0
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
 However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -> General -> Collect All Items.
@@ -252,7 +242,7 @@ However, it is possible to configure the client to get all items if there are mu
 ==========
 Name: push
 Title: Push Command
-The push command is used to push objects out of your way. Rolling objects like barrels can be pushed, and also players.
+The push command is used to push objects out of your way. Rolling objects like barrels can be pushed.
 
 <t t="Syntax:">/push
 <p><t t="See Also:">
@@ -345,6 +335,7 @@ This is the list of all emote commands:
 ==========
 Name: summon
 Title: Summon Command
+DM: 1
 The DM summon command is used to summon a player next to yourself.
 
 <t t="Syntax:">/summon [player name]
@@ -354,6 +345,7 @@ The DM summon command is used to summon a player next to yourself.
 ==========
 Name: teleport
 Title: Teleport Command
+DM: 1
 The DM teleport command is used to teleport yourself next to a player.
 
 <t t="Syntax:">/teleport [player name]
@@ -363,6 +355,7 @@ The DM teleport command is used to teleport yourself next to a player.
 ==========
 Name: goto
 Title: Go To Command
+DM: 1
 The DM Go To command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
 
 <t t="Syntax:">/goto [map path] [x] [y]
@@ -372,12 +365,14 @@ The DM Go To command is used to teleport yourself to a specified map path, with 
 ==========
 Name: kick
 Title: Kick Command
+DM: 1
 The DM kick command is used to kick a player from the game.
 
 <t t="Syntax:">/kick [player name]
 ==========
 Name: plugin
 Title: PlugIn Command
+DM: 1
 The DM plugin command is used to load a plugin from existing plugins.
 
 <t t="Syntax:">/plugin [plugin]
@@ -387,6 +382,7 @@ The DM plugin command is used to load a plugin from existing plugins.
 ==========
 Name: plugout
 Title: PlugOut Command
+DM: 1
 The DM plugout command is used to unload a plugin from loaded plugins.
 
 <t t="Syntax:">/plugout [plugin]
@@ -396,6 +392,7 @@ The DM plugout command is used to unload a plugin from loaded plugins.
 ==========
 Name: pluglist
 Title: PlugList Command
+DM: 1
 The DM pluglist command is used to show currently loaded plugins. It will also show loadable plugins from the server's plugins directory.
 
 <t t="Syntax:">/pluglist
@@ -405,6 +402,7 @@ The DM pluglist command is used to show currently loaded plugins. It will also s
 ==========
 Name: shutdown
 Title: Shutdown Command
+DM: 1
 The DM shutdown command is used to start a timed shutdown agent that shuts down the server in specified number of seconds.
 
 <t t="Syntax:">/shutdown [seconds]
@@ -413,6 +411,7 @@ The DM shutdown command is used to start a timed shutdown agent that shuts down 
 ==========
 Name: shutdown_now
 Title: Shutdown Now Command
+DM: 1
 The DM shutdown now command is used to shutdown the server instantly.
 
 <t t="Syntax:">/shutdown_now
@@ -421,12 +420,14 @@ The DM shutdown now command is used to shutdown the server instantly.
 ==========
 Name: resetmap
 Title: Reset Map Command
+DM: 1
 The DM reset map command is used to reset a map the DM is currently located on. It will temporarily remove all players from the map, swap the map out, and reinsert the players.
 
 <t t="Syntax:">/resetmap
 ==========
 Name: create
 Title: Create Command
+DM: 1
 The DM create command used to create almost any item.
 <t t="NOTE: VERY DANGEROUS, USE WITH CAUTION!">
 
@@ -434,30 +435,35 @@ The DM create command used to create almost any item.
 ==========
 Name: addexp
 Title: Add Exp Command
+DM: 1
 The DM add exp command is used to add exp to specified skill to a player.
 
 <t t="Syntax:">/addexp [player name] [skill ID] [experience to add]
 ==========
 Name: dm_stealth
 Title: DM Stealth Command
+DM: 1
 The DM stealth command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login his entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
 
 <t t="Syntax:">/dm_stealth
 ==========
 Name: dm_light
 Title: DM Light Command
+DM: 1
 The DM light command is used to make any map appear in daylight.
 
 <t t="Syntax:">/dm_light
 ==========
 Name: wizpass
 Title: Wiz Pass Command
+DM: 1
 The DM wiz pass command is used to make a DM get stopped by walls and obstacles.
 
 <t t="Syntax:">/wizpass
 ==========
 Name: say
 Title: Say Command
+Autocomplete: 0
 The say command is used to talk with other players on same map, interact with NPCs, activating teleporters and gates and other things.
 
 This command does not require you to type anything before your message; you just write the message, and it gets said on the map you're located at.
@@ -471,6 +477,7 @@ This command does not require you to type anything before your message; you just
 ==========
 Name: motd_set
 Title: Set MOTD Command
+DM: 1
 The DM MOTD set command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
 
 <t t="Syntax:">To revert the original (default) Message of the Day:
@@ -487,6 +494,7 @@ The AFK (Away From Keyboard) command is used to mark you as away. It will be dis
 ==========
 Name: dmsay
 Title: DM Say Command
+DM: 1
 The DM say command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
 
 <t t="Syntax:">/dmsay [your message]
@@ -495,6 +503,8 @@ Name: contributors
 Title: Contributors
 
 |Authors and contributors to Atrinik,| |Daimonin and Crossfire:|
+Alex Tokar [admin@atokar.net]
+Pete Spicer [sleeping@myperch.org]
 Mark Wedel [mark@scruz.net]
 Frank Tore Johansen [frankj@ifi.uio.no]
 Kjetil Torgrim Homme [kjetilho@ifi.uio.no]
@@ -535,8 +545,6 @@ Brian Thomas [thomas@astro.psu.edu]
 John Steven Moerk [jsm@axon.ksc.nasa.gov]
 Delbecq David [david.delbecq@mailandnews.com]
 Chachkoff Yann [yann.chachkoff@mailandnews.com]
-Alex Tokar [admin@atokar.net]
-Pete Spicer [sleeping@myperch.org]
 
 Images and art:
 Peter Gardner

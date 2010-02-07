@@ -786,6 +786,11 @@ static void key_string_event(SDL_KeyboardEvent *key)
 
 						if (!strncmp(help_files_tmp->helpname, InputString + 1, InputCount - 1))
 						{
+							if ((help_files_tmp->dm_only && !cpl.dm) || !help_files_tmp->autocomplete)
+							{
+								continue;
+							}
+
 							if (possibilities == 0)
 							{
 								strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
