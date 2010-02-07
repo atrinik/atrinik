@@ -180,7 +180,6 @@ void handle_client(socket_struct *ns, player *pl)
 
 		if (i < 0)
 		{
-			LOG(llevDebug, "Drop Connection: %s (%s)\n", (pl ? pl->ob->name : "NONE"), ns->host ? ns->host : "NONE");
 			ns->status = Ns_Dead;
 			return;
 		}
@@ -297,6 +296,18 @@ static void remove_ns_dead_player(player *pl)
 {
 	if (pl == NULL || pl->ob->type == DEAD_OBJECT)
 	{
+		return;
+	}
+
+	if (pl->state != ST_PLAYING)
+	{
+		pl->ob->type = DEAD_OBJECT;
+
+		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
+		{
+			remove_ob(pl->ob);
+		}
+
 		return;
 	}
 
