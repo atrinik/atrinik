@@ -102,7 +102,7 @@ void SoundCmd(unsigned char *data,  int len)
 
 	if (len != 5)
 	{
-		LOG(LOG_ERROR, "Got invalid length on sound command: %d\n", len);
+		LOG(llevError, "Got invalid length on sound command: %d\n", len);
 		return;
 	}
 
@@ -115,7 +115,7 @@ void SoundCmd(unsigned char *data,  int len)
 	{
 		if (num < 0 || num >= SPELL_SOUND_MAX)
 		{
-			LOG(LOG_ERROR, "Got invalid spell sound id: %d\n", num);
+			LOG(llevError, "Got invalid spell sound id: %d\n", num);
 			return;
 		}
 
@@ -126,7 +126,7 @@ void SoundCmd(unsigned char *data,  int len)
 	{
 		if (num < 0 || num >= SOUND_MAX)
 		{
-			LOG(LOG_ERROR, "Got invalid sound id: %d\n", num);
+			LOG(llevError, "Got invalid sound id: %d\n", num);
 			return;
 		}
 	}
@@ -144,7 +144,7 @@ void SetupCmd(char *buf, int len)
 	char *cmd, *param;
 
 	scrolldy = scrolldx = 0;
-	LOG(LOG_MSG, "Get SetupCmd:: %s\n", buf);
+	LOG(llevMsg, "Get SetupCmd:: %s\n", buf);
 
 	for (s = 0; ;)
 	{
@@ -193,7 +193,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG, "Get skf:: %s\n", param);
+				LOG(llevMsg, "Get skf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -216,7 +216,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG, "Get spf:: %s\n", param);
+				LOG(llevMsg, "Get spf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -239,7 +239,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG,"Get stf:: %s\n", param);
+				LOG(llevMsg,"Get stf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -262,7 +262,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG, "Get bpf:: %s\n", param);
+				LOG(llevMsg, "Get bpf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -286,7 +286,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG, "Get amf:: %s\n", param);
+				LOG(llevMsg, "Get amf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -310,7 +310,7 @@ void SetupCmd(char *buf, int len)
 		{
 			if (!strcmp(param, "FALSE"))
 			{
-				LOG(LOG_MSG, "Get hpf:: %s\n", param);
+				LOG(llevMsg, "Get hpf:: %s\n", param);
 			}
 			else if (strcmp(param, "OK"))
 			{
@@ -344,7 +344,7 @@ void SetupCmd(char *buf, int len)
 		}
 		else
 		{
-			LOG(LOG_ERROR, "Got setup for a command we don't understand: %s %s\n", cmd, param);
+			LOG(llevError, "Got setup for a command we don't understand: %s %s\n", cmd, param);
 		}
 	}
 	GameStatus = GAME_STATUS_REQUEST_FILES;
@@ -377,7 +377,7 @@ void Face1Cmd(unsigned char *data,  int len)
  * us down anyways. */
 void AddMeFail()
 {
-	LOG(LOG_MSG, "addme_failed received.\n");
+	LOG(llevMsg, "addme_failed received.\n");
 	GameStatus = GAME_STATUS_START;
 
 	/* Add here error handling */
@@ -389,7 +389,7 @@ void AddMeFail()
  * send addme_success commands. */
 void AddMeSuccess()
 {
-	LOG(LOG_MSG, "addme_success received.\n");
+	LOG(llevMsg, "addme_success received.\n");
 	return;
 }
 
@@ -422,7 +422,7 @@ void AnimCmd(unsigned char *data, int len)
 	animations[anum].num_animations = (len - 4) / 2;
 	if (animations[anum].num_animations < 1)
 	{
-		LOG(LOG_DEBUG, "AnimCmd: num animations invalid: %d\n", animations[anum].num_animations);
+		LOG(llevDebug, "AnimCmd: num animations invalid: %d\n", animations[anum].num_animations);
 		return;
 	}
 
@@ -431,7 +431,7 @@ void AnimCmd(unsigned char *data, int len)
 	else
 		animations[anum].frame = animations[anum].num_animations;
 
-	animations[anum].faces = _malloc(sizeof(uint16) * animations[anum].num_animations, "AnimCmd(): facenum buf");
+	animations[anum].faces = malloc(sizeof(uint16) * animations[anum].num_animations);
 
 	for (i = 4, j = 0; i < len; i += 2, j++)
 	{
@@ -440,10 +440,10 @@ void AnimCmd(unsigned char *data, int len)
 	}
 
 	if (j != animations[anum].num_animations)
-		LOG(LOG_DEBUG, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
+		LOG(llevDebug, "Calculated animations does not equal stored animations? (%d != %d)\n", j, animations[anum].num_animations);
 
 #if 0
-	LOG(LOG_MSG, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);
+	LOG(llevMsg, "Received animation %d, %d facings and %d faces\n", anum, animations[anum].facings, animations[anum].num_animations);
 #endif
 }
 
@@ -462,13 +462,13 @@ void ImageCmd(unsigned char *data, int len)
 
 	if (len < 8 || (len - 8) != plen)
 	{
-		LOG(LOG_ERROR, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
+		LOG(llevError, "PixMapCmd: Lengths don't compare (%d, %d)\n", (len - 8), plen);
 		return;
 	}
 
 	/* Save picture to cache and load it to FaceList */
 	sprintf(buf, "%s%s", GetCacheDirectory(), FaceList[pnum].name);
-	LOG(LOG_DEBUG, "ImageFromServer: %s\n", FaceList[pnum].name);
+	LOG(llevDebug, "ImageFromServer: %s\n", FaceList[pnum].name);
 
 	if ((stream = fopen_wrapper(buf, "wb+")) != NULL)
 	{
@@ -526,7 +526,7 @@ void DrawInfoCmd(unsigned char *data)
 
 	if (!buf)
 	{
-		LOG(LOG_ERROR, "DrawInfoCmd - got no data\n");
+		LOG(llevError, "DrawInfoCmd - got no data\n");
 		buf = "";
 	}
 	else
@@ -1042,7 +1042,7 @@ void PreParseInfoStat(char *cmd)
 	/* Find input name */
 	if (strstr(cmd, "What is your name?"))
 	{
-		LOG(LOG_MSG, "Login: Enter name\n");
+		LOG(llevMsg, "Login: Enter name\n");
 		cpl.name[0] = 0;
 		cpl.password[0] = 0;
 		GameStatus = GAME_STATUS_NAME;
@@ -1050,13 +1050,13 @@ void PreParseInfoStat(char *cmd)
 
 	if (strstr(cmd, "What is your password?"))
 	{
-		LOG(LOG_MSG, "Login: Enter password\n");
+		LOG(llevMsg, "Login: Enter password\n");
 		GameStatus = GAME_STATUS_PSWD;
 	}
 
 	if (strstr(cmd, "Please type your password again."))
 	{
-		LOG(LOG_MSG, "Login: Enter verify password\n");
+		LOG(llevMsg, "Login: Enter verify password\n");
 		GameStatus = GAME_STATUS_VERIFYPSWD;
 	}
 
@@ -1081,7 +1081,7 @@ void handle_query(char *data)
 		while ((buf = strchr(buf, '\n')) != NULL)
 		{
 			*buf++ = '\0';
-			LOG(LOG_MSG, "Received query string: %s\n", cp);
+			LOG(llevMsg, "Received query string: %s\n", cp);
 			PreParseInfoStat(cp);
 			cp = buf;
 		}
@@ -1192,7 +1192,7 @@ void ItemXCmd(unsigned char *data, int len)
 
 	if (pos == len && loc != -1)
 	{
-		LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");
+		LOG(llevError, "ItemCmd: Got location with no other data\n");
 	}
 	else
 	{
@@ -1232,7 +1232,7 @@ void ItemXCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
-			LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+			LOG(llevError, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
 	}
 
 	map_udate_flag = 2;
@@ -1295,7 +1295,7 @@ void ItemYCmd(unsigned char *data, int len)
 	if (pos == len && loc != -1)
 	{
 		/* server sends no clean command to clear below window */
-		/*LOG(LOG_ERROR, "ItemCmd: Got location with no other data\n");*/
+		/*LOG(llevError, "ItemCmd: Got location with no other data\n");*/
 	}
 	else
 	{
@@ -1335,7 +1335,7 @@ void ItemYCmd(unsigned char *data, int len)
 		}
 
 		if (pos > len)
-			LOG(LOG_ERROR, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
+			LOG(llevError, "ItemCmd: ERROR: Overread buffer: %d > %d\n", pos, len);
 	}
 
 	map_udate_flag = 2;
@@ -1507,11 +1507,9 @@ void QuickSlotCmd(char *data)
 	{
 		quick_slots[i].spell = 0;
 		quick_slots[i].tag = -1;
-		quick_slots[i].nr = -1;
 		quick_slots[i].classNr = 0;
 		quick_slots[i].spellNr = 0;
 		quick_slots[i].groupNr = 0;
-		quick_slots[i].invSlot = 0;
 	}
 
 	while (p)
@@ -1821,7 +1819,7 @@ void map_scrollCmd(char *data)
 
 	if (!buf)
 	{
-		LOG(LOG_ERROR, "ERROR: map_scrollCmd(): Got short packet.\n");
+		LOG(llevError, "ERROR: map_scrollCmd(): Got short packet.\n");
 		return;
 	}
 
@@ -2077,7 +2075,7 @@ void GolemCmd(unsigned char *data)
 	char *tmp, buf[256];
 
 #if 0
-	LOG(LOG_DEBUG, "golem: <%s>\n", data);
+	LOG(llevDebug, "golem: <%s>\n", data);
 #endif
 
 	/* We grab our mode */
@@ -2124,12 +2122,12 @@ static void save_data_cmd_file(char *path, unsigned char *data, int len)
 	if ((stream = fopen_wrapper(path, "wb")) != NULL)
 	{
 		if (fwrite(data, 1, len, stream) != (size_t) len)
-			LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
+			LOG(llevError, "ERROR: save_data_cmd_file(): Write of %s failed. (len: %d)\n", path, len);
 
 		fclose(stream);
 	}
 	else
-		LOG(LOG_ERROR, "ERROR: save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
+		LOG(llevError, "ERROR: save_data_cmd_file(): Can't open %s for writing. (len: %d)\n", path, len);
 }
 
 /**
@@ -2169,7 +2167,7 @@ void DataCmd(unsigned char *data, int len)
 			 * uncompress when needed and save it */
 			if (data_comp)
 			{
-				LOG(LOG_DEBUG, "data cmd: compressed skill list(len:%d)\n", len);
+				LOG(llevDebug, "data cmd: compressed skill list(len:%d)\n", len);
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
@@ -2183,7 +2181,7 @@ void DataCmd(unsigned char *data, int len)
 		case DATA_CMD_SPELL_LIST:
 			if (data_comp)
 			{
-				LOG(LOG_DEBUG, "data cmd: compressed spell list(len:%d)\n", len);
+				LOG(llevDebug, "data cmd: compressed spell list(len:%d)\n", len);
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
@@ -2196,7 +2194,7 @@ void DataCmd(unsigned char *data, int len)
 		case DATA_CMD_SETTINGS_LIST:
 			if (data_comp)
 			{
-				LOG(LOG_DEBUG, "data cmd: compressed settings file(len:%d)\n", len);
+				LOG(llevDebug, "data cmd: compressed settings file(len:%d)\n", len);
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
@@ -2209,7 +2207,7 @@ void DataCmd(unsigned char *data, int len)
 		case DATA_CMD_BMAP_LIST:
 			if (data_comp)
 			{
-				LOG(LOG_DEBUG, "data cmd: compressed bmaps file(len:%d)\n", len);
+				LOG(llevDebug, "data cmd: compressed bmaps file(len:%d)\n", len);
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
 				data = dest;
 				len = dest_len;
@@ -2223,7 +2221,7 @@ void DataCmd(unsigned char *data, int len)
 			if (data_comp)
 			{
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				LOG(LOG_DEBUG, "data cmd: compressed anims file(len:%d) -> %d\n", len, dest_len);
+				LOG(llevDebug, "data cmd: compressed anims file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;
 			}
@@ -2236,7 +2234,7 @@ void DataCmd(unsigned char *data, int len)
 			if (data_comp)
 			{
 				uncompress((Bytef *) dest, (uLongf *) &dest_len, (const Bytef *) data, (uLong) len);
-				LOG(LOG_DEBUG, "data cmd: compressed hfiles file(len:%d) -> %d\n", len, dest_len);
+				LOG(llevDebug, "data cmd: compressed hfiles file(len:%d) -> %d\n", len, dest_len);
 				data = dest;
 				len = dest_len;
 			}
@@ -2246,7 +2244,7 @@ void DataCmd(unsigned char *data, int len)
 			break;
 
 		default:
-			LOG(LOG_ERROR, "data cmd: unknown type %d (len:%d)\n", data_type, len);
+			LOG(llevError, "data cmd: unknown type %d (len:%d)\n", data_type, len);
 	}
 
 	free(dest);
@@ -2383,7 +2381,7 @@ void ShopCmd(unsigned char *data, int len)
 
 		if (pos > len)
 		{
-			LOG(LOG_ERROR, "ERROR: ShopCmd(): Overread buffer: %d > %d\n", pos, len);
+			LOG(llevError, "ERROR: ShopCmd(): Overread buffer: %d > %d\n", pos, len);
 		}
 	}
 }

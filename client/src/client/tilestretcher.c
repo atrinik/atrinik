@@ -616,11 +616,11 @@ static void hash_remove(Uint16 index)
 	{
 		if (prev == STRETCH_NULL)
 		{
-			LOG(LOG_MSG, "Warning: hash_remove encountered an empty chain!\n");
+			LOG(llevMsg, "Warning: hash_remove encountered an empty chain!\n");
 		}
 		else
 		{
-			LOG(LOG_MSG, "Warning: hash_remove did not find a match on the chain!\n");
+			LOG(llevMsg, "Warning: hash_remove did not find a match on the chain!\n");
 		}
 
 		return;

@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Text window header file. */
+
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 

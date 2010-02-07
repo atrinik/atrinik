@@ -56,7 +56,6 @@
 #include <SDL/SDL_main.h>
 #include <SDL/SDL_image.h>
 
-#define _malloc(__d,__s) malloc(__d)
 #define snprintf _snprintf
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
@@ -86,10 +85,6 @@
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
    computer */
 #define INSTALL_SOUND
-
-#ifndef int
-#define int int
-#endif
 
 #endif
 #endif

@@ -59,7 +59,6 @@
 		</Linker>
 		<Unit filename="README" />
 		<Unit filename="..\..\..\src\include\book.h" />
-		<Unit filename="..\..\..\src\include\cflinux.h" />
 		<Unit filename="..\..\..\src\include\client.h">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -126,9 +125,6 @@
 		</Unit>
 		<Unit filename="..\..\..\src\include\widget.h" />
 		<Unit filename="..\..\..\src\include\win32.h">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\..\..\src\include\wrapper.h">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\..\src\zlib\include\inffast.h">

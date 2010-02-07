@@ -163,7 +163,7 @@ void DoClient(ClientSocket *csocket)
 		if (i == -1)
 		{
 			/* Need to add some better logic here */
-			LOG(LOG_MSG, "Got error on read (error %d)\n", socket_get_error());
+			LOG(llevMsg, "Got error on read (error %d)\n", socket_get_error());
 			socket_close(csocket->fd);
 
 			return;
@@ -195,7 +195,7 @@ void DoClient(ClientSocket *csocket)
 
 		if (!cmd_id || cmd_id >= BINAR_CMD)
 		{
-			LOG(LOG_ERROR, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
+			LOG(llevError, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
 		}
 		else
 		{
@@ -330,7 +330,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	}
 
 	snprintf(buf, sizeof(buf), "%s.png", face);
-	FaceList[pnum].name = (char *) _malloc(strlen(buf) + 1, "finish_face_cmd(): FaceList name");
+	FaceList[pnum].name = (char *) malloc(strlen(buf) + 1);
 	strcpy(FaceList[pnum].name, buf);
 
 	FaceList[pnum].checksum = checksum;
@@ -512,7 +512,7 @@ int request_face(int pnum, int mode)
 
 	if (num >= bmaptype_table_size)
 	{
-		LOG(LOG_ERROR, "REQUEST_FILE(): server sent picture id to big (%d %d)\n", num, bmaptype_table_size);
+		LOG(llevError, "REQUEST_FILE(): server sent picture id to big (%d %d)\n", num, bmaptype_table_size);
 		return 0;
 	}
 
@@ -552,7 +552,7 @@ int request_face(int pnum, int mode)
 	if (bmaptype_table[num].pos != -1)
 	{
 		snprintf(buf, sizeof(buf), "%s.png", bmaptype_table[num].name);
-		FaceList[num].name = (char *) _malloc(strlen(buf) + 1, "request_face(): FaceList name");
+		FaceList[num].name = (char *) malloc(strlen(buf) + 1);
 		strcpy(FaceList[num].name, buf);
 		FaceList[num].checksum = bmaptype_table[num].crc;
 		load_picture_from_pack(num);

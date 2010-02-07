@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Widget header file. */
+
 #ifndef WIDGET_H
 #define WIDGET_H
 

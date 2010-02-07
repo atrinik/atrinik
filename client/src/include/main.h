@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Header file for things that are generally used in many places. */
+
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -64,8 +68,8 @@ extern _server_char new_character;
 
 #define HUGE_BUF 1024
 
-#define SDL_DEFAULT_REPEAT_DELAY		500
-#define SDL_DEFAULT_REPEAT_INTERVAL		30
+#define SDL_DEFAULT_REPEAT_DELAY 500
+#define SDL_DEFAULT_REPEAT_INTERVAL 30
 
 /* For hash table (bmap, ...) */
 #define MAXHASHSTRING 20
@@ -73,7 +77,7 @@ extern _server_char new_character;
 /* Prime nubmer for hash table */
 #define BMAPTABLE 15823
 
-/* Structure for out bmap data */
+/** Structure for bitmap data */
 typedef struct _bmaptype
 {
 	char *name;
@@ -88,23 +92,17 @@ extern _bmaptype *bmap_table[BMAPTABLE];
 /** Keymap structure */
 typedef struct _keymap
 {
-	/** The command text, submitted to server when key pressed */
+	/** The command text, submitted to server when key is pressed. */
 	char text[256];
 
-	/** Key name */
+	/** Key name. */
 	char keyname[256];
 
-	/** Scancode of key */
+	/** Scan code of key. */
 	int key;
 
-	/** If true, key will be repeated when pressed */
+	/** If true, key will be repeated when pressed. */
 	int repeatflag;
-
-	/** The send mode OR the menu id */
-	int mode;
-
-	/** Menu mode */
-	int menu_mode;
 }_keymap;
 
 /** The servers list, as given by the metaserver. */
@@ -418,8 +416,6 @@ typedef struct _dialog_list_set
 	int key_change;
 }_dialog_list_set;
 
-/* Spell list defines */
-
 /** Spell list max */
 #define SPELL_LIST_MAX 20
 /** Spell list classes */
@@ -517,6 +513,7 @@ typedef enum _fire_mode_id
 /** If no fire item */
 #define FIRE_ITEM_NO -1
 
+/** Game statuses. */
 typedef enum _game_status
 {
 	/** Call this add start to autoinit */

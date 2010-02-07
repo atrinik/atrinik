@@ -203,7 +203,7 @@ void CompleteCmd(unsigned char *data, int len)
 {
 	if (len != 6)
 	{
-		LOG(LOG_ERROR, "comc - invalid length %d - ignoring\n", len);
+		LOG(llevError, "comc - invalid length %d - ignoring\n", len);
 	}
 
 	csocket.command_received = GetShort_String(data);

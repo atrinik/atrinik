@@ -87,9 +87,6 @@ void update_item_sort(item *it)
 
 			it->next = itmp;
 			itmp->prev = it;
-
-			/* Update so we get a redraw */
-			it->env->inv_updated = 1;
 			return;
 		}
 
@@ -141,18 +138,17 @@ char *get_number(int i)
  *  is allocated and initialized correctly */
 static item *new_item()
 {
-	item *op = _malloc(sizeof(item), "new_item (): new item");
+	item *op = malloc(sizeof(item));
 
 	if (!op)
 	{
-		LOG(LOG_ERROR, "ERROR: new_item(): Out of memory.\n");
+		LOG(llevError, "ERROR: new_item(): Out of memory.\n");
 		exit(0);
 	}
 
 	op->next = op->prev = NULL;
 	copy_name(op->d_name, "");
 	copy_name(op->s_name, "");
-	copy_name(op->p_name, "");
 	op->inv = NULL;
 	op->env = NULL;
 	op->tag = 0;
@@ -190,7 +186,7 @@ static item *alloc_items(int nrof)
 }
 
 /* free_items() frees all allocated items from list */
-void free_all_items (item *op)
+void free_all_items(item *op)
 {
 	item *tmp;
 	void *tmp_free;
@@ -205,19 +201,6 @@ void free_all_items (item *op)
 		FreeMemory(tmp_free);
 		op = tmp;
 	}
-}
-
-int locate_item_nr_from_tag(item *op, int tag)
-{
-	int count = 0;
-
-	for (; op != NULL; count++, op = op->next)
-	{
-		if (op->tag == tag)
-			return count;
-	}
-
-	return -1;
 }
 
 int locate_item_tag_from_nr(item *op, int nr)
@@ -305,8 +288,6 @@ void remove_item(item *op)
 	if (!op || op == player || op == cpl.below || op == cpl.sack)
 		return;
 
-	op->env->inv_updated = 1;
-
 	/* Do we really want to do this? */
 	if (op->inv)
 		remove_item_inventory (op);
@@ -339,7 +320,6 @@ void remove_item(item *op)
 	op->tag = 0;
 	copy_name(op->d_name, "");
 	copy_name(op->s_name, "");
-	copy_name(op->p_name, "");
 	op->inv = NULL;
 	op->env = NULL;
 	op->tag = 0;
@@ -361,8 +341,6 @@ void remove_item_inventory(item *op)
 {
 	if (!op)
 		return;
-
-	op->inv_updated = 1;
 
 	while (op->inv)
 		remove_item(op->inv);
@@ -568,9 +546,6 @@ void set_item_values(item *op, char *name, sint32 weight, uint16 face, int flags
 		}
 	}
 
-	if (op->env)
-		op->env->inv_updated = 1;
-
 	op->weight = (float) weight / 1000;
 
 	if (itype != 254)
@@ -703,9 +678,6 @@ void update_item(int tag, int loc, char *name, int weight, int face, int flags, 
 		player->weight = (float) weight / 1000;
 		player->face = face;
 		get_flags(player, flags);
-
-		if (player->inv)
-			player->inv->inv_updated = 1;
 
 		player->animation_id = anim;
 		player->anim_speed = animspeed;

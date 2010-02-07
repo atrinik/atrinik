@@ -61,7 +61,7 @@ typedef enum _player_doll_enum
 
 	/* Must be last element */
 	PDOLL_INIT
-}_player_doll_enum;
+} _player_doll_enum;
 
 /** Player doll item position structure. */
 typedef struct _player_doll_pos
@@ -71,7 +71,7 @@ typedef struct _player_doll_pos
 
 	/** Y position. */
 	int ypos;
-}_player_doll_pos;
+} _player_doll_pos;
 
 extern _server_level server_level;
 

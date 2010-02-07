@@ -194,7 +194,7 @@ void sound_init()
 	/* Open the audio device */
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(LOG_MSG, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
+		LOG(llevMsg, "Warning: Couldn't set sound device. Reason: %s\n", SDL_GetError());
 		return;
 	}
 
@@ -230,7 +230,7 @@ void sound_loadall()
 		Sounds[i].sound = Mix_LoadWAV_wrapper(buf);
 
 		if (!Sounds[i].sound)
-			LOG(LOG_ERROR, "sound_loadall: missing sound file %s\n", buf);
+			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
 	}
 
 	for (ii = 0; ii < SPELL_SOUND_MAX; ii++)
@@ -240,7 +240,7 @@ void sound_loadall()
 		Sounds[i + ii].sound = Mix_LoadWAV_wrapper(buf);
 
 		if (!Sounds[i + ii].sound)
-			LOG(LOG_ERROR, "sound_loadall: missing sound file %s\n", buf);
+			LOG(llevError, "sound_loadall: missing sound file %s\n", buf);
 	}
 #endif
 }

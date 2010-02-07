@@ -23,22 +23,26 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * The main include file, included by most C files. */
+
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
-#ifdef __LINUX
-#include "define.h"
+#ifndef WIN32
+#	include "define.h"
 #else
-#include "win32.h"
+#	include "win32.h"
 #endif
 
 #include "config.h"
 
 /* This is for the DevCpp IDE */
 #ifndef __WIN_32
-#ifdef WIN32
-#define __WIN_32
-#endif
+#	ifdef WIN32
+#		define __WIN_32
+#	endif
 #endif
 
 typedef unsigned int uint32;
@@ -49,11 +53,11 @@ typedef unsigned char uint8;
 typedef signed char sint8;
 
 #ifndef MIN
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#	define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
 #ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
+#	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
 /* Just so that the entries in proto.h don't error on this... */
@@ -63,9 +67,73 @@ typedef signed char sint8;
 #endif
 
 #ifdef INSTALL_SOUND
-#include <SDL_mixer.h>
+#	include <SDL_mixer.h>
 #endif
-#include <wrapper.h>
+
+#ifdef WIN32
+#	include "win32.h"
+#else
+#	ifdef HAVE_SYS_STAT_H
+#		include <sys/stat.h>
+#	endif
+
+#	ifdef HAVE_SYS_TIME_H
+#		include <sys/time.h>
+#	endif
+
+#	include <time.h>
+
+#	ifdef HAVE_STRING_H
+#		include <string.h>
+#	endif
+
+#	ifdef HAVE_UNISTD_H
+#		include <unistd.h>
+#	endif
+
+#	ifdef HAVE_FCNTL_H
+#		include <fcntl.h>
+#	endif
+
+#	ifdef HAVE_DMALLOC_H
+#		include <dmalloc.h>
+#	endif
+
+#	include <sys/types.h>
+#	include <errno.h>
+#	include <ctype.h>
+#	include <stdarg.h>
+#	include <stddef.h>
+#	include <netdb.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
+#	include <SDL.h>
+#	include <SDL_main.h>
+#	include <SDL_image.h>
+
+#	define SOCKET int
+#endif
+
+/** The log levels. */
+typedef enum LogLevel
+{
+	/** A message. */
+	llevMsg,
+	/** An error. */
+	llevError,
+	/** Debugging message. */
+	llevDebug
+} LogLevel;
+
+/** Default log level. */
+#define LOGLEVEL llevDebug
+
+#ifdef INSTALL_SOUND
+Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname);
+Mix_Music *Mix_LoadMUS_wrapper(const char *file);
+#endif
+
 #include <signal.h>
 #include <curl/curl.h>
 
@@ -93,7 +161,9 @@ typedef signed char sint8;
 #include <menu.h>
 #include <dialog.h>
 #include <widget.h>
+
 #ifndef __CPROTO__
-#include <proto.h>
+#	include <proto.h>
 #endif
+
 #endif

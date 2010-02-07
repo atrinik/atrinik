@@ -23,11 +23,11 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include <include.h>
-
 /**
  * @file
  * This file handles all text window related functions */
+
+#include <include.h>
 
 int textwin_flags;
 

@@ -34,7 +34,7 @@ static struct Map the_map;
 /** Current shown map: mapname, length, etc */
 _mapdata MapData;
 
-_multi_part_obj MultiArchs[16];
+static _multi_part_obj MultiArchs[16];
 
 /* Load the multi arch offsets */
 void load_mapdef_dat()
@@ -45,7 +45,7 @@ void load_mapdef_dat()
 
 	if (!(stream = fopen_wrapper(ARCHDEF_FILE, "r")))
 	{
-		LOG(LOG_ERROR, "ERROR: Can't find file %s\n", ARCHDEF_FILE);
+		LOG(llevError, "ERROR: Can't find file %s\n", ARCHDEF_FILE);
 		return;
 	}
 
@@ -603,7 +603,7 @@ void map_draw_map()
 							/* Do we have a playername? Then print it! */
 							if (options.player_names && map->pname[k][0])
 							{
-								if (options.player_names == 1 || (options.player_names == 2 && strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strnicmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
+								if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
 								{
 									StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, ypos - 48, map->pcolor[k], NULL, NULL);
 								}

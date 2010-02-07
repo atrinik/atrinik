@@ -221,7 +221,7 @@ void script_load(const char *cparams)
 
 	if (fcntl(pipe[1], F_SETFL, O_NDELAY) == -1)
 	{
-		LOG(LOG_DEBUG, "DEBUG: Error on fcntl.");
+		LOG(llevDebug, "DEBUG: Error on fcntl.");
 	}
 #else
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -498,7 +498,7 @@ static void script_process_cmd(int i)
 		/* No color specified */
 		if (!*c)
 		{
-			LOG(LOG_MSG, "BUG: script_process_cmd(): Draw command did not have color specified.\n");
+			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have color specified.\n");
 			return;
 		}
 
@@ -512,7 +512,7 @@ static void script_process_cmd(int i)
 		/* No message specified */
 		if (!*c)
 		{
-			LOG(LOG_MSG, "BUG: script_process_cmd(): Draw command did not have message set.\n");
+			LOG(llevMsg, "BUG: script_process_cmd(): Draw command did not have message set.\n");
 			return;
 		}
 
@@ -537,7 +537,7 @@ static void script_process_cmd(int i)
 		/* No log level specified */
 		if (!*c)
 		{
-			LOG(LOG_MSG, "BUG: script_process_cmd(): Log command did not have log level set.\n");
+			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log level set.\n");
 			return;
 		}
 
@@ -551,7 +551,7 @@ static void script_process_cmd(int i)
 		/* No log message specified */
 		if (!*c)
 		{
-			LOG(LOG_MSG, "BUG: script_process_cmd(): Log command did not have log message set.\n");
+			LOG(llevMsg, "BUG: script_process_cmd(): Log command did not have log message set.\n");
 			return;
 		}
 
@@ -1196,7 +1196,7 @@ void script_autoload()
 
 	if (!(fp = fopen_wrapper(SCRIPTS_AUTOLOAD, "r+")))
 	{
-		LOG(LOG_MSG, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
+		LOG(llevMsg, "Can't find file %s. Will not load any scripts.\n", SCRIPTS_AUTOLOAD);
 		return;
 	}
 

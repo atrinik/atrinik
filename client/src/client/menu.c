@@ -141,7 +141,7 @@ int client_command_check(char *cmd)
 	char cpar1[256];
 	int par2;
 
-	if (!strnicmp(cmd, "/ready_spell", 12))
+	if (!strncasecmp(cmd, "/ready_spell", 12))
 	{
 		cmd = strchr(cmd, ' ');
 
@@ -193,20 +193,20 @@ int client_command_check(char *cmd)
 		draw_info("Unknown spell.", COLOR_GREEN);
 		return 1;
 	}
-	else if (!strnicmp(cmd, "/pray", 5))
+	else if (!strncasecmp(cmd, "/pray", 5))
 	{
 		/* Give out "You are at full grace." when needed -
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
 			draw_info("You are at full grace. You stop praying.", COLOR_WHITE);
 	}
-	else if (!strnicmp(cmd, "/setwinalpha", 12))
+	else if (!strncasecmp(cmd, "/setwinalpha", 12))
 	{
 		int wrong = 0;
 		par2 = -1;
 		sscanf(cmd, "%s %s %d", tmp, cpar1, &par2);
 
-		if (!strnicmp(cpar1, "ON", 2))
+		if (!strncasecmp(cpar1, "ON", 2))
 		{
 			if (par2 != -1)
 			{
@@ -220,7 +220,7 @@ int client_command_check(char *cmd)
 			sprintf(tmp, ">>set textwin alpha ON (alpha=%d).", options.textwin_alpha);
 			draw_info(tmp, COLOR_GREEN);
 		}
-		else if (!strnicmp(cpar1, "OFF", 3))
+		else if (!strncasecmp(cpar1, "OFF", 3))
 		{
 			draw_info(">>set textwin alpha mode OFF.", COLOR_GREEN);
 			options.use_TextwinAlpha = 0;
@@ -233,7 +233,7 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
-	else if (!strnicmp(cmd, "/keybind", 8))
+	else if (!strncasecmp(cmd, "/keybind", 8))
 	{
 		map_udate_flag = 2;
 
@@ -691,7 +691,7 @@ int init_media_tag(char *tag)
 
 	if (tag == NULL)
 	{
-		LOG(LOG_MSG, "MediaTagError: Tag == NULL\n");
+		LOG(llevMsg, "MediaTagError: Tag == NULL\n");
 		return ret;
 	}
 
@@ -700,7 +700,7 @@ int init_media_tag(char *tag)
 
 	if (p1 == NULL || p2 == NULL)
 	{
-		LOG(LOG_MSG, "MediaTagError: Parameter == NULL (%x %x)\n", p1, p2);
+		LOG(llevMsg, "MediaTagError: Parameter == NULL (%x %x)\n", p1, p2);
 		return ret;
 	}
 
@@ -815,7 +815,7 @@ static int load_anim_tmp()
 
 	if ((stream = fopen_wrapper(FILE_ANIMS_TMP, "rt")) == NULL)
 	{
-		LOG(LOG_ERROR, "load_anim_tmp: Error reading anim.tmp!");
+		LOG(llevError, "load_anim_tmp: Error reading anim.tmp!");
 		/* Fatal */
 		SYSTEM_End();
 		exit(0);
@@ -838,7 +838,7 @@ static int load_anim_tmp()
 			/* we should never hit this point */
 			else
 			{
-				LOG(LOG_ERROR, "ERROR: load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
+				LOG(llevError, "ERROR: load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
 			}
 		}
 		/* No, we are inside! */
@@ -851,7 +851,7 @@ static int load_anim_tmp()
 			else if (!strncmp(buf, "mina", 4))
 			{
 #if 0
-				LOG(LOG_DEBUG, "LOAD ANIM: #%d - len: %d (%d)\n", count, anim_len, faces);
+				LOG(llevDebug, "LOAD ANIM: #%d - len: %d (%d)\n", count, anim_len, faces);
 #endif
 				/* flags ... */
 				anim_cmd[2] = 0;
@@ -889,7 +889,7 @@ int read_anim_tmp()
 	/* if this fails, we have a urgent problem somewhere before */
 	if ((stream = fopen_wrapper(FILE_BMAPS_TMP, "rb" )) == NULL)
 	{
-		LOG(LOG_ERROR, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
+		LOG(llevError, "read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
@@ -898,7 +898,7 @@ int read_anim_tmp()
 
 	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rb" )) == NULL )
 	{
-		LOG(LOG_ERROR,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
+		LOG(llevError,"read_anim_tmp:Error reading bmap.tmp for anim.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
@@ -922,14 +922,14 @@ int read_anim_tmp()
 	unlink(FILE_ANIMS_TMP); /* for some reason - recreate this file */
 	if ( (ftmp = fopen_wrapper(FILE_ANIMS_TMP, "wt" )) == NULL )
 	{
-		LOG(LOG_ERROR,"read_anim_tmp:Error opening anims.tmp!");
+		LOG(llevError,"read_anim_tmp:Error opening anims.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
 
 	if ( (stream = fopen_wrapper(FILE_CLIENT_ANIMS, "rt" )) == NULL )
 	{
-		LOG(LOG_ERROR,"read_anim_tmp:Error reading client_anims for anims.tmp!");
+		LOG(llevError,"read_anim_tmp:Error reading client_anims for anims.tmp!");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
@@ -947,7 +947,7 @@ int read_anim_tmp()
 			}
 			else /* we should never hit this point */
 			{
-				LOG(LOG_ERROR,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
+				LOG(llevError,"read_anim_tmp:Error parsing client_anim - unknown cmd: >%s<!\n", cmd);
 			}
 		}
 		else /* no, we are inside! */
@@ -979,7 +979,7 @@ int read_anim_tmp()
 					 * which we don't have in our bmaps file! Pretty bad. But because
 					 * face #0 is ALWAYS bug.101 - we simply use it here! */
 					i=0;
-					LOG(LOG_ERROR,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
+					LOG(llevError,"read_anim_tmp: Invalid anim name >%s< - set to #0 (bug.101)!\n", cmd);
 				}
 				sprintf(cmd, "%d\n",i);
 				fputs(cmd, ftmp);
@@ -1001,7 +1001,7 @@ void read_anims()
 	struct stat statbuf;
 	int i;
 
-	LOG(LOG_DEBUG, "Loading %s...", FILE_CLIENT_ANIMS);
+	LOG(llevDebug, "Loading %s...", FILE_CLIENT_ANIMS);
 	srv_client_files[SRV_CLIENT_ANIMS].len = 0;
 	srv_client_files[SRV_CLIENT_ANIMS].crc = 0;
 
@@ -1018,10 +1018,10 @@ void read_anims()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_ANIMS].len, srv_client_files[SRV_CLIENT_ANIMS].crc);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -1041,7 +1041,7 @@ static void load_bmaps_p0()
 	/* Try to open bmaps_p0 file */
 	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "rb")) == NULL)
 	{
-		LOG(LOG_ERROR, "ERROR: Error loading bmaps.p0!\n");
+		LOG(llevError, "ERROR: Error loading bmaps.p0!\n");
 		/* Fatal */
 		SYSTEM_End();
 		unlink(FILE_BMAPS_P0);
@@ -1061,7 +1061,7 @@ static void load_bmaps_p0()
 		at->pos = pos;
 		add_bmap(at);
 #if 0
-		LOG(LOG_DEBUG, "%d %d %d %x >%s<\n", num, pos, len, crc, name);
+		LOG(llevDebug, "%d %d %d %x >%s<\n", num, pos, len, crc, name);
 #endif
 	}
 
@@ -1082,7 +1082,7 @@ void read_bmaps_p0()
 
 	if ((fpic = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL)
 	{
-		LOG(LOG_ERROR, "ERROR: Can't find atrinik.p0 file!\n");
+		LOG(llevError, "ERROR: Can't find atrinik.p0 file!\n");
 		/* Fatal */
 		SYSTEM_End();
 		unlink(FILE_BMAPS_P0);
@@ -1111,7 +1111,7 @@ void read_bmaps_p0()
 create_bmaps:
 	if ((fbmap = fopen_wrapper(FILE_BMAPS_P0, "w")) == NULL)
 	{
-		LOG(LOG_ERROR, "ERROR: Can't create bmaps.p0 file!\n");
+		LOG(llevError, "ERROR: Can't create bmaps.p0 file!\n");
 		/* Fatal */
 		SYSTEM_End();
 		fclose(fbmap);
@@ -1125,7 +1125,7 @@ create_bmaps:
 	{
 		if (strncmp(buf, "IMAGE ", 6) != 0)
 		{
-			LOG(LOG_ERROR, "ERROR: read_client_images(): Bad image line - not IMAGE, instead\n%s\n", buf);
+			LOG(llevError, "ERROR: read_client_images(): Bad image line - not IMAGE, instead\n%s\n", buf);
 			/* Fatal */
 			SYSTEM_End();
 			fclose(fbmap);
@@ -1152,7 +1152,7 @@ create_bmaps:
 			/* We assume that this is nonsense */
 			if (len > 128 * 1024)
 			{
-				LOG(LOG_ERROR, "ERROR: read_client_images(): Size of picture out of bounds!(len:%d)(pos:%d)\n", len, pos);
+				LOG(llevError, "ERROR: read_client_images(): Size of picture out of bounds!(len:%d)(pos:%d)\n", len, pos);
 				/* Fatal */
 				SYSTEM_End();
 				fclose(fbmap);
@@ -1174,7 +1174,7 @@ create_bmaps:
 		sprintf(temp_buf, "%d %d %x %s", num, pos, crc, buf);
 		fputs(temp_buf, fbmap);
 #if 0
-		LOG(LOG_DEBUG, "FOUND: %s", temp_buf);
+		LOG(llevDebug, "FOUND: %s", temp_buf);
 #endif
 	}
 
@@ -1213,7 +1213,7 @@ static int load_bmap_tmp()
 	delete_bmap_tmp();
 	if ( (stream = fopen_wrapper(FILE_BMAPS_TMP, "rt" )) == NULL )
 	{
-		LOG(LOG_ERROR,"bmaptype_table(): error open file <bmap.tmp>");
+		LOG(llevError,"bmaptype_table(): error open file <bmap.tmp>");
 		SYSTEM_End(); /* fatal */
 		exit(0);
 	}
@@ -1335,7 +1335,7 @@ void read_bmaps()
 
 	srv_client_files[SRV_CLIENT_BMAPS].len = 0;
 	srv_client_files[SRV_CLIENT_BMAPS].crc = 0;
-	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_BMAPS);
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_BMAPS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_BMAPS, "rb")) != NULL)
 	{
@@ -1350,14 +1350,14 @@ void read_bmaps()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_BMAPS].len, srv_client_files[SRV_CLIENT_BMAPS].crc);
 	}
 	else
 	{
 		unlink(FILE_BMAPS_TMP);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -1417,7 +1417,7 @@ void load_settings()
 	int tmp_level = 0;
 
 	delete_server_chars();
-	LOG(LOG_DEBUG, "Loading %s...\n", FILE_CLIENT_SETTINGS);
+	LOG(llevDebug, "Loading %s...\n", FILE_CLIENT_SETTINGS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
@@ -1518,7 +1518,7 @@ void load_settings()
 					if (tmp_level < 0 || tmp_level > 450)
 					{
 						fclose(stream);
-						LOG(LOG_ERROR, "ERROR: load_settings(): Level command out of bounds! >%s<\n", buf);
+						LOG(llevError, "ERROR: load_settings(): Level command out of bounds! >%s<\n", buf);
 						return;
 					}
 
@@ -1531,7 +1531,7 @@ void load_settings()
 				else
 				{
 					fclose(stream);
-					LOG(LOG_ERROR, "ERROR: Unknown command in client_settings! >%s<\n", buf);
+					LOG(llevError, "ERROR: Unknown command in client_settings! >%s<\n", buf);
 					return;
 				}
 			}
@@ -1577,7 +1577,7 @@ void read_settings()
 
 	srv_client_files[SRV_CLIENT_SETTINGS].len = 0;
 	srv_client_files[SRV_CLIENT_SETTINGS].crc = 0;
-	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SETTINGS);
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SETTINGS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SETTINGS, "rb")) != NULL)
 	{
@@ -1592,10 +1592,10 @@ void read_settings()
 
 		free(temp_buf);
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SETTINGS].len, srv_client_files[SRV_CLIENT_SETTINGS].crc);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -1626,7 +1626,7 @@ void read_spells()
 
 	srv_client_files[SRV_CLIENT_SPELLS].len = 0;
 	srv_client_files[SRV_CLIENT_SPELLS].crc = 0;
-	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SPELLS);
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SPELLS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SPELLS, "rb")) != NULL)
 	{
@@ -1709,10 +1709,10 @@ void read_spells()
 		}
 
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SPELLS].len, srv_client_files[SRV_CLIENT_SPELLS].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SPELLS].len, srv_client_files[SRV_CLIENT_SPELLS].crc);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -1752,7 +1752,7 @@ void read_help_files()
 	srv_client_files[SRV_CLIENT_HFILES].len = 0;
 	srv_client_files[SRV_CLIENT_HFILES].crc = 0;
 
-	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_HFILES);
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_HFILES);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_HFILES, "rb")) != NULL)
 	{
@@ -1829,10 +1829,10 @@ void read_help_files()
 		}
 
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_HFILES].len, srv_client_files[SRV_CLIENT_HFILES].crc);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -1860,7 +1860,7 @@ void read_skills()
 
 	srv_client_files[SRV_CLIENT_SKILLS].len = 0;
 	srv_client_files[SRV_CLIENT_SKILLS].crc = 0;
-	LOG(LOG_DEBUG, "Reading %s...", FILE_CLIENT_SKILLS);
+	LOG(llevDebug, "Reading %s...", FILE_CLIENT_SKILLS);
 
 	if ((stream = fopen_wrapper(FILE_CLIENT_SKILLS, "rb")) != NULL)
 	{
@@ -1944,10 +1944,10 @@ void read_skills()
 		}
 
 		fclose(stream);
-		LOG(LOG_DEBUG, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc);
+		LOG(llevDebug, " Found file! (%d/%x)", srv_client_files[SRV_CLIENT_SKILLS].len, srv_client_files[SRV_CLIENT_SKILLS].crc);
 	}
 
-	LOG(LOG_DEBUG, " Done.\n");
+	LOG(llevDebug, " Done.\n");
 }
 
 /**
@@ -2545,7 +2545,6 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 					update_quickslots(cpl.win_quick_tag);
 
 					quick_slots[ind].tag = cpl.win_quick_tag;
-					quick_slots[ind].invSlot = ind;
 					quick_slots[ind].spell = 0;
 
 					/* Now we do some tests... First, ensure this item can fit */
@@ -2557,7 +2556,7 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 					if (!locate_item_from_inv(cpl.ob->inv, cpl.win_quick_tag))
 					{
 						sound_play_effect(SOUND_CLICKFAIL, 0, 100);
-						draw_info("Only items from main inventory allowed in quickbar!", COLOR_WHITE);
+						draw_info("Only items from main inventory are allowed in quickslots!", COLOR_RED);
 					}
 					else
 					{
@@ -2718,9 +2717,6 @@ void update_quickslots(int del_item)
 		{
 			if (!locate_item_from_inv(cpl.ob->inv, quick_slots[i].tag))
 				quick_slots[i].tag = -1;
-
-			if (quick_slots[i].tag != -1)
-				quick_slots[i].nr = locate_item_nr_from_tag(cpl.ob->inv, quick_slots[i].tag);
 		}
 	}
 }

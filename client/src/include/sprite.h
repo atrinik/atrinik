@@ -23,143 +23,157 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Sprite header file. */
+
 #ifndef SPRITE_H
 #define SPRITE_H
 
-/* Our blt and sprite structure */
-
-/* Status of this bitmap/sprite */
+/** Status of this bitmap/sprite */
 typedef enum _sprite_status
 {
 	SPRITE_STATUS_UNLOADED,
 	SPRITE_STATUS_LOADED
 } _sprite_status;
 
-/* Some other informations */
+/** Some other information */
 typedef enum _sprite_type
 {
 	SPRITE_TYPE_NORMAL
 } _sprite_type;
 
-/* Use special values from BLTFX structures */
-#define BLTFX_FLAG_NORMAL 	0
-#define BLTFX_FLAG_DARK 	1
+/**
+ * @defgroup BLTFX_FLAG_xxx BLTFX flags
+ * BLTFX flags.
+ *@{*/
+/** Use darkness. */
+#define BLTFX_FLAG_DARK     1
+/** Alpha. */
 #define BLTFX_FLAG_SRCALPHA 2
-#define BLTFX_FLAG_FOW 		4
-#define BLTFX_FLAG_RED 		8
-#define BLTFX_FLAG_GREY 	16
+/** Fog of war. */
+#define BLTFX_FLAG_FOW      4
+/** Red. */
+#define BLTFX_FLAG_RED      8
+/** Gray. */
+#define BLTFX_FLAG_GREY     16
+/** Stretch the bitmap. */
 #define BLTFX_FLAG_STRETCH  32
+/*@}*/
 
-/** Here we can change default blt options or set special options */
+/** Here we can change default blitting options or set special options */
 typedef struct _BLTFX
 {
-	/** Used from BLTFX_FLAG_xxxx */
+	/** Combination of @ref BLTFX_FLAG_xxx */
 	uint32 flags;
 
-	/** If != null, overrule default screen */
+	/** If not NULL, overrule default screen */
 	SDL_Surface *surface;
 
-	/** Use dark_level[i] surface */
+	/** Use dark_level[i] surface. */
 	int dark_level;
 
-	/** Alpha value */
+	/** Alpha value. */
 	uint8 alpha;
-}_BLTFX;
+} _BLTFX;
 
-/** Sprite structure */
+/** Sprite structure. */
 typedef struct _Sprite
 {
-	/** Sprite status */
+	/** Sprite status. */
 	_sprite_status status;
 
-	/** Sprite type */
+	/** Sprite type. */
 	_sprite_type type;
 
-	/** Rows of blank pixels before first color information */
+	/** Rows of blank pixels before first color information. */
 	int border_up;
 
-	/** Border down */
+	/** Border down. */
 	int border_down;
 
-	/** Border left */
+	/** Border left. */
 	int border_left;
 
-	/** Border right */
+	/** Border right. */
 	int border_right;
 
-	/* We store our faces 7 times...
-	 * Perhaps we will run in memory problems when we boost the arch set.
-	 * ATM, we have around 15-25mb when we loaded ALL arches (what perhaps
-	 * never will happens in a single game
-	 * Later perhaps a smarter system, using the palettes and switch... */
-
-	/** That's our native, unchanged bitmap */
+	/** The sprite's bitmap. */
 	SDL_Surface *bitmap;
 
-	/** Red (infravision) */
+	/** Red (infravision). */
 	SDL_Surface *red;
 
-	/** Grey (xray) */
+	/** Gray (xray). */
 	SDL_Surface *grey;
 
-	/** That's the fog of war palette */
+	/** Fog of war. */
 	SDL_Surface *fog_of_war;
 
-	/** Dark levels.
-	 * Note: 0 = default sprite - it's only mapped */
+	/** Dark levels. */
 	SDL_Surface *dark_level[DARK_LEVELS];
 } _Sprite;
 
+/** One font. */
 typedef struct _Font
 {
-	/** Don't free this, we link here a Bitmaps[x] pointer */
+	/** The font's sprite. */
 	_Sprite *sprite;
 
-	/** Space in pixel between 2 chars in a word */
+	/** Space in pixel between 2 chars in a word. */
 	int char_offset;
 
-	/** Character */
+	/** Characters. */
 	SDL_Rect c[256];
 }_Font;
 
-#define ANIM_DAMAGE 	1
-#define ANIM_KILL   	2
+/**
+ * @defgroup ANIM_xxx Animation types
+ * Animation types.
+ *@{*/
+/** Damage animation. */
+#define ANIM_DAMAGE     1
+/** Kill animation. */
+#define ANIM_KILL       2
+/*@}*/
 
+/** Animation structure. */
 typedef struct _anim
 {
-	/* Pointer to next anim in que */
+	/** Pointer to next anim in queue. */
 	struct _anim *next;
 
-	/* Pointer to anim before */
+	/** Pointer to anim before. */
 	struct _anim *before;
 
+	/** Type of the animation, one of @ref ANIM_xxx. */
 	int type;
 
-	/* The time we started this anim */
+	/** The time we started this anim. */
 	uint32 start_tick;
 
-	/* This is the end-tick */
+	/** This is the end-tick. */
 	uint32 last_tick;
 
-	/* This is the number to display */
+	/** This is the number to display. */
 	int value;
 
-	/* Where we are X */
+	/** X position. */
 	int x;
 
-	/* Where we are Y */
+	/** Y position. */
 	int y;
 
-	/* Movement in X per tick */
+	/** Movement in X per tick. */
 	int xoff;
 
-	/* Movement in y per tick */
+	/** Movement in Y per tick. */
 	float yoff;
 
-	/* Map position X */
+	/** Map position X. */
 	int mapx;
 
-	/* Map position Y */
+	/** Map position Y. */
 	int mapy;
 }_anim;
 
@@ -172,12 +186,8 @@ typedef struct _anim
 /** ASCII code for RIGHT character*/
 #define ASCII_RIGHT 31
 
-/* Anim queue of current active map */
 extern struct _anim *start_anim;
 
-#ifndef M_PI
-#define M_PI 3.141592654
-#endif
 #define VALUE_LIMIT 0.001
 
 typedef struct tColorRGBA

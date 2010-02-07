@@ -575,7 +575,7 @@ static void load_options_dat()
 	/* Read the options from file */
 	if (!(stream = fopen_wrapper(OPTION_FILE, "r")))
 	{
-		LOG(LOG_MSG, "Can't find file %s. Using defaults.\n", OPTION_FILE);
+		LOG(llevMsg, "Can't find file %s. Using defaults.\n", OPTION_FILE);
 		return;
 	}
 
@@ -677,7 +677,7 @@ static void rec_sigsegv(int i)
 {
 	(void) i;
 
-	LOG(LOG_MSG, "\nSIGSEGV received.\n");
+	LOG(llevMsg, "\nSIGSEGV received.\n");
 	fatal_signal(1);
 }
 
@@ -685,7 +685,7 @@ static void rec_sighup(int i)
 {
 	(void) i;
 
-	LOG(LOG_MSG, "\nSIGHUP received\n");
+	LOG(llevMsg, "\nSIGHUP received\n");
 	exit(0);
 }
 
@@ -693,7 +693,7 @@ static void rec_sigquit(int i)
 {
 	(void) i;
 
-	LOG(LOG_MSG, "\nSIGQUIT received\n");
+	LOG(llevMsg, "\nSIGQUIT received\n");
 	fatal_signal(1);
 }
 
@@ -701,7 +701,7 @@ static void rec_sigterm(int i)
 {
 	(void) i;
 
-	LOG(LOG_MSG, "\nSIGTERM received\n");
+	LOG(llevMsg, "\nSIGTERM received\n");
 	fatal_signal(0);
 }
 
@@ -729,11 +729,11 @@ static int game_status_chain()
 	if (GameStatus == GAME_STATUS_INIT)
 	{
 		cpl.mark_count = -1;
-		LOG(LOG_MSG, "GAMES_STATUS_INIT_1\n");
+		LOG(llevMsg, "GAMES_STATUS_INIT_1\n");
 
 		map_udate_flag = 2;
 		delete_player_lists();
-		LOG(LOG_MSG, "GAMES_STATUS_INIT_2\n");
+		LOG(llevMsg, "GAMES_STATUS_INIT_2\n");
 
 #ifdef INSTALL_SOUND
 		if (!music.flag || strcmp(music.name, "orchestral.ogg"))
@@ -743,9 +743,9 @@ static int game_status_chain()
 #endif
 
 		clear_map();
-		LOG(LOG_MSG, "GAMES_STATUS_INIT_3\n");
+		LOG(llevMsg, "GAMES_STATUS_INIT_3\n");
 		metaserver_clear_data();
-		LOG(LOG_MSG, "GAMES_STATUS_INIT_4\n");
+		LOG(llevMsg, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;
 	}
 	else if (GameStatus == GAME_STATUS_META)
@@ -968,7 +968,7 @@ static int game_status_chain()
 		else if (InputStringFlag == 0 && InputStringEndFlag)
 		{
 			strcpy(cpl.name, InputString);
-			LOG(LOG_MSG, "Login: send name %s\n", InputString);
+			LOG(llevMsg, "Login: send name %s\n", InputString);
 			send_reply(InputString);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -989,7 +989,7 @@ static int game_status_chain()
 			strncpy(cpl.password, InputString, 39);
 			cpl.password[39] = '\0';
 
-			LOG(LOG_MSG, "Login: send password <*****>\n");
+			LOG(llevMsg, "Login: send password <*****>\n");
 			send_reply(cpl.password);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -1005,7 +1005,7 @@ static int game_status_chain()
 		}
 		else if (InputStringFlag == 0 && InputStringEndFlag)
 		{
-			LOG(LOG_MSG, "Login: send verify password <*****>\n");
+			LOG(llevMsg, "Login: send verify password <*****>\n");
 			send_reply(InputString);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -1078,7 +1078,7 @@ static int load_bitmap(int index)
 
 	if (!Bitmaps[index] || !Bitmaps[index]->bitmap)
 	{
-		LOG(LOG_MSG, "load_bitmap(): Can't load bitmap %s\n", buf);
+		LOG(llevMsg, "load_bitmap(): Can't load bitmap %s\n", buf);
 		return 0;
 	}
 
@@ -1227,7 +1227,7 @@ void list_vid_modes()
 	SDL_Rect **modes;
 	int i;
 
-	LOG(LOG_MSG, "List Video Modes\n");
+	LOG(llevMsg, "List Video Modes\n");
 
 	/* Get available fullscreen/hardware modes */
 	modes = SDL_ListModes(NULL, SDL_HWACCEL);
@@ -1235,37 +1235,37 @@ void list_vid_modes()
 	/* Check if there are any modes available */
 	if (modes == (SDL_Rect **) 0)
 	{
-		LOG(LOG_MSG, "No modes available!\n");
+		LOG(llevMsg, "No modes available!\n");
 		exit(-1);
 	}
 
 	/* Check if resolution is restricted */
 	if (modes == (SDL_Rect **) -1)
 	{
-		LOG(LOG_MSG, "All resolutions available.\n");
+		LOG(llevMsg, "All resolutions available.\n");
 	}
 	else
 	{
 		/* Print valid modes */
-		LOG(LOG_MSG, "Available Modes\n");
+		LOG(llevMsg, "Available Modes\n");
 
 		for (i = 0; modes[i]; ++i)
 		{
-			LOG(LOG_MSG, "  %d x %d\n", modes[i]->w, modes[i]->h);
+			LOG(llevMsg, "  %d x %d\n", modes[i]->w, modes[i]->h);
 		}
 	}
 
 	vinfo = SDL_GetVideoInfo();
-	LOG(LOG_MSG, "VideoInfo: hardware surfaces? %s\n", vinfo->hw_available ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: windows manager? %s\n", vinfo->wm_available ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: hw to hw blit? %s\n", vinfo->blit_hw ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: hw to hw ckey blit? %s\n", vinfo->blit_hw_CC ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: hw to hw alpha blit? %s\n", vinfo->blit_hw_A ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: sw to hw blit? %s\n", vinfo->blit_sw ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: sw to hw ckey blit? %s\n", vinfo->blit_sw_CC ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: sw to hw alpha blit? %s\n", vinfo->blit_sw_A ? "yes":  "no");
-	LOG(LOG_MSG, "VideoInfo: color fill? %s\n", vinfo->blit_fill ? "yes" : "no");
-	LOG(LOG_MSG, "VideoInfo: video memory: %dKB\n", vinfo->video_mem);
+	LOG(llevMsg, "VideoInfo: hardware surfaces? %s\n", vinfo->hw_available ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: windows manager? %s\n", vinfo->wm_available ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: hw to hw blit? %s\n", vinfo->blit_hw ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: hw to hw ckey blit? %s\n", vinfo->blit_hw_CC ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: hw to hw alpha blit? %s\n", vinfo->blit_hw_A ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: sw to hw blit? %s\n", vinfo->blit_sw ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: sw to hw ckey blit? %s\n", vinfo->blit_sw_CC ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: sw to hw alpha blit? %s\n", vinfo->blit_sw_A ? "yes":  "no");
+	LOG(llevMsg, "VideoInfo: color fill? %s\n", vinfo->blit_fill ? "yes" : "no");
+	LOG(llevMsg, "VideoInfo: video memory: %dKB\n", vinfo->video_mem);
 }
 
 /**
@@ -1494,7 +1494,7 @@ int main(int argc, char *argv[])
 			char tmp[1024];
 
 			snprintf(tmp, sizeof(tmp), "Usage: %s [-server <name>] [-port <num>]\n", argv[0]);
-			LOG(LOG_MSG, tmp);
+			LOG(llevMsg, tmp);
 			fprintf(stderr, "%s", tmp);
 			exit(1);
 		}
@@ -1502,7 +1502,7 @@ int main(int argc, char *argv[])
 
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0)
 	{
-		LOG(LOG_ERROR, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		LOG(llevError, "Couldn't initialize SDL: %s\n", SDL_GetError());
 		exit(1);
 	}
 
@@ -1529,12 +1529,12 @@ int main(int argc, char *argv[])
 		/* If we have higher resolution we try the default 800x600 */
 		if (Screensize->x > 800 && Screensize->y > 600)
 		{
-			LOG(LOG_ERROR, "Try to set to default 800x600...\n");
+			LOG(llevError, "Try to set to default 800x600...\n");
 
 			if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
 			{
 				/* Now we have a really really big problem */
-				LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
+				LOG(llevError, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
 				exit(2);
 			}
 			else
@@ -1700,7 +1700,7 @@ int main(int argc, char *argv[])
 				/* main poll point for the socket */
 				if ((pollret = select(maxfd, &tmp_read, &tmp_write, &tmp_exceptions, &timeout)) == -1)
 				{
-					LOG(LOG_MSG, "Got errno %d on selectcall.\n", socket_get_error());
+					LOG(llevMsg, "Got errno %d on selectcall.\n", socket_get_error());
 				}
 				else if (FD_ISSET(csocket.fd, &tmp_read))
 				{
@@ -1796,7 +1796,7 @@ int main(int argc, char *argv[])
 		{
 			if (!game_status_chain())
 			{
-				LOG(LOG_ERROR, "Error connecting: GStatus: %d  SocketError: %d\n", GameStatus, socket_get_error());
+				LOG(llevError, "Error connecting: GStatus: %d  SocketError: %d\n", GameStatus, socket_get_error());
 				exit(1);
 			}
 		}

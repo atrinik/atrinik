@@ -24,44 +24,16 @@
 ************************************************************************/
 
 /**
+ * @file
  * Event related header file. */
 
 #ifndef EVENT_H
 #define EVENT_H
 
-#define MAX_KEYS    512
-#define MAX_KEYMAP  512
-
-typedef struct _key_macro
-{
-	/* The macro */
-	char macro[64];
-
-	/* Our command string */
-	char cmd[64];
-
-	/* Internal: Use this function to generate the command */
-	int internal;
-
-	/* A default value for commands */
-	int value;
-
-	/* The default send mode */
-	int mode;
-
-	int menu_mode;
-} _key_macro;
-
-/** In what status we are in the key binding dialog. */
-enum
-{
-	KEYBIND_STATUS_NO,
-	KEYBIND_STATUS_EDIT,
-	KEYBIND_STATUS_EDITKEY
-};
+#define MAX_KEYS 512
 
 /** All the key functions. */
-enum
+typedef enum key_funcs
 {
 	KEYFUNC_NO,
 	KEYFUNC_RUN,
@@ -94,6 +66,33 @@ enum
 	KEYFUNC_FIREREADY,
 	KEYFUNC_COMBAT,
 	KEYFUNC_QLIST
+} key_funcs;
+
+/** One key macro. */
+typedef struct key_macro
+{
+	/** The macro's name. */
+	char macro[64];
+
+	/** Command to run. */
+	char cmd[64];
+
+	/** One of ::key_funcs. */
+	key_funcs key;
+
+	/** A default value for commands. */
+	int value;
+
+	/** The default send mode. */
+	int mode;
+} key_macro;
+
+/** In what status we are in the key binding dialog. */
+enum
+{
+	KEYBIND_STATUS_NO,
+	KEYBIND_STATUS_EDIT,
+	KEYBIND_STATUS_EDITKEY
 };
 
 /** Keybind structure */
@@ -128,7 +127,6 @@ enum
 	DRAG_PDOLL
 };
 
-/* Dor debug/alpha, remove later */
 extern int KeyScanFlag;
 extern int cursor_type;
 
@@ -138,13 +136,11 @@ extern int itemExamined;
 
 /* State of the buttons */
 extern uint32 MouseState;
-extern _key_macro defkey_macro[];
-extern const int DEFAULT_KEYMAP_MACROS;
 
-/* Use these constants to determine the state of mouse and its events */
+/** Use these constants to determine the state of mouse and its events. */
 enum
 {
-	/* Don't change this to 0 (enum default is 0, so leave this as is) */
+	/* Don't change this to 0 */
 	IDLE = 1,
 	LB_DN,
 	LB_UP,

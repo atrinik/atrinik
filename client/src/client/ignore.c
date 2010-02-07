@@ -185,7 +185,7 @@ void ignore_command(char *cmd)
 
 		if (sscanf(cmd, "%s %s", name, type) != 2)
 		{
-			draw_info_format(COLOR_WHITE, "Syntax: /ignore <name> <channel>");
+			draw_info_format(COLOR_WHITE, "Syntax: /ignore <name> <type>");
 		}
 		else
 		{

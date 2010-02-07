@@ -150,7 +150,7 @@ void init_widgets_fromCurrent()
 	if (!load_interface_file(INTERFACE_FILE))
 	{
 		/* Inform user */
-		LOG(LOG_MSG, "Can't open/load the interface file - %s. Resetting\n", INTERFACE_FILE);
+		LOG(llevMsg, "Can't open/load the interface file - %s. Resetting\n", INTERFACE_FILE);
 
 		/* Load the defaults - this also allocates priority list */
 		init_widgets_fromDefault();
@@ -187,11 +187,11 @@ static void init_priority_list()
 	}
 
 	/* Allocate the head of the list */
-	priority_list_head = node = _malloc(sizeof(widget_node), "init_priority_list: widget_node");
+	priority_list_head = node = malloc(sizeof(widget_node));
 
 	if (!node)
 	{
-		LOG(LOG_ERROR, "ERROR: Out of memory.\n");
+		LOG(llevError, "ERROR: Out of memory.\n");
 		exit(0);
 	}
 
@@ -204,11 +204,11 @@ static void init_priority_list()
 	for (lp = 1; lp < TOTAL_WIDGETS; ++lp)
 	{
 		/* Allocate it */
-		node->next = _malloc(sizeof(widget_node), "init_priority_list: widget_node");
+		node->next = malloc(sizeof(widget_node));
 
 		if (!node->next)
 		{
-			LOG(LOG_ERROR, "ERROR: Out of memory.\n");
+			LOG(llevError, "ERROR: Out of memory.\n");
 			exit(0);
 		}
 
@@ -224,14 +224,14 @@ static void init_priority_list()
 	priority_list_foot = node;
 
 #ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "Output of node list:\n");
+	LOG(llevMsg, "Output of node list:\n");
 
 	for (lp = 0, node = priority_list_head; node; node = node->next, ++lp)
 	{
-		LOG(LOG_MSG, "Node #%d: %d\n", lp,node->WidgetID);
+		LOG(llevMsg, "Node #%d: %d\n", lp,node->WidgetID);
 	}
 
-	LOG(LOG_MSG, "Allocated %d/%d nodes!\n", lp, TOTAL_WIDGETS);
+	LOG(llevMsg, "Allocated %d/%d nodes!\n", lp, TOTAL_WIDGETS);
 #endif
 }
 
@@ -249,14 +249,14 @@ static void kill_priority_list()
 	}
 
 #ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "Output of deleted node(s):\n");
+	LOG(llevMsg, "Output of deleted node(s):\n");
 #endif
 
 	/* Walk down the list and free it */
 	for (lp = 0; priority_list_head; ++lp)
 	{
 #ifdef DEBUG_WIDGET
-		LOG(LOG_MSG, "Node #%d: %d\n", lp, priority_list_head->WidgetID);
+		LOG(llevMsg, "Node #%d: %d\n", lp, priority_list_head->WidgetID);
 #endif
 
 		tmp_node = priority_list_head->next;
@@ -265,7 +265,7 @@ static void kill_priority_list()
 	}
 
 #ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "De-Allocated %d/%d nodes!\n", lp, TOTAL_WIDGETS);
+	LOG(llevMsg, "De-Allocated %d/%d nodes!\n", lp, TOTAL_WIDGETS);
 #endif
 
 	priority_list_head = NULL;
@@ -313,7 +313,7 @@ static int load_interface_file(char *filename)
 	if (!(stream = fopen_wrapper(filename, "r")))
 	{
 		/* Inform user */
-		LOG(LOG_MSG, "load_interface_file(): Can't find file %s.\n", filename);
+		LOG(llevMsg, "load_interface_file(): Can't find file %s.\n", filename);
 		return 0;
 	}
 
@@ -363,7 +363,7 @@ static int load_interface_file(char *filename)
 				if (!found_widget[pos])
 				{
 #ifdef DEBUG_WIDGET
-					LOG(LOG_MSG, "Found! (Index = %d) (%d widgets total)\n", pos, TOTAL_WIDGETS);
+					LOG(llevMsg, "Found! (Index = %d) (%d widgets total)\n", pos, TOTAL_WIDGETS);
 #endif
 					found_widget[pos] = 1;
 				}
@@ -371,7 +371,7 @@ static int load_interface_file(char *filename)
 				else
 				{
 #ifdef DEBUG_WIDGET
-					LOG(LOG_MSG, "Widget already found! Please remove duplicate(s)!\n");
+					LOG(llevMsg, "Widget already found! Please remove duplicate(s)!\n");
 #endif
 					continue;
 				}
@@ -1083,11 +1083,11 @@ void SetPriorityWidget(int nWidgetID)
 	}
 
 	/* Move the current highest to second highest priority */
-	node = (widget_node *) _malloc(sizeof(widget_node), "SetPriorityWidget: widget_node");
+	node = (widget_node *) malloc(sizeof(widget_node));
 
 	if (!node)
 	{
-		LOG(LOG_ERROR, "ERROR: Out of memory.");
+		LOG(llevError, "ERROR: Out of memory.");
 		exit(0);
 	}
 
@@ -1104,9 +1104,9 @@ void SetPriorityWidget(int nWidgetID)
 	node = cur_widget[nWidgetID].priority_index;
 
 #ifdef DEBUG_WIDGET
-	LOG(LOG_MSG, "node: %d\n", node);
-	LOG(LOG_MSG, "cur_widget[nWidgetID].priority_index: %d\n", cur_widget[nWidgetID].priority_index);
-	LOG(LOG_MSG, "node->prev: %d, node->next: %d\n", node->prev, node->next);
+	LOG(llevMsg, "node: %d\n", node);
+	LOG(llevMsg, "cur_widget[nWidgetID].priority_index: %d\n", cur_widget[nWidgetID].priority_index);
+	LOG(llevMsg, "node->prev: %d, node->next: %d\n", node->prev, node->next);
 #endif
 
 	if (node->next)

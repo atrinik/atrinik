@@ -24,6 +24,7 @@
 ************************************************************************/
 
 /**
+ * @file
  * Socket related code. */
 
 #include <include.h>
@@ -79,7 +80,7 @@ int socket_read(int fd, SockList *sl, int len)
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
 			{
-				LOG(LOG_DEBUG, "socket_read(): Got error %d, returning -1\n", socket_get_error());
+				LOG(llevDebug, "socket_read(): Got error %d, returning -1\n", socket_get_error());
 				draw_info("Lost or bad server connection.", COLOR_RED);
 				return -1;
 			}
@@ -124,7 +125,7 @@ int socket_read(int fd, SockList *sl, int len)
 
 	if ((toread + sl->len) > len)
 	{
-		LOG(LOG_ERROR, "socket_read(): Want to read more bytes than will fit in buffer.\n");
+		LOG(llevError, "socket_read(): Want to read more bytes than will fit in buffer.\n");
 		draw_info("Server closed connection.", COLOR_RED);
 		return -1;
 	}
@@ -149,7 +150,7 @@ int socket_read(int fd, SockList *sl, int len)
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 #endif
 			{
-				LOG(LOG_DEBUG, "socket_read(): Got error %d, returning 0", socket_get_error());
+				LOG(llevDebug, "socket_read(): Got error %d, returning 0", socket_get_error());
 				draw_info("Lost or bad server connection.", COLOR_RED);
 				return -1;
 			}
@@ -173,7 +174,7 @@ int socket_read(int fd, SockList *sl, int len)
 
 		if (toread < 0)
 		{
-			LOG(LOG_ERROR, "socket_read(): Read more bytes than desired.");
+			LOG(llevError, "socket_read(): Read more bytes than desired.");
 			draw_info("Server closed connection.", COLOR_RED);
 			return -1;
 		}
@@ -218,7 +219,7 @@ int socket_write(int fd, unsigned char *buf, int len)
 #endif
 		{
 			/* We got an error */
-			LOG(LOG_ERROR, "socket_write(): Write failed with error %d.\n", socket_get_error());
+			LOG(llevError, "socket_write(): Write failed with error %d.\n", socket_get_error());
 			draw_info("Server write failed.", COLOR_RED);
 			socket_close(csocket.fd);
 			return -1;
@@ -226,7 +227,7 @@ int socket_write(int fd, unsigned char *buf, int len)
 
 		if (amt == 0)
 		{
-			LOG(LOG_ERROR, "socket_write(): No data written out: %d.\n", socket_get_error());
+			LOG(llevError, "socket_write(): No data written out: %d.\n", socket_get_error());
 			draw_info("No data written out.", COLOR_RED);
 			socket_close(csocket.fd);
 			return -1;
@@ -265,13 +266,13 @@ int socket_initialize()
 
 			if (error)
 			{
-				LOG(LOG_ERROR, "Error: Error init starting Winsock: %d!\n", error);
+				LOG(llevError, "Error: Error init starting Winsock: %d!\n", error);
 				return 0;
 			}
 		}
 	}
 
-	LOG(LOG_MSG, "Using socket version %x!\n", w.wVersion);
+	LOG(llevMsg, "Using socket version %x!\n", w.wVersion);
 #endif
 
 	return 1;
@@ -331,7 +332,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 #endif
 	unsigned int oldbufsize, newbufsize = 65535, buflen = sizeof(int);
 
-	LOG(LOG_MSG, "Opening to %s %d\n", host, port);
+	LOG(llevMsg, "Opening to %s %d\n", host, port);
 
 #ifdef WIN32
 	/* The way to make the sockets work on XP Home - The 'unix' style socket
@@ -345,7 +346,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 
 	if (ioctlsocket(*socket_temp, FIONBIO, &temp) == -1)
 	{
-		LOG(LOG_ERROR, "ERROR: ioctlsocket(*socket_temp, FIONBIO , &temp)\n");
+		LOG(llevError, "ERROR: ioctlsocket(*socket_temp, FIONBIO , &temp)\n");
 		*socket_temp = SOCKET_NO;
 
 		return 0;
@@ -355,7 +356,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 
 	if (protox == (struct protoent *) NULL)
 	{
-		LOG(LOG_ERROR, "open_socket(): Error getting protobyname (tcp)\n");
+		LOG(llevError, "open_socket(): Error getting protobyname (tcp)\n");
 		return 0;
 	}
 
@@ -382,7 +383,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 
 		if (hostbn == (struct hostent *) NULL)
 		{
-			LOG(LOG_ERROR, "Unknown host: %s\n", host);
+			LOG(llevError, "Unknown host: %s\n", host);
 			*socket_temp = SOCKET_NO;
 			return 0;
 		}
@@ -400,7 +401,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 
 	if (ioctlsocket(*socket_temp, FIONBIO, &temp) == -1)
 	{
-		LOG(LOG_ERROR, "ERROR: ioctlsocket(*socket_temp, FIONBIO , &temp)\n");
+		LOG(llevError, "ERROR: ioctlsocket(*socket_temp, FIONBIO , &temp)\n");
 		*socket_temp = SOCKET_NO;
 		return 0;
 	}
@@ -435,13 +436,13 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 			continue;
 		}
 
-		LOG(LOG_MSG, "Connect Error: %d\n", SocketStatusErrorNr);
+		LOG(llevMsg, "Connect Error: %d\n", SocketStatusErrorNr);
 		*socket_temp = SOCKET_NO;
 
 		return 0;
 	}
 #else
-	csocket.inbuf.buf = (unsigned char *) _malloc(MAXSOCKBUF, "open_socket(): MAXSOCKBUF");
+	csocket.inbuf.buf = (unsigned char *) malloc(MAXSOCKBUF);
 	csocket.inbuf.len = 0;
 
 	if (connect(*socket_temp, (struct sockaddr *) &insock, sizeof(insock)) == -1)
@@ -470,7 +471,7 @@ int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int
 		}
 	}
 
-	LOG(LOG_MSG, "Connected to %s:%d\n", host, port);
+	LOG(llevMsg, "Connected to %s:%d\n", host, port);
 
 	return 1;
 }

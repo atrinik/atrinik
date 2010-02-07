@@ -23,6 +23,10 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Map header file. */
+
 #ifndef MAP_H
 #define MAP_H
 
@@ -58,7 +62,7 @@ typedef struct _multi_part_tile
 
 	/** Y-offset */
 	int yoff;
-}_multi_part_tile;
+} _multi_part_tile;
 
 /** Table of predefined multi arch objects.
  * mpart_id and mpart_nr in the arches are commited from server
@@ -77,82 +81,71 @@ typedef struct _multi_part_obj
 
 	/** Tile */
 	_multi_part_tile part[16];
-}_multi_part_obj;
+} _multi_part_obj;
 
 /** Map data structure */
 typedef struct _mapdata
 {
-	/** Map name */
+	/** Map name. */
 	char name[256];
 
-	/** Map background music */
+	/** Map background music. */
 	char music[256];
 
-	/** X length */
+	/** X length. */
 	int xlen;
 
-	/** Y length */
+	/** Y length. */
 	int ylen;
 
-	/** Position X */
+	/** Position X. */
 	int posx;
 
-	/** Position Y */
+	/** Position Y. */
 	int posy;
-}_mapdata;
+} _mapdata;
 
-/** Map cell structure */
+/** Map cell structure. */
 struct MapCell
 {
-	/** Faces */
+	/** Faces. */
 	short faces[MAXFACES];
 
-	/** Position */
+	/** Position. */
 	short pos[MAXFACES];
 
-	/** Fog of war */
+	/** Fog of war. */
 	int fog_of_war;
 
-	/** Flags */
+	/** Flags. */
 	uint8 ext[MAXFACES];
 
-	/** Name of player on this cell */
+	/** Name of player on this cell. */
 	char pname[MAXFACES][32];
 
-	/** Player name color on this cell */
+	/** Player name color on this cell. */
 	int pcolor[MAXFACES];
 
-	/** If this is where our enemy is */
+	/** If this is where our enemy is. */
 	uint8 probe[MAXFACES];
 
-	/** Cell darkness */
+	/** Cell darkness. */
 	uint8 darkness;
 
-	/** Height of this maptile */
+	/** Height of this maptile. */
 	sint16 height;
 
-	/** How we stretch this is really 8 char for N S E W */
+	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;
 } MapCell;
 
-/** Map structure */
+/** Map structure. */
 struct Map
 {
-	/** Map cells */
+	/** Map cells. */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
 
-/** Map position */
-typedef struct
-{
-	/** X position */
-	int x;
-
-	/** Y position */
-	int y;
-} MapPos;
-
 extern _mapdata MapData;
-extern _multi_part_obj MultiArchs[16];
 
 #endif

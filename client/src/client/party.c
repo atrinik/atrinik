@@ -609,7 +609,7 @@ _gui_party_struct *load_party_interface(char *data, int len)
 
 	if ((partyCommand = (char *)malloc(len + 1)) == NULL)
 	{
-		LOG(LOG_ERROR, "ERROR: Out of memory.\n");
+		LOG(llevError, "ERROR: Out of memory.\n");
 		SYSTEM_End();
 		exit(0);
 	}
@@ -645,7 +645,7 @@ _gui_party_struct *load_party_interface(char *data, int len)
 	gui_interface_party->yoff = 0;
 	gui_interface_party->selected = 0;
 	gui_interface_party->tab = tab;
-	strncpy(gui_interface_party->command, command, sizeof(gui_interface_party->command));
+	strncpy(gui_interface_party->command, command, sizeof(gui_interface_party->command) - 1);
 
 	free(partyCommand);
 

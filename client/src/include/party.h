@@ -23,10 +23,14 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Party header file. */
+
 #ifndef PARTY_H
 #define PARTY_H
 
-/* Party tabs */
+/** Party tabs. */
 enum
 {
 	PARTY_TAB_LIST,
@@ -36,35 +40,35 @@ enum
 	PARTY_TABS
 };
 
-/** The main party GUI structure */
+/** The main party GUI structure. */
 typedef struct gui_party_struct
 {
 	/** Command to run. Something like "list", "who", etc. */
-	char command[MAX_BUF + 1];
+	char command[MAX_BUF];
 
-	/** Linked list of lines */
+	/** Linked list of lines. */
 	struct gui_party_line *start;
 
-	/** Number of lines */
+	/** Number of lines. */
 	int lines;
 
-	/** Scroll bar position */
+	/** Scroll bar position. */
 	int yoff;
 
-	/** Selected row */
+	/** Selected row. */
 	int selected;
 
-	/** Selected tab */
+	/** Selected tab. */
 	int tab;
 } _gui_party_struct;
 
-/** Structure for the party GUI lines */
+/** Structure for the party GUI lines. */
 typedef struct gui_party_line
 {
-	/** The next line */
+	/** The next line. */
 	struct gui_party_line *next;
 
-	/** Line contents */
+	/** Line contents. */
 	char line[MAX_BUF + 1];
 } _gui_party_line;
 

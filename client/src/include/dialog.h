@@ -78,10 +78,17 @@ extern _option opt[];
 /** Value types for _option::value_type. */
 extern enum
 {
+	/** True/false. */
 	VAL_BOOL,
+	/**
+	 * Text.
+	 * @todo Implement. */
 	VAL_TEXT,
+	/** Uint8. */
 	VAL_CHAR,
+	/** Integer. */
 	VAL_INT,
+	/** Uint32. */
 	VAL_U32
 } value_type;
 

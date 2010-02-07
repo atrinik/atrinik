@@ -33,7 +33,7 @@ FILE *logstream;
 
 /**
  * Logs an error, debug output, etc.
- * @param logLevel Level of the log message (LOG_MSG, LOG_DEBUG, ...)
+ * @param logLevel Level of the log message (llevMsg, llevDebug, ...)
  * @param format Formatting of the message, like sprintf
  * @param ... Additional arguments for format */
 void LOG(int logLevel, char *format, ...)
@@ -288,62 +288,6 @@ uint32 get_video_flags()
 		return videoflags_win;
 	}
 }
-
-/* This seems to be lacking on some systems */
-#if defined(HAVE_STRNICMP)
-#else
-#if !defined(HAVE_STRNCASECMP)
-int strncasecmp(char *s1, char *s2, int n)
-{
-	int c1, c2;
-
-	while (*s1 && *s2 && n)
-	{
-		c1 = tolower(*s1);
-		c2 = tolower(*s2);
-
-		if (c1 != c2)
-			return (c1 - c2);
-
-		s1++;
-		s2++;
-		n--;
-	}
-
-	if (!n)
-		return 0;
-
-	return (int) (*s1 - *s2);
-}
-#endif
-#endif
-
-#if defined(HAVE_STRICMP)
-#else
-#if !defined(HAVE_STRCASECMP)
-int strcasecmp(char *s1, char*s2)
-{
-	int c1, c2;
-
-	while (*s1 && *s2)
-	{
-		c1 = tolower(*s1);
-		c2 = tolower(*s2);
-
-		if (c1 != c2)
-			return (c1 - c2);
-
-		s1++;
-		s2++;
-	}
-
-	if (*s1 == '\0' && *s2 == '\0')
-		return 0;
-
-	return (int) (*s1 - *s2);
-}
-#endif
-#endif
 
 #ifdef WIN32
 char *file_path(const char *fname, const char *mode)

@@ -223,10 +223,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\include\cflinux.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\include\client.h"
 				>
 			</File>
@@ -340,10 +336,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\include\win32.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\include\wrapper.h"
 				>
 			</File>
 			<File

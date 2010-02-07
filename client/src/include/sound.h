@@ -23,30 +23,39 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Sound related header file. */
+
 #ifndef SOUND_H
 #define SOUND_H
 
-/* Possible status of the sound system */
+/** Possible statuses of the sound system */
 typedef enum _sound_system
 {
 	SOUND_SYSTEM_NONE,
 	SOUND_SYSTEM_OFF,
 	SOUND_SYSTEM_ON
-}_sound_system;
+} _sound_system;
 
-/* The sound system status */
 extern _sound_system SoundSystem;
 
 #define SOUND_NORMAL	0
 #define SOUND_SPELL		1
 
-/* Music mode - controls how the music is played and started */
+/**
+ * @defgroup MUSIC_MODE_xxx Music modes
+ * Music modes.
+ *@{*/
+/** Normal mode. */
 #define MUSIC_MODE_NORMAL 1
+/** Direct music. */
 #define MUSIC_MODE_DIRECT 2
-/* That's needed for some map event sounds */
+/** Forced music. */
 #define MUSIC_MODE_FORCED 4
+/*@}*/
 
-/* Sound ids. */
+/** Sound IDs. */
 typedef enum _sound_id
 {
 	SOUND_EVENT01,
@@ -104,12 +113,9 @@ typedef enum _sound_id
 	SOUND_BOOK,
 	SOUND_PAGE,
 	SOUND_MAX
-}_sound_id1;
+} _sound_id1;
 
-/* To call a spell sound here, do
- * SOUND_MAX + SOUND_MAGIC_xxx */
-
-/* This enum should be same as in server */
+/** Spell sound IDs. */
 typedef enum _spell_sound_id
 {
 	SOUND_MAGIC_DEFAULT,
@@ -161,7 +167,7 @@ typedef enum _spell_sound_id
 	SOUND_MAGIC_WOUND,
 
 	SPELL_SOUND_MAX
-}_sound_id;
+} _sound_id;
 
 
 #ifdef INSTALL_SOUND
@@ -195,12 +201,11 @@ typedef struct music_data
 }music_data;
 
 extern _wave Sounds[];
-
-/* That's the music we just play - if NULL, no music */
 extern music_data music;
 extern music_data music_new;
 #endif
 
+/** Special sound IDs. */
 enum
 {
 	SPECIAL_SOUND_FOOD,

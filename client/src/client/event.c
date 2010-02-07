@@ -23,12 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#include "include.h"
-
 /**
  * @file
  * This file controls various event functions, like character mouse movement,
  * parsing macro keys etc. */
+
+#include "include.h"
 
 extern char d_ServerName[2048];
 extern int  d_ServerPort;
@@ -43,58 +43,57 @@ typedef struct _keys
 } _keys;
 static _keys keys[MAX_KEYS];
 
-_key_macro defkey_macro[] =
+static key_macro defkey_macro[] =
 {
-	{"?M_SOUTHWEST",    	"southwest",        KEYFUNC_MOVE,  			1, SC_NORMAL, MENU_NO},
-	{"?M_SOUTH",	      	"south",	        KEYFUNC_MOVE,  			2, SC_NORMAL, MENU_NO},
-	{"?M_SOUTHEAST",    	"southeast",        KEYFUNC_MOVE,  			3, SC_NORMAL, MENU_NO},
-	{"?M_WEST",		      	"west",		        KEYFUNC_MOVE,  			4, SC_NORMAL, MENU_NO},
-	{"?M_STAY",		      	"stay",		        KEYFUNC_MOVE,  			5, SC_NORMAL, MENU_NO},
-	{"?M_EAST",		      	"east",		        KEYFUNC_MOVE,  			6, SC_NORMAL, MENU_NO},
-	{"?M_NORTHWEST",    	"northwest",        KEYFUNC_MOVE,  			7, SC_NORMAL, MENU_NO},
-	{"?M_NORTH",	      	"north",	        KEYFUNC_MOVE,  			8, SC_NORMAL, MENU_NO},
-	{"?M_NORTHEAST",    	"northeast",        KEYFUNC_MOVE,  			9, SC_NORMAL, MENU_NO},
-	{"?M_RUN",		      	"run",		        KEYFUNC_RUN,   			0, SC_NORMAL, MENU_NO},
-	{"?M_CONSOLE",	    	"console",          KEYFUNC_CONSOLE,		0, SC_NORMAL, MENU_NO},
-	{"?M_UP",		        "up",		        KEYFUNC_CURSOR,			0, SC_NORMAL, MENU_NO},
-	{"?M_DOWN",		      	"down",				KEYFUNC_CURSOR,			1, SC_NORMAL, MENU_NO},
-	{"?M_LEFT",		      	"left",             KEYFUNC_CURSOR,			2, SC_NORMAL, MENU_NO},
-	{"?M_RIGHT",	      	"right",            KEYFUNC_CURSOR,			3, SC_NORMAL, MENU_NO},
-	{"?M_RANGE",	      	"toggle range",     KEYFUNC_RANGE,			0, SC_NORMAL, MENU_NO},
-	{"?M_APPLY",	      	"apply <tag>",      KEYFUNC_APPLY,			0, SC_NORMAL, MENU_NO},
-	{"?M_EXAMINE",	    	"examine <tag>",    KEYFUNC_EXAMINE,		0, SC_NORMAL, MENU_NO},
-	{"?M_DROP",		      	"drop <tag>",       KEYFUNC_DROP,			0, SC_NORMAL, MENU_NO},
-	{"?M_GET",		      	"get <tag>",        KEYFUNC_GET,			0, SC_NORMAL, MENU_NO},
-	{"?M_LOCK",		      	"lock <tag>",       KEYFUNC_LOCK,			0, SC_NORMAL, MENU_NO},
-	{"?M_MARK",		      	"mark<tag>",        KEYFUNC_MARK,			0, SC_NORMAL, MENU_NO},
-	{"?M_OPTION",		    "option",           KEYFUNC_OPTION,       	0, SC_NORMAL, MENU_ALL},
-	{"?M_KEYBIND",	    	"key bind",         KEYFUNC_KEYBIND,      	0, SC_NORMAL, MENU_ALL},
-	{"?M_SKILL_LIST",   	"skill list",       KEYFUNC_SKILL,        	0, SC_NORMAL, MENU_ALL},
-	{"?M_SPELL_LIST",   	"spell list",       KEYFUNC_SPELL,        	0, SC_NORMAL, MENU_ALL},
-	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, SC_NORMAL, MENU_NO},
-	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, SC_NORMAL, MENU_NO},
-	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, SC_NORMAL, MENU_NO},
-	{"?M_LAYER0",		    "l0",               KEYFUNC_LAYER0,       	0, SC_NORMAL, MENU_NO},
-	{"?M_LAYER1",		    "l1",               KEYFUNC_LAYER1,       	0, SC_NORMAL, MENU_NO},
-	{"?M_LAYER2",		    "l2",               KEYFUNC_LAYER2,       	0, SC_NORMAL, MENU_NO},
-	{"?M_LAYER3",		    "l3",               KEYFUNC_LAYER3,       	0, SC_NORMAL, MENU_NO},
-	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, SC_NORMAL, MENU_NO},
-	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, SC_NORMAL, MENU_NO},
-	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, SC_NORMAL, MENU_NO},
-	{"?M_TARGET_ENEMY", 	"/target enemy",    KEYFUNC_TARGET_ENEMY, 	0, SC_NORMAL, MENU_NO},
-	{"?M_TARGET_FRIEND",	"/target friend",   KEYFUNC_TARGET_FRIEND,	0, SC_NORMAL, MENU_NO},
-	{"?M_TARGET_SELF",		"/target self",     KEYFUNC_TARGET_SELF,  	0, SC_NORMAL, MENU_NO},
-	{"?M_COMBAT_TOGGLE",	"/combat",          KEYFUNC_COMBAT,       	0, SC_NORMAL, MENU_NO},
-	{"?M_QLIST",            "quest list",       KEYFUNC_QLIST,          0, SC_NORMAL, MENU_NO},
+	{"?M_SOUTHWEST",    	"southwest",        KEYFUNC_MOVE,  			1, SC_NORMAL},
+	{"?M_SOUTH",	      	"south",	        KEYFUNC_MOVE,  			2, SC_NORMAL},
+	{"?M_SOUTHEAST",    	"southeast",        KEYFUNC_MOVE,  			3, SC_NORMAL},
+	{"?M_WEST",		      	"west",		        KEYFUNC_MOVE,  			4, SC_NORMAL},
+	{"?M_STAY",		      	"stay",		        KEYFUNC_MOVE,  			5, SC_NORMAL},
+	{"?M_EAST",		      	"east",		        KEYFUNC_MOVE,  			6, SC_NORMAL},
+	{"?M_NORTHWEST",    	"northwest",        KEYFUNC_MOVE,  			7, SC_NORMAL},
+	{"?M_NORTH",	      	"north",	        KEYFUNC_MOVE,  			8, SC_NORMAL},
+	{"?M_NORTHEAST",    	"northeast",        KEYFUNC_MOVE,  			9, SC_NORMAL},
+	{"?M_RUN",		      	"run",		        KEYFUNC_RUN,   			0, SC_NORMAL},
+	{"?M_CONSOLE",	    	"console",          KEYFUNC_CONSOLE,		0, SC_NORMAL},
+	{"?M_UP",		        "up",		        KEYFUNC_CURSOR,			0, SC_NORMAL},
+	{"?M_DOWN",		      	"down",				KEYFUNC_CURSOR,			1, SC_NORMAL},
+	{"?M_LEFT",		      	"left",             KEYFUNC_CURSOR,			2, SC_NORMAL},
+	{"?M_RIGHT",	      	"right",            KEYFUNC_CURSOR,			3, SC_NORMAL},
+	{"?M_RANGE",	      	"toggle range",     KEYFUNC_RANGE,			0, SC_NORMAL},
+	{"?M_APPLY",	      	"apply <tag>",      KEYFUNC_APPLY,			0, SC_NORMAL},
+	{"?M_EXAMINE",	    	"examine <tag>",    KEYFUNC_EXAMINE,		0, SC_NORMAL},
+	{"?M_DROP",		      	"drop <tag>",       KEYFUNC_DROP,			0, SC_NORMAL},
+	{"?M_GET",		      	"get <tag>",        KEYFUNC_GET,			0, SC_NORMAL},
+	{"?M_LOCK",		      	"lock <tag>",       KEYFUNC_LOCK,			0, SC_NORMAL},
+	{"?M_MARK",		      	"mark<tag>",        KEYFUNC_MARK,			0, SC_NORMAL},
+	{"?M_OPTION",		    "option",           KEYFUNC_OPTION,       	0, SC_NORMAL},
+	{"?M_KEYBIND",	    	"key bind",         KEYFUNC_KEYBIND,      	0, SC_NORMAL},
+	{"?M_SKILL_LIST",   	"skill list",       KEYFUNC_SKILL,        	0, SC_NORMAL},
+	{"?M_SPELL_LIST",   	"spell list",       KEYFUNC_SPELL,        	0, SC_NORMAL},
+	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, SC_NORMAL},
+	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, SC_NORMAL},
+	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, SC_NORMAL},
+	{"?M_LAYER0",		    "l0",               KEYFUNC_LAYER0,       	0, SC_NORMAL},
+	{"?M_LAYER1",		    "l1",               KEYFUNC_LAYER1,       	0, SC_NORMAL},
+	{"?M_LAYER2",		    "l2",               KEYFUNC_LAYER2,       	0, SC_NORMAL},
+	{"?M_LAYER3",		    "l3",               KEYFUNC_LAYER3,       	0, SC_NORMAL},
+	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, SC_NORMAL},
+	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, SC_NORMAL},
+	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, SC_NORMAL},
+	{"?M_TARGET_ENEMY", 	"/target enemy",    KEYFUNC_TARGET_ENEMY, 	0, SC_NORMAL},
+	{"?M_TARGET_FRIEND",	"/target friend",   KEYFUNC_TARGET_FRIEND,	0, SC_NORMAL},
+	{"?M_TARGET_SELF",		"/target self",     KEYFUNC_TARGET_SELF,  	0, SC_NORMAL},
+	{"?M_COMBAT_TOGGLE",	"/combat",          KEYFUNC_COMBAT,       	0, SC_NORMAL},
+	{"?M_QLIST",            "quest list",       KEYFUNC_QLIST,          0, SC_NORMAL},
 };
 
-#define DEFAULT_KEYMAP_MACROS (sizeof(defkey_macro)/sizeof(struct _key_macro))
+#define DEFAULT_KEYMAP_MACROS (sizeof(defkey_macro) / sizeof(struct key_macro))
 
 /* Magic console macro: when this is found at the beginning of a user defined macro, then
  * what follows this macro will be put in the input console ready to be edited */
 char macro_magic_console[] = "?M_MCON";
 
-/* for debug/alpha , remove later */
 int KeyScanFlag;
 int cursor_type = 0;
 
@@ -401,7 +400,7 @@ int Event_PollInputDevice()
 			case SDL_VIDEORESIZE:
 				if ((ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags)) == NULL)
 				{
-					LOG(LOG_ERROR, "Unable to grab surface after resize event: %s\n", SDL_GetError());
+					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
 					exit(2);
 				}
 
@@ -1448,7 +1447,7 @@ static void process_macro(_keymap macro)
 
 		if (!client_command_check(cp))
 		{
-			send_command(cp, -1, macro.mode);
+			send_command(cp, -1, SC_NORMAL);
 		}
 
 		cp = strtok(NULL, ";");
@@ -1492,7 +1491,7 @@ static int check_macro_keys(char *text)
 	{
 		if (!strcmp(defkey_macro[i].macro, text))
 		{
-			if (!process_macro_keys(defkey_macro[i].internal, defkey_macro[i].value))
+			if (!process_macro_keys(defkey_macro[i].key, defkey_macro[i].value))
 			{
 				return 0;
 			}
@@ -2067,7 +2066,6 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			update_quickslots(tag);
 
 			quick_slots[slot].tag = tag;
-			quick_slots[slot].invSlot = cpl.win_inv_slot;
 
 			snprintf(buf, sizeof(buf), "qs set %d %d", slot + 1, tag);
 			cs_write_string(csocket.fd, buf, strlen(buf));
@@ -2327,7 +2325,7 @@ void read_keybind_file(char *fname)
 	{
 		sprintf(bindkey_list[0].entry[0].keyname, "File %s is corrupt!", fname);
 		strcpy(bindkey_list[0].entry[0].text, "ERROR!");
-		LOG(LOG_ERROR, "ERROR: key-binding file %s is corrupt.\n", fname);
+		LOG(llevError, "ERROR: key-binding file %s is corrupt.\n", fname);
 	}
 
 	bindkey_list_set.group_nr = 0;
@@ -2532,12 +2530,12 @@ void check_menu_keys(int menu, int key)
 								/* If we have higher resolution we try the default 800x600 */
 								if (Screensize->x > 800 && Screensize->y > 600)
 								{
-									LOG(LOG_ERROR, "Try to set to default 800x600...\n");
+									LOG(llevError, "Try to set to default 800x600...\n");
 
 									if ((ScreenSurface = SDL_SetVideoMode(Screensize->x, Screensize->y, options.used_video_bpp, videoflags)) == NULL)
 									{
 										/* Now we have a really really big problem */
-										LOG(LOG_ERROR, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
+										LOG(llevError, "Couldn't set %dx%dx%d video mode: %s\n", Screensize->x, Screensize->y, options.used_video_bpp, SDL_GetError());
 										exit(2);
 									}
 									else
