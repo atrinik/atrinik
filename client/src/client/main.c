@@ -662,6 +662,7 @@ static void load_options_dat()
 }
 
 /** @cond */
+#ifndef WIN32
 
 static void fatal_signal(int make_core)
 {
@@ -704,6 +705,7 @@ static void rec_sigterm(int i)
 	LOG(llevMsg, "\nSIGTERM received\n");
 	fatal_signal(0);
 }
+#endif
 
 /** @endcond */
 
