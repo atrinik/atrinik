@@ -1573,11 +1573,6 @@ void do_some_living(object *op)
 			if (op->stats.hp)
 			{
 				op->stats.hp--;
-
-				if (!op->stats.hp)
-				{
-					op->stats.hp = 1;
-				}
 			}
 		}
 
