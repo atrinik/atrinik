@@ -74,7 +74,7 @@ The stop run command is used to stop your character from being in 'run mode' by 
 ^run^
 ==========
 Name: cast
-Title: Cast command
+Title: Cast Command
 The cast command will immediately cast a spell in the direction you're currently facing. It is useful to bind this command to your keys, like this:
 "/cast magic bullet"
 
@@ -83,7 +83,7 @@ The cast command will immediately cast a spell in the direction you're currently
 ^binding^
 ==========
 Name: shout
-Title: Shout command
+Title: Shout Command
 The shout command is the main communication command. It will display your message to all currently logged in players.
 
 <t t="Syntax:">/shout [your message]
