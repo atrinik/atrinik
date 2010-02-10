@@ -265,7 +265,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 {
 	SDL_Rect dst;
 	SDL_Surface *surface, *blt_sprite, *tmp;
-	int reset_trans = 0, need_stretch = 0;
 
 	if (!sprite)
 	{
@@ -279,9 +278,9 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	if (bltfx)
 	{
-		/* With dark flag we newer check here for the stretch flag, if stretch is 0 no strecthing is done. */
 		if (bltfx->flags & BLTFX_FLAG_DARK)
 		{
+			/* Last dark level is "no color" */
 			if (bltfx->dark_level == DARK_LEVELS)
 			{
 				return;
@@ -294,46 +293,15 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 				darkness_filter[bltfx->dark_level] = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
 			}
 
-			tmp = check_stretch_cache(blt_sprite, stretch, bltfx->dark_level);
-
-			if (tmp)
+			if (sprite->dark_level[bltfx->dark_level])
 			{
-				dst.y = dst.y - (tmp->h - sprite->bitmap->h);
-				blt_sprite = tmp;
+				blt_sprite = sprite->dark_level[bltfx->dark_level];
 			}
-			/* We create the surface, and put it in hashtable */
-			else
-			{
-				blt_sprite = SDL_DisplayFormatAlpha(sprite->bitmap);
-				SDL_BlitSurface(darkness_filter[bltfx->dark_level],NULL,blt_sprite,NULL);
-
-				/* Check for stretching. */
-				if (bltfx->flags & BLTFX_FLAG_STRETCH)
-				{
-					Uint8 *ht = (Uint8 *) &stretch;
-					Uint8 n = *(ht + 3);
-					Uint8 e = *(ht + 2);
-					Uint8 w = *(ht + 1);
-					Uint8 s = *ht;
-					int ht_diff;
-
-					tmp = tile_stretch(blt_sprite, n, e, s, w);
-
-					ht_diff = (tmp->h - sprite->bitmap->h);
-
-					if (!tmp)
-					{
-						return;
-					}
-
-					SDL_FreeSurface(blt_sprite);
-
-					blt_sprite = tmp;
-					dst.y = dst.y - ht_diff;
-				}
-
-				/* We put it in the hashtable */
-				add_to_stretch_cache(sprite->bitmap, blt_sprite, stretch, bltfx->dark_level);
+ 			else
+ 			{
+ 				blt_sprite = SDL_DisplayFormatAlpha(sprite->bitmap);
+				SDL_BlitSurface(darkness_filter[bltfx->dark_level], NULL, blt_sprite, NULL);
+				sprite->dark_level[bltfx->dark_level] = blt_sprite;
 			}
 		}
 		else if (bltfx->flags & BLTFX_FLAG_FOW)
@@ -344,7 +312,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			}
 
 			blt_sprite = sprite->fog_of_war;
-			need_stretch = 1;
 		}
 		else if (bltfx->flags & BLTFX_FLAG_RED)
 		{
@@ -354,7 +321,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			}
 
 			blt_sprite = sprite->red;
-			need_stretch = 1;
 		}
 		else if (bltfx->flags & BLTFX_FLAG_GREY)
 		{
@@ -364,7 +330,6 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			}
 
 			blt_sprite = sprite->grey;
-			need_stretch = 1;
 		}
 
 		if (!blt_sprite)
@@ -372,43 +337,30 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 			return;
 		}
 
-		if (need_stretch && bltfx->flags & BLTFX_FLAG_STRETCH)
+		if (bltfx->flags & BLTFX_FLAG_STRETCH)
 		{
-			tmp = check_stretch_cache(blt_sprite, stretch, 0);
+			Uint8 n = (stretch >> 24) & 0xFF;
+			Uint8 e = (stretch >> 16) & 0xFF;
+			Uint8 w = (stretch >> 8) & 0xFF;
+			Uint8 s = stretch & 0xFF;
+			int ht_diff;
+
+			tmp = tile_stretch(blt_sprite, n, e, s, w);
 
 			if (!tmp)
 			{
-				Uint8 n = (stretch >> 24) & 0xFF;
-				Uint8 e = (stretch >> 16) & 0xFF;
-				Uint8 w = (stretch >> 8)  & 0xFF;
-				Uint8 s = stretch & 0xFF;
-				int ht_diff;
-
-				tmp = tile_stretch(blt_sprite, n, e, s, w);
-
-				ht_diff = tmp->h - blt_sprite->h;
-
-				if (!tmp)
-				{
-					return;
-				}
-
-				add_to_stretch_cache(blt_sprite, tmp, stretch, 0);
-
-				blt_sprite = tmp;
-				dst.y = dst.y - ht_diff;
+				return;
 			}
-			else
-			{
-				dst.y = dst.y - (tmp->h - blt_sprite->h);
-				blt_sprite = tmp;
-			}
+
+			ht_diff = tmp->h - blt_sprite->h;
+
+			blt_sprite = tmp;
+			dst.y = dst.y - ht_diff;
 		}
 
 		if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
 		{
 			SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
-			reset_trans = 1;
 		}
 	}
 
@@ -419,7 +371,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	SDL_BlitSurface(blt_sprite, box, surface, &dst);
 
-	if (reset_trans)
+	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
 	{
 		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}

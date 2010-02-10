@@ -353,5 +353,3 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x1, int y1, int x2, int y2, float brightness);
 int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
 SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
-SDL_Surface *check_stretch_cache(const SDL_Surface *src, Uint32 stretch, Uint32 darkness);
-void add_to_stretch_cache(SDL_Surface *src, SDL_Surface *dest, Uint32 stretch, Uint32 darkness);
