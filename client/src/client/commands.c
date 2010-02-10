@@ -135,9 +135,40 @@ void SoundCmd(unsigned char *data,  int len)
 }
 
 /**
- * Setup command. Used to set up a new server connection, initialize necessary data, etc.
+ * Parse server file information from the setup command.
+ * @param param Parameter for the command.
+ * @param command The setup command (amf, hpf, etc).
+ * @param type ID of the server file. */
+static void parse_srv_setup(char *param, const char *command, int type)
+{
+	if (!strcmp(param, "FALSE"))
+	{
+		LOG(llevMsg, "Get %s:: %s\n", command, param);
+	}
+	else if (strcmp(param, "OK"))
+	{
+		char *cp;
+
+		srv_client_files[type].status = SRV_CLIENT_STATUS_UPDATE;
+
+		for (cp = param; *cp != '\0'; cp++)
+		{
+			if (*cp == '|')
+			{
+				*cp = '\0';
+				srv_client_files[type].server_len = atoi(param);
+				srv_client_files[type].server_crc = strtoul(cp + 1, NULL, 16);
+				break;
+			}
+		}
+	}
+}
+
+/**
+ * Setup command. Used to set up a new server connection, initialize
+ * necessary data, etc.
  * @param buf The incoming data.
- * @param len Length of the data */
+ * @param len Length of data. */
 void SetupCmd(char *buf, int len)
 {
 	int s;
@@ -149,39 +180,57 @@ void SetupCmd(char *buf, int len)
 	for (s = 0; ;)
 	{
 		while (s < len && buf[s] == ' ')
+		{
 			s++;
+		}
 
 		if (s >= len)
+		{
 			break;
+		}
 
 		cmd = &buf[s];
 
 		while (s < len && buf[s] != ' ')
+		{
 			s++;
+		}
 
 		if (s >= len)
+		{
 			break;
+		}
 
-		buf[s++] = 0;
+		buf[s++] = '\0';
 
 		if (s >= len)
+		{
 			break;
+		}
 
 		while (s < len && buf[s] == ' ')
+		{
 			s++;
+		}
 
 		if (s >= len)
+		{
 			break;
+		}
 
 		param = &buf[s];
 
 		while (s < len && buf[s] != ' ')
+		{
 			s++;
+		}
 
-		buf[s++] = 0;
+		buf[s++] = '\0';
 
 		while (s < len && buf[s] == ' ')
+		{
 			s++;
+		}
 
 		if (!strcmp(cmd, "sound"))
 		{
@@ -191,144 +240,27 @@ void SetupCmd(char *buf, int len)
 		}
 		else if (!strcmp(cmd, "skf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg, "Get skf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_SKILLS].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_SKILLS].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_SKILLS].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
+			parse_srv_setup(param, cmd, SRV_CLIENT_SKILLS);
 		}
 		else if (!strcmp(cmd, "spf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg, "Get spf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_SPELLS].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_SPELLS].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_SPELLS].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
+			parse_srv_setup(param, cmd, SRV_CLIENT_SPELLS);
 		}
 		else if (!strcmp(cmd, "stf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg,"Get stf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_SETTINGS].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_SETTINGS].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_SETTINGS].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
+			parse_srv_setup(param, cmd, SRV_CLIENT_SETTINGS);
 		}
 		else if (!strcmp(cmd, "bpf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg, "Get bpf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_BMAPS].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_BMAPS].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_BMAPS].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
-
+			parse_srv_setup(param, cmd, SRV_CLIENT_BMAPS);
 		}
 		else if (!strcmp(cmd, "amf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg, "Get amf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_ANIMS].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_ANIMS].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_ANIMS].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
-
+			parse_srv_setup(param, cmd, SRV_CLIENT_ANIMS);
 		}
 		else if (!strcmp(cmd, "hpf"))
 		{
-			if (!strcmp(param, "FALSE"))
-			{
-				LOG(llevMsg, "Get hpf:: %s\n", param);
-			}
-			else if (strcmp(param, "OK"))
-			{
-				char *cp;
-
-				srv_client_files[SRV_CLIENT_HFILES].status = SRV_CLIENT_STATUS_UPDATE;
-				for (cp = param; *cp != 0; cp++)
-				{
-					if (*cp == '|')
-					{
-						*cp = 0;
-						srv_client_files[SRV_CLIENT_HFILES].server_len = atoi(param);
-						srv_client_files[SRV_CLIENT_HFILES].server_crc = strtoul(cp + 1, NULL, 16);
-						break;
-					}
-				}
-			}
-
+			parse_srv_setup(param, cmd, SRV_CLIENT_HFILES);
 		}
 		else if (!strcmp(cmd, "mapsize"))
 		{
@@ -347,6 +279,7 @@ void SetupCmd(char *buf, int len)
 			LOG(llevError, "Got setup for a command we don't understand: %s %s\n", cmd, param);
 		}
 	}
+
 	GameStatus = GAME_STATUS_REQUEST_FILES;
 }
 
@@ -392,7 +325,6 @@ void AddMeSuccess()
 	LOG(llevMsg, "addme_success received.\n");
 	return;
 }
-
 
 /**
  * Goodbye command. Currently doesn't do anything. */
