@@ -90,6 +90,42 @@ static int atnr_prot_stats[NROFPROTECTIONS] =
 };
 
 /**
+ * Parse server file command from client (amf, hpf, etc).
+ * @param param Parameter for the command.
+ * @param cmdback Buffer that will be sent back to the client.
+ * @param type ID of the server file. */
+static void parse_srv_setup(char *param, char *cmdback, int type)
+{
+	char *cp;
+	int x = 0;
+	uint32 y = 0;
+
+	/* is x our files len and y the crc */
+	for (cp = param; *cp != '\0'; cp++)
+	{
+		if (*cp == '|')
+		{
+			*cp = '\0';
+			x = atoi(param);
+			y = strtoul(cp + 1, NULL, 16);
+			break;
+		}
+	}
+
+	if (SrvClientFiles[type].len_ucomp != x || SrvClientFiles[type].crc != y)
+	{
+		char tmpbuf[MAX_BUF];
+
+		snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		strcat(cmdback, tmpbuf);
+	}
+	else
+	{
+		strcat(cmdback, "OK");
+	}
+}
+
+/**
  * The Setup command.
  *
  * The setup syntax is:
@@ -231,189 +267,27 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		}
 		else if (!strcmp(cmd, "skf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SKILLS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp, SrvClientFiles[SRV_CLIENT_SKILLS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS);
 		}
 		else if (!strcmp(cmd, "spf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SPELLS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp,SrvClientFiles[SRV_CLIENT_SPELLS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SPELLS);
 		}
 		else if (!strcmp(cmd, "stf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SETTINGS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp, SrvClientFiles[SRV_CLIENT_SETTINGS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SETTINGS);
 		}
 		else if (!strcmp(cmd, "bpf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_BMAPS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp, SrvClientFiles[SRV_CLIENT_BMAPS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_BMAPS);
 		}
 		else if (!strcmp(cmd, "amf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_ANIMS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp, SrvClientFiles[SRV_CLIENT_ANIMS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS);
 		}
 		else if (!strcmp(cmd, "hpf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp != x || SrvClientFiles[SRV_CLIENT_HFILES].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp, SrvClientFiles[SRV_CLIENT_HFILES].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
 		else
 		{
