@@ -410,14 +410,6 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
  * This is a reply to a previous query. */
 void ReplyCmd(char *buf, int len, player *pl)
 {
-	/* This is to synthesize how the data would be stored if it
-	 * was normally entered.  A bit of a hack, and should be cleaned up
-	 * once all the X11 code is removed from the server.
-	 *
-	 * We pass 13 to many of the functions because this way they
-	 * think it was the carriage return that was entered, and the
-	 * function then does not try to do additional input. */
-
 	(void) len;
 
 	if (pl->socket.status == Ns_Dead)
