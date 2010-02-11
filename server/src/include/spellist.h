@@ -230,9 +230,9 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"finger of death", SPELL_TYPE_PRIEST,
-	 18, 7, 34, 2, 0, 3, 1.0,
+	 18, 7, 34, 2, 0, 5, 1.0,
 	 8, 0, 2, 0, 15, SOUND_MAGIC_HWORD,
-	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_WIS,
+	 SPELL_USE_CAST, SPELL_DESC_WIS | SPELL_DESC_ENEMY,
 	 PATH_DEATH, "spellobject_finger_of_death"
 	},
 

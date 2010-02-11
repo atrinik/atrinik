@@ -385,7 +385,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
 int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_detection(object *op, object *target, int type);
 int cast_consecrate(object *op);
-int finger_of_death(object *op);
+int finger_of_death(object *op, object *target);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
 void move_aura(object *aura);
 

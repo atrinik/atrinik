@@ -675,7 +675,7 @@ dirty_jump:
 			break;
 
 		case SP_FINGER_DEATH:
-			success = finger_of_death(op);
+			success = finger_of_death(op, target);
 			break;
 
 		case SP_POISON_FOG:
@@ -2101,6 +2101,14 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 				{
 					*target = op;
 					return 1;
+				}
+
+				/* Can't cast unfriendly spells on friendly NPCs, but we set target
+				 * so the message player gets is accurate. */
+				if (flags & SPELL_DESC_ENEMY)
+				{
+					*target = tmp;
+					return 0;
 				}
 			}
 			/* Ok, it is a bad guy */
