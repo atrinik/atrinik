@@ -305,14 +305,13 @@ int check_spell_known(object *op, int spell_type)
 int cast_spell(object *op, object *caster, int dir, int type, int ability, SpellTypeFrom item, char *stringarg)
 {
 	spell *s = find_spell(type);
-	const char *godname = NULL;
-	object *target = NULL, *cast_op;
+	shstr *godname = NULL;
+	object *target = NULL;
 	int success = 0, duration;
-	rv_vector rv;
 
-	if (s == NULL)
+	if (!s)
 	{
-		LOG(llevBug, "BUG: unknown spell: %d\n", type);
+		LOG(llevBug, "BUG: cast_spell(): Unknown spell: %d\n", type);
 		return 0;
 	}
 
@@ -327,270 +326,235 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	/* Script NPCs can ALWAYS cast - even in no spell areas! */
 	if (item == spellNPC)
 	{
-		/* If spellNPC, this usually comes from a script */
+		/* If spellNPC, this usually comes from a script,
+		 * and caster is the NPC and op the target. */
 		target = op;
-		/* And caster is the NPC and op the target */
 		op = caster;
-		/* Change the pointers to fit this function and jump */
-		goto dirty_jump;
-	}
-
-	/* It looks like the only properties we ever care about from the casting
-	 * object (caster) is spell paths and level. */
-	cast_op = op;
-
-	if (!caster)
-	{
-		if (item == spellNormal)
-		{
-			caster = op;
-		}
 	}
 	else
 	{
-		/* Caster has a map? Then we use caster */
-		if (caster->map)
+		/* It looks like the only properties we ever care about from the casting
+		 * object (caster) is spell paths and level. */
+		object *cast_op = op;
+
+		if (!caster)
 		{
-			cast_op = caster;
-		}
-	}
-
-	/* Now check we can cast this spell! */
-
-	/* No magic and not a prayer. */
-	if (MAP_NOMAGIC(cast_op->map) && !(spells[type].flags & SPELL_DESC_WIS))
-	{
-		if (op->type == PLAYER)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all spellcasting here!");
-		}
-
-		return 0;
-	}
-
-	/* No prayer and a prayer. */
-	if (MAP_NOPRIEST(cast_op->map) && (spells[type].flags & SPELL_DESC_WIS))
-	{
-		if (op->type == PLAYER)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all prayer spells here!");
-		}
-
-		return 0;
-	}
-
-	/* No harm spell and not town safe. */
-	if (MAP_NOHARM(cast_op->map) && !(spells[type].flags & SPELL_DESC_TOWN))
-	{
-		if (op->type == PLAYER)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all harmful magic here!");
-		}
-
-		return 0;
-	}
-
-	/* No summon and a summon cast. */
-	if (MAP_NOSUMMON(cast_op->map) && (spells[type].flags & SPELL_DESC_SUMMON))
-	{
-		if (op->type == PLAYER)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all summoning here!");
-		}
-
-		return 0;
-	}
-
-	if (op->type == PLAYER)
-	{
-		CONTR(op)->praying = 0;
-
-		/* Cancel player spells which are denied - only real spells (not
-		 * potion, wands, ...) */
-		if (item == spellNormal)
-		{
-			if (caster->path_denied & s->path)
+			if (item == spellNormal)
 			{
-				new_draw_info(NDI_UNIQUE, op, "It is denied for you to cast that spell.");
-				return 0;
+				caster = op;
 			}
-
-			if (!(QUERY_FLAG(op, FLAG_WIZ)))
-			{
-				if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
-				{
-					new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
-					return 0;
-				}
-
-				if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
-				{
-					new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
-					return 0;
-				}
-			}
-		}
-
-		/* If it a prayer, grab the player's god - if we have none, we
-		 * can't cast, except potions */
-		if (spells[type].flags & SPELL_DESC_WIS && item != spellPotion)
-		{
-			if ((godname = determine_god(op)) == shstr_cons.none)
-			{
-				new_draw_info(NDI_UNIQUE, op, "You need a deity to cast a prayer!");
-				return 0;
-			}
-		}
-	}
-
-	/* If it is an ability, assume that the designer of the archetype
-	 * knows what they are doing. */
-	if (item == spellNormal && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
-	{
-		if (op->type == PLAYER)
-		{
-			new_draw_info(NDI_UNIQUE, op, "You lack enough skill to cast that spell.");
-		}
-
-		return 0;
-	}
-
-	/* Applying potions always go in the applier itself (aka drink or
-	 * break) */
-	if (item == spellPotion)
-	{
-		/* If the potion casts an onself spell, don't use the facing
-		 * direction (given by apply.c) */
-		if (spells[type].flags & SPELL_DESC_SELF)
-		{
-			target = op;
-			dir = 0;
-		}
-	}
-	else if (find_target_for_spell(op, &target, spells[type].flags) == 0)
-	{
-		/* Little trick - if we fail we set target = NULL, which marks it
-		 * "yourself". */
-		if (op->type == PLAYER)
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "You can't cast this spell on %s!", target ? target->name : "yourself");
-		}
-
-		return 0;
-	}
-
-	/* If valid target is not in range for selected spell, skip here
-	 * casting. */
-	if (target)
-	{
-		get_rangevector_from_mapcoords(op->map, op->x, op->y, target->map, target->x, target->y, &rv, 0);
-
-		if ((abs(rv.distance_x) > abs(rv.distance_y) ? abs(rv.distance_x) : abs(rv.distance_y)) > spells[type].range)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Your target is out of range!");
-			return 0;
-		}
-	}
-
-	/* Tell player that his spell has been redirected to himself. */
-	if (op->type == PLAYER && target == op && CONTR(op)->target_object != op)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You auto-target yourself with this spell!");
-	}
-
-	/* Ban removed on clerical spells in no-magic areas. */
-	if (!ability && ((!(s->flags & SPELL_DESC_WIS) && blocks_magic(op->map, op->x, op->y)) || ((s->flags & SPELL_DESC_WIS) && blocks_cleric(op->map, op->x, op->y))))
-	{
-		if (op->type != PLAYER)
-		{
-			return 0;
-		}
-
-		if (s->flags & SPELL_DESC_WIS)
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "This ground is unholy! %s ignores you.", godname);
 		}
 		else
 		{
+			/* Caster has a map? Then we use caster */
+			if (caster->map)
+			{
+				cast_op = caster;
+			}
+		}
+
+		/* No magic and not a prayer. */
+		if (MAP_NOMAGIC(cast_op->map) && !(spells[type].flags & SPELL_DESC_WIS))
+		{
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all spellcasting here!");
+			return 0;
+		}
+
+		/* No prayer and a prayer. */
+		if (MAP_NOPRIEST(cast_op->map) && (spells[type].flags & SPELL_DESC_WIS))
+		{
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all prayer spells here!");
+			return 0;
+		}
+
+		/* No harm spell and not town safe. */
+		if (MAP_NOHARM(cast_op->map) && !(spells[type].flags & SPELL_DESC_TOWN))
+		{
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all harmful magic here!");
+			return 0;
+		}
+
+		/* No summon and a summon cast. */
+		if (MAP_NOSUMMON(cast_op->map) && (spells[type].flags & SPELL_DESC_SUMMON))
+		{
+			new_draw_info(NDI_UNIQUE, op, "Powerful countermagic cancels all summoning here!");
+			return 0;
+		}
+
+		if (op->type == PLAYER)
+		{
+			CONTR(op)->praying = 0;
+
+			/* Cancel player spells which are denied, but only real spells (not
+			 * potions, wands, etc). */
+			if (item == spellNormal)
+			{
+				if (caster->path_denied & s->path)
+				{
+					new_draw_info(NDI_UNIQUE, op, "It is denied for you to cast that spell.");
+					return 0;
+				}
+
+				if (!(QUERY_FLAG(op, FLAG_WIZ)))
+				{
+					if (!(spells[type].flags & SPELL_DESC_WIS) && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
+					{
+						new_draw_info(NDI_UNIQUE, op, "You don't have enough mana.");
+						return 0;
+					}
+
+					if ((spells[type].flags & SPELL_DESC_WIS) && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
+					{
+						new_draw_info(NDI_UNIQUE, op, "You don't have enough grace.");
+						return 0;
+					}
+				}
+			}
+
+			/* If it a prayer, grab the player's god - if we have none, we
+			 * can't cast, except for potions. */
+			if (spells[type].flags & SPELL_DESC_WIS && item != spellPotion)
+			{
+				if ((godname = determine_god(op)) == shstr_cons.none)
+				{
+					new_draw_info(NDI_UNIQUE, op, "You need a deity to cast a prayer!");
+					return 0;
+				}
+			}
+		}
+
+		/* If it is an ability, assume that the designer of the archetype
+		 * knows what they are doing. */
+		if (item == spellNormal && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
+		{
+			new_draw_info(NDI_UNIQUE, op, "You lack enough skill to cast that spell.");
+			return 0;
+		}
+
+		if (item == spellPotion)
+		{
+			/* If the potion casts a self spell, don't use the facing
+			 * direction. */
+			if (spells[type].flags & SPELL_DESC_SELF)
+			{
+				target = op;
+				dir = 0;
+			}
+		}
+		else if (find_target_for_spell(op, &target, spells[type].flags) == 0)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "You can't cast that spell on %s!", target ? target->name : "yourself");
+			return 0;
+		}
+
+		/* If valid target is not in range for selected spell, skip casting. */
+		if (target)
+		{
+			rv_vector rv;
+
+			get_rangevector_from_mapcoords(op->map, op->x, op->y, target->map, target->x, target->y, &rv, 0);
+
+			if ((abs(rv.distance_x) > abs(rv.distance_y) ? abs(rv.distance_x) : abs(rv.distance_y)) > spells[type].range)
+			{
+				new_draw_info(NDI_UNIQUE, op, "Your target is out of range!");
+				return 0;
+			}
+		}
+
+		if (op->type == PLAYER && target == op && CONTR(op)->target_object != op)
+		{
+			new_draw_info(NDI_UNIQUE, op, "You auto-target yourself with this spell!");
+		}
+
+		if (!ability && ((!(s->flags & SPELL_DESC_WIS) && blocks_magic(op->map, op->x, op->y)) || ((s->flags & SPELL_DESC_WIS) && blocks_cleric(op->map, op->x, op->y))))
+		{
+			if (op->type != PLAYER)
+			{
+				return 0;
+			}
+
+			if (s->flags & SPELL_DESC_WIS)
+			{
+				new_draw_info_format(NDI_UNIQUE, op, "This ground is unholy! %s ignores you.", godname);
+			}
+			else
+			{
+				switch (CONTR(op)->shoottype)
+				{
+					case range_magic:
+						new_draw_info(NDI_UNIQUE, op, "Something blocks your spellcasting.");
+						break;
+
+					case range_wand:
+						new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your wand.");
+						break;
+
+					case range_rod:
+						new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your rod.");
+						break;
+
+					case range_horn:
+						new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your horn.");
+						break;
+
+					case range_scroll:
+						new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your scroll.");
+						break;
+
+					default:
+						break;
+				}
+			}
+
+			return 0;
+		}
+
+		if (item == spellNormal && op->type == PLAYER)
+		{
+			/* Chance to fumble the spell by too low wisdom. */
+			if (s->flags & SPELL_DESC_WIS && random_roll(0, 99, op, PREFER_HIGH) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
+			{
+				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
+				new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
+
+				/* Shouldn't happen... */
+				if (s->sp == 0)
+				{
+					return 0;
+				}
+
+				return random_roll(1, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+			}
+
+			if (!(s->flags & SPELL_DESC_WIS))
+			{
+				int failure = random_roll(0, 199, op, PREFER_LOW) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
+
+				if (failure < 0)
+				{
+					new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
+					return random_roll(0, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+				}
+			}
+		}
+
+		/* Now let's talk about action/shooting speed */
+		if (op->type == PLAYER)
+		{
 			switch (CONTR(op)->shoottype)
 			{
-				case range_magic:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks your spellcasting.");
-					break;
-
 				case range_wand:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your wand.");
-					break;
-
 				case range_rod:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your rod.");
-					break;
-
 				case range_horn:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your horn.");
-					break;
-
-				case range_scroll:
-					new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of your scroll.");
+					op->chosen_skill->stats.maxsp = caster->last_grace;
 					break;
 
 				default:
 					break;
 			}
 		}
-
-		return 0;
 	}
 
-	/* Chance to fumble the spell by too low wisdom. */
-	if (item == spellNormal && op->type == PLAYER && s->flags & SPELL_DESC_WIS && random_roll(0, 99, op, PREFER_HIGH) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
-	{
-		play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
-		new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
-
-		/* Shouldn't happen... */
-		if (s->sp == 0)
-		{
-			return 0;
-		}
-
-		return random_roll(1, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
-	}
-
-	if (item == spellNormal && op->type == PLAYER && !(s->flags & SPELL_DESC_WIS))
-	{
-		int failure = random_roll(0, 199, op, PREFER_LOW) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
-
-		if (failure < 0)
-		{
-			new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
-			return random_roll(0, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
-		}
-	}
-
-	/* Now let's talk about action/shooting speed */
-	if (op->type == PLAYER)
-	{
-		switch (CONTR(op)->shoottype)
-		{
-			case range_wand:
-			case range_rod:
-			case range_horn:
-				op->chosen_skill->stats.maxsp = caster->last_grace;
-				break;
-
-#if 0
-			case range_scroll:
-			case range_potion:
-			case range_magic:
-			case range_dust:
-#endif
-			default:
-				break;
-		}
-	}
-
-dirty_jump:
 	/* A last sanity check: are caster and target *really* valid? */
 	if ((caster && !OBJECT_ACTIVE(caster)) || (target && !OBJECT_ACTIVE(target)))
 	{
@@ -703,7 +667,7 @@ dirty_jump:
 			break;
 
 		default:
-			LOG(llevBug, "BUG: cast_spell() has invalid spell nr. %d\n", type);
+			LOG(llevBug, "BUG: cast_spell(): Invalid invalid spell: %d\n", type);
 			break;
 	}
 
@@ -1041,54 +1005,6 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 	}
 
 	return success;
-}
-
-/**
- * Checks to see if the cone pushes objects as well as flies over and
- * damages them.
- * @param op The object. */
-void check_cone_push(object *op)
-{
-	/* object on the map */
-	object *tmp, *tmp2;
-	int weight_move;
-
-	weight_move = 1000 + 1000 * op->level;
-
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
-	{
-		int num_sections = 1;
-
-		/* Don't move parts of objects */
-		if (tmp->head)
-		{
-			continue;
-		}
-
-		/* Don't move floors or immobile objects */
-		if (QUERY_FLAG(tmp, FLAG_IS_FLOOR) || (!QUERY_FLAG(tmp, FLAG_ALIVE) && QUERY_FLAG(tmp, FLAG_NO_PICK)))
-		{
-			continue;
-		}
-
-		/* Count the object's sections */
-		for (tmp2 = tmp; tmp2 != NULL; tmp2 = tmp2->more)
-		{
-			num_sections++;
-		}
-
-		/* Move it. */
-		if (rndm(0, weight_move - 1) > tmp->weight / num_sections)
-		{
-			/* move_object is really for monsters, but looking at
-			 * the move_object function, it appears that it should
-			 * also be safe for objects.
-			 * This does return if successful or not, but
-			 * I don't see us doing anything useful with that information
-			 * right now. */
-			move_object(tmp, absdir(op->stats.sp));
-		}
-	}
 }
 
 /**
@@ -2009,11 +1925,12 @@ void fix_rod_speed(object *rod)
 
 	update_ob_speed(rod);
 }
+
 /**
- * Check if the object can cast the spell on the target.
- * @param op Object.
- * @param target Target
- * @param flags Flags.
+ * Detect target for casting a spell.
+ * @param op Caster.
+ * @param[out] target Will contain target for the spell we're casting.
+ * @param flags Spell flags.
  * @return 1 if the object can cast the spell on the target, 0
  * otherwise. */
 int find_target_for_spell(object *op, object **target, uint32 flags)
@@ -2678,68 +2595,6 @@ void put_a_monster(object *op, const char *monstername)
 		tmp->y = op->y + freearr_y[dir];
 		insert_ob_in_map(tmp, op->map, op, 0);
 	}
-}
-
-/**
- * The priest points to a creature and causes a 'godly curse' to descend.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param type ID of the spell to cast.
- * @retval 0 Spell had no effect.
- * @retval 1 Something was affected by the spell. */
-int cast_smite_spell(object *op, object *caster, int type)
-{
-	object *effect, *target = NULL;
-	object *god = find_god(determine_god(op));
-
-	if (op->type == PLAYER)
-	{
-		target = CONTR(op)->target_object;
-	}
-	else if (op->enemy)
-	{
-		target = op->enemy;
-	}
-
-	/* if we don't worship a god, or target a creature
-	 * of our god, the spell will fail. */
-	if (!target || QUERY_FLAG(target, FLAG_CAN_REFL_SPELL) || !god || (target->title && !strcmp(target->title, god->name)) || (target->race && strstr(target->race, god->race)))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Your request is unheeded.");
-		return 0;
-	}
-
-	if (spellarch[type])
-	{
-		effect = arch_to_object(spellarch[type]);
-	}
-	else
-	{
-		return 0;
-	}
-
-	/* Tailor the effect by priest level and worshipped God */
-	effect->level = casting_level(caster, SK_level(caster), type);
-
-	/* Size of the area of destruction */
-	effect->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
-	/* How much woe to inflict :) */
-	effect->stats.dam = spells[type].bdam + SP_level_dam_adjust(caster, type);
-
-	if (effect->stats.dam < 0)
-	{
-		effect->stats.dam = 127;
-	}
-
-	effect->stats.maxhp = effect->count;
-	set_owner(effect, op);
-
-	/* Ok, tell it where to be, and insert! */
-	effect->x = target->x;
-	effect->y = target->y;
-	insert_ob_in_map(effect, op->map, op, 0);
-
-	return 1;
 }
 
 /**

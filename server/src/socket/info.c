@@ -49,14 +49,7 @@ void new_draw_info(int flags, object *pl, const char *buf)
 	char info_string[HUGE_BUF];
 	SockList sl;
 
-	/* Should not happen - generate safe string and LOG it */
-	if (!buf)
-	{
-		buf = "[NULL]";
-		LOG(llevBug, "BUG: new_draw_info: NULL string send! %s (%x)\n", query_name(pl, NULL), flags);
-	}
-
-	/* Here we handle global messages. */
+	/* Handle global messages. */
 	if (flags & NDI_ALL)
 	{
 		player *tmppl;
@@ -69,16 +62,14 @@ void new_draw_info(int flags, object *pl, const char *buf)
 		return;
 	}
 
-	/* Handle some security stuff... a bit overhead for max secure */
 	if (!pl || pl->type != PLAYER)
 	{
-		LOG(llevBug, "BUG: new_draw_info: called for object != PLAYER! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 
 	if (CONTR(pl) == NULL)
 	{
-		LOG(llevBug, "BUG: new_draw_info: called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
+		LOG(llevBug, "BUG: new_draw_info(): Called for player with contr == NULL! %s (%x) msg: %s\n", query_name(pl, NULL), flags, buf);
 		return;
 	}
 
