@@ -632,31 +632,21 @@ void MapNewmapCmd(player *pl)
  * Moves an object (typically, container to inventory).
  *
  * Syntax:
- * <pre>move \<to\> \<tag\> \<nrof\></pre> */
+ * <pre>move \<to\> \<tag\> \<nrof\></pre>
+ * @param buf Data.
+ * @param len Length of data.
+ * @param pl Player. */
 void MoveCmd(char *buf, int len, player *pl)
 {
-	int vals[3], i;
+	int vals[3];
 
 	(void) len;
 
-	/* A little funky here.  We only cycle for 2 records, because
-	 * we obviously am not going to find a space after the third
-	 * record.  Perhaps we should just replace this with a
-	 * sscanf? */
-	for (i = 0; i < 2; i++)
+	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
 	{
-		vals[i] = atoi(buf);
-
-		if (!(buf = strchr(buf, ' ')))
-		{
-			LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
-			return;
-		}
-
-		buf++;
+		LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
+		return;
 	}
-
-	vals[2] = atoi(buf);
 
 	esrv_move_object(pl->ob, vals[0], vals[1], vals[2]);
 }
