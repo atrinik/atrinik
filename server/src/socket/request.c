@@ -713,48 +713,62 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
 	}
 
 /**
- * Send the player skills to the client. */
+ * Helper function for send_skilllist_cmd() and esrv_update_skills(), adds
+ * one skill to buffer which is then sent to the client as the skill list
+ * command.
+ * @param skill Skill object to add.
+ * @param sb StringBuffer instance to add to. */
+void add_skill_to_skilllist(object *skill, StringBuffer *sb)
+{
+	/* Normal skills */
+	if (skill->last_eat == 1)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|%d", skill->name, skill->level, skill->stats.exp);
+	}
+	/* 'Buy level' skills */
+	else if (skill->last_eat == 2)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-2", skill->name, skill->level);
+	}
+	/* No level skills */
+	else
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-1", skill->name, skill->level);
+	}
+}
+
+/**
+ * Send the player skills to the client.
+ * @param pl Player to send the skills to. */
 void esrv_update_skills(player *pl)
 {
-	object *tmp2;
 	int i;
-	char buf[256];
-	/* we should careful set a big enough buffer here */
-	char tmp[2048];
+	StringBuffer *sb = stringbuffer_new();
+	char *cp;
+	size_t cp_len;
 
-	snprintf(tmp, sizeof(tmp), "X%d ", SPLIST_MODE_UPDATE);
+	stringbuffer_append_printf(sb, "X%d ", SPLIST_MODE_UPDATE);
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
-		/* update exp skill we have only */
 		if (pl->skill_ptr[i] && pl->skill_ptr[i]->last_eat)
 		{
-			tmp2 = pl->skill_ptr[i];
+			object *tmp = pl->skill_ptr[i];
 
-			/* send only when really something has changed */
-			if (tmp2->stats.exp != pl->skill_exp[i] || tmp2->level != pl->skill_level[i])
+			/* Send only when something has changed */
+			if (tmp->stats.exp != pl->skill_exp[i] || tmp->level != pl->skill_level[i])
 			{
-				if (tmp2->last_eat == 1)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
-				}
-				else if (tmp2->last_eat == 2)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
-				}
-
-				strcat(tmp, buf);
-				pl->skill_exp[i] = tmp2->stats.exp;
-				pl->skill_level[i] = tmp2->level;
+				add_skill_to_skilllist(tmp, sb);
+				pl->skill_exp[i] = tmp->stats.exp;
+				pl->skill_level[i] = tmp->level;
 			}
 		}
 	}
 
-	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
+	cp_len = sb->pos;
+	cp = stringbuffer_finish(sb);
+	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
+	free(cp);
 }
 
 /**
