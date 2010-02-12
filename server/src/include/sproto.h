@@ -385,7 +385,7 @@ int remove_curse(object *op, object *target, int type, SpellTypeFrom src);
 int cast_identify(object *op, int level, object *single_ob, int mode);
 int cast_detection(object *op, object *target, int type);
 int cast_consecrate(object *op);
-int finger_of_death(object *op);
+int finger_of_death(object *op, object *target);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
 void move_aura(object *aura);
 
@@ -401,7 +401,6 @@ int cast_create_obj(object *op, object *new_op, int dir);
 int fire_bolt(object *op, object *caster, int dir, int type);
 int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type);
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
-void check_cone_push(object *op);
 void cone_drop(object *op);
 void move_cone(object *op);
 void fire_a_ball(object *op, int dir, int strength);
@@ -428,7 +427,6 @@ void move_swarm_spell(object *op);
 void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
 int look_up_spell_by_name(object *op, const char *spname);
 void put_a_monster(object *op, const char *monstername);
-int cast_smite_spell(object *op, object *caster, int type);
 int summon_hostile_monsters(object *op, int n, const char *monstername);
 
 /* swap.c */

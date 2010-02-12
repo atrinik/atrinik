@@ -1697,32 +1697,16 @@ int cast_consecrate(object *op)
 
 /**
  * Finger of death spell.
+ *
+ * If target is undead, the spell will restore target to max health
+ * instead of damaging it.
  * @param op Caster.
- * @return 1 on success, 0 on failure. */
-int finger_of_death(object *op)
+ * @param target Target.
+ * @return 1. */
+int finger_of_death(object *op, object *target)
 {
-	object *hitter, *target = NULL;
+	object *hitter;
 	int dam;
-
-	if (op->type == PLAYER && CONTR(op)->target_object != op)
-	{
-		target = CONTR(op)->target_object;
-
-		if (target && is_friend_of(op, target))
-		{
-			target = NULL;
-		}
-	}
-	else if (op->enemy)
-	{
-		target = op->enemy;
-	}
-
-	if (!target || QUERY_FLAG(target, FLAG_CAN_REFL_SPELL))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing happens.");
-		return 0;
-	}
 
 	if (QUERY_FLAG(target, FLAG_UNDEAD))
 	{
@@ -1737,7 +1721,7 @@ int finger_of_death(object *op)
 		return 1;
 	}
 
-	/* we create a hitter object -- the spell */
+	/* We create a hitter object -- the spell */
 	hitter = arch_to_object(spellarch[SP_FINGER_DEATH]);
 	hitter->level = casting_level(op, SK_level(op), SP_FINGER_DEATH);
 	set_owner(hitter, op);

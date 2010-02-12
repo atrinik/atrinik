@@ -71,6 +71,7 @@ void MapRedrawCmd(char *buff, int len, player *pl);
 void MapNewmapCmd(player *pl);
 void MoveCmd(char *buf, int len, player *pl);
 void send_query(socket_struct *ns, uint8 flags, char *text);
+void add_skill_to_skilllist(object *skill, StringBuffer *sb);
 void esrv_update_skills(player *pl);
 void esrv_update_stats(player *pl);
 void esrv_new_player(player *pl, uint32 weight);

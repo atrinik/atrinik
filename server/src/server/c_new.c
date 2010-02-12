@@ -1050,31 +1050,6 @@ void send_spelllist_cmd(object *op, const char *spellname, int mode)
 }
 
 /**
- * Helper function for send_skilllist_cmd(), adds one skill to buffer
- * which is then sent to the client as the skill list command.
- * @param op Object.
- * @param skill Skill object to add.
- * @param sb StringBuffer instance to add to. */
-static void add_skill_to_skilllist(object *skill, StringBuffer *sb)
-{
-	/* Normal skills */
-	if (skill->last_eat == 1)
-	{
-		stringbuffer_append_printf(sb, "/%s|%d|%d", skill->name, skill->level, skill->stats.exp);
-	}
-	/* 'Buy level' skills */
-	else if (skill->last_eat == 2)
-	{
-		stringbuffer_append_printf(sb, "/%s|%d|-2", skill->name, skill->level);
-	}
-	/* No level skills */
-	else
-	{
-		stringbuffer_append_printf(sb, "/%s|%d|-1", skill->name, skill->level);
-	}
-}
-
-/**
  * Send skill list to the client.
  * @param op Object.
  * @param skillp Skill object; if not NULL, will only send this skill.

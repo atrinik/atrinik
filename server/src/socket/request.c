@@ -90,6 +90,42 @@ static int atnr_prot_stats[NROFPROTECTIONS] =
 };
 
 /**
+ * Parse server file command from client (amf, hpf, etc).
+ * @param param Parameter for the command.
+ * @param cmdback Buffer that will be sent back to the client.
+ * @param type ID of the server file. */
+static void parse_srv_setup(char *param, char *cmdback, int type)
+{
+	char *cp;
+	int x = 0;
+	uint32 y = 0;
+
+	/* is x our files len and y the crc */
+	for (cp = param; *cp != '\0'; cp++)
+	{
+		if (*cp == '|')
+		{
+			*cp = '\0';
+			x = atoi(param);
+			y = strtoul(cp + 1, NULL, 16);
+			break;
+		}
+	}
+
+	if (SrvClientFiles[type].len_ucomp != x || SrvClientFiles[type].crc != y)
+	{
+		char tmpbuf[MAX_BUF];
+
+		snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
+		strcat(cmdback, tmpbuf);
+	}
+	else
+	{
+		strcat(cmdback, "OK");
+	}
+}
+
+/**
  * The Setup command.
  *
  * The setup syntax is:
@@ -231,189 +267,27 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		}
 		else if (!strcmp(cmd, "skf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SKILLS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SKILLS].len_ucomp, SrvClientFiles[SRV_CLIENT_SKILLS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS);
 		}
 		else if (!strcmp(cmd, "spf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SPELLS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SPELLS].len_ucomp,SrvClientFiles[SRV_CLIENT_SPELLS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SPELLS);
 		}
 		else if (!strcmp(cmd, "stf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_SETTINGS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_SETTINGS].len_ucomp, SrvClientFiles[SRV_CLIENT_SETTINGS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_SETTINGS);
 		}
 		else if (!strcmp(cmd, "bpf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_BMAPS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_BMAPS].len_ucomp, SrvClientFiles[SRV_CLIENT_BMAPS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_BMAPS);
 		}
 		else if (!strcmp(cmd, "amf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp != x || SrvClientFiles[SRV_CLIENT_ANIMS].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_ANIMS].len_ucomp, SrvClientFiles[SRV_CLIENT_ANIMS].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS);
 		}
 		else if (!strcmp(cmd, "hpf"))
 		{
-			char *cp;
-			int x = 0;
-			uint32 y = 0;
-
-			/* is x our files len and y the crc */
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == '|')
-				{
-					*cp = 0;
-					x = atoi(param);
-					y = strtoul(cp + 1, NULL, 16);
-
-					break;
-				}
-			}
-
-			/* we check now the loaded file data - if different
-			 * we tell it the client - if not, we skip here */
-			if (SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp != x || SrvClientFiles[SRV_CLIENT_HFILES].crc != y)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d|%x", SrvClientFiles[SRV_CLIENT_HFILES].len_ucomp, SrvClientFiles[SRV_CLIENT_HFILES].crc);
-				strcat(cmdback, tmpbuf);
-			}
-			else
-			{
-				strcat(cmdback, "OK");
-			}
+			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
 		else
 		{
@@ -536,14 +410,6 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
  * This is a reply to a previous query. */
 void ReplyCmd(char *buf, int len, player *pl)
 {
-	/* This is to synthesize how the data would be stored if it
-	 * was normally entered.  A bit of a hack, and should be cleaned up
-	 * once all the X11 code is removed from the server.
-	 *
-	 * We pass 13 to many of the functions because this way they
-	 * think it was the carriage return that was entered, and the
-	 * function then does not try to do additional input. */
-
 	(void) len;
 
 	if (pl->socket.status == Ns_Dead)
@@ -766,31 +632,21 @@ void MapNewmapCmd(player *pl)
  * Moves an object (typically, container to inventory).
  *
  * Syntax:
- * <pre>move \<to\> \<tag\> \<nrof\></pre> */
+ * <pre>move \<to\> \<tag\> \<nrof\></pre>
+ * @param buf Data.
+ * @param len Length of data.
+ * @param pl Player. */
 void MoveCmd(char *buf, int len, player *pl)
 {
-	int vals[3], i;
+	int vals[3];
 
 	(void) len;
 
-	/* A little funky here.  We only cycle for 2 records, because
-	 * we obviously am not going to find a space after the third
-	 * record.  Perhaps we should just replace this with a
-	 * sscanf? */
-	for (i = 0; i < 2; i++)
+	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
 	{
-		vals[i] = atoi(buf);
-
-		if (!(buf = strchr(buf, ' ')))
-		{
-			LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
-			return;
-		}
-
-		buf++;
+		LOG(llevInfo, "CLIENT(BUG): Incomplete move command: %s from player %s\n", buf, query_name(pl->ob, NULL));
+		return;
 	}
-
-	vals[2] = atoi(buf);
 
 	esrv_move_object(pl->ob, vals[0], vals[1], vals[2]);
 }
@@ -857,48 +713,62 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
 	}
 
 /**
- * Send the player skills to the client. */
+ * Helper function for send_skilllist_cmd() and esrv_update_skills(), adds
+ * one skill to buffer which is then sent to the client as the skill list
+ * command.
+ * @param skill Skill object to add.
+ * @param sb StringBuffer instance to add to. */
+void add_skill_to_skilllist(object *skill, StringBuffer *sb)
+{
+	/* Normal skills */
+	if (skill->last_eat == 1)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|%d", skill->name, skill->level, skill->stats.exp);
+	}
+	/* 'Buy level' skills */
+	else if (skill->last_eat == 2)
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-2", skill->name, skill->level);
+	}
+	/* No level skills */
+	else
+	{
+		stringbuffer_append_printf(sb, "/%s|%d|-1", skill->name, skill->level);
+	}
+}
+
+/**
+ * Send the player skills to the client.
+ * @param pl Player to send the skills to. */
 void esrv_update_skills(player *pl)
 {
-	object *tmp2;
 	int i;
-	char buf[256];
-	/* we should careful set a big enough buffer here */
-	char tmp[2048];
+	StringBuffer *sb = stringbuffer_new();
+	char *cp;
+	size_t cp_len;
 
-	snprintf(tmp, sizeof(tmp), "X%d ", SPLIST_MODE_UPDATE);
+	stringbuffer_append_printf(sb, "X%d ", SPLIST_MODE_UPDATE);
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
-		/* update exp skill we have only */
 		if (pl->skill_ptr[i] && pl->skill_ptr[i]->last_eat)
 		{
-			tmp2 = pl->skill_ptr[i];
+			object *tmp = pl->skill_ptr[i];
 
-			/* send only when really something has changed */
-			if (tmp2->stats.exp != pl->skill_exp[i] || tmp2->level != pl->skill_level[i])
+			/* Send only when something has changed */
+			if (tmp->stats.exp != pl->skill_exp[i] || tmp->level != pl->skill_level[i])
 			{
-				if (tmp2->last_eat == 1)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|%d", tmp2->name, tmp2->level, tmp2->stats.exp);
-				}
-				else if (tmp2->last_eat == 2)
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-2", tmp2->name, tmp2->level);
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "/%s|%d|-1", tmp2->name, tmp2->level);
-				}
-
-				strcat(tmp, buf);
-				pl->skill_exp[i] = tmp2->stats.exp;
-				pl->skill_level[i] = tmp2->level;
+				add_skill_to_skilllist(tmp, sb);
+				pl->skill_exp[i] = tmp->stats.exp;
+				pl->skill_level[i] = tmp->level;
 			}
 		}
 	}
 
-	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, tmp, strlen(tmp));
+	cp_len = sb->pos;
+	cp = stringbuffer_finish(sb);
+	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
+	free(cp);
 }
 
 /**
