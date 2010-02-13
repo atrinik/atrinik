@@ -169,13 +169,6 @@ void handle_client(socket_struct *ns, player *pl)
 	/* Loop through this - maybe we have several complete packets here. */
 	while (1)
 	{
-		/* If it is a player, and they don't have any speed left, we
-		 * return, and will read in the data when they do have time. */
-		if (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0)
-		{
-			return;
-		}
-
 		i = SockList_ReadPacket(ns->fd, &ns->inbuf, MAXSOCKBUF - 1);
 
 		if (i < 0)
@@ -194,6 +187,12 @@ void handle_client(socket_struct *ns, player *pl)
 		if (pl && pl->state == ST_PLAYING)
 		{
 			ns->login_count = 0;
+		}
+
+		if (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0.0f)
+		{
+			ns->inbuf.len = 0;
+			goto next_command;
 		}
 
 		/* First, break out beginning word.  There are at least
