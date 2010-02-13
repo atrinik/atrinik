@@ -35,7 +35,8 @@
  * Party message types.
  *@{*/
 
-/** Status is used for party messages like password change, join/leave,
+/**
+ * Status is used for party messages like password change, join/leave,
  * etc */
 #define PARTY_MESSAGE_STATUS    1
 /** Chat is used for party chat messages from party members */
@@ -46,19 +47,19 @@
  * Party structure. */
 typedef struct party_struct
 {
-	/** Name of the party leader */
+	/** Name of the party leader. */
 	shstr *leader;
 
-	/** Password this party requires */
+	/** Password this party requires. */
 	char passwd[9];
 
-	/** Name of the party */
-	char *name;
+	/** Name of the party. */
+	shstr *name;
 
 	/** Party members. */
 	objectlink *members;
 
-	/** Next party in the list */
+	/** Next party in the list. */
 	struct party_struct *next;
 } partylist_struct;
 

@@ -1475,7 +1475,7 @@ void drop_ob_inv(object *ob)
 		{
 			if (CONTR(enemy)->party)
 			{
-				corpse->slaying = CONTR(enemy)->party->name;
+				FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
 				corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
 			}
 			else

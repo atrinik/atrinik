@@ -87,7 +87,7 @@ partylist_struct *make_party(char *name)
 	partylist_struct *party = (partylist_struct *) get_poolchunk(pool_parties);
 
 	party->passwd[0] = '\0';
-	party->name = strdup_local(name);
+	FREE_AND_COPY_HASH(party->name, name);
 	party->leader = NULL;
 	party->members = NULL;
 
@@ -194,7 +194,7 @@ void remove_party(partylist_struct *party)
 		}
 	}
 
-	free(party->name);
+	FREE_ONLY_HASH(party->name);
 	FREE_ONLY_HASH(party->leader);
 	return_poolchunk(party, pool_parties);
 }
