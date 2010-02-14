@@ -277,7 +277,7 @@ typedef struct pl_player
 	char last_skill_level[MAX_EXP_CAT];
 
 	/** The CS_STATS_ id for client STATS cmd. */
-	char last_skill_id[MAX_EXP_CAT];
+	uint8 last_skill_id[MAX_EXP_CAT];
 
 	/** Skill used for fire mode. */
 	char firemode_name[BIG_NAME * 2];
