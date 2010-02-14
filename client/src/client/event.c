@@ -2195,8 +2195,16 @@ static void move_keys(int num)
 	}
 	else
 	{
-		send_command(directions[num], -1, SC_FIRERUN);
-		buf[0] = 0;
+		static uint32 move_tick = 0;
+		uint32 time = (uint32) ((float) MAX_TIME / FABS((float) ((float) cpl.stats.speed / 100)));
+
+		if (LastTick - move_tick > time)
+		{
+			send_command(directions[num], -1, SC_FIRERUN);
+			move_tick = LastTick;
+		}
+
+		buf[0] = '\0';
 	}
 
 	strcat(buf, directions_name[num]);

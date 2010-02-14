@@ -69,6 +69,9 @@
  * simpler. */
 #define MAXSOCKBUF (256 * 1024)
 
+/** Should be the same as server's MAX_TIME. */
+#define MAX_TIME 125000
+
 /**
  * The number of our dark levels.
  *

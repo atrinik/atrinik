@@ -60,6 +60,8 @@ typedef signed char sint8;
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+#define FABS(x) ((x) < 0 ? -(x) : (x))
+
 /* Just so that the entries in proto.h don't error on this... */
 #ifndef INSTALL_SOUND
 #define Mix_Chunk int
