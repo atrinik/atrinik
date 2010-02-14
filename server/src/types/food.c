@@ -319,16 +319,13 @@ void eat_special_food(object *who, object *food)
 		}
 		else
 		{
-			if (food->stats.hp > 0)
-			{
-				new_draw_info(NDI_UNIQUE, who, "You begin to feel better.");
-			}
-			else
-			{
-				new_draw_info(NDI_UNIQUE, who, "Eck!... that was rotten food!");
-			}
-
+			new_draw_info(NDI_UNIQUE, who, "You begin to feel better.");
 			who->stats.hp += food->stats.hp;
+
+			if (who->stats.hp > who->stats.maxhp)
+			{
+				who->stats.hp = who->stats.maxhp;
+			}
 		}
 	}
 
@@ -363,6 +360,11 @@ void eat_special_food(object *who, object *food)
 		{
 			new_draw_info(NDI_UNIQUE, who, "You feel a rush of magical energy!");
 			who->stats.sp += food->stats.sp;
+
+			if (who->stats.sp > who->stats.maxsp)
+			{
+				who->stats.sp = who->stats.maxsp;
+			}
 		}
 	}
 
@@ -397,6 +399,11 @@ void eat_special_food(object *who, object *food)
 		{
 			new_draw_info(NDI_UNIQUE, who, "You are returned to a state of grace.");
 			who->stats.grace += food->stats.grace;
+
+			if (who->stats.grace > who->stats.maxgrace)
+			{
+				who->stats.grace = who->stats.maxgrace;
+			}
 		}
 	}
 }
