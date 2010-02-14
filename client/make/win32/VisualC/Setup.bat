@@ -2,15 +2,11 @@ rem ====================================
 rem Unpack all files.
 rem ====================================
 
-rem SDL libraries
-..\tools\gunzip -c sdl_lib.tar.gz > sdl_lib.tar
-..\tools\tar xvf sdl_lib.tar
+rem Extract libraries
+..\tools\gunzip -c libs.tar.gz > libs.tar
+..\tools\tar xvf libs.tar
 
-rem SDL includes
-..\tools\gunzip -c sdl_inc.tar.gz > sdl_inc.tar
-..\tools\tar xvf sdl_inc.tar
-
-rem SDL dlls
+rem Extract SDL dlls
 ..\tools\gunzip -c sdl_dll.tar.gz > sdl_dll.tar
 ..\tools\tar xvf sdl_dll.tar
 
