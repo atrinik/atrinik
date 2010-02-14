@@ -52,7 +52,7 @@ DEPEND = @DEPEND@
 
 CFLAGS = @CFLAGS@ $(EXTRA_CFLAGS)
 
-INCLUDES = $(EXTRA_INCLUDES) -I../include
+INCLUDES = $(EXTRA_INCLUDES) -I../include -I../zlib/include
 
 socket.a: $(OBJS)
 	$(RM) -f $@
