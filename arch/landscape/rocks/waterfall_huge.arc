@@ -10,7 +10,6 @@ anim_speed 1
 speed 1
 no_pick 1
 no_pass 1
-blocksview 1
 end
 More
 Object waterfall_huge_a
