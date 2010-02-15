@@ -228,12 +228,12 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			if (hitter->type == PLAYER)
 			{
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_MISS_PLAYER, SOUND_NORMAL);
-                new_draw_info_format(NDI_ORANGE, hitter, "You miss %s!", op->name);
+				new_draw_info_format(NDI_ORANGE, hitter, "You miss %s!", op->name);
 			}
 			else
 			{
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_MISS_MOB, SOUND_NORMAL);
-                new_draw_info_format(NDI_PURPLE, op, "%s misses you!", hitter->name);
+				new_draw_info_format(NDI_PURPLE, op, "%s misses you!", hitter->name);
 			}
 		}
 	}
