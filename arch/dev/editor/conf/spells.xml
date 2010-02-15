@@ -8,7 +8,7 @@
   - #        to generate a new version of this file.         #
   - ##########################################################
   -->
-<!-- Generated on: Mon Nov 23 06:52:12 CET 2009 -->
+<!-- Generated on: Mon Feb 15 13:48:36 CET 2010 -->
 <spells>
   <spell id="38"  name="bullet storm" />
   <spell id="37"  name="bullet swarm" />
@@ -16,7 +16,7 @@
   <spell id="30"  name="cause flu" />
   <spell id="31"  name="cause leprosy" />
   <spell id="11"  name="cause light wounds" />
-  <spell id="33"  name="cause pneumotic plague" />
+  <spell id="33"  name="cause pneumonic plague" />
   <spell id="32"  name="cause smallpox" />
   <spell id="12"  name="confuse" />
   <spell id="27"  name="consecrate" />
