@@ -511,7 +511,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 			time_t now = time(NULL);
 			char timebuf[32], *format;
 			struct tm *tmp = localtime(&now);
-			int timelen;
+			size_t timelen;
 
 			switch (options.chat_timestamp)
 			{
@@ -545,7 +545,7 @@ void DrawInfoCmd2(unsigned char *data, int len)
 			}
 			else
 			{
-				len += timelen + 4;
+				len += (int) timelen + 4;
 				snprintf(buf, len, "[%s] %s", timebuf, (char *) data);
 			}
 		}

@@ -275,7 +275,7 @@ static void mouse_InputNumber()
 	}
 
 	snprintf(InputString, sizeof(InputString), "%d", x);
-	InputCount = strlen(InputString);
+	InputCount = (int) strlen(InputString);
 	timeVal += (timeVal / 8) + 1;
 }
 
@@ -811,7 +811,7 @@ static void key_string_event(SDL_KeyboardEvent *key)
 					if (possibilities == 1)
 					{
 						snprintf(InputString, sizeof(InputString), "/%s ", cmd_buf);
-						InputCount = CurrentCursorPos = strlen(InputString);
+						InputCount = CurrentCursorPos = (int) strlen(InputString);
 					}
 				}
 

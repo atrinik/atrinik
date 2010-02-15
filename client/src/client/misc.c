@@ -154,7 +154,7 @@ const char *show_input_string(const char *text, struct _Font *font, int wlen)
 
 	strcpy(buf, text);
 
-	len = strlen(buf);
+	len = (int) strlen(buf);
 
 	while (len >= CurrentCursorPos)
 	{

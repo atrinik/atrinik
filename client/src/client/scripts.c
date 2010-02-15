@@ -58,7 +58,7 @@ static int emulate_read(HANDLE fd, char *buf, size_t len)
 	BOOL rc;
 
 	FlushFileBuffers(fd);
-	rc = ReadFile(fd, buf, len, &dwBytesRead, NULL);
+	rc = ReadFile(fd, buf, (DWORD) len, &dwBytesRead, NULL);
 
 	if (rc == 0)
 	{
@@ -75,7 +75,7 @@ static int emulate_write(HANDLE fd, const char *buf, size_t len)
 	DWORD dwBytesWritten;
 	BOOL rc;
 
-	rc = WriteFile(fd, buf, len, &dwBytesWritten, NULL);
+	rc = WriteFile(fd, buf, (DWORD) len, &dwBytesWritten, NULL);
 	FlushFileBuffers(fd);
 
 	if (rc == 0)

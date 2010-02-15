@@ -423,7 +423,7 @@ void show_help(char *helpname)
 
 	data = (uint8 *) message;
 
-	len = strlen((char *) data);
+	len = (int) strlen((char *) data);
 
 	cpl.menustatus = MENU_BOOK;
 
@@ -590,7 +590,7 @@ void widget_show_resist(int x, int y)
 			}
 
 			/* Output the protection few letters name from the table 'protections'. */
-			StringBlt(widgetSF[RESIST_ID], &SystemFont, protections[protectionID], protection_x + 2 - strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
+			StringBlt(widgetSF[RESIST_ID], &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
 
 			/* Now output the protection value. No protection will be drawn gray,
 			 * some protection will be white, and immunity (100%) will be orange. */

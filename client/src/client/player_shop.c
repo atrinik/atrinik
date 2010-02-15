@@ -188,14 +188,14 @@ void widget_show_shop(int x, int y)
 				switch (shop_gui->shop_state)
 				{
 					case SHOP_STATE_NONE:
-						shop_gui->current_cursor_pos = strlen(shop_item_tmp->price_buf);
+						shop_gui->current_cursor_pos = (int) strlen(shop_item_tmp->price_buf);
 
 						break;
 
 					case SHOP_STATE_BUYING:
 						snprintf(buf, sizeof(buf), "%d", shop_item_tmp->nrof);
 
-						shop_gui->current_cursor_pos = strlen(buf);
+						shop_gui->current_cursor_pos = (int) strlen(buf);
 
 						break;
 				}
@@ -506,7 +506,7 @@ static void shop_add_button(int x, int y, const char *text)
 	sprite_blt(Bitmaps[BITMAP_DIALOG_BUTTON_UP], x, y, NULL, NULL);
 
 	/* Calculate text X position */
-	text_x = x + Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w / 2 - strlen(text) * 2 - 1;
+	text_x = x + Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w / 2 - (int) strlen(text) * 2 - 1;
 
 	/* Display the button text background in black */
 	StringBlt(ScreenSurface, &SystemFont, text, text_x + 1, y + 2, COLOR_BLACK, NULL, NULL);
@@ -758,7 +758,7 @@ int check_shop_keys(SDL_KeyboardEvent *key)
 	}
 
 	/* Calculate the input count */
-	shop_gui->input_count = strlen(buf);
+	shop_gui->input_count = (int) strlen(buf);
 
 	if (key->type == SDL_KEYDOWN)
 	{
@@ -834,7 +834,7 @@ int check_shop_keys(SDL_KeyboardEvent *key)
 				}
 
 				/* Recalculate input count and cursor position */
-				shop_gui->input_count = shop_gui->current_cursor_pos = strlen(buf);
+				shop_gui->input_count = shop_gui->current_cursor_pos = (int) strlen(buf);
 
 				return 1;
 
@@ -903,7 +903,7 @@ int check_shop_keys(SDL_KeyboardEvent *key)
 					snprintf(buf, sizeof(buf), "%d", buf_int);
 
 					/* Recalculate input count and cursor position */
-					shop_gui->input_count = shop_gui->current_cursor_pos = strlen(buf);
+					shop_gui->input_count = shop_gui->current_cursor_pos = (int) strlen(buf);
 				}
 				else
 				{
@@ -947,7 +947,7 @@ char *shop_show_input(char *text, struct _Font *font, int wlen, int append_under
 
 	strcpy(buf, text);
 
-	len = strlen(buf);
+	len = (int) strlen(buf);
 
 	/* Are we going to append an underscore to the text? */
 	if (append_underscore)
@@ -1031,7 +1031,7 @@ int shop_price2int(char *text)
 			{
 				if ((word = get_word_from_string(text, &pos)) && *word != '\0')
 				{
-					int len = strlen(word);
+					int len = (int) strlen(word);
 
 					for (i = 0; i < COINS_ARRAY_SIZE; i++)
 					{

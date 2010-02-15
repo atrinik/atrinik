@@ -292,7 +292,7 @@ int cs_write_string(int fd, char *buf, size_t len)
 {
 	SockList sl;
 
-	sl.len = len;
+	sl.len = (int) len;
 	sl.buf = (unsigned char *) buf;
 	return send_socklist(fd, sl);
 }
@@ -307,7 +307,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	char buf[2048];
 	FILE *stream;
 	struct stat statbuf;
-	int len;
+	size_t len;
 	static uint32 newsum = 0;
 	unsigned char *data;
 	void *tmp_free;
@@ -341,7 +341,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
 		fstat(fileno (stream), &statbuf);
-		len = (int) statbuf.st_size;
+		len = statbuf.st_size;
 		data = malloc(len);
 		len = fread(data, 1, len, stream);
 		fclose(stream);
@@ -483,7 +483,7 @@ int request_face(int pnum, int mode)
 	char buf[256 * 2];
 	FILE *stream;
 	struct stat statbuf;
-	int len;
+	size_t len;
 	unsigned char *data;
 	static int count = 0;
 	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
@@ -522,7 +522,7 @@ int request_face(int pnum, int mode)
 	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
 	{
 		fstat(fileno(stream), &statbuf);
-		len = (int) statbuf.st_size;
+		len = statbuf.st_size;
 		data = malloc(len);
 		len = fread(data, 1, len, stream);
 		fclose(stream);
@@ -590,7 +590,7 @@ void check_animation_status(int anum)
  * @return The adjusted string. */
 char *adjust_string(char *buf)
 {
-	int i, len = strlen(buf);
+	int i, len = (int) strlen(buf);
 
 	for (i = len - 1; i >= 0; i--)
 	{

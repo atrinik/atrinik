@@ -186,7 +186,7 @@ void send_command(const char *command, int repeat, int must_send)
 	SockList_AddInt(&sl, repeat);
 	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
 	sl.buf[MAX_BUF - 1] = '\0';
-	sl.len += strlen(command);
+	sl.len += (int) strlen(command);
 	send_socklist(csocket.fd, sl);
 
 	if (repeat != -1)

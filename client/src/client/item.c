@@ -584,7 +584,7 @@ void fire_command(char *buf)
 	SockList sl;
 
 	sl.buf = (unsigned char *) buf;
-	sl.len = strlen(buf);
+	sl.len = (int) strlen(buf);
 	send_socklist(csocket.fd, sl);
 }
 
@@ -593,7 +593,7 @@ void combat_command(char *buf)
 	SockList sl;
 
 	sl.buf = (unsigned char *) buf;
-	sl.len = strlen(buf);
+	sl.len = (int) strlen(buf);
 	send_socklist(csocket.fd, sl);
 }
 
