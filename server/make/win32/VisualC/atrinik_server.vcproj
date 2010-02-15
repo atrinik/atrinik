@@ -2125,7 +2125,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -2143,7 +2143,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -2152,7 +2152,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -3764,26 +3764,6 @@
 			</Filter>
 		</Filter>
 		<File
-			RelativePath=".\libs\curl\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\libs\curl\x64\libcurl.lib"
 			>
 			<FileConfiguration
@@ -3796,6 +3776,26 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\curl\libcurl.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
