@@ -226,7 +226,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\random_maps;..\..\..\src\zlib\include;.\libs;.\libs\pthread"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;;PTW32_STATIC_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="true"
@@ -3764,26 +3764,6 @@
 			</Filter>
 		</Filter>
 		<File
-			RelativePath=".\libs\curl\x64\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\libs\curl\libcurl.lib"
 			>
 			<FileConfiguration
@@ -3796,6 +3776,26 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\curl\x64\libcurl.lib"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
