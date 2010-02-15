@@ -155,11 +155,6 @@ void InitMapData(char *name, int xl, int yl, int px, int py, char *bg_music)
 
 	if (py != -1)
 		MapData.posy = py;
-
-	if (xl > 0)
-	{
-		clear_map();
-	}
 }
 
 void set_map_ext(int x, int y, int layer,int ext, int probe)

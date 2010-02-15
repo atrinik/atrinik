@@ -1091,12 +1091,12 @@ void play_anims()
 						if (anim->value < 0)
 						{
 							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - (strlen(buf) * 4), ypos + tmp_y, COLOR_GREEN, NULL, NULL);
+							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - ((int) strlen(buf) * 4), ypos + tmp_y, COLOR_GREEN, NULL, NULL);
 						}
 						else
 						{
 							snprintf(buf, sizeof(buf), "%d", anim->value);
-							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - strlen(buf) * 4, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
+							StringBlt(ScreenSurface, &SystemFontOut, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4, ypos + tmp_y, COLOR_ORANGE, NULL, NULL);
 						}
 					}
 

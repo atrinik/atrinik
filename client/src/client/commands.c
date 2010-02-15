@@ -68,6 +68,13 @@
 static int scrolldx = 0, scrolldy = 0;
 
 /**
+ * Do we need to clear the map due to a previous mapstats command?
+ *
+ * We can't clear the map in mapstats command, as that would leave the
+ * map blacked out until map2 command is received. */
+static int do_clear_map = 0;
+
+/**
  * Book command, used to initialize the book interface.
  * @param data Data of the book
  * @param len Length of the data */
@@ -308,8 +315,11 @@ void Face1Cmd(unsigned char *data,  int len)
  * Handles when the server says we can't be added.  In reality, we need to
  * close the connection and quit out, because the client is going to close
  * us down anyways. */
-void AddMeFail()
+void AddMeFail(unsigned char *data, int len)
 {
+	(void) data;
+	(void) len;
+
 	LOG(llevMsg, "addme_failed received.\n");
 	GameStatus = GAME_STATUS_START;
 
@@ -320,16 +330,21 @@ void AddMeFail()
 /**
  * This is really a throwaway command - there really isn't any reason to
  * send addme_success commands. */
-void AddMeSuccess()
+void AddMeSuccess(unsigned char *data, int len)
 {
+	(void) data;
+	(void) len;
+
 	LOG(llevMsg, "addme_success received.\n");
 	return;
 }
 
 /**
  * Goodbye command. Currently doesn't do anything. */
-void GoodbyeCmd()
+void GoodbyeCmd(unsigned char *data, int len)
 {
+	(void) data;
+	(void) len;
 }
 
 /**
@@ -1498,6 +1513,12 @@ void Map2Cmd(unsigned char *data, int len)
 	MapData.posx = xpos;
 	MapData.posy = ypos;
 
+	if (do_clear_map)
+	{
+		clear_map();
+		do_clear_map = 0;
+	}
+
 	while (pos < len)
 	{
 		ext_flag = 0;
@@ -1779,8 +1800,10 @@ void map_scrollCmd(char *data)
 
 /**
  * Magic map command. Currently unused. */
-void MagicMapCmd()
+void MagicMapCmd(unsigned char *data, int len)
 {
+	(void) data;
+	(void) len;
 }
 
 /**
@@ -1852,6 +1875,11 @@ void MapstatsCmd(unsigned char *data)
 	strcpy(name, tmp + 1);
 	InitMapData(name, w, h, x, y, bg_music);
 	map_udate_flag = 2;
+
+	if (w > 1)
+	{
+		do_clear_map = 1;
+	}
 }
 
 /**

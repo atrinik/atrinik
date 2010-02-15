@@ -1007,7 +1007,7 @@ void textwin_clearhistory()
  * @param text The string. */
 void textwin_putstring(char *text)
 {
-	int len = strlen(text);
+	int len = (int) strlen(text);
 
 	/* Copy buf to input buffer */
 	strncpy(InputString, text, MAX_INPUT_STRING);

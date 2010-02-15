@@ -60,6 +60,10 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define inline __inline
+#define strdup _strdup
+#define fileno _fileno
+#define unlink _unlink
+#define lseek _lseek
 
 #define HAVE_STRICMP
 #define HAVE_STRNICMP
@@ -85,6 +89,11 @@
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
    computer */
 #define INSTALL_SOUND
+
+/* Conversion from 'xxx' to 'yyy', possible loss of data */
+#pragma warning(disable: 4244)
+/* Initializing float f = 0.05; instead of f = 0.05f; */
+#pragma warning(disable: 4305)
 
 #endif
 #endif

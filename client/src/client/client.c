@@ -288,7 +288,7 @@ int send_socklist(int fd, SockList msg)
  * @param buf The string.
  * @param len Length of the string.
  * @return 0 on success, -1 on failure. */
-int cs_write_string(int fd, char *buf, int len)
+int cs_write_string(int fd, char *buf, size_t len)
 {
 	SockList sl;
 

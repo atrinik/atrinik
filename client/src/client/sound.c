@@ -171,7 +171,7 @@ static char *spell_sound_files[SPELL_SOUND_MAX] =
 #define MAX_SOUND_DISTANCE 12
 
 #ifdef INSTALL_SOUND
-static void musicDone();
+static void musicDone(void);
 static void sound_start_music(char *fname, int vol, int fade, int loop);
 #endif
 
@@ -545,7 +545,7 @@ void sound_fadeout_music(int i)
 #ifdef INSTALL_SOUND
 /**
  * Callback function from current played music sound */
-static void musicDone()
+static void musicDone(void)
 {
 	if (music.data)
 	{

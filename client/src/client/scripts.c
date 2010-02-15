@@ -52,7 +52,7 @@ static int num_scripts = 0;
 #define write(x, y, z) emulate_write(x, y, z)
 #define read(x, y, z) emulate_read(x, y, z)
 
-static int emulate_read(HANDLE fd, char *buf, int len)
+static int emulate_read(HANDLE fd, char *buf, size_t len)
 {
 	DWORD dwBytesRead;
 	BOOL rc;
@@ -70,7 +70,7 @@ static int emulate_read(HANDLE fd, char *buf, int len)
 	return dwBytesRead;
 }
 
-static int emulate_write(HANDLE fd, const char *buf, int len)
+static int emulate_write(HANDLE fd, const char *buf, size_t len)
 {
 	DWORD dwBytesWritten;
 	BOOL rc;

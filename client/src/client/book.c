@@ -252,7 +252,8 @@ static void book_clear()
 _gui_book_struct *book_gui_load(char *data, int len)
 {
 	_gui_book_line current_book_line, *book_line;
-	int pos = 0, lc = 0, force_line;
+	int pos = 0, force_line;
+	size_t lc = 0;
 	_gui_book_page current_book_page;
 	int plc = 0, plc_logic = 0;
 	char c, name[256] = "";
