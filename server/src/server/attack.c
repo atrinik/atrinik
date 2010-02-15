@@ -381,14 +381,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		op->last_damage = 0;
 		op->damage_round_tag = ROUND_TAG;
 	}
-	if ((op->last_damage + maxdam) > 64000)
-	{
-		op->last_damage = 64000;
-	}
-	else
-	{
-		op->last_damage += maxdam;
-	}
+	op->last_damage += maxdam;
 
 	/* Damage the target got */
 	op->stats.hp -= maxdam;
