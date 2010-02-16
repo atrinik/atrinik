@@ -37,7 +37,7 @@
  * @param op Player searching someone.
  * @param name Name to search for.
  * @return Player, or NULL if player can't be found. */
-static player *get_other_player_from_name(object *op, const char *name)
+static player *get_other_player_from_name(object *op, char *name)
 {
 	player *pl;
 
@@ -46,7 +46,9 @@ static player *get_other_player_from_name(object *op, const char *name)
 		return NULL;
 	}
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	adjust_player_name(name);
+
+	for (pl = first_player; pl; pl = pl->next)
 	{
 		if (!strncasecmp(pl->ob->name, name, MAX_NAME))
 		{
@@ -276,6 +278,7 @@ int command_kick(object *ob, char *params)
 			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
 
 			CONTR(op)->socket.status = Ns_Dead;
+			remove_ns_dead_player(CONTR(op));
 #if MAP_MAXTIMEOUT
 			op->map->timeout = MAP_TIMEOUT(op->map);
 #endif

@@ -291,7 +291,8 @@ enum spellnrs
 extern spell spells[NROFREALSPELLS];
 
 /** Multiplier for spell points / grace based on the attenuation. */
-#define PATH_SP_MULT(op, spell) (((op->path_attuned & s->path) ? 0.8 : 1) * ((op->path_repelled & s->path) ? 1.25 : 1))
+#define PATH_SP_MULT(op, spell) (((op->path_attuned & spell->path) ? 0.8 : 1) * ((op->path_repelled & spell->path) ? 1.25 : 1))
+#define PATH_DMG_MULT(op, spell) (((op->path_attuned & spell->path) ? 1.25 : 1) * ((op->path_repelled & spell->path) ? 0.7 : 1))
 
 extern char *spellpathnames[NRSPELLPATHS];
 extern archetype *spellarch[NROFREALSPELLS];

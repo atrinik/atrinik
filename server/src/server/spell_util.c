@@ -247,28 +247,6 @@ spell *find_spell(int spelltype)
 }
 
 /**
- * Get the casting level of a spell based on the caster's
- * repelled/attuned paths.
- * @param caster Caster.
- * @param base_level Level before modification.
- * @param spell_type Spell ID.
- * @return The casting level, always at least 1. */
-int casting_level(object *caster, int base_level, int spell_type)
-{
-	spell *s = find_spell(spell_type);
-	int new_level;
-
-	if (!s || caster->path_denied & s->path)
-	{
-		return 1;
-	}
-
-	new_level = base_level + ((caster->path_repelled & s->path) ? -5 : 0) + ((caster->path_attuned & s->path) ? 5 : 0);
-
-	return (new_level < 1) ? 1 : new_level;
-}
-
-/**
  * Checks to see if player knows the spell.
  * @param op Object we're checking.
  * @param spell_type Spell ID.
@@ -786,7 +764,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	/* We should have from the arch type the default damage - we add our
 	 * new damage profile. */
-	tmp->stats.dam = (sint16) SP_level_dam_adjust2(caster, type, tmp->stats.dam);
+	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
 
 	/* For duration use the old formula */
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
@@ -858,7 +836,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	}
 
 	tmp->stats.sp = type;
-	tmp->stats.dam = (sint16) SP_level_dam_adjust2(caster, type, tmp->stats.dam);
+	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 	tmp->x = x, tmp->y = y;
 	tmp->direction = dir;
@@ -874,7 +852,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 		set_owner(tmp, op);
 	}
 
-	tmp->level = casting_level(caster, SK_level(caster), type);
+	tmp->level = SK_level(caster);
 
 	if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE))
 	{
@@ -955,7 +933,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 		/* *very* important - miss this and the spells go really wild! */
 		tmp->weight_limit = count_ref;
 
-		tmp->level = casting_level(caster, SK_level(caster), spell_type);
+		tmp->level = SK_level(caster);
 		tmp->x = x, tmp->y = y;
 
 		if (dir)
@@ -968,7 +946,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 		}
 
 		tmp->stats.hp = strength + (SP_level_strength_adjust(caster, spell_type) / 2);
-		tmp->stats.dam = (sint16) SP_level_dam_adjust2(caster, spell_type, tmp->stats.dam);
+		tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam);
 		tmp->stats.maxhp = tmp->count;
 
 		if (!QUERY_FLAG(tmp, FLAG_FLYING))
@@ -1694,7 +1672,7 @@ void explode_object(object *op)
 		case POISONCLOUD:
 		case FBALL:
 		{
-			tmp->stats.dam = (sint16) SP_level_dam_adjust2(op, op->stats.sp, tmp->stats.dam);
+			tmp->stats.dam = (sint16) SP_level_dam_adjust(op, op->stats.sp, tmp->stats.dam);
 
 			copy_owner(tmp, op);
 
@@ -2259,37 +2237,9 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude)
  * Returns adjusted damage based on the caster.
  * @param caster Who is casting.
  * @param spell_type Spell ID we're adjusting.
- * @return Adjusted damage. */
-int SP_level_dam_adjust(object *caster, int spell_type)
-{
-	int level = casting_level(caster, SK_level(caster), spell_type);
-	int adj = (level - spells[spell_type].level);
-
-	if (adj < 0)
-	{
-		adj = 0;
-	}
-
-	if (spells[spell_type].ldam)
-	{
-		adj /= spells[spell_type].ldam;
-	}
-	else
-	{
-		adj = 0;
-	}
-
-	return adj;
-}
-
-/**
- * Similar to SP_level_dam_adjust(), but use LEVEL_DAMAGE macro to adjust
- * base_dam.
- * @param caster Who is casting.
- * @param spell_type Spell ID we're adjusting.
  * @param base_dam Base damage.
  * @return Adjusted damage. */
-int SP_level_dam_adjust2(object *caster, int spell_type, int base_dam)
+int SP_level_dam_adjust(object *caster, int spell_type, int base_dam)
 {
 	float tmp_add;
 	int dam_adj, level = SK_level(caster);
@@ -2297,7 +2247,7 @@ int SP_level_dam_adjust2(object *caster, int spell_type, int base_dam)
 	/* Sanity check */
 	if (level <= 0 || level > MAXLEVEL)
 	{
-		LOG(llevBug, "SP_level_dam_adjust2(): object %s has invalid level %d\n", query_name(caster, NULL), level);
+		LOG(llevBug, "SP_level_dam_adjust(): object %s has invalid level %d\n", query_name(caster, NULL), level);
 
 		if (level <= 0)
 		{
@@ -2320,7 +2270,7 @@ int SP_level_dam_adjust2(object *caster, int spell_type, int base_dam)
 		tmp_add = 0;
 	}
 
-	dam_adj = (sint16) ((float) base_dam * (LEVEL_DAMAGE(level) + tmp_add));
+	dam_adj = (sint16) ((float) base_dam * (LEVEL_DAMAGE(level) + tmp_add) * PATH_DMG_MULT(caster, find_spell(spell_type)));
 
 	return dam_adj;
 }
@@ -2332,7 +2282,7 @@ int SP_level_dam_adjust2(object *caster, int spell_type, int base_dam)
  * @return Adjusted strength. */
 int SP_level_strength_adjust(object *caster, int spell_type)
 {
-	int level = casting_level(caster, SK_level(caster), spell_type);
+	int level = SK_level(caster);
 	int adj = (level - spells[spell_type].level);
 
 	if (adj < 0)
@@ -2365,7 +2315,7 @@ int SP_level_strength_adjust(object *caster, int spell_type)
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
 	spell *s = find_spell(spell_type);
-	int level = casting_level(caster, caster_level == -1 ? SK_level(caster) : caster_level, spell_type), sp;
+	int level = (caster_level == -1 ? SK_level(caster) : caster_level), sp;
 
 	if (spells[spell_type].spl)
 	{
@@ -2376,9 +2326,7 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 		sp = spells[spell_type].sp;
 	}
 
-	sp = (int) ((float) sp * (float) PATH_SP_MULT(caster, s));
-
-	return MIN(sp, (spells[spell_type].sp + 50));
+	return (int) ((float) MIN(sp, (spells[spell_type].sp + 50)) * (float) PATH_SP_MULT(caster, s));
 }
 
 /**
@@ -2473,7 +2421,7 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
 	/* Needed so that if swarm elements kill, caster gets xp. */
 	set_owner(tmp, op);
 	/* Needed later, to get level dep. right.*/
-	tmp->level = casting_level(caster, SK_level(caster), spell_type);
+	tmp->level = SK_level(caster);
 	/* Needed later, see move_swarm_spell */
 	tmp->stats.sp = spell_type;
 
