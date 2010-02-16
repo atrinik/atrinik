@@ -44,7 +44,7 @@ typedef struct scr
 	char killer[BIG_NAME];
 
 	/** Killed on what level. */
-	char maplevel[BIG_NAME];
+	char maplevel[MAX_BUF];
 
 	/** Experience. */
 	long exp;
@@ -72,8 +72,7 @@ typedef struct
 static score_table hiscore_table;
 
 /**
- * Writes the given score structure to a static buffer, and returns
- * a pointer to it.
+ * Writes the given score structure to the given buffer.
  * @param sc Score.
  * @param buf The buffer.
  * @param size Size of the buffer. */
@@ -172,20 +171,28 @@ static int get_score(char *bp, score *sc)
  * @return buf. */
 static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
-	const char *s1, *s2;
-
-	if (!strcmp(sc->killer, "left"))
+	if (sc->killer[0] == '\0')
 	{
-		s1 = sc->killer;
-		s2 = "the game";
+		snprintf(buf, size, "%3d %10ld %s the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 	else
 	{
-		s1 = "was killed by";
-		s2 = sc->killer;
+		const char *s1, *s2;
+
+		if (!strcmp(sc->killer, "left"))
+		{
+			s1 = sc->killer;
+			s2 = "the game";
+		}
+		else
+		{
+			s1 = "was killed by";
+			s2 = sc->killer;
+		}
+
+		snprintf(buf, size, "%3d %10ld %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 
-	snprintf(buf, size, "%3d %10ld %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	return buf;
 }
 
@@ -357,13 +364,8 @@ void hiscore_check(object *op, int quiet)
 	new_score.title[sizeof(new_score.title) - 1] = '\0';
 
 	strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
-
-	if (new_score.killer[0] == '\0')
-	{
-		strcpy(new_score.killer, "a dungeon collapse");
-	}
-
 	new_score.killer[sizeof(new_score.killer) - 1] = '\0';
+
 	new_score.exp = op->stats.exp;
 
 	if (op->map == NULL)
@@ -372,8 +374,19 @@ void hiscore_check(object *op, int quiet)
 	}
 	else
 	{
+		size_t i;
+
 		strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, sizeof(new_score.maplevel) - 1);
 		new_score.maplevel[sizeof(new_score.maplevel) - 1] = '\0';
+
+		/* Replace ':' in the map name with ' ' so it doesn't break the loading. */
+		for (i = 0; new_score.maplevel[i]; i++)
+		{
+			if (new_score.maplevel[i] == ':')
+			{
+				new_score.maplevel[i] = ' ';
+			}
+		}
 	}
 
 	new_score.maxhp = (int) op->stats.maxhp;
