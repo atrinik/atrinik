@@ -292,7 +292,7 @@ void watchdog()
  * Remove a player from the game that has been disconnected by logging
  * out, the socket connection was interrupted, etc.
  * @param pl The player to remove. */
-static void remove_ns_dead_player(player *pl)
+void remove_ns_dead_player(player *pl)
 {
 	if (pl == NULL || pl->ob->type == DEAD_OBJECT)
 	{

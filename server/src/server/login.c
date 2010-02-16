@@ -355,6 +355,8 @@ void check_login(object *op)
 			if (check_password(pl->write_buf + 1, pltmp->password))
 			{
 				pltmp->socket.status = Ns_Dead;
+				/* Need to call this, otherwise the player won't get saved correctly. */
+				remove_ns_dead_player(pltmp);
 				break;
 			}
 			else

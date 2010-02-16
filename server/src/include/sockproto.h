@@ -46,6 +46,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 void RequestInfo(char *buf, int len, socket_struct *ns);
 void handle_client(socket_struct *ns, player *pl);
 void watchdog();
+void remove_ns_dead_player(player *pl);
 void doeric_server();
 
 /* lowlevel.c */
