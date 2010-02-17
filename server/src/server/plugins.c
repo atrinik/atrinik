@@ -130,6 +130,7 @@ struct plugin_hooklist hooklist =
 	find_face,
 	find_animation,
 	play_sound_player_only,
+	new_draw_info_format,
 
 	season_name,
 	weekdays,
