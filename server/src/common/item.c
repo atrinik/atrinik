@@ -1205,37 +1205,35 @@ char *describe_item(object *op)
 			id_true = 1;
 		}
 
-		/* Terrain flags have no double use... If valid, show them */
-		if (id_true && op->terrain_type)
+		/* We only need to show the full details of an item if it is identified */
+		if (id_true)
 		{
-			describe_terrain(op, retbuf);
-		}
+			/* Terrain flags have no double use... If valid, show them */
+			if (op->terrain_type)
+			{
+				describe_terrain(op, retbuf);
+			}
 
-		/* Deal with special cases */
-		switch (op->type)
-		{
-			case WAND:
-			case ROD:
-			case HORN:
-				if (id_true)
-				{
+			/* Deal with special cases */
+			switch (op->type)
+			{
+				case WAND:
+				case ROD:
+				case HORN:
 					sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
 					strcat(retbuf, buf);
-				}
 
-				break;
+					break;
 
-			/* Armour type objects */
-			case ARMOUR:
-			case HELMET:
-			case SHIELD:
-			case BOOTS:
-			case GLOVES:
-			case GIRDLE:
-			case BRACERS:
-			case CLOAK:
-				if (id_true)
-				{
+				/* Armour type objects */
+				case ARMOUR:
+				case HELMET:
+				case SHIELD:
+				case BOOTS:
+				case GLOVES:
+				case GIRDLE:
+				case BRACERS:
+				case CLOAK:
 					if (ARMOUR_SPEED(op))
 					{
 						sprintf(buf, "(speed cap %1.2f)", ARMOUR_SPEED(op) / 10.0);
@@ -1249,18 +1247,15 @@ char *describe_item(object *op)
 						sprintf(buf, "(mana reg %d)", -1 * ARMOUR_SPELLS(op));
 						strcat(retbuf, buf);
 					}
-				}
 
-			case WEAPON:
-			case RING:
-			case AMULET:
-			case FORCE:
-				more_info = 1;
+				case WEAPON:
+				case RING:
+				case AMULET:
+				case FORCE:
+					more_info = 1;
 
-			case BOW:
-			case ARROW:
-				if (id_true)
-				{
+				case BOW:
+				case ARROW:
 					if (op->type == BOW)
 					{
 						sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / (1000000 / MAX_TIME)));
@@ -1320,14 +1315,12 @@ char *describe_item(object *op)
 							strcat(retbuf, buf);
 						}
 					}
-				}
-				break;
 
-			case FOOD:
-			case FLESH:
-			case DRINK:
-				if (id_true)
-				{
+					break;
+
+				case FOOD:
+				case FLESH:
+				case DRINK:
 					sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
 					strcat(retbuf, buf);
 
@@ -1371,27 +1364,36 @@ char *describe_item(object *op)
 							strcat(retbuf, "(grace depletion)");
 						}
 					}
-				}
 
-				break;
+					break;
 
-			case POTION:
-				if (id_true)
-				{
+				case POTION:
 					if (op->last_sp)
 					{
 						sprintf(buf, "(range%+d)", op->last_sp);
 						strcat(retbuf, buf);
 					}
-				}
 
-			default:
-				return retbuf;
-		}
+					break;
 
-		/* These count for every "normal" item player deals with - mostly equipment */
-		if (id_true)
-		{
+				case BOOK:
+					if (op->msg != NULL)
+					{
+						if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
+						{
+							strcat(retbuf, "(read)");
+						}
+						else
+						{
+							strcat(retbuf, "(unread)");
+						}
+					}
+
+				default:
+					return retbuf;
+			}
+
+			/* These count for every "normal" item player deals with - mostly equipment */
 			for (attr = 0; attr < 7; attr++)
 			{
 				if ((val = get_attr_value(&(op->stats), attr)) != 0)
@@ -1399,12 +1401,6 @@ char *describe_item(object *op)
 					sprintf(buf, "(%s%+d)", short_stat_name[attr], val);
 					strcat(retbuf, buf);
 				}
-			}
-
-			if (op->stats.exp)
-			{
-				sprintf(buf, "(speed %+d)", op->stats.exp);
-				strcat(retbuf, buf);
 			}
 		}
 	}
@@ -1441,6 +1437,12 @@ char *describe_item(object *op)
 				sprintf(buf, "(hunger%+d)", -op->stats.food);
 			}
 
+			strcat(retbuf, buf);
+		}
+
+		if (op->stats.exp)
+		{
+			sprintf(buf, "(speed %+d)", op->stats.exp);
 			strcat(retbuf, buf);
 		}
 	}

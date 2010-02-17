@@ -1313,6 +1313,7 @@ char *long_desc(object *tmp, object *caller)
 		case WAND:
 		case ROD:
 		case FLESH:
+		case BOOK:
 		case CONTAINER:
 			if (*(cp = describe_item(tmp)) != '\0')
 			{
