@@ -367,6 +367,9 @@ sint32 add_exp(object *op, int exp, int skill_nr)
 		op->exp_obj = NULL;
 	}
 
+	/* Notify the player of the exp gain */
+	new_draw_info_format(NDI_UNIQUE, op, "You got %d exp in skill %s.", exp, skills[skill_nr].name);
+
 	/* The real experience we have added to our skill */
 	return (sint32) exp;
 }

@@ -1071,7 +1071,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			{
 				if (exp)
 				{
-					new_draw_info_format(NDI_UNIQUE, hitter, "You got %d exp in skill %s.", add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+					add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp);
 				}
 				else
 				{
@@ -1122,7 +1122,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 								expgain = pexp;
 							}
 
-							new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "You got %d exp in skill %s.", add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp), skills[old_hitter->chosen_skill->stats.sp].name);
+							add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp);
 						}
 					}
 				}
