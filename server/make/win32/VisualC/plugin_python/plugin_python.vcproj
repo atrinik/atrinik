@@ -126,7 +126,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation="$(IntDir)\"
@@ -208,7 +208,7 @@
 				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -293,7 +293,7 @@
 				AdditionalIncludeDirectories="..\..\..\..\src\include;..\..\..\..\src\plugins\plugin_python\include;..\libs\python"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PYTHON_PLUGIN_EXPORTS"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -398,34 +398,6 @@
 			>
 		</Filter>
 		<File
-			RelativePath="..\libs\python\python26.lib"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\libs\python\x64\python26.lib"
 			>
 			<FileConfiguration
@@ -454,10 +426,38 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\libs\python\x64\python26_d.lib"
+			RelativePath="..\libs\python\python26.lib"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\libs\python\python26_d.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -482,10 +482,10 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\libs\python\python26_d.lib"
+			RelativePath="..\libs\python\x64\python26_d.lib"
 			>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Debug|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
