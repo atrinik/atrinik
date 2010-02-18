@@ -126,7 +126,6 @@ typedef struct
 static cacheentry python_cache[PYTHON_CACHE_SIZE];
 
 static int cmd_customPython(object *op, char *params);
-static void init_Atrinik_Python();
 
 /**
  * Initialize the context stack. */
@@ -1222,16 +1221,6 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	return &result;
 }
 
-MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
-{
-	hooks = hooklist;
-
-	LOG(llevDebug, "Atrinik Plugin loading.....\n");
-	Py_Initialize();
-	init_Atrinik_Python();
-	LOG(llevDebug, "[Done]\n");
-}
-
 MODULEAPI void *getPluginProperty(int *type, ...)
 {
 	va_list args;
@@ -1395,24 +1384,33 @@ static PyObject *PyInit_Atrinik()
 }
 #endif
 
-/**
- * Initializes the Python Interpreter. */
-static void init_Atrinik_Python()
+MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
 	PyObject *m, *d;
 	int i;
 
-	LOG(llevDebug, "PYTHON:: Start initAtrinik.\n");
+	hooks = hooklist;
+
+	LOG(llevDebug, "Atrinik Plugin loading...\n");
+
+#ifdef IS_PY26
+    Py_Py3kWarningFlag++;
+#endif
 
 #ifdef IS_PY3K
 	PyImport_AppendInittab("Atrinik", &PyInit_Atrinik);
 #endif
+
+	Py_Initialize();
+
+	LOG(llevDebug, "PYTHON:: Start initAtrinik.\n");
 
 #ifdef IS_PY3K
 	m = PyImport_ImportModule("Atrinik");
 #else
 	m = Py_InitModule("Atrinik", AtrinikMethods);
 #endif
+
 	d = PyModule_GetDict(m);
 	AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
 	PyDict_SetItemString(d, "error", AtrinikError);
@@ -1434,4 +1432,6 @@ static void init_Atrinik_Python()
 	{
 		PyModule_AddIntConstant(m, module_constants[i].name, module_constants[i].value);
 	}
+
+	LOG(llevDebug, "[Done]\n");
 }

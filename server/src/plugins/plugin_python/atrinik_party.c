@@ -396,6 +396,9 @@ int Atrinik_Party_init(PyObject *module)
 		return 0;
 	}
 
+	Py_INCREF(&Atrinik_PartyType);
+	PyModule_AddObject(module, "Party", (PyObject *) &Atrinik_PartyType);
+
 	return 1;
 }
 
