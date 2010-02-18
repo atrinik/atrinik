@@ -227,6 +227,7 @@ void handle_client(socket_struct *ns, player *pl)
 				if (ns->addme)
 				{
 					ns->addme = 0;
+					return;
 				}
 
 				goto next_command;
@@ -251,6 +252,8 @@ void handle_client(socket_struct *ns, player *pl)
 		 * this might be questionable, because a broken client/malicious
 		 * user could certainly send a whole bunch of invalid commands. */
 		LOG(llevDebug, "Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
+		ns->status = Ns_Dead;
+		return;
 
 next_command:
 		if (cmd_count++ <= 8 && ns->status != Ns_Dead)
