@@ -49,7 +49,7 @@ typedef struct
  * Party fields. */
 party_fields_struct party_fields[] =
 {
-	{"name",            FIELDTYPE_CSTR,     offsetof(partylist_struct, name),       FIELDFLAG_READONLY},
+	{"name",            FIELDTYPE_SHSTR,    offsetof(partylist_struct, name),       FIELDFLAG_READONLY},
 	{"leader",          FIELDTYPE_SHSTR,    offsetof(partylist_struct, leader),     0},
 	{"password",        FIELDTYPE_CARY,     offsetof(partylist_struct, passwd),     FIELDFLAG_READONLY},
 };
