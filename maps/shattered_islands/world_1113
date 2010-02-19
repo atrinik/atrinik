@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-02-19 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 110
+difficulty 1
 outdoor 1
 no_harm 1
 tile_path_1 world_1114
@@ -55,18 +55,22 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_read
+exp 10
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_weapon_l9
+exp 10
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_food
+exp 1
 y 9
 end
 arch shop_floor_normal
@@ -189,14 +193,18 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_weapon_l9
+exp 15
 x 1
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour_l9
+exp 25
 x 1
 y 8
 end

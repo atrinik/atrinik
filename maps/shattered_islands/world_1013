@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-02-19 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 110
+difficulty 1
 outdoor 1
 no_harm 1
 tile_path_1 world_1014
@@ -2040,21 +2040,25 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour_l9
+exp 20
 x 14
 y 7
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_container
+exp 3
 x 14
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_potion
+exp 50
 x 14
 y 9
 end
@@ -2199,16 +2203,19 @@ x 15
 y 6
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_food
+exp 5
 x 15
 y 7
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_food
+exp 1
 x 15
 y 8
 end
@@ -2220,6 +2227,7 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_read
+exp 5
 x 15
 y 9
 end
@@ -2387,7 +2395,8 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+randomitems random_weapon_l9
+exp 9
 x 16
 y 7
 end
@@ -2395,13 +2404,15 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_read
+exp 3
 x 16
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_potion
+exp 75
 x 16
 y 9
 end
@@ -2512,23 +2523,29 @@ x 17
 y 6
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_container
+exp 6
 x 17
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_weapon
+exp 15
 x 17
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_container
+exp 8
 x 17
 y 9
 end
@@ -2641,21 +2658,26 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour
+exp 22
 x 18
 y 7
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_food
+exp 7
 x 18
 y 8
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+randomitems random_weapon_l9
+exp 5
 x 18
 y 9
 end
@@ -2805,13 +2827,16 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_read
+exp 6
 x 19
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour_l9
+exp 8
 x 19
 y 8
 end
@@ -2820,9 +2845,10 @@ x 19
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_potion
+exp 40
 x 19
 y 9
 end
@@ -2950,9 +2976,11 @@ x 20
 y 6
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_food
+exp 6
 x 20
 y 7
 end
@@ -2960,13 +2988,16 @@ arch shop_floor
 auto_apply 1
 cursed 1
 randomitems random_read
+exp 1
 x 20
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_food
+exp 5
 x 20
 y 9
 end
@@ -3085,21 +3116,26 @@ end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+randomitems random_scroll
+exp 30
 x 21
 y 7
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_food
+exp 9
 x 21
 y 8
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_weapon
+exp 5
 x 21
 y 9
 end
@@ -3241,23 +3277,28 @@ x 22
 y 6
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_potion
+exp 90
 x 22
 y 7
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
+damned 1
 randomitems random_container
+exp 10
 x 22
 y 8
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour_l9
+exp 15
 x 22
 y 9
 end
@@ -3387,16 +3428,19 @@ x 23
 y 6
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_food
+exp 5
 x 23
 y 7
 end
 arch shop_floor
 auto_apply 1
 cursed 1
-randomitems random_equipment
+damned 1
+randomitems random_armour
+exp 10
 x 23
 y 8
 end
@@ -3405,9 +3449,10 @@ x 23
 y 8
 end
 arch shop_floor
-cursed 1
 auto_apply 1
+cursed 1
 randomitems random_potion
+exp 100
 x 23
 y 9
 end
