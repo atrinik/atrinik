@@ -195,7 +195,7 @@ arch light3
 x 1
 y 6
 end
-arch wall_stone_w.131
+arch wall_stone_3
 x 1
 y 6
 end
@@ -203,7 +203,7 @@ arch shop_floor_normal
 x 1
 y 7
 end
-arch wall_stone_3
+arch wall_stone_w.131
 x 1
 y 7
 end
