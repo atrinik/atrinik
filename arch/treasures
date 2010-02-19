@@ -57,8 +57,6 @@ treasure player_human_male
   arch alignment_force
     title true neutral
   more
-  arch age_force_human
-  more
   arch guild_force
 end
 
@@ -95,8 +93,6 @@ treasure player_human_female
   more
   arch alignment_force
     title true neutral
-  more
-  arch age_force_human
   more
   arch guild_force
 end
@@ -135,8 +131,6 @@ treasure player_half_elf_male
   arch alignment_force
     title true neutral
   more
-  arch age_force_half_elf
-  more
   arch guild_force
 end
 
@@ -173,8 +167,6 @@ treasure player_half_elf_female
   more
   arch alignment_force
     title true neutral
-  more
-  arch age_force_half_elf
   more
   arch guild_force
 end
