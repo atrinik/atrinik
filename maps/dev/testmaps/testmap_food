@@ -2,7 +2,7 @@ arch map
 name Testmap: Food, Poison
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-02-21 Alex Tokar
 endmsg
 width 17
 height 17
@@ -331,16 +331,7 @@ arch floor_ostone1
 x 3
 y 4
 end
-arch food_poison
-x 3
-y 4
-end
 arch floor_ostone1
-x 3
-y 5
-end
-arch food_poison
-identified 1
 x 3
 y 5
 end
@@ -348,20 +339,7 @@ arch floor_ostone1
 x 3
 y 6
 end
-arch food_poison
-identified 1
-damned 1
-cursed 0
-x 3
-y 6
-end
 arch floor_ostone1
-x 3
-y 7
-end
-arch food_poison
-identified 1
-cursed 0
 x 3
 y 7
 end
@@ -445,16 +423,7 @@ arch floor_ostone1
 x 4
 y 4
 end
-arch food_poison2
-x 4
-y 4
-end
 arch floor_ostone1
-x 4
-y 5
-end
-arch food_poison2
-identified 1
 x 4
 y 5
 end
@@ -462,20 +431,7 @@ arch floor_ostone1
 x 4
 y 6
 end
-arch food_poison2
-identified 1
-damned 1
-cursed 0
-x 4
-y 6
-end
 arch floor_ostone1
-x 4
-y 7
-end
-arch food_poison2
-identified 1
-cursed 0
 x 4
 y 7
 end
