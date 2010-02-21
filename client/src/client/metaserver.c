@@ -170,11 +170,11 @@ static int metaserver_connect(const char *metaserver_url)
 	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. Could be used for statistics or something. */
 #if defined(__LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s", PACKAGE_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, VERSION_SOCKET);
 #elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s", PACKAGE_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, VERSION_SOCKET);
 #else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s", PACKAGE_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, VERSION_SOCKET);
 #endif
 
 	/* We expect realloc(NULL, size) to work */
