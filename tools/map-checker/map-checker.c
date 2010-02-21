@@ -446,8 +446,11 @@ static void check_map()
 				map_error(map_tile_tmp, "Empty spawn point object.");
 			}
 
-			/* Increase overall number of objects. */
-			objects_count++;
+			/* Increase number of objects, but only if it's not layer 0. */
+			if (ob->layer)
+			{
+				objects_count++;
+			}
 		}
 
 		/* Layer 1 is reserved for floor and doesn't have to be on every
