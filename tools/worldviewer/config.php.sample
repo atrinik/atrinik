@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ * Configuration. */
+
 /** Path to the main Atrinik directory. */
 $main_path = '';
 
@@ -15,9 +19,32 @@ define('MAP_INDEX_FILE', 'map_index.php');
 /** Whether to draw double walls or not. */
 define('DRAW_DOUBLE_WALLS', 0);
 
+/** Directory of the source files. */
+define('SRC_DIR', 'src');
+
 /**
  * The first map to default to if no map was selected yet in the world
  * viewer. */
 define('FIRST_MAP', 'shattered_islands/world_0110');
+
+// Some common defines dealing with map tiles.
+define('MAP_TILE_POS_YOFF', 23);
+define('MAP_TILE_POS_XOFF', 48);
+define('MAP_TILE_POS_XOFF2', 24);
+define('MAP_TILE_XOFF', 12);
+define('MAP_TILE_YOFF', 24);
+
+/**
+ * @defgroup type_defines Type defines
+ * Defines for common object types being used.
+ *@{*/
+
+/** Spawn point. */
+define('SPAWN_POINT', 81);
+/** Wall. */
+define('WALL', 77);
+/** Floor. */
+define('FLOOR', 71);
+/*@}*/
 
 ?>
