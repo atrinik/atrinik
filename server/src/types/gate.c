@@ -198,7 +198,7 @@ void move_gate(object *op)
 				if (IS_LIVE(tmp) || (!QUERY_FLAG(tmp, FLAG_NO_PICK) || QUERY_FLAG(tmp, FLAG_CAN_ROLL)))
 				{
 					/* If it has speed, it should move itself, otherwise: */
-					int i = find_free_spot(tmp->arch, NULL, op->map, op->x, op->y, 1, 9);
+					int i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, 9);
 
 					/* If there is a free spot, move the object someplace */
 					if (i != -1)
