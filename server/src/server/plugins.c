@@ -549,18 +549,6 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		return 0;
 	}
 
-	/* Avoid double triggers and infinite loops */
-	if (event_type == EVENT_SAY || event_type == EVENT_TRIGGER)
-	{
-		if ((long) event_obj->damage_round_tag == pticks)
-		{
-			LOG(llevDebug, "DEBUG: trigger_event(): Event object (type %d) for %s called twice the same round\n", event_type, STRING_OBJ_NAME(me));
-			return 0;
-		}
-
-		event_obj->damage_round_tag = pticks;
-	}
-
 	if (event_obj->name && (plugin = find_plugin(event_obj->name)))
 	{
 		int returnvalue;
