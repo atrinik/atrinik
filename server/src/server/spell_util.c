@@ -679,10 +679,9 @@ int cast_create_obj(object *op, object *new_op, int dir)
 		return 0;
 	}
 
-	if (dir && wall_blocked(mt, xt, yt))
+	if (dir && blocked(op, mt, xt, yt, op->terrain_flag))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
-		new_draw_info(NDI_UNIQUE, op, "You cast it at your feet.");
+		new_draw_info(NDI_UNIQUE, op, "Something is in the way.\nYou cast it at your feet.");
 		dir = 0;
 	}
 
