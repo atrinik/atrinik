@@ -278,10 +278,10 @@ int command_kick(object *ob, char *params)
 			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
 
 			CONTR(op)->socket.status = Ns_Dead;
-			remove_ns_dead_player(CONTR(op));
 #if MAP_MAXTIMEOUT
 			op->map->timeout = MAP_TIMEOUT(op->map);
 #endif
+			remove_ns_dead_player(CONTR(op));
 		}
 	}
 
