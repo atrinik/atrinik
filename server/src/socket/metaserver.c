@@ -122,6 +122,9 @@ static void metaserver_update()
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, cp, CURLFORM_END);
 	free(cp);
 
+	/* Name */
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.meta_name, CURLFORM_END);
+
 	/* Init "easy" cURL */
 	curl = curl_easy_init();
 

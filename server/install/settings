@@ -18,4 +18,5 @@
 metaserver_notification off
 metaserver_server http://meta.atrinik.org/update.php
 metaserver_host put.your.hostname.here
+metaserver_name Atrinik Server
 metaserver_comment Put a comment here.

@@ -35,7 +35,7 @@ require_once('common.php');
 
 // Select the servers
 $request = db_query('
-	SELECT ip_address, port, hostname, num_players, version, text_comment
+	SELECT ip_address, port, name, hostname, num_players, version, text_comment
 	FROM servers
 	WHERE last_update > (' . (time() - $last_update_timeout) . ')
 	ORDER BY roworder ASC');
@@ -49,13 +49,22 @@ if ($num_rows < 1)
 	die;
 }
 
+$is_legacy_client = substr($_SERVER['HTTP_USER_AGENT'], -1, 1) != ')';
 $i = 0;
+
 // Now go through the rows
 while ($row = db_fetch_assoc($request))
 {
 	// Output the data, format:
-	// IP:Port:Hostname:Number_of_players:Version:Comment
-	echo $row['ip_address'], ':', $row['port'], ':', $row['hostname'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+	// IP:Port:Name:Number_of_players:Version:Comment
+	if ($is_legacy_client)
+	{
+		echo $row['ip_address'], ':', $row['port'], ':', $row['hostname'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+	}
+	else
+	{
+		echo $row['ip_address'], ':', $row['port'], ':', $row['name'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+	}
 
 	$i++;
 

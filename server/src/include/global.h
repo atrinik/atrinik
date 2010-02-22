@@ -515,6 +515,9 @@ typedef struct Settings
 	/** Hostname of this server. */
 	char meta_host[MAX_BUF];
 
+	/** Name of this server. */
+	char meta_name[MAX_BUF];
+
 	/** Comment about the server we send to the metaserver. */
 	char meta_comment[MAX_BUF];
 

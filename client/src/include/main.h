@@ -114,8 +114,8 @@ typedef struct server_struct
 	/** IP of the server. */
 	char *ip;
 
-	/** Hostname of the server. */
-	char *hostname;
+	/** Name of the server. */
+	char *name;
 
 	/** Server version. */
 	char *version;
@@ -587,8 +587,7 @@ extern int MapStatusY;
 extern uint32 LastTick;
 extern uint32 tmpGameTick;
 extern uint32 FrameCount;
-extern char ServerName[2048];
-extern int ServerPort;
+extern server_struct *selected_server;
 extern int map_udate_flag, map_transfer_flag, map_redraw_flag;
 extern server_struct *start_server;
 extern int metaserver_sel, metaserver_count;

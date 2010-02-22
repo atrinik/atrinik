@@ -57,6 +57,7 @@ struct Settings settings =
 	"",
 	"",
 	"",
+	"",
 	0,
 	0
 };
@@ -792,6 +793,17 @@ static void load_settings()
 			else
 			{
 				LOG(llevBug, "BUG: load_settings(): metaserver_host must have a value.\n");
+			}
+		}
+		else if (!strcasecmp(buf, "metaserver_name"))
+		{
+			if (has_val)
+			{
+				strcpy(settings.meta_name, cp);
+			}
+			else
+			{
+				LOG(llevBug, "BUG: load_settings(): metaserver_name must have a value.\n");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_comment"))

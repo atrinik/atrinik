@@ -82,10 +82,8 @@ int SoundStatus;
 int MapStatusX;
 int MapStatusY;
 
-/** Name of the server we're connecting to. */
-char ServerName[2048];
-/** Port of the server we're connecting to. */
-int ServerPort;
+/** Our selected server that we want to connect to. */
+server_struct *selected_server = NULL;
 
 /** Used with -server command line option. */
 static char argServerName[2048];
@@ -425,8 +423,6 @@ static void init_game_data()
 
 	map_transfer_flag = 0;
 	start_server = NULL;
-	ServerName[0] = '\0';
-	ServerPort = 13327;
 	argServerName[0] = '\0';
 	argServerPort = 13327;
 
@@ -754,7 +750,7 @@ static int game_status_chain()
 	{
 		map_udate_flag = 2;
 
-		metaserver_add("127.0.0.1", 13327, "localhost", -1, "local", "Localhost. Start server before you try to connect.");
+		metaserver_add("127.0.0.1", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
 		if (argServerName[0] != '\0')
 		{
@@ -798,13 +794,13 @@ static int game_status_chain()
 		FaceList[MAX_FACE_TILES - 1].sprite = sprite_tryload_file(sbuf, 0, NULL);
 
 		map_udate_flag = 2;
-		snprintf(buf, sizeof(buf), "Trying server %s:%d...", ServerName, ServerPort);
+		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
 		draw_info(buf, COLOR_GREEN);
 		GameStatus = GAME_STATUS_CONNECT;
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
 	{
-		if (!open_socket(&csocket.fd, &csocket, ServerName, ServerPort))
+		if (!open_socket(&csocket.fd, &csocket, selected_server->ip, selected_server->port))
 		{
 			draw_info("Connection failed!", COLOR_RED);
 			GameStatus = GAME_STATUS_START;

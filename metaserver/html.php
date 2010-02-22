@@ -40,7 +40,7 @@ echo '
 
 // Select the servers
 $request = db_query('
-	SELECT ip_address, port, hostname, num_players, version, text_comment, players
+	SELECT ip_address, port, name, num_players, version, text_comment, players
 	FROM servers
 	WHERE last_update > (' . (time() - $last_update_timeout) . ')
 	ORDER BY roworder DESC');
@@ -51,9 +51,9 @@ echo '
 			<table border="1" width="70%">';
 echo '
 				<tr>
+					<td><b>Name</b></td>
 					<td><b>IP Address</b></td>
 					<td><b>Port</b></td>
-					<td><b>Hostname</b></td>
 					<td width="10%"><b># of players</b></td>
 					<td><b>Version</b></td>
 					<td><b>Comment</b></td>
@@ -72,9 +72,9 @@ while ($row = db_fetch_assoc($request))
 {
 	echo '
 				<tr>
+					<td>', $row['name'], '</td>
 					<td>', $row['ip_address'], '</td>
 					<td>', $row['port'], '</td>
-					<td>', $row['hostname'], '</td>
 					<td>', $row['num_players'], '</td>
 					<td>', $row['version'], '</td>
 					<td>', $row['text_comment'], '</td>

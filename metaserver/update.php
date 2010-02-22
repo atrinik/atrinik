@@ -54,6 +54,9 @@ $fields = array(
 		'required' => false,
 		'empty' => true,
 	),
+	'name' => array(
+		'type' => 'string',
+	),
 );
 
 // Check the POST values. All data is sanitized here.
@@ -146,7 +149,8 @@ db_query('
 		version = \'' . $_POST['version'] . '\',
 		text_comment = \'' . $_POST['text_comment'] . '\',
 		last_update = ' . time() . ',
-		players = \'' . $_POST['players'] . '\'
+		players = \'' . $_POST['players'] . '\',
+		name = \'' . $_POST['name'] . '\'
 	WHERE
 		hostname = \'' . $_POST['hostname'] . '\'');
 
@@ -155,9 +159,9 @@ if (db_affected_rows() < 1)
 {
 	db_query('
 		INSERT INTO servers
-		(ip_address, port, hostname, num_players, version, text_comment, last_update, players)
+		(ip_address, port, hostname, num_players, version, text_comment, last_update, players, name)
 		VALUES
-		(\'' . $_SERVER['REMOTE_ADDR'] . '\', ' . $_POST['port'] . ', \'' . $_POST['hostname'] . '\', ' . $_POST['num_players'] . ', \'' . $_POST['version'] . '\', \'' . $_POST['text_comment'] . '\', ' . time() . ', \'' . $_POST['players'] . '\')');
+		(\'' . $_SERVER['REMOTE_ADDR'] . '\', ' . $_POST['port'] . ', \'' . $_POST['hostname'] . '\', ' . $_POST['num_players'] . ', \'' . $_POST['version'] . '\', \'' . $_POST['text_comment'] . '\', ' . time() . ', \'' . $_POST['players'] . '\', \'' . $_POST['name'] . '\')');
 }
 
 ?>

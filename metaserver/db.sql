@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
   `text_comment` varchar(256) DEFAULT NULL,
   `last_update` int(21) NOT NULL,
   `players` text NOT NULL,
+  `name` varchar(80) DEFAULT NULL,
   `roworder` mediumint(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_server`),
   UNIQUE KEY `hostname` (`hostname`)

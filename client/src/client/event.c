@@ -30,8 +30,6 @@
 
 #include "include.h"
 
-extern char d_ServerName[2048];
-extern int  d_ServerPort;
 static int get_action_keycode,drop_action_keycode; /* thats the key for G'et command from keybind */
 static int menuRepeatKey =-1;
 int  old_mouse_y = 0;
@@ -689,9 +687,9 @@ int key_meta_menu(SDL_KeyboardEvent *key)
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				metaserver_get_data(metaserver_sel, ServerName, sizeof(ServerName), &ServerPort);
+				selected_server = metaserver_get_selected(metaserver_sel);
 
-				if (ServerName[0] != '\0')
+				if (selected_server)
 				{
 					GameStatus = GAME_STATUS_STARTCONNECT;
 				}

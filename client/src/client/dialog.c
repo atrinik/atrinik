@@ -1740,18 +1740,9 @@ void show_login_server()
 	StringBlt(ScreenSurface, &SystemFont, "Server", t + 1 - 21, y - 35, COLOR_BLACK, NULL, NULL);
 	StringBlt(ScreenSurface, &SystemFont, "Server", t - 21 , y - 36, COLOR_WHITE, NULL, NULL);
 
-	if (!strcmp(ServerName, "127.0.0.1"))
-	{
-		strcpy(buf, "localhost");
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "%s", ServerName);
-	}
-
-	t -= get_string_pixel_length(buf, &BigFont) / 2;
-	StringBlt(ScreenSurface, &BigFont, buf, t + 1, y - 21, COLOR_BLACK, NULL, NULL);
-	StringBlt(ScreenSurface, &BigFont, buf, t, y - 22, COLOR_HGOLD, NULL, NULL);
+	t -= get_string_pixel_length(selected_server->name, &BigFont) / 2;
+	StringBlt(ScreenSurface, &BigFont, selected_server->name, t + 1, y - 21, COLOR_BLACK, NULL, NULL);
+	StringBlt(ScreenSurface, &BigFont, selected_server->name, t, y - 22, COLOR_HGOLD, NULL, NULL);
 
 	SDL_FillRect(ScreenSurface, &box, sdl_gray3);
 	box.y = y + 15;
@@ -2020,7 +2011,7 @@ void show_meta_server(server_struct *node, int metaserver_sel)
 			SDL_FillRect(ScreenSurface, &box, sdl_blue1);
 		}
 
-		StringBlt(ScreenSurface, &SystemFont, node->hostname, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
+		StringBlt(ScreenSurface, &SystemFont, node->name, x + 137, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, &rec_name, NULL);
 
 		sprintf(buf, "%d", node->port);
 		StringBlt(ScreenSurface, &SystemFont, buf, x + 380, y + 94 + (i - dialog_yoff) * 12, COLOR_WHITE, NULL, NULL);

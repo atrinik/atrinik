@@ -176,9 +176,9 @@ void update_quickslots(int del_item);
 void widget_show_fps(int x, int y);
 
 /* metaserver.c */
-void metaserver_get_data(int num, char *server, size_t server_size, int *port);
+server_struct *metaserver_get_selected(int num);
 void metaserver_clear_data();
-void metaserver_add(const char *ip, int port, const char *hostname, int player, const char *version, const char *desc);
+void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
 int metaserver_thread(void *dummy);
 void metaserver_get_servers();
 
