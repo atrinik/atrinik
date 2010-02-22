@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-02-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -29,6 +29,7 @@ arch bridge_wood_EW.111
 y 1
 end
 arch water_still
+player_only 1
 y 2
 end
 arch grassd_m7
@@ -240,6 +241,7 @@ x 1
 y 23
 end
 arch water_still
+player_only 1
 x 2
 end
 arch grassd_m8
@@ -250,6 +252,7 @@ layer 3
 x 2
 end
 arch water_still
+player_only 1
 x 2
 y 1
 end
@@ -263,6 +266,7 @@ x 2
 y 1
 end
 arch water_still
+player_only 1
 x 2
 y 2
 end
