@@ -275,14 +275,9 @@ int cast_create_food(object *op, object *caster, int dir, char *stringarg)
 	copy_object(&at->clone, new_op);
 	new_op->nrof = food_value;
 
-	/* Lighten the food a little with increasing level. */
-	if (food_value > 1)
-	{
-		new_op->weight = (int) (new_op->weight * 2.0 / (2.0 + food_value));
-	}
-
 	new_op->value = 0;
 	SET_FLAG(new_op, FLAG_STARTEQUIP);
+	SET_FLAG(new_op, FLAG_IDENTIFIED);
 
 	if (new_op->nrof < 1)
 	{
