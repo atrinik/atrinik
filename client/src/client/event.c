@@ -152,9 +152,13 @@ static const int screen_definitions[16][2] =
 	{2560, 1600},
 };
 
+/** The movement queue. Used to hold a list of directions to move into. */
+movement *movement_queue = NULL;
+
 static int key_event(SDL_KeyboardEvent *key);
 static void key_string_event(SDL_KeyboardEvent *key);
 static int check_macro_keys(char *text);
+static int movement_queue_thread(void *junk);
 static void move_keys(int num);
 static void key_repeat();
 static void cursor_keys(int num);
@@ -163,14 +167,20 @@ void key_connection_event(SDL_KeyboardEvent *key);
 void check_menu_keys(int menu, int key);
 static void quickslot_key(SDL_KeyboardEvent *key, int slot);
 
+/**
+ * Initialize keys and movement queue. */
 void init_keys()
 {
 	int i;
+	SDL_Thread *thread;
 
 	for (i = 0; i < MAX_KEYS; i++)
+	{
 		keys[i].time = 0;
+	}
 
 	reset_keys();
+	thread = SDL_CreateThread(movement_queue_thread, NULL);
 }
 
 void reset_keys()
@@ -2101,6 +2111,85 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 	}
 }
 
+/**
+ * Pop the first entry in ::movement_queue.
+ * @return The first entry of ::movement_queue. Should be freed when done with it. */
+static movement *movement_queue_pop()
+{
+	movement *entry = movement_queue;
+
+	movement_queue = movement_queue->next;
+	return entry;
+}
+
+/**
+ * Add an entry to ::movement_queue.
+ * @param num Direction to move into. */
+static void movement_queue_add(int num)
+{
+	movement *entry = (movement *) malloc(sizeof(movement));
+
+	entry->num = num;
+	entry->next = NULL;
+
+	if (!movement_queue)
+	{
+		movement_queue = entry;
+	}
+	else
+	{
+		movement *tmp;
+
+		for (tmp = movement_queue; tmp->next; tmp = tmp->next)
+		{
+		}
+
+		tmp->next = entry;
+	}
+}
+
+/**
+ * Free all entres in ::movement_queue. */
+static void movement_queue_clear()
+{
+	movement *tmp, *next;
+
+	for (tmp = movement_queue; tmp; tmp = next)
+	{
+		next = tmp->next;
+		free(tmp);
+	}
+
+	movement_queue = NULL;
+}
+
+/**
+ * Thread for movement queue.
+ * @param junk Unused.
+ * @return 0. */
+static int movement_queue_thread(void *junk)
+{
+	movement *entry;
+
+	(void) junk;
+
+	while (1)
+	{
+		if (!movement_queue)
+		{
+			SDL_Delay(50);
+			continue;
+		}
+
+		entry = movement_queue_pop();
+		send_command(directions[entry->num], -1, SC_FIRERUN);
+		free(entry);
+		SDL_Delay(((float) MAX_TIME / FABS((float) ((float) cpl.stats.speed / 100))));
+	}
+
+	return 0;
+}
+
 static void move_keys(int num)
 {
 	char buf[256];
@@ -2193,13 +2282,13 @@ static void move_keys(int num)
 	}
 	else
 	{
-		static uint32 move_tick = 0;
-		uint32 time = (uint32) ((float) MAX_TIME / FABS((float) ((float) cpl.stats.speed / 100)));
-
-		if (LastTick - move_tick > time)
+		if (num == 5)
 		{
-			send_command(directions[num], -1, SC_FIRERUN);
-			move_tick = LastTick;
+			movement_queue_clear();
+		}
+		else
+		{
+			movement_queue_add(num);
 		}
 
 		buf[0] = '\0';

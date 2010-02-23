@@ -150,4 +150,14 @@ enum
 	MB_DN
 };
 
+/** Movement queue. */
+typedef struct movement
+{
+	/** Direction to move to. */
+	int num;
+
+	/** Next entry. */
+	struct movement *next;
+} movement;
+
 #endif
