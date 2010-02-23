@@ -22,6 +22,9 @@ if guildname:
 	activator.Write("\n%s of %s guild:" % (only_online and "Online members" or "Members", guildname), COLOR_WHITE)
 
 	for member in guild.guilddb[guild.guildname]["members"]:
+		if guild.member(member)["flags"] & guild.MEMBER_FLAG_REQUESTED:
+			continue
+
 		player = FindPlayer(member)
 
 		if not only_online or player:

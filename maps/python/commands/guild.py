@@ -26,6 +26,9 @@ if message and guildname != None:
 	LOG(llevInfo, "CLOG GUILD: %s [%s] >%s<\n" % (activator.name, guildname, message))
 
 	for member in guild.guilddb[guild.guildname]["members"]:
+		if guild.member(member)["flags"] & guild.MEMBER_FLAG_REQUESTED:
+			continue
+
 		## Find the member, and if found, show him the guild message.
 		player = FindPlayer(member)
 
