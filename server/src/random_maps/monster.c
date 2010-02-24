@@ -103,7 +103,7 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
 
 		x = RANDOM() % RP->Xsize;
 		y = RANDOM() % RP->Ysize;
-		freeindex = find_first_free_spot(this_monster->arch, map, x, y);
+		freeindex = find_first_free_spot(this_monster->arch, this_monster, map, x, y);
 
 		if (freeindex != -1)
 		{

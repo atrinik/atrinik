@@ -368,7 +368,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
 	if (the_exit_down)
 	{
-		int i = find_first_free_spot(the_exit_down->arch, map, downx, downy);
+		int i = find_first_free_spot(the_exit_down->arch, the_exit_down, map, downx, downy);
 
 		the_exit_down->x = downx + freearr_x[i];
 		the_exit_down->y = downy + freearr_y[i];

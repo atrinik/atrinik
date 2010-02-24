@@ -454,7 +454,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 					SET_FLAG(tmp, FLAG_UNAGGRESSIVE);
 				}
 
-				j = find_first_free_spot(tmp->arch, op->map,op->x, op->y);
+				j = find_first_free_spot(tmp->arch, tmp, op->map,op->x, op->y);
 
 				/* Found spot to put this monster */
 				if (j >= 0)

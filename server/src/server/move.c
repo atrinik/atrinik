@@ -197,7 +197,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	}
 	else
 	{
-		i = find_first_free_spot(op->arch, op->map, x, y);
+		i = find_first_free_spot(op->arch, op, op->map, x, y);
 	}
 
 	/* No free spot */

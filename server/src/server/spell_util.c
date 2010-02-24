@@ -2502,7 +2502,7 @@ void put_a_monster(object *op, const char *monstername)
 		return;
 	}
 
-	dir = find_first_free_spot(at, op->map, op->x, op->y);
+	dir = find_first_free_spot(at, NULL, op->map, op->x, op->y);
 
 	if (dir != -1)
 	{

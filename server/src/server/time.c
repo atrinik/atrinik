@@ -351,7 +351,7 @@ static void change_object(object *op)
 	}
 	else
 	{
-		j = find_first_free_spot(tmp->arch, op->map, op->x, op->y);
+		j = find_first_free_spot(tmp->arch, tmp, op->map, op->x, op->y);
 
 		/* Found a free spot */
 		if (j != -1)

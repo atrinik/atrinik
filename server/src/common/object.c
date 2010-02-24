@@ -2877,13 +2877,13 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
  *
  * It will return the first available spot, not a random choice.
  * @todo Document. */
-int find_first_free_spot(archetype *at, mapstruct *m, int x, int y)
+int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y)
 {
 	int i;
 
 	for (i = 0; i < SIZEOFFREE; i++)
 	{
-		if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i]))
+		if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i]))
 		{
 			return i;
 		}
