@@ -46,9 +46,7 @@ static shared_string *hash_table[TABLESIZE];
  * Initializes the hash-table used by the shared string library. */
 void init_hash_table()
 {
-#if !defined(__STDC__)
-	(void) memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
-#endif
+	memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
 }
 
 /**
@@ -86,11 +84,12 @@ static unsigned long hashstr(const char *str)
 static shared_string *new_shared_string(const char *str)
 {
 	shared_string *ss;
+	int n = strlen(str);
 
 	/* Allocate room for a struct which can hold str. Note
 	 * that some bytes for the string are already allocated in the
 	 * shared_string struct. */
-	ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + strlen(str) + 1);
+	ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + n + 1);
 
 	if (!ss)
 	{
@@ -100,7 +99,8 @@ static shared_string *new_shared_string(const char *str)
 	ss->u.previous = NULL;
 	ss->next = NULL;
 	ss->refcount = 1;
-	strcpy(ss->string, str);
+	memcpy(ss->string, str, n);
+	ss->string[n] = '\0';
 
 	return ss;
 }
@@ -303,8 +303,9 @@ void free_string_shared(shstr *str)
 
 	GATHER(free_stats.calls);
 	ss = SS(str);
+	--ss->refcount;
 
-	if ((--ss->refcount & ~TOPBIT) == 0)
+	if ((ss->refcount & ~TOPBIT) == 0)
 	{
 		/* Remove this entry. */
 		if (ss->refcount & TOPBIT)
