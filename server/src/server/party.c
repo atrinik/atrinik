@@ -194,8 +194,8 @@ void remove_party(partylist_struct *party)
 		}
 	}
 
-	FREE_ONLY_HASH(party->name);
-	FREE_ONLY_HASH(party->leader);
+	FREE_AND_CLEAR_HASH(party->name);
+	FREE_AND_CLEAR_HASH(party->leader);
 	return_poolchunk(party, pool_parties);
 }
 
