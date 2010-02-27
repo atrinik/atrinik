@@ -439,7 +439,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
 		remove_ob(op);
 
-		if (check_walk_off(op, NULL,MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
+		if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
 		{
 			/* This doesn't handle op->more yet */
 			for (i = 0; i < op->stats.food; i++)
@@ -454,7 +454,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 					SET_FLAG(tmp, FLAG_UNAGGRESSIVE);
 				}
 
-				j = find_first_free_spot(tmp->arch, tmp, op->map,op->x, op->y);
+				j = find_first_free_spot(tmp->arch, NULL, op->map,op->x, op->y);
 
 				/* Found spot to put this monster */
 				if (j >= 0)
