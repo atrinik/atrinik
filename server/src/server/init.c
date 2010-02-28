@@ -153,8 +153,8 @@ void free_strings()
 void init_library()
 {
 	init_environ();
-	init_globals();
 	init_hash_table();
+	init_globals();
 	/* Inits the pooling memory manager and the new object system */
 	init_mempools();
 	init_block();
