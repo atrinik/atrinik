@@ -1799,31 +1799,29 @@ static int get_magic(int diff)
 /**
  * Get a random spell from the spell list.
  *
- * Used for item generation which uses spells.
+ * Used for item generation which uses spells like wands, rods, etc.
  * @param level Level of the spell.
- * @param flags Spell flags to check for.
+ * @param flags @ref SPELL_USE_xxx to check for.
  * @return SP_NO_SPELL if no valid spell matches, ID of the spell
  * otherwise. */
 static int get_random_spell(int level, int flags)
 {
-	int i,tmp = RANDOM() % NROFREALSPELLS;
+	int i, num_spells = 0, possible_spells[NROFREALSPELLS];
 
-	/* We start somewhere random in the list and get the first fitting
-	 * spell. */
-	for (i = tmp; i < NROFREALSPELLS; i++)
+	/* Collect the list of spells we can choose from. */
+	for (i = 0; i < NROFREALSPELLS; i++)
 	{
 		if (level >= spells[i].level && spells[i].spell_use & flags)
 		{
-			return i;
+			possible_spells[num_spells] = i;
+			num_spells++;
 		}
 	}
 
-	for (i = 0; i < tmp; i++)
+	/* If we found any spells we can use, select randomly. */
+	if (num_spells)
 	{
-		if (level >= spells[i].level && spells[i].spell_use & flags)
-		{
-			return i;
-		}
+		return possible_spells[RANDOM() % num_spells];
 	}
 
 	/* If we are here, there is no fitting spell. */
