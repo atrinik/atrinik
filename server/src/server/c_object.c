@@ -772,26 +772,23 @@ void drop_object(object *op, object *tmp, long nrof)
 		if (op->type == PLAYER)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "You drop the %s.", query_name(tmp, NULL));
+			esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
 				new_draw_info(NDI_UNIQUE, op, "The shop magic put it back to the storage.");
+
+				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
+
+				/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
+				if (floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
+				{
+					insert_ob_in_map(tmp, op->map, op, 0);
+				}
 			}
 			else
 			{
 				new_draw_info(NDI_UNIQUE, op, "The one-drop item vanish to nowhere as you drop it!");
-			}
-
-			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
-
-			/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
-			if (!QUERY_FLAG(tmp, FLAG_STARTEQUIP) && floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
-			{
-				insert_ob_in_map(tmp, op->map, op, 0);
-			}
-			else
-			{
-				esrv_del_item(CONTR(op), tmp->count, tmp->env);
 			}
 		}
 
