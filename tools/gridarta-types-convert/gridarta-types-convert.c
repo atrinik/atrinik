@@ -322,7 +322,6 @@ static type_name type_names[] = {
 	{"CHECK_INV", CHECK_INV},
 	{"MOOD_FLOOR", MOOD_FLOOR},
 	{"EXIT", EXIT},
-	{"AGE_FORCE", AGE_FORCE},
 	{"SHOP_FLOOR", SHOP_FLOOR},
 	{"SHOP_MAT", SHOP_MAT},
 	{"RING", RING},
@@ -719,6 +718,10 @@ void read_type(type_definition *type, FILE *file, const char *block_end)
 				if (strstr(buf, "</description>") != NULL)
 				{
 					break;
+				}
+				else if (strstr(buf, "<![CDATA["))
+				{
+					continue;
 				}
 
 				if (type->description)
