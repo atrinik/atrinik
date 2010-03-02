@@ -8,7 +8,6 @@ See @ref page_type_30
 
 
 @section Description
-	<![CDATA[
 		When a predefined amount of weight is placed on a trigger button,
 		the connection value is triggered. In most cases this happens
 		when a player or monster steps on it. Trigger button objects work

@@ -8,7 +8,6 @@ See @ref page_type_64
 
 
 @section Description
-	<![CDATA[
 		Inventory checkers passively check the players inventory for a
 		specific object. You can set a connected value that is triggered
 		either if that object is present or missing ("last_sp") when a

@@ -8,7 +8,6 @@ See @ref page_type_85
 
 
 @section Description
-	<![CDATA[
 		By reading a spellbook, the player has a chance of learning the
 		contained spell. Once learned from a book, the spell is available
 		forever. Spellbooks with high level spells require some skill

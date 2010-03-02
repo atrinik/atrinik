@@ -8,7 +8,6 @@ See @ref page_type_83
 
 
 @section Description
-	<![CDATA[
 		Spawn Point Monsters are Monsters, put in the inventory of a
 		spawn point and used as prototype for map spawn. The spawn point
 		will set a copy of this object on the map, resetting it to a

@@ -25,7 +25,9 @@
 		<td>
 @ref page_type_42
 		</td><td>		The created object will be of that level. If zero/unset, the
-		standard level of the archetype is used.</td>
+		standard level of the archetype is used.
+
+		(Only used if "create arch" is set)</td>
 	</tr>
 	<tr>
 		<td>

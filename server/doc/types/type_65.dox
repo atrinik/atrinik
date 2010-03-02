@@ -8,7 +8,6 @@ See @ref page_type_65
 
 
 @section Description
-	<![CDATA[
 		As the name implies, mood floors can change the "mood" of a
 		monster/NPC. For example, an unagressive monster could be turned
 		mad to start attacking. Similar, an agressive monster could be

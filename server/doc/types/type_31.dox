@@ -8,7 +8,6 @@ See @ref page_type_31
 
 
 @section Description
-	<![CDATA[
 		Altar_triggers work pretty much like normal altars
 		(drop sacrifice -&gt; connection activated), except for the fact that
 		they reset after usage. Hence, altar_triggers can be used infinitely.

@@ -8,7 +8,6 @@ See @ref page_type_93
 
 
 @section Description
-	<![CDATA[
 		A handle can be applied by players and (certain) monsters.
 		Every time it is applied, the connection value is triggered.
 	

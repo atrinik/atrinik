@@ -8,7 +8,6 @@ See @ref page_type_40
 
 
 @section Description
-	<![CDATA[
 		Movers move the objects above them. However, only living objects
 		are affected (monsters/NPCs always, players optional). Movers have
 		a direction, so players can be made to move in a pattern, and so

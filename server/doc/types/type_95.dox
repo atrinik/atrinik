@@ -8,7 +8,6 @@ See @ref page_type_95
 
 
 @section Description
-	<![CDATA[
 		Trapdoors are very similar to pits. The difference is that they
 		can not be closed. Instead, the weight of the object on the
 		trapdoor determines whether it slams the trapdoor open and falls

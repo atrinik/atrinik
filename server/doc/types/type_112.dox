@@ -8,7 +8,6 @@ See @ref page_type_112
 
 
 @section Description
-	<![CDATA[
 		Directors change the direction of spell objects and other
 		projectiles that fly past. Unlike spinners, directors always move
 		objects in the same direction. It does not make a difference from

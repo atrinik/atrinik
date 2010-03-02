@@ -8,7 +8,6 @@ See @ref page_type_15
 
 
 @section Description
-	<![CDATA[
 		Wielding a weapon, the object's stats will be directly inherited
 		by the player, usually enhancing his fighting-abilities. Non
 		magical weapons can be improved with scrolls.

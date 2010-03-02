@@ -8,7 +8,6 @@ See @ref page_type_103
 
 
 @section Description
-	<![CDATA[
 		Converters are like "exchange tables". When the player drops a
 		specific type of items, they get converted into other items, at a
 		predefined exchange-ratio.

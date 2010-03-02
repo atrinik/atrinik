@@ -8,7 +8,6 @@ See @ref page_type_71
 
 
 @section Description
-	<![CDATA[
 		Floors are the base ground objects, which "define" the tile. All
 		settings for ground type and moving issues are done in the floor
 		tile.
@@ -107,6 +106,12 @@ Type defined by:
 		object appears lit up on dark maps. &lt;glow radius&gt; can be a
 		value between 0 and 4, the higher, the more light does the object
 		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Height of this tile.
 		</td>
 	</tr>
 	<tr>

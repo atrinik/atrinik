@@ -8,7 +8,6 @@ See @ref page_type_36
 
 
 @section Description
-	<![CDATA[
 		Items of the type Money are handled as currency. Money cannot be
 		sold/bought in shops. When money is dropped in a shop, it stays
 		the same.

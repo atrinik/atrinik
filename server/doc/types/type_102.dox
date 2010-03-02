@@ -8,7 +8,6 @@ See @ref page_type_102
 
 
 @section Description
-	<![CDATA[
 		Random drop container are used from spawn points. Put in the
 		inventory of spawn monsters (the "copy" inside the spawn point)
 		there will be a random check against this object. This check will

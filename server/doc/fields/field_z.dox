@@ -1,0 +1,14 @@
+/**
+@fn obj::z
+@section Use
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_71
+		</td><td>		Height of this tile.</td>
+	</tr>
+
+*/

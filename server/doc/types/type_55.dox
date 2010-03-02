@@ -8,7 +8,6 @@ See @ref page_type_55
 
 
 @section Description
-	<![CDATA[
 		A marker is an object that inserts an invisible force (a mark)
 		into a player stepping on it. This force does nothing except
 		containing a &lt;key string&gt; which can be discovered by

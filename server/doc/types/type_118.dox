@@ -8,7 +8,6 @@ See @ref page_type_118
 
 
 @section Description
-	<![CDATA[
 		The event object can hold script or other events triggered in the
 		game. The event object is inserted in the target object and when
 		an action or situation matches the event object settings, the

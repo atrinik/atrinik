@@ -8,7 +8,6 @@ See @ref page_type_81
 
 
 @section Description
-	<![CDATA[
 		Spawn points are used to spawn monsters. After the spawn point is
 		set, one or more mobs can be added to the spawn point's
 		inventory. By changing the monster type from MONSTER to

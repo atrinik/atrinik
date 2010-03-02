@@ -8,7 +8,6 @@ See @ref page_type_90
 
 
 @section Description
-	<![CDATA[
 		Spinners change the direction of spell objects and other
 		projectiles that fly past. Unlike directors, it does make a
 		difference from what angle you shoot into the spinner. The

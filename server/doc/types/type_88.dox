@@ -8,7 +8,6 @@ See @ref page_type_88
 
 
 @section Description
-	<![CDATA[
 		The best example for Hazard Floor is lava. It works like standard
 		floor, but damages all creatures standing on it.
 

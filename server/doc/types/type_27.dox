@@ -8,7 +8,6 @@ See @ref page_type_27
 
 
 @section Description
-	<![CDATA[
 		Handle triggers are handles which reset after a short period of
 		time. Every time it is either applied or reset, the connection
 		value is triggered.

@@ -8,7 +8,6 @@ See @ref page_type_94
 
 
 @section Description
-	<![CDATA[
 		Pits are holes, transporting the player when he walks (and falls)
 		into them. A speciality about pits is that they don't transport
 		the player to the exact destination, but within a two-square

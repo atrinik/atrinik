@@ -8,7 +8,6 @@ See @ref page_type_41
 
 
 @section Description
-	<![CDATA[
 		When the player walks into a teleporter, he is transferred to a
 		different location. The main difference to the object-type exit
 		is the possibility to have teleporters connected to

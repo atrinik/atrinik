@@ -8,7 +8,6 @@ See @ref page_type_117
 
 
 @section Description
-	<![CDATA[
 		Items of the type Nuggets are handled like a currency. Unlike for
 		any other type of item, in shops, the buying and selling prices
 		differ only marginally.

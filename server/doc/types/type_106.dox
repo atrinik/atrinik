@@ -8,7 +8,6 @@ See @ref page_type_106
 
 
 @section Description
-	<![CDATA[
 		When the player applies a savebed, he is not only saved, but both
 		his respawn-after-death and his word-of-recall positions are
 		pointing to the last-applied savebed.

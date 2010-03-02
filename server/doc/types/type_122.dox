@@ -8,7 +8,6 @@ See @ref page_type_122
 
 
 @section Description
-	<![CDATA[
 		A player can put (certain kinds of) items in the container. The
 		overall weight of items is reduced when put inside a container,
 		depending on the settings.

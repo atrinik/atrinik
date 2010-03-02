@@ -8,7 +8,6 @@ See @ref page_type_69
 
 
 @section Description
-	<![CDATA[
 		Shop mats are used for entering/leaving shops. You should always
 		have exactly TWO shop mats on your shop-map: One inside the
 		"shopping-area" and one outside. Shop mats don't use exit paths

@@ -7,6 +7,14 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
+@ref page_type_42
+		</td><td>		Setting this will make the creator clone a single, randomly picked,
+		non-system object from its inventory instead of all of them.
+
+		(Only used if "create arch" is unset)</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>		Monsters with &lt;split&gt; enabled will split into one or more
 		&lt;breed monster&gt; whenever they're hit. The number of new

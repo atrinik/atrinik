@@ -3,7 +3,6 @@
 
 
 @section Description
-	<![CDATA[
 		Beacons are objects which can be located by scripts using their
 		ID, wherever in the game they might be. This behavior is useful,
 		for example, for gates and switches on different maps, as

@@ -8,7 +8,6 @@ See @ref page_type_26
 
 
 @section Description
-	<![CDATA[
 		Timed Gates are like normal gates except they close automatically
 		after a set time. Timed Gates can be opened by activating a
 		button/trigger, by speaking passwords (magic ear) or carrying

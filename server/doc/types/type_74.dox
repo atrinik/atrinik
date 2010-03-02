@@ -8,7 +8,6 @@ See @ref page_type_74
 
 
 @section Description
-	<![CDATA[
 		An applyable light source for a player or monster. It has a three
 		way apply chain: First time light the object, second time put it
 		in the hand, third time unapply and extinguish the light.

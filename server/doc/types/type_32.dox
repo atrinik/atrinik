@@ -8,7 +8,6 @@ See @ref page_type_32
 
 
 @section Description
-	<![CDATA[
 		Trigger Pedestals are like normal Pedestals but they reset after
 		they got triggered automatically. In the reset time they can't be
 		triggered again. They are designed to detect certain types of

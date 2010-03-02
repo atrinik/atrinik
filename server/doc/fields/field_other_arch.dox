@@ -30,7 +30,12 @@
 		<td>
 @ref page_type_42
 		</td><td>		This string defines the object that will be created. You can
-		choose any of the existing arches.</td>
+		choose any of the existing arches.
+
+		If you leave this empty, the creator will clone any non-system objects
+		from its inventory instead (sort of like the spawn point).
+
+		Creators can't create mobs, use spawn points for that.</td>
 	</tr>
 	<tr>
 		<td>

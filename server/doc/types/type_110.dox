@@ -8,7 +8,6 @@ See @ref page_type_110
 
 
 @section Description
-	<![CDATA[
 		Abilities are to be put in a monster's inventory. They grant
 		monsters the knowledge to cast spells. Spells from abilities are
 		usually magical in nature, thus adding magic to the spell damage

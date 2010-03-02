@@ -8,7 +8,6 @@ See @ref page_type_109
 
 
 @section Description
-	<![CDATA[
 		Wands contain a certain spell. The player can apply (ready) and
 		fire the wand. After a defined number of casts, the wand is "used
 		up". It is possible to recharge a wand with scrolls of charging,

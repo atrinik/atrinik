@@ -8,7 +8,6 @@ See @ref page_type_77
 
 
 @section Description
-	<![CDATA[
 		Walls are like floor basic objects for maps.
 
 		Walls are special in the way that the client uses wall faces for

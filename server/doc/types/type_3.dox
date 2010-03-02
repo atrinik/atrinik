@@ -8,7 +8,6 @@ See @ref page_type_3
 
 
 @section Description
-	<![CDATA[
 		A rod contains a spell. The player can use this spell by applying
 		and firing the rod. Rods need time to regenerate their "internal"
 		spellpoints, lowering the effectiveness in combat. But unlike

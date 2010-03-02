@@ -8,7 +8,6 @@ See @ref page_type_79
 
 
 @section Description
-	<![CDATA[
 		Misc Objects are objects without special features, using the base
 		setting of the game engine. This includes many decorative objects
 		like statues or rocks.
@@ -291,6 +290,12 @@ Type defined by:
 		<td>@ref FLAG_PLAYER_ONLY</td>
 		<td>		If set, only players can enter the tile the object with this flag
 		is on.
+		</td>
+	</tr>
+	<tr>
+		<td>speed</td>
+		<td>@ref obj::speed</td>
+		<td>		The object's speed.
 		</td>
 	</tr>
 	<tr>

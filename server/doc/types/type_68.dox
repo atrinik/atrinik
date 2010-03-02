@@ -8,7 +8,6 @@ See @ref page_type_68
 
 
 @section Description
-	<![CDATA[
 		Shop floor is used for shops. It acts like a combination of the
 		common floor and the treasure type: When the map is loaded,
 		randomitems (depending on the setings) are generated on it.

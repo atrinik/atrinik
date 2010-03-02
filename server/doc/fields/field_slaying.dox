@@ -32,7 +32,9 @@
 @ref page_type_42
 		</td><td>		The created object will bear the name specified in
 		&lt;name creation&gt;. If nothing is set, the standard name of
-		the archetype is used.</td>
+		the archetype is used.
+
+		(Only used if "create arch" is set)</td>
 	</tr>
 	<tr>
 		<td>

@@ -8,7 +8,6 @@ See @ref page_type_42
 
 
 @section Description
-	<![CDATA[
 		A creator is an object which creates another object when it is
 		triggered. The child object can be anything. Creators are VERY
 		useful for all kinds of map mechanisms.
@@ -62,6 +61,13 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>check before creation</td>
+		<td>@ref FLAG_ONE_DROP</td>
+		<td>		Makes the creator check for already existing objects on top of it before
+		creating. Avoids creating lots of duplicates if no-one picks the items up.
+		</td>
+	</tr>
+	<tr>
 		<td>connection</td>
 		<td>@ref page_connected "connection value"</td>
 		<td>		Whenever the connection value is activated, the creator gets
@@ -73,6 +79,11 @@ Type defined by:
 		<td>@ref obj::other_arch</td>
 		<td>		This string defines the object that will be created. You can
 		choose any of the existing arches.
+
+		If you leave this empty, the creator will clone any non-system objects
+		from its inventory instead (sort of like the spawn point).
+
+		Creators can't create mobs, use spawn points for that.
 		</td>
 	</tr>
 	<tr>
@@ -176,6 +187,8 @@ Type defined by:
 		<td>@ref obj::level</td>
 		<td>		The created object will be of that level. If zero/unset, the
 		standard level of the archetype is used.
+
+		(Only used if "create arch" is set)
 		</td>
 	</tr>
 	<tr>
@@ -218,6 +231,8 @@ Type defined by:
 		<td>		The created object will bear the name specified in
 		&lt;name creation&gt;. If nothing is set, the standard name of
 		the archetype is used.
+
+		(Only used if "create arch" is set)
 		</td>
 	</tr>
 	<tr>
@@ -268,17 +283,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>one drop</td>
-		<td>@ref FLAG_ONE_DROP</td>
-		<td>		In the moment a player gets or applies this item, it will be
-		flagged as godgiven and vanish when dropped to the ground.
-
-		If this flag is set for an item inside monster's quest_container
-		with the quest being quest item type, the player will be able to
-		find the item again, should he lose it.
-		</td>
-	</tr>
-	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
 		<td>		The item is permanently cursed. If this flag is set, applying or
@@ -299,6 +303,15 @@ Type defined by:
 		<td>@ref FLAG_PLAYER_ONLY</td>
 		<td>		If set, only players can enter the tile the object with this flag
 		is on.
+		</td>
+	</tr>
+	<tr>
+		<td>random clone</td>
+		<td>@ref FLAG_SPLITTING</td>
+		<td>		Setting this will make the creator clone a single, randomly picked,
+		non-system object from its inventory instead of all of them.
+
+		(Only used if "create arch" is unset)
 		</td>
 	</tr>
 	<tr>

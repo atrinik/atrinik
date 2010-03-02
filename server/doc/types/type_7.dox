@@ -8,7 +8,6 @@ See @ref page_type_7
 
 
 @section Description
-	<![CDATA[
 		When eating, the player's stomach is drained by 1/4 of food and
 		the player is poisoned (a DOT poisoned force is inserted in the
 		player). Until the DOT (DOT = Damage Over Time) force wears out,

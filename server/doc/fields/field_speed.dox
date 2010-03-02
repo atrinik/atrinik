@@ -7,6 +7,11 @@
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
+@ref page_type_79
+		</td><td>		The object's speed.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_51
 		</td><td>		This value defines the time between two detector checks. If you
 		want the detector to behave almost like pedestals/buttons, set

@@ -8,7 +8,6 @@ See @ref page_type_17
 
 
 @section Description
-	<![CDATA[
 		Pedestals are designed to detect certain types of living objects
 		or keys. When a predefined type of living creature steps on the
 		pedestal, the connected value is triggered.

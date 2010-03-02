@@ -8,7 +8,6 @@ See @ref page_type_18
 
 
 @section Description
-	<![CDATA[
 		When a player puts a defined number of certain items on the
 		altar, then either a spell is cast (on the player) or a
 		connection is triggered. If the latter is the case, the altar

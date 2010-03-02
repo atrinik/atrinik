@@ -8,7 +8,6 @@ See @ref page_type_51
 
 
 @section Description
-	<![CDATA[
 		Detectors work quite much like inventory checkers/pedestals: If
 		the detector finds a specific object, it toggles its connected
 		value.
