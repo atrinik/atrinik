@@ -1,0 +1,174 @@
+# The types-extra file from which Python parses information to make
+# Doxygen output.
+#
+# Format:
+# type <type-name>
+# field <field/flag>
+# Explanation of the field/flag.
+# field <another field/flag>
+# field_help <this text will be visible on mouse hover>
+# Explanation of the another
+# field/flag on two or more
+# lines.
+# end
+
+# Preprocessor definitions.
+#define DISEASE_ADVERSE Should be negative to cause adverse effect.
+#define DISEASE_LDUR This effect is modulated in spells by ldur.
+#define DISEASE_LDAM This effect is modulated in spells by ldam.
+#define DISEASE_ADVERSE_LDAM Should be negative to cause adverse effect and is modulated in spells by ldam.
+
+type SHOP_FLOOR
+field object::randomitems
+If not NULL, will be the goods to generate on map load.
+field FLAG_AUTO_APPLY
+If set, will generate goods from object::randomitems on map load.
+field FLAG_CURSED
+If set, randomly generated goods will not be clone items.
+field living::exp
+Quality level of randomly generated goods, if 0, will use map's difficulty.
+field FLAG_DAMNED
+If set, generated goods will never become artifacts.
+field FLAG_IS_MAGICAL
+If set, the shop floor will be a unique shop; items dropped will stay there until someone buys them or the map resets.
+end
+
+type SYMPTOM
+field object::stats
+Modify stats
+field living::hp
+Modify regen
+field object::value
+Progression counter (multiplier = value / 100)
+field living::food
+Modify food use (from object::last_eat in @ref DISEASE)
+field living::maxsp
+Suck mana (as noted for @ref DISEASE)
+field object::last_sp
+Lethargy
+field object::msg
+What to say
+field object::speed
+Speed of movement, from @ref DISEASE
+end
+
+type TIMED_GATE
+field living::hp
+How long a gate is open/closed.
+field living::maxhp
+Initial value for living::hp.
+field living::sp
+If zero the gate is closed, if 1 the gate is open.
+end
+
+type CREATOR
+field connected
+What connection number will trigger the creator.
+field living::hp
+How many times it may create before stopping.
+field FLAG_LIFESAVE
+If set, it'll never disappear but will go on creating everytime it's triggered.
+field object::other_arch
+The object to create on top of the creator.
+end
+
+type DETECTOR
+field object::slaying
+Name of the thing the detector is to look for.
+field object::speed
+Frequency of 'glances'.
+field connected
+Connected value of detector.
+field living::sp
+1 if detection sets buttons, -1 if detection unsets buttons.
+end
+
+type MARKER
+field living::hp
+How many times the marker will work. If zero, infinite, otherwise every time the marker grants a mark, the value is decremented and when reached zero, the marker is removed.
+end
+
+type MOOD_FLOOR
+field object::last_sp
+Used to differentiate mood floors. Value meanings:
+- 0 = furious, all monsters become aggressive.
+- 1 = angry, all but friendly become aggressive.
+- 2 = calm, all aggressive monsters calm down.
+- 3 = sleep, all monsters fall asleep.
+end
+
+type DISEASE
+field object::attack
+Attack type(s) of the disease, for example, attack_godpower 100.
+field object::other_arch
+Object created and dropped when symptom moves.
+field object::title
+When the "disease" infects something, it will print "title victim!!!" to the player who owns the "disease".
+field living::wc
+field_help DISEASE_LDUR
+The chance of someone in range catching the disease, divided by 127.
+field object::magic
+field_help DISEASE_LDUR
+The range at which infection may occur. If negative, the range is NOT level dependent.
+field object::stats
+field_help DISEASE_ADVERSE
+What stats are reduced by the disease (str, con, ...)
+field living::maxhp
+field_help DISEASE_LDUR
+How long the disease will persist if the host dies and "drops" it, in "disease moves", i.e., moves of the disease. If negative, permanent.
+field object::value
+The counter for maxhp, it starts at maxhp and drops...
+field living::dam
+field_help DISEASE_LDAM
+How much damage it does. If positive, it is straight damage. If negative, a percentage.
+field living::maxgrace
+field_help DISEASE_LDUR
+How long in "disease moves" the disease lasts in the host, if negative, permanent until cured.
+field living::food
+If negative, disease is permanent. Otherwise, decreases at &lt;speed&gt;, disease goes away at food = 0, set to "maxgrace" on infection.
+field object::speed
+The speed of the disease, how fast "disease moves" occur.
+field object::last_sp
+field_help DISEASE_LDAM
+The lethargy imposed on the player by the disease. A lethargy of "1" reduces the players speed to 1% of its normal value.
+field living::maxsp
+field_help DISEASE_LDAM
+How much mana is sapped per "disease move". If negative, a percentage is taken.
+field living::ac
+field_help DISEASE_LDAM
+Every "disease move" the severity of the symptoms are increased by ac / 100. (severity = 1 + (accumlated_progression) / 100)
+field object::last_eat
+field_help DISEASE_ADVERSE_LDAM
+Increases food usage if negative.
+field object::last_heal
+If nonzero, disease does NOT grant immunity when it runs out.
+field living::exp
+Experience awarded when plague cured.
+field living::hp
+field_help DISEASE_ADVERSE_LDAM
+Reduces regeneration of disease-bearer.
+field living::sp
+field_help DISEASE_ADVERSE_LDAM
+Reduces spellpoint regeneration.
+field object::name
+Name of the plague.
+field object::msg
+What the plague says when it strikes.
+field object::race
+Species/race the plague strikes (* = everything).
+field object::level
+General description of the plague's deadliness
+field living::wc
+Reduction in wc per generation of disease. This builds in a self-limiting factor.
+end
+
+type PLAYERMOVER
+field object::direction
+Direction the activating object will be moved to, if zero, a random one will be chosen. Perhaps useful for a dance club.
+field object::speed
+How often it will move objects.
+field FLAG_LIFESAVE
+If set, it'll disappear after living::hp + 1 moves.
+field living::maxsp, living::sp
+If both are set, it'll paralyze the victim for living::maxsp * his speed / object::speed
+end

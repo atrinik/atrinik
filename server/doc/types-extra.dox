@@ -1,0 +1,327 @@
+/**
+@def PLAYERMOVER
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::direction</td>
+<td>Direction the activating object will be moved to, if zero, a random one will be chosen. Perhaps useful for a dance club.</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>How often it will move objects.</td>
+</tr>
+<tr>
+<td>@ref FLAG_LIFESAVE</td>
+<td>If set, it'll disappear after living::hp + 1 moves.</td>
+</tr>
+<tr>
+<td>living::maxsp, living::sp</td>
+<td>If both are set, it'll paralyze the victim for living::maxsp * his speed / object::speed</td>
+</tr>
+</table>
+*/
+
+/**
+@def CREATOR
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>connected</td>
+<td>What connection number will trigger the creator.</td>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>How many times it may create before stopping.</td>
+</tr>
+<tr>
+<td>@ref FLAG_LIFESAVE</td>
+<td>If set, it'll never disappear but will go on creating everytime it's triggered.</td>
+</tr>
+<tr>
+<td>object::other_arch</td>
+<td>The object to create on top of the creator.</td>
+</tr>
+</table>
+*/
+
+/**
+@def SHOP_FLOOR
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::randomitems</td>
+<td>If not NULL, will be the goods to generate on map load.</td>
+</tr>
+<tr>
+<td>@ref FLAG_AUTO_APPLY</td>
+<td>If set, will generate goods from object::randomitems on map load.</td>
+</tr>
+<tr>
+<td>@ref FLAG_CURSED</td>
+<td>If set, randomly generated goods will not be clone items.</td>
+</tr>
+<tr>
+<td>living::exp</td>
+<td>Quality level of randomly generated goods, if 0, will use map's difficulty.</td>
+</tr>
+<tr>
+<td>@ref FLAG_DAMNED</td>
+<td>If set, generated goods will never become artifacts.</td>
+</tr>
+<tr>
+<td>@ref FLAG_IS_MAGICAL</td>
+<td>If set, the shop floor will be a unique shop; items dropped will stay there until someone buys them or the map resets.</td>
+</tr>
+</table>
+*/
+
+/**
+@def DISEASE
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::attack</td>
+<td>Attack type(s) of the disease, for example, attack_godpower 100.</td>
+</tr>
+<tr>
+<td>object::other_arch</td>
+<td>Object created and dropped when symptom moves.</td>
+</tr>
+<tr>
+<td>object::title</td>
+<td>When the "disease" infects something, it will print "title victim!!!" to the player who owns the "disease".</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldur." style="border-bottom: 1px dashed #000;">living::wc</span></td>
+<td>The chance of someone in range catching the disease, divided by 127.</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldur." style="border-bottom: 1px dashed #000;">object::magic</span></td>
+<td>The range at which infection may occur. If negative, the range is NOT level dependent.</td>
+</tr>
+<tr>
+<td><span title="Should be negative to cause adverse effect." style="border-bottom: 1px dashed #000;">object::stats</span></td>
+<td>What stats are reduced by the disease (str, con, ...)</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldur." style="border-bottom: 1px dashed #000;">living::maxhp</span></td>
+<td>How long the disease will persist if the host dies and "drops" it, in "disease moves", i.e., moves of the disease. If negative, permanent.</td>
+</tr>
+<tr>
+<td>object::value</td>
+<td>The counter for maxhp, it starts at maxhp and drops...</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::dam</span></td>
+<td>How much damage it does. If positive, it is straight damage. If negative, a percentage.</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldur." style="border-bottom: 1px dashed #000;">living::maxgrace</span></td>
+<td>How long in "disease moves" the disease lasts in the host, if negative, permanent until cured.</td>
+</tr>
+<tr>
+<td>living::food</td>
+<td>If negative, disease is permanent. Otherwise, decreases at &lt;speed&gt;, disease goes away at food = 0, set to "maxgrace" on infection.</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>The speed of the disease, how fast "disease moves" occur.</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">object::last_sp</span></td>
+<td>The lethargy imposed on the player by the disease. A lethargy of "1" reduces the players speed to 1% of its normal value.</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::maxsp</span></td>
+<td>How much mana is sapped per "disease move". If negative, a percentage is taken.</td>
+</tr>
+<tr>
+<td><span title="This effect is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::ac</span></td>
+<td>Every "disease move" the severity of the symptoms are increased by ac / 100. (severity = 1 + (accumlated_progression) / 100)</td>
+</tr>
+<tr>
+<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">object::last_eat</span></td>
+<td>Increases food usage if negative.</td>
+</tr>
+<tr>
+<td>object::last_heal</td>
+<td>If nonzero, disease does NOT grant immunity when it runs out.</td>
+</tr>
+<tr>
+<td>living::exp</td>
+<td>Experience awarded when plague cured.</td>
+</tr>
+<tr>
+<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::hp</span></td>
+<td>Reduces regeneration of disease-bearer.</td>
+</tr>
+<tr>
+<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::sp</span></td>
+<td>Reduces spellpoint regeneration.</td>
+</tr>
+<tr>
+<td>object::name</td>
+<td>Name of the plague.</td>
+</tr>
+<tr>
+<td>object::msg</td>
+<td>What the plague says when it strikes.</td>
+</tr>
+<tr>
+<td>object::race</td>
+<td>Species/race the plague strikes (* = everything).</td>
+</tr>
+<tr>
+<td>object::level</td>
+<td>General description of the plague's deadliness</td>
+</tr>
+<tr>
+<td>living::wc</td>
+<td>Reduction in wc per generation of disease. This builds in a self-limiting factor.</td>
+</tr>
+</table>
+*/
+
+/**
+@def TIMED_GATE
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>How long a gate is open/closed.</td>
+</tr>
+<tr>
+<td>living::maxhp</td>
+<td>Initial value for living::hp.</td>
+</tr>
+<tr>
+<td>living::sp</td>
+<td>If zero the gate is closed, if 1 the gate is open.</td>
+</tr>
+</table>
+*/
+
+/**
+@def MARKER
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>How many times the marker will work. If zero, infinite, otherwise every time the marker grants a mark, the value is decremented and when reached zero, the marker is removed.</td>
+</tr>
+</table>
+*/
+
+/**
+@def DETECTOR
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::slaying</td>
+<td>Name of the thing the detector is to look for.</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>Frequency of 'glances'.</td>
+</tr>
+<tr>
+<td>connected</td>
+<td>Connected value of detector.</td>
+</tr>
+<tr>
+<td>living::sp</td>
+<td>1 if detection sets buttons, -1 if detection unsets buttons.</td>
+</tr>
+</table>
+*/
+
+/**
+@def MOOD_FLOOR
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::last_sp</td>
+<td>Used to differentiate mood floors. Value meanings:
+- 0 = furious, all monsters become aggressive.
+- 1 = angry, all but friendly become aggressive.
+- 2 = calm, all aggressive monsters calm down.
+- 3 = sleep, all monsters fall asleep.</td>
+</tr>
+</table>
+*/
+
+/**
+@def SYMPTOM
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::stats</td>
+<td>Modify stats</td>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>Modify regen</td>
+</tr>
+<tr>
+<td>object::value</td>
+<td>Progression counter (multiplier = value / 100)</td>
+</tr>
+<tr>
+<td>living::food</td>
+<td>Modify food use (from object::last_eat in @ref DISEASE)</td>
+</tr>
+<tr>
+<td>living::maxsp</td>
+<td>Suck mana (as noted for @ref DISEASE)</td>
+</tr>
+<tr>
+<td>object::last_sp</td>
+<td>Lethargy</td>
+</tr>
+<tr>
+<td>object::msg</td>
+<td>What to say</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>Speed of movement, from @ref DISEASE</td>
+</tr>
+</table>
+*/
+
