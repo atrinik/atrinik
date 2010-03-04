@@ -31,6 +31,6 @@ SDL:       1.2.14
 SDL_image: 1.2.10
 SDL_mixer: 1.2.11
 zlib:      1.2.3
-libpng:    1.4.0  (used by SDL_image)
+libpng:    1.4.1  (used by SDL_image)
 libogg:    1.1.4  (used by SDL_mixer)
 libvorbis: 1.2.3  (used by SDL_mixer)
