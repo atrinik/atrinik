@@ -430,9 +430,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		{
 			rv_vector rv;
 
-			get_rangevector_from_mapcoords(op->map, op->x, op->y, target->map, target->x, target->y, &rv, 0);
-
-			if ((abs(rv.distance_x) > abs(rv.distance_y) ? abs(rv.distance_x) : abs(rv.distance_y)) > spells[type].range)
+			if (!get_rangevector_from_mapcoords(op->map, op->x, op->y, target->map, target->x, target->y, &rv, RV_DIAGONAL_DISTANCE) || rv.distance > (unsigned int) spells[type].range)
 			{
 				new_draw_info(NDI_UNIQUE, op, "Your target is out of range!");
 				return 0;
