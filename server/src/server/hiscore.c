@@ -47,7 +47,7 @@ typedef struct scr
 	char maplevel[MAX_BUF];
 
 	/** Experience. */
-	long exp;
+	uint64 exp;
 
 	/** Max hp, sp, grace when killed. */
 	int maxhp, maxsp, maxgrace;
@@ -78,7 +78,7 @@ static score_table hiscore_table;
  * @param size Size of the buffer. */
 static void put_score(const score *sc, char *buf, int size)
 {
-    snprintf(buf, size, "%s:%s:%ld:%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+    snprintf(buf, size, "%s:%s:%"FMT64":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 }
 
 /**
@@ -149,7 +149,7 @@ static int get_score(char *bp, score *sc)
 	strncpy(sc->title, tmp[1], sizeof(sc->title));
 	sc->title[sizeof(sc->title) - 1] = '\0';
 
-	sscanf(tmp[2], "%ld", &sc->exp);
+	sscanf(tmp[2], "%"FMT64, &sc->exp);
 
 	strncpy(sc->killer, tmp[3], sizeof(sc->killer));
 	sc->killer[sizeof(sc->killer) - 1] = '\0';
@@ -173,7 +173,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
 	if (sc->killer[0] == '\0')
 	{
-		snprintf(buf, size, "%3d %10ld %s the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "%3d %10"FMT64" %s the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 	else
 	{
@@ -190,7 +190,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 			s2 = sc->killer;
 		}
 
-		snprintf(buf, size, "%3d %10ld %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "%3d %10"FMT64" %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 
 	return buf;
@@ -366,7 +366,7 @@ void hiscore_check(object *op, int quiet)
 	strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
 	new_score.killer[sizeof(new_score.killer) - 1] = '\0';
 
-	new_score.exp = op->stats.exp;
+	new_score.exp = calculate_total_exp(op);
 
 	if (op->map == NULL)
 	{

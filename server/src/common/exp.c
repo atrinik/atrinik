@@ -831,3 +831,23 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
 	return tmp;
 }
+
+/**
+ * Calculate total experience of player, based on all skills they know.
+ * @param op Player.
+ * @return The total experience. */
+uint64 calculate_total_exp(object *op)
+{
+	uint64 exp = 0;
+	int i;
+
+	for (i = 0; i < NROFSKILLS; i++)
+	{
+		if (CONTR(op)->skill_ptr[i])
+		{
+			exp += CONTR(op)->skill_ptr[i]->stats.exp;
+		}
+	}
+
+	return exp;
+}
