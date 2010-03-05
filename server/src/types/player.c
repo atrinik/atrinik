@@ -1822,6 +1822,10 @@ void kill_player(object *op)
 
 	hiscore_check(op, 1);
 
+	/* Otherwise the highscore can get entries like 'xxx was killed by pudding
+	 * on map Wilderness' even if they were killed in a dungeon. */
+	CONTR(op)->killer[0] = '\0';
+
 	/* Check to see if the player is in a shop. Ii so, then check to see
 	 * if the player has any unpaid items. If so, remove them and put
 	 * them back in the map. */
