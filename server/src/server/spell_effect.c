@@ -719,7 +719,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 			}
 
 			/* Nothing alive here? Move on... */
-			if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_ALIVE))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
 			{
 				continue;
 			}
