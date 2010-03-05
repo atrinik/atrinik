@@ -308,7 +308,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"destruction", SPELL_TYPE_WIZARD,
 	 18, 30, 20, 0, 3, 3, 1.0,
-	 2, 1, 3, 4, 20, SOUND_MAGIC_DESTRUCTION,
+	 2, 1, 3, 20, 20, SOUND_MAGIC_DESTRUCTION,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_WOUNDING, "spellobject_destruction"
 	},
