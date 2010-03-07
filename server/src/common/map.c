@@ -2518,6 +2518,7 @@ void delete_map(mapstruct *m)
 		last->next = m->next;
 	}
 
+	FREE_AND_CLEAR_HASH(m->path);
 	free(m);
 }
 
