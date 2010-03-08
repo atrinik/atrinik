@@ -672,9 +672,6 @@ int get_payment(object *pl, object *op)
 void sell_item(object *op, object *pl, sint64 value)
 {
 	sint64 i;
-	int count;
-	object *tmp, *pouch;
-	archetype *at;
 
 	if (pl == NULL || pl->type != PLAYER)
 	{
@@ -699,63 +696,7 @@ void sell_item(object *op, object *pl, sint64 value)
 		}
 	}
 
-	for (count = 0; coins[count] != NULL; count++)
-	{
-		at = find_archetype(coins[count]);
-
-		if (at == NULL)
-		{
-			LOG(llevBug, "BUG: Could not find %s archetype", coins[count]);
-		}
-		else if ((i / at->clone.value) > 0)
-		{
-			for (pouch = pl->inv; pouch; pouch = pouch->below)
-			{
-				if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold"))
-				{
-					int w = (int) ((float) at->clone.weight * pouch->weapon_speed);
-					uint32 n = (uint32) (i / at->clone.value);
-
-					/* Prevent FPE */
-					if (w == 0)
-					{
-						w = 1;
-					}
-
-					if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (sint32)pouch->weight_limit))
-					{
-						if (pouch->weight_limit && ((sint32)pouch->weight_limit-pouch->carrying) / w < (sint32) n)
-						{
-							n = (pouch->weight_limit-pouch->carrying) / w;
-						}
-
-						tmp = get_object();
-						copy_object(&at->clone, tmp);
-						tmp->nrof = n;
-						i -= tmp->nrof * tmp->value;
-						tmp = insert_ob_in_ob(tmp, pouch);
-						esrv_send_item(pl, tmp);
-						esrv_send_item(pl, pouch);
-						esrv_update_item(UPD_WEIGHT, pl, pouch);
-						esrv_send_item(pl, pl);
-						esrv_update_item(UPD_WEIGHT, pl, pl);
-					}
-				}
-			}
-
-			if (i / at->clone.value > 0)
-			{
-				tmp = get_object();
-				copy_object(&at->clone, tmp);
-				tmp->nrof = (uint32) (i / tmp->value);
-				i -= tmp->nrof * tmp->value;
-				tmp = insert_ob_in_ob(tmp, pl);
-				esrv_send_item(pl, tmp);
-				esrv_send_item(pl, pl);
-				esrv_update_item(UPD_WEIGHT, pl, pl);
-			}
-		}
-	}
+	i = insert_coins(pl, i);
 
 	if (!op)
 	{
@@ -1132,4 +1073,76 @@ int bank_withdraw(object *op, object *bank, char *text)
 	}
 
 	return 1;
+}
+
+/**
+ * Insert coins into a player.
+ * @param pl Player.
+ * @param value Value of coins to insert (for example, 120 for 1 silver and 20 copper).
+ * @return value. */
+sint64 insert_coins(object *pl, sint64 value)
+{
+	int count;
+	object *tmp, *pouch;
+	archetype *at;
+
+	for (count = 0; coins[count]; count++)
+	{
+		at = find_archetype(coins[count]);
+
+		if (at == NULL)
+		{
+			LOG(llevBug, "BUG: Could not find %s archetype", coins[count]);
+		}
+		else if ((value / at->clone.value) > 0)
+		{
+			for (pouch = pl->inv; pouch; pouch = pouch->below)
+			{
+				if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold"))
+				{
+					int w = (int) ((float) at->clone.weight * pouch->weapon_speed);
+					uint32 n = (uint32) (value / at->clone.value);
+
+					/* Prevent FPE */
+					if (w == 0)
+					{
+						w = 1;
+					}
+
+					if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (sint32) pouch->weight_limit))
+					{
+						if (pouch->weight_limit && ((sint32)pouch->weight_limit-pouch->carrying) / w < (sint32) n)
+						{
+							n = (pouch->weight_limit-pouch->carrying) / w;
+						}
+
+						tmp = get_object();
+						copy_object(&at->clone, tmp);
+						tmp->nrof = n;
+						value -= tmp->nrof * tmp->value;
+						tmp = insert_ob_in_ob(tmp, pouch);
+						esrv_send_item(pl, tmp);
+						esrv_send_item(pl, pouch);
+						esrv_update_item(UPD_WEIGHT, pl, pouch);
+						esrv_send_item(pl, pl);
+						esrv_update_item(UPD_WEIGHT, pl, pl);
+					}
+				}
+			}
+
+			if (value / at->clone.value > 0)
+			{
+				tmp = get_object();
+				copy_object(&at->clone, tmp);
+				tmp->nrof = (uint32) (value / tmp->value);
+				value -= tmp->nrof * tmp->value;
+				tmp = insert_ob_in_ob(tmp, pl);
+				esrv_send_item(pl, tmp);
+				esrv_send_item(pl, pl);
+				esrv_update_item(UPD_WEIGHT, pl, pl);
+			}
+		}
+	}
+
+	return value;
 }

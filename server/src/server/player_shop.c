@@ -537,7 +537,6 @@ void player_shop_buy(char *data, player *pl)
 	{
 		new_draw_info_format(NDI_UNIQUE, pl->ob, "You are too far away from %s.", seller->ob->name);
 		player_shop_close_interface(pl);
-
 		return;
 	}
 
@@ -552,9 +551,8 @@ void player_shop_buy(char *data, player *pl)
 		/* Found it */
 		if (shop_item_tmp->item_object->count == count)
 		{
-			int to_pay, count;
-			archetype *at;
-			object *pouch, *tmp;
+			sint64 to_pay;
+			object *tmp;
 
 			if (nrof > shop_item_tmp->nrof)
 			{
@@ -569,63 +567,7 @@ void player_shop_buy(char *data, player *pl)
 				return;
 			}
 
-			for (count = 0; coins[count] != NULL; count++)
-			{
-				at = find_archetype(coins[count]);
-
-				if (at == NULL)
-				{
-					LOG(llevBug, "BUG: Could not find %s archetype", coins[count]);
-				}
-				else if ((to_pay / at->clone.value) > 0)
-				{
-					for (pouch = seller->ob->inv; pouch; pouch = pouch->below)
-					{
-						if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold"))
-						{
-							int w = (int) ((float) at->clone.weight * pouch->weapon_speed);
-							int n = to_pay / at->clone.value;
-
-							/* Prevent division by zero */
-							if (w == 0)
-							{
-								w = 1;
-							}
-
-							if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (sint32) pouch->weight_limit))
-							{
-								if (pouch->weight_limit && ((sint32) pouch->weight_limit-pouch->carrying) / w < n)
-								{
-									n = (pouch->weight_limit-pouch->carrying) / w;
-								}
-
-								tmp = get_object();
-								copy_object(&at->clone, tmp);
-								tmp->nrof = n;
-								to_pay -= tmp->nrof * tmp->value;
-								tmp = insert_ob_in_ob(tmp, pouch);
-								esrv_send_item(seller->ob, tmp);
-								esrv_send_item(seller->ob, pouch);
-								esrv_update_item(UPD_WEIGHT, seller->ob, pouch);
-								esrv_send_item(seller->ob, seller->ob);
-								esrv_update_item(UPD_WEIGHT, seller->ob, seller->ob);
-							}
-						}
-					}
-
-					if (to_pay / at->clone.value > 0)
-					{
-						tmp = get_object();
-						copy_object(&at->clone, tmp);
-						tmp->nrof = to_pay / tmp->value;
-						to_pay -= tmp->nrof * tmp->value;
-						tmp = insert_ob_in_ob(tmp, seller->ob);
-						esrv_send_item(seller->ob, tmp);
-						esrv_send_item(seller->ob, seller->ob);
-						esrv_update_item(UPD_WEIGHT, seller->ob, seller->ob);
-					}
-				}
-			}
+			insert_coins(seller->ob, to_pay);
 
 			tmp = shop_item_tmp->item_object;
 

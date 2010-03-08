@@ -332,6 +332,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount);
 void insert_money_in_player(object *pl, object *money, uint32 nrof);
 int bank_deposit(object *op, object *bank, char *text);
 int bank_withdraw(object *op, object *bank, char *text);
+sint64 insert_coins(object *pl, sint64 value);
 
 /* skills.c */
 int find_traps(object *pl, int level);
