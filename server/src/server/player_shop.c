@@ -649,7 +649,7 @@ void player_shop_buy(char *data, player *pl)
 			}
 			else
 			{
-				tmp->nrof -= nrof;
+				shop_item_tmp->nrof -= nrof;
 			}
 
 			break;
