@@ -660,6 +660,7 @@ int shop_put_item(int x, int y)
 
 		draggingInvItem(DRAG_NONE);
 		itemExamined = 0;
+		shop_gui->current_cursor_pos = 0;
 
 		return 1;
 	}
