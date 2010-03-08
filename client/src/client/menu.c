@@ -353,7 +353,14 @@ int client_command_check(char *cmd)
 	}
 	else if (!strncmp(cmd, "/shop", 5))
 	{
-		initialize_shop(SHOP_STATE_NONE);
+		if (!shop_gui)
+		{
+			initialize_shop(SHOP_STATE_NONE);
+		}
+		else
+		{
+			draw_info("You must close the shop window before trying to set up another shop.", COLOR_RED);
+		}
 
 		return 1;
 	}

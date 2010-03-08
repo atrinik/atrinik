@@ -261,7 +261,7 @@ void player_shop_open(char *data, player *pl)
 	char *p;
 
 	/* Sanity check */
-	if (!data)
+	if (!data || QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
 	{
 		return;
 	}
@@ -314,7 +314,6 @@ void player_shop_open(char *data, player *pl)
 		if (IS_SYS_INVISIBLE(item_object) || QUERY_FLAG(item_object, FLAG_UNPAID) || QUERY_FLAG(item_object, FLAG_STARTEQUIP) || item_object->type == MONEY)
 		{
 			new_draw_info_format(NDI_UNIQUE, pl->ob, "The %s is not allowed to be sold in a player shop.", query_name(item_object, NULL));
-
 			player_shop_free_structure(pl, 1);
 			return;
 		}
@@ -367,7 +366,6 @@ void player_shop_open(char *data, player *pl)
 
 	/* Mark this player as having an open shop interface */
 	SET_FLAG(pl->ob, FLAG_PLAYER_SHOP);
-
 	generate_ext_title(pl);
 }
 
@@ -385,7 +383,6 @@ void player_shop_close(player *pl)
 	if (pl->shop_items)
 	{
 		player_shop_free_structure(pl, 0);
-
 		generate_ext_title(pl);
 	}
 }
