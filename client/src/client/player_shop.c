@@ -247,7 +247,7 @@ void widget_show_shop(int x, int y)
 				}
 			}
 
-			blt_inv_item(shop_item, x + item_x, y + item_y, shop_item_tmp->nrof);
+			blt_inv_item(shop_item, x + item_x, y + item_y, shop_gui->shop_state == SHOP_STATE_NONE ? shop_item_tmp->nrof : shop_item->nrof);
 
 			/* Adjust the item X position */
 			item_x += 32;
