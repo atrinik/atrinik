@@ -548,7 +548,7 @@ static void balanced_stat_loss_false()
 	settings.balanced_stat_loss = 0;
 }
 
-/** @cond */
+/** @endcond */
 
 /** One command line option definition. */
 struct Command_Line_Options
