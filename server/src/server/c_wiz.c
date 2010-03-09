@@ -1246,6 +1246,7 @@ int command_resetmap(object *op, char *params)
 				/* No walk off check */
 				remove_ob(pl->ob);
 				pl->dm_removed_from_map = 1;
+				pl->ob->map = NULL;
 			}
 			else
 			{
