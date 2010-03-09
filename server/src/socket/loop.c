@@ -323,7 +323,10 @@ void remove_ns_dead_player(player *pl)
 	/* Trigger the global LOGOUT event */
 	trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
 
-	new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+	if (!pl->dm_stealth)
+	{
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+	}
 
 	/* If this player is in a party, leave the party */
 	if (pl->party)
