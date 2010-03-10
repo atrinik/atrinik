@@ -27,7 +27,7 @@ reference. It's best to include them here so that we know when
 they should be updated, and it makes it easier to find out
 whether or not specific versions are compatible with each other.
 
-SDL:       1.2.14
+SDL:       1.2.14 (with patch r4990 reverted)
 SDL_image: 1.2.10
 SDL_mixer: 1.2.11
 zlib:      1.2.3
