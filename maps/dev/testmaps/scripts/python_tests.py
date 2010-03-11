@@ -221,5 +221,10 @@ elif msg == "compare":
 		me.SayTo(activator, "%s %s %s" % (activator.name, activator == obj and "==" or "!=", obj.name), 1)
 		obj = obj.above
 
+	me.SayTo(activator, "\nComparing some maps...\n", 1)
+	me.SayTo(activator, "%s %s %s" % (activator.map.path, activator.map == me.map and "==" or "!=", me.map.path), 1)
+	emergency_map = ReadyMap("/emergency")
+	me.SayTo(activator, "%s %s %s" % (activator.map.path, activator.map == emergency_map and "==" or "!=", emergency_map.path), 1)
+
 else:
 	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^")
