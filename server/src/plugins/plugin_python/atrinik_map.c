@@ -390,8 +390,6 @@ static PyMethodDef MapMethods[] =
 
 static int Atrinik_Map_InternalCompare(Atrinik_Map *left, Atrinik_Map *right)
 {
-	MAPEXISTCHECK_INT(left);
-	MAPEXISTCHECK_INT(right);
 	return left->map < right->map ? -1 : (left->map == right->map ? 0 : 1);
 }
 
@@ -406,12 +404,6 @@ static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, 
 	}
 
 	result = Atrinik_Map_InternalCompare(left, right);
-
-	/* Handle removed maps. */
-	if (result == -1 && PyErr_Occurred())
-	{
-		return NULL;
-	}
 
 	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
 	switch (op)
