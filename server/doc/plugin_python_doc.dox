@@ -512,6 +512,8 @@ List of the map fields and their meaning:
 - <b>darkness</b>: (integer) @copydoc mapstruct::darkness
 - <b>path</b>: (string) @copydoc mapstruct::path
 - <b>enter_x</b>: (integer) @copydoc mapstruct::enter_x
+- <b>enter_y</b>: (integer) @copydoc mapstruct::enter_y
+- <b>region</b>: (region) @copydoc mapstruct::region
 @page plugin_python_map_flags Python map flags
 List of the map flags and their meaning:
 
@@ -586,4 +588,16 @@ List of the general Python constants and their meaning:
 - <b>EVENT_REMOVE</b>: @copydoc EVENT_REMOVE
 - <b>EVENT_SHOUT</b>: @copydoc EVENT_SHOUT
 - <b>EVENT_TELL</b>: @copydoc EVENT_TELL
+@page plugin_python_region_fields Python region fields
+List of the region fields and their meaning:
+
+- <b>next</b>: (region) @copydoc region::next
+- <b>parent</b>: (region) @copydoc region::parent
+- <b>name</b>: (string) @copydoc region::name
+- <b>parent_name</b>: (string) @copydoc region::parent_name
+- <b>longname</b>: (string) @copydoc region::longname
+- <b>msg</b>: (string) @copydoc region::msg
+- <b>jailmap</b>: (string) @copydoc region::jailmap
+- <b>jailx</b>: (integer) @copydoc region::jailx
+- <b>jaily</b>: (integer) @copydoc region::jaily
 */

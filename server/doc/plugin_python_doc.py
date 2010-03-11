@@ -21,6 +21,8 @@ def fieldtype_to_string(fieldtype):
 		return "float"
 	elif fieldtype == "FIELDTYPE_MAP":
 		return "map"
+	elif fieldtype == "FIELDTYPE_REGION":
+		return "region"
 
 	return "unknown"
 
@@ -175,7 +177,7 @@ for line in fp:
 	elif in_fields:
 		parts = line.split(",")
 
-		if len(parts) < 5:
+		if len(parts) < 4:
 			continue
 
 		field_name = parts[0].strip()[2:-1]
@@ -311,6 +313,32 @@ for line in fp:
 			doc_fp.write("%s" % constant_value)
 		else:
 			doc_fp.write("@copydoc %s" % constant_value)
+
+fp.close()
+
+# Documentation for region
+fp = open(code_dir + "/atrinik_region.c", "r")
+
+in_fields = False
+
+for line in fp:
+	if line == "region_fields_struct region_fields[] =\n":
+		in_fields = True
+		doc_fp.write("\n@page plugin_python_region_fields Python region fields\nList of the region fields and their meaning:\n")
+	elif line == "};\n":
+		in_fields = False
+	elif in_fields:
+		parts = line.split(",")
+
+		if len(parts) < 5:
+			continue
+
+		field_name = parts[0].strip()[2:-1]
+		field_type = parts[1].strip()
+		field_offset = parts[2].strip()[9:]
+		field_offset2 = parts[3].strip()[:-2]
+
+		doc_fp.write("\n- <b>%s</b>: (%s) @copydoc %s::%s" % (field_name, fieldtype_to_string(field_type), field_offset, field_offset2))
 
 fp.close()
 

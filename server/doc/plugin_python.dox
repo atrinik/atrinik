@@ -44,4 +44,10 @@ a party.
 
 @see plugin_python_party_functions, @ref plugin_python_party_constants, @ref plugin_python_party_fields
 
+@section sec_plugin_python_atrinik_region Atrinik Region Python plugin functions
+
+Provides an interface to get information about map's region.
+
+@see @ref plugin_python_region_fields
+
 */
