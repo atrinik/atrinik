@@ -33,7 +33,8 @@ SRCS = \
 	plugin_python.c \
 	atrinik_map.c \
 	atrinik_party.c \
-	atrinik_object.c
+	atrinik_object.c \
+	atrinik_region.c
 
 OBJECTS = $(SRCS:.c=.o)
 INCLUDE = -I./include -I../../include -I../common/include @PY_INCLUDES@

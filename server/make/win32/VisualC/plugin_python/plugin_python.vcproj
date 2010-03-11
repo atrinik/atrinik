@@ -365,6 +365,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_region.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\plugins\plugin_python\plugin_python.c"
 				>
 			</File>

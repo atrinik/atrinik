@@ -53,6 +53,9 @@
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_party.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_region.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">
 			<Option compilerVar="CC" />
 		</Unit>
