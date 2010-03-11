@@ -287,4 +287,13 @@ typedef struct PythonCmdStruct
 	} \
 }
 
+#define MAPEXISTCHECK_INT(map) \
+{ \
+	if (!map) \
+	{ \
+		PyErr_SetString(PyExc_ReferenceError, "Atrinik map no longer exists"); \
+		return -1; \
+	} \
+}
+
 #endif

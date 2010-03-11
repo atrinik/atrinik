@@ -388,6 +388,57 @@ static PyMethodDef MapMethods[] =
 	{NULL, NULL, 0, 0}
 };
 
+static int Atrinik_Map_InternalCompare(Atrinik_Map *left, Atrinik_Map *right)
+{
+	MAPEXISTCHECK_INT(left);
+	MAPEXISTCHECK_INT(right);
+	return left->map < right->map ? -1 : (left->map == right->map ? 0 : 1);
+}
+
+static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, int op)
+{
+	int result;
+
+	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_MapType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_MapType))
+	{
+		Py_INCREF(Py_NotImplemented);
+		return Py_NotImplemented;
+	}
+
+	result = Atrinik_Map_InternalCompare(left, right);
+
+	/* Handle removed maps. */
+	if (result == -1 && PyErr_Occurred())
+	{
+		return NULL;
+	}
+
+	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
+	switch (op)
+	{
+		case Py_EQ:
+			result = (result == 0);
+			break;
+		case Py_NE:
+			result = (result != 0);
+			break;
+		case Py_LE:
+			result = (result <= 0);
+			break;
+		case Py_GE:
+			result = (result >= 0);
+			break;
+		case Py_LT:
+			result = (result == -1);
+			break;
+		case Py_GT:
+			result = (result == 1);
+			break;
+	}
+
+	return PyBool_FromLong(result);
+}
+
 /** This is filled in when we initialize our map type. */
 static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
 
@@ -404,12 +455,20 @@ PyTypeObject Atrinik_MapType =
 	sizeof(Atrinik_Map),
 	0,
 	(destructor) Atrinik_Map_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	NULL, NULL, NULL,
+#ifdef IS_PY3K
+	NULL,
+#else
+	(cmpfunc) Atrinik_Map_InternalCompare,
+#endif
+	0, 0, 0, 0, 0, 0,
 	(reprfunc) Atrinik_Map_str,
 	0, 0, 0,
 	Py_TPFLAGS_DEFAULT,
 	"Atrinik maps",
-	0, 0, 0, 0, 0, 0,
+	NULL, NULL,
+	(richcmpfunc) Atrinik_Map_RichCompare,
+	0, 0, 0,
 	MapMethods,
 	0,
 	Map_getseters,
