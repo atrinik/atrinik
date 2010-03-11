@@ -232,6 +232,7 @@ struct plugin_hooklist
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, int, int, int);
 	void (*new_draw_info_format)(int, object *, char *, ...);
+	int (*was_destroyed)(object *, tag_t);
 
 	const char **season_name;
 	const char **weekdays;
