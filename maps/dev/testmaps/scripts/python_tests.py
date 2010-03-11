@@ -226,5 +226,14 @@ elif msg == "compare":
 	emergency_map = ReadyMap("/emergency")
 	me.SayTo(activator, "%s %s %s" % (activator.map.path, activator.map == emergency_map and "==" or "!=", emergency_map.path), 1)
 
+	me.SayTo(activator, "\nComparing some parties...\n", 1)
+	party1 = activator.GetParty()
+	party2 = activator.GetParty()
+
+	if not party1:
+		me.SayTo(activator, "You need to join a party to run this test.", 1)
+	else:
+		me.SayTo(activator, "%s %s %s" % (party1.name, party1 == party2 and "==" or "!=", party2.name), 1)
+
 else:
 	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^")
