@@ -235,5 +235,15 @@ elif msg == "compare":
 	else:
 		me.SayTo(activator, "%s %s %s" % (party1.name, party1 == party2 and "==" or "!=", party2.name), 1)
 
+	me.SayTo(activator, "\nComparing some regions...\n", 1)
+	map = ReadyMap("/hall_of_dms")
+	region1 = map.region
+	region2 = map.region
+	me.SayTo(activator, "%s %s %s" % (region1.name, region1 == region2 and "==" or "!=", region2.name), 1)
+
+elif msg == "region":
+	map = ReadyMap("/hall_of_dms")
+	me.SayTo(activator, "\nMap '%s' is in region '%s' with message:\n%s" % (map.path, map.region.name, map.region.msg))
+
 else:
-	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^")
+	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^")
