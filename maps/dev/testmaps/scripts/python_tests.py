@@ -211,5 +211,15 @@ elif msg == "timer":
 		me.CreateTimer(5, 1)
 		me.SayTo(activator, "\nOK! Will tell you when 5 seconds pass.")
 
+elif msg == "compare":
+	me.SayTo(activator, "\nComparing some objects...\n")
+	me.SayTo(activator, "%s %s %s" % (activator.name, activator == me and "==" or "!=", me.name), 1)
+
+	obj = activator.map.GetFirstObjectOnSquare(activator.x, activator.y)
+
+	while obj:
+		me.SayTo(activator, "%s %s %s" % (activator.name, activator == obj and "==" or "!=", obj.name), 1)
+		obj = obj.above
+
 else:
-	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^")
+	me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^rank^, ^alignment^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^")
