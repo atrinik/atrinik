@@ -49,7 +49,6 @@ region_fields_struct region_fields[] =
 	{"next",            FIELDTYPE_REGION,     offsetof(region, next)},
 	{"parent",          FIELDTYPE_REGION,     offsetof(region, parent)},
 	{"name",            FIELDTYPE_CSTR,       offsetof(region, name)},
-	{"parent_name",     FIELDTYPE_CSTR,       offsetof(region, parent_name)},
 	{"longname",        FIELDTYPE_CSTR,       offsetof(region, longname)},
 	{"msg",             FIELDTYPE_CSTR,       offsetof(region, msg)},
 	{"jailmap",         FIELDTYPE_CSTR,       offsetof(region, jailmap)},
