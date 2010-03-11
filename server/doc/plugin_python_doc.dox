@@ -1,5 +1,53 @@
 /**
 
+@page plugin_python_map_fields Python map fields
+List of the map fields and their meaning:
+
+- <b>name</b>: (string) @copydoc mapstruct::name
+- <b>message</b>: (string) @copydoc mapstruct::msg
+- <b>reset_interval</b>: (integer) @copydoc mapstruct::reset_timeout
+- <b>difficulty</b>: (integer) @copydoc mapstruct::difficulty
+- <b>height</b>: (integer) @copydoc mapstruct::height
+- <b>width</b>: (integer) @copydoc mapstruct::width
+- <b>darkness</b>: (integer) @copydoc mapstruct::darkness
+- <b>path</b>: (string) @copydoc mapstruct::path
+- <b>enter_x</b>: (integer) @copydoc mapstruct::enter_x
+- <b>enter_y</b>: (integer) @copydoc mapstruct::enter_y
+- <b>region</b>: (region) @copydoc mapstruct::region
+@page plugin_python_map_flags Python map flags
+List of the map flags and their meaning:
+
+- <b>f_outdoor</b>: @copydoc MAP_FLAG_OUTDOOR
+- <b>f_unique</b>: @copydoc MAP_FLAG_UNIQUE
+- <b>f_fixed_rtime</b>: @copydoc MAP_FLAG_FIXED_RTIME
+- <b>f_nomagic</b>: @copydoc MAP_FLAG_NOMAGIC
+- <b>f_nopriest</b>: @copydoc MAP_FLAG_NOPRIEST
+- <b>f_noharm</b>: @copydoc MAP_FLAG_NOHARM
+- <b>f_nosummon</b>: @copydoc MAP_FLAG_NOSUMMON
+- <b>f_fixed_login</b>: @copydoc MAP_FLAG_FIXED_LOGIN
+- <b>f_permdeath</b>: @copydoc MAP_FLAG_PERMDEATH
+- <b>f_ultradeath</b>: @copydoc MAP_FLAG_ULTRADEATH
+- <b>f_ultimatedeath</b>: @copydoc MAP_FLAG_ULTIMATEDEATH
+- <b>f_pvp</b>: @copydoc MAP_FLAG_PVP
+- <b>f_no_save</b>: @copydoc MAP_FLAG_NO_SAVE
+- <b>f_plugins</b>: @copydoc MAP_FLAG_PLUGINS
+@page plugin_python_map_constants Python map constants
+List of the map constants and their meaning:
+
+- <b>COST_TRUE</b>: @copydoc F_TRUE
+- <b>COST_BUY</b>: @copydoc F_BUY
+- <b>COST_SELL</b>: @copydoc F_SELL
+@page plugin_python_region_fields Python region fields
+List of the region fields and their meaning:
+
+- <b>next</b>: (region) @copydoc region::next
+- <b>parent</b>: (region) @copydoc region::parent
+- <b>name</b>: (string) @copydoc region::name
+- <b>longname</b>: (string) @copydoc region::longname
+- <b>msg</b>: (string) @copydoc region::msg
+- <b>jailmap</b>: (string) @copydoc region::jailmap
+- <b>jailx</b>: (integer) @copydoc region::jailx
+- <b>jaily</b>: (integer) @copydoc region::jaily
 @page plugin_python_object_fields Python object fields
 List of the object fields and their meaning:
 
@@ -288,135 +336,135 @@ List of the object constants and their meaning:
 - <b>QUEST_TYPE_KILL</b>: @copydoc QUEST_TYPE_KILL
 - <b>QUEST_TYPE_KILL_ITEM</b>: @copydoc QUEST_TYPE_KILL_ITEM
 - <b>QUEST_STATUS_COMPLETED</b>: @copydoc QUEST_STATUS_COMPLETED
-- <b>TYPE_PLAYER</b>: Player
-- <b>TYPE_BULLET</b>: Bullet
-- <b>TYPE_ROD</b>: Rod
-- <b>TYPE_TREASURE</b>: Treasure
-- <b>TYPE_POTION</b>: Potion
-- <b>TYPE_FOOD</b>: Food
-- <b>TYPE_POISON</b>: Poison
-- <b>TYPE_BOOK</b>: Book
-- <b>TYPE_CLOCK</b>: Clock
-- <b>TYPE_FBULLET</b>: Fbullet
-- <b>TYPE_FBALL</b>: Fball
-- <b>TYPE_LIGHTNING</b>: Lightning
-- <b>TYPE_ARROW</b>: Arrow
-- <b>TYPE_BOW</b>: Bow
-- <b>TYPE_WEAPON</b>: Weapon
-- <b>TYPE_ARMOUR</b>: Armour
-- <b>TYPE_PEDESTAL</b>: Pedestal
-- <b>TYPE_ALTAR</b>: Altar
-- <b>TYPE_CONFUSION</b>: Confusion
-- <b>TYPE_LOCKED_DOOR</b>: Locked Door
-- <b>TYPE_SPECIAL_KEY</b>: Special Key
-- <b>TYPE_MAP</b>: Map
-- <b>TYPE_DOOR</b>: Door
-- <b>TYPE_KEY</b>: Key
-- <b>TYPE_MMISSILE</b>: Mmissile
-- <b>TYPE_TIMED_GATE</b>: Timed Gate
-- <b>TYPE_TRIGGER</b>: Trigger
-- <b>TYPE_GRIMREAPER</b>: Grimreaper
-- <b>TYPE_MAGIC_EAR</b>: Magic Ear
-- <b>TYPE_TRIGGER_BUTTON</b>: Trigger Button
-- <b>TYPE_TRIGGER_ALTAR</b>: Trigger Altar
-- <b>TYPE_TRIGGER_PEDESTAL</b>: Trigger Pedestal
-- <b>TYPE_SHIELD</b>: Shield
-- <b>TYPE_HELMET</b>: Helmet
-- <b>TYPE_HORN</b>: Horn
-- <b>TYPE_MONEY</b>: Money
-- <b>TYPE_CLASS</b>: Class
-- <b>TYPE_GRAVESTONE</b>: Gravestone
-- <b>TYPE_AMULET</b>: Amulet
-- <b>TYPE_PLAYERMOVER</b>: Playermover
-- <b>TYPE_TELEPORTER</b>: Teleporter
-- <b>TYPE_CREATOR</b>: Creator
-- <b>TYPE_SKILL</b>: Skill
-- <b>TYPE_EXPERIENCE</b>: Experience
-- <b>TYPE_EARTHWALL</b>: Earthwall
-- <b>TYPE_GOLEM</b>: Golem
-- <b>TYPE_BOMB</b>: Bomb
-- <b>TYPE_THROWN_OBJ</b>: Thrown Obj
-- <b>TYPE_BLINDNESS</b>: Blindness
-- <b>TYPE_GOD</b>: God
-- <b>TYPE_DETECTOR</b>: Detector
-- <b>TYPE_DEAD_OBJECT</b>: Dead Object
-- <b>TYPE_DRINK</b>: Drink
-- <b>TYPE_MARKER</b>: Marker
-- <b>TYPE_HOLY_ALTAR</b>: Holy Altar
-- <b>TYPE_PLAYER_CHANGER</b>: Player Changer
-- <b>TYPE_PEARL</b>: Pearl
-- <b>TYPE_GEM</b>: Gem
-- <b>TYPE_FIRECHEST</b>: Firechest
-- <b>TYPE_FIREWALL</b>: Firewall
-- <b>TYPE_CHECK_INV</b>: Check Inv
-- <b>TYPE_MOOD_FLOOR</b>: Mood Floor
-- <b>TYPE_EXIT</b>: Exit
-- <b>TYPE_SHOP_FLOOR</b>: Shop Floor
-- <b>TYPE_SHOP_MAT</b>: Shop Mat
-- <b>TYPE_RING</b>: Ring
-- <b>TYPE_FLOOR</b>: Floor
-- <b>TYPE_FLESH</b>: Flesh
-- <b>TYPE_INORGANIC</b>: Inorganic
-- <b>TYPE_LIGHT_APPLY</b>: Light Apply
-- <b>TYPE_LIGHTER</b>: Lighter
-- <b>TYPE_WALL</b>: Wall
-- <b>TYPE_LIGHT_SOURCE</b>: Light Source
-- <b>TYPE_MISC_OBJECT</b>: Misc Object
-- <b>TYPE_MONSTER</b>: Monster
-- <b>TYPE_SPAWN_POINT</b>: Spawn Point
-- <b>TYPE_LIGHT_REFILL</b>: Light Refill
-- <b>TYPE_SPAWN_POINT_MOB</b>: Spawn Point Mob
-- <b>TYPE_SPAWN_POINT_INFO</b>: Spawn Point Info
-- <b>TYPE_SPELLBOOK</b>: Spellbook
-- <b>TYPE_ORGANIC</b>: Organic
-- <b>TYPE_CLOAK</b>: Cloak
-- <b>TYPE_CONE</b>: Cone
-- <b>TYPE_AURA</b>: Aura
-- <b>TYPE_SPINNER</b>: Spinner
-- <b>TYPE_GATE</b>: Gate
-- <b>TYPE_BUTTON</b>: Button
-- <b>TYPE_HANDLE</b>: Handle
-- <b>TYPE_PIT</b>: Pit
-- <b>TYPE_TRAPDOOR</b>: Trapdoor
-- <b>TYPE_WORD_OF_RECALL</b>: Word Of Recall
-- <b>TYPE_SIGN</b>: Sign
-- <b>TYPE_BOOTS</b>: Boots
-- <b>TYPE_GLOVES</b>: Gloves
-- <b>TYPE_BASE_INFO</b>: Base Info
-- <b>TYPE_RANDOM_DROP</b>: Random Drop
-- <b>TYPE_CONVERTER</b>: Converter
-- <b>TYPE_BRACERS</b>: Bracers
-- <b>TYPE_POISONING</b>: Poisoning
-- <b>TYPE_SAVEBED</b>: Savebed
-- <b>TYPE_POISONCLOUD</b>: Poisoncloud
-- <b>TYPE_WAND</b>: Wand
-- <b>TYPE_ABILITY</b>: Ability
-- <b>TYPE_SCROLL</b>: Scroll
-- <b>TYPE_DIRECTOR</b>: Director
-- <b>TYPE_GIRDLE</b>: Girdle
-- <b>TYPE_FORCE</b>: Force
-- <b>TYPE_POTION_EFFECT</b>: Potion Effect
-- <b>TYPE_JEWEL</b>: Jewel
-- <b>TYPE_NUGGET</b>: Nugget
-- <b>TYPE_EVENT_OBJECT</b>: Event Object
-- <b>TYPE_WAYPOINT_OBJECT</b>: Waypoint Object
-- <b>TYPE_QUEST_CONTAINER</b>: Quest Container
-- <b>TYPE_CLOSE_CON</b>: Close Con
-- <b>TYPE_CONTAINER</b>: Container
-- <b>TYPE_ARMOUR_IMPROVER</b>: Armour Improver
-- <b>TYPE_WEAPON_IMPROVER</b>: Weapon Improver
-- <b>TYPE_WEALTH</b>: Wealth
-- <b>TYPE_SKILLSCROLL</b>: Skillscroll
-- <b>TYPE_DEEP_SWAMP</b>: Deep Swamp
-- <b>TYPE_IDENTIFY_ALTAR</b>: Identify Altar
-- <b>TYPE_CANCELLATION</b>: Cancellation
-- <b>TYPE_BALL_LIGHTNING</b>: Ball Lightning
-- <b>TYPE_SWARM_SPELL</b>: Swarm Spell
-- <b>TYPE_RUNE</b>: Rune
-- <b>TYPE_POWER_CRYSTAL</b>: Power Crystal
-- <b>TYPE_CORPSE</b>: Corpse
-- <b>TYPE_DISEASE</b>: Disease
-- <b>TYPE_SYMPTOM</b>: Symptom
+- <b>TYPE_PLAYER</b>: @ref PLAYER "Player"
+- <b>TYPE_BULLET</b>: @ref BULLET "Bullet"
+- <b>TYPE_ROD</b>: @ref ROD "Rod"
+- <b>TYPE_TREASURE</b>: @ref TREASURE "Treasure"
+- <b>TYPE_POTION</b>: @ref POTION "Potion"
+- <b>TYPE_FOOD</b>: @ref FOOD "Food"
+- <b>TYPE_POISON</b>: @ref POISON "Poison"
+- <b>TYPE_BOOK</b>: @ref BOOK "Book"
+- <b>TYPE_CLOCK</b>: @ref CLOCK "Clock"
+- <b>TYPE_FBULLET</b>: @ref FBULLET "Fbullet"
+- <b>TYPE_FBALL</b>: @ref FBALL "Fball"
+- <b>TYPE_LIGHTNING</b>: @ref LIGHTNING "Lightning"
+- <b>TYPE_ARROW</b>: @ref ARROW "Arrow"
+- <b>TYPE_BOW</b>: @ref BOW "Bow"
+- <b>TYPE_WEAPON</b>: @ref WEAPON "Weapon"
+- <b>TYPE_ARMOUR</b>: @ref ARMOUR "Armour"
+- <b>TYPE_PEDESTAL</b>: @ref PEDESTAL "Pedestal"
+- <b>TYPE_ALTAR</b>: @ref ALTAR "Altar"
+- <b>TYPE_CONFUSION</b>: @ref CONFUSION "Confusion"
+- <b>TYPE_LOCKED_DOOR</b>: @ref LOCKED_DOOR "Locked Door"
+- <b>TYPE_SPECIAL_KEY</b>: @ref SPECIAL_KEY "Special Key"
+- <b>TYPE_MAP</b>: @ref MAP "Map"
+- <b>TYPE_DOOR</b>: @ref DOOR "Door"
+- <b>TYPE_KEY</b>: @ref KEY "Key"
+- <b>TYPE_MMISSILE</b>: @ref MMISSILE "Mmissile"
+- <b>TYPE_TIMED_GATE</b>: @ref TIMED_GATE "Timed Gate"
+- <b>TYPE_TRIGGER</b>: @ref TRIGGER "Trigger"
+- <b>TYPE_GRIMREAPER</b>: @ref GRIMREAPER "Grimreaper"
+- <b>TYPE_MAGIC_EAR</b>: @ref MAGIC_EAR "Magic Ear"
+- <b>TYPE_TRIGGER_BUTTON</b>: @ref TRIGGER_BUTTON "Trigger Button"
+- <b>TYPE_TRIGGER_ALTAR</b>: @ref TRIGGER_ALTAR "Trigger Altar"
+- <b>TYPE_TRIGGER_PEDESTAL</b>: @ref TRIGGER_PEDESTAL "Trigger Pedestal"
+- <b>TYPE_SHIELD</b>: @ref SHIELD "Shield"
+- <b>TYPE_HELMET</b>: @ref HELMET "Helmet"
+- <b>TYPE_HORN</b>: @ref HORN "Horn"
+- <b>TYPE_MONEY</b>: @ref MONEY "Money"
+- <b>TYPE_CLASS</b>: @ref CLASS "Class"
+- <b>TYPE_GRAVESTONE</b>: @ref GRAVESTONE "Gravestone"
+- <b>TYPE_AMULET</b>: @ref AMULET "Amulet"
+- <b>TYPE_PLAYERMOVER</b>: @ref PLAYERMOVER "Playermover"
+- <b>TYPE_TELEPORTER</b>: @ref TELEPORTER "Teleporter"
+- <b>TYPE_CREATOR</b>: @ref CREATOR "Creator"
+- <b>TYPE_SKILL</b>: @ref SKILL "Skill"
+- <b>TYPE_EXPERIENCE</b>: @ref EXPERIENCE "Experience"
+- <b>TYPE_EARTHWALL</b>: @ref EARTHWALL "Earthwall"
+- <b>TYPE_GOLEM</b>: @ref GOLEM "Golem"
+- <b>TYPE_BOMB</b>: @ref BOMB "Bomb"
+- <b>TYPE_THROWN_OBJ</b>: @ref THROWN_OBJ "Thrown Obj"
+- <b>TYPE_BLINDNESS</b>: @ref BLINDNESS "Blindness"
+- <b>TYPE_GOD</b>: @ref GOD "God"
+- <b>TYPE_DETECTOR</b>: @ref DETECTOR "Detector"
+- <b>TYPE_DEAD_OBJECT</b>: @ref DEAD_OBJECT "Dead Object"
+- <b>TYPE_DRINK</b>: @ref DRINK "Drink"
+- <b>TYPE_MARKER</b>: @ref MARKER "Marker"
+- <b>TYPE_HOLY_ALTAR</b>: @ref HOLY_ALTAR "Holy Altar"
+- <b>TYPE_PLAYER_CHANGER</b>: @ref PLAYER_CHANGER "Player Changer"
+- <b>TYPE_PEARL</b>: @ref PEARL "Pearl"
+- <b>TYPE_GEM</b>: @ref GEM "Gem"
+- <b>TYPE_FIRECHEST</b>: @ref FIRECHEST "Firechest"
+- <b>TYPE_FIREWALL</b>: @ref FIREWALL "Firewall"
+- <b>TYPE_CHECK_INV</b>: @ref CHECK_INV "Check Inv"
+- <b>TYPE_MOOD_FLOOR</b>: @ref MOOD_FLOOR "Mood Floor"
+- <b>TYPE_EXIT</b>: @ref EXIT "Exit"
+- <b>TYPE_SHOP_FLOOR</b>: @ref SHOP_FLOOR "Shop Floor"
+- <b>TYPE_SHOP_MAT</b>: @ref SHOP_MAT "Shop Mat"
+- <b>TYPE_RING</b>: @ref RING "Ring"
+- <b>TYPE_FLOOR</b>: @ref FLOOR "Floor"
+- <b>TYPE_FLESH</b>: @ref FLESH "Flesh"
+- <b>TYPE_INORGANIC</b>: @ref INORGANIC "Inorganic"
+- <b>TYPE_LIGHT_APPLY</b>: @ref LIGHT_APPLY "Light Apply"
+- <b>TYPE_LIGHTER</b>: @ref LIGHTER "Lighter"
+- <b>TYPE_WALL</b>: @ref WALL "Wall"
+- <b>TYPE_LIGHT_SOURCE</b>: @ref LIGHT_SOURCE "Light Source"
+- <b>TYPE_MISC_OBJECT</b>: @ref MISC_OBJECT "Misc Object"
+- <b>TYPE_MONSTER</b>: @ref MONSTER "Monster"
+- <b>TYPE_SPAWN_POINT</b>: @ref SPAWN_POINT "Spawn Point"
+- <b>TYPE_LIGHT_REFILL</b>: @ref LIGHT_REFILL "Light Refill"
+- <b>TYPE_SPAWN_POINT_MOB</b>: @ref SPAWN_POINT_MOB "Spawn Point Mob"
+- <b>TYPE_SPAWN_POINT_INFO</b>: @ref SPAWN_POINT_INFO "Spawn Point Info"
+- <b>TYPE_SPELLBOOK</b>: @ref SPELLBOOK "Spellbook"
+- <b>TYPE_ORGANIC</b>: @ref ORGANIC "Organic"
+- <b>TYPE_CLOAK</b>: @ref CLOAK "Cloak"
+- <b>TYPE_CONE</b>: @ref CONE "Cone"
+- <b>TYPE_AURA</b>: @ref AURA "Aura"
+- <b>TYPE_SPINNER</b>: @ref SPINNER "Spinner"
+- <b>TYPE_GATE</b>: @ref GATE "Gate"
+- <b>TYPE_BUTTON</b>: @ref BUTTON "Button"
+- <b>TYPE_HANDLE</b>: @ref HANDLE "Handle"
+- <b>TYPE_PIT</b>: @ref PIT "Pit"
+- <b>TYPE_TRAPDOOR</b>: @ref TRAPDOOR "Trapdoor"
+- <b>TYPE_WORD_OF_RECALL</b>: @ref WORD_OF_RECALL "Word Of Recall"
+- <b>TYPE_SIGN</b>: @ref SIGN "Sign"
+- <b>TYPE_BOOTS</b>: @ref BOOTS "Boots"
+- <b>TYPE_GLOVES</b>: @ref GLOVES "Gloves"
+- <b>TYPE_BASE_INFO</b>: @ref BASE_INFO "Base Info"
+- <b>TYPE_RANDOM_DROP</b>: @ref RANDOM_DROP "Random Drop"
+- <b>TYPE_CONVERTER</b>: @ref CONVERTER "Converter"
+- <b>TYPE_BRACERS</b>: @ref BRACERS "Bracers"
+- <b>TYPE_POISONING</b>: @ref POISONING "Poisoning"
+- <b>TYPE_SAVEBED</b>: @ref SAVEBED "Savebed"
+- <b>TYPE_POISONCLOUD</b>: @ref POISONCLOUD "Poisoncloud"
+- <b>TYPE_WAND</b>: @ref WAND "Wand"
+- <b>TYPE_ABILITY</b>: @ref ABILITY "Ability"
+- <b>TYPE_SCROLL</b>: @ref SCROLL "Scroll"
+- <b>TYPE_DIRECTOR</b>: @ref DIRECTOR "Director"
+- <b>TYPE_GIRDLE</b>: @ref GIRDLE "Girdle"
+- <b>TYPE_FORCE</b>: @ref FORCE "Force"
+- <b>TYPE_POTION_EFFECT</b>: @ref POTION_EFFECT "Potion Effect"
+- <b>TYPE_JEWEL</b>: @ref JEWEL "Jewel"
+- <b>TYPE_NUGGET</b>: @ref NUGGET "Nugget"
+- <b>TYPE_EVENT_OBJECT</b>: @ref EVENT_OBJECT "Event Object"
+- <b>TYPE_WAYPOINT_OBJECT</b>: @ref WAYPOINT_OBJECT "Waypoint Object"
+- <b>TYPE_QUEST_CONTAINER</b>: @ref QUEST_CONTAINER "Quest Container"
+- <b>TYPE_CLOSE_CON</b>: @ref CLOSE_CON "Close Con"
+- <b>TYPE_CONTAINER</b>: @ref CONTAINER "Container"
+- <b>TYPE_ARMOUR_IMPROVER</b>: @ref ARMOUR_IMPROVER "Armour Improver"
+- <b>TYPE_WEAPON_IMPROVER</b>: @ref WEAPON_IMPROVER "Weapon Improver"
+- <b>TYPE_WEALTH</b>: @ref WEALTH "Wealth"
+- <b>TYPE_SKILLSCROLL</b>: @ref SKILLSCROLL "Skillscroll"
+- <b>TYPE_DEEP_SWAMP</b>: @ref DEEP_SWAMP "Deep Swamp"
+- <b>TYPE_IDENTIFY_ALTAR</b>: @ref IDENTIFY_ALTAR "Identify Altar"
+- <b>TYPE_CANCELLATION</b>: @ref CANCELLATION "Cancellation"
+- <b>TYPE_BALL_LIGHTNING</b>: @ref BALL_LIGHTNING "Ball Lightning"
+- <b>TYPE_SWARM_SPELL</b>: @ref SWARM_SPELL "Swarm Spell"
+- <b>TYPE_RUNE</b>: @ref RUNE "Rune"
+- <b>TYPE_POWER_CRYSTAL</b>: @ref POWER_CRYSTAL "Power Crystal"
+- <b>TYPE_CORPSE</b>: @ref CORPSE "Corpse"
+- <b>TYPE_DISEASE</b>: @ref DISEASE "Disease"
+- <b>TYPE_SYMPTOM</b>: @ref SYMPTOM "Symptom"
 - <b>SOUNDTYPE_NORMAL</b>: @copydoc SOUND_NORMAL
 - <b>SOUNDTYPE_SPELL</b>: @copydoc SOUND_SPELL
 - <b>SOUND_LEVEL_UP</b>: @copydoc SOUND_LEVEL_UP
@@ -500,56 +548,8 @@ List of the object constants and their meaning:
 - <b>SOUND_MAGIC_WALL</b>: @copydoc SOUND_MAGIC_WALL
 - <b>SOUND_MAGIC_WALL2</b>: @copydoc SOUND_MAGIC_WALL2
 - <b>SOUND_MAGIC_WOUND</b>: @copydoc SOUND_MAGIC_WOUND
-@page plugin_python_map_fields Python map fields
-List of the map fields and their meaning:
-
-- <b>name</b>: (string) @copydoc mapstruct::name
-- <b>message</b>: (string) @copydoc mapstruct::msg
-- <b>reset_interval</b>: (integer) @copydoc mapstruct::reset_timeout
-- <b>difficulty</b>: (integer) @copydoc mapstruct::difficulty
-- <b>height</b>: (integer) @copydoc mapstruct::height
-- <b>width</b>: (integer) @copydoc mapstruct::width
-- <b>darkness</b>: (integer) @copydoc mapstruct::darkness
-- <b>path</b>: (string) @copydoc mapstruct::path
-- <b>enter_x</b>: (integer) @copydoc mapstruct::enter_x
-- <b>enter_y</b>: (integer) @copydoc mapstruct::enter_y
-- <b>region</b>: (region) @copydoc mapstruct::region
-@page plugin_python_map_flags Python map flags
-List of the map flags and their meaning:
-
-- <b>f_outdoor</b>: @copydoc MAP_FLAG_OUTDOOR
-- <b>f_unique</b>: @copydoc MAP_FLAG_UNIQUE
-- <b>f_fixed_rtime</b>: @copydoc MAP_FLAG_FIXED_RTIME
-- <b>f_nomagic</b>: @copydoc MAP_FLAG_NOMAGIC
-- <b>f_nopriest</b>: @copydoc MAP_FLAG_NOPRIEST
-- <b>f_noharm</b>: @copydoc MAP_FLAG_NOHARM
-- <b>f_nosummon</b>: @copydoc MAP_FLAG_NOSUMMON
-- <b>f_fixed_login</b>: @copydoc MAP_FLAG_FIXED_LOGIN
-- <b>f_permdeath</b>: @copydoc MAP_FLAG_PERMDEATH
-- <b>f_ultradeath</b>: @copydoc MAP_FLAG_ULTRADEATH
-- <b>f_ultimatedeath</b>: @copydoc MAP_FLAG_ULTIMATEDEATH
-- <b>f_pvp</b>: @copydoc MAP_FLAG_PVP
-- <b>f_no_save</b>: @copydoc MAP_FLAG_NO_SAVE
-- <b>f_plugins</b>: @copydoc MAP_FLAG_PLUGINS
-@page plugin_python_map_constants Python map constants
-List of the map constants and their meaning:
-
-- <b>COST_TRUE</b>: @copydoc F_TRUE
-- <b>COST_BUY</b>: @copydoc F_BUY
-- <b>COST_SELL</b>: @copydoc F_SELL
-@page plugin_python_party_fields Python party fields
-List of the party fields and their meaning:
-
-- <b>name</b>: (string) @copydoc partylist_struct::name
-- <b>leader</b>: (string) @copydoc partylist_struct::leader
-- <b>password</b>: (string) @copydoc partylist_struct::passwd
-@page plugin_python_party_constants Python party constants
-List of the party constants and their meaning:
-
-- <b>PARTY_MESSAGE_STATUS</b>: @copydoc PARTY_MESSAGE_STATUS
-- <b>PARTY_MESSAGE_CHAT</b>: @copydoc PARTY_MESSAGE_CHAT
-@page plugin_python_constants Python constants
-List of the general Python constants and their meaning:
+@page plugin_python_general_constants Python general constants
+List of the general constants and their meaning:
 
 - <b>NORTH</b>: 1
 - <b>NORTHEAST</b>: 2
@@ -588,16 +588,52 @@ List of the general Python constants and their meaning:
 - <b>EVENT_REMOVE</b>: @copydoc EVENT_REMOVE
 - <b>EVENT_SHOUT</b>: @copydoc EVENT_SHOUT
 - <b>EVENT_TELL</b>: @copydoc EVENT_TELL
-@page plugin_python_region_fields Python region fields
-List of the region fields and their meaning:
+@page plugin_python_party_fields Python party fields
+List of the party fields and their meaning:
 
-- <b>next</b>: (region) @copydoc region::next
-- <b>parent</b>: (region) @copydoc region::parent
-- <b>name</b>: (string) @copydoc region::name
-- <b>parent_name</b>: (string) @copydoc region::parent_name
-- <b>longname</b>: (string) @copydoc region::longname
-- <b>msg</b>: (string) @copydoc region::msg
-- <b>jailmap</b>: (string) @copydoc region::jailmap
-- <b>jailx</b>: (integer) @copydoc region::jailx
-- <b>jaily</b>: (integer) @copydoc region::jaily
+- <b>name</b>: (string) @copydoc partylist_struct::name
+- <b>leader</b>: (string) @copydoc partylist_struct::leader
+- <b>password</b>: (string) @copydoc partylist_struct::passwd
+@page plugin_python_party_constants Python party constants
+List of the party constants and their meaning:
+
+- <b>PARTY_MESSAGE_STATUS</b>: @copydoc PARTY_MESSAGE_STATUS
+- <b>PARTY_MESSAGE_CHAT</b>: @copydoc PARTY_MESSAGE_CHAT
+@page page_plugin_python Python Plugin
+
+@section sec_plugin_python_introduction Introduction
+
+The Python plugin is used in various important tasks thorough Atrinik maps. It plays an important role in making quests, events, shop NPCs and much much more.
+
+Python scripts in the game allow a lot greater flexibility than changing the server core code to implement a quest or a new type of NPC. It is not a fast way to do it, true, but flexible, because Python scripts can be changed on the fly without even restarting the server.
+
+@section sec_plugin_python_atrinik Atrinik Python plugin functions
+
+The Atrinik Python plugin functions are used to make an interface with the Atrinik C server code, get script options, activator, etc.
+
+@see plugin_python_functions, @ref plugin_python_general_constants
+
+@section sec_plugin_python_atrinik_map Atrinik Map Python plugin functions
+
+The Atrinik Map Python plugin functions allow you to access map related functions, the map structure fields, and so on.
+
+@see plugin_python_map_functions, @ref plugin_python_map_fields, @ref plugin_python_map_flags, @ref plugin_python_map_constants
+
+@section sec_plugin_python_atrinik_object Atrinik Object Python plugin functions
+
+The Atrinik Object Python plugin functions allow you great flexibility in manipulating objects, players, and about everything related to object structure.
+
+@see plugin_python_object_functions, @ref plugin_python_object_fields, @ref plugin_python_object_flags, @ref plugin_python_object_constants
+
+@section sec_plugin_python_atrinik_party Atrinik Party Python plugin functions
+
+The Atrinik Party Python plugin functions allow you to make interesting events or dungeons, where in order to participate, one must/mustn't be in a party.
+
+@see plugin_python_party_functions, @ref plugin_python_party_fields, @ref plugin_python_party_constants
+
+@section sec_plugin_python_atrinik_region Atrinik Region Python plugin functions
+
+Provides an interface to get information about map's region.
+
+@see @ref plugin_python_region_fields
 */

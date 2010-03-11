@@ -1,4 +1,3 @@
-## @file
 ## This script will look in Python plugin source files for fields,
 ## flags and constants to transform to Doxygen documentation.
 
