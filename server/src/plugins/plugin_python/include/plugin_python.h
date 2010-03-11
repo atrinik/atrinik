@@ -278,4 +278,13 @@ typedef struct PythonCmdStruct
 /** Number of custom commands to allow. */
 #define NR_CUSTOM_CMD 1024
 
+#define OBJEXISTCHECK_INT(ob) \
+{ \
+	if (!ob || !ob->obj || hooks->was_destroyed(ob->obj, ob->obj->count)) \
+	{ \
+		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists"); \
+		return -1; \
+	} \
+}
+
 #endif

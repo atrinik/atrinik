@@ -3202,6 +3202,57 @@ static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
 }
 
+static int Atrinik_Object_InternalCompare(Atrinik_Object *left, Atrinik_Object *right)
+{
+	OBJEXISTCHECK_INT(left);
+	OBJEXISTCHECK_INT(right);
+	return (left->obj < right->obj ? -1 : (left->obj == right->obj ? 0 : 1));
+}
+
+static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left, Atrinik_Object *right, int op)
+{
+	int result;
+
+	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_ObjectType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_ObjectType))
+	{
+		Py_INCREF(Py_NotImplemented);
+		return Py_NotImplemented;
+	}
+
+	result = Atrinik_Object_InternalCompare(left, right);
+
+	/* Handle removed objects. */
+	if (result == -1 && PyErr_Occurred())
+	{
+		return NULL;
+	}
+
+	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
+	switch (op)
+	{
+		case Py_EQ:
+			result = (result == 0);
+			break;
+		case Py_NE:
+			result = (result != 0);
+			break;
+		case Py_LE:
+			result = (result <= 0);
+			break;
+		case Py_GE:
+			result = (result >= 0);
+			break;
+		case Py_LT:
+			result = (result == -1);
+			break;
+		case Py_GT:
+			result = (result == 1);
+			break;
+	}
+
+	return PyBool_FromLong(result);
+}
+
 /** This is filled in when we initialize our object type. */
 static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
 
@@ -3218,12 +3269,20 @@ PyTypeObject Atrinik_ObjectType =
 	sizeof(Atrinik_Object),
 	0,
 	(destructor) Atrinik_Object_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	NULL, NULL, NULL,
+#ifdef IS_PY3K
+	NULL,
+#else
+	(cmpfunc) Atrinik_Object_InternalCompare,
+#endif
+	0, 0, 0, 0, 0, 0,
 	(reprfunc) Atrinik_Object_str,
 	0, 0, 0,
 	Py_TPFLAGS_DEFAULT,
 	"Atrinik objects",
-	0, 0, 0, 0, 0, 0,
+	NULL, NULL,
+	(richcmpfunc) Atrinik_Object_RichCompare,
+	0, 0, 0,
 	ObjectMethods,
 	0,
 	Object_getseters,
