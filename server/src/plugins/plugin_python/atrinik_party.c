@@ -325,6 +325,49 @@ static PyMethodDef PartyMethods[] =
 	{NULL, NULL, 0, 0}
 };
 
+static int Atrinik_Party_InternalCompare(Atrinik_Party *left, Atrinik_Party *right)
+{
+	return (left->party < right->party ? -1 : (left->party == right->party ? 0 : 1));
+}
+
+static PyObject *Atrinik_Party_RichCompare(Atrinik_Party *left, Atrinik_Party *right, int op)
+{
+	int result;
+
+	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_PartyType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_PartyType))
+	{
+		Py_INCREF(Py_NotImplemented);
+		return Py_NotImplemented;
+	}
+
+	result = Atrinik_Party_InternalCompare(left, right);
+
+	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
+	switch (op)
+	{
+		case Py_EQ:
+			result = (result == 0);
+			break;
+		case Py_NE:
+			result = (result != 0);
+			break;
+		case Py_LE:
+			result = (result <= 0);
+			break;
+		case Py_GE:
+			result = (result >= 0);
+			break;
+		case Py_LT:
+			result = (result == -1);
+			break;
+		case Py_GT:
+			result = (result == 1);
+			break;
+	}
+
+	return PyBool_FromLong(result);
+}
+
 /** This is filled in when we initialize our party type. */
 static PyGetSetDef Party_getseters[NUM_PARTYFIELDS + 1];
 
@@ -341,12 +384,20 @@ PyTypeObject Atrinik_PartyType =
 	sizeof(Atrinik_Party),
 	0,
 	(destructor) Atrinik_Party_dealloc,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	NULL, NULL, NULL,
+#ifdef IS_PY3K
+	NULL,
+#else
+	(cmpfunc) Atrinik_Party_InternalCompare,
+#endif
+	0, 0, 0, 0, 0, 0,
 	(reprfunc) Atrinik_Party_str,
 	0, 0, 0,
 	Py_TPFLAGS_DEFAULT,
 	"Atrinik parties",
-	0, 0, 0, 0, 0, 0,
+	NULL, NULL,
+	(richcmpfunc) Atrinik_Party_RichCompare,
+	0, 0, 0,
 	PartyMethods,
 	0,
 	Party_getseters,
