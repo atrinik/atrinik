@@ -1422,7 +1422,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		CustomCommand[i].speed = 0.0;
 	}
 
-	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m))
 	{
 		return;
 	}

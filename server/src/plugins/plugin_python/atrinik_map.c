@@ -55,7 +55,8 @@ map_fields_struct map_fields[] =
 	{"darkness",        FIELDTYPE_UINT8,    offsetof(mapstruct, darkness)},
 	{"path",            FIELDTYPE_SHSTR,    offsetof(mapstruct, path)},
 	{"enter_x",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_x)},
-	{"enter_y",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_y)}
+	{"enter_y",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_y)},
+	{"region",          FIELDTYPE_REGION,   offsetof(mapstruct, region)}
 };
 
 /**
@@ -307,6 +308,9 @@ static PyObject *Map_GetAttribute(Atrinik_Map *map, int fieldno)
 
 		case FIELDTYPE_OBJECT:
 			return wrap_object(*(object **) field_ptr);
+
+		case FIELDTYPE_REGION:
+			return wrap_region(*(region **) field_ptr);
 
 		default:
 			RAISE("BUG: Unknown field type.");

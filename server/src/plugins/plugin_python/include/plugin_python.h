@@ -211,7 +211,9 @@ typedef enum
 	/** Pointer to map. */
 	FIELDTYPE_MAP,
 	/** Object pointer + tag. */
-	FIELDTYPE_OBJECTREF
+	FIELDTYPE_OBJECTREF,
+	/** Pointer to region. */
+	FIELDTYPE_REGION
 } field_type;
 
 /**
@@ -261,6 +263,18 @@ typedef struct
 	/** Pointer to the Atrinik party we wrap. */
 	partylist_struct *party;
 } Atrinik_Party;
+
+extern PyTypeObject Atrinik_RegionType;
+extern PyObject *wrap_region(region *region);
+extern int Atrinik_Region_init(PyObject *module);
+
+/** The Atrinik_Region structure. */
+typedef struct
+{
+	PyObject_HEAD
+	/** Pointer to the Atrinik region we wrap. */
+	region *region;
+} Atrinik_Region;
 
 /** This structure is used to define one Python-implemented command. */
 typedef struct PythonCmdStruct
