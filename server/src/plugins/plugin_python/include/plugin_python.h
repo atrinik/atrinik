@@ -302,5 +302,6 @@ typedef struct PythonCmdStruct
 
 int generic_field_setter(field_type type, void *field_ptr, PyObject *value);
 PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr2);
+void Py_INCREF_TYPE(PyTypeObject *ob);
 
 #endif

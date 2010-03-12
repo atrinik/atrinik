@@ -484,7 +484,7 @@ int Atrinik_Map_init(PyObject *module)
 		return 0;
 	}
 
-	Py_INCREF(&Atrinik_MapType);
+	Py_INCREF_TYPE(&Atrinik_MapType);
 	PyModule_AddObject(module, "Map", (PyObject *) &Atrinik_MapType);
 
 	return 1;

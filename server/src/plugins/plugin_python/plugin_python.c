@@ -1653,3 +1653,12 @@ PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr
 
 	RAISE("BUG: Unknown field type.");
 }
+
+/**
+ * This function exists to workaround a warning under GCC 4.4.1 (i686):
+ * dereferencing type-punned pointer will break strict-aliasing rules
+ * @param ob Python object to increase reference of. */
+void Py_INCREF_TYPE(PyTypeObject *ob)
+{
+	Py_INCREF(ob);
+}
