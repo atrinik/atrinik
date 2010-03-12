@@ -260,73 +260,28 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 /**
  * Get map's attribute.
  * @param map Python map wrapper.
- * @param fieldno Attribute ID.
+ * @param context Void pointer to the field.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Map_GetAttribute(Atrinik_Map *map, int fieldno)
+static PyObject *Map_GetAttribute(Atrinik_Map *map, void *context)
 {
 	void *field_ptr;
+	map_fields_struct *field = (map_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_MAPFIELDS)
-	{
-		RAISE("Illegal field ID.");
-	}
+	field_ptr = (void *) ((char *) (map->map) + field->offset);
 
-	field_ptr = (void *) ((char *) (map->map) + map_fields[fieldno].offset);
-
-	switch (map_fields[fieldno].type)
-	{
-		case FIELDTYPE_SHSTR:
-		case FIELDTYPE_CSTR:
-			return Py_BuildValue("s", *(char **) field_ptr);
-
-		case FIELDTYPE_CARY:
-			return Py_BuildValue("s", (char *) field_ptr);
-
-		case FIELDTYPE_UINT8:
-			return Py_BuildValue("b", *(uint8 *) field_ptr);
-
-		case FIELDTYPE_SINT8:
-			return Py_BuildValue("b", *(sint8 *) field_ptr);
-
-		case FIELDTYPE_UINT16:
-			return Py_BuildValue("i", *(uint16 *) field_ptr);
-
-		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *) field_ptr);
-
-		case FIELDTYPE_UINT32:
-			return Py_BuildValue("l", *(uint32 *) field_ptr);
-
-		case FIELDTYPE_SINT32:
-			return Py_BuildValue("l", *(sint32 *) field_ptr);
-
-		case FIELDTYPE_FLOAT:
-			return Py_BuildValue("f", *(float *) field_ptr);
-
-		case FIELDTYPE_MAP:
-			return wrap_map(*(mapstruct **) field_ptr);
-
-		case FIELDTYPE_OBJECT:
-			return wrap_object(*(object **) field_ptr);
-
-		case FIELDTYPE_REGION:
-			return wrap_region(*(region **) field_ptr);
-
-		default:
-			RAISE("BUG: Unknown field type.");
-	}
-
-	return NULL;
+	return generic_field_getter(field->type, field_ptr, NULL);
 }
 
 /**
  * Get map's flag.
  * @param map Python map wrapper.
- * @param flagno Flag to get.
+ * @param context Void pointer to the flag ID.
  * @return 1 if the map has the flag set, 0 otherwise. */
-static PyObject *Map_GetFlag(Atrinik_Map *map, int flagno)
+static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
 {
-	if (flagno < 0 || flagno >= (int) NUM_MAPFLAGS)
+	size_t flagno = (size_t) context;
+
+	if (flagno >= NUM_MAPFLAGS)
 	{
 		RAISE("Unknown flag.");
 	}
@@ -376,19 +331,22 @@ static void Atrinik_Map_dealloc(Atrinik_Map *self)
  * @return Python object containing the map path and name of the map. */
 static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 {
-	return PyString_FromFormat("[%s \"%s\"]", self->map->path, self->map->name);
+	char buf[HUGE_BUF];
+
+	snprintf(buf, sizeof(buf), "[%s \"%s\"]", self->map->path, self->map->name);
+	return Py_BuildValue("s", buf);
 }
 
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
 {
-	{"GetFirstObjectOnSquare",  (PyCFunction)Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
-	{"PlaySound",               (PyCFunction)Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
-	{"Message",                 (PyCFunction)Atrinik_Map_Message,                   METH_VARARGS, 0},
-	{"MapTileAt",               (PyCFunction)Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
-	{"CreateObject",            (PyCFunction)Atrinik_Map_CreateObject,              METH_VARARGS, 0},
-	{"CountPlayers",            (PyCFunction)Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
-	{"GetPlayers",              (PyCFunction)Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
+	{"GetFirstObjectOnSquare",  (PyCFunction) Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
+	{"PlaySound",               (PyCFunction) Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
+	{"Message",                 (PyCFunction) Atrinik_Map_Message,                   METH_VARARGS, 0},
+	{"MapTileAt",               (PyCFunction) Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
+	{"CreateObject",            (PyCFunction) Atrinik_Map_CreateObject,              METH_VARARGS, 0},
+	{"CountPlayers",            (PyCFunction) Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
+	{"GetPlayers",              (PyCFunction) Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -482,10 +440,10 @@ PyTypeObject Atrinik_MapType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Map_init(PyObject *module)
 {
-	int i;
+	size_t i;
 
 	/* Field getters */
-	for (i = 0; i < (int) NUM_MAPFIELDS; i++)
+	for (i = 0; i < NUM_MAPFIELDS; i++)
 	{
 		PyGetSetDef *def = &Map_getseters[i];
 
@@ -493,11 +451,11 @@ int Atrinik_Map_init(PyObject *module)
 		def->get = (getter) Map_GetAttribute;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *) i;
+		def->closure = (void *) &map_fields[i];
 	}
 
 	/* Flag getters */
-	for (i = 0; i < (int) NUM_MAPFLAGS; i++)
+	for (i = 0; i < NUM_MAPFLAGS; i++)
 	{
 		PyGetSetDef *def = &Map_getseters[i + NUM_MAPFIELDS];
 

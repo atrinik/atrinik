@@ -187,84 +187,40 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 
 /**
  * Get party's attribute.
- * @param whoptr Python party wrapper.
- * @param fieldno Attribute ID.
+ * @param party Python party wrapper.
+ * @param context Void pointer to the field.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Party_GetAttribute(Atrinik_Party *party, int fieldno)
+static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 {
 	void *field_ptr;
+	party_fields_struct *field = (party_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_PARTYFIELDS)
-	{
-		RAISE("Illegal field ID.");
-	}
+	field_ptr = (void *) ((char *) (party->party) + field->offset);
 
-	field_ptr = (void *) ((char *) (party->party) + party_fields[fieldno].offset);
-
-	switch (party_fields[fieldno].type)
-	{
-		case FIELDTYPE_SHSTR:
-		case FIELDTYPE_CSTR:
-			return Py_BuildValue("s", *(char **) field_ptr);
-
-		case FIELDTYPE_CARY:
-			return Py_BuildValue("s", (char *) field_ptr);
-
-		default:
-			RAISE("BUG: Unknown field type.");
-	}
+	return generic_field_getter(field->type, field_ptr, NULL);
 }
 
 /**
  * Set attribute of a party.
- * @param whoptr Python party wrapper.
+ * @param party Python party wrapper.
  * @param value Value to set.
- * @param fieldno Attribute ID.
+ * @param context Void pointer to the field.
  * @return 0 on success, -1 on failure. */
-static int Party_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fieldno)
+static int Party_SetAttribute(Atrinik_Party *party, PyObject *value, void *context)
 {
 	void *field_ptr;
-	uint32 offset;
+	party_fields_struct *field = (party_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_PARTYFIELDS)
-	{
-		INTRAISE("Illegal field ID.");
-	}
-
-	if ((party_fields[fieldno].flags & FIELDFLAG_READONLY))
+	if (field->flags & FIELDFLAG_READONLY)
 	{
 		INTRAISE("Trying to modify readonly field.");
 	}
 
-	offset = party_fields[fieldno].offset;
-	field_ptr = (void *) ((char *) WHO + offset);
+	field_ptr = (void *) ((char *) (party->party) + field->offset);
 
-	switch (party_fields[fieldno].type)
+	if (generic_field_setter(field->type, field_ptr, value) == -1)
 	{
-		case FIELDTYPE_SHSTR:
-			if (PyString_Check(value))
-			{
-				const char *str = PyString_AsString(value);
-
-				if (*(char **) field_ptr)
-				{
-					FREE_AND_CLEAR_HASH(*(char **) field_ptr);
-				}
-
-				if (str && strcmp(str, ""))
-				{
-					FREE_AND_COPY_HASH(*(const char **) field_ptr, str);
-				}
-			}
-			else
-			{
-				INTRAISE("Illegal value for text field.");
-			}
-
-			break;
-
-		default:
-			INTRAISE("BUG: Unknown field type.");
+		return -1;
 	}
 
 	return 0;
@@ -415,10 +371,10 @@ PyTypeObject Atrinik_PartyType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Party_init(PyObject *module)
 {
-	int i;
+	size_t i;
 
 	/* Field getters */
-	for (i = 0; i < (int) NUM_PARTYFIELDS; i++)
+	for (i = 0; i < NUM_PARTYFIELDS; i++)
 	{
 		PyGetSetDef *def = &Party_getseters[i];
 
@@ -426,7 +382,7 @@ int Atrinik_Party_init(PyObject *module)
 		def->get = (getter) Party_GetAttribute;
 		def->set = (setter) Party_SetAttribute;
 		def->doc = NULL;
-		def->closure = (void *) i;
+		def->closure = (void *) &party_fields[i];
 	}
 
 	Party_getseters[NUM_PARTYFIELDS].name = NULL;

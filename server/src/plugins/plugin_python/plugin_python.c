@@ -646,7 +646,7 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LocateBeacon(<i>\<string\><i> beacon_name)</h1>
+ * <h1>Atrinik.LocateBeacon(<i>\<string\></i> beacon_name)</h1>
  * Locate a beacon.
  * @param beacon_name The beacon name to find.
  * @return The beacon if found, None otherwise. */
@@ -671,7 +671,7 @@ static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.FindParty(<i>\<string\><i> partyname)</h1>
+ * <h1>Atrinik.FindParty(<i>\<string\></i> partyname)</h1>
  * Find a party by name.
  * @param partyname The party name to find.
  * @return The party if found, None otherwise. */
@@ -690,7 +690,7 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.CleanupChatString(<i>\<string\><i> string)</h1>
+ * <h1>Atrinik.CleanupChatString(<i>\<string\></i> string)</h1>
  * Cleans up a chat string, using cleanup_chat_string().
  * @param string The string to cleanup.
  * @return Cleaned up string - can be None. */
@@ -709,7 +709,7 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>Atrinik.LOG(<i>\<int\></i> mode, <i>\<string\><i> string)</h1>
+ * <h1>Atrinik.LOG(<i>\<int\></i> mode, <i>\<string\></i> string)</h1>
  * Logs a message.
  * @param mode Logging mode to use, one of:
  * - llevError: An irrecoverable error. Will shut down the server.
@@ -1434,4 +1434,222 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	}
 
 	LOG(llevDebug, "[Done]\n");
+}
+
+/**
+ * A generic field setter for all interfaces.
+ * @param type Type of the field.
+ * @param[out] field_ptr Field pointer.
+ * @param value Value to set for the field pointer.
+ * @return 0 on success, -1 on failure. */
+int generic_field_setter(field_type type, void *field_ptr, PyObject *value)
+{
+	switch (type)
+	{
+		case FIELDTYPE_SHSTR:
+			if (PyString_Check(value))
+			{
+				char *str = PyString_AsString(value);
+
+				if (*(char **) field_ptr)
+				{
+					FREE_AND_CLEAR_HASH(*(char **) field_ptr);
+				}
+
+				if (str && strcmp(str, ""))
+				{
+					FREE_AND_COPY_HASH(*(const char **) field_ptr, str);
+				}
+			}
+			else
+			{
+				INTRAISE("Illegal value for text field.");
+			}
+
+			break;
+
+		case FIELDTYPE_UINT8:
+			if (PyInt_Check(value))
+			{
+				*(uint8 *) field_ptr = (uint8) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for uint8 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_SINT8:
+			if (PyInt_Check(value))
+			{
+				*(sint8 *) field_ptr = (sint8) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for sint8 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_UINT16:
+			if (PyInt_Check(value))
+			{
+				*(uint16 *) field_ptr = (uint16) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for uint16 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_SINT16:
+			if (PyInt_Check(value))
+			{
+				*(sint16 *) field_ptr = (sint16) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for sint16 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_UINT32:
+			if (PyInt_Check(value))
+			{
+				*(uint32 *) field_ptr = (uint32) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for uint32 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_SINT32:
+			if (PyInt_Check(value))
+			{
+				*(sint32 *) field_ptr = (sint32)PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for sint32 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_UINT64:
+			if (PyInt_Check(value))
+			{
+				*(uint64 *) field_ptr = (uint64) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for uint64 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_SINT64:
+			if (PyInt_Check(value))
+			{
+				*(sint64 *) field_ptr = (sint64) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for sint64 field.");
+			}
+
+			break;
+
+		case FIELDTYPE_FLOAT:
+			if (PyFloat_Check(value))
+			{
+				*(float *) field_ptr = (float) PyFloat_AsDouble(value);
+			}
+			else if (PyInt_Check(value))
+			{
+				*(float *) field_ptr = (float) PyInt_AsLong(value);
+			}
+			else
+			{
+				INTRAISE("Illegal value for float field.");
+			}
+
+			break;
+
+		default:
+			INTRAISE("BUG: Unknown field type.");
+	}
+
+	return 0;
+}
+
+/**
+ * A generic field getter for all interfaces.
+ * @param type Type of the field.
+ * @param field_ptr Field pointer.
+ * @param field_ptr2 Field pointer for extra data.
+ * @return Python object containing value of field_ptr (and field_ptr2, if applicable). */
+PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr2)
+{
+	switch (type)
+	{
+		case FIELDTYPE_SHSTR:
+		case FIELDTYPE_CSTR:
+		{
+			char *str = *(char **) field_ptr;
+			return Py_BuildValue("s", str ? str : "");
+		}
+
+		case FIELDTYPE_CARY:
+			return Py_BuildValue("s", (char *) field_ptr);
+
+		case FIELDTYPE_UINT8:
+			return Py_BuildValue("b", *(uint8 *) field_ptr);
+
+		case FIELDTYPE_SINT8:
+			return Py_BuildValue("b", *(sint8 *) field_ptr);
+
+		case FIELDTYPE_UINT16:
+			return Py_BuildValue("i", *(uint16 *) field_ptr);
+
+		case FIELDTYPE_SINT16:
+			return Py_BuildValue("i", *(sint16 *) field_ptr);
+
+		case FIELDTYPE_UINT32:
+			return Py_BuildValue("l", *(uint32 *) field_ptr);
+
+		case FIELDTYPE_SINT32:
+			return Py_BuildValue("l", *(sint32 *) field_ptr);
+
+		case FIELDTYPE_UINT64:
+			return Py_BuildValue("L", *(uint64 *) field_ptr);
+
+		case FIELDTYPE_SINT64:
+			return Py_BuildValue("L", *(sint64 *) field_ptr);
+
+		case FIELDTYPE_FLOAT:
+			return Py_BuildValue("f", *(float *) field_ptr);
+
+		case FIELDTYPE_MAP:
+			return wrap_map(*(mapstruct **) field_ptr);
+
+		case FIELDTYPE_OBJECT:
+			return wrap_object(*(object **) field_ptr);
+
+		case FIELDTYPE_OBJECTREF:
+		{
+			object *obj = *(object **) field_ptr;
+			tag_t tag = *(tag_t *) field_ptr2;
+			return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
+		}
+
+		case FIELDTYPE_REGION:
+			return wrap_region(*(region **) field_ptr);
+	}
+
+	RAISE("BUG: Unknown field type.");
 }

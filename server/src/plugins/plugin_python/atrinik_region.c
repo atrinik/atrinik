@@ -53,7 +53,7 @@ region_fields_struct region_fields[] =
 	{"msg",             FIELDTYPE_CSTR,       offsetof(region, msg)},
 	{"jailmap",         FIELDTYPE_CSTR,       offsetof(region, jailmap)},
 	{"jailx",           FIELDTYPE_SINT16,     offsetof(region, jailx)},
-	{"jaily",           FIELDTYPE_SINT16,     offsetof(region, jaily)},
+	{"jaily",           FIELDTYPE_SINT16,     offsetof(region, jaily)}
 };
 
 /** Number of region fields */
@@ -61,35 +61,17 @@ region_fields_struct region_fields[] =
 
 /**
  * Get region's attribute.
- * @param whoptr Python region wrapper.
- * @param fieldno Attribute ID.
+ * @param r Python region wrapper.
+ * @param context Void pointer to the field ID.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Region_GetAttribute(Atrinik_Region *r, int fieldno)
+static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
 	void *field_ptr;
+	region_fields_struct *field = (region_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_REGIONFIELDS)
-	{
-		RAISE("Illegal field ID.");
-	}
+	field_ptr = (void *) ((char *) (r->region) + field->offset);
 
-	field_ptr = (void *) ((char *) (r->region) + region_fields[fieldno].offset);
-
-	switch (region_fields[fieldno].type)
-	{
-		case FIELDTYPE_SHSTR:
-		case FIELDTYPE_CSTR:
-			return Py_BuildValue("s", *(char **) field_ptr);
-
-		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *) field_ptr);
-
-		case FIELDTYPE_REGION:
-			return wrap_region(*(region **) field_ptr);
-
-		default:
-			RAISE("BUG: Unknown field type.");
-	}
+	return generic_field_getter(field->type, field_ptr, NULL);
 }
 
 /**
@@ -227,10 +209,10 @@ PyTypeObject Atrinik_RegionType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Region_init(PyObject *module)
 {
-	int i;
+	size_t i;
 
 	/* Field getters */
-	for (i = 0; i < (int) NUM_REGIONFIELDS; i++)
+	for (i = 0; i < NUM_REGIONFIELDS; i++)
 	{
 		PyGetSetDef *def = &Region_getseters[i];
 
@@ -238,7 +220,7 @@ int Atrinik_Region_init(PyObject *module)
 		def->get = (getter) Region_GetAttribute;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *) i;
+		def->closure = (void *) &region_fields[i];
 	}
 
 	Region_getseters[NUM_REGIONFIELDS].name = NULL;

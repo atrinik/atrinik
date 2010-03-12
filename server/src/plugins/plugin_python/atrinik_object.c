@@ -2799,245 +2799,50 @@ static PyMethodDef ObjectMethods[] =
 /**
  * Get object's attribute.
  * @param whoptr Python object wrapper.
- * @param fieldno Attribute ID.
+ * @param context Void pointer to the field.
  * @return Python object with the attribute value, NULL on failure. */
-static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, int fieldno)
+static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, void *context)
 {
-	void *field_ptr, *field_ptr2;
-	tag_t tag;
-	object *obj;
-	char *str;
+	void *field_ptr, *field_ptr2 = NULL;
+	obj_fields_struct *field = (obj_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
+	field_ptr = (void *) ((char *) WHO + field->offset);
+
+	if (field->type == FIELDTYPE_OBJECTREF)
 	{
-		RAISE("Illegal field ID.");
+		field_ptr2 = (void *) ((char *) WHO + field->extra_data);
 	}
 
-	field_ptr = (void *) ((char *) WHO + obj_fields[fieldno].offset);
-
-	switch (obj_fields[fieldno].type)
-	{
-		case FIELDTYPE_SHSTR:
-		case FIELDTYPE_CSTR:
-			str =  *(char **) field_ptr;
-			return Py_BuildValue("s", str ? str : "");
-
-		case FIELDTYPE_UINT8:
-			return Py_BuildValue("b", *(uint8 *) field_ptr);
-
-		case FIELDTYPE_SINT8:
-			return Py_BuildValue("b", *(sint8 *) field_ptr);
-
-		case FIELDTYPE_UINT16:
-			return Py_BuildValue("i", *(uint16 *) field_ptr);
-
-		case FIELDTYPE_SINT16:
-			return Py_BuildValue("i", *(sint16 *) field_ptr);
-
-		case FIELDTYPE_UINT32:
-			return Py_BuildValue("l", *(uint32 *) field_ptr);
-
-		case FIELDTYPE_SINT32:
-			return Py_BuildValue("l", *(sint32 *) field_ptr);
-
-		case FIELDTYPE_UINT64:
-			return Py_BuildValue("L", *(uint64 *) field_ptr);
-
-		case FIELDTYPE_SINT64:
-			return Py_BuildValue("L", *(sint64 *) field_ptr);
-
-		case FIELDTYPE_FLOAT:
-			return Py_BuildValue("f", *(float *) field_ptr);
-
-		case FIELDTYPE_MAP:
-			return wrap_map(*(mapstruct **) field_ptr);
-
-		case FIELDTYPE_OBJECT:
-			return wrap_object(*(object **) field_ptr);
-
-		case FIELDTYPE_OBJECTREF:
-			field_ptr2 = (void *) ((char *) WHO + obj_fields[fieldno].extra_data);
-			obj = *(object **) field_ptr;
-			tag = *(tag_t *) field_ptr2;
-			return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
-
-		default:
-			RAISE("BUG: Unknown field type.");
-	}
-
-	return NULL;
+	return generic_field_getter(field->type, field_ptr, field_ptr2);
 }
 
 /**
  * Set attribute of an object.
  * @param whoptr Python object wrapper.
  * @param value Value to set.
- * @param fieldno Attribute ID.
+ * @param context Void pointer to the field.
  * @return 0 on success, -1 on failure.
  * @todo Better handling of types, signs, and overflows. */
-static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fieldno)
+static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *context)
 {
 	void *field_ptr;
 	object *tmp;
-	uint32 flags, offset;
+	obj_fields_struct *field = (obj_fields_struct *) context;
 
-	if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
-	{
-		INTRAISE("Illegal field ID.");
-	}
-
-	flags = obj_fields[fieldno].flags;
-
-	if ((flags & FIELDFLAG_READONLY) || ((flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER))
+	if ((field->flags & FIELDFLAG_READONLY) || ((field->flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER))
 	{
 		INTRAISE("Trying to modify readonly field.");
 	}
 
-	offset = obj_fields[fieldno].offset;
-	field_ptr = (void *) ((char *) WHO + offset);
+	field_ptr = (void *) ((char *) WHO + field->offset);
 
-	switch (obj_fields[fieldno].type)
+	if (generic_field_setter(field->type, field_ptr, value) == -1)
 	{
-		case FIELDTYPE_SHSTR:
-			if (PyString_Check(value))
-			{
-				const char *str = PyString_AsString(value);
-
-				if (*(char **) field_ptr)
-				{
-					FREE_AND_CLEAR_HASH(*(char **) field_ptr);
-				}
-
-				if (str && strcmp(str, ""))
-				{
-					FREE_AND_COPY_HASH(*(const char **) field_ptr, str);
-				}
-			}
-			else
-			{
-				INTRAISE("Illegal value for text field.");
-			}
-
-			break;
-
-		case FIELDTYPE_UINT8:
-			if (PyInt_Check(value))
-			{
-				*(uint8 *) field_ptr = (uint8) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for uint8 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_SINT8:
-			if (PyInt_Check(value))
-			{
-				*(sint8 *) field_ptr = (sint8) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for sint8 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_UINT16:
-			if (PyInt_Check(value))
-			{
-				*(uint16 *) field_ptr = (uint16) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for uint16 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_SINT16:
-			if (PyInt_Check(value))
-			{
-				*(sint16 *) field_ptr = (sint16) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for sint16 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_UINT32:
-			if (PyInt_Check(value))
-			{
-				*(uint32 *) field_ptr = (uint32) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for uint32 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_SINT32:
-			if (PyInt_Check(value))
-			{
-				*(sint32 *) field_ptr = (sint32)PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for sint32 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_UINT64:
-			if (PyInt_Check(value))
-			{
-				*(uint64 *) field_ptr = (uint64) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for uint64 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_SINT64:
-			if (PyInt_Check(value))
-			{
-				*(sint64 *) field_ptr = (sint64) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for sint64 field.");
-			}
-
-			break;
-
-		case FIELDTYPE_FLOAT:
-			if (PyFloat_Check(value))
-			{
-				*(float *) field_ptr = (float) PyFloat_AsDouble(value);
-			}
-			else if (PyInt_Check(value))
-			{
-				*(float *) field_ptr = (float) PyInt_AsLong(value);
-			}
-			else
-			{
-				INTRAISE("Illegal value for float field.");
-			}
-
-			break;
-
-		default:
-			INTRAISE("BUG: Unknown field type.");
+		return -1;
 	}
 
 	/* Make sure the inventory image/text is updated. */
-	for (tmp = WHO->env; tmp != NULL; tmp = tmp->env)
+	for (tmp = WHO->env; tmp; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
 		{
@@ -3048,36 +2853,36 @@ static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fiel
 	/* Special handling for some player stuff. */
 	if (WHO->type == PLAYER)
 	{
-		if (offset == offsetof(object, stats.Int))
+		if (field->offset == offsetof(object, stats.Int))
 		{
 			CONTR(WHO)->orig_stats.Int = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Str))
+		else if (field->offset == offsetof(object, stats.Str))
 		{
 			CONTR(WHO)->orig_stats.Str = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Cha))
+		else if (field->offset == offsetof(object, stats.Cha))
 		{
 			CONTR(WHO)->orig_stats.Cha = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Wis))
+		else if (field->offset == offsetof(object, stats.Wis))
 		{
 			CONTR(WHO)->orig_stats.Wis = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Dex))
+		else if (field->offset == offsetof(object, stats.Dex))
 		{
 			CONTR(WHO)->orig_stats.Dex = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Con))
+		else if (field->offset == offsetof(object, stats.Con))
 		{
 			CONTR(WHO)->orig_stats.Con = (sint8) PyInt_AsLong(value);
 		}
-		else if (offset == offsetof(object, stats.Pow))
+		else if (field->offset == offsetof(object, stats.Pow))
 		{
 			CONTR(WHO)->orig_stats.Pow = (sint8) PyInt_AsLong(value);
 		}
 
-		if (flags & FIELDFLAG_PLAYER_FIX)
+		if (field->flags & FIELDFLAG_PLAYER_FIX)
 		{
 			hooks->fix_player(WHO);
 		}
@@ -3089,31 +2894,34 @@ static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, int fiel
 /**
  * Get object's flag.
  * @param whoptr Python object wrapper.
- * @param flagno Flag to get.
+ * @param context Void pointer to the flag ID.
  * @return 1 if the object has the flag set, 0 otherwise. */
-static PyObject *Object_GetFlag(Atrinik_Object *whoptr, int flagno)
+static PyObject *Object_GetFlag(Atrinik_Object *whoptr, void *context)
 {
-	if (flagno < 0 || flagno >= NUM_FLAGS)
+	size_t flagno = (size_t) context;
+
+	if (flagno >= NUM_FLAGS)
 	{
 		RAISE("Unknown flag");
 	}
 
-	return Py_BuildValue("i", QUERY_FLAG(WHO,flagno) ? 1 : 0);
+	return Py_BuildValue("i", QUERY_FLAG(WHO, flagno) ? 1 : 0);
 }
 
 /**
  * Set flag for an object.
  * @param whoptr Python object wrapper.
  * @param val Value to set.
- * @param flagno ID of the flag to set.
+ * @param context Void pointer to the flag ID.
  * @return 0 on success, -1 on failure.
  * @todo If gender of player has changed, demand update to client. */
-static int Object_SetFlag(Atrinik_Object *whoptr, PyObject *val, int flagno)
+static int Object_SetFlag(Atrinik_Object *whoptr, PyObject *val, void *context)
 {
 	int value;
 	object *tmp;
+	size_t flagno = (size_t) context;
 
-	if (flagno < 0 || flagno >= NUM_FLAGS)
+	if (flagno >= NUM_FLAGS)
 	{
 		INTRAISE("Unknown flag.");
 	}
@@ -3140,7 +2948,7 @@ static int Object_SetFlag(Atrinik_Object *whoptr, PyObject *val, int flagno)
 	}
 
 	/* Make sure the inventory image/text is updated */
-	for (tmp = WHO->env; tmp != NULL; tmp = tmp->env)
+	for (tmp = WHO->env; tmp; tmp = tmp->env)
 	{
 		if (tmp->type == PLAYER)
 		{
@@ -3199,7 +3007,10 @@ static void Atrinik_Object_dealloc(Atrinik_Object* self)
  * @return Python object containing the arch name and name of the object. */
 static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 {
-	return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+	char buf[HUGE_BUF];
+
+	snprintf(buf, sizeof(buf), "[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+	return Py_BuildValue("s", buf);
 }
 
 static int Atrinik_Object_InternalCompare(Atrinik_Object *left, Atrinik_Object *right)
@@ -3300,17 +3111,18 @@ PyTypeObject Atrinik_ObjectType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Object_init(PyObject *module)
 {
-	int i, flagno;
+	size_t i, flagno;
 
 	/* Field getseters */
-	for (i = 0; i < (int) NUM_OBJFIELDS; i++)
+	for (i = 0; i < NUM_OBJFIELDS; i++)
 	{
 		PyGetSetDef *def = &Object_getseters[i];
+
 		def->name = obj_fields[i].name;
 		def->get = (getter) Object_GetAttribute;
 		def->set = (setter) Object_SetAttribute;
 		def->doc = NULL;
-		def->closure = (void *) i;
+		def->closure = (void *) &obj_fields[i];
 	}
 
 	/* Flag getseters */
@@ -3319,6 +3131,7 @@ int Atrinik_Object_init(PyObject *module)
 		if (flag_names[flagno])
 		{
 			PyGetSetDef *def = &Object_getseters[i++];
+
 			def->name = flag_names[flagno];
 			def->get = (getter) Object_GetFlag;
 			def->set = (setter) Object_SetFlag;

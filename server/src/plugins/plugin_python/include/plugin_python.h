@@ -52,7 +52,6 @@
 #ifdef IS_PY3K
 #	define PyString_Check PyUnicode_Check
 #	define PyString_AsString _PyUnicode_AsString
-#	define PyString_FromFormat PyBytes_FromFormat
 #	define PyInt_Check PyLong_Check
 #	define PyInt_AsLong PyLong_AsLong
 #endif
@@ -300,5 +299,8 @@ typedef struct PythonCmdStruct
 		return -1; \
 	} \
 }
+
+int generic_field_setter(field_type type, void *field_ptr, PyObject *value);
+PyObject *generic_field_getter(field_type type, void *field_ptr, void *field_ptr2);
 
 #endif
