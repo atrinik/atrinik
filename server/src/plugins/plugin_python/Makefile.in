@@ -39,7 +39,7 @@ SRCS = \
 OBJECTS = $(SRCS:.c=.o)
 INCLUDE = -I./include -I../../include -I../common/include @PY_INCLUDES@
 
-CFLAGS = -g -O3 -fPIC $(EXTRA_CFLAGS) -Wno-missing-field-initializers -Wno-int-to-pointer-cast
+CFLAGS = -g -O3 -fPIC $(EXTRA_CFLAGS) -Wno-missing-field-initializers
 DEPEND = @DEPEND@
 
 LDFLAGS = -export-dynamic -rdynamic -Xlinker -Bsymbolic
