@@ -3307,6 +3307,12 @@ int auto_apply(object *op)
 	 * map is loaded, we always clear the flag now. */
 	CLEAR_FLAG(op, FLAG_AUTO_APPLY);
 
+	if (op->env && op->env->type == PLAYER)
+	{
+		LOG(llevDebug, "DEBUG: Object with auto_apply (%s, %s) found in %s.\n", op->name, op->arch->name, op->env->name);
+		return 0;
+	}
+
 	switch (op->type)
 	{
 		case SHOP_FLOOR:
