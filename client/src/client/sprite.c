@@ -477,7 +477,7 @@ static void red_scale(_Sprite *sprite)
 		for (j = 0; j < temp->w; j++)
 		{
 			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-			r = (int) ((0.212671 * r + 0.715160 * g + 0.072169 * b) + 32);
+			r = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
 			g = b = 0;
 			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
 		}
