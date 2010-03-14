@@ -1,8 +1,8 @@
 arch map
-name Strakewood Island
+name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-03-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,42 +19,82 @@ tile_path_8 world_0613
 bg_music jungle1.ogg|0|-1
 region strakewood_island
 end
-arch grassd_4
+arch grassd_1
 end
-arch grassd_4
+arch wall_pattern4.181
+end
+arch grassd_6
 y 1
 end
-arch grassd_2
+arch wall_pattern4.131
+y 1
+end
+arch grassd_4
 y 2
 end
-arch grassd_3
+arch wall_pattern4.131
+y 2
+end
+arch grassd_4
 y 3
 end
-arch grassd_6
+arch wall_pattern4.131
+y 3
+end
+arch grassd_3
 y 4
 end
-arch grassd_6
+arch door_wood2
+direction 3
+y 4
+end
+arch grassd_3
 y 5
 end
-arch grassd_6
+arch wall_pattern4.131
+y 5
+end
+arch grassd_3
 y 6
 end
-arch grassd_7
+arch wall_pattern4.131
+y 6
+end
+arch wmask_bflag_fire1_1
+direction 7
+y 6
+end
+arch grassd_1
 y 7
 end
-arch grassd_7
+arch wall_pattern4.131
+y 7
+end
+arch grassd_3
+y 8
+end
+arch wall_pattern4.131
 y 8
 end
 arch grassd_8
 y 9
 end
-arch grassd_8
+arch wall_pattern4.131
+y 9
+end
+arch grassd_4
 y 10
 end
 arch grassd_8
 y 11
 end
+arch wall_black1.111
+y 11
+end
 arch grassd_3
+y 12
+end
+arch stone1
 y 12
 end
 arch grassd_2
@@ -96,54 +136,95 @@ end
 arch plant_flower6
 y 23
 end
-arch grassd_8
+arch grassd_6
 x 1
 end
-arch grassd_7
+arch wall_pattern4.111
+x 1
+end
+arch wmask_fire_on_1
+x 1
+end
+arch floor_ostone11
 x 1
 y 1
 end
-arch plant_flower1
-x 1
-y 1
-end
-arch grassd_8
+arch floor_ostone11
 x 1
 y 2
 end
-arch grassd_3
+arch shelf4_wall.111
+direction 7
+x 1
+y 2
+end
+arch light7
+x 1
+y 2
+end
+arch floor_ostone11
 x 1
 y 3
 end
-arch grassd_3
+arch floor_ostone11
 x 1
 y 4
 end
-arch grassd_6
+arch floor_ostone11
 x 1
 y 5
 end
-arch grassd_6
+arch floor_ostone11
 x 1
 y 6
 end
-arch grassd_8
+arch candlelight4.101
+x 1
+y 6
+end
+arch light7
+x 1
+y 6
+end
+arch floor_ostone11
 x 1
 y 7
 end
-arch grassd_6
+arch table_lab3.111
+direction 7
+x 1
+y 7
+end
+arch floor_ostone11
 x 1
 y 8
 end
-arch grassd_2
+arch table_lab1.111
+direction 7
+x 1
+y 8
+end
+arch light3
+x 1
+y 8
+end
+arch floor_ostone11
 x 1
 y 9
 end
-arch grassd_8
+arch wall_pattern4.111
+x 1
+y 9
+end
+arch grassd_7
 x 1
 y 10
 end
 arch grassd_6
+x 1
+y 11
+end
+arch wall_black1.111
 x 1
 y 11
 end
@@ -198,43 +279,87 @@ end
 arch grassd_4
 x 2
 end
-arch grassd_2
+arch wall_pattern4.111
+x 2
+end
+arch floor_ostone11
 x 2
 y 1
 end
-arch grassd_6
+arch shelf3c.111
+x 2
+y 1
+end
+arch floor_ostone11
 x 2
 y 2
 end
-arch grassd_2
+arch floor_ostone11
 x 2
 y 3
 end
-arch grassd_6
+arch floor_ostone11
 x 2
 y 4
 end
-arch grassd_3
+arch carpet1.131
+x 2
+y 4
+end
+arch floor_ostone11
 x 2
 y 5
 end
-arch grassd_8
+arch carpet1.131
+x 2
+y 5
+end
+arch floor_ostone11
 x 2
 y 6
 end
-arch grassd_3
+arch carpet1.131
+x 2
+y 6
+end
+arch floor_ostone11
 x 2
 y 7
 end
-arch grassd_4
+arch floor_ostone11
 x 2
 y 8
 end
-arch grassd_6
+arch chair2_111
+direction 3
+x 2
+y 8
+end
+arch spawn_point
+x 2
+y 8
+arch mage_old
+name Churlgal
+level 50
+invulnerable 1
+friendly 1
+type 83
+direction 7
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/churlgal.py
+end
+end
+end
+arch floor_ostone11
 x 2
 y 9
 end
-arch grassd_3
+arch wall_pattern4.111
+x 2
+y 9
+end
+arch grassd_2
 x 2
 y 10
 end
@@ -242,7 +367,7 @@ arch grassd_4
 x 2
 y 11
 end
-arch tree_big2
+arch wall_black1.111
 x 2
 y 11
 end
@@ -298,54 +423,85 @@ arch grassd_8
 x 2
 y 23
 end
-arch grassd_7
+arch grassd_8
 x 3
 end
-arch grassd_1
+arch wall_pattern4.111
+x 3
+end
+arch floor_ostone11
 x 3
 y 1
 end
-arch grassd_1
+arch shelf3a.111
+x 3
+y 1
+end
+arch floor_ostone11
 x 3
 y 2
 end
-arch grassd_3
+arch floor_ostone11
 x 3
 y 3
 end
-arch grassd_4
+arch carpet1.151
+x 3
+y 3
+end
+arch floor_ostone11
 x 3
 y 4
 end
-arch grassd_3
+arch carpet1
+x 3
+y 4
+end
+arch floor_ostone11
 x 3
 y 5
 end
-arch grassd_8
+arch carpet1
+x 3
+y 5
+end
+arch floor_ostone11
 x 3
 y 6
 end
-arch grassd_3
+arch carpet1
+x 3
+y 6
+end
+arch floor_ostone11
 x 3
 y 7
 end
-arch tree_big5b
+arch carpet1.111
 x 3
 y 7
 end
-arch grassd_3
+arch floor_ostone11
 x 3
 y 8
 end
-arch grassd_4
+arch floor_ostone11
 x 3
 y 9
 end
-arch grassd_8
+arch wall_pattern4.111
+x 3
+y 9
+end
+arch grassd_7
 x 3
 y 10
 end
-arch grassd_6
+arch grassd_8
+x 3
+y 11
+end
+arch wall_black1.111
 x 3
 y 11
 end
@@ -409,58 +565,81 @@ arch grassd_6
 x 3
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 4
 end
-arch grassd_5
+arch wall_pattern4.111
+x 4
+end
+arch floor_ostone11
 x 4
 y 1
 end
-arch grassd_8
+arch shelf1.111
+x 4
+y 1
+end
+arch floor_ostone11
 x 4
 y 2
 end
-arch grassd_8
+arch floor_ostone11
 x 4
 y 3
 end
-arch tree_big3
-x 4
-y 3
-end
-arch grassd_3
+arch floor_ostone11
 x 4
 y 4
 end
-arch grassd_2
+arch carpet1.171
+x 4
+y 4
+end
+arch floor_ostone11
 x 4
 y 5
 end
-arch stone1
+arch carpet1.171
 x 4
 y 5
 end
-arch grassd_3
+arch floor_ostone11
 x 4
 y 6
 end
-arch grassd_1
+arch carpet1.171
+x 4
+y 6
+end
+arch floor_ostone11
 x 4
 y 7
 end
-arch grassd_7
+arch floor_ostone11
 x 4
 y 8
 end
-arch grassd_3
+arch floor_ostone11
 x 4
 y 9
 end
-arch small_stones
+arch candlelight2.101
 x 4
 y 9
 end
-arch grassd_3
+arch wall_pattern4.111
+x 4
+y 9
+end
+arch light7
+x 4
+y 9
+end
+arch grassd_4
+x 4
+y 10
+end
+arch plant_flower6
 x 4
 y 10
 end
@@ -468,15 +647,19 @@ arch grassd_6
 x 4
 y 11
 end
+arch wall_black1.111
+x 4
+y 11
+end
 arch grassd_3
 x 4
 y 12
 end
-arch grassd_7
+arch small_stones
 x 4
-y 13
+y 12
 end
-arch tree_big3
+arch grassd_7
 x 4
 y 13
 end
@@ -520,50 +703,105 @@ arch grassd_3
 x 4
 y 23
 end
-arch grassd_1
+arch grassd_6
 x 5
 end
-arch grassd_1
+arch wall_pattern4.111
+x 5
+end
+arch floor_ostone11
 x 5
 y 1
 end
-arch grassd_1
+arch wall_pattern4.131
+x 5
+y 1
+end
+arch floor_ostone11
 x 5
 y 2
 end
-arch grassd_5
+arch wall_pattern4.131
+x 5
+y 2
+end
+arch floor_ostone11
 x 5
 y 3
 end
-arch grassd_1
+arch candlelight1.101
+x 5
+y 3
+end
+arch wall_pattern4.131
+x 5
+y 3
+end
+arch light7
+x 5
+y 3
+end
+arch floor_ostone11
 x 5
 y 4
 end
-arch grassd_1
+arch wall_pattern4.131
+x 5
+y 4
+end
+arch floor_ostone11
 x 5
 y 5
 end
-arch grassd_7
+arch wall_pattern4.131
+x 5
+y 5
+end
+arch floor_ostone11
 x 5
 y 6
 end
-arch grassd_4
+arch wall_pattern4.131
+x 5
+y 6
+end
+arch light3
+x 5
+y 6
+end
+arch floor_ostone11
 x 5
 y 7
 end
-arch grassd_7
+arch wall_pattern4.131
+x 5
+y 7
+end
+arch floor_ostone11
 x 5
 y 8
 end
-arch grassd_6
+arch wall_pattern4.131
+x 5
+y 8
+end
+arch floor_ostone11
 x 5
 y 9
 end
-arch grassd_1
+arch wall_pattern4.141
+x 5
+y 9
+end
+arch grassd_4
 x 5
 y 10
 end
-arch grassd_7
+arch grassd_4
+x 5
+y 11
+end
+arch wall_black1.111
 x 5
 y 11
 end
@@ -627,26 +865,26 @@ arch grassd_1
 x 5
 y 23
 end
-arch grassd_5
-x 6
-end
 arch grassd_7
 x 6
-y 1
 end
-arch plant_flower5
+arch grassd_1
 x 6
 y 1
 end
-arch grassd_8
+arch grassd_1
 x 6
 y 2
 end
-arch grassd_8
+arch grassd_7
 x 6
 y 3
 end
-arch grassd_6
+arch grassd_2
+x 6
+y 4
+end
+arch plant_mushroom1
 x 6
 y 4
 end
@@ -654,27 +892,31 @@ arch grassd_4
 x 6
 y 5
 end
-arch grassd_7
+arch grassd_2
 x 6
 y 6
 end
-arch grassd_7
+arch grassd_6
 x 6
 y 7
 end
-arch grassd_6
+arch grassd_3
 x 6
 y 8
 end
-arch grassd_1
+arch grassd_5
 x 6
 y 9
 end
-arch grassd_7
+arch grassd_3
 x 6
 y 10
 end
-arch grassd_1
+arch grassd_4
+x 6
+y 11
+end
+arch wall_black1.111
 x 6
 y 11
 end
@@ -683,6 +925,10 @@ x 6
 y 12
 end
 arch grassd_1
+x 6
+y 13
+end
+arch small_stones
 x 6
 y 13
 end
@@ -726,42 +972,73 @@ arch grassd_6
 x 6
 y 23
 end
-arch grassd_6
+arch grassd_7
 x 7
 end
-arch grassd_7
+arch wall_black1.131
+x 7
+end
+arch grassd_1
 x 7
 y 1
 end
-arch grassd_4
+arch wall_black1.131
+x 7
+y 1
+end
+arch grassd_1
 x 7
 y 2
 end
-arch grassd_5
+arch wall_black1_d1.131
+x 7
+y 2
+end
+arch grassd_3
 x 7
 y 3
 end
-arch grassd_2
+arch wall_black1.131
+x 7
+y 3
+end
+arch grassd_4
 x 7
 y 4
 end
-arch grassd_2
+arch wall_black1.131
+x 7
+y 4
+end
+arch grassd_3
 x 7
 y 5
 end
-arch grassd_2
+arch wall_black1.131
+x 7
+y 5
+end
+arch grassd_8
 x 7
 y 6
 end
-arch plant9
+arch wall_black1.131
 x 7
 y 6
 end
-arch grassd_7
+arch grassd_3
 x 7
 y 7
 end
-arch grassd_5
+arch wall_black1.131
+x 7
+y 7
+end
+arch grassd_3
+x 7
+y 8
+end
+arch wall_black1win.131
 x 7
 y 8
 end
@@ -769,11 +1046,23 @@ arch grassd_4
 x 7
 y 9
 end
-arch grassd_7
+arch wall_black1_d2.131
+x 7
+y 9
+end
+arch grassd_8
 x 7
 y 10
 end
-arch grassd_2
+arch wall_black1_d1.131
+x 7
+y 10
+end
+arch grassd_6
+x 7
+y 11
+end
+arch wall_black1.141
 x 7
 y 11
 end
@@ -782,10 +1071,6 @@ x 7
 y 12
 end
 arch grassd_7
-x 7
-y 13
-end
-arch tree_big4b
 x 7
 y 13
 end
@@ -837,6 +1122,10 @@ arch grassd_6
 x 8
 end
 arch grassd_4
+x 8
+y 1
+end
+arch stone1
 x 8
 y 1
 end
@@ -968,10 +1257,6 @@ x 9
 y 7
 end
 arch grassd_4
-x 9
-y 8
-end
-arch tree_big2
 x 9
 y 8
 end
