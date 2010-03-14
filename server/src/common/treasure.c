@@ -2620,7 +2620,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 {
 	artifactlist *al;
 	artifact *art, *art_tmp = NULL;
-	int i, chance_tmp = 0;
+	int i = 0;
 
 	al = find_artifactlist(op->type);
 
@@ -2681,7 +2681,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 	{
 		for (art = al->items; art != NULL; art = art->next)
 		{
-			if (art->chance <= chance_tmp)
+			if (art->chance <= 0)
 			{
 				continue;
 			}
