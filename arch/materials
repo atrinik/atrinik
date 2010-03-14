@@ -283,6 +283,20 @@ tearing 80
 type 4
 end
 
+material_real 139
+name opal
+quality 80
+tearing 80
+type 4
+end
+
+material_real 140
+name amethyst
+quality 80
+tearing 80
+type 4
+end
+
 material_real 193
 name soft leather
 quality 80

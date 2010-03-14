@@ -767,6 +767,36 @@ type 60
 material_real 138
 end
 
+Allowed all
+chance 40
+difficulty 1
+artifact amethyst_small
+def_arch gem_generic
+Object
+title of small size
+item_quality 100
+item_condition 100
+face gem_purple.101
+value 220
+type 60
+material_real 140
+end
+
+Allowed all
+chance 20
+difficulty 3
+artifact amethyst_medium
+def_arch gem_generic
+Object
+title of medium size
+item_quality 100
+item_condition 100
+face gem_big_purple.101
+value 1750
+type 60
+material_real 140
+end
+
 ###################
 # Artifact jewels #
 ###################
@@ -1077,6 +1107,81 @@ title of flawless beauty
 face jewel_green.101
 material_real 132
 value 310000
+type 116
+end
+
+Allowed all
+chance 100
+difficulty 2
+artifact opal_poor
+def_arch jewel_generic
+Object
+title of very poor quality
+item_quality 100
+item_condition 100
+face jewel_purple.101
+material_real 139
+value 400
+type 116
+end
+
+Allowed all
+chance 40
+difficulty 9
+artifact opal_small
+def_arch jewel_generic
+Object
+title of very small size
+item_quality 100
+item_condition 100
+face jewel_purple.101
+material_real 139
+value 4000
+type 116
+end
+
+Allowed all
+chance 30
+difficulty 20
+artifact opal_great
+def_arch jewel_generic
+Object
+item_quality 100
+item_condition 100
+title of great value
+face jewel_purple.101
+material_real 139
+value 82500
+type 116
+end
+
+Allowed all
+chance 20
+difficulty 30
+artifact opal_except
+def_arch jewel_generic
+Object
+title of exceptional beauty
+face jewel_purple.101
+item_quality 100
+item_condition 100
+material_real 139
+value 175000
+type 116
+end
+
+Allowed all
+chance 5
+difficulty 50
+artifact opal_flawless
+def_arch jewel_generic
+Object
+item_quality 100
+item_condition 100
+title of flawless beauty
+face jewel_purple.101
+material_real 139
+value 330000
 type 116
 end
 

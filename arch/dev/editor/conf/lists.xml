@@ -148,6 +148,8 @@
 	<listentry value="136" name="glass: jasper" />
 	<listentry value="137" name="glass: jade" />
 	<listentry value="138" name="glass: aquamarine" />
+	<listentry value="139" name="glass: opal" />
+	<listentry value="140" name="glass: amethyst" />
 	<listentry value="193" name="leather: soft leather" />
 	<listentry value="194" name="leather: hardened leather" />
 	<listentry value="195" name="leather: stone leather" />
