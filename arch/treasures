@@ -2478,13 +2478,10 @@ end
 
 treasureone random_talisman
   arch ring_generic
-    chance 40
+    chance 60
   more
   arch amulet_generic
-    chance 30
-  more
-  arch ring_generic
-    chance 5
+    chance 40
 end
 
 treasureone random_gem
