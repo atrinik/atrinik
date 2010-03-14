@@ -30,11 +30,15 @@
 /amu_green.101
 /amu_yellow.101
 /amulet.101
+/amulet_copper.101
 /amulet_crystal_green.101
 /amulet_crystal_red.101
 /amulet_crystal_white.101
 /amulet_lif.101
+/amulet_mithril.101
+/amulet_moon.101
 /amulet_of_yendor.101
+/amulet_silver.101
 /ancus.101
 /ant_queen.131
 /ant_queen.132
@@ -535,6 +539,7 @@
 /bracers5.101
 /bracers6.101
 /bracers_ac.101
+/bracers_black.101
 /bread.101
 /bread2.101
 /breastplate.101
@@ -970,6 +975,7 @@
 /crossbow_large.101
 /crossbow_small.101
 /crown.101
+/crown_crystal.101
 /crown_mage.101
 /crystal10.101
 /crystal11.101
@@ -2808,6 +2814,7 @@
 /jewel_blue.101
 /jewel_clear.101
 /jewel_green.101
+/jewel_purple.101
 /jewel_red.101
 /katana.101
 /keg_big.101
@@ -2819,6 +2826,7 @@
 /key_blue.111
 /key_brown.111
 /key_elements.111
+/key_elements_2.111
 /key_gold_red.111
 /key_green.111
 /key_ice.111
