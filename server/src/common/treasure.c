@@ -67,6 +67,8 @@ static archetype *ring_arch = NULL;
 static archetype *ring_arch_normal = NULL;
 /** Pointer to the 'amulet_generic' archetype. */
 static archetype *amulet_arch = NULL;
+/** Pointer to the 'amulet_normal' archetype. */
+static archetype *amulet_arch_normal = NULL;
 
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
 static void change_treasure(struct _change_arch *ca, object *op);
@@ -685,6 +687,16 @@ void init_archetype_pointers()
 	if (!ring_arch)
 	{
 		LOG(llevBug, "BUG: Can't find 'ring_generic' arch\n");
+	}
+
+	if (amulet_arch_normal == NULL)
+	{
+		amulet_arch_normal = find_archetype("amulet_normal");
+	}
+
+	if (!amulet_arch_normal)
+	{
+		LOG(llevBug, "BUG: Can't find 'amulet_normal' arch (from artifacts)\n");
 	}
 
 	if (amulet_arch == NULL)
@@ -2014,27 +2026,38 @@ jump_break1:
 					break;
 				}
 
-				/* It's a special artifact! */
+				/* It's a special artifact! For these items, there is no point
+				 * carrying on, as the next bit is for regular rings only. */
 				if (op->arch != ring_arch && op->arch != amulet_arch)
 				{
 					break;
 				}
 
-				/* We have no special ring - now we create one. We first
+				/* We have no special ring or amulet - now we create one. We first
 				 * get us a value, material and face changed prototype.
 				 * Then we cast the powers over it. */
-				if (op->arch == ring_arch)
+				
+				/* This is called before we inserted it in the map or elsewhere */
+				if (!QUERY_FLAG(op, FLAG_REMOVED))
 				{
-					/* This is called before we inserted it in the map or elsewhere */
-					if (!QUERY_FLAG(op, FLAG_REMOVED))
-					{
-						remove_ob(op);
-					}
-
-					*op_ptr = op = arch_to_object(ring_arch_normal);
-					generate_artifact(op, difficulty, t_style, 99);
+					remove_ob(op);
 				}
 
+				/* Here we give the ring or amulet a random material.
+				 * First we use a special arch for this. Only this archtype is
+				 * allowed to be masked with a special material artifact. */
+				if (op->arch == ring_arch)
+				{
+					*op_ptr = op = arch_to_object(ring_arch_normal);
+				}
+				else
+				{
+					*op_ptr = op = arch_to_object(amulet_arch_normal);
+				}
+
+				generate_artifact(op, difficulty, t_style, 99);
+
+				/* Now we add the random boni/mali to the item */
 				if (!(flags & GT_ONLY_GOOD) && !(RANDOM() % 3))
 				{
 					SET_FLAG(op, FLAG_CURSED);
@@ -2042,7 +2065,7 @@ jump_break1:
 
 				set_ring_bonus(op, QUERY_FLAG(op, FLAG_CURSED) ? -DICE2 : DICE2, difficulty);
 
-				/* Amulets have only one ability */
+				/* Amulets have only one ability, don't bother adding any more */
 				if (op->type != RING)
 				{
 					break;

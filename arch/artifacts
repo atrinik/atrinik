@@ -3234,6 +3234,127 @@ end
 ###########
 # Amulets #
 ###########
+# Amulets are specially handled, just like rings.
+# Default amulet arch is amulet_generic. Normal artifact amulet generation uses
+# this amulet to get for example an amulet of Minor Shielding.
+Allowed none
+chance 100
+artifact amulet_normal
+def_arch amulet_generic
+Object
+value 3825
+type 39
+end
+
+Allowed amulet_normal
+chance 100
+difficulty 1
+artifact amulet_brass
+def_arch amulet_generic
+Object
+value 4050
+type 39
+item_quality 0
+material_real 642
+face amulet_tin.101
+end
+
+Allowed amulet_normal
+chance 90
+difficulty 1
+artifact amulet_copper
+def_arch amulet_generic
+Object
+value 4185
+type 39
+item_quality 0
+material_real 643
+face amulet_copper.101
+end
+
+Allowed amulet_normal
+chance 80
+difficulty 1
+artifact amulet_bronze
+def_arch amulet_generic
+Object
+value 4275
+type 39
+item_quality 0
+material_real 644
+face amulet_bronze.101
+end
+
+Allowed amulet_normal
+chance 70
+difficulty 3
+artifact amulet_silver
+def_arch amulet_generic
+Object
+value 4455
+type 39
+item_quality 0
+material_real 645
+face amulet_silver.101
+end
+
+Allowed amulet_normal
+chance 50
+difficulty 8
+artifact amulet_gold
+def_arch amulet_generic
+Object
+value 4635
+type 39
+item_quality 0
+material_real 646
+face amulet.101
+end
+
+Allowed amulet_normal
+chance 40
+difficulty 20
+artifact amulet_platinum
+def_arch amulet_generic
+Object
+value 4725
+type 39
+item_quality 0
+material_real 647
+face amulet_platinum.101
+end
+
+Allowed amulet_normal
+chance 30
+difficulty 25
+artifact amulet_adamant
+def_arch amulet_generic
+Object
+value 4995
+type 39
+item_quality 0
+material 256
+material_real 515
+face amulet_adamant.101
+end
+
+Allowed amulet_normal
+chance 20
+difficulty 50
+artifact amulet_mithril
+def_arch amulet_generic
+Object
+value 5175
+type 39
+item_quality 0
+material 256
+material_real 514
+face amulet_mithril.101
+end
+
+####################
+# Artifact Amulets #
+####################
 Allowed all
 chance 15
 difficulty 10
