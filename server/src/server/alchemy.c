@@ -636,12 +636,6 @@ static void alchemy_failure_effect(object *op, object *cauldron, recipe *rp, int
 	/* Infuriate NPCs */
 	else if (level < 45)
 	{
-		/* This is kind of kludgy I know...*/
-		cauldron->enemy = op;
-		cauldron->enemy_count = op->count;
-		npc_call_help(cauldron);
-		cauldron->enemy = NULL;
-
 		alchemy_failure_effect(op, cauldron, rp, level - 5);
 		return;
 	}

@@ -682,7 +682,6 @@ void do_mood_floor(object *op)
 			if (QUERY_FLAG(tmp, FLAG_FRIENDLY))
 			{
 				CLEAR_FLAG(tmp, FLAG_FRIENDLY);
-				remove_friendly_object(tmp);
 				tmp->move_type = 0;
 				/* Lots of checks here, but want to make sure we don't
 				 * dereference a null value */

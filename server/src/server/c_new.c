@@ -828,7 +828,6 @@ void command_new_char(char *params, int len, player *pl)
 
 	set_first_map(op);
 	SET_FLAG(op, FLAG_FRIENDLY);
-	add_friendly_object(op);
 
 	CONTR(op)->socket.update_tile = 0;
 	CONTR(op)->socket.look_position = 0;

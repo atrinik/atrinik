@@ -349,12 +349,6 @@ void remove_ns_dead_player(player *pl)
 
 	LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
 
-	/* All players should be on the friendly list - remove this one */
-	if (pl->ob->type == PLAYER)
-	{
-		remove_friendly_object(pl->ob);
-	}
-
 	if (pl->ob->map)
 	{
 		if (pl->ob->map->in_memory == MAP_IN_MEMORY)

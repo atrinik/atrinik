@@ -331,8 +331,6 @@ EXTERN mapstruct *first_map;
 EXTERN treasurelist *first_treasurelist;
 /** First artifact. */
 EXTERN artifactlist *first_artifactlist;
-/** Objects monsters will go after */
-EXTERN objectlink *first_friendly_object;
 /** God list. */
 EXTERN godlink *first_god;
 /** Race list. */

@@ -709,7 +709,6 @@ void check_login(object *op)
 	{
 		LOG(llevBug, "BUG: Player %s was loaded without friendly flag!", query_name(op, NULL));
 		SET_FLAG(op, FLAG_FRIENDLY);
-		add_friendly_object(op);
 	}
 
 	enter_exit(op, NULL);

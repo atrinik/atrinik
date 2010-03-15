@@ -261,7 +261,6 @@ void init_globals()
 	global_race_counter = 0;
 
 	first_player = NULL;
-	first_friendly_object = NULL;
 	first_map = NULL;
 	first_treasurelist = NULL;
 	first_artifactlist = NULL;

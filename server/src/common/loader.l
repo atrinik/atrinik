@@ -522,7 +522,6 @@ lex_error = 0;
 						if (IVAL)
 						{
 							SET_FLAG(op, FLAG_FRIENDLY);
-							add_friendly_object(op);
 						}
 						else
 						{

@@ -202,7 +202,6 @@ int command_debug(object *op, char *params);
 int command_dumpbelowfull(object *op, char *params);
 int command_dumpbelow(object *op, char *params);
 int command_wizpass(object *op, char *params);
-int command_dumpfriendlyobjects(object *op, char *params);
 int command_dumpallarchetypes(object *op, char *params);
 int command_dm_stealth(object *op, char *params);
 int command_dm_light(object *op, char *params);

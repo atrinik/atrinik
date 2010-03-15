@@ -1492,7 +1492,6 @@ void move_golem(object *op)
 
 		new_draw_info(NDI_UNIQUE, op->owner, buf);
 		send_golem_control(op, GOLEM_CTR_RELEASE);
-		remove_friendly_object(op);
 		CONTR(op->owner)->golem = NULL;
 		destruct_ob(op);
 		return;

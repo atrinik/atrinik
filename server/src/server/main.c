@@ -311,7 +311,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 			if (i == -1)
 			{
 				send_golem_control(CONTR(op)->golem, GOLEM_CTR_RELEASE);
-				remove_friendly_object(CONTR(op)->golem);
 				CONTR(op)->golem = NULL;
 			}
 			else

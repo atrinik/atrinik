@@ -1902,19 +1902,6 @@ int command_wizpass(object *op, char *params)
 }
 
 /**
- * Dumps all friendly objects.
- * @param op Unused.
- * @param params Unused.
- * @return 1. */
-int command_dumpfriendlyobjects(object *op, char *params)
-{
-	(void) params;
-	(void) op;
-	dump_friendly_objects();
-	return 1;
-}
-
-/**
  * Dumps all archetypes.
  * @param op Unused.
  * @param params Unused.

@@ -35,6 +35,7 @@
 extern spell spells[NROFREALSPELLS];
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
+static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
 static int can_hit(object *ob1, rv_vector *rv);
 static object *monster_choose_random_spell(object *monster);
@@ -117,7 +118,6 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 		{
 			/* The unaggressives look after themselves 8) */
 			CLEAR_FLAG(npc, FLAG_UNAGGRESSIVE);
-			npc_call_help(npc);
 		}
 	}
 	else
@@ -229,7 +229,6 @@ object *check_enemy(object *npc, rv_vector *rv)
 	if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy)
 	{
 		set_npc_enemy(npc, NULL, NULL);
-
 		return NULL;
 	}
 
@@ -261,28 +260,21 @@ object *check_enemy(object *npc, rv_vector *rv)
 
 /**
  * Tries to find an enemy for NPC. We pass the range vector since
- * our called will find the information useful.
- *
- * Currently, only move_monster() calls this function.
+ * our caller will find the information useful.
  * @param npc The NPC object.
  * @param rv Range vector.
- * @return Enemy object if found, 0 otherwise
- * @note This doesn't find an enemy - it only checks if the old enemy is
- * still valid and hittable, otherwise changes target to a better enemy
- * when possible.
- * @todo Use is_friend_of in the good vs. good and evil vs. evil
- * check? */
+ * @return Enemy object if found, NULL otherwise. */
 object *find_enemy(object *npc, rv_vector *rv)
 {
 	object *tmp = NULL;
 
-	/* If we berserk, we don't care about others - we attack all we can
+	/* If we are berserk, we don't care about others - we attack all we can
 	 * find. */
 	if (QUERY_FLAG(npc, FLAG_BERSERK))
 	{
 		/* Always clear the attacker entry */
 		npc->attacked_by = NULL;
-		tmp = find_nearest_living_creature(npc);
+		tmp = find_nearest_enemy(npc);
 
 		if (tmp)
 		{
@@ -292,15 +284,6 @@ object *find_enemy(object *npc, rv_vector *rv)
 		return tmp;
 	}
 
-	/* Here is the main enemy selection.
-	 * We want this: if there is an enemy, attack him until its not possible or
-	 * one of both is dead.
-	 * If we have no enemy and we are...
-	 * a monster: try to find a player, a pet or a friendly monster
-	 * a friendly: only target a monster which is targeting you first or targeting a player */
-
-	/* We check our old enemy.
-	 * If tmp != 0, we have succesfully callled get_rangevector() too. */
 	tmp = check_enemy(npc, rv);
 
 	if (!tmp || (npc->attacked_by && npc->attacked_by_distance < (int) rv->distance))
@@ -309,7 +292,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count))
 		{
 			/* We don't want a fight evil vs evil or good against non evil. */
-			if ((QUERY_FLAG(npc, FLAG_FRIENDLY) && QUERY_FLAG(npc->attacked_by, FLAG_FRIENDLY)) || (!QUERY_FLAG(npc, FLAG_FRIENDLY) && (!QUERY_FLAG(npc->attacked_by, FLAG_FRIENDLY) && npc->attacked_by->type != PLAYER)))
+			if (is_friend_of(npc, npc->attacked_by))
 			{
 				/* Skip it, but let's wakeup */
 				CLEAR_FLAG(npc, FLAG_SLEEP);
@@ -331,14 +314,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 		 * one. */
 		if (!QUERY_FLAG(npc, FLAG_UNAGGRESSIVE))
 		{
-			if (QUERY_FLAG(npc, FLAG_FRIENDLY))
-			{
-				tmp = find_nearest_living_creature(npc);
-			}
-			else
-			{
-				tmp = get_nearest_player(npc);
-			}
+			tmp = find_nearest_enemy(npc);
 
 			if (tmp != npc->enemy)
 			{
@@ -355,52 +331,6 @@ object *find_enemy(object *npc, rv_vector *rv)
 	/* Always clear the attacker entry */
 	npc->attacked_by = NULL;
 	return tmp;
-}
-
-/**
- * Check if target is a possible valid enemy.
- *
- * This includes possibility to see, reach, etc.
- *
- * This must be used BEFORE we assign target as op enemy.
- * @param op The object.
- * @param target The target to check.
- * @param range Range this object can see.
- * @param srange Stealth range this object can see.
- * @param rv Range vector.
- * @return 1 if valid enemy, 0 otherwise. */
-int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
-{
-	/* Will check for legal maps too */
-	if (!op || !target || !on_same_map(op, target))
-	{
-		return 0;
-	}
-
-	/* We check for sys_invisible and normal */
-	if (IS_INVISIBLE(target, op))
-	{
-		return 0;
-	}
-
-	get_rangevector(op, target, rv, 0);
-
-	if (QUERY_FLAG(target, FLAG_STEALTH) && !QUERY_FLAG(op, FLAG_XRAYS))
-	{
-		if (srange < (int) rv->distance)
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		if (range < (int) rv->distance)
-		{
-			return 0;
-		}
-	}
-
-	return 1;
 }
 
 /**
@@ -425,16 +355,18 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 		return 0;
 	}
 
-	/* If our enemy is too far away ... */
-	get_rangevector(op, enemy, rv, 0);
+	if (!get_rangevector(op, enemy, rv, 0))
+	{
+		return 0;
+	}
 
+	/* If our enemy is too far away ... */
 	if ((int) rv->distance >= MAX(MAX_AGGRO_RANGE, op->stats.Wis))
 	{
 		/* Then start counting until our mob loses aggro... */
 		if (++op->last_eat > MAX_AGGRO_TIME)
 		{
 			set_npc_enemy(op, NULL, NULL);
-
 			return 0;
 		}
 	}
@@ -448,8 +380,8 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 }
 
 /**
- * Move a monster object.
- * @param op The monster object to be moved.
+ * Monster moves its tick.
+ * @param op The monster.
  * @return 1 if the object has been freed, 0 otherwise. */
 int move_monster(object *op)
 {
@@ -495,7 +427,7 @@ int move_monster(object *op)
 		CLEAR_FLAG(op, FLAG_SLEEP);
 		op->anim_enemy_dir = rv.direction;
 
-		if (!enemy->attacked_by || (enemy->attacked_by && enemy->attacked_by_distance > (int)rv.distance))
+		if (!enemy->attacked_by || (enemy->attacked_by && enemy->attacked_by_distance > (int) rv.distance))
 		{
 			/* We have an enemy, just tell him we want him dead */
 			enemy->attacked_by = op;
@@ -661,8 +593,6 @@ int move_monster(object *op)
 		}
 	}
 
-	/* TODO: haven't we already done this in check_enemy? */
-	get_rangevector(op, enemy, &rv, 0);
 	part = rv.part;
 	/* dir is now direction towards enemy */
 	dir = rv.direction;
@@ -820,77 +750,119 @@ int move_monster(object *op)
 }
 
 /**
- * Returns the nearest living creature (monster or generator).
- *
- * Modified to deal with tiled maps properly.
- * Also fixed logic so that monsters in the lower directions were more
- * likely to be skipped - instead of just skipping the 'start' number
- * of direction, revisit them after looking at all the other spaces.
- *
- * Note that being this may skip some number of spaces, it will
- * not necessarily find the nearest living creature - it basically
- * chooses one from within a 3 space radius, and since it skips
- * the first few directions, it could very well choose something
- * 3 spaces away even though something directly north is closer.
- * @param npc The NPC object looking for nearest living creature.
- * @return Nearest living creature, NULL if none nearby.
- * @todo can_see_monsterP() is pathfinding function, it does
- * not check visibility. Use obj_in_line_of_sight()? */
-object *find_nearest_living_creature(object *npc)
+ * Check if monster can detect target (invisibility and being in range).
+ * @param op Monster.
+ * @param target The target to check.
+ * @param range Range this object can see.
+ * @param srange Stealth range this object can see.
+ * @param rv Range vector.
+ * @return 1 if can detect target, 0 otherwise. */
+static int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
 {
-	int i, j = 0, start;
-	int nx, ny, friendly_attack = 1;
-	mapstruct *m;
+	/* We check for sys_invisible and normal */
+	if (IS_INVISIBLE(target, op))
+	{
+		return 0;
+	}
+
+	if (!get_rangevector(op, target, rv, 0))
+	{
+		return 0;
+	}
+
+	if (QUERY_FLAG(target, FLAG_STEALTH) && !QUERY_FLAG(op, FLAG_XRAYS))
+	{
+		if (srange < (int) rv->distance)
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		if (range < (int) rv->distance)
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+/**
+ * Finds nearest enemy for a monster.
+ * @param ob The monster.
+ * @return Nearest enemy, NULL if none. */
+static object *find_nearest_enemy(object *ob)
+{
 	object *tmp;
+	int aggro_range, aggro_stealth;
+	rv_vector rv;
+	int i, j, xt, yt;
+	mapstruct *m;
 
-	if (!QUERY_FLAG(npc, FLAG_BERSERK) && QUERY_FLAG(npc, FLAG_FRIENDLY))
+	aggro_range = ob->stats.Wis;
+
+	if (ob->enemy || ob->attacked_by)
 	{
-		friendly_attack = 0;
+		aggro_range += 3;
 	}
 
-	start = (RANDOM() % 8) + 1;
-
-	for (i = start; j < SIZEOFFREE; j++, i = (i + 1) % SIZEOFFREE)
+	if (QUERY_FLAG(ob, FLAG_SLEEP) || QUERY_FLAG(ob, FLAG_BLIND))
 	{
-		nx = npc->x + freearr_x[i];
-		ny = npc->y + freearr_y[i];
+		aggro_range /= 2;
+		aggro_stealth = aggro_range - 2;
+	}
+	else
+	{
+		aggro_stealth = aggro_range - 2;
+	}
 
-		if (!(m = get_map_from_coord(npc->map, &nx, &ny)))
+	if (aggro_stealth < MIN_MON_RADIUS)
+	{
+		aggro_stealth = MIN_MON_RADIUS;
+	}
+
+    for (i = -aggro_range; i <= aggro_range; i++)
+	{
+        for (j = -aggro_range; j <= aggro_range; j++)
 		{
-			continue;
-		}
+			xt = ob->x + i;
+			yt = ob->y + j;
 
-		/* Quick check - if nothing alive or player skip test for targets */
-		if (!(GET_MAP_FLAGS(m, nx, ny) & (P_IS_ALIVE | P_IS_PLAYER)))
-		{
-			continue;
-		}
-
-		tmp = get_map_ob(m, nx, ny);
-
-		/* Attack player and friendly */
-		if (friendly_attack)
-		{
-			while (tmp != NULL && !QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER)
+			if (!(m = get_map_from_coord2(ob->map, &xt, &yt)))
 			{
-				tmp = tmp->above;
+				continue;
 			}
-		}
-		else
-		{
-			while (tmp != NULL && (!QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER || (QUERY_FLAG(tmp, FLAG_FRIENDLY))))
-			{
-				tmp = tmp->above;
-			}
-		}
 
-		if (tmp && can_see_monsterP(m, nx, ny, i))
-		{
-			return tmp;
+			/* Nothing alive here? Move on... */
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			{
+				continue;
+			}
+
+			for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
+			{
+				/* Get head. */
+				if (tmp->head)
+				{
+					tmp = tmp->head;
+				}
+
+				/* Skip the monster looking for enemy and not alive objects. */
+				if (tmp == ob || !IS_LIVE(tmp))
+				{
+					continue;
+				}
+
+				/* Now check the friend status, whether we can reach the enemy, and LOS. */
+				if (!is_friend_of(ob, tmp) && can_detect_target(ob, tmp, aggro_range, aggro_stealth, &rv) && obj_in_line_of_sight(tmp, &rv))
+				{
+					return tmp;
+				}
+			}
 		}
 	}
 
-	/* Nothing found */
 	return NULL;
 }
 
@@ -1170,38 +1142,6 @@ static int monster_use_bow(object *head, object *part, int dir)
 	}
 
 	return 1;
-}
-
-/**
- * NPC calls for help.
- * @param op NPC. */
-void npc_call_help(object *op)
-{
-	int x, y, xt, yt;
-	mapstruct *m;
-	object *npc;
-
-	for (x = -3; x < 4; x++)
-	{
-		for (y = -3; y < 4; y++)
-		{
-			xt = op->x + x;
-			yt = op->y + y;
-
-			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
-			{
-				continue;
-			}
-
-			for (npc = get_map_ob(m, xt, yt); npc != NULL; npc = npc->above)
-			{
-				if (QUERY_FLAG(npc, FLAG_ALIVE) && QUERY_FLAG(npc, FLAG_UNAGGRESSIVE))
-				{
-					set_npc_enemy(npc, op->enemy, NULL);
-				}
-			}
-		}
-	}
 }
 
 /**
@@ -1769,6 +1709,12 @@ int is_friend_of(object *op, object *obj)
 {
 	/* TODO: Add a few other odd types here, such as god and golem */
 	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
+	{
+		return 0;
+	}
+
+	/* Berserk */
+	if (QUERY_FLAG(op, FLAG_BERSERK))
 	{
 		return 0;
 	}

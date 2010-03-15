@@ -1260,7 +1260,6 @@ save_objects_jump1:
 					if (head->type == GOLEM)
 					{
 						send_golem_control(head, GOLEM_CTR_RELEASE);
-						remove_friendly_object(head);
 						remove_ob(head);
 						check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
 

@@ -40,11 +40,6 @@ extern void apply_death_exp_penalty(object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);
 extern uint64 calculate_total_exp(object *op);
 
-/* friend.c */
-extern void add_friendly_object(object *op);
-extern void remove_friendly_object(object *op);
-extern void dump_friendly_objects();
-
 /* holy.c */
 extern void init_gods();
 extern godlink *get_rand_god();

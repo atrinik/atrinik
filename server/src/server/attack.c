@@ -411,11 +411,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	 * remained - that is no longer the case. */
 	if (QUERY_FLAG(hitter, FLAG_ONE_HIT))
 	{
-		if (QUERY_FLAG(hitter, FLAG_FRIENDLY))
-		{
-			remove_friendly_object(hitter);
-		}
-
 		/* Remove, but don't drop inventory */
 		remove_ob(hitter);
 		check_walk_off(hitter, NULL, MOVE_APPLY_VANISHED);
@@ -423,18 +418,13 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	/* Let's handle creatures that are splitting now */
 	else if ((type & AT_PHYSICAL) && !OBJECT_FREE(op) && QUERY_FLAG(op, FLAG_SPLITTING))
 	{
-		int i, friendly = QUERY_FLAG(op, FLAG_FRIENDLY);
+		int i;
 		int unaggressive = QUERY_FLAG(op, FLAG_UNAGGRESSIVE);
 
 		if (!op->other_arch)
 		{
 			LOG(llevBug, "BUG: SPLITTING without other_arch error.\n");
 			return maxdam;
-		}
-
-		if (friendly)
-		{
-			remove_friendly_object(op);
 		}
 
 		remove_ob(op);
@@ -1138,11 +1128,6 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 		if (op->type != PLAYER)
 		{
-			if (QUERY_FLAG(op, FLAG_FRIENDLY))
-			{
-				remove_friendly_object(op);
-			}
-
 			op->speed = 0;
 			/* Remove from active list (if on) */
 			update_ob_speed(op);
