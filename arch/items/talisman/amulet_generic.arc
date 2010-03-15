@@ -1,6 +1,6 @@
 Object amulet_generic
 name amulet
-face amulet.101
+face amulet_tin.101
 layer 3
 type 39
 material_real 641
