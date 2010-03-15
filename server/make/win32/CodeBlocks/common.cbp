@@ -60,10 +60,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\..\..\src\common\friend.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\..\..\src\common\holy.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

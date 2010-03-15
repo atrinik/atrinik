@@ -590,10 +590,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\src\common\friend.c"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\src\common\holy.c"
 					>
 				</File>
