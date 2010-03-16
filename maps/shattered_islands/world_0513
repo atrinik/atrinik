@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-14 Alex Tokar
+Modified: 2010-03-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1486,6 +1486,13 @@ arch floor_ruin4
 x 11
 y 7
 end
+arch ladder_down
+slaying strakewood_island/ogre_guard
+hp 12
+sp 4
+x 11
+y 7
+end
 arch floor_ruin1
 x 11
 y 8
@@ -1563,6 +1570,13 @@ x 11
 y 19
 end
 arch floor_ruin4
+x 11
+y 20
+end
+arch ladder_down
+slaying strakewood_island/ogre_guard
+hp 12
+sp 17
 x 11
 y 20
 end
