@@ -1117,7 +1117,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 	arrow->stats.hp = arrow->stats.dam;
 	arrow->stats.dam += bow->stats.dam + bow->magic + arrow->magic;
 	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(head->level))));
-	arrow->stats.wc = 10 + (bow->magic + bow->stats.wc + arrow->magic + arrow->stats.wc-head->level);
+	arrow->stats.wc = 10 + (bow->magic + bow->stats.wc + arrow->magic + arrow->stats.wc + head->level);
 	arrow->stats.wc_range = bow->stats.wc_range;
 	arrow->map = head->map;
 	/* We use fixed value for mobs */
