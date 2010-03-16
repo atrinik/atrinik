@@ -1133,21 +1133,25 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			update_ob_speed(op);
 
 			/* Rules:
-			 * a.) mob will drop corpse for his target, not for kill hit giving player.
-			 * b.) npc kill hit WILL overwrite player target = on drop
-			 * c.) we are nice: kill hit will count if target was a npc (of mob).
-			 * will allow a bit "cheating" by serving only one hit and let kill the mob
-			 * by the npc to 99% - but this needs brain, tactic and a good timing and
-			 * so we will give him a present for it. */
+			 * 1. Monster will drop corpse for his target, not the killer (unless killer == target).
+			 * 2. NPC kill hit will overwrite player target on drop.
+			 * 3. Kill hit will count if target was an NPC. */
 			if (owner->type != PLAYER || !op->enemy || op->enemy->type != PLAYER)
 			{
-				/* no set_npc_enemy since we are killing it... */
 				op->enemy = owner;
 				op->enemy_count = owner->count;
 			}
 
-			/* Harder drop rules: if exp == 0 or not a player or not a player invoked hitter: no drop */
-			if (!exp || exp == 0 || hitter->type != PLAYER || (get_owner(hitter) && hitter->owner->type != PLAYER))
+			/* Monster killed another monster. */
+			if (hitter->type == MONSTER || (get_owner(hitter) && hitter->owner->type == MONSTER))
+			{
+				/* No loot */
+				SET_FLAG(op, FLAG_STARTEQUIP);
+				/* Force an empty corpse though. */
+				SET_FLAG(op, FLAG_CORPSE_FORCED);
+			}
+			/* No exp, no loot and no corpse. */
+			else if (!exp)
 			{
 				SET_FLAG(op, FLAG_STARTEQUIP);
 			}
