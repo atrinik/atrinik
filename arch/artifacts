@@ -4112,3 +4112,28 @@ Pow 1
 Wis 2
 material 0
 end
+
+Allowed none
+chance 1
+artifact armour_skel_lord
+def_arch bone_armour
+Object
+name skeletal dragon armour
+Con 2
+Dex 1
+ac 7
+is_named 1
+item_level 35
+item_quality 90
+item_condition 90
+protect_poison 30
+protect_fire -15
+protect_electricity -15
+protect_cold 30
+protect_impact 30
+protect_slash 30
+protect_cleave 30
+protect_pierce 30
+is_magical 1
+value 251000
+end
