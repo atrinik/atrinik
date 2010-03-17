@@ -683,27 +683,24 @@ int cast_create_town_portal(object *op)
 }
 
 /**
- * Hit all monsters around the caster.
+ * Hit all enemies around the caster.
  * @param op Who is casting.
  * @param caster What object is casting.
- * @param dam Damage to do.
+ * @param dam Base damage to do.
  * @param attacktype Attacktype.
- * @return 1 on success, 0 on failure. */
+ * @return 1. */
 int cast_destruction(object *op, object *caster, int dam, int attacktype)
 {
 	int i, j, range, xt, yt;
-	object *tmp, *tmp2;
+	object *tmp, *hitter;
 	mapstruct *m;
 
-	if (op->type != PLAYER)
-	{
-		return 0;
-	}
+	/* The hitter object. */
+	hitter = arch_to_object(spellarch[SP_DESTRUCTION]);
+	set_owner(hitter, op);
+	hitter->level = SK_level(caster);
 
-	tmp2 = get_archetype(spells[SP_DESTRUCTION].archname);
-	set_owner(tmp2, op);
-	tmp2->level = SK_level(caster);
-
+	/* Calculate maximum range of the spell */
 	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
 	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1);
 
@@ -711,7 +708,8 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 	{
         for (j = -range; j <= range; j++)
 		{
-			xt = op->x + i, yt = op->y + j;
+			xt = op->x + i;
+			yt = op->y + j;
 
 			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
@@ -727,28 +725,24 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 			/* Try to get an object to hit */
 			for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
 			{
-				if (QUERY_FLAG(tmp, FLAG_MONSTER) || (tmp->type == PLAYER && pvp_area(op, tmp)))
+				/* Get head. */
+				if (tmp->head)
 				{
+					tmp = tmp->head;
+				}
+
+				/* Skip the caster and not alive objects. */
+				if (tmp == caster || !IS_LIVE(tmp))
+				{
+					continue;
+				}
+
+				if (!is_friend_of(op, tmp))
+				{
+					hit_player(tmp, dam, hitter, attacktype);
 					break;
 				}
 			}
-
-			if (!tmp)
-			{
-				continue;
-			}
-
-			/* Get head */
-			if (tmp->head)
-			{
-				tmp = tmp->head;
-			}
-
-			tmp2->x = tmp->x;
-			tmp2->y = tmp->y;
-			insert_ob_in_map(tmp2, tmp->map, tmp2, INS_NO_MERGE | INS_NO_WALK_ON);
-			hit_player(tmp, dam, tmp2, attacktype);
-			remove_ob(tmp2);
 		}
 	}
 

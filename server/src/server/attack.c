@@ -1204,13 +1204,13 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 		*hitter = (*hitter)->head;
 	}
 
-	if ((*hitter)->env != NULL || (*target)->env != NULL)
+	if ((*hitter)->env != NULL || (*target)->env != NULL || (*hitter)->map == NULL)
 	{
 		*simple_attack = 1;
 		return 0;
 	}
 
-	if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED) || (*hitter)->map == NULL || !on_same_map((*hitter), (*target)))
+	if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED) || !on_same_map((*hitter), (*target)))
 	{
 		LOG(llevBug, "BUG: hitter (arch %s, name %s) with no relation to target\n", (*hitter)->arch->name, query_name(*hitter, NULL));
 		return 1;
