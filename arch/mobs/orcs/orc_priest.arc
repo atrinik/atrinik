@@ -6,7 +6,7 @@ is_male 1
 wc_range 20
 corpse 1
 layer 6
-will_apply 8
+behavior 2
 direction 5
 is_evil 1
 terrain_flag 1

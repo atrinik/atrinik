@@ -10,7 +10,7 @@ direction 5
 speed -0.06
 corpse 1
 wc_range 20
-will_apply 8
+behavior 2
 type 80
 is_male 1
 is_evil 1

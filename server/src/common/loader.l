@@ -577,7 +577,7 @@ lex_error = 0;
 ^anim_speed{S}      op->anim_speed = IVAL;
 ^container{S}       op->weight_limit = IVAL;
 ^no_drop{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_DROP, IVAL);
-^will_apply{S}      op->will_apply = IVAL;
+^behavior{S}        op->behavior = IVAL;
 ^use_fix_pos{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
 ^is_ethereal{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
 ^can_cast_spell{S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
@@ -1595,9 +1595,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "container ", op->weight_limit);
 	}
 
-	if (op->will_apply != op2->will_apply)
+	if (op->behavior != op2->behavior)
 	{
-		FAST_SAVE_LONG(sb, "will_apply ", op->will_apply);
+		FAST_SAVE_LONG(sb, "behavior ", op->behavior);
 	}
 
 	if (op->quickslot != op2->quickslot)

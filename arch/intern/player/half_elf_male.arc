@@ -3,7 +3,7 @@ race half-elf
 face human_m.isw.111
 randomitems player_half_elf_male
 layer 6
-will_apply 8
+behavior 2
 is_male 1
 no_pick 1
 direction 4

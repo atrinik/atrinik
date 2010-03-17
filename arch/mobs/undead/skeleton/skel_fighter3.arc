@@ -5,7 +5,7 @@ race undead
 is_male 1
 corpse 1
 layer 6
-will_apply 8
+behavior 2
 wc_range 20
 direction 5
 is_evil 1

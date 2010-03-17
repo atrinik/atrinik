@@ -5,7 +5,7 @@ race golem
 corpse 1
 layer 6
 is_neutral 1
-will_apply 8
+behavior 2
 wc_range 20
 direction 5
 terrain_flag 1

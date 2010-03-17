@@ -3,7 +3,7 @@ name chef
 race human
 type 80
 layer 6
-will_apply 8
+behavior 2
 direction 5
 wc_range 20
 is_male 1

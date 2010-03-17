@@ -3,7 +3,7 @@ name female guard
 race human
 type 80
 layer 6
-will_apply 8
+behavior 2
 direction 5
 is_female 1
 wc_range 20

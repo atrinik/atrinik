@@ -478,7 +478,7 @@ int move_monster(object *op)
 		CLEAR_FLAG(op, FLAG_SCARED);
 	}
 
-	if (op->will_apply & WILL_APPLY_SPELL_FRIENDLY)
+	if (op->behavior & BEHAVIOR_SPELL_FRIENDLY)
 	{
 		if (op->last_grace)
 		{

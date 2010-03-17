@@ -4,7 +4,7 @@ face ettin.131
 race giant
 is_male 1
 wc_range 20
-will_apply 8
+behavior 2
 corpse 1
 layer 6
 direction 5

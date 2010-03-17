@@ -78,7 +78,7 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 	object *tmp, *key = NULL;
 
 	/* Make sure a monster/NPC can actually open doors */
-	if (op->type == MONSTER && !(op->will_apply & WILL_APPLY_DOOR))
+	if (op->type == MONSTER && !(op->behavior & BEHAVIOR_OPEN_DOORS))
 	{
 		return 0;
 	}

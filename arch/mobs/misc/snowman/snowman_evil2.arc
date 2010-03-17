@@ -6,7 +6,7 @@ randomitems mob_default
 is_female 1
 is_male 1
 corpse 1
-will_apply 8
+behavior 2
 layer 6
 direction 5
 is_neutral 1

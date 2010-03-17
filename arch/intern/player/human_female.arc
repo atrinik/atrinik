@@ -2,7 +2,7 @@ Object human_female
 race human
 randomitems player_human_female
 layer 6
-will_apply 8
+behavior 2
 no_pick 1
 is_female 1
 is_neutral 1

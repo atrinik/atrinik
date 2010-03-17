@@ -5,7 +5,7 @@ race golem
 is_male 1
 corpse 1
 layer 6
-will_apply 8
+behavior 2
 is_neutral 1
 wc_range 20
 direction 5

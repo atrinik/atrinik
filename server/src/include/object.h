@@ -368,8 +368,8 @@ typedef struct obj
 	/** Ticks between animation-frames */
 	uint8 last_anim;
 
-	/** Currently only used to check whether the monster can open doors. */
-	uint8 will_apply;
+	/** Various @ref BEHAVIOR_xxx "behavior flags". */
+	uint8 behavior;
 
 	/** Monster runs away if its hp goes below this percentage. */
 	uint8 run_away;
@@ -529,17 +529,13 @@ extern struct mempool_chunk *removed_objects;
 /*@}*/
 
 /**
- * @defgroup WILL_APPLY_xxx Will apply flags
- * Will apply flags. These control what misc behavior the monster can do.
+ * @defgroup BEHAVIOR_xxx Behavior flags
+ * These control what behavior the monster can do.
  *@{*/
 /** The monster will look for other friendly monsters to cast friendly spells on. */
-#define WILL_APPLY_SPELL_FRIENDLY 1
-/** The monster can open chests. */
-#define WILL_APPLY_CHEST 2
-/** The monster can break earthwalls. */
-#define WILL_APPLY_WALL 4
+#define BEHAVIOR_SPELL_FRIENDLY 1
 /** The monster can open doors. */
-#define WILL_APPLY_DOOR 8
+#define BEHAVIOR_OPEN_DOORS 2
 /*@}*/
 
 /** Decrease an object by one. */

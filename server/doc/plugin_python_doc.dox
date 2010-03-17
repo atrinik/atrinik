@@ -111,7 +111,7 @@ List of the object fields and their meaning:
 - <b>anim_last_facing_last</b>: (integer) @copydoc object::anim_last_facing_last
 - <b>anim_speed</b>: (integer) @copydoc object::anim_speed
 - <b>last_anim</b>: (integer) @copydoc object::last_anim
-- <b>will_apply</b>: (integer) @copydoc object::will_apply
+- <b>behavior</b>: (integer) @copydoc object::behavior
 - <b>run_away</b>: (integer) @copydoc object::run_away
 - <b>layer</b>: (integer) @copydoc object::layer
 - <b>speed</b>: (float) @copydoc object::speed

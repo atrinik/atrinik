@@ -1,7 +1,7 @@
 Object drow_sorcerer
 name drow sorcerer
 face drow_sorcerer.131
-will_apply 8
+behavior 2
 race drows
 is_female 1
 wc_range 20

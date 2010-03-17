@@ -108,6 +108,13 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>behavior</td>
+		<td>@ref obj::behavior</td>
+		<td>			This entry defines what kind of actions/behavior the monster
+			is capable of.
+		</td>
+	</tr>
+	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>		If an item is set to block view, players (and monsters) cannot
@@ -423,13 +430,6 @@ Type defined by:
 			a monster can hold. Setting this to high values has little
 			effect unless the monster has a decent
 			&lt;spellpoint regen.&gt;, or the spell "regenerate mana" at it's disposal.
-		</td>
-	</tr>
-	<tr>
-		<td>misc. actions</td>
-		<td>@ref obj::will_apply</td>
-		<td>			This entry defines what kind of environment actions the
-			creature is able to perform.
 		</td>
 	</tr>
 	<tr>

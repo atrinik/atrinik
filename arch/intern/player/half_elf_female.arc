@@ -2,7 +2,7 @@ Object half_elf_female
 race half-elf
 randomitems player_half_elf_female
 layer 6
-will_apply 8
+behavior 2
 no_pick 1
 is_female 1
 is_neutral 1

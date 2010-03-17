@@ -3,7 +3,7 @@ name skeleton fighter
 face skel_fighter1.131
 race undead
 is_male 1
-will_apply 8
+behavior 2
 corpse 1
 layer 6
 wc_range 20

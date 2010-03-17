@@ -132,7 +132,7 @@ obj_fields_struct obj_fields[] =
 	{"anim_last_facing_last",  FIELDTYPE_SINT8,      offsetof(object, anim_last_facing_last),  0,                           0},
 	{"anim_speed",             FIELDTYPE_UINT8,      offsetof(object, anim_speed),             0,                           0},
 	{"last_anim",              FIELDTYPE_UINT8,      offsetof(object, last_anim),              0,                           0},
-	{"will_apply",             FIELDTYPE_UINT8,      offsetof(object, will_apply),             0,                           0},
+	{"behavior",               FIELDTYPE_UINT8,      offsetof(object, behavior),               0,                           0},
 	{"run_away",               FIELDTYPE_UINT8,      offsetof(object, run_away),               0,                           0},
 
 	{"layer",                  FIELDTYPE_UINT8,      offsetof(object, layer),                  0,                           0},

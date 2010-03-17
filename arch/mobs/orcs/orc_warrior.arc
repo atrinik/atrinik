@@ -5,7 +5,7 @@ race orc
 is_male 1
 wc_range 20
 corpse 1
-will_apply 8
+behavior 2
 layer 6
 direction 5
 is_evil 1

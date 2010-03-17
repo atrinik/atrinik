@@ -4,7 +4,7 @@ race human
 type 80
 layer 6
 direction 5
-will_apply 8
+behavior 2
 wc_range 20
 is_male 1
 is_good 1

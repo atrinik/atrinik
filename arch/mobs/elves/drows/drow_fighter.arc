@@ -3,7 +3,7 @@ name drow fighter
 face drow_fighter.131
 race drows
 is_male 1
-will_apply 8
+behavior 2
 wc_range 20
 corpse 1
 layer 6

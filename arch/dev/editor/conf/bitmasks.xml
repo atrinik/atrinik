@@ -41,11 +41,9 @@
 	<bmentry bit="19" name="Light" />
 </bitmask>
 
-<bitmask name="will_apply">
+<bitmask name="behavior">
 	<bmentry bit="0" name="Find friends for friendly spells" />
-	<bmentry bit="1" name="Open Chests" />
-	<bmentry bit="2" name="Break Walls" />
-	<bmentry bit="3" name="Open Doors" />
+	<bmentry bit="1" name="Open Doors" />
 </bitmask>
 
 <bitmask name="pick_up">

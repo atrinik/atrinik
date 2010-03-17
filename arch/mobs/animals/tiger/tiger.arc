@@ -5,7 +5,7 @@ race cat
 randomitems mob_tiger
 is_female 1
 corpse 1
-will_apply 8
+behavior 2
 layer 6
 direction 5
 terrain_flag 1
