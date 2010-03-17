@@ -38,8 +38,8 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
 static int can_hit(object *ob1, rv_vector *rv);
-static object *monster_choose_random_spell(object *monster);
-static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv);
+static object *monster_choose_random_spell(object *monster, uint32 flags);
+static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags);
 static int monster_use_bow(object *head, object *part, int dir);
 static int dist_att(int dir, object *part, rv_vector *rv);
 static int run_att(int dir, object *ob, object *part, rv_vector *rv);
@@ -478,6 +478,26 @@ int move_monster(object *op)
 		CLEAR_FLAG(op, FLAG_SCARED);
 	}
 
+	if (op->will_apply & WILL_APPLY_SPELL_FRIENDLY)
+	{
+		if (op->last_grace)
+		{
+			op->last_grace--;
+		}
+
+		if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
+		{
+			if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
+			{
+				if (monster_cast_spell(op, op, 0, NULL, SPELL_DESC_FRIENDLY))
+				{
+					/* Add monster casting delay */
+					op->last_grace += op->magic;
+				}
+			}
+		}
+	}
+
 	/* If we don't have an enemy, do special movement or the like */
 	if (!enemy)
 	{
@@ -574,7 +594,7 @@ int move_monster(object *op)
 			{
 				if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
 				{
-					if (monster_cast_spell(op, part, dir, &rv1))
+					if (monster_cast_spell(op, part, dir, &rv1, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF))
 					{
 						/* Add monster casting delay */
 						op->last_grace += op->magic;
@@ -945,8 +965,9 @@ static int can_hit(object *ob1, rv_vector *rv)
 /**
  * Choose a random spell this monster could cast.
  * @param monster The monster object.
+ * @param flags Flags the spell must have.
  * @return Random spell object, NULL if no spell found. */
-static object *monster_choose_random_spell(object *monster)
+static object *monster_choose_random_spell(object *monster, uint32 flags)
 {
 	object *altern[MAX_KNOWN_SPELLS], *tmp;
 	spell *spell;
@@ -957,7 +978,7 @@ static object *monster_choose_random_spell(object *monster)
 		if (tmp->type == ABILITY || tmp->type == SPELLBOOK)
 		{
 			/* Check and see if it's actually a useful spell */
-			if ((spell = find_spell(tmp->stats.sp)) != NULL && !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)))
+			if ((spell = find_spell(tmp->stats.sp)) != NULL && !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)) && spell->flags & flags)
 			{
 				if (tmp->stats.maxsp)
 				{
@@ -993,15 +1014,17 @@ static object *monster_choose_random_spell(object *monster)
  * @param head Head of the monster.
  * @param part Part of the monster that we use to cast.
  * @param dir Direction to cast.
- * @param rv Vector describing where the enemy is.
+ * @param rv Range vector describing where the enemy is. If NULL, will attempt
+ * to find a friendly object to cast the spell on.
+ * @param flags Flags the spell must have.
  * @return 1 if monster casted a spell, 0 otherwise. */
-static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv)
+static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags)
 {
-	object *spell_item;
+	object *spell_item, *target = NULL;
 	spell *sp;
 	int sp_typ, ability;
 
-	if ((spell_item = monster_choose_random_spell(head)) == NULL)
+	if ((spell_item = monster_choose_random_spell(head, flags)) == NULL)
 	{
 		LOG(llevDebug, "DEBUG: monster_cast_spell: No spell found! Turned off spells in %s (%s) (%d,%d)\n", query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y );
 		/* Will be turned on when picking up book */
@@ -1009,7 +1032,8 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 		return 0;
 	}
 
-	if (spell_item->stats.hp)
+	/* Only considering long range spells if we're not looking for friendly target. */
+	if (spell_item->stats.hp != -1 && rv)
 	{
 		/* Alternate long-range spell: check how far away enemy is */
 		if (rv->distance > 6)
@@ -1024,11 +1048,18 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 	else
 	{
 		sp_typ = spell_item->stats.sp;
+
+		/* Not looking for friendly target, but this is a friendly spell, and it's not the
+		 * same as long range one? */
+		if (rv && spells[sp_typ].flags & SPELL_DESC_FRIENDLY && sp_typ != spell_item->stats.hp)
+		{
+			return 0;
+		}
 	}
 
-	if ((sp = find_spell(sp_typ)) == NULL)
+	if (sp_typ == -1 || (sp = find_spell(sp_typ)) == NULL)
 	{
-		LOG(llevDebug,"DEBUG: monster_cast_spell: Can't find spell #%d for mob %s (%s) (%d,%d)\n", sp_typ, query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y);
+		LOG(llevDebug, "DEBUG: monster_cast_spell: Can't find spell #%d for mob %s (%s) (%d,%d)\n", sp_typ, query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y);
 		return 0;
 	}
 
@@ -1038,10 +1069,63 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 		dir = 0;
 	}
 
-	/* Monster doesn't have enough spell-points */
+	/* Monster doesn't have enough spellpoints */
 	if (head->stats.sp < SP_level_spellpoint_cost(head, sp_typ, -1))
 	{
 		return 0;
+	}
+
+	if (!rv)
+	{
+		int i, j, xt, yt;
+		object *tmp;
+		mapstruct *m;
+
+		for (i = -sp->range; !target && i <= sp->range; i++)
+		{
+			for (j = -sp->range; !target && j <= sp->range; j++)
+			{
+				xt = head->x + i;
+				yt = head->y + j;
+
+				if (!(m = get_map_from_coord2(head->map, &xt, &yt)))
+				{
+					continue;
+				}
+
+				/* Nothing alive here? Move on... */
+				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+				{
+					continue;
+				}
+
+				for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
+				{
+					/* Get head. */
+					if (tmp->head)
+					{
+						tmp = tmp->head;
+					}
+
+					/* Skip the monster and not alive objects. */
+					if (tmp == head || !IS_LIVE(tmp))
+					{
+						continue;
+					}
+
+					if (is_friend_of(head, tmp))
+					{
+						target = tmp;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!target)
+		{
+			return 0;
+		}
 	}
 
 	ability = (spell_item->type == ABILITY && QUERY_FLAG(spell_item, FLAG_IS_MAGICAL));
@@ -1050,6 +1134,14 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 	/* Add default cast time from spell force to monster */
 	head->last_grace += spell_item->last_grace;
 
+	/* If we're casting this spell on another object, we need to adjust some
+	 * parameters accordingly... */
+	if (target)
+	{
+		return cast_spell(target, part, dir, sp_typ, ability, spellNPC, NULL);
+	}
+
+	/* Otherwise a normal cast. */
 	return cast_spell(part, part, dir, sp_typ, ability, spellNormal, NULL);
 }
 

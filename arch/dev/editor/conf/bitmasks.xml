@@ -42,7 +42,7 @@
 </bitmask>
 
 <bitmask name="will_apply">
-	<bmentry bit="0" name="Apply Handles" />
+	<bmentry bit="0" name="Find friends for friendly spells" />
 	<bmentry bit="1" name="Open Chests" />
 	<bmentry bit="2" name="Break Walls" />
 	<bmentry bit="3" name="Open Doors" />

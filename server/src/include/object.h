@@ -528,6 +528,20 @@ extern struct mempool_chunk *removed_objects;
 #define INS_TAIL_MARKER     0x0004
 /*@}*/
 
+/**
+ * @defgroup WILL_APPLY_xxx Will apply flags
+ * Will apply flags. These control what misc behavior the monster can do.
+ *@{*/
+/** The monster will look for other friendly monsters to cast friendly spells on. */
+#define WILL_APPLY_SPELL_FRIENDLY 1
+/** The monster can open chests. */
+#define WILL_APPLY_CHEST 2
+/** The monster can break earthwalls. */
+#define WILL_APPLY_WALL 4
+/** The monster can open doors. */
+#define WILL_APPLY_DOOR 8
+/*@}*/
+
 /** Decrease an object by one. */
 #define decrease_ob(xyz) decrease_ob_nr(xyz, 1)
 

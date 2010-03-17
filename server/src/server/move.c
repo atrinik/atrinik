@@ -128,7 +128,7 @@ int move_ob(object *op, int dir, object *originator)
 		if ((flags = blocked(op, m, xt, yt, op->terrain_flag)))
 		{
 			/* A (closed) door which we can open? */
-			if ((flags & P_DOOR_CLOSED) && (op->will_apply & 8))
+			if ((flags & P_DOOR_CLOSED) && (op->will_apply & WILL_APPLY_DOOR))
 			{
 				/* Yes, we can open this door */
 				if (open_door(op, m, xt, yt, 1))
