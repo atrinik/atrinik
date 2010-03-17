@@ -110,4 +110,4 @@ class PostOffice:
 	## @param object Object we want to send.
 	## @return The calculate price.
 	def get_price(self, object):
-		return int(max(object.value * max(object.quantity, 1) / 100 * 5, 20))
+		return int(max(object.GetItemCost(object, COST_TRUE) / 100 * 5, 20))
