@@ -1010,6 +1010,23 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
 }
 
 /**
+ * Check if it's worth it for monster to cast a spell, based on the target.
+ * @param target Target.
+ * @param spell_id Spell ID being checked.
+ * @return 1 if it's worth it, 0 otherwise. */
+static int monster_spell_useful(object *target, int spell_id)
+{
+	switch (spell_id)
+	{
+		case SP_MINOR_HEAL:
+		case SP_GREATER_HEAL:
+			return target->stats.hp != target->stats.maxhp;
+	}
+
+	return 1;
+}
+
+/**
  * Tries to make a monster cast a spell.
  * @param head Head of the monster.
  * @param part Part of the monster that we use to cast.
@@ -1063,16 +1080,21 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 		return 0;
 	}
 
-	/* Spell should be cast on caster (ie, heal, strength) */
-	if (sp->flags & SPELL_DESC_SELF)
-	{
-		dir = 0;
-	}
-
 	/* Monster doesn't have enough spellpoints */
 	if (head->stats.sp < SP_level_spellpoint_cost(head, sp_typ, -1))
 	{
 		return 0;
+	}
+
+	/* Spell should be cast on caster (ie, heal, strength) */
+	if (sp->flags & SPELL_DESC_SELF)
+	{
+		dir = 0;
+
+		if (rv && !monster_spell_useful(head, sp_typ))
+		{
+			return 0;
+		}
 	}
 
 	if (!rv)
@@ -1113,7 +1135,7 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 						continue;
 					}
 
-					if (is_friend_of(head, tmp))
+					if (is_friend_of(head, tmp) && monster_spell_useful(tmp, sp_typ))
 					{
 						target = tmp;
 						break;
