@@ -34,7 +34,7 @@
 					<Add directory="Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cp .\Release\plugin_arena.dll ..\..\..\plugins\plugin_arena.dll" />
+					<Add after="cmd /c copy /Y .\Release\plugin_arena.dll ..\..\..\plugins\plugin_arena.dll" />
 				</ExtraCommands>
 			</Target>
 		</Build>
