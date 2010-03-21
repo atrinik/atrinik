@@ -9,4 +9,5 @@ sys_object 1
 no_drop 1
 no_pick 1
 sp 11
+hp 11
 end
