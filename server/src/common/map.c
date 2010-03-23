@@ -289,10 +289,9 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
  * @param name Shared string of the map path name.
  * @return ::mapstruct which has a name matching the given argument,
  * NULL if no such map. */
-mapstruct *has_been_loaded_sh(const char *name)
+mapstruct *has_been_loaded_sh(shstr *name)
 {
 	mapstruct *map;
-	int namebug = 0;
 
 	if (!name || !*name)
 	{
@@ -301,17 +300,8 @@ mapstruct *has_been_loaded_sh(const char *name)
 
 	if (*name != '/' && *name != '.')
 	{
-		/* Can't handle offset using shared strings... */
-		char namebuf[HUGE_BUF];
-
-		namebug = 1;
-
-		namebuf[0] = '/';
-		namebuf[1] = '\0';
-		strcat(namebuf, name);
-		name = add_string(namebuf);
-
-		LOG(llevDebug, "DEBUG: has_been_loaded_sh: found map name without starting '/': fixed! %s\n", STRING_SAFE(name));
+		LOG(llevDebug, "DEBUG: has_been_loaded_sh(): Found map name without starting '/' or '.' (%s)\n", name);
+		return NULL;
 	}
 
 	for (map = first_map; map; map = map->next)
@@ -320,11 +310,6 @@ mapstruct *has_been_loaded_sh(const char *name)
 		{
 			break;
 		}
-	}
-
-	if (namebug)
-	{
-		free_string_shared(name);
 	}
 
 	return map;
@@ -360,7 +345,7 @@ char *create_pathname(const char *name)
  * Converts '/' to '@'.
  * @param s Path of the map for the items.
  * @return The absolute path. */
-static char *create_items_path(const char *s)
+static char *create_items_path(shstr *s)
 {
 	static char buf[MAX_BUF];
 	char *t;
@@ -479,7 +464,7 @@ static int check_path(const char *name, int prepend_dir)
  * @return Pointer to path. */
 char *normalize_path(const char *src, const char *dst, char *path)
 {
-	char *p, *q;
+	char *p;
 	char buf[HUGE_BUF];
 
 	if (*dst == '/')
@@ -488,7 +473,7 @@ char *normalize_path(const char *src, const char *dst, char *path)
 	}
 	else
 	{
-		strcpy (buf, src);
+		strcpy(buf, src);
 
 		if ((p = strrchr(buf, '/')))
 		{
@@ -502,31 +487,36 @@ char *normalize_path(const char *src, const char *dst, char *path)
 		strcat(buf, dst);
 	}
 
-	q = p = buf;
+	p = buf;
 
-	while ((q = strstr(q, "//")))
+	if (strstr(p, "//"))
 	{
-		p = ++q;
+		LOG(llevBug, "BUG: Map path with unhandled '//' element: %s\n", buf);
 	}
 
 	*path = '\0';
-	q = path;
 	p = strtok(p, "/");
 
 	while (p)
 	{
-		if (!strcmp(p, ".."))
+		/* Ignore "./" path elements */
+		if (!strcmp(p, "."))
 		{
-			q = strrchr(path, '/');
+		}
+		else if (!strcmp(p, ".."))
+		{
+			/* Remove last inserted path element from 'path' */
+			char *separator = strrchr(path, '/');
 
-			if (q)
+			if (separator)
 			{
-				*q = '\0';
+				*separator = '\0';
 			}
 			else
 			{
+				LOG(llevBug, "BUG: Illegal path (too many \"..\" entries): %s\n", dst);
 				*path = '\0';
-				LOG(llevBug, "BUG: Illegal path: %s\n", dst);
+				return path;
 			}
 		}
 		else
@@ -1799,16 +1789,15 @@ static int load_map_header(FILE *fp, mapstruct *m)
 				{
 					mapstruct *neighbour;
 					int dest_tile = map_tiled_reverse[tile - 1];
-					const char *path_sh = add_string(value);
+					shstr *path_sh = add_string(value);
 
 					m->tile_path[tile - 1] = path_sh;
 
 					/* If the neighbouring map tile has been loaded, set up the map pointers */
-					if ((neighbour = has_been_loaded_sh(path_sh)))
+					if ((neighbour = has_been_loaded_sh(path_sh)) && (neighbour->in_memory == MAP_IN_MEMORY || neighbour->in_memory == MAP_LOADING))
 					{
 						m->tile_map[tile - 1] = neighbour;
 
-						/* Replaced strcmp with ptr check since its a shared string now */
 						if (neighbour->tile_path[dest_tile] == NULL || neighbour->tile_path[dest_tile] == m->path)
 						{
 							neighbour->tile_map[dest_tile] = m;
@@ -1829,7 +1818,7 @@ static int load_map_header(FILE *fp, mapstruct *m)
 
 	if (strcmp(key, "end"))
 	{
-		LOG(llevBug, "BUG: Got premature eof on map header!\n");
+		LOG(llevBug, "BUG: Got premature EOF on map header!\n");
 		return 1;
 	}
 
@@ -2434,15 +2423,22 @@ void free_map(mapstruct *m, int flag)
 
 	for (i = 0; i < TILED_MAPS; i++)
 	{
+		/* Delete the backlinks in other tiled maps to our map */
+		if (m->tile_map[i])
+		{
+			if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m)
+			{
+				LOG(llevBug, "BUG: Freeing map %s linked to %s which links back to another map.\n", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+			}
+
+			m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
+			m->tile_map[i] = NULL;
+		}
+
 		FREE_AND_CLEAR_HASH(m->tile_path[i]);
 	}
 
-	if (m->bitmap)
-	{
-		free(m->bitmap);
-		m->bitmap = NULL;
-	}
-
+	FREE_AND_NULL_PTR(m->bitmap);
 	m->in_memory = MAP_SWAPPED;
 }
 
@@ -2462,8 +2458,8 @@ void delete_map(mapstruct *m)
 
 	if (m->in_memory == MAP_IN_MEMORY)
 	{
-		/* change to MAP_SAVING, even though we are not,
-		  * so that remove_ob doesn't do as much work. */
+		/* Change to MAP_SAVING, even though we are not,
+		 * so that remove_ob doesn't do as much work. */
 		m->in_memory = MAP_SAVING;
 		free_map(m, 1);
 	}
@@ -2533,7 +2529,7 @@ void delete_map(mapstruct *m)
 mapstruct *ready_map_name(const char *name, int flags)
 {
 	mapstruct *m;
-	const char *name_sh;
+	shstr *name_sh;
 
 	if (!name)
 	{
@@ -2605,14 +2601,6 @@ mapstruct *ready_map_name(const char *name, int flags)
 		LOG(llevDebug, "clean. ");
 		clean_tmp_map(m);
 		m->in_memory = MAP_IN_MEMORY;
-
-		/* tempnam() on sun systems (probably others) uses malloc
-		 * to allocated space for the string.  Free it here.
-		 * In some cases, load_temporary_map above won't find the
-		 * temporary map, and so has reloaded a new map.  If that
-		 * is the case, tmpname is now null */
-		FREE_AND_NULL_PTR(m->tmpname);
-		/* It's going to be saved anew anyway */
 	}
 
 	/* Below here is stuff common to both first time loaded maps and
@@ -2906,7 +2894,7 @@ void set_map_reset_time(mapstruct *map)
 		MAP_WHEN_RESET(map) = seconds() + MAP_MAXRESET;
 	else
 #endif
-		MAP_WHEN_RESET(map) = seconds() + MAP_RESET_TIMEOUT (map);
+		MAP_WHEN_RESET(map) = seconds() + MAP_RESET_TIMEOUT(map);
 #else
 	/* Will never be reset */
 	MAP_WHEN_RESET(map) = -1;
