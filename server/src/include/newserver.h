@@ -98,7 +98,7 @@ typedef struct Buffer_struct
 #endif
 
 /** This contains basic information on the socket structure. */
-typedef struct socket_struct_struct
+typedef struct socket_struct
 {
 	/** The actual file descriptor we are using. */
 	int fd;
@@ -179,6 +179,9 @@ typedef struct socket_struct_struct
 
 	/** Has the client requested hfiles file? */
 	uint32 rf_hfiles:1;
+
+	/** Is the client a bot? */
+	uint32 is_bot:1;
 
 	/** Start of drawing of look window. */
 	sint16 look_position;

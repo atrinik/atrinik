@@ -130,6 +130,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->rf_hfiles = 0;
 	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
+	ns->is_bot = 0;
 	ns->inbuf.len = 0;
 	ns->inbuf.buf = malloc(MAXSOCKBUF);
 

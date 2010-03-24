@@ -308,7 +308,7 @@ int command_who(object *op, char *params)
 
 	(void) params;
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
 		if (pl->dm_stealth && !wiz)
 		{
@@ -338,11 +338,26 @@ int command_who(object *op, char *params)
 
 			if (wiz)
 			{
-				snprintf(buf, sizeof(buf), "%s the %s %s (@%s) [%s]%s%s (%d)", pl->ob->name, sex, pl->ob->race, pl->socket.host, pl->ob->map->path, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "", pl->ob->count);
+				snprintf(buf, sizeof(buf), "%s (%s) [%s] (#%d)", pl->ob->name, pl->socket.host, pl->ob->map->path, pl->ob->count);
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)%s%s", pl->ob->name, sex, pl->ob->race, pl->ob->level, QUERY_FLAG(pl->ob, FLAG_WIZ) ? " [WIZ]" : "", pl->afk ? " [AFK]" : "");
+				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, sex, pl->ob->race, pl->ob->level);
+
+				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+				{
+					strncat(buf, " [WIZ]", sizeof(buf) - strlen(buf) - 1);
+				}
+
+				if (pl->afk)
+				{
+					strncat(buf, " [AFK]", sizeof(buf) - strlen(buf) - 1);
+				}
+
+				if (pl->socket.is_bot)
+				{
+					strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
+				}
 			}
 
 			new_draw_info(NDI_UNIQUE, op, buf);

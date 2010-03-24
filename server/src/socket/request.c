@@ -289,6 +289,21 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
+		else if (!strcmp(cmd, "bot"))
+		{
+			int is_bot = atoi(param);
+
+			if (is_bot != 0 && is_bot != 1)
+			{
+				strcat(cmdback, "FALSE");
+			}
+			else
+			{
+				ns->is_bot = is_bot;
+				snprintf(tmpbuf, sizeof(tmpbuf), "%d", is_bot);
+				strcat(cmdback, tmpbuf);
+			}
+		}
 		else
 		{
 			/* Didn't get a setup command we understood - report a
