@@ -925,11 +925,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts major healing on you healing %d hp!", op->name, heal);
+					new_draw_info_format(NDI_UNIQUE, target, "%s casts greater healing on you healing %d hp!", op->name, heal);
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts major healing on you but it fails!", op->name);
+					new_draw_info_format(NDI_UNIQUE, target, "%s casts greater healing on you but it fails!", op->name);
 				}
 			}
 

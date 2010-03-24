@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-14 Alex Tokar
+Modified: 2010-03-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2438,7 +2438,7 @@ arch spawn_point
 x 15
 y 15
 arch guard_pole
-name Forest guard
+name Tolowen
 can_reflect_missile 0
 direction 7
 level 25
@@ -2454,6 +2454,10 @@ resist_pierce 15
 resist_cleave 15
 resist_magic 50
 type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/tolowen.py
+end
 end
 end
 arch light7
