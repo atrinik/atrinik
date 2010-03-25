@@ -17,7 +17,7 @@ costs = {
 	"remove_curse": 100 + (2 * activator.level * activator.level),
 	"remove_damnation": 100 + (3 * activator.level * activator.level),
 	"remove_depletion": 100 + (4 * activator.level * activator.level),
-	"cure_disease": 100 * activator.level,
+	"cure_disease": 100 + (activator.level * activator.level),
 	"cure_poison": 5 * activator.level,
 }
 
