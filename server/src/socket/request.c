@@ -1891,7 +1891,7 @@ void draw_client_map2(object *pl)
 
 					if (mp->fflag[1] & FFLAG_PROBE)
 					{
-						SockList_AddChar(&sl, mp->ff_probe[2]);
+						SockList_AddChar(&sl, mp->ff_probe[1]);
 					}
 				}
 
