@@ -14,7 +14,7 @@ text = msg.split()
 
 ## Dictionary of all possible costs of services. Based on player's level.
 costs = {
-	"remove_curse": 100 * activator.level,
+	"remove_curse": 100 + (2 * activator.level * activator.level),
 	"remove_damnation": 100 + (3 * activator.level * activator.level),
 	"remove_depletion": 100 + (4 * activator.level * activator.level),
 	"cure_disease": 100 * activator.level,
