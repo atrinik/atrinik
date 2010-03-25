@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-02-21 Alex Tokar
+Modified: 2010-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -427,6 +427,10 @@ arch quest_container
 name King Rhun's Cloak
 arch cloak_rhun
 end
+end
+arch quest_container
+name Gandyld's Quest II
+sub_type 1
 end
 end
 end

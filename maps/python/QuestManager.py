@@ -80,6 +80,9 @@ class QuestManager:
 
 	## Check if a quest has been completed before.
 	def completed(self):
+		if not self.started():
+			return 0
+
 		# Check the quest object's magic field to see if the quest has
 		# been completed.
 		if self.quest_object.magic == QUEST_STATUS_COMPLETED:

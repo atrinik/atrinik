@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2009-12-05 Alex Tokar
+Modified: 2010-03-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -176,6 +176,10 @@ type 83
 level 18
 Wis 3
 direction 3
+arch quest_container
+name Gandyld's Quest
+sub_type 1
+end
 end
 end
 arch floor_stone3b
