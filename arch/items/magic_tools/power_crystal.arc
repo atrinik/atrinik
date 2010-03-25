@@ -7,7 +7,8 @@ animation power_crystal
 is_animated 1
 anim_speed 5
 type 156
-weight 3
-value 3000000
+weight 300
+value 30000
 material 64
+is_magical 1
 end
