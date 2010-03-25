@@ -937,6 +937,10 @@ arch floor_sand_d1
 x 6
 y 10
 end
+arch grassd_m3
+x 6
+y 10
+end
 arch grassd_6
 x 6
 y 11
