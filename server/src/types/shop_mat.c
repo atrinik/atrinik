@@ -98,7 +98,7 @@ int apply_shop_mat(object *shop_mat, object *op)
 			if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
 			{
 				/* shop */
-				esrv_map_scroll(&CONTR(op)->socket, freearr_x[i],freearr_y[i]);
+				esrv_map_scroll(&CONTR(op)->socket, freearr_x[i], freearr_y[i]);
 				CONTR(op)->socket.update_tile = 0;
 				CONTR(op)->socket.look_position = 0;
 			}

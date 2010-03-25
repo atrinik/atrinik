@@ -226,7 +226,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 
 	ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
 
-	if (op->type == PLAYER)
+	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
 	{
 		MapNewmapCmd(CONTR(op));
 	}
@@ -327,7 +327,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 
 	tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
 
-	if (tmp && tmp->type == PLAYER)
+	if (tmp && tmp->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(tmp)->socket.socket_version, 1029))
 	{
 		MapNewmapCmd(CONTR(tmp));
 	}
