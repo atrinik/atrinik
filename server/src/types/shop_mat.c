@@ -95,7 +95,7 @@ int apply_shop_mat(object *shop_mat, object *op)
 			op->y += freearr_y[i];
 			rv = (insert_ob_in_map(op, op->map, shop_mat, 0) == NULL);
 
-			if (op->type == PLAYER)
+			if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
 			{
 				/* shop */
 				esrv_map_scroll(&CONTR(op)->socket, freearr_x[i],freearr_y[i]);

@@ -110,7 +110,7 @@ int move_ob(object *op, int dir, object *originator)
 			tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
 		}
 
-		if (op->type == PLAYER)
+		if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
 		{
 			esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
 			CONTR(op)->socket.look_position = 0;
@@ -151,7 +151,7 @@ int move_ob(object *op, int dir, object *originator)
 	op->x += freearr_x[dir];
 	op->y += freearr_y[dir];
 
-	if (op->type == PLAYER)
+	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
 	{
 		esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
 		CONTR(op)->socket.look_position = 0;

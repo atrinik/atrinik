@@ -539,3 +539,7 @@ extern Client_Player cpl;
 #define COLOR_BLACK 	255
 
 #define COLOR_FLAG_CLIPPED 0x0100
+
+#define MAP_UPDATE_CMD_SAME 0
+#define MAP_UPDATE_CMD_NEW 1
+#define MAP_UPDATE_CMD_CONNECTED 2

@@ -129,7 +129,7 @@ extern void remove_light_source_list(mapstruct *map);
 extern int obj_in_line_of_sight(object *obj, rv_vector *rv);
 
 /* map.c */
-extern mapstruct *has_been_loaded_sh(const char *name);
+extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
 extern char *normalize_path(const char *src, const char *dst, char *path);
 extern void dump_map(mapstruct *m);

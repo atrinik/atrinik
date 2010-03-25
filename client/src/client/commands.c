@@ -68,13 +68,6 @@
 static int scrolldx = 0, scrolldy = 0;
 
 /**
- * Do we need to clear the map due to a previous mapstats command?
- *
- * We can't clear the map in mapstats command, as that would leave the
- * map blacked out until map2 command is received. */
-static int do_clear_map = 0;
-
-/**
  * Book command, used to initialize the book interface.
  * @param data Data of the book
  * @param len Length of the data */
@@ -1488,36 +1481,95 @@ void QuickSlotCmd(char *data)
  * @param len Length of the data */
 void Map2Cmd(unsigned char *data, int len)
 {
+	static int mx = 0, my = 0;
 	int mask, x, y, pos = 0, ext_flag, xdata;
-	int ext1, ext2, ext3, probe;
+	int mapstat, ext1, ext2, ext3, probe;
 	int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
 	char pname1[64], pname2[64], pname3[64], pname4[64];
 	uint16 face;
 
-	if (scrolldx || scrolldy)
-		display_mapscroll(scrolldx, scrolldy);
-
-	scrolldy = scrolldx = 0;
+	mapstat = (uint8) (data[pos++]);
 	map_transfer_flag = 0;
-	xpos = (uint8)(data[pos++]);
 
-	/* its not xpos, its the changed map marker */
-	if (xpos == 255)
+	if (mapstat != MAP_UPDATE_CMD_SAME)
 	{
-		xpos = (uint8)(data[pos++]);
+		char mapname[256], bg_music[256];
+
+		strncpy(mapname, (const char *) (data + pos), sizeof(mapname) - 1);
+		pos += strlen(mapname) + 1;
+		strncpy(bg_music, (const char *) (data + pos), sizeof(bg_music) - 1);
+		pos += strlen(bg_music) + 1;
+
+		if (mapstat == MAP_UPDATE_CMD_NEW)
+		{
+			int map_w, map_h;
+
+			map_w = (uint8) (data[pos++]);
+			map_h = (uint8) (data[pos++]);
+			xpos = (uint8) (data[pos++]);
+			ypos = (uint8) (data[pos++]);
+			mx = xpos;
+			my = ypos;
+			remove_item_inventory(locate_item(0));
+			InitMapData(map_w, map_h, xpos, ypos);
+		}
+		else
+		{
+			int xoff, yoff;
+
+			mapstat = (sint8) (data[pos++]);
+			xoff = (sint8) (data[pos++]);
+			yoff = (sint8) (data[pos++]);
+			xpos = (uint8) (data[pos++]);
+			ypos = (uint8) (data[pos++]);
+			mx = xpos;
+			my = ypos;
+			remove_item_inventory(locate_item(0));
+			display_mapscroll(xoff, yoff);
+		}
+
+		update_map_data(mapname, bg_music);
+	}
+	else
+	{
+		xpos = (uint8) (data[pos++]);
+		ypos = (uint8) (data[pos++]);
+
+		/* we have moved */
+		if ((xpos - mx || ypos - my))
+		{
+			static int step = 0;
+			static uint32 tick = 0;
+
+			remove_item_inventory(locate_item(0));
+			cpl.win_below_slot = 0;
+
+			display_mapscroll(xpos - mx, ypos - my);
+
+			if (LastTick - tick > 125)
+			{
+				step++;
+
+				if (step % 2)
+				{
+					sound_play_effect(SOUND_STEP1, 0, 100);
+				}
+				else
+				{
+					step = 0;
+					sound_play_effect(SOUND_STEP2, 0, 100);
+				}
+
+				tick = LastTick;
+			}
+		}
+
+		mx = xpos;
+		my = ypos;
 	}
 
-	ypos = (uint8)(data[pos++]);
-
-	/* map windows is from range to +MAPWINSIZE_X */
 	MapData.posx = xpos;
 	MapData.posy = ypos;
-
-	if (do_clear_map)
-	{
-		clear_map();
-		do_clear_map = 0;
-	}
 
 	while (pos < len)
 	{
@@ -1535,7 +1587,9 @@ void Map2Cmd(unsigned char *data, int len)
 		 * this means the object is destroyed.
 		 * the other flags are assigned to map layer. */
 		if ((mask & 0x3f) == 0)
+		{
 			display_map_clearcell(x, y);
+		}
 
 		ext3 = ext2 = ext1 = -1;
 		pname1[0] = 0;
@@ -1624,7 +1678,7 @@ void Map2Cmd(unsigned char *data, int len)
 				if (ff_flag & 0x8)
 				{
 					ff0 = GetShort_String(data + pos);
-					pos+=2;
+					pos += 2;
 					add_anim(ANIM_KILL, xpos + x, ypos + y, ff0);
 				}
 
@@ -1760,45 +1814,6 @@ void Map2Cmd(unsigned char *data, int len)
 }
 
 /**
- * Map scroll command.
- * @param data The incoming data */
-void map_scrollCmd(char *data)
-{
-	static int step = 0;
-	static uint32 tick = 0;
-	char *buf;
-
-	scrolldx += atoi(data);
-	buf = strchr(data, ' ');
-
-	if (!buf)
-	{
-		LOG(llevError, "ERROR: map_scrollCmd(): Got short packet.\n");
-		return;
-	}
-
-	buf++;
-	scrolldy += atoi(buf);
-
-	if (LastTick - tick > 125)
-	{
-		step++;
-
-		if (step % 2)
-		{
-			sound_play_effect(SOUND_STEP1, 0, 100);
-		}
-		else
-		{
-			step = 0;
-			sound_play_effect(SOUND_STEP2, 0, 100);
-		}
-
-		tick = LastTick;
-	}
-}
-
-/**
  * Magic map command. Currently unused. */
 void MagicMapCmd(unsigned char *data, int len)
 {
@@ -1855,31 +1870,6 @@ void SendSetFaceMode(ClientSocket csock, int mode)
 
 	sprintf(buf, "setfacemode %d", mode);
 	cs_write_string(csock.fd, buf, strlen(buf));
-}
-
-/**
- * Map stats command. Server sent us map data like map name, background music, etc.
- * @param data The incoming data */
-void MapstatsCmd(unsigned char *data)
-{
-	char name[256], bg_music[256];
-	char *tmp;
-	int w, h, x, y;
-
-	sscanf((char *) data, "%d %d %d %d %s", &w, &h, &x, &y, bg_music);
-	tmp = strchr((char *) data, ' ');
-	tmp = strchr(tmp + 1, ' ');
-	tmp = strchr(tmp + 1, ' ');
-	tmp = strchr(tmp + 1, ' ');
-	tmp = strchr(tmp + 1, ' ');
-	strcpy(name, tmp + 1);
-	InitMapData(name, w, h, x, y, bg_music);
-	map_udate_flag = 2;
-
-	if (w > 1)
-	{
-		do_clear_map = 1;
-	}
 }
 
 /**

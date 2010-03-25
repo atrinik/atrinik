@@ -466,4 +466,8 @@ enum
  * 1.0 client is no longer used. */
 #define COMPARE_CLIENT_VERSION(ver1, ver2) ((ver1) != 991017 && (ver1) >= (ver2))
 
+#define MAP_UPDATE_CMD_SAME 0
+#define MAP_UPDATE_CMD_NEW 1
+#define MAP_UPDATE_CMD_CONNECTED 2
+
 #endif

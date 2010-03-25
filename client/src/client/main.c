@@ -401,7 +401,7 @@ static void init_game_data()
 	}
 
 	memset(&options, 0, sizeof(struct _options));
-	InitMapData("", 0, 0, 0, 0, "no_music");
+	InitMapData(0, 0, 0, 0);
 
 	for (i = 0; i < (int) BITMAP_MAX; i++)
 	{

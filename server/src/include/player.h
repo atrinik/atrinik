@@ -252,6 +252,24 @@ typedef struct pl_player
 	/** This is initialized from init_player_exp(). */
 	int last_skill_index;
 
+	/** Map update command. */
+	int map_update_cmd;
+
+	/** Tile for map update. */
+	int map_update_tile;
+
+	/** Last X position we sent to client. */
+	int map_tile_x;
+
+	/** Last Y position we sent to client. */
+	int map_tile_y;
+
+	/** Scroll X offset between 2 map updates. */
+	int map_off_x;
+
+	/** Scroll Y offset between 2 map updates. */
+	int map_off_y;
+
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
 	float action_timer;
 
