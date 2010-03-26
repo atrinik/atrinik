@@ -1794,9 +1794,10 @@ static int load_map_header(FILE *fp, mapstruct *m)
 					{
 						int dest_tile = map_tiled_reverse[tile - 1];
 
+						m->tile_map[tile - 1] = neighbour;
+
 						if (neighbour->tile_path[dest_tile] == NULL || neighbour->tile_path[dest_tile] == m->path)
 						{
-							m->tile_map[tile - 1] = neighbour;
 							neighbour->tile_map[dest_tile] = m;
 						}
 					}
