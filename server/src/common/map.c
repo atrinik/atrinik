@@ -55,31 +55,22 @@ static void allocate_map(mapstruct *m);
 static void free_all_objects(mapstruct *m);
 
 /**
- * This updates the orig_map->tile_map[tile_num] value after loading the
- * map. It also takes care of linking back the freshly loaded map's
- * tile_map values if it tiles back to this one.
- * @param orig_map Original map.
- * @param tile_num Tile number.
- * @return The value of orig_map->tile_map[tile_num]. */
-static mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
+ * Try loading the connected map tile with the given number.
+ * @param orig_map Base map.
+ * @param tile_num Tile number to connect to.
+ * @return NULL if loading or tiling fails, loaded neighbor map otherwise. */
+static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
-	int dest_tile = map_tiled_reverse[tile_num];
+	mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? 1 : 0));
 
-	orig_map->tile_map[tile_num] = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? 1 : 0));
-
-	if (orig_map->tile_map[tile_num]->tile_path[dest_tile])
+	if (!map || map != orig_map->tile_map[tile_num])
 	{
-		if (orig_map->tile_map[tile_num]->tile_path[dest_tile] == orig_map->path)
-		{
-			orig_map->tile_map[tile_num]->tile_map[dest_tile] = orig_map;
-		}
-	}
-	else
-	{
-		LOG(llevBug, "BUG: load_and_link_tiled_map(): map %s (%d) points to map %s but has no relink\n", orig_map->path, tile_num, orig_map->tile_map[tile_num]->path);
+		LOG(llevBug, "BUG: Failed to connect map %s with tile #%d (%s).\n", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
+		FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
+		return NULL;
 	}
 
-	return orig_map->tile_map[tile_num];
+	return map;
 }
 
 /**
@@ -109,7 +100,10 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 		{
 			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(map1, i);
+				if (!load_and_link_tiled_map(map1, i))
+				{
+					continue;
+				}
 			}
 
 			if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id)))
@@ -209,7 +203,10 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 		{
 			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(map1, i);
+				if (!load_and_link_tiled_map(map1, i))
+				{
+					continue;
+				}
 			}
 
 			if (map1->tile_map[i] == map2)
@@ -1788,7 +1785,6 @@ static int load_map_header(FILE *fp, mapstruct *m)
 				if (value)
 				{
 					mapstruct *neighbour;
-					int dest_tile = map_tiled_reverse[tile - 1];
 					shstr *path_sh = add_string(value);
 
 					m->tile_path[tile - 1] = path_sh;
@@ -1796,10 +1792,11 @@ static int load_map_header(FILE *fp, mapstruct *m)
 					/* If the neighbouring map tile has been loaded, set up the map pointers */
 					if ((neighbour = has_been_loaded_sh(path_sh)) && (neighbour->in_memory == MAP_IN_MEMORY || neighbour->in_memory == MAP_LOADING))
 					{
-						m->tile_map[tile - 1] = neighbour;
+						int dest_tile = map_tiled_reverse[tile - 1];
 
 						if (neighbour->tile_path[dest_tile] == NULL || neighbour->tile_path[dest_tile] == m->path)
 						{
+							m->tile_map[tile - 1] = neighbour;
 							neighbour->tile_map[dest_tile] = m;
 						}
 					}
@@ -2940,7 +2937,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 			if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(m, 7);
+				if (!load_and_link_tiled_map(m, 7))
+				{
+					return NULL;
+				}
 			}
 
 			*y += MAP_HEIGHT(m->tile_map[7]);
@@ -2958,7 +2958,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 			if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(m, 6);
+				if (!load_and_link_tiled_map(m, 6))
+				{
+					return NULL;
+				}
 			}
 
 			*y -= MAP_HEIGHT(m);
@@ -2974,7 +2977,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 		if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY)
 		{
-			load_and_link_tiled_map(m, 3);
+			if (!load_and_link_tiled_map(m, 3))
+			{
+				return NULL;
+			}
 		}
 
 		*x += MAP_WIDTH(m->tile_map[3]);
@@ -2994,7 +3000,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 			if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(m, 4);
+				if (!load_and_link_tiled_map(m, 4))
+				{
+					return NULL;
+				}
 			}
 
 			*y += MAP_HEIGHT(m->tile_map[4]);
@@ -3012,7 +3021,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 			if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY)
 			{
-				load_and_link_tiled_map(m, 5);
+				if (!load_and_link_tiled_map(m, 5))
+				{
+					return NULL;
+				}
 			}
 
 			*y -= MAP_HEIGHT(m);
@@ -3028,7 +3040,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 		if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY)
 		{
-			load_and_link_tiled_map(m, 1);
+			if (!load_and_link_tiled_map(m, 1))
+			{
+				return NULL;
+			}
 		}
 
 		*x -= MAP_WIDTH(m);
@@ -3046,7 +3061,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 		if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY)
 		{
-			load_and_link_tiled_map(m, 0);
+			if (!load_and_link_tiled_map(m, 0))
+			{
+				return NULL;
+			}
 		}
 
 		*y += MAP_HEIGHT(m->tile_map[0]);
@@ -3062,7 +3080,10 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
 		if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY)
 		{
-			load_and_link_tiled_map(m, 2);
+			if (!load_and_link_tiled_map(m, 2))
+			{
+				return NULL;
+			}
 		}
 
 		*y -= MAP_HEIGHT(m);

@@ -1556,9 +1556,6 @@ static void iterate_main_loop()
 
 	doeric_server();
 
-	/* Clean up the object pool */
-	object_gc();
-
 #ifdef MEMPOOL_OBJECT_TRACKING
 	check_use_object_list();
 #endif
@@ -1582,6 +1579,9 @@ static void iterate_main_loop()
 
 	/* Routines called from time to time. */
 	do_specials();
+
+	/* Clean up the object pool */
+	object_gc();
 
 	/* Sleep proper amount of time before next tick */
 	sleep_delta();
