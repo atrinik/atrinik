@@ -218,6 +218,7 @@ int command_ssdumptable(object *op, char *params);
 int command_follow(object *op, char *params);
 int command_insert_into(object *op, char *params);
 int command_arrest(object *op, char *params);
+int command_cmd_permission(object *op, char *params);
 
 /* commands.c */
 void init_commands();

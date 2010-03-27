@@ -262,6 +262,22 @@ void free_player(player *pl)
 		first_player = pl->next;
 	}
 
+	/* Free command permissions. */
+	if (pl->cmd_permissions)
+	{
+		int i;
+
+		for (i = 0; i < pl->num_cmd_permissions; i++)
+		{
+			if (pl->cmd_permissions[i])
+			{
+				free(pl->cmd_permissions[i]);
+			}
+		}
+
+		free(pl->cmd_permissions);
+	}
+
 	if (pl->ob != NULL)
 	{
 		SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);

@@ -2343,7 +2343,7 @@ int command_arrest(object *op, char *params)
 	object *dummy;
 	player *pl;
 
-	if (params == NULL)
+	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /arrest <player>.");
 		return 1;
@@ -2362,12 +2362,113 @@ int command_arrest(object *op, char *params)
 	{
 		/* We have nowhere to send the prisoner....*/
 		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Can't jail player, there is no map to hold them.");
-		return 0;
+		return 1;
 	}
 
 	enter_exit(pl->ob, dummy);
 	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been arrested.");
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
 	LOG(llevInfo, "Player %s arrested by %s\n", pl->ob->name, op->name);
+	return 1;
+}
+
+/**
+ * /cmd_permission command.
+ * @param op Wizard.
+ * @param params Parameters.
+ * @return 1. */
+int command_cmd_permission(object *op, char *params)
+{
+	char *cp;
+	player *pl;
+	int i;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /cmd_permission <player> <add-remove-list> [command]");
+		return 1;
+	}
+
+	cp = strchr(params, ' ');
+
+	if (!cp)
+	{
+		return 1;
+	}
+
+	*(cp++) = '\0';
+
+	pl = find_player(params);
+
+	if (!pl)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		return 1;
+	}
+
+	if (!strncmp(cp, "add ", 4))
+	{
+		cp += 4;
+
+		if (cp[0] == '/')
+		{
+			cp++;
+		}
+
+		for (i = 0; i < pl->num_cmd_permissions; i++)
+		{
+			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], cp))
+			{
+				new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "%s already has permission for /%s.", pl->ob->name, cp);
+				return 1;
+			}
+		}
+
+		pl->num_cmd_permissions++;
+		pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
+		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
+		new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s has been granted permission for /%s.", pl->ob->name, cp);
+	}
+	else if (!strncmp(cp, "remove ", 7))
+	{
+		cp += 7;
+
+		if (cp[0] == '/')
+		{
+			cp++;
+		}
+
+		for (i = 0; i < pl->num_cmd_permissions; i++)
+		{
+			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], cp))
+			{
+				FREE_AND_NULL_PTR(pl->cmd_permissions[i]);
+				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s has had permission for /%s command removed.", pl->ob->name, cp);
+				return 1;
+			}
+		}
+
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "%s does not have permission for /%s.", pl->ob->name, cp);
+	}
+	else if (!strncmp(cp, "list", 4))
+	{
+		if (pl->cmd_permissions)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s has permissions for the following commands:\n", pl->ob->name);
+
+			for (i = 0; i < pl->num_cmd_permissions; i++)
+			{
+				if (pl->cmd_permissions[i])
+				{
+					new_draw_info_format(NDI_UNIQUE, op, "/%s", pl->cmd_permissions[i]);
+				}
+			}
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s has no command permissions.", pl->ob->name);
+		}
+	}
+
 	return 1;
 }

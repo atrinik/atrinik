@@ -270,6 +270,9 @@ typedef struct pl_player
 	/** Scroll Y offset between 2 map updates. */
 	int map_off_y;
 
+	/** Number of player::cmd_permissions. */
+	int num_cmd_permissions;
+
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
 	float action_timer;
 
@@ -327,8 +330,11 @@ typedef struct pl_player
 	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
 	char password[16];
 
-	/** Player the DM Is following. */
+	/** Player the DM is following. */
 	char followed_player[BIG_NAME];
+
+	/** DM command permissions. */
+	char **cmd_permissions;
 
 	/** Last overall level sent to the client. */
 	unsigned char last_level;

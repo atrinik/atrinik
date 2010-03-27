@@ -34,46 +34,46 @@
 /** Normal game commands */
 CommArray_s Commands[] =
 {
-	{"/stay",			command_stay,			1.0f},
-	{"/n",				command_north,			1.0f},
-	{"/e",				command_east,			1.0f},
-	{"/s",				command_south,			1.0f},
-	{"/w",				command_west,			1.0f},
-	{"/ne",				command_northeast,		1.0f},
-	{"/se",				command_southeast,		1.0f},
-	{"/sw",				command_southwest,		1.0f},
-	{"/nw",				command_northwest,		1.0f},
-	{"/apply",			command_apply,			1.0f},	/* should be variable */
-	{"/target",			command_target,			0.1f}, /* enter combat and attack object in reach */
-	{"/combat",			command_combat,			0.1f}, /* toggle attack mode of player */
-	{"/pray",			command_praying,		0.2f},
-	{"/run",			command_run,			1.0f},
-	{"/run_stop",		command_run_stop,		0.01f},
-	{"/cast",			command_cast_spell,		0.0f},	/* use time comes from spells! */
-	{"/say",			command_say,			1.0f},
-	{"/shout",			command_shout,			1.0f},
-	{"/tell",			command_tell,			1.0f},
-	{"/t_tell",			command_t_tell,			1.0f},
-	{"/who",			command_who,			1.0f},
-	{"/mapinfo",		command_mapinfo,		1.0f},
-	{"/motd",			command_motd,			1.0f},
-	{"/dm",				command_dm,				1.0f},
-	{"/time",			command_time,			1.0f},
-	{"/version",		command_version,		1.0f},
-	{"/save",			command_save,			1.0f},
-	{"/use_skill",		command_uskill,			0.1f},
-	{"/ready_skill",	command_rskill,			0.1f},
-	{"/hiscore",      	command_hiscore,        1.0f},
-	{"/afk",			command_afk,			1.0f},
-	{"/drop",         	command_drop,           1.0f},
-	{"/party", 			command_party,			0.0f},
-	{"/gsay", 			command_gsay,			1.0f},
-	{"/push",			command_push_object, 	1.0f},
-	{"/left",			command_turn_left,		1.0f},
-	{"/right",			command_turn_right,		1.0f},
-	{"/roll",			command_roll,			1.0f},
-	{"/whereami",       command_whereami,       1.0f},
-	{"/ms_privacy",     command_ms_privacy,     1.0f}
+	{"stay",           command_stay,           1.0f},
+	{"n",              command_north,          1.0f},
+	{"e",              command_east,           1.0f},
+	{"s",              command_south,          1.0f},
+	{"w",              command_west,           1.0f},
+	{"ne",             command_northeast,      1.0f},
+	{"se",             command_southeast,      1.0f},
+	{"sw",             command_southwest,      1.0f},
+	{"nw",             command_northwest,      1.0f},
+	{"apply",          command_apply,          1.0f},
+	{"target",         command_target,         0.1f},
+	{"combat",         command_combat,         0.1f},
+	{"pray",           command_praying,        0.2f},
+	{"run",            command_run,            1.0f},
+	{"run_stop",       command_run_stop,       0.01f},
+	{"cast",           command_cast_spell,     0.0f},
+	{"say",            command_say,            1.0f},
+	{"shout",          command_shout,          1.0f},
+	{"tell",           command_tell,           1.0f},
+	{"t_tell",         command_t_tell,         1.0f},
+	{"who",            command_who,            1.0f},
+	{"mapinfo",        command_mapinfo,        1.0f},
+	{"motd",           command_motd,           1.0f},
+	{"dm",             command_dm,             1.0f},
+	{"time",           command_time,           1.0f},
+	{"version",        command_version,        1.0f},
+	{"save",           command_save,           1.0f},
+	{"use_skill",      command_uskill,         0.1f},
+	{"ready_skill",    command_rskill,         0.1f},
+	{"hiscore",        command_hiscore,        1.0f},
+	{"afk",            command_afk,            1.0f},
+	{"drop",           command_drop,           1.0f},
+	{"party",          command_party,          0.0f},
+	{"gsay",           command_gsay,           1.0f},
+	{"push",           command_push_object,    1.0f},
+	{"left",           command_turn_left,      1.0f},
+	{"right",          command_turn_right,     1.0f},
+	{"roll",           command_roll,           1.0f},
+	{"whereami",       command_whereami,       1.0f},
+	{"ms_privacy",     command_ms_privacy,     1.0f}
 };
 
 /** Size of normal commands */
@@ -82,61 +82,61 @@ const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
 /** Emotion commands */
 CommArray_s CommunicationCommands [] =
 {
-	{"/nod", 		command_nod,		1.0},
-	{"/dance", 		command_dance,		1.0},
-	{"/kiss", 		command_kiss,		1.0},
-	{"/bounce", 	command_bounce,		1.0},
-	{"/smile", 		command_smile,		1.0},
-	{"/cackle", 	command_cackle,		1.0},
-	{"/laugh", 		command_laugh,		1.0},
-	{"/giggle", 	command_giggle,		1.0},
-	{"/shake", 		command_shake,		1.0},
-	{"/puke", 		command_puke,		1.0},
-	{"/growl", 		command_growl,		1.0},
-	{"/scream", 	command_scream,		1.0},
-	{"/sigh", 		command_sigh,		1.0},
-	{"/sulk", 		command_sulk,		1.0},
-	{"/hug", 		command_hug,		1.0},
-	{"/cry", 		command_cry,		1.0},
-	{"/poke", 		command_poke,		1.0},
-	{"/accuse",		command_accuse,		1.0},
-	{"/grin", 		command_grin,		1.0},
-	{"/bow", 		command_bow,		1.0},
-	{"/clap", 		command_clap,		1.0},
-	{"/blush", 		command_blush,		1.0},
-	{"/burp", 		command_burp,		1.0},
-	{"/chuckle",	command_chuckle,	1.0},
-	{"/cough", 		command_cough,		1.0},
-	{"/flip", 		command_flip,		1.0},
-	{"/frown", 		command_frown,		1.0},
-	{"/gasp", 		command_gasp,		1.0},
-	{"/glare", 		command_glare,		1.0},
-	{"/groan", 		command_groan,		1.0},
-	{"/hiccup", 	command_hiccup,		1.0},
-	{"/lick", 		command_lick,		1.0},
-	{"/pout", 		command_pout,		1.0},
-	{"/shiver", 	command_shiver,		1.0},
-	{"/shrug", 		command_shrug,		1.0},
-	{"/slap", 		command_slap,		1.0},
-	{"/smirk", 		command_smirk,		1.0},
-	{"/snap", 		command_snap,		1.0},
-	{"/sneeze", 	command_sneeze,		1.0},
-	{"/snicker", 	command_snicker,	1.0},
-	{"/sniff", 		command_sniff,		1.0},
-	{"/snore", 		command_snore,		1.0},
-	{"/spit", 		command_spit,		1.0},
-	{"/strut", 		command_strut,		1.0},
-	{"/thank", 		command_thank,		1.0},
-	{"/twiddle", 	command_twiddle,	1.0},
-	{"/wave", 		command_wave,		1.0},
-	{"/whistle", 	command_whistle,	1.0},
-	{"/wink", 		command_wink,		1.0},
-	{"/yawn", 		command_yawn,		1.0},
-	{"/beg", 		command_beg,		1.0},
-	{"/bleed", 		command_bleed,		1.0},
-	{"/cringe", 	command_cringe,		1.0},
-	{"/think", 		command_think,		1.0},
-	{"/me", 		command_me,			1.0}
+	{"nod",           command_nod,           1.0},
+	{"dance",         command_dance,         1.0},
+	{"kiss",          command_kiss,          1.0},
+	{"bounce",        command_bounce,        1.0},
+	{"smile",         command_smile,         1.0},
+	{"cackle",        command_cackle,        1.0},
+	{"laugh",         command_laugh,         1.0},
+	{"giggle",        command_giggle,        1.0},
+	{"shake",         command_shake,         1.0},
+	{"puke",          command_puke,          1.0},
+	{"growl",         command_growl,         1.0},
+	{"scream",        command_scream,        1.0},
+	{"sigh",          command_sigh,          1.0},
+	{"sulk",          command_sulk,          1.0},
+	{"hug",           command_hug,           1.0},
+	{"cry",           command_cry,           1.0},
+	{"poke",          command_poke,          1.0},
+	{"accuse",        command_accuse,        1.0},
+	{"grin",          command_grin,          1.0},
+	{"bow",           command_bow,           1.0},
+	{"clap",          command_clap,          1.0},
+	{"blush",         command_blush,         1.0},
+	{"burp",          command_burp,          1.0},
+	{"chuckle",       command_chuckle,       1.0},
+	{"cough",         command_cough,         1.0},
+	{"flip",          command_flip,          1.0},
+	{"frown",         command_frown,         1.0},
+	{"gasp",          command_gasp,          1.0},
+	{"glare",         command_glare,         1.0},
+	{"groan",         command_groan,         1.0},
+	{"hiccup",        command_hiccup,        1.0},
+	{"lick",          command_lick,          1.0},
+	{"pout",          command_pout,          1.0},
+	{"shiver",        command_shiver,        1.0},
+	{"shrug",         command_shrug,         1.0},
+	{"slap",          command_slap,          1.0},
+	{"smirk",         command_smirk,         1.0},
+	{"snap",          command_snap,          1.0},
+	{"sneeze",        command_sneeze,        1.0},
+	{"snicker",       command_snicker,       1.0},
+	{"sniff",         command_sniff,         1.0},
+	{"snore",         command_snore,         1.0},
+	{"spit",          command_spit,          1.0},
+	{"strut",         command_strut,         1.0},
+	{"thank",         command_thank,         1.0},
+	{"twiddle",       command_twiddle,       1.0},
+	{"wave",          command_wave,          1.0},
+	{"whistle",       command_whistle,       1.0},
+	{"wink",          command_wink,          1.0},
+	{"yawn",          command_yawn,          1.0},
+	{"beg",           command_beg,           1.0},
+	{"bleed",         command_bleed,         1.0},
+	{"cringe",        command_cringe,        1.0},
+	{"think",         command_think,         1.0},
+	{"me",            command_me,            1.0}
 };
 
 /** Size of emotion commands */
@@ -145,51 +145,52 @@ const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommA
 /** Wizard commands */
 CommArray_s WizCommands [] =
 {
-	{"/dmsay",			command_dmsay,					0.0},
-	{"/summon", 		command_summon,					0.0},
-	{"/kick", 			command_kick,					0.0},
-	{"/inventory", 		command_inventory,				0.0},
-	{"/plugin",			command_loadplugin,				0.0},
-	{"/pluglist",		command_listplugins,			0.0},
-	{"/motd_set",		command_motd_set,				0.0},
-	{"/ban",			command_ban,					0.0},
-	{"/teleport", 		command_teleport,				0.0},
-	{"/goto", 			command_goto,					0.0},
-	{"/shutdown",       command_shutdown,               0.0},
-	{"/shutdown_now",   command_shutdown_now,           0.0},
-	{"/resetmap", 		command_resetmap,				0.0},
-	{"/plugout",		command_unloadplugin,			0.0},
-	{"/create", 		command_create,					0.0},
-	{"/addexp", 		command_addexp,					0.0},
-	{"/malloc", 		command_malloc,					0.0},
-	{"/maps", 			command_maps,					0.0},
-	{"/dump", 			command_dump,					0.0},
-	{"/dm_stealth", 	command_dm_stealth,				0.0},
-	{"/dm_light", 		command_dm_light,				0.0},
-	{"/d_active", 		command_dumpactivelist,			0.0},
-	{"/d_arches", 		command_dumpallarchetypes,		0.0},
-	{"/d_maps", 		command_dumpallmaps,			0.0},
-	{"/d_map", 			command_dumpmap,				0.0},
-	{"/d_belowfull", 	command_dumpbelowfull,			0.0},
-	{"/d_below", 		command_dumpbelow,				0.0},
-	{"/set_map_light", 	command_setmaplight,			0.0},
-	{"/wizpass", 		command_wizpass,				0.0},
-	{"/learn_spell", 	command_learn_spell, 			0.0},
-	{"/learn_prayer",   command_learn_special_prayer,   0.0},
-	{"/ssdumptable",    command_ssdumptable,            0.0},
-	{"/patch",			command_patch,					0.0},
-	{"/speed",          command_speed,                  0.0},
-	{"/strings",        command_strings,                0.0},
-	{"/debug",          command_debug,                  0.0},
-	{"/freeze",         command_freeze,                 0.0},
-	{"/remove",         command_remove,                 0.0},
-	{"/stats",          command_stats,                  0.0},
-	{"/forget_spell",   command_forget_spell,           0.0},
-	{"/set_god",        command_setgod,                 0.0},
-	{"/dm_password",    command_dm_password,            0.0},
-	{"/follow",         command_follow,                 0.0},
-	{"/insert_into",    command_insert_into,            0.0},
-	{"/arrest",         command_arrest,                 0.0}
+	{"dmsay",          command_dmsay,                  0.0},
+	{"summon",         command_summon,                 0.0},
+	{"kick",           command_kick,                   0.0},
+	{"inventory",      command_inventory,              0.0},
+	{"plugin",         command_loadplugin,             0.0},
+	{"pluglist",       command_listplugins,            0.0},
+	{"motd_set",       command_motd_set,               0.0},
+	{"ban",            command_ban,                    0.0},
+	{"teleport",       command_teleport,               0.0},
+	{"goto",           command_goto,                   0.0},
+	{"shutdown",       command_shutdown,               0.0},
+	{"shutdown_now",   command_shutdown_now,           0.0},
+	{"resetmap",       command_resetmap,               0.0},
+	{"plugout",        command_unloadplugin,           0.0},
+	{"create",         command_create,                 0.0},
+	{"addexp",         command_addexp,                 0.0},
+	{"malloc",         command_malloc,                 0.0},
+	{"maps",           command_maps,                   0.0},
+	{"dump",           command_dump,                   0.0},
+	{"dm_stealth",     command_dm_stealth,             0.0},
+	{"dm_light",       command_dm_light,               0.0},
+	{"d_active",       command_dumpactivelist,         0.0},
+	{"d_arches",       command_dumpallarchetypes,      0.0},
+	{"d_maps",         command_dumpallmaps,            0.0},
+	{"d_map",          command_dumpmap,                0.0},
+	{"d_belowfull",    command_dumpbelowfull,          0.0},
+	{"d_below",        command_dumpbelow,              0.0},
+	{"set_map_light",  command_setmaplight,            0.0},
+	{"wizpass",        command_wizpass,                0.0},
+	{"learn_spell",    command_learn_spell,            0.0},
+	{"learn_prayer",   command_learn_special_prayer,   0.0},
+	{"ssdumptable",    command_ssdumptable,            0.0},
+	{"patch",          command_patch,                  0.0},
+	{"speed",          command_speed,                  0.0},
+	{"strings",        command_strings,                0.0},
+	{"debug",          command_debug,                  0.0},
+	{"freeze",         command_freeze,                 0.0},
+	{"remove",         command_remove,                 0.0},
+	{"stats",          command_stats,                  0.0},
+	{"forget_spell",   command_forget_spell,           0.0},
+	{"set_god",        command_setgod,                 0.0},
+	{"dm_password",    command_dm_password,            0.0},
+	{"follow",         command_follow,                 0.0},
+	{"insert_into",    command_insert_into,            0.0},
+	{"arrest",         command_arrest,                 0.0},
+	{"cmd_permission", command_cmd_permission,         0.0}
 };
 
 /** Size of Wizard commands */
@@ -383,7 +384,7 @@ CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsiz
 }
 
 /**
- * This function is called from the new client/server code.
+ * Execute a command by player.
  * @param pl The player who is issuing the command.
  * @param command The command.
  * @return 0 if not a valid command, otherwise return value of the called
@@ -393,7 +394,18 @@ int execute_newserver_command(object *pl, char *command)
 	CommArray_s *csp;
 	char *cp;
 
-	/* Remove the command from the parameters */
+	/* Sanity check: all commands must begin with a slash, and there must be
+	 * something else after the slash. */
+	if (command[0] != '/' || !command[1])
+	{
+		new_draw_info_format(NDI_UNIQUE, pl, "'%s' is not a valid command.", command);
+		return 0;
+	}
+
+	/* Jump over the slash. */
+	command++;
+
+	/* Remove the command from the parameters. */
 	cp = strchr(command, ' ');
 
 	if (cp)
@@ -407,26 +419,46 @@ int execute_newserver_command(object *pl, char *command)
 		}
 	}
 
+	/* First look in the normal commands. */
 	csp = find_command_element(command, Commands, CommandsSize);
 
+	/* Not found? Try the emote commands. */
 	if (!csp)
 	{
 		csp = find_command_element(command, CommunicationCommands, CommunicationCommandSize);
 	}
 
+	/* If still not found and we're a DM, look in DM commands. */
 	if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
 	{
 		csp = find_command_element(command, WizCommands, WizCommandsSize);
 	}
 
+	/* Not found, but we have some command permissions. */
+	if (!csp && CONTR(pl)->cmd_permissions)
+	{
+		int i;
+
+		for (i = 0; i < CONTR(pl)->num_cmd_permissions; i++)
+		{
+			if (CONTR(pl)->cmd_permissions[i] && !strcmp(command, CONTR(pl)->cmd_permissions[i]))
+			{
+				csp = find_command_element(command, WizCommands, WizCommandsSize);
+				break;
+			}
+		}
+	}
+
+	/* Still not found? Maybe a plugin has registered this command. */
 	if (!csp)
 	{
 		csp = find_plugin_command(command);
 	}
 
-	if (csp == NULL)
+	/* We didn't find the command anywhere. */
+	if (!csp)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "'%s' is not a valid command.", command);
+		new_draw_info_format(NDI_UNIQUE, pl, "'/%s' is not a valid command.", command);
 		return 0;
 	}
 

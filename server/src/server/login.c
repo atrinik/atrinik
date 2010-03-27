@@ -236,6 +236,14 @@ int save_player(object *op, int flag)
 		fprintf(fp, "known_spell %s\n", spells[pl->known_spells[i]].name);
 	}
 
+	for (i = 0; i < pl->num_cmd_permissions; i++)
+	{
+		if (pl->cmd_permissions[i])
+		{
+			fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
+		}
+	}
+
 	fprintf(fp, "endplst\n");
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -567,6 +575,7 @@ void check_login(object *op)
 		else if (!strcmp(buf, "known_spell"))
 		{
 			char *cp = strchr(bufall, '\n');
+
 			*cp = '\0';
 			cp = strchr(bufall, ' ');
 			cp++;
@@ -584,6 +593,18 @@ void check_login(object *op)
 			{
 				LOG(llevDebug, "BUG: check_login(): Bogus spell (%s) in %s\n", cp, filename);
 			}
+		}
+		else if (!strcmp(buf, "cmd_permission"))
+		{
+			char *cp = strchr(bufall, '\n');
+
+			*cp = '\0';
+			cp = strchr(bufall, ' ');
+			cp++;
+
+			pl->num_cmd_permissions++;
+			pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
+			pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
 		}
 	}
 
