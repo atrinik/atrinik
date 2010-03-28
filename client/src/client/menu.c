@@ -416,15 +416,13 @@ void show_help(char *helpname)
 	for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
 	{
 		/* If title or message are empty or helpname doesn't match, just continue to the next item */
-		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname) || (help_files_tmp->dm_only && !cpl.dm))
+		if (help_files_tmp->title[0] == '\0' || help_files_tmp->message[0] == '\0' || strcmp(help_files_tmp->helpname, helpname))
 		{
 			continue;
 		}
 
 		/* Got what we wanted, replace it with the default message */
 		snprintf(message, sizeof(message), "<b t=\"%s\"><t t=\"%s\">%s", help_files_tmp->helpname, help_files_tmp->title, help_files_tmp->message);
-
-		/* Break out */
 		break;
 	}
 
