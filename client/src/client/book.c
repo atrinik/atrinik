@@ -626,16 +626,7 @@ void book_gui_handle_mouse(int x, int y)
 				/* '^' marks either start of keyword, or an end. */
 				if (*current_line == '^')
 				{
-					/* If we're in a keyword, it's an end. */
-					if (in_keyword)
-					{
-						in_keyword = 0;
-					}
-					/* Start of keyword otherwise */
-					else
-					{
-						in_keyword = 1;
-					}
+					in_keyword = !in_keyword;
 				}
 				/* Otherwise we're in the keyword */
 				else if (in_keyword)
@@ -651,7 +642,9 @@ void book_gui_handle_mouse(int x, int y)
 			/* If we got a keyword */
 			if (keyword[0] != '\0')
 			{
-				int line_len = StringWidth(&MediumFont, current_line), keyword_len = StringWidth(&MediumFont, keyword);
+				int line_len = StringWidth(&MediumFont, page1->line[i]->line), keyword_len = StringWidth(&MediumFont, keyword);
+
+				line_len -= keyword_len;
 
 				/* Calculate if the click occurred on the keyword area */
 				if (y < global_book_data.y + yoff + 85 && y > (global_book_data.y + yoff + 75) && x > global_book_data.x + xoff + line_len && x < global_book_data.x + xoff + line_len + keyword_len)
