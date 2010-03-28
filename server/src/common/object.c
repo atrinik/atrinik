@@ -152,7 +152,6 @@ void init_materials()
 	for (i = 0; i < NUM_MATERIALS_REAL; i++)
 	{
 		material_real[i].name[0] = '\0';
-		material_real[i].tearing = 100;
 		material_real[i].quality = 100;
 		material_real[i].type = M_NONE;
 		material_real[i].def_race = RACE_TYPE_NONE;
@@ -174,7 +173,7 @@ void init_materials()
 
 		if (sscanf(buf, "material_real %d\n", &i))
 		{
-			int def_race = RACE_TYPE_NONE, type = M_NONE, quality = 100, tearing = 100;
+			int def_race = RACE_TYPE_NONE, type = M_NONE, quality = 100;
 			char name[MAX_BUF];
 
 			if (i > NUM_MATERIALS_REAL)
@@ -191,7 +190,7 @@ void init_materials()
 					break;
 				}
 
-				if (!sscanf(buf, "tearing %d\n", &tearing) && !sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name))
+				if (!sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name))
 				{
 					LOG(llevError, "ERROR: Bogus line in materials file: %s\n", buf);
 				}
@@ -202,7 +201,6 @@ void init_materials()
 				snprintf(material_real[i].name, sizeof(material_real[i].name), "%s ", name);
 			}
 
-			material_real[i].tearing = tearing;
 			material_real[i].quality = quality;
 			material_real[i].type = type;
 			material_real[i].def_race = def_race;

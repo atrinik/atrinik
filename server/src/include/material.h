@@ -114,11 +114,6 @@ typedef struct _material_real_struct
 	/** Name of this material. */
 	char name[MAX_BUF];
 
-	/**
-	 * Speed of tearing when used, in percent.
-	 * @todo Do we really need this? */
-	int tearing;
-
 	/** Material base quality. */
 	int quality;
 
