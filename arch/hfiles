@@ -35,6 +35,10 @@ List of ^contributors^
 ^roll^
 ^emotions^
 ^afk^
+^whereami^
+^ms_privacy^
+^guild^
+^guildmembers^
 ==========
 Name: apply
 Title: Apply Command
@@ -79,8 +83,6 @@ The cast command will immediately cast a spell in the direction you're currently
 "/cast magic bullet"
 
 <t t="Syntax:">/cast [name of spell]
-<p><t t="See Also:">
-^binding^
 ==========
 Name: shout
 Title: Shout Command
@@ -138,11 +140,13 @@ Allows you to become a Dungeon Master, if you are allowed to.
 <t t="Syntax:">/dm
 <p><t t="See Also:">
 ^summon^
-^kick^
-^plugin^
-^pluglist^
 ^teleport^
 ^goto^
+^kick^
+^ban^
+^plugin^
+^plugout^
+^pluglist^
 ^shutdown^
 ^shutdown_now^
 ^resetmap^
@@ -153,6 +157,13 @@ Allows you to become a Dungeon Master, if you are allowed to.
 ^wizpass^
 ^motd_set^
 ^dmsay^
+^arrest^
+^insert_into^
+^remove^
+^patch^
+^follow^
+^dm_password^
+^cmd_permission^
 ==========
 Name: time
 Title: Time Command
@@ -177,7 +188,7 @@ A quest reward could require you to mark an item which will be improved.
 ==========
 Name: save
 Title: Save Command
-The save command will save your character at your present location. This is automatically done every several minutes and when you logout, but it can be used as a "just-in-case" command. Remember, you must have some experience in order to be able to save your character!
+The save command will save your character at your present location. This is automatically done every 10 minutes and when you logout, but it can be used as a "just-in-case" command. Remember, you must have some experience in order to be able to save your character!
 
 <t t="Syntax:">/save
 ==========
@@ -216,8 +227,13 @@ To leave your party:
 
 To post a message to your party members:
 /party say [your message]
-OR
-/gsay [your message]
+<p><t t="See Also:">
+^gsay^
+==========
+Name: gsay
+Title: Gsay Command
+The Gsay command is an alias to "/party say". You can use it to send a message to your party.
+<t t="Syntax:">/gsay [your message]
 ==========
 Name: drop
 Title: Drop Command
@@ -333,133 +349,24 @@ This is the list of all emote commands:
 /think
 /me
 ==========
-Name: summon
-Title: Summon Command
-DM: 1
-The DM summon command is used to summon a player next to yourself.
+Name: afk
+Title: AFK Command
+The AFK (Away From Keyboard) command is used to mark you as away. It will be displayed in the client as a "reminder" next to your name, and will appear in the who list for everyone to see.
 
-<t t="Syntax:">/summon [player name]
-<p><t t="See Also:">
-^teleport^
-^goto^
+<t t="Syntax:">/afk
 ==========
-Name: teleport
-Title: Teleport Command
-DM: 1
-The DM teleport command is used to teleport yourself next to a player.
+Name: whereami
+Title: Where am I Command
+This command will tell you your current location, along with the location's information, a story, etc.
 
-<t t="Syntax:">/teleport [player name]
-<p><t t="See Also:">
-^summon^
-^goto^
+<t t="Syntax:">/whereami
 ==========
-Name: goto
-Title: Go To Command
-DM: 1
-The DM Go To command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
+Name: ms_privacy
+Title: Metaserver Privacy Command
+Autocomplete: 0
+This command is used to turn metaserver privacy on/off. While on, your player name will not be reported to the metaserver, so it won't be visible on the site's server list.
 
-<t t="Syntax:">/goto [map path] [x] [y]
-<p><t t="See Also:">
-^teleport^
-^summon^
-==========
-Name: kick
-Title: Kick Command
-DM: 1
-The DM kick command is used to kick a player from the game.
-
-<t t="Syntax:">/kick [player name]
-==========
-Name: plugin
-Title: PlugIn Command
-DM: 1
-The DM plugin command is used to load a plugin from existing plugins.
-
-<t t="Syntax:">/plugin [plugin]
-<p><t t="See Also:">
-^plugout^
-^pluglist^
-==========
-Name: plugout
-Title: PlugOut Command
-DM: 1
-The DM plugout command is used to unload a plugin from loaded plugins.
-
-<t t="Syntax:">/plugout [plugin]
-<p><t t="See Also:">
-^plugin^
-^pluglist^
-==========
-Name: pluglist
-Title: PlugList Command
-DM: 1
-The DM pluglist command is used to show currently loaded plugins. It will also show loadable plugins from the server's plugins directory.
-
-<t t="Syntax:">/pluglist
-<p><t t="See Also:">
-^plugin^
-^plugout^
-==========
-Name: shutdown
-Title: Shutdown Command
-DM: 1
-The DM shutdown command is used to start a timed shutdown agent that shuts down the server in specified number of seconds.
-
-<t t="Syntax:">/shutdown [seconds]
-<p><t t="See Also:">
-^shutdown_now^
-==========
-Name: shutdown_now
-Title: Shutdown Now Command
-DM: 1
-The DM shutdown now command is used to shutdown the server instantly.
-
-<t t="Syntax:">/shutdown_now
-<p><t t="See Also:">
-^shutdown^
-==========
-Name: resetmap
-Title: Reset Map Command
-DM: 1
-The DM reset map command is used to reset a map the DM is currently located on. It will temporarily remove all players from the map, swap the map out, and reinsert the players.
-
-<t t="Syntax:">/resetmap
-==========
-Name: create
-Title: Create Command
-DM: 1
-The DM create command used to create almost any item.
-<t t="NOTE: VERY DANGEROUS, USE WITH CAUTION!">
-
-<t t="Syntax:">/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ... 
-==========
-Name: addexp
-Title: Add Exp Command
-DM: 1
-The DM add exp command is used to add exp to specified skill to a player.
-
-<t t="Syntax:">/addexp [player name] [skill ID] [experience to add]
-==========
-Name: dm_stealth
-Title: DM Stealth Command
-DM: 1
-The DM stealth command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login his entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
-
-<t t="Syntax:">/dm_stealth
-==========
-Name: dm_light
-Title: DM Light Command
-DM: 1
-The DM light command is used to make any map appear in daylight.
-
-<t t="Syntax:">/dm_light
-==========
-Name: wizpass
-Title: Wiz Pass Command
-DM: 1
-The DM wiz pass command is used to make a DM get stopped by walls and obstacles.
-
-<t t="Syntax:">/wizpass
+<t t="Syntax:">/ms_privacy
 ==========
 Name: say
 Title: Say Command
@@ -475,10 +382,184 @@ This command does not require you to type anything before your message; you just
 ^tell^
 ^reply^
 ==========
+Name: guild
+Title: Guild Command
+This command will send a message to all online members of your current guild.
+
+<t t="Syntax:">/guild [message]
+==========
+Name: guildmembers
+Title: Guild Members Command
+Autocomplete: 0
+This command will show all members of your guild.
+
+<t t="Syntax:">/guildmembers
+
+To only show online guild members:
+/guildmembers online
+==========
+Name: summon
+Title: Summon Command
+DM: 1
+This command allows you to summon a player next to yourself. The summoned player will get a message saying that he was summoned.
+
+<t t="Syntax:">/summon [player name]
+<p><t t="See Also:">
+^teleport^
+^goto^
+==========
+Name: teleport
+Title: Teleport Command
+DM: 1
+This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have ^dm_stealth^ on.
+
+<t t="Syntax:">/teleport [player name]
+<p><t t="See Also:">
+^summon^
+^goto^
+==========
+Name: goto
+Title: Go To Command
+DM: 1
+The goto command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
+
+<t t="Syntax:">/goto [map path] [x] [y]
+<p><t t="See Also:">
+^teleport^
+^summon^
+==========
+Name: kick
+Title: Kick Command
+DM: 1
+The kick command is used to kick another player from the game.
+
+<t t="Syntax:">/kick [player]
+<p><t t="See Also:">
+^ban^
+==========
+Name: ban
+Title: Ban Command
+DM: 1
+The ban command can be used to ban player and/or IP address from the game. Note that IP addresses cannot contain ':' characters, so IPv4 addresses only.
+
+<t t="Examples:">
+List all current bans:
+/ban list
+
+Ban Noob with IP address 127.0.0.1:
+/ban add Noob:127.0.0.1
+
+Ban Noob with any IP:
+/ban add Noob:*
+
+Ban anyone with IP address 127.0.0.1:
+/ban add *:127.0.0.1
+
+Remove Noob's ban (same syntax as above applies):
+/ban remove Noob:*
+
+<p><t t="See Also:">
+^kick^
+==========
+Name: plugin
+Title: Load Plugin Command
+DM: 1
+This command will load a plugin based on its filename.
+
+<t t="Syntax:">/plugin [filename]
+<p><t t="See Also:">
+^plugout^
+^pluglist^
+==========
+Name: plugout
+Title: Unload Plugin Command
+DM: 1
+This command will unload a specified plugin.
+
+<t t="Syntax:">/plugout [plugin]
+<p><t t="See Also:">
+^plugin^
+^pluglist^
+==========
+Name: pluglist
+Title: List Plugins Command
+DM: 1
+This command will show currently loaded plugins, along with loadable plugins from the server's plugins directory.
+
+<t t="Syntax:">/pluglist
+<p><t t="See Also:">
+^plugin^
+^plugout^
+==========
+Name: shutdown
+Title: Shutdown Command
+DM: 1
+This command will start a shutdown timer that will shutdown the server in specified number of seconds. Optionally, a reason for the shutdown can be provided.
+
+<t t="Syntax:">/shutdown [seconds] [reason]
+<p><t t="See Also:">
+^shutdown_now^
+==========
+Name: shutdown_now
+Title: Shutdown Now Command
+DM: 1
+This command will instantly shutdown the server.
+
+<t t="Syntax:">/shutdown_now
+<p><t t="See Also:">
+^shutdown^
+==========
+Name: resetmap
+Title: Reset Map Command
+DM: 1
+This command will reset map the DM is currently on. Optionally, a map path can be given to reset another map and not the one DM is on.
+
+<t t="Syntax:">/resetmap [map]
+==========
+Name: create
+Title: Create Command
+DM: 1
+The DM create command used to create almost any item.
+<t t="NOTE: VERY DANGEROUS, USE WITH CAUTION!">
+
+<t t="Syntax:">/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ...
+==========
+Name: addexp
+Title: Add Exp Command
+DM: 1
+The DM add exp command is used to add exp to specified skill to a player.
+
+<t t="Syntax:">/addexp [player name] [skill ID] [experience to add]
+
+List skill IDs:
+/addexp
+==========
+Name: dm_stealth
+Title: DM Stealth Command
+DM: 1
+This command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login their entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
+
+<t t="Syntax:">/dm_stealth
+==========
+Name: dm_light
+Title: DM Light Command
+DM: 1
+This
+This command is used to make all maps appear in daylight for the DM.
+
+<t t="Syntax:">/dm_light
+==========
+Name: wizpass
+Title: Wiz Pass Command
+DM: 1
+This command will turn on/off the ability to walk through walls and obstacles.
+
+<t t="Syntax:">/wizpass
+==========
 Name: motd_set
 Title: Set MOTD Command
 DM: 1
-The DM MOTD set command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
+This command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
 
 <t t="Syntax:">To revert the original (default) Message of the Day:
 /motd_set original
@@ -486,18 +567,96 @@ The DM MOTD set command can be used to change the Message of the Day from game. 
 To set a custom Message of the Day:
 /motd_set [message]
 ==========
-Name: afk
-Title: AFK Command
-The AFK (Away From Keyboard) command is used to mark you as away. It will be displayed in the client as a "reminder" next to your name, and will appear in the who list for everyone to see.
-
-<t t="Syntax:">/afk
-==========
 Name: dmsay
 Title: DM Say Command
 DM: 1
-The DM say command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
+This command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
 
 <t t="Syntax:">/dmsay [your message]
+==========
+Name: arrest
+Title: Arrest Command
+DM: 1
+The arrest command can be used to arrest a player. Note that there will be no way for the player to escape, since even their savebed location will be set to the jail, so when they die or use word of recall, they will appear there again. To release the player, you need to summon them somewhere, and ensure they apply a savebed, so they don't reappear in the jail.
+
+<t t="Syntax:">/arrest [player]
+==========
+Name: insert_into
+Title: Insert Into Command
+DM: 1
+This command allows you to insert marked item inside another object.
+
+<t t="Syntax:">/insert_into [^object_id^]
+==========
+Name: remove
+Title: Remove Command
+DM: 1
+This command is used to remove another object from the game (cannot be used on players).
+
+<t t="Syntax:">/remove [^object_id^]
+==========
+Name: patch
+Title: Patch Command
+DM: 1
+This command can be used to patch an attribute of an object.
+
+<t t="Syntax:">/patch [^object_id^] [attribute] [value]
+
+<t t="Examples:">
+/patch guard friendly 0
+/patch floor no_pass 1
+==========
+Name: follow
+Title: Follow Command
+DM: 1
+This command can allow a DM to follow another player (if the DM is invisible, the player will not know they are being followed).
+
+<t t="Syntax:">/follow [player]
+
+To stop following someone:
+/follow
+==========
+Name: dm_password
+Title: DM Password Command
+DM: 1
+This command allows DM to change player's password.
+
+<t t="Syntax:">/dm_password [player] [new password]
+==========
+Name: cmd_permission
+Title: Command Permission Command
+DM: 1
+This command can allow DM to change DM command permissions for another player. In other words, it allows for a non-DM to acquire permissions to use DM commands like /kick.
+
+<t t="Examples:">
+Allow Tester to use /kick:
+/cmd_permission Tester add kick
+
+Allow Tester to use /goto
+/cmd_permission Tester add goto
+
+Remove Tester's permission to use /kick:
+/cmd_permission Tester remove kick
+
+List Tester's permissions:
+/cmd_permission Tester list
+==========
+Name: object_id
+Title: Object ID
+DM: 1
+Autocomplete: 0
+When a help page mentions ~object_id~ in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
+
+If you use the object's ID, you have to put a hash symbol in front of it, for example:
+
+/patch #86301 no_pick 1
+
+It's easier to use the object's name, but many objects have spaces in the names, and many commands (like /patch above) don't allow you to include spaces in the object's name:
+
+/patch guard friendly 0
+/remove skeleton mage
+
+The IDs/names will first be checked against the online players (not in their inventories though), then below you (including inventories), and at last on the whole map the DM is standing on (including inventories).
 ==========
 Name: contributors
 Title: Contributors
