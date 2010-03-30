@@ -576,10 +576,6 @@ void process_object(object *op)
 			move_cone(op);
 			return;
 
-		case DOOR:
-			remove_door(op);
-			return;
-
 		/* Handle autoclosing */
 		case LOCKED_DOOR:
 			close_locked_door(op);

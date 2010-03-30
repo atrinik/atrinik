@@ -99,7 +99,14 @@ int esrv_apply_container(object *op, object *sack)
 
 			if (tmp)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
+				if (tmp->type == SPECIAL_KEY)
+				{
+					new_draw_info_format(NDI_UNIQUE, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
+				}
+				else if (tmp->type == FORCE)
+				{
+					new_draw_info_format(NDI_UNIQUE, op, "The %s is unlocked for you.", query_name(sack, op));
+				}
 			}
 			else
 			{
