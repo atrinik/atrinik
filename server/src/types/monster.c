@@ -286,7 +286,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 
 	tmp = check_enemy(npc, rv);
 
-	if (!tmp || (npc->attacked_by && npc->attacked_by_distance < (int) rv->distance))
+	if (!tmp)
 	{
 		/* If we have an attacker, check him */
 		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count))
@@ -1555,13 +1555,21 @@ void communicate(object *op, char *txt)
 	if (*txt == '/' && op->type != PLAYER)
 	{
 		CommArray_s *csp;
-		char *cp = NULL;
+		char *cp;
 
-		/* Remove the command from the parameters */
-		strncpy(buf, txt, sizeof(buf) - 1);
-		buf[sizeof(buf) - 1] = '\0';
+		/* Sanity check: all commands must begin with a slash, and there must be
+		 * something else after the slash. */
+		if (txt[0] != '/' || !txt[1])
+		{
+			LOG(llevBug, "BUG: communicate(): %s attempted an illegal command '%s'.\n", op->name, txt);
+			return;
+		}
 
-		cp = strchr(buf, ' ');
+		/* Jump over the slash. */
+		txt++;
+
+		/* Remove the command from the parameters. */
+		cp = strchr(txt, ' ');
 
 		if (cp)
 		{
@@ -1574,7 +1582,7 @@ void communicate(object *op, char *txt)
 			}
 		}
 
-		csp = find_command_element(buf, CommunicationCommands, CommunicationCommandSize);
+		csp = find_command_element(txt, CommunicationCommands, CommunicationCommandSize);
 
 		if (csp)
 		{

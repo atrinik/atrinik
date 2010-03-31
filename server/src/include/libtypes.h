@@ -48,9 +48,8 @@ extern int cure_disease(object *sufferer, object *caster);
 extern int reduce_symptoms(object *sufferer, int reduction);
 
 /* door.c */
-extern object *find_key(object *op, object *door);
 extern int open_door(object *op, mapstruct *m, int x, int y, int mode);
-extern void remove_door(object *op);
+extern object *find_key(object *op, object *door);
 extern void open_locked_door(object *op, object *opener);
 extern void close_locked_door(object *op);
 
@@ -160,7 +159,6 @@ extern void apply_treasure(object *op, object *tmp);
 extern object *get_active_waypoint(object *op);
 extern object *get_aggro_waypoint(object *op);
 extern object *get_return_waypoint(object *op);
-extern object *find_waypoint(object *op, const char *name);
 extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
 
