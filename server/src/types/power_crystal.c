@@ -32,11 +32,11 @@
 /**
  * This function handles the application of power crystals.
  *
- * Power crystals, when applied, either suck power from the applier, if
- * he's at full spellpoints, or gives him power, if it's got spellpoins
+ * Power crystals, when applied, either suck mana from the applier, if
+ * he's at full spellpoints, or give him mana, if it's got spellpoints
  * stored.
- * @param op Object applying the power crystal
- * @param crystal The crystal object */
+ * @param op Who is applying the crystal.
+ * @param crystal The crystal. */
 void apply_power_crystal(object *op, object *crystal)
 {
 	int available_power = op->stats.sp - op->stats.maxsp;

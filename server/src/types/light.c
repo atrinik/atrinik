@@ -453,8 +453,6 @@ void apply_lighter(object *who, object *lighter)
 			is_player_env = 1;
 		}
 
-		save_throw_object(item, who);
-
 		/* Change to check count and not freed, since the object pointer
 		 * may have gotten recycled */
 		if ((nrof != item->nrof ) || (count != item->count))

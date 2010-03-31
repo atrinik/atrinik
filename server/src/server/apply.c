@@ -198,10 +198,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			{
 				hit_player(victim, trap->stats.dam, trap, AT_INTERNAL);
 			}
-			else if (victim->material && !(flags & MOVE_APPLY_VANISHED))
-			{
-				save_throw_object(victim, trap);
-			}
 
 			break;
 

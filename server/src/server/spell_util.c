@@ -942,7 +942,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 			tmp->stats.sp = i;
 		}
 
-		tmp->stats.hp = strength + (SP_level_strength_adjust(caster, spell_type) / 2);
+		tmp->stats.hp = strength;
 		tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam);
 		tmp->stats.maxhp = tmp->count;
 
