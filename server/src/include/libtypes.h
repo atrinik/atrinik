@@ -127,6 +127,8 @@ extern void apply_power_crystal(object *op, object *crystal);
 
 /* rod.c */
 extern void regenerate_rod(object *rod);
+extern void drain_rod_charge(object *rod);
+extern void fix_rod_speed(object *rod);
 
 /* savebed.c */
 extern void apply_savebed(object *op);

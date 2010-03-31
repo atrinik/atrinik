@@ -52,3 +52,31 @@ void regenerate_rod(object *rod)
 		}
 	}
 }
+
+/**
+ * Drain charges from a rod.
+ * @param rod Rod to drain. */
+void drain_rod_charge(object *rod)
+{
+	rod->stats.hp -= spells[rod->stats.sp].sp;
+
+	if (QUERY_FLAG(rod, FLAG_ANIMATE))
+	{
+		fix_rod_speed(rod);
+	}
+}
+
+/**
+ * Fix the speed of the rod, based on its hp.
+ * @param rod Rod to fix. */
+void fix_rod_speed(object *rod)
+{
+	rod->speed = (FABS(rod->arch->clone.speed) * rod->stats.hp) / (float) rod->stats.maxhp;
+
+	if (rod->speed < 0.02f)
+	{
+		rod->speed = 0.02f;
+	}
+
+	update_ob_speed(rod);
+}

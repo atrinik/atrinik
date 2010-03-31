@@ -22,7 +22,6 @@ object *hit_with_arrow(object *op, object *victim);
 void confuse_living(object *op);
 void paralyze_living(object *op, int dam);
 int is_melee_range(object *hitter, object *enemy);
-void save_throw_object(object *op, object *originator);
 
 /* ban.c */
 void load_bans_file();
@@ -414,8 +413,6 @@ void move_missile(object *op);
 void explode_object(object *op);
 void check_fired_arch(object *op);
 void move_fired_arch(object *op);
-void drain_rod_charge(object *rod);
-void fix_rod_speed(object *rod);
 int find_target_for_spell(object *op, object **target, uint32 flags);
 void move_ball_lightning(object *op);
 int spell_find_dir(mapstruct *m, int x, int y, object *exclude);
