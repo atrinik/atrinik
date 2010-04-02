@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1405,17 +1405,6 @@ y 7
 end
 arch doorway_wood1_1
 direction 7
-x 9
-y 7
-end
-arch exit
-msg
-As you pass the doorway, you notice there is no backing away now.
-endmsg
-layer 0
-sys_object 1
-hp 10
-sp 7
 x 9
 y 7
 end
