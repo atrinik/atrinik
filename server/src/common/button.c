@@ -744,7 +744,7 @@ object *check_inv_recursive(object *op, const object *trig)
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->inv)
+		if (tmp->inv && !IS_SYS_INVISIBLE(tmp))
 		{
 			ret = check_inv_recursive(tmp, trig);
 
