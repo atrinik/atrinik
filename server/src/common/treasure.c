@@ -2036,7 +2036,7 @@ jump_break1:
 				/* We have no special ring or amulet - now we create one. We first
 				 * get us a value, material and face changed prototype.
 				 * Then we cast the powers over it. */
-				
+
 				/* This is called before we inserted it in the map or elsewhere */
 				if (!QUERY_FLAG(op, FLAG_REMOVED))
 				{
@@ -2102,9 +2102,15 @@ jump_break1:
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
 					{
-						if (op->map && op->map->difficulty)
+						object *ob;
+
+						for (ob = creator; ob && ob->env; ob = ob->env)
 						{
-							op->level = RANDOM() % (op->map->difficulty) + RANDOM() % 10 + 1;
+						}
+
+						if (ob->map && ob->map->difficulty)
+						{
+							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 10 + 1, MAXLEVEL);
 						}
 						else
 						{
