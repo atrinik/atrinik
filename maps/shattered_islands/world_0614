@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-24 Alex Tokar
+Modified: 2010-04-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -569,17 +569,21 @@ can_reflect_missile 0
 direction 3
 level 28
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -664,7 +668,7 @@ y 7
 arch ogre
 name ogre battle thrower
 level 27
-Dex 2
+Dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
@@ -673,7 +677,7 @@ arch t_rock
 sys_object 1
 end
 arch rand_drop
-container 50
+container 30
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -1133,19 +1137,23 @@ arch ranger
 can_reflect_spell 0
 can_reflect_missile 0
 direction 3
-level 28
+level 29
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -1182,20 +1190,25 @@ x 7
 y 22
 arch ranger
 can_reflect_spell 0
+can_reflect_missile 0
 direction 3
 level 28
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -1228,7 +1241,7 @@ arch orc_warlord
 type 83
 level 30
 arch rand_drop
-container 25
+container 18
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -1251,7 +1264,7 @@ arch ring_ice
 end
 end
 arch rand_drop
-container 20
+container 12
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -1428,18 +1441,21 @@ x 9
 y 8
 arch orc_priest
 level 29
+dam 53
+wc 5
+ac 11
+Con 3
 maxsp 16
 Pow 20
 Dex 2
 stand_still 1
 Wis 9
 type 83
-arch ability_icestorm
-end
 arch ability_cause_lig_wound
+sp 1
 end
 arch rand_drop
-container 15
+container 5
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -1497,21 +1513,28 @@ can_reflect_spell 0
 can_reflect_missile 0
 direction 1
 level 30
+maxhp 70
+Con 10
+attack_impact 75
+attack_weaponmagic 0
 sp -1
 maxsp 16
 Pow 20
+magic 5
 Dex 2
+see_invisible 0
+can_see_in_dark 1
 unaggressive 0
 friendly 1
 Wis 9
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 0
+resist_cleave 0
+resist_magic 0
 type 83
-arch ability_firestorm
-end
 arch ability_mbullet
+sp 0
 end
 end
 end
@@ -1831,7 +1854,7 @@ x 12
 y 6
 arch orc_outlaw
 level 29
-Dex 2
+Dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
@@ -1841,7 +1864,7 @@ arch arrow
 sys_object 1
 end
 arch rand_drop
-container 25
+container 15
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -1928,16 +1951,19 @@ can_reflect_missile 0
 direction 1
 level 29
 dam 50
-maxhp 90
+maxhp 75
+Con 5
+attack_slash 75
+attack_weaponmagic 0
 can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+resist_impact 5
+resist_slash 0
+resist_pierce 0
+resist_cleave 0
+resist_magic -50
 type 83
 end
 end
@@ -2057,16 +2083,19 @@ can_reflect_missile 0
 direction 1
 level 29
 dam 50
-maxhp 90
+maxhp 75
+Con 5
+attack_slash 75
+attack_weaponmagic 0
 can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+resist_impact 5
+resist_slash 0
+resist_pierce 0
+resist_cleave 0
+resist_magic -50
 type 83
 end
 end
@@ -2509,6 +2538,7 @@ x 17
 y 8
 end
 arch tree_big3
+blocksview 0
 x 17
 y 8
 end
@@ -2551,17 +2581,21 @@ can_reflect_missile 0
 direction 3
 level 29
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -2673,11 +2707,11 @@ speed -0.02317
 x 18
 y 8
 arch orc_berserker
-type 83
+level 28
 random_move 1
 item_race 5
 item_level 2
-level 28
+type 83
 end
 end
 arch grassd_4
@@ -2868,16 +2902,20 @@ can_reflect_missile 0
 direction 1
 level 25
 dam 50
-maxhp 90
+wc 5
+maxhp 80
+Con 5
+attack_cleave 75
+attack_weaponmagic 0
 can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+resist_impact 5
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
+resist_magic -50
 type 83
 end
 end
@@ -2986,20 +3024,25 @@ x 20
 y 14
 arch ranger
 can_reflect_spell 0
+can_reflect_missile 0
 direction 3
-level 28
+level 29
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -3236,6 +3279,7 @@ x 22
 y 9
 end
 arch tree_big5b
+blocksview 0
 x 22
 y 9
 end
@@ -3313,20 +3357,25 @@ x 22
 y 22
 arch ranger
 can_reflect_spell 0
+can_reflect_missile 0
 direction 3
 level 28
 dam 40
-maxhp 90
+maxhp 75
+Con 5
+attack_impact 75
+attack_weaponmagic 0
 Dex 3
+see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
+resist_impact 0
+resist_slash 0
+resist_pierce 5
+resist_cleave 0
 resist_magic 10
 type 83
 arch ability_stone_throw
@@ -3398,7 +3447,7 @@ x 23
 y 8
 arch orc_outlaw
 level 29
-Dex 2
+Dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
@@ -3408,7 +3457,7 @@ arch arrow
 sys_object 1
 end
 arch rand_drop
-container 25
+container 15
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1

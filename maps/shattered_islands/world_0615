@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-24 Alex Tokar
+Modified: 2010-04-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1549,7 +1549,7 @@ x 9
 y 20
 arch orc_outlaw
 level 29
-Dex 2
+Dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
@@ -1559,7 +1559,7 @@ arch arrow
 sys_object 1
 end
 arch rand_drop
-container 30
+container 18
 arch quest_container
 name Battle of Fort Ghzal
 sub_type 1
@@ -2563,7 +2563,7 @@ x 16
 y 20
 arch orc_outlaw
 level 29
-Dex 2
+Dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
