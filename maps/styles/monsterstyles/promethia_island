@@ -9,7 +9,7 @@ difficulty 1
 end
 arch spawn_point
 arch demon_fire
-level -3
+item_condition 3
 type 83
 arch quest_container
 name Knowledge of Meteor

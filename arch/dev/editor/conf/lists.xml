@@ -249,4 +249,14 @@
 	<listentry value="2" name="Kill item quest" />
 </list>
 
+<list name="relative_level">
+	<listentry value="0" name="&lt;none&gt;" />
+	<listentry value="1" name="Green" />
+	<listentry value="2" name="Blue" />
+	<listentry value="3" name="Yellow" />
+	<listentry value="4" name="Orange" />
+	<listentry value="5" name="Red" />
+	<listentry value="6" name="Purple" />
+</list>
+
 </lists>

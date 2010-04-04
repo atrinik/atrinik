@@ -9,28 +9,28 @@ difficulty 1
 end
 arch spawn_point
 arch ant_red
-level -3
+item_condition 3
 type 83
 end
 end
 arch spawn_point
 x 1
 arch ant_red
-level -4
+item_condition 4
 type 83
 end
 end
 arch spawn_point
 x 2
 arch ant_soldier
-level -3
+item_condition 3
 type 83
 end
 end
 arch spawn_point
 x 3
 arch ant_soldier
-level -4
+item_condition 4
 type 83
 end
 end
