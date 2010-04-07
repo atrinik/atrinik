@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -110,12 +110,12 @@ end
 arch spawn_point
 y 23
 arch wasp_giant
-type 83
 level 7
 last_eat 5
 unaggressive 1
-item_race 8
-item_level 8
+item_race 4
+item_level 4
+type 83
 arch quest_container
 name Giant Wasps at Strakewood Island
 sub_type 1
@@ -335,12 +335,12 @@ arch spawn_point
 x 2
 y 16
 arch wasp_giant
-type 83
 level 7
 last_eat 5
 unaggressive 1
-item_race 8
-item_level 8
+item_race 4
+item_level 4
+type 83
 arch quest_container
 name Giant Wasps at Strakewood Island
 sub_type 1
@@ -378,6 +378,22 @@ end
 arch grassd_7
 x 2
 y 21
+end
+arch spawn_point
+x 2
+y 21
+arch wasp_giant
+level 7
+last_eat 5
+unaggressive 1
+item_race 4
+item_level 4
+type 83
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
+end
 end
 arch grassd_3
 x 2
@@ -490,12 +506,12 @@ arch spawn_point
 x 3
 y 19
 arch wasp_giant
-type 83
 level 7
 last_eat 5
 unaggressive 1
-item_race 8
-item_level 8
+item_race 4
+item_level 4
+type 83
 arch quest_container
 name Giant Wasps at Strakewood Island
 sub_type 1
@@ -751,6 +767,22 @@ arch grassd_8
 x 5
 y 21
 end
+arch spawn_point
+x 5
+y 21
+arch wasp_giant
+level 7
+last_eat 5
+unaggressive 1
+item_race 4
+item_level 4
+type 83
+arch quest_container
+name Giant Wasps at Strakewood Island
+sub_type 1
+end
+end
+end
 arch grassd_8
 x 5
 y 22
@@ -873,22 +905,6 @@ end
 arch grassd_4
 x 6
 y 20
-end
-arch spawn_point
-x 6
-y 20
-arch wasp_giant
-type 83
-level 7
-last_eat 5
-unaggressive 1
-item_race 8
-item_level 8
-arch quest_container
-name Giant Wasps at Strakewood Island
-sub_type 1
-end
-end
 end
 arch grassd_2
 x 6
@@ -1425,12 +1441,12 @@ arch spawn_point
 x 11
 y 18
 arch bear_grey
-type 83
 level 7
 unaggressive 1
 random_move 1
-item_race 7
+item_race 3
 item_level 7
+type 83
 end
 end
 arch grassd_2
@@ -1536,12 +1552,12 @@ arch spawn_point
 x 12
 y 14
 arch bear_grey
-type 83
 level 7
 unaggressive 1
 random_move 1
-item_race 7
+item_race 5
 item_level 7
+type 83
 end
 end
 arch grassd_5
@@ -1615,12 +1631,12 @@ arch spawn_point
 x 13
 y 7
 arch bear_grey
-type 83
 level 7
 unaggressive 1
 random_move 1
-item_race 7
+item_race 5
 item_level 7
+type 83
 end
 end
 arch grassd_2
@@ -1676,10 +1692,6 @@ x 13
 y 19
 end
 arch tree_big
-x 13
-y 19
-end
-arch plant_flower1
 x 13
 y 19
 end
@@ -2020,12 +2032,12 @@ arch spawn_point
 x 16
 y 18
 arch bear_grey
-type 83
 level 7
 unaggressive 1
 random_move 1
-item_race 7
+item_race 5
 item_level 7
+type 83
 end
 end
 arch grassd_7
