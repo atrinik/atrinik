@@ -402,7 +402,7 @@ int command_time(object *op, char *params)
  * @return 1. */
 int command_hiscore(object *op, char *params)
 {
-	hiscore_display(op, 50, params);
+	hiscore_display(op, 25, params);
 	return 1;
 }
 
