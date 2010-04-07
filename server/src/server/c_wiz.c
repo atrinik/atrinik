@@ -1238,7 +1238,7 @@ int command_resetmap(object *op, char *params)
 		 * them back later. */
 		count = 0;
 
-		for (pl = first_player; pl != NULL; pl = pl->next)
+		for (pl = first_player; pl; pl = pl->next)
 		{
 			if (pl->ob->map == m)
 			{
@@ -1273,10 +1273,14 @@ int command_resetmap(object *op, char *params)
 		m->reset_time = 1;
 		new_draw_info(NDI_UNIQUE, op, "Swap successful. Inserting players.");
 
-		for (pl = first_player; pl != NULL; pl = pl->next)
+		for (pl = first_player; pl; pl = pl->next)
 		{
 			if (pl->dm_removed_from_map)
 			{
+				/* So that we don't access invalid values of old player's last_update map
+				 * pointer when sending map to the client. */
+				pl->last_update = NULL;
+
 				EXIT_X(dummy) = pl->ob->x;
 				EXIT_Y(dummy) = pl->ob->y;
 				enter_exit(pl->ob, dummy);
@@ -1301,7 +1305,7 @@ int command_resetmap(object *op, char *params)
 	else
 	{
 		/* Need to re-insert players if swap failed for some reason. */
-		for (pl = first_player; pl != NULL; pl = pl->next)
+		for (pl = first_player; pl; pl = pl->next)
 		{
 			if (pl->dm_removed_from_map)
 			{
