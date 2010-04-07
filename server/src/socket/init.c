@@ -95,7 +95,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 		LOG(llevDebug, "init_connection(): Default buffer size was %d bytes, will reset it to %d\n", oldbufsize, bufsize);
 #endif
 
-		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(&bufsize)))
+		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
 		{
 			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
 		}
