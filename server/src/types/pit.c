@@ -28,7 +28,6 @@
  * Handles code used for @ref PIT "pits". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Close or open a pit. op->value is set when something connected to

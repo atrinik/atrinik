@@ -28,7 +28,6 @@
  * Controls player shop related functions. */
 
 #include <global.h>
-#include <sproto.h>
 
 static void player_shop_send_items(player *pl, player *seller);
 static void player_shop_close_interface(player *pl);

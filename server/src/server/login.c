@@ -28,7 +28,6 @@
  * Player login/save/logout related functions. */
 
 #include <global.h>
-#include <sproto.h>
 #include <loader.h>
 
 /** Objects link of DMs. */

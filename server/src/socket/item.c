@@ -35,7 +35,6 @@
 #include <object.h>
 #include <newclient.h>
 #include <newserver.h>
-#include <sproto.h>
 
 static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op);
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);

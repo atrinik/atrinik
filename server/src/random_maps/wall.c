@@ -28,8 +28,6 @@
  * Deals with wall management in random maps. */
 
 #include <global.h>
-#include <random_map.h>
-#include <rproto.h>
 
 /**
  * Given a layout and a coordinate, tell me which squares

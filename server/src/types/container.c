@@ -28,7 +28,6 @@
  * Handles code for handling @ref CONTAINER "containers". */
 
 #include <global.h>
-#include <sproto.h>
 
 static int container_trap(object *op, object *container);
 

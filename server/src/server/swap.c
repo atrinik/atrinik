@@ -28,7 +28,6 @@
  * Controls map swap functions. */
 
 #include <global.h>
-#include <sproto.h>
 
 #if RECYCLE_TMP_MAPS
 /**

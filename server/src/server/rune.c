@@ -28,7 +28,6 @@
  * All rune related functions. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * This function handles those runes which detonate but do not cast

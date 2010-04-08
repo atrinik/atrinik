@@ -29,8 +29,6 @@
  * (checking for lost connections and if data has arrived). */
 
 #include <global.h>
-#include <sproto.h>
-#include <sockproto.h>
 
 #ifndef WIN32
 #	include <sys/types.h>

@@ -28,9 +28,7 @@
  * Sound related functions. */
 
 #include <global.h>
-#include <sproto.h>
 #include <sounds.h>
-#include <sockproto.h>
 
 /**
  * Maximum distance a player may hear a sound from.

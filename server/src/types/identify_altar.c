@@ -28,7 +28,6 @@
  * Handles operation of @ref IDENTIFY_ALTAR "identify altars". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Operate an identify altar.

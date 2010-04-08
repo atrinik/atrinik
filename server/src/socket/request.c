@@ -34,7 +34,6 @@
  * way, we can use one dispatch table. */
 
 #include <global.h>
-#include <sproto.h>
 
 #include <newclient.h>
 #include <newserver.h>

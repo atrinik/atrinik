@@ -28,7 +28,6 @@
  * This handles all attacks, magical or not. */
 
 #include <global.h>
-#include <sproto.h>
 
 /** Attack form to protection table. */
 static int protection_tab[NROFATTACKS] =

@@ -28,7 +28,6 @@
  * Contains all alchemy related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /** Define this for some helpful debuging information. */
 #define ALCHEMY_DEBUG

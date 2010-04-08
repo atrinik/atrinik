@@ -28,8 +28,6 @@
  * Random map floor handling. */
 
 #include <global.h>
-#include <random_map.h>
-#include <rproto.h>
 
 /**
  * Creates the Atrinik map structure from the layout, and adds the floor.

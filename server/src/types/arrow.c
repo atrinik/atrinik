@@ -28,7 +28,6 @@
  * @ref ARROW "Arrow" related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Fix a stopped arrow.

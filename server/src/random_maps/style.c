@@ -28,7 +28,6 @@
  * Those functions deal with style for random maps. */
 
 #include <global.h>
-#include <random_map.h>
 
 #ifndef WIN32
 #ifdef NO_ERRNO_H

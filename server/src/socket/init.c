@@ -28,7 +28,6 @@
  * Socket initialization related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 #ifndef WIN32
 #	include <sys/types.h>

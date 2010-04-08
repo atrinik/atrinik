@@ -28,7 +28,6 @@
  * Functions dealing with shop handling, bargaining, etc. */
 
 #include <global.h>
-#include <sproto.h>
 
 static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay);
 

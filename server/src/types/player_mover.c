@@ -28,7 +28,6 @@
  * Handles code used for @ref PLAYERMOVER "player movers". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * A player mover finds any players that are sitting on it. It moves them

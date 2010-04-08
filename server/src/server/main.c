@@ -37,11 +37,6 @@
 #	endif
 #endif
 
-#include <sproto.h>
-
-#include <../random_maps/random_map.h>
-#include <../random_maps/rproto.h>
-
 #ifdef MEMPOOL_OBJECT_TRACKING
 extern void check_use_object_list();
 #endif

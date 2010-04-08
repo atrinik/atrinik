@@ -28,7 +28,6 @@
  * Rogue/nethack-like layout generation. */
 
 #include <global.h>
-#include <random_map.h>
 #include <math.h>
 
 typedef struct

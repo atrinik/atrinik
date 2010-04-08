@@ -228,11 +228,9 @@ datadir=${ndatadir}
 localstatedir=${nlocaldir}
 
 AC_OUTPUT(Makefile
-	../../src/random_maps/Makefile ../../src/socket/Makefile
-	../../src/server/Makefile ../../src/include/Makefile
-	../../src/utils/Makefile ../../src/common/Makefile
-	../../src/zlib/Makefile ../../src/utils/atrinikloop
-	../../src/types/Makefile
+	../../src/Makefile
+	../../tools/atrinikloop
+	../../tools/Makefile
 	../../src/plugins/Makefile
 	../../src/plugins/plugin_python/Makefile
 	../../src/plugins/plugin_arena/Makefile

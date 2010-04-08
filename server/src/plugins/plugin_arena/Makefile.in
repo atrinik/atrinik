@@ -20,7 +20,7 @@ SRCS = \
 	plugin_arena.c
 
 OBJECTS   = $(SRCS:.c=.o)
-INCLUDE   = -I./include -I../../include -I../common/include
+INCLUDE   = -I./include -I../../include -I../../random_maps
 
 CFLAGS    = -g -O3 -fPIC $(EXTRA_CFLAGS)
 DEPEND = @DEPEND@

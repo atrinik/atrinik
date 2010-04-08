@@ -28,7 +28,6 @@
  * Handles code used by @ref SKILLSCROLL "skillscrolls". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply a skillscroll.

@@ -28,7 +28,6 @@
  * Handles potion related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply a potion.

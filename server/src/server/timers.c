@@ -28,7 +28,6 @@
  * Timer related functions. */
 
 #include <timers.h>
-#include <sproto.h>
 
 cftimer timers_table[MAX_TIMERS];
 

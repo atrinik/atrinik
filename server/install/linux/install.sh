@@ -11,10 +11,10 @@ basedir="./../.."
 datadir="/data"
 
 echo "Copy binaries"
-cp ./../../src/server/$prgname ./../../$prgname
+cp ./../../src/$prgname ./../../$prgname
 cp ./../../src/plugins/plugin_python/$pythonplug ./../../plugins/$pythonplug
 cp ./../../src/plugins/plugin_arena/$arenaplug ./../../plugins/$arenaplug
-cp $basedir/src/utils/atrinikloop $basedir
+cp $basedir/tools/atrinikloop $basedir
 
 echo "Create data directories"
 mkdir $basedir/$datadir

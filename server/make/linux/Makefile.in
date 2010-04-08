@@ -41,66 +41,37 @@
 
 # MFLAGS
 # Any special options you want to give to make.
-# MFLAGS=-j2
+# MFLAGS = -j2
 
 # EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS=-Wall -W -Werror
+EXTRA_CFLAGS = -Wall -W -Werror
 
-#
-#
-CC=gcc
-
-MKDIR = @MKDIR@
-CP = @CP@
-TAR = @TAR@
+# C compiler
+CC = gcc
+# Location of 'rm'
 RM = @RM@
-BASENAME = @BASENAME@
-GZIP = @GZIP@
-BZIP = @BZIP@
 
 SHELL = /bin/sh
 
-prefix = @prefix@
-exec_prefix = @exec_prefix@
+################################
+# End of configuration options #
+################################
 
-NO_X = @no_x@
-
-##############################################################################
-# End of configuration options - nothing below here should need to be
-# Changed.
-#
-
+# Server's version.
 VERSION = atrinik-1.0
 
-ARCHIVE = /tmp/$(VERSION)
-
+# Where to recurse in making the build.
 SUBDIRS = \
-	../../src/common \
-	../../src/random_maps \
-	../../src/zlib \
-	../../src/socket \
-	../../src/types \
-	../../src/include \
-	../../src/server \
-	../../src/utils \
-	../../src/plugins
-
-FILES = configure configure.in
+	../../src \
+	../../src/plugins \
+	../../tools
 
 all::
 	@for dir in $(SUBDIRS); \
 	do \
 	    echo "making all in $$dir..."; \
-	    cd $$dir; \
-		$(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all || exit 5; \
-	done;
-
-depend::
-	@for dir in $(SUBDIRS); \
-	do \
-	    echo "making depend in $$dir..."; \
-	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' depend;) \
+		(cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' 'CC=$(CC)' all || exit 5;) \
 	done;
 
 clean::
@@ -118,9 +89,7 @@ distclean:: clean
 	done;
 	$(RM) -f Makefile
 	$(RM) -f config.cache config.log config.status
-	$(RM) -f  ../../dmonloop
-	$(RM) -f  ../../atrinik_server
-	$(RM) -f  ../../lib/*
+	$(RM) -rf ../../lib
 
 install:: all
 	sh ../../install/linux/install.sh
@@ -131,6 +100,3 @@ proto:
 	    echo "making proto in $$dir..."; \
 	    (cd $$dir; $(MAKE) $(MFLAGS) 'MFLAGS=$(MFLAGS)' 'EXTRA_CFLAGS=$(EXTRA_CFLAGS)' 'EXTRA_INCLUDES=$(EXTRA_INCLUDES)' 'EXTRA_LIBS=$(EXTRA_LIBS)' proto;) \
 	done;
-
-patchlist::
-	@echo $(FILES) > .patchlist

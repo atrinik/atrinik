@@ -28,7 +28,6 @@
  * This file contains core skill handling. */
 
 #include <global.h>
-#include <sproto.h>
 #include <book.h>
 
 /**

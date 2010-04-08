@@ -30,7 +30,6 @@
  * objects. */
 
 #include <global.h>
-#include <sproto.h>
 
 extern spell spells[NROFREALSPELLS];
 

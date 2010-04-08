@@ -28,7 +28,6 @@
  * This file handles party related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /** The party list. */
 static partylist_struct *partylist = NULL;

@@ -35,7 +35,6 @@
  * But if the player is logged in, all DRAWINFO are generated here. */
 
 #include <global.h>
-#include <sproto.h>
 #include <stdarg.h>
 
 /**

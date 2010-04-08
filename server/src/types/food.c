@@ -29,7 +29,6 @@
  * @ref FLESH "flesh". */
 
 #include <global.h>
-#include <sproto.h>
 #include <math.h>
 
 /** Maximum allowed food value. */

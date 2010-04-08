@@ -28,7 +28,6 @@
  * This file deals with the image related communication to the client. */
 
 #include <global.h>
-#include <sproto.h>
 
 #include <newclient.h>
 #include <newserver.h>

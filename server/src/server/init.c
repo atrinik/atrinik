@@ -32,7 +32,6 @@
 #define EXTERN
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * You unforunately need to looking in include/global.h to see what these

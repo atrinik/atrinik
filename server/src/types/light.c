@@ -29,7 +29,6 @@
  * @ref LIGHTER "lighters", @ref LIGHT_SOURCE "light sources", etc. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Refill lamps and all refill type light sources from

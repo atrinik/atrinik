@@ -30,7 +30,6 @@
  * Atrinik. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * @defgroup weapon_improve_types Weapon Improvement Types

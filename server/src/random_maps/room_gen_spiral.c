@@ -28,7 +28,6 @@
  * The spiral room generator. */
 
 #include <global.h>
-#include <random_map.h>
 
 /**
  * @defgroup SPIRAL_xxx Random spiral map options

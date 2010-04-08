@@ -28,7 +28,6 @@
  * Handles code related to @ref BOOK "books". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply a book.

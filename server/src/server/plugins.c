@@ -28,7 +28,6 @@
  * Handles the plugins code. */
 
 #include <plugin.h>
-#include <sproto.h>
 
 /** The plugin suffix. */
 #ifndef WIN32

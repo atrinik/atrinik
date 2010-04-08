@@ -28,7 +28,6 @@
  * Handles code related to @ref ALTAR "altars". */
 
 #include <global.h>
-#include <sproto.h>
 
 #define ARCH_SACRIFICE(xyz) ((xyz)->slaying)
 #define NROF_SACRIFICE(xyz) ((xyz)->stats.food)

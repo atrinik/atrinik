@@ -40,7 +40,6 @@
  * @author Bjorn Axelsson (gecko@acc.umu.se) */
 
 #include <global.h>
-#include <sproto.h>
 
 /** Used to indicate an error in distance_heuristic(). */
 #define HEURISTIC_ERROR -666.

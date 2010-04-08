@@ -28,7 +28,6 @@
  * @ref ROD "Rod" related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Regenerate rod speed needed to fire the rod again.

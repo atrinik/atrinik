@@ -50,7 +50,6 @@
  * #########################     ######################### */
 
 #include <global.h>
-#include <random_map.h>
 
 void centered_onion(char **maze, int xsize, int ysize, int option, int layers);
 void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers);

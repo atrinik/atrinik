@@ -28,7 +28,6 @@
  * Handles code for @ref TREASURE "treasure" objects. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply a treasure chest.

@@ -28,7 +28,6 @@
  * Daemon related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Make the Atrinik server become a daemon.

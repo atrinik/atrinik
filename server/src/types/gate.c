@@ -29,7 +29,6 @@
  * object types. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Move a gate up/down.

@@ -28,9 +28,6 @@
  * Handle exit placement in map. */
 
 #include <global.h>
-#include <random_map.h>
-#include <sproto.h>
-#include <rproto.h>
 
 /**
  * Find a character in the layout.

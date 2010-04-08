@@ -37,6 +37,10 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\..\src\include" />
+			<Add directory="..\..\..\src\porting" />
+			<Add directory="..\..\..\src\random_maps" />
+			<Add directory="..\..\..\src\libs\zlib\include" />
+			<Add directory="..\CodeBlocks" />
 			<Add directory="..\..\..\src\plugins\plugin_python\include" />
 			<Add directory="c:\Python26\include" />
 		</Compiler>

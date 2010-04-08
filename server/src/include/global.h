@@ -598,9 +598,8 @@ typedef struct ban_struct
 #define SCRIPT_FIX_NOTHING 0
 /*@}*/
 
-#include "libproto.h"
-#include "libtypes.h"
-#include "sockproto.h"
+#include "random_map.h"
+#include "proto.h"
 #include "plugin.h"
 
 #endif

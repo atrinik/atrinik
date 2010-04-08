@@ -28,7 +28,6 @@
  * Handles object moving and pushing. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Try to move object in specified direction.

@@ -30,7 +30,6 @@
  * Atrinik. */
 
 #include <global.h>
-#include <sproto.h>
 
 static void improve_armour(object *op, object *improver, object *armour);
 

@@ -28,7 +28,6 @@
  * Handles code used by @ref TELEPORTER "teleporters". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Teleporter does its tick.

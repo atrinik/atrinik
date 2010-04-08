@@ -31,9 +31,6 @@
 #include <time.h>
 #include <stdio.h>
 #include <global.h>
-#include <random_map.h>
-#include <rproto.h>
-#include <sproto.h>
 
 /**
  * Dumps specified layout using printf().

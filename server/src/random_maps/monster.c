@@ -28,8 +28,6 @@
  * Monster placement for random maps. */
 
 #include <global.h>
-#include <random_map.h>
-#include <rproto.h>
 
 /**
  * Inserts a monster in the map.

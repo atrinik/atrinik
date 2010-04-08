@@ -28,7 +28,6 @@
  * Various spell effects. */
 
 #include <global.h>
-#include <sproto.h>
 
 #ifdef SPELL_FAILURE_EFFECTS
 

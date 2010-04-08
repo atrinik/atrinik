@@ -28,7 +28,6 @@
  * Handles code related to @ref SHOP_MAT "shop mats". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply/trigger a shop map.

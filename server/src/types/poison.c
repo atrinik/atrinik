@@ -28,7 +28,6 @@
  * Handles code for @ref POISON "poison" objects. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply poisoned object.

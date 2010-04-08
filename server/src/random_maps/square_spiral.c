@@ -31,10 +31,6 @@
 #include <global.h>
 #include <time.h>
 
-#include <random_map.h>
-#include <sproto.h>
-#include <rproto.h>
-
 /**
  * This starts from within a centered onion layer (or between two layers),
  * and looks up until it finds a wall, and then looks right until it

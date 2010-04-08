@@ -53,8 +53,6 @@
 #ifdef HAVE_TIME_H
 #	include <time.h>
 #endif
-#include <../random_maps/random_map.h>
-#include <../random_maps/rproto.h>
 
 #ifndef WIN32
 #include <dirent.h>

@@ -28,7 +28,6 @@
  * Handles the code for @ref WAYPOINT_OBJECT "waypoint objects". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Find a monster's currently active waypoint, if any.

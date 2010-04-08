@@ -28,7 +28,6 @@
  * Handles code for @ref SCROLL "scrolls". */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Apply a scroll.

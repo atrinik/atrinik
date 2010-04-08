@@ -28,7 +28,6 @@
  * Handles code for @ref SPELLBOOK "spellbooks". */
 
 #include <global.h>
-#include <sproto.h>
 
 static void spellbook_failure(object *op, int failure, int power);
 

@@ -28,7 +28,6 @@
  * Handles god related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /* define this if you want to allow gods to assign more gifts
  * and limitations to priests */

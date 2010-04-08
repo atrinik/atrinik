@@ -29,7 +29,6 @@
 
 #include <global.h>
 #include <newclient.h>
-#include <sproto.h>
 
 #ifdef NO_ERRNO_H
 extern int errno;

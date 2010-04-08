@@ -28,7 +28,6 @@
  * @ref DOOR "Door" related code. */
 
 #include <global.h>
-#include <sproto.h>
 
 /**
  * Open a door (or check whether it can be opened).

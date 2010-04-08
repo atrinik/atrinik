@@ -28,7 +28,6 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
-#include <sproto.h>
 
 /* need math lib for double-precision and pow() in dragon_eat_flesh() */
 #include <math.h>
