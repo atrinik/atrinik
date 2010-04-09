@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -395,9 +395,14 @@ x 2
 y 9
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -532,9 +537,14 @@ x 3
 y 6
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -674,9 +684,14 @@ x 4
 y 4
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -721,9 +736,14 @@ x 4
 y 12
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -752,9 +772,14 @@ x 4
 y 16
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -850,9 +875,14 @@ x 5
 y 8
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -877,9 +907,14 @@ x 5
 y 11
 arch ant_red
 level 19
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -986,9 +1021,14 @@ x 6
 y 5
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1176,9 +1216,14 @@ x 7
 y 14
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1199,9 +1244,14 @@ x 7
 y 16
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1293,9 +1343,14 @@ x 8
 y 7
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1320,9 +1375,14 @@ x 8
 y 10
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1469,9 +1529,14 @@ x 9
 y 12
 arch ant_red
 level 19
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
@@ -1496,9 +1561,14 @@ x 9
 y 15
 arch ant_red
 level 18
+exp 90
 last_eat 5
-item_race 5
-item_level 5
+dam 61
+wc 4
+maxhp 71
+ac 10
+item_race 4
+item_level 4
 type 83
 arch quest_container
 name Finger of Death
