@@ -64,7 +64,7 @@ atrinik_server: $(OBJS)
 
 # Create prototype declarations.
 proto:
-	cproto -o include/proto.h.bak -D__CPROTO__ $(INCLUDES) `echo $(patsubst libs/zlib/%,,$(SRCS)) | $(SED) -e "s/loaders/loaders\/output/g"` || exit 5
+	cproto -o include/proto.h.bak -D__CPROTO__ $(INCLUDES) $(patsubst libs/zlib/%,,$(SRCS)) || exit 5
 	echo "#ifndef __CPROTO__" > include/proto.h
 	$(SED) -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\/\* /\n\/\* /" -e "1s/^.//" < include/proto.h.bak >> include/proto.h
 	echo "#endif" >> include/proto.h
@@ -80,14 +80,14 @@ distclean:: clean
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Run Flex
-loaders/%.c: loaders/%.l
-	$(FLEX) -i --prefix `echo yy_$< | $(SED) -e "s/loaders\///" -e "s/.l//"` -o `echo $< | $(SED) -e "s/.l/.c/g"` $<
+# Flex
+loaders/object.c: loaders/object.l
+	$(FLEX) -i -t --prefix yy_object $< > loaders/object.c
 
-	@if [ ! -d loaders/output ]; then \
-		$(MKDIR) loaders/output; \
-	fi
+loaders/map_header.c: loaders/map_header.l
+	$(FLEX) -i -t --prefix yy_map_header $< > loaders/map_header.c
 
-	$(CP) `echo $< | $(SED) -e "s/.l/.c/g"` `echo $< | $(SED) -e "s/.l/.c/g" -e "s/loaders/loaders\/output/"`
+loaders/random_map.c: loaders/random_map.l
+	$(FLEX) -i -t --prefix yy_random_map $< > loaders/random_map.c
 
 all: atrinik_server

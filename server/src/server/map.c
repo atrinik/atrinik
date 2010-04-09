@@ -47,7 +47,6 @@ int map_tiled_reverse[TILED_MAPS] =
 
 #define DEBUG_OLDFLAGS 1
 
-static int check_path(const char *name, int prepend_dir);
 static void load_objects(mapstruct *m, FILE *fp, int mapflags);
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2);
 static void allocate_map(mapstruct *m);
@@ -379,7 +378,7 @@ static char *create_items_path(shstr *s)
  * prepends libdir and mapdir. Otherwise, we assume the name given is
  * fully complete.
  * @return -1 if it fails, otherwise the mode of the file. */
-static int check_path(const char *name, int prepend_dir)
+int check_path(const char *name, int prepend_dir)
 {
 	char buf[MAX_BUF];
 #ifndef WIN32
@@ -1496,333 +1495,6 @@ mapstruct *get_empty_map(int sizex, int sizey)
 }
 
 /**
- * This loads the header information of the map. The header contains
- * things like difficulty, size, timeout, etc. This used to be stored in
- * the map object, but with the addition of tiling, fields beyond that
- * easily named in an object structure were needed, so it just made sense
- * to put all the stuff in the map object so that names actually make
- * sense.
- * @param fp File to read from.
- * @param m Map being read.
- * @return 0 on success, 1 on failure. */
-static int load_map_header(FILE *fp, mapstruct *m)
-{
-	char buf[HUGE_BUF], msgbuf[HUGE_BUF], *key = buf, *value, *end;
-	int msgpos = 0;
-
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		buf[HUGE_BUF - 1] = '\0';
-		key = buf;
-
-		while (isspace(*key))
-		{
-			key++;
-		}
-
-		/* Empty line */
-		if (*key == '\0')
-		{
-			continue;
-		}
-
-		value = strchr(key, ' ');
-
-		if (!value)
-		{
-			end = strchr(key, '\n');
-			*end = '\0';
-		}
-		else
-		{
-			*value = '\0';
-			value++;
-
-			while (isspace(*value))
-			{
-				value++;
-			}
-
-			end = strchr(value, '\n');
-		}
-
-		/* key is the field name, value is what it should be set
-		 * to.  We've already done the work to null terminate key,
-		 * and strip off any leading spaces for both of these.
-		 * We have not touched the newline at the end of the line -
-		 * these are needed for some values.  the end pointer
-		 * points to the first of the newlines.
-		 * value could be NULL!  It would be easy enough to just point
-		 * this to "" to prevent cores, but that would let more errors slide
-		 * through. */
-		if (!strcmp(key, "arch"))
-		{
-			/* This is an oddity, but not something we care about much. */
-			if (strcmp(value, "map\n"))
-			{
-				LOG(llevError, "ERROR: loading map and got a non 'arch map' line(%s %s)?\n", key, value);
-			}
-		}
-		else if (!strcmp(key, "name"))
-		{
-			*end = '\0';
-			m->name = strdup_local(value);
-		}
-		else if (!strcmp(key, "msg"))
-		{
-			while (fgets(buf, sizeof(buf) - 1, fp))
-			{
-				if (!strcmp(buf, "endmsg\n"))
-				{
-					break;
-				}
-				else
-				{
-					/* Slightly more efficient than strcat */
-					strcpy(msgbuf + msgpos, buf);
-					msgpos += strlen(buf);
-				}
-			}
-
-			/* There are lots of maps that have empty messages (eg, msg/endmsg
-			 * with nothing between).  There is no reason in those cases to
-			 * keep the empty message.  Also, msgbuf contains garbage data
-			 * when msgpos is zero, so copying it results in crashes */
-			if (msgpos != 0)
-			{
-				m->msg = strdup_local(msgbuf);
-			}
-		}
-		else if (!strcmp(key, "bg_music"))
-		{
-			*end = '\0';
-			m->bg_music = strdup_local(value);
-		}
-		else if (!strcmp(key, "region"))
-		{
-			*end = '\0';
-			m->region = get_region_by_name(value);
-		}
-		else if (!strcmp(key, "enter_x"))
-		{
-			m->enter_x = atoi(value);
-		}
-		else if (!strcmp(key, "enter_y"))
-		{
-			m->enter_y = atoi(value);
-		}
-		else if (!strcmp(key, "width"))
-		{
-			m->width = atoi(value);
-		}
-		else if (!strcmp(key, "height"))
-		{
-			m->height = atoi(value);
-		}
-		else if (!strcmp(key, "reset_timeout"))
-		{
-			m->reset_timeout = atoi(value);
-		}
-		else if (!strcmp(key, "swap_time"))
-		{
-			m->timeout = atoi(value);
-		}
-		else if (!strcmp(key, "difficulty"))
-		{
-			m->difficulty = atoi(value);
-		}
-		else if (!strcmp(key, "darkness"))
-		{
-			int v = atoi(value);
-
-			if (v < -1 || v > MAX_DARKNESS)
-  			{
-  				LOG(llevBug, "BUG: Illegal map darkness %d (must be -1 to %d, defaulting to -1).\n", v, MAX_DARKNESS);
-			}
-			else if (v != MAP_DEFAULT_DARKNESS)
-			{
-				set_map_darkness(m, v);
-			}
-		}
-		else if (!strcmp(key, "light"))
-		{
-			m->light_value = atoi(value);
-		}
-		else if (!strcmp(key, "no_save"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_NO_SAVE;
-			}
-		}
-		else if (!strcmp(key, "no_magic"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_NOMAGIC;
-			}
-		}
-		else if (!strcmp(key, "no_priest"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_NOPRIEST;
-			}
-		}
-		else if (!strcmp(key, "no_harm"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_NOHARM;
-			}
-		}
-		else if (!strcmp(key, "no_summon"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_NOSUMMON;
-			}
-		}
-		else if (!strcmp(key, "fixed_login"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_FIXED_LOGIN;
-			}
-		}
-		else if (!strcmp(key, "perm_death"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_PERMDEATH;
-			}
-		}
-		else if (!strcmp(key, "ultra_death"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_ULTRADEATH;
-			}
-		}
-		else if (!strcmp(key, "ultimate_death"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_ULTIMATEDEATH;
-			}
-		}
-		else if (!strcmp(key, "pvp"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_PVP;
-			}
-		}
-		else if (!strcmp(key, "outdoor"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_OUTDOOR;
-			}
-		}
-		else if (!strcmp(key, "unique"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_UNIQUE;
-			}
-		}
-		else if (!strcmp(key, "fixed_resettime"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_FIXED_RTIME;
-			}
-		}
-		else if (!strcmp(key, "plugins"))
-		{
-			if (atoi(value))
-			{
-				m->map_flags |= MAP_FLAG_PLUGINS;
-			}
-		}
-		else if (!strncmp(key, "tile_path_", 10))
-		{
-			int tile = atoi(key + 10);
-
-			if (tile < 1 || tile > TILED_MAPS)
-			{
-				LOG(llevError, "ERROR: load_map_header(): tile location %d out of bounds (%s)\n", tile, m->path);
-			}
-			else
-			{
-				*end = '\0';
-
-				if (m->tile_path[tile - 1])
-				{
-					LOG(llevError, "ERROR: load_map_header(): tile location %d duplicated (%s <-> %s)\n", tile, m->path, m->tile_path[tile - 1]);
-					FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
-				}
-
-				/* If path not absoulute, try to normalize it */
-				if (check_path(value, 1) == -1)
-				{
-					normalize_path(m->path, value, msgbuf);
-
-					if (check_path(msgbuf, 1) == -1)
-					{
-						LOG(llevBug, "BUG: load_map_header(): Can not normalize tile path %s %s %s\n", m->path, value, msgbuf);
-						value = NULL;
-					}
-					else
-					{
-						value = msgbuf;
-					}
-				}
-
-				/* We have a correct path to a neighbour tile */
-				if (value)
-				{
-					mapstruct *neighbour;
-					shstr *path_sh = add_string(value);
-
-					m->tile_path[tile - 1] = path_sh;
-
-					/* If the neighbouring map tile has been loaded, set up the map pointers */
-					if ((neighbour = has_been_loaded_sh(path_sh)) && (neighbour->in_memory == MAP_IN_MEMORY || neighbour->in_memory == MAP_LOADING))
-					{
-						int dest_tile = map_tiled_reverse[tile - 1];
-
-						m->tile_map[tile - 1] = neighbour;
-
-						if (neighbour->tile_path[dest_tile] == NULL || neighbour->tile_path[dest_tile] == m->path)
-						{
-							neighbour->tile_map[dest_tile] = m;
-						}
-					}
-				}
-			}
-		}
-		else if (!strcmp(key, "end"))
-		{
-			break;
-		}
-		else
-		{
-			LOG(llevBug, "BUG: Got unknown value in map header: %s %s\n", key, value);
-		}
-	}
-
-	if (strcmp(key, "end"))
-	{
-		LOG(llevBug, "BUG: Got premature EOF on map header!\n");
-		return 1;
-	}
-
-	return 0;
-}
-
-/**
  * Opens the file "filename" and reads information about the map
  * from the given file, and stores it in a newly allocated
  * mapstruct.
@@ -1882,7 +1554,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 	LOG(llevDebug, "header: ");
 	FREE_AND_COPY_HASH(m->path, filename);
 
-	if (load_map_header(fp, m))
+	if (!load_map_header(m, fp))
 	{
 		LOG(llevBug, "BUG: Failure loading map header for %s, flags=%d\n", filename, flags);
 		delete_map(m);
@@ -1961,7 +1633,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 	LOG(llevDebug, "header: ");
 
-	if (load_map_header(fp, m))
+	if (!load_map_header(m, fp))
 	{
 		LOG(llevBug, "BUG: Error loading map header for %s (%s)! Fallback to original!\n", m->path, m->tmpname);
 		delete_map(m);
@@ -2087,7 +1759,6 @@ int new_save_map(mapstruct *m, int flag)
 {
 	FILE *fp, *fp2;
 	char filename[MAX_BUF], buf[MAX_BUF];
-	int i;
 
 	if (flag && !*m->path)
 	{
@@ -2153,149 +1824,13 @@ int new_save_map(mapstruct *m, int flag)
 		fp = fopen(filename, "w");
 	}
 
-	if (fp == NULL)
+	if (!fp)
 	{
 		LOG(llevError, "ERROR: Can't open file %s for saving.\n", filename);
 		return -1;
 	}
 
-	fprintf(fp, "arch map\n");
-
-	if (m->name)
-	{
-		fprintf(fp, "name %s\n", m->name);
-	}
-
-	if (m->bg_music)
-	{
-		fprintf(fp, "bg_music %s\n", m->bg_music);
-	}
-
-	if (m->region)
-	{
-		fprintf(fp, "region %s\n", m->region->name);
-	}
-
-	if (!flag)
-	{
-		fprintf(fp, "swap_time %d\n", m->swap_time);
-	}
-
-	if (m->reset_timeout)
-	{
-		fprintf(fp, "reset_timeout %d\n", m->reset_timeout);
-	}
-
-	if (MAP_FIXED_RESETTIME(m))
-	{
-		fprintf(fp, "fixed_resettime 1\n");
-	}
-
-	/* We unfortunately have no idea if this is a value the creator set
-	 * or a difficulty value we generated when the map was first loaded */
-	if (m->difficulty)
-	{
-		fprintf(fp, "difficulty %d\n", m->difficulty);
-	}
-
-	fprintf(fp, "darkness %d\n", m->darkness);
-	fprintf(fp, "light %d\n", m->light_value);
-
-	if (m->width)
-	{
-		fprintf(fp, "width %d\n", m->width);
-	}
-
-	if (m->height)
-	{
-		fprintf(fp, "height %d\n", m->height);
-	}
-
-	if (m->enter_x)
-	{
-		fprintf(fp, "enter_x %d\n", m->enter_x);
-	}
-
-	if (m->enter_y)
-	{
-		fprintf(fp, "enter_y %d\n", m->enter_y);
-	}
-
-	if (m->msg)
-	{
-		fprintf(fp, "msg\n%sendmsg\n", m->msg);
-	}
-
-	if (MAP_UNIQUE(m))
-	{
-		fprintf(fp, "unique 1\n");
-	}
-
-	if (MAP_OUTDOORS(m))
-	{
-		fprintf(fp, "outdoor 1\n");
-	}
-
-	if (MAP_NOSAVE(m))
-	{
-		fprintf(fp, "no_save 1\n");
-	}
-
-	if (MAP_NOMAGIC(m))
-	{
-		fprintf(fp, "no_magic 1\n");
-	}
-
-	if (MAP_NOPRIEST(m))
-	{
-		fprintf(fp, "no_priest 1\n");
-	}
-
-	if (MAP_NOHARM(m))
-	{
-		fprintf(fp, "no_harm 1\n");
-	}
-
-	if (MAP_NOSUMMON(m))
-	{
-		fprintf(fp, "no_summon 1\n");
-	}
-
-	if (MAP_FIXEDLOGIN(m))
-	{
-		fprintf(fp, "fixed_login 1\n");
-	}
-
-	if (MAP_PERMDEATH(m))
-	{
-		fprintf(fp, "perm_death 1\n");
-	}
-
-	if (MAP_ULTRADEATH(m))
-	{
-		fprintf(fp, "ultra_death 1\n");
-	}
-
-	if (MAP_ULTIMATEDEATH(m))
-	{
-		fprintf(fp, "ultimate_death 1\n");
-	}
-
-	if (MAP_PVP(m))
-	{
-		fprintf(fp, "pvp 1\n");
-	}
-
-	/* Save any tiling information */
-	for (i = 0; i < TILED_MAPS; i++)
-	{
-		if (m->tile_path[i])
-		{
-			fprintf(fp, "tile_path_%d %s\n", i + 1, m->tile_path[i]);
-		}
-	}
-
-	fprintf(fp, "end\n");
+	save_map_header(m, fp, flag);
 
 	/* Save unique items into fp2 */
 	fp2 = fp;

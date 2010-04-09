@@ -34,7 +34,8 @@
 /** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
 
-extern int global_darkness_table[MAX_DARKNESS + 1];
+int global_darkness_table[MAX_DARKNESS + 1];
+int map_tiled_reverse[TILED_MAPS];
 
 /** For exit objects: this is a player unique map */
 #define MAP_PLAYER_MAP 1

@@ -193,7 +193,26 @@ int command_insert_into(object *op, char *params);
 int command_arrest(object *op, char *params);
 int command_cmd_permission(object *op, char *params);
 
-/* loaders/output/object.c */
+/* loaders/map_header.c */
+int map_lex_load(mapstruct *m);
+void yy_map_headerrestart(FILE *input_file);
+void yy_map_headerpop_buffer_state();
+int yy_map_headerget_lineno();
+FILE *yy_map_headerget_in();
+FILE *yy_map_headerget_out();
+int yy_map_headerget_leng();
+char *yy_map_headerget_text();
+void yy_map_headerset_lineno(int line_number);
+void yy_map_headerset_in(FILE *in_str);
+void yy_map_headerset_out(FILE *out_str);
+int yy_map_headerget_debug();
+void yy_map_headerset_debug(int bdebug);
+int yy_map_headerlex_destroy();
+void yy_map_headerfree(void *ptr);
+int load_map_header(mapstruct *m, FILE *fp);
+void save_map_header(mapstruct *m, FILE *fp, int flag);
+
+/* loaders/object.c */
 int lex_load(object *op, int map_flags);
 void yy_objectrestart(FILE *input_file);
 void yy_objectpop_buffer_state();
@@ -217,7 +236,7 @@ int set_variable(object *op, char *buf);
 void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 void save_object(FILE *fp, object *op, int flag);
 
-/* loaders/output/random_map.c */
+/* loaders/random_map.c */
 int rmap_lex_read(RMParms *RP);
 void yy_random_maprestart(FILE *input_file);
 void yy_random_mappop_buffer_state();
@@ -498,6 +517,7 @@ int main(int argc, char **argv);
 /* server/map.c */
 mapstruct *has_been_loaded_sh(shstr *name);
 char *create_pathname(const char *name);
+int check_path(const char *name, int prepend_dir);
 char *normalize_path(const char *src, const char *dst, char *path);
 void dump_map(mapstruct *m);
 void dump_all_maps();

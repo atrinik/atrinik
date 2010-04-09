@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Defines for loader.l / loader.c. */
+ * Defines for lexical loaders. */
 
 #ifndef LOADER_H
 #define LOADER_H
@@ -34,6 +34,7 @@
 #define LL_EOF	    0
 #define LL_MORE	    1
 #define LL_NORMAL   2
+#define LL_ERROR    3
 
 /* see loader.l for more details on this */
 #define LO_REPEAT   0
