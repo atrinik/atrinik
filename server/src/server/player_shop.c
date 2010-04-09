@@ -231,11 +231,8 @@ static int shop_player_in_range(object *op, object *seller)
 {
 	rv_vector rv;
 
-	/* Get range vector to the seller */
-	get_rangevector(op, seller, &rv, RV_DIAGONAL_DISTANCE);
-
 	/* Check the distance */
-	if (rv.distance > PLAYER_SHOP_MAX_DISTANCE)
+	if (!get_rangevector(op, seller, &rv, RV_DIAGONAL_DISTANCE) || rv.distance > PLAYER_SHOP_MAX_DISTANCE)
 	{
 		return 0;
 	}

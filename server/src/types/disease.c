@@ -224,9 +224,7 @@ static void check_infection(object *disease)
 					continue;
 				}
 
-				get_rangevector(disease, tmp, &rv, 0);
-
-				if (!obj_in_line_of_sight(tmp, &rv))
+				if (!get_rangevector(disease, tmp, &rv, 0) || !obj_in_line_of_sight(tmp, &rv))
 				{
 					continue;
 				}

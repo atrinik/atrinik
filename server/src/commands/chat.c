@@ -420,9 +420,8 @@ static int basic_emote(object *op, char *params, int emotion)
 		if (op->type == PLAYER && CONTR(op)->target_object != op && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && CONTR(op)->target_object->name)
 		{
 			rv_vector rv;
-			get_rangevector(op, CONTR(op)->target_object, &rv, 0);
 
-			if (rv.distance <= 4)
+			if (get_rangevector(op, CONTR(op)->target_object, &rv, 0) && rv.distance <= 4)
 			{
 				emote_other(op, CONTR(op)->target_object, NULL, buf, buf2, buf3, emotion);
 				new_draw_info(NDI_UNIQUE, op, buf);
@@ -507,11 +506,7 @@ static int basic_emote(object *op, char *params, int emotion)
 			{
 				rv_vector rv;
 
-				get_rangevector(op, pl->ob, &rv, 0);
-
-				emote_other(op, NULL, params, buf, buf2, buf3, emotion);
-
-				if (rv.distance <= 4)
+				if (get_rangevector(op, pl->ob, &rv, 0) && rv.distance <= 4)
 				{
 					if (op->type == PLAYER)
 					{
@@ -522,6 +517,7 @@ static int basic_emote(object *op, char *params, int emotion)
 					}
 					else
 					{
+						emote_other(op, NULL, params, buf, buf2, buf3, emotion);
 						new_draw_info(NDI_UNIQUE | NDI_YELLOW | NDI_EMOTE, pl->ob, buf2);
 						new_info_map_except(NDI_YELLOW | NDI_EMOTE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, pl->ob, buf3);
 					}
