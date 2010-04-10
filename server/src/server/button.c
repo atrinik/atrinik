@@ -752,7 +752,7 @@ object *check_inv_recursive(object *op, const object *trig)
 				return ret;
 			}
 		}
-		else if ((trig->stats.hp && tmp->type == trig->stats.hp) || (trig->slaying && trig->stats.sp ? (tmp->slaying && !strcmp(trig->slaying, tmp->slaying)) : (tmp->name && !strcmp(trig->slaying, tmp->name)) ) || (trig->arch->name && !strcmp(tmp->arch->name, trig->arch->name)))
+		else if ((trig->stats.hp && tmp->type == trig->stats.hp) || (trig->slaying && trig->stats.sp ? (tmp->slaying && trig->slaying == tmp->slaying) : (tmp->name && trig->slaying == tmp->name)) || (trig->race && trig->race == tmp->arch->name))
 		{
 			return tmp;
 		}

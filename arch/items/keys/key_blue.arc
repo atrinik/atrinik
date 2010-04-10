@@ -9,4 +9,5 @@ face key_blue.111
 type 21
 value 100
 weight 100
+identified 1
 end

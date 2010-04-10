@@ -71,5 +71,28 @@ void apply_sign(object *op, object *sign)
 		return;
 	}
 
+	if (sign->slaying || sign->stats.hp || sign->race)
+	{
+		object *match = check_inv_recursive(op, sign);
+
+		if ((match && sign->last_sp) || (!match && !sign->last_sp))
+		{
+			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+			{
+				new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
+			}
+
+			return;
+		}
+	}
+
+	if (sign->direction && (QUERY_FLAG(sign, FLAG_WALK_ON) || QUERY_FLAG(sign, FLAG_FLY_ON)))
+	{
+		if (op->direction != absdir(sign->direction + 4) && !(QUERY_FLAG(sign, FLAG_SPLITTING) && (op->direction == absdir(sign->direction - 5) || op->direction == absdir(sign->direction + 5))))
+		{
+			return;
+		}
+	}
+
 	new_draw_info(NDI_UNIQUE | NDI_NAVY, op, sign->msg);
 }

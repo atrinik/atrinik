@@ -1485,6 +1485,7 @@
 /drawers1.271
 /dress.101
 /dress_midnight.101
+/drink_generic.101
 /drow_annihilator.131
 /drow_annihilator.132
 /drow_annihilator.151
@@ -2837,7 +2838,7 @@
 /key_rebeldrow.111
 /key_red.111
 /key_ring.101
-/key_skull.101
+/key_skull.111
 /key_yervas.111
 /kicking_boots.101
 /king.111
@@ -5220,7 +5221,6 @@
 /wasp_giant.152
 /wasp_giant.231
 /wasp_giant.251
-/water.101
 /water_floor.101
 /water_lily1.101
 /water_lily2.101

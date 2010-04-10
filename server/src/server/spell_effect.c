@@ -402,28 +402,26 @@ int cast_create_town_portal(object *op)
 
 	dummy = get_archetype("force");
 
-	if (dummy == NULL)
+	if (!dummy)
 	{
 		LOG(llevBug, "BUG: cast_create_town_portal(): get_archetype failed (force) for %s!\n", op->name);
 		return 0;
 	}
 
-	FREE_AND_ADD_REF_HASH(dummy->name, shstr_cons.portal_destination_name);
-	dummy->stats.hp = EXIT;
-	FREE_AND_ADD_REF_HASH(dummy->arch->name, shstr_cons.force);
 	FREE_AND_ADD_REF_HASH(dummy->slaying, shstr_cons.portal_destination_name);
+	dummy->stats.sp = 1;
 	force = check_inv_recursive(op, dummy);
 
 	/* Here we know there is no destination marked up.
 	 * We have 2 things to do:
 	 * 1. Mark the destination in the player inventory.
 	 * 2. Let the player know it worked. */
-	if (force == NULL || strstr(force->name, op->name))
+	if (force == NULL)
 	{
 		FREE_AND_ADD_REF_HASH(dummy->name, op->map->path);
 		FREE_AND_ADD_REF_HASH(dummy->race, op->map->path);
-		EXIT_X(dummy)= op->x;
-		EXIT_Y(dummy)= op->y;
+		EXIT_X(dummy) = op->x;
+		EXIT_Y(dummy) = op->y;
 		dummy->speed = 0.0;
 		update_ob_speed(dummy);
 		insert_ob_in_ob(dummy, op);
@@ -457,9 +455,8 @@ int cast_create_town_portal(object *op)
 
 	/* Useful for string comparaison later */
 	FREE_AND_COPY_HASH(dummy->name, portal_name);
-	dummy->stats.hp = EXIT;
-	FREE_AND_ADD_REF_HASH(dummy->arch->name, shstr_cons.force);
 	FREE_AND_ADD_REF_HASH(dummy->slaying, shstr_cons.portal_active_name);
+	dummy->stats.sp = 1;
 	perm_portal = spellarch[SP_TOWN_PORTAL];
 
 	/* To kill a town portal, we go trough the player's inventory,
