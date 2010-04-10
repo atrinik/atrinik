@@ -7,12 +7,8 @@
 from Atrinik import *
 from Guild import Guild
 
-## Activator object.
 activator = WhoIsActivator()
-## Get the message.
 message = WhatIsMessage()
-
-## The guild we're managing.
 guild = Guild(None)
 
 ## Check which guild the player is member of.
@@ -22,20 +18,22 @@ if message:
 	message = CleanupChatString(message)
 
 if message and guildname != None:
-	guild = Guild(guildname)
-	LOG(llevInfo, "CLOG GUILD: %s [%s] >%s<\n" % (activator.name, guildname, message))
+	guild.guildname = guildname
+	LOG(llevInfo, "CLOG GUILD: {0} [{1}] >{2}<\n".format(activator.name, guildname, message))
 
 	for member in guild.guilddb[guild.guildname]["members"]:
-		if guild.member(member)["flags"] & guild.MEMBER_FLAG_REQUESTED:
+		if not guild.is_approved(member):
 			continue
 
 		## Find the member, and if found, show him the guild message.
 		player = FindPlayer(member)
 
 		if player:
-			player.Write("[%s] %s: %s" % (guild.guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
+			player.Write("[{0}] {1}: {2}".format(guild.guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
+
 elif guildname == None:
 	activator.Write("You are not member of any guild.", COLOR_RED)
+
 else:
 	activator.Write("You must provide a message to send to other guild members.", COLOR_RED)
 

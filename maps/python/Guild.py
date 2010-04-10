@@ -85,6 +85,8 @@ class Guild:
 		if not name in self.guilddb[self.guildname]["members"]:
 			return False
 
+		# Check if this is just a membership request. If so, we don't need to remove
+		# them from guild maps.
 		requested = self.guilddb[self.guildname]["members"][name]["flags"] & self.MEMBER_FLAG_REQUESTED
 
 		temp = self.guilddb[self.guildname]
@@ -116,13 +118,22 @@ class Guild:
 
 		return True
 
+	## Check if guild member has been approved for full membership.
+	## @param name Name of the member.
+	## @return True if the member has been approved, False otherwise.
+	def is_approved(self, name):
+		if not name in self.guilddb[self.guildname]["members"] or self.guilddb[self.guildname]["members"][name]["flags"] & self.MEMBER_FLAG_REQUESTED:
+			return False
+
+		return True
+
 	## Remove player from guild maps, if he's online.
-	## This is an useful feature if you want to remove a player currently
-	## located in your guild's maps.
+	## @param player Player object to remove.
+	## @param remover Who is removing the player.
 	def remove_player_from_guild_maps(self, player, remover):
 		guild_options_object = remover.CheckInventory(0, "note", "guild options")
 
-		if guild_options_object != None:
+		if guild_options_object:
 			enter_x = enter_y = -1
 			enter_map = ""
 			guild_maps = []
@@ -276,6 +287,11 @@ class Guild:
 			return False
 
 		return True
+
+	## Get name of the guild's founder.
+	## @return Guild's founder.
+	def get_founder(self):
+		return self.guilddb[self.guildname]["founder"]
 
 	## Open the guild we're managing specified by @ref guildname.
 	def open_guild(self):
