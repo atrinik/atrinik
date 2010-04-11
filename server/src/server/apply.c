@@ -666,10 +666,12 @@ int manual_apply(object *op, object *tmp, int aflag)
 	}
 
 	/* Trigger the APPLY event */
-	if (trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
+	if (!(aflag & AP_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
 		return 1;
 	}
+
+	aflag &= ~AP_NO_EVENT;
 
 	/* Control apply by controling a set exp object level or player exp level */
 	if (tmp->item_level)

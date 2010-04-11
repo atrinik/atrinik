@@ -1357,7 +1357,8 @@ enum apply_flag
 	AP_BASIC_FLAGS = 15,
 	/* Optional flags, for bitwise or with a basic flag */
 	AP_NO_MERGE = 16,
-	AP_IGNORE_CURSE = 32
+	AP_IGNORE_CURSE = 32,
+	AP_NO_EVENT = 64
 };
 
 /** Cut off point of when an object is put on the active list or not */

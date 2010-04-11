@@ -227,6 +227,7 @@ static Atrinik_Constant object_constants[] =
 	{"UNAPPLY_ALWAYS",               AP_UNAPPLY},
 	{"UNAPPLY_NO_MERGE",             AP_NO_MERGE},
 	{"UNAPPLY_IGNORE_CURSE",         AP_IGNORE_CURSE},
+	{"APPLY_NO_EVENT",               AP_NO_EVENT},
 
 	{"NEUTER",                       0},
 	{"MALE",                         1},
