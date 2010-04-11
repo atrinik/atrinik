@@ -64,7 +64,7 @@ static void add_ban_entry(char *name, char *ip)
 static void remove_ban_entry(objectlink *ol)
 {
 	free(ol->objlink.ban->ip);
-	FREE_ONLY_HASH(ol->objlink.ban->name);
+	FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
 	objectlink_unlink(&ban_list, NULL, ol);
 	return_poolchunk(ol->objlink.ban, pool_bans);
 	return_poolchunk(ol, pool_objectlink);

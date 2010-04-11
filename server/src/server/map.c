@@ -1408,29 +1408,20 @@ void set_map_darkness(mapstruct *m, int value)
 mapstruct *get_linked_map()
 {
 	mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
-	mapstruct *mp;
 
 	if (map == NULL)
 	{
 		LOG(llevError, "ERROR: get_linked_map(): Out of memory.\n");
 	}
 
-	for (mp = first_map; mp && mp->next; mp = mp->next)
+	if (first_map)
 	{
+		first_map->previous = map;
 	}
 
-	if (mp == NULL)
-	{
-		first_map = map;
-	}
-	else
-	{
-		mp->next = map;
-	}
+	map->next = first_map;
+	first_map = map;
 
-	map->buttons = NULL;
-	map->first_light = NULL;
-	map->bitmap = NULL;
 	map->in_memory = MAP_SWAPPED;
 
 	/* The maps used to pick up default x and y values from the
@@ -1980,9 +1971,6 @@ void free_map(mapstruct *m, int flag)
  * @param m The map to delete. */
 void delete_map(mapstruct *m)
 {
-	mapstruct *tmp, *last;
-	int i;
-
 	if (!m)
 	{
 		return;
@@ -2000,51 +1988,25 @@ void delete_map(mapstruct *m)
 		remove_light_source_list(m);
 	}
 
-	/* move this out of free_map, since tmpname can still be needed if
-	 * the map is swapped out. */
-	FREE_AND_NULL_PTR(m->tmpname);
-	last = NULL;
-
-	/* We need to look through all the maps and see if any maps
-	 * are pointing at this one for tiling information.  Since
-	 * tiling can be assymetric, we just can not look to see which
-	 * maps this map tiles with and clears those. */
-	for (tmp = first_map; tmp; tmp = tmp->next)
+	/* Remove m from the global map list */
+	if (m->next)
 	{
-		if (tmp->next == m)
-		{
-			last = tmp;
-		}
-
-		/* This should hopefully get unrolled on a decent compiler */
-		for (i = 0; i < TILED_MAPS; i++)
-		{
-			if (tmp->tile_map[i] == m)
-			{
-				tmp->tile_map[i] = NULL;
-			}
-		}
+		m->next->previous = m->previous;
 	}
 
-	/* If last is null, then this should be the first map in the list */
-	if (!last)
+	if (m->previous)
 	{
-		if (m == first_map)
-		{
-			first_map = m->next;
-		}
-		else
-		{
-			/* m->path is freed below, so should hopefully still have
-			 * some useful data in it. */
-			LOG(llevBug, "BUG: delete_map: Unable to find map %s in list\n", m->path);
-		}
+		m->previous->next = m->next;
 	}
+	/* If there is no previous, we are first map */
 	else
 	{
-		last->next = m->next;
+		first_map = m->next;
 	}
 
+	/* tmpname can still be needed if the map is swapped out, so we don't
+	 * do it in free_map(). */
+	FREE_AND_NULL_PTR(m->tmpname);
 	FREE_AND_CLEAR_HASH(m->path);
 	free(m);
 }
@@ -2094,7 +2056,7 @@ mapstruct *ready_map_name(const char *name, int flags)
 	 * reset but hasn't yet is quite low, and removing that makes this function
 	 * a bit cleaner (and players probably shouldn't rely on exact timing for
 	 * resets in any case - if they really care, they should use the 'maps command. */
-	if ((flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE)) || !m)
+	if (!m || (flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE)))
 	{
 		/* First visit or time to reset */
 		if (m)

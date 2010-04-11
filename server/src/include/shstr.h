@@ -32,7 +32,7 @@
 
 /**
  * The size of the shared strings hashtable. */
-#define TABLESIZE 32766
+#define TABLESIZE 8266
 
 /*
  * This will make the shared string interface more secure by checking for
@@ -86,7 +86,7 @@ static struct statistics
 #define GATHER(n)
 #endif
 
-#define TOPBIT ((REFCOUNT_TYPE) 1 << (sizeof(REFCOUNT_TYPE) * CHAR_BIT - 1))
+#define TOPBIT ((unsigned REFCOUNT_TYPE) 1 << (sizeof(REFCOUNT_TYPE) * CHAR_BIT - 1))
 
 #define PADDING	((2 * sizeof(long) - sizeof(REFCOUNT_TYPE)) % sizeof(long)) + 1
 

@@ -84,7 +84,7 @@ static unsigned long hashstr(const char *str)
 static shared_string *new_shared_string(const char *str)
 {
 	shared_string *ss;
-	int n = strlen(str);
+	size_t n = strlen(str);
 
 	/* Allocate room for a struct which can hold str. Note
 	 * that some bytes for the string are already allocated in the
@@ -303,9 +303,8 @@ void free_string_shared(shstr *str)
 
 	GATHER(free_stats.calls);
 	ss = SS(str);
-	--ss->refcount;
 
-	if ((ss->refcount & ~TOPBIT) == 0)
+	if ((--ss->refcount & ~TOPBIT) == 0)
 	{
 		/* Remove this entry. */
 		if (ss->refcount & TOPBIT)

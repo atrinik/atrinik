@@ -401,7 +401,6 @@ int command_freeze(object *op, char *params)
 int command_summon(object *op, char *params)
 {
 	int i;
-	object *dummy;
 	player *pl;
 
 	if (!op)
@@ -430,12 +429,10 @@ int command_summon(object *op, char *params)
 		return 1;
 	}
 
-	dummy = get_object();
-	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), op->map->path);
-	EXIT_X(dummy) = op->x + freearr_x[i];
-	EXIT_Y(dummy) = op->y + freearr_y[i];
-	enter_exit(pl->ob, dummy);
-	pl->ob->map = op->map;
+	remove_ob(pl->ob);
+	pl->ob->x = op->x + freearr_x[i];
+	pl->ob->y = op->y + freearr_y[i];
+	insert_ob_in_map(pl->ob, op->map, NULL, INS_NO_MERGE);
 	new_draw_info(NDI_UNIQUE, pl->ob, "You are summoned.");
 	new_draw_info_format(NDI_UNIQUE, op, "You summon %s.", pl->ob->name);
 	return 1;
@@ -449,7 +446,6 @@ int command_summon(object *op, char *params)
 int command_teleport(object *op, char *params)
 {
 	int i;
-	object *dummy;
 	player *pl;
 
 	if (!op)
@@ -478,12 +474,10 @@ int command_teleport(object *op, char *params)
 		return 1;
 	}
 
-	dummy = get_object();
-	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), pl->ob->map->path);
-	EXIT_X(dummy) = pl->ob->x + freearr_x[i];
-	EXIT_Y(dummy) = pl->ob->y + freearr_y[i];
-	enter_exit(op, dummy);
-	op->map = pl->ob->map;
+	remove_ob(op);
+	op->x = pl->ob->x + freearr_x[i];
+	op->y = pl->ob->y + freearr_y[i];
+	insert_ob_in_map(op, pl->ob->map, NULL, INS_NO_MERGE);
 
 	if (!CONTR(op)->dm_stealth)
 	{
@@ -1187,7 +1181,6 @@ int command_resetmap(object *op, char *params)
 	int count;
 	mapstruct *m;
 	player *pl;
-	object *dummy = NULL;
 
 	if (params == NULL)
 	{
@@ -1218,10 +1211,6 @@ int command_resetmap(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, op, "You cannot reset a random map.");
 		return 1;
 	}
-
-	dummy = get_object();
-	dummy->map = NULL;
-	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), m->path);
 
 	if (m->in_memory != MAP_SWAPPED)
 	{
@@ -1272,17 +1261,17 @@ int command_resetmap(object *op, char *params)
 		m->reset_time = 1;
 		new_draw_info(NDI_UNIQUE, op, "Swap successful. Inserting players.");
 
+		add_refcount(m->path);
+		m = ready_map_name(m->path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
+
 		for (pl = first_player; pl; pl = pl->next)
 		{
 			if (pl->dm_removed_from_map)
 			{
+				insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
 				/* So that we don't access invalid values of old player's last_update map
 				 * pointer when sending map to the client. */
 				pl->last_update = NULL;
-
-				EXIT_X(dummy) = pl->ob->x;
-				EXIT_Y(dummy) = pl->ob->y;
-				enter_exit(pl->ob, dummy);
 
 				if (pl->ob != op)
 				{

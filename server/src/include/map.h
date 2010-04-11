@@ -505,6 +505,9 @@ typedef struct regiondef
  * tiling. */
 typedef struct mapdef
 {
+	/** Previous map before. If NULL we are first_map. */
+	struct mapdef *previous;
+
 	/** Next map, linked list */
 	struct mapdef *next;
 
