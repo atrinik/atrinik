@@ -319,6 +319,11 @@ void spawn_point(object *op)
 	{
 		next = tmp->below;
 
+		if (tmp->type == BEACON)
+		{
+			continue;
+		}
+
 		if (tmp->type != SPAWN_POINT_MOB)
 		{
 			LOG(llevBug, "BUG: Spawn point in map %s (x: %d, y: %d) with wrong type object (%d) in inv: %s\n", op->map ? op->map->path : "<no map>", op->x, op->y, tmp->type, query_name(tmp, NULL));
