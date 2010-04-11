@@ -1150,6 +1150,8 @@ static int key_event(SDL_KeyboardEvent *key)
 			{
 				if (keybind_status == KEYBIND_STATUS_EDITKEY)
 				{
+					keybind_status = KEYBIND_STATUS_NO;
+
 					if (key->keysym.sym != SDLK_ESCAPE)
 					{
 						int i, j, already_bound = 0;
@@ -1172,11 +1174,10 @@ static int key_event(SDL_KeyboardEvent *key)
 							}
 						}
 
+						/* If the key is already bound, just continue trying to get a different key. */
 						if (already_bound)
 						{
-							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].text[0] = '\0';
-							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].keyname[0] = '\0';
-							bindkey_list[bindkey_list_set.group_nr].entry[bindkey_list_set.entry_nr].key = '\0';
+							keybind_status = KEYBIND_STATUS_EDITKEY;
 						}
 						else
 						{
@@ -1186,14 +1187,17 @@ static int key_event(SDL_KeyboardEvent *key)
 						}
 					}
 
-					keybind_status = KEYBIND_STATUS_NO;
 					return 0;
 				}
 			}
 
 			keys[key->keysym.sym].pressed = 1;
 			keys[key->keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-			check_menu_keys(cpl.menustatus, key->keysym.sym);
+
+			if (keybind_status == KEYBIND_STATUS_NO)
+			{
+				check_menu_keys(cpl.menustatus, key->keysym.sym);
+			}
 		}
 		/* no menu */
 		else
