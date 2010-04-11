@@ -1503,6 +1503,10 @@ enum apply_flag
  * All the possible quest types.
  *@{*/
 
+/**
+ * The quest is not handled by the server quest module; instead, it
+ * is handled specially by scripts. */
+#define QUEST_TYPE_SPECIAL -1
 /** The quest is a one drop type. */
 #define QUEST_TYPE_ITEM 0
 /** The quest requires you to kill X monsters. */
