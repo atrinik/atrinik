@@ -35,7 +35,7 @@
 					<Add library=".\libpthread.a" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="..\tools\flex.exe -i -Pyy_object -o..\..\..\src\loaders\object.c  ..\..\..\src\loaders/object.l" />
+					<Add before="..\tools\flex.exe -i -Pyy_object -o..\..\..\src\loaders\object.c  ..\..\..\src\loaders\object.l" />
 					<Add before="..\tools\flex.exe -i -Pyy_random_map -o..\..\..\src\loaders\random_map.c  ..\..\..\src\loaders\random_map.l" />
 					<Add before="..\tools\flex.exe -i -Pyy_map_header -o..\..\..\src\loaders\map_header.c  ..\..\..\src\loaders\map_header.l" />
 				</ExtraCommands>
@@ -388,11 +388,15 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../../src/loaders/output/object.c">
+		<Unit filename="../../../src/loaders/object.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../../src/loaders/output/random_map.c">
+		<Unit filename="../../../src/loaders/random_map.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../../src/loaders/map_header.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
