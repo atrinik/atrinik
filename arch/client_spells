@@ -82,20 +82,26 @@ p a 9 si_071.png
 " "
 " "
 " "
+"greater healing"
+p b 9 si_072.png
+"An improved version of minor healing, this prayer heals wounds on"
+"either the caster or the target."
+" "
+" "
 "cure poison"
-p b 9 si_078.png
+p c 9 si_078.png
 "This prayer cures *all* poison of your character."
 " "
 " "
 " "
 "cure disease"
-p c 9 si_081.png
+p d 9 si_081.png
 "This prayer cures *all* disease from your character."
 " "
 " "
 " "
 "remove depletion"
-p d 9 si_080.png
+p e 9 si_080.png
 "This prayer removes stats depletion from a player."
 " "
 " "
