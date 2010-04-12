@@ -1,32 +1,25 @@
-#
 # Message file for books  
 #
-# Message entries contained in this file will  
-# appear randomly in readable objects like books, scrolls
-# and such (op->type == BOOK).
+# Message entries contained in this file will appear randomly
+# in readable objects like books, scrolls and such (type == BOOK).
 #
 # To add an entry: 
 # ---------------
-# Start all entries w/ MSG and end with ENDMSG. The body of 
-# the text between these 2 words will be the message.
+# Start all entries with MSG and end with ENDMSG. The body of 
+# the text between those 2 words will be the message.
 #
 # When designing messages please keep in mind: 
 # -------------------------------------------
 #    1) Message length shouldn't exceed the maximum
 # buffer size for books (you'll generate a warning message
-# if you do this). Check the file include/read.h for the 
+# if you do this). Check the file include/book.h for the 
 # current message size limit (BOOK_BUF).
-#
-#
-#
+
 MSG
 
 *undecipherable text*
 ENDMSG
-#
-#
-#
-#
+
 MSG
 ... and then did the Alchemist agree to make me my potion.
 First he called to his grim servants who hauled forth a 
@@ -40,5 +33,9 @@ I thought that the Alchemist had broken his device, but he
 chuckled at my ignorance. Into the cauldron did he reach
 an brought forth a filled bottle of golden amber fluid...
 ENDMSG
-#
-#
+
+# Hint for hidden room in second level of UC.
+MSG
+... it is said that a secret passage opens in the second level
+of Underground City when one extinguishes 4 lights...
+ENDMSG

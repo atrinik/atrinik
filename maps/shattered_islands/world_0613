@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-03-24 Alex Tokar
+Modified: 2010-04-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -428,11 +428,21 @@ arch wall_wood3_3
 x 2
 y 7
 end
+arch picture6.151
+direction 7
+x 2
+y 7
+end
 arch grassd_3
 x 2
 y 8
 end
 arch wall_wood3_3
+x 2
+y 8
+end
+arch flag_03
+direction 7
 x 2
 y 8
 end
@@ -457,6 +467,10 @@ x 2
 y 11
 end
 arch grassd_2
+x 2
+y 12
+end
+arch tree_big3
 x 2
 y 12
 end
@@ -575,7 +589,7 @@ arch floor_wood2_l1
 x 3
 y 6
 end
-arch barrel.101
+arch broom.111
 x 3
 y 6
 end
@@ -583,24 +597,11 @@ arch floor_wood2_l2
 x 3
 y 7
 end
-arch box_big.101
-x 3
-y 7
-end
 arch floor_wood2_l2
 x 3
 y 8
 end
-arch broom.111
-direction 7
-x 3
-y 8
-end
 arch floor_wood2_l1
-x 3
-y 9
-end
-arch grain5.101
 x 3
 y 9
 end
@@ -612,11 +613,23 @@ arch wall_wood1_1
 x 3
 y 10
 end
-arch grassd_7
+arch floor_sand_d3
 x 3
 y 11
 end
-arch grassd_3
+arch grassd_m4
+x 3
+y 11
+end
+arch torch_wall_1
+x 3
+y 11
+end
+arch floor_sand_d2
+x 3
+y 12
+end
+arch grassd_m3
 x 3
 y 12
 end
@@ -751,7 +764,11 @@ arch floor_wood2_l1
 x 4
 y 6
 end
-arch barrel.101
+arch candlelight1.101
+x 4
+y 6
+end
+arch light5
 x 4
 y 6
 end
@@ -759,15 +776,7 @@ arch floor_wood2_l2
 x 4
 y 7
 end
-arch grain1.101
-x 4
-y 7
-end
 arch floor_wood2_l2
-x 4
-y 8
-end
-arch light7
 x 4
 y 8
 end
@@ -779,19 +788,23 @@ arch floor_wood2_l1
 x 4
 y 10
 end
-arch wall_wood1_1
+arch door_wood2
 x 4
 y 10
 end
-arch grassd_6
+arch floor_sand_d2
 x 4
 y 11
 end
-arch torch_wall_1
+arch grassd_m10
 x 4
 y 11
 end
-arch grassd_7
+arch floor_sand_d2
+x 4
+y 12
+end
+arch grassd_m7
 x 4
 y 12
 end
@@ -894,7 +907,12 @@ arch floor_wood2_l2
 x 5
 y 6
 end
-arch grain4.101
+arch wall_wood1_3
+x 5
+y 6
+end
+arch wmask_bflag_fire1_1
+direction 7
 x 5
 y 6
 end
@@ -902,7 +920,25 @@ arch floor_wood2_l1
 x 5
 y 7
 end
+arch curtain1
+direction 3
+x 5
+y 7
+end
 arch floor_wood2_l1
+x 5
+y 8
+end
+arch wall_wood2_3
+x 5
+y 8
+end
+arch wmask_fire_on_1
+direction 7
+x 5
+y 8
+end
+arch light3
 x 5
 y 8
 end
@@ -910,19 +946,35 @@ arch floor_wood2_l2
 x 5
 y 9
 end
+arch wall_wood3_3
+x 5
+y 9
+end
 arch floor_wood2_l2
 x 5
 y 10
 end
-arch door_wood1
+arch wall_wood_4
 x 5
 y 10
 end
-arch grassd_7
+arch floor_sand_d1
 x 5
 y 11
 end
-arch grassd_8
+arch grassd_m6
+x 5
+y 11
+end
+arch torch_wall_1
+x 5
+y 11
+end
+arch floor_sand_d1
+x 5
+y 12
+end
+arch grassd_m5
 x 5
 y 12
 end
@@ -1017,7 +1069,7 @@ arch grassd_2
 x 6
 y 5
 end
-arch wall_wood_w_1
+arch wall_wood1_1
 x 6
 y 5
 end
@@ -1025,15 +1077,11 @@ arch floor_wood2_l1
 x 6
 y 6
 end
-arch keg_big.101
-x 6
-y 6
-end
 arch floor_wood2_l1
 x 6
 y 7
 end
-arch light7
+arch carpet7.131
 x 6
 y 7
 end
@@ -1041,7 +1089,15 @@ arch floor_wood2_l1
 x 6
 y 8
 end
+arch carpet7.131
+x 6
+y 8
+end
 arch floor_wood2_l2
+x 6
+y 9
+end
+arch wood_pile.101
 x 6
 y 9
 end
@@ -1049,19 +1105,15 @@ arch floor_wood2_l2
 x 6
 y 10
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 6
 y 10
 end
-arch grassd_7
-x 6
-y 11
-end
-arch torch_wall_1
-x 6
-y 11
-end
 arch grassd_2
+x 6
+y 11
+end
+arch grassd_8
 x 6
 y 12
 end
@@ -1169,7 +1221,7 @@ arch wall_wood3_1
 x 7
 y 5
 end
-arch wmask_fire_on_1
+arch picture7
 x 7
 y 5
 end
@@ -1177,7 +1229,15 @@ arch floor_wood2_l1
 x 7
 y 6
 end
-arch chair1_drop_171
+arch carpet7.151
+x 7
+y 6
+end
+arch candlelight4.101
+x 7
+y 6
+end
+arch light5
 x 7
 y 6
 end
@@ -1185,7 +1245,7 @@ arch floor_wood2_l2
 x 7
 y 7
 end
-arch trash_wood1.101
+arch carpet7i
 x 7
 y 7
 end
@@ -1193,7 +1253,7 @@ arch floor_wood2_l2
 x 7
 y 8
 end
-arch straw2.111
+arch carpet7j
 x 7
 y 8
 end
@@ -1201,7 +1261,7 @@ arch floor_wood2_l2
 x 7
 y 9
 end
-arch straw2.111
+arch carpet7.111
 x 7
 y 9
 end
@@ -1214,6 +1274,10 @@ x 7
 y 10
 end
 arch grassd_1
+x 7
+y 11
+end
+arch flagwall_short_brick1.131
 x 7
 y 11
 end
@@ -1323,10 +1387,16 @@ x 8
 y 5
 end
 arch floor_wood2_l2
+no_pass 1
 x 8
 y 6
 end
-arch wall_wood2_3
+arch carpet7.151
+x 8
+y 6
+end
+arch desk2
+direction 7
 x 8
 y 6
 end
@@ -1334,7 +1404,7 @@ arch floor_wood2_l2
 x 8
 y 7
 end
-arch wall_wood3_3
+arch carpet7h
 x 8
 y 7
 end
@@ -1342,7 +1412,7 @@ arch floor_wood2_l2
 x 8
 y 8
 end
-arch wall_wood1_3
+arch carpet7k
 x 8
 y 8
 end
@@ -1350,19 +1420,36 @@ arch floor_wood2_l1
 x 8
 y 9
 end
-arch wall_wood1_3
+arch carpet7.111
 x 8
 y 9
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
 x 8
 y 10
 end
-arch wall_wood_4
+arch candlelight4.101
 x 8
 y 10
 end
-arch grassd_4
+arch wall_wood1_1
+x 8
+y 10
+end
+arch light5
+x 8
+y 10
+end
+arch grass3
+x 8
+y 11
+end
+arch flagwall_short_brick1.111
+no_pass 1
+x 8
+y 11
+end
+arch plant14
 x 8
 y 11
 end
@@ -1463,27 +1550,76 @@ arch grassd_1
 x 9
 y 5
 end
-arch grassd_3
+arch wall_wood_w_1
+x 9
+y 5
+end
+arch floor_wood2_l2
 x 9
 y 6
 end
-arch grassd_2
+arch chair1_111
+direction 3
+x 9
+y 6
+end
+arch spawn_point
+x 9
+y 6
+arch female2
+name Rienn
+level 21
+friendly 1
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/tortwald_rienn.py
+end
+arch letter
+name Rienn's Letter
+startequip 1
+type 79
+end
+end
+end
+arch floor_wood2_l1
 x 9
 y 7
 end
-arch grassd_7
+arch carpet7.171
+x 9
+y 7
+end
+arch floor_wood2_l2
 x 9
 y 8
 end
-arch grassd_2
+arch carpet7.171
+x 9
+y 8
+end
+arch floor_wood2_l2
 x 9
 y 9
 end
-arch grassd_1
+arch floor_wood2_l2
 x 9
 y 10
 end
-arch grassd_8
+arch wall_wood1_1
+x 9
+y 10
+end
+arch grass1
+x 9
+y 11
+end
+arch flagwall_short_brick1.111
+no_pass 1
+x 9
+y 11
+end
+arch plant_flower3
 x 9
 y 11
 end
@@ -1592,35 +1728,60 @@ arch grassd_1
 x 10
 y 5
 end
-arch plant_mushroom1
+arch wall_wood1_1
 x 10
 y 5
 end
-arch grassd_3
+arch floor_wood2_l2
 x 10
 y 6
 end
-arch grassd_2
+arch wall_wood2_3
+x 10
+y 6
+end
+arch floor_wood2_l2
 x 10
 y 7
 end
-arch grassd_7
+arch wall_wood3_3
+x 10
+y 7
+end
+arch floor_wood2_l2
 x 10
 y 8
 end
-arch grassd_2
+arch wall_wood1_3
+x 10
+y 8
+end
+arch floor_wood2_l2
 x 10
 y 9
 end
-arch tree_big2
+arch wall_wood1_3
 x 10
 y 9
 end
-arch grassd_1
+arch floor_wood2_l1
 x 10
 y 10
 end
-arch grassd_8
+arch wall_wood_4
+x 10
+y 10
+end
+arch grass3
+x 10
+y 11
+end
+arch flagwall_short_brick1.111
+no_pass 1
+x 10
+y 11
+end
+arch plant_flower8
 x 10
 y 11
 end
@@ -1752,27 +1913,85 @@ arch grassd_7
 x 11
 y 5
 end
-arch grassd_2
+arch flagwall_short_brick1.111
+x 11
+y 5
+end
+arch grass2
 x 11
 y 6
 end
-arch grassd_8
+arch flagwall_short_brick1.131
+no_pass 1
+x 11
+y 6
+end
+arch plant_flower4
+x 11
+y 6
+end
+arch grass2
 x 11
 y 7
 end
-arch grassd_4
+arch flagwall_short_brick1.131
+no_pass 1
+x 11
+y 7
+end
+arch plant_flower9
+x 11
+y 7
+end
+arch grass3
 x 11
 y 8
 end
-arch grassd_4
+arch flagwall_short_brick1.131
+no_pass 1
+x 11
+y 8
+end
+arch plant_flower5
+x 11
+y 8
+end
+arch grass3
 x 11
 y 9
 end
-arch grassd_2
+arch flagwall_short_brick1.131
+no_pass 1
+x 11
+y 9
+end
+arch plant_flower10
+x 11
+y 9
+end
+arch grass1
 x 11
 y 10
 end
-arch grassd_3
+arch flagwall_short_brick1.131
+no_pass 1
+x 11
+y 10
+end
+arch plant_flower7
+x 11
+y 10
+end
+arch grass3
+x 11
+y 11
+end
+arch flagwall_short_brick1.141
+no_pass 1
+x 11
+y 11
+end
+arch plant_flower5
 x 11
 y 11
 end
@@ -2426,6 +2645,10 @@ x 15
 y 13
 end
 arch grassd_1
+x 15
+y 14
+end
+arch tree_big
 x 15
 y 14
 end
@@ -3644,6 +3867,10 @@ x 23
 y 12
 end
 arch grassd_4
+x 23
+y 13
+end
+arch tree_big4b
 x 23
 y 13
 end

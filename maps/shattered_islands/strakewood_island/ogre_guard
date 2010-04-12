@@ -2,12 +2,14 @@ arch map
 name Ogre Guard
 msg
 Created:  2010-03-16 Alex Tokar
-Modified: 2010-03-16 Alex Tokar
+Modified: 2010-04-12 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 10
 darkness 2
+bg_music thonkdonk.ogg|0|-1
+region strakewood_island
 end
 arch fstone1b
 end
@@ -151,6 +153,11 @@ arch fstone1a
 x 1
 y 3
 end
+arch torch_wall_1
+direction 7
+x 1
+y 3
+end
 arch fstone1a
 x 1
 y 4
@@ -224,6 +231,11 @@ x 1
 y 20
 end
 arch fstone1a
+x 1
+y 21
+end
+arch torch_wall_1
+direction 7
 x 1
 y 21
 end
@@ -362,6 +374,10 @@ arch fstone1a
 x 2
 y 16
 end
+arch torch_wall_1
+x 2
+y 16
+end
 arch fstone1a
 x 2
 y 17
@@ -385,6 +401,15 @@ end
 arch dirt_floor3
 x 2
 y 20
+end
+arch spawn_point
+x 2
+y 20
+arch giant_stone
+level 8
+Wis 3
+type 83
+end
 end
 arch fstone1a
 x 2
@@ -420,6 +445,15 @@ arch fstone1a
 x 3
 y 2
 end
+arch spawn_point
+x 3
+y 2
+arch troll
+level 10
+Wis 3
+type 83
+end
+end
 arch fstone1c
 x 3
 y 3
@@ -453,6 +487,11 @@ x 3
 y 9
 end
 arch dirt_floor3
+x 3
+y 9
+end
+arch torch_wall_1
+direction 7
 x 3
 y 9
 end
@@ -601,6 +640,15 @@ arch fstone1a
 x 4
 y 12
 end
+arch spawn_point
+x 4
+y 12
+arch ettin
+level 9
+Wis 3
+type 83
+end
+end
 arch fstone1b
 x 4
 y 13
@@ -642,6 +690,10 @@ x 4
 y 20
 end
 arch fstone1a
+x 4
+y 21
+end
+arch dirt_floor1
 x 4
 y 21
 end
@@ -789,6 +841,10 @@ arch fstone1a
 x 6
 y 1
 end
+arch torch_wall_1
+x 6
+y 1
+end
 arch fstone1a
 x 6
 y 2
@@ -846,6 +902,10 @@ x 6
 y 10
 end
 arch fstone1c
+x 6
+y 11
+end
+arch torch_wall_1
 x 6
 y 11
 end
@@ -1009,6 +1069,49 @@ y 14
 end
 arch fstone1c
 x 7
+y 15
+end
+arch fstone1c
+x 7
+y 16
+end
+arch amphora1.101
+x 7
+y 16
+end
+arch fstone1a
+x 7
+y 17
+end
+arch stairs_stone_down
+msg
+You climb down the very long stairs...
+endmsg
+direction 7
+slaying underground_city/underground_city_a_0603
+hp 2
+sp 3
+x 7
+y 17
+end
+arch fstone1b
+x 7
+y 18
+end
+arch amphora1.101
+x 7
+y 18
+end
+arch fstone1a
+x 7
+y 19
+end
+arch dirt_floor1
+x 7
+y 19
+end
+arch fstone1c
+x 7
 y 20
 end
 arch fwall_marble1c
@@ -1016,6 +1119,10 @@ x 7
 y 20
 end
 arch fstone1a
+x 7
+y 21
+end
+arch torch_wall_1
 x 7
 y 21
 end
@@ -1127,6 +1234,38 @@ y 14
 end
 arch fstone1a
 x 8
+y 15
+end
+arch dirt_floor2
+x 8
+y 15
+end
+arch torch_wall_1
+x 8
+y 15
+end
+arch fstone1c
+x 8
+y 16
+end
+arch fstone1a
+x 8
+y 17
+end
+arch fstone1c
+x 8
+y 18
+end
+arch dirt_floor2
+x 8
+y 18
+end
+arch fstone1a
+x 8
+y 19
+end
+arch fstone1a
+x 8
 y 20
 end
 arch fwall_marble1c
@@ -1169,6 +1308,15 @@ arch fstone1b
 x 9
 y 11
 end
+arch spawn_point
+x 9
+y 11
+arch ettin
+level 8
+Wis 3
+type 83
+end
+end
 arch fstone1a
 x 9
 y 12
@@ -1185,6 +1333,30 @@ arch fwall_marble1b
 x 9
 y 14
 end
+arch fstone1a
+x 9
+y 15
+end
+arch fstone1a
+x 9
+y 16
+end
+arch fstone1a
+x 9
+y 17
+end
+arch blood_floor1
+x 9
+y 17
+end
+arch fstone1a
+x 9
+y 18
+end
+arch fstone1a
+x 9
+y 19
+end
 arch fstone1b
 x 9
 y 20
@@ -1196,6 +1368,15 @@ end
 arch fstone1c
 x 9
 y 21
+end
+arch spawn_point
+x 9
+y 21
+arch ogre
+level 8
+Wis 3
+type 83
+end
 end
 arch fstone1c
 x 9
@@ -1243,6 +1424,26 @@ y 14
 end
 arch fstone1a
 x 10
+y 15
+end
+arch gate1_locked
+direction 7
+x 10
+y 15
+end
+arch magic_mouth
+msg
+It is said that most heroes who ventured down the stairs have never returned, but those who did came back with glorious treasures...
+endmsg
+direction 3
+slaying underground_city_key_drow
+sp 1
+last_sp 1
+x 10
+y 15
+end
+arch fstone1a
+x 10
 y 16
 end
 arch fwall_marble1a
@@ -1265,11 +1466,6 @@ arch fwall_marble1c
 x 10
 y 18
 end
-arch chains3.151
-direction 7
-x 10
-y 18
-end
 arch fstone1a
 x 10
 y 19
@@ -1288,6 +1484,11 @@ x 10
 y 20
 end
 arch fwall_marble1a
+x 10
+y 20
+end
+arch chains3.151
+direction 7
 x 10
 y 20
 end
@@ -1421,6 +1622,10 @@ arch fstone1c
 x 11
 y 11
 end
+arch torch_wall_1
+x 11
+y 11
+end
 arch fstone1a
 x 11
 y 12
@@ -1437,6 +1642,10 @@ arch fwall_marble1a
 x 11
 y 14
 end
+arch fstone1a
+x 11
+y 15
+end
 arch fstone1c
 x 11
 y 16
@@ -1450,6 +1659,11 @@ x 11
 y 17
 end
 arch fstone1a
+x 11
+y 18
+end
+arch torch_wall_1
+direction 7
 x 11
 y 18
 end
@@ -1518,6 +1732,11 @@ arch fstone1c
 x 12
 y 5
 end
+arch torch_wall_1
+direction 7
+x 12
+y 5
+end
 arch fstone1a
 x 12
 y 6
@@ -1561,6 +1780,10 @@ end
 arch fwall_marble1a
 x 12
 y 14
+end
+arch fstone1a
+x 12
+y 15
 end
 arch fstone1a
 x 12
@@ -1702,6 +1925,10 @@ arch fwall_marble1c
 x 13
 y 14
 end
+arch fstone1c
+x 13
+y 15
+end
 arch fstone1a
 x 13
 y 16
@@ -1799,6 +2026,15 @@ arch fstone1a
 x 14
 y 10
 end
+arch spawn_point
+x 14
+y 10
+arch ogre
+level 7
+Wis 3
+type 83
+end
+end
 arch fstone1a
 x 14
 y 11
@@ -1822,6 +2058,10 @@ end
 arch fwall_marble1b
 x 14
 y 14
+end
+arch fstone1a
+x 14
+y 15
 end
 arch fstone1b
 x 14
@@ -1885,6 +2125,10 @@ arch pile_floor1
 x 15
 y 1
 end
+arch torch_wall_1
+x 15
+y 1
+end
 arch fstone1a
 x 15
 y 2
@@ -1966,6 +2210,7 @@ x 15
 y 13
 end
 arch fwall_marble1a
+no_pass 0
 x 15
 y 13
 end
@@ -1979,6 +2224,10 @@ y 14
 end
 arch fstone1c
 x 15
+y 15
+end
+arch fstone1c
+x 15
 y 16
 end
 arch fwall_marble1b
@@ -1986,6 +2235,10 @@ x 15
 y 16
 end
 arch fstone1a
+x 15
+y 17
+end
+arch torch_wall_1
 x 15
 y 17
 end
@@ -2038,6 +2291,15 @@ arch fstone1a
 x 16
 y 2
 end
+arch spawn_point
+x 16
+y 2
+arch ogre
+level 7
+Wis 3
+type 83
+end
+end
 arch fstone1c
 x 16
 y 3
@@ -2077,6 +2339,30 @@ end
 arch fwall_marble1c
 x 16
 y 8
+end
+arch fstone1c
+x 16
+y 12
+end
+arch fwall_marble1a
+x 16
+y 12
+end
+arch fstone1a
+x 16
+y 13
+end
+arch fstone1a
+x 16
+y 14
+end
+arch fwall_marble1a
+x 16
+y 14
+end
+arch fstone1b
+x 16
+y 15
 end
 arch fstone1c
 x 16
@@ -2177,6 +2463,26 @@ y 8
 end
 arch fstone1a
 x 17
+y 12
+end
+arch fwall_marble1a
+x 17
+y 12
+end
+arch fstone1a
+x 17
+y 13
+end
+arch fstone1a
+x 17
+y 14
+end
+arch fstone1a
+x 17
+y 15
+end
+arch fstone1a
+x 17
 y 16
 end
 arch fwall_marble1a
@@ -2206,6 +2512,15 @@ end
 arch fstone1a
 x 17
 y 20
+end
+arch spawn_point
+x 17
+y 20
+arch ogre
+level 7
+Wis 3
+type 83
+end
 end
 arch fstone1c
 x 17
@@ -2302,11 +2617,6 @@ arch fwall_marble1a
 x 18
 y 11
 end
-arch wall_blood1
-direction 7
-x 18
-y 11
-end
 arch fstone1c
 x 18
 y 12
@@ -2330,6 +2640,22 @@ end
 arch fwall_marble1a
 x 18
 y 14
+end
+arch fstone1a
+x 18
+y 15
+end
+arch fwall_marble1c
+x 18
+y 15
+end
+arch fstone1c
+x 18
+y 16
+end
+arch fwall_marble1b
+x 18
+y 16
 end
 arch fstone1c
 x 18
@@ -2420,6 +2746,11 @@ arch fstone1a
 x 19
 y 8
 end
+arch torch_wall_1
+direction 7
+x 19
+y 8
+end
 arch fstone1a
 x 19
 y 9
@@ -2433,6 +2764,11 @@ x 19
 y 11
 end
 arch fstone1c
+x 19
+y 12
+end
+arch torch_wall_1
+direction 7
 x 19
 y 12
 end
@@ -2457,6 +2793,10 @@ x 19
 y 18
 end
 arch fstone1a
+x 19
+y 19
+end
+arch torch_wall_1
 x 19
 y 19
 end
@@ -2501,6 +2841,15 @@ end
 arch fstone1a
 x 20
 y 4
+end
+arch spawn_point
+x 20
+y 4
+arch giant_hill
+level 8
+Wis 3
+type 83
+end
 end
 arch fstone1b
 x 20
@@ -2538,6 +2887,15 @@ arch fstone1a
 x 20
 y 12
 end
+arch spawn_point
+x 20
+y 12
+arch giant_stone
+level 9
+Wis 3
+type 83
+end
+end
 arch fstone1c
 x 20
 y 13
@@ -2574,6 +2932,15 @@ arch fstone1b
 x 20
 y 21
 end
+arch spawn_point
+x 20
+y 21
+arch giant_hill
+level 8
+Wis 3
+type 83
+end
+end
 arch fstone1a
 x 20
 y 22
@@ -2593,6 +2960,10 @@ arch fwall_marble1b
 x 21
 end
 arch fstone1b
+x 21
+y 1
+end
+arch torch_wall_1
 x 21
 y 1
 end
@@ -2627,6 +2998,15 @@ end
 arch fstone1c
 x 21
 y 9
+end
+arch spawn_point
+x 21
+y 9
+arch ettin
+level 8
+Wis 3
+type 83
+end
 end
 arch fstone1a
 x 21

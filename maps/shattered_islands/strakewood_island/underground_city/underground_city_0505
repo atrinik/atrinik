@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2010-04-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2316,11 +2316,24 @@ arch spawn_point
 x 18
 y 3
 arch skel_mage
-name undead mage smithy
+name Vlassa
 type 83
 level 40
 can_cast_spell 0
 Wis 3
+arch quest_container
+name Underground City Key 1
+arch key2
+msg
+Key from Vlassa, an undead mage smith in Underground City.
+endmsg
+name Underground City Key 1
+one_drop 1
+identified 1
+slaying underground_city_key1
+startequip 1
+end
+end
 end
 end
 arch floor_stone_b1
