@@ -227,10 +227,15 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag)
 			return 1;
 		}
 
-		/* If it has inventory, go on recursively. */
-		if (tmp->inv)
+		/* If it has inventory and is not a system object, go on recursively. */
+		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
-			return has_quest_item(tmp, quest_item, flag);
+			int ret = has_quest_item(tmp, quest_item, flag);
+
+			if (ret)
+			{
+				return 1;
+			}
 		}
 	}
 
