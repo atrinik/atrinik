@@ -2153,7 +2153,9 @@ void free_all_maps()
  * creatures, prevents people from passing through, etc).
  * @param m Map to update.
  * @param x X position on the given map.
- * @param y Y position on the given map. */
+ * @param y Y position on the given map.
+ * @deprecated The part dealing with client_mlayer (if statement above "UP - LAYER"
+ * and everything after it) is deprecated since socket version 1030. */
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;

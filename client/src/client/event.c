@@ -72,10 +72,6 @@ static key_macro defkey_macro[] =
 	{"?M_PAGEUP",		    "scroll up",        KEYFUNC_PAGEUP,       	0, SC_NORMAL},
 	{"?M_PAGEDOWN",	    	"scroll down",      KEYFUNC_PAGEDOWN,     	0, SC_NORMAL},
 	{"?M_FIRE_READY",   	"fire_ready <tag>", KEYFUNC_FIREREADY,    	0, SC_NORMAL},
-	{"?M_LAYER0",		    "l0",               KEYFUNC_LAYER0,       	0, SC_NORMAL},
-	{"?M_LAYER1",		    "l1",               KEYFUNC_LAYER1,       	0, SC_NORMAL},
-	{"?M_LAYER2",		    "l2",               KEYFUNC_LAYER2,       	0, SC_NORMAL},
-	{"?M_LAYER3",		    "l3",               KEYFUNC_LAYER3,       	0, SC_NORMAL},
 	{"?M_HELP",             "show help",        KEYFUNC_HELP,         	0, SC_NORMAL},
 	{"?M_PAGEUP_TOP",	  	"scroll up",        KEYFUNC_PAGEUP_TOP,   	0, SC_NORMAL},
 	{"?M_PAGEDOWN_TOP", 	"scroll down",      KEYFUNC_PAGEDOWN_TOP, 	0, SC_NORMAL},
@@ -1819,46 +1815,6 @@ int process_macro_keys(int id, int value)
 			snprintf(buf, sizeof(buf), "get %s", it->s_name);
 			draw_info(buf, COLOR_DGOLD);
 			client_send_move(loc, tag, nrof);
-			return 0;
-
-		case KEYFUNC_LAYER0:
-			if (debug_layer[0])
-				debug_layer[0] = 0;
-			else
-				debug_layer[0] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 0 %s.", debug_layer[0] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER1:
-			if (debug_layer[1])
-				debug_layer[1] = 0;
-			else
-				debug_layer[1] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 1 %s.", debug_layer[1] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER2:
-			if (debug_layer[2])
-				debug_layer[2] = 0;
-			else
-				debug_layer[2] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 2 %s.", debug_layer[2] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
-			return 0;
-
-		case KEYFUNC_LAYER3:
-			if (debug_layer[3])
-				debug_layer[3] = 0;
-			else
-				debug_layer[3] = 1;
-
-			snprintf(buf, sizeof(buf), "debug: map layer 3 %s.", debug_layer[3] ? "activated" : "deactivated");
-			draw_info(buf, COLOR_DGOLD);
 			return 0;
 
 		case KEYFUNC_HELP:

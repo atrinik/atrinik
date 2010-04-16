@@ -60,7 +60,6 @@ int music_global_fade = 0;
 /** Whether the mouse button was clicked. */
 int mb_clicked = 0;
 
-int debug_layer[MAXFACES];
 /** Bitmaps table size. */
 int bmaptype_table_size;
 /** The srv/client files. */
@@ -395,13 +394,8 @@ static void init_game_data()
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
-	for (i = 0; i < MAXFACES; i++)
-	{
-		debug_layer[i] = 1;
-	}
-
 	memset(&options, 0, sizeof(struct _options));
-	InitMapData(0, 0, 0, 0);
+	init_map_data(0, 0, 0, 0);
 
 	for (i = 0; i < (int) BITMAP_MAX; i++)
 	{

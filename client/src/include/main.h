@@ -217,8 +217,6 @@ extern _srv_client_files srv_client_files[SRV_CLIENT_FILES];
 extern 	Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
 extern int mb_clicked;
 
-#define MAXFACES 4
-
 /* IMPORTANT: datatype must also be changed in dialog.c */
 typedef struct _options
 {
@@ -579,7 +577,6 @@ extern int f_custom_cursor;
 extern int x_custom_cursor;
 extern int y_custom_cursor;
 
-extern int debug_layer[MAXFACES];
 extern int music_global_fade;
 extern _game_status GameStatus;
 extern int MapStatusX;

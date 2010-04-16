@@ -54,6 +54,9 @@
 /** Map tile Y offset */
 #define MAP_TILE_YOFF 24
 
+/** Maximum number of layers. */
+#define MAX_LAYERS 7
+
 /** Multi part object tile structure */
 typedef struct _multi_part_tile
 {
@@ -108,35 +111,35 @@ typedef struct _mapdata
 /** Map cell structure. */
 struct MapCell
 {
-	/** Faces. */
-	short faces[MAXFACES];
-
-	/** Position. */
-	short pos[MAXFACES];
-
 	/** Fog of war. */
 	int fog_of_war;
 
-	/** Flags. */
-	uint8 ext[MAXFACES];
-
-	/** Name of player on this cell. */
-	char pname[MAXFACES][32];
+	/** Position. */
+	uint8 quick_pos[MAX_LAYERS + 1];
 
 	/** Player name color on this cell. */
-	int pcolor[MAXFACES];
+	uint8 pcolor[MAX_LAYERS + 1];
 
 	/** If this is where our enemy is. */
-	uint8 probe[MAXFACES];
+	uint8 probe[MAX_LAYERS + 1];
 
 	/** Cell darkness. */
 	uint8 darkness;
+
+	/** Object flags. */
+	uint8 flags[MAX_LAYERS + 1];
+
+	/** Faces. */
+	sint16 faces[MAX_LAYERS + 1];
 
 	/** Height of this maptile. */
 	sint16 height;
 
 	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;
+
+	/** Name of player on this cell. */
+	char pname[MAX_LAYERS + 1][64];
 } MapCell;
 
 /** Map structure. */

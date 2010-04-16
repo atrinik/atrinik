@@ -40,18 +40,78 @@
 #pragma pack(push,1)
 #endif
 
-/** One map cell, as sent to the client. */
+/**
+ * @defgroup MAP2_FLAG_xxx Map2 layer flags
+ * Flags used to mark what kind of data there is on layers
+ * in map2 protocol.
+ *@{*/
+/** Multi-arch object. */
+#define MAP2_FLAG_MULTI      1
+/** Player name. */
+#define MAP2_FLAG_NAME       2
+/** Target's HP bar. */
+#define MAP2_FLAG_PROBE      4
+/** Tile's Z position. */
+#define MAP2_FLAG_HEIGHT     8
+/*@}*/
+
+/**
+ * @defgroup MAP2_FLAG_EXT_xxx Map2 tile flags
+ * Flags used to mark what kind of data there is on different
+ * tiles in map2 protocol.
+ *@{*/
+/** An animation. */
+#define MAP2_FLAG_EXT_ANIM   1
+/*@}*/
+
+/**
+ * @defgroup ANIM_xxx Animation types
+ * Animation types.
+ *@{*/
+/** Damage animation. */
+#define ANIM_DAMAGE     1
+/** Kill animation. */
+#define ANIM_KILL       2
+/*@}*/
+
+/**
+ * @defgroup MAP2_MASK_xxx Map2 mask flags
+ * Flags used for masks in map2 protocol.
+ *@{*/
+/** Clear cell, with all layers. */
+#define MAP2_MASK_CLEAR      0x2
+/** Add darkness. */
+#define MAP2_MASK_DARKNESS   0x4
+/*@}*/
+
+/**
+ * @defgroup MAP2_LAYER_xxx Map2 layer types
+ *@{*/
+/** Clear this layer. */
+#define MAP2_LAYER_CLEAR    255
+/** Layer is the same (in cache); no need to anything. */
+#define MAP2_LAYER_SAME     254
+/*@}*/
+
+/**
+ * One map cell. Used to hold 'cache' of faces we already sent
+ * to the client. */
 typedef struct MapCell_struct
 {
+	/** Darkness cache. */
 	int	count;
 
-	short faces[MAP_LAYERS];
+	/** Faces we sent. */
+	sint8 faces[MAP_LAYERS];
 
+	/** Multi-arch cache. */
+	uint8 quick_pos[MAP_LAYERS];
+
+	/** @deprecated */
 	uint8 fflag[MAP_LAYERS];
 
+	/** @deprecated */
 	uint8 ff_probe[MAP_LAYERS];
-
-	char quick_pos[MAP_LAYERS];
 } MapCell;
 
 /** One map for a player. */

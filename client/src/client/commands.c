@@ -1482,11 +1482,10 @@ void QuickSlotCmd(char *data)
 void Map2Cmd(unsigned char *data, int len)
 {
 	static int mx = 0, my = 0;
-	int mask, x, y, pos = 0, ext_flag, xdata;
-	int mapstat, ext1, ext2, ext3, probe;
-	int ff0, ff1, ff2, ff3, ff_flag, xpos, ypos, pcolor;
-	char pname1[64], pname2[64], pname3[64], pname4[64];
-	uint16 face;
+	int mask, x, y, pos = 0;
+	int mapstat;
+	int xpos, ypos;
+	int layer, ext_flags;
 
 	mapstat = (uint8) (data[pos++]);
 	map_transfer_flag = 0;
@@ -1511,7 +1510,7 @@ void Map2Cmd(unsigned char *data, int len)
 			mx = xpos;
 			my = ypos;
 			remove_item_inventory(locate_item(0));
-			InitMapData(map_w, map_h, xpos, ypos);
+			init_map_data(map_w, map_h, xpos, ypos);
 		}
 		else
 		{
@@ -1573,238 +1572,108 @@ void Map2Cmd(unsigned char *data, int len)
 
 	while (pos < len)
 	{
-		ext_flag = 0;
-		ext1 = ext2 = ext3 = 0;
-		/* first, we get the mask flag - it decribes what we now get */
 		mask = GetShort_String(data + pos);
 		pos += 2;
 		x = (mask >> 11) & 0x1f;
 		y = (mask >> 6) & 0x1f;
 
-		/* these are the "damage tags" - shows damage an object got from somewhere.
-		 * ff_flag hold the layer info and how much we got here.
-		 * 0x08 means a damage comes from unknown or vanished source.
-		 * this means the object is destroyed.
-		 * the other flags are assigned to map layer. */
-		if ((mask & 0x3f) == 0)
+		/* Clear the whole cell? */
+		if (mask & MAP2_MASK_CLEAR)
 		{
-			display_map_clearcell(x, y);
+			map_clear_cell(x, y);
+			continue;
 		}
 
-		ext3 = ext2 = ext1 = -1;
-		pname1[0] = 0;
-		pname2[0] = 0;
-		pname3[0] = 0;
-		pname4[0] = 0;
-		pcolor = 0;
-		/* the ext flag defines special layer object assigned infos.
-		 * Like the Zzz for sleep, paralyze msg, etc. */
-
-		/* catch the ext. flag... */
-		if (mask & 0x20)
+		/* Do we have darkness information? */
+		if (mask & MAP2_MASK_DARKNESS)
 		{
-			ext_flag = (uint8)(data[pos++]);
+			map_set_darkness(x, y, (uint8) (data[pos++]));
+		}
 
-			/* we have player names.... */
-			if (ext_flag & 0x80)
+		/* Go through all the layers on this tile. */
+		for (layer = 1; layer <= MAX_LAYERS; layer++)
+		{
+			uint8 type = data[pos++];
+
+			/* Clear this layer. */
+			if (type == MAP2_LAYER_CLEAR)
 			{
-				char c;
-				int i, pname_flag = (uint8)(data[pos++]);
+				map_set_data(x, y, layer, 0, 0, 0, "", 0, 0, 0);
+			}
+			/* Cached so it's the same; do nothing. */
+			else if (type == MAP2_LAYER_SAME)
+			{
+			}
+			/* We have some data. */
+			else
+			{
+				sint16 face = GetShort_String(data + pos), height = 0;
+				uint8 flags, obj_flags, quick_pos = 0, player_color = 0, probe = 0;
+				char player_name[64];
 
-				/* floor .... */
-				if (pname_flag & 0x08)
+				player_name[0] = '\0';
+
+				pos += 2;
+				/* Request the face. */
+				request_face(face, 0);
+				/* Object flags. */
+				obj_flags = data[pos++];
+				/* Flags of this layer. */
+				flags = data[pos++];
+
+				/* Multi-arch? */
+				if (flags & MAP2_FLAG_MULTI)
 				{
-					i = 0;
-					while ((c = (char)(data[pos++])))
+					quick_pos = data[pos++];
+				}
+
+				/* Player name? */
+				if (flags & MAP2_FLAG_NAME)
+				{
+					size_t i = 0;
+					char c;
+
+					while ((c = (char) (data[pos++])))
 					{
-						pname1[i++] = c;
+						player_name[i++] = c;
 					}
 
-					pname1[i] = 0;
-
-					pcolor = GetShort_String(data + pos);
-					pos += 2;
+					player_name[i] = '\0';
+					player_color = data[pos++];
 				}
 
-				/* fm.... */
-				if (pname_flag & 0x04)
+				/* Target's HP? */
+				if (flags & MAP2_FLAG_PROBE)
 				{
-					i = 0;
-					while ((c = (char)(data[pos++])))
-					{
-						pname2[i++] = c;
-					}
-					pname2[i] = 0;
-
-					pcolor = GetShort_String(data + pos);
-					pos += 2;
+					probe = data[pos++];
 				}
 
-				/* l1 .... */
-				if (pname_flag & 0x02)
+				/* Z position? */
+				if (flags & MAP2_FLAG_HEIGHT)
 				{
-					i = 0;
-					while ((c = (char)(data[pos++])))
-					{
-						pname3[i++] = c;
-					}
-					pname3[i] = 0;
-
-					pcolor = GetShort_String(data + pos);
+					height = GetShort_String(data + pos);
 					pos += 2;
 				}
 
-				/* l2 .... */
-				if (pname_flag & 0x01)
-				{
-					i = 0;
-					while ((c = (char)(data[pos++])))
-					{
-						pname4[i++] = c;
-					}
-					pname4[i] = 0;
-
-					pcolor = GetShort_String(data + pos);
-					pos += 2;
-				}
-			}
-
-			/* damage add on the map */
-			if (ext_flag & 0x40)
-			{
-				ff0 = ff1 = ff2 = ff3 = -1;
-				ff_flag = (uint8)(data[pos++]);
-
-				if (ff_flag & 0x8)
-				{
-					ff0 = GetShort_String(data + pos);
-					pos += 2;
-					add_anim(ANIM_KILL, xpos + x, ypos + y, ff0);
-				}
-
-				if (ff_flag & 0x4)
-				{
-					ff1 = GetShort_String(data + pos);
-					pos += 2;
-					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff1);
-				}
-
-				if (ff_flag & 0x2)
-				{
-					ff2 = GetShort_String(data + pos);
-					pos += 2;
-					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff2);
-				}
-
-				if (ff_flag & 0x1)
-				{
-					ff3 = GetShort_String(data + pos);
-					pos += 2;
-					add_anim(ANIM_DAMAGE, xpos + x, ypos + y, ff3);
-				}
-			}
-
-			if (ext_flag & 0x08)
-			{
-				probe = 0;
-				ext3 = (int)(data[pos++]);
-
-				if (ext3 & FFLAG_PROBE)
-					probe = (int)(data[pos++]);
-
-				set_map_ext(x, y, 3, ext3, probe);
-			}
-
-			if (ext_flag & 0x10)
-			{
-				probe = 0;
-				ext2 = (int)(data[pos++]);
-
-				if (ext2 & FFLAG_PROBE)
-					probe = (int)(data[pos++]);
-
-				set_map_ext(x, y, 2, ext2, probe);
-			}
-
-			if (ext_flag & 0x20)
-			{
-				probe = 0;
-				ext1 = (int)(data[pos++]);
-
-				if (ext1 & FFLAG_PROBE)
-					probe = (int)(data[pos++]);
-
-				set_map_ext(x, y, 1, ext1, probe);
+				/* Set the data we figured out. */
+				map_set_data(x, y, layer, face, quick_pos, obj_flags, player_name, player_color, height, probe);
 			}
 		}
 
-		if (mask & 0x10)
-		{
-			set_map_darkness(x, y, (uint8)(data[pos]));
-			pos++;
-		}
+		/* Get tile flags. */
+		ext_flags = data[pos++];
 
-		/* at last, we get the layer faces.
-		 * a set ext_flag here marks this entry as face from a multi tile arch.
-		 * we got another byte then which all information we need to display
-		 * this face in the right way (position and shift offsets) */
-		if (mask & 0x8)
+		/* Animation? */
+		if (ext_flags & MAP2_FLAG_EXT_ANIM)
 		{
-			int z_height;
+			uint8 anim_type;
+			sint16 anim_value;
 
-			face = GetShort_String(data + pos);
+			anim_type = data[pos++];
+			anim_value = GetShort_String(data + pos);
 			pos += 2;
-			request_face(face, 0);
-			xdata = 0;
-			z_height = GetShort_String(data + pos);
-			pos += 2;
-			set_map_face(x, y, 0, face, xdata, -1, pname1, pcolor, z_height);
-		}
 
-		if (mask & 0x4)
-		{
-			face = GetShort_String(data + pos);
-			pos += 2;
-			request_face(face, 0);
-			xdata = 0;
-			/* we have here a multi arch, fetch head offset */
-			if (ext_flag & 0x04)
-			{
-				xdata = (uint8)(data[pos]);
-				pos++;
-			}
-			set_map_face(x, y, 1, face, xdata, ext1, pname2, pcolor, 0);
-		}
-
-		if (mask & 0x2)
-		{
-			face = GetShort_String(data + pos);
-			pos += 2;
-			request_face(face, 0);
-			xdata = 0;
-			/* we have here a multi arch, fetch head offset */
-			if (ext_flag & 0x02)
-			{
-				xdata = (uint8)(data[pos]);
-				pos++;
-			}
-			set_map_face(x, y, 2, face, xdata, ext2, pname3, pcolor, 0);
-		}
-
-		if (mask & 0x1)
-		{
-			face = GetShort_String(data + pos);
-			pos += 2;
-			request_face(face, 0);
-			/*LOG(0, "we got face: %x (%x) ->%s\n", face, face &~ 0x8000, FaceList[face &~ 0x8000].name ? FaceList[face &~ 0x8000].name : "(null)");*/
-			xdata = 0;
-			/* we have here a multi arch, fetch head offset */
-			if (ext_flag & 0x01)
-			{
-				xdata = (uint8)(data[pos]);
-				pos++;
-			}
-			set_map_face(x, y, 3, face, xdata, ext3, pname4, pcolor, 0);
+			add_anim(anim_type, xpos + x, ypos + y, anim_value);
 		}
 	}
 
@@ -1836,7 +1705,7 @@ void SendVersion(ClientSocket csock)
 {
 	char buf[MAX_BUF];
 
-	snprintf(buf, sizeof(buf), "version %d %s", VERSION_SOCKET, PACKAGE_NAME);
+	snprintf(buf, sizeof(buf), "version %d %s", SOCKET_VERSION, PACKAGE_NAME);
 	cs_write_string(csock.fd, buf, strlen(buf));
 }
 

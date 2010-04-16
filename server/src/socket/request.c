@@ -1158,6 +1158,384 @@ static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 /** Draw the client map. */
 void draw_client_map2(object *pl)
 {
+if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
+{
+	static uint32 map2_count = 0;
+	MapCell *mp;
+	MapSpace *msp;
+	mapstruct *m;
+	int x, y, ax, ay, d, nx, ny;
+	int x_start, dm_light = 0;
+	int special_vision;
+	uint16 mask;
+	SockList sl;
+	unsigned char sock_buf[MAXSOCKBUF];
+	int wdark;
+	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE);
+	int layer, dark;
+	int anim_value, anim_type, ext_flags;
+
+	/* Do we have dm_light? */
+	if (CONTR(pl)->dm_light)
+	{
+		dm_light = global_darkness_table[MAX_DARKNESS];
+	}
+
+	wdark = darkness_table[world_darkness];
+	/* Any kind of special vision? */
+	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
+	map2_count++;
+
+	sl.buf = sock_buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
+
+	/* Marker */
+	SockList_AddChar(&sl, (char) CONTR(pl)->map_update_cmd);
+
+	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
+	{
+		SockList_AddString(&sl, pl->map->name);
+		SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
+
+		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
+		{
+			SockList_AddChar(&sl, (char) CONTR(pl)->map_update_tile);
+			SockList_AddChar(&sl, (char) CONTR(pl)->map_off_x);
+			SockList_AddChar(&sl, (char) CONTR(pl)->map_off_y);
+		}
+		else
+		{
+			SockList_AddChar(&sl, (char) pl->map->width);
+			SockList_AddChar(&sl, (char) pl->map->height);
+		}
+	}
+
+	SockList_AddChar(&sl, (char) pl->x);
+	SockList_AddChar(&sl, (char) pl->y);
+
+	x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
+
+	for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--)
+	{
+		ax = CONTR(pl)->socket.mapx - 1;
+
+		for (x = x_start; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--)
+		{
+			d = CONTR(pl)->blocked_los[ax][ay];
+			/* Form the data packet for x and y positions. */
+			mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
+
+			/* Space is out of map or blocked. Update space and clear values if needed. */
+			if (d & (BLOCKED_LOS_OUT_OF_MAP | BLOCKED_LOS_BLOCKED))
+			{
+				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
+				{
+					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
+					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
+				}
+
+				continue;
+			}
+
+			nx = x;
+			ny = y;
+
+			if (!(m = get_map_from_coord(pl->map, &nx, &ny)))
+			{
+				if (!QUERY_FLAG(pl, FLAG_WIZ))
+				{
+					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map: %s (%, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
+				}
+
+				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
+				{
+					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
+					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
+				}
+
+				continue;
+			}
+
+			msp = GET_MAP_SPACE_PTR(m, nx, ny);
+
+			/* Border tile, we can ignore every LOS change */
+			if (!(d & BLOCKED_LOS_IGNORE))
+			{
+				/* Tile has blocksview set? */
+				if (msp->flags & P_BLOCKSVIEW)
+				{
+					if (!d)
+					{
+						CONTR(pl)->update_los = 1;
+					}
+				}
+				else
+				{
+					if (d & BLOCKED_LOS_BLOCKSVIEW)
+					{
+						CONTR(pl)->update_los = 1;
+					}
+				}
+			}
+
+			/* Calculate the darkness/light value for this tile. */
+			if (MAP_OUTDOORS(m))
+			{
+				d = msp->light_value + wdark + dm_light;
+			}
+			else
+			{
+				d = m->light_value + msp->light_value + dm_light;
+			}
+
+			/* Tile is not normally visible */
+			if (d <= 0)
+			{
+				/* Xray or infravision? */
+				if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_ALIVE)))
+				{
+					d = 100;
+				}
+				else
+				{
+					if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
+					{
+						SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
+						map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
+					}
+
+					continue;
+				}
+			}
+
+			if (d > 640)
+			{
+				d = 210;
+			}
+			else if (d > 320)
+			{
+				d = 180;
+			}
+			else if (d > 160)
+			{
+				d = 150;
+			}
+			else if (d > 80)
+			{
+				d = 120;
+			}
+			else if (d > 40)
+			{
+				d = 90;
+			}
+			else if (d > 20)
+			{
+				d = 60;
+			}
+			else
+			{
+				d = 30;
+			}
+
+			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
+
+			/* Initialize default values for some variables. */
+			dark = NO_FACE_SEND;
+			ext_flags = 0;
+
+			/* Do we need to send the darkness? */
+			if (mp->count != d)
+			{
+				mask |= MAP2_MASK_DARKNESS;
+				dark = d;
+				mp->count = d;
+			}
+
+			/* Add the mask. Any mask changes should go above this line. */
+			SockList_AddShort(&sl, mask);
+
+			/* If we have darkness to send, send it. */
+			if (dark != NO_FACE_SEND)
+			{
+				SockList_AddChar(&sl, (char) dark);
+			}
+
+			/* Go through the visible layers; ignore layer 0. */
+			for (layer = 1; layer <= MAX_ARCH_LAYERS; layer++)
+			{
+				object *tmp = GET_MAP_SPACE_LAYER(msp, layer - 1);
+
+				/* If we didn't find a layer but we can see invisible,
+				 * try in the invisible layers. */
+				if (!tmp && inv_flag)
+				{
+					tmp = GET_MAP_SPACE_LAYER(msp, layer + 7);
+				}
+
+				/* Found something. */
+				if (tmp)
+				{
+					sint16 face;
+					uint8 quick_pos = tmp->quick_pos;
+					int flags = 0;
+					object *head = tmp->head ? tmp->head : tmp;
+
+					/* This is done so that the player image is always shown
+					 * to the player, even if they are standing on top of another
+					 * player or monster. */
+					if (layer == 6 && pl->x == nx && pl->y == ny)
+					{
+						tmp = pl;
+					}
+
+					/* If we have a multi-arch object. */
+					if (quick_pos)
+					{
+						flags |= MAP2_FLAG_MULTI;
+
+						/* Tail? */
+						if (tmp->head)
+						{
+							/* If true, we have sent a part of this in this map
+							 * update before, so skip it. */
+							if (head->update_tag == map2_count)
+							{
+								face = 0;
+							}
+							else
+							{
+								/* Mark this object as sent. */
+								head->update_tag = map2_count;
+								face = head->face->number;
+							}
+						}
+						/* Head. */
+						else
+						{
+							if (tmp->update_tag == map2_count)
+							{
+								face = 0;
+							}
+							else
+							{
+								tmp->update_tag = map2_count;
+								face = tmp->face->number;
+							}
+						}
+					}
+					else
+					{
+						face = tmp->face->number;
+					}
+
+					/* Player? So we want to send their name. */
+					if (tmp->type == PLAYER)
+					{
+						flags |= MAP2_FLAG_NAME;
+					}
+
+					/* If our player has this object as their target, we want to
+					 * know its HP percent. */
+					if (head->count == CONTR(pl)->target_object_count)
+					{
+						flags |= MAP2_FLAG_PROBE;
+					}
+
+					/* Z position and we're on a floor layer? */
+					if (tmp->z && layer == 1)
+					{
+						flags |= MAP2_FLAG_HEIGHT;
+					}
+
+					/* Now, check if we have cached this. */
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos)
+					{
+						SockList_AddChar(&sl, MAP2_LAYER_SAME);
+						continue;
+					}
+
+					/* Different from cache, add it to the cache now. */
+					mp->faces[layer] = face;
+					mp->quick_pos[layer] = quick_pos;
+
+					/* Add it's layer. This could actually be used for something else,
+					 * since the client doesn't really make use of this information. */
+					SockList_AddChar(&sl, (char) layer);
+					/* The face. */
+					SockList_AddShort(&sl, face);
+					/* Get the first several flags of this object (like paralyzed,
+					 * sleeping, etc). */
+					SockList_AddChar(&sl, (char) GET_CLIENT_FLAGS(head));
+					/* Flags we figured out above. */
+					SockList_AddChar(&sl, (char) flags);
+
+					/* Multi-arch? Add it's quick pos. */
+					if (flags & MAP2_FLAG_MULTI)
+					{
+						SockList_AddChar(&sl, (char) quick_pos);
+					}
+
+					/* Player name? Add the player's name, and their player name color. */
+					if (flags & MAP2_FLAG_NAME)
+					{
+						SockList_AddString(&sl, CONTR(tmp)->quick_name);
+						SockList_AddChar(&sl, (char) get_playername_color(pl, tmp));
+					}
+
+					/* Target's HP bar. */
+					if (flags & MAP2_FLAG_PROBE)
+					{
+						SockList_AddChar(&sl, (char) ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+					}
+
+					/* Z position. */
+					if (flags & MAP2_FLAG_HEIGHT)
+					{
+						SockList_AddShort(&sl, tmp->z);
+					}
+
+					/* Damage animation? Store it for later. */
+					if ((anim_value = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
+					{
+						ext_flags |= MAP2_FLAG_EXT_ANIM;
+						anim_type = ANIM_DAMAGE;
+					}
+				}
+				/* No object, so tell the client to clear this layer. */
+				else
+				{
+					SockList_AddChar(&sl, MAP2_LAYER_CLEAR);
+				}
+			}
+
+			/* Kill animation? */
+			if (GET_MAP_RTAG(m, nx, ny) == ROUND_TAG)
+			{
+				ext_flags |= MAP2_FLAG_EXT_ANIM;
+				anim_type = ANIM_KILL;
+				anim_value = GET_MAP_DAMAGE(m, nx, ny);
+			}
+
+			/* Add flags for this tile. */
+			SockList_AddChar(&sl, (char) ext_flags);
+
+			/* Animation? Add its type and value. */
+			if (ext_flags & MAP2_FLAG_EXT_ANIM)
+			{
+				SockList_AddChar(&sl, (char) anim_type);
+				SockList_AddShort(&sl, (sint16) anim_value);
+			}
+		}
+	}
+
+	/* Verify that we in fact do need to send this. */
+	if (sl.len > 4)
+	{
+		Send_With_Handling(&CONTR(pl)->socket, &sl);
+	}
+}
+else
+{
 	static uint32 map2_count = 0;
 	MapCell *mp;
 	MapSpace *msp;
@@ -1973,6 +2351,7 @@ void draw_client_map2(object *pl)
 			Send_With_Handling(&CONTR(pl)->socket, &sl);
 		}
 	}
+}
 }
 
 /**
