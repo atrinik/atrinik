@@ -1485,7 +1485,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					/* Target's HP bar. */
 					if (flags & MAP2_FLAG_PROBE)
 					{
-						SockList_AddChar(&sl, (char) ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+						SockList_AddChar(&sl, (char) MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0))));
 					}
 
 					/* Z position. */
