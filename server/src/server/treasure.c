@@ -938,8 +938,6 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED))
 					{
 						SET_FLAG(tmp, FLAG_IDENTIFIED);
-						SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-						SET_FLAG(tmp, FLAG_KNOWN_CURSED);
 					}
 				}
 				/* We have a wealth object - expand it to real money */
@@ -1126,8 +1124,6 @@ create_one_treasure_again_jmp:
 			if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				SET_FLAG(tmp, FLAG_IDENTIFIED);
-				SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-				SET_FLAG(tmp, FLAG_KNOWN_CURSED);
 			}
 		}
 		/* We have a wealth object - expand it to real money */

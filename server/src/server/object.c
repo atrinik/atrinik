@@ -893,12 +893,6 @@ void copy_object(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->msg);
 	ADD_REF_NOT_NULL_HASH(op->artifact);
 
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
-
 	/* Only alter speed_left when we sure we have not done it before */
 	if (op->speed < 0 && op->speed_left == op->arch->clone.speed_left)
 	{
@@ -975,12 +969,6 @@ void copy_object_data(object *op2, object *op)
 	ADD_REF_NOT_NULL_HASH(op->slaying);
 	ADD_REF_NOT_NULL_HASH(op->msg);
 	ADD_REF_NOT_NULL_HASH(op->artifact);
-
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
 
 	/* Copy over key_values, if any. */
 	if (op2->key_values)

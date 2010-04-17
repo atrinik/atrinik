@@ -566,7 +566,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		case SP_DETECT_MAGIC:
 		case SP_DETECT_CURSE:
-			success = cast_detection(op, target, type);
+			success = 1;
 			break;
 
 		case SP_IDENTIFY:

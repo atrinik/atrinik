@@ -623,7 +623,6 @@ static int god_removes_curse(object *op, int remove_damnation)
 			success = 1;
 			CLEAR_FLAG(tmp, FLAG_DAMNED);
 			CLEAR_FLAG(tmp, FLAG_CURSED);
-			CLEAR_FLAG(tmp, FLAG_KNOWN_CURSED);
 
 			if (op->type == PLAYER)
 			{

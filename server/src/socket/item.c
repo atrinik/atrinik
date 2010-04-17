@@ -124,7 +124,7 @@ unsigned int query_flags(object *op)
 		flags |= F_TRAPPED;
 	}
 
-	if (QUERY_FLAG(op,FLAG_KNOWN_CURSED))
+	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (QUERY_FLAG(op, FLAG_DAMNED))
 		{
@@ -136,7 +136,7 @@ unsigned int query_flags(object *op)
 		}
 	}
 
-	if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL) && QUERY_FLAG(op, FLAG_IS_MAGICAL)) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		flags |= F_MAGIC;
 	}

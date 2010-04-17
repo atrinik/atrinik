@@ -774,7 +774,7 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
- * Unused: 113.
+ * Unused: 77, 78, 113.
  *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
@@ -962,10 +962,6 @@
 #define FLAG_DAMNED               75
 /** Unused. */
 #define FLAG_SEE_ANYWHERE         76
-/** The object is known to be magical. */
-#define FLAG_KNOWN_MAGICAL        77
-/** The object is known to be cursed. */
-#define FLAG_KNOWN_CURSED         78
 /** The monster can use skills. */
 #define FLAG_CAN_USE_SKILL        79
 

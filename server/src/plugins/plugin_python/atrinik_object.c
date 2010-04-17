@@ -196,7 +196,7 @@ static char *flag_names[NUM_FLAGS + 1] =
 	"f_has_ready_bow",       "f_xrays",             "f_no_apply",            "f_is_floor",        "f_lifesave",
 	"f_is_magical",          "f_alive",             "f_stand_still",         "f_random_move",     "f_only_attack",
 	"f_wiz",                 "f_stealth",           NULL,                    NULL,                "f_cursed",
-	"f_damned",              "f_see_anywhere",      "f_known_magical",       "f_known_cursed",    "f_can_use_skill",
+	"f_damned",              "f_see_anywhere",      NULL,                    NULL,                "f_can_use_skill",
 	"f_is_thrown",           "f_is_vul_sphere",     "f_is_proof_sphere",     "f_is_male",         "f_is_female",
 	"f_applied",             "f_inv_locked",        "f_is_wooded",           "f_is_hilly",        "f_has_ready_skill",
 	"f_has_ready_weapon",    "f_no_skill_ident",    NULL,                    "f_can_see_in_dark", "f_is_cauldron",
@@ -1944,8 +1944,6 @@ static PyObject *Atrinik_Object_CreateObjectInside(Atrinik_Object *whereptr, PyO
 	if (id)
 	{
 		SET_FLAG(myob, FLAG_IDENTIFIED);
-		SET_FLAG(myob, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(myob, FLAG_KNOWN_CURSED);
 	}
 
 	if (nrof > 1)

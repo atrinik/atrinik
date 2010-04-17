@@ -677,7 +677,7 @@ char *query_name(object *op, object *caller)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED))
+	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (QUERY_FLAG(op, FLAG_PERM_DAMNED))
 		{
@@ -697,7 +697,7 @@ char *query_name(object *op, object *caller)
 		}
 	}
 
-	if ((QUERY_FLAG(op, FLAG_KNOWN_MAGICAL && QUERY_FLAG(op, FLAG_IS_MAGICAL))) || (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)))
+	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
 		safe_strcat(buf[use_buf], " (magical)", &len, HUGE_BUF);
 	}
@@ -1625,14 +1625,7 @@ void identify(object *op)
 	}
 
 	SET_FLAG(op, FLAG_IDENTIFIED);
-	CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL);
 	CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT);
-
-	/* We want autojoining of equal objects */
-	if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
 
 	if (op->type == POTION && op->arch != (archetype *) NULL)
 	{

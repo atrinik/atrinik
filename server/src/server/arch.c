@@ -181,7 +181,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 			return 2;
 		}
 
-		if (!strcmp(cp, "cursed") && (QUERY_FLAG(op, FLAG_KNOWN_CURSED) || QUERY_FLAG(op, FLAG_IDENTIFIED)) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		if (!strcmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
 			return 2;
 		}

@@ -1532,11 +1532,6 @@ static char *artifact_msg(int level, int booksize)
 
 		SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-		if (is_magical(tmp))
-		{
-			SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-		}
-
 		snprintf(buf, sizeof(buf), "\n<t t=\"%s %s\">It is ", tmp->name, tmp->title ? tmp->title : "");
 		strcat(retbuf, buf);
 

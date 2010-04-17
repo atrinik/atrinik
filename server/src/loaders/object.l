@@ -221,12 +221,6 @@ lex_error = 0;
 								tmp->item_condition = tmp->item_quality;
 							}
 
-							if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
-							{
-								SET_FLAG(tmp, FLAG_KNOWN_MAGICAL);
-								SET_FLAG(tmp, FLAG_KNOWN_CURSED);
-							}
-
 							insert_ob_in_ob(tmp, op);
 
 							if (!(map_flags & MAP_STYLE))
@@ -531,7 +525,6 @@ lex_error = 0;
 						if (IVAL)
 						{
 							SET_FLAG(op, FLAG_IDENTIFIED);
-							CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL);
 						}
 						else
 						{
@@ -707,8 +700,6 @@ lex_error = 0;
 ^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
 ^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
 ^see_anywhere{S}    SET_OR_CLEAR_FLAG(op, FLAG_SEE_ANYWHERE, IVAL);
-^known_magical{S}   SET_OR_CLEAR_FLAG(op, FLAG_KNOWN_MAGICAL, IVAL);
-^known_cursed{S}    SET_OR_CLEAR_FLAG(op, FLAG_KNOWN_CURSED, IVAL);
 ^can_use_skill{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_USE_SKILL, IVAL);
 ^been_applied{S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}           {
@@ -1003,12 +994,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		return LL_EOF;
 	}
 
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		SET_FLAG(op, FLAG_KNOWN_MAGICAL);
-		SET_FLAG(op, FLAG_KNOWN_CURSED);
-	}
-
 	/* We set here the material real values.
 	 * We do: if item_quality == 0 AND material defines a base
 	 * material, then use material_real to set quality and condition.
@@ -1114,7 +1099,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"has_ready_bow",       "xrays",             NULL,              "is_floor",        "lifesave",
 	"is_magical",          "alive",             "stand_still",     "random_move",     "only_attack",
 	"wiz",                 "stealth",           NULL,              NULL,              "cursed",
-	"damned",              "see_anywhere",      "known_magical",   "known_cursed",    "can_use_skill",
+	"damned",              "see_anywhere",      NULL,              NULL,    "can_use_skill",
 	"is_thrown",           "is_vul_sphere",     "is_proof_sphere", "is_male",         "is_female",
 	"applied",             "inv_locked",        "is_wooded",       "is_hilly",        "has_ready_skill",
 	"has_ready_weapon",    "no_skill_ident",    "was_wiz",         "can_see_in_dark", "is_cauldron",

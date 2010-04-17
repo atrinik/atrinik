@@ -1477,7 +1477,6 @@ int apply_special(object *who, object *op, int aflags)
 		if (who->type == PLAYER)
 		{
 			new_draw_info(NDI_UNIQUE, who, "Oops, it feels deadly cold!");
-			SET_FLAG(op, FLAG_KNOWN_CURSED);
 		}
 	}
 
