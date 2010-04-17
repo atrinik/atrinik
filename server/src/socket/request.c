@@ -1360,16 +1360,30 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 				SockList_AddChar(&sl, (char) dark);
 			}
 
-			/* Go through the visible layers; ignore layer 0. */
-			for (layer = 1; layer <= MAX_ARCH_LAYERS; layer++)
+			/* Go through the visible layers. */
+			for (layer = 0; layer < MAX_ARCH_LAYERS; layer++)
 			{
-				object *tmp = GET_MAP_SPACE_LAYER(msp, layer - 1);
+				object *tmp = GET_MAP_SPACE_LAYER(msp, layer);
+
+				/* Double check that we can actually see this object. */
+				if (tmp && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag)
+				{
+					tmp = NULL;
+				}
 
 				/* If we didn't find a layer but we can see invisible,
 				 * try in the invisible layers. */
 				if (!tmp && inv_flag)
 				{
 					tmp = GET_MAP_SPACE_LAYER(msp, layer + 7);
+				}
+
+				/* This is done so that the player image is always shown
+				 * to the player, even if they are standing on top of another
+				 * player or monster. */
+				if (tmp && tmp->layer == 6 && pl->x == nx && pl->y == ny)
+				{
+					tmp = pl;
 				}
 
 				/* Found something. */
@@ -1379,14 +1393,6 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					uint8 quick_pos = tmp->quick_pos;
 					int flags = 0;
 					object *head = tmp->head ? tmp->head : tmp;
-
-					/* This is done so that the player image is always shown
-					 * to the player, even if they are standing on top of another
-					 * player or monster. */
-					if (layer == 6 && pl->x == nx && pl->y == ny)
-					{
-						tmp = pl;
-					}
 
 					/* If we have a multi-arch object. */
 					if (quick_pos)
@@ -1442,7 +1448,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					}
 
 					/* Z position and we're on a floor layer? */
-					if (tmp->z && layer == 1)
+					if (tmp->z && tmp->layer == 1)
 					{
 						flags |= MAP2_FLAG_HEIGHT;
 					}
@@ -1460,7 +1466,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 
 					/* Add it's layer. This could actually be used for something else,
 					 * since the client doesn't really make use of this information. */
-					SockList_AddChar(&sl, (char) layer);
+					SockList_AddChar(&sl, (char) layer + 1);
 					/* The face. */
 					SockList_AddShort(&sl, face);
 					/* Get the first several flags of this object (like paralyzed,
@@ -1495,10 +1501,11 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					}
 
 					/* Damage animation? Store it for later. */
-					if ((anim_value = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
+					if (tmp->last_damage != 0 && tmp->damage_round_tag == ROUND_TAG)
 					{
 						ext_flags |= MAP2_FLAG_EXT_ANIM;
 						anim_type = ANIM_DAMAGE;
+						anim_value = tmp->last_damage;
 					}
 				}
 				/* No object, so tell the client to clear this layer. */

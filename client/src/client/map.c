@@ -568,7 +568,7 @@ void map_draw_map()
 
 						stretch = 0;
 
-						if (k == 1 && map->stretch)
+						if (k <= 2 && map->stretch)
 						{
 							bltfx.flags |= BLTFX_FLAG_STRETCH;
 							stretch = map->stretch;
