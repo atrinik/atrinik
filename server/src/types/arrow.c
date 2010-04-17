@@ -90,7 +90,7 @@ object *fix_stopped_arrow(object *op)
 	op->face = op->arch->clone.face;
 
 	/* So that stopped arrows will be saved */
-	op->owner = NULL;
+	clear_owner(op);
 	update_object(op, UP_OBJ_FACE);
 
 	return op;
