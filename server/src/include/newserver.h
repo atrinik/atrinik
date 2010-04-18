@@ -89,8 +89,6 @@
  *@{*/
 /** Clear this layer. */
 #define MAP2_LAYER_CLEAR    255
-/** Layer is the same (in cache); no need to anything. */
-#define MAP2_LAYER_SAME     254
 /*@}*/
 
 /**
@@ -102,10 +100,10 @@ typedef struct MapCell_struct
 	int	count;
 
 	/** Faces we sent. */
-	sint8 faces[MAP_LAYERS];
+	sint8 faces[MAX_ARCH_LAYERS];
 
 	/** Multi-arch cache. */
-	uint8 quick_pos[MAP_LAYERS];
+	uint8 quick_pos[MAX_ARCH_LAYERS];
 
 	/** @deprecated */
 	uint8 fflag[MAP_LAYERS];

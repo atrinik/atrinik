@@ -1486,6 +1486,7 @@ void Map2Cmd(unsigned char *data, int len)
 	int mapstat;
 	int xpos, ypos;
 	int layer, ext_flags;
+	uint8 num_layers;
 
 	mapstat = (uint8) (data[pos++]);
 	map_transfer_flag = 0;
@@ -1590,19 +1591,17 @@ void Map2Cmd(unsigned char *data, int len)
 			map_set_darkness(x, y, (uint8) (data[pos++]));
 		}
 
+		num_layers = data[pos++];
+
 		/* Go through all the layers on this tile. */
-		for (layer = 1; layer <= MAX_LAYERS; layer++)
+		for (layer = 0; layer < num_layers; layer++)
 		{
 			uint8 type = data[pos++];
 
 			/* Clear this layer. */
 			if (type == MAP2_LAYER_CLEAR)
 			{
-				map_set_data(x, y, layer, 0, 0, 0, "", 0, 0, 0);
-			}
-			/* Cached so it's the same; do nothing. */
-			else if (type == MAP2_LAYER_SAME)
-			{
+				map_set_data(x, y, data[pos++], 0, 0, 0, "", 0, 0, 0);
 			}
 			/* We have some data. */
 			else
@@ -1656,7 +1655,7 @@ void Map2Cmd(unsigned char *data, int len)
 				}
 
 				/* Set the data we figured out. */
-				map_set_data(x, y, layer, face, quick_pos, obj_flags, player_name, player_color, height, probe);
+				map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe);
 			}
 		}
 

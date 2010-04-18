@@ -583,6 +583,4 @@ extern Client_Player cpl;
  *@{*/
 /** Clear this layer. */
 #define MAP2_LAYER_CLEAR 255
-/** Layer is the same (in cache); no need to anything. */
-#define MAP2_LAYER_SAME 254
 /*@}*/

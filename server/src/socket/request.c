@@ -1168,12 +1168,13 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 	int x_start, dm_light = 0;
 	int special_vision;
 	uint16 mask;
-	SockList sl;
-	unsigned char sock_buf[MAXSOCKBUF];
+	SockList sl, sl_layer;
+	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF];
 	int wdark;
 	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE);
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
+	int num_layers;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1360,6 +1361,14 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 				SockList_AddChar(&sl, (char) dark);
 			}
 
+			/* We will use a temporary SockList instance to add any layers we find.
+			 * If we don't find any, there is no reason to send the data about them
+			 * to the client. */
+			memset(sock_buf_layer, '\0', sizeof(sock_buf_layer));
+			sl_layer.buf = sock_buf_layer;
+			sl_layer.len = 0;
+			num_layers = 0;
+
 			/* Go through the visible layers. */
 			for (layer = 0; layer < MAX_ARCH_LAYERS; layer++)
 			{
@@ -1464,55 +1473,68 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					/* Now, check if we have cached this. */
 					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos)
 					{
-						SockList_AddChar(&sl, MAP2_LAYER_SAME);
 						continue;
 					}
 
 					/* Different from cache, add it to the cache now. */
 					mp->faces[layer] = face;
 					mp->quick_pos[layer] = quick_pos;
+					num_layers++;
 
-					/* Add it's layer. This could actually be used for something else,
-					 * since the client doesn't really make use of this information. */
-					SockList_AddChar(&sl, (char) layer + 1);
+					/* Add its layer. */
+					SockList_AddChar(&sl_layer, (char) layer + 1);
 					/* The face. */
-					SockList_AddShort(&sl, face);
+					SockList_AddShort(&sl_layer, face);
 					/* Get the first several flags of this object (like paralyzed,
 					 * sleeping, etc). */
-					SockList_AddChar(&sl, (char) GET_CLIENT_FLAGS(head));
+					SockList_AddChar(&sl_layer, (char) GET_CLIENT_FLAGS(head));
 					/* Flags we figured out above. */
-					SockList_AddChar(&sl, (char) flags);
+					SockList_AddChar(&sl_layer, (char) flags);
 
 					/* Multi-arch? Add it's quick pos. */
 					if (flags & MAP2_FLAG_MULTI)
 					{
-						SockList_AddChar(&sl, (char) quick_pos);
+						SockList_AddChar(&sl_layer, (char) quick_pos);
 					}
 
 					/* Player name? Add the player's name, and their player name color. */
 					if (flags & MAP2_FLAG_NAME)
 					{
-						SockList_AddString(&sl, CONTR(tmp)->quick_name);
-						SockList_AddChar(&sl, (char) get_playername_color(pl, tmp));
+						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
+						SockList_AddChar(&sl_layer, (char) get_playername_color(pl, tmp));
 					}
 
 					/* Target's HP bar. */
 					if (flags & MAP2_FLAG_PROBE)
 					{
-						SockList_AddChar(&sl, (char) MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0))));
+						SockList_AddChar(&sl_layer, (char) MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0))));
 					}
 
 					/* Z position. */
 					if (flags & MAP2_FLAG_HEIGHT)
 					{
-						SockList_AddShort(&sl, tmp->z);
+						SockList_AddShort(&sl_layer, tmp->z);
 					}
 				}
-				/* No object, so tell the client to clear this layer. */
-				else
+				/* Didn't find anything. Now, if we have previously seen a face
+				 * on this layer, we will want the client to clear it. */
+				else if (mp->faces[layer])
 				{
-					SockList_AddChar(&sl, MAP2_LAYER_CLEAR);
+					mp->faces[layer] = 0;
+					mp->quick_pos[layer] = 0;
+					SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
+					SockList_AddChar(&sl_layer, (char) layer + 1);
+					num_layers++;
 				}
+			}
+
+			SockList_AddChar(&sl, (char) num_layers);
+
+			/* Do we have any data about layers? If so, copy it to the main SockList instance. */
+			if (sl_layer.len)
+			{
+				memcpy(sl.buf + sl.len, sl_layer.buf, sl_layer.len);
+				sl.len += sl_layer.len;
 			}
 
 			/* Kill animation? */
