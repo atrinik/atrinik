@@ -700,6 +700,9 @@ lex_error = 0;
 ^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
 ^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
 ^see_anywhere{S}    SET_OR_CLEAR_FLAG(op, FLAG_SEE_ANYWHERE, IVAL);
+^known_magical{S}   {/* Deprecated. */}
+^known_cursed{S}    {/* Deprecated. */}
+^attacktype{S}      {/* Deprecated. */}
 ^can_use_skill{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_USE_SKILL, IVAL);
 ^been_applied{S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}           {
