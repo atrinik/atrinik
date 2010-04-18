@@ -1453,6 +1453,14 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 						flags |= MAP2_FLAG_HEIGHT;
 					}
 
+					/* Damage animation? Store it for later. */
+					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
+					{
+						ext_flags |= MAP2_FLAG_EXT_ANIM;
+						anim_type = ANIM_DAMAGE;
+						anim_value = tmp->last_damage;
+					}
+
 					/* Now, check if we have cached this. */
 					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos)
 					{
@@ -1498,14 +1506,6 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					if (flags & MAP2_FLAG_HEIGHT)
 					{
 						SockList_AddShort(&sl, tmp->z);
-					}
-
-					/* Damage animation? Store it for later. */
-					if (tmp->last_damage != 0 && tmp->damage_round_tag == ROUND_TAG)
-					{
-						ext_flags |= MAP2_FLAG_EXT_ANIM;
-						anim_type = ANIM_DAMAGE;
-						anim_value = tmp->last_damage;
 					}
 				}
 				/* No object, so tell the client to clear this layer. */
