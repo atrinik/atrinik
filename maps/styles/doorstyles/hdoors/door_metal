@@ -1,4 +1,10 @@
 arch map
+name <unnamed>
+msg
+Modified: 2010-04-19 Alex Tokar
+endmsg
+width 1
+height 1
 difficulty 1
 end
 arch door1_locked
