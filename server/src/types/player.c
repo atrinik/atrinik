@@ -188,9 +188,6 @@ static player *get_player(player *p)
 	p->ob = op;
 	op->speed_left = 0.5;
 	op->speed = 1.0;
-	/* So player faces south */
-	op->direction = 5;
-	/* Then we panick... */
 	op->run_away = 0;
 	op->quickslot = 0;
 

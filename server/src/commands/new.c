@@ -763,8 +763,10 @@ void command_new_char(char *params, int len, player *pl)
 	op->name = name_tmp;
 	op->x = x;
 	op->y = y;
-	/* So player faces south */
-	SET_ANIMATION(op, 4 * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
+	/* So the player faces east. */
+	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 3;
+	/* We assume that players always have a valid animation. */
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 
 	pl->orig_stats.Str = stats[0];
 	pl->orig_stats.Dex = stats[1];
