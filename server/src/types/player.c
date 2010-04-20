@@ -1135,14 +1135,17 @@ static void remove_unpaid_objects(object *op, object *env)
 }
 
 /**
- * Regenerate hp/sp/gr, decreases food. This only works for players.
+ * Regenerate player's hp/mana/grace, decrease food, etc.
+ *
+ * We will only regenerate HP and mana if the player has some food in their
+ * stomach.
  * @param op Player. */
 void do_some_living(object *op)
 {
 	if (CONTR(op)->state == ST_PLAYING)
 	{
 		/* HP regeneration */
-		if (CONTR(op)->gen_hp)
+		if (CONTR(op)->gen_hp && op->stats.food)
 		{
 			if (--op->last_heal < 0)
 			{
@@ -1181,7 +1184,7 @@ void do_some_living(object *op)
 		}
 
 		/* Mana regeneration */
-		if (CONTR(op)->gen_sp)
+		if (CONTR(op)->gen_sp && op->stats.food)
 		{
 			if (--op->last_sp < 0)
 			{
@@ -1317,16 +1320,13 @@ void do_some_living(object *op)
 		while (op->stats.food < 0 && op->stats.hp > 0)
 		{
 			op->stats.food++;
-
-			if (op->stats.hp)
-			{
-				op->stats.hp--;
-			}
+			op->stats.hp--;
 		}
 
-		/* We can't die by no food but perhaps by poisoned food? */
 		if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
 		{
+			new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
+			strcpy(CONTR(op)->killer, "starvation");
 			kill_player(op);
 		}
 	}
@@ -1398,16 +1398,6 @@ void kill_player(object *op)
 
 	/* Trigger the global GDEATH event */
 	trigger_global_event(EVENT_GDEATH, NULL, op);
-
-	if (op->stats.food < 0)
-	{
-		snprintf(buf, sizeof(buf), "%s starved to death.", op->name);
-		strcpy(CONTR(op)->killer, "starvation");
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "%s died.", op->name);
-	}
 
 	play_sound_player_only(CONTR(op), SOUND_PLAYER_DIES, SOUND_NORMAL, 0, 0);
 
