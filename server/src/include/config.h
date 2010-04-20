@@ -339,3 +339,6 @@
  * the crash has trashed the characters too. Define NO_EMERGENCY_SAVE
  * to disable emergency saves. */
 #define NO_EMERGENCY_SAVE
+
+/** Socket version. */
+#define SOCKET_VERSION 1030

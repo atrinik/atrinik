@@ -594,7 +594,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!buf || ns->version)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "CS: Received corrupted version command\n");
+		LOG(llevInfo, "INFO: VersionCmd(): Received corrupted version command\n");
 		ns->status = Ns_Dead;
 		return;
 	}
@@ -606,7 +606,14 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (!cp)
 	{
 		version_mismatch_msg(ns);
-		LOG(llevInfo, "VersionCmd(): Connection from false client (invalid name)\n");
+		LOG(llevInfo, "INFO: VersionCmd(): Connection from false client (invalid name)\n");
+		ns->status = Ns_Dead;
+		return;
+	}
+
+	if (ns->socket_version != 991017 && ns->socket_version > SOCKET_VERSION)
+	{
+		send_socket_message(NDI_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
 		ns->status = Ns_Dead;
 		return;
 	}
