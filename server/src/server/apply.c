@@ -645,6 +645,11 @@ int manual_apply(object *op, object *tmp, int aflag)
 		tmp = tmp->head;
 	}
 
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->praying = 0;
+	}
+
 	if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
 		if (op->type == PLAYER)
