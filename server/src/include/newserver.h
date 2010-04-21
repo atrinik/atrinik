@@ -105,6 +105,9 @@ typedef struct MapCell_struct
 	/** Multi-arch cache. */
 	uint8 quick_pos[MAX_ARCH_LAYERS];
 
+	/** Flags cache. */
+	uint8 flags[MAX_ARCH_LAYERS];
+
 	/** @deprecated */
 	uint8 fflag[MAP_LAYERS];
 

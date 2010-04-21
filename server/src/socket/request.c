@@ -1407,7 +1407,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 				{
 					sint16 face;
 					uint8 quick_pos = tmp->quick_pos;
-					int flags = 0;
+					uint8 flags = 0;
 					object *head = tmp->head ? tmp->head : tmp;
 
 					/* If we have a multi-arch object. */
@@ -1478,7 +1478,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					}
 
 					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos)
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->faces[layer] == flags)
 					{
 						continue;
 					}
@@ -1486,6 +1486,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					/* Different from cache, add it to the cache now. */
 					mp->faces[layer] = face;
 					mp->quick_pos[layer] = quick_pos;
+					mp->flags[layer] = flags;
 					num_layers++;
 
 					/* Add its layer. */
