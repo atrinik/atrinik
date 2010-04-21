@@ -694,7 +694,7 @@ object *get_owner(object *op)
 		return op->owner;
 	}
 
-	op->owner = NULL, op->ownercount = 0;
+	op->owner = NULL;
 
 	return NULL;
 }

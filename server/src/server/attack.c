@@ -257,7 +257,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
  * @return Dealt damage. */
 int hit_player(object *op, int dam, object *hitter, int type)
 {
-	object *hit_obj, *target_obj;
+	object *hit_obj, *hitter_owner, *target_obj;
 	int maxdam = 0;
 	int attacknum, hit_level;
 	int simple_attack;
@@ -286,7 +286,23 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		return 0;
 	}
 
-	if (!(hit_obj = get_owner(hitter)))
+	/* Get the hitter's owner. */
+	hitter_owner = get_owner(hitter);
+
+	/* Sanity check: If the hitter has ownercount (so it had an owner)
+	 * but the owner itself is no longer valid, we won't do any damage,
+	 * otherwise player could fire an arrow, logout, and the arrow itself
+	 * would cause damage to anything it hits, even friendly creatures. */
+	if (hitter->ownercount && !hitter_owner)
+	{
+		return 0;
+	}
+
+	if (hitter_owner)
+	{
+		hit_obj = hitter_owner;
+	}
+	else
 	{
 		hit_obj = hitter;
 	}
