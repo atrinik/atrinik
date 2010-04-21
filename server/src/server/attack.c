@@ -1155,14 +1155,15 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 			if (hitter->type == PLAYER)
 			{
-				snprintf(buf, sizeof(buf), "%s the %s", hitter->name, hitter->race);
-				strncpy(CONTR(op)->killer, buf, BIG_NAME);
+				snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", hitter->name, hitter->race);
 			}
 			else
 			{
-				strncpy(CONTR(op)->killer, hitter->name, BIG_NAME);
-				CONTR(op)->killer[BIG_NAME - 1] = '\0';
+				strncpy(CONTR(op)->killer, hitter->name, sizeof(CONTR(op)->killer));
+				CONTR(op)->killer[sizeof(CONTR(op)->killer) - 1] = '\0';
 			}
+
+			kill_player(op);
 		}
 	}
 
