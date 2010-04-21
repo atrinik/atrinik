@@ -1182,6 +1182,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
+	int oldlen;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1350,6 +1351,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 			/* Initialize default values for some variables. */
 			dark = NO_FACE_SEND;
 			ext_flags = 0;
+			oldlen = sl.len;
 
 			/* Do we need to send the darkness? */
 			if (mp->count != d)
@@ -1561,6 +1563,12 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 			{
 				SockList_AddChar(&sl, (char) anim_type);
 				SockList_AddShort(&sl, (sint16) anim_value);
+			}
+
+			/* If nothing has really changed, go back to old SockList length. */
+			if (!(mask & 0x3f) && !num_layers && !ext_flags)
+			{
+				sl.len = oldlen;
 			}
 		}
 	}
