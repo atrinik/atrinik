@@ -1478,7 +1478,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					}
 
 					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->faces[layer] == flags)
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags)
 					{
 						continue;
 					}
