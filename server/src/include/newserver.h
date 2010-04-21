@@ -100,7 +100,7 @@ typedef struct MapCell_struct
 	int	count;
 
 	/** Faces we sent. */
-	sint8 faces[MAX_ARCH_LAYERS];
+	sint16 faces[MAX_ARCH_LAYERS];
 
 	/** Multi-arch cache. */
 	uint8 quick_pos[MAX_ARCH_LAYERS];
