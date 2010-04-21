@@ -919,6 +919,11 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 			return 0;
 
+		/* So the below default case doesn't execute for these objects,
+		 * even if they have message. */
+		case LOCKED_DOOR:
+			return 0;
+
 		/* Nothing from the above... but show a message if it has one. */
 		default:
 			if (tmp->msg)
