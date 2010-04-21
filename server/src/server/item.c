@@ -1377,7 +1377,13 @@ char *describe_item(object *op)
 					break;
 
 				case BOOK:
-					if (op->msg != NULL)
+					if (op->level)
+					{
+						sprintf(buf, "(lvl %d)", op->level);
+						strcat(retbuf, buf);
+					}
+
+					if (op->msg)
 					{
 						if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
 						{
