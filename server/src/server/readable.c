@@ -34,78 +34,11 @@
 #include <global.h>
 #include <book.h>
 
-/* Define this if you want to archive book titles by contents.
- * This option should enforce UNIQUE combinations of titles,authors and
- * msg contents during and *between* game sessions.
- * Note: a slight degeneracy exists since books are archived based on an integer
- * index value calculated from the message text (similar to alchemy formulae).
- * Sometimes two widely different messages have the same index value (rare). In
- * this case,  it is possible to occasionally generate 2 books with same title and
- * different message content. Not really a bug, but rather a feature. This action
- * should  keeps player on their toes ;).
- * Also, note that there is *finite* space available for archiving message and titles.
- * Once this space is used, books will stop being archived. Not a serious problem
- * under the current regime, since there are generally fewer possible (random)
- * messages than space available on the titlelists.
- * One exception (for sure) are the monster messages. But no worries, you should
- * see all of the monster info in some order (but not all possble combinations)
- * before the monster titlelist space is run out. You can increase titlelist
- * space by increasing the array sizes for the monster book_authours and book_names
- * (see  max_titles[] array and include/read.h). Since the unique_book algorthm is
- * kinda stupid, this program *may* slow down program execution if defined (but I don't
- * think its a significant problem, at least, I have no problems running this option
- * on a Sparc 10! Also, once archive title lists are filled and/or all possible msg
- * combinations have been generated, unique_book isnt called anymore. It takes 5-10
- * sessions for this to happen).
- * Final note: the game remembers book/title/msg combinations from reading the
- * file lib/bookarch. If you REMOVE this file, you will lose your archive. So
- * be sure to copy it over to the new lib directory when you change versions.
- * -b.t. */
-
 /* This flag is useful to see what kind of output messages are created */
 /* #define BOOK_MSG_DEBUG */
 
 /* This flag is useful for debuging archiving action */
 /* #define ARCHIVE_DEBUG */
-
-/** Title structure */
-typedef struct titlestruct
-{
-	/** The name of the book */
-	const char *name;
-
-	/** The name of the book authour */
-	const char *authour;
-
-	/** The archetype name of the book */
-	const char *archname;
-
-	/** Level or difficulty of this message */
-	int level;
-
-	/** An index value derived from book message */
-	int msg_index;
-
-	/** Size of the book message */
-	size_t size;
-
-	/** Next entry in this list */
-	struct titlestruct *next;
-} title;
-
-/** Titlelist structure */
-typedef struct titleliststruct
-{
-	/** Number of items in the list */
-	int number;
-
-	/** Pointer to first book in this list */
-	struct titlestruct *first_book;
-
-	/** Pointer to next book list */
-	struct titleliststruct *next;
-} titlelist;
-
 
 /** special structure, used only by art_name_array[] */
 typedef struct namebytype
@@ -117,9 +50,6 @@ typedef struct namebytype
 	int type;
 } arttypename;
 
-/** The buffer of books read in from the bookarch file */
-static titlelist *booklist = NULL;
-
 /** First monster information */
 static objectlink *first_mon_info = NULL;
 
@@ -127,11 +57,6 @@ static objectlink *first_mon_info = NULL;
  * This are needed for creation of a linked list of
  * pointers to all (hostile) monster objects */
 static int nrofmon = 0;
-
-/**
- * This is needed to check if we need to write the
- * book archive */
-static int need_to_write_bookarchive = 0;
 
 /**
  * This is needed to keep track of status of initialization
@@ -329,7 +254,7 @@ static char *formula_book_name[] =
 	"recipe book"
 };
 
-/** this isn't used except for empty books */
+/** This isn't used except for empty books */
 static char *formula_author[] =
 {
 	"Albertus Magnus",
@@ -483,17 +408,6 @@ static char *priest_book_name[] =
 	"testament"
 };
 
-/** Number of titles for different name lists */
-static int max_titles[6] =
-{
-	((sizeof (light_book_name) / sizeof (char *)) + (sizeof (heavy_book_name) / sizeof (char *))) * (sizeof (book_author) / sizeof (char *)),
-	(sizeof (mon_book_name) / sizeof (char *)) * (sizeof (mon_author) / sizeof (char *)),
-	(sizeof (art_book_name) / sizeof (char *)) * (sizeof (art_author) / sizeof (char *)),
-	(sizeof (path_book_name) / sizeof (char *)) * (sizeof (path_author) / sizeof (char *)),
-	(sizeof (formula_book_name) / sizeof (char *)) * (sizeof (formula_author) / sizeof (char *)),
-	(sizeof (gods_book_name) / sizeof (char *)) * (sizeof (gods_author) / sizeof (char *))
-};
-
 static int nstrtok(const char *buf1, const char *buf2);
 static char *strtoktolin(const char *buf1, const char *buf2);
 static void change_book(object *book, int msgtype);
@@ -505,76 +419,6 @@ static char *spellpath_msg(int level, int booksize);
 static void make_formula_book(object *book, int level);
 static char *msgfile_msg(int booksize);
 static char *god_info_msg(int level, int booksize);
-
-/**
- * Allocate an empty book list.
- * @return The book list */
-static titlelist *get_empty_booklist()
-{
-	titlelist *bl = (titlelist *) malloc(sizeof(titlelist));
-
-	if (bl == NULL)
-	{
-		LOG(llevError, "ERROR: get_empty_booklist(): Out of memory.\n");
-	}
-
-	bl->number = 0;
-	bl->first_book = NULL;
-	bl->next = NULL;
-
-	return bl;
-}
-
-/**
- * Allocate an empty book.
- * @return The book. */
-static title *get_empty_book()
-{
-	title *t = (title *) malloc(sizeof(title));
-
-	if (t == NULL)
-	{
-		LOG(llevError, "ERROR: get_empty_book(): Out of memory.\n");
-	}
-
-	t->name = NULL;
-	t->archname = NULL;
-	t->authour = NULL;
-	t->level = 0;
-	t->size = 0;
-	t->msg_index = 0;
-	t->next = NULL;
-
-	return t;
-}
-
-/**
- * Returns pointer to the title list referenced by a number.
- * @param i The number of the title.
- * @return The pointer to the title. */
-static titlelist *get_titlelist(int i)
-{
-	titlelist *tl = booklist;
-	int number = i;
-
-	if (number < 0)
-	{
-		return tl;
-	}
-
-	while (tl && number)
-	{
-		if (!tl->next)
-		{
-			tl->next = get_empty_booklist();
-		}
-
-		tl = tl->next;
-		number--;
-	}
-
-	return tl;
-}
 
 /**
  * Simple routine to return the number of list items in buf1 as separated
@@ -646,7 +490,7 @@ static char *strtoktolin(const char *buf1, const char *buf2)
 		tbuf = strtok(NULL, sbuf);
 	}
 
-	return (char *) rbuf;
+	return rbuf;
 }
 
 /**
@@ -751,124 +595,6 @@ static void init_msgfile()
 }
 
 /**
- * If not called before, initializes the info list.
- * This reads in the bookarch file into memory. bookarch is the file
- * created and updated across multiple runs of the program. */
-static void init_book_archive()
-{
-	FILE *fp;
-	int comp, nroftitle = 0;
-	char buf[MAX_BUF], fname[MAX_BUF], *cp;
-	title *book = NULL;
-	titlelist *bl = get_empty_booklist();
-	static int did_init_barch;
-
-	if (did_init_barch)
-	{
-		return;
-	}
-
-	did_init_barch = 1;
-
-	if (!booklist)
-	{
-		booklist = bl;
-	}
-
-	snprintf(fname, sizeof(fname), "%s/bookarch", settings.localdir);
-	LOG(llevDebug, " Reading bookarch from %s...\n", fname);
-
-	if ((fp = open_and_uncompress(fname, 0, &comp)) != NULL)
-	{
-		int i = 0, value, type = 0;
-
-		while (fgets(buf, MAX_BUF, fp) != NULL)
-		{
-			if (*buf == '#')
-			{
-				continue;
-			}
-
-			if ((cp = strchr(buf, '\n')) != NULL)
-			{
-				*cp = '\0';
-			}
-
-			cp = buf;
-
-			/* Skip blanks */
-			while (*cp == ' ')
-			{
-				cp++;
-			}
-
-			if (!strncmp(cp, "title", 4))
-			{
-				/* init new book entry */
-				book = get_empty_book();
-				FREE_AND_COPY_HASH(book->name, strchr (cp, ' ') + 1);
-				type = -1;
-				nroftitle++;
-
-				continue;
-			}
-
-			if (!strncmp(cp, "authour", 7))
-			{
-				FREE_AND_COPY_HASH(book->authour, strchr(cp, ' ') + 1);
-			}
-			else if (!strncmp(cp, "arch", 4))
-			{
-				FREE_AND_COPY_HASH(book->archname, strchr(cp, ' ') + 1);
-			}
-			else if (sscanf(cp, "level %d", &value))
-			{
-				book->level = (uint16) value;
-			}
-			else if (sscanf(cp, "type %d", &value))
-			{
-				type = (uint16) value;
-			}
-			else if (sscanf(cp, "size %d", &value))
-			{
-				book->size = (uint16) value;
-			}
-			else if (sscanf(cp, "index %d", &value))
-			{
-				book->msg_index = (uint16) value;
-			}
-			else if (!strncmp(cp, "end", 3))
-			{
-				/* link it */
-				bl = get_titlelist(type);
-				book->next = bl->first_book;
-				bl->first_book = book;
-				bl->number++;
-			}
-		}
-
-		LOG(llevDebug, " book archives(used/avail): ");
-		bl = booklist;
-
-		while (bl && max_titles[i])
-		{
-			LOG(llevDebug, "(%d/%d)", bl->number, max_titles[i]);
-			bl = bl->next;
-			i++;
-		}
-
-		LOG(llevDebug, "\n");
-		close_and_delete(fp, comp);
-	}
-
-#ifdef BOOK_MSG_DEBUG
-	LOG(llevDebug, "\n init_book_archive() got %d titles.\n", nroftitle);
-#endif
-
-	LOG(llevDebug, " done.\n");
-}
-
-/**
  * Creates the linked list of pointers to monster archetype objects if
  * not called previously. */
 static void init_mon_info()
@@ -932,54 +658,8 @@ void init_readable()
 
 	LOG(llevDebug, "Initializing reading data... ");
 	init_msgfile();
-	init_book_archive();
 	init_mon_info();
 	LOG(llevDebug, " done.\n");
-}
-
-/**
- * Search the title list based on msgtype to see if book matches
- * something already there. If so, return that title.
- * @param book The book object to look for
- * @param msgtype Message type
- * @return The title if found, NULL otherwise */
-static title *find_title(object *book, int msgtype)
-{
-	title *t = NULL;
-	titlelist *tl = get_titlelist(msgtype);
-	size_t length = strlen(book->msg);
-	int index = strtoint(book->msg);
-
-	if (msgtype < 0)
-	{
-		return NULL;
-	}
-
-	if (tl)
-	{
-		t = tl->first_book;
-	}
-
-	while (t)
-	{
-		if (t->size == length && t->msg_index == index)
-		{
-			break;
-		}
-		else
-		{
-			t = t->next;
-		}
-	}
-
-#ifdef ARCHIVE_DEBUG
-	if (t)
-	{
-		LOG(llevDebug, "Found title match (list %d): %s %s (%d)\n", msgtype, t->name, t->authour, t->msg_index);
-	}
-#endif
-
-	return t;
 }
 
 /**
@@ -1112,73 +792,6 @@ static void add_author(object *op, int msgtype)
 }
 
 /**
- * Check to see if the book title/msg is unique. We go through the
- * entire list of possibilities each time. If we find a match,
- * then unique_book returns true (because is unique).
- * @param book The book object.
- * @param msgtype Message type.
- * @return 1 if unique, 0 otherwise. */
-static int unique_book(object *book, int msgtype)
-{
-	title *test;
-
-	/* No archival entries! Must be unique! */
-	if (!booklist)
-	{
-		return 1;
-	}
-
-	/* Go through the booklist.  If the author and name match, not unique so
-	 * return 0. */
-	for (test = get_titlelist(msgtype)->first_book; test; test = test->next)
-	{
-		if (!strcmp(test->name, book->name) && !strcmp(book->title, test->authour))
-		{
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-/**
- * Adds a book to the list of existing books.
- * @param book Book to add.
- * @param msgtype What information the book contains. */
-static void add_book_to_list(object *book, int msgtype)
-{
-	titlelist *tl = get_titlelist(msgtype);
-	title *t;
-
-	if (!tl)
-	{
-		LOG(llevBug, "BUG: add_book_to_list(): can't get booklist!\n");
-		return;
-	}
-
-	t = get_empty_book();
-	FREE_AND_COPY_HASH(t->name, book->name);
-	FREE_AND_COPY_HASH(t->authour, book->title);
-	t->size = strlen(book->msg);
-	t->msg_index = strtoint(book->msg);
-	FREE_AND_COPY_HASH(t->archname, book->arch->name);
-	t->level = book->level;
-
-	t->next = tl->first_book;
-	tl->first_book = t;
-	tl->number++;
-
-	/* We have stuff we need to write now */
-	need_to_write_bookarchive = 1;
-
-#ifdef ARCHIVE_DEBUG
-	LOG(llevDebug, "Archiving new title: %s %s (%d)\n", book->name, book->title, msgtype);
-#endif
-}
-
-#define MAX_TITLE_CHECK 20
-
-/**
  * Give a new, fancier name to generated objects of type BOOK and
  * SPELLBOOK.
  *
@@ -1195,88 +808,15 @@ static void change_book(object *book, int msgtype)
 	switch (book->type)
 	{
 		case BOOK:
-		{
-			titlelist *tl = get_titlelist(msgtype);
-			title *t = NULL;
-			int tries = 0;
-
-			/* look to see if our msg already been archived. If so, alter
-			 * the book to match the archival text. If we fail to match,
-			 * then we archive the new title/name/msg combo if there is
-			 * room on the titlelist. */
-			if ((strlen(book->msg) > 5) && (t = find_title(book, msgtype)))
+			/* Shouldn't change books placed on map */
+			if (!book->title)
 			{
-				object *tmpbook;
-
-				/* Alter book properties */
-				if ((tmpbook = get_archetype(t->archname)) != NULL)
-				{
-					FREE_AND_COPY_HASH(tmpbook->msg, book->msg);
-					copy_object(tmpbook, book);
-				}
-
-				FREE_AND_COPY_HASH(book->title, t->authour);
-				FREE_AND_COPY_HASH(book->name, t->name);
-				book->level = t->level;
+				/* Random book name */
+				new_text_name(book, msgtype);
+				/* Random author */
+				add_author(book, msgtype);
 			}
-			/* Don't have any default title, so let's make up a new one */
-			else
-			{
-				int numb, maxnames = max_titles[msgtype];
-				char old_title[MAX_BUF], old_name[MAX_BUF];
-
-				if (book->title)
-				{
-					strcpy(old_title, book->title);
-				}
-
-				strcpy(old_name, book->name);
-
-				/* some pre-generated books have title already set (from
-				 * maps), also don't bother looking for unique title if
-				 * we already used up all the available names! */
-				if (!tl)
-				{
-					LOG(llevBug, "BUG: change_book_name(): can't find title list\n");
-					numb = 0;
-				}
-				else
-				{
-					numb = tl->number;
-				}
-
-				if (numb == maxnames)
-				{
-#ifdef ARCHIVE_DEBUG
-					LOG(llevDebug, "titles for list %d full (%d possible).\n", msgtype, maxnames);
-#endif
-					break;
-				}
-				/* Shouldn't change map-maker books */
-				else if (!book->title)
-				{
-					do
-					{
-						/* random book name */
-						new_text_name(book, msgtype);
-
-						/* random author */
-						add_author(book, msgtype);
-						tries++;
-					}
-					while (!unique_book(book, msgtype) && tries < MAX_TITLE_CHECK);
-				}
-
-				/* If we got an unique title, we need to add it to
-				 * the list. */
-				if (tries != MAX_TITLE_CHECK && numb != maxnames && book->title && strlen(book->msg) > 5)
-				{
-					add_book_to_list(book, msgtype);
-				}
-			}
-
 			break;
-		}
 
 		/* Depends on mage/clerical */
 		case SPELLBOOK:
@@ -1414,11 +954,7 @@ static char *mon_info_msg(int booksize)
 	strcpy(retbuf, "<t t=\"Bestiary\">Herein are detailed creatures found in the world around.\n");
 
 	/* Let's print info on as many monsters as will fit in our
-	 * document.
-	 * 8-96 Had to change this a bit, otherwise there would
-	 * have been an impossibly large number of combinations
-	 * of text! (and flood out the available number of titles
-	 * in the archive in a snap!) -b.t. */
+	 * document. */
 	tmp = get_random_mon();
 
 	do
@@ -1654,7 +1190,7 @@ static char *spellpath_msg(int level, int booksize)
 		{
 			spellpath_msg(level, booksize);
 		}
-		/* Give up, cause knowning no spells exist for path is info too. */
+		/* Give up, cause knowing no spells exist for path is info too. */
 		else
 		{
 			strcat(retbuf, "\n - no known spells exist -\n");
@@ -1867,13 +1403,14 @@ static char *god_info_msg(int level, int booksize)
 	static char retbuf[BOOK_BUF];
 	const char *name = NULL;
 	char buf[BOOK_BUF];
-	int i, introlen;
+	int i;
+	size_t introlen;
 	object *god = pntr_to_god_obj(get_rand_god());
 
 	/* Oops, problems... */
 	if (!god)
 	{
-		return (char *) NULL;
+		return NULL;
 	}
 
 	name = god->name;
@@ -1898,8 +1435,7 @@ static char *god_info_msg(int level, int booksize)
 	introlen = strlen(retbuf);
 
 	/* Information about the god is random, and based on the level of the
-	 * 'book'. Probably there is a more intellegent way to implement
-	 * this ... */
+	 * book. */
 	while (level > 0)
 	{
 		sprintf(buf, " ");
@@ -1907,18 +1443,18 @@ static char *god_info_msg(int level, int booksize)
 		/* Enemy god */
 		if (level == 2 && RANDOM () % 2)
 		{
-			const char *enemy = god->title;
+			shstr *enemy = god->title;
 
 			if (enemy)
 			{
-				sprintf(buf, "The gods %s and %s are enemies.\n ---\n", name, enemy);
+				snprintf(buf, sizeof(buf), "The gods %s and %s are enemies.\n ---\n", name, enemy);
 			}
 		}
 
 		/* Enemy race, what the god's holy word effects */
 		if (level == 3 && RANDOM () % 2)
 		{
-			const char *enemy = god->slaying;
+			shstr *enemy = god->slaying;
 
 			if (enemy && !(god->path_denied & PATH_TURNING))
 			{
@@ -1945,9 +1481,7 @@ static char *god_info_msg(int level, int booksize)
 		/* Priest of god gets these protect, vulnerable... */
 		if (level == 4 && RANDOM () % 2)
 		{
-			char tmpbuf[MAX_BUF], *cp;
-
-			cp = describe_resistance(god, 1);
+			char tmpbuf[MAX_BUF], *cp = describe_resistance(god, 1);
 
 			/* This god does have protections */
 			if (*cp)
@@ -2093,7 +1627,7 @@ static char *god_info_msg(int level, int booksize)
 	}
 
 	/* We got no information beyond the preamble! */
-	if ((int) strlen(retbuf) == introlen)
+	if (strlen(retbuf) == introlen)
 	{
 		strcat(retbuf, " [Unfortunately the rest of the information is hopelessly garbled!]\n ---\n");
 	}
@@ -2205,85 +1739,14 @@ void tailor_readable_ob(object *book, int msg_type)
  * Cleanup routine for readable stuff. */
 void free_all_readable()
 {
-	titlelist *tlist, *tnext;
-	title *title1, *titlenext;
 	linked_char *lmsg, *nextmsg;
 
 	LOG(llevDebug, "Freeing all book information.\n");
-
-	for (tlist = booklist; tlist != NULL; tlist = tnext)
-	{
-		tnext = tlist->next;
-
-		for (title1 = tlist->first_book; title1; title1 = titlenext)
-		{
-			titlenext = title1->next;
-			FREE_AND_CLEAR_HASH2(title1->name);
-			FREE_AND_CLEAR_HASH2(title1->authour);
-			FREE_AND_CLEAR_HASH2(title1->archname);
-			free(title1);
-		}
-
-		free(tlist);
-	}
 
 	for (lmsg = first_msg; lmsg; lmsg = nextmsg)
 	{
 		nextmsg = lmsg->next;
 		FREE_AND_CLEAR_HASH2(lmsg->name);
 		free(lmsg);
-	}
-}
-
-/**
- * Writeback routine for updating the book archive. */
-void write_book_archive()
-{
-	FILE *fp;
-	int index = 0;
-	char fname[MAX_BUF];
-	title *book = NULL;
-	titlelist *bl = get_titlelist(0);
-
-	/* If nothing changed, don't write anything */
-	if (!need_to_write_bookarchive)
-	{
-		return;
-	}
-
-	need_to_write_bookarchive = 0;
-
-	snprintf(fname, sizeof(fname), "%s/bookarch", settings.localdir);
-	LOG(llevDebug, "Updating book archive: %s...\n", fname);
-
-	if ((fp = fopen(fname, "w")) == NULL)
-	{
-		LOG(llevDebug, "Can't open book archive file %s\n", fname);
-	}
-	else
-	{
-		while (bl)
-		{
-			for (book = bl->first_book; book; book = book->next)
-			{
-				if (book && book->authour)
-				{
-					fprintf(fp, "title %s\n", book->name);
-					fprintf(fp, "authour %s\n", book->authour);
-					fprintf(fp, "arch %s\n", book->archname);
-					fprintf(fp, "level %d\n", book->level);
-					fprintf(fp, "type %d\n", index);
-					fprintf(fp, "size %lu\n", (unsigned long) book->size);
-					fprintf(fp, "index %d\n", book->msg_index);
-					fprintf(fp, "end\n");
-				}
-			}
-
-			bl = bl->next;
-			index++;
-		}
-
-		fclose(fp);
-		chmod(fname, SAVE_MODE);
 	}
 }

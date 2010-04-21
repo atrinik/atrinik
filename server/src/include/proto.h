@@ -690,7 +690,6 @@ void init_readable();
 object *get_random_mon();
 void tailor_readable_ob(object *book, int msg_type);
 void free_all_readable();
-void write_book_archive();
 
 /* server/recipe.c */
 recipelist *get_formulalist(int i);

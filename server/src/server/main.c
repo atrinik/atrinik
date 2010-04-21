@@ -1155,7 +1155,6 @@ void cleanup()
 {
 	LOG(llevDebug, "Cleanup called. Freeing data.\n");
 	clean_tmp_files();
-	write_book_archive();
 #if MEMORY_DEBUG
 	free_all_maps();
 	free_style_maps();
@@ -1375,11 +1374,6 @@ static void do_specials()
 	if (!(pticks % 509))
 	{
 		flush_old_maps();
-	}
-
-	if (!(pticks % 5003))
-	{
-		write_book_archive();
 	}
 }
 
