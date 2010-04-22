@@ -72,6 +72,8 @@
 #	pragma warning(disable: 4305)
 #endif
 
+#define mkdir(F, M) mkdir((F))
+
 #define HAVE_STRICMP
 #define HAVE_STRNICMP
 

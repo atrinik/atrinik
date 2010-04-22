@@ -289,19 +289,6 @@ uint32 get_video_flags()
 	}
 }
 
-#ifdef WIN32
-char *file_path(const char *fname, const char *mode)
-{
-	static char tmp[256];
-
-	(void) mode;
-
-	snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
-
-	return tmp;
-}
-#else
-
 /**
  * Recursively creates directories from path.
  *
@@ -347,6 +334,41 @@ static int mkdir_recurse(const char *path)
 }
 
 /**
+ * Copy a file.
+ * @param filename Source file.
+ * @param filename_out Destination file. */
+static void copy_file(const char *filename, const char *filename_out)
+{
+	FILE *fp, *fp_out;
+	char buf[MAX_BUF];
+
+	fp = fopen(filename, "r");
+
+	if (!fp)
+	{
+		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for reading.\n", filename);
+		return;
+	}
+
+	fp_out = fopen(filename_out, "w");
+
+	if (!fp_out)
+	{
+		LOG(llevError, "ERROR: copy_file(): Failed to open '%s' for writing.\n", filename_out);
+		fclose(fp);
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		fputs(buf, fp_out);
+	}
+
+	fclose(fp);
+	fclose(fp_out);
+}
+
+/**
  * Get path to file, to implement saving settings related data to user's
  * home directory on GNU/Linux. For Win32, this function is just used to
  * prefix the path to the file with "./".
@@ -357,8 +379,15 @@ char *file_path(const char *fname, const char *mode)
 {
 	static char tmp[256];
 	char *stmp, ctmp;
+	char *desc;
 
-	snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s", getenv("HOME"), fname);
+#ifdef __LINUX
+	desc = getenv("HOME");
+#else
+	desc = getenv("APPDATA");
+#endif
+
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", desc, fname);
 
 	if (strchr(mode, 'w'))
 	{
@@ -374,7 +403,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, W_OK))
 		{
-			char otmp[256], shtmp[517];
+			char otmp[256];
 
 			snprintf(otmp, sizeof(otmp), "%s%s", SYSPATH, fname);
 
@@ -386,11 +415,7 @@ char *file_path(const char *fname, const char *mode)
 				stmp[0] = ctmp;
 			}
 
-			/* Copy base file to home directory */
-			snprintf(shtmp, sizeof(shtmp), "cp %s %s", otmp, tmp);
-			if (system(shtmp))
-			{
-			}
+			copy_file(otmp, tmp);
 		}
 	}
 	else
@@ -403,7 +428,6 @@ char *file_path(const char *fname, const char *mode)
 
 	return tmp;
 }
-#endif
 
 /**
  * @defgroup file_wrapper_functions File wrapper functions
