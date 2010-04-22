@@ -1352,6 +1352,8 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 			dark = NO_FACE_SEND;
 			ext_flags = 0;
 			oldlen = sl.len;
+			anim_type = 0;
+			anim_value = 0;
 
 			/* Do we need to send the darkness? */
 			if (mp->count != d)
