@@ -534,6 +534,12 @@ typedef struct mapdef
 	/** Message map creator may have left */
 	char *msg;
 
+	/** Filename of the map (shared string now) */
+	shstr *path;
+
+	/** Path to adjoining maps (shared strings) */
+	shstr *tile_path[TILED_MAPS];
+
 	/** Array of spaces on this map */
 	MapSpace *spaces;
 
@@ -545,12 +551,6 @@ typedef struct mapdef
 
 	/** Linked list of linked lists of buttons */
 	objectlink *buttons;
-
-	/** Filename of the map (shared string now) */
-	shstr *path;
-
-	/** Path to adjoining maps (shared strings) */
-	shstr *tile_path[TILED_MAPS];
 
 	/** Chained list of players on this map */
 	object *player_first;
