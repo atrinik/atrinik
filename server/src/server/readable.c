@@ -530,57 +530,70 @@ static void init_msgfile()
 	snprintf(fname, sizeof(fname), "%s/messages", settings.datadir);
 	LOG(llevDebug, "Reading messages from %s...", fname);
 
-	if ((fp = open_and_uncompress(fname, 0, &comp)) != NULL)
+	fp = open_and_uncompress(fname, 0, &comp);
+
+	if (fp)
 	{
 		linked_char *tmp = NULL;
+		int lineno;
+		int error_lineno = 0;
 
-		while (fgets(buf, MAX_BUF, fp) != NULL)
+		for (lineno = 1; fgets(buf, sizeof(buf), fp); lineno++)
 		{
-			if (*buf == '#')
+			if (*buf == '#' || *buf == '\n')
 			{
 				continue;
 			}
 
-			if ((cp = strchr(buf, '\n')) != NULL)
+			cp = strchr(buf, '\n');
+
+			if (cp)
 			{
+				while (cp > buf && (cp[-1] == ' ' || cp[-1] == '\t'))
+				{
+					cp--;
+				}
+
 				*cp = '\0';
 			}
 
-			cp = buf;
-			/* Skip blanks */
-			while (*cp == ' ')
+			if (tmp)
 			{
-				cp++;
-			}
-
-			if (!strncmp(cp, "ENDMSG", 6))
-			{
-				if (strlen(msgbuf) > BOOK_BUF)
+				if (!strcmp(buf, "ENDMSG"))
 				{
-					LOG(llevDebug, "Warning: this string exceeded max book buf size:");
-					LOG(llevDebug, "  %s", msgbuf);
+					if (strlen(msgbuf) > BOOK_BUF)
+					{
+						LOG(llevDebug, "WARNING: This string exceeded max book buf size:\n");
+						LOG(llevDebug, "  %s\n", msgbuf);
+					}
+
+					tmp->name = add_string(msgbuf);
+					tmp->next = first_msg;
+					first_msg = tmp;
+					nrofmsg++;
+					tmp = NULL;
 				}
-
-				tmp->name = NULL;
-				FREE_AND_COPY_HASH(tmp->name, msgbuf);
-				tmp->next = first_msg;
-				first_msg = tmp;
-				nrofmsg++;
-
-				continue;
+				else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1))
+				{
+					strcat(msgbuf, buf);
+					strcat(msgbuf, "\n");
+				}
+				else if (error_lineno != 0)
+				{
+					LOG(llevInfo, "WARNING: Truncating book at %s, line %d\n", fname, error_lineno);
+					error_lineno = 0;
+				}
 			}
-			else if (!strncmp(cp, "MSG", 3))
+			else if (!strcmp(buf, "MSG"))
 			{
+				error_lineno = lineno;
 				tmp = (linked_char *) malloc(sizeof(linked_char));
-				/* reset msgbuf for new message */
+				/* Reset msgbuf for new message */
 				strcpy(msgbuf, " ");
-
-				continue;
 			}
-			else if (!buf_overflow(msgbuf, cp, HUGE_BUF - 1))
+			else
 			{
-				strcat(msgbuf, cp);
-				strcat(msgbuf, "\n");
+				LOG(llevInfo, "WARNING: Syntax error at %s, line %d\n", fname, lineno);
 			}
 		}
 
