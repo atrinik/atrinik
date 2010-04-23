@@ -19,7 +19,7 @@
 					<Add option="-W" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
+					<Add option="-DDEBUG" />
 					<Add option="-DMIN_GW" />
 					<Add option="-DCURL_STATICLIB" />
 					<Add option="-O3" />
