@@ -329,7 +329,7 @@ static void wrong_password(player *pl)
 	{
 		LOG(llevSystem, "CRACK: %s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "You have failed to provide a correct password too many times.");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 	}
 	else
 	{
@@ -378,7 +378,7 @@ void check_login(object *op)
 	{
 		LOG(llevSystem, "CRACK: >%s< from IP %s - double login!\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
@@ -386,7 +386,7 @@ void check_login(object *op)
 	{
 		LOG(llevInfo, "BAN: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
 		send_socket_message(NDI_RED, &pl->socket, "Connection refused.\nYou are banned!");
-		pl->socket.status = Ns_Dead;
+		pl->socket.status = Ns_Zombie;
 		return;
 	}
 

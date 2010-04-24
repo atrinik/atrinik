@@ -139,7 +139,8 @@ enum Sock_Status
 	Ns_Wait,
 	Ns_Add,
 	Ns_Login,
-	Ns_Dead
+	Ns_Dead,
+	Ns_Zombie
 };
 
 /**
