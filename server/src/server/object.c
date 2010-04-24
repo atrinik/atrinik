@@ -3105,7 +3105,11 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 {
 	int dir;
 
-	get_rangevector(op, target, range_vector, 0);
+	if (!get_rangevector(op, target, range_vector, 0))
+	{
+		return 0;
+	}
+
 	dir = range_vector->direction;
 
 	if (op->type == PLAYER)
