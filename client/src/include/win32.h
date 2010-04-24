@@ -51,6 +51,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <direct.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_main.h>
@@ -66,13 +67,19 @@
 #	define fileno _fileno
 #	define unlink _unlink
 #	define lseek _lseek
+#	define access _access
+#	define F_OK 6
+#	define R_OK 6
+#	define W_OK 2
 	/* Conversion from 'xxx' to 'yyy', possible loss of data */
 #	pragma warning(disable: 4244)
+    /* Conversion from 'size_t' to 'int', possible loss of data */
+#	pragma warning(disable: 4267)
 	/* Initializing float f = 0.05; instead of f = 0.05f; */
 #	pragma warning(disable: 4305)
 #endif
 
-#define mkdir(F, M) mkdir((F))
+#define mkdir(__a, __b) _mkdir(__a)
 
 #define HAVE_STRICMP
 #define HAVE_STRNICMP
