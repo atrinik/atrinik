@@ -456,7 +456,7 @@ static void script_process_cmd(int i)
 	/* Strip out just this one command */
 	for (l = 0; l < scripts[i].cmd_count; l++)
 	{
-      	if (scripts[i].cmd[l] == '\n')
+		if (scripts[i].cmd[l] == '\n')
 		{
 			break;
 		}

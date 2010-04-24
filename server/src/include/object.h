@@ -422,7 +422,7 @@ typedef struct obj
 	void *custom_attrset;
 
 	/** Fields not explictly known by the loader. */
-    key_value *key_values;
+	key_value *key_values;
 } object;
 
 #ifdef WIN32

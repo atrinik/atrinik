@@ -151,78 +151,78 @@ int map_tiled_reverse[TILED_MAPS];
 
 /* new macros for map layer system */
 #define GET_MAP_SPACE_PTR(M_, X_, Y_) \
-    (&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
+	(&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
 
 #define GET_MAP_SPACE_FIRST(M_) \
-    ((M_)->first)
+	((M_)->first)
 #define GET_MAP_SPACE_LAST(M_) \
-    ((M_)->last)
+	((M_)->last)
 #define GET_MAP_SPACE_LAYER(M_, L_) \
-    ((M_)->layer[L_])
+	((M_)->layer[L_])
 /** @deprecated */
 #define GET_MAP_SPACE_CL(M_, L_) \
-    ((M_)->client_mlayer[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer[L_]])
+	((M_)->client_mlayer[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer[L_]])
 /** @deprecated */
 #define GET_MAP_SPACE_CL_INV(M_, L_) \
-    ((M_)->client_mlayer_inv[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer_inv[L_]])
+	((M_)->client_mlayer_inv[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer_inv[L_]])
 
 #define SET_MAP_SPACE_FIRST(M_, O_) \
-    ((M_)->first = (O_))
+	((M_)->first = (O_))
 #define SET_MAP_SPACE_LAST(M_, O_) \
-    ((M_)->last = (O_))
+	((M_)->last = (O_))
 #define SET_MAP_SPACE_LAYER(M_, L_, O_) \
-    ((M_)->layer[L_] = (O_))
+	((M_)->layer[L_] = (O_))
 /** @deprecated */
 #define SET_MAP_SPACE_CLID(M_, L_, O_) \
-    ((M_)->client_mlayer[L_] = (sint8) (O_))
+	((M_)->client_mlayer[L_] = (sint8) (O_))
 /** @deprecated */
 #define SET_MAP_SPACE_CLID_INV(M_, L_, O_) \
-    ((M_)->client_mlayer_inv[L_] = (sint8) (O_))
+	((M_)->client_mlayer_inv[L_] = (sint8) (O_))
 
 #define GET_MAP_UPDATE_COUNTER(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].update_tile)
+	((M)->spaces[(X) + (M)->width * (Y)].update_tile)
 
 #define INC_MAP_UPDATE_COUNTER(M, X, Y) \
-    ((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
+	((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
 
 #define GET_MAP_MOVE_FLAGS(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].move_flags)
+	((M)->spaces[(X) + (M)->width * (Y)].move_flags)
 #define SET_MAP_MOVE_FLAGS(M, X, Y, C) \
-    ((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
+	((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
 #define GET_MAP_FLAGS(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].flags)
+	((M)->spaces[(X) + (M)->width * (Y)].flags)
 #define SET_MAP_FLAGS(M, X, Y, C) \
-    ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
+	((M)->spaces[(X) + (M)->width * (Y)].flags = C)
 #define GET_MAP_LIGHT(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light)
+	((M)->spaces[(X) + (M)->width * (Y)].light)
 #define SET_MAP_LIGHT(M, X, Y, L) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
+	((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
 
 #define GET_MAP_OB(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].first)
+	((M)->spaces[(X) + (M)->width * (Y)].first)
 #define GET_MAP_OB_LAST(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last)
+	((M)->spaces[(X) + (M)->width * (Y)].last)
 #define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_) \
-    ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_])
+	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_])
 #define get_map_ob GET_MAP_OB
 
 #define SET_MAP_OB(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].first = (tmp))
+	((M)->spaces[(X) + (M)->width * (Y)].first = (tmp))
 #define SET_MAP_OB_LAST(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last = (tmp))
+	((M)->spaces[(X) + (M)->width * (Y)].last = (tmp))
 #define SET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, tmp) \
-    ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_] = (tmp))
+	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_] = (tmp))
 #define set_map_ob SET_MAP_OB
 
 #define SET_MAP_DAMAGE(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
+	((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
 #define GET_MAP_DAMAGE(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage)
+	((M)->spaces[(X) + (M)->width * (Y)].last_damage)
 
 #define SET_MAP_RTAG(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
+	((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
 #define GET_MAP_RTAG(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
+	((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
 #define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
 
@@ -258,7 +258,7 @@ int map_tiled_reverse[TILED_MAPS];
  * should almost always be using get_map_from_coord() instead, which
  * takes into account map tiling. */
 #define OUT_OF_REAL_MAP(M, X, Y) \
-    ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
+	((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
 /**
  * @defgroup map_look_flags Map look flags
@@ -445,18 +445,17 @@ typedef struct MapSpace_s
 
 #define SET_MAP_TILE_VISITED(m, x, y, id)                                                    \
 {                                                                                            \
-    if ((m)->pathfinding_id != (id))                                                         \
-    {                                                                                        \
-        (m)->pathfinding_id = (id);                                                          \
+	if ((m)->pathfinding_id != (id))                                                         \
+	{                                                                                        \
+		(m)->pathfinding_id = (id);                                                          \
+		memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
+	}                                                                                        \
                                                                                              \
-        memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
-    }                                                                                        \
-                                                                                             \
-    (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
+	(m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
 }
 
 #define QUERY_MAP_TILE_VISITED(m, x, y, id) \
-    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+	((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
 /**
  * This is a game region.

@@ -422,7 +422,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-            sprintf(tmp, "%s%s", SYSPATH, fname);
+			sprintf(tmp, "%s%s", SYSPATH, fname);
 		}
 	}
 
@@ -446,7 +446,7 @@ char *file_path(const char *fname, const char *mode)
  * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
-    return fopen(file_path(fname, mode), mode);
+	return fopen(file_path(fname, mode), mode);
 }
 
 /**
@@ -455,7 +455,7 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
  * @return Return value of IMG_Load().  */
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
-    return IMG_Load(file_path(file, "r"));
+	return IMG_Load(file_path(file, "r"));
 }
 
 #ifdef INSTALL_SOUND
@@ -466,7 +466,7 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
  * @return Return value of Mix_LoadWAV().  */
 Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname)
 {
-    return Mix_LoadWAV(file_path(fname, "r"));
+	return Mix_LoadWAV(file_path(fname, "r"));
 }
 
 /**
@@ -475,7 +475,7 @@ Mix_Chunk *Mix_LoadWAV_wrapper(const char *fname)
  * @return Return value of Mix_LoadMUS().  */
 Mix_Music *Mix_LoadMUS_wrapper(const char *file)
 {
-    return Mix_LoadMUS(file_path(file, "r"));
+	return Mix_LoadMUS(file_path(file, "r"));
 }
 #endif
 /*@}*/

@@ -1394,7 +1394,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "Atrinik Plugin loading...\n");
 
 #ifdef IS_PY26
-    Py_Py3kWarningFlag++;
+	Py_Py3kWarningFlag++;
 #endif
 
 #ifdef IS_PY3K

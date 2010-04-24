@@ -103,7 +103,7 @@
 #define PREFIX "../../../client-1.0"
 
 /* Use the SDL_mixer sound system. Remove when you have no sound card or slow
-   computer */
+ * computer */
 #define INSTALL_SOUND
 
 #endif

@@ -36,15 +36,16 @@
 #include <time.h>
 
 /** Contains free walls in the map. */
-typedef struct free_walls_struct {
+typedef struct free_walls_struct
+{
 	/** X coordinates of free spots for walls. */
-    int *wall_x_list;
+	int *wall_x_list;
 
 	/** Y coordinates of free spots for walls. */
-    int *wall_y_list;
+	int *wall_y_list;
 
 	/** Number of items in wall_x_list and wall_y_list. */
-    int wall_free_size;
+	int wall_free_size;
 } free_walls_struct;
 
 static void fill_maze_full(char **maze, int x, int y ,int xsize, int ysize, free_walls_struct *free_walls);

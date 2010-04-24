@@ -287,7 +287,7 @@ typedef struct _atrinik_plugin
 	sint8 gevent[NR_EVENTS];
 
 	/** Next plugin in list. */
-    struct _atrinik_plugin *next;
+	struct _atrinik_plugin *next;
 } atrinik_plugin;
 
 /**

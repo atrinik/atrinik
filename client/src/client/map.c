@@ -183,7 +183,7 @@ void init_map_data(int xl, int yl, int px, int py)
 
 	if (xl > 0)
 	{
-        clear_map();
+		clear_map();
 	}
 }
 
@@ -602,7 +602,7 @@ void map_draw_map()
 								}
 							}
 						}
-  						/* Double faces are shown twice, one above
+						/* Double faces are shown twice, one above
 						 * the other, when not lower on the screen
 						 * than the player. This simulates high walls
 						 * without obscuring the user's view. */

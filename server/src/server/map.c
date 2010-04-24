@@ -2410,7 +2410,7 @@ void set_map_reset_time(mapstruct *map)
  * map. */
 mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 {
-    /* m should never be null, but if a tiled map fails to load below, it
+	/* m should never be null, but if a tiled map fails to load below, it
 	 * could happen. */
 	if (!m)
 	{

@@ -1297,48 +1297,48 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
 }
 
 #define DESCRIBE_PATH(retbuf, variable, name)                        \
-    if (variable)                                                    \
+	if (variable)                                                    \
 	{                                                                \
-        int i, j = 0;                                                \
-        strcat(retbuf, "(" name ": ");                               \
+		int i, j = 0;                                                \
+		strcat(retbuf, "(" name ": ");                               \
                                                                      \
-        for (i = 0; i < NRSPELLPATHS; i++)                           \
+		for (i = 0; i < NRSPELLPATHS; i++)                           \
 		{                                                            \
-            if (variable & (1 << i))                                 \
+			if (variable & (1 << i))                                 \
 			{                                                        \
-                if (j)                                               \
-                    strcat(retbuf, ", ");                            \
-                else                                                 \
-                    j = 1;                                           \
+				if (j)                                               \
+					strcat(retbuf, ", ");                            \
+				else                                                 \
+					j = 1;                                           \
                                                                      \
-                strcat(retbuf, spellpathnames[i]);                   \
-            }                                                        \
+				strcat(retbuf, spellpathnames[i]);                   \
+			}                                                        \
 		}                                                            \
                                                                      \
-        strcat(retbuf, ")");                                         \
-    }
+		strcat(retbuf, ")");                                         \
+	}
 
 #define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen)      \
-    if (variable)                                                    \
+	if (variable)                                                    \
 	{                                                                \
-        int i, j = 0;                                                \
-        safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
+		int i, j = 0;                                                \
+		safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
                                                                      \
-        for (i = 0; i < NRSPELLPATHS; i++)                           \
+		for (i = 0; i < NRSPELLPATHS; i++)                           \
 		{                                                            \
-            if (variable & (1 << i))                                 \
+			if (variable & (1 << i))                                 \
 			{                                                        \
-                if (j)                                               \
-                    safe_strcat(retbuf, ", ", len, maxlen);          \
-                else                                                 \
-                    j = 1;                                           \
+				if (j)                                               \
+					safe_strcat(retbuf, ", ", len, maxlen);          \
+				else                                                 \
+					j = 1;                                           \
                                                                      \
-                safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
-            }                                                        \
+				safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
+			}                                                        \
 		}                                                            \
                                                                      \
-        safe_strcat(retbuf, ")", len, maxlen);                       \
-    }
+		safe_strcat(retbuf, ")", len, maxlen);                       \
+	}
 
 /**
  * Flags for apply_special().
@@ -1371,11 +1371,11 @@ enum apply_flag
  * dx & dy are input only and will not be changed.
  * All other parameters are the outputs which will be initialized */
 #define BRESENHAM_INIT(dx, dy, fraction, stepx, stepy, dx2, dy2)      \
-    {                                                                 \
-        (dx2) = (dx) << 1;                                            \
-        (dy2) = (dy) << 1;                                            \
+	{                                                                 \
+		(dx2) = (dx) << 1;                                            \
+		(dy2) = (dy) << 1;                                            \
                                                                       \
-        if ((dy) < 0)                                                 \
+		if ((dy) < 0)                                                 \
 		{                                                             \
 			(dy2) = -(dy2);                                           \
 			(stepy) = -1;                                             \
@@ -1385,7 +1385,7 @@ enum apply_flag
 			(stepy) = 1;                                              \
 		}                                                             \
                                                                       \
-        if ((dx) < 0)                                                 \
+		if ((dx) < 0)                                                 \
 		{                                                             \
 			(dx2) = -(dx2);                                           \
 			(stepx) = -1;                                             \
@@ -1395,11 +1395,11 @@ enum apply_flag
 			(stepx) = 1;                                              \
 		}                                                             \
                                                                       \
-        if ((dx2) > (dy2))                                            \
+		if ((dx2) > (dy2))                                            \
 			(fraction) = (dy2) - (dx) * (stepx);                      \
 		else                                                          \
 			(fraction) = (dx2) - (dy) * (stepy);                      \
-    }
+	}
 
 /**
  * Bresenham line stepping macro.
@@ -1409,28 +1409,28 @@ enum apply_flag
  * stepx, stepy, dx2 and dy2 are input only and should also
  * be initialized by BRESENHAM_INIT */
 #define BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2)        \
-    if ((dx2) > (dy2))                                                \
+	if ((dx2) > (dy2))                                                \
 	{                                                                 \
-        if ((fraction) >= 0)                                          \
+		if ((fraction) >= 0)                                          \
 		{                                                             \
-            (y) += (stepy);                                           \
-            (fraction) -= (dx2);                                      \
-        }                                                             \
+			(y) += (stepy);                                           \
+			(fraction) -= (dx2);                                      \
+		}                                                             \
                                                                       \
-        (x) += (stepx);                                               \
-        (fraction) += (dy2);                                          \
-    }                                                                 \
+		(x) += (stepx);                                               \
+		(fraction) += (dy2);                                          \
+	}                                                                 \
 	else                                                              \
 	{                                                                 \
-        if ((fraction) >= 0)                                          \
+		if ((fraction) >= 0)                                          \
 		{                                                             \
-            (x) += (stepx);                                           \
-            (fraction) -= (dy2);                                      \
-        }                                                             \
+			(x) += (stepx);                                           \
+			(fraction) -= (dy2);                                      \
+		}                                                             \
                                                                       \
-        (y) += (stepy);                                               \
-        (fraction) += (dx2);                                          \
-    }
+		(y) += (stepy);                                               \
+		(fraction) += (dx2);                                          \
+	}
 /*@}*/
 
 #ifdef HAVE_SRANDOM

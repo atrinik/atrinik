@@ -93,40 +93,40 @@ typedef void (*chunk_destructor) (void *ptr);
 struct mempool
 {
 	/** Description of chunks. Mostly for debugging */
-    const char *chunk_description;
+	const char *chunk_description;
 
 	/** How many chunks to allocate at each expansion */
-    uint32 expand_size;
+	uint32 expand_size;
 
 	/** size of chunks, excluding sizeof(mempool_chunk) and padding */
-    uint32 chunksize;
+	uint32 chunksize;
 
 	/** Special handling flags. See definitions below */
-    uint32 flags;
+	uint32 flags;
 
 	/** Optional initialisator to be called when expanding */
-    chunk_initialisator initialisator;
+	chunk_initialisator initialisator;
 
 	/** Optional deinitialisator to be called when freeing */
-    chunk_deinitialisator deinitialisator;
+	chunk_deinitialisator deinitialisator;
 
 	/** Optional constructor to be called when getting chunks */
-    chunk_constructor constructor;
+	chunk_constructor constructor;
 
 	/** Optional destructor to be called when returning chunks */
-    chunk_destructor destructor;
+	chunk_destructor destructor;
 
 	/** First free chunk */
-    struct mempool_chunk *freelist[MEMPOOL_NROF_FREELISTS];
+	struct mempool_chunk *freelist[MEMPOOL_NROF_FREELISTS];
 
 	/** Number of free. */
-    uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
+	uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
 
 	/** Number of allocated. */
 	uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
 #ifdef MEMPOOL_TRACKING
 	/** List of puddles used for mempool tracking */
-    struct puddle_info *first_puddle_info;
+	struct puddle_info *first_puddle_info;
 #endif
 };
 

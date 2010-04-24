@@ -531,8 +531,8 @@ extern Settings settings;
 /** Constant shared string pointers. */
 EXTERN struct shstr_constants
 {
-    const char *none;
-    const char *NONE;
+	const char *none;
+	const char *NONE;
 	const char *home;
 	const char *force;
 	const char *portal_destination_name;

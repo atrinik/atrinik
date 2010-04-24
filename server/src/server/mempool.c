@@ -42,14 +42,14 @@
  * The Life Cycle of an Object:
  *
  * - <b>expand_mempool()</b>: Allocated from system memory and put into
-     the freelist of the object pool.
+ *   the freelist of the object pool.
  * - <b>get_object()</b>: Removed from freelist & put into removedlist (
  *   since it is not inserted anywhere yet).
  * - <b>insert_ob_in_(map/ob)()</b>: Filled with data and inserted into
  *   (any) environment
  * - <b>...</b> end of timestep
  * - <b>object_gc()</b>: Removed from removedlist, but not freed (since it sits in
-     an env).
+ *   an env).
  * - <b>...</b>
  * - <b>remove_ob()</b>: Removed from environment
  * - Sits in removedlist until the end of this server timestep

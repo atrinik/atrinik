@@ -633,7 +633,7 @@ void enter_exit(object *op, object *exit_ob)
 						return;
 					}
 
-                    /* Maps that go down have a message set. However, maps
+					/* Maps that go down have a message set. However, maps
 					 * that go up, don't. If the going home has reset, there
 					 * isn't much point generating a random map, because it
 					 * won't match the maps, so just teleport the player
@@ -1167,7 +1167,7 @@ void cleanup()
 	free_all_readable();
 	free_all_god();
 	free_all_anim();
-    free_strings();
+	free_strings();
 	free_racelist();
 	free_exp_objects();
 	free_srv_files();

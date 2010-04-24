@@ -841,9 +841,9 @@ static object *find_nearest_enemy(object *ob)
 		aggro_stealth = MIN_MON_RADIUS;
 	}
 
-    for (i = -aggro_range; i <= aggro_range; i++)
+	for (i = -aggro_range; i <= aggro_range; i++)
 	{
-        for (j = -aggro_range; j <= aggro_range; j++)
+		for (j = -aggro_range; j <= aggro_range; j++)
 		{
 			xt = ob->x + i;
 			yt = ob->y + j;

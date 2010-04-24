@@ -1181,9 +1181,9 @@ static char *spellpath_msg(int level, int booksize)
 			}
 			else
 			{
-                if (did_first_sp)
+				if (did_first_sp)
 				{
-                    strcat(retbuf, ",\n");
+					strcat(retbuf, ",\n");
 				}
 
 				did_first_sp = 1;

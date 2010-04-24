@@ -61,8 +61,9 @@ _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 /** Current quickslot group */
 int quickslot_group = 1;
 
-/** Quickslot positions, because some things change depending on
-  * which quickslot bitmap is displayed. */
+/**
+ * Quickslot positions, because some things change depending on
+ * which quickslot bitmap is displayed. */
 int quickslots_pos[MAX_QUICK_SLOTS][2] =
 {
 	{17,	1},

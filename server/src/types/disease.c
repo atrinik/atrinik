@@ -199,9 +199,9 @@ static void check_infection(object *disease)
 	disease->x = x, disease->y = y;
 	disease->map = map;
 
-    for (i = -range; i <= range; i++)
+	for (i = -range; i <= range; i++)
 	{
-        for (j = -range; j <= range; j++)
+		for (j = -range; j <= range; j++)
 		{
 			xt = x + i, yt = y + j;
 

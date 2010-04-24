@@ -2309,7 +2309,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 		if (!tmp)
 		{
 			if (op->env->type == CONTAINER && op->env->attacked_by && CONTR(op->env->attacked_by) && CONTR(op->env->attacked_by)->container == op->env)
-            {
+			{
 				tmp = op->env->attacked_by;
 			}
 		}
