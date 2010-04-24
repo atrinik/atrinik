@@ -285,7 +285,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			/* If no map path specified, we assume it is the map path of the exit. */
 			if (!EXIT_PATH(trap))
 			{
-				trap->slaying = trap->map->path;
+				FREE_AND_ADD_REF_HASH(EXIT_PATH(trap), trap->map->path);
 			}
 
 			if (!(flags & MOVE_APPLY_VANISHED) && victim->type == PLAYER && EXIT_PATH(trap) && EXIT_Y(trap) != -1 && EXIT_X(trap) != -1)
@@ -748,7 +748,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 			/* If no map path specified, we assume it is the map path of the exit. */
 			if (!EXIT_PATH(tmp))
 			{
-				tmp->slaying = tmp->map->path;
+				FREE_AND_ADD_REF_HASH(EXIT_PATH(tmp), tmp->map->path);
 			}
 
 			if (!EXIT_PATH(tmp) || !is_legal_2ways_exit(op, tmp) || (EXIT_Y(tmp) == -1 && EXIT_X(tmp) == -1))
