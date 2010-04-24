@@ -1411,7 +1411,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 				{
 					sint16 face;
 					uint8 quick_pos = tmp->quick_pos;
-					uint8 flags = 0;
+					uint8 flags = 0, probe = 0;
 					object *head = tmp->head ? tmp->head : tmp;
 
 					/* If we have a multi-arch object. */
@@ -1465,6 +1465,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					if (head->count == CONTR(pl)->target_object_count)
 					{
 						flags |= MAP2_FLAG_PROBE;
+						probe = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
 					}
 
 					/* Z position and we're on a floor layer? */
@@ -1482,7 +1483,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					}
 
 					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags)
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe)
 					{
 						continue;
 					}
@@ -1491,6 +1492,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					mp->faces[layer] = face;
 					mp->quick_pos[layer] = quick_pos;
 					mp->flags[layer] = flags;
+					mp->probe = probe;
 					num_layers++;
 
 					/* Add its layer. */
@@ -1519,7 +1521,7 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 					/* Target's HP bar. */
 					if (flags & MAP2_FLAG_PROBE)
 					{
-						SockList_AddChar(&sl_layer, (char) MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0))));
+						SockList_AddChar(&sl_layer, (char) probe);
 					}
 
 					/* Z position. */

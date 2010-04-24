@@ -108,6 +108,11 @@ typedef struct MapCell_struct
 	/** Flags cache. */
 	uint8 flags[MAX_ARCH_LAYERS];
 
+	/**
+	 * Probe cache. No need for an array, since this only appears
+	 * for players or monsters, both on layer 6. */
+	uint8 probe;
+
 	/** @deprecated */
 	uint8 fflag[MAP_LAYERS];
 
