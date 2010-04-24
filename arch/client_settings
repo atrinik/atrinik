@@ -9,8 +9,8 @@ human_m.isw.111 8 3 3 0 0 0
 0 x x
 0 x x
 5 12 12 14 12 12 14 12 12 14 12 12 14 12 12 14 12 12 14 12 12 14
-Humans are the generalists of the races. 
-They are fit for any trade, and usually pick up a skill from 
+Humans are the generalists of the races.
+They are fit for any trade, and usually pick up a skill from
 their parents in addition to what they've learned as apprentices
 in their craft. Females have the same stats as males.
 char Half-Elf
@@ -24,3 +24,14 @@ The name half-elf can be confusing because it is used for humans
 with elvish blood in the 2nd or 3rd generation. Real half bloods
 are normally counted to the elves. Half-elves are very similar to
 humans but a bit more focused to power and dexterity.
+char Dwarf
+dwarf.151 8 3 3 0 0 0
+1 dwarf_male dwarf.151
+1 dwarf_female dwarf.151
+0 x x
+0 x x
+5 13 13 15 11 11 13 13 13 15 12 12 14 12 12 14 11 11 13 12 12 14
+Some dwarves have joined the human fight against Moroch and their
+skills were very valuable. Some have traveled to the human realms
+but there are also rumors from hidden dwarf cities in the deeps.
+The dwarves themselves don't talk much about it...
