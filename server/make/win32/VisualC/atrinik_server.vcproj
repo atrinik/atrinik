@@ -48,8 +48,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\random_maps;..\..\..\src\zlib\include;.\libs;.\libs\pthread"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -136,8 +136,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\random_maps;..\..\..\src\zlib\include;.\libs;.\libs\pthread"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -225,7 +225,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\random_maps;..\..\..\src\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB;PTW32_STATIC_LIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -316,7 +316,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\random_maps;..\..\..\src\zlib\include;.\libs;.\libs\pthread"
+				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -407,7 +407,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\src\libs\zlib\include\crc32.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\src\include\define.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\libs\zlib\include\deflate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\random_maps\expand2x.h"
 				>
 			</File>
 			<File
@@ -424,14 +436,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\include\includes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\include\libproto.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\include\libtypes.h"
 				>
 			</File>
 			<File
@@ -491,7 +495,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\src\include\proto.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\src\include\race.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\random_maps\random_map.h"
 				>
 			</File>
 			<File
@@ -515,10 +527,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\include\sockproto.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\include\sounds.h"
 				>
 			</File>
@@ -528,10 +536,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\include\spells.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\include\sproto.h"
 				>
 			</File>
 			<File
@@ -551,11 +555,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\src\libs\zlib\include\trees.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\src\include\version.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\include\win32.h"
+				RelativePath="..\..\..\src\porting\win32.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\libs\zlib\include\zconf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\libs\zlib\include\zlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\libs\zlib\include\zutil.h"
 				>
 			</File>
 		</Filter>
@@ -571,177 +591,17 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<Filter
-				Name="common"
+				Name="commands"
 				>
 				<File
-					RelativePath="..\..\..\src\common\anim.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\arch.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\button.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\exp.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\holy.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\image.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\info.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\item.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\links.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\living.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\loader.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\loader.l"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
-							Outputs="$(InputDir)$(InputName).c"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
-							Outputs="$(InputDir)$(InputName).c"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
-							Outputs="$(InputDir)$(InputName).c"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
-							Outputs="$(InputDir)$(InputName).c"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\logger.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\los.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\map.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\mempool.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\object.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\player.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\porting.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\quest.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\re-cmp.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\readable.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\recipe.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\region.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\shstr.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\stringbuffer.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\time.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\treasure.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\utils.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\common\win32.c"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="types"
-				>
-				<File
-					RelativePath="..\..\..\src\types\altar.c"
+					RelativePath="..\..\..\src\commands\chat.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -749,7 +609,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -757,7 +617,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -765,19 +625,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\armour_improver.c"
+					RelativePath="..\..\..\src\commands\commands.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -785,7 +645,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -793,7 +653,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -801,19 +661,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\arrow.c"
+					RelativePath="..\..\..\src\commands\misc.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -821,7 +681,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -829,7 +689,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -837,19 +697,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\beacon.c"
+					RelativePath="..\..\..\src\commands\move.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -857,7 +717,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -865,7 +725,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -873,19 +733,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\book.c"
+					RelativePath="..\..\..\src\commands\new.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -893,7 +753,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -901,7 +761,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -909,19 +769,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\container.c"
+					RelativePath="..\..\..\src\commands\object.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -929,7 +789,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -937,7 +797,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -945,19 +805,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\converter.c"
+					RelativePath="..\..\..\src\commands\range.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -965,7 +825,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -973,7 +833,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -981,19 +841,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\types\creator.c"
+					RelativePath="..\..\..\src\commands\wiz.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1001,7 +861,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1009,7 +869,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1017,1111 +877,283 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\deep_swamp.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\detector.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\disease.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\door.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\food.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\gate.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\gravestone.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\identify_altar.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\light.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\marker.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\monster.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\pit.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\player.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\player_mover.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\poison.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\potion.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\power_crystal.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\rod.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\savebed.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\scroll.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\shop_mat.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\sign.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\skillscroll.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\spawn_point.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\spellbook.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\teleporter.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\treasure.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\waypoint.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\types\weapon_improver.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\types/"
+							ObjectFile="$(IntDir)\commands\"
 						/>
 					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
-				Name="random_maps"
+				Name="libs"
+				>
+				<Filter
+					Name="zlib"
+					>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\adler32.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\compress.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\crc32.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\deflate.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\trees.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libs\zlib\zutil.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)\libs\zlib\"
+							/>
+						</FileConfiguration>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="loaders"
 				>
 				<File
-					RelativePath="..\..\..\src\random_maps\decor.c"
+					RelativePath="..\..\..\src\loaders\map_header.c"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\random_maps\door.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\exit.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\expand2x.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\expand2x.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\floor.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\maze_gen.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\monster.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\random_map.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\random_map.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\reader.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\reader.l"
+					RelativePath="..\..\..\src\loaders\map_header.l"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -2130,7 +1162,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -2139,7 +1171,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -2148,42 +1180,162 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i  -Prmap -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\random_maps\rogue_layout.c"
+					RelativePath="..\..\..\src\loaders\object.c"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\random_maps\room_gen_onion.c"
+					RelativePath="..\..\..\src\loaders\object.l"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\random_maps\room_gen_spiral.c"
+					RelativePath="..\..\..\src\loaders\random_map.c"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\loaders\"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\random_maps\rproto.h"
+					RelativePath="..\..\..\src\loaders\random_map.l"
 					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\snake.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\square_spiral.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\style.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\random_maps\wall.c"
-					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							Outputs="$(InputDir)$(InputName).c"
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -2197,7 +1349,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2205,7 +1357,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2213,7 +1365,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2221,7 +1373,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\anim.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2233,7 +1421,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2241,7 +1429,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2249,7 +1437,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2257,7 +1445,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\arch.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2269,7 +1493,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2277,7 +1501,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2285,7 +1509,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2293,7 +1517,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2305,7 +1529,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2313,7 +1537,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2321,7 +1545,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2329,19 +1553,19 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\server\c_chat.c"
+					RelativePath="..\..\..\src\server\button.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2349,7 +1573,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2357,7 +1581,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2365,259 +1589,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_misc.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_move.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_new.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_object.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_range.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\c_wiz.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\server\commands.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2629,7 +1601,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2637,7 +1609,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2645,7 +1617,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2653,7 +1625,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\exp.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2665,7 +1673,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2673,7 +1681,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2681,7 +1689,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2689,7 +1697,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2701,7 +1709,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2709,7 +1717,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2717,7 +1725,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2725,7 +1733,115 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\holy.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\image.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\info.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2737,7 +1853,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2745,7 +1861,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2753,7 +1869,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2761,7 +1877,151 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\item.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\links.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\living.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\logger.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2773,7 +2033,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2781,7 +2041,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2789,7 +2049,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2797,7 +2057,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\los.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2809,7 +2105,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2817,7 +2113,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2825,7 +2121,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2833,7 +2129,79 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\map.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\mempool.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2845,7 +2213,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2853,7 +2221,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2861,7 +2229,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2869,7 +2237,79 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\object.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\object_process.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2881,7 +2321,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2889,7 +2329,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2897,7 +2337,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2905,7 +2345,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2917,7 +2357,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2925,7 +2365,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2933,7 +2373,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2941,7 +2381,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2953,7 +2393,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2961,7 +2401,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2969,7 +2409,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2977,7 +2417,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -2989,7 +2429,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2997,7 +2437,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3005,7 +2445,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3013,7 +2453,223 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\porting.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\quest.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\re-cmp.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\readable.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\recipe.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\region.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3025,7 +2681,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3033,7 +2689,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3041,7 +2697,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3049,7 +2705,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3061,7 +2717,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3069,7 +2725,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3077,7 +2733,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3085,7 +2741,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\shstr.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3097,7 +2789,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3105,7 +2797,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3113,7 +2805,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3121,7 +2813,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3133,7 +2825,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3141,7 +2833,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3149,7 +2841,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3157,7 +2849,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3169,7 +2861,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3177,7 +2869,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3185,7 +2877,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3193,7 +2885,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3205,7 +2897,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3213,7 +2905,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3221,7 +2913,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3229,7 +2921,43 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\stringbuffer.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3241,7 +2969,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3249,7 +2977,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3257,7 +2985,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3265,7 +2993,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3277,7 +3005,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3285,7 +3013,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3293,7 +3021,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3301,7 +3029,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3313,7 +3041,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3321,7 +3049,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3329,7 +3057,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3337,7 +3065,79 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\treasure.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\server\utils.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3349,7 +3149,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3357,7 +3157,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3365,7 +3165,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3373,7 +3173,1927 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\server/"
+							ObjectFile="$(IntDir)\server\"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="porting"
+				>
+				<File
+					RelativePath="..\..\..\src\porting\win32.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\porting\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\porting\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\porting\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\porting\"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="types"
+				>
+				<File
+					RelativePath="..\..\..\src\types\altar.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\armour_improver.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\arrow.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\beacon.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\book.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\container.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\converter.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\creator.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\deep_swamp.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\detector.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\disease.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\door.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\food.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\gate.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\gravestone.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\identify_altar.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\light.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\marker.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\monster.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\pit.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\player.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\player_mover.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\poison.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\potion.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\power_crystal.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\rod.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\savebed.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\scroll.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\shop_mat.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\sign.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\skillscroll.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\spawn_point.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\spellbook.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\teleporter.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\treasure.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\waypoint.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\types\weapon_improver.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\types\"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="random_maps"
+				>
+				<File
+					RelativePath="..\..\..\src\random_maps\decor.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\door.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\exit.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\expand2x.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\floor.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\maze_gen.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\monster.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\random_map.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\rogue_layout.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\room_gen_onion.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\room_gen_spiral.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\snake.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\square_spiral.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\style.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\random_maps\wall.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\random_maps\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3389,7 +5109,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3397,7 +5117,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3405,7 +5125,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3413,7 +5133,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3425,7 +5145,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3433,7 +5153,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3441,7 +5161,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3449,7 +5169,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3461,7 +5181,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3469,7 +5189,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3477,7 +5197,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3485,7 +5205,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3497,7 +5217,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3505,7 +5225,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3513,7 +5233,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3521,7 +5241,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3533,7 +5253,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3541,7 +5261,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3549,7 +5269,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3557,7 +5277,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3569,7 +5289,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3577,7 +5297,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3585,7 +5305,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3593,7 +5313,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3605,7 +5325,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3613,7 +5333,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3621,7 +5341,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3629,7 +5349,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3641,7 +5361,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3649,7 +5369,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3657,7 +5377,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3665,7 +5385,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 				</File>
@@ -3677,7 +5397,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3685,7 +5405,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Debug\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3693,7 +5413,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -3701,61 +5421,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							ObjectFile=".\Release\socket/"
+							ObjectFile="$(IntDir)\socket\"
 						/>
 					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="zlib"
-				>
-				<File
-					RelativePath="..\..\..\src\zlib\adler32.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\compress.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\crc32.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\crc32.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\deflate.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\deflate.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\trees.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\trees.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\zconf.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\zlib.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\zutil.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\zlib\include\zutil.h"
-					>
 				</File>
 			</Filter>
 		</Filter>
