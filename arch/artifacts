@@ -3637,34 +3637,6 @@ value 28
 end
 
 Allowed all
-chance 40
-artifact scroll_dmagic
-difficulty 1
-def_arch scroll_generic
-Object
-level 1
-inv_face scroll_detect.101
-sp 7
-type 111
-is_magical 1
-value 23
-end
-
-Allowed all
-chance 40
-artifact scroll_dcurse
-difficulty 3
-def_arch scroll_generic
-Object
-inv_face scroll_detect.101
-level 1
-sp 8
-type 111
-is_magical 1
-value 23
-end
-
-Allowed all
 chance 25
 artifact scroll_rem_curse
 difficulty 5
