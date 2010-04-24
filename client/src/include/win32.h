@@ -73,7 +73,7 @@
 #	define W_OK 2
 	/* Conversion from 'xxx' to 'yyy', possible loss of data */
 #	pragma warning(disable: 4244)
-    /* Conversion from 'size_t' to 'int', possible loss of data */
+	/* Conversion from 'size_t' to 'int', possible loss of data */
 #	pragma warning(disable: 4267)
 	/* Initializing float f = 0.05; instead of f = 0.05f; */
 #	pragma warning(disable: 4305)
