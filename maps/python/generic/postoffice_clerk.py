@@ -37,6 +37,9 @@ def check_send(player, object):
 	elif not post.can_be_sent(object):
 		me.SayTo(activator, "\nYou cannot send that item.")
 		return False
+	elif object.quickslot:
+		me.SayTo(activator, "\nYou must first remove that item from your quickslots.")
+		return False
 	# Sending to ourselves?
 	elif player == activator.name:
 		me.SayTo(activator, "\nYou cannot send an item to yourself.")
