@@ -112,6 +112,7 @@ obj_fields_struct obj_fields[] =
 	{"direction",              FIELDTYPE_SINT8,      offsetof(object, direction),              0,                           0},
 	{"facing",                 FIELDTYPE_SINT8,      offsetof(object, facing),                 0,                           0},
 	{"quick_pos",              FIELDTYPE_UINT8,      offsetof(object, quick_pos),              0,                           0},
+	{"quickslot",              FIELDTYPE_UINT8,      offsetof(object, quickslot),              FIELDFLAG_READONLY,          0},
 
 	{"type",                   FIELDTYPE_UINT8,      offsetof(object, type),                   FIELDFLAG_READONLY,          0},
 	{"sub_type_1",             FIELDTYPE_UINT8,      offsetof(object, sub_type1),              0,                           0},

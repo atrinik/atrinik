@@ -341,9 +341,15 @@ void read_client_images()
  * @param ns Client's socket */
 void SetFaceMode(char *buf, int len, socket_struct *ns)
 {
-	int mask = (atoi(buf) & CF_FACE_CACHE), mode = (atoi(buf) & ~CF_FACE_CACHE);
+	int mask, mode;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	mask = (atoi(buf) & CF_FACE_CACHE);
+	mode = (atoi(buf) & ~CF_FACE_CACHE);
 
 	if (mode == CF_FACE_NONE)
 	{
@@ -370,12 +376,18 @@ void SetFaceMode(char *buf, int len, socket_struct *ns)
  * @param buff The data sent to us
  * @param len Length of buf
  * @param ns Client's socket */
-void SendFaceCmd(char *buff, int len, socket_struct *ns)
+void SendFaceCmd(char *buf, int len, socket_struct *ns)
 {
-	long tmpnum = atoi(buff);
-	short facenum = tmpnum & 0xffff;
+	long tmpnum;
+	short facenum;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	tmpnum = atoi(buf);
+	facenum = tmpnum & 0xffff;
 
 	if (facenum != 0)
 	{

@@ -1247,6 +1247,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 					rtn_cmd->name = CustomCommand[i].name;
 					rtn_cmd->time = (float) CustomCommand[i].speed;
 					rtn_cmd->func = cmd_customPython;
+					rtn_cmd->flags = 0;
 					NextCustomCommand = i;
 					return rtn_cmd;
 				}

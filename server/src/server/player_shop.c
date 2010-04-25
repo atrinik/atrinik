@@ -273,7 +273,7 @@ void player_shop_open(char *data, player *pl)
 		object *item_object;
 
 		/* Get the tag, nrof and price */
-		if (!sscanf(p, "%d:%d:%d", &tag, &nrof, &price))
+		if (sscanf(p, "%d:%d:%d", &tag, &nrof, &price) != 3)
 		{
 			player_shop_free_structure(pl, 1);
 			return;
@@ -287,11 +287,7 @@ void player_shop_open(char *data, player *pl)
 		}
 
 		/* Some checking */
-		if (price < 1 || price > PLAYER_SHOP_MAX_INT_VALUE)
-		{
-			return;
-		}
-		else if (nrof < 1 || nrof > PLAYER_SHOP_MAX_INT_VALUE)
+		if ((price < 1 || price > PLAYER_SHOP_MAX_INT_VALUE) || (nrof < 1 || nrof > PLAYER_SHOP_MAX_INT_VALUE))
 		{
 			return;
 		}
@@ -307,7 +303,7 @@ void player_shop_open(char *data, player *pl)
 		}
 
 		/* Some items cannot be sold in shops */
-		if (IS_SYS_INVISIBLE(item_object) || QUERY_FLAG(item_object, FLAG_UNPAID) || QUERY_FLAG(item_object, FLAG_STARTEQUIP) || item_object->type == MONEY)
+		if (IS_SYS_INVISIBLE(item_object) || QUERY_FLAG(item_object, FLAG_UNPAID) || QUERY_FLAG(item_object, FLAG_STARTEQUIP) || item_object->type == MONEY || item_object->quickslot || QUERY_FLAG(item_object, FLAG_INV_LOCKED))
 		{
 			new_draw_info_format(NDI_UNIQUE, pl->ob, "The %s is not allowed to be sold in a player shop.", query_name(item_object, NULL));
 			player_shop_free_structure(pl, 1);

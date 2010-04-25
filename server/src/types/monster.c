@@ -1597,6 +1597,12 @@ void communicate(object *op, char *txt)
 	if (op->type == PLAYER)
 	{
 		new_info_map(NDI_WHITE | NDI_PLAYER | NDI_SAY, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+
+		/* No talking to NPCs/magic ears while in player shop. */
+		if (QUERY_FLAG(op, FLAG_PLAYER_SHOP))
+		{
+			return;
+		}
 	}
 	else
 	{

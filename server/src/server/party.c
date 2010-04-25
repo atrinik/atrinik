@@ -210,7 +210,10 @@ void PartyCmd(char *buf, int len, player *pl)
 	StringBuffer *sb = NULL;
 	char tmpbuf[MAX_BUF];
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* List command */
 	if (!strcmp(buf, "list"))

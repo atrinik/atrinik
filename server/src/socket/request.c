@@ -137,11 +137,15 @@ void SetUp(char *buf, int len, socket_struct *ns)
 	int s;
 	char *cmd, *param, tmpbuf[MAX_BUF], cmdback[HUGE_BUF];
 
+	if (!buf || !len)
+	{
+		return;
+	}
+
 	if (ns->setup)
 	{
 		LOG(llevInfo, "Double call of setup cmd from socket %s\n", ns->host);
 		ns->status = Ns_Dead;
-
 		return;
 	}
 
@@ -364,6 +368,11 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 	char command[MAX_BUF];
 	SockList sl;
 
+	if (!buf)
+	{
+		return;
+	}
+
 	if (len < 7)
 	{
 		LOG(llevBug, "BUG: Corrupt ncom command from player %s - not long enough - discarding\n", pl->ob->name);
@@ -424,15 +433,13 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
  * This is a reply to a previous query. */
 void ReplyCmd(char *buf, int len, player *pl)
 {
-	(void) len;
-
-	if (pl->socket.status == Ns_Dead)
+	if (!buf || !len || pl->socket.status == Ns_Dead)
 	{
 		return;
 	}
 
 	strcpy(pl->write_buf, ":");
-	strncat(pl->write_buf,buf, 250);
+	strncat(pl->write_buf, buf, 250);
 	pl->write_buf[250] = 0;
 	pl->socket.ext_title_flag = 1;
 
@@ -473,14 +480,11 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 {
 	int id;
 
-	(void) len;
-
 	/* *only* allow this command between the first login and the "addme" command! */
-	if (ns->status != Ns_Add || !buf)
+	if (ns->status != Ns_Add || !buf || !len)
 	{
 		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
-
 		return;
 	}
 
@@ -490,7 +494,6 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 	{
 		LOG(llevInfo, "RF: received bad rf command for IP:%s\n", ns->host ? ns->host : "NULL");
 		ns->status = Ns_Dead;
-
 		return;
 	}
 
@@ -532,7 +535,9 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 				return;
 			}
 			else
+			{
 				ns->rf_settings = 1;
+			}
 
 			break;
 
@@ -589,9 +594,7 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 {
 	char *cp;
 
-	(void) len;
-
-	if (!buf || ns->version)
+	if (!buf || !len || ns->version)
 	{
 		version_mismatch_msg(ns);
 		LOG(llevInfo, "INFO: VersionCmd(): Received corrupted version command\n");
@@ -623,15 +626,18 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
  * Sound related functions. */
 void SetSound(char *buf, int len, socket_struct *ns)
 {
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	ns->sound = atoi(buf);
 }
 
 /** Client wants the map resent */
-void MapRedrawCmd(char *buff, int len, player *pl)
+void MapRedrawCmd(char *buf, int len, player *pl)
 {
-	(void) buff;
+	(void) buf;
 	(void) len;
 
 	/* Okay, this is MAJOR UGLY. But the only way I know how to
@@ -661,7 +667,10 @@ void MoveCmd(char *buf, int len, player *pl)
 {
 	int vals[3];
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
 	{
@@ -2441,7 +2450,10 @@ void esrv_map_scroll(socket_struct *ns, int dx, int dy)
  * @param pl The player */
 void ShopCmd(char *buf, int len, player *pl)
 {
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* Handle opening a shop */
 	if (strncmp(buf, "open|", 5) == 0)

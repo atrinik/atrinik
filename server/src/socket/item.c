@@ -1312,10 +1312,16 @@ static object *esrv_get_ob_from_count_DM(object *pl, tag_t count)
  * @param pl Player. */
 void ExamineCmd(char *buf, int len, player *pl)
 {
-	long tag = atoi(buf);
-	object *op = esrv_get_ob_from_count(pl->ob, tag);
+	long tag;
+	object *op;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	tag = atoi(buf);
+	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (!op)
 	{
@@ -1407,7 +1413,10 @@ void QuickSlotCmd(char *buf, int len, player *pl)
 	char *cp, tmpbuf[MAX_BUF];
 	int quickslot;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* Set command. We want to set an object's quickslot */
 	if (strncmp(buf, "set ", 4) == 0)
@@ -1487,10 +1496,16 @@ void QuickSlotCmd(char *buf, int len, player *pl)
  * @param pl Player. */
 void ApplyCmd(char *buf, int len, player *pl)
 {
-	uint32 tag = atoi(buf);
-	object *op = esrv_get_ob_from_count(pl->ob, tag);
+	uint32 tag;
+	object *op;
 
-	(void) len;
+	if (!buf || !len)
+	{
+		return;
+	}
+
+	tag = atoi(buf);
+	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (QUERY_FLAG(pl->ob, FLAG_REMOVED))
 	{
@@ -1523,7 +1538,10 @@ void LockItem(uint8 *data, int len, player *pl)
 	int flag, tag;
 	object *op;
 
-	(void) len;
+	if (!data || !len)
+	{
+		return;
+	}
 
 	flag = data[0];
 	tag = GetInt_String(data + 1);
@@ -1564,7 +1582,10 @@ void MarkItem(uint8 *data, int len, player *pl)
 	int tag;
 	object *op;
 
-	(void) len;
+	if (!data || !len)
+	{
+		return;
+	}
 
 	tag = GetInt_String(data);
 	op = esrv_get_ob_from_count(pl->ob, tag);

@@ -72,27 +72,30 @@ struct player_cmd_mapping
 
 	/** Function to call. */
 	func_uint8_int_pl cmdproc;
+
+	/** Command flags. */
+	int flags;
 };
 
 /** Commands sent by the client, based on player's actions. */
 static const struct player_cmd_mapping player_commands[] =
 {
-	{"ex",          ExamineCmd},
-	{"ap",          ApplyCmd},
-	{"mv",          MoveCmd},
-	{"reply",       ReplyCmd},
-	{"cm",          (func_uint8_int_pl) PlayerCmd},
-	{"mapredraw",   MapRedrawCmd},
-	{"lock",        (func_uint8_int_pl) LockItem},
-	{"mark",        (func_uint8_int_pl) MarkItem},
-	{"/fire",       command_fire},
-	{"fr",          command_face_request},
-	{"nc",          command_new_char},
-	{"pt",          PartyCmd},
-	{"qs",          QuickSlotCmd},
-	{"shop",        ShopCmd},
-	{"qlist",       QuestListCmd},
-	{NULL, NULL}
+	{"ex",          ExamineCmd, 0},
+	{"ap",          ApplyCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"mv",          MoveCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"reply",       ReplyCmd, 0},
+	{"cm",          (func_uint8_int_pl) PlayerCmd, 0},
+	{"mapredraw",   MapRedrawCmd, 0},
+	{"lock",        (func_uint8_int_pl) LockItem, CMD_FLAG_NO_PLAYER_SHOP},
+	{"mark",        (func_uint8_int_pl) MarkItem, 0},
+	{"/fire",       command_fire, 0},
+	{"fr",          command_face_request, 0},
+	{"nc",          command_new_char, 0},
+	{"pt",          PartyCmd, 0},
+	{"qs",          QuickSlotCmd, CMD_FLAG_NO_PLAYER_SHOP},
+	{"shop",        ShopCmd, 0},
+	{"qlist",       QuestListCmd, 0},
+	{NULL, NULL, 0}
 };
 
 /** Commands sent directly by the client, when connecting or needed. */
@@ -118,6 +121,11 @@ void RequestInfo(char *buf, int len, socket_struct *ns)
 	char *params = NULL, *cp;
 	char bigbuf[MAX_BUF];
 	size_t slen = 1;
+
+	if (!buf || !len)
+	{
+		return;
+	}
 
 	/* Set up replyinfo before we modify any of the buffers - this is
 	 * used if we don't find a match. */
@@ -239,6 +247,13 @@ void handle_client(socket_struct *ns, player *pl)
 			{
 				if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
 				{
+					if (player_commands[i].flags & CMD_FLAG_NO_PLAYER_SHOP && QUERY_FLAG(pl->ob, FLAG_PLAYER_SHOP))
+					{
+						new_draw_info(NDI_UNIQUE, pl->ob, "You can't do that while in player shop.");
+						ns->inbuf.len = 0;
+						goto next_command;
+					}
+
 					player_commands[i].cmdproc((char *) data, len, pl);
 					ns->inbuf.len = 0;
 					goto next_command;
