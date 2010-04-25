@@ -40,6 +40,9 @@ def check_send(player, object):
 	elif object.quickslot:
 		me.SayTo(activator, "\nYou must first remove that item from your quickslots.")
 		return False
+	elif object.type == TYPE_MONEY:
+		me.SayTo(activator, "\nI'm terribly sorry, but we do not allow money to be sent.")
+		return False
 	# Sending to ourselves?
 	elif player == activator.name:
 		me.SayTo(activator, "\nYou cannot send an item to yourself.")
