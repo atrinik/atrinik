@@ -124,23 +124,18 @@ AC_CHECK_LIB(m, main)
 AC_CHECK_LIB(crypt, main)
 AC_CHECK_LIB(des, des_crypt)
 
-# Gros - Changed this to support some external programs that do not like dmalloc (like Python).
-# If you really need to make some memory debugging, uncomment the dmalloc line and comment out the dmalloclp one.
+AC_CHECK_LIB(pthread, pthread_create)
 
 AC_CHECK_LIB(dmalloclp, main)
-# AC_CHECK_LIB(dmalloc, main)
-
-# Gros - Support for the dynamic loader library
 AC_CHECK_LIB(dl, main)
+
+AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
+AC_PATH_PROGS(CURL, curl, no)
 
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h)
-
-AC_CHECK_HEADERS(curl/curl.h)
-AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
-AC_PATH_PROGS(CURL, curl, no)
+AC_CHECK_HEADERS(fcntl.h sys/time.h time.h unistd.h stddef.h stdlib.h crypt.h arpa/inet.h des.h pthread.h curl/curl.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
