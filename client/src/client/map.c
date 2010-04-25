@@ -542,7 +542,7 @@ void map_draw_map()
 						{
 							bltfx.flags |= BLTFX_FLAG_FOW;
 						}
-						else if (cpl.stats.flags & SF_INFRAVISION && index_tmp & 0x8000 && map->darkness < 150)
+						else if (cpl.stats.flags & SF_INFRAVISION && k == 6 && map->darkness < 150)
 						{
 							bltfx.flags |= BLTFX_FLAG_RED;
 						}
