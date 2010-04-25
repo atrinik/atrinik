@@ -370,10 +370,9 @@ static void copy_file(const char *filename, const char *filename_out)
 
 /**
  * Get path to file, to implement saving settings related data to user's
- * home directory on GNU/Linux. For Win32, this function is just used to
- * prefix the path to the file with "./".
- * @param fname The file path
- * @param mode File mode
+ * home directory.
+ * @param fname The file path.
+ * @param mode File mode.
  * @return The path to the file. */
 char *file_path(const char *fname, const char *mode)
 {
@@ -386,6 +385,13 @@ char *file_path(const char *fname, const char *mode)
 #else
 	desc = getenv("APPDATA");
 #endif
+
+	/* Failed to find an usable destination, so store it in the
+	 * current directory. */
+	if (!desc || !*desc)
+	{
+		desc = ".";
+	}
 
 	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", desc, fname);
 
