@@ -1317,20 +1317,17 @@ object *hit_with_arrow(object *op, object *victim)
 	/* Missile hit victim */
 	if (hit_something)
 	{
-		/* Stop arrow */
-		if (container == NULL)
-		{
-			hitter = fix_stopped_arrow(hitter);
-
-			if (hitter == NULL)
-			{
-				return NULL;
-			}
-		}
-		else
+		if (container)
 		{
 			remove_ob(container);
 			check_walk_off(container, NULL, MOVE_APPLY_VANISHED);
+		}
+
+		hitter = fix_stopped_arrow(hitter);
+
+		if (hitter == NULL)
+		{
+			return NULL;
 		}
 
 		/* Trigger the STOP event */
