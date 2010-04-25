@@ -709,11 +709,6 @@ void do_throw(object *op, object *toss_item, int dir)
 		throw_ob->stats.food = 100;
 	}
 
-	if (throw_ob->stats.wc > 30)
-	{
-		throw_ob->stats.wc = 30;
-	}
-
 	update_ob_speed(throw_ob);
 	throw_ob->speed_left = 0;
 	throw_ob->map = op->map;
