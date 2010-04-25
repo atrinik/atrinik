@@ -185,7 +185,7 @@ int find_animation(char *name)
 
 	search.name = name;
 
-	match = (Animations *) bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (int (*)()) anim_compare);
+	match = (Animations *) bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (void *) (int (*)()) anim_compare);
 
 	if (match)
 	{

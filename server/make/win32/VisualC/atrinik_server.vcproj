@@ -137,7 +137,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="2"
 				AdditionalIncludeDirectories="..\..\..\src\include;..\..\..\src\porting;..\..\..\src\random_maps;..\..\..\src\libs\zlib\include;.\libs;.\libs\pthread"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;PYTHON_PLUGIN_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CURL_STATICLIB"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -1153,7 +1153,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1162,7 +1162,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1171,7 +1171,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1180,7 +1180,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_map_header -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1229,7 +1229,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1238,7 +1238,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1247,7 +1247,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1256,7 +1256,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_object -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1305,7 +1305,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1314,7 +1314,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1323,7 +1323,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -1332,7 +1332,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)"
+							CommandLine="..\tools\flex.exe -i -Pyy_random_map -o$(InputDir)$(InputName).c $(InputPath)&#x0D;&#x0A;"
 							Outputs="$(InputDir)$(InputName).c"
 						/>
 					</FileConfiguration>
@@ -5428,26 +5428,6 @@
 			</Filter>
 		</Filter>
 		<File
-			RelativePath=".\libs\curl\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\libs\curl\x64\libcurl.lib"
 			>
 			<FileConfiguration
@@ -5460,6 +5440,26 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\curl\libcurl.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool

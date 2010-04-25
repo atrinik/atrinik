@@ -723,7 +723,7 @@ void check_login(object *op)
 
 	/* This seems to compile without warnings now.  Don't know if it works
 	 * on SGI's or not, however. */
-	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (int (*)()) spell_sort);
+	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (void *) (int (*)()) spell_sort);
 
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
