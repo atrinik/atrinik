@@ -561,7 +561,7 @@ void player_shop_buy(char *data, player *pl)
 				return;
 			}
 
-			if (nrof != tmp->nrof && tmp->nrof)
+			if (nrof != tmp_nrof)
 			{
 				char err[MAX_BUF];
 

@@ -624,13 +624,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			SET_FLAG(tmp, FLAG_STARTEQUIP);
 			tmp->nrof = nrof;
 			tmp_nrof = nrof;
-			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			new_draw_info_format(NDI_UNIQUE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
 		}
 		/* This is an unique shop item */
 		else
 		{
 			tmp->nrof = nrof;
-			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			new_draw_info_format(NDI_UNIQUE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
 			tmp->nrof = tmp_nrof;
 		}
 	}
@@ -674,7 +674,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, buf);
 	snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
 	tmp_tag = tmp->count;
 	tmp_cont = tmp->env;
