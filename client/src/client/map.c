@@ -393,393 +393,387 @@ void map_set_darkness(int x, int y, uint8 darkness)
 }
 
 /**
+ * Draw a single object on the map.
+ * @param x X position of the object.
+ * @param y Y position of the object.
+ * @param k Layer.
+ * @param player_height_offset Player's height offset. */
+static void draw_map_object(int x, int y, int layer, int player_height_offset)
+{
+	struct MapCell *map = &the_map.cells[x][y];
+	_Sprite *face_sprite;
+	int ypos, xpos;
+	int xl, yl, temp;
+	int xml, xmpos, xtemp = 0;
+	uint16 face;
+	int mid, mnr;
+	uint32 stretch = 0;
+	_BLTFX bltfx;
+
+	bltfx.surface = NULL;
+	xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
+	ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
+	face = map->faces[layer];
+
+	if (face <= 0)
+	{
+		return;
+	}
+
+	face_sprite = FaceList[face].sprite;
+
+	if (!face_sprite)
+	{
+		face = MAX_FACE_TILES - 1;
+		face_sprite = FaceList[face].sprite;
+	}
+
+	if (!face_sprite)
+	{
+		return;
+	}
+
+	/* We have a set quick_pos = multi tile */
+	if (map->quick_pos[layer])
+	{
+		mnr = map->quick_pos[layer];
+		mid = mnr >> 4;
+		mnr &= 0x0f;
+		xml = MultiArchs[mid].xlen;
+		yl = ypos - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - face_sprite->bitmap->h;
+
+		/* we allow overlapping x borders - we simply center then */
+		xl = 0;
+
+		if (face_sprite->bitmap->w > MultiArchs[mid].xlen)
+		{
+			xl = (MultiArchs[mid].xlen - face_sprite->bitmap->w) >> 1;
+		}
+
+		xmpos = xpos - MultiArchs[mid].part[mnr].xoff;
+		xl += xmpos;
+	}
+	/* Single tile... */
+	else
+	{
+		/* First, we calc the shift positions */
+		xml = MAP_TILE_POS_XOFF;
+		yl = (ypos + MAP_TILE_POS_YOFF) - face_sprite->bitmap->h;
+		xmpos = xl = xpos;
+
+		if (face_sprite->bitmap->w > MAP_TILE_POS_XOFF)
+		{
+			xl -= (face_sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
+		}
+	}
+
+	/* Blit the face in the darkness level the tile pos has */
+	temp = map->darkness;
+
+	if (temp == 210)
+	{
+		bltfx.dark_level = 0;
+	}
+	else if (temp == 180)
+	{
+		bltfx.dark_level = 1;
+	}
+	else if (temp == 150)
+	{
+		bltfx.dark_level = 2;
+	}
+	else if (temp == 120)
+	{
+		bltfx.dark_level = 3;
+	}
+	else if (temp == 90)
+	{
+		bltfx.dark_level = 4;
+	}
+	else if (temp == 60)
+	{
+		bltfx.dark_level = 5;
+	}
+	else if (temp == 0)
+	{
+		bltfx.dark_level = 7;
+	}
+	else
+	{
+		bltfx.dark_level = 6;
+	}
+
+	bltfx.flags = 0;
+
+	if (map->fog_of_war)
+	{
+		bltfx.flags |= BLTFX_FLAG_FOW;
+	}
+	else if (cpl.stats.flags & SF_INFRAVISION && layer == 6 && map->darkness < 150)
+	{
+		bltfx.flags |= BLTFX_FLAG_RED;
+	}
+	else if (cpl.stats.flags & SF_XRAYS)
+	{
+		bltfx.flags |= BLTFX_FLAG_GREY;
+	}
+	else
+	{
+		bltfx.flags |= BLTFX_FLAG_DARK;
+	}
+
+	if (map->flags[layer] & FFLAG_INVISIBLE && !(bltfx.flags & BLTFX_FLAG_FOW))
+	{
+		bltfx.flags &= ~BLTFX_FLAG_DARK;
+		bltfx.flags |= BLTFX_FLAG_SRCALPHA | BLTFX_FLAG_GREY;
+	}
+	else if (map->flags[layer] & FFLAG_ETHEREAL && !(bltfx.flags & BLTFX_FLAG_FOW))
+	{
+		bltfx.flags &= ~BLTFX_FLAG_DARK;
+		bltfx.flags |= BLTFX_FLAG_SRCALPHA;
+	}
+
+	stretch = 0;
+
+	if (layer <= 2 && map->stretch)
+	{
+		bltfx.flags |= BLTFX_FLAG_STRETCH;
+		stretch = map->stretch;
+	}
+
+	yl = (yl - map->height) + player_height_offset;
+
+	/* These faces are only shown when they are in a
+	 * position which would be visible to the player. */
+	if (FaceList[face].flags & FACE_FLAG_UP)
+	{
+		/* If the face is dir [0124568] and in
+		 * the top or right quadrant or on the
+		 * central square, blt it. */
+		if (FaceList[face].flags & FACE_FLAG_D1)
+		{
+			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
+			{
+				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+			}
+		}
+
+		/* If the face is dir [0234768] and in
+		 * the top or left quadrant or on the
+		 * central square, blt it. */
+		if (FaceList[face].flags & FACE_FLAG_D3)
+		{
+			if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
+			{
+				sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+			}
+		}
+	}
+	/* Double faces are shown twice, one above
+	 * the other, when not lower on the screen
+	 * than the player. This simulates high walls
+	 * without obscuring the user's view. */
+	else if (FaceList[face].flags & FACE_FLAG_DOUBLE)
+	{
+		/* Blt face once in normal position. */
+		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
+
+		/* If it's not in the bottom quadrant of
+		 * the map, blt it again 'higher up' on
+		 * the same square. */
+		if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
+		{
+			sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0);
+		}
+	}
+	else
+	{
+		sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch);
+	}
+
+	/* Do we have a playername? Then print it! */
+	if (options.player_names && map->pname[layer][0])
+	{
+		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.rankandname, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.rankandname, strlen(map->pname[layer]))))
+		{
+			StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[layer], xpos - (strlen(map->pname[layer]) * 2) + 22, yl - 26, map->pcolor[layer], NULL, NULL);
+		}
+	}
+
+	/* Perhaps the object has a marked effect, blit it now */
+	if (map->flags[layer])
+	{
+		if (map->flags[layer] & FFLAG_SLEEP)
+		{
+			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL, 0);
+		}
+
+		if (map->flags[layer] & FFLAG_CONFUSED)
+		{
+			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL, 0);
+		}
+
+		if (map->flags[layer] & FFLAG_SCARED)
+		{
+			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL, 0);
+		}
+
+		if (map->flags[layer] & FFLAG_BLINDED)
+		{
+			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL, 0);
+		}
+
+		if (map->flags[layer] & FFLAG_PARALYZED)
+		{
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 2, yl + 3, NULL, NULL, 0);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL, 0);
+		}
+	}
+
+	if (map->probe[layer] && cpl.target_code)
+	{
+		int hp_col;
+		Uint32 sdl_col;
+		SDL_Rect rect;
+
+		if (cpl.target_hp > 90)
+		{
+			hp_col = COLOR_GREEN;
+		}
+		else if (cpl.target_hp > 75)
+		{
+			hp_col = COLOR_DGOLD;
+		}
+		else if (cpl.target_hp > 50)
+		{
+			hp_col = COLOR_HGOLD;
+		}
+		else if (cpl.target_hp > 25)
+		{
+			hp_col = COLOR_ORANGE;
+		}
+		else if (cpl.target_hp > 10)
+		{
+			hp_col = COLOR_YELLOW;
+		}
+		else
+		{
+			hp_col = COLOR_RED;
+		}
+
+		if (xml == MAP_TILE_POS_XOFF)
+		{
+			xtemp = (int) (((double) xml / 100.0) * 25.0);
+		}
+		else
+		{
+			xtemp = (int) (((double) xml / 100.0) * 20.0);
+		}
+
+		temp = (xml - xtemp * 2) - 1;
+
+		if (temp <= 0)
+		{
+			temp = 1;
+		}
+
+		if (temp >= 300)
+		{
+			temp = 300;
+		}
+
+		mid = map->probe[layer];
+
+		if (mid <= 0)
+		{
+			mid = 1;
+		}
+
+		if (mid > 100)
+		{
+			mid = 100;
+		}
+
+		temp = (int) (((double) temp / 100.0) * (double) mid);
+		rect.h = 2;
+		rect.w = temp;
+		rect.x = 0;
+		rect.y = 0;
+
+		sdl_col = SDL_MapRGB(ScreenSurfaceMap->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
+
+		/* First draw the bar */
+		rect.x = xmpos + xtemp - 1;
+		rect.y = yl - 9;
+		rect.h = 1;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		/* Horizontal lines of left bracked */
+		rect.h = 1;
+		rect.w = 3;
+		rect.x = xmpos + xtemp - 3;
+		rect.y = yl - 11;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		rect.y = yl - 7;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		/* Horizontal lines of right bracked */
+		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		rect.y = yl - 11;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		/* Vertical lines */
+		rect.w = 1;
+		rect.h = 5;
+		rect.x = xmpos + xtemp - 3;
+		rect.y = yl - 11;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 1;
+		SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
+
+		/* Draw the name of target if it's not a player */
+		if (!(options.player_names && map->pname[layer][0]))
+		{
+			StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name) * 2) + 22, yl - 26, cpl.target_color, NULL, NULL);
+		}
+
+		/* Draw HP remaining percent */
+		if (cpl.target_hp > 0)
+		{
+			char hp_text[9];
+			int hp_len = snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
+			StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xpos - hp_len * 2 + 22, yl - 36, hp_col, NULL, NULL);
+		}
+	}
+}
+
+/**
  * Draw the map. */
 void map_draw_map()
 {
-	struct MapCell *map;
-	_Sprite *face_sprite;
-	int ypos, xpos;
-	int x, y, k, xl, yl, temp;
-	int xml, xmpos, xtemp = 0;
-	uint16 index, index_tmp;
-	int mid, mnr;
-	_BLTFX bltfx;
-	SDL_Rect rect;
-
-	/* We should move this later to a better position, this only for testing here */
-	_Sprite player_dummy;
-	SDL_Surface bmap;
-	int player_posx, player_posy;
-	int player_pixx, player_pixy;
-	uint32 stretch = 0;
 	int player_height_offset;
+	int x, y, layer;
 
-	player_posx = MapStatusX - (MapStatusX / 2) - 1;
-	player_posy = MapStatusY - (MapStatusY / 2) - 1;
-	player_pixx = MAP_START_XOFF + player_posx * MAP_TILE_YOFF - player_posy * MAP_TILE_YOFF + 20;
-	player_pixy = 0 + player_posx * MAP_TILE_XOFF + player_posy * MAP_TILE_XOFF - 14;
-	player_dummy.border_left = -5;
-	player_dummy.border_right = 0;
-	player_dummy.border_up = 0;
-	player_dummy.border_down = -5;
-	player_dummy.bitmap = &bmap;
-	bmap.h = 33;
-	bmap.w = 35;
-	player_pixy = (player_pixy + MAP_TILE_POS_YOFF) - bmap.h;
-	bltfx.surface = NULL;
-	bltfx.alpha = 128;
+ 	player_height_offset = the_map.cells[MapStatusX - (MapStatusX / 2) - 1][MapStatusY - (MapStatusY / 2) - 1].height;
 
- 	player_height_offset = the_map.cells[player_posx][player_posy].height;
-
+	/* First draw floor and floor masks. */
 	for (x = 0; x < MAP_MAX_SIZE; x++)
 	{
 		for (y = 0; y < MAP_MAX_SIZE; y++)
 		{
-			for (k = 1; k <= MAX_LAYERS; k++)
+			for (layer = 1; layer <= 2; layer++)
 			{
-				xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
-				ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
+				draw_map_object(x, y, layer, player_height_offset);
+			}
+		}
+	}
 
-				map = &the_map.cells[x][y];
-
-				if ((index_tmp = map->faces[k]) > 0)
-				{
-					index = index_tmp &~ 0x8000;
-					face_sprite = FaceList[index].sprite;
-
-					if (!face_sprite)
-					{
-						index = MAX_FACE_TILES - 1;
-						face_sprite = FaceList[index].sprite;
-					}
-
-					if (face_sprite)
-					{
-						/* We have a set quick_pos = multi tile */
-						if (map->quick_pos[k])
-						{
-							mnr = map->quick_pos[k];
-							mid = mnr >> 4;
-							mnr &= 0x0f;
-							xml = MultiArchs[mid].xlen;
-							yl = ypos - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - face_sprite->bitmap->h;
-
-							/* we allow overlapping x borders - we simply center then */
-							xl = 0;
-
-							if (face_sprite->bitmap->w > MultiArchs[mid].xlen)
-							{
-								xl = (MultiArchs[mid].xlen - face_sprite->bitmap->w) >> 1;
-							}
-
-							xmpos = xpos - MultiArchs[mid].part[mnr].xoff;
-							xl += xmpos;
-						}
-						/* Single tile... */
-						else
-						{
-							/* First, we calc the shift positions */
-							xml = MAP_TILE_POS_XOFF;
-							yl = (ypos + MAP_TILE_POS_YOFF) - face_sprite->bitmap->h;
-							xmpos = xl = xpos;
-
-							if (face_sprite->bitmap->w > MAP_TILE_POS_XOFF)
-							{
-								xl -= (face_sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
-							}
-						}
-
-						/* Blit the face in the darkness level, the tile pos has */
-						temp = map->darkness;
-
-						if (temp == 210)
-						{
-							bltfx.dark_level = 0;
-						}
-						else if (temp == 180)
-						{
-							bltfx.dark_level = 1;
-						}
-						else if (temp == 150)
-						{
-							bltfx.dark_level = 2;
-						}
-						else if (temp == 120)
-						{
-							bltfx.dark_level = 3;
-						}
-						else if (temp == 90)
-						{
-							bltfx.dark_level = 4;
-						}
-						else if (temp == 60)
-						{
-							bltfx.dark_level = 5;
-						}
-						else if (temp == 0)
-						{
-							bltfx.dark_level = 7;
-						}
-						else
-						{
-							bltfx.dark_level = 6;
-						}
-
-						bltfx.flags = 0;
-
-						if (k && ((x > player_posx  && y >= player_posy) || (x >= player_posx && y > player_posy)))
-						{
-							if (face_sprite && face_sprite->bitmap && k > 1)
-							{
-								if (sprite_collision(player_pixx, player_pixy, xl, yl, &player_dummy, face_sprite))
-								{
-									bltfx.flags = BLTFX_FLAG_SRCALPHA;
-								}
-							}
-						}
-
-						if (map->fog_of_war)
-						{
-							bltfx.flags |= BLTFX_FLAG_FOW;
-						}
-						else if (cpl.stats.flags & SF_INFRAVISION && k == 6 && map->darkness < 150)
-						{
-							bltfx.flags |= BLTFX_FLAG_RED;
-						}
-						else if (cpl.stats.flags & SF_XRAYS)
-						{
-							bltfx.flags |= BLTFX_FLAG_GREY;
-						}
-						else
-						{
-							bltfx.flags |= BLTFX_FLAG_DARK;
-						}
-
-						if (map->flags[k] & FFLAG_INVISIBLE && !(bltfx.flags & BLTFX_FLAG_FOW))
-						{
-							bltfx.flags &= ~BLTFX_FLAG_DARK;
-							bltfx.flags |= BLTFX_FLAG_SRCALPHA | BLTFX_FLAG_GREY;
-						}
-						else if (map->flags[k] & FFLAG_ETHEREAL && !(bltfx.flags & BLTFX_FLAG_FOW))
-						{
-							bltfx.flags &= ~BLTFX_FLAG_DARK;
-							bltfx.flags |= BLTFX_FLAG_SRCALPHA;
-						}
-
-						stretch = 0;
-
-						if (k <= 2 && map->stretch)
-						{
-							bltfx.flags |= BLTFX_FLAG_STRETCH;
-							stretch = map->stretch;
-						}
-
-						yl = (yl - map->height) + player_height_offset;
-
-						/* These faces are only shown when they are in a
-						 * position which would be visible to the player. */
-						if (FaceList[index].flags & FACE_FLAG_UP)
-						{
-							/* If the face is dir [0124568] and in
-							 * the top or right quadrant or on the
-							 * central square, blt it. */
-							if (FaceList[index].flags & FACE_FLAG_D1)
-							{
-								if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x > (MAP_MAX_SIZE - 1) / 2) && (y < (MAP_MAX_SIZE - 1) / 2)))
-								{
-									sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
-								}
-							}
-
-							/* If the face is dir [0234768] and in
-							 * the top or left quadrant or on the
-							 * central square, blt it. */
-							if (FaceList[index].flags & FACE_FLAG_D3)
-							{
-								if (((x <= (MAP_MAX_SIZE - 1) / 2) && (y <= (MAP_MAX_SIZE - 1) / 2)) || ((x < (MAP_MAX_SIZE - 1) / 2) && (y > (MAP_MAX_SIZE - 1) / 2)))
-								{
-									sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
-								}
-							}
-						}
-						/* Double faces are shown twice, one above
-						 * the other, when not lower on the screen
-						 * than the player. This simulates high walls
-						 * without obscuring the user's view. */
-						else if (FaceList[index].flags & FACE_FLAG_DOUBLE)
-						{
-							/* Blt face once in normal position. */
-							sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, 0);
-
-							/* If it's not in the bottom quadrant of
-							 * the map, blt it again 'higher up' on
-							 * the same square. */
-							if (x < (MAP_MAX_SIZE - 1) / 2 || y < (MAP_MAX_SIZE - 1) / 2)
-							{
-								sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, 0);
-							}
-						}
-						else
-						{
-							sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch);
-						}
-
-						/* Do we have a playername? Then print it! */
-						if (options.player_names && map->pname[k][0])
-						{
-							if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))) || (options.player_names == 3 && !strncasecmp(map->pname[k], cpl.rankandname, strlen(map->pname[k]))))
-							{
-								StringBlt(ScreenSurfaceMap, &Font6x3Out, map->pname[k], xpos - (strlen(map->pname[k]) * 2) + 22, yl - 26, map->pcolor[k], NULL, NULL);
-							}
-						}
-
-						/* Perhaps the object has a marked effect, blit it now */
-						if (map->flags[k])
-						{
-							if (map->flags[k] & FFLAG_SLEEP)
-							{
-								sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + face_sprite->bitmap->w / 2, yl - 5, NULL, NULL, 0);
-							}
-
-							if (map->flags[k] & FFLAG_CONFUSED)
-							{
-								sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + face_sprite->bitmap->w / 2 - 1, yl - 4, NULL, NULL, 0);
-							}
-
-							if (map->flags[k] & FFLAG_SCARED)
-							{
-								sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + face_sprite->bitmap->w / 2 + 10, yl - 4, NULL, NULL, 0);
-							}
-
-							if (map->flags[k] & FFLAG_BLINDED)
-							{
-								sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + face_sprite->bitmap->w / 2 + 3, yl - 6, NULL, NULL, 0);
-							}
-
-							if (map->flags[k] & FFLAG_PARALYZED)
-							{
-								sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 2, yl + 3, NULL, NULL, 0);
-								sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + face_sprite->bitmap->w / 2 + 9, yl + 3, NULL, NULL, 0);
-							}
-						}
-
-						if (map->probe[k] && cpl.target_code)
-						{
-							if (face_sprite)
-							{
-								int hp_col;
-								Uint32 sdl_col;
-
-								if (cpl.target_hp > 90)
-								{
-									hp_col = COLOR_GREEN;
-								}
-								else if (cpl.target_hp > 75)
-								{
-									hp_col = COLOR_DGOLD;
-								}
-								else if (cpl.target_hp > 50)
-								{
-									hp_col = COLOR_HGOLD;
-								}
-								else if (cpl.target_hp > 25)
-								{
-									hp_col = COLOR_ORANGE;
-								}
-								else if (cpl.target_hp > 10)
-								{
-									hp_col = COLOR_YELLOW;
-								}
-								else
-								{
-									hp_col = COLOR_RED;
-								}
-
-								if (xml == MAP_TILE_POS_XOFF)
-								{
-									xtemp = (int) (((double) xml / 100.0) * 25.0);
-								}
-								else
-								{
-									xtemp = (int) (((double) xml / 100.0) * 20.0);
-								}
-
-								temp = (xml - xtemp * 2) - 1;
-
-								if (temp <= 0)
-								{
-									temp = 1;
-								}
-
-								if (temp >= 300)
-								{
-									temp = 300;
-								}
-
-								mid = map->probe[k];
-
-								if (mid <= 0)
-								{
-									mid = 1;
-								}
-
-								if (mid > 100)
-								{
-									mid = 100;
-								}
-
-								temp = (int) (((double) temp / 100.0) * (double) mid);
-								rect.h = 2;
-								rect.w = temp;
-								rect.x = 0;
-								rect.y = 0;
-
-								sdl_col = SDL_MapRGB(ScreenSurfaceMap->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
-
-								/* First draw the bar */
-								rect.x = xmpos + xtemp - 1;
-								rect.y = yl - 9;
-								rect.h = 1;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								/* Horizontal lines of left bracked */
-								rect.h = 1;
-								rect.w = 3;
-								rect.x = xmpos + xtemp - 3;
-								rect.y = yl - 11;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								rect.y = yl - 7;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								/* Horizontal lines of right bracked */
-								rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								rect.y = yl - 11;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								/* Vertical lines */
-								rect.w = 1;
-								rect.h = 5;
-								rect.x = xmpos + xtemp - 3;
-								rect.y = yl - 11;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-								rect.x = xmpos + xtemp + (xml - xtemp * 2) - 1;
-								SDL_FillRect(ScreenSurfaceMap, &rect, sdl_col);
-
-								/* Draw the name of target if it's not a player */
-								if (!(options.player_names && map->pname[k][0]))
-								{
-									StringBlt(ScreenSurfaceMap, &Font6x3Out, cpl.target_name, xpos - (strlen(cpl.target_name) * 2) + 22, yl - 26, cpl.target_color, NULL, NULL);
-								}
-
-								/* Draw HP remaining percent */
-								if (cpl.target_hp > 0)
-								{
-									char hp_text[9];
-									int hp_len = snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-									StringBlt(ScreenSurfaceMap, &Font6x3Out, hp_text, xpos - hp_len * 2 + 22, yl - 36, hp_col, NULL, NULL);
-								}
-							}
-						}
-					}
-				}
+	/* Now draw everything else. */
+	for (x = 0; x < MAP_MAX_SIZE; x++)
+	{
+		for (y = 0; y < MAP_MAX_SIZE; y++)
+		{
+			for (layer = 3; layer <= MAX_LAYERS; layer++)
+			{
+				draw_map_object(x, y, layer, player_height_offset);
 			}
 		}
 	}
