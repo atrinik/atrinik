@@ -1,0 +1,53 @@
+This script can be used to easily build a map maker package. It will automatically
+package the whole map maker, but you have to build the server/client binaries
+first.
+
+=== Running the script ===
+
+To run the script, you need to specify your working copy directory and your Atrinik
+repository copy directory.
+
+Repository copy directory will be used to copy default files, so you should run this
+when the repository is not modified and is up-to-date.
+
+Working copy directory will be the place where you built the binaries for the server
+and the client.
+
+Example of running the script:
+  ./build.py -r ~/atrinik -w ~/atrinik-working
+
+=== Instructions ===
+
+You have to build the binaries before running the script. The list of binaries the
+script needs can be found below. All the binaries should be 32-bit so they can be
+ran on 64-bit systems as well.
+
+server/atrinik_server:
+  GNU/Linux binary of the server.
+
+server/atrinik_server.exe:
+  Windows binary of the server.
+
+server/*.dll:
+  DLLs needed by the Windows server. This is optional as some builds of the server
+  don't need any dlls.
+
+server/plugins/*.so:
+  GNU/Linux plugin binaries. There must be at least one plugin.
+
+server/plugins/*.dll:
+  Windows plugin binaries. There must be at least one plugin.
+
+client/atrinik-client:
+  GNU/Linux binary of the client.
+
+client/atrinik.exe:
+  Windows binary of the client.
+
+client/*.dll:
+  DLLs needed by the Windows client. Required.
+
+=== Merge ===
+
+Everything located inside the 'merge' directory in the directory this file is in will
+be merged into the map maker package.
