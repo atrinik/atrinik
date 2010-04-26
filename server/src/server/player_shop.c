@@ -545,11 +545,12 @@ void player_shop_buy(char *data, player *pl)
 		if (shop_item_tmp->item_object->count == count)
 		{
 			sint64 to_pay;
-			object *tmp;
+			object *tmp = shop_item_tmp->item_object;
+			uint32 tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
-			if (nrof > shop_item_tmp->nrof)
+			if (nrof > tmp_nrof || nrof == 0)
 			{
-				nrof = shop_item_tmp->nrof;
+				nrof = tmp_nrof;
 			}
 
 			to_pay = nrof * shop_item_tmp->price;
@@ -560,19 +561,24 @@ void player_shop_buy(char *data, player *pl)
 				return;
 			}
 
-			insert_coins(seller->ob, to_pay);
-
-			tmp = shop_item_tmp->item_object;
-
-			if (nrof != tmp->nrof)
+			if (nrof != tmp->nrof && tmp->nrof)
 			{
-				tmp = get_split_ob(tmp, nrof, NULL, 0);
+				char err[MAX_BUF];
+
+				tmp = get_split_ob(tmp, nrof, err, sizeof(err));
+
+				if (!tmp)
+				{
+					new_draw_info(NDI_UNIQUE, pl->ob, err);
+					return;
+				}
 			}
 			else
 			{
 				remove_ob(tmp);
 			}
 
+			insert_coins(seller->ob, to_pay);
 			insert_ob_in_ob(tmp, pl->ob);
 			new_draw_info_format(NDI_UNIQUE | NDI_BLUE, seller->ob, "%s bought %s.", pl->ob->name, query_name(tmp, NULL));
 
