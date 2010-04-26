@@ -433,7 +433,9 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
  * This is a reply to a previous query. */
 void ReplyCmd(char *buf, int len, player *pl)
 {
-	if (!buf || !len || pl->socket.status == Ns_Dead)
+	(void) len;
+
+	if (!buf || pl->socket.status == Ns_Dead)
 	{
 		return;
 	}
