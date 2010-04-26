@@ -359,6 +359,8 @@ void player_shop_open(char *data, player *pl)
 	/* Mark this player as having an open shop interface */
 	SET_FLAG(pl->ob, FLAG_PLAYER_SHOP);
 	generate_ext_title(pl);
+	/* Ensure we're not running or firing. */
+	pl->run_on = pl->fire_on = 0;
 }
 
 /**
@@ -414,6 +416,8 @@ void player_shop_load(char *data, player *pl)
 
 	/* Mark this player as having an open shop interface */
 	SET_FLAG(pl->ob, FLAG_PLAYER_SHOP);
+	/* Ensure we're not running or firing. */
+	pl->run_on = pl->fire_on = 0;
 }
 
 /**
