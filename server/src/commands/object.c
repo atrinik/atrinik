@@ -571,6 +571,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	tag_t tmp_tag, tmp2_tag;
 	object *tmp2, *tmp_cont;
 	char buf[MAX_BUF];
+	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (op->type != PLAYER)
 	{
@@ -595,7 +596,12 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		container_unlink(NULL, tmp);
 	}
 
-	if (!sack_can_hold(op, sack, tmp, (nrof ? nrof : (int) tmp->nrof)))
+	if (nrof > tmp_nrof || nrof == 0)
+	{
+		nrof = tmp_nrof;
+	}
+
+	if (!sack_can_hold(op, sack, tmp, nrof))
 	{
 		return;
 	}
@@ -608,8 +614,29 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		}
 	}
 
+	if (QUERY_FLAG(tmp, FLAG_UNPAID))
+	{
+		/* This is a clone shop - clone an item for inventory */
+		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
+		{
+			tmp = object_create_clone(tmp);
+			CLEAR_FLAG(tmp, FLAG_NO_PICK);
+			SET_FLAG(tmp, FLAG_STARTEQUIP);
+			tmp->nrof = nrof;
+			tmp_nrof = nrof;
+			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+		}
+		/* This is an unique shop item */
+		else
+		{
+			tmp->nrof = nrof;
+			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
+			tmp->nrof = tmp_nrof;
+		}
+	}
+
 	/* We want to put some portion of the item into the container */
-	if (nrof && tmp->nrof != (uint32) nrof)
+	if (nrof != tmp_nrof)
 	{
 		object *tmp2 = tmp, *tmp2_cont = tmp->env;
 		char err[MAX_BUF];
@@ -634,39 +661,20 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 			esrv_send_item(op, tmp2);
 		}
 	}
-	else if (!QUERY_FLAG(tmp, FLAG_UNPAID) || !QUERY_FLAG(tmp, FLAG_NO_PICK))
-	{
-		remove_ob(tmp);
-
-		if (check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
-		{
-			return;
-		}
-	}
-	/* Don't delete clone shop objects - clone them */
 	else
 	{
-		tmp = object_create_clone(tmp);
+		/* If the object is in a container, send a delete to the client.
+		 * - we are moving all the items from the container to elsewhere,
+		 * so it needs to be deleted. */
+		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
+		{
+			esrv_del_item(CONTR(op), tmp->count, tmp->env);
+			/* Unlink it - no move off check */
+			remove_ob(tmp);
+		}
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_UNPAID))
-	{
-		/* This is a clone shop - clone a item for inventory */
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			CLEAR_FLAG(tmp, FLAG_NO_PICK);
-			SET_FLAG(tmp, FLAG_STARTEQUIP);
-			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
-		}
-		/* This is a unique shop item */
-		else
-		{
-			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, F_BUY));
-		}
-
-		new_draw_info(NDI_UNIQUE, op, buf);
-	}
-
+	new_draw_info(NDI_UNIQUE, op, buf);
 	snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
 	tmp_tag = tmp->count;
 	tmp_cont = tmp->env;
@@ -782,6 +790,8 @@ void drop_object(object *op, object *tmp, long nrof)
 				/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
 				if (floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
 				{
+					tmp->x = op->x;
+					tmp->y = op->y;
 					insert_ob_in_map(tmp, op->map, op, 0);
 				}
 			}
