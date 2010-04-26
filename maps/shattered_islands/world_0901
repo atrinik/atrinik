@@ -2,11 +2,11 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-26 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
 tile_path_1 world_0902
@@ -1826,14 +1826,14 @@ no_magic 1
 x 12
 y 6
 end
+arch light8
+x 12
+y 6
+end
 arch sack
 no_pick 1
 identified 1
 unpaid 1
-x 12
-y 6
-end
-arch light8
 x 12
 y 6
 end
