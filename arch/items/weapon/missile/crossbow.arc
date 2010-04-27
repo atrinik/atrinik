@@ -13,6 +13,7 @@ weight 2500
 sp 7
 wc 5
 wc_range 20
+dam 1
 last_sp 5
 value 450
 end
