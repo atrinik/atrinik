@@ -3451,7 +3451,6 @@ title of accuracy
 type 14
 value 5500
 is_magical 1
-weight 80
 wc_add 4
 end
 
@@ -3467,7 +3466,21 @@ title of accuracy
 type 14
 value 5500
 is_magical 1
-weight 80
+wc_add 4
+end
+
+###########
+# Slings #
+###########
+Allowed all
+chance 10
+artifact sling_accuracy
+def_arch sling
+Object Accuracy
+title of accuracy
+type 14
+value 5500
+is_magical 1
 wc_add 4
 end
 
