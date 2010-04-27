@@ -1286,15 +1286,15 @@ void set_abs_magic(object *op, int magic)
 		}
 		else if (magic == 3)
 		{
-			op->value += 62300;
+			op->value += 24300;
 		}
 		else if (magic == 4)
 		{
-			op->value += 130300;
+			op->value += 52300;
 		}
 		else
 		{
-			op->value += 250300;
+			op->value += 88300;
 		}
 
 		if (op->type == ARMOUR)
