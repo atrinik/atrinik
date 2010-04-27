@@ -132,6 +132,9 @@ AC_CHECK_LIB(dl, main)
 AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])
 AC_PATH_PROGS(CURL, curl, no)
 
+# Check for zlib.
+AX_CHECK_ZLIB()
+
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC

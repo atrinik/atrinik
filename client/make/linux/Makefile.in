@@ -70,7 +70,6 @@ VERSION = atrinik-1.0
 ARCHIVE = /tmp/$(VERSION)
 
 SUBDIRS = \
-	../../src/zlib \
 	../../src/client
 
 FILES = configure configure.in

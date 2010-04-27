@@ -29,7 +29,6 @@ LOADERS := $(wildcard loaders/*.l)
 # Now the source files
 SRCS := \
 	$(wildcard commands/*.c) \
-	$(wildcard libs/zlib/*.c) \
 	$(LOADERS:.l=.c) \
 	$(wildcard random_maps/*.c) \
 	$(wildcard server/*.c) \

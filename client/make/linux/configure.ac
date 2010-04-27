@@ -56,6 +56,9 @@ AC_PATH_PROG(SDL_CONFIG, sdl-config, [ AC_MSG_ERROR([sdl-config not found...]) ]
 AC_SUBST(SDL_CFLAGS, `${SDL_CONFIG} --cflags`)
 AC_SUBST(SDL_LIBS, `${SDL_CONFIG} --libs`)
 
+# Check for zlib.
+AX_CHECK_ZLIB()
+
 AC_CHECK_FUNCS(stricmp strnicmp strcasecmp strncasecmp)
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([fcntl.h])

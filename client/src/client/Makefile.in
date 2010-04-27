@@ -26,8 +26,6 @@
 VPATH = @srcdir@
 srcdir = @srcdir@
 
-LOCAL_LIBRARIES = ../zlib/zlib.a
-
 SRCS = \
 	book.c \
 	client.c \
@@ -74,12 +72,9 @@ CC = @CC@
 RM = @RM@
 SED = @SED@
 
-atrinik-client: $(OBJS) $(LOCAL_LIBRARIES)
+atrinik-client: $(OBJS)
 	$(RM) -f $@
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LIBS)
-
-../zlib/zlib.a:
-	(cd ../zlib; $(MAKE) $(MFLAGS) all)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 depend:
 	$(DEPEND) $(DEPENDFLAGS) -- $(CFLAGS) $(INCLUDES) -- $(SRCS)
