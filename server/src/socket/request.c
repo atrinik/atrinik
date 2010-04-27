@@ -1386,7 +1386,6 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 			/* We will use a temporary SockList instance to add any layers we find.
 			 * If we don't find any, there is no reason to send the data about them
 			 * to the client. */
-			memset(sock_buf_layer, '\0', sizeof(sock_buf_layer));
 			sl_layer.buf = sock_buf_layer;
 			sl_layer.len = 0;
 			num_layers = 0;
