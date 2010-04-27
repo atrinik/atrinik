@@ -637,17 +637,46 @@ treasureone random_bolts
     material_range 7
 end
 
+treasureone random_sstones
+  arch sstone
+    magic_chance 25
+    magic 3
+    chance 50
+    nrof 3
+    material_quality 80
+    material_range 7
+  more
+  arch sstone_woodlanders
+    magic_chance 20
+    magic 3
+    chance 30
+    nrof 3
+    material_quality 80
+    material_range 7
+  more
+  arch sstone_fey
+    magic_chance 15
+    magic 3
+    chance 20
+    nrof 2
+    material_quality 80
+    material_range 7
+  more
+  arch sstone_iron
+    magic_chance 10
+    magic 3
+    chance 10
+    nrof 2
+    material_quality 80
+    material_range 7
+end
+
 treasureone random_weapons_amun
   list random_arrows
     chance 35
   more
-  arch sstone
-    magic_chance 25
-    magic 2
+  list random_sstones
     chance 35
-    nrof 3
-    material_quality 80
-    material_range 7
   more
   list random_bolts
     chance 35
