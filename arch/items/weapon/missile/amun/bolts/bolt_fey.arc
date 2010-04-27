@@ -7,7 +7,7 @@ last_grace 8
 dam 4
 wc 0
 wc_range 20
-last_sp 4
+last_sp 5
 type 13
 sub_type 2
 face bolt_fey.101

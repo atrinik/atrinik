@@ -16,7 +16,7 @@ anim_speed 1
 is_animated 0
 is_turnable 1
 nrof 1
-weight 95
+weight 90
 value 20
 material 2
 material_real 65
