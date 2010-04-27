@@ -2062,7 +2062,7 @@ artifact gauntlet_min_dam
 def_arch gauntlets
 Object
 title of minor damage
-dam 1
+dam_add 1
 item_level_art 7
 type 100
 is_magical 1
@@ -2076,7 +2076,7 @@ artifact gauntlet_min_prec
 def_arch gauntlets
 Object
 title of minor precision
-wc 1
+wc_add 1
 item_level_art 7
 type 100
 is_magical 1
@@ -2091,7 +2091,7 @@ def_arch gauntlets
 Object
 title of precision
 face gauntlets_gold.101
-wc 2
+wc_add 2
 item_level_art 8
 type 100
 is_magical 1
@@ -2434,11 +2434,11 @@ protect_electricity 6
 protect_poison 6
 value 13400
 weight 35000
-ac 3
+ac_add 3
 msg
   What strange boots, they look very
   protective, but amazingly heavy.
-  There also doesn't appear to be
+  There also don't appear to be
   any laces, you wonder how you're ever
   going to take them off.
 endmsg
@@ -2446,7 +2446,7 @@ cursed_perm 1
 cursed 1
 end
 
-Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_less_fire
 chance 20
 t_style 1
@@ -3212,6 +3212,7 @@ def_arch horn
 Object
 type 35
 end
+
 Allowed all
 chance 20
 artifact horn_fools
@@ -3399,7 +3400,7 @@ title of accuracy
 type 13
 is_magical 1
 value 50
-wc 7
+wc_add 7
 dam_add 1
 end
 
@@ -3432,7 +3433,7 @@ msg
 endmsg
 value 850
 type 13
-wc 7
+wc_add 7
 is_assassin 1
 is_magical 1
 dam_add 1
@@ -3451,7 +3452,7 @@ type 14
 value 5500
 is_magical 1
 weight 80
-wc 4
+wc_add 4
 end
 
 #############
@@ -3467,7 +3468,7 @@ type 14
 value 5500
 is_magical 1
 weight 80
-wc 4
+wc_add 4
 end
 
 #########
