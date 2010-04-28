@@ -2105,7 +2105,7 @@ jump_break1:
 
 						if (ob->map && ob->map->difficulty)
 						{
-							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 10 + 1, MAXLEVEL);
+							op->level = MIN(RANDOM() % (ob->map->difficulty) + RANDOM() % 3 + 1, MAXLEVEL);
 						}
 						else
 						{
