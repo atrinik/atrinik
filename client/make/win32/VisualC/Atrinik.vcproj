@@ -431,10 +431,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\zlib\include\crc32.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\include\dialog.h"
 				>
 			</File>
@@ -448,18 +444,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\include\include.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\inffast.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\inflate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\inftrees.h"
 				>
 			</File>
 			<File
@@ -534,32 +518,6 @@
 				RelativePath="..\..\..\src\include\win32.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\zconf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\zlib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\include\zutil.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -573,10 +531,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\src\zlib\adler32.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\client\book.c"
 				>
 			</File>
@@ -589,10 +543,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\zlib\crc32.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\client\dialog.c"
 				>
 			</File>
@@ -602,18 +552,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\client\ignore.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\inffast.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\inflate.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\inftrees.c"
 				>
 			</File>
 			<File
@@ -681,10 +619,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\src\zlib\uncompr.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\src\client\widget.c"
 				>
 			</File>
@@ -692,11 +626,27 @@
 				RelativePath="..\..\..\src\client\wrapper.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\src\zlib\zutil.c"
-				>
-			</File>
 		</Filter>
+		<File
+			RelativePath=".\libs\curl\libcurl.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
 		<File
 			RelativePath=".\libs\curl\x64\libcurl.lib"
 			>
@@ -732,46 +682,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\libs\curl\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\libs\SDL\SDL.lib"
-			>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\libs\SDL\x64\SDL.lib"
 			>
 			<FileConfiguration
@@ -799,10 +709,10 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\libs\SDL\x64\SDL_image.lib"
+			RelativePath=".\libs\SDL\SDL.lib"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -810,7 +720,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -838,6 +748,26 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\SDL\x64\SDL_image.lib"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -921,6 +851,46 @@
 		</File>
 		<File
 			RelativePath=".\libs\SDL\x64\SDLmain.lib"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\zlib\zlib1.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\zlib\x64\zlib1.lib"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
