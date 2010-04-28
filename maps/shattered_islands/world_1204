@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -197,6 +197,7 @@ y 14
 arch crocodile
 type 83
 level 15
+maxhp 70
 terrain_flag 3
 Wis 4
 end
@@ -519,6 +520,7 @@ y 4
 arch crocodile
 type 83
 level 18
+maxhp 70
 terrain_flag 3
 Wis 4
 end
@@ -1763,6 +1765,7 @@ y 6
 arch crocodile
 type 83
 level 17
+maxhp 70
 terrain_flag 3
 Wis 4
 end

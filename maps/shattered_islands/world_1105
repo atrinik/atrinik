@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2617,6 +2617,7 @@ y 12
 arch deer
 type 83
 level 21
+dam 56
 unaggressive 1
 random_move 1
 item_race 4
