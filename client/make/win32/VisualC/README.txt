@@ -48,4 +48,3 @@ libogg:    1.1.4
 libvorbis: 1.2.3
            http://xiph.org/ogg
            Used by SDL_mixer
-           
