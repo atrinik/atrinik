@@ -104,7 +104,7 @@ static PythonCmd CustomCommand[NR_CUSTOM_CMD];
 static int NextCustomCommand;
 
 /** Maximum number of cached scripts. */
-#define PYTHON_CACHE_SIZE 16
+#define PYTHON_CACHE_SIZE 256
 
 /** One cache entry. */
 typedef struct
