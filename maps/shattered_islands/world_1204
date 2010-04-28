@@ -6,7 +6,7 @@ Modified: 2010-04-28 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 16
 outdoor 1
 tile_path_1 world_1205
 tile_path_2 world_1304
