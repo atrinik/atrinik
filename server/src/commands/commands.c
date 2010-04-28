@@ -70,7 +70,6 @@ CommArray_s Commands[] =
 	{"push",           command_push_object,    1.0f, CMD_FLAG_NO_PLAYER_SHOP},
 	{"left",           command_turn_left,      1.0f, 0},
 	{"right",          command_turn_right,     1.0f, 0},
-	{"roll",           command_roll,           1.0f, 0},
 	{"whereami",       command_whereami,       1.0f, 0},
 	{"ms_privacy",     command_ms_privacy,     1.0f, 0}
 };

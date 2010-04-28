@@ -93,62 +93,6 @@ int command_motd(object *op, char *params)
 }
 
 /**
- * Command to roll a magical die.
- *
- * Parameters should be XdY where X is how many times to roll the die and
- * Y how many sides should the die have.
- * @param op Object rolling the die.
- * @param params Parameters.
- * @return Always returns 1. */
-int command_roll(object *op, char *params)
-{
-	int times, sides, i;
-	char buf[MAX_BUF];
-
-	/* No params, or params not in format of <times>d<sides>. */
-	if (params == NULL || !sscanf(params, "%dd%d", &times, &sides))
-	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /roll <times>d<sides>");
-		return 1;
-	}
-
-	/* Make sure times is a valid value. */
-	if (times > 10)
-	{
-		times = 10;
-	}
-	else if (times <= 0)
-	{
-		times = 1;
-	}
-
-	/* Make sure sides is a valid value. */
-	if (sides > 100)
-	{
-		sides = 100;
-	}
-	else if (sides <= 0)
-	{
-		sides = 1;
-	}
-
-	snprintf(buf, sizeof(buf), "%s rolls a magical die (%dd%d) and gets: ", op->name, times, sides);
-
-	for (i = 1; i <= times; i++)
-	{
-		char tmp[MAX_BUF];
-
-		snprintf(tmp, sizeof(tmp), "%d%s", rndm(1, sides), i < times ? ", " : ".");
-		strncat(buf, tmp, sizeof(buf) - strlen(buf) - 1);
-	}
-
-	new_draw_info(NDI_ORANGE | NDI_UNIQUE, op, buf);
-	new_info_map_except(NDI_ORANGE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
-
-	return 1;
-}
-
-/**
  * Counts the number of objects on the list of active objects.
  * @return The number of active objects. */
 static int count_active()

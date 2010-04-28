@@ -71,7 +71,6 @@ emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize);
 /* commands/misc.c */
 void map_info(object *op);
 int command_motd(object *op, char *params);
-int command_roll(object *op, char *params);
 void malloc_info(object *op);
 int command_who(object *op, char *params);
 int command_mapinfo(object *op, char *params);
