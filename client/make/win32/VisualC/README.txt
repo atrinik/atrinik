@@ -36,15 +36,18 @@ SDL_image: 1.2.10
 SDL_mixer: 1.2.11
            http://www.libsdl.org/projects/SDL_mixer
            Used by Atrinik
+libcurl:   7.19.7
+           http://curl.haxx.se
+           Used by Atrinik
 zlib:      1.2.5
            http://www.zlib.net
            Used by libpng and Atrinik
 libpng:    1.4.1
            http://www.libpng.org
            Used by SDL_image
-libogg:    1.1.4
+libogg:    1.2.0
            http://xiph.org/ogg
            Used by SDL_mixer
-libvorbis: 1.2.3
+libvorbis: 1.3.1
            http://xiph.org/ogg
            Used by SDL_mixer
