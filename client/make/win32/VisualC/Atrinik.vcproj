@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="../../../;../../../src/include;../../../src/zlib/include;.\libs;.\libs\SDL"
+				AdditionalIncludeDirectories="../../../;../../../src/include;.\libs;.\libs\SDL;.\libs\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;__WIN_32;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -143,7 +143,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="../../../;../../../src/include;../../../src/zlib/include;.\libs;.\libs\SDL"
+				AdditionalIncludeDirectories="../../../;../../../src/include;.\libs;.\libs\SDL;.\libs\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;__WIN_32;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -240,7 +240,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../../;../../../src/include;../../../src/zlib/include;.\libs;.\libs\SDL"
+				AdditionalIncludeDirectories="../../../;../../../src/include;.\libs;.\libs\SDL;.\libs\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;__WIN_32;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -339,7 +339,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../../;../../../src/include;../../../src/zlib/include;.\libs;.\libs\SDL"
+				AdditionalIncludeDirectories="../../../;../../../src/include;.\libs;.\libs\SDL;.\libs\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;__WIN_32;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -628,26 +628,6 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\libs\curl\libcurl.lib"
-			>
-			<FileConfiguration
-				Name="Debug|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\libs\curl\x64\libcurl.lib"
 			>
 			<FileConfiguration
@@ -682,18 +662,10 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\libs\SDL\x64\SDL.lib"
+			RelativePath=".\libs\curl\libcurl.lib"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -702,6 +674,7 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
+				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCustomBuildTool"
@@ -729,10 +702,10 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\libs\SDL\SDL_image.lib"
+			RelativePath=".\libs\SDL\x64\SDL.lib"
 			>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Debug|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -741,6 +714,7 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"
+				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCustomBuildTool"
@@ -748,7 +722,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
-				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCustomBuildTool"
@@ -768,6 +741,33 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\libs\SDL\SDL_image.lib"
+			>
+			<FileConfiguration
+				Name="Debug|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -823,6 +823,26 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\libs\SDL\x64\SDLmain.lib"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath=".\libs\SDL\SDLmain.lib"
 			>
 			<FileConfiguration
@@ -850,7 +870,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\libs\SDL\x64\SDLmain.lib"
+			RelativePath=".\libs\zlib\x64\zlib1.lib"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -882,26 +902,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|x64"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\libs\zlib\x64\zlib1.lib"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
