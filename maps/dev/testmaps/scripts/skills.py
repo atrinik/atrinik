@@ -4,25 +4,22 @@
 from Atrinik import *
 import string
 
-## Activator object.
 activator = WhoIsActivator()
-## Object who has the event object in their inventory.
 me = WhoAmI()
 
 msg = WhatIsMessage().strip().lower()
-text = msg.split()
+words = msg.split()
 
 # Learn a skill.
-if text[0] == "learn":
-	## Get the skill number.
-	skill = GetSkillNr(text[1])
+if words[0] == "learn":
+	skill = GetSkillNr(msg[6:])
 
-	# Skill was not valid
+	# Skill was not valid.
 	if skill == -1:
-		me.SayTo(activator, "Unknown skill.")
+		me.SayTo(activator, "\nUnknown skill.")
 	else:
 		if activator.DoKnowSkill(skill) == 1:
-			me.SayTo(activator, "You already know that skill.")
+			me.SayTo(activator, "\nYou already know that skill.")
 		else:
 			activator.AcquireSkill(skill)
 
