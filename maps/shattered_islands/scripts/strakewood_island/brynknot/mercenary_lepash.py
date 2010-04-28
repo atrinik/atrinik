@@ -94,6 +94,3 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 				me.SayTo(activator, "\nAh, you are back.\nDo you have the clan horn?\nThen I will ^teach^ you polearm mastery.")
 	else:
 		me.SayTo(activator, "\nHello %s.\nGood to see you back." % activator.name)
-
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)

@@ -190,8 +190,5 @@ elif text[0] == "founder":
 	else:
 		me.SayTo(activator, "\nYou don't have enough privileges for this command.")
 
-else:
-	activator.Write("%s listens to you without answer. Perhaps you should try ^hi^, ^hey^ or ^hello^..." % me.name, 0)
-
 # Close the database.
 guild.guilddb.close()

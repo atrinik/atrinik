@@ -82,8 +82,5 @@ elif msg == "join":
 	else:
 		me.SayTo(activator, "\nThis guild is closed. No new applications are accepted.")
 
-else:
-	activator.Write("%s listens to you without answer. Perhaps you should try ^hi^, ^hey^ or ^hello^..." % me.name, 0)
-
 # Close the guild database.
 guild.guilddb.close()

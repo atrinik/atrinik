@@ -73,7 +73,3 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 		me.SayTo(activator, "\nThank you for helping us out.")
 	else:
 		me.SayTo(activator, "\nRemember, bring me back a proof of your victory over the slimes leader!")
-
-# Invalid message.
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)

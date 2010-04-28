@@ -150,6 +150,3 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 					me.SayTo(activator, "\nAh, you have my helmet! Excellent!\nWell, keep it and may it protect you.\nIf you want you can ^join^ us now.")
 				else:
 					me.SayTo(activator, "\nI don't see my helmet... Where is it?\nRemember: Enter the hole next to me and kill the ants there.\nOne of them stole my old helmet.\nBring it back to me and I will let you join the ^guild^.")
-
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)

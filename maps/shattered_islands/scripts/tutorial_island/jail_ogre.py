@@ -77,6 +77,3 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 			qm.complete()
 	else:
 		me.SayTo(activator, "\nBring Frah'ak note from ^kobolds^ first!")
-
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)

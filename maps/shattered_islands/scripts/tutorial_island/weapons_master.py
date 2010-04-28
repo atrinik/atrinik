@@ -78,6 +78,3 @@ elif msg == "weapons":
 
 elif msg == "hello" or msg == "hi" or msg == "hey":
 	me.SayTo(activator, "\nHello! I am %s.\nI will give you your starting weapon skill and your first weapon. Now, tell me which weapon skill do you want.\nYou can select between slash weapons, cleave weapons, pierce weapons or impact weapons.\nAsk me about ^weapons^ to learn more." % me.name)
-
-else:
-	activator.Write("%s seems not to notice you.\nYou should try ^hello^, ^hi^ or ^hey^..." % me.name, 0)

@@ -62,6 +62,3 @@ elif text[0] == 'withdraw':
 # Greeting
 elif msg == "bank" or msg == "hello" or msg == "hi" or msg == "hey":
 	me.SayTo(activator, "\nHello! I am %s, the banker.\nWhat can I do for you? Do you need ^info^ about this bank?" % me.name)
-
-else:
-	activator.Write("%s, the banker seems not to notice you.\nYou should try ^hello^, ^hi^ or ^hey^..." % me.name, 0)

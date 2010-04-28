@@ -134,7 +134,3 @@ elif msg == "hello" or msg == "hi" or msg == "hey":
 			me.SayTo(activator, "\nRemember, you need to bring me the proof that you killed the ant queen, then I will ^teach^ you.")
 	else:
 		me.SayTo(activator, "\nHello %s.\nGood to see you back.\nI have no quest for you or your ^archery^ skill." % activator.name)
-
-# No valid message
-else:
-	activator.Write("%s listens to you without answer." % me.name, COLOR_WHITE)
