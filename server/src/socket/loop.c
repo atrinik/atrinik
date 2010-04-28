@@ -434,18 +434,16 @@ void doeric_server()
 		{
 			FREE_SOCKET(i);
 		}
+		else if (init_sockets[i].status == Ns_Zombie)
+		{
+			if (init_sockets[i].login_count++ == 1000000 / MAX_TIME)
+			{
+				init_sockets[i].status = Ns_Dead;
+			}
+		}
 		else if (init_sockets[i].status != Ns_Avail)
 		{
-			if (init_sockets[i].status == Ns_Zombie)
-			{
-				if (init_sockets[i].login_count++ == 1000000 / MAX_TIME)
-				{
-					init_sockets[i].status = Ns_Dead;
-				}
-
-				continue;
-			}
-			else if (init_sockets[i].status > Ns_Wait)
+			if (init_sockets[i].status > Ns_Wait)
 			{
 				/* Kill this socket after being 3 minutes idle */
 				if (init_sockets[i].login_count++ == 60 * 4 * (1000000 / MAX_TIME))
@@ -478,17 +476,15 @@ void doeric_server()
 			remove_ns_dead_player(pl);
 			pl = npl;
 		}
+		else if (pl->socket.status == Ns_Zombie)
+		{
+			if (pl->socket.login_count++ == 1000000 / MAX_TIME)
+			{
+				pl->socket.status = Ns_Dead;
+			}
+		}
 		else
 		{
-			if (pl->socket.status == Ns_Zombie)
-			{
-				if (pl->socket.login_count++ == 1000000 / MAX_TIME)
-				{
-					pl->socket.status = Ns_Dead;
-				}
-
-				continue;
-			}
 
 			FD_SET((uint32) pl->socket.fd, &tmp_read);
 			FD_SET((uint32) pl->socket.fd, &tmp_write);
