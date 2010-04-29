@@ -128,51 +128,8 @@ void move_arrow(object *op)
 		return;
 	}
 
-	/* Calculate target map square */
-	if (op->stats.grace == 666)
-	{
-		/* Experimental target throwing hack. Using bresenham line algo */
-		int dx = op->stats.hp, dy = op->stats.sp;
-
-		if (dx > dy)
-		{
-			if (op->stats.exp >= 0)
-			{
-				new_y = op->y + op->stats.maxsp;
-				/* same as fraction -= 2*dx */
-				op->stats.exp -= dx;
-			}
-			else
-			{
-				new_y = op->y;
-			}
-
-			new_x = op->x + op->stats.maxhp;
-			/* same as fraction -= 2*dy */
-			op->stats.exp += dy;
-		}
-		else
-		{
-			if (op->stats.exp >= 0)
-			{
-				new_x = op->x + op->stats.maxhp;
-				op->stats.exp -= dy;
-			}
-			else
-			{
-				new_x = op->x;
-			}
-
-			new_y = op->y + op->stats.maxsp;
-			op->stats.exp += dx;
-		}
-	}
-	else
-	{
-		new_x = op->x + DIRX(op);
-		new_y = op->y + DIRY(op);
-	}
-
+	new_x = op->x + DIRX(op);
+	new_y = op->y + DIRY(op);
 	was_reflected = 0;
 
 	/* check we are legal */

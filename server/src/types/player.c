@@ -548,11 +548,11 @@ static void fire_bow(object *op, int dir)
 	if ((tmp_op = SK_skill(op)))
 	{
 		/* wc is in last heal */
-		arrow->stats.wc = tmp_op->last_heal;
+		arrow->stats.wc += tmp_op->last_heal;
 	}
 	else
 	{
-		arrow->stats.wc = 10;
+		arrow->stats.wc += 10;
 	}
 
 	/* Now we determine how many tiles the arrow will fly. Again we use
