@@ -559,7 +559,6 @@ msg
 Key that provides a one-way passage to second level of Underground City by entering Ogre Guard map west of Fort Ghzal and looking for hidden stairs.
 endmsg
 name Underground City Drow Key
-one_drop 1
 slaying underground_city_key_drow
 startequip 1
 end

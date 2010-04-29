@@ -796,7 +796,7 @@ void drop_object(object *op, object *tmp, long nrof)
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "The one-drop item vanish to nowhere as you drop it!");
+				new_draw_info(NDI_UNIQUE, op, "The god-given item vanishes to nowhere as you drop it!");
 			}
 		}
 
@@ -1767,17 +1767,17 @@ void examine(object *op, object *tmp)
 		new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float)(tmp->nrof ? WEIGHT(tmp) * (int) tmp->nrof : WEIGHT(tmp)) / 1000.0f);
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_ONE_DROP))
+	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 	{
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, F_BUY));
 		}
-		/* Real one drop item */
+		/* God-given item */
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s one-drop item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
+			new_draw_info_format(NDI_UNIQUE, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{

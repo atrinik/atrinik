@@ -2255,7 +2255,6 @@ name Old Outpost Key 2
 arch key_brown
 name orange stone giant key
 value 0
-one_drop 1
 end
 end
 end

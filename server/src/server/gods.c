@@ -301,7 +301,7 @@ static void check_special_prayers(object *op, object *god)
 /**
  * This function is called whenever a player has switched to a new god.
  * It basically handles all the stat changes that happen to the player,
- * including the removal of godgiven items (from the former cult).
+ * including the removal of god-given items (from the former cult).
  * @param op Player switching cults.
  * @param new_god New god to worship. */
 void become_follower(object *op, object *new_god)

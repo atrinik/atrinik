@@ -2866,7 +2866,6 @@ name Frah'ak and Kobolds
 sub_type 2
 arch letter
 name Frah'aks letter
-one_drop 1
 end
 end
 end

@@ -274,7 +274,7 @@ object *find_throw_tag(object *op, tag_t tag)
 		}
 		else if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 		{
-			new_draw_info(NDI_UNIQUE, op, "You can't throw god given item!");
+			new_draw_info(NDI_UNIQUE, op, "You can't throw god-given item!");
 			return NULL;
 		}
 		/* If cursed or damned, we can't unapply it - no throwing. */

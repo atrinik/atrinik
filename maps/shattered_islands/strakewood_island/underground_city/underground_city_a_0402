@@ -2037,7 +2037,6 @@ msg
 Key from Bordok, a lost soul guarding a library deep within Underground City.
 endmsg
 name Underground City Key 2
-one_drop 1
 identified 1
 slaying underground_city_key2
 startequip 1

@@ -1271,7 +1271,6 @@ arch quest_container
 name Moroch Temple Key 1
 arch key_brown
 name key of the demilich master
-one_drop 1
 identified 1
 slaying moroch_temple_key1
 end

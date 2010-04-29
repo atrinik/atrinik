@@ -296,7 +296,6 @@ arch horn
 name clan horn of the hill giants
 type 79
 value 0
-one_drop 1
 end
 end
 end

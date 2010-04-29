@@ -1644,7 +1644,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if ((tmp = check_container(pl, op)))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all one-drop items from this container!");
+			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(pl, FLAG_INV_LOCKED))
 		{
@@ -1697,11 +1697,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 		}
 		else if (tmp && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all one-drop items from this container!");
+			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't store one-drop items outside your inventory!");
+			new_draw_info(NDI_UNIQUE, pl, "You can't store god-given items outside your inventory!");
 		}
 		else
 		{

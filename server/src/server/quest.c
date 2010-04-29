@@ -72,7 +72,7 @@ void check_quest(object *op, object *quest_container)
 	{
 		case QUEST_TYPE_ITEM:
 			/* Sanity checks. */
-			if (!tmp || (QUERY_FLAG(tmp, FLAG_ONE_DROP) && has_quest_item(op, tmp, FLAG_ONE_DROP)) || (!QUERY_FLAG(tmp, FLAG_ONE_DROP) && quest_object))
+			if (!tmp || (!QUERY_FLAG(tmp, FLAG_ONE_DROP) && has_quest_item(op, tmp, 0)) || (QUERY_FLAG(tmp, FLAG_ONE_DROP) && quest_object))
 			{
 				return;
 			}
@@ -101,7 +101,7 @@ void check_quest(object *op, object *quest_container)
 			{
 				if (quest_object->last_sp == quest_object->last_grace)
 				{
-					snprintf(buf, sizeof(buf), "Quest '%s' completed! Return to your quest giver for a reward.\n", quest_container->name);
+					snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
 					play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
 				}
 				else
@@ -130,7 +130,7 @@ void check_quest(object *op, object *quest_container)
 			CLEAR_FLAG(tmp, FLAG_SYS_OBJECT);
 			/* Insert the object to the player. */
 			insert_ob_in_ob(tmp, op);
-			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_name(tmp, NULL));
+			snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(tmp, NULL));
 			new_draw_info(NDI_UNIQUE | NDI_NAVY | NDI_ANIM, op, buf);
 			play_sound_player_only(CONTR(op), SOUND_LEVEL_UP, SOUND_NORMAL, 0, 0);
 			esrv_send_item(op, tmp);
@@ -222,7 +222,7 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag)
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		/* Compare the values. */
-		if (QUERY_FLAG(tmp, flag) && tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name)
+		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
 		{
 			return 1;
 		}

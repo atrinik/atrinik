@@ -389,7 +389,6 @@ name Old Outpost Key 1
 arch key_blue
 name blue stone giant key
 value 0
-one_drop 1
 end
 end
 end

@@ -445,7 +445,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 		CONTR(op)->chosen_spell = spell;
 	}
 
-	/* For godgiven spells the player gets a reminder-mark inserted, that
+	/* For god-given spells the player gets a reminder-mark inserted, that
 	 * this spell must be removed on changing cults! */
 	if (special_prayer)
 	{

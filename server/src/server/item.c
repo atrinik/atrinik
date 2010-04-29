@@ -660,6 +660,15 @@ char *query_name(object *op, object *caller)
 
 	safe_strcat(buf[use_buf], query_short_name(op, caller), &len, HUGE_BUF);
 
+	if (QUERY_FLAG(op, FLAG_ONE_DROP))
+	{
+		safe_strcat(buf[use_buf], " (one-drop)", &len, HUGE_BUF);
+	}
+	else if (QUERY_FLAG(op, FLAG_QUEST_ITEM))
+	{
+		safe_strcat(buf[use_buf], " (quest)", &len, HUGE_BUF);
+	}
+
 	if (QUERY_FLAG(op, FLAG_INV_LOCKED))
 	{
 		safe_strcat(buf[use_buf], " *", &len, HUGE_BUF);

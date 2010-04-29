@@ -4023,6 +4023,7 @@ item_condition 85
 face cloak_green.101
 is_magical 1
 value 22100
+one_drop 1
 end
 
 Allowed ring_generic
@@ -4153,6 +4154,7 @@ signs of old age...
 endmsg
 is_magical 1
 value 15000
+one_drop 1
 end
 
 Allowed none
