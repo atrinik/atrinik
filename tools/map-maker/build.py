@@ -60,7 +60,7 @@ elif not os.path.exists(working_dir) or not os.path.isdir(working_dir):
 	sys.exit(2)
 
 # Directories to copy from repo.
-dirs_copy = ["server", "client", "editor", "maps", "arch"]
+dirs_copy = ["server", "client", "editor", "maps", "arch", "tools"]
 # Directories to make.
 dirs_make = ["server/lib", "server/data", "server/data/players", "server/data/tmp", "server/data/log", "server/data/unique-items"]
 # Binaries to copy. First parameter is an expression of what binaries
