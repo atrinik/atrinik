@@ -103,9 +103,6 @@ typedef struct
 {
 	/** Name of the material. */
 	char *name;
-
-	/** If an item is attacked, this table determines the save throw of the item. */
-	sint8 save[NROFATTACKS];
 } materialtype;
 
 /** A real material. */
