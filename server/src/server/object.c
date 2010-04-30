@@ -2334,8 +2334,6 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 			sub_weight(orig_ob, nr);
 		}
 
-		esrv_update_item(UPD_NROF | UPD_WEIGHT, orig_ob->env, orig_ob);
-
 		if (orig_ob->env == NULL && orig_ob->map->in_memory != MAP_IN_MEMORY)
 		{
 			strncpy(err, "Tried to split object whose map is not in memory.", size);
