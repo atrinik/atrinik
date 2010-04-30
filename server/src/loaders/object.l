@@ -221,6 +221,16 @@ lex_error = 0;
 								tmp->item_condition = tmp->item_quality;
 							}
 
+							/* Ensure right weight for inventories */
+							if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
+							{
+								tmp->carrying = sum_weight(tmp);
+							}
+							else
+							{
+								tmp->carrying = 0;
+							}
+
 							insert_ob_in_ob(tmp, op);
 
 							if (!(map_flags & MAP_STYLE))
@@ -1058,23 +1068,23 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
  * @param buf Modifications to apply. */
 int set_variable(object *op,char *buf)
 {
-    YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
-    int retval;
+	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
+	int retval;
 
-    strcpy(msgbuf, "");
-    yy_push_state(INITIAL);
-    yybufstate = yy_scan_string(buf);
-    retval = lex_load(op, 0);
+	strcpy(msgbuf, "");
+	yy_push_state(INITIAL);
+	yybufstate = yy_scan_string(buf);
+	retval = lex_load(op, 0);
 
-    if (yycurbuf)
+	if (yycurbuf)
 	{
-    	yy_switch_to_buffer(yycurbuf);
+		yy_switch_to_buffer(yycurbuf);
 	}
 
-    yy_delete_buffer(yybufstate);
-    yy_pop_state();
+	yy_delete_buffer(yybufstate);
+	yy_pop_state();
 
-    return retval;
+	return retval;
 }
 
 /**
@@ -1137,8 +1147,8 @@ static char *flag_names[NUM_FLAGS + 1] = {
  * @param op2 Object's original archetype. */
 void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 {
-    key_value *my_field, *arch_field;
-  	int tmp;
+	key_value *my_field, *arch_field;
+	int tmp;
 
 	/* This saves the key/value lists. We do it first so that any
 	 * keys that match field names will be overwritten by the loader. */
@@ -1459,13 +1469,13 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "type ", op->type);
 	}
 
-  	for (tmp = 0; tmp < NROFATTACKS; tmp++)
+	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
-   		if (op->resist[tmp] != op2->resist[tmp])
+		if (op->resist[tmp] != op2->resist[tmp])
 		{
 			stringbuffer_append_printf(sb, "resist_%s %d\n", resist_save[tmp], op->resist[tmp]);
-    	}
-  	}
+		}
+	}
 
 	/* resist_save[] holds the attack form also for attack_xx */
 	for (tmp = 0; tmp < NROFATTACKS; tmp++)
@@ -1589,24 +1599,24 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
 	}
 
-  	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
+	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{
 		if (flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
 		{
 			ADD_STRINGLINE_ENTRY(sb, flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
-    	}
-  	}
+		}
+	}
 
-  	/* The old code was buggy - it would lose custom SLOW_PENALTY if the archetype
-   	 * had a different slow_penalty (eg, when saving, it would also reset to the
-   	 * archetype value. */
-  	if (QUERY_FLAG(op, FLAG_SLOW_MOVE))
+	/* The old code was buggy - it would lose custom SLOW_PENALTY if the archetype
+	 * had a different slow_penalty (eg, when saving, it would also reset to the
+	 * archetype value. */
+	if (QUERY_FLAG(op, FLAG_SLOW_MOVE))
 	{
-    	if (!QUERY_FLAG(op2, FLAG_SLOW_MOVE) || SLOW_PENALTY(op) != SLOW_PENALTY(op2))
+		if (!QUERY_FLAG(op2, FLAG_SLOW_MOVE) || SLOW_PENALTY(op) != SLOW_PENALTY(op2))
 		{
 			FAST_SAVE_DOUBLE(sb, "slow_move ", SLOW_PENALTY(op));
-    	}
-  	}
+		}
+	}
 }
 
 /**

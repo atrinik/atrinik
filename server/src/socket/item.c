@@ -258,7 +258,7 @@ void esrv_draw_look(object *pl)
 
 		SockList_AddInt(&sl, tmp->count);
 		SockList_AddInt(&sl, flags);
-		SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
+		SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT_CLIENT(tmp));
 
 		if (tmp->head)
 		{
@@ -418,7 +418,7 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
 
 		SockList_AddInt(sl, tmp->count);
 		SockList_AddInt(sl, flags);
-		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
+		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT_CLIENT(tmp));
 
 		if (tmp->head)
 		{
@@ -567,7 +567,7 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 
 		SockList_AddInt(sl, tmp->count);
 		SockList_AddInt(sl, flags);
-		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
+		SockList_AddInt(sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT_CLIENT(tmp));
 
 		if (tmp->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
@@ -717,7 +717,7 @@ void esrv_send_inventory(object *pl, object *op)
 
 			SockList_AddInt(&sl, tmp->count);
 			SockList_AddInt(&sl, flags);
-			SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT(tmp));
+			SockList_AddInt(&sl, QUERY_FLAG(tmp, FLAG_NO_PICK) ? -1 : WEIGHT_CLIENT(tmp));
 
 			if (tmp->inv_face && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
@@ -867,7 +867,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
 	if (flags & UPD_WEIGHT)
 	{
-		SockList_AddInt(&sl, WEIGHT(op));
+		SockList_AddInt(&sl, WEIGHT_CLIENT(op));
 	}
 
 	if (flags & UPD_FACE)
@@ -1012,7 +1012,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	SockList_AddInt(&sl, (op->env? op->env->count:0));
 	SockList_AddInt(&sl, op->count);
 	SockList_AddInt(&sl, query_flags(op));
-	SockList_AddInt(&sl, WEIGHT(op));
+	SockList_AddInt(&sl, WEIGHT_CLIENT(op));
 
 	if (op->head)
 	{

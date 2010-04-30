@@ -135,9 +135,7 @@ materialtype material[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
-static void sub_weight(object *op, sint32 weight);
 static void remove_ob_inv(object *op);
-static void add_weight(object *op, sint32 weight);
 
 /**
  * Initialize materials from file. */
@@ -544,27 +542,29 @@ signed long sum_weight(object *op)
 	sint32 sum;
 	object *inv;
 
-	for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below)
+	for (sum = 0, inv = op->inv; inv; inv = inv->below)
 	{
-		if (inv->inv)
+		if (QUERY_FLAG(inv, FLAG_SYS_OBJECT))
 		{
-			sum_weight(inv);
+			continue;
 		}
 
-		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
+		if (inv->type == CONTAINER && inv->weapon_speed != 1.0f)
+		{
+			/* Precalculated, modified weight + container weight. */
+			sum += inv->damage_round_tag + inv->weight;
+		}
+		else
+		{
+			sum += WEIGHT(inv);
+		}
 	}
 
-	/* because we avoid calculating for EVERY item in the loop above
-	 * the weight adjustment for magic containers, we can run here in some
-	 * rounding problems... in the worst case, we can remove a item from the
-	 * container but we are not able to put it back because rounding.
-	 * well, a small prize for saving *alot* of muls in player houses for example. */
+	/* Do we have a magical container? Then precalculate the modified weight. */
 	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 	{
-		sum = (sint32) ((float) sum * op->weapon_speed);
+		op->damage_round_tag = (uint32) ((float) sum * op->weapon_speed);
 	}
-
-	op->carrying = sum;
 
 	return sum;
 }
@@ -572,26 +572,65 @@ signed long sum_weight(object *op)
 /**
  * Adds the specified weight to an object, and also updates how much the
  * environment(s) is/are carrying.
- * @param op The object
- * @param weight The weight to add */
-static void add_weight(object *op, sint32 weight)
+ * @param op The object.
+ * @param nrof How many objects there are. */
+static void add_weight(object *op, uint32 nrof)
 {
-	while (op != NULL)
+	object *tmp;
+	sint32 weight;
+
+	if (!op->env)
 	{
-		/* only *one* time magic can effect the weight of objects */
-		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
+		return;
+	}
+
+	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
+	{
+		/* No stacking of containers, so ignore nrof. */
+		weight = op->damage_round_tag + op->weight;
+	}
+	else
+	{
+		weight = WEIGHT_NROF(op, nrof);
+	}
+
+	if (!weight)
+	{
+		return;
+	}
+
+	for (tmp = op->env; tmp; tmp = tmp->env)
+	{
+		if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
+			return;
 		}
 
-		op->carrying += weight;
-
-		if (op->env && op->env->type == PLAYER)
+		/* Do we have a magical container modifying the weight by its magic? */
+		if (tmp->type == CONTAINER)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			tmp->carrying += weight;
+
+			/* We modify weight to what the magical container has changed it. */
+			if (tmp->weapon_speed != 1.0f)
+			{
+				weight = tmp->damage_round_tag;
+				tmp->damage_round_tag = (uint32) ((float) tmp->carrying * tmp->weapon_speed);
+				/* Modified inventory weight. */
+				weight = (tmp->damage_round_tag - weight);
+			}
+		}
+		else
+		{
+			tmp->carrying += weight;
 		}
 
-		op = op->env;
+		/* We have to update the view for clients. If this object is in a player inventory or
+		 * a player viewed open container which is INSIDE a player then update the view. */
+		if (tmp->env && (tmp->env->type == PLAYER || (tmp->env->type == CONTAINER && tmp->env->attacked_by && tmp->env->env && tmp->env->env->type == PLAYER)))
+		{
+			esrv_update_item(UPD_WEIGHT, tmp->env->type == PLAYER ? tmp->env : tmp->env->env, tmp);
+		}
 	}
 }
 
@@ -600,24 +639,56 @@ static void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-static void sub_weight(object *op, sint32 weight)
+static void sub_weight(object *op, uint32 nrof)
 {
-	while (op != NULL)
+	object *tmp;
+	sint32 weight;
+
+	if (!op->env)
 	{
-		/* only *one* time magic can effect the weight of objects */
-		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
+		return;
+	}
+
+	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
+	{
+		/* No stacking of containers, so ignore nrof. */
+		weight = op->damage_round_tag + op->weight;
+	}
+	else
+	{
+		weight = WEIGHT_NROF(op, nrof);
+	}
+
+	if (!weight)
+	{
+		return;
+	}
+
+	for (tmp = op->env; tmp; tmp = tmp->env)
+	{
+		if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
+			return;
 		}
 
-		op->carrying -= weight;
-
-		if (op->env && op->env->type == PLAYER)
+		/* Do we have a magical container modifying the weight by its magic? */
+		if (tmp->type == CONTAINER && tmp->weapon_speed != 1.0f)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			tmp->carrying -= weight;
+			/* We modify weight to what the magical container has changed it. */
+			weight = tmp->damage_round_tag;
+			tmp->damage_round_tag = (uint32) ((float) tmp->carrying * tmp->weapon_speed);
+			weight -= tmp->damage_round_tag;
+		}
+		else
+		{
+			tmp->carrying -= weight;
 		}
 
-		op = op->env;
+		if (tmp->env && (tmp->env->type == PLAYER || (tmp->env->type == CONTAINER && tmp->env->attacked_by && tmp->env->env && tmp->env->env->type == PLAYER)))
+		{
+			esrv_update_item(UPD_WEIGHT, tmp->env->type == PLAYER ? tmp->env : tmp->env->env, tmp);
+		}
 	}
 }
 
@@ -1631,7 +1702,10 @@ void remove_ob(object *op)
 	 * inventory. */
 	if (op->env)
 	{
-		sub_weight(op->env, WEIGHT_NROF(op));
+		if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+		{
+			sub_weight(op, op->nrof);
+		}
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
 		 * made to players inventory. If set, avoid the call to save cpu time. */
@@ -2255,10 +2329,12 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 	}
 	else if (!is_removed)
 	{
-		if (orig_ob->env)
+		if (orig_ob->env && !QUERY_FLAG(orig_ob, FLAG_SYS_OBJECT))
 		{
-			sub_weight(orig_ob->env, orig_ob->weight * nr);
+			sub_weight(orig_ob, nr);
 		}
+
+		esrv_update_item(UPD_NROF | UPD_WEIGHT, orig_ob->env, orig_ob);
 
 		if (orig_ob->env == NULL && orig_ob->map->in_memory != MAP_IN_MEMORY)
 		{
@@ -2316,7 +2392,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 		if (i < op->nrof)
 		{
-			sub_weight (op->env, op->weight * i);
+			sub_weight(op->env, i);
 			op->nrof -= i;
 
 			if (tmp)
@@ -2390,7 +2466,7 @@ object *decrease_ob_nr(object *op, uint32 i)
  * object was merged. */
 object *insert_ob_in_ob(object *op, object *where)
 {
-	object *tmp, *otmp;
+	object *otmp;
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
@@ -2430,39 +2506,24 @@ object *insert_ob_in_ob(object *op, object *where)
 		return op;
 	}
 
-	CLEAR_FLAG(op, FLAG_REMOVED);
-
-	for (tmp = where->inv; tmp; tmp = tmp->below)
+	/* Merge objects? */
+	if (QUERY_FLAG(op, FLAG_CAN_STACK))
 	{
-		if (CAN_MERGE(tmp, op))
+		object *tmp;
+
+		for (tmp = where->inv; tmp; tmp = tmp->below)
 		{
-			/* Return the original object and remove inserted object
-			 * (client needs the original object) */
-			tmp->nrof += op->nrof;
-
-			/* Weight handling gets pretty funky. Since we are adding to
-			 * tmp->nrof, we need to increase the weight. */
-			add_weight(where, WEIGHT_NROF(op));
-
-			/* Make sure we get rid of the old object */
-			SET_FLAG(op, FLAG_REMOVED);
-
-			op = tmp;
-			/* And fix old object's links (we will insert it further down)*/
-			remove_ob(op);
-			/* Just kidding about previous remove */
-			CLEAR_FLAG(op, FLAG_REMOVED);
-			break;
+			if (tmp->arch == op->arch && CAN_MERGE(tmp, op))
+			{
+				remove_ob(tmp);
+				tmp->nrof += op->nrof;
+				op = tmp;
+				break;
+			}
 		}
 	}
 
-	/* I assume stackable objects have no inventory
-	 * We add the weight - this object could have just been removed
-	 * (if it was possible to merge).  calling remove_ob will subtract
-	 * the weight, so we need to add it in again, since we actually do
-	 * the linking below */
-	add_weight(where, WEIGHT_NROF(op));
-
+	CLEAR_FLAG(op, FLAG_REMOVED);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->map = NULL;
 	op->env = where;
@@ -2485,6 +2546,11 @@ object *insert_ob_in_ob(object *op, object *where)
 		op->below = where->inv;
 		op->below->above = op;
 		where->inv = op;
+	}
+
+	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+	{
+		add_weight(op, op->nrof);
 	}
 
 	/* Check for event object and set the owner object
