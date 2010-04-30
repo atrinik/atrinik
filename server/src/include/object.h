@@ -35,15 +35,11 @@
 #endif
 
 /**
- * Get the weight of an object.*/
-#define WEIGHT(op) ((op->nrof ? op->weight * (sint32) op->nrof : op->weight + op->carrying))
-/**
- * Weight of the item for the client. */
-#define WEIGHT_CLIENT(op) (op->type == CONTAINER && op->weapon_speed != 1.0f ? (sint32) op->damage_round_tag  + op->weight : (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight))
-/**
- * Get object's weight. If nrof is not zero, the weight is multiplied
- * by it. */
-#define WEIGHT_NROF(op, nrof) ((nrof ? op->weight * (sint32) nrof : op->weight) + op->carrying)
+ * Get the weight of an object. If the object is a container or doesn't
+ * have nrof, include the weight it is carrying. */
+#define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
+
+#define WEIGHT_NROF(op) ((op->nrof ? op->weight * (sint32) op->nrof : op->weight) + op->carrying)
 
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */

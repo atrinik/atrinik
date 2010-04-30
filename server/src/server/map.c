@@ -960,6 +960,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 			/* Used for containers as link to players viewing it */
 			op->attacked_by = NULL;
 			op->attacked_by_count = 0;
+			sum_weight(op);
 		}
 
 		if (op->type == MONSTER)
@@ -971,16 +972,6 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
 		{
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		}
-
-		/* Ensure right weight for inventories. */
-		if (op->inv && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
-		{
-			op->carrying = sum_weight(op);
-		}
-		else
-		{
-			op->carrying = 0;
 		}
 
 		/* We have a multi arch head? */

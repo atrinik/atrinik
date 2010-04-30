@@ -179,33 +179,46 @@ int command_apply(object *op, char *params)
  * @return 1 if the object will fit, 0 if it will not. */
 int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 {
+	char buf[MAX_BUF];
+
+	buf[0] = '\0';
+
 	if (!QUERY_FLAG(sack, FLAG_APPLIED))
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "The %s is not active.", query_name(sack, NULL));
+		snprintf(buf, sizeof(buf), "The %s is not active.", query_name(sack, NULL));
 	}
-	else if (sack == op)
+
+	if (sack == op)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "You can't put the %s into itself.", query_name(sack, NULL));
+		snprintf(buf, sizeof(buf), "You can't put the %s into itself.", query_name(sack, NULL));
 	}
-	else if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
+
+	if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
+		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
-	else if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
+
+	if (op->type == SPECIAL_KEY && sack->slaying && op->slaying)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "You don't want put the key into %s.", query_name(sack, NULL));
+		snprintf(buf, sizeof(buf), "You don't want put the key into %s.", query_name(sack, NULL));
 	}
-	else
+
+	if (sack->weight_limit && sack->carrying + (sint32) ((float) (((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32) sack->weight_limit)
 	{
-		if (sack->weight_limit == 0 || (sack->weight_limit > 0 && sack->weight_limit > sack->carrying + ((op->type == CONTAINER && op->weapon_speed != 1.0f) ? (op->damage_round_tag + op->weight) : (uint32) WEIGHT_NROF(op, nrof))))
+		snprintf(buf, sizeof(buf), "That won't fit in the %s!", query_name(sack, NULL));
+	}
+
+	if (buf[0])
+	{
+		if (pl)
 		{
-			return 1;
+			new_draw_info(NDI_UNIQUE, pl, buf);
 		}
 
-		new_draw_info_format(NDI_UNIQUE, pl, "That won't fit in the %s!", query_name(sack, NULL));
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 /**
@@ -1756,7 +1769,7 @@ void examine(object *op, object *tmp)
 
 	if (tmp->weight)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float) WEIGHT(tmp) / 1000.0f);
+		new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float) (tmp->nrof ? tmp->weight * (int) tmp->nrof : tmp->weight) / 1000.0f);
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))

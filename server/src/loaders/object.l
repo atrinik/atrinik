@@ -221,16 +221,6 @@ lex_error = 0;
 								tmp->item_condition = tmp->item_quality;
 							}
 
-							/* Ensure right weight for inventories */
-							if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
-							{
-								tmp->carrying = sum_weight(tmp);
-							}
-							else
-							{
-								tmp->carrying = 0;
-							}
-
 							insert_ob_in_ob(tmp, op);
 
 							if (!(map_flags & MAP_STYLE))
