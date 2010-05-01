@@ -86,6 +86,12 @@ int move_ob(object *op, int dir, object *originator)
 		return 0;
 	}
 
+	/* Don't allow non-players to move onto player-only tiles. */
+	if (op->type != PLAYER && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY)
+	{
+		return 0;
+	}
+
 	/* multi arch objects... */
 	if (op->more)
 	{
