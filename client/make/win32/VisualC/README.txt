@@ -36,7 +36,7 @@ SDL_image: 1.2.10
 SDL_mixer: 1.2.11
            http://www.libsdl.org/projects/SDL_mixer
            Used by Atrinik
-libcurl:   7.19.7
+libcurl:   7.20.1 (HTTP, FTP and FILE)
            http://curl.haxx.se
            Used by Atrinik
 zlib:      1.2.5
