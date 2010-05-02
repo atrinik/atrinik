@@ -216,7 +216,7 @@ def main_say():
 		me.SayTo(activator, "\nComparing some objects...\n")
 		me.SayTo(activator, "{0} {1} {2}".format(activator.name, activator == me and "==" or "!=", me.name), 1)
 
-		obj = activator.map.GetFirstObjectOnSquare(activator.x, activator.y)
+		obj = activator.map.GetLastObject(activator.x, activator.y)
 
 		while obj:
 			me.SayTo(activator, "{0} {1} {2}".format(activator.name, activator == obj and "==" or "!=", obj.name), 1)

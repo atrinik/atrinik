@@ -93,14 +93,14 @@ static Atrinik_Constant map_constants[] =
  *@{*/
 
 /**
- * <h1>map.GetFirstObjectOnSquare(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ * <h1>map.GetFirstObject(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
  *
- * Gets the bottom object on the tile. Use object::above to browse
+ * Gets the first object on the tile. Use object::below to browse
  * objects.
- * @param x X position on the map
- * @param y Y position on the map
+ * @param x X position on the map.
+ * @param y Y position on the map.
  * @return The object if found. */
-static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *args)
+static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
 	object *val = NULL;
@@ -113,7 +113,38 @@ static PyObject *Atrinik_Map_GetFirstObjectOnSquare(Atrinik_Map *map, PyObject *
 
 	if ((m = hooks->get_map_from_coord(m, &x, &y)))
 	{
-		val = get_map_ob(m, x, y);
+		/* Since map objects are loaded in reverse mode, the last one in
+		 * in the list is actually the first. */
+		val = GET_MAP_OB_LAST(m, x, y);
+	}
+
+	return wrap_object(val);
+}
+
+/**
+ * <h1>map.GetLastObject(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ *
+ * Gets the last object on the tile. Use object::above to browse
+ * objects.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @return The object if found. */
+static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
+{
+	int x, y;
+	object *val = NULL;
+	mapstruct *m = map->map;
+
+	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	{
+		return NULL;
+	}
+
+	if ((m = hooks->get_map_from_coord(m, &x, &y)))
+	{
+		/* Since map objects are loaded in reverse mode, the first one in
+		 * in the list is actually the last. */
+		val = GET_MAP_OB(m, x, y);
 	}
 
 	return wrap_object(val);
@@ -340,7 +371,8 @@ static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
 {
-	{"GetFirstObjectOnSquare",  (PyCFunction) Atrinik_Map_GetFirstObjectOnSquare,    METH_VARARGS, 0},
+	{"GetFirstObject",          (PyCFunction) Atrinik_Map_GetFirstObject,            METH_VARARGS, 0},
+	{"GetLastObject",           (PyCFunction) Atrinik_Map_GetLastObject,             METH_VARARGS, 0},
 	{"PlaySound",               (PyCFunction) Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
 	{"Message",                 (PyCFunction) Atrinik_Map_Message,                   METH_VARARGS, 0},
 	{"MapTileAt",               (PyCFunction) Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},

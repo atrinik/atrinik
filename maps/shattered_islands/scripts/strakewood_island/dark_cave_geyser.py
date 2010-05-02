@@ -13,10 +13,10 @@ geysers = randint(1, 3)
 # Now create the geysers.
 for i in range(0, geysers):
 	# Randomly choose where to place the geyser.
-	x = randint(0, me.map.width)
-	y = randint(0, me.map.height)
-	# Get the first object on the randomly chosen square.
-	floor = me.map.GetFirstObjectOnSquare(x, y)
+	x = randint(0, me.map.width - 1)
+	y = randint(0, me.map.height - 1)
+	# Get the last object on the randomly chosen square (which should be floor).
+	floor = me.map.GetLastObject(x, y)
 
 	# Must have at least one object, and it must be 'fire'.
 	if floor and floor.name == "fire":
