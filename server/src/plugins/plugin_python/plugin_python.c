@@ -933,9 +933,12 @@ static int RunPythonScript(const char *path, object *event_object)
 	{
 		FILE *pyfile;
 
-		/* Safe to call on NULL */
-		Py_XDECREF(replace->code);
-		replace->code = NULL;
+		/* Old code? Free it. */
+		if (replace->code)
+		{
+			PyObject_Free(replace->code);
+			replace->code = NULL;
+		}
 
 		/* Need to replace path string? */
 		if (replace->file != sh_path)
@@ -1003,6 +1006,8 @@ static int RunPythonScript(const char *path, object *event_object)
 #ifdef PYTHON_DEBUG
 		LOG(llevDebug, "closing. ");
 #endif
+
+		PyGC_Collect();
 		Py_DECREF(globdict);
 	}
 
