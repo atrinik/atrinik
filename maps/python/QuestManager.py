@@ -3,7 +3,6 @@
 ## quests to provide common quest-related functions.
 
 from Atrinik import *
-import string, os
 
 ## The Quest Manager class.
 class QuestManager:

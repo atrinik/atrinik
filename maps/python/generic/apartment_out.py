@@ -2,7 +2,6 @@
 ## Script used by apartment teleporters purchased in Brynknot.
 
 from Atrinik import *
-import string, os
 
 ## Activator object.
 activator = WhoIsActivator()

@@ -12,6 +12,12 @@ activator = WhoIsActivator()
 ## The guild we're managing.
 guild = Guild(GetOptions())
 
-if not guild.is_administrator(activator.name) and not activator.f_wiz:
-	activator.Write("You can't pick up %s." % WhoAmI().name, COLOR_WHITE)
-	SetReturnValue(1)
+def main():
+	if not guild.is_administrator(activator.name) and not activator.f_wiz:
+		activator.Write("You can't pick up {0}.".format(WhoAmI().name), COLOR_WHITE)
+		SetReturnValue(1)
+
+try:
+	main()
+finally:
+	guild.guilddb.close()

@@ -13,10 +13,10 @@ quest_items = {
 		{
 			"not_started": "Citizens have recently started complaining about ogres living in the ruins North of Brynknot. There have been feeble attacks on us by them. I think you should be able to take care of this for us.",
 			"reward": "You receive five scrolls of minor healing (level 5).",
-			"not_finished": "You still need to kill %d ogre%s.\nRemember, they live in the ruins North of Brynknot.",
+			"not_finished": "You still need to kill {0} ogre{1}.\nRemember, they live in the ruins North of Brynknot.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d ogres in the ruins North of Brynknot.",
+			"accepted": "\nKill at least {0} ogres in the ruins North of Brynknot.",
 		},
 		"info":
 		{
@@ -33,10 +33,10 @@ quest_items = {
 		{
 			"not_started": "The treants and quickwoods East of Brynknot have always been peaceful with us. However, recently they have started attacking us the second they see us. I think you could help us out here.",
 			"reward": "You receive a wand of firestorm (level 8).",
-			"not_finished": "You still need to kill %d evil treant%s.\nThey live East of Brynknot.",
+			"not_finished": "You still need to kill {0} evil treant{1}.\nThey live East of Brynknot.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d evil treants or quickwoods East of Brynknot.",
+			"accepted": "\nKill at least {0} evil treants or quickwoods East of Brynknot.",
 		},
 		"info":
 		{
@@ -53,10 +53,10 @@ quest_items = {
 		{
 			"not_started": "Recently, there have been sightings of skeletons coming back to life near the Forgotten Graveyard, located North of here. I think you should go check it out.",
 			"reward": "You receive seven scrolls of recharge (level 10).",
-			"not_finished": "You still need to kill %d skeleton%s from the Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
+			"not_finished": "You still need to kill {0} skeleton{1} from the Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d skeletons at Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
+			"accepted": "\nKill at least {0} skeletons at Forgotten Graveyard North of Brynknot.\nRemember, they only appear at nighttime.",
 		},
 		"info":
 		{
@@ -73,10 +73,10 @@ quest_items = {
 		{
 			"not_started": "For some reason, this year has been way too good for giant wasps, East of Brynknot. I trust you know what to do.",
 			"reward": "You receive 7 silver coins.",
-			"not_finished": "You still need to kill %d giant wasp%s East of Brynknot.\nRemember, they only appear at daytime.",
+			"not_finished": "You still need to kill {0} giant wasp{1} East of Brynknot.\nRemember, they only appear at daytime.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d giant wasps East of Brynknot.\nRemember, they only appear at daytime.",
+			"accepted": "\nKill at least {0} giant wasps East of Brynknot.\nRemember, they only appear at daytime.",
 		},
 		"info":
 		{
@@ -93,10 +93,10 @@ quest_items = {
 		{
 			"not_started": "In the past few days, we've been having trouble with the wyverns living in cave Southeast of Brynknot. You seem strong enough, so I think you should be able to help us out.",
 			"reward": "You receive amulet (ac+1).",
-			"not_finished": "You still need to kill %d wyvern%s from the cave Southeast of Brynknot.",
+			"not_finished": "You still need to kill {0} wyvern{1} from the cave Southeast of Brynknot.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d wyverns in cave Southeast of Brynknot.",
+			"accepted": "\nKill at least {0} wyverns in cave Southeast of Brynknot.",
 		},
 		"info":
 		{
@@ -113,10 +113,10 @@ quest_items = {
 		{
 			"not_started": "There have been rumors of ice golems living in an old outpost North of here. I think you know what to do.",
 			"reward": "You receive 10 silver coins.",
-			"not_finished": "You still need to kill %d ice golem%s in the old outpost.",
+			"not_finished": "You still need to kill {0} ice golem{1} in the old outpost.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d ice golems in old outpost North of Brynknot.",
+			"accepted": "\nKill at least {0} ice golems in old outpost North of Brynknot.",
 		},
 		"info":
 		{
@@ -133,10 +133,10 @@ quest_items = {
 		{
 			"not_started": "There have been rumors of lava golems living in an old outpost North of here. I think you know what to do.",
 			"reward": "You receive 15 silver coins.",
-			"not_finished": "You still need to kill %d lava golem%s in the old outpost.",
+			"not_finished": "You still need to kill {0} lava golem{1} in the old outpost.",
 			"kill_suffix_pl": "s",
 			"kill_suffix": "",
-			"accepted": "\nKill at least %d lava golems in old outpost North of Brynknot.",
+			"accepted": "\nKill at least {0} lava golems in old outpost North of Brynknot.",
 		},
 		"info":
 		{

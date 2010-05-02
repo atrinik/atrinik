@@ -2,7 +2,6 @@
 ## Script used by the Skillgiver NPC in Developer Testmaps.
 
 from Atrinik import *
-import string
 
 activator = WhoIsActivator()
 me = WhoAmI()

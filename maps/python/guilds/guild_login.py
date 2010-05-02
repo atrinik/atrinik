@@ -5,7 +5,6 @@
 
 from Atrinik import *
 from Guild import Guild
-import string
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -26,11 +25,17 @@ y = event_options[2]
 ## The guild we're managing.
 guild = Guild(guildname)
 
-if not guild.is_member_of(activator.name, guildname):
-	activator.Write("You have been removed from the guild while you were offline. Goodbye!", COLOR_RED)
-	guild.remove_player_from_guild_maps(activator, me)
-elif activator.map.path[-7:] == "/oracle" and not guild.is_administrator(activator.name):
-	activator.Write("You have had administrator rights taken away while you were offline.", COLOR_RED)
-	guild.remove_player_from_guild_maps(activator, me)
-else:
-	activator.SetPosition(int(x), int(y))
+def main():
+	if not guild.is_member_of(activator.name, guildname):
+		activator.Write("You have been removed from the guild while you were offline. Goodbye!", COLOR_RED)
+		guild.remove_player_from_guild_maps(activator, me)
+	elif activator.map.path[-7:] == "/oracle" and not guild.is_administrator(activator.name):
+		activator.Write("You have had administrator rights taken away while you were offline.", COLOR_RED)
+		guild.remove_player_from_guild_maps(activator, me)
+	else:
+		activator.SetPosition(int(x), int(y))
+
+try:
+	main()
+finally:
+	guild.guilddb.close()

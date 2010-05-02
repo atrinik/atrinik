@@ -3,7 +3,7 @@
 ## functions like removing/adding members, querying member ranks, etc.
 
 from Atrinik import *
-import string, os, shelve
+import shelve
 
 ## The Guild class.
 ##

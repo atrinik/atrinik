@@ -47,8 +47,8 @@ def create_key():
 	key.Clone().InsertInside(activator)
 	activator.Write("{0} hands you a key.".format(me.name), COLOR_GREEN)
 
-# Handle Tortwald.
-if me.name == "Tortwald":
+## Handle Tortwald.
+def npc_tortwald():
 	# Tortwald's quest.
 	qm_t = QuestManager(activator, quest_tortwald)
 
@@ -117,8 +117,8 @@ if me.name == "Tortwald":
 		elif msg == "no thanks":
 			me.SayTo(activator, "\n*sobs*... Please?\n\n^Alright then^")
 
-# Handle Rienn.
-else:
+## Handle Rienn.
+def npc_rienn():
 	# Quest manager for Rienn's quest.
 	qm_r = QuestManager(activator, quest_rienn)
 	# Check if we have Tortwald's letter.
@@ -155,3 +155,8 @@ else:
 		# Just a small hint.
 		else:
 			activator.Write("{0} doesn't seem to notice you and continues to stare in the direction of the ruins north...".format(me.name), COLOR_BLUE)
+
+if me.name == "Tortwald":
+	npc_tortwald()
+else:
+	npc_rienn()

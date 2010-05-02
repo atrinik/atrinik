@@ -4,7 +4,6 @@
 ## Used to teleport apartment owners to their apartment.
 
 from Atrinik import *
-import string, os
 
 ## Activator object.
 activator = WhoIsActivator()

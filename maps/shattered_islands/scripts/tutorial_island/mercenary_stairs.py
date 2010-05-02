@@ -4,7 +4,6 @@
 
 from Atrinik import *
 
-## Activator object.
 activator = WhoIsActivator()
 
 ## The Mercenary guild tag.

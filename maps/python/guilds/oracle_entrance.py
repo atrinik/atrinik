@@ -13,7 +13,6 @@
 
 from Atrinik import *
 from Guild import Guild
-import string
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -22,19 +21,21 @@ me = WhoAmI()
 
 ## Get the event options.
 event_options = GetOptions().split("|")
-## Count the length of the event options .
+## Count the length of the event options.
 event_options_length = len(event_options)
 
 # Sanity check
 if event_options_length < 1:
 	SetReturnValue(1)
-else:
-	## Get the guildname.
-	guildname = event_options[0]
+	raise error("Invalid event options.")
 
-	## The guild we're managing.
-	guild = Guild(guildname)
+## Get the guildname.
+guildname = event_options[0]
 
+## The guild we're managing.
+guild = Guild(guildname)
+
+def main():
 	if not guild.is_administrator(activator.name) and not activator.f_wiz:
 		activator.Write("Entry forbidden.", COLOR_RED)
 
@@ -43,5 +44,7 @@ else:
 
 		SetReturnValue(1)
 
-	# Close the database.
+try:
+	main()
+finally:
 	guild.guilddb.close()

@@ -9,4 +9,4 @@ activator = WhoIsActivator()
 me = WhoAmI()
 
 # Do something
-activator.Say("I just reached the waypoint \"%s\"" % me.name)
+activator.Say("I just reached the waypoint \"{0}\"".format(me.name))

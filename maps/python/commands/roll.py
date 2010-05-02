@@ -1,8 +1,8 @@
 ## @file
 ## Implements the /roll command.
 
-from random import randrange
 from Atrinik import *
+from random import randrange
 
 activator = WhoIsActivator()
 params = WhatIsMessage()

@@ -2,7 +2,6 @@
 ## Script for the apartment seller in Brynknot.
 
 from Atrinik import *
-import os
 
 ## Activator object.
 activator = WhoIsActivator()
@@ -32,10 +31,10 @@ def upgrade_apartment(ap_old, ap_new, pid, x, y):
 	activator.Write("Darlin is casting some strange magic.", 0)
 
 	if activator.SwapApartments(ap_old, ap_new, x, y) != 1:
-		me.SayTo(activator, "\nSomething is very wrong... Call a DM!");
+		me.SayTo(activator, "\nSomething is very wrong... Call a DM!")
 	else:
 		pinfo.slaying = pid
-		me.SayTo(activator, "\nDone! Your new apartment is ready.");
+		me.SayTo(activator, "\nDone! Your new apartment is ready.")
 
 	pinfo.slaying = pid
 
@@ -57,16 +56,16 @@ if text[0] == "hello" or text[0] == "hi" or text[0] == "hey":
 	apartment_links = []
 
 	for apartment in sort_apartments(apartments):
-		apartment_links.append("^%s^" % apartment)
+		apartment_links.append("^{0}^".format(apartment))
 
-	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have %s ones." % ", ".join(apartment_links));
+	me.SayTo(activator, "\nWelcome to the apartment house.\nI can sell you an ^apartment^.\nI have {0} ones.".format(", ".join(apartment_links)))
 
 # Explain what an apartment is
 elif text[0] == "apartment":
 	if pinfo != None:
 		pinfo.last_heal = -1
 
-	me.SayTo(activator, "\nAn apartment is a kind of unique place you can buy.\nOnly you can enter it!\nYou can safely store or drop your items there.\nThey will not vanish with the time.\nIf you leave the game they will be still there when you come back later.\nApartments have different sizes and styles.\nYou can have only one apartment at once in a city,\nbut you can ^upgrade^ it.");
+	me.SayTo(activator, "\nAn apartment is a kind of unique place you can buy.\nOnly you can enter it!\nYou can safely store or drop your items there.\nThey will not vanish with the time.\nIf you leave the game they will be still there when you come back later.\nApartments have different sizes and styles.\nYou can have only one apartment at once in a city,\nbut you can ^upgrade^ it.")
 
 # Explain how upgrading works
 elif msg == "upgrade":
@@ -75,7 +74,7 @@ elif msg == "upgrade":
 	else:
 		pinfo.last_heal = -1
 
-		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one, for example.\nGo to upgrade ^procedure^ if you want to upgrade now.");
+		me.SayTo(activator, "\nApartment upgrading will work like this:\n1.) Choose your new home in the upgrade procedure.\n2.) You get |no| money back for your old apartment.\n3.) All items in your old apartment are |automatically| transferred, including items in containers. They appear in a big pile in your new apartment.\n4.) Your old apartment is exchanged with your new one.\nUpgrading will also work to change expensive apartment to cheap one, for example.\nGo to upgrade ^procedure^ if you want to upgrade now.")
 
 # Upgrade procedure.
 elif text[0] == "procedure":
@@ -90,9 +89,9 @@ elif text[0] == "procedure":
 		for apartment in sort_apartments(apartments):
 			if apartment != pinfo.slaying:
 				upgrades.append(apartment)
-				upgrade_links.append("^upgrade to %s apartment^" % apartment)
+				upgrade_links.append("^upgrade to {0} apartment^".format(apartment))
 
-		me.SayTo(activator, "\nYour current home here is %s apartment.\nYou can upgrade it to one of %s.\nTo upgrade say one of:\n%s\nAfter you have said the sentence I will ask you to confirm." % (pinfo.slaying, ", ".join(upgrades), "\n".join(upgrade_links)))
+		me.SayTo(activator, "\nYour current home here is {0} apartment.\nYou can upgrade it to one of {1}.\nTo upgrade say one of:\n{2}\nAfter you have said the sentence I will ask you to confirm.".format(pinfo.slaying, ", ".join(upgrades), "\n".join(upgrade_links)))
 
 # Upgrade an apartment. The text is dynamic and will support anything in the apartments dictionary.
 # Text to activate this might look like this: "upgrade to cheap apartment"
@@ -107,7 +106,7 @@ elif text[0] == "upgrade" and text[1] == "to" and text[2] in apartments and text
 		else:
 			pinfo.last_heal = apartments[text[2]]["id"]
 
-			me.SayTo(activator, "\nThe %(name)s apartment will cost you %(cost)s.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to %(name)s apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it." % {'name': text[2], 'cost': activator.ShowCost(apartments[text[2]]["price"])})
+			me.SayTo(activator, "\nThe {0} apartment will cost you {1}.\n~Now listen~: To do the upgrade you must confirm it.\nDo you really want to upgrade to {0} apartment now?\nSay ~Yes, I do~ and it will be done.\nSay anything else to cancel it.".format(text[2], activator.ShowCost(apartments[text[2]]["price"])))
 
 # The player said "Yes, I do", and we can upgrade the apartment now.
 elif msg == "yes, i do":
@@ -124,7 +123,7 @@ elif msg == "yes, i do":
 			if activator.PayAmount(apartment_info["price"]) == 1:
 				upgrade_apartment(old_apartment, apartment_info["path"], apartments_info[apartment_id]["apartment_ids"][pinfo.last_heal], apartment_info["x"], apartment_info["y"])
 			else:
-				me.SayTo(activator, "\nSorry, you don't have enough money.");
+				me.SayTo(activator, "\nSorry, you don't have enough money.")
 
 		pinfo.last_heal = -1
 
@@ -133,7 +132,7 @@ elif text[0] == "pocket" or text[0] == "dimension" or msg == "pocket dimension":
 	if pinfo != None:
 		pinfo.last_heal = -1
 
-	me.SayTo(activator, "\nA pocket dimension is a magical mini dimension in an outer plane. They are very safe and no thief will ever be able to enter.");
+	me.SayTo(activator, "\nA pocket dimension is a magical mini dimension in an outer plane. They are very safe and no thief will ever be able to enter.")
 
 # If the player asked about an apartment in the apartments dictionary, give out some information
 elif text[0] in apartments:
@@ -152,17 +151,17 @@ elif text[0] == "sell" and text[1] == "me" and text[2] in apartments and text[3]
 			pinfo = activator.CreatePlayerInfo(apartment_tag)
 			pinfo.slaying = text[2]
 
-			activator.Write("%s is casting some strange magic." % me.name, 0)
-			me.SayTo(activator, "\nCongratulations! I have summoned your apartment.\nEnter the teleporter and you will be there!\nHave a nice day.");
+			activator.Write("{0} is casting some strange magic.".format(me.name), 0)
+			me.SayTo(activator, "\nCongratulations! I have summoned your apartment.\nEnter the teleporter and you will be there!\nHave a nice day.")
 		else:
-			me.SayTo(activator, "\nSorry, you don't have enough money.");
+			me.SayTo(activator, "\nSorry, you don't have enough money.")
 	else:
 		pinfo.last_heal = -1
 
-		me.SayTo(activator, "\nYou have bought an apartment here in the past.\nYou can ^upgrade^ it.");
+		me.SayTo(activator, "\nYou have bought an apartment here in the past.\nYou can ^upgrade^ it.")
 
 # Otherwise if the player said anything else, and they were in the upgrade procedure, cancel it.
 else:
 	if pinfo != None and pinfo.last_heal > 0:
-		me.SayTo(activator, "\nUpgrade canceled!\nYou did not say ~Yes, I do~.");
+		me.SayTo(activator, "\nUpgrade canceled!\nYou did not say ~Yes, I do~.")
 		pinfo.last_heal = -1

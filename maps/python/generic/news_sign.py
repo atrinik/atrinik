@@ -13,16 +13,20 @@ location = GetOptions()
 if not location:
 	raise error("Bogus news sign: no event options to indicate location set.")
 
-SetReturnValue(1)
 news = News(location)
-messages = news.get_messages()
 
-if messages:
-	for message in messages:
-		activator.Write("%s: %s" % (message["time"], message["message"]), COLOR_NAVY)
+def main():
+	messages = news.get_messages()
 
-# No news
-else:
-	activator.Write("There are no news.", COLOR_NAVY)
+	if messages:
+		for message in messages:
+			activator.Write("{0}: {1}".format(message["time"], message["message"]), COLOR_NAVY)
+	# No news
+	else:
+		activator.Write("There are no news.", COLOR_NAVY)
 
-news.db.close()
+try:
+	main()
+finally:
+	news.db.close()
+	SetReturnValue(1)
