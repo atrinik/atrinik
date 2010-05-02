@@ -231,12 +231,28 @@ extern PyTypeObject Atrinik_ObjectType;
 extern PyObject *wrap_object(object *what);
 extern int Atrinik_Object_init(PyObject *module);
 
+/**
+ * @defgroup OBJ_ITER_TYPE_xxx Object iteration types
+ * These determine how we're iterating over an object.
+ *@{*/
+/** Nothing to iterate over. */
+#define OBJ_ITER_TYPE_NONE 0
+/** Using object::below. */
+#define OBJ_ITER_TYPE_BELOW 1
+/** Using object::above. */
+#define OBJ_ITER_TYPE_ABOVE 2
+/*@}*/
+
 /** The Atrinik_Object structure. */
-typedef struct
+typedef struct Atrinik_Object
 {
 	PyObject_HEAD
 	/** Pointer to the Atrinik object we wrap. */
 	object *obj;
+	/** Pointer for iteration. */
+	struct Atrinik_Object *iter;
+	/** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
+	uint8 iter_type;
 } Atrinik_Object;
 
 extern PyTypeObject Atrinik_MapType;

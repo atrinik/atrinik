@@ -2992,7 +2992,7 @@ static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject
 /**
  * Free an object wrapper.
  * @param self The wrapper to free. */
-static void Atrinik_Object_dealloc(Atrinik_Object* self)
+static void Atrinik_Object_dealloc(Atrinik_Object *self)
 {
 	self->obj = NULL;
 #ifndef IS_PY_LEGACY
@@ -3065,6 +3065,73 @@ static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left, Atrinik_Object
 	return PyBool_FromLong(result);
 }
 
+/**
+ * Start iterating.
+ * @param seq Object to start iterating from.
+ * @return A new instance of PyObject, containing Atrinik_Object, with a reference
+ * to 'seq'. */
+static PyObject *object_iter(PyObject *seq)
+{
+	Atrinik_Object *obj, *orig_obj = (Atrinik_Object *) seq;
+
+	if (!orig_obj->obj)
+	{
+		return NULL;
+	}
+
+	obj = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
+	Py_INCREF(seq);
+	obj->iter = (Atrinik_Object *) seq;
+	obj->iter_type = OBJ_ITER_TYPE_NONE;
+
+	/* Select which iteration type we're doing. It's possible that
+	 * an object has both below and above set (it's not the first and
+	 * not the last object), in which case we will prefer below. */
+	if (orig_obj->obj->below)
+	{
+		obj->iter_type = OBJ_ITER_TYPE_BELOW;
+	}
+	else if (orig_obj->obj->above)
+	{
+		obj->iter_type = OBJ_ITER_TYPE_ABOVE;
+	}
+
+	return (PyObject *) obj;
+}
+
+/**
+ * Get next object for iteration.
+ * @param obj Previous object.
+ * @return Next object, NULL if there is nothing left. */
+static PyObject *object_iternext(Atrinik_Object *obj)
+{
+	/* Do we need to iterate? */
+	if (obj->iter_type != OBJ_ITER_TYPE_NONE)
+	{
+		object *tmp = obj->iter->obj;
+
+		/* Check which way we're iterating. */
+		if (obj->iter_type == OBJ_ITER_TYPE_BELOW)
+		{
+			obj->iter->obj = tmp->below;
+		}
+		else if (obj->iter_type == OBJ_ITER_TYPE_ABOVE)
+		{
+			obj->iter->obj = tmp->above;
+		}
+
+		/* Nothing left, so mark iter_type to show that. */
+		if (!obj->iter->obj)
+		{
+			obj->iter_type = OBJ_ITER_TYPE_NONE;
+		}
+
+		return wrap_object(tmp);
+	}
+
+	return NULL;
+}
+
 /** This is filled in when we initialize our object type. */
 static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
 
@@ -3094,7 +3161,9 @@ PyTypeObject Atrinik_ObjectType =
 	"Atrinik objects",
 	NULL, NULL,
 	(richcmpfunc) Atrinik_Object_RichCompare,
-	0, 0, 0,
+	0,
+	(getiterfunc) object_iter,
+	(iternextfunc) object_iternext,
 	ObjectMethods,
 	0,
 	Object_getseters,
