@@ -11,7 +11,7 @@ corpse 1
 type 80
 is_male 1
 is_neutral 1
-Wis 7
+Wis 4
 terrain_flag 1
 mpart_id 3
 animation worm_purple

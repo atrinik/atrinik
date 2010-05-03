@@ -19,7 +19,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_slash 75
 type 80
-Wis 6
+Wis 3
 randomitems mob_kobold
 animation kobold_shaman
 is_animated 1

@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2010-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -580,6 +580,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -917,6 +918,7 @@ x 6
 y 4
 arch orc_outlaw
 type 83
+Wis 6
 level 29
 end
 end
@@ -961,11 +963,12 @@ speed -0.02317
 x 6
 y 10
 arch orc_outlaw
-type 83
 level 28
 random_move 1
 item_race 5
 item_level 2
+Wis 6
+type 83
 end
 end
 arch grassd_4
@@ -1150,6 +1153,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -1205,6 +1209,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -1239,6 +1244,7 @@ x 8
 y 2
 arch orc_warlord
 type 83
+Wis 6
 level 30
 arch rand_drop
 container 18
@@ -1257,6 +1263,7 @@ dam 100
 wc 14
 maxhp 110
 ac 14
+Wis 6
 type 83
 arch rand_drop
 container 150
@@ -1856,6 +1863,7 @@ arch orc_outlaw
 level 29
 Dex 3
 can_use_bow 1
+Wis 6
 type 83
 arch ability_stone_throw
 race arrows
@@ -1959,6 +1967,7 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 5
 resist_slash 0
 resist_pierce 0
@@ -2091,6 +2100,7 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 5
 resist_slash 0
 resist_pierce 0
@@ -2592,6 +2602,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -2711,6 +2722,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
+Wis 6
 type 83
 end
 end
@@ -2911,6 +2923,7 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 5
 resist_slash 0
 resist_pierce 5
@@ -3039,6 +3052,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -3372,6 +3386,7 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
+Wis 7
 resist_impact 0
 resist_slash 0
 resist_pierce 5
@@ -3449,6 +3464,7 @@ arch orc_outlaw
 level 29
 Dex 3
 can_use_bow 1
+Wis 6
 type 83
 arch ability_stone_throw
 race arrows

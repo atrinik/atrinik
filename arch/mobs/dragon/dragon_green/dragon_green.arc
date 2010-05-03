@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_poison 60
 attack_impact 40
 type 80
-Wis 6
+Wis 3
 mpart_id 3
 animation dragon_green
 is_animated 1

@@ -19,7 +19,7 @@ anim_speed 4
 speed -0.047
 alive 1
 monster 1
-Wis 7
+Wis 4
 see_invisible 1
 resist_impact 75
 resist_cleave 75

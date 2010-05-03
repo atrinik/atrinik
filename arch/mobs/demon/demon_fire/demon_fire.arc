@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_fire 70
 attack_cleave 30
 type 80
-Wis 6
+Wis 3
 animation demon_fire
 is_animated 1
 anim_speed 4

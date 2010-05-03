@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_fire 60
 attack_cleave 40
 type 80
-Wis 6
+Wis 3
 mpart_id 3
 animation dragon_fire
 is_animated 1

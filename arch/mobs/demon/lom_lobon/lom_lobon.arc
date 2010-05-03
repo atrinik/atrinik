@@ -16,7 +16,7 @@ can_see_in_dark 1
 can_use_weapon 1
 can_use_armour 1
 Int 10
-Wis 6
+Wis 3
 Dex 3
 Con 15
 exp 115

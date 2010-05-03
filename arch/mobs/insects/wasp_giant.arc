@@ -13,7 +13,7 @@ weapon_speed 0.035
 attack_cleave 75
 random_move 1
 type 80
-Wis 6
+Wis 3
 randomitems mob_insect
 animation wasp_giant
 is_animated 1

@@ -14,7 +14,7 @@ attack_fire 30
 attack_cold 30
 attack_cleave 40
 type 80
-Wis 6
+Wis 3
 mpart_id 3
 animation dragon_black
 is_animated 1

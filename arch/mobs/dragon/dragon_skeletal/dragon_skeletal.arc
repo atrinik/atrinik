@@ -12,7 +12,7 @@ behavior 2
 type 80
 is_male 1
 is_evil 1
-Wis 7
+Wis 4
 Dex 13
 terrain_flag 1
 mpart_id 3

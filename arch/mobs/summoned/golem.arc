@@ -10,7 +10,7 @@ wc_range 20
 terrain_flag 1
 weapon_speed 0.039
 face golem.131
-Wis 6
+Wis 3
 animation golem
 is_animated 1
 anim_speed 4

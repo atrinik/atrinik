@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_impact 75
 type 80
-Wis 6
+Wis 3
 randomitems mob_orc
 animation orc_outlaw
 is_animated 1
