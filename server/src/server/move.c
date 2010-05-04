@@ -354,7 +354,7 @@ void recursive_roll(object *op, int dir, object *pusher)
 	}
 
 	move_ob(pusher, dir, pusher);
-	new_draw_info_format(NDI_WHITE, pusher, "You roll the %s.", query_name(op, NULL));
+	new_draw_info_format(NDI_WHITE, pusher, "You push the %s.", query_name(op, NULL));
 }
 
 /**
