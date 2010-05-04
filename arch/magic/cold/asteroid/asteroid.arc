@@ -1,0 +1,25 @@
+Object asteroid
+name asteroid
+type 2
+no_save 1
+layer 7
+other_arch icestorm
+face asteroid.101
+is_animated 0
+animation asteroid
+anim_speed 1
+last_sp 12
+is_missile 1
+is_turnable 1
+no_pick 1
+walk_on 1
+fly_on 1
+speed 1
+wc 200
+wc_range 20
+dam 3
+level 1
+attack_cold 100
+terrain_flag 32767
+flying 1
+end

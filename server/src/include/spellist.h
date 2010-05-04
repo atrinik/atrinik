@@ -82,18 +82,18 @@ spell spells[NROFREALSPELLS] =
 	 PATH_INFO, "meffect_pink"
 	},
 
-	{"detect magic", SPELL_TYPE_WIZARD,
-	 1, 5, 8, 3, 6, 0, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_DEFAULT,
-	 SPELL_USE_CAST, SPELL_DESC_SELF | SPELL_DESC_TOWN,
-	 PATH_INFO, "meffect_pink"
+	{"asteroid", SPELL_TYPE_WIZARD,
+	 30, 18, 32, 2, 0, 3, 1.0,
+	 4, 10, 4, 16, 9, SOUND_MAGIC_STAT,
+	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
+	 PATH_FROST, "asteroid"
 	},
 
-	{"detect curse", SPELL_TYPE_PRIEST,
-	 1, 5, 8, 3, 6, 0, 1.0,
-	 0, 0, 0, 0, 0, SOUND_MAGIC_DEFAULT,
-	 SPELL_USE_CAST, SPELL_DESC_SELF | SPELL_DESC_TOWN | SPELL_DESC_WIS,
-	 PATH_INFO, "meffect_pink"
+	{"frost nova", SPELL_TYPE_WIZARD,
+	 80, 18, 80, 2, 0, 3, 1.0,
+	 4, 10, 4, 8, 9, SOUND_MAGIC_STAT,
+	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
+	 PATH_FROST, "asteroid"
 	},
 
 	{"remove curse", SPELL_TYPE_PRIEST,

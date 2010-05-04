@@ -564,11 +564,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_change_attr(op, caster, target, type);
 			break;
 
-		case SP_DETECT_MAGIC:
-		case SP_DETECT_CURSE:
-			success = 1;
-			break;
-
 		case SP_IDENTIFY:
 			success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_MODE_NORMAL);
 			break;
@@ -619,12 +614,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		case SP_POISON_FOG:
 		case SP_METEOR:
+		case SP_ASTEROID:
 			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
 			break;
 
 		case SP_METEOR_SWARM:
 			success = 1;
 			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			break;
+
+		case SP_FROST_NOVA:
+			success = 1;
+			fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
 			break;
 
 		case SP_BULLET_SWARM:
