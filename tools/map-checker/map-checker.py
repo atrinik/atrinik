@@ -3,6 +3,13 @@
 # Application to check Atrinik maps for common errors.
 
 import sys, os, getopt
+try:
+	from ConfigParser import ConfigParser
+	from StringIO import StringIO
+# Python 3.x
+except:
+	from configparser import ConfigParser
+	from io import StringIO
 
 # We will need some recursion.
 sys.setrecursionlimit(50000)
@@ -104,15 +111,14 @@ for o, a in opts:
 		regions_file = a
 
 # Errors we found in maps/objects.
-errors_d = {}
+errors_l = []
+errors_l_last_map = None
 # Errors from artifacts file.
 errors_artifacts = []
 # Errors from archetypes file.
 errors_archetypes = []
 # Errors from regions file.
 errors_regions = []
-# Configuration options.
-config = {}
 # Loaded archetypes.
 archetypes = {}
 # Artifacts.
@@ -120,18 +126,34 @@ artifacts = {}
 # Regions.
 regions = {}
 
-# Add error to errors_d.
+# Default config.
+default_cfg = StringIO("""
+[Suppress]
+medium = off
+high = off
+warning = off
+critical = off
+low = off
+""")
+
+config = ConfigParser()
+config.readfp(default_cfg)
+config.read(['config.cfg'])
+
+# Add error to errors_l.
 # @param map Map file.
 # @param msg Description of the error.
 # @param severity Severity of the error, from 'errors'.
 # @param x X position of object.
 # @param y Y position of object.
 def add_error(map, msg, severity, x = -1, y = -1):
-	if not map in errors_d:
-		errors_d[map] = []
+	global errors_l_last_map
 
-	# Add the error.
-	errors_d[map].append([msg, severity, x, y])
+	if errors_l_last_map != map or not errors_l:
+		errors_l_last_map = map
+		errors_l.append([map, []])
+
+	errors_l[len(errors_l) - 1][1].append((msg, severity, x, y))
 
 # Load the map.
 # @param fp File pointer.
@@ -143,48 +165,51 @@ def load_map(fp):
 	in_msg = False
 	msg_buf = ""
 
-	for line in fp:
-		if line == "arch map\n":
-			in_map = True
-			continue
-		elif not in_map:
-			return {}
-		elif line == "end\n":
-			# Store the map's file name.
-			d["file"] = fp.name
+	try:
+		for line in fp:
+			if line == "arch map\n":
+				in_map = True
+				continue
+			elif not in_map:
+				return {}
+			elif line == "end\n":
+				# Store the map's file name.
+				d["file"] = fp.name
 
-			# Strip off 'path' if possible.
-			if d["file"][:len(path)] == path:
-				d["file"] = d["file"][len(path) + 1:]
+				# Strip off 'path' if possible.
+				if d["file"][:len(path)] == path:
+					d["file"] = d["file"][len(path) + 1:]
 
-			# Load the objects on this map.
-			parser = ObjectParser(fp)
-			d["tiles"] = parser.map(d["file"])
+				# Load the objects on this map.
+				parser = ObjectParser(fp)
+				d["tiles"] = parser.map(d["file"])
 
-			return d
+				return d
 
-		# Start of message.
-		if line == "msg\n":
-			in_msg = True
-		# End of message.
-		elif line == "endmsg\n":
-			in_msg = False
-			# Add it to the dictionary, removing the last newline.
-			d["msg"] = msg_buf[:-1]
-		# Store it in a buffer.
-		elif in_msg:
-			msg_buf += line
-		# Map's attributes.
-		else:
-			space_pos = line.find(" ")
-			# Our value.
-			value = line[space_pos + 1:-1]
+			# Start of message.
+			if line == "msg\n":
+				in_msg = True
+			# End of message.
+			elif line == "endmsg\n":
+				in_msg = False
+				# Add it to the dictionary, removing the last newline.
+				d["msg"] = msg_buf[:-1]
+			# Store it in a buffer.
+			elif in_msg:
+				msg_buf += line
+			# Map's attributes.
+			else:
+				space_pos = line.find(" ")
+				# Our value.
+				value = line[space_pos + 1:-1]
 
-			if isint(value):
-				value = int(value)
+				if isint(value):
+					value = int(value)
 
-			# Add it to the dictionary.
-			d[line[:space_pos]] = value
+				# Add it to the dictionary.
+				d[line[:space_pos]] = value
+	except:
+		pass
 
 	return {}
 
@@ -441,8 +466,8 @@ class ObjectParser:
 	# Add object to map's tiles.
 	# @param arch Object to add.
 	def map_add_tile(self, arch):
-		x = "x" in arch and arch["x"] or 0
-		y = "y" in arch and arch["y"] or 0
+		x = arch["x"]
+		y = arch["y"]
 
 		if not x in self.tiles:
 			self.tiles[x] = {}
@@ -469,9 +494,13 @@ class ObjectParser:
 		archetype["archname"] = archname
 		# Inventory.
 		archetype["inv"] = []
+		archetype["custom_attrs"] = {}
 
 		if env:
 			archetype["env"] = env
+		else:
+			archetype["x"] = 0
+			archetype["y"] = 0
 
 		for line in self.fp:
 			# Another arch? That means it's inside the previous one.
@@ -482,7 +511,11 @@ class ObjectParser:
 				break
 			# Parse attributes.
 			else:
-				self.parse(line, archetype)
+				parsed = self.parse(line, archetype)
+
+				if parsed:
+					(attr, value) = parsed
+					archetype["custom_attrs"][attr] = value
 
 		if invalid_arch:
 			env = get_env(archetype)
@@ -500,8 +533,10 @@ class ObjectParser:
 		# End of message.
 		elif line == "endmsg\n":
 			self.in_msg = False
+			msg = self.msg_buf[:-1]
 			# Add it to the dict without the last newline.
-			dict["msg"] = self.msg_buf[:-1]
+			dict["msg"] = msg
+			return ("msg", msg)
 		# We are in a message, store it in a buffer.
 		elif self.in_msg:
 			self.msg_buf += line
@@ -515,8 +550,12 @@ class ObjectParser:
 			if isint(value):
 				value = int(value)
 
+			attr = line[:space_pos]
 			# Add it to the dictionary.
-			dict[line[:space_pos]] = value
+			dict[attr] = value
+			return (attr, value)
+
+		return None
 
 # Parse the archetypes.
 # @return Dictionary of the archetypes.
@@ -582,6 +621,10 @@ def parse_regions():
 	fp.close()
 	return d
 
+def config_save():
+	with open("config.cfg", "wb") as configfile:
+		config.write(configfile)
+
 archetypes = parse_archetypes()
 artifacts = parse_artifacts()
 regions = parse_regions()
@@ -597,6 +640,127 @@ if not cli:
 	import gtk, re, webbrowser
 	from datetime import datetime
 
+	class pref_types:
+		checkbox = 1
+
+	# Preferences dialog.
+	class PreferencesDialog:
+		# Contents of the dialog window.
+		tabs = [
+#			["Errors", "Allow you to turn on/off specific types of error messages.", [
+#				[pref_types.checkbox, "Empty spawn point object", ("Errors", "spawn_point_empty")],
+#			], "\n<b>Note:</b> You need to do a new scan to see the results."],
+			["Suppress", "These allow you to suppress an entire category of error messages.", [
+				[pref_types.checkbox, "Warning", ("Suppress", "warning")],
+				[pref_types.checkbox, "Low", ("Suppress", "low")],
+				[pref_types.checkbox, "Medium", ("Suppress", "medium")],
+				[pref_types.checkbox, "High", ("Suppress", "high")],
+				[pref_types.checkbox, "Critical", ("Suppress", "critical")],
+			], None],
+		]
+
+		# Callback for applying settings in the dialog.
+		# @param widget Widget.
+		# @param data Our data. Includes things like the setting type, config section,
+		# etc.
+		def callback(self, widget, data = None):
+			(pref_type, (config_section, config_name)) = data
+
+			if pref_type == pref_types.checkbox:
+				config.set(config_section, config_name, ("off", "on")[widget.get_active()])
+
+			self.main.draw_errors()
+
+		# Initializer.
+		# @param main Class we're coming from.
+		def __init__(self, main):
+			# Make a new window.
+			self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+			# Set the window's parent.
+			self.window.set_transient_for(main.window)
+			# Center it on parent.
+			self.window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+			# Set title.
+			self.window.set_title("Properties")
+			# Set default size.
+			self.window.resize(400, 20)
+			self.main = main
+
+			# Create vertical box.
+			self.window.vbox = gtk.VBox()
+			self.window.add(self.window.vbox)
+
+			# Create a new table, and add it to the box.
+			table = gtk.Table(2, 2, False)
+			self.window.vbox.add(table)
+
+			# Create a new GTK Notebook and add it to the table.
+			notebook = gtk.Notebook()
+			notebook.set_tab_pos(gtk.POS_LEFT)
+			table.attach(notebook, 0, 1, 0, 1, xpadding = 10, ypadding = 5)
+
+			# Now we create the contents.
+			for (tab_name, desc, prefs, note) in self.tabs:
+				# Set up alignment.
+				vbox_alignment = gtk.Alignment()
+				vbox_alignment.set_padding(5, 5, 10, 10)
+				# Create a vertical box, and add it to the alignment.
+				vbox = gtk.VBox(False, 2)
+				vbox_alignment.add(vbox)
+
+				# Create another alignment, set up label, add description contents,
+				# and add it to the box.
+				alignment = gtk.Alignment()
+				label = gtk.Label()
+				label.set_markup(desc)
+				vbox.pack_start(alignment, False, True, 1)
+				alignment.add(label)
+
+				# Now we add the actual preferences.
+				for (pref_type, pref_name, pref_config) in prefs:
+					# Alignment.
+					alignment = gtk.Alignment()
+					alignment.set_padding(0, 0, 10, 5)
+					(config_section, config_name) = pref_config
+
+					# A checkbox?
+					if pref_type == pref_types.checkbox:
+						widget = gtk.CheckButton(pref_name)
+						widget.set_active(config.getboolean(config_section, config_name))
+						widget.connect("toggled", self.callback, (pref_type, pref_config))
+
+					vbox.pack_start(alignment, False, True, 1)
+					alignment.add(widget)
+
+				# If we have a note about the particular tab, add it like
+				# description above.
+				if note:
+					alignment = gtk.Alignment()
+					label = gtk.Label()
+					label.set_markup(note)
+					vbox.pack_start(alignment, False, True, 1)
+					alignment.add(label)
+
+				# Create a label for the tab name, and actually append it to the
+				# notebook.
+				label = gtk.Label(tab_name)
+				notebook.append_page(vbox_alignment, label)
+
+			# Create alignment, attach it to the table, and create a
+			# close button.
+			alignment = gtk.Alignment(1)
+			table.attach(alignment, 0, 1, 1, 2, xpadding = 10, ypadding = 5)
+			button = gtk.Button("Close", gtk.STOCK_CLOSE)
+			button.connect("clicked", self.quit_event)
+			alignment.add(button)
+
+			self.window.show_all()
+
+		# Quit event. Destroy the preferences window.
+		def quit_event(self, widget, event = None, data = None):
+			self.window.destroy()
+			return False
+
 	# The GUI class.
 	class GUI:
 		# Our UI, with menu and toolbar.
@@ -605,17 +769,13 @@ if not cli:
 	<menu action="File">
 		<menuitem action="Scan" />
 		<menuitem action="Save" />
+		<separator />
 		<menuitem action="Check File" />
 		<menuitem action="Check Directory" />
 		<separator />
+		<menuitem action="Preferences" />
+		<separator />
 		<menuitem action="Quit" />
-	</menu>
-	<menu action="Suppress">
-		<menuitem action="Warnings" />
-		<menuitem action="Low" />
-		<menuitem action="Medium" />
-		<menuitem action="High" />
-		<menuitem action="Critical" />
 	</menu>
 	<menu action="Reload">
 		<menuitem action="Reload Archetypes" />
@@ -674,8 +834,8 @@ if not cli:
 				("Save", gtk.STOCK_SAVE, "_Save", "<control><shift>s", "Save", self.save_button),
 				("Check File", gtk.STOCK_OPEN, "_Check File", "<control>f", "Check File", self.check_file_button),
 				("Check Directory", gtk.STOCK_DIRECTORY, "_Check Directory", "<control>d", "Check Directory", self.check_directory_button),
+				("Preferences", gtk.STOCK_PREFERENCES, "_Preferences", None, "Preferences", self.preferences_button),
 				("Quit", gtk.STOCK_QUIT, "_Quit", "<control>q", "Quit the program", self.quit_button),
-				("Suppress", None, "_Suppress"),
 				("Reload", None, "_Reload"),
 				("Reload Archetypes", None, "_Reload Archetypes", None, "Reload archetypes from file", self.reload_archetypes_button),
 				("Reload Artifacts", None, "_Reload Artifacts", None, "Reload artifacts from file", self.reload_artifacts_button),
@@ -683,15 +843,6 @@ if not cli:
 				("Help", None, "_Help"),
 				("Report a Problem", None, "_Report a Problem", None, "Report a Problem", self.report_button),
 				("About", gtk.STOCK_ABOUT, "_About", None, "About this application", self.about_button),
-			])
-
-			# Create a toggle actions (checkboxes).
-			self.actiongroup.add_toggle_actions([
-				("Warnings", None, "_Warnings", None, "Suppress warnings", self.suppress_button0),
-				("Low", None, "_Low", None, "Suppress low severity errors", self.suppress_button1),
-				("Medium", None, "_Medium", None, "Suppress medium severity errors", self.suppress_button2),
-				("High", None, "_High", None, "Suppress high severity errors", self.suppress_button3),
-				("Critical", None, "_Critical", None, "Suppress critical errors", self.suppress_button4),
 			])
 
 			# Add the actiongroup to the UIManager.
@@ -761,6 +912,10 @@ if not cli:
 			gtk.main_quit()
 			return False
 
+		# Preferences dialog.
+		def preferences_button(self, b):
+			PreferencesDialog(self)
+
 		# We pressed the quit button, so quit.
 		def quit_button(self, b):
 			gtk.main_quit()
@@ -822,37 +977,10 @@ if not cli:
 
 			fc.destroy()
 
-		# Common function for the below suppress_buttonx functions.
-		def suppress_button(self, action, num):
-			# Turn the config on/off.
-			config["suppress_" + str(num)] = action.get_active()
-			# Redraw the errors to update them.
-			self.draw_errors()
-
-		# Suppress button for 'warnings'.
-		def suppress_button0(self, action):
-			self.suppress_button(action, 0)
-
-		# Suppress button for 'low'.
-		def suppress_button1(self, action):
-			self.suppress_button(action, 1)
-
-		# Suppress button for 'medium'.
-		def suppress_button2(self, action):
-			self.suppress_button(action, 2)
-
-		# Suppress button for 'high'.
-		def suppress_button3(self, action):
-			self.suppress_button(action, 3)
-
-		# Suppress button for 'critical'.
-		def suppress_button4(self, action):
-			self.suppress_button(action, 4)
-
 		# Action for the scan button.
 		def scan_button(self, b):
 			# Clear out old errors.
-			errors_d.clear()
+			del errors_l[:]
 			# Re-scan.
 			do_scan()
 			# Draw the errors.
@@ -869,7 +997,7 @@ if not cli:
 
 			if response == gtk.RESPONSE_OK:
 				# Clear out old errors.
-				errors_d.clear()
+				del errors_l[:]
 				# Scan the directory.
 				scan_dirs(fc.get_filename())
 				# Draw the errors.
@@ -888,7 +1016,7 @@ if not cli:
 
 			if response == gtk.RESPONSE_OK:
 				# Clear out old errors.
-				errors_d.clear()
+				del errors_l[:]
 				# Check the map.
 				check_file(fc.get_filename())
 				# Draw errors.
@@ -898,16 +1026,19 @@ if not cli:
 
 		# Reload archetypes.
 		def reload_archetypes_button(self, b):
+			del errors_archetypes[:]
 			archetypes = parse_archetypes()
 			self.draw_errors()
 
 		# Reload artifacts.
 		def reload_artifacts_button(self, b):
+			del errors_artifacts[:]
 			artifacts = parse_artifacts()
 			self.draw_errors()
 
 		# Reload regions.
 		def reload_regions_button(self, b):
+			del errors_regions[:]
 			regions = parse_regions()
 			self.draw_errors()
 
@@ -916,7 +1047,7 @@ if not cli:
 		# @param file File the error is in.
 		def draw_one_error(self, error, file):
 			# Check if we have suppressed this kind of errors.
-			if "suppress_" + str(error[1]) in config and config["suppress_" + str(error[1])]:
+			if config.getboolean("Suppress", errors.text[error[1]]):
 				return
 
 			pos = ""
@@ -934,8 +1065,8 @@ if not cli:
 			self.window.sm.get_model().clear()
 
 			# Draw map errors.
-			for map in errors_d:
-				for error in errors_d[map]:
+			for (map, map_errors) in errors_l:
+				for error in map_errors:
 					self.draw_one_error(error, map)
 
 			# Archetype errors.
@@ -962,9 +1093,12 @@ if not cli:
 				if os.path.exists(path):
 					return gtk.gdk.pixbuf_new_from_file(path)
 
-	# Initialize the GUI.
-	gui = GUI()
-	gtk.main()
+	try:
+		# Initialize the GUI.
+		gui = GUI()
+		gtk.main()
+	finally:
+		config_save()
 # CLI.
 else:
 	# Common function to print one error on the CLI.
@@ -985,10 +1119,10 @@ else:
 	print(colors.bold + colors.underscore + "Scan complete. Results:\n" + colors.end + colors.end)
 
 	# Print map errors.
-	for map in errors_d:
+	for (map, map_errors) in errors_l:
 		print(colors.bold + map + ":" + colors.end)
 
-		for error in errors_d[map]:
+		for error in map_errors:
 			print_one_error(error, map)
 
 	# Archetype errors.
