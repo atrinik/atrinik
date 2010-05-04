@@ -306,6 +306,7 @@ typedef struct _options
 	Uint8 real_video_bpp;
 	uint32 videoflags_full;
 	uint32 videoflags_win;
+	int reload_gfx_user;
 }_options;
 
 extern struct _options options;

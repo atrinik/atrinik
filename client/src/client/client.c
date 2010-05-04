@@ -469,52 +469,17 @@ static int load_picture_from_pack(int num)
 	return 0;
 }
 
-/** Maximum face request */
-#define REQUEST_FACE_MAX 250
-
 /**
- * We got a face - test if we have it loaded. If not, ask the server to
- * send us face command.
- * @param pnum Face ID.
- * @param mode Mode.
- * @return 0 if face is not there, 1 if face was requested or loaded. */
-int request_face(int pnum, int mode)
+ * Load face from user's graphics directory.
+ * @param num ID of the face to load.
+ * @return 1 on success, 0 on failure. */
+static int load_gfx_user_face(uint16 num)
 {
-	char buf[256 * 2];
+	char buf[MAX_BUF];
 	FILE *stream;
 	struct stat statbuf;
 	size_t len;
 	unsigned char *data;
-	static int count = 0;
-	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
-	uint16 num = (uint16)(pnum &~ 0x8000);
-
-	/* Forced flush buffer and command */
-	if (mode)
-	{
-		if (count)
-		{
-			fr_buf[0] = 'f';
-			fr_buf[1] = 'r';
-			fr_buf[2] = ' ';
-			cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
-			count = 0;
-		}
-
-		return 1;
-	}
-
-	/* Loaded or requested */
-	if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED)
-	{
-		return 1;
-	}
-
-	if (num >= bmaptype_table_size)
-	{
-		LOG(llevError, "REQUEST_FILE(): server sent picture id to big (%d %d)\n", num, bmaptype_table_size);
-		return 0;
-	}
 
 	/* First check for this image in gfx_user directory. */
 	snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
@@ -536,7 +501,7 @@ int request_face(int pnum, int mode)
 			{
 				face_flag_extension(num, buf);
 				snprintf(buf, sizeof(buf), "%s%s.png", GetGfxUserDirectory(), bmaptype_table[num].name);
-				FaceList[num].name = (char*) malloc(strlen(buf) + 1);
+				FaceList[num].name = (char *) malloc(strlen(buf) + 1);
 				strcpy(FaceList[num].name, buf);
 				FaceList[num].checksum = crc32(1L, data, len);
 				free(data);
@@ -546,6 +511,62 @@ int request_face(int pnum, int mode)
 
 		/* If we are here something was wrong with the file. */
 		free(data);
+	}
+
+	return 0;
+}
+
+/** Maximum face request */
+#define REQUEST_FACE_MAX 250
+
+/**
+ * We got a face - test if we have it loaded. If not, ask the server to
+ * send us face command.
+ * @param pnum Face ID.
+ * @param mode Mode.
+ * @return 0 if face is not there, 1 if face was requested or loaded. */
+int request_face(int pnum, int mode)
+{
+	char buf[MAX_BUF];
+	static int count = 0;
+	static char fr_buf[REQUEST_FACE_MAX * sizeof(uint16) + 4];
+	uint16 num = (uint16) (pnum &~ 0x8000);
+
+	/* Forced flush buffer and command */
+	if (mode)
+	{
+		if (count)
+		{
+			fr_buf[0] = 'f';
+			fr_buf[1] = 'r';
+			fr_buf[2] = ' ';
+			cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
+			count = 0;
+		}
+
+		return 1;
+	}
+
+	if (options.reload_gfx_user && load_gfx_user_face(num))
+	{
+		return 1;
+	}
+
+	/* Loaded or requested */
+	if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED)
+	{
+		return 1;
+	}
+
+	if (num >= bmaptype_table_size)
+	{
+		LOG(llevError, "REQUEST_FILE(): Server sent picture ID too big (%d, max: %d)\n", num, bmaptype_table_size);
+		return 0;
+	}
+
+	if (load_gfx_user_face(num))
+	{
+		return 1;
 	}
 
 	/* Best case - we have it in atrinik.p0 */
