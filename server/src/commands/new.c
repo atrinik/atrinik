@@ -998,14 +998,7 @@ static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *s
 		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
 	}
 
-	if (COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1027))
-	{
-		stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
-	}
-	else
-	{
-		stringbuffer_append_printf(sb, "/%s:%d", spells[spell_number].name, cost);
-	}
+	stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
 }
 
 /**

@@ -337,11 +337,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		{
 			set_map_timeout(oldmap);
 		}
-
-		if (!COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-		{
-			MapNewmapCmd(CONTR(op));
-		}
 	}
 }
 

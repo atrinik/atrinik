@@ -159,12 +159,6 @@ int map_tiled_reverse[TILED_MAPS];
 	((M_)->last)
 #define GET_MAP_SPACE_LAYER(M_, L_) \
 	((M_)->layer[L_])
-/** @deprecated */
-#define GET_MAP_SPACE_CL(M_, L_) \
-	((M_)->client_mlayer[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer[L_]])
-/** @deprecated */
-#define GET_MAP_SPACE_CL_INV(M_, L_) \
-	((M_)->client_mlayer_inv[L_] == -1 ? NULL : (M_)->layer[(M_)->client_mlayer_inv[L_]])
 
 #define SET_MAP_SPACE_FIRST(M_, O_) \
 	((M_)->first = (O_))
@@ -172,12 +166,6 @@ int map_tiled_reverse[TILED_MAPS];
 	((M_)->last = (O_))
 #define SET_MAP_SPACE_LAYER(M_, L_, O_) \
 	((M_)->layer[L_] = (O_))
-/** @deprecated */
-#define SET_MAP_SPACE_CLID(M_, L_, O_) \
-	((M_)->client_mlayer[L_] = (sint8) (O_))
-/** @deprecated */
-#define SET_MAP_SPACE_CLID_INV(M_, L_, O_) \
-	((M_)->client_mlayer_inv[L_] = (sint8) (O_))
 
 #define GET_MAP_UPDATE_COUNTER(M, X, Y) \
 	((M)->spaces[(X) + (M)->width * (Y)].update_tile)
@@ -379,16 +367,6 @@ typedef struct MapSpace_s
 
 	/** Terrain type flags (water, underwater,...) */
 	uint16 move_flags;
-
-	/**
-	 * Index for layer[] - this will be sent to player
-	 * @deprecated */
-	sint8 client_mlayer[MAP_LAYERS];
-
-	/**
-	 * Index for layer[], but for invisible objects
-	 * @deprecated */
-	sint8 client_mlayer_inv[MAP_LAYERS];
 
 	/** How much light this space provides */
 	uint8 light;

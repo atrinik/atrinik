@@ -1043,105 +1043,94 @@ void draw_client_map(object *pl)
 		return;
 	}
 
-	if (!COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1029))
+	CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_SAME;
+
+	/* If we changed somewhere the map, prepare map data */
+	if (CONTR(pl)->last_update != pl->map)
 	{
-		/* If we changed somewhere the map, prepare map data */
-		if (CONTR(pl)->last_update != pl->map)
+		int tile_map = get_tiled_map_id(CONTR(pl), pl->map);
+
+		/* Are we on a new map? */
+		if (!CONTR(pl)->last_update || !tile_map)
 		{
-			MapNewmapCmd(CONTR(pl));
+			CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_NEW;
+			memset(&(CONTR(pl)->socket.lastmap), 0, sizeof(struct Map));
+			CONTR(pl)->last_update = pl->map;
+			redraw_below = 1;
+		}
+		else
+		{
+			CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_CONNECTED;
+			CONTR(pl)->map_update_tile = tile_map;
+			redraw_below = 1;
+
+			/* We have moved to a tiled map. Let's calculate the offsets. */
+			switch (tile_map - 1)
+			{
+				case 0:
+					CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+					CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+					break;
+
+				case 1:
+					CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+					CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+					break;
+
+				case 2:
+					CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+					CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+					break;
+
+				case 3:
+					CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+					CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+					break;
+
+				case 4:
+					CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+					CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+					break;
+
+				case 5:
+					CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+					CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+					break;
+
+				case 6:
+					CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+					CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+					break;
+
+				case 7:
+					CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+					CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+					break;
+			}
+
+			copy_lastmap(&CONTR(pl)->socket, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
+			CONTR(pl)->last_update = pl->map;
 		}
 	}
 	else
 	{
-		CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_SAME;
-
-		/* If we changed somewhere the map, prepare map data */
-		if (CONTR(pl)->last_update != pl->map)
+		if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y)
 		{
-			int tile_map = get_tiled_map_id(CONTR(pl), pl->map);
-
-			/* Are we on a new map? */
-			if (!CONTR(pl)->last_update || !tile_map)
-			{
-				CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_NEW;
-				memset(&(CONTR(pl)->socket.lastmap), 0, sizeof(struct Map));
-				CONTR(pl)->last_update = pl->map;
-				redraw_below = 1;
-			}
-			else
-			{
-				CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_CONNECTED;
-				CONTR(pl)->map_update_tile = tile_map;
-				redraw_below = 1;
-
-				/* We have moved to a tiled map. Let's calculate the offsets. */
-				switch (tile_map - 1)
-				{
-					case 0:
-						CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-						CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-						break;
-
-					case 1:
-						CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-						CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-						break;
-
-					case 2:
-						CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-						CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-						break;
-
-					case 3:
-						CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-						CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-						break;
-
-					case 4:
-						CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-						CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-						break;
-
-					case 5:
-						CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-						CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-						break;
-
-					case 6:
-						CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-						CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-						break;
-
-					case 7:
-						CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-						CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-						break;
-				}
-
-				copy_lastmap(&CONTR(pl)->socket, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
-				CONTR(pl)->last_update = pl->map;
-			}
+			copy_lastmap(&CONTR(pl)->socket, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
+			redraw_below = 1;
 		}
-		else
-		{
-			if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y)
-			{
-				copy_lastmap(&CONTR(pl)->socket, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
-				redraw_below = 1;
-			}
-		}
+	}
 
-		/* Redraw below window and backbuffer new positions? */
-		if (redraw_below)
-		{
-			/* Backbuffer position so we can determine whether we have moved or not */
-			CONTR(pl)->map_tile_x = pl->x;
-			CONTR(pl)->map_tile_y = pl->y;
-			CONTR(pl)->socket.below_clear = 1;
-			/* Redraw it */
-			CONTR(pl)->socket.update_tile = 0;
-			CONTR(pl)->socket.look_position = 0;
-		}
+	/* Redraw below window and backbuffer new positions? */
+	if (redraw_below)
+	{
+		/* Backbuffer position so we can determine whether we have moved or not */
+		CONTR(pl)->map_tile_x = pl->x;
+		CONTR(pl)->map_tile_y = pl->y;
+		CONTR(pl)->socket.below_clear = 1;
+		/* Redraw it */
+		CONTR(pl)->socket.update_tile = 0;
+		CONTR(pl)->socket.look_position = 0;
 	}
 
 	/* Do LOS after calls to update_position */
@@ -1182,8 +1171,6 @@ static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 
 /** Draw the client map. */
 void draw_client_map2(object *pl)
-{
-if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 {
 	static uint32 map2_count = 0;
 	MapCell *mp;
@@ -1599,825 +1586,6 @@ if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1030))
 	{
 		Send_With_Handling(&CONTR(pl)->socket, &sl);
 	}
-}
-else
-{
-	static uint32 map2_count = 0;
-	MapCell *mp;
-	MapSpace *msp;
-	New_Face *face;
-	mapstruct *m;
-	object *tmp, *tmph, *pname2 = NULL, *pname3 = NULL, *pname4 = NULL;
-	int x, y, ax, ay, d, nx, ny, probe_tmp;
-	int x_start, dm_light = 0;
-	int dark, flag_tmp, special_vision;
-	int quick_pos_1, quick_pos_2, quick_pos_3;
-	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE) ? 0 : 1;
-	uint16 face_num0, face_num1, face_num2, face_num3, face_num1m, face_num2m, face_num3m;
-	uint16 mask;
-	SockList sl;
-	unsigned char sock_buf[MAXSOCKBUF];
-	int pname_flag, ext_flag, dmg_flag, oldlen;
-	int dmg_layer2, dmg_layer1, dmg_layer0;
-	int wdark;
-	sint16 z1;
-
-	if (CONTR(pl)->dm_light)
-	{
-		dm_light = global_darkness_table[MAX_DARKNESS];
-	}
-
-	wdark = darkness_table[world_darkness];
-	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
-	map2_count++;
-
-	sl.buf = sock_buf;
-	/* Sets sl.len too */
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
-
-	if (!COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1029))
-	{
-		if (pl->map != CONTR(pl)->last_update)
-		{
-			SockList_AddChar(&sl, (char) 255);
-			CONTR(pl)->last_update = pl->map;
-		}
-	}
-	else
-	{
-		/* Marker */
-		SockList_AddChar(&sl, (char) CONTR(pl)->map_update_cmd);
-
-		if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
-		{
-			SockList_AddString(&sl, pl->map->name);
-			SockList_AddString(&sl, pl->map->bg_music ? pl->map->bg_music : "no_music");
-
-			if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
-			{
-				SockList_AddChar(&sl, (char) CONTR(pl)->map_update_tile);
-				SockList_AddChar(&sl, (char) CONTR(pl)->map_off_x);
-				SockList_AddChar(&sl, (char) CONTR(pl)->map_off_y);
-			}
-			else
-			{
-				SockList_AddChar(&sl, (char) pl->map->width);
-				SockList_AddChar(&sl, (char) pl->map->height);
-			}
-		}
-	}
-
-	SockList_AddChar(&sl, (char) pl->x);
-	SockList_AddChar(&sl, (char) pl->y);
-
-	x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
-
-	for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--)
-	{
-		ax = CONTR(pl)->socket.mapx - 1;
-
-		for (x = x_start; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--)
-		{
-			d = CONTR(pl)->blocked_los[ax][ay];
-			mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
-
-			/* Space is out of map OR blocked. Update space and clear values if needed */
-			if (d & (BLOCKED_LOS_OUT_OF_MAP | BLOCKED_LOS_BLOCKED))
-			{
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					/* A position mask without any flags = clear cell */
-					SockList_AddShort(&sl, mask);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
-				continue;
-			}
-
-			nx = x;
-			ny = y;
-
-			if (!(m = get_map_from_coord(pl->map, &nx, &ny)))
-			{
-				if (!QUERY_FLAG(pl, FLAG_WIZ))
-				{
-					LOG(llevDebug, "BUG: draw_client_map2() get_map_from_coord for player <%s> map:%s (%,%d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
-				}
-
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					SockList_AddShort(&sl, mask);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
-				continue;
-			}
-
-			msp = GET_MAP_SPACE_PTR(m, nx, ny);
-
-			/* Do we need to rebuild the layer first? */
-			if (msp->flags & P_NEED_UPDATE)
-			{
-				msp->flags &= ~P_FLAGS_ONLY;
-				update_position(m, nx, ny);
-			}
-
-			/* Border tile, we can ignore every LOS change */
-			if (!(d & BLOCKED_LOS_IGNORE))
-			{
-				/* Tile has blocksview set? */
-				if (msp->flags & P_BLOCKSVIEW)
-				{
-					if (!d)
-					{
-						CONTR(pl)->update_los = 1;
-					}
-				}
-				else
-				{
-					if (d & BLOCKED_LOS_BLOCKSVIEW)
-					{
-						CONTR(pl)->update_los = 1;
-					}
-				}
-			}
-
-			pname_flag = 0, ext_flag = 0, dmg_flag = 0, oldlen = sl.len;
-			dmg_layer2 = 0, dmg_layer1 = 0, dmg_layer0 = 0;
-			dark = NO_FACE_SEND;
-			z1 = 0;
-
-			/* Calculate the darkness/light value for this tile. */
-			if (MAP_OUTDOORS(m))
-			{
-				d = msp->light_value + wdark + dm_light;
-			}
-			else
-			{
-				d = m->light_value + msp->light_value + dm_light;
-			}
-
-			/* Tile is not normally visible */
-			if (d <= 0)
-			{
-				/* Xray or infravision? */
-				if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_ALIVE)))
-				{
-					d = 100;
-				}
-				else
-				{
-					if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-					{
-						SockList_AddShort(&sl, mask);
-						map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-					}
-
-					continue;
-				}
-			}
-
-			if (d > 640)
-			{
-				d = 210;
-			}
-			else if (d > 320)
-			{
-				d = 180;
-			}
-			else if (d > 160)
-			{
-				d = 150;
-			}
-			else if (d > 80)
-			{
-				d = 120;
-			}
-			else if (d > 40)
-			{
-				d = 90;
-			}
-			else if (d > 20)
-			{
-				d = 60;
-			}
-			else
-			{
-				d = 30;
-			}
-
-			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
-
-			if (mp->count != d)
-			{
-				/* Darkness bit */
-				mask |= 0x10;
-				dark = d;
-				mp->count = d;
-			}
-
-			/* Floor layer */
-			face_num0 = 0;
-
-			if (inv_flag)
-			{
-				tmp = GET_MAP_SPACE_CL(msp, 0);
-			}
-			else
-			{
-				tmp = GET_MAP_SPACE_CL_INV(msp, 0);
-			}
-
-			if (tmp)
-			{
-				face_num0 = tmp->face->number;
-				z1 = tmp->z;
-			}
-
-			if (mp->faces[3] != face_num0)
-			{
-				/* This is the floor layer - 0x8 is floor bit */
-				mask |= 0x8;
-				/* This is our backbuffer which we control */
-				mp->faces[3] = face_num0;
-			}
-
-			/* Layer 2 */
-			if (inv_flag)
-			{
-				tmp = GET_MAP_SPACE_CL(msp, 1);
-			}
-			else
-			{
-				tmp = GET_MAP_SPACE_CL_INV(msp, 1);
-			}
-
-			probe_tmp = 0;
-
-			/* Now we have a valid object on this tile. */
-			if (tmp)
-			{
-				flag_tmp = GET_CLIENT_FLAGS(tmp);
-				face = tmp->face;
-				tmph = tmp;
-
-				/* The damage numbers */
-				if ((dmg_layer2 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
-				{
-					dmg_flag |= 0x4;
-				}
-
-				/* Multi-arch ID */
-				quick_pos_1 = tmp->quick_pos;
-
-				/* If we have a multipart object */
-				if (quick_pos_1)
-				{
-					/* Is a tail */
-					if ((tmph = tmp->head))
-					{
-						/* If update_tag == map2_count, we have sent a part of this
-						 * in this map update some steps back, so skip it */
-						if (tmp->head->update_tag == map2_count)
-						{
-							face = NULL;
-						}
-						else
-						{
-							/* Mark this object as sent */
-							tmp->head->update_tag = map2_count;
-							face = tmp->head->face;
-						}
-					}
-					/* Head */
-					else
-					{
-						if (tmp->update_tag == map2_count)
-						{
-							face = NULL;
-						}
-						else
-						{
-							tmp->update_tag = map2_count;
-							face = tmp->face;
-						}
-					}
-				}
-			}
-			/* No object, but maybe we need to clear something we sent before. */
-			else
-			{
-				face = NULL;
-				quick_pos_1 = 0;
-			}
-
-			if (!face || face == blank_face)
-			{
-				flag_tmp = 0;
-				probe_tmp = 0;
-				quick_pos_1 = 0;
-				face_num1m = face_num1 = 0;
-			}
-			else
-			{
-				/* Show target to player */
-				if (tmph && CONTR(pl)->target_object_count == tmph->count)
-				{
-					flag_tmp |= FFLAG_PROBE;
-
-					if (tmph->stats.hp)
-					{
-						probe_tmp = (int) ((double) tmph->stats.hp / ((double) tmph->stats.maxhp / 100.0));
-					}
-				}
-
-				/* face_num1 is original, face_num1m is a copy */
-				face_num1m = face_num1 = face->number;
-
-				/* If a monster or player, we mark face_num1m - this goes to client */
-				if (tmp && (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER))
-				{
-					face_num1m |= 0x8000;
-				}
-			}
-
-			/* Chech whether we need to send this */
-			if (mp->faces[0] != face_num1 || mp->quick_pos[0] != quick_pos_1)
-			{
-				/* This is the floor layer - 0x4 is floor bit */
-				mask |= 0x4;
-
-				if (tmp && tmp->type == PLAYER)
-				{
-					pname_flag |= 0x04;
-					pname2 = tmp;
-				}
-
-				mp->faces[0] = face_num1;
-				mp->quick_pos[0] = quick_pos_1;
-
-				/* Multi-arch bit */
-				if (quick_pos_1)
-				{
-					ext_flag |= 0x4;
-				}
-			}
-
-			/* Extension flags like blind, confusion, etc. */
-			if (flag_tmp != mp->fflag[0] || probe_tmp != mp->ff_probe[0])
-			{
-				if (face_num1)
-				{
-					ext_flag |= 0x20;
-				}
-
-				if (probe_tmp != mp->ff_probe[0] && flag_tmp & FFLAG_PROBE)
-				{
-					flag_tmp |= FFLAG_PROBE;
-				}
-
-				mp->fflag[0] = flag_tmp;
-				mp->ff_probe[0] = probe_tmp;
-			}
-
-			/* Layer 1 */
-			if (inv_flag)
-			{
-				tmp = GET_MAP_SPACE_CL(msp, 2);
-			}
-			else
-			{
-				tmp = GET_MAP_SPACE_CL_INV(msp, 2);
-			}
-
-			probe_tmp = 0;
-
-			if (tmp)
-			{
-				if (pl->x == nx && pl->y ==ny && tmp->layer == 6)
-				{
-					tmp = pl;
-				}
-
-				flag_tmp = GET_CLIENT_FLAGS(tmp);
-				tmph = tmp;
-				face = tmp->face;
-
-				if ((dmg_layer1 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
-				{
-					dmg_flag |= 0x2;
-				}
-
-				quick_pos_2 = tmp->quick_pos;
-
-				if (quick_pos_2)
-				{
-					/* Tail */
-					if ((tmph = tmp->head))
-					{
-						if (tmp->head->update_tag == map2_count)
-						{
-							face = NULL;
-						}
-						else
-						{
-							tmp->head->update_tag = map2_count;
-							face = tmp->head->face;
-						}
-					}
-					/* Head */
-					else
-					{
-						if (tmp->update_tag == map2_count)
-						{
-							face = NULL;
-						}
-						else
-						{
-							tmp->update_tag = map2_count;
-							face = tmp->face;
-						}
-					}
-				}
-			}
-			else
-			{
-				face = NULL;
-				quick_pos_2 = 0;
-			}
-
-			if (!face || face == blank_face)
-			{
-				flag_tmp = 0;
-				probe_tmp = 0;
-				quick_pos_2 = 0;
-				face_num2m = face_num2 = 0;
-			}
-			else
-			{
-				/* Show target to player */
-				if (tmph && CONTR(pl)->target_object_count == tmph->count)
-				{
-					flag_tmp |= FFLAG_PROBE;
-
-					if (tmph->stats.hp)
-					{
-						probe_tmp = (int) ((double) tmph->stats.hp / ((double) tmph->stats.maxhp / 100.0));
-					}
-				}
-
-				face_num2m = face_num2 = face->number;
-
-				if (tmp && (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER))
-				{
-					face_num2m |= 0x8000;
-				}
-			}
-
-			if (mp->faces[1] != face_num2 || mp->quick_pos[1] != quick_pos_2)
-			{
-				mask |= 0x2;
-
-				if (tmp && tmp->type == PLAYER)
-				{
-					pname_flag |= 0x02;
-					pname3 = tmp;
-				}
-
-				mp->faces[1] = face_num2;
-				mp->quick_pos[1] = quick_pos_2;
-
-				/* Multi-arch */
-				if (quick_pos_2)
-				{
-					ext_flag |= 0x2;
-				}
-			}
-
-			if (flag_tmp != mp->fflag[1] || probe_tmp != mp->ff_probe[1])
-			{
-				if (face_num2)
-				{
-					ext_flag |= 0x10;
-				}
-
-				if (probe_tmp != mp->ff_probe[1] && flag_tmp & FFLAG_PROBE)
-				{
-					flag_tmp |= FFLAG_PROBE;
-				}
-
-				mp->fflag[1] = flag_tmp;
-				mp->ff_probe[1] = probe_tmp;
-			}
-
-			if (inv_flag)
-			{
-				tmp = GET_MAP_SPACE_CL(msp, 3);
-			}
-			else
-			{
-				tmp = GET_MAP_SPACE_CL_INV(msp, 3);
-			}
-
-			probe_tmp = 0;
-
-			if (tmp)
-			{
-				if (pl->x == nx && pl->y == ny && tmp->layer == 6)
-				{
-					tmp = pl;
-				}
-
-				flag_tmp = GET_CLIENT_FLAGS(tmp);
-				face = tmp->face;
-				tmph = tmp;
-
-				if ((dmg_layer0 = tmp->last_damage) != -1 && tmp->damage_round_tag == ROUND_TAG && tmp->last_damage != 0)
-				{
-					dmg_flag |= 0x1;
-				}
-
-				quick_pos_3 = tmp->quick_pos;
-
-				if (quick_pos_3)
-				{
-					if ((tmph = tmp->head))
-					{
-						if (tmph->update_tag == map2_count)
-						{
-							face = NULL;
-						}
-						else
-						{
-							tmph->update_tag = map2_count;
-							face = tmph->face;
-						}
-					}
-					else
-					{
-						if (tmp->update_tag == map2_count)
-							face = NULL;
-						else
-						{
-							tmp->update_tag = map2_count;
-							face = tmp->face;
-						}
-					}
-				}
-			}
-			else
-			{
-				face = NULL;
-				quick_pos_3 = 0;
-			}
-
-			if (!face || face == blank_face)
-			{
-				flag_tmp = 0;
-				probe_tmp = 0;
-				face_num3m = face_num3 = 0;
-				quick_pos_3 = 0;
-			}
-			else
-			{
-				/* Show target to player */
-				if (tmph && CONTR(pl)->target_object_count == tmph->count)
-				{
-					flag_tmp |= FFLAG_PROBE;
-
-					if (tmph->stats.hp)
-					{
-						probe_tmp = (int) ((double) tmph->stats.hp / ((double) tmph->stats.maxhp / 100.0));
-					}
-				}
-
-				face_num3m = face_num3 = face->number;
-
-				if (tmp && (QUERY_FLAG(tmp, FLAG_MONSTER) ||tmp->type == PLAYER))
-				{
-					face_num3m |= 0x8000;
-				}
-			}
-
-			if (mp->faces[2] != face_num3 || mp->quick_pos[2] != quick_pos_3)
-			{
-				mask |= 0x1;
-
-				if (tmp && tmp->type == PLAYER)
-				{
-					pname_flag |= 0x01;
-					pname4 = tmp;
-				}
-
-				if (quick_pos_3)
-				{
-					ext_flag |= 0x1;
-				}
-
-				mp->faces[2] = face_num3;
-				mp->quick_pos[2] = quick_pos_3;
-			}
-
-			if (flag_tmp != mp->fflag[2] || probe_tmp != mp->ff_probe[2])
-			{
-				if (face_num3)
-				{
-					ext_flag |= 0x08;
-				}
-
-				if (probe_tmp != mp->ff_probe[2] && flag_tmp & FFLAG_PROBE)
-				{
-					flag_tmp |= FFLAG_PROBE;
-				}
-
-				mp->fflag[2] = flag_tmp;
-				mp->ff_probe[2] = probe_tmp;
-			}
-
-			/* Kill damage */
-			if (GET_MAP_RTAG(m, nx, ny) == ROUND_TAG)
-			{
-				dmg_flag |= 0x08;
-			}
-
-			/* We have one or more player names here */
-			if (pname_flag)
-			{
-				ext_flag |= 0x80;
-			}
-
-			/* We have a damage animation */
-			if (dmg_flag)
-			{
-				ext_flag |= 0x40;
-			}
-
-			if (ext_flag)
-			{
-				/* Mark ext flag as valid */
-				mask |= 0x20;
-				SockList_AddShort(&sl, mask);
-				/* Push the ext_flag byte */
-				SockList_AddChar(&sl, (char) ext_flag);
-			}
-			else
-			{
-				/* Mask only */
-				SockList_AddShort(&sl, mask);
-			}
-
-			if (pname_flag)
-			{
-				SockList_AddChar(&sl, (char) pname_flag);
-
-				if (pname_flag & 0x04)
-				{
-					SockList_AddString(&sl, CONTR(pname2)->quick_name);
-					SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname2));
-				}
-
-				if (pname_flag & 0x02)
-				{
-					SockList_AddString(&sl, CONTR(pname3)->quick_name);
-					SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname3));
-				}
-
-				if (pname_flag & 0x01)
-				{
-					SockList_AddString(&sl, CONTR(pname4)->quick_name);
-					SockList_AddShort(&sl, (sint16) get_playername_color(pl, pname4));
-				}
-			}
-
-			/* Damage animations */
-			if (dmg_flag)
-			{
-				SockList_AddChar(&sl, (char) dmg_flag);
-
-				if (dmg_flag & 0x08)
-				{
-					SockList_AddShort(&sl, (sint16) GET_MAP_DAMAGE(m, nx, ny));
-				}
-
-				if (dmg_flag & 0x04)
-				{
-					SockList_AddShort(&sl, (sint16) dmg_layer2);
-				}
-
-				if (dmg_flag & 0x02)
-				{
-					SockList_AddShort(&sl, (sint16) dmg_layer1);
-				}
-
-				if (dmg_flag & 0x01)
-				{
-					SockList_AddShort(&sl, (sint16) dmg_layer0);
-				}
-			}
-
-			/* Additional layer animations */
-			if (ext_flag & 0x38)
-			{
-				if (ext_flag & 0x20)
-				{
-					SockList_AddChar(&sl, (char) mp->fflag[0]);
-
-					if (mp->fflag[0] & FFLAG_PROBE)
-					{
-						SockList_AddChar(&sl, mp->ff_probe[0]);
-					}
-				}
-
-				if (ext_flag & 0x10)
-				{
-					SockList_AddChar(&sl, (char) mp->fflag[1]);
-
-					if (mp->fflag[1] & FFLAG_PROBE)
-					{
-						SockList_AddChar(&sl, mp->ff_probe[1]);
-					}
-				}
-
-				if (ext_flag & 0x08)
-				{
-					SockList_AddChar(&sl, (char) mp->fflag[2]);
-
-					if (mp->fflag[2] & FFLAG_PROBE)
-					{
-						SockList_AddChar(&sl, mp->ff_probe[2]);
-					}
-				}
-			}
-
-			if (dark != NO_FACE_SEND)
-			{
-				SockList_AddChar(&sl, (char) dark);
-			}
-
-			if (mask & 0x08)
-			{
-				SockList_AddShort(&sl, face_num0);
-
-				if (COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1028))
-				{
-					SockList_AddShort(&sl, z1);
-				}
-			}
-
-			if (mask & 0x04)
-			{
-				SockList_AddShort(&sl, face_num1m);
-
-				if (ext_flag & 0x4)
-				{
-					SockList_AddChar(&sl, (char) quick_pos_1);
-				}
-			}
-
-			if (mask & 0x02)
-			{
-				SockList_AddShort(&sl, face_num2m);
-
-				if (ext_flag & 0x2)
-				{
-					SockList_AddChar(&sl, (char) quick_pos_2);
-				}
-			}
-
-			if (mask & 0x01)
-			{
-				SockList_AddShort(&sl, face_num3m);
-
-				if (ext_flag & 0x1)
-				{
-					SockList_AddChar(&sl, (char) quick_pos_3);
-				}
-			}
-
-			/* Check all bits except the position */
-			if (!(mask & 0x3f))
-			{
-				sl.len = oldlen;
-			}
-		}
-	}
-
-	if (!COMPARE_CLIENT_VERSION(CONTR(pl)->socket.socket_version, 1029))
-	{
-		if (sl.len > 3 || CONTR(pl)->socket.sent_scroll)
-		{
-			Send_With_Handling(&CONTR(pl)->socket, &sl);
-		}
-	}
-	else
-	{
-		/* Verify that we in fact do need to send this */
-		if (sl.len > 4)
-		{
-			Send_With_Handling(&CONTR(pl)->socket, &sl);
-		}
-	}
-}
 }
 
 /**

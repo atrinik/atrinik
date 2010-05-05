@@ -115,12 +115,6 @@ int move_ob(object *op, int dir, object *originator)
 			tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
 		}
 
-		if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-		{
-			esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
-			CONTR(op)->socket.look_position = 0;
-		}
-
 		insert_ob_in_map(op, op->map, op, 0);
 
 		return 1;
@@ -155,12 +149,6 @@ int move_ob(object *op, int dir, object *originator)
 
 	op->x += freearr_x[dir];
 	op->y += freearr_y[dir];
-
-	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-	{
-		esrv_map_scroll(&CONTR(op)->socket, freearr_x[dir], freearr_y[dir]);
-		CONTR(op)->socket.look_position = 0;
-	}
 
 	insert_ob_in_map(op, op->map, originator, 0);
 
@@ -230,11 +218,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	}
 
 	ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
-
-	if (op->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(op)->socket.socket_version, 1029))
-	{
-		MapNewmapCmd(CONTR(op));
-	}
 
 	return ret;
 }
@@ -331,11 +314,6 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 	}
 
 	tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
-
-	if (tmp && tmp->type == PLAYER && !COMPARE_CLIENT_VERSION(CONTR(tmp)->socket.socket_version, 1029))
-	{
-		MapNewmapCmd(CONTR(tmp));
-	}
 
 	return (tmp == NULL);
 }

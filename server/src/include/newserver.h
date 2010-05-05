@@ -112,12 +112,6 @@ typedef struct MapCell_struct
 	 * Probe cache. No need for an array, since this only appears
 	 * for players or monsters, both on layer 6. */
 	uint8 probe;
-
-	/** @deprecated */
-	uint8 fflag[MAP_LAYERS];
-
-	/** @deprecated */
-	uint8 ff_probe[MAP_LAYERS];
 } MapCell;
 
 /** One map for a player. */

@@ -2153,9 +2153,7 @@ void free_all_maps()
  * creatures, prevents people from passing through, etc).
  * @param m Map to update.
  * @param x X position on the given map.
- * @param y Y position on the given map.
- * @deprecated The part dealing with client_mlayer (if statement above "UP - LAYER"
- * and everything after it) is deprecated since socket version 1030. */
+ * @param y Y position on the given map. */
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;
@@ -2304,75 +2302,6 @@ void update_position(mapstruct *m, int x, int y)
 	if ((oldflags & P_FLAGS_ONLY) || !(oldflags & P_NEED_UPDATE))
 	{
 		return;
-	}
-
-#ifdef DEBUG_CORE
-	LOG(llevDebug, "UP - LAYER: %d,%d\n", x, y);
-#endif
-
-	mp = &m->spaces[x + m->width * y];
-	/* ALWAYS is client layer 0 (cl0) a floor. force it */
-	mp->client_mlayer[0] = 0;
-	mp->client_mlayer_inv[0] = 0;
-
-	if (mp->layer[1])
-	{
-		mp->client_mlayer[1] = 1;
-		mp->client_mlayer_inv[1] = 1;
-	}
-	else
-	{
-		mp->client_mlayer_inv[1] = mp->client_mlayer[1] = -1;
-	}
-
-	/* and 2 layers for moving stuff */
-	mp->client_mlayer[2] = mp->client_mlayer[3] = -1;
-	mp->client_mlayer_inv[2] = mp->client_mlayer_inv[3] = -1;
-
-	/* Now we first look for a object for cl3 */
-	for (i = 6; i > 1; i--)
-	{
-		if (mp->layer[i])
-		{
-			/* The last */
-			mp->client_mlayer_inv[3] = mp->client_mlayer[3] = i;
-			i--;
-			break;
-		}
-	}
-
-	/* We skip layer 7 - no invisible stuff on layer 7 */
-	for (ii = 6 + 7; ii > i + 6; ii--)
-	{
-		if (mp->layer[ii])
-		{
-			mp->client_mlayer_inv[2] = mp->client_mlayer_inv[3];
-			/* The last */
-			mp->client_mlayer_inv[3] = ii;
-			break;
-		}
-	}
-
-	/* And a last one for cl2 */
-	for (; i > 1; i--)
-	{
-		if (mp->layer[i])
-		{
-			/* The last */
-			mp->client_mlayer[2] = mp->client_mlayer_inv[2] = i;
-			break;
-		}
-	}
-
-	/* In layer[2] we have now normal layer 3 or normal layer 2
-	 * now seek a possible inv. object to substitute normal */
-	for (ii--; ii > 8; ii--)
-	{
-		if (mp->layer[ii])
-		{
-			mp->client_mlayer_inv[2] = ii;
-			break;
-		}
 	}
 
 	/* Clear out need update flag */
