@@ -36,7 +36,7 @@ skills were very valuable. Some have traveled to the human realms
 but there are also rumors from hidden dwarf cities in the deeps.
 The dwarves themselves don't talk much about it...
 char Wizard
-wizard_m.151 8 3 3 0 0 0
+wizard_m.151 8 5 3 0 0 0
 1 wizard_male wizard_m.151
 1 wizard_female wizard_f.151
 0 x x
