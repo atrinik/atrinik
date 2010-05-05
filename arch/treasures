@@ -245,6 +245,80 @@ treasure player_dwarf_female
   arch guild_force
 end
 
+treasure player_wizard_male
+  arch padded_armour
+  more
+  arch sandals
+  more
+  list random_food
+  more
+  list random_food
+  more
+  list random_food
+  more
+  list random_food
+  more
+  arch torch
+  more
+  arch torch
+  more
+  list player_starting_wealth
+  more
+  arch skill_praying
+  more
+  arch skill_use_magic_item
+  more
+  arch skill_punching
+  more
+  arch skill_literacy
+  more
+  arch skill_throwing
+  more
+  arch rank_force
+  more
+  arch alignment_force
+    title true neutral
+  more
+  arch guild_force
+end
+
+treasure player_wizard_female
+  arch padded_armour
+  more
+  arch sandals
+  more
+  list random_food
+  more
+  list random_food
+  more
+  list random_food
+  more
+  list random_food
+  more
+  arch torch
+  more
+  arch torch
+  more
+  list player_starting_wealth
+  more
+  arch skill_praying
+  more
+  arch skill_use_magic_item
+  more
+  arch skill_punching
+  more
+  arch skill_literacy
+  more
+  arch skill_throwing
+  more
+  arch rank_force
+  more
+  arch alignment_force
+    title true neutral
+  more
+  arch guild_force
+end
+
 treasureone player_starting_wealth
   arch coppercoin
     nrof 80
