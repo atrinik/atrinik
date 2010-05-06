@@ -23,7 +23,7 @@ wc_range 20
 hp -1
 maxhp 8
 sp -1
-maxsp 5
+maxsp 3
 grace -1
 maxgrace 3
 can_use_armour 1
