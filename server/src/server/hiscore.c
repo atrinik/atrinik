@@ -172,7 +172,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
 	if (sc->killer[0] == '\0')
 	{
-		snprintf(buf, size, "%3d %10"FMT64" %s the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "~%3d~ %10"FMT64" ~%s~ the %s (%s) <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 	else
 	{
@@ -189,7 +189,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 			s2 = sc->killer;
 		}
 
-		snprintf(buf, size, "%3d %10"FMT64" %s the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "~%3d~ %10"FMT64" ~%s~ the %s %s %s on map %s <%d><%d><%d>.", sc->position, sc->exp, sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 
 	return buf;
