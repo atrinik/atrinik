@@ -284,7 +284,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 	spell *s = find_spell(type);
 	shstr *godname = NULL;
 	object *target = NULL;
-	int success = 0, duration;
+	int success = 0, duration, spell_cost = 0;
 
 	if (!s)
 	{
@@ -536,6 +536,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		return 0;
 	}
 
+	/* We need to calculate the spell point cost before the spell actually
+	 * does something, otherwise the following can happen (example):
+	 * Player has 7 mana left, kills a monster with magic bullet (which costs 7
+	 * mana) while standing right next to it, magic bullet kills the monster before
+	 * we reach the return here, player levels up, cost of magic bullet increases
+	 * from 7 to 8. So the function would return 8 instead of 7, resulting in the
+	 * player's mana being -1. */
+	if (item != spellNPC)
+	{
+		spell_cost = SP_level_spellpoint_cost(caster, type, -1);
+	}
+
 	switch ((enum spellnrs) type)
 	{
 		case SP_RESTORATION:
@@ -654,7 +666,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		return success;
 	}
 
-	return success ? SP_level_spellpoint_cost(caster, type, -1) : 0;
+	return success ? spell_cost : 0;
 }
 
 /**
