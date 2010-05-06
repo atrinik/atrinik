@@ -1388,7 +1388,6 @@ object *hit_with_arrow(object *op, object *victim)
  * @param dam Damage to deal. */
 static void poison_player(object *op, object *hitter, float dam)
 {
-	float pmul;
 	archetype *at = find_archetype("poisoning");
 	object *tmp = present_arch_in_ob(at, op);
 
@@ -1464,97 +1463,6 @@ static void poison_player(object *op, object *hitter, float dam)
 				/* We have hit with weapon or something */
 				else
 				{
-					if (op->stats.Con > 1 && !(RANDOM() % 2))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Con = 1 + (sint8) (pmul * (op->stats.Con - 1));
-
-						if (tmp->stats.Con >= op->stats.Con)
-						{
-							tmp->stats.Con = op->stats.Con - 1;
-						}
-
-						tmp->stats.Con *= -1;
-					}
-
-					if (op->stats.Str > 1 && !(RANDOM() % 2))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Str = 1 + (sint8) (pmul * (op->stats.Str - 1));
-
-						if (tmp->stats.Str >= op->stats.Str)
-						{
-							tmp->stats.Str = op->stats.Str - 1;
-						}
-
-						tmp->stats.Str *=- 1;
-					}
-
-					if (op->stats.Dex > 1 && !(RANDOM() % 2))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Dex = 1 + (sint8) (pmul * (op->stats.Dex - 1));
-
-						if (tmp->stats.Dex >= op->stats.Dex)
-						{
-							tmp->stats.Dex = op->stats.Dex - 1;
-						}
-
-						tmp->stats.Dex *= -1;
-					}
-
-					if (op->stats.Int > 1 && !(RANDOM() % 3))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Int = 1 + (sint8) (pmul * (op->stats.Int - 1));
-
-						if (tmp->stats.Int >= op->stats.Int)
-						{
-							tmp->stats.Int = op->stats.Int - 1;
-						}
-
-						tmp->stats.Int *= -1;
-					}
-
-					if (op->stats.Cha > 1 && !(RANDOM() % 3))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Cha = 1 + (sint8) (pmul * (op->stats.Cha - 1));
-
-						if (tmp->stats.Cha >= op->stats.Cha)
-						{
-							tmp->stats.Cha = op->stats.Cha - 1;
-						}
-
-						tmp->stats.Cha *= -1;
-					}
-
-					if (op->stats.Pow > 1 && !(RANDOM() % 4))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Pow = 1 + (sint8) (pmul * (op->stats.Pow - 1));
-
-						if (tmp->stats.Pow >= op->stats.Pow)
-						{
-							tmp->stats.Pow = op->stats.Pow - 1;
-						}
-
-						tmp->stats.Pow *= -1;
-					}
-
-					if (op->stats.Wis > 1 && !(RANDOM() % 4))
-					{
-						pmul = (hitter->level + (RANDOM() % (hitter->level / 4 + 1)) / 2) * 0.01f + 0.2f;
-						tmp->stats.Wis = 1 + (sint8) (pmul * (op->stats.Wis - 1));
-
-						if (tmp->stats.Wis >= op->stats.Wis)
-						{
-							tmp->stats.Wis = op->stats.Wis - 1;
-						}
-
-						tmp->stats.Wis *= -1;
-					}
-
 					new_draw_info_format(NDI_UNIQUE, op, "%s has poisoned you!", query_name(hitter, NULL));
 					insert_ob_in_ob(tmp, op);
 					SET_FLAG(tmp, FLAG_APPLIED);
