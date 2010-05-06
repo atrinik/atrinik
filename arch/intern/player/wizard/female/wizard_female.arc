@@ -1,6 +1,6 @@
 Object wizard_female
 race wizard
-face wizard.151
+face wizard_f.151
 randomitems player_wizard_female
 layer 6
 behavior 2
