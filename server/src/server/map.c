@@ -2157,8 +2157,7 @@ void free_all_maps()
 void update_position(mapstruct *m, int x, int y)
 {
 	object *tmp;
-	MapSpace *mp;
-	int i, ii, flags, move_flags, light;
+	int flags, move_flags, light;
 
 #ifdef DEBUG_OLDFLAGS
 	int oldflags;
