@@ -727,7 +727,7 @@ int get_money_from_string(char *text, struct _money_block *money)
 	memset(money, 0, sizeof(struct _money_block));
 
 	/* Kill all whitespace */
-	while (*text !='\0' && isspace(*text))
+	while (*text !='\0' && (isspace(*text) || !isprint(*text)))
 	{
 		text++;
 	}

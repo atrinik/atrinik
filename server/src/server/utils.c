@@ -250,7 +250,7 @@ racelink *find_racelink(const char *name)
 char *cleanup_string(char *ustring)
 {
 	/* Trim all left whitespace */
-	while (*ustring != '\0' && isspace(*ustring))
+	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
 	{
 		ustring++;
 	}

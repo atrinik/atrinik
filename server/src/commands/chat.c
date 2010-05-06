@@ -62,7 +62,7 @@ char *cleanup_chat_string(char *ustring)
 	}
 
 	/* Kill all whitespace. */
-	while (*ustring != '\0' && isspace(*ustring))
+	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
 	{
 		ustring++;
 	}
@@ -199,6 +199,10 @@ int command_tell(object *op, char *params)
 		{
 			msg = NULL;
 		}
+		else
+		{
+			msg = cleanup_chat_string(msg);
+		}
 	}
 
 	if (!name)
@@ -216,7 +220,7 @@ int command_tell(object *op, char *params)
 		return 1;
 	}
 
-	if (!msg)
+	if (!msg || *msg == '\0')
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Tell %s what?", name);
 		return 1;
