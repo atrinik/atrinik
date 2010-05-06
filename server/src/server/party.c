@@ -133,6 +133,62 @@ partylist_struct *find_party(char *name)
 }
 
 /**
+ * A party member has killed a monster. In the experience sharing code we
+ * call this to check for all party members to check whether they have the
+ * skill that was used to kill the monster. If they don't have the skill,
+ * they won't be counted as 'getting exp shared'.
+ *
+ * This will also correctly handle cases where one player kills with slash
+ * and everyone in the party also gets the exp shared, even if they are
+ * cleave or impact, for example. Same happens for archery.
+ *
+ * Note that for the above to work, the party member must have the weapon
+ * actually applied. If someone kills with slash, and this party member is
+ * using punching (no weapon), they will not get any exp.
+ * @param op Party member.
+ * @param hitter The player that killed the monster.
+ * @return Skill ID to get experience in for op, @ref NO_SKILL_READY otherwise. */
+sint16 party_member_get_skill(object *op, object *hitter)
+{
+	sint16 skill_id = hitter->chosen_skill->stats.sp;
+
+	switch (skill_id)
+	{
+		/* Handle weapon types. */
+		case SK_MELEE_WEAPON:
+		case SK_SLASH_WEAP:
+		case SK_CLEAVE_WEAP:
+		case SK_PIERCE_WEAP:
+			if (CONTR(op)->set_skill_weapon != NO_SKILL_READY)
+			{
+				return CONTR(op)->set_skill_weapon;
+			}
+
+			break;
+
+		/* Handle archery weapon types. */
+		case SK_MISSILE_WEAPON:
+		case SK_XBOW_WEAP:
+		case SK_SLING_WEAP:
+			if (CONTR(op)->set_skill_archery != NO_SKILL_READY)
+			{
+				return CONTR(op)->set_skill_archery;
+			}
+
+			break;
+
+		/* Everything else. */
+		default:
+			if (CONTR(op)->skill_ptr[skill_id])
+			{
+				return skill_id;
+			}
+	}
+
+	return NO_SKILL_READY;
+}
+
+/**
  * Send a message to party.
  * @param party Party to send the message to.
  * @param msg Message to send.

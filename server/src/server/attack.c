@@ -912,6 +912,88 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 }
 
 /**
+ * One player gets exp by killing a monster.
+ * @param op Player. This should be the killer.
+ * @param exp Experience to gain. */
+static void share_kill_exp_one(object *op, sint32 exp)
+{
+	if (exp)
+	{
+		add_exp(op, exp, op->chosen_skill->stats.sp);
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "Your enemy was too low for exp.");
+	}
+}
+
+/**
+ * Share experience gained by killing a monster. This will fairly share
+ * experience between party members, or if none are present, it will use
+ * share_kill_exp_one() instead.
+ * @param op Player that killed the monster.
+ * @param exp Experience to share. */
+static void share_kill_exp(object *op, sint32 exp)
+{
+	int shares = 0, count = 0;
+	partylist_struct *party;
+	objectlink *ol;
+
+	if (!CONTR(op)->party)
+	{
+		share_kill_exp_one(op, exp);
+		return;
+	}
+
+	party = CONTR(op)->party;
+
+	for (ol = party->members; ol; ol = ol->next)
+	{
+		if (on_same_map(ol->objlink.ob, op))
+		{
+			sint16 skill_id = party_member_get_skill(ol->objlink.ob, op);
+
+			if (skill_id == NO_SKILL_READY)
+			{
+				continue;
+			}
+
+			count++;
+			shares += (CONTR(ol->objlink.ob)->skill_ptr[skill_id]->level + 4);
+		}
+	}
+
+	if (count == 1 || shares > exp)
+	{
+		share_kill_exp_one(op, exp);
+	}
+	else
+	{
+		sint32 share = exp / shares, given = 0, nexp;
+
+		for (ol = party->members; ol; ol = ol->next)
+		{
+			if (ol->objlink.ob != op && on_same_map(ol->objlink.ob, op))
+			{
+				sint16 skill_id = party_member_get_skill(ol->objlink.ob, op);
+
+				if (skill_id == NO_SKILL_READY)
+				{
+					continue;
+				}
+
+				nexp = (CONTR(ol->objlink.ob)->skill_ptr[skill_id]->level + 4) * share;
+				add_exp(ol->objlink.ob, nexp, skill_id);
+				given += nexp;
+			}
+		}
+
+		exp -= given;
+		share_kill_exp_one(op, exp);
+	}
+}
+
+/**
  * An object was killed, handle various things (logging, messages, ...).
  * @param op What is being killed.
  * @param dam Damage done to it.
@@ -1062,74 +1144,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 		if (hitter->type == PLAYER && !battleg)
 		{
-			/* If this player is not in party, it's simple. */
-			if (!CONTR(hitter)->party)
-			{
-				if (exp)
-				{
-					add_exp(hitter, exp, old_hitter->chosen_skill->stats.sp);
-				}
-				else
-				{
-					new_draw_info(NDI_UNIQUE, hitter, "Your enemy was too low for exp.");
-				}
-			}
-			/* However, if we are in a party, things get a little more tricky. */
-			else
-			{
-				int num_members = 1, pexp;
-				objectlink *ol;
-				object *highest = hitter;
-
-				for (ol = CONTR(hitter)->party->members; ol; ol = ol->next)
-				{
-					if (ol->objlink.ob != hitter && CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(ol->objlink.ob, hitter))
-					{
-						num_members++;
-					}
-				}
-
-				pexp = calc_skill_exp(highest, op, highest->level);
-
-				if (pexp > exp)
-				{
-					pexp = exp;
-				}
-
-				pexp = (int) ((float) pexp * (0.9f + (0.1f * (float) num_members)));
-
-				if (pexp)
-				{
-					pexp /= num_members;
-
-					if (pexp < 4)
-					{
-						pexp = 4;
-					}
-
-					for (ol = CONTR(hitter)->party->members; ol; ol = ol->next)
-					{
-						if (CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp] && on_same_map(ol->objlink.ob, hitter))
-						{
-							int expgain = calc_skill_exp(ol->objlink.ob, op, CONTR(ol->objlink.ob)->skill_ptr[old_hitter->chosen_skill->stats.sp]->level);
-
-							if (expgain > pexp)
-							{
-								expgain = pexp;
-							}
-
-							add_exp(ol->objlink.ob, expgain, old_hitter->chosen_skill->stats.sp);
-						}
-					}
-				}
-				else
-				{
-					char tmpbuf[MAX_BUF];
-
-					snprintf(tmpbuf, sizeof(tmpbuf), "%s is too high level to get experience from %s's kill.", highest->name, hitter->name);
-					send_party_message(CONTR(hitter)->party, tmpbuf, PARTY_MESSAGE_STATUS, NULL);
-				}
-			}
+			share_kill_exp(hitter, exp);
 		}
 
 		if (op->type != PLAYER)
