@@ -258,6 +258,12 @@ if (_nv_)                          \
 /** Number of connected maps from a tiled map */
 #define TILED_MAPS 8
 
+#define EXP_AGILITY 1
+#define EXP_MENTAL 2
+#define EXP_MAGICAL 3
+#define EXP_PERSONAL 4
+#define EXP_PHYSICAL 5
+#define EXP_WISDOM 6
 /** Number of experience categories. */
 #define MAX_EXP_CAT 7
 

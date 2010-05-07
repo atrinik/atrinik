@@ -39,9 +39,9 @@ int apply_potion(object *op, object *tmp)
 	int i;
 
 	/* some sanity checks */
-	if (!op || !tmp || (op->type == PLAYER && (!CONTR(op) || !CONTR(op)->sp_exp_ptr || !CONTR(op)->grace_exp_ptr)))
+	if (!op || !tmp || (op->type == PLAYER && (!CONTR(op) || !CONTR(op)->exp_ptr[EXP_MAGICAL] || !CONTR(op)->exp_ptr[EXP_WISDOM])))
 	{
-		LOG(llevBug,"apply_potion() called with invalid objects! obj: %s (%s - %s) tmp:%s\n", query_name(op, NULL), CONTR(op) ? query_name(CONTR(op)->sp_exp_ptr, NULL) : "<no contr>", CONTR(op) ? query_name(CONTR(op)->grace_exp_ptr, NULL) : "<no contr>", query_name(tmp, NULL));
+		LOG(llevBug,"apply_potion() called with invalid objects! obj: %s (%s - %s) tmp:%s\n", query_name(op, NULL), CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_MAGICAL], NULL) : "<no contr>", CONTR(op) ? query_name(CONTR(op)->exp_ptr[EXP_WISDOM], NULL) : "<no contr>", query_name(tmp, NULL));
 		return 0;
 	}
 
@@ -274,7 +274,7 @@ sp_jump:
 					/* mark we have checked sp chain */
 					sp_flag = 1;
 
-					for (i = 2; i <= CONTR(op)->sp_exp_ptr->level; i++)
+					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levsp[i] != 1)
@@ -288,7 +288,7 @@ grace_jump:
 					/* mark we have checked grace chain */
 					grace_flag = 1;
 
-					for (i = 2; i <= CONTR(op)->grace_exp_ptr->level; i++)
+					for (i = 2; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levgrace[i] != 1)
@@ -338,7 +338,7 @@ sp_jump2:
 					/* mark we have checked sp chain */
 					sp_flag = 1;
 
-					for (i = 1; i <= CONTR(op)->sp_exp_ptr->level; i++)
+					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_MAGICAL]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levsp[i] != (char) op->arch->clone.stats.maxsp)
@@ -352,7 +352,7 @@ grace_jump2:
 					/* mark we have checked grace chain */
 					grace_flag = 1;
 
-					for (i = 1; i <= CONTR(op)->grace_exp_ptr->level; i++)
+					for (i = 1; i <= CONTR(op)->exp_ptr[EXP_WISDOM]->level; i++)
 					{
 						/* move one value to max */
 						if (CONTR(op)->levgrace[i] != (char) op->arch->clone.stats.maxgrace)

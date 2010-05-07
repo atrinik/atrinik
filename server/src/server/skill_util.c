@@ -199,7 +199,7 @@ int do_skill(object *op, int dir)
 			break;
 
 		case SK_FIND_TRAPS:
-			success = find_traps(op, op->chosen_skill->level);
+			success = find_traps(op, CONTR(op)->exp_ptr[EXP_AGILITY]->level);
 			break;
 
 		case SK_REMOVE_TRAP:
@@ -284,13 +284,6 @@ int calc_skill_exp(object *who, object *op, int level)
 		LOG(llevBug, "BUG: calc_skill_exp() called with op == NULL (%s - %s)\n", query_name(who, NULL), query_name(op, NULL));
 		op_lvl = who->map->difficulty < 1 ? 1: who->map->difficulty;
 		op_exp = 0;
-	}
-	/* Traps. If stats.Cha is higher than 1, it means we're using the find
-	 * traps skill. */
-	else if (op->type == RUNE)
-	{
-		op_exp = op->stats.Cha > 1 ? (op->stats.Cha * 5) : (op->stats.Int * 6);
-		op_lvl = op->level;
 	}
 	/* All other items/living creatures */
 	else
@@ -854,16 +847,7 @@ int init_player_exp(object *pl)
 		{
 			exp_ob[exp_index] = tmp;
 
-			if (tmp->stats.Pow)
-			{
-				CONTR(pl)->sp_exp_ptr = tmp;
-			}
-
-			if (tmp->stats.Wis)
-			{
-				CONTR(pl)->grace_exp_ptr = tmp;
-			}
-
+			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
 			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
 			exp_index++;
 		}
@@ -887,16 +871,7 @@ int init_player_exp(object *pl)
 			insert_ob_in_ob(tmp, pl);
 			tmp->stats.exp = pl->stats.exp / nrofexpcat;
 			exp_ob[j] = tmp;
-
-			if (tmp->stats.Pow)
-			{
-				CONTR(pl)->sp_exp_ptr = tmp;
-			}
-
-			if (tmp->stats.Wis)
-			{
-				CONTR(pl)->grace_exp_ptr = tmp;
-			}
+			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
 
 			esrv_send_item(pl, tmp);
 			exp_index++;

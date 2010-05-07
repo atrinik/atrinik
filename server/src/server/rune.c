@@ -252,15 +252,13 @@ int trap_show(object *trap, object *where)
 
 /**
  * Try to disarm a trap.
- * @param disarmer Object disarming the trap.
+ * @param disarmer Player disarming the trap.
  * @param trap Trap to disarm.
- * @param risk If 0, trap won't spring if disarm fails. Otherwise it
- * will spring.
  * @return 1 if trap was disarmed, 0 otherwise. */
-int trap_disarm(object *disarmer, object *trap, int risk)
+int trap_disarm(object *disarmer, object *trap)
 {
 	object *env = trap->env;
-	int disarmer_level = SK_level(disarmer);
+	int disarmer_level = CONTR(disarmer)->exp_ptr[EXP_AGILITY]->level;
 
 	if ((trap->level <= disarmer_level && (RANDOM() % 10)) || !(random_roll(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1), disarmer, PREFER_LOW)))
 	{
@@ -276,7 +274,7 @@ int trap_disarm(object *disarmer, object *trap, int risk)
 
 		if ((trap->level > disarmer_level * 1.4f || (RANDOM() % 3)))
 		{
-			if (!(random_roll(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1, disarmer, PREFER_LOW)) && risk)
+			if (!(random_roll(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1, disarmer, PREFER_LOW)))
 			{
 				new_draw_info(NDI_UNIQUE, disarmer, "In fact, you set it off!");
 				spring_trap(trap, disarmer);

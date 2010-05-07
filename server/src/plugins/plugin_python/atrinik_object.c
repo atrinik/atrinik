@@ -251,12 +251,12 @@ static Atrinik_Constant object_constants[] =
 	{"CLONE_WITH_INVENTORY",         0},
 	{"CLONE_WITHOUT_INVENTORY",      1},
 
-	{"EXP_AGILITY",                  1},
-	{"EXP_MENTAL",                   2},
-	{"EXP_MAGICAL",                  3},
-	{"EXP_PERSONAL",                 4},
-	{"EXP_PHYSICAL",                 5},
-	{"EXP_WISDOM",                   6},
+	{"EXP_AGILITY", EXP_AGILITY},
+	{"EXP_MENTAL", EXP_MENTAL},
+	{"EXP_MAGICAL", EXP_MAGICAL},
+	{"EXP_PERSONAL", EXP_PERSONAL},
+	{"EXP_PHYSICAL", EXP_PHYSICAL},
+	{"EXP_WISDOM", EXP_WISDOM},
 
 	{"COLOR_WHITE", NDI_WHITE},
 	{"COLOR_ORANGE", NDI_ORANGE},
@@ -531,7 +531,9 @@ static Atrinik_Constant object_constants[] =
  * @param type Type of the object to look for. Unused.
  * @param id ID of the skill or experience
  * @return The object if found.
- * @todo Remove the type parameter? */
+ * @todo Remove the type parameter?
+ * @todo Could speed this up for players by using their skill pointer and
+ * experience arrays. That would make the type parameter used again as well. */
 static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *tmp;
@@ -572,7 +574,10 @@ static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
  * otherwise experience is set instead.
  * @param value Experience to set for the skill. Only set if level is
  * lower than 1.
- * @todo Overall experience is not changed (should it be?) */
+ * @todo Overall experience is not changed (should it be?)
+ * @todo Could speed this up for players by using their skill pointer array.
+ * That way we wouldn't need the type parameter either.
+ * @todo Only allow to be ran on players? Monsters can't get exp. */
 static PyObject *Atrinik_Object_SetSkill(Atrinik_Object *whoptr, PyObject *args)
 {
 	object *tmp;

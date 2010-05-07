@@ -716,7 +716,7 @@ void free_regions();
 void spring_trap(object *trap, object *victim);
 int trap_see(object *op, object *trap, int level);
 int trap_show(object *trap, object *where);
-int trap_disarm(object *disarmer, object *trap, int risk);
+int trap_disarm(object *disarmer, object *trap);
 void trap_adjust(object *trap, int difficulty);
 
 /* server/shop.c */

@@ -215,17 +215,17 @@ int save_player(object *op, int flag)
 	}
 
 	/* Save sp table */
-	fprintf(fp, "lev_sp %d\n", pl->sp_exp_ptr->level);
+	fprintf(fp, "lev_sp %d\n", pl->exp_ptr[EXP_MAGICAL]->level);
 
-	for (i = 1; i <= pl->sp_exp_ptr->level; i++)
+	for (i = 1; i <= pl->exp_ptr[EXP_MAGICAL]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levsp[i]);
 	}
 
 	/* Save grace table */
-	fprintf(fp, "lev_grace %d\n", pl->grace_exp_ptr->level);
+	fprintf(fp, "lev_grace %d\n", pl->exp_ptr[EXP_WISDOM]->level);
 
-	for (i = 1; i <= pl->grace_exp_ptr->level; i++)
+	for (i = 1; i <= pl->exp_ptr[EXP_WISDOM]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levgrace[i]);
 	}

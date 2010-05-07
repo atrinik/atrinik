@@ -175,12 +175,6 @@ typedef struct pl_player
 	/** Target object. */
 	object *target_object;
 
-	/** Experience object pointer to man) defining exp object. */
-	object *sp_exp_ptr;
-
-	/** Experience object pointer to grace defining exp object. */
-	object *grace_exp_ptr;
-
 	/** Pointers to applied items in the player's inventory. */
 	object *equipment[PLAYER_EQUIP_MAX];
 
@@ -189,6 +183,9 @@ typedef struct pl_player
 
 	/** The exp object table. */
 	object *last_skill_ob[MAX_EXP_CAT];
+
+	/** Experience objects. */
+	object *exp_ptr[MAX_EXP_CAT];
 
 	/** Marked object. */
 	object *mark;

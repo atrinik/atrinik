@@ -40,7 +40,7 @@ int find_traps(object *pl, int level)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int xt, yt, i, suc = 0, expsum = 0;
+	int xt, yt, i, suc = 0;
 
 	/* First we search all around us for runes and traps, which are
 	 * all type RUNE */
@@ -64,7 +64,7 @@ int find_traps(object *pl, int level)
 				continue;
 			}
 
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
 			{
 				if (tmp2->type == RUNE)
 				{
@@ -74,13 +74,6 @@ int find_traps(object *pl, int level)
 
 						if (tmp2->stats.Cha > 1)
 						{
-							if (!tmp2->owner || tmp2->owner->type != PLAYER)
-							{
-								expsum += calc_skill_exp(pl, tmp2, -1);
-							}
-
-							/* Store the original charisma */
-							tmp2->stats.Int = tmp2->stats.Cha;
 							/* Unhide the trap */
 							tmp2->stats.Cha = 1;
 						}
@@ -110,13 +103,6 @@ int find_traps(object *pl, int level)
 
 					if (tmp->stats.Cha > 1)
 					{
-						if (!tmp->owner || tmp->owner->type != PLAYER)
-						{
-							expsum += calc_skill_exp(pl, tmp, -1);
-						}
-
-						/* Store the original charisma */
-						tmp->stats.Int = tmp->stats.Cha;
 						/* Unhide the trap */
 						tmp->stats.Cha = 1;
 					}
@@ -148,18 +134,18 @@ int find_traps(object *pl, int level)
 		new_draw_info(NDI_UNIQUE, pl, "You detect trap signs!");
 	}
 
-	return expsum;
+	return 0;
 }
 
 /**
  * This skill will disarm any previously discovered trap.
- * @param op Player disarming. Must be on a map.
- * @return Experience gained to disarm. */
+ * @param op Player disarming.
+ * @return 0. */
 int remove_trap(object *op)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int i, x, y, success = 0;
+	int i, x, y;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -176,7 +162,7 @@ int remove_trap(object *op)
 		{
 			/* And now we'd better do an inventory traversal of each
 			 * of these objects' inventory */
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
 			{
 				if (tmp2->type == RUNE && tmp2->stats.Cha <= 1)
 				{
@@ -185,16 +171,8 @@ int remove_trap(object *op)
 						trap_show(tmp2, tmp);
 					}
 
-					if (trap_disarm(op, tmp2, 1) && (!tmp2->owner || tmp2->owner->type != PLAYER))
-					{
-						tmp2->stats.exp = tmp2->stats.Cha * tmp2->level;
-						success += calc_skill_exp(op, tmp2, -1);
-					}
-					/* Can't continue to disarm after failure */
-					else
-					{
-						return success;
-					}
+					trap_disarm(op, tmp2);
+					return 0;
 				}
 			}
 
@@ -205,26 +183,14 @@ int remove_trap(object *op)
 					trap_show(tmp, tmp);
 				}
 
-				if (trap_disarm(op, tmp, 1) && (!tmp->owner || tmp->owner->type != PLAYER))
-				{
-					tmp->stats.exp = tmp->stats.Cha * tmp->level;
-					success += calc_skill_exp(op, tmp, -1);
-				}
-				/* Can't continue to disarm after failure */
-				else
-				{
-					return success;
-				}
+				trap_disarm(op, tmp);
+				return 0;
 			}
 		}
 	}
 
-	if (!success)
-	{
-		new_draw_info(NDI_UNIQUE, op, "There is no trap to remove nearby.");
-	}
-
-	return success;
+	new_draw_info(NDI_UNIQUE, op, "There is no trap to remove nearby.");
+	return 0;
 }
 
 /**
