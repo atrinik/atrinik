@@ -462,3 +462,19 @@ static int container_trap(object *op, object *container)
 
 	return ret;
 }
+
+/**
+ * We don't to allow putting magical container inside another magical
+ * container, so we check for it here.
+ * @param op Object being put into the container.
+ * @param container The container.
+ * @return 1 if both op and container are magical containers, 0 otherwise. */
+int check_magical_container(object *op, object *container)
+{
+	if (op->type == CONTAINER && container->type == CONTAINER && op->weapon_speed != 1.0f && container->weapon_speed != 1.0f)
+	{
+		return 1;
+	}
+
+	return 0;
+}

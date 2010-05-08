@@ -591,6 +591,12 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		return;
 	}
 
+	if (check_magical_container(tmp, sack))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can't put a magical container into another magical container.");
+		return;
+	}
+
 	if (tmp->type == CONTAINER)
 	{
 		container_unlink(NULL, tmp);

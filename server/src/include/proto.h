@@ -1019,6 +1019,7 @@ int esrv_apply_container(object *op, object *sack);
 int container_link(player *pl, object *sack);
 int container_unlink(player *pl, object *sack);
 void free_container_monster(object *monster, object *op);
+int check_magical_container(object *op, object *container);
 
 /* types/converter.c */
 int convert_item(object *item, object *converter);
