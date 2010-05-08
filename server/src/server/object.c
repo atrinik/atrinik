@@ -135,9 +135,7 @@ materialtype material[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
-static void sub_weight(object *op, sint32 weight);
 static void remove_ob_inv(object *op);
-static void add_weight(object *op, sint32 weight);
 
 /**
  * Initialize materials from file. */
@@ -369,6 +367,14 @@ int CAN_MERGE(object *ob1, object *ob2)
 		return 0;
 	}
 
+	/* Do not merge objects if nrof would overflow. We use 1UL << 31 since that
+	 * value could not be stored in a sint32 (which unfortunately sometimes is
+	 * used to store nrof). */
+	if (ob1->nrof + ob2->nrof >= 1UL << 31)
+	{
+		return 0;
+	}
+
 	/* just some quick hack */
 	if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch)
 	{
@@ -574,7 +580,7 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-static void add_weight(object *op, sint32 weight)
+void add_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
@@ -600,7 +606,7 @@ static void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-static void sub_weight(object *op, sint32 weight)
+void sub_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
@@ -619,6 +625,20 @@ static void sub_weight(object *op, sint32 weight)
 
 		op = op->env;
 	}
+}
+
+/**
+ * Utility function.
+ * @param op Object we want the environment of. Can't be NULL.
+ * @return The outermost environment object for a given object. Will not be NULL. */
+object *get_env_recursive(object *op)
+{
+	while (op->env)
+	{
+		op = op->env;
+	}
+
+	return op;
 }
 
 /**
@@ -3067,7 +3087,6 @@ int absdir(int d)
 	return d;
 }
 
-
 /**
  * Computes a direction difference.
  * @param dir1 First direction to compare.
@@ -3122,7 +3141,6 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 
 	return dir;
 }
-
 
 /**
  * Finds out if an object can be picked up.

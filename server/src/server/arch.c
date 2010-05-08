@@ -42,14 +42,12 @@ int arch_search = 0;
 /** True if doing arch initialization */
 int arch_init;
 
-static archetype *find_archetype_by_object_name(const char *name);
 static void clear_archetable();
 static void init_archetable();
 static archetype *get_archetype_struct();
 static void first_arch_pass(FILE *fp);
 static void second_arch_pass(FILE *fp_start);
 static void load_archetypes();
-static object *create_singularity(const char *name);
 static unsigned long hasharch(const char *str, int tablesize);
 static void add_arch(archetype *at);
 static archetype *type_to_archetype(int type);
@@ -62,7 +60,7 @@ static archetype *type_to_archetype(int type);
  * It is currently used by scripting extensions (create-object).
  * @param name The name we're searching for (ex: "writing pen").
  * @return The archetype found or NULL if nothing was found. */
-static archetype *find_archetype_by_object_name(const char *name)
+archetype *find_archetype_by_object_name(const char *name)
 {
 	archetype *at;
 
@@ -222,7 +220,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 		/* Base name matched - not bad */
 		if (strcasecmp(cp, op->name) == 0 && !count)
 		{
-			return 4;
+			retval = 4;
 		}
 		/* Need to plurify name for proper match */
 		else if (count > 1)
@@ -234,7 +232,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 			{
 				/* May not do anything */
 				CONTR(pl)->count = count;
-				return 6;
+				retval = 6;
 			}
 		}
 		else if (count == 1)
@@ -243,7 +241,7 @@ int item_matched_string(object *pl, object *op, const char *name)
 			{
 				/* May not do anything */
 				CONTR(pl)->count = count;
-				return 6;
+				retval = 6;
 			}
 		}
 
@@ -259,9 +257,21 @@ int item_matched_string(object *pl, object *op, const char *name)
 		{
 			retval = 16;
 		}
-		else if (!strncasecmp(cp, query_base_name(op, pl), MIN(strlen(cp), strlen(query_base_name(op, pl)))))
+		else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp)))
 		{
 			retval = 14;
+		}
+		/* Do substring checks, so things like 'Str+1' will match.
+		 * retval of these should perhaps be lower - they are lower
+		 * then the specific strcasecmp aboves, but still higher than
+		 * some other match criteria. */
+		else if (strstr(query_base_name(op, pl), cp))
+		{
+			retval = 12;
+		}
+		else if (strstr(query_short_name(op, NULL), cp))
+		{
+			retval = 12;
 		}
 
 		if (retval)
@@ -763,7 +773,7 @@ object *arch_to_object(archetype *at)
  * @param name Name to give the dummy object.
  * @return Object of specified name. It fill have the ::FLAG_NO_PICK flag
  * set. */
-static object *create_singularity(const char *name)
+object *create_singularity(const char *name)
 {
 	object *op;
 	char buf[MAX_BUF];

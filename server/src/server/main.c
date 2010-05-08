@@ -28,6 +28,7 @@
  * Server main related functions. */
 
 #include <global.h>
+#include <check_proto.h>
 
 #ifdef HAVE_DES_H
 #	include <des.h>
@@ -1587,6 +1588,15 @@ int main(int argc, char **argv)
 	init(argc, argv);
 	init_plugins();
 	compile_info();
+
+	/* Now that we have everything loaded, we can run unit tests. */
+	if (settings.unit_tests)
+	{
+		LOG(llevInfo, "\nRunning unit tests...\n");
+		check_main();
+		exit(0);
+	}
+
 	memset(&marker, 0, sizeof(struct obj));
 
 	LOG(llevInfo, "Server ready.\nWaiting for connections...\n");

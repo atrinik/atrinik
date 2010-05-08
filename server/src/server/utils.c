@@ -438,3 +438,43 @@ int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
 
 	return 0;
 }
+
+/**
+ * This function does three things:
+ * -# Controls that we have a legal string; if not, return NULL
+ * -# Removes all left whitespace (if all whitespace return NULL)
+ * -# Change and/or process all control characters like '^', '~', etc.
+ * @param ustring The string to cleanup
+ * @return Cleaned up string, or NULL */
+char *cleanup_chat_string(char *ustring)
+{
+	int i;
+
+	if (!ustring)
+	{
+		return NULL;
+	}
+
+	/* This happens when whitespace only string was submitted. */
+	if (!ustring || *ustring == '\0')
+	{
+		return NULL;
+	}
+
+	/* Now clear all special characters. */
+	for (i = 0; *(ustring + i) != '\0'; i++)
+	{
+		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|')
+		{
+			*(ustring + i) = ' ';
+		}
+	}
+
+	/* Kill all whitespace. */
+	while (*ustring != '\0' && (isspace(*ustring) || !isprint(*ustring)))
+	{
+		ustring++;
+	}
+
+	return ustring;
+}

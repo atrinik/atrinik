@@ -33,8 +33,6 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
-AC_ARG_ENABLE(old-layout, [ --enable-old-layout    Use the old (0.95.3 and earlier) install layout],
-	old_layout=yes, old_layout=no)
 AC_ARG_WITH(python,
             [AS_HELP_STRING([--with-python=dir], [Directory to look for python headers/library (default=standard system location)])],
             PYTHON_HOME="$withval")
@@ -222,6 +220,16 @@ AC_DEFINE_UNQUOTED(GUNZIP,"${GUNZIP}")
 AC_DEFINE_UNQUOTED(BZIP,"${BZIP}")
 AC_DEFINE_UNQUOTED(BUNZIP,"${BUNZIP}")
 
+########################
+# Unit test configuration
+
+AM_PATH_CHECK(,[have_check="yes"],
+  AC_MSG_WARN([Check not found; cannot run unit tests!])
+  [have_check="no"])
+if test x"$have_check" = "xyes" ; then
+  AC_DEFINE(HAVE_CHECK)
+fi
+
 datadir=${ndatadir}
 localstatedir=${nlocaldir}
 
@@ -242,3 +250,10 @@ AC_MSG_NOTICE([])
 AC_MSG_NOTICE([  Build options])
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([    Will build python plugin?            $will_build_python])
+if test "x$have_check" = "xyes" ; then
+AC_MSG_NOTICE([    Will build unit tests?               yes])
+else
+AC_MSG_NOTICE([    Will build unit tests?               no])
+AC_MSG_NOTICE([      If you are a developer, you MUST install the check framework])
+AC_MSG_NOTICE([      and write automated tests for all your add-ons!])
+fi

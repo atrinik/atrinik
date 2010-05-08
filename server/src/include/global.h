@@ -530,6 +530,9 @@ typedef struct Settings
 
 	/** Interactive mode on? */
 	uint8 interactive;
+
+	/** Are we going to run unit tests? */
+	uint8 unit_tests;
 } Settings;
 
 extern Settings settings;

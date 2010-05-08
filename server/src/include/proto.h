@@ -1,6 +1,5 @@
 #ifndef __CPROTO__
 /* commands/chat.c */
-char *cleanup_chat_string(char *ustring);
 int command_say(object *op, char *params);
 int command_dmsay(object *op, char *params);
 int command_shout(object *op, char *params);
@@ -351,6 +350,7 @@ int apply_special(object *who, object *op, int aflags);
 int monster_apply_special(object *who, object *op, int aflags);
 
 /* server/arch.c */
+archetype *find_archetype_by_object_name(const char *name);
 object *get_archetype_by_object_name(const char *name);
 archetype *get_skill_archetype(int skillnr);
 int item_matched_string(object *pl, object *op, const char *name);
@@ -359,6 +359,7 @@ void arch_info(object *op);
 void dump_all_archetypes();
 void free_all_archs();
 object *arch_to_object(archetype *at);
+object *create_singularity(const char *name);
 object *get_archetype(const char *name);
 archetype *find_archetype(const char *name);
 object *clone_arch(int type);
@@ -576,6 +577,9 @@ void object_gc();
 int CAN_MERGE(object *ob1, object *ob2);
 object *merge_ob(object *op, object *top);
 signed long sum_weight(object *op);
+void add_weight(object *op, sint32 weight);
+void sub_weight(object *op, sint32 weight);
+object *get_env_recursive(object *op);
 object *is_player_inv(object *op);
 void dump_object(object *op, StringBuffer *sb);
 void free_all_object_data();
@@ -901,6 +905,7 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep);
 int get_random_dir();
 int get_randomized_dir(int dir);
 int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
+char *cleanup_chat_string(char *ustring);
 
 /* server/weather.c */
 void init_world_darkness();

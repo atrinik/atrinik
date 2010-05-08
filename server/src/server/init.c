@@ -58,6 +58,7 @@ struct Settings settings =
 	"",
 	"",
 	0,
+	0,
 	0
 };
 
@@ -546,6 +547,16 @@ static void balanced_stat_loss_false()
 	settings.balanced_stat_loss = 0;
 }
 
+static void set_unit_tests()
+{
+#if defined(HAVE_CHECK)
+	settings.unit_tests = 1;
+#else
+	LOG(llevInfo, "\nThe server was built without the check unit testing framework.\nIf you want to run unit tests, you must first install this framework.\n");
+	exit(0);
+#endif
+}
+
 /** @endcond */
 
 /** One command line option definition. */
@@ -619,6 +630,8 @@ struct Command_Line_Options options[] =
 	{"-m10", 0, 3, set_dumpmon10},
 	{"-m11", 1, 3, set_dumpmon11},
 	{"-m12", 0, 3, set_dumpmon12},
+
+	{"-tests", 0, 3, set_unit_tests},
 
 	{"-s", 0, 3, showscores},
 	{"-score", 1, 3, showscoresparm},

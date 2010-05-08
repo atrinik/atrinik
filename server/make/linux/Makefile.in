@@ -45,7 +45,7 @@
 
 # EXTRA_CFLAGS
 # Any extra special options for the C compiler.
-EXTRA_CFLAGS = -Wall -W -Werror
+EXTRA_CFLAGS = @EXTRA_CFLAGS@ -Wall -W -Werror
 
 # C compiler
 CC = gcc
