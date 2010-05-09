@@ -550,14 +550,24 @@ signed long sum_weight(object *op)
 	sint32 sum;
 	object *inv;
 
+	if (QUERY_FLAG(op, FLAG_SYS_OBJECT))
+	{
+		return 0;
+	}
+
 	for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below)
 	{
+		if (QUERY_FLAG(inv, FLAG_SYS_OBJECT))
+		{
+			continue;
+		}
+
 		if (inv->inv)
 		{
 			sum_weight(inv);
 		}
 
-		sum += inv->carrying + (inv->nrof ? inv->weight * (int) inv->nrof : inv->weight);
+		sum += WEIGHT_NROF(inv);
 	}
 
 	/* because we avoid calculating for EVERY item in the loop above
@@ -571,7 +581,6 @@ signed long sum_weight(object *op)
 	}
 
 	op->carrying = sum;
-
 	return sum;
 }
 
@@ -1651,7 +1660,10 @@ void remove_ob(object *op)
 	 * inventory. */
 	if (op->env)
 	{
-		sub_weight(op->env, WEIGHT_NROF(op));
+		if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+		{
+			sub_weight(op->env, WEIGHT_NROF(op));
+		}
 
 		/* NO_FIX_PLAYER is set when a great many changes are being
 		 * made to players inventory. If set, avoid the call to save cpu time. */
@@ -2275,7 +2287,7 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 	}
 	else if (!is_removed)
 	{
-		if (orig_ob->env)
+		if (orig_ob->env && !QUERY_FLAG(orig_ob, FLAG_SYS_OBJECT))
 		{
 			sub_weight(orig_ob->env, orig_ob->weight * nr);
 		}
@@ -2336,8 +2348,12 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 		if (i < op->nrof)
 		{
-			sub_weight (op->env, op->weight * i);
 			op->nrof -= i;
+
+			if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
+			{
+				sub_weight(op->env, WEIGHT_NROF(op));
+			}
 
 			if (tmp)
 			{
@@ -2410,7 +2426,7 @@ object *decrease_ob_nr(object *op, uint32 i)
  * object was merged. */
 object *insert_ob_in_ob(object *op, object *where)
 {
-	object *tmp, *otmp;
+	object *otmp;
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
@@ -2452,36 +2468,41 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
 
-	for (tmp = where->inv; tmp; tmp = tmp->below)
+	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
-		if (CAN_MERGE(tmp, op))
+		object *tmp;
+
+		for (tmp = where->inv; tmp; tmp = tmp->below)
 		{
-			/* Return the original object and remove inserted object
-			 * (client needs the original object) */
-			tmp->nrof += op->nrof;
+			if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && CAN_MERGE(tmp, op))
+			{
+				/* Return the original object and remove inserted object
+				 * (client needs the original object) */
+				tmp->nrof += op->nrof;
 
-			/* Weight handling gets pretty funky. Since we are adding to
-			 * tmp->nrof, we need to increase the weight. */
-			add_weight(where, WEIGHT_NROF(op));
+				/* Weight handling gets pretty funky. Since we are adding to
+				 * tmp->nrof, we need to increase the weight. */
+				add_weight(where, WEIGHT_NROF(op));
 
-			/* Make sure we get rid of the old object */
-			SET_FLAG(op, FLAG_REMOVED);
+				/* Make sure we get rid of the old object */
+				SET_FLAG(op, FLAG_REMOVED);
 
-			op = tmp;
-			/* And fix old object's links (we will insert it further down)*/
-			remove_ob(op);
-			/* Just kidding about previous remove */
-			CLEAR_FLAG(op, FLAG_REMOVED);
-			break;
+				op = tmp;
+				/* And fix old object's links (we will insert it further down)*/
+				remove_ob(op);
+				/* Just kidding about previous remove */
+				CLEAR_FLAG(op, FLAG_REMOVED);
+				break;
+			}
 		}
-	}
 
-	/* I assume stackable objects have no inventory
-	 * We add the weight - this object could have just been removed
-	 * (if it was possible to merge).  calling remove_ob will subtract
-	 * the weight, so we need to add it in again, since we actually do
-	 * the linking below */
-	add_weight(where, WEIGHT_NROF(op));
+		/* I assume stackable objects have no inventory
+		 * We add the weight - this object could have just been removed
+		 * (if it was possible to merge).  calling remove_ob will subtract
+		 * the weight, so we need to add it in again, since we actually do
+		 * the linking below */
+		add_weight(where, WEIGHT_NROF(op));
+	}
 
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->map = NULL;
