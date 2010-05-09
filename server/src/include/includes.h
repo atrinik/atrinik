@@ -62,6 +62,7 @@
 #include <signal.h>
 #include <setjmp.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #ifdef HAVE_FCNTL_H
 #	include <fcntl.h>

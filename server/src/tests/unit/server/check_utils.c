@@ -164,6 +164,35 @@ START_TEST(test_cleanup_chat_string)
 }
 END_TEST
 
+static void check_format_number_comma(uint64 num, const char *expected)
+{
+	char *cp;
+
+	cp = format_number_comma(num);
+	fail_if(strcmp(cp, expected), "format_number_comma() adjusted number '%"FMT64"' to '%s' but it was not the expected string '%s'.", num, cp, expected);
+}
+
+START_TEST(test_format_number_comma)
+{
+	check_format_number_comma(0, "0");
+	check_format_number_comma(1, "1");
+	check_format_number_comma(10, "10");
+	check_format_number_comma(100, "100");
+	check_format_number_comma(1000, "1,000");
+	check_format_number_comma(10000, "10,000");
+	check_format_number_comma(100000, "100,000");
+	check_format_number_comma(1000000, "1,000,000");
+	check_format_number_comma(10000000, "10,000,000");
+	check_format_number_comma(100000000, "100,000,000");
+	check_format_number_comma(1000000000, "1,000,000,000");
+	check_format_number_comma(10000000000, "10,000,000,000");
+	check_format_number_comma(100000000000, "100,000,000,000");
+	check_format_number_comma(1000000000000, "1,000,000,000,000");
+	check_format_number_comma(10000000000000, "10,000,000,000,000");
+	check_format_number_comma(100000000000000, "100,000,000,000,000");
+}
+END_TEST
+
 static Suite *shstr_suite()
 {
 	Suite *s = suite_create("utils");
@@ -177,6 +206,7 @@ static Suite *shstr_suite()
 	tcase_add_test(tc_core, test_split_string);
 	tcase_add_test(tc_core, test_buf_overflow);
 	tcase_add_test(tc_core, test_cleanup_chat_string);
+	tcase_add_test(tc_core, test_format_number_comma);
 
 	return s;
 }

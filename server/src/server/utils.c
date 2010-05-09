@@ -478,3 +478,32 @@ char *cleanup_chat_string(char *ustring)
 
 	return ustring;
 }
+
+/**
+ * Adds thousand separators to a given number.
+ * @param num Number.
+ * @return Thousands-separated string. */
+char *format_number_comma(uint64 num)
+{
+	static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
+	char *buf;
+	int i = 0;
+
+	buf = &retbuf[sizeof(retbuf) - 1];
+	*buf = '\0';
+
+	do
+	{
+		if (i % 3 == 0 && i != 0)
+		{
+			*--buf = ',';
+		}
+
+		*--buf = '0' + num % 10;
+		num /= 10;
+		i++;
+	}
+	while (num != 0);
+
+	return buf;
+}

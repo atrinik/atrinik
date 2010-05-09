@@ -906,6 +906,7 @@ int get_random_dir();
 int get_randomized_dir(int dir);
 int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 char *cleanup_chat_string(char *ustring);
+char *format_number_comma(uint64 num);
 
 /* server/weather.c */
 void init_world_darkness();
