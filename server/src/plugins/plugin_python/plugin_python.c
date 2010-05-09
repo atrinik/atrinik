@@ -1007,7 +1007,6 @@ static int RunPythonScript(const char *path, object *event_object)
 		LOG(llevDebug, "closing. ");
 #endif
 
-		PyGC_Collect();
 		Py_DECREF(globdict);
 	}
 
