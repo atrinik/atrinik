@@ -32,6 +32,11 @@
 
 #include <global.h>
 
+/** Array of experience objects in the game. */
+static object *exp_cat[MAX_EXP_CAT];
+/** Current number of experience categories in the game. */
+static int nrofexpcat = 0;
+
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] =
 {
@@ -349,22 +354,20 @@ int calc_skill_exp(object *who, object *op, int level)
 static void init_exp_obj()
 {
 	archetype *at;
-	int cat, got_one = 0;
 
 	for (at = first_archetype; at; at = at->next)
 	{
 		if (at->clone.type == EXPERIENCE)
 		{
-			cat = at->clone.sub_type1;
-			exp_cat[cat] = get_object();
-			exp_cat[cat]->level = 1;
-			exp_cat[cat]->stats.exp = 0;
-			copy_object(&at->clone, exp_cat[cat]);
+			exp_cat[nrofexpcat] = get_object();
+			exp_cat[nrofexpcat]->level = 1;
+			exp_cat[nrofexpcat]->stats.exp = 0;
+			copy_object(&at->clone, exp_cat[nrofexpcat]);
 			/* avoid gc on these objects */
-			insert_ob_in_ob(exp_cat[cat], &void_container);
-			got_one = 1;
+			insert_ob_in_ob(exp_cat[nrofexpcat], &void_container);
+			nrofexpcat++;
 
-			if (cat == MAX_EXP_CAT)
+			if (nrofexpcat == MAX_EXP_CAT)
 			{
 				LOG(llevSystem, "ERROR: Aborting! Reached limit of available experience\n");
 				LOG(llevError, "ERROR: categories. Need to increase value of MAX_EXP_CAT.\n");
@@ -373,7 +376,7 @@ static void init_exp_obj()
 		}
 	}
 
-	if (!got_one)
+	if (!nrofexpcat)
 	{
 		LOG(llevError, "ERROR: Aborting! No experience objects found in archetypes.\n");
 		exit(0);
@@ -434,7 +437,7 @@ void dump_skills()
 
 	LOG(llevInfo, "exper_catgry \t str \t dex \t con \t wis \t cha \t int \t pow \n");
 
-	for (i = 0; i < MAX_EXP_CAT; i++)
+	for (i = 0; i < nrofexpcat; i++)
 	{
 		LOG(llevInfo, "%d-%s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n", i, exp_cat[i]->name, exp_cat[i]->stats.Str, exp_cat[i]->stats.Dex, exp_cat[i]->stats.Con, exp_cat[i]->stats.Wis, exp_cat[i]->stats.Cha, exp_cat[i]->stats.Int, exp_cat[i]->stats.Pow);
 	}
@@ -753,7 +756,7 @@ int init_player_exp(object *pl)
 	 * or pre-skills/exp code player file */
 	if (!exp_index)
 	{
-		for (j = 0; j < MAX_EXP_CAT; j++)
+		for (j = 0; j < nrofexpcat; j++)
 		{
 			tmp = get_object();
 			copy_object(exp_cat[j], tmp);

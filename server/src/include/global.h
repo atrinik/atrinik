@@ -363,10 +363,6 @@ EXTERN long nrofartifacts;
 /** Number of allowed treasure combinations. */
 EXTERN long nrofallowedstr;
 
-/** Current number of experience categories in the game. */
-EXTERN short nrofexpcat;
-/** Array of experience objects in the game. */
-EXTERN object *exp_cat[MAX_EXP_CAT];
 extern object void_container;
 
 /** The starting map. */
