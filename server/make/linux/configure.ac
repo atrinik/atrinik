@@ -109,10 +109,6 @@ AC_ARG_WITH(includes, [  --with-includes=dir     provide different compiler opti
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(socket, main)
 
-# Checks for libraries.
-# Start of X11 libraries
-AC_PATH_XTRA
-
 CPPFLAGS="$CPPFLAGS $EXTRA_INC"
 LDFLAGS="$LDFLAGS $EXTRA_LIB"
 
@@ -223,11 +219,19 @@ AC_DEFINE_UNQUOTED(BUNZIP,"${BUNZIP}")
 ########################
 # Unit test configuration
 
-AM_PATH_CHECK(,[have_check="yes"],
-  AC_MSG_WARN([Check not found; cannot run unit tests!])
-  [have_check="no"])
-if test x"$have_check" = "xyes" ; then
-  AC_DEFINE(HAVE_CHECK)
+have_check="no"
+disable_check="no"
+
+AC_ARG_ENABLE(tests, [  --disable-tests         disable unit tests, even if check is available],
+	disable_check="yes", )
+
+if test x"$disable_check" = "xno" ; then
+	AM_PATH_CHECK(,[have_check="yes"],
+		AC_MSG_WARN([Check not found; cannot run unit tests!])
+		[have_check="no"])
+	if test x"$have_check" = "xyes" ; then
+		AC_DEFINE(HAVE_CHECK)
+	fi
 fi
 
 datadir=${ndatadir}
