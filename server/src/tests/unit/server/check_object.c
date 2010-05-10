@@ -296,6 +296,90 @@ START_TEST(test_insert_ob_in_ob)
 }
 END_TEST
 
+START_TEST(test_can_pick)
+{
+	object *pl, *ob;
+
+	pl = get_archetype("raas");
+	pl->type = PLAYER;
+	CLEAR_FLAG(pl, FLAG_SEE_INVISIBLE);
+
+	ob = get_archetype("sack");
+	fail_if(can_pick(pl, ob) == 0, "Player cannot pick up normal sack.");
+	ob->weight = 0;
+	fail_if(can_pick(pl, ob) == 1, "Player can pick up sack that weighs 0kg.");
+	ob = get_archetype("sack");
+	SET_FLAG(ob, FLAG_NO_PICK);
+	fail_if(can_pick(pl, ob) == 1, "Player can pick up non-pickable sack.");
+	SET_FLAG(ob, FLAG_UNPAID);
+	fail_if(can_pick(pl, ob) == 0, "Player cannot pick up clone-shop sack.");
+	ob = get_archetype("sack");
+	SET_FLAG(ob, FLAG_IS_INVISIBLE);
+	fail_if(can_pick(pl, ob) == 1, "Player cannot see invisible but can pick up invisible sack.");
+	ob = get_archetype("raas");
+	fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
+	ob = get_archetype("beholder_dread");
+	CLEAR_FLAG(ob, FLAG_ALIVE);
+	ob->type = MISC_OBJECT;
+	fail_if(can_pick(pl, ob) == 1, "Player can pick up a multi-arch object.");
+}
+END_TEST
+
+START_TEST(test_object_create_clone)
+{
+	object *ob, *clone;
+
+	ob = get_archetype("raas");
+	insert_ob_in_ob(get_archetype("sack"), ob);
+	clone = object_create_clone(ob);
+	fail_if(strcmp(clone->name, ob->name) != 0, "object_create_clone() created an object with name '%s', but it should have been named '%s'.", clone->name, ob->name);
+	fail_if(clone->inv == NULL, "object_create_clone() created a clone object with no inventory.");
+	fail_if(strcmp(clone->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone->inv->name, ob->inv->name);
+}
+END_TEST
+
+START_TEST(test_was_destroyed)
+{
+	object *ob, *ob2;
+	tag_t ob_tag, ob2_tag;
+	mapstruct *m;
+
+	m = get_empty_map(1, 1);
+
+	ob = get_archetype("sack");
+	ob_tag = ob->count;
+	insert_ob_in_map(ob, m, ob, 0);
+	fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object is still on map.");
+	ob2 = get_archetype("bolt");
+	ob2_tag = ob2->count;
+	insert_ob_in_ob(ob2, ob);
+	fail_if(was_destroyed(ob2, ob2_tag) == 1, "was_destroyed() returned 1 but object is in inventory of another object.");
+	SET_FLAG(ob2, FLAG_REMOVED);
+	fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object had FLAG_REMOVED set.");
+	CLEAR_FLAG(ob2, FLAG_REMOVED);
+	remove_ob(ob);
+	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was removed from map.");
+	object_gc();
+	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
+	fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
+}
+END_TEST
+
+START_TEST(test_load_object_str)
+{
+	object *ob;
+
+	ob = load_object_str("arch sack\nend\n");
+	fail_if(ob == NULL, "load_object_str() should not return NULL.");
+	fail_if(strcmp(ob->arch->name, "sack") != 0, "load_object_str() created object with arch name '%s', but it should have been 'sack'.", ob->arch->name);
+
+	ob = load_object_str("arch sack\nname magic sack\nweight 129\nend\n");
+	fail_if(ob == NULL, "load_object_str() should not return NULL.");
+	fail_if(strcmp(ob->name, "magic sack") != 0, "load_object_str() created object with name '%s', but name should have been 'magic sack'.", ob->name);
+	fail_if(ob->weight != 129, "load_object_str() created object with weight %d, but it should have had 129 weight.", ob->weight);
+}
+END_TEST
+
 static Suite *object_suite()
 {
 	Suite *s = suite_create("object");
@@ -315,6 +399,10 @@ static Suite *object_suite()
 	tcase_add_test(tc_core, test_get_split_ob);
 	tcase_add_test(tc_core, test_decrease_ob_nr);
 	tcase_add_test(tc_core, test_insert_ob_in_ob);
+	tcase_add_test(tc_core, test_can_pick);
+	tcase_add_test(tc_core, test_object_create_clone);
+	tcase_add_test(tc_core, test_was_destroyed);
+	tcase_add_test(tc_core, test_load_object_str);
 
 	return s;
 }
