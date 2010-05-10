@@ -353,7 +353,6 @@ int monster_apply_special(object *who, object *op, int aflags);
 archetype *find_archetype_by_object_name(const char *name);
 object *get_archetype_by_object_name(const char *name);
 archetype *get_skill_archetype(int skillnr);
-int item_matched_string(object *pl, object *op, const char *name);
 void init_archetypes();
 void arch_info(object *op);
 void dump_all_archetypes();
@@ -629,6 +628,7 @@ key_value *object_get_key_link(const object *ob, const char *key);
 const char *object_get_value(const object *op, const char *const key);
 int object_set_value(object *op, const char *key, const char *value, int add_key);
 void init_object_initializers();
+int item_matched_string(object *pl, object *op, const char *name);
 
 /* server/object_process.c */
 object *stop_item(object *op);

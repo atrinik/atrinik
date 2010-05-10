@@ -3663,3 +3663,162 @@ void init_object_initializers()
 {
 	object_initializers[BEACON] = beacon_add;
 }
+
+/**
+ * This is a subset of the parse_id command. Basically, name can be a
+ * string seperated lists of things to match, with certain keywords.
+ *
+ * Calling function takes care of what action might need to be done and
+ * if it is valid (pickup, drop, etc).
+ *
+ * Brief outline of the procedure:
+ *
+ * We take apart the name variable into the individual components.
+ * cases for 'all' and unpaid are pretty obvious.
+ *
+ * Next, we check for a count (either specified in name, or in the
+ * player object). If count is 1, make a quick check on the name. If
+ * count is >1, we need to make plural name.  Return if match.
+ *
+ * Last, make a check on the full name.
+ * @param pl Player (only needed to set count properly).
+ * @param op The item we're trying to match.
+ * @param name String we're searching.
+ * @return Non-zero if we have a match. A higher value means a better
+ * match. Zero means no match. */
+int item_matched_string(object *pl, object *op, const char *name)
+{
+	char *cp, local_name[MAX_BUF];
+	int count, retval = 0;
+
+	/* strtok is destructive to name */
+	strcpy(local_name, name);
+
+	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
+	{
+		/* Get rid of spaces */
+		while (cp[0] == ' ')
+		{
+			cp++;
+		}
+
+		/* All is a very generic match - low match value */
+		if (!strcmp(cp, "all"))
+		{
+			return 1;
+		}
+
+		/* Unpaid is a little more specific */
+		if (!strcmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID))
+		{
+			return 2;
+		}
+
+		if (!strcmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		{
+			return 2;
+		}
+
+		if (!strcmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED))
+		{
+			return 2;
+		}
+
+		/* Allow for things like '100 arrows' */
+		if ((count = atoi(cp)) != 0)
+		{
+			cp = strchr(cp, ' ');
+
+			/* Get rid of spaces */
+			while (cp && cp[0] == ' ')
+			{
+				cp++;
+			}
+		}
+		else
+		{
+			if (pl->type == PLAYER)
+			{
+				count = CONTR(pl)->count;
+			}
+			else
+			{
+				count = 0;
+			}
+		}
+
+		if (!cp || cp[0] == '\0' || count < 0)
+		{
+			return 0;
+		}
+
+		/* Base name matched - not bad */
+		if (strcasecmp(cp, op->name) == 0 && !count)
+		{
+			retval = 4;
+		}
+		/* Need to plurify name for proper match */
+		else if (count > 1)
+		{
+			char newname[MAX_BUF];
+			strcpy(newname, op->name);
+
+			if (!strcasecmp(newname, cp))
+			{
+				/* May not do anything */
+				CONTR(pl)->count = count;
+				retval = 6;
+			}
+		}
+		else if (count == 1)
+		{
+			if (!strcasecmp(op->name, cp))
+			{
+				/* May not do anything */
+				CONTR(pl)->count = count;
+				retval = 6;
+			}
+		}
+
+		if (!strcasecmp(cp, query_name(op, NULL)))
+		{
+			retval = 20;
+		}
+		else if (!strcasecmp(cp, query_short_name(op, NULL)))
+		{
+			retval = 18;
+		}
+		else if (!strcasecmp(cp, query_base_name(op, pl)))
+		{
+			retval = 16;
+		}
+		else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp)))
+		{
+			retval = 14;
+		}
+		/* Do substring checks, so things like 'Str+1' will match.
+		 * retval of these should perhaps be lower - they are lower
+		 * then the specific strcasecmp aboves, but still higher than
+		 * some other match criteria. */
+		else if (strstr(query_base_name(op, pl), cp))
+		{
+			retval = 12;
+		}
+		else if (strstr(query_short_name(op, NULL), cp))
+		{
+			retval = 12;
+		}
+
+		if (retval)
+		{
+			if (pl->type == PLAYER)
+			{
+				CONTR(pl)->count = count;
+			}
+
+			return retval;
+		}
+	}
+
+	return 0;
+}
