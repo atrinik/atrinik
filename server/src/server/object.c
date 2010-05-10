@@ -3689,7 +3689,7 @@ void init_object_initializers()
 int item_matched_string(object *pl, object *op, const char *name)
 {
 	char *cp, local_name[MAX_BUF];
-	int count, retval = 0;
+	int count, retval = 0, book_level;
 
 	/* strtok is destructive to name */
 	strcpy(local_name, name);
@@ -3724,6 +3724,44 @@ int item_matched_string(object *pl, object *op, const char *name)
 			return 2;
 		}
 
+		if (op->type == BOOK)
+		{
+			if (!strcmp(cp, "books"))
+			{
+				return 2;
+			}
+
+			if (!op->msg && !strcmp(cp, "empty books"))
+			{
+				return 2;
+			}
+
+			if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
+			{
+				if (!strcmp(cp, "unread books"))
+				{
+					return 2;
+				}
+
+				if (sscanf(cp, "unread level %d books", &book_level) == 1 && op->level == book_level)
+				{
+					return 2;
+				}
+			}
+			else
+			{
+				if (!strcmp(cp, "read books"))
+				{
+					return 2;
+				}
+
+				if (sscanf(cp, "read level %d books", &book_level) == 1 && op->level == book_level)
+				{
+					return 2;
+				}
+			}
+		}
+
 		/* Allow for things like '100 arrows' */
 		if ((count = atoi(cp)) != 0)
 		{
@@ -3733,17 +3771,6 @@ int item_matched_string(object *pl, object *op, const char *name)
 			while (cp && cp[0] == ' ')
 			{
 				cp++;
-			}
-		}
-		else
-		{
-			if (pl->type == PLAYER)
-			{
-				count = CONTR(pl)->count;
-			}
-			else
-			{
-				count = 0;
 			}
 		}
 
@@ -3765,8 +3792,6 @@ int item_matched_string(object *pl, object *op, const char *name)
 
 			if (!strcasecmp(newname, cp))
 			{
-				/* May not do anything */
-				CONTR(pl)->count = count;
 				retval = 6;
 			}
 		}
@@ -3774,8 +3799,6 @@ int item_matched_string(object *pl, object *op, const char *name)
 		{
 			if (!strcasecmp(op->name, cp))
 			{
-				/* May not do anything */
-				CONTR(pl)->count = count;
 				retval = 6;
 			}
 		}
