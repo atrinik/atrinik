@@ -65,6 +65,7 @@ CommArray_s Commands[] =
 	{"hiscore",        command_hiscore,        1.0f, 0},
 	{"afk",            command_afk,            1.0f, 0},
 	{"drop",           command_drop,           1.0f, CMD_FLAG_NO_PLAYER_SHOP},
+	{"take",           command_take,           1.0f, CMD_FLAG_NO_PLAYER_SHOP},
 	{"party",          command_party,          0.0f, 0},
 	{"gsay",           command_gsay,           1.0f, 0},
 	{"push",           command_push_object,    1.0f, CMD_FLAG_NO_PLAYER_SHOP},

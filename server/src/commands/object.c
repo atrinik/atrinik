@@ -913,135 +913,86 @@ void drop(object *op, object *tmp)
 }
 
 /**
- * Command to drop all items that have not been locked.
+ * /take command.
  * @param op Player.
- * @param params Optional specifier, like 'armour', 'weapon' and such.
+ * @param params What to take.
  * @return 0. */
-int command_dropall(object *op, char *params)
+int command_take(object *op, char *params)
 {
-	object *curinv, *nextinv;
+	object *tmp, *next;
+	int did_one = 0, missed = 0, ival;
 
-	if (op->inv == NULL)
+	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing to drop!");
+		new_draw_info(NDI_UNIQUE, op, "Take what?");
 		return 0;
 	}
 
-	curinv = op->inv;
-
-	if (params == NULL)
+	if (CONTR(op)->container)
 	{
-		while (curinv != NULL)
+		tmp = CONTR(op)->container->inv;
+	}
+	else
+	{
+		tmp = GET_MAP_OB_LAST(op->map, op->x, op->y);
+	}
+
+	if (!tmp)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
+		return 0;
+	}
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	for ( ; tmp; tmp = next)
+	{
+		next = tmp->below;
+
+		if ((tmp->layer != 3 && tmp->layer != 4) || QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_SYS_INVISIBLE(tmp))
 		{
-			nextinv = curinv->below;
+			continue;
+		}
 
-			while (nextinv && nextinv->type == MONEY)
+		ival = item_matched_string(op, tmp, params);
+
+		if (ival > 0)
+		{
+			if (ival <= 2 && !can_pick(op, tmp))
 			{
-				nextinv = nextinv->below;
+				missed++;
 			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && curinv->type != MONEY && curinv->type != FOOD && curinv->type != KEY && curinv->type != SPECIAL_KEY && (curinv->type != GEM && curinv->type != PEARL && curinv->type != JEWEL && curinv->type != NUGGET) && !IS_SYS_INVISIBLE(curinv) && (curinv->type != CONTAINER || (op->type == PLAYER && CONTR(op)->container != curinv)))
+			else
 			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
+				pick_up(op, tmp);
+				did_one = 1;
 			}
-
-			curinv = nextinv;
 		}
 	}
-	else if (strcmp(params, "weapons") == 0)
+
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	if (did_one)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
-
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && ((curinv->type == WEAPON) || (curinv->type == BOW) || (curinv->type == ARROW)))
-			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
-			}
-
-			curinv = nextinv;
-		}
+		fix_player(op);
 	}
-	else if (strcmp(params, "armor") == 0 || strcmp(params, "armour") == 0)
+	else if (!missed)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
-
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && ((curinv->type == ARMOUR) || curinv->type == SHIELD || curinv->type == HELMET))
-			{
-				if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-				{
-					drop(op, curinv);
-				}
-			}
-
-			curinv = nextinv;
-		}
+		new_draw_info(NDI_UNIQUE, op, "Nothing to take.");
 	}
-	else if (strcmp(params, "misc") == 0)
+
+	if (missed == 1)
 	{
-		while (curinv != NULL)
-		{
-			nextinv = curinv->below;
+		new_draw_info(NDI_UNIQUE, op, "You were unable to take one of the items.");
+	}
+	else if (missed > 1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You were unable to take %d of the items.", missed);
+	}
 
-			while (nextinv && nextinv->type == MONEY)
-			{
-				nextinv = nextinv->below;
-			}
-
-			if (!QUERY_FLAG(curinv, FLAG_INV_LOCKED) && !QUERY_FLAG(curinv, FLAG_APPLIED))
-			{
-				switch (curinv->type)
-				{
-					case HORN:
-					case BOOK:
-					case SPELLBOOK:
-					case GIRDLE:
-					case AMULET:
-					case RING:
-					case CLOAK:
-					case BOOTS:
-					case GLOVES:
-					case BRACERS:
-					case SCROLL:
-					case ARMOUR_IMPROVER:
-					case WEAPON_IMPROVER:
-					case WAND:
-					case ROD:
-					case POTION:
-						if (!QUERY_FLAG(curinv, FLAG_STARTEQUIP))
-						{
-							drop(op, curinv);
-						}
-
-						curinv = nextinv;
-						break;
-
-					default:
-						curinv = nextinv;
-						break;
-				}
-			}
-
-			curinv = nextinv;
-		}
+	if (op->type == PLAYER)
+	{
+		CONTR(op)->count = 0;
 	}
 
 	return 0;
@@ -1054,36 +1005,60 @@ int command_dropall(object *op, char *params)
  * @return 0. */
 int command_drop(object *op, char *params)
 {
-	object  *tmp, *next;
-	int did_one = 0;
+	object *tmp, *next;
+	int did_one = 0, missed = 0, ival;
 
 	if (!params)
 	{
 		new_draw_info(NDI_UNIQUE, op, "Drop what?");
 		return 0;
 	}
-	else
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	for (tmp = op->inv; tmp; tmp = next)
 	{
-		for (tmp = op->inv; tmp; tmp = next)
+		next = tmp->below;
+
+		if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_SYS_INVISIBLE(tmp))
 		{
-			next = tmp->below;
+			continue;
+		}
 
-			if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_SYS_INVISIBLE(tmp))
+		ival = item_matched_string(op, tmp, params);
+
+		if (ival > 0)
+		{
+			if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED))
 			{
-				continue;
+				missed++;
 			}
-
-			if (item_matched_string(op, tmp, params))
+			else
 			{
 				drop(op, tmp);
 				did_one = 1;
 			}
 		}
+	}
 
-		if (!did_one)
-		{
-			new_draw_info(NDI_UNIQUE, op, "Nothing to drop.");
-		}
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	if (did_one)
+	{
+		fix_player(op);
+	}
+	else if (!missed)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Nothing to drop.");
+	}
+
+	if (missed == 1)
+	{
+		new_draw_info(NDI_UNIQUE, op, "One item couldn't be dropped because it was locked.");
+	}
+	else if (missed > 1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%d items couldn't be dropped because they were locked.", missed);
 	}
 
 	if (op->type == PLAYER)

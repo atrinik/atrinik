@@ -127,7 +127,7 @@ void pick_up(object *op, object *alt);
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
 void drop_object(object *op, object *tmp, long nrof);
 void drop(object *op, object *tmp);
-int command_dropall(object *op, char *params);
+int command_take(object *op, char *params);
 int command_drop(object *op, char *params);
 object *find_marked_object(object *op);
 void examine_living(object *op, object *tmp);
