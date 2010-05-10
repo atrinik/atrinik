@@ -744,6 +744,7 @@ char *query_name(object *op, object *caller)
 				break;
 
 			case SKILL:
+			case SKILL_ITEM:
 			default:
 				safe_strcat(buf[use_buf], " (applied)", &len, HUGE_BUF);
 		}

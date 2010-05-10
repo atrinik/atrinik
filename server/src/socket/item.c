@@ -40,6 +40,12 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op);
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
 
+/**
+ * Legacy macro to support older clients, and properly show skill items
+ * in client's player doll.
+ * @deprecated */
+#define SOCKET_OBJ_TYPE(ob, pl) (CONTR((pl))->socket.socket_version < 1031 ? (ob->type == SKILL_ITEM ? SKILL : (ob->type == SKILL ? 0 : ob->type)) : ob->type)
+
 /** This is the maximum number of bytes we expect any item to take up. */
 #define MAXITEMLEN 300
 
@@ -579,7 +585,7 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 		}
 
 		SockList_AddChar(sl, tmp->facing);
-		SockList_AddChar(sl, tmp->type);
+		SockList_AddChar(sl, SOCKET_OBJ_TYPE(tmp, pl));
 		SockList_AddChar(sl, tmp->sub_type1);
 
 		if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
@@ -729,7 +735,7 @@ void esrv_send_inventory(object *pl, object *op)
 			}
 
 			SockList_AddChar(&sl, tmp->facing);
-			SockList_AddChar(&sl, tmp->type);
+			SockList_AddChar(&sl, SOCKET_OBJ_TYPE(tmp, pl));
 			SockList_AddChar(&sl, tmp->sub_type1);
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
@@ -1042,7 +1048,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	/* If not below */
 	if (op->env)
 	{
-		SockList_AddChar(&sl, op->type);
+		SockList_AddChar(&sl, SOCKET_OBJ_TYPE(op, pl));
 		SockList_AddChar(&sl, op->sub_type1);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))

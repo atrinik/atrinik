@@ -912,6 +912,9 @@ char *format_number_comma(uint64 num);
 void init_world_darkness();
 void tick_the_clock();
 
+/* skills/construction.c */
+void construction_do(object *op, int dir);
+
 /* socket/image.c */
 int is_valid_faceset(int fsn);
 void free_socket_images();

@@ -188,7 +188,7 @@ typedef struct item_struct
 #define TYPE_BLINDNESS	            49
 #define TYPE_GOD		            50
 #define TYPE_DETECTOR	            51
-#define TYPE_SPEEDBALL	            52
+#define TYPE_SKILL_ITEM             52
 #define TYPE_DEAD_OBJECT	        53
 #define TYPE_DRINK		            54
 #define TYPE_MARKER                 55

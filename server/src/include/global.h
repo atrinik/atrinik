@@ -268,7 +268,7 @@ if (_nv_)                          \
 #define MAX_EXP_CAT 7
 
 /** Null experience object. */
-#define EXP_NONE (MAX_EXP_CAT - 1)
+#define EXP_NONE 0
 
 /** The maximum level. */
 #define MAXLEVEL 110

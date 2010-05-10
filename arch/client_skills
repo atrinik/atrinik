@@ -106,3 +106,9 @@
 "grace. The kind and number of prayers depend on the player's deity."
 "This skill is auto-used when casting the spell."
 " "
+"construction"
+3 a sk_021.png
+"This skill allows you to modify contents of the game, like your apartment"
+"in real-time. See nearby construction manager NPC for help and"
+"explanation of this skill."
+" "

@@ -39,6 +39,7 @@ SRCS := \
 	$(LOADERS:.l=.c) \
 	$(wildcard random_maps/*.c) \
 	$(wildcard server/*.c) \
+	$(wildcard skills/*.c) \
 	$(wildcard socket/*.c) \
 	$(wildcard types/*.c)
 

@@ -105,8 +105,6 @@ static int item_skill_cs_stat[] =
 	CS_STAT_SKILLEXP_WISDOM
 };
 
-static void link_skills_to_exp();
-static int check_link(int stat, object *exp);
 static int change_skill_to_skill(object *who, object *skl);
 static int attack_melee_weapon(object *op, int dir);
 static int attack_hth(object *pl, int dir, char *string);
@@ -226,6 +224,10 @@ int do_skill(object *op, int dir)
 			new_draw_info(NDI_UNIQUE, op, "This skill is already in effect.");
 			return success;
 			break;
+
+		case SK_CONSTRUCTION:
+			construction_do(op, dir);
+			return success;
 
 		default:
 			LOG(llevDebug, "%s attempted to use unknown skill: %d\n", query_name(op, NULL), op->chosen_skill->stats.sp);
@@ -347,22 +349,22 @@ int calc_skill_exp(object *who, object *op, int level)
 static void init_exp_obj()
 {
 	archetype *at;
+	int cat, got_one = 0;
 
-	nrofexpcat = 0;
-
-	for (at = first_archetype; at != NULL; at = at->next)
+	for (at = first_archetype; at; at = at->next)
 	{
 		if (at->clone.type == EXPERIENCE)
 		{
-			exp_cat[nrofexpcat] = get_object();
-			exp_cat[nrofexpcat]->level = 1;
-			exp_cat[nrofexpcat]->stats.exp = 0;
-			copy_object(&at->clone, exp_cat[nrofexpcat]);
+			cat = at->clone.sub_type1;
+			exp_cat[cat] = get_object();
+			exp_cat[cat]->level = 1;
+			exp_cat[cat]->stats.exp = 0;
+			copy_object(&at->clone, exp_cat[cat]);
 			/* avoid gc on these objects */
-			insert_ob_in_ob(exp_cat[nrofexpcat], &void_container);
-			nrofexpcat++;
+			insert_ob_in_ob(exp_cat[cat], &void_container);
+			got_one = 1;
 
-			if (nrofexpcat == MAX_EXP_CAT)
+			if (cat == MAX_EXP_CAT)
 			{
 				LOG(llevSystem, "ERROR: Aborting! Reached limit of available experience\n");
 				LOG(llevError, "ERROR: categories. Need to increase value of MAX_EXP_CAT.\n");
@@ -371,7 +373,7 @@ static void init_exp_obj()
 		}
 	}
 
-	if (nrofexpcat == 0)
+	if (!got_one)
 	{
 		LOG(llevError, "ERROR: Aborting! No experience objects found in archetypes.\n");
 		exit(0);
@@ -383,6 +385,7 @@ static void init_exp_obj()
 void init_new_exp_system()
 {
 	static int init_new_exp_done = 0;
+	int i;
 
 	if (init_new_exp_done)
 	{
@@ -393,8 +396,16 @@ void init_new_exp_system()
 
 	/* Locate the experience objects and create list of them */
 	init_exp_obj();
-	/* Link skills to exp cat, based on shared stats */
-	link_skills_to_exp();
+
+	for (i = 0; i < NROFSKILLS; i++)
+	{
+		/* Link the skill archetype ptr to skill list for fast access.
+		 * Now we can access the skill archetype by skill number or skill name. */
+		if (!(skills[i].at = get_skill_archetype(i)))
+		{
+			LOG(llevError, "ERROR: Aborting! Skill #%d (%s) not found in archlist!\n", i, skills[i].name);
+		}
+	}
 }
 
 /**
@@ -423,7 +434,7 @@ void dump_skills()
 
 	LOG(llevInfo, "exper_catgry \t str \t dex \t con \t wis \t cha \t int \t pow \n");
 
-	for (i = 0; i < nrofexpcat; i++)
+	for (i = 0; i < MAX_EXP_CAT; i++)
 	{
 		LOG(llevInfo, "%d-%s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n", i, exp_cat[i]->name, exp_cat[i]->stats.Str, exp_cat[i]->stats.Dex, exp_cat[i]->stats.Con, exp_cat[i]->stats.Wis, exp_cat[i]->stats.Cha, exp_cat[i]->stats.Int, exp_cat[i]->stats.Pow);
 	}
@@ -436,127 +447,6 @@ void dump_skills()
 	{
 		LOG(llevInfo, "%2d-%17s  %12s  %4d %4ld %4g  %5s %5s %5s\n", i, skills[i].name, exp_cat[skills[i].category] != NULL ? exp_cat[skills[i].category]->name : "NONE", skills[i].time, skills[i].bexp, skills[i].lexp, skills[i].stat1 != NO_STAT_VAL ? short_stat_name[skills[i].stat1] : "---", skills[i].stat2 != NO_STAT_VAL ? short_stat_name[skills[i].stat2] : "---", skills[i].stat3 != NO_STAT_VAL ? short_stat_name[skills[i].stat3] : "---");
 	}
-}
-
-/**
- * This links the skills in ::skills to the appropriate experience
- * category. Linking is based only on the stats (1,2,3) of the skill.
- * If none of the stats associated with a skill match those in any
- * experience object then the skill becomes 'miscellaneous'. */
-static void link_skills_to_exp()
-{
-	int i = 0, j = 0;
-
-	for (i = 0; i < NROFSKILLS; i++)
-	{
-		/* link the skill archetype ptr to skill list for fast access.
-		 * now we can access the skill archetype by skill number or skill name. */
-		if (!(skills[i].at = get_skill_archetype(i)))
-		{
-			LOG(llevError, "ERROR: Aborting! Skill #%d (%s) not found in archlist!\n", i, skills[i].name);
-		}
-
-		for (j = 0; j < nrofexpcat; j++)
-		{
-			if (check_link(skills[i].stat1, exp_cat[j]))
-			{
-				skills[i].category = j;
-				continue;
-			}
-			else if (skills[i].category == EXP_NONE && check_link(skills[i].stat2, exp_cat[j]))
-			{
-				skills[i].category = j;
-				continue;
-			}
-			else if (skills[i].category == EXP_NONE && check_link(skills[i].stat3, exp_cat[j]))
-			{
-				skills[i].category = j;
-				continue;
-			}
-			/* Failed to link, set to EXP_NONE */
-			else if (j == nrofexpcat || skills[i].stat1 == NO_STAT_VAL)
-			{
-				skills[i].category = EXP_NONE;
-				continue;
-			}
-		}
-	}
-}
-
-/**
- * Check whether the experience object has a valid stat.
- * @param stat The stat.
- * @param exp Experience object.
- * @return 1 if the stat is valid, 0 otherwise. */
-static int check_link(int stat, object *exp)
-{
-	switch (stat)
-	{
-		case STR:
-			if (exp->stats.Str)
-			{
-				return 1;
-			}
-
-			break;
-
-		case CON:
-			if (exp->stats.Con)
-			{
-				return 1;
-			}
-
-			break;
-
-		case DEX:
-			if (exp->stats.Dex)
-			{
-				return 1;
-			}
-
-			break;
-
-		case INTELLIGENCE:
-			if (exp->stats.Int)
-			{
-				return 1;
-			}
-
-			break;
-
-		case WIS:
-			if (exp->stats.Wis)
-			{
-				return 1;
-			}
-
-			break;
-
-		case POW:
-			if (exp->stats.Pow)
-			{
-				return 1;
-			}
-
-			break;
-
-		case CHA:
-			if (exp->stats.Cha)
-			{
-				return 1;
-			}
-
-			break;
-
-		case NO_STAT_VAL:
-			return 0;
-
-		default:
-			LOG(llevError, "ERROR: Aborting! Tried to link skill with unknown stat!\n");
-			exit(0);
-	}
-
-	return 0;
 }
 
 /**
@@ -846,7 +736,6 @@ int init_player_exp(object *pl)
 		if (tmp->type == EXPERIENCE)
 		{
 			exp_ob[exp_index] = tmp;
-
 			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
 			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
 			exp_index++;
@@ -864,12 +753,12 @@ int init_player_exp(object *pl)
 	 * or pre-skills/exp code player file */
 	if (!exp_index)
 	{
-		for (j = 0; j < nrofexpcat; j++)
+		for (j = 0; j < MAX_EXP_CAT; j++)
 		{
 			tmp = get_object();
 			copy_object(exp_cat[j], tmp);
 			insert_ob_in_ob(tmp, pl);
-			tmp->stats.exp = pl->stats.exp / nrofexpcat;
+			tmp->stats.exp = 0;
 			exp_ob[j] = tmp;
 			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
 
@@ -929,7 +818,7 @@ void unlink_skill(object *skillop)
  * @param pl Player. */
 void link_player_skills(object *pl)
 {
-	int i, j, cat = 0, sk_index = 0, exp_index = 0;
+	int i, cat = 0, sk_index = 0, exp_index = 0;
 	object *tmp, *sk_ob[NROFSKILLS], *exp_ob[MAX_EXP_CAT];
 
 	/* We're going to unapply all skills */
@@ -942,7 +831,8 @@ void link_player_skills(object *pl)
 	{
 		if (tmp->type == EXPERIENCE)
 		{
-			exp_ob[exp_index] = tmp;
+			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
+			exp_ob[tmp->sub_type1] = tmp;
 			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
 			tmp->nrof = 1;
 			exp_index++;
@@ -957,20 +847,6 @@ void link_player_skills(object *pl)
 		}
 	}
 
-	if (exp_index != nrofexpcat)
-	{
-		LOG(llevBug, "BUG: link_player_skills() - player %s has bad number of exp obj\n", query_name(pl, NULL));
-
-		if (!init_player_exp(pl))
-		{
-			LOG(llevBug, "BUG: link_player_skills() - failed to correct problem.\n");
-			return;
-		}
-
-		link_player_skills(pl);
-		return;
-	}
-
 	/* Ok, create linked list and link the associated skills to exp objects */
 	for (i = 0; i < sk_index; i++)
 	{
@@ -981,15 +857,7 @@ void link_player_skills(object *pl)
 			continue;
 		}
 
-		for (j = 0; exp_ob[j] != NULL && j < exp_index; j++)
-		{
-			if (!strcmp(exp_cat[cat]->name, exp_ob[j]->name))
-			{
-				break;
-			}
-		}
-
-		sk_ob[i]->exp_obj = exp_ob[j];
+		sk_ob[i]->exp_obj = exp_ob[cat];
 	}
 }
 
@@ -1008,7 +876,7 @@ int link_player_skill(object *pl, object *skillop)
 	{
 		for (tmp = pl->inv; tmp; tmp = tmp->below)
 		{
-			if (tmp->type == EXPERIENCE && !strcmp(exp_cat[cat]->name, tmp->name))
+			if (tmp->type == EXPERIENCE && tmp->sub_type1 == cat)
 			{
 				skillop->exp_obj = tmp;
 				break;
@@ -1019,7 +887,6 @@ int link_player_skill(object *pl, object *skillop)
 	}
 
 	skillop->exp_obj = NULL;
-
 	return 0;
 }
 
@@ -1088,8 +955,8 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 	}
 
 	/* Everything is cool. Give 'em the skill */
-	(void) insert_ob_in_ob(tmp,pl);
-	(void) link_player_skill(pl, tmp);
+	insert_ob_in_ob(tmp,pl);
+	link_player_skill(pl, tmp);
 	play_sound_player_only (CONTR(pl), SOUND_LEARN_SPELL,SOUND_NORMAL, 0, 0);
 	new_draw_info_format(NDI_UNIQUE, pl, "You have learned the skill %s!", tmp->name);
 
@@ -1418,7 +1285,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 	 * the players -- no need to do this for monsters. */
 	if (op->type == PLAYER && QUERY_FLAG(op, FLAG_READY_WEAPON) && (!op->chosen_skill || op->chosen_skill->stats.sp != CONTR(op)->set_skill_weapon))
 	{
-		(void) change_skill(op, CONTR(op)->set_skill_weapon);
+		change_skill(op, CONTR(op)->set_skill_weapon);
 	}
 
 	success = attack_ob(tmp, op);
@@ -1557,52 +1424,4 @@ int check_skill_action_time(object *op, object *skill)
 	}
 
 	return 1;
-}
-
-/**
- * Get the value of the primary skill stat.
- * @param op Object.
- * @return The primary skill stat. */
-int get_skill_stat1(object *op)
-{
-	int stat_value = 0, stat = NO_STAT_VAL;
-
-	if ((op->chosen_skill) && ((stat = skills[op->chosen_skill->stats.sp].stat1) != NO_STAT_VAL))
-	{
-		stat_value = get_attr_value(&(op->stats), stat);
-	}
-
-	return stat_value;
-}
-
-/**
- * Get the value of the secondary skill stat.
- * @param op Object.
- * @return The secondary skill stat. */
-int get_skill_stat2(object *op)
-{
-	int stat_value = 0, stat = NO_STAT_VAL;
-
-	if ((op->chosen_skill) && ((stat = skills[op->chosen_skill->stats.sp].stat2) != NO_STAT_VAL))
-	{
-		stat_value = get_attr_value(&(op->stats), stat);
-	}
-
-	return stat_value;
-}
-
-/**
- * Get the value of the tertiary skill stat.
- * @param op Object.
- * @return The tertiary skill stat. */
-int get_skill_stat3(object *op)
-{
-	int stat_value = 0, stat = NO_STAT_VAL;
-
-	if ((op->chosen_skill) && ((stat = skills[op->chosen_skill->stats.sp].stat3) != NO_STAT_VAL))
-	{
-		stat_value = get_attr_value(&(op->stats), stat);
-	}
-
-	return stat_value;
 }

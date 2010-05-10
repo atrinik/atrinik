@@ -122,6 +122,8 @@ enum
 	PLAYER_EQUIP_WEAPON,
 	/** Bow/crossbow/etc. */
 	PLAYER_EQUIP_BOW,
+	/** Skill item. */
+	PLAYER_EQUIP_SKILL_ITEM,
 
 	/** Maximum number of equipment. */
 	PLAYER_EQUIP_MAX

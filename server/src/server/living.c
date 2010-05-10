@@ -1234,6 +1234,9 @@ void fix_player(object *op)
 
 					break;
 
+				case SKILL_ITEM:
+					pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
+
 				case WEAPON:
 					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 					/* Our weapon */

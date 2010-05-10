@@ -799,8 +799,8 @@ void widget_show_player_doll(int x, int y)
 					index = PDOLL_AMULET;
 					break;
 
-				case TYPE_SKILL:
-					index = PDOLL_SKILL;
+				case TYPE_SKILL_ITEM:
+					index = PDOLL_SKILL_ITEM;
 					break;
 
 				case TYPE_BOW:

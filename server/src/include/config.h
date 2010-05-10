@@ -341,4 +341,4 @@
 #define NO_EMERGENCY_SAVE
 
 /** Socket version. */
-#define SOCKET_VERSION 1030
+#define SOCKET_VERSION 1031

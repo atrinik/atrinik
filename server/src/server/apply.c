@@ -852,6 +852,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		case HORN:
 		case SKILL:
 		case BOW:
+		case SKILL_ITEM:
 			/* Not in inventory */
 			if (tmp->env != op)
 			{
@@ -1149,7 +1150,7 @@ int apply_special(object *who, object *op, int aflags)
 			case GIRDLE:
 			case BRACERS:
 			case CLOAK:
-				(void) change_abil(who, op);
+				change_abil(who, op);
 				snprintf(buf, sizeof(buf), "You unwear %s.", query_name(op, NULL));
 				break;
 

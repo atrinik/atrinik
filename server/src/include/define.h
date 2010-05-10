@@ -162,7 +162,7 @@
  *
  * Type 0 will be undefined and show a non valid type information.
  *
- * Currently unused types to fill: 52, 63, 67, 76, 97, 108, 127, 128, 129,
+ * Currently unused types to fill: 63, 67, 76, 97, 108, 127, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
  * 148, 149, 150, 152, 155.
  *@{*/
@@ -270,6 +270,8 @@
  * Detector is an object which notices the presense of another object and
  * is triggered like buttons. */
 #define DETECTOR                51
+/** Item required to be equipped in order to use a skill. */
+#define SKILL_ITEM              52
 /** Players become a DEAD_OBJECT when they logout. */
 #define DEAD_OBJECT             53
 /** Drink. */
@@ -960,8 +962,8 @@
 #define FLAG_CURSED               74
 /** The object is _very_ cursed. */
 #define FLAG_DAMNED               75
-/** Unused. */
-#define FLAG_SEE_ANYWHERE         76
+/** Used for floor: is the floor buildable? */
+#define FLAG_IS_BUILDABLE         76
 /** The monster can use skills. */
 #define FLAG_CAN_USE_SKILL        79
 
