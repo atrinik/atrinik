@@ -57,31 +57,31 @@
  * file */
 skill skills[NROFSKILLS] =
 {
-	{"alchemy",            NULL, EXP_PERSONAL, 10,  1,   1.0f,  INTELLIGENCE,  WIS,           DEX},
-	{"common literacy",    NULL, EXP_MENTAL,        0,   1,   1.0f,  INTELLIGENCE,  WIS,           NO_STAT_VAL},
-	{"bargaining",         NULL, EXP_PERSONAL, 0,   0,   0.0f,  NO_STAT_VAL,   NO_STAT_VAL,   NO_STAT_VAL},
+	{"alchemy", NULL, EXP_PERSONAL, 10, 1, 1.0f, INTELLIGENCE, WIS, DEX},
+	{"common literacy", NULL, EXP_MENTAL, 0, 1, 1.0f, INTELLIGENCE, WIS, NO_STAT_VAL},
+	{"bargaining", NULL, EXP_PERSONAL, 0, 0, 0.0f, NO_STAT_VAL, NO_STAT_VAL, NO_STAT_VAL},
 	{"construction", NULL, EXP_PERSONAL, 0, 0, 0.0f, STR, DEX, INTELLIGENCE},
 
-	{"punching",           NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"karate",             NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"throwing",           NULL, EXP_AGILITY, 1,   0,   1.0f,  DEX,           DEX,           NO_STAT_VAL},
+	{"punching", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
+	{"karate", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
+	{"throwing", NULL, EXP_AGILITY, 1, 0, 1.0f, DEX, DEX, NO_STAT_VAL},
 
-	{"wizardry spells",    NULL, EXP_MAGICAL, 1,   0,   0.0f,  POW,           INTELLIGENCE,  WIS},
-	{"magic devices",      NULL, EXP_MAGICAL, 4,   0,   1.0f,  POW,           DEX,           NO_STAT_VAL},
-	{"divine prayers",     NULL, EXP_WISDOM,        0,   0,   0.0f,  WIS,           POW,           INTELLIGENCE},
+	{"wizardry spells", NULL, EXP_MAGICAL, 1, 0, 0.0f, POW, INTELLIGENCE, WIS},
+	{"magic devices", NULL, EXP_MAGICAL, 4, 0, 1.0f, POW, DEX, NO_STAT_VAL},
+	{"divine prayers", NULL, EXP_WISDOM, 0, 0, 0.0f, WIS, POW, INTELLIGENCE},
 
-	{"find traps",         NULL, EXP_AGILITY,        0,   1,   0.0f,  DEX,           NO_STAT_VAL,   NO_STAT_VAL},
-	{"remove traps",       NULL, EXP_AGILITY, 0,   1,   0.5f,  DEX,           INTELLIGENCE,  NO_STAT_VAL},
+	{"find traps", NULL, EXP_AGILITY, 0, 1, 0.0f, DEX, NO_STAT_VAL, NO_STAT_VAL},
+	{"remove traps", NULL, EXP_AGILITY, 0, 1, 0.5f, DEX, INTELLIGENCE, NO_STAT_VAL},
 
-	{"bow archery",        NULL, EXP_AGILITY, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
-	{"crossbow archery",   NULL, EXP_AGILITY, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
-	{"sling archery",      NULL, EXP_AGILITY, 0,   0,   1.0f,  DEX,           STR,           NO_STAT_VAL},
+	{"bow archery", NULL, EXP_AGILITY, 0, 0, 1.0f, DEX, STR, NO_STAT_VAL},
+	{"crossbow archery", NULL, EXP_AGILITY, 0, 0, 1.0f, DEX, STR, NO_STAT_VAL},
+	{"sling archery", NULL, EXP_AGILITY, 0, 0, 1.0f, DEX, STR, NO_STAT_VAL},
 
-	{"slash weapons",      NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"cleave weapons",     NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"pierce weapons",     NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"impact weapons",     NULL, EXP_PHYSICAL, 0,   0,   1.0f,  STR,           DEX,           NO_STAT_VAL},
+	{"slash weapons", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
+	{"cleave weapons", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
+	{"pierce weapons", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
+	{"impact weapons", NULL, EXP_PHYSICAL, 0, 0, 1.0f, STR, DEX, NO_STAT_VAL},
 
-	{"two-hand mastery",   NULL, EXP_PHYSICAL, 0,   0,   0.0f,  STR,           DEX,           NO_STAT_VAL},
-	{"polearm mastery",    NULL, EXP_PHYSICAL, 0,   0,   0.0f,  STR,           DEX,           NO_STAT_VAL}
+	{"two-hand mastery", NULL, EXP_PHYSICAL, 0, 0, 0.0f, STR, DEX, NO_STAT_VAL},
+	{"polearm mastery", NULL, EXP_PHYSICAL, 0, 0, 0.0f, STR, DEX, NO_STAT_VAL}
 };
