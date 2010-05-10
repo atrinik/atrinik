@@ -1589,6 +1589,7 @@ int main(int argc, char **argv)
 	init_plugins();
 	compile_info();
 
+#ifdef HAVE_CHECK
 	/* Now that we have everything loaded, we can run unit tests. */
 	if (settings.unit_tests)
 	{
@@ -1596,6 +1597,7 @@ int main(int argc, char **argv)
 		check_main();
 		exit(0);
 	}
+#endif
 
 	memset(&marker, 0, sizeof(struct obj));
 

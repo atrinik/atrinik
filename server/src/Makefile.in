@@ -42,7 +42,7 @@ SRCS := \
 	$(wildcard socket/*.c) \
 	$(wildcard types/*.c)
 
-ifneq (-lcheck," ")
+ifneq (@CHECK_LIBS@,)
 	SRCS += \
 		$(wildcard tests/*.c) \
 		$(wildcard tests/unit/commands/*.c) \
