@@ -38,4 +38,3 @@ void construction_do(object *op, int dir)
 (void) op;
 (void) dir;
 }
-

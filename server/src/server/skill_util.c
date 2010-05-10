@@ -445,7 +445,7 @@ void dump_skills()
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
-		LOG(llevInfo, "%2d-%17s  %12s  %4d %4ld %4g  %5s %5s %5s\n", i, skills[i].name, exp_cat[skills[i].category] != NULL ? exp_cat[skills[i].category]->name : "NONE", skills[i].time, skills[i].bexp, skills[i].lexp, skills[i].stat1 != NO_STAT_VAL ? short_stat_name[skills[i].stat1] : "---", skills[i].stat2 != NO_STAT_VAL ? short_stat_name[skills[i].stat2] : "---", skills[i].stat3 != NO_STAT_VAL ? short_stat_name[skills[i].stat3] : "---");
+		LOG(llevInfo, "%2d-%17s  %12s  %4d\n", i, skills[i].name, exp_cat[skills[i].category] != NULL ? exp_cat[skills[i].category]->name : "NONE", skills[i].time);
 	}
 }
 
