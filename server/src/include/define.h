@@ -642,7 +642,7 @@
 /*@}*/
 
 /** Number of different spells */
-#define NROFREALSPELLS  42
+#define NROFREALSPELLS  43
 /** Number of spell paths. */
 #define NRSPELLPATHS    20
 

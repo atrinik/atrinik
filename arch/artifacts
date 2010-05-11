@@ -3497,6 +3497,7 @@ Object
 title of lesser mana
 type 6
 sp 13
+is_magical 1
 end
 
 Allowed all
@@ -3508,6 +3509,7 @@ Object
 title of medium mana
 type 6
 sp 24
+is_magical 1
 end
 
 Allowed all
@@ -3519,6 +3521,7 @@ Object
 title of mana
 type 6
 sp 37
+is_magical 1
 end
 
 Allowed all
@@ -3530,6 +3533,7 @@ Object
 title of greater mana
 type 6
 sp 57
+is_magical 1
 end
 
 Allowed all
@@ -3540,6 +3544,7 @@ Object
 title of lesser grace
 type 6
 grace 13
+is_magical 1
 end
 
 Allowed all
@@ -3551,6 +3556,7 @@ Object
 title of medium grace
 type 6
 grace 24
+is_magical 1
 end
 
 Allowed all
@@ -3562,6 +3568,7 @@ Object
 title of grace
 type 6
 grace 37
+is_magical 1
 end
 
 Allowed all
@@ -3573,6 +3580,7 @@ Object
 title of greater grace
 type 6
 grace 57
+is_magical 1
 end
 
 ###########
