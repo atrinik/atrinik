@@ -780,9 +780,6 @@ int SK_level(object *op);
 object *SK_skill(object *op);
 float get_skill_time(object *op, int skillnr);
 int check_skill_action_time(object *op, object *skill);
-int get_skill_stat1(object *op);
-int get_skill_stat2(object *op);
-int get_skill_stat3(object *op);
 
 /* server/spell_effect.c */
 void prayer_failure(object *op, int failure, int power);
@@ -804,6 +801,7 @@ int cast_consecrate(object *op);
 int finger_of_death(object *op, object *target);
 int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type);
 void move_aura(object *aura);
+int cast_transform_wealth(object *op);
 
 /* server/spell_util.c */
 void init_spells();

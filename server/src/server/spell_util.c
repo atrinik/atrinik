@@ -654,6 +654,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = create_bomb(op, caster, dir, type);
 			break;
 
+		case SP_TRANSFORM_WEALTH:
+			success = cast_transform_wealth(op);
+			break;
+
 		default:
 			LOG(llevBug, "BUG: cast_spell(): Invalid invalid spell: %d\n", type);
 			break;

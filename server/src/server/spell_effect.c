@@ -1783,3 +1783,44 @@ void move_aura(object *aura)
 	remove_ob(aura);
 	insert_ob_in_ob(aura, env);
 }
+
+/**
+ * Transform wealth spell.
+ * @param op Who is casting.
+ * @return 1 on success, 0 otherwise. */
+int cast_transform_wealth(object *op)
+{
+	object *marked;
+	sint64 val;
+
+	if (op->type != PLAYER)
+	{
+		return 0;
+	}
+
+	/* Find the marked wealth. */
+	marked = find_marked_object(op);
+
+	if (!marked)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You need to mark an object to cast this spell.");
+		return 0;
+	}
+
+	/* Check that it's really money. */
+	if (marked->type != MONEY)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can only cast this spell on wealth objects.");
+		return 0;
+	}
+
+	/* Figure out our value of money to give to player. */
+	val = (marked->value * (marked->nrof ? marked->nrof : 1)) * TRANSFORM_WEALTH_SACRIFICE;
+	/* We remove the money. */
+	remove_ob(marked);
+	esrv_del_item(CONTR(op), marked->count, marked->env);
+	/* Now give the player the new money. */
+	insert_coins(op, val);
+	new_draw_info_format(NDI_UNIQUE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));
+	return 1;
+}

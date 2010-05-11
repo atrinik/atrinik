@@ -285,7 +285,8 @@ enum spellnrs
 	SP_BULLET_STORM,
 	SP_DESTRUCTION,
 	SP_BOMB,
-	SP_CURE_CONFUSION
+	SP_CURE_CONFUSION,
+	SP_TRANSFORM_WEALTH
 };
 
 extern spell spells[NROFREALSPELLS];
@@ -308,5 +309,9 @@ typedef enum SpellTypeFrom
 	spellPotion,
 	spellNPC
 } SpellTypeFrom;
+
+/**
+ * 20% sacrifice of money when casting the 'transform wealth' spell. */
+#define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
 #endif
