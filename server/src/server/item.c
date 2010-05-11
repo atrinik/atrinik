@@ -1331,6 +1331,9 @@ char *describe_item(object *op)
 				case FOOD:
 				case FLESH:
 				case DRINK:
+				{
+					int curse_multiplier = 1;
+
 					sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
 					strcat(retbuf, buf);
 
@@ -1340,42 +1343,36 @@ char *describe_item(object *op)
 						strcat(retbuf, buf);
 					}
 
-					if (!QUERY_FLAG(op, FLAG_CURSED))
+					if (QUERY_FLAG(op, FLAG_CURSED))
 					{
-						if (op->stats.hp)
-						{
-							strcat(retbuf, "(heals)");
-						}
-
-						if (op->stats.sp)
-						{
-							strcat(retbuf, "(mana regen)");
-						}
-
-						if (op->stats.grace)
-						{
-							strcat(retbuf, "(grace regen)");
-						}
+						curse_multiplier = 2;
 					}
-					else
+
+					if (QUERY_FLAG(op, FLAG_DAMNED))
 					{
-						if (op->stats.hp)
-						{
-							strcat(retbuf, "(damages)");
-						}
+						curse_multiplier = 3;
+					}
 
-						if (op->stats.sp)
-						{
-							strcat(retbuf, "(mana depletion)");
-						}
+					if (op->stats.hp)
+					{
+						snprintf(buf, sizeof(buf), "(hp%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.hp * curse_multiplier);
+						strcat(retbuf, buf);
+					}
 
-						if (op->stats.grace)
-						{
-							strcat(retbuf, "(grace depletion)");
-						}
+					if (op->stats.sp)
+					{
+						snprintf(buf, sizeof(buf), "(mana%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.sp * curse_multiplier);
+						strcat(retbuf, buf);
+					}
+
+					if (op->stats.grace)
+					{
+						snprintf(buf, sizeof(buf), "(grace%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.grace * curse_multiplier);
+						strcat(retbuf, buf);
 					}
 
 					break;
+				}
 
 				case POTION:
 					if (op->last_sp)
