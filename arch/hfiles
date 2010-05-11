@@ -27,7 +27,9 @@ List of ^contributors^
 ^save^
 ^hiscore^
 ^party^
+^drop_key^
 ^drop^
+^take^
 ^get^
 ^push^
 ^left^
@@ -55,6 +57,7 @@ This would always unapply the item 'amulet' from your inventory, never applying 
 /apply -u amulet
 <p><t t="See Also:">
 ^get^
+^drop_key^
 ^drop^
 ==========
 Name: pray
@@ -235,26 +238,83 @@ Title: Gsay Command
 The Gsay command is an alias to "/party say". You can use it to send a message to your party.
 <t t="Syntax:">/gsay [your message]
 ==========
-Name: drop
-Title: Drop Command
-The drop command is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
-
-You can also drop matching items from your inventory using /drop, for example:
-/drop ring
-would drop all items with "ring" in their name from your inventory. Locked items wouldn't be dropped.
+Name: drop_key
+Title: Drop
+The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
 <p><t t="See Also:">
 ^apply^
 ^get^
+^drop^
+^take^
+==========
+Name: drop and take
+Title: Drop and Take Syntax
+This page explains syntax that can be used in both /drop and /take commands. Note that with /drop, you will never drop locked or god-given items. With /take, you cannot pick up more items than your weight limit allows, but you can get to very slow speed.
+
+Drop all cursed/damned items:
+/drop cursed
+
+Drop everything that can be dropped:
+/drop all
+
+Drop all empty books:
+/drop empty books
+
+Take all unread books:
+/take unread books
+
+Take all unread level 20 books:
+/take unread level 20 books
+
+Drop all rings from inventory:
+/drop ring
+
+Take 100 arrows:
+/take 100 arrows
+
+Drop all read books:
+/drop read books
+
+Take all unpaid items:
+/take unpaid
+
+Take all rings and amulets:
+/take ring, amulet
+
+The syntax in the above examples always applies to both commands.
+==========
+Name: drop
+Title: Drop Command
+You can use the /drop command to drop specific items from your inventory. If you have a container open, dropped items from your inventory will go into the container (even if the container is in your inventory). It has the same syntax as the /take command.
+
+For syntax and usage, see
+^drop and take^.
+<p><t t="See Also:">
+^apply^
+^get^
+^take^
+^drop_key^
+==========
+Name: take
+Title: Take Command
+The /take command can be used to take items on floor, or items in your currently open container (even if you have the container in your inventory). It has the same syntax as the /drop command.
+
+For syntax and usage, see
+^drop and take^.
+<p><t t="See Also:">
+^apply^
+^get^
+^drop_key^
 ==========
 Name: get
-Title: Get Command
-Autocomplete: 0
+Title: Get
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
 However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -> General -> Collect All Items.
 <p><t t="See Also:">
 ^apply^
 ^drop^
+^drop_key^
 ==========
 Name: push
 Title: Push Command
