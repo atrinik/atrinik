@@ -3510,6 +3510,7 @@ title of medium mana
 type 6
 sp 24
 is_magical 1
+value 100
 end
 
 Allowed all
@@ -3522,6 +3523,7 @@ title of mana
 type 6
 sp 37
 is_magical 1
+value 200
 end
 
 Allowed all
@@ -3534,6 +3536,7 @@ title of greater mana
 type 6
 sp 57
 is_magical 1
+value 400
 end
 
 Allowed all
@@ -3557,6 +3560,7 @@ title of medium grace
 type 6
 grace 24
 is_magical 1
+value 100
 end
 
 Allowed all
@@ -3569,6 +3573,7 @@ title of grace
 type 6
 grace 37
 is_magical 1
+value 200
 end
 
 Allowed all
@@ -3581,6 +3586,7 @@ title of greater grace
 type 6
 grace 57
 is_magical 1
+value 400
 end
 
 ###########
