@@ -1641,15 +1641,7 @@ void examine(object *op, object *tmp)
 				}
 
 				new_draw_info(NDI_UNIQUE, op, buf);
-
-				if (tmp->weapon_speed != 1.0f)
-				{
-					snprintf(buf, sizeof(buf), "It contains %3.3f kg reduced to %3.3f kg.", (float) tmp->carrying / 1000.0f, (float) tmp->damage_round_tag / 1000.0f);
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
-				}
+				snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
 			}
 
 			break;
