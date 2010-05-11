@@ -23,29 +23,61 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This is the main file for unit tests. From here, we call all unit
- * test functions. */
+/**
+ * @file
+ * This is a unit tests file for bug #85: Cursed minor shielding amulet.
+ *
+ * Location: http://bugzilla.atrinik.org/show_bug.cgi?id=85 */
 
 #include <global.h>
 #include <check.h>
-#include <check_proto.h>
 
-/* The main unit test function. Calls other functions to do the unit
- * tests. */
-void check_main()
+START_TEST(test_run)
 {
-	/* bugs */
-	check_bug_85();
+	int i;
+	treasurelist *list;
+	object *tmp;
 
-	/* unit/commands */
-	check_commands_object();
+	list = find_treasurelist("random_talisman");
 
-	/* unit/server */
-	check_server_ban();
-	check_server_arch();
-	check_server_object();
-	/* Anything that needs the shared string interface should go above
-	 * this line (arches, artifacts, players, etc). */
-	check_server_shstr();
-	check_server_utils();
+	fail_if(list == NULL, "Couldn't find 'random_talisman' treasure list to start the test.");
+
+	for (i = 0; i < 2000; i++)
+	{
+		tmp = generate_treasure(list, MAXLEVEL, list->artifact_chance);
+
+		if (tmp && !strcmp(tmp->artifact, "amulet_shielding"))
+		{
+			if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED))
+			{
+				fail("Managed to create cursed amulet of minor shielding (i: %d).", i);
+			}
+		}
+	}
+}
+END_TEST
+
+static Suite *bug_suite()
+{
+	Suite *s = suite_create("bug");
+	TCase *tc_core = tcase_create("Core");
+
+	tcase_add_checked_fixture(tc_core, NULL, NULL);
+
+	suite_add_tcase(s, tc_core);
+	tcase_add_test(tc_core, test_run);
+
+	return s;
+}
+
+void check_bug_85()
+{
+	Suite *s = bug_suite();
+	SRunner *sr = srunner_create(s);
+
+	srunner_set_xml(sr, "unit/bugs/85.xml");
+	srunner_set_log(sr, "unit/bugs/85.out");
+	srunner_run_all(sr, CK_ENV);
+	srunner_ntests_failed(sr);
+	srunner_free(sr);
 }

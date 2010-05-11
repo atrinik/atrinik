@@ -3356,7 +3356,7 @@ end
 ####################
 # Artifact Amulets #
 ####################
-Allowed all
+Allowed amulet_generic
 chance 15
 difficulty 10
 artifact amulet_shielding

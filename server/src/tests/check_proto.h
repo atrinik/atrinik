@@ -19,4 +19,7 @@ void check_server_shstr();
 
 /* tests/unit/server/check_utils.c */
 void check_server_utils();
+
+/* tests/bugs/check_85.c */
+void check_bug_85();
 #endif

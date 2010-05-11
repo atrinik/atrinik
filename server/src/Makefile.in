@@ -47,7 +47,8 @@ ifneq (@CHECK_LIBS@,)
 	SRCS += \
 		$(wildcard tests/*.c) \
 		$(wildcard tests/unit/commands/*.c) \
-		$(wildcard tests/unit/server/*.c)
+		$(wildcard tests/unit/server/*.c) \
+		$(wildcard tests/bugs/*.c)
 endif
 
 # Object files
