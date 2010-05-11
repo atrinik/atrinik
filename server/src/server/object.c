@@ -2352,7 +2352,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 			if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 			{
-				sub_weight(op->env, WEIGHT_NROF(op));
+				sub_weight(op->env, op->weight * i);
 			}
 
 			if (tmp)
