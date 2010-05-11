@@ -570,13 +570,13 @@ signed long sum_weight(object *op)
 		sum += WEIGHT_NROF(inv);
 	}
 
-	/* because we avoid calculating for EVERY item in the loop above
-	 * the weight adjustment for magic containers, we can run here in some
-	 * rounding problems... in the worst case, we can remove a item from the
-	 * container but we are not able to put it back because rounding.
-	 * well, a small prize for saving *alot* of muls in player houses for example. */
 	if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 	{
+		/* We'll store the calculated value in damage_round_tag, so
+		 * we can use that as 'cache' for unmodified carrying weight.
+		 * This allows us to reliably calculate the weight again in
+		 * add_weight() and sub_weight() without rounding errors. */
+		op->damage_round_tag = sum;
 		sum = (sint32) ((float) sum * op->weapon_speed);
 	}
 
@@ -596,10 +596,13 @@ void add_weight(object *op, sint32 weight)
 		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
+			op->damage_round_tag += weight;
+			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
 		}
-
-		op->carrying += weight;
+		else
+		{
+			op->carrying += weight;
+		}
 
 		if (op->env && op->env->type == PLAYER)
 		{
@@ -622,10 +625,13 @@ void sub_weight(object *op, sint32 weight)
 		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
-			weight = (sint32) ((float) weight * op->weapon_speed);
+			op->damage_round_tag -= weight;
+			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
 		}
-
-		op->carrying -= weight;
+		else
+		{
+			op->carrying -= weight;
+		}
 
 		if (op->env && op->env->type == PLAYER)
 		{
