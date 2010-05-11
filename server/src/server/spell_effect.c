@@ -1814,6 +1814,13 @@ int cast_transform_wealth(object *op)
 		return 0;
 	}
 
+	/* Only allow coppers and silvers to be transformed. */
+	if (strcmp(marked->arch->name, coins[NUM_COINS - 1]) && strcmp(marked->arch->name, coins[NUM_COINS - 2]))
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You don't see a way to transform %s.", query_name(marked, op));
+		return 0;
+	}
+
 	/* Figure out our value of money to give to player. */
 	val = (marked->value * (marked->nrof ? marked->nrof : 1)) * TRANSFORM_WEALTH_SACRIFICE;
 	/* We remove the money. */
