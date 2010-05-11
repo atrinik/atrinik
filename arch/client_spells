@@ -142,3 +142,9 @@ p a 19 si_013.png
 "power of your god."
 " "
 " "
+"transform wealth"
+w a 15 si_124.png
+"Mark wealth object (money, coppers for example) and cast this spell."
+"The coppers will be transformed into silvers at regular money rate (you"
+"must have enough copper coins). There is 20% of the money sacrifice to"
+"cast it, so 100 coppers will become 80 coppers."
