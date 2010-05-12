@@ -593,11 +593,13 @@ void add_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
-		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
+			sint32 old_carrying = op->carrying;
+
 			op->damage_round_tag += weight;
 			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+			weight = op->carrying - old_carrying;
 		}
 		else
 		{
@@ -622,11 +624,13 @@ void sub_weight(object *op, sint32 weight)
 {
 	while (op != NULL)
 	{
-		/* only *one* time magic can effect the weight of objects */
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
+			sint32 old_carrying = op->carrying;
+
 			op->damage_round_tag -= weight;
 			op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+			weight = old_carrying - op->carrying;
 		}
 		else
 		{
