@@ -223,7 +223,7 @@ def check_map(map):
 		if attribute[:10] == "tile_path_":
 			# Map being tiled into itself is a critical error.
 			if map["file"][len(map["file"]) - len(map[attribute]):] == map[attribute]:
-				add_error(map["file"], "Map is tiled into itself (tile #{9}).".format(attribute[10:]), errors.critical)
+				add_error(map["file"], "Map is tiled into itself (tile #{0}).".format(attribute[10:]), errors.critical)
 				continue
 
 			# Map having two same tiles is also a critical error.
