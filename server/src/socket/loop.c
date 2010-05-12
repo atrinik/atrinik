@@ -202,6 +202,9 @@ void handle_client(socket_struct *ns, player *pl)
 			ns->login_count = 0;
 		}
 
+		/* Terminate buffer - useful for string data */
+		ns->inbuf.buf[ns->inbuf.len] = '\0';
+
 		/* First, break out beginning word.  There are at least
 		 * a few commands that do not have any parameters.  If
 		 * we get such a command, don't worry about trying
@@ -218,9 +221,6 @@ void handle_client(socket_struct *ns, player *pl)
 		{
 			len = 0;
 		}
-
-		/* Terminate buffer - useful for string data */
-		ns->inbuf.buf[ns->inbuf.len] = '\0';
 
 		for (i = 0; client_commands[i].cmdname; i++)
 		{
@@ -264,8 +264,7 @@ void handle_client(socket_struct *ns, player *pl)
 		/* If we get here, we didn't find a valid command.  Logging
 		 * this might be questionable, because a broken client/malicious
 		 * user could certainly send a whole bunch of invalid commands. */
-		LOG(llevDebug, "Bad command from client (%s) (%s)\n", ns->inbuf.buf + 2, data);
-		ns->status = Ns_Dead;
+		LOG(llevDebug, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
 		return;
 
 next_command:

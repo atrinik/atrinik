@@ -110,11 +110,15 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 				return -1;
 			}
 #else
+			if (errno == ECONNRESET)
+			{
+				LOG(llevDebug, "ReadPacket got error %s, returning -1\n", strerror_local(errno));
+				return -1;
+			}
+
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "ReadPacket got error %d, returning 0\n", errno);
-
-				return -1;
+				LOG(llevDebug, "ReadPacket got error %s, returning 0\n", strerror_local(errno));
 			}
 #endif
 
@@ -148,7 +152,6 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 	if ((toread + sl->len) >= len)
 	{
 		LOG(llevDebug, "SockList_ReadPacket: Want to read more bytes than will fit in buffer (%d>=%d).\n", toread + sl->len, len);
-
 		/* Return error so the socket is closed */
 		return -1;
 	}
@@ -176,7 +179,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 				}
 				else
 				{
-					LOG(llevDebug, "ReadPacket got error %d, returning 0\n", WSAGetLastError());
+					LOG(llevDebug, "ReadPacket got error %d, returning -1\n", WSAGetLastError());
 				}
 
 				return -1;
@@ -184,9 +187,7 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 #else
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "ReadPacket got error %d, returning 0\n", errno);
-
-				return -1;
+				LOG(llevDebug, "ReadPacket got error %s, returning 0\n", strerror_local(errno));
 			}
 #endif
 
@@ -216,7 +217,6 @@ int SockList_ReadPacket(int fd, SockList *sl, int len)
 		if (toread < 0)
 		{
 			LOG(llevDebug, "SockList_ReadPacket: Read more bytes than desired.\n");
-
 			return 1;
 		}
 	}
@@ -309,18 +309,15 @@ void write_socket_buffer(socket_struct *ns)
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed (wsb) (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
-
 				ns->status = Ns_Dead;
-
 				return;
 			}
 			else
 			{
 				/* Can't write it, so store it away. */
 				ns->can_write = 0;
-
 				return;
 			}
 		}
@@ -386,9 +383,8 @@ void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed WTS (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
-
 				ns->status = Ns_Dead;
 				return;
 			}
@@ -397,7 +393,6 @@ void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 				/* Can't write it, so store it away. */
 				add_to_buffer(ns, pos, len);
 				ns->can_write = 0;
-
 				return;
 			}
 		}
