@@ -1834,8 +1834,14 @@ static int talk_to_wall(object *npc, char *txt)
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
+	/* We are obviously friends with ourselves. */
+	if (op == obj)
+	{
+		return 1;
+	}
+
 	/* TODO: Add a few other odd types here, such as god and golem */
-	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER || op == obj)
+	if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER)
 	{
 		return 0;
 	}
