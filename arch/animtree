@@ -410,6 +410,8 @@
 /target.111
 /teleporter
 /temp_fog
+/thelra_female
+/thelra_male
 /throne.111
 /tiger
 /tipper
@@ -446,8 +448,6 @@
 /wasp_giant
 /water_still
 /waterfall_huge
-/wizard_female
-/wizard_male
 /wmask_bflag_brown_1
 /wmask_bflag_fire1_1
 /wmask_fire_off_1

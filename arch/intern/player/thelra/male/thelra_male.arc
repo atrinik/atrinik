@@ -1,7 +1,7 @@
-Object wizard_male
-race wizard
-face wizard_m.151
-randomitems player_wizard_male
+Object thelra_male
+race thelra
+face thelra_m.151
+randomitems player_thelra_male
 layer 6
 behavior 2
 is_male 1
@@ -12,7 +12,7 @@ is_neutral 1
 weapon_speed 0.0125
 speed 0.85
 terrain_flag 1
-animation wizard_male
+animation thelra_male
 is_animated 1
 anim_speed 3
 type 1

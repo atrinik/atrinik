@@ -245,7 +245,7 @@ treasure player_dwarf_female
   arch guild_force
 end
 
-treasure player_wizard_male
+treasure player_thelra_male
   arch padded_armour
   more
   arch sandals
@@ -282,7 +282,7 @@ treasure player_wizard_male
   arch guild_force
 end
 
-treasure player_wizard_female
+treasure player_thelra_female
   arch padded_armour
   more
   arch sandals

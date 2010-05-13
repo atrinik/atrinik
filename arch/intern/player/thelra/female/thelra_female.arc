@@ -1,7 +1,7 @@
-Object wizard_female
-race wizard
-face wizard_f.151
-randomitems player_wizard_female
+Object thelra_female
+race thelra
+face thelra_f.151
+randomitems player_thelra_female
 layer 6
 behavior 2
 is_female 1
@@ -12,7 +12,7 @@ is_neutral 1
 weapon_speed 0.0125
 speed 0.85
 terrain_flag 1
-animation wizard_female
+animation thelra_female
 is_animated 1
 anim_speed 3
 type 1
