@@ -3772,6 +3772,8 @@ int item_matched_string(object *pl, object *op, const char *name)
 			}
 		}
 
+		count = 0;
+
 		/* Allow for things like '100 arrows', but don't accept
 		 * strings like '+2', '-1' as numbers. */
 		if (isdigit(cp[0]) && (count = atoi(cp)) != 0)
