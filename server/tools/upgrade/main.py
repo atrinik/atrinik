@@ -48,7 +48,7 @@ upgrades_path = "upgrades"
 print("Running upgrade scripts...")
 
 # Go through upgrade scripts.
-for item in os.listdir(upgrades_path):
+for item in sorted(os.listdir(upgrades_path)):
 	file = upgrades_path + "/" + item
 
 	if os.path.isfile(file):
