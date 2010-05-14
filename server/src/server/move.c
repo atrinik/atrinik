@@ -326,7 +326,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
  * @return 0 if the object couldn't be pushed, 1 otherwise. */
 int push_ob(object *op, int dir, object *pusher)
 {
-	object *tmp;
+	object *tmp, *floor;
 	mapstruct *m;
 	int x, y, flags;
 
@@ -346,6 +346,14 @@ int push_ob(object *op, int dir, object *pusher)
 	y = op->y + freearr_y[dir];
 
 	if (!(m = get_map_from_coord(op->map, &x, &y)))
+	{
+		return 0;
+	}
+
+	floor = GET_MAP_OB_LAYER(m, x, y, 0);
+
+	/* Floor has no-push flag set? */
+	if (floor && QUERY_FLAG(floor, FLAG_XRAYS))
 	{
 		return 0;
 	}
