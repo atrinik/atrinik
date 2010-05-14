@@ -59,6 +59,11 @@
 		<TypeNrs numbers="118" />
 	</GameObjectMatcher>
 
+	<GameObjectMatcher id="shop_square">
+		<title xml:lang="en">Shop Square</title>
+		<TypeNrs numbers="68" />
+	</GameObjectMatcher>
+
 	<!-- Objects to be put below the floor in insertion tool -->
 	<GameObjectMatcher id="system_below_floor" system="true">
 		<title xml:lang="en">Below Floor</title>
@@ -126,5 +131,19 @@
 	<GameObjectMatcher id="system_connection_sink2" system="true">
 		<title xml:lang="en">Connected objects being a sink</title>
 		<TypeNrs numbers="-666" />
+	</GameObjectMatcher>
+
+	<!-- Objects checked by the "Shop square contains paid item" map validator:
+		 objects matching this matcher are paid items. -->
+	<GameObjectMatcher id="system_paid_item" system="true">
+		<title xml:lang="en">Paid items</title>
+		<And>
+			<Attrib name="is_floor" value="" />
+			<Attrib name="player_only" value="" />
+			<Attrib name="no_teleport" value="" />
+			<Attrib name="unpaid" value="" />
+			<Attrib name="monster" value="" />
+			<Attrib name="sys_object" value="" />
+		</And>
 	</GameObjectMatcher>
 </GameObjectMatchers>
