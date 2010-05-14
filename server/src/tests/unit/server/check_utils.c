@@ -185,11 +185,11 @@ START_TEST(test_format_number_comma)
 	check_format_number_comma(10000000, "10,000,000");
 	check_format_number_comma(100000000, "100,000,000");
 	check_format_number_comma(1000000000, "1,000,000,000");
-	check_format_number_comma(10000000000, "10,000,000,000");
-	check_format_number_comma(100000000000, "100,000,000,000");
-	check_format_number_comma(1000000000000, "1,000,000,000,000");
-	check_format_number_comma(10000000000000, "10,000,000,000,000");
-	check_format_number_comma(100000000000000, "100,000,000,000,000");
+	check_format_number_comma(10000000000LLU, "10,000,000,000");
+	check_format_number_comma(100000000000LLU, "100,000,000,000");
+	check_format_number_comma(1000000000000LLU, "1,000,000,000,000");
+	check_format_number_comma(10000000000000LLU, "10,000,000,000,000");
+	check_format_number_comma(100000000000000LLU, "100,000,000,000,000");
 }
 END_TEST
 
