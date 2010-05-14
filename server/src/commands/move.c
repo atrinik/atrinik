@@ -196,8 +196,53 @@ int command_turn_left(object *op, char *params)
  * @return 0. */
 int command_push_object(object *op, char *params)
 {
+	object *tmp;
+	mapstruct *m;
+	int xt, yt, dir = op->facing;
+
 	(void) params;
 
-	push_roll_object(op, op->facing);
-	return 0;
+	/* We check for all conditions where player can't push anything. */
+	if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You are unable to push anything.");
+		return 0;
+	}
+
+	xt = op->x + freearr_x[dir];
+	yt = op->y + freearr_y[dir];
+
+	if (!(m = get_map_from_coord(op->map, &xt, &yt)))
+	{
+		return 0;
+	}
+
+	for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
+	{
+		if (QUERY_FLAG(tmp, FLAG_CAN_ROLL))
+		{
+			break;
+		}
+	}
+
+	if (tmp == NULL || !QUERY_FLAG(tmp, FLAG_CAN_ROLL))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You fail to push anything.");
+		return 0;
+	}
+
+	tmp->direction = dir;
+
+	/* Try to push the object. */
+	if (!push_ob(tmp, dir, op))
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "You fail to push the %s.", query_name(tmp, NULL));
+		return 0;
+	}
+
+	/* Now we move the player who was pushing the object. */
+	move_ob(op, dir, op);
+	new_draw_info_format(NDI_UNIQUE, op, "You push the %s.", query_name(tmp, NULL));
+
+	return 1;
 }

@@ -563,10 +563,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
 int move_ob(object *op, int dir, object *originator);
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 int teleport(object *teleporter, uint8 tele_type, object *user);
-void recursive_roll(object *op, int dir, object *pusher);
-int try_fit(object *op, int x, int y);
-int roll_ob(object *op, int dir, object *pusher);
-int push_roll_object(object *op, int dir);
+int push_ob(object *op, int dir, object *pusher);
 int missile_reflection_adjust(object *op, int flag);
 
 /* server/object.c */

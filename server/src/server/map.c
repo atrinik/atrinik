@@ -696,7 +696,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 		/* Player only space and not a player - no pass and possible checker here */
 		if ((flags & P_PLAYER_ONLY) && op->type != PLAYER)
 		{
-			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV));
+			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV | P_PLAYER_ONLY));
 		}
 
 		if (flags & P_CHECK_INV)
