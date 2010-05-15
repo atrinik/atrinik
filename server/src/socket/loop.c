@@ -177,7 +177,7 @@ void handle_client(socket_struct *ns, player *pl)
 	{
 		/* If it is a player, and they don't have any speed left, we
 		 * return, and will read in the data when they do have time. */
-		if (ns->status == Ns_Zombie || (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0))
+		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0))
 		{
 			return;
 		}
@@ -435,7 +435,7 @@ void doeric_server()
 		}
 		else if (init_sockets[i].status == Ns_Zombie)
 		{
-			if (init_sockets[i].login_count++ == 1000000 / MAX_TIME)
+			if (init_sockets[i].login_count++ >= 1000000 / MAX_TIME)
 			{
 				init_sockets[i].status = Ns_Dead;
 			}
@@ -445,7 +445,7 @@ void doeric_server()
 			if (init_sockets[i].status > Ns_Wait)
 			{
 				/* Kill this socket after being 3 minutes idle */
-				if (init_sockets[i].login_count++ == 60 * 4 * (1000000 / MAX_TIME))
+				if (init_sockets[i].login_count++ >= 60 * 4 * (1000000 / MAX_TIME))
 				{
 					FREE_SOCKET(i);
 					continue;
@@ -477,7 +477,7 @@ void doeric_server()
 		}
 		else if (pl->socket.status == Ns_Zombie)
 		{
-			if (pl->socket.login_count++ == 1000000 / MAX_TIME)
+			if (pl->socket.login_count++ >= 1000000 / MAX_TIME)
 			{
 				pl->socket.status = Ns_Dead;
 			}
