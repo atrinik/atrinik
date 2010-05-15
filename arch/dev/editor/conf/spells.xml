@@ -8,8 +8,9 @@
   - #        to generate a new version of this file.         #
   - ##########################################################
   -->
-<!-- Generated on: Mon Feb 15 13:48:36 CET 2010 -->
+<!-- Generated on: Sat May 15 16:10:49 CEST 2010 -->
 <spells>
+  <spell id="7"   name="asteroid" />
   <spell id="38"  name="bullet storm" />
   <spell id="37"  name="bullet swarm" />
   <spell id="29"  name="cause cold" />
@@ -26,10 +27,9 @@
   <spell id="4"   name="cure disease" />
   <spell id="3"   name="cure poison" />
   <spell id="39"  name="destruction" />
-  <spell id="8"   name="detect curse" />
-  <spell id="7"   name="detect magic" />
   <spell id="28"  name="finger of death" />
   <spell id="0"   name="firestorm" />
+  <spell id="8"   name="frost nova" />
   <spell id="21"  name="greater healing" />
   <spell id="1"   name="icestorm" />
   <spell id="6"   name="identify" />
@@ -51,5 +51,6 @@
   <spell id="5"   name="strength self" />
   <spell id="14"  name="summon golem" />
   <spell id="17"  name="town portal" />
+  <spell id="42"  name="transform wealth" />
   <spell id="19"  name="word of recall" />
 </spells>
