@@ -32,8 +32,8 @@ apartments_info = {
 				"id": 3,
 				"price": 150000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_expensive",
-				"x": 1,
-				"y": 2,
+				"x": 2,
+				"y": 1,
 			},
 			"luxurious":
 			{
@@ -41,8 +41,8 @@ apartments_info = {
 				"id": 4,
 				"price": 300000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_luxurious",
-				"x": 2,
-				"y": 1,
+				"x": 1,
+				"y": 2,
 			},
 		},
 		"apartment_ids":

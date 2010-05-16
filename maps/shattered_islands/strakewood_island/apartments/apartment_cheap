@@ -1,10 +1,10 @@
 arch map
-name Strakewood Island - Cheap Apartment
+name Cheap Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-04 Alex Tokar
+Modified: 2010-05-16 Alex Tokar
 endmsg
-width 5
+width 6
 height 5
 difficulty 1
 darkness -1
@@ -13,35 +13,39 @@ no_harm 1
 bg_music harmony2.ogg|0|-1
 region strakewood_island
 end
-arch floor_inv
+arch floor_ostone2
 end
 arch wall_pattern3.181
 end
-arch floor_inv
+arch floor_ostone2
 y 1
 end
 arch wall_pattern3.131
 y 1
 end
-arch floor_inv
+arch floor_ostone2
 y 2
 end
 arch wall_pattern3.131
 y 2
 end
-arch floor_inv
+arch floor_ostone2
 y 3
 end
 arch wall_pattern3.131
 y 3
 end
-arch floor_inv
+arch picture2.151
+direction 7
+y 3
+end
+arch floor_ostone2
 y 4
 end
 arch wall_pattern3.131
 y 4
 end
-arch floor_inv
+arch floor_ostone2
 x 1
 end
 arch wall_pattern3.111
@@ -64,10 +68,6 @@ arch floor_ostone2
 x 1
 y 2
 end
-arch candlelight4.101
-x 1
-y 2
-end
 arch floor_ostone2
 x 1
 y 3
@@ -81,34 +81,28 @@ arch floor_ostone2
 x 1
 y 4
 end
+arch candlelight4.101
+x 1
+y 4
+end
 arch wall_pattern3.111
 x 1
 y 4
 end
-arch floor_inv
+arch floor_ostone2
 x 2
 end
 arch wall_pattern3.111
 x 2
 end
-arch floor_ostone2
+arch picture5.151
 x 2
-y 1
-end
-arch bed_1a.111
-name bed to reality
-type 106
-no_magic 1
-damned 1
-x 2
-y 1
 end
 arch floor_ostone2
 x 2
-y 2
+y 1
 end
 arch letter
-name letter - a'pply to read
 msg
 <tt="Welcome to your new apartment!">
 You have a container here you can use
@@ -120,6 +114,10 @@ type "/save" when you leave here to force
 the saving of this apartment.
 endmsg
 x 2
+y 1
+end
+arch floor_ostone2
+x 2
 y 2
 end
 arch floor_ostone2
@@ -134,7 +132,7 @@ arch wall_pattern3.111
 x 2
 y 4
 end
-arch floor_inv
+arch floor_ostone2
 x 3
 end
 arch wall_pattern3.111
@@ -143,70 +141,109 @@ end
 arch floor_ostone2
 x 3
 y 1
+end
+arch floor_ostone2
+x 3
+y 2
+end
+arch floor_ostone2
+x 3
+y 3
+end
+arch floor_ostone2
+x 3
+y 4
+end
+arch wall_pattern3.111
+x 3
+y 4
+end
+arch floor_ostone2
+x 4
+end
+arch wall_pattern3.111
+x 4
+end
+arch flag_02
+x 4
+end
+arch floor_ostone2
+x 4
+y 1
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+direction 7
+x 4
+y 1
+end
+arch floor_ostone2
+x 4
+y 2
 end
 arch bed_1b.111
 name bed to reality
 type 106
 no_magic 1
 damned 1
-x 3
-y 1
-end
-arch floor_ostone2
-x 3
+direction 5
+x 4
 y 2
 end
 arch floor_ostone2
-x 3
-y 3
-end
-arch chair_small
-x 3
+x 4
 y 3
 end
 arch floor_ostone2
-x 3
+x 4
 y 4
 end
 arch wall_pattern3.111
-x 3
+x 4
 y 4
 end
-arch floor_inv
-x 4
+arch floor_ostone2
+x 5
 end
 arch wall_pattern3.111
-x 4
+x 5
 end
 arch floor_ostone2
-x 4
+x 5
 y 1
 end
 arch wall_pattern3.131
-x 4
+x 5
 y 1
 end
 arch floor_ostone2
-x 4
+x 5
 y 2
 end
 arch wall_pattern3.131
-x 4
+x 5
 y 2
 end
 arch floor_ostone2
-x 4
+x 5
 y 3
 end
 arch wall_pattern3.131
-x 4
+x 5
 y 3
 end
 arch floor_ostone2
-x 4
+x 5
+y 4
+end
+arch candlelight4.101
+x 5
 y 4
 end
 arch wall_pattern3.141
-x 4
+x 5
 y 4
 end
