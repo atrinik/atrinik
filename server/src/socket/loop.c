@@ -48,6 +48,8 @@
 
 #include <newserver.h>
 
+static fd_set tmp_read, tmp_exceptions, tmp_write;
+
 /** Prototype for functions the client sends without player interaction. */
 typedef void (*func_uint8_int_ns)(char *, int, socket_struct *);
 
@@ -509,7 +511,6 @@ void doeric_server()
 {
 	int i, pollret, rr;
 	uint32 update_below;
-	fd_set tmp_read, tmp_exceptions, tmp_write;
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
@@ -754,6 +755,52 @@ void doeric_server()
 		/* Perhaps something was bad in handle_client(), or player has
 		 * left the game. */
 		if (pl->socket.status == Ns_Dead)
+		{
+			remove_ns_dead_player(pl);
+			continue;
+		}
+
+		/* Update the players stats once per tick. More efficient
+		 * than sending them whenever they change, and probably
+		 * just as useful */
+		esrv_update_stats(pl);
+
+		if (pl->update_skills)
+		{
+			esrv_update_skills(pl);
+			pl->update_skills = 0;
+		}
+
+		draw_client_map(pl->ob);
+
+		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
+		{
+			esrv_draw_look(pl->ob);
+			pl->socket.update_tile = update_below + 1;
+		}
+
+		if (FD_ISSET(pl->socket.fd, &tmp_write))
+		{
+			pl->socket.can_write = 1;
+			write_socket_buffer(&pl->socket);
+			pl->socket.can_write = 0;
+		}
+	}
+}
+
+/**
+ * Write to players' sockets. */
+void doeric_server_write()
+{
+	player *pl, *next;
+	uint32 update_below;
+
+	/* This does roughly the same thing, but for the players now */
+	for (pl = first_player; pl; pl = next)
+	{
+		next = pl->next;
+
+		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
 		{
 			remove_ns_dead_player(pl);
 			continue;

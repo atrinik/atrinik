@@ -1001,45 +1001,41 @@ int move_player(object *op, int dir)
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
  * @param pl Player to handle.
- * @return 1 if there are more actions we can do, 0 otherwise. */
+ * @return 0 if player is invalid, 1 if turn speed was used up or there
+ * are no commands left. */
 int handle_newcs_player(player *pl)
 {
-	object *op;
+	object *op = pl->ob;
 
-	/* Call this here - we also will call this in do_ericserver, but
-	 * the players time has been increased when doericserver has been
-	 * called, so we recheck it here. */
-	handle_client(&pl->socket, pl);
-	op = pl->ob;
-
-	if (op->speed_left < 0.0f)
+	if (!op || !OBJECT_ACTIVE(op))
 	{
 		return 0;
 	}
 
-	/* If we are here, we're never paralyzed anymore */
+	handle_client(&pl->socket, pl);
+
+	if (!op || !OBJECT_ACTIVE(op) || pl->socket.status == Ns_Dead)
+	{
+		return 0;
+	}
+
+	/* Check speed. */
+	if (op->speed_left < 0.0f)
+	{
+		return 1;
+	}
+
+	/* If we are here, we're never paralyzed anymore. */
 	CLEAR_FLAG(op, FLAG_PARALYZED);
 
 	if (op->direction && (CONTR(op)->run_on || CONTR(op)->fire_on))
 	{
-		/* All move commands take 1 tick, at least for now */
-		op->speed_left--;
-		/* Instead of all the stuff below, let move_player take care
-		 * of it. Also, some of the skill stuff is only put in
-		 * there, as well as the confusion stuff. */
 		move_player(op, op->direction);
-
-		if (op->speed_left > 0)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+		/* All move commands take 1 tick, at least for now. */
+		op->speed_left--;
 	}
 
-	return 0;
+	return 1;
 }
 
 /**

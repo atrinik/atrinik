@@ -46,7 +46,7 @@ extern void check_use_object_list();
 static object marker;
 
 static char *unclean_path(const char *src);
-static void process_players1(mapstruct *map);
+static void process_players1();
 static void process_players2();
 static void dequeue_path_requests();
 static void do_specials();
@@ -795,98 +795,51 @@ void enter_exit(object *op, object *exit_ob)
 
 /**
  * Do all player-related stuff before objects have been updated.
- * @param map If not NULL, only process players on that map.
  * @sa process_players2(). */
-static void process_players1(mapstruct *map)
+static void process_players1()
 {
-	int flag;
 	player *pl, *plnext;
 
-	/* Basically, we keep looping until all the players have done their actions. */
-	for (flag = 1; flag != 0; )
+	for (pl = first_player; pl; pl = plnext)
 	{
-		flag = 0;
+		plnext = pl->next;
 
-		for (pl = first_player; pl; pl = plnext)
-		{
-			/* In case a player exits the game in handle_player() */
-			plnext = pl->next;
-
-			if (pl->followed_player[0])
-			{
-				player *followed = find_player(pl->followed_player);
-
-				if (followed && followed->ob && followed->ob->map)
-				{
-					rv_vector rv;
-
-					if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
-					{
-						int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
-
-						if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
-						{
-							remove_ob(pl->ob);
-							pl->ob->x = followed->ob->x + freearr_x[space];
-							pl->ob->y = followed->ob->y + freearr_y[space];
-							insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
-						}
-					}
-				}
-				else
-				{
-					new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "Player %s left.", pl->followed_player);
-					pl->followed_player[0] = '\0';
-				}
-			}
-
-#ifdef AUTOSAVE
-			/* check for ST_PLAYING state so that we don't try to save off when
-			 * the player is logging in. */
-			if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
-			{
-				/* Don't save the player on unholy ground.  Instead, increase the
-				 * tick time so it will be about 10 seconds before we try and save
-				 * again. */
-				if (blocks_cleric(pl->ob->map, pl->ob->x, pl->ob->y))
-				{
-					pl->last_save_tick += 100;
-				}
-				else
-				{
-					save_player(pl->ob, 1);
-					pl->last_save_tick = pticks;
-					hiscore_check(pl->ob, 1);
-				}
-			}
-#endif
-			if (pl->ob == NULL)
-			{
-				/* I take it this should never happen, but it seems to anyway :( */
-				flag = 1;
-			}
-			else if (pl->ob->speed_left > 0)
-			{
-				if (handle_newcs_player(pl))
-				{
-					flag = 1;
-				}
-
-				pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
-			}
-		}
-	}
-
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (map && (pl->ob == NULL || pl->ob->map != map))
+		if (!handle_newcs_player(pl))
 		{
 			continue;
 		}
 
-		do_some_living(pl->ob);
+		if (pl->followed_player[0])
+		{
+			player *followed = find_player(pl->followed_player);
 
-		/* Use the new target system to hit our target - don't hit friendly
+			if (followed && followed->ob && followed->ob->map)
+			{
+				rv_vector rv;
+
+				if (pl->ob->map != followed->ob->map || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
+				{
+					int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
+
+					if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
+					{
+						remove_ob(pl->ob);
+						pl->ob->x = followed->ob->x + freearr_x[space];
+						pl->ob->y = followed->ob->y + freearr_y[space];
+						insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
+					}
+				}
+			}
+			else
+			{
+				new_draw_info_format(NDI_UNIQUE | NDI_RED, pl->ob, "Player %s left.", pl->followed_player);
+				pl->followed_player[0] = '\0';
+			}
+		}
+
+        pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
+
+		/* Use the target system to hit our target - don't hit friendly
 		 * objects, ourselves or when we are not in combat mode. */
 		if (pl->target_object && pl->combat_mode && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && ((pl->target_object->type == PLAYER && pvp_area(pl->ob, pl->target_object)) || (pl->target_object->type == MONSTER && !QUERY_FLAG(pl->target_object, FLAG_FRIENDLY))))
 		{
@@ -927,6 +880,29 @@ static void process_players1(mapstruct *map)
 				pl->ob->weapon_speed_left = 0;
 			}
 		}
+
+		do_some_living(pl->ob);
+
+#ifdef AUTOSAVE
+		/* Check for ST_PLAYING state so that we don't try to save off when
+		 * the player is logging in. */
+		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
+		{
+			/* Don't save the player on unholy ground.  Instead, increase the
+			 * tick time so it will be about 10 seconds before we try and save
+			 * again. */
+			if (blocks_cleric(pl->ob->map, pl->ob->x, pl->ob->y))
+			{
+				pl->last_save_tick += 100;
+			}
+			else
+			{
+				save_player(pl->ob, 1);
+				pl->last_save_tick = pticks;
+				hiscore_check(pl->ob, 1);
+			}
+		}
+#endif
 	}
 }
 
@@ -960,7 +936,7 @@ void process_events(mapstruct *map)
 	object *op;
 	tag_t tag;
 
-	process_players1(map);
+	process_players1();
 
 	/* Put marker object at beginning of active list */
 	marker.active_next = active_objects;
@@ -1564,6 +1540,8 @@ static void iterate_main_loop()
 
 	/* Routines called from time to time. */
 	do_specials();
+
+	doeric_server_write();
 
 	/* Clean up the object pool */
 	object_gc();
