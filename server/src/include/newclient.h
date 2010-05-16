@@ -53,15 +53,19 @@
 #define MAXSOCKBUF (128 * 1024)
 
 /**
+ * Maximum size of socket input buffer we can read/fill when reading from
+ * socket. This is raw data until we sort it out and put it in the player
+ * command queue. */
+#define MAXSOCKBUF_IN (2 * 1024)
+
+/**
  * @defgroup CS_QUERY_xxx Client/server queries
  * Client/server queries
  *@{*/
 /** Yes/no question */
 #define CS_QUERY_YESNO      0x1
-
 /** Single character response expected */
 #define CS_QUERY_SINGLECHAR 0x2
-
 /** Hide input being entered */
 #define CS_QUERY_HIDEINPUT  0x4
 /*@}*/
@@ -71,10 +75,8 @@
  * These are multiplication values that should be used when changing
  * floats to ints, and vice versa.
  *@{*/
-
 /** Integer representatin (float to int) */
 #define FLOAT_MULTI	100000
-
 /** Float representatin (int to float) */
 #define FLOAT_MULTF	100000.0
 /*@}*/

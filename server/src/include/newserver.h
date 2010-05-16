@@ -121,16 +121,6 @@ struct Map
 	struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
-/** Contains the last range/title information sent to client. */
-struct statsinfo
-{
-	/** Last range. */
-	char *range;
-
-	/** Last title. */
-	char *ext_title;
-};
-
 /** Possible socket statuses. */
 enum Sock_Status
 {
@@ -244,6 +234,9 @@ typedef struct socket_struct
 	/** Is the client a bot? */
 	uint32 is_bot:1;
 
+	/** Write overflow? */
+	uint32 write_overflow:1;
+
 	/** Start of drawing of look window. */
 	sint16 look_position;
 
@@ -261,11 +254,14 @@ typedef struct socket_struct
 	/** Last map. */
 	struct Map lastmap;
 
-	/** Socket stats. */
-	struct statsinfo stats;
+	/** Holds one command to handle. */
+    SockList inbuf;
 
-	/** If we get an incomplete packet, this is used to hold the data. */
-	SockList inbuf;
+	/** Raw data read in from the socket. */
+	SockList readbuf;
+
+	/** Buffer for player commands. */
+	SockList cmdbuf;
 
 	/** For undeliverable data. */
 	Buffer outputbuffer;

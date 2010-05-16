@@ -108,7 +108,7 @@ void send_target_command(player *pl);
 int command_combat(object *op, char *params);
 int command_target(object *op, char *params);
 void command_new_char(char *params, int len, player *pl);
-void command_face_request(char *params, int len, player *pl);
+void command_face_request(char *buf, int len, socket_struct *ns);
 void command_fire(char *params, int len, player *pl);
 void send_mapstats_cmd(object *op, struct mapdef *map);
 void send_spelllist_cmd(object *op, const char *spellname, int mode);
@@ -962,7 +962,8 @@ void doeric_server();
 
 /* socket/lowlevel.c */
 void SockList_AddString(SockList *sl, char *data);
-int SockList_ReadPacket(int fd, SockList *sl, int len);
+int SockList_ReadPacket(socket_struct *ns, int len);
+int SockList_ReadCommand(SockList *sl, SockList *sl2);
 void write_socket_buffer(socket_struct *ns);
 void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len);
 void Send_With_Handling(socket_struct *ns, SockList *msg);

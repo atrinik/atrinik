@@ -59,170 +59,97 @@ void SockList_AddString(SockList *sl, char *data)
 }
 
 /**
- * Reads from file descriptor and puts the data in a SockList instance.
- *
- * The only processing we do is remove the initial size value.
- *
- * We make the assumption the buffer is at least 2 bytes long.
- * @param fd The file descriptor
- * @param sl SockList instance
- * @param len Size of the buffer allocated in the SockList.
- * @return 1 if we think we have a full packet, 0 if we have a partial
- * packet. */
-int SockList_ReadPacket(int fd, SockList *sl, int len)
+ * Reads from socket.
+ * @param ns Socket to read from.
+ * @param len Max length of data to read.
+ * @return 1 on success, -1 on failure. */
+int SockList_ReadPacket(socket_struct *ns, int len)
 {
-	int stat, toread;
+	SockList *sl = &ns->readbuf;
+	int stat_ret;
 
-	/* Sanity check - shouldn't happen */
-	if (sl->len < 0)
-	{
-		LOG(llevDebug, "FATAL SOCKET ERROR: sl->len < 0 (%d)\n", sl->len);
-	}
-
-	/* We already have a partial packet */
-	if (sl->len < 2)
-	{
 #ifdef WIN32
-		stat = recv(fd, sl->buf + sl->len, 2 - sl->len, 0);
+	stat_ret = recv(ns->fd, sl->buf + sl->len, len - sl->len, 0);
 #else
-		do
-		{
-			stat = read(fd, sl->buf + sl->len, 2 - sl->len);
-		}
-		while ((stat == -1) && (errno == EINTR));
-#endif
-
-		if (stat < 0)
-		{
-			/* EAGAIN is set in non blocking mode when no data available. */
-#ifdef WIN32
-			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
-			{
-				if (WSAGetLastError() == WSAECONNRESET)
-				{
-					LOG(llevDebug, "Connection closed by client\n");
-				}
-				else
-				{
-					LOG(llevDebug, "ReadPacket got error %d, returning 0\n", WSAGetLastError());
-				}
-
-				return -1;
-			}
-#else
-			if (errno == ECONNRESET)
-			{
-				LOG(llevDebug, "ReadPacket got error %s, returning -1\n", strerror_local(errno));
-				return -1;
-			}
-
-			if (errno != EAGAIN && errno != EWOULDBLOCK)
-			{
-				LOG(llevDebug, "ReadPacket got error %s, returning 0\n", strerror_local(errno));
-			}
-#endif
-
-			/* Error */
-			return 0;
-		}
-
-		if (stat == 0)
-		{
-			return -1;
-		}
-
-		sl->len += stat;
-
-#if CS_LOGSTATS
-		cst_tot.ibytes += stat;
-		cst_lst.ibytes += stat;
-#endif
-
-		/* Still don't have a full packet */
-		if (stat < 2)
-		{
-			return 0;
-		}
-	}
-
-	/* Figure out how much more data we need to read.  Add 2 from the end
-	 * of this - size header information is not included. */
-	toread = 2 + (sl->buf[0] << 8) + sl->buf[1] - sl->len;
-
-	if ((toread + sl->len) >= len)
-	{
-		LOG(llevDebug, "SockList_ReadPacket: Want to read more bytes than will fit in buffer (%d>=%d).\n", toread + sl->len, len);
-		/* Return error so the socket is closed */
-		return -1;
-	}
-
 	do
 	{
-#ifdef WIN32
-		stat = recv(fd, sl->buf + sl->len, toread, 0);
-#else
-		do
-		{
-			stat = read(fd, sl->buf + sl->len, toread);
-		}
-		while ((stat < 0) && (errno == EINTR));
+		stat_ret = read(ns->fd, sl->buf + sl->len, len - sl->len);
+	}
+	while (stat_ret < 0 && errno == EINTR);
 #endif
 
-		if (stat < 0)
-		{
-#ifdef WIN32
-			if ((stat == -1) && WSAGetLastError() != WSAEWOULDBLOCK)
-			{
-				if (WSAGetLastError() == WSAECONNRESET)
-				{
-					LOG(llevDebug, "Connection closed by client\n");
-				}
-				else
-				{
-					LOG(llevDebug, "ReadPacket got error %d, returning -1\n", WSAGetLastError());
-				}
-
-				return -1;
-			}
-#else
-			if (errno != EAGAIN && errno != EWOULDBLOCK)
-			{
-				LOG(llevDebug, "ReadPacket got error %s, returning 0\n", strerror_local(errno));
-			}
-#endif
-
-			/* Error */
-			return 0;
-		}
-
-		if (stat == 0)
-		{
-			return -1;
-		}
-
-		sl->len += stat;
-
+	if (stat_ret > 0)
+	{
+		sl->len += stat_ret;
 #if CS_LOGSTATS
-		cst_tot.ibytes += stat;
-		cst_lst.ibytes += stat;
+		cst_tot.ibytes += stat_ret;
+		cst_lst.ibytes += stat_ret;
 #endif
-
-		toread -= stat;
-
-		if (toread == 0)
+	}
+	else if (stat_ret < 0)
+	{
+#ifdef WIN32
+		if (WSAGetLastError() != WSAEWOULDBLOCK)
 		{
-			return 1;
+			if (WSAGetLastError() == WSAECONNRESET)
+			{
+				LOG(llevDebug, "Connection closed by client.\n");
+			}
+			else
+			{
+				LOG(llevDebug, "SockList_ReadPacket() got error %d, returning %d.\n", WSAGetLastError(), stat_ret);
+			}
+
+			return stat_ret;
 		}
-
-		if (toread < 0)
+#else
+		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 		{
-			LOG(llevDebug, "SockList_ReadPacket: Read more bytes than desired.\n");
-			return 1;
+			LOG(llevDebug, "SockList_ReadPacket() got error %d: %s, returning %d.\n", errno, strerror_local(errno), stat_ret);
+			return stat_ret;
+		}
+#endif
+	}
+
+	return 1;
+}
+
+/**
+ * Read command from 'sl' and copy it to 'sl'.
+ * @param sl Where to read command from.
+ * @param sl2 Where to copy the command.
+ * @return Length of the read command. */
+int SockList_ReadCommand(SockList *sl, SockList *sl2)
+{
+	int toread, ret = 0;
+
+	sl2->buf[0] = '\0';
+	sl2->len = 0;
+
+	/* Is there anything in our buffer that was read
+	 * before? */
+	if (sl->len >= 2)
+	{
+		/* Length of the command. */
+		toread = 2 + (sl->buf[0] << 8) + sl->buf[1];
+
+		/* If we have a command, copy it over. */
+		if (toread <= sl->len)
+		{
+			memcpy(sl2->buf, sl->buf, toread);
+			sl2->len = toread;
+
+			if (sl->len - toread)
+			{
+				memcpy(sl->buf, sl->buf + toread, sl->len - toread);
+			}
+
+			sl->len -= toread;
+			ret = toread;
 		}
 	}
-	while (toread > 0);
 
-	return 0;
+	return ret;
 }
 
 /**
@@ -236,18 +163,16 @@ static void add_to_buffer(socket_struct *ns, unsigned char *buf, int len)
 
 	if ((len + ns->outputbuffer.len) > MAXSOCKBUF)
 	{
-		LOG(llevDebug, "Socket on fd %d has overrun internal buffer - marking as dead\n", ns->fd);
+		LOG(llevDebug, "Socket host %s has overrun internal buffer - marking as dead.\n", STRING_SAFE(ns->host));
 		ns->status = Ns_Dead;
-
 		return;
 	}
 
-	/* data + end is where we start putting the new data.  The last byte
-	 * currently in use is actually data + end -1 */
-
+	/* data + end is where we start putting the new data. The last byte
+	 * currently in use is actually data + end - 1 */
 	end = ns->outputbuffer.start + ns->outputbuffer.len;
 
-	/* The buffer is already in a wrapped state, so adjust end */
+	/* The buffer is already in a wrapped state, so adjust end. */
 	if (end >= MAXSOCKBUF)
 	{
 		end -= MAXSOCKBUF;
@@ -255,7 +180,7 @@ static void add_to_buffer(socket_struct *ns, unsigned char *buf, int len)
 
 	avail = MAXSOCKBUF - end;
 
-	/* We can all fit it behind the current data without wrapping */
+	/* We can all fit it behind the current data without wrapping. */
 	if (avail >= len)
 	{
 		memcpy(ns->outputbuffer.data + end, buf, len);
@@ -263,14 +188,10 @@ static void add_to_buffer(socket_struct *ns, unsigned char *buf, int len)
 	else
 	{
 		memcpy(ns->outputbuffer.data + end, buf, avail);
-		memcpy(ns->outputbuffer.data, buf+avail, len - avail);
+		memcpy(ns->outputbuffer.data, buf + avail, len - avail);
 	}
 
 	ns->outputbuffer.len += len;
-
-#if 0
-	LOG(llevDebug, "Added %d to output buffer, total length now %d, start=%d\n", len, ns->outputbuffer.len, ns->outputbuffer.start);
-#endif
 }
 
 /**
@@ -297,26 +218,34 @@ void write_socket_buffer(socket_struct *ns)
 			max = ns->outputbuffer.len;
 		}
 
-		amt = send(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max, MSG_DONTWAIT);
+#ifdef WIN32
+		amt = send(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max, 0);
+#else
+		do
+		{
+			amt = write(ns->fd, ns->outputbuffer.data + ns->outputbuffer.start, max);
+		}
+		while (amt < 0 && errno == EINTR);
+#endif
 
-		/* We got an error */
+		/* Error. */
 		if (amt < 0)
 		{
 #ifdef WIN32
-			if (amt == -1 && WSAGetLastError() != WSAEWOULDBLOCK)
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed (wsb) (%d).\n", WSAGetLastError());
+				LOG(llevDebug, "write_socket_buffer(): New socket write failed (%d).\n", WSAGetLastError());
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "write_socket_buffer(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
 				ns->status = Ns_Dead;
 				return;
 			}
+			/* EWOULDBLOCK: We can't write because socket is busy. */
 			else
 			{
-				/* Can't write it, so store it away. */
 				ns->can_write = 0;
 				return;
 			}
@@ -324,14 +253,13 @@ void write_socket_buffer(socket_struct *ns)
 
 		ns->outputbuffer.start += amt;
 
-		/* wrap back to start of buffer */
+		/* Wrap back to start of buffer. */
 		if (ns->outputbuffer.start == MAXSOCKBUF)
 		{
 			ns->outputbuffer.start = 0;
 		}
 
 		ns->outputbuffer.len -= amt;
-
 #if CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
@@ -358,7 +286,7 @@ void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 
 	if (ns->status == Ns_Dead || !buf)
 	{
-		LOG(llevDebug, "Write_To_Socket called with dead socket\n");
+		LOG(llevDebug, "Write_To_Socket() called with dead socket.\n");
 		return;
 	}
 
@@ -368,26 +296,35 @@ void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 		return;
 	}
 
-	/* If we manage to write more than we wanted, take it as a bonus */
+	/* If we manage to write more than we wanted, take it as a bonus. */
 	while (len > 0)
 	{
-		amt = send(ns->fd, pos, len, MSG_DONTWAIT);
+#ifdef WIN32
+		amt = send(ns->fd, pos, len, 0);
+#else
+		do
+		{
+			amt = write(ns->fd, pos, len);
+		}
+		while (amt < 0 && errno == EINTR);
+#endif
 
-		/* We got an error */
+		/* Error. */
 		if (amt < 0)
 		{
 #ifdef WIN32
 			if (amt == -1 && WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed WTS (%d).\n", WSAGetLastError());
+				LOG(llevDebug, "Write_To_Socket(): New socket write failed (%d).\n", WSAGetLastError());
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "Write_To_Socket(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
 				ns->status = Ns_Dead;
 				return;
 			}
+			/* EWOULDBLOCK */
 			else
 			{
 				/* Can't write it, so store it away. */
@@ -400,12 +337,11 @@ void Write_To_Socket(socket_struct *ns, unsigned char *buf, int len)
 		 * an else if to make sure we don't reprocess it. */
 		else if (amt == 0)
 		{
-			LOG(llevDebug, "Write_To_Socket: No data written out.\n");
+			LOG(llevDebug, "Write_To_Socket(): No data written out.\n");
 		}
 
 		len -= amt;
 		pos += amt;
-
 #if CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;

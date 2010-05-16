@@ -934,7 +934,11 @@ void esrv_update_stats(player *pl)
 	if (pl->socket.ext_title_flag)
 	{
 		generate_ext_title(pl);
-		AddIfString(pl->socket.stats.ext_title, pl->ext_title, CS_STAT_EXT_TITLE);
+		SockList_AddChar(&sl, (char) CS_STAT_EXT_TITLE);
+		i = (int) strlen(pl->ext_title);
+		SockList_AddChar(&sl, (char) i);
+		strcpy((char *) sl.buf + sl.len, pl->ext_title);
+		sl.len += i;
 		pl->socket.ext_title_flag = 0;
 	}
 

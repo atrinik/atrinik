@@ -130,18 +130,25 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
 	ns->is_bot = 0;
-	ns->inbuf.len = 0;
-	ns->inbuf.buf = malloc(MAXSOCKBUF);
+	ns->can_write = 0;
+	ns->write_overflow = 0;
 
-	/* Basic initialization. Needed because we do a check in handle_client
-	 * for oldsocketmode without checking the length of data. */
+	ns->inbuf.len = 0;
+	ns->inbuf.buf = malloc(MAXSOCKBUF_IN);
 	ns->inbuf.buf[0] = '\0';
+
+	ns->readbuf.len = 0;
+	ns->readbuf.buf = malloc(MAXSOCKBUF_IN);
+	ns->readbuf.buf[0] = '\0';
+
+	ns->cmdbuf.len = 0;
+	ns->cmdbuf.buf = malloc(MAXSOCKBUF);
+	ns->cmdbuf.buf[0] = '\0';
+
 	memset(&ns->lastmap, 0, sizeof(struct Map));
-	memset(&ns->stats, 0, sizeof(struct statsinfo));
 
 	ns->outputbuffer.start = 0;
 	ns->outputbuffer.len = 0;
-	ns->can_write = 1;
 	ns->sent_scroll = 0;
 	ns->host = strdup_local(from_ip);
 
@@ -322,16 +329,6 @@ void free_newsocket(socket_struct *ns)
 #endif
 	}
 
-	if (ns->stats.range)
-	{
-		free(ns->stats.range);
-	}
-
-	if (ns->stats.ext_title)
-	{
-		free(ns->stats.ext_title);
-	}
-
 	if (ns->host)
 	{
 		free(ns->host);
@@ -340,6 +337,16 @@ void free_newsocket(socket_struct *ns)
 	if (ns->inbuf.buf)
 	{
 		free(ns->inbuf.buf);
+	}
+
+	if (ns->readbuf.buf)
+	{
+		free(ns->readbuf.buf);
+	}
+
+	if (ns->cmdbuf.buf)
+	{
+		free(ns->cmdbuf.buf);
 	}
 
 	memset(ns, 0, sizeof(ns));
