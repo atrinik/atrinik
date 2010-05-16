@@ -510,7 +510,6 @@ static int is_fd_valid(int fd)
 void doeric_server()
 {
 	int i, pollret, rr;
-	uint32 update_below;
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
@@ -760,25 +759,6 @@ void doeric_server()
 			continue;
 		}
 
-		/* Update the players stats once per tick. More efficient
-		 * than sending them whenever they change, and probably
-		 * just as useful */
-		esrv_update_stats(pl);
-
-		if (pl->update_skills)
-		{
-			esrv_update_skills(pl);
-			pl->update_skills = 0;
-		}
-
-		draw_client_map(pl->ob);
-
-		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) >= pl->socket.update_tile)
-		{
-			esrv_draw_look(pl->ob);
-			pl->socket.update_tile = update_below + 1;
-		}
-
 		if (FD_ISSET(pl->socket.fd, &tmp_write))
 		{
 			pl->socket.can_write = 1;
@@ -806,9 +786,6 @@ void doeric_server_write()
 			continue;
 		}
 
-		/* Update the players stats once per tick. More efficient
-		 * than sending them whenever they change, and probably
-		 * just as useful */
 		esrv_update_stats(pl);
 
 		if (pl->update_skills)
