@@ -3287,35 +3287,19 @@ int was_destroyed(object *op, tag_t old_tag)
 
 /**
  * Creates an object using a string representing its content.
- *
- * Basically, we save the content of the string to a temp file, then call
- * load_object on it.
  * @param obstr String to load the object from.
- * @return The newly created object. */
+ * @return The newly created object, NULL on failure. */
 object *load_object_str(char *obstr)
 {
-	object *op;
-	FILE *tempfile;
-	void *mybuffer;
-	char filename[MAX_BUF];
+	object *ob = get_object();
 
-	snprintf(filename, sizeof(filename), "%s/cfloadobstr2044", settings.tmpdir);
-	tempfile = fopen(filename, "w+");
-
-	if (tempfile == NULL)
+	if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0))
 	{
-		LOG(llevError, "ERROR: load_object_str(): Unable to access load object temp file\n");
+		LOG(llevBug, "BUG: load_object_str(): load_object() failed.");
 		return NULL;
 	}
 
-	fprintf(tempfile, "%s", obstr);
-	op = get_object();
-	rewind(tempfile);
-	mybuffer = create_loader_buffer(tempfile);
-	load_object(tempfile, op, mybuffer, LO_REPEAT, 0);
-	delete_loader_buffer(mybuffer);
-	fclose(tempfile);
-	return op;
+	return ob;
 }
 
 /**
