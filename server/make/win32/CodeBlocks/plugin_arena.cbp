@@ -25,7 +25,7 @@
 					<Add option="-D_USRDLL" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DMIN_GW" />
+					<Add option="-DMINGW" />
 					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
 					<Add directory="..\..\..\src\include" />
 				</Compiler>

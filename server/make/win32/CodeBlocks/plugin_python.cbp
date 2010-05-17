@@ -22,7 +22,7 @@
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
-					<Add option="-DMIN_GW" />
+					<Add option="-DMINGW" />
 				</Compiler>
 				<Linker>
 					<Add library="winmm" />
