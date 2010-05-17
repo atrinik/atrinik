@@ -558,6 +558,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	if (bank_object && bank_object->value != 0 && remain != 0 && bank_object->value >= remain)
 	{
 		bank_object->value -= remain;
+		remain = 0;
 	}
 
 	for (i = 0; i < NUM_COINS; i++)
