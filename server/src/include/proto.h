@@ -674,7 +674,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 char *tempnam_local(const char *dir, const char *pfx);
 char *strdup_local(const char *str);
 char *strerror_local(int errnum);
-int isqrt(int n);
+unsigned long isqrt(unsigned long n);
 FILE *open_and_uncompress(const char *name, int flag, int *compressed);
 void close_and_delete(FILE *fp, int compressed);
 void make_path_to_file(char *filename);
