@@ -587,8 +587,6 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	dummy->speed = 0.0;
-	update_ob_speed(dummy);
 	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), exitpath);
 	EXIT_X(dummy) = exitx;
 	EXIT_Y(dummy) = exity;
@@ -636,8 +634,6 @@ int cast_create_town_portal(object *op)
 		return 0;
 	}
 
-	dummy->speed = 0.0;
-	update_ob_speed(dummy);
 	FREE_AND_ADD_REF_HASH(EXIT_PATH(dummy), op->map->path);
 	EXIT_X(dummy) = op->x;
 	EXIT_Y(dummy) = op->y;
