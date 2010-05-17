@@ -541,12 +541,14 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			/* Hide the system cursor */
 			SDL_ShowCursor(0);
 
-			/* Workaround another bug with SDL 1.2.x. Make sure the cursor is in the
-			 * centre of the screen if we are in fullscreen mode. */
+#ifdef WIN32
+			/* Workaround another bug with SDL 1.2.x on Windows. Make sure the cursor
+			 * is in the centre of the screen if we are in fullscreen mode. */
 			if (ScreenSurface->flags & SDL_FULLSCREEN)
 			{
 				SDL_WarpMouse(Screensize->x / 2, Screensize->y / 2);
 			}
+#endif
 		}
 
 		return 1;
