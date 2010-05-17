@@ -70,8 +70,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		return;
 	}
 
-	recursion_depth++;
-
 	if (trap->head)
 	{
 		trap = trap->head;
@@ -82,6 +80,8 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 	{
 		return;
 	}
+
+	recursion_depth++;
 
 	switch (trap->type)
 	{
