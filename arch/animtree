@@ -227,7 +227,6 @@
 /lost_soul
 /mage_old
 /magic_mouth
-/magic_portal
 /magic_wall
 /marker0
 /marker1
@@ -418,7 +417,6 @@
 /torch
 /torch_wall_1
 /torch_wall_1_unlit
-/town_portal_magic
 /trap_bear_trap
 /trap_blades
 /trap_diseased_needle
