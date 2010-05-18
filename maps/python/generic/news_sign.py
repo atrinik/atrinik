@@ -23,7 +23,7 @@ def main():
 			activator.Write("{0}: {1}".format(message["time"], message["message"]), COLOR_NAVY)
 	# No news
 	else:
-		activator.Write("There are no news.", COLOR_NAVY)
+		activator.Write("There is no news.", COLOR_NAVY)
 
 try:
 	main()
