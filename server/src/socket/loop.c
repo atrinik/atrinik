@@ -420,50 +420,53 @@ void remove_ns_dead_player(player *pl)
 		return;
 	}
 
-	/* Remove DM entry */
-	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+	if (pl->state == ST_PLAYING)
 	{
-		remove_active_DM(pl->ob);
-	}
+		/* Remove DM entry */
+		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+		{
+			remove_active_DM(pl->ob);
+		}
 
-	/* Trigger the global LOGOUT event */
-	trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
+		/* Trigger the global LOGOUT event */
+		trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
 
-	if (!pl->dm_stealth)
-	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
-	}
+		if (!pl->dm_stealth)
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+		}
 
-	/* If this player is in a party, leave the party */
-	if (pl->party)
-	{
-		command_party(pl->ob, "leave");
-	}
+		/* If this player is in a party, leave the party */
+		if (pl->party)
+		{
+			command_party(pl->ob, "leave");
+		}
 
-	strncpy(pl->killer, "left", MAX_BUF - 1);
-	hiscore_check(pl->ob, 1);
+		strncpy(pl->killer, "left", MAX_BUF - 1);
+		hiscore_check(pl->ob, 1);
 
-	/* Be sure we have closed container when we leave */
-	container_unlink(pl, NULL);
+		/* Be sure we have closed container when we leave */
+		container_unlink(pl, NULL);
 
-	save_player(pl->ob, 0);
+		save_player(pl->ob, 0);
 
-	if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-	{
-		leave_map(pl->ob);
+		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
+		{
+			leave_map(pl->ob);
+		}
+
+		if (pl->ob->map)
+		{
+			if (pl->ob->map->in_memory == MAP_IN_MEMORY)
+			{
+				pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
+			}
+
+			pl->ob->map = NULL;
+		}
 	}
 
 	LOG(llevInfo, "LOGOUT: >%s< from IP %s\n", pl->ob->name, pl->socket.host);
-
-	if (pl->ob->map)
-	{
-		if (pl->ob->map->in_memory == MAP_IN_MEMORY)
-		{
-			pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
-		}
-
-		pl->ob->map = NULL;
-	}
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
