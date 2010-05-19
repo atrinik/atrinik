@@ -799,12 +799,17 @@ void enter_exit(object *op, object *exit_ob)
 static void process_players1()
 {
 	player *pl, *plnext;
+	int retval;
 
 	for (pl = first_player; pl; pl = plnext)
 	{
 		plnext = pl->next;
 
-		if (!handle_newcs_player(pl))
+		while ((retval = handle_newcs_player(pl)) == 1)
+		{
+		}
+
+		if (retval == -1)
 		{
 			continue;
 		}

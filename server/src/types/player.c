@@ -988,28 +988,29 @@ int move_player(object *op, int dir)
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
  * @param pl Player to handle.
- * @return 0 if player is invalid, 1 if turn speed was used up or there
- * are no commands left. */
+ * @retval -1 Player is invalid.
+ * @retval 0 No more actions to do.
+ * @retval 1 There are more actions we can do. */
 int handle_newcs_player(player *pl)
 {
 	object *op = pl->ob;
 
 	if (!op || !OBJECT_ACTIVE(op))
 	{
-		return 0;
+		return -1;
 	}
 
 	handle_client(&pl->socket, pl);
 
 	if (!op || !OBJECT_ACTIVE(op) || pl->socket.status == Ns_Dead)
 	{
-		return 0;
+		return -1;
 	}
 
 	/* Check speed. */
 	if (op->speed_left < 0.0f)
 	{
-		return 1;
+		return 0;
 	}
 
 	/* If we are here, we're never paralyzed anymore. */
@@ -1017,12 +1018,21 @@ int handle_newcs_player(player *pl)
 
 	if (op->direction && (CONTR(op)->run_on || CONTR(op)->fire_on))
 	{
-		move_player(op, op->direction);
 		/* All move commands take 1 tick, at least for now. */
 		op->speed_left--;
+		move_player(op, op->direction);
+
+		if (op->speed_left > 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
-	return 1;
+	return 0;
 }
 
 /**
