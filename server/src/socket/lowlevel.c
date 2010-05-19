@@ -75,8 +75,13 @@ int SockList_ReadPacket(socket_struct *ns, int len)
 	{
 		stat_ret = read(ns->fd, sl->buf + sl->len, len - sl->len);
 	}
-	while (stat_ret < 0 && errno == EINTR);
+	while (stat_ret == -1 && errno == EINTR);
 #endif
+
+	if (stat_ret == 0)
+	{
+		return -1;
+	}
 
 	if (stat_ret > 0)
 	{

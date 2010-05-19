@@ -343,6 +343,9 @@ EXTERN godlink *first_god;
 EXTERN racelink *first_race;
 /*@}*/
 
+/** Last player. */
+EXTERN player *last_player;
+
 #define NROF_COMPRESS_METHODS 4
 EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];
 

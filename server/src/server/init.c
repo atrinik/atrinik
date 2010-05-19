@@ -79,7 +79,6 @@ static void help();
 static void init_beforeplay();
 static void fatal_signal(int make_core);
 static void init_signals();
-static void setup_library();
 static void init_races();
 static void dump_races();
 static void add_to_racelist(const char *race_name, object *op);
@@ -261,6 +260,7 @@ void init_globals()
 	global_race_counter = 0;
 
 	first_player = NULL;
+	last_player = NULL;
 	first_map = NULL;
 	first_treasurelist = NULL;
 	first_artifactlist = NULL;
@@ -861,8 +861,6 @@ void init(int argc, char **argv)
 
 	/* Sets up signal interceptions */
 	init_signals();
-	/* Set up callback function pointers */
-	setup_library();
 	/* Sort command tables */
 	init_commands();
 	/* Load up the old temp map files */
@@ -1215,14 +1213,6 @@ static void init_signals()
 #endif
 	signal(SIGTERM, rec_sigterm);
 #endif
-}
-
-/**
- * Set up the function pointers which will point back from the library
- * into the server. */
-static void setup_library()
-{
-	setup_poolfunctions(pool_player, NULL, (chunk_destructor) free_player);
 }
 
 /**

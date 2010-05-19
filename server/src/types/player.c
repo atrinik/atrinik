@@ -134,8 +134,6 @@ static player *get_player(player *p)
 
 	if (!p)
 	{
-		player *tmp;
-
 		p = (player *) get_poolchunk(pool_player);
 		memset(p, 0, sizeof(player));
 
@@ -144,29 +142,16 @@ static player *get_player(player *p)
 			LOG(llevError, "ERROR: get_player(): Out of memory\n");
 		}
 
-		/* This adds the player in the linked list.  There is extra
-		 * complexity here because we want to add the new player at the
-		 * end of the list - there is in fact no compelling reason that
-		 * that needs to be done except for things like output of
-		 * '/who'. */
-		tmp = first_player;
-
-		while (tmp != NULL && tmp->next != NULL)
+		if (!last_player)
 		{
-			tmp = tmp->next;
-		}
-
-
-		if (tmp != NULL)
-		{
-			tmp->next = p;
+			first_player = last_player = p;
 		}
 		else
 		{
-			first_player = p;
+			last_player->next = p;
+			p->prev = last_player;
+			last_player = p;
 		}
-
-		p->next = NULL;
 	}
 	else
 	{
@@ -236,26 +221,15 @@ static player *get_player(player *p)
  * @param pl The player structure to free. */
 void free_player(player *pl)
 {
-	/* Remove from list of players */
-	if (first_player != pl)
+	if (pl->ob)
 	{
-		player *prev = first_player;
+		SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
 
-		while (prev != NULL && prev->next != NULL && prev->next != pl)
+		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
-			prev = prev->next;
+			remove_ob(pl->ob);
+			check_walk_off(pl->ob, NULL, MOVE_APPLY_VANISHED);
 		}
-
-		if (prev->next != pl)
-		{
-			LOG(llevError, "ERROR: free_player(): Can't find previous player.\n");
-		}
-
-		prev->next = pl->next;
-	}
-	else
-	{
-		first_player = pl->next;
 	}
 
 	/* Free command permissions. */
@@ -274,18 +248,31 @@ void free_player(player *pl)
 		free(pl->cmd_permissions);
 	}
 
-	if (pl->ob != NULL)
+	/* Now remove from list of players. */
+	if (pl->prev)
 	{
-		SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+		pl->prev->next = pl->next;
+	}
+	else
+	{
+		first_player = pl->next;
+	}
 
-		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-		{
-			remove_ob(pl->ob);
-			check_walk_off(pl->ob, NULL, MOVE_APPLY_VANISHED);
-		}
+	if (pl->next)
+	{
+		pl->next->prev = pl->prev;
+	}
+	else
+	{
+		last_player = pl->prev;
 	}
 
 	free_newsocket(&pl->socket);
+
+	if (pl->ob)
+	{
+		destroy_object(pl->ob);
+	}
 }
 
 /**

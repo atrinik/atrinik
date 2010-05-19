@@ -150,11 +150,55 @@ enum
 /** The player structure. */
 typedef struct pl_player
 {
+	/** Pointer to previous player, NULL if this is first. */
+	struct pl_player *prev;
+
 	/** Pointer to next player, NULL if this is last. */
 	struct pl_player *next;
 
 	/** Socket information for this player. */
 	socket_struct socket;
+
+	/* Everything below will be cleared by memset() in get_player(). */
+
+	/** Name of the map the player is on. */
+	char maplevel[MAX_BUF];
+
+	/** Skill used for fire mode. */
+	char firemode_name[BIG_NAME * 2];
+
+	/** Rank + name +" the xxxx" */
+	char quick_name[BIG_NAME * 3];
+
+	/** Map where player will respawn after death. */
+	char savebed_map[MAX_BUF];
+
+	/** For client: \<Rank\> \<Name\>\n\<Gender\> \<Race\> \<Profession\> */
+	char ext_title[MAX_EXT_TITLE];
+
+	/** How much HP the player gained on that level. */
+	char levhp[MAXLEVEL + 1];
+
+	/** How much SP the player gained on that level. */
+	char levsp[MAXLEVEL + 1];
+
+	/** How much grace the player gained on that level. */
+	char levgrace[MAXLEVEL + 1];
+
+	/** Who killed this player. */
+	char killer[BIG_NAME];
+
+	/** Holds arbitrary input from client. */
+	char write_buf[MAX_BUF];
+
+	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
+	char password[16];
+
+	/** Player the DM is following. */
+	char followed_player[BIG_NAME];
+
+	/** DM command permissions. */
+	char **cmd_permissions;
 
 	/**
 	 * Last sent map. */
@@ -281,9 +325,6 @@ typedef struct pl_player
 	/** Last speed value sent to client. */
 	float last_speed;
 
-	/** Name of the map the player is on. */
-	char maplevel[MAX_BUF];
-
 	/** For the client target HP real % value. */
 	char target_hp_p;
 
@@ -298,42 +339,6 @@ typedef struct pl_player
 
 	/** The CS_STATS_ id for client STATS cmd. */
 	uint8 last_skill_id[MAX_EXP_CAT];
-
-	/** Skill used for fire mode. */
-	char firemode_name[BIG_NAME * 2];
-
-	/** Rank + name +" the xxxx" */
-	char quick_name[BIG_NAME * 3];
-
-	/** Map where player will respawn after death. */
-	char savebed_map[MAX_BUF];
-
-	/** For client: \<Rank\> \<Name\>\n\<Gender\> \<Race\> \<Profession\> */
-	char ext_title[MAX_EXT_TITLE];
-
-	/** How much HP the player gained on that level. */
-	char levhp[MAXLEVEL + 1];
-
-	/** How much SP the player gained on that level. */
-	char levsp[MAXLEVEL + 1];
-
-	/** How much grace the player gained on that level. */
-	char levgrace[MAXLEVEL + 1];
-
-	/** Who killed this player. */
-	char killer[BIG_NAME];
-
-	/** Holds arbitrary input from client. */
-	char write_buf[MAX_BUF];
-
-	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
-	char password[16];
-
-	/** Player the DM is following. */
-	char followed_player[BIG_NAME];
-
-	/** DM command permissions. */
-	char **cmd_permissions;
 
 	/** Last overall level sent to the client. */
 	unsigned char last_level;

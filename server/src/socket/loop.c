@@ -420,18 +420,6 @@ void remove_ns_dead_player(player *pl)
 		return;
 	}
 
-	if (pl->state != ST_PLAYING)
-	{
-		pl->ob->type = DEAD_OBJECT;
-
-		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-		{
-			remove_ob(pl->ob);
-		}
-
-		return;
-	}
-
 	/* Remove DM entry */
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 	{
@@ -465,7 +453,7 @@ void remove_ns_dead_player(player *pl)
 		leave_map(pl->ob);
 	}
 
-	LOG(llevInfo, "LOGOUT: >%s< from ip %s\n", pl->ob->name, pl->socket.host);
+	LOG(llevInfo, "LOGOUT: >%s< from IP %s\n", pl->ob->name, pl->socket.host);
 
 	if (pl->ob->map)
 	{
@@ -479,6 +467,7 @@ void remove_ns_dead_player(player *pl)
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
+	free_player(pl);
 }
 
 /**

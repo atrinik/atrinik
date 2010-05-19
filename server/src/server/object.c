@@ -918,7 +918,7 @@ void copy_object(object *op2, object *op)
 
 	free_key_values(op);
 
-	(void) memcpy((void *)((char *) op + offsetof(object, name)), (void *)((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
+	memcpy((void *)((char *) op + offsetof(object, name)), (void *) ((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
 
 	if (is_removed)
 	{
