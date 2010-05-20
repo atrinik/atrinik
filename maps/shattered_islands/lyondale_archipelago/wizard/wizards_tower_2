@@ -2194,7 +2194,7 @@ arch floor_bw1
 x 16
 y 9
 end
-arch wall_stone14_3
+arch wall_stone14_4
 x 16
 y 9
 end
