@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-02-22 Alex Tokar
+Modified: 2010-05-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1326,7 +1326,7 @@ arch floor_flagm4
 x 8
 y 10
 end
-arch grassd_m8
+arch grassd_m12
 x 8
 y 10
 end
@@ -1334,15 +1334,11 @@ arch floor_flagm4
 x 8
 y 11
 end
-arch grassd_m8
-x 8
-y 11
-end
 arch floor_flagm4
 x 8
 y 12
 end
-arch grassd_m8
+arch grassd_m11
 x 8
 y 12
 end
@@ -1477,31 +1473,47 @@ arch grassd_4
 x 9
 y 8
 end
-arch grassd_4
+arch grassd_3
 x 9
 y 9
 end
-arch grassd_3
-x 9
-y 10
-end
 arch lantern_magic.131
 x 9
-y 10
+y 9
 end
 arch light5
 x 9
+y 9
+end
+arch floor_flagm2
+x 9
 y 10
 end
-arch grassd_2
+arch grassd_m10
+x 9
+y 10
+end
+arch floor_flagm2
 x 9
 y 11
 end
-arch grassd_1
+arch floor_flagm3
+x 9
+y 12
+end
+arch grassd_m7
 x 9
 y 12
 end
 arch grassd_6
+x 9
+y 13
+end
+arch lantern_magic.131
+x 9
+y 13
+end
+arch light5
 x 9
 y 13
 end
@@ -1608,19 +1620,23 @@ arch grassd_6
 x 10
 y 9
 end
-arch tree_big3
-x 10
-y 9
-end
-arch grassd_3
+arch floor_flagm3
 x 10
 y 10
 end
-arch grassd_3
+arch grassd_m10
+x 10
+y 10
+end
+arch floor_flagm3
 x 10
 y 11
 end
-arch grassd_5
+arch floor_flagm2
+x 10
+y 12
+end
+arch grassd_m7
 x 10
 y 12
 end
@@ -1723,15 +1739,23 @@ arch grassd_4
 x 11
 y 9
 end
-arch grassd_2
+arch floor_flagm1
 x 11
 y 10
 end
-arch grassd_1
+arch grassd_m10
+x 11
+y 10
+end
+arch floor_flagm4
 x 11
 y 11
 end
-arch grassd_5
+arch floor_flagm4
+x 11
+y 12
+end
+arch grassd_m7
 x 11
 y 12
 end
@@ -1822,23 +1846,49 @@ arch grassd_8
 x 12
 y 8
 end
-arch grassd_3
+arch grassd_6
 x 12
 y 9
 end
-arch grassd_4
+arch lantern_magic.131
+direction 3
+x 12
+y 9
+end
+arch light5
+x 12
+y 9
+end
+arch floor_flagm4
 x 12
 y 10
 end
-arch grassd_2
+arch grassd_m10
+x 12
+y 10
+end
+arch floor_flagm4
 x 12
 y 11
 end
-arch grassd_3
+arch floor_flagm4
+x 12
+y 12
+end
+arch grassd_m7
 x 12
 y 12
 end
 arch grassd_6
+x 12
+y 13
+end
+arch lantern_magic.131
+direction 7
+x 12
+y 13
+end
+arch light5
 x 12
 y 13
 end
@@ -1928,7 +1978,9 @@ arch floor_flagm1
 x 13
 y 5
 end
-arch fwall_fstone2
+arch door1_locked
+slaying no_key_available_yet
+direction 3
 x 13
 y 5
 end
@@ -1948,19 +2000,15 @@ arch fwall_fstone2
 x 13
 y 7
 end
-arch floor_flagm3
+arch grassd_1
 x 13
 y 8
 end
-arch fwall_fstone2
+arch fwall_fstone2b
 x 13
 y 8
 end
-arch floor_flagm1
-x 13
-y 9
-end
-arch fwall_fstone2
+arch grassd_3
 x 13
 y 9
 end
@@ -1968,39 +2016,31 @@ arch floor_flagm3
 x 13
 y 10
 end
-arch fwall_fstone2
+arch grassd_m10
 x 13
 y 10
 end
-arch floor_flagm2
+arch floor_flagm4
 x 13
 y 11
 end
-arch fwall_fstone2
-x 13
-y 11
-end
-arch floor_flagm1
-x 13
-y 12
-end
-arch fwall_fstone2
-x 13
-y 12
-end
 arch floor_flagm2
 x 13
-y 13
+y 12
 end
-arch fwall_fstone2
+arch grassd_m7
+x 13
+y 12
+end
+arch grassd_7
 x 13
 y 13
 end
-arch floor_flagm1
+arch grassd_5
 x 13
 y 14
 end
-arch fwall_fstone2
+arch fwall_fstone2c
 x 13
 y 14
 end
@@ -2024,7 +2064,9 @@ arch floor_flagm1
 x 13
 y 17
 end
-arch fwall_fstone2
+arch door1_locked
+slaying no_key_available_yet
+direction 3
 x 13
 y 17
 end
@@ -2107,15 +2149,23 @@ arch floor_flagm3
 x 14
 y 7
 end
-arch floor_flagm2
+arch floor_flagm1
 x 14
 y 8
 end
-arch floor_flagm2
+arch fwall_fstone2
+x 14
+y 8
+end
+arch grassd_2
 x 14
 y 9
 end
-arch floor_flagm4
+arch floor_flagm1
+x 14
+y 10
+end
+arch grassd_m10
 x 14
 y 10
 end
@@ -2123,15 +2173,23 @@ arch floor_flagm2
 x 14
 y 11
 end
-arch floor_flagm2
+arch floor_flagm4
 x 14
 y 12
 end
-arch floor_flagm2
+arch grassd_m7
+x 14
+y 12
+end
+arch grassd_4
 x 14
 y 13
 end
-arch floor_flagm3
+arch floor_flagm1
+x 14
+y 14
+end
+arch fwall_fstone2
 x 14
 y 14
 end
@@ -2206,27 +2264,66 @@ arch floor_flagm1
 x 15
 y 8
 end
-arch floor_flagm1
+arch fwall_fstone2
+x 15
+y 8
+end
+arch grassd_3
 x 15
 y 9
 end
-arch floor_flagm4
+arch spawn_point
+x 15
+y 9
+arch guard_royal
+type 83
+level 70
+unaggressive 0
+friendly 1
+stand_still 0
+end
+end
+arch floor_flagm2
 x 15
 y 10
 end
-arch floor_flagm2
+arch grassd_m10
 x 15
-y 11
-end
-arch floor_flagm1
-x 15
-y 12
+y 10
 end
 arch floor_flagm4
 x 15
+y 11
+end
+arch floor_flagm4
+x 15
+y 12
+end
+arch grassd_m7
+x 15
+y 12
+end
+arch grassd_1
+x 15
 y 13
 end
+arch spawn_point
+x 15
+y 13
+arch guard_royal
+type 83
+level 70
+unaggressive 0
+friendly 1
+stand_still 0
+direction 1
+end
+end
 arch floor_flagm2
+x 15
+y 14
+end
+arch fwall_fstone2
 x 15
 y 14
 end
@@ -2297,11 +2394,24 @@ arch floor_flagm4
 x 16
 y 7
 end
-arch floor_flagm1
+arch floor_flagm2
 x 16
 y 8
 end
-arch floor_flagm3
+arch fwall_fstone2
+x 16
+y 8
+end
+arch grassd_8
+x 16
+y 9
+end
+arch lantern_magic.131
+direction 3
+x 16
+y 9
+end
+arch light5
 x 16
 y 9
 end
@@ -2309,28 +2419,53 @@ arch floor_flagm3
 x 16
 y 10
 end
-arch floor_flagm3
+arch grassd_m6
+x 16
+y 10
+end
+arch floor_flagm1
 x 16
 y 11
+end
+arch grassd_m8
+x 16
+y 11
+end
+arch floor_flagm1
+x 16
+y 12
+end
+arch grassd_m5
+x 16
+y 12
+end
+arch grassd_8
+x 16
+y 13
+end
+arch lantern_magic.131
+direction 7
+x 16
+y 13
+end
+arch light5
+x 16
+y 13
+end
+arch floor_flagm1
+x 16
+y 14
+end
+arch fwall_fstone2
+x 16
+y 14
+end
+arch floor_flagm1
+x 16
+y 15
 end
 arch floor_flagm2
 x 16
-y 12
-end
-arch floor_flagm3
-x 16
-y 13
-end
-arch floor_flagm4
-x 16
-y 14
-end
-arch floor_flagm1
-x 16
-y 15
-end
-arch floor_flagm2
-x 16
 y 16
 end
 arch floor_flagm4
@@ -2423,59 +2558,55 @@ arch fwall_fstone2
 x 17
 y 7
 end
-arch floor_flagm4
+arch grassd_2
 x 17
 y 8
 end
-arch fwall_fstone2
+arch fwall_fstone2d
 x 17
 y 8
 end
-arch floor_flagm1
+arch grassd_4
 x 17
 y 9
 end
-arch fwall_fstone2
-x 17
-y 9
-end
-arch floor_flagm4
+arch grassd_5
 x 17
 y 10
 end
-arch fwall_fstone2
+arch bridge_wood_EW.181
 x 17
 y 10
 end
-arch floor_flagm4
+arch grassd_8
 x 17
 y 11
 end
-arch fwall_fstone2
+arch bridge_wood_EW.171
 x 17
 y 11
 end
-arch floor_flagm4
+arch grassd_8
 x 17
 y 12
 end
-arch fwall_fstone2
+arch bridge_wood_EW.171
 x 17
 y 12
 end
-arch floor_flagm1
+arch grassd_4
 x 17
 y 13
 end
-arch fwall_fstone2
+arch bridge_wood_EW.161
 x 17
 y 13
 end
-arch floor_flagm4
+arch grassd_2
 x 17
 y 14
 end
-arch fwall_fstone2
+arch fwall_fstone2a
 x 17
 y 14
 end
@@ -2582,7 +2713,15 @@ arch water_still
 x 18
 y 7
 end
+arch grassd_m14
+x 18
+y 7
+end
 arch water_still
+x 18
+y 8
+end
+arch grassd_m9
 x 18
 y 8
 end
@@ -2590,15 +2729,19 @@ arch water_still
 x 18
 y 9
 end
-arch water_still
+arch grassd_m9
+x 18
+y 9
+end
+arch bridge_wood_EW.111
 x 18
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 18
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 18
 y 12
 end
@@ -2606,11 +2749,28 @@ arch water_still
 x 18
 y 13
 end
+arch grassd_m9
+x 18
+y 13
+end
+arch bridge_wood_EW.151
+layer 3
+x 18
+y 13
+end
 arch water_still
 x 18
 y 14
 end
+arch grassd_m9
+x 18
+y 14
+end
 arch water_still
+x 18
+y 15
+end
+arch grassd_m13
 x 18
 y 15
 end
@@ -2685,19 +2845,23 @@ arch water_still
 x 19
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 19
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 19
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 19
 y 12
 end
 arch water_still
+x 19
+y 13
+end
+arch bridge_wood_EW.151
 x 19
 y 13
 end
@@ -2780,19 +2944,31 @@ arch water_still
 x 20
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 20
 y 10
 end
-arch water_still
+arch light5
+x 20
+y 10
+end
+arch bridge_wood_EW.101
 x 20
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
+x 20
+y 12
+end
+arch light5
 x 20
 y 12
 end
 arch water_still
+x 20
+y 13
+end
+arch bridge_wood_EW.151
 x 20
 y 13
 end
@@ -2875,19 +3051,23 @@ arch water_still
 x 21
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 21
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 21
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 21
 y 12
 end
 arch water_still
+x 21
+y 13
+end
+arch bridge_wood_EW.151
 x 21
 y 13
 end
@@ -2970,19 +3150,23 @@ arch water_still
 x 22
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 22
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 22
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 22
 y 12
 end
 arch water_still
+x 22
+y 13
+end
+arch bridge_wood_EW.151
 x 22
 y 13
 end
@@ -3065,19 +3249,31 @@ arch water_still
 x 23
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 23
 y 10
 end
-arch water_still
+arch light5
+x 23
+y 10
+end
+arch bridge_wood_EW.101
 x 23
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
+x 23
+y 12
+end
+arch light5
 x 23
 y 12
 end
 arch water_still
+x 23
+y 13
+end
+arch bridge_wood_EW.151
 x 23
 y 13
 end

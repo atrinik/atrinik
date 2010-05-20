@@ -1,13 +1,14 @@
 arch map
-name World
+name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-05-20 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+no_harm 1
 tile_path_1 world_1313
 tile_path_2 world_1412
 tile_path_3 world_1311
@@ -16,6 +17,8 @@ tile_path_5 world_1413
 tile_path_6 world_1411
 tile_path_7 world_1211
 tile_path_8 world_1213
+bg_music town_music.ogg|0|-1
+region greyton
 end
 arch water_still
 end
@@ -46,31 +49,58 @@ end
 arch water_still
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 y 12
 end
 arch water_still
 y 13
 end
+arch bridge_wood_EW.151
+y 13
+end
 arch water_still
 y 14
 end
-arch water_still
+arch ship_floor_we_1
 y 15
 end
-arch water_still
+arch ship_rail_nw
+y 15
+end
+arch ship_floor_we_2
 y 16
 end
-arch water_still
+arch ship_rail_w_hole
+y 16
+end
+arch spawn_point
+y 16
+arch peasant
+msg
+@match hi|hey|hello
+Hello! This ship will take you to the cold north and the Wizards' Tower on Lyondale Archipelago!
+endmsg
+name Ship Captain
+type 83
+direction 3
+end
+end
+arch ship_floor_we_1
+y 17
+end
+arch ship_rail_sw
 y 17
 end
 arch water_still
+y 18
+end
+arch ship_hull_s_high_corner_w
 y 18
 end
 arch water_still
@@ -127,15 +157,15 @@ arch water_still
 x 1
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 1
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 1
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 1
 y 12
 end
@@ -143,27 +173,75 @@ arch water_still
 x 1
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 1
+y 13
+end
+arch ship_floor_we_3
 x 1
 y 14
 end
-arch water_still
+arch ship_rail_nw
+x 1
+y 14
+end
+arch light3
+x 1
+y 14
+end
+arch ship_floor_we_1
 x 1
 y 15
 end
-arch water_still
+arch ship_rail_n
+x 1
+y 15
+end
+arch light4
+x 1
+y 15
+end
+arch ship_floor_we_2
 x 1
 y 16
 end
-arch water_still
+arch ship_w_steering_wheel_double
+x 1
+y 16
+end
+arch ship_rail_e_high
+x 1
+y 16
+end
+arch ship_floor_we_1
 x 1
 y 17
 end
-arch water_still
+arch ship_rail_s
+x 1
+y 17
+end
+arch light4
+x 1
+y 17
+end
+arch ship_floor_we_1
+x 1
+y 18
+end
+arch ship_rail_sw
+x 1
+y 18
+end
+arch light3
 x 1
 y 18
 end
 arch water_still
+x 1
+y 19
+end
+arch ship_hull_s_high_corner_w
 x 1
 y 19
 end
@@ -222,15 +300,23 @@ arch water_still
 x 2
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 2
 y 10
 end
-arch water_still
+arch light5
+x 2
+y 10
+end
+arch bridge_wood_EW.101
 x 2
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
+x 2
+y 12
+end
+arch light5
 x 2
 y 12
 end
@@ -238,27 +324,64 @@ arch water_still
 x 2
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 2
+y 13
+end
+arch ship_floor_we_3
 x 2
 y 14
 end
-arch water_still
+arch tackelage_n_low
+x 2
+y 14
+end
+arch ship_floor_we_1
 x 2
 y 15
 end
-arch water_still
+arch tackelage_n_high
+x 2
+y 15
+end
+arch ship_rail_n
+layer 4
+x 2
+y 15
+end
+arch ship_floor_we_2
 x 2
 y 16
 end
-arch water_still
+arch mast_e_long
+x 2
+y 16
+end
+arch ship_floor_we_2
 x 2
 y 17
 end
-arch water_still
+arch tackelage_s_high
+x 2
+y 17
+end
+arch ship_rail_s
+x 2
+y 17
+end
+arch ship_floor_we_3
+x 2
+y 18
+end
+arch tackelage_s_low
 x 2
 y 18
 end
 arch water_still
+x 2
+y 19
+end
+arch ship_hull_s_high
 x 2
 y 19
 end
@@ -317,15 +440,15 @@ arch water_still
 x 3
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 3
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 3
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 3
 y 12
 end
@@ -333,27 +456,72 @@ arch water_still
 x 3
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 3
+y 13
+end
+arch ship_floor_we_2
 x 3
 y 14
 end
-arch water_still
+arch ship_rail_n
+x 3
+y 14
+end
+arch ship_floor_we_3
 x 3
 y 15
 end
-arch water_still
+arch ship_rail_n_hole
+layer 4
+x 3
+y 15
+end
+arch sail_reffed_e
+x 3
+y 15
+end
+arch ship_floor_we_1
 x 3
 y 16
 end
-arch water_still
+arch sail_reffed_e
+x 3
+y 16
+end
+arch light7
+x 3
+y 16
+end
+arch ship_floor_we_1
 x 3
 y 17
 end
-arch water_still
+arch sail_reffed_e
+x 3
+y 17
+end
+arch ship_rail_s_hole
+x 3
+y 17
+end
+arch ship_floor_we_3
+x 3
+y 18
+end
+arch sail_reffed_e_over_rail
 x 3
 y 18
 end
 arch water_still
+x 3
+y 19
+end
+arch ship_hull_s_high
+x 3
+y 19
+end
+arch sail_reffed_e
 x 3
 y 19
 end
@@ -412,15 +580,15 @@ arch water_still
 x 4
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 4
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 4
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 4
 y 12
 end
@@ -428,27 +596,58 @@ arch water_still
 x 4
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 4
+y 13
+end
+arch ship_floor_we_2
 x 4
 y 14
 end
-arch water_still
+arch ship_rail_n
+x 4
+y 14
+end
+arch ship_floor_we_2
 x 4
 y 15
 end
-arch water_still
+arch ship_rail_s_hole
+x 4
+y 15
+end
+arch ship_floor_we_1
 x 4
 y 16
 end
-arch water_still
+arch stairs_wood_down
+slaying ships/ship_1
+hp 12
+sp 2
+x 4
+y 16
+end
+arch ship_floor_we_1
 x 4
 y 17
 end
-arch water_still
+arch ship_rail_n_hole
+x 4
+y 17
+end
+arch ship_floor_we_1
+x 4
+y 18
+end
+arch ship_rail_s
 x 4
 y 18
 end
 arch water_still
+x 4
+y 19
+end
+arch ship_hull_s_high
 x 4
 y 19
 end
@@ -507,43 +706,71 @@ arch water_still
 x 5
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 5
 y 10
 end
-arch water_still
+arch light5
+x 5
+y 10
+end
+arch bridge_wood_EW.101
 x 5
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 5
 y 12
 end
-arch water_still
+arch light5
+x 5
+y 12
+end
+arch bridge_wood_NS.171
 x 5
 y 13
 end
-arch water_still
+arch ship_floor_we_3
 x 5
 y 14
 end
-arch water_still
+arch bridge_wood_NS.151
+x 5
+y 14
+end
+arch ship_floor_we_2
 x 5
 y 15
 end
-arch water_still
+arch ship_rail_s_hole
+x 5
+y 15
+end
+arch blocked
 x 5
 y 16
 end
-arch water_still
+arch ship_floor_we_1
 x 5
 y 17
 end
-arch water_still
+arch ship_rail_n_hole
+x 5
+y 17
+end
+arch ship_floor_we_1
+x 5
+y 18
+end
+arch ship_rail_s
 x 5
 y 18
 end
 arch water_still
+x 5
+y 19
+end
+arch ship_hull_s_high
 x 5
 y 19
 end
@@ -602,15 +829,15 @@ arch water_still
 x 6
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 6
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 6
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 6
 y 12
 end
@@ -618,27 +845,68 @@ arch water_still
 x 6
 y 13
 end
-arch water_still
+arch bridge_wood_03
+x 6
+y 13
+end
+arch bollard_tied_s_2
+x 6
+y 13
+end
+arch ship_floor_we_2
 x 6
 y 14
 end
-arch water_still
+arch bollard_tied_n_3
+x 6
+y 14
+end
+arch light3
+x 6
+y 14
+end
+arch ship_floor_we_2
 x 6
 y 15
 end
-arch water_still
+arch barrel_water.101
+x 6
+y 15
+end
+arch ship_floor_we_1
 x 6
 y 16
 end
-arch water_still
+arch ship_rail_w_hole
+x 6
+y 16
+end
+arch barrel_water.101
+layer 7
+x 6
+y 16
+end
+arch ship_floor_we_2
 x 6
 y 17
 end
-arch water_still
+arch ship_floor_we_1
+x 6
+y 18
+end
+arch ship_rail_s_hole
+x 6
+y 18
+end
+arch light3
 x 6
 y 18
 end
 arch water_still
+x 6
+y 19
+end
+arch ship_hull_s_high
 x 6
 y 19
 end
@@ -697,15 +965,15 @@ arch water_still
 x 7
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 7
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 7
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 7
 y 12
 end
@@ -713,27 +981,59 @@ arch water_still
 x 7
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 7
+y 13
+end
+arch ship_floor_we_3
 x 7
 y 14
 end
-arch water_still
+arch tackelage_n_low
+x 7
+y 14
+end
+arch ship_floor_we_1
 x 7
 y 15
 end
-arch water_still
+arch tackelage_n_high
+x 7
+y 15
+end
+arch ship_floor_we_2
 x 7
 y 16
 end
-arch water_still
+arch mast_e_long
+x 7
+y 16
+end
+arch light7
+x 7
+y 16
+end
+arch ship_floor_we_2
 x 7
 y 17
 end
-arch water_still
+arch tackelage_s_high
+x 7
+y 17
+end
+arch ship_floor_we_3
+x 7
+y 18
+end
+arch tackelage_s_low
 x 7
 y 18
 end
 arch water_still
+x 7
+y 19
+end
+arch ship_hull_s_high
 x 7
 y 19
 end
@@ -792,15 +1092,23 @@ arch water_still
 x 8
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 8
 y 10
 end
-arch water_still
+arch light5
+x 8
+y 10
+end
+arch bridge_wood_EW.101
 x 8
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
+x 8
+y 12
+end
+arch light5
 x 8
 y 12
 end
@@ -808,27 +1116,71 @@ arch water_still
 x 8
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 8
+y 13
+end
+arch ship_floor_we_2
 x 8
 y 14
 end
-arch water_still
+arch ship_rail_n
+x 8
+y 14
+end
+arch ship_floor_we_3
 x 8
 y 15
 end
-arch water_still
+arch sail_reffed_e
+x 8
+y 15
+end
+arch barrel_water.101
+x 8
+y 15
+end
+arch ship_floor_we_1
 x 8
 y 16
 end
-arch water_still
+arch sail_reffed_e
+x 8
+y 16
+end
+arch barrel.101
+x 8
+y 16
+end
+arch ship_floor_we_1
 x 8
 y 17
 end
-arch water_still
+arch sail_reffed_e
+x 8
+y 17
+end
+arch barrel.101
+x 8
+y 17
+end
+arch ship_floor_we_3
+x 8
+y 18
+end
+arch sail_reffed_e_over_rail
 x 8
 y 18
 end
 arch water_still
+x 8
+y 19
+end
+arch ship_hull_s_high
+x 8
+y 19
+end
+arch sail_reffed_e
 x 8
 y 19
 end
@@ -887,15 +1239,15 @@ arch water_still
 x 9
 y 9
 end
-arch water_still
+arch bridge_wood_EW.111
 x 9
 y 10
 end
-arch water_still
+arch bridge_wood_EW.101
 x 9
 y 11
 end
-arch water_still
+arch bridge_wood_EW.101
 x 9
 y 12
 end
@@ -903,27 +1255,55 @@ arch water_still
 x 9
 y 13
 end
-arch water_still
+arch bridge_wood_EW.151
+x 9
+y 13
+end
+arch bollard_tied_s_2
+x 9
+y 13
+end
+arch ship_floor_we_4
 x 9
 y 14
 end
-arch water_still
+arch bollard_tied_n_3
+x 9
+y 14
+end
+arch ship_floor_we_3
 x 9
 y 15
 end
-arch water_still
+arch barrel_water.101
+x 9
+y 15
+end
+arch ship_floor_we_4
 x 9
 y 16
 end
-arch water_still
+arch barrel2.101
+x 9
+y 16
+end
+arch ship_floor_we_3
 x 9
 y 17
 end
-arch water_still
+arch ship_floor_we_2
+x 9
+y 18
+end
+arch ship_rail_s_hole
 x 9
 y 18
 end
 arch water_still
+x 9
+y 19
+end
+arch ship_hull_s_high
 x 9
 y 19
 end
@@ -986,7 +1366,15 @@ arch water_still
 x 10
 y 10
 end
+arch bridge_wood_NS.131
+x 10
+y 10
+end
 arch water_still
+x 10
+y 11
+end
+arch bridge_wood_NS.131
 x 10
 y 11
 end
@@ -994,7 +1382,15 @@ arch water_still
 x 10
 y 12
 end
+arch bridge_wood_NS.131
+x 10
+y 12
+end
 arch water_still
+x 10
+y 13
+end
+arch bridge_wood_01
 x 10
 y 13
 end
@@ -1002,23 +1398,55 @@ arch water_still
 x 10
 y 14
 end
-arch water_still
+arch ship_prow_e_strokeside_a
+x 10
+y 14
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 10
+y 14
+end
+arch light3
+x 10
+y 14
+end
+arch ship_floor_we_1
 x 10
 y 15
 end
-arch water_still
+arch ship_floor_we_1
 x 10
 y 16
 end
-arch water_still
+arch sail_short_mast_e_3
+x 10
+y 16
+end
+arch ship_floor_we_2
 x 10
 y 17
 end
-arch water_still
+arch ship_floor_we_3
+x 10
+y 18
+end
+arch ship_prow_e_starboard_a
+x 10
+y 18
+end
+arch ship_hull_prow_e_rear_2
+x 10
+y 18
+end
+arch light3
 x 10
 y 18
 end
 arch water_still
+x 10
+y 19
+end
+arch ship_hull_prow_e_rear_1
 x 10
 y 19
 end
@@ -1097,23 +1525,59 @@ arch water_still
 x 11
 y 14
 end
-arch water_still
+arch ship_prow_e_strokeside_b
+x 11
+y 14
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 11
+y 14
+end
+arch ship_floor_we_2
 x 11
 y 15
 end
-arch water_still
+arch ship_prow_e_strokeside_c
+x 11
+y 15
+end
+arch ship_floor_we_1
 x 11
 y 16
 end
-arch water_still
+arch sail_short_mast_e_2
+x 11
+y 16
+end
+arch light4
+x 11
+y 16
+end
+arch ship_floor_we_2
 x 11
 y 17
 end
-arch water_still
+arch ship_prow_e_starboard_c
+x 11
+y 17
+end
+arch ship_floor_we_2
+x 11
+y 18
+end
+arch ship_prow_e_starboard_b
+x 11
+y 18
+end
+arch ship_hull_prow_e_rear_4
 x 11
 y 18
 end
 arch water_still
+x 11
+y 19
+end
+arch ship_hull_prow_e_rear_3
 x 11
 y 19
 end
@@ -1196,11 +1660,31 @@ arch water_still
 x 12
 y 15
 end
-arch water_still
+arch ship_prow_e_strokeside_a
+x 12
+y 15
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 12
+y 15
+end
+arch ship_floor_we_2
 x 12
 y 16
 end
-arch water_still
+arch sail_short_mast_e_1
+x 12
+y 16
+end
+arch ship_floor_we_4
+x 12
+y 17
+end
+arch ship_prow_e_starboard_a
+x 12
+y 17
+end
+arch ship_hull_prow_e_rear_2
 x 12
 y 17
 end
@@ -1208,7 +1692,15 @@ arch water_still
 x 12
 y 18
 end
+arch ship_hull_prow_e_rear_6
+x 12
+y 18
+end
 arch water_still
+x 12
+y 19
+end
+arch ship_hull_prow_e_rear_5
 x 12
 y 19
 end
@@ -1291,15 +1783,39 @@ arch water_still
 x 13
 y 15
 end
-arch water_still
+arch ship_prow_e_strokeside_b
+x 13
+y 15
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 13
+y 15
+end
+arch ship_floor_we_1
 x 13
 y 16
 end
-arch water_still
+arch ship_prow_e_midship
+x 13
+y 16
+end
+arch ship_floor_we_2
+x 13
+y 17
+end
+arch ship_prow_e_starboard_b
+x 13
+y 17
+end
+arch ship_hull_prow_e_rear_4
 x 13
 y 17
 end
 arch water_still
+x 13
+y 18
+end
+arch ship_hull_prow_e_rear_3
 x 13
 y 18
 end
@@ -1390,11 +1906,31 @@ arch water_still
 x 14
 y 16
 end
+arch ship_hull_prow_e_front_3
+x 14
+y 16
+end
+arch ship_prow_e_long
+x 14
+y 16
+end
+arch light3
+x 14
+y 16
+end
 arch water_still
 x 14
 y 17
 end
+arch ship_hull_prow_e_rear_6
+x 14
+y 17
+end
 arch water_still
+x 14
+y 18
+end
+arch ship_hull_prow_e_rear_5
 x 14
 y 18
 end
@@ -1485,7 +2021,15 @@ arch water_still
 x 15
 y 16
 end
+arch ship_hull_prow_e_front_2
+x 15
+y 16
+end
 arch water_still
+x 15
+y 17
+end
+arch ship_hull_prow_e_front_1
 x 15
 y 17
 end

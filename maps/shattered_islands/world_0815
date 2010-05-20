@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2010-05-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,7 @@ outdoor 1
 tile_path_2 world_0915
 tile_path_3 world_0814
 tile_path_4 world_0715
+tile_path_5 world_0916
 tile_path_6 world_0914
 tile_path_7 world_0714
 bg_music jungle1.ogg|0|-1
@@ -2828,9 +2829,6 @@ end
 arch grassd_6
 x 21
 end
-arch plant8
-x 21
-end
 arch tree_big2
 x 21
 end
@@ -2989,9 +2987,6 @@ end
 arch grassd_3
 x 22
 end
-arch reed_sm11
-x 22
-end
 arch tree_big5b
 x 22
 end
@@ -2999,7 +2994,7 @@ arch grassd_6
 x 22
 y 1
 end
-arch reed_sm11
+arch reed_sm3
 x 22
 y 1
 end
@@ -3135,17 +3130,24 @@ arch water_still
 x 22
 y 23
 end
-arch water_still
+arch grassd_6
 x 23
 end
-arch grassd_m9
+arch reed_sm3
 x 23
 end
-arch water_still
+arch tree_big
+x 23
+end
+arch grassd_3
 x 23
 y 1
 end
-arch grassd_m9
+arch reed_sm3
+x 23
+y 1
+end
+arch tree_big5b
 x 23
 y 1
 end
@@ -3153,7 +3155,7 @@ arch water_still
 x 23
 y 2
 end
-arch grassd_m9
+arch grassd_m4
 x 23
 y 2
 end

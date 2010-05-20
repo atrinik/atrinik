@@ -1,36 +1,25 @@
 arch map
-name World
+name Lyondale Archipelago
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-05-16 Alex Tokar
+Modified: 2010-05-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 20
 outdoor 1
-tile_path_1 world_0916
-tile_path_2 world_1015
-tile_path_3 world_0914
-tile_path_4 world_0815
-tile_path_6 world_1014
-tile_path_7 world_0814
+tile_path_2 world_0921
+tile_path_3 world_0820
+tile_path_6 world_0920
+bg_music campfire_tales.ogg|0|-1
+region lyondale_archipelago_wizard
 end
-arch grassd_1
-end
-arch reed_sm1
-end
-arch tree_big3
+arch water_still
 end
 arch water_still
 y 1
 end
-arch grassd_m4
-y 1
-end
 arch water_still
-y 2
-end
-arch grassd_m13
 y 2
 end
 arch water_still
@@ -99,14 +88,7 @@ end
 arch water_still
 x 1
 end
-arch grassd_m9
-x 1
-end
 arch water_still
-x 1
-y 1
-end
-arch grassd_m13
 x 1
 y 1
 end
@@ -708,7 +690,15 @@ arch water_still
 x 7
 y 8
 end
+arch snow_fmask.118
+x 7
+y 8
+end
 arch water_still
+x 7
+y 9
+end
+arch snow_fmask.107
 x 7
 y 9
 end
@@ -716,7 +706,15 @@ arch water_still
 x 7
 y 10
 end
+arch snow_fmask.107
+x 7
+y 10
+end
 arch water_still
+x 7
+y 11
+end
+arch snow_fmask.107
 x 7
 y 11
 end
@@ -724,6 +722,10 @@ arch water_still
 x 7
 y 12
 end
+arch snow_fmask.116
+x 7
+y 12
+end
 arch water_still
 x 7
 y 13
@@ -760,7 +762,15 @@ arch water_still
 x 7
 y 21
 end
+arch snow_fmask.118
+x 7
+y 21
+end
 arch water_still
+x 7
+y 22
+end
+arch snow_fmask.107
 x 7
 y 22
 end
@@ -768,102 +778,161 @@ arch water_still
 x 7
 y 23
 end
-arch water_still
-x 8
-end
-arch water_still
-x 8
-y 1
-end
-arch water_still
-x 8
-y 2
-end
-arch water_still
-x 8
-y 3
-end
-arch water_still
-x 8
-y 4
-end
-arch water_still
-x 8
-y 5
-end
-arch water_still
-x 8
-y 6
-end
-arch water_still
-x 8
-y 7
-end
-arch water_still
-x 8
-y 8
-end
-arch water_still
-x 8
-y 9
-end
-arch water_still
-x 8
-y 10
-end
-arch water_still
-x 8
-y 11
-end
-arch water_still
-x 8
-y 12
-end
-arch water_still
-x 8
-y 13
-end
-arch water_still
-x 8
-y 14
-end
-arch water_still
-x 8
-y 15
-end
-arch water_still
-x 8
-y 16
-end
-arch water_still
-x 8
-y 17
-end
-arch water_still
-x 8
-y 18
-end
-arch water_still
-x 8
-y 19
-end
-arch water_still
-x 8
-y 20
-end
-arch water_still
-x 8
-y 21
-end
-arch water_still
-x 8
-y 22
-end
-arch water_still
-x 8
+arch snow_fmask.107
+x 7
 y 23
 end
 arch water_still
+x 8
+end
+arch water_still
+x 8
+y 1
+end
+arch water_still
+x 8
+y 2
+end
+arch water_still
+x 8
+y 3
+end
+arch water_still
+x 8
+y 4
+end
+arch water_still
+x 8
+y 5
+end
+arch water_still
+x 8
+y 6
+end
+arch water_still
+x 8
+y 7
+end
+arch snow_fmask.118
+x 8
+y 7
+end
+arch water_still
+x 8
+y 8
+end
+arch snow_fmask.108
+x 8
+y 8
+end
+arch snow2
+x 8
+y 9
+end
+arch snow1
+x 8
+y 10
+end
+arch tree_branch2
+x 8
+y 10
+end
+arch snow2
+x 8
+y 11
+end
+arch snowy_pinetree1
+x 8
+y 11
+end
+arch water_still
+x 8
+y 12
+end
+arch snow_fmask.106
+x 8
+y 12
+end
+arch water_still
+x 8
+y 13
+end
+arch snow_fmask.116
+x 8
+y 13
+end
+arch water_still
+x 8
+y 14
+end
+arch water_still
+x 8
+y 15
+end
+arch water_still
+x 8
+y 16
+end
+arch water_still
+x 8
+y 17
+end
+arch water_still
+x 8
+y 18
+end
+arch water_still
+x 8
+y 19
+end
+arch water_still
+x 8
+y 20
+end
+arch snow_fmask.118
+x 8
+y 20
+end
+arch water_still
+x 8
+y 21
+end
+arch snow_fmask.108
+x 8
+y 21
+end
+arch snow3
+x 8
+y 22
+end
+arch snow2
+x 8
+y 23
+end
+arch spawn_point
+x 8
+y 23
+arch snowman_evil
+level 20
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch water_still
 x 9
 end
 arch water_still
@@ -894,23 +963,54 @@ arch water_still
 x 9
 y 7
 end
-arch water_still
+arch snow_fmask.101
+x 9
+y 7
+end
+arch snow2
 x 9
 y 8
 end
-arch water_still
+arch snowy_pinetree1
+x 9
+y 8
+end
+arch snow2
 x 9
 y 9
 end
-arch water_still
+arch snow4
 x 9
 y 10
 end
-arch water_still
+arch spawn_point
+x 9
+y 10
+arch snowman_evil
+level 22
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch snow1
 x 9
 y 11
 end
-arch water_still
+arch snow4
 x 9
 y 12
 end
@@ -918,7 +1018,15 @@ arch water_still
 x 9
 y 13
 end
+arch snow_fmask.106
+x 9
+y 13
+end
 arch water_still
+x 9
+y 14
+end
+arch snow_fmask.116
 x 9
 y 14
 end
@@ -942,19 +1050,31 @@ arch water_still
 x 9
 y 19
 end
+arch snow_fmask.118
+x 9
+y 19
+end
 arch water_still
 x 9
 y 20
 end
-arch water_still
+arch snow_fmask.108
+x 9
+y 20
+end
+arch snow2
 x 9
 y 21
 end
-arch water_still
+arch snow4
 x 9
 y 22
 end
-arch water_still
+arch snow4
+x 9
+y 23
+end
+arch tree_branch1
 x 9
 y 23
 end
@@ -989,27 +1109,31 @@ arch water_still
 x 10
 y 7
 end
-arch water_still
+arch snow_fmask.101
+x 10
+y 7
+end
+arch snow2
 x 10
 y 8
 end
-arch water_still
+arch snow2
 x 10
 y 9
 end
-arch water_still
+arch snow3
 x 10
 y 10
 end
-arch water_still
+arch snow3
 x 10
 y 11
 end
-arch water_still
+arch snow3
 x 10
 y 12
 end
-arch water_still
+arch snow1
 x 10
 y 13
 end
@@ -1017,7 +1141,15 @@ arch water_still
 x 10
 y 14
 end
+arch snow_fmask.106
+x 10
+y 14
+end
 arch water_still
+x 10
+y 15
+end
+arch snow_fmask.116
 x 10
 y 15
 end
@@ -1033,23 +1165,35 @@ arch water_still
 x 10
 y 18
 end
+arch snow_fmask.118
+x 10
+y 18
+end
 arch water_still
 x 10
 y 19
 end
-arch water_still
+arch snow_fmask.108
+x 10
+y 19
+end
+arch snow2
 x 10
 y 20
 end
-arch water_still
+arch snow1
 x 10
 y 21
 end
-arch water_still
+arch snow4
 x 10
 y 22
 end
-arch water_still
+arch snow3
+x 10
+y 23
+end
+arch snowy_pinetree2
 x 10
 y 23
 end
@@ -1084,31 +1228,66 @@ arch water_still
 x 11
 y 7
 end
-arch water_still
+arch snow_fmask.101
+x 11
+y 7
+end
+arch snow1
 x 11
 y 8
 end
-arch water_still
+arch spawn_point
+x 11
+y 8
+arch snowman_evil
+level 23
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch snow3
 x 11
 y 9
 end
-arch water_still
+arch snow1
 x 11
 y 10
 end
-arch water_still
+arch snow3
 x 11
 y 11
 end
-arch water_still
+arch tree_branch2
+x 11
+y 11
+end
+arch snow1
 x 11
 y 12
 end
-arch water_still
+arch snow3
 x 11
 y 13
 end
-arch water_still
+arch snowy_burnedtree1
+x 11
+y 13
+end
+arch snow3
 x 11
 y 14
 end
@@ -1116,7 +1295,15 @@ arch water_still
 x 11
 y 15
 end
+arch snow_fmask.106
+x 11
+y 15
+end
 arch water_still
+x 11
+y 16
+end
+arch snow_fmask.107
 x 11
 y 16
 end
@@ -1124,27 +1311,35 @@ arch water_still
 x 11
 y 17
 end
+arch snow_fmask.107
+x 11
+y 17
+end
 arch water_still
 x 11
 y 18
 end
-arch water_still
+arch snow_fmask.108
+x 11
+y 18
+end
+arch snow4
 x 11
 y 19
 end
-arch water_still
+arch snow4
 x 11
 y 20
 end
-arch water_still
+arch snow3
 x 11
 y 21
 end
-arch water_still
+arch snow1
 x 11
 y 22
 end
-arch water_still
+arch snow1
 x 11
 y 23
 end
@@ -1179,67 +1374,110 @@ arch water_still
 x 12
 y 7
 end
+arch snow_fmask.112
+x 12
+y 7
+end
 arch water_still
 x 12
 y 8
 end
-arch water_still
+arch snow_fmask.102
+x 12
+y 8
+end
+arch snow1
 x 12
 y 9
 end
-arch water_still
+arch tree_branch1
+x 12
+y 9
+end
+arch snow1
 x 12
 y 10
 end
-arch water_still
+arch snow1
 x 12
 y 11
 end
-arch water_still
+arch snow3
 x 12
 y 12
 end
-arch water_still
+arch tree_branch1
+x 12
+y 12
+end
+arch snow2
 x 12
 y 13
 end
-arch water_still
+arch snow3
 x 12
 y 14
 end
-arch water_still
+arch snow1
 x 12
 y 15
 end
-arch water_still
+arch tree_branch3
+x 12
+y 15
+end
+arch snow1
 x 12
 y 16
 end
-arch water_still
+arch snow1
 x 12
 y 17
 end
-arch water_still
+arch snow3
 x 12
 y 18
 end
-arch water_still
+arch snow3
 x 12
 y 19
 end
-arch water_still
+arch snow4
 x 12
 y 20
 end
-arch water_still
+arch snow2
 x 12
 y 21
 end
-arch water_still
+arch spawn_point
+x 12
+y 21
+arch snowman_evil
+level 21
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch snow2
 x 12
 y 22
 end
-arch water_still
+arch snow4
 x 12
 y 23
 end
@@ -1278,63 +1516,87 @@ arch water_still
 x 13
 y 8
 end
+arch snow_fmask.112
+x 13
+y 8
+end
 arch water_still
 x 13
 y 9
 end
-arch water_still
+arch snow_fmask.102
+x 13
+y 9
+end
+arch snow2
 x 13
 y 10
 end
-arch water_still
+arch snow3
 x 13
 y 11
 end
-arch water_still
+arch tree_branch2
+x 13
+y 11
+end
+arch snow2
 x 13
 y 12
 end
-arch water_still
+arch snow2
 x 13
 y 13
 end
-arch water_still
+arch snow4
 x 13
 y 14
 end
-arch water_still
+arch tree_burned2
+x 13
+y 14
+end
+arch snow3
 x 13
 y 15
 end
-arch water_still
+arch snow4
 x 13
 y 16
 end
-arch water_still
+arch tree_branch3_winter
+x 13
+y 16
+end
+arch snow4
 x 13
 y 17
 end
-arch water_still
+arch snow4
 x 13
 y 18
 end
-arch water_still
+arch snow4
 x 13
 y 19
 end
-arch water_still
+arch snowy_tree_big2
+x 13
+y 19
+end
+arch snow1
 x 13
 y 20
 end
-arch water_still
+arch snow2
 x 13
 y 21
 end
-arch water_still
+arch snow3
 x 13
 y 22
 end
-arch water_still
+arch snow2
 x 13
 y 23
 end
@@ -1377,59 +1639,98 @@ arch water_still
 x 14
 y 9
 end
+arch snow_fmask.112
+x 14
+y 9
+end
 arch water_still
 x 14
 y 10
 end
-arch water_still
+arch snow_fmask.102
+x 14
+y 10
+end
+arch snow3
 x 14
 y 11
 end
-arch water_still
+arch snow4
 x 14
 y 12
 end
-arch water_still
+arch snow1
 x 14
 y 13
 end
-arch water_still
+arch snow3
 x 14
 y 14
 end
-arch water_still
+arch snow3
 x 14
 y 15
 end
-arch water_still
+arch snow2
 x 14
 y 16
 end
-arch water_still
+arch snow2
 x 14
 y 17
 end
-arch water_still
+arch snow1
 x 14
 y 18
 end
-arch water_still
+arch spawn_point
+x 14
+y 18
+arch snowman_evil
+level 22
+Con 3
+Dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
+arch snow1
 x 14
 y 19
 end
-arch water_still
+arch tree_branch3
+x 14
+y 19
+end
+arch snow3
 x 14
 y 20
 end
-arch water_still
+arch snow2
 x 14
 y 21
 end
-arch water_still
+arch snow2
 x 14
 y 22
 end
-arch water_still
+arch tree_burned2
+x 14
+y 22
+end
+arch snow3
 x 14
 y 23
 end
@@ -1476,55 +1777,67 @@ arch water_still
 x 15
 y 10
 end
+arch snow_fmask.112
+x 15
+y 10
+end
 arch water_still
 x 15
 y 11
 end
-arch water_still
+arch snow_fmask.102
+x 15
+y 11
+end
+arch snow3
 x 15
 y 12
 end
-arch water_still
+arch snow2
 x 15
 y 13
 end
-arch water_still
+arch snowy_pinetree1
+x 15
+y 13
+end
+arch snow3
 x 15
 y 14
 end
-arch water_still
+arch snow1
 x 15
 y 15
 end
-arch water_still
+arch snow4
 x 15
 y 16
 end
-arch water_still
+arch snow4
 x 15
 y 17
 end
-arch water_still
+arch snow3
 x 15
 y 18
 end
-arch water_still
+arch snow4
 x 15
 y 19
 end
-arch water_still
+arch snow4
 x 15
 y 20
 end
-arch water_still
+arch snow2
 x 15
 y 21
 end
-arch water_still
+arch snow3
 x 15
 y 22
 end
-arch water_still
+arch snow4
 x 15
 y 23
 end
@@ -1575,51 +1888,63 @@ arch water_still
 x 16
 y 11
 end
+arch snow_fmask.112
+x 16
+y 11
+end
 arch water_still
 x 16
 y 12
 end
-arch water_still
+arch snow_fmask.102
+x 16
+y 12
+end
+arch snow3
 x 16
 y 13
 end
-arch water_still
+arch snow2
 x 16
 y 14
 end
-arch water_still
+arch snow4
 x 16
 y 15
 end
-arch water_still
+arch snow4
 x 16
 y 16
 end
-arch water_still
+arch tree_branch1_winter
+x 16
+y 16
+end
+arch snow1
 x 16
 y 17
 end
-arch water_still
+arch snow1
 x 16
 y 18
 end
-arch water_still
+arch snow4
 x 16
 y 19
 end
-arch water_still
+arch snow3
 x 16
 y 20
 end
-arch water_still
+arch snow2
 x 16
 y 21
 end
-arch water_still
+arch snow4
 x 16
 y 22
 end
-arch water_still
+arch snow2
 x 16
 y 23
 end
@@ -1674,47 +1999,67 @@ arch water_still
 x 17
 y 12
 end
+arch snow_fmask.112
+x 17
+y 12
+end
 arch water_still
 x 17
 y 13
 end
-arch water_still
+arch snow_fmask.102
+x 17
+y 13
+end
+arch snow4
 x 17
 y 14
 end
-arch water_still
+arch snow2
 x 17
 y 15
 end
-arch water_still
+arch snow3
 x 17
 y 16
 end
-arch water_still
+arch snow4
 x 17
 y 17
 end
-arch water_still
+arch snow4
 x 17
 y 18
 end
-arch water_still
+arch snowy_tree_big2
+x 17
+y 18
+end
+arch snow2
 x 17
 y 19
 end
-arch water_still
+arch snow2
 x 17
 y 20
 end
-arch water_still
+arch tree_branch2
+x 17
+y 20
+end
+arch snow4
 x 17
 y 21
 end
-arch water_still
+arch snow4
 x 17
 y 22
 end
-arch water_still
+arch snowy_pinetree1
+x 17
+y 22
+end
+arch snow2
 x 17
 y 23
 end
@@ -1773,43 +2118,55 @@ arch water_still
 x 18
 y 13
 end
-arch water_still
+arch snow_fmask.101
+x 18
+y 13
+end
+arch snow3
 x 18
 y 14
 end
-arch water_still
+arch snow2
 x 18
 y 15
 end
-arch water_still
+arch snow2
 x 18
 y 16
 end
-arch water_still
+arch snow1
 x 18
 y 17
 end
-arch water_still
+arch tree_branch1_winter
+x 18
+y 17
+end
+arch snow4
 x 18
 y 18
 end
-arch water_still
+arch snow3
 x 18
 y 19
 end
-arch water_still
+arch snow2
 x 18
 y 20
 end
-arch water_still
+arch snow3
 x 18
 y 21
 end
-arch water_still
+arch snow2
 x 18
 y 22
 end
-arch water_still
+arch tree_branch2
+x 18
+y 22
+end
+arch snow1
 x 18
 y 23
 end
@@ -1868,43 +2225,55 @@ arch water_still
 x 19
 y 13
 end
+arch snow_fmask.112
+x 19
+y 13
+end
 arch water_still
 x 19
 y 14
 end
-arch water_still
+arch snow_fmask.102
+x 19
+y 14
+end
+arch snow4
 x 19
 y 15
 end
-arch water_still
+arch tree_branch2
+x 19
+y 15
+end
+arch snow3
 x 19
 y 16
 end
-arch water_still
+arch snow3
 x 19
 y 17
 end
-arch water_still
+arch snow2
 x 19
 y 18
 end
-arch water_still
+arch snow1
 x 19
 y 19
 end
-arch water_still
+arch snow4
 x 19
 y 20
 end
-arch water_still
+arch snow2
 x 19
 y 21
 end
-arch water_still
+arch snow3
 x 19
 y 22
 end
-arch water_still
+arch snow2
 x 19
 y 23
 end
@@ -1967,39 +2336,43 @@ arch water_still
 x 20
 y 14
 end
-arch water_still
+arch snow_fmask.101
+x 20
+y 14
+end
+arch snow2
 x 20
 y 15
 end
-arch water_still
+arch snow3
 x 20
 y 16
 end
-arch water_still
+arch snow3
 x 20
 y 17
 end
-arch water_still
+arch snow1
 x 20
 y 18
 end
-arch water_still
+arch snow1
 x 20
 y 19
 end
-arch water_still
+arch snow1
 x 20
 y 20
 end
-arch water_still
+arch snow3
 x 20
 y 21
 end
-arch water_still
+arch snow1
 x 20
 y 22
 end
-arch water_still
+arch snow1
 x 20
 y 23
 end
@@ -2062,39 +2435,59 @@ arch water_still
 x 21
 y 14
 end
+arch snow_fmask.112
+x 21
+y 14
+end
 arch water_still
 x 21
 y 15
 end
-arch water_still
+arch snow_fmask.102
+x 21
+y 15
+end
+arch snow3
 x 21
 y 16
 end
-arch water_still
+arch snow3
 x 21
 y 17
 end
-arch water_still
+arch snowy_pinetree1
+x 21
+y 17
+end
+arch snow2
 x 21
 y 18
 end
-arch water_still
+arch snow3
 x 21
 y 19
 end
-arch water_still
+arch snow4
 x 21
 y 20
 end
-arch water_still
+arch snow1
 x 21
 y 21
 end
-arch water_still
+arch tree_branch1_winter
+x 21
+y 21
+end
+arch snow1
 x 21
 y 22
 end
-arch water_still
+arch snowy_burnedtree2
+x 21
+y 22
+end
+arch snow2
 x 21
 y 23
 end
@@ -2161,35 +2554,47 @@ arch water_still
 x 22
 y 15
 end
-arch water_still
+arch snow_fmask.101
+x 22
+y 15
+end
+arch snow1
 x 22
 y 16
 end
-arch water_still
+arch snow3
 x 22
 y 17
 end
-arch water_still
+arch tree_branch1_winter
+x 22
+y 17
+end
+arch snow1
 x 22
 y 18
 end
-arch water_still
+arch snow3
 x 22
 y 19
 end
-arch water_still
+arch snowy_tree_big1
+x 22
+y 19
+end
+arch snow3
 x 22
 y 20
 end
-arch water_still
+arch snow2
 x 22
 y 21
 end
-arch water_still
+arch snow4
 x 22
 y 22
 end
-arch water_still
+arch snow2
 x 22
 y 23
 end
@@ -2256,35 +2661,43 @@ arch water_still
 x 23
 y 15
 end
+arch snow_fmask.112
+x 23
+y 15
+end
 arch water_still
 x 23
 y 16
 end
-arch water_still
+arch snow_fmask.102
+x 23
+y 16
+end
+arch snow3
 x 23
 y 17
 end
-arch water_still
+arch snow4
 x 23
 y 18
 end
-arch water_still
+arch snow1
 x 23
 y 19
 end
-arch water_still
+arch snow4
 x 23
 y 20
 end
-arch water_still
+arch snow1
 x 23
 y 21
 end
-arch water_still
+arch snow2
 x 23
 y 22
 end
-arch water_still
+arch snow1
 x 23
 y 23
 end
