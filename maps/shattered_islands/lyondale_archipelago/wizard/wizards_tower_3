@@ -8,6 +8,7 @@ width 17
 height 15
 difficulty 70
 darkness -1
+no_harm 1
 bg_music solemn.ogg|0|-1
 region lyondale_archipelago_wizard
 end
