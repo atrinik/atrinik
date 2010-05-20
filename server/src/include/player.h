@@ -410,12 +410,6 @@ typedef struct pl_player
 	/** Last weight limit sent to client. */
 	uint32 last_weight_limit;
 
-	/**
-	 * This flag is set when the player is loaded from file
-	 * and not just created. It is used to overrule the "no save
-	 * when exp is 0" rule - which can lead to inventory duping. */
-	uint32 player_loaded:1;
-
 	/** If true, update line of sight with update_los(). */
 	uint32 update_los:1;
 

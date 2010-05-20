@@ -142,12 +142,6 @@ int save_player(object *op, int flag)
 	player *pl = CONTR(op);
 	int i, wiz = QUERY_FLAG(op, FLAG_WIZ);
 
-	/* No experience, no save */
-	if (!op->stats.exp && (!CONTR(op) || !CONTR(op)->player_loaded))
-	{
-		return 0;
-	}
-
 	flag &= 1;
 
 	/* Sanity check - some stuff changes this when player is exiting */
@@ -687,9 +681,6 @@ void check_login(object *op)
 
 		set_dragon_name(op, abil, skin);
 	}
-
-	/* Important: there is a player file */
-	pl->player_loaded = 1;
 
 	/* Display Message of the Day */
 	display_motd(op);

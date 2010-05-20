@@ -34,13 +34,7 @@
  * @param op The player applying the savebed. */
 void apply_savebed(object *op)
 {
-	if (!op->stats.exp)
-	{
-		new_draw_info(NDI_UNIQUE, op, "You don't deserve to save your character yet.");
-		return;
-	}
-
-	/* update respawn position */
+	/* Update respawn position. */
 	strcpy(CONTR(op)->savebed_map, op->map->path);
 	CONTR(op)->bed_x = op->x;
 	CONTR(op)->bed_y = op->y;
