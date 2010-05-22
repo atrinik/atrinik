@@ -606,6 +606,9 @@ static void set_first_map(object *op)
 		EXIT_Y(current) = 1;
 		current->last_eat = MAP_PLAYER_MAP;
 		enter_exit(op, current);
+		/* Update save bed position, so if we die, we don't end up in
+		 * the public version of the map. */
+		strncpy(CONTR(op)->savebed_map, CONTR(op)->maplevel, sizeof(CONTR(op)->savebed_map) - 1);
 	}
 	else
 	{
