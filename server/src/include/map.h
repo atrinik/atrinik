@@ -549,11 +549,11 @@ typedef struct mapdef
 	 * should be reset */
 	uint32 reset_timeout;
 
-	/** Swapout is set to this */
+	/** When this reaches 0, the map will be swapped out. */
 	sint32 timeout;
 
-	/** When this reaches 0, the map will be swapped out */
-	sint32 swap_time;
+	/** How long to wait before a map is swapped out. */
+	uint32 swap_time;
 
 	/**
 	 * If not true, the map has been freed and must
@@ -575,14 +575,6 @@ typedef struct mapdef
 	 * The real light_value, built out from darkness and possible other
 	 * factors. */
 	int light_value;
-
-	/**
-	 * This is a counter - used for example from NPCs which have a global
-	 * function.
-	 *
-	 * If this counter is != 0, map will not swap and the NPC/object with
-	 * perm_load flag will stay in game. */
-	int perm_load;
 
 	/**
 	 * What level the player should be to play here. Affects treasures,

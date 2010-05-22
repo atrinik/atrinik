@@ -175,7 +175,7 @@ void leave_map(object *op)
 	remove_ob(op);
 	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 
-	if (oldmap && !oldmap->player_first && !oldmap->perm_load)
+	if (oldmap && !oldmap->player_first)
 	{
 		set_map_timeout(oldmap);
 	}
@@ -334,7 +334,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		/* If the player is changing maps, we need to do some special things
 		 * Do this after the player is on the new map - otherwise the force swap of the
 		 * old map does not work. */
-		if (oldmap != newmap && oldmap && !oldmap->player_first && !oldmap->perm_load)
+		if (oldmap != newmap && oldmap && !oldmap->player_first)
 		{
 			set_map_timeout(oldmap);
 		}
@@ -343,27 +343,26 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 
 /**
  * Sets map timeout value.
- * @param oldmap The map to set the timeout for */
-void set_map_timeout(mapstruct *oldmap)
+ * @param map The map to set the timeout for. */
+void set_map_timeout(mapstruct *map)
 {
-#if MAP_MAXTIMEOUT
-	oldmap->timeout = MAP_TIMEOUT(oldmap);
-	/* Do MINTIMEOUT first, so that MAXTIMEOUT is used if that is
-	 * lower than the min value. */
-#	if MAP_MINTIMEOUT
-	if (oldmap->timeout < MAP_MINTIMEOUT)
-	{
-		oldmap->timeout = MAP_MINTIMEOUT;
-	}
-#	endif
+#if MAP_DEFAULTTIMEOUT
+	uint32 swap_time = MAP_SWAP_TIME(map);
 
-	if (oldmap->timeout > MAP_MAXTIMEOUT)
+	if (swap_time == 0)
 	{
-		oldmap->timeout = MAP_MAXTIMEOUT;
+		swap_time = MAP_DEFAULTTIMEOUT;
 	}
+
+	if (swap_time >= MAP_MAXTIMEOUT)
+	{
+		swap_time = MAP_MAXTIMEOUT;
+	}
+
+	map->timeout = swap_time;
 #else
-	/* save out the map */
-	swap_map(oldmap, 0);
+	/* Save out the map. */
+	swap_map(map, 0);
 #endif
 }
 

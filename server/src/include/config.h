@@ -215,33 +215,22 @@
 #define CSPORT 13327
 
 /**
- * MAP_MAXTIMEOUT tells the maximum of ticks until a map is swapped out
- * after a player has left it.  If it is set to 0, maps are
+ * MAP_DEFAULTTIMEOUT is the default number of ticks until a map is swapped out
+ * after a player has left it. If it is set to 0, maps are
  * swapped out the instant the last player leaves it.
  * If you are low on memory, you should set this to 0.
  * Note that depending on the map timeout variable, the number of
- * objects can get quite high.  This is because depending on the maps,
+ * objects can get quite high. This is because depending on the maps,
  * a player could be having the objects of several maps in memory
- * (the map he is in right now, and the ones he left recently.)
- * Each map has it's own TIMEOUT value and value field and it is
- * defaulted to 300
+ * (the map he is in right now, and the ones he left recently).
  *
  * Having a nonzero value can be useful: If a player leaves a map (and thus
  * is on a new map), and realizes they want to go back pretty quickly, the
  * old map is still in memory, so don't need to go disk and get it. */
+#define MAP_DEFAULTTIMEOUT 500
+/**
+ * Maximum map timeout value. */
 #define MAP_MAXTIMEOUT 1000
-/**
- * MAP_MINTIMEOUT is used as a minimum timeout value - if the map is set
- * to swap out in less than that many ticks, we use the MINTIMEOUT value
- * velow.  If MINTIMEOUT > MAXTIMEOUT, MAXTIMEOUT will be used for all
- * maps. */
-#define MAP_MINTIMEOUT 500
-
-/**
- * Tells whether map is reset after some time. If it is defined, the game uses
- * weight variable of map object to tell, after how many seconds the map will
- * be reset. If MAP_RESET is undefined, maps will never reset. */
-#define MAP_RESET
 
 /**
  * MAP_MAXRESET is the maximum time a map can have before being reset. It
@@ -254,6 +243,8 @@
  * Comment out MAP_MAXRESET time if you always want to use the value
  * in the map archetype. */
 #define MAP_MAXRESET 7200
+/** Default time to reset. */
+#define MAP_DEFAULTRESET 7200
 
 /**
  * If 1, used memory is freed on shutdown, allowing easier memory leak

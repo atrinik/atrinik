@@ -66,7 +66,7 @@ lex_error = 0;
 ^height{S}           m->height = IVAL;
 
 ^reset_timeout{S}    m->reset_timeout = IVAL;
-^swap_time{S}        m->timeout = IVAL;
+^swap_time{S}        m->swap_time = IVAL;
 ^difficulty{S}       m->difficulty = IVAL;
 ^darkness{S}         {
 						int v = IVAL;

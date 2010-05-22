@@ -36,27 +36,14 @@
 void map_info(object *op)
 {
 	mapstruct *m;
-	char buf[MAX_BUF], map_path[MAX_BUF];
+	char map_path[MAX_BUF];
 	long sec = seconds();
-
-#ifdef MAP_RESET
-	LOG(llevSystem, "Current time is: %02ld:%02ld:%02ld.\n", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
 
 	new_draw_info_format(NDI_UNIQUE, op, "Current time is: %02ld:%02ld:%02ld.", (sec % 86400) / 3600, (sec % 3600) / 60, sec % 60);
 	new_draw_info(NDI_UNIQUE, op, "Path               Pl PlM IM   TO Dif Reset");
-#else
-	new_draw_info(NDI_UNIQUE, op, "Pl Pl-M IM   TO Dif");
-#endif
 
 	for (m = first_map; m != NULL; m = m->next)
 	{
-#ifndef MAP_RESET
-		if (m->in_memory == MAP_SWAPPED)
-		{
-			continue;
-		}
-#endif
-
 		/* Print out the last 18 characters of the map name... */
 		if (strlen(m->path) <= 18)
 		{
@@ -67,15 +54,7 @@ void map_info(object *op)
 			strcpy(map_path, m->path + strlen(m->path) - 18);
 		}
 
-#ifndef MAP_RESET
-		sprintf(buf, "%-18.18s %c %2d   %c %4ld %2ld", map_path, m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', players_on_map(m), m->in_memory, m->timeout, m->difficulty);
-#else
-		LOG(llevSystem,"%s pom:%d status:%c timeout:%d diff:%d  reset:%02d:%02d:%02d\n", m->path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
-
-		sprintf(buf, "%-18.18s %2d   %c %4d %2d  %02d:%02d:%02d", map_path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
-#endif
-
-		new_draw_info(NDI_UNIQUE, op, buf);
+		new_draw_info_format(NDI_UNIQUE, op, "%-18.18s %2d   %c %4d %2d  %02d:%02d:%02d", map_path, players_on_map(m), m->in_memory ? (m->in_memory == MAP_IN_MEMORY ? 'm' : 's') : 'X', m->timeout, m->difficulty, (MAP_WHEN_RESET(m) % 86400) / 3600, (MAP_WHEN_RESET(m) % 3600) / 60, MAP_WHEN_RESET(m) % 60);
 	}
 }
 

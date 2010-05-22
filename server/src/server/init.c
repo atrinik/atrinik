@@ -1059,12 +1059,6 @@ void compile_info()
 	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 
-#ifdef MAP_RESET
-	LOG(llevInfo, "Map reset:\t<true>\n");
-#else
-	LOG(llevInfo, "Map reset:\t<false>\n");
-#endif
-
 	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated, pool_object->nrof_free);
 
 #ifdef USE_CALLOC

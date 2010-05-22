@@ -1428,8 +1428,8 @@ mapstruct *get_linked_map()
 	 * map archetype. Mimic that behaviour. */
 	MAP_WIDTH(map) = 16;
 	MAP_HEIGHT(map) = 16;
-	MAP_RESET_TIMEOUT(map) = 7200;
-	MAP_TIMEOUT(map) = 300;
+	MAP_RESET_TIMEOUT(map) = 0;
+	MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
 	set_map_darkness(map, MAP_DEFAULT_DARKNESS);
 
 	MAP_ENTER_X(map) = 0;
@@ -2312,17 +2312,19 @@ void update_position(mapstruct *m, int x, int y)
  * @param map Map to update. */
 void set_map_reset_time(mapstruct *map)
 {
-#ifdef MAP_RESET
-#ifdef MAP_MAXRESET
-	if (MAP_RESET_TIMEOUT(map) > MAP_MAXRESET)
-		MAP_WHEN_RESET(map) = seconds() + MAP_MAXRESET;
-	else
-#endif
-		MAP_WHEN_RESET(map) = seconds() + MAP_RESET_TIMEOUT(map);
-#else
-	/* Will never be reset */
-	MAP_WHEN_RESET(map) = -1;
-#endif
+	uint32 timeout = MAP_RESET_TIMEOUT(map);
+
+	if (timeout == 0)
+	{
+		timeout = MAP_DEFAULTRESET;
+	}
+
+	if (timeout >= MAP_MAXRESET)
+	{
+		timeout = MAP_MAXRESET;
+	}
+
+	MAP_WHEN_RESET(map) = seconds() + timeout;
 }
 
 /**

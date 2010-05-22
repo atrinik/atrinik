@@ -130,15 +130,15 @@ void swap_map(mapstruct *map, int force_flag)
 	/* Test for players. */
 	if (!force_flag)
 	{
-		if (map->player_first || map->perm_load)
+		if (map->player_first)
 		{
 			return;
 		}
 
 		for (i = 0; i < TILED_MAPS; i++)
 		{
-			/* If there is a map, is loaded and in memory, has players or perm_load flag set, then no swap */
-			if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && (map->tile_map[i]->player_first || map->tile_map[i]->perm_load))
+			/* If there is a map, is loaded and in memory, has players, then no swap */
+			if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && map->tile_map[i]->player_first)
 			{
 				return;
 			}
@@ -245,7 +245,6 @@ void flush_old_maps()
 			delete_map(oldmap);
 		}
 		/* No need to flush them if there are no resets */
-#ifdef MAP_RESET
 		else if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL || (uint32) sec < m->reset_time)
 		{
 			m = m->next;
@@ -265,6 +264,5 @@ void flush_old_maps()
 			m = m->next;
 			delete_map(oldmap);
 		}
-#endif
 	}
 }
