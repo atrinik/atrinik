@@ -541,4 +541,27 @@ extern struct mempool_chunk *removed_objects;
 /** Decrease an object by one. */
 #define decrease_ob(xyz) decrease_ob_nr(xyz, 1)
 
+/**
+ * @defgroup GENDER_xxx Gender IDs.
+ * IDs of the various genders.
+ *@{*/
+/** Neuter: no gender. */
+#define GENDER_NEUTER 0
+/** Male. */
+#define GENDER_MALE 1
+/** Female. */
+#define GENDER_FEMALE 2
+/** Hermaphrodite: both genders. */
+#define GENDER_HERMAPHRODITE 3
+/** Total number of genders. */
+#define GENDER_MAX 4
+/*@}*/
+
+extern const char *gender_noun[];
+extern const char *gender_subjective[];
+extern const char *gender_subjective_upper[];
+extern const char *gender_objective[];
+extern const char *gender_possessive[];
+extern const char *gender_reflexive[];
+
 #endif

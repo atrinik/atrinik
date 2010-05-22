@@ -1143,55 +1143,31 @@ object *find_marked_object(object *op)
 void examine_living(object *op, object *tmp)
 {
 	object *mon = tmp->head ? tmp->head : tmp;
-	char *gender, *att;
-	int val, val2, i;
+	int val, val2, i, gender;
 
 	CONTR(op)->praying = 0;
-
-	if (QUERY_FLAG(mon, FLAG_IS_MALE))
-	{
-		if (QUERY_FLAG(mon, FLAG_IS_FEMALE))
-		{
-			gender = "hermaphrodite";
-			att = "It";
-		}
-		else
-		{
-			gender = "male";
-			att = "He";
-		}
-	}
-	else if (QUERY_FLAG(mon, FLAG_IS_FEMALE))
-	{
-		gender = "female";
-		att = "She";
-	}
-	else
-	{
-		gender = "neuter";
-		att = "It";
-	}
+	gender = object_get_gender(mon);
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a good aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_EVIL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an evil aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a neutral aligned %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", att, gender, mon->race);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", att, mon->level);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", att, mon->stats.dam, mon->stats.maxhp);
-	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", att, mon->stats.wc, mon->stats.ac);
+	new_draw_info_format(NDI_UNIQUE, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
+	new_draw_info_format(NDI_UNIQUE, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
+	new_draw_info_format(NDI_UNIQUE, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
@@ -1207,12 +1183,12 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s can naturally resist some attacks.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
 	}
 
 	if (val2 != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
 	for (val =- 1, val2 = i = 0; i < NROFPROTECTIONS; i++)
@@ -1231,31 +1207,31 @@ void examine_living(object *op, object *tmp)
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is an undead force.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s is an undead force.", gender_subjective_upper[gender]);
 	}
 
 	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
 		case 1:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in a bad shape.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
 			break;
 
 		case 2:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is hurt.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is hurt.", gender_subjective_upper[gender]);
 			break;
 
 		case 3:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is somewhat hurt.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
 			break;
 
 		default:
-			new_draw_info_format(NDI_UNIQUE, op, "%s is in excellent shape.", att);
+			new_draw_info_format(NDI_UNIQUE, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
 			break;
 	}
 
 	if (present_in_ob(POISONING, mon) != NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", att);
+		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
 }
 
@@ -1742,7 +1718,20 @@ void examine(object *op, object *tmp)
 
 	if (tmp->weight)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", (float) (tmp->nrof ? tmp->weight * (int) tmp->nrof : tmp->weight) / 1000.0f);
+		float weight = (float) (tmp->nrof ? tmp->weight * (int) tmp->nrof : tmp->weight) / 1000.0f;
+
+		if (tmp->type == MONSTER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
+		}
+		else if (tmp->type == PLAYER)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
+		}
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_STARTEQUIP))

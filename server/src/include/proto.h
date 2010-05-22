@@ -65,7 +65,6 @@ int command_me(object *op, char *params);
 void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
 int execute_newserver_command(object *pl, char *command);
-emotes_array *find_emote(int emotion, emotes_array *emotes, int emotessize);
 
 /* commands/misc.c */
 void map_info(object *op);
@@ -626,6 +625,7 @@ const char *object_get_value(const object *op, const char *const key);
 int object_set_value(object *op, const char *key, const char *value, int add_key);
 void init_object_initializers();
 int item_matched_string(object *pl, object *op, const char *name);
+int object_get_gender(object *op);
 
 /* server/object_process.c */
 object *stop_item(object *op);

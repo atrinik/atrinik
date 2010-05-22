@@ -110,6 +110,43 @@ static const int reduction_dir[SIZEOFFREE][3] =
 	{24, 9, -1}
 };
 
+/**
+ * Gender nouns. */
+const char *gender_noun[GENDER_MAX] =
+{
+	"neuter", "male", "female", "hermaphrodite"
+};
+/**
+ * Subjective pronouns. */
+const char *gender_subjective[GENDER_MAX] =
+{
+	"it", "he", "she", "it"
+};
+/**
+ * Subjective pronouns, with first letter in uppercase. */
+const char *gender_subjective_upper[GENDER_MAX] =
+{
+	"It", "He", "She", "It"
+};
+/**
+ * Objective pronouns. */
+const char *gender_objective[GENDER_MAX] =
+{
+	"it", "him", "her", "it"
+};
+/**
+ * Possessive pronouns. */
+const char *gender_possessive[GENDER_MAX] =
+{
+	"its", "his", "her", "its"
+};
+/**
+ * Reflexive pronouns. */
+const char *gender_reflexive[GENDER_MAX] =
+{
+	"itself", "himself", "herself", "itself"
+};
+
 /** Material types. */
 materialtype material[NROFMATERIALS] =
 {
@@ -3841,4 +3878,26 @@ int item_matched_string(object *pl, object *op, const char *name)
 	}
 
 	return 0;
+}
+
+/**
+ * Get object's gender ID, as defined in @ref GENDER_xxx.
+ * @param op Object to get gender ID of.
+ * @return The gender ID. */
+int object_get_gender(object *op)
+{
+	if (!QUERY_FLAG(op, FLAG_IS_MALE) && !QUERY_FLAG(op, FLAG_IS_FEMALE))
+	{
+		return GENDER_NEUTER;
+	}
+	else if (QUERY_FLAG(op, FLAG_IS_MALE) && !QUERY_FLAG(op, FLAG_IS_FEMALE))
+	{
+		return GENDER_MALE;
+	}
+	else if (!QUERY_FLAG(op, FLAG_IS_MALE) && QUERY_FLAG(op, FLAG_IS_FEMALE))
+	{
+		return GENDER_FEMALE;
+	}
+
+	return GENDER_HERMAPHRODITE;
 }

@@ -1364,7 +1364,7 @@ void kill_player(object *op)
 		{
 			snprintf(buf, sizeof(buf), "%s's finger", op->name);
 			FREE_AND_COPY_HASH(tmp->name, buf);
-			snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when he was defeated at level %d by %s.", op->name, op->race, (int)(op->level), strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
+			snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, op->race, gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
 			FREE_AND_COPY_HASH(tmp->msg, buf);
 			tmp->value = 0, tmp->material = 0, tmp->type = 0;
 			tmp->x = op->x, tmp->y = op->y;

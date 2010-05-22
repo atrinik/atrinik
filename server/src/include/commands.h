@@ -59,26 +59,6 @@ extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
 #define CMD_FLAG_NO_PLAYER_SHOP 1
 /*@}*/
 
-/** Array structure used by different types of emotes. */
-typedef struct
-{
-	/** Emotion ID. */
-	int emotion;
-
-	/** Text 1. */
-	char *text1;
-
-	/** Text 2. */
-	char *text2;
-
-	/** Text 3. */
-	char *text3;
-} emotes_array;
-
-extern emotes_array emotes_no_target[], emotes_self[], emotes_other[];
-
-extern const int emotes_no_target_size, emotes_self_size, emotes_other_size;
-
 /**
  * @defgroup EMOTE_xxx Emote command numbers
  * Emote command numbers.
