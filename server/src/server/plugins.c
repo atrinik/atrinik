@@ -131,13 +131,20 @@ struct plugin_hooklist hooklist =
 	play_sound_player_only,
 	new_draw_info_format,
 	was_destroyed,
+	object_get_gender,
 
 	season_name,
 	weekdays,
 	month_name,
 	periodsofday,
 	spells,
-	&shstr_cons
+	&shstr_cons,
+	gender_noun,
+	gender_subjective,
+	gender_subjective_upper,
+	gender_objective,
+	gender_possessive,
+	gender_reflexive
 };
 
 /** The list of loaded plugins. */

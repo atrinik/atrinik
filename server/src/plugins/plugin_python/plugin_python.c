@@ -792,6 +792,83 @@ static PyObject *Atrinik_FindAnimation(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", hooks->find_animation(name));
 }
 
+/**
+ * <h1>Atrinik.GetGenderStr(<i>\<int\></i> gender, <i>\<string\></i> type)</h1>
+ * Get string representation of a gender ID depending on 'type'.
+ * @param gender Gender ID. One of @ref GENDER_xxx, or -1 to get a list of
+ * possible genders.
+ * @param type Type of the gender string to get:
+ * - <b>noun</b>: 'male', 'female', ...
+ * - <b>subjective</b>: 'he', 'she', ...
+ * - <b>subjective_upper</b>: 'He', 'She', ...
+ * - <b>objective</b>: 'him', 'her', 'it', ...
+ * - <b>possessive</b>: 'his', 'her', ...
+ * - <b>reflexive</b>: 'himself', 'herself', ...
+ * @return String representation of the gender, or a list of possible genders
+ * if 'gender' was -1. */
+static PyObject *Atrinik_GetGenderStr(PyObject *self, PyObject *args)
+{
+	int gender;
+	char *type;
+	const char **arr;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "is", &gender, &type))
+	{
+		return NULL;
+	}
+
+	if (gender < -1 || gender >= GENDER_MAX)
+	{
+		RAISE("GetGenderStr(): Invalid value for gender parameter.");
+	}
+
+	if (!strcmp(type, "noun"))
+	{
+		arr = hooks->gender_noun;
+	}
+	else if (!strcmp(type, "subjective"))
+	{
+		arr = hooks->gender_subjective;
+	}
+	else if (!strcmp(type, "subjective_upper"))
+	{
+		arr = hooks->gender_subjective_upper;
+	}
+	else if (!strcmp(type, "objective"))
+	{
+		arr = hooks->gender_objective;
+	}
+	else if (!strcmp(type, "possessive"))
+	{
+		arr = hooks->gender_possessive;
+	}
+	else if (!strcmp(type, "reflexive"))
+	{
+		arr = hooks->gender_reflexive;
+	}
+	else
+	{
+		RAISE("GetGenderStr(): Invalid value for type parameter.");
+	}
+
+	if (gender == -1)
+	{
+		PyObject *list = PyList_New(0);
+		size_t i;
+
+		for (i = 0; i < GENDER_MAX; i++)
+		{
+			PyList_Append(list, Py_BuildValue("s", arr[i]));
+		}
+
+		return list;
+	}
+
+	return Py_BuildValue("s", arr[gender]);
+}
+
 /*@}*/
 
 /**
@@ -1367,6 +1444,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"FindFace",            Atrinik_FindFace,              METH_VARARGS, 0},
 	{"FindAnimation",       Atrinik_FindAnimation,         METH_VARARGS, 0},
 	{"GetEventParameters",  Atrinik_GetEventParameters,    METH_VARARGS, 0},
+	{"GetGenderStr",        Atrinik_GetGenderStr,          METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

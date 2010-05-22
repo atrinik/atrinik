@@ -231,6 +231,7 @@ struct plugin_hooklist
 	void (*play_sound_player_only)(player *, int, int, int, int);
 	void (*new_draw_info_format)(int, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
+	int (*object_get_gender)(object *);
 
 	const char **season_name;
 	const char **weekdays;
@@ -238,6 +239,12 @@ struct plugin_hooklist
 	const char **periodsofday;
 	spell *spells;
 	struct shstr_constants *shstr_cons;
+	const char **gender_noun;
+	const char **gender_subjective;
+	const char **gender_subjective_upper;
+	const char **gender_objective;
+	const char **gender_possessive;
+	const char **gender_reflexive;
 };
 
 /** General API function. */

@@ -230,10 +230,10 @@ static Atrinik_Constant object_constants[] =
 	{"UNAPPLY_IGNORE_CURSE",         AP_IGNORE_CURSE},
 	{"APPLY_NO_EVENT",               AP_NO_EVENT},
 
-	{"NEUTER",                       0},
-	{"MALE",                         1},
-	{"FEMALE",                       2},
-	{"HERMAPHRODITE",                3},
+	{"NEUTER", GENDER_NEUTER},
+	{"MALE", GENDER_MALE},
+	{"FEMALE", GENDER_FEMALE},
+	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
 
 	{"CAST_NORMAL",                  0},
 	{"CAST_POTION",                  1},
@@ -1064,28 +1064,9 @@ static PyObject *Atrinik_Object_Write(Atrinik_Object *whoptr, PyObject *args)
  * @retval HERMAPHRODITE Both male and female. */
 static PyObject *Atrinik_Object_GetGender(Atrinik_Object *whoptr, PyObject *args)
 {
-	int gender;
-
 	(void) args;
 
-	if (!QUERY_FLAG(WHO, FLAG_IS_MALE) && !QUERY_FLAG(WHO, FLAG_IS_FEMALE))
-	{
-		gender = 0;
-	}
-	else if (QUERY_FLAG(WHO, FLAG_IS_MALE) && !QUERY_FLAG(WHO, FLAG_IS_FEMALE))
-	{
-		gender = 1;
-	}
-	else if (!QUERY_FLAG(WHO, FLAG_IS_MALE) && QUERY_FLAG(WHO, FLAG_IS_FEMALE))
-	{
-		gender = 2;
-	}
-	else
-	{
-		gender = 3;
-	}
-
-	return Py_BuildValue("i", gender);
+	return Py_BuildValue("i", hooks->object_get_gender(WHO));
 }
 
 /**
