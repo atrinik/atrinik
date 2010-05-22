@@ -467,20 +467,17 @@ int command_save(object *op, char *params)
 {
 	(void) params;
 
-	if (blocks_cleric(op->map, op->x, op->y))
+	if (MAP_PLAYER_NO_SAVE(op->map))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can not save here.");
+		new_draw_info(NDI_UNIQUE, op, "You cannot save here.");
+	}
+	else if (save_player(op, 1))
+	{
+		new_draw_info(NDI_UNIQUE, op, "You have been saved.");
 	}
 	else
 	{
-		if (save_player(op, 1))
-		{
-			new_draw_info(NDI_UNIQUE, op, "You have been saved.");
-		}
-		else
-		{
-			new_draw_info(NDI_UNIQUE, op, "SAVE FAILED!");
-		}
+		new_draw_info(NDI_UNIQUE, op, "SAVE FAILED!");
 	}
 
 	return 1;

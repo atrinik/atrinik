@@ -892,19 +892,9 @@ static void process_players1()
 		 * the player is logging in. */
 		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
 		{
-			/* Don't save the player on unholy ground.  Instead, increase the
-			 * tick time so it will be about 10 seconds before we try and save
-			 * again. */
-			if (blocks_cleric(pl->ob->map, pl->ob->x, pl->ob->y))
-			{
-				pl->last_save_tick += 100;
-			}
-			else
-			{
-				save_player(pl->ob, 1);
-				pl->last_save_tick = pticks;
-				hiscore_check(pl->ob, 1);
-			}
+			save_player(pl->ob, 1);
+			pl->last_save_tick = pticks;
+			hiscore_check(pl->ob, 1);
 		}
 #endif
 	}

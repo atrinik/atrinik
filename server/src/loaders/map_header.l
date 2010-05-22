@@ -87,6 +87,7 @@ lex_error = 0;
 ^no_harm{S}          m->map_flags |= MAP_FLAG_NOHARM;
 ^no_summon{S}        m->map_flags |= MAP_FLAG_NOSUMMON;
 ^fixed_login{S}      m->map_flags |= MAP_FLAG_FIXED_LOGIN;
+^player_no_save{S}   m->map_flags |= MAP_FLAG_PLAYER_NO_SAVE;
 ^pvp{S}              m->map_flags |= MAP_FLAG_PVP;
 ^outdoor{S}          m->map_flags |= MAP_FLAG_OUTDOOR;
 ^unique{S}           m->map_flags |= MAP_FLAG_UNIQUE;

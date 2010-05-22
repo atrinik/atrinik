@@ -82,6 +82,8 @@ int map_tiled_reverse[TILED_MAPS];
 #define MAP_NOSUMMON(m)        ((m)->map_flags & MAP_FLAG_NOSUMMON)
 /** Is the map a fixed login map? */
 #define MAP_FIXEDLOGIN(m)      ((m)->map_flags & MAP_FLAG_FIXED_LOGIN)
+/** Are players unable to save on this map? */
+#define MAP_PLAYER_NO_SAVE(m) ((m)->map_flags & MAP_FLAG_PLAYER_NO_SAVE)
 /** Is the map PVP area? */
 #define MAP_PVP(m)             ((m)->map_flags & MAP_FLAG_PVP)
 /** Should global map plugins activate for this map? */
@@ -392,8 +394,8 @@ typedef struct MapSpace_s
  * @ref mapstruct::enter_x and @ref mapstruct::enter_y of this map.
  * This avoids getting stuck in a map and treasure camping. */
 #define MAP_FLAG_FIXED_LOGIN 128
-/** Unused. */
-#define MAP_FLAG_UNUSED 256
+/** Players cannot save on this map. */
+#define MAP_FLAG_PLAYER_NO_SAVE 256
 /** Unused. */
 #define MAP_FLAG_UNUSED2 1024
 /** Unused. */

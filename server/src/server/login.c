@@ -157,8 +157,8 @@ int save_player(object *op, int flag)
 		return 0;
 	}
 
-	/* No-save floor. */
-	if (blocks_cleric(op->map, op->x, op->y))
+	/* Is this a map players can't save on? */
+	if (op->map && MAP_PLAYER_NO_SAVE(op->map))
 	{
 		return 0;
 	}
