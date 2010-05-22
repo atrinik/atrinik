@@ -82,12 +82,6 @@ int map_tiled_reverse[TILED_MAPS];
 #define MAP_NOSUMMON(m)        ((m)->map_flags & MAP_FLAG_NOSUMMON)
 /** Is the map a fixed login map? */
 #define MAP_FIXEDLOGIN(m)      ((m)->map_flags & MAP_FLAG_FIXED_LOGIN)
-/** Is the map perma death map? */
-#define MAP_PERMDEATH(m)       ((m)->map_flags & MAP_FLAG_PERMDEATH)
-/** Is the map ultra death map? */
-#define MAP_ULTRADEATH(m)      ((m)->map_flags & MAP_FLAG_ULTRADEATH)
-/** Is the map ultimate death map? */
-#define MAP_ULTIMATEDEATH(m)   ((m)->map_flags & MAP_FLAG_ULTIMATEDEATH)
 /** Is the map PVP area? */
 #define MAP_PVP(m)             ((m)->map_flags & MAP_FLAG_PVP)
 /** Should global map plugins activate for this map? */
@@ -377,39 +371,39 @@ typedef struct MapSpace_s
  * Map flags for global map settings, used in @ref mapstruct::map_flags.
  *@{*/
 /** Map is outdoor map - daytime effects are on */
-#define MAP_FLAG_OUTDOOR        1
+#define MAP_FLAG_OUTDOOR 1
 /** Special unique map  */
-#define MAP_FLAG_UNIQUE         2
+#define MAP_FLAG_UNIQUE 2
 /**
  * If true, reset time is not affected by players entering / exiting
  * map */
-#define MAP_FLAG_FIXED_RTIME    4
+#define MAP_FLAG_FIXED_RTIME 4
 /** No wizardy based spells */
-#define MAP_FLAG_NOMAGIC        8
+#define MAP_FLAG_NOMAGIC 8
 /** No prayer based spells */
-#define MAP_FLAG_NOPRIEST       16
+#define MAP_FLAG_NOPRIEST 16
 /** No harmful spells like fireball, magic bullet, etc. */
-#define MAP_FLAG_NOHARM         32
+#define MAP_FLAG_NOHARM 32
 /**
  * Don't allow any summoning spells. */
-#define MAP_FLAG_NOSUMMON       64
+#define MAP_FLAG_NOSUMMON 64
 /**
  * When set, a player login on this map will be forced to default
  * @ref mapstruct::enter_x and @ref mapstruct::enter_y of this map.
  * This avoids getting stuck in a map and treasure camping. */
-#define MAP_FLAG_FIXED_LOGIN    128
-/** This map is perma death map */
-#define MAP_FLAG_PERMDEATH      256
-/** This map is ultra death map */
-#define MAP_FLAG_ULTRADEATH     1024
-/** This map is ultimate death map */
-#define MAP_FLAG_ULTIMATEDEATH  2048
-/** PvP is possible on this map */
-#define MAP_FLAG_PVP            4096
-/** Don't save maps - only used with unique maps */
-#define MAP_FLAG_NO_SAVE        8192
-/** Call plugin map events for this map */
-#define MAP_FLAG_PLUGINS        16384
+#define MAP_FLAG_FIXED_LOGIN 128
+/** Unused. */
+#define MAP_FLAG_UNUSED 256
+/** Unused. */
+#define MAP_FLAG_UNUSED2 1024
+/** Unused. */
+#define MAP_FLAG_UNUSED3 2048
+/** PvP is possible on this map. */
+#define MAP_FLAG_PVP 4096
+/** Don't save maps - only used with unique maps. */
+#define MAP_FLAG_NO_SAVE 8192
+/** Call plugin map events for this map. */
+#define MAP_FLAG_PLUGINS 16384
 /*@}*/
 
 /**

@@ -87,9 +87,6 @@ lex_error = 0;
 ^no_harm{S}          m->map_flags |= MAP_FLAG_NOHARM;
 ^no_summon{S}        m->map_flags |= MAP_FLAG_NOSUMMON;
 ^fixed_login{S}      m->map_flags |= MAP_FLAG_FIXED_LOGIN;
-^perm_death{S}       m->map_flags |= MAP_FLAG_PERMDEATH;
-^ultra_death{S}      m->map_flags |= MAP_FLAG_ULTRADEATH;
-^ultimate_death{S}   m->map_flags |= MAP_FLAG_ULTIMATEDEATH;
 ^pvp{S}              m->map_flags |= MAP_FLAG_PVP;
 ^outdoor{S}          m->map_flags |= MAP_FLAG_OUTDOOR;
 ^unique{S}           m->map_flags |= MAP_FLAG_UNIQUE;
@@ -376,21 +373,6 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 	if (MAP_FIXEDLOGIN(m))
 	{
 		fprintf(fp, "fixed_login 1\n");
-	}
-
-	if (MAP_PERMDEATH(m))
-	{
-		fprintf(fp, "perm_death 1\n");
-	}
-
-	if (MAP_ULTRADEATH(m))
-	{
-		fprintf(fp, "ultra_death 1\n");
-	}
-
-	if (MAP_ULTIMATEDEATH(m))
-	{
-		fprintf(fp, "ultimate_death 1\n");
 	}
 
 	if (MAP_PVP(m))
