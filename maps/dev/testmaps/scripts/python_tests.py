@@ -99,6 +99,11 @@ def main_say():
 		elif activator.GetGender() == HERMAPHRODITE:
 			me.SayTo(activator, "\nYour gender is: hermaphrodite.")
 
+		# Find out the gender ID.
+		gender = activator.GetGender()
+		me.SayTo(activator, "\nNoun: {0}\nSubjective: {1}\nSubjective (upper): {2}\nObjective: {3}\nPossessive: {4}\nReflexive: {5}".format(GetGenderStr(gender, "noun"), GetGenderStr(gender, "subjective"), GetGenderStr(gender, "subjective_upper"), GetGenderStr(gender, "objective"), GetGenderStr(gender, "possessive"), GetGenderStr(gender, "reflexive")), 1)
+		me.SayTo(activator, "\nNoun: {0}\nSubjective: {1}\nSubjective (upper): {2}\nObjective: {3}\nPossessive: {4}\nReflexive: {5}".format(GetGenderStr(-1, "noun"), GetGenderStr(-1, "subjective"), GetGenderStr(-1, "subjective_upper"), GetGenderStr(-1, "objective"), GetGenderStr(-1, "possessive"), GetGenderStr(-1, "reflexive")), 1)
+
 	# An example of using SetGender().
 	elif words[0] == "set" and words[1] == "gender" and len(words) > 2:
 		if words[2] == "male":
