@@ -157,6 +157,12 @@ int save_player(object *op, int flag)
 		return 0;
 	}
 
+	/* No-save floor. */
+	if (blocks_cleric(op->map, op->x, op->y))
+	{
+		return 0;
+	}
+
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
 	make_path_to_file(filename);
 	fp = fopen(filename, "w");

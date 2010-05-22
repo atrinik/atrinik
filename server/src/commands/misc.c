@@ -469,7 +469,7 @@ int command_save(object *op, char *params)
 
 	if (blocks_cleric(op->map, op->x, op->y))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can not save on unholy ground.");
+		new_draw_info(NDI_UNIQUE, op, "You can not save here.");
 	}
 	else
 	{
