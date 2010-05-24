@@ -94,30 +94,31 @@ int apply_potion(object *op, object *tmp)
 
 				for (i = 0; i < NROFATTACKS; i++)
 				{
-					int tmp_r, tmp_a;
+					int tmp_a;
+					int tmp_p;
 
-					tmp_r = tmp->resist[i] > 0 ? -tmp->resist[i] : tmp->resist[i];
 					tmp_a = tmp->attack[i] > 0 ? -tmp->attack[i] : tmp->attack[i];
+					tmp_p = tmp->protection[i] > 0 ? -tmp->protection[i] : tmp->protection[i];
 
 					/* double bad effect when damned */
 					if (QUERY_FLAG(tmp, FLAG_DAMNED))
 					{
-						tmp_r *= 2;
 						tmp_a *= 2;
+						tmp_p *= 2;
 					}
 
 					/* we don't want out of bound values ... */
-					if ((int) force->resist[i] + tmp_r > 100)
+					if ((int) force->protection[i] + tmp_p > 100)
 					{
-						force->resist[i] = 100;
+						force->protection[i] = 100;
 					}
-					else if ((int) force->resist[i] + tmp_r < -100)
+					else if ((int) force->protection[i] + tmp_p < -100)
 					{
-						force->resist[i] = -100;
+						force->protection[i] = -100;
 					}
 					else
 					{
-						force->resist[i] += (sint8) tmp_r;
+						force->protection[i] += (sint8) tmp_p;
 					}
 
 					if ((int) force->attack[i] + tmp_a > 100)
@@ -142,7 +143,7 @@ int apply_potion(object *op, object *tmp)
 			{
 				/* we don't must do the hard way like cursed/damned (no multiplication or
 				 * sign change). */
-				memcpy(force->resist, tmp->resist, sizeof(tmp->resist));
+				memcpy(force->protection, tmp->protection, sizeof(tmp->protection));
 				memcpy(force->attack, tmp->attack, sizeof(tmp->attack));
 				insert_spell_effect("meffect_green", op->map, op->x, op->y);
 				play_sound_map(op->map, op->x, op->y, SOUND_MAGIC_DEFAULT, SOUND_SPELL);

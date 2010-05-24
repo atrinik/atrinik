@@ -443,7 +443,7 @@ void compile_info();
 void free_racelist();
 
 /* server/item.c */
-char *describe_resistance(object *op, int newline);
+char *describe_protections(object *op, int newline);
 char *query_weight(object *op);
 char *get_levelnumber(int i);
 char *query_short_name(object *op, object *caller);
@@ -470,8 +470,6 @@ int change_abil(object *op, object *tmp);
 void drain_stat(object *op);
 void drain_specific_stat(object *op, int deplete_stats);
 void fix_player(object *op);
-void set_dragon_name(object *pl, object *abil, object *skin);
-void dragon_level_gain(object *who);
 void fix_monster(object *op);
 object *insert_base_info_object(object *op);
 object *find_base_info_object(object *op);
@@ -1057,7 +1055,6 @@ void close_locked_door(object *op);
 void apply_food(object *op, object *tmp);
 void create_food_force(object *who, object *food, object *force);
 void eat_special_food(object *who, object *food);
-int dragon_eat_flesh(object *op, object *meal);
 
 /* types/gate.c */
 void move_gate(object *op);
@@ -1109,11 +1106,8 @@ void do_some_living(object *op);
 void kill_player(object *op);
 void cast_dust(object *op, object *throw_ob, int dir);
 int pvp_area(object *attacker, object *victim);
-void dragon_ability_gain(object *who, int atnr, int level);
 int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
-int atnr_is_dragon_enabled(int attacknr);
-int is_dragon_pl(object *op);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);

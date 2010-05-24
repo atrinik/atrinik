@@ -29,19 +29,8 @@
 
 #include <global.h>
 
-/** Attack form to protection table. */
-static int protection_tab[NROFATTACKS] =
-{
-	PROTECT_PHYSICAL,10,5,7,6,11,9,
-	11,4,17,8,12,12,
-	18,11,10,15,17,16,
-	10,18,14,12,18,13,
-	1,2,3,15,14,19,13
-};
-
 #define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
-#define ATTACK_RESIST_DAMAGE(_op, _anum)    dam = dam * ((double) (100 - _op->resist[_anum]) * (double) 0.01)
-#define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[protection_tab[_anum]]) * (double) 0.01)
+#define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
 
 static void thrown_item_effect(object *hitter, object *victim);
 static int get_attack_mode(object **target, object **hitter,int *simple_attack);
@@ -170,7 +159,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			{
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_CLEAVE, SOUND_NORMAL);
 			}
-			else if (hitter->attack[ATNR_PHYSICAL])
+			else if (hitter->attack[ATNR_IMPACT])
 			{
 				play_sound_map(hitter->map, hitter->x, hitter->y, SOUND_HIT_IMPACT, SOUND_NORMAL);
 			}
@@ -679,17 +668,11 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 			/* Map to poison... */
 			attacknum = ATNR_POISON;
 
-			if (op->resist[attacknum] == 100 || op->protection[protection_tab[attacknum]] == 100)
+			if (op->protection[attacknum] == 100)
 			{
 				dam = 0;
 				send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 				return 0;
-			}
-
-			/* Reduce to % resistance */
-			if (op->resist[attacknum])
-			{
-				ATTACK_RESIST_DAMAGE(op, attacknum);
 			}
 
 			/* Reduce to % protection */
@@ -707,7 +690,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 
 	/* Quick check for immunity - if so, we skip here.
 	 * Our formula is (100 - resist) / 100 - so test for 100 = zero division */
-	if (op->resist[attacknum] == 100 || op->protection[protection_tab[attacknum]] == 100)
+	if (op->protection[attacknum] == 100)
 	{
 		dam = 0;
 		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
@@ -716,20 +699,13 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 
 	switch (attacknum)
 	{
-		/* Quick check for disease! */
-		case ATNR_PHYSICAL:
-			check_physically_infect(op, hitter);
-
+		case ATNR_IMPACT:
 		case ATNR_SLASH:
 		case ATNR_CLEAVE:
 		case ATNR_PIERCE:
+			check_physically_infect(op, hitter);
+
 			ATTACK_HIT_DAMAGE(hitter, attacknum);
-
-			if (op->resist[attacknum])
-			{
-				ATTACK_RESIST_DAMAGE(op, attacknum);
-			}
-
 			ATTACK_PROTECT_DAMAGE(op, attacknum);
 
 			if (damage && dam < 1.0)
@@ -742,12 +718,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 
 		case ATNR_POISON:
 			ATTACK_HIT_DAMAGE(hitter, attacknum);
-
-			if (op->resist[attacknum])
-			{
-				ATTACK_RESIST_DAMAGE(op, attacknum);
-			}
-
 			ATTACK_PROTECT_DAMAGE(op, attacknum);
 
 			if (damage && dam < 1.0)
@@ -767,8 +737,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 		case ATNR_CONFUSION:
 		case ATNR_SLOW:
 		case ATNR_PARALYZE:
-		case ATNR_FEAR:
-		case ATNR_DEPLETE:
 		case ATNR_BLIND:
 		{
 			int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
@@ -817,34 +785,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 
 					paralyze_living(op, (int) dam);
 				}
-				else if (attacknum == ATNR_FEAR)
-				{
-					if (hitter->type == PLAYER)
-					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You scare %s!", op->name);
-					}
-
-					if (op->type == PLAYER)
-					{
-						new_draw_info_format(NDI_PURPLE, op, "%s scared you!", hitter->name);
-					}
-
-					SET_FLAG(op, FLAG_SCARED);
-				}
-				else if (attacknum == ATNR_DEPLETE)
-				{
-					if (hitter->type == PLAYER)
-					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You deplete %s!", op->name);
-					}
-
-					if (op->type == PLAYER)
-					{
-						new_draw_info_format(NDI_PURPLE, op, "%s depleted you!", hitter->name);
-					}
-
-					drain_stat(op);
-				}
 				else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD))
 				{
 					if (hitter->type == PLAYER)
@@ -868,12 +808,6 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 
 		default:
 			ATTACK_HIT_DAMAGE(hitter, attacknum);
-
-			if (op->resist[attacknum])
-			{
-				ATTACK_RESIST_DAMAGE(op, attacknum);
-			}
-
 			ATTACK_PROTECT_DAMAGE(op, attacknum);
 
 			if (damage && dam < 1.0)
@@ -907,7 +841,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 
 	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
 	{
-		new_draw_info_format(NDI_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attacktype_desc[attacknum]);
+		new_draw_info_format(NDI_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attack_name[attacknum]);
 	}
 }
 
@@ -1551,8 +1485,8 @@ void confuse_living(object *op)
 
 	/* Duration added per hit and max. duration of confusion both depend
 	 * on the player's resistance */
-	tmp->stats.food += MAX(1, 5 * (100 - op->resist[ATNR_CONFUSION]) / 100);
-	maxduration = MAX(2, 30 * (100 - op->resist[ATNR_CONFUSION]) / 100);
+	tmp->stats.food += MAX(1, 5 * (100 - op->protection[ATNR_CONFUSION]) / 100);
+	maxduration = MAX(2, 30 * (100 - op->protection[ATNR_CONFUSION]) / 100);
 
 	if (tmp->stats.food > maxduration)
 	{
@@ -1577,7 +1511,7 @@ static void blind_living(object *op, object *hitter, int dam)
 	object *tmp, *owner;
 
 	/* Save some work if we know it isn't going to affect the player */
-	if (op->resist[ATNR_BLIND] == 100)
+	if (op->protection[ATNR_BLIND] == 100)
 	{
 		return;
 	}
@@ -1591,7 +1525,7 @@ static void blind_living(object *op, object *hitter, int dam)
 		SET_FLAG(tmp, FLAG_APPLIED);
 		/* Use floats so we don't lose too much precision due to rounding errors.
 		 * speed is a float anyways. */
-		tmp->speed = tmp->speed * ((float) 100.0 - (float) op->resist[ATNR_BLIND]) / (float) 100;
+		tmp->speed = tmp->speed * ((float) 100.0 - (float) op->protection[ATNR_BLIND]) / (float) 100;
 
 		tmp = insert_ob_in_ob(tmp, op);
 		/* Mostly to display any messages */
@@ -1628,7 +1562,7 @@ void paralyze_living(object *op, int dam)
 	float effect, max;
 
 	/* Do this as a float - otherwise, rounding might very well reduce this to 0 */
-	effect = (float) dam * (float) 3.0 * ((float) 100.0 - (float) op->resist[ATNR_PARALYZE]) / (float) 100;
+	effect = (float) dam * (float) 3.0 * ((float) 100.0 - (float) op->protection[ATNR_PARALYZE]) / (float) 100;
 
 	if (effect == 0)
 	{
@@ -1641,7 +1575,7 @@ void paralyze_living(object *op, int dam)
 	op->speed_left -= FABS(op->speed) * effect;
 
 	/* Max number of ticks to be affected for. */
-	max = ((float) 100 - (float) op->resist[ATNR_PARALYZE]) / (float) 2;
+	max = ((float) 100 - (float) op->protection[ATNR_PARALYZE]) / (float) 2;
 
 	if (op->speed_left < -(FABS(op->speed) * max))
 	{

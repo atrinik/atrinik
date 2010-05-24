@@ -1494,7 +1494,7 @@ static char *god_info_msg(int level, int booksize)
 		/* Priest of god gets these protect, vulnerable... */
 		if (level == 4 && RANDOM () % 2)
 		{
-			char tmpbuf[MAX_BUF], *cp = describe_resistance(god, 1);
+			char tmpbuf[MAX_BUF], *cp = describe_protections(god, 1);
 
 			/* This god does have protections */
 			if (*cp)
@@ -1543,7 +1543,7 @@ static char *god_info_msg(int level, int booksize)
 		{
 			char tmpbuf[MAX_BUF], *cp;
 
-			cp = describe_resistance(god, 1);
+			cp = describe_protections(god, 1);
 
 			/* This god does have protections */
 			if (*cp)
@@ -1569,10 +1569,10 @@ static char *god_info_msg(int level, int booksize)
 
 			for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 			{
-				if (god->resist[tmpvar] == 100)
+				if (god->protection[tmpvar] == 100)
 				{
 					has_effect = 1;
-					snprintf(tmpbuf + strlen(tmpbuf), sizeof(tmpbuf), "Immunity to %s", attacktype_desc[tmpvar]);
+					snprintf(tmpbuf + strlen(tmpbuf), sizeof(tmpbuf), "Immunity to %s", attack_name[tmpvar]);
 				}
 			}
 

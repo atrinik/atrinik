@@ -61,33 +61,6 @@
 #define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
-static int atnr_prot_stats[NROFPROTECTIONS] =
-{
-	CS_STAT_PROT_HIT,
-	CS_STAT_PROT_SLASH,
-	CS_STAT_PROT_CLEAVE,
-	CS_STAT_PROT_PIERCE,
-	CS_STAT_PROT_WMAGIC,
-
-	CS_STAT_PROT_FIRE,
-	CS_STAT_PROT_COLD,
-	CS_STAT_PROT_ELEC,
-	CS_STAT_PROT_POISON,
-	CS_STAT_PROT_ACID,
-
-	CS_STAT_PROT_MAGIC,
-	CS_STAT_PROT_MIND,
-	CS_STAT_PROT_BODY,
-	CS_STAT_PROT_PSIONIC,
-	CS_STAT_PROT_ENERGY,
-
-	CS_STAT_PROT_NETHER,
-	CS_STAT_PROT_CHAOS,
-	CS_STAT_PROT_DEATH,
-	CS_STAT_PROT_HOLY,
-	CS_STAT_PROT_CORRUPT
-};
-
 /**
  * Parse server file command from client (amf, hpf, etc).
  * @param param Parameter for the command.
@@ -895,9 +868,16 @@ void esrv_update_stats(player *pl)
 
 	AddIfShort(pl->last_flags, flags, CS_STAT_FLAGS);
 
-	for (i = 0; i < NROFPROTECTIONS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
 	{
-		AddIfChar(pl->last_protection[i], pl->ob->protection[i], atnr_prot_stats[i]);
+		/* If there are more attacks, but we reached CS_STAT_PROT_END,
+		 * we stop now. */
+		if (CS_STAT_PROT_START + i > CS_STAT_PROT_END)
+		{
+			break;
+		}
+
+		AddIfChar(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i);
 	}
 
 	if (pl->socket.ext_title_flag)

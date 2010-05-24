@@ -48,101 +48,84 @@ void apply_food(object *op, object *tmp)
 	{
 		char buf[MAX_BUF];
 
-		/* check if this is a dragon (player), eating some flesh */
-		if (tmp->type == FLESH && is_dragon_pl(op) && dragon_eat_flesh(op, tmp))
+		if (op->stats.food + tmp->stats.food > FOOD_MAX)
 		{
-		}
-		else
-		{
-			if (op->stats.food + tmp->stats.food > FOOD_MAX)
+			if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
 			{
-				if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
-				{
-					new_draw_info(NDI_UNIQUE, op, "You are too full to eat this right now!");
-					return;
-				}
-
-				if (tmp->type == FOOD || tmp->type == FLESH)
-				{
-					new_draw_info(NDI_UNIQUE, op, "You feel full, but what a waste of food!");
-				}
-				else
-				{
-					new_draw_info(NDI_UNIQUE, op, "Most of the drink goes down your face not your throat!");
-				}
+				new_draw_info(NDI_UNIQUE, op, "You are too full to eat this right now!");
+				return;
 			}
 
-			if (!QUERY_FLAG(tmp, FLAG_CURSED) && !QUERY_FLAG(tmp, FLAG_DAMNED))
+			if (tmp->type == FOOD || tmp->type == FLESH)
 			{
-				int capacity_remaining = FOOD_MAX - op->stats.food;
-
-				if (!is_dragon_pl(op))
-				{
-					/* eating message for normal players */
-					if (tmp->type == DRINK)
-					{
-						snprintf(buf, sizeof(buf), "Ahhh...that %s tasted good.", tmp->name);
-					}
-					/* tasted "good" if food - tasted "terrible" for flesh for all non dragon players */
-					else
-					{
-						snprintf(buf, sizeof(buf), "The %s tasted %s", tmp->name, tmp->type == FLESH ? "terrible!" : "good.");
-					}
-				}
-				/* eating message for dragon players - they like it bloody */
-				else
-				{
-					snprintf(buf, sizeof(buf), "The %s tasted terrible!", tmp->name);
-				}
-
-				op->stats.food += tmp->stats.food;
-
-				if (capacity_remaining < tmp->stats.food)
-				{
-					op->stats.hp += capacity_remaining / 50;
-				}
-				else
-				{
-					op->stats.hp += tmp->stats.food / 50;
-				}
-
-				if (op->stats.hp > op->stats.maxhp)
-				{
-					op->stats.hp = op->stats.maxhp;
-				}
+				new_draw_info(NDI_UNIQUE, op, "You feel full, but what a waste of food!");
 			}
-			/* cursed/damned = food is decreased instead of increased */
 			else
 			{
-				int ft = tmp->stats.food;
-
-				snprintf(buf, sizeof(buf), "The %s tasted terrible!", tmp->name);
-
-				if (ft > 0)
-				{
-					ft = -ft;
-				}
-
-				op->stats.food += ft;
+				new_draw_info(NDI_UNIQUE, op, "Most of the drink goes down your face not your throat!");
 			}
+		}
 
-			new_draw_info(NDI_UNIQUE, op, buf);
+		if (!QUERY_FLAG(tmp, FLAG_CURSED) && !QUERY_FLAG(tmp, FLAG_DAMNED))
+		{
+			int capacity_remaining = FOOD_MAX - op->stats.food;
 
-			/* adjust food to borders when needed */
-			if (op->stats.food > FOOD_MAX)
+			if (tmp->type == DRINK)
 			{
-				op->stats.food = FOOD_MAX;
+				snprintf(buf, sizeof(buf), "Ahhh...that %s tasted good.", tmp->name);
 			}
-			else if (op->stats.food < 0)
+			else
 			{
-				op->stats.food = 0;
+				snprintf(buf, sizeof(buf), "The %s tasted %s", tmp->name, tmp->type == FLESH ? "terrible!" : "good.");
 			}
 
-			/* special food hack -b.t. */
-			if (tmp->title || QUERY_FLAG(tmp, FLAG_CURSED)|| QUERY_FLAG(tmp, FLAG_DAMNED))
+			op->stats.food += tmp->stats.food;
+
+			if (capacity_remaining < tmp->stats.food)
 			{
-				eat_special_food(op, tmp);
+				op->stats.hp += capacity_remaining / 50;
 			}
+			else
+			{
+				op->stats.hp += tmp->stats.food / 50;
+			}
+
+			if (op->stats.hp > op->stats.maxhp)
+			{
+				op->stats.hp = op->stats.maxhp;
+			}
+		}
+		/* cursed/damned = food is decreased instead of increased */
+		else
+		{
+			int ft = tmp->stats.food;
+
+			snprintf(buf, sizeof(buf), "The %s tasted terrible!", tmp->name);
+
+			if (ft > 0)
+			{
+				ft = -ft;
+			}
+
+			op->stats.food += ft;
+		}
+
+		new_draw_info(NDI_UNIQUE, op, buf);
+
+		/* adjust food to borders when needed */
+		if (op->stats.food > FOOD_MAX)
+		{
+			op->stats.food = FOOD_MAX;
+		}
+		else if (op->stats.food < 0)
+		{
+			op->stats.food = 0;
+		}
+
+		/* special food hack -b.t. */
+		if (tmp->title || QUERY_FLAG(tmp, FLAG_CURSED)|| QUERY_FLAG(tmp, FLAG_DAMNED))
+		{
+			eat_special_food(op, tmp);
 		}
 	}
 
@@ -151,7 +134,7 @@ void apply_food(object *op, object *tmp)
 
 /**
  * Create a food force to include buff/debuff effects of stats and
- * resists to the player.
+ * protections to the player.
  * @param who The player object.
  * @param food The food.
  * @param force The force object. */
@@ -169,7 +152,7 @@ void create_food_force(object* who, object *food, object *force)
 
 	for (i = 0; i < NROFATTACKS; i++)
 	{
-		force->resist[i] = food->resist[i];
+		force->protection[i] = food->protection[i];
 	}
 
 	/* if damned, set all negative if not and double or triple them */
@@ -228,12 +211,12 @@ void create_food_force(object* who, object *food, object *force)
 
 		for (i = 0; i < NROFATTACKS; i++)
 		{
-			if (force->resist[i] > 0)
+			if (force->protection[i] > 0)
 			{
-				force->resist[i] =- force->resist[i];
+				force->protection[i] =- force->protection[i];
 			}
 
-			force->resist[i] *= stat_multiplier;
+			force->protection[i] *= stat_multiplier;
 		}
 	}
 
@@ -252,7 +235,7 @@ void create_food_force(object* who, object *food, object *force)
 }
 
 /**
- * The food gives specials, like +/- hp or sp, resistance and stats.
+ * The food gives specials, like +/- hp or sp, protections and stats.
  *
  * Food can be good or bad (good effect or bad effect), and cursed or
  * not. If food is "good" (for example, Str +1 and Dex +1), then it puts
@@ -272,7 +255,7 @@ void create_food_force(object* who, object *food, object *force)
  * @param food The food object. */
 void eat_special_food(object *who, object *food)
 {
-	/* if there is any stat or resist value - create force for the object! */
+	/* if there is any stat or protection value - create force for the object! */
 	if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha)
 	{
 		create_food_force(who, food, get_archetype("force"));
@@ -283,7 +266,7 @@ void eat_special_food(object *who, object *food)
 
 		for (i = 0; i < NROFATTACKS; i++)
 		{
-			if (food->resist[i] > 0)
+			if (food->protection[i] > 0)
 			{
 				create_food_force(who, food, get_archetype("force"));
 				break;
@@ -405,191 +388,4 @@ void eat_special_food(object *who, object *food)
 			}
 		}
 	}
-}
-
-/**
- * A dragon is eating some flesh. If the flesh contains resistances,
- * there is a chance for the dragon's skin to get improved.
- * @param op the object (dragon player) eating the flesh
- * @param meal the flesh item, getting chewed in dragon's mouth
- * @return 1 if eating successful, 0 if it doesn't work */
-int dragon_eat_flesh(object *op, object *meal)
-{
-	object *skin = NULL, *abil = NULL, *tmp = NULL;
-	char buf[MAX_BUF];
-	/* improvement-chance of one resistance type */
-	double chance;
-	/* highest chance of any type */
-	double maxchance = 0;
-	/* level bonus (improvement is easier at lowlevel) */
-	double bonus = 0;
-	/* monster bonus */
-	double mbonus = 0;
-	/* winning candidates for resistance improvement */
-	int atnr_winner[NROFATTACKS];
-	/* number of winners */
-	int winners = 0;
-	int i;
-
-	/* let's make sure and doublecheck the parameters */
-	if (meal->type != FLESH || !is_dragon_pl(op))
-	{
-		return 0;
-	}
-
-	/* now grab the 'dragon_skin'- and 'dragon_ability'-forces from the player's inventory */
-	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-	{
-		if (tmp->type == FORCE)
-		{
-			if (strcmp(tmp->arch->name, "dragon_skin_force") == 0)
-			{
-				skin = tmp;
-			}
-			else if (strcmp(tmp->arch->name, "dragon_ability_force") == 0)
-			{
-				abil = tmp;
-			}
-		}
-	}
-
-	/* if either skin or ability are missing, this is an old player
-	 * which is not to be considered a dragon -> bail out */
-	if (skin == NULL || abil == NULL)
-		return 0;
-
-	/* now start by filling stomach and health, according to food-value */
-	if ((FOOD_MAX - op->stats.food) < meal->stats.food)
-	{
-		op->stats.hp += (FOOD_MAX - op->stats.food) / 50;
-	}
-	else
-	{
-		op->stats.hp += meal->stats.food / 50;
-	}
-
-	if (op->stats.hp > op->stats.maxhp)
-	{
-		op->stats.hp = op->stats.maxhp;
-	}
-
-	op->stats.food = MIN(FOOD_MAX, op->stats.food + meal->stats.food);
-
-	/* on to the interesting part: chances for adding resistance */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		/* got positive resistance, now calculate improvement chance (0-100) */
-		if (meal->resist[i] > 0 && atnr_is_dragon_enabled(i))
-		{
-			/* this bonus makes resistance increase easier at lower levels */
-			bonus = (MAXLEVEL - op->level) * 30. / ((double) MAXLEVEL);
-
-			/* additional bonus for resistance of ability-focus */
-			if (i == abil->stats.exp)
-			{
-				bonus += 5;
-			}
-
-			/* monster bonus increases with level, because high-level flesh is too rare */
-			mbonus = op->level * 20. / ((double) MAXLEVEL);
-
-			chance = (((double) MIN(op->level + bonus, meal->level + bonus + mbonus)) * 100. / ((double) MAXLEVEL)) - skin->resist[i];
-
-			if (chance >= 0.)
-			{
-				chance += 1.;
-			}
-			else
-			{
-				chance = (chance < -12) ? 0. : 1. / pow(2., -chance);
-			}
-
-			/* chance is proportional to amount of resistance (max. 50) */
-			chance *= ((double) (MIN(meal->resist[i], 50))) / 50.;
-
-			/* doubled chance for resistance of ability-focus */
-			if (i == abil->stats.exp)
-			{
-				chance = MIN(100., chance * 2.);
-			}
-
-			/* now make the throw and save all winners (Don't insert luck bonus here!) */
-			if (RANDOM() % 10000 < (int) (chance * 100))
-			{
-				atnr_winner[winners] = i;
-				winners++;
-			}
-
-			if (chance > maxchance)
-			{
-				maxchance = chance;
-			}
-		}
-	}
-
-	/* print message according to maxchance */
-	if (maxchance > 50.)
-	{
-		snprintf(buf, sizeof(buf),  "Hmm! The %s tasted delicious!", meal->name);
-	}
-	else if (maxchance > 10.)
-	{
-		snprintf(buf, sizeof(buf),  "The %s tasted very good.", meal->name);
-	}
-	else if (maxchance > 1.)
-	{
-		snprintf(buf, sizeof(buf),  "The %s tasted good.", meal->name);
-	}
-	else if (maxchance > 0.0001)
-	{
-		snprintf(buf, sizeof(buf),  "The %s had a boring taste.", meal->name);
-	}
-	else if (meal->last_eat > 0 && atnr_is_dragon_enabled(meal->last_eat))
-	{
-		snprintf(buf, sizeof(buf),  "The %s tasted strange.", meal->name);
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "The %s had no taste.", meal->name);
-	}
-
-	new_draw_info(NDI_UNIQUE, op, buf);
-
-	/* now choose a winner if we have any */
-	i = -1;
-
-	if (winners > 0)
-	{
-		i = atnr_winner[RANDOM() % winners];
-	}
-
-	if (i >= 0 && i < NROFATTACKS && skin->resist[i] < 95)
-	{
-		/* resistance increased! */
-		skin->resist[i]++;
-		fix_player(op);
-
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Your skin is now more resistant to %s!", change_resist_msg[i]);
-	}
-
-	/* if this flesh contains a new ability focus, we mark it
-	 * into the ability_force and it will take effect on next level */
-	if (meal->last_eat > 0 && atnr_is_dragon_enabled(meal->last_eat) && meal->last_eat != abil->last_eat)
-	{
-		/* write: last_eat <new attnr focus> */
-		abil->last_eat = meal->last_eat;
-
-		if (meal->last_eat != abil->stats.exp)
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "Your metabolism prepares to focus on %s!", change_resist_msg[meal->last_eat]);
-			new_draw_info_format(NDI_UNIQUE, op, "The change will happen at level %d.", abil->level + 1);
-		}
-		else
-		{
-			new_draw_info_format(NDI_UNIQUE, op, "Your metabolism will continue to focus on %s.", change_resist_msg[meal->last_eat]);
-			abil->last_eat = 0;
-		}
-	}
-
-	return 1;
 }

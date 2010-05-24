@@ -1960,7 +1960,7 @@ int check_good_armour(object *who, object *item)
 	val = item->stats.ac - other_armour->stats.ac;
 	val += (item->magic - other_armour->magic) * 3;
 
-	for (i = 0; i < NROFPROTECTIONS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
 	{
 		if (item->protection[i] > other_armour->protection[i])
 		{

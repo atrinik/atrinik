@@ -363,16 +363,16 @@ void become_follower(object *op, object *new_god)
 	exp_obj->path_attuned = new_god->path_attuned;
 	exp_obj->path_repelled = new_god->path_repelled;
 	exp_obj->path_denied = new_god->path_denied;
-	/* copy god's resistances */
-	memcpy(exp_obj->resist, new_god->resist, sizeof(new_god->resist));
+	/* copy god's protections */
+	memcpy(exp_obj->protection, new_god->protection, sizeof(new_god->protection));
 
 	/* make sure that certain immunities do NOT get passed to the
 	 * follower! */
 	for (i = 0; i < NROFATTACKS; i++)
 	{
-		if (exp_obj->resist[i] > 30 && (i == ATNR_FIRE || i == ATNR_COLD || i == ATNR_ELECTRICITY || i == ATNR_POISON))
+		if (exp_obj->protection[i] > 30 && (i == ATNR_FIRE || i == ATNR_COLD || i == ATNR_ELECTRICITY || i == ATNR_POISON))
 		{
-			exp_obj->resist[i] = 30;
+			exp_obj->protection[i] = 30;
 		}
 	}
 

@@ -188,7 +188,7 @@ static int prepare_weapon(object *op, object *improver, object *weapon)
 
 	for (i = 0; i < NROFATTACKS; i++)
 	{
-		if (weapon->resist[i])
+		if (weapon->protection[i])
 		{
 			break;
 		}

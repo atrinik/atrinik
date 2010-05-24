@@ -380,9 +380,6 @@ typedef struct obj
 	/** Quickslot ID this object goes in */
 	uint8 quickslot;
 
-	/** Intrinsic resist against damage - range from -125 to +125 */
-	sint8 resist[NROFATTACKS];
-
 	/**
 	 * our attack values - range from 0%-125%. (negative values makes no sense).
 	 * Note: we can in theory allow 300% damage for a attacktype.
@@ -398,7 +395,7 @@ typedef struct obj
 	uint8 attack[NROFATTACKS];
 
 	/** Resistance against attacks in % - range from -125 to 125 */
-	sint8 protection[NROFPROTECTIONS];
+	sint8 protection[NROFATTACKS];
 
 	/** The overall speed of this object */
 	float speed;

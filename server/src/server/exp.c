@@ -427,11 +427,6 @@ void player_lvl_adj(object *who, object *op)
 			}
 		}
 
-		if (op == who && op->stats.exp > 1 && is_dragon_pl(who))
-		{
-			dragon_level_gain(who);
-		}
-
 		if (who && who->type == PLAYER && op->type != EXPERIENCE && op->type != SKILL && who->level > 1)
 		{
 			if (who->level > 4)

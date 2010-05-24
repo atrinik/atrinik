@@ -1171,11 +1171,11 @@ void examine_living(object *op, object *tmp)
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
-		if (mon->resist[i] > 0)
+		if (mon->protection[i] > 0)
 		{
 			val = i;
 		}
-		else if (mon->resist[i] < 0)
+		else if (mon->protection[i] < 0)
 		{
 			val = i;
 		}
@@ -1191,7 +1191,7 @@ void examine_living(object *op, object *tmp)
 		new_draw_info_format(NDI_UNIQUE, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
-	for (val =- 1, val2 = i = 0; i < NROFPROTECTIONS; i++)
+	for (val =- 1, val2 = i = 0; i < NROFATTACKS; i++)
 	{
 		if (mon->protection[i] > val2)
 		{
@@ -1202,7 +1202,7 @@ void examine_living(object *op, object *tmp)
 
 	if (val != -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Best armour protection seems to be for %s.", protection_name[val]);
+		new_draw_info_format(NDI_UNIQUE, op, "Best armour protection seems to be for %s.", attack_name[val]);
 	}
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
@@ -1323,21 +1323,9 @@ void examine(object *op, object *tmp)
 		return;
 	}
 
-	/* Only quetzals can see the resistances on flesh. To realize
-	 * this, we temporarily flag the flesh with SEE_INVISIBLE */
-	if (op->type == PLAYER && tmp->type == FLESH && is_dragon_pl(op))
-	{
-		SET_FLAG(tmp, FLAG_SEE_INVISIBLE);
-	}
-
 	strcpy(buf, "That is ");
 	strncat(buf, long_desc(tmp, op), VERY_BIG_BUF - strlen(buf) - 1);
 	buf[VERY_BIG_BUF - 1] = '\0';
-
-	if (op->type == PLAYER && tmp->type == FLESH)
-	{
-		CLEAR_FLAG(tmp, FLAG_SEE_INVISIBLE);
-	}
 
 	/* Only add this for usable items, not for objects like walls or
 	 * floors for example. */

@@ -119,61 +119,7 @@ static char levelnumbers_10[11][20] =
 };
 
 static char *describe_attack(object *op, int newline);
-static char *describe_protections(object *op, int newline);
 static char *get_number(int i);
-
-/**
- * Generates the visible naming for resistances.
- * Returns a static array of the description. This can return a
- * big buffer.
- * @param op Object to get the resistances for.
- * @param newline If true, don't put parens around the description
- * but do put a newline at the end. Useful when dumping to files.
- * @return Static buffer with the resistances. */
-char *describe_resistance(object *op, int newline)
-{
-	static char buf[VERY_BIG_BUF];
-	char buf1[VERY_BIG_BUF];
-	int tmpvar, flag = 1;
-
-	buf[0] = '\0';
-
-	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
-	{
-		if (op->resist[tmpvar] && (op->type != FLESH || atnr_is_dragon_enabled(tmpvar) == 1))
-		{
-			if (flag && !newline)
-			{
-				strncat(buf, "(Resists: ", sizeof(buf) - strlen(buf) - 1);
-			}
-
-			if (!newline)
-			{
-				if (!flag)
-				{
-					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
-				}
-
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", resist_plus[tmpvar], op->resist[tmpvar]);
-			}
-			else
-			{
-				snprintf(buf1, sizeof(buf1), "%s %d%%\n", resist_plus[tmpvar], op->resist[tmpvar]);
-			}
-
-			flag = 0;
-			strncat(buf, buf1, sizeof(buf) - strlen(buf) - 1);
-		}
-	}
-
-	if (!newline && !flag)
-	{
-		strncat(buf, ") ", sizeof(buf) - strlen(buf) - 1);
-	}
-
-	return buf;
-}
-
 
 /**
  * Generates the visible naming for attack forms.
@@ -207,11 +153,11 @@ static char *describe_attack(object *op, int newline)
 					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
 				}
 
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", attacktype_desc[tmpvar], op->attack[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->attack[tmpvar]);
 			}
 			else
 			{
-				snprintf(buf1, sizeof(buf1), "%s %+d%%\n", attacktype_desc[tmpvar], op->attack[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%\n", attack_name[tmpvar], op->attack[tmpvar]);
 			}
 
 			flag = 0;
@@ -235,7 +181,7 @@ static char *describe_attack(object *op, int newline)
  * @param newline If true, don't put parens around the description
  * but do put a newline at the end. Useful when dumping to files.
  * @return Static buffer with the protections. */
-static char *describe_protections(object *op, int newline)
+char *describe_protections(object *op, int newline)
 {
 	static char buf[VERY_BIG_BUF];
 	char buf1[VERY_BIG_BUF];
@@ -243,7 +189,7 @@ static char *describe_protections(object *op, int newline)
 
 	buf[0] = '\0';
 
-	for (tmpvar = 0; tmpvar < NROFPROTECTIONS; tmpvar++)
+	for (tmpvar = 0; tmpvar < NROFATTACKS; tmpvar++)
 	{
 		if (op->protection[tmpvar])
 		{
@@ -259,11 +205,11 @@ static char *describe_protections(object *op, int newline)
 					strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
 				}
 
-				snprintf(buf1, sizeof(buf1), "%s %+d%%", protection_name[tmpvar], op->protection[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->protection[tmpvar]);
 			}
 			else
 			{
-				snprintf(buf1, sizeof(buf1), "%s %d%%\n", protection_name[tmpvar], op->protection[tmpvar]);
+				snprintf(buf1, sizeof(buf1), "%s %d%%\n", attack_name[tmpvar], op->protection[tmpvar]);
 			}
 
 			flag = 0;
@@ -1337,12 +1283,6 @@ char *describe_item(object *op)
 					sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
 					strcat(retbuf, buf);
 
-					if (op->type == FLESH && op->last_eat > 0 && atnr_is_dragon_enabled(op->last_eat))
-					{
-						sprintf(buf, "(%s metabolism)", change_resist_msg[op->last_eat]);
-						strcat(retbuf, buf);
-					}
-
 					if (QUERY_FLAG(op, FLAG_CURSED))
 					{
 						curse_multiplier = 2;
@@ -1540,14 +1480,8 @@ char *describe_item(object *op)
 		}
 
 		strcat(retbuf, describe_attack(op, 0));
-
-		/* Resistance on flesh is only visible to dragons */
-		if (op->type != FLESH || QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
-		{
-			strcat(retbuf, describe_resistance(op, 0));
-		}
-
 		strcat(retbuf, describe_protections(op, 0));
+
 		DESCRIBE_PATH(retbuf, op->path_attuned, "Attuned");
 		DESCRIBE_PATH(retbuf, op->path_repelled, "Repelled");
 		DESCRIBE_PATH(retbuf, op->path_denied, "Denied");

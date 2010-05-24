@@ -93,7 +93,7 @@ void print_monsters()
 
 			for (i = 0; i < NROFATTACKS; i++)
 			{
-				LOG(llevInfo, "%4d", op->resist[i]);
+				LOG(llevInfo, "%4d", op->protection[i]);
 			}
 
 			LOG(llevInfo, " |%8d|\n", op->stats.exp);

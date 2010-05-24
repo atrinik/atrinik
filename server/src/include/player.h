@@ -500,7 +500,7 @@ typedef struct pl_player
 	sint16 known_spells[NROFREALSPELLS];
 
 	/** Table of protections last sent to the client. */
-	sint8 last_protection[NROFPROTECTIONS];
+	sint8 last_protection[NROFATTACKS];
 
 	/** Which range attack is being used by player. */
 	rangetype shoottype;

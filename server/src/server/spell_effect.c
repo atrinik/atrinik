@@ -1087,25 +1087,25 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 		/* Attacktype protection spells */
 		case SP_PROT_COLD:
-			i = PROTECT_COLD;
+			i = ATNR_COLD;
 			break;
 
 		case SP_PROT_FIRE:
-			i = PROTECT_FIRE;
+			i = ATNR_FIRE;
 			break;
 
 		case SP_PROT_ELEC:
-			i = PROTECT_ELECTRICITY;
+			i = ATNR_ELECTRICITY;
 			break;
 
 		case SP_PROT_POISON:
-			i = PROTECT_POISON;
+			i = ATNR_POISON;
 			break;
 	}
 
 	if (i)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your protection to %s grows.", protection_name[i]);
+		new_draw_info_format(NDI_UNIQUE, op, "Your protection to %s grows.", attack_name[i]);
 		force->protection[i] = SP_level_dam_adjust(op, spell_type, -1);
 
 		if (force->protection[i] > 100)

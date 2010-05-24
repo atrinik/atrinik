@@ -65,7 +65,6 @@ extern float speed_bonus[MAX_STAT + 1];
 extern uint32 weight_limit[MAX_STAT + 1];
 extern int learn_spell[MAX_STAT + 1];
 extern int savethrow[MAXLEVEL + 1];
-extern const char *const attacks[NROFATTACKS];
 extern const char *const restore_msg[NUM_STATS];
 extern const char *const lose_msg[NUM_STATS];
 extern const char *const statname[NUM_STATS];

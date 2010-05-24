@@ -84,7 +84,6 @@ static void create_one_treasure(treasurelist *tl, object *op, int flag, int diff
 static int set_ring_bonus(object *op, int bonus, int level);
 static int get_magic(int diff);
 static void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
-static void fix_flesh_item(object *item, object *donor);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
 static void free_artifactlist();
@@ -1634,8 +1633,10 @@ make_prot_items:
 		case 15:
 		case 16:
 		case 17:
+		case 18:
+		case 19:
 		{
-			int b = 5 + FABS(bonus), val, protect = RANDOM() % (NROFPROTECTIONS - 4 + off);
+			int b = 5 + FABS(bonus), val, protect = RANDOM() % (NROFATTACKS - 4 + off);
 
 			/* Roughly generate a bonus between 100 and 35 (depending on the bonus) */
 			val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
@@ -1665,53 +1666,10 @@ make_prot_items:
 					goto set_ring_bonus_jump1;
 				}
 
-				protect = RANDOM() % (NROFPROTECTIONS - 4 + off);
+				protect = RANDOM() % (NROFATTACKS - 4 + off);
 			}
 
 			op->protection[protect] = val;
-			break;
-		}
-
-		case 18:
-		case 19:
-		{
-			int b = 5 + FABS(bonus), val, resist = RANDOM() % (num_resist_table - 4 + off);
-
-			/* Roughly generate a bonus between 100 and 35 (depending on the bonus) */
-			val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
-
-			/* Cursed items need to have higher negative values to equal
-			 * out with positive values for how protections work out. Put
-			 * another little random element in since that they don't
-			 * always end up with even values. */
-			if (bonus < 0)
-			{
-				val = 2 * -val - RANDOM() % b;
-			}
-
-			/* Upper limit */
-			if (val > 35)
-			{
-				val = 35;
-			}
-
-			b = 0;
-
-			while (op->resist[resist_table[resist]] != 0)
-			{
-				/* Not able to find a free resistance */
-				if (b++ >= 4)
-				{
-					goto set_ring_bonus_jump1;
-				}
-
-				resist = RANDOM() % (num_resist_table - 4 + off);
-			}
-
-			op->resist[resist_table[resist]] = val;
-
-			/* We should probably do something more clever here to adjust
-			 * value based on how good a resistance we gave. */
 			break;
 		}
 
@@ -2247,13 +2205,13 @@ jump_break1:
 						change_attr_value(&op->stats, RANDOM() % NUM_STATS, strong_curse ? -2 : -1);
 					}
 
-					/* Put a negative value on random resist */
-					op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+					/* Put a negative value on random protection. */
+					op->protection[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
 
-					/* And again, if this is strong curse food, half a chance to curse another resist */
+					/* And again, if this is strong curse food, half a chance to curse another protection. */
 					if (strong_curse && RANDOM() % 2)
 					{
-						op->resist[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+						op->protection[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
 					}
 
 					/* Change food, hp, mana and grace bonuses to negative values */
@@ -2288,12 +2246,12 @@ jump_break1:
 						}
 					}
 
-					/* And the same for resists. */
+					/* And the same for protections. */
 					for (i = 0; i < NROFATTACKS; i++)
 					{
-						if (op->resist[i] > 0)
+						if (op->protection[i] > 0)
 						{
-							op->resist[i] = -op->resist[i];
+							op->protection[i] = -op->protection[i];
 						}
 					}
 
@@ -2346,11 +2304,6 @@ jump_break1:
 		{
 			op->value = 0;
 		}
-	}
-
-	if (!(flags & GT_ENVIRONMENT))
-	{
-		fix_flesh_item(op, creator);
 	}
 
 	return retval;
@@ -2733,61 +2686,6 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 	}
 
 	return 1;
-}
-
-/**
- * Objects of type FLESH are similar to type FOOD, except they inherit
- * properties (name, food value, etc).
- * @param item The FLESH object to adjust.
- * @param donor THe original owner. */
-static void fix_flesh_item(object *item, object *donor)
-{
-	char tmpbuf[MAX_BUF];
-	int i;
-
-	if (item->type != FLESH || !donor)
-	{
-		return;
-	}
-
-	/* Change the name */
-	snprintf(tmpbuf, sizeof(tmpbuf), "%s's %s", donor->name, item->name);
-	FREE_AND_COPY_HASH(item->name, tmpbuf);
-
-	/* Weight is FLESH weight/100 * donor */
-	if ((item->weight = (signed long) (((double) item->weight / (double) 100.0) * (double) donor->weight)) == 0)
-	{
-		item->weight = 1;
-	}
-
-	/* Value is multiplied by level of donor */
-	item->value *= isqrt(donor->level * 2);
-
-	/* Food value */
-	item->stats.food += (donor->stats.hp / 100) + donor->stats.Con;
-
-	/* Flesh items inherit some abilities of donor, but not
-	 * full effect. */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		item->resist[i] = donor->resist[i] / 2;
-	}
-
-	/* Item inherits donor's level (important for quezals) */
-	item->level = donor->level;
-
-	/* If donor has some attacktypes, the flesh is poisonous */
-	if (donor->attack[ATNR_POISON])
-	{
-		item->type = POISON;
-	}
-
-	if (donor->attack[ATNR_ACID])
-	{
-		item->stats.hp = -1 * item->stats.food;
-	}
-
-	SET_FLAG(item, FLAG_NO_STEAL);
 }
 
 /**

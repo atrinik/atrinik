@@ -62,17 +62,6 @@ static char msgbuf[HUGE_BUF];
 	}                                       \
 }
 
-/* SET_RESIST is really only really needed for transition code.  We normally
- * don't care about multiple values overwriting each other, but this is
- * to catch items that have multiple protection/immune/vulnerable.
- * This can be simplified later on to just do the set after all the archs
- * and maps have been updated.
- * We always keep the last value because otherwise the value from the
- * arch may take precedence.
- * Unfortunately, we will report warnings here simply because an object has
- * been modified from the arch.
- */
-#define SET_RESIST(op, type, val)  op->resist[type] = val;
 #define SET_ATTACK(op, type, val)  op->attack[type] = val;
 #define SET_PROTECTION(op, type, val)  op->protection[type] = val;
 
@@ -157,6 +146,16 @@ static void add_key_value(object *op)
 	}
 
 	object_set_value(op, key, value, 1);
+}
+
+static void set_random_protection(object *op, int val)
+{
+	op->protection[RANDOM() % NROFATTACKS] = val;
+}
+
+static void set_random_attack(object *op, int val)
+{
+	op->attack[RANDOM() % NROFATTACKS] = val;
 }
 %}
 
@@ -598,94 +597,117 @@ lex_error = 0;
 ^is_magical{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
 
 	/* Start of various attacktypes */
-^attack_impact{S}   SET_ATTACK(op, ATNR_PHYSICAL, IVAL);
-^attack_magic{S}    SET_ATTACK(op, ATNR_MAGIC, IVAL);
-^attack_fire{S}     SET_ATTACK(op, ATNR_FIRE, IVAL);
-^attack_electricity{S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL);
-^attack_cold{S}     SET_ATTACK(op, ATNR_COLD, IVAL);
-^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
-^attack_acid{S}     SET_ATTACK(op, ATNR_ACID, IVAL);
-^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
-^attack_weaponmagic{S} SET_ATTACK(op, ATNR_WEAPONMAGIC, IVAL);
-^attack_ghosthit{S} SET_ATTACK(op, ATNR_GHOSTHIT, IVAL);
-^attack_poison{S}   SET_ATTACK(op, ATNR_POISON, IVAL);
-^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
-^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
-^attack_time{S}     SET_ATTACK(op, ATNR_TIME, IVAL);
-^attack_fear{S}     SET_ATTACK(op, ATNR_FEAR, IVAL);
-^attack_cancellation{S} SET_ATTACK(op, ATNR_CANCELLATION, IVAL);
-^attack_depletion{S} SET_ATTACK(op, ATNR_DEPLETE, IVAL);
-^attack_death{S}    SET_ATTACK(op, ATNR_DEATH, IVAL);
-^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
-^attack_counterspell{S} SET_ATTACK(op, ATNR_COUNTERSPELL, IVAL);
-^attack_godpower{S} SET_ATTACK(op, ATNR_GODPOWER, IVAL);
-^attack_purity{S}   SET_ATTACK(op, ATNR_HOLYWORD, IVAL);
-^attack_blind{S}    SET_ATTACK(op, ATNR_BLIND, IVAL);
-^attack_internal{S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
-^attack_life_steal{S} SET_ATTACK(op, ATNR_LIFE_STEALING, IVAL);
+^attack_impact{S}   SET_ATTACK(op, ATNR_IMPACT, IVAL);
 ^attack_slash{S}    SET_ATTACK(op, ATNR_SLASH, IVAL);
 ^attack_cleave{S}   SET_ATTACK(op, ATNR_CLEAVE, IVAL);
 ^attack_pierce{S}   SET_ATTACK(op, ATNR_PIERCE, IVAL);
-^attack_nether{S}   SET_ATTACK(op, ATNR_NETHER, IVAL);
-^attack_sonic{S}    SET_ATTACK(op, ATNR_SONIC, IVAL);
-^attack_demonic{S}  SET_ATTACK(op, ATNR_DEMONIC, IVAL);
-^attack_psionic{S}  SET_ATTACK(op, ATNR_PSIONIC, IVAL);
+^attack_weaponmagic{S}    SET_ATTACK(op, ATNR_WEAPON_MAGIC, IVAL);
 
-	/* Start of various resists */
-^resist_impact{S}   SET_RESIST(op, ATNR_PHYSICAL, IVAL);
-^resist_magic{S}    SET_RESIST(op, ATNR_MAGIC, IVAL);
-^resist_fire{S}     SET_RESIST(op, ATNR_FIRE, IVAL);
-^resist_electricity{S} SET_RESIST(op, ATNR_ELECTRICITY, IVAL);
-^resist_cold{S}     SET_RESIST(op, ATNR_COLD, IVAL);
-^resist_confusion{S} SET_RESIST(op, ATNR_CONFUSION, IVAL);
-^resist_acid{S}     SET_RESIST(op, ATNR_ACID, IVAL);
-^resist_drain{S}    SET_RESIST(op, ATNR_DRAIN, IVAL);
-^resist_weaponmagic{S} SET_RESIST(op, ATNR_WEAPONMAGIC, IVAL);
-^resist_ghosthit{S} SET_RESIST(op, ATNR_GHOSTHIT, IVAL);
-^resist_poison{S}   SET_RESIST(op, ATNR_POISON, IVAL);
-^resist_slow{S}     SET_RESIST(op, ATNR_SLOW, IVAL);
-^resist_paralyze{S} SET_RESIST(op, ATNR_PARALYZE, IVAL);
-^resist_time{S}     SET_RESIST(op, ATNR_TIME, IVAL);
-^resist_fear{S}     SET_RESIST(op, ATNR_FEAR, IVAL);
-^resist_cancellation{S} SET_RESIST(op, ATNR_CANCELLATION, IVAL);
-^resist_depletion{S} SET_RESIST(op, ATNR_DEPLETE, IVAL);
-^resist_death{S}    SET_RESIST(op, ATNR_DEATH, IVAL);
-^resist_chaos{S}    SET_RESIST(op, ATNR_CHAOS, IVAL);
-^resist_counterspell{S} SET_RESIST(op, ATNR_COUNTERSPELL, IVAL);
-^resist_godpower{S} SET_RESIST(op, ATNR_GODPOWER, IVAL);
-^resist_purity{S}   SET_RESIST(op, ATNR_HOLYWORD, IVAL);
-^resist_blind{S}    SET_RESIST(op, ATNR_BLIND, IVAL);
-^resist_internal{S} SET_RESIST(op, ATNR_INTERNAL, IVAL);
-^resist_life_steal{S} SET_RESIST(op, ATNR_LIFE_STEALING, IVAL);
-^resist_slash{S}    SET_RESIST(op, ATNR_SLASH, IVAL);
-^resist_cleave{S}   SET_RESIST(op, ATNR_CLEAVE, IVAL);
-^resist_pierce{S}   SET_RESIST(op, ATNR_PIERCE, IVAL);
-^resist_nether{S}   SET_RESIST(op, ATNR_NETHER, IVAL);
-^resist_sonic{S}    SET_RESIST(op, ATNR_SONIC, IVAL);
-^resist_demonic{S}  SET_RESIST(op, ATNR_DEMONIC, IVAL);
-^resist_psionic{S}  SET_RESIST(op, ATNR_PSIONIC, IVAL);
+^attack_fire{S}     SET_ATTACK(op, ATNR_FIRE, IVAL);
+^attack_cold{S}     SET_ATTACK(op, ATNR_COLD, IVAL);
+^attack_electricity{S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL);
+^attack_poison{S}   SET_ATTACK(op, ATNR_POISON, IVAL);
+^attack_acid{S}     SET_ATTACK(op, ATNR_ACID, IVAL);
+
+^attack_magic{S}    SET_ATTACK(op, ATNR_MAGIC, IVAL);
+^attack_mind{S}     SET_ATTACK(op, ATNR_MIND, IVAL);
+^attack_blind{S}    SET_ATTACK(op, ATNR_BLIND, IVAL);
+^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
+^attack_force{S}    SET_ATTACK(op, ATNR_FORCE, IVAL);
+
+^attack_nether{S}   SET_ATTACK(op, ATNR_NETHER, IVAL);
+^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
+^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
+^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
+^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
+
+^attack_internal{S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
+
+	/* The following attack types are deprecated and are here
+	 * for backwards compatibility. */
+^attack_psionic{S}  set_random_attack(op, IVAL);
+^attack_sonic{S}    set_random_attack(op, IVAL);
+^attack_demonic{S}  set_random_attack(op, IVAL);
+^attack_counterspell{S} set_random_attack(op, IVAL);
+^attack_godpower{S} set_random_attack(op, IVAL);
+^attack_purity{S}   set_random_attack(op, IVAL);
+^attack_life_steal{S} set_random_attack(op, IVAL);
+^attack_death{S}    set_random_attack(op, IVAL);
+^attack_time{S}     set_random_attack(op, IVAL);
+^attack_fear{S}     set_random_attack(op, IVAL);
+^attack_cancellation{S} set_random_attack(op, IVAL);
+^attack_depletion{S} set_random_attack(op, IVAL);
+^attack_ghosthit{S} set_random_attack(op, IVAL);
+
+	/* All these resists are deprecated and are here for
+	 * backwards compatibility. */
+^resist_impact{S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL);
+^resist_magic{S}    SET_PROTECTION(op, ATNR_MAGIC, IVAL);
+^resist_fire{S}     SET_PROTECTION(op, ATNR_FIRE, IVAL);
+^resist_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
+^resist_cold{S}     SET_PROTECTION(op, ATNR_COLD, IVAL);
+^resist_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+^resist_acid{S}     SET_PROTECTION(op, ATNR_ACID, IVAL);
+^resist_drain{S}    SET_PROTECTION(op, ATNR_DRAIN, IVAL);
+^resist_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+^resist_ghosthit{S} set_random_protection(op, IVAL);
+^resist_poison{S}   SET_PROTECTION(op, ATNR_POISON, IVAL);
+^resist_slow{S}     set_random_protection(op, IVAL);
+^resist_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^resist_time{S}     set_random_protection(op, IVAL);
+^resist_fear{S}     set_random_protection(op, IVAL);
+^resist_cancellation{S} set_random_protection(op, IVAL);
+^resist_depletion{S} set_random_protection(op, IVAL);
+^resist_death{S}    set_random_protection(op, IVAL);
+^resist_chaos{S}    SET_PROTECTION(op, ATNR_CHAOS, IVAL);
+^resist_counterspell{S} set_random_protection(op, IVAL);
+^resist_godpower{S} set_random_protection(op, IVAL);
+^resist_purity{S}   set_random_protection(op, IVAL);
+^resist_blind{S}    SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^resist_internal{S} set_random_protection(op, IVAL);
+^resist_life_steal{S} set_random_protection(op, IVAL);
+^resist_slash{S}    SET_PROTECTION(op, ATNR_SLASH, IVAL);
+^resist_cleave{S}   SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
+^resist_pierce{S}   SET_PROTECTION(op, ATNR_PIERCE, IVAL);
+^resist_nether{S}   set_random_protection(op, IVAL);
+^resist_sonic{S}    set_random_protection(op, IVAL);
+^resist_demonic{S}  set_random_protection(op, IVAL);
+^resist_psionic{S}  set_random_protection(op, IVAL);
 
 	/* Start of various protections */
-^protect_impact{S}  SET_PROTECTION(op, PROTECT_PHYSICAL, IVAL);
-^protect_slash{S}   SET_PROTECTION(op, PROTECT_SLASH, IVAL);
-^protect_cleave{S}  SET_PROTECTION(op, PROTECT_CLEAVE, IVAL);
-^protect_pierce{S}  SET_PROTECTION(op, PROTECT_PIERCE, IVAL);
-^protect_weapon_magic{S} SET_PROTECTION(op, PROTECT_WEAPON_MAGIC, IVAL);
-^protect_fire{S}    SET_PROTECTION(op, PROTECT_FIRE, IVAL);
-^protect_cold{S}    SET_PROTECTION(op, PROTECT_COLD, IVAL);
-^protect_electricity{S} SET_PROTECTION(op, PROTECT_ELECTRICITY, IVAL);
-^protect_poison{S}  SET_PROTECTION(op, PROTECT_POISON, IVAL);
-^protect_acid{S}    SET_PROTECTION(op, PROTECT_ACID, IVAL);
-^protect_magic{S}   SET_PROTECTION(op, PROTECT_MAGIC, IVAL);
-^protect_mind{S}    SET_PROTECTION(op, PROTECT_MIND, IVAL);
-^protect_body{S}    SET_PROTECTION(op, PROTECT_BODY, IVAL);
-^protect_psionic{S} SET_PROTECTION(op, PROTECT_PSIONIC, IVAL);
-^protect_force{S}   SET_PROTECTION(op, PROTECT_FORCE, IVAL);
-^protect_nether{S}  SET_PROTECTION(op, PROTECT_NETHER, IVAL);
-^protect_chaos{S}   SET_PROTECTION(op, PROTECT_CHAOS, IVAL);
-^protect_death{S}   SET_PROTECTION(op, PROTECT_DEATH, IVAL);
-^protect_spiritual{S} SET_PROTECTION(op, PROTECT_SPIRITUAL, IVAL);
-^protect_corruption{S} SET_PROTECTION(op, PROTECT_CORRUPTION, IVAL);
+^protect_impact{S}  SET_PROTECTION(op, ATNR_IMPACT, IVAL);
+^protect_slash{S}   SET_PROTECTION(op, ATNR_SLASH, IVAL);
+^protect_cleave{S}  SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
+^protect_pierce{S}  SET_PROTECTION(op, ATNR_PIERCE, IVAL);
+^protect_weapon_magic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+
+^protect_fire{S}    SET_PROTECTION(op, ATNR_FIRE, IVAL);
+^protect_cold{S}    SET_PROTECTION(op, ATNR_COLD, IVAL);
+^protect_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
+^protect_poison{S}  SET_PROTECTION(op, ATNR_POISON, IVAL);
+^protect_acid{S}    SET_PROTECTION(op, ATNR_ACID, IVAL);
+
+^protect_magic{S}   SET_PROTECTION(op, ATNR_MAGIC, IVAL);
+^protect_mind{S}    SET_PROTECTION(op, ATNR_MIND, IVAL);
+^protect_blind{S}   SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^protect_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_force{S}   SET_PROTECTION(op, ATNR_FORCE, IVAL);
+
+^protect_nether{S}  SET_PROTECTION(op, ATNR_NETHER, IVAL);
+^protect_chaos{S}   SET_PROTECTION(op, ATNR_CHAOS, IVAL);
+^protect_drain{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
+^protect_slow{S} SET_PROTECTION(op, ATNR_SLOW, IVAL);
+^protect_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+
+^protect_internal{S} SET_PROTECTION(op, ATNR_INTERNAL, IVAL);
+
+	/* The following protections are deprecated, and are here only
+	 * for backwards compatibility. */
+^protect_body{S} SET_PROTECTION(op, ATNR_BLIND, IVAL);
+^protect_psionic{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_corruption{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+^protect_spiritual{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
+^protect_death{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
 
 ^movement_type{S}   op->move_type = IVAL;
 ^attack_move_type{S} op->attack_move_type = IVAL;
@@ -1459,28 +1481,20 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "type ", op->type);
 	}
 
-	for (tmp = 0; tmp < NROFATTACKS; tmp++)
-	{
-		if (op->resist[tmp] != op2->resist[tmp])
-		{
-			stringbuffer_append_printf(sb, "resist_%s %d\n", resist_save[tmp], op->resist[tmp]);
-		}
-	}
-
-	/* resist_save[] holds the attack form also for attack_xx */
+	/* attack_save[] holds the attack form also for attack_xx */
 	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
 		if (op->attack[tmp] != op2->attack[tmp])
 		{
-			stringbuffer_append_printf(sb, "attack_%s %d\n", resist_save[tmp], op->attack[tmp]);
+			stringbuffer_append_printf(sb, "attack_%s %d\n", attack_save[tmp], op->attack[tmp]);
 		}
 	}
 
-	for (tmp = 0; tmp < NROFPROTECTIONS; tmp++)
+	for (tmp = 0; tmp < NROFATTACKS; tmp++)
 	{
 		if (op->protection[tmp] != op2->protection[tmp])
 		{
-			stringbuffer_append_printf(sb, "protect_%s %d\n", protection_save[tmp], op->protection[tmp]);
+			stringbuffer_append_printf(sb, "protect_%s %d\n", attack_save[tmp], op->protection[tmp]);
 		}
 	}
 
