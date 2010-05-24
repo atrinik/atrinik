@@ -151,13 +151,11 @@ static void add_key_value(object *op)
 static void set_random_protection(object *op, int val)
 {
 	op->protection[RANDOM() % NROFATTACKS] = val;
-LOG(-1, "\nhad to patch protection for object '%s'.\n", op->arch->name);
 }
 
 static void set_random_attack(object *op, int val)
 {
 	op->attack[RANDOM() % NROFATTACKS] = val;
-LOG(-1, "\nhad to patch attack for object '%s'.\n", op->arch->name);
 }
 %}
 
