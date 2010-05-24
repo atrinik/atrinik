@@ -679,7 +679,7 @@ lex_error = 0;
 ^protect_slash{S}   SET_PROTECTION(op, ATNR_SLASH, IVAL);
 ^protect_cleave{S}  SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
 ^protect_pierce{S}  SET_PROTECTION(op, ATNR_PIERCE, IVAL);
-^protect_weapon_magic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+^protect_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
 
 ^protect_fire{S}    SET_PROTECTION(op, ATNR_FIRE, IVAL);
 ^protect_cold{S}    SET_PROTECTION(op, ATNR_COLD, IVAL);
