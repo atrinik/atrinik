@@ -52,7 +52,7 @@ typedef enum _attacks
 	ATNR_PARALYZE,
 	ATNR_FORCE,
 
-	ATNR_NETHER,
+	ATNR_GODPOWER,
 	ATNR_CHAOS,
 	ATNR_DRAIN,
 	ATNR_SLOW,
@@ -92,20 +92,20 @@ extern char *attack_save[NROFATTACKS];
  * @warning Cannot contain spaces. Use underscores instead. */
 EXTERN char *attack_save[NROFATTACKS] =
 {
-	"impact", "slash", "cleave",      "pierce",    "weapon_magic",
-	"fire",   "cold",  "electricity", "poison",    "acid",
-	"magic",  "mind",  "blind",       "paralyze",  "force",
-	"nether", "chaos", "drain",       "slow",      "confusion",
+	"impact",   "slash", "cleave",      "pierce",    "weaponmagic",
+	"fire",     "cold",  "electricity", "poison",    "acid",
+	"magic",    "mind",  "blind",       "paralyze",  "force",
+	"godpower", "chaos", "drain",       "slow",      "confusion",
 	"internal"
 };
 
 /** Short description of names of the attack types. */
 EXTERN char *attack_name[NROFATTACKS] =
 {
-	"impact", "slash", "cleave",      "pierce",    "weapon magic",
-	"fire",   "cold",  "electricity", "poison",    "acid",
-	"magic",  "mind",  "blind",       "paralyze",  "force",
-	"nether", "chaos", "drain",       "slow",      "confusion",
+	"impact",   "slash", "cleave",      "pierce",    "weapon magic",
+	"fire",     "cold",  "electricity", "poison",    "acid",
+	"magic",    "mind",  "blind",       "paralyze",  "force",
+	"godpower", "chaos", "drain",       "slow",      "confusion",
 	"internal"
 };
 

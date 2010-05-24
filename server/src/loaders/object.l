@@ -151,11 +151,13 @@ static void add_key_value(object *op)
 static void set_random_protection(object *op, int val)
 {
 	op->protection[RANDOM() % NROFATTACKS] = val;
+LOG(-1, "\nhad to patch protection for object '%s'.\n", op->arch->name);
 }
 
 static void set_random_attack(object *op, int val)
 {
 	op->attack[RANDOM() % NROFATTACKS] = val;
+LOG(-1, "\nhad to patch attack for object '%s'.\n", op->arch->name);
 }
 %}
 
@@ -615,7 +617,7 @@ lex_error = 0;
 ^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
 ^attack_force{S}    SET_ATTACK(op, ATNR_FORCE, IVAL);
 
-^attack_nether{S}   SET_ATTACK(op, ATNR_NETHER, IVAL);
+^attack_godpower{S} SET_ATTACK(op, ATNR_GODPOWER, IVAL);
 ^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
 ^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
 ^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
@@ -629,7 +631,6 @@ lex_error = 0;
 ^attack_sonic{S}    set_random_attack(op, IVAL);
 ^attack_demonic{S}  set_random_attack(op, IVAL);
 ^attack_counterspell{S} set_random_attack(op, IVAL);
-^attack_godpower{S} set_random_attack(op, IVAL);
 ^attack_purity{S}   set_random_attack(op, IVAL);
 ^attack_life_steal{S} set_random_attack(op, IVAL);
 ^attack_death{S}    set_random_attack(op, IVAL);
@@ -661,7 +662,7 @@ lex_error = 0;
 ^resist_death{S}    set_random_protection(op, IVAL);
 ^resist_chaos{S}    SET_PROTECTION(op, ATNR_CHAOS, IVAL);
 ^resist_counterspell{S} set_random_protection(op, IVAL);
-^resist_godpower{S} set_random_protection(op, IVAL);
+^resist_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
 ^resist_purity{S}   set_random_protection(op, IVAL);
 ^resist_blind{S}    SET_PROTECTION(op, ATNR_BLIND, IVAL);
 ^resist_internal{S} set_random_protection(op, IVAL);
@@ -693,7 +694,7 @@ lex_error = 0;
 ^protect_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
 ^protect_force{S}   SET_PROTECTION(op, ATNR_FORCE, IVAL);
 
-^protect_nether{S}  SET_PROTECTION(op, ATNR_NETHER, IVAL);
+^protect_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
 ^protect_chaos{S}   SET_PROTECTION(op, ATNR_CHAOS, IVAL);
 ^protect_drain{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
 ^protect_slow{S} SET_PROTECTION(op, ATNR_SLOW, IVAL);
