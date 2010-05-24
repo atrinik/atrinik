@@ -1014,7 +1014,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 	(void) dam;
 
-	if (op->stats.hp >= 0)
+	if (op->stats.hp > 0)
 	{
 		return -1;
 	}
