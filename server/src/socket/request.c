@@ -361,12 +361,11 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
  * @param buf
  * @param len
  * @param pl */
-void PlayerCmd(uint8 *buf, int len, player *pl)
+void PlayerCmd(char *buf, int len, player *pl)
 {
 	uint16 packet;
-	int time, repeat;
+	int repeat;
 	char command[MAX_BUF];
-	SockList sl;
 
 	if (!buf)
 	{
@@ -409,24 +408,6 @@ void PlayerCmd(uint8 *buf, int len, player *pl)
 	/* In c_new.c */
 	execute_newserver_command(pl->ob, command);
 	pl->count = 0;
-
-	/* Send confirmation of command execution now */
-	sl.buf = (uint8 *) command;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_COMC);
-
-	SockList_AddShort(&sl, packet);
-
-	if (FABS(pl->ob->speed) < 0.001)
-	{
-		time = MAX_TIME * 100;
-	}
-	else
-	{
-		time = (int) ((float) MAX_TIME / FABS(pl->ob->speed));
-	}
-
-	SockList_AddInt(&sl, time);
-	Send_With_Handling(&pl->socket, &sl);
 }
 
 /**
@@ -641,18 +622,6 @@ void SetSound(char *buf, int len, socket_struct *ns)
 	}
 
 	ns->sound = atoi(buf);
-}
-
-/** Client wants the map resent */
-void MapRedrawCmd(char *buf, int len, player *pl)
-{
-	(void) buf;
-	(void) len;
-
-	/* Okay, this is MAJOR UGLY. But the only way I know how to
-	 * clear the "cache" */
-	memset(&pl->socket.lastmap, 0, sizeof(struct Map));
-	draw_client_map(pl->ob);
 }
 
 /**
