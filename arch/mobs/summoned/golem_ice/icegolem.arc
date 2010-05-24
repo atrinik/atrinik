@@ -11,8 +11,8 @@ direction 5
 terrain_flag 1
 weapon_speed 0.035
 attack_cold 80
-resist_fire -35
-resist_cold 100
+protect_fire -35
+protect_cold 100
 type 80
 Wis 3
 randomitems mob_ice

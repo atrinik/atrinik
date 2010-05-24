@@ -10,8 +10,8 @@ speed -0.05
 weapon_speed 0.038
 attack_poison 65
 attack_acid 10
-resist_poison 100
-resist_paralyze 100
+protect_poison 100
+protect_paralyze 100
 ac 10
 wc 2
 dam 60

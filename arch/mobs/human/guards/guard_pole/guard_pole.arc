@@ -21,11 +21,11 @@ alive 1
 monster 1
 Wis 4
 see_invisible 1
-resist_impact 75
-resist_cleave 75
-resist_pierce 75
-resist_slash 75
-resist_magic 100
+protect_impact 75
+protect_cleave 75
+protect_pierce 75
+protect_slash 75
+protect_magic 100
 no_pick 1
 can_reflect_missile 1
 can_reflect_spell 1

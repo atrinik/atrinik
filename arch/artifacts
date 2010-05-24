@@ -2958,7 +2958,6 @@ face ring_silver_white.101
 type 70
 value 225000
 protect_cold 30
-resist_cold 20
 path_attuned 4
 msg
   This elemental ring is one of those made at
@@ -2987,7 +2986,6 @@ face ring_silver_red.101
 is_magical 1
 type 70
 value 225000
-resist_fire 20
 protect_fire 30
 path_attuned 2
 msg
@@ -3019,7 +3017,6 @@ face ring_silver_blue.101
 type 70
 is_magical 1
 value 225000
-resist_electricity 20
 protect_electricity 30
 path_attuned 8
 msg
@@ -3051,7 +3048,6 @@ type 70
 is_magical 1
 value 325000
 attack_electricity 20
-resist_electricity 20
 protect_electricity 30
 path_attuned 8
 msg
@@ -3735,7 +3731,7 @@ face potion_ruby.101
 level 1
 food 2
 type 5
-resist_fire 25
+protect_fire 25
 is_magical 1
 last_eat -1
 value 145
@@ -3751,7 +3747,7 @@ Object
 title of minor cold resistance
 level 1
 type 5
-resist_cold 25
+protect_cold 25
 food 2
 is_magical 1
 last_eat -1
@@ -3770,7 +3766,7 @@ face potion_yellow.101
 level 1
 food 2
 type 5
-resist_electricity 25
+protect_electricity 25
 is_magical 1
 last_eat -1
 value 135
@@ -3788,7 +3784,7 @@ face potion_green.101
 level 1
 food 2
 type 5
-resist_poison 25
+protect_poison 25
 is_magical 1
 last_eat -1
 value 135
@@ -3806,7 +3802,7 @@ face potion_pink.101
 level 1
 type 5
 food 2
-resist_acid 25
+protect_acid 25
 is_magical 1
 last_eat -1
 value 135
@@ -3873,8 +3869,8 @@ Dex -2
 Str -2
 Pow -2
 Con -2
-resist_poison -50
-resist_acid -50
+protect_poison -50
+protect_acid -50
 is_magical 1
 last_eat -1
 value 35
@@ -4219,7 +4215,7 @@ material 2
 magic 1
 ac 2
 item_level 30
-protect_weapon_magic 4
+protect_weaponmagic 4
 protect_electricity 12
 protect_magic 12
 item_quality 92

@@ -9,9 +9,9 @@ exp 97
 speed -0.04
 weapon_speed 0.038
 attack_slash 100
-resist_paralyze 100
-resist_poison 100
-resist_acid 100
+protect_paralyze 100
+protect_poison 100
+protect_acid 100
 ac 9
 wc 2
 dam 44

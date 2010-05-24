@@ -17,8 +17,8 @@ monster 1
 alive 1
 attack_cleave 50
 attack_cold 50
-resist_cold 100
-resist_slash 40
+protect_cold 100
+protect_slash 40
 path_attuned 131096
 path_repelled 256
 path_denied 66561

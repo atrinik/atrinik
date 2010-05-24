@@ -10,9 +10,9 @@ speed -0.040
 weapon_speed 0.038
 attack_cleave 65
 attack_acid 10
-resist_acid 100
-resist_poison 100
-resist_paralyze 100
+protect_acid 100
+protect_poison 100
+protect_paralyze 100
 ac 10
 wc 2
 dam 58
