@@ -259,8 +259,14 @@ int command_kick(object *ob, char *params)
 		return 1;
 	}
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
+		/* Ignore players not playing. */
+		if (pl->state != ST_PLAYING)
+		{
+			continue;
+		}
+
 		if (!ob || (pl->ob != ob && pl->ob->name && !strncasecmp(pl->ob->name, params, MAX_NAME)))
 		{
 			object *op = pl->ob;
@@ -277,9 +283,6 @@ int command_kick(object *ob, char *params)
 			LOG(llevInfo, "%s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
 
 			CONTR(op)->socket.status = Ns_Dead;
-#if MAP_MAXTIMEOUT
-			op->map->timeout = MAP_TIMEOUT(op->map);
-#endif
 			remove_ns_dead_player(CONTR(op));
 		}
 	}
