@@ -77,7 +77,7 @@ static score_table hiscore_table;
  * @param size Size of the buffer. */
 static void put_score(const score *sc, char *buf, int size)
 {
-	snprintf(buf, size, "%s:%s:%"FMT64":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+	snprintf(buf, size, "%s:%s:%"FMT64U":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 }
 
 /**
@@ -148,7 +148,7 @@ static int get_score(char *bp, score *sc)
 	strncpy(sc->title, tmp[1], sizeof(sc->title));
 	sc->title[sizeof(sc->title) - 1] = '\0';
 
-	sscanf(tmp[2], "%"FMT64, &sc->exp);
+	sscanf(tmp[2], "%"FMT64U, &sc->exp);
 
 	strncpy(sc->killer, tmp[3], sizeof(sc->killer));
 	sc->killer[sizeof(sc->killer) - 1] = '\0';
