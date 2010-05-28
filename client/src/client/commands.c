@@ -87,9 +87,12 @@ void BookCmd(unsigned char *data, int len)
  * @param len Length of the data */
 void PartyCmd(unsigned char *data, int len)
 {
-	cpl.menustatus = MENU_PARTY;
+	gui_interface_party = load_party_interface((char *) data, len);
 
-	gui_interface_party = load_party_interface((char *)data, len);
+	if (gui_interface_party)
+	{
+		cpl.menustatus = MENU_PARTY;
+	}
 }
 
 /**

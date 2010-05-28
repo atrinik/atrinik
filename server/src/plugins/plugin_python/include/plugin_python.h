@@ -268,7 +268,7 @@ typedef struct
 } Atrinik_Map;
 
 extern PyTypeObject Atrinik_PartyType;
-extern PyObject *wrap_party(partylist_struct *party);
+extern PyObject *wrap_party(party_struct *party);
 extern int Atrinik_Party_init(PyObject *module);
 
 /** The Atrinik_Party structure. */
@@ -276,7 +276,7 @@ typedef struct
 {
 	PyObject_HEAD
 	/** Pointer to the Atrinik party we wrap. */
-	partylist_struct *party;
+	party_struct *party;
 } Atrinik_Party;
 
 extern PyTypeObject Atrinik_RegionType;

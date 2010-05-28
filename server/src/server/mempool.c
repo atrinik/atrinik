@@ -190,7 +190,7 @@ void init_mempools()
 	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
 	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
-	pool_parties = create_mempool("parties", 25, sizeof(partylist_struct), 0, NULL, NULL, NULL, NULL);
+	pool_parties = create_mempool("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
 
 	/* Initialize end-of-list pointers and a few other values*/
 	removed_objects = &end_marker;

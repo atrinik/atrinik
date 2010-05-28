@@ -275,54 +275,6 @@ int client_command_check(char *cmd)
 
 		return 1;
 	}
-	else if (!strncmp(cmd, "/party ", 7))
-	{
-		cmd += 7;
-
-		if (!strncmp(cmd, "join ", 5))
-		{
-			cmd += 5;
-
-			sprintf(tmp, "pt join %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "leave", 5))
-		{
-			strcpy(cpl.partyname, "");
-		}
-		else if (!strncmp(cmd, "form ", 5))
-		{
-			cmd += 5;
-
-			sprintf(tmp, "pt form %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "password ", 9))
-		{
-			cmd += 9;
-
-			sprintf(tmp, "pt password %s", cmd);
-			cs_write_string(csocket.fd, tmp, strlen(tmp));
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "who", 3))
-		{
-			cs_write_string(csocket.fd, "pt who", 6);
-
-			return 1;
-		}
-		else if (!strncmp(cmd, "list", 4))
-		{
-			cs_write_string(csocket.fd, "pt list", 7);
-
-			return 1;
-		}
-	}
 	else if (!strncmp(cmd, "/script ", 8))
 	{
 		cmd += 8;

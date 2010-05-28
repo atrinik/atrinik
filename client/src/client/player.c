@@ -254,7 +254,7 @@ void init_player_data()
 	/* This is set from title in stat cmd */
 	strcpy(cpl.pname, "");
 	strcpy(cpl.title, "");
-	strcpy(cpl.partyname, "");
+	cpl.partyname[0] = '\0';
 
 	cpl.menustatus = MENU_NO;
 	cpl.menustatus = MENU_NO;
@@ -586,7 +586,7 @@ void widget_menubuttons_event(int x, int y)
 		/* Party GUI */
 		else if (dy >= 51 && dy <= 74)
 		{
-			cs_write_string(csocket.fd, "pt list", 7);
+			send_command("/party list", -1, SC_NORMAL);
 		}
 		/* Help system */
 		else if (dy >= 76 && dy <= 99)

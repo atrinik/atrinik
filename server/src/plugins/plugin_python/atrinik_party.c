@@ -49,9 +49,9 @@ typedef struct
  * Party fields. */
 party_fields_struct party_fields[] =
 {
-	{"name",            FIELDTYPE_SHSTR,    offsetof(partylist_struct, name),       FIELDFLAG_READONLY},
-	{"leader",          FIELDTYPE_SHSTR,    offsetof(partylist_struct, leader),     0},
-	{"password",        FIELDTYPE_CARY,     offsetof(partylist_struct, passwd),     FIELDFLAG_READONLY},
+	{"name",            FIELDTYPE_SHSTR,    offsetof(party_struct, name),       FIELDFLAG_READONLY},
+	{"leader",          FIELDTYPE_SHSTR,    offsetof(party_struct, leader),     0},
+	{"password",        FIELDTYPE_CARY,     offsetof(party_struct, passwd),     FIELDFLAG_READONLY},
 };
 
 /** Number of party fields */
@@ -78,7 +78,6 @@ static Atrinik_Constant party_constants[] =
 static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
-	char buf[MAX_BUF];
 
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
@@ -102,8 +101,6 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 	}
 
 	hooks->add_party_member(party->party, ob->obj);
-	snprintf(buf, sizeof(buf), "Xjoin\nsuccess\n%s", party->party->name);
-	hooks->Write_String_To_Socket(&CONTR(ob->obj)->socket, BINARY_CMD_PARTY, buf, strlen(buf));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -116,7 +113,6 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args)
 {
 	Atrinik_Object *ob;
-	char buf[MAX_BUF];
 
 	if (!PyArg_ParseTuple(args, "|O!", &Atrinik_ObjectType, &ob))
 	{
@@ -133,8 +129,6 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
 	}
 
 	hooks->remove_party_member(party->party, ob->obj);
-	strcpy(buf, "Xjoin\nsuccess\n ");
-	hooks->Write_String_To_Socket(&CONTR(ob->obj)->socket, BINARY_CMD_PARTY, buf, strlen(buf));
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -413,7 +407,7 @@ int Atrinik_Party_init(PyObject *module)
  * Utility method to wrap a party.
  * @param what Party to wrap.
  * @return Python object wrapping the real party. */
-PyObject *wrap_party(partylist_struct *what)
+PyObject *wrap_party(party_struct *what)
 {
 	Atrinik_Party *wrapper;
 

@@ -517,7 +517,7 @@ typedef struct pl_player
 	player_shop *shop_items;
 
 	/** Pointer to the party this player is member of. */
-	partylist_struct *party;
+	party_struct *party;
 } player;
 
 #ifdef WIN32

@@ -1076,7 +1076,7 @@ void compile_info()
 	LOG(llevInfo, "MapSpaceSize:\t%d\n", sizeof(MapSpace));
 	LOG(llevInfo, "PlayerSize:\t%d\n", sizeof(player));
 	LOG(llevInfo, "SocketSize:\t%d\n", sizeof(socket_struct));
-	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(partylist_struct));
+	LOG(llevInfo, "PartylistSize:\t%d\n", sizeof(party_struct));
 	LOG(llevInfo, "KeyValueSize:\t%d\n", sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");

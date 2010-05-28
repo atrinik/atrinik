@@ -40,28 +40,20 @@ static char *party_tabs[] =
  * Switch a tab. Called on switching tabs, to call the required function. */
 void switch_tabs()
 {
-	char buf[MAX_BUF];
-
 	switch (gui_interface_party->tab)
 	{
-			/* List tab */
 		case PARTY_TAB_LIST:
-			sprintf(buf, "pt list");
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			send_command("/party list", -1, SC_NORMAL);
 			break;
 
-			/* Who tab */
 		case PARTY_TAB_WHO:
-			sprintf(buf, "pt who");
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			send_command("/party who", -1, SC_NORMAL);
 			break;
 
-			/* Leave tab */
 		case PARTY_TAB_LEAVE:
 			sprintf(gui_interface_party->command, "askleave");
 			break;
 
-			/* Password tab */
 		case PARTY_TAB_PASSWORD:
 			sprintf(gui_interface_party->command, "askpassword");
 			break;
@@ -79,11 +71,15 @@ void draw_party_tabs(int x, int y)
 	static int active = 0;
 
 	if (!gui_interface_party)
+	{
 		return;
+	}
 
 	/* If we're not member of a party, we only have 1 tab available... */
-	if (strcmp(cpl.partyname, "") == 0)
+	if (cpl.partyname[0] == '\0')
+	{
 		max = PARTY_TAB_LIST + 1;
+	}
 
 	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 	sprite_blt(Bitmaps[BITMAP_DIALOG_TAB_START], x, y - 10, NULL, NULL);
@@ -455,60 +451,10 @@ void show_party()
 			i++;
 		}
 	}
-	/* Party join command */
-	else if (strcmp(gui_interface_party->command, "join") == 0)
+	else if (strcmp(gui_interface_party->command, "password") == 0)
 	{
-		char subcommand[MAX_BUF], status[HUGE_BUF];
-
-		subcommand[0] = '\0';
-		status[0] = '\0';
-		party_line = gui_interface_party->start;
-
-		/* Loop through the lines */
-		while (party_line)
-		{
-			if (status[0] == '\0')
-			{
-				snprintf(status, sizeof(status), "%s", party_line->line);
-			}
-			else if (subcommand[0] == '\0')
-			{
-				snprintf(subcommand, sizeof(subcommand), "%s", party_line->line);
-			}
-
-			party_line = party_line->next;
-		}
-
-		/* If the server asks us for a password, open up console and change the command to "password". */
-		if (strcmp(subcommand, "password") == 0)
-		{
-			sprintf(gui_interface_party->command, "password");
-			cpl.input_mode = INPUT_MODE_CONSOLE;
-			open_input_mode(8);
-			cpl.menustatus = MENU_NO;
-		}
-		/* We joined successfully - copy the party name to our client player structure */
-		else if (strcmp(subcommand, "success") == 0)
-		{
-			if (status[0] == ' ' && status[1] == '\0')
-			{
-				cpl.partyname[0] = '\0';
-			}
-			else
-			{
-				strncpy(cpl.partyname, status, sizeof(cpl.partyname));
-			}
-
-			cpl.menustatus = MENU_NO;
-		}
-	}
-	/* Sent from server to client when forming party was successful.
-	 * This can NOT be done purely client-side, because there might be
-	 * a party with the same name this player picked, and the client
-	 * won't know about it. */
-	else if (strncmp(gui_interface_party->command, "formsuccess ", 12) == 0)
-	{
-		strcpy(cpl.partyname, gui_interface_party->command + 12);
+		cpl.input_mode = INPUT_MODE_CONSOLE;
+		open_input_mode(8);
 		cpl.menustatus = MENU_NO;
 	}
 	/* Screen to show a confirmation to leave party from the GUI */
@@ -593,61 +539,129 @@ void clear_party_interface()
  * @return Party structure */
 _gui_party_struct *load_party_interface(char *data, int len)
 {
-	char command[MAX_BUF], *p, *partyCommand;
 	_gui_party_line *party_line;
-	int i = 0, tab = gui_interface_party ? gui_interface_party->tab : 0;
+	int i = 0, tab = gui_interface_party ? gui_interface_party->tab : 0, pos = 0;
+	uint8 command;
 
 	/* Start clean */
 	clear_party_interface();
 
+	if (len != -1)
+	{
+		command = (uint8) (data[pos++]);
+
+		switch (command)
+		{
+			case CMD_PARTY_LEAVE:
+				cpl.partyname[0] = '\0';
+				return NULL;
+
+			case CMD_PARTY_JOIN:
+				strncpy(cpl.partyname, data + pos, sizeof(cpl.partyname) - 1);
+				return NULL;
+		}
+	}
+
 	/* Initialize the structure */
-	gui_interface_party = (_gui_party_struct *)malloc(sizeof(_gui_party_struct));
+	gui_interface_party = (_gui_party_struct *) malloc(sizeof(_gui_party_struct));
 	gui_interface_party->start = NULL;
 
-	/* Command to run (list, who...) */
-	sscanf(data, "%32[^\n]\n", command);
-
-	if ((partyCommand = (char *)malloc(len + 1)) == NULL)
+	if (len != -1)
 	{
-		LOG(llevError, "ERROR: Out of memory.\n");
-		SYSTEM_End();
-		exit(0);
-	}
-
-	sprintf(partyCommand, "%s", data);
-	p = strtok(partyCommand, "\n");
-
-	/* Loop through all lines */
-	while (p)
-	{
-		/* If it's not our command */
-		if (!strstr(p, command))
+		switch (command)
 		{
-			party_line = (_gui_party_line *)malloc(sizeof(_gui_party_line));
+			case CMD_PARTY_LIST:
+				tab = PARTY_TAB_LIST;
+				strcpy(gui_interface_party->command, "list");
+				break;
 
-			/* Put this line to the linked list */
-			party_line->next = gui_interface_party->start;
-			gui_interface_party->start = party_line;
-			snprintf(party_line->line, sizeof(party_line->line) - 1, "%s", p);
-			i++;
+			case CMD_PARTY_WHO:
+				tab = PARTY_TAB_WHO;
+				strcpy(gui_interface_party->command, "who");
+				break;
+
+			case CMD_PARTY_PASSWORD:
+				strcpy(gui_interface_party->command, "password");
+				break;
 		}
 
-		p = strtok(NULL, "\n");
-	}
+		while (pos < len)
+		{
+			party_line = (_gui_party_line *) malloc(sizeof(_gui_party_line));
 
-	if (strcmp(command, "list") == 0)
-		tab = PARTY_TAB_LIST;
-	else if (strcmp(command, "who") == 0)
-		tab = PARTY_TAB_WHO;
+			party_line->next = gui_interface_party->start;
+			gui_interface_party->start = party_line;
+			i++;
+
+			if (command == CMD_PARTY_LIST)
+			{
+				size_t j;
+				char c, party_name[MAX_BUF], party_leader[MAX_BUF];
+
+				j = 0;
+
+				while ((c = (char) (data[pos++])))
+				{
+					party_name[j++] = c;
+				}
+
+				party_name[j] = '\0';
+				j = 0;
+
+				while ((c = (char) (data[pos++])))
+				{
+					party_leader[j++] = c;
+				}
+
+				party_leader[j] = '\0';
+				snprintf(party_line->line, sizeof(party_line->line), "Name: %s\tLeader: %s", party_name, party_leader);
+			}
+			else if (command == CMD_PARTY_WHO)
+			{
+				size_t j;
+				char c, player_name[MAX_BUF], map_name[MAX_BUF];
+				uint8 level;
+
+				j = 0;
+
+				while ((c = (char) (data[pos++])))
+				{
+					player_name[j++] = c;
+				}
+
+				player_name[j] = '\0';
+				j = 0;
+
+				while ((c = (char) (data[pos++])))
+				{
+					map_name[j++] = c;
+				}
+
+				map_name[j] = '\0';
+				level = (uint8) (data[pos++]);
+				snprintf(party_line->line, sizeof(party_line->line), "Name: %s\tMap: %s\tLevel: %d", player_name, map_name, level);
+			}
+			else if (command == CMD_PARTY_PASSWORD)
+			{
+				strncpy(party_line->line, data + pos, sizeof(party_line->line) - 1);
+				break;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		strcpy(gui_interface_party->command, data);
+	}
 
 	/* Total of lines */
 	gui_interface_party->lines = i;
 	gui_interface_party->yoff = 0;
 	gui_interface_party->selected = 0;
 	gui_interface_party->tab = tab;
-	strncpy(gui_interface_party->command, command, sizeof(gui_interface_party->command) - 1);
-
-	free(partyCommand);
 
 	return gui_interface_party;
 }
@@ -659,41 +673,21 @@ _gui_party_struct *load_party_interface(char *data, int len)
  * @return 1 if we want to close the console, 0 otherwise */
 int console_party()
 {
-	char partyname[HUGE_BUF];
-
 	/* No GUI or ESC was pressed */
 	if (!gui_interface_party || InputStringEscFlag)
+	{
 		return 0;
+	}
 
 	/* Password command - used when server asks us for a password when joining party. */
 	if (strcmp(gui_interface_party->command, "password") == 0)
 	{
-		_gui_party_line *party_line = gui_interface_party->start;
-		int i = 0, join_party = 0;
-
-		/* Loop through the lines */
-		while (party_line)
-		{
-			/* Found selected line */
-			if (i == gui_interface_party->selected)
-			{
-				snprintf(partyname, sizeof(partyname), "%s", party_line->line);
-				join_party = 1;
-				break;
-			}
-
-			i++;
-			party_line = party_line->next;
-		}
-
-		/* If we found a selected line, and we got a finished string... */
-		if (join_party && InputStringFlag == 0 && InputStringEndFlag)
+		if (gui_interface_party->start && InputStringFlag == 0 && InputStringEndFlag)
 		{
 			char buf[HUGE_BUF];
 
-			/* ... send the command to join this party, along with password. */
-			snprintf(buf, sizeof(buf), "pt join Name: %s\nPassword: %s\n", partyname, InputString);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			snprintf(buf, sizeof(buf), "/party join %s\t%s", gui_interface_party->start->line, InputString);
+			send_command(buf, -1, SC_NORMAL);
 			clear_party_interface();
 
 			return 1;
@@ -707,9 +701,8 @@ int console_party()
 		{
 			char buf[HUGE_BUF];
 
-			/* ... send the command to form this party. */
-			snprintf(buf, sizeof(buf), "pt form %s", InputString);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			snprintf(buf, sizeof(buf), "/party form %s", InputString);
+			send_command(buf, -1, SC_NORMAL);
 			clear_party_interface();
 
 			return 1;
@@ -723,9 +716,8 @@ int console_party()
 		{
 			char buf[HUGE_BUF];
 
-			/* ... send the command to form this party. */
-			snprintf(buf, sizeof(buf), "pt password %s", InputString);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			snprintf(buf, sizeof(buf), "/party password %s", InputString);
+			send_command(buf, -1, SC_NORMAL);
 			clear_party_interface();
 
 			return 1;

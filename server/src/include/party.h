@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Party related structures and defines. */
+ * Party code header file. */
 
 #ifndef PARTY_H
 #define PARTY_H
@@ -34,13 +34,12 @@
  * @defgroup PARTY_MESSAGE_xxx Party message types
  * Party message types.
  *@{*/
-
 /**
  * Status is used for party messages like password change, join/leave,
- * etc */
-#define PARTY_MESSAGE_STATUS    1
-/** Chat is used for party chat messages from party members */
-#define PARTY_MESSAGE_CHAT      2
+ * etc. */
+#define PARTY_MESSAGE_STATUS 1
+/** Chat is used for party chat messages from party members. */
+#define PARTY_MESSAGE_CHAT 2
 /*@}*/
 
 /**
@@ -61,6 +60,24 @@ typedef struct party_struct
 
 	/** Next party in the list. */
 	struct party_struct *next;
-} partylist_struct;
+} party_struct;
+
+party_struct *first_party;
+
+/**
+ * @defgroup CMD_PARTY_xxx Party socket command types
+ * Various types of the BINARY_CMD_PARTY socket command.
+ *@{*/
+/** Show a list of all parties in the game. */
+#define CMD_PARTY_LIST 1
+/** Show current members of your party. */
+#define CMD_PARTY_WHO 2
+/** Successfully joined a party. */
+#define CMD_PARTY_JOIN 3
+/** Joining a party requires a password. */
+#define CMD_PARTY_PASSWORD 4
+/** We're leaving a party. */
+#define CMD_PARTY_LEAVE 5
+/*@}*/
 
 #endif

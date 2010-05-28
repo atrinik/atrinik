@@ -30,29 +30,54 @@
 #include <global.h>
 
 /** The party list. */
-static partylist_struct *partylist = NULL;
+party_struct *first_party = NULL;
 
 /**
  * Add a player to party's member list.
  * @param party Party to add the player to.
  * @param op The player to add. */
-void add_party_member(partylist_struct *party, object *op)
+void add_party_member(party_struct *party, object *op)
 {
 	objectlink *ol = get_objectlink();
+	unsigned char buf[MAX_BUF];
+	SockList sl;
 
+	/* Add the player to the party's linked list of members. */
 	ol->objlink.ob = op;
 	objectlink_link(&party->members, NULL, NULL, party->members, ol);
+	/* And set up player's pointer to the party. */
 	CONTR(op)->party = party;
+
+	/* Tell the client what party we have joined. */
+	if (CONTR(op)->socket.socket_version < 1032)
+	{
+		char tmpbuf[MAX_BUF];
+
+		snprintf(tmpbuf, sizeof(tmpbuf), "Xjoin\nsuccess\n%s", party->name);
+		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
+	}
+	else
+	{
+	sl.buf = buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+	SockList_AddChar(&sl, CMD_PARTY_JOIN);
+	SockList_AddString(&sl, (char *) party->name);
+	Send_With_Handling(&CONTR(op)->socket, &sl);
+	}
 }
 
 /**
  * Remove player from party's member list.
  * @param party Party to remove the player from.
  * @param op The player to remove. */
-void remove_party_member(partylist_struct *party, object *op)
+void remove_party_member(party_struct *party, object *op)
 {
 	objectlink *ol;
+	unsigned char buf[MAX_BUF];
+	SockList sl;
 
+	/* Go through the party members, and remove the player that is
+	 * leaving. */
 	for (ol = party->members; ol; ol = ol->next)
 	{
 		if (ol->objlink.ob == op)
@@ -62,16 +87,32 @@ void remove_party_member(partylist_struct *party, object *op)
 		}
 	}
 
-	/* If no members left, remove the party */
+	/* If no members left, remove the party. */
 	if (!party->members)
 	{
 		remove_party(CONTR(op)->party);
 	}
-	/* Otherwise choose a new leader, if the old one left */
+	/* Otherwise choose a new leader, if the old one left. */
 	else if (op->name == party->leader)
 	{
 		FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
 		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+	}
+
+	/* Tell the client that we have left the party. */
+	if (CONTR(op)->socket.socket_version < 1032)
+	{
+		char tmpbuf[MAX_BUF];
+
+		strncpy(tmpbuf, "Xjoin\nsuccess\n ", sizeof(tmpbuf) - 1);
+		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
+	}
+	else
+	{
+	sl.buf = buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+	SockList_AddChar(&sl, CMD_PARTY_LEAVE);
+	Send_With_Handling(&CONTR(op)->socket, &sl);
 	}
 
 	CONTR(op)->party = NULL;
@@ -81,17 +122,17 @@ void remove_party_member(partylist_struct *party, object *op)
  * Initialize a new party structure.
  * @param name Name of the new party.
  * @return The initialized party structure. */
-partylist_struct *make_party(char *name)
+party_struct *make_party(char *name)
 {
-	partylist_struct *party = (partylist_struct *) get_poolchunk(pool_parties);
+	party_struct *party = (party_struct *) get_poolchunk(pool_parties);
 
 	party->passwd[0] = '\0';
 	FREE_AND_COPY_HASH(party->name, name);
 	party->leader = NULL;
 	party->members = NULL;
 
-	party->next = partylist;
-	partylist = party;
+	party->next = first_party;
+	first_party = party;
 
 	return party;
 }
@@ -102,26 +143,22 @@ partylist_struct *make_party(char *name)
  * @param name Name of the party. */
 void form_party(object *op, char *name)
 {
-	partylist_struct *party = make_party(name);
-	char tmp[MAX_BUF];
+	party_struct *party = make_party(name);
 
 	add_party_member(party, op);
 	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
 	FREE_AND_ADD_REF_HASH(party->leader, op->name);
-
-	snprintf(tmp, sizeof(tmp), "Xformsuccess %s", name);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmp, strlen(tmp));
 }
 
 /**
  * Find a party by name.
  * @param name Party name to find.
  * @return Party if found, NULL otherwise. */
-partylist_struct *find_party(char *name)
+party_struct *find_party(const char *name)
 {
-	partylist_struct *tmp;
+	party_struct *tmp;
 
-	for (tmp = partylist; tmp; tmp = tmp->next)
+	for (tmp = first_party; tmp; tmp = tmp->next)
 	{
 		if (!strcmp(tmp->name, name))
 		{
@@ -195,7 +232,7 @@ sint16 party_member_get_skill(object *op, object *hitter)
  * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
  * @param op Player sending the message. If not NULL, this player will
  * not receive the message. */
-void send_party_message(partylist_struct *party, char *msg, int flag, object *op)
+void send_party_message(party_struct *party, char *msg, int flag, object *op)
 {
 	objectlink *ol;
 
@@ -220,10 +257,10 @@ void send_party_message(partylist_struct *party, char *msg, int flag, object *op
 /**
  * Remove a party.
  * @param party The party to remove. */
-void remove_party(partylist_struct *party)
+void remove_party(party_struct *party)
 {
 	objectlink *ol;
-	partylist_struct *tmp, *prev = NULL;
+	party_struct *tmp, *prev = NULL;
 
 	for (ol = party->members; ol; ol = ol->next)
 	{
@@ -232,13 +269,13 @@ void remove_party(partylist_struct *party)
 		return_poolchunk(ol, pool_objectlink);
 	}
 
-	for (tmp = partylist; tmp; prev = tmp, tmp = tmp->next)
+	for (tmp = first_party; tmp; prev = tmp, tmp = tmp->next)
 	{
 		if (tmp == party)
 		{
 			if (!prev)
 			{
-				partylist = tmp->next;
+				first_party = tmp->next;
 			}
 			else
 			{
@@ -258,10 +295,11 @@ void remove_party(partylist_struct *party)
  * Party command used from client party GUI.
  * @param buf The incoming data.
  * @param len Length of the data.
- * @param pl Player. */
+ * @param pl Player.
+ * @deprecated */
 void PartyCmd(char *buf, int len, player *pl)
 {
-	partylist_struct *party;
+	party_struct *party;
 	objectlink *ol;
 	StringBuffer *sb = NULL;
 	char tmpbuf[MAX_BUF];
@@ -277,7 +315,7 @@ void PartyCmd(char *buf, int len, player *pl)
 		sb = stringbuffer_new();
 		stringbuffer_append_string(sb, "Xlist");
 
-		for (party = partylist; party; party = party->next)
+		for (party = first_party; party; party = party->next)
 		{
 			stringbuffer_append_printf(sb, "\nName: %s\tLeader: %s", party->name, party->leader);
 		}

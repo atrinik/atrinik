@@ -870,7 +870,7 @@ static void share_kill_exp_one(object *op, sint32 exp)
 static void share_kill_exp(object *op, sint32 exp)
 {
 	int shares = 0, count = 0;
-	partylist_struct *party;
+	party_struct *party;
 	objectlink *ol;
 
 	if (!CONTR(op)->party)

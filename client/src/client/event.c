@@ -2658,7 +2658,7 @@ void check_menu_keys(int menu, int key)
 					if (shiftPressed)
 					{
 						/* If the next time won't be over maximum, go to the below tab and switch tab. */
-						if (gui_interface_party->tab + 1 < (strcmp(cpl.partyname, "") == 0 ? PARTY_TAB_LIST + 1 : PARTY_TABS))
+						if (gui_interface_party->tab + 1 < (cpl.partyname[0] == '\0' ? PARTY_TAB_LIST + 1 : PARTY_TABS))
 						{
 							gui_interface_party->tab++;
 							gui_interface_party->selected = 0;
@@ -2710,8 +2710,8 @@ void check_menu_keys(int menu, int key)
 							/* ... and it's not party we're member of, send command to server and close the GUI. */
 							if (strcmp(partyname, cpl.partyname))
 							{
-								snprintf(buf, sizeof(buf), "pt join %s", partyname);
-								cs_write_string(csocket.fd, buf, strlen(buf));
+								snprintf(buf, sizeof(buf), "/party join %s", partyname);
+								send_command(buf, -1, SC_NORMAL);
 
 								map_udate_flag = 2;
 								cpl.menustatus = MENU_NO;
@@ -2737,7 +2737,7 @@ void check_menu_keys(int menu, int key)
 					else if (strcmp(gui_interface_party->command, "askpassword") == 0)
 					{
 						/* Load the party interface - mostly we need it to set the command. */
-						gui_interface_party = load_party_interface("passwordset", 11);
+						gui_interface_party = load_party_interface("passwordset", -1);
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 
 						/* Open the console, with a maximum of 8 chars. */
@@ -2766,7 +2766,7 @@ void check_menu_keys(int menu, int key)
 					if (strcmp(gui_interface_party->command, "list") == 0)
 					{
 						/* Load the party interface */
-						gui_interface_party = load_party_interface("form", 4);
+						gui_interface_party = load_party_interface("form", -1);
 
 						cpl.input_mode = INPUT_MODE_CONSOLE;
 
