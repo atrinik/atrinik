@@ -249,11 +249,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		return;
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_NO_DROP))
-	{
-		return;
-	}
-
 	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
 	{
 		new_draw_info(NDI_UNIQUE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
