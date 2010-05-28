@@ -8,6 +8,7 @@ slaying set_individual_value
 face key_blue.111
 type 21
 value 100
-weight 100
+weight 5
 identified 1
+no_drop 1
 end
