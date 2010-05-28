@@ -1216,6 +1216,7 @@ object *hit_with_arrow(object *op, object *victim)
 	int hit_something = 0;
 	tag_t victim_tag, hitter_tag;
 	sint16 victim_x, victim_y;
+	mapstruct *victim_map;
 
 	/* Disassemble missile */
 	if (op->inv)
@@ -1234,6 +1235,7 @@ object *hit_with_arrow(object *op, object *victim)
 	/* Try to hit victim */
 	victim_x = victim->x;
 	victim_y = victim->y;
+	victim_map = victim->map;
 	victim_tag = victim->count;
 	hitter_tag = hitter->count;
 
@@ -1292,7 +1294,7 @@ object *hit_with_arrow(object *op, object *victim)
 			{
 				hitter->x = victim_x;
 				hitter->y = victim_y;
-				insert_ob_in_map(hitter, victim->map, hitter, 0);
+				insert_ob_in_map(hitter, victim_map, hitter, 0);
 			}
 		}
 		/* Else leave arrow where it is */
