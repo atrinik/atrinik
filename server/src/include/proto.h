@@ -397,10 +397,10 @@ void check_inv(object *op, object *trig);
 void become_daemon(char *filename);
 
 /* server/exp.c */
-uint32 level_exp(int level, double expmul);
-sint32 add_exp(object *op, int exp, int skill_nr);
+uint64 level_exp(int level, double expmul);
+sint64 add_exp(object *op, sint64 exp, int skill_nr);
 void player_lvl_adj(object *who, object *op);
-int adjust_exp(object *pl, object *op, int exp);
+sint64 adjust_exp(object *pl, object *op, sint64 exp);
 void apply_death_exp_penalty(object *op);
 float calc_level_difference(int who_lvl, int op_lvl);
 uint64 calculate_total_exp(object *op);
@@ -746,16 +746,16 @@ void ss_dump_statistics(char *buf, size_t size);
 void ss_dump_table(int what, char *buf, size_t size);
 
 /* server/skills.c */
-int find_traps(object *pl, int level);
-int remove_trap(object *op);
+sint64 find_traps(object *pl, int level);
+sint64 remove_trap(object *op);
 object *find_throw_tag(object *op, tag_t tag);
 void do_throw(object *op, object *toss_item, int dir);
 
 /* server/skill_util.c */
 int find_skill_exp_level(object *pl, int item_skill);
 char *find_skill_exp_skillname(int item_skill);
-int do_skill(object *op, int dir);
-int calc_skill_exp(object *who, object *op, int level);
+sint64 do_skill(object *op, int dir);
+sint64 calc_skill_exp(object *who, object *op, int level);
 void init_new_exp_system();
 void free_exp_objects();
 void dump_skills();

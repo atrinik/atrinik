@@ -24,14 +24,6 @@ AC_ARG_ENABLE(sound,
    [AC_DEFINE(INSTALL_SOUND,, [ Use the SDL_mixer sound system. Remove when you have no sound card or slow computer])]
 )
 
-AC_ARG_ENABLE(opengl,
-   [  --enable-opengl         compile with OpenGL support (experimental)],
-   [  if test "x$enableval" = "xyes" ; then
-	     AC_DEFINE(INSTALL_OPENGL,, [Use OpenGL to do the render/blits (experimental)])
-	  fi
-   ]
-)
-
 AC_ARG_ENABLE(win32,
    [  --enable-win32          compile with Win32 support],
    [  if test "x$enableval" = "xyes" ; then
@@ -62,6 +54,9 @@ AX_CHECK_ZLIB()
 AC_CHECK_FUNCS(stricmp strnicmp strcasecmp strncasecmp)
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([fcntl.h])
+
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(long long)
 
 AC_CHECK_HEADERS(curl/curl.h)
 AC_CHECK_LIB(curl, curl_global_init, [LIBS="$LIBS -lcurl"])

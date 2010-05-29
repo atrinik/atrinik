@@ -68,6 +68,7 @@
 #	define unlink _unlink
 #	define lseek _lseek
 #	define access _access
+#	define strtoull _strtoui64
 #	define F_OK 6
 #	define R_OK 6
 #	define W_OK 2

@@ -423,7 +423,7 @@ lex_error = 0;
 ^maxsp{S}           op->stats.maxsp = IVAL;
 ^grace{S}           op->stats.grace = IVAL;
 ^maxgrace{S}        op->stats.maxgrace = IVAL;
-^exp{S}             op->stats.exp = atol(yval());
+^exp{S}             op->stats.exp = atoll(yval());
 ^food{S}            op->stats.food = IVAL;
 ^dam{S}             op->stats.dam = IVAL;
 ^dam_add{S}         op->stats.dam += IVAL;
@@ -1327,7 +1327,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
 	if (op->stats.exp != op2->stats.exp)
 	{
-		FAST_SAVE_LONG(sb, "exp ", op->stats.exp);
+		stringbuffer_append_printf(sb, "exp %"FMT64"\n", op->stats.exp);
 	}
 
 	if (op->stats.food != op2->stats.food)

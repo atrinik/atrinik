@@ -10,6 +10,7 @@ void SockList_AddChar(SockList *sl, char c);
 void SockList_AddShort(SockList *sl, uint16 data);
 void SockList_AddInt(SockList *sl, uint32 data);
 int GetInt_String(const unsigned char *data);
+sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
 int send_socklist(int fd, SockList msg);
 int cs_write_string(int fd, char *buf, size_t len);

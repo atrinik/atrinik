@@ -396,10 +396,10 @@ typedef struct pl_player
 	uint32 mark_count;
 
 	/** Last skill category experience sent to client. */
-	sint32 last_skill_exp[MAX_EXP_CAT];
+	sint64 last_skill_exp[MAX_EXP_CAT];
 
 	/** Skill experience for all skills. */
-	sint32 skill_exp[NROFSKILLS];
+	sint64 skill_exp[NROFSKILLS];
 
 	/** Count of target. */
 	uint32 target_object_count;

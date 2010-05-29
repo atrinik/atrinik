@@ -212,7 +212,7 @@ static void attempt_do_alchemy(object *caster, object *cauldron)
 					if (caster->chosen_skill && caster->chosen_skill->stats.sp == SK_ALCHEMY)
 					{
 						/* More exp is given for higher ingred number recipes */
-						int amount = numb * numb * calc_skill_exp(caster, item, -1);
+						sint64 amount = numb * numb * calc_skill_exp(caster, item, -1);
 						add_exp(caster, amount, SK_ALCHEMY);
 						/* So when skill id this item, less xp is awarded */
 						item->stats.exp = 0;

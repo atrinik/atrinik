@@ -880,7 +880,8 @@ void widget_show_main_lvl(int x, int y)
 	{
 		char buf[MAX_BUF];
 		double multi, line;
-		int s, level_exp;
+		int s;
+		sint64 level_exp;
 		_BLTFX bltfx;
 
 		cur_widget[MAIN_LVL_ID].redraw = 0;
@@ -902,7 +903,7 @@ void widget_show_main_lvl(int x, int y)
 			StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
 		}
 
-		snprintf(buf, sizeof(buf), "%d", cpl.stats.exp);
+		snprintf(buf, sizeof(buf), "%"FMT64, cpl.stats.exp);
 		StringBlt(widgetSF[MAIN_LVL_ID], &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
 		/* Calculate the exp bubbles */
@@ -984,14 +985,15 @@ void widget_show_skill_exp(int x, int y)
 
 	if (cur_widget[SKILL_EXP_ID].redraw)
 	{
-		int s, level_exp;
+		int s;
+		sint64 level_exp;
 		_BLTFX bltfx;
 		char buf[MAX_BUF];
-		long int liLExp = 0;
-		long int liLExpTNL = 0;
-		long int liTExp = 0;
-		long int liTExpTNL = 0;
-		float fLExpPercent = 0;
+		sint64 liLExp = 0;
+		sint64 liLExpTNL = 0;
+		sint64 liTExp = 0;
+		sint64 liTExpTNL = 0;
+		double fLExpPercent = 0;
 		double multi = 0, line = 0;
 
 		cur_widget[SKILL_EXP_ID].redraw = 0;
@@ -1054,7 +1056,7 @@ void widget_show_skill_exp(int x, int y)
 				case 0:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%d / %-9d", skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level,skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
+						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, skill_list[cpl.skill_g].entry[cpl.skill_e].exp_level, skill_list[cpl.skill_g].entry[cpl.skill_e].exp);
 					}
 					else if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp == -2)
 					{
@@ -1084,7 +1086,7 @@ void widget_show_skill_exp(int x, int y)
 				case 2:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%ld / %ld", liLExp, liLExpTNL);
+						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liLExp, liLExpTNL);
 					}
 					else
 					{
@@ -1097,7 +1099,7 @@ void widget_show_skill_exp(int x, int y)
 				case 3:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%ld / %ld", liTExp, liTExpTNL);
+						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liTExp, liTExpTNL);
 					}
 					else
 					{
@@ -1110,7 +1112,7 @@ void widget_show_skill_exp(int x, int y)
 				case 4:
 					if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 					{
-						snprintf(buf, sizeof(buf), "%#05.2f%% - %ld", fLExpPercent, liLExpTNL - liLExp);
+						snprintf(buf, sizeof(buf), "%#05.2f%% - %"FMT64, fLExpPercent, liLExpTNL - liLExp);
 					}
 					else
 					{

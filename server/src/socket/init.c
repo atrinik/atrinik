@@ -458,7 +458,7 @@ static void create_client_settings()
 
 	for (i = 0; i <= MAXLEVEL; i++)
 	{
-		snprintf(buf, sizeof(buf), "%x\n", new_levels[i]);
+		snprintf(buf, sizeof(buf), "%"FMT64HEX"\n", new_levels[i]);
 		fputs(buf, fset_create);
 	}
 

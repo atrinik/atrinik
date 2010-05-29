@@ -1495,7 +1495,7 @@ void load_settings()
 			}
 			else if (last_cmd == 1)
 			{
-				server_level.exp[para_count++] = strtoul(buf, NULL, 16);
+				server_level.exp[para_count++] = strtoull(buf, NULL, 16);
 
 				if (para_count >tmp_level)
 					last_cmd = 0;

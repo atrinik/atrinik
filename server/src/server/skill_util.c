@@ -68,14 +68,15 @@ static float lev_exp[MAXLEVEL + 1] =
 	352.94f,  353.62f,  354.29f,  354.93f,  355.56f,
 	356.16f,  356.76f,  357.33f,  357.89f,  358.44f,
 	358.97f,  359.49f,  360.00f,  360.49f,  360.98f,
-	361.45f,  361.90f,  362.35f,  362.79f,  363.22f,
-	363.64f,  364.04f,  364.44f,  364.84f,  365.22f,
-	365.59f,  365.96f,  366.32f,  366.67f,  367.01f,
-	367.35f,  367.68f,  368.00f,  368.32f,  368.63f,
-	368.93f,  369.23f,  369.52f,  369.81f,  370.09f,
-	370.37f,  370.64f,  370.91f,  371.17f,  371.43f,
-	371.68f,  371.93f,  372.17f,  372.41f,  372.65f,
-	372.88f
+	361.45f,  361.90f,  362.35f,  362.79f,  365.22f,
+	367.64f,  369.04f,  373.44f,  378.84f,  384.22f,
+	389.59f,  395.96f,  402.32f,  410.67f,  419.01f,
+	429.35f,  440.68f,  452.00f,  465.32f,  479.63f,
+	494.93f,  510.23f,  527.52f,  545.81f,  562.09f,
+	580.37f,  599.64f,  619.91f,  640.17f,  662.43f,
+	685.68f,  709.93f,  773.17f,  852.41f,  932.65f,
+	1013.88f, 1104.11f, 1213.35f, 1324.60f, 1431.86f,
+	1542.13f
 };
 
 /** Skill category table. */
@@ -180,9 +181,10 @@ char *find_skill_exp_skillname(int item_skill)
  * @param op The object actually using the skill.
  * @param dir The direction in which the skill is used.
  * @return 0 on failure of using the skill, non-zero otherwise. */
-int do_skill(object *op, int dir)
+sint64 do_skill(object *op, int dir)
 {
-	int success = 0, skill = op->chosen_skill->stats.sp;
+	sint64 success = 0;
+	int skill = op->chosen_skill->stats.sp;
 
 	switch (skill)
 	{
@@ -267,10 +269,11 @@ int do_skill(object *op, int dir)
  * @param level Level of the skill. If -1, will get level of who's chosen
  * skill.
  * @return Experience for the skill use. */
-int calc_skill_exp(object *who, object *op, int level)
+sint64 calc_skill_exp(object *who, object *op, int level)
 {
 	int who_lvl = level;
-	int op_exp = 0, op_lvl = 0;
+	sint64 op_exp = 0;
+	int op_lvl = 0;
 	float exp_mul, max_mul, tmp;
 
 	/* No exp for non players. */

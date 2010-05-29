@@ -1395,7 +1395,7 @@ char *describe_item(object *op)
 
 		if (op->stats.exp)
 		{
-			sprintf(buf, "(speed %+d)", op->stats.exp);
+			sprintf(buf, "(speed %+"FMT64")", op->stats.exp);
 			strcat(retbuf, buf);
 		}
 	}

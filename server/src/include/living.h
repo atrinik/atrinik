@@ -86,7 +86,7 @@ extern char *spellpathnames[NRSPELLPATHS];
 typedef struct liv
 {
 	/** Experience. */
-	sint32 exp;
+	sint64 exp;
 
 	/** Hit points. */
 	sint32 hp;

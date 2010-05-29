@@ -119,7 +119,7 @@ void apply_book(object *op, object *tmp)
 	/* gain xp from reading but only if not read before */
 	if (!QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
 	{
-		int exp_gain = calc_skill_exp(op, tmp, -1);
+		sint64 exp_gain = calc_skill_exp(op, tmp, -1);
 
 		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{

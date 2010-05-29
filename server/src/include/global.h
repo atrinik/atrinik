@@ -90,6 +90,7 @@ typedef const char shstr;
 
 #	define FMT64                        "I64d"
 #	define FMT64U                       "I64u"
+#	define FMT64HEX                     "I64x"
 
 	/* Conversion from 'xxx' to 'yyy', possible loss of data */
 #	pragma warning(disable: 4244)
@@ -101,12 +102,14 @@ typedef const char shstr;
 		typedef signed long             sint64;
 #		define FMT64                    "ld"
 #		define FMT64U                   "lu"
+#		define FMT64HEX                 "lx"
 
 #	elif SIZEOF_LONG_LONG == 8
 		typedef unsigned long long      uint64;
 		typedef signed long long        sint64;
 #		define FMT64                    "lld"
 #		define FMT64U                   "llu"
+#		define FMT64HEX                 "llx"
 
 #	else
 #		error Do not know how to get a 64 bit value on this system.
@@ -271,8 +274,8 @@ if (_nv_)                          \
 #define EXP_NONE 0
 
 /** The maximum level. */
-#define MAXLEVEL 110
-extern uint32 new_levels[MAXLEVEL + 2];
+#define MAXLEVEL 115
+extern uint64 new_levels[MAXLEVEL + 2];
 
 /**
  * Used to link together shared strings. */

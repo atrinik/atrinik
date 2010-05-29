@@ -808,13 +808,8 @@ void StatsCmd(unsigned char *data, int len)
 					break;
 
 				case CS_STAT_EXP:
-					temp = GetInt_String(data + i);
-
-					if (temp < cpl.stats.exp)
-						cpl.warn_drain = 1;
-
-					cpl.stats.exp = temp;
-					i += 4;
+					cpl.stats.exp = GetInt64_String(data + i);
+					i += 8;
 					WIDGET_REDRAW(MAIN_LVL_ID);
 					break;
 
@@ -875,8 +870,8 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_SKILLEXP_PHYSIQUE:
 				case CS_STAT_SKILLEXP_MAGIC:
 				case CS_STAT_SKILLEXP_WISDOM:
-					cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt_String(data + i);
-					i += 4;
+					cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt64_String(data + i);
+					i += 8;
 					WIDGET_REDRAW(SKILL_LVL_ID);
 					break;
 
@@ -1749,7 +1744,8 @@ void SendSetFaceMode(ClientSocket csock, int mode)
 void SkilllistCmd(char *data)
 {
 	char *tmp, *tmp2, *tmp3, *tmp4;
-	int l, e, i, ii, mode;
+	int l, i, ii, mode;
+	sint64 e;
 	char name[256];
 
 #if 0
@@ -1790,7 +1786,7 @@ void SkilllistCmd(char *data)
 		tmp4 = strchr(tmp3 + 1, '|');
 
 		l = atoi(tmp3 + 1);
-		e = atoi(tmp4 + 1);
+		e = atoll(tmp4 + 1);
 
 		/* We have a name, the level and exp - now setup the list */
 		for (ii = 0; ii < SKILL_LIST_MAX; ii++)

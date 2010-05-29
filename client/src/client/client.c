@@ -258,6 +258,19 @@ int GetInt_String(const unsigned char *data)
 }
 
 /**
+ * 64-bit version of GetInt_String().
+ * @param data The string.
+ * @return Integer from the string. */
+sint64 GetInt64_String(const unsigned char *data)
+{
+#ifdef WIN32
+	return (((sint64) data[0] << 56) + ((sint64) data[1] << 48) + ((sint64) data[2] << 40) + ((sint64) data[3] << 32) + ((sint64) data[4] << 24) + ((sint64) data[5] << 16) + ((sint64) data[6] << 8) + (sint64) data[7]);
+#else
+	return (((uint64) data[0] << 56) + ((uint64) data[1] << 48) + ((uint64) data[2] << 40) + ((uint64) data[3] << 32) + ((uint64) data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7]);
+#endif
+}
+
+/**
  * Does the reverse of SockList_AddShort, but on strings instead.
  * @param data The string.
  * @return Short integer from the string. */

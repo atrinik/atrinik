@@ -36,7 +36,7 @@
  * @param pl Player searching.
  * @param level Level of the find traps skill.
  * @return Experience gained for finding traps. */
-int find_traps(object *pl, int level)
+sint64 find_traps(object *pl, int level)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
@@ -141,7 +141,7 @@ int find_traps(object *pl, int level)
  * This skill will disarm any previously discovered trap.
  * @param op Player disarming.
  * @return 0. */
-int remove_trap(object *op)
+sint64 remove_trap(object *op)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;

@@ -237,9 +237,9 @@ def check_map(map):
 	# the difficulty to 1.
 	if not "difficulty" in map:
 		add_error(map["file"], "Map is missing difficulty.", errors.low)
-	# This is an error, if the difficulty is set, and it's lower than 1 or higher than 110.
-	elif map["difficulty"] < 1 or map["difficulty"] > 110:
-		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-110.".format(map["difficulty"]), errors.medium)
+	# This is an error, if the difficulty is set, and it's lower than 1 or higher than 115.
+	elif map["difficulty"] < 1 or map["difficulty"] > 115:
+		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-115.".format(map["difficulty"]), errors.medium)
 
 	# Map missing 'width' or 'height' is a serious error.
 	if not "width" in map:

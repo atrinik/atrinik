@@ -373,7 +373,7 @@ typedef struct _skill_list_entry
 	int exp_level;
 
 	/* exp of this skill */
-	int exp;
+	sint64 exp;
 }_skill_list_entry;
 
 typedef struct _skill_list

@@ -850,7 +850,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
  * @param op Player. This should be the killer.
  * @param exp Experience to gain.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp_one(object *op, sint32 exp, object *skill)
+static void share_kill_exp_one(object *op, sint64 exp, object *skill)
 {
 	if (exp)
 	{
@@ -869,7 +869,7 @@ static void share_kill_exp_one(object *op, sint32 exp, object *skill)
  * @param op Player that killed the monster.
  * @param exp Experience to share.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp(object *op, sint32 exp, object *skill)
+static void share_kill_exp(object *op, sint64 exp, object *skill)
 {
 	int shares = 0, count = 0;
 	party_struct *party;
@@ -905,7 +905,7 @@ static void share_kill_exp(object *op, sint32 exp, object *skill)
 	}
 	else
 	{
-		sint32 share = exp / shares, given = 0, nexp;
+		sint64 share = exp / shares, given = 0, nexp;
 
 		for (ol = party->members; ol; ol = ol->next)
 		{
@@ -939,7 +939,7 @@ static void share_kill_exp(object *op, sint32 exp, object *skill)
 int kill_object(object *op, int dam, object *hitter, int type)
 {
 	int maxdam, battleg;
-	sint32 exp = 0;
+	sint64 exp = 0;
 	object *owner;
 
 	(void) dam;

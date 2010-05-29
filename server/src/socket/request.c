@@ -654,6 +654,14 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
 		SockList_AddInt(&sl, (uint32) (New));               \
 	}
 
+#define AddIfInt64(Old, New, Type)                          \
+	if (Old != New)                                         \
+	{                                                       \
+		Old = New;                                          \
+		SockList_AddChar(&sl, Type);                        \
+		SockList_AddInt64(&sl, New);                        \
+	}
+
 #define AddIfShort(Old, New, Type)                          \
 	if (Old != New)                                         \
 	{                                                       \
@@ -704,7 +712,7 @@ void add_skill_to_skilllist(object *skill, StringBuffer *sb)
 	/* Normal skills */
 	if (skill->last_eat == 1)
 	{
-		stringbuffer_append_printf(sb, "/%s|%d|%d", skill->name, skill->level, skill->stats.exp);
+		stringbuffer_append_printf(sb, "/%s|%d|%"FMT64, skill->name, skill->level, skill->stats.exp);
 	}
 	/* 'Buy level' skills */
 	else if (skill->last_eat == 2)
@@ -816,7 +824,14 @@ void esrv_update_stats(player *pl)
 		AddIfChar(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON);
 		AddIfChar(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA);
 
-		AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
+		if (pl->socket.socket_version < 1033)
+		{
+			AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
+		}
+		else
+		{
+			AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
+		}
 		AddIfShort(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC);
 		AddIfShort(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC);
 		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);
@@ -826,8 +841,16 @@ void esrv_update_stats(player *pl)
 
 	for (i = 0; i < pl->last_skill_index; i++)
 	{
-		AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		AddIfChar(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i]+1);
+		if (pl->socket.socket_version < 1033)
+		{
+			AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
+		}
+		else
+		{
+		AddIfInt64(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
+		}
+
+		AddIfChar(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1);
 	}
 
 	flags = 0;

@@ -36,7 +36,7 @@
 typedef struct _server_level
 {
 	int level;
-	uint32 exp[500];
+	sint64 exp[500];
 } _server_level;
 
 /** IDs of the player doll items. */

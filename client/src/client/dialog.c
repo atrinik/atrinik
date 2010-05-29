@@ -945,7 +945,7 @@ void show_skilllist()
 			}
 			else
 			{
-				sprintf(buf, "%d", skill_list[skill_list_set.group_nr].entry[i].exp);
+				sprintf(buf, "%"FMT64, skill_list[skill_list_set.group_nr].entry[i].exp);
 			}
 
 			StringBlt(ScreenSurface, &SystemFont, buf, x + TXT_START_EXP, y + TXT_Y_START, COLOR_WHITE, NULL, NULL);

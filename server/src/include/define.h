@@ -1115,7 +1115,7 @@
 	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || (QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp) / 1000.0
-#define SET_SLOW_PENALTY(xyz, fl) (xyz)->stats.exp = (sint32) ((fl) * 1000.0)
+#define SET_SLOW_PENALTY(xyz, fl) (xyz)->stats.exp = (sint64) ((fl) * 1000.0)
 
 #define EXIT_PATH(xyz) (xyz)->slaying
 #define EXIT_LEVEL(xyz) (xyz)->stats.food
@@ -1261,11 +1261,29 @@
 	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff; \
 	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
 
+/**
+ * Adds a 32-bit value.
+ * @param _sl_ SockList instance to add to.
+ * @param _data_ The value to add. */
 #define SockList_AddInt(_sl_, _data_)                     \
 	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 24) & 0xff; \
 	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 16) & 0xff; \
 	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff;  \
 	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
+
+/**
+ * Adds a 64-bit value.
+ * @param _sl_ SockList instance to add to.
+ * @param _data_ The value to add. */
+#define SockList_AddInt64(_sl_, _data_)                            \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 56) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 48) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 40) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 32) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 24) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 16) & 0xff); \
+	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 8) & 0xff);  \
+	(_sl_)->buf[(_sl_)->len++] = (char) ((_data_) & 0xff)
 
 /* Basically does the reverse of SockList_AddInt, but on
  * strings instead.  Same for the GetShort, but for 16 bits. */

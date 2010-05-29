@@ -1036,11 +1036,12 @@ int command_remove(object *op, char *params)
 int command_addexp(object *op, char *params)
 {
 	char buf[MAX_BUF];
-	int exp, snr;
+	int snr;
+	sint64 exp;
 	object *exp_skill, *exp_ob;
 	player *pl;
 
-	if (params == NULL || sscanf(params, "%s %d %d", buf, &snr, &exp) != 3)
+	if (params == NULL || sscanf(params, "%s %d %"FMT64, buf, &snr, &exp) != 3)
 	{
 		int i;
 

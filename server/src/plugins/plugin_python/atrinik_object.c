@@ -142,7 +142,7 @@ obj_fields_struct obj_fields[] =
 	{"weapon_speed",           FIELDTYPE_FLOAT,      offsetof(object, weapon_speed),           0,                           0},
 	{"weapon_speed_left",      FIELDTYPE_FLOAT,      offsetof(object, weapon_speed_left),      0,                           0},
 	{"weapon_speed_add",       FIELDTYPE_FLOAT,      offsetof(object, weapon_speed_add),       0,                           0},
-	{"experience",             FIELDTYPE_SINT32,     offsetof(object, stats.exp),              0,                           0},
+	{"experience",             FIELDTYPE_SINT64,     offsetof(object, stats.exp),              0,                           0},
 	{"hitpoints",              FIELDTYPE_SINT32,     offsetof(object, stats.hp),               0,                           0},
 
 	{"max_hitpoints",          FIELDTYPE_SINT32,     offsetof(object, stats.maxhp),            FIELDFLAG_PLAYER_READONLY,   0},

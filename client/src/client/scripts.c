@@ -588,7 +588,7 @@ static void script_process_cmd(int i)
 				snprintf(buf, sizeof(buf), "request stat stats %d %d %d %d %d %d %d\n", cpl.stats.Str, cpl.stats.Dex, cpl.stats.Con, cpl.stats.Int, cpl.stats.Wis, cpl.stats.Pow, cpl.stats.Cha);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
 			}
-			else if (!strncmp(c, "combat", 4))
+			else if (!strncmp(c, "combat", 6))
 			{
 				snprintf(buf, sizeof(buf), "request stat combat %d %d %d %d %d\n", cpl.stats.wc, cpl.stats.ac, cpl.stats.dam, cpl.stats.speed, cpl.stats.weapon_sp);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
@@ -598,16 +598,16 @@ static void script_process_cmd(int i)
 				snprintf(buf, sizeof(buf), "request stat hp %d %d %d %d %d %d %d\n", cpl.stats.hp, cpl.stats.maxhp, cpl.stats.sp, cpl.stats.maxsp, cpl.stats.grace, cpl.stats.maxgrace, cpl.stats.food);
 				w = write(scripts[i].out_fd,buf,strlen(buf));
 			}
-			else if (!strncmp(c, "exp", 2))
+			else if (!strncmp(c, "exp", 3))
 			{
 				int s;
 
-				snprintf(buf, sizeof(buf), "request stat exp %d %d", cpl.stats.level, cpl.stats.exp);
+				snprintf(buf, sizeof(buf), "request stat exp %d %"FMT64, cpl.stats.level, cpl.stats.exp);
 				w = write(scripts[i].out_fd, buf, strlen(buf));
 
 				for (s = 0; s < MAX_SKILL; s++)
 				{
-					snprintf(buf, sizeof(buf), " %d %d", cpl.stats.skill_level[s], cpl.stats.skill_exp[s]);
+					snprintf(buf, sizeof(buf), " %d %"FMT64, cpl.stats.skill_level[s], cpl.stats.skill_exp[s]);
 					w = write(scripts[i].out_fd, buf, strlen(buf));
 				}
 
@@ -990,8 +990,8 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 								case CS_STAT_SKILLEXP_PHYSIQUE:
 								case CS_STAT_SKILLEXP_MAGIC:
 								case CS_STAT_SKILLEXP_WISDOM:
-									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %d\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt_String(data + i));
-									i += 4;
+									be += snprintf(buf + be, sizeof(buf) - be, " skill_exp %d %"FMT64"\n", (c - CS_STAT_SKILLEXP_START) / 2, GetInt64_String(data + i));
+									i += 8;
 									break;
 
 								case CS_STAT_SKILLEXP_AGLEVEL:

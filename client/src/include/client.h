@@ -161,7 +161,7 @@ typedef struct Stat_struct
 	sint16 maxgrace;
 
 	/* Experience.  Killers gain 1/10. */
-	sint32 exp;
+	sint64 exp;
 
 	/* How much food in stomach.  0 = starved. */
 	sint16 food;
@@ -185,7 +185,7 @@ typedef struct Stat_struct
 	sint16 skill_level[MAX_SKILL];
 
 	/* Skills */
-	sint32 skill_exp[MAX_SKILL];
+	sint64 skill_exp[MAX_SKILL];
 } Stats;
 
 typedef enum _inventory_win
