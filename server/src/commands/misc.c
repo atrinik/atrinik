@@ -247,24 +247,13 @@ int command_who(object *op, char *params)
 
 		if (pl->state == ST_PLAYING)
 		{
-			char *sex = "neuter";
-
-			if (QUERY_FLAG(pl->ob, FLAG_IS_MALE))
-			{
-				sex = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
-			}
-			else if (QUERY_FLAG(pl->ob, FLAG_IS_FEMALE))
-			{
-				sex = "female";
-			}
-
 			if (wiz)
 			{
 				snprintf(buf, sizeof(buf), "%s (%s) [%s] (#%d)", pl->ob->name, pl->socket.host, pl->ob->map->path, pl->ob->count);
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, sex, pl->ob->race, pl->ob->level);
+				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], pl->ob->race, pl->ob->level);
 
 				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 				{

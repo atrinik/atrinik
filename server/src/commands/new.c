@@ -1123,7 +1123,6 @@ void send_golem_control(object *golem, int mode)
 void generate_ext_title(player *pl)
 {
 	object *walk;
-	char *gender;
 	char prof[32] = "";
 	char title[32] = "";
 	char rank[32] = "";
@@ -1167,19 +1166,6 @@ void generate_ext_title(player *pl)
 		}
 	}
 
-	if (QUERY_FLAG(pl->ob, FLAG_IS_MALE))
-	{
-		gender = QUERY_FLAG(pl->ob, FLAG_IS_FEMALE) ? "hermaphrodite" : "male";
-	}
-	else if (QUERY_FLAG(pl->ob, FLAG_IS_FEMALE))
-	{
-		gender = "female";
-	}
-	else
-	{
-		gender = "neuter";
-	}
-
 	strcpy(pl->quick_name, rank);
 	strcat(pl->quick_name, pl->ob->name);
 
@@ -1193,5 +1179,5 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [SHOP]");
 	}
 
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender);
+	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", pl->ob->race, prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
 }
