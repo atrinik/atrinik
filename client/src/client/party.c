@@ -541,7 +541,7 @@ _gui_party_struct *load_party_interface(char *data, int len)
 {
 	_gui_party_line *party_line;
 	int i = 0, tab = gui_interface_party ? gui_interface_party->tab : 0, pos = 0;
-	uint8 command;
+	uint8 command = 0;
 
 	/* Start clean */
 	clear_party_interface();
