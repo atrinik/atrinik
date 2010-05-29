@@ -1793,6 +1793,22 @@ static int get_random_spell(int level, int flags)
 	return SP_NO_SPELL;
 }
 
+/**
+ * Assign a random slaying race to an object, for weapons, arrows
+ * and such.
+ * @param op Object. */
+static void add_random_race(object *op)
+{
+	int tmp = RANDOM() % global_race_counter;
+	racelink *list;
+
+	for (list = first_race; list && tmp; list = list->next, tmp--)
+	{
+	}
+
+	FREE_AND_COPY_HASH(op->slaying, list->name);
+}
+
 #define DICE2 (get_magic(2) == 2 ? 2 : 1)
 
 /**
@@ -2269,20 +2285,18 @@ jump_break1:
 	{
 		switch (op->type)
 		{
-			/* Let's check we have a slaying/assassination arrow */
 			case ARROW:
-				/* Compare hash pointers. */
 				if (op->slaying == shstr_cons.none)
 				{
-					int tmp = RANDOM() % global_race_counter;
-					racelink *list;
+					add_random_race(op);
+				}
 
-					/* get the right race */
-					for (list = first_race; list && tmp; list = list->next, tmp--)
-					{
-					}
+				break;
 
-					FREE_AND_COPY_HASH(op->slaying, list->name);
+			case WEAPON:
+				if (op->slaying == shstr_cons.none)
+				{
+					add_random_race(op);
 				}
 
 				break;

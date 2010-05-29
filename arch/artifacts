@@ -2664,6 +2664,39 @@ value 7500
 end
 
 Allowed all
+chance 15
+difficulty 30
+artifact weapon_slaying
+def_arch sword
+Object
+title of slay
+item_level_art 20
+type 15
+is_magical 1
+value 8500
+slaying none
+end
+
+Allowed all
+chance 10
+difficulty 40
+artifact weapon_assassin
+def_arch sword
+Object
+title of assassinating
+item_level_art 30
+type 15
+is_magical 1
+value 8500
+slaying none
+is_assassin 1
+msg
+ This weapon is inscribed with powerful runes
+ for the bane of its victims.
+endmsg
+end
+
+Allowed all
 chance 20
 artifact weapon_strength
 def_arch sword
