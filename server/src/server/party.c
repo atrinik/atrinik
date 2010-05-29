@@ -183,11 +183,11 @@ party_struct *find_party(const char *name)
  * actually applied. If someone kills with slash, and this party member is
  * using punching (no weapon), they will not get any exp.
  * @param op Party member.
- * @param hitter The player that killed the monster.
+ * @param skill Skill that was used to kill the monster.
  * @return Skill ID to get experience in for op, @ref NO_SKILL_READY otherwise. */
-sint16 party_member_get_skill(object *op, object *hitter)
+sint16 party_member_get_skill(object *op, object *skill)
 {
-	sint16 skill_id = hitter->chosen_skill->stats.sp;
+	sint16 skill_id = skill->stats.sp;
 
 	switch (skill_id)
 	{

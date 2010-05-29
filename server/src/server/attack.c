@@ -848,12 +848,13 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 /**
  * One player gets exp by killing a monster.
  * @param op Player. This should be the killer.
- * @param exp Experience to gain. */
-static void share_kill_exp_one(object *op, sint32 exp)
+ * @param exp Experience to gain.
+ * @param skill Skill that was used to kill the monster. */
+static void share_kill_exp_one(object *op, sint32 exp, object *skill)
 {
 	if (exp)
 	{
-		add_exp(op, exp, op->chosen_skill->stats.sp);
+		add_exp(op, exp, skill->stats.sp);
 	}
 	else
 	{
@@ -866,8 +867,9 @@ static void share_kill_exp_one(object *op, sint32 exp)
  * experience between party members, or if none are present, it will use
  * share_kill_exp_one() instead.
  * @param op Player that killed the monster.
- * @param exp Experience to share. */
-static void share_kill_exp(object *op, sint32 exp)
+ * @param exp Experience to share.
+ * @param skill Skill that was used to kill the monster. */
+static void share_kill_exp(object *op, sint32 exp, object *skill)
 {
 	int shares = 0, count = 0;
 	party_struct *party;
@@ -875,7 +877,7 @@ static void share_kill_exp(object *op, sint32 exp)
 
 	if (!CONTR(op)->party)
 	{
-		share_kill_exp_one(op, exp);
+		share_kill_exp_one(op, exp, skill);
 		return;
 	}
 
@@ -885,7 +887,7 @@ static void share_kill_exp(object *op, sint32 exp)
 	{
 		if (on_same_map(ol->objlink.ob, op))
 		{
-			sint16 skill_id = party_member_get_skill(ol->objlink.ob, op);
+			sint16 skill_id = party_member_get_skill(ol->objlink.ob, skill);
 
 			if (skill_id == NO_SKILL_READY)
 			{
@@ -899,7 +901,7 @@ static void share_kill_exp(object *op, sint32 exp)
 
 	if (count == 1 || shares > exp)
 	{
-		share_kill_exp_one(op, exp);
+		share_kill_exp_one(op, exp, skill);
 	}
 	else
 	{
@@ -909,7 +911,7 @@ static void share_kill_exp(object *op, sint32 exp)
 		{
 			if (ol->objlink.ob != op && on_same_map(ol->objlink.ob, op))
 			{
-				sint16 skill_id = party_member_get_skill(ol->objlink.ob, op);
+				sint16 skill_id = party_member_get_skill(ol->objlink.ob, skill);
 
 				if (skill_id == NO_SKILL_READY)
 				{
@@ -923,7 +925,7 @@ static void share_kill_exp(object *op, sint32 exp)
 		}
 
 		exp -= given;
-		share_kill_exp_one(op, exp);
+		share_kill_exp_one(op, exp, skill);
 	}
 }
 
@@ -936,21 +938,22 @@ static void share_kill_exp(object *op, sint32 exp)
  * @return Dealt damage. */
 int kill_object(object *op, int dam, object *hitter, int type)
 {
-	char buf[MAX_BUF];
-	/* this is used in case of servant monsters */
-	object *old_hitter = NULL;
-	int maxdam = 0;
-	int exp = 0;
-	/* true if op standing on battleground */
-	int battleg = 0;
-	object *owner = NULL;
-	mapstruct *map;
+	int maxdam, battleg;
+	sint32 exp = 0;
+	object *owner;
 
 	(void) dam;
 
+	/* Still got some HP left? */
 	if (op->stats.hp > 0)
 	{
 		return -1;
+	}
+
+	/* Cannot kill wizards. */
+	if (QUERY_FLAG(op, FLAG_WIZ))
+	{
+		return 0;
 	}
 
 	/* Trigger the DEATH event */
@@ -964,23 +967,11 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
 	maxdam = op->stats.hp - 1;
 
-	if (op->type == DOOR)
+	/* Only when some damage is stored, and we're on a map. */
+	if (op->damage_round_tag == ROUND_TAG && op->map)
 	{
-		op->speed = 0.1f;
-		update_ob_speed(op);
-		op->speed_left = -0.05f;
-		return maxdam;
-	}
-
-	/* Only when some damage is stored */
-	if (op->damage_round_tag == ROUND_TAG)
-	{
-		/* is on map */
-		if ((map = op->map))
-		{
-			SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
-			SET_MAP_RTAG(op->map, op->x, op->y, ROUND_TAG);
-		}
+		SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
+		SET_MAP_RTAG(op->map, op->x, op->y, ROUND_TAG);
 	}
 
 	if (op->map)
@@ -988,148 +979,117 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		play_sound_map(op->map, op->x, op->y, SOUND_PLAYER_KILLS, SOUND_NORMAL);
 	}
 
-	/* Now let's start dealing with experience we get for killing something */
+	/* Figure out who to credit for the kill. */
 	owner = get_owner(hitter);
 
-	if (owner == NULL)
+	if (!owner)
 	{
 		owner = hitter;
 	}
 
 	/* Is the victim in PvP area? */
-	if (pvp_area(NULL, op))
-		battleg = 1;
+	battleg = pvp_area(NULL, op);
 
-	/* Player killed something */
+	/* Player killed something. */
 	if (owner->type == PLAYER)
 	{
 		if (owner != hitter)
 		{
-			snprintf(buf, sizeof(buf), "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
-			old_hitter = hitter;
-			owner->exp_obj = hitter->exp_obj;
+			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
 		}
 		else
 		{
-			snprintf(buf, sizeof(buf), "You killed %s.", query_name(op, NULL));
+			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s.", query_name(op, NULL));
+		}
+	}
+
+	/* Killed a player in PvP area. */
+	if (battleg && op->type == PLAYER && owner->type == PLAYER)
+	{
+		new_draw_info(NDI_UNIQUE, owner, "Your foe has fallen!\nVICTORY!!!");
+	}
+
+	/* Killed a monster and it wasn't in PvP area, so give exp. */
+	if (!battleg && owner->type == PLAYER && op->type != PLAYER)
+	{
+		object *skill;
+
+		/* Figure out the skill that should gain experience. If the hitter
+		 * has chosen_skill set, we will use that. */
+		if (hitter->chosen_skill)
+		{
+			skill = hitter->chosen_skill;
+		}
+		/* Otherwise try to use owner's chosen_skill. */
+		else
+		{
+			skill = owner->chosen_skill;
 		}
 
-		/* message should be displayed */
-		new_draw_info(NDI_WHITE, owner, buf);
+		/* Calculate how much experience to gain. */
+		exp = calc_skill_exp(owner, op, skill->level);
+		/* Give the experience, sharing it with party members if applicable. */
+		share_kill_exp(owner, exp, skill);
 	}
 
-	/* Pet killed something. */
-	if (get_owner(hitter) != NULL)
+	/* Player has been killed. */
+	if (op->type == PLAYER)
 	{
-		snprintf(buf, sizeof(buf), "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
-		old_hitter = hitter;
-		owner->exp_obj = hitter->exp_obj;
-		hitter = hitter->owner;
+		/* Tell everyone that this player has died. */
+		if (get_owner(hitter))
+		{
+			new_draw_info_format(NDI_ALL, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
+		}
+		else
+		{
+			new_draw_info_format(NDI_ALL, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
+		}
+
+		/* Update player's killer. */
+		if (hitter->type == PLAYER)
+		{
+			snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", hitter->name, hitter->race);
+		}
+		else
+		{
+			strncpy(CONTR(op)->killer, hitter->name, sizeof(CONTR(op)->killer) - 1);
+		}
+
+		/* And actually kill the player. */
+		kill_player(op);
 	}
+	/* Monster or something else has been killed. */
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
-	}
+		/* Remove the monster from the active list. */
+		op->speed = 0.0f;
+		update_ob_speed(op);
 
-	/* If you didn't kill yourself, and you're not the wizard */
-	if (hitter != op && !QUERY_FLAG(op, FLAG_WIZ))
-	{
-		/* new exp system in here. Try to insure the right skill is modifying gained exp */
-		/* only calc exp for a player who has not killed a player */
-		if (hitter->type == PLAYER && !old_hitter && op->type != PLAYER)
+		/* Rules:
+		 * 1. Monster will drop corpse for his target, not the killer (unless killer == target).
+		 * 2. NPC kill hit will overwrite player target on drop.
+		 * 3. Kill hit will count if target was an NPC. */
+		if (owner->type != PLAYER || !op->enemy || op->enemy->type != PLAYER)
 		{
-			exp = calc_skill_exp(hitter, op, -1);
+			op->enemy = owner;
+			op->enemy_count = owner->count;
 		}
 
-		/* Case for attack spells, summoned monsters killing */
-		if (old_hitter && hitter->type == PLAYER)
+		/* Monster killed another monster. */
+		if (hitter->type == MONSTER || (get_owner(hitter) && hitter->owner->type == MONSTER))
 		{
-			if (hitter->type == PLAYER && op->type != PLAYER)
-			{
-				exp = calc_skill_exp(hitter, op, SK_level(hitter));
-			}
+			/* No loot */
+			SET_FLAG(op, FLAG_STARTEQUIP);
+			/* Force an empty corpse though. */
+			SET_FLAG(op, FLAG_CORPSE_FORCED);
+		}
+		/* No exp, no loot and no corpse. */
+		else if (!exp)
+		{
+			SET_FLAG(op, FLAG_STARTEQUIP);
 		}
 
-		/* When not NULL, it is our non owner object (spell, arrow) */
-		if (!old_hitter)
-		{
-			old_hitter = hitter;
-		}
-
-		/* Really don't give much experience for killing other players */
-		if (op->type == PLAYER && owner->type == PLAYER)
-		{
-			if (battleg)
-			{
-				new_draw_info(NDI_UNIQUE, owner, "Your foe has fallen!");
-				new_draw_info(NDI_UNIQUE, owner, "VICTORY!!!");
-			}
-			/* Never xp for pvp */
-			else
-			{
-				exp = 0;
-			}
-		}
-
-		if (battleg)
-		{
-			exp = 0;
-		}
-
-		if (hitter->type == PLAYER && !battleg)
-		{
-			share_kill_exp(hitter, exp);
-		}
-
-		if (op->type != PLAYER)
-		{
-			op->speed = 0;
-			/* Remove from active list (if on) */
-			update_ob_speed(op);
-
-			/* Rules:
-			 * 1. Monster will drop corpse for his target, not the killer (unless killer == target).
-			 * 2. NPC kill hit will overwrite player target on drop.
-			 * 3. Kill hit will count if target was an NPC. */
-			if (owner->type != PLAYER || !op->enemy || op->enemy->type != PLAYER)
-			{
-				op->enemy = owner;
-				op->enemy_count = owner->count;
-			}
-
-			/* Monster killed another monster. */
-			if (hitter->type == MONSTER || (get_owner(hitter) && hitter->owner->type == MONSTER))
-			{
-				/* No loot */
-				SET_FLAG(op, FLAG_STARTEQUIP);
-				/* Force an empty corpse though. */
-				SET_FLAG(op, FLAG_CORPSE_FORCED);
-			}
-			/* No exp, no loot and no corpse. */
-			else if (!exp)
-			{
-				SET_FLAG(op, FLAG_STARTEQUIP);
-			}
-
-			destruct_ob(op);
-		}
-		/* Player has been killed! */
-		else
-		{
-			new_draw_info(NDI_ALL, NULL, buf);
-
-			if (hitter->type == PLAYER)
-			{
-				snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", hitter->name, hitter->race);
-			}
-			else
-			{
-				strncpy(CONTR(op)->killer, hitter->name, sizeof(CONTR(op)->killer));
-				CONTR(op)->killer[sizeof(CONTR(op)->killer) - 1] = '\0';
-			}
-
-			kill_player(op);
-		}
+		destruct_ob(op);
 	}
 
 	return maxdam;

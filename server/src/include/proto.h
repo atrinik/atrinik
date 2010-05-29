@@ -637,7 +637,7 @@ void remove_party_member(party_struct *party, object *op);
 party_struct *make_party(char *name);
 void form_party(object *op, char *name);
 party_struct *find_party(const char *name);
-sint16 party_member_get_skill(object *op, object *hitter);
+sint16 party_member_get_skill(object *op, object *skill);
 void send_party_message(party_struct *party, char *msg, int flag, object *op);
 void remove_party(party_struct *party);
 void PartyCmd(char *buf, int len, player *pl);
