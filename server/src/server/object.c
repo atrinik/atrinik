@@ -3725,6 +3725,11 @@ int item_matched_string(object *pl, object *op, const char *name)
 	/* strtok is destructive to name */
 	strcpy(local_name, name);
 
+	if (pl->type == PLAYER)
+	{
+		CONTR(pl)->count = 0;
+	}
+
 	for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ","))
 	{
 		/* Get rid of spaces */
