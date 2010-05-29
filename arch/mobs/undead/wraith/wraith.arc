@@ -11,8 +11,8 @@ direction 5
 is_evil 1
 terrain_flag 1
 weapon_speed 0.035
-attack_slash 40
-attack_drain 50
+attack_slash 65
+attack_drain 25
 type 80
 Wis 3
 randomitems mob_wraith
