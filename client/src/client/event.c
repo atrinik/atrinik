@@ -572,7 +572,7 @@ int Event_PollInputDevice()
 						cpl.inventory_win = IWIN_BELOW;
 						get_tile_position(x, y, &tx, &ty);
 						snprintf(tbuf, sizeof(tbuf), "/target !%d %d", tx - MAP_MAX_SIZE / 2, ty - MAP_MAX_SIZE / 2);
-						send_command(tbuf, -1, SC_NORMAL);
+						send_command(tbuf);
 					}
 
 					break;
@@ -1115,7 +1115,7 @@ static int key_event(SDL_KeyboardEvent *key)
 
 				case SDLK_LALT:
 				case SDLK_RALT:
-					send_command("/run_stop", -1, SC_FIRERUN);
+					send_command("/run_stop");
 #if 0
 					draw_info("run_stop", COLOR_DGOLD);
 #endif
@@ -1455,7 +1455,7 @@ static void process_macro(_keymap macro)
 
 		if (!client_command_check(cp))
 		{
-			send_command(cp, -1, SC_NORMAL);
+			send_command(cp);
 		}
 
 		cp = strtok(NULL, ";");
@@ -1551,19 +1551,19 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_TARGET_ENEMY:
-			send_command("/target 0", -1, SC_NORMAL);
+			send_command("/target 0");
 			break;
 
 		case KEYFUNC_TARGET_FRIEND:
-			send_command("/target 1", -1, SC_NORMAL);
+			send_command("/target 1");
 			break;
 
 		case KEYFUNC_TARGET_SELF:
-			send_command("/target 2", -1, SC_NORMAL);
+			send_command("/target 2");
 			break;
 
 		case KEYFUNC_COMBAT:
-			send_command("/combat", -1, SC_NORMAL);
+			send_command("/combat");
 			break;
 
 		case KEYFUNC_SPELL:
@@ -1632,7 +1632,7 @@ int process_macro_keys(int id, int value)
 
 		case KEYFUNC_RUN:
 			if (!(cpl.runkey_on = cpl.runkey_on ? 0 : 1))
-				send_command("/run_stop", -1, SC_FIRERUN);
+				send_command("/run_stop");
 
 			snprintf(buf, sizeof(buf), "runmode %s", cpl.runkey_on ? "on" : "off");
 #if 0
@@ -2142,7 +2142,7 @@ static int movement_queue_thread(void *junk)
 		}
 
 		entry = movement_queue_pop();
-		send_command(directions[entry->num], -1, SC_FIRERUN);
+		send_command(directions[entry->num]);
 		free(entry);
 		SDL_Delay(((float) MAX_TIME / FABS((float) ((float) cpl.stats.speed / 100))));
 	}
@@ -2163,7 +2163,7 @@ static void move_keys(int num)
 	/* Runmode on, or ALT key trigger */
 	if ((cpl.runkey_on || cpl.run_on) && (!cpl.firekey_on && !cpl.fire_on))
 	{
-		send_command(directionsrun[num], -1, SC_FIRERUN);
+		send_command(directionsrun[num]);
 		strcpy(buf, "run ");
 	}
 	/* That's the range menu - we handle its messages unique */
@@ -2711,7 +2711,7 @@ void check_menu_keys(int menu, int key)
 							if (strcmp(partyname, cpl.partyname))
 							{
 								snprintf(buf, sizeof(buf), "/party join %s", partyname);
-								send_command(buf, -1, SC_NORMAL);
+								send_command(buf);
 
 								map_udate_flag = 2;
 								cpl.menustatus = MENU_NO;
@@ -2728,7 +2728,7 @@ void check_menu_keys(int menu, int key)
 					{
 						/* Check the command */
 						if (!client_command_check("/party leave"))
-							send_command("/party leave", -1, SC_NORMAL);
+							send_command("/party leave");
 
 						/* Close the menu */
 						cpl.menustatus = MENU_NO;

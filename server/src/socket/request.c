@@ -336,42 +336,37 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
  * @param pl */
 void PlayerCmd(char *buf, int len, player *pl)
 {
-	uint16 packet;
-	int repeat;
 	char command[MAX_BUF];
 
-	if (!buf)
+	if (!buf || len < 1)
 	{
 		return;
 	}
 
-	if (len < 7)
+	if (pl->socket.socket_version < 1034)
 	{
-		LOG(llevBug, "BUG: Corrupt ncom command from player %s - not long enough - discarding\n", pl->ob->name);
-		return;
+		if (len < 7)
+		{
+			return;
+		}
+
+		(void) GetShort_String(buf);
+		(void) GetInt_String(buf + 2);
+		buf += 6;
 	}
 
-	packet = GetShort_String(buf);
-	repeat = GetInt_String(buf + 2);
-
-	/* -1 is special - no repeat, but don't update */
-	if (repeat != -1)
+	if (len >= MAX_BUF)
 	{
-		pl->count = repeat;
+		len = MAX_BUF - 1;
 	}
 
-	if ((len - 4) >= MAX_BUF)
-	{
-		len = MAX_BUF - 5;
-	}
-
-	strncpy(command, (char *) buf + 6, len - 4);
-	command[len - 4] = '\0';
+	strncpy(command, buf, len);
+	command[len] = '\0';
 
 	/* The following should never happen with a proper or honest client.
 	 * Therefore, the error message doesn't have to be too clear - if
 	 * someone is playing with a hacked/non working client, this gives
-	 * them an idea of the problem, but they deserve what they get */
+	 * them an idea of the problem, but they deserve what they get. */
 	if (pl->state != ST_PLAYING)
 	{
 		new_draw_info_format(NDI_UNIQUE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
@@ -380,7 +375,6 @@ void PlayerCmd(char *buf, int len, player *pl)
 
 	/* In c_new.c */
 	execute_newserver_command(pl->ob, command);
-	pl->count = 0;
 }
 
 /**

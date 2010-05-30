@@ -213,12 +213,12 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 
 		if (!client_command_check(cmdBuf2))
 		{
-			send_command(cmdBuf2, -1, SC_NORMAL);
+			send_command(cmdBuf2);
 		}
 	}
 	else
 	{
-		send_command(cmdBuf, -1, SC_NORMAL);
+		send_command(cmdBuf);
 	}
 }
 

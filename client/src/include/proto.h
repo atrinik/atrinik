@@ -197,7 +197,7 @@ void new_char(_server_char *nc);
 void client_send_apply(int tag);
 void client_send_examine(int tag);
 void client_send_move(int loc, int tag, int nrof);
-void send_command(const char *command, int repeat, int must_send);
+void send_command(const char *command);
 void CompleteCmd(unsigned char *data, int len);
 void set_weight_limit(uint32 wlim);
 void init_player_data();

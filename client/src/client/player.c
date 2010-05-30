@@ -151,48 +151,19 @@ void client_send_move(int loc, int tag, int nrof)
  * This should be used for all 'command' processing. Other functions
  * should call this so that proper windowing will be done.
  * @param command Text command.
- * @param repeat Count value or -1 if none desired and we don't want
- * to reset the current count.
- * @param must_send Means we must send this command no matter what (ie,
- * it is an administrative type of command like fire_stop, and failure to
- * send it will cause definite problems).
  * @return 1 if command was sent, 0 otherwise. */
-void send_command(const char *command, int repeat, int must_send)
+void send_command(const char *command)
 {
 	char buf[MAX_BUF];
-	static char last_command[MAX_BUF] = "";
 	SockList sl;
-	int commdiff = csocket.command_sent - csocket.command_received;
-
-	if (commdiff < 0)
-	{
-		commdiff += 256;
-	}
-
-	/* Don't want to copy in administrative commands */
-	if (!must_send)
-	{
-		strncpy(last_command, command, sizeof(last_command) - 1);
-	}
-
-	csocket.command_sent++;
-	/* Max out at 255 */
-	csocket.command_sent &= 0xff;
 
 	sl.buf = (unsigned char *) buf;
 	strcpy((char *) sl.buf, "cm ");
 	sl.len = 3;
-	SockList_AddShort(&sl, (uint16) csocket.command_sent);
-	SockList_AddInt(&sl, repeat);
 	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
 	sl.buf[MAX_BUF - 1] = '\0';
 	sl.len += (int) strlen(command);
 	send_socklist(csocket.fd, sl);
-
-	if (repeat != -1)
-	{
-		cpl.count = 0;
-	}
 }
 
 /**
@@ -291,7 +262,7 @@ void widget_player_data_event(int x, int y)
 	{
 		if (!client_command_check("/pray"))
 		{
-			send_command("/pray", -1, SC_NORMAL);
+			send_command("/pray");
 		}
 	}
 }
@@ -586,7 +557,7 @@ void widget_menubuttons_event(int x, int y)
 		/* Party GUI */
 		else if (dy >= 51 && dy <= 74)
 		{
-			send_command("/party list", -1, SC_NORMAL);
+			send_command("/party list");
 		}
 		/* Help system */
 		else if (dy >= 76 && dy <= 99)

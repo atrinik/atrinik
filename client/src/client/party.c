@@ -43,11 +43,11 @@ void switch_tabs()
 	switch (gui_interface_party->tab)
 	{
 		case PARTY_TAB_LIST:
-			send_command("/party list", -1, SC_NORMAL);
+			send_command("/party list");
 			break;
 
 		case PARTY_TAB_WHO:
-			send_command("/party who", -1, SC_NORMAL);
+			send_command("/party who");
 			break;
 
 		case PARTY_TAB_LEAVE:
@@ -687,7 +687,7 @@ int console_party()
 			char buf[HUGE_BUF];
 
 			snprintf(buf, sizeof(buf), "/party join %s\t%s", gui_interface_party->start->line, InputString);
-			send_command(buf, -1, SC_NORMAL);
+			send_command(buf);
 			clear_party_interface();
 
 			return 1;
@@ -702,7 +702,7 @@ int console_party()
 			char buf[HUGE_BUF];
 
 			snprintf(buf, sizeof(buf), "/party form %s", InputString);
-			send_command(buf, -1, SC_NORMAL);
+			send_command(buf);
 			clear_party_interface();
 
 			return 1;
@@ -717,7 +717,7 @@ int console_party()
 			char buf[HUGE_BUF];
 
 			snprintf(buf, sizeof(buf), "/party password %s", InputString);
-			send_command(buf, -1, SC_NORMAL);
+			send_command(buf);
 			clear_party_interface();
 
 			return 1;

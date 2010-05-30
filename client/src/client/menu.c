@@ -120,7 +120,7 @@ void do_console()
 			}
 
 			if (!client_command_check(InputString))
-				send_command(buf, -1, SC_NORMAL);
+				send_command(buf);
 		}
 
 		reset_keys();
@@ -341,7 +341,7 @@ int client_command_check(char *cmd)
 				char buf[2048];
 
 				snprintf(buf, sizeof(buf), "/tell %s %s", cpl.player_reply, cmd);
-				send_command(buf, -1, SC_NORMAL);
+				send_command(buf);
 			}
 		}
 
@@ -2205,7 +2205,7 @@ void widget_event_target(int x, int y)
 	if (y > cur_widget[TARGET_ID].y1 + 7 && y < cur_widget[TARGET_ID].y1 + 25 && x > cur_widget[TARGET_ID].x1 + 223 && x < cur_widget[TARGET_ID].x1 + 259)
 	{
 		if (cpl.target_code)
-			send_command("/t_tell hello", -1, SC_NORMAL);
+			send_command("/t_tell hello");
 	}
 }
 

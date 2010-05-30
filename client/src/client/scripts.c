@@ -692,7 +692,7 @@ static void script_process_cmd(int i)
 
 			if (!client_command_check(c))
 			{
-				send_command(c, -1, SC_NORMAL);
+				send_command(c);
 			}
 		}
 		else if (!strncmp(c, "string ", 7))
