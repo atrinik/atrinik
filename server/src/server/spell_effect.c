@@ -175,7 +175,13 @@ int recharge(object *op)
 		return 0;
 	}
 
-	if (!(random_roll(0, 3, op, PREFER_LOW)))
+	if (wand->stats.sp < 0 || wand->stats.sp >= NROFREALSPELLS || !spells[wand->stats.sp].charges)
+	{
+		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "The %s cannot be recharged.", query_name(wand, NULL));
+		return 0;
+	}
+
+	if (!(random_roll(0, 6, op, PREFER_LOW)))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
 		play_sound_map(op->map, op->x, op->y, SOUND_OB_EXPLODE, SOUND_NORMAL);
