@@ -2682,26 +2682,26 @@ end
 
 treasureone random_mtools
 	arch wand
-		chance 92
-		quality_range 7
+		chance 91
+		quality_range 15
 		magic 0
 	more
 	arch rod_light
 		difficulty 15
 		chance 3
-		quality_range 7
+		quality_range 15
 		magic 0
 	more
 	arch horn
 		difficulty 25
 		chance 3
-		quality_range 7
+		quality_range 15
 		magic 0
 	more
 	arch rod_heavy
 		difficulty 40
-		chance 2
-		quality_range 7
+		chance 3
+		quality_range 15
 		magic 0
 end
 
@@ -2909,16 +2909,16 @@ treasure mob_ant
   list default_drop
     chance_fix 12
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_talisman
@@ -2936,7 +2936,7 @@ treasure mob_ant
   arch small_shield
     chance_fix 50
     material_quality 80
-    material_range 2
+    material_range 15
     magic_fix 1
     artifact_chance 0
     name small ant shield
@@ -2961,16 +2961,16 @@ treasure mob_ant_special
   list default_drop
     chance_fix 14
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_talisman
@@ -2988,7 +2988,7 @@ treasure mob_ant_special
   arch small_shield
     chance_fix 45
     material_quality 80
-    material_range 2
+    material_range 15
     magic_fix 1
     artifact_chance 0
     name small ant shield
@@ -3013,16 +3013,16 @@ treasure mob_ant_queen
   list default_drop
     chance_fix 12
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
   no
     list random_weapon
       material_quality 80
-      material_range 3
+      material_range 15
       chance_fix 38
       no
         list random_talisman
@@ -3057,16 +3057,16 @@ treasure mob_insect
   list default_drop
     chance_fix 14
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_talisman
@@ -3101,16 +3101,16 @@ treasure mob_slime
   list default_drop
     chance_fix 14
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 32
         no
           list random_talisman
@@ -3150,16 +3150,16 @@ treasure mob_wyvern
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3203,16 +3203,16 @@ treasure mob_ogre
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3256,16 +3256,16 @@ treasure mob_giant_hill
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3309,16 +3309,16 @@ treasure mob_giant_stone
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3362,16 +3362,16 @@ treasure mob_dragon_water
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3415,16 +3415,16 @@ treasure mob_kobold_big
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3468,16 +3468,16 @@ treasure mob_kobold
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3521,16 +3521,16 @@ treasure mob_worm_purple
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3574,16 +3574,16 @@ treasure mob_ettin
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -3627,16 +3627,16 @@ treasure mob_wraith
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3680,16 +3680,16 @@ treasure mob_lost_soul
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3733,16 +3733,16 @@ treasure mob_slugs
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3786,16 +3786,16 @@ treasure mob_dragon_skeletal
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3839,16 +3839,16 @@ treasure mob_beholder_dread
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3892,16 +3892,16 @@ treasure mob_demilich
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3945,16 +3945,16 @@ treasure mob_troll
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -3998,16 +3998,16 @@ treasure mob_skeleton1
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 68
         no
           list random_mtools
@@ -4051,16 +4051,16 @@ treasure mob_skeleton2
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 62
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4104,16 +4104,16 @@ treasure mob_skeleton_mage
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4157,16 +4157,16 @@ treasure mob_vampire_lord
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4210,16 +4210,16 @@ treasure mob_vampire
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4263,16 +4263,16 @@ treasure mob_dragon_green
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4316,16 +4316,16 @@ treasure mob_dragon_fire
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4369,16 +4369,16 @@ treasure mob_dragon_blue
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4422,16 +4422,16 @@ treasure mob_dragon_black
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4475,16 +4475,16 @@ treasure mob_lich_lord
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4528,16 +4528,16 @@ treasure mob_lom_lobon
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 162
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 138
         no
           list random_mtools
@@ -4581,16 +4581,16 @@ treasure mob_raas
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4634,16 +4634,16 @@ treasure mob_demon_fire
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4687,16 +4687,16 @@ treasure mob_cat_black
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4740,16 +4740,16 @@ treasure mob_chicken_large
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4793,16 +4793,16 @@ treasure mob_tiger
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4846,16 +4846,16 @@ treasure mob_wolf
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4899,16 +4899,16 @@ treasure mob_crocodile
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -4952,16 +4952,16 @@ treasure mob_horse_white
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5005,16 +5005,16 @@ treasure mob_rooster
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5058,16 +5058,16 @@ treasure mob_snake
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5111,16 +5111,16 @@ treasure mob_deer
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5164,16 +5164,16 @@ treasure mob_orc
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5217,16 +5217,16 @@ treasure mob_orc_mage
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 142
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 148
         no
           list random_mtools
@@ -5270,16 +5270,16 @@ treasure mob_hobgoblin
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5323,16 +5323,16 @@ treasure mob_goblin
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5376,16 +5376,16 @@ treasure mob_gnoll
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5429,16 +5429,16 @@ treasure mob_drow
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5482,16 +5482,16 @@ treasure mob_drow_mage
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 142
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 80
         no
           list random_mtools
@@ -5535,16 +5535,16 @@ treasure mob_ghoul
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5588,20 +5588,20 @@ treasure mob_fire
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     t_style 1
     artifact_chance 25
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         t_style 1
         artifact_chance 25
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5645,20 +5645,20 @@ treasure mob_ice
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     t_style 2
     artifact_chance 25
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         t_style 2
         artifact_chance 25
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5702,16 +5702,16 @@ treasure mob_mud_hand
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5758,16 +5758,16 @@ treasure mob_quickwood
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5814,16 +5814,16 @@ treasure mob_treant
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
@@ -5867,16 +5867,16 @@ treasure mob_fighter_l9
   list default_drop
     chance_fix 14
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour_l9
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 32
     no
       list random_weapon_l9
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -5915,16 +5915,16 @@ treasure mob_mage_l9
   list default_drop
     chance_fix 14
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour_l9
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 72
     no
       list random_weapon_l9
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 78
         no
           list random_mtools
@@ -5963,16 +5963,16 @@ treasure mob_default
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 38
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 38
         no
           list random_mtools
@@ -6040,16 +6040,16 @@ treasure random_testx
   list default_drop
     chance_fix 16
     material_quality 80
-    material_range 3
+    material_range 15
   more
   list random_armour
     material_quality 80
-    material_range 3
+    material_range 15
     chance_fix 42
     no
       list random_weapon
         material_quality 80
-        material_range 3
+        material_range 15
         chance_fix 48
         no
           list random_mtools
