@@ -25,63 +25,45 @@
 
 /**
  * @file
- * Race related defines. */
+ * Race header file. */
+
+#ifndef RACE_H
+#define RACE_H
 
 /**
- * Used to link the race lists together.
- *
- * Initialized by init_races(). */
-typedef struct ralnk
+ * A single race. */
+typedef struct ob_race
 {
-	/** Name of this race entry */
-	const char *name;
+	/**
+	 * Name of this race. */
+	shstr *name;
 
-	/** Number of things belonging to this race */
-	int nrof;
-
-	/** The default corpse of this race */
+	/**
+	 * The default corpse archetype of this race. */
 	struct archt *corpse;
 
-	/** Linked object list of things belonging to this race */
-	struct oblnk *member;
+	/**
+	 * Linked list of monsters belonging to this race. */
+	struct oblnk *members;
 
-	/** Next race */
-	struct ralnk *next;
-} racelink;
+	/**
+	 * Number of monsters belonging to this race. */
+	int num_members;
+} ob_race;
 
-/** Marks no race. */
+/**
+ * The default corpse archetype name, used for races that do not
+ * define their own corpse. */
+#define RACE_CORPSE_DEFAULT "corpse_default"
+
+/**
+ * Marks no race. */
 #define RACE_TYPE_NONE 0
 
 /**
- * This list is used for the item prefixes and not for the race list.
- *
- * Both are different lists with different meanings. */
-typedef enum _race_names_enum
-{
-	RACE_NAME_DEFAULT,
-	RACE_NAME_DWARVEN,
-	RACE_NAME_ELVEN,
-	RACE_NAME_GNOMISH,
-	RACE_NAME_DROW,
-	RACE_NAME_ORCISH,
-	RACE_NAME_GOBLIN,
-	RACE_NAME_KOBOLD,
-	RACE_NAME_GIANT,
-	RACE_NAME_TINY,
-	RACE_NAME_DEMONISH,
-	RACE_NAME_DRACONISH,
-	RACE_NAME_OGRE,
-	RACE_NAME_INIT
-} _race_names_enum;
+ * Number of races in ::item_races. */
+#define NROF_ITEM_RACES 13
 
-/** Races */
-typedef struct _races
-{
-	/** Prefix name for this race */
-	char *name;
+const char *item_races[NROF_ITEM_RACES];
 
-	/** Race can use (wear, wield, apply...) items from this race */
-	uint32 usable;
-} _races;
-
-extern struct _races item_race_table[RACE_NAME_INIT];
+#endif

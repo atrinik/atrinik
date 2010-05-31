@@ -30,49 +30,6 @@
 
 #include <global.h>
 
-/**
- * @defgroup RN_xxx Race types
- * Race types for ::item_race_table.
- *@{*/
-
-/** Default value - human like. */
-#define RN_DEFAULT      1
-#define RN_DWARVEN      2
-#define RN_ELVEN        4
-#define RN_GNOMISH      8
-#define RN_DROW         16
-#define RN_ORCISH       32
-#define RN_GOBLIN       64
-/** Counts as tiny, but also "unclean". */
-#define RN_KOBOLD       128
-/** All demihumans "bigger than humans". */
-#define RN_GIANT        256
-/** Different small race (sprites, ...). */
-#define RN_TINY         512
-#define RN_GENIE        1024
-#define RN_DEMONISH     2048
-#define RN_DRACONISH    4096
-/*@}*/
-
-/**
- * The race table. */
-_races item_race_table[RACE_NAME_INIT] =
-{
-	{"",             RN_DEFAULT},
-	{"dwarven ",     RN_DWARVEN},
-	{"elven ",       RN_ELVEN},
-	{"gnomish ",     RN_GNOMISH},
-	{"drow ",        RN_DROW},
-	{"orcish ",      RN_ORCISH},
-	{"goblin ",      RN_GOBLIN},
-	{"kobold ",      RN_KOBOLD},
-	{"giant ",       RN_GIANT},
-	{"tiny ",        RN_TINY},
-	{"demonish ",    RN_DEMONISH},
-	{"draconish ",   RN_DRACONISH},
-	{"ogre ",        RN_GIANT}
-};
-
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
 

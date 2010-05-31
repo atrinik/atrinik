@@ -1799,14 +1799,12 @@ static int get_random_spell(int level, int flags)
  * @param op Object. */
 static void add_random_race(object *op)
 {
-	int tmp = RANDOM() % global_race_counter;
-	racelink *list;
+	ob_race *race = race_get_random();
 
-	for (list = first_race; list && tmp; list = list->next, tmp--)
+	if (race)
 	{
+		FREE_AND_COPY_HASH(op->slaying, race->name);
 	}
-
-	FREE_AND_COPY_HASH(op->slaying, list->name);
 }
 
 #define DICE2 (get_magic(2) == 2 ? 2 : 1)

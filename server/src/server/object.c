@@ -1441,7 +1441,7 @@ void drop_ob_inv(object *ob)
 	/* Create race corpse and/or drop stuff to floor */
 	if ((QUERY_FLAG(ob, FLAG_CORPSE) && !QUERY_FLAG(ob, FLAG_STARTEQUIP)) || QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
 	{
-		racelink *race_corpse = find_racelink(ob->race);
+		ob_race *race_corpse = race_find(ob->race);
 
 		if (race_corpse)
 		{

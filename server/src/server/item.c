@@ -336,10 +336,10 @@ char *query_short_name(object *op, object *caller)
 			/* Add the item race name */
 			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
-				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
+				safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
 			}
 
-			if (op->material_real && QUERY_FLAG(op,FLAG_IDENTIFIED))
+			if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
 				safe_strcat(buf, material_real[op->material_real].name, &len, sizeof(buf));
 			}
@@ -378,7 +378,7 @@ char *query_short_name(object *op, object *caller)
 		{
 			if (!IS_LIVE(op) && op->type != BASE_INFO)
 			{
-				safe_strcat(buf, item_race_table[op->item_race].name, &len, sizeof(buf));
+				safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
 			}
 
 			if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))
@@ -734,7 +734,7 @@ char *query_base_name(object *op, object *caller)
 		/* Add the item race name */
 		if (!IS_LIVE(op) && op->type != BASE_INFO)
 		{
-			strcpy(buf, item_race_table[op->item_race].name);
+			strcpy(buf, item_races[op->item_race]);
 		}
 
 		if (op->material_real && QUERY_FLAG(op, FLAG_IDENTIFIED))

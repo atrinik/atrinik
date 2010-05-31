@@ -440,7 +440,6 @@ void init_globals();
 void write_todclock();
 void init(int argc, char **argv);
 void compile_info();
-void free_racelist();
 
 /* server/item.c */
 char *describe_protections(object *op, int newline);
@@ -682,6 +681,13 @@ const char *strcasestr_local(const char *s, const char *find);
 object *create_quest_container(object *op);
 void check_quest(object *op, object *quest_container);
 
+/* server/race.c */
+ob_race *race_find(shstr *name);
+ob_race *race_get_random();
+void race_init();
+void race_dump();
+void free_racelist();
+
 /* server/readable.c */
 int book_overflow(const char *buf1, const char *buf2, int booksize);
 void free_mon_info();
@@ -889,7 +895,6 @@ int die_roll(int num, int size, const object *op, int goodbad);
 int rndm(int min, int max);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
-racelink *find_racelink(const char *name);
 char *cleanup_string(char *ustring);
 char *get_word_from_string(char *str, int *pos);
 void adjust_player_name(char *name);

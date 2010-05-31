@@ -619,6 +619,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="../../../src/server/race.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../../src/server/readable.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

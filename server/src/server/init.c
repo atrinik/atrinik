@@ -79,10 +79,6 @@ static void help();
 static void init_beforeplay();
 static void fatal_signal(int make_core);
 static void init_signals();
-static void init_races();
-static void dump_races();
-static void add_to_racelist(const char *race_name, object *op);
-static racelink *get_racelist();
 static void dump_level_colors_table();
 static void init_environ();
 static void init_defaults();
@@ -945,7 +941,7 @@ static void init_beforeplay()
 {
 	init_archetypes();
 	init_spells();
-	init_races();
+	race_init();
 	init_gods();
 	init_readable();
 	init_archetype_pointers();
@@ -977,7 +973,7 @@ static void init_beforeplay()
 				break;
 
 			case DUMP_VALUE_RACES:
-				dump_races();
+				race_dump();
 				break;
 
 			case DUMP_VALUE_ALCHEMY:
@@ -1207,185 +1203,6 @@ static void init_signals()
 #endif
 	signal(SIGTERM, rec_sigterm);
 #endif
-}
-
-/**
- * Add corpse to race list.
- * @param race_name Race name
- * @param op Archetype of the corpse. */
-static void add_corpse_to_racelist(const char *race_name, archetype *op)
-{
-	racelink *race;
-
-	if (!op || !race_name)
-	{
-		return;
-	}
-
-	race = find_racelink(race_name);
-
-	/* If we don't have this race, just skip the corpse. */
-	if (race)
-	{
-		race->corpse = op;
-	}
-}
-
-/**
- * Initialize races by looking through all the archetypes and checking if
- * the archetype is a @ref MONSTER or @ref PLAYER.
- *
- * We use object::sub_type1 as selector - every monster of race X will be
- * added to race list. */
-static void init_races()
-{
-	archetype *at, *tmp;
-	racelink *list;
-	static int init_done = 0;
-
-	if (init_done)
-	{
-		return;
-	}
-
-	init_done = 1;
-
-	first_race = NULL;
-	LOG(llevDebug, "Init races... ");
-
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (at->clone.type == MONSTER || at->clone.type == PLAYER)
-		{
-			add_to_racelist(at->clone.race, &at->clone);
-		}
-	}
-
-	/* Now search for corpses and add them to the race list */
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (at->clone.type == CONTAINER && at->clone.sub_type1 == ST1_CONTAINER_CORPSE)
-		{
-			add_corpse_to_racelist(at->clone.race, at);
-		}
-	}
-
-	/* Last action: for all races without a special defined corpse add
-	 * our corpse_default arch to it. */
-	tmp = find_archetype("corpse_default");
-
-	if (!tmp)
-	{
-		LOG(llevError, "ERROR: init_races: Can't find corpse_default in archetypes.\n");
-	}
-
-	for (list = first_race; list; list = list->next)
-	{
-		if (!list->corpse)
-		{
-			list->corpse = tmp;
-		}
-	}
-
-#ifdef DEBUG
-	dump_races();
-#endif
-
-	LOG(llevDebug, "\ndone.\n");
-}
-
-/**
- * Dumps all race information. */
-static void dump_races()
-{
-	racelink *list;
-	objectlink *tmp;
-
-	for (list = first_race; list; list = list->next)
-	{
-		LOG(llevInfo, "\nRACE %s (%s - %d member): ", list->name, list->corpse->name, list->nrof);
-
-		for (tmp = list->member; tmp; tmp = tmp->next)
-		{
-			LOG(llevInfo, "%s(%d), ", tmp->objlink.ob->arch->name, tmp->objlink.ob->sub_type1);
-		}
-	}
-}
-
-/**
- * Add an object to the racelist.
- * @param race_name Race name.
- * @param op What object to add to the race. */
-static void add_to_racelist(const char *race_name, object *op)
-{
-	racelink *race;
-
-	if (!op || !race_name)
-	{
-		return;
-	}
-
-	race = find_racelink(race_name);
-
-	/* Add in a new race list */
-	if (!race)
-	{
-		/* We need this for treasure generation (slaying race) */
-		global_race_counter++;
-		race = get_racelist();
-		race->next = first_race;
-		first_race = race;
-		FREE_AND_COPY_HASH(race->name, race_name);
-	}
-
-	if (race->member->objlink.ob)
-	{
-		objectlink *tmp = get_objectlink();
-		tmp->next=race->member;
-		race->member = tmp;
-	}
-
-	race->nrof++;
-	race->member->objlink.ob = op;
-}
-
-/**
- * Create a new ::racelink structure.
- * @return Empty structure. */
-static racelink *get_racelist()
-{
-	racelink *list;
-
-	list = (racelink *) malloc(sizeof(racelink));
-	list->name = NULL;
-	list->corpse = NULL;
-	list->nrof = 0;
-	list->member = get_objectlink();
-	list->next = NULL;
-
-	return list;
-}
-
-/**
- * Frees all race related information. */
-void free_racelist()
-{
-	racelink *list, *next;
-	objectlink *tmp, *tmp_next;
-
-	for (list = first_race; list; list = next)
-	{
-		next = list->next;
-		FREE_ONLY_HASH(list->name);
-
-		for (tmp = list->member; tmp; tmp = tmp_next)
-		{
-			tmp_next = tmp->next;
-			free_objectlink_simple(tmp);
-		}
-
-		free(list);
-	}
 }
 
 /**

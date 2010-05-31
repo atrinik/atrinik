@@ -333,21 +333,19 @@ extern New_Face *new_faces;
  * @defgroup first_xxx Beginnings of linked lists.
  *@{*/
 /** First player. */
-EXTERN player *first_player;
+player *first_player;
 /** First map. */
-EXTERN mapstruct *first_map;
+mapstruct *first_map;
 /** First treasure. */
-EXTERN treasurelist *first_treasurelist;
+treasurelist *first_treasurelist;
 /** First artifact. */
-EXTERN artifactlist *first_artifactlist;
+artifactlist *first_artifactlist;
 /** God list. */
-EXTERN godlink *first_god;
-/** Race list. */
-EXTERN racelink *first_race;
+godlink *first_god;
 /*@}*/
 
 /** Last player. */
-EXTERN player *last_player;
+player *last_player;
 
 #define NROF_COMPRESS_METHODS 4
 EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];

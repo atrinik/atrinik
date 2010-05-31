@@ -220,28 +220,6 @@ void replace(const char *src, const char *key, const char *replacement, char *re
 }
 
 /**
- * Find a racelink.
- * @param name The name of the race to look for.
- * @return The racelink if found, NULL otherwise. */
-racelink *find_racelink(const char *name)
-{
-	racelink *test = NULL;
-
-	if (name && first_race)
-	{
-		for (test = first_race; test && test != test->next; test = test->next)
-		{
-			if (!test->name || !strcmp(name, test->name))
-			{
-				break;
-			}
-		}
-	}
-
-	return test;
-}
-
-/**
  * Checks for a legal string by first trimming left whitespace and then
  * checking if there is anything left.
  * @param ustring The string to clean up.
