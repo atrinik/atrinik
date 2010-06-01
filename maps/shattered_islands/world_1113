@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-02-22 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -132,18 +132,17 @@ end
 arch grassd_6
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_5
 y 21
+end
+arch water_still
+y 22
 end
 arch grassd_m10
-y 21
-end
-arch water_still
-player_only 1
 y 22
 end
 arch water_still
+player_only 1
 y 23
 end
 arch grassd_m7
@@ -288,21 +287,20 @@ arch grassd_8
 x 1
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 1
 y 21
+end
+arch water_still
+x 1
+y 22
 end
 arch grassd_m10
-x 1
-y 21
-end
-arch water_still
-player_only 1
 x 1
 y 22
 end
 arch water_still
+player_only 1
 x 1
 y 23
 end
@@ -444,21 +442,20 @@ arch grassd_6
 x 2
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_8
 x 2
 y 21
+end
+arch water_still
+x 2
+y 22
 end
 arch grassd_m10
-x 2
-y 21
-end
-arch water_still
-player_only 1
 x 2
 y 22
 end
 arch water_still
+player_only 1
 x 2
 y 23
 end
@@ -576,21 +573,24 @@ arch grassd_7
 x 3
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_4
 x 3
 y 21
+end
+arch plant15
+x 3
+y 21
+end
+arch water_still
+x 3
+y 22
 end
 arch grassd_m10
-x 3
-y 21
-end
-arch water_still
-player_only 1
 x 3
 y 22
 end
 arch water_still
+no_pvp 1
 x 3
 y 23
 end
@@ -708,17 +708,15 @@ arch grassd_5
 x 4
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 x 4
 y 21
+end
+arch water_still
+x 4
+y 22
 end
 arch grassd_m10
-x 4
-y 21
-end
-arch water_still
-player_only 1
 x 4
 y 22
 end
@@ -870,17 +868,15 @@ arch grassd_7
 x 5
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_1
 x 5
 y 21
+end
+arch water_still
+x 5
+y 22
 end
 arch grassd_m10
-x 5
-y 21
-end
-arch water_still
-player_only 1
 x 5
 y 22
 end
@@ -1020,15 +1016,15 @@ arch grassd_3
 x 6
 y 20
 end
-arch bridge_wood_NS.181
-x 6
-y 20
-end
-arch bridge_wood_NS.171
+arch grassd_3
 x 6
 y 21
 end
-arch bridge_wood_NS.171
+arch water_still
+x 6
+y 22
+end
+arch grassd_m10
 x 6
 y 22
 end
@@ -1038,11 +1034,6 @@ x 6
 y 23
 end
 arch grassd_m7
-x 6
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 6
 y 23
 end
@@ -1170,25 +1161,19 @@ arch grassd_5
 x 7
 y 20
 end
-arch bridge_wood_NS.121
+arch plant_flower5
 x 7
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 x 7
 y 21
+end
+arch water_still
+x 7
+y 22
 end
 arch grassd_m10
-x 7
-y 21
-end
-arch bridge_wood_NS.131
-layer 3
-x 7
-y 21
-end
-arch bridge_wood_EW.111
 x 7
 y 22
 end
@@ -1198,11 +1183,6 @@ x 7
 y 23
 end
 arch grassd_m7
-x 7
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 7
 y 23
 end
@@ -1340,16 +1320,15 @@ arch grassd_3
 x 8
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 x 8
 y 21
+end
+arch water_still
+x 8
+y 22
 end
 arch grassd_m10
-x 8
-y 21
-end
-arch bridge_wood_EW.111
 x 8
 y 22
 end
@@ -1359,11 +1338,6 @@ x 8
 y 23
 end
 arch grassd_m7
-x 8
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 8
 y 23
 end
@@ -1485,16 +1459,15 @@ arch grassd_5
 x 9
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_6
 x 9
 y 21
+end
+arch water_still
+x 9
+y 22
 end
 arch grassd_m10
-x 9
-y 21
-end
-arch bridge_wood_EW.111
 x 9
 y 22
 end
@@ -1504,11 +1477,6 @@ x 9
 y 23
 end
 arch grassd_m7
-x 9
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 9
 y 23
 end
@@ -1645,16 +1613,15 @@ arch plant10
 x 10
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_6
 x 10
 y 21
+end
+arch water_still
+x 10
+y 22
 end
 arch grassd_m10
-x 10
-y 21
-end
-arch bridge_wood_EW.111
 x 10
 y 22
 end
@@ -1664,11 +1631,6 @@ x 10
 y 23
 end
 arch grassd_m7
-x 10
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 10
 y 23
 end
@@ -1798,16 +1760,15 @@ arch grassd_4
 x 11
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 11
 y 21
+end
+arch water_still
+x 11
+y 22
 end
 arch grassd_m10
-x 11
-y 21
-end
-arch bridge_wood_EW.111
 x 11
 y 22
 end
@@ -1817,11 +1778,6 @@ x 11
 y 23
 end
 arch grassd_m7
-x 11
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 11
 y 23
 end
@@ -1955,16 +1911,15 @@ arch grassd_8
 x 12
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 x 12
 y 21
+end
+arch water_still
+x 12
+y 22
 end
 arch grassd_m10
-x 12
-y 21
-end
-arch bridge_wood_EW.111
 x 12
 y 22
 end
@@ -1974,11 +1929,6 @@ x 12
 y 23
 end
 arch grassd_m7
-x 12
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 12
 y 23
 end
@@ -2099,16 +2049,19 @@ arch grassd_6
 x 13
 y 20
 end
-arch water_still
-player_only 1
+arch plant11
+x 13
+y 20
+end
+arch grassd_4
 x 13
 y 21
+end
+arch water_still
+x 13
+y 22
 end
 arch grassd_m10
-x 13
-y 21
-end
-arch bridge_wood_EW.111
 x 13
 y 22
 end
@@ -2118,11 +2071,6 @@ x 13
 y 23
 end
 arch grassd_m7
-x 13
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 13
 y 23
 end
@@ -2250,16 +2198,15 @@ arch grassd_4
 x 14
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 14
 y 21
+end
+arch water_still
+x 14
+y 22
 end
 arch grassd_m10
-x 14
-y 21
-end
-arch bridge_wood_EW.111
 x 14
 y 22
 end
@@ -2269,11 +2216,6 @@ x 14
 y 23
 end
 arch grassd_m7
-x 14
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 14
 y 23
 end
@@ -2420,16 +2362,15 @@ arch grassd_5
 x 15
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_4
 x 15
 y 21
+end
+arch water_still
+x 15
+y 22
 end
 arch grassd_m10
-x 15
-y 21
-end
-arch bridge_wood_EW.111
 x 15
 y 22
 end
@@ -2439,11 +2380,6 @@ x 15
 y 23
 end
 arch grassd_m7
-x 15
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 15
 y 23
 end
@@ -2567,16 +2503,15 @@ arch grassd_8
 x 16
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 x 16
 y 21
+end
+arch water_still
+x 16
+y 22
 end
 arch grassd_m10
-x 16
-y 21
-end
-arch bridge_wood_EW.111
 x 16
 y 22
 end
@@ -2586,11 +2521,6 @@ x 16
 y 23
 end
 arch grassd_m7
-x 16
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 16
 y 23
 end
@@ -2725,16 +2655,19 @@ arch grassd_6
 x 17
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_1
 x 17
 y 21
+end
+arch plant_flower1
+x 17
+y 21
+end
+arch water_still
+x 17
+y 22
 end
 arch grassd_m10
-x 17
-y 21
-end
-arch bridge_wood_EW.111
 x 17
 y 22
 end
@@ -2744,11 +2677,6 @@ x 17
 y 23
 end
 arch grassd_m7
-x 17
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 17
 y 23
 end
@@ -2887,16 +2815,15 @@ arch grassd_8
 x 18
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 18
 y 21
+end
+arch water_still
+x 18
+y 22
 end
 arch grassd_m10
-x 18
-y 21
-end
-arch bridge_wood_EW.111
 x 18
 y 22
 end
@@ -2906,11 +2833,6 @@ x 18
 y 23
 end
 arch grassd_m7
-x 18
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 18
 y 23
 end
@@ -3028,16 +2950,15 @@ arch grassd_6
 x 19
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_7
 x 19
 y 21
+end
+arch water_still
+x 19
+y 22
 end
 arch grassd_m10
-x 19
-y 21
-end
-arch bridge_wood_EW.111
 x 19
 y 22
 end
@@ -3047,11 +2968,6 @@ x 19
 y 23
 end
 arch grassd_m7
-x 19
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 19
 y 23
 end
@@ -3169,16 +3085,15 @@ arch grassd_4
 x 20
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_7
 x 20
 y 21
+end
+arch water_still
+x 20
+y 22
 end
 arch grassd_m10
-x 20
-y 21
-end
-arch bridge_wood_EW.111
 x 20
 y 22
 end
@@ -3188,11 +3103,6 @@ x 20
 y 23
 end
 arch grassd_m7
-x 20
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 20
 y 23
 end
@@ -3344,16 +3254,19 @@ arch grassd_8
 x 21
 y 20
 end
-arch water_still
-player_only 1
+arch plant_mushroom4
+x 21
+y 20
+end
+arch grassd_3
 x 21
 y 21
+end
+arch water_still
+x 21
+y 22
 end
 arch grassd_m10
-x 21
-y 21
-end
-arch bridge_wood_EW.111
 x 21
 y 22
 end
@@ -3363,11 +3276,6 @@ x 21
 y 23
 end
 arch grassd_m7
-x 21
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 21
 y 23
 end
@@ -3473,16 +3381,15 @@ arch grassd_8
 x 22
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_8
 x 22
 y 21
+end
+arch water_still
+x 22
+y 22
 end
 arch grassd_m10
-x 22
-y 21
-end
-arch bridge_wood_EW.111
 x 22
 y 22
 end
@@ -3492,11 +3399,6 @@ x 22
 y 23
 end
 arch grassd_m7
-x 22
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 22
 y 23
 end
@@ -3610,16 +3512,15 @@ arch plant1
 x 23
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 23
 y 21
+end
+arch water_still
+x 23
+y 22
 end
 arch grassd_m10
-x 23
-y 21
-end
-arch bridge_wood_EW.111
 x 23
 y 22
 end
@@ -3629,11 +3530,6 @@ x 23
 y 23
 end
 arch grassd_m7
-x 23
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 x 23
 y 23
 end

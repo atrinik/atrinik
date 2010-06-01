@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-02 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -117,14 +117,13 @@ end
 arch grassd_6
 y 20
 end
-arch water_still
-player_only 1
+arch grassd_2
 y 21
+end
+arch water_still
+y 22
 end
 arch grassd_m10
-y 21
-end
-arch bridge_wood_EW.111
 y 22
 end
 arch water_still
@@ -132,10 +131,6 @@ player_only 1
 y 23
 end
 arch grassd_m14
-y 23
-end
-arch bridge_wood_EW.151
-layer 3
 y 23
 end
 arch floor_flagm4
@@ -265,19 +260,27 @@ arch grassd_6
 x 1
 y 20
 end
-arch bridge_wood_NS.181
+arch plant_flower14
 x 1
 y 20
 end
-arch bridge_wood_NS.171
+arch grassd_3
 x 1
 y 21
 end
-arch bridge_wood_corner.161
+arch water_still
 x 1
 y 22
 end
-arch bridge_wood_NS.171
+arch grassd_m6
+x 1
+y 22
+end
+arch water_still
+x 1
+y 23
+end
+arch grassd_m8
 x 1
 y 23
 end
@@ -424,49 +427,15 @@ arch grassd_7
 x 2
 y 20
 end
-arch bridge_wood_NS.121
-x 2
-y 20
-end
-arch water_still
-player_only 1
+arch grassd_3
 x 2
 y 21
 end
-arch grassd_m6
-x 2
-y 21
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 21
-end
-arch water_still
-player_only 1
+arch grassd_4
 x 2
 y 22
 end
-arch grassd_m8
-x 2
-y 22
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 22
-end
-arch water_still
-player_only 1
-x 2
-y 23
-end
-arch grassd_m8
-x 2
-y 23
-end
-arch bridge_wood_NS.131
-layer 3
+arch grassd_4
 x 2
 y 23
 end
@@ -500,11 +469,15 @@ arch grassd_7
 x 3
 y 5
 end
+arch wall_flagstone1.131
+x 3
+y 5
+end
 arch grassd_2
 x 3
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1.141
 x 3
 y 6
 end
@@ -651,11 +624,18 @@ arch fwall_fstone2
 x 4
 y 4
 end
-arch grassd_4
+arch floor_flagm2
 x 4
 y 5
 end
-arch grassd_2
+arch exit
+slaying world_1112
+hp 12
+sp 12
+x 4
+y 5
+end
+arch floor_flagm2
 x 4
 y 6
 end
@@ -818,15 +798,23 @@ arch fwall_fstone2
 x 5
 y 4
 end
-arch grassd_2
+arch floor_flagm4
 x 5
 y 5
 end
-arch grassd_5
+arch sign
+msg
+This portal allows you to enter the arena in spectator mode.
+You'll be placed into the center of the arena, but you will only be able to watch the fight behind gates.
+endmsg
+x 5
+y 5
+end
+arch floor_flagm3
 x 5
 y 6
 end
-arch wall_flagstone1.111
+arch door1_locked
 x 5
 y 6
 end
@@ -966,15 +954,19 @@ arch fwall_fstone2
 x 6
 y 4
 end
-arch grassd_1
+arch floor_flagm2
 x 6
 y 5
 end
-arch grassd_7
+arch wall_flagstone1.131
+x 6
+y 5
+end
+arch floor_flagm2
 x 6
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1.141
 x 6
 y 6
 end
@@ -1585,7 +1577,7 @@ end
 arch exit
 slaying world_1112
 hp 12
-sp 13
+sp 16
 x 10
 y 12
 arch event_obj

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-02-22 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -25,18 +25,13 @@ player_only 1
 end
 arch grassd_m13
 end
-arch bridge_wood_EW.111
+arch water_still
 y 1
 end
-arch water_still
-player_only 1
-y 2
-end
 arch grassd_m7
-y 2
+y 1
 end
-arch bridge_wood_EW.151
-layer 3
+arch grassd_8
 y 2
 end
 arch grassd_4
@@ -117,22 +112,25 @@ end
 arch fwall_fstone2
 y 23
 end
-arch bridge_wood_NS.171
+arch water_still
 x 1
 end
-arch bridge_wood_corner.181
+arch grassd_m8
+x 1
+end
+arch water_still
 x 1
 y 1
 end
-arch bridge_wood_07
+arch grassd_m5
+x 1
+y 1
+end
+arch grassd_8
 x 1
 y 2
 end
 arch grassd_2
-x 1
-y 3
-end
-arch bridge_wood_NS.161
 x 1
 y 3
 end
@@ -240,42 +238,14 @@ arch fwall_fstone2
 x 1
 y 23
 end
-arch water_still
-player_only 1
+arch grassd_3
 x 2
 end
-arch grassd_m8
-x 2
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-end
-arch water_still
-player_only 1
+arch grassd_4
 x 2
 y 1
 end
-arch grassd_m8
-x 2
-y 1
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 1
-end
-arch water_still
-player_only 1
-x 2
-y 2
-end
-arch grassd_m5
-x 2
-y 2
-end
-arch bridge_wood_NS.131
-layer 3
+arch grassd_2
 x 2
 y 2
 end
@@ -283,7 +253,7 @@ arch grassd_5
 x 2
 y 3
 end
-arch bridge_wood_NS.141
+arch plant_mushroom3
 x 2
 y 3
 end
@@ -388,6 +358,9 @@ x 2
 y 23
 end
 arch grassd_5
+x 3
+end
+arch plant9
 x 3
 end
 arch grassd_5

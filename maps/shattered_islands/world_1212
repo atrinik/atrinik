@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-05-20 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -186,431 +186,300 @@ end
 arch grassd_m9
 y 23
 end
-arch bridge_wood_NS.171
+arch water_still
 x 1
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+end
+arch water_still
 x 1
 y 1
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 1
+end
+arch water_still
 x 1
 y 2
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 2
+end
+arch water_still
 x 1
 y 3
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 3
+end
+arch water_still
 x 1
 y 4
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 4
+end
+arch water_still
 x 1
 y 5
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 5
+end
+arch water_still
 x 1
 y 6
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 6
+end
+arch water_still
 x 1
 y 7
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 7
+end
+arch water_still
 x 1
 y 8
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 8
+end
+arch water_still
 x 1
 y 9
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 9
+end
+arch water_still
 x 1
 y 10
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 10
+end
+arch water_still
 x 1
 y 11
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 11
+end
+arch water_still
 x 1
 y 12
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 12
+end
+arch water_still
 x 1
 y 13
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 13
+end
+arch water_still
 x 1
 y 14
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 14
+end
+arch water_still
 x 1
 y 15
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 15
+end
+arch water_still
 x 1
 y 16
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 16
+end
+arch water_still
 x 1
 y 17
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 17
+end
+arch water_still
 x 1
 y 18
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 18
+end
+arch water_still
 x 1
 y 19
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 19
+end
+arch water_still
 x 1
 y 20
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 20
+end
+arch water_still
 x 1
 y 21
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 21
+end
+arch water_still
 x 1
 y 22
 end
-arch bridge_wood_NS.171
+arch grassd_m8
+x 1
+y 22
+end
+arch water_still
 x 1
 y 23
 end
-arch water_still
-player_only 1
-x 2
-end
 arch grassd_m8
-x 2
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-end
-arch water_still
-player_only 1
-x 2
-y 1
-end
-arch grassd_m8
-x 2
-y 1
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 1
-end
-arch water_still
-player_only 1
-x 2
-y 2
-end
-arch grassd_m8
-x 2
-y 2
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 2
-end
-arch water_still
-player_only 1
-x 2
-y 3
-end
-arch grassd_m8
-x 2
-y 3
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 3
-end
-arch water_still
-player_only 1
-x 2
-y 4
-end
-arch grassd_m8
-x 2
-y 4
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 4
-end
-arch water_still
-player_only 1
-x 2
-y 5
-end
-arch grassd_m8
-x 2
-y 5
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 5
-end
-arch water_still
-player_only 1
-x 2
-y 6
-end
-arch grassd_m8
-x 2
-y 6
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 6
-end
-arch water_still
-player_only 1
-x 2
-y 7
-end
-arch grassd_m8
-x 2
-y 7
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 7
-end
-arch water_still
-player_only 1
-x 2
-y 8
-end
-arch grassd_m8
-x 2
-y 8
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 8
-end
-arch water_still
-player_only 1
-x 2
-y 9
-end
-arch grassd_m8
-x 2
-y 9
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 9
-end
-arch water_still
-player_only 1
-x 2
-y 10
-end
-arch grassd_m8
-x 2
-y 10
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 10
-end
-arch water_still
-player_only 1
-x 2
-y 11
-end
-arch grassd_m8
-x 2
-y 11
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 11
-end
-arch water_still
-player_only 1
-x 2
-y 12
-end
-arch grassd_m8
-x 2
-y 12
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 12
-end
-arch water_still
-player_only 1
-x 2
-y 13
-end
-arch grassd_m8
-x 2
-y 13
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 13
-end
-arch water_still
-player_only 1
-x 2
-y 14
-end
-arch grassd_m8
-x 2
-y 14
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 14
-end
-arch water_still
-player_only 1
-x 2
-y 15
-end
-arch grassd_m8
-x 2
-y 15
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 15
-end
-arch water_still
-player_only 1
-x 2
-y 16
-end
-arch grassd_m8
-x 2
-y 16
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 16
-end
-arch water_still
-player_only 1
-x 2
-y 17
-end
-arch grassd_m8
-x 2
-y 17
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 17
-end
-arch water_still
-player_only 1
-x 2
-y 18
-end
-arch grassd_m8
-x 2
-y 18
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 18
-end
-arch water_still
-player_only 1
-x 2
-y 19
-end
-arch grassd_m8
-x 2
-y 19
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 19
-end
-arch water_still
-player_only 1
-x 2
-y 20
-end
-arch grassd_m8
-x 2
-y 20
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 20
-end
-arch water_still
-player_only 1
-x 2
-y 21
-end
-arch grassd_m8
-x 2
-y 21
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 21
-end
-arch water_still
-player_only 1
-x 2
-y 22
-end
-arch grassd_m8
-x 2
-y 22
-end
-arch bridge_wood_NS.131
-layer 3
-x 2
-y 22
-end
-arch water_still
-player_only 1
-x 2
+x 1
 y 23
 end
-arch grassd_m8
+arch grassd_1
 x 2
-y 23
 end
-arch bridge_wood_NS.131
-layer 3
+arch grassd_7
+x 2
+y 1
+end
+arch grassd_8
+x 2
+y 2
+end
+arch small_stones
+x 2
+y 2
+end
+arch grassd_5
+x 2
+y 3
+end
+arch grassd_4
+x 2
+y 4
+end
+arch grassd_7
+x 2
+y 5
+end
+arch grassd_5
+x 2
+y 6
+end
+arch grassd_5
+x 2
+y 7
+end
+arch grassd_1
+x 2
+y 8
+end
+arch grassd_3
+x 2
+y 9
+end
+arch grassd_6
+x 2
+y 10
+end
+arch plant3
+x 2
+y 10
+end
+arch grassd_2
+x 2
+y 11
+end
+arch grassd_8
+x 2
+y 12
+end
+arch grassd_1
+x 2
+y 13
+end
+arch grassd_7
+x 2
+y 14
+end
+arch grassd_6
+x 2
+y 15
+end
+arch grassd_6
+x 2
+y 16
+end
+arch grassd_3
+x 2
+y 17
+end
+arch grassd_8
+x 2
+y 18
+end
+arch grassd_6
+x 2
+y 19
+end
+arch grassd_1
+x 2
+y 20
+end
+arch grassd_5
+x 2
+y 21
+end
+arch plant_flower2
+x 2
+y 21
+end
+arch grassd_6
+x 2
+y 22
+end
+arch grassd_1
 x 2
 y 23
 end
