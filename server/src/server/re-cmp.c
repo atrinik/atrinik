@@ -109,6 +109,13 @@ const char *re_cmp(const char *str, const char *regexp)
 
 	while (*str != '\0' && !(matched = re_match_token(*str, re_token[0])))
 	{
+		/* If '^' was present and we didn't get a match above, return
+		 * NULL now so things like '^hi$' won't match on 'thi'. */
+		if (once)
+		{
+			return NULL;
+		}
+
 		str++;
 	}
 
