@@ -2,7 +2,7 @@ Object demon_fire
 name fire demon
 face demon_fire.151
 race demon
-randomitems mob_demon_fire
+randomitems mob_fire
 is_female 1
 corpse 1
 behavior 2

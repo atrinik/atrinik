@@ -4615,59 +4615,6 @@ treasure mob_raas
     end
 end
 
-treasure mob_demon_fire
-  list traps
-    chance 8
-  more
-  list default_loot
-    chance 65
-    no
-      list small_things
-        chance_fix 4
-        no
-          arch coppercoin
-            chance_fix 1
-            nrof 5
-        end
-    end
-  more
-  list default_drop
-    chance_fix 16
-    material_quality 80
-    material_range 15
-  more
-  list random_armour
-    material_quality 80
-    material_range 15
-    chance_fix 38
-    no
-      list random_weapon
-        material_quality 80
-        material_range 15
-        chance_fix 38
-        no
-          list random_mtools
-            chance_fix 182
-            no
-              list random_talisman
-                chance_fix 366
-            end
-        end
-    end
-  more
-  list random_scroll
-    chance_fix 45
-    no
-      list random_potion
-        chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
-    end
-end
-
 treasure mob_cat_black
   list traps
     chance 8
