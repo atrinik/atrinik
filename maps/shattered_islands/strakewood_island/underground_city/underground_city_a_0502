@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -190,8 +190,8 @@ y 16
 arch skel_mage
 name skeleton priest
 level 48
+exp 116
 Dex 4
-Wis 3
 type 83
 arch ability_cause_lig_wound
 sp 2

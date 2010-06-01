@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2010-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1451,7 +1451,10 @@ x 19
 y 20
 arch skel_mage
 level 51
-Wis 3
+exp 121
+sp -1
+maxsp 30
+magic 0
 type 83
 arch ability_icestorm
 hp 13
@@ -1489,8 +1492,8 @@ x 20
 y 1
 arch demilich
 level 53
+exp 130
 Dex 5
-Wis 3
 type 83
 arch ability_firestorm
 hp 11
