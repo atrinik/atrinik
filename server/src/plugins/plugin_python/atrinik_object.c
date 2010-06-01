@@ -197,7 +197,7 @@ static char *flag_names[NUM_FLAGS + 1] =
 	"f_has_ready_bow",       "f_xrays",             "f_no_apply",            "f_is_floor",        "f_lifesave",
 	"f_is_magical",          "f_alive",             "f_stand_still",         "f_random_move",     "f_only_attack",
 	"f_wiz",                 "f_stealth",           NULL,                    NULL,                "f_cursed",
-	"f_damned",              "f_is_buildable",      NULL,                    NULL,                "f_can_use_skill",
+	"f_damned",              "f_is_buildable",      "f_no_pvp",              NULL,                "f_can_use_skill",
 	"f_is_thrown",           "f_is_vul_sphere",     "f_is_proof_sphere",     "f_is_male",         "f_is_female",
 	"f_applied",             "f_inv_locked",        "f_is_wooded",           "f_is_hilly",        "f_has_ready_skill",
 	"f_has_ready_weapon",    "f_no_skill_ident",    NULL,                    "f_can_see_in_dark", "f_is_cauldron",

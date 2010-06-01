@@ -1336,6 +1336,11 @@ void update_object(object *op, int action)
 			{
 				newflags |= P_REFL_MISSILE;
 			}
+
+			if (QUERY_FLAG(op, FLAG_NO_PVP))
+			{
+				newflags |= P_NO_PVP;
+			}
 		}
 	}
 	else if (action == UP_OBJ_REMOVE)

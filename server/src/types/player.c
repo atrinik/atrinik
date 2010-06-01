@@ -1641,7 +1641,6 @@ int pvp_area(object *attacker, object *victim)
 		return 0;
 	}
 
-	/* If both are the same, this is probably a firestorm from attacker or something. Don't want to kill ourselves! */
 	if (attacker && victim && attacker == victim)
 	{
 		return 0;
@@ -1649,7 +1648,7 @@ int pvp_area(object *attacker, object *victim)
 
 	if (attacker && attacker->map)
 	{
-		if (!(attacker->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_IS_PVP))
+		if (!(attacker->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(attacker->map, attacker->x, attacker->y) & P_NO_PVP)
 		{
 			return 0;
 		}
@@ -1657,7 +1656,7 @@ int pvp_area(object *attacker, object *victim)
 
 	if (victim && victim->map)
 	{
-		if (!(victim->map->map_flags & MAP_FLAG_PVP) && !(GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_IS_PVP))
+		if (!(victim->map->map_flags & MAP_FLAG_PVP) || GET_MAP_FLAGS(victim->map, victim->x, victim->y) & P_NO_PVP)
 		{
 			return 0;
 		}

@@ -964,6 +964,9 @@
 #define FLAG_DAMNED               75
 /** Used for floor: is the floor buildable? */
 #define FLAG_IS_BUILDABLE         76
+/**
+ * PvP is disabled on the tile this object is on. */
+#define FLAG_NO_PVP               77
 /** The monster can use skills. */
 #define FLAG_CAN_USE_SKILL        79
 

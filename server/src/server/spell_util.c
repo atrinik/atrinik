@@ -1739,7 +1739,7 @@ void check_fired_arch(object *op)
 {
 	tag_t op_tag = op->count, tmp_tag;
 	object *tmp, *hitter, *head;
-	int dam, flag;
+	int dam;
 
 	/* we return here if we have NOTHING blocking here */
 	if (!blocked(op, op->map, op->x, op->y, op->terrain_flag))
@@ -1771,8 +1771,6 @@ void check_fired_arch(object *op)
 	{
 		hitter = hitter->head;
 	}
-
-	flag = GET_MAP_FLAGS(op->map, op->x, op->y) & P_IS_PVP;
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{

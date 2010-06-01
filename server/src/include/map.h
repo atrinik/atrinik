@@ -275,8 +275,9 @@ int map_tiled_reverse[TILED_MAPS];
 /**
  * We have something like an inventory checker in this tile node. */
 #define P_CHECK_INV           0x100
-/** This is ARENA flag - NOT PvP area flags - area flag is in mapheader */
-#define P_IS_PVP              0x200
+/**
+ * PvP is not possible on this tile. */
+#define P_NO_PVP              0x200
 /**
  * Same as NO_PASS - but objects with PASS_THRU set can cross it.
  *

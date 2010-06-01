@@ -718,6 +718,7 @@ lex_error = 0;
 ^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
 ^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
 ^is_buildable{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
+^no_pvp{S}          SET_OR_CLEAR_FLAG(op, FLAG_NO_PVP, IVAL);
 ^known_magical{S}   {/* Deprecated. */}
 ^known_cursed{S}    {/* Deprecated. */}
 ^attacktype{S}      {/* Deprecated. */}
@@ -1120,7 +1121,7 @@ static char *flag_names[NUM_FLAGS + 1] = {
 	"has_ready_bow",       "xrays",             NULL,              "is_floor",        "lifesave",
 	"is_magical",          "alive",             "stand_still",     "random_move",     "only_attack",
 	"wiz",                 "stealth",           NULL,              NULL,              "cursed",
-	"damned",              "is_buildable",      NULL,              NULL,    "can_use_skill",
+	"damned",              "is_buildable",      "no_pvp",          NULL,              "can_use_skill",
 	"is_thrown",           "is_vul_sphere",     "is_proof_sphere", "is_male",         "is_female",
 	"applied",             "inv_locked",        "is_wooded",       "is_hilly",        "has_ready_skill",
 	"has_ready_weapon",    "no_skill_ident",    "was_wiz",         "can_see_in_dark", "is_cauldron",

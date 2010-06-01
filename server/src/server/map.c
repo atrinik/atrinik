@@ -679,7 +679,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
 	if (flags & P_IS_PLAYER)
 	{
-		if (!op || flags & P_IS_PVP || m->map_flags & MAP_FLAG_PVP)
+		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP)))
 		{
 			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
 		}
@@ -2280,6 +2280,11 @@ void update_position(mapstruct *m, int x, int y)
 			if (QUERY_FLAG(tmp, FLAG_IS_FLOOR))
 			{
 				move_flags |= tmp->terrain_type;
+			}
+
+			if (QUERY_FLAG(tmp, FLAG_NO_PVP))
+			{
+				flags |= P_NO_PVP;
 			}
 		}
 
