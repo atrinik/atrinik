@@ -2117,7 +2117,7 @@ void fix_monster(object *op)
 		op->stats.grace = op->stats.maxgrace;
 	}
 
-	op->stats.ac = base->stats.ac + op->level + (op->level / 6);
+	op->stats.ac = base->stats.ac + op->level;
 	/* + level / 4 to catch up the equipment improvements of
 	 * the players in armour items. */
 	op->stats.wc = base->stats.wc + op->level + (op->level / 4);
