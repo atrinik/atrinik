@@ -288,11 +288,14 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 	{
 		if (!wall_blocked(map, the_exit_up->x + freearr_x[j], the_exit_up->y + freearr_y[j]))
 		{
+			char buf[MAX_BUF];
+
 			random_sign = get_archetype("sign");
 			random_sign->x = the_exit_up->x + freearr_x[j];
 			random_sign->y = the_exit_up->y + freearr_y[j];
 
-			FREE_AND_COPY_HASH(random_sign->msg, "This is a random map.");
+			snprintf(buf, sizeof(buf), "This is a random map.\nLevel: %d\n", RP->dungeon_level);
+			FREE_AND_COPY_HASH(random_sign->msg, buf);
 			insert_ob_in_map(random_sign, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 		}
 	}
