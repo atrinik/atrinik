@@ -1717,6 +1717,7 @@ void explode_object(object *op)
 
 			copy_owner(tmp, op);
 			cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
+			hit_map(op, 0);
 			break;
 		}
 	}
