@@ -631,6 +631,50 @@ int command_party(object *op, char *params)
 		form_party(op, params);
 		return 1;
 	}
+	else if (!strncmp(params, "loot", 4))
+	{
+		size_t i;
+
+		params += 4;
+
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		if (!params || !*params || !++params)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Current looting mode: ~%s~.", party_loot_modes[CONTR(op)->party->loot]);
+			return 1;
+		}
+
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can change the looting mode.");
+			return 1;
+		}
+
+		for (i = 0; i < PARTY_LOOT_MAX; i++)
+		{
+			if (!strcmp(params, party_loot_modes[i]))
+			{
+				CONTR(op)->party->loot = i;
+				snprintf(buf, sizeof(buf), "Party looting mode changed to '%s'.", party_loot_modes[i]);
+				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
+				return 1;
+			}
+		}
+
+		new_draw_info(NDI_UNIQUE, op, "Invalid looting mode. Valid modes are:");
+
+		for (i = 0; i < PARTY_LOOT_MAX; i++)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "~%s~: %s.", party_loot_modes[i], party_loot_modes_help[i]);
+		}
+
+		return 1;
+	}
 	else
 	{
 		party_struct *party;

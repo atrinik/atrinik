@@ -1766,3 +1766,32 @@ object *find_skill(object *op, int skillnr)
 
 	return NULL;
 }
+
+/**
+ * Check whether player can carry an object.
+ * @param pl Player.
+ * @param ob The object player wants to carry.
+ * @param nrof Number of objects.
+ * @return 1 if the player can carry that number of objects, 0 otherwise. */
+int player_can_carry(object *pl, object *ob, uint32 nrof)
+{
+	uint32 weight, effective_weight_limit;
+
+	weight = ob->weight * nrof;
+
+	if (ob->inv)
+	{
+		weight += ob->carrying;
+	}
+
+	if (pl->stats.Str <= MAX_STAT)
+	{
+		effective_weight_limit = weight_limit[pl->stats.Str];
+	}
+	else
+	{
+		effective_weight_limit = weight_limit[MAX_STAT];
+	}
+
+	return (pl->carrying + weight) < effective_weight_limit;
+}

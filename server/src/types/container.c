@@ -117,15 +117,14 @@ int esrv_apply_container(object *op, object *sack)
 		else
 		{
 			/* Party corpse */
-			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && (!CONTR(op)->party || sack->slaying != CONTR(op)->party->name))
+			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(op, sack))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It's not your party's bounty.");
 				return 0;
 			}
 			/* Only give player with right name access */
 			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "It's not your bounty.");
+				new_draw_info(NDI_UNIQUE, op, "It's not your bounty.");
 				return 0;
 			}
 		}
@@ -152,6 +151,11 @@ int esrv_apply_container(object *op, object *sack)
 
 		new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 		container_link(CONTR(op), sack);
+
+		if (sack->slaying && sack->sub_type1 == ST1_CONTAINER_CORPSE_party)
+		{
+			party_handle_corpse(op, sack);
+		}
 	}
 	/* Sack is in player's inventory */
 	else

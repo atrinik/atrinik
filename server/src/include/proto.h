@@ -637,6 +637,8 @@ party_struct *make_party(char *name);
 void form_party(object *op, char *name);
 party_struct *find_party(const char *name);
 sint16 party_member_get_skill(object *op, object *skill);
+int party_can_open_corpse(object *pl, object *corpse);
+void party_handle_corpse(object *pl, object *corpse);
 void send_party_message(party_struct *party, char *msg, int flag, object *op);
 void remove_party(party_struct *party);
 void PartyCmd(char *buf, int len, player *pl);
@@ -1113,6 +1115,7 @@ void cast_dust(object *op, object *throw_ob, int dir);
 int pvp_area(object *attacker, object *victim);
 int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
+int player_can_carry(object *pl, object *ob, uint32 nrof);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);

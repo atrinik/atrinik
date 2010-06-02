@@ -29,6 +29,22 @@
 
 #include <global.h>
 
+/**
+ * String representations of the party looting modes. */
+const char *party_loot_modes[PARTY_LOOT_MAX] =
+{
+	"normal", "leader", "random"
+};
+
+/**
+ * Explanation of the party modes. */
+const char *party_loot_modes_help[PARTY_LOOT_MAX] =
+{
+	"everyone is able to loot the corpse",
+	"only the leader can loot the corpse",
+	"loot is randomly split between party members when the corpse is opened"
+};
+
 /** The party list. */
 party_struct *first_party = NULL;
 
@@ -126,10 +142,8 @@ party_struct *make_party(char *name)
 {
 	party_struct *party = (party_struct *) get_poolchunk(pool_parties);
 
-	party->passwd[0] = '\0';
+	memset(party, 0, sizeof(party_struct));
 	FREE_AND_COPY_HASH(party->name, name);
-	party->leader = NULL;
-	party->members = NULL;
 
 	party->next = first_party;
 	first_party = party;
@@ -223,6 +237,123 @@ sint16 party_member_get_skill(object *op, object *skill)
 	}
 
 	return NO_SKILL_READY;
+}
+
+/**
+ * Randomly split corpse's loot between party's members.
+ * @param pl Player that opened the corpse.
+ * @param corpse The corpse. */
+static void party_loot_random(object *pl, object *corpse)
+{
+	int count = 0, pl_id;
+	party_struct *party = CONTR(pl)->party;
+	objectlink *ol;
+	object *tmp, *tmp_next;
+
+	for (ol = party->members; ol; ol = ol->next)
+	{
+		if (on_same_map(ol->objlink.ob, pl))
+		{
+			count++;
+		}
+	}
+
+	if (count == 1)
+	{
+		return;
+	}
+
+	for (tmp = corpse->inv; tmp; tmp = tmp_next)
+	{
+		int num = 1;
+
+		tmp_next = tmp->below;
+
+		/* Skip unpickable objects. */
+		if (!can_pick(pl, tmp))
+		{
+			continue;
+		}
+
+		pl_id = rndm(1, count);
+
+		for (ol = party->members; ol; ol = ol->next)
+		{
+			if (on_same_map(ol->objlink.ob, pl))
+			{
+				if (num == pl_id)
+				{
+					if (player_can_carry(ol->objlink.ob, tmp, tmp->nrof ? tmp->nrof : 1))
+					{
+						new_draw_info_format(NDI_UNIQUE | NDI_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+						esrv_del_item(CONTR(pl), tmp->count, tmp->env);
+						remove_ob(tmp);
+						tmp = insert_ob_in_ob(tmp, ol->objlink.ob);
+						esrv_send_item(ol->objlink.ob, tmp);
+					}
+
+					break;
+				}
+
+				num++;
+			}
+		}
+	}
+}
+
+/**
+ * Check if player can open a party corpse.
+ * @param pl Player trying to open the corpse.
+ * @param corpse The corpse.
+ * @return 1 if we can open the corpse, 0 otherwise. */
+int party_can_open_corpse(object *pl, object *corpse)
+{
+	/* Check if the player is in the same party. */
+	if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name)
+	{
+		new_draw_info(NDI_UNIQUE, pl, "It's not your party's bounty.");
+		return 0;
+	}
+
+	switch (CONTR(pl)->party->loot)
+	{
+		/* Normal: anyone can access it. */
+		case PARTY_LOOT_NORMAL:
+		default:
+			return 1;
+
+		/* Only leader can access it. */
+		case PARTY_LOOT_LEADER:
+			if (pl->name != CONTR(pl)->party->leader)
+			{
+				new_draw_info(NDI_UNIQUE, pl, "You're not the party's leader.");
+				return 0;
+			}
+
+			return 1;
+	}
+
+	return 1;
+}
+
+/**
+ * Do any special handling after a party corpse has been opened.
+ * @param pl Player who opened the corpse.
+ * @param corpse The corpse. */
+void party_handle_corpse(object *pl, object *corpse)
+{
+	/* Sanity check. */
+	if (!CONTR(pl)->party)
+	{
+		return;
+	}
+
+	switch (CONTR(pl)->party->loot)
+	{
+		case PARTY_LOOT_RANDOM:
+			party_loot_random(pl, corpse);
+			break;
+	}
 }
 
 /**

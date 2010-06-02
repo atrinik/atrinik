@@ -231,7 +231,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 {
 	char buf[HUGE_BUF];
 	object *env = tmp->env;
-	uint32 weight, effective_weight_limit;
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (pl->type == PLAYER)
@@ -272,24 +271,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof)
 		nrof = tmp_nrof;
 	}
 
-	/* Figure out how much weight this object will add to the player */
-	weight = tmp->weight * nrof;
-
-	if (tmp->inv)
-	{
-		weight += tmp->carrying;
-	}
-
-	if (pl->stats.Str <= MAX_STAT)
-	{
-		effective_weight_limit = weight_limit[pl->stats.Str];
-	}
-	else
-	{
-		effective_weight_limit = weight_limit[MAX_STAT];
-	}
-
-	if ((pl->carrying + weight) > effective_weight_limit)
+	if (!player_can_carry(pl, tmp, nrof))
 	{
 		new_draw_info(NDI_UNIQUE, pl, "That item is too heavy for you to pick up.");
 		return;
