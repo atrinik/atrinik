@@ -151,16 +151,7 @@ int die_roll(int num, int size, const object *op, int goodbad)
  * This should also prevent SIGFPE. */
 int rndm(int min, int max)
 {
-	int diff;
-
-	diff = max - min + 1;
-
-	if (max < 1 || diff < 1)
-	{
-		return min;
-	}
-
-	return (RANDOM() % diff + min);
+	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
 
 /**
