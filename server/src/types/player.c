@@ -1336,11 +1336,6 @@ void kill_player(object *op)
 	int lose_this_stat;
 	int this_stat;
 
-	if (save_life(op))
-	{
-		return;
-	}
-
 	if (pvp_area(NULL, op))
 	{
 		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!");
@@ -1373,6 +1368,11 @@ void kill_player(object *op)
 
 		/* Teleport defeated player to new destination */
 		transfer_ob(op, MAP_ENTER_X(op->map), MAP_ENTER_Y(op->map), 0, NULL, NULL);
+		return;
+	}
+
+	if (save_life(op))
+	{
 		return;
 	}
 
