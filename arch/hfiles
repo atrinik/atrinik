@@ -211,10 +211,10 @@ The party command can be used to form a party, say a message in your party, and 
 However, note that there is a party GUI in the client, which can be opened by clicking the Party button at right top of the client. The GUI includes listing all existing parties, seeing who's in a party you're member of, forming new party, etc.
 
 <t t="Syntax:">To form a party:
-/party form [party name]
+/party form \<party name\>
 
-To join an existing party (you need to specify password only if one is set in the party):
-/party join [party name] [password]
+To join an existing party:
+/party join \<party name\>
 
 To list ALL existing parties:
 /party list
@@ -222,14 +222,22 @@ To list ALL existing parties:
 To list players in your party:
 /party who
 
-To change party password (only party leader can do so):
-/party password [new password]
+To change party password:
+/party password \<new password\>
 
 To leave your party:
 /party leave
 
 To post a message to your party members:
-/party say [your message]
+/party say \<your message\>
+
+To change party's loot mode:
+/party loot \<new mode\>
+
+To see party's current loot mode:
+/party loot
+
+Party loot mode controls how loot from corpses is handled. See "/party loot modes" for the various loot modes.
 <p><t t="See Also:">
 ^gsay^
 ==========

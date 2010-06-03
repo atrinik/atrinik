@@ -555,6 +555,7 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, op, "There is a 8 character max for password.");
 		new_draw_info(NDI_UNIQUE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
 		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
+		new_draw_info(NDI_UNIQUE, op, "To change the party's looting mode: /party loot mode");
 		return 1;
 	}
 	else if (!strncmp(params, "say ", 4))
