@@ -841,7 +841,7 @@ static void process_players1()
 			}
 		}
 
-        pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
+		pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
 
 		/* Use the target system to hit our target - don't hit friendly
 		 * objects, ourselves or when we are not in combat mode. */

@@ -255,7 +255,7 @@ typedef struct socket_struct
 	struct Map lastmap;
 
 	/** Holds one command to handle. */
-    SockList inbuf;
+	SockList inbuf;
 
 	/** Raw data read in from the socket. */
 	SockList readbuf;
