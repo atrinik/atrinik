@@ -1034,7 +1034,7 @@ void send_reply(char *text)
 	char buf[MAXSOCKBUF];
 
 	sprintf(buf, "reply %s", text);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -1698,44 +1698,32 @@ void VersionCmd(char *data)
 /**
  * Sends version and client name.
  * @param csock Socket to send this information to. */
-void SendVersion(ClientSocket csock)
+void SendVersion()
 {
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "version %d %s", SOCKET_VERSION, PACKAGE_NAME);
-	cs_write_string(csock.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
  * Request srv file.
  * @param csock Socket to request from
  * @param index SRV file ID */
-void RequestFile(ClientSocket csock, int index)
+void RequestFile(int index)
 {
 	char buf[MAX_BUF];
 
 	sprintf(buf, "rf %d", index);
-	cs_write_string(csock.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
  * Send an addme command to the server.
  * @param csock Socket to send the command to. */
-void SendAddMe(ClientSocket csock)
+void SendAddMe()
 {
-	cs_write_string(csock.fd, "addme", 5);
-}
-
-/**
- * Send set face mode command to the server.
- * @param csock Socket to send the command to
- * @param mode Face mode */
-void SendSetFaceMode(ClientSocket csock, int mode)
-{
-	char buf[MAX_BUF];
-
-	sprintf(buf, "setfacemode %d", mode);
-	cs_write_string(csock.fd, buf, strlen(buf));
+	cs_write_string("addme", 5);
 }
 
 /**

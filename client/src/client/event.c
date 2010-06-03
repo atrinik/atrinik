@@ -1311,7 +1311,7 @@ static int key_event(SDL_KeyboardEvent *key)
 								}
 								else if (esc_menu_index == ESC_MENU_LOGOUT)
 								{
-									socket_close(csocket.fd);
+									socket_close(&csocket);
 									GameStatus = GAME_STATUS_INIT;
 								}
 
@@ -1890,7 +1890,7 @@ int process_macro_keys(int id, int value)
 			return 0;
 
 		case KEYFUNC_QLIST:
-			cs_write_string(csocket.fd, "qlist", 5);
+			cs_write_string("qlist", 5);
 			break;
 
 		default:
@@ -1990,7 +1990,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 				quick_slots[slot].tag = -1;
 
 				snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-				cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(buf, strlen(buf));
 
 				snprintf(buf, sizeof(buf), "Unset F%d of group %d.", real_slot + 1, quickslot_group);
 				draw_info(buf, COLOR_DGOLD);
@@ -2003,7 +2003,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 				quick_slots[slot].tag = spell_list_set.entry_nr;
 
 				snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", slot + 1, spell_list_set.group_nr, spell_list_set.class_nr, spell_list_set.entry_nr);
-				cs_write_string(csocket.fd, buf, strlen(buf));
+				cs_write_string(buf, strlen(buf));
 
 				snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, spell_list[spell_list_set.group_nr].entry[spell_list_set.class_nr][spell_list_set.entry_nr].name);
 				draw_info(buf, COLOR_DGOLD);
@@ -2027,7 +2027,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 		{
 			quick_slots[slot].tag = -1;
 			snprintf(buf, sizeof(buf), "qs unset %d", slot + 1);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 		}
 		else
 		{
@@ -2036,7 +2036,7 @@ static void quickslot_key(SDL_KeyboardEvent *key, int slot)
 			quick_slots[slot].tag = tag;
 
 			snprintf(buf, sizeof(buf), "qs set %d %d", slot + 1, tag);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 
 			snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", real_slot + 1, quickslot_group, locate_item(tag)->s_name);
 			draw_info(buf, COLOR_DGOLD);
@@ -2447,7 +2447,7 @@ void check_menu_keys(int menu, int key)
 
 		if (cpl.menustatus == MENU_CREATE)
 		{
-			socket_close(csocket.fd);
+			socket_close(&csocket);
 			GameStatus = GAME_STATUS_INIT;
 		}
 

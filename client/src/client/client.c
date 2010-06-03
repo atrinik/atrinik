@@ -148,62 +148,25 @@ static void face_flag_extension(int pnum, char *buf);
 
 /**
  * Do client. The main loop for commands. From this, the data and
- * commands from server are received.
- * @param csocket Socket. */
-void DoClient(ClientSocket *csocket)
+ * commands from server are received. */
+void DoClient()
 {
-	int i, len;
-	uint8 cmd_id;
-	unsigned char *data;
+	command_buffer *cmd;
 
-	while (1)
+	/* Handle all enqueued commands */
+	while ((cmd = get_next_input_command()))
 	{
-		i = socket_read(csocket->fd, &csocket->inbuf, MAXSOCKBUF - 1);
-
-		if (i == -1)
+		if (!cmd->data[0] || cmd->data[0] > BINAR_CMD)
 		{
-			/* Need to add some better logic here */
-			LOG(llevMsg, "Got error on read (error %d)\n", socket_get_error());
-			socket_close(csocket->fd);
-
-			return;
-		}
-
-		/* Don't have a full packet */
-		if (i == 0)
-		{
-			return;
-		}
-
-		csocket->inbuf.buf[csocket->inbuf.len] = '\0';
-
-		/* 3 byte header */
-		if (csocket->inbuf.buf[0] & 0x80)
-		{
-			cmd_id = (uint8) csocket->inbuf.buf[3];
-			data = csocket->inbuf.buf + 4;
-			/* 3 byte package len + 1 byte binary cmd */
-			len = csocket->inbuf.len - 4;
+			LOG(llevError, "Bad command from server (%d)\n", cmd->data[0]);
 		}
 		else
 		{
-			cmd_id = (uint8) csocket->inbuf.buf[2];
-			data = csocket->inbuf.buf + 3;
-			/* 2 byte package len + 1 byte binary cmd */
-			len = csocket->inbuf.len - 3;
+			script_trigger_event(commands[cmd->data[0] - 1].cmdname, cmd->data + 1, cmd->len - 1, commands[cmd->data[0] - 11].cmdformat);
+			commands[cmd->data[0] - 1].cmdproc(cmd->data + 1, cmd->len - 1);
 		}
 
-		if (!cmd_id || cmd_id >= BINAR_CMD)
-		{
-			LOG(llevError, "Bad command from server (%d) (%d)\n", cmd_id, BINAR_CMD);
-		}
-		else
-		{
-			script_trigger_event(commands[cmd_id - 1].cmdname, data, len, commands[cmd_id - 1].cmdformat);
-			commands[cmd_id - 1].cmdproc(data, len);
-		}
-
-		csocket->inbuf.len = 0;
+		command_buffer_free(cmd);
 	}
 }
 
@@ -280,34 +243,19 @@ short GetShort_String(const unsigned char *data)
 }
 
 /**
- * Send With Handling.
- * @param fd File descriptor to send the socklist to.
- * @param msg Message to send.
- * @return 0 on success, -1 on failure. */
-int send_socklist(int fd, SockList msg)
-{
-	unsigned char sbuf[2];
-
-	sbuf[0] = ((uint32)(msg.len) >> 8) & 0xFF;
-	sbuf[1] = ((uint32)(msg.len)) & 0xFF;
-
-	socket_write(fd, sbuf, 2);
-	return socket_write(fd, msg.buf, msg.len);
-}
-
-/**
  * Takes a string of data, and writes it out to the socket.
  * @param fd File descriptor to send the string to.
  * @param buf The string.
  * @param len Length of the string.
  * @return 0 on success, -1 on failure. */
-int cs_write_string(int fd, char *buf, size_t len)
+int cs_write_string(char *buf, size_t len)
 {
 	SockList sl;
 
 	sl.len = (int) len;
 	sl.buf = (unsigned char *) buf;
-	return send_socklist(fd, sl);
+
+	return send_socklist(sl);
 }
 
 /**
@@ -388,7 +336,7 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 
 	face_flag_extension(pnum, buf);
 	snprintf(buf, sizeof(buf), "askface %d", pnum);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -553,7 +501,7 @@ int request_face(int pnum, int mode)
 			fr_buf[0] = 'f';
 			fr_buf[1] = 'r';
 			fr_buf[2] = ' ';
-			cs_write_string(csocket.fd, fr_buf, 4 + count * sizeof(uint16));
+			cs_write_string(fr_buf, 4 + count * sizeof(uint16));
 			count = 0;
 		}
 

@@ -35,6 +35,11 @@ AC_ARG_ENABLE(win32,
    [ AC_DEFINE(__LINUX, 1, [Linux]) ]
 )
 
+# IPv6 support
+AC_ARG_ENABLE(getaddrinfo,
+   AC_HELP_STRING([--enable-getaddrinfo], [compile with getaddrinfo() (IPv6) support. ]), 
+   [AC_CHECK_FUNCS([getaddrinfo])])
+
 AC_PATH_PROG(DEPEND, makedepend)
 AC_PATH_PROG(CP,cp)
 AC_PATH_PROG(RM,rm)

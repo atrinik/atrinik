@@ -585,7 +585,7 @@ void fire_command(char *buf)
 
 	sl.buf = (unsigned char *) buf;
 	sl.len = (int) strlen(buf);
-	send_socklist(csocket.fd, sl);
+	send_socklist(sl);
 }
 
 void combat_command(char *buf)
@@ -594,7 +594,7 @@ void combat_command(char *buf)
 
 	sl.buf = (unsigned char *) buf;
 	sl.len = (int) strlen(buf);
-	send_socklist(csocket.fd, sl);
+	send_socklist(sl);
 }
 
 void toggle_locked(item *op)
@@ -616,7 +616,7 @@ void toggle_locked(item *op)
 		sl.buf[sl.len++] = 1;
 
 	SockList_AddInt(&sl, op->tag);
-	send_socklist(csocket.fd, sl);
+	send_socklist(sl);
 }
 
 void send_mark_obj(item *op)
@@ -641,7 +641,7 @@ void send_mark_obj(item *op)
 	strcpy((char *) sl.buf, "mark ");
 	sl.len = 5;
 	SockList_AddInt(&sl, op->tag);
-	send_socklist(csocket.fd, sl);
+	send_socklist(sl);
 }
 
 item *player_item()

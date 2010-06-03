@@ -359,45 +359,37 @@ void script_list()
 	}
 }
 
-void script_fdset(int *maxfd, fd_set *set)
-{
-#ifndef WIN32
-	int i;
-
-	for (i = 0; i < num_scripts; i++)
-	{
-		FD_SET(scripts[i].in_fd, set);
-
-		if (scripts[i].in_fd >= *maxfd)
-		{
-			*maxfd = scripts[i].in_fd + 1;
-		}
-	}
-#else
-	(void) maxfd;
-	(void) set;
-#endif
-}
-
 /**
- * Process loaded scripts.
- * @param set */
-void script_process(fd_set *set)
+ * Process loaded scripts. */
+void script_process()
 {
 	int i, r;
 #ifdef WIN32
 	DWORD nAvailBytes = 0, dwStatus;
 	char cTmp;
 	BOOL bRC, bStatus;
-
-	(void) set;
+#else
+	fd_set tmp_read;
+	int pollret;
+	struct timeval timeout;
 #endif
 
 	/* Determine which script's fd is set */
 	for (i = 0; i < num_scripts; i++)
 	{
 #ifndef WIN32
-		if (FD_ISSET(scripts[i].in_fd, set))
+		FD_ZERO(&tmp_read);
+		FD_SET(scripts[i].in_fd, &tmp_read);
+
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+
+		if ((pollret = select(scripts[i].in_fd + 1, &tmp_read, NULL, NULL, &timeout)) == -1)
+		{
+			LOG(llevMsg, "Got errno %d on select call: %s.\n", errno, strerror(errno));
+		}
+
+		if (FD_ISSET(scripts[i].in_fd, &tmp_read))
 #else
 		bStatus = GetExitCodeProcess(scripts[i].process, &dwStatus);
 		bRC = PeekNamedPipe(scripts[i].in_fd, &cTmp, 1, NULL, &nAvailBytes, NULL);
@@ -699,7 +691,7 @@ static void script_process_cmd(int i)
 		{
 			c += 7;
 
-			cs_write_string(csocket.fd, c, strlen(c));
+			cs_write_string(c, strlen(c));
 		}
 	}
 	else if (!strncmp(cmd, "event ", 6))

@@ -4,7 +4,7 @@ void book_gui_show();
 void book_gui_handle_mouse(int x, int y);
 
 /* client.c */
-void DoClient(ClientSocket *csocket);
+void DoClient();
 void SockList_Init(SockList *sl);
 void SockList_AddChar(SockList *sl, char c);
 void SockList_AddShort(SockList *sl, uint16 data);
@@ -12,8 +12,7 @@ void SockList_AddInt(SockList *sl, uint32 data);
 int GetInt_String(const unsigned char *data);
 sint64 GetInt64_String(const unsigned char *data);
 short GetShort_String(const unsigned char *data);
-int send_socklist(int fd, SockList msg);
-int cs_write_string(int fd, char *buf, size_t len);
+int cs_write_string(char *buf, size_t len);
 void finish_face_cmd(int pnum, uint32 checksum, char *face);
 int request_face(int pnum, int mode);
 void check_animation_status(int anum);
@@ -48,10 +47,9 @@ void QuickSlotCmd(char *data);
 void Map2Cmd(unsigned char *data, int len);
 void MagicMapCmd(unsigned char *data, int len);
 void VersionCmd(char *data);
-void SendVersion(ClientSocket csock);
-void RequestFile(ClientSocket csock, int index);
-void SendAddMe(ClientSocket csock);
-void SendSetFaceMode(ClientSocket csock, int mode);
+void SendVersion();
+void RequestFile(int index);
+void SendAddMe();
 void SkilllistCmd(char *data);
 void SpelllistCmd(char *data);
 void GolemCmd(unsigned char *data);
@@ -231,8 +229,7 @@ char *shop_int2price(int value);
 /* scripts.c */
 void script_load(const char *cparams);
 void script_list();
-void script_fdset(int *maxfd, fd_set *set);
-void script_process(fd_set *set);
+void script_process();
 int script_trigger_event(const char *cmd, const uint8 *data, const int data_len, const enum CmdFormat format);
 void script_send(char *params);
 void script_killall();
@@ -249,13 +246,18 @@ _gui_party_struct *load_party_interface(char *data, int len);
 int console_party();
 
 /* socket.c */
+void command_buffer_free(command_buffer *buf);
+int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
+int send_socklist(SockList msg);
+command_buffer *get_next_input_command();
+void socket_thread_start();
+void socket_thread_stop();
+int handle_socket_shutdown();
 int socket_get_error();
-int socket_read(int fd, SockList *sl, int len);
-int socket_write(int fd, unsigned char *buf, int len);
+int socket_close(struct ClientSocket *csock);
 int socket_initialize();
 void socket_deinitialize();
-void socket_close(SOCKET socket_temp);
-int open_socket(SOCKET *socket_temp, struct ClientSocket *csock, char *host, int port);
+int socket_open(struct ClientSocket *csock, char *host, int port);
 
 /* sound.c */
 void sound_init();

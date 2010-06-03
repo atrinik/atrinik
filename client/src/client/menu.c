@@ -2276,7 +2276,7 @@ void widget_show_target(int x, int y)
 				char tmp_buf[MAX_BUF];
 
 				snprintf(tmp_buf, sizeof(tmp_buf), "shop load %s", cpl.target_name);
-				cs_write_string(csocket.fd, tmp_buf, strlen(tmp_buf));
+				cs_write_string(tmp_buf, strlen(tmp_buf));
 			}
 
 			StringBlt(ScreenSurface, &SystemFont, "Shop", x + 200, y + 3, COLOR_HGOLD, NULL, NULL);
@@ -2489,7 +2489,7 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 
 					/* Tell server to set this quickslot to spell */
 					snprintf(buf, sizeof(buf), "qs setspell %d %d %d %d", ind + 1,  quick_slots[ind].groupNr, quick_slots[ind].classNr, quick_slots[ind].tag);
-					cs_write_string(csocket.fd, buf, strlen(buf));
+					cs_write_string(buf, strlen(buf));
 
 					cpl.win_quick_tag = -1;
 				}
@@ -2523,7 +2523,7 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 
 						/* Send to server to set this item */
 						snprintf(buf, sizeof(buf), "qs set %d %d", ind + 1, cpl.win_quick_tag);
-						cs_write_string(csocket.fd, buf, strlen(buf));
+						cs_write_string(buf, strlen(buf));
 
 						snprintf(buf, sizeof(buf), "Set F%d of group %d to %s", ind + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, locate_item(cpl.win_quick_tag)->s_name);
 						draw_info(buf, COLOR_DGOLD);
@@ -2576,7 +2576,7 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 
 			/* Unset this item */
 			snprintf(buf, sizeof(buf), "qs unset %d", ind + 1);
-			cs_write_string(csocket.fd, buf, strlen(buf));
+			cs_write_string(buf, strlen(buf));
 		}
 		else if (x >= cur_widget[QUICKSLOT_ID].x1 + 266 && x <= cur_widget[QUICKSLOT_ID].x1 + 282 && y >= cur_widget[QUICKSLOT_ID].y1 && y <= cur_widget[QUICKSLOT_ID].y1 + 34 && (cur_widget[QUICKSLOT_ID].ht <= 34))
 		{

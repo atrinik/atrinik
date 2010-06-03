@@ -320,7 +320,7 @@ void shop_open()
 	}
 
 	/* Write the socket string to server */
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 
 	/* The shop is now open */
 	shop_gui->shop_state = SHOP_STATE_OPEN;
@@ -366,7 +366,7 @@ void shop_buy_item()
 	snprintf(buf, sizeof(buf), "shop buy %s %d %d", shop_gui->shop_owner, shop_item->tag, shop_item_tmp->nrof);
 
 	/* Send the buffer */
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -427,7 +427,7 @@ void clear_shop(int send_to_server)
 
 	if (send_to_server)
 	{
-		cs_write_string(csocket.fd, "shop close", 10);
+		cs_write_string("shop close", 10);
 	}
 
 	shop_item = shop_gui->shop_items;
@@ -537,7 +537,7 @@ static void shop_add_button(int x, int y, const char *text)
 					char buf[MAX_BUF];
 
 					snprintf(buf, sizeof(buf), "shop examine %s %d", shop_gui->shop_owner, shop_gui->selected_tag);
-					cs_write_string(csocket.fd, buf, strlen(buf));
+					cs_write_string(buf, strlen(buf));
 				}
 				/* Otherwise buy the item */
 				else if (strcmp(text, "Buy") == 0)

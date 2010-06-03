@@ -109,7 +109,7 @@ void new_char(_server_char *nc)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", nc->char_arch[nc->gender_selected], nc->stats[0], nc->stats[1], nc->stats[2], nc->stats[3], nc->stats[4], nc->stats[5], nc->stats[6]);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -120,7 +120,7 @@ void client_send_apply(int tag)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "ap %d", tag);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -131,7 +131,7 @@ void client_send_examine(int tag)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "ex %d", tag);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -144,7 +144,7 @@ void client_send_move(int loc, int tag, int nrof)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), "mv %d %d %d", loc, tag, nrof);
-	cs_write_string(csocket.fd, buf, strlen(buf));
+	cs_write_string(buf, strlen(buf));
 }
 
 /**
@@ -163,7 +163,7 @@ void send_command(const char *command)
 	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
 	sl.buf[MAX_BUF - 1] = '\0';
 	sl.len += (int) strlen(command);
-	send_socklist(csocket.fd, sl);
+	send_socklist(sl);
 }
 
 /**

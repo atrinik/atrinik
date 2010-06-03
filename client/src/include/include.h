@@ -134,12 +134,13 @@ typedef signed char sint8;
 #	include <netdb.h>
 #	include <sys/socket.h>
 #	include <netinet/in.h>
+#	include <netinet/tcp.h>
 #	include <arpa/inet.h>
 #	include <SDL.h>
 #	include <SDL_main.h>
 #	include <SDL_image.h>
 
-#	define SOCKET int
+	typedef int SOCKET;
 #endif
 
 /** The log levels. */

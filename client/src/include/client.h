@@ -108,10 +108,18 @@ typedef struct _anim_table
 extern _anim_table anim_table[MAXANIM];
 extern Animations animations[MAXANIM];
 
-/* Contains the base information we use to make up a packet we want to send. */
+/**
+ * Contains the base information we use to make up a packet we want to send. */
 typedef struct SockList
 {
+	/**
+	 * How much data in buf. */
 	int len;
+	/**
+	 * Start of data in buf. */
+	int pos;
+	/**
+	 * Daa. */
 	unsigned char *buf;
 } SockList;
 
@@ -123,6 +131,7 @@ typedef struct ClientSocket
 	/* Typedef your socket type to SOCKET */
 	SOCKET fd;
 	SockList inbuf;
+	SockList outbuf;
 
 	/* These are used for the newer 'windowing' method of commands -
 	 * number of last command sent, number of received confirmation */
