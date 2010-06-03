@@ -1128,193 +1128,237 @@ static void remove_unpaid_objects(object *op, object *env)
  * @param op Player. */
 void do_some_living(object *op)
 {
-	if (CONTR(op)->state == ST_PLAYING)
-	{
-		/* HP regeneration */
-		if (CONTR(op)->gen_hp && op->stats.food)
-		{
-			if (--op->last_heal < 0)
-			{
-				op->last_heal = CONTR(op)->base_hp_reg;
+	int last_food = op->stats.food;
+	int gen_hp, gen_sp, gen_grace;
+	int rate_hp = 2000;
+	int rate_sp = 1250;
+	int rate_grace = 250;
 
-				/* Halved regeneration speed */
+	if (CONTR(op)->state != ST_PLAYING)
+	{
+		return;
+	}
+
+	if (CONTR(op)->gen_hp >= 0)
+	{
+		gen_hp = (CONTR(op)->gen_hp + 1) * op->stats.maxhp;
+	}
+	else
+	{
+		gen_hp = op->stats.maxhp;
+		rate_hp -= rate_hp / 2 * CONTR(op)->gen_hp;
+	}
+
+	if (CONTR(op)->gen_sp >= 0)
+	{
+		gen_sp = (CONTR(op)->gen_sp + 1) * op->stats.maxsp;
+	}
+	else
+	{
+		gen_sp = op->stats.maxsp;
+		rate_sp -= rate_sp / 2 * CONTR(op)->gen_sp;
+	}
+
+	if (CONTR(op)->gen_grace >= 0)
+	{
+		gen_grace = (CONTR(op)->gen_grace + 1) * op->stats.maxgrace;
+	}
+	else
+	{
+		gen_grace = op->stats.maxgrace;
+		rate_grace -= rate_grace / 2 * CONTR(op)->gen_grace;
+	}
+
+	gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
+
+	/* Update client's regen rates. */
+	CONTR(op)->gen_client_hp = ((float) (1000000 / MAX_TIME) / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
+	CONTR(op)->gen_client_sp = ((float) (1000000 / MAX_TIME) / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
+	CONTR(op)->gen_client_grace = ((float) (1000000 / MAX_TIME) / ((float) rate_grace / (MAX(gen_grace, 20) + 10))) * 10.0f;
+
+	/* Regenerate hit points. */
+	if (--op->last_heal < 0)
+	{
+		if (op->stats.hp < op->stats.maxhp && op->stats.food)
+		{
+			op->stats.hp++;
+
+			/* DMs do not consume food. */
+			if (!QUERY_FLAG(op, FLAG_WIZ))
+			{
+				op->stats.food--;
+
+				if (CONTR(op)->digestion < 0)
+				{
+					op->stats.food += CONTR(op)->digestion;
+				}
+				else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
+				{
+					op->stats.food = last_food;
+				}
+			}
+		}
+
+		op->last_heal = rate_hp / (MAX(gen_hp, 20) + 10);
+	}
+
+	/* Regenerate mana. */
+	if (--op->last_sp < 0)
+	{
+		if (op->stats.sp < op->stats.maxsp && op->stats.food)
+		{
+			op->stats.sp++;
+
+			/* DMs do not consume food. */
+			if (!QUERY_FLAG(op, FLAG_WIZ))
+			{
+				op->stats.food--;
+
+				if (CONTR(op)->digestion < 0)
+				{
+					op->stats.food += CONTR(op)->digestion;
+				}
+				else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
+				{
+					op->stats.food = last_food;
+				}
+			}
+		}
+
+		op->last_sp = rate_sp / (MAX(gen_sp, 20) + 10);
+	}
+
+	/* Stop and pray. */
+	if (CONTR(op)->praying && !CONTR(op)->was_praying)
+	{
+		if (op->stats.grace < op->stats.maxgrace)
+		{
+			object *god = find_god(determine_god(op));
+
+			if (god)
+			{
 				if (CONTR(op)->combat_mode)
 				{
-					op->last_heal += op->last_heal;
-				}
-
-				if (op->stats.hp < op->stats.maxhp)
-				{
-					int last_food = op->stats.food;
-
-					op->stats.hp += CONTR(op)->reg_hp_num;
-
-					if (op->stats.hp > op->stats.maxhp)
-					{
-						op->stats.hp = op->stats.maxhp;
-					}
-
-					/* Faster hp reg - faster digestion */
-					op->stats.food--;
-
-					if (CONTR(op)->digestion < 0)
-					{
-						op->stats.food += CONTR(op)->digestion;
-					}
-					else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
-					{
-						op->stats.food = last_food;
-					}
-				}
-			}
-		}
-
-		/* Mana regeneration */
-		if (CONTR(op)->gen_sp && op->stats.food)
-		{
-			if (--op->last_sp < 0)
-			{
-				op->last_sp = CONTR(op)->base_sp_reg;
-
-				if (op->stats.sp < op->stats.maxsp)
-				{
-					op->stats.sp += CONTR(op)->reg_sp_num;
-
-					if (op->stats.sp > op->stats.maxsp)
-					{
-						op->stats.sp = op->stats.maxsp;
-					}
-				}
-			}
-		}
-
-		/* Stay and pray */
-		if (CONTR(op)->praying && !CONTR(op)->was_praying)
-		{
-			if (op->stats.grace < op->stats.maxgrace)
-			{
-				object *god = find_god(determine_god(op));
-
-				if (god)
-				{
-					if (CONTR(op)->combat_mode)
-					{
-						new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
-						CONTR(op)->combat_mode = 0;
-						send_target_command(CONTR(op));
-					}
-					else
-					{
-						new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
-					}
-
-					CONTR(op)->was_praying = 1;
+					new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
+					CONTR(op)->combat_mode = 0;
+					send_target_command(CONTR(op));
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
-					CONTR(op)->praying = 0;
+					new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
 				}
 
-				op->last_grace = CONTR(op)->base_grace_reg;
+				CONTR(op)->was_praying = 1;
 			}
 			else
 			{
+				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
+			}
+
+			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+		}
+		else
+		{
+			CONTR(op)->praying = 0;
+			CONTR(op)->was_praying = 0;
+		}
+	}
+	else if (!CONTR(op)->praying && CONTR(op)->was_praying)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
+		CONTR(op)->was_praying = 0;
+		op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
+	}
+
+	/* Regenerate grace. */
+	if (CONTR(op)->praying)
+	{
+		if (--op->last_grace < 0)
+		{
+			if (op->stats.grace < op->stats.maxgrace)
+			{
+				op->stats.grace++;
+			}
+
+			if (op->stats.grace >= op->stats.maxgrace)
+			{
+				op->stats.grace = op->stats.maxgrace;
+				new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
 				CONTR(op)->was_praying = 0;
 			}
+
+			op->last_grace = rate_grace / (MAX(gen_grace, 20) + 10);
 		}
-		else if (!CONTR(op)->praying && CONTR(op)->was_praying)
+	}
+
+	/* Digestion */
+	if (--op->last_eat < 0)
+	{
+		int bonus = MAX(CONTR(op)->digestion, 0);
+		int penalty = MAX(-CONTR(op)->digestion, 0);
+
+		if (CONTR(op)->gen_hp > 0)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You stop praying.");
-			CONTR(op)->was_praying = 0;
-			op->last_grace = CONTR(op)->base_grace_reg;
+			op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
 		}
-
-		/* Grace regeneration */
-		if (CONTR(op)->praying && CONTR(op)->gen_grace)
+		else
 		{
-			if (--op->last_grace < 0)
-			{
-				if (op->stats.grace < op->stats.maxgrace)
-				{
-					op->stats.grace += CONTR(op)->reg_grace_num;
-				}
-
-				if (op->stats.grace >= op->stats.maxgrace)
-				{
-					op->stats.grace = op->stats.maxgrace;
-					new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
-					CONTR(op)->was_praying = 0;
-				}
-
-				op->last_grace = CONTR(op)->base_grace_reg;
-			}
+			op->last_eat = 25 * (1 + bonus) / (penalty + 1);
 		}
 
-		/* Digestion */
-		if (--op->last_eat < 0)
+		/* DMs do not consume food. */
+		if (!QUERY_FLAG(op, FLAG_WIZ))
 		{
-			int bonus = CONTR(op)->digestion > 0 ? CONTR(op)->digestion : 0, penalty = CONTR(op)->digestion < 0? -CONTR(op)->digestion : 0;
-
-			if (CONTR(op)->gen_hp > 0)
-			{
-				op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
-			}
-			else
-			{
-				op->last_eat = 25 * (1 + bonus) / (penalty + 1);
-			}
-
 			op->stats.food--;
 		}
+	}
 
-		if (op->stats.food < 0 && op->stats.hp >= 0)
+	if (op->stats.food < 0 && op->stats.hp >= 0)
+	{
+		object *tmp, *flesh = NULL;
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
-			object *tmp, *flesh = NULL;
-
-			for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+			if (!QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				if (!QUERY_FLAG(tmp, FLAG_UNPAID))
+				if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
 				{
-					if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
-					{
-						new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
-						manual_apply(op, tmp, 0);
+					new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+					manual_apply(op, tmp, 0);
 
-						if (op->stats.food >= 0 || op->stats.hp < 0)
-						{
-							break;
-						}
-					}
-					else if (tmp->type == FLESH)
+					if (op->stats.food >= 0 || op->stats.hp < 0)
 					{
-						flesh = tmp;
+						break;
 					}
 				}
-			}
-
-			/* If player is still starving, it means they don't have any food, so
-			 * eat flesh instead. */
-			if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
-			{
-				new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
-				manual_apply(op, flesh, 0);
+				else if (tmp->type == FLESH)
+				{
+					flesh = tmp;
+				}
 			}
 		}
 
-		while (op->stats.food < 0 && op->stats.hp > 0)
+		/* If player is still starving, it means they don't have any food, so
+		 * eat flesh instead. */
+		if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
 		{
-			op->stats.food++;
-			op->stats.hp--;
+			new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+			manual_apply(op, flesh, 0);
 		}
+	}
 
-		if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
-		{
-			new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
-			strcpy(CONTR(op)->killer, "starvation");
-			kill_player(op);
-		}
+	while (op->stats.food < 0 && op->stats.hp > 0)
+	{
+		op->stats.food++;
+		op->stats.hp--;
+	}
+
+	if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
+	{
+		new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
+		strcpy(CONTR(op)->killer, "starvation");
+		kill_player(op);
 	}
 }
 

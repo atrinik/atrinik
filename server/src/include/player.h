@@ -283,15 +283,6 @@ typedef struct pl_player
 	 * than MAP_CLIENT_.., the upper left is used. */
 	int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
 
-	/** How much HP the player regenerates every tick. */
-	int reg_hp_num;
-
-	/** How much SP the player regenerates every tick. */
-	int reg_sp_num;
-
-	/** How much grace the player regenerates every tick. */
-	int reg_grace_num;
-
 	/** This is initialized from init_player_exp(). */
 	int last_skill_index;
 
@@ -453,15 +444,6 @@ typedef struct pl_player
 
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
-
-	/** Real tick counter for HP regenerations. */
-	sint16 base_hp_reg;
-
-	/** Real tick counter for mana regenerations. */
-	sint16 base_sp_reg;
-
-	/** Real tick counter for grace regenerations. */
-	sint16 base_grace_reg;
 
 	/** Regeneration speed of HP. */
 	uint16 gen_client_hp;
