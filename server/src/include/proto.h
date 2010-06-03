@@ -688,7 +688,7 @@ ob_race *race_find(shstr *name);
 ob_race *race_get_random();
 void race_init();
 void race_dump();
-void free_racelist();
+void race_free();
 
 /* server/readable.c */
 int book_overflow(const char *buf1, const char *buf2, int booksize);

@@ -214,7 +214,7 @@ void race_dump()
 
 /**
  * Frees all race related information. */
-void free_racelist()
+void race_free()
 {
 	size_t i;
 	objectlink *ol, *ol_next;

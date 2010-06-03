@@ -1134,7 +1134,7 @@ void cleanup()
 	free_all_god();
 	free_all_anim();
 	free_strings();
-	free_racelist();
+	race_free();
 	free_exp_objects();
 	free_srv_files();
 	free_regions();
