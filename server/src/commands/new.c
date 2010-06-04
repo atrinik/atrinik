@@ -1180,13 +1180,5 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [SHOP]");
 	}
 
-	strncpy(race, pl->ob->race, sizeof(race) - 1);
-
-	if (pl->class_ob)
-	{
-		strncat(race, " ", sizeof(race) - strlen(race) - 1);
-		strncat(race, pl->class_ob->name, sizeof(race) - strlen(race) - 1);
-	}
-
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", race, prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
+	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", player_get_race_class(pl->ob, race, sizeof(race)), prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
 }

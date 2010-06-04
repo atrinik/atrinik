@@ -253,15 +253,7 @@ int command_who(object *op, char *params)
 			}
 			else
 			{
-				strncpy(race, pl->ob->race, sizeof(race) - 1);
-
-				if (pl->class_ob)
-				{
-					strncat(race, " ", sizeof(race) - strlen(race) - 1);
-					strncat(race, pl->class_ob->name, sizeof(race) - strlen(race) - 1);
-				}
-
-				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], race, pl->ob->level);
+				snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)), pl->ob->level);
 
 				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 				{

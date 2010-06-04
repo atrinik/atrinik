@@ -1116,6 +1116,7 @@ int pvp_area(object *attacker, object *victim);
 int player_exists(char *player_name);
 object *find_skill(object *op, int skillnr);
 int player_can_carry(object *pl, object *ob, uint32 nrof);
+char *player_get_race_class(object *op, char *buf, size_t size);
 
 /* types/player_mover.c */
 void move_player_mover(object *op);
