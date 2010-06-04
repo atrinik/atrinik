@@ -1452,7 +1452,7 @@ static void process_keyboard_input(char *input)
 		input = cleanup_chat_string(input);
 
 		LOG(llevInfo, "CLOG SYSTEM: %s\n", input);
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, 0, NULL, "[System]: %s", input);
+		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_GREEN | NDI_PLAYER, NULL, "[System]: %s", input);
 	}
 	/* Ban command */
 	else if (strncmp(input, "ban ", 4) == 0)

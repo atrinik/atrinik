@@ -1393,6 +1393,23 @@ fix_player_no_armour:
 					pl->encumbrance += (int) 3 * tmp->weight / 1000;
 					break;
 
+				case CLASS:
+					/* Copy some values from the class object to the
+					 * player. */
+					for (i = 0; i < NUM_STATS; i++)
+					{
+						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+					}
+
+					wc += tmp->stats.wc;
+					op->stats.dam += tmp->stats.dam;
+					ac += tmp->stats.ac;
+					op->stats.maxhp += tmp->stats.maxhp;
+					op->stats.maxsp += tmp->stats.maxsp;
+					op->stats.maxgrace += tmp->stats.maxgrace;
+					CONTR(op)->class_ob = tmp;
+					break;
+
 				case FORCE:
 					if (ARMOUR_SPEED(tmp) && (float)ARMOUR_SPEED(tmp) / 10.0f < max)
 					{
@@ -1446,12 +1463,11 @@ fix_player_no_armour:
 					}
 
 				case POISONING:
-					for (i = 0; i < 7; i++)
+					for (i = 0; i < NUM_STATS; i++)
 					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
+						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
 					}
 
-				case CLASS:
 				case BLINDNESS:
 				case CONFUSION:
 fix_player_jump_resi:
@@ -1792,6 +1808,25 @@ fix_player_jump_resi:
 	op->stats.maxhp += (int) ((float) op->stats.maxhp * con_bonus[op->stats.Con]) + max_boni_hp;
 	op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
 	op->stats.maxgrace += (int) ((float) op->stats.maxgrace * wis_bonus[op->stats.Wis]) + max_boni_grace;
+
+	/* HP/SP/Grace adjustements coming from class-defining object. */
+	if (CONTR(op)->class_ob)
+	{
+		if (CONTR(op)->class_ob->stats.hp)
+		{
+			op->stats.maxhp += ((float) op->stats.maxhp / 100.0f) * (float) CONTR(op)->class_ob->stats.hp;
+		}
+
+		if (CONTR(op)->class_ob->stats.sp)
+		{
+			op->stats.maxsp += ((float) op->stats.maxsp / 100.0f) * (float) CONTR(op)->class_ob->stats.sp;
+		}
+
+		if (CONTR(op)->class_ob->stats.grace)
+		{
+			op->stats.maxgrace += ((float) op->stats.maxgrace / 100.0f) * (float) CONTR(op)->class_ob->stats.grace;
+		}
+	}
 
 	if (op->stats.maxhp < 1)
 	{

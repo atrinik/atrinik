@@ -235,6 +235,8 @@ static Atrinik_Constant object_constants[] =
 	{"FEMALE", GENDER_FEMALE},
 	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
 
+	{"MAXLEVEL", MAXLEVEL},
+
 	{"CAST_NORMAL",                  0},
 	{"CAST_POTION",                  1},
 
@@ -2708,6 +2710,42 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>object.GetClass()</h1>
+ * Get player's class object.
+ * @warning Only use on player objects.
+ * @return The class object if there is one, None otherwise. */
+static PyObject *Atrinik_Object_GetClass(Atrinik_Object *whatptr, PyObject *args)
+{
+	(void) args;
+
+	if (WHAT->type != PLAYER || !CONTR(WHAT))
+	{
+		RAISE("Can only be used on players.");
+	}
+
+	return wrap_object(CONTR(WHAT)->class_ob);
+}
+
+/**
+ * <h1>object.UpdateExtTitle()</h1>
+ * Mark player's ext title for update.
+ * @warning Only use on player objects. */
+static PyObject *Atrinik_Object_UpdateExtTitle(Atrinik_Object *whatptr, PyObject *args)
+{
+	(void) args;
+
+	if (WHAT->type != PLAYER || !CONTR(WHAT))
+	{
+		RAISE("Can only be used on players.");
+	}
+
+	CONTR(WHAT)->socket.ext_title_flag = 1;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2781,6 +2819,8 @@ static PyMethodDef ObjectMethods[] =
 	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
 	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
 	{"Sound",                        (PyCFunction) Atrinik_Object_Sound,                  METH_VARARGS, 0},
+	{"GetClass",                     (PyCFunction) Atrinik_Object_GetClass,               METH_VARARGS, 0},
+	{"UpdateExtTitle",               (PyCFunction) Atrinik_Object_UpdateExtTitle,         METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

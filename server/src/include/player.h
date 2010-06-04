@@ -251,6 +251,10 @@ typedef struct pl_player
 	/** Last player accessing player::container. */
 	object *container_below;
 
+	/**
+	 * Object defining player's class. Can be NULL. */
+	object *class_ob;
+
 	/** For the client target HP marker. */
 	int target_hp;
 
