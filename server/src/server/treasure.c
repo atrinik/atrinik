@@ -1636,7 +1636,7 @@ make_prot_items:
 		case 18:
 		case 19:
 		{
-			int b = 5 + FABS(bonus), val, protect = RANDOM() % (NROFATTACKS - 4 + off);
+			int b = 5 + FABS(bonus), val, protect = RANDOM() % (LAST_PROTECTION - 4 + off);
 
 			/* Roughly generate a bonus between 100 and 35 (depending on the bonus) */
 			val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
@@ -1666,7 +1666,7 @@ make_prot_items:
 					goto set_ring_bonus_jump1;
 				}
 
-				protect = RANDOM() % (NROFATTACKS - 4 + off);
+				protect = RANDOM() % (LAST_PROTECTION - 4 + off);
 			}
 
 			op->protection[protect] = val;
@@ -2220,12 +2220,12 @@ jump_break1:
 					}
 
 					/* Put a negative value on random protection. */
-					op->protection[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+					op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
 
 					/* And again, if this is strong curse food, half a chance to curse another protection. */
 					if (strong_curse && RANDOM() % 2)
 					{
-						op->protection[RANDOM() % NROFATTACKS] = strong_curse ? -25 : -10;
+						op->protection[RANDOM() % LAST_PROTECTION] = strong_curse ? -25 : -10;
 					}
 
 					/* Change food, hp, mana and grace bonuses to negative values */

@@ -64,6 +64,10 @@ typedef enum _attacks
 } _attacks;
 
 /**
+ * Last valid protection, used for treasure generation. */
+#define LAST_PROTECTION (ATNR_CONFUSION + 1)
+
+/**
  * @defgroup AT_xxx Attack types
  * Attack types. Used to set attacktype of an object.
  * @deprecated In the process of being phased out, do not use.
