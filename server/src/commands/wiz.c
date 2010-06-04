@@ -245,7 +245,7 @@ int command_setgod(object *op, char *params)
  * @return 1. */
 int command_kick(object *ob, char *params)
 {
-	player *pl;
+	player *pl, *pl_next;
 
 	if (ob && params == NULL)
 	{
@@ -259,8 +259,10 @@ int command_kick(object *ob, char *params)
 		return 1;
 	}
 
-	for (pl = first_player; pl; pl = pl->next)
+	for (pl = first_player; pl; pl = pl_next)
 	{
+		pl_next = pl->next;
+
 		/* Ignore players not playing. */
 		if (pl->state != ST_PLAYING)
 		{
