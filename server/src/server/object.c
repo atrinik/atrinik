@@ -3891,18 +3891,14 @@ int item_matched_string(object *pl, object *op, const char *name)
  * @return The gender ID. */
 int object_get_gender(object *op)
 {
-	if (!QUERY_FLAG(op, FLAG_IS_MALE) && !QUERY_FLAG(op, FLAG_IS_FEMALE))
+	if (QUERY_FLAG(op, FLAG_IS_MALE))
 	{
-		return GENDER_NEUTER;
+		return QUERY_FLAG(op, FLAG_IS_FEMALE) ? GENDER_HERMAPHRODITE : GENDER_MALE;
 	}
-	else if (QUERY_FLAG(op, FLAG_IS_MALE) && !QUERY_FLAG(op, FLAG_IS_FEMALE))
-	{
-		return GENDER_MALE;
-	}
-	else if (!QUERY_FLAG(op, FLAG_IS_MALE) && QUERY_FLAG(op, FLAG_IS_FEMALE))
+	else if (QUERY_FLAG(op, FLAG_IS_FEMALE))
 	{
 		return GENDER_FEMALE;
 	}
 
-	return GENDER_HERMAPHRODITE;
+	return GENDER_NEUTER;
 }
