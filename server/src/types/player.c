@@ -1131,8 +1131,8 @@ void do_some_living(object *op)
 	int last_food = op->stats.food;
 	int gen_hp, gen_sp, gen_grace;
 	int rate_hp = 2000;
-	int rate_sp = 1250;
-	int rate_grace = 250;
+	int rate_sp = 1800;
+	int rate_grace = 500;
 
 	if (CONTR(op)->state != ST_PLAYING)
 	{
@@ -1141,7 +1141,7 @@ void do_some_living(object *op)
 
 	if (CONTR(op)->gen_hp >= 0)
 	{
-		gen_hp = (CONTR(op)->gen_hp + 1) * op->stats.maxhp;
+		gen_hp = (CONTR(op)->gen_hp + 1) * (op->stats.maxhp / 4);
 	}
 	else
 	{
