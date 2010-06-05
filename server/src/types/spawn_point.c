@@ -131,7 +131,7 @@ static object *spawn_monster(object *monster, object *spawn_point, int range)
 				max = min;
 		}
 
-		ret->level = random_roll(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)), ret, PREFER_LOW);
+		ret->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
 	}
 
 	if (ret->randomitems)

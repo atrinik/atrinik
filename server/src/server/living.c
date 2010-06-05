@@ -846,20 +846,6 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (tmp->stats.luck)
-	{
-		success = 1;
-
-		if (flag > 0)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel less lucky.");
-		}
-		else
-		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel more lucky.");
-		}
-	}
-
 	return success;
 }
 
@@ -985,7 +971,6 @@ void fix_player(object *op)
 	old_glow = op->glow_radius;
 	light = op->arch->clone.glow_radius;
 
-	op->stats.luck = op->arch->clone.stats.luck;
 	op->speed = op->arch->clone.speed;
 	op->weapon_speed = op->arch->clone.weapon_speed;
 	op->path_attuned = op->arch->clone.path_attuned;
@@ -1514,7 +1499,6 @@ fix_player_jump_resi:
 			op->path_attuned |= tmp->path_attuned;
 			op->path_repelled |= tmp->path_repelled;
 			op->path_denied |= tmp->path_denied;
-			op->stats.luck += tmp->stats.luck;
 
 			if (QUERY_FLAG(tmp, FLAG_LIFESAVE))
 			{

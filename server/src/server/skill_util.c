@@ -954,7 +954,7 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 	if (scroll_flag)
 	{
 		/* Failure */
-		if (random_roll(0, 99, pl, PREFER_LOW) > learn_spell[pl->stats.Int])
+		if (rndm(0, 99) > learn_spell[pl->stats.Int])
 		{
 			return 2;
 		}

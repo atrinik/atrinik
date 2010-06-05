@@ -1192,7 +1192,7 @@ void do_some_living(object *op)
 				{
 					op->stats.food += CONTR(op)->digestion;
 				}
-				else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
+				else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion))
 				{
 					op->stats.food = last_food;
 				}
@@ -1218,7 +1218,7 @@ void do_some_living(object *op)
 				{
 					op->stats.food += CONTR(op)->digestion;
 				}
-				else if (CONTR(op)->digestion > 0 && random_roll(0, CONTR(op)->digestion, op, PREFER_HIGH))
+				else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion))
 				{
 					op->stats.food = last_food;
 				}
@@ -1518,7 +1518,7 @@ void kill_player(object *op)
 					else
 					{
 						/* Take loss chance vs keep chance to see if we retain the stat. */
-						if (random_roll(0, loss_chance + keep_chance - 1, op, PREFER_LOW) < keep_chance)
+						if (rndm(0, loss_chance + keep_chance - 1) < keep_chance)
 						{
 							lose_this_stat = 0;
 						}

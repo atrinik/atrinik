@@ -487,7 +487,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		if (item == spellNormal && op->type == PLAYER)
 		{
 			/* Chance to fumble the spell by too low wisdom. */
-			if (s->flags & SPELL_DESC_WIS && random_roll(0, 99, op, PREFER_HIGH) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
+			if (s->flags & SPELL_DESC_WIS && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
 			{
 				play_sound_player_only(CONTR(op), SOUND_FUMBLE_SPELL, SOUND_NORMAL, 0, 0);
 				new_draw_info(NDI_UNIQUE, op, "You fumble the prayer because your wisdom is low.");
@@ -498,17 +498,17 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 					return 0;
 				}
 
-				return random_roll(1, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+				return rndm(1, SP_level_spellpoint_cost(caster, type, -1));
 			}
 
 			if (!(s->flags & SPELL_DESC_WIS))
 			{
-				int failure = random_roll(0, 199, op, PREFER_LOW) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
+				int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
 
 				if (failure < 0)
 				{
 					new_draw_info(NDI_UNIQUE, op, "You bungle the spell because you have too much heavy equipment in use.");
-					return random_roll(0, SP_level_spellpoint_cost(caster, type, -1), op, PREFER_LOW);
+					return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
 				}
 			}
 		}
@@ -632,18 +632,18 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 
 		case SP_METEOR_SWARM:
 			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, 3, 0);
 			break;
 
 		case SP_FROST_NOVA:
 			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, 3, 0);
 			break;
 
 		case SP_BULLET_SWARM:
 		case SP_BULLET_STORM:
 			success = 1;
-			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, die_roll(3, 3, op, PREFER_HIGH) + SP_level_strength_adjust(caster, type), 0);
+			fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 3, 0);
 			break;
 
 		case SP_DESTRUCTION:

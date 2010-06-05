@@ -144,9 +144,6 @@ typedef struct liv
 
 	/** Power. */
 	sint8 Pow;
-
-	/** Affects thaco and ac from time to time. */
-	sint8 luck;
 } living;
 
 #ifdef WIN32

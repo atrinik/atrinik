@@ -337,7 +337,7 @@ int push_ob(object *op, int dir, object *pusher)
 	}
 
 	/* Check whether we are strong enough to push this object. */
-	if (op->weight && (op->weight / 50000 - 1 > 0 ? random_roll(0, op->weight / 50000 - 1, pusher, PREFER_LOW) : 0) > pusher->stats.Str)
+	if (op->weight && (op->weight / 50000 - 1 > 0 ? rndm(0, op->weight / 50000 - 1) : 0) > pusher->stats.Str)
 	{
 		return 0;
 	}

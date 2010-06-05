@@ -181,7 +181,7 @@ int recharge(object *op)
 		return 0;
 	}
 
-	if (!(random_roll(0, 6, op, PREFER_LOW)))
+	if (!(rndm(0, 6)))
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
 		play_sound_map(op->map, op->x, op->y, SOUND_OB_EXPLODE, SOUND_NORMAL);
@@ -875,7 +875,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 		case SP_MINOR_HEAL:
 			success = 1;
-			heal = random_roll(2, 5 + level, op, PREFER_HIGH) + 6;
+			heal = rndm(2, 5 + level) + 6;
 
 			if (op->type == PLAYER)
 			{
@@ -905,7 +905,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 		case SP_GREATER_HEAL:
 			success = 1;
-			heal = random_roll(4, 10 + level, op, PREFER_HIGH) + 12;
+			heal = rndm(4, 10 + level) + 12;
 
 			if (op->type == PLAYER)
 			{
@@ -1398,7 +1398,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 {
 	object *tmp = op->inv;
 	int success = 0, success2 = 0;
-	int chance = 8 + op->stats.luck + op->stats.Wis;
+	int chance = 8 + op->stats.Wis;
 
 	if (chance < 1)
 	{
@@ -1442,7 +1442,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 					}
 				}
 
-				if (mode == IDENTIFY_MODE_NORMAL && random_roll(0, chance - 1, op, PREFER_LOW) > (chance - ++success - 2))
+				if (mode == IDENTIFY_MODE_NORMAL && rndm(0, chance - 1) > (chance - ++success - 2))
 				{
 					break;
 				}

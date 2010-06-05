@@ -892,8 +892,6 @@ int get_enviroment_level(object *op);
 object *create_artifact(object *op, char *artifactname);
 
 /* server/utils.c */
-int random_roll(int min, int max, const object *op, int goodbad);
-int die_roll(int num, int size, const object *op, int goodbad);
 int rndm(int min, int max);
 int look_up_spell_name(const char *spname);
 void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);

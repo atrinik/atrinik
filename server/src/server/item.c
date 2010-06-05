@@ -1403,12 +1403,6 @@ char *describe_item(object *op)
 	/* Here we deal with all the special flags */
 	if (id_true || QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER)
 	{
-		if (op->stats.luck)
-		{
-			sprintf(buf, "(luck%+d)", op->stats.luck);
-			strcat(retbuf, buf);
-		}
-
 		if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
 		{
 			strcat(retbuf, "(see invisible)");

@@ -558,7 +558,7 @@ lex_error = 0;
 ^was_wiz{S}         SET_OR_CLEAR_FLAG(op, FLAG_WAS_WIZ, IVAL);
 ^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
 ^tear_down{S}       SET_OR_CLEAR_FLAG(op, FLAG_TEAR_DOWN, IVAL);
-^luck{S}            op->stats.luck = IVAL;
+^luck{S}            {}
 ^run_away{S}        op->run_away = IVAL;
 ^pass_thru{S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
 ^can_pass_thru{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
@@ -1339,11 +1339,6 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->stats.dam != op2->stats.dam)
 	{
 		FAST_SAVE_LONG(sb, "dam ", op->stats.dam);
-	}
-
-	if (op->stats.luck != op2->stats.luck)
-	{
-		FAST_SAVE_LONG(sb, "luck ", op->stats.luck);
 	}
 
 	if (op->stats.wc != op2->stats.wc)

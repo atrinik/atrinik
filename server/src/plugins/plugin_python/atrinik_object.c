@@ -162,8 +162,7 @@ obj_fields_struct obj_fields[] =
 	{"wisdom",                 FIELDTYPE_SINT8,      offsetof(object, stats.Wis),              FIELDFLAG_PLAYER_FIX,        0},
 	{"charisma",               FIELDTYPE_SINT8,      offsetof(object, stats.Cha),              FIELDFLAG_PLAYER_FIX,        0},
 	{"intelligence",           FIELDTYPE_SINT8,      offsetof(object, stats.Int),              FIELDFLAG_PLAYER_FIX,        0},
-	{"power",                  FIELDTYPE_SINT8,      offsetof(object, stats.Pow),              FIELDFLAG_PLAYER_FIX,        0},
-	{"luck",                   FIELDTYPE_SINT8,      offsetof(object, stats.luck),             FIELDFLAG_PLAYER_READONLY,   0}
+	{"power",                  FIELDTYPE_SINT8,      offsetof(object, stats.Pow),              FIELDFLAG_PLAYER_FIX,        0}
 };
 
 /** Number of object fields. */

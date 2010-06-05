@@ -103,7 +103,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		hitter->stats.wc_range = 20;
 	}
 
-	roll = random_roll(0, hitter->stats.wc_range, hitter, PREFER_HIGH);
+	roll = rndm(0, hitter->stats.wc_range);
 
 	/* Adjust roll for various situations. */
 	if (!simple_attack)
@@ -193,7 +193,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 		/* Handle monsters that hit back */
 		if (!simple_attack && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter))
 		{
-			hit_player(hitter, random_roll(0, (op->stats.dam), hitter, PREFER_LOW), op, AT_PHYSICAL);
+			hit_player(hitter, rndm(0, op->stats.dam), op, AT_PHYSICAL);
 
 			if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 			{
@@ -201,7 +201,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			}
 		}
 
-		dam = hit_player(op, random_roll(hitdam / 2 + 1, hitdam, hitter, PREFER_HIGH), hitter, AT_PHYSICAL);
+		dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter, AT_PHYSICAL);
 
 		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
 		{
@@ -741,7 +741,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 		{
 			int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
 
-			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((random_roll(1, 20, op, PREFER_LOW) + op->protection[attacknum] / 10) < savethrow[level_diff]))
+			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff]))
 			{
 				if (attacknum == ATNR_CONFUSION)
 				{

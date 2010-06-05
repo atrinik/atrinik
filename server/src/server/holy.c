@@ -318,12 +318,6 @@ void dump_gods()
 			LOG(llevInfo, "\n  grace regenerates at %d",god->last_grace);
 		}
 
-		if (god->stats.luck)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  luck is %d",god->stats.luck);
-		}
-
 		if (!gifts)
 		{
 			LOG(llevInfo, "NONE");
