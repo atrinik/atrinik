@@ -152,22 +152,22 @@ typedef struct Stat_struct
 	sint8 level;
 
 	/* Hit Points. */
-	sint16 hp;
+	sint32 hp;
 
 	/* Max hit points*/
-	sint16 maxhp;
+	sint32 maxhp;
 
 	/* Spell points.  Used to cast spells. */
-	sint16 sp;
+	sint32 sp;
 
 	/* Max spell points. */
-	sint16 maxsp;
+	sint32 maxsp;
 
 	/* Grace.  Used to cast prayers. */
-	sint16 grace;
+	sint32 grace;
 
 	/* Max grace */
-	sint16 maxgrace;
+	sint32 maxgrace;
 
 	/* Experience.  Killers gain 1/10. */
 	sint64 exp;
