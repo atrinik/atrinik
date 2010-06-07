@@ -1732,6 +1732,86 @@ make_prot_items:
 }
 
 /**
+ * Calculate the item power of the given ring/amulet.
+ * @param ob The ring/amulet. */
+static void set_ring_item_power(object *ob)
+{
+	int tmp, i;
+
+	if (ob->stats.maxhp > 0)
+	{
+		ob->item_power += ob->stats.maxhp / 50;
+	}
+
+	if (ob->stats.maxsp > 0)
+	{
+		ob->item_power += ob->stats.maxsp / 50;
+	}
+
+	if (ob->stats.exp >= 2)
+	{
+		ob->item_power += ob->stats.exp - 1;
+	}
+
+	if (ob->stats.ac > 0)
+	{
+		ob->item_power += ob->stats.ac;
+	}
+
+	if (ob->stats.dam > 0)
+	{
+		ob->item_power += ob->stats.dam;
+	}
+
+	if (ob->stats.wc > 0)
+	{
+		ob->item_power += ob->stats.wc;
+	}
+
+	if (QUERY_FLAG(ob, FLAG_REFL_MISSILE))
+	{
+		ob->item_power++;
+	}
+
+	if (QUERY_FLAG(ob, FLAG_REFL_SPELL))
+	{
+		ob->item_power += 2;
+	}
+
+	if (ob->stats.hp > 0)
+	{
+		ob->item_power++;
+	}
+
+	if (ob->stats.sp > 0)
+	{
+		ob->item_power += 2;
+	}
+
+    tmp = 0;
+
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		tmp += ob->protection[i];
+	}
+
+	if (tmp > 0)
+	{
+		ob->item_power += (tmp + 10) / 20;
+	}
+
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		tmp = get_attr_value(&ob->stats, i);
+
+		if (tmp >= 2)
+		{
+			ob->item_power += tmp - 1;
+		}
+	}
+}
+
+/**
  * Will return a random number between 0 and 4.
  *
  * It is only used in fix_generated_treasure() to set bonuses on rings
@@ -2031,31 +2111,30 @@ jump_break1:
 
 				set_ring_bonus(op, QUERY_FLAG(op, FLAG_CURSED) ? -DICE2 : DICE2, difficulty);
 
-				/* Amulets have only one ability, don't bother adding any more */
-				if (op->type != RING)
+				if (op->type == RING)
 				{
-					break;
-				}
-
-				if (!(RANDOM() % 4))
-				{
-					int d = (RANDOM() % 2 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
-
-					if (set_ring_bonus(op, d, difficulty))
-					{
-						op->value = (int) ((float) op->value * 1.95f);
-					}
-
 					if (!(RANDOM() % 4))
 					{
-						int d = (RANDOM() % 3 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+						int d = (RANDOM() % 2 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 						if (set_ring_bonus(op, d, difficulty))
 						{
 							op->value = (int) ((float) op->value * 1.95f);
 						}
+
+						if (!(RANDOM() % 4))
+						{
+							int d = (RANDOM() % 3 || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+
+							if (set_ring_bonus(op, d, difficulty))
+							{
+								op->value = (int) ((float) op->value * 1.95f);
+							}
+						}
 					}
 				}
+
+				set_ring_item_power(op);
 
 				break;
 
