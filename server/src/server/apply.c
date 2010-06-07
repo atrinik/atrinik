@@ -1057,7 +1057,7 @@ static int apply_check_item_power(object *who, const object *op)
 		return 1;
 	}
 
-	if (op->item_power == 0 || op->item_power + CONTR(who)->item_power <= settings.item_power_factor * who->level)
+	if ((op->item_power + op->magic) == 0 || (op->item_power + op->magic) + CONTR(who)->item_power <= settings.item_power_factor * who->level)
 	{
 		return 1;
 	}

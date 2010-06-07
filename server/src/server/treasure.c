@@ -1788,7 +1788,7 @@ static void set_ring_item_power(object *ob)
 		ob->item_power += 2;
 	}
 
-    tmp = 0;
+	tmp = 0;
 
 	for (i = 0; i < NROFATTACKS; i++)
 	{
