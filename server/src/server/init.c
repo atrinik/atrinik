@@ -935,8 +935,7 @@ static void help()
 }
 
 /**
- * Initialize before playing.
- */
+ * Initialize before playing. */
 static void init_beforeplay()
 {
 	init_archetypes();

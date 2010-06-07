@@ -198,9 +198,6 @@ typedef struct socket_struct
 	/** Always use map2 protocol command. */
 	uint32 map2cmd:1;
 
-	/** Send ext title to client. */
-	uint32 ext_title_flag:1;
-
 	/** True if client wants darkness information. */
 	uint32 darkness:1;
 
@@ -247,6 +244,9 @@ typedef struct socket_struct
 	 * How many times the player has failed to provide the right
 	 * password. */
 	uint8 password_fails;
+
+	/** Send ext title to client. */
+	uint8 ext_title_flag;
 
 	/** Current state of the socket. */
 	enum Sock_Status status;

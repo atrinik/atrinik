@@ -387,10 +387,7 @@ lex_error = 0;
 ^speed{S}           op->speed = FVAL;
 
 ^speed_left{S}      op->speed_left = FVAL;
-^slow_move{S}       {
-						SET_SLOW_PENALTY(op, FVAL);
-						SET_FLAG(op, FLAG_SLOW_MOVE);
-                    }
+^slow_move{S}       SET_OR_CLEAR_FLAG(op, FLAG_SLOW_MOVE, IVAL);
 ^face{S}            {
 						int _face_ = find_face(yval(), 0);
 						op->face = &new_faces[_face_ ];
@@ -1099,43 +1096,6 @@ int set_variable(object *op,char *buf)
 	return retval;
 }
 
-/**
- * This is a list of pointers that correspond to the FLAG_.. values.
- * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then
- * the 15'th element of this array should match that name.
- * If an entry is NULL, that is a flag not to loaded/saved.
- * @see flag_defines */
-static char *flag_names[NUM_FLAGS + 1] = {
-	"sleep",               "confused",          NULL,              "scared",          "is_blind",
-	"is_invisible",        "is_ethereal",       "is_good",         "no_pick",         "walk_on",
-	"no_pass",             "is_animated",       NULL,              "flying",          "monster",
-	"friendly",            NULL,                "been_applied",    "auto_apply",      "treasure",
-	"is_neutral",          "see_invisible",     "can_roll",        "generator",       "is_turnable",
-	"walk_off",            "fly_on",            "fly_off",         "is_used_up",      "identified",
-	"reflecting",          "changing",          "splitting",       "hitback",         "startequip",
-	"blocksview",          "undead",            "can_stack",       "unaggressive",    "reflect_missile",
-	"reflect_spell",       "no_magic",          "no_fix_player",   "is_evil",         "tear_down",
-	"run_away",            "pass_thru",         "can_pass_thru",   "pick_up",         "unique",
-	"no_drop",             "is_indestructible", "can_cast_spell",  "can_use_scroll",  "can_use_range",
-	"can_use_bow",         "can_use_armour",    "can_use_weapon",  "can_use_ring",    "has_ready_range",
-	"has_ready_bow",       "xrays",             NULL,              "is_floor",        "lifesave",
-	"is_magical",          "alive",             "stand_still",     "random_move",     "only_attack",
-	"wiz",                 "stealth",           NULL,              NULL,              "cursed",
-	"damned",              "is_buildable",      "no_pvp",          NULL,              "can_use_skill",
-	"is_thrown",           "is_vul_sphere",     "is_proof_sphere", "is_male",         "is_female",
-	"applied",             "inv_locked",        "is_wooded",       "is_hilly",        "has_ready_skill",
-	"has_ready_weapon",    "no_skill_ident",    "was_wiz",         "can_see_in_dark", "is_cauldron",
-	"is_dust",             "no_steal",          "one_hit",         NULL,              "berserk",
-	"no_attack",           "invulnerable",      "quest_item",      "is_trapped",      "is_vul_elemental",
-	"is_proof_elemental",  "is_vul_magic",      "is_proof_magic",  "is_vul_physical", "is_proof_physical",
-	"sys_object",          "use_fix_pos",       "unpaid",          NULL,              "make_invisible",
-	"make_ethereal",       "is_player",         "is_named",        NULL,              "no_teleport",
-	"corpse",              "corpse_forced",     "player_only",     "no_cleric",       "one_drop",
-	"cursed_perm",         "damned_perm",       "door_closed",     "was_reflected",   "is_missile",
-	"can_reflect_missile", "can_reflect_spell", "is_assassin",     NULL,              "no_save",
-	NULL
-};
-
 /** Adds a line to the buffer. */
 #define ADD_STRINGLINE_ENTRY(sb__, entryname__, entryvalue__) do {\
 	stringbuffer_append_string(sb__, entryname__);\
@@ -1600,20 +1560,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
 	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
 	{
-		if (flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
+		if (object_flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
 		{
-			ADD_STRINGLINE_ENTRY(sb, flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
-		}
-	}
-
-	/* The old code was buggy - it would lose custom SLOW_PENALTY if the archetype
-	 * had a different slow_penalty (eg, when saving, it would also reset to the
-	 * archetype value. */
-	if (QUERY_FLAG(op, FLAG_SLOW_MOVE))
-	{
-		if (!QUERY_FLAG(op2, FLAG_SLOW_MOVE) || SLOW_PENALTY(op) != SLOW_PENALTY(op2))
-		{
-			FAST_SAVE_DOUBLE(sb, "slow_move ", SLOW_PENALTY(op));
+			ADD_STRINGLINE_ENTRY(sb, object_flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
 		}
 	}
 }

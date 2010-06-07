@@ -29,496 +29,106 @@
 
 #include <plugin_python.h>
 
-/** Object fields structure */
-typedef struct
-{
-	/** The field type */
-	char *name;
-
-	/** Type of the field */
-	field_type type;
-
-	/** Offset in object structure */
-	uint32 offset;
-
-	/** Flags for special handling */
-	uint32 flags;
-
-	/** Extra data for some special fields */
-	uint32 extra_data;
-} obj_fields_struct;
-
 /**
- * All the possible fields of an object.
- *
- * @todo Message field needs special handling (check for endmsg, limit to
- * 4096 characters.
- * @todo Limit weight to >= 0
- * @todo Maximum 100000 quantity
- * @todo Make enemy and owner settable (requires HOOK to set_npc_enemy()
- * and set_owner().
- * @todo Limit last_sp and last_grace to max 16000?
- * @todo -10.0 \< speed \< 10.0, also might want to call
- * update_object_speed()
- * @todo Limit food to max 999 (at least to players)?
- * @todo Damage: limit to 0 <= dam <= 120?
- * @todo Limit hitpoints, spellpoints and grace to +/- 16000?
- * @todo Limit weapon_class and armour_class to +/- 120.
- * @todo Limit all player stats to +/- 30. */
-obj_fields_struct obj_fields[] =
+ * All the possible fields of an object. */
+static fields_struct fields[] =
 {
-	{"below",                  FIELDTYPE_OBJECT,     offsetof(object, below),                  FIELDFLAG_READONLY,          0},
-	{"above",                  FIELDTYPE_OBJECT,     offsetof(object, above),                  FIELDFLAG_READONLY,          0},
-	{"inventory",              FIELDTYPE_OBJECT,     offsetof(object, inv),                    FIELDFLAG_READONLY,          0},
-	{"environment",            FIELDTYPE_OBJECT,     offsetof(object, env),                    FIELDFLAG_READONLY,          0},
-	{"map",                    FIELDTYPE_MAP,        offsetof(object, map),                    FIELDFLAG_READONLY,          0},
-	{"name",                   FIELDTYPE_SHSTR,      offsetof(object, name),                   FIELDFLAG_PLAYER_READONLY,   0},
-	{"title",                  FIELDTYPE_SHSTR,      offsetof(object, title),                  0,                           0},
-	{"race",                   FIELDTYPE_SHSTR,      offsetof(object, race),                   0,                           0},
-	{"slaying",                FIELDTYPE_SHSTR,      offsetof(object, slaying),                0,                           0},
-	{"message",                FIELDTYPE_SHSTR,      offsetof(object, msg),                    0,                           0},
-	{"artifact",               FIELDTYPE_SHSTR,      offsetof(object, artifact),               0,                           0},
-	{"weight",                 FIELDTYPE_SINT32,     offsetof(object, weight),                 0,                           0},
+	{"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0},
+	{"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0},
+	{"inventory", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0},
+	{"environment", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0},
+	{"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0},
+	{"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY, 0},
+	{"title", FIELDTYPE_SHSTR, offsetof(object, title), 0, 0},
+	{"race", FIELDTYPE_SHSTR, offsetof(object, race), 0, 0},
+	{"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0, 0},
+	{"message", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0},
+	{"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0},
+	{"weight", FIELDTYPE_SINT32, offsetof(object, weight), 0, 0},
 
-	{"weight_limit",           FIELDTYPE_UINT32,     offsetof(object, weight_limit),           0,                           0},
-	{"carrying",               FIELDTYPE_SINT32,     offsetof(object, carrying),               0,                           0},
-	{"path_attuned",           FIELDTYPE_UINT32,     offsetof(object, path_attuned),           0,                           0},
-	{"path_repelled",          FIELDTYPE_UINT32,     offsetof(object, path_repelled),          0,                           0},
-	{"path_denied",            FIELDTYPE_UINT32,     offsetof(object, path_denied),            0,                           0},
-	{"value",                  FIELDTYPE_SINT64,     offsetof(object, value),                  0,                           0},
-	{"quantity",               FIELDTYPE_UINT32,     offsetof(object, nrof),                   0,                           0},
-	{"enemy",                  FIELDTYPE_OBJECTREF,  offsetof(object, enemy),                  FIELDFLAG_READONLY,          offsetof(object, enemy_count)},
-	{"attacked_by",            FIELDTYPE_OBJECTREF,  offsetof(object, attacked_by),            FIELDFLAG_READONLY,          offsetof(object, attacked_by_count)},
-	{"owner",                  FIELDTYPE_OBJECTREF,  offsetof(object, owner),                  FIELDFLAG_READONLY,          offsetof(object, ownercount)},
+	{"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0},
+	{"carrying", FIELDTYPE_SINT32, offsetof(object, carrying), 0, 0},
+	{"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0},
+	{"path_repelled", FIELDTYPE_UINT32, offsetof(object, path_repelled), 0, 0},
+	{"path_denied", FIELDTYPE_UINT32, offsetof(object, path_denied), 0, 0},
+	{"value", FIELDTYPE_SINT64, offsetof(object, value), 0, 0},
+	{"quantity", FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0},
+	{"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_READONLY, offsetof(object, enemy_count)},
+	{"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by), FIELDFLAG_READONLY, offsetof(object, attacked_by_count)},
+	{"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY, offsetof(object, ownercount)},
 
-	{"x",                      FIELDTYPE_SINT16,     offsetof(object, x),                      FIELDFLAG_READONLY,          0},
-	{"y",                      FIELDTYPE_SINT16,     offsetof(object, y),                      FIELDFLAG_READONLY,          0},
-	{"attacked_by_distance",   FIELDTYPE_SINT16,     offsetof(object, attacked_by_distance),   0,                           0},
-	{"last_damage",            FIELDTYPE_UINT16,     offsetof(object, last_damage),            0,                           0},
-	{"terrain_type",           FIELDTYPE_UINT16,     offsetof(object, terrain_type),           0,                           0},
-	{"terrain_flag",           FIELDTYPE_UINT16,     offsetof(object, terrain_flag),           0,                           0},
-	{"material",               FIELDTYPE_UINT16,     offsetof(object, material),               0,                           0},
-	{"material_real",          FIELDTYPE_SINT16,     offsetof(object, material_real),          0,                           0},
-	{"last_heal",              FIELDTYPE_SINT16,     offsetof(object, last_heal),              0,                           0},
-	{"last_sp",                FIELDTYPE_SINT16,     offsetof(object, last_sp),                0,                           0},
+	{"x", FIELDTYPE_SINT16, offsetof(object, x), FIELDFLAG_READONLY, 0},
+	{"y", FIELDTYPE_SINT16, offsetof(object, y), FIELDFLAG_READONLY, 0},
+	{"attacked_by_distance", FIELDTYPE_SINT16, offsetof(object, attacked_by_distance), 0, 0},
+	{"last_damage", FIELDTYPE_UINT16, offsetof(object, last_damage), 0, 0},
+	{"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0, 0},
+	{"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0},
+	{"material", FIELDTYPE_UINT16, offsetof(object, material), 0, 0},
+	{"material_real", FIELDTYPE_SINT16, offsetof(object, material_real), 0, 0},
+	{"last_heal", FIELDTYPE_SINT16, offsetof(object, last_heal), 0, 0},
+	{"last_sp", FIELDTYPE_SINT16, offsetof(object, last_sp), 0, 0},
 
-	{"last_grace",             FIELDTYPE_SINT16,     offsetof(object, last_grace),             0,                           0},
-	{"last_eat",               FIELDTYPE_SINT16,     offsetof(object, last_eat),               0,                           0},
-	{"animation_id",           FIELDTYPE_UINT16,     offsetof(object, animation_id),           0,                           0},
-	{"inv_animation_id",       FIELDTYPE_UINT16,     offsetof(object, inv_animation_id),       0,                           0},
-	{"magic",                  FIELDTYPE_SINT8,      offsetof(object, magic),                  0,                           0},
-	{"state",                  FIELDTYPE_UINT8,      offsetof(object, state),                  0,                           0},
-	{"level",                  FIELDTYPE_SINT8,      offsetof(object, level),                  FIELDFLAG_PLAYER_READONLY,   0},
-	{"direction",              FIELDTYPE_SINT8,      offsetof(object, direction),              0,                           0},
-	{"facing",                 FIELDTYPE_SINT8,      offsetof(object, facing),                 0,                           0},
-	{"quick_pos",              FIELDTYPE_UINT8,      offsetof(object, quick_pos),              0,                           0},
-	{"quickslot",              FIELDTYPE_UINT8,      offsetof(object, quickslot),              FIELDFLAG_READONLY,          0},
+	{"last_grace", FIELDTYPE_SINT16, offsetof(object, last_grace), 0, 0},
+	{"last_eat", FIELDTYPE_SINT16, offsetof(object, last_eat), 0, 0},
+	{"animation_id", FIELDTYPE_UINT16, offsetof(object, animation_id), 0, 0},
+	{"inv_animation_id", FIELDTYPE_UINT16, offsetof(object, inv_animation_id), 0, 0},
+	{"magic", FIELDTYPE_SINT8, offsetof(object, magic), 0, 0},
+	{"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
+	{"level", FIELDTYPE_SINT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
+	{"direction", FIELDTYPE_SINT8, offsetof(object, direction), 0, 0},
+	{"facing", FIELDTYPE_SINT8, offsetof(object, facing), 0, 0},
+	{"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
+	{"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
-	{"type",                   FIELDTYPE_UINT8,      offsetof(object, type),                   FIELDFLAG_READONLY,          0},
-	{"sub_type_1",             FIELDTYPE_UINT8,      offsetof(object, sub_type1),              0,                           0},
-	{"item_quality",           FIELDTYPE_UINT8,      offsetof(object, item_quality),           0,                           0},
-	{"item_condition",         FIELDTYPE_UINT8,      offsetof(object, item_condition),         0,                           0},
-	{"item_race",              FIELDTYPE_UINT8,      offsetof(object, item_race),              0,                           0},
-	{"item_level",             FIELDTYPE_UINT8,      offsetof(object, item_level),             0,                           0},
-	{"item_skill",             FIELDTYPE_UINT8,      offsetof(object, item_skill),             0,                           0},
-	{"glow_radius",            FIELDTYPE_SINT8,      offsetof(object, glow_radius),            0,                           0},
-	{"move_status",            FIELDTYPE_SINT8,      offsetof(object, move_status),            0,                           0},
-	{"move_type",              FIELDTYPE_UINT8,      offsetof(object, move_type),              0,                           0},
+	{"type", FIELDTYPE_UINT8, offsetof(object, type), FIELDFLAG_READONLY, 0},
+	{"sub_type_1", FIELDTYPE_UINT8, offsetof(object, sub_type1), 0, 0},
+	{"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0},
+	{"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0},
+	{"item_race", FIELDTYPE_UINT8, offsetof(object, item_race), 0, 0},
+	{"item_level", FIELDTYPE_UINT8, offsetof(object, item_level), 0, 0},
+	{"item_skill", FIELDTYPE_UINT8, offsetof(object, item_skill), 0, 0},
+	{"glow_radius", FIELDTYPE_SINT8, offsetof(object, glow_radius), 0, 0},
+	{"move_status", FIELDTYPE_SINT8, offsetof(object, move_status), 0, 0},
+	{"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0},
 
-	{"anim_enemy_dir",         FIELDTYPE_SINT8,      offsetof(object, anim_enemy_dir),         0,                           0},
-	{"anim_moving_dir",        FIELDTYPE_SINT8,      offsetof(object, anim_moving_dir),        0,                           0},
-	{"anim_enemy_dir_last",    FIELDTYPE_SINT8,      offsetof(object, anim_enemy_dir_last),    0,                           0},
-	{"anim_moving_dir_last",   FIELDTYPE_SINT8,      offsetof(object, anim_moving_dir_last),   0,                           0},
-	{"anim_last_facing",       FIELDTYPE_SINT8,      offsetof(object, anim_last_facing),       0,                           0},
-	{"anim_last_facing_last",  FIELDTYPE_SINT8,      offsetof(object, anim_last_facing_last),  0,                           0},
-	{"anim_speed",             FIELDTYPE_UINT8,      offsetof(object, anim_speed),             0,                           0},
-	{"last_anim",              FIELDTYPE_UINT8,      offsetof(object, last_anim),              0,                           0},
-	{"behavior",               FIELDTYPE_UINT8,      offsetof(object, behavior),               0,                           0},
-	{"run_away",               FIELDTYPE_UINT8,      offsetof(object, run_away),               0,                           0},
+	{"anim_enemy_dir", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir), 0, 0},
+	{"anim_moving_dir", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir), 0, 0},
+	{"anim_enemy_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir_last), 0, 0},
+	{"anim_moving_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir_last), 0, 0},
+	{"anim_last_facing", FIELDTYPE_SINT8, offsetof(object, anim_last_facing), 0, 0},
+	{"anim_last_facing_last", FIELDTYPE_SINT8, offsetof(object, anim_last_facing_last), 0, 0},
+	{"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0},
+	{"last_anim", FIELDTYPE_UINT8, offsetof(object, last_anim), 0, 0},
+	{"behavior", FIELDTYPE_UINT8, offsetof(object, behavior), 0, 0},
+	{"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0},
 
-	{"layer",                  FIELDTYPE_UINT8,      offsetof(object, layer),                  0,                           0},
-	{"speed",                  FIELDTYPE_FLOAT,      offsetof(object, speed),                  FIELDFLAG_PLAYER_READONLY,   0},
-	{"speed_left",             FIELDTYPE_FLOAT,      offsetof(object, speed_left),             0,                           0},
-	{"weapon_speed",           FIELDTYPE_FLOAT,      offsetof(object, weapon_speed),           0,                           0},
-	{"weapon_speed_left",      FIELDTYPE_FLOAT,      offsetof(object, weapon_speed_left),      0,                           0},
-	{"weapon_speed_add",       FIELDTYPE_FLOAT,      offsetof(object, weapon_speed_add),       0,                           0},
-	{"experience",             FIELDTYPE_SINT64,     offsetof(object, stats.exp),              0,                           0},
-	{"hitpoints",              FIELDTYPE_SINT32,     offsetof(object, stats.hp),               0,                           0},
+	{"layer", FIELDTYPE_UINT8, offsetof(object, layer), 0, 0},
+	{"speed", FIELDTYPE_FLOAT, offsetof(object, speed), FIELDFLAG_PLAYER_READONLY, 0},
+	{"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
+	{"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
+	{"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0, 0},
+	{"weapon_speed_add", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_add), 0, 0},
+	{"experience", FIELDTYPE_SINT64, offsetof(object, stats.exp), 0, 0},
+	{"hitpoints", FIELDTYPE_SINT32, offsetof(object, stats.hp), 0, 0},
 
-	{"max_hitpoints",          FIELDTYPE_SINT32,     offsetof(object, stats.maxhp),            FIELDFLAG_PLAYER_READONLY,   0},
-	{"spellpoints",            FIELDTYPE_SINT16,     offsetof(object, stats.sp),               0,                           0},
-	{"max_spellpoints",        FIELDTYPE_SINT16,     offsetof(object, stats.maxsp),            FIELDFLAG_PLAYER_READONLY,   0},
-	{"grace",                  FIELDTYPE_SINT16,     offsetof(object, stats.grace),            0,                           0},
-	{"max_grace",              FIELDTYPE_SINT16,     offsetof(object, stats.maxgrace),         FIELDFLAG_PLAYER_READONLY,   0},
-	{"food",                   FIELDTYPE_SINT16,     offsetof(object, stats.food),             0,                           0},
-	{"damage",                 FIELDTYPE_SINT16,     offsetof(object, stats.dam),              FIELDFLAG_PLAYER_READONLY,   0},
-	{"weapon_class",           FIELDTYPE_SINT16,     offsetof(object, stats.wc),               FIELDFLAG_PLAYER_READONLY,   0},
-	{"armour_class",           FIELDTYPE_SINT16,     offsetof(object, stats.ac),               FIELDFLAG_PLAYER_READONLY,   0},
-	{"weapon_class_range",     FIELDTYPE_UINT8,      offsetof(object, stats.wc_range),         0,                           0},
+	{"max_hitpoints", FIELDTYPE_SINT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
+	{"spellpoints", FIELDTYPE_SINT16, offsetof(object, stats.sp), 0, 0},
+	{"max_spellpoints", FIELDTYPE_SINT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
+	{"grace", FIELDTYPE_SINT16, offsetof(object, stats.grace), 0, 0},
+	{"max_grace", FIELDTYPE_SINT16, offsetof(object, stats.maxgrace), FIELDFLAG_PLAYER_READONLY, 0},
+	{"food", FIELDTYPE_SINT16, offsetof(object, stats.food), 0, 0},
+	{"damage", FIELDTYPE_SINT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
+	{"weapon_class", FIELDTYPE_SINT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY, 0},
+	{"armour_class", FIELDTYPE_SINT16, offsetof(object, stats.ac), FIELDFLAG_PLAYER_READONLY, 0},
+	{"weapon_class_range", FIELDTYPE_UINT8, offsetof(object, stats.wc_range), 0, 0},
 
-	{"strength",               FIELDTYPE_SINT8,      offsetof(object, stats.Str),              FIELDFLAG_PLAYER_FIX,        0},
-	{"dexterity",              FIELDTYPE_SINT8,      offsetof(object, stats.Dex),              FIELDFLAG_PLAYER_FIX,        0},
-	{"constitution",           FIELDTYPE_SINT8,      offsetof(object, stats.Con),              FIELDFLAG_PLAYER_FIX,        0},
-	{"wisdom",                 FIELDTYPE_SINT8,      offsetof(object, stats.Wis),              FIELDFLAG_PLAYER_FIX,        0},
-	{"charisma",               FIELDTYPE_SINT8,      offsetof(object, stats.Cha),              FIELDFLAG_PLAYER_FIX,        0},
-	{"intelligence",           FIELDTYPE_SINT8,      offsetof(object, stats.Int),              FIELDFLAG_PLAYER_FIX,        0},
-	{"power",                  FIELDTYPE_SINT8,      offsetof(object, stats.Pow),              FIELDFLAG_PLAYER_FIX,        0}
-};
-
-/** Number of object fields. */
-#define NUM_OBJFIELDS (sizeof(obj_fields) / sizeof(obj_fields[0]))
-
-/**
- * This is a list of strings that correspond to the FLAG_... values.
- *
- * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15th
- * element of this array should match that name.
- *
- * If an entry is NULL, that flag cannot be set/read from scripts
- *
- * Yes, this is almost exactly a repeat from loader.l.
- *
- * List of the flags and their meaning: */
-static char *flag_names[NUM_FLAGS + 1] =
-{
-	"f_sleep",               "f_confused",          "f_paralyzed",           "f_scared",          "f_is_blind",
-	"f_is_invisible",        "f_is_ethereal",       "f_is_good",             "f_no_pick",         "f_walk_on",
-	"f_no_pass",             "f_is_animated",       "f_slow_move",           "f_flying",          "f_monster",
-	"f_friendly",            NULL,                  "f_been_applied",        "f_auto_apply",      "f_treasure",
-	"f_is_neutral",          "f_see_invisible",     "f_can_roll",            "f_generator",       "f_is_turnable",
-	"f_walk_off",            "f_fly_on",            "f_fly_off",             "f_is_used_up",      "f_identified",
-	"f_reflecting",          "f_changing",          "f_splitting",           "f_hitback",         "f_startequip",
-	"f_blocksview",          "f_undead",            "f_can_stack",           "f_unaggressive",    "f_reflect_missile",
-	"f_reflect_spell",       "f_no_magic",          "f_no_fix_player",       "f_is_evil",         "f_tear_down",
-	"f_run_away",            "f_pass_thru",         "f_can_pass_thru",       "f_pick_up",         "f_unique",
-	"f_no_drop",             "f_is_indestructible", "f_can_cast_spell",      "f_can_use_scroll",  "f_can_use_range",
-	"f_can_use_bow",         "f_can_use_armour",    "f_can_use_weapon",      "f_can_use_ring",    "f_has_ready_range",
-	"f_has_ready_bow",       "f_xrays",             "f_no_apply",            "f_is_floor",        "f_lifesave",
-	"f_is_magical",          "f_alive",             "f_stand_still",         "f_random_move",     "f_only_attack",
-	"f_wiz",                 "f_stealth",           NULL,                    NULL,                "f_cursed",
-	"f_damned",              "f_is_buildable",      "f_no_pvp",              NULL,                "f_can_use_skill",
-	"f_is_thrown",           "f_is_vul_sphere",     "f_is_proof_sphere",     "f_is_male",         "f_is_female",
-	"f_applied",             "f_inv_locked",        "f_is_wooded",           "f_is_hilly",        "f_has_ready_skill",
-	"f_has_ready_weapon",    "f_no_skill_ident",    NULL,                    "f_can_see_in_dark", "f_is_cauldron",
-	"f_is_dust",             "f_no_steal",          "f_one_hit",             NULL,                "f_berserk",
-	"f_no_attack",           "f_invulnerable",      "f_quest_item",          NULL,                "f_is_vul_elemental",
-	"f_is_proof_elemental",  "f_is_vul_magic",      "f_is_proof_magic",      "f_is_vul_physical", "f_is_proof_physical",
-	"f_sys_object",          "f_use_fix_pos",       "f_unpaid",              NULL,                "f_make_invisible",
-	"f_make_ethereal",       NULL,                  "f_is_named",            NULL,                "f_no_teleport",
-	"f_corpse",              "f_corpse_forced",     "f_player_only",         "f_no_cleric",       "f_one_drop",
-	"f_cursed_perm",         "f_damned_perm",       "f_door_closed",         NULL,                "f_is_missile",
-	"f_can_reflect_missile", "f_can_reflect_spell", "flag_is_assassination", NULL,                NULL,
-	NULL
-};
-
-/**
- * Object constants. */
-static Atrinik_Constant object_constants[] =
-{
-	{"MAP_INFO_NORMAL",              MAP_INFO_NORMAL},
-	{"MAP_INFO_ALL",                 MAP_INFO_ALL},
-
-	{"COST_TRUE",                    F_TRUE},
-	{"COST_BUY",                     F_BUY},
-	{"COST_SELL",                    F_SELL},
-
-	{"APPLY_TOGGLE",                 0},
-	{"APPLY_ALWAYS",                 AP_APPLY},
-	{"UNAPPLY_ALWAYS",               AP_UNAPPLY},
-	{"UNAPPLY_NO_MERGE",             AP_NO_MERGE},
-	{"UNAPPLY_IGNORE_CURSE",         AP_IGNORE_CURSE},
-	{"APPLY_NO_EVENT",               AP_NO_EVENT},
-
-	{"NEUTER", GENDER_NEUTER},
-	{"MALE", GENDER_MALE},
-	{"FEMALE", GENDER_FEMALE},
-	{"HERMAPHRODITE", GENDER_HERMAPHRODITE},
-
-	{"MAXLEVEL", MAXLEVEL},
-
-	{"CAST_NORMAL",                  0},
-	{"CAST_POTION",                  1},
-
-	{"LEARN",                        0},
-	{"UNLEARN",                      1},
-
-	{"UNIDENTIFIED",                 0},
-	{"IDENTIFIED",                   1},
-
-	{"IDENTIFY_NORMAL",              IDENTIFY_MODE_NORMAL},
-	{"IDENTIFY_ALL",                 IDENTIFY_MODE_ALL},
-	{"IDENTIFY_MARKED",              IDENTIFY_MODE_MARKED},
-
-	{"CLONE_WITH_INVENTORY",         0},
-	{"CLONE_WITHOUT_INVENTORY",      1},
-
-	{"EXP_AGILITY", EXP_AGILITY},
-	{"EXP_MENTAL", EXP_MENTAL},
-	{"EXP_MAGICAL", EXP_MAGICAL},
-	{"EXP_PERSONAL", EXP_PERSONAL},
-	{"EXP_PHYSICAL", EXP_PHYSICAL},
-	{"EXP_WISDOM", EXP_WISDOM},
-
-	{"COLOR_WHITE", NDI_WHITE},
-	{"COLOR_ORANGE", NDI_ORANGE},
-	{"COLOR_NAVY", NDI_NAVY},
-	{"COLOR_RED", NDI_RED},
-	{"COLOR_GREEN", NDI_GREEN},
-	{"COLOR_BLUE", NDI_BLUE},
-	{"COLOR_GREY", NDI_GREY},
-	{"COLOR_BROWN", NDI_BROWN},
-	{"COLOR_PURPLE", NDI_PURPLE},
-	{"COLOR_PINK", NDI_PINK},
-	{"COLOR_YELLOW", NDI_YELLOW},
-	{"COLOR_DK_NAVY", NDI_DK_NAVY},
-	{"COLOR_DK_GREEN", NDI_DK_GREEN},
-	{"COLOR_DK_ORANGE", NDI_DK_ORANGE},
-
-	{"NDI_SAY",                      NDI_SAY},
-	{"NDI_SHOUT",                    NDI_SHOUT},
-	{"NDI_TELL",                     NDI_TELL},
-	{"NDI_PLAYER",                   NDI_PLAYER},
-	{"NDI_ANIM",                     NDI_ANIM},
-	{"NDI_EMOTE",                    NDI_EMOTE},
-	{"NDI_ALL",                      NDI_ALL},
-
-	{"PLAYER_EQUIP_MAIL", PLAYER_EQUIP_MAIL},
-	{"PLAYER_EQUIP_GAUNTLET", PLAYER_EQUIP_GAUNTLET},
-	{"PLAYER_EQUIP_BRACER", PLAYER_EQUIP_BRACER},
-	{"PLAYER_EQUIP_HELM", PLAYER_EQUIP_HELM},
-	{"PLAYER_EQUIP_BOOTS", PLAYER_EQUIP_BOOTS},
-	{"PLAYER_EQUIP_CLOAK", PLAYER_EQUIP_CLOAK},
-	{"PLAYER_EQUIP_GIRDLE", PLAYER_EQUIP_GIRDLE},
-	{"PLAYER_EQUIP_SHIELD", PLAYER_EQUIP_SHIELD},
-	{"PLAYER_EQUIP_RRING", PLAYER_EQUIP_RRING},
-	{"PLAYER_EQUIP_LRING", PLAYER_EQUIP_LRING},
-	{"PLAYER_EQUIP_AMULET", PLAYER_EQUIP_AMULET},
-	{"PLAYER_EQUIP_WEAPON", PLAYER_EQUIP_WEAPON},
-	{"PLAYER_EQUIP_BOW", PLAYER_EQUIP_BOW},
-
-	{"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
-	{"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
-	{"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
-	{"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
-
-	{"TYPE_PLAYER",                  PLAYER},
-	{"TYPE_BULLET",                  BULLET},
-	{"TYPE_ROD",                     ROD},
-	{"TYPE_TREASURE",                TREASURE},
-	{"TYPE_POTION",                  POTION},
-	{"TYPE_FOOD",                    FOOD},
-	{"TYPE_POISON",                  POISON},
-	{"TYPE_BOOK",                    BOOK},
-	{"TYPE_CLOCK",                   CLOCK},
-	{"TYPE_FBULLET",                 FBULLET},
-	{"TYPE_FBALL",                   FBALL},
-	{"TYPE_LIGHTNING",               LIGHTNING},
-	{"TYPE_ARROW",                   ARROW},
-	{"TYPE_BOW",                     BOW},
-	{"TYPE_WEAPON",                  WEAPON},
-	{"TYPE_ARMOUR",                  ARMOUR},
-	{"TYPE_PEDESTAL",                PEDESTAL},
-	{"TYPE_ALTAR",                   ALTAR},
-	{"TYPE_CONFUSION",               CONFUSION},
-	{"TYPE_LOCKED_DOOR",             LOCKED_DOOR},
-	{"TYPE_SPECIAL_KEY",             SPECIAL_KEY},
-	{"TYPE_MAP",                     MAP},
-	{"TYPE_DOOR",                    DOOR},
-	{"TYPE_KEY",                     KEY},
-	{"TYPE_MMISSILE",                MMISSILE},
-	{"TYPE_TIMED_GATE",              TIMED_GATE},
-	{"TYPE_TRIGGER",                 TRIGGER},
-	{"TYPE_GRIMREAPER",              GRIMREAPER},
-	{"TYPE_MAGIC_EAR",               MAGIC_EAR},
-	{"TYPE_TRIGGER_BUTTON",          TRIGGER_BUTTON},
-	{"TYPE_TRIGGER_ALTAR",           TRIGGER_ALTAR},
-	{"TYPE_TRIGGER_PEDESTAL",        TRIGGER_PEDESTAL},
-	{"TYPE_SHIELD",                  SHIELD},
-	{"TYPE_HELMET",                  HELMET},
-	{"TYPE_HORN",                    HORN},
-	{"TYPE_MONEY",                   MONEY},
-	{"TYPE_CLASS",                   CLASS},
-	{"TYPE_GRAVESTONE",              GRAVESTONE},
-	{"TYPE_AMULET",                  AMULET},
-	{"TYPE_PLAYERMOVER",             PLAYERMOVER},
-	{"TYPE_TELEPORTER",              TELEPORTER},
-	{"TYPE_CREATOR",                 CREATOR},
-	{"TYPE_SKILL",                   SKILL},
-	{"TYPE_EXPERIENCE",              EXPERIENCE},
-	{"TYPE_EARTHWALL",               EARTHWALL},
-	{"TYPE_GOLEM",                   GOLEM},
-	{"TYPE_BOMB",                    BOMB},
-	{"TYPE_THROWN_OBJ",              THROWN_OBJ},
-	{"TYPE_BLINDNESS",               BLINDNESS},
-	{"TYPE_GOD",                     GOD},
-	{"TYPE_DETECTOR",                DETECTOR},
-	{"TYPE_SKILL_ITEM",              SKILL_ITEM},
-	{"TYPE_DEAD_OBJECT",             DEAD_OBJECT},
-	{"TYPE_DRINK",                   DRINK},
-	{"TYPE_MARKER",                  MARKER},
-	{"TYPE_HOLY_ALTAR",              HOLY_ALTAR},
-	{"TYPE_PLAYER_CHANGER",          PLAYER_CHANGER},
-	{"TYPE_PEARL",                   PEARL},
-	{"TYPE_GEM",                     GEM},
-	{"TYPE_FIRECHEST",               FIRECHEST},
-	{"TYPE_FIREWALL",                FIREWALL},
-	{"TYPE_CHECK_INV",               CHECK_INV},
-	{"TYPE_MOOD_FLOOR",              MOOD_FLOOR},
-	{"TYPE_EXIT",                    EXIT},
-	{"TYPE_SHOP_FLOOR",              SHOP_FLOOR},
-	{"TYPE_SHOP_MAT",                SHOP_MAT},
-	{"TYPE_RING",                    RING},
-	{"TYPE_FLOOR",                   FLOOR},
-	{"TYPE_FLESH",                   FLESH},
-	{"TYPE_INORGANIC",               INORGANIC},
-	{"TYPE_LIGHT_APPLY",             LIGHT_APPLY},
-	{"TYPE_LIGHTER",                 LIGHTER},
-	{"TYPE_WALL",                    WALL},
-	{"TYPE_LIGHT_SOURCE",            LIGHT_SOURCE},
-	{"TYPE_MISC_OBJECT",             MISC_OBJECT},
-	{"TYPE_MONSTER",                 MONSTER},
-	{"TYPE_SPAWN_POINT",             SPAWN_POINT},
-	{"TYPE_LIGHT_REFILL",            LIGHT_REFILL},
-	{"TYPE_SPAWN_POINT_MOB",         SPAWN_POINT_MOB},
-	{"TYPE_SPAWN_POINT_INFO",        SPAWN_POINT_INFO},
-	{"TYPE_SPELLBOOK",               SPELLBOOK},
-	{"TYPE_ORGANIC",                 ORGANIC},
-	{"TYPE_CLOAK",                   CLOAK},
-	{"TYPE_CONE",                    CONE},
-	{"TYPE_AURA",                    AURA},
-	{"TYPE_SPINNER",                 SPINNER},
-	{"TYPE_GATE",                    GATE},
-	{"TYPE_BUTTON",                  BUTTON},
-	{"TYPE_HANDLE",                  HANDLE},
-	{"TYPE_PIT",                     PIT},
-	{"TYPE_TRAPDOOR",                TRAPDOOR},
-	{"TYPE_WORD_OF_RECALL",          WORD_OF_RECALL},
-	{"TYPE_SIGN",                    SIGN},
-	{"TYPE_BOOTS",                   BOOTS},
-	{"TYPE_GLOVES",                  GLOVES},
-	{"TYPE_BASE_INFO",               BASE_INFO},
-	{"TYPE_RANDOM_DROP",             RANDOM_DROP},
-	{"TYPE_CONVERTER",               CONVERTER},
-	{"TYPE_BRACERS",                 BRACERS},
-	{"TYPE_POISONING",               POISONING},
-	{"TYPE_SAVEBED",                 SAVEBED},
-	{"TYPE_POISONCLOUD",             POISONCLOUD},
-	{"TYPE_WAND",                    WAND},
-	{"TYPE_ABILITY",                 ABILITY},
-	{"TYPE_SCROLL",                  SCROLL},
-	{"TYPE_DIRECTOR",                DIRECTOR},
-	{"TYPE_GIRDLE",                  GIRDLE},
-	{"TYPE_FORCE",                   FORCE},
-	{"TYPE_POTION_EFFECT",           POTION_EFFECT},
-	{"TYPE_JEWEL",                   JEWEL},
-	{"TYPE_NUGGET",                  NUGGET},
-	{"TYPE_EVENT_OBJECT",            EVENT_OBJECT},
-	{"TYPE_WAYPOINT_OBJECT",         WAYPOINT_OBJECT},
-	{"TYPE_QUEST_CONTAINER",         QUEST_CONTAINER},
-	{"TYPE_CLOSE_CON",               CLOSE_CON},
-	{"TYPE_CONTAINER",               CONTAINER},
-	{"TYPE_ARMOUR_IMPROVER",         ARMOUR_IMPROVER},
-	{"TYPE_WEAPON_IMPROVER",         WEAPON_IMPROVER},
-	{"TYPE_WEALTH",                  WEALTH},
-	{"TYPE_SKILLSCROLL",             SKILLSCROLL},
-	{"TYPE_DEEP_SWAMP",              DEEP_SWAMP},
-	{"TYPE_IDENTIFY_ALTAR",          IDENTIFY_ALTAR},
-	{"TYPE_CANCELLATION",            CANCELLATION},
-	{"TYPE_BALL_LIGHTNING",          BALL_LIGHTNING},
-	{"TYPE_SWARM_SPELL",             SWARM_SPELL},
-	{"TYPE_RUNE",                    RUNE},
-	{"TYPE_POWER_CRYSTAL",           POWER_CRYSTAL},
-	{"TYPE_CORPSE",                  CORPSE},
-	{"TYPE_DISEASE",                 DISEASE},
-	{"TYPE_SYMPTOM",                 SYMPTOM},
-
-	{"SOUNDTYPE_NORMAL", SOUND_NORMAL},
-	{"SOUNDTYPE_SPELL", SOUND_SPELL},
-
-	{"SOUND_LEVEL_UP", SOUND_LEVEL_UP},
-	{"SOUND_FIRE_ARROW", SOUND_FIRE_ARROW},
-	{"SOUND_LEARN_SPELL", SOUND_LEARN_SPELL},
-	{"SOUND_FUMBLE_SPELL", SOUND_FUMBLE_SPELL},
-	{"SOUND_WAND_POOF", SOUND_WAND_POOF},
-	{"SOUND_OPEN_DOOR", SOUND_OPEN_DOOR},
-	{"SOUND_PUSH_PLAYER", SOUND_PUSH_PLAYER},
-	{"SOUND_HIT_IMPACT", SOUND_HIT_IMPACT},
-	{"SOUND_HIT_CLEAVE", SOUND_HIT_CLEAVE},
-	{"SOUND_HIT_SLASH", SOUND_HIT_SLASH},
-	{"SOUND_HIT_PIERCE", SOUND_HIT_PIERCE},
-	{"SOUND_MISS_BLOCK", SOUND_MISS_BLOCK},
-	{"SOUND_MISS_HAND", SOUND_MISS_HAND},
-	{"SOUND_MISS_MOB", SOUND_MISS_MOB},
-	{"SOUND_MISS_PLAYER", SOUND_MISS_PLAYER},
-	{"SOUND_PET_IS_KILLED", SOUND_PET_IS_KILLED},
-	{"SOUND_PLAYER_DIES", SOUND_PLAYER_DIES},
-	{"SOUND_OB_EVAPORATE", SOUND_OB_EVAPORATE},
-	{"SOUND_OB_EXPLODE", SOUND_OB_EXPLODE},
-	{"SOUND_PLAYER_KILLS", SOUND_PLAYER_KILLS},
-	{"SOUND_TURN_HANDLE", SOUND_TURN_HANDLE},
-	{"SOUND_FALL_HOLE", SOUND_FALL_HOLE},
-	{"SOUND_DRINK_POISON", SOUND_DRINK_POISON},
-	{"SOUND_DROP_THROW", SOUND_DROP_THROW},
-	{"SOUND_LOSE_SOME", SOUND_LOSE_SOME},
-	{"SOUND_THROW", SOUND_THROW},
-	{"SOUND_GATE_OPEN", SOUND_GATE_OPEN},
-	{"SOUND_GATE_CLOSE", SOUND_GATE_CLOSE},
-	{"SOUND_OPEN_CONTAINER", SOUND_OPEN_CONTAINER},
-	{"SOUND_GROWL", SOUND_GROWL},
-	{"SOUND_ARROW_HIT", SOUND_ARROW_HIT},
-	{"SOUND_DOOR_CLOSE", SOUND_DOOR_CLOSE},
-	{"SOUND_TELEPORT", SOUND_TELEPORT},
-	{"SOUND_CLICK", SOUND_CLICK},
-
-	{"SOUND_MAGIC_DEFAULT", SOUND_MAGIC_DEFAULT},
-	{"SOUND_MAGIC_ACID", SOUND_MAGIC_ACID},
-	{"SOUND_MAGIC_ANIMATE", SOUND_MAGIC_ANIMATE},
-	{"SOUND_MAGIC_AVATAR", SOUND_MAGIC_AVATAR},
-	{"SOUND_MAGIC_BOMB", SOUND_MAGIC_BOMB},
-	{"SOUND_MAGIC_BULLET1", SOUND_MAGIC_BULLET1},
-	{"SOUND_MAGIC_BULLET2", SOUND_MAGIC_BULLET2},
-	{"SOUND_MAGIC_CANCEL", SOUND_MAGIC_CANCEL},
-	{"SOUND_MAGIC_COMET", SOUND_MAGIC_COMET},
-	{"SOUND_MAGIC_CONFUSION", SOUND_MAGIC_CONFUSION},
-	{"SOUND_MAGIC_CREATE", SOUND_MAGIC_CREATE},
-	{"SOUND_MAGIC_DARK", SOUND_MAGIC_DARK},
-	{"SOUND_MAGIC_DEATH", SOUND_MAGIC_DEATH},
-	{"SOUND_MAGIC_DESTRUCTION", SOUND_MAGIC_DESTRUCTION},
-	{"SOUND_MAGIC_ELEC", SOUND_MAGIC_ELEC},
-	{"SOUND_MAGIC_FEAR", SOUND_MAGIC_FEAR},
-	{"SOUND_MAGIC_FIRE", SOUND_MAGIC_FIRE},
-	{"SOUND_MAGIC_FIREBALL1", SOUND_MAGIC_FIREBALL1},
-	{"SOUND_MAGIC_FIREBALL2", SOUND_MAGIC_FIREBALL2},
-	{"SOUND_MAGIC_HWORD", SOUND_MAGIC_HWORD},
-	{"SOUND_MAGIC_ICE", SOUND_MAGIC_ICE},
-	{"SOUND_MAGIC_INVISIBLE", SOUND_MAGIC_INVISIBLE},
-	{"SOUND_MAGIC_INVOKE", SOUND_MAGIC_INVOKE},
-	{"SOUND_MAGIC_INVOKE2", SOUND_MAGIC_INVOKE2},
-	{"SOUND_MAGIC_MAGIC", SOUND_MAGIC_MAGIC},
-	{"SOUND_MAGIC_MANABALL", SOUND_MAGIC_MANABALL},
-	{"SOUND_MAGIC_MISSILE", SOUND_MAGIC_MISSILE},
-	{"SOUND_MAGIC_MMAP", SOUND_MAGIC_MMAP},
-	{"SOUND_MAGIC_ORB", SOUND_MAGIC_ORB},
-	{"SOUND_MAGIC_PARALYZE", SOUND_MAGIC_PARALYZE},
-	{"SOUND_MAGIC_POISON", SOUND_MAGIC_POISON},
-	{"SOUND_MAGIC_PROTECTION", SOUND_MAGIC_PROTECTION},
-	{"SOUND_MAGIC_RSTRIKE", SOUND_MAGIC_RSTRIKE},
-	{"SOUND_MAGIC_RUNE", SOUND_MAGIC_RUNE},
-	{"SOUND_MAGIC_SBALL", SOUND_MAGIC_SBALL},
-	{"SOUND_MAGIC_SLOW", SOUND_MAGIC_SLOW},
-	{"SOUND_MAGIC_SNOWSTORM", SOUND_MAGIC_SNOWSTORM},
-	{"SOUND_MAGIC_STAT", SOUND_MAGIC_STAT},
-	{"SOUND_MAGIC_STEAMBOLT", SOUND_MAGIC_STEAMBOLT},
-	{"SOUND_MAGIC_SUMMON1", SOUND_MAGIC_SUMMON1},
-	{"SOUND_MAGIC_SUMMON2", SOUND_MAGIC_SUMMON2},
-	{"SOUND_MAGIC_SUMMON3", SOUND_MAGIC_SUMMON3},
-	{"SOUND_MAGIC_TELEPORT", SOUND_MAGIC_TELEPORT},
-	{"SOUND_MAGIC_TURN", SOUND_MAGIC_TURN},
-	{"SOUND_MAGIC_WALL", SOUND_MAGIC_WALL},
-	{"SOUND_MAGIC_WALL2", SOUND_MAGIC_WALL2},
-	{"SOUND_MAGIC_WOUND", SOUND_MAGIC_WOUND},
-
-	{NULL, 0}
+	{"strength", FIELDTYPE_SINT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
+	{"dexterity", FIELDTYPE_SINT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
+	{"constitution", FIELDTYPE_SINT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
+	{"wisdom", FIELDTYPE_SINT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
+	{"charisma", FIELDTYPE_SINT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
+	{"intelligence", FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
+	{"power", FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0}
 };
 
 /**
@@ -2042,7 +1652,8 @@ static PyObject *Atrinik_Object_CheckInventory(Atrinik_Object *whoptr, PyObject 
  *
  * @param map Map of the new save bed
  * @param x X position of the new save bed
- * @param y Y position of the new save bed */
+ * @param y Y position of the new save bed
+ * @deprecated Use the new Python player API. */
 static PyObject *Atrinik_Object_SetSaveBed(Atrinik_Object *whoptr, PyObject *args)
 {
 	Atrinik_Map *map;
@@ -2187,25 +1798,6 @@ static PyObject *Atrinik_Object_IdentifyItem(Atrinik_Object *whoptr, PyObject *a
 }
 
 /**
- * <h1>object.IsOfType(<i>\<int\></i> type)</h1>
- *
- * Check if specified object is of certain type.
- *
- * @param type The type to check for
- * @return 1 if the object is of specifie type, 0 otherwise */
-static PyObject *Atrinik_Object_IsOfType(Atrinik_Object *whoptr, PyObject *args)
-{
-	int type;
-
-	if (!PyArg_ParseTuple(args, "i", &type))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", WHO->type == type ? 1 : 0);
-}
-
-/**
  * <h1>object.Save()</h1>
  *
  * Dump an object, as if it was being saved to map or player file. Useful
@@ -2228,37 +1820,6 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 	free(result);
 
 	return ret;
-}
-
-/**
- * <h1>object.GetIP()</h1>
- *
- * Get IP of a specified player object.
- *
- * @param type The type to check for
- * @return The IP address of player */
-static PyObject *Atrinik_Object_GetIP(Atrinik_Object *whoptr, PyObject *args)
-{
-	static char *result;
-
-	(void) args;
-
-	if (WHO->type != PLAYER)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	if (CONTR(WHO))
-	{
-		result = CONTR(WHO)->socket.host;
-		return Py_BuildValue("s", result);
-	}
-	else
-	{
-		LOG(llevDebug, "PYTHON:: Error - This object has no controller\n");
-		return Py_BuildValue("s", "");
-	}
 }
 
 /**
@@ -2468,56 +2029,6 @@ static PyObject *Atrinik_Object_SwapApartments(Atrinik_Object *whoptr, PyObject 
 }
 
 /**
- * <h1>object.GetUnmodifiedAttribute(<i>\<int\></i> attribute_id)</h1>
- *
- * @warning Unfinished.
- * @todo Finish. */
-static PyObject *Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object *whoptr, PyObject *args)
-{
-	int fieldno;
-
-	if (!PyArg_ParseTuple(args, "i", &fieldno))
-	{
-		return NULL;
-	}
-
-	if (fieldno < 0 || fieldno >= (int) NUM_OBJFIELDS)
-	{
-		RAISE("Illegal field ID");
-	}
-
-	if (WHO->type != PLAYER)
-	{
-		RAISE("Can only be used on players");
-	}
-
-	RAISE("Not implemented");
-
-#if 0
-	switch (fieldno)
-	{
-		case OBJFIELD_STAT_INT:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Int);
-		case OBJFIELD_STAT_STR:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Str);
-		case OBJFIELD_STAT_CHA:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Cha);
-		case OBJFIELD_STAT_WIS:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Wis);
-		case OBJFIELD_STAT_DEX:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Dex);
-		case OBJFIELD_STAT_CON:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Con);
-		case OBJFIELD_STAT_POW:
-			return Py_BuildValue("i", CONTR(WHO)->orig_stats.Pow);
-
-		default:
-			RAISE("No unmodified version of attribute available");
-	}
-#endif
-}
-
-/**
  * <h1>object.GetSaveBed()</h1>
  * Get a player's save bed location.
  * @note Can only be used on player objects.
@@ -2525,7 +2036,8 @@ static PyObject *Atrinik_Object_GetUnmodifiedAttribute(Atrinik_Object *whoptr, P
  * save bed:
  * - <b>map</b>: Map path of the save bed.
  * - <b>x</b>: X location of the save bed.
- * - <b>y</b>: Y location of the save bed. */
+ * - <b>y</b>: Y location of the save bed.
+ * @deprecated Use the new Python player API. */
 static PyObject *Atrinik_Object_GetSaveBed(Atrinik_Object *whoptr, PyObject *args)
 {
 	PyObject *dict;
@@ -2586,33 +2098,6 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.GetEquipment(\<int\> slot)</h1>
- * Get a player's current equipment for a given slot.
- * @param slot One of @ref PLAYER_EQUIP_xxx constants.
- * @return The equipment for the given slot, can be None. */
-static PyObject *Atrinik_Object_GetEquipment(Atrinik_Object *whoptr, PyObject *args)
-{
-	int slot;
-
-	if (!PyArg_ParseTuple(args, "i", &slot))
-	{
-		return NULL;
-	}
-
-	if (WHO->type != PLAYER || !CONTR(WHO))
-	{
-		RAISE("Can only be used on players.");
-	}
-
-	if (slot < 0 || slot >= PLAYER_EQUIP_MAX)
-	{
-		RAISE("Illegal slot number.");
-	}
-
-	return wrap_object(CONTR(WHO)->equipment[slot]);
-}
-
-/**
  * <h1>object.GetName(<i>[object]</i> caller)</h1>
  * An equivalent of query_base_name().
  * @param caller Object calling this.
@@ -2628,23 +2113,6 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *whatptr, PyObject *args)
 	}
 
 	return Py_BuildValue("s", hooks->query_short_name(WHAT, ob ? ob->obj : WHAT));
-}
-
-/**
- * <h1>object.GetParty()</h1>
- * Get player's party.
- * @warning Only use on player objects.
- * @return Party if player is member of a party, None otherwise. */
-static PyObject *Atrinik_Object_GetParty(Atrinik_Object *whatptr, PyObject *args)
-{
-	(void) args;
-
-	if (WHAT->type != PLAYER || !CONTR(WHAT))
-	{
-		RAISE("Can only be used on players.");
-	}
-
-	return wrap_party(CONTR(WHAT)->party);
 }
 
 /**
@@ -2710,116 +2178,91 @@ static PyObject *Atrinik_Object_Sound(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.GetClass()</h1>
- * Get player's class object.
- * @warning Only use on player objects.
- * @return The class object if there is one, None otherwise. */
-static PyObject *Atrinik_Object_GetClass(Atrinik_Object *whatptr, PyObject *args)
+ * <h1>object.Controller()</h1>
+ * Get object's controller (the player).
+ * @throws AtrinikError if 'object' is not a player.
+ * @return The controller if there is one, None otherwise. */
+static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *args)
 {
 	(void) args;
 
-	if (WHAT->type != PLAYER || !CONTR(WHAT))
+	if (WHAT->type != PLAYER)
 	{
 		RAISE("Can only be used on players.");
 	}
 
-	return wrap_object(CONTR(WHAT)->class_ob);
-}
-
-/**
- * <h1>object.UpdateExtTitle()</h1>
- * Mark player's ext title for update.
- * @warning Only use on player objects. */
-static PyObject *Atrinik_Object_UpdateExtTitle(Atrinik_Object *whatptr, PyObject *args)
-{
-	(void) args;
-
-	if (WHAT->type != PLAYER || !CONTR(WHAT))
-	{
-		RAISE("Can only be used on players.");
-	}
-
-	CONTR(WHAT)->socket.ext_title_flag = 1;
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	return wrap_player(CONTR(WHAT));
 }
 
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
-static PyMethodDef ObjectMethods[] =
+static PyMethodDef methods[] =
 {
-	{"SetSaveBed",                   (PyCFunction) Atrinik_Object_SetSaveBed,             METH_VARARGS, 0},
-	{"SwapApartments",               (PyCFunction) Atrinik_Object_SwapApartments,         METH_VARARGS, 0},
-	{"GetSkill",                     (PyCFunction) Atrinik_Object_GetSkill,               METH_VARARGS, 0},
-	{"SetSkill",                     (PyCFunction) Atrinik_Object_SetSkill,               METH_VARARGS, 0},
-	{"ActivateRune",                 (PyCFunction) Atrinik_Object_ActivateRune,           METH_VARARGS, 0},
-	{"CastAbility",                  (PyCFunction) Atrinik_Object_CastAbility,            METH_VARARGS, 0},
-	{"InsertInside",                 (PyCFunction) Atrinik_Object_InsertInside,           METH_VARARGS, 0},
-	{"GetGod",                       (PyCFunction) Atrinik_Object_GetGod,                 METH_VARARGS, 0},
-	{"SetGod",                       (PyCFunction) Atrinik_Object_SetGod,                 METH_VARARGS, 0},
-	{"TeleportTo",                   (PyCFunction) Atrinik_Object_TeleportTo,             METH_VARARGS, 0},
-	{"Apply",                        (PyCFunction) Atrinik_Object_Apply,                  METH_VARARGS, 0},
-	{"PickUp",                       (PyCFunction) Atrinik_Object_PickUp,                 METH_VARARGS, 0},
-	{"Drop",                         (PyCFunction) Atrinik_Object_Drop,                   METH_VARARGS, 0},
-	{"Fix",                          (PyCFunction) Atrinik_Object_Fix,                    METH_VARARGS, 0},
-	{"Kill",                         (PyCFunction) Atrinik_Object_Kill,                   METH_VARARGS, 0},
-	{"DoKnowSpell",                  (PyCFunction) Atrinik_Object_DoKnowSpell,            METH_VARARGS, 0},
-	{"AcquireSpell",                 (PyCFunction) Atrinik_Object_AcquireSpell,           METH_VARARGS, 0},
-	{"DoKnowSkill",                  (PyCFunction) Atrinik_Object_DoKnowSkill,            METH_VARARGS, 0},
-	{"AcquireSkill",                 (PyCFunction) Atrinik_Object_AcquireSkill,           METH_VARARGS, 0},
-	{"FindMarkedObject",             (PyCFunction) Atrinik_Object_FindMarkedObject,       METH_VARARGS, 0},
-	{"GetQuestObject",               (PyCFunction) Atrinik_Object_GetQuestObject,         METH_VARARGS, 0},
-	{"StartQuest",                   (PyCFunction) Atrinik_Object_StartQuest,             METH_VARARGS, 0},
-	{"CreatePlayerForce",            (PyCFunction) Atrinik_Object_CreatePlayerForce,      METH_VARARGS, 0},
-	{"CreatePlayerInfo",             (PyCFunction) Atrinik_Object_CreatePlayerInfo,       METH_VARARGS, 0},
-	{"GetPlayerInfo",                (PyCFunction) Atrinik_Object_GetPlayerInfo,          METH_VARARGS, 0},
-	{"GetNextPlayerInfo",            (PyCFunction) Atrinik_Object_GetNextPlayerInfo,      METH_VARARGS, 0},
-	{"CheckInvisibleObjectInside",   (PyCFunction) Atrinik_Object_CheckInvisibleInside,   METH_VARARGS, 0},
-	{"CreateInvisibleObjectInside",  (PyCFunction) Atrinik_Object_CreateInvisibleInside,  METH_VARARGS, 0},
-	{"CreateObjectInside",           (PyCFunction) Atrinik_Object_CreateObjectInside,     METH_VARARGS, 0},
-	{"CheckInventory",               (PyCFunction) Atrinik_Object_CheckInventory,         METH_VARARGS, 0},
-	{"Remove",                       (PyCFunction) Atrinik_Object_Remove,                 METH_VARARGS, 0},
-	{"SetPosition",                  (PyCFunction) Atrinik_Object_SetPosition,            METH_VARARGS, 0},
-	{"IdentifyItem",                 (PyCFunction) Atrinik_Object_IdentifyItem,           METH_VARARGS, 0},
-	{"Deposit",                      (PyCFunction) Atrinik_Object_Deposit,                METH_VARARGS, 0},
-	{"Withdraw",                     (PyCFunction) Atrinik_Object_Withdraw,               METH_VARARGS, 0},
-	{"Communicate",                  (PyCFunction) Atrinik_Object_Communicate,            METH_VARARGS, 0},
-	{"Say",                          (PyCFunction) Atrinik_Object_Say,                    METH_VARARGS, 0},
-	{"SayTo",                        (PyCFunction) Atrinik_Object_SayTo,                  METH_VARARGS, 0},
-	{"Write",                        (PyCFunction) Atrinik_Object_Write,                  METH_VARARGS, 0},
-	{"SetGender",                    (PyCFunction) Atrinik_Object_SetGender,              METH_VARARGS, 0},
-	{"GetGender",                    (PyCFunction) Atrinik_Object_GetGender,              METH_VARARGS, 0},
-	{"SetRank",                      (PyCFunction) Atrinik_Object_SetRank,                METH_VARARGS, 0},
-	{"GetRank",                      (PyCFunction) Atrinik_Object_GetRank,                METH_VARARGS, 0},
-	{"SetAlignment",                 (PyCFunction) Atrinik_Object_SetAlignment,           METH_VARARGS, 0},
-	{"GetAlignmentForce",            (PyCFunction) Atrinik_Object_GetAlignmentForce,      METH_VARARGS, 0},
-	{"SetGuildForce",                (PyCFunction) Atrinik_Object_SetGuildForce,          METH_VARARGS, 0},
-	{"GetGuildForce",                (PyCFunction) Atrinik_Object_GetGuildForce,          METH_VARARGS, 0},
-	{"IsOfType",                     (PyCFunction) Atrinik_Object_IsOfType,               METH_VARARGS, 0},
-	{"Save",                         (PyCFunction) Atrinik_Object_Save,                   METH_VARARGS, 0},
-	{"GetIP",                        (PyCFunction) Atrinik_Object_GetIP,                  METH_VARARGS, 0},
-	{"GetArchName",                  (PyCFunction) Atrinik_Object_GetArchName,            METH_VARARGS, 0},
-	{"ShowCost",                     (PyCFunction) Atrinik_Object_ShowCost,               METH_VARARGS, 0},
-	{"GetItemCost",                  (PyCFunction) Atrinik_Object_GetItemCost,            METH_VARARGS, 0},
-	{"GetMoney",                     (PyCFunction) Atrinik_Object_GetMoney,               METH_VARARGS, 0},
-	{"PayForItem",                   (PyCFunction) Atrinik_Object_PayForItem,             METH_VARARGS, 0},
-	{"PayAmount",                    (PyCFunction) Atrinik_Object_PayAmount,              METH_VARARGS, 0},
-	{"GetUnmodifiedAttribute",       (PyCFunction) Atrinik_Object_GetUnmodifiedAttribute, METH_VARARGS, 0},
-	{"SendCustomCommand",            (PyCFunction) Atrinik_Object_SendCustomCommand,      METH_VARARGS, 0},
-	{"CheckTrigger",                 (PyCFunction) Atrinik_Object_CheckTrigger,           METH_VARARGS, 0},
-	{"Clone",                        (PyCFunction) Atrinik_Object_Clone,                  METH_VARARGS, 0},
-	{"GetSaveBed",                   (PyCFunction) Atrinik_Object_GetSaveBed,             METH_VARARGS, 0},
-	{"ReadKey",                      (PyCFunction) Atrinik_Object_ReadKey,                METH_VARARGS, 0},
-	{"WriteKey",                     (PyCFunction) Atrinik_Object_WriteKey,               METH_VARARGS, 0},
-	{"GetEquipment",                 (PyCFunction) Atrinik_Object_GetEquipment,           METH_VARARGS, 0},
-	{"GetName",                      (PyCFunction) Atrinik_Object_GetName,                METH_VARARGS, 0},
-	{"GetParty",                     (PyCFunction) Atrinik_Object_GetParty,               METH_VARARGS, 0},
-	{"CreateTimer",                  (PyCFunction) Atrinik_Object_CreateTimer,            METH_VARARGS, 0},
-	{"Sound",                        (PyCFunction) Atrinik_Object_Sound,                  METH_VARARGS, 0},
-	{"GetClass",                     (PyCFunction) Atrinik_Object_GetClass,               METH_VARARGS, 0},
-	{"UpdateExtTitle",               (PyCFunction) Atrinik_Object_UpdateExtTitle,         METH_VARARGS, 0},
+	{"SetSaveBed", (PyCFunction) Atrinik_Object_SetSaveBed, METH_VARARGS, 0},
+	{"SwapApartments", (PyCFunction) Atrinik_Object_SwapApartments, METH_VARARGS, 0},
+	{"GetSkill", (PyCFunction) Atrinik_Object_GetSkill, METH_VARARGS, 0},
+	{"SetSkill", (PyCFunction) Atrinik_Object_SetSkill, METH_VARARGS, 0},
+	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
+	{"CastAbility", (PyCFunction) Atrinik_Object_CastAbility, METH_VARARGS, 0},
+	{"InsertInside", (PyCFunction) Atrinik_Object_InsertInside, METH_VARARGS, 0},
+	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_VARARGS, 0},
+	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
+	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS, 0},
+	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
+	{"PickUp", (PyCFunction) Atrinik_Object_PickUp, METH_VARARGS, 0},
+	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_VARARGS, 0},
+	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_VARARGS, 0},
+	{"Kill", (PyCFunction) Atrinik_Object_Kill, METH_VARARGS, 0},
+	{"DoKnowSpell", (PyCFunction) Atrinik_Object_DoKnowSpell, METH_VARARGS, 0},
+	{"AcquireSpell", (PyCFunction) Atrinik_Object_AcquireSpell, METH_VARARGS, 0},
+	{"DoKnowSkill", (PyCFunction) Atrinik_Object_DoKnowSkill, METH_VARARGS, 0},
+	{"AcquireSkill", (PyCFunction) Atrinik_Object_AcquireSkill, METH_VARARGS, 0},
+	{"FindMarkedObject", (PyCFunction) Atrinik_Object_FindMarkedObject, METH_VARARGS, 0},
+	{"GetQuestObject", (PyCFunction) Atrinik_Object_GetQuestObject, METH_VARARGS, 0},
+	{"StartQuest", (PyCFunction) Atrinik_Object_StartQuest, METH_VARARGS, 0},
+	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
+	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
+	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
+	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
+	{"CheckInvisibleObjectInside", (PyCFunction) Atrinik_Object_CheckInvisibleInside, METH_VARARGS, 0},
+	{"CreateInvisibleObjectInside", (PyCFunction) Atrinik_Object_CreateInvisibleInside, METH_VARARGS, 0},
+	{"CreateObjectInside", (PyCFunction) Atrinik_Object_CreateObjectInside, METH_VARARGS, 0},
+	{"CheckInventory", (PyCFunction) Atrinik_Object_CheckInventory, METH_VARARGS, 0},
+	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_VARARGS, 0},
+	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
+	{"IdentifyItem", (PyCFunction) Atrinik_Object_IdentifyItem, METH_VARARGS, 0},
+	{"Deposit", (PyCFunction) Atrinik_Object_Deposit, METH_VARARGS, 0},
+	{"Withdraw", (PyCFunction) Atrinik_Object_Withdraw, METH_VARARGS, 0},
+	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
+	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
+	{"SayTo", (PyCFunction) Atrinik_Object_SayTo, METH_VARARGS, 0},
+	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS, 0},
+	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
+	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_VARARGS, 0},
+	{"SetRank", (PyCFunction) Atrinik_Object_SetRank, METH_VARARGS, 0},
+	{"GetRank", (PyCFunction) Atrinik_Object_GetRank, METH_VARARGS, 0},
+	{"SetAlignment", (PyCFunction) Atrinik_Object_SetAlignment, METH_VARARGS, 0},
+	{"GetAlignmentForce", (PyCFunction) Atrinik_Object_GetAlignmentForce, METH_VARARGS, 0},
+	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
+	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_VARARGS, 0},
+	{"Save", (PyCFunction) Atrinik_Object_Save, METH_VARARGS, 0},
+	{"GetArchName", (PyCFunction) Atrinik_Object_GetArchName, METH_VARARGS, 0},
+	{"ShowCost", (PyCFunction) Atrinik_Object_ShowCost, METH_VARARGS, 0},
+	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
+	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_VARARGS, 0},
+	{"PayForItem", (PyCFunction) Atrinik_Object_PayForItem, METH_VARARGS, 0},
+	{"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
+	{"SendCustomCommand", (PyCFunction) Atrinik_Object_SendCustomCommand, METH_VARARGS, 0},
+	{"CheckTrigger", (PyCFunction) Atrinik_Object_CheckTrigger, METH_VARARGS, 0},
+	{"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
+	{"GetSaveBed", (PyCFunction) Atrinik_Object_GetSaveBed, METH_VARARGS, 0},
+	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
+	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
+	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
+	{"CreateTimer", (PyCFunction) Atrinik_Object_CreateTimer, METH_VARARGS, 0},
+	{"Sound", (PyCFunction) Atrinik_Object_Sound, METH_VARARGS, 0},
+	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
@@ -2830,17 +2273,7 @@ static PyMethodDef ObjectMethods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, void *context)
 {
-	void *field_ptr, *field_ptr2 = NULL;
-	obj_fields_struct *field = (obj_fields_struct *) context;
-
-	field_ptr = (void *) ((char *) WHO + field->offset);
-
-	if (field->type == FIELDTYPE_OBJECTREF)
-	{
-		field_ptr2 = (void *) ((char *) WHO + field->extra_data);
-	}
-
-	return generic_field_getter(field->type, field_ptr, field_ptr2);
+	return generic_field_getter((fields_struct *) context, WHO);
 }
 
 /**
@@ -2848,22 +2281,18 @@ static PyObject *Object_GetAttribute(Atrinik_Object *whoptr, void *context)
  * @param whoptr Python object wrapper.
  * @param value Value to set.
  * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure.
- * @todo Better handling of types, signs, and overflows. */
+ * @return 0 on success, -1 on failure. */
 static int Object_SetAttribute(Atrinik_Object *whoptr, PyObject *value, void *context)
 {
-	void *field_ptr;
 	object *tmp;
-	obj_fields_struct *field = (obj_fields_struct *) context;
+	fields_struct *field = (fields_struct *) context;
 
-	if ((field->flags & FIELDFLAG_READONLY) || ((field->flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER))
+	if ((field->flags & FIELDFLAG_PLAYER_READONLY) && WHO->type == PLAYER)
 	{
-		INTRAISE("Trying to modify readonly field.");
+		INTRAISE("Trying to modify a field that is read-only for player objects.");
 	}
 
-	field_ptr = (void *) ((char *) WHO + field->offset);
-
-	if (generic_field_setter(field->type, field_ptr, value) == -1)
+	if (generic_field_setter(field, WHO, value) == -1)
 	{
 		return -1;
 	}
@@ -3065,30 +2494,7 @@ static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left, Atrinik_Object
 		return NULL;
 	}
 
-	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
-	switch (op)
-	{
-		case Py_EQ:
-			result = (result == 0);
-			break;
-		case Py_NE:
-			result = (result != 0);
-			break;
-		case Py_LE:
-			result = (result <= 0);
-			break;
-		case Py_GE:
-			result = (result >= 0);
-			break;
-		case Py_LT:
-			result = (result == -1);
-			break;
-		case Py_GT:
-			result = (result == 1);
-			break;
-	}
-
-	return PyBool_FromLong(result);
+	return generic_rich_compare(op, result);
 }
 
 /**
@@ -3159,7 +2565,7 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 }
 
 /** This is filled in when we initialize our object type. */
-static PyGetSetDef Object_getseters[NUM_OBJFIELDS + NUM_FLAGS + 1];
+static PyGetSetDef getseters[NUM_FIELDS + NUM_FLAGS + 1];
 
 /** Our actual Python ObjectType. */
 PyTypeObject Atrinik_ObjectType =
@@ -3190,9 +2596,9 @@ PyTypeObject Atrinik_ObjectType =
 	0,
 	(getiterfunc) object_iter,
 	(iternextfunc) object_iternext,
-	ObjectMethods,
+	methods,
 	0,
-	Object_getseters,
+	getseters,
 	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Object_new,
 	0, 0, 0, 0, 0, 0, 0, 0
@@ -3210,25 +2616,25 @@ int Atrinik_Object_init(PyObject *module)
 	size_t i, flagno;
 
 	/* Field getseters */
-	for (i = 0; i < NUM_OBJFIELDS; i++)
+	for (i = 0; i < NUM_FIELDS; i++)
 	{
-		PyGetSetDef *def = &Object_getseters[i];
+		PyGetSetDef *def = &getseters[i];
 
-		def->name = obj_fields[i].name;
+		def->name = fields[i].name;
 		def->get = (getter) Object_GetAttribute;
 		def->set = (setter) Object_SetAttribute;
 		def->doc = NULL;
-		def->closure = (void *) &obj_fields[i];
+		def->closure = (void *) &fields[i];
 	}
 
 	/* Flag getseters */
 	for (flagno = 0; flagno < NUM_FLAGS; flagno++)
 	{
-		if (flag_names[flagno])
+		if (hooks->object_flag_names[flagno])
 		{
-			PyGetSetDef *def = &Object_getseters[i++];
+			PyGetSetDef *def = &getseters[i++];
 
-			def->name = flag_names[flagno];
+			def->name = (char *) hooks->object_flag_names[flagno];
 			def->get = (getter) Object_GetFlag;
 			def->set = (setter) Object_SetFlag;
 			def->doc = NULL;
@@ -3236,16 +2642,7 @@ int Atrinik_Object_init(PyObject *module)
 		}
 	}
 
-	Object_getseters[i].name = NULL;
-
-	/* Add constants */
-	for (i = 0; object_constants[i].name; i++)
-	{
-		if (PyModule_AddIntConstant(module, object_constants[i].name, object_constants[i].value))
-		{
-			return 0;
-		}
-	}
+	getseters[i].name = NULL;
 
 	Atrinik_ObjectType.tp_new = PyType_GenericNew;
 

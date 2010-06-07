@@ -1117,8 +1117,7 @@
 #define IS_INVISIBLE(__ob_, __player_) \
 	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || (QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
 
-#define SLOW_PENALTY(xyz) ((xyz)->stats.exp) / 1000.0
-#define SET_SLOW_PENALTY(xyz, fl) (xyz)->stats.exp = (sint64) ((fl) * 1000.0)
+#define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 
 #define EXIT_PATH(xyz) (xyz)->slaying
 #define EXIT_LEVEL(xyz) (xyz)->stats.food
@@ -1530,5 +1529,7 @@ enum apply_flag
 /** The quest requires you to get item X from monster Y. */
 #define QUEST_TYPE_KILL_ITEM 2
 /*@}*/
+
+const char *object_flag_names[NUM_FLAGS + 1];
 
 #endif

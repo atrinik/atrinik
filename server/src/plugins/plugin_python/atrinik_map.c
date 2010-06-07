@@ -29,63 +29,37 @@
 
 #include <plugin_python.h>
 
-/** Map fields structure. */
-typedef struct
-{
-	/** Name of the field */
-	char *name;
-
-	/** Field type */
-	field_type type;
-
-	/** Offset in map structure */
-	uint32 offset;
-} map_fields_struct;
-
 /**
  * Map fields. */
-map_fields_struct map_fields[] =
+static fields_struct fields[] =
 {
-	{"name",            FIELDTYPE_CSTR,     offsetof(mapstruct, name)},
-	{"message",         FIELDTYPE_CSTR,     offsetof(mapstruct, msg)},
-	{"reset_interval",  FIELDTYPE_UINT32,   offsetof(mapstruct, reset_timeout)},
-	{"difficulty",      FIELDTYPE_UINT16,   offsetof(mapstruct, difficulty)},
-	{"height",          FIELDTYPE_UINT16,   offsetof(mapstruct, height)},
-	{"width",           FIELDTYPE_UINT16,   offsetof(mapstruct, width)},
-	{"darkness",        FIELDTYPE_UINT8,    offsetof(mapstruct, darkness)},
-	{"path",            FIELDTYPE_SHSTR,    offsetof(mapstruct, path)},
-	{"enter_x",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_x)},
-	{"enter_y",         FIELDTYPE_UINT8,    offsetof(mapstruct, enter_y)},
-	{"region",          FIELDTYPE_REGION,   offsetof(mapstruct, region)}
+	{"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
+	{"message", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
+	{"reset_interval", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
+	{"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
+	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), 0, 0},
+	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), 0, 0},
+	{"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0},
+	{"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), 0, 0},
+	{"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
+	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
+	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), 0, 0}
 };
 
-/**
+ /**
  * Map flags.
  *
  * @note These must be in same order as @ref map_flags "map flags". */
 static char *mapflag_names[] =
 {
-	"f_outdoor",        "f_unique",     "f_fixed_rtime",    "f_nomagic",
-	"f_nopriest",       "f_noharm",     "f_nosummon",       "f_fixed_login",
-	"f_permdeath",      "f_ultradeath", "f_ultimatedeath",  "f_pvp",
-	"f_no_save",        "f_plugins"
+	"f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
+	"f_nopriest", "f_noharm", "f_nosummon", "f_fixed_login",
+	"f_permdeath", "f_ultradeath", "f_ultimatedeath", "f_pvp",
+	"f_no_save", "f_plugins"
 };
-
-/** Number of map fields */
-#define NUM_MAPFIELDS (sizeof(map_fields) / sizeof(map_fields[0]))
 
 /** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
-
-/**
- * Map related constants */
-static Atrinik_Constant map_constants[] =
-{
-	{"COST_TRUE",   F_TRUE},
-	{"COST_BUY",    F_BUY},
-	{"COST_SELL",   F_SELL},
-	{NULL,          0}
-};
 
 /**
  * @defgroup plugin_python_map_functions Python plugin map functions
@@ -295,12 +269,7 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Map_GetAttribute(Atrinik_Map *map, void *context)
 {
-	void *field_ptr;
-	map_fields_struct *field = (map_fields_struct *) context;
-
-	field_ptr = (void *) ((char *) (map->map) + field->offset);
-
-	return generic_field_getter(field->type, field_ptr, NULL);
+	return generic_field_getter((fields_struct *) context, map->map);
 }
 
 /**
@@ -389,44 +358,17 @@ static int Atrinik_Map_InternalCompare(Atrinik_Map *left, Atrinik_Map *right)
 
 static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, int op)
 {
-	int result;
-
 	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_MapType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_MapType))
 	{
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
 
-	result = Atrinik_Map_InternalCompare(left, right);
-
-	/* Based on how Python 3.0 (GPL compatible) implements it for internal types: */
-	switch (op)
-	{
-		case Py_EQ:
-			result = (result == 0);
-			break;
-		case Py_NE:
-			result = (result != 0);
-			break;
-		case Py_LE:
-			result = (result <= 0);
-			break;
-		case Py_GE:
-			result = (result >= 0);
-			break;
-		case Py_LT:
-			result = (result == -1);
-			break;
-		case Py_GT:
-			result = (result == 1);
-			break;
-	}
-
-	return PyBool_FromLong(result);
+	return generic_rich_compare(op, Atrinik_Map_InternalCompare(left, right));
 }
 
 /** This is filled in when we initialize our map type. */
-static PyGetSetDef Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS + 1];
+static PyGetSetDef getseters[NUM_FIELDS + NUM_MAPFLAGS + 1];
 
 /** Our actual Python MapType. */
 PyTypeObject Atrinik_MapType =
@@ -457,7 +399,7 @@ PyTypeObject Atrinik_MapType =
 	0, 0, 0,
 	MapMethods,
 	0,
-	Map_getseters,
+	getseters,
 	0, 0, 0, 0, 0, 0, 0,
 	Atrinik_Map_new,
 	0, 0, 0, 0, 0, 0, 0, 0
@@ -472,42 +414,33 @@ PyTypeObject Atrinik_MapType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Map_init(PyObject *module)
 {
-	size_t i;
+	size_t i, flagno;
 
 	/* Field getters */
-	for (i = 0; i < NUM_MAPFIELDS; i++)
+	for (i = 0; i < NUM_FIELDS; i++)
 	{
-		PyGetSetDef *def = &Map_getseters[i];
+		PyGetSetDef *def = &getseters[i];
 
-		def->name = map_fields[i].name;
+		def->name = fields[i].name;
 		def->get = (getter) Map_GetAttribute;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *) &map_fields[i];
+		def->closure = (void *) &fields[i];
 	}
 
 	/* Flag getters */
-	for (i = 0; i < NUM_MAPFLAGS; i++)
+	for (flagno = 0; flagno < NUM_MAPFLAGS; flagno++)
 	{
-		PyGetSetDef *def = &Map_getseters[i + NUM_MAPFIELDS];
+		PyGetSetDef *def = &getseters[i++];
 
-		def->name = mapflag_names[i];
+		def->name = mapflag_names[flagno];
 		def->get = (getter) Map_GetFlag;
 		def->set = NULL;
 		def->doc = NULL;
-		def->closure = (void *) i;
+		def->closure = (void *) flagno;
 	}
 
-	Map_getseters[NUM_MAPFIELDS + NUM_MAPFLAGS].name = NULL;
-
-	/* Add constants */
-	for (i = 0; map_constants[i].name; i++)
-	{
-		if (PyModule_AddIntConstant(module, map_constants[i].name, map_constants[i].value))
-		{
-			return 0;
-		}
-	}
+	getseters[i].name = NULL;
 
 	Atrinik_MapType.tp_new = PyType_GenericNew;
 

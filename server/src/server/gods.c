@@ -773,8 +773,7 @@ static int same_string(const char *s1, const char *s2)
  * (recursively).
  * @param op Object to check.
  * @param item Object to check for.
- * @return 1 if found, 0 otherwise.
- */
+ * @return 1 if found, 0 otherwise. */
 static int follower_has_similar_item(object *op, object *item)
 {
 	object *tmp;

@@ -174,9 +174,8 @@ def main_say():
 		me.SayTo(activator, "\nOpening a fake book.")
 		activator.SendCustomCommand(30, "book <b t=\"Fake Book\"><t t=\"A Fake Book\">This is a fake book, made using the SendCustomCommand() Python function.\n")
 
-	# Example usage of GetIP().
 	elif msg == "ip":
-		me.SayTo(activator, "\nYour IP is: {0}".format(activator.GetIP()))
+		me.SayTo(activator, "\nYour IP is: {0}".format(activator.Controller().s_host))
 
 	elif msg == "exception":
 		me.SayTo(activator, "\nI will now raise an exception...")
@@ -233,8 +232,8 @@ def main_say():
 		me.SayTo(activator, "{0} {1} {2}".format(activator.map.path, activator.map == emergency_map and "==" or "!=", emergency_map.path), 1)
 
 		me.SayTo(activator, "\nComparing some parties...\n", 1)
-		party1 = activator.GetParty()
-		party2 = activator.GetParty()
+		party1 = activator.Controller().party
+		party2 = activator.Controller().party
 
 		if not party1:
 			me.SayTo(activator, "You need to join a party to run this test.", 1)

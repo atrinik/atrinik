@@ -50,35 +50,46 @@
  * The signedness for char is probably not universal, and using char
  * will probably be more portable than sint8/unit8 */
 
+/** uint32 */
 typedef unsigned int uint32;
 #ifndef UINT32_MAX
-#	define UINT32_MAX 4294967295U
+#	define UINT32_MAX (4294967295U)
 #endif
 
+/** sint32 */
 typedef signed int sint32;
+#define SINT32_MIN (-2147483647 - 1)
 #define SINT32_MAX 2147483647
 
+/** uint16 */
 typedef unsigned short uint16;
 #ifndef UINT16_MAX
-#	define UINT16_MAX 65535
+#	define UINT16_MAX (65535U)
 #endif
 
+/** sint16 */
 typedef signed short sint16;
-#define SINT16_MAX 32767
+#define SINT16_MIN (-32767 - 1)
+#define SINT16_MAX (32767)
 
+/** uint8 */
 typedef unsigned char uint8;
 #ifndef UINT8_MAX
-#	define UINT8_MAX 255
+#	define UINT8_MAX (255U)
 #endif
 
+/** sint8 */
 typedef signed char sint8;
-#define SINT8_MAX 127
+#define SINT8_MIN (-128)
+#define SINT8_MAX (127)
 
+/** Used for faces. */
 typedef unsigned short Fontindex;
 
+/** Object unique IDs. */
 typedef unsigned int tag_t;
 
-/* This should be used to differentiate shared strings from normal strings */
+/** This should be used to differentiate shared strings from normal strings. */
 typedef const char shstr;
 
 #ifdef WIN32
@@ -91,11 +102,6 @@ typedef const char shstr;
 #	define FMT64                        "I64d"
 #	define FMT64U                       "I64u"
 #	define FMT64HEX                     "I64x"
-
-	/* Conversion from 'xxx' to 'yyy', possible loss of data */
-#	pragma warning(disable: 4244)
-	/* Initializing float f = 0.05; instead of f = 0.05f; */
-#	pragma warning(disable: 4305)
 #else
 #	if SIZEOF_LONG == 8
 		typedef unsigned long           uint64;
@@ -116,6 +122,13 @@ typedef const char shstr;
 #		error Correct and send email to the Atrinik Team on how to do this.
 #	endif
 #endif
+
+#ifndef UINT64_MAX
+#	define UINT64_MAX (18446744073709551615LLU)
+#endif
+
+#define SINT64_MIN (-9223372036854775807LL - 1)
+#define SINT64_MAX (9223372036854775807LL)
 
 /**
  * @defgroup MONEYSTRING_xxx Money string modes

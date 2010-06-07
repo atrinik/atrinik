@@ -277,6 +277,45 @@ int freedir[SIZEOFFREE] =
 };
 
 /**
+ * This is a list of pointers that correspond to the FLAG_.. values.
+ * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15'th
+ * element of this array should match that name.
+ *
+ * If an entry is NULL, that is a flag not to be loaded/saved.
+ * @see flag_defines */
+const char *object_flag_names[NUM_FLAGS + 1] =
+{
+	"sleep", "confused", NULL, "scared", "is_blind",
+	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
+	"no_pass", "is_animated", "slow_move", "flying", "monster",
+	"friendly", NULL, "been_applied", "auto_apply", "treasure",
+	"is_neutral", "see_invisible", "can_roll", "generator", "is_turnable",
+	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
+	"reflecting", "changing", "splitting", "hitback", "startequip",
+	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
+	"reflect_spell", "no_magic", "no_fix_player", "is_evil", "tear_down",
+	"run_away", "pass_thru", "can_pass_thru", "pick_up", "unique",
+	"no_drop", "is_indestructible", "can_cast_spell", "can_use_scroll", "can_use_range",
+	"can_use_bow", "can_use_armour", "can_use_weapon", "can_use_ring", "has_ready_range",
+	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
+	"is_magical", "alive", "stand_still", "random_move", "only_attack",
+	"wiz", "stealth", NULL, NULL, "cursed",
+	"damned", "is_buildable", "no_pvp", NULL, "can_use_skill",
+	"is_thrown", "is_vul_sphere", "is_proof_sphere", "is_male", "is_female",
+	"applied", "inv_locked", "is_wooded", "is_hilly", "has_ready_skill",
+	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
+	"is_dust", "no_steal", "one_hit", NULL, "berserk",
+	"no_attack", "invulnerable", "quest_item", "is_trapped", "is_vul_elemental",
+	"is_proof_elemental", "is_vul_magic", "is_proof_magic", "is_vul_physical", "is_proof_physical",
+	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
+	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
+	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
+	"cursed_perm", "damned_perm", "door_closed", "was_reflected", "is_missile",
+	"can_reflect_missile", "can_reflect_spell", "is_assassin", NULL, "no_save",
+	NULL
+};
+
+/**
  * Put an object in the list of removal candidates.
  *
  * If the object has still FLAG_REMOVED set at the end of the server

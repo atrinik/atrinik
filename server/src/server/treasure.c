@@ -1341,8 +1341,7 @@ void set_abs_magic(object *op, int magic)
  * @param bonus Bonus to add to item.
  * @param level Level.
  * @return 1.
- * @todo Get rid of the gotos in here.
- */
+ * @todo Get rid of the gotos in here. */
 static int set_ring_bonus(object *op, int bonus, int level)
 {
 	int tmp, r, off;

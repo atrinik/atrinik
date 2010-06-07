@@ -67,7 +67,7 @@ def main():
 	# Get a class.
 	elif msg[:7] == "become ":
 		# Do we have a class already?
-		if activator.GetClass():
+		if activator.Controller().class_ob:
 			return
 
 		l = list(filter(lambda d: d["name"] == msg[7:], classes))
@@ -80,7 +80,7 @@ def main():
 	# Confirmation for getting a class.
 	elif msg[:12] == "yes, become ":
 		# Do we have a class already?
-		if activator.GetClass():
+		if activator.Controller().class_ob:
 			return
 
 		l = list(filter(lambda d: d["name"] == msg[12:], classes))
@@ -92,7 +92,7 @@ def main():
 		activator.CreateObjectInside("class_" + l[0]["name"], IDENTIFIED, 1)
 		# fix_player() will be called eventually, so we just need to mark
 		# the ext title for update.
-		activator.UpdateExtTitle()
+		activator.Controller().s_ext_title_flag = 1
 		me.SayTo(activator, "\nCongratulations, you're {0} now!".format(l[0]["name"]))
 
 	else:
@@ -105,7 +105,7 @@ def main():
 		me.SayTo(activator, "\n{0}\n~Bonuses~:\n{1}".format(l[0]["msg"], "\n".join(l[0]["bonus"])))
 
 		# Show a link to get the class or go back to the list of classes.
-		if not activator.GetClass():
+		if not activator.Controller().class_ob:
 			me.SayTo(activator, "\n^Become {0}^ or go ^back^".format(l[0]["name"]), 1)
 
 main()

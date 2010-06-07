@@ -245,6 +245,7 @@ struct plugin_hooklist
 	const char **gender_objective;
 	const char **gender_possessive;
 	const char **gender_reflexive;
+	const char **object_flag_names;
 };
 
 /** General API function. */
