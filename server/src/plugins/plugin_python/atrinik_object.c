@@ -2614,6 +2614,7 @@ PyTypeObject Atrinik_ObjectType =
 int Atrinik_Object_init(PyObject *module)
 {
 	size_t i, flagno;
+	char buf[MAX_BUF];
 
 	/* Field getseters */
 	for (i = 0; i < NUM_FIELDS; i++)
@@ -2634,7 +2635,10 @@ int Atrinik_Object_init(PyObject *module)
 		{
 			PyGetSetDef *def = &getseters[i++];
 
-			def->name = (char *) hooks->object_flag_names[flagno];
+			strncpy(buf, "f_", sizeof(buf) - 1);
+			strncat(buf, hooks->object_flag_names[flagno], sizeof(buf) - strlen(buf) - 1);
+			def->name = hooks->strdup_local(buf);
+
 			def->get = (getter) Object_GetFlag;
 			def->set = (setter) Object_SetFlag;
 			def->doc = NULL;
