@@ -1497,6 +1497,12 @@ char *describe_item(object *op)
 			sprintf(buf, "(grace%+d)", op->stats.maxgrace);
 			strcat(retbuf, buf);
 		}
+
+		if (op->item_power)
+		{
+			sprintf(buf, "(item power %d)", op->item_power);
+			strcat(retbuf, buf);
+		}
 	}
 
 	return retbuf;
