@@ -551,9 +551,10 @@ void widget_show_resist(int x, int y)
 			StringBlt(widgetSF[RESIST_ID], &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
 
 			/* Now output the protection value. No protection will be drawn gray,
-			 * some protection will be white, and immunity (100%) will be orange. */
+			 * some protection will be white, immunity (100%) will be orange, and
+			 * negative will be red. */
 			snprintf(buf, sizeof(buf), "%02d", cpl.stats.protection[protectionID]);
-			StringBlt(widgetSF[RESIST_ID], &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] == 100 ? COLOR_ORANGE : COLOR_WHITE) : COLOR_GREY, NULL, NULL);
+			StringBlt(widgetSF[RESIST_ID], &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] < 0 ? COLOR_RED : (cpl.stats.protection[protectionID] >= 100 ? COLOR_ORANGE : COLOR_WHITE)) : COLOR_GREY, NULL, NULL);
 
 			protection_x += 30;
 		}
