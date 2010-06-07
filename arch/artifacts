@@ -1188,7 +1188,7 @@ end
 ##############
 # Containers #
 ##############
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 50
 artifact holding_min
 def_arch bag
@@ -1200,7 +1200,7 @@ value 550
 weapon_speed 0.85
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 45
 difficulty 5
 artifact holding_small
@@ -1213,7 +1213,7 @@ value 1250
 weapon_speed 0.75
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 35
 difficulty 15
 artifact holding_med
@@ -1226,7 +1226,7 @@ value 2600
 weapon_speed 0.65
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,key_ring,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, key_ring, r_sack, pouch
 chance 25
 difficulty 25
 artifact holding
@@ -1239,7 +1239,7 @@ value 10500
 weapon_speed 0.55
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 15
 difficulty 35
 artifact holding_fine
@@ -1252,7 +1252,7 @@ value 20200
 weapon_speed 0.45
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 10
 difficulty 50
 artifact holding_great
@@ -1265,7 +1265,7 @@ value 40400
 weapon_speed 0.40
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack,pouch
 chance 5
 difficulty 65
 artifact holding_greater
@@ -1278,7 +1278,7 @@ value 60450
 weapon_speed 0.35
 end
 
-Allowed quiver,quiver_s,quiver_b,bag,sack,r_sack,pouch
+Allowed quiver, quiver_s, quiver_b, bag, sack, r_sack, pouch
 chance 3
 difficulty 85
 artifact holding_weight
@@ -1312,6 +1312,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 Allowed cloak
@@ -1325,6 +1326,7 @@ type 87
 protect_fire 15
 is_magical 1
 value 2100
+item_power 3
 end
 
 Allowed cloak
@@ -1338,6 +1340,7 @@ type 87
 protect_cold 15
 is_magical 1
 value 2100
+item_power 3
 end
 
 Allowed cloak
@@ -1351,6 +1354,7 @@ type 87
 protect_electricity 15
 is_magical 1
 value 2100
+item_power 3
 end
 
 Allowed cloak
@@ -1364,6 +1368,7 @@ type 87
 protect_poison 15
 is_magical 1
 value 2100
+item_power 3
 end
 
 Allowed cloak
@@ -1377,6 +1382,7 @@ type 87
 protect_acid 15
 is_magical 1
 value 2100
+item_power 3
 end
 
 Allowed robe
@@ -1397,6 +1403,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 Allowed robe
@@ -1410,6 +1417,7 @@ Str 1
 face robe_red.101
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1423,6 +1431,7 @@ Dex 1
 face robe_black.101
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1436,6 +1445,7 @@ is_magical 1
 face robe_purple.101
 Con 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1449,6 +1459,7 @@ Int 1
 face robe_white.101
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1461,6 +1472,7 @@ type 87
 Pow 1
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1473,6 +1485,7 @@ type 87
 Wis 1
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed robe
@@ -1486,6 +1499,7 @@ Cha 1
 face robe_blue.101
 is_magical 1
 value 2500
+item_power 2
 end
 
 Allowed cape
@@ -1506,6 +1520,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 Allowed cape
@@ -1523,6 +1538,7 @@ protect_fire 25
 protect_impact -15
 protect_pierce -15
 value 6000
+item_power 5
 end
 
 Allowed cape
@@ -1539,12 +1555,13 @@ protect_cold 25
 protect_slash -15
 protect_cleave -15
 value 6000
+item_power 5
 end
 
 ################
 # Body armours #
 ################
-Allowed !crystal_mail, !mithril_armour,!mithril_ring,!mithril_coat,all
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
 chance 20
 artifact armour_mass
 def_arch chain_mail
@@ -1556,6 +1573,43 @@ value 5
 cursed_perm 1
 cursed 1
 weight 65000
+item_power 1
+end
+
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
+chance 5
+artifact armour_doom
+def_arch chain_mail
+Object
+title of Doom
+type 16
+is_magical 1
+damned 1
+damned_perm 1
+Str -5
+Con -5
+Dex -5
+Wis -5
+Int -5
+Pow -5
+Cha -5
+value 40
+item_power 1
+end
+
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
+chance 6
+artifact armour_clumsiness
+def_arch chain_mail
+Object
+title of Clumsiness
+type 16
+is_magical 1
+cursed 1
+cursed_perm 1
+value 15
+Dex -1
+item_power 1
 end
 
 Allowed all
@@ -1568,6 +1622,7 @@ type 16
 maxhp 12
 is_magical 1
 value 9500
+item_power 1
 end
 
 Allowed all
@@ -1582,6 +1637,7 @@ type 16
 maxhp 20
 is_magical 1
 value 15500
+item_power 2
 end
 
 Allowed all
@@ -1596,6 +1652,7 @@ item_level_art 8
 maxhp 25
 is_magical 1
 value 35500
+item_power 3
 end
 
 Allowed all
@@ -1610,6 +1667,7 @@ item_level_art 12
 maxhp 30
 is_magical 1
 value 65500
+item_power 3
 end
 
 Allowed all
@@ -1624,6 +1682,7 @@ item_level_art 20
 maxhp 40
 is_magical 1
 value 105500
+item_power 4
 end
 
 Allowed all
@@ -1637,6 +1696,7 @@ type 16
 protect_fire 25
 is_magical 1
 value 9500
+item_power 3
 end
 
 Allowed all
@@ -1650,6 +1710,7 @@ type 16
 protect_cold 25
 is_magical 1
 value 9500
+item_power 3
 end
 
 Allowed all
@@ -1663,6 +1724,7 @@ type 16
 protect_electricity 25
 is_magical 1
 value 9500
+item_power 3
 end
 
 Allowed all
@@ -1676,6 +1738,7 @@ type 16
 protect_poison 25
 is_magical 1
 value 9500
+item_power 3
 end
 
 Allowed all
@@ -1689,6 +1752,7 @@ type 16
 protect_acid 25
 is_magical 1
 value 9500
+item_power 3
 end
 
 ###########
@@ -1706,6 +1770,28 @@ value 5
 cursed_perm 1
 cursed 1
 weight 25000
+item_power 1
+end
+
+Allowed all
+chance 5
+artifact shield_doom
+def_arch shield
+Object
+title of Doom
+type 33
+is_magical 1
+damned 1
+damned_perm 1
+Str -5
+Con -5
+Dex -5
+Wis -5
+Int -5
+Pow -5
+Cha -5
+value 3000
+item_power 1
 end
 
 Allowed all
@@ -1719,6 +1805,7 @@ type 33
 is_magical 1
 protect_fire 15
 value 2400
+item_power 3
 end
 
 Allowed all
@@ -1732,6 +1819,7 @@ type 33
 is_magical 1
 protect_cold 15
 value 2400
+item_power 3
 end
 
 Allowed all
@@ -1745,6 +1833,7 @@ type 33
 is_magical 1
 protect_electricity 15
 value 2400
+item_power 3
 end
 
 Allowed all
@@ -1758,6 +1847,7 @@ type 33
 is_magical 1
 protect_poison 15
 value 2400
+item_power 3
 end
 
 Allowed all
@@ -1771,6 +1861,7 @@ type 33
 is_magical 1
 protect_acid 15
 value 2400
+item_power 3
 end
 
 ###########
@@ -1788,6 +1879,7 @@ item_level_art 3
 maxhp 10
 is_magical 1
 value 8500
+item_power 1
 end
 
 Allowed all
@@ -1802,6 +1894,7 @@ type 113
 maxhp 15
 is_magical 1
 value 13500
+item_power 2
 end
 
 Allowed all
@@ -1816,6 +1909,7 @@ item_level_art 12
 maxhp 20
 is_magical 1
 value 30500
+item_power 3
 end
 
 Allowed all
@@ -1830,6 +1924,7 @@ item_level_art 20
 maxhp 25
 is_magical 1
 value 55500
+item_power 3
 end
 
 Allowed all
@@ -1844,6 +1939,7 @@ item_level_art 30
 maxhp 30
 is_magical 1
 value 85500
+item_power 4
 end
 
 Allowed all
@@ -1859,6 +1955,7 @@ face girdle2.101
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1874,6 +1971,7 @@ item_level_art 2
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1889,6 +1987,7 @@ item_level_art 2
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1904,6 +2003,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1919,6 +2019,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1934,6 +2035,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1949,6 +2051,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
+item_power 3
 end
 
 #####################
@@ -1966,6 +2069,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1980,6 +2084,7 @@ Dex 1
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -1994,6 +2099,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2008,6 +2114,7 @@ type 100
 item_level_art 2
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2022,6 +2129,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2036,6 +2144,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2050,6 +2159,7 @@ Cha 1
 type 100
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed !gloves, all
@@ -2064,6 +2174,7 @@ item_level_art 7
 type 100
 is_magical 1
 value 6500
+item_power 4
 end
 
 Allowed !gloves, all
@@ -2078,6 +2189,7 @@ item_level_art 7
 type 100
 is_magical 1
 value 6500
+item_power 4
 end
 
 Allowed !gloves, all
@@ -2093,6 +2205,7 @@ item_level_art 8
 type 100
 is_magical 1
 value 82500
+item_power 5
 end
 
 #########
@@ -2110,6 +2223,7 @@ item_level_art 10
 is_magical 1
 can_see_in_dark 1
 value 113000
+item_power 5
 end
 
 Allowed all
@@ -2124,6 +2238,7 @@ item_level_art 15
 is_magical 1
 xrays 1
 value 213000
+item_power 7
 end
 
 Allowed all
@@ -2138,6 +2253,7 @@ is_magical 1
 Str 1
 item_level_art 3
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2152,6 +2268,7 @@ is_magical 1
 item_level_art 3
 Dex 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2166,6 +2283,7 @@ type 34
 is_magical 1
 Int 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2180,6 +2298,7 @@ type 34
 is_magical 1
 Wis 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2194,6 +2313,7 @@ type 34
 is_magical 1
 Pow 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2208,6 +2328,7 @@ type 34
 is_magical 1
 Cha 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2222,6 +2343,7 @@ type 34
 is_magical 1
 Con 1
 value 3000
+item_power 3
 end
 
 Allowed all
@@ -2237,6 +2359,7 @@ type 34
 is_magical 1
 protect_fire 15
 value 2100
+item_power 3
 end
 
 Allowed all
@@ -2252,6 +2375,7 @@ type 34
 is_magical 1
 protect_cold 15
 value 2100
+item_power 3
 end
 
 Allowed all
@@ -2267,6 +2391,7 @@ type 34
 is_magical 1
 protect_electricity 15
 value 2100
+item_power 3
 end
 
 Allowed all
@@ -2282,6 +2407,7 @@ type 34
 is_magical 1
 protect_poison 15
 value 2100
+item_power 3
 end
 
 Allowed all
@@ -2297,6 +2423,103 @@ type 34
 is_magical 1
 protect_acid 15
 value 2100
+item_power 3
+end
+
+Allowed crown_generic
+chance 6
+difficulty 5
+artifact crown_xebinon
+def_arch crown_generic
+Object
+title of Xebinon
+item_level_art 5
+item_skill 5
+type 34
+is_magical 1
+last_heal 2
+path_attuned 1024
+sp 1
+value 3500
+msg
+  This valuable item created by the Archdaemonist Xebinon
+  enhances the mind of its wearer and channels the powers
+  of magic. It has a small influence on its wearer's
+  ability to regenerate spell points.
+endmsg
+item_power 5
+end
+
+Allowed crown_generic
+chance 2
+difficulty 35
+artifact crown_magi
+def_arch crown_generic
+Object
+title of the Magi
+item_level_art 30
+item_skill 5
+type 34
+is_magical 1
+value 5000
+sp 2
+Int 2
+Pow 2
+item_power 10
+end
+
+Allowed crown_generic
+chance 10
+difficulty 15
+artifact crown_lordliness
+def_arch crown_generic
+Object
+title of Lordliness
+item_level_art 10
+type 34
+is_magical 1
+value 1000
+Cha 2
+item_power 4
+end
+
+Allowed !crown_generic, all
+chance 4
+difficulty 20
+artifact helm_argoth
+def_arch helm_iron
+Object
+title of Argoth
+item_level_art 15
+type 34
+is_magical 1
+ac_add 1
+Cha 1
+protect_fire 17
+value 2500
+msg
+  Argoth was an ancient dwarven city in a mountain which was
+  infested with dragons. The dwarves specialized in equipment
+  which helped them survive their environment.
+endmsg
+item_power 6
+end
+
+Allowed crown_generic
+chance 20
+difficulty 5
+artifact crown_stupidity
+def_arch crown_generic
+Object
+title of Stupidity
+item_level_art 5
+type 34
+is_magical 1
+value 50
+Int -10
+damned 1
+damned_perm 1
+item_power 1
 end
 
 ###########
@@ -2315,6 +2538,7 @@ type 104
 Dex 1
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2330,6 +2554,7 @@ Str 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2345,6 +2570,7 @@ Con 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2360,6 +2586,7 @@ Int 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2375,6 +2602,7 @@ Cha 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2390,6 +2618,7 @@ Pow 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2405,6 +2634,7 @@ Wis 1
 type 104
 is_magical 1
 value 5000
+item_power 3
 end
 
 #########
@@ -2433,14 +2663,15 @@ value 13400
 weight 35000
 ac_add 3
 msg
-  What strange boots, they look very
-  protective, but amazingly heavy.
-  There also don't appear to be
-  any laces, you wonder how you're ever
-  going to take them off.
+  What strange boots, they look very protective, but
+  amazingly heavy.
+
+  There also don't appear to be any laces, you wonder
+  how you're ever going to take them off.
 endmsg
 cursed_perm 1
 cursed 1
+item_power 3
 end
 
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
@@ -2454,9 +2685,10 @@ type 99
 is_magical 1
 protect_fire 9
 value 2000
+item_power 3
 end
 
-Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_less_cold
 chance 20
 t_style 2
@@ -2467,9 +2699,10 @@ type 99
 is_magical 1
 protect_cold 9
 value 2000
+item_power 3
 end
 
-Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_less_elec
 chance 20
 t_style 3
@@ -2480,9 +2713,10 @@ type 99
 is_magical 1
 protect_electricity 9
 value 2000
+item_power 3
 end
 
-Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_less_poison
 chance 20
 t_style 4
@@ -2493,9 +2727,10 @@ type 99
 is_magical 1
 protect_poison 9
 value 2000
+item_power 3
 end
 
-Allowed !sandals,!leggings_plate,!leggings_chain,!leggings_leather,all
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_less_acid
 chance 20
 t_style 5
@@ -2506,9 +2741,10 @@ type 99
 is_magical 1
 protect_acid 9
 value 2000
+item_power 3
 end
 
-Allowed leggings_plate,leggings_chain,leggings_leather
+Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_less_fire
 chance 20
 difficulty 3
@@ -2521,9 +2757,10 @@ item_level_art 3
 is_magical 1
 protect_fire 15
 value 3000
+item_power 3
 end
 
-Allowed leggings_plate,leggings_chain,leggings_leather
+Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_less_cold
 chance 20
 difficulty 3
@@ -2536,9 +2773,10 @@ item_level_art 3
 is_magical 1
 protect_cold 15
 value 3000
+item_power 3
 end
 
-Allowed leggings_plate,leggings_chain,leggings_leather
+Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_less_electricity
 chance 20
 difficulty 3
@@ -2551,9 +2789,10 @@ item_level_art 3
 is_magical 1
 protect_electricity 15
 value 3000
+item_power 3
 end
 
-Allowed leggings_plate,leggings_chain,leggings_leather
+Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_less_poison
 chance 20
 difficulty 3
@@ -2566,9 +2805,10 @@ type 99
 is_magical 1
 protect_poison 15
 value 3000
+item_power 3
 end
 
-Allowed leggings_plate,leggings_chain,leggings_leather
+Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_less_acid
 chance 20
 difficulty 3
@@ -2581,6 +2821,7 @@ item_level_art 3
 is_magical 1
 protect_acid 15
 value 3000
+item_power 3
 end
 
 ###########
@@ -2601,6 +2842,7 @@ is_magical 1
 cursed_perm 1
 cursed 1
 value 500
+item_power 1
 end
 
 Allowed all
@@ -2615,6 +2857,7 @@ item_level_art 3
 type 15
 is_magical 1
 value 4500
+item_power 2
 end
 
 Allowed all
@@ -2629,6 +2872,7 @@ type 15
 item_level_art 3
 is_magical 1
 value 5500
+item_power 3
 end
 
 Allowed all
@@ -2644,6 +2888,7 @@ wc_add 1
 type 15
 is_magical 1
 value 5500
+item_power 4
 end
 
 Allowed all
@@ -2658,6 +2903,7 @@ item_level_art 5
 type 15
 is_magical 1
 value 7500
+item_power 3
 end
 
 Allowed all
@@ -2672,6 +2918,7 @@ type 15
 is_magical 1
 value 8500
 slaying none
+item_power 8
 end
 
 Allowed all
@@ -2688,9 +2935,10 @@ value 8500
 slaying none
 is_assassin 1
 msg
- This weapon is inscribed with powerful runes
- for the bane of its victims.
+  This weapon is inscribed with powerful runes
+  for the bane of its victims.
 endmsg
+item_power 14
 end
 
 Allowed all
@@ -2703,6 +2951,7 @@ Str 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2715,6 +2964,7 @@ Dex 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2727,6 +2977,7 @@ Con 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2739,6 +2990,7 @@ Wis 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2751,6 +3003,7 @@ Int 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2763,6 +3016,7 @@ Pow 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2775,6 +3029,7 @@ Cha 1
 type 15
 is_magical 1
 value 4500
+item_power 3
 end
 
 Allowed all
@@ -2790,6 +3045,7 @@ item_level_art 7
 type 15
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2805,6 +3061,7 @@ type 15
 item_level_art 3
 is_magical 1
 value 5000
+item_power 3
 end
 
 Allowed all
@@ -2820,6 +3077,7 @@ type 15
 is_magical 1
 item_level_art 3
 value 5000
+item_power 3
 end
 
 #########
@@ -2968,6 +3226,7 @@ is_magical 1
 Dex 3
 stealth 1
 can_see_in_dark 1
+item_power 10
 end
 
 # Ring of Ice
@@ -2998,6 +3257,7 @@ msg
   against cold.  It also grants its holder
   greater control of cold spells.
 endmsg
+item_power 7
 end
 
 Allowed ring_generic
@@ -3029,6 +3289,7 @@ msg
   grants the holder greater facility
   with fire spells.
 endmsg
+item_power 7
 end
 
 Allowed ring_generic
@@ -3059,6 +3320,7 @@ msg
   electricity.  It also gives facility
   with electricity spells.
 endmsg
+item_power 7
 end
 
 Allowed ring_generic
@@ -3073,7 +3335,7 @@ item_level_art 35
 item_quality 100
 item_condition 100
 material_real 0
-face ring_silver_blue.101
+face ring_storm.101
 type 70
 is_magical 1
 value 325000
@@ -3091,6 +3353,73 @@ msg
   It also gives facility with electricity
   spells and resists.
 endmsg
+item_power 13
+end
+
+Allowed ring_generic
+chance 40
+difficulty 35
+artifact ring_fire_great
+def_arch ring_generic
+Object
+title of Greater Fire
+material 256
+item_level_art 35
+item_quality 100
+item_condition 100
+material_real 0
+face ring_fire.101
+type 70
+is_magical 1
+value 325000
+attack_fire 20
+protect_fire 30
+path_attuned 2
+msg
+  This elemental ring is one of those more
+  rare ones made at the Guild of Magicks by
+  the powerful  wizards who survived the
+  ancient war of the elementals.  The wielder
+  is  surrounded by a thin, almost invisible,
+  grid of force; which protects against
+  fire and allows fire attacks.
+  It also gives facility with fire
+  spells and resists.
+endmsg
+item_power 13
+end
+
+Allowed ring_generic
+chance 40
+difficulty 35
+artifact ring_ice_great
+def_arch ring_generic
+Object
+title of Greater Ice
+material 256
+item_level_art 35
+item_quality 100
+item_condition 100
+material_real 0
+face ring_ice.101
+type 70
+is_magical 1
+value 325000
+attack_cold 20
+protect_cold 30
+path_attuned 4
+msg
+  This elemental ring is one of those more
+  rare ones made at the Guild of Magicks by
+  the powerful  wizards who survived the
+  ancient war of the elementals.  The wielder
+  is  surrounded by a thin, almost invisible,
+  grid of force; which protects against
+  cold and allows cold attacks.
+  It also gives facility with cold
+  spells and resists.
+endmsg
+item_power 13
 end
 
 Allowed ring_generic
@@ -3112,6 +3441,7 @@ wc 2
 is_magical 1
 Dex 2
 dam 2
+item_power 20
 end
 
 Allowed ring_generic
@@ -3133,6 +3463,241 @@ wc 1
 is_magical 1
 Dex 1
 dam 1
+item_power 10
+end
+
+Allowed ring_generic
+chance 30
+difficulty 18
+artifact ring_combat
+def_arch ring_generic
+Object
+title of Combat
+face ring_silver_red.101
+item_level_art 16
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+type 70
+value 209000
+item_level 25
+wc 1
+is_magical 1
+Str 1
+Con 1
+dam 1
+material 0
+item_power 7
+end
+
+Allowed ring_generic
+chance 10
+difficulty 25
+artifact ring_strife
+def_arch ring_generic
+Object
+title of Strife
+face ring_silver_green.101
+item_level_art 20
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+type 70
+value 229000
+wc 1
+item_level 35
+is_magical 1
+Str 2
+Con 1
+dam 2
+material 0
+item_power 14
+end
+
+Allowed ring_generic
+chance 20
+difficulty 10
+artifact ring_magic
+def_arch ring_generic
+Object
+title of Magic
+face ring_silver_blue2.101
+item_level_art 10
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 138000
+is_magical 1
+sp 1
+Pow 1
+protect_weaponmagic 10
+msg
+  Most highlevel wizards receive one of these from
+  their guild when they become its leader.
+endmsg
+item_power 7
+end
+
+Allowed ring_generic
+chance 10
+difficulty 20
+artifact ring_ancient_magic
+def_arch ring_generic
+Object
+title of Ancient Magic
+face ring_mage.101
+item_level_art 20
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 164000
+is_magical 1
+sp 2
+Int 1
+Pow 1
+protect_weaponmagic 15
+item_power 14
+end
+
+Allowed ring_generic
+chance 4
+difficulty 30
+artifact ring_high_magic
+def_arch ring_generic
+Object
+title of High Magic
+face ring_peril.101
+item_level_art 30
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 191000
+is_magical 1
+sp 2
+Int 2
+Pow 2
+protect_weaponmagic 20
+item_power 20
+end
+
+Allowed ring_generic
+chance 13
+difficulty 18
+artifact ring_healer
+def_arch ring_generic
+Object
+title of the Healer
+face ring_silver_yellow2.101
+item_level_art 20
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+type 70
+value 229000
+is_magical 1
+item_level 25
+maxhp 50
+stealth 1
+path_attuned 256
+path_repelled 131072
+Cha 1
+Pow 1
+Wis 2
+grace 1
+material 0
+item_power 15
+end
+
+Allowed ring_generic
+chance 20
+difficulty 10
+artifact ring_paladin
+def_arch ring_generic
+Object
+title of the Paladin
+face ring_silver_yellow.101
+item_level_art 10
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 138000
+is_magical 1
+path_attuned 65536
+path_repelled 64
+grace 1
+Wis 1
+item_power 7
+end
+
+Allowed ring_generic
+chance 13
+difficulty 20
+artifact ring_prelate
+def_arch ring_generic
+Object
+title of the Prelate
+face ring_silver_yellow.101
+item_level_art 20
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 151000
+is_magical 1
+grace 2
+Int 1
+path_attuned 65664
+Wis 2
+item_power 14
+end
+
+Allowed ring_generic
+chance 4
+difficulty 30
+artifact ring_benevolence
+def_arch ring_generic
+Object
+title of Benevolence
+face ring_silver_yellow.101
+item_level_art 30
+item_quality 100
+item_condition 100
+is_named 1
+material_real 0
+material 0
+type 70
+value 224000
+is_magical 1
+Wis 2
+Int 2
+grace 2
+Cha 2
+path_attuned 257
+path_repelled 131072
+protect_weaponmagic 15
+msg
+  This ring is blessed by the gods who do good,
+  and protects a little against the power of those who
+  twist natural forces to do harm.
+endmsg
+item_power 20
 end
 
 Allowed ring_generic
@@ -3153,6 +3718,29 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
+end
+
+Allowed ring_generic
+chance 15
+artifact ring_doom
+def_arch ring_generic
+Object
+title of Doom
+type 70
+face sr_ring1.101
+is_magical 1
+damned 1
+damned_perm 1
+Str -5
+Con -5
+Dex -5
+Wis -5
+Int -5
+Pow -5
+Cha -5
+value 30
+item_power 1
 end
 
 Allowed ring_generic
@@ -3176,6 +3764,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 Allowed ring_generic
@@ -3199,6 +3788,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 Allowed ring_generic
@@ -3222,6 +3812,7 @@ Int -1
 Pow -1
 Cha -1
 value 50
+item_power 1
 end
 
 #########
@@ -3393,6 +3984,49 @@ protect_pierce 20
 protect_cleave 20
 type 39
 value 60000
+item_power 8
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 6
+artifact amulet_sorrow
+def_arch amulet_generic
+Object
+title of Sorrow
+face amulet_lif.101
+is_magical 1
+type 39
+value 0
+cursed 1
+cursed_perm 1
+protect_weaponmagic -100
+item_power 1
+end
+
+Allowed amulet_generic
+chance 15
+difficulty 4
+artifact amulet_calling_death
+def_arch amulet_generic
+Object
+title of Calling Death
+face amulet_lif.101
+is_magical 1
+type 39
+value 0
+damned 1
+damned_perm 1
+protect_impact -100
+protect_slash -100
+protect_cleave -100
+protect_pierce -100
+protect_weaponmagic -100
+protect_fire -100
+protect_electricity -100
+protect_cold -100
+protect_acid -100
+item_power 1
 end
 
 ###################
@@ -3473,6 +4107,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
+item_power 3
 end
 
 #############
@@ -3488,6 +4123,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
+item_power 3
 end
 
 ###########
@@ -3503,6 +4139,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
+item_power 3
 end
 
 #########
@@ -4059,80 +4696,7 @@ face cloak_green.101
 is_magical 1
 value 22100
 one_drop 1
-end
-
-Allowed ring_generic
-chance 30
-difficulty 18
-artifact ring_combat
-def_arch ring_generic
-Object
-title of Combat
-face ring_silver_red.101
-item_level_art 16
-item_quality 100
-item_condition 100
-is_named 1
-material_real 0
-type 70
-value 209000
-item_level 25
-wc 1
-is_magical 1
-Str 1
-Con 1
-dam 1
-material 0
-end
-
-Allowed ring_generic
-chance 10
-difficulty 25
-artifact ring_strife
-def_arch ring_generic
-Object
-title of Strife
-face ring_silver_green.101
-item_level_art 20
-item_quality 100
-item_condition 100
-is_named 1
-material_real 0
-type 70
-value 229000
-wc 1
-item_level 35
-is_magical 1
-Str 2
-Con 1
-dam 2
-material 0
-end
-
-Allowed ring_generic
-chance 20
-difficulty 18
-artifact ring_healer
-def_arch ring_generic
-Object
-title of the Healer
-face ring_silver_yellow2.101
-item_level_art 20
-item_quality 100
-item_condition 100
-is_named 1
-material_real 0
-type 70
-value 229000
-is_magical 1
-item_level 25
-maxhp 50
-stealth 1
-path_attuned 256
-path_denied 262144
-Pow 1
-Wis 2
-material 0
+item_power 5
 end
 
 Allowed none
@@ -4158,6 +4722,7 @@ protect_cleave 30
 protect_pierce 30
 is_magical 1
 value 251000
+item_power 15
 end
 
 Allowed none
@@ -4181,15 +4746,16 @@ Str 2
 item_quality 90
 item_condition 90
 msg
-These ancient gloves have once been worn by
-the famous warrior Drula himself.
+  These ancient gloves have once been worn by
+  the famous warrior Drula himself.
 
-Strangely, these gloves are not showing any
-signs of old age...
+  Strangely, these gloves are not showing any
+  signs of old age...
 endmsg
 is_magical 1
 value 15000
 one_drop 1
+item_power 5
 end
 
 Allowed none
@@ -4206,6 +4772,7 @@ value 30000
 item_quality 80
 item_condition 80
 is_named 1
+item_power 5
 end
 
 Allowed none
@@ -4225,6 +4792,7 @@ item_quality 80
 item_condition 80
 is_named 1
 is_magical 1
+item_power 3
 end
 
 Allowed none
@@ -4248,4 +4816,29 @@ item_condition 92
 stealth 1
 is_named 1
 is_magical 1
+item_power 10
+end
+
+Allowed none
+chance 1
+artifact shield_holy_light
+def_arch shield_high
+Object
+title of holy light
+type 33
+value 12000
+Cha 5
+ac_add 1
+reflect_spell 1
+protect_fire 25
+protect_cold 25
+glow_radius 1
+face holyshield.111
+msg
+  Passed down from one of the elder this shield is amazing.
+  Its soft glow hides a deep power which you feel you can
+  almost taste. It soon dawns on you that this must be one of
+  the most prized shields of all the lands.
+endmsg
+item_power 25
 end
