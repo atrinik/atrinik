@@ -117,7 +117,7 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 
 	while (text[pos] && pos2 <= mouseX)
 	{
-		if (text[pos++] == '^')
+		if (text[pos] == '^')
 		{
 			/* Start of a keyword */
 			if (key_start < 0)
@@ -129,11 +129,13 @@ static char *get_keyword_start(int actWin, int mouseX, int *row, int wID)
 			{
 				key_start = -1;
 			}
-
-			continue;
+		}
+		else
+		{
+			pos2 += textwin_font->c[(int) (text[pos])].w + textwin_font->char_offset;
 		}
 
-		pos2 += textwin_font->c[(int) text[pos]].w + textwin_font->char_offset;
+		pos++;
 	}
 
 	/* No keyword here */
@@ -175,6 +177,11 @@ void say_clickedKeyword(int actWin, int mouseX, int mouseY)
 	if (text == NULL)
 	{
 		return;
+	}
+
+	if (*text == '^')
+	{
+		text++;
 	}
 
 	while (*text && *text != '^')
