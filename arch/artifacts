@@ -4824,7 +4824,7 @@ chance 1
 artifact shield_holy_light
 def_arch shield_high
 Object
-title of holy light
+title of Holy Light
 type 33
 value 12000
 Cha 5
@@ -4833,12 +4833,11 @@ reflect_spell 1
 protect_fire 25
 protect_cold 25
 glow_radius 1
-face holyshield.111
 msg
   Passed down from one of the elder this shield is amazing.
   Its soft glow hides a deep power which you feel you can
   almost taste. It soon dawns on you that this must be one of
   the most prized shields of all the lands.
 endmsg
-item_power 25
+item_power 30
 end
