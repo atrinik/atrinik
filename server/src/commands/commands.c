@@ -288,6 +288,11 @@ int execute_newserver_command(object *pl, char *command)
 	if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
 	{
 		csp = find_command_element(command, WizCommands, WizCommandsSize);
+
+		if (csp)
+		{
+			LOG(llevInfo, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
+		}
 	}
 
 	/* Not found, but we have some command permissions. */
@@ -300,6 +305,12 @@ int execute_newserver_command(object *pl, char *command)
 			if (CONTR(pl)->cmd_permissions[i] && !strcmp(command, CONTR(pl)->cmd_permissions[i]))
 			{
 				csp = find_command_element(command, WizCommands, WizCommandsSize);
+
+				if (csp)
+				{
+					LOG(llevInfo, "WIZ: (cmd permission) %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
+				}
+
 				break;
 			}
 		}

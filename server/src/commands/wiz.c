@@ -498,19 +498,16 @@ int command_teleport(object *op, char *params)
  * DM wants to create an object.
  * @param op DM.
  * @param params Object variables.
- * @return 1 unless op is NULL. */
+ * @return 1. */
 int command_create(object *op, char *params)
 {
 	object *tmp = NULL;
-	int nrof, i, magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
-	char buf[MAX_BUF], *cp, *bp = buf, *bp2, *bp3, *bp4 = NULL, *obp, *cp2;
+	uint32 i;
+	int magic, set_magic = 0, set_nrof = 0, gotquote, gotspace;
+	uint32 nrof;
+	char *cp, *bp, *bp2, *bp3, *bp4, *endline;
 	archetype *at;
 	artifact *art = NULL;
-
-	if (!op)
-	{
-		return 0;
-	}
 
 	if (params == NULL)
 	{
@@ -520,9 +517,12 @@ int command_create(object *op, char *params)
 
 	bp = params;
 
-	if (sscanf(bp, "%d ", &nrof))
+	/* We need to know where the line ends */
+	endline = bp + strlen(bp);
+
+	if (sscanf(bp, "%u ", &nrof))
 	{
-		if ((bp = strchr(params, ' ')) == NULL)
+		if (!(bp = strchr(params, ' ')))
 		{
 			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
@@ -530,23 +530,21 @@ int command_create(object *op, char *params)
 
 		bp++;
 		set_nrof = 1;
-		LOG(llevDebug, "%s creates: (%d) %s\n", op->name, nrof, bp);
 	}
 
 	if (sscanf(bp, "%d ", &magic))
 	{
-		if ((bp = strchr(bp, ' ')) == NULL)
+		if (!(bp = strchr(bp, ' ')))
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
 		bp++;
 		set_magic = 1;
-		LOG(llevDebug, "%s creates: (%d) (%d) %s\n", op->name, nrof, magic, bp);
 	}
 
-	if ((cp = strstr(bp, " of ")) != NULL)
+	if ((cp = strstr(bp, " of ")))
 	{
 		*cp = '\0';
 		cp += 4;
@@ -563,7 +561,7 @@ int command_create(object *op, char *params)
 	}
 
 	/* First step: browse the archetypes for the name. */
-	if ((at = find_archetype(bp)) == NULL)
+	if (!(at = find_archetype(bp)))
 	{
 		new_draw_info(NDI_UNIQUE, op, "No such archetype or artifact name.");
 		return 1;
@@ -571,15 +569,6 @@ int command_create(object *op, char *params)
 
 	if (cp)
 	{
-		for (cp2 = cp; *cp2; cp2++)
-		{
-			if (*cp2 == ' ')
-			{
-				*cp2 = '\0';
-				break;
-			}
-		}
-
 		if (find_artifactlist(at->clone.type) == NULL)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "No artifact list for type %d\n", at->clone.type);
@@ -590,257 +579,183 @@ int command_create(object *op, char *params)
 
 			do
 			{
-				if (!strcmp(art->def_at.clone.name, cp))
+				if (!strcmp(art->name, cp))
 				{
 					break;
 				}
 
 				art = art->next;
-			}
-			while (art != NULL);
+			} while (art);
 
 			if (!art)
 			{
 				new_draw_info_format(NDI_UNIQUE, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
 			}
 		}
+	}
 
-		LOG(llevDebug, "%s creates: (%d) (%d) (%s) of (%s)\n", op->name, set_nrof ? nrof : 0, set_magic ? magic : 0, bp, cp);
+	/* Rather than have two different blocks with a lot of similar code,
+	 * just create one object, do all the processing, and then determine
+	 * if that one object should be inserted or if we need to make copies. */
+	tmp = arch_to_object(at);
+
+	if (set_magic)
+	{
+		set_abs_magic(tmp, magic);
+	}
+
+	if (art)
+	{
+		give_artifact_abilities(tmp, art);
+	}
+
+	if (need_identify(tmp))
+	{
+		SET_FLAG(tmp, FLAG_IDENTIFIED);
+	}
+
+	/* This entire block here tries to find variable pairings,
+	 * eg, 'hp 4' or the like. The mess here is that values
+	 * can be quoted (eg "my cool sword"); So the basic logic
+	 * is we want to find two spaces, but if we got a quote,
+	 * any spaces there don't count. */
+	while (*bp2 && bp2 <= endline)
+	{
+		bp4 = NULL;
+		gotspace = 0;
+		gotquote = 0;
+
+		/* Find the first quote. */
+		for (bp3 = bp2; *bp3 && gotspace < 2 && gotquote < 2; bp3++)
+		{
+			/* Found a quote - now lets find the second one */
+			if (*bp3 == '"')
+			{
+				*bp3 = ' ';
+				/* Update start of string. */
+				bp2 = bp3 + 1;
+				bp3++;
+				gotquote++;
+
+				while (*bp3)
+				{
+					if (*bp3 == '"')
+					{
+						*bp3 = '\0';
+						gotquote++;
+					}
+					else
+					{
+						bp3++;
+					}
+				}
+			}
+			else if (*bp3 == ' ')
+			{
+				gotspace++;
+			}
+		}
+
+		/* If we got two spaces, set the second one to null.
+		 * If we've reached the end of the line, increase gotspace -
+		 * This is perfectly valid for the list entry listed. */
+		if (gotspace == 2 || gotquote == 2)
+		{
+			/* Undo the extra increment. */
+			bp3--;
+			*bp3 = '\0';
+		}
+		else if (*bp3 == '\0')
+		{
+			gotspace++;
+		}
+
+		if ((gotquote && gotquote != 2) || (gotspace != 2 && gotquote != 2))
+		{
+			/* Unfortunately, we've clobbered lots of values, so printing
+			 * out what we have probably isn't useful.  Break out, because
+			 * trying to recover is probably won't get anything useful
+			 * anyways, and we'd be confused about end of line pointers
+			 * anyways. */
+			new_draw_info_format(NDI_UNIQUE, op, "Malformed create line: %s", bp2);
+			break;
+		}
+
+		/* bp2 should still point to the start of this line,
+		 * with bp3 pointing to the end. */
+		if (set_variable(tmp, bp2) == -1)
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
+		}
+		else
+		{
+			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s", tmp->name, tmp->count, bp2);
+		}
+
+		bp2 = bp3 + 1;
 	}
 
 	if (at->clone.nrof)
 	{
-		tmp = arch_to_object(at);
-		tmp->x = op->x, tmp->y = op->y;
-
 		if (set_nrof)
 		{
 			tmp->nrof = nrof;
 		}
 
-		tmp->map = op->map;
-
-		if (set_magic)
+		if (tmp->randomitems)
 		{
-			set_abs_magic(tmp, magic);
+			create_treasure(tmp->randomitems, tmp, GT_APPLY, tmp->type == MONSTER ? tmp->level : get_enviroment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 		}
 
-		if (art)
+		/* If the created object is alive or is multi arch, insert it on
+		 * the map. */
+		if (IS_LIVE(tmp) || tmp->more)
 		{
-			give_artifact_abilities(tmp, art);
+			if (tmp->type == MONSTER)
+			{
+				fix_monster(tmp);
+			}
+
+			insert_ob_in_map(tmp, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+		}
+		/* Into the DM's inventory otherwise. */
+		else
+		{
+			tmp = insert_ob_in_ob(tmp, op);
+			esrv_send_item(op, tmp);
 		}
 
-		if (need_identify(tmp))
-		{
-			SET_FLAG(tmp, FLAG_IDENTIFIED);
-		}
-
-		while (*bp2)
-		{
-			bp4 = NULL;
-
-			/* Find the first quote. */
-			for (bp3 = bp2, gotquote = 0, gotspace = 0; *bp3 && gotspace < 2; bp3++)
-			{
-				if (*bp3 == '"')
-				{
-					*bp3 = ' ';
-					gotquote++;
-					bp3++;
-
-					for (bp4 = bp3; *bp4; bp4++)
-					{
-						if (*bp4 == '"')
-						{
-							*bp4 = '\0';
-							break;
-						}
-					}
-
-					break;
-				}
-				else if (*bp3 == ' ')
-				{
-					gotspace++;
-				}
-			}
-
-			if (!gotquote)
-			{
-				/* then find the second space */
-				for (bp3 = bp2; *bp3; bp3++)
-				{
-					if (*bp3 == ' ')
-					{
-						bp3++;
-
-						for (bp4 = bp3; *bp4; bp4++)
-						{
-							if (*bp4 == ' ')
-							{
-								*bp4 = '\0';
-								break;
-							}
-						}
-
-						break;
-					}
-				}
-			}
-
-			if (bp4 == NULL)
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
-				break;
-			}
-
-			/* Now bp3 should be the argument, and bp2 the whole command. */
-			if (set_variable(tmp, bp2) == -1)
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
-			}
-			else
-			{
-				new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
-			}
-
-			if (gotquote)
-			{
-				bp2 = bp4 + 2;
-			}
-			else
-			{
-				bp2 = bp4 + 1;
-			}
-
-			obp = bp2;
-		}
-
-		tmp = insert_ob_in_ob(tmp, op);
-		esrv_send_item(op, tmp);
 		return 1;
 	}
 
-	for (i = 0 ; i < (set_nrof ? nrof : 1); i++)
+	for (i = 0; i < (set_nrof ? nrof : 1); i++)
 	{
 		archetype *atmp;
-		object *prev = NULL, *head = NULL;
+		object *prev = NULL, *head = NULL, *dup;
 
-		for (atmp = at; atmp != NULL; atmp = atmp->more)
+		for (atmp = at; atmp; atmp = atmp->more)
 		{
-			tmp = arch_to_object(atmp);
+			dup = arch_to_object(atmp);
 
+			/* The head is what contains all the important bits,
+			 * so just copying it over should be fine. */
 			if (head == NULL)
 			{
-				head = tmp;
+				head = dup;
+				copy_object(tmp, dup);
 			}
 
-			tmp->x = op->x + tmp->arch->clone.x;
-			tmp->y = op->y + tmp->arch->clone.y;
-			tmp->map = op->map;
+			dup->x = op->x + dup->arch->clone.x;
+			dup->y = op->y + dup->arch->clone.y;
+			dup->map = op->map;
 
-			if (set_magic)
+			if (head != dup)
 			{
-				set_abs_magic(tmp, magic);
+				dup->head = head;
+				prev->more = dup;
 			}
 
-			if (art)
-			{
-				give_artifact_abilities(tmp, art);
-			}
-
-			if (need_identify(tmp))
-			{
-				SET_FLAG(tmp, FLAG_IDENTIFIED);
-			}
-
-			while (*bp2)
-			{
-				bp4 = NULL;
-
-				/* Find the first quote */
-				for (bp3 = bp2, gotquote = 0, gotspace = 0; *bp3 && gotspace < 2; bp3++)
-				{
-					if (*bp3 == '"')
-					{
-						*bp3 = ' ';
-						gotquote++;
-						bp3++;
-
-						for (bp4 = bp3; *bp4; bp4++)
-						{
-							if (*bp4 == '"')
-							{
-								*bp4 = '\0';
-								break;
-							}
-						}
-
-						break;
-					}
-					else if (*bp3 == ' ')
-					{
-						gotspace++;
-					}
-				}
-
-				if (!gotquote)
-				{
-					/* Fhen find the second space */
-					for (bp3 = bp2; *bp3; bp3++)
-					{
-						if (*bp3 == ' ')
-						{
-							bp3++;
-
-							for (bp4 = bp3; *bp4; bp4++)
-							{
-								if (*bp4 == ' ')
-								{
-									*bp4 = '\0';
-									break;
-								}
-							}
-
-							break;
-						}
-					}
-				}
-
-				if (bp4 == NULL)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "No parameter value for variable %s", bp2);
-					break;
-				}
-
-				/* Now bp3 should be the argument, and bp2 the whole command */
-				if (set_variable(tmp, bp2) == -1)
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "Unknown variable '%s'", bp2);
-				}
-				else
-				{
-					new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, bp2, bp3);
-				}
-
-				if (gotquote)
-				{
-					bp2 = bp4 + 2;
-				}
-				else
-				{
-					bp2 = bp4 + 1;
-				}
-
-				obp = bp2;
-			}
-
-			if (head != tmp)
-			{
-				tmp->head = head, prev->more = tmp;
-			}
-
-			prev = tmp;
+			prev = dup;
 		}
 
 		if (head->randomitems)
