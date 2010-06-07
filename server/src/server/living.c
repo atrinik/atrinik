@@ -1673,9 +1673,9 @@ fix_player_jump_resi:
 
 		ptemp = protect_boni[i] - protect_mali[i];
 
-		if (ptemp < 0)
+		if (ptemp < -100)
 		{
-			op->protection[i] = 0;
+			op->protection[i] = -100;
 		}
 		else if (ptemp > 100)
 		{
