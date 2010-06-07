@@ -794,6 +794,7 @@ lex_error = 0;
 						op->weapon_speed_left = 0;
 						op->weapon_speed_add = op->weapon_speed;
                     }
+^item_power{S}      op->item_power = IVAL;
 
 	/* Ignore empty lines, newlines we don't do above */
 <*>(^{WS})|{NL}     {}
@@ -1556,6 +1557,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->quickslot != op2->quickslot)
 	{
 		FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
+	}
+
+	if (op->item_power != op2->item_power)
+	{
+		FAST_SAVE_LONG(sb, "item_power ", op->item_power);
 	}
 
 	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
