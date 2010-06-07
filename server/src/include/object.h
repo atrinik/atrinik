@@ -557,6 +557,10 @@ extern struct mempool_chunk *removed_objects;
 #define GENDER_MAX 4
 /*@}*/
 
+/**
+ * Calculate an item's power. */
+#define ITEM_POWER(ob) (QUERY_FLAG((ob), FLAG_SYS_OBJECT) ? (ob)->item_power : ((ob)->item_power + (ob)->magic))
+
 extern const char *gender_noun[];
 extern const char *gender_subjective[];
 extern const char *gender_subjective_upper[];
