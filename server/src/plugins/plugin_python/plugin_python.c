@@ -1904,7 +1904,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			{
 				long val = PyLong_AsLong(value);
 
-				if (val < 0 || val > SINT8_MAX)
+				if (val < 0 || (unsigned long) val > UINT8_MAX)
 				{
 					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
 					return -1;
@@ -1944,7 +1944,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			{
 				long val = PyLong_AsLong(value);
 
-				if (val < 0 || val > UINT16_MAX)
+				if (val < 0 || (unsigned long) val > UINT16_MAX)
 				{
 					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
 					return -1;
@@ -1984,7 +1984,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			{
 				long val = PyLong_AsLong(value);
 
-				if (val < 0 || val > UINT32_MAX)
+				if (val < 0 || (unsigned long) val > UINT32_MAX)
 				{
 					PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
 					return -1;
