@@ -546,6 +546,9 @@ typedef struct Settings
 
 	/** Are we going to run unit tests? */
 	uint8 unit_tests;
+
+	/** See note in setings file. */
+	float item_power_factor;
 } Settings;
 
 extern Settings settings;

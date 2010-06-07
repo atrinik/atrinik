@@ -8,7 +8,7 @@
 # spaces after the setting.
 #
 
-# metaserver values.  
+# metaserver values.
 # notification on/off controls the notification to the metaserver.
 # server and port is the metaserver host and port to connect to.
 # comment is sent to the metaserver.  It can be specific settings to on
@@ -20,3 +20,12 @@ metaserver_server http://meta.atrinik.org/update.php
 metaserver_host put.your.hostname.here
 metaserver_name Atrinik Server
 metaserver_comment Put a comment here.
+
+# item_power_factor is the relation of how the players equipped item_power
+# total relates to their overall level. If 1.0, then sum of the character's
+# equipped item's item_power can not be greater than their overall level.
+# If 2.0, then that sum can not exceed twice the character's overall level.
+# By setting this to a high enough value, you can effectively disable
+# the item_power code.
+
+item_power_factor 1.0

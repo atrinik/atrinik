@@ -397,6 +397,9 @@ typedef struct obj
 	/** Resistance against attacks in % - range from -125 to 125 */
 	sint8 protection[NROFATTACKS];
 
+	/** Power rating of the object. */
+	sint8 item_power;
+
 	/** The overall speed of this object */
 	float speed;
 

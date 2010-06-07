@@ -1046,6 +1046,28 @@ void player_apply_below(object *pl)
 }
 
 /**
+ * Checks for item power restrictions when applying an item.
+ * @param who The object applying the item.
+ * @param op The item being applied.
+ * @return Whether applying is possible. */
+static int apply_check_item_power(object *who, const object *op)
+{
+	if (who->type != PLAYER)
+	{
+		return 1;
+	}
+
+	if (op->item_power == 0 || op->item_power + CONTR(who)->item_power <= settings.item_power_factor * who->level)
+	{
+		return 1;
+	}
+
+	new_draw_info(NDI_UNIQUE, who, "Equipping that combined with other items would consume your soul!");
+
+	return 0;
+}
+
+/**
  * Apply an object.
  *
  * This function doesn't check for unpaid items, but checks other
@@ -1080,7 +1102,14 @@ int apply_special(object *who, object *op, int aflags)
 	/* Needs to be initialized */
 	buf[0] = '\0';
 
-	if (QUERY_FLAG(op, FLAG_APPLIED))
+	if (!QUERY_FLAG(op, FLAG_APPLIED))
+	{
+		if (!apply_check_item_power(who, op))
+		{
+			return 1;
+		}
+	}
+	else
 	{
 		/* Always apply, so no reason to unapply */
 		if (basic_flag == AP_APPLY)

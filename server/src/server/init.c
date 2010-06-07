@@ -59,7 +59,8 @@ struct Settings settings =
 	"",
 	0,
 	0,
-	0
+	0,
+	1.0f
 };
 
 /** World's darkness value. */
@@ -816,6 +817,19 @@ static void load_settings()
 		else if (!strcasecmp(buf, "metaserver_comment"))
 		{
 			strcpy(settings.meta_comment, cp);
+		}
+		else if (!strcasecmp(buf, "item_power_factor"))
+		{
+			float tmp = atof(cp);
+
+			if (tmp < 0)
+			{
+				LOG(llevError, "ERROR: load_settings(): item_power_factor must be a positive number (%f < 0).\n", tmp);
+			}
+			else
+			{
+				settings.item_power_factor = tmp;
+			}
 		}
 		else
 		{

@@ -586,9 +586,21 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
 			break;
 
+		case SP_PROBE:
+			if (!dir)
+			{
+				examine(op, op);
+				success = 1;
+			}
+			else
+			{
+				success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+			}
+
+			break;
+
 		case SP_BULLET:
 		case SP_CAUSE_LIGHT:
-		case SP_PROBE:
 			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
 			break;
 

@@ -945,6 +945,7 @@ void fix_player(object *op)
 	pl->gen_sp = 1;
 	pl->gen_grace = 1;
 	pl->gen_sp_armour = 0;
+	pl->item_power = 0;
 	/* The used skills for fast access */
 	pl->set_skill_weapon = NO_SKILL_READY;
 	pl->set_skill_archery = NO_SKILL_READY;
@@ -1184,6 +1185,7 @@ void fix_player(object *op)
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{
@@ -1251,6 +1253,7 @@ fix_player_no_armour:
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{

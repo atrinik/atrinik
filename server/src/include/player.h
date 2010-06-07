@@ -485,6 +485,9 @@ typedef struct pl_player
 	/** Spells known by the player. */
 	sint16 known_spells[NROFREALSPELLS];
 
+	/** Total item power of objects equipped. */
+	sint16 item_power;
+
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];
 

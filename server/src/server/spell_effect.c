@@ -308,7 +308,7 @@ int probe(object *op)
 		{
 			if (op->owner && op->owner->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, op->owner, "Your probe analyse %s.", tmp->name);
+				new_draw_info_format(NDI_UNIQUE, op->owner, "Your probe analyses %s.", tmp->name);
 
 				if (tmp->head != NULL)
 				{
