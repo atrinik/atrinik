@@ -37,7 +37,7 @@ class CParser:
 	# @param line Array data to split.
 	# @return List of the split data, free of whitespace.
 	def array_split_data(self, line):
-		return filter(lambda x: len(x) > 0, [x.strip() for x in line.split(",")])
+		return list(filter(lambda x: len(x) > 0, [x.strip() for x in line.split(",")]))
 
 	# Parses an array's data. This most likely won't work for various array
 	# styles, but it should work well enough for our purpose.
@@ -181,7 +181,7 @@ class CParser:
 				parts[i] = part[1:].strip()
 
 		# Remove empty strings from the list.
-		parts = filter(lambda x: len(x) > 0, parts)
+		parts = list(filter(lambda x: len(x) > 0, parts))
 
 		# Return the list, with parts joined using a newline.
 		return "\n".join(parts)

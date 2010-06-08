@@ -757,7 +757,7 @@ List of the map fields and their meaning.
 	</tr>
 	<tr>
 		<td>enter_x</td>
-		<td>unknown</td>
+		<td>integer</td>
 		<td>@copydoc mapstruct::enter_x</td>
 		<td></td>
 		<td></td>
