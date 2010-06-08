@@ -626,27 +626,21 @@ int command_create(object *op, char *params)
 		gotquote = 0;
 
 		/* Find the first quote. */
-		for (bp3 = bp2; *bp3 && gotspace < 2 && gotquote < 2; bp3++)
+		for (bp3 = bp2; *bp3 && gotspace < 2; bp3++)
 		{
-			/* Found a quote - now lets find the second one */
+			/* Found a quote. */
 			if (*bp3 == '"')
 			{
 				*bp3 = ' ';
-				/* Update start of string. */
-				bp2 = bp3 + 1;
-				bp3++;
 				gotquote++;
+				bp3++;
 
-				while (*bp3)
+				for (bp4 = bp3; *bp4; bp4++)
 				{
-					if (*bp3 == '"')
+					if (*bp4 == '"')
 					{
-						*bp3 = '\0';
-						gotquote++;
-					}
-					else
-					{
-						bp3++;
+						*bp4 = '\0';
+						break;
 					}
 				}
 			}
@@ -656,24 +650,33 @@ int command_create(object *op, char *params)
 			}
 		}
 
-		/* If we got two spaces, set the second one to null.
-		 * If we've reached the end of the line, increase gotspace -
-		 * This is perfectly valid for the list entry listed. */
-		if (gotspace == 2 || gotquote == 2)
+		if (!gotquote)
 		{
-			/* Undo the extra increment. */
-			bp3--;
-			*bp3 = '\0';
-		}
-		else if (*bp3 == '\0')
-		{
-			gotspace++;
+			/* Then find the second space. */
+			for (bp3 = bp2; *bp3; bp3++)
+			{
+				if (*bp3 == ' ')
+				{
+					bp3++;
+
+					for (bp4 = bp3; *bp4; bp4++)
+					{
+						if (*bp4 == ' ')
+						{
+							*bp4 = '\0';
+							break;
+						}
+					}
+
+					break;
+				}
+			}
 		}
 
-		if ((gotquote && gotquote != 2) || (gotspace != 2 && gotquote != 2))
+		if (!bp4)
 		{
 			/* Unfortunately, we've clobbered lots of values, so printing
-			 * out what we have probably isn't useful.  Break out, because
+			 * out what we have probably isn't useful. Break out, because
 			 * trying to recover is probably won't get anything useful
 			 * anyways, and we'd be confused about end of line pointers
 			 * anyways. */
@@ -692,7 +695,14 @@ int command_create(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s", tmp->name, tmp->count, bp2);
 		}
 
-		bp2 = bp3 + 1;
+		if (gotquote)
+		{
+			bp2 = bp4 + 2;
+		}
+		else
+		{
+			bp2 = bp4 + 1;
+		}
 	}
 
 	if (at->clone.nrof)
