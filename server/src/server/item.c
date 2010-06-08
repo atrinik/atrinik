@@ -1498,9 +1498,9 @@ char *describe_item(object *op)
 			strcat(retbuf, buf);
 		}
 
-		if (ITEM_POWER(op))
+		if (op->item_power)
 		{
-			sprintf(buf, "(item power%+d)", ITEM_POWER(op));
+			sprintf(buf, "(item power%+d)", op->item_power);
 			strcat(retbuf, buf);
 		}
 	}

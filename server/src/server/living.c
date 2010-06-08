@@ -1185,7 +1185,7 @@ void fix_player(object *op)
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
-					pl->item_power += ITEM_POWER(tmp);
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{
@@ -1253,7 +1253,7 @@ fix_player_no_armour:
 					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
-					pl->item_power += ITEM_POWER(tmp);
+					pl->item_power += tmp->item_power;
 
 					for (i = 0; i < 7; i++)
 					{
