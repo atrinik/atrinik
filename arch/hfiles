@@ -41,6 +41,7 @@ List of ^contributors^
 ^ms_privacy^
 ^guild^
 ^guildmembers^
+^statistics^
 ==========
 Name: apply
 Title: Apply Command
@@ -465,6 +466,12 @@ This command will show all members of your guild.
 
 To only show online guild members:
 /guildmembers online
+==========
+Name: statistics
+Title: Statistics Command
+The /statistics command will show you various statistics related to your character, like total experience, experience needed for next level, item power of all equipped items, and so on.
+
+<t t="Syntax:">/statistics
 ==========
 Name: summon
 Title: Summon Command

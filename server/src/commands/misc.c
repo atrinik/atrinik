@@ -819,3 +819,35 @@ int command_ms_privacy(object *op, char *params)
 	(void) params;
 	return 1;
 }
+
+/**
+ * Show some statistics to the player.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_statistics(object *op, char *params)
+{
+	size_t i;
+
+	(void) params;
+
+	new_draw_info_format(NDI_UNIQUE, op, "Experience: %s", format_number_comma(op->stats.exp));
+
+	if (op->level < MAXLEVEL)
+	{
+		char *cp = format_number_comma(level_exp(op->level + 1, 1.0));
+
+		new_draw_info_format(NDI_UNIQUE, op, "Next Level:  %s (%s)", cp, format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
+	}
+
+	new_draw_info(NDI_UNIQUE, op, "\nStat: Natural (Real)");
+
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "~%s:~ %d (%d)", short_stat_name[i], get_attr_value(&CONTR(op)->orig_stats, i), get_attr_value(&op->stats, i));
+	}
+
+	new_draw_info_format(NDI_UNIQUE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
+
+	return 1;
+}

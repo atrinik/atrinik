@@ -72,7 +72,8 @@ CommArray_s Commands[] =
 	{"left",           command_turn_left,      1.0f, 0},
 	{"right",          command_turn_right,     1.0f, 0},
 	{"whereami",       command_whereami,       1.0f, 0},
-	{"ms_privacy",     command_ms_privacy,     1.0f, 0}
+	{"ms_privacy",     command_ms_privacy,     1.0f, 0},
+	{"statistics",     command_statistics,     1.0f, 0}
 };
 
 /** Size of normal commands */

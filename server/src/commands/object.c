@@ -1210,11 +1210,6 @@ void examine_living(object *op, object *tmp)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
-
-	if (tmp->type == PLAYER && tmp == op)
-	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
-	}
 }
 
 /**
