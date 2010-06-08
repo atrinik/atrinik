@@ -165,9 +165,10 @@ typedef struct obj
 	struct obj *attacked_by;
 
 	/**
-	 * Pointer to the object which controls this one
-	 * Owner should not be referred to directly
-	 * - get_owner() should be used instead. */
+	 * Pointer to the object which controls this one.
+	 *
+	 * Owner should not be referred to directly - get_owner() should be
+	 * used instead. */
 	struct obj *owner;
 
 	/** The skill chosen to use */

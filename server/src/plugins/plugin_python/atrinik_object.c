@@ -31,6 +31,10 @@
 
 /**
  * All the possible fields of an object. */
+/* @cparser
+ * @page plugin_python_object_fields Python object fields
+ * <h2>Python object fields</h2>
+ * List of the object fields and their meaning. */
 static fields_struct fields[] =
 {
 	{"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0},
@@ -130,6 +134,7 @@ static fields_struct fields[] =
 	{"intelligence", FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
 	{"power", FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0}
 };
+/* @endcparser */
 
 /**
  * @defgroup plugin_python_object_functions Python plugin object functions

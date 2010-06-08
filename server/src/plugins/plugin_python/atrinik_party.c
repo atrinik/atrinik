@@ -31,12 +31,17 @@
 
 /**
  * Party fields. */
+/* @cparser
+ * @page plugin_python_party_fields Python party fields
+ * <h2>Python party fields</h2>
+ * List of the party fields and their meaning. */
 static fields_struct fields[] =
 {
 	{"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY, 0},
 	{"leader", FIELDTYPE_SHSTR, offsetof(party_struct, leader), 0, 0},
 	{"password", FIELDTYPE_CARY, offsetof(party_struct, passwd), FIELDFLAG_READONLY, 0}
 };
+/* @endcparser */
 
 /**
  * @defgroup plugin_python_party_functions Python plugin party functions

@@ -31,6 +31,10 @@
 
 /**
  * Region fields. */
+/* @cparser
+ * @page plugin_python_region_fields Python region fields
+ * <h2>Python region fields</h2>
+ * List of the region fields and their meaning. */
 static fields_struct fields[] =
 {
 	{"next", FIELDTYPE_REGION, offsetof(region, next), 0, 0},
@@ -42,6 +46,7 @@ static fields_struct fields[] =
 	{"jailx", FIELDTYPE_SINT16, offsetof(region, jailx), 0, 0},
 	{"jaily", FIELDTYPE_SINT16, offsetof(region, jaily), 0, 0}
 };
+/* @endcparser */
 
 /**
  * Get region's attribute.

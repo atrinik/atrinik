@@ -283,6 +283,10 @@ int freedir[SIZEOFFREE] =
  *
  * If an entry is NULL, that is a flag not to be loaded/saved.
  * @see flag_defines */
+/* @cparser FLAG_(.*)
+ * @page plugin_python_object_flags Python object flags
+ * <h2>Python object flags</h2>
+ * List of the object flags and their meaning. */
 const char *object_flag_names[NUM_FLAGS + 1] =
 {
 	"sleep", "confused", NULL, "scared", "is_blind",
@@ -314,6 +318,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"can_reflect_missile", "can_reflect_spell", "is_assassin", NULL, "no_save",
 	NULL
 };
+/* @endcparser */
 
 /**
  * Put an object in the list of removal candidates.

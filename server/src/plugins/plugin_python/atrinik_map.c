@@ -31,6 +31,10 @@
 
 /**
  * Map fields. */
+/* @cparser
+ * @page plugin_python_map_fields Python map fields
+ * <h2>Python map fields</h2>
+ * List of the map fields and their meaning. */
 static fields_struct fields[] =
 {
 	{"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
@@ -45,11 +49,16 @@ static fields_struct fields[] =
 	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
 	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), 0, 0}
 };
+/* @endcparser */
 
- /**
+/**
  * Map flags.
  *
  * @note These must be in same order as @ref map_flags "map flags". */
+/* @cparser MAP_FLAG_(.*)
+ * @page plugin_python_map_flags Python map flags
+ * <h2>Python map flags</h2>
+ * List of the map flags and their meaning. */
 static char *mapflag_names[] =
 {
 	"f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
@@ -57,6 +66,7 @@ static char *mapflag_names[] =
 	"f_permdeath", "f_ultradeath", "f_ultimatedeath", "f_pvp",
 	"f_no_save", "f_plugins"
 };
+/* @endcparser */
 
 /** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))

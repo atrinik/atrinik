@@ -31,11 +31,14 @@
 
 /**
  * Player fields. */
+/* @cparser
+ * @page plugin_python_player_fields Python player fields
+ * <h2>Python player fields</h2>
+ * List of the player fields and their meaning. */
 static fields_struct fields[] =
 {
 	{"party", FIELDTYPE_PARTY, offsetof(player, party), 0, 0},
-	/**
-	 * Shall not be modified in any way. Instead, one should use @ref Atrinik_Player_Fix "player.Fix()",
+	/* Shall not be modified in any way. Instead, one should use @ref Atrinik_Player_Fix "player.Fix()",
 	 * which will set class_ob to the last @ref CLASS object it finds in
 	 * player's inventory. In some cases, this is done automatically after
 	 * a script has finished executing (say events do this, for example). */
@@ -48,6 +51,7 @@ static fields_struct fields[] =
 	{"s_ext_title_flag", FIELDTYPE_UINT8, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0}
 };
+/* @endcparser */
 
 /**
  * @defgroup plugin_python_player_functions Python plugin player functions

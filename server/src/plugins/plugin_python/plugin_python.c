@@ -53,6 +53,10 @@ PythonContext *current_context;
 
 /**
  * Useful constants */
+/* @cparser
+ * @page plugin_python_constants Python constants
+ * <h2>Python constants</h2>
+ * List of the Python plugin constants and their meaning. */
 static Atrinik_Constant constants[] =
 {
 	{"NORTH", 1},
@@ -407,6 +411,7 @@ static Atrinik_Constant constants[] =
 
 	{NULL, 0}
 };
+/* @endcparser */
 
 /** All the custom commands. */
 static PythonCmd CustomCommand[NR_CUSTOM_CMD];
