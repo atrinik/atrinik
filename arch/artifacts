@@ -1326,7 +1326,7 @@ type 87
 protect_fire 15
 is_magical 1
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed cloak
@@ -1340,7 +1340,7 @@ type 87
 protect_cold 15
 is_magical 1
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed cloak
@@ -1354,7 +1354,7 @@ type 87
 protect_electricity 15
 is_magical 1
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed cloak
@@ -1368,7 +1368,7 @@ type 87
 protect_poison 15
 is_magical 1
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed cloak
@@ -1382,7 +1382,7 @@ type 87
 protect_acid 15
 is_magical 1
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed robe
@@ -1417,7 +1417,7 @@ Str 1
 face robe_red.101
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1431,7 +1431,7 @@ Dex 1
 face robe_black.101
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1445,7 +1445,7 @@ is_magical 1
 face robe_purple.101
 Con 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1459,7 +1459,7 @@ Int 1
 face robe_white.101
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1472,7 +1472,7 @@ type 87
 Pow 1
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1485,7 +1485,7 @@ type 87
 Wis 1
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed robe
@@ -1499,7 +1499,7 @@ Cha 1
 face robe_blue.101
 is_magical 1
 value 2500
-item_power 2
+item_power 1
 end
 
 Allowed cape
@@ -1538,7 +1538,7 @@ protect_fire 25
 protect_impact -15
 protect_pierce -15
 value 6000
-item_power 5
+item_power 2
 end
 
 Allowed cape
@@ -1555,7 +1555,7 @@ protect_cold 25
 protect_slash -15
 protect_cleave -15
 value 6000
-item_power 5
+item_power 2
 end
 
 ################
@@ -1637,7 +1637,7 @@ type 16
 maxhp 20
 is_magical 1
 value 15500
-item_power 2
+item_power 1
 end
 
 Allowed all
@@ -1652,7 +1652,7 @@ item_level_art 8
 maxhp 25
 is_magical 1
 value 35500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1667,7 +1667,7 @@ item_level_art 12
 maxhp 30
 is_magical 1
 value 65500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1682,7 +1682,7 @@ item_level_art 20
 maxhp 40
 is_magical 1
 value 105500
-item_power 4
+item_power 1
 end
 
 Allowed all
@@ -1696,7 +1696,7 @@ type 16
 protect_fire 25
 is_magical 1
 value 9500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1710,7 +1710,7 @@ type 16
 protect_cold 25
 is_magical 1
 value 9500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1724,7 +1724,7 @@ type 16
 protect_electricity 25
 is_magical 1
 value 9500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1738,7 +1738,7 @@ type 16
 protect_poison 25
 is_magical 1
 value 9500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1752,7 +1752,7 @@ type 16
 protect_acid 25
 is_magical 1
 value 9500
-item_power 3
+item_power 1
 end
 
 ###########
@@ -1805,7 +1805,7 @@ type 33
 is_magical 1
 protect_fire 15
 value 2400
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1819,7 +1819,7 @@ type 33
 is_magical 1
 protect_cold 15
 value 2400
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1833,7 +1833,7 @@ type 33
 is_magical 1
 protect_electricity 15
 value 2400
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1847,7 +1847,7 @@ type 33
 is_magical 1
 protect_poison 15
 value 2400
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1861,7 +1861,7 @@ type 33
 is_magical 1
 protect_acid 15
 value 2400
-item_power 3
+item_power 1
 end
 
 ###########
@@ -1894,7 +1894,7 @@ type 113
 maxhp 15
 is_magical 1
 value 13500
-item_power 2
+item_power 1
 end
 
 Allowed all
@@ -1909,7 +1909,7 @@ item_level_art 12
 maxhp 20
 is_magical 1
 value 30500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1924,7 +1924,7 @@ item_level_art 20
 maxhp 25
 is_magical 1
 value 55500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1939,7 +1939,7 @@ item_level_art 30
 maxhp 30
 is_magical 1
 value 85500
-item_power 4
+item_power 1
 end
 
 Allowed all
@@ -1955,7 +1955,7 @@ face girdle2.101
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1971,7 +1971,7 @@ item_level_art 2
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -1987,7 +1987,7 @@ item_level_art 2
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2003,7 +2003,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2019,7 +2019,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2035,7 +2035,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2051,7 +2051,7 @@ face girdle_yellow.101
 type 113
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 #####################
@@ -2069,7 +2069,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2084,7 +2084,7 @@ Dex 1
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2099,7 +2099,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2114,7 +2114,7 @@ type 100
 item_level_art 2
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2129,7 +2129,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2144,7 +2144,7 @@ item_level_art 2
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2159,7 +2159,7 @@ Cha 1
 type 100
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed !gloves, all
@@ -2174,7 +2174,7 @@ item_level_art 7
 type 100
 is_magical 1
 value 6500
-item_power 4
+item_power 3
 end
 
 Allowed !gloves, all
@@ -2189,7 +2189,7 @@ item_level_art 7
 type 100
 is_magical 1
 value 6500
-item_power 4
+item_power 2
 end
 
 Allowed !gloves, all
@@ -2205,7 +2205,7 @@ item_level_art 8
 type 100
 is_magical 1
 value 82500
-item_power 5
+item_power 3
 end
 
 #########
@@ -2238,7 +2238,7 @@ item_level_art 15
 is_magical 1
 xrays 1
 value 213000
-item_power 7
+item_power 5
 end
 
 Allowed all
@@ -2253,7 +2253,7 @@ is_magical 1
 Str 1
 item_level_art 3
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2268,7 +2268,7 @@ is_magical 1
 item_level_art 3
 Dex 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2283,7 +2283,7 @@ type 34
 is_magical 1
 Int 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2298,7 +2298,7 @@ type 34
 is_magical 1
 Wis 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2313,7 +2313,7 @@ type 34
 is_magical 1
 Pow 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2328,7 +2328,7 @@ type 34
 is_magical 1
 Cha 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2343,7 +2343,7 @@ type 34
 is_magical 1
 Con 1
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2359,7 +2359,7 @@ type 34
 is_magical 1
 protect_fire 15
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2375,7 +2375,7 @@ type 34
 is_magical 1
 protect_cold 15
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2391,7 +2391,7 @@ type 34
 is_magical 1
 protect_electricity 15
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2407,7 +2407,7 @@ type 34
 is_magical 1
 protect_poison 15
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2423,7 +2423,7 @@ type 34
 is_magical 1
 protect_acid 15
 value 2100
-item_power 3
+item_power 1
 end
 
 Allowed crown_generic
@@ -2447,7 +2447,7 @@ msg
   of magic. It has a small influence on its wearer's
   ability to regenerate spell points.
 endmsg
-item_power 5
+item_power 3
 end
 
 Allowed crown_generic
@@ -2465,7 +2465,7 @@ value 5000
 sp 2
 Int 2
 Pow 2
-item_power 10
+item_power 8
 end
 
 Allowed crown_generic
@@ -2480,7 +2480,7 @@ type 34
 is_magical 1
 value 1000
 Cha 2
-item_power 4
+item_power 1
 end
 
 Allowed !crown_generic, all
@@ -2502,7 +2502,7 @@ msg
   infested with dragons. The dwarves specialized in equipment
   which helped them survive their environment.
 endmsg
-item_power 6
+item_power 2
 end
 
 Allowed crown_generic
@@ -2538,7 +2538,7 @@ type 104
 Dex 1
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2554,7 +2554,7 @@ Str 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2570,7 +2570,7 @@ Con 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2586,7 +2586,7 @@ Int 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2602,7 +2602,7 @@ Cha 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2618,7 +2618,7 @@ Pow 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2634,7 +2634,7 @@ Wis 1
 type 104
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 #########
@@ -2685,7 +2685,7 @@ type 99
 is_magical 1
 protect_fire 9
 value 2000
-item_power 3
+item_power 1
 end
 
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
@@ -2699,7 +2699,7 @@ type 99
 is_magical 1
 protect_cold 9
 value 2000
-item_power 3
+item_power 1
 end
 
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
@@ -2713,7 +2713,7 @@ type 99
 is_magical 1
 protect_electricity 9
 value 2000
-item_power 3
+item_power 1
 end
 
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
@@ -2727,7 +2727,7 @@ type 99
 is_magical 1
 protect_poison 9
 value 2000
-item_power 3
+item_power 1
 end
 
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
@@ -2741,7 +2741,7 @@ type 99
 is_magical 1
 protect_acid 9
 value 2000
-item_power 3
+item_power 1
 end
 
 Allowed leggings_plate, leggings_chain, leggings_leather
@@ -2757,7 +2757,7 @@ item_level_art 3
 is_magical 1
 protect_fire 15
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed leggings_plate, leggings_chain, leggings_leather
@@ -2773,7 +2773,7 @@ item_level_art 3
 is_magical 1
 protect_cold 15
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed leggings_plate, leggings_chain, leggings_leather
@@ -2789,7 +2789,7 @@ item_level_art 3
 is_magical 1
 protect_electricity 15
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed leggings_plate, leggings_chain, leggings_leather
@@ -2805,7 +2805,7 @@ type 99
 is_magical 1
 protect_poison 15
 value 3000
-item_power 3
+item_power 1
 end
 
 Allowed leggings_plate, leggings_chain, leggings_leather
@@ -2821,7 +2821,7 @@ item_level_art 3
 is_magical 1
 protect_acid 15
 value 3000
-item_power 3
+item_power 1
 end
 
 ###########
@@ -2872,7 +2872,7 @@ type 15
 item_level_art 3
 is_magical 1
 value 5500
-item_power 3
+item_power 2
 end
 
 Allowed all
@@ -2888,7 +2888,7 @@ wc_add 1
 type 15
 is_magical 1
 value 5500
-item_power 4
+item_power 3
 end
 
 Allowed all
@@ -2903,7 +2903,7 @@ item_level_art 5
 type 15
 is_magical 1
 value 7500
-item_power 3
+item_power 2
 end
 
 Allowed all
@@ -2918,7 +2918,7 @@ type 15
 is_magical 1
 value 8500
 slaying none
-item_power 8
+item_power 4
 end
 
 Allowed all
@@ -2938,7 +2938,7 @@ msg
   This weapon is inscribed with powerful runes
   for the bane of its victims.
 endmsg
-item_power 14
+item_power 6
 end
 
 Allowed all
@@ -2951,7 +2951,7 @@ Str 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2964,7 +2964,7 @@ Dex 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2977,7 +2977,7 @@ Con 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -2990,7 +2990,7 @@ Wis 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3003,7 +3003,7 @@ Int 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3016,7 +3016,7 @@ Pow 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3029,7 +3029,7 @@ Cha 1
 type 15
 is_magical 1
 value 4500
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3045,7 +3045,7 @@ item_level_art 7
 type 15
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3061,7 +3061,7 @@ type 15
 item_level_art 3
 is_magical 1
 value 5000
-item_power 3
+item_power 1
 end
 
 Allowed all
@@ -3077,7 +3077,7 @@ type 15
 is_magical 1
 item_level_art 3
 value 5000
-item_power 3
+item_power 1
 end
 
 #########
@@ -3257,7 +3257,7 @@ msg
   against cold.  It also grants its holder
   greater control of cold spells.
 endmsg
-item_power 7
+item_power 5
 end
 
 Allowed ring_generic
@@ -3289,7 +3289,7 @@ msg
   grants the holder greater facility
   with fire spells.
 endmsg
-item_power 7
+item_power 5
 end
 
 Allowed ring_generic
@@ -3320,7 +3320,7 @@ msg
   electricity.  It also gives facility
   with electricity spells.
 endmsg
-item_power 7
+item_power 5
 end
 
 Allowed ring_generic
@@ -3353,7 +3353,7 @@ msg
   It also gives facility with electricity
   spells and resists.
 endmsg
-item_power 13
+item_power 10
 end
 
 Allowed ring_generic
@@ -3386,7 +3386,7 @@ msg
   It also gives facility with fire
   spells and resists.
 endmsg
-item_power 13
+item_power 10
 end
 
 Allowed ring_generic
@@ -3419,7 +3419,7 @@ msg
   It also gives facility with cold
   spells and resists.
 endmsg
-item_power 13
+item_power 10
 end
 
 Allowed ring_generic
@@ -3441,7 +3441,7 @@ wc 2
 is_magical 1
 Dex 2
 dam 2
-item_power 20
+item_power 12
 end
 
 Allowed ring_generic
@@ -3463,7 +3463,7 @@ wc 1
 is_magical 1
 Dex 1
 dam 1
-item_power 10
+item_power 5
 end
 
 Allowed ring_generic
@@ -3488,7 +3488,7 @@ Str 1
 Con 1
 dam 1
 material 0
-item_power 7
+item_power 10
 end
 
 Allowed ring_generic
@@ -3513,7 +3513,7 @@ Str 2
 Con 1
 dam 2
 material 0
-item_power 14
+item_power 11
 end
 
 Allowed ring_generic
@@ -3540,7 +3540,7 @@ msg
   Most highlevel wizards receive one of these from
   their guild when they become its leader.
 endmsg
-item_power 7
+item_power 5
 end
 
 Allowed ring_generic
@@ -3564,7 +3564,7 @@ sp 2
 Int 1
 Pow 1
 protect_weaponmagic 15
-item_power 14
+item_power 10
 end
 
 Allowed ring_generic
@@ -3588,7 +3588,7 @@ sp 2
 Int 2
 Pow 2
 protect_weaponmagic 20
-item_power 20
+item_power 12
 end
 
 Allowed ring_generic
@@ -3617,7 +3617,7 @@ Pow 1
 Wis 2
 grace 1
 material 0
-item_power 15
+item_power 10
 end
 
 Allowed ring_generic
@@ -3641,7 +3641,7 @@ path_attuned 65536
 path_repelled 64
 grace 1
 Wis 1
-item_power 7
+item_power 5
 end
 
 Allowed ring_generic
@@ -3665,7 +3665,7 @@ grace 2
 Int 1
 path_attuned 65664
 Wis 2
-item_power 14
+item_power 10
 end
 
 Allowed ring_generic
@@ -3697,7 +3697,7 @@ msg
   and protects a little against the power of those who
   twist natural forces to do harm.
 endmsg
-item_power 20
+item_power 12
 end
 
 Allowed ring_generic
@@ -3984,7 +3984,7 @@ protect_pierce 20
 protect_cleave 20
 type 39
 value 60000
-item_power 8
+item_power 4
 end
 
 Allowed amulet_generic
@@ -4107,7 +4107,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
-item_power 3
+item_power 2
 end
 
 #############
@@ -4123,7 +4123,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
-item_power 3
+item_power 2
 end
 
 ###########
@@ -4139,7 +4139,7 @@ type 14
 value 5500
 is_magical 1
 wc_add 4
-item_power 3
+item_power 2
 end
 
 #########
@@ -4696,7 +4696,7 @@ face cloak_green.101
 is_magical 1
 value 22100
 one_drop 1
-item_power 5
+item_power 3
 end
 
 Allowed none
@@ -4722,7 +4722,7 @@ protect_cleave 30
 protect_pierce 30
 is_magical 1
 value 251000
-item_power 15
+item_power 5
 end
 
 Allowed none
@@ -4772,7 +4772,7 @@ value 30000
 item_quality 80
 item_condition 80
 is_named 1
-item_power 5
+item_power 3
 end
 
 Allowed none
@@ -4792,7 +4792,7 @@ item_quality 80
 item_condition 80
 is_named 1
 is_magical 1
-item_power 3
+item_power 1
 end
 
 Allowed none
@@ -4816,7 +4816,7 @@ item_condition 92
 stealth 1
 is_named 1
 is_magical 1
-item_power 10
+item_power 5
 end
 
 Allowed none
@@ -4837,6 +4837,7 @@ item_quality 90
 item_condition 90
 is_named 1
 is_magical 1
+item_level_art 20
 value 382000
 msg
   Passed down from one of the elder this shield is amazing.
@@ -4844,5 +4845,5 @@ msg
   almost taste. It soon dawns on you that this must be one of
   the most prized shields of all the lands.
 endmsg
-item_power 30
+item_power 15
 end
