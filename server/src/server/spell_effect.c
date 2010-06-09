@@ -905,7 +905,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 		case SP_GREATER_HEAL:
 			success = 1;
-			heal = rndm(4, 10 + level) + 12;
+			heal = rndm(4, 5 + level) + rndm(4, 5 + level) + 12;
 
 			if (op->type == PLAYER)
 			{
