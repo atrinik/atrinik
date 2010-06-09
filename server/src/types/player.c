@@ -1131,43 +1131,17 @@ void do_some_living(object *op)
 	int last_food = op->stats.food;
 	int gen_hp, gen_sp, gen_grace;
 	int rate_hp = 2000;
-	int rate_sp = 2000;
-	int rate_grace = 500;
+	int rate_sp = 1200;
+	int rate_grace = 235;
 
 	if (CONTR(op)->state != ST_PLAYING)
 	{
 		return;
 	}
 
-	if (CONTR(op)->gen_hp >= 0)
-	{
-		gen_hp = (CONTR(op)->gen_hp + 1) * (op->stats.maxhp / 4);
-	}
-	else
-	{
-		gen_hp = op->stats.maxhp;
-		rate_hp -= rate_hp / 2 * CONTR(op)->gen_hp;
-	}
-
-	if (CONTR(op)->gen_sp >= 0)
-	{
-		gen_sp = (CONTR(op)->gen_sp + 1) * op->stats.maxsp;
-	}
-	else
-	{
-		gen_sp = op->stats.maxsp;
-		rate_sp -= rate_sp / 2 * CONTR(op)->gen_sp;
-	}
-
-	if (CONTR(op)->gen_grace >= 0)
-	{
-		gen_grace = (CONTR(op)->gen_grace + 1) * op->stats.maxgrace;
-	}
-	else
-	{
-		gen_grace = op->stats.maxgrace;
-		rate_grace -= rate_grace / 2 * CONTR(op)->gen_grace;
-	}
+	gen_hp = (CONTR(op)->gen_hp * (rate_hp / 20)) + (op->stats.maxhp / 4);
+	gen_sp = (CONTR(op)->gen_sp * (rate_sp / 20)) + op->stats.maxsp;
+	gen_grace = (CONTR(op)->gen_grace * (rate_grace / 20)) + op->stats.maxgrace;
 
 	gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
 
