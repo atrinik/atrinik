@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-03-25 Alex Tokar
+Modified: 2010-06-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1814,11 +1814,15 @@ arch spawn_point
 x 12
 y 20
 arch giant_stone
-name stone giant captain
+name stone giant Torathog
 type 83
 level 19
 Wis 3
 direction 3
+arch quest_container
+name Galann's Revenge
+sub_type 1
+end
 end
 end
 arch floor_stone3d
@@ -1993,7 +1997,7 @@ arch spawn_point
 x 13
 y 22
 arch giant_stone
-name stone giant cave leader
+name stone giant captain
 type 83
 level 19
 Wis 3
