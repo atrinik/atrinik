@@ -1132,7 +1132,7 @@ void do_some_living(object *op)
 	int gen_hp, gen_sp, gen_grace;
 	int rate_hp = 2000;
 	int rate_sp = 1200;
-	int rate_grace = 235;
+	int rate_grace = 300;
 
 	if (CONTR(op)->state != ST_PLAYING)
 	{
