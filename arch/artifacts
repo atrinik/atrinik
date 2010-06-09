@@ -4844,7 +4844,6 @@ def_arch shield_high
 Object
 title of Holy Light
 type 33
-value 12000
 Cha 5
 ac_add 1
 reflect_spell 1
