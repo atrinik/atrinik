@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2010-06-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2574,7 +2574,13 @@ arch floor_stone_b2
 x 21
 y 16
 end
-arch wall_dungeon_3
+arch announcement
+msg
+This room contains a magically engineered experiment, which has gone terribly wrong.
+
+Enter at your own risk!
+endmsg
+name WARNING
 x 21
 y 16
 end
@@ -2582,17 +2588,11 @@ arch floor_stone_b2
 x 21
 y 17
 end
-arch door1_locked
-face door_lock1.131
-direction 3
-x 21
-y 17
-end
 arch floor_stone_b4
 x 21
 y 18
 end
-arch wall_dungeon_4
+arch wall_dungeon_1
 x 21
 y 18
 end
@@ -2642,15 +2642,25 @@ arch floor_stone_b1
 x 22
 y 16
 end
+arch door1_locked
+direction 3
+x 22
+y 16
+end
 arch floor_stone_b3
 x 22
 y 17
 end
-arch floor_stone_b3
+arch door1_locked
+direction 5
+x 22
+y 17
+end
+arch floor_stone_b4
 x 22
 y 18
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 22
 y 18
 end
