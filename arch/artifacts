@@ -4885,3 +4885,37 @@ item_condition 99
 item_quality 99
 item_power 2
 end
+
+Allowed none
+chance 1
+artifact bracers_fire_wyvern
+def_arch bracers_str
+Object
+title of the fire wyvern
+material_real 75
+protect_fire 6
+item_quality 90
+item_condition 90
+end
+
+Allowed none
+chance 1
+artifact helm_chrordir
+def_arch helm_min_str
+Object
+name Chrordir's helm
+ac_add 1
+item_level_art 35
+is_named 1
+end
+
+Allowed none
+chance 1
+artifact bracers_relurgh
+def_arch bracers_con
+Object
+name Relurgh's bracers
+ac_add 1
+item_level_art 35
+is_named 1
+end

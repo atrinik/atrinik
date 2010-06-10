@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-03-25 Alex Tokar
+Modified: 2010-06-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -570,9 +570,7 @@ ac 14
 Wis 3
 arch rand_drop
 container 70
-arch bracers_con
-ac 2
-item_level 45
+arch bracers_relurgh
 end
 end
 end
@@ -623,9 +621,7 @@ ac 14
 Wis 3
 arch rand_drop
 container 70
-arch helm_min_str
-ac 2
-item_level 45
+arch helm_chrordir
 end
 end
 end
