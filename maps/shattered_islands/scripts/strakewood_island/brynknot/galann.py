@@ -27,7 +27,7 @@ def main():
 
 		# Not started?
 		if not qm.started():
-			me.SayTo(activator, "This is my ^unique^ shop, but I'm afraid I can't help you ^identify items^...", 1)
+			me.SayTo(activator, "This is my ^unique^ shop, but I'm afraid I can't identify your items, since I was hurt in this ^fight^ a while ago...", 1)
 		elif qm.completed():
 			me.SayTo(activator, "Thank you for killing Torathog the stone giant. You are free to use this ^unique^ shop.", 1)
 		elif qm.finished():
@@ -48,7 +48,7 @@ def main():
 		me.SayTo(activator, "\nUnique means that everything you sell inside will stay there until the map resets.\nThis is great for selling items you don't need, but others could make use of.")
 
 	elif not qm.started():
-		if msg == "identify items":
+		if msg == "fight":
 			me.SayTo(activator, "\nA while ago I was hurt badly in a fight with one of the ^stone giants^ from Old Outpost. I can no longer do the job of a smith. If you need a smith, there is one near the Brynknot docks. Failing that, there's a superb smith in Greyton.")
 		elif msg == "stone giants":
 			me.SayTo(activator, "\nWell, I think it was a stone giant from Old Outpost at any rate. I was near the entrance to Old Outpost - north of here - taking a walk, when one of them saw me, and hurt me badly in the fight that followed.\nHis name was ^Torathog^, since he kept yelling at me, saying things like 'Torathog will eat ya!'.")
