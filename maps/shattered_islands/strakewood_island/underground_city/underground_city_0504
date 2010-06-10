@@ -651,8 +651,8 @@ x 4
 y 16
 arch dragon_skeletal
 name summoned skeletal dragon
-can_reflect_spell 1
-can_reflect_missile 1
+reflect_spell 1
+reflect_missile 1
 level 40
 undead 1
 protect_impact 10
@@ -663,8 +663,8 @@ type 83
 end
 arch dragon_skeletal
 name demonic skeletal dragon
-can_reflect_spell 1
-can_reflect_missile 1
+reflect_spell 1
+reflect_missile 1
 level 43
 undead 1
 object_int1 8500

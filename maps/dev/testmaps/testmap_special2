@@ -1318,7 +1318,7 @@ x 14
 y 2
 end
 arch ogre
-can_reflect_missile 1
+reflect_missile 1
 Dex 2
 can_use_bow 1
 stand_still 1
@@ -1384,7 +1384,7 @@ x 14
 y 14
 end
 arch skel_mage
-can_reflect_spell 1
+reflect_spell 1
 maxsp 30
 Pow 10
 magic 0

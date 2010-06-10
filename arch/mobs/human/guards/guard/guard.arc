@@ -27,8 +27,8 @@ protect_pierce 75
 protect_slash 75
 protect_magic 100
 no_pick 1
-can_reflect_missile 1
-can_reflect_spell 1
+reflect_missile 1
+reflect_spell 1
 Con 15
 exp 100
 hp -1

@@ -252,7 +252,7 @@ arch spawn_point
 x 1
 y 13
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90
@@ -317,7 +317,7 @@ x 1
 y 18
 arch guard
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 direction 1
 level 25
 dam 50
@@ -1868,7 +1868,7 @@ arch spawn_point
 x 11
 y 1
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90
@@ -2567,7 +2567,7 @@ x 15
 y 1
 arch guard_pole
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 level 25
 dam 50
 maxhp 90
@@ -2662,7 +2662,7 @@ x 15
 y 15
 arch guard_pole
 name Tolowen
-can_reflect_missile 0
+reflect_missile 0
 direction 7
 level 25
 dam 50
@@ -3888,7 +3888,7 @@ x 23
 y 15
 arch guard
 name Forest guard
-can_reflect_missile 0
+reflect_missile 0
 level 25
 dam 50
 maxhp 90
@@ -3940,7 +3940,7 @@ arch spawn_point
 x 23
 y 19
 arch ranger
-can_reflect_spell 0
+reflect_spell 0
 level 30
 dam 40
 maxhp 90

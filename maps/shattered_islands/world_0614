@@ -564,8 +564,8 @@ speed -0.02317
 x 3
 y 16
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
@@ -1137,8 +1137,8 @@ speed -0.02317
 x 7
 y 17
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -1193,8 +1193,8 @@ speed -0.02317
 x 7
 y 22
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
@@ -1256,7 +1256,7 @@ end
 end
 arch orc_warlord
 name Warlord Ghorl
-can_reflect_missile 1
+reflect_missile 1
 level 31
 object_int1 8500
 dam 100
@@ -1516,8 +1516,8 @@ x 9
 y 17
 arch mage_old
 name battle mage
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 30
 maxhp 70
@@ -1954,8 +1954,8 @@ x 12
 y 19
 arch guard
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 29
 dam 50
@@ -2087,8 +2087,8 @@ x 13
 y 16
 arch guard
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 29
 dam 50
@@ -2586,8 +2586,8 @@ speed -0.02317
 x 17
 y 14
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -2909,8 +2909,8 @@ x 19
 y 17
 arch guard_pole
 name Forest guard
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 1
 level 25
 dam 50
@@ -3036,8 +3036,8 @@ speed -0.02317
 x 20
 y 14
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 29
 dam 40
@@ -3370,8 +3370,8 @@ speed -0.02317
 x 22
 y 22
 arch ranger
-can_reflect_spell 0
-can_reflect_missile 0
+reflect_spell 0
+reflect_missile 0
 direction 3
 level 28
 dam 40
