@@ -43,6 +43,8 @@ class colors:
 # Object types.
 class types:
 	spawn_point = 81
+	scroll = 111
+	potion = 5
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -317,6 +319,10 @@ def check_obj(obj, map):
 		if "y" in obj:
 			add_error(map, "Object '{0}' has Y position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
+	if "type" in obj and obj["type"] != types.scroll and obj["type"] != types.potion:
+		if len(obj["custom_attrs"]) and obj["archname"] in artifacts:
+			add_error(map, "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
 # @param file Map to load.
@@ -432,11 +438,15 @@ class ObjectParser:
 				continue
 			elif line[:9] == "def_arch ":
 				archetype = line[9:-1]
+				found = get_archetype(archetype)
 
-				if not archetype in archetypes:
+				if not found and archetype in self.dict:
+					found = dict(self.dict[archetype])
+
+				if not found:
 					errors_artifacts.append(["Could not find archetype '{0}' for def_arch command (line: {1}).".format(archetype, self.line_num), errors.critical])
 				else:
-					self.dict[self.last_obj] = dict(archetypes[archetype])
+					self.dict[self.last_obj] = dict(found)
 
 				continue
 			elif line == "end\n":
