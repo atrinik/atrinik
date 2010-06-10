@@ -43,6 +43,7 @@ alive 1
 no_pick 1
 weight 850000
 run_away 6
+undead 1
 end
 More
 Object dragon_skeletal_b
