@@ -298,10 +298,10 @@ int map_tiled_reverse[TILED_MAPS];
 #define P_FLY_OFF             0x4000
 /** For flying objects and what happens when they enter */
 #define P_FLY_ON              0x8000
-/** Something on the tile reflects spells */
-#define P_REFL_SPELLS         0x10000
-/** Something on the tile reflects missiles */
-#define P_REFL_MISSILE        0x20000
+/** Unused. */
+#define P_UNUSED1 0x10000
+/** Unused. */
+#define P_UNUSED2 0x20000
 /**
  * Of course not set for map tiles but from blocked_xx() function where
  * the get_map_from_coord() fails to grab a valid map or tile. */

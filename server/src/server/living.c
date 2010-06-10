@@ -520,7 +520,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_CAN_REFL_MISSILE))
+	if (QUERY_FLAG(op, FLAG_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_REFL_MISSILE))
 	{
 		success = 1;
 
@@ -534,7 +534,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_CAN_REFL_SPELL))
+	if (QUERY_FLAG(op, FLAG_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_REFL_SPELL))
 	{
 		success = 1;
 
@@ -1049,14 +1049,14 @@ void fix_player(object *op)
 		CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 	}
 
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_CAN_REFL_SPELL))
+	if (!QUERY_FLAG(&op->arch->clone, FLAG_REFL_SPELL))
 	{
-		CLEAR_FLAG(op, FLAG_CAN_REFL_SPELL);
+		CLEAR_FLAG(op, FLAG_REFL_SPELL);
 	}
 
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_CAN_REFL_MISSILE))
+	if (!QUERY_FLAG(&op->arch->clone, FLAG_REFL_MISSILE))
 	{
-		CLEAR_FLAG(op, FLAG_CAN_REFL_MISSILE);
+		CLEAR_FLAG(op, FLAG_REFL_MISSILE);
 	}
 
 	if (!QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD))
@@ -1516,12 +1516,12 @@ fix_player_jump_resi:
 
 			if (QUERY_FLAG(tmp, FLAG_REFL_SPELL))
 			{
-				SET_FLAG(op, FLAG_CAN_REFL_SPELL);
+				SET_FLAG(op, FLAG_REFL_SPELL);
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_REFL_MISSILE))
 			{
-				SET_FLAG(op, FLAG_CAN_REFL_MISSILE);
+				SET_FLAG(op, FLAG_REFL_MISSILE);
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_STEALTH))

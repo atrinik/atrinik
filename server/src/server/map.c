@@ -2243,16 +2243,6 @@ void update_position(mapstruct *m, int x, int y)
 				flags |= P_BLOCKSVIEW;
 			}
 
-			if (QUERY_FLAG(tmp, FLAG_CAN_REFL_SPELL))
-			{
-				flags |= P_REFL_SPELLS;
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_CAN_REFL_MISSILE))
-			{
-				flags |= P_REFL_MISSILE;
-			}
-
 			if (QUERY_FLAG(tmp, FLAG_WALK_ON))
 			{
 				flags |= P_WALK_ON;

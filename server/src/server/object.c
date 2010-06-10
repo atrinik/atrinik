@@ -314,8 +314,8 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
 	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
-	"cursed_perm", "damned_perm", "door_closed", "was_reflected", "is_missile",
-	"can_reflect_missile", "can_reflect_spell", "is_assassin", NULL, "no_save",
+	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",
+	NULL, NULL, "is_assassin", NULL, "no_save",
 	NULL
 };
 /* @endcparser */
@@ -1371,16 +1371,6 @@ void update_object(object *op, int action)
 				newflags |= P_DOOR_CLOSED;
 			}
 
-			if (QUERY_FLAG(op, FLAG_CAN_REFL_SPELL))
-			{
-				newflags |= P_REFL_SPELLS;
-			}
-
-			if (QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE))
-			{
-				newflags |= P_REFL_MISSILE;
-			}
-
 			if (QUERY_FLAG(op, FLAG_NO_PVP))
 			{
 				newflags |= P_NO_PVP;
@@ -1400,7 +1390,7 @@ void update_object(object *op, int action)
 		}
 
 		/* We must rebuild the flags when one of these flags is touched from our object */
-		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op, FLAG_CAN_REFL_SPELL) || QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
+		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
 		{
 			newflags |= P_FLAGS_UPDATE;
 		}

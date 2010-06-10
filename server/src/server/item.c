@@ -1443,12 +1443,12 @@ char *describe_item(object *op)
 			strcat(retbuf, "(lifesaving)");
 		}
 
-		if (QUERY_FLAG(op, FLAG_REFL_SPELL) || QUERY_FLAG(op, FLAG_CAN_REFL_SPELL))
+		if (QUERY_FLAG(op, FLAG_REFL_SPELL))
 		{
 			strcat(retbuf, "(reflect spells)");
 		}
 
-		if (QUERY_FLAG(op, FLAG_REFL_MISSILE) || QUERY_FLAG(op, FLAG_CAN_REFL_MISSILE))
+		if (QUERY_FLAG(op, FLAG_REFL_MISSILE))
 		{
 			strcat(retbuf, "(reflect missiles)");
 		}

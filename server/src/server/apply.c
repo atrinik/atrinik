@@ -138,16 +138,6 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 		case DIRECTOR:
 			if (victim->direction)
 			{
-				if (QUERY_FLAG(victim, FLAG_IS_MISSILE))
-				{
-					SET_FLAG(victim, FLAG_WAS_REFLECTED);
-
-					if (!missile_reflection_adjust(victim, 0))
-					{
-						break;
-					}
-				}
-
 				victim->direction = trap->direction;
 				update_turn_face(victim);
 			}

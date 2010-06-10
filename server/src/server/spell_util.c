@@ -1323,31 +1323,19 @@ void forklightning(object *op, object *tmp)
  * @return 1 if reflected, 0 otherwise. */
 int reflwall(mapstruct *m, int x, int y, object *sp_op)
 {
-	/* No reflection when we have a illegal space and/or non reflection flag set */
-	if (!(m = get_map_from_coord(m, &x, &y)) || !(GET_MAP_FLAGS(m, x, y) & P_REFL_SPELLS))
+	object *tmp;
+
+	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
 		return 0;
 	}
 
-	/* we have reflection. But there is a small chance it will fail.
-	 * test it. */
-
-	/* Reflect always */
-	if (sp_op->type == LIGHTNING)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
 	{
-		return 1;
-	}
-
-	if (!missile_reflection_adjust(sp_op, QUERY_FLAG(sp_op, FLAG_WAS_REFLECTED)))
-	{
-		return 0;
-	}
-
-	/* We get resisted - except a small fail chance */
-	if ((rndm(0, 99)) < 90 - sp_op->level / 10)
-	{
-		SET_FLAG(sp_op, FLAG_WAS_REFLECTED);
-		return 1;
+		if (QUERY_FLAG(tmp->head ? tmp->head : tmp, FLAG_REFL_SPELL) && (rndm(0, 99)) < 90 - (sp_op->level / 10))
+		{
+			return 1;
+		}
 	}
 
 	return 0;

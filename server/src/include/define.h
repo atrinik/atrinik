@@ -776,7 +776,7 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
- * Unused: 77, 78, 113.
+ * Unused: 77, 78, 113, 128, 130, 131.
  *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
@@ -1080,14 +1080,8 @@
 #define FLAG_PERM_DAMNED          126
 /** Closed door. */
 #define FLAG_DOOR_CLOSED          127
-/** Object was reflected (arrow, thrown object, ...) */
-#define FLAG_WAS_REFLECTED        128
 /** Object is used as missile (arrow, potion, magic bullet, ...) */
 #define FLAG_IS_MISSILE           129
-/** Object can reflect arrows */
-#define FLAG_CAN_REFL_MISSILE     130
-/** Object can reflect spells */
-#define FLAG_CAN_REFL_SPELL       131
 
 /**
  * If this and slaying field is set, the object does 3 times more damage

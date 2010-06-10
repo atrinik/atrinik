@@ -383,8 +383,8 @@ void become_follower(object *op, object *new_god)
 	exp_obj->stats.food = (sint16) new_god->last_eat;
 	/* gods may pass on certain flag properties */
 	update_priest_flag(new_god, exp_obj, FLAG_SEE_IN_DARK);
-	update_priest_flag(new_god, exp_obj, FLAG_CAN_REFL_SPELL);
-	update_priest_flag(new_god, exp_obj, FLAG_CAN_REFL_MISSILE);
+	update_priest_flag(new_god, exp_obj, FLAG_REFL_SPELL);
+	update_priest_flag(new_god, exp_obj, FLAG_REFL_MISSILE);
 	update_priest_flag(new_god, exp_obj, FLAG_STEALTH);
 	update_priest_flag(new_god, exp_obj, FLAG_SEE_INVISIBLE);
 	update_priest_flag(new_god, exp_obj, FLAG_UNDEAD);
