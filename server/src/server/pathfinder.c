@@ -608,10 +608,6 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 			{
 				block = blocked_link_2(op, map, x2, y2);
 			}
-			/* TODO: handle doors for multi-archs. Will require some modification to
-			 * blocked_link_2 i guess: (don't return as soon as we find a block: if
-			 * that block is P_DOOR_CLOSED, keep searching and add P_DOOR_CLOSED to the return
-			 * value.) */
 			else
 			{
 				block = blocked(op, map, x2, y2, op->terrain_flag);

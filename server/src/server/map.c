@@ -725,7 +725,7 @@ int blocked_link(object *op, int xoff, int yoff)
 {
 	object *tmp, *tmp2;
 	mapstruct *m;
-	int xtemp, ytemp;
+	int xtemp, ytemp, flags;
 
 	for (tmp = op; tmp; tmp = tmp->more)
 	{
@@ -756,9 +756,17 @@ int blocked_link(object *op, int xoff, int yoff)
 			}
 
 			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
 			{
-				return xtemp;
+				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
+				{
+					if (open_door(op, m, xtemp, ytemp, 1))
+					{
+						continue;
+					}
+				}
+
+				return flags;
 			}
 		}
 	}
@@ -779,7 +787,7 @@ int blocked_link(object *op, int xoff, int yoff)
 int blocked_link_2(object *op, mapstruct *map, int x, int y)
 {
 	object *tmp, *tmp2;
-	int xtemp, ytemp;
+	int xtemp, ytemp, flags;
 	mapstruct *m;
 
 	for (tmp = op; tmp; tmp = tmp->more)
@@ -808,9 +816,17 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 			}
 
 			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((xtemp = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
+			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
 			{
-				return xtemp;
+				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
+				{
+					if (open_door(op, m, xtemp, ytemp, 0))
+					{
+						continue;
+					}
+				}
+
+				return flags;
 			}
 		}
 	}
