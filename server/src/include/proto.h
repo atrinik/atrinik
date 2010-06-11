@@ -350,8 +350,6 @@ int apply_special(object *who, object *op, int aflags);
 int monster_apply_special(object *who, object *op, int aflags);
 
 /* server/arch.c */
-archetype *find_archetype_by_object_name(const char *name);
-object *get_archetype_by_object_name(const char *name);
 archetype *get_skill_archetype(int skillnr);
 void init_archetypes();
 void arch_info(object *op);
@@ -361,7 +359,6 @@ object *arch_to_object(archetype *at);
 object *create_singularity(const char *name);
 object *get_archetype(const char *name);
 archetype *find_archetype(const char *name);
-object *clone_arch(int type);
 
 /* server/attack.c */
 int attack_ob(object *op, object *hitter);

@@ -26,51 +26,6 @@
 #include <global.h>
 #include <check.h>
 
-START_TEST(test_find_archetype_by_object_name)
-{
-	archetype *arch;
-
-	arch = find_archetype_by_object_name("meteor");
-	fail_if(arch == NULL, "Searching for an existing arch name ('meteor') should work.");
-	fail_if(strcmp(arch->clone.name, "meteor"), "Searching for an existing arch name shoud have returned us 'meteor' but returned '%s'.", arch->clone.name);
-
-	arch = find_archetype_by_object_name("some really nonexistent archetype");
-	fail_if(arch != NULL, "Searching for nonexistent arch name ('some really nonexistent archetype) should return NULL.");
-
-	arch = find_archetype_by_object_name("");
-	fail_if(arch != NULL, "Searching for empty arch name should return NULL.");
-
-	arch = find_archetype_by_object_name(NULL);
-	fail_if(arch != NULL, "Searching for NULL arch name should return NULL.");
-}
-END_TEST
-
-#define ARCH_SINGULARITY "singularity"
-
-START_TEST(test_get_archetype_by_object_name)
-{
-	object *ob;
-
-	ob = get_archetype_by_object_name("letter");
-	fail_if(ob == NULL, "get_archetype_by_object_name() should never return NULL.");
-	fail_if(!strncmp(ob->name, ARCH_SINGULARITY, strlen(ARCH_SINGULARITY)), "Searching for 'letter' should NOT have returned a singularity.");
-	fail_if(strncmp(ob->name, "letter", strlen(ob->name)), "Searching for 'letter' should have returned something with same base name but returned '%s'", ob->name);
-
-	ob = get_archetype_by_object_name("letter of scribes");
-	fail_if(ob == NULL, "get_archetype_by_object_name() should never return NULL.");
-	fail_if(!strncmp(ob->name, ARCH_SINGULARITY, strlen(ARCH_SINGULARITY)), "Searching for 'letter of scribes' should NOT have returned a singularity.");
-	fail_if(strncmp(ob->name, "letter of scribes", strlen(ob->name)), "Searching for 'letter of scribes' should have returned something with same base name but returned '%s'.", ob->name);
-
-	ob = get_archetype_by_object_name("%*");
-	fail_if(ob == NULL, "get_archetype_by_object_name() should never return NULL.");
-	fail_if(strncmp(ob->name, ARCH_SINGULARITY, strlen(ARCH_SINGULARITY)), "Searching for '%*' should have returned a singularity.");
-
-	ob = get_archetype_by_object_name("");
-	fail_if(ob == NULL, "get_archetype_by_object_name() should never return NULL.");
-	fail_if(strncmp(ob->name, ARCH_SINGULARITY, strlen(ARCH_SINGULARITY)), "Searching for \"\" should have returned a singularity.");
-}
-END_TEST
-
 START_TEST(test_get_skill_archetype)
 {
 	archetype *arch;
@@ -170,8 +125,6 @@ static Suite *arch_suite()
 	tcase_add_checked_fixture(tc_core, NULL, NULL);
 
 	suite_add_tcase(s, tc_core);
-	tcase_add_test(tc_core, test_find_archetype_by_object_name);
-	tcase_add_test(tc_core, test_get_archetype_by_object_name);
 	tcase_add_test(tc_core, test_get_skill_archetype);
 	tcase_add_test(tc_core, test_item_matched_string);
 	tcase_add_test(tc_core, test_arch_to_object);
