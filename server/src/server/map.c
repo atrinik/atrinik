@@ -2749,19 +2749,17 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * @todo Document. */
 int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 {
-	object *best;
-
 	if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE))
 	{
 		return 0;
 	}
 
-	best = op1;
+	retval->part = op1;
 
 	/* If this is multipart, find the closest part now */
 	if (!(flags & RV_IGNORE_MULTIPART) && op1->more)
 	{
-		object *tmp;
+		object *tmp, *best = NULL;
 		int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
 
 		/* we just tkae the offset of the piece to head to figure
@@ -2771,7 +2769,7 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 		 * below works. */
 		for (tmp = op1->more; tmp; tmp = tmp->more)
 		{
-			tmpi = (op1->x - tmp->x + retval->distance_x) * (op1->x - tmp->x + retval->distance_x) + (op1->y - tmp->y + retval->distance_y) * (op1->y - tmp->y + retval->distance_y);
+			tmpi = (retval->distance_x - tmp->arch->clone.x) * (retval->distance_x - tmp->arch->clone.x) + (retval->distance_y - tmp->arch->clone.y) * (retval->distance_y - tmp->arch->clone.y);
 
 			if (tmpi < best_distance)
 			{
@@ -2780,14 +2778,14 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 			}
 		}
 
-		if (best != op1)
+		if (best)
 		{
-			retval->distance_x += op1->x - best->x;
-			retval->distance_y += op1->y - best->y;
+			retval->distance_x -= best->arch->clone.x;
+			retval->distance_y -= best->arch->clone.y;
+			retval->part = best;
 		}
 	}
 
-	retval->part = best;
 	retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
 	retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
 
