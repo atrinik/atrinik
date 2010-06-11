@@ -1830,22 +1830,6 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *whoptr, PyObject *args)
 }
 
 /**
- * <h1>object.GetArchName()</h1>
- *
- * Get arch name of an object.
- *
- * @return The arch name of the object. */
-static PyObject *Atrinik_Object_GetArchName(Atrinik_Object *whoptr, PyObject *args)
-{
-	if (!PyArg_ParseTuple(args, ""))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("s", WHO->arch->name);
-}
-
-/**
  * <h1>object.ShowCost(<i>\<sint64\></i> value)</h1>
  *
  * Show cost of value.
@@ -2398,7 +2382,6 @@ static PyMethodDef methods[] =
 	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
 	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_VARARGS, 0},
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_VARARGS, 0},
-	{"GetArchName", (PyCFunction) Atrinik_Object_GetArchName, METH_VARARGS, 0},
 	{"ShowCost", (PyCFunction) Atrinik_Object_ShowCost, METH_VARARGS, 0},
 	{"GetItemCost", (PyCFunction) Atrinik_Object_GetItemCost, METH_VARARGS, 0},
 	{"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_VARARGS, 0},
