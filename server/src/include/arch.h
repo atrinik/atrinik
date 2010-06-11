@@ -30,7 +30,8 @@
 #ifndef ARCH_H
 #define ARCH_H
 
-/** The archetype structure is a set of rules on how to generate and manipulate
+/**
+ * The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.
  * This structure should get removed, and just replaced
  * by the object structure */
@@ -47,15 +48,6 @@ typedef struct archt
 
 	/** Next part of a linked object */
 	struct archt *more;
-
-	/** used by artifacts list: if != NULL,
-	 * this object is the base object and clone is
-	 * the modified artifacts object.
-	 * we use base_clone for unidentified objects
-	 * (to get unified "non identified" values),
-	 * or it is used to get a base object when we
-	 * remove the artifacts changes (cancellation, dispel...) */
-	object *base_clone;
 
 	/** An object from which to do copy_object() */
 	object clone;

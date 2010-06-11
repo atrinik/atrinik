@@ -538,7 +538,6 @@ void init_artifacts()
 			FREE_AND_COPY_HASH(art->def_at_name, cp + 9);
 			/* Copy the default arch */
 			memcpy(&art->def_at, atemp, sizeof(archetype));
-			art->def_at.base_clone = &atemp->clone;
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.name);
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.title);
 			ADD_REF_NOT_NULL_HASH(art->def_at.clone.race);
