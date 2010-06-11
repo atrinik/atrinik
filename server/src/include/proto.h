@@ -690,8 +690,7 @@ void race_dump();
 void race_free();
 
 /* server/readable.c */
-int book_overflow(const char *buf1, const char *buf2, int booksize);
-void free_mon_info();
+int book_overflow(const char *buf1, const char *buf2, size_t booksize);
 void init_readable();
 object *get_random_mon();
 void tailor_readable_ob(object *book, int msg_type);
@@ -848,6 +847,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb);
 void stringbuffer_append_string(StringBuffer *sb, const char *str);
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...);
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+size_t stringbuffer_length(StringBuffer *sb);
 
 /* server/swap.c */
 void read_map_log();

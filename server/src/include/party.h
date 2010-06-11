@@ -52,11 +52,11 @@ enum
 	 * Normal looting: any party member can loot the corpse. */
 	PARTY_LOOT_NORMAL,
 	/**
- 	 * Only leader can loot the corpse. */
+	 * Only leader can loot the corpse. */
 	PARTY_LOOT_LEADER,
 	/**
- 	 * Loot is randomly split between party members when the corpse is
- 	 * opened. */
+	 * Loot is randomly split between party members when the corpse is
+	 * opened. */
 	PARTY_LOOT_RANDOM,
 	/**
 	 * Total number of the modes. */

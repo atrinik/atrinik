@@ -1138,7 +1138,6 @@ void cleanup()
 	free_exp_objects();
 	free_srv_files();
 	free_regions();
-	free_mon_info();
 	free_mempools();
 	remove_plugins();
 #endif

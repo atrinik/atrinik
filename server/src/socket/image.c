@@ -226,7 +226,7 @@ void read_client_images()
 			continue;
 		}
 
- 		if (split_string(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
+		if (split_string(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
 		{
 			LOG(llevBug, "BUG: read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
 		}

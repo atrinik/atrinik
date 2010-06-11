@@ -1523,6 +1523,12 @@ enum apply_flag
 #define QUEST_TYPE_SPECIAL 3
 /*@}*/
 
+/**
+ * Returns the element size of an array.
+ * @param arrayname The array's name.
+ * @return The number of elements. */
+#define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
+
 const char *object_flag_names[NUM_FLAGS + 1];
 
 #endif
