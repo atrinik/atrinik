@@ -63,6 +63,9 @@
 		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_player.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\src\plugins\plugin_python\atrinik_archetype.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\src\plugins\plugin_python\plugin_python.c">
 			<Option compilerVar="CC" />
 		</Unit>

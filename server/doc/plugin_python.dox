@@ -49,4 +49,13 @@ Interface to get information about player's structure, for example, save bed loc
 
 @see @ref plugin_python_player_functions
 @see @ref plugin_python_player_fields
+
+@section sec_plugin_python_atrinik_archetype Atrinik Archetype Python plugin functions
+
+Archetype interface allows you to get object's arch name, for example. The following would print the activator's arch name:
+@code
+print(WhoIsActivator().arch.name)
+@endcode
+
+@see @ref plugin_python_archetype_fields
 */

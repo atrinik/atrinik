@@ -1843,7 +1843,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 		CustomCommand[i].speed = 0.0;
 	}
 
-	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m))
+	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m))
 	{
 		return;
 	}
@@ -2189,6 +2189,22 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			}
 
 			break;
+
+		case FIELDTYPE_ARCH:
+			if (value == Py_None)
+			{
+				*(archetype **) field_ptr = NULL;
+			}
+			else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType))
+			{
+				*(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
+			}
+			else
+			{
+				INTRAISE("Illegal value for archetype field.");
+			}
+
+			break;
 	}
 
 	return 0;
@@ -2264,6 +2280,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_PARTY:
 			return wrap_party(*(party_struct **) field_ptr);
+
+		case FIELDTYPE_ARCH:
+			return wrap_archetype(*(archetype **) field_ptr);
 	}
 
 	RAISE("BUG: Unknown field type.");

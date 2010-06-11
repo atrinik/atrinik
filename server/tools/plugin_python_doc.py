@@ -26,6 +26,8 @@ def fieldtype_to_string(fieldtype):
 		return "party"
 	elif fieldtype == "FIELDTYPE_PLAYER":
 		return "player"
+	elif fieldtype == "FIELDTYPE_ARCH":
+		return "archetype"
 
 	return "unknown"
 

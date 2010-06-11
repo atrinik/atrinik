@@ -214,7 +214,9 @@ typedef enum
 	/** Pointer to region. */
 	FIELDTYPE_REGION,
 	/** Pointer to a party. */
-	FIELDTYPE_PARTY
+	FIELDTYPE_PARTY,
+	/** Pointer to an archetype. */
+	FIELDTYPE_ARCH
 } field_type;
 
 /**
@@ -304,6 +306,18 @@ typedef struct
 	/** Pointer to the Atrinik player we wrap. */
 	player *pl;
 } Atrinik_Player;
+
+PyTypeObject Atrinik_ArchetypeType;
+PyObject *wrap_archetype(archetype *at);
+int Atrinik_Archetype_init(PyObject *module);
+
+/** The Atrinik_Archetype structure. */
+typedef struct
+{
+	PyObject_HEAD
+	/** Pointer to the Atrinik archetype we wrap. */
+	archetype *at;
+} Atrinik_Archetype;
 
 /** This structure is used to define one Python-implemented command. */
 typedef struct PythonCmdStruct

@@ -373,6 +373,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\plugins\plugin_python\atrinik_archetype.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\plugins\plugin_python\plugin_python.c"
 				>
 			</File>

@@ -834,6 +834,55 @@ List of the map flags and their meaning.
 </table>
 */
 /**
+@page plugin_python_archetype_fields Python archetype fields
+<h2>Python archetype fields</h2>
+List of the archetype fields and their meaning.
+<table>
+	<tr>
+		<th width="10%">Name</th>
+		<th width="5%">Type</th>
+		<th width="45%">Details</th>
+		<th width="5%">Flags</th>
+		<th width="35%">Notes</th>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>string</td>
+		<td>@copydoc archetype::name</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>next</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::next</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>head</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::head</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>more</td>
+		<td>archetype</td>
+		<td>@copydoc archetype::more</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>clone</td>
+		<td>object</td>
+		<td>@copydoc archetype::clone</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+*/
+/**
 @page plugin_python_constants Python constants
 <h2>Python constants</h2>
 List of the Python plugin constants and their meaning.
@@ -2902,7 +2951,7 @@ List of the object fields and their meaning.
 		<td>type</td>
 		<td>integer</td>
 		<td>@copydoc object::type</td>
-		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
+		<td></td>
 		<td></td>
 	</tr>
 	<tr>
@@ -3211,6 +3260,13 @@ List of the object fields and their meaning.
 		<td>integer</td>
 		<td>@copydoc living::Pow</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>arch</td>
+		<td>archetype</td>
+		<td>@copydoc object::arch</td>
+		<td></td>
 		<td></td>
 	</tr>
 </table>
