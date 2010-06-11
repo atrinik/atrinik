@@ -890,6 +890,8 @@ void set_owner(object *op, object *owner)
 		return;
 	}
 
+	/* Ensure we have a head. */
+	owner = HEAD(owner);
 	set_owner_simple(op, owner);
 
 	if (owner->type == PLAYER && owner->chosen_skill)

@@ -561,60 +561,40 @@ int move_monster(object *op)
 		return 0;
 	}
 
+	part = rv.part;
+	dir = rv.direction;
+
 	/* Move the check for scared up here - if the monster was scared,
 	 * we were not doing any of the logic below, so might as well save
 	 * a few cpu cycles. */
 	if (!QUERY_FLAG(op, FLAG_SCARED))
 	{
-		rv_vector rv1;
-
-		/* Test every part of an object */
-		for (part = op; part != NULL; part = part->more)
+		if (op->last_grace)
 		{
-			get_rangevector(part, enemy, &rv1, 0x1);
-			dir = rv1.direction;
+			op->last_grace--;
+		}
 
-			if (QUERY_FLAG(op, FLAG_RUN_AWAY))
+		if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
+		{
+			if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
 			{
-				dir = absdir(dir + 4);
-			}
-
-			if (QUERY_FLAG(op, FLAG_CONFUSED))
-			{
-				dir = get_randomized_dir(dir);
-			}
-
-			if (op->last_grace)
-			{
-				op->last_grace--;
-			}
-
-			if (op->stats.Dex && !(RANDOM() % op->stats.Dex))
-			{
-				if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace)
+				if (monster_cast_spell(op, part, dir, &rv, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF))
 				{
-					if (monster_cast_spell(op, part, dir, &rv1, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF))
-					{
-						/* Add monster casting delay */
-						op->last_grace += op->magic;
-						return 0;
-					}
+					/* Add monster casting delay */
+					op->last_grace += op->magic;
+					return 0;
 				}
+			}
 
-				if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
+			if (QUERY_FLAG(op, FLAG_READY_BOW) && !(RANDOM() % 4))
+			{
+				if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
 				{
-					if (monster_use_bow(op, part, dir) && !(RANDOM() % 2))
-					{
-						return 0;
-					}
+					return 0;
 				}
 			}
 		}
 	}
-
-	part = rv.part;
-	/* dir is now direction towards enemy */
-	dir = rv.direction;
 
 	if (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY))
 	{

@@ -558,6 +558,13 @@ extern struct mempool_chunk *removed_objects;
 #define GENDER_MAX 4
 /*@}*/
 
+/**
+ * Returns the head part of an object. For single-tile objects returns the
+ * object itself.
+ * @param op The object.
+ * @return The head object. */
+#define HEAD(op) ((op)->head ? (op)->head : (op))
+
 extern const char *gender_noun[];
 extern const char *gender_subjective[];
 extern const char *gender_subjective_upper[];
