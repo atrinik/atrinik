@@ -695,14 +695,14 @@ List of the map fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>message</td>
+		<td>msg</td>
 		<td>string</td>
 		<td>@copydoc mapstruct::msg</td>
 		<td></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>reset_interval</td>
+		<td>reset_timeout</td>
 		<td>integer</td>
 		<td>@copydoc mapstruct::reset_timeout</td>
 		<td></td>
@@ -2661,14 +2661,14 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>inventory</td>
+		<td>inv</td>
 		<td>object</td>
 		<td>@copydoc object::inv</td>
 		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>environment</td>
+		<td>env</td>
 		<td>object</td>
 		<td>@copydoc object::env</td>
 		<td>&nbsp;(<span title="Cannot be modified." style="border-bottom: 1px dashed #000; cursor: help;">readonly</span>)</td>
@@ -2710,7 +2710,7 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>message</td>
+		<td>msg</td>
 		<td>string</td>
 		<td>@copydoc object::msg</td>
 		<td></td>
@@ -2773,7 +2773,7 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>quantity</td>
+		<td>nrof</td>
 		<td>integer</td>
 		<td>@copydoc object::nrof</td>
 		<td></td>
@@ -2955,9 +2955,9 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>sub_type_1</td>
+		<td>sub_type</td>
 		<td>integer</td>
-		<td>@copydoc object::sub_type1</td>
+		<td>@copydoc object::sub_type</td>
 		<td></td>
 		<td></td>
 	</tr>
@@ -3130,35 +3130,35 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>experience</td>
+		<td>exp</td>
 		<td>integer</td>
 		<td>@copydoc living::exp</td>
 		<td></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>hitpoints</td>
+		<td>hp</td>
 		<td>integer</td>
 		<td>@copydoc living::hp</td>
 		<td></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>max_hitpoints</td>
+		<td>maxhp</td>
 		<td>integer</td>
 		<td>@copydoc living::maxhp</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>spellpoints</td>
+		<td>sp</td>
 		<td>integer</td>
 		<td>@copydoc living::sp</td>
 		<td></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>max_spellpoints</td>
+		<td>maxsp</td>
 		<td>integer</td>
 		<td>@copydoc living::maxsp</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
@@ -3172,7 +3172,7 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>max_grace</td>
+		<td>maxgrace</td>
 		<td>integer</td>
 		<td>@copydoc living::maxgrace</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
@@ -3186,77 +3186,77 @@ List of the object fields and their meaning.
 		<td></td>
 	</tr>
 	<tr>
-		<td>damage</td>
+		<td>dam</td>
 		<td>integer</td>
 		<td>@copydoc living::dam</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>weapon_class</td>
+		<td>wc</td>
 		<td>integer</td>
 		<td>@copydoc living::wc</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>armour_class</td>
+		<td>ac</td>
 		<td>integer</td>
 		<td>@copydoc living::ac</td>
 		<td>&nbsp;(<span title="Cannot be modified if object is a player." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;readonly</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>weapon_class_range</td>
+		<td>wc_range</td>
 		<td>integer</td>
 		<td>@copydoc living::wc_range</td>
 		<td></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>strength</td>
+		<td>Str</td>
 		<td>integer</td>
 		<td>@copydoc living::Str</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>dexterity</td>
+		<td>Dex</td>
 		<td>integer</td>
 		<td>@copydoc living::Dex</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>constitution</td>
+		<td>Con</td>
 		<td>integer</td>
 		<td>@copydoc living::Con</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>wisdom</td>
+		<td>Wis</td>
 		<td>integer</td>
 		<td>@copydoc living::Wis</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>charisma</td>
+		<td>Cha</td>
 		<td>integer</td>
 		<td>@copydoc living::Cha</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>intelligence</td>
+		<td>Int</td>
 		<td>integer</td>
 		<td>@copydoc living::Int</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
 		<td></td>
 	</tr>
 	<tr>
-		<td>power</td>
+		<td>Pow</td>
 		<td>integer</td>
 		<td>@copydoc living::Pow</td>
 		<td>&nbsp;(<span title="Will fix player after modifying this field." style="border-bottom: 1px dashed #000; cursor: help;">player&nbsp;fix</span>)</td>
