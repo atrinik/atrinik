@@ -2307,6 +2307,42 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *arg
 	return Py_BuildValue("b", WHAT->attack[nr]);
 }
 
+/**
+ * <h1>object.ChangeAbil(object what)</h1>
+ * Permanently alters an object's stats/flags based on another what.
+ * @param what Object that is giving bonuses/penalties to 'object'.
+ * @return 1 if we sucessfully changed a stat, 0 if nothing was changed. */
+static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *whoptr, PyObject *args, PyObject *keywds)
+{
+	Atrinik_Object *whatptr;
+	static char *kwlist[] = {"what", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!", kwlist, &Atrinik_ObjectType, &whatptr))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->change_abil(WHO, WHAT));
+}
+
+/**
+ * <h1>object.Decrease(int [num = 1])</h1>
+ * Decreases an object, removing it if there's nothing left to decrease.
+ * @param num How much to decrease the object by.
+ * @return 'object' if something is left, None if the amount reached 0. */
+static PyObject *Atrinik_Object_Decrease(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	uint32 num = 1;
+	static char *kwlist[] = {"num", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|I", kwlist, &num))
+	{
+		return NULL;
+	}
+
+	return wrap_object(hooks->decrease_ob_nr(WHAT, num));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2380,6 +2416,8 @@ static PyMethodDef methods[] =
 	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS | METH_KEYWORDS, 0},
 	{"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS | METH_KEYWORDS, 0},
+	{"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

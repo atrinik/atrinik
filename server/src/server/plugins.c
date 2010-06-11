@@ -132,6 +132,8 @@ struct plugin_hooklist hooklist =
 	new_draw_info_format,
 	was_destroyed,
 	object_get_gender,
+	change_abil,
+	decrease_ob_nr,
 
 	season_name,
 	weekdays,
