@@ -30,7 +30,7 @@ def check_send(player, object):
 		me.SayTo(activator, "\nYou must first unapply that item.")
 		return False
 	# Don't allow sending containers with items inside it.
-	elif object.type == TYPE_CONTAINER and object.inventory:
+	elif object.type == TYPE_CONTAINER and object.inv:
 		me.SayTo(activator, "\nDue to heightened security levels all items must be removed from containers and sent separately.")
 		return False
 	# Check if the item can be sent.

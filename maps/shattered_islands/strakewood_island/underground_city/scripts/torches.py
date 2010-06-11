@@ -36,7 +36,7 @@ def locate_torches(ignore = False):
 		if not torch_beacon:
 			raise error("Could not find beacon named '" + beacon_name + "'.")
 
-		torches.append(torch_beacon.environment)
+		torches.append(torch_beacon.env)
 
 	return torches
 
@@ -53,9 +53,9 @@ if GetEventNumber() == EVENT_TIMER:
 			raise error("Could not find beacon named '" + beacon_name + "'.")
 
 		# If we found the spawn point and the spawn point has something spawned...
-		if skelly_beacon.environment and skelly_beacon.environment.enemy:
+		if skelly_beacon.env and skelly_beacon.env.enemy:
 			# Find the monster's starting waypoint
-			wp = skelly_beacon.environment.enemy.CheckInventory(0, "waypoint", "wp1")
+			wp = skelly_beacon.env.enemy.CheckInventory(0, "waypoint", "wp1")
 
 			if not wp:
 				raise error("Gate closer monster is missing waypoint.")
@@ -115,7 +115,7 @@ else:
 			raise error("Could not find beacon named '" + beacon_name + "'.")
 
 		# Apply the switch.
-		switch_beacon.environment.Apply(switch_beacon.environment, APPLY_TOGGLE)
+		switch_beacon.env.Apply(switch_beacon.env, APPLY_TOGGLE)
 
 		# Give the player a hint...
 		activator.Sound(0, 0, SOUND_GATE_OPEN)

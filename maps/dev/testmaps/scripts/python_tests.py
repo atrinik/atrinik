@@ -203,8 +203,8 @@ def main_say():
 		else:
 			me.SayTo(activator, "\nFound beacon '{0}':".format(words[1]))
 
-			if beacon.environment:
-				me.SayTo(activator, "In inventory of '{0}'.".format(beacon.environment.name, 1))
+			if beacon.env:
+				me.SayTo(activator, "In inventory of '{0}'.".format(beacon.env.name, 1))
 			else:
 				me.SayTo(activator, "On map '{0}' ({1}, {2}).".format(beacon.map.path, beacon.x, beacon.y), 1)
 

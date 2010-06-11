@@ -44,11 +44,11 @@ def create_crystal():
 
 	# Figure out how much capacity to give...
 	if qm2.completed():
-		crystal.max_spellpoints = 200
+		crystal.maxsp = 200
 	elif qm.completed():
-		crystal.max_spellpoints = 100
+		crystal.maxsp = 100
 	else:
-		crystal.max_spellpoints = 50
+		crystal.maxsp = 50
 
 	# So that it will disappear if we drop it
 	crystal.f_startequip = True
@@ -58,7 +58,7 @@ def create_crystal():
 def upgrade_crystal(crystal, capacity):
 	me.SayTo(activator, "You have done it! Now allow me to boost your mana crystal...", 1)
 	activator.Write("{0} casts some strange magic...".format(me.name), COLOR_BLUE)
-	crystal.max_spellpoints = capacity
+	crystal.maxsp = capacity
 
 if msg == "hello" or msg == "hi" or msg == "hey":
 	if not player_info:

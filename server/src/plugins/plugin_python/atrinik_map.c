@@ -38,8 +38,8 @@
 static fields_struct fields[] =
 {
 	{"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
-	{"message", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
-	{"reset_interval", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
+	{"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
+	{"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
 	{"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
 	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), 0, 0},
 	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), 0, 0},

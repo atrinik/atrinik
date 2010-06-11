@@ -49,7 +49,7 @@ def main():
 
 	# Make the NPC forget the message that was made so far.
 	elif msg == "revert":
-		info.message = ""
+		info.msg = ""
 		me.SayTo(activator, "\nI have removed everything you have written.")
 
 	# Add a message, replacing "<nl>" with actual newline character.
@@ -57,7 +57,7 @@ def main():
 		news_message = WhatIsMessage().strip()
 
 		if news_message.lower().find("endmsg") == -1:
-			info.message += news_message[4:].replace("<nl>", "\n")
+			info.msg += news_message[4:].replace("<nl>", "\n")
 			me.SayTo(activator, "\nI have added your message.")
 		else:
 			activator.Write("Trying to cheat, are we?", COLOR_RED)
@@ -65,7 +65,7 @@ def main():
 
 	# Preview what the new message would look like.
 	elif msg == "preview":
-		me.SayTo(activator, "\nText that would appear on a sign in chosen location:\n{0}: {1}".format(news.get_time(), info.message))
+		me.SayTo(activator, "\nText that would appear on a sign in chosen location:\n{0}: {1}".format(news.get_time(), info.msg))
 
 	# Save a message.
 	elif text[0] == "save":
@@ -81,14 +81,14 @@ def main():
 				for location in locations:
 					try:
 						news = News(location.strip())
-						news.add_message(info.message)
+						news.add_message(info.msg)
 					finally:
 						news.db.close()
 						news = None
 			else:
-				news.add_message(info.message)
+				news.add_message(info.msg)
 
-			info.message = ""
+			info.msg = ""
 			me.SayTo(activator, "\nDone! I have added your message.")
 
 	# Remove a message -- either all, or a specified message.

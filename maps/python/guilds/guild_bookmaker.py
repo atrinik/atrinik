@@ -27,7 +27,7 @@ def main():
 
 	# Make the NPC forget the message that was made so far.
 	elif msg == "revert":
-		info.message = ""
+		info.msg = ""
 		me.SayTo(activator, "\nI have removed everything you have written.")
 
 	# Add a message, replacing "<nl>" with actual newline character.
@@ -36,7 +36,7 @@ def main():
 			book_message = WhatIsMessage().strip()
 
 			if book_message.lower().find("endmsg") == -1:
-				info.message += book_message[4:].replace("<nl>", "\n")
+				info.msg += book_message[4:].replace("<nl>", "\n")
 				me.SayTo(activator, "\nI have added your message.\nUse ^save^ to save everything you have added so far to your marked book.")
 			else:
 				activator.Write("Trying to cheat, are we?", COLOR_RED)
@@ -46,7 +46,7 @@ def main():
 
 	# Preview what the new message would look like.
 	elif msg == "preview":
-		me.SayTo(activator, "\nText that would appear in your book:\n{0}".format(info.message))
+		me.SayTo(activator, "\nText that would appear in your book:\n{0}".format(info.msg))
 
 	# Save a message.
 	elif msg == "save":
@@ -57,12 +57,12 @@ def main():
 		elif (marked.type != TYPE_SIGN and marked.name != "guild sign") and marked.type != TYPE_BOOK:
 			me.SayTo(activator, "\nMarked item is not a book or guild sign.")
 		else:
-			marked.message = info.message
-			info.message = ""
+			marked.msg = info.msg
+			info.msg = ""
 			# No experience for reading it, level 1, 0 experience book.
 			marked.f_no_skill_ident = 1
 			marked.level = 1
-			marked.experience = 0
+			marked.exp = 0
 			me.SayTo(activator, "\nDone! I have saved your message.")
 
 main()

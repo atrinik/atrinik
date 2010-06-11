@@ -45,10 +45,10 @@ def main():
 			# Give out the reward.
 			quest_sack = me.CheckInventory(0, "sack", quest["info"]["quest_name"])
 
-			if not quest_sack or not quest_sack.inventory:
+			if not quest_sack or not quest_sack.inv:
 				raise StandardError("Quest sack is missing or is empty for quest {0}.".format(quest["info"]["quest_name"]))
 
-			object = quest_sack.inventory
+			object = quest_sack.inv
 
 			while object:
 				object.Clone().InsertInside(activator)

@@ -25,10 +25,10 @@ class QuestManager:
 	## plugin, and setting any initial values for different quest types.
 	def start(self, sound = SOUND_LEARN_SPELL):
 		self.quest_object = self.activator.StartQuest(self.quest["quest_name"])
-		self.quest_object.sub_type_1 = self.quest["type"]
+		self.quest_object.sub_type = self.quest["type"]
 
 		if "message" in self.quest:
-			self.quest_object.message = self.quest["message"]
+			self.quest_object.msg = self.quest["message"]
 
 		# For the kill type quest, set the last_grace field to the value
 		# of monsters we have to kill.
