@@ -34,7 +34,8 @@
 #include <loader.h>
 #include <newserver.h>
 
-#define YY_DECL int lex_load(object *op, int map_flags)
+#define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
+#define MAXDEPTH 10
 
 static char *yval();
 
@@ -185,6 +186,7 @@ WS	[ \t]*{NL}
 %{
 int ismore = 0;
 lex_error = 0;
+object *op = items[*depth];
 %}
 
 ^arch{S}            {
@@ -205,22 +207,38 @@ lex_error = 0;
 							}
 
 							strcpy(msgbuf, "");
-							old_sleft = tmp->speed_left;
-							old_speed = tmp->speed;
-							lex_load(tmp, map_flags);
 
-							/* We set here AND in load_object the material real values.
-							 * We do: if item_quality == 0 AND material defines a base
-							 * material, then use material_real to set quality and condition.
-							 * So, we don't set it for floors or or some other objects which
-							 * don't need it. */
-							if (tmp->material && !tmp->item_quality)
+							(*depth)++;
+							items[*depth] = tmp;
+
+							if (linemode == 0)
 							{
-								tmp->item_quality = material_real[tmp->material_real].quality;
-								tmp->item_condition = tmp->item_quality;
-							}
+								lex_load(depth, items, maxdepth, map_flags, linemode);
+								(*depth)--;
 
-							insert_ob_in_ob(tmp, op);
+								if (tmp->arch)
+								{
+									old_sleft = tmp->speed_left;
+									old_speed = tmp->speed;
+
+									/* We set here AND in load_object the material real values.
+									 * We do: if item_quality == 0 AND material defines a base
+									 * material, then use material_real to set quality and condition.
+									 * So, we don't set it for floors or or some other objects which
+									 * don't need it. */
+									if (tmp->material && !tmp->item_quality)
+									{
+										tmp->item_quality = material_real[tmp->material_real].quality;
+										tmp->item_condition = tmp->item_quality;
+									}
+
+									insert_ob_in_ob(tmp, op);
+								}
+								else
+								{
+									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
+								}
+							}
 
 							if (!(map_flags & MAP_STYLE))
 							{
@@ -368,6 +386,17 @@ lex_error = 0;
                     }
 
 ^end{WS}            {
+						if (linemode)
+						{
+							/* Linemode is only set for artifact loading. */
+							if ((*depth) > 0)
+							{
+								insert_ob_in_ob(items[*depth], items[(*depth) - 1]);
+							}
+
+							return LL_NORMAL;
+						}
+
 						if (ismore)
 						{
 							return LL_MORE;
@@ -914,6 +943,8 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	int retval = 0;
 	float old_speed, old_sleft;
 	char inbuf[MAX_BUF];
+	object *items[MAXDEPTH];
+	int depth = 0;
 
 	/* At this point we perhaps have an "arch" parse or an "object" parse
 	 * - we don't know. "arch" parse means, arches are loaded - we hit an
@@ -933,6 +964,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	object_load_flag = 0;
 
 	*msgbuf = '\0';
+	items[0] = op;
 
 	if (bufstate == LO_REPEAT)
 	{
@@ -943,7 +975,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			yy_switch_to_buffer(mybuffer);
 		}
 
-		retval = lex_load(op, map_flags);
+		retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
 	}
 	else if (bufstate == LO_MEMORYMODE)
 	{
@@ -965,7 +997,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			yybufstate = yy_scan_string(strptr);
 			/* Hopefully we have here an "end" - or we stay in this while
 			 * for a bit. */
-			retval = lex_load(op, map_flags);
+			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
 			yy_delete_buffer(yybufstate);
 
 			if (retval == LL_NORMAL)
@@ -987,7 +1019,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		while (fgets(inbuf, MAX_BUF - 3, (FILE *) fp))
 		{
 			yybufstate = yy_scan_string(inbuf);
-			retval = lex_load(op, map_flags);
+			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
 			yy_delete_buffer(yybufstate);
 
 			if (retval == LL_NORMAL)
@@ -998,7 +1030,14 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 					yy_switch_to_buffer(cur_buffer);
 				}
 
-				return retval;
+				if (depth == 0)
+				{
+					return retval;
+				}
+				else
+				{
+					depth--;
+				}
 			}
 		}
 
@@ -1075,15 +1114,19 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
  * values.
  * @param op Object to alter.
  * @param buf Modifications to apply. */
-int set_variable(object *op,char *buf)
+int set_variable(object *op, char *buf)
 {
 	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
-	int retval;
+	int retval, depth;
+	object *items[MAXDEPTH];
 
 	strcpy(msgbuf, "");
 	yy_push_state(INITIAL);
 	yybufstate = yy_scan_string(buf);
-	retval = lex_load(op, 0);
+
+	items[0] = op;
+	depth = 0;
+	retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
 
 	if (yycurbuf)
 	{

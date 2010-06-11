@@ -211,7 +211,7 @@ int load_map_header(mapstruct *m, FILE *fp);
 void save_map_header(mapstruct *m, FILE *fp, int flag);
 
 /* loaders/object.c */
-int lex_load(object *op, int map_flags);
+int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
 void yy_objectrestart(FILE *input_file);
 void yy_objectpop_buffer_state();
 int yy_objectget_lineno();
@@ -583,6 +583,7 @@ void copy_owner(object *op, object *clone);
 void initialize_object(object *op);
 void copy_object(object *op2, object *op);
 void copy_object_data(object *op2, object *op);
+void copy_object_with_inv(object *src_ob, object *dest_ob);
 object *get_object();
 void update_turn_face(object *op);
 void update_ob_speed(object *op);

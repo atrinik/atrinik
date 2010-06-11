@@ -1129,6 +1129,24 @@ void copy_object_data(object *op2, object *op)
 }
 
 /**
+ * Copy an object with an inventory, duplicating the inv too.
+ * @param src_ob Object to copy.
+ * @param dest_ob Where to copy. */
+void copy_object_with_inv(object *src_ob, object *dest_ob)
+{
+	object *walk, *tmp;
+
+	copy_object(src_ob, dest_ob);
+
+	for (walk = src_ob->inv; walk; walk = walk->below)
+	{
+		tmp = get_object();
+		copy_object(walk, tmp);
+		insert_ob_in_ob(tmp, dest_ob);
+	}
+}
+
+/**
  * Grabs an object from the list of unused objects, makes sure it is
  * initialized, and returns it.
  *

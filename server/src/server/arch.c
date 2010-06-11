@@ -290,16 +290,18 @@ static void first_arch_pass(FILE *fp)
 	object *op;
 	void *mybuffer;
 	archetype *at,*prev = NULL, *last_more = NULL;
-	int i;
+	int i, first = 2;
 
 	op = get_object();
 	op->arch = first_archetype = at = get_archetype_struct();
 	mybuffer = create_loader_buffer(fp);
 
-	while ((i = load_object(fp, op, mybuffer, LO_REPEAT, MAP_STYLE)))
+	while ((i = load_object(fp, op, mybuffer, first, MAP_STYLE)))
 	{
+		first = 0;
+
 		/* Use copy_object_data() - we don't want adjust any speed_left here! */
-		copy_object_data(op,&at->clone);
+		copy_object_data(op, &at->clone);
 
 		/* Now we have the right speed_left value for out object.
 		 * copy_object() now will track down negative speed values, to
@@ -376,6 +378,7 @@ static void second_arch_pass(FILE *fp_start)
 	int comp;
 	char filename[MAX_BUF], buf[MAX_BUF], *variable = buf, *argument, *cp;
 	archetype *at = NULL, *other;
+	object *inv;
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
@@ -431,6 +434,20 @@ static void second_arch_pass(FILE *fp_start)
 				{
 					at->clone.randomitems = tl;
 				}
+			}
+		}
+		else if (!strcmp("arch", variable))
+		{
+			inv = get_archetype(argument);
+			load_object(fp, inv, NULL, LO_LINEMODE, 0);
+
+			if (at)
+			{
+				insert_ob_in_ob(inv, &at->clone);
+			}
+			else
+			{
+				LOG(llevError, "Got an arch %s not inside an Object.\n", argument);
 			}
 		}
 	}
@@ -599,7 +616,7 @@ object *arch_to_object(archetype *at)
 	}
 
 	op = get_object();
-	copy_object(&at->clone, op);
+	copy_object_with_inv(&at->clone, op);
 	op->arch = at;
 
 	return op;
