@@ -11,7 +11,8 @@ Python scripts in the game allow a lot greater flexibility than changing the ser
 
 The Atrinik Python plugin functions are used to make an interface with the Atrinik C server code, get script options, activator, etc.
 
-@see plugin_python_functions
+@see @ref plugin_python_functions
+@see @ref plugin_python_constants
 
 @section sec_plugin_python_atrinik_map Atrinik Map Python plugin functions
 

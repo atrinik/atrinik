@@ -137,7 +137,7 @@ static fields_struct fields[] =
 /* @endcparser */
 
 /**
- * @defgroup plugin_python_object_functions Python plugin object functions
+ * @defgroup plugin_python_object_functions Python object functions
  * Object related functions used in Atrinik Python plugin.
  *@{*/
 
@@ -2199,6 +2199,114 @@ static PyObject *Atrinik_Object_Controller(Atrinik_Object *whatptr, PyObject *ar
 	return wrap_player(CONTR(WHAT));
 }
 
+/**
+ * <h1>object.Protection(int nr)</h1>
+ * Get object's protection value for the given protection ID.
+ * @param nr Protection ID. One of ::_attacks.
+ * @throws IndexError if the protection ID is invalid.
+ * @return The protection value. */
+static PyObject *Atrinik_Object_Protection(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	int nr;
+	static char *kwlist[] = {"nr", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &nr))
+	{
+		return NULL;
+	}
+
+	if (nr < 0 || nr >= NROFATTACKS)
+	{
+		PyErr_SetString(PyExc_IndexError, "Protection ID is invalid.");
+		return NULL;
+	}
+
+	return Py_BuildValue("b", WHAT->protection[nr]);
+}
+
+/**
+ * <h1>object.SetProtection(int nr, int val)</h1>
+ * Set object's protection value for the given protection ID.
+ * @param nr Protection ID. One of ::_attacks.
+ * @param val Value to set.
+ * @throws IndexError if the protection ID is invalid.
+ * @throws OverflowError if the value to set is not in valid range.
+ * @return The new protection value. */
+static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	int nr;
+	sint8 val;
+	static char *kwlist[] = {"nr", "val", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ib", kwlist, &nr, &val))
+	{
+		return NULL;
+	}
+
+	if (nr < 0 || nr >= NROFATTACKS)
+	{
+		PyErr_SetString(PyExc_IndexError, "Protection ID is invalid.");
+		return NULL;
+	}
+
+	WHAT->protection[nr] = val;
+	return Py_BuildValue("b", WHAT->protection[nr]);
+}
+
+/**
+ * <h1>object.Attack(int nr)</h1>
+ * Get object's attack value for the given attack ID.
+ * @param nr Attack ID. One of ::_attacks.
+ * @throws IndexError if the attack ID is invalid.
+ * @return The attack value. */
+static PyObject *Atrinik_Object_Attack(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	int nr;
+	static char *kwlist[] = {"nr", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist, &nr))
+	{
+		return NULL;
+	}
+
+	if (nr < 0 || nr >= NROFATTACKS)
+	{
+		PyErr_SetString(PyExc_IndexError, "Attack ID is invalid.");
+		return NULL;
+	}
+
+	return Py_BuildValue("b", WHAT->attack[nr]);
+}
+
+/**
+ * <h1>object.SetAttack(int nr, int val)</h1>
+ * Set object's attack value for the given attack ID.
+ * @param nr Attack ID. One of ::_attacks.
+ * @param val Value to set.
+ * @throws IndexError if the attack ID is invalid.
+ * @throws OverflowError if the value to set is not in valid range.
+ * @return The new attack value. */
+static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *whatptr, PyObject *args, PyObject *keywds)
+{
+	int nr;
+	uint8 val;
+	static char *kwlist[] = {"nr", "val", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iB", kwlist, &nr, &val))
+	{
+		return NULL;
+	}
+
+	if (nr < 0 || nr >= NROFATTACKS)
+	{
+		PyErr_SetString(PyExc_IndexError, "Attack ID is invalid.");
+		return NULL;
+	}
+
+	WHAT->attack[nr] = val;
+	return Py_BuildValue("b", WHAT->attack[nr]);
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2268,6 +2376,10 @@ static PyMethodDef methods[] =
 	{"CreateTimer", (PyCFunction) Atrinik_Object_CreateTimer, METH_VARARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Object_Sound, METH_VARARGS, 0},
 	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_VARARGS, 0},
+	{"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS | METH_KEYWORDS, 0},
+	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS | METH_KEYWORDS, 0},
+	{"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

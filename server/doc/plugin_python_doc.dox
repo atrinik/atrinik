@@ -484,20 +484,8 @@ List of the object flags and their meaning.
 		<td>@copydoc FLAG_DOOR_CLOSED</td>
 	</tr>
 	<tr>
-		<td>f_was_reflected</td>
-		<td>@copydoc FLAG_WAS_REFLECTED</td>
-	</tr>
-	<tr>
 		<td>f_is_missile</td>
 		<td>@copydoc FLAG_IS_MISSILE</td>
-	</tr>
-	<tr>
-		<td>f_can_reflect_missile</td>
-		<td>@copydoc FLAG_CAN_REFL_MISSILE</td>
-	</tr>
-	<tr>
-		<td>f_can_reflect_spell</td>
-		<td>@copydoc FLAG_CAN_REFL_SPELL</td>
 	</tr>
 	<tr>
 		<td>f_is_assassin</td>
@@ -2483,6 +2471,116 @@ List of the Python plugin constants and their meaning.
 	<tr>
 		<td>COST_SELL</td>
 		<td>@copydoc F_SELL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_IMPACT</td>
+		<td>@copydoc ATNR_IMPACT</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_SLASH</td>
+		<td>@copydoc ATNR_SLASH</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CLEAVE</td>
+		<td>@copydoc ATNR_CLEAVE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_PIERCE</td>
+		<td>@copydoc ATNR_PIERCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_WEAPON_MAGIC</td>
+		<td>@copydoc ATNR_WEAPON_MAGIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_FIRE</td>
+		<td>@copydoc ATNR_FIRE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_COLD</td>
+		<td>@copydoc ATNR_COLD</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_ELECTRICITY</td>
+		<td>@copydoc ATNR_ELECTRICITY</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_POISON</td>
+		<td>@copydoc ATNR_POISON</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_ACID</td>
+		<td>@copydoc ATNR_ACID</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_MAGIC</td>
+		<td>@copydoc ATNR_MAGIC</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_MIND</td>
+		<td>@copydoc ATNR_MIND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_BLIND</td>
+		<td>@copydoc ATNR_BLIND</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_PARALYZE</td>
+		<td>@copydoc ATNR_PARALYZE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_FORCE</td>
+		<td>@copydoc ATNR_FORCE</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_GODPOWER</td>
+		<td>@copydoc ATNR_GODPOWER</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CHAOS</td>
+		<td>@copydoc ATNR_CHAOS</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_DRAIN</td>
+		<td>@copydoc ATNR_DRAIN</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_SLOW</td>
+		<td>@copydoc ATNR_SLOW</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_CONFUSION</td>
+		<td>@copydoc ATNR_CONFUSION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ATNR_INTERNAL</td>
+		<td>@copydoc ATNR_INTERNAL</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>NROFATTACKS</td>
+		<td>@copydoc NROFATTACKS</td>
 		<td></td>
 	</tr>
 </table>

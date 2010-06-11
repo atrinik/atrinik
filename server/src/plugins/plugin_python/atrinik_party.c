@@ -44,7 +44,7 @@ static fields_struct fields[] =
 /* @endcparser */
 
 /**
- * @defgroup plugin_python_party_functions Python plugin party functions
+ * @defgroup plugin_python_party_functions Python party functions
  * Party related functions used in Atrinik Python plugin.
  *@{*/
 

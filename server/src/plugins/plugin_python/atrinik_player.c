@@ -54,7 +54,7 @@ static fields_struct fields[] =
 /* @endcparser */
 
 /**
- * @defgroup plugin_python_player_functions Python plugin player functions
+ * @defgroup plugin_python_player_functions Python player functions
  * Functions that can only be used on players (not the objects they are controlling).
  *
  * To access object's player controller, you can use something like:

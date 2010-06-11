@@ -409,6 +409,29 @@ static Atrinik_Constant constants[] =
 	{"COST_BUY", F_BUY},
 	{"COST_SELL", F_SELL},
 
+	{"ATNR_IMPACT", ATNR_IMPACT},
+	{"ATNR_SLASH", ATNR_SLASH},
+	{"ATNR_CLEAVE", ATNR_CLEAVE},
+	{"ATNR_PIERCE", ATNR_PIERCE},
+	{"ATNR_WEAPON_MAGIC", ATNR_WEAPON_MAGIC},
+	{"ATNR_FIRE", ATNR_FIRE},
+	{"ATNR_COLD", ATNR_COLD},
+	{"ATNR_ELECTRICITY", ATNR_ELECTRICITY},
+	{"ATNR_POISON", ATNR_POISON},
+	{"ATNR_ACID", ATNR_ACID},
+	{"ATNR_MAGIC", ATNR_MAGIC},
+	{"ATNR_MIND", ATNR_MIND},
+	{"ATNR_BLIND", ATNR_BLIND},
+	{"ATNR_PARALYZE", ATNR_PARALYZE},
+	{"ATNR_FORCE", ATNR_FORCE},
+	{"ATNR_GODPOWER", ATNR_GODPOWER},
+	{"ATNR_CHAOS", ATNR_CHAOS},
+	{"ATNR_DRAIN", ATNR_DRAIN},
+	{"ATNR_SLOW", ATNR_SLOW},
+	{"ATNR_CONFUSION", ATNR_CONFUSION},
+	{"ATNR_INTERNAL", ATNR_INTERNAL},
+	{"NROFATTACKS", NROFATTACKS},
+
 	{NULL, 0}
 };
 /* @endcparser */
@@ -496,7 +519,7 @@ static void freeContext(PythonContext *context)
 }
 
 /**
- * @defgroup plugin_python_functions Python plugin functions
+ * @defgroup plugin_python_functions Python functions
  *@{*/
 
 /**

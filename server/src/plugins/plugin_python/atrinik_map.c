@@ -72,7 +72,7 @@ static char *mapflag_names[] =
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
 
 /**
- * @defgroup plugin_python_map_functions Python plugin map functions
+ * @defgroup plugin_python_map_functions Python map functions
  * Map related functions used in Atrinik Python plugin.
  *@{*/
 
