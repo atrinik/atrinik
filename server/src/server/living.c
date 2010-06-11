@@ -1144,7 +1144,7 @@ void fix_player(object *op)
 					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 					/* Our weapon */
 					pl->selected_weapon = tmp;
-					i = tmp->sub_type1 % 4;
+					i = tmp->sub_type % 4;
 
 					if (i == WEAP_1H_IMPACT)
 					{
@@ -1293,11 +1293,11 @@ fix_player_no_armour:
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
 					}
 
-					if (tmp->sub_type1 == RANGE_WEAP_BOW)
+					if (tmp->sub_type == RANGE_WEAP_BOW)
 					{
 						pl->set_skill_archery = SK_MISSILE_WEAPON;
 					}
-					else if (tmp->sub_type1 == RANGE_WEAP_XBOWS)
+					else if (tmp->sub_type == RANGE_WEAP_XBOWS)
 					{
 						pl->set_skill_archery = SK_XBOW_WEAP;
 					}

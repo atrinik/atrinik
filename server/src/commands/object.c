@@ -193,7 +193,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 		snprintf(buf, sizeof(buf), "You can't put the %s into itself.", query_name(sack, NULL));
 	}
 
-	if ((sack->race && (sack->sub_type1 & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
+	if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type)))
 	{
 		snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
 	}
@@ -1505,7 +1505,7 @@ void examine(object *op, object *tmp)
 		case SPELLBOOK:
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) && tmp->stats.sp >= 0 && tmp->stats.sp <= NROFREALSPELLS)
 			{
-				if (tmp->sub_type1 == ST1_SPELLBOOK_CLERIC)
+				if (tmp->sub_type == ST1_SPELLBOOK_CLERIC)
 				{
 					snprintf(buf, sizeof(buf), "%s is a %d level prayer.", spells[tmp->stats.sp].name, spells[tmp->stats.sp].level);
 				}

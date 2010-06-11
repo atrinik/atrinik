@@ -402,9 +402,9 @@ char *query_short_name(object *op, object *caller)
 				}
 			}
 
-			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
+			if (op->sub_type >= ST1_CONTAINER_NORMAL_party)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_party)
 				{
 					if (op->slaying)
 					{
@@ -436,9 +436,9 @@ char *query_short_name(object *op, object *caller)
 					}
 				}
 			}
-			else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
+			else if (op->sub_type >= ST1_CONTAINER_NORMAL_player)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_player)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_player)
 				{
 					if (op->slaying)
 					{
@@ -765,9 +765,9 @@ char *query_base_name(object *op, object *caller)
 				}
 			}
 
-			if (op->sub_type1 >= ST1_CONTAINER_NORMAL_party)
+			if (op->sub_type >= ST1_CONTAINER_NORMAL_party)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_party)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_party)
 				{
 					if (op->slaying)
 					{
@@ -799,9 +799,9 @@ char *query_base_name(object *op, object *caller)
 					}
 				}
 			}
-			else if (op->sub_type1 >= ST1_CONTAINER_NORMAL_player)
+			else if (op->sub_type >= ST1_CONTAINER_NORMAL_player)
 			{
-				if (op->sub_type1 == ST1_CONTAINER_CORPSE_player)
+				if (op->sub_type == ST1_CONTAINER_CORPSE_player)
 				{
 					if (op->slaying)
 					{

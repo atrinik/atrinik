@@ -895,7 +895,7 @@ trick_jump:
 				return;
 			}
 
-			if (op->chosen_skill->sub_type1 != ST1_SKILL_USE)
+			if (op->chosen_skill->sub_type != ST1_SKILL_USE)
 			{
 				new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
 			}

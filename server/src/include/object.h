@@ -319,7 +319,7 @@ typedef struct obj
 	uint8 type;
 
 	/** Sub type definition - this will be sent to client too */
-	uint8 sub_type1;
+	uint8 sub_type;
 
 	/** Quality of an item in range from 0-100 */
 	uint8 item_quality;

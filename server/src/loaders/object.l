@@ -789,7 +789,7 @@ object *op = items[*depth];
 
 	/* Ignore editor_folder values. */
 ^editor_folder{S}   {}
-^sub_type{S}        op->sub_type1 = IVAL;
+^sub_type{S}        op->sub_type = IVAL;
 ^terrain_flag{S}    op->terrain_flag = IVAL;
 ^terrain_type{S}    op->terrain_type = IVAL;
 ^item_quality{S}    op->item_quality = IVAL;
@@ -1384,9 +1384,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "material_real ", op->material_real);
 	}
 
-	if (op->sub_type1 != op2->sub_type1)
+	if (op->sub_type != op2->sub_type)
 	{
-		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type1);
+		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type);
 	}
 
 	if (op->terrain_flag != op2->terrain_flag)

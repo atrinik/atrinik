@@ -576,7 +576,7 @@ void enter_exit(object *op, object *exit_ob)
 				return;
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}
@@ -590,7 +590,7 @@ void enter_exit(object *op, object *exit_ob)
 				return;
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}
@@ -635,7 +635,7 @@ void enter_exit(object *op, object *exit_ob)
 					 * to their savebed map. */
 					if (exit_ob->msg)
 					{
-						if (exit_ob->sub_type1 == ST1_EXIT_SOUND && op->map)
+						if (exit_ob->sub_type == ST1_EXIT_SOUND && op->map)
 						{
 							play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 						}
@@ -726,7 +726,7 @@ void enter_exit(object *op, object *exit_ob)
 				save_player(op, 1);
 			}
 
-			if (exit_ob->sub_type1 == ST1_EXIT_SOUND && exit_ob->map)
+			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
 			{
 				play_sound_map(exit_ob->map, exit_ob->x, exit_ob->y, SOUND_TELEPORT, SOUND_NORMAL);
 			}

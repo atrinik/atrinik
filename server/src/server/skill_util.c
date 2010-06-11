@@ -530,11 +530,11 @@ int check_skill_to_fire(object *who)
 				return 0;
 			}
 
-			if (tmp->sub_type1 == 2)
+			if (tmp->sub_type == 2)
 			{
 				skillnr = SK_SLING_WEAP;
 			}
-			else if (tmp->sub_type1 == 1)
+			else if (tmp->sub_type == 1)
 			{
 				skillnr = SK_XBOW_WEAP;
 			}
@@ -608,20 +608,20 @@ int check_skill_to_apply(object *who, object *item)
 	switch (item->type)
 	{
 		case WEAPON:
-			tmp = item->sub_type1;
+			tmp = item->sub_type;
 
 			/* Polearm */
 			if (tmp >= WEAP_POLE_IMPACT)
 			{
 				/* Select the right weapon type. */
-				tmp = item->sub_type1 - WEAP_POLE_IMPACT;
+				tmp = item->sub_type - WEAP_POLE_IMPACT;
 				add_skill = SK_POLEARMS;
 			}
 			/* Two handed  */
 			else if (tmp >= WEAP_2H_IMPACT)
 			{
 				/* Select the right weapon type. */
-				tmp = item->sub_type1 - WEAP_2H_IMPACT;
+				tmp = item->sub_type - WEAP_2H_IMPACT;
 				add_skill = SK_TWOHANDS;
 			}
 
@@ -645,7 +645,7 @@ int check_skill_to_apply(object *who, object *item)
 			break;
 
 		case BOW:
-			tmp = item->sub_type1;
+			tmp = item->sub_type;
 
 			if (tmp == RANGE_WEAP_BOW)
 			{
@@ -742,7 +742,7 @@ int init_player_exp(object *pl)
 		if (tmp->type == EXPERIENCE)
 		{
 			exp_ob[exp_index] = tmp;
-			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
+			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
 			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
 			exp_index++;
 		}
@@ -766,7 +766,7 @@ int init_player_exp(object *pl)
 			insert_ob_in_ob(tmp, pl);
 			tmp->stats.exp = 0;
 			exp_ob[j] = tmp;
-			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
+			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
 
 			esrv_send_item(pl, tmp);
 			exp_index++;
@@ -837,8 +837,8 @@ void link_player_skills(object *pl)
 	{
 		if (tmp->type == EXPERIENCE)
 		{
-			CONTR(pl)->exp_ptr[tmp->sub_type1] = tmp;
-			exp_ob[tmp->sub_type1] = tmp;
+			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
+			exp_ob[tmp->sub_type] = tmp;
 			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
 			tmp->nrof = 1;
 			exp_index++;
@@ -882,7 +882,7 @@ int link_player_skill(object *pl, object *skillop)
 	{
 		for (tmp = pl->inv; tmp; tmp = tmp->below)
 		{
-			if (tmp->type == EXPERIENCE && tmp->sub_type1 == cat)
+			if (tmp->type == EXPERIENCE && tmp->sub_type == cat)
 			{
 				skillop->exp_obj = tmp;
 				break;
@@ -1030,7 +1030,7 @@ int use_skill(object *op, char *string)
 	/* Change to the new skill, then execute it. */
 	if (change_skill(op, sknum))
 	{
-		if (op->chosen_skill->sub_type1 != ST1_SKILL_USE)
+		if (op->chosen_skill->sub_type != ST1_SKILL_USE)
 		{
 			new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
 		}

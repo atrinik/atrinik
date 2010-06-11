@@ -726,7 +726,7 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
-	return Py_BuildValue("i", current_context->event->sub_type1);
+	return Py_BuildValue("i", current_context->event->sub_type);
 }
 
 /**

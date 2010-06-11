@@ -87,7 +87,7 @@ static fields_struct fields[] =
 	{"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
 	{"type", FIELDTYPE_UINT8, offsetof(object, type), 0, 0},
-	{"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type1), 0, 0},
+	{"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type), 0, 0},
 	{"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0},
 	{"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0},
 	{"item_race", FIELDTYPE_UINT8, offsetof(object, item_race), 0, 0},
@@ -174,7 +174,7 @@ static PyObject *Atrinik_Object_GetSkill(Atrinik_Object *whoptr, PyObject *args)
 			return wrap_object(tmp);
 		}
 
-		if (tmp->type == EXPERIENCE && tmp->sub_type1 == id)
+		if (tmp->type == EXPERIENCE && tmp->sub_type == id)
 		{
 			return wrap_object(tmp);
 		}

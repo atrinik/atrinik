@@ -1985,7 +1985,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 			case POTION:
 			{
 				/* Balm */
-				if (!op->sub_type1)
+				if (!op->sub_type)
 				{
 					if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BALM)) == SP_NO_SPELL)
 					{
@@ -1996,7 +1996,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
 				}
 				/* Dust */
-				else if (op->sub_type1 > 128)
+				else if (op->sub_type > 128)
 				{
 					if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL)
 					{

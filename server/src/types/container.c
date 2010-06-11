@@ -92,7 +92,7 @@ int esrv_apply_container(object *op, object *sack)
 	if (sack->slaying || sack->stats.maxhp)
 	{
 		/* Locked container */
-		if (sack->sub_type1 == ST1_CONTAINER_NORMAL)
+		if (sack->sub_type == ST1_CONTAINER_NORMAL)
 		{
 			tmp = find_key(op, sack);
 
@@ -117,12 +117,12 @@ int esrv_apply_container(object *op, object *sack)
 		else
 		{
 			/* Party corpse */
-			if (sack->sub_type1 == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(op, sack))
+			if (sack->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(op, sack))
 			{
 				return 0;
 			}
 			/* Only give player with right name access */
-			else if (sack->sub_type1 == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
+			else if (sack->sub_type == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
 			{
 				new_draw_info(NDI_UNIQUE, op, "It's not your bounty.");
 				return 0;
@@ -152,7 +152,7 @@ int esrv_apply_container(object *op, object *sack)
 		new_draw_info_format(NDI_UNIQUE, op, "You open %s.", query_name(sack, op));
 		container_link(CONTR(op), sack);
 
-		if (sack->slaying && sack->sub_type1 == ST1_CONTAINER_CORPSE_party)
+		if (sack->slaying && sack->sub_type == ST1_CONTAINER_CORPSE_party)
 		{
 			party_handle_corpse(op, sack);
 		}

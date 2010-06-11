@@ -586,7 +586,7 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 
 		SockList_AddChar(sl, tmp->facing);
 		SockList_AddChar(sl, SOCKET_OBJ_TYPE(tmp, pl));
-		SockList_AddChar(sl, tmp->sub_type1);
+		SockList_AddChar(sl, tmp->sub_type);
 
 		if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
@@ -736,7 +736,7 @@ void esrv_send_inventory(object *pl, object *op)
 
 			SockList_AddChar(&sl, tmp->facing);
 			SockList_AddChar(&sl, SOCKET_OBJ_TYPE(tmp, pl));
-			SockList_AddChar(&sl, tmp->sub_type1);
+			SockList_AddChar(&sl, tmp->sub_type);
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
@@ -1049,7 +1049,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	if (op->env)
 	{
 		SockList_AddChar(&sl, SOCKET_OBJ_TYPE(op, pl));
-		SockList_AddChar(&sl, op->sub_type1);
+		SockList_AddChar(&sl, op->sub_type);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{

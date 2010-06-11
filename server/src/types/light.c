@@ -123,7 +123,7 @@ void apply_player_light(object *who, object *op)
 		CLEAR_FLAG(op, FLAG_APPLIED);
 		CLEAR_FLAG(op, FLAG_CHANGING);
 
-		if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
+		if (op->other_arch && op->other_arch->clone.sub_type & 1)
 		{
 			op->animation_id = op->other_arch->clone.animation_id;
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
@@ -321,7 +321,7 @@ void apply_player_light(object *who, object *op)
 						CLEAR_FLAG(tmp, FLAG_APPLIED);
 						CLEAR_FLAG(tmp, FLAG_CHANGING);
 
-						if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
+						if (op->other_arch && op->other_arch->clone.sub_type & 1)
 						{
 							op->animation_id = op->other_arch->clone.animation_id;
 							SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
@@ -367,7 +367,7 @@ void apply_player_light(object *who, object *op)
 				CLEAR_FLAG(op, FLAG_APPLIED);
 				CLEAR_FLAG(op, FLAG_CHANGING);
 
-				if (op->other_arch && op->other_arch->clone.sub_type1 & 1)
+				if (op->other_arch && op->other_arch->clone.sub_type & 1)
 				{
 					op->animation_id = op->other_arch->clone.animation_id;
 					SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);

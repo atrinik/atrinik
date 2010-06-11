@@ -60,7 +60,7 @@ void check_quest(object *op, object *quest_container)
 	object *quest_object = find_quest(op, quest_container->name), *tmp;
 
 	/* If this is not a one-drop item quest, it must first be accepted. */
-	if (quest_container->sub_type1 != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
+	if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
 	{
 		return;
 	}
@@ -68,7 +68,7 @@ void check_quest(object *op, object *quest_container)
 	tmp = quest_container->inv;
 
 	/* This allows new quest types to be added fairly easily. */
-	switch (quest_container->sub_type1)
+	switch (quest_container->sub_type)
 	{
 		case QUEST_TYPE_ITEM:
 			/* Sanity checks. */
@@ -138,7 +138,7 @@ void check_quest(object *op, object *quest_container)
 			break;
 
 		default:
-			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type1);
+			LOG(llevBug, "BUG: Quest object '%s' has unknown sub type (%d).\n", quest_container->name, quest_container->sub_type);
 	}
 }
 

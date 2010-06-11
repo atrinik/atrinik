@@ -1680,7 +1680,7 @@ void QuestListCmd(char *data, int len, player *pl)
 
 		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
 
-		switch (tmp->sub_type1)
+		switch (tmp->sub_type)
 		{
 			case QUEST_TYPE_KILL:
 				stringbuffer_append_printf(sb, "Status: %d/%d\n", MIN(tmp->last_sp, tmp->last_grace), tmp->last_grace);

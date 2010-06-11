@@ -164,7 +164,7 @@ void race_init()
 	/* Now search for corpses. */
 	for (at = first_archetype; at; at = at->next)
 	{
-		if (at->clone.type == CONTAINER && at->clone.sub_type1 == ST1_CONTAINER_CORPSE)
+		if (at->clone.type == CONTAINER && at->clone.sub_type == ST1_CONTAINER_CORPSE)
 		{
 			race_add_corpse(at->clone.race, at);
 		}

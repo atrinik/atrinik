@@ -476,7 +476,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
 	/* just a brain dead long check for things NEVER NEVER should be different
 	 * this is true under all circumstances for all objects. */
-	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type1 != ob2->sub_type1 || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
+	if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type != ob2->sub_type || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight)
 	{
 		return 0;
 	}
@@ -1596,11 +1596,11 @@ void drop_ob_inv(object *ob)
 			if (CONTR(enemy)->party)
 			{
 				FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
-				corpse->sub_type1 = ST1_CONTAINER_CORPSE_party;
+				corpse->sub_type = ST1_CONTAINER_CORPSE_party;
 			}
 			else
 			{
-				corpse->sub_type1 = ST1_CONTAINER_CORPSE_player;
+				corpse->sub_type = ST1_CONTAINER_CORPSE_player;
 			}
 		}
 
@@ -2636,9 +2636,9 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	/* Check for event object and set the owner object
 	 * event flags. */
-	if (op->type == EVENT_OBJECT && op->sub_type1)
+	if (op->type == EVENT_OBJECT && op->sub_type)
 	{
-		where->event_flags |= (1U << (op->sub_type1 - 1));
+		where->event_flags |= (1U << (op->sub_type - 1));
 	}
 
 	/* If player, fix player if not marked as no fix. */
