@@ -154,6 +154,7 @@
 /misc/fog_glow1
 /misc/fog_glow2
 /indoor/smithy/forge_111
+/mobs/animals/frog/frog
 /walls/doors/gate1_locked
 /connect/gates/gateTrg1
 /connect/gates/gateTrg1_open
@@ -326,6 +327,10 @@
 /items/random_chest_metal
 /items/random_chest_wood
 /mobs/human/rangers/ranger
+/mobs/animals/rodents/rat_a
+/mobs/animals/rodents/rat_b
+/mobs/animals/rodents/rat_c
+/mobs/animals/rodents/rat_d
 /indoor/masks_wall/ring_wall.151
 /landscape/rocks/rock_big2_waterfall
 /landscape/rocks/rock_big2_waterfall2
@@ -444,6 +449,11 @@
 /indoor/wall_well.131
 /items/magic_tools/wand
 /mobs/insects/wasp_giant
+/floors/fmasks/water/water_lt/water_lt2_m
+/floors/fmasks/water/water_lt/water_lt3_m
+/floors/fmasks/water/water_lt/water_lt4_m
+/floors/fmasks/water/water_lt/water_lt5_m
+/floors/fmasks/water/water_lt/water_lt_m
 /floors/water/water_still
 /landscape/rocks/waterfall_huge
 /indoor/masks_wall/flags/wmask_bflag_brown_1
