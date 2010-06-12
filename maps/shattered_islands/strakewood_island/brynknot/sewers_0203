@@ -49,6 +49,8 @@ arch spawn_point
 y 19
 arch snake
 item_condition 6
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -95,6 +97,8 @@ x 1
 y 15
 arch snake
 item_condition 5
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -304,6 +308,8 @@ x 4
 y 14
 arch snake
 item_condition 4
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -1013,6 +1019,8 @@ x 11
 y 18
 arch snake
 item_condition 6
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -1317,6 +1325,8 @@ x 15
 y 7
 arch snake
 item_condition 3
+attack_slash 100
+attack_poison 0
 type 83
 end
 end

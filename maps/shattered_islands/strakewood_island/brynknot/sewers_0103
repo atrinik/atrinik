@@ -105,6 +105,8 @@ x 1
 y 16
 arch snake
 item_condition 4
+attack_slash 100
+attack_poison 0
 type 83
 end
 end

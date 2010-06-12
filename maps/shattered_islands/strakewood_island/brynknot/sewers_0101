@@ -326,6 +326,8 @@ x 3
 y 12
 arch snake
 item_condition 3
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -392,6 +394,8 @@ x 3
 y 18
 arch snake
 item_condition 5
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -1892,6 +1896,8 @@ x 11
 y 10
 arch snake
 item_condition 2
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -1973,6 +1979,8 @@ x 11
 y 20
 arch snake
 item_condition 5
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -3278,6 +3286,8 @@ x 18
 y 15
 arch snake
 item_condition 4
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -3318,6 +3328,8 @@ x 18
 y 19
 arch snake
 item_condition 2
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
@@ -4200,6 +4212,8 @@ x 23
 y 7
 arch snake
 item_condition 3
+attack_slash 100
+attack_poison 0
 type 83
 end
 end
