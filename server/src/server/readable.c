@@ -734,6 +734,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	char *final;
 
 	desc = stringbuffer_new();
+	buf[0] = '\0';
 
 	/* Preamble */
 	stringbuffer_append_printf(desc, "<t t=\"Path of %s\">Herein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
