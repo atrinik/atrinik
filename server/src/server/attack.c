@@ -472,8 +472,11 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * Attack a spot on the map.
  * @param op Object hitting the map.
  * @param dir Direction op is hitting/going.
+ * @param reduce Whether to reduce the damage for multi-arch monsters.
+ * This will make it so that part of 4-tiles monster only gets hit for
+ * 1/4 of the damage, making storms more fair against multi-arch monsters.
  * @return 0. */
-int hit_map(object *op, int dir)
+int hit_map(object *op, int dir, int reduce)
 {
 	object *tmp, *next, *tmp_obj, *tmp_head;
 	mapstruct *map;
@@ -580,7 +583,9 @@ int hit_map(object *op, int dir)
 		}
 		else if (IS_LIVE(tmp))
 		{
-			tmp_head = tmp->head ? tmp->head : tmp;
+			sint16 dam = op->stats.dam;
+
+			tmp_head = HEAD(tmp);
 
 			if (tmp_head->type == MONSTER)
 			{
@@ -598,10 +603,14 @@ int hit_map(object *op, int dir)
 							continue;
 					}
 				}
-
 			}
 
-			hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
+			if (tmp->quick_pos && reduce)
+			{
+				dam /= (tmp->quick_pos >> 4) + 1;
+			}
+
+			hit_player(tmp, dam, op, AT_INTERNAL);
 
 			if (was_destroyed(op, op_tag))
 			{

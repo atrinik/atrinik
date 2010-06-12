@@ -1756,7 +1756,7 @@ void move_aura(object *aura)
 
 	for (i = 1; i < 9; i++)
 	{
-		hit_map(aura, i);
+		hit_map(aura, i, 0);
 
 		if (aura->other_arch)
 		{

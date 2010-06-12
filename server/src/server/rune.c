@@ -67,7 +67,7 @@ static void rune_attack(object *op, object *victim)
 	}
 	else
 	{
-		hit_map(op, 0);
+		hit_map(op, 0, 0);
 	}
 
 	op->stats.dam = dam;

@@ -1052,7 +1052,7 @@ void move_cone(object *op)
 	/* Lava saves it's life, but not yours :) */
 	if (QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
-		hit_map(op, 0);
+		hit_map(op, 0, 0);
 		return;
 	}
 
@@ -1067,7 +1067,7 @@ void move_cone(object *op)
 	/* Hit map returns 1 if it hits a monster.  If it does, set
 	 * food to 1, which will stop the cone from progressing. */
 	tag = op->count;
-	op->stats.food |= hit_map(op, 0);
+	op->stats.food |= hit_map(op, 0, 1);
 
 	if (was_destroyed(op, tag))
 	{
@@ -1207,7 +1207,7 @@ void explosion(object *op)
 		CLEAR_FLAG(op, FLAG_NO_APPLY);
 	}
 
-	hit_map(op, 0);
+	hit_map(op, 0, 1);
 
 	if (op->stats.hp > 2 && !op->value)
 	{
@@ -1356,7 +1356,7 @@ void move_bolt(object *op)
 		return;
 	}
 
-	hit_map(op, 0);
+	hit_map(op, 0, 0);
 
 	if (!op->value && --(op->stats.exp) > 0)
 	{
@@ -1626,7 +1626,7 @@ void move_missile(object *op)
 	if (blocked(op, mt, new_x, new_y, op->terrain_flag))
 	{
 		tag_t tag = op->count;
-		hit_map(op, op->direction);
+		hit_map(op, op->direction, 0);
 
 		if (!was_destroyed(op, tag))
 		{
@@ -1717,7 +1717,7 @@ void explode_object(object *op)
 
 			copy_owner(tmp, op);
 			cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
-			hit_map(op, 0);
+			hit_map(op, 0, 0);
 			break;
 		}
 	}
@@ -2118,7 +2118,7 @@ void move_ball_lightning(object *op)
 		/* Hmm, I not sure this is always correct, but we will see
 		 * perhaps we must add more checks to avoid bad hits on the
 		 * map. */
-		hit_map(op, j);
+		hit_map(op, j, 0);
 
 		/* Insert the other arch */
 		if (op->other_arch)

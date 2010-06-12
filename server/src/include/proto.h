@@ -363,7 +363,7 @@ archetype *find_archetype(const char *name);
 /* server/attack.c */
 int attack_ob(object *op, object *hitter);
 int hit_player(object *op, int dam, object *hitter, int type);
-int hit_map(object *op, int dir);
+int hit_map(object *op, int dir, int reduce);
 int kill_object(object *op, int dam, object *hitter, int type);
 object *hit_with_arrow(object *op, object *victim);
 void confuse_living(object *op);
