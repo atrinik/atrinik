@@ -16,9 +16,9 @@ guild_tag = "Mercenary"
 maps = {
 	"merc_guild":
 	{
-		"map": "/shattered_islands/strakewood_island/brynknot/mercenary_guild",
-		"x": 2,
-		"y": 1,
+		"map": "/shattered_islands/strakewood_island/brynknot/sewers_0102",
+		"x": 11,
+		"y": 14,
 	},
 	"island":
 	{
