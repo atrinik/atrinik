@@ -12,6 +12,12 @@ terrain_flag 1
 weapon_speed 0.038
 attack_poison 60
 attack_impact 40
+protect_impact 10
+protect_cleave 10
+protect_slash 10
+protect_pierce 10
+protect_fire 10
+protect_cold 10
 type 80
 Wis 3
 mpart_id 3

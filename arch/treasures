@@ -4269,29 +4269,31 @@ treasure mob_dragon_green
     material_range 15
   more
   list random_armour
+    t_style 4
     material_quality 80
     material_range 15
-    chance_fix 162
+    chance_fix 102
     no
       list random_weapon
+        t_style 4
         material_quality 80
         material_range 15
-        chance_fix 138
+        chance_fix 96
         no
           list random_mtools
-            chance_fix 56
+            chance_fix 66
             no
               list random_talisman
-                chance_fix 59
+                chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    chance_fix 40
+    chance_fix 50
     no
       list random_potion
-        chance_fix 40
+        chance_fix 44
         no
           arch potion_improve
             difficulty 6
@@ -4322,29 +4324,31 @@ treasure mob_dragon_fire
     material_range 15
   more
   list random_armour
+    t_style 1
     material_quality 80
     material_range 15
-    chance_fix 162
+    chance_fix 102
     no
       list random_weapon
+        t_style 1
         material_quality 80
         material_range 15
-        chance_fix 138
+        chance_fix 96
         no
           list random_mtools
-            chance_fix 56
+            chance_fix 66
             no
               list random_talisman
-                chance_fix 59
+                chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    chance_fix 40
+    chance_fix 50
     no
       list random_potion
-        chance_fix 40
+        chance_fix 44
         no
           arch potion_improve
             difficulty 6
@@ -4375,29 +4379,31 @@ treasure mob_dragon_blue
     material_range 15
   more
   list random_armour
+    t_style 2
     material_quality 80
     material_range 15
-    chance_fix 162
+    chance_fix 102
     no
       list random_weapon
+        t_style 2
         material_quality 80
         material_range 15
-        chance_fix 138
+        chance_fix 96
         no
           list random_mtools
-            chance_fix 56
+            chance_fix 66
             no
               list random_talisman
-                chance_fix 59
+                chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    chance_fix 40
+    chance_fix 50
     no
       list random_potion
-        chance_fix 40
+        chance_fix 44
         no
           arch potion_improve
             difficulty 6
@@ -4428,29 +4434,31 @@ treasure mob_dragon_black
     material_range 15
   more
   list random_armour
+    t_style 3
     material_quality 80
     material_range 15
-    chance_fix 162
+    chance_fix 102
     no
       list random_weapon
+        t_style 3
         material_quality 80
         material_range 15
-        chance_fix 138
+        chance_fix 96
         no
           list random_mtools
-            chance_fix 56
+            chance_fix 66
             no
               list random_talisman
-                chance_fix 59
+                chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    chance_fix 40
+    chance_fix 50
     no
       list random_potion
-        chance_fix 40
+        chance_fix 44
         no
           arch potion_improve
             difficulty 6

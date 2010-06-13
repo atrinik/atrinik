@@ -10,8 +10,14 @@ layer 6
 direction 5
 terrain_flag 1
 weapon_speed 0.038
-attack_cold 60
-attack_cleave 40
+attack_cold 80
+attack_cleave 20
+protect_impact 5
+protect_cleave 5
+protect_slash 5
+protect_pierce 5
+protect_fire -20
+protect_cold 100
 type 80
 Wis 3
 mpart_id 3
