@@ -776,7 +776,7 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
- * Unused: 77, 78, 113, 128, 130, 131, 98.
+ * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108, 109.
  *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
@@ -972,8 +972,6 @@
 
 /** Object is designed to be thrown. */
 #define FLAG_IS_THROWN            80
-#define FLAG_VUL_SPHERE           81
-#define FLAG_PROOF_SPHERE         82
 /** Object is male. */
 #define FLAG_IS_MALE              83
 /** Object is female. */
@@ -1024,12 +1022,6 @@
  * a known trap inside. This info so useful for client
  * below and inventory look. */
 #define FLAG_IS_TRAPPED           103
-#define FLAG_VUL_ELEMENTAL        104
-#define FLAG_PROOF_ELEMENTAL      105
-#define FLAG_VUL_MAGIC            106
-#define FLAG_PROOF_MAGIC          107
-#define FLAG_VUL_PHYSICAL         108
-#define FLAG_PROOF_PHYSICAL       109
 /** The object cannot be seen by anyone except DMs. */
 #define FLAG_SYS_OBJECT           110
 /** When putting an object on map, do it exactly on position */

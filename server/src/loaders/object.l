@@ -774,14 +774,14 @@ object *op = items[*depth];
 ^no_steal{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_STEAL, IVAL);
 ^one_hit{S}         SET_OR_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
 
-^is_vul_elemental{S} SET_OR_CLEAR_FLAG(op, FLAG_VUL_ELEMENTAL, IVAL);
-^is_proof_elemental{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_ELEMENTAL, IVAL);
-^is_vul_magic{S}    SET_OR_CLEAR_FLAG(op, FLAG_VUL_MAGIC, IVAL);
-^is_proof_magic{S}  SET_OR_CLEAR_FLAG(op, FLAG_PROOF_MAGIC, IVAL);
-^is_vul_physical{S} SET_OR_CLEAR_FLAG(op, FLAG_VUL_PHYSICAL, IVAL);
-^is_proof_physical{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_PHYSICAL, IVAL);
-^is_vul_sphere{S}   SET_OR_CLEAR_FLAG(op, FLAG_VUL_SPHERE, IVAL);
-^is_proof_sphere{S} SET_OR_CLEAR_FLAG(op, FLAG_PROOF_SPHERE, IVAL);
+^is_vul_elemental{S} {}
+^is_proof_elemental{S} {}
+^is_vul_magic{S}    {}
+^is_proof_magic{S}  {}
+^is_vul_physical{S} {}
+^is_proof_physical{S} {}
+^is_vul_sphere{S}   {}
+^is_proof_sphere{S} {}
 ^is_indestructible{S} SET_OR_CLEAR_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
 
 	/* Ignore editor_folder values. */
