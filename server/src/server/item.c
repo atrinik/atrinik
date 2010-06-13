@@ -1073,26 +1073,6 @@ char *describe_item(object *op)
 			strcat(retbuf, "(wear armour)");
 		}
 
-		if (QUERY_FLAG(op, FLAG_USE_RING))
-		{
-			strcat(retbuf, "(wear ring)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_USE_SCROLL))
-		{
-			strcat(retbuf, "(literated)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_USE_RANGE))
-		{
-			strcat(retbuf, "(use range device)");
-		}
-
-		if (QUERY_FLAG(op, FLAG_CAN_USE_SKILL))
-		{
-			strcat(retbuf, "(skill user)");
-		}
-
 		if (QUERY_FLAG(op, FLAG_CAST_SPELL))
 		{
 			strcat(retbuf, "(spellcaster)");

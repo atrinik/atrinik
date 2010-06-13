@@ -501,7 +501,7 @@ object *op = items[*depth];
 ^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
-^treasure{S}        SET_OR_CLEAR_FLAG(op, FLAG_TREASURE, IVAL);
+^treasure{S}        {}
 ^is_assassin{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
 ^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
 ^see_invisible{S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
@@ -579,7 +579,7 @@ object *op = items[*depth];
                     }
 ^was_wiz{S}         SET_OR_CLEAR_FLAG(op, FLAG_WAS_WIZ, IVAL);
 ^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
-^tear_down{S}       SET_OR_CLEAR_FLAG(op, FLAG_TEAR_DOWN, IVAL);
+^tear_down{S}       {}
 ^luck{S}            {}
 ^run_away{S}        op->run_away = IVAL;
 ^pass_thru{S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
@@ -591,12 +591,12 @@ object *op = items[*depth];
 ^use_fix_pos{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
 ^is_ethereal{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
 ^can_cast_spell{S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
-^can_use_scroll{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_SCROLL, IVAL);
-^can_use_range{S}   SET_OR_CLEAR_FLAG(op, FLAG_USE_RANGE, IVAL);
+^can_use_scroll{S}  {}
+^can_use_range{S}   {}
 ^can_use_bow{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_BOW, IVAL);
 ^can_use_armour{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL);
 ^can_use_weapon{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL);
-^can_use_ring{S}    SET_OR_CLEAR_FLAG(op, FLAG_USE_RING, IVAL);
+^can_use_ring{S}    {}
 ^has_ready_range{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_RANGE, IVAL);
 ^has_ready_bow{S}   SET_OR_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL);
 ^xrays{S}           SET_OR_CLEAR_FLAG(op, FLAG_XRAYS, IVAL);
@@ -744,7 +744,7 @@ object *op = items[*depth];
 ^known_magical{S}   {/* Deprecated. */}
 ^known_cursed{S}    {/* Deprecated. */}
 ^attacktype{S}      {/* Deprecated. */}
-^can_use_skill{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_USE_SKILL, IVAL);
+^can_use_skill{S}   {}
 ^been_applied{S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}           {
 						char *y = yval();
@@ -760,9 +760,9 @@ object *op = items[*depth];
                     }
 ^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
 ^inv_locked{S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
-^is_wooded{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_WOODED, IVAL);
-^is_hilly{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_HILLY, IVAL);
-^has_ready_skill{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_SKILL, IVAL);
+^is_wooded{S}       {}
+^is_hilly{S}        {}
+^has_ready_skill{S} {}
 ^has_ready_weapon{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_WEAPON, IVAL);
 ^no_skill_ident{S}  SET_OR_CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL);
 ^glow_radius{S}     op->glow_radius = IVAL;
@@ -771,7 +771,7 @@ object *op = items[*depth];
 ^is_cauldron{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_CAULDRON, IVAL);
 ^randomitems{S}     op->randomitems = find_treasurelist(yval());
 ^is_dust{S}         SET_OR_CLEAR_FLAG(op, FLAG_DUST, IVAL);
-^no_steal{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_STEAL, IVAL);
+^no_steal{S}        {}
 ^one_hit{S}         SET_OR_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
 
 ^is_vul_elemental{S} {}

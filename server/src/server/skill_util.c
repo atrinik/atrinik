@@ -829,7 +829,6 @@ void link_player_skills(object *pl)
 
 	/* We're going to unapply all skills */
 	pl->chosen_skill = NULL;
-	CLEAR_FLAG(pl, FLAG_READY_SKILL);
 	CONTR(pl)->last_skill_index = 0;
 
 	/* First find all exp and skill objects */

@@ -1155,7 +1155,6 @@ int apply_special(object *who, object *op, int aflags)
 
 				(void) change_abil(who, op);
 				who->chosen_skill = NULL;
-				CLEAR_FLAG(who, FLAG_READY_SKILL);
 				buf[0] = '\0';
 				break;
 
@@ -1422,7 +1421,6 @@ int apply_special(object *who, object *op, int aflags)
 			SET_FLAG(op, FLAG_APPLIED);
 			(void) change_abil(who, op);
 			who->chosen_skill = op;
-			SET_FLAG (who, FLAG_READY_SKILL);
 			buf[0] = '\0';
 			break;
 

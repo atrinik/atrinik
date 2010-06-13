@@ -6,7 +6,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_burned2
@@ -17,7 +16,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 Object tree_burned3
 name burned tree
@@ -27,7 +25,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_burned4
@@ -38,5 +35,4 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end

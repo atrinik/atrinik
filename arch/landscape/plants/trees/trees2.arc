@@ -6,7 +6,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree21
@@ -17,7 +16,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree22
@@ -28,7 +26,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree23
@@ -39,7 +36,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree24
@@ -50,7 +46,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree25
@@ -61,7 +56,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree26
@@ -72,7 +66,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree27
@@ -83,7 +76,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree28
@@ -94,7 +86,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree29
@@ -105,7 +96,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree30
@@ -116,7 +106,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree31
@@ -127,7 +116,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree32
@@ -138,7 +126,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree33
@@ -149,7 +136,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree34
@@ -160,7 +146,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree35
@@ -171,7 +156,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree36
@@ -182,7 +166,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree37
@@ -193,7 +176,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree38
@@ -204,7 +186,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree39
@@ -215,7 +196,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree40
@@ -226,7 +206,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree41
@@ -237,7 +216,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree42
@@ -248,7 +226,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree43
@@ -259,7 +236,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree44
@@ -270,7 +246,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree45
@@ -281,7 +256,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree46
@@ -292,7 +266,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree47
@@ -303,7 +276,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree48
@@ -314,7 +286,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree49
@@ -325,7 +296,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree50
@@ -336,7 +306,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree51
@@ -347,5 +316,4 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end

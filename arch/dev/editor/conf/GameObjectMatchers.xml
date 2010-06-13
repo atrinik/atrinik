@@ -12,8 +12,9 @@
 	<GameObjectMatcher id="tree">
 		<title xml:lang="en">Trees</title>
 		<And>
-			<Attrib name="is_wooded" />
+			<TypeNrs numbers="79" />
 			<Attrib name="no_pick" />
+			<Attrib name="no_pass" />
 		</And>
 	</GameObjectMatcher>
 

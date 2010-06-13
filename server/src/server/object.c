@@ -292,23 +292,23 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"sleep", "confused", NULL, "scared", "is_blind",
 	"is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
 	"no_pass", "is_animated", "slow_move", "flying", "monster",
-	"friendly", NULL, "been_applied", "auto_apply", "treasure",
+	"friendly", NULL, "been_applied", "auto_apply", NULL,
 	"is_neutral", "see_invisible", "can_roll", "generator", "is_turnable",
 	"walk_off", "fly_on", "fly_off", "is_used_up", "identified",
 	"reflecting", "changing", "splitting", "hitback", "startequip",
 	"blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
-	"reflect_spell", "no_magic", "no_fix_player", "is_evil", "tear_down",
+	"reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
 	"run_away", "pass_thru", "can_pass_thru", "pick_up", "unique",
-	"no_drop", "is_indestructible", "can_cast_spell", "can_use_scroll", "can_use_range",
-	"can_use_bow", "can_use_armour", "can_use_weapon", "can_use_ring", "has_ready_range",
+	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
+	"can_use_bow", "can_use_armour", "can_use_weapon", NULL, "has_ready_range",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
 	"is_magical", "alive", "stand_still", "random_move", "only_attack",
 	"wiz", "stealth", NULL, NULL, "cursed",
-	"damned", "is_buildable", "no_pvp", NULL, "can_use_skill",
+	"damned", "is_buildable", "no_pvp", NULL, NULL,
 	"is_thrown", NULL, NULL, "is_male", "is_female",
-	"applied", "inv_locked", "is_wooded", "is_hilly", "has_ready_skill",
+	"applied", "inv_locked", NULL, NULL, NULL,
 	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
-	"is_dust", "no_steal", "one_hit", NULL, "berserk",
+	"is_dust", NULL, "one_hit", NULL, "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
 	"sys_object", "use_fix_pos", "unpaid", NULL, "make_invisible",
@@ -869,13 +869,6 @@ static void set_skill_pointers(object *op, object *chosen_skill, object *exp_obj
 {
 	op->chosen_skill = chosen_skill;
 	op->exp_obj = exp_obj;
-
-	/* unfortunately, we can't allow summoned monsters skill use
-	 * because we will need the chosen_skill field to pick the
-	 * right skill/stat modifiers for calc_skill_exp(). See
-	 * hit_player() in server/attack.c -b.t. */
-	CLEAR_FLAG(op, FLAG_CAN_USE_SKILL);
-	CLEAR_FLAG(op, FLAG_READY_SKILL);
 }
 
 /**
@@ -897,10 +890,6 @@ void set_owner(object *op, object *owner)
 	if (owner->type == PLAYER && owner->chosen_skill)
 	{
 		set_skill_pointers(op, owner->chosen_skill, owner->chosen_skill->exp_obj);
-	}
-	else if (op->type != PLAYER)
-	{
-		CLEAR_FLAG(op, FLAG_READY_SKILL);
 	}
 }
 
@@ -939,10 +928,6 @@ void copy_owner(object *op, object *clone)
 	if (clone->chosen_skill)
 	{
 		set_skill_pointers(op, clone->chosen_skill, clone->exp_obj);
-	}
-	else if (op->type != PLAYER)
-	{
-		CLEAR_FLAG(op, FLAG_READY_SKILL);
 	}
 }
 

@@ -195,7 +195,6 @@ static player *get_player(player *p)
 	}
 
 	p->chosen_spell = -1;
-	CLEAR_FLAG(op, FLAG_READY_SKILL);
 
 	/* We need to clear these to -1 and not zero - otherwise, if a player
 	 * quits and starts a new character, we won't send new values to the

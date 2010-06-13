@@ -776,7 +776,7 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
- * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108, 109.
+ * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108, 109, 96, 87, 88, 58, 54, 53, 89, 79, 44.
  *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
@@ -831,8 +831,6 @@
 #define FLAG_BEEN_APPLIED         17
 /** Will be applied when created. */
 #define FLAG_AUTO_APPLY           18
-/** Will generate treasure when applied. */
-#define FLAG_TREASURE             19
 /** Neutrally aligned object. */
 #define FLAG_IS_NEUTRAL           20
 /** Will see invisible objects. */
@@ -877,7 +875,6 @@
 #define FLAG_UNAGGRESSIVE         38
 /** Object will give missile reflection. */
 #define FLAG_REFL_MISSILE         39
-
 /** Object will give spell reflection. */
 #define FLAG_REFL_SPELL           40
 /** Spells (some) can't pass this object. */
@@ -886,8 +883,6 @@
 #define FLAG_NO_FIX_PLAYER        42
 /** The object is evil. */
 #define FLAG_IS_EVIL              43
-/** at->faces[hp * animations / maxhp] at hit */
-#define FLAG_TEAR_DOWN            44
 /**
  * Object runs away from nearest player but can still attack
  * from distance. */
@@ -909,10 +904,6 @@
 #define FLAG_INDESTRUCTIBLE       51
 /** (Monster) can learn and cast spells */
 #define FLAG_CAST_SPELL           52
-/** (Monster) can read scroll */
-#define FLAG_USE_SCROLL           53
-/** (Monster) can apply and use range items */
-#define FLAG_USE_RANGE            54
 /** (Monster) can apply and fire bows */
 #define FLAG_USE_BOW              55
 
@@ -920,8 +911,6 @@
 #define FLAG_USE_ARMOUR           56
 /** (Monster) can wield weapons */
 #define FLAG_USE_WEAPON           57
-/** (Monster) can use rings, boots, gauntlets, etc */
-#define FLAG_USE_RING             58
 /** (Monster) has a range item readied... 8) */
 #define FLAG_READY_RANGE          59
 /** Monster has a readied bow. */
@@ -967,8 +956,6 @@
 /**
  * PvP is disabled on the tile this object is on. */
 #define FLAG_NO_PVP               77
-/** The monster can use skills. */
-#define FLAG_CAN_USE_SKILL        79
 
 /** Object is designed to be thrown. */
 #define FLAG_IS_THROWN            80
@@ -980,13 +967,6 @@
 #define FLAG_APPLIED              85
 /** Item will not be dropped from inventory. */
 #define FLAG_INV_LOCKED           86
-/** Item is wooded terrain. */
-#define FLAG_IS_WOODED            87
-
-/** Item is hilly/mountain terrain. */
-#define FLAG_IS_HILLY             88
-/** (Monster or Player) has a skill readied */
-#define FLAG_READY_SKILL          89
 /** (Monster or Player) has a weapon readied */
 #define FLAG_READY_WEAPON         90
 /** If set, item cannot be identified w/ a skill */
@@ -1002,8 +982,6 @@
 
 /* Start of values in flags[3] */
 
-/** Item can't be stolen */
-#define FLAG_NO_STEAL             96
 /**
  * Monster can only hit once. */
 #define FLAG_ONE_HIT              97

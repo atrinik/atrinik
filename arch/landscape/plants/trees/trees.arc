@@ -6,7 +6,6 @@ no_pick 1
 type 79
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object woods_tree
@@ -16,7 +15,6 @@ type 79
 face tree_c.101
 no_pick 1
 no_pass 1
-is_wooded 1
 end
 
 Object tree_big
@@ -28,7 +26,6 @@ no_pick 1
 no_pass 1
 blocksview 1
 slow_move 1
-is_wooded 1
 end
 
 Object tree_big2
@@ -39,7 +36,6 @@ face tree_big2.101
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big3
@@ -50,7 +46,6 @@ face tree_big3.101
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big4
@@ -61,7 +56,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big5
@@ -72,7 +66,6 @@ face tree_big5.101
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big4b
@@ -83,7 +76,6 @@ face tree_big4b.101
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big5b
@@ -94,7 +86,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big6
@@ -105,7 +96,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big7
@@ -116,7 +106,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_big7b
@@ -127,7 +116,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_huge
@@ -138,7 +126,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_huge2
@@ -149,7 +136,6 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
 
 Object tree_huge3
@@ -160,5 +146,4 @@ type 79
 no_pick 1
 no_pass 1
 blocksview 1
-is_wooded 1
 end
