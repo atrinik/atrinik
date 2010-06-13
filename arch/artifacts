@@ -4919,3 +4919,12 @@ ac_add 1
 item_level_art 35
 is_named 1
 end
+
+Allowed none
+chance 1
+artifact scursaur_smoking_pipe
+def_arch smoking_pipe
+Object
+name Scursaur's Smoking Pipe
+is_named 1
+end

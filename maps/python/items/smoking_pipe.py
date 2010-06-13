@@ -32,7 +32,7 @@ def main():
 	force.type = TYPE_POTION_EFFECT
 	force.f_is_used_up = True
 	force.speed = 0.1
-	force.food = 40
+	force.food = 50
 	force.Con = -3
 	force.Dex = -3
 	force.f_applied = True

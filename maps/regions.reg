@@ -122,3 +122,12 @@ Lyondale Archipelago is a set of small islands grouped close together.
 The one you're currently located on has the famous Wizards' Tower with the Thelra wizards in the middle.
 endmsg
 end
+region dragons_island
+parent world
+longname Dragons Island
+msg
+The Dragons Island is home to many fierce dragons, including the fire dragons, the black dragons, and many others.
+
+It is also the home of the legendary black dragon Scursaur, and their leader.
+endmsg
+end
