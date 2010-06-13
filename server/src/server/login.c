@@ -30,9 +30,6 @@
 #include <global.h>
 #include <loader.h>
 
-/** Objects link of DMs. */
-objectlink *dm_list = NULL;
-
 /** Minimum length a player name must have. */
 #define PLAYER_NAME_MIN 2
 
@@ -671,22 +668,6 @@ void check_login(object *op)
 	if (!pl->dm_stealth)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
-
-		if (dm_list)
-		{
-			objectlink *ol;
-			player *pl_tmp;
-			int players;
-
-			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
-			{
-			}
-
-			for (ol = dm_list; ol; ol = ol->next)
-			{
-				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
-			}
-		}
 	}
 
 	/* Trigger the global LOGIN event */

@@ -421,12 +421,6 @@ void remove_ns_dead_player(player *pl)
 
 	if (pl->state == ST_PLAYING)
 	{
-		/* Remove DM entry */
-		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-		{
-			remove_active_DM(pl->ob);
-		}
-
 		/* Trigger the global LOGOUT event */
 		trigger_global_event(EVENT_LOGOUT, pl->ob, pl->socket.host);
 

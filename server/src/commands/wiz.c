@@ -1241,24 +1241,6 @@ int command_resetmap(object *op, char *params)
 }
 
 /**
- * Remove DM from the list of DMs.
- * @param op The DM object to remove. */
-void remove_active_DM(object *op)
-{
-	objectlink *ol;
-
-	for (ol = dm_list; ol; ol = ol->next)
-	{
-		if (ol->objlink.ob == op)
-		{
-			objectlink_unlink(&dm_list, NULL, ol);
-			return_poolchunk(ol, pool_objectlink);
-			break;
-		}
-	}
-}
-
-/**
  * Steps down from DM mode.
  * @param op DM.
  * @param params Ignored.
@@ -1269,10 +1251,6 @@ int command_nowiz(object *op, char *params)
 
 	CLEAR_FLAG(op, FLAG_WIZ);
 	CONTR(op)->followed_player[0] = '\0';
-
-	/* Clear this DM from DMs list. */
-	remove_active_DM(op);
-
 	CLEAR_FLAG(op, FLAG_WIZPASS);
 	CLEAR_MULTI_FLAG(op, FLAG_FLYING);
 	fix_player(op);
@@ -1354,12 +1332,6 @@ int command_dm(object *op, char *params)
 
 	if (checkdm(op, (params ? params : "*")))
 	{
-		objectlink *ol = get_objectlink();
-
-		ol->objlink.ob = op;
-		ol->id = op->count;
-		objectlink_link(&dm_list, NULL, NULL, dm_list, ol);
-
 		SET_FLAG(op, FLAG_WIZ);
 		SET_FLAG(op, FLAG_WAS_WIZ);
 		SET_FLAG(op, FLAG_WIZPASS);

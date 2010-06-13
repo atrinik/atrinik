@@ -64,6 +64,7 @@ int command_me(object *op, char *params);
 /* commands/commands.c */
 void init_commands();
 CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
+int can_do_wiz_command(player *pl, const char *command);
 int execute_newserver_command(object *pl, char *command);
 
 /* commands/misc.c */
@@ -157,7 +158,6 @@ int command_addexp(object *op, char *params);
 int command_speed(object *op, char *params);
 int command_stats(object *op, char *params);
 int command_resetmap(object *op, char *params);
-void remove_active_DM(object *op);
 int command_nowiz(object *op, char *params);
 int command_dm(object *op, char *params);
 int command_learn_spell(object *op, char *params);

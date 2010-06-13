@@ -805,22 +805,6 @@ void command_new_char(char *params, int len, player *pl)
 	if (!CONTR(op)->dm_stealth)
 	{
 		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, op, "%s entered the game.", op->name);
-
-		if (dm_list)
-		{
-			player *pl_tmp;
-			int players;
-			objectlink *ol;
-
-			for (pl_tmp = first_player, players = 0; pl_tmp; pl_tmp = pl_tmp->next, players++)
-			{
-			}
-
-			for (ol = dm_list; ol; ol = ol->next)
-			{
-				new_draw_info_format(NDI_UNIQUE, ol->objlink.ob, "DM: %d players now playing.", players);
-			}
-		}
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);

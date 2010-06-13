@@ -61,13 +61,13 @@ int command_say(object *op, char *params)
  * This command is only available to DMs.
  *
  * It is similar to /shout, however, it will display the message in red
- * only to other logged in DMs using ::dm_list.
+ * only to other logged in DMs, or those with /dmsay command permission.
  * @param op The object saying this.
  * @param params The message.
  * @return 1 on success, 0 on failure. */
 int command_dmsay(object *op, char *params)
 {
-	objectlink *ol;
+	player *pl;
 
 	if (!params)
 	{
@@ -84,9 +84,12 @@ int command_dmsay(object *op, char *params)
 		return 0;
 	}
 
-	for (ol = dm_list; ol; ol = ol->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, ol->objlink.ob, "[DM Channel]: %s: %s", op->name, params);
+		if (can_do_wiz_command(pl, "dmsay"))
+		{
+			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[DM Channel]: %s: %s", op->name, params);
+		}
 	}
 
 	return 1;

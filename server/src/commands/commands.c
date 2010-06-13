@@ -241,6 +241,39 @@ CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsiz
 }
 
 /**
+ * Check whether the specified player is able to perform a DM command.
+ * @param pl Player being checked.
+ * @param command Command that 'pl' wants to perform.
+ * @return 1 if the player can do the command, 0 otherwise. */
+int can_do_wiz_command(player *pl, const char *command)
+{
+	int i;
+
+	/* We are the wizard. */
+	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+	{
+		return 1;
+	}
+
+	/* No permission? */
+	if (!pl->cmd_permissions)
+	{
+		return 0;
+	}
+
+	/* Check inside command permissions for this command. */
+	for (i = 0; i < pl->num_cmd_permissions; i++)
+	{
+		if (pl->cmd_permissions[i] && !strcmp(command, pl->cmd_permissions[i]))
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
  * Execute a command by player.
  * @param pl The player who is issuing the command.
  * @param command The command.
@@ -285,35 +318,15 @@ int execute_newserver_command(object *pl, char *command)
 		csp = find_command_element(command, CommunicationCommands, CommunicationCommandSize);
 	}
 
-	/* If still not found and we're a DM, look in DM commands. */
-	if (!csp && QUERY_FLAG(pl, FLAG_WIZ))
+	/* If still not found and we're a DM or have permission for the command,
+	 * look in DM commands. */
+	if (!csp && can_do_wiz_command(CONTR(pl), command))
 	{
 		csp = find_command_element(command, WizCommands, WizCommandsSize);
 
 		if (csp)
 		{
 			LOG(llevInfo, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
-		}
-	}
-
-	/* Not found, but we have some command permissions. */
-	if (!csp && CONTR(pl)->cmd_permissions)
-	{
-		int i;
-
-		for (i = 0; i < CONTR(pl)->num_cmd_permissions; i++)
-		{
-			if (CONTR(pl)->cmd_permissions[i] && !strcmp(command, CONTR(pl)->cmd_permissions[i]))
-			{
-				csp = find_command_element(command, WizCommands, WizCommandsSize);
-
-				if (csp)
-				{
-					LOG(llevInfo, "WIZ: (cmd permission) %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
-				}
-
-				break;
-			}
 		}
 	}
 
