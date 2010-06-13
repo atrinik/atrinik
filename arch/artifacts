@@ -4927,4 +4927,5 @@ def_arch smoking_pipe
 Object
 name Scursaur's Smoking Pipe
 is_named 1
+one_drop 1
 end
