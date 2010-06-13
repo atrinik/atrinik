@@ -354,7 +354,6 @@ void esrv_draw_look(object *pl)
 		SockList_AddChar(&sl, (char) anim_speed);
 
 		SockList_AddInt(&sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		if (sl.len > (MAXSOCKBUF - MAXITEMLEN))
@@ -500,7 +499,6 @@ static int esrv_draw_DM_inv(object *pl, SockList *sl, object *op)
 		SockList_AddChar(sl, (char) anim_speed);
 
 		SockList_AddInt(sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
@@ -651,7 +649,6 @@ static int esrv_send_inventory_DM(object *pl, SockList *sl, object *op)
 
 		SockList_AddChar(sl, (char) anim_speed);
 		SockList_AddInt(sl, tmp->nrof);
-		SET_FLAG(tmp, FLAG_CLIENT_SENT);
 		got_one++;
 
 		/* It is possible for players to accumulate a huge amount of
@@ -801,7 +798,6 @@ void esrv_send_inventory(object *pl, object *op)
 
 			SockList_AddChar(&sl, (char) anim_speed);
 			SockList_AddInt(&sl, tmp->nrof);
-			SET_FLAG(tmp, FLAG_CLIENT_SENT);
 			got_one++;
 
 			/* It is possible for players to accumulate a huge amount of
@@ -1116,7 +1112,6 @@ static void esrv_send_item_send(object *pl, object *op)
 	SockList_AddChar(&sl, (char) anim_speed);
 	SockList_AddInt(&sl, op->nrof);
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
-	SET_FLAG(op, FLAG_CLIENT_SENT);
 	free(sl.buf);
 }
 

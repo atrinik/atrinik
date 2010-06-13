@@ -545,7 +545,7 @@ static fake_name_definition fake_names[] =
 	{"object_int2", "attacked_by_count"},
 	{"object_int3", "ownercount"},
 	{"movement_type", "move_type"},
-	{"sub_type", "sub_type1"},
+	{"sub_type", "sub_type"},
 	{"container", "weight_limit"},
 	{NULL, NULL}
 };

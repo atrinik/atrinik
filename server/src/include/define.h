@@ -776,7 +776,7 @@
  * @defgroup flag_defines Flag defines
  * The flags.
  *
- * Unused: 77, 78, 113, 128, 130, 131.
+ * Unused: 77, 78, 113, 128, 130, 131, 98.
  *
  * @note
  * You MUST set the FLAG_xx to V_xxx array in loader.l too when
@@ -1009,10 +1009,6 @@
 /**
  * Monster can only hit once. */
 #define FLAG_ONE_HIT              97
-/**
- * Debug flag. We use it to detect cases where the server is trying
- * to send an upditem when we have not actually sent the item. */
-#define FLAG_CLIENT_SENT          98
 /** Monster will attack closest living object. */
 #define FLAG_BERSERK              99
 /** Ibject will not attack. */

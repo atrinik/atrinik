@@ -296,8 +296,6 @@ static void first_arch_pass(FILE *fp)
 				break;
 		}
 
-		/* We are using this flag for debugging - ignore */
-		CLEAR_FLAG((&at->clone), FLAG_CLIENT_SENT);
 		at = get_archetype_struct();
 		initialize_object(op);
 		op->arch = at;

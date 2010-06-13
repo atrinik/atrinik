@@ -939,7 +939,6 @@ void esrv_new_player(player *pl, uint32 weight)
 
 	Send_With_Handling(&pl->socket, &sl);
 	free(sl.buf);
-	SET_FLAG(pl->ob, FLAG_CLIENT_SENT);
 }
 
 /** Clears a map cell */

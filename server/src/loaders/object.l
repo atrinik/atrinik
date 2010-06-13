@@ -524,11 +524,7 @@ object *op = items[*depth];
 ^walk_off{S}        SET_OR_CLEAR_FLAG(op, FLAG_WALK_OFF, IVAL);
 ^fly_on{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLY_ON, IVAL);
 ^fly_off{S}         SET_OR_CLEAR_FLAG(op, FLAG_FLY_OFF, IVAL);
-^is_animated{S}     {
-						SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
-						/* We are using this flag for debugging - ignore */
-						SET_FLAG(op, FLAG_CLIENT_SENT);
-                    }
+^is_animated{S}     SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
 ^flying{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLYING, IVAL);
 ^monster{S}         SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
 ^no_attack{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
