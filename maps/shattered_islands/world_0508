@@ -1920,6 +1920,7 @@ arch spawn_point
 x 17
 y 4
 arch dragon_green
+level 71
 exp 112
 dam 56
 protect_impact 15
