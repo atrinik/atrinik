@@ -1601,10 +1601,17 @@ sp -1
 maxsp 30
 Pow 2
 Dex 3
-protect_impact 15
-protect_slash 15
-protect_cleave 15
-protect_pierce 15
+protect_impact 20
+protect_slash 20
+protect_cleave 20
+protect_pierce 20
+protect_weaponmagic 70
+protect_fire 70
+protect_cold 70
+protect_electricity 70
+protect_poison 70
+protect_acid 70
+protect_magic 70
 type 83
 arch ability_firestorm
 end
