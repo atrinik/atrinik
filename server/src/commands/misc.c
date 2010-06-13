@@ -556,6 +556,7 @@ int command_party(object *op, char *params)
 		new_draw_info(NDI_UNIQUE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
 		new_draw_info(NDI_UNIQUE, op, "To see who is in your party: /party who");
 		new_draw_info(NDI_UNIQUE, op, "To change the party's looting mode: /party loot mode");
+		new_draw_info(NDI_UNIQUE, op, "To kick another player from your party: /party kick <name>");
 		return 1;
 	}
 	else if (!strncmp(params, "say ", 4))
@@ -674,6 +675,51 @@ int command_party(object *op, char *params)
 			new_draw_info_format(NDI_UNIQUE, op, "~%s~: %s.", party_loot_modes[i], party_loot_modes_help[i]);
 		}
 
+		return 1;
+	}
+	else if (!strncmp(params, "kick", 4))
+	{
+		objectlink *ol;
+
+		if (!CONTR(op)->party)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You are not a member of any party.");
+			return 1;
+		}
+
+		if (CONTR(op)->party->leader != op->name)
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Only the party's leader can kick other members of the party.");
+			return 1;
+		}
+
+		params = cleanup_chat_string(params + 4);
+
+		if (!params || *params == '\0')
+		{
+			new_draw_info(NDI_UNIQUE, op, "Whom do you want to kick from the party?");
+			return 1;
+		}
+
+		if (!strncasecmp(op->name, params, MAX_NAME))
+		{
+			new_draw_info(NDI_UNIQUE | NDI_RED, op, "You cannot kick yourself.");
+			return 1;
+		}
+
+		for (ol = CONTR(op)->party->members; ol; ol = ol->next)
+		{
+			if (!strncasecmp(ol->objlink.ob->name, params, MAX_NAME))
+			{
+				remove_party_member(CONTR(op)->party, ol->objlink.ob);
+				snprintf(buf, sizeof(buf), "%s has been kicked from the party.", ol->objlink.ob->name);
+				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
+				new_draw_info_format(NDI_UNIQUE | NDI_RED, ol->objlink.ob, "You have been kicked from the party '%s'.", CONTR(op)->party->name);
+				return 1;
+			}
+		}
+
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "There's no player with that name in your party.");
 		return 1;
 	}
 	else

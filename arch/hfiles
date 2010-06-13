@@ -239,6 +239,9 @@ To see party's current loot mode:
 /party loot
 
 Party loot mode controls how loot from corpses is handled. See "/party loot modes" for the various loot modes.
+
+To kick another player from your party:
+/party kick \<name\>
 <p><t t="See Also:">
 ^gsay^
 ==========
