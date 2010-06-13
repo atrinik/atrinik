@@ -349,7 +349,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 	}
 
 	/* We check for sys_invisible and normal */
-	if (IS_INVISIBLE(enemy, op))
+	if (IS_INVISIBLE(enemy, op) || QUERY_FLAG(enemy, FLAG_INVULNERABLE))
 	{
 		return 0;
 	}
@@ -759,7 +759,7 @@ int move_monster(object *op)
 static int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
 {
 	/* We check for sys_invisible and normal */
-	if (IS_INVISIBLE(target, op))
+	if (IS_INVISIBLE(target, op) || QUERY_FLAG(target, FLAG_INVULNERABLE))
 	{
 		return 0;
 	}
