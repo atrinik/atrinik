@@ -1591,6 +1591,8 @@ arch dragon_black
 name Scursaur
 level 80
 exp 200
+is_male 1
+is_female 0
 dam 65
 wc 8
 maxhp 90
