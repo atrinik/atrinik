@@ -196,7 +196,6 @@ object *op = items[*depth];
 						if (op->arch)
 						{
 							object *tmp;
-							float old_sleft, old_speed;
 
 							tmp = get_object();
 							tmp->arch = find_archetype(yval());
@@ -218,9 +217,6 @@ object *op = items[*depth];
 
 								if (tmp->arch)
 								{
-									old_sleft = tmp->speed_left;
-									old_speed = tmp->speed;
-
 									/* We set here AND in load_object the material real values.
 									 * We do: if item_quality == 0 AND material defines a base
 									 * material, then use material_real to set quality and condition.
@@ -242,6 +238,11 @@ object *op = items[*depth];
 
 							if (!(map_flags & MAP_STYLE))
 							{
+								float old_sleft, old_speed;
+
+								old_sleft = tmp->speed_left;
+								old_speed = tmp->speed;
+
 								/* First adjust speed.
 								 * Only change something if we:
 								 *  1. Don't have speed_left set in the loading, or
