@@ -102,6 +102,26 @@ end
 arch desert.104
 y 22
 end
+arch spawn_point
+y 22
+arch dragon_fire
+level 66
+exp 132
+can_cast_spell 1
+sp -1
+maxsp 30
+Pow 2
+Dex 3
+type 83
+arch ability_firestorm
+sp 34
+hp 35
+end
+arch ability_firestorm
+maxsp 3
+end
+end
+end
 arch desert.104
 y 23
 end
@@ -554,27 +574,6 @@ end
 arch desert.104
 x 3
 y 22
-end
-arch spawn_point
-x 3
-y 22
-arch dragon_fire
-level 66
-exp 132
-can_cast_spell 1
-sp -1
-maxsp 30
-Pow 2
-Dex 3
-type 83
-arch ability_firestorm
-sp 34
-hp 35
-end
-arch ability_firestorm
-maxsp 3
-end
-end
 end
 arch desert.102
 x 3
@@ -2881,27 +2880,6 @@ arch desert.104
 x 20
 y 22
 end
-arch spawn_point
-x 20
-y 22
-arch dragon_fire
-level 66
-exp 132
-can_cast_spell 1
-sp -1
-maxsp 30
-Pow 2
-Dex 3
-type 83
-arch ability_firestorm
-sp 34
-hp 35
-end
-arch ability_firestorm
-maxsp 3
-end
-end
-end
 arch desert.101
 x 20
 y 23
@@ -3322,4 +3300,25 @@ end
 arch desert.104
 x 23
 y 23
+end
+arch spawn_point
+x 23
+y 23
+arch dragon_fire
+level 66
+exp 132
+can_cast_spell 1
+sp -1
+maxsp 30
+Pow 2
+Dex 3
+type 83
+arch ability_firestorm
+sp 34
+hp 35
+end
+arch ability_firestorm
+maxsp 3
+end
+end
 end
