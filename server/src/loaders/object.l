@@ -497,7 +497,7 @@ object *op = items[*depth];
 ^is_named{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
 ^is_player{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL);
 ^sys_object{S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
-^generator{S}       SET_OR_CLEAR_FLAG(op, FLAG_GENERATOR, IVAL);
+^generator{S}       {}
 ^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
@@ -597,7 +597,7 @@ object *op = items[*depth];
 ^can_use_armour{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL);
 ^can_use_weapon{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL);
 ^can_use_ring{S}    {}
-^has_ready_range{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_RANGE, IVAL);
+^has_ready_range{S} {}
 ^has_ready_bow{S}   SET_OR_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL);
 ^xrays{S}           SET_OR_CLEAR_FLAG(op, FLAG_XRAYS, IVAL);
 ^no_save{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_SAVE, IVAL);

@@ -1182,21 +1182,6 @@ int apply_special(object *who, object *op, int aflags)
 				{
 					CONTR(who)->shoottype = range_none;
 				}
-				else
-				{
-					switch (op->type)
-					{
-						case ROD:
-						case HORN:
-						case WAND:
-							CLEAR_FLAG(who, FLAG_READY_RANGE);
-							break;
-
-						case BOW:
-							CLEAR_FLAG(who, FLAG_READY_BOW);
-							break;
-					}
-				}
 
 				break;
 
@@ -1447,21 +1432,7 @@ int apply_special(object *who, object *op, int aflags)
 					CONTR(who)->known_spell = (QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED));
 				}
 			}
-			else
-			{
-				switch (op->type)
-				{
-					case ROD:
-					case HORN:
-					case WAND:
-						SET_FLAG(who, FLAG_READY_RANGE);
-						break;
 
-					case BOW:
-						SET_FLAG(who, FLAG_READY_BOW);
-						break;
-				}
-			}
 			break;
 
 		default:

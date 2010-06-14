@@ -2200,7 +2200,7 @@ int spell_find_dir(mapstruct *m, int x, int y, object *exclude)
 		{
 			tmp = get_map_ob(m, nx, ny);
 
-			while (tmp != NULL && (((owner_type == PLAYER && !QUERY_FLAG(tmp, FLAG_MONSTER) && !QUERY_FLAG(tmp, FLAG_GENERATOR) && !(tmp->type == PLAYER && pvp_area(NULL, tmp))) || (owner_type != PLAYER && tmp->type != PLAYER)) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
+			while (tmp != NULL && (((owner_type == PLAYER && !QUERY_FLAG(tmp, FLAG_MONSTER) && !(tmp->type == PLAYER && pvp_area(NULL, tmp))) || (owner_type != PLAYER && tmp->type != PLAYER)) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
 			{
 				tmp = tmp->above;
 			}

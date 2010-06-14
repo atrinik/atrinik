@@ -774,300 +774,375 @@
 
 /**
  * @defgroup flag_defines Flag defines
- * The flags.
+ * The object flags.
  *
- * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108, 109, 96, 87, 88, 58, 54, 53, 89, 79, 44.
+ * Unused: 77, 78, 113, 128, 130, 131, 98, 81, 82, 104, 105, 106, 107, 108,
+ * 109, 96, 87, 88, 58, 54, 53, 89, 79, 44, 23, 48, 59.
  *
  * @note
- * You MUST set the FLAG_xx to V_xxx array in loader.l too when
- * you change something here! Search for NUM_FLAGS in loader.l for more.
+ * ::object_flag_names has text-representations of these flags, used for
+ * saving the flags and accessing them from Python plugin.
  *
  * @warning
  * The first 8 bit are used from the map2 cmd as direct mapped data.
  * The order must stay as it is here!
  * @{*/
-/** Monster is sleeping */
-#define FLAG_SLEEP                0
-/** Confused... random dir when moving and problems to do actions */
-#define FLAG_CONFUSED             1
-/** Object is paralyzed */
-#define FLAG_PARALYZED            2
-/** Monster is scared */
-#define FLAG_SCARED               3
-/** If set, object cannot see (the map) with eyes */
-#define FLAG_BLIND                4
-/** Can only be see by objects with @ref FLAG_SEE_INVISIBLE. */
-#define FLAG_IS_INVISIBLE         5
-/** Object is etheral - transparent and specially protected */
-#define FLAG_IS_ETHEREAL          6
-/** NOT USED from map2. Alignment flag */
-#define FLAG_IS_GOOD              7
-
-/** Object can't be picked up. */
-#define FLAG_NO_PICK              8
-/** Applied when it's walked upon. */
-#define FLAG_WALK_ON              9
-/** Nothing can pass (wall() is true). */
-#define FLAG_NO_PASS              10
-/** The object looks at archetype for faces. */
-#define FLAG_ANIMATE              11
 /**
- * Uses the stats.exp/1000 to slow down. */
-#define FLAG_SLOW_MOVE            12
-/** Not affected by WALK_ON or SLOW_MOVE. */
-#define FLAG_FLYING               13
+ * Monster is sleeping. While active, the monster's visibility range is
+ * reduced. */
+#define FLAG_SLEEP 0
 /**
- * A object with this flag is used like an object with
- * type == MONSTER. SO, we can use type GOLEMS objects
- * for example in attack functions like MONSTER without
- * checking all possible different type defines. */
-#define FLAG_MONSTER              14
-/** Will help players. */
-#define FLAG_FRIENDLY             15
-
-/** Object is not in any map or invenory. */
-#define FLAG_REMOVED              16
-/** The object has been applied. */
-#define FLAG_BEEN_APPLIED         17
-/** Will be applied when created. */
-#define FLAG_AUTO_APPLY           18
-/** Neutrally aligned object. */
-#define FLAG_IS_NEUTRAL           20
-/** Will see invisible objects. */
-#define FLAG_SEE_INVISIBLE        21
-/** Object can be rolled. */
-#define FLAG_CAN_ROLL             22
-/** Will generate type ob->stats.food. */
-#define FLAG_GENERATOR            23
-
-/** Object can change face with direction. */
-#define FLAG_IS_TURNABLE          24
-/** Object is applied when left. */
-#define FLAG_WALK_OFF             25
-/** As WALK_ON, but only with FLAG_FLYING. */
-#define FLAG_FLY_ON               26
-/** As WALK_OFF, but only with FLAG_FLYING. */
-#define FLAG_FLY_OFF              27
-/** When (--food<0) the object will exit. */
-#define FLAG_IS_USED_UP           28
-/** The object is identified. */
-#define FLAG_IDENTIFIED           29
-/** Object reflects from walls (lightning). */
-#define FLAG_REFLECTING           30
-/** Changes to other_arch when anim is done. */
-#define FLAG_CHANGING             31
+ * Confused. Random direction when moving. */
+#define FLAG_CONFUSED 1
+/**
+ * Paralyzed, cannot do various movement-related actions. */
+#define FLAG_PARALYZED 2
+/**
+ * Monster is scared. */
+#define FLAG_SCARED 3
+/**
+ * Object cannot see the map with eyes, and cannot read books/scrolls/etc. */
+#define FLAG_BLIND 4
+/**
+ * Can only be see by objects with @ref FLAG_SEE_INVISIBLE. */
+#define FLAG_IS_INVISIBLE 5
+/**
+ * Object is ethereal. */
+#define FLAG_IS_ETHEREAL 6
+/**
+ * Alignment flag. */
+#define FLAG_IS_GOOD 7
+/**
+ * Object can't be picked up. */
+#define FLAG_NO_PICK 8
+/**
+ * Applied when it's walked upon. */
+#define FLAG_WALK_ON 9
+/**
+ * Nothing can pass. */
+#define FLAG_NO_PASS 10
+/**
+ * The object is animated. */
+#define FLAG_ANIMATE 11
+/**
+ * Uses the living::exp to slow down movement. */
+#define FLAG_SLOW_MOVE 12
+/** The object is flying. */
+#define FLAG_FLYING 13
+/**
+ * The object is a monster, golem, etc. */
+#define FLAG_MONSTER 14
+/**
+ * The monster is friendly and will not attack other friendly objects. */
+#define FLAG_FRIENDLY 15
+/**
+ * Object is not in any map or inventory. */
+#define FLAG_REMOVED 16
+/**
+ * The object has been applied before. */
+#define FLAG_BEEN_APPLIED 17
+/**
+ * Will be applied when created (treasure chest for example). */
+#define FLAG_AUTO_APPLY 18
+/**
+ * Neutrally aligned object. */
+#define FLAG_IS_NEUTRAL 20
+/**
+ * Can see invisible objects. */
+#define FLAG_SEE_INVISIBLE 21
+/**
+ * Object can be pushed. */
+#define FLAG_CAN_ROLL 22
+/**
+ * Object will change face with direction. */
+#define FLAG_IS_TURNABLE 24
+/**
+ * Object is applied when left. */
+#define FLAG_WALK_OFF 25
+/**
+ * Object is applied when flying object enters the tile. */
+#define FLAG_FLY_ON 26
+/**
+ * Object is applied when flying object leaves the tile. */
+#define FLAG_FLY_OFF 27
+/**
+ * The object will be removed when object::food reaches 0. */
+#define FLAG_IS_USED_UP 28
+/**
+ * The object is identified. */
+#define FLAG_IDENTIFIED 29
+/**
+ * Object reflects from walls (lightning, missiles). */
+#define FLAG_REFLECTING 30
+/**
+ * Changes to other_arch when anim is done. */
+#define FLAG_CHANGING 31
 
 /* Start of values in flags[1] */
 
-/** Object splits into stats.food other objs. */
-#define FLAG_SPLITTING            32
-/** Object will hit back when hit. */
-#define FLAG_HITBACK              33
-/** Object was given to player at start. */
-#define FLAG_STARTEQUIP           34
-/** Object blocks view. */
-#define FLAG_BLOCKSVIEW           35
-/** Monster is undead. */
-#define FLAG_UNDEAD               36
-/** The object can stack. */
-#define FLAG_CAN_STACK            37
-/** Monster doesn't attack players. */
-#define FLAG_UNAGGRESSIVE         38
-/** Object will give missile reflection. */
-#define FLAG_REFL_MISSILE         39
-/** Object will give spell reflection. */
-#define FLAG_REFL_SPELL           40
-/** Spells (some) can't pass this object. */
-#define FLAG_NO_MAGIC             41
-/** fix_player() won't be called. */
-#define FLAG_NO_FIX_PLAYER        42
-/** The object is evil. */
-#define FLAG_IS_EVIL              43
+/**
+ * Object splits into stats.food other objs.
+ * @todo Remove? */
+#define FLAG_SPLITTING 32
+/**
+ * Object will hit back when hit. */
+#define FLAG_HITBACK 33
+/**
+ * Object will disappear when dropped. */
+#define FLAG_STARTEQUIP 34
+/**
+ * Object blocks view. */
+#define FLAG_BLOCKSVIEW 35
+/**
+ * Monster is undead. */
+#define FLAG_UNDEAD 36
+/**
+ * The object can stack. */
+#define FLAG_CAN_STACK 37
+/**
+ * Monster doesn't attack enemies, only if it's attacked first. */
+#define FLAG_UNAGGRESSIVE 38
+/**
+ * Object will reflect missiles. */
+#define FLAG_REFL_MISSILE 39
+/**
+ * Object will reflect spells. */
+#define FLAG_REFL_SPELL 40
+/**
+ * Wizard-like spells cannot pass this tile. */
+#define FLAG_NO_MAGIC 41
+/**
+ * fix_player() won't be called. */
+#define FLAG_NO_FIX_PLAYER 42
+/**
+ * The object is evil. */
+#define FLAG_IS_EVIL 43
 /**
  * Object runs away from nearest player but can still attack
  * from distance. */
-#define FLAG_RUN_AWAY             45
+#define FLAG_RUN_AWAY 45
 /**
- * Objects with can_pass_thru can pass thru this object as if it
+ * Objects with can_pass_thru can pass through this object as if it
  * wasn't there. */
-#define FLAG_PASS_THRU            46
-/** Can pass thru... */
-#define FLAG_CAN_PASS_THRU        47
-
-/** Can pick up. */
-#define FLAG_PICK_UP              48
-/** Item is unique. */
-#define FLAG_UNIQUE               49
-/** Object can't be dropped. */
-#define FLAG_NO_DROP              50
-/** The item cannot be broken. */
-#define FLAG_INDESTRUCTIBLE       51
-/** (Monster) can learn and cast spells */
-#define FLAG_CAST_SPELL           52
-/** (Monster) can apply and fire bows */
-#define FLAG_USE_BOW              55
-
-/** (Monster) can wear armour/shield/helmet */
-#define FLAG_USE_ARMOUR           56
-/** (Monster) can wield weapons */
-#define FLAG_USE_WEAPON           57
-/** (Monster) has a range item readied... 8) */
-#define FLAG_READY_RANGE          59
-/** Monster has a readied bow. */
-#define FLAG_READY_BOW            60
-/** X-ray vision. */
-#define FLAG_XRAYS                61
-/** Avoids step_on/fly_on to this object. */
-#define FLAG_NO_APPLY             62
-/** Can't see what's underneath this object. */
-#define FLAG_IS_FLOOR             63
+#define FLAG_PASS_THRU 46
+/**
+ * Object can pass through objects with @ref FLAG_PASS_THRU set. */
+#define FLAG_CAN_PASS_THRU 47
+/**
+ * Item is unique. */
+#define FLAG_UNIQUE 49
+/**
+ * Object can't be dropped. */
+#define FLAG_NO_DROP 50
+/**
+ * The item cannot be damaged. */
+#define FLAG_INDESTRUCTIBLE 51
+/**
+ * Monster can cast spells. */
+#define FLAG_CAST_SPELL 52
+/**
+ * Monster can fire bows. */
+#define FLAG_USE_BOW 55
+/**
+ * Monster can wear armour like shields, plate mails, helms, etc. */
+#define FLAG_USE_ARMOUR 56
+/**
+ * Monster can wield weapons. */
+#define FLAG_USE_WEAPON 57
+/**
+ * Monster has a readied bow. */
+#define FLAG_READY_BOW 60
+/**
+ * X-ray vision. */
+#define FLAG_XRAYS 61
+/**
+ * Avoids walk_on/fly_on events for this object. */
+#define FLAG_NO_APPLY 62
+/**
+ * The object is a floor. */
+#define FLAG_IS_FLOOR 63
 
 /* Start of values in flags[2] */
 
-/** Saves a players' life once, then destructs itself. */
-#define FLAG_LIFESAVE             64
-/** Item is magical. */
-#define FLAG_IS_MAGICAL           65
-/** Object can fight (or be fought). */
-#define FLAG_ALIVE                66
-/** Monster will not (ever) move. */
-#define FLAG_STAND_STILL          67
-/** Monster will move randomly. */
-#define FLAG_RANDOM_MOVE          68
-/** Monster will evaporate if there is no enemy. */
-#define FLAG_ONLY_ATTACK          69
-/** Player is a DM. */
-#define FLAG_WIZ                  70
+/**
+ * Saves a player's life once, then destructs itself. */
+#define FLAG_LIFESAVE 64
+/**
+ * Item is magical. */
+#define FLAG_IS_MAGICAL 65
+/**
+ * Object can fight (or be fought). */
+#define FLAG_ALIVE 66
+/**
+ * Monster will never, ever move. */
+#define FLAG_STAND_STILL 67
+/**
+ * Monster will move randomly. */
+#define FLAG_RANDOM_MOVE 68
+/**
+ * Monster will evaporate if there is no enemy. */
+#define FLAG_ONLY_ATTACK 69
+/**
+ * Player is a DM. */
+#define FLAG_WIZ 70
 /**
  * Allows players to pass quietly past monsters, with less chance of
  * the monsters noticing the player. */
-#define FLAG_STEALTH              71
-
-/** The wizard can go through walls. */
-#define FLAG_WIZPASS              72
-/** The object is linked with other objects. */
-#define FLAG_IS_LINKED            73
-/** The object is cursed. */
-#define FLAG_CURSED               74
-/** The object is _very_ cursed. */
-#define FLAG_DAMNED               75
-/** Used for floor: is the floor buildable? */
-#define FLAG_IS_BUILDABLE         76
+#define FLAG_STEALTH 71
+/**
+ * The wizard can go through walls. */
+#define FLAG_WIZPASS 72
+/**
+ * The object is linked with other objects. */
+#define FLAG_IS_LINKED 73
+/**
+ * The object is cursed. */
+#define FLAG_CURSED 74
+/**
+ * The object is _very_ cursed. */
+#define FLAG_DAMNED 75
+/**
+ * Used for floor: is the floor buildable? */
+#define FLAG_IS_BUILDABLE 76
 /**
  * PvP is disabled on the tile this object is on. */
-#define FLAG_NO_PVP               77
-
-/** Object is designed to be thrown. */
-#define FLAG_IS_THROWN            80
-/** Object is male. */
-#define FLAG_IS_MALE              83
-/** Object is female. */
-#define FLAG_IS_FEMALE            84
-/** Object is ready for use by living. */
-#define FLAG_APPLIED              85
-/** Item will not be dropped from inventory. */
-#define FLAG_INV_LOCKED           86
-/** (Monster or Player) has a weapon readied */
-#define FLAG_READY_WEAPON         90
-/** If set, item cannot be identified w/ a skill */
-#define FLAG_NO_SKILL_IDENT       91
-/** Player was once a DM. */
-#define FLAG_WAS_WIZ              92
-/** If set object not affected by darkness. */
-#define FLAG_SEE_IN_DARK          93
-/** Container can make alchemical stuff */
-#define FLAG_IS_CAULDRON          94
-/** Item is a powder. */
-#define FLAG_DUST                 95
+#define FLAG_NO_PVP 77
+/**
+ * Object is designed to be thrown. */
+#define FLAG_IS_THROWN 80
+/**
+ * Object is male. */
+#define FLAG_IS_MALE 83
+/**
+ * Object is female. */
+#define FLAG_IS_FEMALE 84
+/**
+ * Object is ready for use by living objects. */
+#define FLAG_APPLIED 85
+/**
+ * Item will not be dropped from inventory. */
+#define FLAG_INV_LOCKED 86
+/**
+ * Player has a weapon readied. */
+#define FLAG_READY_WEAPON 90
+/**
+ * If set, won't get exp for reading the book. */
+#define FLAG_NO_SKILL_IDENT 91
+/**
+ * Player was once a DM. */
+#define FLAG_WAS_WIZ 92
+/**
+ * If set object can see even in darkness. */
+#define FLAG_SEE_IN_DARK 93
+/**
+ * Container can make alchemical stuff. */
+#define FLAG_IS_CAULDRON 94
+/**
+ * Item is a powder. */
+#define FLAG_DUST 95
 
 /* Start of values in flags[3] */
 
 /**
- * Monster can only hit once. */
-#define FLAG_ONE_HIT              97
-/** Monster will attack closest living object. */
-#define FLAG_BERSERK              99
-/** Ibject will not attack. */
-#define FLAG_NO_ATTACK            100
-/** Conster can't be damaged. */
-#define FLAG_INVULNERABLE         101
-
-/** Special quest object. */
-#define FLAG_QUEST_ITEM           102
-
+ * Monster can only hit once, then evaporates. */
+#define FLAG_ONE_HIT 97
 /**
- * Object is trapped - most common a container with
- * a known trap inside. This info so useful for client
- * below and inventory look. */
-#define FLAG_IS_TRAPPED           103
-/** The object cannot be seen by anyone except DMs. */
-#define FLAG_SYS_OBJECT           110
-/** When putting an object on map, do it exactly on position */
-#define FLAG_USE_FIX_POS          111
-
-/** Object hasn't been paid for yet. */
-#define FLAG_UNPAID               112
-/** Makes the wearer invisible. */
-#define FLAG_MAKE_INVISIBLE       114
-/** Makes the wearer ethereal. */
-#define FLAG_MAKE_ETHEREAL        115
-/** Object is a player. */
-#define FLAG_IS_PLAYER            116
+ * Monster will attack closest living object, even friends. */
+#define FLAG_BERSERK 99
+/**
+ * Object will never attack. */
+#define FLAG_NO_ATTACK 100
+/**
+ * Monster can't be killed, and enemies will not consider it for attacking. */
+#define FLAG_INVULNERABLE 101
+/**
+ * Special quest object. */
+#define FLAG_QUEST_ITEM 102
+/**
+ * Object is trapped, ie, there is a known trap inside the object's
+ * inventory. Used for map and below inventory, to mark containers
+ * like corpses where player found traps. */
+#define FLAG_IS_TRAPPED 103
+/**
+ * The object cannot be seen by anyone except DMs. */
+#define FLAG_SYS_OBJECT 110
+/**
+ * When putting an object on map, do it exactly on position. */
+#define FLAG_USE_FIX_POS 111
+/**
+ * Object hasn't been paid for yet. */
+#define FLAG_UNPAID 112
+/**
+ * Makes the wearer invisible. */
+#define FLAG_MAKE_INVISIBLE 114
+/**
+ * Makes the wearer ethereal. */
+#define FLAG_MAKE_ETHEREAL 115
+/**
+ * Object is a player. */
+#define FLAG_IS_PLAYER 116
 /**
  * Object name is "unique"- for artifacts like Stormbringer.
- * Unique object normally don't have a race or material
- * (no "elven iron Stormbringer") */
-#define FLAG_IS_NAMED             117
+ *
+ * Unique objects don't have a race or material (no "elven iron Stormbringer") */
+#define FLAG_IS_NAMED 117
 /**
- * Monsters with this flag are created by spawn point
- * and have a spawn info object inside inventory. */
-#define FLAG_SPAWN_MOB            118
+ * Monsters with this flag are created by spawn point and have a spawn
+ * info object inside inventory. */
+#define FLAG_SPAWN_MOB 118
 /**
  * Objects with this flag will not be teleported by teleporters unless
  * they are in inventory of an object without this flag. */
-#define FLAG_NO_TELEPORT          119
+#define FLAG_NO_TELEPORT 119
 /**
  * If set, this monster will drop a corpse. */
-#define FLAG_CORPSE               120
+#define FLAG_CORPSE 120
 /**
  * Force a corpse, even if the object that killed the monster was too
  * high level for any experience. */
-#define FLAG_CORPSE_FORCED        121
+#define FLAG_CORPSE_FORCED 121
 /**
  * Only players can enter the tile with object that has this flag. */
-#define FLAG_PLAYER_ONLY          122
-#define FLAG_NO_CLERIC            123
+#define FLAG_PLAYER_ONLY 122
 /**
- * One drop item. */
-#define FLAG_ONE_DROP             124
-/** Object is permanently cursed. */
-#define FLAG_PERM_CURSED          125
-/** Object is permanently damned. */
-#define FLAG_PERM_DAMNED          126
-/** Closed door. */
-#define FLAG_DOOR_CLOSED          127
-/** Object is used as missile (arrow, potion, magic bullet, ...) */
-#define FLAG_IS_MISSILE           129
-
+ * No priest spells can be cast on this tile. */
+#define FLAG_NO_CLERIC 123
 /**
- * If this and slaying field is set, the object does 3 times more damage
+ * One drop item. Used for quests, where the quest item with this flag
+ * set will never drop more than once for one player. */
+#define FLAG_ONE_DROP 124
+/**
+ * Object is permanently cursed. */
+#define FLAG_PERM_CURSED 125
+/**
+ * Object is permanently damned. */
+#define FLAG_PERM_DAMNED 126
+/**
+ * The object is a closer door. */
+#define FLAG_DOOR_CLOSED 127
+/**
+ * Object is a missile (arrow, potion, magic bullet, etc). */
+#define FLAG_IS_MISSILE 129
+/**
+ * If this and slaying field is set, the object does 2.25 times more damage
  * to race that of the 'slaying' field. */
-#define FLAG_IS_ASSASSINATION     132
-/** Internally used from remove_ob() and insert_xx() */
-#define FLAG_OBJECT_WAS_MOVED     133
-/** Don't save this object - remove it before we save */
-#define FLAG_NO_SAVE              134
-
+#define FLAG_IS_ASSASSINATION 132
+/**
+ * Internally used from remove_ob() and insert_xx(). */
+#define FLAG_OBJECT_WAS_MOVED 133
+/**
+ * Don't save this object - remove it before we save. */
+#define FLAG_NO_SAVE 134
 /**
  * The object has player shop open and cannot do move actions (checked
  * for in move_player(), as this is for players only). */
-#define FLAG_PLAYER_SHOP          135
+#define FLAG_PLAYER_SHOP 135
 /*@}*/
 
 /** Should always be equal to the last defined flag. */
-#define NUM_FLAGS       135
+#define NUM_FLAGS 135
 /** The number of uint32 we need to store all flags. */
-#define NUM_FLAGS_32    5
+#define NUM_FLAGS_32 5
 /*@}*/
 
 /** Check if object has @ref FLAG_SYS_OBJECT set. */
