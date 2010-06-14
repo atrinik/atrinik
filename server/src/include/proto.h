@@ -190,6 +190,8 @@ int command_follow(object *op, char *params);
 int command_insert_into(object *op, char *params);
 int command_arrest(object *op, char *params);
 int command_cmd_permission(object *op, char *params);
+int command_map_save(object *op, char *params);
+int command_map_reset(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);
@@ -904,6 +906,7 @@ int get_randomized_dir(int dir);
 int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 char *cleanup_chat_string(char *ustring);
 char *format_number_comma(uint64 num);
+void copy_file(const char *filename, FILE *fpout);
 
 /* server/weather.c */
 void init_world_darkness();

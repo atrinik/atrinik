@@ -190,7 +190,9 @@ CommArray_s WizCommands [] =
 	{"follow",         command_follow,                 0.0, CMD_FLAG_NO_PLAYER_SHOP},
 	{"insert_into",    command_insert_into,            0.0, CMD_FLAG_NO_PLAYER_SHOP},
 	{"arrest",         command_arrest,                 0.0, 0},
-	{"cmd_permission", command_cmd_permission,         0.0, 0}
+	{"cmd_permission", command_cmd_permission,         0.0, 0},
+	{"map_save",       command_map_save,               0.0, 0},
+	{"map_reset",      command_map_reset,              0.0, 0}
 };
 
 /** Size of Wizard commands */

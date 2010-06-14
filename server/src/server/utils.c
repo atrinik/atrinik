@@ -373,3 +373,28 @@ char *format_number_comma(uint64 num)
 
 	return buf;
 }
+
+/**
+ * Copy a file.
+ * @param filename Source file.
+ * @param fpout Where to copy to. */
+void copy_file(const char *filename, FILE *fpout)
+{
+	FILE *fp;
+	char buf[MAX_BUF];
+
+	fp = fopen(filename, "r");
+
+	if (!fp)
+	{
+		LOG(llevBug, "BUG: copy_file(): Failed to open '%s'.\n", filename);
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		fputs(buf, fpout);
+	}
+
+	fclose(fp);
+}

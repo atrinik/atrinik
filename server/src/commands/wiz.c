@@ -182,6 +182,64 @@ static object *find_object_both(object *op, char *params)
 }
 
 /**
+ * Remove all players from the specified map, marking them with
+ * player::dm_removed_from_map so we can re-insert them later.
+ * @param m Map to remove players from.
+ * @return How many players were removed. */
+static int dm_map_remove_players(mapstruct *m)
+{
+	int count = 0;
+	player *pl;
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (pl->ob->map == m)
+		{
+			count++;
+			remove_ob(pl->ob);
+			pl->dm_removed_from_map = 1;
+			pl->ob->map = NULL;
+		}
+	}
+
+	return count;
+}
+
+/**
+ * Re-insert players from previous reset of a map.
+ * @param m Map to place the players to.
+ * @param op Player object doing the reset. */
+static void dm_map_reinsert_players(mapstruct *m, object *op)
+{
+	player *pl;
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (pl->dm_removed_from_map)
+		{
+			pl->dm_removed_from_map = 0;
+			insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
+			/* So that we don't access invalid values of old player's last_update map
+			 * pointer when sending map to the client. */
+			pl->last_update = NULL;
+
+			if (pl->ob != op)
+			{
+				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+				{
+					new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
+				}
+				/* Write a nice little confusing message to the players */
+				else
+				{
+					new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
+				}
+			}
+		}
+	}
+}
+
+/**
  * Sets the god for some objects.
  * @param op The DM.
  * @param params Should contain two values - first the object to change,
@@ -1107,9 +1165,7 @@ int command_stats(object *op, char *params)
  * @return 1. */
 int command_resetmap(object *op, char *params)
 {
-	int count;
 	mapstruct *m;
-	player *pl;
 
 	if (params == NULL)
 	{
@@ -1150,28 +1206,7 @@ int command_resetmap(object *op, char *params)
 		}
 
 		new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path ? m->path : ">NULL<");
-
-		/* Now remove all players from this map - flag them so we can put
-		 * them back later. */
-		count = 0;
-
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->ob->map == m)
-			{
-				count++;
-				/* No walk off check */
-				remove_ob(pl->ob);
-				pl->dm_removed_from_map = 1;
-				pl->ob->map = NULL;
-			}
-			else
-			{
-				pl->dm_removed_from_map = 0;
-			}
-		}
-
-		new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Swap map.", count);
+		new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Swap map.", dm_map_remove_players(m));
 		/* Need to increase this at least a bit, since some maps can have very
 		 * low swap times, resulting in the map being reset twice, and the
 		 * server crashing. */
@@ -1196,46 +1231,14 @@ int command_resetmap(object *op, char *params)
 
 		add_refcount(m->path);
 		m = ready_map_name(m->path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
-
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->dm_removed_from_map)
-			{
-				insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
-				/* So that we don't access invalid values of old player's last_update map
-				 * pointer when sending map to the client. */
-				pl->last_update = NULL;
-
-				if (pl->ob != op)
-				{
-					if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-					{
-						new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
-					}
-					/* Write a nice little confusing message to the players */
-					else
-					{
-						new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
-					}
-				}
-			}
-		}
-
 		new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
 	}
 	else
 	{
-		/* Need to re-insert players if swap failed for some reason. */
-		for (pl = first_player; pl; pl = pl->next)
-		{
-			if (pl->dm_removed_from_map)
-			{
-				insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-			}
-		}
-
 		new_draw_info(NDI_UNIQUE, op, "Reset failed, couldn't swap map!");
 	}
+
+	dm_map_reinsert_players(m, op);
 
 	return 1;
 }
@@ -2365,6 +2368,104 @@ int command_cmd_permission(object *op, char *params)
 		{
 			new_draw_info_format(NDI_UNIQUE, op, "%s has no command permissions.", pl->ob->name);
 		}
+	}
+
+	return 1;
+}
+
+/**
+ * Saves the DM's current map to the original map file.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_save(object *op, char *params)
+{
+	char buf[MAX_BUF], path[MAX_BUF], map_path[MAX_BUF];
+	struct stat stats;
+	mapstruct *m;
+
+	(void) params;
+
+	/* Don't allow doing this for unique or random maps. */
+	if (MAP_UNIQUE(op->map) || !strncmp(op->map->path, "/random/", 8))
+	{
+		new_draw_info(NDI_UNIQUE, op, "Cannot be used on unique or random maps.");
+		return 1;
+	}
+
+	/* Store the map's path. */
+	strncpy(map_path, op->map->path, sizeof(map_path));
+	/* Create a path name to the actual map file. */
+	strncpy(path, create_pathname(op->map->path), sizeof(path) - 1);
+	/* Path to the original file. */
+	snprintf(buf, sizeof(buf), "%s.map_old", path);
+
+	/* No original file yet? Create one. */
+	if (stat(buf, &stats))
+	{
+		FILE *fp = fopen(buf, "w");
+
+		if (!fp)
+		{
+			LOG(llevBug, "BUG: command_map_save(): Could not open '%s' for writing.\n", buf);
+			new_draw_info_format(NDI_UNIQUE, op, "ERROR: Could not open '%s' for writing.", buf);
+			return 1;
+		}
+
+		copy_file(path, fp);
+		fclose(fp);
+	}
+
+	/* Remove players from the map. */
+	m = op->map;
+	dm_map_remove_players(m);
+
+	/* Try to save the map. */
+	if (new_save_map(m, 1) == -1)
+	{
+		unlink(path);
+		rename(buf, path);
+		new_draw_info(NDI_UNIQUE, op, "Map save error!");
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "Current map has been saved to the original map file.");
+	}
+
+	free_map(m, 1);
+	/* Reload the map and re-insert players. */
+	m = ready_map_name(map_path, 0);
+	dm_map_reinsert_players(m, op);
+	return 1;
+}
+
+/**
+ * Resets DM's current map to the original version.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_reset(object *op, char *params)
+{
+	char buf[MAX_BUF], path[MAX_BUF];
+	struct stat stats;
+
+	(void) params;
+
+	/* Create a path name to the actual map file. */
+	strncpy(path, create_pathname(op->map->path), sizeof(path) - 1);
+	/* Path to the original file. */
+	snprintf(buf, sizeof(buf), "%s.map_old", path);
+
+	/* Is there the original map file? */
+	if (!stat(buf, &stats))
+	{
+		unlink(path);
+		rename(buf, path);
+		new_draw_info(NDI_UNIQUE, op, "Current map reset.");
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE, op, "There is no original map to reset to.");
 	}
 
 	return 1;
