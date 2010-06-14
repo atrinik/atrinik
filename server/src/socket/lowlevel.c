@@ -146,7 +146,7 @@ int SockList_ReadCommand(SockList *sl, SockList *sl2)
 
 			if (sl->len - toread)
 			{
-				memcpy(sl->buf, sl->buf + toread, sl->len - toread);
+				memmove(sl->buf, sl->buf + toread, sl->len - toread);
 			}
 
 			sl->len -= toread;
