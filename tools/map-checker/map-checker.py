@@ -370,55 +370,50 @@ def check_obj(obj, map):
 		if not "name" in obj:
 			add_error(map["file"], "Quest container '{0}' has no quest name.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
-	if "can_cast_spell" in obj:
-		abilities = []
+	abilities = []
+	wps = []
 
-		for tmp in obj["inv"]:
-			if tmp["type"] == types.ability:
-				abilities.append(tmp)
+	for tmp in obj["inv"]:
+		if tmp["type"] == types.ability:
+			abilities.append(tmp)
+		elif tmp["type"] == types.waypoint:
+			wps.append(tmp)
 
-		if obj["can_cast_spell"] == 1:
-			if not abilities:
-				add_error(map["file"], "Monster '{0}' can cast spells but has no ability objects.".format(obj["archname"]), errors.low, env["x"], env["y"])
+	if "can_cast_spell" in obj and obj["can_cast_spell"] == 1:
+		if not abilities:
+			add_error(map["file"], "Monster '{0}' can cast spells but has no ability objects.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
-			if not "maxsp" in obj or obj["maxsp"] == 0:
-				add_error(map["file"], "Monster '{0}' can cast spells but has 0 mana.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+		if not "maxsp" in obj or obj["maxsp"] == 0:
+			add_error(map["file"], "Monster '{0}' can cast spells but has 0 mana.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
-			if not "Dex" in obj or obj["Dex"] == 0:
-				add_error(map["file"], "Monster '{0}' can cast spells but has unset ability usage.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+		if not "Dex" in obj or obj["Dex"] == 0:
+			add_error(map["file"], "Monster '{0}' can cast spells but has unset ability usage.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+	else:
+		if abilities:
+			add_error(map["file"], "Monster '{0}' cannot cast spells but has ability objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	# Waypoints movement.
+	if "movement_type" in obj and obj["movement_type"] & 176:
+		if not wps:
+			add_error(map["file"], "Monster '{0}' has waypoint movement enabled but no waypoints.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 		else:
-			if abilities:
-				add_error(map["file"], "Monster '{0}' cannot cast spells but has ability objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+			for wp in wps:
+				if not "name" in wp:
+					add_error(map["file"], "Monster '{0}' has waypoint with no name.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
-	if "movement_type" in obj:
-		wps = []
+				if "title" in wp:
+					found_one = False
 
-		for tmp in obj["inv"]:
-			if tmp["type"] == types.waypoint:
-				wps.append(tmp)
+					for wp_next in wps:
+						if "name" in wp_next and wp_next["name"] == wp["title"]:
+							found_one = True
+							break
 
-		# Waypoints movement.
-		if obj["movement_type"] & 176:
-			if not wps:
-				add_error(map["file"], "Monster '{0}' has waypoint movement enabled but no waypoints.".format(obj["archname"]), errors.medium, env["x"], env["y"])
-			else:
-				for wp in wps:
-					if not "name" in wp:
-						add_error(map["file"], "Monster '{0}' has waypoint with no name.".format(obj["archname"]), errors.high, env["x"], env["y"])
-
-					if "title" in wp:
-						found_one = False
-
-						for wp_next in wps:
-							if "name" in wp_next and wp_next["name"] == wp["title"]:
-								found_one = True
-								break
-
-						if not found_one:
-							add_error(map["file"], "Monster '{0}' has waypoint ('{1}') with nonexistent next waypoint.".format(obj["archname"], "name" in wp and wp["name"] or "<no name>"), errors.high, env["x"], env["y"])
-		else:
-			if wps:
-				add_error(map["file"], "Monster '{0}' has waypoint movement disabled but has waypoints in inventory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+					if not found_one:
+						add_error(map["file"], "Monster '{0}' has waypoint ('{1}') with nonexistent next waypoint.".format(obj["archname"], "name" in wp and wp["name"] or "<no name>"), errors.high, env["x"], env["y"])
+	else:
+		if wps:
+			add_error(map["file"], "Monster '{0}' has waypoint movement disabled but has waypoints in inventory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
