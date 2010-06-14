@@ -2,7 +2,7 @@
 #
 # Application to check Atrinik maps for common errors.
 
-import sys, os, getopt
+import sys, os, getopt, re
 try:
 	from ConfigParser import ConfigParser
 	from StringIO import StringIO
@@ -45,6 +45,12 @@ class types:
 	spawn_point = 81
 	scroll = 111
 	potion = 5
+	monster = 80
+	spawn_point_mob = 83
+	random_drop = 102
+	quest_container = 120
+	ability = 110
+	waypoint = 119
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -67,6 +73,8 @@ class checker:
 
 	# Highest layer value any archetype can have.
 	max_layers = 7
+	# Maximum level.
+	max_level = 115
 
 # Print usage.
 def usage():
@@ -239,9 +247,14 @@ def check_map(map):
 	# the difficulty to 1.
 	if not "difficulty" in map:
 		add_error(map["file"], "Map is missing difficulty.", errors.low)
-	# This is an error, if the difficulty is set, and it's lower than 1 or higher than 115.
-	elif map["difficulty"] < 1 or map["difficulty"] > 115:
-		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-115.".format(map["difficulty"]), errors.medium)
+		map["difficulty"] = 1
+	# This is an error, if the difficulty is set, and it's lower than 1 or higher than max level.
+	elif map["difficulty"] < 1 or map["difficulty"] > checker.max_level:
+		add_error(map["file"], "Map has invalid difficulty: {0}. Valid difficulties are 1-{1}.".format(map["difficulty"], checker.max_level), errors.medium)
+
+	if "bg_music" in map:
+		if not re.match("\w*\.ogg\|[0-9\-]*\|[0-9\-]*", map["bg_music"]):
+			add_error(map["file"], "Map's background music attribute ('{0}') is not in a valid format. Valid format is (example): ocean.ogg|0|-1".format(map["bg_music"]), errors.high)
 
 	# Map missing 'width' or 'height' is a serious error.
 	if not "width" in map:
@@ -286,7 +299,7 @@ def check_map(map):
 				obj_count_all += 1
 
 				# Now recursively check the object.
-				check_obj(obj, map["file"])
+				check_obj(obj, map)
 
 			# No layer 1 objects and there are other non-layer-0 objects? Missing floor.
 			if layers[1] == 0 and obj_count > 0:
@@ -300,28 +313,111 @@ def check_map(map):
 
 # Recursively check object.
 # @param obj Object to check.
-# @param map Map's file name the object is on.
+# @param map Map.
 def check_obj(obj, map):
 	# Check all inventory objects.
 	for obj_inv in obj["inv"]:
 		check_obj(obj_inv, map)
 
+	env = get_env(obj)
+
+	if not "type" in obj:
+		add_error(map["file"], "Object '{0}' is missing type.", errors.high, env["x"], env["y"])
+		obj["type"] = -1
+
 	# Spawn point without an inventory is an error.
-	if "type" in obj and obj["type"] == types.spawn_point and not obj["inv"]:
-		add_error(map, "Empty spawn point object.", errors.medium, obj["x"], obj["y"])
+	if obj["type"] == types.spawn_point and not obj["inv"]:
+		add_error(map["file"], "Empty spawn point object.", errors.medium, obj["x"], obj["y"])
 
 	if "env" in obj:
-		env = get_env(obj)
-
 		if "x" in obj:
-			add_error(map, "Object '{0}' has X position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+			add_error(map["file"], "Object '{0}' has X position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
 		if "y" in obj:
-			add_error(map, "Object '{0}' has Y position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+			add_error(map["file"], "Object '{0}' has Y position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
-	if "type" in obj and obj["type"] != types.scroll and obj["type"] != types.potion:
+	if obj["type"] != types.scroll and obj["type"] != types.potion:
 		if len(obj["custom_attrs"]) and obj["archname"] in artifacts:
-			add_error(map, "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
+			add_error(map["file"], "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
+	if obj["type"] == types.monster or obj["type"] == types.spawn_point_mob:
+		if not "level" in obj:
+			add_error(map["file"], "Monster '{0}' has unset level.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+		else:
+			if obj["level"] < 0 or obj["level"] > checker.max_level:
+				add_error(map["file"], "Monster '{0}' has invalid level ({1}).".format(obj["archname"], obj["level"]), errors.high, env["x"], env["y"])
+			elif not is_friendly(obj) and obj["level"] >= 10 and map["difficulty"] == 1:
+				add_error(map["file"], "Monster '{0}' is level {1} but map's difficulty is 1.".format(obj["archname"], obj["level"]), errors.medium, env["x"], env["y"])
+
+		if not "race" in obj:
+			add_error(map["file"], "Monster '{0}' is missing a race.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+		elif obj["race"] == "undead":
+			if not "undead" in obj or obj["undead"] != 1:
+				add_error(map["file"], "Monster '{0}' is of race 'undead', but has no 'undead 1' flag set.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+
+	if obj["type"] == types.spawn_point_mob:
+		if not "env" in obj or obj["env"]["type"] != types.spawn_point:
+			add_error(map["file"], "Monster '{0}' is a spawn point monster but is not inside a spawn point.".format(obj["archname"]), errors.critical, env["x"], env["y"])
+
+	if obj["type"] == types.monster:
+		add_error(map["file"], "Monster '{0}' is outside spawn point.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+
+	if obj["type"] == types.random_drop or obj["type"] == types.quest_container:
+		if not "env" in obj:
+			add_error(map["file"], "Object '{0}' outside of inventory.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
+	if obj["type"] == types.quest_container:
+		pass
+
+	if "can_cast_spell" in obj:
+		abilities = []
+
+		for tmp in obj["inv"]:
+			if tmp["type"] == types.ability:
+				abilities.append(tmp)
+
+		if obj["can_cast_spell"] == 1:
+			if not abilities:
+				add_error(map["file"], "Monster '{0}' can cast spells but has no ability objects.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+			if not "maxsp" in obj or obj["maxsp"] == 0:
+				add_error(map["file"], "Monster '{0}' can cast spells but has 0 mana.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+
+			if not "Dex" in obj or obj["Dex"] == 0:
+				add_error(map["file"], "Monster '{0}' can cast spells but has unset ability usage.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+		else:
+			if abilities:
+				add_error(map["file"], "Monster '{0}' cannot cast spells but has ability objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	if "movement_type" in obj:
+		wps = []
+
+		for tmp in obj["inv"]:
+			if tmp["type"] == types.waypoint:
+				wps.append(tmp)
+
+		# Waypoints movement.
+		if obj["movement_type"] & 176:
+			if not wps:
+				add_error(map["file"], "Monster '{0}' has waypoint movement enabled but no waypoints.".format(obj["archname"]), errors.medium, env["x"], env["y"])
+			else:
+				for wp in wps:
+					if not "name" in wp:
+						add_error(map["file"], "Monster '{0}' has waypoint with no name.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
+					if "title" in wp:
+						found_one = False
+
+						for wp_next in wps:
+							if "name" in wp_next and wp_next["name"] == wp["title"]:
+								found_one = True
+								break
+
+						if not found_one:
+							add_error(map["file"], "Monster '{0}' has waypoint ('{1}') with nonexistent next waypoint.".format(obj["archname"], "name" in wp and wp["name"] or "<no name>"), errors.high, env["x"], env["y"])
+		else:
+			if wps:
+				add_error(map["file"], "Monster '{0}' has waypoint movement disabled but has waypoints in inventory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
@@ -380,6 +476,15 @@ def get_env(obj):
 		ret = ret["env"]
 
 	return ret
+
+# Check if monster object is friendly or not.
+# @param obj Object.
+# @return True if it's friendly, False otherwise.
+def is_friendly(obj):
+	if "friendly" in obj and obj["friendly"] == 1:
+		return True
+
+	return False
 
 # Check whether the passed string is an integer.
 # @param s String.
