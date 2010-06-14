@@ -469,6 +469,26 @@ static void check_wall(object *op, int x, int y)
 }
 
 /**
+ * Sets all veiwable squares to blocked except for the central one that
+ * the player occupies. A little odd that you can see yourself (and what
+ * you're standing on), but really need for any reasonable game play.
+ * @param op Player's object for which to reset los. */
+static void blinded_sight(object *op)
+{
+	int x, y;
+
+	for (x = 0; x < CONTR(op)->socket.mapx; x++)
+	{
+		for (y = 0; y < CONTR(op)->socket.mapy; y++)
+		{
+			CONTR(op)->blocked_los[x][y] |= BLOCKED_LOS_BLOCKED;
+		}
+	}
+
+	CONTR(op)->blocked_los[CONTR(op)->socket.mapx / 2][CONTR(op)->socket.mapy / 2] &= ~BLOCKED_LOS_BLOCKED;
+}
+
+/**
  * Recalculates the array which specifies what is visible
  * for the given player object.
  * @param op The player object */
@@ -504,21 +524,28 @@ void update_los(object *op)
 		}
 	}
 
-	expand_sight(op);
-
-	/* Give us an area we can look through when we have xray - this
-	 * stacks to normal LOS. */
-	if (QUERY_FLAG(op, FLAG_XRAYS))
+	if (QUERY_FLAG(op, FLAG_BLIND))
 	{
-		int x, y;
+		blinded_sight(op);
+	}
+	else
+	{
+		expand_sight(op);
 
-		for (x = -4; x <= 4; x++)
+		/* Give us an area we can look through when we have xray - this
+		 * stacks to normal LOS. */
+		if (QUERY_FLAG(op, FLAG_XRAYS))
 		{
-			for (y = -4; y <= 4; y++)
+			int x, y;
+
+			for (x = -4; x <= 4; x++)
 			{
-				if (CONTR(op)->blocked_los[dx + x][dy + y] & BLOCKED_LOS_BLOCKED)
+				for (y = -4; y <= 4; y++)
 				{
-					CONTR(op)->blocked_los[dx + x][dy + y] &= ~BLOCKED_LOS_BLOCKED;
+					if (CONTR(op)->blocked_los[dx + x][dy + y] & BLOCKED_LOS_BLOCKED)
+					{
+						CONTR(op)->blocked_los[dx + x][dy + y] &= ~BLOCKED_LOS_BLOCKED;
+					}
 				}
 			}
 		}
