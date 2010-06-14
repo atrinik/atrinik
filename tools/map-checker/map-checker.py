@@ -367,7 +367,8 @@ def check_obj(obj, map):
 			add_error(map["file"], "Object '{0}' outside of inventory.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
 	if obj["type"] == types.quest_container:
-		pass
+		if not "name" in obj:
+			add_error(map["file"], "Quest container '{0}' has no quest name.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
 	if "can_cast_spell" in obj:
 		abilities = []
