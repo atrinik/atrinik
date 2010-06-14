@@ -33,7 +33,6 @@ Con 15
 exp 100
 hp -1
 maxhp 100
-Pow 3
 ac 8
 wc 6
 dam 100
@@ -42,5 +41,4 @@ weight 85000
 stand_still 1
 unaggressive 1
 Str 25
-can_cast_spell 1
 end
