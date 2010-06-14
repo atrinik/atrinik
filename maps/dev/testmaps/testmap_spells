@@ -2,13 +2,13 @@ arch map
 name Testmap: Spellcasting
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-03-18 Alex Tokar
+Modified: 2010-06-14 Alex Tokar
 endmsg
 width 24
 height 24
 enter_x 1
 enter_y 1
-difficulty 1
+difficulty 30
 darkness -1
 end
 arch floor_ostone1
@@ -798,6 +798,7 @@ y 8
 arch mage_old
 level 30
 invulnerable 1
+can_cast_spell 1
 sp -1
 maxsp 16
 Pow 20

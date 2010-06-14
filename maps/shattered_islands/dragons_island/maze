@@ -2,13 +2,13 @@ arch map
 name Underground Maze
 msg
 Created:  2010-06-12 Alex Tokar
-Modified: 2010-06-13 Alex Tokar
+Modified: 2010-06-14 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 4
-bg_music hidden_passage.ogg
+bg_music hidden_passage.ogg|0|-1
 region world
 end
 arch blocked
