@@ -192,6 +192,7 @@ int command_arrest(object *op, char *params);
 int command_cmd_permission(object *op, char *params);
 int command_map_save(object *op, char *params);
 int command_map_reset(object *op, char *params);
+int command_map_patch(object *op, char *params);
 
 /* loaders/map_header.c */
 int map_lex_load(mapstruct *m);
@@ -209,6 +210,7 @@ int yy_map_headerget_debug();
 void yy_map_headerset_debug(int bdebug);
 int yy_map_headerlex_destroy();
 void yy_map_headerfree(void *ptr);
+int map_set_variable(mapstruct *m, char *buf);
 int load_map_header(mapstruct *m, FILE *fp);
 void save_map_header(mapstruct *m, FILE *fp, int flag);
 

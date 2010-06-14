@@ -2470,3 +2470,28 @@ int command_map_reset(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * Patch map header variables of a map.
+ * @param op Player.
+ * @param params Parameters.
+ * @return 1. */
+int command_map_patch(object *op, char *params)
+{
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE, op, "Patch what values?");
+		return 1;
+	}
+
+	if (map_set_variable(op->map, params) == -1)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "Unknown value for map header: %s", params);
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", op->map->name, params);
+	}
+
+	return 1;
+}
