@@ -581,11 +581,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -1154,11 +1154,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -1210,11 +1210,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -1968,11 +1968,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 5
-resist_slash 0
-resist_pierce 0
-resist_cleave 0
-resist_magic -50
+protect_impact 5
+protect_slash 0
+protect_pierce 0
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -2101,11 +2101,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 5
-resist_slash 0
-resist_pierce 0
-resist_cleave 0
-resist_magic -50
+protect_impact 5
+protect_slash 0
+protect_pierce 0
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -2603,11 +2603,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -2924,11 +2924,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 5
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic -50
+protect_impact 5
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic -50
 type 83
 end
 end
@@ -3053,11 +3053,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -3387,11 +3387,11 @@ unaggressive 0
 friendly 1
 stand_still 0
 Wis 7
-resist_impact 0
-resist_slash 0
-resist_pierce 5
-resist_cleave 0
-resist_magic 10
+protect_impact 0
+protect_slash 0
+protect_pierce 5
+protect_cleave 0
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows

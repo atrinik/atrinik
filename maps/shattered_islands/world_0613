@@ -262,11 +262,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 arch ability_stone_throw
 race arrows
@@ -326,11 +326,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 end
 end
@@ -1878,11 +1878,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 direction 3
 arch ability_stone_throw
@@ -2575,11 +2575,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 direction 7
 end
@@ -2671,11 +2671,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 arch event_obj
 sub_type 6
@@ -3896,11 +3896,11 @@ can_see_in_dark 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 50
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 50
 type 83
 end
 end
@@ -3950,11 +3950,11 @@ can_use_bow 1
 unaggressive 0
 friendly 1
 stand_still 0
-resist_impact 15
-resist_slash 15
-resist_pierce 15
-resist_cleave 15
-resist_magic 10
+protect_impact 15
+protect_slash 15
+protect_pierce 15
+protect_cleave 15
+protect_magic 10
 type 83
 direction 3
 arch ability_stone_throw
