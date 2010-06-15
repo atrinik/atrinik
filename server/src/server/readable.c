@@ -727,7 +727,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return 'buf'. */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
-	int path = rndm(0, NRSPELLPATHS), prayers = rndm(0, 1);
+	int path = rndm(0, NRSPELLPATHS - 1), prayers = rndm(0, 1);
 	int i, did_first_sp = 0;
 	uint32 pnum = spellpathdef[path];
 	StringBuffer *desc;
