@@ -51,6 +51,13 @@ class types:
 	quest_container = 120
 	ability = 110
 	waypoint = 119
+	player = 1
+	exit = 66
+	teleporter = 41
+	floor = 71
+	shop_floor = 68
+	event_object = 118
+	beacon = 126
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -283,6 +290,7 @@ def check_map(map):
 			obj_count = 0
 			# Total number of objects, with layer 0 objects.
 			obj_count_all = 0
+			is_shop = False
 
 			# Go through the objects on this map space.
 			for obj in map["tiles"][x][y]:
@@ -301,6 +309,9 @@ def check_map(map):
 				# Now recursively check the object.
 				check_obj(obj, map)
 
+				if obj["type"] == types.shop_floor:
+					is_shop = True
+
 			# No layer 1 objects and there are other non-layer-0 objects? Missing floor.
 			if layers[1] == 0 and obj_count > 0:
 				add_error(map["file"], "Missing layer 1 object on tile with some objects -- missing floor?", errors.medium, x, y)
@@ -310,6 +321,15 @@ def check_map(map):
 			for i in range(1, checker.max_layers):
 				if layers[i] > 1:
 					add_error(map["file"], "More than 1 object ({0}) with layer {1} on same tile.".format(layers[i], i), errors.warning, x, y)
+
+			# Recheck all objects on this square if this is a shop...
+			if is_shop:
+				for obj in map["tiles"][x][y]:
+					if ("sys_object" in obj and obj["sys_object"] == 1) or ("no_pick" in obj and obj["no_pick"] == 1):
+						continue
+
+					if not "unpaid" in obj or obj["unpaid"] == 0:
+						add_error(map["file"], "Object '{0}' is on a shop tile but is not unpaid.".format(obj["archname"]), errors.high, x, y)
 
 # Recursively check object.
 # @param obj Object to check.
@@ -327,9 +347,18 @@ def check_obj(obj, map):
 
 	# Spawn point without an inventory is an error.
 	if obj["type"] == types.spawn_point and not obj["inv"]:
-		add_error(map["file"], "Empty spawn point object.", errors.medium, obj["x"], obj["y"])
+		add_error(map["file"], "Empty spawn point object.", errors.medium, env["x"], env["y"])
+
+	if obj["type"] == types.player:
+		add_error(map["file"], "Object '{0}' is of type player.", errors.critical, env["x"], env["y"])
 
 	if "env" in obj:
+		if not obj["type"] in (types.spawn_point_mob, types.beacon, types.event_object) and obj["env"]["type"] == types.spawn_point:
+			add_error(map["file"], "Object '{0}' is not a monster but is inside a spawn point.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
+		if obj["type"] in (types.spawn_point, types.exit, types.teleporter):
+			add_error(map["file"], "Object '{0}' is inside inventory of another object, but it's not allowed for that object to be inside of inventory.".format(obj["archname"]), errors.high, env["x"], env["y"])
+
 		if "x" in obj:
 			add_error(map["file"], "Object '{0}' has X position set but is in inventory of another object.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
