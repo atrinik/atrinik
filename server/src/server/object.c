@@ -3060,59 +3060,6 @@ void get_search_arr(int *search_arr)
 }
 
 /**
- * Searches some close squares in the given map at the given coordinates for
- * alive objects.
- * @param m Map.
- * @param x X position on map.
- * @param y Y position on map.
- * @param exclude An object that will be ignored. Can be NULL.
- * @return Direction toward the first/closest live object if it finds any,
- * otherwise 0. */
-int find_dir(mapstruct *m, int x, int y, object *exclude)
-{
-	int i, xt, yt, max = SIZEOFFREE;
-	mapstruct *mt;
-	object *tmp;
-
-	if (exclude && exclude->head)
-	{
-		exclude = exclude->head;
-	}
-
-	for (i = 1; i < max; i++)
-	{
-		xt = x + freearr_x[i];
-		yt = y + freearr_y[i];
-
-		if (wall(m, xt, yt))
-		{
-			max = maxfree[i];
-		}
-		else
-		{
-			if (!(mt = get_map_from_coord(m, &xt, &yt)))
-			{
-				continue;
-			}
-
-			tmp = GET_MAP_OB(mt, xt, yt);
-
-			while (tmp != NULL && ((tmp != NULL && !QUERY_FLAG(tmp, FLAG_MONSTER) && tmp->type != PLAYER) || (tmp == exclude || (tmp->head && tmp->head == exclude))))
-			{
-				tmp = tmp->above;
-			}
-
-			if (tmp != NULL)
-			{
-				return freedir[i];
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
  * Computes a direction which you should travel to move of x and y.
  * @param x Delta.
  * @param y Delta.

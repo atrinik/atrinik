@@ -1192,7 +1192,7 @@ void animate_bomb(object *op)
 	{
 		for (i = 1; i < 9; i++)
 		{
-			fire_arch_from_position(op, op, op->x, op->y, i, at, 0);
+			fire_arch_from_position(op, op, op->x, op->y, i, at, 0, NULL);
 		}
 	}
 

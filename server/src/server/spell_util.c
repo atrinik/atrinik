@@ -594,14 +594,15 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			}
 			else
 			{
-				success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+				success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
 			}
 
 			break;
 
 		case SP_BULLET:
 		case SP_CAUSE_LIGHT:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+		case SP_MAGIC_MISSILE:
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, target);
 			break;
 
 		case SP_TOWN_PORTAL:
@@ -639,7 +640,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 		case SP_POISON_FOG:
 		case SP_METEOR:
 		case SP_ASTEROID:
-			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type);
+			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
 			break;
 
 		case SP_METEOR_SWARM:
@@ -835,7 +836,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param at The archetype to fire.
  * @param type Spell ID.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type)
+int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target)
 {
 	object *tmp, *env;
 
@@ -867,6 +868,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	tmp->direction = dir;
 	tmp->stats.grace = tmp->last_sp;
 	tmp->stats.maxgrace = 60 + (RANDOM() % 12);
+	tmp->enemy = target;
 
 	if (get_owner(op) != NULL)
 	{
@@ -1596,70 +1598,6 @@ void control_golem(object *op, int dir)
 }
 
 /**
- * Move a missile object.
- * @param op The missile that needs to be moved. */
-void move_missile(object *op)
-{
-	int i, new_x, new_y;
-	object *owner;
-	mapstruct *mt;
-
-	owner = get_owner(op);
-
-	if (owner == NULL)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	new_x = op->x + DIRX(op);
-	new_y = op->y + DIRY(op);
-
-	if (!(mt = get_map_from_coord(op->map, &new_x, &new_y)))
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	if (blocked(op, mt, new_x, new_y, op->terrain_flag))
-	{
-		tag_t tag = op->count;
-		hit_map(op, op->direction, 0);
-
-		if (!was_destroyed(op, tag))
-		{
-			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		}
-
-		return;
-	}
-
-	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-
-	if (!op->direction || wall (mt, new_x, new_y) || blocks_view(mt, new_x, new_y))
-	{
-		return;
-	}
-
-	op->x = new_x;
-	op->y = new_y;
-	op->map = mt;
-	i = find_dir(mt, op->x, op->y, get_owner(op));
-
-	if (i && i != op->direction)
-	{
-		op->direction = absdir(op->direction + ((op->direction - i + 8) % 8 < 4 ? -1 : 1));
-		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-	}
-
-	insert_ob_in_map(op, mt, op, 0);
-}
-
-/**
  * Causes an object to explode, eg, a firebullet, poison cloud ball, etc.
  * @param op The object to explode. */
 void explode_object(object *op)
@@ -1827,6 +1765,21 @@ void move_fired_arch(object *op)
 		{
 			return;
 		}
+	}
+
+	if (op->stats.sp == SP_MAGIC_MISSILE)
+	{
+		rv_vector rv;
+
+		if (!op->enemy || OBJECT_FREE(op->enemy) || !get_rangevector(op, op->enemy, &rv, 0))
+		{
+			remove_ob(op);
+			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+			return;
+		}
+
+		op->direction = rv.direction;
+		update_turn_face(op);
 	}
 
 	new_x = op->x + DIRX(op);
@@ -2009,15 +1962,17 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 	/* A monster or rune/firewall/etc */
 	else
 	{
-		/* we use op->enemy as target from non player caster.
-		 * we need to set this from outside and for healing spells,
-		 * we must set from outside temporary the enemy to a friendly unit.
-		 * This is safe because we do no AI stuff here - we simply USE the
-		 * target here even the stuff above looks like we select one...
-		 * its only a fallback. */
-
-		/* Sanity check for a legal target */
-		if (op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count)
+		if ((flags & SPELL_DESC_SELF) && !(flags & (SPELL_DESC_ENEMY | SPELL_DESC_FRIENDLY)))
+		{
+			*target = op;
+			return 1;
+		}
+		else if ((flags & SPELL_DESC_ENEMY) && op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count)
+		{
+			*target = op->enemy;
+			return 1;
+		}
+		else
 		{
 			*target = op;
 			return 1;
@@ -2380,7 +2335,7 @@ void move_swarm_spell(object *op)
 
 	if (!wall(op->map, target_x, target_y))
 	{
-		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp);
+		fire_arch_from_position(op, op, origin_x, origin_y, basedir, op->other_arch, op->stats.sp, NULL);
 	}
 }
 

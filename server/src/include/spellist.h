@@ -333,6 +333,13 @@ spell spells[NROFREALSPELLS] =
 	 SPELL_USE_CAST | SPELL_USE_WAND, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_TRANSMUTE, NULL
 	},
+
+	{"magic missile", SPELL_TYPE_WIZARD,
+	 1, 3, 8, 3, 6, 9, 1.0,
+	 4, 5, 4, 4, 9, SOUND_MAGIC_MISSILE,
+	 SPELL_USE_CAST, SPELL_DESC_ENEMY,
+	 PATH_MISSILE, "magic_missile"
+	}
 };
 
 /** Spell paths */

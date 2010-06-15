@@ -548,10 +548,6 @@ void process_object(object *op)
 			move_fired_arch(op);
 			return;
 
-		case MMISSILE:
-			move_missile(op);
-			return;
-
 		case THROWN_OBJ:
 		case ARROW:
 			move_arrow(op);

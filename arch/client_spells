@@ -28,6 +28,12 @@ w a 5 si_017.png
 "flies in one direction until it hits something. "
 " "
 " "
+"magic missile"
+w b 5 si_037.png
+"Fires a missile at currently selected target, following the target"
+"wherever they go."
+" "
+" "
 "strength self"
 w a 6 si_063.png
 "This spell may increase your strength by some amount."
