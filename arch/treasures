@@ -2819,6 +2819,9 @@ treasureone random_food
   more
   arch pipeweed
     chance 10
+  more
+  arch beer
+    chance 10
 end
 
 # Books
