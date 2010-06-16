@@ -2266,7 +2266,6 @@ int command_arrest(object *op, char *params)
 	}
 
 	enter_exit(pl->ob, dummy);
-	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been arrested.");
 	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
 	LOG(llevInfo, "Player %s arrested by %s\n", pl->ob->name, op->name);
 	return 1;

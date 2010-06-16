@@ -3,7 +3,7 @@ longname The World
 msg
 Somewhere in the world...
 endmsg
-jail /shattered_islands/world_0202 22 4
+jail /shattered_islands/strakewood_island/greyton/jail/jail_a 1 11
 end
 region creation
 parent world
