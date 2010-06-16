@@ -107,6 +107,12 @@ int command_shout(object *op, char *params)
 		return 0;
 	}
 
+	if (CONTR(op)->no_shout)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You are no longer allowed to shout.");
+		return 0;
+	}
+
 	LOG(llevInfo, "CLOG SHOUT:%s >%s<\n", query_name(op, NULL), params);
 
 	params = cleanup_chat_string(params);

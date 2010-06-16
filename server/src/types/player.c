@@ -47,9 +47,9 @@ player *find_player(char *plname)
 {
 	player *pl;
 
-	for (pl = first_player; pl != NULL; pl = pl->next)
+	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (pl->ob != NULL && !QUERY_FLAG(pl->ob, FLAG_REMOVED) && !strcmp(query_name(pl->ob, NULL), plname))
+		if (pl->ob && pl->state == ST_PLAYING && !strncasecmp(pl->ob->name, plname, MAX_NAME))
 		{
 			return pl;
 		}

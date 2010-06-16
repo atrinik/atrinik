@@ -2495,3 +2495,40 @@ int command_map_patch(object *op, char *params)
 
 	return 1;
 }
+
+/**
+ * The /no_shout command.
+ * @param op Wizard.
+ * @param params Parameters.
+ * @return 1. */
+int command_no_shout(object *op, char *params)
+{
+	player *pl;
+
+	if (!params)
+	{
+		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /no_shout <player>");
+		return 1;
+	}
+
+	pl = find_player(params);
+
+	if (!pl)
+	{
+		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		return 1;
+	}
+
+	if (pl->no_shout)
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%s is able to shout again.", pl->ob->name);
+		pl->no_shout = 0;
+	}
+	else
+	{
+		new_draw_info_format(NDI_UNIQUE, op, "%s is now not able to shout.", pl->ob->name);
+		pl->no_shout = 1;
+	}
+
+	return 1;
+}

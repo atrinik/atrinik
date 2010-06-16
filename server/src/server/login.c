@@ -177,6 +177,7 @@ int save_player(object *op, int flag)
 	fprintf(fp, "password %s\n", pl->password);
 	fprintf(fp, "dm_stealth %d\n", pl->dm_stealth);
 	fprintf(fp, "ms_privacy %d\n", pl->ms_privacy);
+	fprintf(fp, "no_shout %d\n", pl->no_shout);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
 	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
@@ -463,6 +464,10 @@ void check_login(object *op)
 		else if (!strcmp(buf, "ms_privacy"))
 		{
 			pl->ms_privacy = value;
+		}
+		else if (!strcmp(buf, "no_shout"))
+		{
+			pl->no_shout = value;
 		}
 		else if (!strcmp(buf, "gen_hp"))
 		{

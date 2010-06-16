@@ -193,7 +193,8 @@ CommArray_s WizCommands [] =
 	{"cmd_permission", command_cmd_permission,         0.0, 0},
 	{"map_save",       command_map_save,               0.0, 0},
 	{"map_reset",      command_map_reset,              0.0, 0},
-	{"map_patch",      command_map_patch,              0.0, 0}
+	{"map_patch",      command_map_patch,              0.0, 0},
+	{"no_shout",       command_no_shout,               0.0, 0}
 };
 
 /** Size of Wizard commands */

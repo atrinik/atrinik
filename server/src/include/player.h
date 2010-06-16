@@ -491,6 +491,9 @@ typedef struct pl_player
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];
 
+	/** If 1, the player is not able to shout. */
+	uint8 no_shout;
+
 	/** Which range attack is being used by player. */
 	rangetype shoottype;
 
