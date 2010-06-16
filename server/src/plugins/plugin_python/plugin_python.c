@@ -1913,12 +1913,12 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 		case FIELDTYPE_CARY:
 			if (value == Py_None)
 			{
-				(*(char **) field_ptr)[0] = '\0';
+				((char *) field_ptr)[0] = '\0';
 			}
 			else if (PyString_Check(value))
 			{
-				memcpy(*(char **) field_ptr, PyString_AsString(value), field->extra_data);
-				(*(char **) field_ptr)[field->extra_data] = '\0';
+				memcpy((char *) field_ptr, PyString_AsString(value), field->extra_data);
+				((char *) field_ptr)[field->extra_data] = '\0';
 			}
 			else
 			{
