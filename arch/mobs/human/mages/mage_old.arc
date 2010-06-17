@@ -38,7 +38,7 @@ wc 6
 dam 100
 level 1
 weight 85000
-stand_still 1
+friendly 1
 unaggressive 1
 Str 25
 end
