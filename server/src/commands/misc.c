@@ -269,6 +269,12 @@ int command_who(object *op, char *params)
 				{
 					strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
 				}
+
+				if (pl->class_ob && pl->class_ob->title)
+				{
+					strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
+					strncat(buf, pl->class_ob->title, sizeof(buf) - strlen(buf) - 1);
+				}
 			}
 
 			new_draw_info(NDI_UNIQUE, op, buf);
