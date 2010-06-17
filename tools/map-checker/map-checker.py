@@ -58,6 +58,7 @@ class types:
 	shop_floor = 68
 	event_object = 118
 	beacon = 126
+	sign = 98
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -444,6 +445,12 @@ def check_obj(obj, map):
 		if wps:
 			add_error(map["file"], "Monster '{0}' has waypoint movement disabled but has waypoints in inventory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
+	if obj["type"] == types.sign:
+		# Is it a magic mouth?
+		if get_entry(obj, "walk_on") == 1 or get_entry(obj, "fly_on") == 1:
+			if get_entry(obj, "splitting") == 1 and get_entry(obj, "direction") == None:
+				add_error(map["file"], "Magic mouth '{0}' has adjacent direction set but actual facing direction is not set.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
 # @param file Map to load.
@@ -506,10 +513,20 @@ def get_env(obj):
 # @param obj Object.
 # @return True if it's friendly, False otherwise.
 def is_friendly(obj):
-	if "friendly" in obj and obj["friendly"] == 1:
+	if get_entry(obj, "friendly") == 1:
 		return True
 
 	return False
+
+# Get entry identified by 's' from dictionary 'd'.
+# @param d The dictionary.
+# @param s What to get.
+# @return The entry from the dictionary, None if there is no such entry.
+def get_entry(d, s):
+	try:
+		return d[s]
+	except KeyError:
+		return None
 
 # Check whether the passed string is an integer.
 # @param s String.
