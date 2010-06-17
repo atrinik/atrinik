@@ -53,7 +53,7 @@ static void pace_moveh(object *ob);
 static void pace2_movev(object *ob);
 static void pace2_moveh(object *ob);
 static void rand_move(object *ob);
-static int talk_to_wall(object *npc, char *txt);
+static int talk_to_wall(object *op, object *npc, char *txt);
 
 /**
  * Update (or clear) an NPC's enemy. Perform most of the housekeeping
@@ -1613,7 +1613,7 @@ void communicate(object *op, char *txt)
 				/* The ear. */
 				if (npc->type == MAGIC_EAR)
 				{
-					talk_to_wall(npc, txt);
+					talk_to_wall(op, npc, txt);
 				}
 				else if (QUERY_FLAG(npc, FLAG_ALIVE))
 				{
@@ -1781,10 +1781,11 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 /**
  * Talk to a magic ear.
+ * @param op Who is talking.
  * @param npc The magic ear.
  * @param txt Text said.
  * @return 1 if text matches something, 0 otherwise. */
-static int talk_to_wall(object *npc, char *txt)
+static int talk_to_wall(object *op, object *npc, char *txt)
 {
 	char *cp;
 
@@ -1800,7 +1801,15 @@ static int talk_to_wall(object *npc, char *txt)
 		return 0;
 	}
 
-	new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+	if (QUERY_FLAG(npc, FLAG_XRAYS))
+	{
+		new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+	}
+	else
+	{
+		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, cp);
+	}
+
 	use_trigger(npc);
 	free(cp);
 
