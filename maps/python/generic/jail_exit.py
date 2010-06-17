@@ -4,5 +4,5 @@
 from Atrinik import *
 from Jail import Jail
 
-# Jail the player for 15 minutes.
-Jail(WhoAmI()).jail(WhoIsActivator(), 900, False)
+# Jail the player for 5 minutes.
+Jail(WhoAmI()).jail(WhoIsActivator(), 300, False)
