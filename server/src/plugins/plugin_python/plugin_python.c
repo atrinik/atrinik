@@ -1397,6 +1397,39 @@ static int RunPythonScript(const char *path, object *event_object)
 	/* Run an old or new code object */
 	if (run && run->code)
 	{
+#ifdef PYTHON_DEBUG
+		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
+		Py_ssize_t pos = 0;
+		const char *m_filename;
+		char m_buf[MAX_BUF];
+
+		/* Create path name to the Python scripts directory. */
+		strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+
+		/* Go through the loaded modules. */
+		while (PyDict_Next(modules, &pos, &key, &value))
+		{
+			m_filename = PyModule_GetFilename(value);
+
+			if (!m_filename)
+			{
+				PyErr_Clear();
+				continue;
+			}
+
+			/* If this module was loaded from one of our script files,
+			 * reload it. */
+			if (!strncmp(m_filename, m_buf, strlen(m_buf)))
+			{
+				PyImport_ReloadModule(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_Print();
+				}
+			}
+		}
+#endif
 		/* Create a new environment with each execution. Don't want any old variables hanging around */
 		globdict = PyDict_New();
 		PyDict_SetItemString(globdict, "__builtins__", PyEval_GetBuiltins());
