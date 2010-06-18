@@ -270,6 +270,37 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 	return list;
 }
 
+/**
+ * <h1>map.Insert(object ob, int x, int y)</h1>
+ * Insert the specified object on map, removing it first if necessary.
+ * @param ob Object to insert.
+ * @param x X coordinate where to insert 'ob'.
+ * @param y Y coordinate where to insert 'ob'. */
+static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+{
+	Atrinik_Object *ob;
+	sint16 x, y;
+	static char *kwlist[] = {"ob", "x", "y", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!hh", kwlist, &Atrinik_ObjectType, &ob, &x, &y))
+	{
+		return NULL;
+	}
+
+	if (!QUERY_FLAG(ob->obj, FLAG_REMOVED))
+	{
+		hooks->remove_ob(ob->obj);
+		hooks->check_walk_off(ob->obj, NULL, MOVE_APPLY_VANISHED);
+	}
+
+	ob->obj->x = x;
+	ob->obj->y = y;
+	hooks->insert_ob_in_map(ob->obj, map->map, NULL, 0);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /**
@@ -358,6 +389,7 @@ static PyMethodDef MapMethods[] =
 	{"CreateObject",            (PyCFunction) Atrinik_Map_CreateObject,              METH_VARARGS, 0},
 	{"CountPlayers",            (PyCFunction) Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
 	{"GetPlayers",              (PyCFunction) Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
+	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 

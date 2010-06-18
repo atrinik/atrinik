@@ -234,6 +234,7 @@ struct plugin_hooklist
 	int (*object_get_gender)(object *);
 	int (*change_abil)(object *, object *);
 	object *(*decrease_ob_nr)(object *, uint32);
+	int (*check_walk_off)(object *, object *, int);
 
 	const char **season_name;
 	const char **weekdays;

@@ -134,6 +134,7 @@ struct plugin_hooklist hooklist =
 	object_get_gender,
 	change_abil,
 	decrease_ob_nr,
+	check_walk_off,
 
 	season_name,
 	weekdays,
