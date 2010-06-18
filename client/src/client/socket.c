@@ -261,7 +261,7 @@ static int reader_thread_loop(void *dummy)
 			toread = cmd_len + header_len - readbuf_len;
 		}
 
-		ret = recv(csocket.fd, readbuf + readbuf_len, toread, 0);
+		ret = recv(csocket.fd, (char *) readbuf + readbuf_len, toread, 0);
 
 		/* End of file */
 		if (ret == 0)
@@ -339,7 +339,7 @@ static int writer_thread_loop(void *dummy)
 
 		while (buf && written < buf->len && !abort_thread)
 		{
-			int ret = send(csocket.fd, buf->data + written, buf->len - written, 0);
+			int ret = send(csocket.fd, (const char *) buf->data + written, buf->len - written, 0);
 
 			if (ret == 0)
 			{
@@ -759,7 +759,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 int socket_create(SOCKET *fd, char *host, int port)
 {
 	int error, SocketStatusErrorNr;
-	long temp;
+	u_long temp;
 	struct hostent *hostbn;
 	int oldbufsize;
 	int newbufsize = 65535, buflen = sizeof(int);
