@@ -3423,7 +3423,7 @@ item_power 10
 end
 
 Allowed ring_generic
-chance 30
+chance 20
 difficulty 18
 artifact ring_yordan
 def_arch ring_generic
@@ -3492,7 +3492,7 @@ item_power 10
 end
 
 Allowed ring_generic
-chance 10
+chance 15
 difficulty 25
 artifact ring_strife
 def_arch ring_generic
@@ -3517,7 +3517,7 @@ item_power 11
 end
 
 Allowed ring_generic
-chance 20
+chance 40
 difficulty 10
 artifact ring_magic
 def_arch ring_generic
@@ -3544,7 +3544,7 @@ item_power 5
 end
 
 Allowed ring_generic
-chance 10
+chance 30
 difficulty 20
 artifact ring_ancient_magic
 def_arch ring_generic
@@ -3568,7 +3568,7 @@ item_power 10
 end
 
 Allowed ring_generic
-chance 4
+chance 20
 difficulty 30
 artifact ring_high_magic
 def_arch ring_generic
@@ -3592,7 +3592,7 @@ item_power 12
 end
 
 Allowed ring_generic
-chance 13
+chance 20
 difficulty 18
 artifact ring_healer
 def_arch ring_generic
@@ -3621,7 +3621,7 @@ item_power 10
 end
 
 Allowed ring_generic
-chance 20
+chance 40
 difficulty 10
 artifact ring_paladin
 def_arch ring_generic
@@ -3645,7 +3645,7 @@ item_power 5
 end
 
 Allowed ring_generic
-chance 13
+chance 30
 difficulty 20
 artifact ring_prelate
 def_arch ring_generic
@@ -3669,7 +3669,7 @@ item_power 10
 end
 
 Allowed ring_generic
-chance 4
+chance 20
 difficulty 30
 artifact ring_benevolence
 def_arch ring_generic
