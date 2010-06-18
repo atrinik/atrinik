@@ -1340,6 +1340,11 @@ static void do_specials()
 	{
 		flush_old_maps();
 	}
+
+	if (settings.meta_on && !(pticks % 2521))
+	{
+		metaserver_info_update();
+	}
 }
 
 /**

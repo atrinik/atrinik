@@ -977,6 +977,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg);
 void Write_String_To_Socket(socket_struct *ns, char cmd, char *buf, int len);
 
 /* socket/metaserver.c */
+void metaserver_info_update();
 void metaserver_init();
 
 /* socket/request.c */

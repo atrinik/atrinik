@@ -34,7 +34,72 @@
 static void *metaserver_thread(void *junk);
 
 /**
- * Init metaserver. */
+ * Metaserver update information structure. */
+typedef struct ms_update_info
+{
+	/**
+	 * Number of players in the game. */
+	char num_players[MAX_BUF];
+
+	/**
+	 * The port the server is using. */
+	char csport[MAX_BUF];
+
+	/**
+	 * Players currently in the game, separated by colons (':'). */
+	char *players;
+} ms_update_info;
+
+/**
+ * Mutex for protecting metaserver information. */
+pthread_mutex_t ms_info_mutex;
+
+/**
+ * The actual metaserver information. */
+ms_update_info metaserver_info;
+
+/**
+ * Updates the ::metaserver_info. */
+void metaserver_info_update()
+{
+	player *pl;
+	uint32 num_players = 0;
+	StringBuffer *sb = stringbuffer_new();
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (pl->state != ST_PLAYING)
+		{
+			continue;
+		}
+
+		if (!pl->ms_privacy && !pl->dm_stealth)
+		{
+			if (sb->pos)
+			{
+				stringbuffer_append_string(sb, ":");
+			}
+
+			stringbuffer_append_string(sb, pl->quick_name);
+		}
+
+		num_players++;
+	}
+
+	pthread_mutex_lock(&ms_info_mutex);
+
+	if (metaserver_info.players)
+	{
+		free(metaserver_info.players);
+	}
+
+	snprintf(metaserver_info.num_players, sizeof(metaserver_info.num_players), "%u", num_players);
+	metaserver_info.players = stringbuffer_finish(sb);
+	pthread_mutex_unlock(&ms_info_mutex);
+}
+
+/**
+ * Initialize the metaserver. */
 void metaserver_init()
 {
 	int ret;
@@ -45,14 +110,20 @@ void metaserver_init()
 		return;
 	}
 
+	pthread_mutex_init(&ms_info_mutex, NULL);
+
+	memset(&metaserver_info, 0, sizeof(metaserver_info));
+	/* Store the port number. */
+	snprintf(metaserver_info.csport, sizeof(metaserver_info.csport), "%d", settings.csport);
+	metaserver_info_update();
+
 	/* Init global cURL */
 	curl_global_init(CURL_GLOBAL_ALL);
-
 	ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
 
 	if (ret)
 	{
-		LOG(llevBug, "BUG: metaserver_init(): Failed to create thread.\n");
+		LOG(llevError, "ERROR: metaserver_init(): Failed to create thread: %d.\n", ret);
 	}
 }
 
@@ -78,52 +149,32 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
  * Do the metaserver updating. */
 static void metaserver_update()
 {
-	char buf[MAX_BUF], num_players = 0;
-	player *pl;
 	struct curl_httppost *formpost = NULL, *lastptr = NULL;
 	CURL *curl;
 	CURLcode res = 0;
-	StringBuffer *sb = stringbuffer_new();
-	char *cp;
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (pl->state == ST_PLAYING && !pl->ms_privacy && !pl->dm_stealth)
-		{
-			if (sb->pos)
-			{
-				stringbuffer_append_string(sb, ":");
-			}
-
-			stringbuffer_append_string(sb, pl->quick_name);
-		}
-
-		num_players++;
-	}
-
-	/* Hostname */
+	/* Hostname. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.meta_host, CURLFORM_END);
 
-	/* Server version */
+	/* Server version. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, VERSION, CURLFORM_END);
 
-	/* Server comment */
+	/* Server comment. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);
 
-	/* Number of players */
-	snprintf(buf, sizeof(buf), "%d", num_players);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
-
-	/* Port number */
-	snprintf(buf, sizeof(buf), "%d", settings.csport);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, buf, CURLFORM_END);
-
-	cp = stringbuffer_finish(sb);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, cp, CURLFORM_END);
-	free(cp);
-
-	/* Name */
+	/* Server name. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.meta_name, CURLFORM_END);
+
+	pthread_mutex_lock(&ms_info_mutex);
+	/* Number of players. */
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, metaserver_info.num_players, CURLFORM_END);
+
+	/* Player names. */
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, metaserver_info.players, CURLFORM_END);
+
+	/* Port number. */
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.csport, CURLFORM_END);
+	pthread_mutex_unlock(&ms_info_mutex);
 
 	/* Init "easy" cURL */
 	curl = curl_easy_init();
@@ -169,7 +220,7 @@ static void *metaserver_thread(void *junk)
 	while (1)
 	{
 		metaserver_update();
-		sleep(600);
+		sleep(300);
 	}
 
 	(void) junk;
