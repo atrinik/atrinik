@@ -91,7 +91,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"frost nova", SPELL_TYPE_WIZARD,
 	 80, 80, 80, 2, 0, 3, 1.0,
-	 4, 10, 4, 8, 9, SOUND_MAGIC_RSTRIKE,
+	 4, 10, 4, 8, 30, SOUND_MAGIC_RSTRIKE,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "asteroid"
 	},
@@ -280,7 +280,7 @@ spell spells[NROFREALSPELLS] =
 
 	{"meteor swarm", SPELL_TYPE_WIZARD,
 	 80, 70, 80, 2, 0, 3, 1.0,
-	 4, 10, 4, 8, 9, SOUND_MAGIC_RSTRIKE,
+	 4, 10, 4, 8, 30, SOUND_MAGIC_RSTRIKE,
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "meteor"
 	},
