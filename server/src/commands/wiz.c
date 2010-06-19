@@ -1210,7 +1210,7 @@ int command_resetmap(object *op, char *params)
 		/* Need to increase this at least a bit, since some maps can have very
 		 * low swap times, resulting in the map being reset twice, and the
 		 * server crashing. */
-		m->reset_time++;
+		m->reset_time += 10;
 		swap_map(m, 1);
 	}
 
