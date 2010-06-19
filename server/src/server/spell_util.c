@@ -671,6 +671,11 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_transform_wealth(op);
 			break;
 
+		case SP_RAIN_HEAL:
+		case SP_PARTY_HEAL:
+			success = cast_heal_around(op, SK_level(caster), type);
+			break;
+
 		default:
 			LOG(llevBug, "BUG: cast_spell(): Invalid invalid spell: %d\n", type);
 			break;

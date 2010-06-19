@@ -112,6 +112,18 @@ p e 9 si_080.png
 " "
 " "
 " "
+"rain of healing"
+p f 9 si_084.png
+"This prayer heals all friends around and below the caster."
+" "
+" "
+" "
+"party heal"
+p g 9 si_085.png
+"Heals all nearby party members."
+" "
+" "
+" "
 "town portal"
 p a 13 si_079.png
 "This spell allows you to set up magic portals from one map to another. "

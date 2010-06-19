@@ -795,6 +795,7 @@ int probe(object *op);
 int cast_wor(object *op, object *caster);
 int cast_create_town_portal(object *op);
 int cast_destruction(object *op, object *caster, int dam, int attacktype);
+int cast_heal_around(object *op, int level, int type);
 int cast_heal(object *op, int level, object *target, int spell_type);
 int cast_change_attr(object *op, object *caster, object *target, int spell_type);
 int create_bomb(object *op, object *caster, int dir, int spell_type);

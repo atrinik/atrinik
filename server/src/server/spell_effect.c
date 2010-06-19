@@ -748,6 +748,86 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 }
 
 /**
+ * Cast an area of effect healing spell.
+ * @param op Object.
+ * @param level Level of the spell being cast.
+ * @param type ID of the spell.
+ * @return 1 on success, 0 on failure. */
+int cast_heal_around(object *op, int level, int type)
+{
+	int success = 0;
+
+	switch (type)
+	{
+		case SP_RAIN_HEAL:
+		{
+			int i, x, y;
+			mapstruct *m;
+			object *tmp;
+
+			for (i = 0; i <= SIZEOFFREE1; i++)
+			{
+				x = op->x + freearr_x[i];
+				y = op->y + freearr_y[i];
+
+				if (!(m = get_map_from_coord(op->map, &x, &y)))
+				{
+					continue;
+				}
+
+				if (!(GET_MAP_FLAGS(m, x, y) & (P_IS_ALIVE | P_IS_PLAYER)))
+				{
+					continue;
+				}
+
+				for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
+				{
+					tmp = HEAD(tmp);
+
+					if (tmp == op || !IS_LIVE(tmp) || !is_friend_of(op, tmp))
+					{
+						continue;
+					}
+
+					cast_heal(op, level, tmp, SP_MINOR_HEAL);
+					success = 1;
+				}
+			}
+
+			break;
+		}
+
+		case SP_PARTY_HEAL:
+		{
+			objectlink *ol;
+
+			if (op->type != PLAYER)
+			{
+				return 0;
+			}
+			else if (!CONTR(op)->party)
+			{
+				new_draw_info(NDI_UNIQUE, op, "You need to be in a party to cast this spell.");
+				return 0;
+			}
+
+			for (ol = CONTR(op)->party->members; ol; ol = ol->next)
+			{
+				if (on_same_map(ol->objlink.ob, op))
+				{
+					cast_heal(op, level, ol->objlink.ob, SP_MINOR_HEAL);
+				}
+			}
+
+			success = 1;
+			break;
+		}
+	}
+
+	return success;
+}
+
+/**
  * Heals something.
  * @param op Who is casting.
  * @param level Level of the skill.
