@@ -1112,7 +1112,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 	if (i)
 	{
 		new_draw_info_format(NDI_UNIQUE, op, "Your protection to %s grows.", attack_name[i]);
-		force->protection[i] = MIN(SP_level_dam_adjust(op, spell_type, -1), 50);
+		force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1), 50);
 	}
 
 	force->speed_left = -1 - SP_level_strength_adjust(caster, spell_type) * 0.1f;
