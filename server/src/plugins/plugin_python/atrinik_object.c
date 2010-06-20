@@ -137,7 +137,8 @@ static fields_struct fields[] =
 	{"Int", FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
 	{"Pow", FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
 
-	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0}
+	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
+	{"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0}
 };
 /* @endcparser */
 
