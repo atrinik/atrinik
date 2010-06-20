@@ -235,6 +235,8 @@ struct plugin_hooklist
 	int (*change_abil)(object *, object *);
 	object *(*decrease_ob_nr)(object *, uint32);
 	int (*check_walk_off)(object *, object *, int);
+	int (*wall)(mapstruct *, int, int);
+	int (*blocked)(object *, mapstruct *, int, int, int);
 
 	const char **season_name;
 	const char **weekdays;

@@ -1207,6 +1207,7 @@ int command_resetmap(object *op, char *params)
 	new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path);
 	new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
 	m->reset_time = seconds();
+	m->map_flags |= MAP_FLAG_FIXED_RTIME;
 	/* Store the path, so we can load it after swapping is done. */
 	path = add_refcount(m->path);
 	swap_map(m, 1);

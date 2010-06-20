@@ -135,6 +135,8 @@ struct plugin_hooklist hooklist =
 	change_abil,
 	decrease_ob_nr,
 	check_walk_off,
+	wall,
+	blocked,
 
 	season_name,
 	weekdays,

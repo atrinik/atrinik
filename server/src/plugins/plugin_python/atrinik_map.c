@@ -311,6 +311,56 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args, PyObject *
 	return Py_None;
 }
 
+/**
+ * <h1>map.Wall(int x, int y)</h1>
+ * Checks if there's a wall on the specified square.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return A combination of @ref map_look_flags. */
+static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+{
+	sint16 x, y;
+	static char *kwlist[] = {"x", "y", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "hh", kwlist, &x, &y))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->wall(map->map, x, y));
+}
+
+/**
+ * <h1>map.Blocked(object ob, int x, int y, int terrain)</h1>
+ * Check if specified square is blocked for 'ob' using blocked().
+ *
+ * If you simply need to check if there's a wall on a square, you should use
+ * @ref Atrinik_Map_Wall "map.Wall()" instead.
+ *
+ * @note 'map', 'x', 'y' should all be valid, and 'map' cannot be None. Use
+ * @ref Atrinik_Map_GetMapFromCoord "map.GetMapFromCoord()" if doing modification
+ * of x/y to get the real map/x/y values with tiling taken into consideration.
+ * @param ob Object we're checking.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param terrain Terrain object is allowed to go to. One (or combination) of
+ * @ref terrain_type_flags, or <code>ob.terrain_flag</code>
+ * @return A combination of @ref map_look_flags. */
+static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+{
+	Atrinik_Object *ob;
+	sint16 x, y;
+	int terrain;
+	static char *kwlist[] = {"ob", "x", "y", "terrain", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!hhi", kwlist, &Atrinik_ObjectType, &ob, &x, &y, &terrain))
+	{
+		return NULL;
+	}
+
+	return Py_BuildValue("i", hooks->blocked(ob->obj, map->map, x, y, terrain));
+}
+
 /*@}*/
 
 /**
@@ -391,15 +441,17 @@ static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
 {
-	{"GetFirstObject",          (PyCFunction) Atrinik_Map_GetFirstObject,            METH_VARARGS, 0},
-	{"GetLastObject",           (PyCFunction) Atrinik_Map_GetLastObject,             METH_VARARGS, 0},
-	{"PlaySound",               (PyCFunction) Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
-	{"Message",                 (PyCFunction) Atrinik_Map_Message,                   METH_VARARGS, 0},
+	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
+	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
+	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS, 0},
+	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS, 0},
 	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CreateObject",            (PyCFunction) Atrinik_Map_CreateObject,              METH_VARARGS, 0},
-	{"CountPlayers",            (PyCFunction) Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
-	{"GetPlayers",              (PyCFunction) Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
+	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
+	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_VARARGS, 0},
+	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_VARARGS, 0},
 	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS | METH_KEYWORDS, 0},
+	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
