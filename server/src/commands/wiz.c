@@ -1166,6 +1166,7 @@ int command_stats(object *op, char *params)
 int command_resetmap(object *op, char *params)
 {
 	mapstruct *m;
+	shstr *path;
 
 	if (params == NULL)
 	{
@@ -1173,7 +1174,7 @@ int command_resetmap(object *op, char *params)
 	}
 	else
 	{
-		const char *mapfile_sh = add_string(params);
+		shstr *mapfile_sh = add_string(params);
 
 		m = has_been_loaded_sh(mapfile_sh);
 		free_string_shared(mapfile_sh);
@@ -1197,47 +1198,22 @@ int command_resetmap(object *op, char *params)
 		return 1;
 	}
 
-	if (m->in_memory != MAP_SWAPPED)
+	if (m->in_memory != MAP_IN_MEMORY)
 	{
-		if (m->in_memory != MAP_IN_MEMORY)
-		{
-			LOG(llevBug, "BUG: Tried to swap out map which was not in memory.\n");
-			return 0;
-		}
-
-		new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path ? m->path : ">NULL<");
-		new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Swap map.", dm_map_remove_players(m));
-		/* Need to increase this at least a bit, since some maps can have very
-		 * low swap times, resulting in the map being reset twice, and the
-		 * server crashing. */
-		m->reset_time += 10;
-		swap_map(m, 1);
+		LOG(llevBug, "BUG: Tried to swap out map which was not in memory.\n");
+		return 0;
 	}
 
-	if (m->in_memory == MAP_SWAPPED)
-	{
-		LOG(llevDebug, "Resetting map %s.\n", m->path);
-		clean_tmp_map(m);
+	new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path);
+	new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
+	m->reset_time = seconds();
+	/* Store the path, so we can load it after swapping is done. */
+	path = add_refcount(m->path);
+	swap_map(m, 1);
 
-		if (m->tmpname)
-		{
-			free(m->tmpname);
-		}
-
-		m->tmpname = NULL;
-		/* Setting this effectively causes an immediate reload */
-		m->reset_time = 1;
-		new_draw_info(NDI_UNIQUE, op, "Swap successful. Inserting players.");
-
-		add_refcount(m->path);
-		m = ready_map_name(m->path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
-		new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
-	}
-	else
-	{
-		new_draw_info(NDI_UNIQUE, op, "Reset failed, couldn't swap map!");
-	}
-
+	m = ready_map_name(path, MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0));
+	free_string_shared(path);
+	new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
 	dm_map_reinsert_players(m, op);
 
 	return 1;
