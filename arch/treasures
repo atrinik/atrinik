@@ -4252,12 +4252,15 @@ end
 
 treasure mob_dragon_green
   list traps
+    t_style 4
     chance 8
   more
   list default_loot
+    t_style 4
     chance 65
     no
       list small_things
+        t_style 4
         chance_fix 4
         no
           arch coppercoin
@@ -4267,6 +4270,7 @@ treasure mob_dragon_green
     end
   more
   list default_drop
+    t_style 4
     chance_fix 16
     material_quality 80
     material_range 15
@@ -4284,18 +4288,22 @@ treasure mob_dragon_green
         chance_fix 96
         no
           list random_mtools
+            t_style 4
             chance_fix 66
             no
               list random_talisman
+                t_style 4
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
+    t_style 4
     chance_fix 50
     no
       list random_potion
+        t_style 4
         chance_fix 44
         no
           arch potion_improve
@@ -4307,12 +4315,15 @@ end
 
 treasure mob_dragon_fire
   list traps
+    t_style 1
     chance 8
   more
   list default_loot
+    t_style 1
     chance 65
     no
       list small_things
+        t_style 1
         chance_fix 4
         no
           arch coppercoin
@@ -4322,6 +4333,7 @@ treasure mob_dragon_fire
     end
   more
   list default_drop
+    t_style 1
     chance_fix 16
     material_quality 80
     material_range 15
@@ -4339,18 +4351,22 @@ treasure mob_dragon_fire
         chance_fix 96
         no
           list random_mtools
+            t_style 1
             chance_fix 66
             no
               list random_talisman
+                t_style 1
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
+    t_style 1
     chance_fix 50
     no
       list random_potion
+        t_style 1
         chance_fix 44
         no
           arch potion_improve
@@ -4362,12 +4378,15 @@ end
 
 treasure mob_dragon_blue
   list traps
+    t_style 2
     chance 8
   more
   list default_loot
+    t_style 2
     chance 65
     no
       list small_things
+        t_style 2
         chance_fix 4
         no
           arch coppercoin
@@ -4377,6 +4396,7 @@ treasure mob_dragon_blue
     end
   more
   list default_drop
+    t_style 2
     chance_fix 16
     material_quality 80
     material_range 15
@@ -4394,18 +4414,22 @@ treasure mob_dragon_blue
         chance_fix 96
         no
           list random_mtools
+            t_style 2
             chance_fix 66
             no
               list random_talisman
+                t_style 2
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
+    t_style 2
     chance_fix 50
     no
       list random_potion
+        t_style 2
         chance_fix 44
         no
           arch potion_improve
@@ -4417,12 +4441,15 @@ end
 
 treasure mob_dragon_black
   list traps
+    t_style 3
     chance 8
   more
   list default_loot
+    t_style 3
     chance 65
     no
       list small_things
+        t_style 3
         chance_fix 4
         no
           arch coppercoin
@@ -4432,6 +4459,7 @@ treasure mob_dragon_black
     end
   more
   list default_drop
+    t_style 3
     chance_fix 16
     material_quality 80
     material_range 15
@@ -4449,18 +4477,22 @@ treasure mob_dragon_black
         chance_fix 96
         no
           list random_mtools
+            t_style 3
             chance_fix 66
             no
               list random_talisman
+                t_style 3
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
+    t_style 3
     chance_fix 50
     no
       list random_potion
+        t_style 3
         chance_fix 44
         no
           arch potion_improve
@@ -5532,12 +5564,15 @@ end
 
 treasure mob_fire
   list traps
+    t_style 1
     chance 8
   more
   list default_loot
+    t_style 1
     chance 60
     no
       list small_things
+        t_style 1
         chance_fix 4
         no
           arch coppercoin
@@ -5547,6 +5582,7 @@ treasure mob_fire
     end
   more
   list default_drop
+    t_style 1
     chance_fix 16
     material_quality 80
     material_range 15
@@ -5566,18 +5602,22 @@ treasure mob_fire
         chance_fix 48
         no
           list random_mtools
+            t_style 1
             chance_fix 182
             no
               list random_talisman
+                t_style 1
                 chance_fix 266
             end
         end
     end
   more
   list random_scroll
+    t_style 1
     chance_fix 45
     no
       list random_potion
+        t_style 1
         chance_fix 45
         no
           arch potion_improve
@@ -5589,12 +5629,15 @@ end
 
 treasure mob_ice
   list traps
+    t_style 2
     chance 8
   more
   list default_loot
+    t_style 2
     chance 60
     no
       list small_things
+        t_style 2
         chance_fix 4
         no
           arch coppercoin
@@ -5604,6 +5647,7 @@ treasure mob_ice
     end
   more
   list default_drop
+    t_style 2
     chance_fix 16
     material_quality 80
     material_range 15
@@ -5623,18 +5667,22 @@ treasure mob_ice
         chance_fix 48
         no
           list random_mtools
+            t_style 2
             chance_fix 182
             no
               list random_talisman
+                t_style 2
                 chance_fix 266
             end
         end
     end
   more
   list random_scroll
+    t_style 2
     chance_fix 45
     no
       list random_potion
+        t_style 2
         chance_fix 45
         no
           arch potion_improve
