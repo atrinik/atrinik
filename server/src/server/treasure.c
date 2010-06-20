@@ -2725,7 +2725,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 		}
 
 		/* Map difficulty not high enough OR the t_style is set and don't match */
-		if (difficulty < art->difficulty || (t_style == -1 && (art->t_style && art->t_style != T_STYLE_UNSET)) || (t_style && (art->t_style != t_style && art->t_style != T_STYLE_UNSET)))
+		if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET))
 		{
 			continue;
 		}
@@ -2752,7 +2752,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 				continue;
 			}
 
-			if (difficulty < art->difficulty || (t_style == -1 && (art->t_style && art->t_style != T_STYLE_UNSET)) || (t_style && (art->t_style != t_style && art->t_style != T_STYLE_UNSET)))
+			if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET))
 			{
 				continue;
 			}
