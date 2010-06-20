@@ -2387,6 +2387,7 @@ msg
 Hi there! Don't worry about taxes at the moment. The governor has declared an amnesty for the time being, so enjoy your stay!
 endmsg
 name Lana Ohiturak
+level 10
 type 83
 end
 end

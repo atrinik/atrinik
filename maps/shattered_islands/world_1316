@@ -2520,6 +2520,7 @@ y 8
 arch female1
 name Azukre Kazeta
 direction 3
+level 15
 type 83
 arch event_obj
 sub_type 6
@@ -2827,6 +2828,7 @@ x 22
 y 5
 arch guard
 name bank guard Motela
+level 50
 type 83
 end
 end
@@ -2860,6 +2862,7 @@ y 11
 arch guard
 name bank guard Ergelak
 direction 3
+level 50
 type 83
 end
 end
@@ -2933,6 +2936,7 @@ x 22
 y 21
 arch traveller_wife
 name Zaharra Hegazti
+level 30
 type 83
 arch event_obj
 sub_type 6

@@ -1205,6 +1205,7 @@ y 18
 arch priest_sad
 name Traba Jainkoaren
 direction 3
+level 115
 type 83
 arch event_obj
 sub_type 6

@@ -2234,6 +2234,7 @@ x 17
 y 15
 arch smith
 name Egiten Gauza
+level 115
 type 83
 arch event_obj
 sub_type 6

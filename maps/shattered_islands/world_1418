@@ -423,6 +423,7 @@ msg
 I can't believe she's beaten me again. Double or nothin' ?
 endmsg
 name Galera Apustua
+level 17
 type 83
 end
 end
@@ -597,6 +598,7 @@ msg
 Shoo, will ya. Leave me alone, I'm winning here.
 endmsg
 name Maltzur Zaharra
+level 15
 type 83
 end
 end
@@ -847,6 +849,7 @@ Yeah! Beer ish my life!
 I'm noh dwunk! I jus' lika dwenk. Or two.
 endmsg
 name Betiko Mozkortuta
+level 8
 type 83
 end
 end
@@ -1194,9 +1197,9 @@ msg
 Hi there stranger, is there anything I can get ya?
 endmsg
 name Birjina Neskamea
+level 13
 is_male 0
 is_female 1
-stand_still 0
 movement_type 176
 type 83
 arch key2
@@ -1671,6 +1674,7 @@ x 10
 y 16
 arch chef
 name Bero Elikadura
+level 18
 type 83
 arch event_obj
 sub_type 6
