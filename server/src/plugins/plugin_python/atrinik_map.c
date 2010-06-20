@@ -135,21 +135,31 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.MapTileAt(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
- * @param x X position on the map
- * @param y Y position on the map
- * @todo Do someting about the new modified coordinates too?
- * @warning Not tested. */
-static PyObject *Atrinik_Map_MapTileAt(Atrinik_Map *map, PyObject *args)
+ * <h1>map.GetMapFromCoord(<i>\<int\></i> x, <i>\<int\></i> y)</h1>
+ * Get real coordinates from map, taking tiling into consideration.
+ * @param x X position on the map.
+ * @param y Y position on the map.
+ * @return A tuple containing new map, new X, and new Y to use. The new
+ * map can be None. */
+static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
 	int x, y;
+	static char *kwlist[] = {"x", "y", NULL};
+	mapstruct *m;
+	PyObject *tuple;
 
-	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii", kwlist, &x, &y))
 	{
 		return NULL;
 	}
 
-	return wrap_map(hooks->get_map_from_coord(map->map, &x, &y));
+	m = hooks->get_map_from_coord(map->map, &x, &y);
+	tuple = PyTuple_New(3);
+	PyTuple_SET_ITEM(tuple, 0, wrap_map(m));
+	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", x));
+	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", y));
+
+	return tuple;
 }
 
 /**
@@ -385,7 +395,7 @@ static PyMethodDef MapMethods[] =
 	{"GetLastObject",           (PyCFunction) Atrinik_Map_GetLastObject,             METH_VARARGS, 0},
 	{"PlaySound",               (PyCFunction) Atrinik_Map_PlaySound,                 METH_VARARGS, 0},
 	{"Message",                 (PyCFunction) Atrinik_Map_Message,                   METH_VARARGS, 0},
-	{"MapTileAt",               (PyCFunction) Atrinik_Map_MapTileAt,                 METH_VARARGS, 0},
+	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreateObject",            (PyCFunction) Atrinik_Map_CreateObject,              METH_VARARGS, 0},
 	{"CountPlayers",            (PyCFunction) Atrinik_Map_CountPlayers,              METH_VARARGS, 0},
 	{"GetPlayers",              (PyCFunction) Atrinik_Map_GetPlayers,                METH_VARARGS, 0},
