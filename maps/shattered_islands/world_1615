@@ -1,240 +1,164 @@
 arch map
-name Portu Baserrian
+name World
 msg
-Created:  2010-05-27 Asa
-Modified: 2010-06-20 Alex Tokar
+Created:  2009-09-10 Alex Tokar
+Modified: 2010-06-19 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-no_harm 1
-tile_path_1 world_1416
-tile_path_2 world_1515
-tile_path_3 world_1414
-tile_path_4 world_1315
-tile_path_6 world_1514
-tile_path_7 world_1314
-tile_path_8 world_1316
-bg_music harmony2.ogg|0|-1
-region berri_lur
+tile_path_1 world_1616
+tile_path_4 world_1515
+tile_path_8 world_1516
 end
-arch floor_marble1b
+arch water_still
 end
-arch wall_stone9_1
-end
-arch floor_flagm2
+arch water_still
 y 1
 end
-arch floor_flagm1
+arch water_still
 y 2
 end
-arch floor_flagm1
+arch water_still
 y 3
 end
-arch grassd_m7
-y 3
-end
-arch grassd_1
+arch water_still
 y 4
 end
-arch grassd_6
+arch water_still
 y 5
 end
-arch grassd_4
+arch water_still
 y 6
 end
-arch grassd_7
+arch water_still
 y 7
 end
-arch grassd_3
+arch water_still
 y 8
 end
-arch grassd_8
+arch water_still
 y 9
 end
-arch grassd_1
+arch water_still
 y 10
 end
-arch grassd_6
+arch water_still
 y 11
 end
-arch grassd_7
+arch water_still
 y 12
 end
-arch grassd_7
+arch water_still
 y 13
 end
-arch tree_big
-y 13
-end
-arch grassd_4
+arch water_still
 y 14
 end
-arch grassd_5
+arch water_still
 y 15
 end
-arch plant_flower7
-y 15
-end
-arch grassd_8
+arch water_still
 y 16
 end
-arch grassd_3
+arch water_still
 y 17
 end
-arch grassd_6
+arch water_still
 y 18
 end
-arch grassd_6
+arch water_still
 y 19
 end
-arch sand_dm1
-y 19
-end
-arch grassd_3
+arch water_still
 y 20
 end
-arch sand_dm5
-y 20
-end
-arch grassd_5
+arch water_still
 y 21
 end
-arch sand_dm5
-y 21
-end
-arch grassd_8
+arch water_still
 y 22
 end
-arch sand_dm5
-y 22
-end
-arch grassd_7
+arch water_still
 y 23
 end
-arch sand_dm5
-y 23
-end
-arch floor_marble1
+arch water_still
 x 1
 end
-arch wall_stone9_4
-x 1
-end
-arch floor_flagm4
+arch water_still
 x 1
 y 1
 end
-arch floor_flagm2
+arch water_still
 x 1
 y 2
 end
-arch light7
-x 1
-y 2
-end
-arch floor_flagm1
+arch water_still
 x 1
 y 3
 end
-arch grassd_m7
-x 1
-y 3
-end
-arch grassd_4
+arch water_still
 x 1
 y 4
 end
-arch grassd_7
+arch water_still
 x 1
 y 5
 end
-arch plant_flower7
-x 1
-y 5
-end
-arch grassd_7
+arch water_still
 x 1
 y 6
 end
-arch grassd_4
+arch water_still
 x 1
 y 7
 end
-arch grassd_7
+arch water_still
 x 1
 y 8
 end
-arch grassd_7
+arch water_still
 x 1
 y 9
 end
-arch grassd_2
+arch water_still
 x 1
 y 10
 end
-arch grassd_3
+arch water_still
 x 1
 y 11
 end
-arch grassd_3
+arch water_still
 x 1
 y 12
 end
-arch grassd_6
+arch water_still
 x 1
 y 13
 end
-arch tree_big4b
-x 1
-y 13
-end
-arch grassd_1
+arch water_still
 x 1
 y 14
 end
-arch sand_dm1
-x 1
-y 14
-end
-arch grassd_3
+arch water_still
 x 1
 y 15
 end
-arch sand_dm5
-x 1
-y 15
-end
-arch grassd_7
+arch water_still
 x 1
 y 16
 end
-arch sand_dm5
-x 1
-y 16
-end
-arch grassd_4
+arch water_still
 x 1
 y 17
 end
-arch sand_dm5
-x 1
-y 17
-end
-arch grassd_1
+arch water_still
 x 1
 y 18
 end
-arch sand_dm5
-x 1
-y 18
-end
-arch grassd_5
-x 1
-y 19
-end
-arch sand_dm16
+arch water_still
 x 1
 y 19
 end
@@ -242,15 +166,7 @@ arch water_still
 x 1
 y 20
 end
-arch sand_dm14
-x 1
-y 20
-end
 arch water_still
-x 1
-y 21
-end
-arch sand_dm12
 x 1
 y 21
 end
@@ -258,94 +174,66 @@ arch water_still
 x 1
 y 22
 end
-arch sand_dm12
-x 1
-y 22
-end
 arch water_still
 x 1
 y 23
 end
-arch sand_dm12
-x 1
-y 23
-end
-arch floor_flagm1
+arch water_still
 x 2
 end
-arch floor_flagm1
+arch water_still
 x 2
 y 1
 end
-arch floor_flagm1
+arch water_still
 x 2
 y 2
 end
-arch floor_flagm4
+arch water_still
 x 2
 y 3
 end
-arch grassd_m7
-x 2
-y 3
-end
-arch grassd_8
+arch water_still
 x 2
 y 4
 end
-arch grassd_3
+arch water_still
 x 2
 y 5
 end
-arch grassd_8
+arch water_still
 x 2
 y 6
 end
-arch grassd_3
+arch water_still
 x 2
 y 7
 end
-arch grassd_8
+arch water_still
 x 2
 y 8
 end
-arch tree_big3
-x 2
-y 8
-end
-arch grassd_4
+arch water_still
 x 2
 y 9
 end
-arch grassd_4
+arch water_still
 x 2
 y 10
 end
-arch tree49
-x 2
-y 10
-end
-arch grassd_1
+arch water_still
 x 2
 y 11
 end
-arch grassd_2
+arch water_still
 x 2
 y 12
 end
-arch grassd_6
+arch water_still
 x 2
 y 13
 end
-arch tree_big5b
-x 2
-y 13
-end
-arch grassd_8
-x 2
-y 14
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 2
 y 14
 end
@@ -353,15 +241,7 @@ arch water_still
 x 2
 y 15
 end
-arch sand_dm12
-x 2
-y 15
-end
 arch water_still
-x 2
-y 16
-end
-arch sand_dm12
 x 2
 y 16
 end
@@ -369,15 +249,7 @@ arch water_still
 x 2
 y 17
 end
-arch sand_dm12
-x 2
-y 17
-end
 arch water_still
-x 2
-y 18
-end
-arch sand_dm12
 x 2
 y 18
 end
@@ -385,15 +257,7 @@ arch water_still
 x 2
 y 19
 end
-arch sand_dm12
-x 2
-y 19
-end
 arch water_still
-x 2
-y 20
-end
-arch sand_dm3
 x 2
 y 20
 end
@@ -409,78 +273,62 @@ arch water_still
 x 2
 y 23
 end
-arch floor_flagm3
+arch water_still
 x 3
 end
-arch floor_flagm4
+arch water_still
 x 3
 y 1
 end
-arch floor_flagm1
+arch water_still
 x 3
 y 2
 end
-arch floor_flagm4
+arch water_still
 x 3
 y 3
 end
-arch grassd_m7
-x 3
-y 3
-end
-arch grassd_4
+arch water_still
 x 3
 y 4
 end
-arch grassd_8
+arch water_still
 x 3
 y 5
 end
-arch grassd_6
+arch water_still
 x 3
 y 6
 end
-arch grassd_6
+arch water_still
 x 3
 y 7
 end
-arch grassd_7
+arch water_still
 x 3
 y 8
 end
-arch grassd_7
+arch water_still
 x 3
 y 9
 end
-arch grassd_5
+arch water_still
 x 3
 y 10
 end
-arch grassd_7
+arch water_still
 x 3
 y 11
 end
-arch grassd_4
+arch water_still
 x 3
 y 12
 end
-arch tree28
-x 3
-y 12
-end
-arch grassd_4
+arch water_still
 x 3
 y 13
 end
-arch tree_big3
-x 3
-y 13
-end
-arch grassd_5
-x 3
-y 14
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 3
 y 14
 end
@@ -520,90 +368,62 @@ arch water_still
 x 3
 y 23
 end
-arch floor_flagm2
+arch water_still
 x 4
 end
-arch floor_flagm3
+arch water_still
 x 4
 y 1
 end
-arch floor_flagm2
+arch water_still
 x 4
 y 2
 end
-arch light7
-x 4
-y 2
-end
-arch floor_flagm1
+arch water_still
 x 4
 y 3
 end
-arch grassd_m7
-x 4
-y 3
-end
-arch grassd_3
+arch water_still
 x 4
 y 4
 end
-arch grassd_2
+arch water_still
 x 4
 y 5
 end
-arch grassd_4
+arch water_still
 x 4
 y 6
 end
-arch grassd_7
+arch water_still
 x 4
 y 7
 end
-arch plant_flower7
-x 4
-y 7
-end
-arch grassd_5
+arch water_still
 x 4
 y 8
 end
-arch grassd_2
+arch water_still
 x 4
 y 9
 end
-arch tree_big7
-x 4
-y 9
-end
-arch grassd_7
+arch water_still
 x 4
 y 10
 end
-arch grassd_3
+arch water_still
 x 4
 y 11
 end
-arch grassd_7
+arch water_still
 x 4
 y 12
 end
-arch tree_big3
-x 4
-y 12
-end
-arch grassd_7
+arch water_still
 x 4
 y 13
 end
-arch flagwall_short_brick1.181
-x 4
-y 13
-end
-arch grassd_2
-x 4
-y 14
-end
-arch flagwall_short_brick1.141
+arch water_still
 x 4
 y 14
 end
@@ -643,86 +463,58 @@ arch water_still
 x 4
 y 23
 end
-arch floor_flagm4
+arch water_still
 x 5
 end
-arch wall_stone9_3
-x 5
-end
-arch floor_flagm4
+arch water_still
 x 5
 y 1
 end
-arch wall_stone9_3
-x 5
-y 1
-end
-arch floor_flagm2
+arch water_still
 x 5
 y 2
 end
-arch wall_stone9_3
-x 5
-y 2
-end
-arch floor_flagm4
+arch water_still
 x 5
 y 3
 end
-arch grassd_m7
-x 5
-y 3
-end
-arch wall_stone9_3
-x 5
-y 3
-end
-arch grassd_4
+arch water_still
 x 5
 y 4
 end
-arch grassd_1
+arch water_still
 x 5
 y 5
 end
-arch grassd_5
+arch water_still
 x 5
 y 6
 end
-arch grassd_3
+arch water_still
 x 5
 y 7
 end
-arch grassd_3
+arch water_still
 x 5
 y 8
 end
-arch grassd_1
+arch water_still
 x 5
 y 9
 end
-arch grassd_7
+arch water_still
 x 5
 y 10
 end
-arch grassd_2
+arch water_still
 x 5
 y 11
 end
-arch grassd_2
+arch water_still
 x 5
 y 12
 end
-arch tree28
-x 5
-y 12
-end
-arch grassd_6
-no_pass 1
-x 5
-y 13
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 5
 y 13
 end
@@ -766,93 +558,58 @@ arch water_still
 x 5
 y 23
 end
-arch floor_fstone2h
+arch water_still
 x 6
 end
-arch dirt_floor3
-x 6
-end
-arch floor_fstone2d
+arch water_still
 x 6
 y 1
 end
-arch basket2.101
-x 6
-y 1
-end
-arch floor_fstone2h
+arch water_still
 x 6
 y 2
 end
-arch dirt_floor2
-x 6
-y 2
-end
-arch basket2.101
-x 6
-y 2
-end
-arch floor_fstone2c
+arch water_still
 x 6
 y 3
 end
-arch wall_stone9_1
-x 6
-y 3
-end
-arch grassd_1
+arch water_still
 x 6
 y 4
 end
-arch grassd_5
+arch water_still
 x 6
 y 5
 end
-arch grassd_8
+arch water_still
 x 6
 y 6
 end
-arch grassd_4
+arch water_still
 x 6
 y 7
 end
-arch tree45
-x 6
-y 7
-end
-arch grassd_3
+arch water_still
 x 6
 y 8
 end
-arch grassd_2
+arch water_still
 x 6
 y 9
 end
-arch grassd_4
+arch water_still
 x 6
 y 10
 end
-arch tree35
-x 6
-y 10
-end
-arch grassd_3
+arch water_still
 x 6
 y 11
 end
-arch grassd_2
+arch water_still
 x 6
 y 12
 end
-arch plant_flower5
-x 6
-y 12
-end
-arch grassd_6
-x 6
-y 13
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 6
 y 13
 end
@@ -896,78 +653,58 @@ arch water_still
 x 6
 y 23
 end
-arch floor_fstone2f
+arch water_still
 x 7
 end
-arch floor_fstone2b
+arch water_still
 x 7
 y 1
 end
-arch floor_fstone2e
+arch water_still
 x 7
 y 2
 end
-arch basket1.101
-x 7
-y 2
-end
-arch floor_fstone2d
+arch water_still
 x 7
 y 3
 end
-arch wall_stone9_1
-x 7
-y 3
-end
-arch grassd_1
+arch water_still
 x 7
 y 4
 end
-arch grassd_4
+arch water_still
 x 7
 y 5
 end
-arch grassd_5
+arch water_still
 x 7
 y 6
 end
-arch plant_mushroom3
-x 7
-y 6
-end
-arch grassd_3
+arch water_still
 x 7
 y 7
 end
-arch grassd_6
+arch water_still
 x 7
 y 8
 end
-arch grassd_8
+arch water_still
 x 7
 y 9
 end
-arch grassd_2
+arch water_still
 x 7
 y 10
 end
-arch grassd_3
+arch water_still
 x 7
 y 11
 end
-arch grassd_7
+arch water_still
 x 7
 y 12
 end
-arch flagwall_short_brick1.181
-x 7
-y 12
-end
-arch grassd_6
-x 7
-y 13
-end
-arch flagwall_short_brick1.141
+arch water_still
 x 7
 y 13
 end
@@ -1011,74 +748,54 @@ arch water_still
 x 7
 y 23
 end
-arch floor_fstone2e
+arch water_still
 x 8
 end
-arch floor_fstone2f
-x 8
-y 1
-end
-arch trash_wood1.101
+arch water_still
 x 8
 y 1
 end
-arch floor_fstone2j
+arch water_still
 x 8
 y 2
 end
-arch floor_fstone2a
+arch water_still
 x 8
 y 3
 end
-arch wall_stone9_1
-x 8
-y 3
-end
-arch grassd_5
+arch water_still
 x 8
 y 4
 end
-arch grassd_3
+arch water_still
 x 8
 y 5
 end
-arch grassd_8
+arch water_still
 x 8
 y 6
 end
-arch grassd_8
+arch water_still
 x 8
 y 7
 end
-arch grassd_5
+arch water_still
 x 8
 y 8
 end
-arch grassd_5
+arch water_still
 x 8
 y 9
 end
-arch plant13
-x 8
-y 9
-end
-arch grassd_1
+arch water_still
 x 8
 y 10
 end
-arch grassd_2
+arch water_still
 x 8
 y 11
 end
-arch tree_big5
-x 8
-y 11
-end
-arch grassd_4
-x 8
-y 12
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 8
 y 12
 end
@@ -1126,62 +843,54 @@ arch water_still
 x 8
 y 23
 end
-arch floor_fstone2b
+arch water_still
 x 9
 end
-arch floor_fstone2d
+arch water_still
 x 9
 y 1
 end
-arch floor_fstone2h
+arch water_still
 x 9
 y 2
 end
-arch floor_fstone2g
+arch water_still
 x 9
 y 3
 end
-arch wall_stone9_1
-x 9
-y 3
-end
-arch grassd_4
+arch water_still
 x 9
 y 4
 end
-arch grassd_2
+arch water_still
 x 9
 y 5
 end
-arch grassd_8
+arch water_still
 x 9
 y 6
 end
-arch grassd_3
+arch water_still
 x 9
 y 7
 end
-arch grassd_8
+arch water_still
 x 9
 y 8
 end
-arch grassd_3
+arch water_still
 x 9
 y 9
 end
-arch grassd_3
+arch water_still
 x 9
 y 10
 end
-arch grassd_7
+arch water_still
 x 9
 y 11
 end
-arch grassd_4
-x 9
-y 12
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 9
 y 12
 end
@@ -1229,74 +938,54 @@ arch water_still
 x 9
 y 23
 end
-arch floor_fstone2a
+arch water_still
 x 10
 end
-arch floor_fstone2g
+arch water_still
 x 10
 y 1
 end
-arch floor_fstone2a
+arch water_still
 x 10
 y 2
 end
-arch dirt_floor1
-x 10
-y 2
-end
-arch floor_fstone2g
+arch water_still
 x 10
 y 3
 end
-arch wall_stone9_1
-x 10
-y 3
-end
-arch grassd_1
+arch water_still
 x 10
 y 4
 end
-arch grassd_2
+arch water_still
 x 10
 y 5
 end
-arch grassd_7
+arch water_still
 x 10
 y 6
 end
-arch tree33
-x 10
-y 6
-end
-arch grassd_8
+arch water_still
 x 10
 y 7
 end
-arch grassd_3
+arch water_still
 x 10
 y 8
 end
-arch grassd_7
+arch water_still
 x 10
 y 9
 end
-arch grassd_7
+arch water_still
 x 10
 y 10
 end
-arch tree_big4
-x 10
-y 10
-end
-arch grassd_1
+arch water_still
 x 10
 y 11
 end
-arch grassd_5
-x 10
-y 12
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 10
 y 12
 end
@@ -1344,89 +1033,54 @@ arch water_still
 x 10
 y 23
 end
-arch floor_fstone2c
+arch water_still
 x 11
 end
-arch trash_wood1.101
-x 11
-end
-arch floor_fstone2b
+arch water_still
 x 11
 y 1
 end
-arch floor_fstone2b
+arch water_still
 x 11
 y 2
 end
-arch trash_wood2.101
-x 11
-y 2
-end
-arch floor_fstone2i
+arch water_still
 x 11
 y 3
 end
-arch wall_stone9_1
-x 11
-y 3
-end
-arch grassd_8
+arch water_still
 x 11
 y 4
 end
-arch plant_flower1
-x 11
-y 4
-end
-arch grassd_3
+arch water_still
 x 11
 y 5
 end
-arch grassd_2
+arch water_still
 x 11
 y 6
 end
-arch grassd_4
+arch water_still
 x 11
 y 7
 end
-arch grassd_8
+arch water_still
 x 11
 y 8
 end
-arch plant_mushroom1
-x 11
-y 8
-end
-arch grassd_7
+arch water_still
 x 11
 y 9
 end
-arch flagwall_short_brick1.181
-x 11
-y 9
-end
-arch grassd_1
+arch water_still
 x 11
 y 10
 end
-arch flagwall_short_brick1.131
-x 11
-y 10
-end
-arch grassd_1
+arch water_still
 x 11
 y 11
 end
-arch flagwall_short_brick1.131
-x 11
-y 11
-end
-arch grassd_6
-x 11
-y 12
-end
-arch flagwall_short_brick1.141
+arch water_still
 x 11
 y 12
 end
@@ -1474,70 +1128,42 @@ arch water_still
 x 11
 y 23
 end
-arch floor_fstone2c
+arch water_still
 x 12
 end
-arch floor_fstone2g
+arch water_still
 x 12
 y 1
 end
-arch floor_fstone2e
+arch water_still
 x 12
 y 2
 end
-arch floor_fstone2d
+arch water_still
 x 12
 y 3
 end
-arch wall_stone9_1
-x 12
-y 3
-end
-arch grassd_1
+arch water_still
 x 12
 y 4
 end
-arch flagwall_short_brick1.181
-x 12
-y 4
-end
-arch grassd_1
+arch water_still
 x 12
 y 5
 end
-arch flagwall_short_brick1.131
-x 12
-y 5
-end
-arch grassd_5
+arch water_still
 x 12
 y 6
 end
-arch flagwall_short_brick1.131
-x 12
-y 6
-end
-arch grassd_6
+arch water_still
 x 12
 y 7
 end
-arch flagwall_short_brick1.131
-x 12
-y 7
-end
-arch grassd_7
+arch water_still
 x 12
 y 8
 end
-arch flagwall_short_brick1.131
-x 12
-y 8
-end
-arch grassd_7
-x 12
-y 9
-end
-arch flagwall_short_brick1.141
+arch water_still
 x 12
 y 9
 end
@@ -1597,34 +1223,22 @@ arch water_still
 x 12
 y 23
 end
-arch floor_fstone2c
+arch water_still
 x 13
 end
-arch floor_fstone2e
+arch water_still
 x 13
 y 1
 end
-arch water_floor
-x 13
-y 1
-end
-arch floor_fstone2c
+arch water_still
 x 13
 y 2
 end
-arch floor_fstone2i
+arch water_still
 x 13
 y 3
 end
-arch wall_stone9_1
-x 13
-y 3
-end
-arch grassd_2
-x 13
-y 4
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 13
 y 4
 end
@@ -1704,41 +1318,22 @@ arch water_still
 x 13
 y 23
 end
-arch floor_fstone2d
+arch water_still
 x 14
 end
-arch wall_stone9_3
-x 14
-end
-arch floor_fstone2f
+arch water_still
 x 14
 y 1
 end
-arch wall_stone9_3
-x 14
-y 1
-end
-arch floor_fstone2d
+arch water_still
 x 14
 y 2
 end
-arch wall_stone9_3
-x 14
-y 2
-end
-arch floor_fstone2e
+arch water_still
 x 14
 y 3
 end
-arch wall_stone9_4
-x 14
-y 3
-end
-arch grassd_8
-x 14
-y 4
-end
-arch flagwall_short_brick1.111
+arch water_still
 x 14
 y 4
 end
@@ -1818,41 +1413,22 @@ arch water_still
 x 14
 y 23
 end
-arch grassd_5
+arch water_still
 x 15
 end
-arch flagwall_short_brick1.131
-x 15
-end
-arch grassd_1
+arch water_still
 x 15
 y 1
 end
-arch flagwall_short_brick1.131
-x 15
-y 1
-end
-arch grassd_8
+arch water_still
 x 15
 y 2
 end
-arch flagwall_short_brick1.131
-x 15
-y 2
-end
-arch grassd_4
+arch water_still
 x 15
 y 3
 end
-arch flagwall_short_brick1.131
-x 15
-y 3
-end
-arch grassd_2
-x 15
-y 4
-end
-arch flagwall_short_brick1.141
+arch water_still
 x 15
 y 4
 end

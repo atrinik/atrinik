@@ -131,3 +131,10 @@ The Dragons Island is home to many fierce dragons, including the fire dragons, t
 It is also the home of the legendary black dragon Scursaur, and their leader.
 endmsg
 end
+region berri_lur
+parent world
+longname Berri Lur
+msg
+
+endmsg
+end
