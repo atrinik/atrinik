@@ -205,6 +205,11 @@ void check_active_maps()
 
 		if (!map->timeout)
 		{
+			if (!map->player_first)
+			{
+				set_map_timeout(map);
+			}
+
 			continue;
 		}
 
