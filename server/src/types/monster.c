@@ -288,7 +288,7 @@ object *find_enemy(object *npc, rv_vector *rv)
 	if (!tmp)
 	{
 		/* If we have an attacker, check him */
-		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count))
+		if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count) && !IS_INVISIBLE(npc->attacked_by, npc) && !QUERY_FLAG(npc->attacked_by, FLAG_INVULNERABLE))
 		{
 			/* We don't want a fight evil vs evil or good against non evil. */
 			if (is_friend_of(npc, npc->attacked_by))

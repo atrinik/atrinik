@@ -371,21 +371,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		}
 	}
 
-	/* If one get attacked, the attacker will become the enemy */
-	if (!OBJECT_VALID(op->enemy, op->enemy_count))
-	{
-		/* Assign the owner as bad boy */
-		if (get_owner(hitter))
-		{
-			set_npc_enemy(op, hitter->owner, NULL);
-		}
-		/* Or normal mob */
-		else if (QUERY_FLAG(hitter, FLAG_MONSTER))
-		{
-			set_npc_enemy(op, hitter, NULL);
-		}
-	}
-
 	/* This is needed to send the hit number animations to the clients */
 	if (op->damage_round_tag != ROUND_TAG)
 	{
