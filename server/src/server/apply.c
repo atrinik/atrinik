@@ -191,6 +191,7 @@ void move_apply(object *trap, object *victim, object *originator, int flags)
 			break;
 
 		case CONE:
+		case LIGHTNING:
 			break;
 
 		case FBULLET:

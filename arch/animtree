@@ -141,6 +141,7 @@
 /mobs/human/town/female2
 /indoor/lab/fire_cauld.131
 /magic/burnout/fire_trail
+/magic/bolt/firebolt/firebolt
 /magic/fire/firebreath
 /indoor/fireplace/fireplace_left
 /indoor/fireplace/fireplace_right
@@ -155,6 +156,7 @@
 /misc/fog_glow2
 /indoor/smithy/forge_111
 /mobs/animals/frog/frog
+/magic/bolt/frostbolt/frostbolt
 /walls/doors/gate1_locked
 /connect/gates/gateTrg1
 /connect/gates/gateTrg1_open
@@ -219,6 +221,7 @@
 /mobs/summoned/golem_lava/lavagolem
 /misc/effects/level_up
 /mobs/undead/lich_lord/lich_lord
+/magic/bolt/lightning/lightning
 /items/container/lockers/locker1.111
 /items/container/lockers/locker2.111
 /items/container/lockers/locker3.111
@@ -246,6 +249,7 @@
 /special/mover/mover
 /mobs/elementals/mud_hand/mud_hand
 /landscape/plants/mushrooms/mushroom_medium
+/magic/bolt/negabolt/negabolt
 /mobs/beholder/oclunus/oclunus
 /mobs/giants/ogre/ogre
 /mobs/orcs/orc_berserker

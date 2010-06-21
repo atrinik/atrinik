@@ -676,6 +676,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, Spell
 			success = cast_heal_around(op, SK_level(caster), type);
 			break;
 
+		case SP_FROSTBOLT:
+		case SP_FIREBOLT:
+		case SP_LIGHTNING:
+		case SP_FORKED_LIGHTNING:
+		case SP_NEGABOLT:
+			success = fire_bolt(op, caster, dir, type);
+			break;
+
 		default:
 			LOG(llevBug, "BUG: cast_spell(): Invalid invalid spell: %d\n", type);
 			break;
@@ -779,7 +787,8 @@ static int ok_to_put_more(mapstruct *m, int x, int y, object *op)
  * @retval 1 Bolt was fired (but may have been destroyed already). */
 int fire_bolt(object *op, object *caster, int dir, int type)
 {
-	object *tmp = NULL;
+	object *tmp;
+	int w;
 
 	if (!spellarch[type])
 	{
@@ -788,20 +797,17 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	tmp = arch_to_object(spellarch[type]);
 
-	if (tmp == NULL)
+	if (!tmp)
 	{
 		return 0;
 	}
 
-	/* We should have from the arch type the default damage - we add our
-	 * new damage profile. */
 	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
-
-	/* For duration use the old formula */
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
-	tmp->x = op->x, tmp->y = op->y;
 	tmp->direction = dir;
+	tmp->x = op->x + DIRX(tmp);
+	tmp->y = op->y + DIRY(tmp);
 
 	if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE))
 	{
@@ -810,20 +816,23 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 	set_owner(tmp, op);
 	tmp->level = SK_level(caster);
-	tmp->x += DIRX(tmp), tmp->y += DIRY(tmp);
+	w = wall(op->map, tmp->x, tmp->y);
 
-	if (wall(op->map, tmp->x, tmp->y))
+	if (w && !QUERY_FLAG(tmp, FLAG_REFLECTING))
 	{
-		if (!QUERY_FLAG(tmp, FLAG_REFLECTING))
-		{
-			return 0;
-		}
-
-		tmp->x = op->x, tmp->y = op->y;
-		tmp->direction = absdir(tmp->direction + 4);
+		return 0;
 	}
 
-	if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) != NULL)
+	if (w || reflwall(op->map, tmp->x, tmp->y, tmp))
+	{
+		tmp->direction = absdir(tmp->direction + 4);
+		tmp->x = op->x + DIRX(tmp);
+		tmp->y = op->y + DIRY(tmp);
+	}
+
+	tmp = insert_ob_in_map(tmp, op->map, op, 0);
+
+	if (tmp)
 	{
 		move_bolt(tmp);
 	}
@@ -1290,6 +1299,7 @@ void forklightning(object *op, object *tmp)
 		object *new_bolt = get_object();
 
 		copy_object(tmp, new_bolt);
+		new_bolt->stats.food = 0;
 		/* Reduce chances of subsequent forking */
 		new_bolt->stats.Dex -= 10;
 		/* Less forks from main bolt too */
@@ -1354,8 +1364,8 @@ int reflwall(mapstruct *m, int x, int y, object *sp_op)
  * @param op The bolt object moving. */
 void move_bolt(object *op)
 {
-	object *tmp;
 	int w, r;
+	object *tmp;
 
 	if (--(op->stats.hp) < 0)
 	{
@@ -1363,102 +1373,103 @@ void move_bolt(object *op)
 		return;
 	}
 
-	hit_map(op, 0, 0);
-
-	if (!op->value && --(op->stats.exp) > 0)
+	if (op->stats.sp)
 	{
-		op->value = 1;
+		return;
+	}
 
-		if (!op->direction)
+	op->stats.sp = 1;
+
+	if (!op->direction)
+	{
+		return;
+	}
+
+	if (blocks_magic(op->map, op->x + DIRX(op), op->y + DIRY(op)))
+	{
+		return;
+	}
+
+	w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
+	r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
+
+	if ((w || r) && !QUERY_FLAG(op, FLAG_REFLECTING))
+	{
+		return;
+	}
+
+	/* We're about to bounce */
+	if (w || r)
+	{
+		op->stats.sp = 0;
+
+		if (op->direction & 1)
 		{
-			return;
+			op->direction = absdir(op->direction + 4);
 		}
-
-		if (blocks_view(op->map, op->x + DIRX(op), op->y + DIRY(op)))
+		else
 		{
-			return;
-		}
+			int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
 
-		w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
-		r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
-
-		if (w && !QUERY_FLAG(op, FLAG_REFLECTING))
-		{
-			return;
-		}
-
-		/* We're about to bounce */
-		if (w || r)
-		{
-			if (!QUERY_FLAG(op, FLAG_REFLECTING))
-			{
-				return;
-			}
-
-			op->value = 0;
-
-			if (op->direction & 1)
+			if (left == right)
 			{
 				op->direction = absdir(op->direction + 4);
 			}
-			else
+			else if (left)
 			{
-				int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
-
-				if (left == right)
-				{
-					op->direction = absdir(op->direction + 4);
-				}
-				else if (left)
-				{
-					op->direction = absdir(op->direction + 2);
-				}
-				else if (right)
-				{
-					op->direction = absdir(op->direction - 2);
-				}
+				op->direction = absdir(op->direction + 2);
 			}
-
-			/* A bolt *must* be IS_TURNABLE */
-			update_turn_face(op);
-			return;
+			else if (right)
+			{
+				op->direction = absdir(op->direction - 2);
+			}
 		}
-		/* Create a copy of this object and put it ahead */
+
+		update_turn_face(op);
+		return;
+	}
+
+	if (op->stats.food)
+	{
+		return;
+	}
+
+	op->stats.food = 1;
+	check_fired_arch(op);
+
+	if (!OBJECT_ACTIVE(op))
+	{
+		return;
+	}
+
+	/* Create a copy of this object and put it ahead */
+	tmp = get_object();
+	copy_object(op, tmp);
+	tmp->speed_left = -0.1f;
+	tmp->x += DIRX(tmp);
+	tmp->y += DIRY(tmp);
+	tmp->stats.sp = 0;
+
+	if (!insert_ob_in_map(tmp, op->map, op, 0))
+	{
+		return;
+	}
+
+	if (rndm(0, 99) < tmp->stats.Dex)
+	{
+		forklightning(op, tmp);
+	}
+
+	if (tmp)
+	{
+		if (!tmp->stats.food)
+		{
+			tmp->stats.food = 1;
+			move_bolt(tmp);
+		}
 		else
 		{
-			tmp = get_object();
-			copy_object(op, tmp);
-			tmp->speed_left = -0.1f;
-			tmp->value = 0;
-			tmp->stats.hp++;
-			tmp->x += DIRX(tmp), tmp->y += DIRY(tmp);
-
-			if (!insert_ob_in_map(tmp, op->map, op, 0))
-			{
-				return;
-			}
-
-			/* New forking code.  Possibly create forks of this object
-			 * going off in other directions. */
-
-			/* stats.Dex % of forking */
-			if (rndm(0, 99) < tmp->stats.Dex)
-			{
-				forklightning(op, tmp);
-			}
-
-			if (tmp)
-			{
-				if (!tmp->stats.food)
-				{
-					tmp->stats.food = 1;
-					move_bolt(tmp);
-				}
-				else
-				{
-					tmp->stats.food = 0;
-				}
-			}
+			tmp->stats.food = 0;
 		}
 	}
 }
