@@ -14,6 +14,9 @@ void check_server_ban();
 /* tests/unit/server/check_object.c */
 void check_server_object();
 
+/* tests/unit/server/check_re_cmp.c */
+void check_server_re_cmp();
+
 /* tests/unit/server/check_shstr.c */
 void check_server_shstr();
 

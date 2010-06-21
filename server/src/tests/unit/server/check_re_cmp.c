@@ -23,30 +23,48 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This is the main file for unit tests. From here, we call all unit
- * test functions. */
-
 #include <global.h>
 #include <check.h>
-#include <check_proto.h>
 
-/* The main unit test function. Calls other functions to do the unit
- * tests. */
-void check_main()
+static void check_re_cmp(const char *str, const char *regex)
 {
-	/* bugs */
-	check_bug_85();
+	fail_if(re_cmp(str, regex) == NULL, "Failed to match '%s' with regex '%s'.", str, regex);
+}
 
-	/* unit/commands */
-	check_commands_object();
+START_TEST(test_re_cmp)
+{
+	check_re_cmp("dragon183", "dragon[1-9]+$");
+	check_re_cmp("dragon18", "dragon[1-9][1-9]");
+	check_re_cmp("dragon18", "dragon[1-2][1-9]$");
+	check_re_cmp("dragon18", "dragon[81]+");
+	check_re_cmp("treasure", "^treas");
+	check_re_cmp("treasure", "^treasure$");
+	check_re_cmp("where is treasure", "treasure$");
+	check_re_cmp("where is treasure?", "treasure[?.]$");
+}
+END_TEST
 
-	/* unit/server */
-	check_server_ban();
-	check_server_arch();
-	check_server_object();
-	check_server_re_cmp();
-	/* Anything that needs the shared string interface should go above
-	 * this line (arches, artifacts, players, etc). */
-	check_server_shstr();
-	check_server_utils();
+static Suite *re_cmp_suite()
+{
+	Suite *s = suite_create("re_cmp");
+	TCase *tc_core = tcase_create("Core");
+
+	tcase_add_checked_fixture(tc_core, NULL, NULL);
+
+	suite_add_tcase(s, tc_core);
+	tcase_add_test(tc_core, test_re_cmp);
+
+	return s;
+}
+
+void check_server_re_cmp()
+{
+	Suite *s = re_cmp_suite();
+	SRunner *sr = srunner_create(s);
+
+	srunner_set_xml(sr, "unit/server/re_cmp.xml");
+	srunner_set_log(sr, "unit/server/re_cmp.out");
+	srunner_run_all(sr, CK_ENV);
+	srunner_ntests_failed(sr);
+	srunner_free(sr);
 }
