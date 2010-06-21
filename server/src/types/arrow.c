@@ -148,15 +148,12 @@ void move_arrow(object *op)
 	if ((flags = GET_MAP_FLAGS(m, x, y)) & (P_IS_ALIVE | P_IS_PLAYER))
 	{
 		/* Search for a vulnerable object. */
-		for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp; tmp = tmp->above)
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, 5); tmp && tmp->layer == 6; tmp = tmp->above)
 		{
-			if (tmp->head)
-			{
-				tmp = tmp->head;
-			}
+			tmp = HEAD(tmp);
 
 			/* Now, let friends fire through friends */
-			if (is_friend_of(hitter, tmp) || tmp == hitter)
+			if (!IS_LIVE(tmp) || is_friend_of(hitter, tmp) || tmp == hitter)
 			{
 				continue;
 			}
