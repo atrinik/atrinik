@@ -371,6 +371,12 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		}
 	}
 
+	/* If one gets attacked, the attacker will become the enemy */
+	if (!OBJECT_VALID(op->enemy, op->enemy_count) && !IS_INVISIBLE(hit_obj, op) && !QUERY_FLAG(hit_obj, FLAG_INVULNERABLE))
+	{
+		set_npc_enemy(op, hit_obj, NULL);
+	}
+
 	/* This is needed to send the hit number animations to the clients */
 	if (op->damage_round_tag != ROUND_TAG)
 	{
