@@ -2346,16 +2346,22 @@ void menu_move_widget(widgetdata *widget, int x, int y)
 
 void menu_create_widget(widgetdata *widget, int x, int y)
 {
+	(void) x;
+	(void) y;
 	create_widget_object(widget->WidgetSubtypeID);
 }
 
 void menu_remove_widget(widgetdata *widget, int x, int y)
 {
+	(void) x;
+	(void) y;
 	remove_widget_object(widget);
 }
 
 void menu_detach_widget(widgetdata *widget, int x, int y)
 {
+	(void) x;
+	(void) y;
 	detach_widget(widget);
 }
 
@@ -2396,6 +2402,8 @@ void menu_set_channel_filter(widgetdata *widget, int x, int y)
 
 void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 {
+	(void) x;
+	(void) y;
 	add_menuitem(widget, "Say", &menu_set_say_filter, MENU_CHECKBOX);
 	add_menuitem(widget, "Shout", &menu_set_shout_filter, MENU_CHECKBOX);
 	add_menuitem(widget, "Group", &menu_set_gsay_filter, MENU_CHECKBOX);
