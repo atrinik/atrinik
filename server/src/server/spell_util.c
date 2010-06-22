@@ -1385,13 +1385,6 @@ void move_bolt(object *op)
 		return;
 	}
 
-	if (op->stats.sp)
-	{
-		return;
-	}
-
-	op->stats.sp = 1;
-
 	if (!op->direction)
 	{
 		return;
@@ -1420,8 +1413,6 @@ void move_bolt(object *op)
 	/* We're about to bounce */
 	if (w || r)
 	{
-		op->stats.sp = 0;
-
 		if (op->direction & 1)
 		{
 			op->direction = absdir(op->direction + 4);
@@ -1461,7 +1452,6 @@ void move_bolt(object *op)
 	tmp->speed_left = -0.1f;
 	tmp->x += DIRX(tmp);
 	tmp->y += DIRY(tmp);
-	tmp->stats.sp = 0;
 
 	if (!insert_ob_in_map(tmp, op->map, op, 0))
 	{
