@@ -802,6 +802,12 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 		return 0;
 	}
 
+	if (!dir)
+	{
+		new_draw_info(NDI_UNIQUE, op, "You can't fire that at yourself!");
+		return 0;
+	}
+
 	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
@@ -828,6 +834,12 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 		tmp->direction = absdir(tmp->direction + 4);
 		tmp->x = op->x + DIRX(tmp);
 		tmp->y = op->y + DIRY(tmp);
+	}
+
+	if (wall(op->map, tmp->x, tmp->y))
+	{
+		new_draw_info(NDI_UNIQUE, op, "There is something in the way.");
+		return 0;
 	}
 
 	tmp = insert_ob_in_map(tmp, op->map, op, 0);
@@ -1390,10 +1402,17 @@ void move_bolt(object *op)
 		return;
 	}
 
+	check_fired_arch(op);
+
+	if (!OBJECT_ACTIVE(op))
+	{
+		return;
+	}
+
 	w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
 	r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
 
-	if ((w || r) && !QUERY_FLAG(op, FLAG_REFLECTING))
+	if (w && !QUERY_FLAG(op, FLAG_REFLECTING))
 	{
 		return;
 	}
@@ -1429,18 +1448,12 @@ void move_bolt(object *op)
 		return;
 	}
 
-	if (op->stats.food)
+	if (op->stats.food || !op->stats.hp)
 	{
 		return;
 	}
 
 	op->stats.food = 1;
-	check_fired_arch(op);
-
-	if (!OBJECT_ACTIVE(op))
-	{
-		return;
-	}
 
 	/* Create a copy of this object and put it ahead */
 	tmp = get_object();
