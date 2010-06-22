@@ -2782,7 +2782,7 @@ int check_walk_off(object *op, object *originator, int flags)
 		{
 			local_walk_semaphore = 1;
 			static_walk_semaphore = 1;
-			CLEAR_FLAG(op, FLAG_OBJECT_WAS_MOVED);
+			CLEAR_FLAG(part, FLAG_OBJECT_WAS_MOVED);
 		}
 
 		/* Ok, check objects here... */
