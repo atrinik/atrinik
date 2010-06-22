@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2009-11-14 Alex Tokar
+Modified: 2010-06-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -694,11 +694,30 @@ arch spawn_point
 x 5
 y 4
 arch lom_lobon
-type 83
 level 105
 random_move 1
 item_race 2
 item_level 2
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack2b
@@ -727,6 +746,24 @@ arch ability_firestorm
 end
 arch ability_mbullet
 end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack3b
@@ -749,12 +786,31 @@ arch spawn_point
 x 5
 y 11
 arch raas
-type 83
+direction 1
 level 105
 random_move 1
 item_race 2
 item_level 2
-direction 1
+behavior 2
+type 83
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
 end
 end
 arch floor_sblack2b
@@ -1197,11 +1253,30 @@ arch spawn_point
 x 9
 y 4
 arch raas
-type 83
 level 106
 random_move 1
 item_race 2
 item_level 2
+behavior 2
+type 83
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
 end
 end
 arch floor_sblack3b
@@ -1244,12 +1319,31 @@ arch spawn_point
 x 9
 y 11
 arch lom_lobon
-type 83
+direction 1
 level 106
 random_move 1
 item_race 2
 item_level 2
-direction 1
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack1b
@@ -1705,11 +1799,30 @@ arch spawn_point
 x 13
 y 4
 arch lom_lobon
-type 83
 level 107
 random_move 1
 item_race 2
 item_level 2
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack2b
@@ -1728,11 +1841,29 @@ arch spawn_point
 x 13
 y 7
 arch demon_fire
-type 83
 level 107
 random_move 1
 item_race 4
 item_level 4
+type 83
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
 end
 end
 arch floor_sblack2b
@@ -1755,12 +1886,31 @@ arch spawn_point
 x 13
 y 11
 arch raas
-type 83
+direction 1
 level 107
 random_move 1
 item_race 2
 item_level 2
-direction 1
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack2b
@@ -2191,11 +2341,30 @@ arch spawn_point
 x 17
 y 4
 arch raas
-type 83
 level 108
 random_move 1
 item_race 2
 item_level 2
+behavior 2
+type 83
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
 end
 end
 arch floor_sblack1b
@@ -2214,13 +2383,31 @@ arch spawn_point
 x 17
 y 7
 arch demilich
-type 83
+direction 7
 level 109
 random_move 1
 item_race 2
 item_level 2
-direction 7
+type 83
 arch ability_firestorm
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
 end
 end
 end
@@ -2232,13 +2419,31 @@ arch spawn_point
 x 17
 y 8
 arch skel_mage
-type 83
+direction 7
 level 109
 random_move 1
 item_race 2
 item_level 2
-direction 7
+type 83
 arch ability_icestorm
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
 end
 end
 end
@@ -2258,12 +2463,31 @@ arch spawn_point
 x 17
 y 11
 arch lom_lobon
-type 83
+direction 1
 level 108
 random_move 1
 item_race 2
 item_level 2
-direction 1
+behavior 2
+type 83
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
+end
 end
 end
 arch floor_sblack2b
@@ -2331,10 +2555,10 @@ x 17
 y 21
 end
 arch grave_cross2.111
-name strange grave
 msg
 You enter the ancient halls of Moroch. You feel a huge amount of energy in this place.
 endmsg
+name strange grave
 type 66
 slaying moroch_temple_d_0102
 hp 4
@@ -2760,12 +2984,15 @@ x 21
 y 8
 arch lich_lord
 name Moroch
-type 83
+direction 7
 level 110
-dam 82
-maxhp 192
-ac 20
-Con 5
+dam 80
+wc 7
+maxhp 150
+ac 15
+Con 15
+attack_impact 60
+attack_chaos 40
 can_cast_spell 1
 sp -1
 maxsp 152
@@ -2775,27 +3002,45 @@ Dex 2
 can_see_in_dark 1
 protect_impact 50
 protect_slash 50
-protect_pierce 50
 protect_cleave 50
-protect_fire 99
-protect_cold 99
+protect_pierce 50
+protect_fire 50
+protect_cold 50
 protect_electricity 50
-protect_acid 50
 protect_poison 50
+protect_acid 50
 protect_magic 30
 protect_godpower -50
-direction 7
+type 83
 arch ability_firestorm
 end
 arch ability_icestorm
 end
 arch rand_drop
-container 1000
+container 200
 arch power_crystal
 name Moroch's Glowing Crystal
 value 300000
 material 256
 end
+end
+arch key_blue
+name raas master key
+layer 0
+sys_object 1
+slaying moroch_temple_key4
+end
+arch key2
+name dread beholder master key
+layer 0
+sys_object 1
+slaying moroch_temple_key3
+end
+arch key_brown
+name lom lobon master key
+layer 0
+sys_object 1
+slaying moroch_temple_key5
 end
 end
 end
