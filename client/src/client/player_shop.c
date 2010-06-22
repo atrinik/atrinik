@@ -52,13 +52,13 @@ static void shop_add_button(int x, int y, const char *text);
  * Show the shop GUI widget.
  * @param x X position of the widget
  * @param y Y position of the widget */
-void widget_show_shop(int x, int y)
+void widget_show_shop(widgetdata *widget)
 {
 	/* Show the main shop bitmap */
-	sprite_blt(Bitmaps[BITMAP_SHOP], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_SHOP], widget->x1, widget->y1, NULL, NULL);
 
 	/* Add a close button at top right */
-	shop_add_close_button(x + Bitmaps[BITMAP_SHOP]->bitmap->w - 10, y + 2);
+	shop_add_close_button(widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - 10, widget->y1 + 2);
 
 	/* Sanity check, because the close button can close the GUI */
 	if (!shop_gui)
@@ -73,13 +73,13 @@ void widget_show_shop(int x, int y)
 
 		snprintf(buf, sizeof(buf), "Shop: %s", shop_gui->shop_owner);
 
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 4, y + 1, COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 5, y + 2, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 4, widget->y1 + 1, COLOR_BLACK, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 5, widget->y1 + 2, COLOR_WHITE, NULL, NULL);
 	}
 	else
 	{
-		StringBlt(ScreenSurface, &SystemFont, "Shop", x + 4, y + 1, COLOR_BLACK, NULL, NULL);
-		StringBlt(ScreenSurface, &SystemFont, "Shop", x + 5, y + 2, COLOR_WHITE, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 4, widget->y1 + 1, COLOR_BLACK, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 5, widget->y1 + 2, COLOR_WHITE, NULL, NULL);
 	}
 
 	/* Determine the right kind of buttons and inputs to show */
@@ -89,41 +89,41 @@ void widget_show_shop(int x, int y)
 		case SHOP_STATE_NONE:
 			if (shop_gui->selected_tag)
 			{
-				shop_add_button(x + 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Remove");
+				shop_add_button(widget->x1 + 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Remove");
 			}
 
-			shop_add_button(x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w - 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Open");
+			shop_add_button(widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w - 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Open");
 
 			if (!shop_gui)
 			{
 				return;
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "Price:", x + 5, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "Price:", widget->x1 + 5, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_BLACK, NULL, NULL);
 
 			if (shop_gui->input_type == SHOP_INPUT_TYPE_PRICE)
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Price:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_HGOLD, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Price:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_HGOLD, NULL, NULL);
 			}
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Price:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_WHITE, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Price:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_WHITE, NULL, NULL);
 			}
 
-			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 57, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 57, NULL, NULL);
 
-			StringBlt(ScreenSurface, &SystemFont, "Number:", x + 5, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 39, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 5, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 39, COLOR_BLACK, NULL, NULL);
 
 			if (shop_gui->input_type == SHOP_INPUT_TYPE_NROF)
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Number:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_HGOLD, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_HGOLD, NULL, NULL);
 			}
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Number:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_WHITE, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_WHITE, NULL, NULL);
 			}
 
-			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 40, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 40, NULL, NULL);
 
 			break;
 
@@ -131,23 +131,23 @@ void widget_show_shop(int x, int y)
 		case SHOP_STATE_BUYING:
 			if (shop_gui->selected_tag)
 			{
-				shop_add_button(x + 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Buy");
+				shop_add_button(widget->x1 + 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Buy");
 
-				shop_add_button(x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w - 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Examine");
+				shop_add_button(widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->w - 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - Bitmaps[BITMAP_DIALOG_BUTTON_UP]->bitmap->h - 3, "Examine");
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "Number:", x + 5, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_BLACK, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 5, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_BLACK, NULL, NULL);
 
 			if (shop_gui->input_type == SHOP_INPUT_TYPE_NROF)
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Number:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_HGOLD, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_HGOLD, NULL, NULL);
 			}
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, "Number:", x + 6, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_WHITE, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "Number:", widget->x1 + 6, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_WHITE, NULL, NULL);
 			}
 
-			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 57, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_SHOP_INPUT], widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 4, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 57, NULL, NULL);
 
 			break;
 	}
@@ -181,7 +181,7 @@ void widget_show_shop(int x, int y)
 			}
 
 			/* If we clicked on the item, set the selected tag accordingly */
-			if (mx > x + item_x && mx < x + item_x + 32 && my > y + item_y && my < y + item_y + 32 && mb && mb_clicked)
+			if (mx > widget->x1 + item_x && mx < widget->x1 + item_x + 32 && my > widget->y1 + item_y && my < widget->y1 + item_y + 32 && mb && mb_clicked)
 			{
 				shop_gui->selected_tag = shop_item_tmp->tag;
 
@@ -206,7 +206,7 @@ void widget_show_shop(int x, int y)
 			{
 				found_selected = 1;
 
-				sprite_blt(Bitmaps[BITMAP_INVSLOT], x + item_x, y + item_y, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + item_x, widget->y1 + item_y, NULL, NULL);
 
 				switch (shop_gui->shop_state)
 				{
@@ -216,15 +216,15 @@ void widget_show_shop(int x, int y)
 
 						strcpy(buf, shop_show_input(buf, &SystemFont, Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 5, shop_gui->input_type == SHOP_INPUT_TYPE_PRICE ? 1 : 0));
 
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_BLACK, NULL, NULL);
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_WHITE, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_BLACK, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_WHITE, NULL, NULL);
 
 						snprintf(buf, sizeof(buf), "%d", shop_item_tmp->nrof);
 
 						strcpy(buf, shop_show_input(buf, &SystemFont, Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 5, shop_gui->input_type == SHOP_INPUT_TYPE_NROF ? 1 : 0));
 
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_BLACK, NULL, NULL);
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 39, COLOR_WHITE, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 38, COLOR_BLACK, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 39, COLOR_WHITE, NULL, NULL);
 
 						break;
 
@@ -233,8 +233,8 @@ void widget_show_shop(int x, int y)
 
 						strcpy(buf, shop_show_input(buf, &SystemFont, Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 5, shop_gui->input_type == SHOP_INPUT_TYPE_NROF ? 1 : 0));
 
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_BLACK, NULL, NULL);
-						StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_WHITE, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 55, COLOR_BLACK, NULL, NULL);
+						StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w - 1, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 56, COLOR_WHITE, NULL, NULL);
 
 						break;
 				}
@@ -243,11 +243,11 @@ void widget_show_shop(int x, int y)
 				{
 					snprintf(buf, sizeof(buf), "Price:%s", shop_int2price(shop_item_tmp->price));
 
-					StringBlt(ScreenSurface, &SystemFont, buf, x + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, y + Bitmaps[BITMAP_SHOP]->bitmap->h - 75, COLOR_WHITE, NULL, NULL);
+					StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w - Bitmaps[BITMAP_SHOP_INPUT]->bitmap->w, widget->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h - 75, COLOR_WHITE, NULL, NULL);
 				}
 			}
 
-			blt_inv_item(shop_item, x + item_x, y + item_y, shop_gui->shop_state == SHOP_STATE_NONE ? shop_item_tmp->nrof : shop_item->nrof);
+			blt_inv_item(shop_item, widget->x1 + item_x, widget->y1 + item_y, shop_gui->shop_state == SHOP_STATE_NONE ? shop_item_tmp->nrof : shop_item->nrof);
 
 			/* Adjust the item X position */
 			item_x += 32;
@@ -405,7 +405,7 @@ void initialize_shop(int shop_state)
 	map_udate_flag = 2;
 
 	/* Show the shop widget now */
-	cur_widget[SHOP_ID].show = 1;
+	cur_widget[SHOP_ID]->show = 1;
 }
 
 /**
@@ -417,7 +417,7 @@ void clear_shop(int send_to_server)
 	_shop_struct *shop_item_tmp, *shop_item;
 
 	/* Hide the shop widget */
-	cur_widget[SHOP_ID].show = 0;
+	cur_widget[SHOP_ID]->show = 0;
 
 	/* Sanity check */
 	if (!shop_gui)
@@ -573,7 +573,7 @@ static void shop_add_button(int x, int y, const char *text)
 int shop_put_item(int x, int y)
 {
 	/* If we are in the shop GUI */
-	if (x > cur_widget[SHOP_ID].x1 && x < cur_widget[SHOP_ID].x1 + Bitmaps[BITMAP_SHOP]->bitmap->w && y > cur_widget[SHOP_ID].y1 && y < cur_widget[SHOP_ID].y1 + Bitmaps[BITMAP_SHOP]->bitmap->h)
+	if (x > cur_widget[SHOP_ID]->x1 && x < cur_widget[SHOP_ID]->x1 + Bitmaps[BITMAP_SHOP]->bitmap->w && y > cur_widget[SHOP_ID]->y1 && y < cur_widget[SHOP_ID]->y1 + Bitmaps[BITMAP_SHOP]->bitmap->h)
 	{
 		_shop_struct *shop_item_tmp;
 		item *item_object;

@@ -377,9 +377,9 @@ static void delete_player_lists()
  * Initialize game data. */
 static void init_game_data()
 {
+	_textwin *textwin;
 	int i;
 
-	textwin_init();
 	textwin_flags = 0;
 	first_server_char = NULL;
 
@@ -399,6 +399,8 @@ static void init_game_data()
 	{
 		debug_layer[i] = 1;
 	}
+
+	init_widgets_fromCurrent();
 
 	memset(&options, 0, sizeof(struct _options));
 	InitMapData(0, 0, 0, 0);
@@ -449,9 +451,9 @@ static void init_game_data()
 	options.widget_snap = 0;
 #endif
 
-	txtwin[TW_MIX].size = 50;
-	txtwin[TW_MSG].size = 16;
-	txtwin[TW_CHAT].size = 16;
+	textwin = TEXTWIN(cur_widget[MIXWIN_ID]);
+	textwin->size = 50;
+
 	options.zoom = 100;
 	options.mapstart_x = 0;
 	options.mapstart_y = 10;
@@ -463,8 +465,6 @@ static void init_game_data()
 	Screensize->y = options.resolution_y;
 
 	change_textwin_font(options.chat_font_size);
-
-	init_widgets_fromCurrent();
 
 	textwin_clearhistory();
 	delete_player_lists();
@@ -486,12 +486,6 @@ void save_options_dat()
 	fputs("##########################################\n", stream);
 	fputs("# This is the Atrinik client option file #\n", stream);
 	fputs("##########################################\n", stream);
-
-	snprintf(txtBuffer, sizeof(txtBuffer), "%%21 %d\n", txtwin[TW_MSG].size);
-	fputs(txtBuffer, stream);
-
-	snprintf(txtBuffer, sizeof(txtBuffer), "%%22 %d\n", txtwin[TW_CHAT].size);
-	fputs(txtBuffer, stream);
 
 	snprintf(txtBuffer, sizeof(txtBuffer), "%%3x %d\n", options.resolution_x);
 	fputs(txtBuffer, stream);
@@ -566,8 +560,6 @@ static void load_options_dat()
 		}
 	}
 
-	txtwin_start_size = txtwin[TW_MIX].size;
-
 	/* Read the options from file */
 	if (!(stream = fopen_wrapper(OPTION_FILE, "r")))
 	{
@@ -585,20 +577,6 @@ static void load_options_dat()
 		{
 			switch (line[1])
 			{
-				case '2':
-					switch (line[2])
-					{
-						case '1':
-							txtwin[TW_MSG].size = atoi(line + 4);
-							break;
-
-						case '2':
-							txtwin[TW_CHAT].size = atoi(line + 4);
-							break;
-					}
-
-					break;
-
 				case '3':
 					switch (line[2])
 					{
@@ -1406,8 +1384,24 @@ static void display_layer4()
 	if (GameStatus == GAME_STATUS_PLAY)
 	{
 		/* We have to make sure that these two get hidden right */
-		cur_widget[IN_CONSOLE_ID].show = 0;
-		cur_widget[IN_NUMBER_ID].show = 0;
+        /* sanity checks in case they don't exist */
+		if (cur_widget[IN_CONSOLE_ID])
+		{
+			cur_widget[IN_CONSOLE_ID]->show = 0;
+		}
+		else
+		{
+			create_widget_object(IN_CONSOLE_ID);
+		}
+
+		if (cur_widget[IN_NUMBER_ID])
+		{
+			cur_widget[IN_NUMBER_ID]->show = 0;
+		}
+		else
+		{
+			create_widget_object(IN_NUMBER_ID);
+		}
 
 		if (cpl.input_mode == INPUT_MODE_CONSOLE)
 		{
@@ -1925,8 +1919,8 @@ int main(int argc, char *argv[])
 
 	script_killall();
 	save_interface_file();
-	kill_widgets();
 	save_options_dat();
+	kill_widgets();
 	curl_global_cleanup();
 	socket_deinitialize();
 	sound_freeall();

@@ -432,7 +432,7 @@ void SkillRdyCmd(char *data, int len)
 	(void) len;
 
 	strcpy(cpl.skill_name, data);
-	WIDGET_REDRAW(SKILL_EXP_ID);
+	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 
 	/* lets find the skill... and setup the shortcuts to the exp values*/
 	for (ii = 0; ii < SKILL_LIST_MAX; ii++)
@@ -648,7 +648,7 @@ void StatsCmd(unsigned char *data, int len)
 		if (c >= CS_STAT_PROT_START && c <= CS_STAT_PROT_END)
 		{
 			cpl.stats.protection[c - CS_STAT_PROT_START] = (sint16)*(data + i++);
-			WIDGET_REDRAW(RESIST_ID);
+			WIDGET_REDRAW_ALL(RESIST_ID);
 		}
 		else
 		{
@@ -661,19 +661,19 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_REG_HP:
 					cpl.gen_hp = ((float)GetShort_String(data + i)) / 10.0f;
 					i += 2;
-					WIDGET_REDRAW(REGEN_ID);
+					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_MANA:
 					cpl.gen_sp = ((float)GetShort_String(data + i)) / 10.0f;
 					i += 2;
-					WIDGET_REDRAW(REGEN_ID);
+					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
 				case CS_STAT_REG_GRACE:
 					cpl.gen_grace = ((float)GetShort_String(data + i)) / 10.0f;
 					i += 2;
-					WIDGET_REDRAW(REGEN_ID);
+					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
 				case CS_STAT_HP:
@@ -687,37 +687,37 @@ void StatsCmd(unsigned char *data, int len)
 					}
 					cpl.stats.hp = temp;
 					i += 4;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_MAXHP:
 					cpl.stats.maxhp = GetInt_String(data + i);
 					i += 4;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_SP:
 					cpl.stats.sp = GetShort_String(data + i);
 					i += 2;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_MAXSP:
 					cpl.stats.maxsp = GetShort_String(data + i);
 					i += 2;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_GRACE:
 					cpl.stats.grace = GetShort_String(data + i);
 					i += 2;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_MAXGRACE:
 					cpl.stats.maxgrace = GetShort_String(data + i);
 					i += 2;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_STR:
@@ -729,7 +729,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Str = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_INT:
@@ -741,7 +741,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Int = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_POW:
@@ -753,7 +753,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Pow = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_WIS:
@@ -765,7 +765,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Wis = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_DEX:
@@ -777,7 +777,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Dex = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_CON:
@@ -789,7 +789,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Con = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_CHA:
@@ -801,7 +801,7 @@ void StatsCmd(unsigned char *data, int len)
 						cpl.warn_statdown = 1;
 
 					cpl.stats.Cha = temp;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_EXP:
@@ -812,12 +812,12 @@ void StatsCmd(unsigned char *data, int len)
 
 					cpl.stats.exp = temp;
 					i += 4;
-					WIDGET_REDRAW(MAIN_LVL_ID);
+					WIDGET_REDRAW_ALL(MAIN_LVL_ID);
 					break;
 
 				case CS_STAT_LEVEL:
 					cpl.stats.level = (char)*(data + i++);
-					WIDGET_REDRAW(MAIN_LVL_ID);
+					WIDGET_REDRAW_ALL(MAIN_LVL_ID);
 					break;
 
 				case CS_STAT_WC:
@@ -843,7 +843,7 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_FOOD:
 					cpl.stats.food = GetShort_String(data + i);
 					i += 2;
-					WIDGET_REDRAW(STATS_ID);
+					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
 				case CS_STAT_WEAP_SP:
@@ -863,7 +863,7 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_ACTION_TIME:
 					cpl.action_timer = ((float)abs(GetInt_String(data + i))) / 1000.0f;
 					i += 4;
-					WIDGET_REDRAW(SKILL_EXP_ID);
+					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 					break;
 
 				case CS_STAT_SKILLEXP_AGILITY:
@@ -874,7 +874,7 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_SKILLEXP_WISDOM:
 					cpl.stats.skill_exp[(c - CS_STAT_SKILLEXP_START) / 2] = GetInt_String(data + i);
 					i += 4;
-					WIDGET_REDRAW(SKILL_LVL_ID);
+					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
 					break;
 
 				case CS_STAT_SKILLEXP_AGLEVEL:
@@ -884,7 +884,7 @@ void StatsCmd(unsigned char *data, int len)
 				case CS_STAT_SKILLEXP_MALEVEL:
 				case CS_STAT_SKILLEXP_WILEVEL:
 					cpl.stats.skill_level[(c - CS_STAT_SKILLEXP_START - 1) / 2] = (sint16)*(data + i++);
-					WIDGET_REDRAW(SKILL_LVL_ID);
+					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
 					break;
 
 				case CS_STAT_RANGE:
@@ -1050,7 +1050,6 @@ void PlayerCmd(unsigned char *data, int len)
 	int tag, weight, face, i = 0, nlen;
 
 	GameStatus = GAME_STATUS_PLAY;
-	txtwin[TW_MIX].size = txtwin_start_size;
 	InputStringEndFlag = 0;
 	tag = GetInt_String(data);
 	i += 4;
@@ -1943,7 +1942,7 @@ void SkilllistCmd(char *data)
 							skill_list[ii].entry[i].flag = LIST_ENTRY_KNOWN;
 							skill_list[ii].entry[i].exp = e;
 							skill_list[ii].entry[i].exp_level = l;
-							WIDGET_REDRAW(SKILL_EXP_ID);
+							WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 						}
 					}
 				}

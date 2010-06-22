@@ -122,7 +122,7 @@ int get_inventory_data(item *op, int *ctag, int *slot, int *start, int *count, i
 	return ret;
 }
 
-static void show_inventory_item_stats(item *tmp, int x, int y)
+static void show_inventory_item_stats(item *tmp, widgetdata *widget)
 {
 	char buf[MAX_BUF];
 	SDL_Rect tmp_rect;
@@ -133,43 +133,43 @@ static void show_inventory_item_stats(item *tmp, int x, int y)
 	else
 		snprintf(buf, sizeof(buf), "%s", tmp->s_name);
 
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 23, y - 26, COLOR_HGOLD, &tmp_rect, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 26, widget->y1 + 3, COLOR_HGOLD, &tmp_rect, NULL);
 
 	snprintf(buf, sizeof(buf), "weight: %4.3f", tmp->weight * (float)tmp->nrof);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 170, y - 14, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 
 	/* This comes from server when not identified */
 	if (tmp->item_qua == 255)
-		StringBlt(ScreenSurface, &SystemFont, "not identified", x + 23, y - 14, COLOR_RED, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, NULL, NULL);
 	else
 	{
-		StringBlt(ScreenSurface, &SystemFont, "con: ", x + 23, y - 14, COLOR_HGOLD, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 
 		snprintf(buf, sizeof(buf), "%d", tmp->item_qua);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 57 - get_string_pixel_length(buf, &SystemFont), y - 14, COLOR_HGOLD, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 60 - get_string_pixel_length(buf, &SystemFont), widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 
 		snprintf(buf, sizeof(buf), "(%d)", tmp->item_con);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 60, y - 14, COLOR_HGOLD, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 63, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 
 		if (tmp->item_level)
 		{
 			snprintf(buf, sizeof(buf), "allowed: lvl %d %s", tmp->item_level, skill_level_name[tmp->item_skill]);
 
 			if ((!tmp->item_skill && tmp->item_level <= cpl.stats.level) || (tmp->item_skill && tmp->item_level <= cpl.stats.skill_level[tmp->item_skill - 1]))
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 100 , y - 14, COLOR_HGOLD, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 103 , widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 			else
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 100, y - 14, COLOR_RED, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 103, widget->y1 + 15, COLOR_RED, NULL, NULL);
 		}
 		else
-			StringBlt(ScreenSurface, &SystemFont, "allowed: all", x + 100, y - 14, COLOR_HGOLD, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "allowed: all", widget->x1 + 103, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 	}
 }
 
-void widget_inventory_event(int x, int y, SDL_Event event)
+void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 {
 	int mx = 0, my = 0;
-	mx = x - cur_widget[MAIN_INV_ID].x1;
-	my = y - cur_widget[MAIN_INV_ID].y1;
+	mx = x - widget->x1;
+	my = y - widget->y1;
 
 	switch (event.type)
 	{
@@ -283,53 +283,68 @@ void widget_inventory_event(int x, int y, SDL_Event event)
 	}
 }
 
-void widget_show_inventory_window(int x, int y)
+void widget_show_inventory_window(widgetdata *widget)
 {
 	int i, invxlen, invylen;
 	item *op, *tmp, *tmpx = NULL;
 	item *tmpc;
 	char buf[256];
+	widgetdata *tmp_widget;
 
 	if (cpl.inventory_win != IWIN_INV)
 	{
 		if (!options.playerdoll)
-			cur_widget[PDOLL_ID].show = 0;
+		{
+			/* do this for all player doll widgets, even though there shouldn't be more than one */
+			for (tmp_widget = cur_widget[PDOLL_ID]; tmp_widget; tmp_widget = tmp_widget->type_next)
+			{
+				tmp_widget->show = 0;
+			}
+		}
 
-		cur_widget[MAIN_INV_ID].ht = 32;
-		sprite_blt(Bitmaps[BITMAP_INV_BG], x, y, NULL, NULL);
+        if (widget->ht != 32)
+		{
+            resize_widget(widget, RESIZE_BOTTOM, 32);
+		}
+		sprite_blt(Bitmaps[BITMAP_INV_BG], widget->x1, widget->y1, NULL, NULL);
 
-		StringBlt(ScreenSurface, &SystemFont, "Carry", x + 140, y + 4, COLOR_HGOLD, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Carry", widget->x1 + 140, widget->y1 + 4, COLOR_HGOLD, NULL, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", cpl.real_weight);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 140 + 35, y + 4, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 140 + 35, widget->y1 + 4, COLOR_DEFAULT, NULL, NULL);
 
-		StringBlt(ScreenSurface, &SystemFont, "Limit", x + 140, y + 15, COLOR_HGOLD, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, "Limit", widget->x1 + 140, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", (float) cpl.weight_limit / 1000.0);
-		StringBlt(ScreenSurface, &SystemFont, buf, x + 140 + 35, y + 15, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 140 + 35, widget->y1 + 15, COLOR_DEFAULT, NULL, NULL);
 
-		StringBlt(ScreenSurface, &Font6x3Out, "(SHIFT for inventory)", x + 32, y + 9, COLOR_DEFAULT, NULL, NULL);
+		StringBlt(ScreenSurface, &Font6x3Out, "(SHIFT for inventory)", widget->x1 + 32, widget->y1 + 9, COLOR_DEFAULT, NULL, NULL);
 
 		return;
 	}
 
 	if (!options.playerdoll)
-		cur_widget[PDOLL_ID].show = 1;
-
-	cur_widget[MAIN_INV_ID].ht = 129;
+	{
+		/* do this for all player doll widgets, even though there shouldn't be more than one */
+		for (tmp_widget = cur_widget[PDOLL_ID]; tmp_widget; tmp_widget = tmp_widget->type_next)
+			tmp_widget->show = 1;
+	}
+    if (widget->ht != 129)
+	{
+        resize_widget(widget, RESIZE_BOTTOM, 129);
+	}
 
 	invxlen = INVITEMXLEN;
 	invylen = INVITEMYLEN;
 
-	sprite_blt(Bitmaps[BITMAP_INVENTORY], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_INVENTORY], widget->x1, widget->y1, NULL, NULL);
 
-	y += 26 + 3;
-	x += 3;
-
-	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, x + 226, y + 11);
+	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 229, widget->y1 + 40);
 
 	if (!cpl.ob)
+	{
 		return;
+	}
 
 	op = cpl.ob;
 
@@ -345,7 +360,9 @@ void widget_show_inventory_window(int x, int y)
 			for (; tmpc && i < cpl.win_inv_start; tmpc = tmpc->next,i++);
 
 			if (tmpc)
+			{
 				break;
+			}
 		}
 	}
 
@@ -361,15 +378,15 @@ void widget_show_inventory_window(int x, int y)
 	{
 		if (tmp->tag == cpl.mark_count)
 		{
-			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
 		}
 
-		blt_inv_item(tmp, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
+		blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
 
 		if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 		{
-			sprite_blt(Bitmaps[BITMAP_INVSLOT], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
-			show_inventory_item_stats(tmp, x, y);
+			sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
+			show_inventory_item_stats(tmp, widget);
 		}
 
 		i++;
@@ -377,7 +394,7 @@ void widget_show_inventory_window(int x, int y)
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], x + ((i - 1) % invxlen) * 32 + 1, y + ((i - 1) / invxlen) * 32 + 1, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 30, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
 jump_in_container1:
@@ -385,76 +402,92 @@ jump_in_container1:
 			{
 				if (tmpc->tag == cpl.mark_count)
 				{
-					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
+					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
 				}
 
-				blt_inv_item(tmpc, x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, 0);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
-					sprite_blt(Bitmaps[BITMAP_INVSLOT], x + (i % invxlen) * 32, y + (i / invxlen) * 32, NULL, NULL);
+					sprite_blt(Bitmaps[BITMAP_INVSLOT], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 29, NULL, NULL);
 
-					show_inventory_item_stats(tmpc, x, y);
+					show_inventory_item_stats(tmpc, widget);
 				}
 
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], x + (i % invxlen) * 32 + 1, y + (i / invxlen) * 32 + 1, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 30, NULL, NULL);
 				i++;
 			}
 
 			if (!tmpc)
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], x + ((i - 1) % invxlen) * 32 + 1, y + ((i - 1) / invxlen) * 32 + 1, NULL, NULL);
+			{
+				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 30, NULL, NULL);
+			}
 		}
 	}
 }
 
-void widget_below_window_event(int x, int y, int MEvent)
+void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 {
 	/* ground ( IWIN_BELOW )  */
-	if (y >= cur_widget[BELOW_INV_ID].y1 + 19 && y <= cur_widget[BELOW_INV_ID].y1 + cur_widget[BELOW_INV_ID].ht - 4 && x > cur_widget[BELOW_INV_ID].x1 + 4 && x < cur_widget[BELOW_INV_ID].x1 + cur_widget[BELOW_INV_ID].wd - 12)
+	if (y >= widget->y1 + 19 && y <= widget->y1 + widget->ht - 4 && x > widget->x1 + 4 && x < widget->x1 + widget->wd - 12)
 	{
 		item *Item;
 
 		if (cpl.inventory_win == IWIN_INV)
+		{
 			cpl.inventory_win = IWIN_BELOW;
+		}
 
-		cpl.win_below_slot = (x - cur_widget[BELOW_INV_ID].x1 - 5) / 32;
+		cpl.win_below_slot = (x - widget->x1 - 5) / 32;
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
 
 		Item = locate_item(cpl.win_below_tag);
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
+		{
 			draggingInvItem(DRAG_IWIN_BELOW);
+		}
 		else
+		{
 			process_macro_keys(KEYFUNC_APPLY, 0);
+		}
 	}
-	else if (y >= cur_widget[BELOW_INV_ID].y1 + 20 && y <= cur_widget[BELOW_INV_ID].y1 + 29 && x > cur_widget[BELOW_INV_ID].x1 + 262 && x < cur_widget[BELOW_INV_ID].x1 + 269 && MEvent == MOUSE_DOWN)
+	else if (y >= widget->y1 + 20 && y <= widget->y1 + 29 && x > widget->x1 + 262 && x < widget->x1 + 269 && MEvent == MOUSE_DOWN)
 	{
 		if (cpl.inventory_win == IWIN_INV)
+		{
 			cpl.inventory_win = IWIN_BELOW;
+		}
 
 		cpl.win_below_slot = cpl.win_below_slot - INVITEMBELOWXLEN;
 
 		if (cpl.win_below_slot < 0)
+		{
 			cpl.win_below_slot = 0;
+		}
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
 	}
-	else if (y >= cur_widget[BELOW_INV_ID].y1 + 42 && y <= cur_widget[BELOW_INV_ID].y1 + 51 && x > cur_widget[BELOW_INV_ID].x1 + 262 && x < cur_widget[BELOW_INV_ID].x1 + 269 && MEvent == MOUSE_DOWN)
+	else if (y >= widget->y1 + 42 && y <= widget->y1 + 51 && x > widget->x1 + 262 && x < widget->x1 + 269 && MEvent == MOUSE_DOWN)
 	{
 		if (cpl.inventory_win == IWIN_INV)
+		{
 			cpl.inventory_win = IWIN_BELOW;
+		}
 
 		cpl.win_below_slot = cpl.win_below_slot + INVITEMBELOWXLEN;
 
 		if (cpl.win_below_slot > cpl.win_below_count -1)
+		{
 			cpl.win_below_slot = cpl.win_below_count -1;
+		}
 
 		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
 	}
 }
 
-void widget_show_below_window(item *op, int x, int y)
+void widget_show_below_window(widgetdata *widget)
 {
 	int i, slot,at;
 	item *tmp, *tmpc, *tmpx = NULL;
@@ -462,14 +495,16 @@ void widget_show_below_window(item *op, int x, int y)
 	SDL_Rect tmp_rect;
 	tmp_rect.w = 265;
 
-	sprite_blt(Bitmaps[BITMAP_BELOW], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_BELOW], widget->x1, widget->y1, NULL, NULL);
 
-	blt_window_slider(Bitmaps[BITMAP_BELOW_SCROLL], ((cpl.win_below_count - 1) / INVITEMBELOWXLEN) + 1, INVITEMBELOWYLEN, cpl.win_below_start / INVITEMBELOWXLEN, -1, x + 263, y + 30);
+	blt_window_slider(Bitmaps[BITMAP_BELOW_SCROLL], ((cpl.win_below_count - 1) / INVITEMBELOWXLEN) + 1, INVITEMBELOWYLEN, cpl.win_below_start / INVITEMBELOWXLEN, -1, widget->x1 + 263, widget->y1 + 30);
 
-	if (!op)
+	if (!cpl.below)
+	{
 		return;
+	}
 
-	for (i = 0, tmpc = NULL, tmp = op->inv; tmp && i < cpl.win_below_start; tmp = tmp->next)
+	for (i = 0, tmpc = NULL, tmp = cpl.below->inv; tmp && i < cpl.win_below_start; tmp = tmp->next)
 	{
 		i++;
 		tmpx = tmp;
@@ -481,7 +516,9 @@ void widget_show_below_window(item *op, int x, int y)
 			for (; tmpc && i < cpl.win_below_start; tmpc = tmpc->next, i++);
 
 			if (tmpc)
+			{
 				break;
+			}
 		}
 	}
 
@@ -500,7 +537,7 @@ void widget_show_below_window(item *op, int x, int y)
 		if (tmp->tag != cpl.container_tag)
 			tmp->applied = 0;
 
-		blt_inv_item(tmp, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+		blt_inv_item(tmp, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
 		tmp->applied = at;
 
 		if (i + cpl.win_below_start == cpl.win_below_slot)
@@ -510,14 +547,14 @@ void widget_show_below_window(item *op, int x, int y)
 			else
 				slot = BITMAP_INVSLOT_U;
 
-			sprite_blt(Bitmaps[slot], x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
+			sprite_blt(Bitmaps[slot], widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 
 			if (tmp->nrof > 1)
 				snprintf(buf, sizeof(buf), "%d %s", tmp->nrof, tmp->s_name);
 			else
 				snprintf(buf, sizeof(buf), "%s", tmp->s_name);
 
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 5, COLOR_HGOLD, &tmp_rect, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 5, COLOR_HGOLD, &tmp_rect, NULL);
 		}
 
 		i++;
@@ -525,13 +562,13 @@ void widget_show_below_window(item *op, int x, int y)
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], x + ((i - 1) % INVITEMBELOWXLEN) * 32 + 5, y + ((i - 1) / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + ((i - 1) / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
 jump_in_container2:
 			for (; tmpc && i < INVITEMBELOWXLEN * INVITEMBELOWYLEN; tmpc = tmpc->next)
 			{
-				blt_inv_item(tmpc, x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
+				blt_inv_item(tmpc, widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, 0);
 
 				if (i + cpl.win_below_start == cpl.win_below_slot)
 				{
@@ -540,22 +577,22 @@ jump_in_container2:
 					else
 						slot = BITMAP_INVSLOT_U;
 
-					sprite_blt(Bitmaps[slot], x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
+					sprite_blt(Bitmaps[slot], widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 
 					if (tmpc->nrof > 1)
 						snprintf(buf, sizeof(buf), "%d %s", tmpc->nrof, tmpc->s_name);
 					else
 						snprintf(buf, sizeof(buf), "%s", tmpc->s_name);
 
-					StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 4, COLOR_HGOLD, &tmp_rect, NULL);
+					StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 4, COLOR_HGOLD, &tmp_rect, NULL);
 				}
 
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], x + (i % INVITEMBELOWXLEN) * 32 + 5, y + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 				i++;
 			}
 
 			if (!tmpc)
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], x + ((i - 1) % INVITEMBELOWXLEN) * 32 + 5, y + ((i - 1) / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + ((i - 1) / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
 		}
 	}
 }

@@ -300,8 +300,8 @@ static void mouse_moveHero()
 
 	SDL_GetMouseState(&x, &y);
 
-	/* Don't move when clickign inside widgets. */
-	if (get_widget_owner(x, y) != -1)
+	/* Don't move when clicking inside widgets. */
+	if (get_widget_owner(x, y, NULL, NULL))
 		return;
 
 	/* Still dragging an item */
@@ -438,7 +438,7 @@ int Event_PollInputDevice()
 				mb_clicked = 0;
 				active_scrollbar = 0;
 
-				if (cur_widget[SHOP_ID].show && draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
+				if (cur_widget[SHOP_ID]->show && draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
 				{
 					if (shop_put_item(x, y))
 					{
@@ -1261,9 +1261,9 @@ static int key_event(SDL_KeyboardEvent *key)
 
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
-					SetPriorityWidget(MAIN_INV_ID);
+					SetPriorityWidget(cur_widget[MAIN_INV_ID]);
 					if (!options.playerdoll)
-						SetPriorityWidget(PDOLL_ID);
+						SetPriorityWidget(cur_widget[PDOLL_ID]);
 					cpl.inventory_win = IWIN_INV;
 					break;
 
@@ -1520,6 +1520,8 @@ int process_macro_keys(int id, int value)
 	int nrof, tag = 0, loc = 0;
 	char buf[256];
 	item *it, *tmp;
+	widgetdata *widget;
+	_textwin *textwin; /* TODO: make this only affect the focused widget */
 
 	switch (id)
 	{
@@ -1533,25 +1535,39 @@ int process_macro_keys(int id, int value)
 			break;
 
 		case KEYFUNC_PAGEUP:
-			txtwin[TW_CHAT].scroll++;
-			WIDGET_REDRAW(CHATWIN_ID);
+			widget = cur_widget[CHATWIN_ID];
+			textwin = TEXTWIN(widget);
+
+			textwin->scroll++;
+			WIDGET_REDRAW(widget);
 
 			break;
 
 		case KEYFUNC_PAGEDOWN:
-			txtwin[TW_CHAT].scroll--;
-			WIDGET_REDRAW(CHATWIN_ID);
+			widget = cur_widget[CHATWIN_ID];
+			textwin = TEXTWIN(widget);
+
+			textwin->scroll--;
+			WIDGET_REDRAW(widget);
 
 			break;
 
 		case KEYFUNC_PAGEUP_TOP:
-			txtwin[TW_MSG].scroll++;
-			WIDGET_REDRAW(MSGWIN_ID);
+			widget = cur_widget[MSGWIN_ID];
+			textwin = TEXTWIN(widget);
+
+			textwin->scroll++;
+			WIDGET_REDRAW(widget);
+
 			break;
 
 		case KEYFUNC_PAGEDOWN_TOP:
-			txtwin[TW_MSG].scroll--;
-			WIDGET_REDRAW(MSGWIN_ID);
+			widget = cur_widget[MSGWIN_ID];
+			textwin = TEXTWIN(widget);
+
+			textwin->scroll--;
+			WIDGET_REDRAW(widget);
+
 			break;
 
 		case KEYFUNC_TARGET_ENEMY:
@@ -2197,7 +2213,9 @@ static int movement_queue_thread(void *junk)
 static void move_keys(int num)
 {
 	char buf[256];
+#if 0
 	char msg[256];
+#endif
 
 	/* Move will overrule from fire
 	 * because real toggle mode doesn't work, this works a bit different
@@ -2222,7 +2240,9 @@ static void move_keys(int num)
 			}
 
 			snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1,fire_mode_tab[RangeFireMode].skill->name);
+#if 0
 			snprintf(msg, sizeof(msg), "use %s %s", fire_mode_tab[RangeFireMode].skill->name, directions_name[num]);
+#endif
 		}
 		else if (RangeFireMode == FIRE_MODE_SPELL)
 		{
@@ -2233,7 +2253,9 @@ static void move_keys(int num)
 			}
 
 			snprintf(buf, sizeof(buf), "/%s %d %d %s", directionsfire[num], RangeFireMode, -1, fire_mode_tab[RangeFireMode].spell->name);
+#if 0
 			snprintf(msg, sizeof(msg), "cast %s %s", fire_mode_tab[RangeFireMode].spell->name, directions_name[num]);
+#endif
 		}
 		else
 			snprintf(buf, sizeof(buf), "/%s %d %d %d", directionsfire[num], RangeFireMode, fire_mode_tab[RangeFireMode].item, fire_mode_tab[RangeFireMode].amun);
@@ -2251,7 +2273,9 @@ static void move_keys(int num)
 				return;
 			}
 
+#if 0
 			snprintf(msg, sizeof(msg), "fire %s", directions_name[num]);
+#endif
 		}
 		else if (RangeFireMode == FIRE_MODE_THROW)
 		{
@@ -2261,7 +2285,9 @@ static void move_keys(int num)
 				return;
 			}
 
+#if 0
 			snprintf(msg, sizeof(msg), "throw %s", directions_name[num]);
+#endif
 		}
 		else if (RangeFireMode == FIRE_MODE_WAND)
 		{
@@ -2271,12 +2297,16 @@ static void move_keys(int num)
 				return;
 			}
 
+#if 0
 			snprintf(msg, sizeof(msg), "fire device %s", directions_name[num]);
+#endif
 		}
+#if 0
 		else if (RangeFireMode == FIRE_MODE_SUMMON)
 		{
 			snprintf(msg, sizeof(msg), "cmd golem %s", directions_name[num]);
 		}
+#endif
 
 		fire_command(buf);
 #if 0
@@ -2610,12 +2640,12 @@ void check_menu_keys(int menu, int key)
 
 						if (options.playerdoll)
 						{
-							cur_widget[PDOLL_ID].show = 1;
+							cur_widget[PDOLL_ID]->show = 1;
 						}
 
 						change_textwin_font(options.chat_font_size);
-						WIDGET_REDRAW(CHATWIN_ID);
-						WIDGET_REDRAW(MSGWIN_ID);
+						WIDGET_REDRAW_ALL(CHATWIN_ID);
+						WIDGET_REDRAW_ALL(MSGWIN_ID);
 
 						if (options.resolution && (screen_definitions[options.resolution - 1][0] != Screensize->x || screen_definitions[options.resolution - 1][1] != Screensize->y))
 						{

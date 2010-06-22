@@ -148,6 +148,9 @@ Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 #include <commands.h>
 #include <main.h>
 #include <metaserver.h>
+#include <sprite.h>
+#include <widget.h>
+#include <textwin.h>
 #include <player.h>
 #include <party.h>
 #include <misc.h>
@@ -155,14 +158,11 @@ Mix_Music *Mix_LoadMUS_wrapper(const char *file);
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
-#include <sprite.h>
 #include <player_shop.h>
 #include <scripts.h>
-#include <textwin.h>
 #include <inventory.h>
 #include <menu.h>
 #include <dialog.h>
-#include <widget.h>
 
 #ifndef __CPROTO__
 #	include <proto.h>

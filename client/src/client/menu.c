@@ -91,7 +91,7 @@ void do_console()
 		sound_play_effect(SOUND_CONSOLE, 0, 100);
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_CONSOLE_ID].show = 0;
+		cur_widget[IN_CONSOLE_ID]->show = 0;
 	}
 
 	/* If set, we've got a finished input */
@@ -124,10 +124,10 @@ void do_console()
 
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_CONSOLE_ID].show = 0;
+		cur_widget[IN_CONSOLE_ID]->show = 0;
 	}
 	else
-		cur_widget[IN_CONSOLE_ID].show = 1;
+		cur_widget[IN_CONSOLE_ID]->show = 1;
 }
 
 /**
@@ -446,7 +446,7 @@ void do_number()
 	{
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_NUMBER_ID].show = 0;
+		cur_widget[IN_NUMBER_ID]->show = 0;
 	}
 
 	/* if set, we got a finished input!*/
@@ -478,10 +478,10 @@ void do_number()
 
 		reset_keys();
 		cpl.input_mode = INPUT_MODE_NO;
-		cur_widget[IN_NUMBER_ID].show = 0;
+		cur_widget[IN_NUMBER_ID]->show = 0;
 	}
 	else
-		cur_widget[IN_NUMBER_ID].show = 1;
+		cur_widget[IN_NUMBER_ID]->show = 1;
 }
 
 /**
@@ -535,27 +535,27 @@ static char *protections[20] =
  * Show the protection table widget.
  * @param x X position of the widget
  * @param y Y position of the widget */
-void widget_show_resist(int x, int y)
+void widget_show_resist(widgetdata *widget)
 {
 	char buf[12];
 	SDL_Rect box;
 	_BLTFX bltfx;
 	int protectionID, protection_x = 0, protection_y = 2;
 
-	if (!widgetSF[RESIST_ID])
-		widgetSF[RESIST_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_RESIST_BG]->bitmap, Bitmaps[BITMAP_RESIST_BG]->bitmap->format, Bitmaps[BITMAP_RESIST_BG]->bitmap->flags);
+	if (!widget->widgetSF)
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_RESIST_BG]->bitmap, Bitmaps[BITMAP_RESIST_BG]->bitmap->format, Bitmaps[BITMAP_RESIST_BG]->bitmap->flags);
 
-	if (cur_widget[RESIST_ID].redraw)
+	if (widget->redraw)
 	{
-		cur_widget[RESIST_ID].redraw = 0;
+		widget->redraw = 0;
 
-		bltfx.surface = widgetSF[RESIST_ID];
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Protection Table", 5, 1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Protection Table", 5, 1, COLOR_HGOLD, NULL, NULL);
 
 		/* This is a dynamic protection table, unlike the old one.
 		 * It reduces the code by a considerable amount. */
@@ -575,40 +575,40 @@ void widget_show_resist(int x, int y)
 			{
 					/* Physical */
 				case 0:
-					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Physical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					StringBlt(widget->widgetSF, &Font6x3Out, "Physical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
 					/* Elemental */
 				case 5:
-					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Elemental", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					StringBlt(widget->widgetSF, &Font6x3Out, "Elemental", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
 					/* Magical */
 				case 10:
-					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Magical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					StringBlt(widget->widgetSF, &Font6x3Out, "Magical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 
 					/* Spherical */
 				case 15:
-					StringBlt(widgetSF[RESIST_ID], &Font6x3Out, "Spherical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
+					StringBlt(widget->widgetSF, &Font6x3Out, "Spherical", 5, protection_y, COLOR_HGOLD, NULL, NULL);
 					break;
 			}
 
 			/* Output the protection few letters name from the table 'protections'. */
-			StringBlt(widgetSF[RESIST_ID], &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, protections[protectionID], protection_x + 2 - (int) strlen(protections[protectionID]) * 2, protection_y, COLOR_HGOLD, NULL, NULL);
 
 			/* Now output the protection value. No protection will be drawn gray,
 			 * some protection will be white, and immunity (100%) will be orange. */
 			snprintf(buf, sizeof(buf), "%02d", cpl.stats.protection[protectionID]);
-			StringBlt(widgetSF[RESIST_ID], &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] == 100 ? COLOR_ORANGE : COLOR_WHITE) : COLOR_GREY, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, buf, protection_x + 10, protection_y, cpl.stats.protection[protectionID] ? (cpl.stats.protection[protectionID] == 100 ? COLOR_ORANGE : COLOR_WHITE) : COLOR_GREY, NULL, NULL);
 
 			protection_x += 30;
 		}
 	}
 
-	box.x = x;
-	box.y = y;
-	SDL_BlitSurface(widgetSF[RESIST_ID], NULL, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 }
 
 /** Default icon length */
@@ -674,7 +674,7 @@ void show_menu()
 		box.h = 42;
 		box.w = Bitmaps[BITMAP_DIALOG_BG]->bitmap->w;
 		SDL_FillRect(ScreenSurface, &box, 0);
-		show_quickslots(box.x + 120, box.y + 3);
+		show_quickslots(box.x + 120, box.y + 3, 0);
 	}
 	else if (cpl.menustatus == MENU_SKILL)
 		show_skilllist();
@@ -1961,9 +1961,9 @@ void read_skills()
  * @param y Mouse Y position
  * @param event SDL event type
  * @param MEvent Mouse event type (MOUSE_DOWN, MOUSE_UP) */
-void widget_range_event(int x, int y, SDL_Event event, int MEvent)
+void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent)
 {
-	if (x > cur_widget[RANGE_ID].x1 + 5 && x < cur_widget[RANGE_ID].x1 + 38 && y >= cur_widget[RANGE_ID].y1 + 3 && y <= cur_widget[RANGE_ID].y1 + 33)
+	if (x > widget->x1 + 5 && x < widget->x1 + 38 && y >= widget->y1 + 3 && y <= widget->y1 + 33)
 	{
 		if (MEvent == MOUSE_DOWN)
 		{
@@ -1984,7 +1984,7 @@ void widget_range_event(int x, int y, SDL_Event event, int MEvent)
 				cpl.inventory_win = IWIN_INV;
 
 				/* Range field */
-				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x >= cur_widget[RANGE_ID].x1 && x <= cur_widget[RANGE_ID].x1 + 78 && y >= cur_widget[RANGE_ID].y1 && y <= cur_widget[RANGE_ID].y1 + 35)
+				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x >= widget->x1 && x <= widget->x1 + 78 && y >= widget->y1 && y <= widget->y1 + 35)
 				{
 					RangeFireMode = 4;
 
@@ -2003,11 +2003,11 @@ void widget_range_event(int x, int y, SDL_Event event, int MEvent)
  * Mouse event for number input widget.
  * @param x Mouse X position
  * @param y Mouse Y position */
-void widget_number_event(int x, int y)
+void widget_number_event(widgetdata *widget, int x, int y)
 {
 	int mx = 0, my = 0;
-	mx = x - cur_widget[IN_NUMBER_ID].x1;
-	my = y - cur_widget[IN_NUMBER_ID].y1;
+	mx = x - widget->x1;
+	my = y - widget->y1;
 
 	/* Close number input */
 	if (InputStringFlag && cpl.input_mode == INPUT_MODE_NUMBER)
@@ -2025,44 +2025,44 @@ void widget_number_event(int x, int y)
  * Show widget console.
  * @param x X position of the console
  * @param y Y position of the console */
-void widget_show_console(int x, int y)
+void widget_show_console(widgetdata *widget)
 {
-	sprite_blt(Bitmaps[BITMAP_TEXTINPUT], x, y, NULL, NULL);
-	StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, 239), x + 9, y + 7, COLOR_WHITE, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_TEXTINPUT], widget->x1, widget->y1, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, 239), widget->x1 + 9, widget->y1 + 7, COLOR_WHITE, NULL, NULL);
 }
 
 /**
  * Show widget number input.
  * @param x X position of the number input
  * @param y Y position of the number input */
-void widget_show_number(int x, int y)
+void widget_show_number(widgetdata *widget)
 {
 	SDL_Rect tmp;
 	char buf[512];
 
 	tmp.w = 238;
 
-	sprite_blt(Bitmaps[BITMAP_NUMBER], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_NUMBER], widget->x1, widget->y1, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
 
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 8, y + 6, COLOR_HGOLD, &tmp, NULL);
-	StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_NUMBER]->bitmap->w - 22), x + 8, y + 25, COLOR_WHITE, &tmp, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, &tmp, NULL);
+	StringBlt(ScreenSurface, &SystemFont, show_input_string(InputString, &SystemFont, Bitmaps[BITMAP_NUMBER]->bitmap->w - 22), widget->x1 + 8, widget->y1 + 25, COLOR_WHITE, &tmp, NULL);
 }
 
 /**
  * Show map name widget.
  * @param x X position of the map name
  * @param y Y position of the map name */
-void widget_show_mapname(int x, int y)
+void widget_show_mapname(widgetdata *widget)
 {
-	StringBlt(ScreenSurface, &BigFont, MapData.name, x, y, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &BigFont, MapData.name, widget->x1, widget->y1, COLOR_HGOLD, NULL, NULL);
 }
 
 /**
  * Show range widget.
  * @param x X position of the range
  * @param y Y position of the range */
-void widget_show_range(int x, int y)
+void widget_show_range(widgetdata *widget)
 {
 	char buf[256];
 	SDL_Rect rec_range;
@@ -2074,7 +2074,7 @@ void widget_show_range(int x, int y)
 	rec_item.w = 185;
 	examine_range_inv();
 
-	sprite_blt(Bitmaps[BITMAP_RANGE], x - 2, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_RANGE], widget->x1 - 2, widget->y1, NULL, NULL);
 
 	switch (RangeFireMode)
 	{
@@ -2082,9 +2082,9 @@ void widget_show_range(int x, int y)
 			if (fire_mode_tab[FIRE_MODE_BOW].item != FIRE_ITEM_NO)
 			{
 				snprintf(buf, sizeof(buf), "using %s", get_range_item_name(fire_mode_tab[FIRE_MODE_BOW].item));
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].item, x + 3, y + 2);
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].item, widget->x1 + 3, widget->y1 + 2);
 
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 
 				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO)
 				{
@@ -2100,21 +2100,21 @@ void widget_show_range(int x, int y)
 					else
 						snprintf(buf, sizeof(buf), "ammo not selected");
 
-					blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].amun,x+43,y+2);
+					blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_BOW].amun, widget->x1 + 43, widget->y1 + 2);
 				}
 				else
 				{
 					snprintf(buf, sizeof(buf), "ammo not selected");
 				}
 
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, "no range weapon applied", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no range weapon applied", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 			}
 
-			sprite_blt(Bitmaps[BITMAP_RANGE_MARKER], x + 3, y + 2, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_RANGE_MARKER], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
 			break;
 
 			/* Wands, staves, rods and horns */
@@ -2125,57 +2125,57 @@ void widget_show_range(int x, int y)
 			if (fire_mode_tab[FIRE_MODE_WAND].item != FIRE_ITEM_NO)
 			{
 				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_WAND].item));
-				StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
-				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL], x + 3, y + 2, NULL, NULL);
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_WAND].item, x + 43, y + 2);
+				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_WAND].item, widget->x1 + 43, widget->y1 + 2);
 			}
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL_NO],x+3, y+2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "nothing applied", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "nothing applied", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "use range tool", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "use range tool", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 			break;
 
 			/* The summon range ctrl will come from server only after the player cast a summon spell */
 		case FIRE_MODE_SUMMON:
 			if (fire_mode_tab[FIRE_MODE_SUMMON].item != FIRE_ITEM_NO)
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL], x + 3, y + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SUMMON].name, x + 3, y + 46, COLOR_WHITE, NULL, NULL);
-				sprite_blt(FaceList[fire_mode_tab[FIRE_MODE_SUMMON].item].sprite, x + 43, y + 2, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SUMMON].name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, NULL, NULL);
+				sprite_blt(FaceList[fire_mode_tab[FIRE_MODE_SUMMON].item].sprite, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
 			}
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL_NO], x + 3, y + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no golem summoned", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_CTRL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no golem summoned", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "mind control", x + 3, y + 35, COLOR_WHITE, &rec_item, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "mind control", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_item, NULL);
 			break;
 
 			/* These are client only, no server signal needed */
 		case FIRE_MODE_SKILL:
 			if (fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL], x + 3, y + 2, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
 
 				if (fire_mode_tab[FIRE_MODE_SKILL].skill->flag != -1)
 				{
-					sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, x + 43, y + 2, NULL, NULL);
-					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SKILL].skill->name, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+					sprite_blt(fire_mode_tab[FIRE_MODE_SKILL].skill->icon, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
+					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SKILL].skill->name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 				}
 				else
 					fire_mode_tab[FIRE_MODE_SKILL].skill = NULL;
 			}
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL_NO], x + 3, y + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no skill selected", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_SKILL_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no skill selected", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "use skill", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "use skill", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 
 			break;
 
@@ -2183,23 +2183,23 @@ void widget_show_range(int x, int y)
 			if (fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
 				/* We use wizard spells as default */
-				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD], x + 3, y + 2, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
 
 				if (fire_mode_tab[FIRE_MODE_SPELL].spell->flag != -1)
 				{
-					sprite_blt(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, x + 43, y + 2, NULL, NULL);
-					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SPELL].spell->name, x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+					sprite_blt(fire_mode_tab[FIRE_MODE_SPELL].spell->icon, widget->x1 + 43, widget->y1 + 2, NULL, NULL);
+					StringBlt(ScreenSurface, &SystemFont, fire_mode_tab[FIRE_MODE_SPELL].spell->name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 				}
 				else
 					fire_mode_tab[FIRE_MODE_SPELL].spell = NULL;
 			}
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD_NO], x + 3, y + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no spell selected", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_WIZARD_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no spell selected", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "cast spell", x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "cast spell", widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 
 			break;
 
@@ -2209,8 +2209,8 @@ void widget_show_range(int x, int y)
 
 			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO)
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_THROW],x+3, y+2, NULL, NULL);
-				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_THROW].item,x+43,y+2);
+				sprite_blt(Bitmaps[BITMAP_RANGE_THROW], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				blt_inventory_face_from_tag(fire_mode_tab[FIRE_MODE_THROW].item, widget->x1 + 43, widget->y1 + 2);
 
 				if (op->nrof > 1)
 				{
@@ -2219,20 +2219,20 @@ void widget_show_range(int x, int y)
 					else
 						snprintf(buf, sizeof(buf), "%d",op->nrof);
 
-					StringBlt(ScreenSurface, &Font6x3Out, buf, x + 43 + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 22, COLOR_WHITE, NULL, NULL);
+					StringBlt(ScreenSurface, &Font6x3Out, buf, widget->x1 + 43 + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), widget->y1 + 22, COLOR_WHITE, NULL, NULL);
 				}
 
 				snprintf(buf, sizeof(buf), "%s", get_range_item_name(fire_mode_tab[FIRE_MODE_THROW].item));
-				StringBlt(ScreenSurface, &SystemFont,buf, x+3, y+46, COLOR_WHITE, &rec_item, NULL);
+				StringBlt(ScreenSurface, &SystemFont,buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_RANGE_THROW_NO], x + 3, y + 2, NULL, NULL);
-				StringBlt(ScreenSurface, &SystemFont, "no item ready", x + 3, y + 46, COLOR_WHITE, &rec_item, NULL);
+				sprite_blt(Bitmaps[BITMAP_RANGE_THROW_NO], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, "no item ready", widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, &rec_item, NULL);
 			}
 
 			snprintf(buf, sizeof(buf), "throw item");
-			StringBlt(ScreenSurface, &SystemFont, buf, x + 3, y + 35, COLOR_WHITE, &rec_range, NULL);
+			StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, &rec_range, NULL);
 
 			break;
 	}
@@ -2242,14 +2242,14 @@ void widget_show_range(int x, int y)
  * Handle mouse events for target widget.
  * @param x Mouse X position
  * @param y Mouse Y position */
-void widget_event_target(int x, int y)
+void widget_event_target(widgetdata *widget, int x, int y)
 {
 	/* Combat modes */
-	if (y > cur_widget[TARGET_ID].y1 + 3 && y < cur_widget[TARGET_ID].y1 + 38 && x > cur_widget[TARGET_ID].x1 + 3 && x < cur_widget[TARGET_ID].x1 + 30)
+	if (y > widget->y1 + 3 && y < widget->y1 + 38 && x > widget->x1 + 3 && x < widget->x1 + 30)
 		check_keys(SDLK_c);
 
 	/* Talk button */
-	if (y > cur_widget[TARGET_ID].y1 + 7 && y < cur_widget[TARGET_ID].y1 + 25 && x > cur_widget[TARGET_ID].x1 + 223 && x < cur_widget[TARGET_ID].x1 + 259)
+	if (y > widget->y1 + 7 && y < widget->y1 + 25 && x > widget->x1 + 223 && x < widget->x1 + 259)
 	{
 		if (cpl.target_code)
 			send_command("/t_tell hello", -1, SC_NORMAL);
@@ -2260,18 +2260,18 @@ void widget_event_target(int x, int y)
  * Show target widget.
  * @param x X position of the target
  * @param y Y position of the target */
-void widget_show_target(int x, int y)
+void widget_show_target(widgetdata *widget)
 {
 	char *ptr = NULL;
 	SDL_Rect box;
 	double temp;
 	int hp_tmp;
 
-	sprite_blt(Bitmaps[BITMAP_TARGET_BG], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_TARGET_BG], widget->x1, widget->y1, NULL, NULL);
 
-	sprite_blt(Bitmaps[cpl.target_mode ? BITMAP_TARGET_ATTACK : BITMAP_TARGET_NORMAL], x + 5, y + 4, NULL, NULL);
+	sprite_blt(Bitmaps[cpl.target_mode ? BITMAP_TARGET_ATTACK : BITMAP_TARGET_NORMAL], widget->x1 + 5, widget->y1 + 4, NULL, NULL);
 
-	sprite_blt(Bitmaps[BITMAP_TARGET_HP_B], x + 4, y + 24, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_TARGET_HP_B], widget->x1 + 4, widget->y1 + 24, NULL, NULL);
 
 	hp_tmp = (int) cpl.target_hp;
 
@@ -2308,9 +2308,9 @@ void widget_show_target(int x, int y)
 
 		mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
-		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], x + 223, y + 7, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], widget->x1 + 223, widget->y1 + 7, NULL, NULL);
 
-		if (mx > x + 200 && mx < x + 200 + 20 && my > y + 3 && my < y + 13)
+		if (mx > widget->x1 + 200 && mx < widget->x1 + 200 + 20 && my > widget->y1 + 3 && my < widget->y1 + 13)
 		{
 			static int delta = 0;
 
@@ -2326,11 +2326,11 @@ void widget_show_target(int x, int y)
 				cs_write_string(csocket.fd, tmp_buf, strlen(tmp_buf));
 			}
 
-			StringBlt(ScreenSurface, &SystemFont, "Shop", x + 200, y + 3, COLOR_HGOLD, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 200, widget->y1 + 3, COLOR_HGOLD, NULL, NULL);
 		}
 		else
 		{
-			StringBlt(ScreenSurface, &SystemFont, "Shop", x + 200, y + 3, COLOR_WHITE, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, "Shop", widget->x1 + 200, widget->y1 + 3, COLOR_WHITE, NULL, NULL);
 		}
 	}
 
@@ -2345,18 +2345,22 @@ void widget_show_target(int x, int y)
 			box.w = (int) (Bitmaps[BITMAP_TARGET_HP]->bitmap->w * temp);
 
 			if (!box.w)
+			{
 				box.w = 1;
+			}
 
 			if (box.w > Bitmaps[BITMAP_TARGET_HP]->bitmap->w)
+			{
 				box.w = Bitmaps[BITMAP_TARGET_HP]->bitmap->w;
+			}
 
-			sprite_blt(Bitmaps[BITMAP_TARGET_HP], x + 5, y + 25, &box, NULL);
+			sprite_blt(Bitmaps[BITMAP_TARGET_HP], widget->x1 + 5, widget->y1 + 25, &box, NULL);
 		}
 
 		if (ptr)
 		{
 			/* Draw the name of the target */
-			StringBlt(ScreenSurface, &SystemFont, cpl.target_name, x + 35, y + 3, cpl.target_color, NULL, NULL);
+			StringBlt(ScreenSurface, &SystemFont, cpl.target_name, widget->x1 + 35, widget->y1 + 3, cpl.target_color, NULL, NULL);
 
 			/* Either draw HP remaining percent and description... */
 			if (hp_tmp > 0)
@@ -2368,26 +2372,40 @@ void widget_show_target(int x, int y)
 				snprintf(hp_text, sizeof(hp_text), "HP: %d%%", hp_tmp);
 
 				if (hp_tmp > 90)
+				{
 					hp_color = COLOR_GREEN;
+				}
 				else if (hp_tmp > 75)
+				{
 					hp_color = COLOR_DGOLD;
+				}
 				else if (hp_tmp > 50)
+				{
 					hp_color = COLOR_HGOLD;
+				}
 				else if (hp_tmp > 25)
+				{
 					hp_color = COLOR_ORANGE;
+				}
 				else if (hp_tmp > 10)
+				{
 					hp_color = COLOR_YELLOW;
+				}
 				else
+				{
 					hp_color = COLOR_RED;
+				}
 
-				StringBlt(ScreenSurface, &SystemFont, hp_text, x + 35, y + 14, hp_color, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, hp_text, widget->x1 + 35, widget->y1 + 14, hp_color, NULL, NULL);
 				xhpoffset = 50;
 
-				StringBlt(ScreenSurface, &SystemFont, ptr, x + 35 + xhpoffset, y + 14, cpl.target_color, NULL, NULL);
+				StringBlt(ScreenSurface, &SystemFont, ptr, widget->x1 + 35 + xhpoffset, widget->y1 + 14, cpl.target_color, NULL, NULL);
 			}
 			/* Or draw just the description */
 			else
-				StringBlt(ScreenSurface, &SystemFont, ptr, x + 35, y + 14, cpl.target_color, NULL, NULL);
+			{
+				StringBlt(ScreenSurface, &SystemFont, ptr, widget->x1 + 35, widget->y1 + 14, cpl.target_color, NULL, NULL);
+			}
 		}
 	}
 }
@@ -2402,7 +2420,7 @@ int get_quickslot(int x, int y)
 	int i, j;
 	int qsx, qsy, xoff;
 
-	if (cur_widget[QUICKSLOT_ID].ht > 34)
+	if (cur_widget[QUICKSLOT_ID]->ht > 34)
 	{
 		qsx = 1;
 		qsy = 0;
@@ -2419,7 +2437,7 @@ int get_quickslot(int x, int y)
 	{
 		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
 
-		if (x >= cur_widget[QUICKSLOT_ID].x1 + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID].x1 + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID].y1 + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID].y1 + quickslots_pos[i][qsy] + 32)
+		if (x >= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] + 32)
 			return j;
 	}
 
@@ -2429,15 +2447,16 @@ int get_quickslot(int x, int y)
 /**
  * Show quickslots widget.
  * @param x X position of the quickslots
- * @param y Y position of the quickslots */
-void widget_quickslots(int x, int y)
+ * @param y Y position of the quickslots
+ * @param vertical_quickslot Is the quickslot vertical? 1 for vertical, 0 for horizontal. */
+void show_quickslots(int x, int y, int vertical_quickslot)
 {
 	int i, j, mx, my;
 	char buf[16];
 	int qsx, qsy, xoff;
 
 	/* Figure out which bitmap to use */
-	if (cur_widget[QUICKSLOT_ID].ht > 34)
+	if (vertical_quickslot)
 	{
 		qsx = 1;
 		qsy = 0;
@@ -2472,7 +2491,7 @@ void widget_quickslots(int x, int y)
 				sprite_blt(spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], NULL, NULL);
 
 				/* If mouse is over the quickslot, show a tooltip */
-				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
+				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 					show_tooltip(mx, my, spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].name);
 			}
 			/* Item in quickslot */
@@ -2487,7 +2506,7 @@ void widget_quickslots(int x, int y)
 					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
 
 					/* And show tooltip, if mouse is over it */
-					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33 && GetMouseState(&mx, &my, QUICKSLOT_ID))
+					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 					{
 						show_tooltip(mx, my, tmp->s_name);
 					}
@@ -2503,10 +2522,19 @@ void widget_quickslots(int x, int y)
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
 
 	/* Now output the group */
-	if (cur_widget[QUICKSLOT_ID].ht > 34)
+	if (vertical_quickslot)
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x + 3, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
 	else
 		StringBlt(ScreenSurface, &Font6x3Out, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+}
+
+/** We come here for quickslots shown during the game */
+void widget_quickslots(widgetdata *widget)
+{
+	if (widget->ht > 34)
+		show_quickslots(widget->x1, widget->y1, 1);
+	else
+		show_quickslots(widget->x1, widget->y1, 0);
 }
 
 /**
@@ -2514,7 +2542,7 @@ void widget_quickslots(int x, int y)
  * @param x Mouse X position
  * @param y Mouse Y position
  * @param MEvent Mouse event */
-void widget_quickslots_mouse_event(int x, int y, int MEvent)
+void widget_quickslots_mouse_event(widgetdata *widget, int x, int y, int MEvent)
 {
 	/* Mouseup Event */
 	if (MEvent == 1)
@@ -2625,81 +2653,19 @@ void widget_quickslots_mouse_event(int x, int y, int MEvent)
 			snprintf(buf, sizeof(buf), "qs unset %d", ind + 1);
 			cs_write_string(csocket.fd, buf, strlen(buf));
 		}
-		else if (x >= cur_widget[QUICKSLOT_ID].x1 + 266 && x <= cur_widget[QUICKSLOT_ID].x1 + 282 && y >= cur_widget[QUICKSLOT_ID].y1 && y <= cur_widget[QUICKSLOT_ID].y1 + 34 && (cur_widget[QUICKSLOT_ID].ht <= 34))
+		else if (x >= widget->x1 + 266 && x <= widget->x1 + 282 && y >= widget->y1 && y <= widget->y1 + 34 && (widget->ht <= 34))
 		{
-			cur_widget[QUICKSLOT_ID].wd = 34;
-			cur_widget[QUICKSLOT_ID].ht = 282;
-			cur_widget[QUICKSLOT_ID].x1 += 266;
+			widget->wd = 34;
+			widget->ht = 282;
+			widget->x1 += 266;
 		}
-		else if (x >= cur_widget[QUICKSLOT_ID].x1 && x <= cur_widget[QUICKSLOT_ID].x1 + 34 && y >= cur_widget[QUICKSLOT_ID].y1 && y <= cur_widget[QUICKSLOT_ID].y1 + 15 && (cur_widget[QUICKSLOT_ID].ht > 34))
+		else if (x >= widget->x1 && x <= widget->x1 + 34 && y >= widget->y1 && y <= widget->y1 + 15 && (widget->ht > 34))
 		{
-			cur_widget[QUICKSLOT_ID].wd = 282;
-			cur_widget[QUICKSLOT_ID].ht = 34;
-			cur_widget[QUICKSLOT_ID].x1 -= 266;
+			widget->wd = 282;
+			widget->ht = 34;
+			widget->x1 -= 266;
 		}
 	}
-}
-
-/**
- * Show non-widget quickslots.
- * Used to display quickslots in the spell menu.
- * @param x X position of the quickslots
- * @param y Y position of the quickslots */
-void show_quickslots(int x, int y)
-{
-	int i, mx, my, j;
-	char buf[16];
-	int qsx, qsy, xoff;
-
-	qsx = 0;
-	qsy = 1;
-	xoff = -17;
-	sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
-
-	SDL_GetMouseState(&mx, &my);
-	update_quickslots(-1);
-
-	/* Loop through the quickslots */
-	for (i = 0; i < MAX_QUICK_SLOTS; i++)
-	{
-		/* Calculate the real quickslot */
-		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
-
-		/* If it's not empty */
-		if (quick_slots[j].tag != -1)
-		{
-			/* Spell in quickslot */
-			if (quick_slots[j].spell)
-			{
-				sprite_blt(spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], NULL, NULL);
-
-				/* Show tooltip if mouse is over it */
-				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
-					show_tooltip(mx, my, spell_list[quick_slots[j].groupNr].entry[quick_slots[j].classNr][quick_slots[j].tag].name);
-			}
-			/* Item in quickslot */
-			else
-			{
-				item *tmp = locate_item_from_item(cpl.ob, quick_slots[j].tag);
-
-				if (tmp)
-				{
-					blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy], 0);
-
-					/* Show tooltip if mouse is over it */
-					if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
-						show_tooltip(mx, my, tmp->s_name);
-				}
-			}
-		}
-
-		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
-	}
-
-	/* Write out what group we're in */
-	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
-	StringBlt(ScreenSurface, &Font6x3Out, buf, x - 30, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h - 12, COLOR_DEFAULT, NULL, NULL);
 }
 
 /**
@@ -2730,7 +2696,7 @@ void update_quickslots(int del_item)
  * Show the frames per second widget.
  * @param x X position.
  * @param y Y position. */
-void widget_show_fps(int x, int y)
+void widget_show_fps(widgetdata *widget)
 {
 	char buf[MAX_BUF];
 
@@ -2741,5 +2707,5 @@ void widget_show_fps(int x, int y)
 
 	snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
 
-	StringBlt(ScreenSurface, &SystemFont, buf, x, y, COLOR_DEFAULT, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1, widget->y1, COLOR_DEFAULT, NULL, NULL);
 }

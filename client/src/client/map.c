@@ -115,6 +115,7 @@ void map_draw_map_clear()
 
 void update_map_data(char *name, char *bg_music)
 {
+	widgetdata *widget;
 	int music_fade = 0;
 
 	if (strcmp(bg_music, "no_music"))
@@ -136,8 +137,14 @@ void update_map_data(char *name, char *bg_music)
 	if (name)
 	{
 		strcpy(MapData.name, name);
-		/* Calculate new width of map name widget */
-		cur_widget[MAPNAME_ID].wd = get_string_pixel_length(name, &BigFont);
+
+		/* we need to update all mapname widgets on the screen now.
+		 * not that there should be more than one at a time, but just in case */
+		for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
+		{
+			resize_widget(widget, RESIZE_RIGHT, get_string_pixel_length(name, &BigFont));
+			resize_widget(widget, RESIZE_BOTTOM, BigFont.c[0].h);
+		}
 	}
 }
 

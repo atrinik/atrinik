@@ -37,6 +37,10 @@
 #include <include.h>
 #include <math.h>
 
+/** Widget container alpha background. */
+SDL_Surface     *containerbg = NULL;
+int             old_container_alpha = -1;
+
 /** Server level structure. */
 _server_level server_level;
 
@@ -281,11 +285,12 @@ void init_player_data()
 
 /**
  * Mouse event on player data widget.
+ * @param widget The widget object.
  * @param x Mouse X.
  * @param y Mouse Y. */
-void widget_player_data_event(int x, int y)
+void widget_player_data_event(widgetdata *widget, int x, int y)
 {
-	int mx = x - cur_widget[PLAYER_INFO_ID].x1, my = y - cur_widget[PLAYER_INFO_ID].y1;
+	int mx = x - widget->x1, my = y - widget->y1;
 
 	if (mx >= 184 && mx <= 210 && my >= 5 && my <= 35)
 	{
@@ -298,13 +303,12 @@ void widget_player_data_event(int x, int y)
 
 /**
  * Show player data widget with name, gender, title, etc.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_show_player_data(int x, int y)
+ * @param widget The widget object. */
+void widget_show_player_data(widgetdata *widget)
 {
 	char buf[256];
 
-	sprite_blt(Bitmaps[BITMAP_PLAYER_INFO], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_PLAYER_INFO], widget->x1, widget->y1, NULL, NULL);
 
 	if (cpl.rank[0] != '\0')
 	{
@@ -315,10 +319,10 @@ void widget_show_player_data(int x, int y)
 		strncpy(buf, cpl.pname, sizeof(buf) - 1);
 	}
 
-	StringBlt(ScreenSurface, &SystemFont,buf,x + 6, y + 2, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 2, COLOR_HGOLD, NULL, NULL);
 
 	snprintf(buf, sizeof(buf), "%s %s %s", cpl.gender, cpl.race, cpl.title);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 14, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 14, COLOR_HGOLD, NULL, NULL);
 
 	if (strcmp(cpl.godname, "none"))
 	{
@@ -329,105 +333,104 @@ void widget_show_player_data(int x, int y)
 		strncpy(buf, cpl.alignment, sizeof(buf) - 1);
 	}
 
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 6, y + 26, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 26, COLOR_HGOLD, NULL, NULL);
 
 	/* Prayer button */
-	sprite_blt(Bitmaps[BITMAP_PRAY], x + 184, y + 5, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_PRAY], widget->x1 + 184, widget->y1 + 5, NULL, NULL);
 }
 
 /**
  * Show player stats widget with stats, health, mana, grace, etc.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_player_stats(int x, int y)
+ * @param widget The widget object. */
+void widget_player_stats(widgetdata *widget)
 {
 	double temp;
 	SDL_Rect box;
 	int tmp;
 
 	/* Let's look if we have a backbuffer SF, if not create one from the background */
-	if (!widgetSF[STATS_ID])
+	if (!widget->widgetSF)
 	{
-		widgetSF[STATS_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap, Bitmaps[BITMAP_STATS_BG]->bitmap->format, Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap, Bitmaps[BITMAP_STATS_BG]->bitmap->format, Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
 	}
 
 	/* We have a backbuffer SF, test for the redrawing flag and do the redrawing */
-	if (cur_widget[STATS_ID].redraw)
+	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 		_BLTFX bltfx;
 
-		cur_widget[STATS_ID].redraw = 0;
+		widget->redraw = 0;
 
 		/* We redraw here only all halfway static stuff *
 		 * We simply don't need to redraw that stuff every frame, how often the stats change? */
-		bltfx.surface = widgetSF[STATS_ID];
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.dark_level = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_STATS_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[STATS_ID], &Font6x3Out, "Stats", 8, 1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Stats", 8, 1, COLOR_HGOLD, NULL, NULL);
 
 		/* Strength */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Str);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Str", 8, 17, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 17, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Str", 8, 17, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 17, COLOR_GREEN, NULL, NULL);
 
 		/* Dexterity */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Dex);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Dex", 8, 28, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 28, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Dex", 8, 28, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 28, COLOR_GREEN, NULL, NULL);
 
 		/* Constitution */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Con);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Con", 8, 39, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 39, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Con", 8, 39, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 39, COLOR_GREEN, NULL, NULL);
 
 		/* Intelligence */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Int);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Int", 8, 50, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 50, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Int", 8, 50, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 50, COLOR_GREEN, NULL, NULL);
 
 		/* Wisdom */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Wis);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Wis", 8, 61, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 61, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Wis", 8, 61, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 61, COLOR_GREEN, NULL, NULL);
 
 		/* Power */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Pow);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Pow", 8, 72, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 72, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Pow", 8, 72, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 72, COLOR_GREEN, NULL, NULL);
 
 		/* Charisma */
 		snprintf(buf, sizeof(buf), "%02d", cpl.stats.Cha);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Cha", 8, 83, COLOR_WHITE, NULL, NULL);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 30, 83, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Cha", 8, 83, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 30, 83, COLOR_GREEN, NULL, NULL);
 
 		/* Health */
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Health", 58, 10, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Health", 58, 10, COLOR_WHITE, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.hp, cpl.stats.maxhp);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 10, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 10, COLOR_GREEN, NULL, NULL);
 
 		/* Mana */
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Mana", 58, 34, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Mana", 58, 34, COLOR_WHITE, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.sp, cpl.stats.maxsp);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 34, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 34, COLOR_GREEN, NULL, NULL);
 
 		/* Grace */
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Grace", 58, 58, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Grace", 58, 58, COLOR_WHITE, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d (%d)", cpl.stats.grace, cpl.stats.maxgrace);
-		StringBlt(widgetSF[STATS_ID], &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 58, COLOR_GREEN, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 160 - get_string_pixel_length(buf, &SystemFont), 58, COLOR_GREEN, NULL, NULL);
 
 		/* Food */
-		StringBlt(widgetSF[STATS_ID], &SystemFont, "Food", 58, 84, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Food", 58, 84, COLOR_WHITE, NULL, NULL);
 	}
 
 	/* Now we blit our backbuffer SF */
-	box.x = x;
-	box.y = y;
-	SDL_BlitSurface(widgetSF[STATS_ID], NULL, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 
 	/* Health bar */
 	if (cpl.stats.maxhp)
@@ -443,7 +446,7 @@ void widget_player_stats(int x, int y)
 		box.x = 0;
 		box.y = 0;
 		box.h = Bitmaps[BITMAP_HP]->bitmap->h;
-		box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w*temp);
+		box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w * temp);
 
 		if (tmp && !box.w)
 		{
@@ -455,8 +458,8 @@ void widget_player_stats(int x, int y)
 			box.w = Bitmaps[BITMAP_HP]->bitmap->w;
 		}
 
-		sprite_blt(Bitmaps[BITMAP_HP_BACK], x + 57, y + 23, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_HP], x + 57, y + 23, &box, NULL);
+		sprite_blt(Bitmaps[BITMAP_HP_BACK], widget->x1 + 57, widget->y1 + 23, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_HP], widget->x1 + 57, widget->y1 + 23, &box, NULL);
 	}
 
 	/* Mana bar */
@@ -485,8 +488,8 @@ void widget_player_stats(int x, int y)
 			box.w = Bitmaps[BITMAP_SP]->bitmap->w;
 		}
 
-		sprite_blt(Bitmaps[BITMAP_SP_BACK], x + 57, y + 47, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_SP], x + 57, y + 47, &box, NULL);
+		sprite_blt(Bitmaps[BITMAP_SP_BACK], widget->x1 + 57, widget->y1 + 47, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_SP], widget->x1 + 57, widget->y1 + 47, &box, NULL);
 	}
 
 	/* Grace bar */
@@ -516,8 +519,8 @@ void widget_player_stats(int x, int y)
 			box.w = Bitmaps[BITMAP_GRACE]->bitmap->w;
 		}
 
-		sprite_blt(Bitmaps[BITMAP_GRACE_BACK], x + 57, y + 71, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_GRACE], x + 57, y + 71, &box, NULL);
+		sprite_blt(Bitmaps[BITMAP_GRACE_BACK], widget->x1 + 57, widget->y1 + 71, NULL, NULL);
+		sprite_blt(Bitmaps[BITMAP_GRACE], widget->x1 + 57, widget->y1 + 71, &box, NULL);
 	}
 
 	/* Food bar */
@@ -544,8 +547,8 @@ void widget_player_stats(int x, int y)
 		box.w = Bitmaps[BITMAP_FOOD]->bitmap->w;
 	}
 
-	sprite_blt(Bitmaps[BITMAP_FOOD_BACK], x + 87, y + 88, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_FOOD], x + 87, y + 88, &box, NULL);
+	sprite_blt(Bitmaps[BITMAP_FOOD_BACK], widget->x1 + 87, widget->y1 + 88, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_FOOD], widget->x1 + 87, widget->y1 + 88, &box, NULL);
 }
 
 /**
@@ -553,11 +556,10 @@ void widget_player_stats(int x, int y)
  *
  * Menu buttons contain things like the Party button, spell list button,
  * etc.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_menubuttons(int x, int y)
+ * @param widget The widget object. */
+void widget_menubuttons(widgetdata *widget)
 {
-	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
 }
 
 /**
@@ -565,11 +567,12 @@ void widget_menubuttons(int x, int y)
  *
  * Basically calls the right functions depending on which button was
  * clicked.
+ * @param widget The widget object.
  * @param x X position of the mouse.
  * @param y Y position of the mouse. */
-void widget_menubuttons_event(int x, int y)
+void widget_menubuttons_event(widgetdata *widget, int x, int y)
 {
-	int dx = x - cur_widget[MENU_B_ID].x1, dy = y - cur_widget[MENU_B_ID].y1;
+	int dx = x - widget->x1, dy = y - widget->y1;
 
 	if (dx >= 3 && dx <= 44)
 	{
@@ -598,65 +601,64 @@ void widget_menubuttons_event(int x, int y)
 
 /**
  * Show skill groups widget.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_skillgroups(int x, int y)
+ * @param widget The widget object. */
+void widget_skillgroups(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	if (!widgetSF[SKILL_LVL_ID])
+	if (!widget->widgetSF)
 	{
-		widgetSF[SKILL_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
 	}
 
-	if (cur_widget[SKILL_LVL_ID].redraw)
+	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 		_BLTFX bltfx;
 
-		cur_widget[SKILL_LVL_ID].redraw = 0;
-		bltfx.surface = widgetSF[SKILL_LVL_ID];
+		widget->redraw = 0;
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[BITMAP_SKILL_LVL_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[SKILL_LVL_ID], &Font6x3Out, "Skill Groups", 3, 1, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &Font6x3Out, "name / level", 3, 13, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Skill Groups", 3, 1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "name / level", 3, 13, COLOR_HGOLD, NULL, NULL);
 
 		/* Agility */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[0]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ag:", 6, 26, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 26, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Ag:", 6, 26, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 26, COLOR_WHITE, NULL, NULL);
 
 		/* Mental */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[2]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Me:", 6, 38, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 38, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Me:", 6, 38, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 38, COLOR_WHITE, NULL, NULL);
 
 		/* Magic */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[4]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ma:", 6, 49, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 49, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Ma:", 6, 49, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 49, COLOR_WHITE, NULL, NULL);
 
 		/* Personality */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[1]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Pe:", 6, 62, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 62, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Pe:", 6, 62, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 62, COLOR_WHITE, NULL, NULL);
 
 		/* Physique */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[3]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Ph:", 6, 74, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 74, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Ph:", 6, 74, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 74, COLOR_WHITE, NULL, NULL);
 
 		/* Wisdom */
 		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[5]);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, "Wi:", 6, 86, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_LVL_ID], &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 86, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Wi:", 6, 86, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 44 - get_string_pixel_length(buf, &SystemFont), 86, COLOR_WHITE, NULL, NULL);
 	}
 
-	box.x = x;
-	box.y = y;
-	SDL_BlitSurface(widgetSF[SKILL_LVL_ID], NULL, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 }
 
 /**
@@ -699,9 +701,8 @@ void widget_show_player_doll_event()
 
 /**
  * Show player doll widget with applied items from inventory.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_show_player_doll(int x, int y)
+ * @param widget The widget object. */
+void widget_show_player_doll(widgetdata *widget)
 {
 	item *tmp;
 	char *tooltip_text = NULL;
@@ -722,7 +723,7 @@ void widget_show_player_doll(int x, int y)
 		ws_temp = 18;
 	}
 
-	sprite_blt(Bitmaps[BITMAP_DOLL], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_DOLL], widget->x1, widget->y1, NULL, NULL);
 
 	if (!cpl.ob)
 	{
@@ -730,29 +731,29 @@ void widget_show_player_doll(int x, int y)
 	}
 
 	/* Armour class */
-	StringBlt(ScreenSurface, &SystemFont, "AC", x + 8, y + 50, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "AC", widget->x1 + 8, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%02d", cpl.stats.ac);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 25, y + 50, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 25, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
 
 	/* Weapon class */
-	StringBlt(ScreenSurface, &SystemFont, "WC", x + 150, y + 50, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "WC", widget->x1 + 150, widget->y1 + 50, COLOR_HGOLD, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%02d", cpl.stats.wc);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 50, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 50, COLOR_WHITE, NULL, NULL);
 
 	/* Damage */
-	StringBlt(ScreenSurface, &SystemFont, "DMG", x + 150, y + 60, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "DMG", widget->x1 + 150, widget->y1 + 60, COLOR_HGOLD, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%02d", cpl.stats.dam);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 60, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 60, COLOR_WHITE, NULL, NULL);
 
 	/* Weapon speed */
-	StringBlt(ScreenSurface, &SystemFont, "WS", x + 150, y + 70, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "WS", widget->x1 + 150, widget->y1 + 70, COLOR_HGOLD, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%3.2f sec", weapon_speed_table[ws_temp]);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 173, y + 70, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 70, COLOR_WHITE, NULL, NULL);
 
 	/* Moving speed */
-	StringBlt(ScreenSurface, &SystemFont, "Speed ", x + 47, y + 190, COLOR_HGOLD, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, "Speed ", widget->x1 + 47, widget->y1 + 190, COLOR_HGOLD, NULL, NULL);
 	snprintf(buf, sizeof(buf), "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 75, y + 190, COLOR_WHITE, NULL, NULL);
+	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 75, widget->y1 + 190, COLOR_WHITE, NULL, NULL);
 
 	/* Show items applied */
 	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
@@ -834,11 +835,11 @@ void widget_show_player_doll(int x, int y)
 			if (index != -1)
 			{
 				int mb;
-				blt_inv_item_centered(tmp, player_doll[index].xpos + x, player_doll[index].ypos + y);
+				blt_inv_item_centered(tmp, player_doll[index].xpos + widget->x1, player_doll[index].ypos + widget->y1);
 				mb = SDL_GetMouseState(&mx, &my);
 
 				/* Prepare item name tooltip */
-				if (mx >= x + player_doll[index].xpos && mx < x + player_doll[index].xpos + 33 && my >= y + player_doll[index].ypos && my < y + player_doll[index].ypos + 33)
+				if (mx >= widget->x1 + player_doll[index].xpos && mx < widget->x1 + player_doll[index].xpos + 33 && my >= widget->y1 + player_doll[index].ypos && my < widget->y1 + player_doll[index].ypos + 33)
 				{
 					tooltip_index = index;
 					tooltip_text = tmp->s_name;
@@ -865,45 +866,44 @@ void widget_show_player_doll(int x, int y)
  *
  * Contains the player's level, experience in highest skill, and percent
  * in bubbles to how close you are to next level.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_show_main_lvl(int x, int y)
+ * @param widget The widget object. */
+void widget_show_main_lvl(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	if (!widgetSF[MAIN_LVL_ID])
+	if (!widget->widgetSF)
 	{
-		widgetSF[MAIN_LVL_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
 	}
 
-	if (cur_widget[MAIN_LVL_ID].redraw)
+	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 		double multi, line;
 		int s, level_exp;
 		_BLTFX bltfx;
 
-		cur_widget[MAIN_LVL_ID].redraw = 0;
-		bltfx.surface = widgetSF[MAIN_LVL_ID];
+		widget->redraw = 0;
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_MAIN_LVL_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[MAIN_LVL_ID], &Font6x3Out, "Level / Exp", 4, 1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Level / Exp", 4, 1, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%d", cpl.stats.level);
 
 		if (cpl.stats.level == server_level.level)
 		{
-			StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_HGOLD, NULL, NULL);
+			StringBlt(widget->widgetSF, &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_HGOLD, NULL, NULL);
 		}
 		else
 		{
-			StringBlt(widgetSF[MAIN_LVL_ID], &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
+			StringBlt(widget->widgetSF, &BigFont, buf, 91 - get_string_pixel_length(buf, &BigFont), 4, COLOR_WHITE, NULL, NULL);
 		}
 
 		snprintf(buf, sizeof(buf), "%d", cpl.stats.exp);
-		StringBlt(widgetSF[MAIN_LVL_ID], &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 5, 20, COLOR_WHITE, NULL, NULL);
 
 		/* Calculate the exp bubbles */
 		level_exp = cpl.stats.exp - server_level.exp[cpl.stats.level];
@@ -942,16 +942,15 @@ void widget_show_main_lvl(int x, int y)
 		}
 	}
 
-	box.x = x;
-	box.y = y;
-	SDL_BlitSurface(widgetSF[MAIN_LVL_ID], NULL, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 }
 
 /**
  * Show skill experience widget. This also includes the action timer.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_show_skill_exp(int x, int y)
+ * @param widget The widget object. */
+void widget_show_skill_exp(widgetdata *widget)
 {
 	SDL_Rect box;
 	static uint32 action_tick = 0;
@@ -969,7 +968,7 @@ void widget_show_skill_exp(int x, int y)
 			}
 
 			action_tick = LastTick;
-			WIDGET_REDRAW(SKILL_EXP_ID);
+			WIDGET_REDRAW(widget);
 		}
 	}
 	else
@@ -977,12 +976,12 @@ void widget_show_skill_exp(int x, int y)
 		action_tick = LastTick;
 	}
 
-	if (!widgetSF[SKILL_EXP_ID])
+	if (!widget->widgetSF)
 	{
-		widgetSF[SKILL_EXP_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
 	}
 
-	if (cur_widget[SKILL_EXP_ID].redraw)
+	if (widget->redraw)
 	{
 		int s, level_exp;
 		_BLTFX bltfx;
@@ -994,15 +993,15 @@ void widget_show_skill_exp(int x, int y)
 		float fLExpPercent = 0;
 		double multi = 0, line = 0;
 
-		cur_widget[SKILL_EXP_ID].redraw = 0;
-		bltfx.surface = widgetSF[SKILL_EXP_ID];
+		widget->redraw = 0;
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_SKILL_EXP_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[SKILL_EXP_ID], &Font6x3Out, "Used", 4, -1, COLOR_HGOLD, NULL, NULL);
-		StringBlt(widgetSF[SKILL_EXP_ID], &Font6x3Out, "Skill", 4, 7, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Used", 4, -1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Skill", 4, 7, COLOR_HGOLD, NULL, NULL);
 
 		if (cpl.skill_name[0] != '\0')
 		{
@@ -1031,7 +1030,7 @@ void widget_show_skill_exp(int x, int y)
 					break;
 			}
 
-			StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 28, 0, COLOR_WHITE, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, buf, 28, 0, COLOR_WHITE, NULL, NULL);
 
 			if (skill_list[cpl.skill_g].entry[cpl.skill_e].exp >= 0)
 			{
@@ -1125,10 +1124,10 @@ void widget_show_skill_exp(int x, int y)
 				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
 			}
 
-			StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 28, 9, COLOR_WHITE, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, buf, 28, 9, COLOR_WHITE, NULL, NULL);
 
 			snprintf(buf, sizeof(buf), "%1.2f sec", cpl.action_timer);
-			StringBlt(widgetSF[SKILL_EXP_ID], &SystemFont, buf, 160, 0, COLOR_WHITE, NULL, NULL);
+			StringBlt(widget->widgetSF, &SystemFont, buf, 160, 0, COLOR_WHITE, NULL, NULL);
 		}
 
 		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 143, 11, NULL, &bltfx);
@@ -1162,14 +1161,15 @@ void widget_show_skill_exp(int x, int y)
 		}
 	}
 
-	box.x = x;
-	box.y = y;
-	SDL_BlitSurface(widgetSF[SKILL_EXP_ID], NULL, ScreenSurface, &box);
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 }
 
 /**
- * Handle mouse events over skill experience widget. */
-void widget_skill_exp_event()
+ * Handle mouse events over skill experience widget.
+ * @param widget The widget object. */
+void widget_skill_exp_event(widgetdata *widget)
 {
 	int i, ii, j, jj, bFound = 0;
 
@@ -1219,53 +1219,338 @@ void widget_skill_exp_event()
 		}
 	}
 
-	WIDGET_REDRAW(SKILL_EXP_ID);
+	WIDGET_REDRAW(widget);
 }
 
 /**
  * Show regeneration widget.
- * @param x X position of the widget.
- * @param y Y position of the widget. */
-void widget_show_regeneration(int x, int y)
+ * @param widget The widget object. */
+void widget_show_regeneration(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	if (!widgetSF[REGEN_ID])
+	if (!widget->widgetSF)
 	{
-		widgetSF[REGEN_ID] = SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap, Bitmaps[BITMAP_REGEN_BG]->bitmap->format, Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap, Bitmaps[BITMAP_REGEN_BG]->bitmap->format, Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
 	}
 
-	if (cur_widget[REGEN_ID].redraw)
+	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 		_BLTFX bltfx;
 
-		cur_widget[REGEN_ID].redraw = 0;
-		bltfx.surface = widgetSF[REGEN_ID];
+		widget->redraw = 0;
+		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_REGEN_BG], 0, 0, NULL, &bltfx);
 
-		StringBlt(widgetSF[REGEN_ID], &Font6x3Out, "Regeneration", 4, 1, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &Font6x3Out, "Regeneration", 4, 1, COLOR_HGOLD, NULL, NULL);
 
 		/* Health */
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, "HP", 61, 13, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "HP", 61, 13, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_hp);
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 75, 13, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 75, 13, COLOR_WHITE, NULL, NULL);
 
 		/* Mana */
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, "Mana", 5, 13, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Mana", 5, 13, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_sp);
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 35, 13, COLOR_WHITE, NULL, NULL);
+		StringBlt(cur_widget[REGEN_ID]->widgetSF, &SystemFont, buf, 35, 13, COLOR_WHITE, NULL, NULL);
 
 		/* Grace */
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, "Grace", 5, 24, COLOR_HGOLD, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, "Grace", 5, 24, COLOR_HGOLD, NULL, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f", cpl.gen_grace);
-		StringBlt(widgetSF[REGEN_ID], &SystemFont, buf, 35, 24, COLOR_WHITE, NULL, NULL);
+		StringBlt(widget->widgetSF, &SystemFont, buf, 35, 24, COLOR_WHITE, NULL, NULL);
 	}
 
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
+}
+
+/**
+ * Show container widget.
+ * @param widget The widget object. */
+void widget_show_container(widgetdata *widget)
+{
+	SDL_Rect   box, box2;
+	_BLTFX     bltfx;
+	int        x = widget->x1;
+	int        y = widget->y1;
+
+	/* special case, menuitem is highlighted when mouse is moved over it */
+	if (widget->WidgetSubtypeID == MENU_ID)
+	{
+		widget_highlight_menu(widget);
+	}
+
+	box.x = box.y = 0;
+	box.w = widget->wd;
+	box.h = widget->ht;
+
+	/* if we don't have a backbuffer, create it */
+	if (!widget->widgetSF || old_alpha_option != options.use_TextwinAlpha)
+	{
+		/* need to do this, or the foreground could be semi-transparent too */
+		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
+		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
+		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widget->widgetSF->format, 0, 0, 0));
+	}
+
+	/* backbuffering is a bit trickier
+	 * we always blit the background extra because of the alpha */
+	if (options.use_TextwinAlpha)
+	{
+		if (old_container_alpha != options.textwin_alpha || old_alpha_option != options.use_TextwinAlpha)
+		{
+			if (containerbg)
+			{
+				SDL_FreeSurface(containerbg);
+			}
+
+			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
+			containerbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
+			SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
+
+			old_container_alpha = options.textwin_alpha;
+
+			WIDGET_REDRAW(widget);
+		}
+		box2.x = x;
+		box2.y = y;
+		SDL_BlitSurface(containerbg, &box, ScreenSurface, &box2);
+	}
+	else
+	{
+		if (old_alpha_option != options.use_TextwinAlpha)
+		{
+			WIDGET_REDRAW(widget);
+		}
+
+		sprite_blt(Bitmaps[BITMAP_TEXTWIN], x, y, &box, NULL);
+	}
+
+	/* lets draw the widgets in the backbuffer */
+	if (widget->redraw)
+	{
+		widget->redraw = 0;
+
+		SDL_FillRect(widget->widgetSF, NULL, SDL_MapRGBA(widget->widgetSF->format, 0, 0, 0, options.textwin_alpha));
+
+		bltfx.surface = widget->widgetSF;
+		bltfx.flags = 0;
+		bltfx.alpha = 0;
+		if (options.use_TextwinAlpha)
+		{
+			box.x = 0;
+			box.y = 0;
+			box.h = 1;
+			box.w = widget->wd;
+			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+			box.y = widget->ht;
+			box.h = 1;
+			box.x = 0;
+			box.w = widget->wd;
+			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+			box.w = widget->wd;
+			box.x = box.w - 1;
+			box.w = 1;
+			box.y = 0;
+			box.h = widget->ht;
+			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+			box.x = 0;
+			box.y = 0;
+			box.h = widget->ht;
+			box.w = 1;
+			SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
+		}
+	}
 	box.x = x;
 	box.y = y;
-	SDL_BlitSurface(widgetSF[REGEN_ID], NULL, ScreenSurface, &box);
+	box2.x = 0;
+	box2.y = 0;
+	box2.w = widget->wd;
+	box2.h = widget->ht + 1;
+
+	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
+}
+
+void widget_highlight_menu(widgetdata *widget)
+{
+	widgetdata *tmp, *tmp2, *tmp3;
+	_menu *menu = NULL, *tmp_menu = NULL;
+    _menuitem *menuitem = NULL;
+	int visible, create_submenu = 0, x = 0, y = 0;
+
+	/* Sanity check. Make sure widget is a menu. */
+	if (!widget || widget->WidgetSubtypeID != MENU_ID)
+	{
+		return;
+	}
+
+	/* Check to see if the cursor is hovering over a menuitem or a widget inside it.
+	 * We don't need to go recursive here, just scan the immediate children. */
+	for (tmp = widget->inv; tmp; tmp = tmp->next)
+	{
+		visible = 0;
+
+		/* Menuitem is being directly hovered over. Make the background visible for visual feedback. */
+		if (tmp == widget_mouse_event.owner)
+		{
+			visible = 1;
+		}
+		/* The cursor is hovering over something the menuitem contains. This only needs to search the direct children,
+		 * as there should be nothing contained within the children. */
+		else if (tmp->inv)
+		{
+			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->next)
+			{
+				if (tmp2 == widget_mouse_event.owner)
+				{
+					/* The cursor was hovering over something inside the menuitem. */
+					visible = 1;
+					break;
+				}
+			}
+		}
+
+		/* Only do any real working if the state of the menuitem changed. */
+		if (tmp->visible == visible)
+		{
+			continue;
+		}
+
+		menu = MENU(widget);
+		menuitem = MENUITEM(tmp);
+
+		/* Cursor has just started to hover over the menuitem. */
+		if (visible)
+		{
+			tmp->visible = 1;
+
+			/* If the highlighted menuitem is a submenu, we need to create a submenu next to the menuitem. */
+			if (menuitem->menu_type == MENU_SUBMENU)
+			{
+				create_submenu = 1;
+				x = tmp->x1 + tmp->wd;
+				y = tmp->y1 - (CONTAINER(widget))->outer_padding_top;
+			}
+		}
+		/* Cursor no longer hovers over the menuitem. */
+		else
+		{
+			tmp->visible = 0;
+
+			/* Let's check if we need to remove the submenu.
+			 * Don't remove it if the cursor is hovering over the submenu itself,
+			 * or a submenu of the submenu, etc. */
+			if (menuitem->menu_type == MENU_SUBMENU && menu->submenu)
+			{
+				/* This will for sure get the menu that the cursor is hovering over. */
+				tmp2 = get_outermost_container(widget_mouse_event.owner);
+
+				/* Just in case the 'for sure' part of the last comment turns out to be incorrect... */
+				if (tmp2 && tmp2->WidgetSubtypeID == MENU_ID)
+				{
+					/* Loop through the submenus to see if we find a match for the menu the cursor is hovering over. */
+					for (tmp_menu = menu; tmp_menu->submenu && tmp_menu->submenu != tmp2; tmp_menu = MENU(tmp_menu->submenu))
+					{
+						;
+					}
+
+					/* Remove any submenus related to menu if the menu underneath the cursor is not a submenu of menu. */
+					if (!tmp_menu->submenu)
+					{
+						tmp2 = menu->submenu;
+						while (tmp2)
+						{
+							tmp3 = (MENU(tmp2))->submenu;
+							remove_widget_object(tmp2);
+							tmp2 = tmp3;
+						}
+						menu->submenu = NULL;
+					}
+					else
+					{
+						/* Cursor is hovering over the submenu, so leave this menuitem highlighted. */
+						tmp->visible = 1;
+					}
+				}
+				/* Cursor is not over a menu, so leave the menuitem containing the submenu highlighted.
+				 * We want to keep the submenu open, which should reduce annoyance if the user is not precise with the mouse. */
+				else
+				{
+					tmp->visible = 1;
+				}
+			}
+		}
+	}
+
+	/* If a submenu needs to be created, create it now. Make sure there can be only one submenu open here. */
+	if (create_submenu && !menu->submenu)
+	{
+		tmp_menu = MENU(widget);
+
+		tmp_menu->submenu = create_menu(x, y, tmp_menu->owner);
+		/* TODO: Remove this later. It's hardcoded here for testing. */
+		submenu_chatwindow_filters(tmp_menu->submenu, 0, 0);
+		add_menuitem(tmp_menu->submenu, "Test", &menu_detach_widget, MENU_SUBMENU);
+		add_menuitem(tmp_menu->submenu, "Test2", &menu_detach_widget, MENU_SUBMENU);
+	}
+}
+
+/** Handles events when the menuitem is clicked on. */
+void widget_menu_event(widgetdata *widget, int x, int y)
+{
+	widgetdata *tmp;
+	_menuitem *menuitem;
+
+	/* Bypass this code when unnecessary, such as when a menu doesn't exist. */
+	if (!cur_widget[MENU_ID])
+	{
+		return;
+	}
+
+	tmp = widget;
+
+	/* If the widget isnt a menuitem, the user probably clicked on a widget it contains.
+	 * In that case, the parent is probably the menuitem, so grab that instead. */
+	if (tmp->WidgetSubtypeID != MENUITEM_ID && tmp->env && tmp->env->WidgetSubtypeID == MENUITEM_ID)
+	{
+		tmp = tmp->env;
+	}
+
+	/* Make sure the menuitem is in a menu first as a sanity check. If so, we found the menu. */
+	if (tmp->env && tmp->env->WidgetSubtypeID == MENU_ID)
+	{
+		menuitem = MENUITEM(tmp);
+		/* Get the owner of the menu to do the operations on,
+		 * (this is what the user would have right clicked on).
+		 * Make it the mouse owner as this is what the user is interacting with. */
+		widget_mouse_event.owner = (MENU(tmp->env))->owner;
+		if (widget_mouse_event.owner)
+		{
+			widget_menuitem_event(widget_mouse_event.owner, x, y, menuitem->menu_func_ptr);
+		}
+	}
+}
+
+/** Call the function for the menuitem that was clicked on. */
+void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_ptr)(widgetdata *, int, int))
+{
+	/* sanity check */
+	if (!menu_func_ptr)
+	{
+		return;
+	}
+
+	menu_func_ptr(widget, x, y);
+}
+
+void widget_show_label(widgetdata *widget)
+{
+	_widget_label *label = LABEL(widget);
+
+	StringBlt(ScreenSurface, label->font, label->text, widget->x1, widget->y1, label->color, NULL, NULL);
 }

@@ -33,18 +33,6 @@
 #define TEXT_WIN_MAX 		250
 #define MAX_KEYWORD_LEN 	256
 
-/* we need a backup of the TW_MIX.size */
-extern int txtwin_start_size;
-
-/* windows */
-enum
-{
-	TW_MIX,
-	TW_MSG,
-	TW_CHAT,
-	TW_SUM
-};
-
 /* Events */
 enum
 {
@@ -67,9 +55,8 @@ enum
 /* Flags */
 enum
 {
-	TW_ACTWIN = 0x0f,
-	TW_SCROLL = 0x10,
-	TW_RESIZE = 0x20
+	TW_SCROLL = 0x01,
+	TW_RESIZE = 0x02
 };
 
 /** Text buf structure */
@@ -91,40 +78,40 @@ typedef struct _text_buf
 	int key_clipped;
 }_text_buf;
 
-/** Text win structure */
-typedef struct _textwin_set
+/** Custom attributes for text window widgets. */
+struct _textwin
 {
 	/** startpos of the window */
 	int x, y;
 
-	/** Number or printed textlines */
+	/** number or printed textlines */
 	int size;
 
-	/** Scroll offset */
+	/** scroll offset */
 	int scroll;
 
-	/** First printed textline */
+	/** first printed textline */
 	int top_drawLine;
 
-	/** Last printed textline */
+	/** last printed textline */
 	int bot_drawLine;
 
 	/** 0 ... TEXTWIN_MAX */
 	int act_bufsize;
 
-	/** Height of the scrollbar-slider  */
+	/** height of the scrollbar-slider  */
 	int slider_h;
 
-	/** Start pos of the scrollbar-slider */
+	/** start pos of the scrollbar-slider */
 	int slider_y;
 
-	/** Which part to highlight */
+	/** which part to highlight */
 	int highlight;
 
+	/** buffer for text */
 	_text_buf text[TEXT_WIN_MAX];
-}_textwin_set;
+};
 
-extern _textwin_set txtwin[TW_SUM];
 extern int textwin_flags;
 
 #endif
